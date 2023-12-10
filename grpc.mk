@@ -9,6 +9,10 @@ gen-server: .pre-gen-server .gen-server
 	mkdir -p pkg/
 
 .gen-server:
-	protoc --go_out=./pkg/ --go-grpc_out=./pkg/ \
+	protoc \
+	--go_out=./pkg/ \
+	--go-grpc_out=./pkg/ \
+	--grpc-gateway_out ./pkg/ \
+	-I=./api \
 	--proto_path=. \
-	./api/*.proto
+	./api/grpc/*.proto

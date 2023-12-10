@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package velez_api;
+
+import "google/api/annotations.proto";
+
+option go_package = "/velez_api";
+
+service VelezAPI {
+  rpc Version(Version.Request) returns (Version.Response) {
+    option (google.api.http) = {
+      post: "/v1/version"
+      body: "*"
+    };
+  };
+}
+
+message Version {
+  message Request {}
+
+  message Response {
+    string version = 1;
+  }
+}
+

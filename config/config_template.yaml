@@ -3,5 +3,7 @@ app_info:
     version: 0.0.1
     startup_duration: 10s
 data_sources: []
-server: []
+server:
+    - name: grpc
+      port: 50051
 environment: {}

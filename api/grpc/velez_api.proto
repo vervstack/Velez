@@ -9,7 +9,7 @@ option go_package = "/velez_api";
 service VelezAPI {
   rpc Version(Version.Request) returns (Version.Response) {
     option (google.api.http) = {
-      post: "/v1/version"
+      post: "/version"
       body: "*"
     };
   };

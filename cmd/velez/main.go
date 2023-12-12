@@ -9,6 +9,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/godverv/Velez/internal/config"
+	"github.com/godverv/Velez/internal/transport"
+	"github.com/godverv/Velez/internal/transport/grpc"
 	"github.com/godverv/Velez/internal/utils/closer"
 	//_transport_imports
 )
@@ -33,9 +35,28 @@ func main() {
 		return nil
 	})
 
-	waitingForTheEnd()
+	mgr := transport.NewManager()
 
+	{
+		grpcConf, err := cfg.Api().GRPC(config.ApiGrpc)
+		if err != nil {
+			logrus.Fatalf("error getting grpc from config: %s", err)
+		}
+		mgr.AddServer(grpc.NewServer(cfg, grpcConf))
+	}
+
+	err = mgr.Start(ctx)
+	if err != nil {
+		logrus.Fatalf("error starting api: %s", err)
+	}
+
+	waitingForTheEnd()
 	logrus.Println("shutting down the app")
+
+	err = mgr.Stop(ctx)
+	if err != nil {
+		logrus.Errorf("error stopping api: %s", err)
+	}
 
 	if err = closer.Close(); err != nil {
 		logrus.Fatalf("errors while shutting down application %s", err.Error())
@@ -44,7 +65,7 @@ func main() {
 
 // rscli comment: an obligatory function for tool to work properly.
 // must be called in the main function above
-// also this is a LP song name reference, so no rules can be applied to the function name
+// also this is an LP song name reference, so no rules can be applied to the function name
 func waitingForTheEnd() {
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)

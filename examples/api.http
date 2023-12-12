@@ -1,0 +1,4 @@
+POST localhost:50052/version
+Content-Type: application/json
+
+{}

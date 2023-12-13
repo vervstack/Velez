@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - VERV-*
+permissions:
+  pull-requests: write
 
 jobs:
   create-pull-request-to-dev:

@@ -33,7 +33,7 @@ jobs:
               echo "creating pull request from ${{ github.REF }} to dev branch"
               
               gh pr create \
-                -B main \
+                -B master \
                 -H ${{ github.REF }} \
                 --title 'DEV RELEASE OF ${{ github.REF_NAME }}' \
                 --body 'Created by Github action. \

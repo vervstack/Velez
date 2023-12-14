@@ -36,7 +36,7 @@ jobs:
         uses: ASzc/change-string-case-action@v5
         id: tag
         with:
-          string: echo '${${{ github.ref }}:10}'
+          string: ${{ github.ref }}
 
       - name: Alya pushing
         run: |
@@ -44,7 +44,7 @@ jobs:
           echo '${{ steps.repo_name.outputs.lowercase }}'
           echo '${{ steps.tag.outputs.lowercase }}'
           
-          echo '${{ steps.owner_name.outputs.lowercase }}/${{ steps.repo_name.outputs.lowercase }}:${{ steps.tag.outputs.lowercase }}'
+          echo '${{ steps.owner_name.outputs.lowercase }}/${{ steps.repo_name.outputs.lowercase }}:${${{ steps.tag.outputs.lowercase }}:10}'
 
 #      - name: Build and push
 #        uses: docker/build-push-action@v5

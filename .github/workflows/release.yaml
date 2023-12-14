@@ -18,12 +18,33 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+
+      - name: Define owner name
+        uses: ASzc/change-string-case-action@v5
+        id: owner_name
+        with:
+          string: ${{ github.repository_owner }}
+
+      - name: Define repo name
+        uses: ASzc/change-string-case-action@v5
+        id: repo_name
+        with:
+          string: ${{ github.event.repository.name }}
+
+      - name: Define version tag
+        uses: ASzc/change-string-case-action@v5
+        id: tag
+        with:
+          string: ${{ github.ref:10 }}
+
       - name: Alya pushing
         run: |
-          echo '${{ github.repository_owner,, }}'
-          echo '${{ github.event.repository.name,, }}'
-          echo '${{ github.ref:10 }}'
-          echo '${{ github.repository_owner,, }}/${{ github.event.repository.name,, }}:${{ github.ref:10 }}'
+          echo '${{ steps.owner_name.outputs.lowercase }}'
+          echo '${{ steps.repo_name.outputs.lowercase }}'
+          echo '${{ steps.tag.outputs.lowercase }}'
+          
+          echo '${{ steps.owner_name.outputs.lowercase }}/${{ steps.repo_name.outputs.lowercase }}:${{ steps.tag.outputs.lowercase }}'
 
 #      - name: Build and push
 #        uses: docker/build-push-action@v5

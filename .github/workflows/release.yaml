@@ -50,14 +50,14 @@ jobs:
           
           echo '${{ steps.owner_name.outputs.lowercase }}/${{ steps.repo_name.outputs.lowercase }}:${{ steps.tag.outputs.lowercase }}'
 
-#      - name: Build and push
-#        uses: docker/build-push-action@v5
-#        with:
-#          platforms: linux/amd64,linux/arm64
-#          context: .
-#          file: ./Dockerfile
-#          push: true
-#          tags: ${{ secrets.DOCKERHUB_USERNAME }}/clockbox:latest
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          platforms: linux/amd64,linux/arm64
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.owner_name.outputs.lowercase }}/${{ steps.repo_name.outputs.lowercase }}:${{ steps.tag.outputs.lowercase }},${{ steps.owner_name.outputs.lowercase }}/${{ steps.repo_name.outputs.lowercase }}:latest
 
 #      - name: Build and push image
 #        run: |

@@ -43,6 +43,7 @@ jobs:
 
       - name: Build and push image
         run: |
+          docker build -t ${{ steps.owner_name.outputs.lowercase }}/${{ steps.repo_name.outputs.lowercase }}:${{ steps.tag.outputs.lowercase }} -t ${{ steps.owner_name.outputs.lowercase }}/${{ steps.repo_name.outputs.lowercase }}:latest .
           docker push ${{ steps.owner_name.outputs.lowercase }}/${{ steps.repo_name.outputs.lowercase }}:${{ steps.tag.outputs.lowercase }}
           docker push ${{ steps.owner_name.outputs.lowercase }}/${{ steps.repo_name.outputs.lowercase }}:latest
  

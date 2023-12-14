@@ -36,7 +36,7 @@ jobs:
         uses: ASzc/change-string-case-action@v5
         id: tag
         with:
-          string: echo '${{ github.ref:10 }}'
+          string: <<< echo '${{ github.ref:10 }}'
 
       - name: Alya pushing
         run: |

@@ -22,7 +22,7 @@ jobs:
       - name: Alya pushing
         run: |
           echo '${{ github.event.repository.name }}'
-          echo '${{  github.ref_name }}'
+          echo '${{ github.ref }}'
       #      - name: Build and push
 #        uses: docker/build-push-action@v5
 #        with:

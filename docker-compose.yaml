@@ -1,7 +1,0 @@
-services:
-  watchtower:
-    image: index.docker.io/containrrr/watchtower:latest
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./config.json:/config.json
-    command: --interval 30

@@ -44,7 +44,7 @@ jobs:
           echo '${{ steps.repo_name.outputs.lowercase }}'
           echo '${{ steps.tag.outputs.lowercase }}'
           tag='${${{ steps.tag.outputs.lowercase }}:10}'
-          echo '${{ steps.owner_name.outputs.lowercase }}/${{ steps.repo_name.outputs.lowercase }}:${{tag}}'
+          echo '${{ steps.owner_name.outputs.lowercase }}/${{ steps.repo_name.outputs.lowercase }}:${tag}'
 
 #      - name: Build and push
 #        uses: docker/build-push-action@v5

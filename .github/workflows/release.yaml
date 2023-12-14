@@ -1,21 +1,20 @@
-name: master-actions
-run-name: RELEASE
+name: Publish docker image
 on:
+#  release:
+#    types: [published]
   push:
-    branches:
-      - master
 
 jobs:
-  build:
+  registry_release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Build and push image
         run: |
           docker login -u ${{ secrets.REGISTRY_USER }} -p ${{ secrets.REGISTRY_PWD }} ${{ secrets.REGISTRY_HOST }}
-          docker build -t ${{ secrets.REGISTRY_HOST }}/${{ github.event.repository.name }}:$GITHUB_SHA -t ${{ secrets.REGISTRY_HOST }}/${{ github.event.repository.name }}:latest .
-          docker push ${{ secrets.REGISTRY_HOST }}/${{ github.event.repository.name }}:$GITHUB_SHA
+          docker build -t ${{ secrets.REGISTRY_HOST }}/${{ github.event.repository.name }}:$GITHUB_REF_TYPE -t ${{ secrets.REGISTRY_HOST }}/${{ github.event.repository.name }}:latest .
+          docker push ${{ secrets.REGISTRY_HOST }}/${{ github.event.repository.name }}:$GITHUB_REF_TYPE
           docker push ${{ secrets.REGISTRY_HOST }}/${{ github.event.repository.name }}:latest
  

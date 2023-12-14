@@ -1,9 +1,8 @@
 name: Publish docker image
 on:
-  release:
-    types: [published]
   push:
-
+    tags:
+      - *
 jobs:
   registry_release:
     runs-on: ubuntu-latest

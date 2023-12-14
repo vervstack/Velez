@@ -20,9 +20,12 @@ jobs:
         uses: docker/setup-buildx-action@v3
       - name: Alya pushing
         run: |
-          echo '${{ github.event.repository.name }}'
-          echo '${{ github.ref }}'
-      #      - name: Build and push
+          echo '${{ github.repository_owner,, }}'
+          echo '${{ github.event.repository.name,, }}'
+          echo '${{ github.ref:10 }}'
+          echo '${{ github.repository_owner,, }}/${{ github.event.repository.name,, }}:${{ github.ref:10 }}'
+
+#      - name: Build and push
 #        uses: docker/build-push-action@v5
 #        with:
 #          platforms: linux/amd64,linux/arm64

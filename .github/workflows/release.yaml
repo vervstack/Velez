@@ -32,19 +32,23 @@ jobs:
         with:
           string: ${{ github.event.repository.name }}
 
+      - name: Set output
+        id: tag_short
+        run: echo "tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+
       - name: Define version tag
         uses: ASzc/change-string-case-action@v5
         id: tag
         with:
-          string: ${{ github.ref }}
+          string: ${{ steps.tag_short.outputs.tag }}
 
       - name: Alya pushing
         run: |
           echo '${{ steps.owner_name.outputs.lowercase }}'
           echo '${{ steps.repo_name.outputs.lowercase }}'
           echo '${{ steps.tag.outputs.lowercase }}'
-          tag='${${{ steps.tag.outputs.lowercase }}:10}'
-          echo '${{ steps.owner_name.outputs.lowercase }}/${{ steps.repo_name.outputs.lowercase }}:${tag}'
+          
+          echo '${{ steps.owner_name.outputs.lowercase }}/${{ steps.repo_name.outputs.lowercase }}:${{ steps.tag.outputs.lowercase }}'
 
 #      - name: Build and push
 #        uses: docker/build-push-action@v5

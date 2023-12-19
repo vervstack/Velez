@@ -8,6 +8,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/godverv/Velez/internal/client/docker"
 	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/transport"
 	"github.com/godverv/Velez/internal/transport/grpc"
@@ -38,11 +39,22 @@ func main() {
 	mgr := transport.NewManager()
 
 	{
+		dockerApi, err := docker.NewClient()
+		if err != nil {
+			logrus.Fatalf("erorr getting docker api client: %s", err)
+		}
+
 		grpcConf, err := cfg.Api().GRPC(config.ApiGrpc)
 		if err != nil {
 			logrus.Fatalf("error getting grpc from config: %s", err)
 		}
-		mgr.AddServer(grpc.NewServer(cfg, grpcConf))
+
+		srv, err := grpc.NewServer(cfg, grpcConf, dockerApi)
+		if err != nil {
+			logrus.Fatalf("error creating grpc server: %s", err)
+		}
+
+		mgr.AddServer(srv)
 	}
 
 	err = mgr.Start(ctx)

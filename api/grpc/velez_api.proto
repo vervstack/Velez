@@ -13,6 +13,12 @@ service VelezAPI {
       body: "*"
     };
   };
+  rpc CreateService(CreateService.Request) returns (CreateService.Response) {
+    option (google.api.http) = {
+      post: "/create_service"
+      body: "*"
+    };
+  }
 }
 
 message Version {
@@ -20,6 +26,19 @@ message Version {
 
   message Response {
     string version = 1;
+  }
+}
+
+message CreateService {
+  message Request {
+    string imageName = 1;
+    float cpu_amount = 2;
+    int32 ram_mb = 4;
+    int32 memory_swap_mb = 5;
+  }
+  message Response {
+    string uuid = 1;
+    // later may be extended to return ip and port of given service
   }
 }
 

@@ -8,7 +8,6 @@ deps:
 
 local-link:
 	ln -s $(GOPATH)/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.16.0/third_party/googleapis/google api/google
-	ln -s $(GOPATH)/pkg/mod/github.com/grpc-ecosystem/grpc-gateway
 
 gen-server: .pre-gen-server .gen-server
 .pre-gen-server:

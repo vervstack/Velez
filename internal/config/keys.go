@@ -1,5 +1,6 @@
 package config
 
 const (
-	ApiGrpc = "Api_grpc"
+	VelezAvailablePorts = "available_ports"
+	ApiGrpc             = "Api_grpc"
 )

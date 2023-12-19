@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	VelezAPI_Version_FullMethodName = "/velez_api.VelezAPI/Version"
+	VelezAPI_Version_FullMethodName       = "/velez_api.VelezAPI/Version"
+	VelezAPI_CreateService_FullMethodName = "/velez_api.VelezAPI/CreateService"
 )
 
 // VelezAPIClient is the client API for VelezAPI service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type VelezAPIClient interface {
 	Version(ctx context.Context, in *Version_Request, opts ...grpc.CallOption) (*Version_Response, error)
+	CreateService(ctx context.Context, in *CreateService_Request, opts ...grpc.CallOption) (*CreateService_Response, error)
 }
 
 type velezAPIClient struct {
@@ -46,11 +48,21 @@ func (c *velezAPIClient) Version(ctx context.Context, in *Version_Request, opts 
 	return out, nil
 }
 
+func (c *velezAPIClient) CreateService(ctx context.Context, in *CreateService_Request, opts ...grpc.CallOption) (*CreateService_Response, error) {
+	out := new(CreateService_Response)
+	err := c.cc.Invoke(ctx, VelezAPI_CreateService_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // VelezAPIServer is the server API for VelezAPI service.
 // All implementations must embed UnimplementedVelezAPIServer
 // for forward compatibility
 type VelezAPIServer interface {
 	Version(context.Context, *Version_Request) (*Version_Response, error)
+	CreateService(context.Context, *CreateService_Request) (*CreateService_Response, error)
 	mustEmbedUnimplementedVelezAPIServer()
 }
 
@@ -60,6 +72,9 @@ type UnimplementedVelezAPIServer struct {
 
 func (UnimplementedVelezAPIServer) Version(context.Context, *Version_Request) (*Version_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Version not implemented")
+}
+func (UnimplementedVelezAPIServer) CreateService(context.Context, *CreateService_Request) (*CreateService_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateService not implemented")
 }
 func (UnimplementedVelezAPIServer) mustEmbedUnimplementedVelezAPIServer() {}
 
@@ -92,6 +107,24 @@ func _VelezAPI_Version_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _VelezAPI_CreateService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateService_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VelezAPIServer).CreateService(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VelezAPI_CreateService_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VelezAPIServer).CreateService(ctx, req.(*CreateService_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // VelezAPI_ServiceDesc is the grpc.ServiceDesc for VelezAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,6 +135,10 @@ var VelezAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Version",
 			Handler:    _VelezAPI_Version_Handler,
+		},
+		{
+			MethodName: "CreateService",
+			Handler:    _VelezAPI_CreateService_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

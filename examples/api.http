@@ -1,4 +1,4 @@
-POST localhost:50052/version
+POST 95.216.20.142:18503/version
 Content-Type: application/json
 
 {}

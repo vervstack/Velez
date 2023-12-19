@@ -10,6 +10,8 @@ import (
 	"sync"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
 	"github.com/godverv/matreshka/api"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/sirupsen/logrus"
@@ -29,51 +31,69 @@ type Server struct {
 	m           sync.Mutex
 }
 
-func NewServer(cfg config.Config, server *api.GRPC) *Server {
+func NewServer(cfg config.Config, server *api.GRPC, dockerApi *client.Client) (*Server, error) {
 	grpcServer := grpc.NewServer()
-	velez_api.RegisterVelezAPIServer(grpcServer, &Api{
-		version: cfg.AppInfo().Version,
-	})
+
+	ap, err := portsList(cfg, dockerApi)
+	if err != nil {
+		return nil, err
+	}
+
+	velez_api.RegisterVelezAPIServer(
+		grpcServer,
+		&Api{
+			version:        cfg.AppInfo().Version,
+			dockerAPI:      dockerApi,
+			availablePorts: ap,
+		})
 
 	return &Server{
 		grpcServer:  grpcServer,
 		grpcAddress: ":" + server.GetPortStr(),
 		gwAddress:   ":" + strconv.Itoa(int(server.GetPort()+1)),
-	}
+	}, nil
 }
 
 func (s *Server) Start(_ context.Context) error {
 	s.m.Lock()
 	defer s.m.Unlock()
 
-	lis, err := net.Listen("tcp", s.grpcAddress)
-	if err != nil {
-		return errors.Wrapf(err, "error when tried to listen on %s", s.grpcAddress)
-	}
+	if s.grpcAddress != ":" {
+		lis, err := net.Listen("tcp", s.grpcAddress)
+		if err != nil {
+			return errors.Wrapf(err, "error when tried to listen on %s", s.grpcAddress)
+		}
 
-	go s.startGrpcServer(lis)
+		go s.startGrpcServer(lis)
+	} else {
+		logrus.Warn("no grpc port specified")
+	}
 
 	mux := runtime.NewServeMux(
 		runtime.WithMarshalerOption(
 			runtime.MIMEWildcard, &runtime.JSONPb{OrigName: true, EmitDefaults: true}))
 
-	err = velez_api.RegisterVelezAPIHandlerFromEndpoint(
-		context.TODO(),
-		mux,
-		s.grpcAddress,
-		[]grpc.DialOption{
-			grpc.WithBlock(),
-			grpc.WithTransportCredentials(insecure.NewCredentials()),
-		})
-	if err != nil {
-		logrus.Errorf("error registering grpc2http handler: %s", err)
-	}
-	s.gwServer = &http.Server{
-		Addr:    s.gwAddress,
-		Handler: mux,
-	}
+	if s.gwAddress != ":" {
+		err := velez_api.RegisterVelezAPIHandlerFromEndpoint(
+			context.TODO(),
+			mux,
+			s.grpcAddress,
+			[]grpc.DialOption{
+				grpc.WithBlock(),
+				grpc.WithTransportCredentials(insecure.NewCredentials()),
+			})
+		if err != nil {
+			logrus.Errorf("error registering grpc2http handler: %s", err)
+		}
+		s.gwServer = &http.Server{
+			Addr:    s.gwAddress,
+			Handler: mux,
+		}
 
-	go s.startGrpcGwServer()
+		go s.startGrpcGwServer()
+	} else {
+		logrus.Warn("no grpc gateway port specified")
+	}
 
 	return nil
 }
@@ -108,4 +128,34 @@ func (s *Server) startGrpcGwServer() {
 	if err != nil {
 		logrus.Errorf("error starting grpc2http handler: %s", err)
 	}
+}
+
+func portsList(cfg config.Config, dockerApi *client.Client) (map[uint16]bool, error) {
+	ap, err := config.AvailablePorts(cfg)
+	if err != nil {
+		return nil, errors.Wrap(err, "error obtaining available ports")
+	}
+
+	containerList, err := dockerApi.ContainerList(context.Background(), types.ContainerListOptions{All: true})
+	if err != nil {
+		return nil, errors.Wrap(err, "error listing containers")
+	}
+
+	m := make(map[uint16]bool)
+	for _, c := range containerList {
+		for _, p := range c.Ports {
+			if p.PublicPort == 0 {
+				continue
+			}
+
+			m[p.PublicPort] = true
+		}
+
+	}
+
+	for _, a := range ap {
+		m[a] = false
+	}
+
+	return m, nil
 }

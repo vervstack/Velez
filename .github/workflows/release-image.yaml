@@ -9,5 +9,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Release
-        uses: RedSockActions/release_image@0.0.1
+        uses: RedSockActions/release_image@0.0.2
 

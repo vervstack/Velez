@@ -34,7 +34,7 @@ func Load() (Config, error) {
 		return nil, errors.Wrap(err, "error reading matreshka config")
 	}
 
-	defaultConfig = &config{AppConfig: cfg}
+	defaultConfig = &config{AppConfig: *cfg}
 
 	return defaultConfig, nil
 }

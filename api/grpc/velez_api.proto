@@ -36,6 +36,7 @@ message CreateService {
     int32 ram_mb = 4;
     int32 memory_swap_mb = 5;
   }
+
   message Response {
     string uuid = 1;
     // later may be extended to return ip and port of given service

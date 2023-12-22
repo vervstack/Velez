@@ -29,8 +29,8 @@ github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.m
 github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1mIlRU8Am5FuJP05cCM98=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
-github.com/godverv/matreshka v0.0.7 h1:D3NqYu/3tI8FHGw0EEtgtwQ1yR9ZT68EJpfz02SQYco=
-github.com/godverv/matreshka v0.0.7/go.mod h1:C4F6vlLi0wyIvir8O1DYfkkAQVk5dSaGs/vLk98kN48=
+github.com/godverv/matreshka v0.0.8-0.20231222094134-a8b81128f6b0 h1:pr16H/RSIA/f5WtlTOgUmCkmmX2gqZy+vK850NPlnhI=
+github.com/godverv/matreshka v0.0.8-0.20231222094134-a8b81128f6b0/go.mod h1:J36jFFeImxS4YOtvarncYElxysfxh+2Wtfsm58pEZxQ=
 github.com/gogo/protobuf v1.3.2 h1:Ov1cvc58UF3b5XjBnZv7+opcTcQFZebYjWzi34vdm4Q=
 github.com/gogo/protobuf v1.3.2/go.mod h1:P1XiOD3dCwIKUDQYPy72D8LYyHL2YPYrpS2s69NZV8Q=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=

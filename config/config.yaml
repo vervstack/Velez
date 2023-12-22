@@ -1,11 +1,12 @@
 app_info:
     name: github.com/godverv/Velez
-    version: 0.0.1
+    version: v0.0.1
     startup_duration: 10s
 data_sources: []
 server:
     - name: grpc
       port: 50051
 environment:
-  available_ports:
-    - 18501-18519
+  cpu_default: 0.5
+  ram_mb_default: 50
+  memory_swap_mb: 50

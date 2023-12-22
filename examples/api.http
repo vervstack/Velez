@@ -1,4 +1,11 @@
-POST 95.216.20.142:18503/version
+### Get Version
+POST {{velez}}/version
+Content-Type: application/json
+
+{}
+
+### Create container
+POST {{velez}}/create_service
 Content-Type: application/json
 
 {}

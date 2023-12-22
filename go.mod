@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/Red-Sock/trace-errors v0.0.5
 	github.com/docker/docker v24.0.7+incompatible
-	github.com/godverv/matreshka v0.0.7
+	github.com/godverv/matreshka v0.0.8-0.20231222094134-a8b81128f6b0
 	github.com/golang/protobuf v1.5.3
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/pkg/errors v0.9.1

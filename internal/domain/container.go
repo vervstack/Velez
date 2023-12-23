@@ -1,7 +1,10 @@
 package domain
 
-type CreateContainer struct {
-	Image string
+type ContainerCreate struct {
+	ImageName string
 }
 
-type Container struct{}
+type Container struct {
+	ImageName string
+	Tags      []string
+}

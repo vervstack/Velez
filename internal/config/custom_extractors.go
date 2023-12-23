@@ -8,9 +8,9 @@ import (
 	"github.com/godverv/matreshka"
 )
 
-func AvailablePorts(cfg Config) ([]uint16, error) {
+func GetAvailablePorts(cfg Config) ([]uint16, error) {
 	var portsSl []string
-	err := matreshka.ReadSliceFromConfig(cfg.GetMatreshka(), VelezAvailablePorts, &portsSl)
+	err := matreshka.ReadSliceFromConfig(cfg.GetMatreshka(), AvailablePorts, &portsSl)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,9 @@
 package config
 
 const (
-	VelezAvailablePorts = "Velez_available_ports"
-	ApiGrpc             = "Api_grpc"
+	AvailablePorts = "available_ports"
+	CPUDefault     = "cpu_default"
+	MemorySwapMb   = "memory_swap_mb"
+	RAMMbDefault   = "ram_mb_default"
+	ApiGrpc        = "Api_grpc"
 )

@@ -5,7 +5,9 @@ Content-Type: application/json
 {}
 
 ### Create container
-POST {{velez}}/create_service
+POST {{velez}}/create_smerd
 Content-Type: application/json
 
-{}
+{
+  "imageName": "godverv/velez"
+}

@@ -7,5 +7,5 @@ import (
 )
 
 type ContainerManager interface {
-	Up(ctx context.Context, container domain.CreateContainer) (domain.Container, error)
+	CreateAndRun(ctx context.Context, req domain.ContainerCreate) (domain.Container, error)
 }

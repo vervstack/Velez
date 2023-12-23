@@ -11,7 +11,7 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/api"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -30,14 +30,14 @@ type Server struct {
 	m           sync.Mutex
 }
 
-func NewServer(cfg config.Config, server *api.GRPC, manager service.ContainerManager) (*Server, error) {
+func NewServer(cfg config.Config, server *api.GRPC, containerManager service.ContainerManager) (*Server, error) {
 	grpcServer := grpc.NewServer()
 
 	velez_api.RegisterVelezAPIServer(
 		grpcServer,
 		&Api{
 			version:          cfg.AppInfo().Version,
-			containerManager: manager,
+			containerManager: containerManager,
 		})
 
 	return &Server{
@@ -64,7 +64,7 @@ func (s *Server) Start(_ context.Context) error {
 
 	mux := runtime.NewServeMux(
 		runtime.WithMarshalerOption(
-			runtime.MIMEWildcard, &runtime.JSONPb{OrigName: true, EmitDefaults: true}))
+			runtime.MIMEWildcard, &runtime.JSONPb{}))
 
 	if s.gwAddress != ":" {
 		err := velez_api.RegisterVelezAPIHandlerFromEndpoint(

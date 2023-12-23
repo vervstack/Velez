@@ -10,8 +10,8 @@ import (
 
 	"github.com/godverv/Velez/internal/client/docker"
 	"github.com/godverv/Velez/internal/config"
-	v1 "github.com/godverv/Velez/internal/domain/v1"
 	"github.com/godverv/Velez/internal/service"
+	v1 "github.com/godverv/Velez/internal/service/v1"
 	"github.com/godverv/Velez/internal/transport"
 	"github.com/godverv/Velez/internal/transport/grpc"
 	"github.com/godverv/Velez/internal/utils/closer"
@@ -46,7 +46,7 @@ func main() {
 			logrus.Fatalf("error getting grpc from config: %s", err)
 		}
 
-		srv, err := grpc.NewServer(cfg, grpcConf, initContainerManagerService(cfg))
+		srv, err := grpc.NewServer(cfg, grpcConf, mustInitContainerManagerService())
 		if err != nil {
 			logrus.Fatalf("error creating grpc server: %s", err)
 		}
@@ -81,15 +81,15 @@ func waitingForTheEnd() {
 	<-done
 }
 
-func initContainerManagerService(cfg config.Config) service.ContainerManager {
+func mustInitContainerManagerService() service.ContainerManager {
 	dockerApi, err := docker.NewClient()
 	if err != nil {
 		logrus.Fatalf("erorr getting docker api client: %s", err)
 	}
 
-	cm, err := v1.NewContainerManager(cfg, dockerApi)
+	cm, err := v1.NewContainerManager(dockerApi)
 	if err != nil {
-		logrus.Fatalf("error initiating container manager: %s", err)
+		logrus.Fatalf("error creating container manager")
 	}
 
 	return cm

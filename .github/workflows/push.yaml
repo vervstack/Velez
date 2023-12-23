@@ -1,10 +1,23 @@
-name: go-tests
-run-name: ${{ github.REF_NAME }} go-test
-on: [push]
+name: branch-push
+run-name: ${{ github.REF_NAME }} pull request
+on:
+  push:
+    branches:
+      - VERV-*
 
 jobs:
- build-and-test:
+  create-pr:
     runs-on: ubuntu-latest
+    steps:
+      - name: Create PR
+        uses: RedSockActions/create_pr@v0.0.2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+  build-and-test:
+    runs-on: ubuntu-latest
+    needs:
+      - create-pr
     steps:
       - name: Checkout
         uses: actions/checkout@v4

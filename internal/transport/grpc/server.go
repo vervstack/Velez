@@ -11,12 +11,13 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/api"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/godverv/Velez/internal/config"
+	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -29,51 +30,63 @@ type Server struct {
 	m           sync.Mutex
 }
 
-func NewServer(cfg config.Config, server *api.GRPC) *Server {
+func NewServer(cfg config.Config, server *api.GRPC, containerManager service.ContainerManager) (*Server, error) {
 	grpcServer := grpc.NewServer()
-	velez_api.RegisterVelezAPIServer(grpcServer, &Api{
-		version: cfg.AppInfo().Version,
-	})
+
+	velez_api.RegisterVelezAPIServer(
+		grpcServer,
+		&Api{
+			version:          cfg.AppInfo().Version,
+			containerManager: containerManager,
+		})
 
 	return &Server{
 		grpcServer:  grpcServer,
 		grpcAddress: ":" + server.GetPortStr(),
 		gwAddress:   ":" + strconv.Itoa(int(server.GetPort()+1)),
-	}
+	}, nil
 }
 
 func (s *Server) Start(_ context.Context) error {
 	s.m.Lock()
 	defer s.m.Unlock()
 
-	lis, err := net.Listen("tcp", s.grpcAddress)
-	if err != nil {
-		return errors.Wrapf(err, "error when tried to listen on %s", s.grpcAddress)
-	}
+	if s.grpcAddress != ":" {
+		lis, err := net.Listen("tcp", s.grpcAddress)
+		if err != nil {
+			return errors.Wrapf(err, "error when tried to listen on %s", s.grpcAddress)
+		}
 
-	go s.startGrpcServer(lis)
+		go s.startGrpcServer(lis)
+	} else {
+		logrus.Warn("no grpc port specified")
+	}
 
 	mux := runtime.NewServeMux(
 		runtime.WithMarshalerOption(
-			runtime.MIMEWildcard, &runtime.JSONPb{OrigName: true, EmitDefaults: true}))
+			runtime.MIMEWildcard, &runtime.JSONPb{}))
 
-	err = velez_api.RegisterVelezAPIHandlerFromEndpoint(
-		context.TODO(),
-		mux,
-		s.grpcAddress,
-		[]grpc.DialOption{
-			grpc.WithBlock(),
-			grpc.WithTransportCredentials(insecure.NewCredentials()),
-		})
-	if err != nil {
-		logrus.Errorf("error registering grpc2http handler: %s", err)
-	}
-	s.gwServer = &http.Server{
-		Addr:    s.gwAddress,
-		Handler: mux,
-	}
+	if s.gwAddress != ":" {
+		err := velez_api.RegisterVelezAPIHandlerFromEndpoint(
+			context.TODO(),
+			mux,
+			s.grpcAddress,
+			[]grpc.DialOption{
+				grpc.WithBlock(),
+				grpc.WithTransportCredentials(insecure.NewCredentials()),
+			})
+		if err != nil {
+			logrus.Errorf("error registering grpc2http handler: %s", err)
+		}
+		s.gwServer = &http.Server{
+			Addr:    s.gwAddress,
+			Handler: mux,
+		}
 
-	go s.startGrpcGwServer()
+		go s.startGrpcGwServer()
+	} else {
+		logrus.Warn("no grpc gateway port specified")
+	}
 
 	return nil
 }

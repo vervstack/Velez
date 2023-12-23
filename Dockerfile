@@ -1,5 +1,5 @@
 FROM golang as builder
-
+LABEL Config=matreshka
 WORKDIR /app
 COPY . .
 

@@ -1,4 +1,13 @@
-POST localhost:50052/version
+### Get Version
+POST {{velez}}/version
 Content-Type: application/json
 
 {}
+
+### Create container
+POST {{velez}}/create_smerd
+Content-Type: application/json
+
+{
+  "imageName": "godverv/velez"
+}

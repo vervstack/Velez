@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package velez_api;
 
-import "google/api/annotations.proto";
-
 option go_package = "/velez_api";
+
+import "google/api/annotations.proto";
 
 service VelezAPI {
   rpc Version(Version.Request) returns (Version.Response) {
@@ -13,6 +13,12 @@ service VelezAPI {
       body: "*"
     };
   };
+  rpc CreateSmerd(CreateSmerd.Request) returns (CreateSmerd.Response) {
+    option (google.api.http) = {
+      post: "/create_smerd"
+      body: "*"
+    };
+  }
 }
 
 message Version {
@@ -20,6 +26,40 @@ message Version {
 
   message Response {
     string version = 1;
+  }
+}
+
+message PortBindings {
+  uint32 host = 1;
+  uint32 container = 2;
+}
+
+message Container {
+  message Hardware {
+    optional float cpu_amount = 1;
+    optional int32 ram_mb = 2;
+    optional int32 memory_swap_mb = 3;
+  }
+
+  message Settings {
+    repeated PortBindings ports = 1;
+    optional string volumes = 2;
+  }
+}
+
+
+message CreateSmerd {
+  message Request {
+    string image_name = 1;
+
+    optional Container.Hardware hardware = 2;
+    optional Container.Settings settings = 3;
+
+  }
+
+  message Response {
+    string uuid = 1;
+    // later may be extended to return ip and port of given service
   }
 }
 

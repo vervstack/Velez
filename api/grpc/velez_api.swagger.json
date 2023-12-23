@@ -1,0 +1,193 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "grpc/velez_api.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "VelezAPI"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/create_smerd": {
+      "post": {
+        "operationId": "VelezAPI_CreateSmerd",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateSmerdResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateSmerdRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VelezAPI"
+        ]
+      }
+    },
+    "/version": {
+      "post": {
+        "operationId": "VelezAPI_Version",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiVersionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiVersionRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VelezAPI"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "ContainerHardware": {
+      "type": "object",
+      "properties": {
+        "cpuAmount": {
+          "type": "number",
+          "format": "float"
+        },
+        "ramMb": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "memorySwapMb": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "ContainerSettings": {
+      "type": "object",
+      "properties": {
+        "ports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiPortBindings"
+          }
+        },
+        "volumes": {
+          "type": "string"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "velez_apiCreateSmerdRequest": {
+      "type": "object",
+      "properties": {
+        "imageName": {
+          "type": "string"
+        },
+        "hardware": {
+          "$ref": "#/definitions/ContainerHardware"
+        },
+        "settings": {
+          "$ref": "#/definitions/ContainerSettings"
+        }
+      }
+    },
+    "velez_apiCreateSmerdResponse": {
+      "type": "object",
+      "properties": {
+        "uuid": {
+          "type": "string",
+          "title": "later may be extended to return ip and port of given service"
+        }
+      }
+    },
+    "velez_apiPortBindings": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "container": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "velez_apiVersionRequest": {
+      "type": "object"
+    },
+    "velez_apiVersionResponse": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

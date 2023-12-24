@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Release
         if: ${{ needs.tag-release.outputs.tag }} != ""
-        uses: RedSockActions/release_image@08ef00bfa0789a5ecdc6fa927990e136e4a36431
+        uses: RedSockActions/release_image@1a3c00f3b5ae9ae115580600a9b9196b3fa3ff5a
         with:
           REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
           REGISTRY_PWD:  ${{ secrets.REGISTRY_PWD }}

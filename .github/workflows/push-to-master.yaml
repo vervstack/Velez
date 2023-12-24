@@ -9,7 +9,7 @@ jobs:
   tag-release:
     runs-on: ubuntu-latest
     steps:
-      - name: Release
+      - name: Release tag
         id: release
         uses: RedSockActions/release_tag@v1.1.0
         with:
@@ -22,7 +22,7 @@ jobs:
     needs:
       - tag-release
     steps:
-      - name: Release
+      - name: Release image
         if: ${{ needs.tag-release.outputs.tag }} != ""
         uses: RedSockActions/release_image@v1
         with:

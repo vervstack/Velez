@@ -7,5 +7,5 @@ import (
 )
 
 type ContainerManager interface {
-	CreateAndRun(ctx context.Context, req domain.ContainerCreate) (domain.Container, error)
+	LaunchSmerd(ctx context.Context, req domain.ContainerCreate) (domain.Container, error)
 }

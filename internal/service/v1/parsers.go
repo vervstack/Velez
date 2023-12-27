@@ -2,7 +2,9 @@ package v1
 
 import (
 	"strconv"
+	"strings"
 
+	"github.com/docker/docker/api/types"
 	"github.com/docker/go-connections/nat"
 
 	"github.com/godverv/Velez/pkg/velez_api"
@@ -39,5 +41,36 @@ func fromPorts(settings *velez_api.Container_Settings) map[nat.Port][]nat.PortBi
 		}
 	}
 
+	return out
+}
+
+func toVolumes(volumes []types.MountPoint) []*velez_api.VolumeBindings {
+	out := make([]*velez_api.VolumeBindings, len(volumes))
+
+	for i, item := range volumes {
+		splited := strings.Split(item.Destination, ":")
+		if len(splited) != 2 {
+			continue
+		}
+
+		out[i] = &velez_api.VolumeBindings{
+			Host:      splited[0],
+			Container: splited[1],
+		}
+	}
+
+	return out
+}
+
+func toPorts(ports []types.Port) []*velez_api.PortBindings {
+	out := make([]*velez_api.PortBindings, len(ports))
+
+	for i, item := range ports {
+		out[i] = &velez_api.PortBindings{
+			Host:      uint32(item.PublicPort),
+			Container: uint32(item.PrivatePort),
+			Protoc:    velez_api.PortBindings_Protocol(velez_api.PortBindings_Protocol_value[item.Type]),
+		}
+	}
 	return out
 }

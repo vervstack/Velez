@@ -4,7 +4,7 @@ Content-Type: application/json
 
 {}
 
-### Create container
+### Create smerd
 POST {{velez}}/smerd/create
 Content-Type: application/json
 
@@ -31,4 +31,11 @@ Content-Type: application/json
       }
     ]
   }
+}
+
+### List smerds
+POST {{velez}}/smerd/list
+Content-Type: application/json
+
+{
 }

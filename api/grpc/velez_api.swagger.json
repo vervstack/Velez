@@ -150,13 +150,14 @@
         }
       }
     },
-    "PortBindingsprotocol": {
+    "PortBindingsProtocol": {
       "type": "string",
       "enum": [
+        "unknown",
         "tcp",
         "udp"
       ],
-      "default": "tcp"
+      "default": "unknown"
     },
     "protobufAny": {
       "type": "object",
@@ -209,13 +210,23 @@
     "velez_apiListSmerdsRequest": {
       "type": "object",
       "properties": {
-        "imageName": {
-          "type": "string"
+        "limit": {
+          "type": "integer",
+          "format": "int64"
         }
       }
     },
     "velez_apiListSmerdsResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "smerds": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiSmerd"
+          }
+        }
+      }
     },
     "velez_apiPortBindings": {
       "type": "object",
@@ -229,7 +240,7 @@
           "format": "int64"
         },
         "protoc": {
-          "$ref": "#/definitions/PortBindingsprotocol"
+          "$ref": "#/definitions/PortBindingsProtocol"
         }
       }
     },

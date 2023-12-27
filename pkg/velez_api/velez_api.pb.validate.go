@@ -1615,7 +1615,9 @@ func (m *ListSmerds_Request) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ImageName
+	if m.Limit != nil {
+		// no validation rules for Limit
+	}
 
 	if len(errors) > 0 {
 		return ListSmerds_RequestMultiError(errors)
@@ -1718,6 +1720,40 @@ func (m *ListSmerds_Response) validate(all bool) error {
 	}
 
 	var errors []error
+
+	for idx, item := range m.GetSmerds() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListSmerds_ResponseValidationError{
+						field:  fmt.Sprintf("Smerds[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListSmerds_ResponseValidationError{
+						field:  fmt.Sprintf("Smerds[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListSmerds_ResponseValidationError{
+					field:  fmt.Sprintf("Smerds[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
 
 	if len(errors) > 0 {
 		return ListSmerds_ResponseMultiError(errors)

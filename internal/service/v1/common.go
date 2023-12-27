@@ -2,81 +2,32 @@ package v1
 
 import (
 	"context"
-	"io"
+	"strings"
 
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/filters"
-	"github.com/docker/docker/client"
-	"github.com/pkg/errors"
+	errors "github.com/Red-Sock/trace-errors"
 
 	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-func listImages(ctx context.Context, docker client.CommonAPIClient, req domain.ImageListRequest) ([]*velez_api.Image, error) {
-	dockerReq := types.ImageListOptions{
-		Filters: filters.NewArgs(),
-	}
-	dockerReq.Filters.Add("reference", req.Name)
-
-	images, err := docker.ImageList(ctx, dockerReq)
-	if err != nil {
-		return nil, errors.Wrap(err, "error listing images")
-	}
-
-	resp := make([]*velez_api.Image, len(images))
-	for i := range images {
-		if images[i].RepoTags[0] == "" {
-			continue
+func (c *containerManager) getImage(ctx context.Context, name string) (*velez_api.Image, error) {
+	req := domain.ImageListRequest{Name: name}
+	if !strings.HasSuffix(name, "latest") {
+		// check if specified version already exists
+		list, err := listImages(ctx, c.docker, req)
+		if err != nil {
+			return nil, errors.Wrap(err, "error trying to listImages local images")
 		}
 
-		resp[i] = &velez_api.Image{
-			Name: images[i].RepoTags[0],
-			Tags: images[i].RepoTags,
+		if len(list) != 0 {
+			return list[0], nil
 		}
 	}
 
-	return resp, nil
-}
-
-func pullImage(ctx context.Context, docker client.CommonAPIClient, req domain.ImageListRequest) (*velez_api.Image, error) {
-	rdr, err := docker.ImagePull(ctx, req.Name, types.ImagePullOptions{})
+	image, err := pullImage(ctx, c.docker, req)
 	if err != nil {
-		return nil, errors.Wrap(err, "error pulling image")
-	}
-	_, err = io.ReadAll(rdr)
-	if err != nil {
-		return nil, errors.Wrap(err, "error reading pull log")
+		return nil, errors.Wrap(err, "error trying to listImages local images")
 	}
 
-	err = rdr.Close()
-	if err != nil {
-		return nil, errors.Wrap(err, "error closing image pull reader")
-	}
-
-	dockerReq := types.ImageListOptions{
-		Filters: filters.NewArgs(),
-	}
-
-	dockerReq.Filters.Add("reference", req.Name)
-
-	imageList, err := docker.ImageList(ctx, dockerReq)
-	if err != nil {
-		return nil, errors.Wrap(err, "error listing images after pulling")
-	}
-
-	if len(imageList) == 0 {
-		// TODO - is it a possible situation though?
-		return nil, errors.New("image list is empty")
-	}
-
-	if len(imageList[0].RepoTags) == 0 {
-		// TODO - is it a possible situation though?
-		return nil, errors.New("image has no tags")
-	}
-
-	return &velez_api.Image{
-		Name: imageList[0].RepoTags[0],
-		Tags: imageList[0].RepoTags,
-	}, nil
+	return image, nil
 }

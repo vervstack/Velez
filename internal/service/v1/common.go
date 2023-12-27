@@ -10,26 +10,27 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/godverv/Velez/internal/domain"
+	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-func listImages(ctx context.Context, docker client.CommonAPIClient, req domain.ImageListRequest) ([]domain.Image, error) {
+func listImages(ctx context.Context, docker client.CommonAPIClient, req domain.ImageListRequest) ([]*velez_api.Image, error) {
 	dockerReq := types.ImageListOptions{
 		Filters: filters.NewArgs(),
 	}
-	dockerReq.Filters.Add("reference", req.ImageName)
+	dockerReq.Filters.Add("reference", req.Name)
 
 	images, err := docker.ImageList(ctx, dockerReq)
 	if err != nil {
 		return nil, errors.Wrap(err, "error listing images")
 	}
 
-	resp := make([]domain.Image, len(images))
+	resp := make([]*velez_api.Image, len(images))
 	for i := range images {
 		if images[i].RepoTags[0] == "" {
 			continue
 		}
 
-		resp[i] = domain.Image{
+		resp[i] = &velez_api.Image{
 			Name: images[i].RepoTags[0],
 			Tags: images[i].RepoTags,
 		}
@@ -38,19 +39,19 @@ func listImages(ctx context.Context, docker client.CommonAPIClient, req domain.I
 	return resp, nil
 }
 
-func pullImage(ctx context.Context, docker client.CommonAPIClient, req domain.Image) (domain.Image, error) {
+func pullImage(ctx context.Context, docker client.CommonAPIClient, req domain.ImageListRequest) (*velez_api.Image, error) {
 	rdr, err := docker.ImagePull(ctx, req.Name, types.ImagePullOptions{})
 	if err != nil {
-		return domain.Image{}, errors.Wrap(err, "error pulling image")
+		return nil, errors.Wrap(err, "error pulling image")
 	}
 	_, err = io.ReadAll(rdr)
 	if err != nil {
-		return domain.Image{}, errors.Wrap(err, "error reading pull log")
+		return nil, errors.Wrap(err, "error reading pull log")
 	}
 
 	err = rdr.Close()
 	if err != nil {
-		return domain.Image{}, errors.Wrap(err, "error closing image pull reader")
+		return nil, errors.Wrap(err, "error closing image pull reader")
 	}
 
 	dockerReq := types.ImageListOptions{
@@ -61,20 +62,20 @@ func pullImage(ctx context.Context, docker client.CommonAPIClient, req domain.Im
 
 	imageList, err := docker.ImageList(ctx, dockerReq)
 	if err != nil {
-		return domain.Image{}, errors.Wrap(err, "error listing images after pulling")
+		return nil, errors.Wrap(err, "error listing images after pulling")
 	}
 
 	if len(imageList) == 0 {
 		// TODO - is it a possible situation though?
-		return domain.Image{}, errors.New("image list is empty")
+		return nil, errors.New("image list is empty")
 	}
 
 	if len(imageList[0].RepoTags) == 0 {
 		// TODO - is it a possible situation though?
-		return domain.Image{}, errors.New("image has no tags")
+		return nil, errors.New("image has no tags")
 	}
 
-	return domain.Image{
+	return &velez_api.Image{
 		Name: imageList[0].RepoTags[0],
 		Tags: imageList[0].RepoTags,
 	}, nil

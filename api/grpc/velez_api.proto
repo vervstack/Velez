@@ -14,9 +14,16 @@ service VelezAPI {
       body: "*"
     };
   };
-  rpc CreateSmerd(CreateSmerd.Request) returns (CreateSmerd.Response) {
+
+  rpc CreateSmerd(CreateSmerd.Request) returns (Smerd) {
     option (google.api.http) = {
-      post: "/create_smerd"
+      post: "/smerd/create"
+      body: "*"
+    };
+  }
+  rpc ListSmerds(ListSmerds.Request) returns (ListSmerds.Response) {
+    option (google.api.http) = {
+      post: "/smerd/list"
       body: "*"
     };
   }
@@ -47,6 +54,20 @@ message VolumeBindings {
   string container = 2;
 }
 
+message Image {
+  string name = 1;
+  repeated string tags = 2;
+}
+
+message Smerd {
+  string uuid = 1;
+  string name = 2;
+  string image_name = 3;
+
+  repeated PortBindings ports = 4;
+  repeated VolumeBindings volumes = 5;
+}
+
 message Container {
   message Hardware {
     optional float cpu_amount = 1;
@@ -60,7 +81,6 @@ message Container {
   }
 }
 
-
 message CreateSmerd {
   message Request {
     string name = 1;
@@ -73,10 +93,14 @@ message CreateSmerd {
     optional Container.Settings settings = 4;
     bool allow_duplicates = 5;
   }
-
-  message Response {
-    string uuid = 1;
-    // later may be extended to return ip and port of given service
-  }
 }
 
+message ListSmerds {
+  message Request {
+    string image_name = 1;
+  }
+
+  message Response {
+
+  }
+}

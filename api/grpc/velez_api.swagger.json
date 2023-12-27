@@ -16,14 +16,14 @@
     "application/json"
   ],
   "paths": {
-    "/create_smerd": {
+    "/smerd/create": {
       "post": {
         "operationId": "VelezAPI_CreateSmerd",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/velez_apiCreateSmerdResponse"
+              "$ref": "#/definitions/velez_apiSmerd"
             }
           },
           "default": {
@@ -40,6 +40,38 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/velez_apiCreateSmerdRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VelezAPI"
+        ]
+      }
+    },
+    "/smerd/list": {
+      "post": {
+        "operationId": "VelezAPI_ListSmerds",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListSmerdsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiListSmerdsRequest"
             }
           }
         ],
@@ -174,14 +206,16 @@
         }
       }
     },
-    "velez_apiCreateSmerdResponse": {
+    "velez_apiListSmerdsRequest": {
       "type": "object",
       "properties": {
-        "uuid": {
-          "type": "string",
-          "title": "later may be extended to return ip and port of given service"
+        "imageName": {
+          "type": "string"
         }
       }
+    },
+    "velez_apiListSmerdsResponse": {
+      "type": "object"
     },
     "velez_apiPortBindings": {
       "type": "object",
@@ -196,6 +230,34 @@
         },
         "protoc": {
           "$ref": "#/definitions/PortBindingsprotocol"
+        }
+      }
+    },
+    "velez_apiSmerd": {
+      "type": "object",
+      "properties": {
+        "uuid": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "imageName": {
+          "type": "string"
+        },
+        "ports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiPortBindings"
+          }
+        },
+        "volumes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiVolumeBindings"
+          }
         }
       }
     },

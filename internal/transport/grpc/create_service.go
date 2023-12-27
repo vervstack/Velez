@@ -10,29 +10,21 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-func (a *Api) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (*velez_api.CreateSmerd_Response, error) {
+func (a *Api) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (*velez_api.Smerd, error) {
 	err := req.ValidateAll()
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, errors.Wrap(err, "invalid request. Must match \"lowercase/lowercase:v0.0.1\"").Error())
 	}
 
-	smerd, err := a.containerManager.LaunchSmerd(ctx, domain.ContainerCreate{
-		Name:            req.Name,
-		ImageName:       req.ImageName,
-		AllowDuplicates: req.AllowDuplicates,
-		Ports:           getPorts(req.Settings),
-		Volumes:         getVolumes(req.Settings),
-	})
+	smerd, err := a.containerManager.LaunchSmerd(ctx, req)
 	if err != nil {
 		return nil, errors.Wrapf(err, "error searching image")
 	}
-	_ = smerd
 
-	return &velez_api.CreateSmerd_Response{}, nil
+	return smerd, nil
 }
 
 func (a *Api) getContainerConfig(name string) *container.Config {

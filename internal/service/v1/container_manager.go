@@ -11,7 +11,7 @@ import (
 	"github.com/docker/docker/client"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 
-	"github.com/godverv/Velez/internal/domain"
+	"github.com/godverv/Velez/pkg/velez_api"
 )
 
 type containerManager struct {
@@ -24,36 +24,36 @@ func NewContainerManager(docker client.CommonAPIClient) (*containerManager, erro
 	}, nil
 }
 
-func (c *containerManager) LaunchSmerd(ctx context.Context, req domain.ContainerCreate) (domain.Container, error) {
+func (c *containerManager) LaunchSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (*velez_api.Smerd, error) {
 	image, err := c.getImage(ctx, req.ImageName)
 	if err != nil {
-		return domain.Container{}, errors.Wrap(err, "error getting image")
+		return nil, errors.Wrap(err, "error getting image")
 	}
 
 	serviceContainer, err := c.docker.ContainerCreate(ctx,
 		&container.Config{
 			Image:    image.Name,
 			Hostname: req.Name,
-			Volumes:  req.Volumes,
+			Volumes:  fromVolumes(req.Settings),
 		},
 		&container.HostConfig{
-			PortBindings: req.Ports,
+			PortBindings: fromPorts(req.Settings),
 		},
 		&network.NetworkingConfig{},
 		&v1.Platform{},
 		req.Name,
 	)
 	if err != nil {
-		return domain.Container{}, errors.Wrap(err, "error creating container")
+		return nil, errors.Wrap(err, "error creating container")
 	}
 
 	err = c.docker.ContainerStart(ctx, serviceContainer.ID, types.ContainerStartOptions{})
 	if err != nil {
-		return domain.Container{}, errors.Wrap(err, "error starting container")
+		return nil, errors.Wrap(err, "error starting container")
 	}
 
-	out := domain.Container{
-		UUID:      serviceContainer.ID,
+	out := &velez_api.Smerd{
+		Uuid:      serviceContainer.ID,
 		ImageName: req.ImageName,
 	}
 

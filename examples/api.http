@@ -5,7 +5,7 @@ Content-Type: application/json
 {}
 
 ### Create container
-POST {{velez}}/create_smerd
+POST {{velez}}/smerd/create
 Content-Type: application/json
 
 {

@@ -7,14 +7,16 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 
 	"github.com/godverv/Velez/internal/domain"
+	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-func (c *containerManager) getImage(ctx context.Context, name string) (domain.Image, error) {
+func (c *containerManager) getImage(ctx context.Context, name string) (*velez_api.Image, error) {
+	req := domain.ImageListRequest{Name: name}
 	if !strings.HasSuffix(name, "latest") {
 		// check if specified version already exists
-		list, err := listImages(ctx, c.docker, domain.ImageListRequest{ImageName: name})
+		list, err := listImages(ctx, c.docker, req)
 		if err != nil {
-			return domain.Image{}, errors.Wrap(err, "error trying to listImages local images")
+			return nil, errors.Wrap(err, "error trying to listImages local images")
 		}
 
 		if len(list) != 0 {
@@ -22,9 +24,9 @@ func (c *containerManager) getImage(ctx context.Context, name string) (domain.Im
 		}
 	}
 
-	image, err := pullImage(ctx, c.docker, domain.Image{Name: name})
+	image, err := pullImage(ctx, c.docker, req)
 	if err != nil {
-		return domain.Image{}, errors.Wrap(err, "error trying to listImages local images")
+		return nil, errors.Wrap(err, "error trying to listImages local images")
 	}
 
 	return image, nil

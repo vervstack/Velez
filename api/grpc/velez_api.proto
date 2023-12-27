@@ -6,6 +6,7 @@ option go_package = "/velez_api";
 
 import "google/api/annotations.proto";
 import "validate/validate.proto";
+import "google/protobuf/timestamp.proto";
 
 service VelezAPI {
   rpc Version(Version.Request) returns (Version.Response) {
@@ -67,6 +68,20 @@ message Smerd {
 
   repeated PortBindings ports = 4;
   repeated VolumeBindings volumes = 5;
+
+  enum Status {
+    unknown = 0;
+    created = 1;
+    restarting = 2;
+    running = 3;
+    removing = 4;
+    paused = 5;
+    exited = 6;
+    dead = 7;
+  }
+
+  Status status = 6;
+  google.protobuf.Timestamp created_at = 7;
 }
 
 message Container {

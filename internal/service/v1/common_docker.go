@@ -8,6 +8,7 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/internal/utils/comparator"
@@ -105,8 +106,14 @@ func listContainers(ctx context.Context, docker client.CommonAPIClient, req *vel
 		resp.Smerds[i] = &velez_api.Smerd{
 			Uuid:      item.ID,
 			ImageName: item.Image,
-			Ports:     toPorts(item.Ports),
-			Volumes:   toVolumes(item.Mounts),
+
+			Status: velez_api.Smerd_Status(velez_api.Smerd_Status_value[item.State]),
+			CreatedAt: &timestamppb.Timestamp{
+				Seconds: item.Created,
+			},
+
+			Ports:   toPorts(item.Ports),
+			Volumes: toVolumes(item.Mounts),
 		}
 
 		if len(item.Names) != 0 {

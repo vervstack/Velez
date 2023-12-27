@@ -5,6 +5,7 @@ package velez_api;
 option go_package = "/velez_api";
 
 import "google/api/annotations.proto";
+import "validate/validate.proto";
 
 service VelezAPI {
   rpc Version(Version.Request) returns (Version.Response) {
@@ -32,6 +33,18 @@ message Version {
 message PortBindings {
   uint32 host = 1;
   uint32 container = 2;
+
+  enum protocol {
+    tcp = 0;
+    udp = 1;
+  };
+
+  protocol protoc = 3;
+}
+
+message VolumeBindings {
+  string host = 1;
+  string container = 2;
 }
 
 message Container {
@@ -43,18 +56,22 @@ message Container {
 
   message Settings {
     repeated PortBindings ports = 1;
-    optional string volumes = 2;
+    repeated VolumeBindings volumes = 2;
   }
 }
 
 
 message CreateSmerd {
   message Request {
-    string image_name = 1;
+    string name = 1;
+    string image_name = 2 [(validate.rules).string = {
+      pattern:   '([a-z]+)/([a-z]+):([a-z0-9.]+)',
+      max_bytes: 50,
+    }];
 
-    optional Container.Hardware hardware = 2;
-    optional Container.Settings settings = 3;
-
+    optional Container.Hardware hardware = 3;
+    optional Container.Settings settings = 4;
+    bool allow_duplicates = 5;
   }
 
   message Response {

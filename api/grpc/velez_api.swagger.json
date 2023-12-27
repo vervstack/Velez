@@ -110,9 +110,21 @@
           }
         },
         "volumes": {
-          "type": "string"
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiVolumeBindings"
+          }
         }
       }
+    },
+    "PortBindingsprotocol": {
+      "type": "string",
+      "enum": [
+        "tcp",
+        "udp"
+      ],
+      "default": "tcp"
     },
     "protobufAny": {
       "type": "object",
@@ -145,6 +157,9 @@
     "velez_apiCreateSmerdRequest": {
       "type": "object",
       "properties": {
+        "name": {
+          "type": "string"
+        },
         "imageName": {
           "type": "string"
         },
@@ -153,6 +168,9 @@
         },
         "settings": {
           "$ref": "#/definitions/ContainerSettings"
+        },
+        "allowDuplicates": {
+          "type": "boolean"
         }
       }
     },
@@ -175,6 +193,9 @@
         "container": {
           "type": "integer",
           "format": "int64"
+        },
+        "protoc": {
+          "$ref": "#/definitions/PortBindingsprotocol"
         }
       }
     },
@@ -185,6 +206,17 @@
       "type": "object",
       "properties": {
         "version": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiVolumeBindings": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string"
+        },
+        "container": {
           "type": "string"
         }
       }

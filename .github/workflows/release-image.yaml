@@ -1,13 +1,12 @@
 name: Publish docker image
 on:
-  push:
-    tags:
-      - '*'
+  release:
+    types: [created]
 
 jobs:
   registry_release:
     runs-on: ubuntu-latest
     steps:
       - name: Release
-        uses: RedSockActions/release_image@0.0.2
+        uses: RedSockActions/release_image@v0.0.2
 

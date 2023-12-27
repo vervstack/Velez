@@ -9,5 +9,26 @@ POST {{velez}}/create_smerd
 Content-Type: application/json
 
 {
-  "imageName": "godverv/velez"
+  "name": "velez",
+  "image_name": "godverv/velez:v0.0.7",
+  "settings": {
+    "ports": [
+      {
+        "host": 8000,
+        "container": 50051,
+        "protoc": "tcp"
+      },
+      {
+        "host": 8001,
+        "container": 50052,
+        "protoc": "tcp"
+      }
+    ],
+    "volumes": [
+      {
+        "host": "/Users/alexbukov/Desktop/velez_key",
+        "container": "/velez_key"
+      }
+    ]
+  }
 }

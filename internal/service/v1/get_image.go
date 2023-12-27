@@ -2,6 +2,7 @@ package v1
 
 import (
 	"context"
+	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
 
@@ -9,13 +10,16 @@ import (
 )
 
 func (c *containerManager) getImage(ctx context.Context, name string) (domain.Image, error) {
-	list, err := listImages(ctx, c.docker, domain.ImageListRequest{ImageName: name})
-	if err != nil {
-		return domain.Image{}, errors.Wrap(err, "error trying to listImages local images")
-	}
+	if !strings.HasSuffix(name, "latest") {
+		// check if specified version already exists
+		list, err := listImages(ctx, c.docker, domain.ImageListRequest{ImageName: name})
+		if err != nil {
+			return domain.Image{}, errors.Wrap(err, "error trying to listImages local images")
+		}
 
-	if len(list) != 0 {
-		return list[0], nil
+		if len(list) != 0 {
+			return list[0], nil
+		}
 	}
 
 	image, err := pullImage(ctx, c.docker, domain.Image{Name: name})

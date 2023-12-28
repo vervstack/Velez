@@ -556,6 +556,44 @@ func (*ListSmerds) Descriptor() ([]byte, []int) {
 	return file_grpc_velez_api_proto_rawDescGZIP(), []int{7}
 }
 
+type DropSmerd struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *DropSmerd) Reset() {
+	*x = DropSmerd{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_grpc_velez_api_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DropSmerd) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DropSmerd) ProtoMessage() {}
+
+func (x *DropSmerd) ProtoReflect() protoreflect.Message {
+	mi := &file_grpc_velez_api_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DropSmerd.ProtoReflect.Descriptor instead.
+func (*DropSmerd) Descriptor() ([]byte, []int) {
+	return file_grpc_velez_api_proto_rawDescGZIP(), []int{8}
+}
+
 type Version_Request struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -565,7 +603,7 @@ type Version_Request struct {
 func (x *Version_Request) Reset() {
 	*x = Version_Request{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_grpc_velez_api_proto_msgTypes[8]
+		mi := &file_grpc_velez_api_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -578,7 +616,7 @@ func (x *Version_Request) String() string {
 func (*Version_Request) ProtoMessage() {}
 
 func (x *Version_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_grpc_velez_api_proto_msgTypes[8]
+	mi := &file_grpc_velez_api_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -605,7 +643,7 @@ type Version_Response struct {
 func (x *Version_Response) Reset() {
 	*x = Version_Response{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_grpc_velez_api_proto_msgTypes[9]
+		mi := &file_grpc_velez_api_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -618,7 +656,7 @@ func (x *Version_Response) String() string {
 func (*Version_Response) ProtoMessage() {}
 
 func (x *Version_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_grpc_velez_api_proto_msgTypes[9]
+	mi := &file_grpc_velez_api_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -654,7 +692,7 @@ type Container_Hardware struct {
 func (x *Container_Hardware) Reset() {
 	*x = Container_Hardware{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_grpc_velez_api_proto_msgTypes[10]
+		mi := &file_grpc_velez_api_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -667,7 +705,7 @@ func (x *Container_Hardware) String() string {
 func (*Container_Hardware) ProtoMessage() {}
 
 func (x *Container_Hardware) ProtoReflect() protoreflect.Message {
-	mi := &file_grpc_velez_api_proto_msgTypes[10]
+	mi := &file_grpc_velez_api_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -716,7 +754,7 @@ type Container_Settings struct {
 func (x *Container_Settings) Reset() {
 	*x = Container_Settings{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_grpc_velez_api_proto_msgTypes[11]
+		mi := &file_grpc_velez_api_proto_msgTypes[12]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -729,7 +767,7 @@ func (x *Container_Settings) String() string {
 func (*Container_Settings) ProtoMessage() {}
 
 func (x *Container_Settings) ProtoReflect() protoreflect.Message {
-	mi := &file_grpc_velez_api_proto_msgTypes[11]
+	mi := &file_grpc_velez_api_proto_msgTypes[12]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -774,7 +812,7 @@ type CreateSmerd_Request struct {
 func (x *CreateSmerd_Request) Reset() {
 	*x = CreateSmerd_Request{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_grpc_velez_api_proto_msgTypes[12]
+		mi := &file_grpc_velez_api_proto_msgTypes[13]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -787,7 +825,7 @@ func (x *CreateSmerd_Request) String() string {
 func (*CreateSmerd_Request) ProtoMessage() {}
 
 func (x *CreateSmerd_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_grpc_velez_api_proto_msgTypes[12]
+	mi := &file_grpc_velez_api_proto_msgTypes[13]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -849,7 +887,7 @@ type ListSmerds_Request struct {
 func (x *ListSmerds_Request) Reset() {
 	*x = ListSmerds_Request{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_grpc_velez_api_proto_msgTypes[13]
+		mi := &file_grpc_velez_api_proto_msgTypes[14]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -862,7 +900,7 @@ func (x *ListSmerds_Request) String() string {
 func (*ListSmerds_Request) ProtoMessage() {}
 
 func (x *ListSmerds_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_grpc_velez_api_proto_msgTypes[13]
+	mi := &file_grpc_velez_api_proto_msgTypes[14]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -896,7 +934,7 @@ type ListSmerds_Response struct {
 func (x *ListSmerds_Response) Reset() {
 	*x = ListSmerds_Response{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_grpc_velez_api_proto_msgTypes[14]
+		mi := &file_grpc_velez_api_proto_msgTypes[15]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -909,7 +947,7 @@ func (x *ListSmerds_Response) String() string {
 func (*ListSmerds_Response) ProtoMessage() {}
 
 func (x *ListSmerds_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_grpc_velez_api_proto_msgTypes[14]
+	mi := &file_grpc_velez_api_proto_msgTypes[15]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -930,6 +968,163 @@ func (x *ListSmerds_Response) GetSmerds() []*Smerd {
 		return x.Smerds
 	}
 	return nil
+}
+
+type DropSmerd_Request struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Uuids []string `protobuf:"bytes,1,rep,name=uuids,proto3" json:"uuids,omitempty"`
+}
+
+func (x *DropSmerd_Request) Reset() {
+	*x = DropSmerd_Request{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_grpc_velez_api_proto_msgTypes[16]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DropSmerd_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DropSmerd_Request) ProtoMessage() {}
+
+func (x *DropSmerd_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_grpc_velez_api_proto_msgTypes[16]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DropSmerd_Request.ProtoReflect.Descriptor instead.
+func (*DropSmerd_Request) Descriptor() ([]byte, []int) {
+	return file_grpc_velez_api_proto_rawDescGZIP(), []int{8, 0}
+}
+
+func (x *DropSmerd_Request) GetUuids() []string {
+	if x != nil {
+		return x.Uuids
+	}
+	return nil
+}
+
+type DropSmerd_Response struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Failed     []*DropSmerd_Response_Error `protobuf:"bytes,1,rep,name=failed,proto3" json:"failed,omitempty"`
+	Successful []string                    `protobuf:"bytes,2,rep,name=successful,proto3" json:"successful,omitempty"`
+}
+
+func (x *DropSmerd_Response) Reset() {
+	*x = DropSmerd_Response{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_grpc_velez_api_proto_msgTypes[17]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DropSmerd_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DropSmerd_Response) ProtoMessage() {}
+
+func (x *DropSmerd_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_grpc_velez_api_proto_msgTypes[17]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DropSmerd_Response.ProtoReflect.Descriptor instead.
+func (*DropSmerd_Response) Descriptor() ([]byte, []int) {
+	return file_grpc_velez_api_proto_rawDescGZIP(), []int{8, 1}
+}
+
+func (x *DropSmerd_Response) GetFailed() []*DropSmerd_Response_Error {
+	if x != nil {
+		return x.Failed
+	}
+	return nil
+}
+
+func (x *DropSmerd_Response) GetSuccessful() []string {
+	if x != nil {
+		return x.Successful
+	}
+	return nil
+}
+
+type DropSmerd_Response_Error struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Uuid  string `protobuf:"bytes,1,opt,name=uuid,proto3" json:"uuid,omitempty"`
+	Cause string `protobuf:"bytes,2,opt,name=cause,proto3" json:"cause,omitempty"`
+}
+
+func (x *DropSmerd_Response_Error) Reset() {
+	*x = DropSmerd_Response_Error{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_grpc_velez_api_proto_msgTypes[18]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DropSmerd_Response_Error) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DropSmerd_Response_Error) ProtoMessage() {}
+
+func (x *DropSmerd_Response_Error) ProtoReflect() protoreflect.Message {
+	mi := &file_grpc_velez_api_proto_msgTypes[18]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DropSmerd_Response_Error.ProtoReflect.Descriptor instead.
+func (*DropSmerd_Response_Error) Descriptor() ([]byte, []int) {
+	return file_grpc_velez_api_proto_rawDescGZIP(), []int{8, 1, 0}
+}
+
+func (x *DropSmerd_Response_Error) GetUuid() string {
+	if x != nil {
+		return x.Uuid
+	}
+	return ""
+}
+
+func (x *DropSmerd_Response_Error) GetCause() string {
+	if x != nil {
+		return x.Cause
+	}
+	return ""
 }
 
 var File_grpc_velez_api_proto protoreflect.FileDescriptor
@@ -1034,27 +1229,46 @@ var file_grpc_velez_api_proto_rawDesc = []byte{
 	0x69, 0x74, 0x1a, 0x34, 0x0a, 0x08, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x28,
 	0x0a, 0x06, 0x73, 0x6d, 0x65, 0x72, 0x64, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x10,
 	0x2e, 0x76, 0x65, 0x6c, 0x65, 0x7a, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x53, 0x6d, 0x65, 0x72, 0x64,
-	0x52, 0x06, 0x73, 0x6d, 0x65, 0x72, 0x64, 0x73, 0x32, 0xa3, 0x02, 0x0a, 0x08, 0x56, 0x65, 0x6c,
-	0x65, 0x7a, 0x41, 0x50, 0x49, 0x12, 0x57, 0x0a, 0x07, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e,
-	0x12, 0x1a, 0x2e, 0x76, 0x65, 0x6c, 0x65, 0x7a, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x56, 0x65, 0x72,
-	0x73, 0x69, 0x6f, 0x6e, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1b, 0x2e, 0x76,
+	0x52, 0x06, 0x73, 0x6d, 0x65, 0x72, 0x64, 0x73, 0x22, 0xc9, 0x01, 0x0a, 0x09, 0x44, 0x72, 0x6f,
+	0x70, 0x53, 0x6d, 0x65, 0x72, 0x64, 0x1a, 0x1f, 0x0a, 0x07, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x12, 0x14, 0x0a, 0x05, 0x75, 0x75, 0x69, 0x64, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x09,
+	0x52, 0x05, 0x75, 0x75, 0x69, 0x64, 0x73, 0x1a, 0x9a, 0x01, 0x0a, 0x08, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x3b, 0x0a, 0x06, 0x66, 0x61, 0x69, 0x6c, 0x65, 0x64, 0x18, 0x01,
+	0x20, 0x03, 0x28, 0x0b, 0x32, 0x23, 0x2e, 0x76, 0x65, 0x6c, 0x65, 0x7a, 0x5f, 0x61, 0x70, 0x69,
+	0x2e, 0x44, 0x72, 0x6f, 0x70, 0x53, 0x6d, 0x65, 0x72, 0x64, 0x2e, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x2e, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x52, 0x06, 0x66, 0x61, 0x69, 0x6c, 0x65,
+	0x64, 0x12, 0x1e, 0x0a, 0x0a, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x66, 0x75, 0x6c, 0x18,
+	0x02, 0x20, 0x03, 0x28, 0x09, 0x52, 0x0a, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x66, 0x75,
+	0x6c, 0x1a, 0x31, 0x0a, 0x05, 0x45, 0x72, 0x72, 0x6f, 0x72, 0x12, 0x12, 0x0a, 0x04, 0x75, 0x75,
+	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x75, 0x75, 0x69, 0x64, 0x12, 0x14,
+	0x0a, 0x05, 0x63, 0x61, 0x75, 0x73, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x63,
+	0x61, 0x75, 0x73, 0x65, 0x32, 0x85, 0x03, 0x0a, 0x08, 0x56, 0x65, 0x6c, 0x65, 0x7a, 0x41, 0x50,
+	0x49, 0x12, 0x57, 0x0a, 0x07, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x12, 0x1a, 0x2e, 0x76,
 	0x65, 0x6c, 0x65, 0x7a, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e,
-	0x2e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x13, 0x82, 0xd3, 0xe4, 0x93, 0x02,
-	0x0d, 0x3a, 0x01, 0x2a, 0x22, 0x08, 0x2f, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x12, 0x59,
-	0x0a, 0x0b, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x53, 0x6d, 0x65, 0x72, 0x64, 0x12, 0x1e, 0x2e,
-	0x76, 0x65, 0x6c, 0x65, 0x7a, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65,
-	0x53, 0x6d, 0x65, 0x72, 0x64, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x10, 0x2e,
-	0x76, 0x65, 0x6c, 0x65, 0x7a, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x53, 0x6d, 0x65, 0x72, 0x64, 0x22,
-	0x18, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x12, 0x3a, 0x01, 0x2a, 0x22, 0x0d, 0x2f, 0x73, 0x6d, 0x65,
-	0x72, 0x64, 0x2f, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x12, 0x63, 0x0a, 0x0a, 0x4c, 0x69, 0x73,
-	0x74, 0x53, 0x6d, 0x65, 0x72, 0x64, 0x73, 0x12, 0x1d, 0x2e, 0x76, 0x65, 0x6c, 0x65, 0x7a, 0x5f,
-	0x61, 0x70, 0x69, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x53, 0x6d, 0x65, 0x72, 0x64, 0x73, 0x2e, 0x52,
-	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1e, 0x2e, 0x76, 0x65, 0x6c, 0x65, 0x7a, 0x5f, 0x61,
-	0x70, 0x69, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x53, 0x6d, 0x65, 0x72, 0x64, 0x73, 0x2e, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x16, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x10, 0x3a, 0x01,
-	0x2a, 0x22, 0x0b, 0x2f, 0x73, 0x6d, 0x65, 0x72, 0x64, 0x2f, 0x6c, 0x69, 0x73, 0x74, 0x42, 0x0c,
-	0x5a, 0x0a, 0x2f, 0x76, 0x65, 0x6c, 0x65, 0x7a, 0x5f, 0x61, 0x70, 0x69, 0x62, 0x06, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x33,
+	0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1b, 0x2e, 0x76, 0x65, 0x6c, 0x65, 0x7a,
+	0x5f, 0x61, 0x70, 0x69, 0x2e, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x2e, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x13, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x0d, 0x3a, 0x01, 0x2a,
+	0x22, 0x08, 0x2f, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x12, 0x59, 0x0a, 0x0b, 0x43, 0x72,
+	0x65, 0x61, 0x74, 0x65, 0x53, 0x6d, 0x65, 0x72, 0x64, 0x12, 0x1e, 0x2e, 0x76, 0x65, 0x6c, 0x65,
+	0x7a, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x53, 0x6d, 0x65, 0x72,
+	0x64, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x10, 0x2e, 0x76, 0x65, 0x6c, 0x65,
+	0x7a, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x53, 0x6d, 0x65, 0x72, 0x64, 0x22, 0x18, 0x82, 0xd3, 0xe4,
+	0x93, 0x02, 0x12, 0x3a, 0x01, 0x2a, 0x22, 0x0d, 0x2f, 0x73, 0x6d, 0x65, 0x72, 0x64, 0x2f, 0x63,
+	0x72, 0x65, 0x61, 0x74, 0x65, 0x12, 0x63, 0x0a, 0x0a, 0x4c, 0x69, 0x73, 0x74, 0x53, 0x6d, 0x65,
+	0x72, 0x64, 0x73, 0x12, 0x1d, 0x2e, 0x76, 0x65, 0x6c, 0x65, 0x7a, 0x5f, 0x61, 0x70, 0x69, 0x2e,
+	0x4c, 0x69, 0x73, 0x74, 0x53, 0x6d, 0x65, 0x72, 0x64, 0x73, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x1a, 0x1e, 0x2e, 0x76, 0x65, 0x6c, 0x65, 0x7a, 0x5f, 0x61, 0x70, 0x69, 0x2e, 0x4c,
+	0x69, 0x73, 0x74, 0x53, 0x6d, 0x65, 0x72, 0x64, 0x73, 0x2e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x22, 0x16, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x10, 0x3a, 0x01, 0x2a, 0x22, 0x0b, 0x2f,
+	0x73, 0x6d, 0x65, 0x72, 0x64, 0x2f, 0x6c, 0x69, 0x73, 0x74, 0x12, 0x60, 0x0a, 0x09, 0x44, 0x72,
+	0x6f, 0x70, 0x53, 0x6d, 0x65, 0x72, 0x64, 0x12, 0x1c, 0x2e, 0x76, 0x65, 0x6c, 0x65, 0x7a, 0x5f,
+	0x61, 0x70, 0x69, 0x2e, 0x44, 0x72, 0x6f, 0x70, 0x53, 0x6d, 0x65, 0x72, 0x64, 0x2e, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1d, 0x2e, 0x76, 0x65, 0x6c, 0x65, 0x7a, 0x5f, 0x61, 0x70,
+	0x69, 0x2e, 0x44, 0x72, 0x6f, 0x70, 0x53, 0x6d, 0x65, 0x72, 0x64, 0x2e, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x16, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x10, 0x3a, 0x01, 0x2a, 0x22,
+	0x0b, 0x2f, 0x73, 0x6d, 0x65, 0x72, 0x64, 0x2f, 0x64, 0x72, 0x6f, 0x70, 0x42, 0x0c, 0x5a, 0x0a,
+	0x2f, 0x76, 0x65, 0x6c, 0x65, 0x7a, 0x5f, 0x61, 0x70, 0x69, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x33,
 }
 
 var (
@@ -1070,49 +1284,56 @@ func file_grpc_velez_api_proto_rawDescGZIP() []byte {
 }
 
 var file_grpc_velez_api_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_grpc_velez_api_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_grpc_velez_api_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_grpc_velez_api_proto_goTypes = []interface{}{
-	(PortBindings_Protocol)(0),    // 0: velez_api.PortBindings.Protocol
-	(Smerd_Status)(0),             // 1: velez_api.Smerd.Status
-	(*Version)(nil),               // 2: velez_api.Version
-	(*PortBindings)(nil),          // 3: velez_api.PortBindings
-	(*VolumeBindings)(nil),        // 4: velez_api.VolumeBindings
-	(*Image)(nil),                 // 5: velez_api.Image
-	(*Smerd)(nil),                 // 6: velez_api.Smerd
-	(*Container)(nil),             // 7: velez_api.Container
-	(*CreateSmerd)(nil),           // 8: velez_api.CreateSmerd
-	(*ListSmerds)(nil),            // 9: velez_api.ListSmerds
-	(*Version_Request)(nil),       // 10: velez_api.Version.Request
-	(*Version_Response)(nil),      // 11: velez_api.Version.Response
-	(*Container_Hardware)(nil),    // 12: velez_api.Container.Hardware
-	(*Container_Settings)(nil),    // 13: velez_api.Container.Settings
-	(*CreateSmerd_Request)(nil),   // 14: velez_api.CreateSmerd.Request
-	(*ListSmerds_Request)(nil),    // 15: velez_api.ListSmerds.Request
-	(*ListSmerds_Response)(nil),   // 16: velez_api.ListSmerds.Response
-	(*timestamppb.Timestamp)(nil), // 17: google.protobuf.Timestamp
+	(PortBindings_Protocol)(0),       // 0: velez_api.PortBindings.Protocol
+	(Smerd_Status)(0),                // 1: velez_api.Smerd.Status
+	(*Version)(nil),                  // 2: velez_api.Version
+	(*PortBindings)(nil),             // 3: velez_api.PortBindings
+	(*VolumeBindings)(nil),           // 4: velez_api.VolumeBindings
+	(*Image)(nil),                    // 5: velez_api.Image
+	(*Smerd)(nil),                    // 6: velez_api.Smerd
+	(*Container)(nil),                // 7: velez_api.Container
+	(*CreateSmerd)(nil),              // 8: velez_api.CreateSmerd
+	(*ListSmerds)(nil),               // 9: velez_api.ListSmerds
+	(*DropSmerd)(nil),                // 10: velez_api.DropSmerd
+	(*Version_Request)(nil),          // 11: velez_api.Version.Request
+	(*Version_Response)(nil),         // 12: velez_api.Version.Response
+	(*Container_Hardware)(nil),       // 13: velez_api.Container.Hardware
+	(*Container_Settings)(nil),       // 14: velez_api.Container.Settings
+	(*CreateSmerd_Request)(nil),      // 15: velez_api.CreateSmerd.Request
+	(*ListSmerds_Request)(nil),       // 16: velez_api.ListSmerds.Request
+	(*ListSmerds_Response)(nil),      // 17: velez_api.ListSmerds.Response
+	(*DropSmerd_Request)(nil),        // 18: velez_api.DropSmerd.Request
+	(*DropSmerd_Response)(nil),       // 19: velez_api.DropSmerd.Response
+	(*DropSmerd_Response_Error)(nil), // 20: velez_api.DropSmerd.Response.Error
+	(*timestamppb.Timestamp)(nil),    // 21: google.protobuf.Timestamp
 }
 var file_grpc_velez_api_proto_depIdxs = []int32{
 	0,  // 0: velez_api.PortBindings.protoc:type_name -> velez_api.PortBindings.Protocol
 	3,  // 1: velez_api.Smerd.ports:type_name -> velez_api.PortBindings
 	4,  // 2: velez_api.Smerd.volumes:type_name -> velez_api.VolumeBindings
 	1,  // 3: velez_api.Smerd.status:type_name -> velez_api.Smerd.Status
-	17, // 4: velez_api.Smerd.created_at:type_name -> google.protobuf.Timestamp
+	21, // 4: velez_api.Smerd.created_at:type_name -> google.protobuf.Timestamp
 	3,  // 5: velez_api.Container.Settings.ports:type_name -> velez_api.PortBindings
 	4,  // 6: velez_api.Container.Settings.volumes:type_name -> velez_api.VolumeBindings
-	12, // 7: velez_api.CreateSmerd.Request.hardware:type_name -> velez_api.Container.Hardware
-	13, // 8: velez_api.CreateSmerd.Request.settings:type_name -> velez_api.Container.Settings
+	13, // 7: velez_api.CreateSmerd.Request.hardware:type_name -> velez_api.Container.Hardware
+	14, // 8: velez_api.CreateSmerd.Request.settings:type_name -> velez_api.Container.Settings
 	6,  // 9: velez_api.ListSmerds.Response.smerds:type_name -> velez_api.Smerd
-	10, // 10: velez_api.VelezAPI.Version:input_type -> velez_api.Version.Request
-	14, // 11: velez_api.VelezAPI.CreateSmerd:input_type -> velez_api.CreateSmerd.Request
-	15, // 12: velez_api.VelezAPI.ListSmerds:input_type -> velez_api.ListSmerds.Request
-	11, // 13: velez_api.VelezAPI.Version:output_type -> velez_api.Version.Response
-	6,  // 14: velez_api.VelezAPI.CreateSmerd:output_type -> velez_api.Smerd
-	16, // 15: velez_api.VelezAPI.ListSmerds:output_type -> velez_api.ListSmerds.Response
-	13, // [13:16] is the sub-list for method output_type
-	10, // [10:13] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	20, // 10: velez_api.DropSmerd.Response.failed:type_name -> velez_api.DropSmerd.Response.Error
+	11, // 11: velez_api.VelezAPI.Version:input_type -> velez_api.Version.Request
+	15, // 12: velez_api.VelezAPI.CreateSmerd:input_type -> velez_api.CreateSmerd.Request
+	16, // 13: velez_api.VelezAPI.ListSmerds:input_type -> velez_api.ListSmerds.Request
+	18, // 14: velez_api.VelezAPI.DropSmerd:input_type -> velez_api.DropSmerd.Request
+	12, // 15: velez_api.VelezAPI.Version:output_type -> velez_api.Version.Response
+	6,  // 16: velez_api.VelezAPI.CreateSmerd:output_type -> velez_api.Smerd
+	17, // 17: velez_api.VelezAPI.ListSmerds:output_type -> velez_api.ListSmerds.Response
+	19, // 18: velez_api.VelezAPI.DropSmerd:output_type -> velez_api.DropSmerd.Response
+	15, // [15:19] is the sub-list for method output_type
+	11, // [11:15] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_grpc_velez_api_proto_init() }
@@ -1218,7 +1439,7 @@ func file_grpc_velez_api_proto_init() {
 			}
 		}
 		file_grpc_velez_api_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Version_Request); i {
+			switch v := v.(*DropSmerd); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1230,7 +1451,7 @@ func file_grpc_velez_api_proto_init() {
 			}
 		}
 		file_grpc_velez_api_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Version_Response); i {
+			switch v := v.(*Version_Request); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1242,7 +1463,7 @@ func file_grpc_velez_api_proto_init() {
 			}
 		}
 		file_grpc_velez_api_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Container_Hardware); i {
+			switch v := v.(*Version_Response); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1254,7 +1475,7 @@ func file_grpc_velez_api_proto_init() {
 			}
 		}
 		file_grpc_velez_api_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Container_Settings); i {
+			switch v := v.(*Container_Hardware); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1266,7 +1487,7 @@ func file_grpc_velez_api_proto_init() {
 			}
 		}
 		file_grpc_velez_api_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CreateSmerd_Request); i {
+			switch v := v.(*Container_Settings); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1278,7 +1499,7 @@ func file_grpc_velez_api_proto_init() {
 			}
 		}
 		file_grpc_velez_api_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ListSmerds_Request); i {
+			switch v := v.(*CreateSmerd_Request); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1290,6 +1511,18 @@ func file_grpc_velez_api_proto_init() {
 			}
 		}
 		file_grpc_velez_api_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ListSmerds_Request); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_grpc_velez_api_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ListSmerds_Response); i {
 			case 0:
 				return &v.state
@@ -1301,17 +1534,53 @@ func file_grpc_velez_api_proto_init() {
 				return nil
 			}
 		}
+		file_grpc_velez_api_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DropSmerd_Request); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_grpc_velez_api_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DropSmerd_Response); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_grpc_velez_api_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DropSmerd_Response_Error); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
-	file_grpc_velez_api_proto_msgTypes[10].OneofWrappers = []interface{}{}
-	file_grpc_velez_api_proto_msgTypes[12].OneofWrappers = []interface{}{}
+	file_grpc_velez_api_proto_msgTypes[11].OneofWrappers = []interface{}{}
 	file_grpc_velez_api_proto_msgTypes[13].OneofWrappers = []interface{}{}
+	file_grpc_velez_api_proto_msgTypes[14].OneofWrappers = []interface{}{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_grpc_velez_api_proto_rawDesc,
 			NumEnums:      2,
-			NumMessages:   15,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -5,8 +5,6 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/network"
-	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -31,16 +29,4 @@ func (a *Api) getContainerConfig(name string) *container.Config {
 	return &container.Config{
 		Image: name,
 	}
-}
-
-func (a *Api) getContainerHostConfig() *container.HostConfig {
-	return nil
-}
-
-func (a *Api) getNetworkConfig() *network.NetworkingConfig {
-	return nil
-}
-
-func (a *Api) getPlatform() *v1.Platform {
-	return nil
 }

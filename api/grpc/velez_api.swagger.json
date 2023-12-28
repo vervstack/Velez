@@ -48,6 +48,38 @@
         ]
       }
     },
+    "/smerd/drop": {
+      "post": {
+        "operationId": "VelezAPI_DropSmerd",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiDropSmerdResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiDropSmerdRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VelezAPI"
+        ]
+      }
+    },
     "/smerd/list": {
       "post": {
         "operationId": "VelezAPI_ListSmerds",
@@ -159,6 +191,17 @@
       ],
       "default": "unknown"
     },
+    "ResponseError": {
+      "type": "object",
+      "properties": {
+        "uuid": {
+          "type": "string"
+        },
+        "cause": {
+          "type": "string"
+        }
+      }
+    },
     "googlerpcStatus": {
       "type": "object",
       "properties": {
@@ -204,6 +247,35 @@
         },
         "allowDuplicates": {
           "type": "boolean"
+        }
+      }
+    },
+    "velez_apiDropSmerdRequest": {
+      "type": "object",
+      "properties": {
+        "uuids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "velez_apiDropSmerdResponse": {
+      "type": "object",
+      "properties": {
+        "failed": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/ResponseError"
+          }
+        },
+        "successful": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },

@@ -28,6 +28,12 @@ service VelezAPI {
       body: "*"
     };
   }
+  rpc DropSmerd(DropSmerd.Request) returns (DropSmerd.Response) {
+    option (google.api.http) = {
+      post: "/smerd/drop"
+      body: "*"
+    };
+  }
 }
 
 message Version {
@@ -118,5 +124,21 @@ message ListSmerds {
 
   message Response {
     repeated Smerd smerds = 1;
+  }
+}
+
+message DropSmerd {
+  message Request {
+    repeated string uuids = 1;
+  }
+
+  message Response {
+    message Error {
+      string uuid = 1;
+      string cause = 2;
+    }
+
+    repeated Error failed = 1;
+    repeated string successful = 2;
   }
 }

@@ -39,3 +39,12 @@ Content-Type: application/json
 
 {
 }
+
+
+### Delete smerds
+POST {{velez}}/smerd/drop
+Content-Type: application/json
+
+{
+  "uuids": ["59b340777d32e62069003ea49c51a7cc8dbfc1a40a1aa6e88bdec66759899802"]
+}

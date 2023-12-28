@@ -6,6 +6,7 @@ option go_package = "/velez_api";
 
 import "google/api/annotations.proto";
 import "validate/validate.proto";
+import "google/protobuf/timestamp.proto";
 
 service VelezAPI {
   rpc Version(Version.Request) returns (Version.Response) {
@@ -14,9 +15,22 @@ service VelezAPI {
       body: "*"
     };
   };
-  rpc CreateSmerd(CreateSmerd.Request) returns (CreateSmerd.Response) {
+
+  rpc CreateSmerd(CreateSmerd.Request) returns (Smerd) {
     option (google.api.http) = {
-      post: "/create_smerd"
+      post: "/smerd/create"
+      body: "*"
+    };
+  }
+  rpc ListSmerds(ListSmerds.Request) returns (ListSmerds.Response) {
+    option (google.api.http) = {
+      post: "/smerd/list"
+      body: "*"
+    };
+  }
+  rpc DropSmerd(DropSmerd.Request) returns (DropSmerd.Response) {
+    option (google.api.http) = {
+      post: "/smerd/drop"
       body: "*"
     };
   }
@@ -34,17 +48,46 @@ message PortBindings {
   uint32 host = 1;
   uint32 container = 2;
 
-  enum protocol {
-    tcp = 0;
-    udp = 1;
+  enum Protocol {
+    unknown = 0;
+    tcp = 1;
+    udp = 2;
   };
 
-  protocol protoc = 3;
+  Protocol protoc = 3;
 }
 
 message VolumeBindings {
   string host = 1;
   string container = 2;
+}
+
+message Image {
+  string name = 1;
+  repeated string tags = 2;
+}
+
+message Smerd {
+  string uuid = 1;
+  string name = 2;
+  string image_name = 3;
+
+  repeated PortBindings ports = 4;
+  repeated VolumeBindings volumes = 5;
+
+  enum Status {
+    unknown = 0;
+    created = 1;
+    restarting = 2;
+    running = 3;
+    removing = 4;
+    paused = 5;
+    exited = 6;
+    dead = 7;
+  }
+
+  Status status = 6;
+  google.protobuf.Timestamp created_at = 7;
 }
 
 message Container {
@@ -60,7 +103,6 @@ message Container {
   }
 }
 
-
 message CreateSmerd {
   message Request {
     string name = 1;
@@ -73,10 +115,30 @@ message CreateSmerd {
     optional Container.Settings settings = 4;
     bool allow_duplicates = 5;
   }
+}
+
+message ListSmerds {
+  message Request {
+    optional uint32 limit = 1;
+  }
 
   message Response {
-    string uuid = 1;
-    // later may be extended to return ip and port of given service
+    repeated Smerd smerds = 1;
   }
 }
 
+message DropSmerd {
+  message Request {
+    repeated string uuids = 1;
+  }
+
+  message Response {
+    message Error {
+      string uuid = 1;
+      string cause = 2;
+    }
+
+    repeated Error failed = 1;
+    repeated string successful = 2;
+  }
+}

@@ -342,6 +342,309 @@ var _ interface {
 	ErrorName() string
 } = VolumeBindingsValidationError{}
 
+// Validate checks the field values on Image with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *Image) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Image with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in ImageMultiError, or nil if none found.
+func (m *Image) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Image) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Name
+
+	if len(errors) > 0 {
+		return ImageMultiError(errors)
+	}
+
+	return nil
+}
+
+// ImageMultiError is an error wrapping multiple validation errors returned by
+// Image.ValidateAll() if the designated constraints aren't met.
+type ImageMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ImageMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ImageMultiError) AllErrors() []error { return m }
+
+// ImageValidationError is the validation error returned by Image.Validate if
+// the designated constraints aren't met.
+type ImageValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ImageValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ImageValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ImageValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ImageValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ImageValidationError) ErrorName() string { return "ImageValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ImageValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sImage.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ImageValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ImageValidationError{}
+
+// Validate checks the field values on Smerd with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *Smerd) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Smerd with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in SmerdMultiError, or nil if none found.
+func (m *Smerd) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Smerd) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Uuid
+
+	// no validation rules for Name
+
+	// no validation rules for ImageName
+
+	for idx, item := range m.GetPorts() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, SmerdValidationError{
+						field:  fmt.Sprintf("Ports[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, SmerdValidationError{
+						field:  fmt.Sprintf("Ports[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return SmerdValidationError{
+					field:  fmt.Sprintf("Ports[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	for idx, item := range m.GetVolumes() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, SmerdValidationError{
+						field:  fmt.Sprintf("Volumes[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, SmerdValidationError{
+						field:  fmt.Sprintf("Volumes[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return SmerdValidationError{
+					field:  fmt.Sprintf("Volumes[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for Status
+
+	if all {
+		switch v := interface{}(m.GetCreatedAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, SmerdValidationError{
+					field:  "CreatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, SmerdValidationError{
+					field:  "CreatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCreatedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SmerdValidationError{
+				field:  "CreatedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return SmerdMultiError(errors)
+	}
+
+	return nil
+}
+
+// SmerdMultiError is an error wrapping multiple validation errors returned by
+// Smerd.ValidateAll() if the designated constraints aren't met.
+type SmerdMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SmerdMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SmerdMultiError) AllErrors() []error { return m }
+
+// SmerdValidationError is the validation error returned by Smerd.Validate if
+// the designated constraints aren't met.
+type SmerdValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SmerdValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SmerdValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SmerdValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SmerdValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SmerdValidationError) ErrorName() string { return "SmerdValidationError" }
+
+// Error satisfies the builtin error interface
+func (e SmerdValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSmerd.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SmerdValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SmerdValidationError{}
+
 // Validate checks the field values on Container with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -539,6 +842,204 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateSmerdValidationError{}
+
+// Validate checks the field values on ListSmerds with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *ListSmerds) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListSmerds with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in ListSmerdsMultiError, or
+// nil if none found.
+func (m *ListSmerds) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListSmerds) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ListSmerdsMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListSmerdsMultiError is an error wrapping multiple validation errors
+// returned by ListSmerds.ValidateAll() if the designated constraints aren't met.
+type ListSmerdsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListSmerdsMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListSmerdsMultiError) AllErrors() []error { return m }
+
+// ListSmerdsValidationError is the validation error returned by
+// ListSmerds.Validate if the designated constraints aren't met.
+type ListSmerdsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListSmerdsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListSmerdsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListSmerdsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListSmerdsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListSmerdsValidationError) ErrorName() string { return "ListSmerdsValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ListSmerdsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListSmerds.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListSmerdsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListSmerdsValidationError{}
+
+// Validate checks the field values on DropSmerd with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *DropSmerd) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DropSmerd with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in DropSmerdMultiError, or nil
+// if none found.
+func (m *DropSmerd) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DropSmerd) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return DropSmerdMultiError(errors)
+	}
+
+	return nil
+}
+
+// DropSmerdMultiError is an error wrapping multiple validation errors returned
+// by DropSmerd.ValidateAll() if the designated constraints aren't met.
+type DropSmerdMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DropSmerdMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DropSmerdMultiError) AllErrors() []error { return m }
+
+// DropSmerdValidationError is the validation error returned by
+// DropSmerd.Validate if the designated constraints aren't met.
+type DropSmerdValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DropSmerdValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DropSmerdValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DropSmerdValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DropSmerdValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DropSmerdValidationError) ErrorName() string { return "DropSmerdValidationError" }
+
+// Error satisfies the builtin error interface
+func (e DropSmerdValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDropSmerd.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DropSmerdValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DropSmerdValidationError{}
 
 // Validate checks the field values on Version_Request with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -1222,44 +1723,46 @@ var _ interface {
 
 var _CreateSmerd_Request_ImageName_Pattern = regexp.MustCompile("([a-z]+)/([a-z]+):([a-z0-9.]+)")
 
-// Validate checks the field values on CreateSmerd_Response with the rules
+// Validate checks the field values on ListSmerds_Request with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *CreateSmerd_Response) Validate() error {
+func (m *ListSmerds_Request) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on CreateSmerd_Response with the rules
+// ValidateAll checks the field values on ListSmerds_Request with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// CreateSmerd_ResponseMultiError, or nil if none found.
-func (m *CreateSmerd_Response) ValidateAll() error {
+// ListSmerds_RequestMultiError, or nil if none found.
+func (m *ListSmerds_Request) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *CreateSmerd_Response) validate(all bool) error {
+func (m *ListSmerds_Request) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	// no validation rules for Uuid
+	if m.Limit != nil {
+		// no validation rules for Limit
+	}
 
 	if len(errors) > 0 {
-		return CreateSmerd_ResponseMultiError(errors)
+		return ListSmerds_RequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// CreateSmerd_ResponseMultiError is an error wrapping multiple validation
-// errors returned by CreateSmerd_Response.ValidateAll() if the designated
-// constraints aren't met.
-type CreateSmerd_ResponseMultiError []error
+// ListSmerds_RequestMultiError is an error wrapping multiple validation errors
+// returned by ListSmerds_Request.ValidateAll() if the designated constraints
+// aren't met.
+type ListSmerds_RequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m CreateSmerd_ResponseMultiError) Error() string {
+func (m ListSmerds_RequestMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1268,11 +1771,11 @@ func (m CreateSmerd_ResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m CreateSmerd_ResponseMultiError) AllErrors() []error { return m }
+func (m ListSmerds_RequestMultiError) AllErrors() []error { return m }
 
-// CreateSmerd_ResponseValidationError is the validation error returned by
-// CreateSmerd_Response.Validate if the designated constraints aren't met.
-type CreateSmerd_ResponseValidationError struct {
+// ListSmerds_RequestValidationError is the validation error returned by
+// ListSmerds_Request.Validate if the designated constraints aren't met.
+type ListSmerds_RequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1280,24 +1783,24 @@ type CreateSmerd_ResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e CreateSmerd_ResponseValidationError) Field() string { return e.field }
+func (e ListSmerds_RequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e CreateSmerd_ResponseValidationError) Reason() string { return e.reason }
+func (e ListSmerds_RequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e CreateSmerd_ResponseValidationError) Cause() error { return e.cause }
+func (e ListSmerds_RequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e CreateSmerd_ResponseValidationError) Key() bool { return e.key }
+func (e ListSmerds_RequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e CreateSmerd_ResponseValidationError) ErrorName() string {
-	return "CreateSmerd_ResponseValidationError"
+func (e ListSmerds_RequestValidationError) ErrorName() string {
+	return "ListSmerds_RequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e CreateSmerd_ResponseValidationError) Error() string {
+func (e ListSmerds_RequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1309,14 +1812,14 @@ func (e CreateSmerd_ResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sCreateSmerd_Response.%s: %s%s",
+		"invalid %sListSmerds_Request.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = CreateSmerd_ResponseValidationError{}
+var _ error = ListSmerds_RequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -1324,4 +1827,484 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = CreateSmerd_ResponseValidationError{}
+} = ListSmerds_RequestValidationError{}
+
+// Validate checks the field values on ListSmerds_Response with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListSmerds_Response) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListSmerds_Response with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListSmerds_ResponseMultiError, or nil if none found.
+func (m *ListSmerds_Response) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListSmerds_Response) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetSmerds() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListSmerds_ResponseValidationError{
+						field:  fmt.Sprintf("Smerds[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListSmerds_ResponseValidationError{
+						field:  fmt.Sprintf("Smerds[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListSmerds_ResponseValidationError{
+					field:  fmt.Sprintf("Smerds[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return ListSmerds_ResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListSmerds_ResponseMultiError is an error wrapping multiple validation
+// errors returned by ListSmerds_Response.ValidateAll() if the designated
+// constraints aren't met.
+type ListSmerds_ResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListSmerds_ResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListSmerds_ResponseMultiError) AllErrors() []error { return m }
+
+// ListSmerds_ResponseValidationError is the validation error returned by
+// ListSmerds_Response.Validate if the designated constraints aren't met.
+type ListSmerds_ResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListSmerds_ResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListSmerds_ResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListSmerds_ResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListSmerds_ResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListSmerds_ResponseValidationError) ErrorName() string {
+	return "ListSmerds_ResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListSmerds_ResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListSmerds_Response.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListSmerds_ResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListSmerds_ResponseValidationError{}
+
+// Validate checks the field values on DropSmerd_Request with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *DropSmerd_Request) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DropSmerd_Request with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// DropSmerd_RequestMultiError, or nil if none found.
+func (m *DropSmerd_Request) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DropSmerd_Request) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return DropSmerd_RequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// DropSmerd_RequestMultiError is an error wrapping multiple validation errors
+// returned by DropSmerd_Request.ValidateAll() if the designated constraints
+// aren't met.
+type DropSmerd_RequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DropSmerd_RequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DropSmerd_RequestMultiError) AllErrors() []error { return m }
+
+// DropSmerd_RequestValidationError is the validation error returned by
+// DropSmerd_Request.Validate if the designated constraints aren't met.
+type DropSmerd_RequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DropSmerd_RequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DropSmerd_RequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DropSmerd_RequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DropSmerd_RequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DropSmerd_RequestValidationError) ErrorName() string {
+	return "DropSmerd_RequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DropSmerd_RequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDropSmerd_Request.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DropSmerd_RequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DropSmerd_RequestValidationError{}
+
+// Validate checks the field values on DropSmerd_Response with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *DropSmerd_Response) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DropSmerd_Response with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// DropSmerd_ResponseMultiError, or nil if none found.
+func (m *DropSmerd_Response) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DropSmerd_Response) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetFailed() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, DropSmerd_ResponseValidationError{
+						field:  fmt.Sprintf("Failed[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, DropSmerd_ResponseValidationError{
+						field:  fmt.Sprintf("Failed[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return DropSmerd_ResponseValidationError{
+					field:  fmt.Sprintf("Failed[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return DropSmerd_ResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// DropSmerd_ResponseMultiError is an error wrapping multiple validation errors
+// returned by DropSmerd_Response.ValidateAll() if the designated constraints
+// aren't met.
+type DropSmerd_ResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DropSmerd_ResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DropSmerd_ResponseMultiError) AllErrors() []error { return m }
+
+// DropSmerd_ResponseValidationError is the validation error returned by
+// DropSmerd_Response.Validate if the designated constraints aren't met.
+type DropSmerd_ResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DropSmerd_ResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DropSmerd_ResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DropSmerd_ResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DropSmerd_ResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DropSmerd_ResponseValidationError) ErrorName() string {
+	return "DropSmerd_ResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DropSmerd_ResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDropSmerd_Response.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DropSmerd_ResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DropSmerd_ResponseValidationError{}
+
+// Validate checks the field values on DropSmerd_Response_Error with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *DropSmerd_Response_Error) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DropSmerd_Response_Error with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// DropSmerd_Response_ErrorMultiError, or nil if none found.
+func (m *DropSmerd_Response_Error) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DropSmerd_Response_Error) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Uuid
+
+	// no validation rules for Cause
+
+	if len(errors) > 0 {
+		return DropSmerd_Response_ErrorMultiError(errors)
+	}
+
+	return nil
+}
+
+// DropSmerd_Response_ErrorMultiError is an error wrapping multiple validation
+// errors returned by DropSmerd_Response_Error.ValidateAll() if the designated
+// constraints aren't met.
+type DropSmerd_Response_ErrorMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DropSmerd_Response_ErrorMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DropSmerd_Response_ErrorMultiError) AllErrors() []error { return m }
+
+// DropSmerd_Response_ErrorValidationError is the validation error returned by
+// DropSmerd_Response_Error.Validate if the designated constraints aren't met.
+type DropSmerd_Response_ErrorValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DropSmerd_Response_ErrorValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DropSmerd_Response_ErrorValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DropSmerd_Response_ErrorValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DropSmerd_Response_ErrorValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DropSmerd_Response_ErrorValidationError) ErrorName() string {
+	return "DropSmerd_Response_ErrorValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DropSmerd_Response_ErrorValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDropSmerd_Response_Error.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DropSmerd_Response_ErrorValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DropSmerd_Response_ErrorValidationError{}

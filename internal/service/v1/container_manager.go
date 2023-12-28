@@ -1,17 +1,7 @@
 package v1
 
 import (
-	"context"
-
-	errors "github.com/Red-Sock/trace-errors"
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/filters"
-	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
-	v1 "github.com/opencontainers/image-spec/specs-go/v1"
-
-	"github.com/godverv/Velez/internal/domain"
 )
 
 type containerManager struct {
@@ -22,48 +12,4 @@ func NewContainerManager(docker client.CommonAPIClient) (*containerManager, erro
 	return &containerManager{
 		docker: docker,
 	}, nil
-}
-
-func (c *containerManager) LaunchSmerd(ctx context.Context, req domain.ContainerCreate) (domain.Container, error) {
-	image, err := c.getImage(ctx, req.ImageName)
-	if err != nil {
-		return domain.Container{}, errors.Wrap(err, "error getting image")
-	}
-
-	serviceContainer, err := c.docker.ContainerCreate(ctx,
-		&container.Config{
-			Image:    image.Name,
-			Hostname: req.Name,
-			Volumes:  req.Volumes,
-		},
-		&container.HostConfig{
-			PortBindings: req.Ports,
-		},
-		&network.NetworkingConfig{},
-		&v1.Platform{},
-		req.Name,
-	)
-	if err != nil {
-		return domain.Container{}, errors.Wrap(err, "error creating container")
-	}
-
-	err = c.docker.ContainerStart(ctx, serviceContainer.ID, types.ContainerStartOptions{})
-	if err != nil {
-		return domain.Container{}, errors.Wrap(err, "error starting container")
-	}
-
-	out := domain.Container{
-		UUID:      serviceContainer.ID,
-		ImageName: req.ImageName,
-	}
-
-	cl, err := c.docker.ContainerList(ctx, types.ContainerListOptions{
-		Filters: filters.NewArgs(filters.Arg("id", serviceContainer.ID)),
-	})
-
-	if err == nil && len(cl) == 1 && len(cl[0].Names) > 0 {
-		out.Name = cl[0].Names[0][1:]
-	}
-
-	return out, nil
 }

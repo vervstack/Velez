@@ -16,20 +16,20 @@
     "application/json"
   ],
   "paths": {
-    "/create_smerd": {
+    "/smerd/create": {
       "post": {
         "operationId": "VelezAPI_CreateSmerd",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/velez_apiCreateSmerdResponse"
+              "$ref": "#/definitions/velez_apiSmerd"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/googlerpcStatus"
             }
           }
         },
@@ -40,6 +40,70 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/velez_apiCreateSmerdRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VelezAPI"
+        ]
+      }
+    },
+    "/smerd/drop": {
+      "post": {
+        "operationId": "VelezAPI_DropSmerd",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiDropSmerdResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiDropSmerdRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VelezAPI"
+        ]
+      }
+    },
+    "/smerd/list": {
+      "post": {
+        "operationId": "VelezAPI_ListSmerds",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListSmerdsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiListSmerdsRequest"
             }
           }
         ],
@@ -61,7 +125,7 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/rpcStatus"
+              "$ref": "#/definitions/googlerpcStatus"
             }
           }
         },
@@ -118,24 +182,27 @@
         }
       }
     },
-    "PortBindingsprotocol": {
+    "PortBindingsProtocol": {
       "type": "string",
       "enum": [
+        "unknown",
         "tcp",
         "udp"
       ],
-      "default": "tcp"
+      "default": "unknown"
     },
-    "protobufAny": {
+    "ResponseError": {
       "type": "object",
       "properties": {
-        "@type": {
+        "uuid": {
+          "type": "string"
+        },
+        "cause": {
           "type": "string"
         }
-      },
-      "additionalProperties": {}
+      }
     },
-    "rpcStatus": {
+    "googlerpcStatus": {
       "type": "object",
       "properties": {
         "code": {
@@ -153,6 +220,15 @@
           }
         }
       }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
     },
     "velez_apiCreateSmerdRequest": {
       "type": "object",
@@ -174,12 +250,53 @@
         }
       }
     },
-    "velez_apiCreateSmerdResponse": {
+    "velez_apiDropSmerdRequest": {
       "type": "object",
       "properties": {
-        "uuid": {
-          "type": "string",
-          "title": "later may be extended to return ip and port of given service"
+        "uuids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "velez_apiDropSmerdResponse": {
+      "type": "object",
+      "properties": {
+        "failed": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/ResponseError"
+          }
+        },
+        "successful": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "velez_apiListSmerdsRequest": {
+      "type": "object",
+      "properties": {
+        "limit": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "velez_apiListSmerdsResponse": {
+      "type": "object",
+      "properties": {
+        "smerds": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiSmerd"
+          }
         }
       }
     },
@@ -195,9 +312,58 @@
           "format": "int64"
         },
         "protoc": {
-          "$ref": "#/definitions/PortBindingsprotocol"
+          "$ref": "#/definitions/PortBindingsProtocol"
         }
       }
+    },
+    "velez_apiSmerd": {
+      "type": "object",
+      "properties": {
+        "uuid": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "imageName": {
+          "type": "string"
+        },
+        "ports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiPortBindings"
+          }
+        },
+        "volumes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiVolumeBindings"
+          }
+        },
+        "status": {
+          "$ref": "#/definitions/velez_apiSmerdStatus"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "velez_apiSmerdStatus": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "created",
+        "restarting",
+        "running",
+        "removing",
+        "paused",
+        "exited",
+        "dead"
+      ],
+      "default": "unknown"
     },
     "velez_apiVersionRequest": {
       "type": "object"

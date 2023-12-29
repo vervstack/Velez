@@ -8,13 +8,12 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/godverv/Velez/internal/backservice"
+	"github.com/godverv/Velez/internal/backservice/watchtower"
 	"github.com/godverv/Velez/internal/client/docker"
 	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/cron"
 	"github.com/godverv/Velez/internal/service"
-	"github.com/godverv/Velez/internal/service/container_manager_v1"
-	"github.com/godverv/Velez/internal/service/hardware_manager_v1"
+	"github.com/godverv/Velez/internal/service/service_manager"
 	"github.com/godverv/Velez/internal/transport"
 	"github.com/godverv/Velez/internal/transport/grpc"
 	"github.com/godverv/Velez/internal/utils/closer"
@@ -37,7 +36,7 @@ func main() {
 
 	ctx, _ = context.WithTimeout(ctx, cfg.AppInfo().StartupDuration)
 
-	cm, hm := mustInitContainerManagerService()
+	serviceManager := mustInitContainerManagerService(cfg)
 
 	mgr := transport.NewManager()
 	{
@@ -46,7 +45,7 @@ func main() {
 			logrus.Fatalf("error getting grpc from config: %s", err)
 		}
 
-		srv, err := grpc.NewServer(cfg, grpcConf, cm, hm)
+		srv, err := grpc.NewServer(cfg, grpcConf, serviceManager)
 		if err != nil {
 			logrus.Fatalf("error creating grpc server: %s", err)
 		}
@@ -66,7 +65,7 @@ func main() {
 		return nil
 	})
 
-	initCron(ctx, cfg, cm)
+	initCron(ctx, cfg, serviceManager)
 
 	waitingForTheEnd()
 	logrus.Println("shutting down the app")
@@ -90,20 +89,20 @@ func waitingForTheEnd() {
 	<-done
 }
 
-func mustInitContainerManagerService() (service.ContainerManager, service.HardwareManager) {
+func mustInitContainerManagerService(cfg config.Config) service.Services {
 	dockerApi, err := docker.NewClient()
 	if err != nil {
 		logrus.Fatalf("erorr getting docker api client: %s", err)
 	}
 
-	cm, err := container_manager_v1.NewContainerManager(dockerApi)
+	s, err := service_manager.New(cfg, dockerApi)
 	if err != nil {
-		logrus.Fatalf("error creating container manager")
+		logrus.Fatalf("error creating service manager: %s", err)
 	}
 
-	return cm, hardware_manager_v1.New()
+	return s
 }
 
-func initCron(ctx context.Context, cfg config.Config, cm service.ContainerManager) {
-	go cron.KeepAlive(ctx, backservice.NewWatchTower(cfg, cm))
+func initCron(ctx context.Context, cfg config.Config, sm service.Services) {
+	go cron.KeepAlive(ctx, watchtower.NewWatchTower(cfg, sm.GetContainerManagerService()))
 }

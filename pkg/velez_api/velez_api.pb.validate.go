@@ -1664,7 +1664,7 @@ func (m *CreateSmerd_Request) validate(all bool) error {
 	if !_CreateSmerd_Request_ImageName_Pattern.MatchString(m.GetImageName()) {
 		err := CreateSmerd_RequestValidationError{
 			field:  "ImageName",
-			reason: "value does not match regex pattern \"([a-z]+)/([a-z]+):([a-z0-9.]+)\"",
+			reason: "value does not match regex pattern \"([a-z]+)/([a-z-]+):([a-z0-9.]+)\"",
 		}
 		if !all {
 			return err
@@ -1824,7 +1824,7 @@ var _ interface {
 	ErrorName() string
 } = CreateSmerd_RequestValidationError{}
 
-var _CreateSmerd_Request_ImageName_Pattern = regexp.MustCompile("([a-z]+)/([a-z]+):([a-z0-9.]+)")
+var _CreateSmerd_Request_ImageName_Pattern = regexp.MustCompile("([a-z]+)/([a-z-]+):([a-z0-9.]+)")
 
 // Validate checks the field values on ListSmerds_Request with the rules
 // defined in the proto definition for this message. If any rules are

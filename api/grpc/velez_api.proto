@@ -113,7 +113,7 @@ message CreateSmerd {
   message Request {
     string name = 1;
     string image_name = 2 [(validate.rules).string = {
-      pattern:   '([a-z]+)/([a-z]+):([a-z0-9.]+)',
+      pattern:   '([a-z]+)/([a-z-]+):([a-z0-9.]+)',
       max_bytes: 50,
     }];
 

@@ -1,4 +1,4 @@
-package backservice
+package portainer
 
 import (
 	"context"
@@ -6,55 +6,54 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 
-	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
 const (
-	watchTowerName     = "watchtower"
-	watchTowerImage    = "containrrr/" + watchTowerName
-	watchTowerDuration = time.Second * 5
+	portainerName     = "portainer-ce"
+	portainerImage    = "portainer/" + portainerName
+	portainerDuration = time.Second * 5
 )
 
-type Watchtower struct {
+type Portainer struct {
 	cm service.ContainerManager
 
 	duration time.Duration
 }
 
-func NewWatchTower(cfg config.Config, cm service.ContainerManager) *Watchtower {
-	w := &Watchtower{
-		cm: cm,
-	}
-
-	w.duration = cfg.GetDuration(config.WatchTowerInterval)
-	if w.duration == 0 {
-		w.duration = watchTowerDuration
+func NewPortainer(cm service.ContainerManager) *Portainer {
+	w := &Portainer{
+		cm:       cm,
+		duration: portainerDuration,
 	}
 
 	return w
 }
 
-func (b *Watchtower) Start() error {
+func (b *Portainer) Start() error {
 	ctx := context.Background()
 
 	command := "--interval 30"
 
 	_, err := b.cm.LaunchSmerd(ctx, &velez_api.CreateSmerd_Request{
-		Name:      watchTowerName,
-		ImageName: watchTowerImage,
+		Name:      portainerName,
+		ImageName: portainerImage,
 		Settings: &velez_api.Container_Settings{
+			Ports: []*velez_api.PortBindings{},
 			Volumes: []*velez_api.VolumeBindings{
 				{
 					Host:      "/var/run/docker.sock",
 					Container: "/var/run/docker.sock",
 				},
+				{
+					Host:      "portainer_data",
+					Container: "/data",
+				},
 			},
 		},
 		Command: &command,
 	})
-
 	if err != nil {
 		return errors.Wrap(err, "error launching watchtower's smerd")
 	}
@@ -62,16 +61,16 @@ func (b *Watchtower) Start() error {
 	return nil
 }
 
-func (b *Watchtower) GetName() string {
-	return watchTowerName
+func (b *Portainer) GetName() string {
+	return portainerName
 }
 
-func (b *Watchtower) GetDuration() time.Duration {
+func (b *Portainer) GetDuration() time.Duration {
 	return b.duration
 }
 
-func (b *Watchtower) IsAlive() (bool, error) {
-	name := watchTowerName
+func (b *Portainer) IsAlive() (bool, error) {
+	name := portainerName
 
 	smerds, err := b.cm.ListSmerds(context.Background(), &velez_api.ListSmerds_Request{Name: &name})
 	if err != nil {
@@ -87,9 +86,9 @@ func (b *Watchtower) IsAlive() (bool, error) {
 	return false, nil
 }
 
-func (b *Watchtower) Kill() error {
+func (b *Portainer) Kill() error {
 	dropRes, err := b.cm.DropSmerds(context.Background(), &velez_api.DropSmerd_Request{
-		Name: []string{watchTowerName},
+		Name: []string{portainerName},
 	})
 	if err != nil {
 		return errors.Wrap(err, "error dropping result")

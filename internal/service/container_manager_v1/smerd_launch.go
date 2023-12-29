@@ -12,6 +12,7 @@ import (
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 
 	"github.com/godverv/Velez/internal/client/docker/dockerutils/parser"
+	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -23,6 +24,15 @@ func (c *containerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 
 	if req.Name == "" {
 		req.Name = strings.Split(image.Name, "/")[1]
+	}
+
+	for i := range req.Settings.Ports {
+		port := c.portManager.GetPort()
+		if port == nil {
+			return nil, service.ErrNoPortsAvailable
+		}
+
+		req.Settings.Ports[i].Host = uint32(*port)
 	}
 
 	serviceContainer, err := c.docker.ContainerCreate(ctx,

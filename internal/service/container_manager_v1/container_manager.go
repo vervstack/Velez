@@ -8,18 +8,31 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/godverv/Velez/internal/client/docker/dockerutils"
+	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/domain"
+	"github.com/godverv/Velez/internal/service/container_manager_v1/port_manager"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
 type containerManager struct {
 	docker client.CommonAPIClient
+
+	portManager *port_manager.PortManager
 }
 
-func NewContainerManager(docker client.CommonAPIClient) (*containerManager, error) {
-	return &containerManager{
+func NewContainerManager(cfg config.Config, docker client.CommonAPIClient) (*containerManager, error) {
+	c := &containerManager{
 		docker: docker,
-	}, nil
+	}
+
+	var err error
+
+	c.portManager, err = port_manager.NewPortManager(context.Background(), cfg, docker)
+	if err != nil {
+		return nil, errors.Wrap(err, "error getting port manager")
+	}
+
+	return c, nil
 }
 
 func (c *containerManager) getImage(ctx context.Context, name string) (*velez_api.Image, error) {

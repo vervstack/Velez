@@ -30,7 +30,16 @@ type Server struct {
 	m           sync.Mutex
 }
 
-func NewServer(cfg config.Config, server *api.GRPC, containerManager service.ContainerManager) (*Server, error) {
+type Api struct {
+	velez_api.UnimplementedVelezAPIServer
+
+	containerManager service.ContainerManager
+	hardwareManager  service.HardwareManager
+
+	version string
+}
+
+func NewServer(cfg config.Config, server *api.GRPC, containerManager service.ContainerManager, hardwareManager service.HardwareManager) (*Server, error) {
 	grpcServer := grpc.NewServer()
 
 	velez_api.RegisterVelezAPIServer(
@@ -38,6 +47,7 @@ func NewServer(cfg config.Config, server *api.GRPC, containerManager service.Con
 		&Api{
 			version:          cfg.AppInfo().Version,
 			containerManager: containerManager,
+			hardwareManager:  hardwareManager,
 		})
 
 	return &Server{

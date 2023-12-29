@@ -1,4 +1,4 @@
-package v1
+package container_manager_v1
 
 import (
 	"strconv"

@@ -4,10 +4,54 @@ Content-Type: application/json
 
 {}
 
-### Create container
-POST {{velez}}/create_smerd
+### Create smerd
+POST {{velez}}/smerd/create
 Content-Type: application/json
 
 {
-  "imageName": "godverv/velez"
+  "name": "velez",
+  "image_name": "godverv/velez:v0.0.7",
+  "settings": {
+    "ports": [
+      {
+        "host": 8000,
+        "container": 50051,
+        "protoc": "tcp"
+      },
+      {
+        "host": 8001,
+        "container": 50052,
+        "protoc": "tcp"
+      }
+    ],
+    "volumes": [
+      {
+        "host": "/Users/alexbukov/Desktop/velez_key",
+        "container": "/velez_key"
+      }
+    ]
+  }
+}
+
+### List smerds
+POST {{velez}}/smerd/list
+Content-Type: application/json
+
+{
+}
+
+
+### Delete smerds
+POST {{velez}}/smerd/drop
+Content-Type: application/json
+
+{
+  "uuids": ["59b340777d32e62069003ea49c51a7cc8dbfc1a40a1aa6e88bdec66759899802"]
+}
+
+### Get hardware
+GET {{velez}}/hardware
+Content-Type: application/json
+
+{
 }

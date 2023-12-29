@@ -48,3 +48,10 @@ Content-Type: application/json
 {
   "uuids": ["59b340777d32e62069003ea49c51a7cc8dbfc1a40a1aa6e88bdec66759899802"]
 }
+
+### Get hardware
+GET {{velez}}/hardware
+Content-Type: application/json
+
+{
+}

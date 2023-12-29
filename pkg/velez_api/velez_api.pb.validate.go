@@ -1041,6 +1041,105 @@ var _ interface {
 	ErrorName() string
 } = DropSmerdValidationError{}
 
+// Validate checks the field values on GetHardware with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *GetHardware) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetHardware with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in GetHardwareMultiError, or
+// nil if none found.
+func (m *GetHardware) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetHardware) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return GetHardwareMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetHardwareMultiError is an error wrapping multiple validation errors
+// returned by GetHardware.ValidateAll() if the designated constraints aren't met.
+type GetHardwareMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetHardwareMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetHardwareMultiError) AllErrors() []error { return m }
+
+// GetHardwareValidationError is the validation error returned by
+// GetHardware.Validate if the designated constraints aren't met.
+type GetHardwareValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetHardwareValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetHardwareValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetHardwareValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetHardwareValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetHardwareValidationError) ErrorName() string { return "GetHardwareValidationError" }
+
+// Error satisfies the builtin error interface
+func (e GetHardwareValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetHardware.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetHardwareValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetHardwareValidationError{}
+
 // Validate checks the field values on Version_Request with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -2308,3 +2407,400 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = DropSmerd_Response_ErrorValidationError{}
+
+// Validate checks the field values on GetHardware_Request with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetHardware_Request) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetHardware_Request with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetHardware_RequestMultiError, or nil if none found.
+func (m *GetHardware_Request) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetHardware_Request) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return GetHardware_RequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetHardware_RequestMultiError is an error wrapping multiple validation
+// errors returned by GetHardware_Request.ValidateAll() if the designated
+// constraints aren't met.
+type GetHardware_RequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetHardware_RequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetHardware_RequestMultiError) AllErrors() []error { return m }
+
+// GetHardware_RequestValidationError is the validation error returned by
+// GetHardware_Request.Validate if the designated constraints aren't met.
+type GetHardware_RequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetHardware_RequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetHardware_RequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetHardware_RequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetHardware_RequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetHardware_RequestValidationError) ErrorName() string {
+	return "GetHardware_RequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetHardware_RequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetHardware_Request.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetHardware_RequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetHardware_RequestValidationError{}
+
+// Validate checks the field values on GetHardware_Response with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetHardware_Response) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetHardware_Response with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetHardware_ResponseMultiError, or nil if none found.
+func (m *GetHardware_Response) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetHardware_Response) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetCpu()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetHardware_ResponseValidationError{
+					field:  "Cpu",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetHardware_ResponseValidationError{
+					field:  "Cpu",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCpu()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetHardware_ResponseValidationError{
+				field:  "Cpu",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetDiskMem()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetHardware_ResponseValidationError{
+					field:  "DiskMem",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetHardware_ResponseValidationError{
+					field:  "DiskMem",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetDiskMem()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetHardware_ResponseValidationError{
+				field:  "DiskMem",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetRam()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetHardware_ResponseValidationError{
+					field:  "Ram",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetHardware_ResponseValidationError{
+					field:  "Ram",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetRam()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetHardware_ResponseValidationError{
+				field:  "Ram",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return GetHardware_ResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetHardware_ResponseMultiError is an error wrapping multiple validation
+// errors returned by GetHardware_Response.ValidateAll() if the designated
+// constraints aren't met.
+type GetHardware_ResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetHardware_ResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetHardware_ResponseMultiError) AllErrors() []error { return m }
+
+// GetHardware_ResponseValidationError is the validation error returned by
+// GetHardware_Response.Validate if the designated constraints aren't met.
+type GetHardware_ResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetHardware_ResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetHardware_ResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetHardware_ResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetHardware_ResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetHardware_ResponseValidationError) ErrorName() string {
+	return "GetHardware_ResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetHardware_ResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetHardware_Response.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetHardware_ResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetHardware_ResponseValidationError{}
+
+// Validate checks the field values on GetHardware_Response_Value with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetHardware_Response_Value) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetHardware_Response_Value with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetHardware_Response_ValueMultiError, or nil if none found.
+func (m *GetHardware_Response_Value) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetHardware_Response_Value) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Value
+
+	// no validation rules for Err
+
+	if len(errors) > 0 {
+		return GetHardware_Response_ValueMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetHardware_Response_ValueMultiError is an error wrapping multiple
+// validation errors returned by GetHardware_Response_Value.ValidateAll() if
+// the designated constraints aren't met.
+type GetHardware_Response_ValueMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetHardware_Response_ValueMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetHardware_Response_ValueMultiError) AllErrors() []error { return m }
+
+// GetHardware_Response_ValueValidationError is the validation error returned
+// by GetHardware_Response_Value.Validate if the designated constraints aren't met.
+type GetHardware_Response_ValueValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetHardware_Response_ValueValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetHardware_Response_ValueValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetHardware_Response_ValueValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetHardware_Response_ValueValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetHardware_Response_ValueValidationError) ErrorName() string {
+	return "GetHardware_Response_ValueValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetHardware_Response_ValueValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetHardware_Response_Value.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetHardware_Response_ValueValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetHardware_Response_ValueValidationError{}

@@ -34,6 +34,12 @@ service VelezAPI {
       body: "*"
     };
   }
+
+  rpc GetHardware(GetHardware.Request) returns (GetHardware.Response) {
+    option (google.api.http) = {
+      get: "/hardware"
+    };
+  }
 }
 
 message Version {
@@ -140,5 +146,24 @@ message DropSmerd {
 
     repeated Error failed = 1;
     repeated string successful = 2;
+  }
+}
+
+message GetHardware {
+  message Request {
+
+  }
+
+  message Response {
+    message Value {
+      string value = 1;
+      string err = 2;
+    }
+    Value cpu = 1;
+    Value disk_mem = 2;
+    Value ram = 3;
+
+    repeated uint32 ports_available = 4;
+    repeated uint32 ports_occupied = 5;
   }
 }

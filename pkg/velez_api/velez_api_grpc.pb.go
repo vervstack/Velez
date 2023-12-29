@@ -23,6 +23,7 @@ const (
 	VelezAPI_CreateSmerd_FullMethodName = "/velez_api.VelezAPI/CreateSmerd"
 	VelezAPI_ListSmerds_FullMethodName  = "/velez_api.VelezAPI/ListSmerds"
 	VelezAPI_DropSmerd_FullMethodName   = "/velez_api.VelezAPI/DropSmerd"
+	VelezAPI_GetHardware_FullMethodName = "/velez_api.VelezAPI/GetHardware"
 )
 
 // VelezAPIClient is the client API for VelezAPI service.
@@ -33,6 +34,7 @@ type VelezAPIClient interface {
 	CreateSmerd(ctx context.Context, in *CreateSmerd_Request, opts ...grpc.CallOption) (*Smerd, error)
 	ListSmerds(ctx context.Context, in *ListSmerds_Request, opts ...grpc.CallOption) (*ListSmerds_Response, error)
 	DropSmerd(ctx context.Context, in *DropSmerd_Request, opts ...grpc.CallOption) (*DropSmerd_Response, error)
+	GetHardware(ctx context.Context, in *GetHardware_Request, opts ...grpc.CallOption) (*GetHardware_Response, error)
 }
 
 type velezAPIClient struct {
@@ -79,6 +81,15 @@ func (c *velezAPIClient) DropSmerd(ctx context.Context, in *DropSmerd_Request, o
 	return out, nil
 }
 
+func (c *velezAPIClient) GetHardware(ctx context.Context, in *GetHardware_Request, opts ...grpc.CallOption) (*GetHardware_Response, error) {
+	out := new(GetHardware_Response)
+	err := c.cc.Invoke(ctx, VelezAPI_GetHardware_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // VelezAPIServer is the server API for VelezAPI service.
 // All implementations must embed UnimplementedVelezAPIServer
 // for forward compatibility
@@ -87,6 +98,7 @@ type VelezAPIServer interface {
 	CreateSmerd(context.Context, *CreateSmerd_Request) (*Smerd, error)
 	ListSmerds(context.Context, *ListSmerds_Request) (*ListSmerds_Response, error)
 	DropSmerd(context.Context, *DropSmerd_Request) (*DropSmerd_Response, error)
+	GetHardware(context.Context, *GetHardware_Request) (*GetHardware_Response, error)
 	mustEmbedUnimplementedVelezAPIServer()
 }
 
@@ -105,6 +117,9 @@ func (UnimplementedVelezAPIServer) ListSmerds(context.Context, *ListSmerds_Reque
 }
 func (UnimplementedVelezAPIServer) DropSmerd(context.Context, *DropSmerd_Request) (*DropSmerd_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DropSmerd not implemented")
+}
+func (UnimplementedVelezAPIServer) GetHardware(context.Context, *GetHardware_Request) (*GetHardware_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHardware not implemented")
 }
 func (UnimplementedVelezAPIServer) mustEmbedUnimplementedVelezAPIServer() {}
 
@@ -191,6 +206,24 @@ func _VelezAPI_DropSmerd_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _VelezAPI_GetHardware_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetHardware_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VelezAPIServer).GetHardware(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VelezAPI_GetHardware_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VelezAPIServer).GetHardware(ctx, req.(*GetHardware_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // VelezAPI_ServiceDesc is the grpc.ServiceDesc for VelezAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -213,6 +246,10 @@ var VelezAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DropSmerd",
 			Handler:    _VelezAPI_DropSmerd_Handler,
+		},
+		{
+			MethodName: "GetHardware",
+			Handler:    _VelezAPI_GetHardware_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -11,7 +11,8 @@ import (
 	"github.com/godverv/Velez/internal/client/docker"
 	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/service"
-	v1 "github.com/godverv/Velez/internal/service/v1"
+	"github.com/godverv/Velez/internal/service/container_manager_v1"
+	"github.com/godverv/Velez/internal/service/hardware_manager_v1"
 	"github.com/godverv/Velez/internal/transport"
 	"github.com/godverv/Velez/internal/transport/grpc"
 	"github.com/godverv/Velez/internal/utils/closer"
@@ -38,6 +39,8 @@ func main() {
 		return nil
 	})
 
+	cm, hm := mustInitContainerManagerService()
+
 	mgr := transport.NewManager()
 
 	{
@@ -46,7 +49,7 @@ func main() {
 			logrus.Fatalf("error getting grpc from config: %s", err)
 		}
 
-		srv, err := grpc.NewServer(cfg, grpcConf, mustInitContainerManagerService())
+		srv, err := grpc.NewServer(cfg, grpcConf, cm, hm)
 		if err != nil {
 			logrus.Fatalf("error creating grpc server: %s", err)
 		}
@@ -81,16 +84,16 @@ func waitingForTheEnd() {
 	<-done
 }
 
-func mustInitContainerManagerService() service.ContainerManager {
+func mustInitContainerManagerService() (service.ContainerManager, service.HardwareManager) {
 	dockerApi, err := docker.NewClient()
 	if err != nil {
 		logrus.Fatalf("erorr getting docker api client: %s", err)
 	}
 
-	cm, err := v1.NewContainerManager(dockerApi)
+	cm, err := container_manager_v1.NewContainerManager(dockerApi)
 	if err != nil {
 		logrus.Fatalf("error creating container manager")
 	}
 
-	return cm
+	return cm, hardware_manager_v1.New()
 }

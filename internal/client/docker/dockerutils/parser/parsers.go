@@ -1,16 +1,17 @@
-package container_manager_v1
+package parser
 
 import (
 	"strconv"
 	"strings"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/strslice"
 	"github.com/docker/go-connections/nat"
 
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-func fromVolumes(settings *velez_api.Container_Settings) map[string]struct{} {
+func FromVolumes(settings *velez_api.Container_Settings) map[string]struct{} {
 	if settings == nil {
 		return nil
 	}
@@ -23,7 +24,7 @@ func fromVolumes(settings *velez_api.Container_Settings) map[string]struct{} {
 	return out
 }
 
-func fromPorts(settings *velez_api.Container_Settings) map[nat.Port][]nat.PortBinding {
+func FromPorts(settings *velez_api.Container_Settings) map[nat.Port][]nat.PortBinding {
 	if settings == nil {
 		return nil
 	}
@@ -44,7 +45,15 @@ func fromPorts(settings *velez_api.Container_Settings) map[nat.Port][]nat.PortBi
 	return out
 }
 
-func toVolumes(volumes []types.MountPoint) []*velez_api.VolumeBindings {
+func FromCommand(command *string) strslice.StrSlice {
+	if command == nil {
+		return nil
+	}
+
+	return strings.Split(*command, " ")
+}
+
+func ToVolumes(volumes []types.MountPoint) []*velez_api.VolumeBindings {
 	out := make([]*velez_api.VolumeBindings, len(volumes))
 
 	for i, item := range volumes {
@@ -62,7 +71,7 @@ func toVolumes(volumes []types.MountPoint) []*velez_api.VolumeBindings {
 	return out
 }
 
-func toPorts(ports []types.Port) []*velez_api.PortBindings {
+func ToPorts(ports []types.Port) []*velez_api.PortBindings {
 	out := make([]*velez_api.PortBindings, len(ports))
 
 	for i, item := range ports {

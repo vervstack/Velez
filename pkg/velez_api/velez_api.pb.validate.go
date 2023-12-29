@@ -1740,6 +1740,10 @@ func (m *CreateSmerd_Request) validate(all bool) error {
 
 	}
 
+	if m.Command != nil {
+		// no validation rules for Command
+	}
+
 	if len(errors) > 0 {
 		return CreateSmerd_RequestMultiError(errors)
 	}

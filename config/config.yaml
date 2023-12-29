@@ -10,3 +10,4 @@ environment:
   cpu_default: 0.5
   ram_mb_default: 50
   memory_swap_mb: 50
+  watch_tower_interval: 5s

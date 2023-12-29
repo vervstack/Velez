@@ -120,6 +120,7 @@ message CreateSmerd {
     optional Container.Hardware hardware = 3;
     optional Container.Settings settings = 4;
     bool allow_duplicates = 5;
+    optional string command = 6;
   }
 }
 

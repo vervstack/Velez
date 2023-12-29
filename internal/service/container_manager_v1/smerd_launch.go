@@ -2,6 +2,7 @@ package container_manager_v1
 
 import (
 	"context"
+	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/api/types"
@@ -10,6 +11,7 @@ import (
 	"github.com/docker/docker/api/types/network"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 
+	"github.com/godverv/Velez/internal/client/docker/dockerutils/parser"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -19,14 +21,19 @@ func (c *containerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 		return nil, errors.Wrap(err, "error getting image")
 	}
 
+	if req.Name == "" {
+		req.Name = strings.Split(image.Name, "/")[1]
+	}
+
 	serviceContainer, err := c.docker.ContainerCreate(ctx,
 		&container.Config{
 			Image:    image.Name,
 			Hostname: req.Name,
-			Volumes:  fromVolumes(req.Settings),
+			Volumes:  parser.FromVolumes(req.Settings),
+			Cmd:      parser.FromCommand(req.Command),
 		},
 		&container.HostConfig{
-			PortBindings: fromPorts(req.Settings),
+			PortBindings: parser.FromPorts(req.Settings),
 		},
 		&network.NetworkingConfig{},
 		&v1.Platform{},

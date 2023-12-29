@@ -280,6 +280,9 @@
         },
         "allowDuplicates": {
           "type": "boolean"
+        },
+        "command": {
+          "type": "string"
         }
       }
     },

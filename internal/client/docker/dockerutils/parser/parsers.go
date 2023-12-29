@@ -5,20 +5,25 @@ import (
 	"strings"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/strslice"
 	"github.com/docker/go-connections/nat"
 
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-func FromVolumes(settings *velez_api.Container_Settings) map[string]struct{} {
+func FromBind(settings *velez_api.Container_Settings) []mount.Mount {
 	if settings == nil {
 		return nil
 	}
 
-	out := map[string]struct{}{}
+	out := make([]mount.Mount, 0, len(settings.Volumes))
 	for _, item := range settings.Volumes {
-		out[item.Host+":"+item.Container] = struct{}{}
+		out = append(out, mount.Mount{
+			Type:   "bind",
+			Source: item.Host,
+			Target: item.Container,
+		})
 	}
 
 	return out

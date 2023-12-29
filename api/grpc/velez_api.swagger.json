@@ -294,6 +294,12 @@
           "items": {
             "type": "string"
           }
+        },
+        "name": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
@@ -349,6 +355,9 @@
         "limit": {
           "type": "integer",
           "format": "int64"
+        },
+        "name": {
+          "type": "string"
         }
       }
     },

@@ -18,24 +18,13 @@ type KeepAliveService interface {
 
 func KeepAlive(ctx context.Context, s KeepAliveService) {
 	t := time.NewTicker(s.GetDuration())
-
+	_ = start(s)
 	for {
 		select {
 		case <-t.C:
-			ok, err := s.IsAlive()
-			if err != nil {
-				logrus.Errorf(`error checking if "%s" alive`, s.GetName())
+			if !start(s) {
+				return
 			}
-			if ok {
-				continue
-			}
-
-			err = s.Start()
-			if err != nil {
-				logrus.Errorf(`error keeping "%s" alive `, s.GetName())
-			}
-			logrus.Infof(`successfully started "%s"`, s.GetName())
-
 		case <-ctx.Done():
 			logrus.Errorf(`got termination call. Killing "%s"`, s.GetName())
 
@@ -49,4 +38,25 @@ func KeepAlive(ctx context.Context, s KeepAliveService) {
 			return
 		}
 	}
+}
+
+func start(s KeepAliveService) bool {
+	ok, err := s.IsAlive()
+	if err != nil {
+		logrus.Errorf(`error checking if "%s" alive`, s.GetName())
+		return false
+	}
+	if ok {
+		return true
+	}
+	_ = s.Kill()
+
+	err = s.Start()
+	if err != nil {
+		logrus.Errorf(`error keeping "%s" alive `, s.GetName())
+		return false
+	}
+	logrus.Infof(`successfully started "%s"`, s.GetName())
+
+	return true
 }

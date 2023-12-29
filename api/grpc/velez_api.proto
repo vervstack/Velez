@@ -127,6 +127,7 @@ message CreateSmerd {
 message ListSmerds {
   message Request {
     optional uint32 limit = 1;
+    optional string name = 2;
   }
 
   message Response {
@@ -137,6 +138,7 @@ message ListSmerds {
 message DropSmerd {
   message Request {
     repeated string uuids = 1;
+    repeated string name = 2;
   }
 
   message Response {

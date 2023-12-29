@@ -8,8 +8,10 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/godverv/Velez/internal/backservice"
 	"github.com/godverv/Velez/internal/client/docker"
 	"github.com/godverv/Velez/internal/config"
+	"github.com/godverv/Velez/internal/cron"
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/internal/service/container_manager_v1"
 	"github.com/godverv/Velez/internal/service/hardware_manager_v1"
@@ -33,16 +35,11 @@ func main() {
 		logrus.Fatalf("no startup duration in config")
 	}
 
-	ctx, cancel := context.WithTimeout(ctx, cfg.AppInfo().StartupDuration)
-	closer.Add(func() error {
-		cancel()
-		return nil
-	})
+	ctx, _ = context.WithTimeout(ctx, cfg.AppInfo().StartupDuration)
 
 	cm, hm := mustInitContainerManagerService()
 
 	mgr := transport.NewManager()
-
 	{
 		grpcConf, err := cfg.Api().GRPC(config.ApiGrpc)
 		if err != nil {
@@ -61,6 +58,15 @@ func main() {
 	if err != nil {
 		logrus.Fatalf("error starting api: %s", err)
 	}
+
+	ctx = context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	closer.Add(func() error {
+		cancel()
+		return nil
+	})
+
+	initCron(ctx, cfg, cm)
 
 	waitingForTheEnd()
 	logrus.Println("shutting down the app")
@@ -96,4 +102,8 @@ func mustInitContainerManagerService() (service.ContainerManager, service.Hardwa
 	}
 
 	return cm, hardware_manager_v1.New()
+}
+
+func initCron(ctx context.Context, cfg config.Config, cm service.ContainerManager) {
+	go cron.KeepAlive(ctx, backservice.NewWatchTower(cfg, cm))
 }

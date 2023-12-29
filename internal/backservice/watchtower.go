@@ -24,12 +24,14 @@ type Watchtower struct {
 }
 
 func NewWatchTower(cfg config.Config, cm service.ContainerManager) *Watchtower {
-
 	w := &Watchtower{
 		cm: cm,
 	}
 
-	cfg.GetDuration()
+	w.duration = cfg.GetDuration(config.WatchTowerInterval)
+	if w.duration == 0 {
+		w.duration = watchTowerDuration
+	}
 
 	return w
 }
@@ -69,9 +71,33 @@ func (b *Watchtower) GetDuration() time.Duration {
 }
 
 func (b *Watchtower) IsAlive() (bool, error) {
+	name := watchTowerName
 
+	smerds, err := b.cm.ListSmerds(context.Background(), &velez_api.ListSmerds_Request{Name: &name})
+	if err != nil {
+		return false, errors.Wrap(err, "error listing smerds with name "+name)
+	}
+
+	for _, smerd := range smerds.Smerds {
+		if smerd.Name == name && smerd.Status == velez_api.Smerd_running {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
 
 func (b *Watchtower) Kill() error {
+	dropRes, err := b.cm.DropSmerds(context.Background(), &velez_api.DropSmerd_Request{
+		Name: []string{watchTowerName},
+	})
+	if err != nil {
+		return errors.Wrap(err, "error dropping result")
+	}
 
+	if len(dropRes.Failed) != 0 {
+		return errors.New(dropRes.Failed[0].Cause)
+	}
+
+	return nil
 }

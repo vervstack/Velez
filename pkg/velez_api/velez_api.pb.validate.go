@@ -1852,6 +1852,10 @@ func (m *ListSmerds_Request) validate(all bool) error {
 		// no validation rules for Limit
 	}
 
+	if m.Name != nil {
+		// no validation rules for Name
+	}
+
 	if len(errors) > 0 {
 		return ListSmerds_RequestMultiError(errors)
 	}

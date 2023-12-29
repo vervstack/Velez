@@ -29,11 +29,11 @@ func (c *containerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 		&container.Config{
 			Image:    image.Name,
 			Hostname: req.Name,
-			Volumes:  parser.FromVolumes(req.Settings),
 			Cmd:      parser.FromCommand(req.Command),
 		},
 		&container.HostConfig{
 			PortBindings: parser.FromPorts(req.Settings),
+			Mounts:       parser.FromBind(req.Settings),
 		},
 		&network.NetworkingConfig{},
 		&v1.Platform{},

@@ -29,7 +29,6 @@ type Config interface {
 	TryGetDuration(key string) (t time.Duration, err error)
 	GetMatreshka() *matreshka.AppConfig
 }
-
 type API interface {
 	REST(name string) (*api.Rest, error)
 	GRPC(name string) (*api.GRPC, error)

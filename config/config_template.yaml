@@ -12,6 +12,7 @@ environment:
         - 18501-18519
     cpu_default: 0.5
     memory_swap_mb: 50
-    portainer_on: true
+    portainer_enabled: true
     ram_mb_default: 50
+    watch_tower_enabled: true
     watch_tower_interval: 5s

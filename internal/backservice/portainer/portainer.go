@@ -11,8 +11,9 @@ import (
 )
 
 const (
-	portainerName     = "portainer-ce"
-	portainerImage    = "portainer/" + portainerName
+	portainerName       = "portainer-agent"
+	portainerAgentImage = "portainer/agent:2.19.4"
+
 	portainerDuration = time.Second * 5
 )
 
@@ -34,28 +35,30 @@ func NewPortainer(cm service.ContainerManager) *Portainer {
 func (b *Portainer) Start() error {
 	ctx := context.Background()
 
-	command := "--interval 30"
-
-	_, err := b.cm.LaunchSmerd(ctx, &velez_api.CreateSmerd_Request{
+	req := &velez_api.CreateSmerd_Request{
 		Name:      portainerName,
-		ImageName: portainerImage,
+		ImageName: portainerAgentImage,
 		Settings: &velez_api.Container_Settings{
-			Ports: []*velez_api.PortBindings{},
+			Ports: []*velez_api.PortBindings{
+				{
+					Container: 9001,
+				},
+			},
 			Volumes: []*velez_api.VolumeBindings{
 				{
 					Host:      "/var/run/docker.sock",
 					Container: "/var/run/docker.sock",
 				},
 				{
-					Host:      "portainer_data",
-					Container: "/data",
+					Host:      "/var/lib/docker/volumes",
+					Container: "/var/lib/docker/volumes",
 				},
 			},
 		},
-		Command: &command,
-	})
+	}
+	_, err := b.cm.LaunchSmerd(ctx, req)
 	if err != nil {
-		return errors.Wrap(err, "error launching watchtower's smerd")
+		return errors.Wrap(err, "error launching portainer's smerd")
 	}
 
 	return nil

@@ -37,6 +37,10 @@ func FromPorts(settings *velez_api.Container_Settings) map[nat.Port][]nat.PortBi
 	out := make(map[nat.Port][]nat.PortBinding, len(settings.Ports))
 
 	for _, item := range settings.Ports {
+		if item.Protoc == velez_api.PortBindings_unknown {
+			item.Protoc = velez_api.PortBindings_tcp
+		}
+
 		containerPort, _ := nat.NewPort(item.Protoc.String(), strconv.FormatUint(uint64(item.Container), 10))
 
 		out[containerPort] = []nat.PortBinding{

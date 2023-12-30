@@ -8,6 +8,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/godverv/Velez/internal/backservice/portainer"
 	"github.com/godverv/Velez/internal/backservice/watchtower"
 	"github.com/godverv/Velez/internal/client/docker"
 	"github.com/godverv/Velez/internal/config"
@@ -105,4 +106,8 @@ func mustInitContainerManagerService(cfg config.Config) service.Services {
 
 func initCron(ctx context.Context, cfg config.Config, sm service.Services) {
 	go cron.KeepAlive(ctx, watchtower.NewWatchTower(cfg, sm.GetContainerManagerService()))
+
+	if cfg.GetBool(config.PortainerEnabled) {
+		go cron.KeepAlive(ctx, portainer.NewPortainer(sm.GetContainerManagerService()))
+	}
 }

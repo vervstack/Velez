@@ -1,4 +1,4 @@
-package container_manager_v1
+package dockerutils
 
 import (
 	"context"
@@ -10,12 +10,15 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/godverv/Velez/internal/client/docker/dockerutils/parser"
 	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/internal/utils/comparator"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-func listImages(ctx context.Context, docker client.CommonAPIClient, req domain.ImageListRequest) ([]*velez_api.Image, error) {
+const maxList = uint32(10)
+
+func ListImages(ctx context.Context, docker client.CommonAPIClient, req domain.ImageListRequest) ([]*velez_api.Image, error) {
 	dockerReq := types.ImageListOptions{
 		Filters: filters.NewArgs(),
 	}
@@ -41,7 +44,7 @@ func listImages(ctx context.Context, docker client.CommonAPIClient, req domain.I
 	return resp, nil
 }
 
-func pullImage(ctx context.Context, docker client.CommonAPIClient, req domain.ImageListRequest) (*velez_api.Image, error) {
+func PullImage(ctx context.Context, docker client.CommonAPIClient, req domain.ImageListRequest) (*velez_api.Image, error) {
 	rdr, err := docker.ImagePull(ctx, req.Name, types.ImagePullOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "error pulling image")
@@ -81,7 +84,7 @@ func pullImage(ctx context.Context, docker client.CommonAPIClient, req domain.Im
 	}, nil
 }
 
-func listContainers(ctx context.Context, docker client.CommonAPIClient, req *velez_api.ListSmerds_Request) (*velez_api.ListSmerds_Response, error) {
+func ListContainers(ctx context.Context, docker client.CommonAPIClient, req *velez_api.ListSmerds_Request) (*velez_api.ListSmerds_Response, error) {
 	dockerReq := types.ContainerListOptions{
 		All:     true,
 		Filters: filters.NewArgs(),
@@ -112,8 +115,8 @@ func listContainers(ctx context.Context, docker client.CommonAPIClient, req *vel
 				Seconds: item.Created,
 			},
 
-			Ports:   toPorts(item.Ports),
-			Volumes: toVolumes(item.Mounts),
+			Ports:   parser.ToPorts(item.Ports),
+			Volumes: parser.ToVolumes(item.Mounts),
 		}
 
 		if len(item.Names) != 0 {

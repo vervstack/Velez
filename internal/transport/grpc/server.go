@@ -39,15 +39,15 @@ type Api struct {
 	version string
 }
 
-func NewServer(cfg config.Config, server *api.GRPC, containerManager service.ContainerManager, hardwareManager service.HardwareManager) (*Server, error) {
+func NewServer(cfg config.Config, server *api.GRPC, serviceManager service.Services) (*Server, error) {
 	grpcServer := grpc.NewServer()
 
 	velez_api.RegisterVelezAPIServer(
 		grpcServer,
 		&Api{
 			version:          cfg.AppInfo().Version,
-			containerManager: containerManager,
-			hardwareManager:  hardwareManager,
+			containerManager: serviceManager.GetContainerManagerService(),
+			hardwareManager:  serviceManager.GetHardwareManagerService(),
 		})
 
 	return &Server{

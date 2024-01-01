@@ -1,29 +1,35 @@
-package container_manager_v1
+package parser
 
 import (
 	"strconv"
 	"strings"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/mount"
+	"github.com/docker/docker/api/types/strslice"
 	"github.com/docker/go-connections/nat"
 
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-func fromVolumes(settings *velez_api.Container_Settings) map[string]struct{} {
+func FromBind(settings *velez_api.Container_Settings) []mount.Mount {
 	if settings == nil {
 		return nil
 	}
 
-	out := map[string]struct{}{}
+	out := make([]mount.Mount, 0, len(settings.Volumes))
 	for _, item := range settings.Volumes {
-		out[item.Host+":"+item.Container] = struct{}{}
+		out = append(out, mount.Mount{
+			Type:   "bind",
+			Source: item.Host,
+			Target: item.Container,
+		})
 	}
 
 	return out
 }
 
-func fromPorts(settings *velez_api.Container_Settings) map[nat.Port][]nat.PortBinding {
+func FromPorts(settings *velez_api.Container_Settings) map[nat.Port][]nat.PortBinding {
 	if settings == nil {
 		return nil
 	}
@@ -31,6 +37,10 @@ func fromPorts(settings *velez_api.Container_Settings) map[nat.Port][]nat.PortBi
 	out := make(map[nat.Port][]nat.PortBinding, len(settings.Ports))
 
 	for _, item := range settings.Ports {
+		if item.Protoc == velez_api.PortBindings_unknown {
+			item.Protoc = velez_api.PortBindings_tcp
+		}
+
 		containerPort, _ := nat.NewPort(item.Protoc.String(), strconv.FormatUint(uint64(item.Container), 10))
 
 		out[containerPort] = []nat.PortBinding{
@@ -44,7 +54,15 @@ func fromPorts(settings *velez_api.Container_Settings) map[nat.Port][]nat.PortBi
 	return out
 }
 
-func toVolumes(volumes []types.MountPoint) []*velez_api.VolumeBindings {
+func FromCommand(command *string) strslice.StrSlice {
+	if command == nil {
+		return nil
+	}
+
+	return strings.Split(*command, " ")
+}
+
+func ToVolumes(volumes []types.MountPoint) []*velez_api.VolumeBindings {
 	out := make([]*velez_api.VolumeBindings, len(volumes))
 
 	for i, item := range volumes {
@@ -62,7 +80,7 @@ func toVolumes(volumes []types.MountPoint) []*velez_api.VolumeBindings {
 	return out
 }
 
-func toPorts(ports []types.Port) []*velez_api.PortBindings {
+func ToPorts(ports []types.Port) []*velez_api.PortBindings {
 	out := make([]*velez_api.PortBindings, len(ports))
 
 	for i, item := range ports {

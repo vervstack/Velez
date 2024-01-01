@@ -113,19 +113,21 @@ message CreateSmerd {
   message Request {
     string name = 1;
     string image_name = 2 [(validate.rules).string = {
-      pattern:   '([a-z]+)/([a-z]+):([a-z0-9.]+)',
+      pattern:   '([a-z]+)/([a-z-]+):([a-z0-9.]+)',
       max_bytes: 50,
     }];
 
     optional Container.Hardware hardware = 3;
     optional Container.Settings settings = 4;
     bool allow_duplicates = 5;
+    optional string command = 6;
   }
 }
 
 message ListSmerds {
   message Request {
     optional uint32 limit = 1;
+    optional string name = 2;
   }
 
   message Response {
@@ -136,6 +138,7 @@ message ListSmerds {
 message DropSmerd {
   message Request {
     repeated string uuids = 1;
+    repeated string name = 2;
   }
 
   message Response {

@@ -27,9 +27,9 @@ type Config interface {
 	TryGetString(key string) (out string, err error)
 	TryGetBool(key string) (out bool, err error)
 	TryGetDuration(key string) (t time.Duration, err error)
+
 	GetMatreshka() *matreshka.AppConfig
 }
-
 type API interface {
 	REST(name string) (*api.Rest, error)
 	GRPC(name string) (*api.GRPC, error)
@@ -47,10 +47,6 @@ type config struct {
 	matreshka.AppConfig
 }
 
-func (c *config) GetMatreshka() *matreshka.AppConfig {
-	return &c.AppConfig
-}
-
 func GetConfig() Config {
 	return defaultConfig
 }
@@ -65,4 +61,8 @@ func (c *config) Api() API {
 
 func (c *config) Resources() Resource {
 	return &c.AppConfig.Resources
+}
+
+func (c *config) GetMatreshka() *matreshka.AppConfig {
+	return &c.AppConfig
 }

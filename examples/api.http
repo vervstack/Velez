@@ -10,11 +10,15 @@ Content-Type: application/json
 
 {
   "name": "velez",
-  "image_name": "djskilled/glossary-frontend:latest",
+  "image_name": "godverv/matreshka-be:latest",
   "settings": {
     "ports": [
       {
-        "container": 80,
+        "container": 50051,
+        "protoc": "tcp"
+      },
+      {
+        "container": 50052,
         "protoc": "tcp"
       }
     ]

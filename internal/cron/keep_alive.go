@@ -53,7 +53,7 @@ func start(s KeepAliveService) bool {
 
 	err = s.Start()
 	if err != nil {
-		logrus.Errorf(`error keeping "%s" alive `, s.GetName())
+		logrus.Errorf(`error keeping "%s" alive: %s `, s.GetName(), err)
 		return false
 	}
 	logrus.Infof(`successfully started "%s"`, s.GetName())

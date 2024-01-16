@@ -9,8 +9,8 @@ POST {{velez}}/smerd/create
 Content-Type: application/json
 
 {
-  "name": "velez",
-  "image_name": "godverv/matreshka-be:latest",
+  "name": "matreshka-2",
+  "image_name": "godverv/matreshka-be:v0.0.3",
   "settings": {
     "ports": [
       {

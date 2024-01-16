@@ -2,6 +2,7 @@ package container_manager_v1
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
@@ -9,9 +10,12 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/network"
+	"github.com/godverv/matreshka"
+	"github.com/godverv/matreshka-be/pkg/matreshka_api"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
+	"github.com/sirupsen/logrus"
 
-	"github.com/godverv/Velez/internal/client/docker/dockerutils/parser"
+	"github.com/godverv/Velez/internal/clients/docker/dockerutils/parser"
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
@@ -26,6 +30,17 @@ func (c *containerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 		req.Name = strings.Split(image.Name, "/")[1]
 	}
 
+	cfg := &container.Config{
+		Image:    image.Name,
+		Hostname: req.Name,
+		Cmd:      parser.FromCommand(req.Command),
+	}
+
+	cfg.Env, err = c.getConfigEnvs(ctx, req.Name)
+	if err != nil {
+		return nil, errors.Wrap(err, "error getting envs from config")
+	}
+
 	for i := range req.Settings.Ports {
 		port := c.portManager.GetPort()
 		if port == nil {
@@ -36,11 +51,7 @@ func (c *containerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 	}
 
 	serviceContainer, err := c.docker.ContainerCreate(ctx,
-		&container.Config{
-			Image:    image.Name,
-			Hostname: req.Name,
-			Cmd:      parser.FromCommand(req.Command),
-		},
+		cfg,
 		&container.HostConfig{
 			PortBindings: parser.FromPorts(req.Settings),
 			Mounts:       parser.FromBind(req.Settings),
@@ -72,4 +83,37 @@ func (c *containerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 	}
 
 	return out, nil
+}
+
+func (c *containerManager) getConfigEnvs(ctx context.Context, name string) ([]string, error) {
+	confRaw, err := c.matreshkaClient.GetConfigRaw(ctx, &matreshka_api.GetConfigRaw_Request{
+		ServiceName: name,
+	})
+	if err != nil {
+		logrus.Warnf("error getting config for service \"%s\". Error: %s", name, err)
+		return nil, nil
+	}
+
+	if confRaw == nil || confRaw.Config == "" {
+		logrus.Warnf("no config returned for service \"%s\"", name)
+		return nil, nil
+	}
+
+	conf, err := matreshka.ParseConfig([]byte(confRaw.Config))
+	if err != nil {
+		return nil, errors.Wrap(err, "error parsing config")
+	}
+
+	envKeys, err := matreshka.GenerateKeys(conf)
+	if err != nil {
+		return nil, errors.Wrap(err, "error generating keys")
+	}
+
+	keys := make([]string, 0, len(envKeys))
+
+	for _, item := range envKeys {
+		keys = append(keys, item.Name+"="+fmt.Sprintf("%v", item.Value))
+	}
+
+	return keys, nil
 }

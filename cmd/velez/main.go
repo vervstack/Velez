@@ -10,7 +10,8 @@ import (
 
 	"github.com/godverv/Velez/internal/backservice/portainer"
 	"github.com/godverv/Velez/internal/backservice/watchtower"
-	"github.com/godverv/Velez/internal/client/docker"
+	"github.com/godverv/Velez/internal/clients/docker"
+	grpcClients "github.com/godverv/Velez/internal/clients/grpc"
 	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/cron"
 	"github.com/godverv/Velez/internal/service"
@@ -37,7 +38,7 @@ func main() {
 
 	ctx, _ = context.WithTimeout(ctx, cfg.AppInfo().StartupDuration)
 
-	serviceManager := mustInitContainerManagerService(cfg)
+	serviceManager := mustInitContainerManagerService(ctx, cfg)
 
 	mgr := transport.NewManager()
 	{
@@ -90,13 +91,18 @@ func waitingForTheEnd() {
 	<-done
 }
 
-func mustInitContainerManagerService(cfg config.Config) service.Services {
+func mustInitContainerManagerService(ctx context.Context, cfg config.Config) service.Services {
 	dockerApi, err := docker.NewClient()
 	if err != nil {
 		logrus.Fatalf("erorr getting docker api client: %s", err)
 	}
 
-	s, err := service_manager.New(cfg, dockerApi)
+	matreshkaApi, err := grpcClients.NewMatreshkaBeAPIClient(ctx, cfg)
+	if err != nil {
+		logrus.Fatalf("error getting matreshka api: %s", err)
+	}
+
+	s, err := service_manager.New(cfg, dockerApi, matreshkaApi)
 	if err != nil {
 		logrus.Fatalf("error creating service manager: %s", err)
 	}

@@ -5,9 +5,10 @@ import (
 	"strings"
 
 	"github.com/docker/docker/client"
+	matreshkaPb "github.com/godverv/matreshka-be/pkg/matreshka_api"
 	"github.com/pkg/errors"
 
-	"github.com/godverv/Velez/internal/client/docker/dockerutils"
+	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
 	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/internal/service/container_manager_v1/port_manager"
@@ -15,14 +16,15 @@ import (
 )
 
 type containerManager struct {
-	docker client.CommonAPIClient
-
-	portManager *port_manager.PortManager
+	docker          client.CommonAPIClient
+	matreshkaClient matreshkaPb.MatreshkaBeAPIClient
+	portManager     *port_manager.PortManager
 }
 
-func NewContainerManager(cfg config.Config, docker client.CommonAPIClient) (*containerManager, error) {
+func NewContainerManager(cfg config.Config, docker client.CommonAPIClient, apiClient matreshkaPb.MatreshkaBeAPIClient) (*containerManager, error) {
 	c := &containerManager{
-		docker: docker,
+		docker:          docker,
+		matreshkaClient: apiClient,
 	}
 
 	var err error

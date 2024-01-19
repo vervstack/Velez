@@ -36,19 +36,19 @@ func (c *containerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 		Cmd:      parser.FromCommand(req.Command),
 	}
 
+	err = c.fillPorts(req.Settings.Ports)
+	if err != nil {
+		return nil, errors.Wrap(err, "error getting ports on host side")
+	}
+
 	cfg.Env, err = c.getConfigEnvs(ctx, req.Name)
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting envs from config")
 	}
 
-	for i := range req.Settings.Ports {
-		port := c.portManager.GetPort()
-		if port == nil {
-			return nil, service.ErrNoPortsAvailable
-		}
-
-		req.Settings.Ports[i].Host = uint32(*port)
-	}
+	cfg.Env = append(cfg.Env,
+		fmt.Sprintf("%s=%s", matreshka.VervName, req.Name),
+	)
 
 	serviceContainer, err := c.docker.ContainerCreate(ctx,
 		cfg,
@@ -86,9 +86,11 @@ func (c *containerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 }
 
 func (c *containerManager) getConfigEnvs(ctx context.Context, name string) ([]string, error) {
-	confRaw, err := c.matreshkaClient.GetConfigRaw(ctx, &matreshka_api.GetConfigRaw_Request{
-		ServiceName: name,
-	})
+	confRaw, err := c.matreshkaClient.GetConfigRaw(ctx,
+		&matreshka_api.GetConfigRaw_Request{
+			ServiceName: name,
+		},
+	)
 	if err != nil {
 		logrus.Warnf("error getting config for service \"%s\". Error: %s", name, err)
 		return nil, nil
@@ -116,4 +118,17 @@ func (c *containerManager) getConfigEnvs(ctx context.Context, name string) ([]st
 	}
 
 	return keys, nil
+}
+
+func (c *containerManager) fillPorts(req []*velez_api.PortBindings) error {
+	for i := range req {
+		port := c.portManager.GetPort()
+		if port == nil {
+			return service.ErrNoPortsAvailable
+		}
+
+		req[i].Host = uint32(*port)
+	}
+
+	return nil
 }

@@ -20,6 +20,8 @@ import (
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
+const vervName = "VERV_NAME"
+
 func (c *containerManager) LaunchSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (*velez_api.Smerd, error) {
 	image, err := c.getImage(ctx, req.ImageName)
 	if err != nil {
@@ -47,7 +49,7 @@ func (c *containerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 	}
 
 	cfg.Env = append(cfg.Env,
-		fmt.Sprintf("%s=%s", matreshka.VervName, req.Name),
+		fmt.Sprintf("%s=%s", vervName, req.Name),
 	)
 
 	serviceContainer, err := c.docker.ContainerCreate(ctx,

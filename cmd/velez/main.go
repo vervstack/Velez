@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/godverv/Velez/internal/backservice/portainer"
+	"github.com/godverv/Velez/internal/backservice/security"
 	"github.com/godverv/Velez/internal/backservice/watchtower"
 	"github.com/godverv/Velez/internal/clients/docker"
 	grpcClients "github.com/godverv/Velez/internal/clients/grpc"
@@ -36,10 +37,21 @@ func main() {
 		logrus.Fatalf("no startup duration in config")
 	}
 
-	ctx, _ = context.WithTimeout(ctx, cfg.AppInfo().StartupDuration)
+	ctx, cancel := context.WithTimeout(ctx, cfg.AppInfo().StartupDuration)
+	defer cancel()
 
+	// Security acces layer
+	securityManager := security.NewSecurityManager("./velez/private.key")
+	err = securityManager.Start()
+	if err != nil {
+		logrus.Fatalf("error starting security manager: %s", err)
+	}
+	closer.Add(securityManager.Stop)
+
+	// Service layer
 	serviceManager := mustInitContainerManagerService(ctx, cfg)
 
+	// API
 	mgr := transport.NewManager()
 	{
 		grpcConf, err := cfg.Api().GRPC(config.ApiGrpc)
@@ -47,7 +59,12 @@ func main() {
 			logrus.Fatalf("error getting grpc from config: %s", err)
 		}
 
-		srv, err := grpc.NewServer(cfg, grpcConf, serviceManager)
+		srv, err := grpc.NewServer(
+			cfg,
+			grpcConf,
+			serviceManager,
+			security.GrpcInterceptor(securityManager),
+		)
 		if err != nil {
 			logrus.Fatalf("error creating grpc server: %s", err)
 		}
@@ -61,11 +78,6 @@ func main() {
 	}
 
 	ctx = context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-	closer.Add(func() error {
-		cancel()
-		return nil
-	})
 
 	initCron(ctx, cfg, serviceManager)
 
@@ -111,9 +123,13 @@ func mustInitContainerManagerService(ctx context.Context, cfg config.Config) ser
 }
 
 func initCron(ctx context.Context, cfg config.Config, sm service.Services) {
-	go cron.KeepAlive(ctx, watchtower.NewWatchTower(cfg, sm.GetContainerManagerService()))
+	wt := watchtower.NewWatchTower(cfg, sm.GetContainerManagerService())
+	go cron.KeepAlive(ctx, wt)
+	closer.Add(wt.Kill)
 
 	if cfg.GetBool(config.PortainerEnabled) {
-		go cron.KeepAlive(ctx, portainer.NewPortainer(sm.GetContainerManagerService()))
+		pt := portainer.NewPortainer(sm.GetContainerManagerService())
+		go cron.KeepAlive(ctx, pt)
+		closer.Add(pt.Kill)
 	}
 }

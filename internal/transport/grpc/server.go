@@ -39,8 +39,13 @@ type Api struct {
 	version string
 }
 
-func NewServer(cfg config.Config, server *api.GRPC, serviceManager service.Services) (*Server, error) {
-	grpcServer := grpc.NewServer()
+func NewServer(
+	cfg config.Config,
+	server *api.GRPC,
+	serviceManager service.Services,
+	opts ...grpc.ServerOption,
+) (*Server, error) {
+	grpcServer := grpc.NewServer(opts...)
 
 	velez_api.RegisterVelezAPIServer(
 		grpcServer,
@@ -73,8 +78,8 @@ func (s *Server) Start(_ context.Context) error {
 	}
 
 	mux := runtime.NewServeMux(
-		runtime.WithMarshalerOption(
-			runtime.MIMEWildcard, &runtime.JSONPb{}))
+		runtime.WithIncomingHeaderMatcher(runtime.DefaultHeaderMatcher),
+		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{}))
 
 	if s.gwAddress != ":" {
 		err := velez_api.RegisterVelezAPIHandlerFromEndpoint(
@@ -117,6 +122,7 @@ func (s *Server) Stop(ctx context.Context) error {
 
 func (s *Server) startGrpcServer(lis net.Listener) {
 	logrus.Infof("Starting GRPC Server at %s (%s)", s.grpcAddress, "tcp")
+
 	err := s.grpcServer.Serve(lis)
 	if err != nil {
 		logrus.Errorf("error serving grpc: %s", err)
@@ -127,6 +133,7 @@ func (s *Server) startGrpcServer(lis net.Listener) {
 
 func (s *Server) startGrpcGwServer() {
 	logrus.Infof("Starting HTTP Server at %s", s.gwAddress)
+
 	err := s.gwServer.ListenAndServe()
 	if err != nil {
 		logrus.Errorf("error starting grpc2http handler: %s", err)

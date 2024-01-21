@@ -1,12 +1,14 @@
 ### Get Version
 POST {{velez}}/version
 Content-Type: application/json
+Velez-Auth: 123
 
 {}
 
 ### Create smerd
 POST {{velez}}/smerd/create
 Content-Type: application/json
+Grpc-Metadata-Velez-Auth: 123
 
 {
   "name": "matreshka-2",

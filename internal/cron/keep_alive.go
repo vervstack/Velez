@@ -26,13 +26,13 @@ func KeepAlive(ctx context.Context, s KeepAliveService) {
 				return
 			}
 		case <-ctx.Done():
-			logrus.Errorf(`got termination call. Killing "%s"`, s.GetName())
+			logrus.Errorf(`Got termination call. Killing "%s"`, s.GetName())
 
 			err := s.Kill()
 			if err != nil {
 				logrus.Errorf(`error killing "%s"`, s.GetName())
 			} else {
-				logrus.Infof(`successfully killed "%s"`, s.GetName())
+				logrus.Infof(`Successfully killed "%s"`, s.GetName())
 			}
 
 			return

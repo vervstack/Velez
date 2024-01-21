@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-const defaultPath = "~/velez/privateKey"
+const defaultPath = "~/velez/private.key"
 
 type Validator interface {
 	ValidateKey(in string) bool
@@ -70,12 +70,12 @@ func (s *manager) start() error {
 	}
 
 	for i := range s.key {
-		if s.key[i] > 128 {
+		if s.key[i] > 126 {
 			s.key[i] -= 128
 		}
 
-		if s.key[i] < 32 {
-			s.key[i] += 32
+		if s.key[i] < 33 {
+			s.key[i] += 33
 		}
 	}
 

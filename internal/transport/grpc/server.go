@@ -16,6 +16,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"github.com/godverv/Velez/internal/backservice/security"
 	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/pkg/velez_api"
@@ -43,8 +44,15 @@ func NewServer(
 	cfg config.Config,
 	server *api.GRPC,
 	serviceManager service.Services,
-	opts ...grpc.ServerOption,
+	secManager security.Manager,
 ) (*Server, error) {
+
+	var opts []grpc.ServerOption
+
+	if !cfg.GetBool(config.DevSecurity) {
+		opts = append(opts, security.GrpcInterceptor(secManager))
+	}
+
 	grpcServer := grpc.NewServer(opts...)
 
 	velez_api.RegisterVelezAPIServer(

@@ -1,14 +1,14 @@
 ### Get Version
 POST {{velez}}/version
 Content-Type: application/json
-Velez-Auth: 123
+Grpc-Metadata-Velez-Auth: h',,'c/!6y/YB`VBfSGw?C'+I0=0P2y=w:9"1|e8hP-"'U'.d'S$qY29uQA*;"w9#[p*|S/tV?&C&/:B?3tOu9z6"}Sr`zofJ+\g`0x@eA1)6of$InU141(I%/}&b~o!l;]v63))ae`]&m<3o(%bj>auGzaWj<Q4J-"MF^2+nkF/I4!fJ=0#hq;<={T2v'H|WUM2M69/n0@umM'-/l:i"Q&5b"%mbd`Z79UYC#Vg/o|7&X#8:61jB4<Q9>aH}Lj/
 
 {}
 
 ### Create smerd
 POST {{velez}}/smerd/create
 Content-Type: application/json
-Grpc-Metadata-Velez-Auth: 123
+Grpc-Metadata-Velez-Auth: h',,'c/!6y/YB`VBfSGw?C'+I0=0P2y=w:9"1|e8hP-"'U'.d'S$qY29uQA*;"w9#[p*|S/tV?&C&/:B?3tOu9z6"}Sr`zofJ+\g`0x@eA1)6of$InU141(I%/}&b~o!l;]v63))ae`]&m<3o(%bj>auGzaWj<Q4J-"MF^2+nkF/I4!fJ=0#hq;<={T2v'H|WUM2M69/n0@umM'-/l:i"Q&5b"%mbd`Z79UYC#Vg/o|7&X#8:61jB4<Q9>aH}Lj/
 
 {
   "name": "matreshka-2",

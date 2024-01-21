@@ -20,6 +20,7 @@ import (
 	"github.com/godverv/Velez/internal/transport"
 	"github.com/godverv/Velez/internal/transport/grpc"
 	"github.com/godverv/Velez/internal/utils/closer"
+	"github.com/godverv/Velez/pkg/velez_api"
 	//_transport_imports
 )
 
@@ -41,7 +42,7 @@ func main() {
 	defer cancel()
 
 	// Security acces layer
-	securityManager := security.NewSecurityManager("./velez/private.key")
+	securityManager := security.NewSecurityManager(cfg.GetString(config.CustomPassToKey))
 	err = securityManager.Start()
 	if err != nil {
 		logrus.Fatalf("error starting security manager: %s", err)
@@ -50,6 +51,10 @@ func main() {
 
 	// Service layer
 	serviceManager := mustInitContainerManagerService(ctx, cfg)
+
+	if cfg.GetBool(config.ShutDownOnExit) {
+		closer.Add(smerdsDropper(serviceManager.GetContainerManagerService()))
+	}
 
 	// API
 	mgr := transport.NewManager()
@@ -63,7 +68,7 @@ func main() {
 			cfg,
 			grpcConf,
 			serviceManager,
-			security.GrpcInterceptor(securityManager),
+			securityManager,
 		)
 		if err != nil {
 			logrus.Fatalf("error creating grpc server: %s", err)
@@ -131,5 +136,49 @@ func initCron(ctx context.Context, cfg config.Config, sm service.Services) {
 		pt := portainer.NewPortainer(sm.GetContainerManagerService())
 		go cron.KeepAlive(ctx, pt)
 		closer.Add(pt.Kill)
+	}
+}
+
+func smerdsDropper(manager service.ContainerManager) func() error {
+	return func() error {
+		logrus.Infof("%s env variable is set to TRUE. Dropping launched smerds", config.ShutDownOnExit)
+		logrus.Infof("Listing launched smerds")
+		ctx := context.Background()
+
+		smerds, err := manager.ListSmerds(ctx, &velez_api.ListSmerds_Request{})
+		if err != nil {
+			return err
+		}
+
+		logrus.Infof("%d smerds is active: %v", len(smerds.Smerds), smerds.Smerds)
+
+		dropReq := &velez_api.DropSmerd_Request{
+			Uuids: make([]string, len(smerds.Smerds)),
+		}
+
+		for i := range smerds.Smerds {
+			dropReq.Uuids[i] = smerds.Smerds[i].Uuid
+		}
+
+		logrus.Infof("Dropping %d smerds", len(smerds.Smerds))
+
+		dropSmerds, err := manager.DropSmerds(ctx, dropReq)
+		if err != nil {
+			return err
+		}
+
+		logrus.Infof("%d smerds dropped successfully", len(dropSmerds.Successful))
+		if len(dropSmerds.Successful) != 0 {
+			logrus.Infof("Dropped smerds: %v", dropSmerds.Successful)
+		}
+
+		if len(dropSmerds.Failed) != 0 {
+			logrus.Errorf("%d smerds failed to drop", len(dropSmerds.Failed))
+			for _, f := range dropSmerds.Failed {
+				logrus.Errorf("error dropping %s. Cause %s", f.Uuid, f.Cause)
+			}
+		}
+
+		return nil
 	}
 }

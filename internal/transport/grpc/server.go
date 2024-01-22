@@ -49,7 +49,7 @@ func NewServer(
 
 	var opts []grpc.ServerOption
 
-	if !cfg.GetBool(config.DevSecurity) {
+	if cfg.GetBool(config.EnableAPISecurity) {
 		opts = append(opts, security.GrpcInterceptor(secManager))
 	}
 

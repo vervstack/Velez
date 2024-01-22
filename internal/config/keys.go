@@ -4,7 +4,7 @@ const (
 	AvailablePorts          = "available_ports"
 	CPUDefault              = "cpu_default"
 	CustomPassToKey         = "custom_pass_to_key"
-	DevSecurity             = "dev_security"
+	EnableAPISecurity       = "enable_api_security"
 	MemorySwapMb            = "memory_swap_mb"
 	PortainerEnabled        = "portainer_enabled"
 	RAMMbDefault            = "ram_mb_default"

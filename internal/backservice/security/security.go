@@ -43,9 +43,6 @@ func (s *manager) Start() error {
 	var err error
 	s.Once.Do(func() {
 		err = s.start()
-		if err != nil {
-			logrus.Warnf("error starting security: %s", err)
-		}
 	})
 
 	return err
@@ -86,6 +83,11 @@ func (s *manager) start() error {
 	}
 
 	logrus.Infof("making key to %s", s.buildPath)
+
+	err = os.RemoveAll(s.buildPath)
+	if err != nil {
+		return errors.Wrap(err, "error removing old key")
+	}
 
 	err = os.MkdirAll(path.Dir(s.buildPath), os.ModePerm)
 	if err != nil {

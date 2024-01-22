@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-const defaultPath = "~/velez/private.key"
+const defaultPath = "/tmp/velez/private.key"
 
 type Validator interface {
 	ValidateKey(in string) bool

@@ -5,6 +5,8 @@ import (
 	"os"
 	"path"
 	"sync"
+
+	"github.com/sirupsen/logrus"
 )
 
 const defaultPath = "/tmp/velez/private.key"
@@ -40,6 +42,9 @@ func (s *manager) Start() error {
 	var err error
 	s.Once.Do(func() {
 		err = s.start()
+		if err != nil {
+			logrus.Warnf("error starting security: %s", err)
+		}
 	})
 
 	return err
@@ -88,6 +93,8 @@ func (s *manager) start() error {
 	if err != nil {
 		return err
 	}
+
+	logrus.Infof("wrote key to %s", s.buildPath)
 
 	return nil
 }

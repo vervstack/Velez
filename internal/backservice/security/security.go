@@ -74,7 +74,7 @@ func (s *manager) start() error {
 
 	for i := range s.key {
 		if s.key[i] > 126 {
-			s.key[i] -= 128
+			s.key[i] %= 126
 		}
 
 		if s.key[i] < 33 {

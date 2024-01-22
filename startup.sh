@@ -1,6 +1,6 @@
 export VELEZ_PORT_GRPC=18506
 export VELEZ_PORT_GW=18507
-export VELEZ_KEY_PATH=/tmp/velez/private.key
+export VELEZ_KEY_PATH=/tmp/velez
 
 docker run \
   -p ${VELEZ_PORT_GRPC}:50051 \
@@ -10,5 +10,5 @@ docker run \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /dev/disk:/dev/disk \
   -v /run:/run \
-  -v ${VELEZ_KEY_PATH}:/tmp/velez/private.key \
+  -v ${VELEZ_KEY_PATH}:/tmp/velez \
   godverv/velez:latest

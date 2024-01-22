@@ -25,6 +25,8 @@ github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeME
 github.com/go-ole/go-ole v1.2.5/go.mod h1:pprOEPIfldk/42T2oK7lQ4v4JSDwmV0As9GaiUsvbm0=
 github.com/go-ole/go-ole v1.2.6 h1:/Fpf6oFPoeFik9ty7siob0G6Ke8QvQEuVcuChpwXzpY=
 github.com/go-ole/go-ole v1.2.6/go.mod h1:pprOEPIfldk/42T2oK7lQ4v4JSDwmV0As9GaiUsvbm0=
+github.com/godverv/matreshka v0.0.10 h1:7HaMOYD3w8de6Pt6sBicFOpxtsVAAzwlw6h8B1EtWkQ=
+github.com/godverv/matreshka v0.0.10/go.mod h1:XEGJvZvNWAH6wsx7dTIdAayvLioJdtsuT47151oapCM=
 github.com/godverv/matreshka-be v0.0.3 h1:nsLUHSRpKW3d4QN4fOAx14QAPa7C8qn9rb73UdQWDfY=
 github.com/godverv/matreshka-be v0.0.3/go.mod h1:yEHcgRAu+NBkiTO5BmfxAnyIeNx3Ae45vcFu8byhI20=
 github.com/gogo/protobuf v1.3.2 h1:Ov1cvc58UF3b5XjBnZv7+opcTcQFZebYjWzi34vdm4Q=

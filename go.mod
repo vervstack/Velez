@@ -7,7 +7,7 @@ require (
 	github.com/docker/docker v24.0.7+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.2
-	github.com/godverv/matreshka v0.0.9
+	github.com/godverv/matreshka v0.0.10
 	github.com/godverv/matreshka-be v0.0.3
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.1
 	github.com/jaypipes/ghw v0.12.0
@@ -47,5 +47,3 @@ require (
 	gotest.tools/v3 v3.5.1 // indirect
 	howett.net/plist v1.0.0 // indirect
 )
-
-replace github.com/godverv/matreshka v0.0.9 => /Users/alexbukov/Yandex.Disk.localized/redsock/Matreshka

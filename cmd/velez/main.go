@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/godverv/Velez/internal/backservice/portainer"
+	"github.com/godverv/Velez/internal/backservice/security"
 	"github.com/godverv/Velez/internal/backservice/watchtower"
 	"github.com/godverv/Velez/internal/clients/docker"
 	grpcClients "github.com/godverv/Velez/internal/clients/grpc"
@@ -19,6 +20,7 @@ import (
 	"github.com/godverv/Velez/internal/transport"
 	"github.com/godverv/Velez/internal/transport/grpc"
 	"github.com/godverv/Velez/internal/utils/closer"
+	"github.com/godverv/Velez/pkg/velez_api"
 	//_transport_imports
 )
 
@@ -36,10 +38,25 @@ func main() {
 		logrus.Fatalf("no startup duration in config")
 	}
 
-	ctx, _ = context.WithTimeout(ctx, cfg.AppInfo().StartupDuration)
+	ctx, cancel := context.WithTimeout(ctx, cfg.AppInfo().StartupDuration)
+	defer cancel()
 
+	// Security acces layer
+	securityManager := security.NewSecurityManager(cfg.GetString(config.CustomPassToKey))
+	err = securityManager.Start()
+	if err != nil {
+		logrus.Fatalf("error starting security manager: %s", err)
+	}
+	closer.Add(securityManager.Stop)
+
+	// Service layer
 	serviceManager := mustInitContainerManagerService(ctx, cfg)
 
+	if cfg.GetBool(config.ShutDownOnExit) {
+		closer.Add(smerdsDropper(serviceManager.GetContainerManagerService()))
+	}
+
+	// API
 	mgr := transport.NewManager()
 	{
 		grpcConf, err := cfg.Api().GRPC(config.ApiGrpc)
@@ -47,7 +64,12 @@ func main() {
 			logrus.Fatalf("error getting grpc from config: %s", err)
 		}
 
-		srv, err := grpc.NewServer(cfg, grpcConf, serviceManager)
+		srv, err := grpc.NewServer(
+			cfg,
+			grpcConf,
+			serviceManager,
+			securityManager,
+		)
 		if err != nil {
 			logrus.Fatalf("error creating grpc server: %s", err)
 		}
@@ -61,11 +83,6 @@ func main() {
 	}
 
 	ctx = context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-	closer.Add(func() error {
-		cancel()
-		return nil
-	})
 
 	initCron(ctx, cfg, serviceManager)
 
@@ -111,9 +128,57 @@ func mustInitContainerManagerService(ctx context.Context, cfg config.Config) ser
 }
 
 func initCron(ctx context.Context, cfg config.Config, sm service.Services) {
-	go cron.KeepAlive(ctx, watchtower.NewWatchTower(cfg, sm.GetContainerManagerService()))
+	wt := watchtower.NewWatchTower(cfg, sm.GetContainerManagerService())
+	go cron.KeepAlive(ctx, wt)
+	closer.Add(wt.Kill)
 
 	if cfg.GetBool(config.PortainerEnabled) {
-		go cron.KeepAlive(ctx, portainer.NewPortainer(sm.GetContainerManagerService()))
+		pt := portainer.NewPortainer(sm.GetContainerManagerService())
+		go cron.KeepAlive(ctx, pt)
+		closer.Add(pt.Kill)
+	}
+}
+
+func smerdsDropper(manager service.ContainerManager) func() error {
+	return func() error {
+		logrus.Infof("%s env variable is set to TRUE. Dropping launched smerds", config.ShutDownOnExit)
+		logrus.Infof("Listing launched smerds")
+		ctx := context.Background()
+
+		smerds, err := manager.ListSmerds(ctx, &velez_api.ListSmerds_Request{})
+		if err != nil {
+			return err
+		}
+
+		logrus.Infof("%d smerds is active: %v", len(smerds.Smerds), smerds.Smerds)
+
+		dropReq := &velez_api.DropSmerd_Request{
+			Uuids: make([]string, len(smerds.Smerds)),
+		}
+
+		for i := range smerds.Smerds {
+			dropReq.Uuids[i] = smerds.Smerds[i].Uuid
+		}
+
+		logrus.Infof("Dropping %d smerds", len(smerds.Smerds))
+
+		dropSmerds, err := manager.DropSmerds(ctx, dropReq)
+		if err != nil {
+			return err
+		}
+
+		logrus.Infof("%d smerds dropped successfully", len(dropSmerds.Successful))
+		if len(dropSmerds.Successful) != 0 {
+			logrus.Infof("Dropped smerds: %v", dropSmerds.Successful)
+		}
+
+		if len(dropSmerds.Failed) != 0 {
+			logrus.Errorf("%d smerds failed to drop", len(dropSmerds.Failed))
+			for _, f := range dropSmerds.Failed {
+				logrus.Errorf("error dropping %s. Cause %s", f.Uuid, f.Cause)
+			}
+		}
+
+		return nil
 	}
 }

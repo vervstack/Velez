@@ -47,7 +47,6 @@ linters:
     - forcetypeassert
     - funlen
     - gci
-    - gochecknoglobals
     - gochecknoinits
     - gocognit
     - goconst
@@ -71,9 +70,6 @@ linters:
     - grouper
     - importas
     - ineffassign
-    - interfacebloat
-    - interfacer
-    - ireturn
     - lll
     - loggercheck
     - maintidx
@@ -113,7 +109,6 @@ linters:
     - wastedassign
     - whitespace
     - wrapcheck
-    - wsl
 issues:
   # See the dedicated "issues" documentation section.
   exclude-rules:

@@ -16,6 +16,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"github.com/godverv/Velez/internal/backservice/security"
 	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/pkg/velez_api"
@@ -39,8 +40,20 @@ type Api struct {
 	version string
 }
 
-func NewServer(cfg config.Config, server *api.GRPC, serviceManager service.Services) (*Server, error) {
-	grpcServer := grpc.NewServer()
+func NewServer(
+	cfg config.Config,
+	server *api.GRPC,
+	serviceManager service.Services,
+	secManager security.Manager,
+) (*Server, error) {
+
+	var opts []grpc.ServerOption
+
+	if !cfg.GetBool(config.DevSecurity) {
+		opts = append(opts, security.GrpcInterceptor(secManager))
+	}
+
+	grpcServer := grpc.NewServer(opts...)
 
 	velez_api.RegisterVelezAPIServer(
 		grpcServer,
@@ -73,8 +86,8 @@ func (s *Server) Start(_ context.Context) error {
 	}
 
 	mux := runtime.NewServeMux(
-		runtime.WithMarshalerOption(
-			runtime.MIMEWildcard, &runtime.JSONPb{}))
+		runtime.WithIncomingHeaderMatcher(runtime.DefaultHeaderMatcher),
+		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{}))
 
 	if s.gwAddress != ":" {
 		err := velez_api.RegisterVelezAPIHandlerFromEndpoint(
@@ -117,6 +130,7 @@ func (s *Server) Stop(ctx context.Context) error {
 
 func (s *Server) startGrpcServer(lis net.Listener) {
 	logrus.Infof("Starting GRPC Server at %s (%s)", s.grpcAddress, "tcp")
+
 	err := s.grpcServer.Serve(lis)
 	if err != nil {
 		logrus.Errorf("error serving grpc: %s", err)
@@ -127,6 +141,7 @@ func (s *Server) startGrpcServer(lis net.Listener) {
 
 func (s *Server) startGrpcGwServer() {
 	logrus.Infof("Starting HTTP Server at %s", s.gwAddress)
+
 	err := s.gwServer.ListenAndServe()
 	if err != nil {
 		logrus.Errorf("error starting grpc2http handler: %s", err)

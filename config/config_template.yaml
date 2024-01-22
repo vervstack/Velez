@@ -2,7 +2,10 @@ app_info:
     name: github.com/godverv/Velez
     version: 0.0.1
     startup_duration: 10s
-data_sources: []
+data_sources:
+    - resource_name: grpc_matreshka_be
+      connection_string: 0.0.0.0:18502
+      module: github.com/godverv/matreshka-be@v0.0.3
 server:
     - name: grpc
       port: 50051
@@ -11,8 +14,11 @@ environment:
     available_ports:
         - 18501-18519
     cpu_default: 0.5
+    custom_pass_to_key: ./velez/private.key
+    dev_security: true
     memory_swap_mb: 50
     portainer_enabled: true
     ram_mb_default: 50
+    shut_down_on_exit: true
     watch_tower_enabled: true
     watch_tower_interval: 5s

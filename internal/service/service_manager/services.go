@@ -3,6 +3,7 @@ package service_manager
 import (
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/client"
+	"github.com/godverv/matreshka-be/pkg/matreshka_api"
 
 	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/service"
@@ -15,10 +16,10 @@ type serviceManager struct {
 	service.HardwareManager
 }
 
-func New(cfg config.Config, docker client.CommonAPIClient) (_ service.Services, err error) {
+func New(cfg config.Config, docker client.CommonAPIClient, configClient matreshka_api.MatreshkaBeAPIClient) (_ service.Services, err error) {
 	s := &serviceManager{}
 
-	s.ContainerManager, err = container_manager_v1.NewContainerManager(cfg, docker)
+	s.ContainerManager, err = container_manager_v1.NewContainerManager(cfg, docker, configClient)
 	if err != nil {
 		return nil, errors.Wrap(err, "error creating container manager")
 	}

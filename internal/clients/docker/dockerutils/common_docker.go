@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/godverv/Velez/internal/client/docker/dockerutils/parser"
+	"github.com/godverv/Velez/internal/clients/docker/dockerutils/parser"
 	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/internal/utils/comparator"
 	"github.com/godverv/Velez/pkg/velez_api"

@@ -11,7 +11,7 @@ WORKDIR /app
 COPY --from=builder ./deploy/server/ .
 COPY --from=builder /app/config/ ./config/
 
-ENV VELEZ_CUSTOM_PASS_TO_KEY="~/velez/private.key"
+ENV VELEZ_CUSTOM_PASS_TO_KEY="/tmp/velez/private.key"
 
 EXPOSE 50051
 EXPOSE 50052

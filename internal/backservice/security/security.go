@@ -6,6 +6,7 @@ import (
 	"path"
 	"sync"
 
+	errors "github.com/Red-Sock/trace-errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -84,14 +85,16 @@ func (s *manager) start() error {
 		}
 	}
 
+	logrus.Infof("making key to %s", s.buildPath)
+
 	err = os.MkdirAll(path.Dir(s.buildPath), os.ModePerm)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error making dir")
 	}
 
 	err = os.WriteFile(s.buildPath, s.key, 0666)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error writing key")
 	}
 
 	logrus.Infof("wrote key to %s", s.buildPath)

@@ -41,7 +41,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(ctx, cfg.AppInfo().StartupDuration)
 	defer cancel()
 
-	// Security acces layer
+	// Security access layer
 	securityManager := security.NewSecurityManager(cfg.GetString(config.CustomPassToKey))
 	err = securityManager.Start()
 	if err != nil {

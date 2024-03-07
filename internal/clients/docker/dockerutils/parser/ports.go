@@ -2,32 +2,12 @@ package parser
 
 import (
 	"strconv"
-	"strings"
 
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/mount"
-	"github.com/docker/docker/api/types/strslice"
 	"github.com/docker/go-connections/nat"
 
 	"github.com/godverv/Velez/pkg/velez_api"
 )
-
-func FromBind(settings *velez_api.Container_Settings) []mount.Mount {
-	if settings == nil {
-		return nil
-	}
-
-	out := make([]mount.Mount, 0, len(settings.Volumes))
-	for _, item := range settings.Volumes {
-		out = append(out, mount.Mount{
-			Type:   "bind",
-			Source: item.Host,
-			Target: item.Container,
-		})
-	}
-
-	return out
-}
 
 func FromPorts(settings *velez_api.Container_Settings) map[nat.Port][]nat.PortBinding {
 	if settings == nil {
@@ -48,32 +28,6 @@ func FromPorts(settings *velez_api.Container_Settings) map[nat.Port][]nat.PortBi
 				HostIP:   "0.0.0.0",
 				HostPort: strconv.FormatUint(uint64(item.Host), 10),
 			},
-		}
-	}
-
-	return out
-}
-
-func FromCommand(command *string) strslice.StrSlice {
-	if command == nil {
-		return nil
-	}
-
-	return strings.Split(*command, " ")
-}
-
-func ToVolumes(volumes []types.MountPoint) []*velez_api.VolumeBindings {
-	out := make([]*velez_api.VolumeBindings, len(volumes))
-
-	for i, item := range volumes {
-		splited := strings.Split(item.Destination, ":")
-		if len(splited) != 2 {
-			continue
-		}
-
-		out[i] = &velez_api.VolumeBindings{
-			Host:      splited[0],
-			Container: splited[1],
 		}
 	}
 

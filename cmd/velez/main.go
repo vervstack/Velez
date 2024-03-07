@@ -119,7 +119,7 @@ func mustInitContainerManagerService(ctx context.Context, cfg config.Config) ser
 		logrus.Fatalf("error getting matreshka api: %s", err)
 	}
 
-	s, err := service_manager.New(cfg, dockerApi, matreshkaApi)
+	s, err := service_manager.New(ctx, cfg, dockerApi, matreshkaApi)
 	if err != nil {
 		logrus.Fatalf("error creating service manager: %s", err)
 	}

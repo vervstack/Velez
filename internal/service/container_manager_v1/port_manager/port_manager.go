@@ -9,7 +9,10 @@ import (
 	"github.com/docker/docker/client"
 
 	"github.com/godverv/Velez/internal/config"
+	"github.com/godverv/Velez/pkg/velez_api"
 )
+
+var ErrNoPortsAvailable = errors.New("no ports available")
 
 type PortManager struct {
 	m sync.Mutex
@@ -61,4 +64,47 @@ func (p *PortManager) GetPort() *uint16 {
 	}
 
 	return nil
+}
+
+func (p *PortManager) GetPorts(ports []*velez_api.PortBindings) error {
+	if len(ports) == 0 {
+		return nil
+	}
+
+	p.m.Lock()
+	defer p.m.Unlock()
+
+	pL := make([]uint16, 0, len(ports))
+
+	for port, ok := range p.ports {
+		if ok {
+			continue
+		}
+
+		pL = append(pL, port)
+		if len(pL) == cap(pL) {
+			break
+		}
+	}
+
+	if len(pL) != cap(pL) {
+		return ErrNoPortsAvailable
+	}
+
+	for i := range pL {
+		p.ports[pL[i]] = true
+		ports[i].Host = uint32(pL[i])
+	}
+
+	return nil
+}
+
+func (p *PortManager) Free(ports []uint16) {
+	p.m.Lock()
+
+	for _, item := range ports {
+		p.ports[item] = false
+	}
+
+	p.m.Unlock()
 }

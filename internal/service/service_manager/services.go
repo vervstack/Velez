@@ -1,6 +1,8 @@
 package service_manager
 
 import (
+	"context"
+
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/client"
 	"github.com/godverv/matreshka-be/pkg/matreshka_api"
@@ -11,27 +13,28 @@ import (
 	"github.com/godverv/Velez/internal/service/hardware_manager_v1"
 )
 
-type serviceManager struct {
-	service.ContainerManager
-	service.HardwareManager
+type ServiceManager struct {
+	containerManager service.ContainerManager
+	hardwareManager  service.HardwareManager
 }
 
-func New(cfg config.Config, docker client.CommonAPIClient, configClient matreshka_api.MatreshkaBeAPIClient) (_ service.Services, err error) {
-	s := &serviceManager{}
+func New(ctx context.Context, cfg config.Config, docker client.CommonAPIClient, configClient matreshka_api.MatreshkaBeAPIClient) (_ service.Services, err error) {
+	s := &ServiceManager{}
 
-	s.ContainerManager, err = container_manager_v1.NewContainerManager(cfg, docker, configClient)
+	s.containerManager, err = container_manager_v1.NewContainerManager(ctx, cfg, docker, configClient)
 	if err != nil {
 		return nil, errors.Wrap(err, "error creating container manager")
 	}
 
-	s.HardwareManager = hardware_manager_v1.New()
+	s.hardwareManager = hardware_manager_v1.New()
 
 	return s, nil
 }
 
-func (s *serviceManager) GetContainerManagerService() service.ContainerManager {
-	return s.ContainerManager
+func (s *ServiceManager) GetContainerManagerService() service.ContainerManager {
+	return s.containerManager
 }
-func (s *serviceManager) GetHardwareManagerService() service.HardwareManager {
-	return s.HardwareManager
+
+func (s *ServiceManager) GetHardwareManagerService() service.HardwareManager {
+	return s.hardwareManager
 }

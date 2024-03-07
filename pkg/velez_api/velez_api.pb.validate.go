@@ -1856,6 +1856,14 @@ func (m *ListSmerds_Request) validate(all bool) error {
 		// no validation rules for Name
 	}
 
+	if m.GeneralSearch != nil {
+		// no validation rules for GeneralSearch
+	}
+
+	if m.Id != nil {
+		// no validation rules for Id
+	}
+
 	if len(errors) > 0 {
 		return ListSmerds_RequestMultiError(errors)
 	}

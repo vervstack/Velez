@@ -4,7 +4,6 @@ import (
 	"context"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/docker/docker/api/types/container"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -17,16 +16,22 @@ func (a *Api) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Reques
 		return nil, status.Error(codes.InvalidArgument, errors.Wrap(err, "invalid request. Must match \"lowercase/lowercase:v0.0.1\"").Error())
 	}
 
-	smerd, err := a.containerManager.LaunchSmerd(ctx, req)
+	id, err := a.containerManager.LaunchSmerd(ctx, req)
 	if err != nil {
 		return nil, errors.Wrapf(err, "error searching image")
 	}
 
-	return smerd, nil
-}
-
-func (a *Api) getContainerConfig(name string) *container.Config {
-	return &container.Config{
-		Image: name,
+	smerds, err := a.containerManager.ListSmerds(ctx, &velez_api.ListSmerds_Request{
+		Limit:         nil,
+		GeneralSearch: &id,
+	})
+	if err != nil {
+		return nil, err
 	}
+
+	if len(smerds.Smerds) == 0 {
+		return nil, status.Error(codes.NotFound, "created but couldn't find it")
+	}
+
+	return smerds.Smerds[0], nil
 }

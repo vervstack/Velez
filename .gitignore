@@ -19,3 +19,5 @@ config/dev.yaml
 .idea
 api/*
 !api/grpc
+
+private.key

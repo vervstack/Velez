@@ -1,6 +1,6 @@
 package comparator
 
-func LessInt(a, b uint32) uint32 {
+func Less[T int | uint | uint32](a, b T) T {
 	if a > b {
 		return b
 	}

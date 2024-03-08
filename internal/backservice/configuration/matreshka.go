@@ -1,4 +1,4 @@
-package watchtower
+package configuration
 
 import (
 	"context"
@@ -12,9 +12,9 @@ import (
 )
 
 const (
-	watchTowerName     = "watchtower"
-	watchTowerImage    = "containrrr/" + watchTowerName
-	watchTowerDuration = time.Second * 5
+	containerName = "matreshka"
+	image         = "godverv/matreshka-be"
+	duration      = time.Second * 5
 )
 
 type Watchtower struct {
@@ -25,12 +25,8 @@ type Watchtower struct {
 
 func New(cfg config.Config, cm service.ContainerManager) *Watchtower {
 	w := &Watchtower{
-		cm: cm,
-	}
-
-	w.duration = cfg.GetDuration(config.WatchTowerInterval)
-	if w.duration == 0 {
-		w.duration = watchTowerDuration
+		cm:       cm,
+		duration: duration,
 	}
 
 	return w
@@ -39,20 +35,17 @@ func New(cfg config.Config, cm service.ContainerManager) *Watchtower {
 func (b *Watchtower) Start() error {
 	ctx := context.Background()
 
-	command := "--interval 30"
+	isAlive, err := b.IsAlive()
+	if err != nil {
+		return err
+	}
+	if isAlive {
+		return nil
+	}
 
-	_, err := b.cm.LaunchSmerd(ctx, &velez_api.CreateSmerd_Request{
-		Name:      watchTowerName,
-		ImageName: watchTowerImage,
-		Settings: &velez_api.Container_Settings{
-			Volumes: []*velez_api.VolumeBindings{
-				{
-					Host:      "/var/run/docker.sock",
-					Container: "/var/run/docker.sock",
-				},
-			},
-		},
-		Command: &command,
+	_, err = b.cm.LaunchSmerd(ctx, &velez_api.CreateSmerd_Request{
+		Name:      containerName,
+		ImageName: image,
 	})
 	if err != nil {
 		return errors.Wrap(err, "error launching watchtower's smerd")
@@ -62,7 +55,7 @@ func (b *Watchtower) Start() error {
 }
 
 func (b *Watchtower) GetName() string {
-	return watchTowerName
+	return containerName
 }
 
 func (b *Watchtower) GetDuration() time.Duration {
@@ -70,7 +63,7 @@ func (b *Watchtower) GetDuration() time.Duration {
 }
 
 func (b *Watchtower) IsAlive() (bool, error) {
-	name := watchTowerName
+	name := containerName
 
 	smerds, err := b.cm.ListSmerds(context.Background(), &velez_api.ListSmerds_Request{Name: &name})
 	if err != nil {
@@ -88,7 +81,7 @@ func (b *Watchtower) IsAlive() (bool, error) {
 
 func (b *Watchtower) Kill() error {
 	dropRes, err := b.cm.DropSmerds(context.Background(), &velez_api.DropSmerd_Request{
-		Name: []string{watchTowerName},
+		Name: []string{containerName},
 	})
 	if err != nil {
 		return errors.Wrap(err, "error dropping result")

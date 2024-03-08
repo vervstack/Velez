@@ -8,6 +8,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/godverv/Velez/internal/backservice/configuration"
 	"github.com/godverv/Velez/internal/backservice/portainer"
 	"github.com/godverv/Velez/internal/backservice/security"
 	"github.com/godverv/Velez/internal/backservice/watchtower"
@@ -77,14 +78,14 @@ func main() {
 		mgr.AddServer(srv)
 	}
 
+	initBackServices(cfg, serviceManager)
+
 	err = mgr.Start(ctx)
 	if err != nil {
 		logrus.Fatalf("error starting api: %s", err)
 	}
 
 	ctx = context.Background()
-
-	initCron(ctx, cfg, serviceManager)
 
 	waitingForTheEnd()
 	logrus.Println("shutting down the app")
@@ -127,15 +128,26 @@ func mustInitContainerManagerService(ctx context.Context, cfg config.Config) ser
 	return s
 }
 
-func initCron(ctx context.Context, cfg config.Config, sm service.Services) {
-	wt := watchtower.NewWatchTower(cfg, sm.GetContainerManagerService())
+func initBackServices(cfg config.Config, sm service.Services) {
+	ctx, c := context.WithCancel(context.Background())
+	closer.Add(func() error {
+		c()
+		return nil
+	})
+
+	conf := configuration.New(cfg, sm.GetContainerManagerService())
+	err := conf.Start()
+	if err != nil {
+		logrus.Fatalf("error launching config backservice: %s", err)
+	}
+
+	go cron.KeepAlive(ctx, conf)
+
+	wt := watchtower.New(cfg, sm.GetContainerManagerService())
 	go cron.KeepAlive(ctx, wt)
-	closer.Add(wt.Kill)
 
 	if cfg.GetBool(config.PortainerEnabled) {
-		pt := portainer.NewPortainer(sm.GetContainerManagerService())
-		go cron.KeepAlive(ctx, pt)
-		closer.Add(pt.Kill)
+		go cron.KeepAlive(ctx, portainer.New(sm.GetContainerManagerService()))
 	}
 }
 

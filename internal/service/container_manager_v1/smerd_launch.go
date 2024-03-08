@@ -61,9 +61,11 @@ func (c *ContainerManager) getCreateConfig(ctx context.Context, req *velez_api.C
 		Cmd:      parser.FromCommand(req.Command),
 	}
 
-	err = c.portManager.GetPorts(req.Settings.Ports)
-	if err != nil {
-		return nil, errors.Wrap(err, "error getting ports on host side")
+	if req.Settings != nil {
+		err = c.portManager.GetPorts(req.Settings.Ports)
+		if err != nil {
+			return nil, errors.Wrap(err, "error getting ports on host side")
+		}
 	}
 
 	cfg.Env, err = c.configManager.GetConfigEnvs(ctx, req.Name)

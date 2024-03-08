@@ -1,0 +1,55 @@
+### Get Version
+POST {{velez}}/version
+Content-Type: application/json
+Grpc-Metadata-Velez-Auth: {{key}}
+
+{}
+
+### Create smerd
+POST {{velez}}/smerd/create
+Content-Type: application/json
+Grpc-Metadata-Velez-Auth: {{key}}
+
+{
+  "name": "configs",
+  "image_name": "godverv/matreshka-be:v0.0.6",
+  "settings": {
+    "ports": [
+      {
+        "container": 50051,
+        "protoc": "tcp"
+      },
+      {
+        "container": 50052,
+        "protoc": "tcp"
+      }
+    ]
+  }
+}
+
+<> 2024-03-07T182540.404.json
+<> 2024-03-07T182519.500.json
+<> 2024-03-07T182041.404.json
+
+### List smerds
+POST {{velez}}/smerd/list
+Content-Type: application/json
+
+{
+}
+
+
+### Delete smerds
+POST {{velez}}/smerd/drop
+Content-Type: application/json
+
+{
+  "uuids": ["59b340777d32e62069003ea49c51a7cc8dbfc1a40a1aa6e88bdec66759899802"]
+}
+
+### Get hardware
+GET {{velez}}/hardware
+Content-Type: application/json
+
+{
+}

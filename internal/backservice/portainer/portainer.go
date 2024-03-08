@@ -23,7 +23,7 @@ type Portainer struct {
 	duration time.Duration
 }
 
-func NewPortainer(cm service.ContainerManager) *Portainer {
+func New(cm service.ContainerManager) *Portainer {
 	w := &Portainer{
 		cm:       cm,
 		duration: portainerDuration,

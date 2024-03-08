@@ -5,9 +5,15 @@ import (
 	"time"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/network"
+	"github.com/docker/docker/client"
+	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 
-	"github.com/godverv/Velez/internal/config"
-	"github.com/godverv/Velez/internal/service"
+	"github.com/godverv/Velez/internal/backservice/env"
+	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
+	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -17,61 +23,91 @@ const (
 	duration      = time.Second * 5
 )
 
-type Watchtower struct {
-	cm service.ContainerManager
+type Matreshka struct {
+	dockerAPI client.CommonAPIClient
 
 	duration time.Duration
 }
 
-func New(cfg config.Config, cm service.ContainerManager) *Watchtower {
-	w := &Watchtower{
-		cm:       cm,
-		duration: duration,
+func New(dockerAPI client.CommonAPIClient) *Matreshka {
+	w := &Matreshka{
+		dockerAPI: dockerAPI,
+		duration:  duration,
 	}
 
 	return w
 }
 
-func (b *Watchtower) Start() error {
-	ctx := context.Background()
-
+func (b *Matreshka) Start() error {
 	isAlive, err := b.IsAlive()
-	if err != nil {
+	if err != nil || isAlive {
 		return err
 	}
-	if isAlive {
-		return nil
-	}
 
-	_, err = b.cm.LaunchSmerd(ctx, &velez_api.CreateSmerd_Request{
-		Name:      containerName,
-		ImageName: image,
+	ctx := context.Background()
+
+	_, err = dockerutils.PullImage(ctx, b.dockerAPI, domain.ImageListRequest{
+		Name: image,
 	})
 	if err != nil {
-		return errors.Wrap(err, "error launching watchtower's smerd")
+		return errors.Wrap(err, "error pulling matreshka image")
+	}
+
+	cont, err := b.dockerAPI.ContainerCreate(ctx,
+		&container.Config{
+			Image:    image,
+			Hostname: containerName,
+		},
+		&container.HostConfig{},
+		&network.NetworkingConfig{},
+		&v1.Platform{},
+		containerName,
+	)
+	if err != nil {
+		return errors.Wrap(err, "error creating matreshka container")
+	}
+
+	err = b.dockerAPI.ContainerStart(ctx, cont.ID, types.ContainerStartOptions{})
+	if err != nil {
+		return errors.Wrap(err, "error starting matreshka container")
+	}
+
+	err = b.dockerAPI.NetworkConnect(ctx, env.VervNetwork, cont.ID, &network.EndpointSettings{})
+	if err != nil {
+		return errors.Wrap(err, "error connecting matreshka container to verv network")
 	}
 
 	return nil
 }
 
-func (b *Watchtower) GetName() string {
+func (b *Matreshka) GetName() string {
 	return containerName
 }
 
-func (b *Watchtower) GetDuration() time.Duration {
+func (b *Matreshka) GetDuration() time.Duration {
 	return b.duration
 }
 
-func (b *Watchtower) IsAlive() (bool, error) {
+func (b *Matreshka) IsAlive() (bool, error) {
 	name := containerName
 
-	smerds, err := b.cm.ListSmerds(context.Background(), &velez_api.ListSmerds_Request{Name: &name})
+	containers, err := dockerutils.ListContainers(context.Background(), b.dockerAPI, &velez_api.ListSmerds_Request{
+		Name: &name,
+	})
 	if err != nil {
 		return false, errors.Wrap(err, "error listing smerds with name "+name)
 	}
 
-	for _, smerd := range smerds.Smerds {
-		if smerd.Name == name && smerd.Status == velez_api.Smerd_running {
+	for _, cont := range containers {
+		hasName := false
+		for _, cNname := range cont.Names {
+			if name == cNname[1:] {
+				hasName = true
+				break
+			}
+		}
+
+		if hasName && cont.State == velez_api.Smerd_running.String() {
 			return true, nil
 		}
 	}
@@ -79,16 +115,13 @@ func (b *Watchtower) IsAlive() (bool, error) {
 	return false, nil
 }
 
-func (b *Watchtower) Kill() error {
-	dropRes, err := b.cm.DropSmerds(context.Background(), &velez_api.DropSmerd_Request{
-		Name: []string{containerName},
+func (b *Matreshka) Kill() error {
+	err := b.dockerAPI.ContainerRemove(context.Background(), containerName, types.ContainerRemoveOptions{
+		RemoveVolumes: true,
+		Force:         true,
 	})
 	if err != nil {
 		return errors.Wrap(err, "error dropping result")
-	}
-
-	if len(dropRes.Failed) != 0 {
-		return errors.New(dropRes.Failed[0].Cause)
 	}
 
 	return nil

@@ -2,13 +2,17 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/docker/docker/client"
+	"github.com/ghodss/yaml"
 	"github.com/sirupsen/logrus"
 
 	"github.com/godverv/Velez/internal/backservice/configuration"
+	"github.com/godverv/Velez/internal/backservice/env"
 	"github.com/godverv/Velez/internal/backservice/portainer"
 	"github.com/godverv/Velez/internal/backservice/security"
 	"github.com/godverv/Velez/internal/backservice/watchtower"
@@ -28,64 +32,27 @@ import (
 func main() {
 	logrus.Println("starting app")
 
-	ctx := context.Background()
+	// Core dependencies
+	aCore := mustInitCore()
 
-	cfg, err := config.Load()
-	if err != nil {
-		logrus.Fatalf("error reading config %s", err.Error())
-	}
-
-	if cfg.AppInfo().StartupDuration == 0 {
-		logrus.Fatalf("no startup duration in config")
-	}
-
-	ctx, cancel := context.WithTimeout(ctx, cfg.AppInfo().StartupDuration)
-	defer cancel()
-
-	// Security access layer
-	securityManager := security.NewSecurityManager(cfg.GetString(config.CustomPassToKey))
-	err = securityManager.Start()
-	if err != nil {
-		logrus.Fatalf("error starting security manager: %s", err)
-	}
-	closer.Add(securityManager.Stop)
+	// Verv Environment
+	mustInitEnvironment(aCore)
 
 	// Service layer
-	serviceManager := mustInitContainerManagerService(ctx, cfg)
+	serviceManager := mustInitServiceManager(aCore)
 
-	if cfg.GetBool(config.ShutDownOnExit) {
-		closer.Add(smerdsDropper(serviceManager.GetContainerManagerService()))
-	}
+	// Back service
+	initBackServices(aCore.cfg, serviceManager.GetContainerManagerService())
 
 	// API
-	mgr := transport.NewManager()
-	{
-		grpcConf, err := cfg.Api().GRPC(config.ApiGrpc)
-		if err != nil {
-			logrus.Fatalf("error getting grpc from config: %s", err)
-		}
+	mgr := mustInitAPI(aCore, serviceManager)
 
-		srv, err := grpc.NewServer(
-			cfg,
-			grpcConf,
-			serviceManager,
-			securityManager,
-		)
-		if err != nil {
-			logrus.Fatalf("error creating grpc server: %s", err)
-		}
-
-		mgr.AddServer(srv)
-	}
-
-	initBackServices(cfg, serviceManager)
-
-	err = mgr.Start(ctx)
+	err := mgr.Start(aCore.ctx)
 	if err != nil {
 		logrus.Fatalf("error starting api: %s", err)
 	}
 
-	ctx = context.Background()
+	ctx := context.Background()
 
 	waitingForTheEnd()
 	logrus.Println("shutting down the app")
@@ -96,7 +63,7 @@ func main() {
 	}
 
 	if err = closer.Close(); err != nil {
-		logrus.Fatalf("errors while shutting down application %s", err.Error())
+		logrus.Fatalf("errors while shutting down application %s", err)
 	}
 }
 
@@ -109,45 +76,53 @@ func waitingForTheEnd() {
 	<-done
 }
 
-func mustInitContainerManagerService(ctx context.Context, cfg config.Config) service.Services {
-	dockerApi, err := docker.NewClient()
-	if err != nil {
-		logrus.Fatalf("erorr getting docker api client: %s", err)
-	}
-
-	matreshkaApi, err := grpcClients.NewMatreshkaBeAPIClient(ctx, cfg)
+func mustInitServiceManager(aCore applicationCore) service.Services {
+	matreshkaApi, err := grpcClients.NewMatreshkaBeAPIClient(aCore.ctx, aCore.cfg)
 	if err != nil {
 		logrus.Fatalf("error getting matreshka api: %s", err)
 	}
 
-	s, err := service_manager.New(ctx, cfg, dockerApi, matreshkaApi)
+	services, err := service_manager.New(aCore.ctx, aCore.cfg, aCore.dockerAPI, matreshkaApi)
 	if err != nil {
 		logrus.Fatalf("error creating service manager: %s", err)
 	}
 
-	return s
+	if aCore.cfg.GetBool(config.ShutDownOnExit) {
+		closer.Add(smerdsDropper(services.GetContainerManagerService()))
+	}
+
+	return services
 }
 
-func initBackServices(cfg config.Config, sm service.Services) {
+func mustInitEnvironment(aCore applicationCore) {
+	err := env.StartNetwork(aCore.dockerAPI)
+	if err != nil {
+		logrus.Fatalf("error creating network: %s", err)
+	}
+
+	conf := configuration.New(aCore.dockerAPI)
+	err = conf.Start()
+	if err != nil {
+		logrus.Fatalf("error launching config backservice: %s", err)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	go cron.KeepAlive(ctx, conf)
+	closer.Add(func() error { cancel(); return nil })
+}
+
+func initBackServices(cfg config.Config, cm service.ContainerManager) {
 	ctx, c := context.WithCancel(context.Background())
 	closer.Add(func() error {
 		c()
 		return nil
 	})
 
-	conf := configuration.New(cfg, sm.GetContainerManagerService())
-	err := conf.Start()
-	if err != nil {
-		logrus.Fatalf("error launching config backservice: %s", err)
-	}
-
-	go cron.KeepAlive(ctx, conf)
-
-	wt := watchtower.New(cfg, sm.GetContainerManagerService())
-	go cron.KeepAlive(ctx, wt)
+	go cron.KeepAlive(ctx, watchtower.New(cfg, cm))
 
 	if cfg.GetBool(config.PortainerEnabled) {
-		go cron.KeepAlive(ctx, portainer.New(sm.GetContainerManagerService()))
+		go cron.KeepAlive(ctx, portainer.New(cm))
 	}
 }
 
@@ -162,7 +137,11 @@ func smerdsDropper(manager service.ContainerManager) func() error {
 			return err
 		}
 
-		logrus.Infof("%d smerds is active: %v", len(smerds.Smerds), smerds.Smerds)
+		b, err := yaml.Marshal(smerds.Smerds)
+		if err != nil {
+			b = []byte(fmt.Sprintf("%v", smerds.Smerds))
+		}
+		logrus.Infof("%d smerds is active: %v", len(smerds.Smerds), string(b))
 
 		dropReq := &velez_api.DropSmerd_Request{
 			Uuids: make([]string, len(smerds.Smerds)),
@@ -193,4 +172,83 @@ func smerdsDropper(manager service.ContainerManager) func() error {
 
 		return nil
 	}
+}
+
+type applicationCore struct {
+	ctx context.Context
+
+	cfg config.Config
+
+	dockerAPI       client.CommonAPIClient
+	securityManager security.Manager
+}
+
+func mustInitCore() (c applicationCore) {
+	var err error
+
+	// Config
+	{
+		c.cfg, err = config.Load()
+		if err != nil {
+			logrus.Fatalf("error reading config %s", err.Error())
+		}
+
+	}
+
+	// Startup ctx
+	{
+		if c.cfg.AppInfo().StartupDuration == 0 {
+			logrus.Fatalf("no startup duration in config")
+		}
+
+		var cancel func()
+		c.ctx, cancel = context.WithTimeout(context.Background(), c.cfg.AppInfo().StartupDuration)
+		closer.Add(func() error { cancel(); return nil })
+	}
+
+	// Docker api
+	{
+		c.dockerAPI, err = docker.NewClient()
+		if err != nil {
+			logrus.Fatalf("erorr getting docker api client: %s", err)
+		}
+		closer.Add(c.dockerAPI.Close)
+	}
+
+	// Security access layer
+	{
+		c.securityManager = security.NewSecurityManager(c.cfg.GetString(config.CustomPassToKey))
+
+		err = c.securityManager.Start()
+		if err != nil {
+			logrus.Fatalf("error starting security manager: %s", err)
+		}
+
+		closer.Add(c.securityManager.Stop)
+	}
+
+	return
+}
+
+func mustInitAPI(aCore applicationCore, services service.Services) transport.Server {
+	mgr := transport.NewManager()
+
+	grpcConf, err := aCore.cfg.Api().GRPC(config.ApiGrpc)
+	if err != nil {
+		logrus.Fatalf("error getting grpc from config: %s", err)
+	}
+
+	srv, err := grpc.NewServer(
+		aCore.cfg,
+		grpcConf,
+		services,
+		aCore.securityManager,
+	)
+	if err != nil {
+		logrus.Fatalf("error creating grpc server: %s", err)
+	}
+
+	mgr.AddServer(srv)
+
+	return mgr
 }

@@ -11,6 +11,8 @@ const (
 	ShutDownOnExit          = "shut_down_on_exit"
 	WatchTowerEnabled       = "watch_tower_enabled"
 	WatchTowerInterval      = "watch_tower_interval"
+	ExposeMatreshkaPort     = "expose_matreshka_port"
+	NodeMode                = "node_mode"
 	ResourceGrpcMatreshkaBe = "Resource_grpc_matreshka_be"
 	ApiGrpc                 = "Api_grpc"
 )

@@ -4,7 +4,7 @@ app_info:
   startup_duration: 10s
 data_sources:
   - resource_name: grpc_matreshka_be
-    connection_string: 0.0.0.0:18502
+    connection_string: matreshka
     module: github.com/godverv/matreshka-be@v0.0.3
 server:
   - name: grpc
@@ -22,3 +22,4 @@ environment:
   shut_down_on_exit: true
   watch_tower_enabled: true
   watch_tower_interval: 5s
+  expose_matreshka_port: 50052

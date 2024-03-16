@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 
 	"github.com/docker/docker/client"
@@ -37,6 +38,17 @@ func main() {
 
 	// Verv Environment
 	mustInitEnvironment(aCore)
+
+	// Startup ctx
+	{
+		if aCore.cfg.AppInfo().StartupDuration == 0 {
+			logrus.Fatalf("no startup duration in config")
+		}
+
+		var cancel func()
+		aCore.ctx, cancel = context.WithTimeout(context.Background(), aCore.cfg.AppInfo().StartupDuration)
+		closer.Add(func() error { cancel(); return nil })
+	}
 
 	// Service layer
 	serviceManager := mustInitServiceManager(aCore)
@@ -82,7 +94,11 @@ func mustInitServiceManager(aCore applicationCore) service.Services {
 		logrus.Fatalf("error getting matreshka api: %s", err)
 	}
 
-	services, err := service_manager.New(aCore.ctx, aCore.cfg, aCore.dockerAPI, matreshkaApi)
+	services, err := service_manager.New(
+		aCore.ctx,
+		aCore.cfg,
+		aCore.dockerAPI,
+		matreshkaApi)
 	if err != nil {
 		logrus.Fatalf("error creating service manager: %s", err)
 	}
@@ -100,7 +116,11 @@ func mustInitEnvironment(aCore applicationCore) {
 		logrus.Fatalf("error creating network: %s", err)
 	}
 
-	conf := configuration.New(aCore.dockerAPI)
+	if !aCore.cfg.GetBool(config.NodeMode) {
+		return
+	}
+
+	conf := configuration.New(aCore.dockerAPI, strconv.Itoa(aCore.cfg.GetInt(config.ExposeMatreshkaPort)))
 	err = conf.Start()
 	if err != nil {
 		logrus.Fatalf("error launching config backservice: %s", err)
@@ -193,17 +213,6 @@ func mustInitCore() (c applicationCore) {
 			logrus.Fatalf("error reading config %s", err.Error())
 		}
 
-	}
-
-	// Startup ctx
-	{
-		if c.cfg.AppInfo().StartupDuration == 0 {
-			logrus.Fatalf("no startup duration in config")
-		}
-
-		var cancel func()
-		c.ctx, cancel = context.WithTimeout(context.Background(), c.cfg.AppInfo().StartupDuration)
-		closer.Add(func() error { cancel(); return nil })
 	}
 
 	// Docker api

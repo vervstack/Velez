@@ -9,6 +9,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
+	"github.com/docker/go-connections/nat"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 
 	"github.com/godverv/Velez/internal/backservice/env"
@@ -18,21 +19,24 @@ import (
 )
 
 const (
-	containerName = "matreshka"
-	image         = "godverv/matreshka-be"
-	duration      = time.Second * 5
+	Name     = "matreshka"
+	image    = "godverv/matreshka-be"
+	duration = time.Second * 5
 )
 
 type Matreshka struct {
 	dockerAPI client.CommonAPIClient
 
 	duration time.Duration
+
+	port string
 }
 
-func New(dockerAPI client.CommonAPIClient) *Matreshka {
+func New(dockerAPI client.CommonAPIClient, exposeToPort string) *Matreshka {
 	w := &Matreshka{
 		dockerAPI: dockerAPI,
 		duration:  duration,
+		port:      exposeToPort,
 	}
 
 	return w
@@ -46,22 +50,32 @@ func (b *Matreshka) Start() error {
 
 	ctx := context.Background()
 
-	_, err = dockerutils.PullImage(ctx, b.dockerAPI, domain.ImageListRequest{
-		Name: image,
-	})
+	_, err = dockerutils.PullImage(ctx, b.dockerAPI, domain.ImageListRequest{Name: image})
 	if err != nil {
 		return errors.Wrap(err, "error pulling matreshka image")
+	}
+
+	hostConf := &container.HostConfig{}
+
+	if b.port != "" {
+		hostConf.PortBindings = nat.PortMap{
+			"80/tcp": []nat.PortBinding{
+				{
+					HostPort: b.port,
+				},
+			},
+		}
 	}
 
 	cont, err := b.dockerAPI.ContainerCreate(ctx,
 		&container.Config{
 			Image:    image,
-			Hostname: containerName,
+			Hostname: Name,
 		},
-		&container.HostConfig{},
+		hostConf,
 		&network.NetworkingConfig{},
 		&v1.Platform{},
-		containerName,
+		Name,
 	)
 	if err != nil {
 		return errors.Wrap(err, "error creating matreshka container")
@@ -72,7 +86,9 @@ func (b *Matreshka) Start() error {
 		return errors.Wrap(err, "error starting matreshka container")
 	}
 
-	err = b.dockerAPI.NetworkConnect(ctx, env.VervNetwork, cont.ID, &network.EndpointSettings{})
+	err = b.dockerAPI.NetworkConnect(ctx, env.VervNetwork, cont.ID, &network.EndpointSettings{
+		Aliases: []string{Name},
+	})
 	if err != nil {
 		return errors.Wrap(err, "error connecting matreshka container to verv network")
 	}
@@ -81,7 +97,7 @@ func (b *Matreshka) Start() error {
 }
 
 func (b *Matreshka) GetName() string {
-	return containerName
+	return Name
 }
 
 func (b *Matreshka) GetDuration() time.Duration {
@@ -89,7 +105,7 @@ func (b *Matreshka) GetDuration() time.Duration {
 }
 
 func (b *Matreshka) IsAlive() (bool, error) {
-	name := containerName
+	name := Name
 
 	containers, err := dockerutils.ListContainers(context.Background(), b.dockerAPI, &velez_api.ListSmerds_Request{
 		Name: &name,
@@ -116,7 +132,7 @@ func (b *Matreshka) IsAlive() (bool, error) {
 }
 
 func (b *Matreshka) Kill() error {
-	err := b.dockerAPI.ContainerRemove(context.Background(), containerName, types.ContainerRemoveOptions{
+	err := b.dockerAPI.ContainerRemove(context.Background(), Name, types.ContainerRemoveOptions{
 		RemoveVolumes: true,
 		Force:         true,
 	})

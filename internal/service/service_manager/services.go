@@ -9,8 +9,8 @@ import (
 
 	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/service"
-	"github.com/godverv/Velez/internal/service/container_manager_v1"
-	"github.com/godverv/Velez/internal/service/hardware_manager_v1"
+	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1"
+	"github.com/godverv/Velez/internal/service/service_manager/hardware_manager_v1"
 )
 
 type ServiceManager struct {

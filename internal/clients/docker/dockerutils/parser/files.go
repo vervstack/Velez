@@ -14,20 +14,28 @@ func FromBind(settings *velez_api.Container_Settings) []mount.Mount {
 		return nil
 	}
 
-	out := make([]mount.Mount, 0, len(settings.Volumes))
-	for _, item := range settings.Volumes {
+	out := make([]mount.Mount, 0, len(settings.Mounts)+len(settings.Volumes))
+	for _, item := range settings.Mounts {
 		out = append(out, mount.Mount{
-			Type:   "bind",
+			Type:   mount.TypeBind,
 			Source: item.Host,
 			Target: item.Container,
+		})
+	}
+
+	for _, item := range settings.Volumes {
+		out = append(out, mount.Mount{
+			Type:   mount.TypeVolume,
+			Source: item.Volume,
+			Target: item.ContainerPath,
 		})
 	}
 
 	return out
 }
 
-func ToVolumes(volumes []types.MountPoint) []*velez_api.VolumeBindings {
-	out := make([]*velez_api.VolumeBindings, len(volumes))
+func ToBind(volumes []types.MountPoint) []*velez_api.MountBindings {
+	out := make([]*velez_api.MountBindings, len(volumes))
 
 	for i, item := range volumes {
 		splited := strings.Split(item.Destination, ":")
@@ -35,7 +43,7 @@ func ToVolumes(volumes []types.MountPoint) []*velez_api.VolumeBindings {
 			continue
 		}
 
-		out[i] = &velez_api.VolumeBindings{
+		out[i] = &velez_api.MountBindings{
 			Host:      splited[0],
 			Container: splited[1],
 		}

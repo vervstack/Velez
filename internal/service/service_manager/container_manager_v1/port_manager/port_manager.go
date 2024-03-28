@@ -66,7 +66,7 @@ func (p *PortManager) GetPort() *uint16 {
 	return nil
 }
 
-func (p *PortManager) GetPorts(ports []*velez_api.PortBindings) error {
+func (p *PortManager) FillPorts(ports []*velez_api.PortBindings) error {
 	if len(ports) == 0 {
 		return nil
 	}
@@ -104,6 +104,16 @@ func (p *PortManager) Free(ports []uint16) {
 
 	for _, item := range ports {
 		p.ports[item] = false
+	}
+
+	p.m.Unlock()
+}
+
+func (p *PortManager) FreeFromSettings(ports []*velez_api.PortBindings) {
+	p.m.Lock()
+
+	for _, item := range ports {
+		p.ports[uint16(item.Host)] = false
 	}
 
 	p.m.Unlock()

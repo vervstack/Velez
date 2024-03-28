@@ -238,6 +238,110 @@ var _ interface {
 	ErrorName() string
 } = PortBindingsValidationError{}
 
+// Validate checks the field values on MountBindings with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *MountBindings) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on MountBindings with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in MountBindingsMultiError, or
+// nil if none found.
+func (m *MountBindings) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *MountBindings) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Host
+
+	// no validation rules for Container
+
+	if len(errors) > 0 {
+		return MountBindingsMultiError(errors)
+	}
+
+	return nil
+}
+
+// MountBindingsMultiError is an error wrapping multiple validation errors
+// returned by MountBindings.ValidateAll() if the designated constraints
+// aren't met.
+type MountBindingsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m MountBindingsMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m MountBindingsMultiError) AllErrors() []error { return m }
+
+// MountBindingsValidationError is the validation error returned by
+// MountBindings.Validate if the designated constraints aren't met.
+type MountBindingsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MountBindingsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MountBindingsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MountBindingsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MountBindingsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MountBindingsValidationError) ErrorName() string { return "MountBindingsValidationError" }
+
+// Error satisfies the builtin error interface
+func (e MountBindingsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMountBindings.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MountBindingsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MountBindingsValidationError{}
+
 // Validate checks the field values on VolumeBindings with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -260,9 +364,9 @@ func (m *VolumeBindings) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Host
+	// no validation rules for Volume
 
-	// no validation rules for Container
+	// no validation rules for ContainerPath
 
 	if len(errors) > 0 {
 		return VolumeBindingsMultiError(errors)
@@ -342,6 +446,107 @@ var _ interface {
 	ErrorName() string
 } = VolumeBindingsValidationError{}
 
+// Validate checks the field values on NetworkBind with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *NetworkBind) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on NetworkBind with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in NetworkBindMultiError, or
+// nil if none found.
+func (m *NetworkBind) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *NetworkBind) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for NetworkName
+
+	if len(errors) > 0 {
+		return NetworkBindMultiError(errors)
+	}
+
+	return nil
+}
+
+// NetworkBindMultiError is an error wrapping multiple validation errors
+// returned by NetworkBind.ValidateAll() if the designated constraints aren't met.
+type NetworkBindMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m NetworkBindMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m NetworkBindMultiError) AllErrors() []error { return m }
+
+// NetworkBindValidationError is the validation error returned by
+// NetworkBind.Validate if the designated constraints aren't met.
+type NetworkBindValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e NetworkBindValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e NetworkBindValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e NetworkBindValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e NetworkBindValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e NetworkBindValidationError) ErrorName() string { return "NetworkBindValidationError" }
+
+// Error satisfies the builtin error interface
+func (e NetworkBindValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sNetworkBind.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = NetworkBindValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = NetworkBindValidationError{}
+
 // Validate checks the field values on Image with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -364,6 +569,8 @@ func (m *Image) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for Name
+
+	// no validation rules for Labels
 
 	if len(errors) > 0 {
 		return ImageMultiError(errors)
@@ -566,6 +773,40 @@ func (m *Smerd) validate(all bool) error {
 				cause:  err,
 			}
 		}
+	}
+
+	for idx, item := range m.GetNetworks() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, SmerdValidationError{
+						field:  fmt.Sprintf("Networks[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, SmerdValidationError{
+						field:  fmt.Sprintf("Networks[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return SmerdValidationError{
+					field:  fmt.Sprintf("Networks[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	}
 
 	if len(errors) > 0 {
@@ -1512,6 +1753,74 @@ func (m *Container_Settings) validate(all bool) error {
 
 	}
 
+	for idx, item := range m.GetMounts() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, Container_SettingsValidationError{
+						field:  fmt.Sprintf("Mounts[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, Container_SettingsValidationError{
+						field:  fmt.Sprintf("Mounts[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return Container_SettingsValidationError{
+					field:  fmt.Sprintf("Mounts[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	for idx, item := range m.GetNetworks() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, Container_SettingsValidationError{
+						field:  fmt.Sprintf("Networks[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, Container_SettingsValidationError{
+						field:  fmt.Sprintf("Networks[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return Container_SettingsValidationError{
+					field:  fmt.Sprintf("Networks[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	for idx, item := range m.GetVolumes() {
 		_, _ = idx, item
 
@@ -1648,8 +1957,6 @@ func (m *CreateSmerd_Request) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Name
-
 	if len(m.GetImageName()) > 50 {
 		err := CreateSmerd_RequestValidationError{
 			field:  "ImageName",
@@ -1672,7 +1979,9 @@ func (m *CreateSmerd_Request) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	// no validation rules for AllowDuplicates
+	if m.Name != nil {
+		// no validation rules for Name
+	}
 
 	if m.Hardware != nil {
 

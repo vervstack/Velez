@@ -5,7 +5,7 @@ app_info:
 data_sources:
   - resource_name: grpc_matreshka_be
     connection_string: matreshka
-    module: github.com/godverv/matreshka-be@v0.0.3
+    module: github.com/godverv/matreshka-be@v1.0.20
 server:
   - name: grpc
     port: 50051
@@ -23,3 +23,5 @@ environment:
   watch_tower_enabled: true
   watch_tower_interval: 5s
   expose_matreshka_port: 50052
+  smerd_volume_path: /smerds/configs/
+  insecure: false

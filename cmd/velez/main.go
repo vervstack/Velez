@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"syscall"
 
+	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/client"
 	"github.com/ghodss/yaml"
 	"github.com/sirupsen/logrus"
@@ -143,6 +144,25 @@ func initBackServices(cfg config.Config, cm service.ContainerManager) {
 
 	if cfg.GetBool(config.PortainerEnabled) {
 		go cron.KeepAlive(ctx, portainer.New(cm))
+	}
+
+	{
+		volumePath, err := cfg.TryGetString(config.SmerdVolumePath)
+		if err != nil {
+			logrus.Fatalf("no value is specified for %s", config.SmerdVolumePath)
+		}
+		err = os.MkdirAll(volumePath, 0777)
+		if err != nil {
+			logrus.Fatalf("error creating config folder: %s", err)
+		}
+
+		closer.Add(func() error {
+			err := os.RemoveAll(volumePath)
+			if err != nil {
+				return errors.Wrap(err, "error removing config folder")
+			}
+			return nil
+		})
 	}
 }
 

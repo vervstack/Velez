@@ -14,13 +14,13 @@ import (
 
 	"github.com/godverv/Velez/internal/backservice/env"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
-	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
 const (
-	Name     = "matreshka"
-	image    = "godverv/matreshka-be"
+	Name = "matreshka"
+	//image    = "godverv/matreshka-be"
+	image    = "matreshka-be:local"
 	duration = time.Second * 5
 )
 
@@ -50,7 +50,7 @@ func (b *Matreshka) Start() error {
 
 	ctx := context.Background()
 
-	_, err = dockerutils.PullImage(ctx, b.dockerAPI, domain.ImageListRequest{Name: image})
+	_, err = dockerutils.PullImage(ctx, b.dockerAPI, image, false)
 	if err != nil {
 		return errors.Wrap(err, "error pulling matreshka image")
 	}

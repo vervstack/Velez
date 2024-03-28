@@ -195,6 +195,20 @@
             "$ref": "#/definitions/velez_apiPortBindings"
           }
         },
+        "mounts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiMountBindings"
+          }
+        },
+        "networks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiNetworkBind"
+          }
+        },
         "volumes": {
           "type": "array",
           "items": {
@@ -277,9 +291,6 @@
         },
         "settings": {
           "$ref": "#/definitions/ContainerSettings"
-        },
-        "allowDuplicates": {
-          "type": "boolean"
         },
         "command": {
           "type": "string"
@@ -379,6 +390,31 @@
         }
       }
     },
+    "velez_apiMountBindings": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string"
+        },
+        "container": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiNetworkBind": {
+      "type": "object",
+      "properties": {
+        "networkName": {
+          "type": "string"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "velez_apiPortBindings": {
       "type": "object",
       "properties": {
@@ -418,7 +454,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/velez_apiVolumeBindings"
+            "$ref": "#/definitions/velez_apiMountBindings"
           }
         },
         "status": {
@@ -427,6 +463,13 @@
         "createdAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "networks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiNetworkBind"
+          }
         }
       }
     },
@@ -458,10 +501,10 @@
     "velez_apiVolumeBindings": {
       "type": "object",
       "properties": {
-        "host": {
+        "volume": {
           "type": "string"
         },
-        "container": {
+        "containerPath": {
           "type": "string"
         }
       }

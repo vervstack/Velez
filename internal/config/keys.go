@@ -15,4 +15,5 @@ const (
 	NodeMode                = "node_mode"
 	ResourceGrpcMatreshkaBe = "Resource_grpc_matreshka_be"
 	ApiGrpc                 = "Api_grpc"
+	SmerdVolumePath         = "smerd_volume_path"
 )

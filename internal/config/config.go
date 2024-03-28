@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	devConfigPath  = "./config/dev.yaml"
-	prodConfigPath = "./config/config.yaml"
+	DevConfigPath  = "./config/dev.yaml"
+	ProdConfigPath = "./config/config.yaml"
 )
 
 type Config interface {

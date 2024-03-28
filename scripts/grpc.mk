@@ -12,7 +12,8 @@ local-link:
 	ln -sf $(GOPATH)/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.16.0/third_party/googleapis/google api/google
 	ln -sf $(GOPATH)/pkg/mod/github.com/envoyproxy/protoc-gen-validate@v1.0.2/validate api/validate
 
-gen-server: .pre-gen-server .gen-server
+gen-server: .pre-gen-server local-link .gen-server
+
 .pre-gen-server:
 	mkdir -p pkg/
 

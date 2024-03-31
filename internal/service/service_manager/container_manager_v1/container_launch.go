@@ -13,6 +13,7 @@ import (
 
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils/parser"
+	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/resource_manager"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -105,36 +106,44 @@ func (c *ContainerManager) createVervContainer(ctx context.Context, cfg *contain
 
 	if c.isNodeModeOn {
 		images := make([]*velez_api.CreateSmerd_Request, 0, len(matreshkaCfg.Resources))
-		for _, m := range matreshkaCfg.Resources {
-			tp := m.GetType()
+		for _, cfgResource := range matreshkaCfg.Resources {
+			tp := cfgResource.GetType()
 			switch tp {
 			case resources.GrpcResourceName, resources.TelegramResourceName:
 				continue
-
 			}
-			var image *velez_api.CreateSmerd_Request
-			image, err = c.resourceManager.GetByName(tp)
+
+			var constructor resource_manager.SmerdConstructor
+			constructor, err = c.resourceManager.GetByName(tp)
 			if err != nil {
 				return nil, errors.Wrap(err, "error getting name for resource")
 			}
-			name := m.GetName()
-			image.Name = &name
 
-			images = append(images, image)
+			var createSmerdRequest *velez_api.CreateSmerd_Request
+			createSmerdRequest, err = constructor(matreshkaCfg.Resources, cfgResource.GetName())
+			if err != nil {
+				return nil, errors.Wrap(err, "error getting resource-smerd config ")
+			}
 
-		}
+			name := req.GetName() + "_" + cfgResource.GetName()
+			createSmerdRequest.Name = &name
 
-		for _, resourceSmerd := range images {
-			resourceSmerd.Settings.Networks = append(resourceSmerd.Settings.Networks,
+			createSmerdRequest.Settings.Networks = append(createSmerdRequest.Settings.Networks,
 				&velez_api.NetworkBind{
 					NetworkName: req.GetName(),
-					Aliases:     []string{resourceSmerd.GetName()},
+					Aliases:     []string{cfgResource.GetName()},
 				},
 			)
 
-			name := req.GetName() + "_" + resourceSmerd.GetName()
-			resourceSmerd.Name = &name
+			images = append(images, createSmerdRequest)
+		}
 
+		err = c.configManager.UpdateConfig(ctx, req.GetName(), matreshkaCfg)
+		if err != nil {
+			return nil, errors.Wrap(err, "error updating config")
+		}
+
+		for _, resourceSmerd := range images {
 			_, err = c.LaunchSmerd(ctx, resourceSmerd)
 			if err != nil {
 				return nil, errors.Wrap(err, "error launching resource smerd")

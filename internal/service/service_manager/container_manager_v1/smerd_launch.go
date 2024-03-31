@@ -94,7 +94,13 @@ func (c *ContainerManager) getLaunchConfig(req *velez_api.CreateSmerd_Request, i
 		Image:    req.ImageName,
 		Hostname: req.GetName(),
 		Cmd:      parser.FromCommand(req.Command),
-		Env:      []string{fmt.Sprintf("%s=%s", vervName, req.Name)},
+		Env: []string{
+			fmt.Sprintf("%s=%s", vervName, req.GetName()),
+		},
+	}
+
+	for k, v := range req.Env {
+		cfg.Env = append(cfg.Env, k+"="+v)
 	}
 
 	return cfg, nil

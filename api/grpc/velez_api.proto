@@ -136,6 +136,8 @@ message CreateSmerd {
     optional Container.Settings settings = 4;
 
     optional string command = 5;
+
+    map<string, string> env = 6;
   }
 }
 

@@ -1979,6 +1979,8 @@ func (m *CreateSmerd_Request) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	// no validation rules for Env
+
 	if m.Name != nil {
 		// no validation rules for Name
 	}

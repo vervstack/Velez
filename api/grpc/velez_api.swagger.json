@@ -294,6 +294,12 @@
         },
         "command": {
           "type": "string"
+        },
+        "env": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       }
     },

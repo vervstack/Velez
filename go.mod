@@ -8,7 +8,7 @@ require (
 	github.com/docker/go-connections v0.4.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.2
 	github.com/ghodss/yaml v1.0.0
-	github.com/godverv/matreshka v0.0.12
+	github.com/godverv/matreshka v0.0.13
 	github.com/godverv/matreshka-be v1.0.22
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.1
 	github.com/jaypipes/ghw v0.12.0
@@ -52,7 +52,4 @@ require (
 	howett.net/plist v1.0.0 // indirect
 )
 
-replace (
-	github.com/godverv/matreshka v0.0.12 => /Users/alexbukov/Yandex.Disk.localized/redsock/Matreshka
-	github.com/godverv/matreshka-be v1.0.22 => /Users/alexbukov/Yandex.Disk.localized/verv/matreshka-be
-)
+replace github.com/godverv/matreshka-be v1.0.22 => /Users/alexbukov/Yandex.Disk.localized/verv/matreshka-be

@@ -1,12 +1,11 @@
 package resource_manager
 
 import (
-	"encoding/gob"
 	"sync"
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/client"
-	"github.com/docker/docker/pkg/ioutils"
+	"github.com/godverv/matreshka"
 	"github.com/godverv/matreshka/resources"
 
 	"github.com/godverv/Velez/pkg/velez_api"
@@ -14,50 +13,34 @@ import (
 
 var ErrNotFound = errors.New("no resource with such name")
 
+type SmerdConstructor func(resources matreshka.Resources, resourceName string) (*velez_api.CreateSmerd_Request, error)
+
 type ResourceManager struct {
 	docker client.CommonAPIClient
 
 	m      sync.RWMutex
-	images map[string]velez_api.CreateSmerd_Request
+	images map[string]SmerdConstructor
 }
 
 func New(docker client.CommonAPIClient) *ResourceManager {
 	r := &ResourceManager{
 		docker: docker,
 	}
-	r.images = map[string]velez_api.CreateSmerd_Request{
-		resources.PostgresResourceName: {
-			ImageName: "postgres:13.6",
-			Hardware:  &velez_api.Container_Hardware{},
-			Settings:  &velez_api.Container_Settings{},
-		},
+	r.images = map[string]SmerdConstructor{
+		resources.PostgresResourceName: Postgres,
 	}
 
 	return r
 }
 
-func (m *ResourceManager) GetByName(in string) (*velez_api.CreateSmerd_Request, error) {
+func (m *ResourceManager) GetByName(resourceName string) (SmerdConstructor, error) {
 	m.m.RLock()
-	launcher, ok := m.images[in]
+	launcher, ok := m.images[resourceName]
 	m.m.RUnlock()
 
-	pipe := ioutils.NewBytesPipe()
-
-	enc := gob.NewEncoder(pipe)
-	err := enc.Encode(&launcher)
-	if err != nil {
-		return nil, errors.Wrap(err, "error encoding request")
+	if !ok {
+		return nil, ErrNotFound
 	}
 
-	var copied velez_api.CreateSmerd_Request
-	err = gob.NewDecoder(pipe).Decode(&copied)
-	if err != nil {
-		return nil, errors.Wrap(err, "error decoding request")
-	}
-
-	if ok {
-		return &copied, nil
-	}
-
-	return nil, ErrNotFound
+	return launcher, nil
 }

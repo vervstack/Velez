@@ -9,7 +9,7 @@ require (
 	github.com/envoyproxy/protoc-gen-validate v1.0.2
 	github.com/ghodss/yaml v1.0.0
 	github.com/godverv/matreshka v0.0.13
-	github.com/godverv/matreshka-be v1.0.22
+	github.com/godverv/matreshka-be v1.0.23
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.1
 	github.com/jaypipes/ghw v0.12.0
 	github.com/opencontainers/image-spec v1.0.2
@@ -52,4 +52,3 @@ require (
 	howett.net/plist v1.0.0 // indirect
 )
 
-replace github.com/godverv/matreshka-be v1.0.22 => /Users/alexbukov/Yandex.Disk.localized/verv/matreshka-be

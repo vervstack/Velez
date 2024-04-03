@@ -23,7 +23,7 @@ type Portainer struct {
 	duration time.Duration
 }
 
-func NewPortainer(cm service.ContainerManager) *Portainer {
+func New(cm service.ContainerManager) *Portainer {
 	w := &Portainer{
 		cm:       cm,
 		duration: portainerDuration,
@@ -35,8 +35,9 @@ func NewPortainer(cm service.ContainerManager) *Portainer {
 func (b *Portainer) Start() error {
 	ctx := context.Background()
 
+	name := portainerName
 	req := &velez_api.CreateSmerd_Request{
-		Name:      portainerName,
+		Name:      &name,
 		ImageName: portainerAgentImage,
 		Settings: &velez_api.Container_Settings{
 			Ports: []*velez_api.PortBindings{
@@ -44,7 +45,7 @@ func (b *Portainer) Start() error {
 					Container: 9001,
 				},
 			},
-			Volumes: []*velez_api.VolumeBindings{
+			Mounts: []*velez_api.MountBindings{
 				{
 					Host:      "/var/run/docker.sock",
 					Container: "/var/run/docker.sock",

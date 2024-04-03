@@ -23,12 +23,16 @@ func Load() (Config, error) {
 
 	if cfgPath == "" {
 		if isDevBuild {
-			cfgPath = devConfigPath
+			cfgPath = DevConfigPath
 		} else {
-			cfgPath = prodConfigPath
+			cfgPath = ProdConfigPath
 		}
 	}
 
+	return LoadWithPath(cfgPath)
+}
+
+func LoadWithPath(cfgPath string) (Config, error) {
 	cfg, err := matreshka.ReadConfigs(cfgPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "error reading matreshka config")

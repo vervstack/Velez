@@ -21,3 +21,5 @@ api/*
 !api/grpc
 
 private.key
+
+test

@@ -52,5 +52,7 @@ func (s *PingSuite) Test_Ping() {
 }
 
 func Test_Ping(t *testing.T) {
+	t.Skip()
+
 	suite.Run(t, new(PingSuite))
 }

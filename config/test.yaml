@@ -21,5 +21,5 @@ environment:
     shut_down_on_exit: true
     watch_tower_enabled: true
     watch_tower_interval: 5s
-    expose_matreshka_port: 50050
+    expose_matreshka_port: true
     node_mode: true

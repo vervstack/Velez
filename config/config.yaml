@@ -1,27 +1,33 @@
 app_info:
   name: github.com/godverv/Velez
-  version: v0.1.13
+  version: v0.1.14
   startup_duration: 10s
 data_sources:
   - resource_name: grpc_matreshka_be
-    connection_string: matreshka
-    module: github.com/godverv/matreshka-be@v1.0.20
+    connection_string: matreshka:80
+    module: github.com/godverv/matreshka-be@v1.0.23
 server:
   - name: grpc
-    port: 50051
-    gateway_port: 0
+    port: 53890
 environment:
   available_ports:
     - 18501-18519
+
+  smerd_volume_path: /smerds/configs/
+
+  disable_api_security: false
+
   cpu_default: 0.5
-  custom_pass_to_key: /tmp/velez/private.key
-  enable_api_security: true
   memory_swap_mb: 50
-  portainer_enabled: true
   ram_mb_default: 50
-  shut_down_on_exit: true
+
+  node_mode: true
+  expose_matreshka_port: true
+
+  portainer_enabled: true
+  shut_down_on_exit: false
+
   watch_tower_enabled: true
   watch_tower_interval: 5s
-  expose_matreshka_port: 50052
-  smerd_volume_path: /smerds/configs/
+
   insecure: false

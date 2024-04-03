@@ -24,11 +24,15 @@ import (
 	"github.com/godverv/Velez/internal/cron"
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/internal/service/service_manager"
+	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/port_manager"
 	"github.com/godverv/Velez/internal/transport"
 	"github.com/godverv/Velez/internal/transport/grpc"
 	"github.com/godverv/Velez/internal/utils/closer"
 	"github.com/godverv/Velez/pkg/velez_api"
-	//_transport_imports
+)
+
+const (
+	defaultSmerdsVolumesPath = "/opt/velez/smerds/"
 )
 
 func main() {
@@ -89,26 +93,57 @@ func waitingForTheEnd() {
 	<-done
 }
 
-func mustInitServiceManager(aCore applicationCore) service.Services {
-	matreshkaApi, err := grpcClients.NewMatreshkaBeAPIClient(aCore.ctx, aCore.cfg)
-	if err != nil {
-		logrus.Fatalf("error getting matreshka api: %s", err)
+type applicationCore struct {
+	ctx context.Context
+
+	cfg config.Config
+
+	dockerAPI       client.CommonAPIClient
+	securityManager security.Manager
+	portManager     *port_manager.PortManager
+}
+
+func mustInitCore() (c applicationCore) {
+	var err error
+
+	// Config
+	{
+		c.cfg, err = config.Load()
+		if err != nil {
+			logrus.Fatalf("error reading config %s", err.Error())
+		}
+
 	}
 
-	services, err := service_manager.New(
-		aCore.ctx,
-		aCore.cfg,
-		aCore.dockerAPI,
-		matreshkaApi)
-	if err != nil {
-		logrus.Fatalf("error creating service manager: %s", err)
+	// Docker api
+	{
+		c.dockerAPI, err = docker.NewClient()
+		if err != nil {
+			logrus.Fatalf("erorr getting docker api client: %s", err)
+		}
+		closer.Add(c.dockerAPI.Close)
 	}
 
-	if aCore.cfg.GetBool(config.ShutDownOnExit) {
-		closer.Add(smerdsDropper(services.GetContainerManagerService()))
+	// Security access layer
+	if !c.cfg.GetBool(config.DisableAPISecurity) {
+		c.securityManager = security.NewSecurityManager(c.cfg.GetString(config.CustomPassToKey))
+
+		err = c.securityManager.Start()
+		if err != nil {
+			logrus.Fatalf("error starting security manager: %s", err)
+		}
+
+		closer.Add(c.securityManager.Stop)
 	}
 
-	return services
+	// port manager
+	{
+		c.portManager, err = port_manager.NewPortManager(context.Background(), c.cfg, c.dockerAPI)
+		if err != nil {
+			logrus.Fatalf("error creating port manager %s", err)
+		}
+	}
+	return
 }
 
 func mustInitEnvironment(aCore applicationCore) {
@@ -121,7 +156,17 @@ func mustInitEnvironment(aCore applicationCore) {
 		return
 	}
 
-	conf := configuration.New(aCore.dockerAPI, strconv.Itoa(aCore.cfg.GetInt(config.ExposeMatreshkaPort)))
+	var portToExposeTo string
+	if aCore.cfg.GetBool(config.ExposeMatreshkaPort) {
+		p := aCore.portManager.GetPort()
+		if p == nil {
+			logrus.Fatalf("no available port for config to expose")
+		}
+
+		portToExposeTo = strconv.FormatUint(uint64(*p), 10)
+	}
+
+	conf := configuration.New(aCore.dockerAPI, portToExposeTo)
 	err = conf.Start()
 	if err != nil {
 		logrus.Fatalf("error launching config backservice: %s", err)
@@ -133,6 +178,29 @@ func mustInitEnvironment(aCore applicationCore) {
 	closer.Add(func() error { cancel(); return nil })
 }
 
+func mustInitServiceManager(aCore applicationCore) service.Services {
+	matreshkaApi, err := grpcClients.NewMatreshkaBeAPIClient(aCore.ctx, aCore.cfg)
+	if err != nil {
+		logrus.Fatalf("error getting matreshka api: %s", err)
+	}
+
+	services, err := service_manager.New(
+		aCore.cfg,
+		aCore.dockerAPI,
+		matreshkaApi,
+		aCore.portManager,
+	)
+	if err != nil {
+		logrus.Fatalf("error creating service manager: %s", err)
+	}
+
+	if aCore.cfg.GetBool(config.ShutDownOnExit) {
+		closer.Add(smerdsDropper(services.GetContainerManagerService()))
+	}
+
+	return services
+}
+
 func initBackServices(cfg config.Config, cm service.ContainerManager) {
 	ctx, c := context.WithCancel(context.Background())
 	closer.Add(func() error {
@@ -140,27 +208,31 @@ func initBackServices(cfg config.Config, cm service.ContainerManager) {
 		return nil
 	})
 
-	go cron.KeepAlive(ctx, watchtower.New(cfg, cm))
+	if cfg.GetBool(config.WatchTowerEnabled) {
+		go cron.KeepAlive(ctx, watchtower.New(cfg, cm))
+	}
 
 	if cfg.GetBool(config.PortainerEnabled) {
 		go cron.KeepAlive(ctx, portainer.New(cm))
 	}
 
 	{
-		volumePath, err := cfg.TryGetString(config.SmerdVolumePath)
-		if err != nil {
-			logrus.Fatalf("no value is specified for %s", config.SmerdVolumePath)
+		volumePath := cfg.GetString(config.SmerdVolumePath)
+		if volumePath == "" {
+			volumePath = defaultSmerdsVolumesPath
 		}
-		err = os.MkdirAll(volumePath, 0777)
+
+		err := os.MkdirAll(volumePath, 0777)
 		if err != nil {
-			logrus.Fatalf("error creating config folder: %s", err)
+			logrus.Fatalf("error creating velez volume folder: %s", err)
 		}
 
 		closer.Add(func() error {
 			err := os.RemoveAll(volumePath)
 			if err != nil {
-				return errors.Wrap(err, "error removing config folder")
+				return errors.Wrap(err, "error removing velez volume folder")
 			}
+
 			return nil
 		})
 	}
@@ -212,51 +284,6 @@ func smerdsDropper(manager service.ContainerManager) func() error {
 
 		return nil
 	}
-}
-
-type applicationCore struct {
-	ctx context.Context
-
-	cfg config.Config
-
-	dockerAPI       client.CommonAPIClient
-	securityManager security.Manager
-}
-
-func mustInitCore() (c applicationCore) {
-	var err error
-
-	// Config
-	{
-		c.cfg, err = config.Load()
-		if err != nil {
-			logrus.Fatalf("error reading config %s", err.Error())
-		}
-
-	}
-
-	// Docker api
-	{
-		c.dockerAPI, err = docker.NewClient()
-		if err != nil {
-			logrus.Fatalf("erorr getting docker api client: %s", err)
-		}
-		closer.Add(c.dockerAPI.Close)
-	}
-
-	// Security access layer
-	{
-		c.securityManager = security.NewSecurityManager(c.cfg.GetString(config.CustomPassToKey))
-
-		err = c.securityManager.Start()
-		if err != nil {
-			logrus.Fatalf("error starting security manager: %s", err)
-		}
-
-		closer.Add(c.securityManager.Stop)
-	}
-
-	return
 }
 
 func mustInitAPI(aCore applicationCore, services service.Services) transport.Server {

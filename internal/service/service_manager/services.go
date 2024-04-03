@@ -1,16 +1,15 @@
 package service_manager
 
 import (
-	"context"
-
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/client"
 	"github.com/godverv/matreshka-be/pkg/matreshka_api"
 
 	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/service"
-	"github.com/godverv/Velez/internal/service/container_manager_v1"
-	"github.com/godverv/Velez/internal/service/hardware_manager_v1"
+	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1"
+	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/port_manager"
+	"github.com/godverv/Velez/internal/service/service_manager/hardware_manager_v1"
 )
 
 type ServiceManager struct {
@@ -18,10 +17,22 @@ type ServiceManager struct {
 	hardwareManager  service.HardwareManager
 }
 
-func New(ctx context.Context, cfg config.Config, docker client.CommonAPIClient, configClient matreshka_api.MatreshkaBeAPIClient) (_ service.Services, err error) {
+func New(
+	cfg config.Config,
+	docker client.CommonAPIClient,
+	configClient matreshka_api.MatreshkaBeAPIClient,
+	portManager *port_manager.PortManager,
+) (service.Services, error) {
 	s := &ServiceManager{}
 
-	s.containerManager, err = container_manager_v1.NewContainerManager(ctx, cfg, docker, configClient)
+	var err error
+
+	s.containerManager, err = container_manager_v1.NewContainerManager(
+		cfg,
+		docker,
+		configClient,
+		portManager,
+	)
 	if err != nil {
 		return nil, errors.Wrap(err, "error creating container manager")
 	}

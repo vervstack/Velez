@@ -32,7 +32,7 @@ func (c *ContainerManager) ListSmerds(ctx context.Context, req *velez_api.ListSm
 			},
 
 			Ports:   parser.ToPorts(item.Ports),
-			Volumes: parser.ToVolumes(item.Mounts),
+			Volumes: parser.ToBind(item.Mounts),
 		}
 
 		if len(item.Names) != 0 {

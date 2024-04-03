@@ -8,7 +8,7 @@ import (
 	"github.com/docker/docker/client"
 
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils/list_request"
-	"github.com/godverv/Velez/internal/utils/comparator"
+	"github.com/godverv/Velez/internal/utils/common"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -23,7 +23,7 @@ func ListContainers(ctx context.Context, docker client.CommonAPIClient, req *vel
 	filter := list_request.New()
 
 	if req.Limit != nil {
-		dockerReq.Limit = comparator.Less[int](maxList, int(req.GetLimit()))
+		dockerReq.Limit = common.Less[int](maxList, int(req.GetLimit()))
 	}
 
 	if req.GeneralSearch != nil {

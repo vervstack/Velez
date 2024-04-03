@@ -12,7 +12,7 @@ import (
 )
 
 func connect(ctx context.Context, connCfg *resources.GRPC) (*grpc.ClientConn, error) {
-	dial, err := grpc.DialContext(ctx,
+	dial, err := grpc.DialContext(context.Background(),
 		connCfg.ConnectionString,
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {

@@ -23,7 +23,7 @@ type Watchtower struct {
 	duration time.Duration
 }
 
-func NewWatchTower(cfg config.Config, cm service.ContainerManager) *Watchtower {
+func New(cfg config.Config, cm service.ContainerManager) *Watchtower {
 	w := &Watchtower{
 		cm: cm,
 	}
@@ -40,12 +40,12 @@ func (b *Watchtower) Start() error {
 	ctx := context.Background()
 
 	command := "--interval 30"
-
+	name := watchTowerName
 	_, err := b.cm.LaunchSmerd(ctx, &velez_api.CreateSmerd_Request{
-		Name:      watchTowerName,
+		Name:      &name,
 		ImageName: watchTowerImage,
 		Settings: &velez_api.Container_Settings{
-			Volumes: []*velez_api.VolumeBindings{
+			Mounts: []*velez_api.MountBindings{
 				{
 					Host:      "/var/run/docker.sock",
 					Container: "/var/run/docker.sock",

@@ -63,14 +63,25 @@ message PortBindings {
   Protocol protoc = 3;
 }
 
-message VolumeBindings {
+message MountBindings {
   string host = 1;
   string container = 2;
+}
+
+message VolumeBindings {
+  string volume = 1;
+  string container_path = 2;
+}
+
+message NetworkBind {
+  string network_name = 1;
+  repeated string aliases = 2;
 }
 
 message Image {
   string name = 1;
   repeated string tags = 2;
+  map<string, string> labels = 3;
 }
 
 message Smerd {
@@ -79,7 +90,7 @@ message Smerd {
   string image_name = 3;
 
   repeated PortBindings ports = 4;
-  repeated VolumeBindings volumes = 5;
+  repeated MountBindings volumes = 5;
 
   enum Status {
     unknown = 0;
@@ -94,6 +105,8 @@ message Smerd {
 
   Status status = 6;
   google.protobuf.Timestamp created_at = 7;
+
+  repeated NetworkBind networks = 8;
 }
 
 message Container {
@@ -105,13 +118,15 @@ message Container {
 
   message Settings {
     repeated PortBindings ports = 1;
-    repeated VolumeBindings volumes = 2;
+    repeated MountBindings mounts = 2;
+    repeated NetworkBind networks = 3;
+    repeated VolumeBindings volumes = 4;
   }
 }
 
 message CreateSmerd {
   message Request {
-    string name = 1;
+    optional string name = 1;
     string image_name = 2 [(validate.rules).string = {
       pattern:   '([a-z]+)/([a-z-]+):([a-z0-9.]+)',
       max_bytes: 50,
@@ -119,8 +134,10 @@ message CreateSmerd {
 
     optional Container.Hardware hardware = 3;
     optional Container.Settings settings = 4;
-    bool allow_duplicates = 5;
-    optional string command = 6;
+
+    optional string command = 5;
+
+    map<string, string> env = 6;
   }
 }
 

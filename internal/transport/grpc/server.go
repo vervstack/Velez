@@ -6,6 +6,7 @@ import (
 	"context"
 	"net"
 	"net/http"
+	"strings"
 	"sync"
 
 	errors "github.com/Red-Sock/trace-errors"
@@ -84,9 +85,11 @@ func (s *Server) Start(_ context.Context) error {
 	go s.startGateway()
 
 	go func() {
-		err := s.serverMux.Serve()
-		if err != nil {
-			logrus.Errorf("error service server %s", err)
+		serveErr := s.serverMux.Serve()
+		if serveErr != nil {
+			if !strings.Contains(serveErr.Error(), "closed network connection") {
+				logrus.Errorf("error service server %s", serveErr)
+			}
 		}
 	}()
 
@@ -135,6 +138,8 @@ func (s *Server) startGateway() {
 
 	err = server.Serve(httpListener)
 	if err != nil {
-		logrus.Errorf("error starting gateway: %s", err)
+		if errors.Is(err, http.ErrServerClosed) {
+			logrus.Errorf("error starting gateway: %s", err)
+		}
 	}
 }

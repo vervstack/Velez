@@ -36,6 +36,7 @@ func (c *Configurator) GetEnv(ctx context.Context, name string) ([]string, error
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting config from api")
 	}
+
 	if len(raw.Config) == 0 {
 		return nil, nil
 	}

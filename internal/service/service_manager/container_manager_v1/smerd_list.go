@@ -21,22 +21,22 @@ func (c *ContainerManager) ListSmerds(ctx context.Context, req *velez_api.ListSm
 		Smerds: make([]*velez_api.Smerd, len(cl)),
 	}
 
-	for i, item := range cl {
+	for i, container := range cl {
 		resp.Smerds[i] = &velez_api.Smerd{
-			Uuid:      item.ID,
-			ImageName: item.Image,
+			Uuid:      container.ID,
+			ImageName: container.Image,
 
-			Status: velez_api.Smerd_Status(velez_api.Smerd_Status_value[item.State]),
+			Status: velez_api.Smerd_Status(velez_api.Smerd_Status_value[container.State]),
 			CreatedAt: &timestamppb.Timestamp{
-				Seconds: item.Created,
+				Seconds: container.Created,
 			},
 
-			Ports:   parser.ToPorts(item.Ports),
-			Volumes: parser.ToBind(item.Mounts),
+			Ports:   parser.ToPorts(container.Ports),
+			Volumes: parser.ToBind(container.Mounts),
 		}
 
-		if len(item.Names) != 0 {
-			resp.Smerds[i].Name = item.Names[0][1:]
+		if len(container.Names) != 0 {
+			resp.Smerds[i].Name = container.Names[0][1:]
 		}
 	}
 

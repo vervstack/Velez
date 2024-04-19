@@ -17,8 +17,8 @@ import (
 
 const (
 	vervName                         = "VERV_NAME"
-	matreshkaConfigLabel             = "MATRESHKA_CONFIG_ENABLED"
 	defaultContainerConfigFolderPath = "/app/config"
+	matreshkaConfigLabel             = "MATRESHKA_CONFIG_ENABLED"
 )
 
 func (c *ContainerManager) LaunchSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (id string, err error) {

@@ -22,21 +22,21 @@ func ListContainers(ctx context.Context, docker client.CommonAPIClient, req *vel
 
 	filter := list_request.New()
 
-	if req.Limit != nil {
+	if req.GetLimit() != 0 {
 		dockerReq.Limit = common.Less[int](maxList, int(req.GetLimit()))
 	}
 
-	if req.GeneralSearch != nil {
+	if req.GetGeneralSearch() != "" {
 		filter.Id(req.GetGeneralSearch())
 		filter.Name(req.GetGeneralSearch())
 		filter.Label(req.GetGeneralSearch())
 	}
 
-	if req.Id != nil {
+	if req.GetId() != "" {
 		filter.Id(req.GetId())
 	}
 
-	if req.Name != nil {
+	if req.GetName() != "" {
 		filter.Name(req.GetName())
 	}
 

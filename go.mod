@@ -3,7 +3,7 @@ module github.com/godverv/Velez
 go 1.20
 
 require (
-	github.com/Red-Sock/trace-errors v0.0.5
+	github.com/Red-Sock/trace-errors v0.0.6
 	github.com/docker/docker v24.0.7+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.2

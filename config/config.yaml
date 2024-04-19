@@ -13,7 +13,7 @@ environment:
   available_ports:
     - 18501-18519
 
-  smerd_volume_path: /smerds/configs/
+  smerd_volume_path: /opt/velez/smerds/
 
   disable_api_security: false
 

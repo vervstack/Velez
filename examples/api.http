@@ -10,7 +10,7 @@ Content-Type: application/json
 
 {
   "name": "matreshka-2",
-  "image_name": "godverv/matreshka-be",
+  "image_name": "godverv/matreshka-be:latest",
   "settings": {
     "ports": [
       {

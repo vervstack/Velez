@@ -23,11 +23,10 @@ environment:
 
   node_mode: true
   expose_matreshka_port: true
+  matreshka_port: 50050
 
   portainer_enabled: true
   shut_down_on_exit: false
 
   watch_tower_enabled: true
   watch_tower_interval: 5s
-
-  insecure: false

@@ -26,12 +26,6 @@ func ListContainers(ctx context.Context, docker client.CommonAPIClient, req *vel
 		dockerReq.Limit = common.Less[int](maxList, int(req.GetLimit()))
 	}
 
-	if req.GetGeneralSearch() != "" {
-		filter.Id(req.GetGeneralSearch())
-		filter.Name(req.GetGeneralSearch())
-		filter.Label(req.GetGeneralSearch())
-	}
-
 	if req.GetId() != "" {
 		filter.Id(req.GetId())
 	}

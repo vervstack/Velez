@@ -3,6 +3,9 @@ docker run \
    --name velez \
    -p 50052:53890 \
    --rm \
+   -v /tmp/velez:/tmp/velez \
+   -v /tmp/velez/smerds:/opt/velez/smerds/ \
    -e VERV_NAME=velez \
    -e VELEZ_SHUT_DOWN_ON_EXIT=true \
+   -e VELEZ_DISABLE_API_SECURITY=true \
   velez:local

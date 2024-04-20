@@ -376,9 +376,6 @@
         "name": {
           "type": "string"
         },
-        "generalSearch": {
-          "type": "string"
-        },
         "id": {
           "type": "string"
         }

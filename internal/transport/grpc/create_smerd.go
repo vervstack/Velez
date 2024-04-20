@@ -21,10 +21,10 @@ func (a *Api) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Reques
 		return nil, errors.Wrapf(err, "error searching image")
 	}
 
-	smerds, err := a.containerManager.ListSmerds(ctx, &velez_api.ListSmerds_Request{
-		Limit:         nil,
-		GeneralSearch: &id,
-	})
+	smerds, err := a.containerManager.ListSmerds(ctx,
+		&velez_api.ListSmerds_Request{
+			Id: &id,
+		})
 	if err != nil {
 		return nil, err
 	}

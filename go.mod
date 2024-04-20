@@ -7,8 +7,7 @@ require (
 	github.com/docker/docker v24.0.7+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.2
-	github.com/ghodss/yaml v1.0.0
-	github.com/godverv/matreshka v0.0.13
+	github.com/godverv/matreshka v0.0.14
 	github.com/godverv/matreshka-be v1.0.23
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.1
 	github.com/jaypipes/ghw v0.12.0
@@ -30,6 +29,7 @@ require (
 	github.com/distribution/reference v0.5.0 // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
 	github.com/docker/go-units v0.5.0 // indirect
+	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect

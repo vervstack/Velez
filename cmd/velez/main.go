@@ -148,7 +148,7 @@ func mustInitEnvironment(aCore applicationCore) {
 
 	err = env.StartVolumes(aCore.cfg, aCore.dockerAPI)
 	if err != nil {
-		logrus.Fatal(errors.Wrap(err, "erorr creating volumes"))
+		logrus.Fatal(errors.Wrap(err, "error creating volumes"))
 	}
 
 	if !aCore.cfg.GetBool(config.NodeMode) {
@@ -157,13 +157,13 @@ func mustInitEnvironment(aCore applicationCore) {
 
 	var portToExposeTo string
 	if aCore.cfg.GetBool(config.ExposeMatreshkaPort) {
-
 		p := uint64(aCore.cfg.GetInt(config.MatreshkaPort))
 
 		if p == 0 {
 			portFromPool := aCore.portManager.GetPort()
 			if portFromPool == nil {
 				logrus.Fatalf("no available port for config to expose")
+				return
 			}
 
 			p = uint64(*portFromPool)
@@ -196,6 +196,8 @@ func mustInitServiceManager(aCore applicationCore) service.Services {
 	if err != nil {
 		logrus.Fatalf("error creating service manager: %s", err)
 	}
+
+	logrus.Warn("shut down on exit is ", aCore.cfg.GetBool(config.ShutDownOnExit))
 
 	if aCore.cfg.GetBool(config.ShutDownOnExit) {
 		closer.Add(smerdsDropper(services.GetContainerManagerService()))

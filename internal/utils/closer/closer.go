@@ -20,7 +20,7 @@ func Add(f Closable) {
 func Close() (err error) {
 	for _, f := range funcs {
 		fErr := f()
-		if err != nil {
+		if fErr != nil {
 			err = errors.Join(err, fErr)
 		}
 	}

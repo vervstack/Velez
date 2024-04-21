@@ -50,7 +50,7 @@ func (c *Configurator) getConfig(ctx context.Context, serviceName string) (*matr
 }
 
 func (c *Configurator) fetchFromApi(ctx context.Context, serviceName string) (*matreshka.AppConfig, error) {
-	var apiConfig *matreshka.AppConfig
+	var apiConfig matreshka.AppConfig
 
 	matreshkaConfig, err := c.matreshkaClient.GetConfigRaw(ctx,
 		&matreshka_api.GetConfigRaw_Request{
@@ -61,16 +61,21 @@ func (c *Configurator) fetchFromApi(ctx context.Context, serviceName string) (*m
 		return nil, errors.Wrap(err, "error obtaining raw config")
 	}
 
+	if matreshkaConfig.Config == nil {
+		return nil, nil
+	}
+
 	err = apiConfig.Unmarshal(matreshkaConfig.Config)
 	if err != nil {
 		return nil, errors.Wrap(err, "error unmarshalling config from api")
 	}
 
-	return apiConfig, nil
+	return &apiConfig, nil
 }
 
 func (c *Configurator) readFromMount(serviceName string) (*matreshka.AppConfig, error) {
 	dirPath := c.getMountPoint(serviceName)
+
 	dirs, err := os.ReadDir(dirPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "error fetching service config dir")

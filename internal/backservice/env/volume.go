@@ -3,30 +3,19 @@ package env
 import (
 	"context"
 	"os"
+	"path"
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
-
-	"github.com/godverv/Velez/internal/config"
 )
 
 const (
-	DefaultSmerdsVolumesPath = "/opt/velez/smerds/"
-	VervVolumeName           = "verv"
+	VervVolumeName = "verv"
 )
 
-func StartVolumes(cfg config.Config, dockerAPI client.CommonAPIClient) error {
-	volumePath := cfg.GetString(config.SmerdVolumePath)
-	if volumePath == "" {
-		volumePath = DefaultSmerdsVolumesPath
-	}
-
-	err := os.MkdirAll(volumePath, 0777)
-	if err != nil {
-		return errors.Wrap(err, "error creating velez volume folder")
-	}
+func StartVolumes(dockerAPI client.CommonAPIClient) error {
 	ctx := context.Background()
 
 	f := filters.NewArgs(filters.KeyValuePair{
@@ -48,22 +37,65 @@ func StartVolumes(cfg config.Config, dockerAPI client.CommonAPIClient) error {
 		}
 	}
 
-	if vervVolume != nil {
-		return nil
+	if vervVolume == nil {
+		vervVolume, err = createVervVolume(ctx, dockerAPI)
+		if err != nil {
+			return errors.Wrap(err, "error creating verv volume")
+		}
 	}
 
-	_, err = dockerAPI.VolumeCreate(ctx, volume.CreateOptions{
-		Name: VervVolumeName,
-
-		DriverOpts: map[string]string{
-			"type":   "none",
-			"device": volumePath,
-			"o":      "bind",
-		},
-	})
-	if err != nil {
-		return errors.Wrap(err, "error creating verv volume")
+	vervVolumePath = vervVolume.Options["device"]
+	if vervVolumePath == "" {
+		vervVolumePath = vervVolume.Mountpoint
 	}
 
 	return nil
+}
+
+var vervVolumePath string
+
+func GetVervVolumePath() (string, error) {
+	if vervVolumePath != "" {
+		return vervVolumePath, nil
+	}
+
+	return "", errors.New("no verv volume found")
+}
+
+func createVervVolume(ctx context.Context, dockerAPI client.CommonAPIClient) (*volume.Volume, error) {
+	createOptions := volume.CreateOptions{
+		Name: VervVolumeName,
+	}
+
+	isInContainer, err := IsInContainer(dockerAPI)
+	if err != nil {
+		return nil, errors.Wrap(err, "error detecting if velez ran in container or as standalone app")
+	}
+
+	if !isInContainer {
+		vervVolumePath, err = os.UserCacheDir()
+		if err != nil {
+			return nil, errors.Wrap(err, "error getting cache dir")
+		}
+
+		vervVolumePath = path.Join(vervVolumePath, VervVolumeName)
+
+		createOptions.DriverOpts = map[string]string{
+			"type":   "none",
+			"device": vervVolumePath,
+			"o":      "bind",
+		}
+
+		err = os.MkdirAll(vervVolumePath, 0755)
+		if err != nil {
+			return nil, errors.Wrap(err, "error creating verv volume dir")
+		}
+	}
+
+	v, err := dockerAPI.VolumeCreate(ctx, createOptions)
+	if err != nil {
+		return nil, errors.Wrap(err, "error creating verv volume")
+	}
+
+	return &v, nil
 }

@@ -18,8 +18,6 @@ environment:
         - 18501-18519
 # custom pass to security key (default is /tmp/velez/private.key)
     custom_pass_to_key: /tmp/velez/private.key
-# custom pass to
-    smerd_volume_path: /tmp/velez/private.key
 # flag that enables|disables security check
     disable_api_security: true
 

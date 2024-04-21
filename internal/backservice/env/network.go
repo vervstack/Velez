@@ -38,7 +38,7 @@ func StartNetwork(dockerAPI client.CommonAPIClient) error {
 		}
 	}
 
-	contId, err := IsInContainer(dockerAPI)
+	contId, err := GetContainerId(dockerAPI)
 	if err != nil {
 		return errors.Wrap(err, "error getting information about this instance")
 	}
@@ -61,9 +61,18 @@ var instanceContainerId *string
 // IsInContainer - function to determine weather
 // this instance ran inside a container or as a standalone app
 // returns container uuid if so
-func IsInContainer(dockerAPI client.CommonAPIClient) (_ *string, err error) {
+func IsInContainer(dockerAPI client.CommonAPIClient) (bool, error) {
+	cId, err := GetContainerId(dockerAPI)
+	if err != nil {
+		return false, errors.Wrap(err, "error getting container id")
+	}
+
+	return cId != nil, nil
+}
+
+func GetContainerId(dockerAPI client.CommonAPIClient) (containerId *string, err error) {
 	if instanceContainerId == nil {
-		instanceContainerId, err = isRunningInContainer(dockerAPI)
+		instanceContainerId, err = getContainerId(dockerAPI)
 		if err != nil {
 			return nil, errors.Wrap(err, "error checking if instance is running")
 		}
@@ -80,7 +89,7 @@ func IsInContainer(dockerAPI client.CommonAPIClient) (_ *string, err error) {
 	return instanceContainerId, nil
 }
 
-func isRunningInContainer(dockerAPI client.CommonAPIClient) (*string, error) {
+func getContainerId(dockerAPI client.CommonAPIClient) (*string, error) {
 	ctx := context.Background()
 	containers, err := dockerutils.ListContainers(ctx, dockerAPI, &velez_api.ListSmerds_Request{})
 	if err != nil {

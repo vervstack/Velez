@@ -60,11 +60,6 @@ func (c *ContainerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 		return "", errors.Wrap(err, "error creating container")
 	}
 
-	err = c.docker.ContainerStart(ctx, cont.ID, types.ContainerStartOptions{})
-	if err != nil {
-		return "", errors.Wrap(err, "error starting container")
-	}
-
 	req.Settings.Networks = append(req.Settings.Networks,
 		&velez_api.NetworkBind{
 			NetworkName: env.VervNetwork,
@@ -80,6 +75,11 @@ func (c *ContainerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 		if err != nil {
 			return "", errors.Wrap(err, "error connecting container to verv network")
 		}
+	}
+
+	err = c.docker.ContainerStart(ctx, cont.ID, types.ContainerStartOptions{})
+	if err != nil {
+		return "", errors.Wrap(err, "error starting container")
 	}
 
 	return cont.ID, nil

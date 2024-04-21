@@ -14,7 +14,6 @@ const (
 	NodeMode                = "node_mode"
 	ResourceGrpcMatreshkaBe = "Resource_grpc_matreshka_be"
 	ApiGrpc                 = "Api_grpc"
-	SmerdVolumePath         = "smerd_volume_path"
 
 	CPUDefault   = "cpu_default"
 	RAMMbDefault = "ram_mb_default"

@@ -1,6 +1,7 @@
 package container_manager_v1
 
 import (
+	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/client"
 	"github.com/godverv/matreshka-be/pkg/matreshka_api"
 
@@ -18,7 +19,6 @@ type ContainerManager struct {
 	resourceManager *resource_manager.ResourceManager
 
 	isNodeModeOn bool
-	volumesPath  string
 }
 
 func NewContainerManager(
@@ -32,14 +32,18 @@ func NewContainerManager(
 
 ) (c *ContainerManager, err error) {
 	c = &ContainerManager{
-		docker:          docker,
-		configManager:   config_manager.New(configClient, cfg),
+		docker: docker,
+
 		resourceManager: resource_manager.New(docker),
 
 		isNodeModeOn: cfg.GetBool(config.NodeMode),
-		volumesPath:  cfg.GetString(config.SmerdVolumePath),
 
 		portManager: portManager,
+	}
+
+	c.configManager, err = config_manager.New(configClient)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create config manager")
 	}
 
 	return c, nil

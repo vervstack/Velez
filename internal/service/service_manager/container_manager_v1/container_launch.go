@@ -25,8 +25,6 @@ func (c *ContainerManager) createSimpleContainer(ctx context.Context, cfg *conta
 		if len(req.Settings.Volumes) != 0 {
 			hostConfig.VolumeDriver = req.Settings.Volumes[0].Volume
 		}
-
-		//hostConfig.VolumesFrom = parser.FromVolumes()
 	}
 
 	cont, err := c.docker.ContainerCreate(ctx,

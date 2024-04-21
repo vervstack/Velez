@@ -8,25 +8,26 @@ import (
 	"github.com/godverv/matreshka"
 	"github.com/godverv/matreshka-be/pkg/matreshka_api"
 
-	"github.com/godverv/Velez/internal/config"
+	"github.com/godverv/Velez/internal/backservice/env"
 )
 
 const FolderName = "config"
 
 type Configurator struct {
 	matreshkaClient matreshka_api.MatreshkaBeAPIClient
-	volumeFolder    string
+	vervVolumePath  string
 }
 
-func New(api matreshka_api.MatreshkaBeAPIClient, cfg config.Config) *Configurator {
-	return &Configurator{
-		matreshkaClient: api,
-		volumeFolder:    cfg.GetString(config.SmerdVolumePath),
+func New(api matreshka_api.MatreshkaBeAPIClient) (c *Configurator, err error) {
+	c = &Configurator{}
+
+	c.matreshkaClient = api
+	c.vervVolumePath, err = env.GetVervVolumePath()
+	if err != nil {
+		return nil, errors.Wrap(err, "error getting verv volume path")
 	}
-}
 
-func (c *Configurator) GetPath() string {
-	return c.volumeFolder
+	return c, nil
 }
 
 func (c *Configurator) GetEnv(ctx context.Context, name string) ([]string, error) {

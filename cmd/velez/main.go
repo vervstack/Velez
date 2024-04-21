@@ -146,7 +146,7 @@ func mustInitEnvironment(aCore applicationCore) {
 		logrus.Fatalf("error creating network: %s", err)
 	}
 
-	err = env.StartVolumes(aCore.cfg, aCore.dockerAPI)
+	err = env.StartVolumes(aCore.dockerAPI)
 	if err != nil {
 		logrus.Fatal(errors.Wrap(err, "error creating volumes"))
 	}

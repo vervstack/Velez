@@ -4,7 +4,7 @@ Content-Type: application/json
 
 {}
 
-### Create smerd
+### Create standalone smerd
 POST {{velez}}/smerd/create
 Content-Type: application/json
 
@@ -24,6 +24,16 @@ Content-Type: application/json
     ]
   }
 }
+
+### Create smerd with dependecy
+POST {{velez}}/smerd/create
+Content-Type: application/json
+
+{
+  "name": "red-cart",
+  "image_name": "redsockdev/red-cart:v0.0.12"
+}
+
 
 ### List smerds
 POST {{velez}}/smerd/list

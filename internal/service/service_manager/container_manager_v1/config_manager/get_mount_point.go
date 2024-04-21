@@ -21,5 +21,5 @@ func (c *Configurator) GetMountPoint(serviceName string) (string, error) {
 }
 
 func (c *Configurator) getMountPoint(serviceName string) string {
-	return path.Join(c.volumeFolder, serviceName, FolderName)
+	return path.Join(c.vervVolumePath, serviceName, FolderName)
 }

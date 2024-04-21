@@ -29,5 +29,11 @@ func Postgres(resources matreshka.Resources, resourceName string) (*velez_api.Cr
 			"POSTGRES_PASSWORD": pg.Pwd,
 			"POSTGRES_DB":       pg.DbName,
 		},
+		Healthcheck: &velez_api.Container_Healthcheck{
+			Command:        "pg_isready -U postgres",
+			IntervalSecond: 5,
+			TimeoutSecond:  5,
+			Retries:        3,
+		},
 	}, nil
 }

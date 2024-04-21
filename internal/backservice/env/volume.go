@@ -12,15 +12,30 @@ import (
 )
 
 const (
-	VervVolumeName = "verv"
+	containerVervMountPoint = "/opt/velez/smerds"
 )
+
+var vervVolumeName = "verv"
+
+func GetVervVolumeName() string {
+	return vervVolumeName
+}
 
 func StartVolumes(dockerAPI client.CommonAPIClient) error {
 	ctx := context.Background()
 
+	isInContainer, err := IsInContainer(dockerAPI)
+	if err != nil {
+		return errors.Wrap(err, "error checking if velez is deployed in container")
+	}
+
+	if !isInContainer {
+		vervVolumeName += "_host"
+	}
+
 	f := filters.NewArgs(filters.KeyValuePair{
 		Key:   "name",
-		Value: VervVolumeName,
+		Value: vervVolumeName,
 	})
 
 	volumes, err := dockerAPI.VolumeList(ctx, volume.ListOptions{Filters: f})
@@ -31,7 +46,7 @@ func StartVolumes(dockerAPI client.CommonAPIClient) error {
 	var vervVolume *volume.Volume
 
 	for _, v := range volumes.Volumes {
-		if v.Name == VervVolumeName {
+		if v.Name == vervVolumeName {
 			vervVolume = v
 			break
 		}
@@ -45,8 +60,9 @@ func StartVolumes(dockerAPI client.CommonAPIClient) error {
 	}
 
 	vervVolumePath = vervVolume.Options["device"]
+
 	if vervVolumePath == "" {
-		vervVolumePath = vervVolume.Mountpoint
+		vervVolumePath = containerVervMountPoint
 	}
 
 	return nil
@@ -64,7 +80,7 @@ func GetVervVolumePath() (string, error) {
 
 func createVervVolume(ctx context.Context, dockerAPI client.CommonAPIClient) (*volume.Volume, error) {
 	createOptions := volume.CreateOptions{
-		Name: VervVolumeName,
+		Name: vervVolumeName,
 	}
 
 	isInContainer, err := IsInContainer(dockerAPI)
@@ -78,7 +94,7 @@ func createVervVolume(ctx context.Context, dockerAPI client.CommonAPIClient) (*v
 			return nil, errors.Wrap(err, "error getting cache dir")
 		}
 
-		vervVolumePath = path.Join(vervVolumePath, VervVolumeName)
+		vervVolumePath = path.Join(vervVolumePath, vervVolumeName)
 
 		createOptions.DriverOpts = map[string]string{
 			"type":   "none",

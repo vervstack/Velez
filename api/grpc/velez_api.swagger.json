@@ -185,6 +185,26 @@
         }
       }
     },
+    "ContainerHealthcheck": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string"
+        },
+        "intervalSecond": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "timeoutSecond": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "retries": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
     "ContainerSettings": {
       "type": "object",
       "properties": {
@@ -300,6 +320,9 @@
           "additionalProperties": {
             "type": "string"
           }
+        },
+        "healthcheck": {
+          "$ref": "#/definitions/ContainerHealthcheck"
         }
       }
     },

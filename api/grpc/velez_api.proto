@@ -122,6 +122,13 @@ message Container {
     repeated NetworkBind networks = 3;
     repeated VolumeBindings volumes = 4;
   }
+
+  message Healthcheck {
+      string command = 1;
+      uint32 interval_second = 2;
+      uint32 timeout_second = 3;
+      uint32 retries =  4;
+  }
 }
 
 message CreateSmerd {
@@ -138,6 +145,8 @@ message CreateSmerd {
     optional string command = 5;
 
     map<string, string> env = 6;
+
+    optional Container.Healthcheck healthcheck = 7;
   }
 }
 

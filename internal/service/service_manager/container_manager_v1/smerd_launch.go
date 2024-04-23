@@ -2,7 +2,6 @@ package container_manager_v1
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
@@ -17,9 +16,7 @@ import (
 )
 
 const (
-	vervName                         = "VERV_NAME"
-	defaultContainerConfigFolderPath = "/app/config"
-	matreshkaConfigLabel             = "MATRESHKA_CONFIG_ENABLED"
+	matreshkaConfigLabel = "MATRESHKA_CONFIG_ENABLED"
 )
 
 func (c *ContainerManager) LaunchSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (id string, err error) {
@@ -100,12 +97,9 @@ func (c *ContainerManager) getLaunchConfig(req *velez_api.CreateSmerd_Request, i
 	}
 
 	cfg = &container.Config{
-		Image:    req.ImageName,
-		Hostname: req.GetName(),
-		Cmd:      parser.FromCommand(req.Command),
-		Env: []string{
-			fmt.Sprintf("%s=%s", vervName, req.GetName()),
-		},
+		Image:       req.ImageName,
+		Hostname:    req.GetName(),
+		Cmd:         parser.FromCommand(req.Command),
 		Healthcheck: parser.FromHealthcheck(req.Healthcheck),
 	}
 

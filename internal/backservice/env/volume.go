@@ -12,14 +12,13 @@ import (
 )
 
 const (
-	containerVervMountPoint = "/opt/velez/smerds"
+	//containerVervMountPoint = "/opt/velez/smerds"
+	containerVervMountPoint = "/Users/alexbukov/Desktop/verv"
 )
 
 var vervVolumeName = "verv"
 
-func GetVervVolumeName() string {
-	return vervVolumeName
-}
+func GetVervVolumeName() string { return vervVolumeName }
 
 func StartVolumes(dockerAPI client.CommonAPIClient) error {
 	ctx := context.Background()

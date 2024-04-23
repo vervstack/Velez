@@ -1,7 +1,6 @@
 package service_manager
 
 import (
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/client"
 	"github.com/godverv/matreshka-be/pkg/matreshka_api"
 
@@ -25,17 +24,12 @@ func New(
 ) (service.Services, error) {
 	s := &ServiceManager{}
 
-	var err error
-
-	s.containerManager, err = container_manager_v1.NewContainerManager(
+	s.containerManager = container_manager_v1.NewContainerManager(
 		cfg,
 		docker,
 		configClient,
 		portManager,
 	)
-	if err != nil {
-		return nil, errors.Wrap(err, "error creating container manager")
-	}
 
 	s.hardwareManager = hardware_manager_v1.New()
 

@@ -31,7 +31,7 @@ Content-Type: application/json
 
 {
   "name": "red-cart",
-  "image_name": "redsockdev/red-cart:v0.0.12"
+  "image_name": "redsockdev/red-cart:v0.0.13"
 }
 
 

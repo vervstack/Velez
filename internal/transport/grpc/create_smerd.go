@@ -18,7 +18,7 @@ func (a *Api) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Reques
 
 	id, err := a.containerManager.LaunchSmerd(ctx, req)
 	if err != nil {
-		return nil, errors.Wrapf(err, "error searching image")
+		return nil, errors.Wrapf(err, "error launching smerd")
 	}
 
 	smerds, err := a.containerManager.ListSmerds(ctx,

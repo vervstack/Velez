@@ -18,29 +18,22 @@ type ContainerManager struct {
 	resourceManager *resource_manager.ResourceManager
 
 	isNodeModeOn bool
-	volumesPath  string
+	matreshkaURL string
 }
 
 func NewContainerManager(
 	cfg config.Config,
-
 	docker client.CommonAPIClient,
-
 	configClient matreshka_api.MatreshkaBeAPIClient,
-
 	portManager *port_manager.PortManager,
 
-) (c *ContainerManager, err error) {
-	c = &ContainerManager{
-		docker:          docker,
-		configManager:   config_manager.New(configClient, cfg),
+) *ContainerManager {
+	return &ContainerManager{
+		docker: docker,
+
 		resourceManager: resource_manager.New(docker),
-
-		isNodeModeOn: cfg.GetBool(config.NodeMode),
-		volumesPath:  cfg.GetString(config.SmerdVolumePath),
-
-		portManager: portManager,
+		portManager:     portManager,
+		configManager:   config_manager.New(configClient, docker),
+		isNodeModeOn:    cfg.GetBool(config.NodeMode),
 	}
-
-	return c, nil
 }

@@ -4,13 +4,13 @@ Content-Type: application/json
 
 {}
 
-### Create smerd
+### Create standalone smerd
 POST {{velez}}/smerd/create
 Content-Type: application/json
 
 {
   "name": "matreshka-2",
-  "image_name": "godverv/matreshka-be",
+  "image_name": "godverv/matreshka-be:latest",
   "settings": {
     "ports": [
       {
@@ -24,6 +24,16 @@ Content-Type: application/json
     ]
   }
 }
+
+### Create smerd with dependecy
+POST {{velez}}/smerd/create
+Content-Type: application/json
+
+{
+  "name": "red-cart",
+  "image_name": "redsockdev/red-cart:v0.0.13"
+}
+
 
 ### List smerds
 POST {{velez}}/smerd/list

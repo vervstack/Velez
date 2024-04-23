@@ -1,8 +1,8 @@
 github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 h1:UQHMgLO+TxOElx5B5HZ4hJQsoJ/PvUvKRhJHDQXO8P8=
 github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migciow=
 github.com/Microsoft/go-winio v0.6.1/go.mod h1:LRdKpFKfdobln8UmuiYcKPot9D2v6svN5+sAH+4kjUM=
-github.com/Red-Sock/trace-errors v0.0.5 h1:MgD1AIJ/Qw8QMSoxGJQRUycH2fSRFpq/FtUOxDTb0U4=
-github.com/Red-Sock/trace-errors v0.0.5/go.mod h1:rvIxpJ2M7/XkEnXjXfmQjsaKXYRVGM4TFQ8R5Zo4mSk=
+github.com/Red-Sock/trace-errors v0.0.6 h1:+ZXWC8yCeSRqtch1yL87zD3phL2CWU3F/qJGkfYPXQQ=
+github.com/Red-Sock/trace-errors v0.0.6/go.mod h1:rvIxpJ2M7/XkEnXjXfmQjsaKXYRVGM4TFQ8R5Zo4mSk=
 github.com/StackExchange/wmi v1.2.1 h1:VIkavFPXSjcnS+O8yTq7NI32k0R5Aj+v39y29VYDOSA=
 github.com/StackExchange/wmi v1.2.1/go.mod h1:rcmrprowKIVzvc+NUiLncP2uuArMWLCbu9SBzvHz7e8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -25,8 +25,8 @@ github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeME
 github.com/go-ole/go-ole v1.2.5/go.mod h1:pprOEPIfldk/42T2oK7lQ4v4JSDwmV0As9GaiUsvbm0=
 github.com/go-ole/go-ole v1.2.6 h1:/Fpf6oFPoeFik9ty7siob0G6Ke8QvQEuVcuChpwXzpY=
 github.com/go-ole/go-ole v1.2.6/go.mod h1:pprOEPIfldk/42T2oK7lQ4v4JSDwmV0As9GaiUsvbm0=
-github.com/godverv/matreshka v0.0.13 h1:XcVfXHmzcDAsiS+BsE2wpkmK9lsp+6XL+iDa1YRQpXw=
-github.com/godverv/matreshka v0.0.13/go.mod h1:XEGJvZvNWAH6wsx7dTIdAayvLioJdtsuT47151oapCM=
+github.com/godverv/matreshka v0.0.15 h1:/hRcoaTjc5KixTeUJ7gSrlLhniXkXKR/okO6KDMGLeY=
+github.com/godverv/matreshka v0.0.15/go.mod h1:JAL1wo3REIeJlDqTt3TpV3/8/zJlaWiJJ2SIxnxQn+k=
 github.com/godverv/matreshka-be v1.0.23 h1:UNne0FOOGDyU0WoCA6+2BoVbdAIrTf3l6oCek3frnVc=
 github.com/godverv/matreshka-be v1.0.23/go.mod h1:z3LlfGNgri6E1ut3KySsHUXHYahcTZHnpBuoBYzn2c8=
 github.com/gogo/protobuf v1.3.2 h1:Ov1cvc58UF3b5XjBnZv7+opcTcQFZebYjWzi34vdm4Q=
@@ -90,7 +90,6 @@ golang.org/x/sync v0.0.0-20190423024810-112230192c58/go.mod h1:RxMgew5VJxzue5/jJ
 golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.4.0 h1:zxkM55ReGkDlKSM+Fu41A+zmbZuaPVbGMzvvdUPznYQ=
-golang.org/x/sync v0.4.0/go.mod h1:FU7BRWz2tNW+3quACPkgCx/L+uEAv1htQ0V83Z9Rj+Y=
 golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
 golang.org/x/sys v0.0.0-20190412213103-97732733099d/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20190916202348-b4ddaad3f8a3/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=

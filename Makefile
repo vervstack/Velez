@@ -3,5 +3,4 @@ include ./scripts/grpc.mk
 
 gen:
 
-
 buildc:

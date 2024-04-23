@@ -13,8 +13,6 @@ environment:
   available_ports:
     - 18501-18519
 
-  smerd_volume_path: /smerds/configs/
-
   disable_api_security: false
 
   cpu_default: 0.5
@@ -23,11 +21,10 @@ environment:
 
   node_mode: true
   expose_matreshka_port: true
+  matreshka_port: 50050
 
   portainer_enabled: true
   shut_down_on_exit: false
 
   watch_tower_enabled: true
   watch_tower_interval: 5s
-
-  insecure: false

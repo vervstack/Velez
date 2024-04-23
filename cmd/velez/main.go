@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/signal"
 	"strconv"
@@ -10,7 +9,6 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/client"
-	"github.com/ghodss/yaml"
 	"github.com/sirupsen/logrus"
 
 	"github.com/godverv/Velez/internal/backservice/configuration"
@@ -29,10 +27,6 @@ import (
 	"github.com/godverv/Velez/internal/transport/grpc"
 	"github.com/godverv/Velez/internal/utils/closer"
 	"github.com/godverv/Velez/pkg/velez_api"
-)
-
-const (
-	defaultSmerdsVolumesPath = "/opt/velez/smerds/"
 )
 
 func main() {
@@ -59,7 +53,7 @@ func main() {
 	serviceManager := mustInitServiceManager(aCore)
 
 	// Back service
-	initBackServices(aCore.cfg, serviceManager.GetContainerManagerService())
+	initBackServices(aCore, serviceManager.GetContainerManagerService())
 
 	// API
 	mgr := mustInitAPI(aCore, serviceManager)
@@ -152,18 +146,30 @@ func mustInitEnvironment(aCore applicationCore) {
 		logrus.Fatalf("error creating network: %s", err)
 	}
 
+	err = env.StartVolumes(aCore.dockerAPI)
+	if err != nil {
+		logrus.Fatal(errors.Wrap(err, "error creating volumes"))
+	}
+
 	if !aCore.cfg.GetBool(config.NodeMode) {
 		return
 	}
 
 	var portToExposeTo string
 	if aCore.cfg.GetBool(config.ExposeMatreshkaPort) {
-		p := aCore.portManager.GetPort()
-		if p == nil {
-			logrus.Fatalf("no available port for config to expose")
+		p := uint64(aCore.cfg.GetInt(config.MatreshkaPort))
+
+		if p == 0 {
+			portFromPool := aCore.portManager.GetPort()
+			if portFromPool == nil {
+				logrus.Fatalf("no available port for config to expose")
+				return
+			}
+
+			p = uint64(*portFromPool)
 		}
 
-		portToExposeTo = strconv.FormatUint(uint64(*p), 10)
+		portToExposeTo = strconv.FormatUint(p, 10)
 	}
 
 	conf := configuration.New(aCore.dockerAPI, portToExposeTo)
@@ -172,10 +178,7 @@ func mustInitEnvironment(aCore applicationCore) {
 		logrus.Fatalf("error launching config backservice: %s", err)
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-
-	go cron.KeepAlive(ctx, conf)
-	closer.Add(func() error { cancel(); return nil })
+	go cron.KeepAlive(context.Background(), conf)
 }
 
 func mustInitServiceManager(aCore applicationCore) service.Services {
@@ -194,6 +197,8 @@ func mustInitServiceManager(aCore applicationCore) service.Services {
 		logrus.Fatalf("error creating service manager: %s", err)
 	}
 
+	logrus.Warn("shut down on exit is ", aCore.cfg.GetBool(config.ShutDownOnExit))
+
 	if aCore.cfg.GetBool(config.ShutDownOnExit) {
 		closer.Add(smerdsDropper(services.GetContainerManagerService()))
 	}
@@ -201,40 +206,19 @@ func mustInitServiceManager(aCore applicationCore) service.Services {
 	return services
 }
 
-func initBackServices(cfg config.Config, cm service.ContainerManager) {
+func initBackServices(aCore applicationCore, cm service.ContainerManager) {
 	ctx, c := context.WithCancel(context.Background())
 	closer.Add(func() error {
 		c()
 		return nil
 	})
 
-	if cfg.GetBool(config.WatchTowerEnabled) {
-		go cron.KeepAlive(ctx, watchtower.New(cfg, cm))
+	if aCore.cfg.GetBool(config.WatchTowerEnabled) {
+		go cron.KeepAlive(ctx, watchtower.New(aCore.cfg, cm))
 	}
 
-	if cfg.GetBool(config.PortainerEnabled) {
+	if aCore.cfg.GetBool(config.PortainerEnabled) {
 		go cron.KeepAlive(ctx, portainer.New(cm))
-	}
-
-	{
-		volumePath := cfg.GetString(config.SmerdVolumePath)
-		if volumePath == "" {
-			volumePath = defaultSmerdsVolumesPath
-		}
-
-		err := os.MkdirAll(volumePath, 0777)
-		if err != nil {
-			logrus.Fatalf("error creating velez volume folder: %s", err)
-		}
-
-		closer.Add(func() error {
-			err := os.RemoveAll(volumePath)
-			if err != nil {
-				return errors.Wrap(err, "error removing velez volume folder")
-			}
-
-			return nil
-		})
 	}
 }
 
@@ -249,11 +233,13 @@ func smerdsDropper(manager service.ContainerManager) func() error {
 			return err
 		}
 
-		b, err := yaml.Marshal(smerds.Smerds)
-		if err != nil {
-			b = []byte(fmt.Sprintf("%v", smerds.Smerds))
+		names := make([]string, 0, len(smerds.Smerds))
+
+		for _, sm := range smerds.Smerds {
+			names = append(names, sm.Name)
 		}
-		logrus.Infof("%d smerds is active: %v", len(smerds.Smerds), string(b))
+
+		logrus.Infof("%d smerds is active. %v", len(smerds.Smerds), names)
 
 		dropReq := &velez_api.DropSmerd_Request{
 			Uuids: make([]string, len(smerds.Smerds)),
@@ -278,7 +264,7 @@ func smerdsDropper(manager service.ContainerManager) func() error {
 		if len(dropSmerds.Failed) != 0 {
 			logrus.Errorf("%d smerds failed to drop", len(dropSmerds.Failed))
 			for _, f := range dropSmerds.Failed {
-				logrus.Errorf("error dropping %s. Cause %s", f.Uuid, f.Cause)
+				logrus.Errorf("error dropping %s. Cause: %s", f.Uuid, f.Cause)
 			}
 		}
 

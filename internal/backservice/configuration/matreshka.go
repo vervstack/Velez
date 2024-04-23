@@ -106,9 +106,11 @@ func (b *Matreshka) GetDuration() time.Duration {
 func (b *Matreshka) IsAlive() (bool, error) {
 	name := Name
 
-	containers, err := dockerutils.ListContainers(context.Background(), b.dockerAPI, &velez_api.ListSmerds_Request{
-		Name: &name,
-	})
+	containers, err := dockerutils.ListContainers(
+		context.Background(),
+		b.dockerAPI, &velez_api.ListSmerds_Request{
+			Name: &name,
+		})
 	if err != nil {
 		return false, errors.Wrap(err, "error listing smerds with name "+name)
 	}

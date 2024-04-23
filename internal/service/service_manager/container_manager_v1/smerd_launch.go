@@ -2,8 +2,8 @@ package container_manager_v1
 
 import (
 	"context"
-	"fmt"
 	"strings"
+	"time"
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/api/types"
@@ -16,9 +16,7 @@ import (
 )
 
 const (
-	vervName                         = "VERV_NAME"
-	matreshkaConfigLabel             = "MATRESHKA_CONFIG_ENABLED"
-	defaultContainerConfigFolderPath = "/app/config"
+	matreshkaConfigLabel = "MATRESHKA_CONFIG_ENABLED"
 )
 
 func (c *ContainerManager) LaunchSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (id string, err error) {
@@ -60,11 +58,6 @@ func (c *ContainerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 		return "", errors.Wrap(err, "error creating container")
 	}
 
-	err = c.docker.ContainerStart(ctx, cont.ID, types.ContainerStartOptions{})
-	if err != nil {
-		return "", errors.Wrap(err, "error starting container")
-	}
-
 	req.Settings.Networks = append(req.Settings.Networks,
 		&velez_api.NetworkBind{
 			NetworkName: env.VervNetwork,
@@ -82,6 +75,19 @@ func (c *ContainerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 		}
 	}
 
+	err = c.docker.ContainerStart(ctx, cont.ID, types.ContainerStartOptions{})
+	if err != nil {
+		return "", errors.Wrap(err, "error starting container")
+	}
+
+	if cfg.Healthcheck != nil {
+		hcC := c.waitHealthcheck(ctx, cont.ID, *cfg.Healthcheck)
+		err = <-hcC
+		if err != nil {
+			return "", errors.Wrap(err, "healthcheck failed")
+		}
+	}
+
 	return cont.ID, nil
 }
 
@@ -91,12 +97,10 @@ func (c *ContainerManager) getLaunchConfig(req *velez_api.CreateSmerd_Request, i
 	}
 
 	cfg = &container.Config{
-		Image:    req.ImageName,
-		Hostname: req.GetName(),
-		Cmd:      parser.FromCommand(req.Command),
-		Env: []string{
-			fmt.Sprintf("%s=%s", vervName, req.GetName()),
-		},
+		Image:       req.ImageName,
+		Hostname:    req.GetName(),
+		Cmd:         parser.FromCommand(req.Command),
+		Healthcheck: parser.FromHealthcheck(req.Healthcheck),
 	}
 
 	for k, v := range req.Env {
@@ -114,4 +118,36 @@ func (c *ContainerManager) normalizeCreateRequest(req *velez_api.CreateSmerd_Req
 	if req.Hardware == nil {
 		req.Hardware = &velez_api.Container_Hardware{}
 	}
+}
+
+func (c *ContainerManager) waitHealthcheck(
+	ctx context.Context,
+	containerId string,
+	hc container.HealthConfig,
+) chan error {
+	errC := make(chan error)
+
+	go func() {
+		defer close(errC)
+
+		for i := 0; i < hc.Retries; i++ {
+			time.Sleep(hc.Interval)
+
+			cont, err := c.docker.ContainerInspect(ctx, containerId)
+			if err != nil {
+				errC <- err
+				return
+			}
+			if cont.State.Health == nil {
+				continue
+			}
+
+			if cont.State.Health.Status == "healthy" {
+				errC <- nil
+				return
+			}
+		}
+	}()
+
+	return errC
 }

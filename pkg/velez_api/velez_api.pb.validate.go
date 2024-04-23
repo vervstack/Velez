@@ -1935,6 +1935,116 @@ var _ interface {
 	ErrorName() string
 } = Container_SettingsValidationError{}
 
+// Validate checks the field values on Container_Healthcheck with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *Container_Healthcheck) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Container_Healthcheck with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// Container_HealthcheckMultiError, or nil if none found.
+func (m *Container_Healthcheck) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Container_Healthcheck) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Command
+
+	// no validation rules for IntervalSecond
+
+	// no validation rules for TimeoutSecond
+
+	// no validation rules for Retries
+
+	if len(errors) > 0 {
+		return Container_HealthcheckMultiError(errors)
+	}
+
+	return nil
+}
+
+// Container_HealthcheckMultiError is an error wrapping multiple validation
+// errors returned by Container_Healthcheck.ValidateAll() if the designated
+// constraints aren't met.
+type Container_HealthcheckMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m Container_HealthcheckMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m Container_HealthcheckMultiError) AllErrors() []error { return m }
+
+// Container_HealthcheckValidationError is the validation error returned by
+// Container_Healthcheck.Validate if the designated constraints aren't met.
+type Container_HealthcheckValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e Container_HealthcheckValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e Container_HealthcheckValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e Container_HealthcheckValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e Container_HealthcheckValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e Container_HealthcheckValidationError) ErrorName() string {
+	return "Container_HealthcheckValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e Container_HealthcheckValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sContainer_Healthcheck.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = Container_HealthcheckValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = Container_HealthcheckValidationError{}
+
 // Validate checks the field values on CreateSmerd_Request with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -2055,6 +2165,39 @@ func (m *CreateSmerd_Request) validate(all bool) error {
 		// no validation rules for Command
 	}
 
+	if m.Healthcheck != nil {
+
+		if all {
+			switch v := interface{}(m.GetHealthcheck()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, CreateSmerd_RequestValidationError{
+						field:  "Healthcheck",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, CreateSmerd_RequestValidationError{
+						field:  "Healthcheck",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetHealthcheck()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return CreateSmerd_RequestValidationError{
+					field:  "Healthcheck",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return CreateSmerd_RequestMultiError(errors)
 	}
@@ -2165,10 +2308,6 @@ func (m *ListSmerds_Request) validate(all bool) error {
 
 	if m.Name != nil {
 		// no validation rules for Name
-	}
-
-	if m.GeneralSearch != nil {
-		// no validation rules for GeneralSearch
 	}
 
 	if m.Id != nil {

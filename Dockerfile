@@ -13,6 +13,7 @@ COPY --from=builder ./deploy/server/ .
 COPY --from=builder /app/config/ ./config/
 
 ENV VELEZ_CUSTOM_PASS_TO_KEY="/tmp/velez/private.key"
+ARG velez_shut_down_on_exit
 
 EXPOSE 53890
 

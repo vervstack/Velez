@@ -1,6 +1,6 @@
 app_info:
   name: github.com/godverv/Velez
-  version: v0.1.25
+  version: v0.1.26
   startup_duration: 10s
 data_sources:
   - resource_name: grpc_matreshka_be
@@ -8,7 +8,7 @@ data_sources:
     module: github.com/godverv/matreshka-be@v1.0.23
 server:
   - name: grpc
-    port: 13890
+    port: 80
 environment:
   available_ports:
     - 18501-18519

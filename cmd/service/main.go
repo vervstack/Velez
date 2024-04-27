@@ -12,6 +12,7 @@ import (
 	"github.com/godverv/Velez/internal/backservice/security"
 	"github.com/godverv/Velez/internal/clients/docker"
 	"github.com/godverv/Velez/internal/config"
+	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/port_manager"
 	"github.com/godverv/Velez/internal/transport"
 	"github.com/godverv/Velez/internal/transport/grpc"
 	"github.com/godverv/Velez/internal/utils/closer"
@@ -85,7 +86,7 @@ type applicationCore struct {
 
 	dockerAPI       client.CommonAPIClient
 	securityManager security.Manager
-	//portManager     *port_manager.PortManager
+	portManager     *port_manager.PortManager
 }
 
 func mustInitCore() (c applicationCore) {
@@ -123,10 +124,10 @@ func mustInitCore() (c applicationCore) {
 
 	// port manager
 	{
-		//c.portManager, err = port_manager.NewPortManager(context.Background(), c.cfg, c.dockerAPI)
-		//if err != nil {
-		//	logrus.Fatalf("error creating port manager %s", err)
-		//}
+		c.portManager, err = port_manager.NewPortManager(context.Background(), c.cfg, c.dockerAPI)
+		if err != nil {
+			logrus.Fatalf("error creating port manager %s", err)
+		}
 	}
 	return
 }

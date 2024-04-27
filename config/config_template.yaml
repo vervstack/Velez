@@ -10,7 +10,7 @@ data_sources:
 
 server:
     - name: grpc
-      port: 50051
+      port: 53890
 
 environment:
 #    ports ranges and single port that is available for velez to take

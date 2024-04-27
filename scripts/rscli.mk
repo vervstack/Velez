@@ -5,5 +5,5 @@ rscli-version:
 buildc:
 	docker buildx build \
 			--load \
-			--platform linux/amd64,linux/arm64 \
+			--platform linux/arm64 \
 			-t velez:local .

@@ -1,4 +1,4 @@
-gen: deps link-gw gen-server
+gen: deps gen-server
 
 deps:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
@@ -6,24 +6,25 @@ deps:
 	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest
 	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
 
-link-gw:
+local-link:
 	rm -rf api/google
 	rm -rf api/validate
 	ln -sf $(GOPATH)/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.16.0/third_party/googleapis/google api/google
 	ln -sf $(GOPATH)/pkg/mod/github.com/envoyproxy/protoc-gen-validate@v1.0.2/validate api/validate
 
-gen-server: .pre-gen-server .gen-server
+gen-server: .pre-gen-server local-link .gen-server
 
 .pre-gen-server:
-	mkdir -p pkg/api
+	mkdir -p pkg/
 
 .gen-server:
 	protoc \
-		-I=./api \
-		--grpc-gateway_out=logtostderr=true:./pkg/ \
-		--swagger_out=allow_merge=true,merge_file_name=api:./api \
-		--descriptor_set_out=./pkg/api_discriptor.pb \
-		--go_out=./pkg/. \
-		--go-grpc_out=./pkg/. \
-		./api/grpc/*.proto
+    	-I=./api \
+    	-I $(GOPATH)/bin \
+    	--grpc-gateway_out=logtostderr=true:./pkg/ \
+    	--openapiv2_out ./api \
+    	--go_out=./pkg/ \
+    	--go-grpc_out=./pkg/ \
+	    --validate_out="lang=go:./pkg" \
+    	./api/grpc/*.proto
 

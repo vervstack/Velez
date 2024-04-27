@@ -14,8 +14,11 @@ import (
 	"github.com/godverv/Velez/internal/backservice/env"
 	"github.com/godverv/Velez/internal/backservice/security"
 	"github.com/godverv/Velez/internal/clients/docker"
+	grpcClients "github.com/godverv/Velez/internal/clients/grpc"
 	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/cron"
+	"github.com/godverv/Velez/internal/service"
+	"github.com/godverv/Velez/internal/service/service_manager"
 	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/port_manager"
 	"github.com/godverv/Velez/internal/transport"
 	"github.com/godverv/Velez/internal/transport/grpc"
@@ -43,8 +46,8 @@ func main() {
 	}
 
 	// Service layer
-	//serviceManager := mustInitServiceManager(aCore)
-
+	serviceManager := mustInitServiceManager(aCore)
+	_ = serviceManager
 	// Back service
 	//initBackServices(aCore, serviceManager.GetContainerManagerService())
 
@@ -177,30 +180,30 @@ func mustInitEnvironment(aCore applicationCore) {
 	go cron.KeepAlive(context.Background(), conf)
 }
 
-//func mustInitServiceManager(aCore applicationCore) service.Services {
-//matreshkaApi, err := grpcClients.NewMatreshkaBeAPIClient(aCore.ctx, aCore.cfg)
-//if err != nil {
-//	logrus.Fatalf("error getting matreshka api: %s", err)
-//}
+func mustInitServiceManager(aCore applicationCore) service.Services {
+	matreshkaApi, err := grpcClients.NewMatreshkaBeAPIClient(aCore.ctx, aCore.cfg)
+	if err != nil {
+		logrus.Fatalf("error getting matreshka api: %s", err)
+	}
 
-//services, err := service_manager.New(
-//	aCore.cfg,
-//	aCore.dockerAPI,
-//	matreshkaApi,
-//	aCore.portManager,
-//)
-//if err != nil {
-//	logrus.Fatalf("error creating service manager: %s", err)
-//}
-//
-//logrus.Warn("shut down on exit is ", aCore.cfg.GetBool(config.ShutDownOnExit))
-//
-//if aCore.cfg.GetBool(config.ShutDownOnExit) {
-//	closer.Add(smerdsDropper(services.GetContainerManagerService()))
-//}
+	services, err := service_manager.New(
+		aCore.cfg,
+		aCore.dockerAPI,
+		matreshkaApi,
+		aCore.portManager,
+	)
+	if err != nil {
+		logrus.Fatalf("error creating service manager: %s", err)
+	}
 
-//return services
-//}
+	logrus.Warn("shut down on exit is ", aCore.cfg.GetBool(config.ShutDownOnExit))
+
+	if aCore.cfg.GetBool(config.ShutDownOnExit) {
+		//closer.Add(smerdsDropper(services.GetContainerManagerService()))
+	}
+
+	return services
+}
 
 //func initBackServices(aCore applicationCore, cm service.ContainerManager) {
 //	ctx, c := context.WithCancel(context.Background())

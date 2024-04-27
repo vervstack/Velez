@@ -56,7 +56,7 @@ func main() {
 	// API
 	mgr := mustInitAPI(
 		aCore,
-		//serviceManager,
+		serviceManager,
 	)
 
 	err := mgr.Start(aCore.ctx)
@@ -275,7 +275,7 @@ func initBackServices(aCore applicationCore, cm service.ContainerManager) {
 
 func mustInitAPI(
 	aCore applicationCore,
-	// services service.Services,
+	services service.Services,
 ) transport.Server {
 	mgr := transport.NewManager()
 
@@ -287,7 +287,7 @@ func mustInitAPI(
 	srv, err := grpc.NewServer(
 		aCore.cfg,
 		grpcConf,
-		//services,
+		services,
 		//aCore.securityManager,
 	)
 	if err != nil {

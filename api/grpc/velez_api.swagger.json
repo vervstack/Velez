@@ -16,124 +16,6 @@
     "application/json"
   ],
   "paths": {
-    "/hardware": {
-      "get": {
-        "operationId": "VelezAPI_GetHardware",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/velez_apiGetHardwareResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "tags": [
-          "VelezAPI"
-        ]
-      }
-    },
-    "/smerd/create": {
-      "post": {
-        "operationId": "VelezAPI_CreateSmerd",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/velez_apiSmerd"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/velez_apiCreateSmerdRequest"
-            }
-          }
-        ],
-        "tags": [
-          "VelezAPI"
-        ]
-      }
-    },
-    "/smerd/drop": {
-      "post": {
-        "operationId": "VelezAPI_DropSmerd",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/velez_apiDropSmerdResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/velez_apiDropSmerdRequest"
-            }
-          }
-        ],
-        "tags": [
-          "VelezAPI"
-        ]
-      }
-    },
-    "/smerd/list": {
-      "post": {
-        "operationId": "VelezAPI_ListSmerds",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/velez_apiListSmerdsResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/velez_apiListSmerdsRequest"
-            }
-          }
-        ],
-        "tags": [
-          "VelezAPI"
-        ]
-      }
-    },
     "/version": {
       "post": {
         "operationId": "VelezAPI_Version",
@@ -141,13 +23,13 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/velez_apiVersionResponse"
+              "$ref": "#/definitions/VersionResponse"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
+              "$ref": "#/definitions/rpcStatus"
             }
           }
         },
@@ -157,7 +39,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/velez_apiVersionRequest"
+              "$ref": "#/definitions/VersionRequest"
             }
           }
         ],
@@ -168,108 +50,27 @@
     }
   },
   "definitions": {
-    "ContainerHardware": {
+    "VersionRequest": {
+      "type": "object"
+    },
+    "VersionResponse": {
       "type": "object",
       "properties": {
-        "cpuAmount": {
-          "type": "number",
-          "format": "float"
-        },
-        "ramMb": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "memorySwapMb": {
-          "type": "integer",
-          "format": "int32"
-        }
-      }
-    },
-    "ContainerHealthcheck": {
-      "type": "object",
-      "properties": {
-        "command": {
-          "type": "string"
-        },
-        "intervalSecond": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "timeoutSecond": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "retries": {
-          "type": "integer",
-          "format": "int64"
-        }
-      }
-    },
-    "ContainerSettings": {
-      "type": "object",
-      "properties": {
-        "ports": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/velez_apiPortBindings"
-          }
-        },
-        "mounts": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/velez_apiMountBindings"
-          }
-        },
-        "networks": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/velez_apiNetworkBind"
-          }
-        },
-        "volumes": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/velez_apiVolumeBindings"
-          }
-        }
-      }
-    },
-    "PortBindingsProtocol": {
-      "type": "string",
-      "enum": [
-        "unknown",
-        "tcp",
-        "udp"
-      ],
-      "default": "unknown"
-    },
-    "ResponseError": {
-      "type": "object",
-      "properties": {
-        "uuid": {
-          "type": "string"
-        },
-        "cause": {
+        "version": {
           "type": "string"
         }
       }
     },
-    "ResponseValue": {
+    "protobufAny": {
       "type": "object",
       "properties": {
-        "value": {
-          "type": "string"
-        },
-        "err": {
+        "@type": {
           "type": "string"
         }
-      }
+      },
+      "additionalProperties": {}
     },
-    "googlerpcStatus": {
+    "rpcStatus": {
       "type": "object",
       "properties": {
         "code": {
@@ -285,253 +86,6 @@
             "type": "object",
             "$ref": "#/definitions/protobufAny"
           }
-        }
-      }
-    },
-    "protobufAny": {
-      "type": "object",
-      "properties": {
-        "@type": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": {}
-    },
-    "velez_apiCreateSmerdRequest": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "imageName": {
-          "type": "string"
-        },
-        "hardware": {
-          "$ref": "#/definitions/ContainerHardware"
-        },
-        "settings": {
-          "$ref": "#/definitions/ContainerSettings"
-        },
-        "command": {
-          "type": "string"
-        },
-        "env": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "healthcheck": {
-          "$ref": "#/definitions/ContainerHealthcheck"
-        }
-      }
-    },
-    "velez_apiDropSmerdRequest": {
-      "type": "object",
-      "properties": {
-        "uuids": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "name": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "velez_apiDropSmerdResponse": {
-      "type": "object",
-      "properties": {
-        "failed": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/ResponseError"
-          }
-        },
-        "successful": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "velez_apiGetHardwareResponse": {
-      "type": "object",
-      "properties": {
-        "cpu": {
-          "$ref": "#/definitions/ResponseValue"
-        },
-        "diskMem": {
-          "$ref": "#/definitions/ResponseValue"
-        },
-        "ram": {
-          "$ref": "#/definitions/ResponseValue"
-        },
-        "portsAvailable": {
-          "type": "array",
-          "items": {
-            "type": "integer",
-            "format": "int64"
-          }
-        },
-        "portsOccupied": {
-          "type": "array",
-          "items": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
-      }
-    },
-    "velez_apiListSmerdsRequest": {
-      "type": "object",
-      "properties": {
-        "limit": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "name": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string"
-        }
-      }
-    },
-    "velez_apiListSmerdsResponse": {
-      "type": "object",
-      "properties": {
-        "smerds": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/velez_apiSmerd"
-          }
-        }
-      }
-    },
-    "velez_apiMountBindings": {
-      "type": "object",
-      "properties": {
-        "host": {
-          "type": "string"
-        },
-        "container": {
-          "type": "string"
-        }
-      }
-    },
-    "velez_apiNetworkBind": {
-      "type": "object",
-      "properties": {
-        "networkName": {
-          "type": "string"
-        },
-        "aliases": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "velez_apiPortBindings": {
-      "type": "object",
-      "properties": {
-        "host": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "container": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "protoc": {
-          "$ref": "#/definitions/PortBindingsProtocol"
-        }
-      }
-    },
-    "velez_apiSmerd": {
-      "type": "object",
-      "properties": {
-        "uuid": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "imageName": {
-          "type": "string"
-        },
-        "ports": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/velez_apiPortBindings"
-          }
-        },
-        "volumes": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/velez_apiMountBindings"
-          }
-        },
-        "status": {
-          "$ref": "#/definitions/velez_apiSmerdStatus"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "networks": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/velez_apiNetworkBind"
-          }
-        }
-      }
-    },
-    "velez_apiSmerdStatus": {
-      "type": "string",
-      "enum": [
-        "unknown",
-        "created",
-        "restarting",
-        "running",
-        "removing",
-        "paused",
-        "exited",
-        "dead"
-      ],
-      "default": "unknown"
-    },
-    "velez_apiVersionRequest": {
-      "type": "object"
-    },
-    "velez_apiVersionResponse": {
-      "type": "object",
-      "properties": {
-        "version": {
-          "type": "string"
-        }
-      }
-    },
-    "velez_apiVolumeBindings": {
-      "type": "object",
-      "properties": {
-        "volume": {
-          "type": "string"
-        },
-        "containerPath": {
-          "type": "string"
         }
       }
     }

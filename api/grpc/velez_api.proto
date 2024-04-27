@@ -5,8 +5,8 @@ package velez_api;
 option go_package = "/velez_api";
 
 import "google/api/annotations.proto";
-import "validate/validate.proto";
-import "google/protobuf/timestamp.proto";
+//import "validate/validate.proto";
+//import "google/protobuf/timestamp.proto";
 
 service VelezAPI {
   rpc Version(Version.Request) returns (Version.Response) {
@@ -16,30 +16,30 @@ service VelezAPI {
     };
   };
 
-  rpc CreateSmerd(CreateSmerd.Request) returns (Smerd) {
-    option (google.api.http) = {
-      post: "/smerd/create"
-      body: "*"
-    };
-  }
-  rpc ListSmerds(ListSmerds.Request) returns (ListSmerds.Response) {
-    option (google.api.http) = {
-      post: "/smerd/list"
-      body: "*"
-    };
-  }
-  rpc DropSmerd(DropSmerd.Request) returns (DropSmerd.Response) {
-    option (google.api.http) = {
-      post: "/smerd/drop"
-      body: "*"
-    };
-  }
-
-  rpc GetHardware(GetHardware.Request) returns (GetHardware.Response) {
-    option (google.api.http) = {
-      get: "/hardware"
-    };
-  }
+//  rpc CreateSmerd(CreateSmerd.Request) returns (Smerd) {
+//    option (google.api.http) = {
+//      post: "/smerd/create"
+//      body: "*"
+//    };
+//  }
+//  rpc ListSmerds(ListSmerds.Request) returns (ListSmerds.Response) {
+//    option (google.api.http) = {
+//      post: "/smerd/list"
+//      body: "*"
+//    };
+//  }
+//  rpc DropSmerd(DropSmerd.Request) returns (DropSmerd.Response) {
+//    option (google.api.http) = {
+//      post: "/smerd/drop"
+//      body: "*"
+//    };
+//  }
+//
+//  rpc GetHardware(GetHardware.Request) returns (GetHardware.Response) {
+//    option (google.api.http) = {
+//      get: "/hardware"
+//    };
+//  }
 }
 
 message Version {
@@ -50,150 +50,150 @@ message Version {
   }
 }
 
-message PortBindings {
-  uint32 host = 1;
-  uint32 container = 2;
-
-  enum Protocol {
-    unknown = 0;
-    tcp = 1;
-    udp = 2;
-  };
-
-  Protocol protoc = 3;
-}
-
-message MountBindings {
-  string host = 1;
-  string container = 2;
-}
-
-message VolumeBindings {
-  string volume = 1;
-  string container_path = 2;
-}
-
-message NetworkBind {
-  string network_name = 1;
-  repeated string aliases = 2;
-}
-
-message Image {
-  string name = 1;
-  repeated string tags = 2;
-  map<string, string> labels = 3;
-}
-
-message Smerd {
-  string uuid = 1;
-  string name = 2;
-  string image_name = 3;
-
-  repeated PortBindings ports = 4;
-  repeated MountBindings volumes = 5;
-
-  enum Status {
-    unknown = 0;
-    created = 1;
-    restarting = 2;
-    running = 3;
-    removing = 4;
-    paused = 5;
-    exited = 6;
-    dead = 7;
-  }
-
-  Status status = 6;
-  google.protobuf.Timestamp created_at = 7;
-
-  repeated NetworkBind networks = 8;
-}
-
-message Container {
-  message Hardware {
-    optional float cpu_amount = 1;
-    optional int32 ram_mb = 2;
-    optional int32 memory_swap_mb = 3;
-  }
-
-  message Settings {
-    repeated PortBindings ports = 1;
-    repeated MountBindings mounts = 2;
-    repeated NetworkBind networks = 3;
-    repeated VolumeBindings volumes = 4;
-  }
-
-  message Healthcheck {
-      string command = 1;
-      uint32 interval_second = 2;
-      uint32 timeout_second = 3;
-      uint32 retries =  4;
-  }
-}
-
-message CreateSmerd {
-  message Request {
-    optional string name = 1;
-    string image_name = 2 [(validate.rules).string = {
-      pattern:   '([a-z]+)/([a-z-]+):([a-z0-9.]+)',
-      max_bytes: 50,
-    }];
-
-    optional Container.Hardware hardware = 3;
-    optional Container.Settings settings = 4;
-
-    optional string command = 5;
-
-    map<string, string> env = 6;
-
-    optional Container.Healthcheck healthcheck = 7;
-  }
-}
-
-message ListSmerds {
-  message Request {
-    optional uint32 limit = 1;
-    optional string name = 2;
-    optional string id = 3;
-  }
-
-  message Response {
-    repeated Smerd smerds = 1;
-  }
-}
-
-message DropSmerd {
-  message Request {
-    repeated string uuids = 1;
-    repeated string name = 2;
-  }
-
-  message Response {
-    message Error {
-      string uuid = 1;
-      string cause = 2;
-    }
-
-    repeated Error failed = 1;
-    repeated string successful = 2;
-  }
-}
-
-message GetHardware {
-  message Request {
-
-  }
-
-  message Response {
-    message Value {
-      string value = 1;
-      string err = 2;
-    }
-    Value cpu = 1;
-    Value disk_mem = 2;
-    Value ram = 3;
-
-    repeated uint32 ports_available = 4;
-    repeated uint32 ports_occupied = 5;
-  }
-}
+//message PortBindings {
+//  uint32 host = 1;
+//  uint32 container = 2;
+//
+//  enum Protocol {
+//    unknown = 0;
+//    tcp = 1;
+//    udp = 2;
+//  };
+//
+//  Protocol protoc = 3;
+//}
+//
+//message MountBindings {
+//  string host = 1;
+//  string container = 2;
+//}
+//
+//message VolumeBindings {
+//  string volume = 1;
+//  string container_path = 2;
+//}
+//
+//message NetworkBind {
+//  string network_name = 1;
+//  repeated string aliases = 2;
+//}
+//
+//message Image {
+//  string name = 1;
+//  repeated string tags = 2;
+//  map<string, string> labels = 3;
+//}
+//
+//message Smerd {
+//  string uuid = 1;
+//  string name = 2;
+//  string image_name = 3;
+//
+//  repeated PortBindings ports = 4;
+//  repeated MountBindings volumes = 5;
+//
+//  enum Status {
+//    unknown = 0;
+//    created = 1;
+//    restarting = 2;
+//    running = 3;
+//    removing = 4;
+//    paused = 5;
+//    exited = 6;
+//    dead = 7;
+//  }
+//
+//  Status status = 6;
+//  google.protobuf.Timestamp created_at = 7;
+//
+//  repeated NetworkBind networks = 8;
+//}
+//
+//message Container {
+//  message Hardware {
+//    optional float cpu_amount = 1;
+//    optional int32 ram_mb = 2;
+//    optional int32 memory_swap_mb = 3;
+//  }
+//
+//  message Settings {
+//    repeated PortBindings ports = 1;
+//    repeated MountBindings mounts = 2;
+//    repeated NetworkBind networks = 3;
+//    repeated VolumeBindings volumes = 4;
+//  }
+//
+//  message Healthcheck {
+//      string command = 1;
+//      uint32 interval_second = 2;
+//      uint32 timeout_second = 3;
+//      uint32 retries =  4;
+//  }
+//}
+//
+//message CreateSmerd {
+//  message Request {
+//    optional string name = 1;
+//    string image_name = 2 [(validate.rules).string = {
+//      pattern:   '([a-z]+)/([a-z-]+):([a-z0-9.]+)',
+//      max_bytes: 50,
+//    }];
+//
+//    optional Container.Hardware hardware = 3;
+//    optional Container.Settings settings = 4;
+//
+//    optional string command = 5;
+//
+//    map<string, string> env = 6;
+//
+//    optional Container.Healthcheck healthcheck = 7;
+//  }
+//}
+//
+//message ListSmerds {
+//  message Request {
+//    optional uint32 limit = 1;
+//    optional string name = 2;
+//    optional string id = 3;
+//  }
+//
+//  message Response {
+//    repeated Smerd smerds = 1;
+//  }
+//}
+//
+//message DropSmerd {
+//  message Request {
+//    repeated string uuids = 1;
+//    repeated string name = 2;
+//  }
+//
+//  message Response {
+//    message Error {
+//      string uuid = 1;
+//      string cause = 2;
+//    }
+//
+//    repeated Error failed = 1;
+//    repeated string successful = 2;
+//  }
+//}
+//
+//message GetHardware {
+//  message Request {
+//
+//  }
+//
+//  message Response {
+//    message Value {
+//      string value = 1;
+//      string err = 2;
+//    }
+//    Value cpu = 1;
+//    Value disk_mem = 2;
+//    Value ram = 3;
+//
+//    repeated uint32 ports_available = 4;
+//    repeated uint32 ports_occupied = 5;
+//  }
+//}

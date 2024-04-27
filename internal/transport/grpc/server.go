@@ -19,7 +19,6 @@ import (
 
 	"github.com/godverv/Velez/internal/backservice/security"
 	"github.com/godverv/Velez/internal/config"
-	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -35,7 +34,7 @@ type Server struct {
 func NewServer(
 	cfg config.Config,
 	server *api.GRPC,
-	serviceManager service.Services,
+	// serviceManager service.Services,
 	secManager security.Manager,
 ) (*Server, error) {
 
@@ -50,9 +49,9 @@ func NewServer(
 	velez_api.RegisterVelezAPIServer(
 		grpcServer,
 		&Api{
-			version:          cfg.AppInfo().Version,
-			containerManager: serviceManager.GetContainerManagerService(),
-			hardwareManager:  serviceManager.GetHardwareManagerService(),
+			version: cfg.AppInfo().Version,
+			//containerManager: serviceManager.GetContainerManagerService(),
+			//hardwareManager:  serviceManager.GetHardwareManagerService(),
 		})
 
 	return &Server{

@@ -14,13 +14,8 @@ FROM alpine
 WORKDIR /app
 
 COPY --from=builder /deploy/server/service service
-COPY --from=builder /app/config/ ./config/
+COPY --from=builder /app/config/config.yaml ./config/config.yaml
 
-ENV VELEZ_CUSTOM_PASS_TO_KEY="/tmp/velez/private.key"
-ARG velez_shut_down_on_exit
-
-EXPOSE 53890
-
-VOLUME /var/run/docker.sock
+EXPOSE 13890
 
 ENTRYPOINT ["./service"]

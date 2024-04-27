@@ -1,6 +1,6 @@
 app_info:
   name: github.com/godverv/Velez
-  version: v0.1.21
+  version: v0.1.22
   startup_duration: 10s
 data_sources:
   - resource_name: grpc_matreshka_be
@@ -12,6 +12,8 @@ server:
 environment:
   available_ports:
     - 18501-18519
+
+  custom_pass_to_key: /tmp/velez/private.key
 
   disable_api_security: false
 

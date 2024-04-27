@@ -11,8 +11,7 @@ import "google/api/annotations.proto";
 service VelezAPI {
   rpc Version(Version.Request) returns (Version.Response) {
     option (google.api.http) = {
-      post: "/version"
-      body: "*"
+      get: "/version"
     };
   };
 

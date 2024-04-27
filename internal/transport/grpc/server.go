@@ -17,7 +17,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/godverv/Velez/internal/backservice/security"
 	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
@@ -35,14 +34,14 @@ func NewServer(
 	cfg config.Config,
 	server *api.GRPC,
 	// serviceManager service.Services,
-	secManager security.Manager,
+	// secManager security.Manager,
 ) (*Server, error) {
 
 	var opts []grpc.ServerOption
 
-	if !cfg.GetBool(config.DisableAPISecurity) {
-		opts = append(opts, security.GrpcInterceptor(secManager))
-	}
+	//if !cfg.GetBool(config.DisableAPISecurity) {
+	//	opts = append(opts, security.GrpcInterceptor(secManager))
+	//}
 
 	grpcServer := grpc.NewServer(opts...)
 
@@ -50,8 +49,8 @@ func NewServer(
 		grpcServer,
 		&Api{
 			version: cfg.AppInfo().Version,
-			//containerManager: serviceManager.GetContainerManagerService(),
-			//hardwareManager:  serviceManager.GetHardwareManagerService(),
+			// containerManager: serviceManager.GetContainerManagerService(),
+			// hardwareManager:  serviceManager.GetHardwareManagerService(),
 		})
 
 	return &Server{

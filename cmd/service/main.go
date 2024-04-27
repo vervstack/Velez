@@ -12,7 +12,9 @@ import (
 
 	"github.com/godverv/Velez/internal/backservice/configuration"
 	"github.com/godverv/Velez/internal/backservice/env"
+	"github.com/godverv/Velez/internal/backservice/portainer"
 	"github.com/godverv/Velez/internal/backservice/security"
+	"github.com/godverv/Velez/internal/backservice/watchtower"
 	"github.com/godverv/Velez/internal/clients/docker"
 	grpcClients "github.com/godverv/Velez/internal/clients/grpc"
 	"github.com/godverv/Velez/internal/config"
@@ -47,9 +49,9 @@ func main() {
 
 	// Service layer
 	serviceManager := mustInitServiceManager(aCore)
-	_ = serviceManager
+
 	// Back service
-	//initBackServices(aCore, serviceManager.GetContainerManagerService())
+	initBackServices(aCore, serviceManager.GetContainerManagerService())
 
 	// API
 	mgr := mustInitAPI(
@@ -205,21 +207,21 @@ func mustInitServiceManager(aCore applicationCore) service.Services {
 	return services
 }
 
-//func initBackServices(aCore applicationCore, cm service.ContainerManager) {
-//	ctx, c := context.WithCancel(context.Background())
-//	closer.Add(func() error {
-//		c()
-//		return nil
-//	})
-//
-//	if aCore.cfg.GetBool(config.WatchTowerEnabled) {
-//		go cron.KeepAlive(ctx, watchtower.New(aCore.cfg, cm))
-//	}
-//
-//	if aCore.cfg.GetBool(config.PortainerEnabled) {
-//		go cron.KeepAlive(ctx, portainer.New(cm))
-//	}
-//}
+func initBackServices(aCore applicationCore, cm service.ContainerManager) {
+	ctx, c := context.WithCancel(context.Background())
+	closer.Add(func() error {
+		c()
+		return nil
+	})
+
+	if aCore.cfg.GetBool(config.WatchTowerEnabled) {
+		go cron.KeepAlive(ctx, watchtower.New(aCore.cfg, cm))
+	}
+
+	if aCore.cfg.GetBool(config.PortainerEnabled) {
+		go cron.KeepAlive(ctx, portainer.New(cm))
+	}
+}
 
 //func smerdsDropper(manager service.ContainerManager) func() error {
 //	return func() error {

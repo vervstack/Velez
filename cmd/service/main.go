@@ -4,14 +4,18 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 
 	"github.com/docker/docker/client"
 	"github.com/sirupsen/logrus"
 
+	"github.com/godverv/Velez/internal/backservice/configuration"
+	"github.com/godverv/Velez/internal/backservice/env"
 	"github.com/godverv/Velez/internal/backservice/security"
 	"github.com/godverv/Velez/internal/clients/docker"
 	"github.com/godverv/Velez/internal/config"
+	"github.com/godverv/Velez/internal/cron"
 	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/port_manager"
 	"github.com/godverv/Velez/internal/transport"
 	"github.com/godverv/Velez/internal/transport/grpc"
@@ -25,7 +29,7 @@ func main() {
 	aCore := mustInitCore()
 
 	// Verv Environment
-	//mustInitEnvironment(aCore)
+	mustInitEnvironment(aCore)
 
 	// Startup ctx
 	{
@@ -132,46 +136,46 @@ func mustInitCore() (c applicationCore) {
 	return
 }
 
-//func mustInitEnvironment(aCore applicationCore) {
-//err := env.StartNetwork(aCore.dockerAPI)
-//if err != nil {
-//logrus.Fatalf("error creating network: %s", err)
-//}
+func mustInitEnvironment(aCore applicationCore) {
+	err := env.StartNetwork(aCore.dockerAPI)
+	if err != nil {
+		logrus.Fatalf("error creating network: %s", err)
+	}
 
-//err = env.StartVolumes(aCore.dockerAPI)
-//if err != nil {
-//	logrus.Fatal(errors.Wrap(err, "error creating volumes"))
-//}
-//
-//if !aCore.cfg.GetBool(config.NodeMode) {
-//	return
-//}
-//
-//var portToExposeTo string
-//if aCore.cfg.GetBool(config.ExposeMatreshkaPort) {
-//	p := uint64(aCore.cfg.GetInt(config.MatreshkaPort))
-//
-//	if p == 0 {
-//portFromPool := aCore.portManager.GetPort()
-//if portFromPool == nil {
-//	logrus.Fatalf("no available port for config to expose")
-//	return
-//}
+	err = env.StartVolumes(aCore.dockerAPI)
+	if err != nil {
+		logrus.Fatalf("error creating volumes %s", err)
+	}
 
-//p = uint64(*portFromPool)
-//}
-//
-//	portToExposeTo = strconv.FormatUint(p, 10)
-//}
+	if !aCore.cfg.GetBool(config.NodeMode) {
+		return
+	}
 
-//conf := configuration.New(aCore.dockerAPI, portToExposeTo)
-//err = conf.Start()
-//if err != nil {
-//	logrus.Fatalf("error launching config backservice: %s", err)
-//}
+	var portToExposeTo string
+	if aCore.cfg.GetBool(config.ExposeMatreshkaPort) {
+		p := uint64(aCore.cfg.GetInt(config.MatreshkaPort))
 
-//go cron.KeepAlive(context.Background(), conf)
-//}
+		if p == 0 {
+			portFromPool := aCore.portManager.GetPort()
+			if portFromPool == nil {
+				logrus.Fatalf("no available port for config to expose")
+				return
+			}
+
+			p = uint64(*portFromPool)
+		}
+
+		portToExposeTo = strconv.FormatUint(p, 10)
+	}
+
+	conf := configuration.New(aCore.dockerAPI, portToExposeTo)
+	err = conf.Start()
+	if err != nil {
+		logrus.Fatalf("error launching config backservice: %s", err)
+	}
+
+	go cron.KeepAlive(context.Background(), conf)
+}
 
 //func mustInitServiceManager(aCore applicationCore) service.Services {
 //matreshkaApi, err := grpcClients.NewMatreshkaBeAPIClient(aCore.ctx, aCore.cfg)

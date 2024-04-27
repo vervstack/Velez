@@ -28,4 +28,4 @@ jobs:
         with:
           REGISTRY_USER: ${{ vars.REGISTRY_USER }}
           REGISTRY_PWD:  ${{ secrets.REGISTRY_PWD }}
-          PLATFORMS: "linux/amd64,linux/arm64,darwin/arm64"
+          PLATFORMS: "linux/amd64,linux/arm64"

@@ -1,6 +1,6 @@
 app_info:
   name: github.com/godverv/Velez
-  version: v0.1.20
+  version: v0.1.21
   startup_duration: 10s
 data_sources:
   - resource_name: grpc_matreshka_be
@@ -23,7 +23,7 @@ environment:
   expose_matreshka_port: true
   matreshka_port: 50050
 
-  portainer_enabled: true
+  portainer_enabled: false
   shut_down_on_exit: false
 
   watch_tower_enabled: true

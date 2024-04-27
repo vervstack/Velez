@@ -7,7 +7,7 @@ docker run \
   --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /tmp/velez:/tmp/velez \
-  -p 53890:53890 \
+  -p ${VELEZ_PORT_GRPC}:53890 \
   --name velez \
   --network verv \
-  godverv/velez:v0.1.17
+  godverv/velez:v0.1.20

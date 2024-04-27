@@ -75,7 +75,7 @@ func (c *ContainerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 		}
 	}
 
-	err = c.docker.ContainerStart(ctx, cont.ID, types.ContainerStartOptions{})
+	err = c.docker.ContainerStart(ctx, cont.ID, container.StartOptions{})
 	if err != nil {
 		return "", errors.Wrap(err, "error starting container")
 	}

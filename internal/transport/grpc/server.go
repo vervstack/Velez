@@ -32,15 +32,6 @@ type Server struct {
 	m             sync.Mutex
 }
 
-type Api struct {
-	velez_api.UnimplementedVelezAPIServer
-
-	containerManager service.ContainerManager
-	hardwareManager  service.HardwareManager
-
-	version string
-}
-
 func NewServer(
 	cfg config.Config,
 	server *api.GRPC,

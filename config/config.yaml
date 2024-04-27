@@ -8,7 +8,7 @@ data_sources:
     module: github.com/godverv/matreshka-be@v1.0.23
 server:
   - name: grpc
-    port: 53890
+    port: 13890
 environment:
   available_ports:
     - 18501-18519

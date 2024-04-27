@@ -5,6 +5,7 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils/list_request"
@@ -15,7 +16,7 @@ import (
 const maxList = 10
 
 func ListContainers(ctx context.Context, docker client.CommonAPIClient, req *velez_api.ListSmerds_Request) ([]types.Container, error) {
-	dockerReq := types.ContainerListOptions{
+	dockerReq := container.ListOptions{
 		All:   true,
 		Limit: maxList,
 	}

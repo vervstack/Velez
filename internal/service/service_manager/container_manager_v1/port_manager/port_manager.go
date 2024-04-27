@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 
 	"github.com/godverv/Velez/internal/config"
@@ -30,7 +30,7 @@ func NewPortManager(ctx context.Context, cfg config.Config, docker client.Common
 		ports: make(map[uint16]bool, len(ports)),
 	}
 
-	containerList, err := docker.ContainerList(ctx, types.ContainerListOptions{})
+	containerList, err := docker.ContainerList(ctx, container.ListOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "error listing container")
 	}

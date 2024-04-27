@@ -289,7 +289,7 @@ func mustInitAPI(
 		aCore.cfg,
 		grpcConf,
 		services,
-		//aCore.securityManager,
+		aCore.securityManager,
 	)
 	if err != nil {
 		logrus.Fatalf("error creating grpc server: %s", err)

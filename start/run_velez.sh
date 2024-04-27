@@ -1,6 +1,6 @@
 export VELEZ_PORT_GRPC=8080
 
-docker network create verv
+docker network create -d bridge verv
 
 docker run \
   -d \
@@ -9,4 +9,5 @@ docker run \
   -v /tmp/velez:/tmp/velez \
   -p ${VELEZ_PORT_GRPC}:80 \
   --name velez \
-  godverv/velez:v0.1.35
+  --network verv \
+  godverv/velez:v0.1.36

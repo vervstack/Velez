@@ -79,10 +79,12 @@ func (c *ContainerManager) createVervContainer(ctx context.Context, cfg *contain
 			fmt.Sprintf("%s=%s", matreshka.VervName, req.GetName()),
 			fmt.Sprintf("%s=%s", matreshka.ApiURL, matreshkaUrl))
 	}
+
 	cont, err := c.createSimpleContainer(ctx, cfg, req)
 	if err != nil {
 		return nil, errors.Wrap(err, "error creating pre container")
 	}
+
 	var matreshkaConfig matreshka.AppConfig
 	{
 		var configFromContainer matreshka.AppConfig

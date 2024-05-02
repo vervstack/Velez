@@ -35,8 +35,8 @@ github.com/go-logr/stdr v1.2.2/go.mod h1:mMo/vtBO5dYbehREoey6XUKy/eSumjCCveDpRre
 github.com/go-ole/go-ole v1.2.5/go.mod h1:pprOEPIfldk/42T2oK7lQ4v4JSDwmV0As9GaiUsvbm0=
 github.com/go-ole/go-ole v1.2.6 h1:/Fpf6oFPoeFik9ty7siob0G6Ke8QvQEuVcuChpwXzpY=
 github.com/go-ole/go-ole v1.2.6/go.mod h1:pprOEPIfldk/42T2oK7lQ4v4JSDwmV0As9GaiUsvbm0=
-github.com/godverv/matreshka v0.0.15 h1:/hRcoaTjc5KixTeUJ7gSrlLhniXkXKR/okO6KDMGLeY=
-github.com/godverv/matreshka v0.0.15/go.mod h1:JAL1wo3REIeJlDqTt3TpV3/8/zJlaWiJJ2SIxnxQn+k=
+github.com/godverv/matreshka v0.0.17 h1:CibIfTml/UlFhpddO7jlZb/+eMQqcPHjosF3iIZe85U=
+github.com/godverv/matreshka v0.0.17/go.mod h1:JAL1wo3REIeJlDqTt3TpV3/8/zJlaWiJJ2SIxnxQn+k=
 github.com/godverv/matreshka-be v1.0.24 h1:xYYmCC2/SHkrQUid2mIixgV4HRjgQIJ2WZwD3vR2oxM=
 github.com/godverv/matreshka-be v1.0.24/go.mod h1:z3LlfGNgri6E1ut3KySsHUXHYahcTZHnpBuoBYzn2c8=
 github.com/gogo/protobuf v1.3.2 h1:Ov1cvc58UF3b5XjBnZv7+opcTcQFZebYjWzi34vdm4Q=

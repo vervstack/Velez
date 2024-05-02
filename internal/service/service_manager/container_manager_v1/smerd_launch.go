@@ -32,7 +32,7 @@ func (c *ContainerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 		}
 	}
 
-	var cont *types.Container
+	var cont *types.ContainerJSON
 
 	if image.Labels[matreshkaConfigLabel] == "true" {
 		cont, err = c.containerLauncher.createVerv(ctx, req)
@@ -48,14 +48,6 @@ func (c *ContainerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 		return "", errors.Wrap(err, "error starting container")
 	}
 
-	//if cfg.Healthcheck != nil {
-	//	hcC := c.waitHealthcheck(ctx, cont.ID, *cfg.Healthcheck)
-	//	err = <-hcC
-	//	if err != nil {
-	//		return "", errors.Wrap(err, "healthcheck failed")
-	//	}
-	//}
-
 	return cont.ID, nil
 }
 
@@ -66,6 +58,10 @@ func (c *ContainerManager) normalizeCreateRequest(req *velez_api.CreateSmerd_Req
 
 	if req.Hardware == nil {
 		req.Hardware = &velez_api.Container_Hardware{}
+	}
+
+	if req.Env == nil {
+		req.Env = make(map[string]string)
 	}
 }
 

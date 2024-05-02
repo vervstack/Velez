@@ -7,7 +7,7 @@ require (
 	github.com/docker/docker v26.1.0+incompatible
 	github.com/docker/go-connections v0.5.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.4
-	github.com/godverv/matreshka v0.0.15
+	github.com/godverv/matreshka v0.0.17
 	github.com/godverv/matreshka-be v1.0.24
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.1
 	github.com/jaypipes/ghw v0.12.0

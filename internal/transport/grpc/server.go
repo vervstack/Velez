@@ -50,9 +50,9 @@ func NewServer(
 	velez_api.RegisterVelezAPIServer(
 		grpcServer,
 		&Api{
-			version:          cfg.AppInfo().Version,
-			containerManager: serviceManager.GetContainerManagerService(),
-			hardwareManager:  serviceManager.GetHardwareManagerService(),
+			version:         cfg.AppInfo().Version,
+			smerdService:    serviceManager.GetContainerManagerService(),
+			hardwareManager: serviceManager.GetHardwareManagerService(),
 		})
 
 	return &Server{

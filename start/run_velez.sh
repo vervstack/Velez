@@ -1,4 +1,4 @@
-export VELEZ_PORT_GRPC=8080
+export VELEZ_PORT_GRPC=50051
 docker network rm verv
 docker network create -d bridge verv
 

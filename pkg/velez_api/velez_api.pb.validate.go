@@ -1381,6 +1381,105 @@ var _ interface {
 	ErrorName() string
 } = GetHardwareValidationError{}
 
+// Validate checks the field values on FetchConfig with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *FetchConfig) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on FetchConfig with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in FetchConfigMultiError, or
+// nil if none found.
+func (m *FetchConfig) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *FetchConfig) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return FetchConfigMultiError(errors)
+	}
+
+	return nil
+}
+
+// FetchConfigMultiError is an error wrapping multiple validation errors
+// returned by FetchConfig.ValidateAll() if the designated constraints aren't met.
+type FetchConfigMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m FetchConfigMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m FetchConfigMultiError) AllErrors() []error { return m }
+
+// FetchConfigValidationError is the validation error returned by
+// FetchConfig.Validate if the designated constraints aren't met.
+type FetchConfigValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e FetchConfigValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e FetchConfigValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e FetchConfigValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e FetchConfigValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e FetchConfigValidationError) ErrorName() string { return "FetchConfigValidationError" }
+
+// Error satisfies the builtin error interface
+func (e FetchConfigValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sFetchConfig.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = FetchConfigValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = FetchConfigValidationError{}
+
 // Validate checks the field values on Version_Request with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -2067,6 +2166,8 @@ func (m *CreateSmerd_Request) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for Name
+
 	if len(m.GetImageName()) > 50 {
 		err := CreateSmerd_RequestValidationError{
 			field:  "ImageName",
@@ -2090,10 +2191,6 @@ func (m *CreateSmerd_Request) validate(all bool) error {
 	}
 
 	// no validation rules for Env
-
-	if m.Name != nil {
-		// no validation rules for Name
-	}
 
 	if m.Hardware != nil {
 
@@ -3270,3 +3367,211 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetHardware_Response_ValueValidationError{}
+
+// Validate checks the field values on FetchConfig_Request with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *FetchConfig_Request) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on FetchConfig_Request with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// FetchConfig_RequestMultiError, or nil if none found.
+func (m *FetchConfig_Request) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *FetchConfig_Request) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ImageName
+
+	// no validation rules for ServiceName
+
+	if len(errors) > 0 {
+		return FetchConfig_RequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// FetchConfig_RequestMultiError is an error wrapping multiple validation
+// errors returned by FetchConfig_Request.ValidateAll() if the designated
+// constraints aren't met.
+type FetchConfig_RequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m FetchConfig_RequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m FetchConfig_RequestMultiError) AllErrors() []error { return m }
+
+// FetchConfig_RequestValidationError is the validation error returned by
+// FetchConfig_Request.Validate if the designated constraints aren't met.
+type FetchConfig_RequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e FetchConfig_RequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e FetchConfig_RequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e FetchConfig_RequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e FetchConfig_RequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e FetchConfig_RequestValidationError) ErrorName() string {
+	return "FetchConfig_RequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e FetchConfig_RequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sFetchConfig_Request.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = FetchConfig_RequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = FetchConfig_RequestValidationError{}
+
+// Validate checks the field values on FetchConfig_Response with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *FetchConfig_Response) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on FetchConfig_Response with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// FetchConfig_ResponseMultiError, or nil if none found.
+func (m *FetchConfig_Response) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *FetchConfig_Response) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return FetchConfig_ResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// FetchConfig_ResponseMultiError is an error wrapping multiple validation
+// errors returned by FetchConfig_Response.ValidateAll() if the designated
+// constraints aren't met.
+type FetchConfig_ResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m FetchConfig_ResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m FetchConfig_ResponseMultiError) AllErrors() []error { return m }
+
+// FetchConfig_ResponseValidationError is the validation error returned by
+// FetchConfig_Response.Validate if the designated constraints aren't met.
+type FetchConfig_ResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e FetchConfig_ResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e FetchConfig_ResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e FetchConfig_ResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e FetchConfig_ResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e FetchConfig_ResponseValidationError) ErrorName() string {
+	return "FetchConfig_ResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e FetchConfig_ResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sFetchConfig_Response.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = FetchConfig_ResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = FetchConfig_ResponseValidationError{}

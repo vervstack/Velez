@@ -37,7 +37,7 @@ func (b *Portainer) Start() error {
 
 	name := portainerName
 	req := &velez_api.CreateSmerd_Request{
-		Name:      &name,
+		Name:      name,
 		ImageName: portainerAgentImage,
 		Settings: &velez_api.Container_Settings{
 			Ports: []*velez_api.PortBindings{

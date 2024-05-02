@@ -16,12 +16,12 @@ func (a *Api) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Reques
 		return nil, status.Error(codes.InvalidArgument, errors.Wrap(err, "invalid request. Must match \"lowercase/lowercase:v0.0.1\"").Error())
 	}
 
-	id, err := a.containerManager.LaunchSmerd(ctx, req)
+	id, err := a.smerdService.LaunchSmerd(ctx, req)
 	if err != nil {
 		return nil, errors.Wrapf(err, "error launching smerd")
 	}
 
-	smerds, err := a.containerManager.ListSmerds(ctx,
+	smerds, err := a.smerdService.ListSmerds(ctx,
 		&velez_api.ListSmerds_Request{
 			Id: &id,
 		})

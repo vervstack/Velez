@@ -8,8 +8,8 @@ import (
 type Api struct {
 	velez_api.UnimplementedVelezAPIServer
 
-	containerManager service.ContainerManager
-	hardwareManager  service.HardwareManager
+	smerdService    service.ContainerManager
+	hardwareManager service.HardwareManager
 
 	version string
 }

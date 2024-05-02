@@ -6,7 +6,7 @@ import (
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-func FromNetwork(settings *velez_api.Container_Settings) map[string]*network.EndpointSettings {
+func FromNetworks(settings *velez_api.Container_Settings) map[string]*network.EndpointSettings {
 	if settings == nil {
 		return nil
 	}

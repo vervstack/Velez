@@ -42,7 +42,7 @@ func (b *Watchtower) Start() error {
 	command := "--interval 30"
 	name := watchTowerName
 	_, err := b.cm.LaunchSmerd(ctx, &velez_api.CreateSmerd_Request{
-		Name:      &name,
+		Name:      name,
 		ImageName: watchTowerImage,
 		Settings: &velez_api.Container_Settings{
 			Mounts: []*velez_api.MountBindings{

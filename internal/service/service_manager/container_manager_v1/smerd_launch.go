@@ -2,16 +2,13 @@ package container_manager_v1
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 
-	"github.com/godverv/Velez/internal/backservice/env"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
-	"github.com/godverv/Velez/internal/clients/docker/dockerutils/parser"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -27,13 +24,9 @@ func (c *ContainerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 		return "", errors.Wrap(err, "error pulling image")
 	}
 
-	cfg, err := c.getLaunchConfig(req, image)
-	if err != nil {
-		return "", errors.Wrap(err, "error during launching config creation")
-	}
-
+	// TODO https://redsock.youtrack.cloud/issue/VERV-56
 	if req.Settings != nil {
-		err = c.portManager.FillPorts(req.Settings.Ports)
+		err = c.portManager.LockPorts(req.Settings.Ports)
 		if err != nil {
 			return "", errors.Wrap(err, "error getting ports on host side")
 		}
@@ -42,37 +35,12 @@ func (c *ContainerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 	var cont *types.Container
 
 	if image.Labels[matreshkaConfigLabel] == "true" {
-		cont, err = c.createVervContainer(ctx, cfg, req)
+		cont, err = c.containerLauncher.createVerv(ctx, req)
 	} else {
-		var envVars []string
-		envVars, err = c.configManager.GetEnv(ctx, req.GetName())
-		if err != nil {
-			return "", errors.Wrap(err, "error obtaining config for container environment")
-		}
-
-		cfg.Env = append(cfg.Env, envVars...)
-
-		cont, err = c.createSimpleContainer(ctx, cfg, req)
+		cont, err = c.containerLauncher.createSimple(ctx, req)
 	}
 	if err != nil {
 		return "", errors.Wrap(err, "error creating container")
-	}
-
-	req.Settings.Networks = append(req.Settings.Networks,
-		&velez_api.NetworkBind{
-			NetworkName: env.VervNetwork,
-			Aliases:     []string{req.GetName()},
-		})
-
-	for networkName, networkSettings := range parser.FromNetwork(req.Settings) {
-		err = c.docker.NetworkConnect(ctx,
-			networkName,
-			cont.ID,
-			networkSettings,
-		)
-		if err != nil {
-			return "", errors.Wrap(err, "error connecting container to verv network")
-		}
 	}
 
 	err = c.docker.ContainerStart(ctx, cont.ID, container.StartOptions{})
@@ -80,34 +48,15 @@ func (c *ContainerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 		return "", errors.Wrap(err, "error starting container")
 	}
 
-	if cfg.Healthcheck != nil {
-		hcC := c.waitHealthcheck(ctx, cont.ID, *cfg.Healthcheck)
-		err = <-hcC
-		if err != nil {
-			return "", errors.Wrap(err, "healthcheck failed")
-		}
-	}
+	//if cfg.Healthcheck != nil {
+	//	hcC := c.waitHealthcheck(ctx, cont.ID, *cfg.Healthcheck)
+	//	err = <-hcC
+	//	if err != nil {
+	//		return "", errors.Wrap(err, "healthcheck failed")
+	//	}
+	//}
 
 	return cont.ID, nil
-}
-
-func (c *ContainerManager) getLaunchConfig(req *velez_api.CreateSmerd_Request, image *velez_api.Image) (cfg *container.Config, err error) {
-	if req.Name == nil {
-		req.Name = &strings.Split(image.Name, "/")[1]
-	}
-
-	cfg = &container.Config{
-		Image:       req.ImageName,
-		Hostname:    req.GetName(),
-		Cmd:         parser.FromCommand(req.Command),
-		Healthcheck: parser.FromHealthcheck(req.Healthcheck),
-	}
-
-	for k, v := range req.Env {
-		cfg.Env = append(cfg.Env, k+"="+v)
-	}
-
-	return cfg, nil
 }
 
 func (c *ContainerManager) normalizeCreateRequest(req *velez_api.CreateSmerd_Request) {

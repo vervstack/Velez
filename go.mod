@@ -2,8 +2,6 @@ module github.com/godverv/Velez
 
 go 1.21
 
-toolchain go1.22.1
-
 require (
 	github.com/Red-Sock/trace-errors v0.0.6
 	github.com/docker/docker v26.1.0+incompatible

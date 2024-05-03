@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 
 	"github.com/godverv/Velez/pkg/velez_api"
 )
@@ -13,7 +13,7 @@ func (c *ContainerManager) DropSmerds(ctx context.Context, req *velez_api.DropSm
 	out := &velez_api.DropSmerd_Response{}
 
 	for _, arg := range append(req.Uuids, req.Name...) {
-		err := c.docker.ContainerRemove(ctx, arg, types.ContainerRemoveOptions{
+		err := c.docker.ContainerRemove(ctx, arg, container.RemoveOptions{
 			Force: true,
 		})
 		if err != nil {

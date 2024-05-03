@@ -1,8 +1,7 @@
 docker run \
    -v /var/run/docker.sock:/var/run/docker.sock \
    --name velez \
-   -p 50052:53890 \
-   --rm \
+   -p 88:80 \
    -v /tmp/velez:/tmp/velez \
    -v verv:/opt/velez/smerds \
    -e VERV_NAME=velez \

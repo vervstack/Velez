@@ -2,6 +2,7 @@ package security
 
 import (
 	"crypto/rand"
+	"encoding/base64"
 	"os"
 	"path"
 	"sync"
@@ -66,22 +67,16 @@ func (s *manager) Stop() error {
 }
 
 func (s *manager) start() error {
-	s.key = make([]byte, 256)
-	_, err := rand.Read(s.key)
+	randKey := make([]byte, 256)
+	_, err := rand.Read(randKey)
 	if err != nil {
 		return err
 	}
 
-	for i := range s.key {
-		if s.key[i] > 126 {
-			s.key[i] %= 126
-		}
+	s.key = make([]byte, base64.StdEncoding.EncodedLen(len(randKey)))
 
-		if s.key[i] < 33 {
-			s.key[i] += 33
-		}
-	}
-
+	base64.StdEncoding.Encode(s.key, randKey)
+	s.key = s.key[:256]
 	logrus.Infof("making key to %s", s.buildPath)
 
 	err = os.RemoveAll(s.buildPath)

@@ -35,10 +35,6 @@ func request_VelezAPI_Version_0(ctx context.Context, marshaler runtime.Marshaler
 	var protoReq Version_Request
 	var metadata runtime.ServerMetadata
 
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
 	msg, err := client.Version(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
@@ -47,10 +43,6 @@ func request_VelezAPI_Version_0(ctx context.Context, marshaler runtime.Marshaler
 func local_request_VelezAPI_Version_0(ctx context.Context, marshaler runtime.Marshaler, server VelezAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq Version_Request
 	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
 
 	msg, err := server.Version(ctx, &protoReq)
 	return msg, metadata, err
@@ -153,13 +145,39 @@ func local_request_VelezAPI_GetHardware_0(ctx context.Context, marshaler runtime
 
 }
 
+func request_VelezAPI_FetchConfig_0(ctx context.Context, marshaler runtime.Marshaler, client VelezAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq FetchConfig_Request
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.FetchConfig(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_VelezAPI_FetchConfig_0(ctx context.Context, marshaler runtime.Marshaler, server VelezAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq FetchConfig_Request
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.FetchConfig(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
 // RegisterVelezAPIHandlerServer registers the http handlers for service VelezAPI to "mux".
 // UnaryRPC     :call VelezAPIServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterVelezAPIHandlerFromEndpoint instead.
 func RegisterVelezAPIHandlerServer(ctx context.Context, mux *runtime.ServeMux, server VelezAPIServer) error {
 
-	mux.Handle("POST", pattern_VelezAPI_Version_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_VelezAPI_Version_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -284,6 +302,31 @@ func RegisterVelezAPIHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 
 	})
 
+	mux.Handle("POST", pattern_VelezAPI_FetchConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.VelezAPI/FetchConfig", runtime.WithHTTPPathPattern("/smerd/fetch-config"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_VelezAPI_FetchConfig_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_VelezAPI_FetchConfig_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	return nil
 }
 
@@ -325,7 +368,7 @@ func RegisterVelezAPIHandler(ctx context.Context, mux *runtime.ServeMux, conn *g
 // "VelezAPIClient" to call the correct interceptors.
 func RegisterVelezAPIHandlerClient(ctx context.Context, mux *runtime.ServeMux, client VelezAPIClient) error {
 
-	mux.Handle("POST", pattern_VelezAPI_Version_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_VelezAPI_Version_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -435,6 +478,28 @@ func RegisterVelezAPIHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 
 	})
 
+	mux.Handle("POST", pattern_VelezAPI_FetchConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/velez_api.VelezAPI/FetchConfig", runtime.WithHTTPPathPattern("/smerd/fetch-config"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_VelezAPI_FetchConfig_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_VelezAPI_FetchConfig_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	return nil
 }
 
@@ -448,6 +513,8 @@ var (
 	pattern_VelezAPI_DropSmerd_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"smerd", "drop"}, ""))
 
 	pattern_VelezAPI_GetHardware_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"hardware"}, ""))
+
+	pattern_VelezAPI_FetchConfig_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"smerd", "fetch-config"}, ""))
 )
 
 var (
@@ -460,4 +527,6 @@ var (
 	forward_VelezAPI_DropSmerd_0 = runtime.ForwardResponseMessage
 
 	forward_VelezAPI_GetHardware_0 = runtime.ForwardResponseMessage
+
+	forward_VelezAPI_FetchConfig_0 = runtime.ForwardResponseMessage
 )

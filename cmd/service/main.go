@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"syscall"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/client"
 	"github.com/sirupsen/logrus"
 
@@ -56,7 +55,10 @@ func main() {
 	initBackServices(aCore, serviceManager.GetContainerManagerService())
 
 	// API
-	mgr := mustInitAPI(aCore, serviceManager)
+	mgr := mustInitAPI(
+		aCore,
+		serviceManager,
+	)
 
 	err := mgr.Start(aCore.ctx)
 	if err != nil {
@@ -148,7 +150,7 @@ func mustInitEnvironment(aCore applicationCore) {
 
 	err = env.StartVolumes(aCore.dockerAPI)
 	if err != nil {
-		logrus.Fatal(errors.Wrap(err, "error creating volumes"))
+		logrus.Fatalf("error creating volumes %s", err)
 	}
 
 	if !aCore.cfg.GetBool(config.NodeMode) {
@@ -272,7 +274,10 @@ func smerdsDropper(manager service.ContainerManager) func() error {
 	}
 }
 
-func mustInitAPI(aCore applicationCore, services service.Services) transport.Server {
+func mustInitAPI(
+	aCore applicationCore,
+	services service.Services,
+) transport.Server {
 	mgr := transport.NewManager()
 
 	grpcConf, err := aCore.cfg.Api().GRPC(config.ApiGrpc)

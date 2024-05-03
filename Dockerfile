@@ -1,22 +1,21 @@
-FROM golang as builder
+FROM --platform=$BUILDPLATFORM golang as builder
 
 WORKDIR /app
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /deploy/server/velez ./cmd/velez/main.go
-
+RUN --mount=target=. \
+        --mount=type=cache,target=/root/.cache/go-build \
+        --mount=type=cache,target=/go/pkg \
+        GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 \
+    go build -o /deploy/server/service ./cmd/service/main.go && \
+        cp -r config /deploy/server/config
 FROM alpine
 
 WORKDIR /app
 
-COPY --from=builder ./deploy/server/ .
-COPY --from=builder /app/config/ ./config/
+COPY --from=builder /deploy/server/service service
+COPY --from=builder /app/config/config.yaml ./config/config.yaml
 
-ENV VELEZ_CUSTOM_PASS_TO_KEY="/tmp/velez/private.key"
-ARG velez_shut_down_on_exit
+EXPOSE 80
 
-EXPOSE 53890
-
-VOLUME /var/run/docker.sock
-
-ENTRYPOINT ["./velez"]
+ENTRYPOINT ["./service"]

@@ -3,4 +3,7 @@ rscli-version:
 	@echo $(RSCLI_VERSION)
 
 buildc:
-	docker build -t velez:local --no-cache .
+	docker buildx build \
+			--load \
+			--platform linux/arm64 \
+			-t velez:local .

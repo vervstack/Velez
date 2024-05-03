@@ -23,8 +23,8 @@ gen-server: .pre-gen-server local-link .gen-server
     	-I $(GOPATH)/bin \
     	--grpc-gateway_out=logtostderr=true:./pkg/ \
     	--openapiv2_out ./api \
-		--descriptor_set_out=./pkg/velez_api/api_descriptor.pb \
     	--go_out=./pkg/ \
     	--go-grpc_out=./pkg/ \
 	    --validate_out="lang=go:./pkg" \
     	./api/grpc/*.proto
+

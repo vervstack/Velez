@@ -32,15 +32,6 @@ type Server struct {
 	m             sync.Mutex
 }
 
-type Api struct {
-	velez_api.UnimplementedVelezAPIServer
-
-	containerManager service.ContainerManager
-	hardwareManager  service.HardwareManager
-
-	version string
-}
-
 func NewServer(
 	cfg config.Config,
 	server *api.GRPC,
@@ -59,14 +50,14 @@ func NewServer(
 	velez_api.RegisterVelezAPIServer(
 		grpcServer,
 		&Api{
-			version:          cfg.AppInfo().Version,
-			containerManager: serviceManager.GetContainerManagerService(),
-			hardwareManager:  serviceManager.GetHardwareManagerService(),
+			version:         cfg.AppInfo().Version,
+			smerdService:    serviceManager.GetContainerManagerService(),
+			hardwareManager: serviceManager.GetHardwareManagerService(),
 		})
 
 	return &Server{
 		grpcServer:    grpcServer,
-		serverAddress: ":" + server.GetPortStr(),
+		serverAddress: "0.0.0.0:" + server.GetPortStr(),
 	}, nil
 }
 

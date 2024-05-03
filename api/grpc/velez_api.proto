@@ -11,8 +11,7 @@ import "google/protobuf/timestamp.proto";
 service VelezAPI {
   rpc Version(Version.Request) returns (Version.Response) {
     option (google.api.http) = {
-      post: "/version"
-      body: "*"
+      get: "/version"
     };
   };
 
@@ -38,6 +37,13 @@ service VelezAPI {
   rpc GetHardware(GetHardware.Request) returns (GetHardware.Response) {
     option (google.api.http) = {
       get: "/hardware"
+    };
+  }
+
+  rpc FetchConfig(FetchConfig.Request) returns (FetchConfig.Response) {
+    option (google.api.http) = {
+      post: "/smerd/fetch-config"
+      body: "*"
     };
   }
 }
@@ -112,8 +118,8 @@ message Smerd {
 message Container {
   message Hardware {
     optional float cpu_amount = 1;
-    optional int32 ram_mb = 2;
-    optional int32 memory_swap_mb = 3;
+    optional uint32 ram_mb = 2;
+    optional uint32 memory_swap_mb = 3;
   }
 
   message Settings {
@@ -133,7 +139,7 @@ message Container {
 
 message CreateSmerd {
   message Request {
-    optional string name = 1;
+    string name = 1;
     string image_name = 2 [(validate.rules).string = {
       pattern:   '([a-z]+)/([a-z-]+):([a-z0-9.]+)',
       max_bytes: 50,
@@ -196,4 +202,12 @@ message GetHardware {
     repeated uint32 ports_available = 4;
     repeated uint32 ports_occupied = 5;
   }
+}
+
+message FetchConfig {
+  message Request {
+    string image_name = 1;
+    string service_name = 2;
+  }
+  message Response {}
 }

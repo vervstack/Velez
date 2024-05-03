@@ -24,6 +24,7 @@ const (
 	VelezAPI_ListSmerds_FullMethodName  = "/velez_api.VelezAPI/ListSmerds"
 	VelezAPI_DropSmerd_FullMethodName   = "/velez_api.VelezAPI/DropSmerd"
 	VelezAPI_GetHardware_FullMethodName = "/velez_api.VelezAPI/GetHardware"
+	VelezAPI_FetchConfig_FullMethodName = "/velez_api.VelezAPI/FetchConfig"
 )
 
 // VelezAPIClient is the client API for VelezAPI service.
@@ -35,6 +36,7 @@ type VelezAPIClient interface {
 	ListSmerds(ctx context.Context, in *ListSmerds_Request, opts ...grpc.CallOption) (*ListSmerds_Response, error)
 	DropSmerd(ctx context.Context, in *DropSmerd_Request, opts ...grpc.CallOption) (*DropSmerd_Response, error)
 	GetHardware(ctx context.Context, in *GetHardware_Request, opts ...grpc.CallOption) (*GetHardware_Response, error)
+	FetchConfig(ctx context.Context, in *FetchConfig_Request, opts ...grpc.CallOption) (*FetchConfig_Response, error)
 }
 
 type velezAPIClient struct {
@@ -90,6 +92,15 @@ func (c *velezAPIClient) GetHardware(ctx context.Context, in *GetHardware_Reques
 	return out, nil
 }
 
+func (c *velezAPIClient) FetchConfig(ctx context.Context, in *FetchConfig_Request, opts ...grpc.CallOption) (*FetchConfig_Response, error) {
+	out := new(FetchConfig_Response)
+	err := c.cc.Invoke(ctx, VelezAPI_FetchConfig_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // VelezAPIServer is the server API for VelezAPI service.
 // All implementations must embed UnimplementedVelezAPIServer
 // for forward compatibility
@@ -99,6 +110,7 @@ type VelezAPIServer interface {
 	ListSmerds(context.Context, *ListSmerds_Request) (*ListSmerds_Response, error)
 	DropSmerd(context.Context, *DropSmerd_Request) (*DropSmerd_Response, error)
 	GetHardware(context.Context, *GetHardware_Request) (*GetHardware_Response, error)
+	FetchConfig(context.Context, *FetchConfig_Request) (*FetchConfig_Response, error)
 	mustEmbedUnimplementedVelezAPIServer()
 }
 
@@ -120,6 +132,9 @@ func (UnimplementedVelezAPIServer) DropSmerd(context.Context, *DropSmerd_Request
 }
 func (UnimplementedVelezAPIServer) GetHardware(context.Context, *GetHardware_Request) (*GetHardware_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHardware not implemented")
+}
+func (UnimplementedVelezAPIServer) FetchConfig(context.Context, *FetchConfig_Request) (*FetchConfig_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FetchConfig not implemented")
 }
 func (UnimplementedVelezAPIServer) mustEmbedUnimplementedVelezAPIServer() {}
 
@@ -224,6 +239,24 @@ func _VelezAPI_GetHardware_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _VelezAPI_FetchConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FetchConfig_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VelezAPIServer).FetchConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VelezAPI_FetchConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VelezAPIServer).FetchConfig(ctx, req.(*FetchConfig_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // VelezAPI_ServiceDesc is the grpc.ServiceDesc for VelezAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -250,6 +283,10 @@ var VelezAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetHardware",
 			Handler:    _VelezAPI_GetHardware_Handler,
+		},
+		{
+			MethodName: "FetchConfig",
+			Handler:    _VelezAPI_FetchConfig_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

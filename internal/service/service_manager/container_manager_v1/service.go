@@ -13,11 +13,10 @@ import (
 type ContainerManager struct {
 	docker client.CommonAPIClient
 
-	portManager     *port_manager.PortManager
-	configManager   *config_manager.Configurator
-	resourceManager *resource_manager.ResourceManager
+	configManager     *config_manager.Configurator
+	resourceManager   *resource_manager.ResourceManager
+	containerLauncher ContainerLauncher
 
-	isNodeModeOn bool
 	matreshkaURL string
 }
 
@@ -26,14 +25,21 @@ func NewContainerManager(
 	docker client.CommonAPIClient,
 	configClient matreshka_api.MatreshkaBeAPIClient,
 	portManager *port_manager.PortManager,
-
 ) *ContainerManager {
+	cm := config_manager.New(configClient, docker)
+	rm := resource_manager.New(docker)
 	return &ContainerManager{
 		docker: docker,
 
-		resourceManager: resource_manager.New(docker),
-		portManager:     portManager,
-		configManager:   config_manager.New(configClient, docker),
-		isNodeModeOn:    cfg.GetBool(config.NodeMode),
+		resourceManager: rm,
+		configManager:   cm,
+
+		containerLauncher: ContainerLauncher{
+			docker:          docker,
+			configManager:   cm,
+			resourceManager: rm,
+			isNodeModeOn:    cfg.GetBool(config.NodeMode),
+			portManager:     portManager,
+		},
 	}
 }

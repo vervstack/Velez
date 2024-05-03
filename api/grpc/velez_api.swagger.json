@@ -102,6 +102,38 @@
         ]
       }
     },
+    "/smerd/fetch-config": {
+      "post": {
+        "operationId": "VelezAPI_FetchConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiFetchConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiFetchConfigRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VelezAPI"
+        ]
+      }
+    },
     "/smerd/list": {
       "post": {
         "operationId": "VelezAPI_ListSmerds",
@@ -135,7 +167,7 @@
       }
     },
     "/version": {
-      "post": {
+      "get": {
         "operationId": "VelezAPI_Version",
         "responses": {
           "200": {
@@ -151,16 +183,6 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/velez_apiVersionRequest"
-            }
-          }
-        ],
         "tags": [
           "VelezAPI"
         ]
@@ -177,11 +199,11 @@
         },
         "ramMb": {
           "type": "integer",
-          "format": "int32"
+          "format": "int64"
         },
         "memorySwapMb": {
           "type": "integer",
-          "format": "int32"
+          "format": "int64"
         }
       }
     },
@@ -361,6 +383,20 @@
         }
       }
     },
+    "velez_apiFetchConfigRequest": {
+      "type": "object",
+      "properties": {
+        "imageName": {
+          "type": "string"
+        },
+        "serviceName": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiFetchConfigResponse": {
+      "type": "object"
+    },
     "velez_apiGetHardwareResponse": {
       "type": "object",
       "properties": {
@@ -512,9 +548,6 @@
         "dead"
       ],
       "default": "unknown"
-    },
-    "velez_apiVersionRequest": {
-      "type": "object"
     },
     "velez_apiVersionResponse": {
       "type": "object",

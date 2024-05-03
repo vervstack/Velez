@@ -4,8 +4,8 @@ import (
 	"context"
 	"io"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 	"github.com/pkg/errors"
 
@@ -13,9 +13,9 @@ import (
 )
 
 func PullImage(ctx context.Context, docker client.CommonAPIClient, name string, force bool) (_ *velez_api.Image, err error) {
-	var imageList []types.ImageSummary
+	var imageList []image.Summary
 
-	dockerReq := types.ImageListOptions{
+	dockerReq := image.ListOptions{
 		Filters: filters.NewArgs(),
 	}
 	dockerReq.Filters.Add("reference", name)
@@ -29,7 +29,7 @@ func PullImage(ctx context.Context, docker client.CommonAPIClient, name string, 
 
 	if len(imageList) == 0 {
 		var rdr io.ReadCloser
-		rdr, err = docker.ImagePull(ctx, name, types.ImagePullOptions{})
+		rdr, err = docker.ImagePull(ctx, name, image.PullOptions{})
 		if err != nil {
 			return nil, errors.Wrap(err, "error pulling image")
 		}

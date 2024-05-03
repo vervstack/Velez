@@ -5,7 +5,6 @@ import (
 	"time"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
@@ -19,7 +18,7 @@ import (
 
 const (
 	Name     = "matreshka"
-	image    = "godverv/matreshka-be:v1.0.23"
+	image    = "godverv/matreshka-be:v1.0.27"
 	duration = time.Second * 5
 )
 
@@ -58,7 +57,7 @@ func (b *Matreshka) Start() error {
 
 	if b.port != "" {
 		hostConf.PortBindings = nat.PortMap{
-			"80/tcp": []nat.PortBinding{
+			"50050/tcp": []nat.PortBinding{
 				{
 					HostPort: b.port,
 				},
@@ -80,7 +79,7 @@ func (b *Matreshka) Start() error {
 		return errors.Wrap(err, "error creating matreshka container")
 	}
 
-	err = b.dockerAPI.ContainerStart(ctx, cont.ID, types.ContainerStartOptions{})
+	err = b.dockerAPI.ContainerStart(ctx, cont.ID, container.StartOptions{})
 	if err != nil {
 		return errors.Wrap(err, "error starting matreshka container")
 	}
@@ -133,7 +132,7 @@ func (b *Matreshka) IsAlive() (bool, error) {
 }
 
 func (b *Matreshka) Kill() error {
-	err := b.dockerAPI.ContainerRemove(context.Background(), Name, types.ContainerRemoveOptions{
+	err := b.dockerAPI.ContainerRemove(context.Background(), Name, container.RemoveOptions{
 		RemoveVolumes: true,
 		Force:         true,
 	})

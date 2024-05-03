@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 
 	"github.com/godverv/Velez/internal/config"
@@ -30,7 +30,7 @@ func NewPortManager(ctx context.Context, cfg config.Config, docker client.Common
 		ports: make(map[uint16]bool, len(ports)),
 	}
 
-	containerList, err := docker.ContainerList(ctx, types.ContainerListOptions{})
+	containerList, err := docker.ContainerList(ctx, container.ListOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "error listing container")
 	}
@@ -59,47 +59,46 @@ func (p *PortManager) GetPort() *uint16 {
 			continue
 		}
 
-		port := port
-		return &port
+		portCopy := port
+		p.ports[portCopy] = true
+		return &portCopy
 	}
 
 	return nil
 }
 
-func (p *PortManager) FillPorts(ports []*velez_api.PortBindings) error {
+func (p *PortManager) LockPorts(ports []*velez_api.PortBindings) error {
 	if len(ports) == 0 {
 		return nil
 	}
 
-	p.m.Lock()
-	defer p.m.Unlock()
-
 	pL := make([]uint16, 0, len(ports))
-
-	for port, ok := range p.ports {
-		if ok {
-			continue
+	for range ports {
+		port := p.GetPort()
+		if port == nil {
+			break
 		}
 
-		pL = append(pL, port)
+		pL = append(pL, *port)
 		if len(pL) == cap(pL) {
 			break
 		}
 	}
 
 	if len(pL) != cap(pL) {
+		p.UnlockPorts(pL)
 		return ErrNoPortsAvailable
 	}
 
-	for i := range pL {
-		p.ports[pL[i]] = true
-		ports[i].Host = uint32(pL[i])
+	for idx, portBind := range ports {
+		portBind.Host = uint32(pL[idx])
+		portBind.Protoc = velez_api.PortBindings_tcp
 	}
 
 	return nil
 }
 
-func (p *PortManager) Free(ports []uint16) {
+func (p *PortManager) UnlockPorts(ports []uint16) {
 	p.m.Lock()
 
 	for _, item := range ports {
@@ -109,7 +108,7 @@ func (p *PortManager) Free(ports []uint16) {
 	p.m.Unlock()
 }
 
-func (p *PortManager) FreeFromSettings(ports []*velez_api.PortBindings) {
+func (p *PortManager) UnlockFromSettings(ports []*velez_api.PortBindings) {
 	p.m.Lock()
 
 	for _, item := range ports {

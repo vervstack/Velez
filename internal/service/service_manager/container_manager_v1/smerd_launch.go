@@ -24,14 +24,6 @@ func (c *ContainerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 		return "", errors.Wrap(err, "error pulling image")
 	}
 
-	// TODO https://redsock.youtrack.cloud/issue/VERV-56
-	if req.Settings != nil {
-		err = c.portManager.LockPorts(req.Settings.Ports)
-		if err != nil {
-			return "", errors.Wrap(err, "error getting ports on host side")
-		}
-	}
-
 	var cont *types.ContainerJSON
 
 	if image.Labels[matreshkaConfigLabel] == "true" {

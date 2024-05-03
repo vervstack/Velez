@@ -16,9 +16,12 @@ import (
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils/parser"
 	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/config_manager"
+	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/port_manager"
 	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/resource_manager"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
+
+var ErrNoPorts = errors.New("no ports available")
 
 // TODO VERV-43: use configurator from verv in node mode
 // when resolver will be released - migrate over to resolver
@@ -29,11 +32,17 @@ type ContainerLauncher struct {
 
 	configManager   *config_manager.Configurator
 	resourceManager *resource_manager.ResourceManager
-
-	isNodeModeOn bool
+	portManager     *port_manager.PortManager
+	isNodeModeOn    bool
 }
 
 func (c *ContainerLauncher) createSimple(ctx context.Context, req *velez_api.CreateSmerd_Request) (*types.ContainerJSON, error) {
+	// Assigning ports to container based on configuration
+	err := c.portManager.LockPorts(req.Settings.Ports)
+	if err != nil {
+		return nil, errors.Wrap(err, "error locking ports for container")
+	}
+
 	cfg := getLaunchConfig(req)
 	hCfg := getHostConfig(req)
 	nCfg := getNetworkConfig(req)
@@ -56,6 +65,14 @@ func (c *ContainerLauncher) createVerv(ctx context.Context, req *velez_api.Creat
 	matreshkaConfig, err := c.configManager.GetFromApi(ctx, req.GetName())
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting matreshka config from matreshka api")
+	}
+
+	for _, srv := range matreshkaConfig.Servers {
+		req.Settings.Ports = append(req.Settings.Ports,
+			&velez_api.PortBindings{
+				Container: uint32(srv.GetPort()),
+				Protoc:    velez_api.PortBindings_tcp,
+			})
 	}
 
 	// Create network for smerd

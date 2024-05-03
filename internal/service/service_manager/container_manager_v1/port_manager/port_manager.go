@@ -59,8 +59,9 @@ func (p *PortManager) GetPort() *uint16 {
 			continue
 		}
 
-		port := port
-		return &port
+		portCopy := port
+		p.ports[portCopy] = true
+		return &portCopy
 	}
 
 	return nil
@@ -71,29 +72,27 @@ func (p *PortManager) LockPorts(ports []*velez_api.PortBindings) error {
 		return nil
 	}
 
-	p.m.Lock()
-	defer p.m.Unlock()
-
 	pL := make([]uint16, 0, len(ports))
-
-	for port, ok := range p.ports {
-		if ok {
-			continue
+	for range ports {
+		port := p.GetPort()
+		if port == nil {
+			break
 		}
 
-		pL = append(pL, port)
+		pL = append(pL, *port)
 		if len(pL) == cap(pL) {
 			break
 		}
 	}
 
 	if len(pL) != cap(pL) {
+		p.UnlockPorts(pL)
 		return ErrNoPortsAvailable
 	}
 
-	for i := range pL {
-		p.ports[pL[i]] = true
-		ports[i].Host = uint32(pL[i])
+	for idx, portBind := range ports {
+		portBind.Host = uint32(pL[idx])
+		portBind.Protoc = velez_api.PortBindings_tcp
 	}
 
 	return nil

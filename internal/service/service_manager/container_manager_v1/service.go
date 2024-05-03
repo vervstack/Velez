@@ -13,7 +13,6 @@ import (
 type ContainerManager struct {
 	docker client.CommonAPIClient
 
-	portManager       *port_manager.PortManager
 	configManager     *config_manager.Configurator
 	resourceManager   *resource_manager.ResourceManager
 	containerLauncher ContainerLauncher
@@ -40,8 +39,7 @@ func NewContainerManager(
 			configManager:   cm,
 			resourceManager: rm,
 			isNodeModeOn:    cfg.GetBool(config.NodeMode),
+			portManager:     portManager,
 		},
-
-		portManager: portManager,
 	}
 }

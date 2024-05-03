@@ -21,10 +21,11 @@ func (a *Api) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Reques
 		return nil, errors.Wrapf(err, "error launching smerd")
 	}
 
-	smerds, err := a.smerdService.ListSmerds(ctx,
-		&velez_api.ListSmerds_Request{
-			Id: &id,
-		})
+	listReq := &velez_api.ListSmerds_Request{
+		Id: &id,
+	}
+
+	smerds, err := a.smerdService.ListSmerds(ctx, listReq)
 	if err != nil {
 		return nil, err
 	}

@@ -1,46 +1,104 @@
 package resource_manager
 
 import (
-	"sync"
+	"context"
+	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/client"
 	"github.com/godverv/matreshka"
 	"github.com/godverv/matreshka/resources"
 
+	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-var ErrNotFound = errors.New("no resource with such name")
-
-type SmerdConstructor func(resources matreshka.Resources, resourceName string) (*velez_api.CreateSmerd_Request, error)
+type SmerdConstructor func(resources matreshka.Resources, resourceName string) (domain.Dependencies, error)
 
 type ResourceManager struct {
 	docker client.CommonAPIClient
 
-	m      sync.RWMutex
 	images map[string]SmerdConstructor
 }
 
 func New(docker client.CommonAPIClient) *ResourceManager {
-	r := &ResourceManager{
+	return &ResourceManager{
 		docker: docker,
+		images: map[string]SmerdConstructor{
+			resources.PostgresResourceName: Postgres,
+			resources.SqliteResourceName:   Sqlite,
+		},
 	}
-	r.images = map[string]SmerdConstructor{
-		resources.PostgresResourceName: Postgres,
-	}
-
-	return r
 }
 
-func (m *ResourceManager) GetByName(resourceName string) (SmerdConstructor, error) {
-	m.m.RLock()
-	launcher, ok := m.images[resourceName]
-	m.m.RUnlock()
+func (m *ResourceManager) GetDependencies(serviceName string, cfg matreshka.AppConfig) (domain.Dependencies, error) {
+	deps := domain.Dependencies{}
+	for _, cfgResource := range cfg.Resources {
+		constructor := m.getByType(cfgResource.GetType())
+		if constructor == nil {
+			continue
+		}
 
-	if !ok {
-		return nil, ErrNotFound
+		resourceDeps, err := constructor(cfg.Resources, cfgResource.GetName())
+		if err != nil {
+			return deps, errors.Wrap(err, "error getting resource-smerd config ")
+		}
+
+		for _, smerd := range resourceDeps.Smerds {
+			smerd.Constructor.Name = serviceName + "_" + smerd.Constructor.Name
+
+			vervNetworkBind := &velez_api.NetworkBind{
+				NetworkName: serviceName,
+				Aliases:     []string{cfgResource.GetName()},
+			}
+
+			smerd.Constructor.Settings.Networks = append(
+				smerd.Constructor.Settings.Networks,
+				vervNetworkBind,
+			)
+
+			deps.Smerds = append(deps.Smerds, smerd)
+		}
+
+		for _, vol := range resourceDeps.Volumes {
+			vol.Constructor.Volume = serviceName + "_" + vol.Constructor.Volume
+
+			deps.Volumes = append(deps.Volumes, vol)
+		}
 	}
 
-	return launcher, nil
+	return deps, nil
+}
+
+func (m *ResourceManager) getByType(resourceName string) SmerdConstructor {
+	return m.images[resourceName]
+}
+
+func (m *ResourceManager) FindDependenciesOnThisNode(ctx context.Context, deps domain.Dependencies) (domain.Dependencies, error) {
+	for idx := range deps.Smerds {
+		cont, err := m.docker.ContainerInspect(ctx, deps.Smerds[idx].Constructor.Name)
+		if err != nil {
+			return deps, errors.Wrap(err, "error inspecting container")
+		}
+
+		if cont.ID != "" {
+			deps.Smerds[idx].RunningContainer = &cont
+		}
+	}
+
+	for idx := range deps.Volumes {
+		vol, err := m.docker.VolumeInspect(ctx, deps.Volumes[idx].Constructor.Volume)
+		if err != nil {
+			if strings.Contains(err.Error(), "no such volume") {
+				continue
+			}
+			return deps, errors.Wrapf(err, "error inspecting volume: %s", deps.Volumes[idx].Constructor.Volume)
+		}
+
+		if vol.Name != "" {
+			deps.Volumes[idx].ExistingVolume = &vol
+		}
+	}
+
+	return deps, nil
 }

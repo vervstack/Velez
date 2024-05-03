@@ -7,33 +7,42 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
+	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
 	"github.com/godverv/matreshka"
-	"github.com/godverv/matreshka/resources"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 
 	"github.com/godverv/Velez/internal/backservice/env"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils/parser"
 	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/config_manager"
+	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/port_manager"
 	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/resource_manager"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
+var ErrNoPorts = errors.New("no ports available")
+
 // TODO VERV-43: use configurator from verv in node mode
 // when resolver will be released - migrate over to resolver
-const matreshkaUrl = "matreshka:80"
+const matreshkaUrl = "matreshka:50050"
 
 type ContainerLauncher struct {
 	docker client.CommonAPIClient
 
 	configManager   *config_manager.Configurator
 	resourceManager *resource_manager.ResourceManager
-
-	isNodeModeOn bool
+	portManager     *port_manager.PortManager
+	isNodeModeOn    bool
 }
 
-func (c *ContainerLauncher) createSimple(ctx context.Context, req *velez_api.CreateSmerd_Request) (*types.Container, error) {
+func (c *ContainerLauncher) createSimple(ctx context.Context, req *velez_api.CreateSmerd_Request) (*types.ContainerJSON, error) {
+	// Assigning ports to container based on configuration
+	err := c.portManager.LockPorts(req.Settings.Ports)
+	if err != nil {
+		return nil, errors.Wrap(err, "error locking ports for container")
+	}
+
 	cfg := getLaunchConfig(req)
 	hCfg := getHostConfig(req)
 	nCfg := getNetworkConfig(req)
@@ -44,37 +53,31 @@ func (c *ContainerLauncher) createSimple(ctx context.Context, req *velez_api.Cre
 		return nil, errors.Wrap(err, "error creating container")
 	}
 
-	listReq := &velez_api.ListSmerds_Request{Id: &cont.ID}
-	cl, err := dockerutils.ListContainers(ctx, c.docker, listReq)
+	cl, err := c.docker.ContainerInspect(ctx, cont.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "error listing container by id")
 	}
 
-	var createdContainer *types.Container
-	for _, item := range cl {
-		if item.ID == cont.ID {
-			createdContainer = &item
-			break
-		}
-	}
-
-	if createdContainer == nil {
-		return nil, errors.Wrap(err, "container was created but could not be found")
-	}
-
-	additionalNetworks := parser.FromNetworks(req.Settings)
-	err = c.linkToNetworks(ctx, cont.ID, additionalNetworks)
-	if err != nil {
-		return nil, errors.Wrap(err, "error linking to networks")
-	}
-
-	return createdContainer, nil
+	return &cl, nil
 }
 
-func (c *ContainerLauncher) createVerv(ctx context.Context, req *velez_api.CreateSmerd_Request) (*types.Container, error) {
+func (c *ContainerLauncher) createVerv(ctx context.Context, req *velez_api.CreateSmerd_Request) (*types.ContainerJSON, error) {
+	matreshkaConfig, err := c.configManager.GetFromApi(ctx, req.GetName())
+	if err != nil {
+		return nil, errors.Wrap(err, "error getting matreshka config from matreshka api")
+	}
+
+	for _, srv := range matreshkaConfig.Servers {
+		req.Settings.Ports = append(req.Settings.Ports,
+			&velez_api.PortBindings{
+				Container: uint32(srv.GetPort()),
+				Protoc:    velez_api.PortBindings_tcp,
+			})
+	}
+
 	// Create network for smerd
 	{
-		err := dockerutils.CreateNetworkSoft(ctx, c.docker, req.GetName())
+		err = dockerutils.CreateNetworkSoft(ctx, c.docker, req.GetName())
 		if err != nil {
 			return nil, errors.Wrap(err, "error creating network for service")
 		}
@@ -93,87 +96,40 @@ func (c *ContainerLauncher) createVerv(ctx context.Context, req *velez_api.Creat
 		req.Env[matreshka.ApiURL] = matreshkaUrl
 	}
 
+	deps, err := c.resourceManager.GetDependencies(req.Name, matreshkaConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "error getting ")
+	}
+
+	deps, err = c.resourceManager.FindDependenciesOnThisNode(ctx, deps)
+	if err != nil {
+		return nil, errors.Wrap(err, "error when tried to find resources on node")
+	}
+
+	if c.isNodeModeOn {
+		// TODO поднимать ресурсы
+	}
+
+	for idx := range deps.Volumes {
+		if deps.Volumes[idx].ExistingVolume == nil {
+			var vol volume.Volume
+			vol, err = dockerutils.CreateVolumeSoft(ctx, c.docker, req.GetName())
+			if err != nil {
+				return nil, errors.Wrap(err, "error creating network for service")
+			}
+
+			deps.Volumes[idx].ExistingVolume = &vol
+		}
+
+		req.Settings.Volumes = append(req.Settings.Volumes, deps.Volumes[idx].Constructor)
+	}
+
 	cont, err := c.createSimple(ctx, req)
 	if err != nil {
 		return nil, errors.Wrap(err, "error creating pre container")
 	}
 
-	// TODO VERV-52
-	var matreshkaConfig matreshka.AppConfig
-	{
-		var configFromContainer matreshka.AppConfig
-		configFromContainer, err = c.configManager.GetFromContainer(ctx, cont.ID)
-		if err != nil {
-			return nil, errors.Wrap(err, "error getting matreshka config from container")
-		}
-		var configFromApi matreshka.AppConfig
-		configFromApi, err = c.configManager.GetFromApi(ctx, req.GetName())
-		if err != nil {
-			return nil, errors.Wrap(err, "error getting matreshka config from matreshka api")
-		}
-
-		matreshkaConfig = matreshka.MergeConfigs(configFromApi, configFromContainer)
-	}
-
-	if c.isNodeModeOn {
-		err = c.setupDependencies(ctx, req, &matreshkaConfig)
-		if err != nil {
-			return nil, errors.Wrap(err, "error setting up dependencies")
-		}
-	}
-	err = c.configManager.UpdateConfig(ctx, req.GetName(), matreshkaConfig)
-	if err != nil {
-		return nil, errors.Wrap(err, "error updating config")
-	}
-
 	return cont, nil
-}
-
-func (c *ContainerLauncher) setupDependencies(
-	ctx context.Context,
-	req *velez_api.CreateSmerd_Request,
-	matreshkaCfg *matreshka.AppConfig,
-) (err error) {
-	images := make([]*velez_api.CreateSmerd_Request, 0, len(matreshkaCfg.Resources))
-	for _, cfgResource := range matreshkaCfg.Resources {
-		tp := cfgResource.GetType()
-		switch tp {
-		case resources.GrpcResourceName, resources.TelegramResourceName:
-			continue
-		}
-
-		var constructor resource_manager.SmerdConstructor
-		constructor, err = c.resourceManager.GetByName(tp)
-		if err != nil {
-			return errors.Wrap(err, "error getting name for resource")
-		}
-
-		var createSmerdRequest *velez_api.CreateSmerd_Request
-		createSmerdRequest, err = constructor(matreshkaCfg.Resources, cfgResource.GetName())
-		if err != nil {
-			return errors.Wrap(err, "error getting resource-smerd config ")
-		}
-
-		createSmerdRequest.Name = req.GetName() + "_" + cfgResource.GetName()
-
-		createSmerdRequest.Settings.Networks = append(createSmerdRequest.Settings.Networks,
-			&velez_api.NetworkBind{
-				NetworkName: req.GetName(),
-				Aliases:     []string{cfgResource.GetName()},
-			},
-		)
-
-		images = append(images, createSmerdRequest)
-	}
-
-	//for _, resourceSmerd := range images {
-	//_, err = c.LaunchSmerd(ctx, resourceSmerd)
-	//if err != nil {
-	//	return errors.Wrap(err, "error launching resource smerd")
-	//}
-	//}
-
-	return nil
 }
 
 func (c *ContainerLauncher) linkToNetworks(

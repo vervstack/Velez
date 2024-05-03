@@ -22,6 +22,7 @@ func (c *ContainerManager) FetchConfig(ctx context.Context, req *velez_api.Fetch
 	createReq := &velez_api.CreateSmerd_Request{
 		Name:      req.ServiceName + configFetchingPostfix,
 		ImageName: req.ImageName,
+		Settings:  &velez_api.Container_Settings{},
 	}
 
 	cont, err := c.containerLauncher.createSimple(ctx, createReq)

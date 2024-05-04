@@ -4,7 +4,7 @@ app_info:
   startup_duration: 10s
 data_sources:
   - resource_name: grpc_matreshka_be
-    connection_string: matreshka:80
+    connection_string: matreshka:50050
     module: github.com/godverv/matreshka-be@v1.0.23
 server:
   - name: grpc

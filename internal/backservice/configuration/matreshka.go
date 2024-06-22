@@ -10,6 +10,7 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
+	"github.com/sirupsen/logrus"
 
 	"github.com/godverv/Velez/internal/backservice/env"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
@@ -43,7 +44,11 @@ func New(dockerAPI client.CommonAPIClient, exposeToPort string) *Matreshka {
 
 func (b *Matreshka) Start() error {
 	isAlive, err := b.IsAlive()
-	if err != nil || isAlive {
+	if err != nil {
+		return err
+	}
+	if isAlive {
+		logrus.Info("Matreshka is already running")
 		return err
 	}
 
@@ -94,6 +99,8 @@ func (b *Matreshka) Start() error {
 	if err != nil {
 		return errors.Wrap(err, "error connecting matreshka container to verv network")
 	}
+
+	logrus.Info("Matreshka successfully started")
 
 	return nil
 }

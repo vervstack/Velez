@@ -18,11 +18,15 @@ func (c *ContainerManager) ListSmerds(ctx context.Context, req *velez_api.ListSm
 	}
 
 	resp := &velez_api.ListSmerds_Response{
-		Smerds: make([]*velez_api.Smerd, len(cl)),
+		Smerds: make([]*velez_api.Smerd, 0, len(cl)),
 	}
 
-	for i, container := range cl {
-		resp.Smerds[i] = &velez_api.Smerd{
+	for _, container := range cl {
+		if container.Labels[CreatedWithVelezLabel] != "true" {
+			continue
+		}
+
+		smerd := &velez_api.Smerd{
 			Uuid:      container.ID,
 			ImageName: container.Image,
 
@@ -33,11 +37,14 @@ func (c *ContainerManager) ListSmerds(ctx context.Context, req *velez_api.ListSm
 
 			Ports:   parser.ToPorts(container.Ports),
 			Volumes: parser.ToBind(container.Mounts),
+
+			Labels: container.Labels,
 		}
 
 		if len(container.Names) != 0 {
-			resp.Smerds[i].Name = container.Names[0][1:]
+			smerd.Name = container.Names[0][1:]
 		}
+		resp.Smerds = append(resp.Smerds, smerd)
 	}
 
 	return resp, nil

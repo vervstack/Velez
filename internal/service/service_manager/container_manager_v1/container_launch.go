@@ -25,7 +25,10 @@ var ErrNoPorts = errors.New("no ports available")
 
 // TODO VERV-43: use configurator from verv in node mode
 // when resolver will be released - migrate over to resolver
-const matreshkaUrl = "matreshka:50050"
+const (
+	matreshkaUrl          = "matreshka:50050"
+	CreatedWithVelezLabel = "CREATED_WITH_VELEZ"
+)
 
 type ContainerLauncher struct {
 	docker client.CommonAPIClient
@@ -150,6 +153,9 @@ func getLaunchConfig(req *velez_api.CreateSmerd_Request) (cfg *container.Config)
 		Cmd:         parser.FromCommand(req.Command),
 		Healthcheck: parser.FromHealthcheck(req.Healthcheck),
 		Env:         make([]string, 0, len(req.Env)),
+		Labels: map[string]string{
+			CreatedWithVelezLabel: "true",
+		},
 	}
 
 	for k, v := range req.Env {

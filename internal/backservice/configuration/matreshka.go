@@ -13,6 +13,7 @@ import (
 
 	"github.com/godverv/Velez/internal/backservice/env"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
+	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -67,8 +68,11 @@ func (b *Matreshka) Start() error {
 
 	cont, err := b.dockerAPI.ContainerCreate(ctx,
 		&container.Config{
-			Image:    image,
 			Hostname: Name,
+			Image:    image,
+			Labels: map[string]string{
+				container_manager_v1.CreatedWithVelezLabel: "true",
+			},
 		},
 		hostConf,
 		&network.NetworkingConfig{},

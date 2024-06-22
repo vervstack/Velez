@@ -532,6 +532,12 @@
             "type": "object",
             "$ref": "#/definitions/velez_apiNetworkBind"
           }
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       }
     },

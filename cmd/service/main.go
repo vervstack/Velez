@@ -102,7 +102,7 @@ type applicationCore struct {
 func mustInitCore() (c applicationCore) {
 	var err error
 
-	// Config
+	// Load config
 	{
 		c.cfg, err = config.Load()
 		if err != nil {

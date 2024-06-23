@@ -28,11 +28,12 @@ func StartNetwork(dockerAPI client.CommonAPIClient) error {
 		return errors.Wrap(err, "error listing networks")
 	}
 	if len(networks) == 0 {
-		_, err = dockerAPI.NetworkCreate(ctx, VervNetwork, types.NetworkCreate{
-			CheckDuplicate: true,
-			Internal:       true,
-			Attachable:     true,
-		})
+		createNetReq := network.CreateOptions{
+			Internal:   true,
+			Attachable: true,
+		}
+
+		_, err = dockerAPI.NetworkCreate(ctx, VervNetwork, createNetReq)
 		if err != nil {
 			return errors.Wrap(err, "error creating network")
 		}

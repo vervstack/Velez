@@ -4,8 +4,8 @@ import (
 	"context"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 
 	"github.com/godverv/Velez/internal/domain"
@@ -13,7 +13,7 @@ import (
 )
 
 func ListImages(ctx context.Context, docker client.CommonAPIClient, req domain.ImageListRequest) ([]*velez_api.Image, error) {
-	dockerReq := types.ImageListOptions{
+	dockerReq := image.ListOptions{
 		Filters: filters.NewArgs(),
 	}
 	dockerReq.Filters.Add("reference", req.Name)

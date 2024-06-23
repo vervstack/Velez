@@ -12,7 +12,7 @@ import (
 )
 
 func NewMatreshkaBeAPIClient(ctx context.Context, cfg config.Config) (pb.MatreshkaBeAPIClient, error) {
-	connCfg, err := cfg.Resources().GRPC(config.ResourceGrpcMatreshkaBe)
+	connCfg, err := cfg.GetDataSources().GRPC(config.ResourceGrpcMatreshkaBe)
 	if err != nil {
 		return nil, errors.Wrap(err, "couldn't find key"+config.ResourceGrpcMatreshkaBe+" grpc connection in config")
 	}

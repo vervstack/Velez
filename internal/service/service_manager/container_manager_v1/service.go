@@ -38,7 +38,7 @@ func NewContainerManager(
 			docker:          docker,
 			configManager:   cm,
 			resourceManager: rm,
-			isNodeModeOn:    cfg.GetBool(config.NodeMode),
+			isNodeModeOn:    cfg.GetEnvironment().NodeMode,
 			portManager:     portManager,
 		},
 	}

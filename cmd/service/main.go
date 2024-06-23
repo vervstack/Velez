@@ -39,12 +39,12 @@ func main() {
 
 	// Startup ctx
 	{
-		if aCore.cfg.AppInfo().StartupDuration == 0 {
+		if aCore.cfg.GetAppInfo().StartupDuration == 0 {
 			logrus.Fatalf("no startup duration in config")
 		}
 
 		var cancel func()
-		aCore.ctx, cancel = context.WithTimeout(context.Background(), aCore.cfg.AppInfo().StartupDuration)
+		aCore.ctx, cancel = context.WithTimeout(context.Background(), aCore.cfg.GetAppInfo().StartupDuration)
 		closer.Add(func() error { cancel(); return nil })
 	}
 
@@ -121,8 +121,8 @@ func mustInitCore() (c applicationCore) {
 	}
 
 	// Security access layer
-	if !c.cfg.GetBool(config.DisableAPISecurity) {
-		c.securityManager = security.NewSecurityManager(c.cfg.GetString(config.CustomPassToKey))
+	if !c.cfg.GetEnvironment().DisableAPISecurity {
+		c.securityManager = security.NewSecurityManager(c.cfg.GetEnvironment().CustomPassToKey)
 
 		err = c.securityManager.Start()
 		if err != nil {
@@ -153,13 +153,13 @@ func mustInitEnvironment(aCore applicationCore) {
 		logrus.Fatalf("error creating volumes %s", err)
 	}
 
-	if !aCore.cfg.GetBool(config.NodeMode) {
+	if !aCore.cfg.GetEnvironment().NodeMode {
 		return
 	}
 
 	var portToExposeTo string
-	if aCore.cfg.GetBool(config.ExposeMatreshkaPort) {
-		p := uint64(aCore.cfg.GetInt(config.MatreshkaPort))
+	if aCore.cfg.GetEnvironment().ExposeMatreshkaPort {
+		p := uint64(aCore.cfg.GetEnvironment().MatreshkaPort)
 
 		if p == 0 {
 			portFromPool := aCore.portManager.GetPort()
@@ -199,9 +199,9 @@ func mustInitServiceManager(aCore applicationCore) service.Services {
 		logrus.Fatalf("error creating service manager: %s", err)
 	}
 
-	logrus.Warn("shut down on exit is ", aCore.cfg.GetBool(config.ShutDownOnExit))
+	logrus.Warn("shut down on exit is ", aCore.cfg.GetEnvironment().ShutDownOnExit)
 
-	if aCore.cfg.GetBool(config.ShutDownOnExit) {
+	if aCore.cfg.GetEnvironment().ShutDownOnExit {
 		closer.Add(smerdsDropper(services.GetContainerManagerService()))
 	}
 
@@ -215,18 +215,18 @@ func initBackServices(aCore applicationCore, cm service.ContainerManager) {
 		return nil
 	})
 
-	if aCore.cfg.GetBool(config.WatchTowerEnabled) {
+	if aCore.cfg.GetEnvironment().WatchTowerEnabled {
 		go cron.KeepAlive(ctx, watchtower.New(aCore.cfg, cm))
 	}
 
-	if aCore.cfg.GetBool(config.PortainerEnabled) {
+	if aCore.cfg.GetEnvironment().PortainerEnabled {
 		go cron.KeepAlive(ctx, portainer.New(cm))
 	}
 }
 
 func smerdsDropper(manager service.ContainerManager) func() error {
 	return func() error {
-		logrus.Infof("%s env variable is set to TRUE. Dropping launched smerds", config.ShutDownOnExit)
+		logrus.Infof("ShutDownOnExit env variable is set to TRUE. Dropping launched smerds")
 		logrus.Infof("Listing launched smerds")
 		ctx := context.Background()
 
@@ -280,7 +280,7 @@ func mustInitAPI(
 ) transport.Server {
 	mgr := transport.NewManager()
 
-	grpcConf, err := aCore.cfg.Api().GRPC(config.ApiGrpc)
+	grpcConf, err := aCore.cfg.GetServers().GRPC(config.ServerGrpc)
 	if err != nil {
 		logrus.Fatalf("error getting grpc from config: %s", err)
 	}

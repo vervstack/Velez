@@ -28,7 +28,7 @@ func New(cfg config.Config, cm service.ContainerManager) *Watchtower {
 		cm: cm,
 	}
 
-	w.duration = cfg.GetDuration(config.WatchTowerInterval)
+	w.duration = cfg.GetEnvironment().WatchTowerInterval
 	if w.duration == 0 {
 		w.duration = watchTowerDuration
 	}

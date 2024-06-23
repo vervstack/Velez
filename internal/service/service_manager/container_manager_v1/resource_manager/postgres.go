@@ -7,7 +7,7 @@ import (
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-func Postgres(resources matreshka.Resources, resourceName string) (deps domain.Dependencies, err error) {
+func Postgres(resources matreshka.DataSources, resourceName string) (deps domain.Dependencies, err error) {
 	pg, err := resources.Postgres(resourceName)
 	if err != nil {
 		return domain.Dependencies{}, err

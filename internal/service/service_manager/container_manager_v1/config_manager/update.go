@@ -8,18 +8,17 @@ import (
 	"github.com/godverv/matreshka-be/pkg/matreshka_api"
 )
 
-func (c *Configurator) UpdateConfig(ctx context.Context, serviceName string, config matreshka.AppConfig) error {
-	raw, err := config.Marshal()
+func (c *Configurator) UpdateConfig(ctx context.Context, serviceName string, config matreshka.AppConfig) (err error) {
+
+	postConfig := &matreshka_api.PostConfig_Request{
+		ServiceName: serviceName,
+	}
+
+	postConfig.Content, err = config.Marshal()
 	if err != nil {
 		return errors.Wrap(err, "error marshalling config")
 	}
-
-	_, err = c.matreshkaClient.PatchConfigRaw(
-		ctx,
-		&matreshka_api.PatchConfigRaw_Request{
-			Raw:         raw,
-			ServiceName: serviceName,
-		})
+	_, err = c.matreshkaClient.PostConfig(ctx, postConfig)
 	if err != nil {
 		return errors.Wrap(err, "error patching config")
 	}

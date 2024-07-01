@@ -23,6 +23,7 @@ func Postgres(resources matreshka.DataSources, resourceName string) (deps domain
 
 	smerdDep := domain.SmerdDependency{
 		Constructor: &velez_api.CreateSmerd_Request{
+			Name:      "pg",
 			ImageName: "postgres:13.6",
 			Hardware:  &velez_api.Container_Hardware{},
 			Settings:  &velez_api.Container_Settings{},

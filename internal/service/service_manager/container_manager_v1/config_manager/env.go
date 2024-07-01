@@ -11,9 +11,10 @@ import (
 )
 
 func (c *Configurator) GetEnv(ctx context.Context, name string) ([]string, error) {
-	raw, err := c.matreshkaClient.GetConfigRaw(ctx, &matreshka_api.GetConfigRaw_Request{
+	getConfigReq := &matreshka_api.GetConfig_Request{
 		ServiceName: name,
-	})
+	}
+	raw, err := c.matreshkaClient.GetConfig(ctx, getConfigReq)
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting config from api")
 	}

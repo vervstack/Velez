@@ -15,7 +15,7 @@ type ContainerManager struct {
 
 	configManager     *config_manager.Configurator
 	resourceManager   *resource_manager.ResourceManager
-	containerLauncher ContainerLauncher
+	containerLauncher ContainerStarter
 
 	matreshkaURL string
 }
@@ -34,7 +34,7 @@ func NewContainerManager(
 		resourceManager: rm,
 		configManager:   cm,
 
-		containerLauncher: ContainerLauncher{
+		containerLauncher: ContainerStarter{
 			docker:          docker,
 			configManager:   cm,
 			resourceManager: rm,

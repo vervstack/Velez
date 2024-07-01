@@ -11,11 +11,10 @@ import (
 func (c *Configurator) GetFromApi(ctx context.Context, serviceName string) (matreshka.AppConfig, error) {
 	var apiConfig matreshka.AppConfig
 
-	matreshkaConfig, err := c.matreshkaClient.GetConfigRaw(ctx,
-		&matreshka_api.GetConfigRaw_Request{
-			ServiceName: serviceName,
-		},
-	)
+	req := &matreshka_api.GetConfig_Request{
+		ServiceName: serviceName,
+	}
+	matreshkaConfig, err := c.matreshkaClient.GetConfig(ctx, req)
 	if err != nil {
 		return matreshka.AppConfig{}, errors.Wrap(err, "error obtaining raw config")
 	}

@@ -809,6 +809,8 @@ func (m *Smerd) validate(all bool) error {
 
 	}
 
+	// no validation rules for Labels
+
 	if len(errors) > 0 {
 		return SmerdMultiError(errors)
 	}

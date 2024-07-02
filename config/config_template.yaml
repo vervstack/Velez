@@ -2,44 +2,69 @@ app_info:
     name: github.com/godverv/Velez
     version: dev
     startup_duration: 10s
-
 data_sources:
     - resource_name: grpc_matreshka_be
       connection_string: localhost:50050
       module: github.com/godverv/matreshka-be@v1.0.23
-
 server:
     - name: grpc
-      port: 53890
-
+      port: 50051
 environment:
-#    ports ranges and single port that is available for velez to take
-    available_ports:
-        - 18501-18519
-# custom pass to security key (default is /tmp/velez/private.key)
-    custom_pass_to_key: /tmp/velez/private.key
-# flag that enables|disables security check
-    disable_api_security: true
-
-# parameters for default container limits (not implemented yet)
-    cpu_default: 0.5
-    memory_swap_mb: 50
-    ram_mb_default: 50
-# flag that enables auto deletion of containers created during velez lifetime
-    shut_down_on_exit: true
-
-# flag to enable portainer admin panel
-    portainer_enabled: true
-
-# flag to enable container that will automatically update running container with new images
-    watch_tower_enabled: true
-# interval in between which new images will be checked
-    watch_tower_interval: 5s
-# flag to export configuration api port
-    expose_matreshka_port: true
-# flag to run in node mode.
-#    node mode - self-hosting variation of velez.
-#    Velez will be automatically setup all it needs:
-#       - configuration systems
-#       - resources for smerds
-    node_mode: true
+    - name: available_ports
+      type: int
+      value:
+        - 18501
+        - 18502
+        - 18503
+        - 18504
+        - 18505
+        - 18506
+        - 18507
+        - 18508
+        - 18509
+        - 18510
+        - 18511
+        - 18512
+        - 18513
+        - 18514
+        - 18515
+        - 18516
+        - 18517
+        - 18518
+        - 18519
+    - name: custom_pass_to_key
+      type: string
+      value: /Users/alexbukov/Yandex.Disk.localized/verv/Velez/private.key
+    - name: disable_api_security
+      type: bool
+      value: true
+    - name: cpu_default
+      type: float
+      value: 0.5
+    - name: memory_swap_mb
+      type: int
+      value: 50
+    - name: ram_mb_default
+      type: int
+      value: 50
+    - name: portainer_enabled
+      type: bool
+      value: false
+    - name: shut_down_on_exit
+      type: bool
+      value: true
+    - name: watch_tower_enabled
+      type: bool
+      value: true
+    - name: watch_tower_interval
+      type: duration
+      value: 5s
+    - name: expose_matreshka_port
+      type: bool
+      value: true
+    - name: matreshka_port
+      type: int
+      value: 50050
+    - name: node_mode
+      type: bool
+      value: true

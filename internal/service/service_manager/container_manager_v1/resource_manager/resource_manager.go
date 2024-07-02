@@ -13,7 +13,7 @@ import (
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-type SmerdConstructor func(resources matreshka.Resources, resourceName string) (domain.Dependencies, error)
+type SmerdConstructor func(resources matreshka.DataSources, resourceName string) (domain.Dependencies, error)
 
 type ResourceManager struct {
 	docker client.CommonAPIClient
@@ -33,13 +33,13 @@ func New(docker client.CommonAPIClient) *ResourceManager {
 
 func (m *ResourceManager) GetDependencies(serviceName string, cfg matreshka.AppConfig) (domain.Dependencies, error) {
 	deps := domain.Dependencies{}
-	for _, cfgResource := range cfg.Resources {
+	for _, cfgResource := range cfg.DataSources {
 		constructor := m.getByType(cfgResource.GetType())
 		if constructor == nil {
 			continue
 		}
 
-		resourceDeps, err := constructor(cfg.Resources, cfgResource.GetName())
+		resourceDeps, err := constructor(cfg.DataSources, cfgResource.GetName())
 		if err != nil {
 			return deps, errors.Wrap(err, "error getting resource-smerd config ")
 		}

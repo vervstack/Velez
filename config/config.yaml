@@ -1,6 +1,6 @@
 app_info:
   name: github.com/godverv/Velez
-  version: v0.1.40
+  version: v0.1.41
   startup_duration: 10s
 data_sources:
   - resource_name: grpc_matreshka_be
@@ -8,25 +8,53 @@ data_sources:
     module: github.com/godverv/matreshka-be@v1.0.23
 server:
   - name: grpc
-    port: 50051
+    port: 53890
 environment:
-  available_ports:
-    - 18501-18519
+  - name: available_ports
+    value: 18501-18519
+    type: int
 
-  custom_pass_to_key: /tmp/velez/private.key
+  - name: custom_pass_to_key
+    value: /tmp/velez/private.key
+    type: string
 
-  disable_api_security: false
+  - name: disable_api_security
+    value: false
+    type: bool
 
-  cpu_default: 0.5
-  memory_swap_mb: 50
-  ram_mb_default: 50
+  - name: cpu_default
+    value: 0.5
+    type: float
+  - name: memory_swap_mb
+    value: 50
+    type: int
+  - name: ram_mb_default
+    value: 50
+    type: int
 
-  node_mode: true
-  expose_matreshka_port: true
-  matreshka_port: 50050
+  - name: node_mode
+    value: true
+    type: bool
 
-  portainer_enabled: false
-  shut_down_on_exit: false
+  - name: expose_matreshka_port
+    value: true
+    type: bool
+  - name: matreshka_port
+    value: 50050
+    type: int
 
-  watch_tower_enabled: true
-  watch_tower_interval: 5s
+  - name: portainer_enabled
+    value: false
+    type: bool
+
+  - name: shut_down_on_exit
+    value: true
+    type: bool
+
+
+  - name: watch_tower_enabled
+    value: true
+    type: bool
+  - name: watch_tower_interval
+    value: 5s
+    type: duration

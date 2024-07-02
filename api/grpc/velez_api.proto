@@ -113,6 +113,7 @@ message Smerd {
   google.protobuf.Timestamp created_at = 7;
 
   repeated NetworkBind networks = 8;
+  map<string,string> labels = 9;
 }
 
 message Container {

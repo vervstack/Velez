@@ -4,15 +4,17 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Red-Sock/evon"
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
 	"github.com/godverv/matreshka-be/pkg/matreshka_api"
 )
 
 func (c *Configurator) GetEnv(ctx context.Context, name string) ([]string, error) {
-	raw, err := c.matreshkaClient.GetConfigRaw(ctx, &matreshka_api.GetConfigRaw_Request{
+	getConfigReq := &matreshka_api.GetConfig_Request{
 		ServiceName: name,
-	})
+	}
+	raw, err := c.matreshkaClient.GetConfig(ctx, getConfigReq)
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting config from api")
 	}
@@ -27,12 +29,16 @@ func (c *Configurator) GetEnv(ctx context.Context, name string) ([]string, error
 		return nil, errors.Wrap(err, "error unmarshalling config")
 	}
 
-	mEnv := matreshka.GenerateEnvironmentKeys(cfg.Environment)
+	evonEnv, err := evon.MarshalEnv(cfg)
+	if err != nil {
+		return nil, errors.Wrap(err, "error marshalling to env")
+	}
+	ns := evon.NodesToStorage(evonEnv.InnerNodes)
 
-	env := make([]string, len(mEnv))
-
-	for i := range mEnv {
-		env[i] = fmt.Sprintf("%s=%v", mEnv[i].Name, mEnv[i].Value)
+	// TODO check if works correctly
+	env := make([]string, 0, len(ns))
+	for _, n := range ns {
+		env = append(env, n.Name+"="+fmt.Sprint(n.Value))
 	}
 
 	return env, nil

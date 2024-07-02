@@ -10,7 +10,7 @@ import (
 	"sync"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka/api"
+	"github.com/godverv/matreshka/servers"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sirupsen/logrus"
 	"github.com/soheilhy/cmux"
@@ -34,14 +34,14 @@ type Server struct {
 
 func NewServer(
 	cfg config.Config,
-	server *api.GRPC,
+	server *servers.GRPC,
 	serviceManager service.Services,
 	secManager security.Manager,
 ) (*Server, error) {
 
 	var opts []grpc.ServerOption
 
-	if !cfg.GetBool(config.DisableAPISecurity) {
+	if !cfg.GetEnvironment().DisableAPISecurity {
 		opts = append(opts, security.GrpcInterceptor(secManager))
 	}
 
@@ -50,7 +50,7 @@ func NewServer(
 	velez_api.RegisterVelezAPIServer(
 		grpcServer,
 		&Api{
-			version:         cfg.AppInfo().Version,
+			version:         cfg.GetAppInfo().Version,
 			smerdService:    serviceManager.GetContainerManagerService(),
 			hardwareManager: serviceManager.GetHardwareManagerService(),
 		})

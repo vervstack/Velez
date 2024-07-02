@@ -10,15 +10,17 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
+	"github.com/sirupsen/logrus"
 
 	"github.com/godverv/Velez/internal/backservice/env"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
+	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
 const (
 	Name     = "matreshka"
-	image    = "godverv/matreshka-be:v1.0.27"
+	image    = "godverv/matreshka-be:v1.0.28"
 	duration = time.Second * 5
 )
 
@@ -42,7 +44,11 @@ func New(dockerAPI client.CommonAPIClient, exposeToPort string) *Matreshka {
 
 func (b *Matreshka) Start() error {
 	isAlive, err := b.IsAlive()
-	if err != nil || isAlive {
+	if err != nil {
+		return err
+	}
+	if isAlive {
+		logrus.Info("Matreshka is already running")
 		return err
 	}
 
@@ -67,8 +73,11 @@ func (b *Matreshka) Start() error {
 
 	cont, err := b.dockerAPI.ContainerCreate(ctx,
 		&container.Config{
-			Image:    image,
 			Hostname: Name,
+			Image:    image,
+			Labels: map[string]string{
+				container_manager_v1.CreatedWithVelezLabel: "true",
+			},
 		},
 		hostConf,
 		&network.NetworkingConfig{},
@@ -90,6 +99,8 @@ func (b *Matreshka) Start() error {
 	if err != nil {
 		return errors.Wrap(err, "error connecting matreshka container to verv network")
 	}
+
+	logrus.Info("Matreshka successfully started")
 
 	return nil
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-func Postgres(resources matreshka.Resources, resourceName string) (deps domain.Dependencies, err error) {
+func Postgres(resources matreshka.DataSources, resourceName string) (deps domain.Dependencies, err error) {
 	pg, err := resources.Postgres(resourceName)
 	if err != nil {
 		return domain.Dependencies{}, err
@@ -23,6 +23,7 @@ func Postgres(resources matreshka.Resources, resourceName string) (deps domain.D
 
 	smerdDep := domain.SmerdDependency{
 		Constructor: &velez_api.CreateSmerd_Request{
+			Name:      "pg",
 			ImageName: "postgres:13.6",
 			Hardware:  &velez_api.Container_Hardware{},
 			Settings:  &velez_api.Container_Settings{},

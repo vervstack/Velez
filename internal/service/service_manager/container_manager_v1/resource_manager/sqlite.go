@@ -10,7 +10,7 @@ import (
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-func Sqlite(resources matreshka.Resources, resourceName string) (deps domain.Dependencies, err error) {
+func Sqlite(resources matreshka.DataSources, resourceName string) (deps domain.Dependencies, err error) {
 	res, err := resources.Sqlite(resourceName)
 	if err != nil {
 		return deps, errors.Wrap(err, "error extracting resource cfg")

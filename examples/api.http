@@ -55,5 +55,13 @@ Content-Type: application/json
 GET {{velez}}/hardware
 Content-Type: application/json
 
+{}
+
+### Fetch config
+POST {{velez}}/smerd/fetch-config
+Content-Type: application/json
+
 {
+  "image_name": "redsockdev/red-cart:v0.0.13",
+  "service_name": "red-cart"
 }

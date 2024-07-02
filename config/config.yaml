@@ -1,6 +1,6 @@
 app_info:
   name: github.com/godverv/Velez
-  version: v0.1.40
+  version: v0.1.41
   startup_duration: 10s
 data_sources:
   - resource_name: grpc_matreshka_be

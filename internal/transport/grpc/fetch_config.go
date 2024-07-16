@@ -10,10 +10,16 @@ import (
 )
 
 func (a *Api) FetchConfig(ctx context.Context, req *velez_api.FetchConfig_Request) (*velez_api.FetchConfig_Response, error) {
-	err := a.smerdService.FetchConfig(ctx, req)
+	cfg, err := a.smerdService.FetchConfig(ctx, req)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	resp := &velez_api.FetchConfig_Response{}
+
+	resp.Config, err = cfg.Marshal()
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &velez_api.FetchConfig_Response{}, nil
+	return resp, nil
 }

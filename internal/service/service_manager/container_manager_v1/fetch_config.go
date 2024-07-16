@@ -13,10 +13,10 @@ import (
 
 const configFetchingPostfix = "_config_scanning"
 
-func (c *ContainerManager) FetchConfig(ctx context.Context, req *velez_api.FetchConfig_Request) error {
+func (c *ContainerManager) FetchConfig(ctx context.Context, req *velez_api.FetchConfig_Request) (*matreshka.AppConfig, error) {
 	_, err := dockerutils.PullImage(ctx, c.docker, req.ImageName, false)
 	if err != nil {
-		return errors.Wrap(err, "error pulling image")
+		return nil, errors.Wrap(err, "error pulling image")
 	}
 
 	createReq := &velez_api.CreateSmerd_Request{
@@ -27,7 +27,7 @@ func (c *ContainerManager) FetchConfig(ctx context.Context, req *velez_api.Fetch
 
 	cont, err := c.containerLauncher.createSimple(ctx, createReq)
 	if err != nil {
-		return errors.Wrap(err, "error creating container")
+		return nil, errors.Wrap(err, "error creating container")
 	}
 	defer func() {
 		_, dropErr := c.DropSmerds(ctx, &velez_api.DropSmerd_Request{
@@ -40,20 +40,20 @@ func (c *ContainerManager) FetchConfig(ctx context.Context, req *velez_api.Fetch
 
 	configFromContainer, err := c.configManager.GetFromContainer(ctx, cont.ID)
 	if err != nil {
-		return errors.Wrap(err, "error getting matreshka config from container")
+		return nil, errors.Wrap(err, "error getting matreshka config from container")
 	}
 
 	configFromApi, err := c.configManager.GetFromApi(ctx, req.GetServiceName())
 	if err != nil {
-		return errors.Wrap(err, "error getting matreshka config from matreshka api")
+		return nil, errors.Wrap(err, "error getting matreshka config from matreshka api")
 	}
 
 	matreshkaConfig := matreshka.MergeConfigs(configFromApi, configFromContainer)
 
 	err = c.configManager.UpdateConfig(ctx, req.ServiceName, matreshkaConfig)
 	if err != nil {
-		return errors.Wrap(err, "error updating config")
+		return nil, errors.Wrap(err, "error updating config")
 	}
 
-	return nil
+	return &matreshkaConfig, nil
 }

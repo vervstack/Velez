@@ -1,10 +1,10 @@
 app_info:
   name: github.com/godverv/Velez
-  version: v0.1.41
+  version: v0.1.42
   startup_duration: 10s
 data_sources:
   - resource_name: grpc_matreshka_be
-    connection_string: matreshka:50050
+    connection_string: matreshka:53891
     module: github.com/godverv/matreshka-be@v1.0.23
 server:
   - name: grpc
@@ -53,7 +53,7 @@ environment:
 
 
   - name: watch_tower_enabled
-    value: true
+    value: false
     type: bool
   - name: watch_tower_interval
     value: 5s

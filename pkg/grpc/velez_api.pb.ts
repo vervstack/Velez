@@ -158,7 +158,9 @@ export type FetchConfigRequest = {
   serviceName?: string;
 };
 
-export type FetchConfigResponse = Record<string, never>;
+export type FetchConfigResponse = {
+  config?: Uint8Array;
+};
 
 export type FetchConfig = Record<string, never>;
 

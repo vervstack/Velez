@@ -395,7 +395,13 @@
       }
     },
     "velez_apiFetchConfigResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "config": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
     },
     "velez_apiGetHardwareResponse": {
       "type": "object",

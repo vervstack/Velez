@@ -2170,27 +2170,7 @@ func (m *CreateSmerd_Request) validate(all bool) error {
 
 	// no validation rules for Name
 
-	if len(m.GetImageName()) > 50 {
-		err := CreateSmerd_RequestValidationError{
-			field:  "ImageName",
-			reason: "value length must be at most 50 bytes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if !_CreateSmerd_Request_ImageName_Pattern.MatchString(m.GetImageName()) {
-		err := CreateSmerd_RequestValidationError{
-			field:  "ImageName",
-			reason: "value does not match regex pattern \"([a-z]+)/([a-z-]+):([a-z0-9.]+)\"",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for ImageName
 
 	// no validation rules for Env
 
@@ -2376,8 +2356,6 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateSmerd_RequestValidationError{}
-
-var _CreateSmerd_Request_ImageName_Pattern = regexp.MustCompile("([a-z]+)/([a-z-]+):([a-z0-9.]+)")
 
 // Validate checks the field values on ListSmerds_Request with the rules
 // defined in the proto definition for this message. If any rules are
@@ -3497,6 +3475,8 @@ func (m *FetchConfig_Response) validate(all bool) error {
 	}
 
 	var errors []error
+
+	// no validation rules for Config
 
 	if len(errors) > 0 {
 		return FetchConfig_ResponseMultiError(errors)

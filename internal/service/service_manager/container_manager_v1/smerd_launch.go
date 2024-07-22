@@ -9,6 +9,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
+	"github.com/godverv/Velez/internal/clients/docker/dockerutils/parser"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -17,7 +18,10 @@ const (
 )
 
 func (c *ContainerManager) LaunchSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (id string, err error) {
-	c.normalizeCreateRequest(req)
+	err = c.normalizeCreateRequest(req)
+	if err != nil {
+		return "", errors.Wrap(err, "error normalizing create request")
+	}
 
 	image, err := dockerutils.PullImage(ctx, c.docker, req.ImageName, false)
 	if err != nil {
@@ -40,10 +44,17 @@ func (c *ContainerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 		return "", errors.Wrap(err, "error starting container")
 	}
 
+	if req.Healthcheck != nil {
+		err = c.doHealthcheck(ctx, cont.ID, parser.FromHealthcheck(req.Healthcheck))
+		if err != nil {
+			return "", errors.Wrap(err, "error during healthcheck")
+		}
+	}
+
 	return cont.ID, nil
 }
 
-func (c *ContainerManager) normalizeCreateRequest(req *velez_api.CreateSmerd_Request) {
+func (c *ContainerManager) normalizeCreateRequest(req *velez_api.CreateSmerd_Request) error {
 	if req.Settings == nil {
 		req.Settings = &velez_api.Container_Settings{}
 	}
@@ -55,13 +66,31 @@ func (c *ContainerManager) normalizeCreateRequest(req *velez_api.CreateSmerd_Req
 	if req.Env == nil {
 		req.Env = make(map[string]string)
 	}
+
+	for _, p := range req.Settings.Ports {
+		if p.Host == 0 {
+			var err error
+			p.Host, err = c.portManager.GetPort()
+			if err != nil {
+				return errors.Wrap(err, "error getting host port")
+			}
+		} else {
+			err := c.portManager.LockPorts(req.Settings.Ports)
+			if err != nil {
+				return errors.Wrap(err, "error locking ports for container")
+			}
+		}
+
+	}
+
+	return nil
 }
 
-func (c *ContainerManager) waitHealthcheck(
+func (c *ContainerManager) doHealthcheck(
 	ctx context.Context,
 	containerId string,
-	hc container.HealthConfig,
-) chan error {
+	hc *container.HealthConfig,
+) error {
 	errC := make(chan error)
 
 	go func() {
@@ -86,5 +115,10 @@ func (c *ContainerManager) waitHealthcheck(
 		}
 	}()
 
-	return errC
+	err := <-errC
+	if err != nil {
+		return errors.Wrap(err, "error during healthcheck")
+	}
+	return nil
+
 }

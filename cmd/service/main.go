@@ -162,13 +162,13 @@ func mustInitEnvironment(aCore applicationCore) {
 		p := uint64(aCore.cfg.GetEnvironment().MatreshkaPort)
 
 		if p == 0 {
-			portFromPool := aCore.portManager.GetPort()
-			if portFromPool == nil {
+			portFromPool, err := aCore.portManager.GetPort()
+			if err != nil {
 				logrus.Fatalf("no available port for config to expose")
 				return
 			}
 
-			p = uint64(*portFromPool)
+			p = uint64(portFromPool)
 		}
 
 		portToExposeTo = strconv.FormatUint(p, 10)

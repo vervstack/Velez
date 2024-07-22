@@ -15,7 +15,6 @@ import (
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils/parser"
 	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/config_manager"
-	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/port_manager"
 	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/resource_manager"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
@@ -32,16 +31,10 @@ type ContainerStarter struct {
 
 	configManager   *config_manager.Configurator
 	resourceManager *resource_manager.ResourceManager
-	portManager     *port_manager.PortManager
 	isNodeModeOn    bool
 }
 
 func (c *ContainerStarter) createSimple(ctx context.Context, req *velez_api.CreateSmerd_Request) (*types.ContainerJSON, error) {
-	// Assigning ports to container based on configuration
-	err := c.portManager.LockPorts(req.Settings.Ports)
-	if err != nil {
-		return nil, errors.Wrap(err, "error locking ports for container")
-	}
 
 	cfg := getLaunchConfig(req)
 	hCfg := getHostConfig(req)

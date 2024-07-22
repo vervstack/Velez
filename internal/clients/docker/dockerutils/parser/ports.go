@@ -3,7 +3,6 @@ package parser
 import (
 	"strconv"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/go-connections/nat"
 
 	"github.com/godverv/Velez/pkg/velez_api"
@@ -34,15 +33,22 @@ func FromPorts(settings *velez_api.Container_Settings) map[nat.Port][]nat.PortBi
 	return out
 }
 
-func ToPorts(ports []types.Port) []*velez_api.PortBindings {
-	out := make([]*velez_api.PortBindings, len(ports))
+func ToPorts(ports map[nat.Port][]nat.PortBinding) []*velez_api.PortBindings {
+	out := make([]*velez_api.PortBindings, 0, len(ports))
 
-	for i, item := range ports {
-		out[i] = &velez_api.PortBindings{
-			Host:      uint32(item.PublicPort),
-			Container: uint32(item.PrivatePort),
-			Protoc:    velez_api.PortBindings_Protocol(velez_api.PortBindings_Protocol_value[item.Type]),
+	for contPort, hostPorts := range ports {
+		for _, hostPort := range hostPorts {
+			port, _ := strconv.ParseUint(hostPort.HostPort, 10, 64)
+			binding := &velez_api.PortBindings{
+				Host:      uint32(port),
+				Container: uint32(contPort.Int()),
+				Protoc:    velez_api.PortBindings_Protocol(velez_api.PortBindings_Protocol_value[contPort.Proto()]),
+			}
+
+			out = append(out, binding)
 		}
+
 	}
+
 	return out
 }

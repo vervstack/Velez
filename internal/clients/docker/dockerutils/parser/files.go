@@ -1,9 +1,6 @@
 package parser
 
 import (
-	"strings"
-
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/mount"
 
 	"github.com/godverv/Velez/pkg/velez_api"
@@ -34,18 +31,13 @@ func FromBind(settings *velez_api.Container_Settings) []mount.Mount {
 	return out
 }
 
-func ToBind(volumes []types.MountPoint) []*velez_api.MountBindings {
+func ToBind(volumes []mount.Mount) []*velez_api.MountBindings {
 	out := make([]*velez_api.MountBindings, len(volumes))
 
 	for i, item := range volumes {
-		splited := strings.Split(item.Destination, ":")
-		if len(splited) != 2 {
-			continue
-		}
-
 		out[i] = &velez_api.MountBindings{
-			Host:      splited[0],
-			Container: splited[1],
+			Host:      item.Source,
+			Container: item.Target,
 		}
 	}
 

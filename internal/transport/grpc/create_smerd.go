@@ -21,18 +21,10 @@ func (a *Api) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Reques
 		return nil, errors.Wrapf(err, "error launching smerd")
 	}
 
-	listReq := &velez_api.ListSmerds_Request{
-		Id: &id,
-	}
-
-	smerds, err := a.smerdService.ListSmerds(ctx, listReq)
+	smerd, err := a.smerdService.InspectSmerd(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(smerds.Smerds) == 0 {
-		return nil, status.Error(codes.NotFound, "created but couldn't find it")
-	}
-
-	return smerds.Smerds[0], nil
+	return smerd, nil
 }

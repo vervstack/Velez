@@ -16,6 +16,7 @@ type ContainerManager struct {
 	configManager     *config_manager.Configurator
 	resourceManager   *resource_manager.ResourceManager
 	containerLauncher ContainerStarter
+	portManager       *port_manager.PortManager
 
 	matreshkaURL string
 }
@@ -33,13 +34,13 @@ func NewContainerManager(
 
 		resourceManager: rm,
 		configManager:   cm,
+		portManager:     portManager,
 
 		containerLauncher: ContainerStarter{
 			docker:          docker,
 			configManager:   cm,
 			resourceManager: rm,
 			isNodeModeOn:    cfg.GetEnvironment().NodeMode,
-			portManager:     portManager,
 		},
 	}
 }

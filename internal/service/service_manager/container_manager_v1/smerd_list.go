@@ -7,7 +7,6 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
-	"github.com/godverv/Velez/internal/clients/docker/dockerutils/parser"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -34,9 +33,6 @@ func (c *ContainerManager) ListSmerds(ctx context.Context, req *velez_api.ListSm
 			CreatedAt: &timestamppb.Timestamp{
 				Seconds: container.Created,
 			},
-
-			Ports:   parser.ToPorts(container.Ports),
-			Volumes: parser.ToBind(container.Mounts),
 
 			Labels: container.Labels,
 		}

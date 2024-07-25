@@ -19,12 +19,7 @@ func (a *App) MustInitServiceManager() {
 		logrus.Fatalf("error getting matreshka api: %s", err)
 	}
 
-	a.Services, err = service_manager.New(
-		a.Cfg,
-		a.Docker,
-		a.MatreshkaClient,
-		a.PortManager,
-	)
+	a.Services = service_manager.New(a.Clients)
 	if err != nil {
 		logrus.Fatalf("error creating service manager: %s", err)
 	}
@@ -32,11 +27,11 @@ func (a *App) MustInitServiceManager() {
 	logrus.Warn("shut down on exit is ", a.Cfg.GetEnvironment().ShutDownOnExit)
 
 	if a.Cfg.GetEnvironment().ShutDownOnExit {
-		closer.Add(smerdsDropper(a.Services.GetContainerManagerService()))
+		closer.Add(smerdsDropper(a.Services))
 	}
 }
 
-func smerdsDropper(manager service.ContainerManager) func() error {
+func smerdsDropper(manager service.Services) func() error {
 	return func() error {
 		logrus.Infof("ShutDownOnExit env variable is set to TRUE. Dropping launched smerds")
 		logrus.Infof("Listing launched smerds")

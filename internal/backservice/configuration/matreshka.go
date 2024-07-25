@@ -13,6 +13,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/godverv/Velez/internal/backservice/env"
+	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
 	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1"
 	"github.com/godverv/Velez/pkg/velez_api"
@@ -32,7 +33,7 @@ type Matreshka struct {
 	port string
 }
 
-func New(dockerAPI client.CommonAPIClient, exposeToPort string) *Matreshka {
+func New(dockerAPI clients.Docker, exposeToPort string) *Matreshka {
 	w := &Matreshka{
 		dockerAPI: dockerAPI,
 		duration:  duration,

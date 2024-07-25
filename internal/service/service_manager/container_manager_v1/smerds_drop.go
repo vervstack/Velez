@@ -2,9 +2,6 @@ package container_manager_v1
 
 import (
 	"context"
-	"strings"
-
-	"github.com/docker/docker/api/types/container"
 
 	"github.com/godverv/Velez/pkg/velez_api"
 )
@@ -12,21 +9,18 @@ import (
 func (c *ContainerManager) DropSmerds(ctx context.Context, req *velez_api.DropSmerd_Request) (*velez_api.DropSmerd_Response, error) {
 	out := &velez_api.DropSmerd_Response{}
 
-	for _, arg := range append(req.Uuids, req.Name...) {
-		err := c.docker.ContainerRemove(ctx, arg, container.RemoveOptions{
-			Force: true,
-		})
-		if err != nil {
-			if !strings.Contains(err.Error(), "No such container") {
-				out.Failed = append(out.Failed, &velez_api.DropSmerd_Response_Error{
-					Uuid:  arg,
-					Cause: err.Error(),
-				})
-			}
+	for _, uuid := range append(req.Uuids, req.Name...) {
+		err := c.docker.Remove(ctx, uuid)
+		if err == nil {
+			out.Successful = append(out.Successful, uuid)
 			continue
 		}
 
-		out.Successful = append(out.Successful, arg)
+		out.Failed = append(out.Failed,
+			&velez_api.DropSmerd_Response_Error{
+				Uuid:  uuid,
+				Cause: err.Error(),
+			})
 	}
 
 	return out, nil

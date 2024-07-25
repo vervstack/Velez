@@ -6,12 +6,11 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
 func (c *ContainerManager) ListSmerds(ctx context.Context, req *velez_api.ListSmerds_Request) (*velez_api.ListSmerds_Response, error) {
-	cl, err := dockerutils.ListContainers(ctx, c.docker, req)
+	cl, err := c.docker.ListContainers(ctx, req)
 	if err != nil {
 		return nil, errors.Wrap(err, "error listing containers")
 	}

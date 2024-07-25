@@ -8,10 +8,10 @@ import (
 
 func (a *App) InitBackServices() {
 	if a.Cfg.GetEnvironment().WatchTowerEnabled {
-		go cron.KeepAlive(a.Ctx, watchtower.New(a.Cfg, a.Services.GetContainerManagerService()))
+		go cron.KeepAlive(a.Ctx, watchtower.New(a.Cfg, a.Services))
 	}
 
 	if a.Cfg.GetEnvironment().PortainerEnabled {
-		go cron.KeepAlive(a.Ctx, portainer.New(a.Services.GetContainerManagerService()))
+		go cron.KeepAlive(a.Ctx, portainer.New(a.Services))
 	}
 }

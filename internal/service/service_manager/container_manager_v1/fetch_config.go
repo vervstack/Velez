@@ -7,14 +7,13 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
 
-	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
 const configFetchingPostfix = "_config_scanning"
 
 func (c *ContainerManager) FetchConfig(ctx context.Context, req *velez_api.FetchConfig_Request) (*matreshka.AppConfig, error) {
-	_, err := dockerutils.PullImage(ctx, c.docker, req.ImageName, false)
+	_, err := c.docker.PullImage(ctx, req.ImageName)
 	if err != nil {
 		return nil, errors.Wrap(err, "error pulling image")
 	}
@@ -25,7 +24,7 @@ func (c *ContainerManager) FetchConfig(ctx context.Context, req *velez_api.Fetch
 		Settings:  &velez_api.Container_Settings{},
 	}
 
-	cont, err := c.containerLauncher.createSimple(ctx, createReq)
+	cont, err := c.deployManager.Create(ctx, createReq)
 	if err != nil {
 		return nil, errors.Wrap(err, "error creating container")
 	}

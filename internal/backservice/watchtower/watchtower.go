@@ -18,12 +18,12 @@ const (
 )
 
 type Watchtower struct {
-	cm service.ContainerManager
+	cm service.Services
 
 	duration time.Duration
 }
 
-func New(cfg config.Config, cm service.ContainerManager) *Watchtower {
+func New(cfg config.Config, cm service.Services) *Watchtower {
 	w := &Watchtower{
 		cm: cm,
 	}

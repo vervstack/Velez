@@ -18,12 +18,12 @@ const (
 )
 
 type Portainer struct {
-	cm service.ContainerManager
+	cm service.Services
 
 	duration time.Duration
 }
 
-func New(cm service.ContainerManager) *Portainer {
+func New(cm service.Services) *Portainer {
 	w := &Portainer{
 		cm:       cm,
 		duration: portainerDuration,

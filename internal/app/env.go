@@ -11,12 +11,12 @@ import (
 )
 
 func (a *App) MustInitEnvironment() {
-	err := env.StartNetwork(a.Docker)
+	err := env.StartNetwork(a.Clients.Docker())
 	if err != nil {
 		logrus.Fatalf("error creating network: %s", err)
 	}
 
-	err = env.StartVolumes(a.Docker)
+	err = env.StartVolumes(a.Clients.Docker())
 	if err != nil {
 		logrus.Fatalf("error creating volumes %s", err)
 	}
@@ -30,7 +30,7 @@ func (a *App) MustInitEnvironment() {
 		p := uint64(a.Cfg.GetEnvironment().MatreshkaPort)
 
 		if p == 0 {
-			portFromPool, err := a.PortManager.GetPort()
+			portFromPool, err := a.Clients.PortManager().GetPort()
 			if err != nil {
 				logrus.Fatalf("no available port for config to expose")
 				return
@@ -42,7 +42,7 @@ func (a *App) MustInitEnvironment() {
 		portToExposeTo = strconv.FormatUint(p, 10)
 	}
 
-	conf := configuration.New(a.Docker, portToExposeTo)
+	conf := configuration.New(a.Clients.Docker(), portToExposeTo)
 	err = conf.Start()
 	if err != nil {
 		logrus.Fatalf("error launching config backservice: %s", err)

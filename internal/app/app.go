@@ -7,14 +7,12 @@ import (
 	"syscall"
 
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/docker/docker/client"
 	"github.com/godverv/matreshka-be/pkg/matreshka_api"
 	"github.com/sirupsen/logrus"
 
-	"github.com/godverv/Velez/internal/backservice/security"
+	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/service"
-	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/port_manager"
 	"github.com/godverv/Velez/internal/transport"
 	"github.com/godverv/Velez/internal/transport/grpc"
 	"github.com/godverv/Velez/internal/utils/closer"
@@ -26,9 +24,7 @@ type App struct {
 	Cfg config.Config
 
 	// Host communication
-	Docker          client.CommonAPIClient
-	SecurityManager security.Manager
-	PortManager     *port_manager.PortManager
+	Clients clients.Clients
 
 	// Business logic
 	Services service.Services

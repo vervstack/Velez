@@ -1,4 +1,4 @@
-package port_manager
+package ports
 
 import (
 	"context"

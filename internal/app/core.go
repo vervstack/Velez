@@ -5,10 +5,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/godverv/Velez/internal/backservice/security"
-	"github.com/godverv/Velez/internal/clients/docker"
+	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/config"
-	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/port_manager"
 	"github.com/godverv/Velez/internal/utils/closer"
 )
 
@@ -35,33 +33,10 @@ func (a *App) MustInitCore() {
 
 	}
 
-	// Docker api
-	{
-		a.Docker, err = docker.NewClient()
-		if err != nil {
-			logrus.Fatalf("erorr getting docker api client: %s", err)
-		}
-		closer.Add(a.Docker.Close)
+	a.Clients, err = clients.New(a.Ctx, a.Cfg)
+	if err != nil {
+		logrus.Fatalf("error initializing clients %s", err.Error())
 	}
 
-	// Security access layer
-	if !a.Cfg.GetEnvironment().DisableAPISecurity {
-		a.SecurityManager = security.NewSecurityManager(a.Cfg.GetEnvironment().CustomPassToKey)
-
-		err = a.SecurityManager.Start()
-		if err != nil {
-			logrus.Fatalf("error starting security manager: %s", err)
-		}
-
-		closer.Add(a.SecurityManager.Stop)
-	}
-
-	// port manager
-	{
-		a.PortManager, err = port_manager.NewPortManager(context.Background(), a.Cfg, a.Docker)
-		if err != nil {
-			logrus.Fatalf("error creating port manager %s", err)
-		}
-	}
 	return
 }

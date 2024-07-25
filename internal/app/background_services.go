@@ -6,7 +6,7 @@ import (
 	"github.com/godverv/Velez/internal/cron"
 )
 
-func (a *App) initBackServices() {
+func (a *App) InitBackServices() {
 	if a.Cfg.GetEnvironment().WatchTowerEnabled {
 		go cron.KeepAlive(a.Ctx, watchtower.New(a.Cfg, a.Services.GetContainerManagerService()))
 	}

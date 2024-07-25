@@ -103,6 +103,7 @@ export type CreateSmerdRequest = {
   command?: string;
   env?: Record<string, string>;
   healthcheck?: ContainerHealthcheck;
+  labels?: Record<string, string>;
 };
 
 export type CreateSmerd = Record<string, never>;
@@ -111,6 +112,7 @@ export type ListSmerdsRequest = {
   limit?: number;
   name?: string;
   id?: string;
+  label?: Record<string, string>;
 };
 
 export type ListSmerdsResponse = {

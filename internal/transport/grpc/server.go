@@ -24,6 +24,8 @@ import (
 )
 
 type Server struct {
+	Api
+
 	serverMux cmux.CMux
 
 	grpcServer *grpc.Server
@@ -45,20 +47,19 @@ func NewServer(
 		opts = append(opts, security.GrpcInterceptor(secManager))
 	}
 
-	grpcServer := grpc.NewServer(opts...)
-
-	velez_api.RegisterVelezAPIServer(
-		grpcServer,
-		&Api{
+	srv := &Server{
+		Api: Api{
 			version:         cfg.GetAppInfo().Version,
 			smerdService:    serviceManager.GetContainerManagerService(),
 			hardwareManager: serviceManager.GetHardwareManagerService(),
-		})
-
-	return &Server{
-		grpcServer:    grpcServer,
+		},
+		grpcServer:    grpc.NewServer(opts...),
 		serverAddress: "0.0.0.0:" + server.GetPortStr(),
-	}, nil
+	}
+
+	velez_api.RegisterVelezAPIServer(srv.grpcServer, srv)
+
+	return srv, nil
 }
 
 func (s *Server) Start(_ context.Context) error {

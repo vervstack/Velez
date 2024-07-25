@@ -10,7 +10,7 @@ import (
 	"github.com/godverv/Velez/internal/cron"
 )
 
-func (a *App) mustInitEnvironment() {
+func (a *App) MustInitEnvironment() {
 	err := env.StartNetwork(a.Docker)
 	if err != nil {
 		logrus.Fatalf("error creating network: %s", err)

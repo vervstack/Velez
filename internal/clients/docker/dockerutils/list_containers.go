@@ -35,6 +35,13 @@ func ListContainers(ctx context.Context, docker client.CommonAPIClient, req *vel
 		filter.Name(req.GetName())
 	}
 
+	if req.Label != nil {
+		for k, v := range req.Label {
+			filter.Label(k + "=" + v)
+		}
+
+	}
+
 	dockerReq.Filters = filter.Args()
 
 	cl, err := docker.ContainerList(ctx, dockerReq)

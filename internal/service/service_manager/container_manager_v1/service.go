@@ -7,14 +7,12 @@ import (
 	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/config_manager"
 	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/port_manager"
-	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/resource_manager"
 )
 
 type ContainerManager struct {
 	docker client.CommonAPIClient
 
 	configManager     *config_manager.Configurator
-	resourceManager   *resource_manager.ResourceManager
 	containerLauncher ContainerStarter
 	portManager       *port_manager.PortManager
 
@@ -28,19 +26,17 @@ func NewContainerManager(
 	portManager *port_manager.PortManager,
 ) *ContainerManager {
 	cm := config_manager.New(configClient, docker)
-	rm := resource_manager.New(docker)
+
 	return &ContainerManager{
 		docker: docker,
 
-		resourceManager: rm,
-		configManager:   cm,
-		portManager:     portManager,
+		configManager: cm,
+		portManager:   portManager,
 
 		containerLauncher: ContainerStarter{
-			docker:          docker,
-			configManager:   cm,
-			resourceManager: rm,
-			isNodeModeOn:    cfg.GetEnvironment().NodeMode,
+			docker:        docker,
+			configManager: cm,
+			isNodeModeOn:  cfg.GetEnvironment().NodeMode,
 		},
 	}
 }

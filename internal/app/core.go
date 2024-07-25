@@ -12,7 +12,7 @@ import (
 	"github.com/godverv/Velez/internal/utils/closer"
 )
 
-func (a *App) mustInitCore() {
+func (a *App) MustInitCore() {
 	var err error
 
 	if a.Ctx == nil {

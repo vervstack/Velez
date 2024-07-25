@@ -15,7 +15,6 @@ import (
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils/parser"
 	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/config_manager"
-	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/resource_manager"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -29,13 +28,11 @@ const (
 type ContainerStarter struct {
 	docker client.CommonAPIClient
 
-	configManager   *config_manager.Configurator
-	resourceManager *resource_manager.ResourceManager
-	isNodeModeOn    bool
+	configManager *config_manager.Configurator
+	isNodeModeOn  bool
 }
 
 func (c *ContainerStarter) createSimple(ctx context.Context, req *velez_api.CreateSmerd_Request) (*types.ContainerJSON, error) {
-
 	cfg := getLaunchConfig(req)
 	hCfg := getHostConfig(req)
 	nCfg := getNetworkConfig(req)
@@ -98,15 +95,15 @@ func (c *ContainerStarter) createVerv(ctx context.Context, req *velez_api.Create
 }
 
 func getLaunchConfig(req *velez_api.CreateSmerd_Request) (cfg *container.Config) {
+	req.Labels[CreatedWithVelezLabel] = "true"
+
 	cfg = &container.Config{
 		Image:       req.ImageName,
 		Hostname:    req.GetName(),
 		Cmd:         parser.FromCommand(req.Command),
 		Healthcheck: parser.FromHealthcheck(req.Healthcheck),
 		Env:         make([]string, 0, len(req.Env)),
-		Labels: map[string]string{
-			CreatedWithVelezLabel: "true",
-		},
+		Labels:      req.Labels,
 	}
 
 	for k, v := range req.Env {

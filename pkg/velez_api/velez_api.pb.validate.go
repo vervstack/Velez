@@ -2058,13 +2058,17 @@ func (m *Container_Healthcheck) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Command
-
 	// no validation rules for IntervalSecond
 
-	// no validation rules for TimeoutSecond
-
 	// no validation rules for Retries
+
+	if m.Command != nil {
+		// no validation rules for Command
+	}
+
+	if m.TimeoutSecond != nil {
+		// no validation rules for TimeoutSecond
+	}
 
 	if len(errors) > 0 {
 		return Container_HealthcheckMultiError(errors)
@@ -2173,6 +2177,8 @@ func (m *CreateSmerd_Request) validate(all bool) error {
 	// no validation rules for ImageName
 
 	// no validation rules for Env
+
+	// no validation rules for Labels
 
 	if m.Hardware != nil {
 
@@ -2378,6 +2384,8 @@ func (m *ListSmerds_Request) validate(all bool) error {
 	}
 
 	var errors []error
+
+	// no validation rules for Label
 
 	if m.Limit != nil {
 		// no validation rules for Limit

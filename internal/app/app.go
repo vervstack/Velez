@@ -46,19 +46,19 @@ func New() (a *App) {
 	a = &App{}
 
 	// Core dependencies
-	a.mustInitCore()
+	a.MustInitCore()
 
 	// Verv Environment
-	a.mustInitEnvironment()
+	a.MustInitEnvironment()
 
 	// Service layer
-	a.mustInitServiceManager()
+	a.MustInitServiceManager()
 
 	// Back service
-	a.initBackServices()
+	a.InitBackServices()
 
 	// API
-	a.mustInitAPI()
+	a.MustInitAPI()
 
 	return a
 }

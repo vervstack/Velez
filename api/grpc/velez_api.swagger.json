@@ -211,7 +211,8 @@
       "type": "object",
       "properties": {
         "command": {
-          "type": "string"
+          "type": "string",
+          "title": "if command is not presented,\nvelez will simply\nwait \"retires\" times for \"interval_second\" seconds each time,\nuntil container get status Running"
         },
         "intervalSecond": {
           "type": "integer",
@@ -345,6 +346,12 @@
         },
         "healthcheck": {
           "$ref": "#/definitions/ContainerHealthcheck"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       }
     },
@@ -443,6 +450,12 @@
         },
         "id": {
           "type": "string"
+        },
+        "label": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       }
     },

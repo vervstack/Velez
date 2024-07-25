@@ -8,7 +8,7 @@ import (
 	"github.com/godverv/Velez/internal/transport/grpc"
 )
 
-func (a *App) mustInitAPI() {
+func (a *App) MustInitAPI() {
 	a.ServerManager = transport.NewManager()
 
 	grpcConf, err := a.Cfg.GetServers().GRPC(config.ServerGrpc)

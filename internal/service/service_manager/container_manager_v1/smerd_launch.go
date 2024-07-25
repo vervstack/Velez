@@ -9,7 +9,6 @@ import (
 	"github.com/docker/docker/api/types/container"
 
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
-	"github.com/godverv/Velez/internal/clients/docker/dockerutils/parser"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -45,7 +44,7 @@ func (c *ContainerManager) LaunchSmerd(ctx context.Context, req *velez_api.Creat
 	}
 
 	if req.Healthcheck != nil {
-		err = c.doHealthcheck(ctx, cont.ID, parser.FromHealthcheck(req.Healthcheck))
+		err = c.doHealthcheck(ctx, cont.ID, req.Healthcheck)
 		if err != nil {
 			return "", errors.Wrap(err, "error during healthcheck")
 		}
@@ -83,21 +82,25 @@ func (c *ContainerManager) normalizeCreateRequest(req *velez_api.CreateSmerd_Req
 
 	}
 
+	if req.Labels == nil {
+		req.Labels = make(map[string]string)
+	}
+
 	return nil
 }
 
 func (c *ContainerManager) doHealthcheck(
 	ctx context.Context,
 	containerId string,
-	hc *container.HealthConfig,
+	hc *velez_api.Container_Healthcheck,
 ) error {
 	errC := make(chan error)
 
 	go func() {
 		defer close(errC)
 
-		for i := 0; i < hc.Retries; i++ {
-			time.Sleep(hc.Interval)
+		for i := uint32(0); i < hc.Retries; i++ {
+			time.Sleep(time.Duration(hc.IntervalSecond) * time.Second)
 
 			cont, err := c.docker.ContainerInspect(ctx, containerId)
 			if err != nil {
@@ -108,7 +111,7 @@ func (c *ContainerManager) doHealthcheck(
 				continue
 			}
 
-			if cont.State.Health.Status == "healthy" {
+			if cont.State.Status == "running" {
 				errC <- nil
 				return
 			}

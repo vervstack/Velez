@@ -12,7 +12,7 @@ import (
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-func (a *App) mustInitServiceManager() {
+func (a *App) MustInitServiceManager() {
 	var err error
 	a.MatreshkaClient, err = grpcClients.NewMatreshkaBeAPIClient(a.Ctx, a.Cfg)
 	if err != nil {

@@ -11,6 +11,10 @@ func FromBind(settings *velez_api.Container_Settings) []mount.Mount {
 		return nil
 	}
 
+	if len(settings.Mounts) == 0 {
+		return nil
+	}
+
 	out := make([]mount.Mount, 0, len(settings.Mounts)+len(settings.Volumes))
 	for _, item := range settings.Mounts {
 		out = append(out, mount.Mount{
@@ -32,6 +36,10 @@ func FromBind(settings *velez_api.Container_Settings) []mount.Mount {
 }
 
 func ToBind(volumes []mount.Mount) []*velez_api.MountBindings {
+	if len(volumes) == 0 {
+		return nil
+	}
+
 	out := make([]*velez_api.MountBindings, len(volumes))
 
 	for i, item := range volumes {

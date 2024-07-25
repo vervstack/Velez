@@ -34,6 +34,10 @@ func FromPorts(settings *velez_api.Container_Settings) map[nat.Port][]nat.PortBi
 }
 
 func ToPorts(ports map[nat.Port][]nat.PortBinding) []*velez_api.PortBindings {
+	if len(ports) == 0 {
+		return nil
+	}
+
 	out := make([]*velez_api.PortBindings, 0, len(ports))
 
 	for contPort, hostPorts := range ports {

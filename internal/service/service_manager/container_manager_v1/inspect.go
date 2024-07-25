@@ -18,13 +18,21 @@ func (c *ContainerManager) InspectSmerd(ctx context.Context, contId string) (*ve
 	}
 
 	smerd := &velez_api.Smerd{
-		Uuid:      contInfo.ContainerJSONBase.ID,
-		Name:      contInfo.ContainerJSONBase.Name,
-		ImageName: contInfo.ContainerJSONBase.Image,
-		Ports:     parser.ToPorts(contInfo.ContainerJSONBase.HostConfig.PortBindings),
-		Volumes:   parser.ToBind(contInfo.ContainerJSONBase.HostConfig.Mounts),
+		Uuid:    contInfo.ContainerJSONBase.ID,
+		Name:    contInfo.ContainerJSONBase.Name,
+		Ports:   parser.ToPorts(contInfo.ContainerJSONBase.HostConfig.PortBindings),
+		Volumes: parser.ToBind(contInfo.ContainerJSONBase.HostConfig.Mounts),
 
 		Labels: contInfo.Config.Labels,
+	}
+
+	imageInfo, _, err := c.docker.ImageInspectWithRaw(ctx, contInfo.ContainerJSONBase.Image)
+	if err != nil {
+		return nil, errors.Wrap(err, "error getting image info")
+	}
+
+	for _, imageName := range imageInfo.RepoTags[:1] {
+		smerd.ImageName = imageName
 	}
 
 	if contInfo.ContainerJSONBase.State != nil {

@@ -48,13 +48,13 @@ environment:
     type: bool
 
   - name: shut_down_on_exit
-    value: false
+    value: true
     type: bool
 
 
   - name: watch_tower_enabled
-    value: true
+    value: false
     type: bool
   - name: watch_tower_interval
-    value: 60s
+    value: 5s
     type: duration

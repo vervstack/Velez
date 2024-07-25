@@ -20,7 +20,7 @@ import (
 
 const (
 	Name     = "matreshka"
-	image    = "godverv/matreshka-be:v1.0.28"
+	image    = "godverv/matreshka-be:v1.0.29"
 	duration = time.Second * 5
 )
 

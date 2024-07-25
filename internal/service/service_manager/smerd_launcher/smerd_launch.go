@@ -5,6 +5,7 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/api/types"
+	"github.com/godverv/matreshka"
 
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/pkg/velez_api"
@@ -20,6 +21,7 @@ type SmerdLauncher struct {
 	docker        clients.Docker
 	deployManager clients.DeployManager
 	portManager   clients.PortManager
+	configManager clients.Configurator
 }
 
 func New(cl clients.Clients) *SmerdLauncher {
@@ -27,6 +29,7 @@ func New(cl clients.Clients) *SmerdLauncher {
 		docker:        cl.Docker(),
 		deployManager: cl.DeployManager(),
 		portManager:   cl.PortManager(),
+		configManager: cl.Configurator(),
 	}
 }
 
@@ -44,8 +47,16 @@ func (c *SmerdLauncher) LaunchSmerd(ctx context.Context, req *velez_api.CreateSm
 	var cont *types.ContainerJSON
 
 	if image.Labels[matreshkaConfigLabel] == "true" {
-		// TODO Do create verv here
+		err = c.enrichWithMatreshkaConfig(ctx, req)
+		if err != nil {
+			return "", errors.Wrap(err, "error enriching with verv data")
+		}
+	} else {
+		// TODO заиспользовать ручку из VERV-75 для получения конфигурации ресурса
 	}
+
+	req.Env[matreshka.VervName] = req.GetName()
+	req.Labels[CreatedWithVelezLabel] = "true"
 
 	cont, err = c.deployManager.Create(ctx, req)
 	if err != nil {
@@ -73,6 +84,27 @@ func (c *SmerdLauncher) normalizeCreateRequest(req *velez_api.CreateSmerd_Reques
 		req.Env = make(map[string]string)
 	}
 
+	if req.Labels == nil {
+		req.Labels = make(map[string]string)
+	}
+
+	return nil
+}
+
+func (c *SmerdLauncher) enrichWithMatreshkaConfig(ctx context.Context, req *velez_api.CreateSmerd_Request) error {
+	matreshkaConfig, err := c.configManager.GetFromApi(ctx, req.GetName())
+	if err != nil {
+		return errors.Wrap(err, "error getting matreshka config from matreshka api")
+	}
+
+	for _, srv := range matreshkaConfig.Servers {
+		req.Settings.Ports = append(req.Settings.Ports,
+			&velez_api.PortBindings{
+				Container: uint32(srv.GetPort()),
+				Protoc:    velez_api.PortBindings_tcp,
+			})
+	}
+
 	for _, p := range req.Settings.Ports {
 		if p.Host == 0 {
 			var err error
@@ -88,12 +120,6 @@ func (c *SmerdLauncher) normalizeCreateRequest(req *velez_api.CreateSmerd_Reques
 		}
 
 	}
-
-	if req.Labels == nil {
-		req.Labels = make(map[string]string)
-	}
-
-	req.Labels[CreatedWithVelezLabel] = "true"
 
 	return nil
 }

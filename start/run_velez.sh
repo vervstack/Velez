@@ -10,4 +10,4 @@ docker run \
   -p ${VELEZ_PORT_GRPC}:50051 \
   --name velez \
   --network verv \
-  godverv/velez:v0.1.39
+  godverv/velez:v0.1.43

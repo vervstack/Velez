@@ -4,7 +4,7 @@ go 1.22
 
 require (
 	github.com/Red-Sock/evon v0.0.13
-	github.com/Red-Sock/trace-errors v0.0.8
+	github.com/Red-Sock/trace-errors v0.0.9
 	github.com/docker/docker v27.1.1+incompatible
 	github.com/docker/go-connections v0.5.0
 	github.com/godverv/matreshka v0.0.29
@@ -57,8 +57,3 @@ require (
 	gotest.tools/v3 v3.5.1 // indirect
 	howett.net/plist v1.0.1 // indirect
 )
-
-
-replace (
-	github.com/Red-Sock/trace-errors => /Users/alexbukov/Yandex.Disk.localized/проекты/redsock/trace-errors
-	)

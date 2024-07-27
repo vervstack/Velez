@@ -95,7 +95,7 @@ func (d *DeployAppSuite) Test_Fail_Deploy_NoConfig() {
 
 	grpcErr, ok := status.FromError(err)
 	d.True(ok)
-	d.Equal(codes.NotFound, grpcErr.Code())
+	d.Equal(codes.NotFound.String(), grpcErr.Code().String())
 
 	d.Nil(smerd)
 }

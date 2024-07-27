@@ -22,7 +22,7 @@ type Clients interface {
 }
 
 type Docker interface {
-	PullImage(ctx context.Context, imageName string) (*velez_api.Image, error)
+	PullImage(ctx context.Context, imageName string) (types.ImageInspect, error)
 	Remove(ctx context.Context, uuid string) error
 	ListContainers(ctx context.Context, req *velez_api.ListSmerds_Request) ([]types.Container, error)
 	InspectContainer(ctx context.Context, containerID string) (types.ContainerJSON, error)
@@ -44,7 +44,8 @@ type Configurator interface {
 
 type PortManager interface {
 	GetPort() (uint32, error)
-	LockPorts(ports []*velez_api.PortBindings) error
+	LockPort(ports ...uint32) error
+	UnlockPorts(ports []uint32)
 }
 
 type HardwareManager interface {

@@ -65,7 +65,7 @@ package container_manager_v1
 //				return errors.Wrap(err, "error getting host port")
 //			}
 //		} else {
-//			err := c.portManager.LockPorts(req.Settings.Ports)
+//			err := c.portManager.LockPort(req.Settings.Ports)
 //			if err != nil {
 //				return errors.Wrap(err, "error locking ports for container")
 //			}

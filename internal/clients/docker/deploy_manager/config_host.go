@@ -15,7 +15,7 @@ func getHostConfig(req *velez_api.CreateSmerd_Request) (hostConfig *container.Ho
 	}
 
 	if req.Settings != nil && len(req.Settings.Volumes) != 0 {
-		hostConfig.VolumeDriver = req.Settings.Volumes[0].Volume
+		hostConfig.VolumeDriver = req.Settings.Volumes[0].VolumeName
 	}
 
 	return hostConfig

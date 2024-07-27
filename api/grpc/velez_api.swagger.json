@@ -235,33 +235,19 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/velez_apiPortBindings"
-          }
-        },
-        "mounts": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/velez_apiMountBindings"
-          }
-        },
-        "networks": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/velez_apiNetworkBind"
+            "$ref": "#/definitions/velez_apiPort"
           }
         },
         "volumes": {
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/velez_apiVolumeBindings"
+            "$ref": "#/definitions/velez_apiVolume"
           }
         }
       }
     },
-    "PortBindingsProtocol": {
+    "PortProtocol": {
       "type": "string",
       "enum": [
         "unknown",
@@ -352,6 +338,12 @@
           "additionalProperties": {
             "type": "string"
           }
+        },
+        "ignoreConfig": {
+          "type": "boolean"
+        },
+        "useImagePorts": {
+          "type": "boolean"
         }
       }
     },
@@ -471,17 +463,6 @@
         }
       }
     },
-    "velez_apiMountBindings": {
-      "type": "object",
-      "properties": {
-        "host": {
-          "type": "string"
-        },
-        "container": {
-          "type": "string"
-        }
-      }
-    },
     "velez_apiNetworkBind": {
       "type": "object",
       "properties": {
@@ -496,19 +477,19 @@
         }
       }
     },
-    "velez_apiPortBindings": {
+    "velez_apiPort": {
       "type": "object",
       "properties": {
-        "host": {
+        "servicePortNumber": {
           "type": "integer",
           "format": "int64"
         },
-        "container": {
+        "protocol": {
+          "$ref": "#/definitions/PortProtocol"
+        },
+        "exposedTo": {
           "type": "integer",
           "format": "int64"
-        },
-        "protoc": {
-          "$ref": "#/definitions/PortBindingsProtocol"
         }
       }
     },
@@ -528,14 +509,14 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/velez_apiPortBindings"
+            "$ref": "#/definitions/velez_apiPort"
           }
         },
         "volumes": {
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/velez_apiMountBindings"
+            "$ref": "#/definitions/velez_apiVolume"
           }
         },
         "status": {
@@ -582,10 +563,10 @@
         }
       }
     },
-    "velez_apiVolumeBindings": {
+    "velez_apiVolume": {
       "type": "object",
       "properties": {
-        "volume": {
+        "volumeName": {
           "type": "string"
         },
         "containerPath": {

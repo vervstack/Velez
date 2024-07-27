@@ -133,47 +133,48 @@ var _ interface {
 	ErrorName() string
 } = VersionValidationError{}
 
-// Validate checks the field values on PortBindings with the rules defined in
-// the proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *PortBindings) Validate() error {
+// Validate checks the field values on Port with the rules defined in the proto
+// definition for this message. If any rules are violated, the first error
+// encountered is returned, or nil if there are no violations.
+func (m *Port) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on PortBindings with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in PortBindingsMultiError, or
-// nil if none found.
-func (m *PortBindings) ValidateAll() error {
+// ValidateAll checks the field values on Port with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in PortMultiError, or nil if none found.
+func (m *Port) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *PortBindings) validate(all bool) error {
+func (m *Port) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	// no validation rules for Host
+	// no validation rules for ServicePortNumber
 
-	// no validation rules for Container
+	// no validation rules for Protocol
 
-	// no validation rules for Protoc
+	if m.ExposedTo != nil {
+		// no validation rules for ExposedTo
+	}
 
 	if len(errors) > 0 {
-		return PortBindingsMultiError(errors)
+		return PortMultiError(errors)
 	}
 
 	return nil
 }
 
-// PortBindingsMultiError is an error wrapping multiple validation errors
-// returned by PortBindings.ValidateAll() if the designated constraints aren't met.
-type PortBindingsMultiError []error
+// PortMultiError is an error wrapping multiple validation errors returned by
+// Port.ValidateAll() if the designated constraints aren't met.
+type PortMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m PortBindingsMultiError) Error() string {
+func (m PortMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -182,11 +183,11 @@ func (m PortBindingsMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m PortBindingsMultiError) AllErrors() []error { return m }
+func (m PortMultiError) AllErrors() []error { return m }
 
-// PortBindingsValidationError is the validation error returned by
-// PortBindings.Validate if the designated constraints aren't met.
-type PortBindingsValidationError struct {
+// PortValidationError is the validation error returned by Port.Validate if the
+// designated constraints aren't met.
+type PortValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -194,22 +195,22 @@ type PortBindingsValidationError struct {
 }
 
 // Field function returns field value.
-func (e PortBindingsValidationError) Field() string { return e.field }
+func (e PortValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e PortBindingsValidationError) Reason() string { return e.reason }
+func (e PortValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e PortBindingsValidationError) Cause() error { return e.cause }
+func (e PortValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e PortBindingsValidationError) Key() bool { return e.key }
+func (e PortValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e PortBindingsValidationError) ErrorName() string { return "PortBindingsValidationError" }
+func (e PortValidationError) ErrorName() string { return "PortValidationError" }
 
 // Error satisfies the builtin error interface
-func (e PortBindingsValidationError) Error() string {
+func (e PortValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -221,14 +222,14 @@ func (e PortBindingsValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sPortBindings.%s: %s%s",
+		"invalid %sPort.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = PortBindingsValidationError{}
+var _ error = PortValidationError{}
 
 var _ interface {
 	Field() string
@@ -236,152 +237,46 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = PortBindingsValidationError{}
+} = PortValidationError{}
 
-// Validate checks the field values on MountBindings with the rules defined in
-// the proto definition for this message. If any rules are violated, the first
+// Validate checks the field values on Volume with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
-func (m *MountBindings) Validate() error {
+func (m *Volume) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on MountBindings with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in MountBindingsMultiError, or
-// nil if none found.
-func (m *MountBindings) ValidateAll() error {
+// ValidateAll checks the field values on Volume with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in VolumeMultiError, or nil if none found.
+func (m *Volume) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *MountBindings) validate(all bool) error {
+func (m *Volume) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	// no validation rules for Host
-
-	// no validation rules for Container
-
-	if len(errors) > 0 {
-		return MountBindingsMultiError(errors)
-	}
-
-	return nil
-}
-
-// MountBindingsMultiError is an error wrapping multiple validation errors
-// returned by MountBindings.ValidateAll() if the designated constraints
-// aren't met.
-type MountBindingsMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m MountBindingsMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m MountBindingsMultiError) AllErrors() []error { return m }
-
-// MountBindingsValidationError is the validation error returned by
-// MountBindings.Validate if the designated constraints aren't met.
-type MountBindingsValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e MountBindingsValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e MountBindingsValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e MountBindingsValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e MountBindingsValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e MountBindingsValidationError) ErrorName() string { return "MountBindingsValidationError" }
-
-// Error satisfies the builtin error interface
-func (e MountBindingsValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sMountBindings.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = MountBindingsValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = MountBindingsValidationError{}
-
-// Validate checks the field values on VolumeBindings with the rules defined in
-// the proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *VolumeBindings) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on VolumeBindings with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in VolumeBindingsMultiError,
-// or nil if none found.
-func (m *VolumeBindings) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *VolumeBindings) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for Volume
+	// no validation rules for VolumeName
 
 	// no validation rules for ContainerPath
 
 	if len(errors) > 0 {
-		return VolumeBindingsMultiError(errors)
+		return VolumeMultiError(errors)
 	}
 
 	return nil
 }
 
-// VolumeBindingsMultiError is an error wrapping multiple validation errors
-// returned by VolumeBindings.ValidateAll() if the designated constraints
-// aren't met.
-type VolumeBindingsMultiError []error
+// VolumeMultiError is an error wrapping multiple validation errors returned by
+// Volume.ValidateAll() if the designated constraints aren't met.
+type VolumeMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m VolumeBindingsMultiError) Error() string {
+func (m VolumeMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -390,11 +285,11 @@ func (m VolumeBindingsMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m VolumeBindingsMultiError) AllErrors() []error { return m }
+func (m VolumeMultiError) AllErrors() []error { return m }
 
-// VolumeBindingsValidationError is the validation error returned by
-// VolumeBindings.Validate if the designated constraints aren't met.
-type VolumeBindingsValidationError struct {
+// VolumeValidationError is the validation error returned by Volume.Validate if
+// the designated constraints aren't met.
+type VolumeValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -402,22 +297,22 @@ type VolumeBindingsValidationError struct {
 }
 
 // Field function returns field value.
-func (e VolumeBindingsValidationError) Field() string { return e.field }
+func (e VolumeValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e VolumeBindingsValidationError) Reason() string { return e.reason }
+func (e VolumeValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e VolumeBindingsValidationError) Cause() error { return e.cause }
+func (e VolumeValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e VolumeBindingsValidationError) Key() bool { return e.key }
+func (e VolumeValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e VolumeBindingsValidationError) ErrorName() string { return "VolumeBindingsValidationError" }
+func (e VolumeValidationError) ErrorName() string { return "VolumeValidationError" }
 
 // Error satisfies the builtin error interface
-func (e VolumeBindingsValidationError) Error() string {
+func (e VolumeValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -429,14 +324,14 @@ func (e VolumeBindingsValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sVolumeBindings.%s: %s%s",
+		"invalid %sVolume.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = VolumeBindingsValidationError{}
+var _ error = VolumeValidationError{}
 
 var _ interface {
 	Field() string
@@ -444,7 +339,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = VolumeBindingsValidationError{}
+} = VolumeValidationError{}
 
 // Validate checks the field values on NetworkBind with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
@@ -1854,74 +1749,6 @@ func (m *Container_Settings) validate(all bool) error {
 
 	}
 
-	for idx, item := range m.GetMounts() {
-		_, _ = idx, item
-
-		if all {
-			switch v := interface{}(item).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, Container_SettingsValidationError{
-						field:  fmt.Sprintf("Mounts[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, Container_SettingsValidationError{
-						field:  fmt.Sprintf("Mounts[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return Container_SettingsValidationError{
-					field:  fmt.Sprintf("Mounts[%v]", idx),
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
-		}
-
-	}
-
-	for idx, item := range m.GetNetworks() {
-		_, _ = idx, item
-
-		if all {
-			switch v := interface{}(item).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, Container_SettingsValidationError{
-						field:  fmt.Sprintf("Networks[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, Container_SettingsValidationError{
-						field:  fmt.Sprintf("Networks[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return Container_SettingsValidationError{
-					field:  fmt.Sprintf("Networks[%v]", idx),
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
-		}
-
-	}
-
 	for idx, item := range m.GetVolumes() {
 		_, _ = idx, item
 
@@ -2179,6 +2006,10 @@ func (m *CreateSmerd_Request) validate(all bool) error {
 	// no validation rules for Env
 
 	// no validation rules for Labels
+
+	// no validation rules for IgnoreConfig
+
+	// no validation rules for UseImagePorts
 
 	if m.Hardware != nil {
 

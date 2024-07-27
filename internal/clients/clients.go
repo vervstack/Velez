@@ -37,6 +37,7 @@ func New(ctx context.Context, cfg config.Config) (Clients, error) {
 
 	// Docker engine
 	{
+		logrus.Debug("Initializing docker client")
 		cls.docker, err = docker.NewClient()
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting docker api client")
@@ -45,6 +46,7 @@ func New(ctx context.Context, cfg config.Config) (Clients, error) {
 	}
 	// Matreshka
 	{
+		logrus.Debug("Initializing matreshka client")
 		cls.matreshka, err = grpcClients.NewMatreshkaBeAPIClient(ctx, cfg)
 		if err != nil {
 			logrus.Fatalf("error getting matreshka api: %s", err)
@@ -54,6 +56,8 @@ func New(ctx context.Context, cfg config.Config) (Clients, error) {
 	// Security access layer
 	{
 		if !cfg.GetEnvironment().DisableAPISecurity {
+			logrus.Debug("Initializing security manager")
+
 			cls.securityManager = security.NewSecurityManager(cfg.GetEnvironment().CustomPassToKey)
 
 			err = cls.securityManager.Start()
@@ -62,11 +66,15 @@ func New(ctx context.Context, cfg config.Config) (Clients, error) {
 			}
 
 			closer.Add(cls.securityManager.Stop)
+		} else {
+			logrus.Debug("Security manager disabled")
 		}
 	}
 
 	// Port manager
 	{
+		logrus.Debug("Initializing port manager")
+
 		cls.portManager, err = ports.NewPortManager(ctx, cfg, cls.docker)
 		if err != nil {
 			logrus.Fatalf("error creating port manager %s", err)
@@ -75,16 +83,19 @@ func New(ctx context.Context, cfg config.Config) (Clients, error) {
 
 	// Configurator
 	{
+		logrus.Debug("Initializing configuration manager")
 		cls.configurator = configurator.New(cls.matreshka, cls.docker)
 	}
 
 	// Hardware
 	{
+		logrus.Debug("Initializing hardware manager")
 		cls.hardwareManager = hardware.New()
 	}
 
 	// Deploy
 	{
+		logrus.Debug("Initializing deployment manager")
 		cls.deployManager = deploy_manager.New(cls.docker)
 	}
 	return cls, nil

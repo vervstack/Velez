@@ -21,7 +21,7 @@ import (
 
 const (
 	Name     = "matreshka"
-	image    = "godverv/matreshka-be:v1.0.29"
+	image    = "godverv/matreshka-be:v1.0.31"
 	duration = time.Second * 5
 )
 
@@ -64,7 +64,7 @@ func (b *Matreshka) Start() error {
 
 	if b.port != "" {
 		hostConf.PortBindings = nat.PortMap{
-			"50050/tcp": []nat.PortBinding{
+			"53891/tcp": []nat.PortBinding{
 				{
 					HostPort: b.port,
 				},

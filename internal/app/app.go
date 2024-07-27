@@ -50,9 +50,6 @@ func New() (a *App) {
 	// Service layer
 	a.MustInitServiceManager()
 
-	// Back service
-	a.InitBackServices()
-
 	// API
 	a.MustInitAPI()
 

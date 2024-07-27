@@ -6,6 +6,7 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/api/types"
 	"github.com/godverv/matreshka"
+	"google.golang.org/grpc/codes"
 
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/pkg/velez_api"
@@ -14,7 +15,7 @@ import (
 const (
 	CreatedWithVelezLabel = "CREATED_WITH_VELEZ"
 
-	matreshkaConfigLabel = "MATRESHKA_CONFIG_ENABLED"
+	MatreshkaConfigLabel = "MATRESHKA_CONFIG_ENABLED"
 )
 
 type SmerdLauncher struct {
@@ -46,7 +47,7 @@ func (c *SmerdLauncher) LaunchSmerd(ctx context.Context, req *velez_api.CreateSm
 
 	var cont *types.ContainerJSON
 
-	if image.Labels[matreshkaConfigLabel] == "true" {
+	if image.Config.Labels[MatreshkaConfigLabel] == "true" {
 		err = c.enrichWithMatreshkaConfig(ctx, req)
 		if err != nil {
 			return "", errors.Wrap(err, "error enriching with verv data")
@@ -55,17 +56,38 @@ func (c *SmerdLauncher) LaunchSmerd(ctx context.Context, req *velez_api.CreateSm
 		// TODO заиспользовать ручку из VERV-75 для получения конфигурации ресурса
 	}
 
+	if req.UseImagePorts {
+		err = c.getPortsFromImage(image, req)
+		if err != nil {
+			return "", errors.Wrap(err, "error locking ports")
+		}
+	}
+
+	lockedPorts, err := c.lockPorts(req)
+	if err != nil {
+		err = errors.Wrap(err, "error locking ports", codes.ResourceExhausted)
+		return
+	}
+
+	defer func() {
+		if err != nil {
+			c.portManager.UnlockPorts(lockedPorts)
+		}
+	}()
+
 	req.Env[matreshka.VervName] = req.GetName()
 	req.Labels[CreatedWithVelezLabel] = "true"
 
 	cont, err = c.deployManager.Create(ctx, req)
 	if err != nil {
-		return "", errors.Wrap(err, "error creating container")
+		err = errors.Wrap(err, "error creating container")
+		return
 	}
 
 	err = c.deployManager.Healthcheck(ctx, cont.ID, req.Healthcheck)
 	if err != nil {
-		return "", errors.Wrap(err, "error performing healthcheck")
+		err = errors.Wrap(err, "error performing healthcheck")
+		return
 	}
 
 	return cont.ID, nil
@@ -92,6 +114,11 @@ func (c *SmerdLauncher) normalizeCreateRequest(req *velez_api.CreateSmerd_Reques
 }
 
 func (c *SmerdLauncher) enrichWithMatreshkaConfig(ctx context.Context, req *velez_api.CreateSmerd_Request) error {
+	if req.IgnoreConfig {
+		req.Labels[MatreshkaConfigLabel] = "false"
+		return nil
+	}
+
 	matreshkaConfig, err := c.configManager.GetFromApi(ctx, req.GetName())
 	if err != nil {
 		return errors.Wrap(err, "error getting matreshka config from matreshka api")
@@ -99,47 +126,66 @@ func (c *SmerdLauncher) enrichWithMatreshkaConfig(ctx context.Context, req *vele
 
 	for _, srv := range matreshkaConfig.Servers {
 		req.Settings.Ports = append(req.Settings.Ports,
-			&velez_api.PortBindings{
-				Container: uint32(srv.GetPort()),
-				Protoc:    velez_api.PortBindings_tcp,
+			&velez_api.Port{
+				ServicePortNumber: uint32(srv.GetPort()),
+				Protocol:          velez_api.Port_tcp,
 			})
-	}
-
-	for _, p := range req.Settings.Ports {
-		if p.Host == 0 {
-			var err error
-			p.Host, err = c.portManager.GetPort()
-			if err != nil {
-				return errors.Wrap(err, "error getting host port")
-			}
-		} else {
-			err := c.portManager.LockPorts(req.Settings.Ports)
-			if err != nil {
-				return errors.Wrap(err, "error locking ports for container")
-			}
-		}
-
 	}
 
 	return nil
 }
 
-//func ()  {
-//for _, p := range req.Settings.Ports {
-//	if p.Host == 0 {
-//		var err error
-//		p.Host, err = c.portManager.GetPort()
-//		if err != nil {
-//			return errors.Wrap(err, "error getting host port")
-//		}
-//	} else {
-//		err := c.portManager.LockPorts(req.Settings.Ports)
-//		if err != nil {
-//			return errors.Wrap(err, "error locking ports for container")
-//		}
-//	}
-//
-//}
+func (c *SmerdLauncher) getPortsFromImage(
+	image types.ImageInspect,
+	req *velez_api.CreateSmerd_Request) error {
 
-//req.Labels[CreatedWithVelezLabel] = "true"
-//}
+	portsInReq := map[uint32]*velez_api.Port{}
+	for _, port := range req.Settings.Ports {
+		portsInReq[port.ServicePortNumber] = port
+	}
+
+	for port := range image.Config.ExposedPorts {
+		portVal := uint32(port.Int())
+		_, ok := portsInReq[portVal]
+		if ok {
+			continue
+		}
+
+		portBind := &velez_api.Port{
+			ServicePortNumber: portVal,
+			Protocol:          velez_api.Port_Protocol(velez_api.Port_Protocol_value[port.Proto()]),
+		}
+		req.Settings.Ports = append(req.Settings.Ports, portBind)
+		portsInReq[portVal] = portBind
+	}
+
+	return nil
+}
+
+func (c *SmerdLauncher) lockPorts(req *velez_api.CreateSmerd_Request) (lockedPorts []uint32, err error) {
+	lockedPorts = make([]uint32, 0, len(req.Settings.Ports))
+
+	defer func() {
+		if err != nil {
+			c.portManager.UnlockPorts(lockedPorts)
+		}
+	}()
+
+	for _, p := range req.Settings.Ports {
+		if p.ExposedTo == nil {
+			var port uint32
+			port, err = c.portManager.GetPort()
+			p.ExposedTo = &port
+		} else {
+			err = c.portManager.LockPort(*p.ExposedTo)
+		}
+		if err != nil {
+			err = errors.Wrap(err, "error locking host port")
+			return
+		}
+
+		lockedPorts = append(lockedPorts, *p.ExposedTo)
+	}
+
+	return lockedPorts, nil
+}

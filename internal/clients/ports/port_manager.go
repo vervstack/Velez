@@ -9,10 +9,13 @@ import (
 	"github.com/docker/docker/client"
 
 	"github.com/godverv/Velez/internal/config"
-	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-var ErrNoPortsAvailable = errors.New("no ports available")
+var (
+	ErrUnavailablePort   = errors.New("port is not available for velez")
+	ErrPortAlreadyLocked = errors.New("port is already obtained")
+	ErrNoPortsAvailable  = errors.New("no ports available")
+)
 
 type PortManager struct {
 	m sync.Mutex
@@ -67,32 +70,39 @@ func (p *PortManager) GetPort() (uint32, error) {
 	return 0, ErrNoPortsAvailable
 }
 
-func (p *PortManager) LockPorts(ports []*velez_api.PortBindings) error {
+func (p *PortManager) LockPort(ports ...uint32) (err error) {
 	if len(ports) == 0 {
 		return nil
 	}
-
 	pL := make([]uint32, 0, len(ports))
-	for range ports {
-		port, err := p.GetPort()
+
+	p.m.Lock()
+	defer func() {
 		if err != nil {
-			return errors.Wrap(err)
+			p.UnlockPorts(pL)
+		}
+	}()
+	defer p.m.Unlock()
+
+	for _, port := range ports {
+		isLocked, ok := p.ports[port]
+		if !ok {
+			err = errors.Wrap(ErrUnavailablePort)
+			return
+		}
+		if isLocked {
+			err = errors.Wrap(ErrPortAlreadyLocked)
+			return
 		}
 
-		pL = append(pL, port)
 		if len(pL) == cap(pL) {
 			break
 		}
 	}
 
 	if len(pL) != cap(pL) {
-		p.UnlockPorts(pL)
-		return ErrNoPortsAvailable
-	}
-
-	for idx, portBind := range ports {
-		portBind.Host = uint32(pL[idx])
-		portBind.Protoc = velez_api.PortBindings_tcp
+		err = errors.Wrap(ErrNoPortsAvailable)
+		return
 	}
 
 	return nil
@@ -103,16 +113,6 @@ func (p *PortManager) UnlockPorts(ports []uint32) {
 
 	for _, item := range ports {
 		p.ports[item] = false
-	}
-
-	p.m.Unlock()
-}
-
-func (p *PortManager) UnlockFromSettings(ports []*velez_api.PortBindings) {
-	p.m.Lock()
-
-	for _, item := range ports {
-		p.ports[item.Host] = false
 	}
 
 	p.m.Unlock()

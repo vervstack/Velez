@@ -14,8 +14,11 @@ const (
 )
 
 func (d *DeployManager) Healthcheck(ctx context.Context, contId string, hc *velez_api.Container_Healthcheck) error {
-	errC := make(chan error)
+	if hc == nil {
+		return nil
+	}
 
+	errC := make(chan error)
 	go func() {
 		defer close(errC)
 

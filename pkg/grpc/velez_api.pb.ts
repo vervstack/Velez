@@ -9,7 +9,7 @@ import * as fm from "../fetch.pb";
 import * as GoogleProtobufTimestamp from "../google/protobuf/timestamp.pb";
 
 
-export enum PortBindingsProtocol {
+export enum PortProtocol {
   unknown = "unknown",
   tcp = "tcp",
   udp = "udp",
@@ -34,19 +34,14 @@ export type VersionResponse = {
 
 export type Version = Record<string, never>;
 
-export type PortBindings = {
-  host?: number;
-  container?: number;
-  protoc?: PortBindingsProtocol;
+export type Port = {
+  servicePortNumber?: number;
+  protocol?: PortProtocol;
+  exposedTo?: number;
 };
 
-export type MountBindings = {
-  host?: string;
-  container?: string;
-};
-
-export type VolumeBindings = {
-  volume?: string;
+export type Volume = {
+  volumeName?: string;
   containerPath?: string;
 };
 
@@ -65,8 +60,8 @@ export type Smerd = {
   uuid?: string;
   name?: string;
   imageName?: string;
-  ports?: PortBindings[];
-  volumes?: MountBindings[];
+  ports?: Port[];
+  volumes?: Volume[];
   status?: SmerdStatus;
   createdAt?: GoogleProtobufTimestamp.Timestamp;
   networks?: NetworkBind[];
@@ -80,10 +75,8 @@ export type ContainerHardware = {
 };
 
 export type ContainerSettings = {
-  ports?: PortBindings[];
-  mounts?: MountBindings[];
-  networks?: NetworkBind[];
-  volumes?: VolumeBindings[];
+  ports?: Port[];
+  volumes?: Volume[];
 };
 
 export type ContainerHealthcheck = {
@@ -104,6 +97,8 @@ export type CreateSmerdRequest = {
   env?: Record<string, string>;
   healthcheck?: ContainerHealthcheck;
   labels?: Record<string, string>;
+  ignoreConfig?: boolean;
+  useImagePorts?: boolean;
 };
 
 export type CreateSmerd = Record<string, never>;

@@ -28,8 +28,18 @@ func NewClient() (*Docker, error) {
 	}, nil
 }
 
-func (d *Docker) PullImage(ctx context.Context, imageName string) (*velez_api.Image, error) {
-	return dockerutils.PullImage(ctx, d.CommonAPIClient, imageName, false)
+func (d *Docker) PullImage(ctx context.Context, imageName string) (types.ImageInspect, error) {
+	_, err := dockerutils.PullImage(ctx, d.CommonAPIClient, imageName, false)
+	if err != nil {
+		return types.ImageInspect{}, errors.Wrap(err, "error pulling image")
+	}
+
+	image, err := d.InspectImage(ctx, imageName)
+	if err != nil {
+		return types.ImageInspect{}, errors.Wrap(err, "error inspecting image")
+	}
+
+	return image, nil
 }
 
 func (d *Docker) Remove(ctx context.Context, contUUID string) error {

@@ -4,7 +4,7 @@ app_info:
   startup_duration: 10s
 data_sources:
   - resource_name: grpc_matreshka_be
-    connection_string: matreshka:53891
+    connection_string: localhost:53891
     module: github.com/godverv/matreshka-be@v1.0.23
 server:
   - name: grpc
@@ -19,8 +19,8 @@ environment:
     type: string
 
   - name: disable_api_security
-    value: false
     type: bool
+    value: true
 
   - name: cpu_default
     value: 0.5
@@ -40,7 +40,7 @@ environment:
     value: true
     type: bool
   - name: matreshka_port
-    value: 50050
+    value: 53891
     type: int
 
   - name: portainer_enabled

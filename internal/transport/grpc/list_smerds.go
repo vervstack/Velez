@@ -15,5 +15,5 @@ func (a *Api) ListSmerds(ctx context.Context, req *velez_api.ListSmerds_Request)
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	return a.smerdService.ListSmerds(ctx, req)
+	return a.srv.ListSmerds(ctx, req)
 }

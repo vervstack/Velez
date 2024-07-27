@@ -3,7 +3,6 @@ package parser
 import (
 	"strconv"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/go-connections/nat"
 
 	"github.com/godverv/Velez/pkg/velez_api"
@@ -17,16 +16,21 @@ func FromPorts(settings *velez_api.Container_Settings) map[nat.Port][]nat.PortBi
 	out := make(map[nat.Port][]nat.PortBinding, len(settings.Ports))
 
 	for _, item := range settings.Ports {
-		if item.Protoc == velez_api.PortBindings_unknown {
-			item.Protoc = velez_api.PortBindings_tcp
+		if item.ExposedTo == nil {
+			// TODO auto asigne if not exists
+			continue
+		}
+		if item.Protocol == velez_api.Port_unknown {
+			item.Protocol = velez_api.Port_tcp
 		}
 
-		containerPort, _ := nat.NewPort(item.Protoc.String(), strconv.FormatUint(uint64(item.Container), 10))
+		servicePortStr := strconv.FormatUint(uint64(item.ServicePortNumber), 10)
+		containerPort, _ := nat.NewPort(item.Protocol.String(), servicePortStr)
 
 		out[containerPort] = []nat.PortBinding{
 			{
 				HostIP:   "0.0.0.0",
-				HostPort: strconv.FormatUint(uint64(item.Host), 10),
+				HostPort: strconv.FormatUint(uint64(*item.ExposedTo), 10),
 			},
 		}
 	}
@@ -34,15 +38,28 @@ func FromPorts(settings *velez_api.Container_Settings) map[nat.Port][]nat.PortBi
 	return out
 }
 
-func ToPorts(ports []types.Port) []*velez_api.PortBindings {
-	out := make([]*velez_api.PortBindings, len(ports))
-
-	for i, item := range ports {
-		out[i] = &velez_api.PortBindings{
-			Host:      uint32(item.PublicPort),
-			Container: uint32(item.PrivatePort),
-			Protoc:    velez_api.PortBindings_Protocol(velez_api.PortBindings_Protocol_value[item.Type]),
-		}
+func ToPorts(ports map[nat.Port][]nat.PortBinding) []*velez_api.Port {
+	if len(ports) == 0 {
+		return nil
 	}
+
+	out := make([]*velez_api.Port, 0, len(ports))
+
+	for contPort, hostPorts := range ports {
+		for _, hostPort := range hostPorts {
+			port, _ := strconv.ParseUint(hostPort.HostPort, 10, 64)
+			port32 := uint32(port)
+
+			binding := &velez_api.Port{
+				ExposedTo:         &port32,
+				ServicePortNumber: uint32(contPort.Int()),
+				Protocol:          velez_api.Port_Protocol(velez_api.Port_Protocol_value[contPort.Proto()]),
+			}
+
+			out = append(out, binding)
+		}
+
+	}
+
 	return out
 }

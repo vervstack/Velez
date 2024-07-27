@@ -1,45 +1,30 @@
 package container_manager_v1
 
 import (
-	"github.com/docker/docker/client"
-	"github.com/godverv/matreshka-be/pkg/matreshka_api"
+	"github.com/godverv/Velez/internal/clients"
+)
 
-	"github.com/godverv/Velez/internal/config"
-	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/config_manager"
-	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/port_manager"
-	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1/resource_manager"
+const (
+	CreatedWithVelezLabel = "CREATED_WITH_VELEZ"
 )
 
 type ContainerManager struct {
-	docker client.CommonAPIClient
+	docker clients.Docker
 
-	configManager     *config_manager.Configurator
-	resourceManager   *resource_manager.ResourceManager
-	containerLauncher ContainerStarter
-
-	matreshkaURL string
+	configManager clients.Configurator
+	portManager   clients.PortManager
+	deployManager clients.DeployManager
 }
 
 func NewContainerManager(
-	cfg config.Config,
-	docker client.CommonAPIClient,
-	configClient matreshka_api.MatreshkaBeAPIClient,
-	portManager *port_manager.PortManager,
+	clients clients.Clients,
 ) *ContainerManager {
-	cm := config_manager.New(configClient, docker)
-	rm := resource_manager.New(docker)
+
 	return &ContainerManager{
-		docker: docker,
+		docker: clients.Docker(),
 
-		resourceManager: rm,
-		configManager:   cm,
-
-		containerLauncher: ContainerStarter{
-			docker:          docker,
-			configManager:   cm,
-			resourceManager: rm,
-			isNodeModeOn:    cfg.GetEnvironment().NodeMode,
-			portManager:     portManager,
-		},
+		portManager:   clients.PortManager(),
+		configManager: clients.Configurator(),
+		deployManager: clients.DeployManager(),
 	}
 }

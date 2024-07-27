@@ -5,7 +5,6 @@ package velez_api;
 option go_package = "/velez_api";
 
 import "google/api/annotations.proto";
-import "validate/validate.proto";
 import "google/protobuf/timestamp.proto";
 
 service VelezAPI {
@@ -56,26 +55,25 @@ message Version {
   }
 }
 
-message PortBindings {
-  uint32 host = 1;
-  uint32 container = 2;
+
+
+
+
+message Port {
+  uint32 service_port_number = 1;
+  Protocol protocol = 2;
+  optional uint32 exposed_to = 3;
 
   enum Protocol {
     unknown = 0;
     tcp = 1;
     udp = 2;
   };
-
-  Protocol protoc = 3;
 }
 
-message MountBindings {
-  string host = 1;
-  string container = 2;
-}
 
-message VolumeBindings {
-  string volume = 1;
+message Volume {
+  string volume_name = 1;
   string container_path = 2;
 }
 
@@ -95,8 +93,15 @@ message Smerd {
   string name = 2;
   string image_name = 3;
 
-  repeated PortBindings ports = 4;
-  repeated MountBindings volumes = 5;
+  repeated Port ports = 4;
+  repeated Volume volumes = 5;
+
+  Status status = 6;
+  google.protobuf.Timestamp created_at = 7;
+
+  repeated NetworkBind networks = 8;
+  map<string, string> labels = 9;
+
 
   enum Status {
     unknown = 0;
@@ -108,12 +113,6 @@ message Smerd {
     exited = 6;
     dead = 7;
   }
-
-  Status status = 6;
-  google.protobuf.Timestamp created_at = 7;
-
-  repeated NetworkBind networks = 8;
-  map<string,string> labels = 9;
 }
 
 message Container {
@@ -124,27 +123,26 @@ message Container {
   }
 
   message Settings {
-    repeated PortBindings ports = 1;
-    repeated MountBindings mounts = 2;
-    repeated NetworkBind networks = 3;
-    repeated VolumeBindings volumes = 4;
+    repeated Port ports = 1;
+    repeated Volume volumes = 4;
   }
 
   message Healthcheck {
-      string command = 1;
-      uint32 interval_second = 2;
-      uint32 timeout_second = 3;
-      uint32 retries =  4;
+    // if command is not presented,
+    // velez will simply
+    // wait "retires" times for "interval_second" seconds each time,
+    // until container get status Running
+    optional string command = 1;
+    uint32 interval_second = 2;
+    optional uint32 timeout_second = 3;
+    uint32 retries = 4;
   }
 }
 
 message CreateSmerd {
   message Request {
     string name = 1;
-    string image_name = 2 [(validate.rules).string = {
-      pattern:   '([a-z]+)/([a-z-]+):([a-z0-9.]+)',
-      max_bytes: 50,
-    }];
+    string image_name = 2;
 
     optional Container.Hardware hardware = 3;
     optional Container.Settings settings = 4;
@@ -154,6 +152,11 @@ message CreateSmerd {
     map<string, string> env = 6;
 
     optional Container.Healthcheck healthcheck = 7;
+
+    map<string, string> labels = 8;
+
+    bool ignore_config = 9;
+    bool use_image_ports = 10;
   }
 }
 
@@ -162,6 +165,7 @@ message ListSmerds {
     optional uint32 limit = 1;
     optional string name = 2;
     optional string id = 3;
+    map<string, string> label = 4;
   }
 
   message Response {
@@ -210,5 +214,7 @@ message FetchConfig {
     string image_name = 1;
     string service_name = 2;
   }
-  message Response {}
+  message Response {
+    bytes config = 1;
+  }
 }

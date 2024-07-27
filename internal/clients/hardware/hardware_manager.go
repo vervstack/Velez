@@ -1,4 +1,4 @@
-package hardware_manager_v1
+package hardware
 
 import (
 	"github.com/jaypipes/ghw"
@@ -6,14 +6,14 @@ import (
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-type HardwareManager struct {
+type Manager struct {
 }
 
-func New() *HardwareManager {
-	return &HardwareManager{}
+func New() *Manager {
+	return &Manager{}
 }
 
-func (h *HardwareManager) GetHardware() (*velez_api.GetHardware_Response, error) {
+func (h *Manager) GetHardware() (*velez_api.GetHardware_Response, error) {
 	resp := &velez_api.GetHardware_Response{
 		Cpu:     &velez_api.GetHardware_Response_Value{},
 		DiskMem: &velez_api.GetHardware_Response_Value{},

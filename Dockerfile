@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM golang as builder
+FROM --platform=$BUILDPLATFORM golang AS builder
 
 WORKDIR /app
 

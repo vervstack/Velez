@@ -1,4 +1,4 @@
-package config_manager
+package configurator
 
 import (
 	"github.com/docker/docker/client"

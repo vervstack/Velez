@@ -17,13 +17,15 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/godverv/Velez/internal/backservice/security"
+	"github.com/godverv/Velez/internal/clients/security"
 	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
 type Server struct {
+	*Api
+
 	serverMux cmux.CMux
 
 	grpcServer *grpc.Server
@@ -34,8 +36,9 @@ type Server struct {
 
 func NewServer(
 	cfg config.Config,
-	server *servers.GRPC,
-	serviceManager service.Services,
+	grpcServer *servers.GRPC,
+
+	srv service.Services,
 	secManager security.Manager,
 ) (*Server, error) {
 
@@ -45,20 +48,15 @@ func NewServer(
 		opts = append(opts, security.GrpcInterceptor(secManager))
 	}
 
-	grpcServer := grpc.NewServer(opts...)
+	server := &Server{
+		Api:           NewApi(cfg, srv),
+		grpcServer:    grpc.NewServer(opts...),
+		serverAddress: "0.0.0.0:" + grpcServer.GetPortStr(),
+	}
 
-	velez_api.RegisterVelezAPIServer(
-		grpcServer,
-		&Api{
-			version:         cfg.GetAppInfo().Version,
-			smerdService:    serviceManager.GetContainerManagerService(),
-			hardwareManager: serviceManager.GetHardwareManagerService(),
-		})
+	velez_api.RegisterVelezAPIServer(server.grpcServer, server)
 
-	return &Server{
-		grpcServer:    grpcServer,
-		serverAddress: "0.0.0.0:" + server.GetPortStr(),
-	}, nil
+	return server, nil
 }
 
 func (s *Server) Start(_ context.Context) error {

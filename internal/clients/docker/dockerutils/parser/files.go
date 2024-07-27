@@ -1,9 +1,6 @@
 package parser
 
 import (
-	"strings"
-
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/mount"
 
 	"github.com/godverv/Velez/pkg/velez_api"
@@ -14,19 +11,16 @@ func FromBind(settings *velez_api.Container_Settings) []mount.Mount {
 		return nil
 	}
 
-	out := make([]mount.Mount, 0, len(settings.Mounts)+len(settings.Volumes))
-	for _, item := range settings.Mounts {
-		out = append(out, mount.Mount{
-			Type:   mount.TypeBind,
-			Source: item.Host,
-			Target: item.Container,
-		})
+	if len(settings.Volumes) == 0 {
+		return nil
 	}
+
+	out := make([]mount.Mount, 0, len(settings.Volumes))
 
 	for _, item := range settings.Volumes {
 		out = append(out, mount.Mount{
 			Type:   mount.TypeVolume,
-			Source: item.Volume,
+			Source: item.VolumeName,
 			Target: item.ContainerPath,
 		})
 	}
@@ -34,18 +28,18 @@ func FromBind(settings *velez_api.Container_Settings) []mount.Mount {
 	return out
 }
 
-func ToBind(volumes []types.MountPoint) []*velez_api.MountBindings {
-	out := make([]*velez_api.MountBindings, len(volumes))
+// TODO test out
+func ToBind(volumes []mount.Mount) []*velez_api.Volume {
+	if len(volumes) == 0 {
+		return nil
+	}
+
+	out := make([]*velez_api.Volume, len(volumes))
 
 	for i, item := range volumes {
-		splited := strings.Split(item.Destination, ":")
-		if len(splited) != 2 {
-			continue
-		}
-
-		out[i] = &velez_api.MountBindings{
-			Host:      splited[0],
-			Container: splited[1],
+		out[i] = &velez_api.Volume{
+			VolumeName:    item.Source,
+			ContainerPath: item.Target,
 		}
 	}
 

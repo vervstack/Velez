@@ -5,7 +5,7 @@ app_info:
 data_sources:
   - resource_name: grpc_matreshka_be
     connection_string: matreshka
-    module: github.com/godverv/matreshka-be@v1.0.23
+    module: github.com/godverv/matreshka-be@v1.0.31
   - resource_name: grpc_makosh
     connection_string: makosh
     module: github.com/godverv/makosh

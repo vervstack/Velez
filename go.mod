@@ -9,7 +9,7 @@ require (
 	github.com/docker/go-connections v0.5.0
 	github.com/godverv/makosh v0.0.1
 	github.com/godverv/matreshka v0.0.29
-	github.com/godverv/matreshka-be v1.0.31
+	github.com/godverv/matreshka-be v1.0.23
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.21.0
 	github.com/jaypipes/ghw v0.12.0
 	github.com/opencontainers/image-spec v1.1.0

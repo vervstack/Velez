@@ -4,11 +4,14 @@ app_info:
     startup_duration: 10s
 data_sources:
     - resource_name: grpc_matreshka_be
-      connection_string: localhost:50050
+      connection_string: localhost:53891
       module: github.com/godverv/matreshka-be@v1.0.23
+    - resource_name: grpc_makosh
+      connection_string: 0.0.0.0:50051
+      module: github.com/godverv/makosh
 server:
     - name: grpc
-      port: 50051
+      port: 53890
 environment:
     - name: available_ports
       type: int
@@ -64,7 +67,7 @@ environment:
       value: true
     - name: matreshka_port
       type: int
-      value: 50050
+      value: 53891
     - name: node_mode
       type: bool
-      value: true
+      value: false

@@ -7,6 +7,7 @@ import (
 	"syscall"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/makosh/pkg/makosh_be"
 	"github.com/godverv/matreshka-be/pkg/matreshka_api"
 	"github.com/sirupsen/logrus"
 
@@ -31,6 +32,7 @@ type App struct {
 
 	// External services
 	MatreshkaClient matreshka_api.MatreshkaBeAPIClient
+	MakoshClient    makosh_be.MakoshBeAPIClient
 
 	// Api
 	GrpcApi       *grpc.Server

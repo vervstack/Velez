@@ -5,6 +5,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
+	"github.com/godverv/makosh/pkg/makosh_be"
 	"github.com/godverv/matreshka"
 
 	"github.com/godverv/Velez/internal/clients/security"
@@ -14,9 +15,11 @@ import (
 type Clients interface {
 	Docker() Docker
 	DeployManager() DeployManager
-	Configurator() Configurator
 	PortManager() PortManager
 	HardwareManager() HardwareManager
+
+	ServiceDiscovery()
+	Configurator() Configurator
 
 	SecurityManager() security.Manager
 }
@@ -50,4 +53,9 @@ type PortManager interface {
 
 type HardwareManager interface {
 	GetHardware() (*velez_api.GetHardware_Response, error)
+}
+
+type ServiceDiscovery interface {
+	GetToken() string
+	makosh_be.MakoshBeAPIClient
 }

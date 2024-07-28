@@ -1,4 +1,4 @@
-package clients
+package managers
 
 import (
 	"context"
@@ -8,6 +8,8 @@ import (
 	"github.com/godverv/matreshka-be/pkg/matreshka_api"
 	"github.com/sirupsen/logrus"
 
+	"github.com/godverv/Velez/internal/backservice/service_discovery"
+	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/clients/configurator"
 	"github.com/godverv/Velez/internal/clients/docker"
 	"github.com/godverv/Velez/internal/clients/docker/deploy_manager"
@@ -19,21 +21,24 @@ import (
 	"github.com/godverv/Velez/internal/utils/closer"
 )
 
-type clients struct {
+type clientsManager struct {
 	docker    *docker.Docker
 	matreshka matreshka_api.MatreshkaBeAPIClient
 
-	portManager     PortManager
-	hardwareManager HardwareManager
-	securityManager security.Manager
+	portManager     clients.PortManager
+	hardwareManager clients.HardwareManager
+	securityManager clients.SecurityManager
 
-	configurator  Configurator
-	deployManager DeployManager
+	configurator     clients.Configurator
+	deployManager    clients.DeployManager
+	serviceDiscovery clients.ServiceDiscovery
 }
 
-func New(ctx context.Context, cfg config.Config) (Clients, error) {
+func New(ctx context.Context, cfg config.Config, sd clients.ServiceDiscovery) (clients.Clients, error) {
 	var err error
-	cls := &clients{}
+	cls := &clientsManager{
+		serviceDiscovery: sd,
+	}
 
 	// Docker engine
 	{
@@ -51,6 +56,11 @@ func New(ctx context.Context, cfg config.Config) (Clients, error) {
 		if err != nil {
 			logrus.Fatalf("error getting matreshka api: %s", err)
 		}
+	}
+
+	{
+		logrus.Debug("Initializing makosh client")
+		cls.serviceDiscovery, err = service_discovery.New()
 	}
 
 	// Security access layer
@@ -98,33 +108,38 @@ func New(ctx context.Context, cfg config.Config) (Clients, error) {
 		logrus.Debug("Initializing deployment manager")
 		cls.deployManager = deploy_manager.New(cls.docker)
 	}
+
 	return cls, nil
 }
 
-func (c *clients) DockerAPI() client.CommonAPIClient {
+func (c *clientsManager) DockerAPI() client.CommonAPIClient {
 	return c.docker
 }
 
-func (c *clients) Docker() Docker {
+func (c *clientsManager) Docker() clients.Docker {
 	return c.docker
 }
 
-func (c *clients) Configurator() Configurator {
+func (c *clientsManager) Configurator() clients.Configurator {
 	return c.configurator
 }
 
-func (c *clients) DeployManager() DeployManager {
+func (c *clientsManager) DeployManager() clients.DeployManager {
 	return c.deployManager
 }
 
-func (c *clients) PortManager() PortManager {
+func (c *clientsManager) PortManager() clients.PortManager {
 	return c.portManager
 }
 
-func (c *clients) HardwareManager() HardwareManager {
+func (c *clientsManager) HardwareManager() clients.HardwareManager {
 	return c.hardwareManager
 }
 
-func (c *clients) SecurityManager() security.Manager {
+func (c *clientsManager) SecurityManager() clients.SecurityManager {
 	return c.securityManager
+}
+
+func (c *clientsManager) ServiceDiscovery() clients.ServiceDiscovery {
+	return c.serviceDiscovery
 }

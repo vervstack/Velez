@@ -17,6 +17,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/clients/security"
 	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/service"
@@ -39,13 +40,13 @@ func NewServer(
 	grpcServer *servers.GRPC,
 
 	srv service.Services,
-	secManager security.Manager,
+	clnts clients.Clients,
 ) (*Server, error) {
 
 	var opts []grpc.ServerOption
 
 	if !cfg.GetEnvironment().DisableAPISecurity {
-		opts = append(opts, security.GrpcInterceptor(secManager))
+		opts = append(opts, security.GrpcInterceptor(clnts.SecurityManager()))
 	}
 
 	server := &Server{

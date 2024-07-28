@@ -2,18 +2,25 @@
 
 package config
 
+import (
+	"time"
+)
+
 type EnvironmentConfig struct {
 	AvailablePorts      []int
+	CPUDefault          float64
 	CustomPassToKey     string
 	DisableAPISecurity  bool
-	CPUDefault          float64
+	ExposeMatreshkaPort bool
+	MakoshExposePort    bool
+	MakoshImageName     string
+	MakoshPort          int
+	MatreshkaPort       int
 	MemorySwapMb        int
-	RAMMbDefault        int
+	NodeMode            bool
 	PortainerEnabled    bool
+	RAMMbDefault        int
 	ShutDownOnExit      bool
 	WatchTowerEnabled   bool
 	WatchTowerInterval  time.Duration
-	ExposeMatreshkaPort bool
-	MatreshkaPort       int
-	NodeMode            bool
 }

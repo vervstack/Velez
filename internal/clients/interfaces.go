@@ -8,7 +8,6 @@ import (
 	"github.com/godverv/makosh/pkg/makosh_be"
 	"github.com/godverv/matreshka"
 
-	"github.com/godverv/Velez/internal/clients/security"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -18,10 +17,10 @@ type Clients interface {
 	PortManager() PortManager
 	HardwareManager() HardwareManager
 
-	ServiceDiscovery()
+	ServiceDiscovery() ServiceDiscovery
 	Configurator() Configurator
 
-	SecurityManager() security.Manager
+	SecurityManager() SecurityManager
 }
 
 type Docker interface {
@@ -58,4 +57,11 @@ type HardwareManager interface {
 type ServiceDiscovery interface {
 	GetToken() string
 	makosh_be.MakoshBeAPIClient
+}
+
+type SecurityManager interface {
+	Start() error
+	Stop() error
+
+	ValidateKey(in string) bool
 }

@@ -5,7 +5,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/godverv/Velez/internal/clients"
+	"github.com/godverv/Velez/internal/clients/managers"
 	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/utils/closer"
 )
@@ -33,7 +33,7 @@ func (a *App) MustInitCore() {
 
 	}
 
-	a.Clients, err = clients.New(a.Ctx, a.Cfg)
+	a.Clients, err = managers.New(a.Ctx, a.Cfg)
 	if err != nil {
 		logrus.Fatalf("error initializing clients %s", err.Error())
 	}

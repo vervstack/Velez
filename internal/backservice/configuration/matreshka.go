@@ -2,7 +2,7 @@ package configuration
 
 import (
 	"context"
-	"time"
+	"strconv"
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/api/types/container"
@@ -15,32 +15,45 @@ import (
 	"github.com/godverv/Velez/internal/backservice/env"
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
+	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/service/service_manager/container_manager_v1"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
 const (
-	Name     = "matreshka"
-	image    = "godverv/matreshka-be:v1.0.31"
-	duration = time.Second * 5
+	Name  = "matreshka"
+	image = "godverv/matreshka-be:v1.0.31"
 )
 
 type Matreshka struct {
 	dockerAPI client.CommonAPIClient
 
-	duration time.Duration
-
 	port string
 }
 
-func New(dockerAPI clients.Docker, exposeToPort string) *Matreshka {
+func New(cfg config.Config, cls clients.Clients) (*Matreshka, error) {
+	envVars := cfg.GetEnvironment()
+	var portToExposeTo string
+	if envVars.ExposeMatreshkaPort {
+		p := uint64(envVars.MatreshkaPort)
+
+		if p == 0 {
+			portFromPool, err := cls.PortManager().GetPort()
+			if err != nil {
+				return nil, errors.Wrap(err, "error obtaining port from pool")
+			}
+
+			p = uint64(portFromPool)
+		}
+
+		portToExposeTo = strconv.FormatUint(p, 10)
+	}
 	w := &Matreshka{
-		dockerAPI: dockerAPI,
-		duration:  duration,
-		port:      exposeToPort,
+		dockerAPI: cls.Docker(),
+		port:      portToExposeTo,
 	}
 
-	return w
+	return w, nil
 }
 
 func (b *Matreshka) Start() error {
@@ -108,10 +121,6 @@ func (b *Matreshka) Start() error {
 
 func (b *Matreshka) GetName() string {
 	return Name
-}
-
-func (b *Matreshka) GetDuration() time.Duration {
-	return b.duration
 }
 
 func (b *Matreshka) IsAlive() (bool, error) {

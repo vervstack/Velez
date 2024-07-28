@@ -7,13 +7,15 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+
+	"github.com/godverv/Velez/internal/clients"
 )
 
 // Header - header containing auth token to talk to service
 // in order to perform REST call should pre append runtime.MetadataHeaderPrefix (e.g - "Grpc-Metadata-")
 const Header = "Velez-Auth"
 
-func GrpcInterceptor(securityManager Manager) grpc.ServerOption {
+func GrpcInterceptor(securityManager clients.SecurityManager) grpc.ServerOption {
 	return grpc.ChainUnaryInterceptor(
 		func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp any, err error) {
 			md, ok := metadata.FromIncomingContext(ctx)

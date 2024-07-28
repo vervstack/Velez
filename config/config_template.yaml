@@ -1,19 +1,19 @@
 app_info:
     name: github.com/godverv/Velez
-    version: dev
+    version: v0.1.43
     startup_duration: 10s
 data_sources:
     - resource_name: grpc_matreshka_be
-      connection_string: localhost:53891
+      connection_string: matreshka
       module: github.com/godverv/matreshka-be@v1.0.31
     - resource_name: grpc_makosh
-      connection_string: 0.0.0.0:50051
-      module: github.com/godverv/makosh
+      connection_string: makosh
+      module: github.com/godverv/makosh@v0.0.1
 server:
     - name: grpc
       port: 53890
 environment:
-    - name: available_ports
+    - name: available ports
       type: int
       value:
         - 18501
@@ -35,39 +35,48 @@ environment:
         - 18517
         - 18518
         - 18519
-    - name: custom_pass_to_key
-      type: string
-      value: /Users/alexbukov/Yandex.Disk.localized/verv/Velez/private.key
-    - name: disable_api_security
-      type: bool
-      value: true
-    - name: cpu_default
+    - name: cpu default
       type: float
       value: 0.5
-    - name: memory_swap_mb
-      type: int
-      value: 50
-    - name: ram_mb_default
-      type: int
-      value: 50
-    - name: portainer_enabled
+    - name: custom pass to key
+      type: string
+      value: /tmp/velez/private.key
+    - name: disable api security
       type: bool
       value: false
-    - name: shut_down_on_exit
+    - name: expose matreshka port
       type: bool
       value: true
-    - name: watch_tower_enabled
+    - name: makosh expose port
       type: bool
       value: true
-    - name: watch_tower_interval
+    - name: makosh image name
+      type: string
+      value: godverv/makosh:v0.0.1
+    - name: makosh port
+      type: int
+      value: 50051
+    - name: matreshka port
+      type: int
+      value: 50050
+    - name: memory swap mb
+      type: int
+      value: 50
+    - name: node mode
+      type: bool
+      value: true
+    - name: portainer enabled
+      type: bool
+      value: false
+    - name: ram mb default
+      type: int
+      value: 50
+    - name: shut down on exit
+      type: bool
+      value: false
+    - name: watch tower enabled
+      type: bool
+      value: true
+    - name: watch tower interval
       type: duration
-      value: 5s
-    - name: expose_matreshka_port
-      type: bool
-      value: true
-    - name: matreshka_port
-      type: int
-      value: 53891
-    - name: node_mode
-      type: bool
-      value: false
+      value: 1m0s

@@ -8,7 +8,7 @@ data_sources:
     module: github.com/godverv/matreshka-be@v1.0.31
   - resource_name: grpc_makosh
     connection_string: makosh
-    module: github.com/godverv/makosh
+    module: github.com/godverv/makosh@v0.0.1
 server:
   - name: grpc
     port: 53890
@@ -70,3 +70,6 @@ environment:
   - name: makosh_port
     value: 50051
     type: int
+  - name: makosh_image_name
+    value: string
+    type: string

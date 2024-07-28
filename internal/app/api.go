@@ -20,7 +20,7 @@ func (a *App) MustInitAPI() {
 		a.Cfg,
 		grpcConf,
 		a.Services,
-		a.Clients.SecurityManager(),
+		a.Clients,
 	)
 	if err != nil {
 		logrus.Fatalf("error creating grpc server: %s", err)

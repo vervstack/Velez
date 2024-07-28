@@ -1,13 +1,12 @@
 package app
 
 import (
-	"strconv"
-
+	"github.com/Red-Sock/toolbox/keep_alive"
 	"github.com/sirupsen/logrus"
 
 	"github.com/godverv/Velez/internal/backservice/configuration"
 	"github.com/godverv/Velez/internal/backservice/env"
-	"github.com/godverv/Velez/internal/cron"
+	"github.com/godverv/Velez/internal/backservice/service_discovery"
 )
 
 func (a *App) MustInitEnvironment() {
@@ -21,32 +20,23 @@ func (a *App) MustInitEnvironment() {
 		logrus.Fatalf("error creating volumes %s", err)
 	}
 
-	if !a.Cfg.GetEnvironment().NodeMode {
+	envVars := a.Cfg.GetEnvironment()
+
+	if !envVars.NodeMode {
 		return
 	}
 
-	var portToExposeTo string
-	if a.Cfg.GetEnvironment().ExposeMatreshkaPort {
-		p := uint64(a.Cfg.GetEnvironment().MatreshkaPort)
-
-		if p == 0 {
-			portFromPool, err := a.Clients.PortManager().GetPort()
-			if err != nil {
-				logrus.Fatalf("no available port for config to expose")
-				return
-			}
-
-			p = uint64(portFromPool)
-		}
-
-		portToExposeTo = strconv.FormatUint(p, 10)
-	}
-
-	conf := configuration.New(a.Clients.Docker(), portToExposeTo)
-	err = conf.Start()
+	matreshkaTask, err := configuration.New(a.Cfg, a.Clients)
 	if err != nil {
-		logrus.Fatalf("error launching config backservice: %s", err)
+		logrus.Fatalf("error creating configuration background task %s", err)
 	}
 
-	go cron.KeepAlive(a.Ctx, conf)
+	go keep_alive.KeepAlive(matreshkaTask, keep_alive.WithCancel(a.Ctx.Done()))
+
+	makoshBackgroundTask, err := service_discovery.New(string(a.MakoshKey), a.Cfg, a.Clients)
+	if err != nil {
+		logrus.Fatalf("error creating service discovery background task: %s", err)
+	}
+
+	go keep_alive.KeepAlive(makoshBackgroundTask, keep_alive.WithCancel(a.Ctx.Done()))
 }

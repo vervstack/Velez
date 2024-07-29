@@ -53,6 +53,9 @@ environment:
     - name: makosh image name
       type: string
       value: godverv/makosh:v0.0.1
+    - name: makosh key
+      type: string
+      value: 123knfdasodsa
     - name: makosh port
       type: int
       value: 50051

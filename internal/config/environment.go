@@ -14,6 +14,7 @@ type EnvironmentConfig struct {
 	ExposeMatreshkaPort bool
 	MakoshExposePort    bool
 	MakoshImageName     string
+	MakoshKey           string
 	MakoshPort          int
 	MatreshkaPort       int
 	MemorySwapMb        int

@@ -40,7 +40,7 @@ func NewServer(
 	grpcServer *servers.GRPC,
 
 	srv service.Services,
-	clnts clients.Clients,
+	clnts clients.InternalClients,
 ) (*Server, error) {
 
 	var opts []grpc.ServerOption

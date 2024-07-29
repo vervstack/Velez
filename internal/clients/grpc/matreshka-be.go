@@ -7,17 +7,18 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 	pb "github.com/godverv/matreshka-be/pkg/matreshka_api"
+	"google.golang.org/grpc"
 
 	"github.com/godverv/Velez/internal/config"
 )
 
-func NewMatreshkaBeAPIClient(ctx context.Context, cfg config.Config) (pb.MatreshkaBeAPIClient, error) {
+func NewMatreshkaBeAPIClient(ctx context.Context, cfg config.Config, opts ...grpc.DialOption) (pb.MatreshkaBeAPIClient, error) {
 	connCfg, err := cfg.GetDataSources().GRPC(config.ResourceGrpcMatreshkaBe)
 	if err != nil {
 		return nil, errors.Wrap(err, "couldn't find key"+config.ResourceGrpcMatreshkaBe+" grpc connection in config")
 	}
 
-	conn, err := connect(ctx, connCfg)
+	conn, err := connect(ctx, connCfg, opts...)
 	if err != nil {
 		return nil, errors.Wrap(err, "error connection to "+connCfg.Module)
 	}

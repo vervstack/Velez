@@ -3,14 +3,14 @@ module github.com/godverv/Velez
 go 1.22.1
 
 require (
-	github.com/Red-Sock/evon v0.0.13
-	github.com/Red-Sock/toolbox v0.0.2
+	github.com/Red-Sock/evon v0.0.14
+	github.com/Red-Sock/toolbox v0.0.4
 	github.com/Red-Sock/trace-errors v0.0.9
 	github.com/docker/docker v27.1.1+incompatible
 	github.com/docker/go-connections v0.5.0
-	github.com/godverv/makosh v0.0.1
-	github.com/godverv/matreshka v0.0.29
-	github.com/godverv/matreshka-be v1.0.31
+	github.com/godverv/makosh v0.0.3
+	github.com/godverv/matreshka v0.0.32
+	github.com/godverv/matreshka-be v1.0.32
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.21.0
 	github.com/jaypipes/ghw v0.12.0
 	github.com/opencontainers/image-spec v1.1.0
@@ -58,7 +58,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools/v3 v3.5.1 // indirect
 	howett.net/plist v1.0.1 // indirect
-)
-replace (
-	github.com/Red-Sock/toolbox => /Users/alexbukov/Yandex.Disk.localized/проекты/redsock/toolbox
 )

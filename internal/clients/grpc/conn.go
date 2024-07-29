@@ -8,13 +8,12 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka/resources"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
-func connect(ctx context.Context, connCfg *resources.GRPC) (*grpc.ClientConn, error) {
+func connect(ctx context.Context, connCfg *resources.GRPC, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
 	dial, err := grpc.DialContext(ctx,
 		connCfg.ConnectionString,
-		grpc.WithTransportCredentials(insecure.NewCredentials()))
+		opts...)
 	if err != nil {
 		return nil, errors.Wrap(err, "error dialing")
 	}

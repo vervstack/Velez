@@ -17,14 +17,16 @@ type ContainerManager struct {
 }
 
 func NewContainerManager(
-	clients clients.Clients,
+	internalClients clients.InternalClients,
+	externalClients clients.ExternalClients,
 ) *ContainerManager {
 
 	return &ContainerManager{
-		docker: clients.Docker(),
+		docker: internalClients.Docker(),
 
-		portManager:   clients.PortManager(),
-		configManager: clients.Configurator(),
-		deployManager: clients.DeployManager(),
+		portManager:   internalClients.PortManager(),
+		deployManager: internalClients.DeployManager(),
+
+		configManager: externalClients.Configurator(),
 	}
 }

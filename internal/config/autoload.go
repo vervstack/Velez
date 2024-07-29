@@ -45,6 +45,11 @@ func Load() (Config, error) {
 		return nil, errors.Wrap(err, "error reading matreshka config")
 	}
 
+	err = defaultConfig.AppConfig.Environment.ParseToStruct(&defaultConfig.envConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "error parsing into environment struct")
+	}
+
 	return &defaultConfig, nil
 }
 
@@ -69,6 +74,10 @@ func (c *config) GetEnvironment() EnvironmentConfig {
 	return c.envConfig
 }
 
+func (c *config) GetServiceDiscovery() matreshka.ServiceDiscovery {
+	return c.ServiceDiscovery
+}
+
 type Config interface {
 	GetAppInfo() matreshka.AppInfo
 
@@ -76,6 +85,8 @@ type Config interface {
 	GetDataSources() Resources
 
 	GetEnvironment() EnvironmentConfig
+
+	GetServiceDiscovery() matreshka.ServiceDiscovery
 }
 
 type API interface {

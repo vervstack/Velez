@@ -31,7 +31,7 @@ Content-Type: application/json
 
 {
   "name": "red-cart",
-  "image_name": "redsockdev/red-cart:v0.0.13"
+  "image_name": "redsockdev/red-cart:v0.0.17"
 }
 
 
@@ -62,6 +62,6 @@ POST {{velez}}/smerd/fetch-config
 Content-Type: application/json
 
 {
-  "image_name": "redsockdev/red-cart:v0.0.13",
+  "image_name": "redsockdev/red-cart:v0.0.17",
   "service_name": "red-cart"
 }

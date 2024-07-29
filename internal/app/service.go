@@ -3,26 +3,16 @@ package app
 import (
 	"context"
 
+	"github.com/Red-Sock/toolbox/closer"
 	"github.com/sirupsen/logrus"
 
-	grpcClients "github.com/godverv/Velez/internal/clients/grpc"
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/internal/service/service_manager"
-	"github.com/godverv/Velez/internal/utils/closer"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-func (a *App) MustInitServiceManager() {
-	var err error
-	a.MatreshkaClient, err = grpcClients.NewMatreshkaBeAPIClient(a.Ctx, a.Cfg)
-	if err != nil {
-		logrus.Fatalf("error getting matreshka api: %s", err)
-	}
-
-	a.Services = service_manager.New(a.Clients)
-	if err != nil {
-		logrus.Fatalf("error creating service manager: %s", err)
-	}
+func (a *App) InitServiceManager() {
+	a.Services = service_manager.New(a.InternalClients, a.ExternalClients)
 
 	logrus.Warn("shut down on exit is ", a.Cfg.GetEnvironment().ShutDownOnExit)
 

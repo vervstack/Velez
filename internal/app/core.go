@@ -3,11 +3,11 @@ package app
 import (
 	"context"
 
+	"github.com/Red-Sock/toolbox/closer"
 	"github.com/sirupsen/logrus"
 
 	"github.com/godverv/Velez/internal/clients/managers"
 	"github.com/godverv/Velez/internal/config"
-	"github.com/godverv/Velez/internal/utils/closer"
 )
 
 func (a *App) MustInitCore() {
@@ -30,12 +30,11 @@ func (a *App) MustInitCore() {
 		if err != nil {
 			logrus.Fatalf("error reading config %s", err.Error())
 		}
-
 	}
 
-	a.Clients, err = managers.New(a.Ctx, a.Cfg)
+	a.InternalClients, err = managers.NewInternalClients(a.Ctx, a.Cfg)
 	if err != nil {
-		logrus.Fatalf("error initializing clients %s", err.Error())
+		logrus.Fatalf("error initializing internal clients %s", err)
 	}
 
 	return

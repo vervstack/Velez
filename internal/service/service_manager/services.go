@@ -13,10 +13,10 @@ type ServiceManager struct {
 	*smerd_launcher.SmerdLauncher
 }
 
-func New(cl clients.Clients) service.Services {
+func New(internalClients clients.InternalClients, externalClients clients.ExternalClients) service.Services {
 	return &ServiceManager{
-		ContainerManager: container_manager_v1.NewContainerManager(cl),
+		ContainerManager: container_manager_v1.NewContainerManager(internalClients, externalClients),
 
-		SmerdLauncher: smerd_launcher.New(cl),
+		SmerdLauncher: smerd_launcher.New(internalClients, externalClients),
 	}
 }

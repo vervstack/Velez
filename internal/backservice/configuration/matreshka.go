@@ -3,6 +3,7 @@ package configuration
 import (
 	"context"
 	"strconv"
+	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/api/types/container"
@@ -31,7 +32,7 @@ type Matreshka struct {
 	port string
 }
 
-func New(cfg config.Config, cls clients.Clients) (*Matreshka, error) {
+func New(cfg config.Config, cls clients.InternalClients) (*Matreshka, error) {
 	envVars := cfg.GetEnvironment()
 	var portToExposeTo string
 	if envVars.ExposeMatreshkaPort {
@@ -114,8 +115,6 @@ func (b *Matreshka) Start() error {
 		return errors.Wrap(err, "error connecting matreshka container to verv network")
 	}
 
-	logrus.Info("Matreshka successfully started")
-
 	return nil
 }
 
@@ -158,7 +157,9 @@ func (b *Matreshka) Kill() error {
 		Force:         true,
 	})
 	if err != nil {
-		return errors.Wrap(err, "error dropping result")
+		if !strings.Contains(err.Error(), "No such container") {
+			return errors.Wrap(err, "error dropping result")
+		}
 	}
 
 	return nil

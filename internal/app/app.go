@@ -2,38 +2,31 @@ package app
 
 import (
 	"context"
-	"os"
-	"os/signal"
-	"syscall"
 
+	rtb "github.com/Red-Sock/toolbox"
+	"github.com/Red-Sock/toolbox/closer"
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka-be/pkg/matreshka_api"
 	"github.com/sirupsen/logrus"
 
 	"github.com/godverv/Velez/internal/clients"
-	"github.com/godverv/Velez/internal/clients/service_discoverer"
 	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/internal/transport"
 	"github.com/godverv/Velez/internal/transport/grpc"
-	"github.com/godverv/Velez/internal/utils/closer"
 )
 
 type App struct {
 	// Essentials
-	Ctx context.Context
-	Cfg config.Config
+	Ctx                 context.Context
+	Cfg                 config.Config
+	ServiceDiscoveryURL string
 
-	// Host communication
-	Clients clients.Clients
+	// Host communication and external services
+	InternalClients clients.InternalClients
+	ExternalClients clients.ExternalClients
 
 	// Business logic
 	Services service.Services
-
-	// External services
-	MatreshkaClient matreshka_api.MatreshkaBeAPIClient
-	MakoshKey       []byte
-	MakoshClient    *service_discoverer.ServiceDiscovery
 
 	// Api
 	GrpcApi       *grpc.Server
@@ -50,8 +43,11 @@ func New() (a *App) {
 	// Verv Environment
 	a.MustInitEnvironment()
 
+	// External clients
+	a.MustInitExternalClients()
+
 	// Service layer
-	a.MustInitServiceManager()
+	a.InitServiceManager()
 
 	// API
 	a.MustInitAPI()
@@ -66,7 +62,8 @@ func (a *App) Start() error {
 		return errors.Wrap(err, "error starting api")
 	}
 
-	waitingForTheEnd()
+	rtb.WaitForInterrupt()
+
 	logrus.Println("shutting down the app")
 
 	err = a.ServerManager.Stop(ctx)
@@ -80,13 +77,4 @@ func (a *App) Start() error {
 	}
 
 	return nil
-}
-
-// rscli comment: an obligatory function for tool to work properly.
-// must be called in the main function above
-// also this is an LP song name reference, so no rules can be applied to the function name
-func waitingForTheEnd() {
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-	<-done
 }

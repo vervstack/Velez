@@ -11,16 +11,18 @@ import (
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-type Clients interface {
+type InternalClients interface {
 	Docker() Docker
 	DeployManager() DeployManager
 	PortManager() PortManager
 	HardwareManager() HardwareManager
 
-	ServiceDiscovery() ServiceDiscovery
-	Configurator() Configurator
-
 	SecurityManager() SecurityManager
+}
+
+type ExternalClients interface {
+	//ServiceDiscovery() ServiceDiscovery
+	Configurator() Configurator
 }
 
 type Docker interface {

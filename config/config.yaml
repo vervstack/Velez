@@ -4,7 +4,7 @@ app_info:
   startup_duration: 10s
 data_sources:
   - resource_name: grpc_matreshka_be
-    connection_string: matreshka
+    connection_string: verv:///matreshka
     module: github.com/godverv/matreshka-be@v1.0.31
   - resource_name: grpc_makosh
     connection_string: makosh
@@ -14,12 +14,12 @@ server:
     port: 53890
 environment:
 #  Node settings
-  - name: available_ports
-    value: 18501-18519
-    type: int
   - name: node_mode
     value: true
     type: bool
+  - name: available_ports
+    value: 18501-18519
+    type: int
   - name: shut_down_on_exit
     value: false
     type: bool
@@ -50,6 +50,20 @@ environment:
   - name: matreshka_port
     value: 50050
     type: int
+# Makosh settings
+  - name: makosh_expose_port
+    value: true
+    type: bool
+  - name: makosh_port
+    value: 50051
+    type: int
+  - name: makosh_image_name
+    type: string
+    value: godverv/makosh:v1.0.32
+  - name: makosh_key
+    value: string
+    type: string
+
 # Portainer
   - name: portainer_enabled
     value: false
@@ -63,13 +77,3 @@ environment:
     value: 60s
     type: duration
 
-# Makosh settings
-  - name: makosh_expose_port
-    value: true
-    type: bool
-  - name: makosh_port
-    value: 50051
-    type: int
-  - name: makosh_image_name
-    value: string
-    type: string

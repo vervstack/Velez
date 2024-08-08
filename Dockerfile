@@ -22,6 +22,6 @@ WORKDIR /app
 
 COPY --from=builder /deploy/server/ .
 
-EXPOSE 80
+EXPOSE 53890
 
 ENTRYPOINT ["./service"]

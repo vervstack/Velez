@@ -7,18 +7,17 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 	pb "github.com/godverv/makosh/pkg/makosh_be"
-	"google.golang.org/grpc"
 
 	"github.com/godverv/Velez/internal/config"
 )
 
-func NewMakoshBeAPIClient(ctx context.Context, cfg config.Config, opts ...grpc.DialOption) (pb.MakoshBeAPIClient, error) {
+func NewMakoshBeAPIClient(ctx context.Context, cfg config.Config) (pb.MakoshBeAPIClient, error) {
 	connCfg, err := cfg.GetDataSources().GRPC(config.ResourceGrpcMakosh)
 	if err != nil {
 		return nil, errors.Wrap(err, "couldn't find key"+config.ResourceGrpcMakosh+" grpc connection in config")
 	}
 
-	conn, err := connect(ctx, connCfg, opts...)
+	conn, err := connect(ctx, connCfg)
 	if err != nil {
 		return nil, errors.Wrap(err, "error connection to "+connCfg.Module)
 	}

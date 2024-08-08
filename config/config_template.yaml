@@ -4,7 +4,7 @@ app_info:
     startup_duration: 10s
 data_sources:
     - resource_name: grpc_matreshka_be
-      connection_string: matreshka
+      connection_string: verv://matreshka
       module: github.com/godverv/matreshka-be@v1.0.31
     - resource_name: grpc_makosh
       connection_string: makosh
@@ -43,7 +43,7 @@ environment:
       value: /tmp/velez/private.key
     - name: disable api security
       type: bool
-      value: false
+      value: true
     - name: expose matreshka port
       type: bool
       value: true
@@ -52,10 +52,10 @@ environment:
       value: true
     - name: makosh image name
       type: string
-      value: godverv/makosh:v0.0.1
+      value: godverv/makosh:v0.0.3
     - name: makosh key
       type: string
-      value: 123knfdasodsa
+      value: string
     - name: makosh port
       type: int
       value: 50051

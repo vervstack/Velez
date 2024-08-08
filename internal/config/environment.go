@@ -2,10 +2,6 @@
 
 package config
 
-import (
-	"time"
-)
-
 type EnvironmentConfig struct {
 	AvailablePorts      []int
 	CPUDefault          float64

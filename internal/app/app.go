@@ -6,6 +6,7 @@ import (
 	rtb "github.com/Red-Sock/toolbox"
 	"github.com/Red-Sock/toolbox/closer"
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/makosh/pkg/makosh_be"
 	"github.com/sirupsen/logrus"
 
 	"github.com/godverv/Velez/internal/clients"
@@ -24,6 +25,8 @@ type App struct {
 	// Host communication and external services
 	InternalClients clients.InternalClients
 	ExternalClients clients.ExternalClients
+
+	MakoshClient makosh_be.MakoshBeAPIClient
 
 	// Business logic
 	Services service.Services

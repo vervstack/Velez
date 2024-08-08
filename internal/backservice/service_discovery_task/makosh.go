@@ -35,9 +35,8 @@ var (
 )
 
 type ServiceDiscoveryTask struct {
-	targetURL string
-
-	authToken string
+	AuthToken string
+	Address   string
 
 	dockerAPI      client.CommonAPIClient
 	image          string
@@ -60,12 +59,12 @@ func New(cfg config.Config, internalClients clients.InternalClients) (*ServiceDi
 		return nil, errors.Wrap(err, "error getting port to expose to makosh")
 	}
 
-	serviceDiscoveryTask.targetURL, err = getTargetURL(envVar, internalClients, serviceDiscoveryTask.portToExposeTo)
+	serviceDiscoveryTask.Address, err = getTargetURL(envVar, internalClients, serviceDiscoveryTask.portToExposeTo)
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting target URL")
 	}
 
-	serviceDiscoveryTask.authToken, err = generateAuthToken()
+	serviceDiscoveryTask.AuthToken, err = generateAuthToken()
 	if err != nil {
 		return nil, errors.Wrap(err, "error generating auth token")
 	}
@@ -109,7 +108,7 @@ func (s *ServiceDiscoveryTask) Start() error {
 			Labels: map[string]string{
 				container_manager_v1.CreatedWithVelezLabel: "true",
 			},
-			Env: []string{makoshContainerAuthTokenEnvVariable + "=" + s.authToken},
+			Env: []string{makoshContainerAuthTokenEnvVariable + "=" + s.AuthToken},
 		},
 		hostConf,
 		&network.NetworkingConfig{},
@@ -163,7 +162,7 @@ func (s *ServiceDiscoveryTask) IsAlive() (bool, error) {
 		return false, nil
 	}
 
-	if !rtb.Contains(cont.Config.Env, makoshContainerAuthTokenEnvVariable+"="+s.authToken) {
+	if !rtb.Contains(cont.Config.Env, makoshContainerAuthTokenEnvVariable+"="+s.AuthToken) {
 		return false, nil
 	}
 

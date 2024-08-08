@@ -27,33 +27,27 @@ const (
 )
 
 type Matreshka struct {
+	Address string
+
 	dockerAPI client.CommonAPIClient
 
-	port string
+	port *int
 }
 
 func New(cfg config.Config, cls clients.InternalClients) (*Matreshka, error) {
-	envVars := cfg.GetEnvironment()
-	var portToExposeTo string
-	if envVars.ExposeMatreshkaPort {
-		p := uint64(envVars.MatreshkaPort)
-
-		if p == 0 {
-			portFromPool, err := cls.PortManager().GetPort()
-			if err != nil {
-				return nil, errors.Wrap(err, "error obtaining port from pool")
-			}
-
-			p = uint64(portFromPool)
-		}
-
-		portToExposeTo = strconv.FormatUint(p, 10)
-	}
 	w := &Matreshka{
 		dockerAPI: cls.Docker(),
-		port:      portToExposeTo,
+	}
+	var err error
+	w.port, err = getPort(cfg, cls)
+	if err != nil {
+		return nil, errors.Wrap(err, "error getting port")
 	}
 
+	w.Address, err = getTargetURL(cfg, cls, w.port)
+	if err != nil {
+		return nil, errors.Wrap(err, "error getting target URL")
+	}
 	return w, nil
 }
 
@@ -76,11 +70,11 @@ func (b *Matreshka) Start() error {
 
 	hostConf := &container.HostConfig{}
 
-	if b.port != "" {
+	if b.port != nil {
 		hostConf.PortBindings = nat.PortMap{
 			"53891/tcp": []nat.PortBinding{
 				{
-					HostPort: b.port,
+					HostPort: strconv.Itoa(*b.port),
 				},
 			},
 		}

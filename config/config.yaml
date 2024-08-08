@@ -8,7 +8,7 @@ data_sources:
     module: github.com/godverv/matreshka-be@v1.0.31
   - resource_name: grpc_makosh
     connection_string: makosh
-    module: github.com/godverv/makosh@v0.0.1
+    module: github.com/godverv/makosh@v0.0.3
 server:
   - name: grpc
     port: 53890
@@ -59,7 +59,7 @@ environment:
     type: int
   - name: makosh_image_name
     type: string
-    value: godverv/makosh:v1.0.32
+    value: godverv/makosh:v0.0.3
   - name: makosh_key
     value: string
     type: string
@@ -76,4 +76,3 @@ environment:
   - name: watch_tower_interval
     value: 60s
     type: duration
-

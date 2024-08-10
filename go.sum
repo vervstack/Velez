@@ -37,10 +37,10 @@ github.com/go-logr/stdr v1.2.2/go.mod h1:mMo/vtBO5dYbehREoey6XUKy/eSumjCCveDpRre
 github.com/go-ole/go-ole v1.2.5/go.mod h1:pprOEPIfldk/42T2oK7lQ4v4JSDwmV0As9GaiUsvbm0=
 github.com/go-ole/go-ole v1.3.0 h1:Dt6ye7+vXGIKZ7Xtk4s6/xVdGDQynvom7xCFEdWr6uE=
 github.com/go-ole/go-ole v1.3.0/go.mod h1:5LS6F96DhAwUc7C+1HLexzMXY1xGRSryjyPPKW6zv78=
-github.com/godverv/makosh v0.0.1 h1:+CVSN/GIQJMS4zbIVnPaER95+Z62EnyHSJO7AOwwgAg=
-github.com/godverv/makosh v0.0.1/go.mod h1:TRMAMoek5qZGm9Blx34NIvw3uJ+ZKXOzCH2zwEufcfg=
-github.com/godverv/matreshka v0.0.32 h1:3eheBBhUwt5Zm5cE0oD7jCulo/bXcnVrnNGFtx4TT9E=
-github.com/godverv/matreshka v0.0.32/go.mod h1:hhC0Rbm8KdYJVSnllOMmiB/xZPF/RoNQUP/3BZ0QAnU=
+github.com/godverv/makosh v0.0.3 h1:o1kg/lBa2rA2LVvhEOVmC86ME0Ht+IvxKgzQpOp6KGE=
+github.com/godverv/makosh v0.0.3/go.mod h1:KEb4/tmLrjflvD33AYKKILkw2wXC1OE/SnMSugCtAi8=
+github.com/godverv/matreshka v0.0.33 h1:C/fkgWTSZPDxpJaIburxYeVkR8hBb1mZx5QgyTqMeoM=
+github.com/godverv/matreshka v0.0.33/go.mod h1:hhC0Rbm8KdYJVSnllOMmiB/xZPF/RoNQUP/3BZ0QAnU=
 github.com/godverv/matreshka-be v1.0.31 h1:5zc179XjGWPaQwRhh8EjMKKXyBU6RmWFkdHS+qclsKc=
 github.com/godverv/matreshka-be v1.0.31/go.mod h1:87reIjWEyqU+JkFGujIS5KyLOYvt1gk5DgHOOvFA0ks=
 github.com/gogo/protobuf v1.3.2 h1:Ov1cvc58UF3b5XjBnZv7+opcTcQFZebYjWzi34vdm4Q=

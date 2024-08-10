@@ -6,7 +6,6 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 	makosh "github.com/godverv/makosh/pkg/makosh_be"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 
 	grpcClients "github.com/godverv/Velez/internal/clients/grpc"
@@ -21,10 +20,10 @@ type ServiceDiscovery struct {
 	makosh.MakoshBeAPIClient
 }
 
-func New(ctx context.Context, cfg config.Config, token string) (*ServiceDiscovery, error) {
-	cl, err := grpcClients.NewMakoshBeAPIClient(ctx, cfg,
-		grpc.WithUnaryInterceptor(interceptor(token)),
-		grpc.WithTransportCredentials(insecure.NewCredentials()))
+func New(cfg config.Config, token string) (*ServiceDiscovery, error) {
+	opts := []grpc.DialOption{grpc.WithUnaryInterceptor(interceptor(token))}
+
+	cl, err := grpcClients.NewMakoshBeAPIClient(cfg, opts...)
 	if err != nil {
 		return nil, errors.Wrap(err, "error creating makosh grpc client")
 	}

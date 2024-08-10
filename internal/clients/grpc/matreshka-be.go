@@ -8,6 +8,7 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 	pb "github.com/godverv/matreshka-be/pkg/matreshka_api"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/godverv/Velez/internal/config"
 )
@@ -18,7 +19,9 @@ func NewMatreshkaBeAPIClient(ctx context.Context, cfg config.Config, opts ...grp
 		return nil, errors.Wrap(err, "couldn't find key"+config.ResourceGrpcMatreshkaBe+" grpc connection in config")
 	}
 
-	conn, err := connect(ctx, connCfg, opts...)
+	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+
+	conn, err := connect(connCfg.ConnectionString, opts...)
 	if err != nil {
 		return nil, errors.Wrap(err, "error connection to "+connCfg.Module)
 	}

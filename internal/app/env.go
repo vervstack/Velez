@@ -72,7 +72,7 @@ func (a *App) setupServiceDiscovery() {
 		}
 	}
 
-	a.MakoshClient, err = makosh.New(a.Ctx, a.Cfg, makoshBackgroundTask.AuthToken)
+	a.MakoshClient, err = makosh.New(a.Cfg, makoshBackgroundTask.AuthToken)
 	if err != nil {
 		logrus.Fatalf("error creating makosh client %s", err)
 	}

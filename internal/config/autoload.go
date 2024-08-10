@@ -69,6 +69,10 @@ func (c *config) GetEnvironment() EnvironmentConfig {
 	return c.envConfig
 }
 
+func (c *config) GetServiceDiscovery() matreshka.ServiceDiscovery {
+	return c.ServiceDiscovery
+}
+
 type Config interface {
 	GetAppInfo() matreshka.AppInfo
 
@@ -76,6 +80,8 @@ type Config interface {
 	GetDataSources() Resources
 
 	GetEnvironment() EnvironmentConfig
+
+	GetServiceDiscovery() matreshka.ServiceDiscovery
 }
 
 type API interface {

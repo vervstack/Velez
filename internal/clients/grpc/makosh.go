@@ -3,23 +3,16 @@ package grpc
 import (
 	errors "github.com/Red-Sock/trace-errors"
 	pb "github.com/godverv/makosh/pkg/makosh_be"
+	"github.com/godverv/matreshka/resources"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-
-	"github.com/godverv/Velez/internal/config"
 )
 
-func NewMakoshBeAPIClient(cfg config.Config, opts ...grpc.DialOption) (pb.MakoshBeAPIClient, error) {
-	connCfg, err := cfg.GetDataSources().GRPC(config.ResourceGrpcMakosh)
-	if err != nil {
-		return nil, errors.Wrap(err, "couldn't find key"+config.ResourceGrpcMakosh+" grpc connection in config")
-	}
+type MakoshBeAPIClient pb.MakoshBeAPIClient
 
-	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
-
-	conn, err := connect(connCfg.ConnectionString, opts...)
+func NewMakoshBeAPIClient(grpcConn *resources.GRPC, opts ...grpc.DialOption) (MakoshBeAPIClient, error) {
+	conn, err := connect(grpcConn.ConnectionString, opts...)
 	if err != nil {
-		return nil, errors.Wrap(err, "error connection to "+connCfg.Module)
+		return nil, errors.Wrap(err, "error crating grpc client")
 	}
 
 	return pb.NewMakoshBeAPIClient(conn), nil

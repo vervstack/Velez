@@ -9,6 +9,8 @@ data_sources:
     - resource_name: grpc_makosh
       connection_string: localhost:50051
       module: github.com/godverv/makosh@v0.0.3
+servers:
+    8080: {}
 environment:
     - name: available ports
       type: int

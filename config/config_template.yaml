@@ -10,7 +10,10 @@ data_sources:
       connection_string: localhost:50051
       module: github.com/godverv/makosh@v0.0.3
 servers:
-    8080: {}
+    8080:
+        /{GRPC}:
+            module: pkg/velez_api
+            gateway: /api
 environment:
     - name: available ports
       type: int

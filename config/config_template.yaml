@@ -73,7 +73,7 @@ environment:
       value: /tmp/velez/private.key
     - name: disable api security
       type: bool
-      value: true
+      value: false
     - name: disable api security
       type: bool
       value: false

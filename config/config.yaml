@@ -9,9 +9,6 @@ data_sources:
   - resource_name: grpc_makosh
     connection_string: makosh
     module: github.com/godverv/makosh@v0.0.3
-server:
-  - name: grpc
-    port: 53890
 environment:
 #  Node settings
   - name: node_mode

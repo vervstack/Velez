@@ -3,9 +3,72 @@
 
 package app
 
-type Custom struct{}
+import (
+	"github.com/Red-Sock/toolbox/closer"
+	errors "github.com/Red-Sock/trace-errors"
+	"github.com/sirupsen/logrus"
 
-func (c Custom) Init(a App) error {
+	"github.com/godverv/Velez/internal/clients"
+	"github.com/godverv/Velez/internal/clients/managers"
+	"github.com/godverv/Velez/internal/service"
+	"github.com/godverv/Velez/internal/service/service_manager"
+	"github.com/godverv/Velez/internal/transport/grpc"
+)
+
+type Custom struct {
+	Services service.Services
+
+	ExternalClients clients.ExternalClients
+	InternalClients clients.InternalClients
+
+	GrpcImpl *grpc.Impl
+}
+
+func (c *Custom) Init(a *App) (err error) {
 	// Repository, Service logic, transport registration happens here
+
+	err = c.initClients(a)
+	if err != nil {
+		return errors.Wrap(err)
+	}
+
+	c.initServices(a)
+
+	err = c.initServer(a)
+	if err != nil {
+		return errors.Wrap(err)
+	}
+
+	return nil
+}
+
+func (c *Custom) initClients(a *App) (err error) {
+	c.InternalClients, err = managers.NewInternalClients(a.Ctx, a.Cfg)
+	if err != nil {
+		logrus.Fatalf("error initializing internal clients %s", err)
+	}
+
+	c.ExternalClients, err = managers.NewExternalClients(a.Ctx, a.Cfg, c.InternalClients)
+	if err != nil {
+		logrus.Fatalf("error initializing external clients %s", err)
+	}
+
+	return nil
+}
+
+func (c *Custom) initServices(a *App) {
+	c.Services = service_manager.New(c.InternalClients, c.ExternalClients)
+
+	logrus.Warn("shut down on exit is set to: ", a.Cfg.Environment.ShutDownOnExit)
+
+	if a.Cfg.Environment.ShutDownOnExit {
+		closer.Add(smerdsDropper(c.Services))
+	}
+
+}
+
+func (c *Custom) initServer(a *App) error {
+	c.GrpcImpl = grpc.NewImpl(a.Cfg, c.Services)
+
 	return nil
 }

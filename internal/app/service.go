@@ -11,13 +11,13 @@ import (
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-func (a *App) InitServiceManager() {
-	a.Services = service_manager.New(a.InternalClients, a.ExternalClients)
+func (c *Custom) InitServiceManager() {
+	c.Services = service_manager.New(c.InternalClients, c.ExternalClients)
 
-	logrus.Warn("shut down on exit is ", a.Cfg.GetEnvironment().ShutDownOnExit)
+	logrus.Warn("shut down on exit is ", c.Cfg.GetEnvironment().ShutDownOnExit)
 
-	if a.Cfg.GetEnvironment().ShutDownOnExit {
-		closer.Add(smerdsDropper(a.Services))
+	if c.Cfg.GetEnvironment().ShutDownOnExit {
+		closer.Add(smerdsDropper(c.Services))
 	}
 }
 

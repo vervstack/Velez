@@ -14,27 +14,25 @@ import (
 	"github.com/godverv/Velez/internal/clients/makosh"
 )
 
-func (a *App) MustInitEnvironment() {
-	err := env.StartNetwork(a.InternalClients.Docker())
+func (c *Custom) initEnvironment(a *App) {
+	err := env.StartNetwork(c.InternalClients.Docker())
 	if err != nil {
 		logrus.Fatalf("error creating network: %s", err)
 	}
 
-	err = env.StartVolumes(a.InternalClients.Docker())
+	err = env.StartVolumes(c.InternalClients.Docker())
 	if err != nil {
 		logrus.Fatalf("error creating volumes %s", err)
 	}
 
-	envVars := a.Cfg.GetEnvironment()
+	if a.Cfg.Environment.NodeMode {
+		c.setupServiceDiscovery()
 
-	if envVars.NodeMode {
-		a.setupServiceDiscovery()
-
-		matreshkaTask, err := configuration.New(a.Cfg, a.InternalClients)
+		matreshkaTask, err := configuration.New(c.Cfg, c.InternalClients)
 		if err != nil {
 			logrus.Fatalf("error creating configuration background task %s", err)
 		}
-		go keep_alive.KeepAlive(matreshkaTask, keep_alive.WithCancel(a.Ctx.Done()))
+		go keep_alive.KeepAlive(matreshkaTask, keep_alive.WithCancel(c.Ctx.Done()))
 
 		metreshkaEndpoint := &makosh_be.UpsertEndpoints_Request{
 			Endpoints: []*makosh_be.Endpoint{
@@ -44,7 +42,7 @@ func (a *App) MustInitEnvironment() {
 				},
 			},
 		}
-		_, err = a.MakoshClient.UpsertEndpoints(a.Ctx, metreshkaEndpoint)
+		_, err = c.MakoshClient.UpsertEndpoints(c.Ctx, metreshkaEndpoint)
 		if err != nil {
 			logrus.Fatalf("error upserting endpoint for matreshka %s", err)
 		}
@@ -52,8 +50,8 @@ func (a *App) MustInitEnvironment() {
 
 }
 
-func (a *App) setupServiceDiscovery() {
-	makoshBackgroundTask, err := service_discovery_task.New(a.Cfg, a.InternalClients)
+func (c *Custom) setupServiceDiscovery(a *App) {
+	makoshBackgroundTask, err := service_discovery_task.New(a.Cfg, c.InternalClients)
 	if err != nil {
 		logrus.Fatalf("error creating service discovery background task: %s", err)
 	}
@@ -72,12 +70,12 @@ func (a *App) setupServiceDiscovery() {
 		}
 	}
 
-	a.MakoshClient, err = makosh.New(a.Cfg, makoshBackgroundTask.AuthToken)
+	a.MakoshClient, err = makosh.New(c.Cfg, makoshBackgroundTask.AuthToken)
 	if err != nil {
 		logrus.Fatalf("error creating makosh client %s", err)
 	}
 
-	err = grpc.RegisterServiceDiscovery(a.Cfg)
+	err = grpc.RegisterServiceDiscovery(c.Cfg)
 	if err != nil {
 		logrus.Fatalf("error initializing service discovery %s", err)
 	}

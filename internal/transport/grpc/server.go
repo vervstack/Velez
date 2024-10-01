@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka/server"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sirupsen/logrus"
 	"github.com/soheilhy/cmux"
@@ -24,7 +25,7 @@ import (
 )
 
 type Server struct {
-	*Api
+	*Impl
 
 	serverMux cmux.CMux
 
@@ -36,7 +37,7 @@ type Server struct {
 
 func NewServer(
 	cfg config.Config,
-	grpcServer *servers.GRPC,
+	grpcServer *server.GRPC,
 
 	srv service.Services,
 	clnts clients.InternalClients,
@@ -44,14 +45,14 @@ func NewServer(
 
 	var opts []grpc.ServerOption
 
-	if !cfg.GetEnvironment().DisableAPISecurity {
+	if !cfg.Environment.DisableAPISecurity {
 		opts = append(opts, security.GrpcInterceptor(clnts.SecurityManager()))
 	}
 
 	server := &Server{
-		Api:           NewApi(cfg, srv),
+		Impl:          NewImpl(cfg, srv),
 		grpcServer:    grpc.NewServer(opts...),
-		serverAddress: "0.0.0.0:" + grpcServer.GetPortStr(),
+		serverAddress: "0.0.0.0:" + grpcServer(),
 	}
 
 	velez_api.RegisterVelezAPIServer(server.grpcServer, server)

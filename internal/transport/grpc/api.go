@@ -7,7 +7,7 @@ import (
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-type Api struct {
+type Impl struct {
 	velez_api.UnimplementedVelezAPIServer
 
 	version string
@@ -18,9 +18,9 @@ type Api struct {
 	srv service.Services
 }
 
-func NewApi(cfg config.Config, srv service.Services) *Api {
-	return &Api{
-		version: cfg.GetAppInfo().Version,
+func NewImpl(cfg config.Config, srv service.Services) *Impl {
+	return &Impl{
+		version: cfg.AppInfo.Version,
 		srv:     srv,
 	}
 }

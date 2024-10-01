@@ -62,12 +62,6 @@ environment:
     - name: cpu default
       type: float
       value: 0.5
-    - name: cpu default
-      type: float
-      value: 0.5
-    - name: custom pass to key
-      type: string
-      value: /tmp/velez/private.key
     - name: custom pass to key
       type: string
       value: /tmp/velez/private.key
@@ -80,78 +74,39 @@ environment:
     - name: expose matreshka port
       type: bool
       value: true
-    - name: expose matreshka port
-      type: bool
-      value: true
-    - name: makosh expose port
-      type: bool
-      value: true
     - name: makosh expose port
       type: bool
       value: true
     - name: makosh image name
       type: string
       value: godverv/makosh:v0.0.3
-    - name: makosh image name
-      type: string
-      value: godverv/makosh:v0.0.3
-    - name: makosh key
-      type: string
-      value: string
     - name: makosh key
       type: string
       value: string
     - name: makosh port
       type: int
       value: 50051
-    - name: makosh port
-      type: int
-      value: 50051
-    - name: matreshka port
-      type: int
-      value: 50050
     - name: matreshka port
       type: int
       value: 50050
     - name: memory swap mb
       type: int
       value: 50
-    - name: memory swap mb
-      type: int
-      value: 50
-    - name: node mode
-      type: bool
-      value: true
     - name: node mode
       type: bool
       value: true
     - name: portainer enabled
       type: bool
       value: false
-    - name: portainer enabled
-      type: bool
-      value: false
-    - name: ram mb default
-      type: int
-      value: 50
     - name: ram mb default
       type: int
       value: 50
     - name: shut down on exit
       type: bool
       value: false
-    - name: shut down on exit
-      type: bool
-      value: false
     - name: watch tower enabled
       type: bool
       value: true
-    - name: watch tower enabled
-      type: bool
-      value: true
-    - name: watch tower interval
-      type: duration
-      value: 1m0s
     - name: watch tower interval
       type: duration
       value: 1m0s

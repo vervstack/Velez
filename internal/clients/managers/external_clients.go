@@ -3,7 +3,7 @@ package managers
 import (
 	"context"
 
-	"github.com/godverv/matreshka-be/pkg/matreshka_api"
+	"github.com/godverv/matreshka-be/pkg/matreshka_be_api"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -17,7 +17,7 @@ import (
 type externalClients struct {
 	configurator clients.Configurator
 
-	matreshka matreshka_api.MatreshkaBeAPIClient
+	matreshka matreshka_be_api.MatreshkaBeAPIClient
 }
 
 func NewExternalClients(ctx context.Context, cfg config.Config, intCls clients.InternalClients) (clients.ExternalClients, error) {

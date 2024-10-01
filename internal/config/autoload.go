@@ -8,7 +8,7 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
 	"github.com/godverv/matreshka/resources"
-	"github.com/godverv/matreshka/servers"
+	"github.com/godverv/matreshka/server"
 )
 
 var ErrAlreadyLoaded = errors.New("config already loaded")

@@ -5,12 +5,12 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
-	"github.com/godverv/matreshka-be/pkg/matreshka_api"
+	"github.com/godverv/matreshka-be/pkg/matreshka_be_api"
 )
 
 func (c *Configurator) UpdateConfig(ctx context.Context, serviceName string, config matreshka.AppConfig) (err error) {
 
-	postConfig := &matreshka_api.PostConfig_Request{
+	postConfig := &matreshka_be_api.PostConfig_Request{
 		ServiceName: serviceName,
 	}
 

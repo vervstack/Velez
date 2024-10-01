@@ -5,7 +5,7 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
-	"github.com/godverv/matreshka-be/pkg/matreshka_api"
+	"github.com/godverv/matreshka-be/pkg/matreshka_be_api"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -13,7 +13,7 @@ import (
 func (c *Configurator) GetFromApi(ctx context.Context, serviceName string) (matreshka.AppConfig, error) {
 	var apiConfig matreshka.AppConfig
 
-	req := &matreshka_api.GetConfig_Request{
+	req := &matreshka_be_api.GetConfig_Request{
 		ServiceName: serviceName,
 	}
 	matreshkaConfig, err := c.matreshkaClient.GetConfig(ctx, req)

@@ -7,11 +7,11 @@ import (
 	"github.com/Red-Sock/evon"
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
-	"github.com/godverv/matreshka-be/pkg/matreshka_api"
+	"github.com/godverv/matreshka-be/pkg/matreshka_be_api"
 )
 
 func (c *Configurator) GetEnv(ctx context.Context, name string) ([]string, error) {
-	getConfigReq := &matreshka_api.GetConfig_Request{
+	getConfigReq := &matreshka_be_api.GetConfig_Request{
 		ServiceName: name,
 	}
 	raw, err := c.matreshkaClient.GetConfig(ctx, getConfigReq)

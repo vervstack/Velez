@@ -70,5 +70,7 @@ func (c *Custom) initServices(a *App) {
 func (c *Custom) initServer(a *App) error {
 	c.GrpcImpl = grpc.NewImpl(a.Cfg, c.Services)
 
+	a.Server.AddGrpcServer(c.GrpcImpl)
+
 	return nil
 }

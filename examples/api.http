@@ -1,25 +1,21 @@
 ### Get Version
-POST {{velez}}/version
+GET {{velez}}/api/version
 Content-Type: application/json
 
 {}
 
 ### Create standalone smerd
-POST {{velez}}/smerd/create
+POST {{velez}}/api/smerd/create
 Content-Type: application/json
 
 {
   "name": "matreshka-2",
-  "image_name": "godverv/matreshka-be:latest",
+  "image_name": "matreshka_be:local",
   "settings": {
     "ports": [
       {
-        "container": 50051,
-        "protoc": "tcp"
-      },
-      {
-        "container": 50052,
-        "protoc": "tcp"
+        "service_port_number": 8080,
+        "protocol": "tcp"
       }
     ]
   }

@@ -55,10 +55,6 @@ message Version {
   }
 }
 
-
-
-
-
 message Port {
   uint32 service_port_number = 1;
   Protocol protocol = 2;

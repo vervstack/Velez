@@ -4,6 +4,8 @@
 package app
 
 import (
+	"context"
+
 	"github.com/Red-Sock/toolbox/closer"
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/sirupsen/logrus"
@@ -13,6 +15,7 @@ import (
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/internal/service/service_manager"
 	"github.com/godverv/Velez/internal/transport/grpc"
+	"github.com/godverv/Velez/pkg/velez_api"
 )
 
 type Custom struct {
@@ -34,6 +37,8 @@ func (c *Custom) Init(a *App) (err error) {
 
 	c.initServices(a)
 
+	c.initEnvironment(a)
+
 	err = c.initServer(a)
 	if err != nil {
 		return errors.Wrap(err)
@@ -48,7 +53,7 @@ func (c *Custom) initClients(a *App) (err error) {
 		logrus.Fatalf("error initializing internal clients %s", err)
 	}
 
-	c.ExternalClients, err = managers.NewExternalClients(a.Ctx, a.Cfg, c.InternalClients)
+	c.ExternalClients, err = managers.NewExternalClients(a.Cfg, c.InternalClients)
 	if err != nil {
 		logrus.Fatalf("error initializing external clients %s", err)
 	}
@@ -71,6 +76,60 @@ func (c *Custom) initServer(a *App) error {
 	c.GrpcImpl = grpc.NewImpl(a.Cfg, c.Services)
 
 	a.Server.AddGrpcServer(c.GrpcImpl)
+	// TODO ADD TO TOP SHIT
+	//if !cfg.Environment.DisableAPISecurity {
+	//	opts = append(opts, security.GrpcInterceptor(clnts.SecurityManager()))
+	//}
 
 	return nil
+}
+
+func smerdsDropper(manager service.Services) func() error {
+	return func() error {
+		logrus.Infof("ShutDownOnExit env variable is set to TRUE. Dropping launched smerds")
+		logrus.Infof("Listing launched smerds")
+		ctx := context.Background()
+
+		smerds, err := manager.ListSmerds(ctx, &velez_api.ListSmerds_Request{})
+		if err != nil {
+			return err
+		}
+
+		names := make([]string, 0, len(smerds.Smerds))
+
+		for _, sm := range smerds.Smerds {
+			names = append(names, sm.Name)
+		}
+
+		logrus.Infof("%d smerds is active. %v", len(smerds.Smerds), names)
+
+		dropReq := &velez_api.DropSmerd_Request{
+			Uuids: make([]string, len(smerds.Smerds)),
+		}
+
+		for i := range smerds.Smerds {
+			dropReq.Uuids[i] = smerds.Smerds[i].Uuid
+		}
+
+		logrus.Infof("Dropping %d smerds", len(smerds.Smerds))
+
+		dropSmerds, err := manager.DropSmerds(ctx, dropReq)
+		if err != nil {
+			return err
+		}
+
+		logrus.Infof("%d smerds dropped successfully", len(dropSmerds.Successful))
+		if len(dropSmerds.Successful) != 0 {
+			logrus.Infof("Dropped smerds: %v", dropSmerds.Successful)
+		}
+
+		if len(dropSmerds.Failed) != 0 {
+			logrus.Errorf("%d smerds failed to drop", len(dropSmerds.Failed))
+			for _, f := range dropSmerds.Failed {
+				logrus.Errorf("error dropping %s. Cause: %s", f.Uuid, f.Cause)
+			}
+		}
+
+		return nil
+	}
 }

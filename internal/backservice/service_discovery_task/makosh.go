@@ -45,7 +45,7 @@ type ServiceDiscoveryTask struct {
 }
 
 func New(cfg config.Config, internalClients clients.InternalClients) (*ServiceDiscoveryTask, error) {
-	envVar := cfg.GetEnvironment()
+	envVar := cfg.Environment
 
 	serviceDiscoveryTask := &ServiceDiscoveryTask{
 		dockerAPI: internalClients.Docker(),

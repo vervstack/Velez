@@ -20,10 +20,10 @@ type ServiceDiscovery struct {
 	makosh.MakoshBeAPIClient
 }
 
-func New(cfg config.Config, token string) (*ServiceDiscovery, error) {
-	opts := []grpc.DialOption{grpc.WithUnaryInterceptor(interceptor(token))}
+func New(cfg config.Config, token string, opts ...grpc.DialOption) (*ServiceDiscovery, error) {
+	opts = append(opts, grpc.WithUnaryInterceptor(interceptor(token)))
 
-	cl, err := grpcClients.NewMakoshBeAPIClient(cfg, opts...)
+	cl, err := grpcClients.NewMakoshBeAPIClient(cfg.DataSources.GrpcMakosh, opts...)
 	if err != nil {
 		return nil, errors.Wrap(err, "error creating makosh grpc client")
 	}

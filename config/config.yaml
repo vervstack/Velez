@@ -2,20 +2,14 @@ app_info:
   name: github.com/godverv/Velez
   version: v0.1.43
   startup_duration: 10s
-data_sources:
-  - resource_name: grpc_matreshka_be
-    connection_string: verv:///matreshka
-    module: github.com/godverv/matreshka-be@v1.0.31
-  - resource_name: grpc_makosh
-    connection_string: makosh
-    module: github.com/godverv/makosh@v0.0.3
+data_sources: []
 servers:
-  8080:
+  53890:
     /{GRPC}:
       module: pkg/velez_api
       gateway: /api
 environment:
-#  Node settings
+  #  Node settings
   - name: node mode
     value: true
     type: bool
@@ -26,7 +20,7 @@ environment:
     value: false
     type: bool
 
-# Security
+  # Security
   - name: custom pass to key
     value: /tmp/velez/private.key
     type: string
@@ -34,7 +28,7 @@ environment:
     value: false
     type: bool
 
-# Hardware default settings
+  # Hardware default settings
   - name: cpu default
     value: 0.5
     type: float
@@ -45,14 +39,14 @@ environment:
     value: 50
     type: int
 
-# Matreshka
+  # Matreshka
   - name: expose matreshka port
     value: true
     type: bool
   - name: matreshka port
     value: 50050
     type: int
-# Makosh settings
+  # Makosh settings
   - name: makosh expose port
     value: true
     type: bool
@@ -66,15 +60,25 @@ environment:
     value: string
     type: string
 
-# Portainer
+  # Portainer
   - name: portainer enabled
     value: false
     type: bool
 
-# Watchtower
+  # Watchtower
   - name: watch tower enabled
     value: true
     type: bool
   - name: watch tower interval
     value: 60s
     type: duration
+
+  # Service discovery
+  - name: makosh_urls
+    type: string
+    value: [verv://makosh]
+
+  # Configuration service
+  - name: makosh_urls
+    type: string
+    value: [verv://matreshka]

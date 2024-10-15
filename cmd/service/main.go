@@ -7,7 +7,12 @@ import (
 )
 
 func main() {
-	err := app.New().Start()
+	a, err := app.New()
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	err = a.Start()
 	if err != nil {
 		logrus.Fatal(err)
 	}

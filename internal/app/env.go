@@ -4,8 +4,11 @@ import (
 	"time"
 
 	"github.com/Red-Sock/toolbox/keep_alive"
+	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/makosh/pkg/makosh_be"
 	"github.com/sirupsen/logrus"
+	grpc2 "google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/godverv/Velez/internal/backservice/configuration"
 	"github.com/godverv/Velez/internal/backservice/env"
@@ -25,27 +28,29 @@ func (c *Custom) initEnvironment(a *App) {
 		logrus.Fatalf("error creating volumes %s", err)
 	}
 
-	if a.Cfg.Environment.NodeMode {
-		c.setupServiceDiscovery()
+	if !a.Cfg.Environment.NodeMode {
+		return
+	}
 
-		matreshkaTask, err := configuration.New(c.Cfg, c.InternalClients)
-		if err != nil {
-			logrus.Fatalf("error creating configuration background task %s", err)
-		}
-		go keep_alive.KeepAlive(matreshkaTask, keep_alive.WithCancel(c.Ctx.Done()))
+	c.setupServiceDiscovery(a)
 
-		metreshkaEndpoint := &makosh_be.UpsertEndpoints_Request{
-			Endpoints: []*makosh_be.Endpoint{
-				{
-					ServiceName: "matreshka",
-					Addrs:       []string{},
-				},
+	matreshkaTask, err := configuration.New(a.Cfg, c.InternalClients)
+	if err != nil {
+		logrus.Fatalf("error creating configuration background task %s", errors.Wrap(err))
+	}
+	go keep_alive.KeepAlive(matreshkaTask, keep_alive.WithCancel(a.Ctx.Done()))
+
+	metreshkaEndpoint := &makosh_be.UpsertEndpoints_Request{
+		Endpoints: []*makosh_be.Endpoint{
+			{
+				ServiceName: "matreshka",
+				Addrs:       []string{},
 			},
-		}
-		_, err = c.MakoshClient.UpsertEndpoints(c.Ctx, metreshkaEndpoint)
-		if err != nil {
-			logrus.Fatalf("error upserting endpoint for matreshka %s", err)
-		}
+		},
+	}
+	_, err = a.GrpcMakosh.UpsertEndpoints(a.Ctx, metreshkaEndpoint)
+	if err != nil {
+		logrus.Fatalf("error upserting endpoint for matreshka %s", err)
 	}
 
 }
@@ -55,6 +60,8 @@ func (c *Custom) setupServiceDiscovery(a *App) {
 	if err != nil {
 		logrus.Fatalf("error creating service discovery background task: %s", err)
 	}
+
+	logrus.Info("Starting service discovery background task")
 	go keep_alive.KeepAlive(makoshBackgroundTask, keep_alive.WithCancel(a.Ctx.Done()))
 
 	t := time.NewTicker(time.Second * 2)
@@ -70,12 +77,13 @@ func (c *Custom) setupServiceDiscovery(a *App) {
 		}
 	}
 
-	a.MakoshClient, err = makosh.New(c.Cfg, makoshBackgroundTask.AuthToken)
+	a.GrpcMakosh, err = makosh.New(a.Cfg, makoshBackgroundTask.AuthToken,
+		grpc2.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		logrus.Fatalf("error creating makosh client %s", err)
+		logrus.Fatalf("error creating makosh client %s", errors.Wrap(err))
 	}
 
-	err = grpc.RegisterServiceDiscovery(c.Cfg)
+	err = grpc.RegisterServiceDiscovery(a.Cfg)
 	if err != nil {
 		logrus.Fatalf("error initializing service discovery %s", err)
 	}

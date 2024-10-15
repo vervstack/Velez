@@ -125,10 +125,10 @@ func (c *SmerdLauncher) enrichWithMatreshkaConfig(ctx context.Context, req *vele
 		return errors.Wrap(err, "error getting matreshka config from matreshka api")
 	}
 
-	for _, srv := range matreshkaConfig.Servers {
+	for port := range matreshkaConfig.Servers {
 		req.Settings.Ports = append(req.Settings.Ports,
 			&velez_api.Port{
-				ServicePortNumber: uint32(srv.GetPort()),
+				ServicePortNumber: uint32(port),
 				Protocol:          velez_api.Port_tcp,
 			})
 	}

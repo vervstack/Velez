@@ -15,35 +15,30 @@ var (
 )
 
 func getPort(cfg config.Config, cls clients.InternalClients) (*int, error) {
-	envVars := cfg.GetEnvironment()
+	envVars := cfg.Environment
 
-	var portToExposeTo int
-	if envVars.ExposeMatreshkaPort {
+	if !envVars.ExposeMatreshkaPort {
 		return nil, nil
 	}
+	var p int
 
-	p := uint64(envVars.MatreshkaPort)
-
+	p = envVars.MatreshkaPort
 	if p == 0 {
-		portFromPool, err := cls.PortManager().GetPort()
+		portFromManager, err := cls.PortManager().GetPort()
 		if err != nil {
 			return nil, errors.Wrap(err, "error obtaining port from pool")
 		}
 
-		portToExposeTo = int(portFromPool)
+		p = int(portFromManager)
 	}
 
-	if p != 0 {
-		return &portToExposeTo, nil
-	}
-
-	return nil, nil
+	return &p, nil
 
 }
 
 func getTargetURL(cfg config.Config, internalClients clients.InternalClients, portToExposeTo *int) (string, error) {
 	targetURL := Name
-	envVar := cfg.GetEnvironment()
+	envVar := cfg.Environment
 
 	isInContainer, err := env.IsInContainer(internalClients.Docker())
 	if err != nil {

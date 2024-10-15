@@ -1,8 +1,6 @@
 package managers
 
 import (
-	"context"
-
 	"github.com/godverv/matreshka-be/pkg/matreshka_be_api"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -20,14 +18,17 @@ type externalClients struct {
 	matreshka matreshka_be_api.MatreshkaBeAPIClient
 }
 
-func NewExternalClients(ctx context.Context, cfg config.Config, intCls clients.InternalClients) (clients.ExternalClients, error) {
+func NewExternalClients(cfg config.Config, intCls clients.InternalClients) (clients.ExternalClients, error) {
 	var err error
 	exCls := &externalClients{}
 
 	// Matreshka
 	{
+
+		// TODO REMOVE INSECURE CONNECTION
 		logrus.Debug("Initializing matreshka client")
-		exCls.matreshka, err = grpcClients.NewMatreshkaBeAPIClient(ctx, cfg, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		exCls.matreshka, err = grpcClients.NewMatreshkaBeAPIClient(cfg.DataSources.GrpcMatreshkaBe,
+			grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			logrus.Fatalf("error getting matreshka api: %s", err)
 		}

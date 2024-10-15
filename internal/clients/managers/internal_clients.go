@@ -5,6 +5,7 @@ import (
 
 	"github.com/Red-Sock/toolbox/closer"
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"github.com/sirupsen/logrus"
 
@@ -39,14 +40,20 @@ func NewInternalClients(ctx context.Context, cfg config.Config) (clients.Interna
 			return nil, errors.Wrap(err, "error getting docker api client")
 		}
 		closer.Add(cls.docker.Close)
+		var pong types.Ping
+		pong, err = cls.docker.Ping(ctx)
+		if err != nil {
+			return nil, errors.Wrap(err, "error pinging docker api client")
+		}
+		_ = pong
 	}
 
 	// Security access layer
 	{
-		if !cfg.GetEnvironment().DisableAPISecurity {
+		if !cfg.Environment.DisableAPISecurity {
 			logrus.Debug("Initializing security manager")
 
-			cls.securityManager = security.NewSecurityManager(cfg.GetEnvironment().CustomPassToKey)
+			cls.securityManager = security.NewSecurityManager(cfg.Environment.CustomPassToKey)
 
 			err = cls.securityManager.Start()
 			if err != nil {

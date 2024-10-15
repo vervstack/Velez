@@ -6,7 +6,6 @@ import (
 	"github.com/Red-Sock/toolbox"
 	"github.com/Red-Sock/toolbox/closer"
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/Velez/internal/clients/grpc"
 	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/transport"
 	"github.com/sirupsen/logrus"
@@ -17,9 +16,6 @@ type App struct {
 	Ctx  context.Context
 	Stop func()
 	Cfg  config.Config
-	/* Data source connection */
-	GrpcMatreshkaBe grpc.MatreshkaBeAPIClient
-	GrpcMakosh      grpc.MakoshBeAPIClient
 	/* Servers managers */
 	Server *transport.ServersManager
 
@@ -32,11 +28,6 @@ func New() (app App, err error) {
 	err = app.InitConfig()
 	if err != nil {
 		return App{}, errors.Wrap(err, "error initializing config")
-	}
-
-	err = app.InitDataSources()
-	if err != nil {
-		return App{}, errors.Wrap(err, "error during data sources initialization")
 	}
 
 	err = app.InitServers()

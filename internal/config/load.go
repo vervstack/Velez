@@ -14,7 +14,6 @@ var ErrAlreadyLoaded = errors.New("config already loaded")
 type Config struct {
 	AppInfo matreshka.AppInfo
 
-	DataSources DataSourcesConfig
 	Environment EnvironmentConfig
 }
 
@@ -52,10 +51,6 @@ func Load() (Config, error) {
 
 	defaultConfig.AppInfo = rootConfig.AppInfo
 
-	err = rootConfig.DataSources.ParseToStruct(&defaultConfig.DataSources)
-	if err != nil {
-		return defaultConfig, errors.Wrap(err, "error parsing data sources to struct")
-	}
 	err = rootConfig.Environment.ParseToStruct(&defaultConfig.Environment)
 	if err != nil {
 		return defaultConfig, errors.Wrap(err, "error parsing environment config")

@@ -79,6 +79,6 @@ environment:
     value: [verv://makosh]
 
   # Configuration service
-  - name: makosh_urls
+  - name: matreshka_urls
     type: string
     value: [verv://matreshka]

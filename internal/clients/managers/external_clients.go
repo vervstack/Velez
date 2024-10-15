@@ -27,7 +27,7 @@ func NewExternalClients(cfg config.Config, intCls clients.InternalClients) (clie
 
 		// TODO REMOVE INSECURE CONNECTION
 		logrus.Debug("Initializing matreshka client")
-		exCls.matreshka, err = grpcClients.NewMatreshkaBeAPIClient(cfg.DataSources.GrpcMatreshkaBe,
+		exCls.matreshka, err = grpcClients.NewMatreshkaBeAPIClient(cfg.Environment.MatreshkaPort,
 			grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			logrus.Fatalf("error getting matreshka api: %s", err)

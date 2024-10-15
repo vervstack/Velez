@@ -22,6 +22,7 @@ type EnvironmentConfig struct {
 	MakoshUrls          []string
 	MatreshkaPort       int
 	MatreshkaUrls       []string
+	MatreshkaUrls       []string
 	MemorySwapMb        int
 	NodeMode            bool
 	PortainerEnabled    bool

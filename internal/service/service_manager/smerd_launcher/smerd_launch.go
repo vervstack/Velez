@@ -25,7 +25,7 @@ type SmerdLauncher struct {
 	configManager clients.Configurator
 }
 
-func New(internalClients clients.InternalClients, externalClients clients.ExternalClients) *SmerdLauncher {
+func New(internalClients clients.NodeClients, externalClients clients.ClusterClients) *SmerdLauncher {
 	return &SmerdLauncher{
 		docker:        internalClients.Docker(),
 		deployManager: internalClients.DeployManager(),

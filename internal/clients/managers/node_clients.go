@@ -18,7 +18,7 @@ import (
 	"github.com/godverv/Velez/internal/config"
 )
 
-type internalClients struct {
+type nodeClients struct {
 	docker *docker.Docker
 
 	portManager     clients.PortManager
@@ -28,9 +28,9 @@ type internalClients struct {
 	securityManager clients.SecurityManager
 }
 
-func NewInternalClients(ctx context.Context, cfg config.Config) (clients.InternalClients, error) {
+func NewNodeClients(ctx context.Context, cfg config.Config) (clients.NodeClients, error) {
 	var err error
-	cls := &internalClients{}
+	cls := &nodeClients{}
 
 	// Docker engine
 	{
@@ -91,26 +91,26 @@ func NewInternalClients(ctx context.Context, cfg config.Config) (clients.Interna
 	return cls, nil
 }
 
-func (c *internalClients) DockerAPI() client.CommonAPIClient {
+func (c *nodeClients) DockerAPI() client.CommonAPIClient {
 	return c.docker
 }
 
-func (c *internalClients) Docker() clients.Docker {
+func (c *nodeClients) Docker() clients.Docker {
 	return c.docker
 }
 
-func (c *internalClients) DeployManager() clients.DeployManager {
+func (c *nodeClients) DeployManager() clients.DeployManager {
 	return c.deployManager
 }
 
-func (c *internalClients) PortManager() clients.PortManager {
+func (c *nodeClients) PortManager() clients.PortManager {
 	return c.portManager
 }
 
-func (c *internalClients) HardwareManager() clients.HardwareManager {
+func (c *nodeClients) HardwareManager() clients.HardwareManager {
 	return c.hardwareManager
 }
 
-func (c *internalClients) SecurityManager() clients.SecurityManager {
+func (c *nodeClients) SecurityManager() clients.SecurityManager {
 	return c.securityManager
 }

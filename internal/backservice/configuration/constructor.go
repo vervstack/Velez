@@ -14,7 +14,7 @@ var (
 	ErrRequireMatreshkaPortExportToRunAsDaemon = errors.New("matreshka port must be exported in order to run velez as daemon")
 )
 
-func getPort(cfg config.Config, cls clients.InternalClients) (*int, error) {
+func getPort(cfg config.Config, cls clients.NodeClients) (*int, error) {
 	envVars := cfg.Environment
 
 	if !envVars.ExposeMatreshkaPort {
@@ -36,7 +36,7 @@ func getPort(cfg config.Config, cls clients.InternalClients) (*int, error) {
 
 }
 
-func getTargetURL(cfg config.Config, internalClients clients.InternalClients, portToExposeTo *int) (string, error) {
+func getTargetURL(cfg config.Config, internalClients clients.NodeClients, portToExposeTo *int) (string, error) {
 	targetURL := Name
 	envVar := cfg.Environment
 

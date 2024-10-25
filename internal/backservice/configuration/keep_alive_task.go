@@ -26,7 +26,7 @@ const (
 	image = "godverv/matreshka-be:v1.0.31"
 )
 
-type Matreshka struct {
+type MatreshkaTask struct {
 	Address string
 
 	dockerAPI client.CommonAPIClient
@@ -34,8 +34,8 @@ type Matreshka struct {
 	port *int
 }
 
-func New(cfg config.Config, cls clients.InternalClients) (*Matreshka, error) {
-	w := &Matreshka{
+func newTask(cfg config.Config, cls clients.NodeClients) (*MatreshkaTask, error) {
+	w := &MatreshkaTask{
 		dockerAPI: cls.Docker(),
 	}
 	var err error
@@ -48,10 +48,11 @@ func New(cfg config.Config, cls clients.InternalClients) (*Matreshka, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting target URL")
 	}
+
 	return w, nil
 }
 
-func (b *Matreshka) Start() error {
+func (b *MatreshkaTask) Start() error {
 	isAlive, err := b.IsAlive()
 	if err != nil {
 		return err
@@ -112,11 +113,11 @@ func (b *Matreshka) Start() error {
 	return nil
 }
 
-func (b *Matreshka) GetName() string {
+func (b *MatreshkaTask) GetName() string {
 	return Name
 }
 
-func (b *Matreshka) IsAlive() (bool, error) {
+func (b *MatreshkaTask) IsAlive() (bool, error) {
 	name := Name
 
 	containers, err := dockerutils.ListContainers(
@@ -145,7 +146,7 @@ func (b *Matreshka) IsAlive() (bool, error) {
 	return false, nil
 }
 
-func (b *Matreshka) Kill() error {
+func (b *MatreshkaTask) Kill() error {
 	err := b.dockerAPI.ContainerRemove(context.Background(), Name, container.RemoveOptions{
 		RemoveVolumes: true,
 		Force:         true,

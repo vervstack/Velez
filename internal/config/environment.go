@@ -17,9 +17,7 @@ type EnvironmentConfig struct {
 	MakoshKey           string
 	MakoshPort          int
 	MakoshUrls          []string
-	MakoshUrls          []string
 	MatreshkaPort       int
-	MatreshkaUrls       []string
 	MatreshkaUrls       []string
 	MemorySwapMb        int
 	NodeMode            bool

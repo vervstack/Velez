@@ -1,4 +1,4 @@
-package service_discovery_task
+package service_discovery
 
 import (
 	"context"
@@ -44,7 +44,7 @@ type ServiceDiscoveryTask struct {
 	duration       time.Duration
 }
 
-func New(cfg config.Config, internalClients clients.InternalClients) (*ServiceDiscoveryTask, error) {
+func newKeepAliveTask(cfg config.Config, internalClients clients.NodeClients) (*ServiceDiscoveryTask, error) {
 	envVar := cfg.Environment
 
 	serviceDiscoveryTask := &ServiceDiscoveryTask{
@@ -77,9 +77,10 @@ func (s *ServiceDiscoveryTask) Start() error {
 	if err != nil {
 		return errors.Wrap(err)
 	}
+
 	if isAlive {
 		logrus.Info("Makosh is already running")
-		return err
+		return nil
 	}
 
 	ctx := context.Background()

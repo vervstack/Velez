@@ -19,27 +19,38 @@ import (
 )
 
 type Custom struct {
+	// NodeClients - hardware scanner, docker and wrappers
+	NodeClients clients.NodeClients
+	// ClusterClients - configuration service, service discovery
+	ClusterClients clients.ClusterClients
+	// Services - contains business logic services
 	Services service.Services
-
-	ExternalClients clients.ExternalClients
-	InternalClients clients.InternalClients
-
+	// Api implementation
 	GrpcImpl *grpc.Impl
 }
 
 func (c *Custom) Init(a *App) (err error) {
-	// Repository, Service logic, transport registration happens here
-
-	err = c.initClients(a)
+	c.NodeClients, err = managers.NewNodeClients(a.Ctx, a.Cfg)
 	if err != nil {
-		return errors.Wrap(err)
+		return errors.Wrap(err, "error initializing internal clients")
 	}
 
-	c.initServices(a)
+	err = c.setupVervNodeEnvironment()
+	if err != nil {
+		return errors.Wrap(err, "error setting up node environment")
+	}
 
-	c.initEnvironment(a)
+	c.initServiceDiscovery(a)
+	c.initConfigurationService(a)
 
-	err = c.initServer(a)
+	c.initVelezServices(a)
+
+	c.ClusterClients, err = managers.NewClusterClients(a.Cfg, c.NodeClients)
+	if err != nil {
+		return errors.Wrap(err, "error initializing external clients")
+	}
+
+	err = c.initApiServer(a)
 	if err != nil {
 		return errors.Wrap(err)
 	}
@@ -47,35 +58,21 @@ func (c *Custom) Init(a *App) (err error) {
 	return nil
 }
 
-func (c *Custom) initClients(a *App) (err error) {
-	c.InternalClients, err = managers.NewInternalClients(a.Ctx, a.Cfg)
-	if err != nil {
-		logrus.Fatalf("error initializing internal clients %s", err)
-	}
-
-	c.ExternalClients, err = managers.NewExternalClients(a.Cfg, c.InternalClients)
-	if err != nil {
-		logrus.Fatalf("error initializing external clients %s", err)
-	}
-
-	return nil
-}
-
-func (c *Custom) initServices(a *App) {
-	c.Services = service_manager.New(c.InternalClients, c.ExternalClients)
+func (c *Custom) initVelezServices(a *App) {
+	c.Services = service_manager.New(c.NodeClients, c.ClusterClients)
 
 	logrus.Warn("shut down on exit is set to: ", a.Cfg.Environment.ShutDownOnExit)
 
 	if a.Cfg.Environment.ShutDownOnExit {
 		closer.Add(smerdsDropper(c.Services))
 	}
-
 }
 
-func (c *Custom) initServer(a *App) error {
+func (c *Custom) initApiServer(a *App) error {
 	c.GrpcImpl = grpc.NewImpl(a.Cfg, c.Services)
 
 	a.Server.AddGrpcServer(c.GrpcImpl)
+	//a.Server.AddHttpHandler("/verv/makosh", c.ServiceDiscovery)
 	// TODO ADD TO TOP SHIT
 	//if !cfg.Environment.DisableAPISecurity {
 	//	opts = append(opts, security.GrpcInterceptor(clnts.SecurityManager()))

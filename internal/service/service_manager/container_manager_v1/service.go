@@ -17,8 +17,8 @@ type ContainerManager struct {
 }
 
 func NewContainerManager(
-	internalClients clients.InternalClients,
-	externalClients clients.ExternalClients,
+	internalClients clients.NodeClients,
+	externalClients clients.ClusterClients,
 ) *ContainerManager {
 
 	return &ContainerManager{

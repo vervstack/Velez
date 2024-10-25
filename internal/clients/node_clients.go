@@ -5,23 +5,20 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
-	"github.com/godverv/matreshka"
 
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-type InternalClients interface {
+// NodeClients - container for node level clients
+type NodeClients interface {
+	// Docker - returns basic DockerEngine API
 	Docker() Docker
+
 	DeployManager() DeployManager
 	PortManager() PortManager
-	HardwareManager() HardwareManager
-
 	SecurityManager() SecurityManager
-}
 
-type ExternalClients interface {
-	//ServiceDiscovery() ServiceDiscovery
-	Configurator() Configurator
+	HardwareManager() HardwareManager
 }
 
 type Docker interface {
@@ -39,20 +36,10 @@ type DeployManager interface {
 	Healthcheck(ctx context.Context, contId string, healthcheck *velez_api.Container_Healthcheck) error
 }
 
-type Configurator interface {
-	GetFromContainer(ctx context.Context, contId string) (matreshka.AppConfig, error)
-	GetFromApi(ctx context.Context, serviceName string) (matreshka.AppConfig, error)
-	UpdateConfig(ctx context.Context, serviceName string, config matreshka.AppConfig) error
-}
-
 type PortManager interface {
 	GetPort() (uint32, error)
 	LockPort(ports ...uint32) error
 	UnlockPorts(ports []uint32)
-}
-
-type HardwareManager interface {
-	GetHardware() (*velez_api.GetHardware_Response, error)
 }
 
 type SecurityManager interface {
@@ -60,4 +47,8 @@ type SecurityManager interface {
 	Stop() error
 
 	ValidateKey(in string) bool
+}
+
+type HardwareManager interface {
+	GetHardware() (*velez_api.GetHardware_Response, error)
 }

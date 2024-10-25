@@ -8,32 +8,34 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
-	grpcClients "github.com/godverv/Velez/internal/clients/grpc"
-	"github.com/godverv/Velez/internal/config"
+	pb "github.com/godverv/makosh/pkg/makosh_be"
 )
 
 const (
 	MakoshAuthHeader = "Makosh-Auth"
+
+	ServiceName = "makosh"
 )
 
 type ServiceDiscovery struct {
 	makosh.MakoshBeAPIClient
 }
 
-func New(cfg config.Config, token string, opts ...grpc.DialOption) (*ServiceDiscovery, error) {
-	opts = append(opts, grpc.WithUnaryInterceptor(interceptor(token)))
+func New(token string, opts ...grpc.DialOption) (*ServiceDiscovery, error) {
+	opts = append(opts, grpc.WithUnaryInterceptor(HeaderInterceptor(token)))
 
-	cl, err := grpcClients.NewMakoshBeAPIClient(cfg.DataSources.GrpcMakosh, opts...)
+	dial, err := grpc.NewClient("verv://"+ServiceName, opts...)
+	//dial, err := grpc.NewClient("0.0.0.0:50051", opts...)
 	if err != nil {
-		return nil, errors.Wrap(err, "error creating makosh grpc client")
+		return nil, errors.Wrap(err, "error dialing")
 	}
 
 	return &ServiceDiscovery{
-		MakoshBeAPIClient: cl,
+		MakoshBeAPIClient: pb.NewMakoshBeAPIClient(dial),
 	}, nil
 }
 
-func interceptor(token string) func(ctx context.Context, method string, req, reply any, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+func HeaderInterceptor(token string) func(ctx context.Context, method string, req, reply any, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
 	md := metadata.New(map[string]string{
 		MakoshAuthHeader: token,
 	})

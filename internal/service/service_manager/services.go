@@ -13,7 +13,7 @@ type ServiceManager struct {
 	*smerd_launcher.SmerdLauncher
 }
 
-func New(internalClients clients.InternalClients, externalClients clients.ExternalClients) service.Services {
+func New(internalClients clients.NodeClients, externalClients clients.ClusterClients) service.Services {
 	return &ServiceManager{
 		ContainerManager: container_manager_v1.NewContainerManager(internalClients, externalClients),
 

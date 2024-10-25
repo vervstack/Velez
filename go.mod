@@ -8,7 +8,7 @@ require (
 	github.com/Red-Sock/trace-errors v0.0.9
 	github.com/docker/docker v27.3.1+incompatible
 	github.com/docker/go-connections v0.5.0
-	github.com/godverv/makosh v0.0.3
+	github.com/godverv/makosh v0.0.4
 	github.com/godverv/matreshka v0.0.35
 	github.com/godverv/matreshka-be v1.0.36
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0
@@ -21,7 +21,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/net v0.30.0
 	golang.org/x/sync v0.8.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20241007155032-5fefd90f89a9
+	google.golang.org/genproto/googleapis/api v0.0.0-20241021214115-324edc3d5d38
 	google.golang.org/grpc v1.67.1
 	google.golang.org/protobuf v1.35.1
 )
@@ -54,8 +54,13 @@ require (
 	golang.org/x/sys v0.26.0 // indirect
 	golang.org/x/text v0.19.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20241007155032-5fefd90f89a9 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20241021214115-324edc3d5d38 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools/v3 v3.5.1 // indirect
 	howett.net/plist v1.0.1 // indirect
+)
+
+replace (
+	github.com/Red-Sock/toolbox => /Users/alexbukov/Yandex.Disk.localized/проекты/redsock/toolbox
+	github.com/godverv/makosh => /Users/alexbukov/Yandex.Disk.localized/проекты/verv/Makosh/makosh
 )

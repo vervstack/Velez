@@ -10,6 +10,7 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
+	"github.com/godverv/matreshka-be/pkg/matreshka_be_api"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
 
@@ -31,57 +32,50 @@ type MatreshkaTask struct {
 
 	dockerAPI client.CommonAPIClient
 
-	port *int
+	ApiClient *ApiClient
+	port      *int
 }
 
-func newTask(cfg config.Config, cls clients.NodeClients) (*MatreshkaTask, error) {
-	w := &MatreshkaTask{
-		dockerAPI: cls.Docker(),
+func newKeepAliveTask(cfg config.Config, nodeClients clients.NodeClients) (*MatreshkaTask, error) {
+	task := &MatreshkaTask{
+		dockerAPI: nodeClients.Docker(),
 	}
+
 	var err error
-	w.port, err = getPort(cfg, cls)
+	task.port, err = getPort(cfg, nodeClients)
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting port")
 	}
 
-	w.Address, err = getTargetURL(cfg, cls, w.port)
+	task.Address, err = getTargetURL(cfg, nodeClients, task.port)
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting target URL")
 	}
 
-	return w, nil
+	return task, nil
 }
 
-func (b *MatreshkaTask) Start() error {
-	isAlive, err := b.IsAlive()
-	if err != nil {
-		return err
-	}
-	if isAlive {
-		logrus.Info("Matreshka is already running")
-		return err
-	}
-
+func (t *MatreshkaTask) Start() error {
 	ctx := context.Background()
 
-	_, err = dockerutils.PullImage(ctx, b.dockerAPI, image, false)
+	_, err := dockerutils.PullImage(ctx, t.dockerAPI, image, false)
 	if err != nil {
 		return errors.Wrap(err, "error pulling matreshka image")
 	}
 
 	hostConf := &container.HostConfig{}
 
-	if b.port != nil {
+	if t.port != nil {
 		hostConf.PortBindings = nat.PortMap{
 			"53891/tcp": []nat.PortBinding{
 				{
-					HostPort: strconv.Itoa(*b.port),
+					HostPort: strconv.Itoa(*t.port),
 				},
 			},
 		}
 	}
 
-	cont, err := b.dockerAPI.ContainerCreate(ctx,
+	cont, err := t.dockerAPI.ContainerCreate(ctx,
 		&container.Config{
 			Hostname: Name,
 			Image:    image,
@@ -98,14 +92,17 @@ func (b *MatreshkaTask) Start() error {
 		return errors.Wrap(err, "error creating matreshka container")
 	}
 
-	err = b.dockerAPI.ContainerStart(ctx, cont.ID, container.StartOptions{})
+	err = t.dockerAPI.ContainerStart(ctx, cont.ID, container.StartOptions{})
 	if err != nil {
 		return errors.Wrap(err, "error starting matreshka container")
 	}
 
-	err = b.dockerAPI.NetworkConnect(ctx, env.VervNetwork, cont.ID, &network.EndpointSettings{
-		Aliases: []string{Name},
-	})
+	err = t.dockerAPI.NetworkConnect(
+		ctx,
+		env.VervNetwork,
+		cont.ID,
+		&network.EndpointSettings{Aliases: []string{Name}},
+	)
 	if err != nil {
 		return errors.Wrap(err, "error connecting matreshka container to verv network")
 	}
@@ -113,41 +110,46 @@ func (b *MatreshkaTask) Start() error {
 	return nil
 }
 
-func (b *MatreshkaTask) GetName() string {
+func (t *MatreshkaTask) GetName() string {
 	return Name
 }
 
-func (b *MatreshkaTask) IsAlive() (bool, error) {
+func (t *MatreshkaTask) IsAlive() bool {
 	name := Name
+	ctx := context.Background()
 
-	containers, err := dockerutils.ListContainers(
-		context.Background(),
-		b.dockerAPI, &velez_api.ListSmerds_Request{
-			Name: &name,
-		})
+	cont, err := t.dockerAPI.ContainerInspect(ctx, name)
 	if err != nil {
-		return false, errors.Wrap(err, "error listing smerds with name "+name)
+		if strings.Contains(err.Error(), "No such container") {
+			return false
+		}
+		logrus.Error(errors.Wrap(err, "error getting matreshka container"))
+		return false
 	}
 
-	for _, cont := range containers {
-		hasName := false
-		for _, cNname := range cont.Names {
-			if name == cNname[1:] {
-				hasName = true
-				break
-			}
-		}
-
-		if hasName && cont.State == velez_api.Smerd_running.String() {
-			return true, nil
-		}
+	if cont.State.Status != velez_api.Smerd_running.String() {
+		return false
 	}
 
-	return false, nil
+	t.ApiClient, err = newApiClient(t.Address)
+	if err != nil {
+		logrus.Error(errors.Wrap(err, "error creating api client"))
+		return false
+	}
+
+	resp, err := t.ApiClient.MatreshkaBeAPIClient.ApiVersion(ctx, &matreshka_be_api.ApiVersion_Request{})
+	if err != nil {
+		return false
+	}
+	if resp == nil {
+		return false
+	}
+
+	return false
 }
 
-func (b *MatreshkaTask) Kill() error {
-	err := b.dockerAPI.ContainerRemove(context.Background(), Name, container.RemoveOptions{
+func (t *MatreshkaTask) Kill() error {
+	err := t.dockerAPI.ContainerRemove(context.Background(), Name, container.RemoveOptions{
 		RemoveVolumes: true,
 		Force:         true,
 	})

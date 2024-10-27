@@ -2,6 +2,7 @@ package container_manager_v1
 
 import (
 	"github.com/godverv/Velez/internal/clients"
+	"github.com/godverv/Velez/internal/service"
 )
 
 const (
@@ -11,22 +12,22 @@ const (
 type ContainerManager struct {
 	docker clients.Docker
 
-	configManager clients.Configurator
 	portManager   clients.PortManager
 	deployManager clients.DeployManager
+
+	configService service.ConfigurationService
 }
 
 func NewContainerManager(
 	internalClients clients.NodeClients,
-	externalClients clients.ClusterClients,
+	configurator service.ConfigurationService,
 ) *ContainerManager {
 
 	return &ContainerManager{
-		docker: internalClients.Docker(),
-
+		docker:        internalClients.Docker(),
 		portManager:   internalClients.PortManager(),
 		deployManager: internalClients.DeployManager(),
 
-		configManager: externalClients.Configurator(),
+		configService: configurator,
 	}
 }

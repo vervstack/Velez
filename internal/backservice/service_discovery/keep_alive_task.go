@@ -11,6 +11,7 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
+	pb "github.com/godverv/makosh/pkg/makosh_be"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
 
@@ -42,50 +43,40 @@ type ServiceDiscoveryTask struct {
 	image          string
 	portToExposeTo *string
 	duration       time.Duration
+
+	ApiClient *ApiClient
 }
 
-func newKeepAliveTask(cfg config.Config, internalClients clients.NodeClients) (*ServiceDiscoveryTask, error) {
-	envVar := cfg.Environment
-
+func newKeepAliveTask(cfg config.Config, nodeClients clients.NodeClients) (*ServiceDiscoveryTask, error) {
 	serviceDiscoveryTask := &ServiceDiscoveryTask{
-		dockerAPI: internalClients.Docker(),
-		image:     rtb.Coalesce(envVar.MakoshImageName, image),
+		dockerAPI: nodeClients.Docker(),
+		image:     rtb.Coalesce(cfg.Environment.MakoshImageName, image),
 		duration:  duration,
 	}
 
 	var err error
-	serviceDiscoveryTask.portToExposeTo, err = getPortToExposeTo(envVar, internalClients)
+	serviceDiscoveryTask.portToExposeTo, err = getPortToExposeTo(cfg.Environment, nodeClients)
 	if err != nil {
-		return nil, errors.Wrap(err, "error getting port to expose to makosh")
+		return nil, errors.Wrap(err, "error getting port to expose for makosh")
 	}
 
-	serviceDiscoveryTask.Address, err = getTargetURL(envVar, internalClients, serviceDiscoveryTask.portToExposeTo)
+	serviceDiscoveryTask.Address, err = getTargetURL(
+		cfg.Environment,
+		nodeClients,
+		serviceDiscoveryTask.portToExposeTo)
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting target URL")
 	}
 
-	serviceDiscoveryTask.AuthToken, err = generateAuthToken()
-	if err != nil {
-		return nil, errors.Wrap(err, "error generating auth token")
-	}
+	serviceDiscoveryTask.AuthToken = string(rtb.RandomBase64(256))
 
 	return serviceDiscoveryTask, nil
 }
 
 func (s *ServiceDiscoveryTask) Start() error {
-	isAlive, err := s.IsAlive()
-	if err != nil {
-		return errors.Wrap(err)
-	}
-
-	if isAlive {
-		logrus.Info("Makosh is already running")
-		return nil
-	}
-
 	ctx := context.Background()
 
-	_, err = dockerutils.PullImage(ctx, s.dockerAPI, s.image, false)
+	_, err := dockerutils.PullImage(ctx, s.dockerAPI, s.image, false)
 	if err != nil {
 		return errors.Wrap(err, "error pulling matreshka image")
 	}
@@ -102,15 +93,17 @@ func (s *ServiceDiscoveryTask) Start() error {
 		}
 	}
 
-	cont, err := s.dockerAPI.ContainerCreate(ctx,
-		&container.Config{
-			Hostname: Name,
-			Image:    s.image,
-			Labels: map[string]string{
-				container_manager_v1.CreatedWithVelezLabel: "true",
-			},
-			Env: []string{makoshContainerAuthTokenEnvVariable + "=" + s.AuthToken},
+	createCfg := &container.Config{
+		Hostname: Name,
+		Image:    s.image,
+		Labels: map[string]string{
+			container_manager_v1.CreatedWithVelezLabel: "true",
 		},
+		Env: []string{makoshContainerAuthTokenEnvVariable + "=" + s.AuthToken},
+	}
+
+	cont, err := s.dockerAPI.ContainerCreate(ctx,
+		createCfg,
 		hostConf,
 		&network.NetworkingConfig{},
 		&v1.Platform{},
@@ -128,9 +121,7 @@ func (s *ServiceDiscoveryTask) Start() error {
 	err = s.dockerAPI.NetworkConnect(ctx,
 		env.VervNetwork,
 		cont.ID,
-		&network.EndpointSettings{
-			Aliases: []string{Name},
-		})
+		&network.EndpointSettings{Aliases: []string{Name}})
 	if err != nil {
 		return errors.Wrap(err, "error connecting makosh container to verv network")
 	}
@@ -142,32 +133,42 @@ func (s *ServiceDiscoveryTask) GetName() string {
 	return Name
 }
 
-func (s *ServiceDiscoveryTask) GetDuration() time.Duration {
-	return s.duration
-}
-
-func (s *ServiceDiscoveryTask) IsAlive() (bool, error) {
+func (s *ServiceDiscoveryTask) IsAlive() bool {
 	name := Name
 	ctx := context.Background()
 
 	cont, err := s.dockerAPI.ContainerInspect(ctx, name)
 	if err != nil {
 		if strings.Contains(err.Error(), "No such container") {
-			return false, nil
+			return false
 		}
-
-		return false, errors.Wrap(err, "error getting makosh container")
+		logrus.Error(errors.Wrap(err, "error getting makosh container"))
+		return false
 	}
 
 	if cont.State.Status != velez_api.Smerd_running.String() {
-		return false, nil
+		return false
 	}
 
 	if !rtb.Contains(cont.Config.Env, makoshContainerAuthTokenEnvVariable+"="+s.AuthToken) {
-		return false, nil
+		return false
 	}
 
-	return true, nil
+	s.ApiClient, err = newApiClient(s.Address, s.AuthToken)
+	if err != nil {
+		logrus.Error(errors.Wrap(err, "error creating api client"))
+		return false
+	}
+
+	resp, err := s.ApiClient.Version(context.Background(), &pb.Version_Request{})
+	if err != nil {
+		return false
+	}
+	if resp == nil {
+		return false
+	}
+
+	return true
 }
 
 func (s *ServiceDiscoveryTask) Kill() error {

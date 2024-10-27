@@ -8,10 +8,11 @@ import (
 
 	"github.com/Red-Sock/toolbox/closer"
 	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/makosh/pkg/makosh_be"
+	"github.com/godverv/matreshka-be/pkg/matreshka_be_api"
 	"github.com/sirupsen/logrus"
 
 	"github.com/godverv/Velez/internal/clients"
-	"github.com/godverv/Velez/internal/clients/managers"
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/internal/service/service_manager"
 	"github.com/godverv/Velez/internal/transport/grpc"
@@ -21,8 +22,14 @@ import (
 type Custom struct {
 	// NodeClients - hardware scanner, docker and wrappers
 	NodeClients clients.NodeClients
-	// ClusterClients - configuration service, service discovery
+
+	// Service discovery client
+	MakoshClient makosh_be.MakoshBeAPIClient
+	// Configuration client
+	MatreshkaClient matreshka_be_api.MatreshkaBeAPIClient
+	// ClusterClients - contains verv cluster's dependencies
 	ClusterClients clients.ClusterClients
+
 	// Services - contains business logic services
 	Services service.Services
 	// Api implementation
@@ -30,7 +37,7 @@ type Custom struct {
 }
 
 func (c *Custom) Init(a *App) (err error) {
-	c.NodeClients, err = managers.NewNodeClients(a.Ctx, a.Cfg)
+	c.NodeClients, err = clients.NewNodeClientsContainer(a.Ctx, a.Cfg)
 	if err != nil {
 		return errors.Wrap(err, "error initializing internal clients")
 	}
@@ -40,15 +47,19 @@ func (c *Custom) Init(a *App) (err error) {
 		return errors.Wrap(err, "error setting up node environment")
 	}
 
-	c.initServiceDiscovery(a)
-	c.initConfigurationService(a)
+	err = c.initServiceDiscovery(a)
+	if err != nil {
+		return errors.Wrap(err, "error initializing service discovery")
+	}
+
+	err = c.initConfigurationService(a)
+	if err != nil {
+		return errors.Wrap(err, "error initializing configuration service")
+	}
+
+	c.ClusterClients = clients.NewClusterClientsContainer(c.MakoshClient, c.MatreshkaClient)
 
 	c.initVelezServices(a)
-
-	c.ClusterClients, err = managers.NewClusterClients(a.Cfg, c.NodeClients)
-	if err != nil {
-		return errors.Wrap(err, "error initializing external clients")
-	}
 
 	err = c.initApiServer(a)
 	if err != nil {

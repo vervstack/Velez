@@ -55,12 +55,9 @@ func (s *Manager) Stop() error {
 }
 
 func (s *Manager) start() (err error) {
-	s.key, err = rtb.Random(256)
-	if err != nil {
-		return errors.Wrap(err, "error generating random key")
-	}
+	s.key = rtb.RandomBase64(256)
 
-	logrus.Infof("making key to %s", s.buildPath)
+	logrus.Debug("making key to %s", s.buildPath)
 
 	err = os.RemoveAll(s.buildPath)
 	if err != nil {
@@ -77,7 +74,7 @@ func (s *Manager) start() (err error) {
 		return errors.Wrap(err, "error writing key")
 	}
 
-	logrus.Infof("wrote key to %s", s.buildPath)
+	logrus.Infof("Private keys are at %s", s.buildPath)
 
 	return nil
 }

@@ -14,47 +14,20 @@ import (
 	"github.com/godverv/Velez/internal/clients/makosh"
 )
 
-type ServiceDiscovery struct {
-	Api     makosh_be.MakoshBeAPIClient
-	LocalSD *vervResolver.ServiceDiscovery
-}
-
-func NewServiceDiscovery(addr string, token string) (*ServiceDiscovery, error) {
-	//remoteResolver, err := makosh_resolver.NewBuilder(
-	//	makosh_resolver.WithURL(addrs),
-	//	makosh_resolver.WithSecret(token),
-	//)
-	//
-	//serviceDiscovery, err := vervResolver.NewLocalServiceDiscovery(
-	//	vervResolver.WithResolverBuilder(remoteResolver),
-	//)
-	//if err != nil {
-	//	return nil, errors.Wrap(err, "error creating makosh resolver")
-	//}
-	//
-	//grpcResolver.Register(serviceDiscovery.GrpcBuilder())
-
+func NewServiceDiscovery(addr string, token string) (makosh_be.MakoshBeAPIClient, error) {
 	_ = os.Setenv(makosh_resolver.MakoshURL, addr)
 	_ = os.Setenv(makosh_resolver.MakoshSecret, token)
 
-	serviceDiscovery, err := vervResolver.Init()
+	_, err := vervResolver.Init()
 	if err != nil {
 		return nil, errors.Wrap(err, "error initializing verv-service-discovery")
 	}
 
-	//rPtr, err := serviceDiscovery.GetResolver(makosh.ServiceName)
-	//if err != nil {
-	//	return nil, errors.Wrap(err, "error getting resolver")
-	//}
-
-	//err = rPtr.Load().SetAddrs(addr)
-	//if err != nil {
-	//	return nil, errors.Wrap(err, "error manually setting addresses")
-	//}
-
-	apiClient, err := makosh.New(token,
+	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
+	}
+
+	apiClient, err := makosh.New(token, opts...)
 	if err != nil {
 		return nil, errors.Wrap(err, "error creating makosh api client")
 	}
@@ -64,8 +37,5 @@ func NewServiceDiscovery(addr string, token string) (*ServiceDiscovery, error) {
 		return nil, errors.Wrap(err, "error pinging service discovery")
 	}
 
-	return &ServiceDiscovery{
-		Api:     apiClient,
-		LocalSD: serviceDiscovery,
-	}, nil
+	return apiClient, nil
 }

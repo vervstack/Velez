@@ -37,19 +37,19 @@ func (c *ContainerManager) FetchConfig(ctx context.Context, req *velez_api.Fetch
 		}
 	}()
 
-	configFromContainer, err := c.configManager.GetFromContainer(ctx, cont.ID)
+	configFromContainer, err := c.configService.GetFromContainer(ctx, cont.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting matreshka config from container")
 	}
 
-	configFromApi, err := c.configManager.GetFromApi(ctx, req.GetServiceName())
+	configFromApi, err := c.configService.GetFromApi(ctx, req.GetServiceName())
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting matreshka config from matreshka api")
 	}
 
 	matreshkaConfig := matreshka.MergeConfigs(configFromApi, configFromContainer)
 
-	err = c.configManager.UpdateConfig(ctx, req.ServiceName, matreshkaConfig)
+	err = c.configService.UpdateConfig(ctx, req.ServiceName, matreshkaConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "error updating config")
 	}

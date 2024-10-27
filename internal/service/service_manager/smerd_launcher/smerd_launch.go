@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/godverv/Velez/internal/clients"
+	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -22,16 +23,19 @@ type SmerdLauncher struct {
 	docker        clients.Docker
 	deployManager clients.DeployManager
 	portManager   clients.PortManager
-	configManager clients.Configurator
+	configService service.ConfigurationService
 }
 
-func New(internalClients clients.NodeClients, externalClients clients.ClusterClients) *SmerdLauncher {
+func New(
+	nodeClients clients.NodeClients,
+	configService service.ConfigurationService,
+) *SmerdLauncher {
 	return &SmerdLauncher{
-		docker:        internalClients.Docker(),
-		deployManager: internalClients.DeployManager(),
-		portManager:   internalClients.PortManager(),
+		docker:        nodeClients.Docker(),
+		deployManager: nodeClients.DeployManager(),
+		portManager:   nodeClients.PortManager(),
 
-		configManager: externalClients.Configurator(),
+		configService: configService,
 	}
 }
 
@@ -120,7 +124,7 @@ func (c *SmerdLauncher) enrichWithMatreshkaConfig(ctx context.Context, req *vele
 		return nil
 	}
 
-	matreshkaConfig, err := c.configManager.GetFromApi(ctx, req.GetName())
+	matreshkaConfig, err := c.configService.GetFromApi(ctx, req.GetName())
 	if err != nil {
 		return errors.Wrap(err, "error getting matreshka config from matreshka api")
 	}

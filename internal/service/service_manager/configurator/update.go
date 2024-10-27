@@ -9,7 +9,6 @@ import (
 )
 
 func (c *Configurator) UpdateConfig(ctx context.Context, serviceName string, config matreshka.AppConfig) (err error) {
-
 	postConfig := &matreshka_be_api.PostConfig_Request{
 		ServiceName: serviceName,
 	}
@@ -18,7 +17,7 @@ func (c *Configurator) UpdateConfig(ctx context.Context, serviceName string, con
 	if err != nil {
 		return errors.Wrap(err, "error marshalling config")
 	}
-	_, err = c.matreshkaClient.PostConfig(ctx, postConfig)
+	_, err = c.MatreshkaBeAPIClient.PostConfig(ctx, postConfig)
 	if err != nil {
 		return errors.Wrap(err, "error patching config")
 	}

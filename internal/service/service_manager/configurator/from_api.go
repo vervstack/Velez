@@ -16,7 +16,7 @@ func (c *Configurator) GetFromApi(ctx context.Context, serviceName string) (matr
 	req := &matreshka_be_api.GetConfig_Request{
 		ServiceName: serviceName,
 	}
-	matreshkaConfig, err := c.matreshkaClient.GetConfig(ctx, req)
+	matreshkaConfig, err := c.MatreshkaBeAPIClient.GetConfig(ctx, req)
 	if err != nil {
 		e, ok := status.FromError(err)
 		if ok && e.Code() == codes.NotFound {

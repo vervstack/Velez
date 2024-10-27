@@ -3,11 +3,11 @@ package app
 import (
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/makosh/pkg/makosh_be"
-	"github.com/sirupsen/logrus"
 
 	"github.com/godverv/Velez/internal/backservice/configuration"
 	"github.com/godverv/Velez/internal/backservice/env"
 	"github.com/godverv/Velez/internal/backservice/service_discovery"
+	"github.com/godverv/Velez/internal/clients/matreshka"
 )
 
 func (c *Custom) setupVervNodeEnvironment() (err error) {
@@ -26,26 +26,23 @@ func (c *Custom) setupVervNodeEnvironment() (err error) {
 	return nil
 }
 
-func (c *Custom) initServiceDiscovery(a *App) {
-	sdConn := service_discovery.ServiceDiscoveryConnection{
-		Addr:  a.Cfg.Environment.MakoshUrls,
-		Token: a.Cfg.Environment.MakoshKey,
-	}
-
+func (c *Custom) initServiceDiscovery(a *App) (err error) {
 	if a.Cfg.Environment.NodeMode {
-		sdConn = service_discovery.InitInstance(a.Ctx, a.Cfg, c.NodeClients)
-	} else {
-		// TODO add multiple makosh urls handling
-
+		service_discovery.InitInstance(a.Ctx, &a.Cfg, c.NodeClients)
 	}
 
-	_, err := service_discovery.NewServiceDiscovery(sdConn.Addr[0], sdConn.Token)
+	c.MakoshClient, err = service_discovery.NewServiceDiscovery(
+		a.Cfg.Environment.MakoshUrl,
+		a.Cfg.Environment.MakoshKey,
+	)
 	if err != nil {
-		logrus.Fatalf("error initializing service discovery %s", err)
+		return errors.Wrap(err, "error initializing service discovery ")
 	}
+
+	return nil
 }
 
-func (c *Custom) initConfigurationService(a *App) {
+func (c *Custom) initConfigurationService(a *App) (err error) {
 	var matreshkaConn configuration.MatreshkaConnect
 
 	if a.Cfg.Environment.NodeMode {
@@ -63,11 +60,16 @@ func (c *Custom) initConfigurationService(a *App) {
 			},
 		},
 	}
-	_ = matreshkaEndpoints
-	//_, err := c.ServiceDiscovery.Api.UpsertEndpoints(a.Ctx, matreshkaEndpoints)
-	//if err != nil {
-	//logrus.Fatalf("error upserting endpoints for matreshka: %s", err)
-	//}
 
-	println(1)
+	_, err = c.MakoshClient.UpsertEndpoints(a.Ctx, matreshkaEndpoints)
+	if err != nil {
+		return errors.Wrap(err, "error upserting endpoints for matreshka")
+	}
+
+	c.MatreshkaClient, err = matreshka.NewClient()
+	if err != nil {
+		return errors.Wrap(err, "error creating matreshka grpc client")
+	}
+
+	return nil
 }

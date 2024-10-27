@@ -2,79 +2,93 @@ package service_discovery
 
 import (
 	"context"
+	"strconv"
 	"sync"
+	"time"
 
+	rtb "github.com/Red-Sock/toolbox"
 	"github.com/Red-Sock/toolbox/keep_alive"
 	errors "github.com/Red-Sock/trace-errors"
 	pb "github.com/godverv/makosh/pkg/makosh_be"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 
+	"github.com/godverv/Velez/internal/backservice/env/container_service_task"
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/clients/makosh"
 	"github.com/godverv/Velez/internal/config"
 )
 
-type ServiceDiscoveryConnection struct {
-	Addr  []string
-	Token string
-}
-
-var serviceDiscoveryConn = ServiceDiscoveryConnection{}
-
 var initModeSync = sync.Once{}
 
 func InitInstance(
 	ctx context.Context,
-	cfg config.Config,
+	cfg *config.Config,
 	clients clients.NodeClients,
-) (sd ServiceDiscoveryConnection) {
+) {
 	initModeSync.Do(func() {
-		serviceDiscoveryConn = startServiceDiscoveryInstance(ctx, cfg, clients)
+		var err error
+		err = launchServiceDiscovery(ctx, cfg, clients)
+		if err != nil {
+			logrus.Fatal(errors.Wrap(err))
+		}
 	})
-
-	return serviceDiscoveryConn
 }
 
-func startServiceDiscoveryInstance(ctx context.Context, cfg config.Config, clients clients.NodeClients,
-) ServiceDiscoveryConnection {
-	makoshBackgroundTask, err := newKeepAliveTask(cfg, clients)
-	if err != nil {
-		logrus.Fatalf("error creating service discovery background task: %s", err)
+func launchServiceDiscovery(
+	ctx context.Context,
+	cfg *config.Config,
+	nodeClients clients.NodeClients,
+) error {
+	// Construct
+	token := string(rtb.RandomBase64(256))
+
+	var taskConstructor container_service_task.NewTaskRequest[pb.MakoshBeAPIClient]
+
+	taskConstructor.NodeClients = nodeClients
+
+	taskConstructor.ContainerName = Name
+	taskConstructor.ImageName = rtb.Coalesce(cfg.Environment.MakoshImageName, image)
+
+	taskConstructor.ExposedPorts = map[string]string{}
+	taskConstructor.Env = map[string]string{
+		makoshContainerAuthTokenEnvVariable: token,
 	}
 
+	if cfg.Environment.MakoshExposePort {
+		taskConstructor.ExposedPorts[strconv.Itoa(cfg.Environment.MakoshPort)] = ""
+	}
+
+	taskConstructor.ClientConstructor = pb.NewMakoshBeAPIClient
+	makoshTask, err := container_service_task.NewTask[pb.MakoshBeAPIClient](taskConstructor)
+	if err != nil {
+		return errors.Wrap(err, "error creating task")
+	}
+	// Launch
 	logrus.Info("Starting service discovery background task")
-	ak := keep_alive.KeepAlive(makoshBackgroundTask, keep_alive.WithCancel(ctx.Done()))
-	ak.Wait()
+	keepAlive := keep_alive.KeepAlive(
+		makoshTask,
+		keep_alive.WithCancel(ctx.Done()),
+		keep_alive.WithCheckInterval(time.Second/2),
+	)
+	keepAlive.Wait()
 
-	opts := []grpc.DialOption{
-		grpc.WithUnaryInterceptor(makosh.HeaderInterceptor(makoshBackgroundTask.AuthToken)),
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	}
-
-	dial, err := grpc.NewClient(makoshBackgroundTask.Address, opts...)
-	if err != nil {
-		logrus.Fatal(errors.Wrap(err, "error dialing"))
-	}
-
-	makoshClient := pb.NewMakoshBeAPIClient(dial)
-
+	// Add self to makosh
 	req := &pb.UpsertEndpoints_Request{
 		Endpoints: []*pb.Endpoint{
 			{
 				ServiceName: makosh.ServiceName,
-				Addrs:       []string{makoshBackgroundTask.Address},
+				Addrs:       []string{makoshTask.Address},
 			},
 		},
 	}
-	_, err = makoshClient.UpsertEndpoints(ctx, req)
+	_, err = makoshTask.ApiClient.Client.UpsertEndpoints(ctx, req)
 	if err != nil {
 		logrus.Fatal(errors.Wrap(err, "error upserting makosh endpoint"))
 	}
 
-	return ServiceDiscoveryConnection{
-		Addr:  []string{makoshBackgroundTask.Address},
-		Token: makoshBackgroundTask.AuthToken,
-	}
+	// Change values in original config
+	cfg.Environment.MakoshUrl = makoshTask.Address
+	cfg.Environment.MakoshKey = token
+
+	return nil
 }

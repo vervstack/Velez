@@ -2,7 +2,6 @@ package configuration
 
 import (
 	"sync"
-	"time"
 
 	"github.com/Red-Sock/toolbox/keep_alive"
 	"github.com/sirupsen/logrus"
@@ -30,26 +29,14 @@ func InitInstance(ctx context.Context, cfg config.Config, clients clients.NodeCl
 
 func initInstance(ctx context.Context, cfg config.Config, clients clients.NodeClients,
 ) MatreshkaConnect {
-	makoshBackgroundTask, err := newTask(cfg, clients)
+	makoshBackgroundTask, err := newKeepAliveTask(cfg, clients)
 	if err != nil {
 		logrus.Fatalf("error creating configuration service background task: %s", err)
 	}
 
 	logrus.Info("Starting configuration service background task")
-	go keep_alive.KeepAlive(makoshBackgroundTask, keep_alive.WithCancel(ctx.Done()))
-
-	t := time.NewTicker(time.Second * 2)
-	for range t.C {
-		isAlive, err := makoshBackgroundTask.IsAlive()
-		if err != nil {
-			logrus.Fatalf("error during setting up configuration service %s", err)
-		}
-
-		if isAlive {
-			t.Stop()
-			break
-		}
-	}
+	ka := keep_alive.KeepAlive(makoshBackgroundTask, keep_alive.WithCancel(ctx.Done()))
+	ka.Wait()
 
 	return MatreshkaConnect{
 		Addr: makoshBackgroundTask.Address,

@@ -14,7 +14,7 @@ func (c *Configurator) GetEnv(ctx context.Context, name string) ([]string, error
 	getConfigReq := &matreshka_be_api.GetConfig_Request{
 		ServiceName: name,
 	}
-	raw, err := c.matreshkaClient.GetConfig(ctx, getConfigReq)
+	raw, err := c.MatreshkaBeAPIClient.GetConfig(ctx, getConfigReq)
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting config from api")
 	}

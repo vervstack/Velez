@@ -16,7 +16,7 @@ type EnvironmentConfig struct {
 	MakoshImageName     string
 	MakoshKey           string
 	MakoshPort          int
-	MakoshUrls          []string
+	MakoshUrl           string
 	MatreshkaPort       int
 	MatreshkaUrls       []string
 	MemorySwapMb        int

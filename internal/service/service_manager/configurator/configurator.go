@@ -6,8 +6,8 @@ import (
 )
 
 type Configurator struct {
-	matreshkaClient matreshka_be_api.MatreshkaBeAPIClient
-	dockerAPI       client.CommonAPIClient
+	matreshka_be_api.MatreshkaBeAPIClient
+	dockerAPI client.CommonAPIClient
 }
 
 func New(
@@ -15,7 +15,7 @@ func New(
 	docker client.CommonAPIClient,
 ) (c *Configurator) {
 	return &Configurator{
-		matreshkaClient: matreshka,
-		dockerAPI:       docker,
+		MatreshkaBeAPIClient: matreshka,
+		dockerAPI:            docker,
 	}
 }

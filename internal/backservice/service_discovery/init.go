@@ -11,10 +11,13 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 	pb "github.com/godverv/makosh/pkg/makosh_be"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/godverv/Velez/internal/backservice/env/container_service_task"
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/clients/makosh"
+	"github.com/godverv/Velez/internal/clients/security"
 	"github.com/godverv/Velez/internal/config"
 )
 
@@ -54,11 +57,32 @@ func launchServiceDiscovery(
 		makoshContainerAuthTokenEnvVariable: token,
 	}
 
+	taskConstructor.GrpcPort = "80"
 	if cfg.Environment.MakoshExposePort {
-		taskConstructor.ExposedPorts[strconv.Itoa(cfg.Environment.MakoshPort)] = ""
+		taskConstructor.ExposedPorts["80"] = strconv.Itoa(cfg.Environment.MakoshPort)
+	} else {
+		taskConstructor.ExposedPorts["80"] = ""
 	}
 
+	taskConstructor.DialOpts = []grpc.DialOption{
+		grpc.WithUnaryInterceptor(
+			security.HeaderOutgoingInterceptor(makosh.AuthHeader, token)),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	}
 	taskConstructor.ClientConstructor = pb.NewMakoshBeAPIClient
+	taskConstructor.Healthcheck = func(client pb.MakoshBeAPIClient) bool {
+		resp, err := client.Version(ctx, &pb.Version_Request{})
+		if err != nil {
+			return false
+		}
+
+		if resp == nil {
+			return false
+		}
+
+		return true
+	}
+
 	makoshTask, err := container_service_task.NewTask[pb.MakoshBeAPIClient](taskConstructor)
 	if err != nil {
 		return errors.Wrap(err, "error creating task")
@@ -87,7 +111,7 @@ func launchServiceDiscovery(
 	}
 
 	// Change values in original config
-	cfg.Environment.MakoshUrl = makoshTask.Address
+	cfg.Environment.MakoshURL = makoshTask.Address
 	cfg.Environment.MakoshKey = token
 
 	return nil

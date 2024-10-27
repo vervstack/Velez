@@ -32,7 +32,7 @@ func (c *Custom) initServiceDiscovery(a *App) (err error) {
 	}
 
 	c.MakoshClient, err = service_discovery.NewServiceDiscovery(
-		a.Cfg.Environment.MakoshUrl,
+		a.Cfg.Environment.MakoshURL,
 		a.Cfg.Environment.MakoshKey,
 	)
 	if err != nil {
@@ -49,7 +49,7 @@ func (c *Custom) initConfigurationService(a *App) (err error) {
 		matreshkaConn = configuration.InitInstance(a.Ctx, a.Cfg, c.NodeClients)
 	} else {
 		// TODO add multiple matreshka urls handling
-		matreshkaConn.Addr = a.Cfg.Environment.MatreshkaUrls[0]
+		matreshkaConn.Addr = a.Cfg.Environment.MatreshkaURL
 	}
 
 	matreshkaEndpoints := &makosh_be.UpsertEndpoints_Request{

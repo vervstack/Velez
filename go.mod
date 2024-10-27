@@ -8,7 +8,7 @@ require (
 	github.com/Red-Sock/trace-errors v0.0.9
 	github.com/docker/docker v27.3.1+incompatible
 	github.com/docker/go-connections v0.5.0
-	github.com/godverv/makosh v0.0.4
+	github.com/godverv/makosh v0.0.5
 	github.com/godverv/matreshka v0.0.35
 	github.com/godverv/matreshka-be v1.0.36
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0

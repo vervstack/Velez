@@ -54,6 +54,9 @@ environment:
     - name: makosh port
       type: int
       value: 50051
+    - name: makosh url
+      type: string
+      value: verv://makosh
     - name: makosh urls
       type: string
       value:

@@ -23,7 +23,7 @@ import (
 
 const (
 	Name                 = "makosh"
-	image                = "godverv/makosh:v0.0.3"
+	image                = "godverv/makosh:v0.0.7"
 	authTokenEnvVariable = "MAKOSH_ENVIRONMENT_AUTH-TOKEN"
 )
 
@@ -36,14 +36,14 @@ func LaunchMakosh(
 ) {
 	initModeSync.Do(func() {
 		var err error
-		err = launchServiceDiscovery(ctx, cfg, clients)
+		err = launchMakosh(ctx, cfg, clients)
 		if err != nil {
 			logrus.Fatal(errors.Wrap(err))
 		}
 	})
 }
 
-func launchServiceDiscovery(
+func launchMakosh(
 	ctx context.Context,
 	cfg *config.Config,
 	nodeClients clients.NodeClients,

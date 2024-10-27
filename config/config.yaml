@@ -74,11 +74,11 @@ environment:
     type: duration
 
   # Service discovery
-  - name: makosh_urls
+  - name: makosh_url
     type: string
-    value: [verv://makosh]
+    value: verv://makosh
 
   # Configuration service
-  - name: matreshka_urls
+  - name: matreshka_url
     type: string
-    value: [verv://matreshka]
+    value: verv://matreshka

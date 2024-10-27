@@ -57,25 +57,12 @@ environment:
     - name: makosh url
       type: string
       value: verv://makosh
-    - name: makosh urls
-      type: string
-      value:
-        - verv://makosh
-    - name: makosh urls
-      type: string
-      value:
-        - verv://makosh
     - name: matreshka port
       type: int
       value: 50050
-    - name: matreshka urls
+    - name: matreshka url
       type: string
-      value:
-        - verv://matreshka
-    - name: matreshka urls
-      type: string
-      value:
-        - verv://matreshka
+      value: verv://matreshka
     - name: memory swap mb
       type: int
       value: 50

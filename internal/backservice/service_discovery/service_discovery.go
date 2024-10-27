@@ -14,7 +14,7 @@ import (
 	"github.com/godverv/Velez/internal/clients/makosh"
 )
 
-func NewServiceDiscovery(addr string, token string) (makosh_be.MakoshBeAPIClient, error) {
+func SetupServiceDiscovery(addr string, token string) (makosh_be.MakoshBeAPIClient, error) {
 	_ = os.Setenv(makosh_resolver.MakoshURL, addr)
 	_ = os.Setenv(makosh_resolver.MakoshSecret, token)
 

@@ -21,9 +21,15 @@ import (
 	"github.com/godverv/Velez/internal/config"
 )
 
+const (
+	Name                 = "makosh"
+	image                = "godverv/makosh:v0.0.3"
+	authTokenEnvVariable = "MAKOSH_ENVIRONMENT_AUTH-TOKEN"
+)
+
 var initModeSync = sync.Once{}
 
-func InitInstance(
+func LaunchMakosh(
 	ctx context.Context,
 	cfg *config.Config,
 	clients clients.NodeClients,
@@ -54,11 +60,11 @@ func launchServiceDiscovery(
 
 	taskConstructor.ExposedPorts = map[string]string{}
 	taskConstructor.Env = map[string]string{
-		makoshContainerAuthTokenEnvVariable: token,
+		authTokenEnvVariable: token,
 	}
 
 	taskConstructor.GrpcPort = "80"
-	if cfg.Environment.MakoshExposePort {
+	if cfg.Environment.MakoshPort > 0 {
 		taskConstructor.ExposedPorts["80"] = strconv.Itoa(cfg.Environment.MakoshPort)
 	} else {
 		taskConstructor.ExposedPorts["80"] = ""

@@ -39,12 +39,6 @@ environment:
     - name: disable api security
       type: bool
       value: false
-    - name: expose matreshka port
-      type: bool
-      value: true
-    - name: makosh expose port
-      type: bool
-      value: true
     - name: makosh image name
       type: string
       value: godverv/makosh:v0.0.3

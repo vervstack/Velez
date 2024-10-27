@@ -1,46 +1,77 @@
 package configuration
 
 import (
+	"strconv"
 	"sync"
 
 	"github.com/Red-Sock/toolbox/keep_alive"
+	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/matreshka-be/pkg/matreshka_be_api"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
+	"github.com/godverv/Velez/internal/backservice/env/container_service_task"
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/config"
 )
 
-type MatreshkaConnect struct {
-	Addr  string
-	Token string
-}
+const (
+	Name  = "matreshka"
+	image = "matreshka_be:local"
+)
 
 var initOnce sync.Once
-var conn MatreshkaConnect
 
-func InitInstance(ctx context.Context, cfg config.Config, clients clients.NodeClients) MatreshkaConnect {
+func LaunchMatreshka(ctx context.Context, cfg *config.Config, clients clients.NodeClients) {
 	initOnce.Do(func() {
-		conn = initInstance(ctx, cfg, clients)
+		err := initInstance(ctx, cfg, clients)
+		if err != nil {
+			logrus.Fatal(err)
+		}
 	})
 
-	return conn
+	return
 }
 
-func initInstance(ctx context.Context, cfg config.Config, clients clients.NodeClients,
-) MatreshkaConnect {
-	makoshBackgroundTask, err := newKeepAliveTask(cfg, clients)
-	if err != nil {
-		logrus.Fatalf("error creating configuration service background task: %s", err)
+func initInstance(
+	ctx context.Context,
+	cfg *config.Config,
+	nodeClients clients.NodeClients,
+) error {
+	taskRequest := container_service_task.NewTaskRequest[matreshka_be_api.MatreshkaBeAPIClient]{
+		NodeClients:       nodeClients,
+		ClientConstructor: matreshka_be_api.NewMatreshkaBeAPIClient,
+		DialOpts:          []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())},
+		ContainerName:     Name,
+		ImageName:         image,
+		GrpcPort:          "80",
+		ExposedPorts:      map[string]string{},
+		Healthcheck: func(client matreshka_be_api.MatreshkaBeAPIClient) bool {
+			resp, err := client.ApiVersion(ctx, &matreshka_be_api.ApiVersion_Request{})
+			if err == nil && resp != nil {
+				return true
+			}
+
+			return false
+		},
 	}
 
-	logrus.Info("Starting configuration service background task")
-	ka := keep_alive.KeepAlive(makoshBackgroundTask, keep_alive.WithCancel(ctx.Done()))
+	if cfg.Environment.MatreshkaPort > 0 {
+		taskRequest.ExposedPorts["80"] = strconv.Itoa(cfg.Environment.MatreshkaPort)
+	} else {
+		taskRequest.ExposedPorts["80"] = ""
+	}
+
+	task, err := container_service_task.NewTask(taskRequest)
+	if err != nil {
+		return errors.Wrap(err, "error creating task for matreshka")
+	}
+
+	logrus.Info("Starting matreshka service background task")
+	ka := keep_alive.KeepAlive(task, keep_alive.WithCancel(ctx.Done()))
 	ka.Wait()
 
-	return MatreshkaConnect{
-		Addr: makoshBackgroundTask.Address,
-		// TODO add token for authorization
-		Token: "",
-	}
+	return nil
 }

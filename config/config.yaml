@@ -40,12 +40,12 @@ environment:
     type: int
 
   # Matreshka
-  - name: expose matreshka port
-    value: true
-    type: bool
   - name: matreshka port
     value: 50050
     type: int
+  - name: matreshka url
+    type: string
+    value: verv://matreshka
   # Makosh settings
   - name: makosh expose port
     value: true
@@ -78,7 +78,3 @@ environment:
     type: string
     value: verv://makosh
 
-  # Configuration service
-  - name: matreshka_url
-    type: string
-    value: verv://matreshka

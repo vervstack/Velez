@@ -57,9 +57,15 @@ environment:
     - name: makosh url
       type: string
       value: verv://makosh
+    - name: makosh url
+      type: string
+      value: verv://makosh
     - name: matreshka port
       type: int
       value: 50050
+    - name: matreshka url
+      type: string
+      value: verv://matreshka
     - name: matreshka url
       type: string
       value: verv://matreshka

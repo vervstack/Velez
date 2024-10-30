@@ -57,7 +57,7 @@ func (s *Manager) Stop() error {
 func (s *Manager) start() (err error) {
 	s.key = rtb.RandomBase64(256)
 
-	logrus.Debug("making key to %s", s.buildPath)
+	logrus.Debugf("making key to %s", s.buildPath)
 
 	err = os.RemoveAll(s.buildPath)
 	if err != nil {

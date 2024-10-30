@@ -24,7 +24,14 @@ const (
 
 var initOnce sync.Once
 
-func LaunchMatreshka(ctx context.Context, cfg *config.Config, clients clients.NodeClients) {
+type MatreshkaConnect struct {
+	Addr      string
+	AuthToken string
+}
+
+var localMatreshka MatreshkaConnect
+
+func LaunchMatreshka(ctx context.Context, cfg config.Config, clients clients.NodeClients) MatreshkaConnect {
 	initOnce.Do(func() {
 		err := initInstance(ctx, cfg, clients)
 		if err != nil {
@@ -32,12 +39,12 @@ func LaunchMatreshka(ctx context.Context, cfg *config.Config, clients clients.No
 		}
 	})
 
-	return
+	return localMatreshka
 }
 
 func initInstance(
 	ctx context.Context,
-	cfg *config.Config,
+	cfg config.Config,
 	nodeClients clients.NodeClients,
 ) error {
 	taskRequest := container_service_task.NewTaskRequest[matreshka_be_api.MatreshkaBeAPIClient]{
@@ -72,6 +79,8 @@ func initInstance(
 	logrus.Info("Starting matreshka service background task")
 	ka := keep_alive.KeepAlive(task, keep_alive.WithCancel(ctx.Done()))
 	ka.Wait()
+
+	localMatreshka.Addr = task.Address
 
 	return nil
 }

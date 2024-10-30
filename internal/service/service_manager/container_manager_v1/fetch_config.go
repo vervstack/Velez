@@ -6,6 +6,8 @@ import (
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/godverv/Velez/pkg/velez_api"
 )
@@ -44,7 +46,12 @@ func (c *ContainerManager) FetchConfig(ctx context.Context, req *velez_api.Fetch
 
 	configFromApi, err := c.configService.GetFromApi(ctx, req.GetServiceName())
 	if err != nil {
-		return nil, errors.Wrap(err, "error getting matreshka config from matreshka api")
+		code := status.Code(err)
+		if code != codes.NotFound {
+			return nil, errors.Wrap(err, "error getting matreshka config from matreshka api")
+		}
+
+		configFromApi = matreshka.NewEmptyConfig()
 	}
 
 	matreshkaConfig := matreshka.MergeConfigs(configFromApi, configFromContainer)

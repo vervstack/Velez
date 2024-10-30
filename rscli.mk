@@ -1,5 +1,12 @@
 gen: gen-server-grpc
 
+build-local-container:
+	docker buildx build \
+			--load \
+			--platform linux/arm64 \
+			-t velez:local .
+
+
 ### Grpc server generation
 gen-server-grpc: .pre-gen-server-grpc .deps-grpc .gen-server-grpc
 

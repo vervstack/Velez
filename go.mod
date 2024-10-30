@@ -8,7 +8,7 @@ require (
 	github.com/Red-Sock/trace-errors v0.0.9
 	github.com/docker/docker v27.3.1+incompatible
 	github.com/docker/go-connections v0.5.0
-	github.com/godverv/makosh v0.0.7
+	github.com/godverv/makosh v0.0.8
 	github.com/godverv/matreshka v0.0.36
 	github.com/godverv/matreshka-be v1.0.37
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0
@@ -58,9 +58,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools/v3 v3.5.1 // indirect
 	howett.net/plist v1.0.1 // indirect
-)
-
-replace (
-	github.com/Red-Sock/toolbox => /Users/alexbukov/Yandex.Disk.localized/проекты/redsock/toolbox
-	github.com/godverv/makosh => /Users/alexbukov/Yandex.Disk.localized/проекты/verv/Makosh/makosh
 )

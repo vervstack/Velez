@@ -10,7 +10,6 @@ import (
 	"github.com/godverv/Velez/internal/transport"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
-	"golang.org/x/sync/errgroup"
 )
 
 type App struct {
@@ -44,11 +43,10 @@ func New() (app App, err error) {
 	return app, nil
 }
 
-func (a *App) Start() {
+func (a *App) Start() (err error) {
 	var eg *errgroup.Group
 	eg, a.Ctx = errgroup.WithContext(a.Ctx)
-
-	eg.Go(a.Server.Start)
+	eg.Go(a.Server.Start())
 	closer.Add(func() error { return a.Server.Stop() })
 
 	interaptedC := func() chan struct{} {
@@ -77,11 +75,12 @@ func (a *App) Start() {
 	case <-interaptedC:
 		logrus.Println("received interrupt signal")
 	}
-
 	logrus.Println("shutting down the app")
 
-	err := closer.Close()
+	err = closer.Close()
 	if err != nil {
-		logrus.Fatal(errors.Wrap(err, "error while shutting down application"))
+		return errors.Wrap(err, "error while shutting down application")
 	}
+
+	return nil
 }

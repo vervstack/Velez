@@ -8,7 +8,7 @@ servers:
             module: pkg/velez_api
             gateway: /api
 environment:
-    - name: available ports
+    - name: available_ports
       type: int
       value:
         - 18501
@@ -30,57 +30,60 @@ environment:
         - 18517
         - 18518
         - 18519
-    - name: cpu default
+    - name: cpu_default
       type: float
       value: 0.5
-    - name: custom pass to key
+    - name: custom_pass_to_key
       type: string
       value: /tmp/velez/private.key
-    - name: disable api security
+    - name: disable_api_security
       type: bool
       value: false
-    - name: makosh image name
+    - name: makosh_image_name
       type: string
       value: godverv/makosh:v0.0.3
-    - name: makosh key
+    - name: makosh_key
       type: string
       value: string
-    - name: makosh port
+    - name: makosh_port
       type: int
       value: 50051
-    - name: makosh url
+    - name: makosh_url
       type: string
       value: verv://makosh
-    - name: makosh url
+    - name: makosh_url
       type: string
       value: verv://makosh
-    - name: matreshka port
+    - name: matreshka_port
       type: int
       value: 50050
-    - name: matreshka url
+    - name: matreshka_url
       type: string
       value: verv://matreshka
-    - name: matreshka url
+    - name: matreshka_url
       type: string
       value: verv://matreshka
-    - name: memory swap mb
+    - name: memory_swap_mb
       type: int
       value: 50
-    - name: node mode
+    - name: node_mode
       type: bool
       value: true
-    - name: portainer enabled
+    - name: portainer_enabled
       type: bool
       value: false
-    - name: ram mb default
+    - name: ram_mb_default
       type: int
       value: 50
-    - name: shut down on exit
+    - name: shut_down_on_exit
       type: bool
       value: false
-    - name: watch tower enabled
+    - name: watch_tower_enabled
       type: bool
       value: true
-    - name: watch tower interval
+    - name: watch_tower_interval
       type: duration
       value: 1m0s
+    - name: makosh_expose_port
+      type: bool
+      value: true

@@ -11,6 +11,7 @@ type EnvironmentConfig struct {
 	CPUDefault         float64
 	CustomPassToKey    string
 	DisableAPISecurity bool
+	MakoshExposePort   bool
 	MakoshImageName    string
 	MakoshKey          string
 	MakoshPort         int

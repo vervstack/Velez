@@ -51,23 +51,36 @@ func (a *App) Start() {
 	eg.Go(a.Server.Start)
 	closer.Add(func() error { return a.Server.Stop() })
 
-	intErr := errors.New("interrupted")
+	interaptedC := func() chan struct{} {
+		c := make(chan struct{})
+		go func() {
+			toolbox.WaitForInterrupt()
+			close(c)
+		}()
 
-	eg.Go(func() error {
-		toolbox.WaitForInterrupt()
-		return intErr
-	})
+		return c
+	}()
 
-	err := eg.Wait()
-	if err != nil && err != intErr {
-		logrus.Println("error during application startup: ", err.Error())
-	} else {
+	errC := func() chan error {
+		c := make(chan error)
+		go func() {
+			c <- eg.Wait()
+			close(c)
+			return
+		}()
+		return c
+	}()
+
+	select {
+	case err := <-errC:
+		logrus.Println("error during application startup: ", err)
+	case <-interaptedC:
 		logrus.Println("received interrupt signal")
 	}
 
 	logrus.Println("shutting down the app")
 
-	err = closer.Close()
+	err := closer.Close()
 	if err != nil {
 		logrus.Fatal(errors.Wrap(err, "error while shutting down application"))
 	}

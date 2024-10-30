@@ -10,11 +10,11 @@ Content-Type: application/json
 
 {
   "name": "matreshka-2",
-  "image_name": "matreshka_be:local",
+  "image_name": "godverv/matreshka-be:v1.0.37",
   "settings": {
     "ports": [
       {
-        "service_port_number": 8080,
+        "service_port_number": 80,
         "protocol": "tcp"
       }
     ]

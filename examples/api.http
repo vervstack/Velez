@@ -9,8 +9,8 @@ POST {{velez}}/api/smerd/create
 Content-Type: application/json
 
 {
-  "name": "matreshka-2",
-  "image_name": "godverv/matreshka-be:v1.0.37",
+  "name": "angie",
+  "image_name": "docker.angie.software/angie:latest",
   "settings": {
     "ports": [
       {

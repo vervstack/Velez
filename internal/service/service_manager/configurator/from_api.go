@@ -6,8 +6,6 @@ import (
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/matreshka"
 	"github.com/godverv/matreshka-be/pkg/matreshka_be_api"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 func (c *Configurator) GetFromApi(ctx context.Context, serviceName string) (matreshka.AppConfig, error) {
@@ -18,11 +16,6 @@ func (c *Configurator) GetFromApi(ctx context.Context, serviceName string) (matr
 	}
 	matreshkaConfig, err := c.MatreshkaBeAPIClient.GetConfig(ctx, req)
 	if err != nil {
-		e, ok := status.FromError(err)
-		if ok && e.Code() == codes.NotFound {
-			return matreshka.AppConfig{}, nil
-		}
-
 		return matreshka.AppConfig{}, errors.Wrap(err, "error obtaining raw config")
 	}
 

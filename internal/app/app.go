@@ -46,7 +46,7 @@ func New() (app App, err error) {
 func (a *App) Start() (err error) {
 	var eg *errgroup.Group
 	eg, a.Ctx = errgroup.WithContext(a.Ctx)
-	eg.Go(a.Server.Start())
+	eg.Go(a.Server.Start)
 	closer.Add(func() error { return a.Server.Stop() })
 
 	interaptedC := func() chan struct{} {

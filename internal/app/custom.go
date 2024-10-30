@@ -11,8 +11,10 @@ import (
 	"github.com/godverv/makosh/pkg/makosh_be"
 	"github.com/godverv/matreshka-be/pkg/matreshka_be_api"
 	"github.com/sirupsen/logrus"
+	grpc2 "google.golang.org/grpc"
 
 	"github.com/godverv/Velez/internal/clients"
+	"github.com/godverv/Velez/internal/clients/security"
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/internal/service/service_manager"
 	"github.com/godverv/Velez/internal/transport/grpc"
@@ -82,12 +84,13 @@ func (c *Custom) initVelezServices(a *App) {
 func (c *Custom) initApiServer(a *App) error {
 	c.GrpcImpl = grpc.NewImpl(a.Cfg, c.Services)
 
-	a.Server.AddGrpcServer(c.GrpcImpl)
+	var opts []grpc2.ServerOption
+	if !a.Cfg.Environment.DisableAPISecurity {
+		opts = append(opts, security.GrpcIncomingInterceptor(c.NodeClients.SecurityManager().ValidateKey))
+	}
+	a.Server.AddImplementation(c.GrpcImpl, opts...)
 	//a.Server.AddHttpHandler("/verv/makosh", c.ServiceDiscovery)
 	// TODO ADD TO TOP SHIT
-	//if !cfg.Environment.DisableAPISecurity {
-	//	opts = append(opts, security.GrpcInterceptor(clnts.SecurityManager()))
-	//}
 
 	return nil
 }

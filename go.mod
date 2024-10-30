@@ -4,7 +4,7 @@ go 1.22.1
 
 require (
 	github.com/Red-Sock/evon v0.0.15
-	github.com/Red-Sock/toolbox v0.0.4
+	github.com/Red-Sock/toolbox v0.0.5
 	github.com/Red-Sock/trace-errors v0.0.9
 	github.com/docker/docker v27.3.1+incompatible
 	github.com/docker/go-connections v0.5.0

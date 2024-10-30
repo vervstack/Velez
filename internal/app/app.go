@@ -10,6 +10,7 @@ import (
 	"github.com/godverv/Velez/internal/transport"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
+	"golang.org/x/sync/errgroup"
 )
 
 type App struct {
@@ -43,20 +44,31 @@ func New() (app App, err error) {
 	return app, nil
 }
 
-func (a *App) Start() (err error) {
-	err = a.Server.Start()
-	if err != nil {
-		return errors.Wrap(err, "error starting Server manager")
-	}
+func (a *App) Start() {
+	var eg *errgroup.Group
+	eg, a.Ctx = errgroup.WithContext(a.Ctx)
+
+	eg.Go(a.Server.Start)
 	closer.Add(func() error { return a.Server.Stop() })
-	toolbox.WaitForInterrupt()
+
+	intErr := errors.New("interrupted")
+
+	eg.Go(func() error {
+		toolbox.WaitForInterrupt()
+		return intErr
+	})
+
+	err := eg.Wait()
+	if err != nil && err != intErr {
+		logrus.Println("error during application startup: ", err.Error())
+	} else {
+		logrus.Println("received interrupt signal")
+	}
 
 	logrus.Println("shutting down the app")
 
 	err = closer.Close()
 	if err != nil {
-		return errors.Wrap(err, "error while shutting down application")
+		logrus.Fatal(errors.Wrap(err, "error while shutting down application"))
 	}
-
-	return nil
 }

@@ -12,8 +12,5 @@ func main() {
 		logrus.Fatal(err)
 	}
 
-	err = a.Start()
-	if err != nil {
-		logrus.Fatal(err)
-	}
+	a.Start()
 }

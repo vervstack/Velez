@@ -1,0 +1,86 @@
+app_info:
+    name: github.com/godverv/Velez
+    version: v0.1.43
+    startup_duration: 10s
+servers:
+    53890:
+        /{GRPC}:
+            module: pkg/velez_api
+            gateway: /api
+environment:
+    - name: available_ports
+      type: int
+      value:
+        - 18501
+        - 18502
+        - 18503
+        - 18504
+        - 18505
+        - 18506
+        - 18507
+        - 18508
+        - 18509
+        - 18510
+        - 18511
+        - 18512
+        - 18513
+        - 18514
+        - 18515
+        - 18516
+        - 18517
+        - 18518
+        - 18519
+    - name: cpu_default
+      type: float
+      value: 0.5
+    - name: custom_pass_to_key
+      type: string
+      value: /tmp/velez/private.key
+    - name: disable_api_security
+      type: bool
+      value: false
+    - name: makosh_image_name
+      type: string
+      value: godverv/makosh:v0.0.3
+    - name: makosh_key
+      type: string
+      value: string
+    - name: makosh_port
+      type: int
+      value: 50051
+    - name: makosh_url
+      type: string
+      value: verv://makosh
+    - name: makosh_url
+      type: string
+      value: verv://makosh
+    - name: matreshka_port
+      type: int
+      value: 50050
+    - name: matreshka_url
+      type: string
+      value: verv://matreshka
+    - name: memory_swap_mb
+      type: int
+      value: 50
+    - name: node_mode
+      type: bool
+      value: true
+    - name: portainer_enabled
+      type: bool
+      value: false
+    - name: ram_mb_default
+      type: int
+      value: 50
+    - name: shut_down_on_exit
+      type: bool
+      value: false
+    - name: watch_tower_enabled
+      type: bool
+      value: true
+    - name: watch_tower_interval
+      type: duration
+      value: 1m0s
+    - name: makosh_expose_port
+      type: bool
+      value: true

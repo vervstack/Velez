@@ -23,3 +23,9 @@ type OtherManagers interface {
 type SmerdLauncher interface {
 	LaunchSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (id string, err error)
 }
+
+type ConfigurationService interface {
+	GetFromContainer(ctx context.Context, contId string) (matreshka.AppConfig, error)
+	GetFromApi(ctx context.Context, serviceName string) (matreshka.AppConfig, error)
+	UpdateConfig(ctx context.Context, serviceName string, config matreshka.AppConfig) error
+}

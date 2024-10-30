@@ -3,128 +3,50 @@ package clients
 import (
 	"context"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
-	"github.com/godverv/matreshka-be/pkg/matreshka_api"
-	"github.com/sirupsen/logrus"
+	"github.com/godverv/makosh/pkg/makosh_be"
+	"github.com/godverv/matreshka-be/pkg/matreshka_be_api"
 
-	"github.com/godverv/Velez/internal/clients/configurator"
-	"github.com/godverv/Velez/internal/clients/docker"
-	"github.com/godverv/Velez/internal/clients/docker/deploy_manager"
-	grpcClients "github.com/godverv/Velez/internal/clients/grpc"
-	"github.com/godverv/Velez/internal/clients/hardware"
-	"github.com/godverv/Velez/internal/clients/ports"
-	"github.com/godverv/Velez/internal/clients/security"
-	"github.com/godverv/Velez/internal/config"
-	"github.com/godverv/Velez/internal/utils/closer"
+	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-type clients struct {
-	docker    *docker.Docker
-	matreshka matreshka_api.MatreshkaBeAPIClient
+type Docker interface {
+	PullImage(ctx context.Context, imageName string) (types.ImageInspect, error)
+	Remove(ctx context.Context, uuid string) error
+	ListContainers(ctx context.Context, req *velez_api.ListSmerds_Request) ([]types.Container, error)
+	InspectContainer(ctx context.Context, containerID string) (types.ContainerJSON, error)
+	InspectImage(ctx context.Context, image string) (types.ImageInspect, error)
 
-	portManager     PortManager
-	hardwareManager HardwareManager
-	securityManager security.Manager
-
-	configurator  Configurator
-	deployManager DeployManager
+	client.CommonAPIClient
 }
 
-func New(ctx context.Context, cfg config.Config) (Clients, error) {
-	var err error
-	cls := &clients{}
-
-	// Docker engine
-	{
-		logrus.Debug("Initializing docker client")
-		cls.docker, err = docker.NewClient()
-		if err != nil {
-			return nil, errors.Wrap(err, "error getting docker api client")
-		}
-		closer.Add(cls.docker.Close)
-	}
-	// Matreshka
-	{
-		logrus.Debug("Initializing matreshka client")
-		cls.matreshka, err = grpcClients.NewMatreshkaBeAPIClient(ctx, cfg)
-		if err != nil {
-			logrus.Fatalf("error getting matreshka api: %s", err)
-		}
-	}
-
-	// Security access layer
-	{
-		if !cfg.GetEnvironment().DisableAPISecurity {
-			logrus.Debug("Initializing security manager")
-
-			cls.securityManager = security.NewSecurityManager(cfg.GetEnvironment().CustomPassToKey)
-
-			err = cls.securityManager.Start()
-			if err != nil {
-				logrus.Fatalf("error starting security manager: %s", err)
-			}
-
-			closer.Add(cls.securityManager.Stop)
-		} else {
-			logrus.Debug("Security manager disabled")
-		}
-	}
-
-	// Port manager
-	{
-		logrus.Debug("Initializing port manager")
-
-		cls.portManager, err = ports.NewPortManager(ctx, cfg, cls.docker)
-		if err != nil {
-			logrus.Fatalf("error creating port manager %s", err)
-		}
-	}
-
-	// Configurator
-	{
-		logrus.Debug("Initializing configuration manager")
-		cls.configurator = configurator.New(cls.matreshka, cls.docker)
-	}
-
-	// Hardware
-	{
-		logrus.Debug("Initializing hardware manager")
-		cls.hardwareManager = hardware.New()
-	}
-
-	// Deploy
-	{
-		logrus.Debug("Initializing deployment manager")
-		cls.deployManager = deploy_manager.New(cls.docker)
-	}
-	return cls, nil
+type DeployManager interface {
+	Create(ctx context.Context, req *velez_api.CreateSmerd_Request) (*types.ContainerJSON, error)
+	Healthcheck(ctx context.Context, contId string, healthcheck *velez_api.Container_Healthcheck) error
 }
 
-func (c *clients) DockerAPI() client.CommonAPIClient {
-	return c.docker
+type PortManager interface {
+	GetPort() (uint32, error)
+	LockPort(ports ...uint32) error
+	UnlockPorts(ports []uint32)
 }
 
-func (c *clients) Docker() Docker {
-	return c.docker
+type SecurityManager interface {
+	Start() error
+	Stop() error
+
+	ValidateKey(in string) bool
 }
 
-func (c *clients) Configurator() Configurator {
-	return c.configurator
+type HardwareManager interface {
+	GetHardware() (*velez_api.GetHardware_Response, error)
 }
 
-func (c *clients) DeployManager() DeployManager {
-	return c.deployManager
+type Configurator interface {
+	matreshka_be_api.MatreshkaBeAPIClient
 }
 
-func (c *clients) PortManager() PortManager {
-	return c.portManager
-}
-
-func (c *clients) HardwareManager() HardwareManager {
-	return c.hardwareManager
-}
-
-func (c *clients) SecurityManager() security.Manager {
-	return c.securityManager
+type ServiceDiscovery interface {
+	makosh_be.MakoshBeAPIClient
 }

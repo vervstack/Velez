@@ -1,25 +1,21 @@
 ### Get Version
-POST {{velez}}/version
+GET {{velez}}/api/version
 Content-Type: application/json
 
 {}
 
 ### Create standalone smerd
-POST {{velez}}/smerd/create
+POST {{velez}}/api/smerd/create
 Content-Type: application/json
 
 {
-  "name": "matreshka-2",
-  "image_name": "godverv/matreshka-be:latest",
+  "name": "angie",
+  "image_name": "docker.angie.software/angie:latest",
   "settings": {
     "ports": [
       {
-        "container": 50051,
-        "protoc": "tcp"
-      },
-      {
-        "container": 50052,
-        "protoc": "tcp"
+        "service_port_number": 80,
+        "protocol": "tcp"
       }
     ]
   }
@@ -31,7 +27,7 @@ Content-Type: application/json
 
 {
   "name": "red-cart",
-  "image_name": "redsockdev/red-cart:v0.0.13"
+  "image_name": "redsockdev/red-cart:v0.0.17"
 }
 
 
@@ -62,6 +58,6 @@ POST {{velez}}/smerd/fetch-config
 Content-Type: application/json
 
 {
-  "image_name": "redsockdev/red-cart:v0.0.13",
+  "image_name": "redsockdev/red-cart:v0.0.17",
   "service_name": "red-cart"
 }

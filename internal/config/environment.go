@@ -7,17 +7,22 @@ import (
 )
 
 type EnvironmentConfig struct {
-	AvailablePorts      []int
-	CustomPassToKey     string
-	DisableAPISecurity  bool
-	CPUDefault          float64
-	MemorySwapMb        int
-	RAMMbDefault        int
-	PortainerEnabled    bool
-	ShutDownOnExit      bool
-	WatchTowerEnabled   bool
-	WatchTowerInterval  time.Duration
-	ExposeMatreshkaPort bool
-	MatreshkaPort       int
-	NodeMode            bool
+	AvailablePorts     []int
+	CPUDefault         float64
+	CustomPassToKey    string
+	DisableAPISecurity bool
+	MakoshExposePort   bool
+	MakoshImageName    string
+	MakoshKey          string
+	MakoshPort         int
+	MakoshURL          string
+	MatreshkaPort      int
+	MatreshkaURL       string
+	MemorySwapMb       int
+	NodeMode           bool
+	PortainerEnabled   bool
+	RAMMbDefault       int
+	ShutDownOnExit     bool
+	WatchTowerEnabled  bool
+	WatchTowerInterval time.Duration
 }

@@ -57,13 +57,13 @@ func (t *TestEnv) clean() {
 			integrationTest: "true",
 		},
 	}
-	cList, err := dockerutils.ListContainers(ctx, t.Clients.Docker(), listReq)
+	cList, err := dockerutils.ListContainers(ctx, t.InternalClients.Docker(), listReq)
 	if err != nil {
 		logrus.Fatal(err)
 	}
 
 	for _, cont := range cList {
-		err = t.Clients.Docker().ContainerRemove(ctx, cont.ID,
+		err = t.InternalClients.Docker().ContainerRemove(ctx, cont.ID,
 			container.RemoveOptions{
 				Force: true,
 			})

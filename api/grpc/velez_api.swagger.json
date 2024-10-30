@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "grpc/velez_api.proto",
+    "title": "grpc/Velez_api.proto",
     "version": "version not set"
   },
   "tags": [
@@ -16,7 +16,7 @@
     "application/json"
   ],
   "paths": {
-    "/hardware": {
+    "/api/hardware": {
       "get": {
         "operationId": "VelezAPI_GetHardware",
         "responses": {
@@ -38,7 +38,7 @@
         ]
       }
     },
-    "/smerd/create": {
+    "/api/smerd/create": {
       "post": {
         "operationId": "VelezAPI_CreateSmerd",
         "responses": {
@@ -70,7 +70,7 @@
         ]
       }
     },
-    "/smerd/drop": {
+    "/api/smerd/drop": {
       "post": {
         "operationId": "VelezAPI_DropSmerd",
         "responses": {
@@ -102,7 +102,7 @@
         ]
       }
     },
-    "/smerd/fetch-config": {
+    "/api/smerd/fetch-config": {
       "post": {
         "operationId": "VelezAPI_FetchConfig",
         "responses": {
@@ -134,7 +134,7 @@
         ]
       }
     },
-    "/smerd/list": {
+    "/api/smerd/list": {
       "post": {
         "operationId": "VelezAPI_ListSmerds",
         "responses": {
@@ -166,7 +166,7 @@
         ]
       }
     },
-    "/version": {
+    "/api/version": {
       "get": {
         "operationId": "VelezAPI_Version",
         "responses": {

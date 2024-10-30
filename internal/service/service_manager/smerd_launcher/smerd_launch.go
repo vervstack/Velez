@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/godverv/Velez/internal/clients"
+	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -22,15 +23,19 @@ type SmerdLauncher struct {
 	docker        clients.Docker
 	deployManager clients.DeployManager
 	portManager   clients.PortManager
-	configManager clients.Configurator
+	configService service.ConfigurationService
 }
 
-func New(cl clients.Clients) *SmerdLauncher {
+func New(
+	nodeClients clients.NodeClients,
+	configService service.ConfigurationService,
+) *SmerdLauncher {
 	return &SmerdLauncher{
-		docker:        cl.Docker(),
-		deployManager: cl.DeployManager(),
-		portManager:   cl.PortManager(),
-		configManager: cl.Configurator(),
+		docker:        nodeClients.Docker(),
+		deployManager: nodeClients.DeployManager(),
+		portManager:   nodeClients.PortManager(),
+
+		configService: configService,
 	}
 }
 
@@ -119,15 +124,15 @@ func (c *SmerdLauncher) enrichWithMatreshkaConfig(ctx context.Context, req *vele
 		return nil
 	}
 
-	matreshkaConfig, err := c.configManager.GetFromApi(ctx, req.GetName())
+	matreshkaConfig, err := c.configService.GetFromApi(ctx, req.GetName())
 	if err != nil {
 		return errors.Wrap(err, "error getting matreshka config from matreshka api")
 	}
 
-	for _, srv := range matreshkaConfig.Servers {
+	for port := range matreshkaConfig.Servers {
 		req.Settings.Ports = append(req.Settings.Ports,
 			&velez_api.Port{
-				ServicePortNumber: uint32(srv.GetPort()),
+				ServicePortNumber: uint32(port),
 				Protocol:          velez_api.Port_tcp,
 			})
 	}

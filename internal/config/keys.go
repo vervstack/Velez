@@ -4,5 +4,6 @@ package config
 
 const (
 	ResourceGrpcMatreshkaBe = "grpc_matreshka_be"
+	ResourceGrpcMakosh      = "grpc_makosh"
 	ServerGrpc              = "grpc"
 )

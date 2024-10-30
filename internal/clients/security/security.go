@@ -1,46 +1,34 @@
 package security
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"os"
 	"path"
 	"sync"
 
+	rtb "github.com/Red-Sock/toolbox"
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/sirupsen/logrus"
 )
 
 const defaultPath = "/tmp/velez/private.key"
 
-type Validator interface {
-	ValidateKey(in string) bool
-}
-
-type Manager interface {
-	Start() error
-	Stop() error
-
-	Validator
-}
-
-type manager struct {
+type Manager struct {
 	buildPath string
 	key       []byte
 
 	sync.Once
 }
 
-func NewSecurityManager(buildPath string) Manager {
+func NewSecurityManager(buildPath string) *Manager {
 	if buildPath == "" {
 		buildPath = defaultPath
 	}
-	return &manager{
+	return &Manager{
 		buildPath: buildPath,
 	}
 }
 
-func (s *manager) Start() error {
+func (s *Manager) Start() error {
 	var err error
 	s.Once.Do(func() {
 		err = s.start()
@@ -48,7 +36,7 @@ func (s *manager) Start() error {
 
 	return err
 }
-func (s *manager) ValidateKey(in string) bool {
+func (s *Manager) ValidateKey(in string) bool {
 	if len(in) != len(s.key) {
 		return false
 	}
@@ -62,22 +50,14 @@ func (s *manager) ValidateKey(in string) bool {
 	return true
 }
 
-func (s *manager) Stop() error {
+func (s *Manager) Stop() error {
 	return os.RemoveAll(s.buildPath)
 }
 
-func (s *manager) start() error {
-	randKey := make([]byte, 256)
-	_, err := rand.Read(randKey)
-	if err != nil {
-		return err
-	}
+func (s *Manager) start() (err error) {
+	s.key = rtb.RandomBase64(256)
 
-	s.key = make([]byte, base64.StdEncoding.EncodedLen(len(randKey)))
-
-	base64.StdEncoding.Encode(s.key, randKey)
-	s.key = s.key[:256]
-	logrus.Infof("making key to %s", s.buildPath)
+	logrus.Debug("making key to %s", s.buildPath)
 
 	err = os.RemoveAll(s.buildPath)
 	if err != nil {
@@ -94,7 +74,7 @@ func (s *manager) start() error {
 		return errors.Wrap(err, "error writing key")
 	}
 
-	logrus.Infof("wrote key to %s", s.buildPath)
+	logrus.Infof("Private keys are at %s", s.buildPath)
 
 	return nil
 }

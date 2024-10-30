@@ -1,52 +1,70 @@
 package app
 
 import (
-	"strconv"
-
-	"github.com/sirupsen/logrus"
+	errors "github.com/Red-Sock/trace-errors"
+	"github.com/godverv/makosh/pkg/makosh_be"
 
 	"github.com/godverv/Velez/internal/backservice/configuration"
 	"github.com/godverv/Velez/internal/backservice/env"
-	"github.com/godverv/Velez/internal/cron"
+	"github.com/godverv/Velez/internal/backservice/service_discovery"
+	"github.com/godverv/Velez/internal/clients/matreshka"
 )
 
-func (a *App) MustInitEnvironment() {
-	err := env.StartNetwork(a.Clients.Docker())
+func (c *Custom) setupVervNodeEnvironment() (err error) {
+	// Verv network for communication inside node
+	err = env.StartNetwork(c.NodeClients.Docker())
 	if err != nil {
-		logrus.Fatalf("error creating network: %s", err)
+		return errors.Wrap(err, "error creating network")
 	}
 
-	err = env.StartVolumes(a.Clients.Docker())
+	// Verv volumes for persistence inside node
+	err = env.StartVolumes(c.NodeClients.Docker())
 	if err != nil {
-		logrus.Fatalf("error creating volumes %s", err)
+		return errors.Wrap(err, "error creating volumes")
 	}
 
-	if !a.Cfg.GetEnvironment().NodeMode {
-		return
+	return nil
+}
+
+func (c *Custom) initServiceDiscovery(a *App) (err error) {
+	if a.Cfg.Environment.NodeMode {
+		service_discovery.LaunchMakosh(a.Ctx, &a.Cfg, c.NodeClients)
 	}
 
-	var portToExposeTo string
-	if a.Cfg.GetEnvironment().ExposeMatreshkaPort {
-		p := uint64(a.Cfg.GetEnvironment().MatreshkaPort)
-
-		if p == 0 {
-			portFromPool, err := a.Clients.PortManager().GetPort()
-			if err != nil {
-				logrus.Fatalf("no available port for config to expose")
-				return
-			}
-
-			p = uint64(portFromPool)
-		}
-
-		portToExposeTo = strconv.FormatUint(p, 10)
-	}
-
-	conf := configuration.New(a.Clients.Docker(), portToExposeTo)
-	err = conf.Start()
+	c.MakoshClient, err = service_discovery.SetupServiceDiscovery(
+		a.Cfg.Environment.MakoshURL,
+		a.Cfg.Environment.MakoshKey,
+	)
 	if err != nil {
-		logrus.Fatalf("error launching config backservice: %s", err)
+		return errors.Wrap(err, "error initializing service discovery ")
 	}
 
-	go cron.KeepAlive(a.Ctx, conf)
+	return nil
+}
+
+func (c *Custom) initConfigurationService(a *App) (err error) {
+	if a.Cfg.Environment.NodeMode {
+		configuration.LaunchMatreshka(a.Ctx, &a.Cfg, c.NodeClients)
+	}
+
+	matreshkaEndpoints := &makosh_be.UpsertEndpoints_Request{
+		Endpoints: []*makosh_be.Endpoint{
+			{
+				ServiceName: "matreshka",
+				Addrs:       []string{a.Cfg.Environment.MatreshkaURL},
+			},
+		},
+	}
+
+	_, err = c.MakoshClient.UpsertEndpoints(a.Ctx, matreshkaEndpoints)
+	if err != nil {
+		return errors.Wrap(err, "error upserting endpoints for matreshka")
+	}
+
+	c.MatreshkaClient, err = matreshka.NewClient()
+	if err != nil {
+		return errors.Wrap(err, "error creating matreshka grpc client")
+	}
+
+	return nil
 }

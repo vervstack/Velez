@@ -9,7 +9,7 @@ import (
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-func (a *Api) FetchConfig(ctx context.Context, req *velez_api.FetchConfig_Request) (*velez_api.FetchConfig_Response, error) {
+func (a *Impl) FetchConfig(ctx context.Context, req *velez_api.FetchConfig_Request) (*velez_api.FetchConfig_Response, error) {
 	cfg, err := a.srv.FetchConfig(ctx, req)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())

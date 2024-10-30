@@ -10,38 +10,38 @@ import "google/protobuf/timestamp.proto";
 service VelezAPI {
   rpc Version(Version.Request) returns (Version.Response) {
     option (google.api.http) = {
-      get: "/version"
+      get: "/api/version"
     };
   };
 
   rpc CreateSmerd(CreateSmerd.Request) returns (Smerd) {
     option (google.api.http) = {
-      post: "/smerd/create"
+      post: "/api/smerd/create"
       body: "*"
     };
   }
   rpc ListSmerds(ListSmerds.Request) returns (ListSmerds.Response) {
     option (google.api.http) = {
-      post: "/smerd/list"
+      post: "/api/smerd/list"
       body: "*"
     };
   }
   rpc DropSmerd(DropSmerd.Request) returns (DropSmerd.Response) {
     option (google.api.http) = {
-      post: "/smerd/drop"
+      post: "/api/smerd/drop"
       body: "*"
     };
   }
 
   rpc GetHardware(GetHardware.Request) returns (GetHardware.Response) {
     option (google.api.http) = {
-      get: "/hardware"
+      get: "/api/hardware"
     };
   }
 
   rpc FetchConfig(FetchConfig.Request) returns (FetchConfig.Response) {
     option (google.api.http) = {
-      post: "/smerd/fetch-config"
+      post: "/api/smerd/fetch-config"
       body: "*"
     };
   }
@@ -54,10 +54,6 @@ message Version {
     string version = 1;
   }
 }
-
-
-
-
 
 message Port {
   uint32 service_port_number = 1;

@@ -6,10 +6,12 @@ import (
 	"github.com/Red-Sock/toolbox"
 	"github.com/Red-Sock/toolbox/closer"
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/transport"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
+	"golang.org/x/sync/errgroup"
+
+	"github.com/godverv/Velez/internal/config"
 )
 
 type App struct {

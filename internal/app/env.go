@@ -52,13 +52,11 @@ func (c *Custom) initConfigurationService(a *App) (err error) {
 		},
 	}
 
-	if a.Cfg.Environment.NodeMode {
+	if a.Cfg.Environment.NodeMode && a.Cfg.Environment.MatreshkaURL == "verv://matreshka" {
 		conn := configuration.LaunchMatreshka(a.Ctx, a.Cfg, c.NodeClients)
 		matreshkaEndpoints.Endpoints[0].Addrs[0] = conn.Addr
-	} else if a.Cfg.Environment.MatreshkaURL != "verv://matreshka" {
-		matreshkaEndpoints.Endpoints[0].Addrs[0] = a.Cfg.Environment.MatreshkaURL
 	} else {
-		return nil
+		matreshkaEndpoints.Endpoints[0].Addrs[0] = a.Cfg.Environment.MatreshkaURL
 	}
 
 	_, err = c.MakoshClient.UpsertEndpoints(a.Ctx, matreshkaEndpoints)

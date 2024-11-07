@@ -35,9 +35,7 @@ Content-Type: application/json
 POST {{velez}}/smerd/list
 Content-Type: application/json
 
-{
-}
-
+{}
 
 ### Delete smerds
 POST {{velez}}/smerd/drop

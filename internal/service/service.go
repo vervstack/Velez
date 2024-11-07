@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 
+	"github.com/Red-Sock/evon"
 	"github.com/godverv/matreshka"
 
 	"github.com/godverv/Velez/pkg/velez_api"
@@ -27,5 +28,6 @@ type SmerdLauncher interface {
 type ConfigurationService interface {
 	GetFromContainer(ctx context.Context, contId string) (matreshka.AppConfig, error)
 	GetFromApi(ctx context.Context, serviceName string) (matreshka.AppConfig, error)
+	GetEnvFromApi(ctx context.Context, serviceName string) ([]*evon.Node, error)
 	UpdateConfig(ctx context.Context, serviceName string, config matreshka.AppConfig) error
 }

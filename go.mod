@@ -5,13 +5,13 @@ go 1.22.1
 require (
 	github.com/Red-Sock/evon v0.0.15
 	github.com/Red-Sock/toolbox v0.0.5
-	github.com/Red-Sock/trace-errors v0.0.9
+	github.com/Red-Sock/trace-errors v0.0.10
 	github.com/docker/docker v27.3.1+incompatible
 	github.com/docker/go-connections v0.5.0
 	github.com/godverv/makosh v0.0.8
 	github.com/godverv/matreshka v0.0.36
-	github.com/godverv/matreshka-be v1.0.37
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0
+	github.com/godverv/matreshka-be v1.0.38
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.23.0
 	github.com/jaypipes/ghw v0.13.0
 	github.com/opencontainers/image-spec v1.1.0
 	github.com/pkg/errors v0.9.1
@@ -21,7 +21,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/net v0.30.0
 	golang.org/x/sync v0.8.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20241021214115-324edc3d5d38
+	google.golang.org/genproto/googleapis/api v0.0.0-20241104194629-dd2ea8efbc28
 	google.golang.org/grpc v1.67.1
 	google.golang.org/protobuf v1.35.1
 )
@@ -54,8 +54,10 @@ require (
 	golang.org/x/sys v0.26.0 // indirect
 	golang.org/x/text v0.19.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20241021214115-324edc3d5d38 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20241104194629-dd2ea8efbc28 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools/v3 v3.5.1 // indirect
 	howett.net/plist v1.0.1 // indirect
 )
+
+replace github.com/godverv/matreshka-be => /Users/alexbukov/Yandex.Disk.localized/проекты/verv/Matreshka/Matreshka-be

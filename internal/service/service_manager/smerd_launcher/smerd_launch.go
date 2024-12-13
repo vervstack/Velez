@@ -2,6 +2,8 @@ package smerd_launcher
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/api/types"
@@ -124,17 +126,15 @@ func (c *SmerdLauncher) enrichWithMatreshkaConfig(ctx context.Context, req *vele
 		return nil
 	}
 
-	matreshkaConfig, err := c.configService.GetFromApi(ctx, req.GetName())
+	envs, err := c.configService.GetEnvFromApi(ctx, req.GetName())
 	if err != nil {
 		return errors.Wrap(err, "error getting matreshka config from matreshka api")
 	}
-
-	for port := range matreshkaConfig.Servers {
-		req.Settings.Ports = append(req.Settings.Ports,
-			&velez_api.Port{
-				ServicePortNumber: uint32(port),
-				Protocol:          velez_api.Port_tcp,
-			})
+	serviceName := strings.ToUpper(req.GetName())
+	for _, e := range envs {
+		if len(e.InnerNodes) == 0 && e.Value != nil {
+			req.Env[serviceName+"_"+e.Name] = fmt.Sprint(e.Value)
+		}
 	}
 
 	return nil

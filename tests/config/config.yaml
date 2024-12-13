@@ -1,59 +1,67 @@
 app_info:
-  name: github.com/godverv/Velez
-  version: v0.1.42
-  startup_duration: 10s
-data_sources:
-  - resource_name: grpc_matreshka_be
-    connection_string: localhost:53891
-    module: github.com/godverv/matreshka-be@v1.0.23
-server:
-  - name: grpc
-    port: 53890
+    name: github.com/godverv/Velez
+    version: v0.1.43
+    startup_duration: 10s
+servers:
+    53890:
+        /{GRPC}:
+            module: pkg/velez_api
+            gateway: /api
 environment:
-  - name: available_ports
-    value: 18501-18519
-    type: int
-
-  - name: custom_pass_to_key
-    value: /tmp/velez/private.key
-    type: string
-
-  - name: disable_api_security
-    type: bool
-    value: true
-
-  - name: cpu_default
-    value: 0.5
-    type: float
-  - name: memory_swap_mb
-    value: 50
-    type: int
-  - name: ram_mb_default
-    value: 50
-    type: int
-
-  - name: node_mode
-    value: true
-    type: bool
-
-  - name: expose_matreshka_port
-    value: true
-    type: bool
-  - name: matreshka_port
-    value: 53891
-    type: int
-
-  - name: portainer_enabled
-    value: false
-    type: bool
-
-  - name: shut_down_on_exit
-    value: false
-    type: bool
-
-  - name: watch_tower_enabled
-    value: false
-    type: bool
-  - name: watch_tower_interval
-    value: 60s
-    type: duration
+    - name: available_ports
+      type: int
+      value: 18501-18519
+    - name: cpu_default
+      type: float
+      value: 0.5
+    - name: custom_pass_to_key
+      type: string
+      value: /tmp/velez/private.key
+    - name: disable_api_security
+      type: bool
+      value: false
+    - name: makosh_image_name
+      type: string
+      value: godverv/makosh:v0.0.3
+    - name: makosh_key
+      type: string
+      value: string
+    - name: makosh_port
+      type: int
+      value: 50051
+    - name: makosh_url
+      type: string
+      value: verv://makosh
+    - name: makosh_url
+      type: string
+      value: verv://makosh
+    - name: matreshka_port
+      type: int
+      value: 50050
+    - name: matreshka_url
+      type: string
+      value: verv://matreshka
+    - name: memory_swap_mb
+      type: int
+      value: 50
+    - name: node_mode
+      type: bool
+      value: true
+    - name: portainer_enabled
+      type: bool
+      value: false
+    - name: ram_mb_default
+      type: int
+      value: 50
+    - name: shut_down_on_exit
+      type: bool
+      value: false
+    - name: watch_tower_enabled
+      type: bool
+      value: true
+    - name: watch_tower_interval
+      type: duration
+      value: 1m0s
+    - name: makosh_expose_port
+      type: bool
+      value: true

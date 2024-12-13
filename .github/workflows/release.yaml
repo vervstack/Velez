@@ -3,8 +3,7 @@ run-name: RELEASE
 on:
   push:
     branches:
-      - "*"
-      - "!master"
+      - "master"
 
 jobs:
   tag-release:
@@ -29,3 +28,33 @@ jobs:
         with:
           REGISTRY_USER: ${{ vars.REGISTRY_USER }}
           REGISTRY_PWD:  ${{ secrets.REGISTRY_PWD }}
+
+  publish-npm:
+    runs-on: ubuntu-latest
+
+    steps:
+      -   name: Checkout repository
+          uses: actions/checkout@v3
+
+      -   name: Set up Node.js
+          uses: actions/setup-node@v3
+          with:
+            node-version: 20
+            registry-url: https://registry.npmjs.org/
+
+      -   name: Set up Yarn
+          run: corepack enable
+
+      -   name: Publish to npm
+          working-directory: pkg/web
+          env:
+            NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          run: npm publish
+
+      -   name: Publish to GitHub Registry
+          working-directory: pkg/web
+          env:
+            NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          run: |
+            npm config set registry https://npm.pkg.github.com/
+            npm publish

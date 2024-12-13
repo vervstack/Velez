@@ -2,44 +2,42 @@ package configurator
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Red-Sock/evon"
 	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka"
 	"github.com/godverv/matreshka-be/pkg/matreshka_be_api"
 )
 
-func (c *Configurator) GetEnv(ctx context.Context, name string) ([]string, error) {
-	getConfigReq := &matreshka_be_api.GetConfig_Request{
-		ServiceName: name,
+func (c *Configurator) GetEnvFromApi(ctx context.Context, serviceName string) ([]*evon.Node, error) {
+	req := &matreshka_be_api.GetConfigNode_Request{
+		ServiceName: serviceName,
 	}
-	raw, err := c.MatreshkaBeAPIClient.GetConfig(ctx, getConfigReq)
+	cfgNodes, err := c.MatreshkaBeAPIClient.GetConfigNodes(ctx, req)
 	if err != nil {
-		return nil, errors.Wrap(err, "error getting config from api")
+		return nil, errors.Wrap(err, "error obtaining raw config")
 	}
 
-	if len(raw.Config) == 0 {
+	if cfgNodes.Root == nil {
 		return nil, nil
 	}
 
-	cfg := matreshka.NewEmptyConfig()
-	err = cfg.Unmarshal(raw.Config)
-	if err != nil {
-		return nil, errors.Wrap(err, "error unmarshalling config")
+	return fromApiNodes(cfgNodes.Root), nil
+}
+
+func fromApiNodes(root *matreshka_be_api.Node) []*evon.Node {
+	out := make([]*evon.Node, 0)
+
+	for _, node := range root.InnerNodes {
+		if len(node.InnerNodes) != 0 {
+			out = append(out, fromApiNodes(node)...)
+		}
+		if node.Value != nil {
+			out = append(out, &evon.Node{
+				Name:  node.Name,
+				Value: *node.Value,
+			})
+		}
 	}
 
-	evonEnv, err := evon.MarshalEnv(cfg)
-	if err != nil {
-		return nil, errors.Wrap(err, "error marshalling to env")
-	}
-	ns := evon.NodesToStorage(evonEnv.InnerNodes)
-
-	// TODO check if works correctly
-	env := make([]string, 0, len(ns))
-	for _, n := range ns {
-		env = append(env, n.Name+"="+fmt.Sprint(n.Value))
-	}
-
-	return env, nil
+	return out
 }

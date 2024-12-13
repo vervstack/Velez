@@ -4,7 +4,7 @@ Content-Type: application/json
 
 {}
 
-### Create standalone smerd
+### Create standalone smerd (not-verv)
 POST {{velez}}/api/smerd/create
 Content-Type: application/json
 
@@ -35,9 +35,7 @@ Content-Type: application/json
 POST {{velez}}/smerd/list
 Content-Type: application/json
 
-{
-}
-
+{}
 
 ### Delete smerds
 POST {{velez}}/smerd/drop
@@ -54,10 +52,10 @@ Content-Type: application/json
 {}
 
 ### Fetch config
-POST {{velez}}/smerd/fetch-config
+POST {{velez}}/api/smerd/fetch-config
 Content-Type: application/json
 
 {
-  "image_name": "redsockdev/red-cart:v0.0.17",
-  "service_name": "red-cart"
+  "image_name": "godverv/hello_world:v0.0.8",
+  "service_name": "hello_world"
 }

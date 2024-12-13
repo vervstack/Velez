@@ -17,7 +17,7 @@ import (
 	"github.com/godverv/Velez/internal/clients/security"
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/internal/service/service_manager"
-	"github.com/godverv/Velez/internal/transport/grpc"
+	"github.com/godverv/Velez/internal/transport/grpc_impl"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -35,7 +35,7 @@ type Custom struct {
 	// Services - contains business logic services
 	Services service.Services
 	// Api implementation
-	GrpcImpl *grpc.Impl
+	GrpcImpl *grpc_impl.Impl
 }
 
 func (c *Custom) Init(a *App) (err error) {
@@ -82,7 +82,7 @@ func (c *Custom) initVelezServices(a *App) {
 }
 
 func (c *Custom) initApiServer(a *App) error {
-	c.GrpcImpl = grpc.NewImpl(a.Cfg, c.Services)
+	c.GrpcImpl = grpc_impl.NewImpl(a.Cfg, c.Services)
 
 	var opts []grpc2.ServerOption
 	if !a.Cfg.Environment.DisableAPISecurity {

@@ -14,7 +14,10 @@ func NewClusterClientsContainer(
 	sd ServiceDiscovery,
 	cfg Configurator,
 ) ClusterClients {
-	return &clusterClientsContainer{}
+	return &clusterClientsContainer{
+		serviceDiscovery: sd,
+		configurator:     cfg,
+	}
 }
 
 func (c *clusterClientsContainer) ServiceDiscovery() ServiceDiscovery {

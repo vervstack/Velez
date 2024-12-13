@@ -43,17 +43,20 @@ func (c *Custom) initServiceDiscovery(a *App) (err error) {
 }
 
 func (c *Custom) initConfigurationService(a *App) (err error) {
-	if a.Cfg.Environment.NodeMode {
-		configuration.LaunchMatreshka(a.Ctx, &a.Cfg, c.NodeClients)
-	}
-
 	matreshkaEndpoints := &makosh_be.UpsertEndpoints_Request{
 		Endpoints: []*makosh_be.Endpoint{
 			{
-				ServiceName: "matreshka",
-				Addrs:       []string{a.Cfg.Environment.MatreshkaURL},
+				ServiceName: configuration.Name,
+				Addrs:       make([]string, 1),
 			},
 		},
+	}
+
+	if a.Cfg.Environment.NodeMode && a.Cfg.Environment.MatreshkaURL == "verv://matreshka" {
+		conn := configuration.LaunchMatreshka(a.Ctx, a.Cfg, c.NodeClients)
+		matreshkaEndpoints.Endpoints[0].Addrs[0] = conn.Addr
+	} else {
+		matreshkaEndpoints.Endpoints[0].Addrs[0] = a.Cfg.Environment.MatreshkaURL
 	}
 
 	_, err = c.MakoshClient.UpsertEndpoints(a.Ctx, matreshkaEndpoints)

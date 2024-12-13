@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package velez_api;
+
+option go_package = "/control_plane_api";
+
+import "google/api/annotations.proto";
+
+service ControlPlane {
+  rpc ListServices(ListServices.Request) returns (ListServices.Response) {
+    option (google.api.http) = {
+      get: "/api/control_plane/services"
+    };
+  }
+}
+
+message ListServices {
+  message Request {
+
+  }
+  message Response {
+    optional Matreshka matreshka = 1;
+    optional Makosh makosh = 2;
+    optional Svarog svarog = 3;
+  }
+}
+
+message Matreshka {
+
+}
+
+message Makosh {
+
+}
+
+
+message Svarog {
+
+}
+

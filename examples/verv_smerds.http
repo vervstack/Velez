@@ -1,0 +1,25 @@
+### Create standalone smerd (verv - requires matreshka config)
+POST {{velez}}/api/smerd/create
+Content-Type: application/json
+
+{
+  "name": "hello_world",
+  "image_name": "godverv/hello_world:v0.0.12",
+  "settings": {
+    "ports": [
+      {
+        "service_port_number": 80,
+        "protocol": "tcp"
+      }
+    ]
+  }
+}
+
+### Fetch config
+POST {{velez}}/api/smerd/fetch-config
+Content-Type: application/json
+
+{
+  "image_name": "godverv/hello_world:v0.0.12",
+  "service_name": "hello_world"
+}

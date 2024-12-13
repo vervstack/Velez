@@ -21,15 +21,25 @@ const (
 )
 
 type TestEnv struct {
-	*app.App
+	app.App
 }
 
 var testEnv TestEnv
 
 func TestMain(m *testing.M) {
-	testEnv.App = app.New()
+	var err error
+	testEnv.App, err = app.New()
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
 	testEnv.clean()
-	go testEnv.App.Start()
+	go func() {
+		err := testEnv.App.Start()
+		if err != nil {
+			logrus.Fatal(err)
+		}
+	}()
 
 	var code int
 	defer func() {
@@ -46,7 +56,7 @@ func (t *TestEnv) callCreate(ctx context.Context, req *velez_api.CreateSmerd_Req
 	}
 
 	req.Labels[integrationTest] = "true"
-	return testEnv.GrpcApi.CreateSmerd(ctx, req)
+	return testEnv.Custom.GrpcImpl.CreateSmerd(ctx, req)
 }
 
 func (t *TestEnv) clean() {
@@ -57,13 +67,13 @@ func (t *TestEnv) clean() {
 			integrationTest: "true",
 		},
 	}
-	cList, err := dockerutils.ListContainers(ctx, t.InternalClients.Docker(), listReq)
+	cList, err := dockerutils.ListContainers(ctx, t.Custom.NodeClients.Docker(), listReq)
 	if err != nil {
 		logrus.Fatal(err)
 	}
 
 	for _, cont := range cList {
-		err = t.InternalClients.Docker().ContainerRemove(ctx, cont.ID,
+		err = t.Custom.NodeClients.Docker().ContainerRemove(ctx, cont.ID,
 			container.RemoveOptions{
 				Force: true,
 			})

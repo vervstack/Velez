@@ -31,7 +31,6 @@ jobs:
 
   publish-npm:
     runs-on: ubuntu-latest
-
     steps:
       -   name: Checkout repository
           uses: actions/checkout@v3
@@ -44,6 +43,10 @@ jobs:
 
       -   name: Set up Yarn
           run: corepack enable
+
+      -   name: Authenticate npm registry
+          working-directory: pkg/web
+          run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
 
       -   name: Publish to npm
           working-directory: pkg/web

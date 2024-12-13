@@ -49,7 +49,7 @@ jobs:
           working-directory: pkg/web
           env:
             NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          run: npm publish
+          run: npm publish --access public
 
       -   name: Publish to GitHub Registry
           working-directory: pkg/web

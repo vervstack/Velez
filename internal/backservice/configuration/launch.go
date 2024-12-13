@@ -19,7 +19,7 @@ import (
 
 const (
 	Name  = "matreshka"
-	image = "godverv/matreshka-be:v1.0.37"
+	image = "godverv/matreshka-be:v1.0.41"
 )
 
 var initOnce sync.Once

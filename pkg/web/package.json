@@ -1,0 +1,7 @@
+{
+  "name": "@godverv/velez",
+  "version": "v0.1.43",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  }
+}

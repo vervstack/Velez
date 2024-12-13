@@ -4,7 +4,7 @@ Content-Type: application/json
 
 {
   "name": "hello_world",
-  "image_name": "godverv/hello_world:v0.0.10",
+  "image_name": "godverv/hello_world:v0.0.12",
   "settings": {
     "ports": [
       {
@@ -20,6 +20,6 @@ POST {{velez}}/api/smerd/fetch-config
 Content-Type: application/json
 
 {
-  "image_name": "godverv/hello_world:v0.0.10",
+  "image_name": "godverv/hello_world:v0.0.12",
   "service_name": "hello_world"
 }

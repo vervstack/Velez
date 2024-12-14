@@ -56,5 +56,4 @@ jobs:
                     PACKAGE_TAG: "v0.1.46"
                 run: |
                     echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
-                    echo "Publishing tag ${PACKAGE_TAG}"
                     yarn publish --non-interactive --access public --tag ${PACKAGE_TAG}

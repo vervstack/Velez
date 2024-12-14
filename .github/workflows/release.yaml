@@ -7,7 +7,7 @@ on:
 
 jobs:
     tag-release:
-        runs-on: ubuntu-24.04
+        runs-on: ${{ env.UBUNTU_IMAGE }}
         steps:
             -   name: Release tag
                 id: release
@@ -17,8 +17,8 @@ jobs:
         outputs:
             tag: ${{ steps.release.outputs.tag }}
 
-    registry-release:
-        runs-on: ubuntu-24.04
+    docker-registry-release:
+        runs-on: ${{ env.UBUNTU_IMAGE }}
         needs:
             - tag-release
         if: ${{ needs.tag-release.outputs.tag != '' }}
@@ -29,8 +29,8 @@ jobs:
                     REGISTRY_USER: ${{ vars.REGISTRY_USER }}
                     REGISTRY_PWD: ${{ secrets.REGISTRY_PWD }}
 
-    publish-npm:
-        runs-on: ubuntu-24.04
+    npm-registry-release:
+        runs-on: ${{ env.UBUNTU_IMAGE }}
         needs:
             - tag-release
         if: ${{ needs.tag-release.outputs.tag != '' }}

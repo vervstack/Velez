@@ -33,7 +33,7 @@ jobs:
         runs-on: ubuntu-24.04
         needs:
             - tag-release
-#        if: ${{ needs.tag-release.outputs.tag != '' }}
+        if: ${{ needs.tag-release.outputs.tag != '' }}
         steps:
             -   name: Checkout repository
                 uses: actions/checkout@v3
@@ -56,7 +56,7 @@ jobs:
                 working-directory: pkg/web
                 env:
                     NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-                    VERSION: "v0.1.51"
+                    VERSION: ${{ needs.tag-release.outputs.tag }}
                 run: |
                     echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
                     export VERSION=$(echo "${VERSION}" | sed 's/^v//')

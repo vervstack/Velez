@@ -7,7 +7,7 @@ on:
 
 jobs:
     tag-release:
-        runs-on: ${{ env.UBUNTU_IMAGE }}
+        runs-on: ${{ vars.UBUNTU_IMAGE }}
         steps:
             -   name: Release tag
                 id: release
@@ -18,7 +18,7 @@ jobs:
             tag: ${{ steps.release.outputs.tag }}
 
     docker-registry-release:
-        runs-on: ${{ env.UBUNTU_IMAGE }}
+        runs-on: ${{ vars.UBUNTU_IMAGE }}
         needs:
             - tag-release
         if: ${{ needs.tag-release.outputs.tag != '' }}
@@ -30,7 +30,7 @@ jobs:
                     REGISTRY_PWD: ${{ secrets.REGISTRY_PWD }}
 
     npm-registry-release:
-        runs-on: ${{ env.UBUNTU_IMAGE }}
+        runs-on: ${{ vars.UBUNTU_IMAGE }}
         needs:
             - tag-release
         if: ${{ needs.tag-release.outputs.tag != '' }}

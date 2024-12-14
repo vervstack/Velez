@@ -57,4 +57,4 @@ jobs:
                 run: |
                     echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
                     echo "$PACKAGE_TAG"
-                    yarn publish --non-interactive --access public --tag "$PACKAGE_TAG"
+                    yarn publish --non-interactive --access public --new-version "$PACKAGE_TAG"

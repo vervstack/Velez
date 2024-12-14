@@ -1,6 +1,6 @@
 {
   "name": "@godverv/velez",
-  "version": "v0.1.44",
+  "version": "v0.1.45",
   "description": "Velez Grpc API contracts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

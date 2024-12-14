@@ -1,6 +1,28 @@
 {
   "name": "@godverv/velez",
   "version": "v0.1.43",
+  "description": "Velez Grpc API contracts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc "
+  },
+  "files": [
+    "dist/",
+    "fetch.pb.ts"
+  ],
+  "dependencies": {
+    "tsc": "2.0.4",
+    "typescript": "5.7.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/godverv/Velez.git"
+  },
+  "author": {
+    "name": "AlexSkilled",
+    "email": "olegthander@yandex.ru"
+  },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   }

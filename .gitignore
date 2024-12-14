@@ -23,3 +23,6 @@ api/*
 private.key
 
 test
+
+dist
+node_modules

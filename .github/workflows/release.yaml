@@ -31,10 +31,10 @@ jobs:
 
     publish-npm:
         runs-on: ubuntu-latest
+        needs:
+            - tag-release
+        if: ${{ needs.tag-release.outputs.tag != '' }}
         steps:
-            -   name: Checkout repository
-                uses: actions/checkout@v3
-
             -   name: Set up Node.js
                 uses: actions/setup-node@v3
                 with:
@@ -53,7 +53,10 @@ jobs:
                 working-directory: pkg/web
                 env:
                     NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-                    PACKAGE_TAG: "0.1.50"
+                    VERSION: ${{ needs.tag-release.outputs.tag }}
                 run: |
                     echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
-                    yarn publish --non-interactive --access public --tag latest --new-version $PACKAGE_TAG
+                    export VERSION=$(echo "${VERSION}" | sed 's/^v//')
+                    
+                    jq --arg version "$VERSION" '.version = $version' package.json > temp && mv temp package.json
+                    yarn publish --non-interactive --access public --tag latest

@@ -18,7 +18,7 @@ jobs:
             tag: ${{ steps.release.outputs.tag }}
 
     registry-release:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
         needs:
             - tag-release
         if: ${{ needs.tag-release.outputs.tag != '' }}
@@ -30,11 +30,14 @@ jobs:
                     REGISTRY_PWD: ${{ secrets.REGISTRY_PWD }}
 
     publish-npm:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
         needs:
             - tag-release
 #        if: ${{ needs.tag-release.outputs.tag != '' }}
         steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v3
+
             -   name: Set up Node.js
                 uses: actions/setup-node@v3
                 with:

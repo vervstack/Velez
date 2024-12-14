@@ -1,6 +1,6 @@
 {
   "name": "@godverv/velez",
-  "version": "v0.1.43",
+  "version": "v0.1.44",
   "description": "Velez Grpc API contracts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,7 +23,5 @@
     "name": "AlexSkilled",
     "email": "olegthander@yandex.ru"
   },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  }
+  "license": "Red-Beer"
 }

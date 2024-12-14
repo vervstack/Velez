@@ -52,7 +52,8 @@ jobs:
             -   name: Publish to npm
                 working-directory: pkg/web
                 env:
-                    NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+                    NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+                    PACKAGE_TAG: v0.1.40
                 run: |
-                    echo "//registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN" > ~/.npmrc
-                    yarn publish
+                    echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+                    yarn publish --non-interactive --access public --tag ${{ PACKAGE_TAG }}

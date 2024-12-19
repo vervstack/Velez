@@ -4,9 +4,9 @@ import (
 	"context"
 	"sync"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+	errors "go.redsock.ru/rerrors"
 
 	"github.com/godverv/Velez/internal/config"
 )

@@ -1,8 +1,8 @@
 package matreshka
 
 import (
-	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka-be/pkg/matreshka_be_api"
+	errors "go.redsock.ru/rerrors"
+	"go.verv.tech/matreshka-be/pkg/matreshka_be_api"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

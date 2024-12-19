@@ -3,7 +3,7 @@ package container_manager_v1
 import (
 	"context"
 
-	errors "github.com/Red-Sock/trace-errors"
+	errors "go.redsock.ru/rerrors"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/godverv/Velez/pkg/velez_api"

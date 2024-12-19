@@ -3,9 +3,9 @@ package dockerutils
 import (
 	"context"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
+	errors "go.redsock.ru/rerrors"
 
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils/list_request"
 )

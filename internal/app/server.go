@@ -3,14 +3,14 @@
 package app
 
 import (
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/Velez/internal/transport"
+	"go.redsock.ru/rerrors"
 )
 
 func (a *App) InitServers() (err error) {
-	a.Server, err = transport.NewServerManager(a.Ctx, ":53890")
+	a.ServerMaster, err = transport.NewServerManager(a.Ctx, a.Cfg.Servers.MASTER.Port)
 	if err != nil {
-		return errors.Wrap(err, "error during server initialization on port: 53890")
+		return rerrors.Wrap(err, "error during \"MASTER\" server initialization, with name: MASTER")
 	}
 
 	return nil

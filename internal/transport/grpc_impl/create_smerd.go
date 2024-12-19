@@ -3,7 +3,7 @@ package grpc_impl
 import (
 	"context"
 
-	errors "github.com/Red-Sock/trace-errors"
+	errors "go.redsock.ru/rerrors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 

@@ -4,10 +4,10 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/Red-Sock/toolbox/keep_alive"
-	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka-be/pkg/matreshka_be_api"
 	"github.com/sirupsen/logrus"
+	errors "go.redsock.ru/rerrors"
+	"go.redsock.ru/toolbox/keep_alive"
+	"go.verv.tech/matreshka-be/pkg/matreshka_be_api"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

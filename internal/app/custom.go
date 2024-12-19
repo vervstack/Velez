@@ -6,11 +6,11 @@ package app
 import (
 	"context"
 
-	"github.com/Red-Sock/toolbox/closer"
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/makosh/pkg/makosh_be"
-	"github.com/godverv/matreshka-be/pkg/matreshka_be_api"
 	"github.com/sirupsen/logrus"
+	errors "go.redsock.ru/rerrors"
+	"go.redsock.ru/toolbox/closer"
+	"go.verv.tech/matreshka-be/pkg/matreshka_be_api"
 	grpc2 "google.golang.org/grpc"
 
 	"github.com/godverv/Velez/internal/clients"

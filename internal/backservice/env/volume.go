@@ -5,10 +5,10 @@ import (
 	"os"
 	"path"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
+	errors "go.redsock.ru/rerrors"
 )
 
 const (

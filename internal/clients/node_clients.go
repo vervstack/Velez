@@ -3,11 +3,11 @@ package clients
 import (
 	"context"
 
-	"github.com/Red-Sock/toolbox/closer"
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"github.com/sirupsen/logrus"
+	errors "go.redsock.ru/rerrors"
+	"go.redsock.ru/toolbox/closer"
 
 	"github.com/godverv/Velez/internal/clients/docker"
 	"github.com/godverv/Velez/internal/clients/docker/deploy_manager"

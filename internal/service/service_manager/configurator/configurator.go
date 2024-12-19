@@ -2,7 +2,7 @@ package configurator
 
 import (
 	"github.com/docker/docker/client"
-	"github.com/godverv/matreshka-be/pkg/matreshka_be_api"
+	"go.verv.tech/matreshka-be/pkg/matreshka_be_api"
 )
 
 type Configurator struct {

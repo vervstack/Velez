@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	"github.com/Red-Sock/evon"
-	"github.com/godverv/matreshka"
+	"go.redsock.ru/evon"
+	"go.verv.tech/matreshka"
 
 	"github.com/godverv/Velez/pkg/velez_api"
 )

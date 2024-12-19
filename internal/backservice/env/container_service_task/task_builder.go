@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/go-connections/nat"
+	errors "go.redsock.ru/rerrors"
 	"google.golang.org/grpc"
 
 	"github.com/godverv/Velez/internal/backservice/env"

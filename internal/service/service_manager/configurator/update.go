@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Red-Sock/evon"
-	rtb "github.com/Red-Sock/toolbox"
-	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka"
-	"github.com/godverv/matreshka-be/pkg/matreshka_be_api"
+	"go.redsock.ru/evon"
+	errors "go.redsock.ru/rerrors"
+	rtb "go.redsock.ru/toolbox"
+	"go.verv.tech/matreshka"
+	"go.verv.tech/matreshka-be/pkg/matreshka_be_api"
 )
 
 func (c *Configurator) UpdateConfig(ctx context.Context, serviceName string, config matreshka.AppConfig) (err error) {

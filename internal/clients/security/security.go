@@ -5,9 +5,9 @@ import (
 	"path"
 	"sync"
 
-	rtb "github.com/Red-Sock/toolbox"
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/sirupsen/logrus"
+	errors "go.redsock.ru/rerrors"
+	rtb "go.redsock.ru/toolbox"
 )
 
 const defaultPath = "/tmp/velez/private.key"

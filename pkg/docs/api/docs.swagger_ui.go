@@ -28,11 +28,11 @@ func Swagger() (p string, handler http.HandlerFunc) {
 			[]swaggerui.SpecURL{
 				{
 					Name: "ControlPlaneApi",
-					URL:  path.Join(swaggerPath, "Control_plane_api.swagger.json"),
+					URL:  path.Join(swaggerPath, "control_plane_api.swagger.json"),
 				},
 				{
 					Name: "VelezApi",
-					URL:  path.Join(swaggerPath, "Velez_api.swagger.json"),
+					URL:  path.Join(swaggerPath, "velez_api.swagger.json"),
 				},
 			}),
 		swaggerui.WithShowExtensions(true),

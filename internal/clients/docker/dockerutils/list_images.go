@@ -3,10 +3,10 @@ package dockerutils
 import (
 	"context"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
+	errors "go.redsock.ru/rerrors"
 
 	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/pkg/velez_api"

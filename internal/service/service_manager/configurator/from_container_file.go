@@ -6,8 +6,8 @@ import (
 	stderrs "errors"
 	"io"
 
-	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka"
+	errors "go.redsock.ru/rerrors"
+	"go.verv.tech/matreshka"
 )
 
 const defaultConfigPath = "/app/config/config.yaml"

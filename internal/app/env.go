@@ -1,8 +1,8 @@
 package app
 
 import (
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/makosh/pkg/makosh_be"
+	errors "go.redsock.ru/rerrors"
 
 	"github.com/godverv/Velez/internal/backservice/configuration"
 	"github.com/godverv/Velez/internal/backservice/env"

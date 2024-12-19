@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "api/grpc/Control_plane_api.proto",
+    "title": "api/grpc/control_plane_api.proto",
     "version": "version not set"
   },
   "tags": [

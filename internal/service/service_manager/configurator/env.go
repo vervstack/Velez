@@ -3,9 +3,9 @@ package configurator
 import (
 	"context"
 
-	"github.com/Red-Sock/evon"
-	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka-be/pkg/matreshka_be_api"
+	"go.redsock.ru/evon"
+	errors "go.redsock.ru/rerrors"
+	"go.verv.tech/matreshka-be/pkg/matreshka_be_api"
 )
 
 func (c *Configurator) GetEnvFromApi(ctx context.Context, serviceName string) ([]*evon.Node, error) {

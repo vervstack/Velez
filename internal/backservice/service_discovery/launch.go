@@ -6,11 +6,11 @@ import (
 	"sync"
 	"time"
 
-	rtb "github.com/Red-Sock/toolbox"
-	"github.com/Red-Sock/toolbox/keep_alive"
-	errors "github.com/Red-Sock/trace-errors"
 	pb "github.com/godverv/makosh/pkg/makosh_be"
 	"github.com/sirupsen/logrus"
+	errors "go.redsock.ru/rerrors"
+	rtb "go.redsock.ru/toolbox"
+	"go.redsock.ru/toolbox/keep_alive"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 

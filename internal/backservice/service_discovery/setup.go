@@ -4,10 +4,10 @@ import (
 	"context"
 	"os"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/godverv/makosh/pkg/makosh_be"
 	vervResolver "github.com/godverv/makosh/pkg/resolver"
 	"github.com/godverv/makosh/pkg/resolver/makosh_resolver"
+	errors "go.redsock.ru/rerrors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 

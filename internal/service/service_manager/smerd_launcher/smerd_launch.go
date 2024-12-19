@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/api/types"
-	"github.com/godverv/matreshka"
+	errors "go.redsock.ru/rerrors"
+	"go.verv.tech/matreshka"
 	"google.golang.org/grpc/codes"
 
 	"github.com/godverv/Velez/internal/clients"

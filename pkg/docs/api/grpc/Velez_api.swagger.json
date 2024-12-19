@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "api/grpc/Velez_api.proto",
+    "title": "api/grpc/velez_api.proto",
     "version": "version not set"
   },
   "tags": [

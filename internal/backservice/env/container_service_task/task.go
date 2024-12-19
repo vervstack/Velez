@@ -4,11 +4,11 @@ import (
 	"context"
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
+	errors "go.redsock.ru/rerrors"
 	"google.golang.org/grpc"
 
 	"github.com/godverv/Velez/internal/backservice/env"

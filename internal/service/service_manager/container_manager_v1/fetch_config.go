@@ -4,8 +4,8 @@ import (
 	"context"
 	stderrs "errors"
 
-	errors "github.com/Red-Sock/trace-errors"
-	"github.com/godverv/matreshka"
+	errors "go.redsock.ru/rerrors"
+	"go.verv.tech/matreshka"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 

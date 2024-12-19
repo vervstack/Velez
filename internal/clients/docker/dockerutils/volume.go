@@ -4,9 +4,9 @@ import (
 	"context"
 	"strings"
 
-	errors "github.com/Red-Sock/trace-errors"
 	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
+	errors "go.redsock.ru/rerrors"
 )
 
 func CreateVolumeSoft(ctx context.Context, d client.CommonAPIClient, volumeName string) (volume.Volume, error) {

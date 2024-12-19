@@ -1,9 +1,9 @@
 package makosh
 
 import (
-	errors "github.com/Red-Sock/trace-errors"
 	makosh "github.com/godverv/makosh/pkg/makosh_be"
 	pb "github.com/godverv/makosh/pkg/makosh_be"
+	errors "go.redsock.ru/rerrors"
 	"google.golang.org/grpc"
 
 	"github.com/godverv/Velez/internal/clients/security"

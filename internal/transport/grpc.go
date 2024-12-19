@@ -5,16 +5,17 @@ import (
 	"net"
 	"net/http"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type GrpcImpl interface {
-	Register(srv *grpc.Server)
+	Register(srv grpc.ServiceRegistrar)
 }
 
 type GrpcWithGateway interface {
-	Gateway(ctx context.Context) (rootRoute string, handler http.Handler)
+	Gateway(ctx context.Context, endpoint string, opts ...grpc.DialOption) (rootRoute string, handler http.Handler)
 }
 
 type grpcServer struct {
@@ -51,8 +52,8 @@ func (s *grpcServer) start() error {
 
 	err := server.Serve(s.listener)
 	if err != nil {
-		if !errors.Is(err, http.ErrServerClosed) {
-			return errors.Wrap(err, "error serving grpc server")
+		if !rerrors.Is(err, http.ErrServerClosed) {
+			return rerrors.Wrap(err, "error serving grpc server")
 		}
 	}
 
@@ -71,7 +72,9 @@ func (s *grpcServer) AddImplementation(grpcImpl GrpcImpl, opts ...grpc.ServerOpt
 
 	grpcWithGateway, ok := grpcImpl.(GrpcWithGateway)
 	if ok {
-		s.gatewayMux.Handle(grpcWithGateway.Gateway(s.ctx))
+		s.gatewayMux.Handle(grpcWithGateway.Gateway(s.ctx,
+			s.listener.Addr().String(),
+			grpc.WithTransportCredentials(insecure.NewCredentials())))
 	}
 
 	s.opts = append(s.opts, opts...)

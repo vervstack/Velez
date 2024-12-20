@@ -4,8 +4,10 @@ deps:
     - github.com/googleapis/googleapis
 
 generate:
+    proto_root: api/grpc
+    make_out_dirs: true
     inputs:
-      - directory: "api/grpc"
+        -   directory: api/grpc
     plugins:
         - name: go
           out: pkg
@@ -20,9 +22,7 @@ generate:
           out: pkg/web
 
         - name: openapiv2
-          out: pkg/docs
+          out: pkg/docs/swaggers
 
         - name: docs
-          out: pkg/docs/api
-          opts:
-            swaggers_folder_path: grpc
+          out: pkg/docs

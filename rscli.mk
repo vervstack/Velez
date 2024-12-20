@@ -10,7 +10,7 @@ gen-server-grpc: .prepare-grpc-folders .deps-grpc .gen-server-grpc
 
 .prepare-grpc-folders:
 	mkdir -p pkg/web
-	mkdir -p pkg/docs/api
+	mkdir -p pkg/docs/swaggers
 
 .deps-grpc:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest

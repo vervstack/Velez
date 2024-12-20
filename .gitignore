@@ -26,4 +26,5 @@ test
 
 dist
 node_modules
+proto_deps
 yarn.lock

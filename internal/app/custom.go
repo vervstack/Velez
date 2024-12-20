@@ -19,6 +19,7 @@ import (
 	"github.com/godverv/Velez/internal/service/service_manager"
 	"github.com/godverv/Velez/internal/transport/control_plane_api_impl"
 	"github.com/godverv/Velez/internal/transport/grpc_impl"
+	"github.com/godverv/Velez/pkg/docs"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -94,6 +95,8 @@ func (c *Custom) initApiServer(a *App) error {
 
 	a.ServerMaster.AddImplementation(c.ApiGrpcImpl, opts...)
 	a.ServerMaster.AddImplementation(c.ControlPlaneApiImpl, opts...)
+
+	a.ServerMaster.AddHttpHandler(docs.Swagger())
 
 	return nil
 }

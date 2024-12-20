@@ -1,0 +1,95 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "control_plane_api.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "ControlPlane"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/control_plane/services": {
+      "get": {
+        "operationId": "ControlPlane_ListServices",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListServicesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "ControlPlane"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "googlerpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "velez_apiListServicesResponse": {
+      "type": "object",
+      "properties": {
+        "matreshka": {
+          "$ref": "#/definitions/velez_apiMatreshka"
+        },
+        "makosh": {
+          "$ref": "#/definitions/velez_apiMakosh"
+        },
+        "svarog": {
+          "$ref": "#/definitions/velez_apiSvarog"
+        }
+      }
+    },
+    "velez_apiMakosh": {
+      "type": "object"
+    },
+    "velez_apiMatreshka": {
+      "type": "object"
+    },
+    "velez_apiSvarog": {
+      "type": "object"
+    }
+  }
+}

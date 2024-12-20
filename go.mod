@@ -17,7 +17,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	go.redsock.ru/evon v0.0.16
 	go.redsock.ru/rerrors v0.0.2
-	go.redsock.ru/toolbox v0.0.8
+	go.redsock.ru/toolbox v0.0.9
 	go.verv.tech/matreshka v0.0.44
 	go.verv.tech/matreshka-be v1.0.47
 	golang.org/x/net v0.33.0
@@ -61,5 +61,3 @@ require (
 	gotest.tools/v3 v3.5.1 // indirect
 	howett.net/plist v1.0.1 // indirect
 )
-
-replace go.redsock.ru/toolbox v0.0.8 => /Users/alexbukov/Yandex.Disk.localized/проекты/redsock/toolbox

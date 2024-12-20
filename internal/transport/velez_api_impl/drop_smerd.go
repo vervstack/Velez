@@ -1,4 +1,4 @@
-package grpc_impl
+package velez_api_impl
 
 import (
 	"context"

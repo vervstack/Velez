@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"sync"
 
+	"github.com/godverv/makosh/pkg/makosh_be"
 	"github.com/sirupsen/logrus"
 	errors "go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/keep_alive"
@@ -13,7 +14,9 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/godverv/Velez/internal/backservice/env/container_service_task"
+	"github.com/godverv/Velez/internal/backservice/service_discovery"
 	"github.com/godverv/Velez/internal/clients"
+	"github.com/godverv/Velez/internal/clients/matreshka"
 	"github.com/godverv/Velez/internal/config"
 )
 
@@ -24,28 +27,26 @@ const (
 
 var initOnce sync.Once
 
-type MatreshkaConnect struct {
-	Addr      string
-	AuthToken string
-}
-
-var localMatreshka MatreshkaConnect
-
-func LaunchMatreshka(ctx context.Context, cfg config.Config, clients clients.NodeClients) MatreshkaConnect {
+func LaunchMatreshka(ctx context.Context,
+	cfg config.Config,
+	clients clients.NodeClients,
+	sd service_discovery.ServiceDiscovery,
+) {
 	initOnce.Do(func() {
-		err := initInstance(ctx, cfg, clients)
+		err := initInstance(ctx, cfg, clients, sd)
 		if err != nil {
 			logrus.Fatal(err)
 		}
 	})
 
-	return localMatreshka
+	return
 }
 
 func initInstance(
 	ctx context.Context,
 	cfg config.Config,
 	nodeClients clients.NodeClients,
+	sd service_discovery.ServiceDiscovery,
 ) error {
 	taskRequest := container_service_task.NewTaskRequest[matreshka_be_api.MatreshkaBeAPIClient]{
 		NodeClients:       nodeClients,
@@ -80,7 +81,19 @@ func initInstance(
 	ka := keep_alive.KeepAlive(task, keep_alive.WithCancel(ctx.Done()))
 	ka.Wait()
 
-	localMatreshka.Addr = task.Address
+	matreshkaEndpoints := &makosh_be.UpsertEndpoints_Request{
+		Endpoints: []*makosh_be.Endpoint{
+			{
+				ServiceName: matreshka.ServiceName,
+				Addrs:       []string{task.Address},
+			},
+		},
+	}
+
+	_, err = sd.UpsertEndpoints(ctx, matreshkaEndpoints)
+	if err != nil {
+		return errors.Wrap(err, "error upserting endpoints for matreshka to makosh")
+	}
 
 	return nil
 }

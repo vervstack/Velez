@@ -8,6 +8,7 @@ import (
 
 func (impl *Impl) ListServices(ctx context.Context, request *control_plane_api.ListServices_Request) (
 	*control_plane_api.ListServices_Response, error) {
+
 	return &control_plane_api.ListServices_Response{
 		Matreshka: &control_plane_api.Matreshka{},
 		Makosh:    &control_plane_api.Makosh{},

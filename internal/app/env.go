@@ -1,7 +1,6 @@
 package app
 
 import (
-	"github.com/godverv/makosh/pkg/makosh_be"
 	errors "go.redsock.ru/rerrors"
 
 	"github.com/godverv/Velez/internal/backservice/configuration"
@@ -31,7 +30,7 @@ func (c *Custom) initServiceDiscovery(a *App) (err error) {
 		service_discovery.LaunchMakosh(a.Ctx, &a.Cfg, c.NodeClients)
 	}
 
-	c.MakoshClient, err = service_discovery.SetupServiceDiscovery(
+	c.ServiceDiscovery, err = service_discovery.SetupServiceDiscovery(
 		a.Cfg.Environment.MakoshURL,
 		a.Cfg.Environment.MakoshKey,
 	)
@@ -43,25 +42,8 @@ func (c *Custom) initServiceDiscovery(a *App) (err error) {
 }
 
 func (c *Custom) initConfigurationService(a *App) (err error) {
-	matreshkaEndpoints := &makosh_be.UpsertEndpoints_Request{
-		Endpoints: []*makosh_be.Endpoint{
-			{
-				ServiceName: configuration.Name,
-				Addrs:       make([]string, 1),
-			},
-		},
-	}
-
-	if a.Cfg.Environment.NodeMode && a.Cfg.Environment.MatreshkaURL == "verv://matreshka" {
-		conn := configuration.LaunchMatreshka(a.Ctx, a.Cfg, c.NodeClients)
-		matreshkaEndpoints.Endpoints[0].Addrs[0] = conn.Addr
-	} else {
-		matreshkaEndpoints.Endpoints[0].Addrs[0] = a.Cfg.Environment.MatreshkaURL
-	}
-
-	_, err = c.MakoshClient.UpsertEndpoints(a.Ctx, matreshkaEndpoints)
-	if err != nil {
-		return errors.Wrap(err, "error upserting endpoints for matreshka")
+	if a.Cfg.Environment.NodeMode {
+		configuration.LaunchMatreshka(a.Ctx, a.Cfg, c.NodeClients, c.ServiceDiscovery)
 	}
 
 	c.MatreshkaClient, err = matreshka.NewClient()

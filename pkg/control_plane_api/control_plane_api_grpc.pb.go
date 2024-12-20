@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v5.28.3
-// source: control_plane_api.proto
+// source: api/grpc/control_plane_api.proto
 
 package control_plane_api
 
@@ -105,5 +105,5 @@ var ControlPlane_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "control_plane_api.proto",
+	Metadata: "api/grpc/control_plane_api.proto",
 }

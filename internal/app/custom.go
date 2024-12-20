@@ -6,19 +6,19 @@ package app
 import (
 	"context"
 
-	"github.com/godverv/makosh/pkg/makosh_be"
 	"github.com/sirupsen/logrus"
 	errors "go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
 	"go.verv.tech/matreshka-be/pkg/matreshka_be_api"
-	grpc2 "google.golang.org/grpc"
+	"google.golang.org/grpc"
 
+	"github.com/godverv/Velez/internal/backservice/service_discovery"
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/clients/security"
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/internal/service/service_manager"
 	"github.com/godverv/Velez/internal/transport/control_plane_api_impl"
-	"github.com/godverv/Velez/internal/transport/grpc_impl"
+	"github.com/godverv/Velez/internal/transport/velez_api_impl"
 	"github.com/godverv/Velez/pkg/docs"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
@@ -28,7 +28,7 @@ type Custom struct {
 	NodeClients clients.NodeClients
 
 	// Service discovery client
-	MakoshClient makosh_be.MakoshBeAPIClient
+	ServiceDiscovery service_discovery.ServiceDiscovery
 	// Configuration client
 	MatreshkaClient matreshka_be_api.MatreshkaBeAPIClient
 	// ClusterClients - contains verv cluster's dependencies
@@ -37,7 +37,7 @@ type Custom struct {
 	// Services - contains business logic services
 	Services service.Services
 	// Api implementation
-	ApiGrpcImpl         *grpc_impl.Impl
+	ApiGrpcImpl         *velez_api_impl.Impl
 	ControlPlaneApiImpl *control_plane_api_impl.Impl
 }
 
@@ -62,7 +62,7 @@ func (c *Custom) Init(a *App) (err error) {
 		return errors.Wrap(err, "error initializing configuration service")
 	}
 
-	c.ClusterClients = clients.NewClusterClientsContainer(c.MakoshClient, c.MatreshkaClient)
+	c.ClusterClients = clients.NewClusterClientsContainer(c.ServiceDiscovery, c.MatreshkaClient)
 
 	c.initVelezServices(a)
 
@@ -85,10 +85,10 @@ func (c *Custom) initVelezServices(a *App) {
 }
 
 func (c *Custom) initApiServer(a *App) error {
-	c.ApiGrpcImpl = grpc_impl.NewImpl(a.Cfg, c.Services)
-	c.ControlPlaneApiImpl = control_plane_api_impl.New()
+	c.ApiGrpcImpl = velez_api_impl.NewImpl(a.Cfg, c.Services)
+	c.ControlPlaneApiImpl = control_plane_api_impl.New(c.ServiceDiscovery)
 
-	var opts []grpc2.ServerOption
+	var opts []grpc.ServerOption
 	if !a.Cfg.Environment.DisableAPISecurity {
 		opts = append(opts, security.GrpcIncomingInterceptor(c.NodeClients.SecurityManager().ValidateKey))
 	}

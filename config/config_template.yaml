@@ -38,12 +38,6 @@ environment:
     - name: matreshka_port
       type: int
       value: "50050"
-    - name: matreshka_url
-      type: string
-      value: verv://matreshka
-    - name: matreshka_url
-      type: string
-      value: verv://matreshka
     - name: memory_swap_mb
       type: int
       value: "50"

@@ -6,11 +6,7 @@ build-local-container:
 			-t velez:local .
 
 ### Grpc server generation
-gen-server-grpc: .prepare-grpc-folders .deps-grpc .gen-server-grpc
-
-.prepare-grpc-folders:
-	mkdir -p pkg/web
-	mkdir -p pkg/docs/swaggers
+gen-server-grpc: .deps-grpc .gen-server-grpc
 
 .deps-grpc:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest

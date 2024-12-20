@@ -14,28 +14,42 @@ import (
 	"github.com/godverv/Velez/internal/clients/makosh"
 )
 
-func SetupServiceDiscovery(addr string, token string) (makosh_be.MakoshBeAPIClient, error) {
+type ServiceDiscovery struct {
+	Sd *vervResolver.ServiceDiscovery
+	makosh_be.MakoshBeAPIClient
+}
+
+func SetupServiceDiscovery(addr string, token string) (sd ServiceDiscovery, err error) {
 	_ = os.Setenv(makosh_resolver.MakoshURL, addr)
 	_ = os.Setenv(makosh_resolver.MakoshSecret, token)
 
-	_, err := vervResolver.Init()
+	sd.Sd, err = vervResolver.Init()
 	if err != nil {
-		return nil, errors.Wrap(err, "error initializing verv-service-discovery")
+		return sd, errors.Wrap(err, "error initializing verv-service-discovery")
 	}
 
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
 
-	apiClient, err := makosh.New(token, opts...)
+	sd.MakoshBeAPIClient, err = makosh.New(token, opts...)
 	if err != nil {
-		return nil, errors.Wrap(err, "error creating makosh api client")
+		return sd, errors.Wrap(err, "error creating makosh api client")
 	}
 
-	_, err = apiClient.Version(context.Background(), &makosh_be.Version_Request{})
+	_, err = sd.Version(context.Background(), &makosh_be.Version_Request{})
 	if err != nil {
-		return nil, errors.Wrap(err, "error pinging service discovery")
+		return sd, errors.Wrap(err, "error pinging service discovery")
 	}
 
-	return apiClient, nil
+	return sd, nil
+}
+
+func (s *ServiceDiscovery) GetAddrs(vervName string) []string {
+	matreshkaResolverPtr, err := s.Sd.GetResolver(vervName)
+	if err != nil {
+		return nil
+	}
+
+	return matreshkaResolverPtr.Load().GetAddrs()
 }

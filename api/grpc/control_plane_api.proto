@@ -26,11 +26,11 @@ message ListServices {
 }
 
 message Matreshka {
-
+  string ui_url = 1;
 }
 
 message Makosh {
-
+  string ui_url = 2;
 }
 
 message Svarog {

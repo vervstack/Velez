@@ -56,3 +56,6 @@ environment:
     - name: makosh_expose_port
       type: bool
       value: true
+    - name: makosh_url
+      type: string
+      value: verv://makosh

@@ -32,7 +32,7 @@ func NewImpl(cfg config.Config, srv service.Services) *Impl {
 	}
 }
 
-func (a *Impl) Register(srv *grpc.Server) {
+func (a *Impl) Register(srv grpc.ServiceRegistrar) {
 	velez_api.RegisterVelezAPIServer(srv, a)
 }
 

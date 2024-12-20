@@ -7,6 +7,8 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+
+	"github.com/godverv/Velez/pkg/control_plane_api"
 )
 
 type Impl struct {
@@ -34,5 +36,5 @@ func (impl *Impl) Gateway(ctx context.Context, endpoint string, opts ...grpc.Dia
 		logrus.Errorf("error registering grpc2http handler: %s", err)
 	}
 
-	return "/api/", gwHttpMux
+	return "/api/control_plane/", gwHttpMux
 }

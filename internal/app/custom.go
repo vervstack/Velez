@@ -17,6 +17,7 @@ import (
 	"github.com/godverv/Velez/internal/clients/security"
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/internal/service/service_manager"
+	"github.com/godverv/Velez/internal/transport/control_plane_api_impl"
 	"github.com/godverv/Velez/internal/transport/grpc_impl"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
@@ -35,7 +36,8 @@ type Custom struct {
 	// Services - contains business logic services
 	Services service.Services
 	// Api implementation
-	GrpcImpl *grpc_impl.Impl
+	ApiGrpcImpl         *grpc_impl.Impl
+	ControlPlaneApiImpl *control_plane_api_impl.Impl
 }
 
 func (c *Custom) Init(a *App) (err error) {
@@ -82,15 +84,16 @@ func (c *Custom) initVelezServices(a *App) {
 }
 
 func (c *Custom) initApiServer(a *App) error {
-	c.GrpcImpl = grpc_impl.NewImpl(a.Cfg, c.Services)
+	c.ApiGrpcImpl = grpc_impl.NewImpl(a.Cfg, c.Services)
+	c.ControlPlaneApiImpl = control_plane_api_impl.New()
 
 	var opts []grpc2.ServerOption
 	if !a.Cfg.Environment.DisableAPISecurity {
 		opts = append(opts, security.GrpcIncomingInterceptor(c.NodeClients.SecurityManager().ValidateKey))
 	}
-	a.Server.AddImplementation(c.GrpcImpl, opts...)
-	//a.Server.AddHttpHandler("/verv/makosh", c.ServiceDiscovery)
-	// TODO ADD TO TOP SHIT
+
+	a.ServerMaster.AddImplementation(c.ApiGrpcImpl, opts...)
+	a.ServerMaster.AddImplementation(c.ControlPlaneApiImpl, opts...)
 
 	return nil
 }

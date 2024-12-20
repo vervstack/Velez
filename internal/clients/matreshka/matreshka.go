@@ -13,6 +13,10 @@ const (
 	ServiceName = "matreshka"
 )
 
+type Client struct {
+	matreshka_be_api.MatreshkaBeAPIClient
+}
+
 func NewClient(opts ...grpc.DialOption) (matreshka_be_api.MatreshkaBeAPIClient, error) {
 	opts = append(opts,
 		// TODO Add token for matreshka

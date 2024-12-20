@@ -56,7 +56,7 @@ func (t *TestEnv) callCreate(ctx context.Context, req *velez_api.CreateSmerd_Req
 	}
 
 	req.Labels[integrationTest] = "true"
-	return testEnv.Custom.GrpcImpl.CreateSmerd(ctx, req)
+	return testEnv.Custom.ApiGrpcImpl.CreateSmerd(ctx, req)
 }
 
 func (t *TestEnv) clean() {

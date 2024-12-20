@@ -7,6 +7,7 @@ import (
 	"github.com/godverv/makosh/pkg/makosh_be"
 	"github.com/sirupsen/logrus"
 	errors "go.redsock.ru/rerrors"
+	"go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/toolbox/keep_alive"
 	"go.verv.tech/matreshka-be/pkg/matreshka_be_api"
@@ -54,7 +55,7 @@ func initInstance(
 		ClientConstructor: matreshka_be_api.NewMatreshkaBeAPIClient,
 		DialOpts:          []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())},
 		ContainerName:     Name,
-		ImageName:         image,
+		ImageName:         toolbox.Coalesce(cfg.Environment.MatreshkaImage, image),
 		GrpcPort:          "80",
 		ExposedPorts:      map[string]string{},
 		Healthcheck: func(client matreshka_be_api.MatreshkaBeAPIClient) bool {

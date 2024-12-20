@@ -24,8 +24,9 @@ import (
 
 const (
 	Name                 = "makosh"
-	image                = "godverv/makosh:v0.0.8"
+	image                = "godverv/makosh:v0.0.9"
 	authTokenEnvVariable = "MAKOSH_ENVIRONMENT_AUTH-TOKEN"
+	grpcPort             = "80"
 )
 
 var initModeSync = sync.Once{}
@@ -52,23 +53,24 @@ func launchMakosh(
 	// Construct
 	token := string(rtb.RandomBase64(256))
 
-	var taskConstructor container_service_task.NewTaskRequest[pb.MakoshBeAPIClient]
-
-	taskConstructor.NodeClients = nodeClients
-
-	taskConstructor.ContainerName = Name
-	taskConstructor.ImageName = rtb.Coalesce(cfg.Environment.MakoshImageName, image)
-
-	taskConstructor.ExposedPorts = map[string]string{}
-	taskConstructor.Env = map[string]string{
-		authTokenEnvVariable: token,
+	taskConstructor := container_service_task.NewTaskRequest[pb.MakoshBeAPIClient]{
+		ContainerName:     Name,
+		NodeClients:       nodeClients,
+		ClientConstructor: pb.NewMakoshBeAPIClient,
+		DialOpts:          nil,
+		ImageName:         rtb.Coalesce(cfg.Environment.MakoshImage, image),
+		GrpcPort:          grpcPort,
+		ExposedPorts: map[string]string{
+			grpcPort: "",
+		},
+		Healthcheck: nil,
+		Env: map[string]string{
+			authTokenEnvVariable: token,
+		},
 	}
 
-	taskConstructor.GrpcPort = "80"
 	if cfg.Environment.MakoshPort > 0 {
-		taskConstructor.ExposedPorts["80"] = strconv.Itoa(cfg.Environment.MakoshPort)
-	} else {
-		taskConstructor.ExposedPorts["80"] = ""
+		taskConstructor.ExposedPorts[grpcPort] = strconv.Itoa(cfg.Environment.MakoshPort)
 	}
 
 	taskConstructor.DialOpts = []grpc.DialOption{
@@ -76,7 +78,7 @@ func launchMakosh(
 			security.HeaderOutgoingInterceptor(makosh.AuthHeader, token)),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
-	taskConstructor.ClientConstructor = pb.NewMakoshBeAPIClient
+
 	taskConstructor.Healthcheck = func(client pb.MakoshBeAPIClient) bool {
 		resp, err := client.Version(ctx, &pb.Version_Request{})
 		if err != nil {

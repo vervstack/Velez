@@ -6,7 +6,7 @@ require (
 	github.com/Red-Sock/go-swagger-ui v0.0.2
 	github.com/docker/docker v27.4.1+incompatible
 	github.com/docker/go-connections v0.5.0
-	github.com/godverv/makosh v0.0.8
+	github.com/godverv/makosh v0.0.9
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.25.1
 	github.com/jaypipes/ghw v0.13.0
 	github.com/opencontainers/image-spec v1.1.0

@@ -11,7 +11,6 @@ environment:
     - name: node_mode
       type: bool
       value: true
-
     - name: available_ports
       type: int
       value: '[18501-18519]'
@@ -21,11 +20,9 @@ environment:
     - name: custom_pass_to_key
       type: string
       value: /tmp/velez/private.key
-
     - name: disable_api_security
       type: bool
       value: false
-
     - name: cpu_default
       type: float
       value: 0.5
@@ -35,18 +32,15 @@ environment:
     - name: ram_mb_default
       type: int
       value: "50"
-
     - name: makosh_port
       type: int
       value: "50051"
-    -   name: matreshka_port
-        type: int
-        value: "50050"
-
+    - name: matreshka_port
+      type: int
+      value: "50050"
     - name: makosh_image_name
       type: string
       value: godverv/makosh:v0.0.3
-
     - name: portainer_enabled
       type: bool
       value: false
@@ -56,4 +50,12 @@ environment:
     - name: watch_tower_interval
       type: duration
       value: 1m0s
-
+    - name: makosh_expose_port
+      type: bool
+      value: true
+    - name: makosh_key
+      type: string
+      value: string
+    - name: makosh_url
+      type: string
+      value: verv://makosh

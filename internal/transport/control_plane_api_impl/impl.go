@@ -7,21 +7,14 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-
-	"github.com/godverv/Velez/internal/backservice/service_discovery"
-	"github.com/godverv/Velez/pkg/control_plane_api"
 )
 
 type Impl struct {
 	control_plane_api.UnimplementedControlPlaneServer
-
-	sd service_discovery.ServiceDiscovery
 }
 
-func New(sd service_discovery.ServiceDiscovery) *Impl {
-	return &Impl{
-		sd: sd,
-	}
+func New() *Impl {
+	return &Impl{}
 }
 
 func (impl *Impl) Register(server grpc.ServiceRegistrar) {
@@ -41,5 +34,5 @@ func (impl *Impl) Gateway(ctx context.Context, endpoint string, opts ...grpc.Dia
 		logrus.Errorf("error registering grpc2http handler: %s", err)
 	}
 
-	return "/api/control_plane/*", gwHttpMux
+	return "/api/", gwHttpMux
 }

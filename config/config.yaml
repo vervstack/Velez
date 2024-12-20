@@ -56,6 +56,3 @@ environment:
     - name: makosh_key
       type: string
       value: string
-    - name: makosh_url
-      type: string
-      value: verv://makosh

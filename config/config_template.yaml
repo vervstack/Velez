@@ -29,12 +29,6 @@ environment:
     - name: makosh_port
       type: int
       value: "50051"
-    - name: makosh_url
-      type: string
-      value: verv://makosh
-    - name: makosh_url
-      type: string
-      value: verv://makosh
     - name: matreshka_port
       type: int
       value: "50050"

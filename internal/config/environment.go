@@ -15,7 +15,6 @@ type EnvironmentConfig struct {
 	MakoshImageName    string
 	MakoshKey          string
 	MakoshPort         int
-	MakoshURL          string
 	MatreshkaPort      int
 	MemorySwapMb       int
 	NodeMode           bool

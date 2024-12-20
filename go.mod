@@ -61,3 +61,5 @@ require (
 	gotest.tools/v3 v3.5.1 // indirect
 	howett.net/plist v1.0.1 // indirect
 )
+
+replace go.redsock.ru/toolbox v0.0.8 => /Users/alexbukov/Yandex.Disk.localized/проекты/redsock/toolbox

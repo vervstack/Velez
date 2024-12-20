@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 	errors "go.redsock.ru/rerrors"
 	rtb "go.redsock.ru/toolbox"
+	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/toolbox/keep_alive"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -23,7 +24,7 @@ import (
 
 const (
 	Name                 = "makosh"
-	image                = "godverv/makosh:v0.0.7"
+	image                = "godverv/makosh:v0.0.8"
 	authTokenEnvVariable = "MAKOSH_ENVIRONMENT_AUTH-TOKEN"
 )
 
@@ -100,7 +101,12 @@ func launchMakosh(
 		keep_alive.WithCancel(ctx.Done()),
 		keep_alive.WithCheckInterval(time.Second/2),
 	)
-	keepAlive.Wait()
+	if cfg.Environment.ShutDownOnExit {
+		closer.Add(func() error {
+			keepAlive.Stop()
+			return nil
+		})
+	}
 
 	// Add self to makosh
 	req := &pb.UpsertEndpoints_Request{

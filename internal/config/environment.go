@@ -12,10 +12,12 @@ type EnvironmentConfig struct {
 	CustomPassToKey    string
 	DisableAPISecurity bool
 	MakoshExposePort   bool
+	MakoshImage        string
 	MakoshImageName    string
 	MakoshKey          string
 	MakoshPort         int
 	MakoshURL          string
+	MatreshkaImage     string
 	MatreshkaPort      int
 	MemorySwapMb       int
 	NodeMode           bool

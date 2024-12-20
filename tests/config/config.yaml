@@ -22,7 +22,7 @@ environment:
       value: false
     - name: makosh_image_name
       type: string
-      value: godverv/makosh:v0.0.3
+      value: godverv/makosh:v0.0.8
     - name: makosh_key
       type: string
       value: string

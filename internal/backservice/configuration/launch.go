@@ -7,6 +7,7 @@ import (
 	"github.com/godverv/makosh/pkg/makosh_be"
 	"github.com/sirupsen/logrus"
 	errors "go.redsock.ru/rerrors"
+	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/toolbox/keep_alive"
 	"go.verv.tech/matreshka-be/pkg/matreshka_be_api"
 	"golang.org/x/net/context"
@@ -22,7 +23,7 @@ import (
 
 const (
 	Name  = "matreshka"
-	image = "godverv/matreshka-be:v1.0.41"
+	image = "godverv/matreshka-be:v1.0.47"
 )
 
 var initOnce sync.Once
@@ -79,7 +80,12 @@ func initInstance(
 
 	logrus.Info("Starting matreshka service background task")
 	ka := keep_alive.KeepAlive(task, keep_alive.WithCancel(ctx.Done()))
-	ka.Wait()
+	if cfg.Environment.ShutDownOnExit {
+		closer.Add(func() error {
+			ka.Stop()
+			return nil
+		})
+	}
 
 	matreshkaEndpoints := &makosh_be.UpsertEndpoints_Request{
 		Endpoints: []*makosh_be.Endpoint{

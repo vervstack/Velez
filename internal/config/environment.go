@@ -13,7 +13,6 @@ type EnvironmentConfig struct {
 	DisableAPISecurity bool
 	MakoshExposePort   bool
 	MakoshImage        string
-	MakoshImageName    string
 	MakoshKey          string
 	MakoshPort         int
 	MakoshURL          string

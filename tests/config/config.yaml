@@ -20,9 +20,6 @@ environment:
     - name: disable_api_security
       type: bool
       value: false
-    - name: makosh_image_name
-      type: string
-      value: godverv/makosh:v0.0.8
     - name: makosh_key
       type: string
       value: string

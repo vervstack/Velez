@@ -24,9 +24,9 @@ import (
 
 const (
 	Name                 = "makosh"
-	image                = "godverv/makosh:v0.0.9"
+	image                = "godverv/makosh:v0.0.10"
 	authTokenEnvVariable = "MAKOSH_ENVIRONMENT_AUTH-TOKEN"
-	grpcPort             = "80"
+	grpcPort             = "8080"
 )
 
 var initModeSync = sync.Once{}

@@ -41,5 +41,5 @@ func (impl *Impl) Gateway(ctx context.Context, endpoint string, opts ...grpc.Dia
 		logrus.Errorf("error registering grpc2http handler: %s", err)
 	}
 
-	return "/api/control_plane/*", gwHttpMux
+	return "/api/control_plane/", gwHttpMux
 }

@@ -24,4 +24,6 @@ COPY --from=builder /deploy/server/ .
 
 EXPOSE 53890
 
+RUN echo yes > is_in_container.txt
+
 ENTRYPOINT ["./service"]

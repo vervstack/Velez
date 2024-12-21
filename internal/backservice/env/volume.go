@@ -23,10 +23,7 @@ func GetVervVolumeName() string { return vervVolumeName }
 func StartVolumes(dockerAPI client.CommonAPIClient) error {
 	ctx := context.Background()
 
-	isInContainer, err := IsInContainer(dockerAPI)
-	if err != nil {
-		return errors.Wrap(err, "error checking if velez is deployed in container")
-	}
+	isInContainer := IsInContainer(dockerAPI)
 
 	if !isInContainer {
 		vervVolumeName += "_host"
@@ -82,12 +79,10 @@ func createVervVolume(ctx context.Context, dockerAPI client.CommonAPIClient) (*v
 		Name: vervVolumeName,
 	}
 
-	isInContainer, err := IsInContainer(dockerAPI)
-	if err != nil {
-		return nil, errors.Wrap(err, "error detecting if velez ran in container or as standalone app")
-	}
+	isInContainer := IsInContainer(dockerAPI)
 
 	if !isInContainer {
+		var err error
 		vervVolumePath, err = os.UserCacheDir()
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting cache dir")

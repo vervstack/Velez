@@ -7,6 +7,7 @@ import (
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/go-connections/nat"
+	"github.com/sirupsen/logrus"
 	errors "go.redsock.ru/rerrors"
 	"google.golang.org/grpc"
 
@@ -78,11 +79,6 @@ func NewTask[T any](req NewTaskRequest[T]) (*Task[T], error) {
 
 	occupiedPorts := make([]uint32, 0, len(req.ExposedPorts))
 
-	isInContainer, err := env.IsInContainer(req.NodeClients.Docker())
-	if err != nil {
-		return nil, errors.Wrap(err, "can't determine if Velez is running inside a container")
-	}
-
 	// Host configuration
 	t.hostConfig.PortBindings = make(nat.PortMap, len(req.ExposedPorts))
 	for containerP, hostP := range req.ExposedPorts {
@@ -108,12 +104,14 @@ func NewTask[T any](req NewTaskRequest[T]) (*Task[T], error) {
 		return nil, errors.Wrap(err, "error getting ports")
 	}
 
-	if isInContainer {
+	if env.IsInContainer(dockerAPI) {
 		t.Address = req.ContainerName + ":" + req.GrpcPort
 	} else {
 		bindings := t.hostConfig.PortBindings[nat.Port(appendTCP(req.GrpcPort))]
 		t.Address = "0.0.0.0:" + bindings[0].HostPort
 	}
+
+	logrus.Infof("Makosh address: %s", t.Address)
 
 	return t, nil
 }

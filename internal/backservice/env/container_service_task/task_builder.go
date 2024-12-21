@@ -104,7 +104,7 @@ func NewTask[T any](req NewTaskRequest[T]) (*Task[T], error) {
 		return nil, errors.Wrap(err, "error getting ports")
 	}
 
-	if env.IsInContainer(dockerAPI) {
+	if env.IsInContainer() {
 		t.Address = req.ContainerName + ":" + req.GrpcPort
 	} else {
 		bindings := t.hostConfig.PortBindings[nat.Port(appendTCP(req.GrpcPort))]

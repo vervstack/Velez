@@ -23,7 +23,7 @@ func GetVervVolumeName() string { return vervVolumeName }
 func StartVolumes(dockerAPI client.CommonAPIClient) error {
 	ctx := context.Background()
 
-	isInContainer := IsInContainer(dockerAPI)
+	isInContainer := IsInContainer()
 
 	if !isInContainer {
 		vervVolumeName += "_host"
@@ -79,7 +79,7 @@ func createVervVolume(ctx context.Context, dockerAPI client.CommonAPIClient) (*v
 		Name: vervVolumeName,
 	}
 
-	isInContainer := IsInContainer(dockerAPI)
+	isInContainer := IsInContainer()
 
 	if !isInContainer {
 		var err error

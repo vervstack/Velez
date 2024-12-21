@@ -2,6 +2,7 @@ package env
 
 import (
 	"context"
+	"os"
 	"strings"
 
 	"github.com/docker/docker/api/types"
@@ -9,15 +10,13 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/sirupsen/logrus"
 	errors "go.redsock.ru/rerrors"
+	"go.redsock.ru/toolbox"
 
-	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils/list_request"
-	"github.com/godverv/Velez/pkg/velez_api"
 )
 
 const (
-	VervNetwork    = "verv"
-	velezImageName = "godverv/velez"
+	VervNetwork = "verv"
 )
 
 func StartNetwork(dockerAPI client.CommonAPIClient) error {
@@ -45,15 +44,21 @@ func StartNetwork(dockerAPI client.CommonAPIClient) error {
 		logrus.Debug("Verv network created")
 	}
 
-	contId := GetContainerId(dockerAPI)
+	contId := GetContainerId()
 	if contId == nil {
 		return nil
+	}
+
+	logrus.Debugf("Verv container at: %s", *contId)
+	cont, err := dockerAPI.ContainerInspect(ctx, *contId)
+	if err != nil {
+		return errors.Wrap(err, "error getting Velez container info")
 	}
 
 	connection := &network.EndpointSettings{
 		Aliases: []string{"velez"},
 	}
-	err = dockerAPI.NetworkConnect(ctx, VervNetwork, *contId, connection)
+	err = dockerAPI.NetworkConnect(ctx, VervNetwork, cont.Name, connection)
 	if err != nil {
 		return errors.Wrap(err, "error connecting this instance to network")
 	}
@@ -66,21 +71,15 @@ var instanceContainerId *string
 // IsInContainer - function to determine weather
 // this instance ran inside a container or as a standalone app
 // returns container uuid if so
-func IsInContainer(dockerAPI client.CommonAPIClient) bool {
-	return GetContainerId(dockerAPI) != nil
+func IsInContainer() bool {
+	return GetContainerId() != nil
 }
 
-func GetContainerId(dockerAPI client.CommonAPIClient) *string {
-	var err error
-
+func GetContainerId() *string {
 	if instanceContainerId == nil {
-		instanceContainerId, err = getContainerId(dockerAPI)
-		if err != nil {
-			return nil
-		}
+		instanceContainerId = getContainerId()
 		if instanceContainerId == nil {
-			empty := ""
-			instanceContainerId = &empty
+			instanceContainerId = toolbox.ToPtr("")
 		}
 	}
 
@@ -91,18 +90,10 @@ func GetContainerId(dockerAPI client.CommonAPIClient) *string {
 	return instanceContainerId
 }
 
-func getContainerId(dockerAPI client.CommonAPIClient) (*string, error) {
-	ctx := context.Background()
-	containers, err := dockerutils.ListContainers(ctx, dockerAPI, &velez_api.ListSmerds_Request{})
+func getContainerId() *string {
+	hm, err := os.ReadFile("/etc/hostname")
 	if err != nil {
-		return nil, errors.Wrap(err, "error listing containers")
+		return nil
 	}
-
-	for _, container := range containers {
-		if strings.Contains(container.Image, "velez:") {
-			return &container.ID, nil
-		}
-	}
-
-	return nil, nil
+	return toolbox.ToPtr(strings.TrimRight(string(hm), "\n"))
 }

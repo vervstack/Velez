@@ -64,12 +64,12 @@ func (s *Manager) start() (err error) {
 		return errors.Wrap(err, "error removing old key")
 	}
 
-	err = os.MkdirAll(path.Dir(s.buildPath), os.ModePerm)
+	err = os.MkdirAll(path.Dir(s.buildPath), 0777)
 	if err != nil {
 		return errors.Wrap(err, "error making dir")
 	}
 
-	err = os.WriteFile(s.buildPath, s.key, 0666)
+	err = os.WriteFile(s.buildPath, s.key, 0777)
 	if err != nil {
 		return errors.Wrap(err, "error writing key")
 	}

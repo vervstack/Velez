@@ -1,4 +1,4 @@
-package container_manager_v1
+package container_manager
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	errors "go.redsock.ru/rerrors"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/godverv/Velez/internal/service/service_manager/smerd_launcher/steps"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -20,7 +21,7 @@ func (c *ContainerManager) ListSmerds(ctx context.Context, req *velez_api.ListSm
 	}
 
 	for _, container := range cl {
-		if container.Labels[CreatedWithVelezLabel] != "true" {
+		if container.Labels[steps.CreatedWithVelezLabel] != "true" {
 			continue
 		}
 

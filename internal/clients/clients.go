@@ -21,11 +21,6 @@ type Docker interface {
 	client.CommonAPIClient
 }
 
-type DeployManager interface {
-	Create(ctx context.Context, req *velez_api.CreateSmerd_Request) (*types.ContainerJSON, error)
-	Healthcheck(ctx context.Context, contId string, healthcheck *velez_api.Container_Healthcheck) error
-}
-
 type PortManager interface {
 	GetPort() (uint32, error)
 	LockPort(ports ...uint32) error

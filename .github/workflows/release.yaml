@@ -28,3 +28,16 @@ jobs:
         with:
           REGISTRY_USER: ${{ vars.REGISTRY_USER }}
           REGISTRY_PWD:  ${{ secrets.REGISTRY_PWD }}
+
+  npm-registry-release:
+    if: ${{ needs.tag-release.outputs.tag != '' }}
+    runs-on: ${{ vars.UBUNTU_IMAGE }}
+    needs:
+      - tag-release
+    steps:
+      -   name: Release image
+          uses: RedSockActions/release_npm_package@v0.0.4
+          with:
+            NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+            VERSION: ${{ needs.tag-release.outputs.tag }}
+            WORKING_DIRECTORY: pkg/web/@godverv/velez

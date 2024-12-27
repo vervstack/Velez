@@ -10,7 +10,6 @@ import (
 	"go.redsock.ru/toolbox/closer"
 
 	"github.com/godverv/Velez/internal/clients/docker"
-	"github.com/godverv/Velez/internal/clients/docker/deploy_manager"
 	"github.com/godverv/Velez/internal/clients/hardware"
 	"github.com/godverv/Velez/internal/clients/ports"
 	"github.com/godverv/Velez/internal/clients/security"
@@ -22,7 +21,6 @@ type NodeClients interface {
 	// Docker - returns basic DockerEngine API
 	Docker() Docker
 
-	DeployManager() DeployManager
 	PortManager() PortManager
 	SecurityManager() SecurityManager
 
@@ -35,7 +33,6 @@ type nodeClients struct {
 	portManager     PortManager
 	hardwareManager HardwareManager
 
-	deployManager   DeployManager
 	securityManager SecurityManager
 }
 
@@ -94,12 +91,6 @@ func NewNodeClientsContainer(ctx context.Context, cfg config.Config) (NodeClient
 		cls.hardwareManager = hardware.New()
 	}
 
-	// Deploy
-	{
-		logrus.Debug("Initializing deployment manager")
-		cls.deployManager = deploy_manager.New(cls.docker)
-	}
-
 	return cls, nil
 }
 
@@ -109,10 +100,6 @@ func (c *nodeClients) DockerAPI() client.CommonAPIClient {
 
 func (c *nodeClients) Docker() Docker {
 	return c.docker
-}
-
-func (c *nodeClients) DeployManager() DeployManager {
-	return c.deployManager
 }
 
 func (c *nodeClients) PortManager() PortManager {

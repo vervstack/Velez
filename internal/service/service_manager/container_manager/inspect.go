@@ -1,4 +1,4 @@
-package container_manager_v1
+package container_manager
 
 import (
 	"context"

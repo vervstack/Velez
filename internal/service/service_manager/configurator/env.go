@@ -6,6 +6,8 @@ import (
 	"go.redsock.ru/evon"
 	errors "go.redsock.ru/rerrors"
 	"go.verv.tech/matreshka-be/pkg/matreshka_be_api"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func (c *Configurator) GetEnvFromApi(ctx context.Context, serviceName string) ([]*evon.Node, error) {
@@ -14,6 +16,9 @@ func (c *Configurator) GetEnvFromApi(ctx context.Context, serviceName string) ([
 	}
 	cfgNodes, err := c.MatreshkaBeAPIClient.GetConfigNodes(ctx, req)
 	if err != nil {
+		if status.Code(err) == codes.NotFound {
+			return nil, nil
+		}
 		return nil, errors.Wrap(err, "error obtaining raw config")
 	}
 

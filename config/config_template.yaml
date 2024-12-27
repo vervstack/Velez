@@ -58,7 +58,7 @@ environment:
       value: verv://makosh
     - name: makosh_image
       type: string
-      value: godverv/makosh:v0.0.8
+      value: godverv/makosh:v0.0.12
     - name: matreshka_image
       type: string
       value: godverv/matreshka-be:v1.0.47

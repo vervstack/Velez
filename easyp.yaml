@@ -2,10 +2,10 @@ version: v1alpha
 
 deps:
     - github.com/googleapis/googleapis
-
+    - github.com/Red-Sock/protoc-gen-npm@v0.0.7
 generate:
     proto_root: api/grpc
-    make_out_dirs: true
+    generate_out_dirs: true
     inputs:
         -   directory: api/grpc
     plugins:
@@ -19,10 +19,13 @@ generate:
           out: pkg
 
         - name: grpc-gateway-ts
-          out: pkg/web
+          out: pkg/web/@godverv/velez
 
         - name: openapiv2
           out: pkg/docs/swaggers
 
         - name: docs
           out: pkg/docs
+
+        -   name: npm
+            out: pkg/web

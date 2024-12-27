@@ -83,10 +83,20 @@
       }
     },
     "velez_apiMakosh": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "uiUrl": {
+          "type": "string"
+        }
+      }
     },
     "velez_apiMatreshka": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "uiUrl": {
+          "type": "string"
+        }
+      }
     },
     "velez_apiSvarog": {
       "type": "object"

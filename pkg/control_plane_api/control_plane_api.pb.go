@@ -7,7 +7,7 @@
 package control_plane_api
 
 import (
-	_ "./npmplugin"
+	_ "go.redsock.ru/protoc-gen-npm/npmplugin"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"

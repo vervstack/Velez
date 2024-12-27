@@ -2,7 +2,7 @@ version: v1alpha
 
 deps:
     - github.com/googleapis/googleapis
-    - github.com/Red-Sock/protoc-gen-npm@v0.0.7
+    - github.com/Red-Sock/protoc-gen-npm@v0.0.10
 generate:
     proto_root: api/grpc
     generate_out_dirs: true

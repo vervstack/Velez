@@ -23,9 +23,9 @@ import (
 )
 
 const (
-	Name     = "matreshka"
-	image    = "godverv/matreshka-be:v1.0.47"
-	grpcPort = "80"
+	Name         = "matreshka"
+	defaultImage = "godverv/matreshka-be:v1.0.47"
+	grpcPort     = "80"
 )
 
 var initOnce sync.Once
@@ -56,7 +56,7 @@ func initInstance(
 		ClientConstructor: matreshka_be_api.NewMatreshkaBeAPIClient,
 		DialOpts:          []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())},
 		ContainerName:     Name,
-		ImageName:         toolbox.Coalesce(cfg.Environment.MatreshkaImage, image),
+		ImageName:         toolbox.Coalesce(cfg.Environment.MatreshkaImage, defaultImage),
 		GrpcPort:          grpcPort,
 		ExposedPorts:      map[string]string{},
 		Healthcheck: func(client matreshka_be_api.MatreshkaBeAPIClient) bool {

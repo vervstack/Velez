@@ -1,7 +1,8 @@
 package app
 
 import (
-	errors "go.redsock.ru/rerrors"
+	"go.redsock.ru/rerrors"
+	"go.verv.tech/matreshka-be/pkg/matreshka_be_api"
 
 	"github.com/godverv/Velez/internal/backservice/configuration"
 	"github.com/godverv/Velez/internal/backservice/env"
@@ -13,13 +14,13 @@ func (c *Custom) setupVervNodeEnvironment() (err error) {
 	// Verv network for communication inside node
 	err = env.StartNetwork(c.NodeClients.Docker())
 	if err != nil {
-		return errors.Wrap(err, "error creating network")
+		return rerrors.Wrap(err, "error creating network")
 	}
 
 	// Verv volumes for persistence inside node
 	err = env.StartVolumes(c.NodeClients.Docker())
 	if err != nil {
-		return errors.Wrap(err, "error creating volumes")
+		return rerrors.Wrap(err, "error creating volumes")
 	}
 
 	return nil
@@ -35,7 +36,7 @@ func (c *Custom) initServiceDiscovery(a *App) (err error) {
 		a.Cfg.Environment.MakoshKey,
 	)
 	if err != nil {
-		return errors.Wrap(err, "error initializing service discovery ")
+		return rerrors.Wrap(err, "error initializing service discovery ")
 	}
 
 	return nil
@@ -48,7 +49,12 @@ func (c *Custom) initConfigurationService(a *App) (err error) {
 
 	c.MatreshkaClient, err = matreshka.NewClient()
 	if err != nil {
-		return errors.Wrap(err, "error creating matreshka grpc client")
+		return rerrors.Wrap(err, "error creating matreshka grpc client")
+	}
+
+	_, err = c.MatreshkaClient.ApiVersion(a.Ctx, &matreshka_be_api.ApiVersion_Request{})
+	if err != nil {
+		return rerrors.Wrap(err, "can't ping matreshka api")
 	}
 
 	return nil

@@ -24,7 +24,7 @@ import (
 
 const (
 	Name                 = "makosh"
-	image                = "godverv/makosh:v0.0.10"
+	image                = "godverv/makosh:v0.0.12"
 	authTokenEnvVariable = "MAKOSH_ENVIRONMENT_AUTH-TOKEN"
 	grpcPort             = "8080"
 )

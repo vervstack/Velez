@@ -1,19 +1,14 @@
-package container_manager_v1
+package container_manager
 
 import (
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/service"
 )
 
-const (
-	CreatedWithVelezLabel = "CREATED_WITH_VELEZ"
-)
-
 type ContainerManager struct {
 	docker clients.Docker
 
-	portManager   clients.PortManager
-	deployManager clients.DeployManager
+	portManager clients.PortManager
 
 	configService service.ConfigurationService
 }
@@ -24,9 +19,8 @@ func NewContainerManager(
 ) *ContainerManager {
 
 	return &ContainerManager{
-		docker:        internalClients.Docker(),
-		portManager:   internalClients.PortManager(),
-		deployManager: internalClients.DeployManager(),
+		docker:      internalClients.Docker(),
+		portManager: internalClients.PortManager(),
 
 		configService: configurator,
 	}

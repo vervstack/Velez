@@ -6,7 +6,7 @@ require (
 	github.com/Red-Sock/go-swagger-ui v0.0.2
 	github.com/docker/docker v27.4.1+incompatible
 	github.com/docker/go-connections v0.5.0
-	github.com/godverv/makosh v0.0.9
+	github.com/godverv/makosh v0.0.12
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.25.1
 	github.com/jaypipes/ghw v0.13.0
 	github.com/opencontainers/image-spec v1.1.0
@@ -16,7 +16,7 @@ require (
 	github.com/soheilhy/cmux v0.1.5
 	github.com/stretchr/testify v1.10.0
 	go.redsock.ru/evon v0.0.16
-	go.redsock.ru/protoc-gen-npm v0.0.9
+	go.redsock.ru/protoc-gen-npm v0.0.10
 	go.redsock.ru/rerrors v0.0.2
 	go.redsock.ru/toolbox v0.0.9
 	go.verv.tech/matreshka v0.0.44

@@ -23,8 +23,9 @@ import (
 )
 
 const (
-	Name  = "matreshka"
-	image = "godverv/matreshka-be:v1.0.47"
+	Name         = "matreshka"
+	defaultImage = "godverv/matreshka-be:v1.0.47"
+	grpcPort     = "80"
 )
 
 var initOnce sync.Once
@@ -55,8 +56,8 @@ func initInstance(
 		ClientConstructor: matreshka_be_api.NewMatreshkaBeAPIClient,
 		DialOpts:          []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())},
 		ContainerName:     Name,
-		ImageName:         toolbox.Coalesce(cfg.Environment.MatreshkaImage, image),
-		GrpcPort:          "80",
+		ImageName:         toolbox.Coalesce(cfg.Environment.MatreshkaImage, defaultImage),
+		GrpcPort:          grpcPort,
 		ExposedPorts:      map[string]string{},
 		Healthcheck: func(client matreshka_be_api.MatreshkaBeAPIClient) bool {
 			resp, err := client.ApiVersion(ctx, &matreshka_be_api.ApiVersion_Request{})
@@ -69,9 +70,9 @@ func initInstance(
 	}
 
 	if cfg.Environment.MatreshkaPort > 0 {
-		taskRequest.ExposedPorts["80"] = strconv.Itoa(cfg.Environment.MatreshkaPort)
+		taskRequest.ExposedPorts[grpcPort] = strconv.Itoa(cfg.Environment.MatreshkaPort)
 	} else {
-		taskRequest.ExposedPorts["80"] = ""
+		taskRequest.ExposedPorts[grpcPort] = ""
 	}
 
 	task, err := container_service_task.NewTask(taskRequest)

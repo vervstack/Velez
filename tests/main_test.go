@@ -12,7 +12,7 @@ import (
 
 	"github.com/godverv/Velez/internal/app"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
-	"github.com/godverv/Velez/internal/service/service_manager/smerd_launcher"
+	"github.com/godverv/Velez/internal/service/service_manager/container_manager"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -86,8 +86,8 @@ func (t *TestEnv) clean() {
 
 func (t *TestEnv) getExpectedLabels() map[string]string {
 	return map[string]string{
-		smerd_launcher.CreatedWithVelezLabel: "true",
-		smerd_launcher.MatreshkaConfigLabel:  "false",
-		integrationTest:                      "true",
+		container_manager.CreatedWithVelezLabel: "true",
+		container_manager.MatreshkaConfigLabel:  "false",
+		integrationTest:                         "true",
 	}
 }

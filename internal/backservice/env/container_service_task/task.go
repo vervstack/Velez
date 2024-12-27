@@ -76,6 +76,11 @@ func (t *Task[T]) IsAlive() bool {
 	if cont.State.Status != velez_api.Smerd_running.String() {
 		return false
 	}
+
+	if cont.Config.Image != t.containerConfig.Image {
+		return false
+	}
+
 	t.ApiClient, err = NewGrpcClient(t.Address, t.grpcConstructor, t.grpcDialOpts...)
 	if err != nil {
 		logrus.Error(errors.Wrap(err, "error creating grpc client for dependency in container: "+t.name))

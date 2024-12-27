@@ -6,14 +6,17 @@ build-local-container:
 			-t velez:local .
 
 ### Grpc server generation
-gen-server-grpc: .prepare-grpc-folders .deps-grpc .gen-server-grpc
+gen-server-grpc: .prepare-grpc-folders .download-grpc-deps .gen-server-grpc
 
 .prepare-grpc-folders:
 	mkdir -p pkg/web
 	mkdir -p pkg/docs/api
 
-.deps-grpc:
+.update-grpc-deps:
 	EASYPPATH=proto_deps easyp mod update
+
+.download-grpc-deps:
+	EASYPPATH=proto_deps easyp mod download
 
 .gen-server-grpc:
 	EASYPPATH=proto_deps easyp generate

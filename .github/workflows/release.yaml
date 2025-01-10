@@ -53,8 +53,8 @@ jobs:
             -   name: Making script
                 run: |
                     VERSION="${{ needs.tag-release.outputs.tag }}"
-                    cp scripts/prod_init.sh.pattern scripts/prod_init.sh
-                    sed -i "s/{{ .Version }}/${VERSION}/g" scripts/prod_init.sh
+                    cp scripts/prod_init.sh.pattern scripts/init_node.sh
+                    sed -i "s/{{ .Version }}/${VERSION}/g" scripts/init_node.sh
             -   name: Upload to s3
                 uses: marverlous811/minio-upload@v1.2.0
                 with:
@@ -62,5 +62,5 @@ jobs:
                     access_key: ${{ secrets.MINIO_ACCESS_KEY }}
                     secret_key: ${{ secrets.MINIO_SECRET_KEY }}
                     bucket: 'verv'
-                    local_path: './scripts/prod_init.sh'
+                    local_path: './scripts/init_node.sh'
                     remote_path: '/scripts/'

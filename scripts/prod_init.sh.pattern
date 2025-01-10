@@ -1,0 +1,19 @@
+export VELEZ_PORT=53890
+export VELEZ_KEY_PATH=~/velez
+
+run_velez() {
+  local velezPort=$1
+  local velezKeyPath=$2
+
+  docker run \
+   -p "${velezPort}":53890 \
+   -d \
+   --name velez \
+   -v /var/run/docker.sock:/var/run/docker.sock \
+   -v /dev/disk:/dev/disk \
+   -v /run:/run \
+   -v "${velezKeyPath}":/tmp/velez \
+   godverv/velez:{{ .Version }}
+}
+
+run_velez $VELEZ_PORT $VELEZ_KEY_PATH

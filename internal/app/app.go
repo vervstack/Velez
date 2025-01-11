@@ -51,6 +51,11 @@ func (a *App) Start() (err error) {
 	eg.Go(a.ServerMaster.Start)
 	closer.Add(func() error { return a.ServerMaster.Stop() })
 
+	eg.Go(func() error {
+		return a.Custom.Start(a.Ctx)
+	})
+	closer.Add(a.Custom.Stop)
+
 	interaptedC := func() chan struct{} {
 		c := make(chan struct{})
 		go func() {

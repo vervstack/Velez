@@ -12,8 +12,8 @@ import (
 	"github.com/godverv/Velez/internal/clients/docker"
 	"github.com/godverv/Velez/internal/clients/hardware"
 	"github.com/godverv/Velez/internal/clients/ports"
-	"github.com/godverv/Velez/internal/clients/security"
 	"github.com/godverv/Velez/internal/config"
+	"github.com/godverv/Velez/internal/security"
 )
 
 // NodeClients - container for node level clients

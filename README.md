@@ -14,6 +14,63 @@ be much better experience than a manual setup (with docker-compose or presumably
 
 For now. But with time this part will definitely change
 
+# Download and start
+
+## Setup scripts
+
+### Shell script
+
+```shell
+  wget -qO- scripts.verv.tech/init_node.sh | bash
+```
+
+### Docker run script
+
+```shell
+docker run \
+   -p 53890:53890 \
+   -d \
+   --name velez \
+   -v /var/run/docker.sock:/var/run/docker.sock \
+   -v /dev/disk:/dev/disk \
+   -v /run:/run \
+   -v ~/velez:/tmp/velez \
+   godverv/velez:latest
+}
+```
+
+## Parameters
+
+### Default port
+
+You can access running Velez API with `<your-ip>:53890/api` by default
+
+### Access key
+
+Simply a sequence of random ASCII characters.
+Must be used to connect to velez and execute API procedures
+
+Key is stored at /tmp/velez/private.key
+
+```shell
+curl -X GET --location "http://<your-ip>:53890/api/version" \
+    -H "Content-Type: application/json" \
+-H "Grpc-Metadata-Velez-Auth: <your_private_key>"
+```
+
+It is better to store it in host system (or at least volume)
+otherwise every restart private key will be refreshed
+
+### Required volumes
+
+```
+-v /var/run/docker.sock:/var/run/docker.sock
+-v /dev/disk:/dev/disk
+-v /run:/run
+```
+
+These volumes are required for proper work of Velez.
+You must provide them
 # Features checklist
 
 ## Basic v1

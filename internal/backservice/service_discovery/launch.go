@@ -18,8 +18,8 @@ import (
 	"github.com/godverv/Velez/internal/backservice/env/container_service_task"
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/clients/makosh"
-	"github.com/godverv/Velez/internal/clients/security"
 	"github.com/godverv/Velez/internal/config"
+	"github.com/godverv/Velez/internal/security"
 )
 
 const (

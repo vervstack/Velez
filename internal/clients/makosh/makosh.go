@@ -6,7 +6,7 @@ import (
 	errors "go.redsock.ru/rerrors"
 	"google.golang.org/grpc"
 
-	"github.com/godverv/Velez/internal/clients/security"
+	"github.com/godverv/Velez/internal/security"
 )
 
 const (

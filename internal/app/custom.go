@@ -14,7 +14,7 @@ import (
 
 	"github.com/godverv/Velez/internal/backservice/service_discovery"
 	"github.com/godverv/Velez/internal/clients"
-	"github.com/godverv/Velez/internal/clients/security"
+	"github.com/godverv/Velez/internal/security"
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/internal/service/service_manager"
 	"github.com/godverv/Velez/internal/transport/control_plane_api_impl"

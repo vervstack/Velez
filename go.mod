@@ -62,3 +62,7 @@ require (
 	gotest.tools/v3 v3.5.1 // indirect
 	howett.net/plist v1.0.1 // indirect
 )
+
+replace (
+	go.verv.tech/matreshka-be => /Users/alexbukov/Yandex.Disk.localized/проекты/verv/Matreshka/Matreshka-be
+)

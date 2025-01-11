@@ -10,9 +10,7 @@ import (
 
 type ServiceManager struct {
 	*container_manager.ContainerManager
-
 	*smerd_launcher.SmerdLauncher
-
 	*configurator.Configurator
 }
 

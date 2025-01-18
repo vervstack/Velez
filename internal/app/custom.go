@@ -9,10 +9,8 @@ import (
 	"github.com/sirupsen/logrus"
 	errors "go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
-	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 
-	"github.com/godverv/Velez/internal/backservice/configuration_synchronizer"
 	"github.com/godverv/Velez/internal/backservice/service_discovery"
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/clients/matreshka"
@@ -41,9 +39,6 @@ type Custom struct {
 	// Api implementation
 	ApiGrpcImpl         *velez_api_impl.Impl
 	ControlPlaneApiImpl *control_plane_api_impl.Impl
-
-	// Background services
-	ConfigSyncer *configuration_synchronizer.Synchronizer
 }
 
 func (c *Custom) Init(a *App) (err error) {
@@ -80,43 +75,26 @@ func (c *Custom) Init(a *App) (err error) {
 }
 
 func (c *Custom) Start(ctx context.Context) error {
-	eg, ctx := errgroup.WithContext(ctx)
-	eg.Go(func() error {
-		return c.ConfigSyncer.Start(ctx)
-	})
-
-	err := eg.Wait()
-	if err != nil {
-		return errors.Wrap(err)
-	}
 
 	return nil
 }
 
 func (c *Custom) Stop() error {
-	eg := errgroup.Group{}
-
-	eg.Go(c.ConfigSyncer.Stop)
-
-	err := eg.Wait()
-	if err != nil {
-		return errors.Wrap(err)
-	}
 
 	return nil
 }
 
 func (c *Custom) initVelezServices(a *App) {
-	c.Services = service_manager.New(c.NodeClients, c.ClusterClients)
+	var err error
+	c.Services, err = service_manager.New(a.Ctx, c.NodeClients, c.ClusterClients)
+	if err != nil {
+		logrus.Fatalf("error initializing service manager: %v", err)
+	}
 
 	logrus.Warn("shut down on exit is set to: ", a.Cfg.Environment.ShutDownOnExit)
-
 	if a.Cfg.Environment.ShutDownOnExit {
 		closer.Add(smerdsDropper(c.Services))
 	}
-
-	// TODO VERV-123
-	c.ConfigSyncer = configuration_synchronizer.New(c.MatreshkaClient, "steel_owl")
 }
 
 func (c *Custom) initApiServer(a *App) error {

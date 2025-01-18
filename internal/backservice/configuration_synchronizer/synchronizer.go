@@ -2,6 +2,7 @@ package configuration_synchronizer
 
 import (
 	"context"
+	"io"
 
 	"github.com/sirupsen/logrus"
 	"go.redsock.ru/rerrors"
@@ -11,46 +12,49 @@ import (
 )
 
 type Synchronizer struct {
-	configApi matreshka.Client
+	stream matreshka_be_api.MatreshkaBeAPI_SubscribeOnChangesClient
 
-	nodeName string
-
-	stopCall func() error
+	updatesChan chan []string
 }
 
-func New(matreshkaClient matreshka.Client, nodeName string) *Synchronizer {
-	return &Synchronizer{
-		configApi: matreshkaClient,
-		// TODO: VERV-123
-		nodeName: "steel_owl",
+func New(ctx context.Context, matreshkaClient matreshka.Client) (*Synchronizer, error) {
+	s := &Synchronizer{
+		updatesChan: make(chan []string),
 	}
-}
+	var err error
 
-func (s *Synchronizer) Start(ctx context.Context) error {
-	initReq := &matreshka_be_api.RefreshConfigHook_Init{
-		NodeName: s.nodeName,
-	}
-
-	updateLoop, err := s.configApi.RefreshConfigHook(ctx, initReq)
+	s.stream, err = matreshkaClient.SubscribeOnChanges(ctx)
 	if err != nil {
-		return rerrors.Wrap(err, "error connecting to configuration")
+		return nil, rerrors.Wrap(err, "error during configuration subscription")
 	}
 
-	s.stopCall = updateLoop.CloseSend
+	return s, nil
+}
+
+func (s *Synchronizer) Start() error {
 
 	for {
-		msg, err := updateLoop.Recv()
+		updates, err := s.stream.Recv()
 		if err != nil {
-			logrus.Error("error looping over configuration service update events")
-			break
-		}
+			if !rerrors.Is(err, io.EOF) {
+				logrus.Errorf("error recieving message from stream %s", err)
+				continue
+			}
 
-		_ = msg
+			return nil
+		}
+		envVars := make([]string, len(updates.Changes))
+
+		s.updatesChan <- updates
 	}
 
 	return nil
 }
 
+func (s *Synchronizer) Updates() <-chan []string {
+	return s.updatesChan
+}
+
 func (s *Synchronizer) Stop() error {
-	return s.stopCall()
+	return s.stream.CloseSend()
 }

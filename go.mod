@@ -19,7 +19,7 @@ require (
 	go.redsock.ru/protoc-gen-npm v0.0.10
 	go.redsock.ru/rerrors v0.0.3
 	go.redsock.ru/toolbox v0.0.9
-	go.verv.tech/matreshka v0.0.44
+	go.verv.tech/matreshka v0.0.45
 	go.verv.tech/matreshka-be v1.0.47
 	golang.org/x/net v0.34.0
 	golang.org/x/sync v0.10.0

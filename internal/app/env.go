@@ -34,6 +34,7 @@ func (c *Custom) initServiceDiscovery(a *App) (err error) {
 	c.ServiceDiscovery, err = service_discovery.SetupServiceDiscovery(
 		a.Cfg.Environment.MakoshURL,
 		a.Cfg.Environment.MakoshKey,
+		a.Cfg.Overrides,
 	)
 	if err != nil {
 		return rerrors.Wrap(err, "error initializing service discovery ")

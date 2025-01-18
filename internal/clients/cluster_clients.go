@@ -3,7 +3,6 @@ package clients
 type ClusterClients interface {
 	ServiceDiscovery() ServiceDiscovery
 	Configurator() Configurator
-	ConfigurationSynchronizer()
 }
 
 type clusterClientsContainer struct {

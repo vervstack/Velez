@@ -13,11 +13,11 @@ const (
 	ServiceName = "matreshka"
 )
 
-type Client struct {
+type Client interface {
 	matreshka_be_api.MatreshkaBeAPIClient
 }
 
-func NewClient(opts ...grpc.DialOption) (matreshka_be_api.MatreshkaBeAPIClient, error) {
+func NewClient(opts ...grpc.DialOption) (Client, error) {
 	opts = append(opts,
 		// TODO Add token for matreshka
 		//grpc.WithUnaryInterceptor(security.HeaderOutgoingInterceptor(AuthHeader, token)),

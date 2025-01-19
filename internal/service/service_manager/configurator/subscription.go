@@ -36,13 +36,17 @@ func (c *Configurator) UnsubscribeFromChanges(serviceNames ...string) error {
 	return nil
 }
 
+func (c *Configurator) GetUpdates() <-chan domain.ConfigurationPatch {
+	return c.updatesChan
+}
+
 func handleSubscriptionStream(stream api.MatreshkaBeAPI_SubscribeOnChangesClient) chan domain.ConfigurationPatch {
 	errorsCount := 3
-
 	patchesChan := make(chan domain.ConfigurationPatch)
-	defer close(patchesChan)
 
 	go func() {
+		defer close(patchesChan)
+
 		for {
 			changes, err := stream.Recv()
 			if err != nil {

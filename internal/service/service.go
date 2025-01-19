@@ -6,6 +6,7 @@ import (
 	"go.redsock.ru/evon"
 	"go.verv.tech/matreshka"
 
+	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -30,4 +31,8 @@ type ConfigurationService interface {
 	GetFromApi(ctx context.Context, serviceName string) (matreshka.AppConfig, error)
 	GetEnvFromApi(ctx context.Context, serviceName string) ([]*evon.Node, error)
 	UpdateConfig(ctx context.Context, serviceName string, config matreshka.AppConfig) error
+
+	SubscribeOnChanges(serviceNames ...string) error
+	UnsubscribeFromChanges(serviceNames ...string) error
+	GetUpdates() <-chan domain.ConfigurationPatch
 }

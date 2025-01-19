@@ -47,6 +47,7 @@ func (s *SmerdLauncher) LaunchSmerd(ctx context.Context, req *velez_api.CreateSm
 			steps.LaunchContainer(s.docker, req, deploymentProcess),
 			// Post deploy steps
 			steps.HealthcheckStep(s.docker, req, deploymentProcess),
+			steps.SubscribeForConfigChanges(req, s.configService),
 		},
 	}
 

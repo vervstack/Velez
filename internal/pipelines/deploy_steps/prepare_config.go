@@ -8,7 +8,7 @@ import (
 	"go.redsock.ru/rerrors"
 	"go.verv.tech/matreshka"
 
-	"github.com/godverv/Velez/internal/clients/ports"
+	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/pkg/velez_api"
@@ -21,7 +21,7 @@ const (
 
 type prepareConfig struct {
 	configService service.ConfigurationService
-	portManager   ports.PortManager
+	portManager   clients.PortManager
 
 	req *velez_api.CreateSmerd_Request
 	dp  *domain.LaunchSmerdState
@@ -31,23 +31,31 @@ type prepareConfig struct {
 
 func PrepareVervConfig(
 	configService service.ConfigurationService,
+	portManager clients.PortManager,
 	req *velez_api.CreateSmerd_Request,
 	dp *domain.LaunchSmerdState,
 ) *prepareConfig {
 	return &prepareConfig{
 		configService: configService,
-		req:           req,
-		dp:            dp,
+		portManager:   portManager,
+
+		req: req,
+		dp:  dp,
 	}
 }
 
 func (p *prepareConfig) Do(ctx context.Context) error {
+	if p.dp.Image.Config.Labels == nil {
+		p.dp.Image.Config.Labels = make(map[string]string)
+	}
+
 	if p.dp.Image.Config.Labels[MatreshkaConfigLabel] == "true" {
 		err := p.enrichWithMatreshkaConfig(ctx, p.req)
 		if err != nil {
 			return rerrors.Wrap(err, "error enriching with verv data")
 		}
 	} else {
+		p.req.Labels[MatreshkaConfigLabel] = "false"
 		// TODO заиспользовать ручку из VERV-75 для получения конфигурации ресурса
 	}
 

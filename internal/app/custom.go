@@ -93,7 +93,7 @@ func (c *Custom) initVelezServices(a *App) {
 		logrus.Fatalf("error initializing service manager: %v", err)
 	}
 
-	c.Pipeliner = pipelines.NewPipeliner(c.NodeClients.Docker(), c.Services)
+	c.Pipeliner = pipelines.NewPipeliner(c.NodeClients.Docker(), c.NodeClients.PortManager(), c.Services)
 
 	logrus.Warn("shut down on exit is set to: ", a.Cfg.Environment.ShutDownOnExit)
 	if a.Cfg.Environment.ShutDownOnExit {

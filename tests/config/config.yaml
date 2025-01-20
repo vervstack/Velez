@@ -1,6 +1,6 @@
 app_info:
     name: github.com/godverv/Velez
-    version: v0.1.43
+    version: v0.1.60
     startup_duration: 10s
 servers:
     53890:
@@ -8,49 +8,43 @@ servers:
             module: pkg/velez_api
             gateway: /api
 environment:
+    -   name: node_mode
+        type: bool
+        value: true
     - name: available_ports
       type: int
-      value: 18501-18519
-    - name: cpu_default
-      type: float
-      value: 0.5
+      value: '[18501-18519]'
+    -   name: shut_down_on_exit
+        type: bool
+        value: false
     - name: custom_pass_to_key
       type: string
       value: /tmp/velez/private.key
     - name: disable_api_security
       type: bool
       value: false
-    - name: makosh_key
-      type: string
-      value: string
+    -   name: cpu_default
+        type: float
+        value: 0.5
+    -   name: memory_swap_mb
+        type: int
+        value: "50"
+    -   name: ram_mb_default
+        type: int
+        value: "50"
     - name: makosh_port
       type: int
-      value: 50051
-    - name: makosh_url
-      type: string
-      value: verv://makosh
-    - name: makosh_url
-      type: string
-      value: verv://makosh
+      value: "50051"
     - name: matreshka_port
       type: int
-      value: 50050
-    - name: matreshka_url
+      value: "50050"
+    -   name: makosh_image
       type: string
-      value: verv://matreshka
-    - name: memory_swap_mb
-      type: int
-      value: 50
-    - name: node_mode
-      type: bool
-      value: true
+        value: godverv/makosh:v0.0.12
+    -   name: matreshka_image
+        type: string
+        value: godverv/matreshka-be:v1.0.47
     - name: portainer_enabled
-      type: bool
-      value: false
-    - name: ram_mb_default
-      type: int
-      value: 50
-    - name: shut_down_on_exit
       type: bool
       value: false
     - name: watch_tower_enabled
@@ -62,3 +56,9 @@ environment:
     - name: makosh_expose_port
       type: bool
       value: true
+    -   name: makosh_key
+        type: string
+        value: string
+    -   name: makosh_url
+        type: string
+        value: verv://makosh

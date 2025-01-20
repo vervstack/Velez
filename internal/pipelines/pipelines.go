@@ -26,14 +26,17 @@ type RollbackableStep interface {
 }
 
 type pipeliner struct {
-	dockerAPI clients.Docker
+	dockerAPI   clients.Docker
+	portManager clients.PortManager
 
 	configService service.ConfigurationService
 }
 
-func NewPipeliner(dockerAPI clients.Docker, configService service.ConfigurationService) Pipeliner {
+func NewPipeliner(dockerAPI clients.Docker, portManager clients.PortManager, configService service.ConfigurationService) Pipeliner {
 	return &pipeliner{
-		dockerAPI:     dockerAPI,
+		dockerAPI:   dockerAPI,
+		portManager: portManager,
+
 		configService: configService,
 	}
 }

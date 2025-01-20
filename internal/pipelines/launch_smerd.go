@@ -14,7 +14,7 @@ func (p *pipeliner) LaunchSmerd(req domain.LaunchSmerd) Runner[domain.LaunchSmer
 			// Prepare steps
 			deploy_steps.PrepareRequest(req.CreateSmerd_Request),
 			deploy_steps.PrepareImageStep(p.dockerAPI, req.ImageName, deploymentState),
-			deploy_steps.PrepareVervConfig(p.configService, req.CreateSmerd_Request, deploymentState),
+			deploy_steps.PrepareVervConfig(p.configService, p.portManager, req.CreateSmerd_Request, deploymentState),
 			// Deploy steps
 			deploy_steps.LaunchContainer(p.dockerAPI, req.CreateSmerd_Request, deploymentState),
 			// Post deploy steps

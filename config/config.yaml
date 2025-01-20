@@ -62,8 +62,3 @@ environment:
     - name: makosh_url
       type: string
       value: verv://makosh
-service_discovery:
-    overrides:
-        - service_name: matreshka
-          urls:
-            - localhost:81

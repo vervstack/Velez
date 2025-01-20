@@ -1,4 +1,4 @@
-package steps
+package deploy_steps
 
 import (
 	"context"
@@ -7,31 +7,32 @@ import (
 	"github.com/docker/docker/api/types/network"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"go.redsock.ru/rerrors"
+	"go.redsock.ru/toolbox"
 
 	"github.com/godverv/Velez/internal/backservice/env"
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils/parser"
-	"github.com/godverv/Velez/internal/service/service_manager/smerd_launcher/shared"
+	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
 type createContainerStep struct {
 	docker clients.Docker
 
-	req *velez_api.CreateSmerd_Request
-	dp  *shared.DeployProcess
+	req   *velez_api.CreateSmerd_Request
+	state *domain.LaunchSmerdState
 
 	createdContainer container.CreateResponse
 }
 
 func LaunchContainer(docker clients.Docker,
 	req *velez_api.CreateSmerd_Request,
-	dp *shared.DeployProcess,
-) shared.Step {
+	dp *domain.LaunchSmerdState,
+) *createContainerStep {
 	return &createContainerStep{
 		docker: docker,
 		req:    req,
-		dp:     dp,
+		state:  dp,
 	}
 }
 
@@ -51,7 +52,7 @@ func (s *createContainerStep) Do(ctx context.Context) (err error) {
 		return rerrors.Wrap(err, "error inspecting container by id")
 	}
 
-	s.dp.Container = &containerInfo
+	s.state.ContainerId = toolbox.ToPtr(containerInfo.ID)
 
 	err = s.docker.ContainerStart(ctx, s.createdContainer.ID, container.StartOptions{})
 	if err != nil {

@@ -1,9 +1,8 @@
-package steps
+package deploy_steps
 
 import (
 	"context"
 
-	"github.com/godverv/Velez/internal/service/service_manager/smerd_launcher/shared"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -11,13 +10,13 @@ type prepareRequestStep struct {
 	req *velez_api.CreateSmerd_Request
 }
 
-func PrepareRequest(req *velez_api.CreateSmerd_Request) shared.Step {
-	return prepareRequestStep{
+func PrepareRequest(req *velez_api.CreateSmerd_Request) *prepareRequestStep {
+	return &prepareRequestStep{
 		req: req,
 	}
 }
 
-func (p prepareRequestStep) Do(_ context.Context) error {
+func (p *prepareRequestStep) Do(_ context.Context) error {
 	if p.req.Settings == nil {
 		p.req.Settings = &velez_api.Container_Settings{}
 	}

@@ -11,13 +11,11 @@ import (
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/internal/service/service_manager/configurator"
 	"github.com/godverv/Velez/internal/service/service_manager/container_manager"
-	"github.com/godverv/Velez/internal/service/service_manager/smerd_launcher"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
 type ServiceManager struct {
 	*container_manager.ContainerManager
-	*smerd_launcher.SmerdLauncher
 	*configurator.Configurator
 }
 
@@ -39,10 +37,8 @@ func New(
 	containerManger := container_manager.NewContainerManager(nodeClients, configService)
 
 	sm := &ServiceManager{
-		Configurator: configService,
-
+		Configurator:     configService,
 		ContainerManager: containerManger,
-		SmerdLauncher:    smerd_launcher.New(nodeClients, configService),
 	}
 
 	// TODO VERV-128

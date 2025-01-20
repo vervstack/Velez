@@ -14,7 +14,7 @@ import (
 	"github.com/godverv/Velez/internal/backservice/env"
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
-	"github.com/godverv/Velez/internal/service/service_manager/smerd_launcher/steps"
+	"github.com/godverv/Velez/internal/pipelines/deploy_steps"
 )
 
 type NewTaskRequest[T any] struct {
@@ -70,7 +70,7 @@ func NewTask[T any](req NewTaskRequest[T]) (*Task[T], error) {
 	t.containerConfig.Image = req.ImageName
 
 	t.containerConfig.Labels = make(map[string]string)
-	t.containerConfig.Labels[steps.CreatedWithVelezLabel] = "true"
+	t.containerConfig.Labels[deploy_steps.CreatedWithVelezLabel] = "true"
 
 	t.containerConfig.Env = make([]string, 0, len(t.containerConfig.Env))
 	for k, v := range req.Env {

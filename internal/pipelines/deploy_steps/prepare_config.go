@@ -1,4 +1,4 @@
-package steps
+package deploy_steps
 
 import (
 	"context"
@@ -9,8 +9,8 @@ import (
 	"go.verv.tech/matreshka"
 
 	"github.com/godverv/Velez/internal/clients/ports"
+	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/internal/service"
-	"github.com/godverv/Velez/internal/service/service_manager/smerd_launcher/shared"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -24,7 +24,7 @@ type prepareConfig struct {
 	portManager   ports.PortManager
 
 	req *velez_api.CreateSmerd_Request
-	dp  *shared.DeployProcess
+	dp  *domain.LaunchSmerdState
 
 	lockedPorts []uint32
 }
@@ -32,8 +32,8 @@ type prepareConfig struct {
 func PrepareVervConfig(
 	configService service.ConfigurationService,
 	req *velez_api.CreateSmerd_Request,
-	dp *shared.DeployProcess,
-) shared.Step {
+	dp *domain.LaunchSmerdState,
+) *prepareConfig {
 	return &prepareConfig{
 		configService: configService,
 		req:           req,

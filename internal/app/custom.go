@@ -14,6 +14,7 @@ import (
 	"github.com/godverv/Velez/internal/backservice/service_discovery"
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/clients/matreshka"
+	"github.com/godverv/Velez/internal/pipelines"
 	"github.com/godverv/Velez/internal/security"
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/internal/service/service_manager"
@@ -35,7 +36,8 @@ type Custom struct {
 	ClusterClients clients.ClusterClients
 
 	// Services - contains business logic services
-	Services service.Services
+	Services  service.Services
+	Pipeliner pipelines.Pipeliner
 	// Api implementation
 	ApiGrpcImpl         *velez_api_impl.Impl
 	ControlPlaneApiImpl *control_plane_api_impl.Impl
@@ -91,6 +93,8 @@ func (c *Custom) initVelezServices(a *App) {
 		logrus.Fatalf("error initializing service manager: %v", err)
 	}
 
+	c.Pipeliner = pipelines.NewPipeliner(c.NodeClients.Docker(), c.Services)
+
 	logrus.Warn("shut down on exit is set to: ", a.Cfg.Environment.ShutDownOnExit)
 	if a.Cfg.Environment.ShutDownOnExit {
 		closer.Add(smerdsDropper(c.Services))
@@ -98,7 +102,7 @@ func (c *Custom) initVelezServices(a *App) {
 }
 
 func (c *Custom) initApiServer(a *App) error {
-	c.ApiGrpcImpl = velez_api_impl.NewImpl(a.Cfg, c.Services)
+	c.ApiGrpcImpl = velez_api_impl.NewImpl(a.Cfg, c.Services, c.Pipeliner)
 	c.ControlPlaneApiImpl = control_plane_api_impl.New(c.ServiceDiscovery)
 
 	var opts []grpc.ServerOption

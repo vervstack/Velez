@@ -11,19 +11,15 @@ import (
 )
 
 type Services interface {
-	SmerdLauncher
-	OtherManagers
+	SmerdManagers
+	ConfigurationService
 }
 
-type OtherManagers interface {
+type SmerdManagers interface {
 	ListSmerds(ctx context.Context, req *velez_api.ListSmerds_Request) (*velez_api.ListSmerds_Response, error)
 	DropSmerds(ctx context.Context, req *velez_api.DropSmerd_Request) (*velez_api.DropSmerd_Response, error)
 	FetchConfig(ctx context.Context, req *velez_api.FetchConfig_Request) (*matreshka.AppConfig, error)
 	InspectSmerd(ctx context.Context, contId string) (*velez_api.Smerd, error)
-}
-
-type SmerdLauncher interface {
-	LaunchSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (id string, err error)
 }
 
 type ConfigurationService interface {

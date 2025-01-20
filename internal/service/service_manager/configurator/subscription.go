@@ -12,13 +12,13 @@ import (
 )
 
 func (c *Configurator) SubscribeOnChanges(serviceNames ...string) error {
-	subReq := &api.SubscribeOnChanges_Request{
-		SubscribeServiceNames: serviceNames,
-	}
-	err := c.subscriptionStream.Send(subReq)
-	if err != nil {
-		return rerrors.Wrap(err, "error sending subscription request to stream")
-	}
+	//subReq := &api.SubscribeOnChanges_Request{
+	//	SubscribeServiceNames: serviceNames,
+	//}
+	//err := c.subscriptionStream.Send(subReq)
+	//if err != nil {
+	//	return rerrors.Wrap(err, "error sending subscription request to stream")
+	//}
 
 	return nil
 }

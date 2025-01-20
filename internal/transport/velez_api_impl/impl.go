@@ -10,6 +10,7 @@ import (
 
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/config"
+	"github.com/godverv/Velez/internal/pipelines"
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
@@ -22,13 +23,15 @@ type Impl struct {
 	// TODO что-то впихнуть
 	hardwareManager clients.HardwareManager
 
-	srv service.Services
+	srv       service.Services
+	pipeliner pipelines.Pipeliner
 }
 
-func NewImpl(cfg config.Config, srv service.Services) *Impl {
+func NewImpl(cfg config.Config, srv service.Services, pipeliner pipelines.Pipeliner) *Impl {
 	return &Impl{
-		version: cfg.AppInfo.Version,
-		srv:     srv,
+		version:   cfg.AppInfo.Version,
+		srv:       srv,
+		pipeliner: pipeliner,
 	}
 }
 

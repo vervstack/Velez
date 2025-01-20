@@ -6,7 +6,7 @@ import (
 	errors "go.redsock.ru/rerrors"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/godverv/Velez/internal/service/service_manager/smerd_launcher/steps"
+	"github.com/godverv/Velez/internal/pipelines/deploy_steps"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -21,7 +21,7 @@ func (c *ContainerManager) ListSmerds(ctx context.Context, req *velez_api.ListSm
 	}
 
 	for _, container := range cl {
-		if container.Labels[steps.CreatedWithVelezLabel] != "true" {
+		if container.Labels[deploy_steps.CreatedWithVelezLabel] != "true" {
 			continue
 		}
 

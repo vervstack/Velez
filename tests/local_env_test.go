@@ -12,16 +12,13 @@ import (
 )
 
 func initEnv() {
-	var err error
-
-	tEnv.app, err = app.New()
+	fullApp, err := app.New()
 	if err != nil {
-		logrus.Fatal(err)
+		logrus.Fatalf("error creating app %s", err)
 	}
 
-	tEnv.clean()
 	go func() {
-		startErr := tEnv.app.Start()
+		startErr := fullApp.Start()
 		if startErr != nil {
 			logrus.Fatal(startErr)
 		}
@@ -35,4 +32,5 @@ func initEnv() {
 	}
 
 	tEnv.velezAPI = velez_api.NewVelezAPIClient(conn)
+	tEnv.docker = fullApp.Custom.NodeClients.Docker()
 }

@@ -33,5 +33,4 @@ func initEnv() {
 	if err != nil {
 		logrus.Fatalf("error pinging api %s", err)
 	}
-
 }

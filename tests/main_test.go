@@ -30,6 +30,20 @@ var tEnv testEnv
 func TestMain(m *testing.M) {
 	initEnv()
 
+	ctx := context.Background()
+
+	_, err := tEnv.velezAPI.Version(ctx, &velez_api.Version_Request{})
+	if err != nil {
+		logrus.Fatalf("error pinging service api %s", err)
+	}
+
+	_, err = tEnv.docker.Ping(ctx)
+	if err != nil {
+		logrus.Fatalf("error pinging docker %s", err)
+	}
+
+	tEnv.clean()
+
 	var code int
 	defer func() {
 		tEnv.clean()

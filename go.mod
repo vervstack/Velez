@@ -20,7 +20,7 @@ require (
 	go.redsock.ru/rerrors v0.0.3
 	go.redsock.ru/toolbox v0.0.9
 	go.verv.tech/matreshka v0.0.45
-	go.verv.tech/matreshka-be v1.0.47
+	go.verv.tech/matreshka-be v1.0.49
 	golang.org/x/net v0.34.0
 	golang.org/x/sync v0.10.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250115164207-1a7da9e5054f
@@ -62,5 +62,3 @@ require (
 	gotest.tools/v3 v3.5.1 // indirect
 	howett.net/plist v1.0.1 // indirect
 )
-
-replace go.verv.tech/matreshka-be => /Users/alexbukov/Yandex.Disk.localized/проекты/verv/Matreshka/Matreshka-be

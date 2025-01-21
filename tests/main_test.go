@@ -7,10 +7,8 @@ import (
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/godverv/Velez/internal/app"
+	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
 	"github.com/godverv/Velez/internal/pipelines/deploy_steps"
 	"github.com/godverv/Velez/pkg/velez_api"
@@ -23,8 +21,8 @@ const (
 )
 
 type testEnv struct {
-	app      app.App
 	velezAPI velez_api.VelezAPIClient
+	docker   clients.Docker
 }
 
 var tEnv testEnv
@@ -39,32 +37,6 @@ func TestMain(m *testing.M) {
 	}()
 
 	code = m.Run()
-}
-
-func initEnv() {
-	var err error
-
-	tEnv.app, err = app.New()
-	if err != nil {
-		logrus.Fatal(err)
-	}
-
-	tEnv.clean()
-	go func() {
-		startErr := tEnv.app.Start()
-		if startErr != nil {
-			logrus.Fatal(startErr)
-		}
-	}()
-
-	conn, err := grpc.NewClient("localhost:53890",
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-	if err != nil {
-		logrus.Fatalf("error connecting to test grpc server: %s ", err)
-	}
-
-	tEnv.velezAPI = velez_api.NewVelezAPIClient(conn)
 }
 
 func (t *testEnv) callCreate(ctx context.Context, req *velez_api.CreateSmerd_Request) (smerd *velez_api.Smerd, err error) {
@@ -84,13 +56,13 @@ func (t *testEnv) clean() {
 			integrationTest: "true",
 		},
 	}
-	cList, err := dockerutils.ListContainers(ctx, t.app.Custom.NodeClients.Docker(), listReq)
+	cList, err := dockerutils.ListContainers(ctx, t.docker, listReq)
 	if err != nil {
 		logrus.Fatal(err)
 	}
 
 	for _, cont := range cList {
-		err = t.app.Custom.NodeClients.Docker().ContainerRemove(ctx, cont.ID,
+		err = t.docker.ContainerRemove(ctx, cont.ID,
 			container.RemoveOptions{
 				Force: true,
 			})

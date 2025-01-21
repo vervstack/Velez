@@ -131,7 +131,7 @@ func (d *DeployAppSuite) Test_OK_DeployPostgres() {
 	deployedSmerd.CreatedAt = nil
 
 	expectedSmerd := &velez_api.Smerd{
-		Name:      "/" + serviceName,
+		Name:      "" + serviceName,
 		ImageName: postgresImage,
 		Status:    velez_api.Smerd_running,
 		Labels:    tEnv.getExpectedLabels(),

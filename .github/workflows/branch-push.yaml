@@ -36,7 +36,7 @@ jobs:
             sleep 5
 
       - name: Test
-        run: go test -tags="rscliErrorTracingEnabled integration github_wf" ./...
+        run: go test -tags="rscliErrorTracingEnabled integration github_wf" ./... | grep -v 'no test files'
 
       -   name: Stop container
           run: |

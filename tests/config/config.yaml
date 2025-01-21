@@ -22,7 +22,7 @@ environment:
         value: /tmp/velez/private.key
     -   name: disable_api_security
         type: bool
-        value: false
+        value: true
     -   name: cpu_default
         type: float
         value: 0.5

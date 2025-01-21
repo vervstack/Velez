@@ -16,7 +16,7 @@ environment:
         value: '[18501-18519]'
     -   name: shut_down_on_exit
         type: bool
-        value: false
+        value: true
     -   name: custom_pass_to_key
         type: string
         value: /tmp/velez/private.key

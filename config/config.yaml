@@ -1,6 +1,6 @@
 app_info:
     name: github.com/godverv/Velez
-    version: v0.1.60
+    version: v0.1.61
     startup_duration: 10s
 servers:
     53890:

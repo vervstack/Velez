@@ -2,9 +2,7 @@ package configuration_synchronizer
 
 import (
 	"context"
-	"io"
 
-	"github.com/sirupsen/logrus"
 	"go.redsock.ru/rerrors"
 	"go.verv.tech/matreshka-be/pkg/matreshka_be_api"
 
@@ -33,20 +31,20 @@ func New(ctx context.Context, matreshkaClient matreshka.Client) (*Synchronizer, 
 
 func (s *Synchronizer) Start() error {
 
-	for {
-		updates, err := s.stream.Recv()
-		if err != nil {
-			if !rerrors.Is(err, io.EOF) {
-				logrus.Errorf("error recieving message from stream %s", err)
-				continue
-			}
-
-			return nil
-		}
-		envVars := make([]string, len(updates.Changes))
-
-		s.updatesChan <- updates
-	}
+	//for {
+	//updates, err := s.stream.Recv()
+	//if err != nil {
+	//	if !rerrors.Is(err, io.EOF) {
+	//		logrus.Errorf("error recieving message from stream %s", err)
+	//		continue
+	//	}
+	//
+	//	return nil
+	//}
+	//envVars := make([]string, len(updates.Changes))
+	//
+	//s.updatesChan <- updates
+	//}
 
 	return nil
 }

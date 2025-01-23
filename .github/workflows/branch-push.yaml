@@ -17,8 +17,6 @@ jobs:
 
   build-and-test:
     runs-on: ubuntu-24.04
-    needs:
-      - create-pr
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,7 +28,16 @@ jobs:
         run: go mod tidy
 
       - name: Build
-        run: go build -v ./...
+        run: docker build -t velez:integration-tests .
+
+      -   name: Run container
+          run: |
+            docker run -d --name velez -p 53890:53890 -v /var/run/docker.sock:/var/run/docker.sock -v ./tests/config/config.yaml:/app/config/config.yaml velez:integration-tests
+            sleep 5
 
       - name: Test
-        run: go test ./...
+        run: go test -tags="rscliErrorTracingEnabled integration github_wf" ./... | grep -v 'no test files'
+
+      -   name: Stop container
+          run: |
+            docker rm -f velez

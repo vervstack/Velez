@@ -10,6 +10,7 @@ import (
 	"go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/toolbox/keep_alive"
+	version "go.verv.tech/matreshka-be/config"
 	"go.verv.tech/matreshka-be/pkg/matreshka_be_api"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -24,9 +25,15 @@ import (
 
 const (
 	Name         = "matreshka"
-	defaultImage = "godverv/matreshka-be:v1.0.47"
+	defaultImage = "godverv/matreshka-be"
 	grpcPort     = "80"
 )
+
+var image string
+
+func init() {
+	image = defaultImage + ":" + version.GetVersion()
+}
 
 var initOnce sync.Once
 
@@ -56,7 +63,7 @@ func initInstance(
 		ClientConstructor: matreshka_be_api.NewMatreshkaBeAPIClient,
 		DialOpts:          []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())},
 		ContainerName:     Name,
-		ImageName:         toolbox.Coalesce(cfg.Environment.MatreshkaImage, defaultImage),
+		ImageName:         toolbox.Coalesce(cfg.Environment.MatreshkaImage, image),
 		GrpcPort:          grpcPort,
 		ExposedPorts:      map[string]string{},
 		Healthcheck: func(client matreshka_be_api.MatreshkaBeAPIClient) bool {

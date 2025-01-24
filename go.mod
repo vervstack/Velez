@@ -6,7 +6,7 @@ require (
 	github.com/Red-Sock/go-swagger-ui v0.0.2
 	github.com/docker/docker v27.5.0+incompatible
 	github.com/docker/go-connections v0.5.0
-	github.com/godverv/makosh v0.0.12
+	github.com/godverv/makosh v0.0.14
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.25.1
 	github.com/jaypipes/ghw v0.13.0
 	github.com/opencontainers/image-spec v1.1.0
@@ -20,7 +20,7 @@ require (
 	go.redsock.ru/rerrors v0.0.3
 	go.redsock.ru/toolbox v0.0.9
 	go.verv.tech/matreshka v0.0.45
-	go.verv.tech/matreshka-be v1.0.49
+	go.verv.tech/matreshka-be v1.0.50
 	golang.org/x/net v0.34.0
 	golang.org/x/sync v0.10.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250115164207-1a7da9e5054f

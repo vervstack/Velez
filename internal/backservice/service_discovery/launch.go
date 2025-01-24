@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	version "github.com/godverv/makosh/config"
 	pb "github.com/godverv/makosh/pkg/makosh_be"
 	"github.com/sirupsen/logrus"
 	errors "go.redsock.ru/rerrors"
@@ -24,10 +25,16 @@ import (
 
 const (
 	Name                 = "makosh"
-	image                = "godverv/makosh:v0.0.12"
+	defaultImageBase     = "godverv/makosh"
 	authTokenEnvVariable = "MAKOSH_ENVIRONMENT_AUTH-TOKEN"
 	grpcPort             = "8080"
 )
+
+var image string
+
+func init() {
+	image = defaultImageBase + ":" + version.GetVersion()
+}
 
 var initModeSync = sync.Once{}
 

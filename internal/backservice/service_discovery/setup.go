@@ -28,24 +28,8 @@ func SetupServiceDiscovery(addr string, token string, msd matreshka.ServiceDisco
 	if err != nil {
 		return sd, errors.Wrap(err, "error initializing verv-service-discovery")
 	}
-	// TODO VERV-126
-	for _, override := range msd.Overrides {
-		ec := makosh_resolver.EndpointsContainer{}
-		err = ec.SetAddrs(override.Urls...)
-		if err != nil {
-			return sd, errors.Wrap(err, "error setting endpoints overrides")
-		}
 
-		// TODO VERV-125
-		customResolver := &makosh_resolver.StaticResolver{
-			EndpointsContainer: ec,
-		}
-
-		err = sd.Sd.SetCustomResolver(customResolver, msd.Overrides[0].ServiceName)
-		if err != nil {
-			return sd, errors.Wrap(err, "error setting custom resolver")
-		}
-	}
+	sd.Sd.SetOverrides(msd.Overrides)
 
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),

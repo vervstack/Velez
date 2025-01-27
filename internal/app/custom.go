@@ -105,15 +105,35 @@ func (c *Custom) initApiServer(a *App) error {
 	c.ApiGrpcImpl = velez_api_impl.NewImpl(a.Cfg, c.Services, c.Pipeliner)
 	c.ControlPlaneApiImpl = control_plane_api_impl.New(c.ServiceDiscovery)
 
-	var opts []grpc.ServerOption
+	a.ServerMaster.AddImplementation(c.ApiGrpcImpl, c.ControlPlaneApiImpl)
+	a.ServerMaster.AddHttpHandler(docs.Swagger())
+
 	if !a.Cfg.Environment.DisableAPISecurity {
-		opts = append(opts, security.GrpcIncomingInterceptor(c.NodeClients.SecurityManager().ValidateKey))
+		a.ServerMaster.AddServerOption(security.GrpcIncomingInterceptor(c.NodeClients.SecurityManager().ValidateKey))
 	}
 
-	a.ServerMaster.AddImplementation(c.ApiGrpcImpl, opts...)
-	a.ServerMaster.AddImplementation(c.ControlPlaneApiImpl, opts...)
+	grpcLogger := logrus.New()
+	grpcLogger.SetFormatter(&logrus.JSONFormatter{})
+	grpcLogger.SetLevel(logrus.DebugLevel)
 
-	a.ServerMaster.AddHttpHandler(docs.Swagger())
+	a.ServerMaster.AddServerOption(grpc.UnaryInterceptor(
+		func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp any, err error) {
+			fields := logrus.Fields{
+				"method":  info.FullMethod,
+				"request": req,
+			}
+
+			defer func() {
+				grpcLogger.WithFields(fields).
+					Debug("GRPC request:")
+			}()
+
+			resp, err = handler(ctx, req)
+			fields["error"] = err
+			fields["response"] = resp
+
+			return resp, err
+		}))
 
 	return nil
 }

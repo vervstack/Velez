@@ -24,13 +24,8 @@ type PortManager struct {
 }
 
 func NewPortManager(ctx context.Context, cfg config.Config, docker client.CommonAPIClient) (*PortManager, error) {
-	ports, err := config.GetAvailablePorts(cfg)
-	if err != nil {
-		return nil, errors.Wrap(err, "error reading available ports from config")
-	}
-
 	pm := &PortManager{
-		ports: make(map[uint32]bool, len(ports)),
+		ports: make(map[uint32]bool, len(cfg.Environment.AvailablePorts)),
 	}
 
 	containerList, err := docker.ContainerList(ctx, container.ListOptions{})
@@ -38,8 +33,8 @@ func NewPortManager(ctx context.Context, cfg config.Config, docker client.Common
 		return nil, errors.Wrap(err, "error listing container")
 	}
 
-	for _, item := range ports {
-		pm.ports[item] = false
+	for _, item := range cfg.Environment.AvailablePorts {
+		pm.ports[uint32(item)] = false
 	}
 
 	for _, item := range containerList {

@@ -10,7 +10,7 @@ servers:
 environment:
     - name: available_ports
       type: int
-      value: '[18501-18519]'
+      value: [18501-18519]
     - name: cpu_default
       type: float
       value: 0.5
@@ -25,13 +25,13 @@ environment:
       value: string
     - name: makosh_port
       type: int
-      value: "50051"
+      value: 50051
     - name: matreshka_port
       type: int
-      value: "50050"
+      value: 50050
     - name: memory_swap_mb
       type: int
-      value: "50"
+      value: 50
     - name: node_mode
       type: bool
       value: true
@@ -40,7 +40,7 @@ environment:
       value: false
     - name: ram_mb_default
       type: int
-      value: "50"
+      value: 50
     - name: shut_down_on_exit
       type: bool
       value: false
@@ -63,6 +63,8 @@ environment:
       type: string
       value: godverv/matreshka-be:v1.0.47
 service_discovery:
+    makosh_url: ""
+    makosh_token: ""
     overrides:
         - service_name: matreshka
           urls:

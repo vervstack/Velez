@@ -62,6 +62,12 @@ environment:
     - name: matreshka_image
       type: string
       value: godverv/matreshka-be:v1.0.47
+    - name: log_format
+      type: string
+      value: TEXT
+    - name: log_level
+      type: string
+      value: Info
 service_discovery:
     makosh_url: ""
     makosh_token: ""

@@ -1,27 +1,19 @@
 package clients
 
 type ClusterClients interface {
-	ServiceDiscovery() ServiceDiscovery
 	Configurator() Configurator
 }
 
 type clusterClientsContainer struct {
-	serviceDiscovery ServiceDiscovery
-	configurator     Configurator
+	configurator Configurator
 }
 
 func NewClusterClientsContainer(
-	sd ServiceDiscovery,
 	cfg Configurator,
 ) ClusterClients {
 	return &clusterClientsContainer{
-		serviceDiscovery: sd,
-		configurator:     cfg,
+		configurator: cfg,
 	}
-}
-
-func (c *clusterClientsContainer) ServiceDiscovery() ServiceDiscovery {
-	return c.serviceDiscovery
 }
 
 func (c *clusterClientsContainer) Configurator() Configurator {

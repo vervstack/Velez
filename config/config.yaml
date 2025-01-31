@@ -70,10 +70,3 @@ environment:
       type: string
       value: Info
       enum: [Trace, Debug, Info, Warn, Error, Fatal, Panic]
-service_discovery:
-    makosh_url: ""
-    makosh_token: ""
-    overrides:
-        - service_name: matreshka
-          urls:
-            - localhost:81

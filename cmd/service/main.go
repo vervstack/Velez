@@ -7,8 +7,6 @@ import (
 )
 
 func main() {
-	logrus.SetLevel(logrus.DebugLevel)
-
 	a, err := app.New()
 	if err != nil {
 		logrus.Fatal(err)

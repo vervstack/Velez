@@ -45,8 +45,6 @@ type Custom struct {
 }
 
 func (c *Custom) Init(a *App) (err error) {
-	c.setupLogger(a)
-
 	c.NodeClients, err = clients.NewNodeClientsContainer(a.Ctx, a.Cfg)
 	if err != nil {
 		return errors.Wrap(err, "error initializing internal clients")
@@ -67,7 +65,7 @@ func (c *Custom) Init(a *App) (err error) {
 		return errors.Wrap(err, "error initializing configuration service")
 	}
 
-	c.ClusterClients = clients.NewClusterClientsContainer(c.ServiceDiscovery, c.MatreshkaClient)
+	c.ClusterClients = clients.NewClusterClientsContainer(c.MatreshkaClient)
 
 	c.initVelezServices(a)
 
@@ -112,7 +110,6 @@ func (c *Custom) setupLogger(a *App) {
 	switch a.Cfg.Environment.LogFormat {
 	case "JSON":
 		logger.SetFormatter(&logrus.JSONFormatter{})
-
 	}
 }
 

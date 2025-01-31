@@ -11,8 +11,8 @@ type EnvironmentConfig struct {
 	CPUDefault         float64
 	CustomPassToKey    string
 	DisableAPISecurity bool
-	LogFormat          string
-	LogLevel           string
+	LogFormat          LogFormat
+	LogLevel           LogLevel
 	MakoshExposePort   bool
 	MakoshImage        string
 	MakoshKey          string
@@ -28,3 +28,22 @@ type EnvironmentConfig struct {
 	WatchTowerEnabled  bool
 	WatchTowerInterval time.Duration
 }
+
+type LogFormat string
+
+const (
+	LogFormat_Json LogFormat = "JSON"
+	LogFormat_Text LogFormat = "TEXT"
+)
+
+type LogLevel string
+
+const (
+	LogLevel_Trace LogLevel = "Trace"
+	LogLevel_Debug LogLevel = "Debug"
+	LogLevel_Info  LogLevel = "Info"
+	LogLevel_Warn  LogLevel = "Warn"
+	LogLevel_Error LogLevel = "Error"
+	LogLevel_Fatal LogLevel = "Fatal"
+	LogLevel_Panic LogLevel = "Panic"
+)

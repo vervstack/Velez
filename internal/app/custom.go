@@ -44,6 +44,8 @@ type Custom struct {
 }
 
 func (c *Custom) Init(a *App) (err error) {
+	c.setupLogger(a)
+
 	c.NodeClients, err = clients.NewNodeClientsContainer(a.Ctx, a.Cfg)
 	if err != nil {
 		return errors.Wrap(err, "error initializing internal clients")
@@ -84,6 +86,33 @@ func (c *Custom) Start(ctx context.Context) error {
 func (c *Custom) Stop() error {
 
 	return nil
+}
+
+func (c *Custom) setupLogger(a *App) {
+	logger := logrus.StandardLogger()
+	level := logrus.InfoLevel
+
+	switch a.Cfg.Environment.LogLevel {
+	case "Trace":
+		level = logrus.TraceLevel
+	case "Debug":
+		level = logrus.DebugLevel
+	case "Warn":
+		level = logrus.WarnLevel
+	case "Error":
+		level = logrus.ErrorLevel
+	case "Fatal":
+		level = logrus.FatalLevel
+	case "Panic":
+		level = logrus.PanicLevel
+	}
+	logger.SetLevel(level)
+
+	switch a.Cfg.Environment.LogFormat {
+	case "JSON":
+		logger.SetFormatter(&logrus.JSONFormatter{})
+
+	}
 }
 
 func (c *Custom) initVelezServices(a *App) {

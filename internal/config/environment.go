@@ -11,8 +11,8 @@ type EnvironmentConfig struct {
 	CPUDefault         float64
 	CustomPassToKey    string
 	DisableAPISecurity bool
-	LogFormat          LogFormat
-	LogLevel           LogLevel
+	LogFormat          string
+	LogLevel           string
 	MakoshExposePort   bool
 	MakoshImage        string
 	MakoshKey          string

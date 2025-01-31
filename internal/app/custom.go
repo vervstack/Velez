@@ -14,6 +14,7 @@ import (
 	"github.com/godverv/Velez/internal/backservice/service_discovery"
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/clients/matreshka"
+	"github.com/godverv/Velez/internal/config"
 	"github.com/godverv/Velez/internal/pipelines"
 	"github.com/godverv/Velez/internal/security"
 	"github.com/godverv/Velez/internal/service"
@@ -93,17 +94,17 @@ func (c *Custom) setupLogger(a *App) {
 	level := logrus.InfoLevel
 
 	switch a.Cfg.Environment.LogLevel {
-	case "Trace":
+	case config.LogLevel_Trace:
 		level = logrus.TraceLevel
-	case "Debug":
+	case config.LogLevel_Debug:
 		level = logrus.DebugLevel
-	case "Warn":
+	case config.LogLevel_Warn:
 		level = logrus.WarnLevel
-	case "Error":
+	case config.LogLevel_Error:
 		level = logrus.ErrorLevel
-	case "Fatal":
+	case config.LogLevel_Fatal:
 		level = logrus.FatalLevel
-	case "Panic":
+	case config.LogLevel_Panic:
 		level = logrus.PanicLevel
 	}
 	logger.SetLevel(level)

@@ -84,7 +84,7 @@ func (s *createContainerStep) getHostConfig() (hostConfig *container.HostConfig)
 		PortBindings: parser.FromPorts(s.req.Settings),
 		Mounts:       parser.FromBind(s.req.Settings),
 		RestartPolicy: container.RestartPolicy{
-			Name:              container.RestartPolicyUnlessStopped,
+			Name:              container.RestartPolicyOnFailure,
 			MaximumRetryCount: 3,
 		},
 	}

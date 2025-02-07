@@ -1,4 +1,4 @@
-//go:build integration && github_wf
+//go:build github_wf
 
 package tests
 

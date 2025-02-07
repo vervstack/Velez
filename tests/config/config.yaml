@@ -13,7 +13,7 @@ environment:
         value: true
     -   name: available_ports
         type: int
-        value: '[18501-18519]'
+        value: [ 18501-18519 ]
     -   name: shut_down_on_exit
         type: bool
         value: true

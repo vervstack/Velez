@@ -10,7 +10,7 @@ import (
 	"go.vervstack.ru/matreshka"
 
 	"github.com/godverv/Velez/internal/clients"
-	"github.com/godverv/Velez/internal/labels"
+	"github.com/godverv/Velez/internal/domain/labels"
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/pkg/velez_api"
 )

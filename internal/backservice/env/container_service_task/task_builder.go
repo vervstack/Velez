@@ -14,7 +14,7 @@ import (
 	"github.com/godverv/Velez/internal/backservice/env"
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
-	"github.com/godverv/Velez/internal/labels"
+	"github.com/godverv/Velez/internal/domain/labels"
 )
 
 type NewTaskRequest[T any] struct {

@@ -6,7 +6,7 @@ import (
 	errors "go.redsock.ru/rerrors"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/godverv/Velez/internal/labels"
+	"github.com/godverv/Velez/internal/domain/labels"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 

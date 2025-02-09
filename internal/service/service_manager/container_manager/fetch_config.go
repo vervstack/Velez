@@ -5,7 +5,7 @@ import (
 	stderrs "errors"
 
 	errors "go.redsock.ru/rerrors"
-	"go.verv.tech/matreshka"
+	"go.vervstack.ru/matreshka"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 

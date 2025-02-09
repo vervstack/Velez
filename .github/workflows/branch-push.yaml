@@ -27,10 +27,13 @@ jobs:
         uses: actions/setup-go@v5
 
       - name: Install dependencies
-        run: go mod tidy
+        run: docker build -t velez:${{ github.sha }} .
 
-      - name: Build
-        run: go build -v ./...
+      - name: Run container
+        run: |
+          docker run -d --name e2e-velez -p 53890:53890 -v /var/run/docker.sock:/var/run/docker.sock -e DISABLE_API_SECURITY=true velez:${{ github.sha }} 
+          sleep 2
+        continue-on-error: false
 
       - name: Test
-        run: go test ./...
+        run: go test -tags github_wf ./...

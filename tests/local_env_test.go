@@ -1,30 +1,43 @@
-//go:build integration && !github_wf
+//go:build !github_wf
 
 package tests
 
 import (
+	"context"
+	"net"
+
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/test/bufconn"
 
 	"github.com/godverv/Velez/internal/app"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
 func initEnv() {
-	fullApp, err := app.New()
+	a, err := app.New()
 	if err != nil {
 		logrus.Fatalf("error creating app %s", err)
 	}
 
+	const bufSize = 1024 * 1024
+	lis := bufconn.Listen(bufSize)
+
+	serv := grpc.NewServer()
+	velez_api.RegisterVelezAPIServer(serv, a.Custom.ApiGrpcImpl)
 	go func() {
-		startErr := fullApp.Start()
-		if startErr != nil {
-			logrus.Fatal(startErr)
+		if err := serv.Serve(lis); err != nil {
+			logrus.Fatalf("error serving grpc server for tests %s", err)
 		}
 	}()
 
-	conn, err := grpc.NewClient("localhost:53890",
+	bufDialer := func(context.Context, string) (net.Conn, error) {
+		return lis.Dial()
+	}
+
+	conn, err := grpc.NewClient("passthrough://bufnet",
+		grpc.WithContextDialer(bufDialer),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
@@ -32,5 +45,5 @@ func initEnv() {
 	}
 
 	tEnv.velezAPI = velez_api.NewVelezAPIClient(conn)
-	tEnv.docker = fullApp.Custom.NodeClients.Docker()
+	tEnv.docker = a.Custom.NodeClients.Docker()
 }

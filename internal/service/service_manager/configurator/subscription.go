@@ -6,7 +6,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"go.redsock.ru/rerrors"
-	api "go.verv.tech/matreshka-be/pkg/matreshka_be_api"
+	api "go.vervstack.ru/matreshka-be/pkg/matreshka_be_api"
 
 	"github.com/godverv/Velez/internal/domain"
 )

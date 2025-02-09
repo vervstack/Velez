@@ -52,7 +52,7 @@ func NewNodeClientsContainer(ctx context.Context, cfg config.Config) (NodeClient
 		var pong types.Ping
 		pong, err = cls.docker.Ping(ctx)
 		if err != nil {
-			return nil, errors.Wrap(err, "error pinging docker api client")
+			return nil, errors.Wrap(err, "Can't ping docker api. If you are running Velez inside a container please provide docker socket via volume flag: -v /var/run/docker.sock:/var/run/docker.sock")
 		}
 		_ = pong
 	}

@@ -1,10 +1,8 @@
-//go:build integration && github_wf
+//go:build github_wf
 
 package tests
 
 import (
-	"context"
-
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -14,13 +12,8 @@ import (
 )
 
 func initEnv() {
-	var err error
-	tEnv.docker, err = docker.NewClient()
-	if err != nil {
-		logrus.Fatalf("error initializing docker client %s", err)
-	}
 
-	conn, err := grpc.NewClient("localhost:53890",
+	conn, err := grpc.NewClient("[::]:53890",
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
@@ -28,9 +21,8 @@ func initEnv() {
 	}
 
 	tEnv.velezAPI = velez_api.NewVelezAPIClient(conn)
-
-	_, err = tEnv.velezAPI.Version(context.Background(), &velez_api.Version_Request{})
+	tEnv.docker, err = docker.NewClient()
 	if err != nil {
-		logrus.Fatalf("error pinging api %s", err)
+		logrus.Fatalf("error creating docker client: %s ", err)
 	}
 }

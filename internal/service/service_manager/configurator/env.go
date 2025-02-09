@@ -5,7 +5,7 @@ import (
 
 	"go.redsock.ru/evon"
 	errors "go.redsock.ru/rerrors"
-	"go.verv.tech/matreshka-be/pkg/matreshka_be_api"
+	"go.vervstack.ru/matreshka-be/pkg/matreshka_be_api"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

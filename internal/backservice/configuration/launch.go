@@ -10,8 +10,8 @@ import (
 	"go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/toolbox/keep_alive"
-	version "go.verv.tech/matreshka-be/config"
-	"go.verv.tech/matreshka-be/pkg/matreshka_be_api"
+	version "go.vervstack.ru/matreshka-be/config"
+	"go.vervstack.ru/matreshka-be/pkg/matreshka_be_api"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -82,12 +82,13 @@ func initInstance(
 		taskRequest.ExposedPorts[grpcPort] = ""
 	}
 
+	logrus.Info("Preparing matreshka service background task")
+
 	task, err := container_service_task.NewTask(taskRequest)
 	if err != nil {
 		return errors.Wrap(err, "error creating task for matreshka")
 	}
 
-	logrus.Info("Starting matreshka service background task")
 	ka := keep_alive.KeepAlive(task, keep_alive.WithCancel(ctx.Done()))
 	if cfg.Environment.ShutDownOnExit {
 		closer.Add(func() error {

@@ -80,10 +80,13 @@ func (s *createContainerStep) getLaunchConfig() (cfg *container.Config) {
 }
 
 func (s *createContainerStep) getHostConfig() (hostConfig *container.HostConfig) {
-	// TODO https://redsock.youtrack.cloud/issue/VERV-56
 	hostConfig = &container.HostConfig{
 		PortBindings: parser.FromPorts(s.req.Settings),
 		Mounts:       parser.FromBind(s.req.Settings),
+		RestartPolicy: container.RestartPolicy{
+			Name:              container.RestartPolicyOnFailure,
+			MaximumRetryCount: 3,
+		},
 	}
 
 	if s.req.Settings != nil && len(s.req.Settings.Volumes) != 0 {

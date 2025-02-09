@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"go.redsock.ru/evon"
-	"go.verv.tech/matreshka"
+	"go.vervstack.ru/matreshka"
 
 	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/pkg/velez_api"

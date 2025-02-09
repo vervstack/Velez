@@ -8,7 +8,7 @@ import (
 	vervResolver "github.com/godverv/makosh/pkg/resolver"
 	"github.com/godverv/makosh/pkg/resolver/makosh_resolver"
 	errors "go.redsock.ru/rerrors"
-	"go.verv.tech/matreshka"
+	"go.vervstack.ru/matreshka"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 

@@ -99,12 +99,12 @@ func launchMakosh(
 		return true
 	}
 
+	logrus.Info("Preparing service discovery background task")
 	makoshTask, err := container_service_task.NewTask[pb.MakoshBeAPIClient](taskConstructor)
 	if err != nil {
 		return errors.Wrap(err, "error creating task")
 	}
 	// Launch
-	logrus.Info("Starting service discovery background task")
 	keepAlive := keep_alive.KeepAlive(
 		makoshTask,
 		keep_alive.WithCancel(ctx.Done()),

@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"go.redsock.ru/rerrors"
-	"go.verv.tech/matreshka"
+	"go.vervstack.ru/matreshka"
 
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/domain"

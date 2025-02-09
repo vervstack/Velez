@@ -4,8 +4,6 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
-
-	"github.com/godverv/Velez/internal/service/service_manager/smerd_launcher/shared"
 )
 
 type runner[T any] struct {
@@ -48,7 +46,7 @@ func (p *runner[T]) run(ctx context.Context) error {
 func (p *runner[T]) rollback(ctx context.Context) error {
 	var globalErr error
 	for _, s := range p.Steps {
-		rollbackable, ok := s.(shared.RollbackableStep)
+		rollbackable, ok := s.(RollbackableStep)
 		if ok {
 			err := rollbackable.Rollback(ctx)
 			if err != nil {

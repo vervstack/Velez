@@ -3,13 +3,17 @@ package pipelines
 import (
 	"context"
 
+	"go.vervstack.ru/matreshka"
+
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/internal/service"
+	"github.com/godverv/Velez/pkg/velez_api"
 )
 
 type Pipeliner interface {
 	LaunchSmerd(request domain.LaunchSmerd) Runner[domain.LaunchSmerdResult]
+	GetConfig(request *velez_api.FetchConfig_Request) Runner[matreshka.AppConfig]
 }
 
 type Runner[T any] interface {

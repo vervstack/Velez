@@ -9,8 +9,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/godverv/Velez/internal/domain"
-	"github.com/godverv/Velez/internal/pipelines/deploy_steps"
+	"github.com/godverv/Velez/internal/pipelines/steps"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -28,21 +27,21 @@ func (c *ContainerManager) FetchConfig(ctx context.Context, req *velez_api.Fetch
 		Settings:  &velez_api.Container_Settings{},
 	}
 
-	pipelineStep := &domain.LaunchSmerdState{}
-	err = deploy_steps.LaunchContainer(c.docker, createReq, pipelineStep).Do(ctx)
+	contId := ""
+	err = steps.LaunchContainer(c.docker, createReq, &contId).Do(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "error creating container")
 	}
 	defer func() {
 		_, dropErr := c.DropSmerds(ctx, &velez_api.DropSmerd_Request{
-			Uuids: []string{*pipelineStep.ContainerId},
+			Uuids: []string{contId},
 		})
 		if dropErr != nil {
 			err = stderrs.Join(err, errors.Wrap(dropErr, "error dropping config scanning smerd"))
 		}
 	}()
 
-	configFromContainer, err := c.configService.GetFromContainer(ctx, *pipelineStep.ContainerId)
+	configFromContainer, err := c.configService.GetFromContainer(ctx, contId)
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting matreshka config from container")
 	}

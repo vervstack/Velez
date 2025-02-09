@@ -1,4 +1,4 @@
-package deploy_steps
+package steps
 
 import (
 	"context"
@@ -10,7 +10,7 @@ type prepareRequestStep struct {
 	req *velez_api.CreateSmerd_Request
 }
 
-func PrepareRequest(req *velez_api.CreateSmerd_Request) *prepareRequestStep {
+func PrepareCreateRequest(req *velez_api.CreateSmerd_Request) *prepareRequestStep {
 	return &prepareRequestStep{
 		req: req,
 	}

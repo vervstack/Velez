@@ -1,4 +1,4 @@
-package deploy_steps
+package steps
 
 import (
 	"context"
@@ -7,54 +7,50 @@ import (
 	"github.com/docker/docker/api/types/network"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"go.redsock.ru/rerrors"
-	"go.redsock.ru/toolbox"
 
 	"github.com/godverv/Velez/internal/backservice/env"
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils/parser"
-	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
 type createContainerStep struct {
 	docker clients.Docker
 
-	req   *velez_api.CreateSmerd_Request
-	state *domain.LaunchSmerdState
-
-	createdContainer container.CreateResponse
+	req         *velez_api.CreateSmerd_Request
+	containerId *string
 }
 
 func LaunchContainer(docker clients.Docker,
 	req *velez_api.CreateSmerd_Request,
-	dp *domain.LaunchSmerdState,
+	containerId *string,
 ) *createContainerStep {
 	return &createContainerStep{
-		docker: docker,
-		req:    req,
-		state:  dp,
+		docker:      docker,
+		req:         req,
+		containerId: containerId,
 	}
 }
 
-func (s *createContainerStep) Do(ctx context.Context) (err error) {
+func (s *createContainerStep) Do(ctx context.Context) error {
 	cfg := s.getLaunchConfig()
 	hCfg := s.getHostConfig()
 	nCfg := s.getNetworkConfig()
 	pCfg := &v1.Platform{}
 
-	s.createdContainer, err = s.docker.ContainerCreate(ctx, cfg, hCfg, nCfg, pCfg, s.req.GetName())
+	createdContainer, err := s.docker.ContainerCreate(ctx, cfg, hCfg, nCfg, pCfg, s.req.GetName())
 	if err != nil {
 		return rerrors.Wrap(err, "error creating container")
 	}
 
-	containerInfo, err := s.docker.ContainerInspect(ctx, s.createdContainer.ID)
+	containerInfo, err := s.docker.ContainerInspect(ctx, createdContainer.ID)
 	if err != nil {
 		return rerrors.Wrap(err, "error inspecting container by id")
 	}
 
-	s.state.ContainerId = toolbox.ToPtr(containerInfo.ID)
+	*s.containerId = containerInfo.ID
 
-	err = s.docker.ContainerStart(ctx, s.createdContainer.ID, container.StartOptions{})
+	err = s.docker.ContainerStart(ctx, createdContainer.ID, container.StartOptions{})
 	if err != nil {
 		return rerrors.Wrap(err, "error starting container")
 	}

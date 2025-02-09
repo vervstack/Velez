@@ -1,4 +1,4 @@
-package deploy_steps
+package steps
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"github.com/godverv/Velez/internal/clients"
-	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -18,21 +17,20 @@ const (
 type healthcheckStep struct {
 	docker clients.Docker
 
-	req *velez_api.CreateSmerd_Request
-
-	state *domain.LaunchSmerdState
+	req         *velez_api.CreateSmerd_Request
+	containerId *string
 }
 
 func HealthcheckStep(
 	docker clients.Docker,
 	req *velez_api.CreateSmerd_Request,
-	dp *domain.LaunchSmerdState,
+	containerId *string,
 ) *healthcheckStep {
 	return &healthcheckStep{
 		docker: docker,
 
-		req:   req,
-		state: dp,
+		req:         req,
+		containerId: containerId,
 	}
 }
 
@@ -41,7 +39,7 @@ func (h *healthcheckStep) Do(ctx context.Context) error {
 		return nil
 	}
 
-	if h.state.ContainerId == nil {
+	if h.containerId == nil && *h.containerId == "" {
 		return rerrors.New("container was not created")
 	}
 
@@ -52,7 +50,7 @@ func (h *healthcheckStep) Do(ctx context.Context) error {
 		for i := uint32(0); i < h.req.Healthcheck.Retries; i++ {
 			time.Sleep(time.Duration(h.req.Healthcheck.IntervalSecond) * time.Second)
 
-			cont, err := h.docker.ContainerInspect(ctx, *h.state.ContainerId)
+			cont, err := h.docker.ContainerInspect(ctx, *h.containerId)
 			if err != nil {
 				errC <- err
 				return

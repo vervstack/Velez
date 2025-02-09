@@ -1,4 +1,4 @@
-package deploy_steps
+package steps
 
 import (
 	"context"

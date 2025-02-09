@@ -10,7 +10,7 @@ import (
 
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
-	"github.com/godverv/Velez/internal/pipelines/deploy_steps"
+	"github.com/godverv/Velez/internal/labels"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -89,8 +89,8 @@ func (t *testEnv) clean() {
 
 func (t *testEnv) getExpectedLabels() map[string]string {
 	return map[string]string{
-		deploy_steps.CreatedWithVelezLabel: "true",
-		deploy_steps.MatreshkaConfigLabel:  "false",
-		integrationTest:                    "true",
+		labels.CreatedWithVelezLabel: "true",
+		labels.MatreshkaConfigLabel:  "false",
+		integrationTest:              "true",
 	}
 }

@@ -1,30 +1,26 @@
-package deploy_steps
+package steps
 
 import (
 	"context"
 	"fmt"
 	"strings"
 
+	"github.com/docker/docker/api/types"
 	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/matreshka"
 
 	"github.com/godverv/Velez/internal/clients"
-	"github.com/godverv/Velez/internal/domain"
+	"github.com/godverv/Velez/internal/labels"
 	"github.com/godverv/Velez/internal/service"
 	"github.com/godverv/Velez/pkg/velez_api"
-)
-
-const (
-	CreatedWithVelezLabel = "CREATED_WITH_VELEZ"
-	MatreshkaConfigLabel  = "MATRESHKA_CONFIG_ENABLED"
 )
 
 type prepareConfig struct {
 	configService service.ConfigurationService
 	portManager   clients.PortManager
 
-	req *velez_api.CreateSmerd_Request
-	dp  *domain.LaunchSmerdState
+	req   *velez_api.CreateSmerd_Request
+	image *types.ImageInspect
 
 	lockedPorts []uint32
 }
@@ -33,29 +29,29 @@ func PrepareVervConfig(
 	configService service.ConfigurationService,
 	portManager clients.PortManager,
 	req *velez_api.CreateSmerd_Request,
-	dp *domain.LaunchSmerdState,
+	image *types.ImageInspect,
 ) *prepareConfig {
 	return &prepareConfig{
 		configService: configService,
 		portManager:   portManager,
 
-		req: req,
-		dp:  dp,
+		req:   req,
+		image: image,
 	}
 }
 
 func (p *prepareConfig) Do(ctx context.Context) error {
-	if p.dp.Image.Config.Labels == nil {
-		p.dp.Image.Config.Labels = make(map[string]string)
+	if p.image.Config.Labels == nil {
+		p.image.Config.Labels = make(map[string]string)
 	}
 
-	if p.dp.Image.Config.Labels[MatreshkaConfigLabel] == "true" {
+	if p.image.Config.Labels[labels.MatreshkaConfigLabel] == "true" {
 		err := p.enrichWithMatreshkaConfig(ctx, p.req)
 		if err != nil {
 			return rerrors.Wrap(err, "error enriching with verv data")
 		}
 	} else {
-		p.req.Labels[MatreshkaConfigLabel] = "false"
+		p.req.Labels[labels.MatreshkaConfigLabel] = "false"
 		// TODO заиспользовать ручку из VERV-75 для получения конфигурации ресурса
 	}
 
@@ -72,7 +68,7 @@ func (p *prepareConfig) Do(ctx context.Context) error {
 	}
 
 	p.req.Env[matreshka.VervName] = p.req.GetName()
-	p.req.Labels[CreatedWithVelezLabel] = "true"
+	p.req.Labels[labels.CreatedWithVelezLabel] = "true"
 
 	return nil
 }
@@ -84,7 +80,7 @@ func (p *prepareConfig) Rollback(_ context.Context) error {
 
 func (p *prepareConfig) enrichWithMatreshkaConfig(ctx context.Context, req *velez_api.CreateSmerd_Request) error {
 	if req.IgnoreConfig {
-		req.Labels[MatreshkaConfigLabel] = "false"
+		req.Labels[labels.MatreshkaConfigLabel] = "false"
 		return nil
 	}
 
@@ -108,7 +104,7 @@ func (p *prepareConfig) getPortsFromImage() error {
 		portsInReq[port.ServicePortNumber] = port
 	}
 
-	for port := range p.dp.Image.Config.ExposedPorts {
+	for port := range p.image.Config.ExposedPorts {
 		portVal := uint32(port.Int())
 		_, ok := portsInReq[portVal]
 		if ok {

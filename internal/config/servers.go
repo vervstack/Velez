@@ -3,7 +3,7 @@
 package config
 
 import (
-	"go.verv.tech/matreshka/server"
+	"go.vervstack.ru/matreshka/server"
 )
 
 type ServersConfig struct {

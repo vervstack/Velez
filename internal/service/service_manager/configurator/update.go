@@ -7,8 +7,8 @@ import (
 	"go.redsock.ru/evon"
 	errors "go.redsock.ru/rerrors"
 	rtb "go.redsock.ru/toolbox"
-	"go.verv.tech/matreshka"
-	"go.verv.tech/matreshka-be/pkg/matreshka_be_api"
+	"go.vervstack.ru/matreshka"
+	"go.vervstack.ru/matreshka-be/pkg/matreshka_be_api"
 )
 
 func (c *Configurator) UpdateConfig(ctx context.Context, serviceName string, config matreshka.AppConfig) (err error) {

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/docker/docker/client"
-	api "go.verv.tech/matreshka-be/pkg/matreshka_be_api"
+	api "go.vervstack.ru/matreshka-be/pkg/matreshka_be_api"
 
 	"github.com/godverv/Velez/internal/domain"
 )

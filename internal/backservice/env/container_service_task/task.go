@@ -13,6 +13,7 @@ import (
 
 	"github.com/godverv/Velez/internal/backservice/env"
 	"github.com/godverv/Velez/internal/clients"
+	"github.com/godverv/Velez/internal/clients/docker"
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
@@ -66,7 +67,7 @@ func (t *Task[T]) IsAlive() bool {
 
 	cont, err := t.dockerAPI.ContainerInspect(ctx, t.name)
 	if err != nil {
-		if strings.Contains(err.Error(), "No such container") {
+		if strings.Contains(err.Error(), docker.NoSuchContainerError) {
 			return false
 		}
 		logrus.Error(errors.Wrap(err, "error getting container of dependency: "+t.name))
@@ -104,7 +105,7 @@ func (t *Task[T]) Kill() error {
 
 	err := t.dockerAPI.ContainerRemove(ctx, t.name, rmOpts)
 	if err != nil {
-		if !strings.Contains(err.Error(), "No such container") {
+		if !strings.Contains(err.Error(), docker.NoSuchContainerError) {
 			return errors.Wrap(err, "error dropping result")
 		}
 	}

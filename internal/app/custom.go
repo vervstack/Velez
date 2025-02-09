@@ -122,7 +122,7 @@ func (c *Custom) initVelezServices(a *App) {
 
 	c.Pipeliner = pipelines.NewPipeliner(c.NodeClients.Docker(), c.NodeClients.PortManager(), c.Services)
 
-	logrus.Warn("shut down on exit is set to: ", a.Cfg.Environment.ShutDownOnExit)
+	logrus.Info("shut down on exit is set to: ", a.Cfg.Environment.ShutDownOnExit)
 	if a.Cfg.Environment.ShutDownOnExit {
 		closer.Add(smerdsDropper(c.Services))
 	}

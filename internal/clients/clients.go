@@ -6,7 +6,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"github.com/godverv/makosh/pkg/makosh_be"
-	"go.verv.tech/matreshka-be/pkg/matreshka_be_api"
+	"go.vervstack.ru/matreshka-be/pkg/matreshka_be_api"
 
 	"github.com/godverv/Velez/pkg/velez_api"
 )

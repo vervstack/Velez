@@ -10,8 +10,6 @@ run_velez() {
    -d \
    --name velez \
    -v /var/run/docker.sock:/var/run/docker.sock \
-   -v /dev/disk:/dev/disk \
-   -v /run:/run \
    -v "${velezKeyPath}":/tmp/velez \
    godverv/velez:{{ .Version }}
 }

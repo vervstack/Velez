@@ -49,7 +49,7 @@ func (d *Docker) Remove(ctx context.Context, contUUID string) error {
 		})
 
 	if err != nil {
-		if !strings.Contains(err.Error(), "No such container") {
+		if !strings.Contains(err.Error(), NoSuchContainerError) {
 			return nil
 		}
 		return errors.Wrap(err, "error removing container")

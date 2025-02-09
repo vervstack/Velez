@@ -4,8 +4,8 @@ import (
 	"context"
 
 	errors "go.redsock.ru/rerrors"
-	"go.verv.tech/matreshka"
-	"go.verv.tech/matreshka-be/pkg/matreshka_be_api"
+	"go.vervstack.ru/matreshka"
+	"go.vervstack.ru/matreshka-be/pkg/matreshka_be_api"
 )
 
 func (c *Configurator) GetFromApi(ctx context.Context, serviceName string) (matreshka.AppConfig, error) {

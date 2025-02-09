@@ -1,3 +1,5 @@
+//go:build !github_wf
+
 package tests
 
 import (

@@ -2,10 +2,12 @@ package env
 
 import (
 	"context"
+	"strings"
 
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
 
+	"github.com/godverv/Velez/internal/clients/docker"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
 )
 
@@ -24,6 +26,15 @@ func StartNetwork(dockerAPI client.CommonAPIClient) error {
 	contId := GetContainerId()
 	if contId == nil {
 		return nil
+	}
+
+	_, err = dockerAPI.ContainerInspect(ctx, *contId)
+	if err != nil {
+		if strings.Contains(err.Error(), docker.NoSuchContainerError) {
+			return nil
+		}
+
+		return rerrors.Wrap(err, "error inspecting container")
 	}
 
 	connReq := dockerutils.ConnectToNetworkRequest{

@@ -16,6 +16,38 @@
     "application/json"
   ],
   "paths": {
+    "/api/config/assemble": {
+      "post": {
+        "operationId": "VelezAPI_AssembleConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiAssembleConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiAssembleConfigRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VelezAPI"
+        ]
+      }
+    },
     "/api/hardware": {
       "get": {
         "operationId": "VelezAPI_GetHardware",
@@ -94,38 +126,6 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/velez_apiDropSmerdRequest"
-            }
-          }
-        ],
-        "tags": [
-          "VelezAPI"
-        ]
-      }
-    },
-    "/api/smerd/fetch-config": {
-      "post": {
-        "operationId": "VelezAPI_FetchConfig",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/velez_apiFetchConfigResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/velez_apiFetchConfigRequest"
             }
           }
         ],
@@ -306,6 +306,26 @@
       },
       "additionalProperties": {}
     },
+    "velez_apiAssembleConfigRequest": {
+      "type": "object",
+      "properties": {
+        "imageName": {
+          "type": "string"
+        },
+        "serviceName": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiAssembleConfigResponse": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
     "velez_apiCreateSmerdRequest": {
       "type": "object",
       "properties": {
@@ -379,26 +399,6 @@
           "items": {
             "type": "string"
           }
-        }
-      }
-    },
-    "velez_apiFetchConfigRequest": {
-      "type": "object",
-      "properties": {
-        "imageName": {
-          "type": "string"
-        },
-        "serviceName": {
-          "type": "string"
-        }
-      }
-    },
-    "velez_apiFetchConfigResponse": {
-      "type": "object",
-      "properties": {
-        "config": {
-          "type": "string",
-          "format": "byte"
         }
       }
     },

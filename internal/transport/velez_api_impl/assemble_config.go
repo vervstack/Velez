@@ -9,7 +9,7 @@ import (
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-func (a *Impl) FetchConfig(ctx context.Context, req *velez_api.FetchConfig_Request) (*velez_api.FetchConfig_Response, error) {
+func (a *Impl) FetchConfig(ctx context.Context, req *velez_api.AssembleConfig_Request) (*velez_api.AssembleConfig_Response, error) {
 	executor := a.pipeliner.GetConfig(req)
 	err := executor.Run(ctx)
 	if err != nil {
@@ -29,7 +29,7 @@ func (a *Impl) FetchConfig(ctx context.Context, req *velez_api.FetchConfig_Reque
 		return nil, rerrors.Wrap(err, "error updating config")
 	}
 
-	resp := &velez_api.FetchConfig_Response{}
+	resp := &velez_api.AssembleConfig_Response{}
 
 	resp.Config, err = cfg.Marshal()
 	if err != nil {

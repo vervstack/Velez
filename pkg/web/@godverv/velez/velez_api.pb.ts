@@ -150,16 +150,16 @@ export type GetHardwareResponse = {
 
 export type GetHardware = Record<string, never>;
 
-export type FetchConfigRequest = {
+export type AssembleConfigRequest = {
   imageName?: string;
   serviceName?: string;
 };
 
-export type FetchConfigResponse = {
+export type AssembleConfigResponse = {
   config?: Uint8Array;
 };
 
-export type FetchConfig = Record<string, never>;
+export type AssembleConfig = Record<string, never>;
 
 export class VelezAPI {
   static Version(this:void, req: VersionRequest, initReq?: fm.InitReq): Promise<VersionResponse> {
@@ -177,7 +177,7 @@ export class VelezAPI {
   static GetHardware(this:void, req: GetHardwareRequest, initReq?: fm.InitReq): Promise<GetHardwareResponse> {
     return fm.fetchRequest<GetHardwareResponse>(`/api/hardware?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
   }
-  static FetchConfig(this:void, req: FetchConfigRequest, initReq?: fm.InitReq): Promise<FetchConfigResponse> {
-    return fm.fetchRequest<FetchConfigResponse>(`/api/smerd/fetch-config`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  static AssembleConfig(this:void, req: AssembleConfigRequest, initReq?: fm.InitReq): Promise<AssembleConfigResponse> {
+    return fm.fetchRequest<AssembleConfigResponse>(`/api/config/assemble`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
 }

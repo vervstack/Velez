@@ -13,7 +13,7 @@ environment:
       value: true
     - name: available_ports
       type: int
-      value: [18501-18519]
+      value: ['18501:18519']
     - name: shut_down_on_exit
       type: bool
       value: false
@@ -65,8 +65,13 @@ environment:
     - name: log_format
       type: string
       value: TEXT
-      enum: [JSON, TEXT]
     - name: log_level
       type: string
       value: Info
-      enum: [Trace, Debug, Info, Warn, Error, Fatal, Panic]
+service_discovery:
+    makosh_url: ""
+    makosh_token: ""
+    overrides:
+        - service_name: matreshka
+          urls:
+            - localhost:81

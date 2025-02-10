@@ -58,7 +58,6 @@ func Load() (Config, error) {
 	if err != nil {
 		return defaultConfig, rerrors.Wrap(err, "Error parsing servers to config")
 	}
-
 	err = rootConfig.Environment.ParseToStruct(&defaultConfig.Environment)
 	if err != nil {
 		return defaultConfig, rerrors.Wrap(err, "error parsing environment config")

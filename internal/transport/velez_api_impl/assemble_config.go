@@ -9,11 +9,11 @@ import (
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-func (a *Impl) FetchConfig(ctx context.Context, req *velez_api.AssembleConfig_Request) (*velez_api.AssembleConfig_Response, error) {
-	executor := a.pipeliner.GetConfig(req)
+func (a *Impl) AssembleConfig(ctx context.Context, req *velez_api.AssembleConfig_Request) (*velez_api.AssembleConfig_Response, error) {
+	executor := a.pipeliner.AssembleConfig(req)
 	err := executor.Run(ctx)
 	if err != nil {
-		return nil, rerrors.Wrap(err, "error during GetConfig pipeline execution")
+		return nil, rerrors.Wrap(err, "error during AssembleConfig pipeline execution")
 	}
 
 	cfg, err := executor.Result()

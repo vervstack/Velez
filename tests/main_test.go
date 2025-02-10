@@ -3,6 +3,7 @@ package tests
 import (
 	"context"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
@@ -25,41 +26,41 @@ type testEnv struct {
 	docker   clients.Docker
 }
 
-var tEnv testEnv
+var testEnvironment testEnv
 
 func TestMain(m *testing.M) {
 	initEnv()
 
 	ctx := context.Background()
 
-	_, err := tEnv.velezAPI.Version(ctx, &velez_api.Version_Request{})
+	_, err := testEnvironment.velezAPI.Version(ctx, &velez_api.Version_Request{})
 	if err != nil {
 		logrus.Fatalf("error pinging service api %s", err)
 	}
 
-	_, err = tEnv.docker.Ping(ctx)
+	_, err = testEnvironment.docker.Ping(ctx)
 	if err != nil {
 		logrus.Fatalf("error pinging docker %s", err)
 	}
 
-	tEnv.clean()
+	testEnvironment.clean()
 
 	var code int
 	defer func() {
-		tEnv.clean()
+		testEnvironment.clean()
 		os.Exit(code)
 	}()
 
 	code = m.Run()
 }
 
-func (t *testEnv) callCreate(ctx context.Context, req *velez_api.CreateSmerd_Request) (smerd *velez_api.Smerd, err error) {
+func (t *testEnv) createSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (smerd *velez_api.Smerd, err error) {
 	if req.Labels == nil {
 		req.Labels = map[string]string{}
 	}
 
 	req.Labels[integrationTest] = "true"
-	return tEnv.velezAPI.CreateSmerd(ctx, req)
+	return testEnvironment.velezAPI.CreateSmerd(ctx, req)
 }
 
 func (t *testEnv) clean() {
@@ -87,10 +88,14 @@ func (t *testEnv) clean() {
 
 }
 
-func (t *testEnv) getExpectedLabels() map[string]string {
+func getExpectedLabels() map[string]string {
 	return map[string]string{
 		labels.CreatedWithVelezLabel: "true",
 		labels.MatreshkaConfigLabel:  "false",
 		integrationTest:              "true",
 	}
+}
+
+func extractServiceName(t *testing.T) string {
+	return strings.ReplaceAll(t.Name(), "/", "_")
 }

@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	appImage      = "godverv/hello_world:v0.0.13"
-	postgresImage = "postgres:16"
+	helloWorldAppImage = "godverv/hello_world:v0.0.14"
+	postgresImage      = "postgres:16"
 )
 
 type DeployAppSuite struct {
@@ -29,10 +29,10 @@ func (d *DeployAppSuite) Test_OK_DeployWithoutConfig() {
 
 	createReq := &velez_api.CreateSmerd_Request{
 		Name:         serviceName,
-		ImageName:    appImage,
+		ImageName:    helloWorldAppImage,
 		IgnoreConfig: true,
 	}
-	launchedSmerd, err := tEnv.callCreate(d.ctx, createReq)
+	launchedSmerd, err := testEnvironment.createSmerd(d.ctx, createReq)
 	d.Require().NoError(err)
 
 	d.Require().NotEmpty(launchedSmerd.Uuid)
@@ -43,9 +43,9 @@ func (d *DeployAppSuite) Test_OK_DeployWithoutConfig() {
 
 	expectedSmerd := &velez_api.Smerd{
 		Name:      "/" + serviceName,
-		ImageName: appImage,
+		ImageName: helloWorldAppImage,
 		Status:    velez_api.Smerd_running,
-		Labels:    tEnv.getExpectedLabels(),
+		Labels:    getExpectedLabels(),
 	}
 
 	if !proto.Equal(expectedSmerd, launchedSmerd) {
@@ -58,14 +58,14 @@ func (d *DeployAppSuite) Test_OK_DeployWithHealthCheck() {
 
 	createReq := &velez_api.CreateSmerd_Request{
 		Name:      serviceName,
-		ImageName: appImage,
+		ImageName: helloWorldAppImage,
 		Healthcheck: &velez_api.Container_Healthcheck{
 			IntervalSecond: 1,
 			Retries:        3,
 		},
 		IgnoreConfig: true,
 	}
-	launchedSmerd, err := tEnv.callCreate(d.ctx, createReq)
+	launchedSmerd, err := testEnvironment.createSmerd(d.ctx, createReq)
 	d.Require().NoError(err)
 
 	d.Require().NotNil(launchedSmerd)
@@ -77,9 +77,9 @@ func (d *DeployAppSuite) Test_OK_DeployWithHealthCheck() {
 
 	expectedSmerd := &velez_api.Smerd{
 		Name:      "/" + serviceName,
-		ImageName: appImage,
+		ImageName: helloWorldAppImage,
 		Status:    velez_api.Smerd_running,
-		Labels:    tEnv.getExpectedLabels(),
+		Labels:    getExpectedLabels(),
 	}
 
 	if !proto.Equal(expectedSmerd, launchedSmerd) {
@@ -92,9 +92,9 @@ func (d *DeployAppSuite) Test_OK_DeployWithDefaultConfig() {
 
 	createReq := &velez_api.CreateSmerd_Request{
 		Name:      serviceName,
-		ImageName: appImage,
+		ImageName: helloWorldAppImage,
 	}
-	smerd, err := tEnv.callCreate(d.ctx, createReq)
+	smerd, err := testEnvironment.createSmerd(d.ctx, createReq)
 	d.Require().NoError(err)
 	d.Require().NotNil(smerd)
 }
@@ -120,7 +120,7 @@ func (d *DeployAppSuite) Test_OK_DeployPostgres() {
 		IgnoreConfig:  true,
 		UseImagePorts: true,
 	}
-	deployedSmerd, err := tEnv.callCreate(d.ctx, createReq)
+	deployedSmerd, err := testEnvironment.createSmerd(d.ctx, createReq)
 	d.Require().NoError(err)
 
 	d.Require().NotNil(deployedSmerd)
@@ -134,7 +134,7 @@ func (d *DeployAppSuite) Test_OK_DeployPostgres() {
 		Name:      "/" + serviceName,
 		ImageName: postgresImage,
 		Status:    velez_api.Smerd_running,
-		Labels:    tEnv.getExpectedLabels(),
+		Labels:    getExpectedLabels(),
 		Ports: []*velez_api.Port{
 			{
 				ServicePortNumber: 0,

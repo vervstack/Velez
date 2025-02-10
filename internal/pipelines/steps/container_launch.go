@@ -58,6 +58,19 @@ func (s *createContainerStep) Do(ctx context.Context) error {
 	return nil
 }
 
+func (s *createContainerStep) Rollback(ctx context.Context) error {
+	if s.containerId == nil {
+		return nil
+	}
+
+	err := s.docker.Remove(ctx, *s.containerId)
+	if err != nil {
+		return rerrors.Wrapf(err, "error removing container '%s'", *s.containerId)
+	}
+
+	return nil
+}
+
 func (s *createContainerStep) getLaunchConfig() (cfg *container.Config) {
 	cfg = &container.Config{
 		Image:       s.req.ImageName,

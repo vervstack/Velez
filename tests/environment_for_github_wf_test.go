@@ -20,8 +20,8 @@ func initEnv() {
 		logrus.Fatalf("error connecting to test grpc server: %s ", err)
 	}
 
-	tEnv.velezAPI = velez_api.NewVelezAPIClient(conn)
-	tEnv.docker, err = docker.NewClient()
+	testEnvironment.velezAPI = velez_api.NewVelezAPIClient(conn)
+	testEnvironment.docker, err = docker.NewClient()
 	if err != nil {
 		logrus.Fatalf("error creating docker client: %s ", err)
 	}

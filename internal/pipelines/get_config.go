@@ -10,7 +10,7 @@ import (
 
 const configFetchingPostfix = "_config_scanning"
 
-func (p *pipeliner) GetConfig(req *velez_api.FetchConfig_Request) Runner[matreshka.AppConfig] {
+func (p *pipeliner) GetConfig(req *velez_api.AssembleConfig_Request) Runner[matreshka.AppConfig] {
 	image := &types.ImageInspect{}
 	contId := ""
 	createReq := &velez_api.CreateSmerd_Request{

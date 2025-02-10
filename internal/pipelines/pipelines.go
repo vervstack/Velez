@@ -13,7 +13,7 @@ import (
 
 type Pipeliner interface {
 	LaunchSmerd(request domain.LaunchSmerd) Runner[domain.LaunchSmerdResult]
-	GetConfig(request *velez_api.FetchConfig_Request) Runner[matreshka.AppConfig]
+	GetConfig(request *velez_api.AssembleConfig_Request) Runner[matreshka.AppConfig]
 }
 
 type Runner[T any] interface {

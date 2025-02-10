@@ -15,7 +15,7 @@ import (
 
 const configFetchingPostfix = "_config_scanning"
 
-func (c *ContainerManager) FetchConfig(ctx context.Context, req *velez_api.FetchConfig_Request) (*matreshka.AppConfig, error) {
+func (c *ContainerManager) FetchConfig(ctx context.Context, req *velez_api.AssembleConfig_Request) (*matreshka.AppConfig, error) {
 	_, err := c.docker.PullImage(ctx, req.ImageName)
 	if err != nil {
 		return nil, errors.Wrap(err, "error pulling image")

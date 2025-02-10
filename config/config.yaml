@@ -64,9 +64,11 @@ environment:
       value: godverv/matreshka-be:v1.0.47
     - name: log_format
       type: string
+      enum: [TEXT, JSON]
       value: TEXT
     - name: log_level
       type: string
+      enum: [Trace, Debug, Warn, Info, Error, Fatal, Panic]
       value: Info
 service_discovery:
     makosh_url: ""

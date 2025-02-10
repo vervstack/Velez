@@ -28,3 +28,18 @@ type EnvironmentConfig struct {
 	WatchTowerEnabled  bool
 	WatchTowerInterval time.Duration
 }
+
+const (
+	LogFormat_Text = "TEXT"
+	LogFormat_Json = "JSON"
+)
+
+const (
+	LogLevel_Trace = "Trace"
+	LogLevel_Debug = "Debug"
+	LogLevel_Warn  = "Warn"
+	LogLevel_Info  = "Info"
+	LogLevel_Error = "Error"
+	LogLevel_Fatal = "Fatal"
+	LogLevel_Panic = "Panic"
+)

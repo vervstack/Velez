@@ -21,10 +21,9 @@ type Impl struct {
 	version string
 
 	hardwareManager clients.HardwareManager
-
-	cfgService   service.ConfigurationService
-	smerdService service.ContainerService
-	pipeliner    pipelines.Pipeliner
+	cfgService      service.ConfigurationService
+	smerdService    service.ContainerService
+	pipeliner       pipelines.Pipeliner
 }
 
 func NewImpl(cfg config.Config, srv service.Services, pipeliner pipelines.Pipeliner) *Impl {

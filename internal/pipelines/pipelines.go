@@ -8,7 +8,6 @@ import (
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/internal/service"
-	"github.com/godverv/Velez/pkg/velez_api"
 )
 
 type Pipeliner interface {
@@ -19,7 +18,7 @@ type Pipeliner interface {
 	// configuration file inside image
 	// and matreshka instance
 	// providing updated configuration
-	AssembleConfig(request *velez_api.AssembleConfig_Request) Runner[matreshka.AppConfig]
+	AssembleConfig(request domain.AssembleConfig) Runner[matreshka.AppConfig]
 }
 
 type Runner[T any] interface {

@@ -11,7 +11,7 @@ import (
 
 const configFetchingPostfix = "_config_scanning"
 
-func (p *pipeliner) AssembleConfig(req *velez_api.AssembleConfig_Request) Runner[matreshka.AppConfig] {
+func (p *pipeliner) AssembleConfig(req domain.AssembleConfig) Runner[matreshka.AppConfig] {
 	image := &types.ImageInspect{}
 	contId := ""
 

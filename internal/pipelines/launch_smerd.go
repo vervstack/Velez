@@ -14,13 +14,14 @@ func (p *pipeliner) LaunchSmerd(req domain.LaunchSmerd) Runner[domain.LaunchSmer
 	containerId := ""
 
 	return &runner[domain.LaunchSmerdResult]{
-		Steps: []PipelineStep{
+		Steps: []steps.Step{
 			// Prepare steps
 			steps.PrepareCreateRequest(req.CreateSmerd_Request),
 			steps.PrepareImageStep(p.dockerAPI, req.ImageName, image),
 			steps.PrepareVervConfig(p.configService, p.portManager, req.CreateSmerd_Request, image),
 			// Deploy steps
-			steps.LaunchContainer(p.dockerAPI, req.CreateSmerd_Request, &containerId),
+			steps.CreateContainer(p.dockerAPI, req.CreateSmerd_Request, &containerId),
+			steps.StartContainer(p.dockerAPI, &containerId),
 			// Post deploy steps
 			steps.HealthcheckStep(p.dockerAPI, req.CreateSmerd_Request, &containerId),
 			steps.SubscribeForConfigChanges(p.configService, req.CreateSmerd_Request),

@@ -4,10 +4,12 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+
+	"github.com/godverv/Velez/internal/pipelines/steps"
 )
 
 type runner[T any] struct {
-	Steps     []PipelineStep
+	Steps     []steps.Step
 	getResult func() (res *T, err error)
 }
 
@@ -46,7 +48,7 @@ func (p *runner[T]) run(ctx context.Context) error {
 func (p *runner[T]) rollback(ctx context.Context) error {
 	var globalErr error
 	for _, s := range p.Steps {
-		rollbackable, ok := s.(RollbackableStep)
+		rollbackable, ok := s.(steps.RollbackableStep)
 		if ok {
 			err := rollbackable.Rollback(ctx)
 			if err != nil {

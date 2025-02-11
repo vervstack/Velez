@@ -12,21 +12,19 @@ import (
 )
 
 type Pipeliner interface {
+	// LaunchSmerd - prepares environment and launches container (smerd)
+	// if possible (no other container with given name already exists dead or alive)
 	LaunchSmerd(request domain.LaunchSmerd) Runner[domain.LaunchSmerdResult]
+	// AssembleConfig - gathers information from
+	// configuration file inside image
+	// and matreshka instance
+	// providing updated configuration
 	AssembleConfig(request *velez_api.AssembleConfig_Request) Runner[matreshka.AppConfig]
 }
 
 type Runner[T any] interface {
 	Run(ctx context.Context) error
 	Result() (*T, error)
-}
-
-type PipelineStep interface {
-	Do(ctx context.Context) error
-}
-
-type RollbackableStep interface {
-	Rollback(ctx context.Context) error
 }
 
 type pipeliner struct {

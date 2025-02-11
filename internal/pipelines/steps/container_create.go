@@ -21,7 +21,7 @@ type createContainerStep struct {
 	containerId *string
 }
 
-func LaunchContainer(docker clients.Docker,
+func CreateContainer(docker clients.Docker,
 	req *velez_api.CreateSmerd_Request,
 	containerId *string,
 ) *createContainerStep {
@@ -49,11 +49,6 @@ func (s *createContainerStep) Do(ctx context.Context) error {
 	}
 
 	*s.containerId = containerInfo.ID
-
-	err = s.docker.ContainerStart(ctx, createdContainer.ID, container.StartOptions{})
-	if err != nil {
-		return rerrors.Wrap(err, "error starting container")
-	}
 
 	return nil
 }

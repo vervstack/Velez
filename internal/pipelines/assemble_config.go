@@ -22,9 +22,9 @@ func (p *pipeliner) AssembleConfig(req *velez_api.AssembleConfig_Request) Runner
 	res := &matreshka.AppConfig{}
 
 	return &runner[matreshka.AppConfig]{
-		Steps: []PipelineStep{
+		Steps: []steps.Step{
 			steps.PrepareImageStep(p.dockerAPI, req.ImageName, image),
-			steps.LaunchContainer(p.dockerAPI, createReq, &contId),
+			steps.CreateContainer(p.dockerAPI, createReq, &contId),
 			steps.AssembleConfigStep(p.dockerAPI, p.configService, &contId, req.ServiceName, res),
 			steps.DropContainerStep(p.dockerAPI, &contId),
 		},

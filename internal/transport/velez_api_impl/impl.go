@@ -20,7 +20,6 @@ type Impl struct {
 
 	version string
 
-	// TODO что-то впихнуть
 	hardwareManager clients.HardwareManager
 
 	srv       service.Services

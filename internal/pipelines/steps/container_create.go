@@ -11,22 +11,22 @@ import (
 	"github.com/godverv/Velez/internal/backservice/env"
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils/parser"
-	"github.com/godverv/Velez/pkg/velez_api"
+	"github.com/godverv/Velez/internal/domain"
 )
 
 type createContainerStep struct {
 	docker clients.Docker
 
-	req         *velez_api.CreateSmerd_Request
+	req         domain.LaunchSmerd
 	containerId *string
 }
 
-func CreateContainer(docker clients.Docker,
-	req *velez_api.CreateSmerd_Request,
+func CreateContainer(nodeClients clients.NodeClients,
+	req domain.LaunchSmerd,
 	containerId *string,
 ) *createContainerStep {
 	return &createContainerStep{
-		docker:      docker,
+		docker:      nodeClients.Docker(),
 		req:         req,
 		containerId: containerId,
 	}

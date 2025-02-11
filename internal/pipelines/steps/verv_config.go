@@ -26,14 +26,15 @@ type prepareConfig struct {
 }
 
 func PrepareVervConfig(
-	configService service.ConfigurationService,
-	portManager clients.PortManager,
+	nodeClients clients.NodeClients,
+	srv service.Services,
+
 	req *velez_api.CreateSmerd_Request,
 	image *types.ImageInspect,
 ) *prepareConfig {
 	return &prepareConfig{
-		configService: configService,
-		portManager:   portManager,
+		configService: srv.ConfigurationService(),
+		portManager:   nodeClients.PortManager(),
 
 		req:   req,
 		image: image,

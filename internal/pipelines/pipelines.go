@@ -28,17 +28,13 @@ type Runner[T any] interface {
 }
 
 type pipeliner struct {
-	dockerAPI   clients.Docker
-	portManager clients.PortManager
-
-	configService service.ConfigurationService
+	nodeClients clients.NodeClients
+	services    service.Services
 }
 
-func NewPipeliner(dockerAPI clients.Docker, portManager clients.PortManager, configService service.ConfigurationService) Pipeliner {
+func NewPipeliner(nodeClients clients.NodeClients, services service.Services) Pipeliner {
 	return &pipeliner{
-		dockerAPI:   dockerAPI,
-		portManager: portManager,
-
-		configService: configService,
+		nodeClients: nodeClients,
+		services:    services,
 	}
 }

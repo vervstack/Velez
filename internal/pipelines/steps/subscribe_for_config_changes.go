@@ -15,9 +15,11 @@ type subscribeForConfigChangesStep struct {
 	req *velez_api.CreateSmerd_Request
 }
 
-func SubscribeForConfigChanges(cfg service.ConfigurationService, req *velez_api.CreateSmerd_Request) *subscribeForConfigChangesStep {
+func SubscribeForConfigChanges(
+	srv service.Services, req *velez_api.CreateSmerd_Request,
+) *subscribeForConfigChangesStep {
 	return &subscribeForConfigChangesStep{
-		cfg: cfg,
+		cfg: srv.ConfigurationService(),
 		req: req,
 	}
 }

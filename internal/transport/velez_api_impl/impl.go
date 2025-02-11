@@ -22,15 +22,17 @@ type Impl struct {
 
 	hardwareManager clients.HardwareManager
 
-	srv       service.Services
-	pipeliner pipelines.Pipeliner
+	cfgService   service.ConfigurationService
+	smerdService service.ContainerService
+	pipeliner    pipelines.Pipeliner
 }
 
 func NewImpl(cfg config.Config, srv service.Services, pipeliner pipelines.Pipeliner) *Impl {
 	return &Impl{
-		version:   cfg.AppInfo.Version,
-		srv:       srv,
-		pipeliner: pipeliner,
+		version:      cfg.AppInfo.Version,
+		cfgService:   srv.ConfigurationService(),
+		smerdService: srv.SmerdManager(),
+		pipeliner:    pipeliner,
 	}
 }
 

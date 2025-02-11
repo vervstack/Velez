@@ -21,7 +21,7 @@ func (a *Impl) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Reque
 		return nil, rerrors.Wrap(err, "error getting result")
 	}
 
-	smerd, err := a.srv.InspectSmerd(ctx, res.ContainerId)
+	smerd, err := a.smerdService.InspectSmerd(ctx, res.ContainerId)
 	if err != nil {
 		return nil, err
 	}

@@ -15,11 +15,12 @@ type startContainerStep struct {
 	containerId *string
 }
 
-func StartContainer(docker clients.Docker,
+func StartContainer(
+	nodeClients clients.NodeClients,
 	containerId *string,
 ) *startContainerStep {
 	return &startContainerStep{
-		docker:      docker,
+		docker:      nodeClients.Docker(),
 		containerId: containerId,
 	}
 }

@@ -24,7 +24,7 @@ func (a *Impl) AssembleConfig(ctx context.Context, req *velez_api.AssembleConfig
 		return nil, rerrors.New("No config found", codes.NotFound)
 	}
 
-	err = a.srv.UpdateConfig(ctx, req.ServiceName, *cfg)
+	err = a.cfgService.UpdateConfig(ctx, req.ServiceName, *cfg)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error updating config")
 	}

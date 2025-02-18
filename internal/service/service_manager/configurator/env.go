@@ -8,12 +8,16 @@ import (
 	"go.vervstack.ru/matreshka-be/pkg/matreshka_be_api"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/godverv/Velez/internal/domain"
 )
 
-func (c *Configurator) GetEnvFromApi(ctx context.Context, serviceName string) ([]*evon.Node, error) {
+func (c *Configurator) GetEnvFromApi(ctx context.Context, meta domain.ConfigMeta) ([]*evon.Node, error) {
 	req := &matreshka_be_api.GetConfigNode_Request{
-		ServiceName: serviceName,
+		ServiceName: meta.ServiceName,
+		Version:     meta.CfgVersion,
 	}
+
 	cfgNodes, err := c.MatreshkaBeAPIClient.GetConfigNodes(ctx, req)
 	if err != nil {
 		if status.Code(err) == codes.NotFound {

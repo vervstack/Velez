@@ -65,7 +65,12 @@ func (c *assembleConfigStep) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error getting matreshka config from container")
 	}
 
-	configFromApi, err := c.configService.GetFromApi(ctx, c.req.Name)
+	cfgMeta := domain.ConfigMeta{
+		ServiceName: c.req.Name,
+		CfgVersion:  c.req.ConfigVersion,
+	}
+
+	configFromApi, err := c.configService.GetFromApi(ctx, cfgMeta)
 	if err != nil {
 		code := status.Code(err)
 		if code != codes.NotFound {

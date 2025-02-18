@@ -18,6 +18,7 @@
   "paths": {
     "/api/config/assemble": {
       "post": {
+        "summary": "AssembleConfig - collects configurations\nfrom container and matreshka api and fuses them to one\nCalling this method will update",
         "operationId": "VelezAPI_AssembleConfig",
         "responses": {
           "200": {
@@ -364,6 +365,9 @@
         },
         "useImagePorts": {
           "type": "boolean"
+        },
+        "configVersion": {
+          "type": "string"
         }
       }
     },

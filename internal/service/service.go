@@ -23,9 +23,9 @@ type ContainerService interface {
 
 type ConfigurationService interface {
 	GetFromContainer(ctx context.Context, contId string) (matreshka.AppConfig, error)
-	GetFromApi(ctx context.Context, serviceName string) (matreshka.AppConfig, error)
-	GetEnvFromApi(ctx context.Context, serviceName string) ([]*evon.Node, error)
-	UpdateConfig(ctx context.Context, serviceName string, config matreshka.AppConfig) error
+	GetFromApi(ctx context.Context, meta domain.ConfigMeta) (matreshka.AppConfig, error)
+	GetEnvFromApi(ctx context.Context, meta domain.ConfigMeta) ([]*evon.Node, error)
+	UpdateConfig(ctx context.Context, meta domain.ConfigMeta, config matreshka.AppConfig) error
 
 	SubscribeOnChanges(serviceNames ...string) error
 	UnsubscribeFromChanges(serviceNames ...string) error

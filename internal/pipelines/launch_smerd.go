@@ -3,6 +3,7 @@ package pipelines
 import (
 	"github.com/docker/docker/api/types"
 	"go.redsock.ru/rerrors"
+	"go.vervstack.ru/matreshka"
 
 	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/internal/pipelines/steps"
@@ -13,17 +14,21 @@ func (p *pipeliner) LaunchSmerd(req domain.LaunchSmerd) Runner[domain.LaunchSmer
 
 	containerId := ""
 
+	cfg := &matreshka.AppConfig{}
+
 	return &runner[domain.LaunchSmerdResult]{
-		Steps: []PipelineStep{
+		Steps: []steps.Step{
 			// Prepare steps
 			steps.PrepareCreateRequest(req.CreateSmerd_Request),
-			steps.PrepareImageStep(p.dockerAPI, req.ImageName, image),
-			steps.PrepareVervConfig(p.configService, p.portManager, req.CreateSmerd_Request, image),
+			steps.PrepareImageStep(p.nodeClients, req.ImageName, image),
+			steps.PrepareVervConfig(p.nodeClients, p.services, req.CreateSmerd_Request, image),
 			// Deploy steps
-			steps.LaunchContainer(p.dockerAPI, req.CreateSmerd_Request, &containerId),
+			steps.CreateContainer(p.nodeClients, req, &containerId),
+			steps.AssembleConfigStep(p.nodeClients, p.services, &containerId, req, image, cfg),
+			steps.StartContainer(p.nodeClients, &containerId),
 			// Post deploy steps
-			steps.HealthcheckStep(p.dockerAPI, req.CreateSmerd_Request, &containerId),
-			steps.SubscribeForConfigChanges(p.configService, req.CreateSmerd_Request),
+			steps.HealthcheckStep(p.nodeClients, req.CreateSmerd_Request, &containerId),
+			steps.SubscribeForConfigChanges(p.services, req.CreateSmerd_Request),
 		},
 
 		getResult: func() (*domain.LaunchSmerdResult, error) {

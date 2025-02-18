@@ -15,8 +15,8 @@ import (
 )
 
 type ServiceManager struct {
-	*container_manager.ContainerManager
-	*configurator.Configurator
+	containerManager *container_manager.ContainerManager
+	configurator     *configurator.Configurator
 }
 
 func New(
@@ -24,7 +24,6 @@ func New(
 	nodeClients clients.NodeClients,
 	clusterClients clients.ClusterClients,
 ) (service.Services, error) {
-
 	configService, err := configurator.New(
 		ctx,
 		clusterClients.Configurator(),
@@ -37,14 +36,22 @@ func New(
 	containerManger := container_manager.NewContainerManager(nodeClients, configService)
 
 	sm := &ServiceManager{
-		Configurator:     configService,
-		ContainerManager: containerManger,
+		configurator:     configService,
+		containerManager: containerManger,
 	}
 
 	// TODO VERV-128
 	//go handleConfigurationSubscription(configService, sm)
 
 	return sm, nil
+}
+
+func (s *ServiceManager) SmerdManager() service.ContainerService {
+	return s.containerManager
+}
+
+func (s *ServiceManager) ConfigurationService() service.ConfigurationService {
+	return s.configurator
 }
 
 func handleConfigurationSubscription(configurationService service.ConfigurationService, manager service.Services) {
@@ -56,7 +63,7 @@ func handleConfigurationSubscription(configurationService service.ConfigurationS
 			Name: toolbox.ToPtr(patch.ServiceName),
 		}
 
-		smerds, err := manager.ListSmerds(ctx, listReq)
+		smerds, err := manager.SmerdManager().ListSmerds(ctx, listReq)
 		if err != nil {
 			logrus.Error(rerrors.Wrap(err, "error listing smerds for configuration update hook"))
 			continue

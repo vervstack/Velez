@@ -22,12 +22,12 @@ type healthcheckStep struct {
 }
 
 func HealthcheckStep(
-	docker clients.Docker,
+	nodeClients clients.NodeClients,
 	req *velez_api.CreateSmerd_Request,
 	containerId *string,
 ) *healthcheckStep {
 	return &healthcheckStep{
-		docker: docker,
+		docker: nodeClients.Docker(),
 
 		req:         req,
 		containerId: containerId,

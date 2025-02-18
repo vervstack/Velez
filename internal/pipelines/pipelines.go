@@ -8,12 +8,17 @@ import (
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/internal/service"
-	"github.com/godverv/Velez/pkg/velez_api"
 )
 
 type Pipeliner interface {
+	// LaunchSmerd - prepares environment and launches container (smerd)
+	// if possible (no other container with given name already exists dead or alive)
 	LaunchSmerd(request domain.LaunchSmerd) Runner[domain.LaunchSmerdResult]
-	AssembleConfig(request *velez_api.AssembleConfig_Request) Runner[matreshka.AppConfig]
+	// AssembleConfig - gathers information from
+	// configuration file inside image
+	// and matreshka instance
+	// providing updated configuration
+	AssembleConfig(request domain.AssembleConfig) Runner[matreshka.AppConfig]
 }
 
 type Runner[T any] interface {
@@ -21,26 +26,14 @@ type Runner[T any] interface {
 	Result() (*T, error)
 }
 
-type PipelineStep interface {
-	Do(ctx context.Context) error
-}
-
-type RollbackableStep interface {
-	Rollback(ctx context.Context) error
-}
-
 type pipeliner struct {
-	dockerAPI   clients.Docker
-	portManager clients.PortManager
-
-	configService service.ConfigurationService
+	nodeClients clients.NodeClients
+	services    service.Services
 }
 
-func NewPipeliner(dockerAPI clients.Docker, portManager clients.PortManager, configService service.ConfigurationService) Pipeliner {
+func NewPipeliner(nodeClients clients.NodeClients, services service.Services) Pipeliner {
 	return &pipeliner{
-		dockerAPI:   dockerAPI,
-		portManager: portManager,
-
-		configService: configService,
+		nodeClients: nodeClients,
+		services:    services,
 	}
 }

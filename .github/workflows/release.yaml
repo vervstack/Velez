@@ -7,7 +7,7 @@ on:
 
 jobs:
   tag-release:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.UBUNTU_IMAGE }}
     steps:
       - name: Release tag
         id: release
@@ -18,7 +18,7 @@ jobs:
       tag: ${{ steps.release.outputs.tag }}
 
   registry_release:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.UBUNTU_IMAGE }}
     needs:
       - tag-release
     steps:
@@ -27,4 +27,40 @@ jobs:
         uses: RedSockActions/release_image@v1.0.19
         with:
           REGISTRY_USER: ${{ vars.REGISTRY_USER }}
-          REGISTRY_PWD:  ${{ secrets.REGISTRY_PWD }}
+          REGISTRY_PWD: ${{ secrets.REGISTRY_PWD }}
+
+  npm-registry-release:
+    if: ${{ needs.tag-release.outputs.tag != '' }}
+    runs-on: ${{ vars.UBUNTU_IMAGE }}
+    needs:
+      - tag-release
+    steps:
+      - name: Release image
+        uses: RedSockActions/release_npm_package@v0.0.4
+        with:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          VERSION: ${{ needs.tag-release.outputs.tag }}
+          WORKING_DIRECTORY: pkg/web/@godverv/velez
+  init-script-release:
+    if: ${{ needs.tag-release.outputs.tag != '' }}
+    runs-on: ${{ vars.UBUNTU_IMAGE }}
+    needs:
+      - tag-release
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Making script
+        run: |
+          VERSION="${{ needs.tag-release.outputs.tag }}"
+          cp scripts/prod_init.sh.pattern scripts/init_node.sh
+          sed -i "s/{{ .Version }}/${VERSION}/g" scripts/init_node.sh
+      - name: Upload to s3
+        uses: marverlous811/minio-upload@v1.2.0
+        with:
+          endpoint: ${{ secrets.MINIO_ENDPOINT }}
+          access_key: ${{ secrets.MINIO_ACCESS_KEY }}
+          secret_key: ${{ secrets.MINIO_SECRET_KEY }}
+          bucket: 'verv'
+          local_path: './scripts/init_node.sh'
+          remote_path: '/scripts/'

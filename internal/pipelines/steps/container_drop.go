@@ -13,9 +13,9 @@ type dropContainer struct {
 	contId *string
 }
 
-func DropContainerStep(docker clients.Docker, contId *string) *dropContainer {
+func DropContainerStep(nodeClients clients.NodeClients, contId *string) *dropContainer {
 	return &dropContainer{
-		docker: docker,
+		docker: nodeClients.Docker(),
 		contId: contId,
 	}
 }

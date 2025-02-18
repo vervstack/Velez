@@ -120,11 +120,11 @@ func (c *Custom) initVelezServices(a *App) {
 		logrus.Fatalf("error initializing service manager: %v", err)
 	}
 
-	c.Pipeliner = pipelines.NewPipeliner(c.NodeClients.Docker(), c.NodeClients.PortManager(), c.Services)
+	c.Pipeliner = pipelines.NewPipeliner(c.NodeClients, c.Services)
 
 	logrus.Info("shut down on exit is set to: ", a.Cfg.Environment.ShutDownOnExit)
 	if a.Cfg.Environment.ShutDownOnExit {
-		closer.Add(smerdsDropper(c.Services))
+		closer.Add(smerdsDropper(c.Services.SmerdManager()))
 	}
 }
 
@@ -165,13 +165,13 @@ func (c *Custom) initApiServer(a *App) error {
 	return nil
 }
 
-func smerdsDropper(manager service.Services) func() error {
+func smerdsDropper(smerdService service.ContainerService) func() error {
 	return func() error {
 		logrus.Infof("ShutDownOnExit env variable is set to TRUE. Dropping launched smerds")
 		logrus.Infof("Listing launched smerds")
 		ctx := context.Background()
 
-		smerds, err := manager.ListSmerds(ctx, &velez_api.ListSmerds_Request{})
+		smerds, err := smerdService.ListSmerds(ctx, &velez_api.ListSmerds_Request{})
 		if err != nil {
 			return err
 		}
@@ -194,7 +194,7 @@ func smerdsDropper(manager service.Services) func() error {
 
 		logrus.Infof("Dropping %d smerds", len(smerds.Smerds))
 
-		dropSmerds, err := manager.DropSmerds(ctx, dropReq)
+		dropSmerds, err := smerdService.DropSmerds(ctx, dropReq)
 		if err != nil {
 			return err
 		}

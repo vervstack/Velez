@@ -10,18 +10,18 @@ import (
 )
 
 func (a *Impl) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (*velez_api.Smerd, error) {
-	pipe := a.pipeliner.LaunchSmerd(domain.LaunchSmerd{CreateSmerd_Request: req})
-	err := pipe.Run(ctx)
+	launchPipe := a.pipeliner.LaunchSmerd(domain.LaunchSmerd{CreateSmerd_Request: req})
+	err := launchPipe.Run(ctx)
 	if err != nil {
 		return nil, rerrors.Wrap(err)
 	}
 
-	res, err := pipe.Result()
+	res, err := launchPipe.Result()
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error getting result")
 	}
 
-	smerd, err := a.srv.InspectSmerd(ctx, res.ContainerId)
+	smerd, err := a.smerdService.InspectSmerd(ctx, res.ContainerId)
 	if err != nil {
 		return nil, err
 	}

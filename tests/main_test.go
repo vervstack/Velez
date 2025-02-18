@@ -96,6 +96,12 @@ func getExpectedLabels() map[string]string {
 	}
 }
 
-func extractServiceName(t *testing.T) string {
+func getLabelsWithMatreshkaConfig() map[string]string {
+	l := getExpectedLabels()
+	l[labels.MatreshkaConfigLabel] = "true"
+	return l
+}
+
+func getServiceName(t *testing.T) string {
 	return strings.ReplaceAll(t.Name(), "/", "_")
 }

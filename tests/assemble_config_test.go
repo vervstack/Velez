@@ -22,7 +22,7 @@ func (s *AssembleConfigSuite) SetupSuite() {
 }
 
 func (s *AssembleConfigSuite) Test_AssembleHelloWorld() {
-	serviceName := extractServiceName(s.T())
+	serviceName := getServiceName(s.T())
 	req := &velez_api.AssembleConfig_Request{
 		ImageName:   helloWorldAppImage,
 		ServiceName: serviceName,

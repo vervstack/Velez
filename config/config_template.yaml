@@ -68,10 +68,3 @@ environment:
     - name: log_level
       type: string
       value: Info
-service_discovery:
-    makosh_url: ""
-    makosh_token: ""
-    overrides:
-        - service_name: matreshka
-          urls:
-            - localhost:81

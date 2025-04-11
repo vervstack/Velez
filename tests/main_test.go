@@ -8,6 +8,7 @@ import (
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/sirupsen/logrus"
+	"go.vervstack.ru/matreshka-be/pkg/matreshka_be_api"
 
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
@@ -22,14 +23,17 @@ const (
 )
 
 type testEnv struct {
-	velezAPI velez_api.VelezAPIClient
-	docker   clients.Docker
+	velezAPI     velez_api.VelezAPIClient
+	matreshkaApi matreshka_be_api.MatreshkaBeAPIClient
+	docker       clients.Docker
 }
 
 var testEnvironment testEnv
 
 func TestMain(m *testing.M) {
-	initEnv()
+	initVelez()
+	//TODO
+	testEnvironment.matreshkaApi = nil
 
 	ctx := context.Background()
 
@@ -96,6 +100,12 @@ func getExpectedLabels() map[string]string {
 	}
 }
 
-func extractServiceName(t *testing.T) string {
+func getLabelsWithMatreshkaConfig() map[string]string {
+	l := getExpectedLabels()
+	l[labels.MatreshkaConfigLabel] = "true"
+	return l
+}
+
+func getServiceName(t *testing.T) string {
 	return strings.ReplaceAll(t.Name(), "/", "_")
 }

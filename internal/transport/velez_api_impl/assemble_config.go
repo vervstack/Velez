@@ -30,7 +30,10 @@ func (a *Impl) AssembleConfig(ctx context.Context, req *velez_api.AssembleConfig
 		return nil, rerrors.New("No config found", codes.NotFound)
 	}
 
-	err = a.cfgService.UpdateConfig(ctx, req.ServiceName, *cfg)
+	cfgMeta := domain.ConfigMeta{
+		ServiceName: req.ServiceName,
+	}
+	err = a.cfgService.UpdateConfig(ctx, cfgMeta, *cfg)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error updating config")
 	}

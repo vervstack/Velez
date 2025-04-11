@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/stretchr/testify/suite"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/godverv/Velez/pkg/velez_api"
@@ -15,149 +15,167 @@ const (
 	postgresImage      = "postgres:16"
 )
 
-type DeployAppSuite struct {
-	suite.Suite
-	ctx context.Context
-}
-
-func (d *DeployAppSuite) SetupSuite() {
-	d.ctx = context.Background()
-}
-
-func (d *DeployAppSuite) Test_OK_DeployWithoutConfig() {
-	serviceName := "simple_deploy"
-
-	createReq := &velez_api.CreateSmerd_Request{
-		Name:         serviceName,
-		ImageName:    helloWorldAppImage,
-		IgnoreConfig: true,
-	}
-	launchedSmerd, err := testEnvironment.createSmerd(d.ctx, createReq)
-	d.Require().NoError(err)
-
-	d.Require().NotEmpty(launchedSmerd.Uuid)
-	d.Require().NotEmpty(launchedSmerd.CreatedAt)
-
-	launchedSmerd.Uuid = ""
-	launchedSmerd.CreatedAt = nil
-
-	expectedSmerd := &velez_api.Smerd{
-		Name:      "/" + serviceName,
-		ImageName: helloWorldAppImage,
-		Status:    velez_api.Smerd_running,
-		Labels:    getExpectedLabels(),
+func Test_DeploySingleVerv(t *testing.T) {
+	type testCase struct {
+		reqs       []*velez_api.CreateSmerd_Request
+		expected   []*velez_api.Smerd
+		nameSuffix string
 	}
 
-	if !proto.Equal(expectedSmerd, launchedSmerd) {
-		d.Require().Equal(launchedSmerd, expectedSmerd)
-	}
-}
-
-func (d *DeployAppSuite) Test_OK_DeployWithHealthCheck() {
-	serviceName := "simple_deploy_with_health_check"
-
-	createReq := &velez_api.CreateSmerd_Request{
-		Name:      serviceName,
-		ImageName: helloWorldAppImage,
-		Healthcheck: &velez_api.Container_Healthcheck{
-			IntervalSecond: 1,
-			Retries:        3,
+	testCases := map[string]testCase{
+		"OK_WITHOUT_CONFIG": {
+			reqs: []*velez_api.CreateSmerd_Request{
+				{
+					ImageName:    helloWorldAppImage,
+					IgnoreConfig: true,
+				},
+			},
+			expected: []*velez_api.Smerd{
+				{
+					ImageName: helloWorldAppImage,
+					Status:    velez_api.Smerd_running,
+					Labels:    getExpectedLabels(),
+				},
+			},
 		},
-		IgnoreConfig: true,
-	}
-	launchedSmerd, err := testEnvironment.createSmerd(d.ctx, createReq)
-	d.Require().NoError(err)
-
-	d.Require().NotNil(launchedSmerd)
-	d.Require().NotEmpty(launchedSmerd.Uuid)
-	d.Require().NotEmpty(launchedSmerd.CreatedAt)
-
-	launchedSmerd.Uuid = ""
-	launchedSmerd.CreatedAt = nil
-
-	expectedSmerd := &velez_api.Smerd{
-		Name:      "/" + serviceName,
-		ImageName: helloWorldAppImage,
-		Status:    velez_api.Smerd_running,
-		Labels:    getExpectedLabels(),
-	}
-
-	if !proto.Equal(expectedSmerd, launchedSmerd) {
-		d.Require().Equal(launchedSmerd, expectedSmerd)
-	}
-}
-
-func (d *DeployAppSuite) Test_OK_DeployWithDefaultConfig() {
-	serviceName := "simple_deploy_with_default_config"
-
-	createReq := &velez_api.CreateSmerd_Request{
-		Name:      serviceName,
-		ImageName: helloWorldAppImage,
-	}
-	smerd, err := testEnvironment.createSmerd(d.ctx, createReq)
-	d.Require().NoError(err)
-	d.Require().NotNil(smerd)
-}
-
-func (d *DeployAppSuite) Test_OK_DeployPostgres() {
-	serviceName := "simple_deploy_postgres"
-
-	timeout := uint32(5)
-	command := "pg_isready -U postgres"
-
-	createReq := &velez_api.CreateSmerd_Request{
-		Name:      serviceName,
-		ImageName: postgresImage,
-		Env: map[string]string{
-			"POSTGRES_HOST_AUTH_METHOD": "trust",
+		"OK_WITH_HEALTH_CHEKS": {
+			reqs: []*velez_api.CreateSmerd_Request{
+				{
+					ImageName: helloWorldAppImage,
+					Healthcheck: &velez_api.Container_Healthcheck{
+						IntervalSecond: 1,
+						Retries:        3,
+					},
+					IgnoreConfig: true,
+				},
+			},
+			expected: []*velez_api.Smerd{
+				{
+					ImageName: helloWorldAppImage,
+					Status:    velez_api.Smerd_running,
+					Labels:    getExpectedLabels(),
+				},
+			},
 		},
-		Healthcheck: &velez_api.Container_Healthcheck{
-			Command:        &command,
-			IntervalSecond: 2,
-			TimeoutSecond:  &timeout,
-			Retries:        3,
-		},
-		IgnoreConfig:  true,
-		UseImagePorts: true,
-	}
-	deployedSmerd, err := testEnvironment.createSmerd(d.ctx, createReq)
-	d.Require().NoError(err)
-
-	d.Require().NotNil(deployedSmerd)
-	d.Require().NotEmpty(deployedSmerd.Uuid)
-	d.Require().NotEmpty(deployedSmerd.CreatedAt)
-
-	deployedSmerd.Uuid = ""
-	deployedSmerd.CreatedAt = nil
-
-	expectedSmerd := &velez_api.Smerd{
-		Name:      "/" + serviceName,
-		ImageName: postgresImage,
-		Status:    velez_api.Smerd_running,
-		Labels:    getExpectedLabels(),
-		Ports: []*velez_api.Port{
-			{
-				ServicePortNumber: 0,
-				Protocol:          0,
-				ExposedTo:         nil,
+		"OK_WITH_DEFAULT_CONFIG": {
+			reqs: []*velez_api.CreateSmerd_Request{
+				{
+					ImageName: helloWorldAppImage,
+				},
+			},
+			expected: []*velez_api.Smerd{
+				{
+					Status:    velez_api.Smerd_running,
+					ImageName: helloWorldAppImage,
+					Labels:    getLabelsWithMatreshkaConfig(),
+				},
 			},
 		},
 	}
 
-	d.Require().Equal(1, len(deployedSmerd.Ports))
-	d.Require().Equal(uint32(5432), deployedSmerd.Ports[0].ServicePortNumber)
-	d.Require().Equal(velez_api.Port_tcp, deployedSmerd.Ports[0].Protocol)
-	d.Require().NotNil(*deployedSmerd.Ports[0].ExposedTo)
-	d.Require().GreaterOrEqual(*deployedSmerd.Ports[0].ExposedTo, minPortToExposeTo)
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			ctx := context.Background()
+			for idx, createReq := range tc.reqs {
+				createReq.Name = getServiceName(t)
 
-	deployedSmerd.Ports = nil
-	expectedSmerd.Ports = nil
+				launchedSmerd, err := testEnvironment.createSmerd(ctx, createReq)
+				require.NoError(t, err)
 
-	if !proto.Equal(expectedSmerd, deployedSmerd) {
-		d.Require().Equal(expectedSmerd, deployedSmerd)
+				require.NotEmpty(t, launchedSmerd.Uuid)
+				launchedSmerd.Uuid = ""
+
+				require.NotEmpty(t, launchedSmerd.CreatedAt)
+				launchedSmerd.CreatedAt = nil
+
+				tc.expected[idx].Name = "/" + createReq.Name
+
+				if !proto.Equal(tc.expected[idx], launchedSmerd) {
+					require.Equal(t, launchedSmerd, tc.expected[idx])
+				}
+			}
+		})
 	}
 }
 
-func Test_DeployApp(t *testing.T) {
-	suite.Run(t, new(DeployAppSuite))
+func Test_DeployMultipleVerv(t *testing.T) {
+	serviceName := getServiceName(t)
+	masterVersion := &velez_api.CreateSmerd_Request{
+		Name:      serviceName,
+		ImageName: helloWorldAppImage,
+	}
+
+	ctx := context.Background()
+	masterSmerd, err := testEnvironment.createSmerd(ctx, masterVersion)
+	require.NoError(t, err)
+	//TODO check master
+	require.NotNil(t, masterSmerd)
+
+	//testEnvironment.matreshkaApi
+}
+
+func Test_DeployStr8(t *testing.T) {
+	t.Run("postgres", func(t *testing.T) {
+		t.Parallel()
+		serviceName := getServiceName(t)
+
+		timeout := uint32(5)
+		command := "pg_isready -U postgres"
+
+		createReq := &velez_api.CreateSmerd_Request{
+			Name:      serviceName,
+			ImageName: postgresImage,
+			Env: map[string]string{
+				"POSTGRES_HOST_AUTH_METHOD": "trust",
+			},
+			Healthcheck: &velez_api.Container_Healthcheck{
+				Command:        &command,
+				IntervalSecond: 2,
+				TimeoutSecond:  &timeout,
+				Retries:        3,
+			},
+			IgnoreConfig:  true,
+			UseImagePorts: true,
+		}
+
+		ctx := context.Background()
+
+		deployedSmerd, err := testEnvironment.createSmerd(ctx, createReq)
+		require.NoError(t, err)
+
+		require.NotNil(t, deployedSmerd)
+		require.NotEmpty(t, deployedSmerd.Uuid)
+		require.NotEmpty(t, deployedSmerd.CreatedAt)
+
+		deployedSmerd.Uuid = ""
+		deployedSmerd.CreatedAt = nil
+
+		expectedSmerd := &velez_api.Smerd{
+			Name:      "/" + serviceName,
+			ImageName: postgresImage,
+			Status:    velez_api.Smerd_running,
+			Labels:    getExpectedLabels(),
+			Ports: []*velez_api.Port{
+				{
+					ServicePortNumber: 0,
+					Protocol:          0,
+					ExposedTo:         nil,
+				},
+			},
+		}
+
+		require.Equal(t, 1, len(deployedSmerd.Ports))
+		require.Equal(t, uint32(5432), deployedSmerd.Ports[0].ServicePortNumber)
+		require.Equal(t, velez_api.Port_tcp, deployedSmerd.Ports[0].Protocol)
+		require.NotNil(t, *deployedSmerd.Ports[0].ExposedTo)
+		require.GreaterOrEqual(t, *deployedSmerd.Ports[0].ExposedTo, minPortToExposeTo)
+
+		deployedSmerd.Ports = nil
+		expectedSmerd.Ports = nil
+
+		if !proto.Equal(expectedSmerd, deployedSmerd) {
+			require.Equal(t, expectedSmerd, deployedSmerd)
+		}
+	})
 }

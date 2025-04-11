@@ -15,7 +15,7 @@ import (
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-func initEnv() {
+func initVelez() {
 	a, err := app.New()
 	if err != nil {
 		logrus.Fatalf("error creating app %s", err)

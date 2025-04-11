@@ -9,11 +9,15 @@ import (
 	rtb "go.redsock.ru/toolbox"
 	"go.vervstack.ru/matreshka"
 	"go.vervstack.ru/matreshka-be/pkg/matreshka_be_api"
+
+	"github.com/godverv/Velez/internal/domain"
 )
 
-func (c *Configurator) UpdateConfig(ctx context.Context, serviceName string, config matreshka.AppConfig) (err error) {
-	patchRequest := &matreshka_be_api.PatchConfig_Request{}
-	patchRequest.ServiceName = serviceName
+func (c *Configurator) UpdateConfig(ctx context.Context, meta domain.ConfigMeta, config matreshka.AppConfig) (err error) {
+	patchRequest := &matreshka_be_api.PatchConfig_Request{
+		ServiceName: meta.ServiceName,
+		Version:     meta.CfgVersion,
+	}
 
 	envVars, err := evon.MarshalEnv(&config)
 	if err != nil {

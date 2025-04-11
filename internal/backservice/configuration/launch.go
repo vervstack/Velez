@@ -25,7 +25,7 @@ import (
 
 const (
 	Name         = "matreshka"
-	defaultImage = "godverv/matreshka-be"
+	defaultImage = "vervstack/matreshka"
 	grpcPort     = "80"
 )
 

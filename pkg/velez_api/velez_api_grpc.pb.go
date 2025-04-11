@@ -36,6 +36,9 @@ type VelezAPIClient interface {
 	ListSmerds(ctx context.Context, in *ListSmerds_Request, opts ...grpc.CallOption) (*ListSmerds_Response, error)
 	DropSmerd(ctx context.Context, in *DropSmerd_Request, opts ...grpc.CallOption) (*DropSmerd_Response, error)
 	GetHardware(ctx context.Context, in *GetHardware_Request, opts ...grpc.CallOption) (*GetHardware_Response, error)
+	// AssembleConfig - collects configurations
+	// from container and matreshka api and fuses them to one
+	// Calling this method will update
 	AssembleConfig(ctx context.Context, in *AssembleConfig_Request, opts ...grpc.CallOption) (*AssembleConfig_Response, error)
 }
 
@@ -116,6 +119,9 @@ type VelezAPIServer interface {
 	ListSmerds(context.Context, *ListSmerds_Request) (*ListSmerds_Response, error)
 	DropSmerd(context.Context, *DropSmerd_Request) (*DropSmerd_Response, error)
 	GetHardware(context.Context, *GetHardware_Request) (*GetHardware_Response, error)
+	// AssembleConfig - collects configurations
+	// from container and matreshka api and fuses them to one
+	// Calling this method will update
 	AssembleConfig(context.Context, *AssembleConfig_Request) (*AssembleConfig_Response, error)
 	mustEmbedUnimplementedVelezAPIServer()
 }

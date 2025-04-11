@@ -43,6 +43,10 @@ service VelezAPI {
     };
   }
 
+  // AssembleConfig - collects configurations
+  // from container and matreshka api and fuses them to one
+  // Calling this procedure will update master config in
+  // matreshka instance and return body in yaml format
   rpc AssembleConfig(AssembleConfig.Request) returns (AssembleConfig.Response) {
     option (google.api.http) = {
       post: "/api/config/assemble"
@@ -157,6 +161,7 @@ message CreateSmerd {
 
     bool ignore_config = 9;
     bool use_image_ports = 10;
+    optional string config_version = 11;
   }
 }
 

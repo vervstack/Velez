@@ -15,7 +15,7 @@ const (
 	postgresImage      = "postgres:16"
 )
 
-func Test_DeployVerv(t *testing.T) {
+func Test_DeploySingleVerv(t *testing.T) {
 	type testCase struct {
 		reqs       []*velez_api.CreateSmerd_Request
 		expected   []*velez_api.Smerd
@@ -97,6 +97,22 @@ func Test_DeployVerv(t *testing.T) {
 			}
 		})
 	}
+}
+
+func Test_DeployMultipleVerv(t *testing.T) {
+	serviceName := getServiceName(t)
+	masterVersion := &velez_api.CreateSmerd_Request{
+		Name:      serviceName,
+		ImageName: helloWorldAppImage,
+	}
+
+	ctx := context.Background()
+	masterSmerd, err := testEnvironment.createSmerd(ctx, masterVersion)
+	require.NoError(t, err)
+	//TODO check master
+	require.NotNil(t, masterSmerd)
+
+	//testEnvironment.matreshkaApi
 }
 
 func Test_DeployStr8(t *testing.T) {

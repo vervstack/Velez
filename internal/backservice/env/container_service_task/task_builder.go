@@ -14,6 +14,7 @@ import (
 	"github.com/godverv/Velez/internal/backservice/env"
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
+	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/internal/domain/labels"
 )
 
@@ -60,9 +61,20 @@ func NewTask[T any](req NewTaskRequest[T]) (*Task[T], error) {
 	}
 	ctx := context.Background()
 
-	_, err := dockerutils.PullImage(ctx, dockerAPI, req.ImageName, false)
+	listImageReq := domain.ImageListRequest{Name: req.ImageName}
+	images, err := dockerutils.ListImages(ctx, dockerAPI, listImageReq)
 	if err != nil {
-		return nil, errors.Wrap(err, "error pulling image")
+		return nil, errors.Wrap(err, "error listing images")
+	}
+
+	if len(images) == 0 {
+		logrus.Infof("Image %s not found locally. Pulling it.", req.ImageName)
+		_, err = dockerutils.PullImage(ctx, dockerAPI, req.ImageName, false)
+		if err != nil {
+			return nil, errors.Wrapf(err, "error pulling image %s", req.ImageName)
+		}
+
+		logrus.Infof("Image %s pulled successfully", req.ImageName)
 	}
 
 	// Container configuration
@@ -111,7 +123,7 @@ func NewTask[T any](req NewTaskRequest[T]) (*Task[T], error) {
 		t.Address = "0.0.0.0:" + bindings[0].HostPort
 	}
 
-	logrus.Infof(t.name+" address: %s", t.Address)
+	logrus.Infof("Image %s running on address %s. Container name is: %s", req.ImageName, t.Address, t.name)
 
 	return t, nil
 }

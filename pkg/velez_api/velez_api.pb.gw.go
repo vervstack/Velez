@@ -40,6 +40,7 @@ func request_VelezAPI_Version_0(ctx context.Context, marshaler runtime.Marshaler
 		protoReq Version_Request
 		metadata runtime.ServerMetadata
 	)
+	io.Copy(io.Discard, req.Body)
 	msg, err := client.Version(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
@@ -130,6 +131,7 @@ func request_VelezAPI_GetHardware_0(ctx context.Context, marshaler runtime.Marsh
 		protoReq GetHardware_Request
 		metadata runtime.ServerMetadata
 	)
+	io.Copy(io.Discard, req.Body)
 	msg, err := client.GetHardware(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }

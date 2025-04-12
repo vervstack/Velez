@@ -38,7 +38,8 @@ type VelezAPIClient interface {
 	GetHardware(ctx context.Context, in *GetHardware_Request, opts ...grpc.CallOption) (*GetHardware_Response, error)
 	// AssembleConfig - collects configurations
 	// from container and matreshka api and fuses them to one
-	// Calling this method will update
+	// Calling this procedure will update master config in
+	// matreshka instance and return body in yaml format
 	AssembleConfig(ctx context.Context, in *AssembleConfig_Request, opts ...grpc.CallOption) (*AssembleConfig_Response, error)
 }
 
@@ -121,7 +122,8 @@ type VelezAPIServer interface {
 	GetHardware(context.Context, *GetHardware_Request) (*GetHardware_Response, error)
 	// AssembleConfig - collects configurations
 	// from container and matreshka api and fuses them to one
-	// Calling this method will update
+	// Calling this procedure will update master config in
+	// matreshka instance and return body in yaml format
 	AssembleConfig(context.Context, *AssembleConfig_Request) (*AssembleConfig_Response, error)
 	mustEmbedUnimplementedVelezAPIServer()
 }

@@ -2,14 +2,12 @@ syntax = "proto3";
 
 package velez_api;
 
-option go_package = "/velez_api";
-
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "npm.proto";
 
-option (npm_package) = "@godverv/velez";
-
+option go_package = "/velez_api";
+option (npm_package) = "@vervstack/velez";
 
 service VelezAPI {
   rpc Version(Version.Request) returns (Version.Response) {

@@ -18,7 +18,7 @@
   "paths": {
     "/api/config/assemble": {
       "post": {
-        "summary": "AssembleConfig - collects configurations\nfrom container and matreshka api and fuses them to one\nCalling this method will update",
+        "summary": "AssembleConfig - collects configurations\nfrom container and matreshka api and fuses them to one\nCalling this procedure will update master config in\nmatreshka instance and return body in yaml format",
         "operationId": "VelezAPI_AssembleConfig",
         "responses": {
           "200": {

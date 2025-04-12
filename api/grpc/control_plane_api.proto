@@ -6,7 +6,7 @@ import "google/api/annotations.proto";
 import "npm.proto";
 
 option go_package = "/control_plane_api";
-option (npm_package) = "@godverv/velez";
+option (npm_package) = "@vervstack/velez";
 
 service ControlPlane {
   rpc ListServices(ListServices.Request) returns (ListServices.Response) {

@@ -1,5 +1,6 @@
 {
-  "name": "@godverv/velez",
+  "name": "@vervstack/velez",
+  "version": "0.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

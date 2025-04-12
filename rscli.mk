@@ -22,4 +22,4 @@ gen-server-grpc: .prepare-grpc-folders .deps-grpc .gen-server-grpc
 	EASYPPATH=proto_deps easyp mod download
 
 .gen-server-grpc:
-	EASYPPATH=proto_deps easyp generate
+	EASYPPATH=proto_deps protopack generate

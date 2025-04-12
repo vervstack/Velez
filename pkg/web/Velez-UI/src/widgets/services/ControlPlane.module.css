@@ -1,0 +1,28 @@
+.ControlPlane {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 2em;
+    justify-content: stretch;
+    padding: 1em;
+}
+
+
+.ServiceCard {
+    flex: 1 1 20em;
+
+    width: 20em;
+    height: 15em;
+
+    max-width: 25em;
+    min-width: 15em;
+    transition: all 0.125s ease-in-out;
+    border-radius: 12px;
+    box-shadow: 5px 5px 5px -5px rgba(34, 60, 80, 0.6);
+}
+
+.ServiceCard:hover {
+    transform: scale(1.05);
+    cursor: default;
+}
+

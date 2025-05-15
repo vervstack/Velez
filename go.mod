@@ -1,31 +1,30 @@
 module github.com/godverv/Velez
 
-go 1.23.4
+go 1.24.2
 
 require (
 	github.com/Red-Sock/go-swagger-ui v0.0.2
-	github.com/docker/docker v27.5.1+incompatible
+	github.com/docker/docker v28.1.1+incompatible
 	github.com/docker/go-connections v0.5.0
-	github.com/godverv/makosh v0.0.15
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.1
-	github.com/jaypipes/ghw v0.13.0
-	github.com/opencontainers/image-spec v1.1.0
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.3
+	github.com/jaypipes/ghw v0.16.0
+	github.com/opencontainers/image-spec v1.1.1
 	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.11.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/soheilhy/cmux v0.1.5
 	github.com/stretchr/testify v1.10.0
-	go.redsock.ru/evon v0.0.17
-	go.redsock.ru/protoc-gen-npm v0.0.10
+	go.redsock.ru/evon v0.0.22
+	go.redsock.ru/protoc-gen-npm v0.0.11
 	go.redsock.ru/rerrors v0.0.3
 	go.redsock.ru/toolbox v0.0.10
-	go.vervstack.ru/matreshka v0.0.56
-	go.vervstack.ru/matreshka-be v1.0.53
-	golang.org/x/net v0.35.0
-	golang.org/x/sync v0.11.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20250212204824-5a70512c5d8b
-	google.golang.org/grpc v1.70.0
-	google.golang.org/protobuf v1.36.5
+	go.vervstack.ru/makosh v0.0.16
+	go.vervstack.ru/matreshka v1.0.66
+	golang.org/x/net v0.40.0
+	golang.org/x/sync v0.14.0
+	google.golang.org/genproto/googleapis/api v0.0.0-20250512202823-5a2f75b736a9
+	google.golang.org/grpc v1.72.0
+	google.golang.org/protobuf v1.36.6
 )
 
 require (
@@ -54,10 +53,10 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.26.0 // indirect
 	go.opentelemetry.io/otel/metric v1.34.0 // indirect
 	go.opentelemetry.io/otel/trace v1.34.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
-	golang.org/x/text v0.22.0 // indirect
+	golang.org/x/sys v0.33.0 // indirect
+	golang.org/x/text v0.25.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250212204824-5a70512c5d8b // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250512202823-5a2f75b736a9 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools/v3 v3.5.1 // indirect
 	howett.net/plist v1.0.1 // indirect

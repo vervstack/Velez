@@ -4,11 +4,11 @@ import (
 	"context"
 	"os"
 
-	"github.com/godverv/makosh/pkg/makosh_be"
-	vervResolver "github.com/godverv/makosh/pkg/resolver"
-	"github.com/godverv/makosh/pkg/resolver/makosh_resolver"
 	errors "go.redsock.ru/rerrors"
-	"go.vervstack.ru/matreshka"
+	"go.vervstack.ru/makosh/pkg/makosh_be"
+	vervResolver "go.vervstack.ru/makosh/pkg/resolver"
+	"go.vervstack.ru/makosh/pkg/resolver/makosh_resolver"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 

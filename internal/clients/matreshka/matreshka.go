@@ -2,7 +2,7 @@ package matreshka
 
 import (
 	errors "go.redsock.ru/rerrors"
-	"go.vervstack.ru/matreshka-be/pkg/matreshka_be_api"
+	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

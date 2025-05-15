@@ -4,8 +4,8 @@ import (
 	"context"
 
 	errors "go.redsock.ru/rerrors"
-	"go.vervstack.ru/matreshka"
-	"go.vervstack.ru/matreshka-be/pkg/matreshka_be_api"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
+	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
 
 	"github.com/godverv/Velez/internal/domain"
 )
@@ -14,8 +14,8 @@ func (c *Configurator) GetFromApi(ctx context.Context, meta domain.ConfigMeta) (
 	var apiConfig matreshka.AppConfig
 
 	req := &matreshka_be_api.GetConfig_Request{
-		ServiceName: meta.ServiceName,
-		Version:     meta.CfgVersion,
+		ConfigName: meta.ServiceName,
+		Version:    meta.CfgVersion,
 	}
 	matreshkaConfig, err := c.MatreshkaBeAPIClient.GetConfig(ctx, req)
 	if err != nil {

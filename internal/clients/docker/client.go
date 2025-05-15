@@ -4,8 +4,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 	errors "go.redsock.ru/rerrors"
 
@@ -14,7 +14,7 @@ import (
 )
 
 type Docker struct {
-	client.CommonAPIClient
+	client.APIClient
 }
 
 func NewClient() (*Docker, error) {
@@ -24,22 +24,22 @@ func NewClient() (*Docker, error) {
 	}
 
 	return &Docker{
-		CommonAPIClient: cli,
+		APIClient: cli,
 	}, nil
 }
 
-func (d *Docker) PullImage(ctx context.Context, imageName string) (types.ImageInspect, error) {
-	_, err := dockerutils.PullImage(ctx, d.CommonAPIClient, imageName, false)
+func (d *Docker) PullImage(ctx context.Context, imageName string) (image.InspectResponse, error) {
+	_, err := dockerutils.PullImage(ctx, d.APIClient, imageName, false)
 	if err != nil {
-		return types.ImageInspect{}, errors.Wrap(err, "error pulling image")
+		return image.InspectResponse{}, errors.Wrap(err, "error pulling image")
 	}
 
-	image, err := d.InspectImage(ctx, imageName)
+	img, err := d.InspectImage(ctx, imageName)
 	if err != nil {
-		return types.ImageInspect{}, errors.Wrap(err, "error inspecting image")
+		return image.InspectResponse{}, errors.Wrap(err, "error inspecting image")
 	}
 
-	return image, nil
+	return img, nil
 }
 
 func (d *Docker) Remove(ctx context.Context, contUUID string) error {
@@ -58,8 +58,8 @@ func (d *Docker) Remove(ctx context.Context, contUUID string) error {
 	return nil
 }
 
-func (d *Docker) ListContainers(ctx context.Context, req *velez_api.ListSmerds_Request) ([]types.Container, error) {
-	list, err := dockerutils.ListContainers(ctx, d.CommonAPIClient, req)
+func (d *Docker) ListContainers(ctx context.Context, req *velez_api.ListSmerds_Request) ([]container.Summary, error) {
+	list, err := dockerutils.ListContainers(ctx, d.APIClient, req)
 	if err != nil {
 		return nil, errors.Wrap(err, "error listing containers")
 	}
@@ -67,17 +67,17 @@ func (d *Docker) ListContainers(ctx context.Context, req *velez_api.ListSmerds_R
 	return list, nil
 }
 
-func (d *Docker) InspectContainer(ctx context.Context, containerID string) (types.ContainerJSON, error) {
-	cont, err := d.CommonAPIClient.ContainerInspect(ctx, containerID)
+func (d *Docker) InspectContainer(ctx context.Context, containerID string) (container.InspectResponse, error) {
+	cont, err := d.APIClient.ContainerInspect(ctx, containerID)
 	if err != nil {
-		return types.ContainerJSON{}, errors.Wrap(err, "error inspecting container")
+		return container.InspectResponse{}, errors.Wrap(err, "error inspecting container")
 	}
 
 	return cont, nil
 }
 
-func (d *Docker) InspectImage(ctx context.Context, image string) (types.ImageInspect, error) {
-	img, _, err := d.CommonAPIClient.ImageInspectWithRaw(ctx, image)
+func (d *Docker) InspectImage(ctx context.Context, image string) (image.InspectResponse, error) {
+	img, _, err := d.APIClient.ImageInspectWithRaw(ctx, image)
 	if err != nil {
 		return img, errors.Wrap(err, "error inspecting image")
 	}

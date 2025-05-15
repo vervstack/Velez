@@ -3,11 +3,11 @@ import {useEffect, useState} from "react";
 import styles from './ControlPlane.module.css';
 
 import VelezIcon from "@/assets/icons/velez/VelezIcon";
-import {ListServices} from "@/processes/ControlPlaneApi/Api";
+import {ListServices} from "@/processes/api/control_plane.ts";
 
 import {Service} from "@/model/services/Services";
 
-import ServiceCard from "@/components/card/ServiceCard";
+import ServiceCard from "@/components/service/ServiceCard";
 
 export default function ControlPageWidget() {
     const [components, setComponents] =

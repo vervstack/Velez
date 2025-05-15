@@ -6,7 +6,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"go.redsock.ru/rerrors"
-	api "go.vervstack.ru/matreshka-be/pkg/matreshka_be_api"
+	api "go.vervstack.ru/matreshka/pkg/matreshka_be_api"
 
 	"github.com/godverv/Velez/internal/domain"
 )
@@ -25,7 +25,7 @@ func (c *Configurator) SubscribeOnChanges(serviceNames ...string) error {
 
 func (c *Configurator) UnsubscribeFromChanges(serviceNames ...string) error {
 	unsubReq := &api.SubscribeOnChanges_Request{
-		UnsubscribeServiceNames: serviceNames,
+		UnsubscribeConfigNames: serviceNames,
 	}
 
 	err := c.subscriptionStream.Send(unsubReq)
@@ -63,19 +63,23 @@ func handleSubscriptionStream(stream api.MatreshkaBeAPI_SubscribeOnChangesClient
 			}
 
 			patch := domain.ConfigurationPatch{
-				ServiceName: changes.ServiceName,
+				ServiceName: changes.ConfigName,
 			}
-
-			switch ch := changes.Changes.(type) {
-			case *api.SubscribeOnChanges_Response_EnvVariables:
-				patch.EnvVarsMap = make(map[string]*string, len(ch.EnvVariables.EnvVariables))
-
-				for _, node := range ch.EnvVariables.EnvVariables {
-					patch.EnvVarsMap[node.Name] = node.Value
+			for _, p := range changes.Patches {
+				switch v := p.GetPatch().(type) {
+				case *api.PatchConfig_Patch_UpdateValue:
+					//	TODO implement
+				case *api.PatchConfig_Patch_Rename:
+				//	TODO implement
+				case *api.PatchConfig_Patch_Delete:
+				//	TODO implement
+				default:
+					_ = v
 				}
 			}
-
-			patchesChan <- patch
+			if len(patch.EnvVarsMap) != 0 {
+				patchesChan <- patch
+			}
 		}
 	}()
 

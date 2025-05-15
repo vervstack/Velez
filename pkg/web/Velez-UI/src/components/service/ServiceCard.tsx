@@ -1,5 +1,3 @@
-import React from "react";
-
 import styles from './card.module.css'
 import {Tooltip} from "react-tooltip";
 import {Service} from "@/model/services/Services";

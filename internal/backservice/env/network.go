@@ -16,7 +16,7 @@ const (
 	VelezNetworkAlias = "velez"
 )
 
-func StartNetwork(dockerAPI client.CommonAPIClient) error {
+func StartNetwork(dockerAPI client.APIClient) error {
 	ctx := context.Background()
 	err := dockerutils.CreateNetwork(ctx, dockerAPI, VervNetwork)
 	if err != nil {

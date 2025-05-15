@@ -8,7 +8,7 @@ import (
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/sirupsen/logrus"
-	"go.vervstack.ru/matreshka-be/pkg/matreshka_be_api"
+	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
 
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils"

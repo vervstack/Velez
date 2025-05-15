@@ -1,58 +1,18 @@
 .Home {
     display: flex;
-    flex-direction: column;
 
     gap: 0;
     justify-content: space-around;
+    box-sizing: border-box;
+    min-height: 100vh;
+    height: 100%;
 }
 
-
-.HomeHeader {
-    display: flex;
-    justify-content: stretch;
-    gap: 0.75em;
-    border-bottom: var(--secondary-bg-color) solid;
-    padding: 1em 1em 0 1em;
+.Smerds {
+    flex: 5;
+    border-right: gray 1px solid;
 }
 
-.Tab {
-    display: flex;
-    flex-direction: row;
-    text-align: center;
-    padding: 1em;
-    gap: 0.75em;
-
-    border-top: var(--secondary-bg-color) solid;
-    border-left: var(--secondary-bg-color) solid;
-    border-right: var(--secondary-bg-color) solid;
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
-    transition: all 0.2s ease-in-out;
+.ControlServices {
+    flex: 1;
 }
-
-.Tab:hover {
-    transform: scaleY(1.05);
-}
-
-.TabName {
-    display: flex;
-    align-items: center;
-    cursor: default;
-}
-
-
-.CloseButton {
-    box-sizing: content-box;
-    border-radius: 50%;
-    display: flex;
-}
-
-.CloseButton:hover {
-    background: var(--secondary-bg-color);
-    cursor: pointer;
-}
-
-.OpenedWidget {
-
-}
-

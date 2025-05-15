@@ -5,6 +5,7 @@
     gap: 2em;
     justify-content: stretch;
     padding: 1em;
+    flex-direction: column;
 }
 
 

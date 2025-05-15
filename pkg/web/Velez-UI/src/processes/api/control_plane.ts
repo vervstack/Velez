@@ -1,6 +1,6 @@
 import {getBackendUrl} from "@/app/store/Settings";
 
-import {toServices} from "@/processes/ControlPlaneApi/mappings/Services";
+import {toServices} from "@/processes/mappings/Services";
 
 import {ControlPlane, ListServicesRequest} from "@vervstack/velez";
 

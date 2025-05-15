@@ -2,7 +2,7 @@ package app
 
 import (
 	"go.redsock.ru/rerrors"
-	"go.vervstack.ru/matreshka-be/pkg/matreshka_be_api"
+	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
 
 	"github.com/godverv/Velez/internal/backservice/configuration"
 	"github.com/godverv/Velez/internal/backservice/env"

@@ -1,17 +1,13 @@
 import styles from './home.module.css';
 
-import {useState} from "react";
-import ControlPageWidget from "@/widgets/services/ControlPlane";
+import ControlServicesWidget from "@/widgets/services/ControlPlane";
+import SmerdsWidget from "@/widgets/smerds/SmerdsWidget.tsx";
 
 export default function HomePage() {
-    const [openedWidget]
-        = useState<React.JSX.Element>(<ControlPageWidget/>)
-
     return (
         <div className={styles.Home}>
-            <div className={styles.OpenedWidget}>
-                {openedWidget}
-            </div>
+            <div className={styles.Smerds}><SmerdsWidget/></div>
+            <div className={styles.ControlServices}><ControlServicesWidget/></div>
         </div>
     )
 }

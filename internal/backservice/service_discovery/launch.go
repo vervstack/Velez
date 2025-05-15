@@ -6,13 +6,13 @@ import (
 	"sync"
 	"time"
 
-	version "github.com/godverv/makosh/config"
-	pb "github.com/godverv/makosh/pkg/makosh_be"
 	"github.com/sirupsen/logrus"
 	errors "go.redsock.ru/rerrors"
 	rtb "go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/toolbox/keep_alive"
+	version "go.vervstack.ru/makosh/config"
+	pb "go.vervstack.ru/makosh/pkg/makosh_be"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 

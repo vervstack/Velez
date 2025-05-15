@@ -5,7 +5,8 @@ import (
 
 	"go.redsock.ru/evon"
 	errors "go.redsock.ru/rerrors"
-	"go.vervstack.ru/matreshka-be/pkg/matreshka_be_api"
+	"go.redsock.ru/toolbox"
+	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -14,8 +15,9 @@ import (
 
 func (c *Configurator) GetEnvFromApi(ctx context.Context, meta domain.ConfigMeta) ([]*evon.Node, error) {
 	req := &matreshka_be_api.GetConfigNode_Request{
-		ServiceName: meta.ServiceName,
-		Version:     meta.CfgVersion,
+		ConfigName: meta.ServiceName,
+		//TODO replace master down below onto constant from matreshka
+		Version: toolbox.Coalesce(toolbox.FromPtr(meta.CfgVersion), "master"),
 	}
 
 	cfgNodes, err := c.MatreshkaBeAPIClient.GetConfigNodes(ctx, req)

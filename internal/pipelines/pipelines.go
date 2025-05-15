@@ -3,7 +3,7 @@ package pipelines
 import (
 	"context"
 
-	"go.vervstack.ru/matreshka"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
 
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/domain"

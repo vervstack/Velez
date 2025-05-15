@@ -3,7 +3,6 @@ package dockerutils
 import (
 	"context"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
@@ -11,12 +10,15 @@ import (
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils/list_request"
 )
 
-func CreateNetwork(ctx context.Context, d client.CommonAPIClient, networkName string) error {
+func CreateNetwork(ctx context.Context, d client.APIClient, networkName string) error {
 	f := list_request.New()
 	f.Name(networkName)
-	net, err := d.NetworkList(ctx, types.NetworkListOptions{
+
+	req := network.ListOptions{
 		Filters: f.Args(),
-	})
+	}
+
+	net, err := d.NetworkList(ctx, req)
 	if err != nil {
 		return rerrors.Wrap(err, "error inspecting network for service")
 	}

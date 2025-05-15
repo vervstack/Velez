@@ -5,7 +5,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"go.redsock.ru/rerrors"
-	"go.vervstack.ru/matreshka"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 

@@ -3,22 +3,23 @@ package clients
 import (
 	"context"
 
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
-	"github.com/godverv/makosh/pkg/makosh_be"
-	"go.vervstack.ru/matreshka-be/pkg/matreshka_be_api"
+	"go.vervstack.ru/makosh/pkg/makosh_be"
+	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
 
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
 type Docker interface {
-	PullImage(ctx context.Context, imageName string) (types.ImageInspect, error)
+	PullImage(ctx context.Context, imageName string) (image.InspectResponse, error)
 	Remove(ctx context.Context, uuid string) error
-	ListContainers(ctx context.Context, req *velez_api.ListSmerds_Request) ([]types.Container, error)
-	InspectContainer(ctx context.Context, containerID string) (types.ContainerJSON, error)
-	InspectImage(ctx context.Context, image string) (types.ImageInspect, error)
+	ListContainers(ctx context.Context, req *velez_api.ListSmerds_Request) ([]container.Summary, error)
+	InspectContainer(ctx context.Context, containerID string) (container.InspectResponse, error)
+	InspectImage(ctx context.Context, image string) (image.InspectResponse, error)
 
-	client.CommonAPIClient
+	client.APIClient
 }
 
 type PortManager interface {

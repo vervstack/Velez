@@ -7,7 +7,7 @@ import (
 	"io"
 
 	errors "go.redsock.ru/rerrors"
-	"go.vervstack.ru/matreshka"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
 )
 
 const defaultConfigPath = "/app/config/config.yaml"

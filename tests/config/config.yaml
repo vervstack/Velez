@@ -40,10 +40,10 @@ environment:
         value: "50050"
     -   name: makosh_image
         type: string
-        value: godverv/makosh:v0.0.12
+        value: vervstack/makosh:v0.0.16
     -   name: matreshka_image
         type: string
-        value: vervstack/matreshka-be:v1.0.63
+        value: vervstack/matreshka:v1.0.69
     -   name: portainer_enabled
         type: bool
         value: false

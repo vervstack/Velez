@@ -99,7 +99,7 @@ export type CreateSmerdRequest = {
   labels?: Record<string, string>;
   ignoreConfig?: boolean;
   useImagePorts?: boolean;
-    configVersion?: string;
+  configVersion?: string;
 };
 
 export type CreateSmerd = Record<string, never>;

@@ -61,7 +61,7 @@ environment:
       value: godverv/makosh:v0.0.12
     - name: matreshka_image
       type: string
-      value: godverv/matreshka-be:v1.0.47
+      value: vervstack/matreshka:v1.0.69
     - name: log_format
       type: string
       enum: [TEXT, JSON]

@@ -13,26 +13,30 @@ import (
 	"github.com/godverv/Velez/internal/domain"
 )
 
-func (c *Configurator) GetEnvFromApi(ctx context.Context, meta domain.ConfigMeta) ([]*evon.Node, error) {
+func (c *Configurator) GetEnvFromApi(ctx context.Context, meta domain.ConfigMeta) (*evon.Node, error) {
+	return c.getEnvFromApi(ctx, meta)
+}
+
+func (c *Configurator) getEnvFromApi(ctx context.Context, meta domain.ConfigMeta) (*evon.Node, error) {
 	req := &matreshka_be_api.GetConfigNode_Request{
-		ConfigName: meta.ServiceName,
+		ConfigName: meta.Name,
 		//TODO replace master down below onto constant from matreshka
-		Version: toolbox.Coalesce(toolbox.FromPtr(meta.CfgVersion), "master"),
+		Version: toolbox.Coalesce(toolbox.FromPtr(meta.Version), "master"),
 	}
 
 	cfgNodes, err := c.MatreshkaBeAPIClient.GetConfigNodes(ctx, req)
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
-			return nil, nil
+			return &evon.Node{}, nil
 		}
 		return nil, errors.Wrap(err, "error obtaining raw config")
 	}
 
 	if cfgNodes.Root == nil {
-		return nil, nil
+		return &evon.Node{}, nil
 	}
 
-	return fromApiNodes(cfgNodes.Root), nil
+	return &evon.Node{InnerNodes: fromApiNodes(cfgNodes.Root)}, nil
 }
 
 func fromApiNodes(root *matreshka_be_api.Node) []*evon.Node {

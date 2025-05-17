@@ -1,11 +1,11 @@
 ### Get Version
-GET {{velez}}/api/version
+GET {{velez}}/version
 Content-Type: application/json
 
 {}
 
 ### Create standalone smerd (not-verv)
-POST {{velez}}/api/smerd/create
+POST {{velez}}/smerd/create
 Content-Type: application/json
 
 {
@@ -26,8 +26,8 @@ POST {{velez}}/smerd/create
 Content-Type: application/json
 
 {
-  "name": "red-cart",
-  "image_name": "redsockdev/red-cart:v0.0.17"
+  "name": "redzino",
+  "image_name": "redsockruf/redzino_bot:v0.0.2"
 }
 
 
@@ -52,10 +52,10 @@ Content-Type: application/json
 {}
 
 ### Fetch config
-POST {{velez}}/api/smerd/fetch-config
+POST {{velez}}/config/assemble
 Content-Type: application/json
 
 {
-  "image_name": "godverv/hello_world:v0.0.8",
-  "service_name": "hello_world"
+  "image_name": "redsockruf/redzino_bot:v0.0.2",
+  "service_name": "redzino"
 }

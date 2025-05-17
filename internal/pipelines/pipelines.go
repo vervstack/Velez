@@ -3,8 +3,6 @@ package pipelines
 import (
 	"context"
 
-	"go.vervstack.ru/matreshka/pkg/matreshka"
-
 	"github.com/godverv/Velez/internal/clients"
 	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/internal/service"
@@ -18,7 +16,7 @@ type Pipeliner interface {
 	// configuration file inside image
 	// and matreshka instance
 	// providing updated configuration
-	AssembleConfig(request domain.AssembleConfig) Runner[matreshka.AppConfig]
+	AssembleConfig(request domain.AssembleConfig) Runner[domain.AppConfig]
 }
 
 type Runner[T any] interface {

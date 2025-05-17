@@ -60,7 +60,7 @@ func handleConfigurationSubscription(configurationService service.ConfigurationS
 
 	for patch := range configurationService.GetUpdates() {
 		listReq := &velez_api.ListSmerds_Request{
-			Name: toolbox.ToPtr(patch.ServiceName),
+			Name: toolbox.ToPtr(patch.ConfigName),
 		}
 
 		smerds, err := manager.SmerdManager().ListSmerds(ctx, listReq)

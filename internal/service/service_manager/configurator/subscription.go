@@ -63,7 +63,7 @@ func handleSubscriptionStream(stream api.MatreshkaBeAPI_SubscribeOnChangesClient
 			}
 
 			patch := domain.ConfigurationPatch{
-				ServiceName: changes.ConfigName,
+				ConfigName: changes.ConfigName,
 			}
 			for _, p := range changes.Patches {
 				switch v := p.GetPatch().(type) {

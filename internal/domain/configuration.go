@@ -1,11 +1,22 @@
 package domain
 
+import (
+	"go.redsock.ru/evon"
+	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
+)
+
 type ConfigurationPatch struct {
-	ServiceName string
-	EnvVarsMap  map[string]*string
+	ConfigName string
+	EnvVarsMap map[string]*string
 }
 
 type ConfigMeta struct {
-	ServiceName string
-	CfgVersion  *string
+	Name     string
+	Version  *string
+	ConfType matreshka_be_api.ConfigTypePrefix
+}
+
+type AppConfig struct {
+	Meta    ConfigMeta
+	Content *evon.Node
 }

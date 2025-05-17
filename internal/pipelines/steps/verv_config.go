@@ -87,17 +87,17 @@ func (p *prepareConfig) enrichWithMatreshkaConfig(ctx context.Context, req *vele
 	}
 
 	cfgMeta := domain.ConfigMeta{
-		ServiceName: req.Name,
-		CfgVersion:  req.ConfigVersion,
+		Name:    req.Name,
+		Version: req.ConfigVersion,
 	}
 
-	envs, err := p.configService.GetEnvFromApi(ctx, cfgMeta)
+	envVars, err := p.configService.GetEnvFromApi(ctx, cfgMeta)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting matreshka config from matreshka api")
 	}
 
 	serviceName := strings.ToUpper(req.Name)
-	for _, e := range envs {
+	for _, e := range envVars.InnerNodes {
 		if len(e.InnerNodes) == 0 && e.Value != nil {
 			req.Env[serviceName+"_"+e.Name] = fmt.Sprint(e.Value)
 		}

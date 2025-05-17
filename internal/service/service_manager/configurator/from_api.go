@@ -14,8 +14,8 @@ func (c *Configurator) GetFromApi(ctx context.Context, meta domain.ConfigMeta) (
 	var apiConfig matreshka.AppConfig
 
 	req := &matreshka_be_api.GetConfig_Request{
-		ConfigName: meta.ServiceName,
-		Version:    meta.CfgVersion,
+		ConfigName: meta.Name,
+		Version:    meta.Version,
 	}
 	matreshkaConfig, err := c.MatreshkaBeAPIClient.GetConfig(ctx, req)
 	if err != nil {

@@ -3,6 +3,7 @@ package velez_api_impl
 import (
 	"context"
 
+	"go.redsock.ru/evon"
 	"go.redsock.ru/rerrors"
 	"google.golang.org/grpc/codes"
 
@@ -30,19 +31,13 @@ func (a *Impl) AssembleConfig(ctx context.Context, req *velez_api.AssembleConfig
 		return nil, rerrors.New("No config found", codes.NotFound)
 	}
 
-	cfgMeta := domain.ConfigMeta{
-		ServiceName: req.ServiceName,
-	}
-	err = a.cfgService.UpdateConfig(ctx, cfgMeta, *cfg)
+	err = a.cfgService.UpdateConfig(ctx, *cfg)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error updating config")
 	}
 
-	resp := &velez_api.AssembleConfig_Response{}
-
-	resp.Config, err = cfg.Marshal()
-	if err != nil {
-		return nil, rerrors.Wrap(err, codes.Internal)
+	resp := &velez_api.AssembleConfig_Response{
+		Config: evon.Marshal(cfg.Content.InnerNodes),
 	}
 
 	return resp, nil

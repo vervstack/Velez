@@ -1,8 +1,7 @@
 package pipelines
 
 import (
-	"github.com/docker/docker/api/types"
-	"go.vervstack.ru/matreshka/pkg/matreshka"
+	"github.com/docker/docker/api/types/image"
 
 	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/internal/pipelines/steps"
@@ -11,8 +10,8 @@ import (
 
 const configFetchingPostfix = "_config_scanning"
 
-func (p *pipeliner) AssembleConfig(req domain.AssembleConfig) Runner[matreshka.AppConfig] {
-	image := &types.ImageInspect{}
+func (p *pipeliner) AssembleConfig(req domain.AssembleConfig) Runner[domain.AppConfig] {
+	imageResp := &image.InspectResponse{}
 	contId := ""
 
 	createReq := domain.LaunchSmerd{
@@ -22,17 +21,20 @@ func (p *pipeliner) AssembleConfig(req domain.AssembleConfig) Runner[matreshka.A
 			Settings:  &velez_api.Container_Settings{},
 		}}
 
-	res := &matreshka.AppConfig{}
+	res := &domain.AppConfig{
+		Meta: domain.ConfigMeta{
+			Name: req.ServiceName,
+		},
+	}
 
-	return &runner[matreshka.AppConfig]{
+	return &runner[domain.AppConfig]{
 		Steps: []steps.Step{
-			steps.PrepareImageStep(p.nodeClients, req.ImageName, image),
+			steps.PrepareImageStep(p.nodeClients, req.ImageName, imageResp),
 			steps.CreateContainer(p.nodeClients, createReq, &contId),
-			steps.AssembleConfigStep(p.nodeClients, p.services, &contId, createReq, image, res),
+			steps.AssembleConfigStep(p.nodeClients, p.services, &contId, createReq, imageResp, res),
 			steps.DropContainerStep(p.nodeClients, &contId),
 		},
-
-		getResult: func() (*matreshka.AppConfig, error) {
+		getResult: func() (*domain.AppConfig, error) {
 			return res, nil
 		},
 	}

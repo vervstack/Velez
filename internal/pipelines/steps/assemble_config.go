@@ -3,9 +3,11 @@ package steps
 import (
 	"context"
 
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/image"
+	"go.redsock.ru/evon"
 	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
+	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -20,11 +22,11 @@ type assembleConfigStep struct {
 	configService service.ConfigurationService
 
 	req   domain.LaunchSmerd
-	image *types.ImageInspect
+	image *image.InspectResponse
 
 	contId *string
 
-	result *matreshka.AppConfig
+	result *domain.AppConfig
 }
 
 func AssembleConfigStep(
@@ -32,8 +34,8 @@ func AssembleConfigStep(
 	services service.Services,
 	contId *string,
 	req domain.LaunchSmerd,
-	image *types.ImageInspect,
-	result *matreshka.AppConfig,
+	image *image.InspectResponse,
+	result *domain.AppConfig,
 ) *assembleConfigStep {
 	return &assembleConfigStep{
 		docker:        nodeClients.Docker(),
@@ -56,18 +58,32 @@ func (c *assembleConfigStep) Do(ctx context.Context) error {
 		return rerrors.New("empty result pointer")
 	}
 
-	if c.image.Config == nil || c.image.Config.Labels[labels.MatreshkaConfigLabel] != "true" {
+	if c.image.Config == nil {
 		return nil
 	}
+	switch {
+	case c.image.Config.Labels[labels.MatreshkaConfigLabel] == "true":
+		return c.assembleVervConfig(ctx)
+	default:
+		return c.assembleKvConfig(ctx)
+	}
 
+}
+func (c *assembleConfigStep) assembleKvConfig(_ context.Context) error {
+	// TODO implement assembling key value config
+	_ = c.image.Config.Env
+	return nil
+}
+
+func (c *assembleConfigStep) assembleVervConfig(ctx context.Context) error {
 	configFromContainer, err := c.configService.GetFromContainer(ctx, *c.contId)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting matreshka config from container")
 	}
 
 	cfgMeta := domain.ConfigMeta{
-		ServiceName: c.req.Name,
-		CfgVersion:  c.req.ConfigVersion,
+		Name:    c.req.Name,
+		Version: c.req.ConfigVersion,
 	}
 
 	configFromApi, err := c.configService.GetFromApi(ctx, cfgMeta)
@@ -78,9 +94,16 @@ func (c *assembleConfigStep) Do(ctx context.Context) error {
 		}
 
 		configFromApi = matreshka.NewEmptyConfig()
+		err = nil
 	}
 
-	*c.result = matreshka.MergeConfigs(configFromApi, configFromContainer)
+	vervCfg := matreshka.MergeConfigs(configFromApi, configFromContainer)
+	marshalled, err := evon.MarshalEnv(&vervCfg)
+	if err != nil {
+		return rerrors.Wrap(err, "error marshalling matreshka config")
+	}
 
+	c.result.Meta.ConfType = matreshka_be_api.ConfigTypePrefix_verv
+	c.result.Content = marshalled
 	return nil
 }

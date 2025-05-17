@@ -14,10 +14,10 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/soheilhy/cmux v0.1.5
 	github.com/stretchr/testify v1.10.0
-	go.redsock.ru/evon v0.0.22
+	go.redsock.ru/evon v0.0.24
 	go.redsock.ru/protoc-gen-npm v0.0.11
 	go.redsock.ru/rerrors v0.0.3
-	go.redsock.ru/toolbox v0.0.10
+	go.redsock.ru/toolbox v0.0.11
 	go.vervstack.ru/makosh v0.0.16
 	go.vervstack.ru/matreshka v1.0.69
 	golang.org/x/net v0.40.0
@@ -60,4 +60,9 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools/v3 v3.5.1 // indirect
 	howett.net/plist v1.0.1 // indirect
+)
+
+
+replace (
+	go.vervstack.ru/matreshka => /Users/alexbukov/Yandex.Disk.localized/проекты/verv/Matreshka/Matreshka
 )

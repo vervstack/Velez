@@ -78,13 +78,28 @@ func (c *assembleConfigStep) assembleKvConfig(_ context.Context) error {
 	return nil
 }
 
-func (c *assembleConfigStep) assemblePostgresConfig(_ context.Context) error {
+func (c *assembleConfigStep) assemblePostgresConfig(ctx context.Context) (err error) {
 	c.result.Meta.ConfType = matreshka_be_api.ConfigTypePrefix_pg
+
+	cfgMeta := domain.ConfigMeta{
+		Name:    matreshka_be_api.ConfigTypePrefix_pg.String() + "_" + c.req.Name,
+		Version: c.req.ConfigVersion,
+	}
+
+	c.result.Content, err = c.configService.GetEnvFromApi(ctx, cfgMeta)
+	if err != nil {
+		code := status.Code(err)
+		if code != codes.NotFound {
+			return rerrors.Wrap(err, "error getting matreshka config from matreshka api")
+		}
+	}
 
 	return nil
 }
 
 func (c *assembleConfigStep) assembleVervConfig(ctx context.Context) error {
+	c.result.Meta.ConfType = matreshka_be_api.ConfigTypePrefix_verv
+
 	configFromContainer, err := c.configService.GetFromContainer(ctx, *c.contId)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting matreshka config from container")
@@ -112,7 +127,6 @@ func (c *assembleConfigStep) assembleVervConfig(ctx context.Context) error {
 		return rerrors.Wrap(err, "error marshalling matreshka config")
 	}
 
-	c.result.Meta.ConfType = matreshka_be_api.ConfigTypePrefix_verv
 	c.result.Content = marshalled
 	return nil
 }

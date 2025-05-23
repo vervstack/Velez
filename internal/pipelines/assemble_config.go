@@ -9,15 +9,13 @@ import (
 	"github.com/godverv/Velez/pkg/velez_api"
 )
 
-const configFetchingPostfix = "_config_scanning"
-
 func (p *pipeliner) AssembleConfig(req domain.AssembleConfig) Runner[domain.AppConfig] {
 	imageResp := &image.InspectResponse{}
 	contId := ""
 
 	createReq := domain.LaunchSmerd{
 		CreateSmerd_Request: &velez_api.CreateSmerd_Request{
-			Name:      req.ServiceName + configFetchingPostfix,
+			Name:      req.ServiceName,
 			ImageName: req.ImageName,
 			Settings:  &velez_api.Container_Settings{},
 		}}

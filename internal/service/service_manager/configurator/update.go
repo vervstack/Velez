@@ -20,7 +20,7 @@ func (c *Configurator) UpdateConfig(ctx context.Context, cfg domain.AppConfig) (
 
 	patchRequest.ConfigName = pref + "_" + cfg.Meta.Name
 
-	oldCfg, err := c.getEnvFromApi(ctx, domain.ConfigMeta{Name: cfg.Meta.Name})
+	oldCfg, err := c.getEnvFromApi(ctx, domain.ConfigMeta{Name: patchRequest.ConfigName})
 	if err != nil {
 		return errors.Wrap(err, "error getting actual config")
 	}

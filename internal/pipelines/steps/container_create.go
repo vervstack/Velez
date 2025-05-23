@@ -15,6 +15,8 @@ import (
 	"github.com/godverv/Velez/internal/domain"
 )
 
+const configFetchingPostfix = "_config_scanning"
+
 type createContainerStep struct {
 	docker clients.Docker
 
@@ -39,7 +41,9 @@ func (s *createContainerStep) Do(ctx context.Context) error {
 	nCfg := s.getNetworkConfig()
 	pCfg := &v1.Platform{}
 
-	createdContainer, err := s.docker.ContainerCreate(ctx, cfg, hCfg, nCfg, pCfg, s.req.GetName())
+	contName := s.req.GetName() + configFetchingPostfix
+
+	createdContainer, err := s.docker.ContainerCreate(ctx, cfg, hCfg, nCfg, pCfg, contName)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating container")
 	}

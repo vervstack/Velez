@@ -20,7 +20,7 @@ func (p *pipeliner) LaunchSmerd(req domain.LaunchSmerd) Runner[domain.LaunchSmer
 			// Prepare steps
 			steps.PrepareCreateRequest(req.CreateSmerd_Request),
 			steps.PrepareImageStep(p.nodeClients, req.ImageName, imageResp),
-			steps.PrepareVervConfig(p.nodeClients, p.services, req.CreateSmerd_Request, imageResp),
+			steps.PrepareVervConfig(p.nodeClients.Docker(), p.nodeClients, p.services, req.CreateSmerd_Request, imageResp),
 			// Deploy steps
 			steps.CreateContainer(p.nodeClients, req, &containerId),
 			steps.AssembleConfigStep(p.nodeClients, p.services, &containerId, req, imageResp, cfg),

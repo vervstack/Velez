@@ -864,7 +864,8 @@ func (x *Container_Hardware) GetMemorySwapMb() uint32 {
 type Container_Settings struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Ports         []*Port                `protobuf:"bytes,1,rep,name=ports,proto3" json:"ports,omitempty"`
-	Volumes       []*Volume              `protobuf:"bytes,4,rep,name=volumes,proto3" json:"volumes,omitempty"`
+	Network       []*NetworkBind         `protobuf:"bytes,2,rep,name=network,proto3" json:"network,omitempty"`
+	Volumes       []*Volume              `protobuf:"bytes,3,rep,name=volumes,proto3" json:"volumes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -902,6 +903,13 @@ func (*Container_Settings) Descriptor() ([]byte, []int) {
 func (x *Container_Settings) GetPorts() []*Port {
 	if x != nil {
 		return x.Ports
+	}
+	return nil
+}
+
+func (x *Container_Settings) GetNetwork() []*NetworkBind {
+	if x != nil {
+		return x.Network
 	}
 	return nil
 }
@@ -1696,7 +1704,7 @@ const file_velez_api_proto_rawDesc = "" +
 	"\x06paused\x10\x05\x12\n" +
 	"\n" +
 	"\x06exited\x10\x06\x12\b\n" +
-	"\x04dead\x10\a\"\xcd\x03\n" +
+	"\x04dead\x10\a\"\x80\x04\n" +
 	"\tContainer\x1a\xa2\x01\n" +
 	"\bHardware\x12\"\n" +
 	"\n" +
@@ -1705,10 +1713,11 @@ const file_velez_api_proto_rawDesc = "" +
 	"\x0ememory_swap_mb\x18\x03 \x01(\rH\x02R\fmemorySwapMb\x88\x01\x01B\r\n" +
 	"\v_cpu_amountB\t\n" +
 	"\a_ram_mbB\x11\n" +
-	"\x0f_memory_swap_mb\x1a^\n" +
+	"\x0f_memory_swap_mb\x1a\x90\x01\n" +
 	"\bSettings\x12%\n" +
-	"\x05ports\x18\x01 \x03(\v2\x0f.velez_api.PortR\x05ports\x12+\n" +
-	"\avolumes\x18\x04 \x03(\v2\x11.velez_api.VolumeR\avolumes\x1a\xba\x01\n" +
+	"\x05ports\x18\x01 \x03(\v2\x0f.velez_api.PortR\x05ports\x120\n" +
+	"\anetwork\x18\x02 \x03(\v2\x16.velez_api.NetworkBindR\anetwork\x12+\n" +
+	"\avolumes\x18\x03 \x03(\v2\x11.velez_api.VolumeR\avolumes\x1a\xba\x01\n" +
 	"\vHealthcheck\x12\x1d\n" +
 	"\acommand\x18\x01 \x01(\tH\x00R\acommand\x88\x01\x01\x12'\n" +
 	"\x0finterval_second\x18\x02 \x01(\rR\x0eintervalSecond\x12*\n" +
@@ -1862,35 +1871,36 @@ var file_velez_api_proto_depIdxs = []int32{
 	5,  // 6: velez_api.Smerd.networks:type_name -> velez_api.NetworkBind
 	17, // 7: velez_api.Smerd.labels:type_name -> velez_api.Smerd.LabelsEntry
 	3,  // 8: velez_api.Container.Settings.ports:type_name -> velez_api.Port
-	4,  // 9: velez_api.Container.Settings.volumes:type_name -> velez_api.Volume
-	18, // 10: velez_api.CreateSmerd.Request.hardware:type_name -> velez_api.Container.Hardware
-	19, // 11: velez_api.CreateSmerd.Request.settings:type_name -> velez_api.Container.Settings
-	22, // 12: velez_api.CreateSmerd.Request.env:type_name -> velez_api.CreateSmerd.Request.EnvEntry
-	20, // 13: velez_api.CreateSmerd.Request.healthcheck:type_name -> velez_api.Container.Healthcheck
-	23, // 14: velez_api.CreateSmerd.Request.labels:type_name -> velez_api.CreateSmerd.Request.LabelsEntry
-	26, // 15: velez_api.ListSmerds.Request.label:type_name -> velez_api.ListSmerds.Request.LabelEntry
-	7,  // 16: velez_api.ListSmerds.Response.smerds:type_name -> velez_api.Smerd
-	29, // 17: velez_api.DropSmerd.Response.failed:type_name -> velez_api.DropSmerd.Response.Error
-	32, // 18: velez_api.GetHardware.Response.cpu:type_name -> velez_api.GetHardware.Response.Value
-	32, // 19: velez_api.GetHardware.Response.disk_mem:type_name -> velez_api.GetHardware.Response.Value
-	32, // 20: velez_api.GetHardware.Response.ram:type_name -> velez_api.GetHardware.Response.Value
-	14, // 21: velez_api.VelezAPI.Version:input_type -> velez_api.Version.Request
-	21, // 22: velez_api.VelezAPI.CreateSmerd:input_type -> velez_api.CreateSmerd.Request
-	24, // 23: velez_api.VelezAPI.ListSmerds:input_type -> velez_api.ListSmerds.Request
-	27, // 24: velez_api.VelezAPI.DropSmerd:input_type -> velez_api.DropSmerd.Request
-	30, // 25: velez_api.VelezAPI.GetHardware:input_type -> velez_api.GetHardware.Request
-	33, // 26: velez_api.VelezAPI.AssembleConfig:input_type -> velez_api.AssembleConfig.Request
-	15, // 27: velez_api.VelezAPI.Version:output_type -> velez_api.Version.Response
-	7,  // 28: velez_api.VelezAPI.CreateSmerd:output_type -> velez_api.Smerd
-	25, // 29: velez_api.VelezAPI.ListSmerds:output_type -> velez_api.ListSmerds.Response
-	28, // 30: velez_api.VelezAPI.DropSmerd:output_type -> velez_api.DropSmerd.Response
-	31, // 31: velez_api.VelezAPI.GetHardware:output_type -> velez_api.GetHardware.Response
-	34, // 32: velez_api.VelezAPI.AssembleConfig:output_type -> velez_api.AssembleConfig.Response
-	27, // [27:33] is the sub-list for method output_type
-	21, // [21:27] is the sub-list for method input_type
-	21, // [21:21] is the sub-list for extension type_name
-	21, // [21:21] is the sub-list for extension extendee
-	0,  // [0:21] is the sub-list for field type_name
+	5,  // 9: velez_api.Container.Settings.network:type_name -> velez_api.NetworkBind
+	4,  // 10: velez_api.Container.Settings.volumes:type_name -> velez_api.Volume
+	18, // 11: velez_api.CreateSmerd.Request.hardware:type_name -> velez_api.Container.Hardware
+	19, // 12: velez_api.CreateSmerd.Request.settings:type_name -> velez_api.Container.Settings
+	22, // 13: velez_api.CreateSmerd.Request.env:type_name -> velez_api.CreateSmerd.Request.EnvEntry
+	20, // 14: velez_api.CreateSmerd.Request.healthcheck:type_name -> velez_api.Container.Healthcheck
+	23, // 15: velez_api.CreateSmerd.Request.labels:type_name -> velez_api.CreateSmerd.Request.LabelsEntry
+	26, // 16: velez_api.ListSmerds.Request.label:type_name -> velez_api.ListSmerds.Request.LabelEntry
+	7,  // 17: velez_api.ListSmerds.Response.smerds:type_name -> velez_api.Smerd
+	29, // 18: velez_api.DropSmerd.Response.failed:type_name -> velez_api.DropSmerd.Response.Error
+	32, // 19: velez_api.GetHardware.Response.cpu:type_name -> velez_api.GetHardware.Response.Value
+	32, // 20: velez_api.GetHardware.Response.disk_mem:type_name -> velez_api.GetHardware.Response.Value
+	32, // 21: velez_api.GetHardware.Response.ram:type_name -> velez_api.GetHardware.Response.Value
+	14, // 22: velez_api.VelezAPI.Version:input_type -> velez_api.Version.Request
+	21, // 23: velez_api.VelezAPI.CreateSmerd:input_type -> velez_api.CreateSmerd.Request
+	24, // 24: velez_api.VelezAPI.ListSmerds:input_type -> velez_api.ListSmerds.Request
+	27, // 25: velez_api.VelezAPI.DropSmerd:input_type -> velez_api.DropSmerd.Request
+	30, // 26: velez_api.VelezAPI.GetHardware:input_type -> velez_api.GetHardware.Request
+	33, // 27: velez_api.VelezAPI.AssembleConfig:input_type -> velez_api.AssembleConfig.Request
+	15, // 28: velez_api.VelezAPI.Version:output_type -> velez_api.Version.Response
+	7,  // 29: velez_api.VelezAPI.CreateSmerd:output_type -> velez_api.Smerd
+	25, // 30: velez_api.VelezAPI.ListSmerds:output_type -> velez_api.ListSmerds.Response
+	28, // 31: velez_api.VelezAPI.DropSmerd:output_type -> velez_api.DropSmerd.Response
+	31, // 32: velez_api.VelezAPI.GetHardware:output_type -> velez_api.GetHardware.Response
+	34, // 33: velez_api.VelezAPI.AssembleConfig:output_type -> velez_api.AssembleConfig.Response
+	28, // [28:34] is the sub-list for method output_type
+	22, // [22:28] is the sub-list for method input_type
+	22, // [22:22] is the sub-list for extension type_name
+	22, // [22:22] is the sub-list for extension extendee
+	0,  // [0:22] is the sub-list for field type_name
 }
 
 func init() { file_velez_api_proto_init() }

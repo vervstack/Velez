@@ -239,6 +239,13 @@
             "$ref": "#/definitions/velez_apiPort"
           }
         },
+        "network": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiNetworkBind"
+          }
+        },
         "volumes": {
           "type": "array",
           "items": {

@@ -2,6 +2,7 @@ package steps
 
 import (
 	"context"
+	"strings"
 
 	"github.com/docker/docker/api/types/image"
 	"go.redsock.ru/evon"
@@ -64,14 +65,22 @@ func (c *assembleConfigStep) Do(ctx context.Context) error {
 	switch {
 	case c.image.Config.Labels[labels.MatreshkaConfigLabel] == "true":
 		return c.assembleVervConfig(ctx)
+	case isPostgres(c.image.RepoTags):
+		return c.assemblePostgresConfig(ctx)
 	default:
 		return c.assembleKvConfig(ctx)
 	}
 
 }
 func (c *assembleConfigStep) assembleKvConfig(_ context.Context) error {
-	// TODO implement assembling key value config
-	_ = c.image.Config.Env
+	c.result.Meta.ConfType = matreshka_be_api.ConfigTypePrefix_kv
+
+	return nil
+}
+
+func (c *assembleConfigStep) assemblePostgresConfig(_ context.Context) error {
+	c.result.Meta.ConfType = matreshka_be_api.ConfigTypePrefix_pg
+
 	return nil
 }
 
@@ -82,7 +91,7 @@ func (c *assembleConfigStep) assembleVervConfig(ctx context.Context) error {
 	}
 
 	cfgMeta := domain.ConfigMeta{
-		Name:    c.req.Name,
+		Name:    matreshka_be_api.ConfigTypePrefix_verv.String() + "_" + c.req.Name,
 		Version: c.req.ConfigVersion,
 	}
 
@@ -106,4 +115,14 @@ func (c *assembleConfigStep) assembleVervConfig(ctx context.Context) error {
 	c.result.Meta.ConfType = matreshka_be_api.ConfigTypePrefix_verv
 	c.result.Content = marshalled
 	return nil
+}
+
+func isPostgres(tags []string) bool {
+	for _, tag := range tags {
+		if strings.Contains(tag, "postgres") {
+			return true
+		}
+	}
+
+	return false
 }

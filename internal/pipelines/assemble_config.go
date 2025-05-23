@@ -2,6 +2,7 @@ package pipelines
 
 import (
 	"github.com/docker/docker/api/types/image"
+	"go.redsock.ru/evon"
 
 	"github.com/godverv/Velez/internal/domain"
 	"github.com/godverv/Velez/internal/pipelines/steps"
@@ -25,6 +26,7 @@ func (p *pipeliner) AssembleConfig(req domain.AssembleConfig) Runner[domain.AppC
 		Meta: domain.ConfigMeta{
 			Name: req.ServiceName,
 		},
+		Content: &evon.Node{},
 	}
 
 	return &runner[domain.AppConfig]{

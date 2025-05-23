@@ -76,6 +76,7 @@ export type ContainerHardware = {
 
 export type ContainerSettings = {
   ports?: Port[];
+    network?: NetworkBind[];
   volumes?: Volume[];
 };
 

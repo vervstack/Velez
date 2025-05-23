@@ -126,7 +126,8 @@ message Container {
 
   message Settings {
     repeated Port ports = 1;
-    repeated Volume volumes = 4;
+    repeated NetworkBind network = 2;
+    repeated Volume volumes = 3;
   }
 
   message Healthcheck {

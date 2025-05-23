@@ -10,6 +10,7 @@ import (
 
 	"github.com/godverv/Velez/internal/backservice/env"
 	"github.com/godverv/Velez/internal/clients"
+	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
 	"github.com/godverv/Velez/internal/clients/docker/dockerutils/parser"
 	"github.com/godverv/Velez/internal/domain"
 )
@@ -49,6 +50,18 @@ func (s *createContainerStep) Do(ctx context.Context) error {
 	}
 
 	*s.containerId = containerInfo.ID
+
+	for _, n := range s.req.Settings.Network {
+		connectReq := dockerutils.ConnectToNetworkRequest{
+			NetworkName: n.NetworkName,
+			ContId:      createdContainer.ID,
+			Aliases:     n.Aliases,
+		}
+		err = dockerutils.ConnectToNetwork(ctx, s.docker, connectReq)
+		if err != nil {
+			return rerrors.Wrap(err)
+		}
+	}
 
 	return nil
 }
@@ -116,6 +129,12 @@ func (s *createContainerStep) getNetworkConfig() (networkConfig *network.Network
 
 	// required in order to expose ports on some platforms (e.g. orbs)
 	networkConfig.EndpointsConfig["bridge"] = &network.EndpointSettings{}
+
+	for _, v := range s.req.Settings.Network {
+		networkConfig.EndpointsConfig[v.NetworkName] = &network.EndpointSettings{
+			Aliases: v.Aliases,
+		}
+	}
 
 	return networkConfig
 }

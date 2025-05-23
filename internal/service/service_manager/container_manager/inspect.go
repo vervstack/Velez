@@ -46,5 +46,13 @@ func (c *ContainerManager) InspectSmerd(ctx context.Context, contId string) (*ve
 	}
 
 	smerd.CreatedAt = timestamppb.New(createdAt)
+
+	for _, net := range contInfo.NetworkSettings.Networks {
+		smerd.Networks = append(smerd.Networks, &velez_api.NetworkBind{
+			NetworkName: net.NetworkID,
+			Aliases:     net.DNSNames,
+		})
+	}
+
 	return smerd, nil
 }

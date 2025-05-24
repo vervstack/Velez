@@ -40,7 +40,7 @@ jobs:
         with:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           VERSION: ${{ needs.tag-release.outputs.tag }}
-          WORKING_DIRECTORY: pkg/web/@godverv/velez
+          WORKING_DIRECTORY: pkg/web/@vervstack/velez
   init-script-release:
     if: ${{ needs.tag-release.outputs.tag != '' }}
     runs-on: ${{ vars.UBUNTU_IMAGE }}

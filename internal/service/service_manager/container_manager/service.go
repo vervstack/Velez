@@ -1,8 +1,8 @@
 package container_manager
 
 import (
-	"github.com/godverv/Velez/internal/clients"
-	"github.com/godverv/Velez/internal/service"
+	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/service"
 )
 
 type ContainerManager struct {

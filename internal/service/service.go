@@ -6,8 +6,8 @@ import (
 	"go.redsock.ru/evon"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
 
-	"github.com/godverv/Velez/internal/domain"
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 type Services interface {

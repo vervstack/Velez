@@ -4,9 +4,9 @@ import (
 	"github.com/docker/docker/api/types/image"
 	"go.redsock.ru/evon"
 
-	"github.com/godverv/Velez/internal/domain"
-	"github.com/godverv/Velez/internal/pipelines/steps"
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/pipelines/steps"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func (p *pipeliner) AssembleConfig(req domain.AssembleConfig) Runner[domain.AppConfig] {

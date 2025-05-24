@@ -3,9 +3,9 @@ package pipelines
 import (
 	"context"
 
-	"github.com/godverv/Velez/internal/clients"
-	"github.com/godverv/Velez/internal/domain"
-	"github.com/godverv/Velez/internal/service"
+	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/service"
 )
 
 type Pipeliner interface {

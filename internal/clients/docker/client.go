@@ -9,8 +9,8 @@ import (
 	"github.com/docker/docker/client"
 	errors "go.redsock.ru/rerrors"
 
-	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 type Docker struct {

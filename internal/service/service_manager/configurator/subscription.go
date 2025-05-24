@@ -8,7 +8,7 @@ import (
 	"go.redsock.ru/rerrors"
 	api "go.vervstack.ru/matreshka/pkg/matreshka_be_api"
 
-	"github.com/godverv/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/domain"
 )
 
 func (c *Configurator) SubscribeOnChanges(serviceNames ...string) error {

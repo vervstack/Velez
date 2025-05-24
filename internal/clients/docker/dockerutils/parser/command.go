@@ -7,7 +7,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/strslice"
 
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func FromCommand(command *string) strslice.StrSlice {

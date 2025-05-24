@@ -5,7 +5,7 @@ import (
 
 	"github.com/docker/go-connections/nat"
 
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func FromPorts(settings *velez_api.Container_Settings) map[nat.Port][]nat.PortBinding {

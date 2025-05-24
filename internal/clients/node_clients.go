@@ -9,11 +9,11 @@ import (
 	errors "go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
 
-	"github.com/godverv/Velez/internal/clients/docker"
-	"github.com/godverv/Velez/internal/clients/hardware"
-	"github.com/godverv/Velez/internal/clients/ports"
-	"github.com/godverv/Velez/internal/config"
-	"github.com/godverv/Velez/internal/security"
+	"go.vervstack.ru/Velez/internal/clients/docker"
+	"go.vervstack.ru/Velez/internal/clients/hardware"
+	"go.vervstack.ru/Velez/internal/clients/ports"
+	"go.vervstack.ru/Velez/internal/config"
+	"go.vervstack.ru/Velez/internal/security"
 )
 
 // NodeClients - container for node level clients

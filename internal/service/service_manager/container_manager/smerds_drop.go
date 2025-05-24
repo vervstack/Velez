@@ -3,7 +3,7 @@ package container_manager
 import (
 	"context"
 
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func (c *ContainerManager) DropSmerds(ctx context.Context, req *velez_api.DropSmerd_Request) (*velez_api.DropSmerd_Response, error) {

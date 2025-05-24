@@ -16,11 +16,11 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/godverv/Velez/internal/backservice/env/container_service_task"
-	"github.com/godverv/Velez/internal/backservice/service_discovery"
-	"github.com/godverv/Velez/internal/clients"
-	"github.com/godverv/Velez/internal/clients/matreshka"
-	"github.com/godverv/Velez/internal/config"
+	"go.vervstack.ru/Velez/internal/backservice/env/container_service_task"
+	"go.vervstack.ru/Velez/internal/backservice/service_discovery"
+	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/matreshka"
+	"go.vervstack.ru/Velez/internal/config"
 )
 
 const (

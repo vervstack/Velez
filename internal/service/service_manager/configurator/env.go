@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/godverv/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/domain"
 )
 
 func (c *Configurator) GetEnvFromApi(ctx context.Context, meta domain.ConfigMeta) (*evon.Node, error) {

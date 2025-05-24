@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 const (

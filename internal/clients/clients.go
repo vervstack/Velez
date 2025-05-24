@@ -9,7 +9,7 @@ import (
 	"go.vervstack.ru/makosh/pkg/makosh_be"
 	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
 
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 type Docker interface {

@@ -11,11 +11,11 @@ import (
 	errors "go.redsock.ru/rerrors"
 	"google.golang.org/grpc"
 
-	"github.com/godverv/Velez/internal/backservice/env"
-	"github.com/godverv/Velez/internal/clients"
-	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
-	"github.com/godverv/Velez/internal/domain"
-	"github.com/godverv/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/backservice/env"
+	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils"
+	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
 type NewTaskRequest[T any] struct {

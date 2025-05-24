@@ -9,12 +9,12 @@ import (
 	"go.vervstack.ru/matreshka/pkg/matreshka"
 	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
 
-	"github.com/godverv/Velez/internal/clients"
-	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
-	"github.com/godverv/Velez/internal/domain"
-	"github.com/godverv/Velez/internal/domain/labels"
-	"github.com/godverv/Velez/internal/service"
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils"
+	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/service"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 type prepareConfig struct {

@@ -12,10 +12,10 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/godverv/Velez/internal/clients"
-	"github.com/godverv/Velez/internal/domain"
-	"github.com/godverv/Velez/internal/domain/labels"
-	"github.com/godverv/Velez/internal/service"
+	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/service"
 )
 
 type assembleConfigStep struct {

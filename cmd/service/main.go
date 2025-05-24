@@ -4,7 +4,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.redsock.ru/toolbox/respect"
 
-	"github.com/godverv/Velez/internal/app"
+	"go.vervstack.ru/Velez/internal/app"
 )
 
 func main() {

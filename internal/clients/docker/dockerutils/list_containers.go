@@ -8,9 +8,9 @@ import (
 	"github.com/docker/docker/client"
 	errors "go.redsock.ru/rerrors"
 
-	"github.com/godverv/Velez/internal/clients/docker/dockerutils/list_request"
-	"github.com/godverv/Velez/internal/utils/common"
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils/list_request"
+	"go.vervstack.ru/Velez/internal/utils/common"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 const maxList = 10

@@ -7,8 +7,8 @@ import (
 	"go.redsock.ru/rerrors"
 	"google.golang.org/grpc/codes"
 
-	"github.com/godverv/Velez/internal/domain"
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func (a *Impl) AssembleConfig(ctx context.Context, req *velez_api.AssembleConfig_Request) (*velez_api.AssembleConfig_Response, error) {

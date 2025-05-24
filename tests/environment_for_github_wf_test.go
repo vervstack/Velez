@@ -7,8 +7,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/godverv/Velez/internal/clients/docker"
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/internal/clients/docker"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func initEnv() {

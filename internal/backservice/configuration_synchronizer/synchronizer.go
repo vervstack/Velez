@@ -6,7 +6,7 @@ import (
 	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
 
-	"github.com/godverv/Velez/internal/clients/matreshka"
+	"go.vervstack.ru/Velez/internal/clients/matreshka"
 )
 
 type Synchronizer struct {

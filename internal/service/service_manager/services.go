@@ -7,11 +7,11 @@ import (
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 
-	"github.com/godverv/Velez/internal/clients"
-	"github.com/godverv/Velez/internal/service"
-	"github.com/godverv/Velez/internal/service/service_manager/configurator"
-	"github.com/godverv/Velez/internal/service/service_manager/container_manager"
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/service"
+	"go.vervstack.ru/Velez/internal/service/service_manager/configurator"
+	"go.vervstack.ru/Velez/internal/service/service_manager/container_manager"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 type ServiceManager struct {

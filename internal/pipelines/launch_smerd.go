@@ -4,8 +4,8 @@ import (
 	"github.com/docker/docker/api/types/image"
 	"go.redsock.ru/rerrors"
 
-	"github.com/godverv/Velez/internal/domain"
-	"github.com/godverv/Velez/internal/pipelines/steps"
+	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/pipelines/steps"
 )
 
 func (p *pipeliner) LaunchSmerd(req domain.LaunchSmerd) Runner[domain.LaunchSmerdResult] {

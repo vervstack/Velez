@@ -3,7 +3,7 @@ package steps
 import (
 	"context"
 
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 type prepareRequestStep struct {

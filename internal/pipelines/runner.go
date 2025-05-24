@@ -5,7 +5,7 @@ import (
 
 	"go.redsock.ru/rerrors"
 
-	"github.com/godverv/Velez/internal/pipelines/steps"
+	"go.vervstack.ru/Velez/internal/pipelines/steps"
 )
 
 type runner[T any] struct {

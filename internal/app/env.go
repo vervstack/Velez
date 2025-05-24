@@ -4,10 +4,10 @@ import (
 	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
 
-	"github.com/godverv/Velez/internal/backservice/configuration"
-	"github.com/godverv/Velez/internal/backservice/env"
-	"github.com/godverv/Velez/internal/backservice/service_discovery"
-	"github.com/godverv/Velez/internal/clients/matreshka"
+	"go.vervstack.ru/Velez/internal/backservice/configuration"
+	"go.vervstack.ru/Velez/internal/backservice/env"
+	"go.vervstack.ru/Velez/internal/backservice/service_discovery"
+	"go.vervstack.ru/Velez/internal/clients/matreshka"
 )
 
 func (c *Custom) setupVervNodeEnvironment() (err error) {

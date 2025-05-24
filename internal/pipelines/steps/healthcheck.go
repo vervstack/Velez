@@ -6,8 +6,8 @@ import (
 
 	"go.redsock.ru/rerrors"
 
-	"github.com/godverv/Velez/internal/clients"
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 const (

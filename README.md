@@ -1,4 +1,4 @@
-# github.com/godverv/Velez
+# go.vervstack.ru/Velez
 
 Velez is a lightweight working node manager.
 It simply serves to starts/stops services on machine using docker.

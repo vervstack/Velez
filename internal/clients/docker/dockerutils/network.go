@@ -7,7 +7,7 @@ import (
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
 
-	"github.com/godverv/Velez/internal/clients/docker/dockerutils/list_request"
+	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils/list_request"
 )
 
 func CreateNetwork(ctx context.Context, d client.APIClient, networkName string) error {

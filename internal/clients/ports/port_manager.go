@@ -8,7 +8,7 @@ import (
 	"github.com/docker/docker/client"
 	errors "go.redsock.ru/rerrors"
 
-	"github.com/godverv/Velez/internal/config"
+	"go.vervstack.ru/Velez/internal/config"
 )
 
 var (

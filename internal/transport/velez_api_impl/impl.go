@@ -8,11 +8,11 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
-	"github.com/godverv/Velez/internal/clients"
-	"github.com/godverv/Velez/internal/config"
-	"github.com/godverv/Velez/internal/pipelines"
-	"github.com/godverv/Velez/internal/service"
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/config"
+	"go.vervstack.ru/Velez/internal/pipelines"
+	"go.vervstack.ru/Velez/internal/service"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 type Impl struct {

@@ -3,7 +3,7 @@ package hardware
 import (
 	"github.com/jaypipes/ghw"
 
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 type Manager struct {

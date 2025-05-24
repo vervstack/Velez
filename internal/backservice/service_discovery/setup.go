@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/godverv/Velez/internal/clients/makosh"
+	"go.vervstack.ru/Velez/internal/clients/makosh"
 )
 
 type ServiceDiscovery struct {

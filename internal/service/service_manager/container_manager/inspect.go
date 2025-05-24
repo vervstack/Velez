@@ -7,8 +7,8 @@ import (
 	errors "go.redsock.ru/rerrors"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/godverv/Velez/internal/clients/docker/dockerutils/parser"
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils/parser"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func (c *ContainerManager) InspectSmerd(ctx context.Context, contId string) (*velez_api.Smerd, error) {

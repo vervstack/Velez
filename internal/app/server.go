@@ -3,8 +3,8 @@
 package app
 
 import (
-	"github.com/godverv/Velez/internal/transport"
 	"go.redsock.ru/rerrors"
+	"go.vervstack.ru/Velez/internal/transport"
 )
 
 func (a *App) InitServers() (err error) {

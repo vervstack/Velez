@@ -6,7 +6,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"go.redsock.ru/rerrors"
 
-	"github.com/godverv/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients"
 )
 
 type stepPrepareImage struct {

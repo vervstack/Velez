@@ -16,16 +16,16 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"github.com/godverv/Velez/internal/backservice/env/container_service_task"
-	"github.com/godverv/Velez/internal/clients"
-	"github.com/godverv/Velez/internal/clients/makosh"
-	"github.com/godverv/Velez/internal/config"
-	"github.com/godverv/Velez/internal/security"
+	"go.vervstack.ru/Velez/internal/backservice/env/container_service_task"
+	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/makosh"
+	"go.vervstack.ru/Velez/internal/config"
+	"go.vervstack.ru/Velez/internal/security"
 )
 
 const (
 	Name                 = "makosh"
-	defaultImageBase     = "godverv/makosh"
+	defaultImageBase     = "vervstack/makosh"
 	authTokenEnvVariable = "MAKOSH_ENVIRONMENT_AUTH-TOKEN"
 	grpcPort             = "8080"
 )

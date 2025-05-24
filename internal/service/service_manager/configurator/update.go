@@ -8,7 +8,7 @@ import (
 	errors "go.redsock.ru/rerrors"
 	matrapi "go.vervstack.ru/matreshka/pkg/matreshka_be_api"
 
-	"github.com/godverv/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/domain"
 )
 
 func (c *Configurator) UpdateConfig(ctx context.Context, cfg domain.AppConfig) (err error) {

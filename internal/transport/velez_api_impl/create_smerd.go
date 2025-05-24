@@ -5,8 +5,8 @@ import (
 
 	"go.redsock.ru/rerrors"
 
-	"github.com/godverv/Velez/internal/domain"
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func (a *Impl) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (*velez_api.Smerd, error) {

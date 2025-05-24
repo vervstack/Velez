@@ -8,8 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
-	"github.com/godverv/Velez/internal/backservice/service_discovery"
-	"github.com/godverv/Velez/pkg/control_plane_api"
+	"go.vervstack.ru/Velez/internal/backservice/service_discovery"
+	"go.vervstack.ru/Velez/pkg/control_plane_api"
 )
 
 type Impl struct {

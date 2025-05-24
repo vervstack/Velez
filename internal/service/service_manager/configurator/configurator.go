@@ -6,7 +6,7 @@ import (
 	"github.com/docker/docker/client"
 	api "go.vervstack.ru/matreshka/pkg/matreshka_be_api"
 
-	"github.com/godverv/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/domain"
 )
 
 type Configurator struct {

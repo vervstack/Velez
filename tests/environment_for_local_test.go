@@ -11,8 +11,8 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
 
-	"github.com/godverv/Velez/internal/app"
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/internal/app"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func initVelez() {

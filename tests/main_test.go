@@ -10,10 +10,10 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
 
-	"github.com/godverv/Velez/internal/clients"
-	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
-	"github.com/godverv/Velez/internal/domain/labels"
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils"
+	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 const (

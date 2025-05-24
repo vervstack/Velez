@@ -1,6 +1,6 @@
 app_info:
-    name: github.com/godverv/Velez
-    version: v0.1.62
+  name: go.vervstack.ru/Velez
+  version: v0.1.63
     startup_duration: 10s
 servers:
     53890:
@@ -56,12 +56,12 @@ environment:
     - name: makosh_url
       type: string
       value: verv://makosh
-    - name: makosh_image
-      type: string
-      value: godverv/makosh:v0.0.12
-    - name: matreshka_image
-      type: string
-      value: vervstack/matreshka:v1.0.69
+  #    - name: makosh_image
+  #      type: string
+  #      value: godverv/makosh:v0.0.12
+  #    - name: matreshka_image
+  #      type: string
+  #      value: vervstack/matreshka:v1.0.69
     - name: log_format
       type: string
       enum: [TEXT, JSON]

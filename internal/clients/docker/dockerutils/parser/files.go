@@ -3,7 +3,7 @@ package parser
 import (
 	"github.com/docker/docker/api/types/mount"
 
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func FromBind(settings *velez_api.Container_Settings) []mount.Mount {

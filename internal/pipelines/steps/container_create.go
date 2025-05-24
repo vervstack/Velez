@@ -8,11 +8,11 @@ import (
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"go.redsock.ru/rerrors"
 
-	"github.com/godverv/Velez/internal/backservice/env"
-	"github.com/godverv/Velez/internal/clients"
-	"github.com/godverv/Velez/internal/clients/docker/dockerutils"
-	"github.com/godverv/Velez/internal/clients/docker/dockerutils/parser"
-	"github.com/godverv/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/backservice/env"
+	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils"
+	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils/parser"
+	"go.vervstack.ru/Velez/internal/domain"
 )
 
 const configFetchingPostfix = "_config_scanning"

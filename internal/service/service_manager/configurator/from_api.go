@@ -7,7 +7,7 @@ import (
 	"go.vervstack.ru/matreshka/pkg/matreshka"
 	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
 
-	"github.com/godverv/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/domain"
 )
 
 func (c *Configurator) GetFromApi(ctx context.Context, meta domain.ConfigMeta) (matreshka.AppConfig, error) {

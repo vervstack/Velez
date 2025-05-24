@@ -11,9 +11,9 @@ import (
 	"go.redsock.ru/toolbox/closer"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/godverv/Velez/internal/transport"
+	"go.vervstack.ru/Velez/internal/transport"
 
-	"github.com/godverv/Velez/internal/config"
+	"go.vervstack.ru/Velez/internal/config"
 )
 
 type App struct {

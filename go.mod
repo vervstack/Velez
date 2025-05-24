@@ -1,4 +1,4 @@
-module github.com/godverv/Velez
+module go.vervstack.ru/Velez
 
 go 1.24.2
 
@@ -19,7 +19,7 @@ require (
 	go.redsock.ru/rerrors v0.0.3
 	go.redsock.ru/toolbox v0.0.11
 	go.vervstack.ru/makosh v0.0.16
-	go.vervstack.ru/matreshka v1.0.69
+	go.vervstack.ru/matreshka v1.0.71
 	golang.org/x/net v0.40.0
 	golang.org/x/sync v0.14.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250519155744-55703ea1f237
@@ -62,5 +62,3 @@ require (
 	gotest.tools/v3 v3.5.1 // indirect
 	howett.net/plist v1.0.1 // indirect
 )
-
-replace go.vervstack.ru/matreshka => /Users/alexbukov/Yandex.Disk.localized/проекты/verv/Matreshka/Matreshka

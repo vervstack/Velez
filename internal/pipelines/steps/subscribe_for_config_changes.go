@@ -6,8 +6,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.redsock.ru/rerrors"
 
-	"github.com/godverv/Velez/internal/service"
-	"github.com/godverv/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/internal/service"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 type subscribeForConfigChangesStep struct {

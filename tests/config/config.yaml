@@ -1,5 +1,5 @@
 app_info:
-    name: github.com/godverv/Velez
+  name: go.vervstack.ru/Velez
     version: v0.1.60
     startup_duration: 10s
 servers:

@@ -11,7 +11,7 @@ run_velez() {
    --name velez \
    -v /var/run/docker.sock:/var/run/docker.sock \
    -v "${velezKeyPath}":/tmp/velez \
-   godverv/velez:{{ .Version }}
+vervstack/velez:{{ .Version }}
 }
 
 run_velez $VELEZ_PORT $VELEZ_KEY_PATH

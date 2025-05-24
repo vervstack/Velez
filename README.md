@@ -21,7 +21,7 @@ For now. But with time this part will definitely change
 ### Shell script
 
 ```shell
-  wget -qO- scripts.verv.tech/init_node.sh | bash
+  wget -qO- scripts.vervstack.ru/init_node.sh | bash
 ```
 
 ### Docker run script

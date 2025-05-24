@@ -7,6 +7,7 @@ import (
 	"github.com/docker/docker/api/types/image"
 	"go.redsock.ru/evon"
 	"go.redsock.ru/rerrors"
+	"go.redsock.ru/toolbox"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
 	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
 	"google.golang.org/grpc/codes"
@@ -62,16 +63,30 @@ func (c *assembleConfigStep) Do(ctx context.Context) error {
 	if c.image.Config == nil {
 		return nil
 	}
-	switch {
-	case c.image.Config.Labels[labels.MatreshkaConfigLabel] == "true":
+	pref := extractPrefix(c.result.Meta.Name)
+	if pref == nil {
+		switch {
+		case c.image.Config.Labels[labels.MatreshkaConfigLabel] == "true":
+			pref = toolbox.ToPtr(matreshka_be_api.ConfigTypePrefix_verv)
+		case isPostgresByImageTags(c.image.RepoTags):
+			pref = toolbox.ToPtr(matreshka_be_api.ConfigTypePrefix_pg)
+		default:
+			pref = toolbox.ToPtr(matreshka_be_api.ConfigTypePrefix_kv)
+		}
+	}
+
+	c.result.Meta.ConfType = *pref
+
+	switch *pref {
+	case matreshka_be_api.ConfigTypePrefix_verv:
 		return c.assembleVervConfig(ctx)
-	case isPostgres(c.image.RepoTags):
+	case matreshka_be_api.ConfigTypePrefix_pg:
 		return c.assemblePostgresConfig(ctx)
 	default:
 		return c.assembleKvConfig(ctx)
 	}
-
 }
+
 func (c *assembleConfigStep) assembleKvConfig(_ context.Context) error {
 	c.result.Meta.ConfType = matreshka_be_api.ConfigTypePrefix_kv
 
@@ -82,7 +97,7 @@ func (c *assembleConfigStep) assemblePostgresConfig(ctx context.Context) (err er
 	c.result.Meta.ConfType = matreshka_be_api.ConfigTypePrefix_pg
 
 	cfgMeta := domain.ConfigMeta{
-		Name:    matreshka_be_api.ConfigTypePrefix_pg.String() + "_" + c.req.Name,
+		Name:    appendPrefix(matreshka_be_api.ConfigTypePrefix_pg, c.req.Name),
 		Version: c.req.ConfigVersion,
 	}
 
@@ -106,7 +121,7 @@ func (c *assembleConfigStep) assembleVervConfig(ctx context.Context) error {
 	}
 
 	cfgMeta := domain.ConfigMeta{
-		Name:    matreshka_be_api.ConfigTypePrefix_verv.String() + "_" + c.req.Name,
+		Name:    appendPrefix(matreshka_be_api.ConfigTypePrefix_verv, c.result.Meta.Name),
 		Version: c.req.ConfigVersion,
 	}
 
@@ -131,7 +146,7 @@ func (c *assembleConfigStep) assembleVervConfig(ctx context.Context) error {
 	return nil
 }
 
-func isPostgres(tags []string) bool {
+func isPostgresByImageTags(tags []string) bool {
 	for _, tag := range tags {
 		if strings.Contains(tag, "postgres") {
 			return true
@@ -139,4 +154,22 @@ func isPostgres(tags []string) bool {
 	}
 
 	return false
+}
+
+func extractPrefix(name string) *matreshka_be_api.ConfigTypePrefix {
+	for id, pref := range matreshka_be_api.ConfigTypePrefix_name {
+		if strings.HasPrefix(name, pref) {
+			return toolbox.ToPtr(matreshka_be_api.ConfigTypePrefix(id))
+		}
+	}
+
+	return nil
+}
+
+func appendPrefix(prefix matreshka_be_api.ConfigTypePrefix, name string) string {
+	if !strings.HasPrefix(name, prefix.String()) {
+		name = prefix.String() + "_" + name
+	}
+
+	return name
 }

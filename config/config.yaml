@@ -58,7 +58,7 @@ environment:
       value: verv://makosh
     - name: matreshka_key
       type: string
-      value: m9k
+      value: ""
     - name: log_format
       type: string
       enum: [TEXT, JSON]

@@ -1,5 +1,6 @@
 export VELEZ_PORT=53890
 export VELEZ_KEY_PATH=~/velez
+export MATRESHKA_PASS=
 
 run_velez() {
   local velezPort=$1
@@ -7,6 +8,7 @@ run_velez() {
 
   docker run \
    -p "${velezPort}":53890 \
+-e MATRESHKA_PASS=${MATRESHKA_PASS} \
    -d \
    --name velez \
    -v /var/run/docker.sock:/var/run/docker.sock \

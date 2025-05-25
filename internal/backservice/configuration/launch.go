@@ -59,6 +59,11 @@ func initInstance(
 	nodeClients clients.NodeClients,
 	sd service_discovery.ServiceDiscovery,
 ) error {
+	if cfg.Environment.MatreshkaKey == "" {
+		cfg.Environment.MatreshkaKey = string(toolbox.RandomBase64(256))
+		logrus.Infof("matreshka key not set. Generating one: %s", cfg.Environment.MatreshkaKey)
+	}
+
 	taskRequest := container_service_task.NewTaskRequest[matreshka_be_api.MatreshkaBeAPIClient]{
 		NodeClients:       nodeClients,
 		ClientConstructor: matreshka_be_api.NewMatreshkaBeAPIClient,

@@ -161,6 +161,7 @@ message CreateSmerd {
     bool ignore_config = 9;
     bool use_image_ports = 10;
     optional string config_version = 11;
+    bool auto_upgrade = 12;
   }
 }
 

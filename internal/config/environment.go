@@ -2,10 +2,6 @@
 
 package config
 
-import (
-	"time"
-)
-
 type EnvironmentConfig struct {
 	AvailablePorts     []int
 	CPUDefault         float64
@@ -23,11 +19,8 @@ type EnvironmentConfig struct {
 	MatreshkaPort      int
 	MemorySwapMb       int
 	NodeMode           bool
-	PortainerEnabled   bool
 	RAMMbDefault       int
 	ShutDownOnExit     bool
-	WatchTowerEnabled  bool
-	WatchTowerInterval time.Duration
 }
 
 const (

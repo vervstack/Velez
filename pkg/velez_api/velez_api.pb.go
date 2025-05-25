@@ -1006,6 +1006,7 @@ type CreateSmerd_Request struct {
 	IgnoreConfig  bool                   `protobuf:"varint,9,opt,name=ignore_config,json=ignoreConfig,proto3" json:"ignore_config,omitempty"`
 	UseImagePorts bool                   `protobuf:"varint,10,opt,name=use_image_ports,json=useImagePorts,proto3" json:"use_image_ports,omitempty"`
 	ConfigVersion *string                `protobuf:"bytes,11,opt,name=config_version,json=configVersion,proto3,oneof" json:"config_version,omitempty"`
+	AutoUpgrade   bool                   `protobuf:"varint,12,opt,name=auto_upgrade,json=autoUpgrade,proto3" json:"auto_upgrade,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1115,6 +1116,13 @@ func (x *CreateSmerd_Request) GetConfigVersion() string {
 		return *x.ConfigVersion
 	}
 	return ""
+}
+
+func (x *CreateSmerd_Request) GetAutoUpgrade() bool {
+	if x != nil {
+		return x.AutoUpgrade
+	}
+	return false
 }
 
 type ListSmerds_Request struct {
@@ -1725,8 +1733,8 @@ const file_velez_api_proto_rawDesc = "" +
 	"\aretries\x18\x04 \x01(\rR\aretriesB\n" +
 	"\n" +
 	"\b_commandB\x11\n" +
-	"\x0f_timeout_second\"\xe8\x05\n" +
-	"\vCreateSmerd\x1a\xd8\x05\n" +
+	"\x0f_timeout_second\"\x8b\x06\n" +
+	"\vCreateSmerd\x1a\xfb\x05\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
@@ -1740,7 +1748,8 @@ const file_velez_api_proto_rawDesc = "" +
 	"\rignore_config\x18\t \x01(\bR\fignoreConfig\x12&\n" +
 	"\x0fuse_image_ports\x18\n" +
 	" \x01(\bR\ruseImagePorts\x12*\n" +
-	"\x0econfig_version\x18\v \x01(\tH\x04R\rconfigVersion\x88\x01\x01\x1a6\n" +
+	"\x0econfig_version\x18\v \x01(\tH\x04R\rconfigVersion\x88\x01\x01\x12!\n" +
+	"\fauto_upgrade\x18\f \x01(\bR\vautoUpgrade\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a9\n" +

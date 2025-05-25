@@ -101,6 +101,7 @@ export type CreateSmerdRequest = {
   ignoreConfig?: boolean;
   useImagePorts?: boolean;
   configVersion?: string;
+    autoUpgrade?: boolean;
 };
 
 export type CreateSmerd = Record<string, never>;

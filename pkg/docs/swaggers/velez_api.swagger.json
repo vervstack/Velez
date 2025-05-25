@@ -375,6 +375,9 @@
         },
         "configVersion": {
           "type": "string"
+        },
+        "autoUpgrade": {
+          "type": "boolean"
         }
       }
     },

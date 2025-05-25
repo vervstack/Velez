@@ -35,21 +35,12 @@ environment:
     - name: node_mode
       type: bool
       value: true
-    - name: portainer_enabled
-      type: bool
-      value: false
     - name: ram_mb_default
       type: int
       value: 50
     - name: shut_down_on_exit
       type: bool
       value: false
-    - name: watch_tower_enabled
-      type: bool
-      value: true
-    - name: watch_tower_interval
-      type: duration
-      value: 1m0s
     - name: makosh_expose_port
       type: bool
       value: true

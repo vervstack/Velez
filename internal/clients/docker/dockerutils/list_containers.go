@@ -15,7 +15,7 @@ import (
 
 const maxList = 10
 
-func ListContainers(ctx context.Context, docker client.CommonAPIClient, req *velez_api.ListSmerds_Request) ([]types.Container, error) {
+func ListContainers(ctx context.Context, docker client.APIClient, req *velez_api.ListSmerds_Request) ([]types.Container, error) {
 	dockerReq := container.ListOptions{
 		All:   true,
 		Limit: maxList,

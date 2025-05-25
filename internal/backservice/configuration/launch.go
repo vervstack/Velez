@@ -2,8 +2,10 @@ package configuration
 
 import (
 	"strconv"
+	"strings"
 	"sync"
 
+	"github.com/docker/docker/errdefs"
 	"github.com/sirupsen/logrus"
 	errors "go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
@@ -28,6 +30,8 @@ const (
 	Name         = "matreshka"
 	defaultImage = "vervstack/matreshka"
 	grpcPort     = "50049"
+
+	passEnv = "pass"
 )
 
 var image string
@@ -58,10 +62,16 @@ func initInstance(
 	cfg *config.Config,
 	nodeClients clients.NodeClients,
 	sd service_discovery.ServiceDiscovery,
-) error {
+) (err error) {
 	if cfg.Environment.MatreshkaKey == "" {
-		cfg.Environment.MatreshkaKey = string(toolbox.RandomBase64(256))
-		logrus.Infof("matreshka key not set. Generating one: %s", cfg.Environment.MatreshkaKey)
+		cfg.Environment.MatreshkaKey, err = getKeyFromContainer(ctx, nodeClients.Docker())
+		if err != nil {
+			return errors.Wrap(err)
+		}
+	}
+
+	if cfg.Environment.MatreshkaKey == "" {
+		generateKey(cfg)
 	}
 
 	taskRequest := container_service_task.NewTaskRequest[matreshka_be_api.MatreshkaBeAPIClient]{
@@ -83,7 +93,7 @@ func initInstance(
 			return false
 		},
 		Env: map[string]string{
-			"pass": cfg.Environment.MatreshkaKey,
+			passEnv: cfg.Environment.MatreshkaKey,
 		},
 		VolumeMounts: map[string][]string{
 			"matreshka": {"/app/data"},
@@ -126,4 +136,25 @@ func initInstance(
 	}
 
 	return nil
+}
+
+func getKeyFromContainer(ctx context.Context, docker clients.Docker) (string, error) {
+	cont, err := docker.InspectContainer(ctx, Name)
+	if err != nil {
+		if !errdefs.IsNotFound(err) {
+			return "", errors.Wrap(err, "")
+		}
+
+		return "", nil
+	}
+	for _, e := range cont.Config.Env {
+		if strings.HasPrefix(e, passEnv) {
+			return e[len(passEnv)+1:], nil
+		}
+	}
+	return "", nil
+}
+func generateKey(cfg *config.Config) {
+	cfg.Environment.MatreshkaKey = string(toolbox.RandomBase64(256))
+	logrus.Infof("matreshka key not set. Generating one: %s", cfg.Environment.MatreshkaKey)
 }

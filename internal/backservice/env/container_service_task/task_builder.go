@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/go-connections/nat"
 	"github.com/sirupsen/logrus"
 	errors "go.redsock.ru/rerrors"
@@ -30,8 +31,9 @@ type NewTaskRequest[T any] struct {
 	GrpcPort     string
 	ExposedPorts map[string]string //container->host
 
-	Healthcheck func(client T) bool
-	Env         map[string]string
+	Healthcheck  func(client T) bool
+	Env          map[string]string
+	VolumeMounts map[string][]string // volume-name->container-file-path
 }
 
 func NewTask[T any](req NewTaskRequest[T]) (*Task[T], error) {
@@ -114,6 +116,19 @@ func NewTask[T any](req NewTaskRequest[T]) (*Task[T], error) {
 	if err != nil {
 		portManager.UnlockPorts(occupiedPorts)
 		return nil, errors.Wrap(err, "error getting ports")
+	}
+
+	for volume, paths := range req.VolumeMounts {
+		for _, p := range paths {
+			m := mount.Mount{
+				Type:   mount.TypeVolume,
+				Source: volume,
+				Target: p,
+			}
+
+			t.hostConfig.Mounts = append(t.hostConfig.Mounts, m)
+		}
+
 	}
 
 	if env.IsInContainer() {

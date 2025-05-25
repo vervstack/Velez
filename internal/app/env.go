@@ -2,7 +2,9 @@ package app
 
 import (
 	"go.redsock.ru/rerrors"
+	"go.vervstack.ru/matreshka/pkg/app/matreshka_client"
 	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
+	"google.golang.org/grpc"
 
 	"go.vervstack.ru/Velez/internal/backservice/configuration"
 	"go.vervstack.ru/Velez/internal/backservice/env"
@@ -45,10 +47,13 @@ func (c *Custom) initServiceDiscovery(a *App) (err error) {
 
 func (c *Custom) initConfigurationService(a *App) (err error) {
 	if a.Cfg.Environment.NodeMode {
-		configuration.LaunchMatreshka(a.Ctx, a.Cfg, c.NodeClients, c.ServiceDiscovery)
+		configuration.LaunchMatreshka(a.Ctx, &a.Cfg, c.NodeClients, c.ServiceDiscovery)
 	}
 
-	c.MatreshkaClient, err = matreshka.NewClient()
+	c.MatreshkaClient, err = matreshka.NewClient(
+		grpc.WithUnaryInterceptor(
+			matreshka_client.WithHeader(
+				matreshka_client.Pass, a.Cfg.Environment.MatreshkaKey)))
 	if err != nil {
 		return rerrors.Wrap(err, "error creating matreshka grpc client")
 	}

@@ -27,7 +27,7 @@ import (
 const (
 	Name         = "matreshka"
 	defaultImage = "vervstack/matreshka"
-	grpcPort     = "80"
+	grpcPort     = "50049"
 )
 
 var image string
@@ -39,7 +39,7 @@ func init() {
 var initOnce sync.Once
 
 func LaunchMatreshka(ctx context.Context,
-	cfg config.Config,
+	cfg *config.Config,
 	clients clients.NodeClients,
 	sd service_discovery.ServiceDiscovery,
 ) {
@@ -55,7 +55,7 @@ func LaunchMatreshka(ctx context.Context,
 
 func initInstance(
 	ctx context.Context,
-	cfg config.Config,
+	cfg *config.Config,
 	nodeClients clients.NodeClients,
 	sd service_discovery.ServiceDiscovery,
 ) error {
@@ -69,7 +69,7 @@ func initInstance(
 		ClientConstructor: matreshka_be_api.NewMatreshkaBeAPIClient,
 		DialOpts: []grpc.DialOption{
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
-			grpc.WithUnaryInterceptor(matreshka_client.WithHeader(cfg.Environment.MatreshkaKey))},
+			grpc.WithUnaryInterceptor(matreshka_client.WithHeader(matreshka_client.Pass, cfg.Environment.MatreshkaKey))},
 		ContainerName: Name,
 		ImageName:     toolbox.Coalesce(cfg.Environment.MatreshkaImage, image),
 		GrpcPort:      grpcPort,
@@ -84,6 +84,9 @@ func initInstance(
 		},
 		Env: map[string]string{
 			"pass": cfg.Environment.MatreshkaKey,
+		},
+		VolumeMounts: map[string][]string{
+			"matreshka": {"/app/data"},
 		},
 	}
 

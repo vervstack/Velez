@@ -19,8 +19,6 @@ type Client interface {
 
 func NewClient(opts ...grpc.DialOption) (Client, error) {
 	opts = append(opts,
-		// TODO Add token for matreshka
-		//grpc.WithUnaryInterceptor(security.HeaderOutgoingInterceptor(AuthHeader, token)),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 

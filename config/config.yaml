@@ -1,6 +1,6 @@
 app_info:
   name: go.vervstack.ru/Velez
-  version: v0.1.69
+  version: v0.1.70
   startup_duration: 10s
 servers:
     53890:

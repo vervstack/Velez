@@ -7,13 +7,13 @@ run_velez() {
   local velezKeyPath=$2
 
   docker run \
-   -p "${velezPort}":53890 \
--e MATRESHKA_PASS=${MATRESHKA_PASS} \
-   -d \
-   --name velez \
-   -v /var/run/docker.sock:/var/run/docker.sock \
-   -v "${velezKeyPath}":/tmp/velez \
-vervstack/velez:{{ .Version }}
+    -p "${velezPort}":53890 \
+    -e MATRESHKA_PASS="${MATRESHKA_PASS}" \
+    -d \
+    --name velez \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v "${velezKeyPath}":/tmp/velez \
+    vervstack/velez:{{ .Version }}
 }
 
 run_velez $VELEZ_PORT $VELEZ_KEY_PATH

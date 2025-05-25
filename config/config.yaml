@@ -1,6 +1,6 @@
 app_info:
   name: go.vervstack.ru/Velez
-  version: v0.1.70
+  version: v0.1.71
   startup_duration: 10s
 servers:
     53890:
@@ -67,9 +67,3 @@ environment:
       type: string
       enum: [Trace, Debug, Warn, Info, Error, Fatal, Panic]
       value: Info
-    - name: makosh_image
-      type: string
-      value: godverv/makosh:v0.0.12
-    - name: matreshka_image
-      type: string
-      value: godverv/matreshka-be:v1.0.47

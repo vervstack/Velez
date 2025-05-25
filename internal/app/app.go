@@ -4,14 +4,12 @@ package app
 
 import (
 	"context"
-
 	"github.com/sirupsen/logrus"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
-	"golang.org/x/sync/errgroup"
-
 	"go.vervstack.ru/Velez/internal/transport"
+	"golang.org/x/sync/errgroup"
 
 	"go.vervstack.ru/Velez/internal/config"
 )

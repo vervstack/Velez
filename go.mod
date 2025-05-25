@@ -15,11 +15,11 @@ require (
 	github.com/soheilhy/cmux v0.1.5
 	github.com/stretchr/testify v1.10.0
 	go.redsock.ru/evon v0.0.25
-	go.redsock.ru/protoc-gen-npm v0.0.11
+	go.redsock.ru/protoc-gen-npm v0.0.12
 	go.redsock.ru/rerrors v0.0.3
 	go.redsock.ru/toolbox v0.0.11
 	go.vervstack.ru/makosh v0.0.16
-	go.vervstack.ru/matreshka v1.0.73
+	go.vervstack.ru/matreshka v1.0.75
 	golang.org/x/net v0.40.0
 	golang.org/x/sync v0.14.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250519155744-55703ea1f237

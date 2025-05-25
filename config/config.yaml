@@ -56,12 +56,9 @@ environment:
     - name: makosh_url
       type: string
       value: verv://makosh
-  #    - name: makosh_image
-  #      type: string
-  #      value: godverv/makosh:v0.0.12
-  #    - name: matreshka_image
-  #      type: string
-  #      value: vervstack/matreshka:v1.0.69
+    - name: matreshka_key
+      type: string
+      value: m9k
     - name: log_format
       type: string
       enum: [TEXT, JSON]
@@ -70,3 +67,9 @@ environment:
       type: string
       enum: [Trace, Debug, Warn, Info, Error, Fatal, Panic]
       value: Info
+    - name: makosh_image
+      type: string
+      value: godverv/makosh:v0.0.12
+    - name: matreshka_image
+      type: string
+      value: godverv/matreshka-be:v1.0.47

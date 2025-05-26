@@ -3,6 +3,6 @@ POST {{velez}}/api/smerd/upgrade
 Content-Type: application/json
 
 {
-  "name": "redzino",
+  "name": "velez",
   "image": "redsockruf/redzino_bot:v0.0.7"
 }

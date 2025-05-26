@@ -41,6 +41,13 @@ service VelezAPI {
     };
   }
 
+  rpc UpgradeSmerd(UpgradeSmerd.Request) returns (UpgradeSmerd.Response) {
+    option (google.api.http) = {
+      post: "/api/smerd/upgrade"
+      body: "*"
+    };
+  }
+
   // AssembleConfig - collects configurations
   // from container and matreshka api and fuses them to one
   // Calling this procedure will update master config in
@@ -73,7 +80,6 @@ message Port {
   };
 }
 
-
 message Volume {
   string volume_name = 1;
   string container_path = 2;
@@ -103,7 +109,7 @@ message Smerd {
 
   repeated NetworkBind networks = 8;
   map<string, string> labels = 9;
-
+  map<string, string> env = 10;
 
   enum Status {
     unknown = 0;
@@ -161,6 +167,7 @@ message CreateSmerd {
     bool ignore_config = 9;
     bool use_image_ports = 10;
     optional string config_version = 11;
+    //    not implemented
     bool auto_upgrade = 12;
   }
 }
@@ -222,4 +229,12 @@ message AssembleConfig {
   message Response {
     bytes config = 1;
   }
+}
+
+message UpgradeSmerd {
+  message Request {
+    string name = 1;
+    string image = 2;
+  }
+  message Response {}
 }

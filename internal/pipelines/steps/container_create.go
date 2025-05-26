@@ -18,12 +18,12 @@ import (
 type createContainerStep struct {
 	docker clients.Docker
 
-	req         domain.LaunchSmerd
+	req         *domain.LaunchSmerd
 	containerId *string
 }
 
 func CreateContainer(nodeClients clients.NodeClients,
-	req domain.LaunchSmerd,
+	req *domain.LaunchSmerd,
 	containerId *string,
 ) *createContainerStep {
 	return &createContainerStep{
@@ -87,12 +87,8 @@ func (s *createContainerStep) getLaunchConfig() (cfg *container.Config) {
 		Hostname:    s.req.GetName(),
 		Cmd:         parser.FromCommand(s.req.Command),
 		Healthcheck: parser.FromHealthcheck(s.req.Healthcheck),
-		Env:         make([]string, 0, len(s.req.Env)),
+		Env:         parser.FromDockerEnv(s.req.Env),
 		Labels:      s.req.Labels,
-	}
-
-	for k, v := range s.req.Env {
-		cfg.Env = append(cfg.Env, k+"="+v)
 	}
 
 	return cfg

@@ -167,6 +167,38 @@
         ]
       }
     },
+    "/api/smerd/upgrade": {
+      "post": {
+        "operationId": "VelezAPI_UpgradeSmerd",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiUpgradeSmerdResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiUpgradeSmerdRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VelezAPI"
+        ]
+      }
+    },
     "/api/version": {
       "get": {
         "operationId": "VelezAPI_Version",
@@ -377,7 +409,8 @@
           "type": "string"
         },
         "autoUpgrade": {
-          "type": "boolean"
+          "type": "boolean",
+          "title": "not implemented"
         }
       }
     },
@@ -552,6 +585,12 @@
           "additionalProperties": {
             "type": "string"
           }
+        },
+        "env": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       }
     },
@@ -568,6 +607,20 @@
         "dead"
       ],
       "default": "unknown"
+    },
+    "velez_apiUpgradeSmerdRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiUpgradeSmerdResponse": {
+      "type": "object"
     },
     "velez_apiVersionResponse": {
       "type": "object",

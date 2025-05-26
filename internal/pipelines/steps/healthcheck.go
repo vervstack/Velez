@@ -7,7 +7,7 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/clients"
-	"go.vervstack.ru/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/internal/domain"
 )
 
 const (
@@ -17,13 +17,13 @@ const (
 type healthcheckStep struct {
 	docker clients.Docker
 
-	req         *velez_api.CreateSmerd_Request
+	req         *domain.LaunchSmerd
 	containerId *string
 }
 
 func HealthcheckStep(
 	nodeClients clients.NodeClients,
-	req *velez_api.CreateSmerd_Request,
+	req *domain.LaunchSmerd,
 	containerId *string,
 ) *healthcheckStep {
 	return &healthcheckStep{

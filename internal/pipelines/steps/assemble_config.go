@@ -23,7 +23,7 @@ type assembleConfigStep struct {
 	docker        clients.Docker
 	configService service.ConfigurationService
 
-	req   domain.LaunchSmerd
+	req   *domain.LaunchSmerd
 	image *image.InspectResponse
 
 	contId *string
@@ -34,8 +34,9 @@ type assembleConfigStep struct {
 func AssembleConfigStep(
 	nodeClients clients.NodeClients,
 	services service.Services,
+
 	contId *string,
-	req domain.LaunchSmerd,
+	req *domain.LaunchSmerd,
 	image *image.InspectResponse,
 	result *domain.AppConfig,
 ) *assembleConfigStep {
@@ -51,7 +52,7 @@ func AssembleConfigStep(
 	}
 }
 
-func (c *assembleConfigStep) Do(ctx context.Context) error {
+func (c *assembleConfigStep) Do(ctx context.Context) (err error) {
 	if c.contId == nil {
 		return rerrors.New("empty container id")
 	}
@@ -80,33 +81,23 @@ func (c *assembleConfigStep) Do(ctx context.Context) error {
 	switch *pref {
 	case matreshka_be_api.ConfigTypePrefix_verv:
 		return c.assembleVervConfig(ctx)
+
 	case matreshka_be_api.ConfigTypePrefix_pg:
-		return c.assemblePostgresConfig(ctx)
+		c.result.Meta.ConfType = matreshka_be_api.ConfigTypePrefix_pg
 	default:
-		return c.assembleKvConfig(ctx)
-	}
-}
-
-func (c *assembleConfigStep) assembleKvConfig(_ context.Context) error {
-	c.result.Meta.ConfType = matreshka_be_api.ConfigTypePrefix_kv
-
-	return nil
-}
-
-func (c *assembleConfigStep) assemblePostgresConfig(ctx context.Context) (err error) {
-	c.result.Meta.ConfType = matreshka_be_api.ConfigTypePrefix_pg
-
-	cfgMeta := domain.ConfigMeta{
-		Name:    appendPrefix(matreshka_be_api.ConfigTypePrefix_pg, c.req.Name),
-		Version: c.req.ConfigVersion,
+		c.result.Meta.ConfType = matreshka_be_api.ConfigTypePrefix_kv
 	}
 
-	c.result.Content, err = c.configService.GetEnvFromApi(ctx, cfgMeta)
+	c.result.Meta.Name = appendPrefix(matreshka_be_api.ConfigTypePrefix_pg, c.req.Name)
+	c.result.Meta.Version = c.req.ConfigVersion
+
+	c.result.Content, err = c.configService.GetEnvFromApi(ctx, c.result.Meta)
 	if err != nil {
 		code := status.Code(err)
 		if code != codes.NotFound {
 			return rerrors.Wrap(err, "error getting matreshka config from matreshka api")
 		}
+		err = nil
 	}
 
 	return nil

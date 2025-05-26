@@ -22,22 +22,21 @@ type prepareConfig struct {
 	configService service.ConfigurationService
 	portManager   clients.PortManager
 
-	req   *velez_api.CreateSmerd_Request
+	req   *domain.LaunchSmerd
 	image *image.InspectResponse
 
 	lockedPorts []uint32
 }
 
 func PrepareVervConfig(
-	docker clients.Docker,
 	nodeClients clients.NodeClients,
 	srv service.Services,
 
-	req *velez_api.CreateSmerd_Request,
+	req *domain.LaunchSmerd,
 	image *image.InspectResponse,
 ) *prepareConfig {
 	return &prepareConfig{
-		docker:        docker,
+		docker:        nodeClients.Docker(),
 		configService: srv.ConfigurationService(),
 		portManager:   nodeClients.PortManager(),
 

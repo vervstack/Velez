@@ -17,6 +17,10 @@ type Pipeliner interface {
 	// and matreshka instance
 	// providing updated configuration
 	AssembleConfig(request domain.AssembleConfig) Runner[domain.AppConfig]
+
+	// UpgradeSmerd - upgrades already running smerd's
+	// image to a new version (latest or specified)
+	UpgradeSmerd(req domain.UpgradeSmerd) Runner[any]
 }
 
 type Runner[T any] interface {

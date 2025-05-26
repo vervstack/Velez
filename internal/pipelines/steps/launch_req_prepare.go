@@ -3,14 +3,15 @@ package steps
 import (
 	"context"
 
+	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 type prepareRequestStep struct {
-	req *velez_api.CreateSmerd_Request
+	req *domain.LaunchSmerd
 }
 
-func PrepareCreateRequest(req *velez_api.CreateSmerd_Request) *prepareRequestStep {
+func PrepareCreateRequest(req *domain.LaunchSmerd) *prepareRequestStep {
 	return &prepareRequestStep{
 		req: req,
 	}

@@ -17,17 +17,17 @@ func (p *pipeliner) LaunchSmerd(req domain.LaunchSmerd) Runner[domain.LaunchSmer
 
 	return &runner[domain.LaunchSmerdResult]{
 		Steps: []steps.Step{
-			// Prepare steps
-			steps.PrepareCreateRequest(req.CreateSmerd_Request),
+			// Prepare stage
+			steps.PrepareCreateRequest(&req),
 			steps.PrepareImageStep(p.nodeClients, req.ImageName, imageResp),
-			steps.PrepareVervConfig(p.nodeClients.Docker(), p.nodeClients, p.services, req.CreateSmerd_Request, imageResp),
-			// Deploy steps
-			steps.CreateContainer(p.nodeClients, req, &containerId),
-			steps.AssembleConfigStep(p.nodeClients, p.services, &containerId, req, imageResp, cfg),
-			steps.StartContainer(p.nodeClients, &containerId),
-			// Post deploy steps
-			steps.HealthcheckStep(p.nodeClients, req.CreateSmerd_Request, &containerId),
-			steps.SubscribeForConfigChanges(p.services, req.CreateSmerd_Request),
+			steps.PrepareVervConfig(p.nodeClients, p.services, &req, imageResp),
+			// Deploy stage
+			steps.CreateContainer(p.nodeClients, &req, &containerId),
+			steps.AssembleConfigStep(p.nodeClients, p.services, &containerId, &req, imageResp, cfg),
+			steps.StartSmerd(p.nodeClients, &containerId),
+			// Post deploy stage
+			steps.HealthcheckStep(p.nodeClients, &req, &containerId),
+			steps.SubscribeForConfigChanges(p.services, req.Name),
 		},
 
 		getResult: func() (*domain.LaunchSmerdResult, error) {

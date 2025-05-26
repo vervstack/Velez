@@ -22,8 +22,8 @@ func (c *ContainerManager) InspectSmerd(ctx context.Context, contId string) (*ve
 		Name:    contInfo.ContainerJSONBase.Name,
 		Ports:   parser.ToPorts(contInfo.ContainerJSONBase.HostConfig.PortBindings),
 		Volumes: parser.ToBind(contInfo.ContainerJSONBase.HostConfig.Mounts),
-
-		Labels: contInfo.Config.Labels,
+		Env:     parser.ToDockerEnv(contInfo.Config.Env),
+		Labels:  contInfo.Config.Labels,
 	}
 
 	imageInfo, err := c.docker.InspectImage(ctx, contInfo.ContainerJSONBase.Image)

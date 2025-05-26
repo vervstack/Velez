@@ -9,23 +9,23 @@ import (
 	"go.vervstack.ru/Velez/internal/clients"
 )
 
-type startContainerStep struct {
+type smerdStart struct {
 	docker clients.Docker
 
 	containerId *string
 }
 
-func StartContainer(
+func StartSmerd(
 	nodeClients clients.NodeClients,
 	containerId *string,
-) *startContainerStep {
-	return &startContainerStep{
+) *smerdStart {
+	return &smerdStart{
 		docker:      nodeClients.Docker(),
 		containerId: containerId,
 	}
 }
 
-func (s *startContainerStep) Do(ctx context.Context) error {
+func (s *smerdStart) Do(ctx context.Context) error {
 	if s.containerId == nil {
 		return rerrors.New("no container id provided")
 	}
@@ -38,7 +38,7 @@ func (s *startContainerStep) Do(ctx context.Context) error {
 	return nil
 }
 
-func (s *startContainerStep) Rollback(ctx context.Context) error {
+func (s *smerdStart) Rollback(ctx context.Context) error {
 	if s.containerId == nil {
 		return nil
 	}

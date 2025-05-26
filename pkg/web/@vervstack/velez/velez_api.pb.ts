@@ -66,6 +66,7 @@ export type Smerd = {
   createdAt?: GoogleProtobufTimestamp.Timestamp;
   networks?: NetworkBind[];
   labels?: Record<string, string>;
+    env?: Record<string, string>;
 };
 
 export type ContainerHardware = {
@@ -164,6 +165,15 @@ export type AssembleConfigResponse = {
 
 export type AssembleConfig = Record<string, never>;
 
+export type UpgradeSmerdRequest = {
+    name?: string;
+    image?: string;
+};
+
+export type UpgradeSmerdResponse = Record<string, never>;
+
+export type UpgradeSmerd = Record<string, never>;
+
 export class VelezAPI {
   static Version(this:void, req: VersionRequest, initReq?: fm.InitReq): Promise<VersionResponse> {
     return fm.fetchRequest<VersionResponse>(`/api/version?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
@@ -180,6 +190,14 @@ export class VelezAPI {
   static GetHardware(this:void, req: GetHardwareRequest, initReq?: fm.InitReq): Promise<GetHardwareResponse> {
     return fm.fetchRequest<GetHardwareResponse>(`/api/hardware?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
   }
+
+    static UpgradeSmerd(this: void, req: UpgradeSmerdRequest, initReq?: fm.InitReq): Promise<UpgradeSmerdResponse> {
+        return fm.fetchRequest<UpgradeSmerdResponse>(`/api/smerd/upgrade`, {
+            ...initReq,
+            method: "POST",
+            body: JSON.stringify(req, fm.replacer)
+        });
+    }
   static AssembleConfig(this:void, req: AssembleConfigRequest, initReq?: fm.InitReq): Promise<AssembleConfigResponse> {
     return fm.fetchRequest<AssembleConfigResponse>(`/api/config/assemble`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }

@@ -32,8 +32,8 @@ func (p *pipeliner) AssembleConfig(req domain.AssembleConfig) Runner[domain.AppC
 	return &runner[domain.AppConfig]{
 		Steps: []steps.Step{
 			steps.PrepareImageStep(p.nodeClients, req.ImageName, imageResp),
-			steps.CreateContainer(p.nodeClients, createReq, &contId),
-			steps.AssembleConfigStep(p.nodeClients, p.services, &contId, createReq, imageResp, res),
+			steps.CreateContainer(p.nodeClients, &createReq, &contId),
+			steps.AssembleConfigStep(p.nodeClients, p.services, &contId, &createReq, imageResp, res),
 			steps.DropContainerStep(p.nodeClients, &contId),
 		},
 		getResult: func() (*domain.AppConfig, error) {

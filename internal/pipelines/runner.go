@@ -11,6 +11,7 @@ import (
 type runner[T any] struct {
 	Steps     []steps.Step
 	getResult func() (res *T, err error)
+	stepIdx   int
 }
 
 func (p *runner[T]) Run(ctx context.Context) (err error) {
@@ -34,7 +35,9 @@ func (p *runner[T]) Result() (res *T, err error) {
 }
 
 func (p *runner[T]) run(ctx context.Context) error {
-	for _, s := range p.Steps {
+	var s steps.Step
+
+	for p.stepIdx, s = range p.Steps {
 		err := s.Do(ctx)
 		if err != nil {
 			return rerrors.Wrapf(err, "error during execution of step: %T", s)
@@ -47,8 +50,9 @@ func (p *runner[T]) run(ctx context.Context) error {
 
 func (p *runner[T]) rollback(ctx context.Context) error {
 	var globalErr error
-	for _, s := range p.Steps {
-		rollbackable, ok := s.(steps.RollbackableStep)
+
+	for ; p.stepIdx >= 0; p.stepIdx-- {
+		rollbackable, ok := p.Steps[p.stepIdx].(steps.RollbackableStep)
 		if ok {
 			err := rollbackable.Rollback(ctx)
 			if err != nil {

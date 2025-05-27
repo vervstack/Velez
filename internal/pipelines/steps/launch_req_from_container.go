@@ -43,14 +43,13 @@ func (s *fromContainerToRequest) Do(ctx context.Context) error {
 	}
 
 	*s.fromContId = cont.Uuid
-
 	*s.result = domain.LaunchSmerd{
 		CreateSmerd_Request: &velez_api.CreateSmerd_Request{
 			Name:      cont.Name,
 			ImageName: cont.ImageName,
 			Settings: &velez_api.Container_Settings{
 				Ports:   cont.Ports,
-				Network: cont.Networks,
+				Network: make([]*velez_api.NetworkBind, 0),
 				Volumes: cont.Volumes,
 			},
 			Env:    cont.Env,
@@ -65,6 +64,22 @@ func (s *fromContainerToRequest) Do(ctx context.Context) error {
 			ConfigVersion: nil,
 			AutoUpgrade:   false,
 		},
+	}
+
+	for _, n := range cont.Networks {
+		net := &velez_api.NetworkBind{
+			NetworkName: n.NetworkName,
+			Aliases:     nil,
+		}
+		for _, a := range n.Aliases {
+			if !strings.HasPrefix(cont.Uuid, a) {
+				net.Aliases = append(net.Aliases, a)
+			}
+		}
+
+		if len(net.Aliases) != 0 {
+			s.result.Settings.Network = append(s.result.Settings.Network, net)
+		}
 	}
 
 	return nil

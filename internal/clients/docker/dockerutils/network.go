@@ -44,7 +44,7 @@ type ConnectToNetworkRequest struct {
 	Aliases             []string
 }
 
-func ConnectToNetwork(ctx context.Context, d client.CommonAPIClient, req ConnectToNetworkRequest) error {
+func ConnectToNetwork(ctx context.Context, d client.APIClient, req ConnectToNetworkRequest) error {
 	cont, err := d.ContainerInspect(ctx, req.ContId)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting Velez container info")
@@ -63,4 +63,24 @@ func ConnectToNetwork(ctx context.Context, d client.CommonAPIClient, req Connect
 	}
 
 	return nil
+}
+
+func DisconnectFromNetworks(ctx context.Context, d client.APIClient, contId string) (disconnectedNetworks map[string]*network.EndpointSettings, err error) {
+	cont, err := d.ContainerInspect(ctx, contId)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error getting Velez container info")
+	}
+
+	disconnectedNetworks = make(map[string]*network.EndpointSettings)
+
+	for netName, net := range cont.NetworkSettings.Networks {
+		err = d.NetworkDisconnect(ctx, netName, cont.Name, false)
+		if err != nil {
+			return nil, rerrors.Wrap(err, "error connecting this instance to network")
+		}
+
+		disconnectedNetworks[netName] = net
+	}
+
+	return disconnectedNetworks, nil
 }

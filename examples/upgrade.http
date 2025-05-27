@@ -1,8 +1,9 @@
 ### Upgrade smerd
 POST {{velez}}/api/smerd/upgrade
 Content-Type: application/json
+Grpc-Metadata-Velez-Auth: {{key}}
 
 {
-  "name": "velez",
-  "image": "redsockruf/redzino_bot:v0.0.7"
+  "name": "redzino",
+  "image": "redsockruf/redzino_bot:v0.0.8"
 }

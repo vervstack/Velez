@@ -3,7 +3,6 @@ package steps
 import (
 	"context"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/image"
 	"go.redsock.ru/rerrors"
 
@@ -14,7 +13,7 @@ type stepPrepareImage struct {
 	docker clients.Docker
 
 	imageName string
-	result    *types.ImageInspect
+	result    *image.InspectResponse
 }
 
 func PrepareImageStep(nodeClients clients.NodeClients, imageName string, result *image.InspectResponse) *stepPrepareImage {

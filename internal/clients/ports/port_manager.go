@@ -18,14 +18,17 @@ var (
 )
 
 type PortManager struct {
-	m sync.Mutex
+	m         sync.Mutex
+	freePorts map[uint32]bool
 
-	ports map[uint32]bool
+	holdM       sync.Mutex
+	pausedPorts map[uint32]bool
 }
 
-func NewPortManager(ctx context.Context, cfg config.Config, docker client.CommonAPIClient) (*PortManager, error) {
+func NewPortManager(ctx context.Context, cfg config.Config, docker client.APIClient) (*PortManager, error) {
 	pm := &PortManager{
-		ports: make(map[uint32]bool, len(cfg.Environment.AvailablePorts)),
+		freePorts:   make(map[uint32]bool, len(cfg.Environment.AvailablePorts)),
+		pausedPorts: make(map[uint32]bool, len(cfg.Environment.AvailablePorts)),
 	}
 
 	containerList, err := docker.ContainerList(ctx, container.ListOptions{})
@@ -34,13 +37,13 @@ func NewPortManager(ctx context.Context, cfg config.Config, docker client.Common
 	}
 
 	for _, item := range cfg.Environment.AvailablePorts {
-		pm.ports[uint32(item)] = false
+		pm.freePorts[uint32(item)] = false
 	}
 
 	for _, item := range containerList {
 		for _, port := range item.Ports {
 			if port.PublicPort != 0 {
-				pm.ports[uint32(port.PublicPort)] = true
+				pm.freePorts[uint32(port.PublicPort)] = true
 			}
 		}
 	}
@@ -52,13 +55,13 @@ func (p *PortManager) GetPort() (uint32, error) {
 	p.m.Lock()
 	defer p.m.Unlock()
 
-	for port, ok := range p.ports {
+	for port, ok := range p.freePorts {
 		if ok {
 			continue
 		}
 
 		portCopy := port
-		p.ports[portCopy] = true
+		p.freePorts[portCopy] = true
 		return portCopy, nil
 	}
 
@@ -80,7 +83,7 @@ func (p *PortManager) LockPort(ports ...uint32) (err error) {
 	defer p.m.Unlock()
 
 	for _, port := range ports {
-		isLocked, ok := p.ports[port]
+		isLocked, ok := p.freePorts[port]
 		if !ok {
 			err = errors.Wrap(ErrUnavailablePort)
 			return
@@ -107,8 +110,26 @@ func (p *PortManager) UnlockPorts(ports []uint32) {
 	p.m.Lock()
 
 	for _, item := range ports {
-		p.ports[item] = false
+		p.freePorts[item] = false
 	}
 
 	p.m.Unlock()
+}
+
+func (p *PortManager) HoldPort(port uint32) bool {
+	p.holdM.Lock()
+	wasOnHold := p.pausedPorts[port]
+	p.pausedPorts[port] = true
+	p.holdM.Unlock()
+
+	return !wasOnHold
+}
+
+func (p *PortManager) UnHoldPort(port uint32) bool {
+	p.holdM.Lock()
+	wasOnHold := p.pausedPorts[port]
+	p.pausedPorts[port] = false
+	p.holdM.Unlock()
+
+	return wasOnHold
 }

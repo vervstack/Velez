@@ -5,6 +5,7 @@ import (
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
+	"github.com/docker/docker/errdefs"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"go.redsock.ru/rerrors"
 
@@ -75,7 +76,9 @@ func (s *createContainerStep) Rollback(ctx context.Context) error {
 
 	err := s.docker.Remove(ctx, *s.containerId)
 	if err != nil {
-		return rerrors.Wrapf(err, "error removing container '%s'", *s.containerId)
+		if !errdefs.IsNotFound(err) {
+			return rerrors.Wrapf(err, "error removing container '%s'", *s.containerId)
+		}
 	}
 
 	return nil
@@ -97,7 +100,8 @@ func (s *createContainerStep) getLaunchConfig() (cfg *container.Config) {
 func (s *createContainerStep) getHostConfig() (hostConfig *container.HostConfig) {
 	hostConfig = &container.HostConfig{
 		PortBindings: parser.FromPorts(s.req.Settings),
-		Mounts:       parser.FromBind(s.req.Settings),
+		Mounts:       parser.FromVolume(s.req.Settings),
+		Binds:        parser.FromBinds(s.req.Settings),
 		RestartPolicy: container.RestartPolicy{
 			Name:              container.RestartPolicyOnFailure,
 			MaximumRetryCount: 3,

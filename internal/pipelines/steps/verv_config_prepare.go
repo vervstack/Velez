@@ -17,7 +17,7 @@ import (
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
-type prepareConfig struct {
+type prepareVervConfig struct {
 	docker        clients.Docker
 	configService service.ConfigurationService
 	portManager   clients.PortManager
@@ -34,8 +34,8 @@ func PrepareVervConfig(
 
 	req *domain.LaunchSmerd,
 	image *image.InspectResponse,
-) *prepareConfig {
-	return &prepareConfig{
+) *prepareVervConfig {
+	return &prepareVervConfig{
 		docker:        nodeClients.Docker(),
 		configService: srv.ConfigurationService(),
 		portManager:   nodeClients.PortManager(),
@@ -45,7 +45,7 @@ func PrepareVervConfig(
 	}
 }
 
-func (p *prepareConfig) Do(ctx context.Context) error {
+func (p *prepareVervConfig) Do(ctx context.Context) error {
 	if p.image.Config.Labels == nil {
 		p.image.Config.Labels = make(map[string]string)
 	}
@@ -80,12 +80,16 @@ func (p *prepareConfig) Do(ctx context.Context) error {
 	return nil
 }
 
-func (p *prepareConfig) Rollback(_ context.Context) error {
-	p.portManager.UnlockPorts(p.lockedPorts)
+func (p *prepareVervConfig) Rollback(_ context.Context) error {
+	for _, port := range p.lockedPorts {
+		if !p.portManager.UnHoldPort(port) {
+			p.portManager.UnlockPorts(p.lockedPorts)
+		}
+	}
 	return nil
 }
 
-func (p *prepareConfig) enrichWithMatreshkaConfig(ctx context.Context) error {
+func (p *prepareVervConfig) enrichWithMatreshkaConfig(ctx context.Context) error {
 	if p.req.IgnoreConfig {
 		p.req.Labels[labels.MatreshkaConfigLabel] = "false"
 		return nil
@@ -96,9 +100,14 @@ func (p *prepareConfig) enrichWithMatreshkaConfig(ctx context.Context) error {
 		Version: p.req.ConfigVersion,
 	}
 
+	// TODO think about it
+	t := matreshka_be_api.ConfigTypePrefix_kv
+
 	if p.image.Config.Labels[labels.MatreshkaConfigLabel] == "true" {
-		cfgMeta.Name = matreshka_be_api.ConfigTypePrefix_verv.String() + "_" + cfgMeta.Name
+		t = matreshka_be_api.ConfigTypePrefix_verv
 	}
+
+	cfgMeta.Name = t.String() + "_" + cfgMeta.Name
 
 	envVars, err := p.configService.GetEnvFromApi(ctx, cfgMeta)
 	if err != nil {
@@ -117,7 +126,7 @@ func (p *prepareConfig) enrichWithMatreshkaConfig(ctx context.Context) error {
 	return nil
 }
 
-func (p *prepareConfig) getPortsFromImage() error {
+func (p *prepareVervConfig) getPortsFromImage() error {
 	portsInReq := map[uint32]*velez_api.Port{}
 	for _, port := range p.req.Settings.Ports {
 		portsInReq[port.ServicePortNumber] = port
@@ -141,7 +150,7 @@ func (p *prepareConfig) getPortsFromImage() error {
 	return nil
 }
 
-func (p *prepareConfig) lockPorts() (err error) {
+func (p *prepareVervConfig) lockPorts() (err error) {
 	p.lockedPorts = make([]uint32, 0, len(p.req.Settings.Ports))
 
 	for _, imagePort := range p.req.Settings.Ports {
@@ -150,7 +159,10 @@ func (p *prepareConfig) lockPorts() (err error) {
 			port, err = p.portManager.GetPort()
 			imagePort.ExposedTo = &port
 		} else {
-			err = p.portManager.LockPort(*imagePort.ExposedTo)
+			ok := p.portManager.UnHoldPort(*imagePort.ExposedTo)
+			if !ok {
+				err = p.portManager.LockPort(*imagePort.ExposedTo)
+			}
 		}
 		if err != nil {
 			err = rerrors.Wrap(err, "error locking host port")

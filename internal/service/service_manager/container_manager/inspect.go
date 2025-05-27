@@ -21,7 +21,8 @@ func (c *ContainerManager) InspectSmerd(ctx context.Context, contId string) (*ve
 		Uuid:    contInfo.ContainerJSONBase.ID,
 		Name:    contInfo.ContainerJSONBase.Name,
 		Ports:   parser.ToPorts(contInfo.ContainerJSONBase.HostConfig.PortBindings),
-		Volumes: parser.ToBind(contInfo.ContainerJSONBase.HostConfig.Mounts),
+		Volumes: parser.ToVolume(contInfo.ContainerJSONBase.HostConfig.Mounts),
+		Binds:   parser.ToBinds(contInfo.ContainerJSONBase.HostConfig.Binds),
 		Env:     parser.ToDockerEnv(contInfo.Config.Env),
 		Labels:  contInfo.Config.Labels,
 	}

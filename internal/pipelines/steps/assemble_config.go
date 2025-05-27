@@ -88,7 +88,7 @@ func (c *assembleConfigStep) Do(ctx context.Context) (err error) {
 		c.result.Meta.ConfType = matreshka_be_api.ConfigTypePrefix_kv
 	}
 
-	c.result.Meta.Name = appendPrefix(matreshka_be_api.ConfigTypePrefix_pg, c.req.Name)
+	c.result.Meta.Name = appendPrefix(c.result.Meta.ConfType, c.req.Name)
 	c.result.Meta.Version = c.req.ConfigVersion
 
 	c.result.Content, err = c.configService.GetEnvFromApi(ctx, c.result.Meta)

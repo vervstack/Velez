@@ -32,6 +32,7 @@ ENV VERV_NAME=velez
 ENV MATRESHKA_URL=matreshka
 # Link to existing makosh instance (by default points to instance inside docker local network)
 ENV MAKOSH_URL=makosh
+ENV MATRESHKA_CONFIG_ENABLED=true
 
 WORKDIR /app
 

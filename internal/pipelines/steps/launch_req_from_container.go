@@ -42,6 +42,7 @@ func (s *fromContainerToRequest) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error inspecting container")
 	}
 
+	// base
 	*s.fromContId = cont.Uuid
 	*s.result = domain.LaunchSmerd{
 		CreateSmerd_Request: &velez_api.CreateSmerd_Request{
@@ -49,8 +50,9 @@ func (s *fromContainerToRequest) Do(ctx context.Context) error {
 			ImageName: cont.ImageName,
 			Settings: &velez_api.Container_Settings{
 				Ports:   cont.Ports,
-				Network: make([]*velez_api.NetworkBind, 0),
+				Network: s.fromContainerNetwork(cont),
 				Volumes: cont.Volumes,
+				Binds:   cont.Binds,
 			},
 			Env:    cont.Env,
 			Labels: cont.Labels,
@@ -66,6 +68,12 @@ func (s *fromContainerToRequest) Do(ctx context.Context) error {
 		},
 	}
 
+	return nil
+}
+
+func (s *fromContainerToRequest) fromContainerNetwork(cont *velez_api.Smerd) []*velez_api.NetworkBind {
+	out := make([]*velez_api.NetworkBind, 0, len(cont.Networks))
+
 	for _, n := range cont.Networks {
 		net := &velez_api.NetworkBind{
 			NetworkName: n.NetworkName,
@@ -78,11 +86,11 @@ func (s *fromContainerToRequest) Do(ctx context.Context) error {
 		}
 
 		if len(net.Aliases) != 0 {
-			s.result.Settings.Network = append(s.result.Settings.Network, net)
+			out = append(out, net)
 		}
 	}
 
-	return nil
+	return out
 }
 
 func (s *fromContainerToRequest) fromContainerEnv(env []string) map[string]string {

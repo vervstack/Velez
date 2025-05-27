@@ -22,7 +22,7 @@ func (p *runner[T]) Run(ctx context.Context) (err error) {
 
 	err = rerrors.Wrap(runErr)
 
-	rollbackErr := p.rollback(ctx)
+	rollbackErr := p.rollback(context.Background())
 	if rollbackErr != nil {
 		err = rerrors.Join(err, rerrors.Wrap(rollbackErr))
 	}

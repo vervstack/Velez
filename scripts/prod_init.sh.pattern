@@ -1,8 +1,21 @@
 export VELEZ_PORT=53890
 export VELEZ_KEY_PATH=~/velez
 export MATRESHKA_PASS=
+export VELEZ_NAME="velez"
 
-run_velez() {
+prepare () {
+  docker pull vervstack/velez:{{ .Version }}
+}
+
+stop_node () {
+    if [ "$(docker ps -aq -f name="$VELEZ_NAME")" ]; then
+      echo "Stopping and removing existing container: $VELEZ_NAME"
+      docker stop "$VELEZ_NAME"
+      docker rm "$VELEZ_NAME"
+    fi
+}
+
+run_node() {
   local velezPort=$1
   local velezKeyPath=$2
 
@@ -16,4 +29,6 @@ run_velez() {
     vervstack/velez:{{ .Version }}
 }
 
-run_velez $VELEZ_PORT $VELEZ_KEY_PATH
+prepare
+stop_node
+run_node $VELEZ_PORT $VELEZ_KEY_PATH

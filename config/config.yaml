@@ -1,6 +1,6 @@
 app_info:
   name: go.vervstack.ru/Velez
-  version: v0.1.75
+  version: v0.1.76
   startup_duration: 10s
 servers:
     53890:
@@ -49,7 +49,7 @@ environment:
       value: verv://makosh
     - name: matreshka_key
       type: string
-      value: "1"
+      value: ""
     - name: log_format
       type: string
       enum: [TEXT, JSON]

@@ -429,6 +429,9 @@
         "autoUpgrade": {
           "type": "boolean",
           "title": "not implemented"
+        },
+        "restart": {
+          "$ref": "#/definitions/velez_apiRestartPolicy"
         }
       }
     },
@@ -557,6 +560,28 @@
           "format": "int64"
         }
       }
+    },
+    "velez_apiRestartPolicy": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/velez_apiRestartPolicyType"
+        },
+        "FailureCount": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "velez_apiRestartPolicyType": {
+      "type": "string",
+      "enum": [
+        "unless_stopped",
+        "no",
+        "always",
+        "on_failure"
+      ],
+      "default": "unless_stopped"
     },
     "velez_apiSmerd": {
       "type": "object",

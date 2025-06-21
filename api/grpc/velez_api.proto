@@ -177,6 +177,8 @@ message CreateSmerd {
     optional string config_version = 11;
     //    not implemented
     bool auto_upgrade = 12;
+
+    RestartPolicy restart = 13;
   }
 }
 
@@ -245,4 +247,16 @@ message UpgradeSmerd {
     string image = 2;
   }
   message Response {}
+}
+
+message RestartPolicy {
+  RestartPolicyType type = 1;
+  optional uint32 FailureCount = 2;
+}
+
+enum RestartPolicyType {
+  unless_stopped = 0;
+  no = 1;
+  always = 2;
+  on_failure = 3;
 }

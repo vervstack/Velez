@@ -6,9 +6,10 @@ import (
 
 	"go.redsock.ru/evon"
 	errors "go.redsock.ru/rerrors"
-	matrapi "go.vervstack.ru/matreshka/pkg/matreshka_be_api"
+	matrapi "go.vervstack.ru/matreshka/pkg/matreshka_api"
 
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/utils/configutils"
 )
 
 func (c *Configurator) UpdateConfig(ctx context.Context, cfg domain.AppConfig) (err error) {
@@ -16,9 +17,7 @@ func (c *Configurator) UpdateConfig(ctx context.Context, cfg domain.AppConfig) (
 		Version: cfg.Meta.Version,
 	}
 
-	pref := cfg.Meta.ConfType.String()
-
-	patchRequest.ConfigName = pref + "_" + cfg.Meta.Name
+	patchRequest.ConfigName = configutils.AppendPrefix(cfg.Meta.ConfType, cfg.Meta.Name)
 
 	oldCfg, err := c.getEnvFromApi(ctx, domain.ConfigMeta{Name: patchRequest.ConfigName})
 	if err != nil {

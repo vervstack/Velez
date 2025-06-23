@@ -4,13 +4,13 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
-	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
+	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 
 	"go.vervstack.ru/Velez/internal/clients/matreshka"
 )
 
 type Synchronizer struct {
-	stream matreshka_be_api.MatreshkaBeAPI_SubscribeOnChangesClient
+	stream matreshka_api.MatreshkaBeAPI_SubscribeOnChangesClient
 
 	updatesChan chan []string
 }

@@ -5,8 +5,11 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"go.redsock.ru/toolbox"
+	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 	"google.golang.org/protobuf/proto"
 
+	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
@@ -35,6 +38,15 @@ func Test_DeploySingleVerv(t *testing.T) {
 					ImageName: helloWorldAppImage,
 					Status:    velez_api.Smerd_running,
 					Labels:    getExpectedLabels(),
+					Env: map[string]string{
+						"PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+					},
+					Networks: []*velez_api.NetworkBind{
+						{
+							NetworkName: "bridge",
+							Aliases:     nil,
+						},
+					},
 				},
 			},
 		},
@@ -54,6 +66,15 @@ func Test_DeploySingleVerv(t *testing.T) {
 					ImageName: helloWorldAppImage,
 					Status:    velez_api.Smerd_running,
 					Labels:    getExpectedLabels(),
+					Env: map[string]string{
+						"PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+					},
+					Networks: []*velez_api.NetworkBind{
+						{
+							NetworkName: "bridge",
+							Aliases:     nil,
+						},
+					},
 				},
 			},
 		},
@@ -68,6 +89,16 @@ func Test_DeploySingleVerv(t *testing.T) {
 					Status:    velez_api.Smerd_running,
 					ImageName: helloWorldAppImage,
 					Labels:    getLabelsWithMatreshkaConfig(),
+					Env: map[string]string{
+						"PATH":      "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+						"VERV_NAME": "Test_DeploySingleVerv_OK_WITH_DEFAULT_CONFIG",
+					},
+					Networks: []*velez_api.NetworkBind{
+						{
+							NetworkName: "bridge",
+							Aliases:     nil,
+						},
+					},
 				},
 			},
 		},
@@ -129,6 +160,7 @@ func Test_DeployStr8(t *testing.T) {
 			Env: map[string]string{
 				"POSTGRES_HOST_AUTH_METHOD": "trust",
 			},
+			Labels: getExpectedLabels(),
 			Healthcheck: &velez_api.Container_Healthcheck{
 				Command:        &command,
 				IntervalSecond: 2,
@@ -144,38 +176,138 @@ func Test_DeployStr8(t *testing.T) {
 		deployedSmerd, err := testEnvironment.createSmerd(ctx, createReq)
 		require.NoError(t, err)
 
-		require.NotNil(t, deployedSmerd)
-		require.NotEmpty(t, deployedSmerd.Uuid)
-		require.NotEmpty(t, deployedSmerd.CreatedAt)
-
-		deployedSmerd.Uuid = ""
-		deployedSmerd.CreatedAt = nil
-
 		expectedSmerd := &velez_api.Smerd{
 			Name:      "/" + serviceName,
 			ImageName: postgresImage,
 			Status:    velez_api.Smerd_running,
 			Labels:    getExpectedLabels(),
+			Env: map[string]string{
+				"POSTGRES_HOST_AUTH_METHOD": "trust",
+				"GOSU_VERSION":              "1.17",
+				"LANG":                      "en_US.utf8",
+				"PATH":                      "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/16/bin",
+				"PGDATA":                    "/var/lib/postgresql/data",
+				"PG_MAJOR":                  "16",
+				"PG_VERSION":                "16.9-1.pgdg120+1",
+			},
 			Ports: []*velez_api.Port{
 				{
-					ServicePortNumber: 0,
-					Protocol:          0,
+					ServicePortNumber: 5432,
+					Protocol:          velez_api.Port_tcp,
 					ExposedTo:         nil,
+				},
+			},
+			Networks: []*velez_api.NetworkBind{
+				{
+					NetworkName: "bridge",
+					Aliases:     []string{},
+				},
+				{
+					NetworkName: "verv",
+					Aliases: []string{
+						"Test_DeployStr8_postgres",
+					},
 				},
 			},
 		}
 
-		require.Equal(t, 1, len(deployedSmerd.Ports))
-		require.Equal(t, uint32(5432), deployedSmerd.Ports[0].ServicePortNumber)
-		require.Equal(t, velez_api.Port_tcp, deployedSmerd.Ports[0].Protocol)
-		require.NotNil(t, *deployedSmerd.Ports[0].ExposedTo)
-		require.GreaterOrEqual(t, *deployedSmerd.Ports[0].ExposedTo, minPortToExposeTo)
-
-		deployedSmerd.Ports = nil
-		expectedSmerd.Ports = nil
-
-		if !proto.Equal(expectedSmerd, deployedSmerd) {
-			require.Equal(t, expectedSmerd, deployedSmerd)
-		}
+		assertSmerds(t, expectedSmerd, deployedSmerd)
 	})
+
+	t.Run("loki", func(t *testing.T) {
+		t.Parallel()
+		serviceName := getServiceName(t)
+		ctx := context.Background()
+
+		storeLokiConfigReq := &matreshka_api.StoreConfig_Request{
+			Format:     matreshka_api.Format_yaml,
+			ConfigName: serviceName,
+			Config:     lokiConfig,
+		}
+		_, err := testEnvironment.app.Custom.MatreshkaClient.StoreConfig(ctx, storeLokiConfigReq)
+		require.NoError(t, err)
+
+		// TODO add plain config to matreshka
+		createReq := &velez_api.CreateSmerd_Request{
+			Name:      serviceName,
+			ImageName: "grafana/loki:main-bc418c4",
+			Settings: &velez_api.Container_Settings{
+				Network: []*velez_api.NetworkBind{
+					{
+						NetworkName: "redsockru",
+						Aliases:     []string{"loki"},
+					},
+				},
+			},
+			Command:       nil,
+			Env:           nil,
+			Healthcheck:   nil,
+			Labels:        nil,
+			IgnoreConfig:  false,
+			UseImagePorts: false,
+			ConfigVersion: nil,
+			AutoUpgrade:   false,
+			Restart: &velez_api.RestartPolicy{
+				Type: velez_api.RestartPolicyType_always,
+			},
+			Config: &velez_api.MatreshkaConfigSpec{
+				SystemPath: toolbox.ToPtr("/etc/loki/local-config.yaml"),
+			},
+		}
+
+		deployedSmerd, err := testEnvironment.createSmerd(ctx, createReq)
+		require.NoError(t, err)
+
+		expectedSmerd := &velez_api.Smerd{
+			Name:      "/" + serviceName,
+			ImageName: "grafana/loki:main-bc418c4",
+			Ports:     nil,
+			Volumes:   nil,
+			Status:    velez_api.Smerd_running,
+			CreatedAt: nil,
+			Networks: []*velez_api.NetworkBind{
+				{
+					NetworkName: "bridge",
+				},
+				{
+					NetworkName: "redsockru",
+					Aliases:     []string{"Test_DeployStr8_loki", "loki"},
+				},
+			},
+			Labels: map[string]string{
+				labels.CreatedWithVelezLabel: "true",
+				integrationTest:              "true",
+			},
+			Env: map[string]string{
+				"PATH":          "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/busybox",
+				"SSL_CERT_FILE": "/etc/ssl/certs/ca-certificates.crt",
+				"VERV_NAME":     "Test_DeployStr8_loki",
+			},
+			Binds: nil,
+		}
+
+		assertSmerds(t, expectedSmerd, deployedSmerd)
+	})
+}
+
+func assertSmerds(t *testing.T, expected, actual *velez_api.Smerd) {
+	require.NotEmpty(t, actual.Uuid)
+	actual.Uuid = ""
+
+	require.NotEmpty(t, actual.CreatedAt)
+	actual.CreatedAt = nil
+
+	require.Len(t, actual.Ports, len(expected.Ports))
+
+	for idx, port := range actual.Ports {
+		require.NotNil(t, port.ExposedTo)
+		require.GreaterOrEqual(t, *port.ExposedTo, minPortToExposeTo)
+
+		expected.Ports[idx].ExposedTo = port.ExposedTo
+
+	}
+
+	if !proto.Equal(expected, actual) {
+		require.Equal(t, expected, actual)
+	}
 }

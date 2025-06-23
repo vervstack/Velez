@@ -2,14 +2,16 @@ package tests
 
 import (
 	"context"
+	_ "embed"
 	"os"
 	"strings"
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/sirupsen/logrus"
-	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
+	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 
+	"go.vervstack.ru/Velez/internal/app"
 	"go.vervstack.ru/Velez/internal/clients"
 	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain/labels"
@@ -22,18 +24,23 @@ const (
 	minPortToExposeTo = uint32(18501)
 )
 
+var (
+	//go:embed config/test_loki.yaml
+	lokiConfig []byte
+)
+
 type testEnv struct {
 	velezAPI     velez_api.VelezAPIClient
-	matreshkaApi matreshka_be_api.MatreshkaBeAPIClient
+	matreshkaApi matreshka_api.MatreshkaBeAPIClient
 	docker       clients.Docker
+
+	app app.App
 }
 
 var testEnvironment testEnv
 
 func TestMain(m *testing.M) {
 	initVelez()
-	//TODO
-	testEnvironment.matreshkaApi = nil
 
 	ctx := context.Background()
 

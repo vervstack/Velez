@@ -2,6 +2,7 @@ package container_manager
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	errors "go.redsock.ru/rerrors"
@@ -49,10 +50,21 @@ func (c *ContainerManager) InspectSmerd(ctx context.Context, contId string) (*ve
 	smerd.CreatedAt = timestamppb.New(createdAt)
 
 	for netName, net := range contInfo.NetworkSettings.Networks {
-		smerd.Networks = append(smerd.Networks, &velez_api.NetworkBind{
+		nb := &velez_api.NetworkBind{
 			NetworkName: netName,
-			Aliases:     net.DNSNames,
-		})
+		}
+
+		if len(net.DNSNames) != 0 {
+			nb.Aliases = make([]string, 0, len(net.DNSNames)-1)
+		}
+
+		for _, dName := range net.DNSNames {
+			if !strings.HasPrefix(contInfo.ID, dName) {
+				nb.Aliases = append(nb.Aliases, dName)
+			}
+		}
+
+		smerd.Networks = append(smerd.Networks, nb)
 	}
 
 	return smerd, nil

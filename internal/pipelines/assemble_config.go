@@ -2,7 +2,10 @@ package pipelines
 
 import (
 	"github.com/docker/docker/api/types/image"
+	"github.com/stretchr/testify/assert/yaml"
 	"go.redsock.ru/evon"
+	"go.redsock.ru/rerrors"
+	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
@@ -22,22 +25,41 @@ func (p *pipeliner) AssembleConfig(req domain.AssembleConfig) Runner[domain.AppC
 			Settings:  &velez_api.Container_Settings{},
 		}}
 
-	res := &domain.AppConfig{
-		Meta: domain.ConfigMeta{
-			Name: req.ServiceName,
-		},
-		Content: &evon.Node{},
-	}
+	configMount := &domain.ConfigMount{}
 
 	return &runner[domain.AppConfig]{
 		Steps: []steps.Step{
-			steps.PrepareImageStep(p.nodeClients, req.ImageName, imageResp),
+			steps.PrepareImage(p.nodeClients, req.ImageName, imageResp),
 			steps.CreateContainer(p.nodeClients, &createReq, &contId),
-			steps.AssembleConfigStep(p.nodeClients, p.services, &contId, &createReq, imageResp, res),
+			steps.GetConfigFromContainerStep(p.nodeClients, p.services, &createReq, &contId, imageResp, configMount),
 			steps.DropContainerStep(p.nodeClients, &contId),
 		},
 		getResult: func() (*domain.AppConfig, error) {
-			return res, nil
+			appConfig := domain.AppConfig{
+				Meta:       configMount.Meta,
+				ContentRaw: configMount.Content,
+			}
+			switch appConfig.Meta.Format {
+			case matreshka_api.Format_yaml:
+				m := map[string]any{}
+				err := yaml.Unmarshal(configMount.Content, &m)
+				if err != nil {
+					return nil, rerrors.Wrap(err, "error unmarshalling from yaml to map")
+				}
+
+				appConfig.Content, err = evon.MarshalEnv(m)
+				if err != nil {
+					return nil, rerrors.Wrap(err, "error marshalling yaml to env")
+				}
+
+			case matreshka_api.Format_env:
+				err := evon.Unmarshal(configMount.Content, &appConfig.Content)
+				if err != nil {
+					return nil, rerrors.Wrap(err, "error unmarshalling to evon ")
+				}
+			}
+
+			return &appConfig, nil
 		},
 	}
 }

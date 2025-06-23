@@ -2,7 +2,8 @@ version: v1alpha
 
 deps:
     - github.com/googleapis/googleapis
-    - github.com/Red-Sock/protoc-gen-npm@v0.0.10
+    - go.redsock.ru/protoc-gen-npm@v0.0.12
+    - github.com/vervstack/Matreshka
 generate:
   proto_root: api/grpc
   generate_out_dirs: true
@@ -11,12 +12,16 @@ generate:
   plugins:
     - name: go
       out: pkg
-
+      opts:
+        paths: source_relative
     - name: go-grpc
       out: pkg
-
+      opts:
+        paths: source_relative
     - name: grpc-gateway
       out: pkg
+      opts:
+        paths: source_relative
 
     - name: grpc-gateway-ts
       out: pkg/web/@vervstack/velez

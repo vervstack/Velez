@@ -2,7 +2,7 @@ package domain
 
 import (
 	"go.redsock.ru/evon"
-	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
+	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 type ConfigurationPatch struct {
@@ -13,10 +13,19 @@ type ConfigurationPatch struct {
 type ConfigMeta struct {
 	Name     string
 	Version  *string
-	ConfType matreshka_be_api.ConfigTypePrefix
+	ConfType matreshka_api.ConfigTypePrefix
+	Format   matreshka_api.Format
 }
 
 type AppConfig struct {
-	Meta    ConfigMeta
-	Content *evon.Node
+	Meta       ConfigMeta
+	Content    *evon.Node
+	ContentRaw []byte
+}
+
+type ConfigMount struct {
+	Meta ConfigMeta
+
+	FilePath *string
+	Content  []byte
 }

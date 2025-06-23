@@ -14,20 +14,14 @@ func (p *pipeliner) UpgradeSmerd(req domain.UpgradeSmerd) Runner[any] {
 	img := image.InspectResponse{}
 	var newContId string
 	var oldContId string
-	appConfig := domain.AppConfig{
-		Meta: domain.ConfigMeta{
-			Name:     req.Name,
-			Version:  nil,
-			ConfType: 0,
-		},
-		Content: nil,
-	}
+
+	var cfgMount domain.ConfigMount
 
 	return &runner[any]{
 		Steps: []steps.Step{
 			// Preparation stage
 			steps.FromContainerToRequest(req.Name, p.services.SmerdManager(), &newLaunch, &oldContId),
-			steps.PrepareImageStep(p.nodeClients, req.Image, &img),
+			steps.PrepareImage(p.nodeClients, req.Image, &img),
 			steps.SingleFunc(func(_ context.Context) error {
 				newLaunch.ImageName = req.Image
 				return nil
@@ -39,13 +33,13 @@ func (p *pipeliner) UpgradeSmerd(req domain.UpgradeSmerd) Runner[any] {
 				return nil
 			}),
 			steps.CreateContainer(p.nodeClients, &newLaunch, &newContId),
-			steps.AssembleConfigStep(p.nodeClients, p.services, &newContId, &newLaunch, &img, &appConfig),
+			steps.GetConfigFromContainerStep(p.nodeClients, p.services, &newLaunch, &newContId, &img, &cfgMount),
 			steps.DropContainerStep(p.nodeClients, &newContId),
 			// Deploy stage
 			steps.PrepareVervConfig(p.nodeClients, p.services, &newLaunch, &img),
 			steps.CreateContainer(p.nodeClients, &newLaunch, &newContId),
 			steps.StartSmerd(p.nodeClients, &newContId),
-			steps.HealthcheckStep(p.nodeClients, &newLaunch, &newContId),
+			steps.Healthcheck(p.nodeClients, &newLaunch, &newContId),
 			// Clean up
 			steps.RenameContainer(p.nodeClients, &oldContId, req.Name+"_old"),
 			steps.DropContainerStep(p.nodeClients, &oldContId),

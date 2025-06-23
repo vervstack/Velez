@@ -14,21 +14,20 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/soheilhy/cmux v0.1.5
 	github.com/stretchr/testify v1.10.0
-	go.redsock.ru/evon v0.0.25
+	go.redsock.ru/evon v0.0.26
 	go.redsock.ru/protoc-gen-npm v0.0.12
-	go.redsock.ru/rerrors v0.0.3
+	go.redsock.ru/rerrors v0.0.4
 	go.redsock.ru/toolbox v0.0.11
 	go.vervstack.ru/makosh v0.0.16
-	go.vervstack.ru/matreshka v1.0.78
-	golang.org/x/net v0.40.0
-	golang.org/x/sync v0.14.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20250519155744-55703ea1f237
-	google.golang.org/grpc v1.72.1
+	go.vervstack.ru/matreshka v1.0.89
+	golang.org/x/net v0.41.0
+	golang.org/x/sync v0.15.0
+	google.golang.org/genproto/googleapis/api v0.0.0-20250603155806-513f23925822
+	google.golang.org/grpc v1.73.0
 	google.golang.org/protobuf v1.36.6
 )
 
 require (
-	github.com/Azure/go-ansiterm v0.0.0-20250102033503-faa5f7b0171c // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/Red-Sock/trace-errors v0.0.13 // indirect
 	github.com/StackExchange/wmi v1.2.1 // indirect
@@ -56,9 +55,9 @@ require (
 	go.opentelemetry.io/otel/metric v1.36.0 // indirect
 	go.opentelemetry.io/otel/trace v1.36.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/text v0.25.0 // indirect
+	golang.org/x/text v0.26.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250519155744-55703ea1f237 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250528174236-200df99c418a // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools/v3 v3.5.1 // indirect
 	howett.net/plist v1.0.1 // indirect

@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "velez_api.proto",
+    "title": "velez_api/velez_api.proto",
     "version": "version not set"
   },
   "tags": [
@@ -294,20 +294,6 @@
         }
       }
     },
-    "MatreshkaConfigConfigSpec": {
-      "type": "object",
-      "properties": {
-        "configName": {
-          "type": "string"
-        },
-        "configVersion": {
-          "type": "string"
-        },
-        "configFormat": {
-          "$ref": "#/definitions/matreshka_apiFormat"
-        }
-      }
-    },
     "PortProtocol": {
       "type": "string",
       "enum": [
@@ -457,7 +443,7 @@
           "$ref": "#/definitions/velez_apiRestartPolicy"
         },
         "config": {
-          "$ref": "#/definitions/velez_apiMatreshkaConfig"
+          "$ref": "#/definitions/velez_apiMatreshkaConfigSpec"
         }
       }
     },
@@ -557,15 +543,25 @@
         }
       }
     },
-    "velez_apiMatreshkaConfig": {
+    "velez_apiMatreshkaConfigSpec": {
       "type": "object",
       "properties": {
-        "configs": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/MatreshkaConfigConfigSpec"
-          }
+        "configName": {
+          "type": "string",
+          "title": "Name of config. By default velez will try to guess config by\nindirect signs such as (no priority)\n - special MATRESHKA_CONFIG tags\n - image (e.g. postgres, angie and etc)\n - smerd's name (starting with special prefix)"
+        },
+        "configVersion": {
+          "type": "string",
+          "title": "Version to load into smerd. By default - master"
+        },
+        "configFormat": {
+          "$ref": "#/definitions/matreshka_apiFormat",
+          "title": "Format of config. Different default for different types\ne.g\n   - verv - sets config as environment variables\n   - pg - writes to a config file\ngeneral rule - if target_path is not set -\u003e it's a environment variables"
+        },
+        "systemPath": {
+          "type": "string",
+          "description": "If not set - writes config as an environment variables",
+          "title": "target path of config.\n   If set and has .yaml extension - writes yaml file at path"
         }
       }
     },

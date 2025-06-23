@@ -13,20 +13,21 @@ func (p *pipeliner) LaunchSmerd(req domain.LaunchSmerd) Runner[domain.LaunchSmer
 
 	containerId := ""
 
-	cfg := &domain.AppConfig{}
+	cfgMount := &domain.ConfigMount{}
 
 	return &runner[domain.LaunchSmerdResult]{
 		Steps: []steps.Step{
 			// Prepare stage
 			steps.PrepareCreateRequest(&req),
-			steps.PrepareImageStep(p.nodeClients, req.ImageName, imageResp),
+			steps.PrepareImage(p.nodeClients, req.ImageName, imageResp),
+			steps.FetchConfig(p.services, &req, imageResp, cfgMount),
 			steps.PrepareVervConfig(p.nodeClients, p.services, &req, imageResp),
 			// Deploy stage
 			steps.CreateContainer(p.nodeClients, &req, &containerId),
-			steps.AssembleConfigStep(p.nodeClients, p.services, &containerId, &req, imageResp, cfg),
+			steps.MountConfig(p.nodeClients, &containerId, cfgMount),
 			steps.StartSmerd(p.nodeClients, &containerId),
 			// Post deploy stage
-			steps.HealthcheckStep(p.nodeClients, &req, &containerId),
+			steps.Healthcheck(p.nodeClients, &req, &containerId),
 			steps.SubscribeForConfigChanges(p.services, req.Name),
 		},
 

@@ -5,6 +5,7 @@
  * This file is a generated Typescript file for GRPC Gateway, DO NOT MODIFY
  */
 
+import * as MatreshkaApiMatreshkaApi from "./api/grpc/matreshka_api.pb";
 import * as fm from "./fetch.pb";
 import * as GoogleProtobufTimestamp from "./google/protobuf/timestamp.pb";
 
@@ -118,6 +119,7 @@ export type CreateSmerdRequest = {
   configVersion?: string;
   autoUpgrade?: boolean;
   restart?: RestartPolicy;
+    config?: MatreshkaConfig;
 };
 
 export type CreateSmerd = Record<string, never>;
@@ -194,6 +196,16 @@ export type RestartPolicy = {
   FailureCount?: number;
 };
 
+export type MatreshkaConfigConfigSpec = {
+    configName?: string;
+    configVersion?: string;
+    configFormat?: MatreshkaApiMatreshkaApi.Format;
+};
+
+export type MatreshkaConfig = {
+    configs?: MatreshkaConfigConfigSpec[];
+};
+
 export class VelezAPI {
   static Version(this:void, req: VersionRequest, initReq?: fm.InitReq): Promise<VersionResponse> {
     return fm.fetchRequest<VersionResponse>(`/api/version?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
@@ -211,12 +223,12 @@ export class VelezAPI {
     return fm.fetchRequest<GetHardwareResponse>(`/api/hardware?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
   }
 
-  static UpgradeSmerd(this: void, req: UpgradeSmerdRequest, initReq?: fm.InitReq): Promise<UpgradeSmerdResponse> {
-    return fm.fetchRequest<UpgradeSmerdResponse>(`/api/smerd/upgrade`, {
-      ...initReq,
-      method: "POST",
-      body: JSON.stringify(req, fm.replacer)
-    });
+    static UpgradeSmerd(this: void, req: UpgradeSmerdRequest, initReq?: fm.InitReq): Promise<UpgradeSmerdResponse> {
+        return fm.fetchRequest<UpgradeSmerdResponse>(`/api/smerd/upgrade`, {
+            ...initReq,
+            method: "POST",
+            body: JSON.stringify(req, fm.replacer)
+        });
   }
   static AssembleConfig(this:void, req: AssembleConfigRequest, initReq?: fm.InitReq): Promise<AssembleConfigResponse> {
     return fm.fetchRequest<AssembleConfigResponse>(`/api/config/assemble`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});

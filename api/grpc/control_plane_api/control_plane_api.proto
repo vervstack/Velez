@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package velez_api;
+package control_plane_api;
 
 import "google/api/annotations.proto";
 import "npm.proto";
 
-option go_package = "/control_plane_api";
+option go_package = "go.vervstack.ru/velez/pkg/control_plane_api;control_plane_api";
 option (npm_package) = "@vervstack/velez";
 
 service ControlPlane {

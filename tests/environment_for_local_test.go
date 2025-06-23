@@ -16,7 +16,8 @@ import (
 )
 
 func initVelez() {
-	a, err := app.New()
+	var err error
+	testEnvironment.app, err = app.New()
 	if err != nil {
 		logrus.Fatalf("error creating app %s", err)
 	}
@@ -25,7 +26,7 @@ func initVelez() {
 	lis := bufconn.Listen(bufSize)
 
 	serv := grpc.NewServer()
-	velez_api.RegisterVelezAPIServer(serv, a.Custom.ApiGrpcImpl)
+	velez_api.RegisterVelezAPIServer(serv, testEnvironment.app.Custom.ApiGrpcImpl)
 	go func() {
 		if err := serv.Serve(lis); err != nil {
 			logrus.Fatalf("error serving grpc server for tests %s", err)
@@ -45,5 +46,5 @@ func initVelez() {
 	}
 
 	testEnvironment.velezAPI = velez_api.NewVelezAPIClient(conn)
-	testEnvironment.docker = a.Custom.NodeClients.Docker()
+	testEnvironment.docker = testEnvironment.app.Custom.NodeClients.Docker()
 }

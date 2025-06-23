@@ -10,7 +10,7 @@ import (
 func FromRestart(r *velez_api.RestartPolicy) container.RestartPolicy {
 	rp := container.RestartPolicy{}
 
-	switch r.Type {
+	switch toolbox.FromPtr(r).Type {
 	case velez_api.RestartPolicyType_no:
 		rp.Name = container.RestartPolicyDisabled
 		return container.RestartPolicy{}

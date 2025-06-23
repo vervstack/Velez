@@ -14,7 +14,7 @@ import (
 	"go.vervstack.ru/makosh/pkg/makosh_be"
 	version "go.vervstack.ru/matreshka/config"
 	"go.vervstack.ru/matreshka/pkg/app/matreshka_client"
-	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
+	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -72,11 +72,15 @@ func initInstance(
 
 	if cfg.Environment.MatreshkaKey == "" {
 		generateKey(cfg)
+		logrus.Infof("matreshka key not set. Generating one: %s", cfg.Environment.MatreshkaKey)
+	} else {
+		logrus.Infof("matreshka key is set to %s", cfg.Environment.MatreshkaKey)
+
 	}
 
-	taskRequest := container_service_task.NewTaskRequest[matreshka_be_api.MatreshkaBeAPIClient]{
+	taskRequest := container_service_task.NewTaskRequest[matreshka_api.MatreshkaBeAPIClient]{
 		NodeClients:       nodeClients,
-		ClientConstructor: matreshka_be_api.NewMatreshkaBeAPIClient,
+		ClientConstructor: matreshka_api.NewMatreshkaBeAPIClient,
 		DialOpts: []grpc.DialOption{
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
 			grpc.WithUnaryInterceptor(matreshka_client.WithHeader(matreshka_client.Pass, cfg.Environment.MatreshkaKey))},
@@ -84,8 +88,8 @@ func initInstance(
 		ImageName:     toolbox.Coalesce(cfg.Environment.MatreshkaImage, image),
 		GrpcPort:      grpcPort,
 		ExposedPorts:  map[string]string{},
-		Healthcheck: func(client matreshka_be_api.MatreshkaBeAPIClient) bool {
-			resp, err := client.ApiVersion(ctx, &matreshka_be_api.ApiVersion_Request{})
+		Healthcheck: func(client matreshka_api.MatreshkaBeAPIClient) bool {
+			resp, err := client.ApiVersion(ctx, &matreshka_api.ApiVersion_Request{})
 			if err == nil && resp != nil {
 				return true
 			}
@@ -156,5 +160,4 @@ func getKeyFromContainer(ctx context.Context, docker clients.Docker) (string, er
 }
 func generateKey(cfg *config.Config) {
 	cfg.Environment.MatreshkaKey = string(toolbox.RandomBase64(256))
-	logrus.Infof("matreshka key not set. Generating one: %s", cfg.Environment.MatreshkaKey)
 }

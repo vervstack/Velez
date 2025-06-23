@@ -60,7 +60,6 @@ servers:
         /{GRPC}:
             module: pkg/hello_world
             gateway: /v1
-        name: MASTER
 environment:
     - name: int_slice
       type: int

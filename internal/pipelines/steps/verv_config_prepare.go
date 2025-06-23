@@ -2,12 +2,10 @@ package steps
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/docker/docker/api/types/image"
 	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
-	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
 
 	"go.vervstack.ru/Velez/internal/clients"
 	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils"
@@ -45,14 +43,9 @@ func PrepareVervConfig(
 	}
 }
 
-func (p *prepareVervConfig) Do(ctx context.Context) error {
+func (p *prepareVervConfig) Do(ctx context.Context) (err error) {
 	if p.image.Config.Labels == nil {
 		p.image.Config.Labels = make(map[string]string)
-	}
-
-	err := p.enrichWithMatreshkaConfig(ctx)
-	if err != nil {
-		return rerrors.Wrap(err, "error enriching with verv data")
 	}
 
 	if p.req.UseImagePorts {
@@ -67,7 +60,18 @@ func (p *prepareVervConfig) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error locking ports")
 	}
 
-	p.req.Env[matreshka.VervName] = p.req.GetName()
+	if !p.req.IgnoreConfig {
+		p.req.Env[matreshka.VervName] = p.req.GetName()
+	} else {
+		if p.image.Config.Labels[labels.MatreshkaConfigLabel] == "true" {
+			p.image.Config.Labels[labels.MatreshkaConfigLabel] = "false"
+		}
+	}
+
+	for name, val := range p.image.Config.Labels {
+		p.req.Labels[name] = val
+	}
+
 	p.req.Labels[labels.CreatedWithVelezLabel] = "true"
 
 	for _, networks := range p.req.Settings.Network {
@@ -86,43 +90,6 @@ func (p *prepareVervConfig) Rollback(_ context.Context) error {
 			p.portManager.UnlockPorts(p.lockedPorts)
 		}
 	}
-	return nil
-}
-
-func (p *prepareVervConfig) enrichWithMatreshkaConfig(ctx context.Context) error {
-	if p.req.IgnoreConfig {
-		p.req.Labels[labels.MatreshkaConfigLabel] = "false"
-		return nil
-	}
-
-	cfgMeta := domain.ConfigMeta{
-		Name:    p.req.Name,
-		Version: p.req.ConfigVersion,
-	}
-
-	// TODO think about it
-	t := matreshka_be_api.ConfigTypePrefix_kv
-
-	if p.image.Config.Labels[labels.MatreshkaConfigLabel] == "true" {
-		t = matreshka_be_api.ConfigTypePrefix_verv
-	}
-
-	cfgMeta.Name = t.String() + "_" + cfgMeta.Name
-
-	envVars, err := p.configService.GetEnvFromApi(ctx, cfgMeta)
-	if err != nil {
-		return rerrors.Wrap(err, "error getting matreshka config from matreshka api")
-	}
-
-	for _, e := range envVars.InnerNodes {
-		if len(e.InnerNodes) == 0 && e.Value != nil {
-			_, exists := p.req.Env[e.Name]
-			if !exists {
-				p.req.Env[e.Name] = fmt.Sprint(e.Value)
-			}
-		}
-	}
-
 	return nil
 }
 

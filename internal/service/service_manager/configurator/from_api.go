@@ -5,15 +5,15 @@ import (
 
 	errors "go.redsock.ru/rerrors"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
-	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
+	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
-func (c *Configurator) GetFromApi(ctx context.Context, meta domain.ConfigMeta) (matreshka.AppConfig, error) {
+func (c *Configurator) GetVervFromApi(ctx context.Context, meta domain.ConfigMeta) (matreshka.AppConfig, error) {
 	var apiConfig matreshka.AppConfig
 
-	req := &matreshka_be_api.GetConfig_Request{
+	req := &matreshka_api.GetConfig_Request{
 		ConfigName: meta.Name,
 		Version:    meta.Version,
 	}

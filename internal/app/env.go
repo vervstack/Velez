@@ -3,7 +3,7 @@ package app
 import (
 	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/matreshka/pkg/app/matreshka_client"
-	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
+	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 	"google.golang.org/grpc"
 
 	"go.vervstack.ru/Velez/internal/backservice/configuration"
@@ -58,7 +58,7 @@ func (c *Custom) initConfigurationService(a *App) (err error) {
 		return rerrors.Wrap(err, "error creating matreshka grpc client")
 	}
 
-	_, err = c.MatreshkaClient.ApiVersion(a.Ctx, &matreshka_be_api.ApiVersion_Request{})
+	_, err = c.MatreshkaClient.ApiVersion(a.Ctx, &matreshka_api.ApiVersion_Request{})
 	if err != nil {
 		return rerrors.Wrap(err, "can't ping matreshka api")
 	}

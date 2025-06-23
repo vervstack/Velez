@@ -1,0 +1,105 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "controlplane_api/control_plane_api.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "ControlPlane"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/control_plane/services": {
+      "get": {
+        "operationId": "ControlPlane_ListServices",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/control_plane_apiListServicesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "ControlPlane"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "control_plane_apiListServicesResponse": {
+      "type": "object",
+      "properties": {
+        "matreshka": {
+          "$ref": "#/definitions/control_plane_apiMatreshka"
+        },
+        "makosh": {
+          "$ref": "#/definitions/control_plane_apiMakosh"
+        },
+        "svarog": {
+          "$ref": "#/definitions/control_plane_apiSvarog"
+        }
+      }
+    },
+    "control_plane_apiMakosh": {
+      "type": "object",
+      "properties": {
+        "uiUrl": {
+          "type": "string"
+        }
+      }
+    },
+    "control_plane_apiMatreshka": {
+      "type": "object",
+      "properties": {
+        "uiUrl": {
+          "type": "string"
+        }
+      }
+    },
+    "control_plane_apiSvarog": {
+      "type": "object"
+    },
+    "googlerpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    }
+  }
+}

@@ -34,5 +34,12 @@ func (p *prepareRequestStep) Do(_ context.Context) error {
 		p.req.Labels = make(map[string]string)
 	}
 
+	if p.req.Config == nil {
+		p.req.Config = &velez_api.MatreshkaConfigSpec{
+			ConfigName:    &p.req.Name,
+			ConfigVersion: p.req.ConfigVersion,
+		}
+	}
+
 	return nil
 }

@@ -294,6 +294,20 @@
         }
       }
     },
+    "MatreshkaConfigConfigSpec": {
+      "type": "object",
+      "properties": {
+        "configName": {
+          "type": "string"
+        },
+        "configVersion": {
+          "type": "string"
+        },
+        "configFormat": {
+          "$ref": "#/definitions/matreshka_apiFormat"
+        }
+      }
+    },
     "PortProtocol": {
       "type": "string",
       "enum": [
@@ -343,6 +357,15 @@
           }
         }
       }
+    },
+    "matreshka_apiFormat": {
+      "type": "string",
+      "enum": [
+        "yaml",
+        "env"
+      ],
+      "default": "yaml",
+      "title": "- yaml: Default"
     },
     "protobufAny": {
       "type": "object",
@@ -429,6 +452,12 @@
         "autoUpgrade": {
           "type": "boolean",
           "title": "not implemented"
+        },
+        "restart": {
+          "$ref": "#/definitions/velez_apiRestartPolicy"
+        },
+        "config": {
+          "$ref": "#/definitions/velez_apiMatreshkaConfig"
         }
       }
     },
@@ -528,6 +557,18 @@
         }
       }
     },
+    "velez_apiMatreshkaConfig": {
+      "type": "object",
+      "properties": {
+        "configs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/MatreshkaConfigConfigSpec"
+          }
+        }
+      }
+    },
     "velez_apiNetworkBind": {
       "type": "object",
       "properties": {
@@ -557,6 +598,28 @@
           "format": "int64"
         }
       }
+    },
+    "velez_apiRestartPolicy": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/velez_apiRestartPolicyType"
+        },
+        "FailureCount": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "velez_apiRestartPolicyType": {
+      "type": "string",
+      "enum": [
+        "unless_stopped",
+        "no",
+        "always",
+        "on_failure"
+      ],
+      "default": "unless_stopped"
     },
     "velez_apiSmerd": {
       "type": "object",

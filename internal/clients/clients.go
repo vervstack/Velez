@@ -7,7 +7,7 @@ import (
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 	"go.vervstack.ru/makosh/pkg/makosh_be"
-	"go.vervstack.ru/matreshka/pkg/matreshka_be_api"
+	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
@@ -47,7 +47,7 @@ type HardwareManager interface {
 }
 
 type Configurator interface {
-	matreshka_be_api.MatreshkaBeAPIClient
+	matreshka_api.MatreshkaBeAPIClient
 }
 
 type ServiceDiscovery interface {

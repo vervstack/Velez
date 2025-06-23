@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "api/grpc/control_plane_api.proto",
+    "title": "control_plane_api/control_plane_api.proto",
     "version": "version not set"
   },
   "tags": [
@@ -23,7 +23,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/velez_apiListServicesResponse"
+              "$ref": "#/definitions/control_plane_apiListServicesResponse"
             }
           },
           "default": {
@@ -40,6 +40,39 @@
     }
   },
   "definitions": {
+    "control_plane_apiListServicesResponse": {
+      "type": "object",
+      "properties": {
+        "matreshka": {
+          "$ref": "#/definitions/control_plane_apiMatreshka"
+        },
+        "makosh": {
+          "$ref": "#/definitions/control_plane_apiMakosh"
+        },
+        "svarog": {
+          "$ref": "#/definitions/control_plane_apiSvarog"
+        }
+      }
+    },
+    "control_plane_apiMakosh": {
+      "type": "object",
+      "properties": {
+        "uiUrl": {
+          "type": "string"
+        }
+      }
+    },
+    "control_plane_apiMatreshka": {
+      "type": "object",
+      "properties": {
+        "uiUrl": {
+          "type": "string"
+        }
+      }
+    },
+    "control_plane_apiSvarog": {
+      "type": "object"
+    },
     "googlerpcStatus": {
       "type": "object",
       "properties": {
@@ -67,39 +100,6 @@
         }
       },
       "additionalProperties": {}
-    },
-    "velez_apiListServicesResponse": {
-      "type": "object",
-      "properties": {
-        "matreshka": {
-          "$ref": "#/definitions/velez_apiMatreshka"
-        },
-        "makosh": {
-          "$ref": "#/definitions/velez_apiMakosh"
-        },
-        "svarog": {
-          "$ref": "#/definitions/velez_apiSvarog"
-        }
-      }
-    },
-    "velez_apiMakosh": {
-      "type": "object",
-      "properties": {
-        "uiUrl": {
-          "type": "string"
-        }
-      }
-    },
-    "velez_apiMatreshka": {
-      "type": "object",
-      "properties": {
-        "uiUrl": {
-          "type": "string"
-        }
-      }
-    },
-    "velez_apiSvarog": {
-      "type": "object"
     }
   }
 }

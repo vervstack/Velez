@@ -99,13 +99,10 @@ func (s *createContainerStep) getLaunchConfig() (cfg *container.Config) {
 
 func (s *createContainerStep) getHostConfig() (hostConfig *container.HostConfig) {
 	hostConfig = &container.HostConfig{
-		PortBindings: parser.FromPorts(s.req.Settings),
-		Mounts:       parser.FromVolume(s.req.Settings),
-		Binds:        parser.FromBinds(s.req.Settings),
-		RestartPolicy: container.RestartPolicy{
-			Name:              container.RestartPolicyOnFailure,
-			MaximumRetryCount: 3,
-		},
+		PortBindings:  parser.FromPorts(s.req.Settings),
+		Mounts:        parser.FromVolume(s.req.Settings),
+		Binds:         parser.FromBinds(s.req.Settings),
+		RestartPolicy: parser.FromRestart(s.req.Restart),
 	}
 
 	if s.req.Settings != nil && len(s.req.Settings.Volumes) != 0 {

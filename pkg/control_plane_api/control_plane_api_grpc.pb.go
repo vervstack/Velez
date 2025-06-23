@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.28.3
-// source: control_plane_api.proto
+// source: control_plane_api/control_plane_api.proto
 
 package control_plane_api
 
@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ControlPlane_ListServices_FullMethodName = "/velez_api.ControlPlane/ListServices"
+	ControlPlane_ListServices_FullMethodName = "/control_plane_api.ControlPlane/ListServices"
 )
 
 // ControlPlaneClient is the client API for ControlPlane service.
@@ -108,7 +108,7 @@ func _ControlPlane_ListServices_Handler(srv interface{}, ctx context.Context, de
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ControlPlane_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "velez_api.ControlPlane",
+	ServiceName: "control_plane_api.ControlPlane",
 	HandlerType: (*ControlPlaneServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -117,5 +117,5 @@ var ControlPlane_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "control_plane_api.proto",
+	Metadata: "control_plane_api/control_plane_api.proto",
 }

@@ -21,7 +21,7 @@ type healthcheckStep struct {
 	containerId *string
 }
 
-func HealthcheckStep(
+func Healthcheck(
 	nodeClients clients.NodeClients,
 	req *domain.LaunchSmerd,
 	containerId *string,

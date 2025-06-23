@@ -5,9 +5,17 @@
  * This file is a generated Typescript file for GRPC Gateway, DO NOT MODIFY
  */
 
+import * as MatreshkaApiMatreshkaApi from "./api/grpc/matreshka_api.pb";
 import * as fm from "./fetch.pb";
 import * as GoogleProtobufTimestamp from "./google/protobuf/timestamp.pb";
 
+
+export enum RestartPolicyType {
+  unless_stopped = "unless_stopped",
+  no = "no",
+  always = "always",
+  on_failure = "on_failure",
+}
 
 export enum PortProtocol {
   unknown = "unknown",
@@ -46,8 +54,8 @@ export type Volume = {
 };
 
 export type Bind = {
-    hostPath?: string;
-    containerPath?: string;
+  hostPath?: string;
+  containerPath?: string;
 };
 
 export type NetworkBind = {
@@ -71,8 +79,8 @@ export type Smerd = {
   createdAt?: GoogleProtobufTimestamp.Timestamp;
   networks?: NetworkBind[];
   labels?: Record<string, string>;
-    env?: Record<string, string>;
-    binds?: Bind[];
+  env?: Record<string, string>;
+  binds?: Bind[];
 };
 
 export type ContainerHardware = {
@@ -83,9 +91,9 @@ export type ContainerHardware = {
 
 export type ContainerSettings = {
   ports?: Port[];
-    network?: NetworkBind[];
+  network?: NetworkBind[];
   volumes?: Volume[];
-    binds?: Bind[];
+  binds?: Bind[];
 };
 
 export type ContainerHealthcheck = {
@@ -109,7 +117,9 @@ export type CreateSmerdRequest = {
   ignoreConfig?: boolean;
   useImagePorts?: boolean;
   configVersion?: string;
-    autoUpgrade?: boolean;
+  autoUpgrade?: boolean;
+  restart?: RestartPolicy;
+    config?: MatreshkaConfig;
 };
 
 export type CreateSmerd = Record<string, never>;
@@ -173,13 +183,28 @@ export type AssembleConfigResponse = {
 export type AssembleConfig = Record<string, never>;
 
 export type UpgradeSmerdRequest = {
-    name?: string;
-    image?: string;
+  name?: string;
+  image?: string;
 };
 
 export type UpgradeSmerdResponse = Record<string, never>;
 
 export type UpgradeSmerd = Record<string, never>;
+
+export type RestartPolicy = {
+  type?: RestartPolicyType;
+  FailureCount?: number;
+};
+
+export type MatreshkaConfigConfigSpec = {
+    configName?: string;
+    configVersion?: string;
+    configFormat?: MatreshkaApiMatreshkaApi.Format;
+};
+
+export type MatreshkaConfig = {
+    configs?: MatreshkaConfigConfigSpec[];
+};
 
 export class VelezAPI {
   static Version(this:void, req: VersionRequest, initReq?: fm.InitReq): Promise<VersionResponse> {
@@ -204,7 +229,7 @@ export class VelezAPI {
             method: "POST",
             body: JSON.stringify(req, fm.replacer)
         });
-    }
+  }
   static AssembleConfig(this:void, req: AssembleConfigRequest, initReq?: fm.InitReq): Promise<AssembleConfigResponse> {
     return fm.fetchRequest<AssembleConfigResponse>(`/api/config/assemble`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }

@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v5.28.3
-// source: control_plane_api.proto
+// source: control_plane_api/control_plane_api.proto
 
 package control_plane_api
 
@@ -31,7 +31,7 @@ type ListServices struct {
 
 func (x *ListServices) Reset() {
 	*x = ListServices{}
-	mi := &file_control_plane_api_proto_msgTypes[0]
+	mi := &file_control_plane_api_control_plane_api_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +43,7 @@ func (x *ListServices) String() string {
 func (*ListServices) ProtoMessage() {}
 
 func (x *ListServices) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[0]
+	mi := &file_control_plane_api_control_plane_api_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,7 +56,7 @@ func (x *ListServices) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServices.ProtoReflect.Descriptor instead.
 func (*ListServices) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{0}
+	return file_control_plane_api_control_plane_api_proto_rawDescGZIP(), []int{0}
 }
 
 type Matreshka struct {
@@ -68,7 +68,7 @@ type Matreshka struct {
 
 func (x *Matreshka) Reset() {
 	*x = Matreshka{}
-	mi := &file_control_plane_api_proto_msgTypes[1]
+	mi := &file_control_plane_api_control_plane_api_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -80,7 +80,7 @@ func (x *Matreshka) String() string {
 func (*Matreshka) ProtoMessage() {}
 
 func (x *Matreshka) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[1]
+	mi := &file_control_plane_api_control_plane_api_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -93,7 +93,7 @@ func (x *Matreshka) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Matreshka.ProtoReflect.Descriptor instead.
 func (*Matreshka) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{1}
+	return file_control_plane_api_control_plane_api_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Matreshka) GetUiUrl() string {
@@ -112,7 +112,7 @@ type Makosh struct {
 
 func (x *Makosh) Reset() {
 	*x = Makosh{}
-	mi := &file_control_plane_api_proto_msgTypes[2]
+	mi := &file_control_plane_api_control_plane_api_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -124,7 +124,7 @@ func (x *Makosh) String() string {
 func (*Makosh) ProtoMessage() {}
 
 func (x *Makosh) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[2]
+	mi := &file_control_plane_api_control_plane_api_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -137,7 +137,7 @@ func (x *Makosh) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Makosh.ProtoReflect.Descriptor instead.
 func (*Makosh) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{2}
+	return file_control_plane_api_control_plane_api_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Makosh) GetUiUrl() string {
@@ -155,7 +155,7 @@ type Svarog struct {
 
 func (x *Svarog) Reset() {
 	*x = Svarog{}
-	mi := &file_control_plane_api_proto_msgTypes[3]
+	mi := &file_control_plane_api_control_plane_api_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -167,7 +167,7 @@ func (x *Svarog) String() string {
 func (*Svarog) ProtoMessage() {}
 
 func (x *Svarog) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[3]
+	mi := &file_control_plane_api_control_plane_api_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -180,7 +180,7 @@ func (x *Svarog) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Svarog.ProtoReflect.Descriptor instead.
 func (*Svarog) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{3}
+	return file_control_plane_api_control_plane_api_proto_rawDescGZIP(), []int{3}
 }
 
 type ListServices_Request struct {
@@ -191,7 +191,7 @@ type ListServices_Request struct {
 
 func (x *ListServices_Request) Reset() {
 	*x = ListServices_Request{}
-	mi := &file_control_plane_api_proto_msgTypes[4]
+	mi := &file_control_plane_api_control_plane_api_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -203,7 +203,7 @@ func (x *ListServices_Request) String() string {
 func (*ListServices_Request) ProtoMessage() {}
 
 func (x *ListServices_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[4]
+	mi := &file_control_plane_api_control_plane_api_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -216,7 +216,7 @@ func (x *ListServices_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServices_Request.ProtoReflect.Descriptor instead.
 func (*ListServices_Request) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{0, 0}
+	return file_control_plane_api_control_plane_api_proto_rawDescGZIP(), []int{0, 0}
 }
 
 type ListServices_Response struct {
@@ -230,7 +230,7 @@ type ListServices_Response struct {
 
 func (x *ListServices_Response) Reset() {
 	*x = ListServices_Response{}
-	mi := &file_control_plane_api_proto_msgTypes[5]
+	mi := &file_control_plane_api_control_plane_api_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -242,7 +242,7 @@ func (x *ListServices_Response) String() string {
 func (*ListServices_Response) ProtoMessage() {}
 
 func (x *ListServices_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[5]
+	mi := &file_control_plane_api_control_plane_api_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -255,7 +255,7 @@ func (x *ListServices_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListServices_Response.ProtoReflect.Descriptor instead.
 func (*ListServices_Response) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{0, 1}
+	return file_control_plane_api_control_plane_api_proto_rawDescGZIP(), []int{0, 1}
 }
 
 func (x *ListServices_Response) GetMatreshka() *Matreshka {
@@ -279,17 +279,17 @@ func (x *ListServices_Response) GetSvarog() *Svarog {
 	return nil
 }
 
-var File_control_plane_api_proto protoreflect.FileDescriptor
+var File_control_plane_api_control_plane_api_proto protoreflect.FileDescriptor
 
-const file_control_plane_api_proto_rawDesc = "" +
+const file_control_plane_api_control_plane_api_proto_rawDesc = "" +
 	"\n" +
-	"\x17control_plane_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\tnpm.proto\"\xe3\x01\n" +
+	")control_plane_api/control_plane_api.proto\x12\x11control_plane_api\x1a\x1cgoogle/api/annotations.proto\x1a\tnpm.proto\"\xfb\x01\n" +
 	"\fListServices\x1a\t\n" +
-	"\aRequest\x1a\xc7\x01\n" +
-	"\bResponse\x127\n" +
-	"\tmatreshka\x18\x01 \x01(\v2\x14.velez_api.MatreshkaH\x00R\tmatreshka\x88\x01\x01\x12.\n" +
-	"\x06makosh\x18\x02 \x01(\v2\x11.velez_api.MakoshH\x01R\x06makosh\x88\x01\x01\x12.\n" +
-	"\x06svarog\x18\x03 \x01(\v2\x11.velez_api.SvarogH\x02R\x06svarog\x88\x01\x01B\f\n" +
+	"\aRequest\x1a\xdf\x01\n" +
+	"\bResponse\x12?\n" +
+	"\tmatreshka\x18\x01 \x01(\v2\x1c.control_plane_api.MatreshkaH\x00R\tmatreshka\x88\x01\x01\x126\n" +
+	"\x06makosh\x18\x02 \x01(\v2\x19.control_plane_api.MakoshH\x01R\x06makosh\x88\x01\x01\x126\n" +
+	"\x06svarog\x18\x03 \x01(\v2\x19.control_plane_api.SvarogH\x02R\x06svarog\x88\x01\x01B\f\n" +
 	"\n" +
 	"_matreshkaB\t\n" +
 	"\a_makoshB\t\n" +
@@ -298,37 +298,37 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\x06ui_url\x18\x01 \x01(\tR\x05uiUrl\"\x1f\n" +
 	"\x06Makosh\x12\x15\n" +
 	"\x06ui_url\x18\x02 \x01(\tR\x05uiUrl\"\b\n" +
-	"\x06Svarog2\x86\x01\n" +
-	"\fControlPlane\x12v\n" +
-	"\fListServices\x12\x1f.velez_api.ListServices.Request\x1a .velez_api.ListServices.Response\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/control_plane/servicesB(\x92\x82\x19\x10@vervstack/velezZ\x12/control_plane_apib\x06proto3"
+	"\x06Svarog2\x97\x01\n" +
+	"\fControlPlane\x12\x86\x01\n" +
+	"\fListServices\x12'.control_plane_api.ListServices.Request\x1a(.control_plane_api.ListServices.Response\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/control_plane/servicesBS\x92\x82\x19\x10@vervstack/velezZ=go.vervstack.ru/velez/pkg/control_plane_api;control_plane_apib\x06proto3"
 
 var (
-	file_control_plane_api_proto_rawDescOnce sync.Once
-	file_control_plane_api_proto_rawDescData []byte
+	file_control_plane_api_control_plane_api_proto_rawDescOnce sync.Once
+	file_control_plane_api_control_plane_api_proto_rawDescData []byte
 )
 
-func file_control_plane_api_proto_rawDescGZIP() []byte {
-	file_control_plane_api_proto_rawDescOnce.Do(func() {
-		file_control_plane_api_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_control_plane_api_proto_rawDesc), len(file_control_plane_api_proto_rawDesc)))
+func file_control_plane_api_control_plane_api_proto_rawDescGZIP() []byte {
+	file_control_plane_api_control_plane_api_proto_rawDescOnce.Do(func() {
+		file_control_plane_api_control_plane_api_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_control_plane_api_control_plane_api_proto_rawDesc), len(file_control_plane_api_control_plane_api_proto_rawDesc)))
 	})
-	return file_control_plane_api_proto_rawDescData
+	return file_control_plane_api_control_plane_api_proto_rawDescData
 }
 
-var file_control_plane_api_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
-var file_control_plane_api_proto_goTypes = []any{
-	(*ListServices)(nil),          // 0: velez_api.ListServices
-	(*Matreshka)(nil),             // 1: velez_api.Matreshka
-	(*Makosh)(nil),                // 2: velez_api.Makosh
-	(*Svarog)(nil),                // 3: velez_api.Svarog
-	(*ListServices_Request)(nil),  // 4: velez_api.ListServices.Request
-	(*ListServices_Response)(nil), // 5: velez_api.ListServices.Response
+var file_control_plane_api_control_plane_api_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_control_plane_api_control_plane_api_proto_goTypes = []any{
+	(*ListServices)(nil),          // 0: control_plane_api.ListServices
+	(*Matreshka)(nil),             // 1: control_plane_api.Matreshka
+	(*Makosh)(nil),                // 2: control_plane_api.Makosh
+	(*Svarog)(nil),                // 3: control_plane_api.Svarog
+	(*ListServices_Request)(nil),  // 4: control_plane_api.ListServices.Request
+	(*ListServices_Response)(nil), // 5: control_plane_api.ListServices.Response
 }
-var file_control_plane_api_proto_depIdxs = []int32{
-	1, // 0: velez_api.ListServices.Response.matreshka:type_name -> velez_api.Matreshka
-	2, // 1: velez_api.ListServices.Response.makosh:type_name -> velez_api.Makosh
-	3, // 2: velez_api.ListServices.Response.svarog:type_name -> velez_api.Svarog
-	4, // 3: velez_api.ControlPlane.ListServices:input_type -> velez_api.ListServices.Request
-	5, // 4: velez_api.ControlPlane.ListServices:output_type -> velez_api.ListServices.Response
+var file_control_plane_api_control_plane_api_proto_depIdxs = []int32{
+	1, // 0: control_plane_api.ListServices.Response.matreshka:type_name -> control_plane_api.Matreshka
+	2, // 1: control_plane_api.ListServices.Response.makosh:type_name -> control_plane_api.Makosh
+	3, // 2: control_plane_api.ListServices.Response.svarog:type_name -> control_plane_api.Svarog
+	4, // 3: control_plane_api.ControlPlane.ListServices:input_type -> control_plane_api.ListServices.Request
+	5, // 4: control_plane_api.ControlPlane.ListServices:output_type -> control_plane_api.ListServices.Response
 	4, // [4:5] is the sub-list for method output_type
 	3, // [3:4] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
@@ -336,27 +336,27 @@ var file_control_plane_api_proto_depIdxs = []int32{
 	0, // [0:3] is the sub-list for field type_name
 }
 
-func init() { file_control_plane_api_proto_init() }
-func file_control_plane_api_proto_init() {
-	if File_control_plane_api_proto != nil {
+func init() { file_control_plane_api_control_plane_api_proto_init() }
+func file_control_plane_api_control_plane_api_proto_init() {
+	if File_control_plane_api_control_plane_api_proto != nil {
 		return
 	}
-	file_control_plane_api_proto_msgTypes[5].OneofWrappers = []any{}
+	file_control_plane_api_control_plane_api_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_control_plane_api_proto_rawDesc), len(file_control_plane_api_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_control_plane_api_control_plane_api_proto_rawDesc), len(file_control_plane_api_control_plane_api_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_control_plane_api_proto_goTypes,
-		DependencyIndexes: file_control_plane_api_proto_depIdxs,
-		MessageInfos:      file_control_plane_api_proto_msgTypes,
+		GoTypes:           file_control_plane_api_control_plane_api_proto_goTypes,
+		DependencyIndexes: file_control_plane_api_control_plane_api_proto_depIdxs,
+		MessageInfos:      file_control_plane_api_control_plane_api_proto_msgTypes,
 	}.Build()
-	File_control_plane_api_proto = out.File
-	file_control_plane_api_proto_goTypes = nil
-	file_control_plane_api_proto_depIdxs = nil
+	File_control_plane_api_control_plane_api_proto = out.File
+	file_control_plane_api_control_plane_api_proto_goTypes = nil
+	file_control_plane_api_control_plane_api_proto_depIdxs = nil
 }

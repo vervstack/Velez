@@ -4,9 +4,11 @@ package velez_api;
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
+import "api/grpc/matreshka_api.proto";
+
 import "npm.proto";
 
-option go_package = "/velez_api";
+option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
 option (npm_package) = "@vervstack/velez";
 
 service VelezAPI {
@@ -177,6 +179,10 @@ message CreateSmerd {
     optional string config_version = 11;
     //    not implemented
     bool auto_upgrade = 12;
+
+    RestartPolicy restart = 13;
+
+    MatreshkaConfigSpec config = 14;
   }
 }
 
@@ -245,4 +251,38 @@ message UpgradeSmerd {
     string image = 2;
   }
   message Response {}
+}
+
+message RestartPolicy {
+  RestartPolicyType type = 1;
+  optional uint32 FailureCount = 2;
+}
+
+enum RestartPolicyType {
+  unless_stopped = 0;
+  no = 1;
+  always = 2;
+  on_failure = 3;
+}
+
+message MatreshkaConfigSpec {
+  // Name of config. By default velez will try to guess config by
+  // indirect signs such as (no priority)
+  //  - special MATRESHKA_CONFIG tags
+  //  - image (e.g. postgres, angie and etc)
+  //  - smerd's name (starting with special prefix)
+  optional string config_name = 1;
+  // Version to load into smerd. By default - master
+  optional string config_version = 2;
+  // Format of config. Different default for different types
+  // e.g
+  //    - verv - sets config as environment variables
+  //    - pg - writes to a config file
+  // general rule - if target_path is not set -> it's a environment variables
+  optional matreshka_api.Format config_format = 3;
+  // target path of config.
+  //    If set and has .yaml extension - writes yaml file at path
+  //
+  //    If not set - writes config as an environment variables
+  optional string system_path = 4;
 }

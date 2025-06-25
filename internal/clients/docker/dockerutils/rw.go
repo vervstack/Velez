@@ -77,7 +77,7 @@ func WriteToContainer(ctx context.Context, dockerAPI client.APIClient, contId st
 		contId, path.Dir(systemPath), buf,
 		container.CopyToContainerOptions{})
 	if err != nil {
-		return rerrors.Wrap(err, "error coping from container")
+		return rerrors.Wrap(err, "error writing to container")
 	}
 
 	return nil

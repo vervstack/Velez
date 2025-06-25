@@ -139,7 +139,8 @@ func fillMeta(img *image.InspectResponse, mount *domain.ConfigMount) {
 		mount.Meta.ConfType = matreshka_api.ConfigTypePrefix_plain
 	}
 
-	if strings.HasSuffix(toolbox.FromPtr(mount.FilePath), matreshka_api.Format_yaml.String()) {
+	fp := toolbox.FromPtr(mount.FilePath)
+	if strings.HasSuffix(fp, ".yaml") || strings.HasSuffix(fp, ".yml") {
 		mount.Meta.Format = matreshka_api.Format_yaml
 	} else {
 		mount.Meta.Format = matreshka_api.Format_env

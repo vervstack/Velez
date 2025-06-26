@@ -1,6 +1,5 @@
 export VELEZ_PORT=53890
 export VELEZ_KEY_PATH=~/velez
-export MATRESHKA_PASS=
 export VELEZ_NAME="velez"
 
 prepare () {
@@ -21,7 +20,6 @@ run_node() {
 
   docker run \
     -p "${velezPort}":53890 \
-    -e MATRESHKA_PASS="${MATRESHKA_PASS}" \
     -d \
     --name velez \
     -v /var/run/docker.sock:/var/run/docker.sock \

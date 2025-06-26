@@ -36,8 +36,7 @@ func (p *prepareRequestStep) Do(_ context.Context) error {
 
 	if p.req.Config == nil {
 		p.req.Config = &velez_api.MatreshkaConfigSpec{
-			ConfigName:    &p.req.Name,
-			ConfigVersion: p.req.ConfigVersion,
+			ConfigName: &p.req.Name,
 		}
 	}
 

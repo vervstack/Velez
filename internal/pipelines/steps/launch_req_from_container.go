@@ -63,7 +63,6 @@ func (s *fromContainerToRequest) Do(ctx context.Context) error {
 			Healthcheck:   nil,
 			IgnoreConfig:  false,
 			UseImagePorts: false,
-			ConfigVersion: nil,
 			AutoUpgrade:   false,
 		},
 	}

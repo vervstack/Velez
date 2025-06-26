@@ -116,7 +116,6 @@ export type CreateSmerdRequest = {
     labels?: Record<string, string>;
     ignoreConfig?: boolean;
     useImagePorts?: boolean;
-    configVersion?: string;
     autoUpgrade?: boolean;
     restart?: RestartPolicy;
     config?: MatreshkaConfigSpec;

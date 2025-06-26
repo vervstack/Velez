@@ -432,9 +432,6 @@
         "useImagePorts": {
           "type": "boolean"
         },
-        "configVersion": {
-          "type": "string"
-        },
         "autoUpgrade": {
           "type": "boolean",
           "title": "not implemented"

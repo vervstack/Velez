@@ -1307,11 +1307,10 @@ type CreateSmerd_Request struct {
 	Labels        map[string]string      `protobuf:"bytes,8,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	IgnoreConfig  bool                   `protobuf:"varint,9,opt,name=ignore_config,json=ignoreConfig,proto3" json:"ignore_config,omitempty"`
 	UseImagePorts bool                   `protobuf:"varint,10,opt,name=use_image_ports,json=useImagePorts,proto3" json:"use_image_ports,omitempty"`
-	ConfigVersion *string                `protobuf:"bytes,11,opt,name=config_version,json=configVersion,proto3,oneof" json:"config_version,omitempty"`
 	// not implemented
-	AutoUpgrade   bool                 `protobuf:"varint,12,opt,name=auto_upgrade,json=autoUpgrade,proto3" json:"auto_upgrade,omitempty"`
-	Restart       *RestartPolicy       `protobuf:"bytes,13,opt,name=restart,proto3" json:"restart,omitempty"`
-	Config        *MatreshkaConfigSpec `protobuf:"bytes,14,opt,name=config,proto3" json:"config,omitempty"`
+	AutoUpgrade   bool                 `protobuf:"varint,11,opt,name=auto_upgrade,json=autoUpgrade,proto3" json:"auto_upgrade,omitempty"`
+	Restart       *RestartPolicy       `protobuf:"bytes,12,opt,name=restart,proto3" json:"restart,omitempty"`
+	Config        *MatreshkaConfigSpec `protobuf:"bytes,13,opt,name=config,proto3" json:"config,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1414,13 +1413,6 @@ func (x *CreateSmerd_Request) GetUseImagePorts() bool {
 		return x.UseImagePorts
 	}
 	return false
-}
-
-func (x *CreateSmerd_Request) GetConfigVersion() string {
-	if x != nil && x.ConfigVersion != nil {
-		return *x.ConfigVersion
-	}
-	return ""
 }
 
 func (x *CreateSmerd_Request) GetAutoUpgrade() bool {
@@ -2150,8 +2142,8 @@ const file_velez_api_velez_api_proto_rawDesc = "" +
 	"\aretries\x18\x04 \x01(\rR\aretriesB\n" +
 	"\n" +
 	"\b_commandB\x11\n" +
-	"\x0f_timeout_second\"\xf7\x06\n" +
-	"\vCreateSmerd\x1a\xe7\x06\n" +
+	"\x0f_timeout_second\"\xb8\x06\n" +
+	"\vCreateSmerd\x1a\xa8\x06\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
@@ -2164,11 +2156,10 @@ const file_velez_api_velez_api_proto_rawDesc = "" +
 	"\x06labels\x18\b \x03(\v2*.velez_api.CreateSmerd.Request.LabelsEntryR\x06labels\x12#\n" +
 	"\rignore_config\x18\t \x01(\bR\fignoreConfig\x12&\n" +
 	"\x0fuse_image_ports\x18\n" +
-	" \x01(\bR\ruseImagePorts\x12*\n" +
-	"\x0econfig_version\x18\v \x01(\tH\x04R\rconfigVersion\x88\x01\x01\x12!\n" +
-	"\fauto_upgrade\x18\f \x01(\bR\vautoUpgrade\x122\n" +
-	"\arestart\x18\r \x01(\v2\x18.velez_api.RestartPolicyR\arestart\x126\n" +
-	"\x06config\x18\x0e \x01(\v2\x1e.velez_api.MatreshkaConfigSpecR\x06config\x1a6\n" +
+	" \x01(\bR\ruseImagePorts\x12!\n" +
+	"\fauto_upgrade\x18\v \x01(\bR\vautoUpgrade\x122\n" +
+	"\arestart\x18\f \x01(\v2\x18.velez_api.RestartPolicyR\arestart\x126\n" +
+	"\x06config\x18\r \x01(\v2\x1e.velez_api.MatreshkaConfigSpecR\x06config\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a9\n" +
@@ -2179,8 +2170,7 @@ const file_velez_api_velez_api_proto_rawDesc = "" +
 	"\t_settingsB\n" +
 	"\n" +
 	"\b_commandB\x0e\n" +
-	"\f_healthcheckB\x11\n" +
-	"\x0f_config_version\"\xab\x02\n" +
+	"\f_healthcheck\"\xab\x02\n" +
 	"\n" +
 	"ListSmerds\x1a\xe6\x01\n" +
 	"\aRequest\x12\x19\n" +

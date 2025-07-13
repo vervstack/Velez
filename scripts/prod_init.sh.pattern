@@ -3,7 +3,9 @@ export VELEZ_KEY_PATH=~/velez
 export VELEZ_NAME="velez"
 
 prepare () {
-  docker pull vervstack/velez:{{ .Version }}
+  local velezVersion=$1
+
+  docker pull vervstack/velez:"${velezVersion}"
 }
 
 stop_node () {
@@ -17,6 +19,7 @@ stop_node () {
 run_node() {
   local velezPort=$1
   local velezKeyPath=$2
+  local velezVersion=$3
 
   docker run \
     -p "${velezPort}":53890 \
@@ -24,9 +27,11 @@ run_node() {
     --name velez \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v "${velezKeyPath}":/tmp/velez \
-    vervstack/velez:{{ .Version }}
+    vervstack/velez:"${velezVersion}"
 }
 
-prepare
+export VELEZ_VERSION={{ .Version }}
+
+prepare $VELEZ_VERSION
 stop_node
-run_node $VELEZ_PORT $VELEZ_KEY_PATH
+run_node $VELEZ_PORT $VELEZ_KEY_PATH $VELEZ_VERSION

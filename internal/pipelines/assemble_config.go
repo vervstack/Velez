@@ -1,6 +1,8 @@
 package pipelines
 
 import (
+	"strings"
+
 	"github.com/docker/docker/api/types/image"
 	"github.com/stretchr/testify/assert/yaml"
 	"go.redsock.ru/evon"
@@ -35,6 +37,7 @@ func (p *pipeliner) AssembleConfig(req domain.AssembleConfig) Runner[domain.AppC
 			steps.DropContainerStep(p.nodeClients, &contId),
 		},
 		getResult: func() (*domain.AppConfig, error) {
+			configMount.Meta.Name = strings.ReplaceAll(configMount.Meta.Name, configFetchingPostfix, "")
 			appConfig := domain.AppConfig{
 				Meta:       configMount.Meta,
 				ContentRaw: configMount.Content,

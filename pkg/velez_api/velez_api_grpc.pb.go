@@ -19,13 +19,15 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	VelezAPI_Version_FullMethodName        = "/velez_api.VelezAPI/Version"
-	VelezAPI_CreateSmerd_FullMethodName    = "/velez_api.VelezAPI/CreateSmerd"
-	VelezAPI_ListSmerds_FullMethodName     = "/velez_api.VelezAPI/ListSmerds"
-	VelezAPI_DropSmerd_FullMethodName      = "/velez_api.VelezAPI/DropSmerd"
-	VelezAPI_GetHardware_FullMethodName    = "/velez_api.VelezAPI/GetHardware"
-	VelezAPI_UpgradeSmerd_FullMethodName   = "/velez_api.VelezAPI/UpgradeSmerd"
-	VelezAPI_AssembleConfig_FullMethodName = "/velez_api.VelezAPI/AssembleConfig"
+	VelezAPI_Version_FullMethodName          = "/velez_api.VelezAPI/Version"
+	VelezAPI_CreateSmerd_FullMethodName      = "/velez_api.VelezAPI/CreateSmerd"
+	VelezAPI_ListSmerds_FullMethodName       = "/velez_api.VelezAPI/ListSmerds"
+	VelezAPI_DropSmerd_FullMethodName        = "/velez_api.VelezAPI/DropSmerd"
+	VelezAPI_GetHardware_FullMethodName      = "/velez_api.VelezAPI/GetHardware"
+	VelezAPI_UpgradeSmerd_FullMethodName     = "/velez_api.VelezAPI/UpgradeSmerd"
+	VelezAPI_AssembleConfig_FullMethodName   = "/velez_api.VelezAPI/AssembleConfig"
+	VelezAPI_MakeConnections_FullMethodName  = "/velez_api.VelezAPI/MakeConnections"
+	VelezAPI_BreakConnections_FullMethodName = "/velez_api.VelezAPI/BreakConnections"
 )
 
 // VelezAPIClient is the client API for VelezAPI service.
@@ -43,6 +45,8 @@ type VelezAPIClient interface {
 	// Calling this procedure will update master config in
 	// matreshka instance and return body in yaml format
 	AssembleConfig(ctx context.Context, in *AssembleConfig_Request, opts ...grpc.CallOption) (*AssembleConfig_Response, error)
+	MakeConnections(ctx context.Context, in *MakeConnections_Request, opts ...grpc.CallOption) (*MakeConnections_Response, error)
+	BreakConnections(ctx context.Context, in *BreakConnections_Request, opts ...grpc.CallOption) (*BreakConnections_Response, error)
 }
 
 type velezAPIClient struct {
@@ -123,6 +127,26 @@ func (c *velezAPIClient) AssembleConfig(ctx context.Context, in *AssembleConfig_
 	return out, nil
 }
 
+func (c *velezAPIClient) MakeConnections(ctx context.Context, in *MakeConnections_Request, opts ...grpc.CallOption) (*MakeConnections_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MakeConnections_Response)
+	err := c.cc.Invoke(ctx, VelezAPI_MakeConnections_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *velezAPIClient) BreakConnections(ctx context.Context, in *BreakConnections_Request, opts ...grpc.CallOption) (*BreakConnections_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BreakConnections_Response)
+	err := c.cc.Invoke(ctx, VelezAPI_BreakConnections_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // VelezAPIServer is the server API for VelezAPI service.
 // All implementations must embed UnimplementedVelezAPIServer
 // for forward compatibility.
@@ -138,6 +162,8 @@ type VelezAPIServer interface {
 	// Calling this procedure will update master config in
 	// matreshka instance and return body in yaml format
 	AssembleConfig(context.Context, *AssembleConfig_Request) (*AssembleConfig_Response, error)
+	MakeConnections(context.Context, *MakeConnections_Request) (*MakeConnections_Response, error)
+	BreakConnections(context.Context, *BreakConnections_Request) (*BreakConnections_Response, error)
 	mustEmbedUnimplementedVelezAPIServer()
 }
 
@@ -168,6 +194,12 @@ func (UnimplementedVelezAPIServer) UpgradeSmerd(context.Context, *UpgradeSmerd_R
 }
 func (UnimplementedVelezAPIServer) AssembleConfig(context.Context, *AssembleConfig_Request) (*AssembleConfig_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AssembleConfig not implemented")
+}
+func (UnimplementedVelezAPIServer) MakeConnections(context.Context, *MakeConnections_Request) (*MakeConnections_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MakeConnections not implemented")
+}
+func (UnimplementedVelezAPIServer) BreakConnections(context.Context, *BreakConnections_Request) (*BreakConnections_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BreakConnections not implemented")
 }
 func (UnimplementedVelezAPIServer) mustEmbedUnimplementedVelezAPIServer() {}
 func (UnimplementedVelezAPIServer) testEmbeddedByValue()                  {}
@@ -316,6 +348,42 @@ func _VelezAPI_AssembleConfig_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _VelezAPI_MakeConnections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MakeConnections_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VelezAPIServer).MakeConnections(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VelezAPI_MakeConnections_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VelezAPIServer).MakeConnections(ctx, req.(*MakeConnections_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VelezAPI_BreakConnections_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BreakConnections_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VelezAPIServer).BreakConnections(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VelezAPI_BreakConnections_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VelezAPIServer).BreakConnections(ctx, req.(*BreakConnections_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // VelezAPI_ServiceDesc is the grpc.ServiceDesc for VelezAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -350,6 +418,14 @@ var VelezAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AssembleConfig",
 			Handler:    _VelezAPI_AssembleConfig_Handler,
+		},
+		{
+			MethodName: "MakeConnections",
+			Handler:    _VelezAPI_MakeConnections_Handler,
+		},
+		{
+			MethodName: "BreakConnections",
+			Handler:    _VelezAPI_BreakConnections_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

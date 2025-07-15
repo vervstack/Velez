@@ -71,6 +71,38 @@
         ]
       }
     },
+    "/api/smerd/connect": {
+      "post": {
+        "operationId": "VelezAPI_MakeConnections",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiMakeConnectionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiMakeConnectionsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VelezAPI"
+        ]
+      }
+    },
     "/api/smerd/create": {
       "post": {
         "operationId": "VelezAPI_CreateSmerd",
@@ -95,6 +127,38 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/velez_apiCreateSmerdRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VelezAPI"
+        ]
+      }
+    },
+    "/api/smerd/disconnect": {
+      "post": {
+        "operationId": "VelezAPI_BreakConnections",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiBreakConnectionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiBreakConnectionsRequest"
             }
           }
         ],
@@ -393,6 +457,38 @@
         }
       }
     },
+    "velez_apiBreakConnectionsRequest": {
+      "type": "object",
+      "properties": {
+        "connections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiConnection"
+          }
+        }
+      }
+    },
+    "velez_apiBreakConnectionsResponse": {
+      "type": "object"
+    },
+    "velez_apiConnection": {
+      "type": "object",
+      "properties": {
+        "serviceName": {
+          "type": "string"
+        },
+        "targetNetwork": {
+          "type": "string"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "velez_apiCreateSmerdRequest": {
       "type": "object",
       "properties": {
@@ -539,6 +635,21 @@
           }
         }
       }
+    },
+    "velez_apiMakeConnectionsRequest": {
+      "type": "object",
+      "properties": {
+        "connections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiConnection"
+          }
+        }
+      }
+    },
+    "velez_apiMakeConnectionsResponse": {
+      "type": "object"
     },
     "velez_apiMatreshkaConfigSpec": {
       "type": "object",

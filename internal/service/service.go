@@ -19,6 +19,9 @@ type ContainerService interface {
 	ListSmerds(ctx context.Context, req *velez_api.ListSmerds_Request) (*velez_api.ListSmerds_Response, error)
 	DropSmerds(ctx context.Context, req *velez_api.DropSmerd_Request) (*velez_api.DropSmerd_Response, error)
 	InspectSmerd(ctx context.Context, contId string) (*velez_api.Smerd, error)
+
+	ConnectToNetwork(ctx context.Context, req domain.Connection) error
+	DisconnectFromNetwork(ctx context.Context, req domain.Connection) error
 }
 
 type ConfigurationService interface {

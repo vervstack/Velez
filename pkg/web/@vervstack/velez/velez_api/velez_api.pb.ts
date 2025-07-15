@@ -202,6 +202,28 @@ export type MatreshkaConfigSpec = {
     systemPath?: string;
 };
 
+export type MakeConnectionsRequest = {
+    connections?: Connection[];
+};
+
+export type MakeConnectionsResponse = Record<string, never>;
+
+export type MakeConnections = Record<string, never>;
+
+export type BreakConnectionsRequest = {
+    connections?: Connection[];
+};
+
+export type BreakConnectionsResponse = Record<string, never>;
+
+export type BreakConnections = Record<string, never>;
+
+export type Connection = {
+    serviceName?: string;
+    targetNetwork?: string;
+    aliases?: string[];
+};
+
 export class VelezAPI {
     static Version(this: void, req: VersionRequest, initReq?: fm.InitReq): Promise<VersionResponse> {
         return fm.fetchRequest<VersionResponse>(`/api/version?${fm.renderURLSearchParams(req, [])}`, {
@@ -251,6 +273,22 @@ export class VelezAPI {
 
     static AssembleConfig(this: void, req: AssembleConfigRequest, initReq?: fm.InitReq): Promise<AssembleConfigResponse> {
         return fm.fetchRequest<AssembleConfigResponse>(`/api/config/assemble`, {
+            ...initReq,
+            method: "POST",
+            body: JSON.stringify(req, fm.replacer)
+        });
+    }
+
+    static MakeConnections(this: void, req: MakeConnectionsRequest, initReq?: fm.InitReq): Promise<MakeConnectionsResponse> {
+        return fm.fetchRequest<MakeConnectionsResponse>(`/api/smerd/connect`, {
+            ...initReq,
+            method: "POST",
+            body: JSON.stringify(req, fm.replacer)
+        });
+    }
+
+    static BreakConnections(this: void, req: BreakConnectionsRequest, initReq?: fm.InitReq): Promise<BreakConnectionsResponse> {
+        return fm.fetchRequest<BreakConnectionsResponse>(`/api/smerd/disconnect`, {
             ...initReq,
             method: "POST",
             body: JSON.stringify(req, fm.replacer)

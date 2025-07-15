@@ -73,7 +73,7 @@ func fromMatreshkaYamlToEvon(content []byte) (*evon.Node, error) {
 		return nil, rerrors.Wrap(err, "error unmarshalling to matreshka config")
 	}
 
-	env, err := evon.MarshalEnv(c)
+	env, err := evon.MarshalEnv(&c)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error marshalling to env")
 	}

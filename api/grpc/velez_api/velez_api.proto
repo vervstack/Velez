@@ -60,6 +60,20 @@ service VelezAPI {
       body: "*"
     };
   }
+
+  rpc MakeConnections(MakeConnections.Request) returns (MakeConnections.Response) {
+    option (google.api.http) = {
+      post: "/api/smerd/connect"
+      body: "*"
+    };
+  }
+
+  rpc BreakConnections(BreakConnections.Request) returns (BreakConnections.Response) {
+    option (google.api.http) = {
+      post: "/api/smerd/disconnect"
+      body: "*"
+    };
+  }
 }
 
 message Version {
@@ -284,4 +298,26 @@ message MatreshkaConfigSpec {
   //
   //    If not set - writes config as an environment variables
   optional string system_path = 4;
+}
+
+message MakeConnections {
+  message Request {
+    repeated Connection connections = 1;
+  }
+
+  message Response {}
+}
+
+message BreakConnections {
+  message Request {
+    repeated Connection connections = 1;
+  }
+
+  message Response {}
+}
+
+message Connection {
+  string service_name = 1;
+  string target_network = 2;
+  repeated string aliases = 3;
 }

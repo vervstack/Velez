@@ -154,6 +154,9 @@ func (au *AutoUpgrade) getNewImageVersion(ctx context.Context, imageName string)
 	}
 
 	newImage := imageBase + ":" + tags[len(tags)-1]
+	if newImage == imageName {
+		return nil, nil
+	}
 
 	return &newImage, nil
 }

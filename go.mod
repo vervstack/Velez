@@ -4,6 +4,7 @@ go 1.24.2
 
 require (
 	github.com/Red-Sock/go-swagger-ui v0.0.2
+	github.com/containerd/errdefs v1.0.0
 	github.com/docker/docker v28.2.2+incompatible
 	github.com/docker/go-connections v0.5.0
 	github.com/google/go-containerregistry v0.20.6
@@ -20,7 +21,7 @@ require (
 	go.redsock.ru/rerrors v0.0.4
 	go.redsock.ru/toolbox v0.0.11
 	go.vervstack.ru/makosh v0.0.16
-	go.vervstack.ru/matreshka v1.0.90
+	go.vervstack.ru/matreshka v1.0.91
 	golang.org/x/net v0.41.0
 	golang.org/x/sync v0.15.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250603155806-513f23925822
@@ -33,7 +34,6 @@ require (
 	github.com/Red-Sock/trace-errors v0.0.13 // indirect
 	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
-	github.com/containerd/errdefs v1.0.0 // indirect
 	github.com/containerd/errdefs/pkg v0.3.0 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.16.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

@@ -190,7 +190,7 @@ message CreateSmerd {
 
     bool ignore_config = 9;
     bool use_image_ports = 10;
-    //    not implemented
+
     bool auto_upgrade = 11;
 
     RestartPolicy restart = 12;

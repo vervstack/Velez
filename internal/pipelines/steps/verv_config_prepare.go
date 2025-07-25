@@ -74,6 +74,10 @@ func (p *prepareVervConfig) Do(ctx context.Context) (err error) {
 
 	p.req.Labels[labels.CreatedWithVelezLabel] = "true"
 
+	if p.req.AutoUpgrade {
+		p.req.Labels[labels.AutoUpgrade] = "true"
+	}
+
 	for _, networks := range p.req.Settings.Network {
 		err = dockerutils.CreateNetwork(ctx, p.docker, networks.NetworkName)
 		if err != nil {
@@ -99,8 +103,10 @@ func (p *prepareVervConfig) getPortsFromImage() error {
 		portsInReq[port.ServicePortNumber] = port
 	}
 
-	for port := range p.image.Config.ExposedPorts {
-		portVal := uint32(port.Int())
+	for _, port := range p.image.Config.ExposedPorts {
+		panic(123)
+		_ = port
+		portVal := uint32(1)
 		_, ok := portsInReq[portVal]
 		if ok {
 			continue
@@ -108,7 +114,7 @@ func (p *prepareVervConfig) getPortsFromImage() error {
 
 		portBind := &velez_api.Port{
 			ServicePortNumber: portVal,
-			Protocol:          velez_api.Port_Protocol(velez_api.Port_Protocol_value[port.Proto()]),
+			Protocol:          velez_api.Port_Protocol(velez_api.Port_Protocol_value["TODO"]), // TODO
 		}
 		p.req.Settings.Ports = append(p.req.Settings.Ports, portBind)
 		portsInReq[portVal] = portBind

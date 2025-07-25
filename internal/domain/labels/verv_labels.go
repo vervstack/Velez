@@ -7,6 +7,7 @@ import (
 const (
 	CreatedWithVelezLabel = "CREATED_WITH_VELEZ"
 	MatreshkaConfigLabel  = "MATRESHKA_CONFIG_ENABLED"
+	AutoUpgrade           = "VELEZ_AUTO_UPGRADE"
 )
 
 func IsMatreshkaImage(r *image.InspectResponse) bool {

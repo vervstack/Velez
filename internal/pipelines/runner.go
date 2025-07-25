@@ -56,7 +56,7 @@ func (p *runner[T]) rollback(ctx context.Context) error {
 		if ok {
 			err := rollbackable.Rollback(ctx)
 			if err != nil {
-				globalErr = rerrors.Join(globalErr, rerrors.Wrap(err, "error during rollback step: %v ", rollbackable))
+				globalErr = rerrors.Join(globalErr, rerrors.Wrapf(err, "error during rollback step: %v ", rollbackable))
 			}
 		}
 	}

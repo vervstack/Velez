@@ -5,12 +5,15 @@ package app
 
 import (
 	"context"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	errors "go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 
+	"go.vervstack.ru/Velez/internal/backservice/autoupgrade"
 	"go.vervstack.ru/Velez/internal/backservice/service_discovery"
 	"go.vervstack.ru/Velez/internal/clients"
 	"go.vervstack.ru/Velez/internal/clients/matreshka"
@@ -78,6 +81,20 @@ func (c *Custom) Init(a *App) (err error) {
 }
 
 func (c *Custom) Start(ctx context.Context) error {
+	errg, ctx := errgroup.WithContext(ctx)
+	errg.Go(func() error {
+		err := autoupgrade.New(c.NodeClients.Docker(), time.Second*30, c.Pipeliner).Start()
+		if err != nil {
+			return errors.Wrap(err, "error starting autoupgrade")
+		}
+
+		return nil
+	})
+
+	err := errg.Wait()
+	if err != nil {
+		return errors.Wrap(err, "error starting custom workers")
+	}
 
 	return nil
 }

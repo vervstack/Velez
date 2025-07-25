@@ -4,8 +4,9 @@ import (
 	"context"
 	"strconv"
 
+	errdefs2 "github.com/containerd/errdefs"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
-	"github.com/docker/docker/errdefs"
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/clients"
@@ -13,7 +14,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
-type pauseContainerStep struct {
+type detachContainerFromVervStep struct {
 	docker      clients.Docker
 	portManager clients.PortManager
 
@@ -22,14 +23,15 @@ type pauseContainerStep struct {
 
 	disconnectedNets map[string]*network.EndpointSettings
 
-	portsOnHold []uint32
+	portsOnHold      []uint32
+	stateBeforePause container.ContainerState
 }
 
 func PauseContainer(
 	nodeClients clients.NodeClients,
 	containerId *string,
-) *pauseContainerStep {
-	return &pauseContainerStep{
+) *detachContainerFromVervStep {
+	return &detachContainerFromVervStep{
 		docker:      nodeClients.Docker(),
 		portManager: nodeClients.PortManager(),
 
@@ -37,21 +39,21 @@ func PauseContainer(
 	}
 }
 
-func (s *pauseContainerStep) Do(ctx context.Context) error {
+func (s *detachContainerFromVervStep) Do(ctx context.Context) error {
 	if s.containerId == nil {
 		return rerrors.New("container id is required")
-	}
-
-	err := s.docker.ContainerPause(ctx, *s.containerId)
-	if err != nil {
-		if !errdefs.IsConflict(err) {
-			return rerrors.Wrap(err, "error pausing container")
-		}
 	}
 
 	cont, err := s.docker.InspectContainer(ctx, *s.containerId)
 	if err != nil {
 		return rerrors.Wrap(err, "error inspecting container")
+	}
+
+	s.stateBeforePause = cont.State.Status
+
+	err = s.stopContainer(ctx, cont)
+	if err != nil {
+		return rerrors.Wrap(err, "error stopping container")
 	}
 
 	s.disconnectedNets, err = dockerutils.DisconnectFromNetworks(ctx, s.docker, cont.ID)
@@ -71,8 +73,12 @@ func (s *pauseContainerStep) Do(ctx context.Context) error {
 	return nil
 }
 
-func (s *pauseContainerStep) Rollback(ctx context.Context) error {
+func (s *detachContainerFromVervStep) Rollback(ctx context.Context) error {
 	if s.containerId == nil {
+		return nil
+	}
+
+	if s.stateBeforePause != container.StateRunning {
 		return nil
 	}
 
@@ -101,6 +107,37 @@ func (s *pauseContainerStep) Rollback(ctx context.Context) error {
 
 	if globErr != nil {
 		return rerrors.Wrap(globErr)
+	}
+
+	return nil
+}
+
+func (s *detachContainerFromVervStep) stopContainer(ctx context.Context, cont container.InspectResponse) error {
+	switch cont.State.Status {
+	case container.StateRunning:
+		// Running. Can softly pause
+		err := s.docker.ContainerPause(ctx, *s.containerId)
+		if err != nil {
+			if !errdefs2.IsConflict(err) {
+				return rerrors.Wrap(err, "error pausing container")
+			}
+		}
+	case container.StateCreated:
+	//	Do nothing. Container created but not running
+	case container.StatePaused:
+	//	Do nothing. Already paused
+	case container.StateRestarting:
+		stopOps := container.StopOptions{}
+		err := s.docker.ContainerStop(ctx, *s.containerId, stopOps)
+		if err != nil {
+			return rerrors.Wrap(err, "error stopping container")
+		}
+	case container.StateRemoving:
+	// Do nothing. Container soon will be deleted
+	case container.StateExited:
+	// Do nothing. Container already stopped
+	case container.StateDead:
+		// Do nothing. Container already stopped
 	}
 
 	return nil

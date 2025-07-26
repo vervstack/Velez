@@ -62,7 +62,7 @@ func NewNodeClientsContainer(ctx context.Context, cfg config.Config) (NodeClient
 		if !cfg.Environment.DisableAPISecurity {
 			logrus.Debug("Initializing security manager")
 
-			cls.securityManager = security.NewSecurityManager(cfg.Environment.CustomPassToKey)
+			cls.securityManager = security.NewSecurityManager(cfg)
 
 			err = cls.securityManager.Start()
 			if err != nil {

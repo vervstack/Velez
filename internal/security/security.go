@@ -1,30 +1,39 @@
 package security
 
 import (
+	"encoding/json"
 	"os"
 	"path"
 	"sync"
 
-	"github.com/sirupsen/logrus"
-	errors "go.redsock.ru/rerrors"
+	"go.redsock.ru/rerrors"
 	rtb "go.redsock.ru/toolbox"
+
+	"go.vervstack.ru/Velez/internal/config"
 )
 
-const defaultPath = "/tmp/velez/private.key"
+const defaultPath = "/tmp/velez/private-keys.json"
 
 type Manager struct {
 	buildPath string
-	key       []byte
+	keys      PrivateKeys
 
 	sync.Once
 }
 
-func NewSecurityManager(buildPath string) *Manager {
-	if buildPath == "" {
-		buildPath = defaultPath
+type PrivateKeys struct {
+	Velez     []byte
+	Matreshka []byte
+}
+
+func NewSecurityManager(cfg config.Config) *Manager {
+	if cfg.Environment.CustomPassToKey == "" {
+		cfg.Environment.CustomPassToKey = defaultPath
 	}
+
 	return &Manager{
-		buildPath: buildPath,
+		buildPath: cfg.Environment.CustomPassToKey,
+		keys:      PrivateKeys{},
 	}
 }
 
@@ -36,13 +45,17 @@ func (s *Manager) Start() error {
 
 	return err
 }
-func (s *Manager) ValidateKey(in string) bool {
-	if len(in) != len(s.key) {
+
+func (s *Manager) PrivateKeys() *PrivateKeys {
+	return &s.keys
+}
+func (s *Manager) ValidatePrivateKey(in string) bool {
+	if len(in) != len(s.keys.Velez) {
 		return false
 	}
 
 	for i := range in {
-		if in[i] != s.key[i] {
+		if in[i] != s.keys.Velez[i] {
 			return false
 		}
 	}
@@ -54,27 +67,63 @@ func (s *Manager) Stop() error {
 	return os.RemoveAll(s.buildPath)
 }
 
-func (s *Manager) start() (err error) {
-	s.key = rtb.RandomBase64(256)
-
-	logrus.Debugf("making key to %s", s.buildPath)
-
-	err = os.RemoveAll(s.buildPath)
+func (s *Manager) start() error {
+	keys, err := getKeys(s.buildPath)
 	if err != nil {
-		return errors.Wrap(err, "error removing old key")
+		return rerrors.Wrap(err, "unable to get private keys")
 	}
 
-	err = os.MkdirAll(path.Dir(s.buildPath), 0777)
-	if err != nil {
-		return errors.Wrap(err, "error making dir")
-	}
+	s.keys.Velez = firstNotEmptyKey(keys.Velez)
+	s.keys.Matreshka = firstNotEmptyKey(s.keys.Velez, keys.Matreshka)
 
-	err = os.WriteFile(s.buildPath, s.key, 0777)
+	err = writeKey(s.buildPath, s.keys)
 	if err != nil {
-		return errors.Wrap(err, "error writing key")
+		return rerrors.Wrap(err, "unable to write key")
 	}
-
-	logrus.Infof("Private keys are at %s", s.buildPath)
 
 	return nil
+}
+
+func getKeys(buildPath string) (keys PrivateKeys, err error) {
+	f, err := os.Open(buildPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return keys, nil
+		}
+
+		return keys, rerrors.Wrap(err, "error opening file")
+	}
+	defer f.Close()
+
+	_ = json.NewDecoder(f).Decode(&keys)
+	return keys, nil
+}
+
+func writeKey(buildPath string, keys PrivateKeys) error {
+	err := os.MkdirAll(path.Dir(buildPath), 0777)
+	if err != nil {
+		return rerrors.Wrap(err, "error making dir")
+	}
+
+	data, err := json.Marshal(keys)
+	if err != nil {
+		return rerrors.Wrap(err, "error encoding key")
+	}
+
+	err = os.WriteFile(buildPath, data, 0777)
+	if err != nil {
+		return rerrors.Wrap(err, "error creating file")
+	}
+
+	return nil
+}
+
+func firstNotEmptyKey(arrs ...[]byte) []byte {
+	for _, b := range arrs {
+		if len(b) > 0 {
+			return b
+		}
+	}
+
+	return rtb.RandomBase64(256)
 }

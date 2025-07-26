@@ -47,9 +47,6 @@ environment:
     - name: makosh_url
       type: string
       value: verv://makosh
-    - name: matreshka_key
-      type: string
-      value: ""
     - name: log_format
       type: string
       enum: [TEXT, JSON]

@@ -63,27 +63,20 @@ func initInstance(
 	nodeClients clients.NodeClients,
 	sd service_discovery.ServiceDiscovery,
 ) (err error) {
-	if cfg.Environment.MatreshkaKey == "" {
-		cfg.Environment.MatreshkaKey, err = getKeyFromContainer(ctx, nodeClients.Docker())
-		if err != nil {
-			return errors.Wrap(err)
-		}
+	key, err := getKey(ctx, nodeClients)
+	if err != nil {
+		return errors.Wrap(err, "error getting key")
 	}
 
-	if cfg.Environment.MatreshkaKey == "" {
-		generateKey(cfg)
-		logrus.Infof("matreshka key not set. Generating one: %s", cfg.Environment.MatreshkaKey)
-	} else {
-		logrus.Infof("matreshka key is set to %s", cfg.Environment.MatreshkaKey)
-
-	}
+	pk := nodeClients.SecurityManager().PrivateKeys()
+	pk.Matreshka = []byte(key)
 
 	taskRequest := container_service_task.NewTaskRequest[matreshka_api.MatreshkaBeAPIClient]{
 		NodeClients:       nodeClients,
 		ClientConstructor: matreshka_api.NewMatreshkaBeAPIClient,
 		DialOpts: []grpc.DialOption{
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
-			grpc.WithUnaryInterceptor(matreshka_client.WithHeader(matreshka_client.Pass, cfg.Environment.MatreshkaKey))},
+			grpc.WithUnaryInterceptor(matreshka_client.WithHeader(matreshka_client.Pass, key))},
 		ContainerName: Name,
 		ImageName:     toolbox.Coalesce(cfg.Environment.MatreshkaImage, image),
 		GrpcPort:      grpcPort,
@@ -97,7 +90,7 @@ func initInstance(
 			return false
 		},
 		Env: map[string]string{
-			passEnv: cfg.Environment.MatreshkaKey,
+			passEnv: key,
 		},
 		VolumeMounts: map[string][]string{
 			"matreshka": {"/app/data"},
@@ -141,6 +134,22 @@ func initInstance(
 
 	return nil
 }
+func getKey(ctx context.Context, nodeClients clients.NodeClients) (string, error) {
+	pk := nodeClients.SecurityManager().PrivateKeys()
+	keyFromSecManager := string(pk.Matreshka)
+
+	keyFromCont, err := getKeyFromContainer(ctx, nodeClients.Docker())
+	if err != nil {
+		return "", errors.Wrap(err, "error getting key from container")
+	}
+
+	if keyFromCont == "" {
+		return keyFromSecManager, nil
+	}
+
+	logrus.Infof("Using key from container: %s", keyFromSecManager)
+	return keyFromCont, nil
+}
 
 func getKeyFromContainer(ctx context.Context, docker clients.Docker) (string, error) {
 	cont, err := docker.InspectContainer(ctx, Name)
@@ -157,7 +166,4 @@ func getKeyFromContainer(ctx context.Context, docker clients.Docker) (string, er
 		}
 	}
 	return "", nil
-}
-func generateKey(cfg *config.Config) {
-	cfg.Environment.MatreshkaKey = string(toolbox.RandomBase64(256))
 }

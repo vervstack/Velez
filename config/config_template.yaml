@@ -59,6 +59,3 @@ environment:
     - name: log_level
       type: string
       value: Info
-    - name: matreshka_key
-      type: string
-      value: m9k

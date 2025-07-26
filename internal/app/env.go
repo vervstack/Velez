@@ -53,7 +53,7 @@ func (c *Custom) initConfigurationService(a *App) (err error) {
 	c.MatreshkaClient, err = matreshka.NewClient(
 		grpc.WithUnaryInterceptor(
 			matreshka_client.WithHeader(
-				matreshka_client.Pass, a.Cfg.Environment.MatreshkaKey)))
+				matreshka_client.Pass, string(c.NodeClients.SecurityManager().PrivateKeys().Matreshka))))
 	if err != nil {
 		return rerrors.Wrap(err, "error creating matreshka grpc client")
 	}

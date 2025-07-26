@@ -28,16 +28,10 @@ func FromRestart(r *velez_api.RestartPolicy) container.RestartPolicy {
 		rp.Name = container.RestartPolicyDisabled
 		return container.RestartPolicy{}
 
-	case velez_api.RestartPolicyType_always:
-		rp.Name = container.RestartPolicyAlways
-		rp.MaximumRetryCount = maxRetryCount
-
-	case velez_api.RestartPolicyType_on_failure:
+	case velez_api.RestartPolicyType_always,
+		velez_api.RestartPolicyType_on_failure,
+		velez_api.RestartPolicyType_unless_stopped:
 		rp.Name = container.RestartPolicyOnFailure
-		rp.MaximumRetryCount = maxRetryCount
-
-	case velez_api.RestartPolicyType_unless_stopped:
-		rp.Name = container.RestartPolicyUnlessStopped
 		rp.MaximumRetryCount = maxRetryCount
 
 	}

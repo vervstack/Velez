@@ -43,6 +43,7 @@ func (p *pipeliner) UpgradeSmerd(req domain.UpgradeSmerd) Runner[any] {
 				return nil
 			}),
 			// Deploy stage
+			steps.FetchConfig(p.services, &newLaunch, &img, &cfgMount),
 			steps.PrepareVervConfig(p.nodeClients, p.services, &newLaunch, &img),
 			// Config stage
 			steps.SingleFunc(func(_ context.Context) error {

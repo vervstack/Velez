@@ -11,6 +11,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
+	"github.com/sirupsen/logrus"
 	"go.redsock.ru/rerrors"
 	"golang.org/x/sync/errgroup"
 
@@ -51,7 +52,7 @@ func (au *AutoUpgrade) Start() error {
 	go au.starter.Do(func() {
 		err := au.do()
 		if err != nil {
-			//	 TODO log
+			logrus.WithError(err).Error("autoupgrade start failed")
 		}
 
 		for {
@@ -59,7 +60,7 @@ func (au *AutoUpgrade) Start() error {
 			case <-time.After(au.checkPeriod):
 				err = au.do()
 				if err != nil {
-					//	 TODO log
+					logrus.WithError(err).Error("autoupgrade start failed")
 				}
 			case <-au.stopC:
 			}
@@ -92,7 +93,7 @@ func (au *AutoUpgrade) do() error {
 		var newImage *string
 		newImage, err = au.getNewImageVersion(ctx, smerd.Image)
 		if err != nil {
-			// TODO log
+			logrus.Errorf("error getting new image version %s", err)
 			continue
 		}
 		if newImage == nil {

@@ -120,12 +120,14 @@ func (c *getConfigFromContainerStep) validate() error {
 func fillMeta(img *image.InspectResponse, mount *domain.ConfigMount) {
 	switch {
 	case isVervImage(img):
-		mount.Meta.Format = matreshka_api.Format_yaml
+		mount.Meta.Format = matreshka_api.Format_env
 		mount.Meta.ConfType = matreshka_api.ConfigTypePrefix_verv
 		mount.FilePath = toolbox.Coalesce(
 			mount.FilePath,
 			toolbox.ToPtr("/app/config/config.yaml"),
 		)
+
+		return
 	case isPostgresByImageTags(img.RepoTags):
 		mount.Meta.ConfType = matreshka_api.ConfigTypePrefix_pg
 		mount.Meta.Format = matreshka_api.Format_env

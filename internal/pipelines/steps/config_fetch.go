@@ -52,6 +52,12 @@ func (c *fetchConfigStep) Do(ctx context.Context) (err error) {
 		return rerrors.Wrap(err, "error during validation")
 	}
 
+	if c.req.Config == nil {
+		c.req.Config = &velez_api.MatreshkaConfigSpec{
+			ConfigName: toolbox.ToPtr(c.req.Name),
+		}
+	}
+
 	*c.result, err = c.do(ctx, c.req.Config)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting config to mount")

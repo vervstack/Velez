@@ -9,7 +9,6 @@ import (
 	"go.vervstack.ru/makosh/pkg/makosh_be"
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 
-	"go.vervstack.ru/Velez/internal/security"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
@@ -40,8 +39,10 @@ type SecurityManager interface {
 	Start() error
 	Stop() error
 
-	PrivateKeys() *security.PrivateKeys
-	ValidatePrivateKey(in string) bool
+	GetMatreshkaKey() string
+	SetMatreshkaKey(key string)
+
+	ValidateVelezPrivateKey(in string) bool
 }
 
 type HardwareManager interface {

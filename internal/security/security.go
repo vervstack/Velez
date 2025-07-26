@@ -1,11 +1,13 @@
 package security
 
 import (
+	"bytes"
 	"encoding/json"
 	"os"
 	"path"
 	"sync"
 
+	"github.com/sirupsen/logrus"
 	"go.redsock.ru/rerrors"
 	rtb "go.redsock.ru/toolbox"
 
@@ -22,8 +24,8 @@ type Manager struct {
 }
 
 type PrivateKeys struct {
-	Velez     []byte
-	Matreshka []byte
+	Velez     string
+	Matreshka string
 }
 
 func NewSecurityManager(cfg config.Config) *Manager {
@@ -46,10 +48,20 @@ func (s *Manager) Start() error {
 	return err
 }
 
-func (s *Manager) PrivateKeys() *PrivateKeys {
-	return &s.keys
+func (s *Manager) GetMatreshkaKey() string {
+	return s.keys.Matreshka
 }
-func (s *Manager) ValidatePrivateKey(in string) bool {
+
+func (s *Manager) SetMatreshkaKey(b string) {
+	s.keys.Matreshka = b
+
+	err := writeKey(s.buildPath, s.keys)
+	if err != nil {
+		logrus.Errorf("error setting key %s", err)
+	}
+}
+
+func (s *Manager) ValidateVelezPrivateKey(in string) bool {
 	if len(in) != len(s.keys.Velez) {
 		return false
 	}
@@ -64,7 +76,7 @@ func (s *Manager) ValidatePrivateKey(in string) bool {
 }
 
 func (s *Manager) Stop() error {
-	return os.RemoveAll(s.buildPath)
+	return nil
 }
 
 func (s *Manager) start() error {
@@ -74,7 +86,7 @@ func (s *Manager) start() error {
 	}
 
 	s.keys.Velez = firstNotEmptyKey(keys.Velez)
-	s.keys.Matreshka = firstNotEmptyKey(s.keys.Velez, keys.Matreshka)
+	s.keys.Matreshka = firstNotEmptyKey(s.keys.Matreshka, keys.Matreshka)
 
 	err = writeKey(s.buildPath, s.keys)
 	if err != nil {
@@ -110,6 +122,13 @@ func writeKey(buildPath string, keys PrivateKeys) error {
 		return rerrors.Wrap(err, "error encoding key")
 	}
 
+	b := bytes.NewBuffer([]byte{})
+	err = json.Indent(b, data, "", "  ")
+	if err != nil {
+		return rerrors.Wrap(err, "error indenting key")
+	}
+	data = b.Bytes()
+
 	err = os.WriteFile(buildPath, data, 0777)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating file")
@@ -118,12 +137,12 @@ func writeKey(buildPath string, keys PrivateKeys) error {
 	return nil
 }
 
-func firstNotEmptyKey(arrs ...[]byte) []byte {
+func firstNotEmptyKey(arrs ...string) string {
 	for _, b := range arrs {
 		if len(b) > 0 {
 			return b
 		}
 	}
 
-	return rtb.RandomBase64(256)
+	return string(rtb.RandomBase64(256))
 }

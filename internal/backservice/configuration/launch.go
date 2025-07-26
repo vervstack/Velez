@@ -68,8 +68,7 @@ func initInstance(
 		return errors.Wrap(err, "error getting key")
 	}
 
-	pk := nodeClients.SecurityManager().PrivateKeys()
-	pk.Matreshka = []byte(key)
+	nodeClients.SecurityManager().SetMatreshkaKey(key)
 
 	taskRequest := container_service_task.NewTaskRequest[matreshka_api.MatreshkaBeAPIClient]{
 		NodeClients:       nodeClients,
@@ -134,9 +133,9 @@ func initInstance(
 
 	return nil
 }
+
 func getKey(ctx context.Context, nodeClients clients.NodeClients) (string, error) {
-	pk := nodeClients.SecurityManager().PrivateKeys()
-	keyFromSecManager := string(pk.Matreshka)
+	keyFromSecManager := string(nodeClients.SecurityManager().GetMatreshkaKey())
 
 	keyFromCont, err := getKeyFromContainer(ctx, nodeClients.Docker())
 	if err != nil {

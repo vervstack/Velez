@@ -155,7 +155,7 @@ func (c *Custom) initApiServer(a *App) error {
 	if !a.Cfg.Environment.DisableAPISecurity {
 		a.ServerMaster.AddServerOption(
 			security.GrpcIncomingInterceptor(
-				c.NodeClients.SecurityManager().ValidatePrivateKey))
+				c.NodeClients.SecurityManager().ValidateVelezPrivateKey))
 	}
 
 	grpcLogger := logrus.New()

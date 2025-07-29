@@ -58,8 +58,12 @@ func NewTask[T any](req NewTaskRequest[T]) (*Task[T], error) {
 
 		name:            req.ContainerName,
 		containerConfig: &container.Config{},
-		hostConfig:      &container.HostConfig{},
-		dockerAPI:       dockerAPI,
+		hostConfig: &container.HostConfig{
+			RestartPolicy: container.RestartPolicy{
+				Name: container.RestartPolicyUnlessStopped,
+			},
+		},
+		dockerAPI: dockerAPI,
 	}
 	ctx := context.Background()
 

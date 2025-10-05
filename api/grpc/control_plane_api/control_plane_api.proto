@@ -21,21 +21,21 @@ message ListServices {
 
   }
   message Response {
-    optional Matreshka matreshka = 1;
-    optional Makosh makosh = 2;
-    optional Svarog svarog = 3;
+    repeated Service services = 1;
   }
 }
 
-message Matreshka {
-  string ui_url = 1;
+
+message Service  {
+  ServiceType type = 1;
+  optional uint32 port = 2;
 }
 
-message Makosh {
-  string ui_url = 2;
+enum ServiceType {
+  unknown_service_type = 0;
+  velez = 1;
+  matreshka = 2;
+  svarog = 3;
+  webserver = 4;
+  makosh = 5;
 }
-
-message Svarog {
-
-}
-

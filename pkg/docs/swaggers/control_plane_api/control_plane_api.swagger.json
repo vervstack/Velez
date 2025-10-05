@@ -43,35 +43,38 @@
     "control_plane_apiListServicesResponse": {
       "type": "object",
       "properties": {
-        "matreshka": {
-          "$ref": "#/definitions/control_plane_apiMatreshka"
-        },
-        "makosh": {
-          "$ref": "#/definitions/control_plane_apiMakosh"
-        },
-        "svarog": {
-          "$ref": "#/definitions/control_plane_apiSvarog"
+        "services": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/control_plane_apiService"
+          }
         }
       }
     },
-    "control_plane_apiMakosh": {
+    "control_plane_apiService": {
       "type": "object",
       "properties": {
-        "uiUrl": {
-          "type": "string"
+        "type": {
+          "$ref": "#/definitions/control_plane_apiServiceType"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64"
         }
       }
     },
-    "control_plane_apiMatreshka": {
-      "type": "object",
-      "properties": {
-        "uiUrl": {
-          "type": "string"
-        }
-      }
-    },
-    "control_plane_apiSvarog": {
-      "type": "object"
+    "control_plane_apiServiceType": {
+      "type": "string",
+      "enum": [
+        "unknown_service_type",
+        "velez",
+        "matreshka",
+        "svarog",
+        "webserver",
+        "makosh"
+      ],
+      "default": "unknown_service_type"
     },
     "googlerpcStatus": {
       "type": "object",

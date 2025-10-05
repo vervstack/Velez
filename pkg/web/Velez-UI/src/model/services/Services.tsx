@@ -1,41 +1,40 @@
+import {ServiceType} from "@vervstack/velez"
+
 import MatreshkaIcon from "@/assets/icons/matreshka/MatreshkaIcon";
 import MakoshIcon from "@/assets/icons/makosh/MakoshIcon";
-
-export type Services = {
-    matreshka?: Matreshka
-    velez?: Svarog
-    makosh?: Makosh
-}
-
+import UnknownServiceIcon from "@/assets/icons/UnknownServiceIcon.tsx";
 
 export class Service {
-    tittle: string
+    title: string
     icon: React.JSX.Element
-    externalLink: string
+    webLink?: string
 
-    constructor(tittle: string, icon: React.JSX.Element, externalLink: string) {
-        this.tittle = tittle
-        this.icon = icon
-        this.externalLink = externalLink
-    }
+    constructor(type: ServiceType, port?: number) {
+        const serviceMeta = metaByType.get(type);
+        if (!serviceMeta) {
+            this.title = type.toString()
+            this.icon = <UnknownServiceIcon/>
+            return
+        }
 
-}
+        this.title = serviceMeta.title;
+        this.icon = serviceMeta.icon;
 
-export class Makosh extends Service {
-    constructor(externalLink: string) {
-        super("Makosh", <MakoshIcon/>, externalLink);
-    }
-}
-
-export class Svarog extends Service {
-    constructor(externalLink: string) {
-        super("Svarog", <MatreshkaIcon/>, externalLink);
+        if (port) {
+            const {protocol, hostname} = window.location;
+            this.webLink = `${protocol}//${hostname}:${port}`;
+        }
     }
 }
 
-export class Matreshka extends Service {
-    constructor(externalLink: string) {
-        super("Matreshka", <MatreshkaIcon/>, externalLink);
-    }
+interface ServiceMeta {
+    title: string
+    icon: React.JSX.Element
 }
+
+const metaByType = new Map<ServiceType, ServiceMeta>();
+metaByType.set(ServiceType.makosh, {title: "Makosh", icon: <MakoshIcon/>});
+metaByType.set(ServiceType.matreshka, {title: "Matreshka", icon: <MatreshkaIcon/>});
+metaByType.set(ServiceType.webserver, {title: "Angie (WebServer)", icon: <MatreshkaIcon/>});
+
 

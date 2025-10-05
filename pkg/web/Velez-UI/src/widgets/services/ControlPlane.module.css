@@ -1,11 +1,10 @@
-.ControlPlane {
+.ControlPlaneContainer {
     display: flex;
     flex-wrap: wrap;
 
     gap: 2em;
     justify-content: stretch;
     padding: 1em;
-    flex-direction: column;
 }
 
 
@@ -20,10 +19,11 @@
     transition: all 0.125s ease-in-out;
     border-radius: 12px;
     box-shadow: 5px 5px 5px -5px rgba(34, 60, 80, 0.6);
+
+    cursor: pointer;
 }
 
 .ServiceCard:hover {
     transform: scale(1.05);
-    cursor: default;
 }
 

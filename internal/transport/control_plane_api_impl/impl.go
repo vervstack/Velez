@@ -8,19 +8,19 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
-	"go.vervstack.ru/Velez/internal/backservice/service_discovery"
+	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/pkg/control_plane_api"
 )
 
 type Impl struct {
 	control_plane_api.UnimplementedControlPlaneServer
 
-	sd service_discovery.ServiceDiscovery
+	smerdManager service.ContainerService
 }
 
-func New(sd service_discovery.ServiceDiscovery) *Impl {
+func New(srv service.Services) *Impl {
 	return &Impl{
-		sd: sd,
+		smerdManager: srv.SmerdManager(),
 	}
 }
 

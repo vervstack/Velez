@@ -1,6 +1,8 @@
 .Home {
     display: flex;
 
+    flex-direction: column;
+
     gap: 0;
     justify-content: space-around;
     box-sizing: border-box;

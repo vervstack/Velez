@@ -8,25 +8,27 @@
 import * as fm from "../fetch.pb";
 
 
+export enum ServiceType {
+  unknown_service_type = "unknown_service_type",
+  velez = "velez",
+  matreshka = "matreshka",
+  svarog = "svarog",
+  webserver = "webserver",
+  makosh = "makosh",
+}
+
 export type ListServicesRequest = Record<string, never>;
 
 export type ListServicesResponse = {
-  matreshka?: Matreshka;
-  makosh?: Makosh;
-  svarog?: Svarog;
+  services?: Service[];
 };
 
 export type ListServices = Record<string, never>;
 
-export type Matreshka = {
-  uiUrl?: string;
+export type Service = {
+  type?: ServiceType;
+  port?: number;
 };
-
-export type Makosh = {
-  uiUrl?: string;
-};
-
-export type Svarog = Record<string, never>;
 
 export class ControlPlane {
   static ListServices(this:void, req: ListServicesRequest, initReq?: fm.InitReq): Promise<ListServicesResponse> {

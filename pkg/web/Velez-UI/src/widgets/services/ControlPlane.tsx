@@ -19,14 +19,14 @@ export default function ControlPageWidget() {
     useEffect(() => {
         ListServices(initReq())
             .then(updateComponentsList)
-    }, [initReq]);
+    }, []);
 
     function updateComponentsList(components: Service[]) {
         const componentsList: Service[] = [
             {
-                tittle: 'Velez',
+                title: 'Velez',
                 icon: <VelezIcon/>,
-                externalLink: ""
+                webLink: "/"
             },
         ]
 
@@ -35,13 +35,13 @@ export default function ControlPageWidget() {
     }
 
     return (
-        <div className={styles.ControlPlane}>
+        <div className={styles.ControlPlaneContainer}>
             {
                 components
-                    .map((v) =>
+                    .map((v, idx) =>
                         <div
                             className={styles.ServiceCard}
-                            key={v.tittle}
+                            key={v.title + idx}
                         >
                             <ServiceCard {...v}/>
                         </div>)

@@ -147,7 +147,7 @@ func (c *Custom) initVelezServices(a *App) {
 
 func (c *Custom) initApiServer(a *App) error {
 	c.ApiGrpcImpl = velez_api_impl.NewImpl(a.Cfg, c.Services, c.Pipeliner)
-	c.ControlPlaneApiImpl = control_plane_api_impl.New(c.ServiceDiscovery)
+	c.ControlPlaneApiImpl = control_plane_api_impl.New(c.Services)
 
 	a.ServerMaster.AddImplementation(c.ApiGrpcImpl, c.ControlPlaneApiImpl)
 	a.ServerMaster.AddHttpHandler(docs.Swagger())

@@ -1,6 +1,7 @@
 ### Get Version
 GET {{velez}}/version
 Content-Type: application/json
+Grpc-Metadata-Authorization: 123
 
 {}
 

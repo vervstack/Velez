@@ -35,7 +35,7 @@ func ListContainers(ctx context.Context, docker client.APIClient, req *velez_api
 		filter.Name(req.GetName())
 	}
 
-	if req.Label != nil {
+	if req.GetLabel() != nil {
 		for k, v := range req.Label {
 			filter.Label(k + "=" + v)
 		}

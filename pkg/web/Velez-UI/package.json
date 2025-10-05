@@ -1,14 +1,18 @@
 {
   "name": "velez-fe",
-  "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+
+    "build:api": "cd ./../@vervstack/velez/ && npm install typescript && npm run build && npm link",
+    "link": "npm link @vervstack/velez",
+
+    "build:ui": "tsc -b && vite build",
+    "build": "npm run build:api && npm run link && npm run build:ui",
+
     "lint": "eslint ."
   },
   "dependencies": {
-    "@vervstack/velez": "file:../@vervstack/velez",
     "@gravity-ui/uikit": "^6.38.0",
     "@hookstate/core": "^4.0.1",
     "@types/node": "^22.10.2",

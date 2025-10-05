@@ -13,3 +13,5 @@ dist
 node_modules
 proto_deps
 /pkg/VelezWeb/.idea/
+
+*.local

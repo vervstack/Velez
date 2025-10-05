@@ -1,16 +1,19 @@
+import cls from "@/components/base/Input.module.css";
+
 import {ChangeEventHandler} from "react";
 
-export default function Input(
-    {
-        onChange,
-    }: {
-        onChange: ChangeEventHandler<HTMLInputElement> | undefined
-    }) {
+interface InputProps {
+    onChange: ChangeEventHandler<HTMLInputElement> | undefined
+    value: string | number
+}
+
+export default function Input({onChange, value}: InputProps) {
     return (
-        <div>
+        <div className={cls.InputContainer}>
             <input
                 onChange={onChange}
-            ></input>
+                value={value}
+            />
         </div>
     )
 }

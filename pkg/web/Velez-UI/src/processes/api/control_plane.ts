@@ -1,16 +1,10 @@
-import {getBackendUrl} from "@/app/store/Settings";
-
-import {toServices} from "@/processes/mappings/Services";
-
 import {ControlPlane, ListServicesRequest} from "@vervstack/velez";
 
-const initReq = {pathPrefix: getBackendUrl()};
+import {toServices} from "@/processes/mappings/services.ts";
 
-export function setBackendUrl(url: string) {
-    initReq.pathPrefix = url
-}
+import {InitReq} from "@/app/settings/state.ts";
 
-export async function ListServices() {
+export async function ListServices(initReq: InitReq) {
     const req: ListServicesRequest = {} as ListServicesRequest
 
     const services = await ControlPlane.ListServices(req, initReq);

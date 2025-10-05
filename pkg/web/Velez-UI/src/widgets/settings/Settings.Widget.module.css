@@ -1,0 +1,32 @@
+.SettingsContainer {
+    position: fixed;
+
+    width: 50vh;
+    height: 50vh;
+
+    top: 25%;
+    left: 25%;
+
+    background: wheat;
+    border-radius: 2em;
+    padding: 2em;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: start;
+    align-items: center;
+}
+
+.SettingsContainer.hidden {
+    display: none;
+}
+
+.SettingsClause {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+
+    justify-content: center;
+    align-items: center;
+}

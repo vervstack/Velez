@@ -529,8 +529,7 @@
           "type": "boolean"
         },
         "autoUpgrade": {
-          "type": "boolean",
-          "title": "not implemented"
+          "type": "boolean"
         },
         "restart": {
           "$ref": "#/definitions/velez_apiRestartPolicy"

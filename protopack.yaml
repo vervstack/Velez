@@ -2,7 +2,7 @@ version: v1alpha
 
 deps:
     - github.com/googleapis/googleapis
-    - go.redsock.ru/protoc-gen-npm@v0.0.12
+    - go.redsock.ru/protoc-gen-npm@v0.0.13
     - github.com/vervstack/Matreshka
 generate:
   proto_root: api/grpc

@@ -1,6 +1,10 @@
-import {ListSmerds} from "@/processes/api/velez.ts";
 import React, {useEffect, useState} from "react";
+
 import {ListSmerdsRequest, Smerd} from "@vervstack/velez";
+
+import useSettings from "@/app/settings/state.ts";
+import {ListSmerds} from "@/processes/api/velez.ts";
+
 import SmerdCard from "@/components/smerd/SmerdCard.tsx";
 import Input from "@/components/base/Input.tsx";
 
@@ -11,8 +15,10 @@ export default function SmerdsWidget(): React.JSX.Element {
     const [req, setReq] =
         useState<ListSmerdsRequest>({} as ListSmerdsRequest)
 
+    const {initReq} = useSettings();
+
     useEffect(() => {
-        ListSmerds(req)
+        ListSmerds(req, initReq())
             .then((resp) =>
                 setSmerds(resp.smerds || []))
     }, [req]);
@@ -36,6 +42,7 @@ function SmerdsSearch({req, setReq}: {
                 req.limit = Number(elem.target.value)
                 setReq(req)
             }}
+            value={0}
         />
     </>)
 }

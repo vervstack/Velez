@@ -11,7 +11,7 @@ import (
 
 // Header - header containing auth token to talk to service
 // in order to perform REST call should pre append runtime.MetadataHeaderPrefix (e.g - "Grpc-Metadata-")
-const Header = "Velez-Auth"
+const Header = "Authorization"
 
 func GrpcIncomingInterceptor(keyValidator func(key string) bool) grpc.ServerOption {
 	return grpc.ChainUnaryInterceptor(

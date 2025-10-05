@@ -6,13 +6,14 @@ import '@gravity-ui/uikit/styles/fonts.css';
 import '@gravity-ui/uikit/styles/styles.css';
 import 'react-tooltip/dist/react-tooltip.css'
 
-import {ThemeProvider} from '@gravity-ui/uikit';
+import SettingsWidget from "@/widgets/settings/SettingsWidget.tsx";
 
 import router from "@/app/router/Router";
 
 createRoot(document.getElementById('root')!).render(
-    <ThemeProvider theme="light">
+    <div>
         <link href="https://fonts.googleapis.com/icon?family=Comfortaa" rel="stylesheet"/>
         <RouterProvider router={router}/>
-    </ThemeProvider>
+        <SettingsWidget/>
+    </div>
 )

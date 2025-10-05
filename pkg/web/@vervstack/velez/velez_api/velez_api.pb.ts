@@ -11,144 +11,144 @@ import * as GoogleProtobufTimestamp from "../google/protobuf/timestamp.pb";
 
 
 export enum RestartPolicyType {
-    unless_stopped = "unless_stopped",
-    no = "no",
-    always = "always",
-    on_failure = "on_failure",
+  unless_stopped = "unless_stopped",
+  no = "no",
+  always = "always",
+  on_failure = "on_failure",
 }
 
 export enum PortProtocol {
-    unknown = "unknown",
-    tcp = "tcp",
-    udp = "udp",
+  unknown = "unknown",
+  tcp = "tcp",
+  udp = "udp",
 }
 
 export enum SmerdStatus {
-    unknown = "unknown",
-    created = "created",
-    restarting = "restarting",
-    running = "running",
-    removing = "removing",
-    paused = "paused",
-    exited = "exited",
-    dead = "dead",
+  unknown = "unknown",
+  created = "created",
+  restarting = "restarting",
+  running = "running",
+  removing = "removing",
+  paused = "paused",
+  exited = "exited",
+  dead = "dead",
 }
 
 export type VersionRequest = Record<string, never>;
 
 export type VersionResponse = {
-    version?: string;
+  version?: string;
 };
 
 export type Version = Record<string, never>;
 
 export type Port = {
-    servicePortNumber?: number;
-    protocol?: PortProtocol;
-    exposedTo?: number;
+  servicePortNumber?: number;
+  protocol?: PortProtocol;
+  exposedTo?: number;
 };
 
 export type Volume = {
-    volumeName?: string;
-    containerPath?: string;
+  volumeName?: string;
+  containerPath?: string;
 };
 
 export type Bind = {
-    hostPath?: string;
-    containerPath?: string;
+  hostPath?: string;
+  containerPath?: string;
 };
 
 export type NetworkBind = {
-    networkName?: string;
-    aliases?: string[];
+  networkName?: string;
+  aliases?: string[];
 };
 
 export type Image = {
-    name?: string;
-    tags?: string[];
-    labels?: Record<string, string>;
+  name?: string;
+  tags?: string[];
+  labels?: Record<string, string>;
 };
 
 export type Smerd = {
-    uuid?: string;
-    name?: string;
-    imageName?: string;
-    ports?: Port[];
-    volumes?: Volume[];
-    status?: SmerdStatus;
-    createdAt?: GoogleProtobufTimestamp.Timestamp;
-    networks?: NetworkBind[];
-    labels?: Record<string, string>;
-    env?: Record<string, string>;
-    binds?: Bind[];
+  uuid?: string;
+  name?: string;
+  imageName?: string;
+  ports?: Port[];
+  volumes?: Volume[];
+  status?: SmerdStatus;
+  createdAt?: GoogleProtobufTimestamp.Timestamp;
+  networks?: NetworkBind[];
+  labels?: Record<string, string>;
+  env?: Record<string, string>;
+  binds?: Bind[];
 };
 
 export type ContainerHardware = {
-    cpuAmount?: number;
-    ramMb?: number;
-    memorySwapMb?: number;
+  cpuAmount?: number;
+  ramMb?: number;
+  memorySwapMb?: number;
 };
 
 export type ContainerSettings = {
-    ports?: Port[];
-    network?: NetworkBind[];
-    volumes?: Volume[];
-    binds?: Bind[];
+  ports?: Port[];
+  network?: NetworkBind[];
+  volumes?: Volume[];
+  binds?: Bind[];
 };
 
 export type ContainerHealthcheck = {
-    command?: string;
-    intervalSecond?: number;
-    timeoutSecond?: number;
-    retries?: number;
+  command?: string;
+  intervalSecond?: number;
+  timeoutSecond?: number;
+  retries?: number;
 };
 
 export type Container = Record<string, never>;
 
 export type CreateSmerdRequest = {
-    name?: string;
-    imageName?: string;
-    hardware?: ContainerHardware;
-    settings?: ContainerSettings;
-    command?: string;
-    env?: Record<string, string>;
-    healthcheck?: ContainerHealthcheck;
-    labels?: Record<string, string>;
-    ignoreConfig?: boolean;
-    useImagePorts?: boolean;
-    autoUpgrade?: boolean;
-    restart?: RestartPolicy;
-    config?: MatreshkaConfigSpec;
+  name?: string;
+  imageName?: string;
+  hardware?: ContainerHardware;
+  settings?: ContainerSettings;
+  command?: string;
+  env?: Record<string, string>;
+  healthcheck?: ContainerHealthcheck;
+  labels?: Record<string, string>;
+  ignoreConfig?: boolean;
+  useImagePorts?: boolean;
+  autoUpgrade?: boolean;
+  restart?: RestartPolicy;
+  config?: MatreshkaConfigSpec;
 };
 
 export type CreateSmerd = Record<string, never>;
 
 export type ListSmerdsRequest = {
-    limit?: number;
-    name?: string;
-    id?: string;
-    label?: Record<string, string>;
+  limit?: number;
+  name?: string;
+  id?: string;
+  label?: Record<string, string>;
 };
 
 export type ListSmerdsResponse = {
-    smerds?: Smerd[];
+  smerds?: Smerd[];
 };
 
 export type ListSmerds = Record<string, never>;
 
 export type DropSmerdRequest = {
-    uuids?: string[];
-    name?: string[];
+  uuids?: string[];
+  name?: string[];
 };
 
 export type DropSmerdResponseError = {
-    uuid?: string;
-    cause?: string;
+  uuid?: string;
+  cause?: string;
 };
 
 export type DropSmerdResponse = {
-    failed?: DropSmerdResponseError[];
-    successful?: string[];
+  failed?: DropSmerdResponseError[];
+  successful?: string[];
 };
 
 export type DropSmerd = Record<string, never>;
@@ -156,34 +156,34 @@ export type DropSmerd = Record<string, never>;
 export type GetHardwareRequest = Record<string, never>;
 
 export type GetHardwareResponseValue = {
-    value?: string;
-    err?: string;
+  value?: string;
+  err?: string;
 };
 
 export type GetHardwareResponse = {
-    cpu?: GetHardwareResponseValue;
-    diskMem?: GetHardwareResponseValue;
-    ram?: GetHardwareResponseValue;
-    portsAvailable?: number[];
-    portsOccupied?: number[];
+  cpu?: GetHardwareResponseValue;
+  diskMem?: GetHardwareResponseValue;
+  ram?: GetHardwareResponseValue;
+  portsAvailable?: number[];
+  portsOccupied?: number[];
 };
 
 export type GetHardware = Record<string, never>;
 
 export type AssembleConfigRequest = {
-    imageName?: string;
-    serviceName?: string;
+  imageName?: string;
+  serviceName?: string;
 };
 
 export type AssembleConfigResponse = {
-    config?: Uint8Array;
+  config?: Uint8Array;
 };
 
 export type AssembleConfig = Record<string, never>;
 
 export type UpgradeSmerdRequest = {
-    name?: string;
-    image?: string;
+  name?: string;
+  image?: string;
 };
 
 export type UpgradeSmerdResponse = Record<string, never>;
@@ -191,19 +191,19 @@ export type UpgradeSmerdResponse = Record<string, never>;
 export type UpgradeSmerd = Record<string, never>;
 
 export type RestartPolicy = {
-    type?: RestartPolicyType;
-    FailureCount?: number;
+  type?: RestartPolicyType;
+  FailureCount?: number;
 };
 
 export type MatreshkaConfigSpec = {
-    configName?: string;
-    configVersion?: string;
-    configFormat?: MatreshkaApiMatreshkaApi.Format;
-    systemPath?: string;
+  configName?: string;
+  configVersion?: string;
+  configFormat?: MatreshkaApiMatreshkaApi.Format;
+  systemPath?: string;
 };
 
 export type MakeConnectionsRequest = {
-    connections?: Connection[];
+  connections?: Connection[];
 };
 
 export type MakeConnectionsResponse = Record<string, never>;
@@ -211,7 +211,7 @@ export type MakeConnectionsResponse = Record<string, never>;
 export type MakeConnections = Record<string, never>;
 
 export type BreakConnectionsRequest = {
-    connections?: Connection[];
+  connections?: Connection[];
 };
 
 export type BreakConnectionsResponse = Record<string, never>;
@@ -219,79 +219,37 @@ export type BreakConnectionsResponse = Record<string, never>;
 export type BreakConnections = Record<string, never>;
 
 export type Connection = {
-    serviceName?: string;
-    targetNetwork?: string;
-    aliases?: string[];
+  serviceName?: string;
+  targetNetwork?: string;
+  aliases?: string[];
 };
 
 export class VelezAPI {
-    static Version(this: void, req: VersionRequest, initReq?: fm.InitReq): Promise<VersionResponse> {
-        return fm.fetchRequest<VersionResponse>(`/api/version?${fm.renderURLSearchParams(req, [])}`, {
-            ...initReq,
-            method: "GET"
-        });
-    }
-
-    static CreateSmerd(this: void, req: CreateSmerdRequest, initReq?: fm.InitReq): Promise<Smerd> {
-        return fm.fetchRequest<Smerd>(`/api/smerd/create`, {
-            ...initReq,
-            method: "POST",
-            body: JSON.stringify(req, fm.replacer)
-        });
-    }
-
-    static ListSmerds(this: void, req: ListSmerdsRequest, initReq?: fm.InitReq): Promise<ListSmerdsResponse> {
-        return fm.fetchRequest<ListSmerdsResponse>(`/api/smerd/list`, {
-            ...initReq,
-            method: "POST",
-            body: JSON.stringify(req, fm.replacer)
-        });
-    }
-
-    static DropSmerd(this: void, req: DropSmerdRequest, initReq?: fm.InitReq): Promise<DropSmerdResponse> {
-        return fm.fetchRequest<DropSmerdResponse>(`/api/smerd/drop`, {
-            ...initReq,
-            method: "POST",
-            body: JSON.stringify(req, fm.replacer)
-        });
-    }
-
-    static GetHardware(this: void, req: GetHardwareRequest, initReq?: fm.InitReq): Promise<GetHardwareResponse> {
-        return fm.fetchRequest<GetHardwareResponse>(`/api/hardware?${fm.renderURLSearchParams(req, [])}`, {
-            ...initReq,
-            method: "GET"
-        });
-    }
-
-    static UpgradeSmerd(this: void, req: UpgradeSmerdRequest, initReq?: fm.InitReq): Promise<UpgradeSmerdResponse> {
-        return fm.fetchRequest<UpgradeSmerdResponse>(`/api/smerd/upgrade`, {
-            ...initReq,
-            method: "POST",
-            body: JSON.stringify(req, fm.replacer)
-        });
-    }
-
-    static AssembleConfig(this: void, req: AssembleConfigRequest, initReq?: fm.InitReq): Promise<AssembleConfigResponse> {
-        return fm.fetchRequest<AssembleConfigResponse>(`/api/config/assemble`, {
-            ...initReq,
-            method: "POST",
-            body: JSON.stringify(req, fm.replacer)
-        });
-    }
-
-    static MakeConnections(this: void, req: MakeConnectionsRequest, initReq?: fm.InitReq): Promise<MakeConnectionsResponse> {
-        return fm.fetchRequest<MakeConnectionsResponse>(`/api/smerd/connect`, {
-            ...initReq,
-            method: "POST",
-            body: JSON.stringify(req, fm.replacer)
-        });
-    }
-
-    static BreakConnections(this: void, req: BreakConnectionsRequest, initReq?: fm.InitReq): Promise<BreakConnectionsResponse> {
-        return fm.fetchRequest<BreakConnectionsResponse>(`/api/smerd/disconnect`, {
-            ...initReq,
-            method: "POST",
-            body: JSON.stringify(req, fm.replacer)
-        });
-    }
+  static Version(this:void, req: VersionRequest, initReq?: fm.InitReq): Promise<VersionResponse> {
+    return fm.fetchRequest<VersionResponse>(`/api/version?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
+  }
+  static CreateSmerd(this:void, req: CreateSmerdRequest, initReq?: fm.InitReq): Promise<Smerd> {
+    return fm.fetchRequest<Smerd>(`/api/smerd/create`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static ListSmerds(this:void, req: ListSmerdsRequest, initReq?: fm.InitReq): Promise<ListSmerdsResponse> {
+    return fm.fetchRequest<ListSmerdsResponse>(`/api/smerd/list`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static DropSmerd(this:void, req: DropSmerdRequest, initReq?: fm.InitReq): Promise<DropSmerdResponse> {
+    return fm.fetchRequest<DropSmerdResponse>(`/api/smerd/drop`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static GetHardware(this:void, req: GetHardwareRequest, initReq?: fm.InitReq): Promise<GetHardwareResponse> {
+    return fm.fetchRequest<GetHardwareResponse>(`/api/hardware?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
+  }
+  static UpgradeSmerd(this:void, req: UpgradeSmerdRequest, initReq?: fm.InitReq): Promise<UpgradeSmerdResponse> {
+    return fm.fetchRequest<UpgradeSmerdResponse>(`/api/smerd/upgrade`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static AssembleConfig(this:void, req: AssembleConfigRequest, initReq?: fm.InitReq): Promise<AssembleConfigResponse> {
+    return fm.fetchRequest<AssembleConfigResponse>(`/api/config/assemble`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static MakeConnections(this:void, req: MakeConnectionsRequest, initReq?: fm.InitReq): Promise<MakeConnectionsResponse> {
+    return fm.fetchRequest<MakeConnectionsResponse>(`/api/smerd/connect`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static BreakConnections(this:void, req: BreakConnectionsRequest, initReq?: fm.InitReq): Promise<BreakConnectionsResponse> {
+    return fm.fetchRequest<BreakConnectionsResponse>(`/api/smerd/disconnect`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
 }

@@ -1,14 +1,7 @@
-import {getBackendUrl} from "@/app/store/Settings";
-
 import {ListSmerdsRequest, VelezAPI} from "@vervstack/velez";
+import {InitReq} from "@/app/settings/state.ts";
 
-const initReq = {pathPrefix: getBackendUrl()};
-
-export function setBackendUrl(url: string) {
-    initReq.pathPrefix = url
-}
-
-export async function ListSmerds(req: ListSmerdsRequest) {
+export async function ListSmerds(req: ListSmerdsRequest, initReq: InitReq) {
     req.limit = req.limit || 10
     return VelezAPI.ListSmerds(req, initReq)
 }

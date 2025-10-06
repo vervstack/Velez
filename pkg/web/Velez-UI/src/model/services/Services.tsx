@@ -24,8 +24,7 @@ export class Service {
         this.description = serviceMeta.description;
 
         if (port) {
-            const {protocol, hostname} = window.location;
-            this.webLink = `${protocol}//${hostname}:${port}`;
+            this.webLink = getLinkToPort(port)
         }
     }
 }
@@ -53,4 +52,10 @@ metaByType.set(ServiceType.webserver, {
     description: ``
 });
 
+
+
+export function getLinkToPort(port: number): string {
+    const {protocol, hostname} = window.location;
+    return `${protocol}//${hostname}:${port}`;
+}
 

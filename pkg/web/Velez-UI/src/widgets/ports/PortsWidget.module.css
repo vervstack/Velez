@@ -1,0 +1,7 @@
+.PortWidgetContainer {
+    border: 1px solid darkcyan;
+    border-radius: 16px;
+    padding: 1em;
+
+    box-sizing: content-box;
+}

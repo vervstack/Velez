@@ -17,7 +17,6 @@ export default function ControlPlanePage() {
         useState<Service[]>([])
     const navigate = useNavigate()
 
-
     const [isLoading, setIsLoading] = useState(true)
 
     const settings = useSettings();
@@ -27,7 +26,7 @@ export default function ControlPlanePage() {
         ListServices(settings.initReq())
             .then(setComponents)
             .then(() => setIsLoading(false))
-    }, [settings]);
+    }, []);
 
 
     if (isLoading) {

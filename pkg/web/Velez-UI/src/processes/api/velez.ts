@@ -1,6 +1,6 @@
 import {ListSmerdsRequest, VelezAPI} from "@vervstack/velez";
 import {InitReq} from "@/app/settings/state.ts";
-import {Smerd} from "@/model/smerds/Smerds.ts";
+import {Port, Smerd} from "@/model/smerds/Smerds.ts";
 
 export async function ListSmerds(req: ListSmerdsRequest, initReq: InitReq) {
     req.limit = req.limit || 10
@@ -15,13 +15,21 @@ export async function GetSmerd(name: string, initReq: InitReq): Promise<Smerd> {
     } as ListSmerdsRequest
 
     return VelezAPI.ListSmerds(req, initReq).then(
-        (res)=>{
+        (res) => {
             if (!res.smerds || res.smerds.length === 0) {
                 throw new Error("Smerd not found")
             }
 
             return {
                 name: res.smerds[0].name,
+                imageName: res.smerds[0].imageName,
+                ports: (res.smerds[0].ports || [])
+                    .map((v) => {
+                        return {
+                            servicePort: v.servicePortNumber,
+                            exposedPort: v.exposedTo,
+                        } as Port
+                    }),
             } as Smerd
         }
     )

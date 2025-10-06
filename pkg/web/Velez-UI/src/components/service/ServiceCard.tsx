@@ -2,7 +2,7 @@ import styles from './card.module.css'
 import {Tooltip} from "react-tooltip";
 import {Service} from "@/model/services/Services";
 
-export default function ServiceCard({title, icon, webLink}: Service) {
+export default function ServiceCard({title, icon, webLink, description}: Service) {
     return (
         <div className={styles.CardContainer}>
             <div className={styles.CardTop}>
@@ -26,7 +26,7 @@ export default function ServiceCard({title, icon, webLink}: Service) {
             </div>
             <div className={styles.CardBottom}>
                 <div className={styles.Content}>
-                    {'Surely hills examines comparison mirror beings pork, surname race vegas south carry fabrics athletic, basename workshop payment parent identifier feed arguments, milton. '}
+                    {description}
                 </div>
             </div>
 

@@ -3,7 +3,9 @@ package parser
 import (
 	"strconv"
 
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/go-connections/nat"
+	"go.redsock.ru/toolbox"
 
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
@@ -38,7 +40,7 @@ func FromPorts(settings *velez_api.Container_Settings) map[nat.Port][]nat.PortBi
 	return out
 }
 
-func ToPorts(ports map[nat.Port][]nat.PortBinding) []*velez_api.Port {
+func ToPortsMapping(ports map[nat.Port][]nat.PortBinding) []*velez_api.Port {
 	if len(ports) == 0 {
 		return nil
 	}
@@ -62,4 +64,47 @@ func ToPorts(ports map[nat.Port][]nat.PortBinding) []*velez_api.Port {
 	}
 
 	return out
+}
+
+func ToPortsSlice(ports []container.Port) []*velez_api.Port {
+	out := make([]*velez_api.Port, 0, len(ports))
+
+	uniquePublicPort := map[uint32]struct{}{}
+
+	for _, p := range ports {
+
+		newP := ToPort(p)
+
+		if newP.ExposedTo != nil {
+			_, alreadyExists := uniquePublicPort[*newP.ExposedTo]
+			if alreadyExists {
+				continue
+			}
+
+			uniquePublicPort[*newP.ExposedTo] = struct{}{}
+		}
+
+		out = append(out, newP)
+	}
+
+	return out
+}
+
+func ToPort(port container.Port) *velez_api.Port {
+	return &velez_api.Port{
+		ServicePortNumber: uint32(port.PrivatePort),
+		Protocol:          ToPortProtocol(port.Type),
+		ExposedTo:         toolbox.ToPtr(uint32(port.PublicPort)),
+	}
+}
+
+func ToPortProtocol(tp string) velez_api.Port_Protocol {
+	switch tp {
+	case "tcp":
+		return velez_api.Port_tcp
+	case "udp":
+		return velez_api.Port_udp
+	default:
+		return velez_api.Port_unknown
+	}
 }

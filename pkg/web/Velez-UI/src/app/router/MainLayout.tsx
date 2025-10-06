@@ -1,10 +1,11 @@
 import PageHeader from "@/segments/PageHeader.tsx";
+import {Outlet} from "react-router-dom";
 
-export default function ErrorPage() {
+export default function MainLayout(){
     return (
         <div>
             <PageHeader/>
-            Not implemented
+            <Outlet/>
         </div>
     )
 }

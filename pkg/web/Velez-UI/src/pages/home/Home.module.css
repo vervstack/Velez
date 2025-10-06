@@ -1,4 +1,4 @@
-.Home {
+.HomeContainer {
     display: flex;
 
     flex-direction: column;
@@ -8,13 +8,4 @@
     box-sizing: border-box;
     min-height: 100vh;
     height: 100%;
-}
-
-.Smerds {
-    flex: 5;
-    border-right: gray 1px solid;
-}
-
-.ControlServices {
-    flex: 1;
 }

@@ -2,15 +2,20 @@ package container_manager
 
 import (
 	"context"
+	"strings"
 
 	errors "go.redsock.ru/rerrors"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils/parser"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func (c *ContainerManager) ListSmerds(ctx context.Context, req *velez_api.ListSmerds_Request) (*velez_api.ListSmerds_Response, error) {
+	if req.GetName() != "" {
+		*req.Name = strings.ToLower(*req.Name)
+	}
 	cl, err := c.docker.ListContainers(ctx, req)
 	if err != nil {
 		return nil, errors.Wrap(err, "error listing containers")
@@ -35,6 +40,8 @@ func (c *ContainerManager) ListSmerds(ctx context.Context, req *velez_api.ListSm
 			},
 
 			Labels: container.Labels,
+
+			Ports: parser.ToPortsSlice(container.Ports),
 		}
 
 		if len(container.Names) != 0 {

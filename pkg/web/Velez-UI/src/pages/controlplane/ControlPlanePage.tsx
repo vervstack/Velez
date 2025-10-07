@@ -9,6 +9,8 @@ import {Service} from "@/model/services/Services";
 import ServiceCard from "@/components/service/ServiceCard";
 import useSettings from "@/app/settings/state.ts";
 import Loader from "@/components/Loader.tsx";
+import {useNavigate} from "react-router-dom";
+import {Routes} from "@/app/router/Router.tsx";
 
 export default function ControlPlanePage() {
     const [activeComponents, setActiveComponents] =
@@ -20,6 +22,7 @@ export default function ControlPlanePage() {
     const [isLoading, setIsLoading] = useState(true)
 
     const settings = useSettings();
+    const navigate = useNavigate();
 
     useEffect(() => {
         setIsLoading(true)
@@ -60,16 +63,16 @@ export default function ControlPlanePage() {
 
             <div className={cls.ServicesBlock}>
                 {inactiveComponents
-                    .map((v, idx) =>
+                    .map((v: Service, idx) =>
                         <div
                             className={cls.ServiceCardWrapper}
                             key={v.title + idx}
-                            onClick={() => {
-                                // TODO disabled for now. Use portainer
-                                // navigate(Routes.Smerd + '/' + v.title)
-                            }}
                         >
                             <ServiceCard
+                                onClickConstructor={v.smerdConstructor !== undefined ? () => {
+                                    navigate(Routes.Deploy,
+                                        {state: {data: v.smerdConstructor}})
+                                } : undefined}
                                 disabled={true}
                                 {...v}/>
                         </div>)

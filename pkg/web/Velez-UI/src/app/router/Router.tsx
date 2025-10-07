@@ -4,6 +4,7 @@ import ErrorPage from "@/pages/error/ErrorPage";
 import ControlPlanePage from "@/pages/controlplane/ControlPlanePage.tsx";
 import MainLayout from "@/app/router/MainLayout.tsx";
 import SmerdPage from "@/pages/smerd/SmerdPage.tsx";
+import DeployPage from "@/pages/deploy/DeployPage.tsx";
 
 export enum Routes {
     Home = "/",
@@ -27,12 +28,17 @@ const router = createBrowserRouter([
                 element: <HomePage/>,
             },
             {
-              path: Routes.Smerd+"/:"+Arguments.Name,
-              element: (<SmerdPage/>),
+                path: Routes.Deploy,
+                element: (<DeployPage/>)
             },
             {
                 path: Routes.ControlPlane,
                 element: (<ControlPlanePage/>),
+            },
+
+            {
+              path: Routes.Smerd+"/:"+Arguments.Name,
+              element: (<SmerdPage/>),
             },
         ]
     },

@@ -1,4 +1,4 @@
-import {ControlPlane, ListServicesRequest} from "@vervstack/velez";
+import {ControlPlaneAPI, ListServicesRequest} from "@vervstack/velez";
 
 import {toServices} from "@/processes/mappings/services.ts";
 
@@ -13,7 +13,7 @@ interface CpServices {
 export async function ListServices(initReq: InitReq): Promise<CpServices> {
     const req: ListServicesRequest = {} as ListServicesRequest
 
-    const list = await ControlPlane.ListServices(req, initReq);
+    const list = await ControlPlaneAPI.ListServices(req, initReq);
     return {
         active: toServices(list.services || []),
         inactive: toServices(list.inactiveServices || []),

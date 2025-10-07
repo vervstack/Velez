@@ -20,7 +20,7 @@ export default function PageHeader() {
             route: Routes.ControlPlane,
         },
         {
-            title: 'Deployments',
+            title: 'Deploy',
             route: Routes.Deploy,
         },
     ]

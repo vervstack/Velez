@@ -2,13 +2,12 @@
 // versions:
 // 	protoc-gen-go v1.36.10
 // 	protoc        v5.28.3
-// source: velez_api/velez_api.proto
+// source: velez_api.proto
 
 package velez_api
 
 import (
 	_ "go.redsock.ru/protoc-gen-npm/npmplugin"
-	matreshka_api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -61,11 +60,11 @@ func (x RestartPolicyType) String() string {
 }
 
 func (RestartPolicyType) Descriptor() protoreflect.EnumDescriptor {
-	return file_velez_api_velez_api_proto_enumTypes[0].Descriptor()
+	return file_velez_api_proto_enumTypes[0].Descriptor()
 }
 
 func (RestartPolicyType) Type() protoreflect.EnumType {
-	return &file_velez_api_velez_api_proto_enumTypes[0]
+	return &file_velez_api_proto_enumTypes[0]
 }
 
 func (x RestartPolicyType) Number() protoreflect.EnumNumber {
@@ -74,7 +73,53 @@ func (x RestartPolicyType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use RestartPolicyType.Descriptor instead.
 func (RestartPolicyType) EnumDescriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{0}
+	return file_velez_api_proto_rawDescGZIP(), []int{0}
+}
+
+type ConfigFormat int32
+
+const (
+	ConfigFormat_yaml ConfigFormat = 0 // Default
+	ConfigFormat_env  ConfigFormat = 1
+)
+
+// Enum value maps for ConfigFormat.
+var (
+	ConfigFormat_name = map[int32]string{
+		0: "yaml",
+		1: "env",
+	}
+	ConfigFormat_value = map[string]int32{
+		"yaml": 0,
+		"env":  1,
+	}
+)
+
+func (x ConfigFormat) Enum() *ConfigFormat {
+	p := new(ConfigFormat)
+	*p = x
+	return p
+}
+
+func (x ConfigFormat) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ConfigFormat) Descriptor() protoreflect.EnumDescriptor {
+	return file_velez_api_proto_enumTypes[1].Descriptor()
+}
+
+func (ConfigFormat) Type() protoreflect.EnumType {
+	return &file_velez_api_proto_enumTypes[1]
+}
+
+func (x ConfigFormat) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ConfigFormat.Descriptor instead.
+func (ConfigFormat) EnumDescriptor() ([]byte, []int) {
+	return file_velez_api_proto_rawDescGZIP(), []int{1}
 }
 
 type Port_Protocol int32
@@ -110,11 +155,11 @@ func (x Port_Protocol) String() string {
 }
 
 func (Port_Protocol) Descriptor() protoreflect.EnumDescriptor {
-	return file_velez_api_velez_api_proto_enumTypes[1].Descriptor()
+	return file_velez_api_proto_enumTypes[2].Descriptor()
 }
 
 func (Port_Protocol) Type() protoreflect.EnumType {
-	return &file_velez_api_velez_api_proto_enumTypes[1]
+	return &file_velez_api_proto_enumTypes[2]
 }
 
 func (x Port_Protocol) Number() protoreflect.EnumNumber {
@@ -123,7 +168,7 @@ func (x Port_Protocol) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Port_Protocol.Descriptor instead.
 func (Port_Protocol) EnumDescriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{1, 0}
+	return file_velez_api_proto_rawDescGZIP(), []int{1, 0}
 }
 
 type Smerd_Status int32
@@ -174,11 +219,11 @@ func (x Smerd_Status) String() string {
 }
 
 func (Smerd_Status) Descriptor() protoreflect.EnumDescriptor {
-	return file_velez_api_velez_api_proto_enumTypes[2].Descriptor()
+	return file_velez_api_proto_enumTypes[3].Descriptor()
 }
 
 func (Smerd_Status) Type() protoreflect.EnumType {
-	return &file_velez_api_velez_api_proto_enumTypes[2]
+	return &file_velez_api_proto_enumTypes[3]
 }
 
 func (x Smerd_Status) Number() protoreflect.EnumNumber {
@@ -187,7 +232,7 @@ func (x Smerd_Status) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Smerd_Status.Descriptor instead.
 func (Smerd_Status) EnumDescriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{6, 0}
+	return file_velez_api_proto_rawDescGZIP(), []int{6, 0}
 }
 
 type Version struct {
@@ -198,7 +243,7 @@ type Version struct {
 
 func (x *Version) Reset() {
 	*x = Version{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[0]
+	mi := &file_velez_api_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -210,7 +255,7 @@ func (x *Version) String() string {
 func (*Version) ProtoMessage() {}
 
 func (x *Version) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[0]
+	mi := &file_velez_api_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -223,7 +268,7 @@ func (x *Version) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Version.ProtoReflect.Descriptor instead.
 func (*Version) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{0}
+	return file_velez_api_proto_rawDescGZIP(), []int{0}
 }
 
 type Port struct {
@@ -237,7 +282,7 @@ type Port struct {
 
 func (x *Port) Reset() {
 	*x = Port{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[1]
+	mi := &file_velez_api_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -249,7 +294,7 @@ func (x *Port) String() string {
 func (*Port) ProtoMessage() {}
 
 func (x *Port) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[1]
+	mi := &file_velez_api_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -262,7 +307,7 @@ func (x *Port) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Port.ProtoReflect.Descriptor instead.
 func (*Port) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{1}
+	return file_velez_api_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Port) GetServicePortNumber() uint32 {
@@ -296,7 +341,7 @@ type Volume struct {
 
 func (x *Volume) Reset() {
 	*x = Volume{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[2]
+	mi := &file_velez_api_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -308,7 +353,7 @@ func (x *Volume) String() string {
 func (*Volume) ProtoMessage() {}
 
 func (x *Volume) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[2]
+	mi := &file_velez_api_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -321,7 +366,7 @@ func (x *Volume) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Volume.ProtoReflect.Descriptor instead.
 func (*Volume) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{2}
+	return file_velez_api_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Volume) GetVolumeName() string {
@@ -348,7 +393,7 @@ type Bind struct {
 
 func (x *Bind) Reset() {
 	*x = Bind{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[3]
+	mi := &file_velez_api_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -360,7 +405,7 @@ func (x *Bind) String() string {
 func (*Bind) ProtoMessage() {}
 
 func (x *Bind) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[3]
+	mi := &file_velez_api_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -373,7 +418,7 @@ func (x *Bind) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Bind.ProtoReflect.Descriptor instead.
 func (*Bind) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{3}
+	return file_velez_api_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *Bind) GetHostPath() string {
@@ -400,7 +445,7 @@ type NetworkBind struct {
 
 func (x *NetworkBind) Reset() {
 	*x = NetworkBind{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[4]
+	mi := &file_velez_api_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -412,7 +457,7 @@ func (x *NetworkBind) String() string {
 func (*NetworkBind) ProtoMessage() {}
 
 func (x *NetworkBind) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[4]
+	mi := &file_velez_api_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -425,7 +470,7 @@ func (x *NetworkBind) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NetworkBind.ProtoReflect.Descriptor instead.
 func (*NetworkBind) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{4}
+	return file_velez_api_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *NetworkBind) GetNetworkName() string {
@@ -453,7 +498,7 @@ type Image struct {
 
 func (x *Image) Reset() {
 	*x = Image{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[5]
+	mi := &file_velez_api_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -465,7 +510,7 @@ func (x *Image) String() string {
 func (*Image) ProtoMessage() {}
 
 func (x *Image) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[5]
+	mi := &file_velez_api_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -478,7 +523,7 @@ func (x *Image) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Image.ProtoReflect.Descriptor instead.
 func (*Image) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{5}
+	return file_velez_api_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Image) GetName() string {
@@ -521,7 +566,7 @@ type Smerd struct {
 
 func (x *Smerd) Reset() {
 	*x = Smerd{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[6]
+	mi := &file_velez_api_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -533,7 +578,7 @@ func (x *Smerd) String() string {
 func (*Smerd) ProtoMessage() {}
 
 func (x *Smerd) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[6]
+	mi := &file_velez_api_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -546,7 +591,7 @@ func (x *Smerd) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Smerd.ProtoReflect.Descriptor instead.
 func (*Smerd) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{6}
+	return file_velez_api_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *Smerd) GetUuid() string {
@@ -634,7 +679,7 @@ type Container struct {
 
 func (x *Container) Reset() {
 	*x = Container{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[7]
+	mi := &file_velez_api_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -646,7 +691,7 @@ func (x *Container) String() string {
 func (*Container) ProtoMessage() {}
 
 func (x *Container) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[7]
+	mi := &file_velez_api_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -659,7 +704,7 @@ func (x *Container) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Container.ProtoReflect.Descriptor instead.
 func (*Container) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{7}
+	return file_velez_api_proto_rawDescGZIP(), []int{7}
 }
 
 type CreateSmerd struct {
@@ -670,7 +715,7 @@ type CreateSmerd struct {
 
 func (x *CreateSmerd) Reset() {
 	*x = CreateSmerd{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[8]
+	mi := &file_velez_api_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -682,7 +727,7 @@ func (x *CreateSmerd) String() string {
 func (*CreateSmerd) ProtoMessage() {}
 
 func (x *CreateSmerd) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[8]
+	mi := &file_velez_api_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -695,7 +740,7 @@ func (x *CreateSmerd) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateSmerd.ProtoReflect.Descriptor instead.
 func (*CreateSmerd) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{8}
+	return file_velez_api_proto_rawDescGZIP(), []int{8}
 }
 
 type ListSmerds struct {
@@ -706,7 +751,7 @@ type ListSmerds struct {
 
 func (x *ListSmerds) Reset() {
 	*x = ListSmerds{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[9]
+	mi := &file_velez_api_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -718,7 +763,7 @@ func (x *ListSmerds) String() string {
 func (*ListSmerds) ProtoMessage() {}
 
 func (x *ListSmerds) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[9]
+	mi := &file_velez_api_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -731,7 +776,7 @@ func (x *ListSmerds) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSmerds.ProtoReflect.Descriptor instead.
 func (*ListSmerds) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{9}
+	return file_velez_api_proto_rawDescGZIP(), []int{9}
 }
 
 type DropSmerd struct {
@@ -742,7 +787,7 @@ type DropSmerd struct {
 
 func (x *DropSmerd) Reset() {
 	*x = DropSmerd{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[10]
+	mi := &file_velez_api_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -754,7 +799,7 @@ func (x *DropSmerd) String() string {
 func (*DropSmerd) ProtoMessage() {}
 
 func (x *DropSmerd) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[10]
+	mi := &file_velez_api_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -767,7 +812,7 @@ func (x *DropSmerd) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DropSmerd.ProtoReflect.Descriptor instead.
 func (*DropSmerd) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{10}
+	return file_velez_api_proto_rawDescGZIP(), []int{10}
 }
 
 type GetHardware struct {
@@ -778,7 +823,7 @@ type GetHardware struct {
 
 func (x *GetHardware) Reset() {
 	*x = GetHardware{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[11]
+	mi := &file_velez_api_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -790,7 +835,7 @@ func (x *GetHardware) String() string {
 func (*GetHardware) ProtoMessage() {}
 
 func (x *GetHardware) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[11]
+	mi := &file_velez_api_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -803,7 +848,7 @@ func (x *GetHardware) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHardware.ProtoReflect.Descriptor instead.
 func (*GetHardware) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{11}
+	return file_velez_api_proto_rawDescGZIP(), []int{11}
 }
 
 type AssembleConfig struct {
@@ -814,7 +859,7 @@ type AssembleConfig struct {
 
 func (x *AssembleConfig) Reset() {
 	*x = AssembleConfig{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[12]
+	mi := &file_velez_api_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -826,7 +871,7 @@ func (x *AssembleConfig) String() string {
 func (*AssembleConfig) ProtoMessage() {}
 
 func (x *AssembleConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[12]
+	mi := &file_velez_api_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -839,7 +884,7 @@ func (x *AssembleConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssembleConfig.ProtoReflect.Descriptor instead.
 func (*AssembleConfig) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{12}
+	return file_velez_api_proto_rawDescGZIP(), []int{12}
 }
 
 type UpgradeSmerd struct {
@@ -850,7 +895,7 @@ type UpgradeSmerd struct {
 
 func (x *UpgradeSmerd) Reset() {
 	*x = UpgradeSmerd{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[13]
+	mi := &file_velez_api_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -862,7 +907,7 @@ func (x *UpgradeSmerd) String() string {
 func (*UpgradeSmerd) ProtoMessage() {}
 
 func (x *UpgradeSmerd) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[13]
+	mi := &file_velez_api_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -875,7 +920,7 @@ func (x *UpgradeSmerd) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpgradeSmerd.ProtoReflect.Descriptor instead.
 func (*UpgradeSmerd) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{13}
+	return file_velez_api_proto_rawDescGZIP(), []int{13}
 }
 
 type RestartPolicy struct {
@@ -888,7 +933,7 @@ type RestartPolicy struct {
 
 func (x *RestartPolicy) Reset() {
 	*x = RestartPolicy{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[14]
+	mi := &file_velez_api_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -900,7 +945,7 @@ func (x *RestartPolicy) String() string {
 func (*RestartPolicy) ProtoMessage() {}
 
 func (x *RestartPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[14]
+	mi := &file_velez_api_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -913,7 +958,7 @@ func (x *RestartPolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RestartPolicy.ProtoReflect.Descriptor instead.
 func (*RestartPolicy) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{14}
+	return file_velez_api_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *RestartPolicy) GetType() RestartPolicyType {
@@ -946,7 +991,7 @@ type MatreshkaConfigSpec struct {
 	//   - pg - writes to a config file
 	//
 	// general rule - if target_path is not set -> it's a environment variables
-	ConfigFormat *matreshka_api.Format `protobuf:"varint,3,opt,name=config_format,json=configFormat,proto3,enum=matreshka_api.Format,oneof" json:"config_format,omitempty"`
+	ConfigFormat *ConfigFormat `protobuf:"varint,3,opt,name=config_format,json=configFormat,proto3,enum=velez_api.ConfigFormat,oneof" json:"config_format,omitempty"`
 	// target path of config.
 	//
 	//	If set and has .yaml extension - writes yaml file at path
@@ -959,7 +1004,7 @@ type MatreshkaConfigSpec struct {
 
 func (x *MatreshkaConfigSpec) Reset() {
 	*x = MatreshkaConfigSpec{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[15]
+	mi := &file_velez_api_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -971,7 +1016,7 @@ func (x *MatreshkaConfigSpec) String() string {
 func (*MatreshkaConfigSpec) ProtoMessage() {}
 
 func (x *MatreshkaConfigSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[15]
+	mi := &file_velez_api_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -984,7 +1029,7 @@ func (x *MatreshkaConfigSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MatreshkaConfigSpec.ProtoReflect.Descriptor instead.
 func (*MatreshkaConfigSpec) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{15}
+	return file_velez_api_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *MatreshkaConfigSpec) GetConfigName() string {
@@ -1001,11 +1046,11 @@ func (x *MatreshkaConfigSpec) GetConfigVersion() string {
 	return ""
 }
 
-func (x *MatreshkaConfigSpec) GetConfigFormat() matreshka_api.Format {
+func (x *MatreshkaConfigSpec) GetConfigFormat() ConfigFormat {
 	if x != nil && x.ConfigFormat != nil {
 		return *x.ConfigFormat
 	}
-	return matreshka_api.Format(0)
+	return ConfigFormat_yaml
 }
 
 func (x *MatreshkaConfigSpec) GetSystemPath() string {
@@ -1023,7 +1068,7 @@ type MakeConnections struct {
 
 func (x *MakeConnections) Reset() {
 	*x = MakeConnections{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[16]
+	mi := &file_velez_api_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1035,7 +1080,7 @@ func (x *MakeConnections) String() string {
 func (*MakeConnections) ProtoMessage() {}
 
 func (x *MakeConnections) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[16]
+	mi := &file_velez_api_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1048,7 +1093,7 @@ func (x *MakeConnections) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MakeConnections.ProtoReflect.Descriptor instead.
 func (*MakeConnections) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{16}
+	return file_velez_api_proto_rawDescGZIP(), []int{16}
 }
 
 type BreakConnections struct {
@@ -1059,7 +1104,7 @@ type BreakConnections struct {
 
 func (x *BreakConnections) Reset() {
 	*x = BreakConnections{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[17]
+	mi := &file_velez_api_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1071,7 +1116,7 @@ func (x *BreakConnections) String() string {
 func (*BreakConnections) ProtoMessage() {}
 
 func (x *BreakConnections) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[17]
+	mi := &file_velez_api_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1084,7 +1129,7 @@ func (x *BreakConnections) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BreakConnections.ProtoReflect.Descriptor instead.
 func (*BreakConnections) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{17}
+	return file_velez_api_proto_rawDescGZIP(), []int{17}
 }
 
 type Connection struct {
@@ -1098,7 +1143,7 @@ type Connection struct {
 
 func (x *Connection) Reset() {
 	*x = Connection{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[18]
+	mi := &file_velez_api_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1110,7 +1155,7 @@ func (x *Connection) String() string {
 func (*Connection) ProtoMessage() {}
 
 func (x *Connection) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[18]
+	mi := &file_velez_api_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1123,7 +1168,7 @@ func (x *Connection) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Connection.ProtoReflect.Descriptor instead.
 func (*Connection) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{18}
+	return file_velez_api_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *Connection) GetServiceName() string {
@@ -1155,7 +1200,7 @@ type Version_Request struct {
 
 func (x *Version_Request) Reset() {
 	*x = Version_Request{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[19]
+	mi := &file_velez_api_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1167,7 +1212,7 @@ func (x *Version_Request) String() string {
 func (*Version_Request) ProtoMessage() {}
 
 func (x *Version_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[19]
+	mi := &file_velez_api_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1180,7 +1225,7 @@ func (x *Version_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Version_Request.ProtoReflect.Descriptor instead.
 func (*Version_Request) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{0, 0}
+	return file_velez_api_proto_rawDescGZIP(), []int{0, 0}
 }
 
 type Version_Response struct {
@@ -1192,7 +1237,7 @@ type Version_Response struct {
 
 func (x *Version_Response) Reset() {
 	*x = Version_Response{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[20]
+	mi := &file_velez_api_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1204,7 +1249,7 @@ func (x *Version_Response) String() string {
 func (*Version_Response) ProtoMessage() {}
 
 func (x *Version_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[20]
+	mi := &file_velez_api_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1217,7 +1262,7 @@ func (x *Version_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Version_Response.ProtoReflect.Descriptor instead.
 func (*Version_Response) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{0, 1}
+	return file_velez_api_proto_rawDescGZIP(), []int{0, 1}
 }
 
 func (x *Version_Response) GetVersion() string {
@@ -1238,7 +1283,7 @@ type Container_Hardware struct {
 
 func (x *Container_Hardware) Reset() {
 	*x = Container_Hardware{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[24]
+	mi := &file_velez_api_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1250,7 +1295,7 @@ func (x *Container_Hardware) String() string {
 func (*Container_Hardware) ProtoMessage() {}
 
 func (x *Container_Hardware) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[24]
+	mi := &file_velez_api_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1263,7 +1308,7 @@ func (x *Container_Hardware) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Container_Hardware.ProtoReflect.Descriptor instead.
 func (*Container_Hardware) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{7, 0}
+	return file_velez_api_proto_rawDescGZIP(), []int{7, 0}
 }
 
 func (x *Container_Hardware) GetCpuAmount() float32 {
@@ -1299,7 +1344,7 @@ type Container_Settings struct {
 
 func (x *Container_Settings) Reset() {
 	*x = Container_Settings{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[25]
+	mi := &file_velez_api_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1311,7 +1356,7 @@ func (x *Container_Settings) String() string {
 func (*Container_Settings) ProtoMessage() {}
 
 func (x *Container_Settings) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[25]
+	mi := &file_velez_api_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1324,7 +1369,7 @@ func (x *Container_Settings) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Container_Settings.ProtoReflect.Descriptor instead.
 func (*Container_Settings) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{7, 1}
+	return file_velez_api_proto_rawDescGZIP(), []int{7, 1}
 }
 
 func (x *Container_Settings) GetPorts() []*Port {
@@ -1371,7 +1416,7 @@ type Container_Healthcheck struct {
 
 func (x *Container_Healthcheck) Reset() {
 	*x = Container_Healthcheck{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[26]
+	mi := &file_velez_api_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1383,7 +1428,7 @@ func (x *Container_Healthcheck) String() string {
 func (*Container_Healthcheck) ProtoMessage() {}
 
 func (x *Container_Healthcheck) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[26]
+	mi := &file_velez_api_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1396,7 +1441,7 @@ func (x *Container_Healthcheck) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Container_Healthcheck.ProtoReflect.Descriptor instead.
 func (*Container_Healthcheck) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{7, 2}
+	return file_velez_api_proto_rawDescGZIP(), []int{7, 2}
 }
 
 func (x *Container_Healthcheck) GetCommand() string {
@@ -1448,7 +1493,7 @@ type CreateSmerd_Request struct {
 
 func (x *CreateSmerd_Request) Reset() {
 	*x = CreateSmerd_Request{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[27]
+	mi := &file_velez_api_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1460,7 +1505,7 @@ func (x *CreateSmerd_Request) String() string {
 func (*CreateSmerd_Request) ProtoMessage() {}
 
 func (x *CreateSmerd_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[27]
+	mi := &file_velez_api_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1473,7 +1518,7 @@ func (x *CreateSmerd_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateSmerd_Request.ProtoReflect.Descriptor instead.
 func (*CreateSmerd_Request) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{8, 0}
+	return file_velez_api_proto_rawDescGZIP(), []int{8, 0}
 }
 
 func (x *CreateSmerd_Request) GetName() string {
@@ -1579,7 +1624,7 @@ type ListSmerds_Request struct {
 
 func (x *ListSmerds_Request) Reset() {
 	*x = ListSmerds_Request{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[30]
+	mi := &file_velez_api_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1591,7 +1636,7 @@ func (x *ListSmerds_Request) String() string {
 func (*ListSmerds_Request) ProtoMessage() {}
 
 func (x *ListSmerds_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[30]
+	mi := &file_velez_api_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1604,7 +1649,7 @@ func (x *ListSmerds_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSmerds_Request.ProtoReflect.Descriptor instead.
 func (*ListSmerds_Request) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{9, 0}
+	return file_velez_api_proto_rawDescGZIP(), []int{9, 0}
 }
 
 func (x *ListSmerds_Request) GetLimit() uint32 {
@@ -1644,7 +1689,7 @@ type ListSmerds_Response struct {
 
 func (x *ListSmerds_Response) Reset() {
 	*x = ListSmerds_Response{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[31]
+	mi := &file_velez_api_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1656,7 +1701,7 @@ func (x *ListSmerds_Response) String() string {
 func (*ListSmerds_Response) ProtoMessage() {}
 
 func (x *ListSmerds_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[31]
+	mi := &file_velez_api_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1669,7 +1714,7 @@ func (x *ListSmerds_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSmerds_Response.ProtoReflect.Descriptor instead.
 func (*ListSmerds_Response) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{9, 1}
+	return file_velez_api_proto_rawDescGZIP(), []int{9, 1}
 }
 
 func (x *ListSmerds_Response) GetSmerds() []*Smerd {
@@ -1689,7 +1734,7 @@ type DropSmerd_Request struct {
 
 func (x *DropSmerd_Request) Reset() {
 	*x = DropSmerd_Request{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[33]
+	mi := &file_velez_api_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1701,7 +1746,7 @@ func (x *DropSmerd_Request) String() string {
 func (*DropSmerd_Request) ProtoMessage() {}
 
 func (x *DropSmerd_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[33]
+	mi := &file_velez_api_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1714,7 +1759,7 @@ func (x *DropSmerd_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DropSmerd_Request.ProtoReflect.Descriptor instead.
 func (*DropSmerd_Request) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{10, 0}
+	return file_velez_api_proto_rawDescGZIP(), []int{10, 0}
 }
 
 func (x *DropSmerd_Request) GetUuids() []string {
@@ -1741,7 +1786,7 @@ type DropSmerd_Response struct {
 
 func (x *DropSmerd_Response) Reset() {
 	*x = DropSmerd_Response{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[34]
+	mi := &file_velez_api_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1753,7 +1798,7 @@ func (x *DropSmerd_Response) String() string {
 func (*DropSmerd_Response) ProtoMessage() {}
 
 func (x *DropSmerd_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[34]
+	mi := &file_velez_api_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1766,7 +1811,7 @@ func (x *DropSmerd_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DropSmerd_Response.ProtoReflect.Descriptor instead.
 func (*DropSmerd_Response) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{10, 1}
+	return file_velez_api_proto_rawDescGZIP(), []int{10, 1}
 }
 
 func (x *DropSmerd_Response) GetFailed() []*DropSmerd_Response_Error {
@@ -1793,7 +1838,7 @@ type DropSmerd_Response_Error struct {
 
 func (x *DropSmerd_Response_Error) Reset() {
 	*x = DropSmerd_Response_Error{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[35]
+	mi := &file_velez_api_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1805,7 +1850,7 @@ func (x *DropSmerd_Response_Error) String() string {
 func (*DropSmerd_Response_Error) ProtoMessage() {}
 
 func (x *DropSmerd_Response_Error) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[35]
+	mi := &file_velez_api_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1818,7 +1863,7 @@ func (x *DropSmerd_Response_Error) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DropSmerd_Response_Error.ProtoReflect.Descriptor instead.
 func (*DropSmerd_Response_Error) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{10, 1, 0}
+	return file_velez_api_proto_rawDescGZIP(), []int{10, 1, 0}
 }
 
 func (x *DropSmerd_Response_Error) GetUuid() string {
@@ -1843,7 +1888,7 @@ type GetHardware_Request struct {
 
 func (x *GetHardware_Request) Reset() {
 	*x = GetHardware_Request{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[36]
+	mi := &file_velez_api_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1855,7 +1900,7 @@ func (x *GetHardware_Request) String() string {
 func (*GetHardware_Request) ProtoMessage() {}
 
 func (x *GetHardware_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[36]
+	mi := &file_velez_api_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1868,7 +1913,7 @@ func (x *GetHardware_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHardware_Request.ProtoReflect.Descriptor instead.
 func (*GetHardware_Request) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{11, 0}
+	return file_velez_api_proto_rawDescGZIP(), []int{11, 0}
 }
 
 type GetHardware_Response struct {
@@ -1884,7 +1929,7 @@ type GetHardware_Response struct {
 
 func (x *GetHardware_Response) Reset() {
 	*x = GetHardware_Response{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[37]
+	mi := &file_velez_api_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1896,7 +1941,7 @@ func (x *GetHardware_Response) String() string {
 func (*GetHardware_Response) ProtoMessage() {}
 
 func (x *GetHardware_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[37]
+	mi := &file_velez_api_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1909,7 +1954,7 @@ func (x *GetHardware_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHardware_Response.ProtoReflect.Descriptor instead.
 func (*GetHardware_Response) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{11, 1}
+	return file_velez_api_proto_rawDescGZIP(), []int{11, 1}
 }
 
 func (x *GetHardware_Response) GetCpu() *GetHardware_Response_Value {
@@ -1957,7 +2002,7 @@ type GetHardware_Response_Value struct {
 
 func (x *GetHardware_Response_Value) Reset() {
 	*x = GetHardware_Response_Value{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[38]
+	mi := &file_velez_api_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1969,7 +2014,7 @@ func (x *GetHardware_Response_Value) String() string {
 func (*GetHardware_Response_Value) ProtoMessage() {}
 
 func (x *GetHardware_Response_Value) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[38]
+	mi := &file_velez_api_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1982,7 +2027,7 @@ func (x *GetHardware_Response_Value) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHardware_Response_Value.ProtoReflect.Descriptor instead.
 func (*GetHardware_Response_Value) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{11, 1, 0}
+	return file_velez_api_proto_rawDescGZIP(), []int{11, 1, 0}
 }
 
 func (x *GetHardware_Response_Value) GetValue() string {
@@ -2009,7 +2054,7 @@ type AssembleConfig_Request struct {
 
 func (x *AssembleConfig_Request) Reset() {
 	*x = AssembleConfig_Request{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[39]
+	mi := &file_velez_api_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2021,7 +2066,7 @@ func (x *AssembleConfig_Request) String() string {
 func (*AssembleConfig_Request) ProtoMessage() {}
 
 func (x *AssembleConfig_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[39]
+	mi := &file_velez_api_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2034,7 +2079,7 @@ func (x *AssembleConfig_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssembleConfig_Request.ProtoReflect.Descriptor instead.
 func (*AssembleConfig_Request) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{12, 0}
+	return file_velez_api_proto_rawDescGZIP(), []int{12, 0}
 }
 
 func (x *AssembleConfig_Request) GetImageName() string {
@@ -2060,7 +2105,7 @@ type AssembleConfig_Response struct {
 
 func (x *AssembleConfig_Response) Reset() {
 	*x = AssembleConfig_Response{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[40]
+	mi := &file_velez_api_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2072,7 +2117,7 @@ func (x *AssembleConfig_Response) String() string {
 func (*AssembleConfig_Response) ProtoMessage() {}
 
 func (x *AssembleConfig_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[40]
+	mi := &file_velez_api_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2085,7 +2130,7 @@ func (x *AssembleConfig_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssembleConfig_Response.ProtoReflect.Descriptor instead.
 func (*AssembleConfig_Response) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{12, 1}
+	return file_velez_api_proto_rawDescGZIP(), []int{12, 1}
 }
 
 func (x *AssembleConfig_Response) GetConfig() []byte {
@@ -2105,7 +2150,7 @@ type UpgradeSmerd_Request struct {
 
 func (x *UpgradeSmerd_Request) Reset() {
 	*x = UpgradeSmerd_Request{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[41]
+	mi := &file_velez_api_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2117,7 +2162,7 @@ func (x *UpgradeSmerd_Request) String() string {
 func (*UpgradeSmerd_Request) ProtoMessage() {}
 
 func (x *UpgradeSmerd_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[41]
+	mi := &file_velez_api_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2130,7 +2175,7 @@ func (x *UpgradeSmerd_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpgradeSmerd_Request.ProtoReflect.Descriptor instead.
 func (*UpgradeSmerd_Request) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{13, 0}
+	return file_velez_api_proto_rawDescGZIP(), []int{13, 0}
 }
 
 func (x *UpgradeSmerd_Request) GetName() string {
@@ -2155,7 +2200,7 @@ type UpgradeSmerd_Response struct {
 
 func (x *UpgradeSmerd_Response) Reset() {
 	*x = UpgradeSmerd_Response{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[42]
+	mi := &file_velez_api_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2167,7 +2212,7 @@ func (x *UpgradeSmerd_Response) String() string {
 func (*UpgradeSmerd_Response) ProtoMessage() {}
 
 func (x *UpgradeSmerd_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[42]
+	mi := &file_velez_api_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2180,7 +2225,7 @@ func (x *UpgradeSmerd_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpgradeSmerd_Response.ProtoReflect.Descriptor instead.
 func (*UpgradeSmerd_Response) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{13, 1}
+	return file_velez_api_proto_rawDescGZIP(), []int{13, 1}
 }
 
 type MakeConnections_Request struct {
@@ -2192,7 +2237,7 @@ type MakeConnections_Request struct {
 
 func (x *MakeConnections_Request) Reset() {
 	*x = MakeConnections_Request{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[43]
+	mi := &file_velez_api_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2204,7 +2249,7 @@ func (x *MakeConnections_Request) String() string {
 func (*MakeConnections_Request) ProtoMessage() {}
 
 func (x *MakeConnections_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[43]
+	mi := &file_velez_api_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2217,7 +2262,7 @@ func (x *MakeConnections_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MakeConnections_Request.ProtoReflect.Descriptor instead.
 func (*MakeConnections_Request) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{16, 0}
+	return file_velez_api_proto_rawDescGZIP(), []int{16, 0}
 }
 
 func (x *MakeConnections_Request) GetConnections() []*Connection {
@@ -2235,7 +2280,7 @@ type MakeConnections_Response struct {
 
 func (x *MakeConnections_Response) Reset() {
 	*x = MakeConnections_Response{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[44]
+	mi := &file_velez_api_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2247,7 +2292,7 @@ func (x *MakeConnections_Response) String() string {
 func (*MakeConnections_Response) ProtoMessage() {}
 
 func (x *MakeConnections_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[44]
+	mi := &file_velez_api_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2260,7 +2305,7 @@ func (x *MakeConnections_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MakeConnections_Response.ProtoReflect.Descriptor instead.
 func (*MakeConnections_Response) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{16, 1}
+	return file_velez_api_proto_rawDescGZIP(), []int{16, 1}
 }
 
 type BreakConnections_Request struct {
@@ -2272,7 +2317,7 @@ type BreakConnections_Request struct {
 
 func (x *BreakConnections_Request) Reset() {
 	*x = BreakConnections_Request{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[45]
+	mi := &file_velez_api_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2284,7 +2329,7 @@ func (x *BreakConnections_Request) String() string {
 func (*BreakConnections_Request) ProtoMessage() {}
 
 func (x *BreakConnections_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[45]
+	mi := &file_velez_api_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2297,7 +2342,7 @@ func (x *BreakConnections_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BreakConnections_Request.ProtoReflect.Descriptor instead.
 func (*BreakConnections_Request) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{17, 0}
+	return file_velez_api_proto_rawDescGZIP(), []int{17, 0}
 }
 
 func (x *BreakConnections_Request) GetConnections() []*Connection {
@@ -2315,7 +2360,7 @@ type BreakConnections_Response struct {
 
 func (x *BreakConnections_Response) Reset() {
 	*x = BreakConnections_Response{}
-	mi := &file_velez_api_velez_api_proto_msgTypes[46]
+	mi := &file_velez_api_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2327,7 +2372,7 @@ func (x *BreakConnections_Response) String() string {
 func (*BreakConnections_Response) ProtoMessage() {}
 
 func (x *BreakConnections_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_api_velez_api_proto_msgTypes[46]
+	mi := &file_velez_api_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2340,14 +2385,14 @@ func (x *BreakConnections_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BreakConnections_Response.ProtoReflect.Descriptor instead.
 func (*BreakConnections_Response) Descriptor() ([]byte, []int) {
-	return file_velez_api_velez_api_proto_rawDescGZIP(), []int{17, 1}
+	return file_velez_api_proto_rawDescGZIP(), []int{17, 1}
 }
 
-var File_velez_api_velez_api_proto protoreflect.FileDescriptor
+var File_velez_api_proto protoreflect.FileDescriptor
 
-const file_velez_api_velez_api_proto_rawDesc = "" +
+const file_velez_api_proto_rawDesc = "" +
 	"\n" +
-	"\x19velez_api/velez_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1capi/grpc/matreshka_api.proto\x1a\tnpm.proto\":\n" +
+	"\x0fvelez_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\":\n" +
 	"\aVersion\x1a\t\n" +
 	"\aRequest\x1a$\n" +
 	"\bResponse\x12\x18\n" +
@@ -2517,12 +2562,12 @@ const file_velez_api_velez_api_proto_rawDesc = "" +
 	"\rRestartPolicy\x120\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x1c.velez_api.RestartPolicyTypeR\x04type\x12'\n" +
 	"\fFailureCount\x18\x02 \x01(\rH\x00R\fFailureCount\x88\x01\x01B\x0f\n" +
-	"\r_FailureCount\"\x93\x02\n" +
+	"\r_FailureCount\"\x95\x02\n" +
 	"\x13MatreshkaConfigSpec\x12$\n" +
 	"\vconfig_name\x18\x01 \x01(\tH\x00R\n" +
 	"configName\x88\x01\x01\x12*\n" +
-	"\x0econfig_version\x18\x02 \x01(\tH\x01R\rconfigVersion\x88\x01\x01\x12?\n" +
-	"\rconfig_format\x18\x03 \x01(\x0e2\x15.matreshka_api.FormatH\x02R\fconfigFormat\x88\x01\x01\x12$\n" +
+	"\x0econfig_version\x18\x02 \x01(\tH\x01R\rconfigVersion\x88\x01\x01\x12A\n" +
+	"\rconfig_format\x18\x03 \x01(\x0e2\x17.velez_api.ConfigFormatH\x02R\fconfigFormat\x88\x01\x01\x12$\n" +
 	"\vsystem_path\x18\x04 \x01(\tH\x03R\n" +
 	"systemPath\x88\x01\x01B\x0e\n" +
 	"\f_config_nameB\x11\n" +
@@ -2550,7 +2595,10 @@ const file_velez_api_velez_api_proto_rawDesc = "" +
 	"\n" +
 	"\x06always\x10\x02\x12\x0e\n" +
 	"\n" +
-	"on_failure\x10\x032\xe1\a\n" +
+	"on_failure\x10\x03*!\n" +
+	"\fConfigFormat\x12\b\n" +
+	"\x04yaml\x10\x00\x12\a\n" +
+	"\x03env\x10\x012\xe1\a\n" +
 	"\bVelezAPI\x12X\n" +
 	"\aVersion\x12\x1a.velez_api.Version.Request\x1a\x1b.velez_api.Version.Response\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/api/version\x12]\n" +
 	"\vCreateSmerd\x12\x1e.velez_api.CreateSmerd.Request\x1a\x10.velez_api.Smerd\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/smerd/create\x12g\n" +
@@ -2564,123 +2612,123 @@ const file_velez_api_velez_api_proto_rawDesc = "" +
 	"\x10BreakConnections\x12#.velez_api.BreakConnections.Request\x1a$.velez_api.BreakConnections.Response\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/smerd/disconnectBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
 
 var (
-	file_velez_api_velez_api_proto_rawDescOnce sync.Once
-	file_velez_api_velez_api_proto_rawDescData []byte
+	file_velez_api_proto_rawDescOnce sync.Once
+	file_velez_api_proto_rawDescData []byte
 )
 
-func file_velez_api_velez_api_proto_rawDescGZIP() []byte {
-	file_velez_api_velez_api_proto_rawDescOnce.Do(func() {
-		file_velez_api_velez_api_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_velez_api_velez_api_proto_rawDesc), len(file_velez_api_velez_api_proto_rawDesc)))
+func file_velez_api_proto_rawDescGZIP() []byte {
+	file_velez_api_proto_rawDescOnce.Do(func() {
+		file_velez_api_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_velez_api_proto_rawDesc), len(file_velez_api_proto_rawDesc)))
 	})
-	return file_velez_api_velez_api_proto_rawDescData
+	return file_velez_api_proto_rawDescData
 }
 
-var file_velez_api_velez_api_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_velez_api_velez_api_proto_msgTypes = make([]protoimpl.MessageInfo, 47)
-var file_velez_api_velez_api_proto_goTypes = []any{
+var file_velez_api_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_velez_api_proto_msgTypes = make([]protoimpl.MessageInfo, 47)
+var file_velez_api_proto_goTypes = []any{
 	(RestartPolicyType)(0),             // 0: velez_api.RestartPolicyType
-	(Port_Protocol)(0),                 // 1: velez_api.Port.Protocol
-	(Smerd_Status)(0),                  // 2: velez_api.Smerd.Status
-	(*Version)(nil),                    // 3: velez_api.Version
-	(*Port)(nil),                       // 4: velez_api.Port
-	(*Volume)(nil),                     // 5: velez_api.Volume
-	(*Bind)(nil),                       // 6: velez_api.Bind
-	(*NetworkBind)(nil),                // 7: velez_api.NetworkBind
-	(*Image)(nil),                      // 8: velez_api.Image
-	(*Smerd)(nil),                      // 9: velez_api.Smerd
-	(*Container)(nil),                  // 10: velez_api.Container
-	(*CreateSmerd)(nil),                // 11: velez_api.CreateSmerd
-	(*ListSmerds)(nil),                 // 12: velez_api.ListSmerds
-	(*DropSmerd)(nil),                  // 13: velez_api.DropSmerd
-	(*GetHardware)(nil),                // 14: velez_api.GetHardware
-	(*AssembleConfig)(nil),             // 15: velez_api.AssembleConfig
-	(*UpgradeSmerd)(nil),               // 16: velez_api.UpgradeSmerd
-	(*RestartPolicy)(nil),              // 17: velez_api.RestartPolicy
-	(*MatreshkaConfigSpec)(nil),        // 18: velez_api.MatreshkaConfigSpec
-	(*MakeConnections)(nil),            // 19: velez_api.MakeConnections
-	(*BreakConnections)(nil),           // 20: velez_api.BreakConnections
-	(*Connection)(nil),                 // 21: velez_api.Connection
-	(*Version_Request)(nil),            // 22: velez_api.Version.Request
-	(*Version_Response)(nil),           // 23: velez_api.Version.Response
-	nil,                                // 24: velez_api.Image.LabelsEntry
-	nil,                                // 25: velez_api.Smerd.LabelsEntry
-	nil,                                // 26: velez_api.Smerd.EnvEntry
-	(*Container_Hardware)(nil),         // 27: velez_api.Container.Hardware
-	(*Container_Settings)(nil),         // 28: velez_api.Container.Settings
-	(*Container_Healthcheck)(nil),      // 29: velez_api.Container.Healthcheck
-	(*CreateSmerd_Request)(nil),        // 30: velez_api.CreateSmerd.Request
-	nil,                                // 31: velez_api.CreateSmerd.Request.EnvEntry
-	nil,                                // 32: velez_api.CreateSmerd.Request.LabelsEntry
-	(*ListSmerds_Request)(nil),         // 33: velez_api.ListSmerds.Request
-	(*ListSmerds_Response)(nil),        // 34: velez_api.ListSmerds.Response
-	nil,                                // 35: velez_api.ListSmerds.Request.LabelEntry
-	(*DropSmerd_Request)(nil),          // 36: velez_api.DropSmerd.Request
-	(*DropSmerd_Response)(nil),         // 37: velez_api.DropSmerd.Response
-	(*DropSmerd_Response_Error)(nil),   // 38: velez_api.DropSmerd.Response.Error
-	(*GetHardware_Request)(nil),        // 39: velez_api.GetHardware.Request
-	(*GetHardware_Response)(nil),       // 40: velez_api.GetHardware.Response
-	(*GetHardware_Response_Value)(nil), // 41: velez_api.GetHardware.Response.Value
-	(*AssembleConfig_Request)(nil),     // 42: velez_api.AssembleConfig.Request
-	(*AssembleConfig_Response)(nil),    // 43: velez_api.AssembleConfig.Response
-	(*UpgradeSmerd_Request)(nil),       // 44: velez_api.UpgradeSmerd.Request
-	(*UpgradeSmerd_Response)(nil),      // 45: velez_api.UpgradeSmerd.Response
-	(*MakeConnections_Request)(nil),    // 46: velez_api.MakeConnections.Request
-	(*MakeConnections_Response)(nil),   // 47: velez_api.MakeConnections.Response
-	(*BreakConnections_Request)(nil),   // 48: velez_api.BreakConnections.Request
-	(*BreakConnections_Response)(nil),  // 49: velez_api.BreakConnections.Response
-	(*timestamppb.Timestamp)(nil),      // 50: google.protobuf.Timestamp
-	(matreshka_api.Format)(0),          // 51: matreshka_api.Format
+	(ConfigFormat)(0),                  // 1: velez_api.ConfigFormat
+	(Port_Protocol)(0),                 // 2: velez_api.Port.Protocol
+	(Smerd_Status)(0),                  // 3: velez_api.Smerd.Status
+	(*Version)(nil),                    // 4: velez_api.Version
+	(*Port)(nil),                       // 5: velez_api.Port
+	(*Volume)(nil),                     // 6: velez_api.Volume
+	(*Bind)(nil),                       // 7: velez_api.Bind
+	(*NetworkBind)(nil),                // 8: velez_api.NetworkBind
+	(*Image)(nil),                      // 9: velez_api.Image
+	(*Smerd)(nil),                      // 10: velez_api.Smerd
+	(*Container)(nil),                  // 11: velez_api.Container
+	(*CreateSmerd)(nil),                // 12: velez_api.CreateSmerd
+	(*ListSmerds)(nil),                 // 13: velez_api.ListSmerds
+	(*DropSmerd)(nil),                  // 14: velez_api.DropSmerd
+	(*GetHardware)(nil),                // 15: velez_api.GetHardware
+	(*AssembleConfig)(nil),             // 16: velez_api.AssembleConfig
+	(*UpgradeSmerd)(nil),               // 17: velez_api.UpgradeSmerd
+	(*RestartPolicy)(nil),              // 18: velez_api.RestartPolicy
+	(*MatreshkaConfigSpec)(nil),        // 19: velez_api.MatreshkaConfigSpec
+	(*MakeConnections)(nil),            // 20: velez_api.MakeConnections
+	(*BreakConnections)(nil),           // 21: velez_api.BreakConnections
+	(*Connection)(nil),                 // 22: velez_api.Connection
+	(*Version_Request)(nil),            // 23: velez_api.Version.Request
+	(*Version_Response)(nil),           // 24: velez_api.Version.Response
+	nil,                                // 25: velez_api.Image.LabelsEntry
+	nil,                                // 26: velez_api.Smerd.LabelsEntry
+	nil,                                // 27: velez_api.Smerd.EnvEntry
+	(*Container_Hardware)(nil),         // 28: velez_api.Container.Hardware
+	(*Container_Settings)(nil),         // 29: velez_api.Container.Settings
+	(*Container_Healthcheck)(nil),      // 30: velez_api.Container.Healthcheck
+	(*CreateSmerd_Request)(nil),        // 31: velez_api.CreateSmerd.Request
+	nil,                                // 32: velez_api.CreateSmerd.Request.EnvEntry
+	nil,                                // 33: velez_api.CreateSmerd.Request.LabelsEntry
+	(*ListSmerds_Request)(nil),         // 34: velez_api.ListSmerds.Request
+	(*ListSmerds_Response)(nil),        // 35: velez_api.ListSmerds.Response
+	nil,                                // 36: velez_api.ListSmerds.Request.LabelEntry
+	(*DropSmerd_Request)(nil),          // 37: velez_api.DropSmerd.Request
+	(*DropSmerd_Response)(nil),         // 38: velez_api.DropSmerd.Response
+	(*DropSmerd_Response_Error)(nil),   // 39: velez_api.DropSmerd.Response.Error
+	(*GetHardware_Request)(nil),        // 40: velez_api.GetHardware.Request
+	(*GetHardware_Response)(nil),       // 41: velez_api.GetHardware.Response
+	(*GetHardware_Response_Value)(nil), // 42: velez_api.GetHardware.Response.Value
+	(*AssembleConfig_Request)(nil),     // 43: velez_api.AssembleConfig.Request
+	(*AssembleConfig_Response)(nil),    // 44: velez_api.AssembleConfig.Response
+	(*UpgradeSmerd_Request)(nil),       // 45: velez_api.UpgradeSmerd.Request
+	(*UpgradeSmerd_Response)(nil),      // 46: velez_api.UpgradeSmerd.Response
+	(*MakeConnections_Request)(nil),    // 47: velez_api.MakeConnections.Request
+	(*MakeConnections_Response)(nil),   // 48: velez_api.MakeConnections.Response
+	(*BreakConnections_Request)(nil),   // 49: velez_api.BreakConnections.Request
+	(*BreakConnections_Response)(nil),  // 50: velez_api.BreakConnections.Response
+	(*timestamppb.Timestamp)(nil),      // 51: google.protobuf.Timestamp
 }
-var file_velez_api_velez_api_proto_depIdxs = []int32{
-	1,  // 0: velez_api.Port.protocol:type_name -> velez_api.Port.Protocol
-	24, // 1: velez_api.Image.labels:type_name -> velez_api.Image.LabelsEntry
-	4,  // 2: velez_api.Smerd.ports:type_name -> velez_api.Port
-	5,  // 3: velez_api.Smerd.volumes:type_name -> velez_api.Volume
-	2,  // 4: velez_api.Smerd.status:type_name -> velez_api.Smerd.Status
-	50, // 5: velez_api.Smerd.created_at:type_name -> google.protobuf.Timestamp
-	7,  // 6: velez_api.Smerd.networks:type_name -> velez_api.NetworkBind
-	25, // 7: velez_api.Smerd.labels:type_name -> velez_api.Smerd.LabelsEntry
-	26, // 8: velez_api.Smerd.env:type_name -> velez_api.Smerd.EnvEntry
-	6,  // 9: velez_api.Smerd.binds:type_name -> velez_api.Bind
+var file_velez_api_proto_depIdxs = []int32{
+	2,  // 0: velez_api.Port.protocol:type_name -> velez_api.Port.Protocol
+	25, // 1: velez_api.Image.labels:type_name -> velez_api.Image.LabelsEntry
+	5,  // 2: velez_api.Smerd.ports:type_name -> velez_api.Port
+	6,  // 3: velez_api.Smerd.volumes:type_name -> velez_api.Volume
+	3,  // 4: velez_api.Smerd.status:type_name -> velez_api.Smerd.Status
+	51, // 5: velez_api.Smerd.created_at:type_name -> google.protobuf.Timestamp
+	8,  // 6: velez_api.Smerd.networks:type_name -> velez_api.NetworkBind
+	26, // 7: velez_api.Smerd.labels:type_name -> velez_api.Smerd.LabelsEntry
+	27, // 8: velez_api.Smerd.env:type_name -> velez_api.Smerd.EnvEntry
+	7,  // 9: velez_api.Smerd.binds:type_name -> velez_api.Bind
 	0,  // 10: velez_api.RestartPolicy.type:type_name -> velez_api.RestartPolicyType
-	51, // 11: velez_api.MatreshkaConfigSpec.config_format:type_name -> matreshka_api.Format
-	4,  // 12: velez_api.Container.Settings.ports:type_name -> velez_api.Port
-	7,  // 13: velez_api.Container.Settings.network:type_name -> velez_api.NetworkBind
-	5,  // 14: velez_api.Container.Settings.volumes:type_name -> velez_api.Volume
-	6,  // 15: velez_api.Container.Settings.binds:type_name -> velez_api.Bind
-	27, // 16: velez_api.CreateSmerd.Request.hardware:type_name -> velez_api.Container.Hardware
-	28, // 17: velez_api.CreateSmerd.Request.settings:type_name -> velez_api.Container.Settings
-	31, // 18: velez_api.CreateSmerd.Request.env:type_name -> velez_api.CreateSmerd.Request.EnvEntry
-	29, // 19: velez_api.CreateSmerd.Request.healthcheck:type_name -> velez_api.Container.Healthcheck
-	32, // 20: velez_api.CreateSmerd.Request.labels:type_name -> velez_api.CreateSmerd.Request.LabelsEntry
-	17, // 21: velez_api.CreateSmerd.Request.restart:type_name -> velez_api.RestartPolicy
-	18, // 22: velez_api.CreateSmerd.Request.config:type_name -> velez_api.MatreshkaConfigSpec
-	35, // 23: velez_api.ListSmerds.Request.label:type_name -> velez_api.ListSmerds.Request.LabelEntry
-	9,  // 24: velez_api.ListSmerds.Response.smerds:type_name -> velez_api.Smerd
-	38, // 25: velez_api.DropSmerd.Response.failed:type_name -> velez_api.DropSmerd.Response.Error
-	41, // 26: velez_api.GetHardware.Response.cpu:type_name -> velez_api.GetHardware.Response.Value
-	41, // 27: velez_api.GetHardware.Response.disk_mem:type_name -> velez_api.GetHardware.Response.Value
-	41, // 28: velez_api.GetHardware.Response.ram:type_name -> velez_api.GetHardware.Response.Value
-	21, // 29: velez_api.MakeConnections.Request.connections:type_name -> velez_api.Connection
-	21, // 30: velez_api.BreakConnections.Request.connections:type_name -> velez_api.Connection
-	22, // 31: velez_api.VelezAPI.Version:input_type -> velez_api.Version.Request
-	30, // 32: velez_api.VelezAPI.CreateSmerd:input_type -> velez_api.CreateSmerd.Request
-	33, // 33: velez_api.VelezAPI.ListSmerds:input_type -> velez_api.ListSmerds.Request
-	36, // 34: velez_api.VelezAPI.DropSmerd:input_type -> velez_api.DropSmerd.Request
-	39, // 35: velez_api.VelezAPI.GetHardware:input_type -> velez_api.GetHardware.Request
-	44, // 36: velez_api.VelezAPI.UpgradeSmerd:input_type -> velez_api.UpgradeSmerd.Request
-	42, // 37: velez_api.VelezAPI.AssembleConfig:input_type -> velez_api.AssembleConfig.Request
-	46, // 38: velez_api.VelezAPI.MakeConnections:input_type -> velez_api.MakeConnections.Request
-	48, // 39: velez_api.VelezAPI.BreakConnections:input_type -> velez_api.BreakConnections.Request
-	23, // 40: velez_api.VelezAPI.Version:output_type -> velez_api.Version.Response
-	9,  // 41: velez_api.VelezAPI.CreateSmerd:output_type -> velez_api.Smerd
-	34, // 42: velez_api.VelezAPI.ListSmerds:output_type -> velez_api.ListSmerds.Response
-	37, // 43: velez_api.VelezAPI.DropSmerd:output_type -> velez_api.DropSmerd.Response
-	40, // 44: velez_api.VelezAPI.GetHardware:output_type -> velez_api.GetHardware.Response
-	45, // 45: velez_api.VelezAPI.UpgradeSmerd:output_type -> velez_api.UpgradeSmerd.Response
-	43, // 46: velez_api.VelezAPI.AssembleConfig:output_type -> velez_api.AssembleConfig.Response
-	47, // 47: velez_api.VelezAPI.MakeConnections:output_type -> velez_api.MakeConnections.Response
-	49, // 48: velez_api.VelezAPI.BreakConnections:output_type -> velez_api.BreakConnections.Response
+	1,  // 11: velez_api.MatreshkaConfigSpec.config_format:type_name -> velez_api.ConfigFormat
+	5,  // 12: velez_api.Container.Settings.ports:type_name -> velez_api.Port
+	8,  // 13: velez_api.Container.Settings.network:type_name -> velez_api.NetworkBind
+	6,  // 14: velez_api.Container.Settings.volumes:type_name -> velez_api.Volume
+	7,  // 15: velez_api.Container.Settings.binds:type_name -> velez_api.Bind
+	28, // 16: velez_api.CreateSmerd.Request.hardware:type_name -> velez_api.Container.Hardware
+	29, // 17: velez_api.CreateSmerd.Request.settings:type_name -> velez_api.Container.Settings
+	32, // 18: velez_api.CreateSmerd.Request.env:type_name -> velez_api.CreateSmerd.Request.EnvEntry
+	30, // 19: velez_api.CreateSmerd.Request.healthcheck:type_name -> velez_api.Container.Healthcheck
+	33, // 20: velez_api.CreateSmerd.Request.labels:type_name -> velez_api.CreateSmerd.Request.LabelsEntry
+	18, // 21: velez_api.CreateSmerd.Request.restart:type_name -> velez_api.RestartPolicy
+	19, // 22: velez_api.CreateSmerd.Request.config:type_name -> velez_api.MatreshkaConfigSpec
+	36, // 23: velez_api.ListSmerds.Request.label:type_name -> velez_api.ListSmerds.Request.LabelEntry
+	10, // 24: velez_api.ListSmerds.Response.smerds:type_name -> velez_api.Smerd
+	39, // 25: velez_api.DropSmerd.Response.failed:type_name -> velez_api.DropSmerd.Response.Error
+	42, // 26: velez_api.GetHardware.Response.cpu:type_name -> velez_api.GetHardware.Response.Value
+	42, // 27: velez_api.GetHardware.Response.disk_mem:type_name -> velez_api.GetHardware.Response.Value
+	42, // 28: velez_api.GetHardware.Response.ram:type_name -> velez_api.GetHardware.Response.Value
+	22, // 29: velez_api.MakeConnections.Request.connections:type_name -> velez_api.Connection
+	22, // 30: velez_api.BreakConnections.Request.connections:type_name -> velez_api.Connection
+	23, // 31: velez_api.VelezAPI.Version:input_type -> velez_api.Version.Request
+	31, // 32: velez_api.VelezAPI.CreateSmerd:input_type -> velez_api.CreateSmerd.Request
+	34, // 33: velez_api.VelezAPI.ListSmerds:input_type -> velez_api.ListSmerds.Request
+	37, // 34: velez_api.VelezAPI.DropSmerd:input_type -> velez_api.DropSmerd.Request
+	40, // 35: velez_api.VelezAPI.GetHardware:input_type -> velez_api.GetHardware.Request
+	45, // 36: velez_api.VelezAPI.UpgradeSmerd:input_type -> velez_api.UpgradeSmerd.Request
+	43, // 37: velez_api.VelezAPI.AssembleConfig:input_type -> velez_api.AssembleConfig.Request
+	47, // 38: velez_api.VelezAPI.MakeConnections:input_type -> velez_api.MakeConnections.Request
+	49, // 39: velez_api.VelezAPI.BreakConnections:input_type -> velez_api.BreakConnections.Request
+	24, // 40: velez_api.VelezAPI.Version:output_type -> velez_api.Version.Response
+	10, // 41: velez_api.VelezAPI.CreateSmerd:output_type -> velez_api.Smerd
+	35, // 42: velez_api.VelezAPI.ListSmerds:output_type -> velez_api.ListSmerds.Response
+	38, // 43: velez_api.VelezAPI.DropSmerd:output_type -> velez_api.DropSmerd.Response
+	41, // 44: velez_api.VelezAPI.GetHardware:output_type -> velez_api.GetHardware.Response
+	46, // 45: velez_api.VelezAPI.UpgradeSmerd:output_type -> velez_api.UpgradeSmerd.Response
+	44, // 46: velez_api.VelezAPI.AssembleConfig:output_type -> velez_api.AssembleConfig.Response
+	48, // 47: velez_api.VelezAPI.MakeConnections:output_type -> velez_api.MakeConnections.Response
+	50, // 48: velez_api.VelezAPI.BreakConnections:output_type -> velez_api.BreakConnections.Response
 	40, // [40:49] is the sub-list for method output_type
 	31, // [31:40] is the sub-list for method input_type
 	31, // [31:31] is the sub-list for extension type_name
@@ -2688,34 +2736,34 @@ var file_velez_api_velez_api_proto_depIdxs = []int32{
 	0,  // [0:31] is the sub-list for field type_name
 }
 
-func init() { file_velez_api_velez_api_proto_init() }
-func file_velez_api_velez_api_proto_init() {
-	if File_velez_api_velez_api_proto != nil {
+func init() { file_velez_api_proto_init() }
+func file_velez_api_proto_init() {
+	if File_velez_api_proto != nil {
 		return
 	}
-	file_velez_api_velez_api_proto_msgTypes[1].OneofWrappers = []any{}
-	file_velez_api_velez_api_proto_msgTypes[14].OneofWrappers = []any{}
-	file_velez_api_velez_api_proto_msgTypes[15].OneofWrappers = []any{}
-	file_velez_api_velez_api_proto_msgTypes[24].OneofWrappers = []any{}
-	file_velez_api_velez_api_proto_msgTypes[26].OneofWrappers = []any{}
-	file_velez_api_velez_api_proto_msgTypes[27].OneofWrappers = []any{}
-	file_velez_api_velez_api_proto_msgTypes[30].OneofWrappers = []any{}
+	file_velez_api_proto_msgTypes[1].OneofWrappers = []any{}
+	file_velez_api_proto_msgTypes[14].OneofWrappers = []any{}
+	file_velez_api_proto_msgTypes[15].OneofWrappers = []any{}
+	file_velez_api_proto_msgTypes[24].OneofWrappers = []any{}
+	file_velez_api_proto_msgTypes[26].OneofWrappers = []any{}
+	file_velez_api_proto_msgTypes[27].OneofWrappers = []any{}
+	file_velez_api_proto_msgTypes[30].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_velez_api_velez_api_proto_rawDesc), len(file_velez_api_velez_api_proto_rawDesc)),
-			NumEnums:      3,
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_velez_api_proto_rawDesc), len(file_velez_api_proto_rawDesc)),
+			NumEnums:      4,
 			NumMessages:   47,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_velez_api_velez_api_proto_goTypes,
-		DependencyIndexes: file_velez_api_velez_api_proto_depIdxs,
-		EnumInfos:         file_velez_api_velez_api_proto_enumTypes,
-		MessageInfos:      file_velez_api_velez_api_proto_msgTypes,
+		GoTypes:           file_velez_api_proto_goTypes,
+		DependencyIndexes: file_velez_api_proto_depIdxs,
+		EnumInfos:         file_velez_api_proto_enumTypes,
+		MessageInfos:      file_velez_api_proto_msgTypes,
 	}.Build()
-	File_velez_api_velez_api_proto = out.File
-	file_velez_api_velez_api_proto_goTypes = nil
-	file_velez_api_velez_api_proto_depIdxs = nil
+	File_velez_api_proto = out.File
+	file_velez_api_proto_goTypes = nil
+	file_velez_api_proto_depIdxs = nil
 }

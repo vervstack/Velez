@@ -8,9 +8,18 @@ import ActivityPoint from "@/components/base/ActivityPoint.tsx";
 
 interface ServiceCardProps extends Service {
     disabled?: boolean
+
+    onClickConstructor?: () => void
 }
 
-export default function ServiceCard({title, icon, webLink, description, disabled}: ServiceCardProps) {
+export default function ServiceCard({
+                                        title,
+                                        icon,
+                                        webLink,
+                                        description,
+                                        disabled,
+                                        onClickConstructor
+                                    }: ServiceCardProps) {
     return (
         <div className={cn(cls.CardContainer, {
             [cls.disabled]: disabled,
@@ -28,6 +37,20 @@ export default function ServiceCard({title, icon, webLink, description, disabled
                             data-tooltip-content="Open in new window"
                             data-tooltip-place="left"
                             onClick={() => window.open(webLink, '_blank')}
+                        >
+                        <span
+                            className="material-symbols-outlined"
+                            children={"open_in_new"}/>
+                        </div> : null
+                    }
+
+                    {
+                        onClickConstructor ? <div
+                            className={cls.ExternalLink}
+                            data-tooltip-id={"open-external-service-link-" + title}
+                            data-tooltip-content="Deploy on this node"
+                            data-tooltip-place="left"
+                            onClick={onClickConstructor}
                         >
                         <span
                             className="material-symbols-outlined"

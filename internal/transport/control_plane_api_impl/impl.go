@@ -9,11 +9,11 @@ import (
 	"google.golang.org/grpc"
 
 	"go.vervstack.ru/Velez/internal/service"
-	"go.vervstack.ru/Velez/pkg/control_plane_api"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 type Impl struct {
-	control_plane_api.UnimplementedControlPlaneServer
+	velez_api.UnimplementedControlPlaneAPIServer
 
 	smerdManager service.ContainerService
 }
@@ -25,13 +25,13 @@ func New(srv service.Services) *Impl {
 }
 
 func (impl *Impl) Register(server grpc.ServiceRegistrar) {
-	control_plane_api.RegisterControlPlaneServer(server, impl)
+	velez_api.RegisterControlPlaneAPIServer(server, impl)
 }
 
 func (impl *Impl) Gateway(ctx context.Context, endpoint string, opts ...grpc.DialOption) (route string, handler http.Handler) {
 	gwHttpMux := runtime.NewServeMux()
 
-	err := control_plane_api.RegisterControlPlaneHandlerFromEndpoint(
+	err := velez_api.RegisterControlPlaneAPIHandlerFromEndpoint(
 		ctx,
 		gwHttpMux,
 		endpoint,

@@ -4,7 +4,6 @@ package velez_api;
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-import "api/grpc/matreshka_api.proto";
 
 import "npm.proto";
 
@@ -292,7 +291,7 @@ message MatreshkaConfigSpec {
   //    - verv - sets config as environment variables
   //    - pg - writes to a config file
   // general rule - if target_path is not set -> it's a environment variables
-  optional matreshka_api.Format config_format = 3;
+  optional ConfigFormat config_format = 3;
   // target path of config.
   //    If set and has .yaml extension - writes yaml file at path
   //
@@ -320,4 +319,9 @@ message Connection {
   string service_name = 1;
   string target_network = 2;
   repeated string aliases = 3;
+}
+
+enum ConfigFormat {
+  yaml = 0; // Default
+  env = 1;
 }

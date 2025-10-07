@@ -4,7 +4,8 @@
     flex-direction: column;
 
     gap: 0;
-    justify-content: space-around;
+    justify-content: center;
+    align-items: center;
     box-sizing: border-box;
     min-height: 100vh;
     height: 100%;

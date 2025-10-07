@@ -6,29 +6,34 @@
  */
 
 import * as fm from "./fetch.pb";
+import * as VelezApiVelezApi from "./velez_api.pb";
 
+
+export enum ServiceType {
+  unknown_service_type = "unknown_service_type",
+  matreshka = "matreshka",
+  svarog = "svarog",
+  webserver = "webserver",
+  makosh = "makosh",
+  portainer = "portainer",
+}
 
 export type ListServicesRequest = Record<string, never>;
 
 export type ListServicesResponse = {
-  matreshka?: Matreshka;
-  makosh?: Makosh;
-  svarog?: Svarog;
+  services?: Service[];
+  inactiveServices?: Service[];
 };
 
 export type ListServices = Record<string, never>;
 
-export type Matreshka = {
-  uiUrl?: string;
+export type Service = {
+  type?: ServiceType;
+  port?: number;
+  constructor?: VelezApiVelezApi.CreateSmerdRequest;
 };
 
-export type Makosh = {
-  uiUrl?: string;
-};
-
-export type Svarog = Record<string, never>;
-
-export class ControlPlane {
+export class ControlPlaneAPI {
   static ListServices(this:void, req: ListServicesRequest, initReq?: fm.InitReq): Promise<ListServicesResponse> {
     return fm.fetchRequest<ListServicesResponse>(`/api/control_plane/services?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
   }

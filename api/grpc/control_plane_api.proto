@@ -1,14 +1,16 @@
 syntax = "proto3";
 
-package control_plane_api;
+package velez_api;
 
 import "google/api/annotations.proto";
 import "npm.proto";
 
-option go_package = "go.vervstack.ru/velez/pkg/control_plane_api;control_plane_api";
+import "velez_api.proto";
+
+option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
 option (npm_package) = "@vervstack/velez";
 
-service ControlPlane {
+service ControlPlaneAPI {
   rpc ListServices(ListServices.Request) returns (ListServices.Response) {
     option (google.api.http) = {
       get: "/api/control_plane/services"
@@ -30,6 +32,8 @@ message ListServices {
 message Service  {
   ServiceType type = 1;
   optional uint32 port = 2;
+
+  optional CreateSmerd.Request constructor = 3;
 }
 
 enum ServiceType {

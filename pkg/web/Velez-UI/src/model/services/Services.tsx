@@ -1,4 +1,4 @@
-import {ServiceType} from "@vervstack/velez"
+import {ServiceType, CreateSmerdRequest} from "@vervstack/velez"
 
 import MatreshkaIcon from "@/assets/icons/matreshka/MatreshkaIcon";
 import MakoshIcon from "@/assets/icons/makosh/MakoshIcon";
@@ -9,6 +9,8 @@ export class Service {
     icon: React.JSX.Element
     webLink?: string
     description: string
+
+    smerdConstructor?: CreateSmerdRequest
 
     constructor(type: ServiceType, port?: number) {
         const serviceMeta = metaByType.get(type);

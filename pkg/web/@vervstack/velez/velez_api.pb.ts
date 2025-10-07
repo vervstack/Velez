@@ -5,7 +5,6 @@
  * This file is a generated Typescript file for GRPC Gateway, DO NOT MODIFY
  */
 
-import * as MatreshkaApiMatreshkaApi from "./api/grpc/matreshka_api.pb";
 import * as fm from "./fetch.pb";
 import * as GoogleProtobufTimestamp from "./google/protobuf/timestamp.pb";
 
@@ -15,6 +14,11 @@ export enum RestartPolicyType {
   no = "no",
   always = "always",
   on_failure = "on_failure",
+}
+
+export enum ConfigFormat {
+  yaml = "yaml",
+  env = "env",
 }
 
 export enum PortProtocol {
@@ -116,10 +120,9 @@ export type CreateSmerdRequest = {
   labels?: Record<string, string>;
   ignoreConfig?: boolean;
   useImagePorts?: boolean;
-  configVersion?: string;
   autoUpgrade?: boolean;
   restart?: RestartPolicy;
-    config?: MatreshkaConfig;
+  config?: MatreshkaConfigSpec;
 };
 
 export type CreateSmerd = Record<string, never>;
@@ -196,14 +199,33 @@ export type RestartPolicy = {
   FailureCount?: number;
 };
 
-export type MatreshkaConfigConfigSpec = {
-    configName?: string;
-    configVersion?: string;
-    configFormat?: MatreshkaApiMatreshkaApi.Format;
+export type MatreshkaConfigSpec = {
+  configName?: string;
+  configVersion?: string;
+  configFormat?: ConfigFormat;
+  systemPath?: string;
 };
 
-export type MatreshkaConfig = {
-    configs?: MatreshkaConfigConfigSpec[];
+export type MakeConnectionsRequest = {
+  connections?: Connection[];
+};
+
+export type MakeConnectionsResponse = Record<string, never>;
+
+export type MakeConnections = Record<string, never>;
+
+export type BreakConnectionsRequest = {
+  connections?: Connection[];
+};
+
+export type BreakConnectionsResponse = Record<string, never>;
+
+export type BreakConnections = Record<string, never>;
+
+export type Connection = {
+  serviceName?: string;
+  targetNetwork?: string;
+  aliases?: string[];
 };
 
 export class VelezAPI {
@@ -222,15 +244,16 @@ export class VelezAPI {
   static GetHardware(this:void, req: GetHardwareRequest, initReq?: fm.InitReq): Promise<GetHardwareResponse> {
     return fm.fetchRequest<GetHardwareResponse>(`/api/hardware?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
   }
-
-    static UpgradeSmerd(this: void, req: UpgradeSmerdRequest, initReq?: fm.InitReq): Promise<UpgradeSmerdResponse> {
-        return fm.fetchRequest<UpgradeSmerdResponse>(`/api/smerd/upgrade`, {
-            ...initReq,
-            method: "POST",
-            body: JSON.stringify(req, fm.replacer)
-        });
+  static UpgradeSmerd(this:void, req: UpgradeSmerdRequest, initReq?: fm.InitReq): Promise<UpgradeSmerdResponse> {
+    return fm.fetchRequest<UpgradeSmerdResponse>(`/api/smerd/upgrade`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
   static AssembleConfig(this:void, req: AssembleConfigRequest, initReq?: fm.InitReq): Promise<AssembleConfigResponse> {
     return fm.fetchRequest<AssembleConfigResponse>(`/api/config/assemble`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static MakeConnections(this:void, req: MakeConnectionsRequest, initReq?: fm.InitReq): Promise<MakeConnectionsResponse> {
+    return fm.fetchRequest<MakeConnectionsResponse>(`/api/smerd/connect`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static BreakConnections(this:void, req: BreakConnectionsRequest, initReq?: fm.InitReq): Promise<BreakConnectionsResponse> {
+    return fm.fetchRequest<BreakConnectionsResponse>(`/api/smerd/disconnect`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
 }

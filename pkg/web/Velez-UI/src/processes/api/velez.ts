@@ -1,6 +1,6 @@
 import {ListSmerdsRequest, VelezAPI} from "@vervstack/velez";
 import {InitReq} from "@/app/settings/state.ts";
-import {Port, Smerd} from "@/model/smerds/Smerds.ts";
+import {Port, Smerd, Volume} from "@/model/smerds/Smerds.ts";
 
 export async function ListSmerds(req: ListSmerdsRequest, initReq: InitReq) {
     req.limit = req.limit || 10
@@ -30,6 +30,13 @@ export async function GetSmerd(name: string, initReq: InitReq): Promise<Smerd> {
                             exposedPort: v.exposedTo,
                         } as Port
                     }),
+                volumes: (res.smerds[0].volumes || [])
+                    .map((v) => {
+                        return {
+                            containerPath: v.containerPath,
+                            virtualVolume: v.volumeName,
+                        } as Volume
+                    })
             } as Smerd
         }
     )

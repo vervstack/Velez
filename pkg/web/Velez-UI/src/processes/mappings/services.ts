@@ -1,6 +1,6 @@
 import {
     ServiceType,
-    ListServicesResponse as ApiServices
+    Service as ApiServices
 } from "@vervstack/velez";
 
 import {
@@ -8,10 +8,10 @@ import {
     Service,
 } from "@/model/services/Services";
 
-export function toServices(services: ApiServices): Service[] {
+export function toServices(services: ApiServices[]): Service[] {
     const out: Service[] = []
 
-    services.services?.map(s => {
+    services.map(s => {
         out.push(new Service(s.type || ServiceType.unknown_service_type, s.port))
     })
 

@@ -1,14 +1,23 @@
 .ControlPlaneContainer {
     display: flex;
-    flex-wrap: wrap;
 
+    flex-direction: column;
+
+    width: 100%;
+}
+
+
+.ServicesBlock {
+    display: flex;
+    flex-wrap: wrap;
     gap: 2em;
+
     justify-content: stretch;
     padding: 1em;
 }
 
 
-.ServiceCard {
+.ServiceCardWrapper {
     flex: 1 1 20em;
 
     width: 20em;
@@ -23,7 +32,7 @@
     cursor: pointer;
 }
 
-.ServiceCard:hover {
+.ServiceCardWrapper:hover {
     transform: scale(1.05);
 }
 

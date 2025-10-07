@@ -10,21 +10,17 @@ interface PortsWidgetProps {
 export default function PortsWidget({ports}: PortsWidgetProps) {
     return (
         <div className={cls.PortWidgetContainer}>
+
             <div>Ports:</div>
-            {
-                ports.map(((v, i) => {
-                    return (
-                        <div key={i}>{
-                            v.exposedPort ?
-                                <PortMapping
-                                    portFrom={v.servicePort}
-                                    portTo={v.exposedPort}/>
-                                :
-                                null
-                        }</div>
-                    )
-                }))
-            }
+            {ports.map(((v, i) =>
+                    <div
+                        className={cls.PortMappingWrapper}
+                        key={i}>
+                        <PortMapping
+                            portFrom={v.servicePort}
+                            portTo={v.exposedPort}/>
+                    </div>
+            ))}
         </div>
     )
 }

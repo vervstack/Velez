@@ -49,6 +49,13 @@
             "type": "object",
             "$ref": "#/definitions/control_plane_apiService"
           }
+        },
+        "inactiveServices": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/control_plane_apiService"
+          }
         }
       }
     },
@@ -68,11 +75,11 @@
       "type": "string",
       "enum": [
         "unknown_service_type",
-        "velez",
         "matreshka",
         "svarog",
         "webserver",
-        "makosh"
+        "makosh",
+        "portainer"
       ],
       "default": "unknown_service_type"
     },

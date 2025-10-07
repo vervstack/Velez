@@ -9,6 +9,7 @@ import useSettings from "@/app/settings/state.ts";
 
 import Loader from "@/components/Loader.tsx";
 import PortsWidget from "@/widgets/ports/PortsWidget.tsx";
+import VolumesWidget from "@/widgets/volume/VolumesWidget.tsx";
 
 export default function SmerdPage() {
     const [smerdInfo, setSmerdInfo] = useState<Smerd>()
@@ -42,7 +43,12 @@ export default function SmerdPage() {
                 {smerdInfo.name}
             </div>
             <div className={cls.Body}>
-                <PortsWidget ports={smerdInfo.ports}/>
+                <div className={cls.InfoBox}>
+                    <PortsWidget ports={smerdInfo.ports}/>
+                </div>
+                <div className={cls.InfoBox}>
+                    <VolumesWidget volumes={smerdInfo.volumes}/>
+                </div>
             </div>
         </div>
     )

@@ -27,30 +27,30 @@ type ServiceType int32
 
 const (
 	ServiceType_unknown_service_type ServiceType = 0
-	ServiceType_velez                ServiceType = 1
-	ServiceType_matreshka            ServiceType = 2
-	ServiceType_svarog               ServiceType = 3
-	ServiceType_webserver            ServiceType = 4
-	ServiceType_makosh               ServiceType = 5
+	ServiceType_matreshka            ServiceType = 1
+	ServiceType_svarog               ServiceType = 2
+	ServiceType_webserver            ServiceType = 3
+	ServiceType_makosh               ServiceType = 4
+	ServiceType_portainer            ServiceType = 5
 )
 
 // Enum value maps for ServiceType.
 var (
 	ServiceType_name = map[int32]string{
 		0: "unknown_service_type",
-		1: "velez",
-		2: "matreshka",
-		3: "svarog",
-		4: "webserver",
-		5: "makosh",
+		1: "matreshka",
+		2: "svarog",
+		3: "webserver",
+		4: "makosh",
+		5: "portainer",
 	}
 	ServiceType_value = map[string]int32{
 		"unknown_service_type": 0,
-		"velez":                1,
-		"matreshka":            2,
-		"svarog":               3,
-		"webserver":            4,
-		"makosh":               5,
+		"matreshka":            1,
+		"svarog":               2,
+		"webserver":            3,
+		"makosh":               4,
+		"portainer":            5,
 	}
 )
 
@@ -206,10 +206,11 @@ func (*ListServices_Request) Descriptor() ([]byte, []int) {
 }
 
 type ListServices_Response struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Services      []*Service             `protobuf:"bytes,1,rep,name=services,proto3" json:"services,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Services         []*Service             `protobuf:"bytes,1,rep,name=services,proto3" json:"services,omitempty"`
+	InactiveServices []*Service             `protobuf:"bytes,2,rep,name=inactive_services,json=inactiveServices,proto3" json:"inactive_services,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *ListServices_Response) Reset() {
@@ -249,28 +250,36 @@ func (x *ListServices_Response) GetServices() []*Service {
 	return nil
 }
 
+func (x *ListServices_Response) GetInactiveServices() []*Service {
+	if x != nil {
+		return x.InactiveServices
+	}
+	return nil
+}
+
 var File_control_plane_api_control_plane_api_proto protoreflect.FileDescriptor
 
 const file_control_plane_api_control_plane_api_proto_rawDesc = "" +
 	"\n" +
-	")control_plane_api/control_plane_api.proto\x12\x11control_plane_api\x1a\x1cgoogle/api/annotations.proto\x1a\tnpm.proto\"]\n" +
+	")control_plane_api/control_plane_api.proto\x12\x11control_plane_api\x1a\x1cgoogle/api/annotations.proto\x1a\tnpm.proto\"\xa7\x01\n" +
 	"\fListServices\x1a\t\n" +
-	"\aRequest\x1aB\n" +
+	"\aRequest\x1a\x8b\x01\n" +
 	"\bResponse\x126\n" +
-	"\bservices\x18\x01 \x03(\v2\x1a.control_plane_api.ServiceR\bservices\"_\n" +
+	"\bservices\x18\x01 \x03(\v2\x1a.control_plane_api.ServiceR\bservices\x12G\n" +
+	"\x11inactive_services\x18\x02 \x03(\v2\x1a.control_plane_api.ServiceR\x10inactiveServices\"_\n" +
 	"\aService\x122\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x1e.control_plane_api.ServiceTypeR\x04type\x12\x17\n" +
 	"\x04port\x18\x02 \x01(\rH\x00R\x04port\x88\x01\x01B\a\n" +
-	"\x05_port*h\n" +
+	"\x05_port*l\n" +
 	"\vServiceType\x12\x18\n" +
-	"\x14unknown_service_type\x10\x00\x12\t\n" +
-	"\x05velez\x10\x01\x12\r\n" +
-	"\tmatreshka\x10\x02\x12\n" +
+	"\x14unknown_service_type\x10\x00\x12\r\n" +
+	"\tmatreshka\x10\x01\x12\n" +
 	"\n" +
-	"\x06svarog\x10\x03\x12\r\n" +
-	"\twebserver\x10\x04\x12\n" +
+	"\x06svarog\x10\x02\x12\r\n" +
+	"\twebserver\x10\x03\x12\n" +
 	"\n" +
-	"\x06makosh\x10\x052\x97\x01\n" +
+	"\x06makosh\x10\x04\x12\r\n" +
+	"\tportainer\x10\x052\x97\x01\n" +
 	"\fControlPlane\x12\x86\x01\n" +
 	"\fListServices\x12'.control_plane_api.ListServices.Request\x1a(.control_plane_api.ListServices.Response\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/control_plane/servicesBS\x92\x82\x19\x10@vervstack/velezZ=go.vervstack.ru/velez/pkg/control_plane_api;control_plane_apib\x06proto3"
 
@@ -298,13 +307,14 @@ var file_control_plane_api_control_plane_api_proto_goTypes = []any{
 var file_control_plane_api_control_plane_api_proto_depIdxs = []int32{
 	0, // 0: control_plane_api.Service.type:type_name -> control_plane_api.ServiceType
 	2, // 1: control_plane_api.ListServices.Response.services:type_name -> control_plane_api.Service
-	3, // 2: control_plane_api.ControlPlane.ListServices:input_type -> control_plane_api.ListServices.Request
-	4, // 3: control_plane_api.ControlPlane.ListServices:output_type -> control_plane_api.ListServices.Response
-	3, // [3:4] is the sub-list for method output_type
-	2, // [2:3] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	2, // 2: control_plane_api.ListServices.Response.inactive_services:type_name -> control_plane_api.Service
+	3, // 3: control_plane_api.ControlPlane.ListServices:input_type -> control_plane_api.ListServices.Request
+	4, // 4: control_plane_api.ControlPlane.ListServices:output_type -> control_plane_api.ListServices.Response
+	4, // [4:5] is the sub-list for method output_type
+	3, // [3:4] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_control_plane_api_control_plane_api_proto_init() }

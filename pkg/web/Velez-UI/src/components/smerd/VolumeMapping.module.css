@@ -1,0 +1,20 @@
+.VolumeMappingContainer {
+    display: flex;
+    flex-direction: row;
+
+    justify-content: center;
+    align-items: center;
+}
+
+.Volume {
+    display: flex;
+    flex-direction: row;
+
+    justify-content: center;
+    align-items: center;
+}
+
+.MapArrow {
+    width: 1em;
+    height: 1em;
+}

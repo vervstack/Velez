@@ -14,8 +14,6 @@ createRoot(document.getElementById('root')!)
     .render(
         <StrictMode>
             <link href="@/assets/font/Comfortaa.ttf" rel="stylesheet"/>
-
-
             <RouterProvider router={router}/>
             <SettingsWidget/>
         </StrictMode>

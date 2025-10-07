@@ -10,17 +10,18 @@ import * as fm from "../fetch.pb";
 
 export enum ServiceType {
   unknown_service_type = "unknown_service_type",
-  velez = "velez",
   matreshka = "matreshka",
   svarog = "svarog",
   webserver = "webserver",
   makosh = "makosh",
+  portainer = "portainer",
 }
 
 export type ListServicesRequest = Record<string, never>;
 
 export type ListServicesResponse = {
   services?: Service[];
+  inactiveServices?: Service[];
 };
 
 export type ListServices = Record<string, never>;

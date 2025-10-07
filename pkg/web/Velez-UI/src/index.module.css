@@ -22,6 +22,8 @@ root, body {
     --header-color: rgba(255, 237, 237, 100%);
     --quote-background: rgb(171, 171, 171);
     --primary-fg-color: #232328;
+
+    --disabled-bg-color: #616161;
 }
 
 /*TODO: DO FOR different screen sizes*/

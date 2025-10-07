@@ -39,6 +39,8 @@ func (impl *Impl) ListServices(ctx context.Context, _ *control_plane_api.ListSer
 		resp.Services = append(resp.Services, srv)
 	}
 
+	resp.InactiveServices = listInactiveServices(resp.Services)
+
 	return resp, nil
 }
 
@@ -48,4 +50,36 @@ func getPort(ports []*velez_api.Port) *uint32 {
 	}
 
 	return ports[0].ExposedTo
+}
+
+func listInactiveServices(enabledServices []*control_plane_api.Service) []*control_plane_api.Service {
+	enabledServicesMap := make(map[control_plane_api.ServiceType]struct{})
+	for _, s := range enabledServices {
+		enabledServicesMap[s.Type] = struct{}{}
+	}
+
+	var disabledServices []*control_plane_api.Service
+	for tp := range supportedServicesMap {
+		_, exists := enabledServicesMap[tp]
+		if exists {
+			continue
+		}
+
+		disabledServices = append(disabledServices,
+			&control_plane_api.Service{
+				Type: tp,
+			})
+
+	}
+
+	return disabledServices
+}
+
+var supportedServicesMap = map[control_plane_api.ServiceType]struct{}{
+	control_plane_api.ServiceType_makosh:    {},
+	control_plane_api.ServiceType_matreshka: {},
+	control_plane_api.ServiceType_svarog:    {},
+
+	control_plane_api.ServiceType_webserver: {},
+	control_plane_api.ServiceType_portainer: {},
 }

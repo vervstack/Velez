@@ -1,4 +1,5 @@
 import {Tooltip} from "react-tooltip";
+import OpenInTab from "@/assets/icons/OpenInTab.svg";
 
 import cls from "@/components/smerd/PortMapping.module.css";
 
@@ -8,7 +9,7 @@ import {getLinkToPort} from "@/model/services/Services.tsx";
 
 interface PortMappingProps {
     portFrom: number;
-    portTo: number
+    portTo?: number
 }
 
 export default function PortMapping({portFrom, portTo}: PortMappingProps) {
@@ -16,32 +17,48 @@ export default function PortMapping({portFrom, portTo}: PortMappingProps) {
         <div className={cls.PortMappingContainer}>
             <div className={cls.PortsPair}>
                 <div
+                    children={portFrom}
+                    className={cls.Port}
+
                     data-tooltip-id={"open-port"}
                     data-tooltip-content="Service port"
                     data-tooltip-place="top"
-                    className={cls.Port}>{portFrom}</div>
+                    />
                 <img
                     className={cls.MapArrow}
                     src={ArrowForward}
                     alt={'->'}
                 />
-                <div
-                    className={cls.Port}
-                    data-tooltip-id={"open-port"}
-                    data-tooltip-content="Exposed to port"
-                    data-tooltip-place="bottom"
-                >{portTo}</div>
+                {portTo ?
+                    <div
+                        children={portTo}
+
+                        className={cls.Port}
+                        data-tooltip-id={"open-port"}
+                        data-tooltip-content="Exposed to port"
+                        data-tooltip-place="bottom"
+                    /> : <div
+                        children={'Not exposed'}
+                    />
+                }
             </div>
-            <div className={cls.OpenPort}>
-                <span
-                    className="material-symbols-outlined"
+            {portTo ?
+                <img
+                    src={OpenInTab}
+                    alt={'^'}
+
+                    className={cls.OpenPort}
+
                     data-tooltip-id={"open-port"}
                     data-tooltip-content="Open port"
                     data-tooltip-place="top-start"
-                    children={"open_in_new"}
-                    onClick={()=> {window.open(getLinkToPort(portTo), "_blank")}}
+                    onClick={() => {
+                        window.open(getLinkToPort(portTo), "_blank")
+                    }}
                 />
-            </div>
+                :
+                null
+            }
 
             <Tooltip
                 id={"open-port"}

@@ -7,9 +7,31 @@
     border: var(--secondary-bg-color) solid;
     border-radius: 12px;
 
+    &.disabled {
+        border: var(--disabled-bg-color) solid;
+    }
+
+    position: relative;
+}
+
+.ActivityPoint {
+    position: absolute;
+    top: 4%;
+    left: 4%;
+}
+
+.CardContent {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+
     display: flex;
     flex-direction: column;
 }
+
+
 
 /* Top part*/
 

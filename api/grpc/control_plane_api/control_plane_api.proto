@@ -22,6 +22,7 @@ message ListServices {
   }
   message Response {
     repeated Service services = 1;
+    repeated Service inactive_services = 2;
   }
 }
 
@@ -33,9 +34,9 @@ message Service  {
 
 enum ServiceType {
   unknown_service_type = 0;
-  velez = 1;
-  matreshka = 2;
-  svarog = 3;
-  webserver = 4;
-  makosh = 5;
+  matreshka = 1;
+  svarog = 2;
+  webserver = 3;
+  makosh = 4;
+  portainer = 5;
 }

@@ -1,16 +1,21 @@
 .PortMappingContainer {
     width: 100%;
     height: 100%;
-    padding: 1em;
+    padding: 0.25em;
 
     display: flex;
     justify-content: start;
     align-items: center;
     gap: 0.25em;
+
+    box-sizing: border-box;
 }
 
 .PortsPair {
     display: flex;
+
+    justify-content: center;
+    align-items: center;
 }
 
 .MapArrow {
@@ -19,13 +24,28 @@
 }
 
 .Port {
+    width: 100%;
+    height: 100%;
+
     cursor: help;
+
+    text-align: center;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
 }
 
 .OpenPort {
     cursor: pointer;
+    width: 1em;
 
     transition: scale 0.25s ease;
+
+    display: flex;
+    justify-content: center;
+    align-items: start;
 }
 
 .OpenPort:hover {

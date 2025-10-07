@@ -1,0 +1,29 @@
+.activityPoint {
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.unknown {
+    background-color: yellow;
+}
+
+.active {
+    background-color: green;
+    animation: blink 1.5s infinite ease-in-out;
+}
+
+.inactive {
+    background-color: black;
+    cursor: not-allowed;
+}
+
+@keyframes blink {
+    0%, 100% {
+        opacity: 0.4;
+    }
+    50% {
+        opacity: 1;
+    }
+}

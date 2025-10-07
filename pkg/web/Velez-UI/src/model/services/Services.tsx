@@ -46,11 +46,11 @@ metaByType.set(ServiceType.matreshka, {
     icon: <MatreshkaIcon/>,
     description: `Verv Standard configuration system`
 });
-metaByType.set(ServiceType.webserver, {
-    title: "Angie (WebServer)",
-    icon: <MatreshkaIcon/>,
-    description: ``
-});
+// metaByType.set(ServiceType.webserver, {
+//     title: "Angie (WebServer)",
+//     icon: <MatreshkaIcon/>,
+//     description: ``
+// });
 
 
 

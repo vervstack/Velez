@@ -22,27 +22,27 @@ func (s *AssembleConfigSuite) SetupSuite() {
 }
 
 func (s *AssembleConfigSuite) Test_AssembleHelloWorld() {
-	serviceName := getServiceName(s.T())
+	serviceName := getServiceName(s.Suite.T())
 	req := &velez_api.AssembleConfig_Request{
 		ImageName:   helloWorldAppImage,
 		ServiceName: serviceName,
 	}
 
 	assembleResponse, err := testEnvironment.velezAPI.AssembleConfig(s.ctx, req)
-	require.NoError(s.T(), err)
+	require.NoError(s.Suite.T(), err)
 
 	expected := &velez_api.AssembleConfig_Response{
 		Config: s.helloWorldConfig(),
 	}
 
-	require.YAMLEq(s.T(), string(expected.Config), string(assembleResponse.Config))
+	require.YAMLEq(s.Suite.T(), string(expected.Config), string(assembleResponse.Config))
 
 	listReq := &velez_api.ListSmerds_Request{
 		Name: toolbox.ToPtr(serviceName),
 	}
 	cont, err := testEnvironment.docker.ListContainers(s.ctx, listReq)
-	require.NoError(s.T(), err)
-	require.Empty(s.T(), cont)
+	require.NoError(s.Suite.T(), err)
+	require.Empty(s.Suite.T(), cont)
 }
 
 func (s *AssembleConfigSuite) helloWorldConfig() []byte {

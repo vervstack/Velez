@@ -9,3 +9,6 @@ warmup:
 codegen:
 	PROTOPACKPATH=proto_deps protopack generate
 	cd pkg/web/@vervstack/velez && npm run build
+
+lint:
+	golangci-lint run ./...

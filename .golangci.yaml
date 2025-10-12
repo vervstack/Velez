@@ -1,7 +1,8 @@
 # configuration settings https://golangci-lint.run/usage/configuration/
 
 run:
-  timeout: 30s
+  timeout: 5m
+  concurrency: 4
   verbose: true
   issues-exit-code: 42
 

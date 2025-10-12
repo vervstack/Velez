@@ -1,3 +1,70 @@
 .DeployWidgetContainer {
+    width: 100%;
+    height: 100%;
 
+    display: flex;
+    flex-direction: row;
+
+    gap: 1em;
+}
+
+.ConfigurationInputs {
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    width: 100%;
+    height: 100%;
+
+    gap: 1em
+}
+
+.BaseInputers {
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+
+    gap: 1em;
+
+}
+
+
+.VervConfigBlock {
+    flex: 1;
+
+    display: flex;
+
+    border: 1px solid #ccc;
+    border-radius: 5px;
+
+    padding: 1em;
+}
+
+.VervConfigBlock h3 {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.VervConfigBlock p {
+    margin: 0;
+}
+
+.CheckboxWrapper {
+    display: flex;
+
+    flex-direction: row;
+    align-items: center;
+    gap: 0.25em;
+}
+
+.InfoMarkTooltip {
+    width: 1em;
+    height: 100%;
+
+    cursor: help;
 }

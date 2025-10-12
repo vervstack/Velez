@@ -6,6 +6,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
 import "npm.proto";
+import "velez_common.proto";
 
 option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
 option (npm_package) = "@vervstack/velez";
@@ -71,6 +72,12 @@ service VelezAPI {
     option (google.api.http) = {
       post: "/api/smerd/disconnect"
       body: "*"
+    };
+  }
+
+  rpc ListImages(ListImages.Request) returns (ListImages.Response) {
+    option (google.api.http) = {
+      get: "/api/images"
     };
   }
 }
@@ -324,4 +331,14 @@ message Connection {
 enum ConfigFormat {
   yaml = 0; // Default
   env = 1;
+}
+
+message ListImages {
+  message Request {
+    optional bool use_registry = 1;
+
+  };
+  message Response{
+    repeated ImageListItem images = 1;
+  };
 }

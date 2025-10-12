@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package velez_api;
+
+import "npm.proto";
+
+option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
+option (npm_package) = "@vervstack/velez";
+
+message ImageListItem {
+  string name = 1;
+  optional string image_url = 2;
+  string latest_tag = 3;
+}

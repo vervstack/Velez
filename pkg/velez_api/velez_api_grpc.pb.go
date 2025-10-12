@@ -28,6 +28,7 @@ const (
 	VelezAPI_AssembleConfig_FullMethodName   = "/velez_api.VelezAPI/AssembleConfig"
 	VelezAPI_MakeConnections_FullMethodName  = "/velez_api.VelezAPI/MakeConnections"
 	VelezAPI_BreakConnections_FullMethodName = "/velez_api.VelezAPI/BreakConnections"
+	VelezAPI_ListImages_FullMethodName       = "/velez_api.VelezAPI/ListImages"
 )
 
 // VelezAPIClient is the client API for VelezAPI service.
@@ -47,6 +48,7 @@ type VelezAPIClient interface {
 	AssembleConfig(ctx context.Context, in *AssembleConfig_Request, opts ...grpc.CallOption) (*AssembleConfig_Response, error)
 	MakeConnections(ctx context.Context, in *MakeConnections_Request, opts ...grpc.CallOption) (*MakeConnections_Response, error)
 	BreakConnections(ctx context.Context, in *BreakConnections_Request, opts ...grpc.CallOption) (*BreakConnections_Response, error)
+	ListImages(ctx context.Context, in *ListImages_Request, opts ...grpc.CallOption) (*ListImages_Response, error)
 }
 
 type velezAPIClient struct {
@@ -147,6 +149,16 @@ func (c *velezAPIClient) BreakConnections(ctx context.Context, in *BreakConnecti
 	return out, nil
 }
 
+func (c *velezAPIClient) ListImages(ctx context.Context, in *ListImages_Request, opts ...grpc.CallOption) (*ListImages_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListImages_Response)
+	err := c.cc.Invoke(ctx, VelezAPI_ListImages_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // VelezAPIServer is the server API for VelezAPI service.
 // All implementations must embed UnimplementedVelezAPIServer
 // for forward compatibility.
@@ -164,6 +176,7 @@ type VelezAPIServer interface {
 	AssembleConfig(context.Context, *AssembleConfig_Request) (*AssembleConfig_Response, error)
 	MakeConnections(context.Context, *MakeConnections_Request) (*MakeConnections_Response, error)
 	BreakConnections(context.Context, *BreakConnections_Request) (*BreakConnections_Response, error)
+	ListImages(context.Context, *ListImages_Request) (*ListImages_Response, error)
 	mustEmbedUnimplementedVelezAPIServer()
 }
 
@@ -200,6 +213,9 @@ func (UnimplementedVelezAPIServer) MakeConnections(context.Context, *MakeConnect
 }
 func (UnimplementedVelezAPIServer) BreakConnections(context.Context, *BreakConnections_Request) (*BreakConnections_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BreakConnections not implemented")
+}
+func (UnimplementedVelezAPIServer) ListImages(context.Context, *ListImages_Request) (*ListImages_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListImages not implemented")
 }
 func (UnimplementedVelezAPIServer) mustEmbedUnimplementedVelezAPIServer() {}
 func (UnimplementedVelezAPIServer) testEmbeddedByValue()                  {}
@@ -384,6 +400,24 @@ func _VelezAPI_BreakConnections_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _VelezAPI_ListImages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListImages_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VelezAPIServer).ListImages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VelezAPI_ListImages_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VelezAPIServer).ListImages(ctx, req.(*ListImages_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // VelezAPI_ServiceDesc is the grpc.ServiceDesc for VelezAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -426,6 +460,10 @@ var VelezAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "BreakConnections",
 			Handler:    _VelezAPI_BreakConnections_Handler,
+		},
+		{
+			MethodName: "ListImages",
+			Handler:    _VelezAPI_ListImages_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

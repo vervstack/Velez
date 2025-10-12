@@ -120,7 +120,7 @@ func (c *getConfigFromContainerStep) validate() error {
 func fillMeta(img *image.InspectResponse, mount *domain.ConfigMount) {
 	switch {
 	case isVervImage(img):
-		mount.Meta.Format = matreshka_api.Format_env
+		mount.Meta.Format = velez_api.ConfigFormat_env
 		mount.Meta.ConfType = matreshka_api.ConfigTypePrefix_verv
 		mount.FilePath = toolbox.Coalesce(
 			mount.FilePath,
@@ -130,7 +130,7 @@ func fillMeta(img *image.InspectResponse, mount *domain.ConfigMount) {
 		return
 	case isPostgresByImageTags(img.RepoTags):
 		mount.Meta.ConfType = matreshka_api.ConfigTypePrefix_pg
-		mount.Meta.Format = matreshka_api.Format_env
+		mount.Meta.Format = velez_api.ConfigFormat_env
 
 		// TODO add support for postgres customization
 		//mount.FilePath = toolbox.Coalesce(
@@ -143,9 +143,9 @@ func fillMeta(img *image.InspectResponse, mount *domain.ConfigMount) {
 
 	fp := toolbox.FromPtr(mount.FilePath)
 	if strings.HasSuffix(fp, ".yaml") || strings.HasSuffix(fp, ".yml") {
-		mount.Meta.Format = matreshka_api.Format_yaml
+		mount.Meta.Format = velez_api.ConfigFormat_yaml
 	} else {
-		mount.Meta.Format = matreshka_api.Format_env
+		mount.Meta.Format = velez_api.ConfigFormat_env
 	}
 
 }

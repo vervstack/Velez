@@ -8,7 +8,7 @@ import {useLocation} from "react-router-dom";
 export default function DeployPage() {
     const location = useLocation();
 
-    const req: CreateSmerdRequest = location.state.data || {}
+    const req: CreateSmerdRequest = location.state ? location.state.data : {} as CreateSmerdRequest
 
     return (
         <div className={cls.DeployPageContainer}>

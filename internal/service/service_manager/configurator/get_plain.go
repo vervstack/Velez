@@ -14,7 +14,7 @@ func (c *Configurator) GetPlainFromApi(ctx context.Context, meta domain.ConfigMe
 	getReq := &matreshka_api.GetConfig_Request{
 		ConfigName: configutils.AppendPrefix(meta.ConfType, meta.Name),
 		Version:    meta.Version,
-		Format:     meta.Format,
+		Format:     matreshka_api.Format(meta.Format),
 	}
 
 	cfg, err := c.MatreshkaBeAPIClient.GetConfig(ctx, getReq)

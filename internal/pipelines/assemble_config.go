@@ -8,7 +8,6 @@ import (
 	"go.redsock.ru/evon"
 	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
@@ -45,7 +44,7 @@ func (p *pipeliner) AssembleConfig(req domain.AssembleConfig) Runner[domain.AppC
 				ContentRaw: configMount.Content,
 			}
 			switch appConfig.Meta.Format {
-			case matreshka_api.Format_yaml:
+			case velez_api.ConfigFormat_yaml:
 				if labels.IsMatreshkaImage(imageResp) {
 					appConfig.Content, err = fromMatreshkaYamlToEvon(configMount.Content)
 				} else {
@@ -54,8 +53,8 @@ func (p *pipeliner) AssembleConfig(req domain.AssembleConfig) Runner[domain.AppC
 				if err != nil {
 					return nil, rerrors.Wrap(err, "error parsing from yaml to evon")
 				}
-			case matreshka_api.Format_env:
-				err := evon.Unmarshal(configMount.Content, &appConfig.Content)
+			case velez_api.ConfigFormat_env:
+				err = evon.Unmarshal(configMount.Content, &appConfig.Content)
 				if err != nil {
 					return nil, rerrors.Wrap(err, "error unmarshalling to evon ")
 				}

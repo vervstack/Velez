@@ -7,6 +7,7 @@
 
 import * as fm from "./fetch.pb";
 import * as GoogleProtobufTimestamp from "./google/protobuf/timestamp.pb";
+import * as VelezApiVelezCommon from "./velez_common.pb";
 
 
 export enum RestartPolicyType {
@@ -228,6 +229,16 @@ export type Connection = {
   aliases?: string[];
 };
 
+export type ListImagesRequest = {
+    useRegistry?: boolean;
+};
+
+export type ListImagesResponse = {
+    images?: VelezApiVelezCommon.ImageListItem[];
+};
+
+export type ListImages = Record<string, never>;
+
 export class VelezAPI {
   static Version(this:void, req: VersionRequest, initReq?: fm.InitReq): Promise<VersionResponse> {
     return fm.fetchRequest<VersionResponse>(`/api/version?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
@@ -256,4 +267,11 @@ export class VelezAPI {
   static BreakConnections(this:void, req: BreakConnectionsRequest, initReq?: fm.InitReq): Promise<BreakConnectionsResponse> {
     return fm.fetchRequest<BreakConnectionsResponse>(`/api/smerd/disconnect`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
+
+    static ListImages(this: void, req: ListImagesRequest, initReq?: fm.InitReq): Promise<ListImagesResponse> {
+        return fm.fetchRequest<ListImagesResponse>(`/api/images?${fm.renderURLSearchParams(req, [])}`, {
+            ...initReq,
+            method: "GET"
+        });
+    }
 }

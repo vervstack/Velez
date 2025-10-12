@@ -71,6 +71,36 @@
         ]
       }
     },
+    "/api/images": {
+      "get": {
+        "operationId": "VelezAPI_ListImages",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListImagesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "useRegistry",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "VelezAPI"
+        ]
+      }
+    },
     "/api/smerd/connect": {
       "post": {
         "operationId": "VelezAPI_MakeConnections",
@@ -598,6 +628,32 @@
           "items": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      }
+    },
+    "velez_apiImageListItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "imageUrl": {
+          "type": "string"
+        },
+        "latestTag": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiListImagesResponse": {
+      "type": "object",
+      "properties": {
+        "images": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiImageListItem"
           }
         }
       }

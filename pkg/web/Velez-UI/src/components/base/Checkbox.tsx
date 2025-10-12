@@ -1,38 +1,32 @@
-import cls from "@/components/base/Input.module.css";
+import cls from "@/components/base/Checkbox.module.css";
 import { ChangeEventHandler, FocusEventHandler, useState } from "react";
 
-interface InputProps {
+interface CheckboxProps {
     label?: string;
     onChange: ChangeEventHandler<HTMLInputElement> | undefined;
-    value: string | number;
+    checked: boolean;
 }
 
-export default function Input({ label, onChange, value }: InputProps) {
+export default function Checkbox({ label, onChange, checked }: CheckboxProps) {
     const [isFocused, setIsFocused] = useState(false);
-    const hasValue = value !== undefined && value !== null && value.toString().length > 0;
-    const showFloatingLabel = isFocused || hasValue;
+    const showFloatingLabel = isFocused || checked;
 
     const handleFocus: FocusEventHandler<HTMLInputElement> = () => {
         setIsFocused(true);
-        // Call original onFocus if exists
-        if (typeof onChange === 'function') {
-            // We need to simulate focus event - but onChange is for change events
-            // This is a limitation of the current interface
-        }
     };
 
     const handleBlur: FocusEventHandler<HTMLInputElement> = () => {
         setIsFocused(false);
-        // Call original onBlur if exists (not in current interface)
     };
 
     return (
-        <div className={cls.InputContainer}>
+        <div className={cls.CheckboxContainer}>
             <input
+                type="checkbox"
                 onChange={onChange}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
-                value={value}
+                checked={checked}
             />
             {label && (
                 <label className={`${cls.Label} ${showFloatingLabel ? cls.Floating : ''}`}>

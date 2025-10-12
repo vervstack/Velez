@@ -3,6 +3,8 @@ package domain
 import (
 	"go.redsock.ru/evon"
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
+
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 type ConfigurationPatch struct {
@@ -14,7 +16,7 @@ type ConfigMeta struct {
 	Name     string
 	Version  *string
 	ConfType matreshka_api.ConfigTypePrefix
-	Format   matreshka_api.Format
+	Format   velez_api.ConfigFormat
 }
 
 type AppConfig struct {

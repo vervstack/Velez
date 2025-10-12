@@ -9,7 +9,6 @@ import (
 	"go.redsock.ru/evon"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -82,7 +81,7 @@ func (c *fetchConfigStep) do(ctx context.Context, spec *velez_api.MatreshkaConfi
 		return mount, nil
 	}
 
-	if mount.Meta.Format == matreshka_api.Format_env {
+	if mount.Meta.Format == velez_api.ConfigFormat_env {
 		err = c.setEnv(ctx, mount.Meta)
 	} else {
 		mount.Content, err = c.getPlain(ctx, mount.Meta)

@@ -9,8 +9,8 @@ import (
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
-func (a *Impl) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (*velez_api.Smerd, error) {
-	launchPipe := a.pipeliner.LaunchSmerd(domain.LaunchSmerd{CreateSmerd_Request: req})
+func (impl *Impl) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (*velez_api.Smerd, error) {
+	launchPipe := impl.pipeliner.LaunchSmerd(domain.LaunchSmerd{CreateSmerd_Request: req})
 	err := launchPipe.Run(ctx)
 	if err != nil {
 		return nil, rerrors.Wrap(err)
@@ -21,7 +21,7 @@ func (a *Impl) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Reque
 		return nil, rerrors.Wrap(err, "error getting result")
 	}
 
-	smerd, err := a.smerdService.InspectSmerd(ctx, res.ContainerId)
+	smerd, err := impl.smerdService.InspectSmerd(ctx, res.ContainerId)
 	if err != nil {
 		return nil, err
 	}

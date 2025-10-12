@@ -6,6 +6,6 @@ import (
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
-func (a *Impl) DropSmerd(ctx context.Context, req *velez_api.DropSmerd_Request) (*velez_api.DropSmerd_Response, error) {
-	return a.smerdService.DropSmerds(ctx, req)
+func (impl *Impl) DropSmerd(ctx context.Context, req *velez_api.DropSmerd_Request) (*velez_api.DropSmerd_Response, error) {
+	return impl.smerdService.DropSmerds(ctx, req)
 }

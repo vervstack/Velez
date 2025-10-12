@@ -35,11 +35,11 @@ func NewImpl(cfg config.Config, srv service.Services, pipeliner pipelines.Pipeli
 	}
 }
 
-func (a *Impl) Register(srv grpc.ServiceRegistrar) {
-	velez_api.RegisterVelezAPIServer(srv, a)
+func (impl *Impl) Register(srv grpc.ServiceRegistrar) {
+	velez_api.RegisterVelezAPIServer(srv, impl)
 }
 
-func (a *Impl) Gateway(ctx context.Context, endpoint string, opts ...grpc.DialOption) (route string, handler http.Handler) {
+func (impl *Impl) Gateway(ctx context.Context, endpoint string, opts ...grpc.DialOption) (route string, handler http.Handler) {
 	gwHttpMux := runtime.NewServeMux()
 
 	err := velez_api.RegisterVelezAPIHandlerFromEndpoint(

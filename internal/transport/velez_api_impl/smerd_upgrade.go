@@ -11,12 +11,12 @@ import (
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
-func (a *Impl) UpgradeSmerd(ctx context.Context,
+func (impl *Impl) UpgradeSmerd(ctx context.Context,
 	req *velez_api.UpgradeSmerd_Request) (*velez_api.UpgradeSmerd_Response, error) {
 
 	id := env.GetContainerId()
 	if id != nil {
-		smerd, err := a.smerdService.InspectSmerd(ctx, req.Name)
+		smerd, err := impl.smerdService.InspectSmerd(ctx, req.Name)
 		if err != nil {
 			return nil, rerrors.Wrap(err)
 		}
@@ -30,7 +30,7 @@ func (a *Impl) UpgradeSmerd(ctx context.Context,
 		Image: req.Image,
 	}
 
-	err := a.pipeliner.UpgradeSmerd(upgradeReq).Run(ctx)
+	err := impl.pipeliner.UpgradeSmerd(upgradeReq).Run(ctx)
 	if err != nil {
 		return nil, rerrors.Wrap(err)
 	}

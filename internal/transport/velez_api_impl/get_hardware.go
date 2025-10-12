@@ -6,6 +6,6 @@ import (
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
-func (a *Impl) GetHardware(context.Context, *velez_api.GetHardware_Request) (*velez_api.GetHardware_Response, error) {
-	return a.hardwareManager.GetHardware()
+func (impl *Impl) GetHardware(context.Context, *velez_api.GetHardware_Request) (*velez_api.GetHardware_Response, error) {
+	return impl.hardwareManager.GetHardware()
 }

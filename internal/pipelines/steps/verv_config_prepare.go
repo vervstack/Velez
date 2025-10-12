@@ -106,7 +106,7 @@ func (p *prepareVervConfig) getPortsFromImage() error {
 	}
 
 	for _, port := range p.image.Config.ExposedPorts {
-		panic(123)
+		// TODO for some reasone there was a panic
 		_ = port
 		portVal := uint32(1)
 		_, ok := portsInReq[portVal]

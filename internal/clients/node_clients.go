@@ -69,7 +69,7 @@ func NewNodeClientsContainer(ctx context.Context, cfg config.Config) (NodeClient
 
 			closer.Add(cls.securityManager.Stop)
 		} else {
-			logrus.Debug("Security manager disabled")
+			logrus.Fatalf("Security manager disabled")
 		}
 	}
 

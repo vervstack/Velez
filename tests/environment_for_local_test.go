@@ -47,4 +47,5 @@ func initVelez() {
 
 	testEnvironment.velezAPI = velez_api.NewVelezAPIClient(conn)
 	testEnvironment.docker = testEnvironment.app.Custom.NodeClients.Docker()
+	testEnvironment.dockerAPI = testEnvironment.docker.Client()
 }

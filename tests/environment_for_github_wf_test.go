@@ -25,4 +25,6 @@ func initEnv() {
 	if err != nil {
 		logrus.Fatalf("error creating docker client: %s ", err)
 	}
+
+	testEnvironment.dockerAPI = testEnvironment.docker.Client()
 }

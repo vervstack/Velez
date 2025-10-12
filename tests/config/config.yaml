@@ -20,9 +20,6 @@ environment:
     -   name: custom_pass_to_key
         type: string
         value: /tmp/velez/private.key
-    -   name: disable_api_security
-        type: bool
-        value: true
     -   name: cpu_default
         type: float
         value: 0.5
@@ -47,9 +44,6 @@ environment:
     -   name: makosh_url
         type: string
         value: verv://makosh
-    - name: matreshka_key
-      type: string
-      value: "1"
 
 #service_discovery:
 #  overrides:

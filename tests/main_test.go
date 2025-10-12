@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/client"
 	"github.com/sirupsen/logrus"
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 
@@ -33,6 +34,7 @@ type testEnv struct {
 	velezAPI     velez_api.VelezAPIClient
 	matreshkaApi matreshka_api.MatreshkaBeAPIClient
 	docker       clients.Docker
+	dockerAPI    client.APIClient
 
 	app app.App
 }
@@ -49,7 +51,7 @@ func TestMain(m *testing.M) {
 		logrus.Fatalf("error pinging service api %s", err)
 	}
 
-	_, err = testEnvironment.docker.Ping(ctx)
+	_, err = testEnvironment.docker.Client().Ping(ctx)
 	if err != nil {
 		logrus.Fatalf("error pinging docker %s", err)
 	}
@@ -82,13 +84,13 @@ func (t *testEnv) clean() {
 			integrationTest: "true",
 		},
 	}
-	cList, err := dockerutils.ListContainers(ctx, t.docker, listReq)
+	cList, err := dockerutils.ListContainers(ctx, t.dockerAPI, listReq)
 	if err != nil {
 		logrus.Fatal(err)
 	}
 
 	for _, cont := range cList {
-		err = t.docker.ContainerRemove(ctx, cont.ID,
+		err = t.dockerAPI.ContainerRemove(ctx, cont.ID,
 			container.RemoveOptions{
 				Force: true,
 			})

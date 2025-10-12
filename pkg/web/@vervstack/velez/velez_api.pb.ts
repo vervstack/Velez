@@ -6,38 +6,8 @@
  */
 
 import * as fm from "./fetch.pb";
-import * as GoogleProtobufTimestamp from "./google/protobuf/timestamp.pb";
 import * as VelezApiVelezCommon from "./velez_common.pb";
 
-
-export enum RestartPolicyType {
-  unless_stopped = "unless_stopped",
-  no = "no",
-  always = "always",
-  on_failure = "on_failure",
-}
-
-export enum ConfigFormat {
-  yaml = "yaml",
-  env = "env",
-}
-
-export enum PortProtocol {
-  unknown = "unknown",
-  tcp = "tcp",
-  udp = "udp",
-}
-
-export enum SmerdStatus {
-  unknown = "unknown",
-  created = "created",
-  restarting = "restarting",
-  running = "running",
-  removing = "removing",
-  paused = "paused",
-  exited = "exited",
-  dead = "dead",
-}
 
 export type VersionRequest = Record<string, never>;
 
@@ -47,83 +17,20 @@ export type VersionResponse = {
 
 export type Version = Record<string, never>;
 
-export type Port = {
-  servicePortNumber?: number;
-  protocol?: PortProtocol;
-  exposedTo?: number;
-};
-
-export type Volume = {
-  volumeName?: string;
-  containerPath?: string;
-};
-
-export type Bind = {
-  hostPath?: string;
-  containerPath?: string;
-};
-
-export type NetworkBind = {
-  networkName?: string;
-  aliases?: string[];
-};
-
-export type Image = {
-  name?: string;
-  tags?: string[];
-  labels?: Record<string, string>;
-};
-
-export type Smerd = {
-  uuid?: string;
-  name?: string;
-  imageName?: string;
-  ports?: Port[];
-  volumes?: Volume[];
-  status?: SmerdStatus;
-  createdAt?: GoogleProtobufTimestamp.Timestamp;
-  networks?: NetworkBind[];
-  labels?: Record<string, string>;
-  env?: Record<string, string>;
-  binds?: Bind[];
-};
-
-export type ContainerHardware = {
-  cpuAmount?: number;
-  ramMb?: number;
-  memorySwapMb?: number;
-};
-
-export type ContainerSettings = {
-  ports?: Port[];
-  network?: NetworkBind[];
-  volumes?: Volume[];
-  binds?: Bind[];
-};
-
-export type ContainerHealthcheck = {
-  command?: string;
-  intervalSecond?: number;
-  timeoutSecond?: number;
-  retries?: number;
-};
-
-export type Container = Record<string, never>;
-
 export type CreateSmerdRequest = {
   name?: string;
   imageName?: string;
-  hardware?: ContainerHardware;
-  settings?: ContainerSettings;
+    hardware?: VelezApiVelezCommon.ContainerHardware;
+    settings?: VelezApiVelezCommon.ContainerSettings;
   command?: string;
   env?: Record<string, string>;
-  healthcheck?: ContainerHealthcheck;
+    healthcheck?: VelezApiVelezCommon.ContainerHealthcheck;
   labels?: Record<string, string>;
   ignoreConfig?: boolean;
   useImagePorts?: boolean;
   autoUpgrade?: boolean;
-  restart?: RestartPolicy;
-  config?: MatreshkaConfigSpec;
+    restart?: VelezApiVelezCommon.RestartPolicy;
+    config?: VelezApiVelezCommon.MatreshkaConfigSpec;
 };
 
 export type CreateSmerd = Record<string, never>;
@@ -136,7 +43,7 @@ export type ListSmerdsRequest = {
 };
 
 export type ListSmerdsResponse = {
-  smerds?: Smerd[];
+    smerds?: VelezApiVelezCommon.Smerd[];
 };
 
 export type ListSmerds = Record<string, never>;
@@ -195,20 +102,8 @@ export type UpgradeSmerdResponse = Record<string, never>;
 
 export type UpgradeSmerd = Record<string, never>;
 
-export type RestartPolicy = {
-  type?: RestartPolicyType;
-  FailureCount?: number;
-};
-
-export type MatreshkaConfigSpec = {
-  configName?: string;
-  configVersion?: string;
-  configFormat?: ConfigFormat;
-  systemPath?: string;
-};
-
 export type MakeConnectionsRequest = {
-  connections?: Connection[];
+    connections?: VelezApiVelezCommon.Connection[];
 };
 
 export type MakeConnectionsResponse = Record<string, never>;
@@ -216,18 +111,12 @@ export type MakeConnectionsResponse = Record<string, never>;
 export type MakeConnections = Record<string, never>;
 
 export type BreakConnectionsRequest = {
-  connections?: Connection[];
+    connections?: VelezApiVelezCommon.Connection[];
 };
 
 export type BreakConnectionsResponse = Record<string, never>;
 
 export type BreakConnections = Record<string, never>;
-
-export type Connection = {
-  serviceName?: string;
-  targetNetwork?: string;
-  aliases?: string[];
-};
 
 export type ListImagesRequest = {
     useRegistry?: boolean;
@@ -243,8 +132,13 @@ export class VelezAPI {
   static Version(this:void, req: VersionRequest, initReq?: fm.InitReq): Promise<VersionResponse> {
     return fm.fetchRequest<VersionResponse>(`/api/version?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
   }
-  static CreateSmerd(this:void, req: CreateSmerdRequest, initReq?: fm.InitReq): Promise<Smerd> {
-    return fm.fetchRequest<Smerd>(`/api/smerd/create`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+
+    static CreateSmerd(this: void, req: CreateSmerdRequest, initReq?: fm.InitReq): Promise<VelezApiVelezCommon.Smerd> {
+        return fm.fetchRequest<VelezApiVelezCommon.Smerd>(`/api/smerd/create`, {
+            ...initReq,
+            method: "POST",
+            body: JSON.stringify(req, fm.replacer)
+        });
   }
   static ListSmerds(this:void, req: ListSmerdsRequest, initReq?: fm.InitReq): Promise<ListSmerdsResponse> {
     return fm.fetchRequest<ListSmerdsResponse>(`/api/smerd/list`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});

@@ -1,12 +1,15 @@
 package container_manager
 
 import (
+	"github.com/docker/docker/client"
+
 	"go.vervstack.ru/Velez/internal/clients"
 	"go.vervstack.ru/Velez/internal/service"
 )
 
 type ContainerManager struct {
-	docker clients.Docker
+	dockerWrapper clients.Docker
+	dockerAPI     client.APIClient
 
 	portManager clients.PortManager
 
@@ -19,7 +22,7 @@ func NewContainerManager(
 ) *ContainerManager {
 
 	return &ContainerManager{
-		docker:      internalClients.Docker(),
+		dockerAPI:   internalClients.Docker().Client(),
 		portManager: internalClients.PortManager(),
 
 		configService: configurator,

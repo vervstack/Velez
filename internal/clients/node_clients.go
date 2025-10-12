@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
 	"github.com/sirupsen/logrus"
 	errors "go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
@@ -47,10 +46,9 @@ func NewNodeClientsContainer(ctx context.Context, cfg config.Config) (NodeClient
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting docker api client")
 		}
-		closer.Add(cls.docker.Close)
 
 		var pong types.Ping
-		pong, err = cls.docker.Ping(ctx)
+		pong, err = cls.docker.Client().Ping(ctx)
 		if err != nil {
 			return nil, errors.Wrap(err, "Can't ping docker api. If you are running Velez inside a container please provide docker socket via volume flag: -v /var/run/docker.sock:/var/run/docker.sock")
 		}
@@ -92,10 +90,6 @@ func NewNodeClientsContainer(ctx context.Context, cfg config.Config) (NodeClient
 	}
 
 	return cls, nil
-}
-
-func (c *nodeClients) DockerAPI() client.CommonAPIClient {
-	return c.docker
 }
 
 func (c *nodeClients) Docker() Docker {

@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/docker/docker/api/types/image"
+	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
@@ -17,7 +18,7 @@ import (
 )
 
 type getConfigFromContainerStep struct {
-	docker        clients.Docker
+	dockerAPI     client.APIClient
 	configService service.ConfigurationService
 
 	req *domain.LaunchSmerd
@@ -38,7 +39,7 @@ func GetConfigFromContainerStep(
 	result *domain.ConfigMount,
 ) *getConfigFromContainerStep {
 	return &getConfigFromContainerStep{
-		docker:        nodeClients.Docker(),
+		dockerAPI:     nodeClients.Docker().Client(),
 		configService: services.ConfigurationService(),
 
 		req: req,
@@ -79,7 +80,7 @@ func (c *getConfigFromContainerStep) extractConfig(ctx context.Context,
 		return nil, rerrors.New("no target path for config specified")
 	}
 
-	res, err = dockerutils.ReadFromContainer(ctx, c.docker, *c.contId, *spec.SystemPath)
+	res, err = dockerutils.ReadFromContainer(ctx, c.dockerAPI, *c.contId, *spec.SystemPath)
 	if err != nil {
 		return nil, rerrors.Wrap(err)
 	}

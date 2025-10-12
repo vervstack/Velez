@@ -5,6 +5,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/docker/docker/client"
 	"github.com/docker/docker/errdefs"
 	"github.com/sirupsen/logrus"
 	errors "go.redsock.ru/rerrors"
@@ -126,7 +127,7 @@ func initInstance(
 		},
 	}
 
-	_, err = sd.UpsertEndpoints(ctx, matreshkaEndpoints)
+	_, err = sd.MakoshClient.UpsertEndpoints(ctx, matreshkaEndpoints)
 	if err != nil {
 		return errors.Wrap(err, "error upserting endpoints for matreshka to makosh")
 	}
@@ -135,9 +136,9 @@ func initInstance(
 }
 
 func getKey(ctx context.Context, nodeClients clients.NodeClients) (string, error) {
-	keyFromSecManager := string(nodeClients.SecurityManager().GetMatreshkaKey())
+	keyFromSecManager := nodeClients.SecurityManager().GetMatreshkaKey()
 
-	keyFromCont, err := getKeyFromContainer(ctx, nodeClients.Docker())
+	keyFromCont, err := getKeyFromContainer(ctx, nodeClients.Docker().Client())
 	if err != nil {
 		return "", errors.Wrap(err, "error getting key from container")
 	}
@@ -150,8 +151,8 @@ func getKey(ctx context.Context, nodeClients clients.NodeClients) (string, error
 	return keyFromCont, nil
 }
 
-func getKeyFromContainer(ctx context.Context, docker clients.Docker) (string, error) {
-	cont, err := docker.InspectContainer(ctx, Name)
+func getKeyFromContainer(ctx context.Context, docker client.APIClient) (string, error) {
+	cont, err := docker.ContainerInspect(ctx, Name)
 	if err != nil {
 		if !errdefs.IsNotFound(err) {
 			return "", errors.Wrap(err, "")

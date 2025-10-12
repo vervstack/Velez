@@ -14,13 +14,13 @@ import (
 
 func (c *Custom) setupVervNodeEnvironment() (err error) {
 	// Verv network for communication inside node
-	err = env.StartNetwork(c.NodeClients.Docker())
+	err = env.StartNetwork(c.NodeClients.Docker().Client())
 	if err != nil {
 		return rerrors.Wrap(err, "error creating network")
 	}
 
 	// Verv volumes for persistence inside node
-	err = env.StartVolumes(c.NodeClients.Docker())
+	err = env.StartVolumes(c.NodeClients.Docker().Client())
 	if err != nil {
 		return rerrors.Wrap(err, "error creating volumes")
 	}

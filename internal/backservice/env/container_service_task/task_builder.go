@@ -49,7 +49,7 @@ func NewTask[T any](req NewTaskRequest[T]) (*Task[T], error) {
 		return nil, errors.New("must provide grpc port to connect to")
 	}
 
-	dockerAPI := req.NodeClients.Docker()
+	dockerAPI := req.NodeClients.Docker().Client()
 	portManager := req.NodeClients.PortManager()
 	t := &Task[T]{
 		grpcDialOpts:    req.DialOpts,

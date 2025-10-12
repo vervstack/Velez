@@ -83,7 +83,7 @@ func (c *Custom) Init(a *App) (err error) {
 func (c *Custom) Start(ctx context.Context) error {
 	errg, ctx := errgroup.WithContext(ctx)
 	errg.Go(func() error {
-		err := autoupgrade.New(c.NodeClients.Docker(), time.Second*30, c.Pipeliner).Start()
+		err := autoupgrade.New(c.NodeClients.Docker().Client(), time.Second*30, c.Pipeliner).Start()
 		if err != nil {
 			return errors.Wrap(err, "error starting autoupgrade")
 		}

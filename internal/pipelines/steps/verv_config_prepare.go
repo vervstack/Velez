@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/docker/docker/api/types/image"
+	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
 
@@ -16,7 +17,8 @@ import (
 )
 
 type prepareVervConfig struct {
-	docker        clients.Docker
+	dockerAPI client.APIClient
+
 	configService service.ConfigurationService
 	portManager   clients.PortManager
 
@@ -34,7 +36,7 @@ func PrepareVervConfig(
 	image *image.InspectResponse,
 ) *prepareVervConfig {
 	return &prepareVervConfig{
-		docker:        nodeClients.Docker(),
+		dockerAPI:     nodeClients.Docker().Client(),
 		configService: srv.ConfigurationService(),
 		portManager:   nodeClients.PortManager(),
 
@@ -79,7 +81,7 @@ func (p *prepareVervConfig) Do(ctx context.Context) (err error) {
 	}
 
 	for _, networks := range p.req.Settings.Network {
-		err = dockerutils.CreateNetwork(ctx, p.docker, networks.NetworkName)
+		err = dockerutils.CreateNetwork(ctx, p.dockerAPI, networks.NetworkName)
 		if err != nil {
 			return rerrors.Wrap(err, "error creating network: %s", networks.NetworkName)
 		}

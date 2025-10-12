@@ -13,7 +13,7 @@ import (
 )
 
 func (c *ContainerManager) InspectSmerd(ctx context.Context, contId string) (*velez_api.Smerd, error) {
-	contInfo, err := c.docker.InspectContainer(ctx, contId)
+	contInfo, err := c.dockerAPI.ContainerInspect(ctx, contId)
 	if err != nil {
 		return nil, errors.Wrap(err, "error inspecting container")
 	}
@@ -28,7 +28,7 @@ func (c *ContainerManager) InspectSmerd(ctx context.Context, contId string) (*ve
 		Labels:  contInfo.Config.Labels,
 	}
 
-	imageInfo, err := c.docker.InspectImage(ctx, contInfo.ContainerJSONBase.Image)
+	imageInfo, err := c.dockerAPI.ImageInspect(ctx, contInfo.ContainerJSONBase.Image)
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting image info")
 	}

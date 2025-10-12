@@ -16,10 +16,8 @@ type Docker interface {
 	PullImage(ctx context.Context, imageName string) (image.InspectResponse, error)
 	Remove(ctx context.Context, uuid string) error
 	ListContainers(ctx context.Context, req *velez_api.ListSmerds_Request) ([]container.Summary, error)
-	InspectContainer(ctx context.Context, containerID string) (container.InspectResponse, error)
-	InspectImage(ctx context.Context, image string) (image.InspectResponse, error)
 
-	client.APIClient
+	Client() client.APIClient
 }
 
 type PortManager interface {

@@ -12,7 +12,8 @@ import (
 )
 
 type mountConfigStep struct {
-	docker client.APIClient
+	dockerAPI client.APIClient
+
 	contId *string
 	mount  *domain.ConfigMount
 }
@@ -23,9 +24,9 @@ func MountConfig(
 	mount *domain.ConfigMount,
 ) *mountConfigStep {
 	return &mountConfigStep{
-		docker: nodeClients.Docker(),
-		contId: contId,
-		mount:  mount,
+		dockerAPI: nodeClients.Docker().Client(),
+		contId:    contId,
+		mount:     mount,
 	}
 }
 
@@ -45,7 +46,7 @@ func (s *mountConfigStep) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error during validation")
 	}
 
-	err = dockerutils.WriteToContainer(ctx, s.docker,
+	err = dockerutils.WriteToContainer(ctx, s.dockerAPI,
 		*s.contId, *s.mount.FilePath,
 		s.mount.Content,
 	)

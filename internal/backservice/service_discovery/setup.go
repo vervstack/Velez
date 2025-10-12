@@ -16,8 +16,8 @@ import (
 )
 
 type ServiceDiscovery struct {
-	Sd *vervResolver.ServiceDiscovery
-	makosh_be.MakoshBeAPIClient
+	Sd           *vervResolver.ServiceDiscovery
+	MakoshClient makosh_be.MakoshBeAPIClient
 }
 
 func SetupServiceDiscovery(addr string, token string, msd matreshka.ServiceDiscovery) (sd ServiceDiscovery, err error) {
@@ -35,12 +35,12 @@ func SetupServiceDiscovery(addr string, token string, msd matreshka.ServiceDisco
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
 
-	sd.MakoshBeAPIClient, err = makosh.New(token, opts...)
+	sd.MakoshClient, err = makosh.New(token, opts...)
 	if err != nil {
 		return sd, errors.Wrap(err, "error creating makosh api client")
 	}
 
-	_, err = sd.Version(context.Background(), &makosh_be.Version_Request{})
+	_, err = sd.MakoshClient.Version(context.Background(), &makosh_be.Version_Request{})
 	if err != nil {
 		return sd, errors.Wrap(err, "error pinging service discovery")
 	}

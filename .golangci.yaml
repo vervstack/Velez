@@ -1,12 +1,14 @@
 # configuration settings https://golangci-lint.run/usage/configuration/
 
 run:
-  timeout: 5m
+  timeout: 30s
+  verbose: true
   issues-exit-code: 42
 
-output:
-  format: colored-line-number
 
+output:
+  formats:
+    - format: colored-line-number
 linters-settings:
   varnamelen: # scope of variable
     max-distance: 25 # amount of lines when variable can be used (about 1 screen space)
@@ -38,7 +40,6 @@ linters:
     - errchkjson
     - errname
     - errorlint
-    - execinquery
     - exhaustive
     - exportloopref
     - forbidigo
@@ -52,13 +53,12 @@ linters:
     - gocyclo
     - godot
     - godox
-    - goerr113
+    - err113
     - gofmt
     - gofumpt
     - goheader
     - goimports
-    - golint
-    - gomnd
+    - mnd
     - gomoddirectives
     - gomodguard
     - goprintffuncname
@@ -72,7 +72,6 @@ linters:
     - loggercheck
     - maintidx
     - makezero
-    - maligned
     - misspell
     - nakedret
     - nestif
@@ -107,6 +106,11 @@ linters:
     - wastedassign
     - whitespace
     - wrapcheck
+
+govet:
+  enable:
+    - fieldalignment
+
 issues:
   # See the dedicated "issues" documentation section.
   exclude-rules:

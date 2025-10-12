@@ -17,7 +17,7 @@ func (c *ContainerManager) ConnectToNetwork(ctx context.Context, req domain.Conn
 		Aliases: req.Aliases,
 	}
 
-	err := c.docker.NetworkConnect(ctx, req.Network, req.SmerdName, &es)
+	err := c.dockerAPI.NetworkConnect(ctx, req.Network, req.SmerdName, &es)
 	if err == nil {
 		return nil
 	}
@@ -31,7 +31,7 @@ func (c *ContainerManager) ConnectToNetwork(ctx context.Context, req domain.Conn
 }
 
 func (c *ContainerManager) DisconnectFromNetwork(ctx context.Context, req domain.Connection) error {
-	err := c.docker.NetworkDisconnect(ctx, req.Network, req.SmerdName, true)
+	err := c.dockerAPI.NetworkDisconnect(ctx, req.Network, req.SmerdName, true)
 	if err == nil {
 		return nil
 	}

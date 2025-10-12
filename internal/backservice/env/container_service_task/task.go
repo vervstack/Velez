@@ -6,6 +6,7 @@ import (
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
+	"github.com/docker/docker/client"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
 	errors "go.redsock.ru/rerrors"
@@ -28,7 +29,8 @@ type Task[T any] struct {
 
 	hostConfig *container.HostConfig
 
-	dockerAPI clients.Docker
+	docker    clients.Docker
+	dockerAPI client.APIClient
 
 	healthCheck func(client T) bool
 }
@@ -97,13 +99,8 @@ func (t *Task[T]) IsAlive() bool {
 
 func (t *Task[T]) Kill() error {
 	ctx := context.Background()
-	rmOpts := container.RemoveOptions{
-		// TODO
-		RemoveVolumes: true,
-		Force:         true,
-	}
 
-	err := t.dockerAPI.ContainerRemove(ctx, t.name, rmOpts)
+	err := t.docker.Remove(ctx, t.name)
 	if err != nil {
 		if !strings.Contains(err.Error(), docker.NoSuchContainerError) {
 			return errors.Wrap(err, "error dropping result")

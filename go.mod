@@ -80,15 +80,3 @@ require (
 	gotest.tools/v3 v3.5.1 // indirect
 	howett.net/plist v1.0.1 // indirect
 )
-
-tool google.golang.org/protobuf/cmd/protoc-gen-go
-
-tool google.golang.org/grpc/cmd/protoc-gen-go-grpc
-
-tool github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
-
-tool github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway
-
-tool github.com/envoyproxy/protoc-gen-validate
-
-tool github.com/Red-Sock/protoc-gen-docs

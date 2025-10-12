@@ -5,6 +5,7 @@ import (
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
+	"github.com/docker/docker/client"
 	"github.com/docker/docker/errdefs"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"go.redsock.ru/rerrors"
@@ -17,7 +18,8 @@ import (
 )
 
 type createContainerStep struct {
-	docker clients.Docker
+	docker    clients.Docker
+	dockerAPI client.APIClient
 
 	req         *domain.LaunchSmerd
 	containerId *string
@@ -29,6 +31,7 @@ func CreateContainer(nodeClients clients.NodeClients,
 ) *createContainerStep {
 	return &createContainerStep{
 		docker:      nodeClients.Docker(),
+		dockerAPI:   nodeClients.Docker().Client(),
 		req:         req,
 		containerId: containerId,
 	}
@@ -42,12 +45,12 @@ func (s *createContainerStep) Do(ctx context.Context) error {
 
 	contName := s.req.GetName()
 
-	createdContainer, err := s.docker.ContainerCreate(ctx, cfg, hCfg, nCfg, pCfg, contName)
+	createdContainer, err := s.dockerAPI.ContainerCreate(ctx, cfg, hCfg, nCfg, pCfg, contName)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating container")
 	}
 
-	containerInfo, err := s.docker.ContainerInspect(ctx, createdContainer.ID)
+	containerInfo, err := s.dockerAPI.ContainerInspect(ctx, createdContainer.ID)
 	if err != nil {
 		return rerrors.Wrap(err, "error inspecting container by id")
 	}
@@ -60,7 +63,7 @@ func (s *createContainerStep) Do(ctx context.Context) error {
 			ContId:      createdContainer.ID,
 			Aliases:     n.Aliases,
 		}
-		err = dockerutils.ConnectToNetwork(ctx, s.docker, connectReq)
+		err = dockerutils.ConnectToNetwork(ctx, s.dockerAPI, connectReq)
 		if err != nil {
 			return rerrors.Wrap(err)
 		}

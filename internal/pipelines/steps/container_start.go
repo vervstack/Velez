@@ -4,13 +4,14 @@ import (
 	"context"
 
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/clients"
 )
 
 type smerdStart struct {
-	docker clients.Docker
+	dockerAPI client.APIClient
 
 	containerId *string
 }
@@ -20,7 +21,7 @@ func StartSmerd(
 	containerId *string,
 ) *smerdStart {
 	return &smerdStart{
-		docker:      nodeClients.Docker(),
+		dockerAPI:   nodeClients.Docker().Client(),
 		containerId: containerId,
 	}
 }
@@ -30,7 +31,7 @@ func (s *smerdStart) Do(ctx context.Context) error {
 		return rerrors.New("no container id provided")
 	}
 
-	err := s.docker.ContainerStart(ctx, *s.containerId, container.StartOptions{})
+	err := s.dockerAPI.ContainerStart(ctx, *s.containerId, container.StartOptions{})
 	if err != nil {
 		return rerrors.Wrap(err, "error starting container")
 	}
@@ -43,7 +44,7 @@ func (s *smerdStart) Rollback(ctx context.Context) error {
 		return nil
 	}
 
-	err := s.docker.ContainerStop(ctx, *s.containerId, container.StopOptions{})
+	err := s.dockerAPI.ContainerStop(ctx, *s.containerId, container.StopOptions{})
 	if err != nil {
 		return rerrors.Wrapf(err, "error removing container '%s'", *s.containerId)
 	}

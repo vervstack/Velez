@@ -16,7 +16,7 @@ func (c *ContainerManager) ListSmerds(ctx context.Context, req *velez_api.ListSm
 	if req.GetName() != "" {
 		*req.Name = strings.ToLower(*req.Name)
 	}
-	cl, err := c.docker.ListContainers(ctx, req)
+	cl, err := c.dockerWrapper.ListContainers(ctx, req)
 	if err != nil {
 		return nil, errors.Wrap(err, "error listing containers")
 	}

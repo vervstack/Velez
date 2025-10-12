@@ -10,7 +10,7 @@ func (c *ContainerManager) DropSmerds(ctx context.Context, req *velez_api.DropSm
 	out := &velez_api.DropSmerd_Response{}
 
 	for _, uuid := range append(req.Uuids, req.Name...) {
-		err := c.docker.Remove(ctx, uuid)
+		err := c.dockerWrapper.Remove(ctx, uuid)
 		if err == nil {
 			out.Successful = append(out.Successful, uuid)
 			continue

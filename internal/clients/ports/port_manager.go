@@ -5,9 +5,9 @@ import (
 	"sync"
 
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/client"
 	errors "go.redsock.ru/rerrors"
 
+	"go.vervstack.ru/Velez/internal/clients/docker"
 	"go.vervstack.ru/Velez/internal/config"
 )
 
@@ -25,13 +25,13 @@ type PortManager struct {
 	pausedPorts map[uint32]bool
 }
 
-func NewPortManager(ctx context.Context, cfg config.Config, docker client.APIClient) (*PortManager, error) {
+func NewPortManager(ctx context.Context, cfg config.Config, docker *docker.Docker) (*PortManager, error) {
 	pm := &PortManager{
 		freePorts:   make(map[uint32]bool, len(cfg.Environment.AvailablePorts)),
 		pausedPorts: make(map[uint32]bool, len(cfg.Environment.AvailablePorts)),
 	}
 
-	containerList, err := docker.ContainerList(ctx, container.ListOptions{})
+	containerList, err := docker.Client().ContainerList(ctx, container.ListOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "error listing container")
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/clients"
@@ -15,7 +16,7 @@ const (
 )
 
 type healthcheckStep struct {
-	docker clients.Docker
+	dockerAPI client.APIClient
 
 	req         *domain.LaunchSmerd
 	containerId *string
@@ -27,7 +28,7 @@ func Healthcheck(
 	containerId *string,
 ) *healthcheckStep {
 	return &healthcheckStep{
-		docker: nodeClients.Docker(),
+		dockerAPI: nodeClients.Docker().Client(),
 
 		req:         req,
 		containerId: containerId,
@@ -50,7 +51,7 @@ func (h *healthcheckStep) Do(ctx context.Context) error {
 		for i := uint32(0); i < h.req.Healthcheck.Retries; i++ {
 			time.Sleep(time.Duration(h.req.Healthcheck.IntervalSecond) * time.Second)
 
-			cont, err := h.docker.ContainerInspect(ctx, *h.containerId)
+			cont, err := h.dockerAPI.ContainerInspect(ctx, *h.containerId)
 			if err != nil {
 				errC <- err
 				return

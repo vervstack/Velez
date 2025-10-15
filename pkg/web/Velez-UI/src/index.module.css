@@ -24,6 +24,8 @@ root, body {
     --primary-fg-color: #232328;
 
     --disabled-bg-color: #616161;
+
+    --action-button-size: 1.75em;
 }
 
 /*TODO: DO FOR different screen sizes*/

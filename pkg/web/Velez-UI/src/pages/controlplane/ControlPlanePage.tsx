@@ -11,6 +11,7 @@ import useSettings from "@/app/settings/state.ts";
 import Loader from "@/components/Loader.tsx";
 import {useNavigate} from "react-router-dom";
 import {Routes} from "@/app/router/Router.tsx";
+import {fromProto} from "@/model/smerds/Smerds.ts";
 
 export default function ControlPlanePage() {
     const [activeComponents, setActiveComponents] =
@@ -55,6 +56,7 @@ export default function ControlPlanePage() {
                                 // TODO disabled for now. Use portainer
                                 // navigate(Routes.Smerd + '/' + v.title)
                             }}
+
                         >
                             <ServiceCard disabled={false} {...v}/>
                         </div>)
@@ -71,7 +73,7 @@ export default function ControlPlanePage() {
                             <ServiceCard
                                 onClickConstructor={v.smerdConstructor !== undefined ? () => {
                                     navigate(Routes.Deploy,
-                                        {state: {data: v.smerdConstructor}})
+                                        {state: {data: fromProto(v.smerdConstructor)}})
                                 } : undefined}
                                 disabled={true}
                                 {...v}/>

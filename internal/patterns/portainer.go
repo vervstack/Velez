@@ -1,6 +1,8 @@
 package patterns
 
 import (
+	"strings"
+
 	"github.com/docker/docker/client"
 
 	"go.vervstack.ru/Velez/internal/domain/labels"
@@ -18,11 +20,6 @@ func Portainer() *velez_api.CreateSmerd_Request {
 	return &velez_api.CreateSmerd_Request{
 		Name:      PortainerServiceName,
 		ImageName: PortainerImage,
-		Hardware: &velez_api.Container_Hardware{
-			CpuAmount:    nil,
-			RamMb:        nil,
-			MemorySwapMb: nil,
-		},
 		Settings: &velez_api.Container_Settings{
 			Ports: []*velez_api.Port{
 				{
@@ -37,7 +34,7 @@ func Portainer() *velez_api.CreateSmerd_Request {
 			},
 			Binds: []*velez_api.Bind{
 				{
-					HostPath:      client.DefaultDockerHost,
+					HostPath:      strings.ReplaceAll(client.DefaultDockerHost, "unix://", ""),
 					ContainerPath: "/var/run/docker.sock",
 				},
 			},

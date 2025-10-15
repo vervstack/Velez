@@ -1,5 +1,5 @@
 import cls from "@/components/base/Input.module.css";
-import {FocusEventHandler, useEffect, useState} from "react";
+import {FocusEventHandler, useState} from "react";
 import cn from "classnames";
 
 export interface StyleProps {
@@ -18,13 +18,8 @@ interface InputProps {
 export default function Input({label, onChange, inputValue, style, onLeave}: InputProps) {
     const [isFocused, setIsFocused] = useState(false);
 
-    const [value, setValue] = useState(inputValue || '');
 
-    useEffect(() => {
-        if (onChange) onChange(value)
-    }, [value]);
-
-    const hasValue = value !== undefined && value !== null && value.toString().length > 0;
+    const hasValue = inputValue !== undefined && inputValue !== null && inputValue.toString().length > 0;
     const showFloatingLabel = isFocused || hasValue;
 
     const handleFocus: FocusEventHandler<HTMLInputElement> = () => {
@@ -33,7 +28,7 @@ export default function Input({label, onChange, inputValue, style, onLeave}: Inp
 
     const handleBlur: FocusEventHandler<HTMLInputElement> = () => {
         setIsFocused(false);
-        if (onLeave) onLeave(value)
+        if (onLeave) onLeave(inputValue || '')
     };
 
     return (
@@ -43,10 +38,13 @@ export default function Input({label, onChange, inputValue, style, onLeave}: Inp
             })}
         >
             <input
-                onChange={(e) => setValue(e.target.value)}
+                disabled={onChange === undefined && onLeave == undefined}
+                onChange={(e) => {
+                    if (onChange) onChange(e.target.value)
+                }}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
-                value={value}
+                value={inputValue || ''}
             />
             {label && (
                 <label className={`${cls.Label} ${showFloatingLabel ? cls.Floating : ''}`}>

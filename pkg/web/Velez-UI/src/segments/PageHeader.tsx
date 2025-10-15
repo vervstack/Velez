@@ -2,9 +2,8 @@ import {useNavigate} from "react-router-dom";
 
 import cls from "@/segments/PageHeader.module.css";
 
-import VelezIcon from "@/assets/icons/velez/VelezIcon.tsx";
+import VelezIcon from "@/assets/icons/services/velez.svg";
 import {Routes} from "@/app/router/Router.tsx";
-import Input from "@/components/base/Input.tsx";
 
 interface NavigationUnit {
     title: string,
@@ -25,10 +24,6 @@ export default function PageHeader() {
         },
     ]
 
-    function searchSmerd(v: string) {
-        console.log(v)
-    }
-
 
     return (
         <div className={cls.PageHeaderContainer}>
@@ -36,7 +31,7 @@ export default function PageHeader() {
                 className={cls.HomeLogo}
                 onClick={() => navigate(Routes.Home)}
             >
-                <VelezIcon/>
+                <img src={VelezIcon} alt={'velez'}/>
             </div>
 
             <div className={cls.Navigation}>
@@ -50,10 +45,6 @@ export default function PageHeader() {
                         </div>
                     )
                 })}
-
-                <div className={cls.NavElement}>
-                    <Input onChange={searchSmerd} inputValue={''}/>
-                </div>
             </div>
         </div>
     )

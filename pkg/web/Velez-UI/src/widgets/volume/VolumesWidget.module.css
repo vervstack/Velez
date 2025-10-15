@@ -1,11 +1,37 @@
 .VolumesWidgetContainer {
+    box-sizing: content-box;
+}
+
+.HeaderWrapper {
     display: flex;
-    flex-direction: column;
-    align-items: start;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5em;
+
+    width: 100%;
+
+    border-bottom: 1px solid black;
+    padding-bottom: 0.1em;
+}
+
+
+.AddButton {
+    display: flex;
+    align-items: center;
     justify-content: center;
-    gap: 1em;
+
+    width: var(--action-button-size);
+    height: var(--action-button-size);
+
+    cursor: pointer;
+    transition: scale 0.2s ease;
+}
+
+.AddButton:hover {
+    scale: 1.05;
 }
 
 .VolumeMappingWrapper {
-    padding-left: 1em;
 }
+

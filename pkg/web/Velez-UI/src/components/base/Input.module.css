@@ -34,13 +34,16 @@
     position: absolute;
     top: 50%;
     left: 12px;
+    margin-right: 2px;
     transform: translateY(-50%);
     color: #999;
-    font-size: 16px;
     pointer-events: none;
     transition: all 0.2s ease;
     background: white;
     padding: 0 4px;
+    font-size: clamp(1px, 16px, 32px);
+
+    box-sizing: border-box;
 }
 
 .Label.Floating {

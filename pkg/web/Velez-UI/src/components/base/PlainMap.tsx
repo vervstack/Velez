@@ -12,6 +12,8 @@ interface PlainMapProps {
 
 export default function PlainMap({label, records, onChange}: PlainMapProps) {
     function onNameChange(oldName: string, newName: string) {
+        if (newName == oldName) return
+
         records[newName] = records[oldName]
         delete records[oldName]
         onChange(records)

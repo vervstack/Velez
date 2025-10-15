@@ -7,7 +7,7 @@ import {CreateSmerdReq} from "@/model/smerds/Smerds.ts";
 export default function DeployPage() {
     const location = useLocation();
 
-    const req: CreateSmerdReq = location.state ? location.state.data : {} as CreateSmerdReq
+    const req: CreateSmerdReq = location.state ? location.state.data as CreateSmerdReq : {} as CreateSmerdReq
 
     return (
         <div className={cls.DeployPageContainer}>

@@ -2,6 +2,7 @@ package control_plane_api_impl
 
 import (
 	"context"
+	"sort"
 
 	"go.redsock.ru/rerrors"
 
@@ -32,6 +33,9 @@ func (impl *Impl) ListServices(ctx context.Context, _ *velez_api.ListServices_Re
 		case configuration.Name:
 			srv.Type = velez_api.ServiceType_matreshka
 			srv.Port = getPort(smerd.Ports)
+		case patterns.PortainerServiceName:
+			srv.Type = velez_api.ServiceType_portainer
+			srv.Port = getPort(smerd.Ports)
 		default:
 			continue
 		}
@@ -45,11 +49,13 @@ func (impl *Impl) ListServices(ctx context.Context, _ *velez_api.ListServices_Re
 }
 
 func getPort(ports []*velez_api.Port) *uint32 {
-	if len(ports) == 0 {
-		return nil
+	for _, port := range ports {
+		if port.ExposedTo != nil && *port.ExposedTo != 0 {
+			return port.ExposedTo
+		}
 	}
 
-	return ports[0].ExposedTo
+	return nil
 }
 
 func listInactiveServices(enabledServices []*velez_api.Service) []*velez_api.Service {
@@ -74,8 +80,11 @@ func listInactiveServices(enabledServices []*velez_api.Service) []*velez_api.Ser
 		}
 
 		disabledServices = append(disabledServices, srv)
-
 	}
+
+	sort.Slice(disabledServices, func(i, j int) bool {
+		return disabledServices[i].Type < disabledServices[j].Type
+	})
 
 	return disabledServices
 }

@@ -2,6 +2,7 @@ import cn from "classnames";
 import {Tooltip} from "react-tooltip";
 
 import cls from '@/components/service/ServiceCard.module.css'
+import RocketSVG from "@/assets/icons/Rocket.svg"
 
 import {Service} from "@/model/services/Services";
 import ActivityPoint from "@/components/base/ActivityPoint.tsx";
@@ -26,7 +27,9 @@ export default function ServiceCard({
         })}>
             <div className={cls.CardContent}>
                 <div className={cls.CardTop}>
-                    <div className={cls.ServiceIcon}>{icon}</div>
+                    <div className={cls.ServiceIcon}>
+                        <img src={icon} alt={icon}/>
+                    </div>
 
                     <div className={cls.Tittle}>{title}</div>
 
@@ -52,9 +55,9 @@ export default function ServiceCard({
                             data-tooltip-place="left"
                             onClick={onClickConstructor}
                         >
-                        <span
-                            className="material-symbols-outlined"
-                            children={"open_in_new"}/>
+                            <div className={cls.CardButton}>
+                                <img src={RocketSVG} alt={'/'}/>
+                            </div>
                         </div> : null
                     }
                 </div>

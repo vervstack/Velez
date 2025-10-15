@@ -1,9 +1,10 @@
 import {
     VelezAPI,
     ListSmerdsRequest,
-    SearchImagesResponse} from "@vervstack/velez";
+    SearchImagesResponse
+} from "@vervstack/velez";
 import {InitReq} from "@/app/settings/state.ts";
-import {Port, Smerd, Volume} from "@/model/smerds/Smerds.ts";
+import {CreateSmerdReq, Port, Smerd, toProto, Volume} from "@/model/smerds/Smerds.ts";
 
 export async function ListSmerds(req: ListSmerdsRequest, initReq: InitReq) {
     req.limit = req.limit || 10
@@ -52,4 +53,28 @@ export async function ListImages(name: string, initReq: InitReq): Promise<Search
     } as ListSmerdsRequest
 
     return VelezAPI.SearchImages(req, initReq)
+}
+
+
+export async function DeploySmerd(smerd: CreateSmerdReq, initReq: InitReq): Promise<Smerd> {
+    return VelezAPI.CreateSmerd(toProto(smerd), initReq).then((res) => {
+        return {
+            name: res.name,
+            imageName: res.imageName,
+            ports: (res.ports || [])
+                .map((v) => {
+                    return {
+                        servicePort: v.servicePortNumber,
+                        exposedPort: v.exposedTo,
+                    } as Port
+                }),
+            volumes: (res.volumes || [])
+                .map((v) => {
+                    return {
+                        containerPath: v.containerPath,
+                        virtualVolume: v.volumeName,
+                    } as Volume
+                })
+        } as Smerd
+    })
 }

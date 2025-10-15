@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/docker/docker/client"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -24,6 +25,8 @@ type Impl struct {
 	cfgService      service.ConfigurationService
 	smerdService    service.ContainerService
 	pipeliner       pipelines.Pipeliner
+
+	dockerAPI client.APIClient
 }
 
 func NewImpl(cfg config.Config, srv service.Services, pipeliner pipelines.Pipeliner) *Impl {
@@ -32,6 +35,8 @@ func NewImpl(cfg config.Config, srv service.Services, pipeliner pipelines.Pipeli
 		cfgService:   srv.ConfigurationService(),
 		smerdService: srv.SmerdManager(),
 		pipeliner:    pipeliner,
+
+		dockerAPI: srv.Docker().Client(),
 	}
 }
 

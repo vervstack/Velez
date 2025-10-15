@@ -74,9 +74,10 @@ service VelezAPI {
     };
   }
 
-  rpc ListImages(ListImages.Request) returns (ListImages.Response) {
+  rpc SearchImages(SearchImages.Request) returns (SearchImages.Response) {
     option (google.api.http) = {
-      get: "/api/images"
+      post: "/api/images",
+      body: "*"
     };
   }
 }
@@ -199,12 +200,13 @@ message BreakConnections {
   message Response {}
 }
 
-message ListImages {
+message SearchImages {
   message Request {
-    optional bool use_registry = 1;
-
+    string name = 1;
+    optional bool use_registry = 2;
+    optional bool use_only_official = 3;
   };
   message Response{
-    repeated ImageListItem images = 1;
+    repeated SearchImageItem images = 1;
   };
 }

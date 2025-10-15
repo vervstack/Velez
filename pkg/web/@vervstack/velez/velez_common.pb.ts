@@ -9,117 +9,117 @@ import * as GoogleProtobufTimestamp from "./google/protobuf/timestamp.pb";
 
 
 export enum RestartPolicyType {
-    unless_stopped = "unless_stopped",
-    no = "no",
-    always = "always",
-    on_failure = "on_failure",
+  unless_stopped = "unless_stopped",
+  no = "no",
+  always = "always",
+  on_failure = "on_failure",
 }
 
 export enum ConfigFormat {
-    yaml = "yaml",
-    env = "env",
+  yaml = "yaml",
+  env = "env",
 }
 
 export enum PortProtocol {
-    unknown = "unknown",
-    tcp = "tcp",
-    udp = "udp",
+  unknown = "unknown",
+  tcp = "tcp",
+  udp = "udp",
 }
 
 export enum SmerdStatus {
-    unknown = "unknown",
-    created = "created",
-    restarting = "restarting",
-    running = "running",
-    removing = "removing",
-    paused = "paused",
-    exited = "exited",
-    dead = "dead",
+  unknown = "unknown",
+  created = "created",
+  restarting = "restarting",
+  running = "running",
+  removing = "removing",
+  paused = "paused",
+  exited = "exited",
+  dead = "dead",
 }
 
-export type ImageListItem = {
-    name?: string;
-    imageUrl?: string;
-    latestTag?: string;
+export type SearchImageItem = {
+  name?: string;
+  imageUrl?: string;
+  latestTag?: string;
 };
 
 export type Port = {
-    servicePortNumber?: number;
-    protocol?: PortProtocol;
-    exposedTo?: number;
+  servicePortNumber?: number;
+  protocol?: PortProtocol;
+  exposedTo?: number;
 };
 
 export type Volume = {
-    volumeName?: string;
-    containerPath?: string;
+  volumeName?: string;
+  containerPath?: string;
 };
 
 export type Bind = {
-    hostPath?: string;
-    containerPath?: string;
+  hostPath?: string;
+  containerPath?: string;
 };
 
 export type NetworkBind = {
-    networkName?: string;
-    aliases?: string[];
+  networkName?: string;
+  aliases?: string[];
 };
 
 export type Image = {
-    name?: string;
-    tags?: string[];
-    labels?: Record<string, string>;
+  name?: string;
+  tags?: string[];
+  labels?: Record<string, string>;
 };
 
 export type Smerd = {
-    uuid?: string;
-    name?: string;
-    imageName?: string;
-    ports?: Port[];
-    volumes?: Volume[];
-    status?: SmerdStatus;
-    createdAt?: GoogleProtobufTimestamp.Timestamp;
-    networks?: NetworkBind[];
-    labels?: Record<string, string>;
-    env?: Record<string, string>;
-    binds?: Bind[];
+  uuid?: string;
+  name?: string;
+  imageName?: string;
+  ports?: Port[];
+  volumes?: Volume[];
+  status?: SmerdStatus;
+  createdAt?: GoogleProtobufTimestamp.Timestamp;
+  networks?: NetworkBind[];
+  labels?: Record<string, string>;
+  env?: Record<string, string>;
+  binds?: Bind[];
 };
 
 export type ContainerHardware = {
-    cpuAmount?: number;
-    ramMb?: number;
-    memorySwapMb?: number;
+  cpuAmount?: number;
+  ramMb?: number;
+  memorySwapMb?: number;
 };
 
 export type ContainerSettings = {
-    ports?: Port[];
-    network?: NetworkBind[];
-    volumes?: Volume[];
-    binds?: Bind[];
+  ports?: Port[];
+  network?: NetworkBind[];
+  volumes?: Volume[];
+  binds?: Bind[];
 };
 
 export type ContainerHealthcheck = {
-    command?: string;
-    intervalSecond?: number;
-    timeoutSecond?: number;
-    retries?: number;
+  command?: string;
+  intervalSecond?: number;
+  timeoutSecond?: number;
+  retries?: number;
 };
 
 export type Container = Record<string, never>;
 
 export type RestartPolicy = {
-    type?: RestartPolicyType;
-    FailureCount?: number;
+  type?: RestartPolicyType;
+  FailureCount?: number;
 };
 
 export type MatreshkaConfigSpec = {
-    configName?: string;
-    configVersion?: string;
-    configFormat?: ConfigFormat;
-    systemPath?: string;
+  configName?: string;
+  configVersion?: string;
+  configFormat?: ConfigFormat;
+  systemPath?: string;
 };
 
 export type Connection = {
-    serviceName?: string;
-    targetNetwork?: string;
-    aliases?: string[];
+  serviceName?: string;
+  targetNetwork?: string;
+  aliases?: string[];
 };

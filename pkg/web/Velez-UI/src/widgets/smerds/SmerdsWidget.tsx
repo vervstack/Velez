@@ -38,11 +38,11 @@ function SmerdsSearch({req, setReq}: {
 
     return (<>
         <Input
-            onChange={(elem) => {
-                req.limit = Number(elem.target.value)
+            onChange={(v) => {
+                req.limit = Number(v)
                 setReq(req)
             }}
-            value={0}
+            inputValue={'0'}
         />
     </>)
 }

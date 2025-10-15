@@ -234,7 +234,7 @@ func (Smerd_Status) EnumDescriptor() ([]byte, []int) {
 	return file_velez_common_proto_rawDescGZIP(), []int{6, 0}
 }
 
-type ImageListItem struct {
+type SearchImageItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	ImageUrl      *string                `protobuf:"bytes,2,opt,name=image_url,json=imageUrl,proto3,oneof" json:"image_url,omitempty"`
@@ -243,20 +243,20 @@ type ImageListItem struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ImageListItem) Reset() {
-	*x = ImageListItem{}
+func (x *SearchImageItem) Reset() {
+	*x = SearchImageItem{}
 	mi := &file_velez_common_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ImageListItem) String() string {
+func (x *SearchImageItem) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ImageListItem) ProtoMessage() {}
+func (*SearchImageItem) ProtoMessage() {}
 
-func (x *ImageListItem) ProtoReflect() protoreflect.Message {
+func (x *SearchImageItem) ProtoReflect() protoreflect.Message {
 	mi := &file_velez_common_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -268,26 +268,26 @@ func (x *ImageListItem) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ImageListItem.ProtoReflect.Descriptor instead.
-func (*ImageListItem) Descriptor() ([]byte, []int) {
+// Deprecated: Use SearchImageItem.ProtoReflect.Descriptor instead.
+func (*SearchImageItem) Descriptor() ([]byte, []int) {
 	return file_velez_common_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ImageListItem) GetName() string {
+func (x *SearchImageItem) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *ImageListItem) GetImageUrl() string {
+func (x *SearchImageItem) GetImageUrl() string {
 	if x != nil && x.ImageUrl != nil {
 		return *x.ImageUrl
 	}
 	return ""
 }
 
-func (x *ImageListItem) GetLatestTag() string {
+func (x *SearchImageItem) GetLatestTag() string {
 	if x != nil {
 		return x.LatestTag
 	}
@@ -1131,8 +1131,8 @@ var File_velez_common_proto protoreflect.FileDescriptor
 
 const file_velez_common_proto_rawDesc = "" +
 	"\n" +
-	"\x12velez_common.proto\x12\tvelez_api\x1a\tnpm.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"r\n" +
-	"\rImageListItem\x12\x12\n" +
+	"\x12velez_common.proto\x12\tvelez_api\x1a\tnpm.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"t\n" +
+	"\x0fSearchImageItem\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\timage_url\x18\x02 \x01(\tH\x00R\bimageUrl\x88\x01\x01\x12\x1d\n" +
 	"\n" +
@@ -1271,7 +1271,7 @@ var file_velez_common_proto_goTypes = []any{
 	(ConfigFormat)(0),             // 1: velez_api.ConfigFormat
 	(Port_Protocol)(0),            // 2: velez_api.Port.Protocol
 	(Smerd_Status)(0),             // 3: velez_api.Smerd.Status
-	(*ImageListItem)(nil),         // 4: velez_api.ImageListItem
+	(*SearchImageItem)(nil),       // 4: velez_api.SearchImageItem
 	(*Port)(nil),                  // 5: velez_api.Port
 	(*Volume)(nil),                // 6: velez_api.Volume
 	(*Bind)(nil),                  // 7: velez_api.Bind

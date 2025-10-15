@@ -8,7 +8,7 @@ import "google/protobuf/timestamp.proto";
 option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
 option (npm_package) = "@vervstack/velez";
 
-message ImageListItem {
+message SearchImageItem {
   string name = 1;
   optional string image_url = 2;
   string latest_tag = 3;

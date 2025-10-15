@@ -8,8 +8,7 @@ interface ActivityPointProps {
 }
 
 export default function ActivityPoint({isInactive}: ActivityPointProps) {
-
-
+    
     function getTooltipContent(): string {
         if (isInactive !== undefined) {
             return isInactive ? "Inactive" : "Active";

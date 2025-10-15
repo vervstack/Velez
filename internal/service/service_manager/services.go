@@ -17,6 +17,8 @@ import (
 type ServiceManager struct {
 	containerManager *container_manager.ContainerManager
 	configurator     *configurator.Configurator
+
+	docker clients.Docker
 }
 
 func New(
@@ -36,8 +38,10 @@ func New(
 	containerManger := container_manager.NewContainerManager(nodeClients, configService)
 
 	sm := &ServiceManager{
-		configurator:     configService,
 		containerManager: containerManger,
+		configurator:     configService,
+
+		docker: nodeClients.Docker(),
 	}
 
 	// TODO VERV-128
@@ -52,6 +56,10 @@ func (s *ServiceManager) SmerdManager() service.ContainerService {
 
 func (s *ServiceManager) ConfigurationService() service.ConfigurationService {
 	return s.configurator
+}
+
+func (s *ServiceManager) Docker() clients.Docker {
+	return s.docker
 }
 
 func handleConfigurationSubscription(configurationService service.ConfigurationService, manager service.Services) {

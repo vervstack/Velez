@@ -3,6 +3,7 @@ package patterns
 import (
 	"github.com/docker/docker/client"
 
+	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
@@ -40,6 +41,9 @@ func Portainer() *velez_api.CreateSmerd_Request {
 					ContainerPath: "/var/run/docker.sock",
 				},
 			},
+		},
+		Labels: map[string]string{
+			labels.CreatedWithVelezLabel: "true",
 		},
 	}
 }

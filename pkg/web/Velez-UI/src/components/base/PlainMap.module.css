@@ -1,0 +1,61 @@
+.PlainMapContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    align-items: center;
+}
+
+.HeaderLabel {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
+    align-items: center;
+
+    width: 100%;
+}
+
+.KeyValueContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 0.25em;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+
+}
+
+.Entries {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+    align-items: center;
+
+    width: 100%;
+}
+
+.Entry {
+    display: flex;
+    flex-direction: row;
+    gap: 0.25em;
+    align-items: center;
+
+    width: 100%;
+}
+
+.ActionButton {
+    display: flex;
+    flex-direction: row;
+    gap: 0.25em;
+    align-items: center;
+
+    width: 1.75em;
+    height: 1.75em;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease-in-out;
+}
+.ActionButton:hover {
+    scale: 1.05;
+}

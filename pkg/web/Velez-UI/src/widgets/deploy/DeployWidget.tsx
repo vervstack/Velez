@@ -1,51 +1,56 @@
 import cls from "@/widgets/deploy/DeployWidget.module.css"
 import InfoMark from "@/assets/icons/InfoMark.svg";
 
-
 import {Tooltip} from "react-tooltip";
-import {ChangeEvent, useEffect, useState} from "react";
-import JSONPretty from 'react-json-pretty';
-
-import {CreateSmerdRequest} from "@vervstack/velez";
+import {useState} from "react";
+import ReactJsonView from '@microlink/react-json-view'
 
 import Input from "@/components/base/Input.tsx";
 import Checkbox from "@/components/base/Checkbox.tsx";
+import Search from "@/components/base/Search.tsx";
+import PlainMap from "@/components/base/PlainMap.tsx";
+
+import {ListImages} from "@/processes/api/velez.ts";
+import useSettings from "@/app/settings/state.ts";
+import {CreateSmerdReq} from "@/model/smerds/Smerds.ts";
 
 interface DeployWidgetProps {
-    createSmerd: CreateSmerdRequest;
+    createSmerdReq?: CreateSmerdReq;
 }
 
-export default function DeployWidget({createSmerd}: DeployWidgetProps) {
-    const [req, setReq] = useState<CreateSmerdRequest>({...createSmerd});
+export default function DeployWidget({createSmerdReq}: DeployWidgetProps) {
+    const [req, setReq] =
+        useState<CreateSmerdReq>(createSmerdReq || new CreateSmerdReq());
 
-    useEffect(() => {
-        createSmerd.name = createSmerd.name || ""
-        createSmerd.imageName = createSmerd.imageName || ""
+    const settings = useSettings()
 
-        createSmerd.ignoreConfig = createSmerd.ignoreConfig || false
-        createSmerd.autoUpgrade = createSmerd.autoUpgrade || false
-        createSmerd.useImagePorts = createSmerd.useImagePorts || false
-        setReq(createSmerd)
-    }, []);
-
-    const updateField = (field: keyof CreateSmerdRequest, value: string | boolean) => {
+    const updateField = (field: keyof CreateSmerdReq, value: string | boolean | null | Record<string, string>) => {
         setReq(prev => ({
             ...prev,
             [field]: value
         }));
     };
 
-    function stringFieldUpdater(field: keyof CreateSmerdRequest): (e: ChangeEvent<HTMLInputElement>) => void {
-        return (e: ChangeEvent<HTMLInputElement>) => {
-            updateField(field, e.target.value);
+    function stringFieldUpdater(field: keyof CreateSmerdReq): (v: string) => void {
+        return (v: string) => {
+            if (v == '') {
+                updateField(field, null);
+                return
+            }
+            updateField(field, v);
         }
     }
 
-    function booleanFieldUpdater(field: keyof CreateSmerdRequest): (e: ChangeEvent<HTMLInputElement>) => void {
-        return (e: ChangeEvent<HTMLInputElement>) => {
-            console.log(e.target.checked)
-            updateField(field, e.target.checked);
+    function booleanFieldUpdater(field: keyof CreateSmerdReq): (v: string) => void {
+        return (v: string) => {
+            updateField(field, v);
         }
+    }
+
+    function searchImage(v: string) {
+        ListImages(v, settings.initReq())
+            .then((r) => console.log(r))
+        stringFieldUpdater("imageName")(v)
     }
 
     return (
@@ -53,19 +58,18 @@ export default function DeployWidget({createSmerd}: DeployWidgetProps) {
             <div className={cls.ConfigurationInputs}>
                 <Input
                     label="Name"
-                    value={req.name || ''}
+                    inputValue={req.name}
                     onChange={stringFieldUpdater("name")}
                 />
-
-                <Input
+                <Search
                     label="Image"
-                    value={req.imageName || ''}
-                    onChange={stringFieldUpdater("imageName")}
+                    value={req.imageName}
+                    onChange={searchImage}
                 />
 
                 <Input
                     label="Command"
-                    value={req.command || ''}
+                    inputValue={req.command}
                     onChange={stringFieldUpdater("command")}
                 />
                 <div className={cls.CheckboxWrapper}>
@@ -115,10 +119,47 @@ export default function DeployWidget({createSmerd}: DeployWidgetProps) {
                         />
                     </div>
                 </div>
+
+                <div>
+                    <PlainMap
+                        label={'Labels'}
+                        records={req.labels || {}}
+                        onChange={(newRecords) => {
+                            updateField('labels', newRecords)
+                        }}
+                    />
+                </div>
+
+                <div>
+                    <PlainMap
+                        label={'Environment variables'}
+                        records={req.env || {}}
+                        onChange={(newRecords) => {
+                            updateField('env', newRecords)
+                        }}
+                    />
+                </div>
             </div>
 
             <div className={cls.VervConfigBlock}>
-                <JSONPretty data={req}/>
+                <ReactJsonView
+                    src={req}
+                    theme={'flat'}
+                    iconStyle={'triangle'}
+                    name={null}
+                    style={{
+                        width: '100%',
+                    }}
+                    displayDataTypes={false}
+                    displayObjectSize={false}
+                    shouldCollapse={(field) => {
+                        if (field.type == "array") {
+                            // @ts-expect-error
+                            return field.src.length === 0
+                        }
+                        return field.src == null;
+                    }}
+                />
             </div>
 
             <Tooltip

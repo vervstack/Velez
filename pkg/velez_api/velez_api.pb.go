@@ -347,26 +347,26 @@ func (*BreakConnections) Descriptor() ([]byte, []int) {
 	return file_velez_api_proto_rawDescGZIP(), []int{8}
 }
 
-type ListImages struct {
+type SearchImages struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListImages) Reset() {
-	*x = ListImages{}
+func (x *SearchImages) Reset() {
+	*x = SearchImages{}
 	mi := &file_velez_api_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListImages) String() string {
+func (x *SearchImages) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListImages) ProtoMessage() {}
+func (*SearchImages) ProtoMessage() {}
 
-func (x *ListImages) ProtoReflect() protoreflect.Message {
+func (x *SearchImages) ProtoReflect() protoreflect.Message {
 	mi := &file_velez_api_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -378,8 +378,8 @@ func (x *ListImages) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListImages.ProtoReflect.Descriptor instead.
-func (*ListImages) Descriptor() ([]byte, []int) {
+// Deprecated: Use SearchImages.ProtoReflect.Descriptor instead.
+func (*SearchImages) Descriptor() ([]byte, []int) {
 	return file_velez_api_proto_rawDescGZIP(), []int{9}
 }
 
@@ -1379,27 +1379,29 @@ func (*BreakConnections_Response) Descriptor() ([]byte, []int) {
 	return file_velez_api_proto_rawDescGZIP(), []int{8, 1}
 }
 
-type ListImages_Request struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UseRegistry   *bool                  `protobuf:"varint,1,opt,name=use_registry,json=useRegistry,proto3,oneof" json:"use_registry,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+type SearchImages_Request struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Name            string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	UseRegistry     *bool                  `protobuf:"varint,2,opt,name=use_registry,json=useRegistry,proto3,oneof" json:"use_registry,omitempty"`
+	UseOnlyOfficial *bool                  `protobuf:"varint,3,opt,name=use_only_official,json=useOnlyOfficial,proto3,oneof" json:"use_only_official,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
-func (x *ListImages_Request) Reset() {
-	*x = ListImages_Request{}
+func (x *SearchImages_Request) Reset() {
+	*x = SearchImages_Request{}
 	mi := &file_velez_api_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListImages_Request) String() string {
+func (x *SearchImages_Request) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListImages_Request) ProtoMessage() {}
+func (*SearchImages_Request) ProtoMessage() {}
 
-func (x *ListImages_Request) ProtoReflect() protoreflect.Message {
+func (x *SearchImages_Request) ProtoReflect() protoreflect.Message {
 	mi := &file_velez_api_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1411,39 +1413,53 @@ func (x *ListImages_Request) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListImages_Request.ProtoReflect.Descriptor instead.
-func (*ListImages_Request) Descriptor() ([]byte, []int) {
+// Deprecated: Use SearchImages_Request.ProtoReflect.Descriptor instead.
+func (*SearchImages_Request) Descriptor() ([]byte, []int) {
 	return file_velez_api_proto_rawDescGZIP(), []int{9, 0}
 }
 
-func (x *ListImages_Request) GetUseRegistry() bool {
+func (x *SearchImages_Request) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *SearchImages_Request) GetUseRegistry() bool {
 	if x != nil && x.UseRegistry != nil {
 		return *x.UseRegistry
 	}
 	return false
 }
 
-type ListImages_Response struct {
+func (x *SearchImages_Request) GetUseOnlyOfficial() bool {
+	if x != nil && x.UseOnlyOfficial != nil {
+		return *x.UseOnlyOfficial
+	}
+	return false
+}
+
+type SearchImages_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Images        []*ImageListItem       `protobuf:"bytes,1,rep,name=images,proto3" json:"images,omitempty"`
+	Images        []*SearchImageItem     `protobuf:"bytes,1,rep,name=images,proto3" json:"images,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListImages_Response) Reset() {
-	*x = ListImages_Response{}
+func (x *SearchImages_Response) Reset() {
+	*x = SearchImages_Response{}
 	mi := &file_velez_api_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListImages_Response) String() string {
+func (x *SearchImages_Response) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListImages_Response) ProtoMessage() {}
+func (*SearchImages_Response) ProtoMessage() {}
 
-func (x *ListImages_Response) ProtoReflect() protoreflect.Message {
+func (x *SearchImages_Response) ProtoReflect() protoreflect.Message {
 	mi := &file_velez_api_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1455,12 +1471,12 @@ func (x *ListImages_Response) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListImages_Response.ProtoReflect.Descriptor instead.
-func (*ListImages_Response) Descriptor() ([]byte, []int) {
+// Deprecated: Use SearchImages_Response.ProtoReflect.Descriptor instead.
+func (*SearchImages_Response) Descriptor() ([]byte, []int) {
 	return file_velez_api_proto_rawDescGZIP(), []int{9, 1}
 }
 
-func (x *ListImages_Response) GetImages() []*ImageListItem {
+func (x *SearchImages_Response) GetImages() []*SearchImageItem {
 	if x != nil {
 		return x.Images
 	}
@@ -1565,14 +1581,16 @@ const file_velez_api_proto_rawDesc = "" +
 	"\aRequest\x127\n" +
 	"\vconnections\x18\x01 \x03(\v2\x15.velez_api.ConnectionR\vconnections\x1a\n" +
 	"\n" +
-	"\bResponse\"\x8e\x01\n" +
-	"\n" +
-	"ListImages\x1aB\n" +
-	"\aRequest\x12&\n" +
-	"\fuse_registry\x18\x01 \x01(\bH\x00R\vuseRegistry\x88\x01\x01B\x0f\n" +
-	"\r_use_registry\x1a<\n" +
-	"\bResponse\x120\n" +
-	"\x06images\x18\x01 \x03(\v2\x18.velez_api.ImageListItemR\x06images2\xc3\b\n" +
+	"\bResponse\"\xee\x01\n" +
+	"\fSearchImages\x1a\x9d\x01\n" +
+	"\aRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12&\n" +
+	"\fuse_registry\x18\x02 \x01(\bH\x00R\vuseRegistry\x88\x01\x01\x12/\n" +
+	"\x11use_only_official\x18\x03 \x01(\bH\x01R\x0fuseOnlyOfficial\x88\x01\x01B\x0f\n" +
+	"\r_use_registryB\x14\n" +
+	"\x12_use_only_official\x1a>\n" +
+	"\bResponse\x122\n" +
+	"\x06images\x18\x01 \x03(\v2\x1a.velez_api.SearchImageItemR\x06images2\xcc\b\n" +
 	"\bVelezAPI\x12X\n" +
 	"\aVersion\x12\x1a.velez_api.Version.Request\x1a\x1b.velez_api.Version.Response\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/api/version\x12]\n" +
 	"\vCreateSmerd\x12\x1e.velez_api.CreateSmerd.Request\x1a\x10.velez_api.Smerd\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/smerd/create\x12g\n" +
@@ -1583,9 +1601,8 @@ const file_velez_api_proto_rawDesc = "" +
 	"\fUpgradeSmerd\x12\x1f.velez_api.UpgradeSmerd.Request\x1a .velez_api.UpgradeSmerd.Response\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/api/smerd/upgrade\x12x\n" +
 	"\x0eAssembleConfig\x12!.velez_api.AssembleConfig.Request\x1a\".velez_api.AssembleConfig.Response\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/api/config/assemble\x12y\n" +
 	"\x0fMakeConnections\x12\".velez_api.MakeConnections.Request\x1a#.velez_api.MakeConnections.Response\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/api/smerd/connect\x12\x7f\n" +
-	"\x10BreakConnections\x12#.velez_api.BreakConnections.Request\x1a$.velez_api.BreakConnections.Response\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/smerd/disconnect\x12`\n" +
-	"\n" +
-	"ListImages\x12\x1d.velez_api.ListImages.Request\x1a\x1e.velez_api.ListImages.Response\"\x13\x82\xd3\xe4\x93\x02\r\x12\v/api/imagesBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
+	"\x10BreakConnections\x12#.velez_api.BreakConnections.Request\x1a$.velez_api.BreakConnections.Response\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/smerd/disconnect\x12i\n" +
+	"\fSearchImages\x12\x1f.velez_api.SearchImages.Request\x1a .velez_api.SearchImages.Response\"\x16\x82\xd3\xe4\x93\x02\x10:\x01*\"\v/api/imagesBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
 
 var (
 	file_velez_api_proto_rawDescOnce sync.Once
@@ -1610,7 +1627,7 @@ var file_velez_api_proto_goTypes = []any{
 	(*UpgradeSmerd)(nil),               // 6: velez_api.UpgradeSmerd
 	(*MakeConnections)(nil),            // 7: velez_api.MakeConnections
 	(*BreakConnections)(nil),           // 8: velez_api.BreakConnections
-	(*ListImages)(nil),                 // 9: velez_api.ListImages
+	(*SearchImages)(nil),               // 9: velez_api.SearchImages
 	(*Version_Request)(nil),            // 10: velez_api.Version.Request
 	(*Version_Response)(nil),           // 11: velez_api.Version.Response
 	(*CreateSmerd_Request)(nil),        // 12: velez_api.CreateSmerd.Request
@@ -1633,8 +1650,8 @@ var file_velez_api_proto_goTypes = []any{
 	(*MakeConnections_Response)(nil),   // 29: velez_api.MakeConnections.Response
 	(*BreakConnections_Request)(nil),   // 30: velez_api.BreakConnections.Request
 	(*BreakConnections_Response)(nil),  // 31: velez_api.BreakConnections.Response
-	(*ListImages_Request)(nil),         // 32: velez_api.ListImages.Request
-	(*ListImages_Response)(nil),        // 33: velez_api.ListImages.Response
+	(*SearchImages_Request)(nil),       // 32: velez_api.SearchImages.Request
+	(*SearchImages_Response)(nil),      // 33: velez_api.SearchImages.Response
 	(*Container_Hardware)(nil),         // 34: velez_api.Container.Hardware
 	(*Container_Settings)(nil),         // 35: velez_api.Container.Settings
 	(*Container_Healthcheck)(nil),      // 36: velez_api.Container.Healthcheck
@@ -1642,7 +1659,7 @@ var file_velez_api_proto_goTypes = []any{
 	(*MatreshkaConfigSpec)(nil),        // 38: velez_api.MatreshkaConfigSpec
 	(*Smerd)(nil),                      // 39: velez_api.Smerd
 	(*Connection)(nil),                 // 40: velez_api.Connection
-	(*ImageListItem)(nil),              // 41: velez_api.ImageListItem
+	(*SearchImageItem)(nil),            // 41: velez_api.SearchImageItem
 }
 var file_velez_api_proto_depIdxs = []int32{
 	34, // 0: velez_api.CreateSmerd.Request.hardware:type_name -> velez_api.Container.Hardware
@@ -1660,7 +1677,7 @@ var file_velez_api_proto_depIdxs = []int32{
 	23, // 12: velez_api.GetHardware.Response.ram:type_name -> velez_api.GetHardware.Response.Value
 	40, // 13: velez_api.MakeConnections.Request.connections:type_name -> velez_api.Connection
 	40, // 14: velez_api.BreakConnections.Request.connections:type_name -> velez_api.Connection
-	41, // 15: velez_api.ListImages.Response.images:type_name -> velez_api.ImageListItem
+	41, // 15: velez_api.SearchImages.Response.images:type_name -> velez_api.SearchImageItem
 	10, // 16: velez_api.VelezAPI.Version:input_type -> velez_api.Version.Request
 	12, // 17: velez_api.VelezAPI.CreateSmerd:input_type -> velez_api.CreateSmerd.Request
 	15, // 18: velez_api.VelezAPI.ListSmerds:input_type -> velez_api.ListSmerds.Request
@@ -1670,7 +1687,7 @@ var file_velez_api_proto_depIdxs = []int32{
 	24, // 22: velez_api.VelezAPI.AssembleConfig:input_type -> velez_api.AssembleConfig.Request
 	28, // 23: velez_api.VelezAPI.MakeConnections:input_type -> velez_api.MakeConnections.Request
 	30, // 24: velez_api.VelezAPI.BreakConnections:input_type -> velez_api.BreakConnections.Request
-	32, // 25: velez_api.VelezAPI.ListImages:input_type -> velez_api.ListImages.Request
+	32, // 25: velez_api.VelezAPI.SearchImages:input_type -> velez_api.SearchImages.Request
 	11, // 26: velez_api.VelezAPI.Version:output_type -> velez_api.Version.Response
 	39, // 27: velez_api.VelezAPI.CreateSmerd:output_type -> velez_api.Smerd
 	16, // 28: velez_api.VelezAPI.ListSmerds:output_type -> velez_api.ListSmerds.Response
@@ -1680,7 +1697,7 @@ var file_velez_api_proto_depIdxs = []int32{
 	25, // 32: velez_api.VelezAPI.AssembleConfig:output_type -> velez_api.AssembleConfig.Response
 	29, // 33: velez_api.VelezAPI.MakeConnections:output_type -> velez_api.MakeConnections.Response
 	31, // 34: velez_api.VelezAPI.BreakConnections:output_type -> velez_api.BreakConnections.Response
-	33, // 35: velez_api.VelezAPI.ListImages:output_type -> velez_api.ListImages.Response
+	33, // 35: velez_api.VelezAPI.SearchImages:output_type -> velez_api.SearchImages.Response
 	26, // [26:36] is the sub-list for method output_type
 	16, // [16:26] is the sub-list for method input_type
 	16, // [16:16] is the sub-list for extension type_name

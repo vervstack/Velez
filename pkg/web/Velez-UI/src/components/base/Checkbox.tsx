@@ -1,13 +1,13 @@
 import cls from "@/components/base/Checkbox.module.css";
-import { ChangeEventHandler, FocusEventHandler, useState } from "react";
+import { FocusEventHandler, useState} from "react";
 
 interface CheckboxProps {
     label?: string;
-    onChange: ChangeEventHandler<HTMLInputElement> | undefined;
+    onChange: (v: string) => void;
     checked: boolean;
 }
 
-export default function Checkbox({ label, onChange, checked }: CheckboxProps) {
+export default function Checkbox({label, onChange, checked}: CheckboxProps) {
     const [isFocused, setIsFocused] = useState(false);
     const showFloatingLabel = isFocused || checked;
 
@@ -23,7 +23,7 @@ export default function Checkbox({ label, onChange, checked }: CheckboxProps) {
         <div className={cls.CheckboxContainer}>
             <input
                 type="checkbox"
-                onChange={onChange}
+                onChange={(e) => onChange(e.target.value)}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 checked={checked}

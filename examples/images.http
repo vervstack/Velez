@@ -1,0 +1,8 @@
+POST {{velez}}/api/images
+Content-Type: application/json
+Grpc-Metadata-Authorization: {{key}}
+
+{
+  "name": "post",
+  "use_only_official": true
+}

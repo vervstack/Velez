@@ -5,6 +5,7 @@ import (
 
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/image"
+	"github.com/docker/docker/api/types/registry"
 	"github.com/docker/docker/client"
 	errors "go.redsock.ru/rerrors"
 
@@ -12,7 +13,7 @@ import (
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
-func ListImages(ctx context.Context, docker client.CommonAPIClient, req domain.ImageListRequest) ([]*velez_api.Image, error) {
+func ListImages(ctx context.Context, docker client.APIClient, req domain.ImageListRequest) ([]*velez_api.Image, error) {
 	dockerReq := image.ListOptions{
 		Filters: filters.NewArgs(),
 	}
@@ -36,4 +37,27 @@ func ListImages(ctx context.Context, docker client.CommonAPIClient, req domain.I
 	}
 
 	return resp, nil
+}
+
+func SearchImages(ctx context.Context, docker client.APIClient, req domain.ImageSearchRequest) ([]any, error) {
+	listReq := registry.SearchOptions{
+		RegistryAuth:  "",
+		PrivilegeFunc: nil,
+		Filters:       filters.NewArgs(),
+		Limit:         0,
+	}
+
+	if req.UseOfficialOnly {
+		listReq.Filters.Add("is-official", "true")
+	}
+
+	images, err := docker.ImageSearch(ctx, req.Term, listReq)
+	if err != nil {
+		return nil, errors.Wrap(err, "error searching images")
+	}
+
+	_ = images
+
+	return nil, nil
+
 }

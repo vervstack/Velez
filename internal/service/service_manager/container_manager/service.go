@@ -26,5 +26,6 @@ func NewContainerManager(
 		portManager: internalClients.PortManager(),
 
 		configService: configurator,
+		dockerWrapper: internalClients.Docker(),
 	}
 }

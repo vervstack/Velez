@@ -2,18 +2,31 @@
     position: relative;
     display: flex;
     flex-direction: column;
+
+    width: 100%;
 }
 
 .InputContainer input {
-    padding: 16px 12px 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: 0.75em 12px 0.75em;
+
     font-size: 16px;
     outline: none;
+
+    border: none;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-justify: distribute-center-last;
+}
+
+.InputContainer:not(.Borderless) input {
+    border: 1px solid #ccc;
+    border-radius: 4px;
     transition: border-color 0.2s;
 }
 
-.InputContainer input:focus {
+.InputContainer:not(.Borderless) input:focus {
     border-color: #007bff;
 }
 

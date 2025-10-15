@@ -1,4 +1,7 @@
-import {ListSmerdsRequest, VelezAPI} from "@vervstack/velez";
+import {
+    VelezAPI,
+    ListSmerdsRequest,
+    SearchImagesResponse} from "@vervstack/velez";
 import {InitReq} from "@/app/settings/state.ts";
 import {Port, Smerd, Volume} from "@/model/smerds/Smerds.ts";
 
@@ -40,4 +43,13 @@ export async function GetSmerd(name: string, initReq: InitReq): Promise<Smerd> {
             } as Smerd
         }
     )
+}
+
+
+export async function ListImages(name: string, initReq: InitReq): Promise<SearchImagesResponse> {
+    const req = {
+        name: name,
+    } as ListSmerdsRequest
+
+    return VelezAPI.SearchImages(req, initReq)
 }

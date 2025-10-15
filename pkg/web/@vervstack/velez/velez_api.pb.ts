@@ -20,17 +20,17 @@ export type Version = Record<string, never>;
 export type CreateSmerdRequest = {
   name?: string;
   imageName?: string;
-    hardware?: VelezApiVelezCommon.ContainerHardware;
-    settings?: VelezApiVelezCommon.ContainerSettings;
+  hardware?: VelezApiVelezCommon.ContainerHardware;
+  settings?: VelezApiVelezCommon.ContainerSettings;
   command?: string;
   env?: Record<string, string>;
-    healthcheck?: VelezApiVelezCommon.ContainerHealthcheck;
+  healthcheck?: VelezApiVelezCommon.ContainerHealthcheck;
   labels?: Record<string, string>;
   ignoreConfig?: boolean;
   useImagePorts?: boolean;
   autoUpgrade?: boolean;
-    restart?: VelezApiVelezCommon.RestartPolicy;
-    config?: VelezApiVelezCommon.MatreshkaConfigSpec;
+  restart?: VelezApiVelezCommon.RestartPolicy;
+  config?: VelezApiVelezCommon.MatreshkaConfigSpec;
 };
 
 export type CreateSmerd = Record<string, never>;
@@ -43,7 +43,7 @@ export type ListSmerdsRequest = {
 };
 
 export type ListSmerdsResponse = {
-    smerds?: VelezApiVelezCommon.Smerd[];
+  smerds?: VelezApiVelezCommon.Smerd[];
 };
 
 export type ListSmerds = Record<string, never>;
@@ -103,7 +103,7 @@ export type UpgradeSmerdResponse = Record<string, never>;
 export type UpgradeSmerd = Record<string, never>;
 
 export type MakeConnectionsRequest = {
-    connections?: VelezApiVelezCommon.Connection[];
+  connections?: VelezApiVelezCommon.Connection[];
 };
 
 export type MakeConnectionsResponse = Record<string, never>;
@@ -111,34 +111,31 @@ export type MakeConnectionsResponse = Record<string, never>;
 export type MakeConnections = Record<string, never>;
 
 export type BreakConnectionsRequest = {
-    connections?: VelezApiVelezCommon.Connection[];
+  connections?: VelezApiVelezCommon.Connection[];
 };
 
 export type BreakConnectionsResponse = Record<string, never>;
 
 export type BreakConnections = Record<string, never>;
 
-export type ListImagesRequest = {
-    useRegistry?: boolean;
+export type SearchImagesRequest = {
+  name?: string;
+  useRegistry?: boolean;
+  useOnlyOfficial?: boolean;
 };
 
-export type ListImagesResponse = {
-    images?: VelezApiVelezCommon.ImageListItem[];
+export type SearchImagesResponse = {
+  images?: VelezApiVelezCommon.SearchImageItem[];
 };
 
-export type ListImages = Record<string, never>;
+export type SearchImages = Record<string, never>;
 
 export class VelezAPI {
   static Version(this:void, req: VersionRequest, initReq?: fm.InitReq): Promise<VersionResponse> {
     return fm.fetchRequest<VersionResponse>(`/api/version?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
   }
-
-    static CreateSmerd(this: void, req: CreateSmerdRequest, initReq?: fm.InitReq): Promise<VelezApiVelezCommon.Smerd> {
-        return fm.fetchRequest<VelezApiVelezCommon.Smerd>(`/api/smerd/create`, {
-            ...initReq,
-            method: "POST",
-            body: JSON.stringify(req, fm.replacer)
-        });
+  static CreateSmerd(this:void, req: CreateSmerdRequest, initReq?: fm.InitReq): Promise<VelezApiVelezCommon.Smerd> {
+    return fm.fetchRequest<VelezApiVelezCommon.Smerd>(`/api/smerd/create`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
   static ListSmerds(this:void, req: ListSmerdsRequest, initReq?: fm.InitReq): Promise<ListSmerdsResponse> {
     return fm.fetchRequest<ListSmerdsResponse>(`/api/smerd/list`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
@@ -161,11 +158,7 @@ export class VelezAPI {
   static BreakConnections(this:void, req: BreakConnectionsRequest, initReq?: fm.InitReq): Promise<BreakConnectionsResponse> {
     return fm.fetchRequest<BreakConnectionsResponse>(`/api/smerd/disconnect`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
-
-    static ListImages(this: void, req: ListImagesRequest, initReq?: fm.InitReq): Promise<ListImagesResponse> {
-        return fm.fetchRequest<ListImagesResponse>(`/api/images?${fm.renderURLSearchParams(req, [])}`, {
-            ...initReq,
-            method: "GET"
-        });
-    }
+  static SearchImages(this:void, req: SearchImagesRequest, initReq?: fm.InitReq): Promise<SearchImagesResponse> {
+    return fm.fetchRequest<SearchImagesResponse>(`/api/images`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
 }

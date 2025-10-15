@@ -72,13 +72,13 @@
       }
     },
     "/api/images": {
-      "get": {
-        "operationId": "VelezAPI_ListImages",
+      "post": {
+        "operationId": "VelezAPI_SearchImages",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/velez_apiListImagesResponse"
+              "$ref": "#/definitions/velez_apiSearchImagesResponse"
             }
           },
           "default": {
@@ -90,10 +90,12 @@
         },
         "parameters": [
           {
-            "name": "useRegistry",
-            "in": "query",
-            "required": false,
-            "type": "boolean"
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiSearchImagesRequest"
+            }
           }
         ],
         "tags": [
@@ -632,32 +634,6 @@
         }
       }
     },
-    "velez_apiImageListItem": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "imageUrl": {
-          "type": "string"
-        },
-        "latestTag": {
-          "type": "string"
-        }
-      }
-    },
-    "velez_apiListImagesResponse": {
-      "type": "object",
-      "properties": {
-        "images": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/velez_apiImageListItem"
-          }
-        }
-      }
-    },
     "velez_apiListSmerdsRequest": {
       "type": "object",
       "properties": {
@@ -779,6 +755,46 @@
         "on_failure"
       ],
       "default": "unless_stopped"
+    },
+    "velez_apiSearchImageItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "imageUrl": {
+          "type": "string"
+        },
+        "latestTag": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiSearchImagesRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "useRegistry": {
+          "type": "boolean"
+        },
+        "useOnlyOfficial": {
+          "type": "boolean"
+        }
+      }
+    },
+    "velez_apiSearchImagesResponse": {
+      "type": "object",
+      "properties": {
+        "images": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiSearchImageItem"
+          }
+        }
+      }
     },
     "velez_apiSmerd": {
       "type": "object",

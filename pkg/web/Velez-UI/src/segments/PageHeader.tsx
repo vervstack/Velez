@@ -25,7 +25,8 @@ export default function PageHeader() {
         },
     ]
 
-    function searchSmerd() {
+    function searchSmerd(v: string) {
+        console.log(v)
     }
 
 
@@ -51,7 +52,7 @@ export default function PageHeader() {
                 })}
 
                 <div className={cls.NavElement}>
-                    <Input onChange={searchSmerd} value={''}/>
+                    <Input onChange={searchSmerd} inputValue={''}/>
                 </div>
             </div>
         </div>

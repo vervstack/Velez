@@ -61,20 +61,20 @@ export default function SettingsWidget() {
             <div className={cls.SettingsClause}>
                 <p>Backend url:</p>
                 <Input
-                    onChange={(e) => {
-                        settings.setBackendUrl(e.target.value)
+                    onChange={(v) => {
+                        settings.setBackendUrl(v)
                     }}
-                    value={settings.backendUrl}
+                    inputValue={settings.backendUrl}
                 />
             </div>
 
             <div className={cls.SettingsClause}>
                 <p>Auth header:</p>
                 <Input
-                    onChange={(e) => {
-                        settings.setAuthHeader(e.target.value)
+                    onChange={(v) => {
+                        settings.setAuthHeader(v)
                     }}
-                    value={settings.authHeader}
+                    inputValue={settings.authHeader}
                 />
             </div>
         </div>

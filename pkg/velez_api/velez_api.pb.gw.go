@@ -266,38 +266,30 @@ func local_request_VelezAPI_BreakConnections_0(ctx context.Context, marshaler ru
 	return msg, metadata, err
 }
 
-var filter_VelezAPI_ListImages_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-
-func request_VelezAPI_ListImages_0(ctx context.Context, marshaler runtime.Marshaler, client VelezAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_VelezAPI_SearchImages_0(ctx context.Context, marshaler runtime.Marshaler, client VelezAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq ListImages_Request
+		protoReq SearchImages_Request
 		metadata runtime.ServerMetadata
 	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_VelezAPI_ListImages_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	msg, err := client.ListImages(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.SearchImages(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_VelezAPI_ListImages_0(ctx context.Context, marshaler runtime.Marshaler, server VelezAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_VelezAPI_SearchImages_0(ctx context.Context, marshaler runtime.Marshaler, server VelezAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq ListImages_Request
+		protoReq SearchImages_Request
 		metadata runtime.ServerMetadata
 	)
-	if err := req.ParseForm(); err != nil {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_VelezAPI_ListImages_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	msg, err := server.ListImages(ctx, &protoReq)
+	msg, err := server.SearchImages(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -487,25 +479,25 @@ func RegisterVelezAPIHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 		forward_VelezAPI_BreakConnections_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_VelezAPI_ListImages_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_VelezAPI_SearchImages_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.VelezAPI/ListImages", runtime.WithHTTPPathPattern("/api/images"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.VelezAPI/SearchImages", runtime.WithHTTPPathPattern("/api/images"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_VelezAPI_ListImages_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_VelezAPI_SearchImages_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_VelezAPI_ListImages_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_VelezAPI_SearchImages_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
@@ -700,22 +692,22 @@ func RegisterVelezAPIHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 		forward_VelezAPI_BreakConnections_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_VelezAPI_ListImages_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_VelezAPI_SearchImages_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.VelezAPI/ListImages", runtime.WithHTTPPathPattern("/api/images"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.VelezAPI/SearchImages", runtime.WithHTTPPathPattern("/api/images"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_VelezAPI_ListImages_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_VelezAPI_SearchImages_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_VelezAPI_ListImages_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_VelezAPI_SearchImages_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	return nil
 }
@@ -730,7 +722,7 @@ var (
 	pattern_VelezAPI_AssembleConfig_0   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "config", "assemble"}, ""))
 	pattern_VelezAPI_MakeConnections_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "smerd", "connect"}, ""))
 	pattern_VelezAPI_BreakConnections_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "smerd", "disconnect"}, ""))
-	pattern_VelezAPI_ListImages_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "images"}, ""))
+	pattern_VelezAPI_SearchImages_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"api", "images"}, ""))
 )
 
 var (
@@ -743,5 +735,5 @@ var (
 	forward_VelezAPI_AssembleConfig_0   = runtime.ForwardResponseMessage
 	forward_VelezAPI_MakeConnections_0  = runtime.ForwardResponseMessage
 	forward_VelezAPI_BreakConnections_0 = runtime.ForwardResponseMessage
-	forward_VelezAPI_ListImages_0       = runtime.ForwardResponseMessage
+	forward_VelezAPI_SearchImages_0     = runtime.ForwardResponseMessage
 )

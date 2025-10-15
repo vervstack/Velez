@@ -6,6 +6,7 @@ import (
 	"go.redsock.ru/evon"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
 
+	"go.vervstack.ru/Velez/internal/clients"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
@@ -13,6 +14,8 @@ import (
 type Services interface {
 	SmerdManager() ContainerService
 	ConfigurationService() ConfigurationService
+
+	Docker() clients.Docker
 }
 
 type ContainerService interface {

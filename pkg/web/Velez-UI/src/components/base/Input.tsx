@@ -1,35 +1,49 @@
 import cls from "@/components/base/Input.module.css";
-import { ChangeEventHandler, FocusEventHandler, useState } from "react";
+import {FocusEventHandler, useEffect, useState} from "react";
+import cn from "classnames";
+
+export interface StyleProps {
+    borderless?: boolean
+}
 
 interface InputProps {
     label?: string;
-    onChange: ChangeEventHandler<HTMLInputElement> | undefined;
-    value: string | number;
+    onChange?: (v: string) => void;
+    onLeave?: (val: string) => void
+    inputValue?: string | null;
+
+    style?: StyleProps
 }
 
-export default function Input({ label, onChange, value }: InputProps) {
+export default function Input({label, onChange, inputValue, style, onLeave}: InputProps) {
     const [isFocused, setIsFocused] = useState(false);
+
+    const [value, setValue] = useState(inputValue || '');
+
+    useEffect(() => {
+        if (onChange) onChange(value)
+    }, [value]);
+
     const hasValue = value !== undefined && value !== null && value.toString().length > 0;
     const showFloatingLabel = isFocused || hasValue;
 
     const handleFocus: FocusEventHandler<HTMLInputElement> = () => {
         setIsFocused(true);
-        // Call original onFocus if exists
-        if (typeof onChange === 'function') {
-            // We need to simulate focus event - but onChange is for change events
-            // This is a limitation of the current interface
-        }
     };
 
     const handleBlur: FocusEventHandler<HTMLInputElement> = () => {
         setIsFocused(false);
-        // Call original onBlur if exists (not in current interface)
+        if (onLeave) onLeave(value)
     };
 
     return (
-        <div className={cls.InputContainer}>
+        <div
+            className={cn(cls.InputContainer, {
+                [cls.Borderless]: style?.borderless
+            })}
+        >
             <input
-                onChange={onChange}
+                onChange={(e) => setValue(e.target.value)}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 value={value}

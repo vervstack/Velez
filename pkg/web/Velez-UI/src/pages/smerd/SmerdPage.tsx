@@ -8,8 +8,8 @@ import {Smerd} from "@/model/smerds/Smerds.ts";
 import useSettings from "@/app/settings/state.ts";
 
 import Loader from "@/components/Loader.tsx";
-import PortsWidget from "@/widgets/ports/PortsWidget.tsx";
-import VolumesWidget from "@/widgets/volume/VolumesWidget.tsx";
+import PortsWidget from "@/widgets/PortsWidget.tsx";
+import VolumesWidget from "@/widgets/VolumesWidget.tsx";
 
 export default function SmerdPage() {
     const [smerdInfo, setSmerdInfo] = useState<Smerd>()

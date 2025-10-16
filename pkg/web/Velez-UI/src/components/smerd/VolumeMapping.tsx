@@ -1,5 +1,3 @@
-import {Tooltip} from "react-tooltip";
-
 import cls from "@/components/smerd/VolumeMapping.module.css";
 
 import ArrowForward from "@/assets/icons/ArrowForward.svg";
@@ -12,7 +10,6 @@ interface VolumeMappingProps {
 }
 
 export default function VolumeMapping({containerPath, volumeName, onChange}: VolumeMappingProps) {
-
     const handleContainerPath = onChange ? (v: string) => onChange(v, volumeName) : undefined
     const handleVolumeName = onChange ? (v: string) => onChange(containerPath, v) : undefined
 
@@ -22,7 +19,7 @@ export default function VolumeMapping({containerPath, volumeName, onChange}: Vol
                 <div
                     className={cls.Volume}
 
-                    data-tooltip-id={"open-port"}
+                    data-tooltip-id={"tooltip"}
                     data-tooltip-content="Container path"
                     data-tooltip-place="top"
                 >
@@ -40,7 +37,7 @@ export default function VolumeMapping({containerPath, volumeName, onChange}: Vol
 
                 <div
                     className={cls.Volume}
-                    data-tooltip-id={"open-port"}
+                    data-tooltip-id={"tooltip"}
                     data-tooltip-content="Host path"
                     data-tooltip-place="bottom"
                 >
@@ -50,10 +47,6 @@ export default function VolumeMapping({containerPath, volumeName, onChange}: Vol
                     />
                 </div>
             </div>
-
-            <Tooltip
-                id={"open-port"}
-            />
         </div>
     )
 }

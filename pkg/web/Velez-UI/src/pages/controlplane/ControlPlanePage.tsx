@@ -12,13 +12,16 @@ import Loader from "@/components/Loader.tsx";
 import {useNavigate} from "react-router-dom";
 import {Routes} from "@/app/router/Router.tsx";
 import {fromProto} from "@/model/smerds/Smerds.ts";
+import {onUserReturn} from "@/helpers/focus.ts";
 
 export default function ControlPlanePage() {
     const [activeComponents, setActiveComponents] =
         useState<Service[]>([]);
+
     const [inactiveComponents, setInactiveComponents] =
         useState<Service[]>([]);
 
+    onUserReturn(listServices)
 
     const [isLoading, setIsLoading] = useState(true)
 
@@ -27,14 +30,19 @@ export default function ControlPlanePage() {
 
     useEffect(() => {
         setIsLoading(true)
+
+        setInterval(listServices, 1000)
+    }, []);
+
+
+    function listServices() {
         ListServices(settings.initReq())
             .then((r) => {
                 setActiveComponents(r.active)
                 setInactiveComponents(r.inactive)
             })
             .then(() => setIsLoading(false))
-    }, []);
-
+    }
 
     if (isLoading) {
         return (

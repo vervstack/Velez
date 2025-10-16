@@ -64,6 +64,7 @@ func NewTask[T any](req NewTaskRequest[T]) (*Task[T], error) {
 			},
 		},
 		dockerAPI: dockerAPI,
+		docker:    req.NodeClients.Docker(),
 	}
 	ctx := context.Background()
 

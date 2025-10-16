@@ -95,10 +95,3 @@
     align-items: center;
     gap: 0.25em;
 }
-
-.InfoMarkTooltip {
-    width: 1em;
-    height: 100%;
-
-    cursor: help;
-}

@@ -1,7 +1,6 @@
 import cls from "@/widgets/deploy/DeployWidget.module.css"
-import InfoMark from "@/assets/icons/InfoMark.svg";
+import InfoMark from "@/components/base/InfoMark.tsx";
 
-import {Tooltip} from "react-tooltip";
 import {useState} from "react";
 import ReactJsonView from '@microlink/react-json-view'
 
@@ -9,24 +8,28 @@ import Input from "@/components/base/Input.tsx";
 import Checkbox from "@/components/base/Checkbox.tsx";
 import Search from "@/components/base/Search.tsx";
 import PlainMap from "@/components/base/PlainMap.tsx";
-import PortsWidget from "@/widgets/ports/PortsWidget.tsx";
+import PortsWidget from "@/widgets/PortsWidget.tsx";
+import VolumesWidget from "@/widgets/VolumesWidget.tsx";
 
-import {CreateSmerdReq, Port, Volume} from "@/model/smerds/Smerds.ts";
-import VolumesWidget from "@/widgets/volume/VolumesWidget.tsx";
-import {DeploySmerd} from "@/processes/api/velez.ts";
+import {CreateSmerdReq, Port, Smerd, Volume} from "@/model/smerds/Smerds.ts";
 import useSettings from "@/app/settings/state.ts";
+import {DeploySmerd} from "@/processes/api/velez.ts";
 
 interface DeployWidgetProps {
     createSmerdReq?: CreateSmerdReq;
+
+    afterDeploy?: (req: CreateSmerdReq, smerd: Smerd) => void;
 }
 
-export default function DeployWidget({createSmerdReq}: DeployWidgetProps) {
+export default function DeployWidget({createSmerdReq, afterDeploy}: DeployWidgetProps) {
+    const settings = useSettings();
+
     const [req, setReq] =
         useState<CreateSmerdReq>(createSmerdReq || new CreateSmerdReq());
 
-    const settings = useSettings();
-
-    const updateField = (field: keyof CreateSmerdReq, value: string | boolean | null | Record<string, string> | Port[] | Volume[]) => {
+    const updateField = (
+        field: keyof CreateSmerdReq,
+        value: string | boolean | null | Record<string, string> | Port[] | Volume[]) => {
         setReq(prev => ({
             ...prev,
             [field]: value
@@ -51,6 +54,11 @@ export default function DeployWidget({createSmerdReq}: DeployWidgetProps) {
 
     function deploy() {
         DeploySmerd(req, settings.initReq())
+            .then((smerd: Smerd) => {
+                if (afterDeploy) {
+                    afterDeploy(req, smerd)
+                }
+            })
     }
 
     return (
@@ -73,20 +81,16 @@ export default function DeployWidget({createSmerdReq}: DeployWidgetProps) {
                         inputValue={req.command}
                         onChange={stringFieldUpdater("command")}
                     />
+
                     <div className={cls.CheckboxWrapper}>
                         <Checkbox
                             label="Ignore Matreshka Config"
                             onChange={booleanFieldUpdater("ignoreConfig")}
                             checked={req.ignoreConfig || false}/>
 
-                        <div className={cls.InfoMarkTooltip}>
-                            <img
-                                src={InfoMark}
-                                alt={'?'}
-                                data-tooltip-id={"deploy-tooltip"}
-                                data-tooltip-content="When deployed will be using default configuration from the inside of an image"
-                            />
-                        </div>
+                        <InfoMark
+                            tooltip={"When deployed will be using default configuration from the inside of an image"}
+                        />
                     </div>
 
                     <div className={cls.CheckboxWrapper}>
@@ -95,14 +99,8 @@ export default function DeployWidget({createSmerdReq}: DeployWidgetProps) {
                             onChange={booleanFieldUpdater("useImagePorts")}
                             checked={req.useImagePorts || false}/>
 
-                        <div className={cls.InfoMarkTooltip}>
-                            <img
-                                src={InfoMark}
-                                alt={'?'}
-                                data-tooltip-id={"deploy-tooltip"}
-                                data-tooltip-content="When checked - exposes all ports that image expose"
-                            />
-                        </div>
+                        <InfoMark
+                            tooltip={"When checked - exposes all ports that image expose"}/>
                     </div>
 
                     <div className={cls.CheckboxWrapper}>
@@ -111,14 +109,8 @@ export default function DeployWidget({createSmerdReq}: DeployWidgetProps) {
                             onChange={booleanFieldUpdater("autoUpgrade")}
                             checked={req.autoUpgrade || false}/>
 
-                        <div className={cls.InfoMarkTooltip}>
-                            <img
-                                src={InfoMark}
-                                alt={'?'}
-                                data-tooltip-id={"deploy-tooltip"}
-                                data-tooltip-content="When checked automatically syncs new version of image and upgrades to it"
-                            />
-                        </div>
+                        <InfoMark
+                            tooltip={"When checked automatically syncs new version of image and upgrades to it"}/>
                     </div>
 
                     <div>
@@ -141,31 +133,25 @@ export default function DeployWidget({createSmerdReq}: DeployWidgetProps) {
                         />
                     </div>
 
-                    <div>
-                        <PortsWidget
-                            ports={req.ports}
-                            onChange={(p) => {
-                                updateField('ports', p)
-                            }}
-                        />
-                    </div>
+                    <PortsWidget
+                        ports={req.ports}
+                        onChange={(p) => {
+                            updateField('ports', p)
+                        }}
+                    />
 
-                    <div>
-                        <VolumesWidget
-                            volumes={req.volumes}
-                            onChange={(v) => {
-                                updateField('volumes', v)
-                            }}
-                        />
-                    </div>
-                    <div>
-                        <VolumesWidget
-                            volumes={req.binds}
-                            onChange={(v) => {
-                                updateField('binds', v)
-                            }}
-                        />
-                    </div>
+                    <VolumesWidget
+                        volumes={req.volumes}
+                        onChange={(v) => {
+                            updateField('volumes', v)
+                        }}
+                    />
+                    <VolumesWidget
+                        volumes={req.binds}
+                        onChange={(v) => {
+                            updateField('binds', v)
+                        }}
+                    />
                 </div>
                 <div className={cls.VervConfigBlock}>
                     <ReactJsonView
@@ -193,11 +179,9 @@ export default function DeployWidget({createSmerdReq}: DeployWidgetProps) {
             <div className={cls.Controls}>
                 <button
                     onClick={deploy}
-                    className={cls.DeployButton}>Deploy</button>
+                    className={cls.DeployButton}>Deploy
+                </button>
             </div>
-            <Tooltip
-                id={"deploy-tooltip"}
-            />
         </div>
     );
 }

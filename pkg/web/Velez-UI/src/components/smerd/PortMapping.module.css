@@ -39,7 +39,7 @@
 
 }
 
-.OpenPortButton {
+.ActionButton {
     cursor: pointer;
     width: var(--action-button-size);
     height: var(--action-button-size);
@@ -51,7 +51,7 @@
     align-items: start;
 }
 
-.OpenPortButton:hover {
+.ActionButton:hover {
     color: darkcyan;
     scale: 1.1;
 }

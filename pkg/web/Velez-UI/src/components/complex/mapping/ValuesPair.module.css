@@ -13,13 +13,6 @@
     box-sizing: border-box;
 }
 
-.ValuesPair {
-    width: 100%;
-    display: flex;
-
-    justify-content: center;
-    align-items: center;
-}
 
 .Value {
     width: 100%;
@@ -29,12 +22,6 @@
     justify-content: center;
     align-items: center;
 }
-
-.ActionButton {
-    width: 1em;
-    height: 1em;
-}
-
 
 .MapArrow {
     width: 1em;

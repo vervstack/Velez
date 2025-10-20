@@ -1,7 +1,7 @@
 import {Volume} from "@/model/smerds/Smerds.ts";
 
-import VolumeMapping from "@/components/smerd/VolumeMapping.tsx";
 import ValuesMapping from "@/components/complex/mapping/ValuesMapping.tsx";
+import ValuesPair from "@/components/complex/mapping/ValuesPair.tsx";
 
 interface VolumesWidgetProps {
     volumes: Volume[],
@@ -9,7 +9,6 @@ interface VolumesWidgetProps {
 }
 
 export default function VolumesWidget({volumes, onChange}: VolumesWidgetProps) {
-
     function addVolume() {
         if (!onChange) return
 
@@ -20,9 +19,9 @@ export default function VolumesWidget({volumes, onChange}: VolumesWidgetProps) {
     function onIndexUpdate(i: number) {
         if (!onChange) return undefined
 
-        return (newContainerPath: string, newVolumeName: string) => {
+        return (newContainerPath: string, newVolumeName: string | undefined) => {
             volumes[i].containerPath = newContainerPath
-            volumes[i].virtualVolume = newVolumeName
+            volumes[i].virtualVolume = newVolumeName || ""
             onChange(volumes)
         }
     }
@@ -41,9 +40,9 @@ export default function VolumesWidget({volumes, onChange}: VolumesWidgetProps) {
             header={'Volumes'}>
             {
                 volumes.map((v, i) =>
-                    <VolumeMapping
-                        containerPath={v.containerPath}
-                        volumeName={v.virtualVolume}
+                    <ValuesPair
+                        name={v.containerPath}
+                        value={v.virtualVolume}
                         onChange={onIndexUpdate(i)}
                     />
                 )

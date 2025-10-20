@@ -2,6 +2,7 @@ import {
     CreateSmerdRequest,
     Volume as ProtoVolume,
     Port as ProtoPort,
+    Bind as ProtoBind
 } from "@vervstack/velez";
 
 export interface Smerd {
@@ -22,6 +23,11 @@ export interface Volume {
     virtualVolume: string
 }
 
+export interface Bind {
+    containerPath: string
+    hostPath: string
+}
+
 export class CreateSmerdReq {
     name: string = ''
     imageName: string = ''
@@ -36,7 +42,7 @@ export class CreateSmerdReq {
 
     ports: Port[] = []
     volumes: Volume[] = []
-    binds: Volume[] = []
+    binds: Bind[] = []
 
     constructor() {
     }
@@ -62,14 +68,8 @@ export function fromProto(proto: CreateSmerdRequest | undefined): CreateSmerdReq
 
     smerdReq.volumes = fromProtoVolumes(proto.settings?.volumes) || smerdReq.volumes
     smerdReq.ports = fromProtoPorts(proto.settings?.ports) || smerdReq.ports
-    smerdReq.binds = proto.settings?.binds?.map((v) => {
-        if (!v.containerPath) return undefined
+    smerdReq.binds = fromProtoBindings(proto.settings?.binds) || smerdReq.binds
 
-        return {
-            containerPath: v.containerPath,
-            virtualVolume: v.hostPath,
-        } as Volume
-    }).filter((v) => v != undefined) || smerdReq.binds
     return smerdReq
 }
 
@@ -95,7 +95,7 @@ export function toProto(r: CreateSmerdReq): CreateSmerdRequest {
                 }
             }),
             network: undefined,
-            volumes: r.volumes.map(p=>{
+            volumes: r.volumes.map(p => {
                 return {
                     containerPath: p.containerPath,
                     volumeName: p.virtualVolume,
@@ -104,7 +104,7 @@ export function toProto(r: CreateSmerdReq): CreateSmerdRequest {
             binds: r.binds.map(p => {
                 return {
                     containerPath: p.containerPath,
-                    hostPath: p.virtualVolume,
+                    hostPath: p.hostPath,
                 }
             }),
         },
@@ -116,13 +116,10 @@ export function toProto(r: CreateSmerdReq): CreateSmerdRequest {
 
 
 function fromProtoVolumes(v: ProtoVolume[] | undefined): Volume[] {
-    if (!v) return []
-
-    return v
+    return (v || [])
         .map(fromProtoVolume)
         .filter(v => v != undefined)
 }
-
 
 function fromProtoVolume(v: ProtoVolume): Volume | undefined {
     if (!v.containerPath || !v.volumeName) return
@@ -135,9 +132,7 @@ function fromProtoVolume(v: ProtoVolume): Volume | undefined {
 
 
 function fromProtoPorts(ports: ProtoPort[] | undefined): Port[] {
-    if (!ports) return [];
-
-    return ports
+    return (ports || [])
         .map(fromProtoPort)
         .filter((port): port is Port => port !== undefined);
 }
@@ -149,4 +144,20 @@ function fromProtoPort(port: ProtoPort): Port | undefined {
         servicePort: port.servicePortNumber,
         exposedPort: port.exposedTo || null,
     };
+}
+
+
+function fromProtoBindings(bindins: ProtoBind[] | undefined): Bind[] {
+    return (bindins || [])
+        .map(fromProtoBinding)
+        .filter((v) => v != undefined)
+}
+
+function fromProtoBinding(bind: ProtoBind): Bind | undefined {
+    if (!bind) return
+
+    return {
+        containerPath: bind.containerPath,
+        hostPath: bind.hostPath,
+    } as Bind
 }

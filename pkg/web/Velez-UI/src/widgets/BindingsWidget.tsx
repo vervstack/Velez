@@ -1,49 +1,48 @@
-import {Volume} from "@/model/smerds/Smerds.ts";
+import {Bind} from "@/model/smerds/Smerds.ts";
 
-import VolumeMapping from "@/components/smerd/VolumeMapping.tsx";
 import ValuesMapping from "@/components/complex/mapping/ValuesMapping.tsx";
+import ValuesPair from "@/components/complex/mapping/ValuesPair.tsx";
 
-interface VolumesWidgetProps {
-    volumes: Volume[],
-    onChange?: (v: Volume[]) => void
+interface BindingsWidgetProps {
+    bindings: Bind[],
+    onChange?: (v: Bind[]) => void
 }
 
-export default function VolumesWidget({volumes, onChange}: VolumesWidgetProps) {
-
-    function addVolume() {
+export default function BindingWidget({bindings, onChange}: BindingsWidgetProps) {
+    function addBind() {
         if (!onChange) return
 
-        onChange(volumes)
-        volumes.push({containerPath: '', virtualVolume: ''})
+        onChange(bindings)
+        bindings.push({containerPath: '', hostPath: ''})
     }
 
     function onIndexUpdate(i: number) {
         if (!onChange) return undefined
 
-        return (newContainerPath: string, newVolumeName: string) => {
-            volumes[i].containerPath = newContainerPath
-            volumes[i].virtualVolume = newVolumeName
-            onChange(volumes)
+        return (name: string, value: string | undefined) => {
+            bindings[i].containerPath = name
+            bindings[i].hostPath = value || ''
+            onChange(bindings)
         }
     }
 
     function onIndexDelete(i: number) {
         if (!onChange) return undefined
 
-        volumes = volumes.filter((_, index) => index != i)
-        onChange(volumes)
+        bindings = bindings.filter((_, index) => index != i)
+        onChange(bindings)
     }
 
     return (
         <ValuesMapping
-            onAdd={addVolume}
+            onAdd={addBind}
             onDelete={onIndexDelete}
             header={'Bindings'}>
             {
-                volumes.map((v, i) =>
-                    <VolumeMapping
-                        containerPath={v.containerPath}
-                        volumeName={v.virtualVolume}
+                bindings.map((v, i) =>
+                    <ValuesPair
+                        name={v.containerPath}
+                        value={v.hostPath}
                         onChange={onIndexUpdate(i)}
                     />
                 )

@@ -2,14 +2,16 @@ import {useNavigate} from "react-router-dom";
 import {useEffect, useRef, useState} from "react";
 
 import cls from "@/segments/PageHeader.module.css";
-
 import VelezIcon from "@/assets/icons/services/velez.svg";
+
 import {Routes} from "@/app/router/Router.tsx";
 
 import {ListSmerdsRequest} from "@vervstack/velez";
+
 import {ListSmerds} from "@/processes/api/velez.ts";
 import useSettings from "@/app/settings/state.ts";
 import {SuggestElem} from "@/model/common/suggest.ts";
+
 import InputSearch from "@/components/complex/search/InputSearch.tsx";
 
 interface NavigationUnit {
@@ -42,6 +44,7 @@ export default function PageHeader() {
         const req = {
             name: search,
         } as ListSmerdsRequest;
+
         ListSmerds(req, settings.initReq())
             .then((r) => {
                 const suggests = (r.smerds || []).map((s) => {

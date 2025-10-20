@@ -16,7 +16,7 @@ root, body {
 }
 
 :root {
-    --main-bg-color: #ffffff;
+    --main-bg-color: rgba(255, 255, 255, 1);
     --secondary-bg-color: rgba(10, 183, 238, 0.65);
     --thirdly-bg-color: rgb(0, 207, 255);
     --header-color: rgba(255, 237, 237, 100%);

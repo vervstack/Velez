@@ -1,6 +1,7 @@
 ### Create standalone smerd (verv - requires matreshka config)
 POST {{velez}}/api/smerd/create
 Content-Type: application/json
+Grpc-Metadata-Authorization: {{key}}
 
 {
   "name": "hello_world",
@@ -18,8 +19,18 @@ Content-Type: application/json
 ### Fetch config
 POST {{velez}}/api/smerd/fetch-config
 Content-Type: application/json
+Grpc-Metadata-Authorization: {{key}}
 
 {
   "image_name": "godverv/hello_world:v0.0.12",
   "service_name": "hello_world"
+}
+
+### List active smerds
+POST {{velez}}/api/smerd/list
+Content-Type: application/json
+Grpc-Metadata-Authorization: {{key}}
+
+{
+  "name": ""
 }

@@ -6,7 +6,7 @@ export interface StyleProps {
     borderless?: boolean
 }
 
-interface InputProps {
+export interface InputProps {
     label?: string;
     onChange?: (v: string) => void;
     onLeave?: (val: string) => void

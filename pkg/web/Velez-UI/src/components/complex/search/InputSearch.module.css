@@ -1,0 +1,42 @@
+.InputSearchContainer {
+    width: 100%;
+    height: 100%;
+
+    position: relative;
+
+    .SuggestionList {
+        position: absolute;
+        background: var(--main-bg-color);
+        top: 100%;
+        left: 0;
+        width: 100%;
+        border: 1px solid var(--secondary-bg-color);
+
+        border-radius: 0.5em;
+        padding: 0.25em;
+        box-sizing: border-box;
+
+        display: none;
+
+        .Item {
+            width: 100%;
+            background: var(--main-bg-color);
+            cursor: pointer;
+            padding: 0.35em;
+            box-sizing: border-box;
+            border-radius: 0.25em;
+
+            &:hover {
+                background: var(--secondary-bg-color);
+            }
+        }
+
+        &.Open {
+            display: flex;
+            flex-direction: column;
+
+            gap: 0.5em;
+        }
+
+    }
+}

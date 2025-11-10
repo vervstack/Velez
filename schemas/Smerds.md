@@ -21,3 +21,9 @@ sequenceDiagram
     Velez->>ContainerApi: Remove old container
     
 ```
+
+## Engines
+
+Currently supported only native docker API
+
+Target is to support k8s (and microK8s as well) + automated helms

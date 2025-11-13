@@ -39,7 +39,9 @@ export default function InputSearch(props: InputSearchProps) {
 
     return (
         <div className={cls.InputSearchContainer}>
-            <div onClick={() => setIsSuggestOpen(true)}>
+            <div
+                className={cls.Input}
+                onClick={() => setIsSuggestOpen(true)}>
                 <Input {...props}/>
             </div>
             <div

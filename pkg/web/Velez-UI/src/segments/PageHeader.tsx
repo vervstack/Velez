@@ -96,14 +96,18 @@ export default function PageHeader() {
                 })}
 
                 <div className={cls.NavElement}>
-                    <InputSearch
-                        inputValue={search}
-                        onChange={setSearch}
-                        suggests={suggestList}
-                        onSuggestDismiss={startSearchQueryRemover}
-                    />
+                    <div className={cls.ServiceSearch}>
+                        <InputSearch
+                            inputValue={search}
+                            onChange={setSearch}
+                            suggests={suggestList}
+                            onSuggestDismiss={startSearchQueryRemover}
+                        />
+                    </div>
                 </div>
             </div>
+
+            <div className={cls.Settings}>Settings</div>
         </div>
     )
 }

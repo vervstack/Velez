@@ -66,22 +66,28 @@ export default function DeployWidget({createSmerdReq, afterDeploy}: DeployWidget
         <div className={cls.DeployWidgetContainer}>
             <div className={cls.InputAndDisplay}>
                 <div className={cls.ConfigurationInputs}>
-                    <Input
-                        label="Name"
-                        inputValue={req.name}
-                        onChange={stringFieldUpdater("name")}
-                    />
-                    <Search
-                        label="Image"
-                        value={req.imageName}
-                        onChange={stringFieldUpdater("imageName")}
-                    />
+                    <div className={cls.InputWrapper}>
+                        <Input
+                            label="Name"
+                            inputValue={req.name}
+                            onChange={stringFieldUpdater("name")}
+                        />
+                    </div>
+                    <div className={cls.InputWrapper}>
+                        <Search
+                            label="Image"
+                            value={req.imageName}
+                            onChange={stringFieldUpdater("imageName")}
+                        />
+                    </div>
 
-                    <Input
-                        label="Command"
-                        inputValue={req.command}
-                        onChange={stringFieldUpdater("command")}
-                    />
+                    <div className={cls.InputWrapper}>
+                        <Input
+                            label="Command"
+                            inputValue={req.command}
+                            onChange={stringFieldUpdater("command")}
+                        />
+                    </div>
 
                     <div className={cls.CheckboxWrapper}>
                         <Checkbox

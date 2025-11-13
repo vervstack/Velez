@@ -1,11 +1,11 @@
 import {useEffect, useState} from "react";
 
-interface SettingsBase {
+export interface SettingsBase {
     backendUrl: string
     authHeader: string;
 }
 
-interface Settings extends SettingsBase {
+export interface Settings extends SettingsBase {
     setBackendUrl: (url: string) => void
     setAuthHeader: (h: string) => void;
 

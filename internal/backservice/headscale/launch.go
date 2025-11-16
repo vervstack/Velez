@@ -11,21 +11,17 @@ import (
 	rtb "go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/toolbox/keep_alive"
-	version "go.vervstack.ru/makosh/config"
 	pb "go.vervstack.ru/makosh/pkg/makosh_be"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 
 	"go.vervstack.ru/Velez/internal/backservice/env/container_service_task"
 	"go.vervstack.ru/Velez/internal/clients"
 	"go.vervstack.ru/Velez/internal/clients/makosh"
 	"go.vervstack.ru/Velez/internal/config"
-	"go.vervstack.ru/Velez/internal/middleware/security"
 )
 
 const (
-	Name             = "headscale"
-	defaultImageBase = "docker.io/headscale/headscale:v0"
+	Name         = "headscale"
+	defaultImage = "docker.io/headscale/headscale:v0"
 )
 
 var initModeSync = sync.Once{}
@@ -53,7 +49,7 @@ func launch(
 		ContainerName: Name,
 		NodeClients:   nodeClients,
 
-		ImageName:  rtb.Coalesce(cfg.Environment.MakoshImage, image),
+		ImageName:  rtb.Coalesce(cfg.Environment.MakoshImage, defaultImage),
 		AccessPort: grpcPort,
 		ExposedPorts: map[string]string{
 			grpcPort: "",

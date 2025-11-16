@@ -20,6 +20,9 @@ environment:
     - name: disable_api_security
       type: bool
       value: false
+    - name: headscale_image
+      type: string
+      value: headscale/headscale:latest
     - name: is_headtail_enabled
       type: bool
       value: true

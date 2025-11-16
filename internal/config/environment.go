@@ -7,6 +7,7 @@ type EnvironmentConfig struct {
 	CPUDefault         float64
 	CustomPassToKey    string
 	DisableAPISecurity bool
+	HeadscaleImage     string
 	IsHeadtailEnabled  bool
 	LogFormat          string
 	LogLevel           string

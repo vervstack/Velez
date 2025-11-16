@@ -21,14 +21,12 @@ import (
 type NewTaskRequest[T any] struct {
 	NodeClients clients.NodeClients
 
-	CreateClient func(t *Task[T]) (*ApiClient[T], error)
-
 	ContainerName string
 	ImageName     string
 
 	ExposedPorts map[string]string //container->host
 
-	Healthcheck  func(client T) bool
+	Healthcheck  func(client *Task[T]) bool
 	Env          map[string]string
 	VolumeMounts map[string][]string // volume-name->container-file-path
 }
@@ -41,8 +39,7 @@ func NewTask[T any](req NewTaskRequest[T]) (*Task[T], error) {
 	dockerAPI := req.NodeClients.Docker().Client()
 	portManager := req.NodeClients.PortManager()
 	t := &Task[T]{
-		createClient: req.CreateClient,
-		healthCheck:  req.Healthcheck,
+		healthCheck: req.Healthcheck,
 
 		name:            req.ContainerName,
 		containerConfig: &container.Config{},

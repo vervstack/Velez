@@ -19,10 +19,7 @@ import (
 )
 
 type Task[T any] struct {
-	ApiClient            *ApiClient[T]
 	ContainerNetworkHost string
-
-	createClient func(t *Task[T]) (*ApiClient[T], error)
 
 	name            string
 	containerConfig *container.Config
@@ -32,7 +29,7 @@ type Task[T any] struct {
 	docker    clients.Docker
 	dockerAPI client.APIClient
 
-	healthCheck func(client T) bool
+	healthCheck func(client *Task[T]) bool
 }
 
 func (t *Task[T]) Start() error {
@@ -84,19 +81,7 @@ func (t *Task[T]) IsAlive() bool {
 		return false
 	}
 
-	if t.createClient != nil && t.ApiClient == nil {
-		t.ApiClient, err = t.createClient(t)
-		if err != nil {
-			logrus.Error(rerrors.Wrap(err, "error creating grpc client for dependency in container: "+t.name))
-			return false
-		}
-	}
-
-	if t.ApiClient == nil || t.healthCheck == nil {
-		return true
-	}
-
-	if !t.healthCheck(t.ApiClient.Client) {
+	if t.healthCheck != nil && !t.healthCheck(t) {
 		return false
 	}
 

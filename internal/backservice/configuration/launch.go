@@ -8,7 +8,7 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/errdefs"
 	"github.com/sirupsen/logrus"
-	errors "go.redsock.ru/rerrors"
+	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/toolbox/keep_alive"
@@ -66,7 +66,7 @@ func initInstance(
 ) (err error) {
 	key, err := getKey(ctx, nodeClients)
 	if err != nil {
-		return errors.Wrap(err, "error getting key")
+		return rerrors.Wrap(err, "error getting key")
 	}
 
 	nodeClients.SecurityManager().SetMatreshkaKey(key)
@@ -74,25 +74,9 @@ func initInstance(
 	taskRequest := container_service_task.NewTaskRequest[matreshka_api.MatreshkaBeAPIClient]{
 		NodeClients: nodeClients,
 
-		CreateClient: func(t *container_service_task.Task[matreshka_api.MatreshkaBeAPIClient]) (*container_service_task.ApiClient[matreshka_api.MatreshkaBeAPIClient], error) {
-			return container_service_task.NewGrpcClient(
-				t.ContainerNetworkHost+":"+t.GetPortBinding(grpcPort),
-				matreshka_api.NewMatreshkaBeAPIClient,
-				grpc.WithTransportCredentials(insecure.NewCredentials()),
-				grpc.WithUnaryInterceptor(matreshka_client.WithHeader(matreshka_client.Pass, key)))
-		},
-
 		ContainerName: Name,
 		ImageName:     toolbox.Coalesce(cfg.Environment.MatreshkaImage, image),
 		ExposedPorts:  map[string]string{},
-		Healthcheck: func(client matreshka_api.MatreshkaBeAPIClient) bool {
-			resp, err := client.ApiVersion(ctx, &matreshka_api.ApiVersion_Request{})
-			if err == nil && resp != nil {
-				return true
-			}
-
-			return false
-		},
 		Env: map[string]string{
 			passEnv: key,
 		},
@@ -109,12 +93,31 @@ func initInstance(
 
 	logrus.Info("Preparing matreshka service background task")
 
+	var apiClient *container_service_task.ApiClient[matreshka_api.MatreshkaBeAPIClient]
+
+	taskRequest.Healthcheck = func(t *container_service_task.Task[matreshka_api.MatreshkaBeAPIClient]) bool {
+		if apiClient == nil {
+			apiClient, err = initClient(t, key)
+			if err != nil {
+				return false
+			}
+		}
+
+		resp, err := apiClient.Client.ApiVersion(ctx, &matreshka_api.ApiVersion_Request{})
+		if err == nil && resp != nil {
+			return true
+		}
+
+		return false
+	}
+
 	task, err := container_service_task.NewTask(taskRequest)
 	if err != nil {
-		return errors.Wrap(err, "error creating task for matreshka")
+		return rerrors.Wrap(err, "error creating task for matreshka")
 	}
 
 	ka := keep_alive.KeepAlive(task, keep_alive.WithCancel(ctx.Done()))
+
 	if cfg.Environment.ShutDownOnExit {
 		closer.Add(func() error {
 			ka.Stop()
@@ -122,20 +125,18 @@ func initInstance(
 		})
 	}
 
-	matreshkaAddr := task.ContainerNetworkHost + ":" + task.GetPortBinding(grpcPort)
-
 	matreshkaEndpoints := &makosh_be.UpsertEndpoints_Request{
 		Endpoints: []*makosh_be.Endpoint{
 			{
 				ServiceName: matreshka.ServiceName,
-				Addrs:       []string{matreshkaAddr},
+				Addrs:       []string{apiClient.Addr},
 			},
 		},
 	}
 
 	_, err = sd.MakoshClient.UpsertEndpoints(ctx, matreshkaEndpoints)
 	if err != nil {
-		return errors.Wrap(err, "error upserting endpoints for matreshka to makosh")
+		return rerrors.Wrap(err, "error upserting endpoints for matreshka to makosh")
 	}
 
 	return nil
@@ -146,7 +147,7 @@ func getKey(ctx context.Context, nodeClients clients.NodeClients) (string, error
 
 	keyFromCont, err := getKeyFromContainer(ctx, nodeClients.Docker().Client())
 	if err != nil {
-		return "", errors.Wrap(err, "error getting key from container")
+		return "", rerrors.Wrap(err, "error getting key from container")
 	}
 
 	if keyFromCont == "" {
@@ -161,7 +162,7 @@ func getKeyFromContainer(ctx context.Context, docker client.APIClient) (string, 
 	cont, err := docker.ContainerInspect(ctx, Name)
 	if err != nil {
 		if !errdefs.IsNotFound(err) {
-			return "", errors.Wrap(err, "")
+			return "", rerrors.Wrap(err, "")
 		}
 
 		return "", nil
@@ -172,4 +173,13 @@ func getKeyFromContainer(ctx context.Context, docker client.APIClient) (string, 
 		}
 	}
 	return "", nil
+}
+
+func initClient(t *container_service_task.Task[matreshka_api.MatreshkaBeAPIClient],
+	key string) (*container_service_task.ApiClient[matreshka_api.MatreshkaBeAPIClient], error) {
+	return container_service_task.NewGrpcClient(
+		t.ContainerNetworkHost+":"+t.GetPortBinding(grpcPort),
+		matreshka_api.NewMatreshkaBeAPIClient,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(matreshka_client.WithHeader(matreshka_client.Pass, key)))
 }

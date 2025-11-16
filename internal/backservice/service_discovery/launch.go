@@ -63,20 +63,11 @@ func launchMakosh(
 	taskConstructor := container_service_task.NewTaskRequest[pb.MakoshBeAPIClient]{
 		ContainerName: Name,
 		NodeClients:   nodeClients,
-		CreateClient: func(t *container_service_task.Task[pb.MakoshBeAPIClient]) (
-			*container_service_task.ApiClient[pb.MakoshBeAPIClient], error) {
-			return container_service_task.NewGrpcClient(
-				t.ContainerNetworkHost+":"+t.GetPortBinding(grpcPort),
-				pb.NewMakoshBeAPIClient,
-				grpc.WithChainUnaryInterceptor(security.HeaderOutgoingInterceptor(makosh.AuthHeader, token)),
-				grpc.WithTransportCredentials(insecure.NewCredentials()))
-		},
 
 		ImageName: rtb.Coalesce(cfg.Environment.MakoshImage, image),
 		ExposedPorts: map[string]string{
 			grpcPort: "",
 		},
-		Healthcheck: nil,
 		Env: map[string]string{
 			authTokenEnvVariable: token,
 		},
@@ -86,16 +77,21 @@ func launchMakosh(
 		taskConstructor.ExposedPorts[grpcPort] = strconv.Itoa(cfg.Environment.MakoshPort)
 	}
 
-	taskConstructor.Healthcheck = func(client pb.MakoshBeAPIClient) bool {
-		resp, err := client.Version(ctx, &pb.Version_Request{})
-		if err != nil {
-			return false
+	var taskClient *container_service_task.ApiClient[pb.MakoshBeAPIClient]
+	var err error
+
+	taskConstructor.Healthcheck = func(t *container_service_task.Task[pb.MakoshBeAPIClient]) bool {
+		if taskClient == nil {
+			taskClient, err = initClient(t, token)
+			if err != nil {
+				return false
+			}
 		}
 
-		if resp == nil {
+		resp, err := taskClient.Client.Version(ctx, &pb.Version_Request{})
+		if err != nil && resp == nil {
 			return false
 		}
-
 		return true
 	}
 
@@ -117,25 +113,31 @@ func launchMakosh(
 		})
 	}
 
-	// Add self to makosh
-	makoshAddr := makoshTask.ContainerNetworkHost + ":" + makoshTask.GetPortBinding(grpcPort)
-
 	req := &pb.UpsertEndpoints_Request{
 		Endpoints: []*pb.Endpoint{
 			{
 				ServiceName: makosh.ServiceName,
-				Addrs:       []string{makoshAddr},
+				Addrs:       []string{taskClient.Addr},
 			},
 		},
 	}
 
-	_, err = makoshTask.ApiClient.Client.UpsertEndpoints(ctx, req)
+	_, err = taskClient.Client.UpsertEndpoints(ctx, req)
 	if err != nil {
 		logrus.Fatal(errors.Wrap(err, "error upserting makosh endpoint"))
 	}
 
-	cfg.Environment.MakoshURL = makoshAddr
+	cfg.Environment.MakoshURL = taskClient.Addr
 	cfg.Environment.MakoshKey = token
 
 	return nil
+}
+
+func initClient(t *container_service_task.Task[pb.MakoshBeAPIClient], token string) (
+	*container_service_task.ApiClient[pb.MakoshBeAPIClient], error) {
+	return container_service_task.NewGrpcClient(
+		t.ContainerNetworkHost+":"+t.GetPortBinding(grpcPort),
+		pb.NewMakoshBeAPIClient,
+		grpc.WithChainUnaryInterceptor(security.HeaderOutgoingInterceptor(makosh.AuthHeader, token)),
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
 }

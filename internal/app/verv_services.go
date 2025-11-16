@@ -9,6 +9,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/backservice/configuration"
 	"go.vervstack.ru/Velez/internal/backservice/env"
+	"go.vervstack.ru/Velez/internal/backservice/headscale"
 	"go.vervstack.ru/Velez/internal/backservice/service_discovery"
 	"go.vervstack.ru/Velez/internal/clients/matreshka"
 )
@@ -84,5 +85,6 @@ func (c *Custom) initConfigurationService(a *App) (err error) {
 }
 
 func (c *Custom) initPrivateNetwork(a *App) error {
+	headscale.Launch(a.Ctx, a.Cfg, c.NodeClients)
 	return nil
 }

@@ -7,6 +7,7 @@ import (
 )
 
 type ApiClient[T any] struct {
+	Addr   string
 	Client T
 }
 
@@ -20,6 +21,7 @@ func NewGrpcClient[T any](addr string, constructor func(conn grpc.ClientConnInte
 	}
 
 	client := &ApiClient[T]{
+		Addr:   addr,
 		Client: constructor(dial),
 	}
 

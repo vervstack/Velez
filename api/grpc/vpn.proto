@@ -12,7 +12,8 @@ option (npm_package) = "@vervstack/velez";
 service VpnApi {
   rpc ListNamespaces(ListVpnNamespaces.Request) returns (ListVpnNamespaces.Response) {
     option (google.api.http) = {
-      get: "/api/vpn/namespaces"
+      post: "/api/vpn/namespaces",
+      body: "*",
     };
   };
 }

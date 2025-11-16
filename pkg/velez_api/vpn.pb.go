@@ -139,9 +139,9 @@ const file_vpn_proto_rawDesc = "" +
 	"\x11ListVpnNamespaces\x1a\t\n" +
 	"\aRequest\x1a\n" +
 	"\n" +
-	"\bResponse2\x84\x01\n" +
-	"\x06VpnApi\x12z\n" +
-	"\x0eListNamespaces\x12$.velez_api.ListVpnNamespaces.Request\x1a%.velez_api.ListVpnNamespaces.Response\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/api/vpn/namespacesBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
+	"\bResponse2\x87\x01\n" +
+	"\x06VpnApi\x12}\n" +
+	"\x0eListNamespaces\x12$.velez_api.ListVpnNamespaces.Request\x1a%.velez_api.ListVpnNamespaces.Response\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/vpn/namespacesBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
 
 var (
 	file_vpn_proto_rawDescOnce sync.Once

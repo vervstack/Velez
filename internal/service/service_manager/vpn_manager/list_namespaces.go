@@ -1,6 +1,7 @@
 package vpn_manager
 
 import (
+	"bytes"
 	"context"
 	"strings"
 
@@ -8,20 +9,12 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/backservice/headscale"
-	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/domain"
 )
 
-type Service struct {
-	docker clients.Docker
-}
+const listNameSpacesCommand = `headscale user list`
 
-func New(docker clients.Docker) *Service {
-	return &Service{
-		docker: docker,
-	}
-}
-
-func (s *Service) IssueApiKey(ctx context.Context) error {
+func (s *Service) ListNamespaces(ctx context.Context) ([]domain.VpnNamespace, error) {
 	exec := container.ExecOptions{
 		Cmd: strings.Split(listNameSpacesCommand, " "),
 		Env: []string{
@@ -32,10 +25,17 @@ func (s *Service) IssueApiKey(ctx context.Context) error {
 
 	res, err := s.docker.Exec(ctx, headscale.Name, exec)
 	if err != nil {
-		return rerrors.Wrap(err, "")
+		return nil, rerrors.Wrap(err, "")
 	}
 
-	_ = res
+	return unmarshalListNamespaces(res), nil
+}
+
+func unmarshalListNamespaces(in []byte) []domain.VpnNamespace {
+	lineSkip := bytes.IndexByte(in, '\n')
+	if lineSkip == -1 {
+		return nil
+	}
 
 	return nil
 }

@@ -73,12 +73,9 @@ func (d *Docker) ListContainers(ctx context.Context, req *velez_api.ListSmerds_R
 	return list, nil
 }
 
-func (d *Docker) Exec(ctx context.Context, containerId string, cmd []string) ([]byte, error) {
-	execCfg := container.ExecOptions{
-		Cmd:          cmd,
-		AttachStdout: true,
-		AttachStderr: true,
-	}
+func (d *Docker) Exec(ctx context.Context, containerId string, execCfg container.ExecOptions) ([]byte, error) {
+	execCfg.AttachStdout = true
+	execCfg.AttachStderr = true
 
 	execResp, err := d.client.ContainerExecCreate(ctx, containerId, execCfg)
 	if err != nil {
@@ -99,16 +96,20 @@ func (d *Docker) Exec(ctx context.Context, containerId string, cmd []string) ([]
 		return nil, rerrors.Wrap(err)
 	}
 
-	// Inspect exec result (exit code, etc.)
-	//inspectResp, err := d.client.ContainerExecInspect(ctx, execResp.ID)
-	//if err != nil {
-	//	return nil, rerrors.Wrap(err)
-	//}
-
-	return dataOut.Bytes(), nil
-
+	return asciiSymbolsOnly(dataOut.Bytes()), nil
 }
 
 func (d *Docker) Client() client.APIClient {
 	return d.client
+}
+
+func asciiSymbolsOnly(in []byte) []byte {
+	cleanBuff := bytes.NewBuffer(nil)
+	for _, b := range in {
+		if b >= 32 && b <= 127 || b == '\n' {
+			cleanBuff.WriteByte(b)
+		}
+	}
+
+	return cleanBuff.Bytes()
 }

@@ -16,9 +16,10 @@ export type ListVpnNamespaces = Record<string, never>;
 
 export class VpnApi {
     static ListNamespaces(this: void, req: ListVpnNamespacesRequest, initReq?: fm.InitReq): Promise<ListVpnNamespacesResponse> {
-        return fm.fetchRequest<ListVpnNamespacesResponse>(`/api/vpn/namespaces?${fm.renderURLSearchParams(req, [])}`, {
+        return fm.fetchRequest<ListVpnNamespacesResponse>(`/api/vpn/namespaces`, {
             ...initReq,
-            method: "GET"
+            method: "POST",
+            body: JSON.stringify(req, fm.replacer)
         });
     }
 }

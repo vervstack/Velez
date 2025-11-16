@@ -17,7 +17,7 @@
   ],
   "paths": {
     "/api/vpn/namespaces": {
-      "get": {
+      "post": {
         "operationId": "VpnApi_ListNamespaces",
         "responses": {
           "200": {
@@ -33,6 +33,16 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiListVpnNamespacesRequest"
+            }
+          }
+        ],
         "tags": [
           "VpnApi"
         ]
@@ -67,6 +77,9 @@
         }
       },
       "additionalProperties": {}
+    },
+    "velez_apiListVpnNamespacesRequest": {
+      "type": "object"
     },
     "velez_apiListVpnNamespacesResponse": {
       "type": "object"

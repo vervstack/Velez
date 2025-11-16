@@ -24,6 +24,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/service_manager"
 	"go.vervstack.ru/Velez/internal/transport/control_plane_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/velez_api_impl"
+	"go.vervstack.ru/Velez/internal/transport/vpn_api_impl"
 	"go.vervstack.ru/Velez/pkg/docs"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
@@ -45,6 +46,7 @@ type Custom struct {
 	// Api implementation
 	ApiGrpcImpl         *velez_api_impl.Impl
 	ControlPlaneApiImpl *control_plane_api_impl.Impl
+	VpnApiImpl          *vpn_api_impl.Impl
 }
 
 func (c *Custom) Init(a *App) (err error) {
@@ -120,8 +122,9 @@ func (c *Custom) initVelezServices(a *App) {
 func (c *Custom) initApiServer(a *App) error {
 	c.ApiGrpcImpl = velez_api_impl.NewImpl(a.Cfg, c.Services, c.Pipeliner)
 	c.ControlPlaneApiImpl = control_plane_api_impl.New(c.Services, c.Pipeliner)
+	c.VpnApiImpl = vpn_api_impl.New(c.Services)
 
-	a.ServerMaster.AddImplementation(c.ApiGrpcImpl, c.ControlPlaneApiImpl)
+	a.ServerMaster.AddImplementation(c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl)
 	a.ServerMaster.AddHttpHandler(docs.Swagger())
 
 	if !a.Cfg.Environment.DisableAPISecurity {

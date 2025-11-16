@@ -40,6 +40,9 @@ func request_VpnApi_ListNamespaces_0(ctx context.Context, marshaler runtime.Mars
 		protoReq ListVpnNamespaces_Request
 		metadata runtime.ServerMetadata
 	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
@@ -52,6 +55,9 @@ func local_request_VpnApi_ListNamespaces_0(ctx context.Context, marshaler runtim
 		protoReq ListVpnNamespaces_Request
 		metadata runtime.ServerMetadata
 	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 	msg, err := server.ListNamespaces(ctx, &protoReq)
 	return msg, metadata, err
 }
@@ -62,7 +68,7 @@ func local_request_VpnApi_ListNamespaces_0(ctx context.Context, marshaler runtim
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterVpnApiHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterVpnApiHandlerServer(ctx context.Context, mux *runtime.ServeMux, server VpnApiServer) error {
-	mux.Handle(http.MethodGet, pattern_VpnApi_ListNamespaces_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_VpnApi_ListNamespaces_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -122,7 +128,7 @@ func RegisterVpnApiHandler(ctx context.Context, mux *runtime.ServeMux, conn *grp
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "VpnApiClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterVpnApiHandlerClient(ctx context.Context, mux *runtime.ServeMux, client VpnApiClient) error {
-	mux.Handle(http.MethodGet, pattern_VpnApi_ListNamespaces_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_VpnApi_ListNamespaces_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)

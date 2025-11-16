@@ -14,6 +14,7 @@ import (
 type Services interface {
 	SmerdManager() ContainerService
 	ConfigurationService() ConfigurationService
+	VervPrivateNetworkService() VervPrivateNetworkService
 
 	Docker() clients.Docker
 }
@@ -36,4 +37,8 @@ type ConfigurationService interface {
 	SubscribeOnChanges(serviceNames ...string) error
 	UnsubscribeFromChanges(serviceNames ...string) error
 	GetUpdates() <-chan domain.ConfigurationPatch
+}
+
+type VervPrivateNetworkService interface {
+	ListNamespaces(ctx context.Context) ([]domain.VpnNamespace, error)
 }

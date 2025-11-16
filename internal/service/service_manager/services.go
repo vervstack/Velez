@@ -11,12 +11,14 @@ import (
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/service_manager/configurator"
 	"go.vervstack.ru/Velez/internal/service/service_manager/container_manager"
+	"go.vervstack.ru/Velez/internal/service/service_manager/vpn_manager"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 type ServiceManager struct {
 	containerManager *container_manager.ContainerManager
 	configurator     *configurator.Configurator
+	vpnService       *vpn_manager.Service
 
 	docker clients.Docker
 }
@@ -38,6 +40,7 @@ func New(
 	sm := &ServiceManager{
 		configurator:     configService,
 		containerManager: container_manager.New(nodeClients, configService),
+		vpnService:       vpn_manager.New(nodeClients.Docker()),
 
 		docker: nodeClients.Docker(),
 	}
@@ -58,6 +61,10 @@ func (s *ServiceManager) ConfigurationService() service.ConfigurationService {
 
 func (s *ServiceManager) Docker() clients.Docker {
 	return s.docker
+}
+
+func (s *ServiceManager) VervPrivateNetworkService() service.VervPrivateNetworkService {
+	return s.vpnService
 }
 
 func handleConfigurationSubscription(configurationService service.ConfigurationService, manager service.Services) {

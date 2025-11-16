@@ -15,13 +15,14 @@ export default function SmerdsWidget(): React.JSX.Element {
     const [req, setReq] =
         useState<ListSmerdsRequest>({} as ListSmerdsRequest)
 
-    const {initReq} = useSettings();
+    const settings = useSettings();
 
     useEffect(() => {
-        ListSmerds(req, initReq())
+        ListSmerds(req, settings.initReq())
             .then((resp) =>
                 setSmerds(resp.smerds || []))
-    }, [req]);
+    }, [req, settings]);
+
     return (
         <div>
             <SmerdsSearch req={req} setReq={setReq}/>

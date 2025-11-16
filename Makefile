@@ -1,5 +1,7 @@
 include rscli.mk
 
+.PHONY: codegen
+
 # generates folders and installs dependencies
 warmup:
 	make .prepare-grpc-folders

@@ -16,7 +16,6 @@ const (
 )
 
 func Portainer() *velez_api.CreateSmerd_Request {
-
 	return &velez_api.CreateSmerd_Request{
 		Name:      PortainerServiceName,
 		ImageName: PortainerImage,
@@ -34,6 +33,7 @@ func Portainer() *velez_api.CreateSmerd_Request {
 			},
 			Binds: []*velez_api.Bind{
 				{
+					// TODO move portainer to private service due to socket bind (not allowed)
 					HostPath:      strings.ReplaceAll(client.DefaultDockerHost, "unix://", ""),
 					ContainerPath: "/var/run/docker.sock",
 				},

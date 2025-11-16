@@ -4,7 +4,8 @@ import {useState, useRef, useEffect} from "react";
 import cls from "@/widgets/settings/Settings.Widget.module.css";
 
 import Input from "@/components/base/Input.tsx";
-import useSettings from "@/app/settings/state.ts";
+import useSettings, {SettingsBase} from "@/app/settings/state.ts";
+import {useCredentialsStore} from "@/app/settings/creds.ts";
 
 export default function SettingsWidget() {
     const settings = useSettings();
@@ -52,6 +53,8 @@ export default function SettingsWidget() {
             document.removeEventListener("keydown", handleKeyDown);
         };
     }, []);
+
+    const credStore = useCredentialsStore();
     return (
         <div
             ref={containerRef}
@@ -62,9 +65,10 @@ export default function SettingsWidget() {
                 <p>Backend url:</p>
                 <Input
                     onChange={(v) => {
+                        credStore.setUrl(v)
                         settings.setBackendUrl(v)
                     }}
-                    inputValue={settings.backendUrl}
+                    inputValue={credStore.url}
                 />
             </div>
 
@@ -72,9 +76,10 @@ export default function SettingsWidget() {
                 <p>Auth header:</p>
                 <Input
                     onChange={(v) => {
+                        credStore.setToken(v)
                         settings.setAuthHeader(v)
                     }}
-                    inputValue={settings.authHeader}
+                    inputValue={credStore.token}
                 />
             </div>
         </div>

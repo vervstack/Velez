@@ -17,5 +17,5 @@ export async function ListServices(initReq: InitReq): Promise<CpServices> {
     return {
         active: toServices(list.services || []),
         inactive: toServices(list.inactiveServices || []),
-    };
+    } as CpServices;
 }

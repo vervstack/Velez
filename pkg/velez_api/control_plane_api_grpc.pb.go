@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ControlPlaneAPI_ListServices_FullMethodName = "/velez_api.ControlPlaneAPI/ListServices"
+	ControlPlaneAPI_ListServices_FullMethodName   = "/velez_api.ControlPlaneAPI/ListServices"
+	ControlPlaneAPI_EnableServices_FullMethodName = "/velez_api.ControlPlaneAPI/EnableServices"
 )
 
 // ControlPlaneAPIClient is the client API for ControlPlaneAPI service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ControlPlaneAPIClient interface {
 	ListServices(ctx context.Context, in *ListServices_Request, opts ...grpc.CallOption) (*ListServices_Response, error)
+	EnableServices(ctx context.Context, in *EnableServices_Request, opts ...grpc.CallOption) (*EnableServices_Response, error)
 }
 
 type controlPlaneAPIClient struct {
@@ -47,11 +49,22 @@ func (c *controlPlaneAPIClient) ListServices(ctx context.Context, in *ListServic
 	return out, nil
 }
 
+func (c *controlPlaneAPIClient) EnableServices(ctx context.Context, in *EnableServices_Request, opts ...grpc.CallOption) (*EnableServices_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(EnableServices_Response)
+	err := c.cc.Invoke(ctx, ControlPlaneAPI_EnableServices_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ControlPlaneAPIServer is the server API for ControlPlaneAPI service.
 // All implementations must embed UnimplementedControlPlaneAPIServer
 // for forward compatibility.
 type ControlPlaneAPIServer interface {
 	ListServices(context.Context, *ListServices_Request) (*ListServices_Response, error)
+	EnableServices(context.Context, *EnableServices_Request) (*EnableServices_Response, error)
 	mustEmbedUnimplementedControlPlaneAPIServer()
 }
 
@@ -64,6 +77,9 @@ type UnimplementedControlPlaneAPIServer struct{}
 
 func (UnimplementedControlPlaneAPIServer) ListServices(context.Context, *ListServices_Request) (*ListServices_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListServices not implemented")
+}
+func (UnimplementedControlPlaneAPIServer) EnableServices(context.Context, *EnableServices_Request) (*EnableServices_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EnableServices not implemented")
 }
 func (UnimplementedControlPlaneAPIServer) mustEmbedUnimplementedControlPlaneAPIServer() {}
 func (UnimplementedControlPlaneAPIServer) testEmbeddedByValue()                         {}
@@ -104,6 +120,24 @@ func _ControlPlaneAPI_ListServices_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ControlPlaneAPI_EnableServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EnableServices_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControlPlaneAPIServer).EnableServices(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ControlPlaneAPI_EnableServices_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControlPlaneAPIServer).EnableServices(ctx, req.(*EnableServices_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ControlPlaneAPI_ServiceDesc is the grpc.ServiceDesc for ControlPlaneAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +148,10 @@ var ControlPlaneAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListServices",
 			Handler:    _ControlPlaneAPI_ListServices_Handler,
+		},
+		{
+			MethodName: "EnableServices",
+			Handler:    _ControlPlaneAPI_EnableServices_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

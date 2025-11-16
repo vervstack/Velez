@@ -16,6 +16,13 @@ service ControlPlaneAPI {
       get: "/api/control_plane/services"
     };
   }
+
+  rpc EnableServices(EnableServices.Request) returns (EnableServices.Response) {
+    option (google.api.http) = {
+      post: "/api/control_plane/services/enable"
+      body: "*"
+    };
+  }
 }
 
 message ListServices {
@@ -30,17 +37,29 @@ message ListServices {
 
 
 message Service  {
-  ServiceType type = 1;
+  VervServiceType type = 1;
   optional uint32 port = 2;
 
   optional CreateSmerd.Request constructor = 3;
+  bool togglable = 4;
 }
 
-enum ServiceType {
+enum VervServiceType {
   unknown_service_type = 0;
   matreshka = 1;
   svarog = 2;
-  webserver = 3;
   makosh = 4;
+
+  webserver = 3;
+  headscale = 6;
+
   portainer = 5;
+}
+
+message EnableServices {
+  message Request {
+    repeated VervServiceType services = 1;
+  }
+
+  message Response {}
 }

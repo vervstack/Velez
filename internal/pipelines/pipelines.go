@@ -6,6 +6,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/service"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 type Pipeliner interface {
@@ -21,6 +22,8 @@ type Pipeliner interface {
 	// UpgradeSmerd - upgrades already running smerd's
 	// image to a new version (latest or specified)
 	UpgradeSmerd(req domain.UpgradeSmerd) Runner[any]
+
+	EnableVervService(req velez_api.VervServiceType) Runner[any]
 }
 
 type Runner[T any] interface {

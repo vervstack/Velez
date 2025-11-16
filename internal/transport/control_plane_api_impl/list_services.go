@@ -24,21 +24,22 @@ func (impl *Impl) ListServices(ctx context.Context, _ *velez_api.ListServices_Re
 
 	for _, smerd := range smerds.Smerds {
 		srv := &velez_api.Service{
-			Type: velez_api.ServiceType_unknown_service_type,
+			Type: velez_api.VervServiceType_unknown_service_type,
 		}
 
 		switch smerd.Name {
 		case service_discovery.Name:
-			srv.Type = velez_api.ServiceType_makosh
+			srv.Type = velez_api.VervServiceType_makosh
 		case configuration.Name:
-			srv.Type = velez_api.ServiceType_matreshka
+			srv.Type = velez_api.VervServiceType_matreshka
 			srv.Port = getPort(smerd.Ports)
 		case patterns.PortainerServiceName:
-			srv.Type = velez_api.ServiceType_portainer
+			srv.Type = velez_api.VervServiceType_portainer
 			srv.Port = getPort(smerd.Ports)
 		default:
 			continue
 		}
+		_, srv.Togglable = togglableServices[srv.Type]
 
 		resp.Services = append(resp.Services, srv)
 	}
@@ -59,7 +60,7 @@ func getPort(ports []*velez_api.Port) *uint32 {
 }
 
 func listInactiveServices(enabledServices []*velez_api.Service) []*velez_api.Service {
-	enabledServicesMap := make(map[velez_api.ServiceType]struct{})
+	enabledServicesMap := make(map[velez_api.VervServiceType]struct{})
 	for _, s := range enabledServices {
 		enabledServicesMap[s.Type] = struct{}{}
 	}
@@ -75,6 +76,8 @@ func listInactiveServices(enabledServices []*velez_api.Service) []*velez_api.Ser
 			Type: tp,
 		}
 
+		_, srv.Togglable = togglableServices[srv.Type]
+
 		if constructor != nil {
 			srv.Constructor = constructor()
 		}
@@ -89,11 +92,19 @@ func listInactiveServices(enabledServices []*velez_api.Service) []*velez_api.Ser
 	return disabledServices
 }
 
-var supportedServicesMapConstructors = map[velez_api.ServiceType]func() *velez_api.CreateSmerd_Request{
-	velez_api.ServiceType_makosh:    nil,
-	velez_api.ServiceType_matreshka: nil,
-	velez_api.ServiceType_svarog:    nil,
+var (
+	supportedServicesMapConstructors = map[velez_api.VervServiceType]func() *velez_api.CreateSmerd_Request{
+		velez_api.VervServiceType_matreshka: nil,
+		velez_api.VervServiceType_svarog:    nil,
+		velez_api.VervServiceType_makosh:    nil,
 
-	velez_api.ServiceType_webserver: nil,
-	velez_api.ServiceType_portainer: patterns.Portainer,
-}
+		velez_api.VervServiceType_headscale: nil,
+
+		velez_api.VervServiceType_webserver: nil,
+		velez_api.VervServiceType_portainer: nil,
+	}
+
+	togglableServices = map[velez_api.VervServiceType]struct{}{
+		velez_api.VervServiceType_headscale: {},
+	}
+)

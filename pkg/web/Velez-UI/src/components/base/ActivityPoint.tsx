@@ -1,4 +1,3 @@
-import {Tooltip} from "react-tooltip";
 import cn from "classnames";
 
 import cls from "@/components/base/ActivityPoint.module.css";
@@ -8,7 +7,7 @@ interface ActivityPointProps {
 }
 
 export default function ActivityPoint({isInactive}: ActivityPointProps) {
-    
+
     function getTooltipContent(): string {
         if (isInactive !== undefined) {
             return isInactive ? "Inactive" : "Active";
@@ -19,10 +18,9 @@ export default function ActivityPoint({isInactive}: ActivityPointProps) {
     return (
         <div>
             <div
-                data-tooltip-id={"activity-marker"}
+                data-tooltip-id={"tooltip"}
                 data-tooltip-content={getTooltipContent()}
                 data-tooltip-place="left"
-
                 className={cn(cls.activityPoint, {
                     [cls.inactive]: isInactive !== undefined && isInactive,
                     [cls.active]: isInactive !== undefined && !isInactive,
@@ -31,9 +29,6 @@ export default function ActivityPoint({isInactive}: ActivityPointProps) {
                 }
             >
             </div>
-            <Tooltip
-                id={"activity-marker"}
-            />
         </div>
 
     );

@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import {useNavigate} from "react-router-dom";
 
 import cls from '@/pages/controlplane/ControlPlanePage.module.css';
 
@@ -7,11 +8,11 @@ import {ListServices} from "@/processes/api/control_plane.ts";
 import {Service} from "@/model/services/Services";
 
 import ServiceCard from "@/components/service/ServiceCard";
-import useSettings from "@/app/settings/state.ts";
 import Loader from "@/components/Loader.tsx";
-import {useNavigate} from "react-router-dom";
 import {Routes} from "@/app/router/Router.tsx";
 import {fromProto} from "@/model/smerds/Smerds.ts";
+import {CreateSmerdRequest} from "@vervstack/velez"
+import {useCredentialsStore} from "@/app/settings/creds.ts";
 
 export default function ControlPlanePage() {
     const [activeComponents, setActiveComponents] =
@@ -20,26 +21,25 @@ export default function ControlPlanePage() {
     const [inactiveComponents, setInactiveComponents] =
         useState<Service[]>([]);
 
+    useEffect(() => {
+        console.log(123)
+    }, []);
 
     const [isLoading, setIsLoading] = useState(true)
 
-    const settings = useSettings();
+    const credentialsStore = useCredentialsStore();
     const navigate = useNavigate();
 
     useEffect(() => {
         setIsLoading(true)
-        listServices()
-    }, []);
-
-
-    function listServices() {
-        ListServices(settings.initReq())
+        ListServices(credentialsStore.getInitReq())
             .then((r) => {
                 setActiveComponents(r.active)
                 setInactiveComponents(r.inactive)
+                console.log(421)
             })
             .then(() => setIsLoading(false))
-    }
+    }, []);
 
     if (isLoading) {
         return (
@@ -47,6 +47,18 @@ export default function ControlPlanePage() {
                 <Loader/>
             </div>
         )
+    }
+
+    function extractConstructor(constr: CreateSmerdRequest | undefined) {
+        if (constr == undefined) return
+
+        return () => {
+            navigate(Routes.Deploy, {state: {data: fromProto(constr)}})
+        }
+    }
+
+    function extractTogglable(smerd: Service): boolean {
+        return smerd.togglable
     }
 
     return (
@@ -76,10 +88,8 @@ export default function ControlPlanePage() {
                             key={v.title + idx}
                         >
                             <ServiceCard
-                                onClickConstructor={v.smerdConstructor !== undefined ? () => {
-                                    navigate(Routes.Deploy,
-                                        {state: {data: fromProto(v.smerdConstructor)}})
-                                } : undefined}
+                                onClickConstructor={extractConstructor(v.smerdConstructor)}
+                                isTogglable={extractTogglable(v)}
                                 disabled={true}
                                 {...v}/>
                         </div>)

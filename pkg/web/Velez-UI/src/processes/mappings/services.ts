@@ -16,6 +16,8 @@ export function toServices(services: ApiServices[]): Service[] {
 
         if (s.constructor !== Object)
             srv.smerdConstructor = s.constructor
+
+        srv.togglable = s.togglable || false
         out.push(srv)
     })
 

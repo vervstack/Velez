@@ -16,7 +16,7 @@ type ContainerManager struct {
 	configService service.ConfigurationService
 }
 
-func NewContainerManager(
+func New(
 	internalClients clients.NodeClients,
 	configurator service.ConfigurationService,
 ) *ContainerManager {

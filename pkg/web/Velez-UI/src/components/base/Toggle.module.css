@@ -1,0 +1,31 @@
+.ToggleContainer {
+    width: 62px;
+    height: 32px;
+    background: #d1d1d1;
+    border-radius: 30px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    display: flex;
+    align-items: center;
+    padding: 3px;
+
+    &.on {
+        background: #4ade80; /* green shade */
+    }
+}
+
+.SwitchHandle {
+    width: 26px;
+    height: 26px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    left: 3px;
+    transition: transform 0.3s cubic-bezier(.4, 0, .2, 1);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.ToggleContainer.on .SwitchHandle {
+    transform: translateX(30px);
+}

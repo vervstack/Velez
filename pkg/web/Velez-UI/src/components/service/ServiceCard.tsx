@@ -1,16 +1,18 @@
 import cn from "classnames";
-import {Tooltip} from "react-tooltip";
 
 import cls from '@/components/service/ServiceCard.module.css'
 import RocketSVG from "@/assets/icons/Rocket.svg"
 
 import {Service} from "@/model/services/Services";
 import ActivityPoint from "@/components/base/ActivityPoint.tsx";
+import Toggle from "@/components/base/Toggle.tsx";
+import {useState} from "react";
 
 interface ServiceCardProps extends Service {
     disabled?: boolean
 
     onClickConstructor?: () => void
+    isTogglable?: boolean
 }
 
 export default function ServiceCard({
@@ -19,8 +21,12 @@ export default function ServiceCard({
                                         webLink,
                                         description,
                                         disabled,
-                                        onClickConstructor
+
+                                        onClickConstructor,
+
+                                        isTogglable
                                     }: ServiceCardProps) {
+
     return (
         <div className={cn(cls.CardContainer, {
             [cls.disabled]: disabled,
@@ -34,9 +40,9 @@ export default function ServiceCard({
                     <div className={cls.Tittle}>{title}</div>
 
                     {
-                        webLink ? <div
+                        webLink && (<div
                             className={cls.ExternalLink}
-                            data-tooltip-id={"open-external-service-link-" + title}
+                            data-tooltip-id={"tooltip"}
                             data-tooltip-content="Open in new window"
                             data-tooltip-place="left"
                             onClick={() => window.open(webLink, '_blank')}
@@ -44,13 +50,13 @@ export default function ServiceCard({
                         <span
                             className="material-symbols-outlined"
                             children={"open_in_new"}/>
-                        </div> : null
+                        </div>)
                     }
 
                     {
-                        onClickConstructor ? <div
+                        onClickConstructor && (<div
                             className={cls.ExternalLink}
-                            data-tooltip-id={"open-external-service-link-" + title}
+                            data-tooltip-id={"tooltip"}
                             data-tooltip-content="Deploy on this node"
                             data-tooltip-place="left"
                             onClick={onClickConstructor}
@@ -58,8 +64,25 @@ export default function ServiceCard({
                             <div className={cls.CardButton}>
                                 <img src={RocketSVG} alt={'/'}/>
                             </div>
-                        </div> : null
+                        </div>)
                     }
+
+                    {
+                        onClickConstructor && (<div
+                            className={cls.ExternalLink}
+                            data-tooltip-id={"tooltip"}
+                            data-tooltip-content="Deploy on this node"
+                            data-tooltip-place="left"
+                            onClick={onClickConstructor}
+                        >
+                            <div className={cls.CardButton}>
+                                <img src={RocketSVG} alt={'/'}/>
+                            </div>
+                        </div>)
+                    }
+
+                    {isTogglable && (<ToggleService isToggled={!disabled}/>)}
+
                 </div>
                 <div className={cls.CardBottom}>
                     <div className={cls.Content}>
@@ -71,10 +94,31 @@ export default function ServiceCard({
             <div className={cls.ActivityPoint}>
                 <ActivityPoint isInactive={disabled}/>
             </div>
-
-            <Tooltip
-                id={"open-external-service-link-" + title}
-            />
         </div>
     )
+}
+
+
+type ToggleProps = {
+    isToggled: boolean
+}
+
+function ToggleService({isToggled}: ToggleProps) {
+    const [toggled, setToggled] = useState(isToggled)
+
+    function onToggle(newVal: boolean) {
+        setToggled(newVal)
+    }
+
+    return (<div
+        className={cls.ExternalLink}
+        data-tooltip-id={"tooltip"}
+        data-tooltip-content="Enable"
+        data-tooltip-place="left"
+    >
+        <Toggle
+            value={toggled}
+            onChange={onToggle}
+        />
+    </div>)
 }

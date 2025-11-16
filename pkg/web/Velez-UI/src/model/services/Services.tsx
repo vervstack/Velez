@@ -11,6 +11,7 @@ export class Service {
     icon: string
     webLink?: string
     description: string
+    togglable: boolean = false
 
     smerdConstructor?: CreateSmerdRequest
 

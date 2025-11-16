@@ -35,11 +35,9 @@ func New(
 		return nil, rerrors.Wrap(err, "error initializing configurator")
 	}
 
-	containerManger := container_manager.NewContainerManager(nodeClients, configService)
-
 	sm := &ServiceManager{
-		containerManager: containerManger,
 		configurator:     configService,
+		containerManager: container_manager.New(nodeClients, configService),
 
 		docker: nodeClients.Docker(),
 	}

@@ -41,6 +41,8 @@ export default function PageHeader() {
     useEffect(() => {
         if (searchRemoverRef.current != null) return
 
+        if (search == '') return
+
         const req = {
             name: search,
         } as ListSmerdsRequest;

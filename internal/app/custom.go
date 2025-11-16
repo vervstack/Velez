@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	errors "go.redsock.ru/rerrors"
+	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -50,22 +50,17 @@ type Custom struct {
 func (c *Custom) Init(a *App) (err error) {
 	c.NodeClients, err = clients.NewNodeClientsContainer(a.Ctx, a.Cfg)
 	if err != nil {
-		return errors.Wrap(err, "error initializing internal clients")
+		return rerrors.Wrap(err, "error initializing internal clients")
 	}
 
 	err = c.setupVervNodeEnvironment()
 	if err != nil {
-		return errors.Wrap(err, "error setting up node environment")
+		return rerrors.Wrap(err, "error setting up node environment")
 	}
 
-	err = c.initServiceDiscovery(a)
+	err = c.setupVervServices(a)
 	if err != nil {
-		return errors.Wrap(err, "error initializing service discovery")
-	}
-
-	err = c.initConfigurationService(a)
-	if err != nil {
-		return errors.Wrap(err, "error initializing configuration service")
+		return rerrors.Wrap(err, "error setting up verv services")
 	}
 
 	c.ClusterClients = clients.NewClusterClientsContainer(c.MatreshkaClient)
@@ -74,7 +69,7 @@ func (c *Custom) Init(a *App) (err error) {
 
 	err = c.initApiServer(a)
 	if err != nil {
-		return errors.Wrap(err)
+		return rerrors.Wrap(err)
 	}
 
 	return nil
@@ -85,7 +80,7 @@ func (c *Custom) Start(ctx context.Context) error {
 	errg.Go(func() error {
 		err := autoupgrade.New(c.NodeClients.Docker().Client(), time.Second*30, c.Pipeliner).Start()
 		if err != nil {
-			return errors.Wrap(err, "error starting autoupgrade")
+			return rerrors.Wrap(err, "error starting autoupgrade")
 		}
 
 		return nil
@@ -93,7 +88,7 @@ func (c *Custom) Start(ctx context.Context) error {
 
 	err := errg.Wait()
 	if err != nil {
-		return errors.Wrap(err, "error starting custom workers")
+		return rerrors.Wrap(err, "error starting custom workers")
 	}
 
 	return nil
@@ -147,7 +142,7 @@ func (c *Custom) initVelezServices(a *App) {
 
 func (c *Custom) initApiServer(a *App) error {
 	c.ApiGrpcImpl = velez_api_impl.NewImpl(a.Cfg, c.Services, c.Pipeliner)
-	c.ControlPlaneApiImpl = control_plane_api_impl.New(c.Services)
+	c.ControlPlaneApiImpl = control_plane_api_impl.New(c.Services, c.Pipeliner)
 
 	a.ServerMaster.AddImplementation(c.ApiGrpcImpl, c.ControlPlaneApiImpl)
 	a.ServerMaster.AddHttpHandler(docs.Swagger())

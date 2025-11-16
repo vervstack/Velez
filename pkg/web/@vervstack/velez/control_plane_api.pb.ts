@@ -9,12 +9,13 @@ import * as fm from "./fetch.pb";
 import * as VelezApiVelezApi from "./velez_api.pb";
 
 
-export enum ServiceType {
+export enum VervServiceType {
   unknown_service_type = "unknown_service_type",
   matreshka = "matreshka",
   svarog = "svarog",
-  webserver = "webserver",
   makosh = "makosh",
+  webserver = "webserver",
+  headscale = "headscale",
   portainer = "portainer",
 }
 
@@ -28,13 +29,30 @@ export type ListServicesResponse = {
 export type ListServices = Record<string, never>;
 
 export type Service = {
-  type?: ServiceType;
+    type?: VervServiceType;
   port?: number;
   constructor?: VelezApiVelezApi.CreateSmerdRequest;
+    togglable?: boolean;
 };
+
+export type EnableServicesRequest = {
+    services?: VervServiceType[];
+};
+
+export type EnableServicesResponse = Record<string, never>;
+
+export type EnableServices = Record<string, never>;
 
 export class ControlPlaneAPI {
   static ListServices(this:void, req: ListServicesRequest, initReq?: fm.InitReq): Promise<ListServicesResponse> {
     return fm.fetchRequest<ListServicesResponse>(`/api/control_plane/services?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
   }
+
+    static EnableServices(this: void, req: EnableServicesRequest, initReq?: fm.InitReq): Promise<EnableServicesResponse> {
+        return fm.fetchRequest<EnableServicesResponse>(`/api/control_plane/services/enable`, {
+            ...initReq,
+            method: "POST",
+            body: JSON.stringify(req, fm.replacer)
+        });
+    }
 }

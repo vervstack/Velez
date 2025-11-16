@@ -1,52 +1,25 @@
 app_info:
-  name: go.vervstack.ru/Velez
-  version: v0.1.88
-  startup_duration: 10s
+    name: go.vervstack.ru/Velez
+    version: v0.1.88
+    startup_duration: 10s
 servers:
     53890:
         /{GRPC}:
             module: pkg/velez_api
             gateway: /api
 environment:
-    - name: node_mode
-      type: bool
-      value: true
     - name: available_ports
       type: int
-      value: [ '18501:19000' ]
-    - name: shut_down_on_exit
-      type: bool
-      value: false
+      value: ['18501:19000']
+    - name: cpu_default
+      type: float
+      value: 0.5
     - name: custom_pass_to_key
       type: string
       value: /tmp/velez/private.key
     - name: disable_api_security
       type: bool
       value: false
-    - name: cpu_default
-      type: float
-      value: 0.5
-    - name: memory_swap_mb
-      type: int
-      value: 50
-    - name: ram_mb_default
-      type: int
-      value: 50
-    - name: makosh_port
-      type: int
-      value: 50051
-    - name: matreshka_port
-      type: int
-      value: 50050
-    - name: makosh_expose_port
-      type: bool
-      value: true
-    - name: makosh_key
-      type: string
-      value: string
-    - name: makosh_url
-      type: string
-      value: verv://makosh
     - name: log_format
       type: string
       enum: [TEXT, JSON]
@@ -55,9 +28,36 @@ environment:
       type: string
       enum: [Trace, Debug, Warn, Info, Error, Fatal, Panic]
       value: Info
-#    - name: makosh_image
-#      type: string
-#      value: godverv/makosh:v0.0.12
-#    - name: matreshka_image
-#      type: string
-#      value: godverv/matreshka-be:v1.0.47
+    - name: makosh_expose_port
+      type: bool
+      value: true
+    - name: makosh_image
+      type: string
+      value: godverv/makosh:v0.0.12
+    - name: makosh_key
+      type: string
+      value: string
+    - name: makosh_port
+      type: int
+      value: 50051
+    - name: makosh_url
+      type: string
+      value: verv://makosh
+    - name: matreshka_image
+      type: string
+      value: godverv/matreshka-be:v1.0.47
+    - name: matreshka_port
+      type: int
+      value: 50050
+    - name: memory_swap_mb
+      type: int
+      value: 50
+    - name: node_mode
+      type: bool
+      value: true
+    - name: ram_mb_default
+      type: int
+      value: 50
+    - name: shut_down_on_exit
+      type: bool
+      value: false

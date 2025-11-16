@@ -1,7 +1,7 @@
 app_info:
-  name: go.vervstack.ru/Velez
-  version: v0.1.43
-  startup_duration: 10s
+    name: go.vervstack.ru/Velez
+    version: v0.1.43
+    startup_duration: 10s
 servers:
     53890:
         /{GRPC}:
@@ -20,12 +20,30 @@ environment:
     - name: disable_api_security
       type: bool
       value: false
+    - name: log_format
+      type: string
+      value: TEXT
+    - name: log_level
+      type: string
+      value: Info
+    - name: makosh_expose_port
+      type: bool
+      value: true
+    - name: makosh_image
+      type: string
+      value: godverv/makosh:v0.0.12
     - name: makosh_key
       type: string
       value: string
     - name: makosh_port
       type: int
       value: 50051
+    - name: makosh_url
+      type: string
+      value: verv://makosh
+    - name: matreshka_image
+      type: string
+      value: godverv/matreshka-be:v1.0.47
     - name: matreshka_port
       type: int
       value: 50050
@@ -41,21 +59,3 @@ environment:
     - name: shut_down_on_exit
       type: bool
       value: false
-    - name: makosh_expose_port
-      type: bool
-      value: true
-    - name: makosh_url
-      type: string
-      value: verv://makosh
-    - name: makosh_image
-      type: string
-      value: godverv/makosh:v0.0.12
-    - name: matreshka_image
-      type: string
-      value: godverv/matreshka-be:v1.0.47
-    - name: log_format
-      type: string
-      value: TEXT
-    - name: log_level
-      type: string
-      value: Info

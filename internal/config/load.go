@@ -17,6 +17,8 @@ type Config struct {
 	Servers     ServersConfig
 	Environment EnvironmentConfig
 	Overrides   matreshka.ServiceDiscovery
+
+	MatreshkaConfig matreshka.AppConfig
 }
 
 var defaultConfig Config
@@ -46,19 +48,20 @@ func Load() (Config, error) {
 		}
 	}
 
-	rootConfig, err := matreshka.ReadConfigs(cfgPath)
+	var err error
+	defaultConfig.MatreshkaConfig, err = matreshka.ReadConfigs(cfgPath)
 	if err != nil {
 		return defaultConfig, rerrors.Wrap(err, "error reading matreshka config")
 	}
 
-	defaultConfig.AppInfo = rootConfig.AppInfo
-	defaultConfig.Overrides = rootConfig.ServiceDiscovery
+	defaultConfig.AppInfo = defaultConfig.MatreshkaConfig.AppInfo
+	defaultConfig.Overrides = defaultConfig.MatreshkaConfig.ServiceDiscovery
 
-	err = rootConfig.Servers.ParseToStruct(&defaultConfig.Servers)
+	err = defaultConfig.MatreshkaConfig.Servers.ParseToStruct(&defaultConfig.Servers)
 	if err != nil {
 		return defaultConfig, rerrors.Wrap(err, "Error parsing servers to config")
 	}
-	err = rootConfig.Environment.ParseToStruct(&defaultConfig.Environment)
+	err = defaultConfig.MatreshkaConfig.Environment.ParseToStruct(&defaultConfig.Environment)
 	if err != nil {
 		return defaultConfig, rerrors.Wrap(err, "error parsing environment config")
 	}

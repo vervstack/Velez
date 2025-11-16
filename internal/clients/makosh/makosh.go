@@ -6,7 +6,7 @@ import (
 	pb "go.vervstack.ru/makosh/pkg/makosh_be"
 	"google.golang.org/grpc"
 
-	"go.vervstack.ru/Velez/internal/security"
+	"go.vervstack.ru/Velez/internal/middleware/security"
 )
 
 const (

@@ -58,10 +58,11 @@ func (c *Custom) initConfigurationService(a *App) (err error) {
 		return rerrors.Wrap(err, "error creating matreshka grpc client")
 	}
 
-	_, err = c.MatreshkaClient.ApiVersion(a.Ctx, &matreshka_api.ApiVersion_Request{})
+	apiVersion, err := c.MatreshkaClient.ApiVersion(a.Ctx, &matreshka_api.ApiVersion_Request{})
 	if err != nil {
 		return rerrors.Wrap(err, "can't ping matreshka api")
 	}
+	_ = apiVersion
 
 	storeConfig := &matreshka_api.StoreConfig_Request{
 		Format:     matreshka_api.Format_yaml,
@@ -69,8 +70,13 @@ func (c *Custom) initConfigurationService(a *App) (err error) {
 		Config:     nil,
 	}
 
-	marshalled, err := yaml.Marshal(a.Cfg)
-	_ = marshalled
+	storeConfig.Config, err = yaml.Marshal(a.Cfg.MatreshkaConfig)
+	if err != nil {
+		return rerrors.Wrap(err, "error marshalling original config before saving it to matreshka")
+	}
+
+	cf, err := c.MatreshkaClient.GetConfig(a.Ctx, &matreshka_api.GetConfig_Request{ConfigName: env.VelezName})
+	_ = cf
 
 	_, err = c.MatreshkaClient.StoreConfig(a.Ctx, storeConfig)
 	if err != nil {

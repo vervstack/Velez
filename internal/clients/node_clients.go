@@ -12,7 +12,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/hardware"
 	"go.vervstack.ru/Velez/internal/clients/ports"
 	"go.vervstack.ru/Velez/internal/config"
-	"go.vervstack.ru/Velez/internal/security"
+	"go.vervstack.ru/Velez/internal/middleware/security"
 )
 
 // NodeClients - container for node level clients

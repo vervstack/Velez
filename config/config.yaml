@@ -61,3 +61,6 @@ environment:
     - name: shut_down_on_exit
       type: bool
       value: false
+    - name: is_headtail_enabled
+      type: bool
+      value: true

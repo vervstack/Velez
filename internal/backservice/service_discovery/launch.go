@@ -20,7 +20,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients"
 	"go.vervstack.ru/Velez/internal/clients/makosh"
 	"go.vervstack.ru/Velez/internal/config"
-	"go.vervstack.ru/Velez/internal/security"
+	"go.vervstack.ru/Velez/internal/middleware/security"
 )
 
 const (

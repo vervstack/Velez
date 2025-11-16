@@ -11,15 +11,14 @@ import (
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
 	"golang.org/x/sync/errgroup"
-	"google.golang.org/grpc"
 
 	"go.vervstack.ru/Velez/internal/backservice/autoupgrade"
 	"go.vervstack.ru/Velez/internal/backservice/service_discovery"
 	"go.vervstack.ru/Velez/internal/clients"
 	"go.vervstack.ru/Velez/internal/clients/matreshka"
-	"go.vervstack.ru/Velez/internal/config"
+	"go.vervstack.ru/Velez/internal/middleware"
+	"go.vervstack.ru/Velez/internal/middleware/security"
 	"go.vervstack.ru/Velez/internal/pipelines"
-	"go.vervstack.ru/Velez/internal/security"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/service_manager"
 	"go.vervstack.ru/Velez/internal/transport/control_plane_api_impl"
@@ -99,32 +98,6 @@ func (c *Custom) Stop() error {
 	return nil
 }
 
-func (c *Custom) setupLogger(a *App) {
-	logger := logrus.StandardLogger()
-	level := logrus.InfoLevel
-
-	switch a.Cfg.Environment.LogLevel {
-	case config.LogLevel_Trace:
-		level = logrus.TraceLevel
-	case config.LogLevel_Debug:
-		level = logrus.DebugLevel
-	case config.LogLevel_Warn:
-		level = logrus.WarnLevel
-	case config.LogLevel_Error:
-		level = logrus.ErrorLevel
-	case config.LogLevel_Fatal:
-		level = logrus.FatalLevel
-	case config.LogLevel_Panic:
-		level = logrus.PanicLevel
-	}
-	logger.SetLevel(level)
-
-	switch a.Cfg.Environment.LogFormat {
-	case "JSON":
-		logger.SetFormatter(&logrus.JSONFormatter{})
-	}
-}
-
 func (c *Custom) initVelezServices(a *App) {
 	var err error
 	c.Services, err = service_manager.New(a.Ctx, c.NodeClients, c.ClusterClients)
@@ -153,28 +126,11 @@ func (c *Custom) initApiServer(a *App) error {
 				c.NodeClients.SecurityManager().ValidateVelezPrivateKey))
 	}
 
-	grpcLogger := logrus.New()
-	grpcLogger.SetFormatter(&logrus.JSONFormatter{})
-	grpcLogger.SetLevel(logrus.DebugLevel)
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+	// Get from config?
+	logrus.SetLevel(logrus.DebugLevel)
 
-	a.ServerMaster.AddServerOption(grpc.UnaryInterceptor(
-		func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp any, err error) {
-			fields := logrus.Fields{
-				"method":  info.FullMethod,
-				"request": req,
-			}
-
-			defer func() {
-				grpcLogger.WithFields(fields).
-					Debug("GRPC request:")
-			}()
-
-			resp, err = handler(ctx, req)
-			fields["error"] = err
-			fields["response"] = resp
-
-			return resp, err
-		}))
+	a.ServerMaster.AddServerOption(middleware.LogInterceptor(), middleware.PanicInterceptor())
 
 	return nil
 }

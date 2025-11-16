@@ -38,6 +38,10 @@ func Swagger() (p string, handler http.HandlerFunc) {
 					Name: "ControlPlaneApi",
 					URL:  path.Join(swaggerPath, "control_plane_api.swagger.json"),
 				},
+				{
+					Name: "Vpn",
+					URL:  path.Join(swaggerPath, "vpn.swagger.json"),
+				},
 			}),
 		swaggerui.WithShowExtensions(true),
 	))

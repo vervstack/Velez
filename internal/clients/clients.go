@@ -17,6 +17,8 @@ type Docker interface {
 	Remove(ctx context.Context, uuid string) error
 	ListContainers(ctx context.Context, req *velez_api.ListSmerds_Request) ([]container.Summary, error)
 
+	Exec(ctx context.Context, contUUID string, cmd []string) ([]byte, error)
+
 	Client() client.APIClient
 }
 

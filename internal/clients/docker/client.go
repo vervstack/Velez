@@ -1,13 +1,15 @@
 package docker
 
 import (
+	"bytes"
 	"context"
+	"io"
 	"strings"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
-	errors "go.redsock.ru/rerrors"
+	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
 
 	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils"
@@ -21,7 +23,7 @@ type Docker struct {
 func NewClient() (*Docker, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		return nil, errors.Wrap(err, "error getting docker client")
+		return nil, rerrors.Wrap(err, "error getting docker client")
 	}
 
 	closer.Add(cli.Close)
@@ -34,12 +36,12 @@ func NewClient() (*Docker, error) {
 func (d *Docker) PullImage(ctx context.Context, imageName string) (image.InspectResponse, error) {
 	_, err := dockerutils.PullImage(ctx, d.client, imageName, false)
 	if err != nil {
-		return image.InspectResponse{}, errors.Wrap(err, "error pulling image")
+		return image.InspectResponse{}, rerrors.Wrap(err, "error pulling image")
 	}
 
 	img, err := d.client.ImageInspect(ctx, imageName)
 	if err != nil {
-		return image.InspectResponse{}, errors.Wrap(err, "error inspecting image")
+		return image.InspectResponse{}, rerrors.Wrap(err, "error inspecting image")
 	}
 
 	return img, nil
@@ -56,7 +58,7 @@ func (d *Docker) Remove(ctx context.Context, contUUID string) error {
 		if !strings.Contains(err.Error(), NoSuchContainerError) {
 			return nil
 		}
-		return errors.Wrap(err, "error removing container")
+		return rerrors.Wrap(err, "error removing container")
 	}
 
 	return nil
@@ -65,10 +67,46 @@ func (d *Docker) Remove(ctx context.Context, contUUID string) error {
 func (d *Docker) ListContainers(ctx context.Context, req *velez_api.ListSmerds_Request) ([]container.Summary, error) {
 	list, err := dockerutils.ListContainers(ctx, d.client, req)
 	if err != nil {
-		return nil, errors.Wrap(err, "error listing containers")
+		return nil, rerrors.Wrap(err, "error listing containers")
 	}
 
 	return list, nil
+}
+
+func (d *Docker) Exec(ctx context.Context, containerId string, cmd []string) ([]byte, error) {
+	execCfg := container.ExecOptions{
+		Cmd:          cmd,
+		AttachStdout: true,
+		AttachStderr: true,
+	}
+
+	execResp, err := d.client.ContainerExecCreate(ctx, containerId, execCfg)
+	if err != nil {
+		return nil, rerrors.Wrap(err)
+	}
+
+	// Attach to execution
+	attachResp, err := d.client.ContainerExecAttach(ctx, execResp.ID, container.ExecAttachOptions{})
+	if err != nil {
+		return nil, rerrors.Wrap(err)
+	}
+	defer attachResp.Close()
+
+	dataOut := bytes.NewBuffer(nil)
+
+	_, err = io.Copy(dataOut, attachResp.Reader)
+	if err != nil {
+		return nil, rerrors.Wrap(err)
+	}
+
+	// Inspect exec result (exit code, etc.)
+	//inspectResp, err := d.client.ContainerExecInspect(ctx, execResp.ID)
+	//if err != nil {
+	//	return nil, rerrors.Wrap(err)
+	//}
+
+	return dataOut.Bytes(), nil
+
 }
 
 func (d *Docker) Client() client.APIClient {

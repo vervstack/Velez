@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package velez_api;
+
+import "npm.proto";
+import "google/api/annotations.proto";
+
+option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
+option (npm_package) = "@vervstack/velez";
+
+// Verv Private Network
+service VpnApi {
+  rpc ListNamespaces(ListVpnNamespaces.Request) returns (ListVpnNamespaces.Response) {
+    option (google.api.http) = {
+      get: "/api/vpn/namespaces"
+    };
+  };
+}
+
+message ListVpnNamespaces {
+  message Request {
+
+  }
+  message Response {
+
+  }
+}

@@ -63,15 +63,16 @@ func launchMakosh(
 	taskConstructor := container_service_task.NewTaskRequest[pb.MakoshBeAPIClient]{
 		ContainerName: Name,
 		NodeClients:   nodeClients,
-		CreateClient: func(addr string) (*container_service_task.ApiClient[pb.MakoshBeAPIClient], error) {
-			return container_service_task.NewGrpcClient(addr,
+		CreateClient: func(t *container_service_task.Task[pb.MakoshBeAPIClient]) (
+			*container_service_task.ApiClient[pb.MakoshBeAPIClient], error) {
+			return container_service_task.NewGrpcClient(
+				t.ContainerNetworkHost+":"+t.GetPortBinding(grpcPort),
 				pb.NewMakoshBeAPIClient,
 				grpc.WithChainUnaryInterceptor(security.HeaderOutgoingInterceptor(makosh.AuthHeader, token)),
 				grpc.WithTransportCredentials(insecure.NewCredentials()))
 		},
 
-		ImageName:  rtb.Coalesce(cfg.Environment.MakoshImage, image),
-		AccessPort: grpcPort,
+		ImageName: rtb.Coalesce(cfg.Environment.MakoshImage, image),
 		ExposedPorts: map[string]string{
 			grpcPort: "",
 		},
@@ -117,11 +118,13 @@ func launchMakosh(
 	}
 
 	// Add self to makosh
+	makoshAddr := makoshTask.ContainerNetworkHost + ":" + makoshTask.GetPortBinding(grpcPort)
+
 	req := &pb.UpsertEndpoints_Request{
 		Endpoints: []*pb.Endpoint{
 			{
 				ServiceName: makosh.ServiceName,
-				Addrs:       []string{makoshTask.Address},
+				Addrs:       []string{makoshAddr},
 			},
 		},
 	}
@@ -131,8 +134,7 @@ func launchMakosh(
 		logrus.Fatal(errors.Wrap(err, "error upserting makosh endpoint"))
 	}
 
-	// Change values in original config
-	cfg.Environment.MakoshURL = makoshTask.Address
+	cfg.Environment.MakoshURL = makoshAddr
 	cfg.Environment.MakoshKey = token
 
 	return nil

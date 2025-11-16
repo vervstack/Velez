@@ -7,6 +7,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
+	"github.com/docker/go-connections/nat"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
 	"go.redsock.ru/rerrors"
@@ -18,9 +19,10 @@ import (
 )
 
 type Task[T any] struct {
-	ApiClient    *ApiClient[T]
-	Address      string
-	createClient func(address string) (*ApiClient[T], error)
+	ApiClient            *ApiClient[T]
+	ContainerNetworkHost string
+
+	createClient func(t *Task[T]) (*ApiClient[T], error)
 
 	name            string
 	containerConfig *container.Config
@@ -83,7 +85,7 @@ func (t *Task[T]) IsAlive() bool {
 	}
 
 	if t.createClient != nil && t.ApiClient == nil {
-		t.ApiClient, err = t.createClient(t.Address)
+		t.ApiClient, err = t.createClient(t)
 		if err != nil {
 			logrus.Error(rerrors.Wrap(err, "error creating grpc client for dependency in container: "+t.name))
 			return false
@@ -116,4 +118,13 @@ func (t *Task[T]) Kill() error {
 
 func (t *Task[T]) GetName() string {
 	return t.name
+}
+
+func (t *Task[T]) GetPortBinding(port string) string {
+	if env.IsInContainer() {
+		return port
+	}
+
+	bindings := t.hostConfig.PortBindings[nat.Port(appendTCP(port))]
+	return bindings[0].HostPort
 }

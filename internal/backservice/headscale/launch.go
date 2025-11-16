@@ -49,8 +49,7 @@ func launch(
 		ContainerName: Name,
 		NodeClients:   nodeClients,
 
-		ImageName:  rtb.Coalesce(cfg.Environment.MakoshImage, defaultImage),
-		AccessPort: grpcPort,
+		ImageName: rtb.Coalesce(cfg.Environment.HeadscaleImage, defaultImage),
 		ExposedPorts: map[string]string{
 			grpcPort: "",
 		},
@@ -100,7 +99,7 @@ func launch(
 		Endpoints: []*pb.Endpoint{
 			{
 				ServiceName: makosh.ServiceName,
-				Addrs:       []string{makoshTask.Address},
+				Addrs:       []string{makoshTask.ContainerNetworkHost},
 			},
 		},
 	}
@@ -110,7 +109,7 @@ func launch(
 	}
 
 	// Change values in original config
-	cfg.Environment.MakoshURL = makoshTask.Address
+	cfg.Environment.MakoshURL = makoshTask.ContainerNetworkHost
 	cfg.Environment.MakoshKey = token
 
 	return nil

@@ -74,8 +74,9 @@ func initInstance(
 	taskRequest := container_service_task.NewTaskRequest[matreshka_api.MatreshkaBeAPIClient]{
 		NodeClients: nodeClients,
 
-		CreateClient: func(addr string) (*container_service_task.ApiClient[matreshka_api.MatreshkaBeAPIClient], error) {
-			return container_service_task.NewGrpcClient(addr,
+		CreateClient: func(t *container_service_task.Task[matreshka_api.MatreshkaBeAPIClient]) (*container_service_task.ApiClient[matreshka_api.MatreshkaBeAPIClient], error) {
+			return container_service_task.NewGrpcClient(
+				t.ContainerNetworkHost+":"+t.GetPortBinding(grpcPort),
 				matreshka_api.NewMatreshkaBeAPIClient,
 				grpc.WithTransportCredentials(insecure.NewCredentials()),
 				grpc.WithUnaryInterceptor(matreshka_client.WithHeader(matreshka_client.Pass, key)))
@@ -83,7 +84,6 @@ func initInstance(
 
 		ContainerName: Name,
 		ImageName:     toolbox.Coalesce(cfg.Environment.MatreshkaImage, image),
-		AccessPort:    grpcPort,
 		ExposedPorts:  map[string]string{},
 		Healthcheck: func(client matreshka_api.MatreshkaBeAPIClient) bool {
 			resp, err := client.ApiVersion(ctx, &matreshka_api.ApiVersion_Request{})
@@ -122,11 +122,13 @@ func initInstance(
 		})
 	}
 
+	matreshkaAddr := task.ContainerNetworkHost + ":" + task.GetPortBinding(grpcPort)
+
 	matreshkaEndpoints := &makosh_be.UpsertEndpoints_Request{
 		Endpoints: []*makosh_be.Endpoint{
 			{
 				ServiceName: matreshka.ServiceName,
-				Addrs:       []string{task.Address},
+				Addrs:       []string{matreshkaAddr},
 			},
 		},
 	}

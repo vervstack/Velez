@@ -21,12 +21,11 @@ import (
 type NewTaskRequest[T any] struct {
 	NodeClients clients.NodeClients
 
-	CreateClient func(addr string) (*ApiClient[T], error)
+	CreateClient func(t *Task[T]) (*ApiClient[T], error)
 
 	ContainerName string
 	ImageName     string
 
-	AccessPort   string
 	ExposedPorts map[string]string //container->host
 
 	Healthcheck  func(client T) bool
@@ -37,10 +36,6 @@ type NewTaskRequest[T any] struct {
 func NewTask[T any](req NewTaskRequest[T]) (*Task[T], error) {
 	if req.Healthcheck == nil {
 		return nil, errors.New("must provide client healthcheck")
-	}
-
-	if req.AccessPort == "" {
-		return nil, errors.New("must provide grpc port to connect to")
 	}
 
 	dockerAPI := req.NodeClients.Docker().Client()
@@ -130,13 +125,12 @@ func NewTask[T any](req NewTaskRequest[T]) (*Task[T], error) {
 	}
 
 	if env.IsInContainer() {
-		t.Address = req.ContainerName + ":" + req.AccessPort
+		t.ContainerNetworkHost = req.ContainerName
 	} else {
-		bindings := t.hostConfig.PortBindings[nat.Port(appendTCP(req.AccessPort))]
-		t.Address = "0.0.0.0:" + bindings[0].HostPort
+		t.ContainerNetworkHost = "0.0.0.0"
 	}
 
-	logrus.Infof("Image %s running on address %s. Container name is: %s", req.ImageName, t.Address, t.name)
+	logrus.Infof("Image %s running on address %s. Container name is: %s", req.ImageName, t.ContainerNetworkHost, t.name)
 
 	return t, nil
 }

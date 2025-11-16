@@ -10,7 +10,6 @@ import (
 	"github.com/docker/go-connections/nat"
 	"github.com/sirupsen/logrus"
 	errors "go.redsock.ru/rerrors"
-	"google.golang.org/grpc"
 
 	"go.vervstack.ru/Velez/internal/backservice/env"
 	"go.vervstack.ru/Velez/internal/clients"
@@ -22,13 +21,12 @@ import (
 type NewTaskRequest[T any] struct {
 	NodeClients clients.NodeClients
 
-	ClientConstructor func(dial grpc.ClientConnInterface) T
-	DialOpts          []grpc.DialOption
+	CreateClient func(addr string) (*ApiClient[T], error)
 
 	ContainerName string
 	ImageName     string
 
-	GrpcPort     string
+	AccessPort   string
 	ExposedPorts map[string]string //container->host
 
 	Healthcheck  func(client T) bool
@@ -37,24 +35,19 @@ type NewTaskRequest[T any] struct {
 }
 
 func NewTask[T any](req NewTaskRequest[T]) (*Task[T], error) {
-	if req.ClientConstructor == nil {
-		return nil, errors.New("must provide client constructor")
-	}
-
 	if req.Healthcheck == nil {
 		return nil, errors.New("must provide client healthcheck")
 	}
 
-	if req.GrpcPort == "" {
+	if req.AccessPort == "" {
 		return nil, errors.New("must provide grpc port to connect to")
 	}
 
 	dockerAPI := req.NodeClients.Docker().Client()
 	portManager := req.NodeClients.PortManager()
 	t := &Task[T]{
-		grpcDialOpts:    req.DialOpts,
-		grpcConstructor: req.ClientConstructor,
-		healthCheck:     req.Healthcheck,
+		createClient: req.CreateClient,
+		healthCheck:  req.Healthcheck,
 
 		name:            req.ContainerName,
 		containerConfig: &container.Config{},
@@ -137,9 +130,9 @@ func NewTask[T any](req NewTaskRequest[T]) (*Task[T], error) {
 	}
 
 	if env.IsInContainer() {
-		t.Address = req.ContainerName + ":" + req.GrpcPort
+		t.Address = req.ContainerName + ":" + req.AccessPort
 	} else {
-		bindings := t.hostConfig.PortBindings[nat.Port(appendTCP(req.GrpcPort))]
+		bindings := t.hostConfig.PortBindings[nat.Port(appendTCP(req.AccessPort))]
 		t.Address = "0.0.0.0:" + bindings[0].HostPort
 	}
 

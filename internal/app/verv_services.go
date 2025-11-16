@@ -75,13 +75,14 @@ func (c *Custom) initConfigurationService(a *App) (err error) {
 		return rerrors.Wrap(err, "error marshalling original config before saving it to matreshka")
 	}
 
-	cf, err := c.MatreshkaClient.GetConfig(a.Ctx, &matreshka_api.GetConfig_Request{ConfigName: env.VelezName})
-	_ = cf
-
 	_, err = c.MatreshkaClient.StoreConfig(a.Ctx, storeConfig)
 	if err != nil {
 		return rerrors.Wrap(err, "error storing config in matreshka")
 	}
 
+	return nil
+}
+
+func (c *Custom) initPrivateNetwork(a *App) error {
 	return nil
 }

@@ -5,6 +5,7 @@ package app
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -47,6 +48,9 @@ type Custom struct {
 }
 
 func (c *Custom) Init(a *App) (err error) {
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+	logrus.SetLevel(extractLogLevel(a.Cfg.Environment.LogLevel))
+
 	c.NodeClients, err = clients.NewNodeClientsContainer(a.Ctx, a.Cfg)
 	if err != nil {
 		return rerrors.Wrap(err, "error initializing internal clients")
@@ -126,10 +130,6 @@ func (c *Custom) initApiServer(a *App) error {
 				c.NodeClients.SecurityManager().ValidateVelezPrivateKey))
 	}
 
-	logrus.SetFormatter(&logrus.JSONFormatter{})
-	// Get from config?
-	logrus.SetLevel(logrus.DebugLevel)
-
 	a.ServerMaster.AddServerOption(middleware.LogInterceptor(), middleware.PanicInterceptor())
 
 	return nil
@@ -182,5 +182,27 @@ func smerdsDropper(smerdService service.ContainerService) func() error {
 		}
 
 		return nil
+	}
+}
+
+func extractLogLevel(str string) logrus.Level {
+	switch strings.ToLower(str) {
+	case logrus.PanicLevel.String():
+		return logrus.PanicLevel
+	case logrus.FatalLevel.String():
+		return logrus.FatalLevel
+	case logrus.ErrorLevel.String():
+		return logrus.ErrorLevel
+	case logrus.WarnLevel.String():
+		return logrus.WarnLevel
+	case logrus.InfoLevel.String():
+		return logrus.InfoLevel
+	case logrus.DebugLevel.String():
+		return logrus.DebugLevel
+	case logrus.TraceLevel.String():
+		return logrus.TraceLevel
+
+	default:
+		return logrus.InfoLevel
 	}
 }

@@ -72,14 +72,18 @@ func initInstance(
 	nodeClients.SecurityManager().SetMatreshkaKey(key)
 
 	taskRequest := container_service_task.NewTaskRequest[matreshka_api.MatreshkaBeAPIClient]{
-		NodeClients:       nodeClients,
-		ClientConstructor: matreshka_api.NewMatreshkaBeAPIClient,
-		DialOpts: []grpc.DialOption{
-			grpc.WithTransportCredentials(insecure.NewCredentials()),
-			grpc.WithUnaryInterceptor(matreshka_client.WithHeader(matreshka_client.Pass, key))},
+		NodeClients: nodeClients,
+
+		CreateClient: func(addr string) (*container_service_task.ApiClient[matreshka_api.MatreshkaBeAPIClient], error) {
+			return container_service_task.NewGrpcClient(addr,
+				matreshka_api.NewMatreshkaBeAPIClient,
+				grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithUnaryInterceptor(matreshka_client.WithHeader(matreshka_client.Pass, key)))
+		},
+
 		ContainerName: Name,
 		ImageName:     toolbox.Coalesce(cfg.Environment.MatreshkaImage, image),
-		GrpcPort:      grpcPort,
+		AccessPort:    grpcPort,
 		ExposedPorts:  map[string]string{},
 		Healthcheck: func(client matreshka_api.MatreshkaBeAPIClient) bool {
 			resp, err := client.ApiVersion(ctx, &matreshka_api.ApiVersion_Request{})

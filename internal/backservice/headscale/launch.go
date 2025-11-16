@@ -1,4 +1,4 @@
-package service_discovery
+package headscale
 
 import (
 	"context"
@@ -24,51 +24,34 @@ import (
 )
 
 const (
-	Name                 = "makosh"
-	defaultImageBase     = "vervstack/makosh"
-	authTokenEnvVariable = "MAKOSH_ENVIRONMENT_AUTH-TOKEN"
-	grpcPort             = "8080"
+	Name             = "headscale"
+	defaultImageBase = "docker.io/headscale/headscale:v0"
 )
-
-var image string
-
-func init() {
-	image = defaultImageBase + ":" + version.GetVersion()
-}
 
 var initModeSync = sync.Once{}
 
-func LaunchMakosh(
+func Launch(
 	ctx context.Context,
 	cfg *config.Config,
 	clients clients.NodeClients,
 ) {
 	initModeSync.Do(func() {
 		var err error
-		err = launchMakosh(ctx, cfg, clients)
+		err = launch(ctx, cfg, clients)
 		if err != nil {
 			logrus.Fatal(errors.Wrap(err))
 		}
 	})
 }
 
-func launchMakosh(
+func launch(
 	ctx context.Context,
 	cfg *config.Config,
 	nodeClients clients.NodeClients,
 ) error {
-	// Construct
-	token := string(rtb.RandomBase64(256))
-
 	taskConstructor := container_service_task.NewTaskRequest[pb.MakoshBeAPIClient]{
 		ContainerName: Name,
 		NodeClients:   nodeClients,
-		CreateClient: func(addr string) (*container_service_task.ApiClient[pb.MakoshBeAPIClient], error) {
-			return container_service_task.NewGrpcClient(addr,
-				pb.NewMakoshBeAPIClient,
-				grpc.WithChainUnaryInterceptor(security.HeaderOutgoingInterceptor(makosh.AuthHeader, token)),
-				grpc.WithTransportCredentials(insecure.NewCredentials()))
-		},
 
 		ImageName:  rtb.Coalesce(cfg.Environment.MakoshImage, image),
 		AccessPort: grpcPort,
@@ -125,7 +108,6 @@ func launchMakosh(
 			},
 		},
 	}
-
 	_, err = makoshTask.ApiClient.Client.UpsertEndpoints(ctx, req)
 	if err != nil {
 		logrus.Fatal(errors.Wrap(err, "error upserting makosh endpoint"))

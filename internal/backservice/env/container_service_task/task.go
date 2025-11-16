@@ -9,8 +9,7 @@ import (
 	"github.com/docker/docker/client"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
-	errors "go.redsock.ru/rerrors"
-	"google.golang.org/grpc"
+	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/backservice/env"
 	"go.vervstack.ru/Velez/internal/clients"
@@ -19,10 +18,9 @@ import (
 )
 
 type Task[T any] struct {
-	ApiClient       *ApiClient[T]
-	Address         string
-	grpcDialOpts    []grpc.DialOption
-	grpcConstructor func(dial grpc.ClientConnInterface) T
+	ApiClient    *ApiClient[T]
+	Address      string
+	createClient func(address string) (*ApiClient[T], error)
 
 	name            string
 	containerConfig *container.Config
@@ -45,12 +43,12 @@ func (t *Task[T]) Start() error {
 		t.name,
 	)
 	if err != nil {
-		return errors.Wrap(err, "error creating container")
+		return rerrors.Wrap(err, "error creating container")
 	}
 
 	err = t.dockerAPI.ContainerStart(ctx, cont.ID, container.StartOptions{})
 	if err != nil {
-		return errors.Wrap(err, "error starting makosh container")
+		return rerrors.Wrap(err, "error starting makosh container")
 	}
 
 	err = t.dockerAPI.NetworkConnect(ctx,
@@ -58,7 +56,7 @@ func (t *Task[T]) Start() error {
 		cont.ID,
 		&network.EndpointSettings{Aliases: []string{t.name}})
 	if err != nil {
-		return errors.Wrap(err, "error connecting makosh container to verv network")
+		return rerrors.Wrap(err, "error connecting makosh container to verv network")
 	}
 
 	return nil
@@ -72,7 +70,7 @@ func (t *Task[T]) IsAlive() bool {
 		if strings.Contains(err.Error(), docker.NoSuchContainerError) {
 			return false
 		}
-		logrus.Error(errors.Wrap(err, "error getting container of dependency: "+t.name))
+		logrus.Error(rerrors.Wrap(err, "error getting container of dependency: "+t.name))
 		return false
 	}
 
@@ -84,10 +82,16 @@ func (t *Task[T]) IsAlive() bool {
 		return false
 	}
 
-	t.ApiClient, err = NewGrpcClient(t.Address, t.grpcConstructor, t.grpcDialOpts...)
-	if err != nil {
-		logrus.Error(errors.Wrap(err, "error creating grpc client for dependency in container: "+t.name))
-		return false
+	if t.createClient != nil && t.ApiClient == nil {
+		t.ApiClient, err = t.createClient(t.Address)
+		if err != nil {
+			logrus.Error(rerrors.Wrap(err, "error creating grpc client for dependency in container: "+t.name))
+			return false
+		}
+	}
+
+	if t.ApiClient == nil || t.healthCheck == nil {
+		return true
 	}
 
 	if !t.healthCheck(t.ApiClient.Client) {
@@ -103,7 +107,7 @@ func (t *Task[T]) Kill() error {
 	err := t.docker.Remove(ctx, t.name)
 	if err != nil {
 		if !strings.Contains(err.Error(), docker.NoSuchContainerError) {
-			return errors.Wrap(err, "error dropping result")
+			return rerrors.Wrap(err, "error dropping result")
 		}
 	}
 

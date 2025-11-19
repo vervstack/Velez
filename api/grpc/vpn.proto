@@ -10,12 +10,28 @@ option (npm_package) = "@vervstack/velez";
 
 // Verv Private Network
 service VpnApi {
-  rpc ListNamespaces(ListVpnNamespaces.Request) returns (ListVpnNamespaces.Response) {
+  rpc CreateNamespace(CreateVpnNamespace.Request) returns (CreateVpnNamespace.Response) {
     option (google.api.http) = {
-      post: "/api/vpn/namespaces",
+      post: "/api/vpn/namespaces/new",
       body: "*",
     };
   };
+
+  rpc ListNamespaces(ListVpnNamespaces.Request) returns (ListVpnNamespaces.Response) {
+    option (google.api.http) = {
+      post: "/api/vpn/namespaces/list",
+      body: "*",
+    };
+  };
+}
+
+message CreateVpnNamespace {
+  message Request {
+    string name = 1;
+  }
+  message Response {
+    Namespace namespace = 1;
+  }
 }
 
 message ListVpnNamespaces {
@@ -23,6 +39,11 @@ message ListVpnNamespaces {
 
   }
   message Response {
-
+    repeated Namespace namespaces = 1;
   }
+}
+
+message Namespace {
+  string id = 1;
+  string name = 2;
 }

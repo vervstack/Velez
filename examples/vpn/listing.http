@@ -1,6 +1,0 @@
-### List namespaces
-POST {{velez}}/api/vpn/namespaces
-Content-Type: application/json
-Grpc-Metadata-Authorization: {{key}}
-
-{}

@@ -16,7 +16,7 @@
     "application/json"
   ],
   "paths": {
-    "/api/vpn/namespaces": {
+    "/api/vpn/namespaces/list": {
       "post": {
         "operationId": "VpnApi_ListNamespaces",
         "responses": {
@@ -40,6 +40,38 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/velez_apiListVpnNamespacesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VpnApi"
+        ]
+      }
+    },
+    "/api/vpn/namespaces/new": {
+      "post": {
+        "operationId": "VpnApi_CreateNamespace",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateVpnNamespaceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateVpnNamespaceRequest"
             }
           }
         ],
@@ -78,11 +110,47 @@
       },
       "additionalProperties": {}
     },
+    "velez_apiCreateVpnNamespaceRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiCreateVpnNamespaceResponse": {
+      "type": "object",
+      "properties": {
+        "namespace": {
+          "$ref": "#/definitions/velez_apiNamespace"
+        }
+      }
+    },
     "velez_apiListVpnNamespacesRequest": {
       "type": "object"
     },
     "velez_apiListVpnNamespacesResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "namespaces": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiNamespace"
+          }
+        }
+      }
+    },
+    "velez_apiNamespace": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
     }
   }
 }

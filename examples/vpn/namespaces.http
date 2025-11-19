@@ -1,0 +1,15 @@
+### Create namespaces
+POST {{velez}}/api/vpn/namespaces/new
+Content-Type: application/json
+Grpc-Metadata-Authorization: {{key}}
+
+{
+  "name": "verv"
+}
+
+### List namespaces
+POST {{velez}}/api/vpn/namespaces/list
+Content-Type: application/json
+Grpc-Metadata-Authorization: {{key}}
+
+{}

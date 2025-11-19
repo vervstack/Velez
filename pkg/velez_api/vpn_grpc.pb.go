@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	VpnApi_ListNamespaces_FullMethodName = "/velez_api.VpnApi/ListNamespaces"
+	VpnApi_CreateNamespace_FullMethodName = "/velez_api.VpnApi/CreateNamespace"
+	VpnApi_ListNamespaces_FullMethodName  = "/velez_api.VpnApi/ListNamespaces"
 )
 
 // VpnApiClient is the client API for VpnApi service.
@@ -28,6 +29,7 @@ const (
 //
 // Verv Private Network
 type VpnApiClient interface {
+	CreateNamespace(ctx context.Context, in *CreateVpnNamespace_Request, opts ...grpc.CallOption) (*CreateVpnNamespace_Response, error)
 	ListNamespaces(ctx context.Context, in *ListVpnNamespaces_Request, opts ...grpc.CallOption) (*ListVpnNamespaces_Response, error)
 }
 
@@ -37,6 +39,16 @@ type vpnApiClient struct {
 
 func NewVpnApiClient(cc grpc.ClientConnInterface) VpnApiClient {
 	return &vpnApiClient{cc}
+}
+
+func (c *vpnApiClient) CreateNamespace(ctx context.Context, in *CreateVpnNamespace_Request, opts ...grpc.CallOption) (*CreateVpnNamespace_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateVpnNamespace_Response)
+	err := c.cc.Invoke(ctx, VpnApi_CreateNamespace_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *vpnApiClient) ListNamespaces(ctx context.Context, in *ListVpnNamespaces_Request, opts ...grpc.CallOption) (*ListVpnNamespaces_Response, error) {
@@ -55,6 +67,7 @@ func (c *vpnApiClient) ListNamespaces(ctx context.Context, in *ListVpnNamespaces
 //
 // Verv Private Network
 type VpnApiServer interface {
+	CreateNamespace(context.Context, *CreateVpnNamespace_Request) (*CreateVpnNamespace_Response, error)
 	ListNamespaces(context.Context, *ListVpnNamespaces_Request) (*ListVpnNamespaces_Response, error)
 	mustEmbedUnimplementedVpnApiServer()
 }
@@ -66,6 +79,9 @@ type VpnApiServer interface {
 // pointer dereference when methods are called.
 type UnimplementedVpnApiServer struct{}
 
+func (UnimplementedVpnApiServer) CreateNamespace(context.Context, *CreateVpnNamespace_Request) (*CreateVpnNamespace_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateNamespace not implemented")
+}
 func (UnimplementedVpnApiServer) ListNamespaces(context.Context, *ListVpnNamespaces_Request) (*ListVpnNamespaces_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListNamespaces not implemented")
 }
@@ -88,6 +104,24 @@ func RegisterVpnApiServer(s grpc.ServiceRegistrar, srv VpnApiServer) {
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&VpnApi_ServiceDesc, srv)
+}
+
+func _VpnApi_CreateNamespace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateVpnNamespace_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VpnApiServer).CreateNamespace(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VpnApi_CreateNamespace_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VpnApiServer).CreateNamespace(ctx, req.(*CreateVpnNamespace_Request))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _VpnApi_ListNamespaces_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -115,6 +149,10 @@ var VpnApi_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "velez_api.VpnApi",
 	HandlerType: (*VpnApiServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateNamespace",
+			Handler:    _VpnApi_CreateNamespace_Handler,
+		},
 		{
 			MethodName: "ListNamespaces",
 			Handler:    _VpnApi_ListNamespaces_Handler,

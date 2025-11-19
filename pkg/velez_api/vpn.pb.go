@@ -23,6 +23,42 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type CreateVpnNamespace struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateVpnNamespace) Reset() {
+	*x = CreateVpnNamespace{}
+	mi := &file_vpn_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateVpnNamespace) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateVpnNamespace) ProtoMessage() {}
+
+func (x *CreateVpnNamespace) ProtoReflect() protoreflect.Message {
+	mi := &file_vpn_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateVpnNamespace.ProtoReflect.Descriptor instead.
+func (*CreateVpnNamespace) Descriptor() ([]byte, []int) {
+	return file_vpn_proto_rawDescGZIP(), []int{0}
+}
+
 type ListVpnNamespaces struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -31,7 +67,7 @@ type ListVpnNamespaces struct {
 
 func (x *ListVpnNamespaces) Reset() {
 	*x = ListVpnNamespaces{}
-	mi := &file_vpn_proto_msgTypes[0]
+	mi := &file_vpn_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +79,7 @@ func (x *ListVpnNamespaces) String() string {
 func (*ListVpnNamespaces) ProtoMessage() {}
 
 func (x *ListVpnNamespaces) ProtoReflect() protoreflect.Message {
-	mi := &file_vpn_proto_msgTypes[0]
+	mi := &file_vpn_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,7 +92,147 @@ func (x *ListVpnNamespaces) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListVpnNamespaces.ProtoReflect.Descriptor instead.
 func (*ListVpnNamespaces) Descriptor() ([]byte, []int) {
-	return file_vpn_proto_rawDescGZIP(), []int{0}
+	return file_vpn_proto_rawDescGZIP(), []int{1}
+}
+
+type Namespace struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Namespace) Reset() {
+	*x = Namespace{}
+	mi := &file_vpn_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Namespace) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Namespace) ProtoMessage() {}
+
+func (x *Namespace) ProtoReflect() protoreflect.Message {
+	mi := &file_vpn_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Namespace.ProtoReflect.Descriptor instead.
+func (*Namespace) Descriptor() ([]byte, []int) {
+	return file_vpn_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *Namespace) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Namespace) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type CreateVpnNamespace_Request struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateVpnNamespace_Request) Reset() {
+	*x = CreateVpnNamespace_Request{}
+	mi := &file_vpn_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateVpnNamespace_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateVpnNamespace_Request) ProtoMessage() {}
+
+func (x *CreateVpnNamespace_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_vpn_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateVpnNamespace_Request.ProtoReflect.Descriptor instead.
+func (*CreateVpnNamespace_Request) Descriptor() ([]byte, []int) {
+	return file_vpn_proto_rawDescGZIP(), []int{0, 0}
+}
+
+func (x *CreateVpnNamespace_Request) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type CreateVpnNamespace_Response struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Namespace     *Namespace             `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateVpnNamespace_Response) Reset() {
+	*x = CreateVpnNamespace_Response{}
+	mi := &file_vpn_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateVpnNamespace_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateVpnNamespace_Response) ProtoMessage() {}
+
+func (x *CreateVpnNamespace_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_vpn_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateVpnNamespace_Response.ProtoReflect.Descriptor instead.
+func (*CreateVpnNamespace_Response) Descriptor() ([]byte, []int) {
+	return file_vpn_proto_rawDescGZIP(), []int{0, 1}
+}
+
+func (x *CreateVpnNamespace_Response) GetNamespace() *Namespace {
+	if x != nil {
+		return x.Namespace
+	}
+	return nil
 }
 
 type ListVpnNamespaces_Request struct {
@@ -67,7 +243,7 @@ type ListVpnNamespaces_Request struct {
 
 func (x *ListVpnNamespaces_Request) Reset() {
 	*x = ListVpnNamespaces_Request{}
-	mi := &file_vpn_proto_msgTypes[1]
+	mi := &file_vpn_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -79,7 +255,7 @@ func (x *ListVpnNamespaces_Request) String() string {
 func (*ListVpnNamespaces_Request) ProtoMessage() {}
 
 func (x *ListVpnNamespaces_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_vpn_proto_msgTypes[1]
+	mi := &file_vpn_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -92,18 +268,19 @@ func (x *ListVpnNamespaces_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListVpnNamespaces_Request.ProtoReflect.Descriptor instead.
 func (*ListVpnNamespaces_Request) Descriptor() ([]byte, []int) {
-	return file_vpn_proto_rawDescGZIP(), []int{0, 0}
+	return file_vpn_proto_rawDescGZIP(), []int{1, 0}
 }
 
 type ListVpnNamespaces_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Namespaces    []*Namespace           `protobuf:"bytes,1,rep,name=namespaces,proto3" json:"namespaces,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListVpnNamespaces_Response) Reset() {
 	*x = ListVpnNamespaces_Response{}
-	mi := &file_vpn_proto_msgTypes[2]
+	mi := &file_vpn_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -115,7 +292,7 @@ func (x *ListVpnNamespaces_Response) String() string {
 func (*ListVpnNamespaces_Response) ProtoMessage() {}
 
 func (x *ListVpnNamespaces_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_vpn_proto_msgTypes[2]
+	mi := &file_vpn_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -128,20 +305,38 @@ func (x *ListVpnNamespaces_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListVpnNamespaces_Response.ProtoReflect.Descriptor instead.
 func (*ListVpnNamespaces_Response) Descriptor() ([]byte, []int) {
-	return file_vpn_proto_rawDescGZIP(), []int{0, 1}
+	return file_vpn_proto_rawDescGZIP(), []int{1, 1}
+}
+
+func (x *ListVpnNamespaces_Response) GetNamespaces() []*Namespace {
+	if x != nil {
+		return x.Namespaces
+	}
+	return nil
 }
 
 var File_vpn_proto protoreflect.FileDescriptor
 
 const file_vpn_proto_rawDesc = "" +
 	"\n" +
-	"\tvpn.proto\x12\tvelez_api\x1a\tnpm.proto\x1a\x1cgoogle/api/annotations.proto\"*\n" +
+	"\tvpn.proto\x12\tvelez_api\x1a\tnpm.proto\x1a\x1cgoogle/api/annotations.proto\"s\n" +
+	"\x12CreateVpnNamespace\x1a\x1d\n" +
+	"\aRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x1a>\n" +
+	"\bResponse\x122\n" +
+	"\tnamespace\x18\x01 \x01(\v2\x14.velez_api.NamespaceR\tnamespace\"`\n" +
 	"\x11ListVpnNamespaces\x1a\t\n" +
-	"\aRequest\x1a\n" +
+	"\aRequest\x1a@\n" +
+	"\bResponse\x124\n" +
 	"\n" +
-	"\bResponse2\x87\x01\n" +
-	"\x06VpnApi\x12}\n" +
-	"\x0eListNamespaces\x12$.velez_api.ListVpnNamespaces.Request\x1a%.velez_api.ListVpnNamespaces.Response\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/vpn/namespacesBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
+	"namespaces\x18\x01 \x03(\v2\x14.velez_api.NamespaceR\n" +
+	"namespaces\"/\n" +
+	"\tNamespace\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name2\x94\x02\n" +
+	"\x06VpnApi\x12\x84\x01\n" +
+	"\x0fCreateNamespace\x12%.velez_api.CreateVpnNamespace.Request\x1a&.velez_api.CreateVpnNamespace.Response\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/api/vpn/namespaces/new\x12\x82\x01\n" +
+	"\x0eListNamespaces\x12$.velez_api.ListVpnNamespaces.Request\x1a%.velez_api.ListVpnNamespaces.Response\"#\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/api/vpn/namespaces/listBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
 
 var (
 	file_vpn_proto_rawDescOnce sync.Once
@@ -155,20 +350,28 @@ func file_vpn_proto_rawDescGZIP() []byte {
 	return file_vpn_proto_rawDescData
 }
 
-var file_vpn_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_vpn_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_vpn_proto_goTypes = []any{
-	(*ListVpnNamespaces)(nil),          // 0: velez_api.ListVpnNamespaces
-	(*ListVpnNamespaces_Request)(nil),  // 1: velez_api.ListVpnNamespaces.Request
-	(*ListVpnNamespaces_Response)(nil), // 2: velez_api.ListVpnNamespaces.Response
+	(*CreateVpnNamespace)(nil),          // 0: velez_api.CreateVpnNamespace
+	(*ListVpnNamespaces)(nil),           // 1: velez_api.ListVpnNamespaces
+	(*Namespace)(nil),                   // 2: velez_api.Namespace
+	(*CreateVpnNamespace_Request)(nil),  // 3: velez_api.CreateVpnNamespace.Request
+	(*CreateVpnNamespace_Response)(nil), // 4: velez_api.CreateVpnNamespace.Response
+	(*ListVpnNamespaces_Request)(nil),   // 5: velez_api.ListVpnNamespaces.Request
+	(*ListVpnNamespaces_Response)(nil),  // 6: velez_api.ListVpnNamespaces.Response
 }
 var file_vpn_proto_depIdxs = []int32{
-	1, // 0: velez_api.VpnApi.ListNamespaces:input_type -> velez_api.ListVpnNamespaces.Request
-	2, // 1: velez_api.VpnApi.ListNamespaces:output_type -> velez_api.ListVpnNamespaces.Response
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	2, // 0: velez_api.CreateVpnNamespace.Response.namespace:type_name -> velez_api.Namespace
+	2, // 1: velez_api.ListVpnNamespaces.Response.namespaces:type_name -> velez_api.Namespace
+	3, // 2: velez_api.VpnApi.CreateNamespace:input_type -> velez_api.CreateVpnNamespace.Request
+	5, // 3: velez_api.VpnApi.ListNamespaces:input_type -> velez_api.ListVpnNamespaces.Request
+	4, // 4: velez_api.VpnApi.CreateNamespace:output_type -> velez_api.CreateVpnNamespace.Response
+	6, // 5: velez_api.VpnApi.ListNamespaces:output_type -> velez_api.ListVpnNamespaces.Response
+	4, // [4:6] is the sub-list for method output_type
+	2, // [2:4] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_vpn_proto_init() }
@@ -182,7 +385,7 @@ func file_vpn_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_vpn_proto_rawDesc), len(file_vpn_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

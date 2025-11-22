@@ -16,6 +16,39 @@
     "application/json"
   ],
   "paths": {
+    "/api/vpn/namespaces/delete": {
+      "post": {
+        "summary": "Not implemented",
+        "operationId": "VpnApi_DeleteNamespace",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiDeleteVpnNamespaceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiDeleteVpnNamespaceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VpnApi"
+        ]
+      }
+    },
     "/api/vpn/namespaces/list": {
       "post": {
         "operationId": "VpnApi_ListNamespaces",
@@ -79,6 +112,38 @@
           "VpnApi"
         ]
       }
+    },
+    "/api/vpn/services/connect": {
+      "post": {
+        "operationId": "VpnApi_ConnectService",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiConnectServiceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiConnectServiceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VpnApi"
+        ]
+      }
     }
   },
   "definitions": {
@@ -110,6 +175,24 @@
       },
       "additionalProperties": {}
     },
+    "velez_apiConnectServiceRequest": {
+      "type": "object",
+      "properties": {
+        "namespaceId": {
+          "type": "string"
+        },
+        "serviceName": {
+          "type": "string"
+        },
+        "domainName": {
+          "type": "string",
+          "title": "not implemented"
+        }
+      }
+    },
+    "velez_apiConnectServiceResponse": {
+      "type": "object"
+    },
     "velez_apiCreateVpnNamespaceRequest": {
       "type": "object",
       "properties": {
@@ -125,6 +208,17 @@
           "$ref": "#/definitions/velez_apiNamespace"
         }
       }
+    },
+    "velez_apiDeleteVpnNamespaceRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiDeleteVpnNamespaceResponse": {
+      "type": "object"
     },
     "velez_apiListVpnNamespacesRequest": {
       "type": "object"

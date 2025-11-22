@@ -21,6 +21,8 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	VpnApi_CreateNamespace_FullMethodName = "/velez_api.VpnApi/CreateNamespace"
 	VpnApi_ListNamespaces_FullMethodName  = "/velez_api.VpnApi/ListNamespaces"
+	VpnApi_ConnectService_FullMethodName  = "/velez_api.VpnApi/ConnectService"
+	VpnApi_DeleteNamespace_FullMethodName = "/velez_api.VpnApi/DeleteNamespace"
 )
 
 // VpnApiClient is the client API for VpnApi service.
@@ -31,6 +33,9 @@ const (
 type VpnApiClient interface {
 	CreateNamespace(ctx context.Context, in *CreateVpnNamespace_Request, opts ...grpc.CallOption) (*CreateVpnNamespace_Response, error)
 	ListNamespaces(ctx context.Context, in *ListVpnNamespaces_Request, opts ...grpc.CallOption) (*ListVpnNamespaces_Response, error)
+	ConnectService(ctx context.Context, in *ConnectService_Request, opts ...grpc.CallOption) (*ConnectService_Response, error)
+	// Not implemented
+	DeleteNamespace(ctx context.Context, in *DeleteVpnNamespace_Request, opts ...grpc.CallOption) (*DeleteVpnNamespace_Response, error)
 }
 
 type vpnApiClient struct {
@@ -61,6 +66,26 @@ func (c *vpnApiClient) ListNamespaces(ctx context.Context, in *ListVpnNamespaces
 	return out, nil
 }
 
+func (c *vpnApiClient) ConnectService(ctx context.Context, in *ConnectService_Request, opts ...grpc.CallOption) (*ConnectService_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConnectService_Response)
+	err := c.cc.Invoke(ctx, VpnApi_ConnectService_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vpnApiClient) DeleteNamespace(ctx context.Context, in *DeleteVpnNamespace_Request, opts ...grpc.CallOption) (*DeleteVpnNamespace_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteVpnNamespace_Response)
+	err := c.cc.Invoke(ctx, VpnApi_DeleteNamespace_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // VpnApiServer is the server API for VpnApi service.
 // All implementations must embed UnimplementedVpnApiServer
 // for forward compatibility.
@@ -69,6 +94,9 @@ func (c *vpnApiClient) ListNamespaces(ctx context.Context, in *ListVpnNamespaces
 type VpnApiServer interface {
 	CreateNamespace(context.Context, *CreateVpnNamespace_Request) (*CreateVpnNamespace_Response, error)
 	ListNamespaces(context.Context, *ListVpnNamespaces_Request) (*ListVpnNamespaces_Response, error)
+	ConnectService(context.Context, *ConnectService_Request) (*ConnectService_Response, error)
+	// Not implemented
+	DeleteNamespace(context.Context, *DeleteVpnNamespace_Request) (*DeleteVpnNamespace_Response, error)
 	mustEmbedUnimplementedVpnApiServer()
 }
 
@@ -84,6 +112,12 @@ func (UnimplementedVpnApiServer) CreateNamespace(context.Context, *CreateVpnName
 }
 func (UnimplementedVpnApiServer) ListNamespaces(context.Context, *ListVpnNamespaces_Request) (*ListVpnNamespaces_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListNamespaces not implemented")
+}
+func (UnimplementedVpnApiServer) ConnectService(context.Context, *ConnectService_Request) (*ConnectService_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConnectService not implemented")
+}
+func (UnimplementedVpnApiServer) DeleteNamespace(context.Context, *DeleteVpnNamespace_Request) (*DeleteVpnNamespace_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteNamespace not implemented")
 }
 func (UnimplementedVpnApiServer) mustEmbedUnimplementedVpnApiServer() {}
 func (UnimplementedVpnApiServer) testEmbeddedByValue()                {}
@@ -142,6 +176,42 @@ func _VpnApi_ListNamespaces_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _VpnApi_ConnectService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConnectService_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VpnApiServer).ConnectService(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VpnApi_ConnectService_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VpnApiServer).ConnectService(ctx, req.(*ConnectService_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VpnApi_DeleteNamespace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteVpnNamespace_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VpnApiServer).DeleteNamespace(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VpnApi_DeleteNamespace_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VpnApiServer).DeleteNamespace(ctx, req.(*DeleteVpnNamespace_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // VpnApi_ServiceDesc is the grpc.ServiceDesc for VpnApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -156,6 +226,14 @@ var VpnApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListNamespaces",
 			Handler:    _VpnApi_ListNamespaces_Handler,
+		},
+		{
+			MethodName: "ConnectService",
+			Handler:    _VpnApi_ConnectService_Handler,
+		},
+		{
+			MethodName: "DeleteNamespace",
+			Handler:    _VpnApi_DeleteNamespace_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

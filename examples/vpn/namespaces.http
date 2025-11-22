@@ -13,3 +13,10 @@ Content-Type: application/json
 Grpc-Metadata-Authorization: {{key}}
 
 {}
+
+### Connect service to vpn
+POST {{velez}}/api/vpn/services/connect
+Content-Type: application/json
+Grpc-Metadata-Authorization: {{key}}
+
+{}

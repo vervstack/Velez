@@ -1,4 +1,4 @@
-package steps
+package config_steps
 
 import (
 	"context"

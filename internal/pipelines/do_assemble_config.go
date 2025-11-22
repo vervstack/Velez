@@ -12,6 +12,8 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
+	"go.vervstack.ru/Velez/internal/pipelines/steps/config_steps"
+	"go.vervstack.ru/Velez/internal/pipelines/steps/container_steps"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
@@ -33,9 +35,9 @@ func (p *pipeliner) AssembleConfig(req domain.AssembleConfig) Runner[domain.AppC
 	return &runner[domain.AppConfig]{
 		Steps: []steps.Step{
 			steps.PrepareImage(p.nodeClients, req.ImageName, imageResp),
-			steps.CreateContainer(p.nodeClients, &createReq, &contId),
-			steps.GetConfigFromContainerStep(p.nodeClients, p.services, &createReq, &contId, imageResp, configMount),
-			steps.DropContainerStep(p.nodeClients, &contId),
+			container_steps.CreateContainer(p.nodeClients, &createReq, &contId),
+			config_steps.GetConfigFromContainerStep(p.nodeClients, p.services, &createReq, &contId, imageResp, configMount),
+			container_steps.DropContainerStep(p.nodeClients, &contId),
 		},
 		getResult: func() (appConfig *domain.AppConfig, err error) {
 			configMount.Meta.Name = strings.ReplaceAll(configMount.Meta.Name, configFetchingPostfix, "")

@@ -23,6 +23,22 @@ service VpnApi {
       body: "*",
     };
   };
+
+  rpc ConnectService(ConnectService.Request) returns (ConnectService.Response) {
+    option (google.api.http) = {
+      post: "/api/vpn/services/connect",
+      body: "*",
+    };
+  }
+
+
+  //  Not implemented
+  rpc DeleteNamespace(DeleteVpnNamespace.Request) returns (DeleteVpnNamespace.Response) {
+    option (google.api.http) = {
+      post: "/api/vpn/namespaces/delete",
+      body: "*",
+    };
+  };
 }
 
 message CreateVpnNamespace {
@@ -43,7 +59,25 @@ message ListVpnNamespaces {
   }
 }
 
+message DeleteVpnNamespace {
+  message Request {
+    string id = 1;
+  }
+  message Response {}
+}
+
+message ConnectService {
+  message Request {
+    string namespace_id = 1;
+    string service_name = 2;
+    // not implemented
+    optional string domain_name = 3;
+  }
+  message Response {}
+}
+
 message Namespace {
   string id = 1;
   string name = 2;
 }
+

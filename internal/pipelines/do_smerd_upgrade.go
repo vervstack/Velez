@@ -7,6 +7,8 @@ import (
 
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
+	"go.vervstack.ru/Velez/internal/pipelines/steps/config_steps"
+	"go.vervstack.ru/Velez/internal/pipelines/steps/container_steps"
 )
 
 const configSuffix = "_configuration_fetcher"
@@ -28,35 +30,35 @@ func (p *pipeliner) UpgradeSmerd(req domain.UpgradeSmerd) Runner[any] {
 				newLaunch.ImageName = req.Image
 				return nil
 			}),
-			steps.PauseContainer(p.nodeClients, &oldContId),
+			container_steps.PauseContainer(p.nodeClients, &oldContId),
 			// Config stage
 			steps.SingleFunc(func(_ context.Context) error {
 				newLaunch.Name = req.Name + configSuffix
 				return nil
 			}),
-			steps.CreateContainer(p.nodeClients, &newLaunch, &newContId),
-			steps.GetConfigFromContainerStep(p.nodeClients, p.services, &newLaunch, &newContId, &img, &cfgMount),
-			steps.DropContainerStep(p.nodeClients, &newContId),
+			container_steps.CreateContainer(p.nodeClients, &newLaunch, &newContId),
+			config_steps.GetConfigFromContainerStep(p.nodeClients, p.services, &newLaunch, &newContId, &img, &cfgMount),
+			container_steps.DropContainerStep(p.nodeClients, &newContId),
 			// Config stage
 			steps.SingleFunc(func(_ context.Context) error {
 				newLaunch.Name = req.Name
 				return nil
 			}),
 			// Deploy stage
-			steps.FetchConfig(p.services, &newLaunch, &img, &cfgMount),
+			config_steps.FetchConfig(p.services, &newLaunch, &img, &cfgMount),
 			steps.PrepareVervConfig(p.nodeClients, p.services, &newLaunch, &img),
 			// Config stage
 			steps.SingleFunc(func(_ context.Context) error {
 				newLaunch.Name = req.Name + "_new"
 				return nil
 			}),
-			steps.CreateContainer(p.nodeClients, &newLaunch, &newContId),
-			steps.StartSmerd(p.nodeClients, &newContId),
+			container_steps.CreateContainer(p.nodeClients, &newLaunch, &newContId),
+			container_steps.StartSmerd(p.nodeClients, &newContId),
 			steps.Healthcheck(p.nodeClients, &newLaunch, &newContId),
 			// Clean up
-			steps.RenameContainer(p.nodeClients, &oldContId, req.Name+"_old"),
-			steps.DropContainerStep(p.nodeClients, &oldContId),
-			steps.RenameContainer(p.nodeClients, &newContId, req.Name),
+			container_steps.RenameContainer(p.nodeClients, &oldContId, req.Name+"_old"),
+			container_steps.DropContainerStep(p.nodeClients, &oldContId),
+			container_steps.RenameContainer(p.nodeClients, &newContId, req.Name),
 		},
 
 		getResult: func() (*any, error) {

@@ -23,7 +23,13 @@ type Pipeliner interface {
 	// image to a new version (latest or specified)
 	UpgradeSmerd(req domain.UpgradeSmerd) Runner[any]
 
+	// EnableVervService - enables verv built-in services like
+	// Matreshka, makosh, VPN with headscale and etc
+	// TODO implement
 	EnableVervService(req velez_api.VervServiceType) Runner[any]
+
+	// ConnectServiceToVpn - connects any user service to cluster vpn
+	ConnectServiceToVpn(vpn domain.ConnectServiceToVpn) Runner[any]
 }
 
 type Runner[T any] interface {

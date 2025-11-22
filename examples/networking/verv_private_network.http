@@ -19,4 +19,7 @@ POST {{velez}}/api/vpn/services/connect
 Content-Type: application/json
 Grpc-Metadata-Authorization: {{key}}
 
-{}
+{
+  "serviceName": "hello_world",
+  "namespace_id": "3"
+}

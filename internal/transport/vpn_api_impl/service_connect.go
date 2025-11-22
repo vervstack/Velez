@@ -14,7 +14,7 @@ func (impl *Impl) ConnectService(ctx context.Context, req *velez_api.ConnectServ
 
 	r := domain.ConnectServiceToVpn{
 		ServiceName: req.ServiceName,
-		VpnName:     req.NamespaceId,
+		NamespaceId: req.NamespaceId,
 	}
 
 	runner := impl.pipeliner.ConnectServiceToVpn(r)

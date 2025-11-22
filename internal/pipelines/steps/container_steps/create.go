@@ -4,48 +4,50 @@ import (
 	"context"
 
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/errdefs"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"go.redsock.ru/rerrors"
+	"go.redsock.ru/toolbox"
 
-	"go.vervstack.ru/Velez/internal/backservice/env"
 	"go.vervstack.ru/Velez/internal/clients"
-	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils"
-	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils/parser"
-	"go.vervstack.ru/Velez/internal/domain"
 )
 
 type createContainerStep struct {
 	docker    clients.Docker
 	dockerAPI client.APIClient
 
-	req         *domain.LaunchSmerd
+	req         *container.CreateRequest
+	name        *string
 	containerId *string
 }
 
-func CreateContainer(nodeClients clients.NodeClients,
-	req *domain.LaunchSmerd,
+func Create(
+	nodeClients clients.NodeClients,
+	req *container.CreateRequest,
+	name *string,
+
 	containerId *string,
 ) *createContainerStep {
 	return &createContainerStep{
 		docker:      nodeClients.Docker(),
 		dockerAPI:   nodeClients.Docker().Client(),
 		req:         req,
+		name:        name,
 		containerId: containerId,
 	}
 }
 
 func (s *createContainerStep) Do(ctx context.Context) error {
-	cfg := s.getLaunchConfig()
-	hCfg := s.getHostConfig()
-	nCfg := s.getNetworkConfig()
 	pCfg := &v1.Platform{}
 
-	contName := s.req.GetName()
-
-	createdContainer, err := s.dockerAPI.ContainerCreate(ctx, cfg, hCfg, nCfg, pCfg, contName)
+	createdContainer, err := s.dockerAPI.ContainerCreate(ctx,
+		s.req.Config,
+		s.req.HostConfig,
+		s.req.NetworkingConfig,
+		pCfg,
+		toolbox.FromPtr(s.name),
+	)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating container")
 	}
@@ -56,18 +58,6 @@ func (s *createContainerStep) Do(ctx context.Context) error {
 	}
 
 	*s.containerId = containerInfo.ID
-
-	for _, n := range s.req.Settings.Network {
-		connectReq := dockerutils.ConnectToNetworkRequest{
-			NetworkName: n.NetworkName,
-			ContId:      createdContainer.ID,
-			Aliases:     n.Aliases,
-		}
-		err = dockerutils.ConnectToNetwork(ctx, s.dockerAPI, connectReq)
-		if err != nil {
-			return rerrors.Wrap(err)
-		}
-	}
 
 	return nil
 }
@@ -85,58 +75,4 @@ func (s *createContainerStep) Rollback(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-func (s *createContainerStep) getLaunchConfig() (cfg *container.Config) {
-	cfg = &container.Config{
-		Image:       s.req.ImageName,
-		Hostname:    s.req.GetName(),
-		Cmd:         parser.FromCommand(s.req.Command),
-		Healthcheck: parser.FromHealthcheck(s.req.Healthcheck),
-		Env:         parser.FromDockerEnv(s.req.Env),
-		Labels:      s.req.Labels,
-	}
-
-	return cfg
-}
-
-func (s *createContainerStep) getHostConfig() (hostConfig *container.HostConfig) {
-	hostConfig = &container.HostConfig{
-		PortBindings:  parser.FromPorts(s.req.Settings),
-		Mounts:        parser.FromVolume(s.req.Settings),
-		Binds:         parser.FromBinds(s.req.Settings),
-		RestartPolicy: parser.FromRestart(s.req.Restart),
-	}
-
-	if s.req.Settings != nil && len(s.req.Settings.Volumes) != 0 {
-		hostConfig.VolumeDriver = s.req.Settings.Volumes[0].VolumeName
-	}
-
-	return hostConfig
-}
-
-func (s *createContainerStep) getNetworkConfig() (networkConfig *network.NetworkingConfig) {
-	networkConfig = &network.NetworkingConfig{}
-
-	if len(s.req.Settings.Ports) == 0 {
-		return networkConfig
-	}
-
-	networkConfig.EndpointsConfig = make(map[string]*network.EndpointSettings)
-
-	vervNetwork := &network.EndpointSettings{
-		Aliases: []string{s.req.GetName()},
-	}
-	networkConfig.EndpointsConfig[env.VervNetwork] = vervNetwork
-
-	// required in order to expose ports on some platforms (e.g. orbs)
-	networkConfig.EndpointsConfig["bridge"] = &network.EndpointSettings{}
-
-	for _, v := range s.req.Settings.Network {
-		networkConfig.EndpointsConfig[v.NetworkName] = &network.EndpointSettings{
-			Aliases: v.Aliases,
-		}
-	}
-
-	return networkConfig
 }

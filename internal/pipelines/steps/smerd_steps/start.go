@@ -1,4 +1,4 @@
-package container_steps
+package smerd_steps
 
 import (
 	"context"
@@ -16,7 +16,7 @@ type smerdStart struct {
 	containerId *string
 }
 
-func StartSmerd(
+func Start(
 	nodeClients clients.NodeClients,
 	containerId *string,
 ) *smerdStart {

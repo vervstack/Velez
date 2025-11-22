@@ -11,7 +11,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
-func (s *Service) Create(ctx context.Context, name string) (domain.VpnNamespace, error) {
+func (s *Service) CreateNamespace(ctx context.Context, name string) (domain.VpnNamespace, error) {
 	type reqBody struct {
 		Name string `json:"name"`
 	}

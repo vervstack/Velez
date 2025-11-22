@@ -14,7 +14,10 @@ import (
 
 const authHeader = "Authorization"
 
-const userUri = "/api/v1/user"
+const (
+	userUri      = "/api/v1/user"
+	clientKeyUri = "/api/v1/preauthkey"
+)
 
 func (s *Service) doApiRequest(ctx context.Context, method string, uri string, req any) (*http.Response, error) {
 	reqEncoded, err := json.Marshal(req)
@@ -26,10 +29,13 @@ func (s *Service) doApiRequest(ctx context.Context, method string, uri string, r
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error creating request")
 	}
-
-	r.Header.Add(authHeader, "Bearer "+s.apiKey)
-
 	r = r.WithContext(ctx)
+
+	return s.execApiRequest(r)
+}
+
+func (s *Service) execApiRequest(r *http.Request) (*http.Response, error) {
+	r.Header.Add(authHeader, "Bearer "+s.apiKey)
 
 	resp, err := http.DefaultClient.Do(r)
 	if err != nil {

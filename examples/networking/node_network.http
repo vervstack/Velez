@@ -1,0 +1,13 @@
+### Connect to local (docker) network
+POST {{velez}}/api/smerd/connect
+Content-Type: application/json
+Grpc-Metadata-Authorization: {{key}}
+
+{
+  "connections": [
+    {
+      "serviceName": "headscale",
+      "targetNetwork": "verv"
+    }
+  ]
+}

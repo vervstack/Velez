@@ -1,13 +1,49 @@
 package pipelines
 
 import (
+	"context"
+	"strings"
+	"time"
+
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/patterns"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
+	"go.vervstack.ru/Velez/internal/pipelines/steps/container_steps"
+	"go.vervstack.ru/Velez/internal/pipelines/steps/network_steps"
+	"go.vervstack.ru/Velez/internal/pipelines/steps/smerd_steps"
 )
 
 func (p *pipeliner) ConnectServiceToVpn(req domain.ConnectServiceToVpn) Runner[any] {
+	// region Pipeline context
+	launchContainer := patterns.TailScaleSidecar(req.ServiceName)
+
+	var containerId string
+	var clientKey string
+	var sidecarCommand string
+
+	containerName := req.ServiceName + "-ts-sidecar"
+	//endregion
 
 	return &runner[any]{
-		Steps: []steps.Step{},
+		Steps: []steps.Step{
+			network_steps.IssueClientKey(p.services.VervPrivateNetworkService(), req.NamespaceId, &clientKey),
+			steps.SingleFunc(func(_ context.Context) error {
+				hostname := strings.ReplaceAll(req.ServiceName+"-ts-sidecar", "_", "-")
+				sidecarCommand =
+					"tailscale up --authkey=" + clientKey +
+						" --hostname=" + hostname +
+						" --accept-routes --advertise-exit-node" +
+						" --login-server=http://headscale.verv:8080"
+				return nil
+			}),
+			steps.PrepareImage(p.nodeClients, launchContainer.Image, nil),
+			container_steps.Create(p.nodeClients, &launchContainer,
+				&containerName, &containerId),
+			smerd_steps.Start(p.nodeClients, &containerId),
+			steps.SingleFunc(func(_ context.Context) error { time.Sleep(time.Second * 5); return nil }),
+			smerd_steps.Exec(p.nodeClients, &containerName, &sidecarCommand),
+		},
 	}
 }
+
+//tailscale up --authkey=50d0df0023095166fc79c9b5daf7c0293fe34ebbdbc85da9 --hostname=hello-world-ts-sidecar --accept-routes --advertise-exit-node --login-server=http://headscale.verv:8080

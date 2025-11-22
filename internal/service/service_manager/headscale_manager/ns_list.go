@@ -11,9 +11,12 @@ import (
 )
 
 func (s *Service) ListNamespaces(ctx context.Context) ([]domain.VpnNamespace, error) {
-	type listNamespacesResp struct {
+	//region Response body
+	type response struct {
 		Users []domain.VpnNamespace `json:"users"`
 	}
+
+	//endregion
 
 	resp, err := s.doApiRequest(ctx, http.MethodGet, userUri, nil)
 	if err != nil {
@@ -21,7 +24,7 @@ func (s *Service) ListNamespaces(ctx context.Context) ([]domain.VpnNamespace, er
 	}
 
 	if resp.StatusCode == http.StatusOK {
-		nameSpaces := listNamespacesResp{}
+		nameSpaces := response{}
 		return nameSpaces.Users, json.NewDecoder(resp.Body).Decode(&nameSpaces)
 	}
 

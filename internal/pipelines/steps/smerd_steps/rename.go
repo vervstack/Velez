@@ -1,4 +1,4 @@
-package container_steps
+package smerd_steps
 
 import (
 	"context"

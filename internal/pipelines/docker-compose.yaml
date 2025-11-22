@@ -1,0 +1,33 @@
+services:
+  hw-tailscale:
+    image: tailscale/tailscale:latest
+    container_name: hw-sidecar
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+    network_mode: container:hello_world
+    volumes:
+      - hw-tailscale-state:/var/lib/tailscale
+    command: |
+      tailscaled --state=/var/lib/tailscale/tailscaled.state
+    #tailscale up --authkey=7341cdc83dcb2910a74eaeeca8636d8a44874ffec2ae5b63 --hostname=hw-sidecar --accept-routes --advertise-exit-node --login-server=http://headscale.verv:8080
+    environment:
+      AUTH_KEY: 96df3da87064f95afd921d51b11bfe53a55a9789865fcd2e
+  matreshka-tailscale-sidecar:
+    image: tailscale/tailscale:latest
+    container_name: matreshka-sidecar
+    network_mode: container:matreshka
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+    #    volumes:
+    #      - matreshka-tailscale-state:/var/lib/tailscale
+    command: |
+      tailscaled --state=/var/lib/tailscale/tailscaled.state
+
+#tailscale up --authkey=9b52506a88af1a0e67c6f965565a4a608062e2ce9e903d19 --hostname=matreshka-sidecar --accept-routes --advertise-exit-node --login-server=http://headscale.redsockru:8080
+#volumes:
+#  matreshka-tailscale-state:
+#  hw-tailscale-state:

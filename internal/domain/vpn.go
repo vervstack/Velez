@@ -5,7 +5,12 @@ type VpnNamespace struct {
 	Name string
 }
 
+type ListVpnNamespaces struct {
+	Id   *string
+	Name *string
+}
+
 type ConnectServiceToVpn struct {
 	ServiceName string
-	VpnName     string
+	NamespaceId string
 }

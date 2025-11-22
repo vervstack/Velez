@@ -40,6 +40,8 @@ type ConfigurationService interface {
 }
 
 type VervPrivateNetworkService interface {
-	Create(ctx context.Context, name string) (domain.VpnNamespace, error)
+	CreateNamespace(ctx context.Context, name string) (domain.VpnNamespace, error)
 	ListNamespaces(ctx context.Context) ([]domain.VpnNamespace, error)
+
+	IssueClientKey(ctx context.Context, namespace string) (string, error)
 }

@@ -30,7 +30,9 @@ func (s *stepPrepareImage) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error pulling image")
 	}
 
-	*s.result = image
+	if s.result != nil {
+		*s.result = image
+	}
 
 	return nil
 }

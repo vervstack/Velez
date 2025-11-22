@@ -74,12 +74,16 @@ func (d *Docker) ListContainers(ctx context.Context, req *velez_api.ListSmerds_R
 }
 
 func (d *Docker) Exec(ctx context.Context, containerId string, execCfg container.ExecOptions) ([]byte, error) {
-	execCfg.AttachStdout = true
-	execCfg.AttachStderr = true
+	execCfg.AttachStdout = !execCfg.Detach
+	execCfg.AttachStderr = !execCfg.Detach
 
 	execResp, err := d.client.ContainerExecCreate(ctx, containerId, execCfg)
 	if err != nil {
 		return nil, rerrors.Wrap(err)
+	}
+
+	if execCfg.Detach {
+		return nil, nil
 	}
 
 	// Attach to execution

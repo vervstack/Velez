@@ -38,12 +38,3 @@ func (h *issueClientKeyStep) Do(ctx context.Context) error {
 	*h.keyResponse = clientKey
 	return nil
 }
-
-func (h *issueClientKeyStep) Rollback(ctx context.Context) error {
-	err := h.networkService.DropKey(ctx, *h.keyResponse)
-	if err != nil {
-		return rerrors.Wrap(err, "error dropping key on rollback")
-	}
-
-	return nil
-}

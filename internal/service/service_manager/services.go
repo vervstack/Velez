@@ -38,7 +38,7 @@ func New(
 		return nil, rerrors.Wrap(err, "error initializing configurator")
 	}
 
-	headscaleManager, err := headscale_manager.New(ctx, nodeClients.Docker(), headscale.Name)
+	headscaleManager, err := headscale_manager.New(ctx, nodeClients, headscale.Name)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error initializing headscale")
 	}

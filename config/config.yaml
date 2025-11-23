@@ -67,3 +67,6 @@ environment:
     - name: headscale_image
       type: string
       value: headscale/headscale:latest
+    - name: vpn_sidecar_image
+      type: string
+      value: tailscale/tailscale:v1.90.8

@@ -44,5 +44,4 @@ type VervPrivateNetworkService interface {
 	ListNamespaces(ctx context.Context) ([]domain.VpnNamespace, error)
 
 	IssueClientKey(ctx context.Context, namespace string) (string, error)
-	DropKey(ctx context.Context, s string) error
 }

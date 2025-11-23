@@ -26,6 +26,7 @@ type Manager struct {
 type PrivateKeys struct {
 	Velez     string
 	Matreshka string
+	Headscale string
 }
 
 func NewSecurityManager(cfg config.Config) *Manager {
@@ -51,13 +52,24 @@ func (s *Manager) Start() error {
 func (s *Manager) GetMatreshkaKey() string {
 	return s.keys.Matreshka
 }
-
 func (s *Manager) SetMatreshkaKey(b string) {
 	s.keys.Matreshka = b
 
 	err := writeKey(s.buildPath, s.keys)
 	if err != nil {
-		logrus.Errorf("error setting key %s", err)
+		logrus.Errorf("error setting matreshka key %s", err)
+	}
+}
+
+func (s *Manager) GetHeadscaleKey() string {
+	return s.keys.Headscale
+}
+func (s *Manager) SetHeadscaleKey(key string) {
+	s.keys.Headscale = key
+
+	err := writeKey(s.buildPath, s.keys)
+	if err != nil {
+		logrus.Errorf("error setting headscale key %s", err)
 	}
 }
 

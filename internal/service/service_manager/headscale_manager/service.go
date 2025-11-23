@@ -14,9 +14,9 @@ type Service struct {
 	headscaleApiUrl string
 }
 
-func New(ctx context.Context, docker clients.Docker, containerName string) (srv *Service, err error) {
+func New(ctx context.Context, nc clients.NodeClients, containerName string) (srv *Service, err error) {
 	srv = &Service{
-		docker:        docker,
+		docker:        nc.Docker(),
 		containerName: containerName,
 		// TODO change onto actual
 		headscaleApiUrl: "http://localhost:8080",

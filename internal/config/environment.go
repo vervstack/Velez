@@ -22,6 +22,7 @@ type EnvironmentConfig struct {
 	NodeMode           bool
 	RAMMbDefault       int
 	ShutDownOnExit     bool
+	VpnSidecarImage    string
 }
 
 const (

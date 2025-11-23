@@ -65,3 +65,6 @@ environment:
     - name: shut_down_on_exit
       type: bool
       value: false
+    - name: vpn_sidecar_image
+      type: string
+      value: tailscale/tailscale:v1.90.8

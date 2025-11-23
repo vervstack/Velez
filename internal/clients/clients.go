@@ -42,6 +42,9 @@ type SecurityManager interface {
 	GetMatreshkaKey() string
 	SetMatreshkaKey(key string)
 
+	SetHeadscaleKey(key string)
+	GetHeadscaleKey() string
+
 	ValidateVelezPrivateKey(in string) bool
 }
 

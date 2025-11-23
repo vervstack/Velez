@@ -21,6 +21,7 @@ type EnvironmentConfig struct {
 	NodeMode           bool
 	RAMMbDefault       int
 	ShutDownOnExit     bool
+	VpnIsEnabled       bool
 	VpnServerImage     string
 	VpnSidecarImage    string
 }

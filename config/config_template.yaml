@@ -62,6 +62,9 @@ environment:
     - name: shut_down_on_exit
       type: bool
       value: false
+    - name: vpn_is_enabled
+      type: bool
+      value: false
     - name: vpn_server_image
       type: string
       value: headscale/headscale:latest

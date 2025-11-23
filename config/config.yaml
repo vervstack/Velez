@@ -70,3 +70,6 @@ environment:
     - name: vpn_sidecar_image
       type: string
       value: tailscale/tailscale:v1.90.8
+    - name: vpn_is_enabled
+      type: bool
+      value: false

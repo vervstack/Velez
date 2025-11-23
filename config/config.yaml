@@ -20,6 +20,9 @@ environment:
     - name: disable_api_security
       type: bool
       value: false
+    - name: headscale_image
+      type: string
+      value: headscale/headscale:latest
     - name: is_headtail_enabled
       type: bool
       value: true
@@ -64,9 +67,6 @@ environment:
     - name: shut_down_on_exit
       type: bool
       value: false
-    - name: headscale_image
-      type: string
-      value: headscale/headscale:latest
     - name: vpn_sidecar_image
       type: string
       value: tailscale/tailscale:v1.90.8

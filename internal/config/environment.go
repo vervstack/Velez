@@ -7,7 +7,6 @@ type EnvironmentConfig struct {
 	CPUDefault         float64
 	CustomPassToKey    string
 	DisableAPISecurity bool
-	IsHeadtailEnabled  bool
 	LogFormat          string
 	LogLevel           string
 	MakoshExposePort   bool

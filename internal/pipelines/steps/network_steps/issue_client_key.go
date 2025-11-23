@@ -40,6 +40,10 @@ func (h *issueClientKeyStep) Do(ctx context.Context) error {
 }
 
 func (h *issueClientKeyStep) Rollback(ctx context.Context) error {
-	// TODO implement client key deletion
+	err := h.networkService.DropKey(ctx, *h.keyResponse)
+	if err != nil {
+		return rerrors.Wrap(err, "error dropping key on rollback")
+	}
+
 	return nil
 }

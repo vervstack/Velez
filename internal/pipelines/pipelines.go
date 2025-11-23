@@ -48,3 +48,23 @@ func NewPipeliner(nodeClients clients.NodeClients, services service.Services) Pi
 		services:    services,
 	}
 }
+
+func (p *pipeliner) baseContext() baseCtx {
+	return baseCtx{
+		nodeClients: p.nodeClients,
+		services:    p.services,
+	}
+}
+
+type baseCtx struct {
+	nodeClients clients.NodeClients
+	services    service.Services
+}
+
+func (c *baseCtx) NodeClients() clients.NodeClients {
+	return c.nodeClients
+}
+
+func (c *baseCtx) Services() service.Services {
+	return c.services
+}

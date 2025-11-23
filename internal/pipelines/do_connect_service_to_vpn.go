@@ -19,27 +19,29 @@ func (p *pipeliner) ConnectServiceToVpn(req domain.ConnectServiceToVpn) Runner[a
 	var containerId string
 	var clientKey string
 	var sidecarCommand string
+	var loginServer string
 
 	containerName := req.ServiceName + "-ts-sidecar"
+
 	//endregion
 
 	return &runner[any]{
 		Steps: []steps.Step{
 			network_steps.IssueClientKey(p.services.VervPrivateNetworkService(), req.NamespaceId, &clientKey),
+			network_steps.GetLoginServerUrl(&loginServer),
 			steps.SingleFunc(func(_ context.Context) error {
 				hostname := strings.ReplaceAll(req.ServiceName+"-ts-sidecar", "_", "-")
 				sidecarCommand =
 					"tailscale up --authkey=" + clientKey +
 						" --hostname=" + hostname +
 						" --accept-routes --advertise-exit-node" +
-						" --login-server=http://headscale.verv:8080"
+						" --login-server=" + loginServer
 				return nil
 			}),
 			steps.PrepareImage(p.nodeClients, launchContainer.Image, nil),
 			container_steps.Create(p.nodeClients, &launchContainer,
 				&containerName, &containerId),
 			smerd_steps.Start(p.nodeClients, &containerId),
-			//steps.SingleFunc(func(_ context.Context) error { time.Sleep(time.Second * 5); return nil }),
 			smerd_steps.Exec(p.nodeClients, &containerName, &sidecarCommand),
 		},
 	}

@@ -20,9 +20,6 @@ environment:
     - name: disable_api_security
       type: bool
       value: false
-    - name: vpn_is_enabled
-      type: bool
-      value: true
     - name: log_format
       type: string
       value: TEXT
@@ -47,6 +44,9 @@ environment:
     - name: matreshka_image
       type: string
       value: godverv/matreshka-be:v1.0.47
+    - name: matreshka_key
+      type: string
+      value: string
     - name: matreshka_port
       type: int
       value: 50050
@@ -62,6 +62,9 @@ environment:
     - name: shut_down_on_exit
       type: bool
       value: false
+    - name: vpn_is_enabled
+      type: bool
+      value: true
     - name: vpn_is_enabled
       type: bool
       value: false

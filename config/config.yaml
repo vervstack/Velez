@@ -49,6 +49,9 @@ environment:
     - name: matreshka_port
       type: int
       value: 50050
+    - name: matreshka_key
+      type: string
+      value: string
     - name: memory_swap_mb
       type: int
       value: 50

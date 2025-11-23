@@ -45,7 +45,7 @@ func launch(
 		ContainerName: Name,
 		NodeClients:   nodeClients,
 
-		ImageName: rtb.Coalesce(cfg.Environment.HeadscaleImage, defaultImage),
+		ImageName: rtb.Coalesce(cfg.Environment.VpnServerImage, defaultImage),
 		VolumeMounts: map[string][]string{
 			"headscale": {
 				"/etc/headscale",

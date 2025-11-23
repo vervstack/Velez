@@ -3,7 +3,6 @@ package pipelines
 import (
 	"context"
 	"strings"
-	"time"
 
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/patterns"
@@ -40,10 +39,8 @@ func (p *pipeliner) ConnectServiceToVpn(req domain.ConnectServiceToVpn) Runner[a
 			container_steps.Create(p.nodeClients, &launchContainer,
 				&containerName, &containerId),
 			smerd_steps.Start(p.nodeClients, &containerId),
-			steps.SingleFunc(func(_ context.Context) error { time.Sleep(time.Second * 5); return nil }),
+			//steps.SingleFunc(func(_ context.Context) error { time.Sleep(time.Second * 5); return nil }),
 			smerd_steps.Exec(p.nodeClients, &containerName, &sidecarCommand),
 		},
 	}
 }
-
-//tailscale up --authkey=50d0df0023095166fc79c9b5daf7c0293fe34ebbdbc85da9 --hostname=hello-world-ts-sidecar --accept-routes --advertise-exit-node --login-server=http://headscale.verv:8080

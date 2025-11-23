@@ -7,13 +7,12 @@ import (
 	"github.com/docker/docker/api/types/strslice"
 )
 
-const tailscaleImage = "tailscale/tailscale:latest"
+const tailscaleImage = "tailscale/tailscale:v1.90.8"
 
 func TailScaleSidecar(serviceName string) container.CreateRequest {
 	volumeName := serviceName + "-ts-sidecar"
 	return container.CreateRequest{
 		Config: &container.Config{
-			//Cmd: []string{"sleep", "infinity"},
 			Cmd:   []string{"tailscaled", "--state=/var/lib/tailscale/tailscaled.state"},
 			Image: tailscaleImage,
 			Volumes: map[string]struct{}{

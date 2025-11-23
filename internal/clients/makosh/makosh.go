@@ -6,7 +6,7 @@ import (
 	pb "go.vervstack.ru/makosh/pkg/makosh_be"
 	"google.golang.org/grpc"
 
-	"go.vervstack.ru/Velez/internal/middleware/security"
+	"go.vervstack.ru/Velez/internal/middleware"
 )
 
 const (
@@ -17,7 +17,7 @@ const (
 
 func New(token string, opts ...grpc.DialOption) (makosh.MakoshBeAPIClient, error) {
 	opts = append(opts,
-		grpc.WithUnaryInterceptor(security.HeaderOutgoingInterceptor(AuthHeader, token)))
+		grpc.WithUnaryInterceptor(middleware.HeaderOutgoingInterceptor(AuthHeader, token)))
 
 	dial, err := grpc.NewClient("verv://"+ServiceName, opts...)
 	if err != nil {

@@ -5,8 +5,8 @@ import (
 	"strings"
 	"sync"
 
+	cerrdefs "github.com/containerd/errdefs"
 	"github.com/docker/docker/client"
-	"github.com/docker/docker/errdefs"
 	"github.com/sirupsen/logrus"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
@@ -64,12 +64,10 @@ func initInstance(
 	nodeClients clients.NodeClients,
 	sd service_discovery.ServiceDiscovery,
 ) (err error) {
-	key, err := getKey(ctx, nodeClients)
+	key, err := initKey(ctx, nodeClients)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting key")
 	}
-
-	nodeClients.SecurityManager().SetMatreshkaKey(key)
 
 	taskRequest := container_service_task.NewTaskRequest[matreshka_api.MatreshkaBeAPIClient]{
 		NodeClients: nodeClients,
@@ -142,31 +140,38 @@ func initInstance(
 	return nil
 }
 
-func getKey(ctx context.Context, nodeClients clients.NodeClients) (string, error) {
-	keyFromSecManager := nodeClients.SecurityManager().GetMatreshkaKey()
+func initKey(ctx context.Context, nodeClients clients.NodeClients) (string, error) {
+	keyFromLocalState := nodeClients.LocalStateManager().Get().MatreshkaKey
 
-	keyFromCont, err := getKeyFromContainer(ctx, nodeClients.Docker().Client())
+	keyFromCont, err := getKeyFromMatreshkaContainerEnv(ctx, nodeClients.Docker().Client())
 	if err != nil {
 		return "", rerrors.Wrap(err, "error getting key from container")
 	}
 
 	if keyFromCont == "" {
-		return keyFromSecManager, nil
+		return keyFromLocalState, nil
 	}
 
-	logrus.Infof("Using key from container: %s", keyFromSecManager)
+	logrus.Infof("Using key from local state: %s", keyFromLocalState)
+
+	stateManager := nodeClients.LocalStateManager()
+	localState := stateManager.Get()
+	localState.MatreshkaKey = keyFromCont
+	stateManager.Set(localState)
+
 	return keyFromCont, nil
 }
 
-func getKeyFromContainer(ctx context.Context, docker client.APIClient) (string, error) {
+func getKeyFromMatreshkaContainerEnv(ctx context.Context, docker client.APIClient) (string, error) {
 	cont, err := docker.ContainerInspect(ctx, Name)
 	if err != nil {
-		if !errdefs.IsNotFound(err) {
+		if !cerrdefs.IsNotFound(err) {
 			return "", rerrors.Wrap(err, "")
 		}
 
 		return "", nil
 	}
+
 	for _, e := range cont.Config.Env {
 		if strings.HasPrefix(e, passEnv) {
 			return e[len(passEnv)+1:], nil

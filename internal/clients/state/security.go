@@ -1,4 +1,4 @@
-package security
+package state
 
 import (
 	"bytes"
@@ -18,15 +18,15 @@ const defaultPath = "/tmp/velez/private-keys.json"
 
 type Manager struct {
 	buildPath string
-	keys      PrivateKeys
+	state     State
 
 	sync.Once
 }
 
-type PrivateKeys struct {
-	Velez     string
-	Matreshka string
-	Headscale string
+type State struct {
+	VelezKey     string
+	MatreshkaKey string
+	HeadscaleKey string
 }
 
 func NewSecurityManager(cfg config.Config) *Manager {
@@ -36,7 +36,7 @@ func NewSecurityManager(cfg config.Config) *Manager {
 
 	return &Manager{
 		buildPath: cfg.Environment.CustomPassToKey,
-		keys:      PrivateKeys{},
+		state:     State{},
 	}
 }
 
@@ -49,37 +49,26 @@ func (s *Manager) Start() error {
 	return err
 }
 
-func (s *Manager) GetMatreshkaKey() string {
-	return s.keys.Matreshka
-}
-func (s *Manager) SetMatreshkaKey(b string) {
-	s.keys.Matreshka = b
+func (s *Manager) Set(state State) {
+	s.state = state
 
-	err := writeKey(s.buildPath, s.keys)
+	err := writeKey(s.buildPath, s.state)
 	if err != nil {
 		logrus.Errorf("error setting matreshka key %s", err)
 	}
 }
 
-func (s *Manager) GetHeadscaleKey() string {
-	return s.keys.Headscale
-}
-func (s *Manager) SetHeadscaleKey(key string) {
-	s.keys.Headscale = key
-
-	err := writeKey(s.buildPath, s.keys)
-	if err != nil {
-		logrus.Errorf("error setting headscale key %s", err)
-	}
+func (s *Manager) Get() State {
+	return s.state
 }
 
 func (s *Manager) ValidateVelezPrivateKey(in string) bool {
-	if len(in) != len(s.keys.Velez) {
+	if len(in) != len(s.state.VelezKey) {
 		return false
 	}
 
 	for i := range in {
-		if in[i] != s.keys.Velez[i] {
+		if in[i] != s.state.VelezKey[i] {
 			return false
 		}
 	}
@@ -88,19 +77,24 @@ func (s *Manager) ValidateVelezPrivateKey(in string) bool {
 }
 
 func (s *Manager) Stop() error {
+	err := writeKey(s.buildPath, s.state)
+	if err != nil {
+		return rerrors.Wrap(err, "error saving state on exit")
+	}
+
 	return nil
 }
 
 func (s *Manager) start() error {
-	keys, err := getKeys(s.buildPath)
+	keys, err := readStateFromPath(s.buildPath)
 	if err != nil {
 		return rerrors.Wrap(err, "unable to get private keys")
 	}
 
-	s.keys.Velez = firstNotEmptyKey(keys.Velez)
-	s.keys.Matreshka = firstNotEmptyKey(s.keys.Matreshka, keys.Matreshka)
+	s.state.VelezKey = firstNotEmptyKey(keys.VelezKey)
+	s.state.MatreshkaKey = firstNotEmptyKey(s.state.MatreshkaKey, keys.MatreshkaKey)
 
-	err = writeKey(s.buildPath, s.keys)
+	err = writeKey(s.buildPath, s.state)
 	if err != nil {
 		return rerrors.Wrap(err, "unable to write key")
 	}
@@ -108,22 +102,22 @@ func (s *Manager) start() error {
 	return nil
 }
 
-func getKeys(buildPath string) (keys PrivateKeys, err error) {
+func readStateFromPath(buildPath string) (state State, err error) {
 	f, err := os.Open(buildPath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return keys, nil
+			return state, nil
 		}
 
-		return keys, rerrors.Wrap(err, "error opening file")
+		return state, rerrors.Wrap(err, "error opening file")
 	}
 	defer f.Close()
 
-	_ = json.NewDecoder(f).Decode(&keys)
-	return keys, nil
+	_ = json.NewDecoder(f).Decode(&state)
+	return state, nil
 }
 
-func writeKey(buildPath string, keys PrivateKeys) error {
+func writeKey(buildPath string, keys State) error {
 	err := os.MkdirAll(path.Dir(buildPath), 0777)
 	if err != nil {
 		return rerrors.Wrap(err, "error making dir")

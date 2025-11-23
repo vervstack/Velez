@@ -11,8 +11,8 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/docker"
 	"go.vervstack.ru/Velez/internal/clients/hardware"
 	"go.vervstack.ru/Velez/internal/clients/ports"
+	"go.vervstack.ru/Velez/internal/clients/state"
 	"go.vervstack.ru/Velez/internal/config"
-	"go.vervstack.ru/Velez/internal/middleware/security"
 )
 
 // NodeClients - container for node level clients
@@ -21,7 +21,7 @@ type NodeClients interface {
 	Docker() Docker
 
 	PortManager() PortManager
-	SecurityManager() SecurityManager
+	LocalStateManager() StateManager
 
 	HardwareManager() HardwareManager
 }
@@ -32,7 +32,7 @@ type nodeClients struct {
 	portManager     PortManager
 	hardwareManager HardwareManager
 
-	securityManager SecurityManager
+	securityManager StateManager
 }
 
 func NewNodeClientsContainer(ctx context.Context, cfg config.Config) (NodeClients, error) {
@@ -60,7 +60,7 @@ func NewNodeClientsContainer(ctx context.Context, cfg config.Config) (NodeClient
 		if !cfg.Environment.DisableAPISecurity {
 			logrus.Debug("Initializing security manager")
 
-			cls.securityManager = security.NewSecurityManager(cfg)
+			cls.securityManager = state.NewSecurityManager(cfg)
 
 			err = cls.securityManager.Start()
 			if err != nil {
@@ -104,6 +104,6 @@ func (c *nodeClients) HardwareManager() HardwareManager {
 	return c.hardwareManager
 }
 
-func (c *nodeClients) SecurityManager() SecurityManager {
+func (c *nodeClients) LocalStateManager() StateManager {
 	return c.securityManager
 }

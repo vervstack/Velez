@@ -18,7 +18,6 @@ import (
 	"go.vervstack.ru/Velez/internal/clients"
 	"go.vervstack.ru/Velez/internal/clients/matreshka"
 	"go.vervstack.ru/Velez/internal/middleware"
-	"go.vervstack.ru/Velez/internal/middleware/security"
 	"go.vervstack.ru/Velez/internal/pipelines"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/service_manager"
@@ -129,8 +128,8 @@ func (c *Custom) initApiServer(a *App) error {
 
 	if !a.Cfg.Environment.DisableAPISecurity {
 		a.ServerMaster.AddServerOption(
-			security.GrpcIncomingInterceptor(
-				c.NodeClients.SecurityManager().ValidateVelezPrivateKey))
+			middleware.GrpcIncomingInterceptor(
+				c.NodeClients.LocalStateManager().ValidateVelezPrivateKey))
 	}
 
 	a.ServerMaster.AddServerOption(middleware.LogInterceptor(), middleware.PanicInterceptor())

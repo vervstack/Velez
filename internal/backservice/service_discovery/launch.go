@@ -20,7 +20,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients"
 	"go.vervstack.ru/Velez/internal/clients/makosh"
 	"go.vervstack.ru/Velez/internal/config"
-	"go.vervstack.ru/Velez/internal/middleware/security"
+	"go.vervstack.ru/Velez/internal/middleware"
 )
 
 const (
@@ -138,6 +138,6 @@ func initClient(t *container_service_task.Task[pb.MakoshBeAPIClient], token stri
 	return container_service_task.NewGrpcClient(
 		t.ContainerNetworkHost+":"+t.GetPortBinding(grpcPort),
 		pb.NewMakoshBeAPIClient,
-		grpc.WithChainUnaryInterceptor(security.HeaderOutgoingInterceptor(makosh.AuthHeader, token)),
+		grpc.WithChainUnaryInterceptor(middleware.HeaderOutgoingInterceptor(makosh.AuthHeader, token)),
 		grpc.WithTransportCredentials(insecure.NewCredentials()))
 }

@@ -9,6 +9,7 @@ import (
 	"go.vervstack.ru/makosh/pkg/makosh_be"
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 
+	"go.vervstack.ru/Velez/internal/clients/state"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
@@ -35,15 +36,12 @@ type PortManager interface {
 	UnHoldPort(port uint32) bool
 }
 
-type SecurityManager interface {
+type StateManager interface {
 	Start() error
 	Stop() error
 
-	GetMatreshkaKey() string
-	SetMatreshkaKey(key string)
-
-	SetHeadscaleKey(key string)
-	GetHeadscaleKey() string
+	Set(st state.State)
+	Get() state.State
 
 	ValidateVelezPrivateKey(in string) bool
 }

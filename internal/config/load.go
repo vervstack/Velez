@@ -40,16 +40,18 @@ func Load() (Config, error) {
 	flag.BoolVar(&isDevBuild, "dev", false, "Flag turns on a dev config at ./config/dev.yaml")
 	flag.Parse()
 
-	if cfgPath == "" {
-		if isDevBuild {
-			cfgPath = devConfigPath
-		} else {
-			cfgPath = prodConfigPath
-		}
+	configsPaths := []string{prodConfigPath}
+
+	if cfgPath != "" {
+		configsPaths = append(configsPaths, cfgPath)
+	}
+
+	if isDevBuild {
+		configsPaths = append(configsPaths, devConfigPath)
 	}
 
 	var err error
-	defaultConfig.MatreshkaConfig, err = matreshka.ReadConfigs(cfgPath)
+	defaultConfig.MatreshkaConfig, err = matreshka.ReadConfigs(configsPaths...)
 	if err != nil {
 		return defaultConfig, rerrors.Wrap(err, "error reading matreshka config")
 	}

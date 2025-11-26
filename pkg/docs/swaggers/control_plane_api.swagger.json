@@ -133,13 +133,6 @@
             "type": "object",
             "$ref": "#/definitions/velez_apiVolume"
           }
-        },
-        "binds": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/velez_apiBind"
-          }
         }
       }
     },
@@ -179,17 +172,6 @@
         }
       },
       "additionalProperties": {}
-    },
-    "velez_apiBind": {
-      "type": "object",
-      "properties": {
-        "hostPath": {
-          "type": "string"
-        },
-        "containerPath": {
-          "type": "string"
-        }
-      }
     },
     "velez_apiConfigFormat": {
       "type": "string",

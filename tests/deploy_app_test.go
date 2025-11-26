@@ -251,6 +251,8 @@ func Test_DeployGeneric(t *testing.T) {
 		deployedSmerd, err := testEnvironment.createSmerd(ctx, createReq)
 		require.NoError(t, err)
 
+		alias := strings.ReplaceAll(t.Name(), "/", "_")
+
 		expectedSmerd := &velez_api.Smerd{
 			Name:      "/" + serviceName,
 			ImageName: "grafana/loki:main-bc418c4",
@@ -264,7 +266,7 @@ func Test_DeployGeneric(t *testing.T) {
 				},
 				{
 					NetworkName: "redsockru",
-					Aliases:     []string{"Test_DeployStr8_loki", "loki"},
+					Aliases:     []string{alias, "loki"},
 				},
 			},
 			Labels: map[string]string{
@@ -274,9 +276,8 @@ func Test_DeployGeneric(t *testing.T) {
 			Env: map[string]string{
 				"PATH":          "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/busybox",
 				"SSL_CERT_FILE": "/etc/ssl/certs/ca-certificates.crt",
-				"VERV_NAME":     "Test_DeployStr8_loki",
+				"VERV_NAME":     alias,
 			},
-			Binds: nil,
 		}
 
 		assertSmerds(t, expectedSmerd, deployedSmerd)

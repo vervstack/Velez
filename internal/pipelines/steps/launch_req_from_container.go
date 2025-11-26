@@ -52,7 +52,6 @@ func (s *fromContainerToRequest) Do(ctx context.Context) error {
 				Ports:   cont.Ports,
 				Network: s.fromContainerNetwork(cont),
 				Volumes: cont.Volumes,
-				Binds:   cont.Binds,
 			},
 			Env:    cont.Env,
 			Labels: cont.Labels,

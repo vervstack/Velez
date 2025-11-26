@@ -1,10 +1,6 @@
 package patterns
 
 import (
-	"strings"
-
-	"github.com/docker/docker/client"
-
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
@@ -31,13 +27,13 @@ func Portainer() *velez_api.CreateSmerd_Request {
 					ContainerPath: "/data",
 				},
 			},
-			Binds: []*velez_api.Bind{
-				{
-					// TODO move portainer to private service due to socket bind (not allowed)
-					HostPath:      strings.ReplaceAll(client.DefaultDockerHost, "unix://", ""),
-					ContainerPath: "/var/run/docker.sock",
-				},
-			},
+			//Binds: []*velez_api.Bind{
+			//	{
+			//		// TODO move portainer to private service due to socket bind (not allowed)
+			//		HostPath:      strings.ReplaceAll(client.DefaultDockerHost, "unix://", ""),
+			//		ContainerPath: "/var/run/docker.sock",
+			//	},
+			//},
 		},
 		Labels: map[string]string{
 			labels.CreatedWithVelezLabel: "true",

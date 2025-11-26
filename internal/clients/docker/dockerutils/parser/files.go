@@ -1,8 +1,6 @@
 package parser
 
 import (
-	"strings"
-
 	"github.com/docker/docker/api/types/mount"
 
 	"go.vervstack.ru/Velez/pkg/velez_api"
@@ -41,42 +39,6 @@ func ToVolume(volumes []mount.Mount) []*velez_api.Volume {
 		out[i] = &velez_api.Volume{
 			VolumeName:    item.Source,
 			ContainerPath: item.Target,
-		}
-	}
-
-	return out
-}
-
-func FromBinds(settings *velez_api.Container_Settings) []string {
-	if settings == nil {
-		return nil
-	}
-
-	out := make([]string, 0, len(settings.Binds))
-
-	for _, item := range settings.Binds {
-		out = append(out, item.HostPath+":"+item.ContainerPath)
-	}
-
-	return out
-}
-
-func ToBinds(binds []string) []*velez_api.Bind {
-	if len(binds) == 0 {
-		return nil
-	}
-
-	out := make([]*velez_api.Bind, len(binds))
-
-	for i, item := range binds {
-		separated := strings.Split(item, ":")
-		if len(separated) != 2 {
-			continue
-		}
-
-		out[i] = &velez_api.Bind{
-			HostPath:      separated[0],
-			ContainerPath: separated[1],
 		}
 	}
 

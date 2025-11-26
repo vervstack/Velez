@@ -17,7 +17,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
-type createContainerStep struct {
+type createSmerdStep struct {
 	docker    clients.Docker
 	dockerAPI client.APIClient
 
@@ -28,8 +28,8 @@ type createContainerStep struct {
 func Create(nodeClients clients.NodeClients,
 	req *domain.LaunchSmerd,
 	containerId *string,
-) *createContainerStep {
-	return &createContainerStep{
+) *createSmerdStep {
+	return &createSmerdStep{
 		docker:      nodeClients.Docker(),
 		dockerAPI:   nodeClients.Docker().Client(),
 		req:         req,
@@ -37,7 +37,7 @@ func Create(nodeClients clients.NodeClients,
 	}
 }
 
-func (s *createContainerStep) Do(ctx context.Context) error {
+func (s *createSmerdStep) Do(ctx context.Context) error {
 	cfg := s.getLaunchConfig()
 	hCfg := s.getHostConfig()
 	nCfg := s.getNetworkConfig()
@@ -72,7 +72,7 @@ func (s *createContainerStep) Do(ctx context.Context) error {
 	return nil
 }
 
-func (s *createContainerStep) Rollback(ctx context.Context) error {
+func (s *createSmerdStep) Rollback(ctx context.Context) error {
 	if s.containerId == nil {
 		return nil
 	}
@@ -87,7 +87,7 @@ func (s *createContainerStep) Rollback(ctx context.Context) error {
 	return nil
 }
 
-func (s *createContainerStep) getLaunchConfig() (cfg *container.Config) {
+func (s *createSmerdStep) getLaunchConfig() (cfg *container.Config) {
 	cfg = &container.Config{
 		Image:       s.req.ImageName,
 		Hostname:    s.req.GetName(),
@@ -100,11 +100,10 @@ func (s *createContainerStep) getLaunchConfig() (cfg *container.Config) {
 	return cfg
 }
 
-func (s *createContainerStep) getHostConfig() (hostConfig *container.HostConfig) {
+func (s *createSmerdStep) getHostConfig() (hostConfig *container.HostConfig) {
 	hostConfig = &container.HostConfig{
 		PortBindings:  parser.FromPorts(s.req.Settings),
 		Mounts:        parser.FromVolume(s.req.Settings),
-		Binds:         parser.FromBinds(s.req.Settings),
 		RestartPolicy: parser.FromRestart(s.req.Restart),
 	}
 
@@ -115,7 +114,7 @@ func (s *createContainerStep) getHostConfig() (hostConfig *container.HostConfig)
 	return hostConfig
 }
 
-func (s *createContainerStep) getNetworkConfig() (networkConfig *network.NetworkingConfig) {
+func (s *createSmerdStep) getNetworkConfig() (networkConfig *network.NetworkingConfig) {
 	networkConfig = &network.NetworkingConfig{}
 
 	if len(s.req.Settings.Ports) == 0 {

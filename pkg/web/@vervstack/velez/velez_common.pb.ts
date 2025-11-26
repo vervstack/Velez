@@ -54,11 +54,6 @@ export type Volume = {
   containerPath?: string;
 };
 
-export type Bind = {
-  hostPath?: string;
-  containerPath?: string;
-};
-
 export type NetworkBind = {
   networkName?: string;
   aliases?: string[];
@@ -81,7 +76,6 @@ export type Smerd = {
   networks?: NetworkBind[];
   labels?: Record<string, string>;
   env?: Record<string, string>;
-  binds?: Bind[];
 };
 
 export type ContainerHardware = {
@@ -94,7 +88,6 @@ export type ContainerSettings = {
   ports?: Port[];
   network?: NetworkBind[];
   volumes?: Volume[];
-  binds?: Bind[];
 };
 
 export type ContainerHealthcheck = {

@@ -2,6 +2,7 @@ package container_manager
 
 import (
 	"context"
+	"sort"
 	"strings"
 	"time"
 
@@ -23,7 +24,6 @@ func (c *ContainerManager) InspectSmerd(ctx context.Context, contId string) (*ve
 		Name:    contInfo.ContainerJSONBase.Name,
 		Ports:   parser.ToPortsMapping(contInfo.ContainerJSONBase.HostConfig.PortBindings),
 		Volumes: parser.ToVolume(contInfo.ContainerJSONBase.HostConfig.Mounts),
-		Binds:   parser.ToBinds(contInfo.ContainerJSONBase.HostConfig.Binds),
 		Env:     parser.ToDockerEnv(contInfo.Config.Env),
 		Labels:  contInfo.Config.Labels,
 	}
@@ -66,6 +66,10 @@ func (c *ContainerManager) InspectSmerd(ctx context.Context, contId string) (*ve
 
 		smerd.Networks = append(smerd.Networks, nb)
 	}
+
+	sort.Slice(smerd.Networks, func(i, j int) bool {
+		return smerd.Networks[i].NetworkName < smerd.Networks[j].NetworkName
+	})
 
 	return smerd, nil
 }

@@ -48,7 +48,6 @@ func New(api client.APIClient, checkPeriod time.Duration, pipeliner pipelines.Pi
 }
 
 func (au *AutoUpgrade) Start() error {
-
 	go au.starter.Do(func() {
 		err := au.do()
 		if err != nil {

@@ -1,5 +1,6 @@
 import PageHeader from "@/segments/PageHeader.tsx";
 import {Outlet} from "react-router-dom";
+import Toaster from "@/segments/Toaster.tsx";
 
 export default function MainLayout() {
     return (
@@ -11,6 +12,7 @@ export default function MainLayout() {
         >
             <Outlet/>
             <PageHeader/>
+            <Toaster/>
         </div>
     )
 }

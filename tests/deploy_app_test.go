@@ -2,6 +2,7 @@ package tests
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -146,7 +147,7 @@ func Test_DeployMultipleVerv(t *testing.T) {
 	//testEnvironment.matreshkaApi
 }
 
-func Test_DeployStr8(t *testing.T) {
+func Test_DeployGeneric(t *testing.T) {
 	t.Run("postgres", func(t *testing.T) {
 		t.Parallel()
 		serviceName := getServiceName(t)
@@ -205,7 +206,7 @@ func Test_DeployStr8(t *testing.T) {
 				{
 					NetworkName: "verv",
 					Aliases: []string{
-						"Test_DeployStr8_postgres",
+						strings.Replace(t.Name(), "/", "_", 1),
 					},
 				},
 			},

@@ -1,4 +1,4 @@
-import {ServiceType, CreateSmerdRequest} from "@vervstack/velez"
+import {VervServiceType, CreateSmerdRequest} from "@vervstack/velez"
 
 import MatreshkaIcon from "@/assets/icons/services/matreshka.png";
 import MakoshIcon from "@/assets/icons/services/makosh.png";
@@ -15,7 +15,7 @@ export class Service {
 
     smerdConstructor?: CreateSmerdRequest
 
-    constructor(type: ServiceType, port?: number) {
+    constructor(type: VervServiceType, port?: number) {
         const serviceMeta = metaByType.get(type);
         if (!serviceMeta) {
             this.title = type.toString()
@@ -40,18 +40,18 @@ interface ServiceMeta {
     description: string
 }
 
-const metaByType = new Map<ServiceType, ServiceMeta>();
-metaByType.set(ServiceType.makosh, {
+const metaByType = new Map<VervServiceType, ServiceMeta>();
+metaByType.set(VervServiceType.makosh, {
     title: "Makosh",
     icon: MakoshIcon,
     description: `Verv Standard service discovery inside cluster`
 });
-metaByType.set(ServiceType.matreshka, {
+metaByType.set(VervServiceType.matreshka, {
     title: "Matreshka",
     icon: MatreshkaIcon,
     description: `Verv Standard configuration system`
 });
-metaByType.set(ServiceType.portainer, {
+metaByType.set(VervServiceType.portainer, {
     title: "Portainer",
     icon: PortainerIcon,
     description: `Docker engine web interface`

@@ -80,8 +80,8 @@ func (c *Custom) Init(a *App) (err error) {
 }
 
 func (c *Custom) Start(ctx context.Context) error {
-	errg, ctx := errgroup.WithContext(ctx)
-	errg.Go(func() error {
+	errG, ctx := errgroup.WithContext(ctx)
+	errG.Go(func() error {
 		err := autoupgrade.New(c.NodeClients.Docker().Client(), time.Second*30, c.Pipeliner).Start()
 		if err != nil {
 			return rerrors.Wrap(err, "error starting autoupgrade")
@@ -90,7 +90,7 @@ func (c *Custom) Start(ctx context.Context) error {
 		return nil
 	})
 
-	err := errg.Wait()
+	err := errG.Wait()
 	if err != nil {
 		return rerrors.Wrap(err, "error starting custom workers")
 	}

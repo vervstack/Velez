@@ -2,6 +2,8 @@ package steps
 
 import (
 	"context"
+	"strconv"
+	"strings"
 
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
@@ -100,26 +102,32 @@ func (p *prepareVervConfig) Rollback(_ context.Context) error {
 }
 
 func (p *prepareVervConfig) getPortsFromImage() error {
-	portsInReq := map[uint32]*velez_api.Port{}
+	portsFromReq := map[uint32]*velez_api.Port{}
 	for _, port := range p.req.Settings.Ports {
-		portsInReq[port.ServicePortNumber] = port
+		portsFromReq[port.ServicePortNumber] = port
 	}
 
-	for _, port := range p.image.Config.ExposedPorts {
+	for portProtoc := range p.image.Config.ExposedPorts {
 		// TODO for some reasone there was a panic
-		_ = port
-		portVal := uint32(1)
-		_, ok := portsInReq[portVal]
+
+		pp := strings.Split(portProtoc, "/")
+		portVal, err := strconv.ParseUint(pp[0], 10, 32)
+		if err != nil {
+			return rerrors.Wrap(err, "error parsing port")
+		}
+
+		_, ok := portsFromReq[uint32(portVal)]
 		if ok {
 			continue
 		}
 
 		portBind := &velez_api.Port{
-			ServicePortNumber: portVal,
-			Protocol:          velez_api.Port_Protocol(velez_api.Port_Protocol_value["TODO"]), // TODO
+			ServicePortNumber: uint32(portVal),
+			Protocol:          velez_api.Port_Protocol(velez_api.Port_Protocol_value[pp[1]]),
 		}
+
 		p.req.Settings.Ports = append(p.req.Settings.Ports, portBind)
-		portsInReq[portVal] = portBind
+		portsFromReq[uint32(portVal)] = portBind
 	}
 
 	return nil

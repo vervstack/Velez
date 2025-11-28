@@ -28,7 +28,7 @@ func (s *AssembleConfigSuite) Test_AssembleHelloWorld() {
 		ServiceName: serviceName,
 	}
 
-	assembleResponse, err := testEnvironment.velezAPI.AssembleConfig(s.ctx, req)
+	assembleResponse, err := testEnvironment.api.velez.AssembleConfig(s.ctx, req)
 	require.NoError(s.Suite.T(), err)
 
 	expected := &velez_api.AssembleConfig_Response{
@@ -40,7 +40,7 @@ func (s *AssembleConfigSuite) Test_AssembleHelloWorld() {
 	listReq := &velez_api.ListSmerds_Request{
 		Name: toolbox.ToPtr(serviceName),
 	}
-	cont, err := testEnvironment.docker.ListContainers(s.ctx, listReq)
+	cont, err := testEnvironment.deps.docker.ListContainers(s.ctx, listReq)
 	require.NoError(s.Suite.T(), err)
 	require.Empty(s.Suite.T(), cont)
 }

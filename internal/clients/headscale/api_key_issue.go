@@ -1,4 +1,4 @@
-package headscale_manager
+package headscale
 
 import (
 	"bytes"

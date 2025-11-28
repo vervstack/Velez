@@ -9,8 +9,9 @@ import (
 
 	"go.vervstack.ru/Velez/internal/backservice/configuration"
 	"go.vervstack.ru/Velez/internal/backservice/env"
-	"go.vervstack.ru/Velez/internal/backservice/headscale"
+	headscaleBackservice "go.vervstack.ru/Velez/internal/backservice/headscale"
 	"go.vervstack.ru/Velez/internal/backservice/service_discovery"
+	"go.vervstack.ru/Velez/internal/clients/headscale"
 	"go.vervstack.ru/Velez/internal/clients/matreshka"
 )
 
@@ -23,6 +24,11 @@ func (c *Custom) setupVervServices(a *App) error {
 	err = c.initConfigurationService(a)
 	if err != nil {
 		return rerrors.Wrap(err, "error initializing configuration service")
+	}
+
+	err = c.initPrivateNetwork(a)
+	if err != nil {
+		return rerrors.Wrap(err, "error initializing private network")
 	}
 
 	return nil
@@ -84,7 +90,15 @@ func (c *Custom) initConfigurationService(a *App) (err error) {
 	return nil
 }
 
-func (c *Custom) initPrivateNetwork(a *App) error {
-	headscale.Launch(a.Ctx, a.Cfg, c.NodeClients)
+func (c *Custom) initPrivateNetwork(a *App) (err error) {
+	if a.Cfg.Environment.VpnIsEnabled {
+		headscaleBackservice.Launch(a.Ctx, a.Cfg, c.NodeClients)
+	}
+
+	c.HeadscaleClient, err = headscale.New(a.Ctx, c.NodeClients, headscaleBackservice.Name)
+	if err != nil {
+		return rerrors.Wrap(err, "")
+	}
+
 	return nil
 }

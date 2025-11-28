@@ -1,4 +1,4 @@
-package headscale_manager
+package headscale
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"go.redsock.ru/rerrors"
 )
 
-func (s *Service) IssueClientKey(ctx context.Context, namespaceId string) (string, error) {
+func (s *Client) IssueClientKey(ctx context.Context, namespaceId string) (string, error) {
 	// region Request body
 	type reqBody struct {
 		NamespaceId string    `json:"user"`

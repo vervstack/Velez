@@ -14,7 +14,7 @@ import (
 
 func (p *pipeliner) ConnectServiceToVpn(req domain.ConnectServiceToVpn) Runner[any] {
 	// region Pipeline context
-	launchContainer := patterns.TailScaleSidecar(req.ServiceName)
+	launchContainer := patterns.TailScaleContainerSidecar(req.ServiceName)
 
 	var containerId string
 	var clientKey string
@@ -27,7 +27,8 @@ func (p *pipeliner) ConnectServiceToVpn(req domain.ConnectServiceToVpn) Runner[a
 
 	return &runner[any]{
 		Steps: []steps.Step{
-			network_steps.IssueClientKey(p.services.VervPrivateNetworkService(), req.NamespaceId, &clientKey),
+			network_steps.PreCheck(p.services, containerName),
+			network_steps.IssueClientKey(p.clusterClients, req.NamespaceId, &clientKey),
 			network_steps.GetLoginServerUrl(&loginServer),
 			steps.SingleFunc(func(_ context.Context) error {
 				hostname := strings.ReplaceAll(req.ServiceName+"-ts-sidecar", "_", "-")

@@ -30,6 +30,8 @@ type Pipeliner interface {
 
 	// ConnectServiceToVpn - connects any user service to cluster vpn
 	ConnectServiceToVpn(vpn domain.ConnectServiceToVpn) Runner[any]
+
+	CopyToVolume(req domain.CopyToVolumeRequest) Runner[any]
 }
 
 type Runner[T any] interface {
@@ -38,33 +40,18 @@ type Runner[T any] interface {
 }
 
 type pipeliner struct {
-	nodeClients clients.NodeClients
-	services    service.Services
+	nodeClients    clients.NodeClients
+	clusterClients clients.ClusterClients
+	services       service.Services
 }
 
-func NewPipeliner(nodeClients clients.NodeClients, services service.Services) Pipeliner {
+func NewPipeliner(nodeClients clients.NodeClients,
+	clusterClients clients.ClusterClients,
+	services service.Services) Pipeliner {
 	return &pipeliner{
-		nodeClients: nodeClients,
-		services:    services,
+		nodeClients:    nodeClients,
+		clusterClients: clusterClients,
+
+		services: services,
 	}
-}
-
-func (p *pipeliner) baseContext() baseCtx {
-	return baseCtx{
-		nodeClients: p.nodeClients,
-		services:    p.services,
-	}
-}
-
-type baseCtx struct {
-	nodeClients clients.NodeClients
-	services    service.Services
-}
-
-func (c *baseCtx) NodeClients() clients.NodeClients {
-	return c.nodeClients
-}
-
-func (c *baseCtx) Services() service.Services {
-	return c.services
 }

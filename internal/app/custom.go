@@ -16,6 +16,7 @@ import (
 	"go.vervstack.ru/Velez/internal/backservice/autoupgrade"
 	"go.vervstack.ru/Velez/internal/backservice/service_discovery"
 	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/headscale"
 	"go.vervstack.ru/Velez/internal/clients/matreshka"
 	"go.vervstack.ru/Velez/internal/middleware"
 	"go.vervstack.ru/Velez/internal/pipelines"
@@ -36,6 +37,8 @@ type Custom struct {
 	ServiceDiscovery service_discovery.ServiceDiscovery
 	// Configuration client
 	MatreshkaClient matreshka.Client
+	// Vpn Client
+	HeadscaleClient *headscale.Client
 	// ClusterClients - contains verv cluster's dependencies
 	ClusterClients clients.ClusterClients
 
@@ -67,8 +70,7 @@ func (c *Custom) Init(a *App) (err error) {
 		return rerrors.Wrap(err, "error setting up verv services")
 	}
 
-	c.ClusterClients = clients.NewClusterClientsContainer(c.MatreshkaClient)
-
+	c.ClusterClients = clients.NewClusterClientsContainer(c.MatreshkaClient, c.HeadscaleClient)
 	c.initVelezServices(a)
 
 	err = c.initApiServer(a)
@@ -110,7 +112,7 @@ func (c *Custom) initVelezServices(a *App) {
 		logrus.Fatalf("error initializing service manager: %v", err)
 	}
 
-	c.Pipeliner = pipelines.NewPipeliner(c.NodeClients, c.Services)
+	c.Pipeliner = pipelines.NewPipeliner(c.NodeClients, c.ClusterClients, c.Services)
 
 	logrus.Info("shut down on exit is set to: ", a.Cfg.Environment.ShutDownOnExit)
 	if a.Cfg.Environment.ShutDownOnExit {
@@ -121,7 +123,7 @@ func (c *Custom) initVelezServices(a *App) {
 func (c *Custom) initApiServer(a *App) error {
 	c.ApiGrpcImpl = velez_api_impl.NewImpl(a.Cfg, c.Services, c.Pipeliner)
 	c.ControlPlaneApiImpl = control_plane_api_impl.New(c.Services, c.Pipeliner)
-	c.VpnApiImpl = vpn_api_impl.New(c.Services, c.Pipeliner)
+	c.VpnApiImpl = vpn_api_impl.New(c.ClusterClients, c.Pipeliner)
 
 	a.ServerMaster.AddImplementation(c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl)
 	a.ServerMaster.AddHttpHandler(docs.Swagger())

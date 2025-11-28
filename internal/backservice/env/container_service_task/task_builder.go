@@ -20,9 +20,12 @@ import (
 
 type NewTaskRequest[T any] struct {
 	NodeClients clients.NodeClients
+	Container   *container.CreateRequest
 
 	ContainerName string
 	ImageName     string
+
+	Cmd *string
 
 	ExposedPorts map[string]string //container->host
 
@@ -32,10 +35,6 @@ type NewTaskRequest[T any] struct {
 }
 
 func NewTask[T any](req NewTaskRequest[T]) (*Task[T], error) {
-	if req.Healthcheck == nil {
-		return nil, errors.New("must provide client healthcheck")
-	}
-
 	dockerAPI := req.NodeClients.Docker().Client()
 	portManager := req.NodeClients.PortManager()
 	t := &Task[T]{
@@ -52,6 +51,10 @@ func NewTask[T any](req NewTaskRequest[T]) (*Task[T], error) {
 		docker:    req.NodeClients.Docker(),
 	}
 	ctx := context.Background()
+
+	if req.Cmd != nil {
+		t.containerConfig.Cmd = strings.Split(*req.Cmd, " ")
+	}
 
 	listImageReq := domain.ImageListRequest{Name: req.ImageName}
 	images, err := dockerutils.ListImages(ctx, dockerAPI, listImageReq)

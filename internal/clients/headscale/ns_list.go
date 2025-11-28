@@ -1,4 +1,4 @@
-package headscale_manager
+package headscale
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
-func (s *Service) ListNamespaces(ctx context.Context) ([]domain.VpnNamespace, error) {
+func (s *Client) ListNamespaces(ctx context.Context) ([]domain.VpnNamespace, error) {
 	//region Response body
 	type response struct {
 		Users []domain.VpnNamespace `json:"users"`

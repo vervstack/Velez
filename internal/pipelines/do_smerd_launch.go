@@ -7,6 +7,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/config_steps"
+	"go.vervstack.ru/Velez/internal/pipelines/steps/container_steps"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/smerd_steps"
 )
 
@@ -26,7 +27,7 @@ func (p *pipeliner) LaunchSmerd(req domain.LaunchSmerd) Runner[domain.LaunchSmer
 			steps.PrepareVervConfig(p.nodeClients, p.services, &req, imageResp),
 			// Deploy stage
 			smerd_steps.Create(p.nodeClients, &req, &containerId),
-			config_steps.MountConfig(p.nodeClients, &containerId, cfgMount),
+			container_steps.CopyToContainer(p.nodeClients, &containerId, &cfgMount.FileMountPoint),
 			smerd_steps.Start(p.nodeClients, &containerId),
 			// Post deploy stage
 			steps.Healthcheck(p.nodeClients, &req, &containerId),

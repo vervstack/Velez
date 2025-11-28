@@ -27,7 +27,10 @@ type AppConfig struct {
 
 type ConfigMount struct {
 	Meta ConfigMeta
+	FileMountPoint
+}
 
+type FileMountPoint struct {
 	FilePath *string
 	Content  []byte
 }

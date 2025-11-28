@@ -1,4 +1,4 @@
-package config_steps
+package container_steps
 
 import (
 	"context"
@@ -11,26 +11,26 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
-type mountConfigStep struct {
+type copyToContainerStep struct {
 	dockerAPI client.APIClient
 
 	contId *string
-	mount  *domain.ConfigMount
+	mount  *domain.FileMountPoint
 }
 
-func MountConfig(
+func CopyToContainer(
 	nodeClients clients.NodeClients,
 	contId *string,
-	mount *domain.ConfigMount,
-) *mountConfigStep {
-	return &mountConfigStep{
+	mount *domain.FileMountPoint,
+) *copyToContainerStep {
+	return &copyToContainerStep{
 		dockerAPI: nodeClients.Docker().Client(),
 		contId:    contId,
 		mount:     mount,
 	}
 }
 
-func (s *mountConfigStep) Do(ctx context.Context) error {
+func (s *copyToContainerStep) Do(ctx context.Context) error {
 	if s.mount == nil {
 		// nothing to mount
 		return nil
@@ -57,7 +57,7 @@ func (s *mountConfigStep) Do(ctx context.Context) error {
 	return nil
 }
 
-func (s *mountConfigStep) validate() error {
+func (s *copyToContainerStep) validate() error {
 	if s.contId == nil {
 		return rerrors.New("no container id provided")
 	}

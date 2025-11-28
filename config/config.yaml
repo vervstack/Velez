@@ -66,10 +66,10 @@ environment:
       value: false
     - name: vpn_server_image
       type: string
-      value: headscale/headscale:latest
+      value: ""
     - name: vpn_sidecar_image
       type: string
-      value: tailscale/tailscale:v1.90.8
+      value: ""
     - name: vpn_is_enabled
       type: bool
       value: false

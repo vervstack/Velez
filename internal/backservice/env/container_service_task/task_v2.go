@@ -11,6 +11,7 @@ import (
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sirupsen/logrus"
 	"go.redsock.ru/rerrors"
+	rtb "go.redsock.ru/toolbox"
 
 	"go.vervstack.ru/Velez/internal/backservice/env"
 	"go.vervstack.ru/Velez/internal/clients"
@@ -18,29 +19,40 @@ import (
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
-type Task[T any] struct {
-	ContainerNetworkHost string
-
-	name string
-
-	containerConfig *container.Config
-
-	hostConfig *container.HostConfig
+type TaskV2 struct {
+	container container.CreateRequest
 
 	docker    clients.Docker
 	dockerAPI client.APIClient
-
-	healthCheck func(client *Task[T]) bool
 }
 
-func (t *Task[T]) Start() error {
+func NewTaskV2(docker clients.Docker, ctr container.CreateRequest) (*TaskV2, error) {
+	if ctr.Config == nil {
+		return nil, rerrors.New("config is nil")
+	}
+
+	if ctr.Config.Hostname == "" {
+		return nil, rerrors.New("hostname is empty")
+	}
+
+	ctr.HostConfig = rtb.Coalesce(ctr.HostConfig, &container.HostConfig{})
+	ctr.NetworkingConfig = rtb.Coalesce(ctr.NetworkingConfig, &network.NetworkingConfig{})
+
+	return &TaskV2{
+		container: ctr,
+		docker:    docker,
+		dockerAPI: docker.Client(),
+	}, nil
+}
+
+func (t *TaskV2) Start() error {
 	ctx := context.Background()
 	cont, err := t.dockerAPI.ContainerCreate(ctx,
-		t.containerConfig,
-		t.hostConfig,
-		&network.NetworkingConfig{},
+		t.container.Config,
+		t.container.HostConfig,
+		t.container.NetworkingConfig,
 		&v1.Platform{},
-		t.name,
+		t.container.Hostname,
 	)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating container")
@@ -54,7 +66,7 @@ func (t *Task[T]) Start() error {
 	err = t.dockerAPI.NetworkConnect(ctx,
 		env.VervNetwork,
 		cont.ID,
-		&network.EndpointSettings{Aliases: []string{t.name}})
+		&network.EndpointSettings{Aliases: []string{t.container.Hostname}})
 	if err != nil {
 		return rerrors.Wrap(err, "error connecting makosh container to verv network")
 	}
@@ -62,15 +74,15 @@ func (t *Task[T]) Start() error {
 	return nil
 }
 
-func (t *Task[T]) IsAlive() bool {
+func (t *TaskV2) IsAlive() bool {
 	ctx := context.Background()
 
-	cont, err := t.dockerAPI.ContainerInspect(ctx, t.name)
+	cont, err := t.dockerAPI.ContainerInspect(ctx, t.container.Hostname)
 	if err != nil {
 		if strings.Contains(err.Error(), docker.NoSuchContainerError) {
 			return false
 		}
-		logrus.Error(rerrors.Wrap(err, "error getting container of dependency: "+t.name))
+		logrus.Error(rerrors.Wrap(err, "error getting container of dependency: "+t.container.Hostname))
 		return false
 	}
 
@@ -78,21 +90,17 @@ func (t *Task[T]) IsAlive() bool {
 		return false
 	}
 
-	if cont.Config.Image != t.containerConfig.Image {
-		return false
-	}
-
-	if t.healthCheck != nil && !t.healthCheck(t) {
+	if cont.Config.Image != t.container.Image {
 		return false
 	}
 
 	return true
 }
 
-func (t *Task[T]) Kill() error {
+func (t *TaskV2) Kill() error {
 	ctx := context.Background()
 
-	err := t.docker.Remove(ctx, t.name)
+	err := t.docker.Remove(ctx, t.container.Hostname)
 	if err != nil {
 		if !strings.Contains(err.Error(), docker.NoSuchContainerError) {
 			return rerrors.Wrap(err, "error dropping result")
@@ -102,15 +110,15 @@ func (t *Task[T]) Kill() error {
 	return nil
 }
 
-func (t *Task[T]) GetName() string {
-	return t.name
+func (t *TaskV2) GetName() string {
+	return t.container.Hostname
 }
 
-func (t *Task[T]) GetPortBinding(port string) string {
+func (t *TaskV2) GetPortBinding(port string) string {
 	if env.IsInContainer() {
 		return port
 	}
 
-	bindings := t.hostConfig.PortBindings[nat.Port(appendTCP(port))]
+	bindings := t.container.HostConfig.PortBindings[nat.Port(appendTCP(port))]
 	return bindings[0].HostPort
 }

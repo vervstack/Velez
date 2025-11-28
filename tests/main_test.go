@@ -31,12 +31,22 @@ var (
 )
 
 type testEnv struct {
-	velezAPI     velez_api.VelezAPIClient
-	matreshkaApi matreshka_api.MatreshkaBeAPIClient
-	docker       clients.Docker
-	dockerAPI    client.APIClient
+	api  serverApi
+	deps dependenciesApi
 
 	app app.App
+}
+
+type serverApi struct {
+	velez        velez_api.VelezAPIClient
+	controlPlane velez_api.ControlPlaneAPIClient
+	vpn          velez_api.VpnApiClient
+}
+
+type dependenciesApi struct {
+	matreshkaApi matreshka_api.MatreshkaBeAPIClient
+	docker       clients.Docker
+	dockerApi    client.APIClient
 }
 
 var testEnvironment testEnv
@@ -46,12 +56,12 @@ func TestMain(m *testing.M) {
 
 	ctx := context.Background()
 
-	_, err := testEnvironment.velezAPI.Version(ctx, &velez_api.Version_Request{})
+	_, err := testEnvironment.api.velez.Version(ctx, &velez_api.Version_Request{})
 	if err != nil {
 		logrus.Fatalf("error pinging service api %s", err)
 	}
 
-	_, err = testEnvironment.docker.Client().Ping(ctx)
+	_, err = testEnvironment.deps.docker.Client().Ping(ctx)
 	if err != nil {
 		logrus.Fatalf("error pinging docker %s", err)
 	}
@@ -73,7 +83,7 @@ func (t *testEnv) createSmerd(ctx context.Context, req *velez_api.CreateSmerd_Re
 	}
 
 	req.Labels[integrationTest] = "true"
-	return testEnvironment.velezAPI.CreateSmerd(ctx, req)
+	return testEnvironment.api.velez.CreateSmerd(ctx, req)
 }
 
 func (t *testEnv) clean() {
@@ -84,13 +94,13 @@ func (t *testEnv) clean() {
 			integrationTest: "true",
 		},
 	}
-	cList, err := dockerutils.ListContainers(ctx, t.dockerAPI, listReq)
+	cList, err := dockerutils.ListContainers(ctx, t.deps.dockerApi, listReq)
 	if err != nil {
 		logrus.Fatal(err)
 	}
 
 	for _, cont := range cList {
-		err = t.dockerAPI.ContainerRemove(ctx, cont.ID,
+		err = t.deps.dockerApi.ContainerRemove(ctx, cont.ID,
 			container.RemoveOptions{
 				Force: true,
 			})

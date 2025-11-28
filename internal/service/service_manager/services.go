@@ -7,19 +7,19 @@ import (
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 
-	"go.vervstack.ru/Velez/internal/backservice/headscale"
+	headscaleBackservice "go.vervstack.ru/Velez/internal/backservice/headscale"
 	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/headscale"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/service_manager/configurator"
 	"go.vervstack.ru/Velez/internal/service/service_manager/container_manager"
-	"go.vervstack.ru/Velez/internal/service/service_manager/headscale_manager"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 type ServiceManager struct {
 	containerManager *container_manager.ContainerManager
 	configurator     *configurator.Configurator
-	vpnService       *headscale_manager.Service
+	vpnService       *headscale.Client
 
 	docker clients.Docker
 }
@@ -38,7 +38,7 @@ func New(
 		return nil, rerrors.Wrap(err, "error initializing configurator")
 	}
 
-	headscaleManager, err := headscale_manager.New(ctx, nodeClients, headscale.Name)
+	headscaleManager, err := headscale.New(ctx, nodeClients, headscaleBackservice.Name)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error initializing headscale")
 	}
@@ -67,10 +67,6 @@ func (s *ServiceManager) ConfigurationService() service.ConfigurationService {
 
 func (s *ServiceManager) Docker() clients.Docker {
 	return s.docker
-}
-
-func (s *ServiceManager) VervPrivateNetworkService() service.VervPrivateNetworkService {
-	return s.vpnService
 }
 
 func handleConfigurationSubscription(configurationService service.ConfigurationService, manager service.Services) {

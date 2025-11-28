@@ -9,7 +9,7 @@ import (
 
 const tailscaleImage = "tailscale/tailscale:v1.90.8"
 
-func TailScaleSidecar(serviceName string) container.CreateRequest {
+func TailScaleContainerSidecar(serviceName string) container.CreateRequest {
 	volumeName := serviceName + "-ts-sidecar"
 	return container.CreateRequest{
 		Config: &container.Config{

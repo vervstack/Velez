@@ -27,6 +27,9 @@ func initVelez() {
 
 	serv := grpc.NewServer()
 	velez_api.RegisterVelezAPIServer(serv, testEnvironment.app.Custom.ApiGrpcImpl)
+	velez_api.RegisterControlPlaneAPIServer(serv, testEnvironment.app.Custom.ControlPlaneApiImpl)
+	velez_api.RegisterVpnApiServer(serv, testEnvironment.app.Custom.VpnApiImpl)
+
 	go func() {
 		if err := serv.Serve(lis); err != nil {
 			logrus.Fatalf("error serving grpc server for tests %s", err)
@@ -45,7 +48,10 @@ func initVelez() {
 		logrus.Fatalf("error connecting to test grpc server: %s ", err)
 	}
 
-	testEnvironment.velezAPI = velez_api.NewVelezAPIClient(conn)
-	testEnvironment.docker = testEnvironment.app.Custom.NodeClients.Docker()
-	testEnvironment.dockerAPI = testEnvironment.docker.Client()
+	testEnvironment.api.velez = velez_api.NewVelezAPIClient(conn)
+	testEnvironment.api.controlPlane = velez_api.NewControlPlaneAPIClient(conn)
+	testEnvironment.api.vpn = velez_api.NewVpnApiClient(conn)
+
+	testEnvironment.deps.docker = testEnvironment.app.Custom.NodeClients.Docker()
+	testEnvironment.deps.dockerApi = testEnvironment.deps.docker.Client()
 }

@@ -1,4 +1,4 @@
-package headscale_manager
+package headscale
 
 import (
 	"bytes"
@@ -19,7 +19,7 @@ const (
 	clientKeyUri = "/api/v1/preauthkey"
 )
 
-func (s *Service) doApiRequest(ctx context.Context, method string, uri string, req any) (*http.Response, error) {
+func (s *Client) doApiRequest(ctx context.Context, method string, uri string, req any) (*http.Response, error) {
 	reqEncoded, err := json.Marshal(req)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error marshalling request")
@@ -34,7 +34,7 @@ func (s *Service) doApiRequest(ctx context.Context, method string, uri string, r
 	return s.execApiRequest(r)
 }
 
-func (s *Service) execApiRequest(r *http.Request) (*http.Response, error) {
+func (s *Client) execApiRequest(r *http.Request) (*http.Response, error) {
 	r.Header.Add(authHeader, "Bearer "+s.apiKey)
 
 	resp, err := http.DefaultClient.Do(r)

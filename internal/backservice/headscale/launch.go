@@ -117,7 +117,7 @@ func (l launcher) startContainer() error {
 			},
 			Cmd: strslice.StrSlice{"serve"},
 			Healthcheck: &container.HealthConfig{
-				//Test: []string{"CMD", "headscale", "health"},
+				Test: []string{"CMD", "headscale", "health"},
 			},
 
 			Image: rtb.Coalesce(l.cfg.Environment.VpnServerImage, defaultImage),

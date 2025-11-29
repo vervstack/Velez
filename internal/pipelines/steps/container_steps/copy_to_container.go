@@ -6,8 +6,8 @@ import (
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/clients"
-	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
@@ -19,7 +19,7 @@ type copyToContainerStep struct {
 }
 
 func CopyToContainer(
-	nodeClients clients.NodeClients,
+	nodeClients node_clients.NodeClients,
 	contId *string,
 	mount *domain.FileMountPoint,
 ) *copyToContainerStep {

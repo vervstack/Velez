@@ -7,7 +7,7 @@ import (
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
@@ -23,7 +23,7 @@ type healthcheckStep struct {
 }
 
 func Healthcheck(
-	nodeClients clients.NodeClients,
+	nodeClients node_clients.NodeClients,
 	req *domain.LaunchSmerd,
 	containerId *string,
 ) *healthcheckStep {

@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
-	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/pipelines"
 	"go.vervstack.ru/Velez/internal/service"
@@ -21,7 +21,7 @@ type Impl struct {
 
 	version string
 
-	hardwareManager clients.HardwareManager
+	hardwareManager node_clients.HardwareManager
 	cfgService      service.ConfigurationService
 	smerdService    service.ContainerService
 	pipeliner       pipelines.Pipeliner

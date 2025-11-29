@@ -1,4 +1,4 @@
-package clients
+package node_clients
 
 import (
 	"context"
@@ -8,10 +8,10 @@ import (
 	errors "go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
 
-	"go.vervstack.ru/Velez/internal/clients/docker"
-	"go.vervstack.ru/Velez/internal/clients/hardware"
-	"go.vervstack.ru/Velez/internal/clients/ports"
-	"go.vervstack.ru/Velez/internal/clients/state"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/hardware"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/state"
 	"go.vervstack.ru/Velez/internal/config"
 )
 
@@ -35,7 +35,7 @@ type nodeClients struct {
 	securityManager StateManager
 }
 
-func NewNodeClientsContainer(ctx context.Context, cfg config.Config) (NodeClients, error) {
+func NewNodeClients(ctx context.Context, cfg config.Config) (NodeClients, error) {
 	var err error
 	cls := &nodeClients{}
 

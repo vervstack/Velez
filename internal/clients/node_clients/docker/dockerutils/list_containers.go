@@ -8,7 +8,7 @@ import (
 	"github.com/docker/docker/client"
 	errors "go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils/list_request"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/list_request"
 	"go.vervstack.ru/Velez/internal/utils/common"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )

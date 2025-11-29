@@ -12,14 +12,14 @@ import (
 	errors "go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/backservice/env"
-	"go.vervstack.ru/Velez/internal/clients"
-	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
 type NewTaskRequest[T any] struct {
-	NodeClients clients.NodeClients
+	NodeClients node_clients.NodeClients
 	Container   *container.CreateRequest
 
 	ContainerName string

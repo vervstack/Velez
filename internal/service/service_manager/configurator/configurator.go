@@ -6,7 +6,7 @@ import (
 	"github.com/docker/docker/client"
 	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 
-	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
@@ -21,7 +21,7 @@ type Configurator struct {
 func New(
 	ctx context.Context,
 	matreshka api.MatreshkaBeAPIClient,
-	docker clients.Docker,
+	docker node_clients.Docker,
 ) (c *Configurator, err error) {
 	// TODO VERV-128
 	//stream, err := matreshka.SubscribeOnChanges(ctx)

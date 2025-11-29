@@ -7,7 +7,7 @@ import (
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 )
 
 type smerdStart struct {
@@ -17,7 +17,7 @@ type smerdStart struct {
 }
 
 func Start(
-	nodeClients clients.NodeClients,
+	nodeClients node_clients.NodeClients,
 	containerId *string,
 ) *smerdStart {
 	return &smerdStart{

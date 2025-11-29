@@ -15,7 +15,7 @@ import (
 	"go.redsock.ru/rerrors"
 	"golang.org/x/sync/errgroup"
 
-	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/pipelines"
@@ -92,7 +92,10 @@ func (au *AutoUpgrade) do() error {
 		var newImage *string
 		newImage, err = au.getNewImageVersion(ctx, smerd.Image)
 		if err != nil {
-			logrus.Errorf("error getting new image version %s", err)
+			logrus.Error("error getting new image version",
+				logrus.WithError(err),
+				logrus.WithField("image", smerd.Image),
+			)
 			continue
 		}
 		if newImage == nil {

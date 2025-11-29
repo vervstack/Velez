@@ -5,11 +5,11 @@ import (
 
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 )
 
 type issueClientKeyStep struct {
-	networkService clients.VervPrivateNetworkClient
+	networkService cluster_clients.VervPrivateNetworkClient
 
 	namespaceId string
 
@@ -17,7 +17,7 @@ type issueClientKeyStep struct {
 }
 
 func IssueClientKey(
-	clusterClients clients.ClusterClients,
+	clusterClients cluster_clients.ClusterClients,
 	namespace string,
 	keyResponse *string,
 ) *issueClientKeyStep {

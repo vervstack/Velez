@@ -7,8 +7,8 @@ import (
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/clients/docker"
-	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 )
 
 const (

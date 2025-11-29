@@ -11,21 +11,21 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/backservice/env"
-	"go.vervstack.ru/Velez/internal/clients"
-	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils"
-	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils/parser"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
 type createSmerdStep struct {
-	docker    clients.Docker
+	docker    node_clients.Docker
 	dockerAPI client.APIClient
 
 	req         *domain.LaunchSmerd
 	containerId *string
 }
 
-func Create(nodeClients clients.NodeClients,
+func Create(nodeClients node_clients.NodeClients,
 	req *domain.LaunchSmerd,
 	containerId *string,
 ) *createSmerdStep {

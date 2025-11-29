@@ -10,8 +10,8 @@ import (
 	"go.redsock.ru/toolbox"
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 
-	"go.vervstack.ru/Velez/internal/clients"
-	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/pkg/velez_api"
@@ -29,7 +29,7 @@ type getConfigFromContainerStep struct {
 }
 
 func GetConfigFromContainerStep(
-	nodeClients clients.NodeClients,
+	nodeClients node_clients.NodeClients,
 	services service.Services,
 
 	req *domain.LaunchSmerd,

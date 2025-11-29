@@ -6,17 +6,17 @@ import (
 	"github.com/docker/docker/api/types/image"
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 )
 
 type stepPrepareImage struct {
-	docker clients.Docker
+	docker node_clients.Docker
 
 	imageName string
 	result    *image.InspectResponse
 }
 
-func PrepareImage(nodeClients clients.NodeClients, imageName string, result *image.InspectResponse) *stepPrepareImage {
+func PrepareImage(nodeClients node_clients.NodeClients, imageName string, result *image.InspectResponse) *stepPrepareImage {
 	return &stepPrepareImage{
 		docker:    nodeClients.Docker(),
 		imageName: imageName,

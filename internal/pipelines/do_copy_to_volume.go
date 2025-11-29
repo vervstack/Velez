@@ -5,7 +5,7 @@ import (
 
 	rtb "go.redsock.ru/toolbox"
 
-	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/container_steps"
@@ -17,7 +17,7 @@ func (p *pipeliner) CopyToVolume(req domain.CopyToVolumeRequest) Runner[any] {
 	return NewCopyToVolumeRunner(p.nodeClients, req)
 }
 
-func NewCopyToVolumeRunner(nodeClients clients.NodeClients, req domain.CopyToVolumeRequest) Runner[any] {
+func NewCopyToVolumeRunner(nodeClients node_clients.NodeClients, req domain.CopyToVolumeRequest) Runner[any] {
 	// region Pipeline context
 
 	baseContainer := domain.LaunchSmerd{

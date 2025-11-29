@@ -6,7 +6,7 @@ import (
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 )
 
 type renameContainerStep struct {
@@ -19,7 +19,7 @@ type renameContainerStep struct {
 }
 
 func RenameContainer(
-	nodeClients clients.NodeClients,
+	nodeClients node_clients.NodeClients,
 	containerId *string,
 	newName string,
 ) *renameContainerStep {

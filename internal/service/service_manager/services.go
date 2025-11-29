@@ -8,8 +8,9 @@ import (
 	"go.redsock.ru/toolbox"
 
 	headscaleBackservice "go.vervstack.ru/Velez/internal/backservice/headscale"
-	"go.vervstack.ru/Velez/internal/clients"
-	"go.vervstack.ru/Velez/internal/clients/headscale"
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients/headscale"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/service_manager/configurator"
 	"go.vervstack.ru/Velez/internal/service/service_manager/container_manager"
@@ -21,13 +22,13 @@ type ServiceManager struct {
 	configurator     *configurator.Configurator
 	vpnService       *headscale.Client
 
-	docker clients.Docker
+	docker node_clients.Docker
 }
 
 func New(
 	ctx context.Context,
-	nodeClients clients.NodeClients,
-	clusterClients clients.ClusterClients,
+	nodeClients node_clients.NodeClients,
+	clusterClients cluster_clients.ClusterClients,
 ) (service.Services, error) {
 	configService, err := configurator.New(
 		ctx,
@@ -65,7 +66,7 @@ func (s *ServiceManager) ConfigurationService() service.ConfigurationService {
 	return s.configurator
 }
 
-func (s *ServiceManager) Docker() clients.Docker {
+func (s *ServiceManager) Docker() node_clients.Docker {
 	return s.docker
 }
 

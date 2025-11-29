@@ -14,19 +14,19 @@ import (
 	rtb "go.redsock.ru/toolbox"
 
 	"go.vervstack.ru/Velez/internal/backservice/env"
-	"go.vervstack.ru/Velez/internal/clients"
-	"go.vervstack.ru/Velez/internal/clients/docker"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 type TaskV2 struct {
 	container container.CreateRequest
 
-	docker    clients.Docker
+	docker    node_clients.Docker
 	dockerAPI client.APIClient
 }
 
-func NewTaskV2(docker clients.Docker, ctr container.CreateRequest) (*TaskV2, error) {
+func NewTaskV2(docker node_clients.Docker, ctr container.CreateRequest) (*TaskV2, error) {
 	if ctr.Config == nil {
 		return nil, rerrors.New("config is nil")
 	}

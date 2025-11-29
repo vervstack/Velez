@@ -17,8 +17,8 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	"go.vervstack.ru/Velez/internal/backservice/env/container_service_task"
-	"go.vervstack.ru/Velez/internal/clients"
-	"go.vervstack.ru/Velez/internal/clients/makosh"
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients/makosh"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/middleware"
 )
@@ -41,21 +41,22 @@ var initModeSync = sync.Once{}
 func LaunchMakosh(
 	ctx context.Context,
 	cfg *config.Config,
-	clients clients.NodeClients,
+	clients node_clients.NodeClients,
 ) {
 	initModeSync.Do(func() {
-		var err error
-		err = launchMakosh(ctx, cfg, clients)
+		err := launchMakosh(ctx, cfg, clients)
 		if err != nil {
 			logrus.Fatal(errors.Wrap(err))
 		}
 	})
+
+	return
 }
 
 func launchMakosh(
 	ctx context.Context,
 	cfg *config.Config,
-	nodeClients clients.NodeClients,
+	nodeClients node_clients.NodeClients,
 ) error {
 	// Construct
 	token := string(rtb.RandomBase64(256))

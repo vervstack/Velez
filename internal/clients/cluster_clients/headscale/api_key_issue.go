@@ -8,7 +8,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 )
 
 var envs = []string{
@@ -23,14 +23,14 @@ const (
 )
 
 type keyIssuer struct {
-	docker        clients.Docker
+	docker        node_clients.Docker
 	containerName string
 }
 
 // TODO Make trade safe + safe key in security settings
 // issueNewApiKey - creates headscale api key
 // because Velez mostly is a stateless app new keys issued at start time
-func issueNewApiKey(ctx context.Context, docker clients.Docker, containerName string) (string, error) {
+func issueNewApiKey(ctx context.Context, docker node_clients.Docker, containerName string) (string, error) {
 	s := keyIssuer{docker, containerName}
 
 	//err := s.collectGarbage(ctx)

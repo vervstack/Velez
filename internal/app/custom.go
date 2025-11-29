@@ -14,10 +14,9 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"go.vervstack.ru/Velez/internal/backservice/autoupgrade"
-	"go.vervstack.ru/Velez/internal/backservice/service_discovery"
-	"go.vervstack.ru/Velez/internal/clients"
-	"go.vervstack.ru/Velez/internal/clients/headscale"
-	"go.vervstack.ru/Velez/internal/clients/matreshka"
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
+
 	"go.vervstack.ru/Velez/internal/middleware"
 	"go.vervstack.ru/Velez/internal/pipelines"
 	"go.vervstack.ru/Velez/internal/service"
@@ -31,16 +30,10 @@ import (
 
 type Custom struct {
 	// NodeClients - hardware scanner, docker and wrappers
-	NodeClients clients.NodeClients
+	NodeClients node_clients.NodeClients
 
-	// Service discovery client
-	ServiceDiscovery service_discovery.ServiceDiscovery
-	// Configuration client
-	MatreshkaClient matreshka.Client
-	// Vpn Client
-	HeadscaleClient *headscale.Client
 	// ClusterClients - contains verv cluster's dependencies
-	ClusterClients clients.ClusterClients
+	ClusterClients cluster_clients.ClusterClients
 
 	// Services - contains business logic services
 	Services  service.Services
@@ -55,23 +48,27 @@ func (c *Custom) Init(a *App) (err error) {
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 	logrus.SetLevel(extractLogLevel(a.Cfg.Environment.LogLevel))
 
-	c.NodeClients, err = clients.NewNodeClientsContainer(a.Ctx, a.Cfg)
+	//region Dependencies
+	nodeClients, err := node_clients.NewNodeClients(a.Ctx, a.Cfg)
 	if err != nil {
 		return rerrors.Wrap(err, "error initializing internal clients")
 	}
 
-	err = c.setupVervNodeEnvironment()
+	err = setupVervNodeEnvironment(nodeClients)
 	if err != nil {
 		return rerrors.Wrap(err, "error setting up node environment")
 	}
 
-	err = c.setupVervServices(a)
+	clusterClients, err := cluster_clients.NewClusterClients(a.Ctx, a.Cfg, nodeClients)
 	if err != nil {
 		return rerrors.Wrap(err, "error setting up verv services")
 	}
 
-	c.ClusterClients = clients.NewClusterClientsContainer(c.MatreshkaClient, c.HeadscaleClient)
-	c.initVelezServices(a)
+	c.NodeClients = nodeClients
+	c.ClusterClients = clusterClients
+	//endregion
+
+	c.initServiceLayer(a)
 
 	err = c.initApiServer(a)
 	if err != nil {
@@ -105,8 +102,9 @@ func (c *Custom) Stop() error {
 	return nil
 }
 
-func (c *Custom) initVelezServices(a *App) {
+func (c *Custom) initServiceLayer(a *App) {
 	var err error
+
 	c.Services, err = service_manager.New(a.Ctx, c.NodeClients, c.ClusterClients)
 	if err != nil {
 		logrus.Fatalf("error initializing service manager: %v", err)

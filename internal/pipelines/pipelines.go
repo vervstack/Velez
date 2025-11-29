@@ -3,7 +3,8 @@ package pipelines
 import (
 	"context"
 
-	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/pkg/velez_api"
@@ -40,13 +41,13 @@ type Runner[T any] interface {
 }
 
 type pipeliner struct {
-	nodeClients    clients.NodeClients
-	clusterClients clients.ClusterClients
+	nodeClients    node_clients.NodeClients
+	clusterClients cluster_clients.ClusterClients
 	services       service.Services
 }
 
-func NewPipeliner(nodeClients clients.NodeClients,
-	clusterClients clients.ClusterClients,
+func NewPipeliner(nodeClients node_clients.NodeClients,
+	clusterClients cluster_clients.ClusterClients,
 	services service.Services) Pipeliner {
 	return &pipeliner{
 		nodeClients:    nodeClients,

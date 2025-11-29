@@ -10,11 +10,11 @@ import (
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 
-	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 )
 
 type createContainerStep struct {
-	docker    clients.Docker
+	docker    node_clients.Docker
 	dockerAPI client.APIClient
 
 	req         *container.CreateRequest
@@ -23,7 +23,7 @@ type createContainerStep struct {
 }
 
 func Create(
-	nodeClients clients.NodeClients,
+	nodeClients node_clients.NodeClients,
 	req *container.CreateRequest,
 	name *string,
 

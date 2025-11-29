@@ -3,18 +3,18 @@ package headscale
 import (
 	"context"
 
-	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 )
 
 type Client struct {
-	docker        clients.Docker
+	docker        node_clients.Docker
 	containerName string
 	apiKey        string
 
 	headscaleApiUrl string
 }
 
-func New(ctx context.Context, nc clients.NodeClients, containerName string) (srv *Client, err error) {
+func New(ctx context.Context, nc node_clients.NodeClients, containerName string) (srv *Client, err error) {
 	srv = &Client{
 		docker:        nc.Docker(),
 		containerName: containerName,

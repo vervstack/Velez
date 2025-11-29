@@ -13,8 +13,8 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/backservice/env"
-	"go.vervstack.ru/Velez/internal/clients"
-	"go.vervstack.ru/Velez/internal/clients/docker"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
@@ -27,7 +27,7 @@ type Task[T any] struct {
 
 	hostConfig *container.HostConfig
 
-	docker    clients.Docker
+	docker    node_clients.Docker
 	dockerAPI client.APIClient
 
 	healthCheck func(client *Task[T]) bool

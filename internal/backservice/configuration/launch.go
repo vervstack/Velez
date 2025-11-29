@@ -12,7 +12,6 @@ import (
 	"go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/toolbox/keep_alive"
-	"go.vervstack.ru/makosh/pkg/makosh_be"
 	version "go.vervstack.ru/matreshka/config"
 	"go.vervstack.ru/matreshka/pkg/app/matreshka_client"
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
@@ -21,9 +20,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	"go.vervstack.ru/Velez/internal/backservice/env/container_service_task"
-	"go.vervstack.ru/Velez/internal/backservice/service_discovery"
-	"go.vervstack.ru/Velez/internal/clients"
-	"go.vervstack.ru/Velez/internal/clients/matreshka"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/config"
 )
 
@@ -45,11 +42,10 @@ var initOnce sync.Once
 
 func LaunchMatreshka(ctx context.Context,
 	cfg *config.Config,
-	clients clients.NodeClients,
-	sd service_discovery.ServiceDiscovery,
+	clients node_clients.NodeClients,
 ) {
 	initOnce.Do(func() {
-		err := initInstance(ctx, cfg, clients, sd)
+		err := initInstance(ctx, cfg, clients)
 		if err != nil {
 			logrus.Fatal(err)
 		}
@@ -61,8 +57,7 @@ func LaunchMatreshka(ctx context.Context,
 func initInstance(
 	ctx context.Context,
 	cfg *config.Config,
-	nodeClients clients.NodeClients,
-	sd service_discovery.ServiceDiscovery,
+	nodeClients node_clients.NodeClients,
 ) (err error) {
 	key, err := initKey(ctx, nodeClients)
 	if err != nil {
@@ -123,24 +118,10 @@ func initInstance(
 		})
 	}
 
-	matreshkaEndpoints := &makosh_be.UpsertEndpoints_Request{
-		Endpoints: []*makosh_be.Endpoint{
-			{
-				ServiceName: matreshka.ServiceName,
-				Addrs:       []string{apiClient.Addr},
-			},
-		},
-	}
-
-	_, err = sd.MakoshClient.UpsertEndpoints(ctx, matreshkaEndpoints)
-	if err != nil {
-		return rerrors.Wrap(err, "error upserting endpoints for matreshka to makosh")
-	}
-
 	return nil
 }
 
-func initKey(ctx context.Context, nodeClients clients.NodeClients) (string, error) {
+func initKey(ctx context.Context, nodeClients node_clients.NodeClients) (string, error) {
 	keyFromLocalState := nodeClients.LocalStateManager().Get().MatreshkaKey
 
 	keyFromCont, err := getKeyFromMatreshkaContainerEnv(ctx, nodeClients.Docker().Client())

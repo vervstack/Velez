@@ -8,7 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
-	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/pipelines"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
@@ -16,11 +16,11 @@ import (
 type Impl struct {
 	velez_api.UnimplementedVpnApiServer
 
-	vpnService clients.VervPrivateNetworkClient
+	vpnService cluster_clients.VervPrivateNetworkClient
 	pipeliner  pipelines.Pipeliner
 }
 
-func New(cc clients.ClusterClients, pipeliner pipelines.Pipeliner) *Impl {
+func New(cc cluster_clients.ClusterClients, pipeliner pipelines.Pipeliner) *Impl {
 	return &Impl{
 		vpnService: cc.Vpn(),
 		pipeliner:  pipeliner,

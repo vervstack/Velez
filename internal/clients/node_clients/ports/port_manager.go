@@ -7,7 +7,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	errors "go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/clients/docker"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/internal/config"
 )
 

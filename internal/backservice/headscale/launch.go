@@ -17,7 +17,7 @@ import (
 	"go.redsock.ru/toolbox/keep_alive"
 
 	"go.vervstack.ru/Velez/internal/backservice/env/container_service_task"
-	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
@@ -38,13 +38,13 @@ type launcher struct {
 	ctx context.Context
 	cfg config.Config
 
-	clients clients.NodeClients
+	clients node_clients.NodeClients
 }
 
 func Launch(
 	ctx context.Context,
 	cfg config.Config,
-	clients clients.NodeClients,
+	clients node_clients.NodeClients,
 ) {
 	initModeSync.Do(func() {
 		l := launcher{ctx, cfg, clients}

@@ -5,15 +5,15 @@ import (
 
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 )
 
 type dropContainer struct {
-	docker clients.Docker
+	docker node_clients.Docker
 	contId *string
 }
 
-func DropContainerStep(nodeClients clients.NodeClients, contId *string) *dropContainer {
+func DropContainerStep(nodeClients node_clients.NodeClients, contId *string) *dropContainer {
 	return &dropContainer{
 		docker: nodeClients.Docker(),
 		contId: contId,

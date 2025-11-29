@@ -9,7 +9,7 @@ import (
 	errors "go.redsock.ru/rerrors"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils/parser"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 

@@ -8,16 +8,16 @@ import (
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 
-	"go.vervstack.ru/Velez/internal/clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 )
 
 type execStep struct {
-	docker      clients.Docker
+	docker      node_clients.Docker
 	containerId *string
 	command     *string
 }
 
-func Exec(nodeClients clients.NodeClients, containerId *string, command *string) *execStep {
+func Exec(nodeClients node_clients.NodeClients, containerId *string, command *string) *execStep {
 	return &execStep{
 		docker:      nodeClients.Docker(),
 		containerId: containerId,

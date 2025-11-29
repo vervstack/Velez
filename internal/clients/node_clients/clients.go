@@ -1,4 +1,4 @@
-package clients
+package node_clients
 
 import (
 	"context"
@@ -6,10 +6,8 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
-	"go.vervstack.ru/makosh/pkg/makosh_be"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 
-	"go.vervstack.ru/Velez/internal/clients/state"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/state"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
@@ -48,12 +46,4 @@ type StateManager interface {
 
 type HardwareManager interface {
 	GetHardware() (*velez_api.GetHardware_Response, error)
-}
-
-type Configurator interface {
-	matreshka_api.MatreshkaBeAPIClient
-}
-
-type ServiceDiscovery interface {
-	makosh_be.MakoshBeAPIClient
 }

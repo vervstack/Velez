@@ -43,15 +43,18 @@ environment:
     - name: makosh_url
       type: string
       value: verv://makosh
+    - name: master_node_address
+      type: string
+      value: ""
     - name: matreshka_image
       type: string
       value: ""
-    - name: matreshka_port
-      type: int
-      value: 50050
     - name: matreshka_key
       type: string
       value: string
+    - name: matreshka_port
+      type: int
+      value: 50050
     - name: memory_swap_mb
       type: int
       value: 50
@@ -64,12 +67,12 @@ environment:
     - name: shut_down_on_exit
       type: bool
       value: false
+    - name: vpn_is_enabled
+      type: bool
+      value: false
     - name: vpn_server_image
       type: string
       value: ""
     - name: vpn_sidecar_image
       type: string
       value: ""
-    - name: vpn_is_enabled
-      type: bool
-      value: false

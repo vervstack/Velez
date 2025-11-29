@@ -14,6 +14,7 @@ type EnvironmentConfig struct {
 	MakoshKey          string
 	MakoshPort         int
 	MakoshURL          string
+	MasterNodeAddress  string
 	MatreshkaImage     string
 	MatreshkaKey       string
 	MatreshkaPort      int

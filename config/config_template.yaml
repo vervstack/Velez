@@ -41,6 +41,9 @@ environment:
     - name: makosh_url
       type: string
       value: verv://makosh
+    - name: master_node_address
+      type: string
+      value: ""
     - name: matreshka_image
       type: string
       value: vervstack/matreshka:v1.0.92

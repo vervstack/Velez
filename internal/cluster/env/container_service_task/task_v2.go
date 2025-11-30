@@ -24,6 +24,8 @@ type TaskV2 struct {
 
 	docker    node_clients.Docker
 	dockerAPI client.APIClient
+
+	containerState *container.InspectResponse
 }
 
 func NewTaskV2(docker node_clients.Docker, ctr container.CreateRequest) (*TaskV2, error) {
@@ -94,6 +96,8 @@ func (t *TaskV2) IsAlive() bool {
 		return false
 	}
 
+	t.containerState = &cont
+
 	return true
 }
 
@@ -114,11 +118,20 @@ func (t *TaskV2) GetName() string {
 	return t.container.Hostname
 }
 
-func (t *TaskV2) GetPortBinding(port string) string {
+func (t *TaskV2) GetPortBinding(port string) (addr string, mappedPort string) {
+	if t.containerState == nil {
+		return "", ""
+	}
+
 	if env.IsInContainer() {
-		return port
+		vervNet, ok := t.containerState.NetworkSettings.Networks[env.VervNetwork]
+		if !ok {
+			return "", port
+		}
+
+		return vervNet.DNSNames[0], port
 	}
 
 	bindings := t.container.HostConfig.PortBindings[nat.Port(appendTCP(port))]
-	return bindings[0].HostPort
+	return bindings[0].HostIP, bindings[0].HostPort
 }

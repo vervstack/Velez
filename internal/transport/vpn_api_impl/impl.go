@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc"
 
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
+	"go.vervstack.ru/Velez/internal/cluster"
 	"go.vervstack.ru/Velez/internal/pipelines"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
@@ -20,9 +21,9 @@ type Impl struct {
 	pipeliner  pipelines.Pipeliner
 }
 
-func New(cc cluster_clients.ClusterClients, pipeliner pipelines.Pipeliner) *Impl {
+func New(cluster cluster.Cluster, pipeliner pipelines.Pipeliner) *Impl {
 	return &Impl{
-		vpnService: cc.Vpn(),
+		vpnService: cluster.Vpn(),
 		pipeliner:  pipeliner,
 	}
 }

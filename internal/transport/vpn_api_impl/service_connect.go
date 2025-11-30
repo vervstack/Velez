@@ -17,9 +17,12 @@ func (impl *Impl) ConnectService(ctx context.Context, req *velez_api.ConnectServ
 		NamespaceId: req.NamespaceId,
 	}
 
-	runner := impl.pipeliner.ConnectServiceToVpn(r)
+	runner, err := impl.pipeliner.ConnectServiceToVpn(r)
+	if err != nil {
+		return nil, rerrors.Wrap(err)
+	}
 
-	err := runner.Run(ctx)
+	err = runner.Run(ctx)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error connecting service to VPN")
 	}

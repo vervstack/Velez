@@ -7,6 +7,7 @@ import (
 	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/cluster"
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
@@ -20,7 +21,7 @@ type Configurator struct {
 
 func New(
 	ctx context.Context,
-	matreshka api.MatreshkaBeAPIClient,
+	cluster cluster.Cluster,
 	docker node_clients.Docker,
 ) (c *Configurator, err error) {
 	// TODO VERV-128
@@ -31,7 +32,7 @@ func New(
 	//closer.Add(stream.CloseSend)
 
 	return &Configurator{
-		MatreshkaBeAPIClient: matreshka,
+		MatreshkaBeAPIClient: cluster.Configurator(),
 		dockerAPI:            docker.Client(),
 		// TODO VERV-128
 		//subscriptionStream:   stream,

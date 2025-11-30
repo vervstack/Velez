@@ -13,7 +13,6 @@ import (
 	"go.redsock.ru/toolbox/closer"
 	"golang.org/x/sync/errgroup"
 
-	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster"
 	"go.vervstack.ru/Velez/internal/cluster/autoupgrade"

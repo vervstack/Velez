@@ -45,7 +45,7 @@ environment:
       value: 50051
     - name: makosh_url
       type: string
-      value: verv://makosh
+      value: makosh
     - name: master_node_address
       type: string
       value: ""

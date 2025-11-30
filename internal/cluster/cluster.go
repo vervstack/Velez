@@ -16,18 +16,15 @@ import (
 	"go.vervstack.ru/Velez/internal/config"
 )
 
-var (
-	ErrServiceIsDisabled = rerrors.New("service is disabled")
-)
-
 type Cluster interface {
-	Configurator() (cluster_clients.Configurator, error)
-	Vpn() (cluster_clients.VervPrivateNetworkClient, error)
+	Configurator() cluster_clients.Configurator
+	Vpn() cluster_clients.VervPrivateNetworkClient
+	ServiceDiscovery() cluster_clients.ServiceDiscovery
 }
 
 type clusterClients struct {
 	matreshka        matreshka.Client
-	serviceDiscovery makosh.ServiceDiscovery
+	serviceDiscovery *makosh.ServiceDiscovery
 	headscale        *headscale.Client
 }
 
@@ -46,17 +43,20 @@ func Setup(ctx context.Context, cfg config.Config, nodeClients node_clients.Node
 		}
 	}
 
-	var sdClient makosh.ServiceDiscovery
-	if cfg.Environment.MakoshIsEnabled {
-		sdClient, err = service_discovery.SetupMakosh(ctx, cfg, nodeClients)
+	var sdClient *makosh.ServiceDiscovery
+	if cfg.Environment.MakoshIsEnabled && headscaleClient != nil {
+		sdClient, err = service_discovery.SetupMakosh(ctx, cfg, nodeClients, headscaleClient)
 		if err != nil {
 			return nil, rerrors.Wrap(err, "error during makosh setup")
 		}
 	}
 
-	cfgClient, err := configuration.SetupMatreshka(ctx, cfg, nodeClients)
-	if err != nil {
-		return nil, rerrors.Wrap(err, "error during matreshka setup")
+	var cfgClient matreshka.Client
+	if cfg.Environment.MatreshkaIsEnabled {
+		cfgClient, err = configuration.SetupMatreshka(ctx, cfg, nodeClients)
+		if err != nil {
+			return nil, rerrors.Wrap(err, "error during matreshka setup")
+		}
 	}
 
 	return &clusterClients{
@@ -66,17 +66,25 @@ func Setup(ctx context.Context, cfg config.Config, nodeClients node_clients.Node
 	}, nil
 }
 
-func (c *clusterClients) Configurator() (cluster_clients.Configurator, error) {
+func (c *clusterClients) Configurator() cluster_clients.Configurator {
 	if c.matreshka == nil {
-		return nil, ErrServiceIsDisabled
+		return &disabledConfigurator{}
 	}
 
-	return c.matreshka, nil
+	return c.matreshka
 }
 
-func (c *clusterClients) Vpn() (cluster_clients.VervPrivateNetworkClient, error) {
+func (c *clusterClients) Vpn() cluster_clients.VervPrivateNetworkClient {
 	if c.headscale == nil {
-		return nil, ErrServiceIsDisabled
+		return &disabledVpn{}
 	}
-	return c.headscale, nil
+	return c.headscale
+}
+
+func (c *clusterClients) ServiceDiscovery() cluster_clients.ServiceDiscovery {
+	if c.serviceDiscovery == nil {
+		return &disabledServiceDiscovery{}
+	}
+
+	return c.serviceDiscovery
 }

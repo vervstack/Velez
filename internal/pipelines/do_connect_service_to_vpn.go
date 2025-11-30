@@ -12,7 +12,7 @@ import (
 	"go.vervstack.ru/Velez/internal/pipelines/steps/smerd_steps"
 )
 
-func (p *pipeliner) ConnectServiceToVpn(req domain.ConnectServiceToVpn) Runner[any] {
+func (p *pipeliner) ConnectServiceToVpn(req domain.ConnectServiceToVpn) (Runner[any], error) {
 	// region Pipeline context
 	launchContainer := patterns.TailScaleContainerSidecar(req.ServiceName)
 
@@ -28,7 +28,7 @@ func (p *pipeliner) ConnectServiceToVpn(req domain.ConnectServiceToVpn) Runner[a
 	return &runner[any]{
 		Steps: []steps.Step{
 			network_steps.PreCheck(p.services, containerName),
-			network_steps.IssueClientKey(p.clusterClients, req.NamespaceId, &clientKey),
+			network_steps.IssueClientKey(p.clusterClients.Vpn(), req.NamespaceId, &clientKey),
 			network_steps.GetLoginServerUrl(&loginServer),
 			steps.SingleFunc(func(_ context.Context) error {
 				hostname := strings.ReplaceAll(req.ServiceName+"-ts-sidecar", "_", "-")
@@ -45,5 +45,5 @@ func (p *pipeliner) ConnectServiceToVpn(req domain.ConnectServiceToVpn) Runner[a
 			smerd_steps.Start(p.nodeClients, &containerId),
 			smerd_steps.Exec(p.nodeClients, &containerName, &sidecarCommand),
 		},
-	}
+	}, nil
 }

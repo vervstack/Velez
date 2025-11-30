@@ -17,12 +17,12 @@ type issueClientKeyStep struct {
 }
 
 func IssueClientKey(
-	clusterClients cluster_clients.ClusterClients,
+	vpnClient cluster_clients.VervPrivateNetworkClient,
 	namespace string,
 	keyResponse *string,
 ) *issueClientKeyStep {
 	return &issueClientKeyStep{
-		networkService: clusterClients.Vpn(),
+		networkService: vpnClient,
 		namespaceId:    namespace,
 
 		keyResponse: keyResponse,

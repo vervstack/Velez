@@ -35,13 +35,16 @@ func NewClient(token string, opts ...grpc.DialOption) (makosh.MakoshBeAPIClient,
 }
 
 type ServiceDiscovery struct {
-	Sd           *vervResolver.ServiceDiscovery
-	MakoshClient makosh.MakoshBeAPIClient
+	Sd *vervResolver.ServiceDiscovery
+	makosh.MakoshBeAPIClient
 }
 
-func NewServiceDiscovery(cfg config.Config) (sd ServiceDiscovery, err error) {
+func NewServiceDiscovery(cfg config.Config) (*ServiceDiscovery, error) {
 	url := toolbox.Coalesce(cfg.Overrides.MakoshUrl, cfg.Environment.MakoshURL)
 	token := toolbox.Coalesce(cfg.Overrides.MakoshToken, cfg.Environment.MakoshKey)
+
+	sd := &ServiceDiscovery{}
+	var err error
 
 	_ = os.Setenv(makosh_resolver.MakoshURL, url)
 	_ = os.Setenv(makosh_resolver.MakoshSecret, token)
@@ -57,7 +60,7 @@ func NewServiceDiscovery(cfg config.Config) (sd ServiceDiscovery, err error) {
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
 
-	sd.MakoshClient, err = NewClient(token, opts...)
+	sd.MakoshBeAPIClient, err = NewClient(token, opts...)
 	if err != nil {
 		return sd, errors.Wrap(err, "error creating makosh api client")
 	}

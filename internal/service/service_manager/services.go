@@ -8,9 +8,8 @@ import (
 	"go.redsock.ru/toolbox"
 
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
-	"go.vervstack.ru/Velez/internal/clients/cluster_clients/headscale"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
-	headscaleBackservice "go.vervstack.ru/Velez/internal/cluster/headscale"
+	"go.vervstack.ru/Velez/internal/cluster"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/service_manager/configurator"
 	"go.vervstack.ru/Velez/internal/service/service_manager/container_manager"
@@ -20,7 +19,7 @@ import (
 type ServiceManager struct {
 	containerManager *container_manager.ContainerManager
 	configurator     *configurator.Configurator
-	vpnService       *headscale.Client
+	vpnService       cluster_clients.VervPrivateNetworkClient
 
 	docker node_clients.Docker
 }
@@ -28,25 +27,22 @@ type ServiceManager struct {
 func New(
 	ctx context.Context,
 	nodeClients node_clients.NodeClients,
-	clusterClients cluster_clients.ClusterClients,
+	clusterClients cluster.Cluster,
 ) (service.Services, error) {
+
 	configService, err := configurator.New(
 		ctx,
-		clusterClients.Configurator(),
+		clusterClients,
 		nodeClients.Docker(),
 	)
+
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error initializing configurator")
 	}
 
-	headscaleManager, err := headscale.New(ctx, nodeClients, headscaleBackservice.Name)
-	if err != nil {
-		return nil, rerrors.Wrap(err, "error initializing headscale")
-	}
-
 	sm := &ServiceManager{
 		configurator:     configService,
-		vpnService:       headscaleManager,
+		vpnService:       clusterClients.Vpn(),
 		containerManager: container_manager.New(nodeClients, configService),
 
 		docker: nodeClients.Docker(),

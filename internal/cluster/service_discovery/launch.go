@@ -5,21 +5,20 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/sirupsen/logrus"
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/go-connections/nat"
 	"go.redsock.ru/rerrors"
 	rtb "go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/toolbox/keep_alive"
 	version "go.vervstack.ru/makosh/config"
-	pb "go.vervstack.ru/makosh/pkg/makosh_be"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/makosh"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/cluster/env/container_service_task"
 	"go.vervstack.ru/Velez/internal/config"
-	"go.vervstack.ru/Velez/internal/middleware"
 )
 
 const (
@@ -39,55 +38,50 @@ func SetupMakosh(
 	ctx context.Context,
 	cfg config.Config,
 	nodeClients node_clients.NodeClients,
-) (sd makosh.ServiceDiscovery, err error) {
+	vpnClient cluster_clients.VervPrivateNetworkClient,
+) (sd *makosh.ServiceDiscovery, err error) {
+	// TODO statefull token?
 	token := string(rtb.RandomBase64(256))
 
-	taskConstructor := container_service_task.NewTaskRequest[pb.MakoshBeAPIClient]{
-		ContainerName: Name,
-		NodeClients:   nodeClients,
-
-		ImageName: rtb.Coalesce(cfg.Environment.MakoshImage, image),
-		ExposedPorts: map[string]string{
-			grpcPort: "",
+	containerReq := container.CreateRequest{
+		Config: &container.Config{
+			Hostname: Name,
+			Image:    rtb.Coalesce(cfg.Environment.MakoshImage, image),
+			Env: []string{
+				authTokenEnvVariable + ":" + token,
+			},
 		},
-		Env: map[string]string{
-			authTokenEnvVariable: token,
-		},
+		HostConfig: &container.HostConfig{},
 	}
 
-	if cfg.Environment.MakoshPort > 0 {
-		taskConstructor.ExposedPorts[grpcPort] = strconv.Itoa(cfg.Environment.MakoshPort)
-	}
-
-	var taskClient *container_service_task.ApiClient[pb.MakoshBeAPIClient]
-
-	taskConstructor.Healthcheck = func(t *container_service_task.Task[pb.MakoshBeAPIClient]) bool {
-		if taskClient == nil {
-			taskClient, err = initClient(t, token)
-			if err != nil {
-				return false
-			}
+	if cfg.Environment.MakoshPort > 0 || !env.IsInContainer() {
+		port := strconv.Itoa(cfg.Environment.MakoshPort)
+		if cfg.Environment.MakoshPort == 0 {
+			port = ""
 		}
-
-		resp, err := taskClient.Client.Version(ctx, &pb.Version_Request{})
-		if err != nil && resp == nil {
-			return false
+		strconv.Itoa(cfg.Environment.MakoshPort)
+		containerReq.ExposedPorts[grpcPort] = struct{}{}
+		containerReq.HostConfig.PortBindings = nat.PortMap{
+			grpcPort: []nat.PortBinding{
+				{
+					HostPort: port,
+				},
+			},
 		}
-		return true
 	}
 
-	logrus.Info("Preparing service discovery background task")
-
-	makoshTask, err := container_service_task.NewTask[pb.MakoshBeAPIClient](taskConstructor)
+	task, err := container_service_task.NewTaskV2(nodeClients.Docker(), containerReq)
 	if err != nil {
-		return sd, rerrors.Wrap(err, "error creating task")
+		return nil, rerrors.Wrap(err, "error creating makosh service task")
 	}
+
 	// Launch
 	keepAlive := keep_alive.KeepAlive(
-		makoshTask,
+		task,
 		keep_alive.WithCancel(ctx.Done()),
 		keep_alive.WithCheckInterval(time.Second/2),
 	)
+
 	if cfg.Environment.ShutDownOnExit {
 		closer.Add(func() error {
 			keepAlive.Stop()
@@ -95,22 +89,12 @@ func SetupMakosh(
 		})
 	}
 
-	req := &pb.UpsertEndpoints_Request{
-		Endpoints: []*pb.Endpoint{
-			{
-				ServiceName: makosh.ServiceName,
-				Addrs:       []string{taskClient.Addr},
-			},
-		},
+	if !env.IsInContainer() {
+		// When running outside of container (e.g. direct binary execution / local debug)
+		// changing target address to accessible from localhost
+		addr, port := task.GetPortBinding(grpcPort)
+		cfg.Environment.MakoshURL = addr + ":" + port
 	}
-
-	_, err = taskClient.Client.UpsertEndpoints(ctx, req)
-	if err != nil {
-		return sd, rerrors.Wrap(err, "error upserting makosh endpoint")
-	}
-
-	cfg.Environment.MakoshURL = taskClient.Addr
-	cfg.Environment.MakoshKey = token
 
 	sd, err = makosh.NewServiceDiscovery(cfg)
 	if err != nil {
@@ -118,13 +102,4 @@ func SetupMakosh(
 	}
 
 	return sd, nil
-}
-
-func initClient(t *container_service_task.Task[pb.MakoshBeAPIClient], token string) (
-	*container_service_task.ApiClient[pb.MakoshBeAPIClient], error) {
-	return container_service_task.NewGrpcClient(
-		t.ContainerNetworkHost+":"+t.GetPortBinding(grpcPort),
-		pb.NewMakoshBeAPIClient,
-		grpc.WithChainUnaryInterceptor(middleware.HeaderOutgoingInterceptor(makosh.AuthHeader, token)),
-		grpc.WithTransportCredentials(insecure.NewCredentials()))
 }

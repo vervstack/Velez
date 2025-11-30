@@ -50,6 +50,9 @@ environment:
     - name: matreshka_image
       type: string
       value: vervstack/matreshka:v1.0.92
+    - name: matreshka_is_enabled
+      type: bool
+      value: true
     - name: matreshka_key
       type: string
       value: string

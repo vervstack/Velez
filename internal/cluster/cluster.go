@@ -46,16 +46,12 @@ func Setup(ctx context.Context, cfg config.Config, nodeClients node_clients.Node
 		}
 	}
 
+	var sdClient makosh.ServiceDiscovery
 	if cfg.Environment.MakoshIsEnabled {
-		headscaleClient, err = headscale.New(ctx, nodeClients, "headscale")
+		sdClient, err = service_discovery.SetupMakosh(ctx, cfg, nodeClients)
 		if err != nil {
-			return nil, rerrors.Wrap(err, "error during vpn server client initialization")
+			return nil, rerrors.Wrap(err, "error during makosh setup")
 		}
-	}
-
-	sdClient, err := service_discovery.SetupMakosh(ctx, cfg, nodeClients)
-	if err != nil {
-		return nil, rerrors.Wrap(err, "error during makosh setup")
 	}
 
 	cfgClient, err := configuration.SetupMatreshka(ctx, cfg, nodeClients)

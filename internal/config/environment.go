@@ -17,6 +17,7 @@ type EnvironmentConfig struct {
 	MakoshURL          string
 	MasterNodeAddress  string
 	MatreshkaImage     string
+	MatreshkaIsEnabled bool
 	MatreshkaKey       string
 	MatreshkaPort      int
 	MemorySwapMb       int

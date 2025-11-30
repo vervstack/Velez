@@ -23,6 +23,14 @@ service ControlPlaneAPI {
       body: "*"
     };
   }
+
+  // ConnectSlave - used by other Velez nodes to connect to cluster
+  rpc ConnectSlave(ConnectSlave.Request) returns (ConnectSlave.Response) {
+    option (google.api.http) = {
+      post: "/api/slave/connect"
+      body: "*"
+    };
+  }
 }
 
 message ListServices {
@@ -60,6 +68,13 @@ message EnableServices {
   message Request {
     repeated VervServiceType services = 1;
   }
+
+  message Response {}
+}
+
+
+message ConnectSlave {
+  message Request {}
 
   message Response {}
 }

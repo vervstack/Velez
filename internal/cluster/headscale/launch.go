@@ -3,6 +3,7 @@ package headscale
 import (
 	"context"
 	_ "embed"
+	"path"
 	"sync"
 	"time"
 
@@ -16,8 +17,8 @@ import (
 	rtb "go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/keep_alive"
 
-	"go.vervstack.ru/Velez/internal/backservice/env/container_service_task"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/cluster/env/container_service_task"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
@@ -25,14 +26,18 @@ import (
 )
 
 const (
-	Name         = "headscale"
-	defaultImage = "headscale/headscale:v0.27.1"
+	Name              = "headscale"
+	defaultImage      = "headscale/headscale:v0.27.1"
+	defaultPort       = nat.Port("8080/tcp")
+	defaultConfigPath = "/etc/headscale/config.yaml"
 )
 
-//go:embed config.yaml
-var defaultConfig []byte
+var (
+	//go:embed config.yaml
+	defaultConfig []byte
 
-var initModeSync = sync.Once{}
+	initModeSync = sync.Once{}
+)
 
 type launcher struct {
 	ctx context.Context
@@ -79,7 +84,8 @@ func (l launcher) initVolume() error {
 
 	req := volume.CreateOptions{
 		Labels: map[string]string{
-			labels.CreatedWithVelezLabel: "true",
+			labels.VervServiceLabel:  "true",
+			labels.ComposeGroupLabel: Name,
 		},
 		Name: Name,
 	}
@@ -96,7 +102,7 @@ func (l launcher) copyConfigToVolume() (err error) {
 	copyToVolumeReq := domain.CopyToVolumeRequest{
 		VolumeName: Name,
 		PathToFiles: map[string][]byte{
-			"/etc/headscale/config.yaml": defaultConfig,
+			defaultConfigPath: defaultConfig,
 		},
 	}
 	runner := pipelines.NewCopyToVolumeRunner(l.clients, copyToVolumeReq)
@@ -113,7 +119,7 @@ func (l launcher) startContainer() error {
 		Config: &container.Config{
 			Hostname: Name,
 			ExposedPorts: nat.PortSet{
-				"8080/tcp": struct{}{},
+				defaultPort: struct{}{},
 			},
 			Cmd: strslice.StrSlice{"serve"},
 			Healthcheck: &container.HealthConfig{
@@ -123,8 +129,8 @@ func (l launcher) startContainer() error {
 			Image: rtb.Coalesce(l.cfg.Environment.VpnServerImage, defaultImage),
 
 			Labels: map[string]string{
-				labels.AutoUpgrade:           "true",
-				labels.CreatedWithVelezLabel: "true",
+				labels.AutoUpgrade:      "true",
+				labels.VervServiceLabel: "true",
 			},
 		},
 		HostConfig: &container.HostConfig{
@@ -132,7 +138,7 @@ func (l launcher) startContainer() error {
 				{
 					Type:   mount.TypeVolume,
 					Source: Name,
-					Target: "/etc/headscale",
+					Target: path.Dir(defaultConfigPath),
 				},
 			},
 		},

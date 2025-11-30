@@ -11,9 +11,9 @@ import (
 	"github.com/sirupsen/logrus"
 	errors "go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/backservice/env"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
+	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 )

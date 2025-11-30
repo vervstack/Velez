@@ -11,6 +11,7 @@ type EnvironmentConfig struct {
 	LogLevel           string
 	MakoshExposePort   bool
 	MakoshImage        string
+	MakoshIsEnabled    bool
 	MakoshKey          string
 	MakoshPort         int
 	MakoshURL          string
@@ -19,7 +20,6 @@ type EnvironmentConfig struct {
 	MatreshkaKey       string
 	MatreshkaPort      int
 	MemorySwapMb       int
-	NodeMode           bool
 	RAMMbDefault       int
 	ShutDownOnExit     bool
 	VpnIsEnabled       bool

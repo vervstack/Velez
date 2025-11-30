@@ -32,6 +32,9 @@ environment:
     - name: makosh_image
       type: string
       value: vervstack/makosh:v0.0.16
+    - name: makosh_is_enabled
+      type: bool
+      value: true
     - name: makosh_key
       type: string
       value: string

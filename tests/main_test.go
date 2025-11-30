@@ -13,8 +13,8 @@ import (
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 
 	"go.vervstack.ru/Velez/internal/app"
-	"go.vervstack.ru/Velez/internal/clients"
-	"go.vervstack.ru/Velez/internal/clients/docker/dockerutils"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
@@ -45,7 +45,7 @@ type serverApi struct {
 
 type dependenciesApi struct {
 	matreshkaApi matreshka_api.MatreshkaBeAPIClient
-	docker       clients.Docker
+	docker       node_clients.Docker
 	dockerApi    client.APIClient
 }
 

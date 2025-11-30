@@ -6,7 +6,7 @@ import (
 	"go.redsock.ru/rerrors"
 	"google.golang.org/grpc/codes"
 
-	"go.vervstack.ru/Velez/internal/backservice/env"
+	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )

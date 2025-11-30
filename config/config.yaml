@@ -28,6 +28,9 @@ environment:
       type: string
       enum: [Trace, Debug, Warn, Info, Error, Fatal, Panic]
       value: Info
+    - name: makosh_is_enabled
+      type: bool
+      value: true
     - name: makosh_expose_port
       type: bool
       value: true

@@ -5,25 +5,8 @@ import (
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 	"gopkg.in/yaml.v3"
 
-	"go.vervstack.ru/Velez/internal/backservice/env"
-	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/cluster/env"
 )
-
-func setupVervNodeEnvironment(clients node_clients.NodeClients) (err error) {
-	// Verv network for communication inside node
-	err = env.StartNetwork(clients.Docker().Client())
-	if err != nil {
-		return rerrors.Wrap(err, "error creating network")
-	}
-
-	// Verv volumes for persistence inside node
-	err = env.StartVolumes(clients.Docker().Client())
-	if err != nil {
-		return rerrors.Wrap(err, "error creating volumes")
-	}
-
-	return nil
-}
 
 func (c *Custom) saveSelfConfig(a *App) (err error) {
 	storeConfig := &matreshka_api.StoreConfig_Request{

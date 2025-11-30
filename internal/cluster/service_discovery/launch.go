@@ -3,11 +3,10 @@ package service_discovery
 import (
 	"context"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/sirupsen/logrus"
-	errors "go.redsock.ru/rerrors"
+	"go.redsock.ru/rerrors"
 	rtb "go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/toolbox/keep_alive"
@@ -16,9 +15,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"go.vervstack.ru/Velez/internal/backservice/env/container_service_task"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/makosh"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/cluster/env/container_service_task"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/middleware"
 )
@@ -36,29 +35,11 @@ func init() {
 	image = defaultImageBase + ":" + version.GetVersion()
 }
 
-var initModeSync = sync.Once{}
-
-func LaunchMakosh(
+func SetupMakosh(
 	ctx context.Context,
-	cfg *config.Config,
-	clients node_clients.NodeClients,
-) {
-	initModeSync.Do(func() {
-		err := launchMakosh(ctx, cfg, clients)
-		if err != nil {
-			logrus.Fatal(errors.Wrap(err))
-		}
-	})
-
-	return
-}
-
-func launchMakosh(
-	ctx context.Context,
-	cfg *config.Config,
+	cfg config.Config,
 	nodeClients node_clients.NodeClients,
-) error {
-	// Construct
+) (sd makosh.ServiceDiscovery, err error) {
 	token := string(rtb.RandomBase64(256))
 
 	taskConstructor := container_service_task.NewTaskRequest[pb.MakoshBeAPIClient]{
@@ -79,7 +60,6 @@ func launchMakosh(
 	}
 
 	var taskClient *container_service_task.ApiClient[pb.MakoshBeAPIClient]
-	var err error
 
 	taskConstructor.Healthcheck = func(t *container_service_task.Task[pb.MakoshBeAPIClient]) bool {
 		if taskClient == nil {
@@ -97,9 +77,10 @@ func launchMakosh(
 	}
 
 	logrus.Info("Preparing service discovery background task")
+
 	makoshTask, err := container_service_task.NewTask[pb.MakoshBeAPIClient](taskConstructor)
 	if err != nil {
-		return errors.Wrap(err, "error creating task")
+		return sd, rerrors.Wrap(err, "error creating task")
 	}
 	// Launch
 	keepAlive := keep_alive.KeepAlive(
@@ -125,13 +106,18 @@ func launchMakosh(
 
 	_, err = taskClient.Client.UpsertEndpoints(ctx, req)
 	if err != nil {
-		logrus.Fatal(errors.Wrap(err, "error upserting makosh endpoint"))
+		return sd, rerrors.Wrap(err, "error upserting makosh endpoint")
 	}
 
 	cfg.Environment.MakoshURL = taskClient.Addr
 	cfg.Environment.MakoshKey = token
 
-	return nil
+	sd, err = makosh.NewServiceDiscovery(cfg)
+	if err != nil {
+		return sd, rerrors.Wrap(err, "error initializing service discovery ")
+	}
+
+	return sd, nil
 }
 
 func initClient(t *container_service_task.Task[pb.MakoshBeAPIClient], token string) (

@@ -13,9 +13,10 @@ import (
 	"go.redsock.ru/toolbox/closer"
 	"golang.org/x/sync/errgroup"
 
-	"go.vervstack.ru/Velez/internal/backservice/autoupgrade"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/cluster"
+	"go.vervstack.ru/Velez/internal/cluster/autoupgrade"
 
 	"go.vervstack.ru/Velez/internal/middleware"
 	"go.vervstack.ru/Velez/internal/pipelines"
@@ -33,7 +34,7 @@ type Custom struct {
 	NodeClients node_clients.NodeClients
 
 	// ClusterClients - contains verv cluster's dependencies
-	ClusterClients cluster_clients.ClusterClients
+	ClusterClients cluster.Cluster
 
 	// Services - contains business logic services
 	Services  service.Services
@@ -54,12 +55,7 @@ func (c *Custom) Init(a *App) (err error) {
 		return rerrors.Wrap(err, "error initializing internal clients")
 	}
 
-	err = setupVervNodeEnvironment(nodeClients)
-	if err != nil {
-		return rerrors.Wrap(err, "error setting up node environment")
-	}
-
-	clusterClients, err := cluster_clients.NewClusterClients(a.Ctx, a.Cfg, nodeClients)
+	clusterClients, err := cluster.Setup(a.Ctx, a.Cfg, nodeClients)
 	if err != nil {
 		return rerrors.Wrap(err, "error setting up verv services")
 	}

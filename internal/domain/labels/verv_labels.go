@@ -6,6 +6,7 @@ import (
 
 const (
 	CreatedWithVelezLabel = "CREATED_WITH_VELEZ"
+	VervServiceLabel      = "VERV_SERVICE"
 	MatreshkaConfigLabel  = "MATRESHKA_CONFIG_ENABLED"
 	AutoUpgrade           = "VELEZ_AUTO_UPGRADE"
 )

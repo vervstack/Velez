@@ -6,8 +6,8 @@ import (
 
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/backservice/configuration"
-	"go.vervstack.ru/Velez/internal/backservice/service_discovery"
+	"go.vervstack.ru/Velez/internal/cluster/configuration"
+	"go.vervstack.ru/Velez/internal/cluster/service_discovery"
 	"go.vervstack.ru/Velez/internal/patterns"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )

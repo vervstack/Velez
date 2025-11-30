@@ -225,7 +225,7 @@ func Test_DeployGeneric(t *testing.T) {
 			ConfigName: serviceName,
 			Config:     lokiConfig,
 		}
-		_, err := testEnvironment.app.Custom.MatreshkaClient.StoreConfig(ctx, storeLokiConfigReq)
+		_, err := testEnvironment.app.Custom.ClusterClients.Configurator().StoreConfig(ctx, storeLokiConfigReq)
 		require.NoError(t, err)
 
 		// TODO add plain config to matreshka

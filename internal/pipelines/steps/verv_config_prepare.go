@@ -78,6 +78,8 @@ func (p *prepareVervConfig) Do(ctx context.Context) (err error) {
 
 	p.req.Labels[labels.CreatedWithVelezLabel] = "true"
 
+	// Todo: Think about where to get group name
+	p.req.Labels[labels.ComposeGroupLabel] = p.req.GetName()
 	if p.req.AutoUpgrade {
 		p.req.Labels[labels.AutoUpgrade] = "true"
 	}

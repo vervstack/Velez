@@ -16,9 +16,9 @@ type stepPrepareImage struct {
 	result    *image.InspectResponse
 }
 
-func PrepareImage(nodeClients node_clients.NodeClients, imageName string, result *image.InspectResponse) *stepPrepareImage {
+func PrepareImage(nc node_clients.NodeClients, imageName string, result *image.InspectResponse) *stepPrepareImage {
 	return &stepPrepareImage{
-		docker:    nodeClients.Docker(),
+		docker:    nc.Docker(),
 		imageName: imageName,
 		result:    result,
 	}

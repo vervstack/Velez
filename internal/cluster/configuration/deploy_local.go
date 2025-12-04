@@ -52,7 +52,8 @@ func deployOnThisNode(ctx context.Context, cfg config.Config, nodeClients node_c
 			Env: []string{
 				passEnv + ":" + key,
 			},
-			Image: toolbox.Coalesce(cfg.Environment.MatreshkaImage, image),
+			ExposedPorts: map[nat.Port]struct{}{},
+			Image:        toolbox.Coalesce(cfg.Environment.MatreshkaImage, image),
 			Volumes: map[string]struct{}{
 				Name: {},
 			},

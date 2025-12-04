@@ -13,6 +13,7 @@ import (
 	"go.redsock.ru/toolbox/closer"
 	"golang.org/x/sync/errgroup"
 
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster"
 	"go.vervstack.ru/Velez/internal/cluster/autoupgrade"
@@ -33,7 +34,7 @@ type Custom struct {
 	NodeClients node_clients.NodeClients
 
 	// ClusterClients - contains verv cluster's dependencies
-	ClusterClients cluster.Cluster
+	ClusterClients cluster_clients.ClusterClients
 
 	// Services - contains business logic services
 	Services  service.Services

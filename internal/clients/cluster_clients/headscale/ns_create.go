@@ -12,9 +12,15 @@ import (
 )
 
 func (s *Client) CreateNamespace(ctx context.Context, name string) (domain.VpnNamespace, error) {
+	//region Dto
 	type reqBody struct {
 		Name string `json:"name"`
 	}
+
+	type response struct {
+		User domain.VpnNamespace
+	}
+	//endregion
 
 	r := reqBody{Name: name}
 	apiResp, err := s.doApiRequest(ctx, http.MethodPost, userUri, r)
@@ -23,8 +29,8 @@ func (s *Client) CreateNamespace(ctx context.Context, name string) (domain.VpnNa
 	}
 
 	if apiResp.StatusCode == http.StatusOK {
-		var ns domain.VpnNamespace
-		return ns, json.NewDecoder(apiResp.Body).Decode(&ns)
+		var ns response
+		return ns.User, json.NewDecoder(apiResp.Body).Decode(&ns)
 	}
 
 	var e errorResp

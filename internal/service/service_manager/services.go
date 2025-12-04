@@ -9,7 +9,6 @@ import (
 
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
-	"go.vervstack.ru/Velez/internal/cluster"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/service_manager/configurator"
 	"go.vervstack.ru/Velez/internal/service/service_manager/container_manager"
@@ -27,7 +26,7 @@ type ServiceManager struct {
 func New(
 	ctx context.Context,
 	nodeClients node_clients.NodeClients,
-	clusterClients cluster.Cluster,
+	clusterClients cluster_clients.ClusterClients,
 ) (service.Services, error) {
 
 	configService, err := configurator.New(

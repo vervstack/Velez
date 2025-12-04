@@ -3,8 +3,8 @@ package pipelines
 import (
 	"context"
 
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
-	"go.vervstack.ru/Velez/internal/cluster"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/pkg/velez_api"
@@ -30,7 +30,7 @@ type Pipeliner interface {
 	EnableVervService(req velez_api.VervServiceType) Runner[any]
 
 	// ConnectServiceToVpn - connects any user service to cluster vpn
-	ConnectServiceToVpn(vpn domain.ConnectServiceToVpn) (Runner[any], error)
+	ConnectServiceToVpn(vpn domain.ConnectServiceToVpn) Runner[any]
 
 	CopyToVolume(req domain.CopyToVolumeRequest) Runner[any]
 }
@@ -42,12 +42,12 @@ type Runner[T any] interface {
 
 type pipeliner struct {
 	nodeClients    node_clients.NodeClients
-	clusterClients cluster.Cluster
+	clusterClients cluster_clients.ClusterClients
 	services       service.Services
 }
 
 func NewPipeliner(nodeClients node_clients.NodeClients,
-	clusterClients cluster.Cluster,
+	clusterClients cluster_clients.ClusterClients,
 	services service.Services) Pipeliner {
 	return &pipeliner{
 		nodeClients:    nodeClients,

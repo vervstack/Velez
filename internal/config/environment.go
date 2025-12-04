@@ -23,9 +23,10 @@ type EnvironmentConfig struct {
 	MemorySwapMb       int
 	RAMMbDefault       int
 	ShutDownOnExit     bool
+	VpnClientImage     string
 	VpnIsEnabled       bool
 	VpnServerImage     string
-	VpnSidecarImage    string
+	VpnServerURL       string
 }
 
 const (

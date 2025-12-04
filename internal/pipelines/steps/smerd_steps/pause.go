@@ -12,7 +12,6 @@ import (
 
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
-	"go.vervstack.ru/Velez/internal/domain"
 )
 
 type detachContainerFromVervStep struct {
@@ -21,7 +20,6 @@ type detachContainerFromVervStep struct {
 
 	portManager node_clients.PortManager
 
-	req         domain.LaunchSmerd
 	containerId *string
 
 	disconnectedNets map[string]*network.EndpointSettings
@@ -35,10 +33,13 @@ func PauseContainer(
 	containerId *string,
 ) *detachContainerFromVervStep {
 	return &detachContainerFromVervStep{
-		docker:      nodeClients.Docker(),
-		portManager: nodeClients.PortManager(),
-
-		containerId: containerId,
+		nodeClients.Docker(),
+		nodeClients.Docker().Client(),
+		nodeClients.PortManager(),
+		containerId,
+		make(map[string]*network.EndpointSettings),
+		make([]uint32, 0),
+		"unspecified",
 	}
 }
 

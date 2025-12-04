@@ -23,15 +23,15 @@ type createContainerStep struct {
 }
 
 func Create(
-	nodeClients node_clients.NodeClients,
+	nc node_clients.NodeClients,
 	req *container.CreateRequest,
 	name *string,
 
 	containerId *string,
 ) *createContainerStep {
 	return &createContainerStep{
-		docker:      nodeClients.Docker(),
-		dockerAPI:   nodeClients.Docker().Client(),
+		docker:      nc.Docker(),
+		dockerAPI:   nc.Docker().Client(),
 		req:         req,
 		name:        name,
 		containerId: containerId,

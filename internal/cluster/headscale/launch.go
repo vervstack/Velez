@@ -4,7 +4,6 @@ import (
 	"context"
 	_ "embed"
 	"path"
-	"sync"
 	"time"
 
 	"github.com/docker/docker/api/types/container"
@@ -17,6 +16,7 @@ import (
 	rtb "go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/keep_alive"
 
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients/headscale"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster/env/container_service_task"
 	"go.vervstack.ru/Velez/internal/config"
@@ -27,7 +27,7 @@ import (
 
 const (
 	Name              = "headscale"
-	defaultImage      = "headscale/headscale:v0.27.1"
+	defaultImage      = "headscale/headscale:0.27.2-rc.1"
 	defaultPort       = nat.Port("8080/tcp")
 	defaultConfigPath = "/etc/headscale/config.yaml"
 )
@@ -35,8 +35,6 @@ const (
 var (
 	//go:embed config.yaml
 	defaultConfig []byte
-
-	initModeSync = sync.Once{}
 )
 
 type launcher struct {
@@ -50,33 +48,31 @@ func Launch(
 	ctx context.Context,
 	cfg config.Config,
 	clients node_clients.NodeClients,
-) {
-	initModeSync.Do(func() {
-		l := launcher{ctx, cfg, clients}
-		err := l.launch()
-		if err != nil {
-			logrus.Fatal(rerrors.Wrap(err))
-		}
-	})
-}
+) (*headscale.Client, error) {
 
-func (l launcher) launch() (err error) {
-	err = l.initVolume()
+	l := launcher{ctx, cfg, clients}
+
+	err := l.initVolume()
 	if err != nil {
-		return rerrors.Wrap(err, "error initiating volume for headscale")
+		return nil, rerrors.Wrap(err, "error initiating volume for headscale")
 	}
 
 	err = l.copyConfigToVolume()
 	if err != nil {
-		return rerrors.Wrap(err, "error coping headscale config to volume")
+		return nil, rerrors.Wrap(err, "error coping headscale config to volume")
 	}
 
 	err = l.startContainer()
 	if err != nil {
-		return rerrors.Wrap(err, "error starting headscale container")
+		return nil, rerrors.Wrap(err, "error starting headscale container")
 	}
 
-	return nil
+	client, err := headscale.New(ctx, clients, Name)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error creating headscale client")
+	}
+
+	return client, nil
 }
 
 func (l launcher) initVolume() error {
@@ -105,7 +101,9 @@ func (l launcher) copyConfigToVolume() (err error) {
 			defaultConfigPath: defaultConfig,
 		},
 	}
+
 	runner := pipelines.NewCopyToVolumeRunner(l.clients, copyToVolumeReq)
+
 	err = runner.Run(l.ctx)
 	if err != nil {
 		return rerrors.Wrap(err, "error during to volume coping")
@@ -140,9 +138,23 @@ func (l launcher) startContainer() error {
 					Source: Name,
 					Target: path.Dir(defaultConfigPath),
 				},
+				{
+					Type:   mount.TypeVolume,
+					Source: Name,
+					Target: "/var/lib/headscale",
+				},
 			},
+			PortBindings: map[nat.Port][]nat.PortBinding{},
 		},
 	}
+
+	// TODO implement exposure via config
+	createContainerReq.HostConfig.PortBindings[defaultPort] = []nat.PortBinding{
+		{
+			HostPort: "8080",
+		},
+	}
+
 	taskConstructor, err := container_service_task.NewTaskV2(l.clients.Docker(), createContainerReq)
 	if err != nil {
 		return rerrors.Wrap(err, "error building task for headscale")

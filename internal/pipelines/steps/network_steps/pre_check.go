@@ -7,7 +7,6 @@ import (
 
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
-	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
@@ -16,9 +15,9 @@ type preCheck struct {
 	sideCarName string
 }
 
-func PreCheck(services service.Services, sideCarName string) steps.Step {
+func PreCheck(nc node_clients.NodeClients, sideCarName string) steps.Step {
 	return &preCheck{
-		docker:      services.Docker(),
+		docker:      nc.Docker(),
 		sideCarName: sideCarName,
 	}
 }
@@ -34,6 +33,7 @@ func (g *preCheck) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error listing container")
 	}
 
+	// Todo check
 	_ = conts
 
 	return nil

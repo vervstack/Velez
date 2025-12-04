@@ -6,8 +6,8 @@ import (
 	"github.com/docker/docker/client"
 	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
-	"go.vervstack.ru/Velez/internal/cluster"
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
@@ -21,7 +21,7 @@ type Configurator struct {
 
 func New(
 	ctx context.Context,
-	cluster cluster.Cluster,
+	cluster cluster_clients.ClusterClients,
 	docker node_clients.Docker,
 ) (c *Configurator, err error) {
 	// TODO VERV-128

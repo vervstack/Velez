@@ -76,6 +76,9 @@ environment:
     - name: vpn_server_image
       type: string
       value: ""
-    - name: vpn_sidecar_image
+    - name: vpn_client_image
+      type: string
+      value: ""
+    - name: vpn_server_url
       type: string
       value: ""

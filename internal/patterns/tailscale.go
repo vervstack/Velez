@@ -5,6 +5,8 @@ import (
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types/strslice"
+
+	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
 const tailscaleImage = "tailscale/tailscale:v1.90.8"
@@ -17,6 +19,9 @@ func TailScaleContainerSidecar(serviceName string) container.CreateRequest {
 			Image: tailscaleImage,
 			Volumes: map[string]struct{}{
 				volumeName: {},
+			},
+			Labels: map[string]string{
+				labels.ComposeGroupLabel: serviceName,
 			},
 		},
 		HostConfig: &container.HostConfig{

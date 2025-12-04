@@ -68,6 +68,9 @@ environment:
     - name: shut_down_on_exit
       type: bool
       value: false
+    - name: vpn_client_image
+      type: string
+      value: tailscale/tailscale:v1.90.8
     - name: vpn_is_enabled
       type: bool
       value: true
@@ -76,7 +79,7 @@ environment:
       value: false
     - name: vpn_server_image
       type: string
-      value: headscale/headscale:latest
-    - name: vpn_sidecar_image
+      value: headscale/headscale:0.27.2-rc.1
+    - name: vpn_server_url
       type: string
-      value: tailscale/tailscale:v1.90.8
+      value: ""

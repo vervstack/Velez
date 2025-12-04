@@ -9,6 +9,12 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
+type ClusterClients interface {
+	Configurator() Configurator
+	Vpn() VervPrivateNetworkClient
+	ServiceDiscovery() ServiceDiscovery
+}
+
 type Configurator interface {
 	matreshka_api.MatreshkaBeAPIClient
 }
@@ -19,6 +25,7 @@ type ServiceDiscovery interface {
 
 type VervPrivateNetworkClient interface {
 	CreateNamespace(ctx context.Context, name string) (domain.VpnNamespace, error)
+	GetNamespace(ctx context.Context, name string) (domain.VpnNamespace, error)
 	ListNamespaces(ctx context.Context) ([]domain.VpnNamespace, error)
 	DeleteNamespace(ctx context.Context, id string) error
 

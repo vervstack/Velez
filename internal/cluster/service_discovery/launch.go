@@ -13,19 +13,19 @@ import (
 	"go.redsock.ru/toolbox/keep_alive"
 	version "go.vervstack.ru/makosh/config"
 
-	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/makosh"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/cluster/env/container_service_task"
 	"go.vervstack.ru/Velez/internal/config"
+	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
 const (
 	Name                 = "makosh"
 	defaultImageBase     = "vervstack/makosh"
 	authTokenEnvVariable = "MAKOSH_ENVIRONMENT_AUTH-TOKEN"
-	grpcPort             = "8080"
+	grpcPort             = "8080/tcp"
 )
 
 var image string
@@ -38,7 +38,6 @@ func SetupMakosh(
 	ctx context.Context,
 	cfg config.Config,
 	nodeClients node_clients.NodeClients,
-	vpnClient cluster_clients.VervPrivateNetworkClient,
 ) (sd *makosh.ServiceDiscovery, err error) {
 	// TODO statefull token?
 	token := string(rtb.RandomBase64(256))
@@ -49,6 +48,10 @@ func SetupMakosh(
 			Image:    rtb.Coalesce(cfg.Environment.MakoshImage, image),
 			Env: []string{
 				authTokenEnvVariable + ":" + token,
+			},
+			ExposedPorts: map[nat.Port]struct{}{},
+			Labels: map[string]string{
+				labels.ComposeGroupLabel: Name,
 			},
 		},
 		HostConfig: &container.HostConfig{},

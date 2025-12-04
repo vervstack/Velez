@@ -22,7 +22,7 @@ func New(ctx context.Context, nc node_clients.NodeClients, containerName string)
 		headscaleApiUrl: "http://localhost:8080",
 
 		// Remove
-		apiKey: "TCXqxOn.Apx28pH4_ELTJ1Ts_xunI4r67nmjSHyU",
+		apiKey: "_ARnAyX.9BHTGPRGiAPeKhzYLJxNpQABtQUy23Qv",
 	}
 	//TODO return to live
 	//srv.apiKey, err = issueNewApiKey(ctx, docker, containerName)

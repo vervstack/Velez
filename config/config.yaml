@@ -28,15 +28,15 @@ environment:
       type: string
       enum: [Trace, Debug, Warn, Info, Error, Fatal, Panic]
       value: Info
-    - name: makosh_is_enabled
-      type: bool
-      value: true
     - name: makosh_expose_port
       type: bool
       value: true
     - name: makosh_image
       type: string
       value: ""
+    - name: makosh_is_enabled
+      type: bool
+      value: true
     - name: makosh_key
       type: string
       value: string
@@ -49,12 +49,12 @@ environment:
     - name: master_node_address
       type: string
       value: ""
-    - name: matreshka_is_enabled
-      type: bool
-      value: true
     - name: matreshka_image
       type: string
       value: ""
+    - name: matreshka_is_enabled
+      type: bool
+      value: true
     - name: matreshka_key
       type: string
       value: string
@@ -70,13 +70,13 @@ environment:
     - name: shut_down_on_exit
       type: bool
       value: false
-    - name: vpn_is_enabled
-      type: bool
-      value: false
-    - name: vpn_server_image
+    - name: vpn_client_image
       type: string
       value: ""
-    - name: vpn_client_image
+    - name: vpn_is_enabled
+      type: bool
+      value: true
+    - name: vpn_server_image
       type: string
       value: ""
     - name: vpn_server_url

@@ -19,7 +19,6 @@ const (
 func StartNetwork(dockerAPI client.APIClient) error {
 	ctx := context.Background()
 
-	// TODO ADD tailscale compatible IPs ranges (e.g 10.0.1.0/24)
 	err := dockerutils.CreateNetwork(ctx, dockerAPI, VervNetwork)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating network")

@@ -10,31 +10,32 @@ import (
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
-type preCheck struct {
+type checkSidecarExist struct {
 	docker      node_clients.Docker
 	sideCarName string
 }
 
-func PreCheck(nc node_clients.NodeClients, sideCarName string) steps.Step {
-	return &preCheck{
+func CheckSidecarExist(nc node_clients.NodeClients, sideCarName string) steps.Step {
+	return &checkSidecarExist{
 		docker:      nc.Docker(),
 		sideCarName: sideCarName,
 	}
 }
 
-func (g *preCheck) Do(ctx context.Context) error {
+func (s *checkSidecarExist) Do(ctx context.Context) error {
 	// Check if there is a headscale to connect to
 	r := &velez_api.ListSmerds_Request{
-		Name: &g.sideCarName,
+		Name: &s.sideCarName,
 	}
 
-	conts, err := g.docker.ListContainers(ctx, r)
+	conts, err := s.docker.ListContainers(ctx, r)
 	if err != nil {
 		return rerrors.Wrap(err, "error listing container")
 	}
 
-	// Todo check
-	_ = conts
+	if len(conts) != 0 {
+		return rerrors.Wrap(steps.ErrAlreadyExists)
+	}
 
 	return nil
 }

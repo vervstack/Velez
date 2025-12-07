@@ -77,7 +77,7 @@ func (c *getConfigFromContainerStep) Do(ctx context.Context) error {
 func (c *getConfigFromContainerStep) extractConfig(ctx context.Context,
 	spec *velez_api.MatreshkaConfigSpec) (res []byte, err error) {
 	if spec.SystemPath == nil {
-		return nil, rerrors.New("no target path for config specified")
+		return nil, nil
 	}
 
 	res, err = dockerutils.ReadFromContainer(ctx, c.dockerAPI, *c.contId, *spec.SystemPath)

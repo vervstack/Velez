@@ -68,10 +68,9 @@ message DeleteVpnNamespace {
 
 message ConnectService {
   message Request {
-    string namespace_id = 1;
-    string service_name = 2;
+    string service_name = 1;
     // not implemented
-    optional string domain_name = 3;
+    optional string domain_name = 2;
   }
   message Response {}
 }

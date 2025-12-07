@@ -2,7 +2,11 @@ package steps
 
 import (
 	"context"
+
+	"go.redsock.ru/rerrors"
 )
+
+var ErrAlreadyExists = rerrors.New("pipeline result already exists")
 
 type Step interface {
 	Do(ctx context.Context) error

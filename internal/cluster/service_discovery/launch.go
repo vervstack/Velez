@@ -13,12 +13,16 @@ import (
 	"go.redsock.ru/toolbox/keep_alive"
 	version "go.vervstack.ru/makosh/config"
 
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/makosh"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/cluster/env/container_service_task"
 	"go.vervstack.ru/Velez/internal/config"
+	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/pipelines"
+	"go.vervstack.ru/Velez/internal/pipelines/steps"
 )
 
 const (
@@ -38,6 +42,7 @@ func SetupMakosh(
 	ctx context.Context,
 	cfg config.Config,
 	nodeClients node_clients.NodeClients,
+	vervPNClient cluster_clients.VervPrivateNetworkClient,
 ) (sd *makosh.ServiceDiscovery, err error) {
 	// TODO statefull token?
 	token := string(rtb.RandomBase64(256))
@@ -102,6 +107,18 @@ func SetupMakosh(
 	sd, err = makosh.NewServiceDiscovery(cfg)
 	if err != nil {
 		return sd, rerrors.Wrap(err, "error initializing service discovery ")
+	}
+
+	connToVpnReq := domain.ConnectServiceToVpn{
+		ServiceName: Name,
+	}
+
+	runner := pipelines.ConnectServiceToVpn(connToVpnReq, nodeClients, vervPNClient, sd)
+	err = runner.Run(ctx)
+	if err != nil {
+		if !rerrors.Is(err, steps.ErrAlreadyExists) {
+			return sd, rerrors.Wrap(err, "error connecting service to verv closed network")
+		}
 	}
 
 	return sd, nil

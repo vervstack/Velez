@@ -15,8 +15,11 @@ func TailScaleContainerSidecar(serviceName string) container.CreateRequest {
 	volumeName := serviceName + "-ts-sidecar"
 	return container.CreateRequest{
 		Config: &container.Config{
-			Cmd:   []string{"tailscaled", "--state=/var/lib/tailscale/tailscaled.state"},
 			Image: tailscaleImage,
+			Env: []string{
+				"TS_USERSPACE=false",
+				"TS_STATE_DIR=/var/lib/tailscale",
+			},
 			Volumes: map[string]struct{}{
 				volumeName: {},
 			},

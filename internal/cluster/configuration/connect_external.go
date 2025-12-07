@@ -9,7 +9,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 )
 
-func connectExternal(nodeClients node_clients.NodeClients) (matreshka.Client, error) {
+func newClient(nodeClients node_clients.NodeClients) (matreshka.Client, error) {
 	matreshkaClient, err := matreshka.NewClient(
 		grpc.WithUnaryInterceptor(
 			matreshka_client.WithHeader(

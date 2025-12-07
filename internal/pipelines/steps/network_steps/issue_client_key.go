@@ -11,26 +11,26 @@ import (
 type issueClientKeyStep struct {
 	networkService cluster_clients.VervPrivateNetworkClient
 
-	namespaceId string
+	namespaceId *string
 
 	keyResponse *string
 }
 
 func IssueClientKey(
 	vpnClient cluster_clients.VervPrivateNetworkClient,
-	namespace string,
+	namespaceId *string,
 	keyResponse *string,
 ) *issueClientKeyStep {
 	return &issueClientKeyStep{
 		networkService: vpnClient,
-		namespaceId:    namespace,
+		namespaceId:    namespaceId,
 
 		keyResponse: keyResponse,
 	}
 }
 
 func (h *issueClientKeyStep) Do(ctx context.Context) error {
-	clientKey, err := h.networkService.IssueClientKey(ctx, h.namespaceId)
+	clientKey, err := h.networkService.IssueClientKey(ctx, *h.namespaceId)
 	if err != nil {
 		return rerrors.Wrap(err)
 	}

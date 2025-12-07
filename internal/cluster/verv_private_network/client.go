@@ -1,8 +1,7 @@
-package headscale
+package verv_private_network
 
 import (
 	"context"
-	_ "embed"
 	"path"
 	"time"
 
@@ -20,46 +19,28 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster/env/container_service_task"
 	"go.vervstack.ru/Velez/internal/config"
-	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
-	"go.vervstack.ru/Velez/internal/pipelines"
 )
 
-const (
-	Name              = "headscale"
-	defaultImage      = "headscale/headscale:0.27.2-rc.1"
-	defaultPort       = nat.Port("8080/tcp")
-	defaultConfigPath = "/etc/headscale/config.yaml"
-)
-
-var (
-	//go:embed config.yaml
-	defaultConfig []byte
-)
-
-type launcher struct {
+type tailscaleLauncher struct {
 	ctx context.Context
 	cfg config.Config
 
 	clients node_clients.NodeClients
 }
 
-func Launch(
+// LaunchTailscale creates a tailscale container - client for vpn
+func LaunchTailscale(
 	ctx context.Context,
 	cfg config.Config,
 	clients node_clients.NodeClients,
 ) (*headscale.Client, error) {
 
-	l := launcher{ctx, cfg, clients}
+	l := tailscaleLauncher{ctx, cfg, clients}
 
 	err := l.initVolume()
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error initiating volume for headscale")
-	}
-
-	err = l.copyConfigToVolume()
-	if err != nil {
-		return nil, rerrors.Wrap(err, "error coping headscale config to volume")
 	}
 
 	err = l.startContainer()
@@ -75,15 +56,15 @@ func Launch(
 	return client, nil
 }
 
-func (l launcher) initVolume() error {
+func (l tailscaleLauncher) initVolume() error {
 	apiClient := l.clients.Docker().Client()
 
 	req := volume.CreateOptions{
+		Name: Name,
 		Labels: map[string]string{
 			labels.VervServiceLabel:  "true",
-			labels.ComposeGroupLabel: Name,
+			labels.ComposeGroupLabel: groupName,
 		},
-		Name: Name,
 	}
 
 	_, err := apiClient.VolumeCreate(l.ctx, req)
@@ -94,28 +75,11 @@ func (l launcher) initVolume() error {
 	return nil
 }
 
-func (l launcher) copyConfigToVolume() (err error) {
-	copyToVolumeReq := domain.CopyToVolumeRequest{
-		VolumeName: Name,
-		PathToFiles: map[string][]byte{
-			defaultConfigPath: defaultConfig,
-		},
-	}
-
-	runner := pipelines.NewCopyToVolumeRunner(l.clients, copyToVolumeReq)
-
-	err = runner.Run(l.ctx)
-	if err != nil {
-		return rerrors.Wrap(err, "error during to volume coping")
-	}
-
-	return nil
-}
-
-func (l launcher) startContainer() error {
+func (l tailscaleLauncher) startContainer() error {
 	createContainerReq := container.CreateRequest{
 		Config: &container.Config{
-			Hostname: Name,
+			// TODO add cluster name
+			Hostname: Name + "-",
 			ExposedPorts: nat.PortSet{
 				defaultPort: struct{}{},
 			},

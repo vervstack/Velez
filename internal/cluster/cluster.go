@@ -12,8 +12,8 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster/configuration"
 	"go.vervstack.ru/Velez/internal/cluster/env"
-	"go.vervstack.ru/Velez/internal/cluster/headscale"
 	"go.vervstack.ru/Velez/internal/cluster/service_discovery"
+	"go.vervstack.ru/Velez/internal/cluster/verv_private_network"
 	"go.vervstack.ru/Velez/internal/config"
 )
 
@@ -29,26 +29,23 @@ func Setup(ctx context.Context, cfg config.Config, nodeClients node_clients.Node
 		return nil, rerrors.Wrap(err, "error settings up environment")
 	}
 
-	var headscaleClient *headscaleClient.Client
-
-	if cfg.Environment.VpnIsEnabled {
-		headscaleClient, err = headscale.Launch(ctx, cfg, nodeClients)
-		if err != nil {
-			return nil, rerrors.Wrap(err, "error during vpn server client initialization")
-		}
+	// TODO VPN must be presented in one of options
+	// 1. Single node - docker network (❌not implemented)
+	// 2. Multi node Tailscale - using 3rd party service (❌not implemented)
+	// 3. Multi node - using headscale setup (⚠️ in development)
+	vpnClient, err := verv_private_network.LaunchHeadscale(ctx, cfg, nodeClients)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error during vpn server client initialization")
 	}
 
-	var sdClient *makosh.ServiceDiscovery
-	if cfg.Environment.MakoshIsEnabled {
-		sdClient, err = service_discovery.SetupMakosh(ctx, cfg, nodeClients)
-		if err != nil {
-			return nil, rerrors.Wrap(err, "error during makosh setup")
-		}
+	sdClient, err := service_discovery.SetupMakosh(ctx, cfg, nodeClients, vpnClient)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error during makosh setup")
 	}
 
 	var cfgClient matreshka.Client
 	if cfg.Environment.MatreshkaIsEnabled {
-		cfgClient, err = configuration.SetupMatreshka(ctx, cfg, nodeClients)
+		cfgClient, err = configuration.SetupMatreshka(ctx, cfg, nodeClients, sdClient)
 		if err != nil {
 			return nil, rerrors.Wrap(err, "error during matreshka setup")
 		}
@@ -57,7 +54,7 @@ func Setup(ctx context.Context, cfg config.Config, nodeClients node_clients.Node
 	return &clusterClients{
 		cfgClient,
 		sdClient,
-		headscaleClient,
+		vpnClient,
 	}, nil
 }
 

@@ -4,12 +4,13 @@ import (
 	"context"
 
 	"go.redsock.ru/evon"
-	errors "go.redsock.ru/rerrors"
+	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"go.vervstack.ru/Velez/internal/cluster"
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
@@ -29,7 +30,10 @@ func (c *Configurator) getEnvFromApi(ctx context.Context, meta domain.ConfigMeta
 		if status.Code(err) == codes.NotFound {
 			return &evon.Node{}, nil
 		}
-		return nil, errors.Wrap(err, "error obtaining raw config")
+		if rerrors.Is(err, cluster.ErrServiceIsDisabled) {
+			return &evon.Node{}, nil
+		}
+		return nil, rerrors.Wrap(err, "error getting config nodes")
 	}
 
 	if cfgNodes.Root == nil {

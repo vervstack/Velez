@@ -12,5 +12,4 @@ type ListVpnNamespaces struct {
 
 type ConnectServiceToVpn struct {
 	ServiceName string
-	NamespaceId string
 }

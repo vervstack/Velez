@@ -53,7 +53,7 @@ func Load() (Config, error) {
 	configsPaths = append(configsPaths, prodConfigPath)
 
 	var err error
-	defaultConfig.MatreshkaConfig, err = matreshka.ReadConfigs(cfgPath)
+	defaultConfig.MatreshkaConfig, err = matreshka.ReadConfigs(configsPaths...)
 	if err != nil {
 		return defaultConfig, rerrors.Wrap(err, "error reading matreshka config")
 	}

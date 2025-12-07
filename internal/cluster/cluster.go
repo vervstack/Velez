@@ -33,19 +33,19 @@ func Setup(ctx context.Context, cfg config.Config, nodeClients node_clients.Node
 	// 1. Single node - docker network (❌not implemented)
 	// 2. Multi node Tailscale - using 3rd party service (❌not implemented)
 	// 3. Multi node - using headscale setup (⚠️ in development)
-	vpnClient, err := verv_private_network.LaunchHeadscale(ctx, cfg, nodeClients)
+	vcnClient, err := verv_private_network.LaunchHeadscale(ctx, cfg, nodeClients)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error during vpn server client initialization")
 	}
 
-	sdClient, err := service_discovery.SetupMakosh(ctx, cfg, nodeClients, vpnClient)
+	sdClient, err := service_discovery.SetupMakosh(ctx, cfg, nodeClients, vcnClient)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error during makosh setup")
 	}
 
 	var cfgClient matreshka.Client
 	if cfg.Environment.MatreshkaIsEnabled {
-		cfgClient, err = configuration.SetupMatreshka(ctx, cfg, nodeClients, sdClient)
+		cfgClient, err = configuration.SetupMatreshka(ctx, cfg, nodeClients, sdClient, vcnClient)
 		if err != nil {
 			return nil, rerrors.Wrap(err, "error during matreshka setup")
 		}
@@ -54,7 +54,7 @@ func Setup(ctx context.Context, cfg config.Config, nodeClients node_clients.Node
 	return &clusterClients{
 		cfgClient,
 		sdClient,
-		vpnClient,
+		vcnClient,
 	}, nil
 }
 
@@ -66,7 +66,7 @@ func (c *clusterClients) Configurator() cluster_clients.Configurator {
 	return c.matreshka
 }
 
-func (c *clusterClients) Vpn() cluster_clients.VervPrivateNetworkClient {
+func (c *clusterClients) Vpn() cluster_clients.VervClosedNetworkClient {
 	if c.headscale == nil {
 		return &disabledVpn{}
 	}

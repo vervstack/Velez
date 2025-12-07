@@ -10,6 +10,6 @@ type ListVpnNamespaces struct {
 	Name *string
 }
 
-type ConnectServiceToVpn struct {
+type ConnectServiceToVcn struct {
 	ServiceName string
 }

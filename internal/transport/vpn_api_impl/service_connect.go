@@ -12,7 +12,7 @@ import (
 func (impl *Impl) ConnectService(ctx context.Context, req *velez_api.ConnectService_Request) (
 	*velez_api.ConnectService_Response, error) {
 
-	r := domain.ConnectServiceToVpn{
+	r := domain.ConnectServiceToVcn{
 		ServiceName: req.ServiceName,
 	}
 

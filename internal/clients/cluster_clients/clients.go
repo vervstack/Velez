@@ -11,7 +11,7 @@ import (
 
 type ClusterClients interface {
 	Configurator() Configurator
-	Vpn() VervPrivateNetworkClient
+	Vpn() VervClosedNetworkClient
 	ServiceDiscovery() ServiceDiscovery
 }
 
@@ -23,7 +23,7 @@ type ServiceDiscovery interface {
 	makosh.MakoshBeAPIClient
 }
 
-type VervPrivateNetworkClient interface {
+type VervClosedNetworkClient interface {
 	CreateNamespace(ctx context.Context, name string) (domain.VpnNamespace, error)
 	GetNamespace(ctx context.Context, name string) (domain.VpnNamespace, error)
 	ListNamespaces(ctx context.Context) ([]domain.VpnNamespace, error)

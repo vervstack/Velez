@@ -16,7 +16,7 @@ import (
 type Impl struct {
 	velez_api.UnimplementedVpnApiServer
 
-	vpnService cluster_clients.VervPrivateNetworkClient
+	vpnService cluster_clients.VervClosedNetworkClient
 	pipeliner  pipelines.Pipeliner
 }
 

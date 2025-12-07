@@ -18,7 +18,7 @@ import (
 type ServiceManager struct {
 	containerManager *container_manager.ContainerManager
 	configurator     *configurator.Configurator
-	vpnService       cluster_clients.VervPrivateNetworkClient
+	vpnService       cluster_clients.VervClosedNetworkClient
 
 	docker node_clients.Docker
 }

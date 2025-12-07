@@ -30,7 +30,7 @@ type Pipeliner interface {
 	EnableVervService(req velez_api.VervServiceType) Runner[any]
 
 	// ConnectServiceToVpn - connects any user service to cluster vpn
-	ConnectServiceToVpn(vpn domain.ConnectServiceToVpn) Runner[any]
+	ConnectServiceToVpn(vpn domain.ConnectServiceToVcn) Runner[any]
 
 	CopyToVolume(req domain.CopyToVolumeRequest) Runner[any]
 }

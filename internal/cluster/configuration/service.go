@@ -13,21 +13,26 @@ import (
 	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/toolbox/keep_alive"
 
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/makosh"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/matreshka"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster/env/container_service_task"
 	"go.vervstack.ru/Velez/internal/config"
+	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/pipelines"
+	"go.vervstack.ru/Velez/internal/pipelines/steps"
 )
 
 func SetupMatreshka(
 	ctx context.Context,
 	cfg config.Config,
-	nodeClients node_clients.NodeClients,
+	nc node_clients.NodeClients,
 	sdClient *makosh.ServiceDiscovery,
+	vcnClient cluster_clients.VervClosedNetworkClient,
 ) (matreshka.Client, error) {
-	key, err := initKey(ctx, nodeClients)
+	key, err := initKey(ctx, nc)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error getting key")
 	}
@@ -80,7 +85,7 @@ func SetupMatreshka(
 		}
 	}
 
-	task, err := container_service_task.NewTaskV2(nodeClients.Docker(), matreshkaContainerCfg)
+	task, err := container_service_task.NewTaskV2(nc.Docker(), matreshkaContainerCfg)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error creating verv service task")
 	}
@@ -96,9 +101,23 @@ func SetupMatreshka(
 		})
 	}
 
-	mClient, err := newClient(nodeClients)
+	mClient, err := newClient(nc)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error creating matreshka client")
+	}
+
+	vcnReq := domain.ConnectServiceToVcn{
+		ServiceName: Name,
+	}
+
+	runner := pipelines.ConnectServiceToVpn(vcnReq, nc, vcnClient, sdClient)
+	err = runner.Run(ctx)
+	if err != nil {
+		if rerrors.Is(err, steps.ErrAlreadyExists) {
+			return mClient, nil
+		}
+
+		return nil, rerrors.Wrap(err, "error connecting matreshka to verv closed network")
 	}
 
 	return mClient, nil

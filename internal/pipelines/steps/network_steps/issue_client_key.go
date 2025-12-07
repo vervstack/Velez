@@ -9,7 +9,7 @@ import (
 )
 
 type issueClientKeyStep struct {
-	networkService cluster_clients.VervPrivateNetworkClient
+	networkService cluster_clients.VervClosedNetworkClient
 
 	namespaceId *string
 
@@ -17,7 +17,7 @@ type issueClientKeyStep struct {
 }
 
 func IssueClientKey(
-	vpnClient cluster_clients.VervPrivateNetworkClient,
+	vpnClient cluster_clients.VervClosedNetworkClient,
 	namespaceId *string,
 	keyResponse *string,
 ) *issueClientKeyStep {

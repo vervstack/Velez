@@ -42,7 +42,7 @@ func SetupMakosh(
 	ctx context.Context,
 	cfg config.Config,
 	nodeClients node_clients.NodeClients,
-	vervPNClient cluster_clients.VervPrivateNetworkClient,
+	vcnClient cluster_clients.VervClosedNetworkClient,
 ) (sd *makosh.ServiceDiscovery, err error) {
 	// TODO statefull token?
 	token := string(rtb.RandomBase64(256))
@@ -109,11 +109,11 @@ func SetupMakosh(
 		return sd, rerrors.Wrap(err, "error initializing service discovery ")
 	}
 
-	connToVpnReq := domain.ConnectServiceToVpn{
+	connToVpnReq := domain.ConnectServiceToVcn{
 		ServiceName: Name,
 	}
 
-	runner := pipelines.ConnectServiceToVpn(connToVpnReq, nodeClients, vervPNClient, sd)
+	runner := pipelines.ConnectServiceToVpn(connToVpnReq, nodeClients, vcnClient, sd)
 	err = runner.Run(ctx)
 	if err != nil {
 		if !rerrors.Is(err, steps.ErrAlreadyExists) {

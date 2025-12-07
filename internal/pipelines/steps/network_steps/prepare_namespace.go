@@ -10,14 +10,14 @@ import (
 )
 
 type prepareNamespace struct {
-	vcnClient     cluster_clients.VervPrivateNetworkClient
+	vcnClient     cluster_clients.VervClosedNetworkClient
 	namespaceName *string
 
 	namespaceIdResp *string
 }
 
 func PrepareNamespace(
-	vcnClient cluster_clients.VervPrivateNetworkClient,
+	vcnClient cluster_clients.VervClosedNetworkClient,
 	namespaceName *string,
 	namespaceIdResp *string,
 ) steps.Step {

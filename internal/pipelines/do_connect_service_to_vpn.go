@@ -14,14 +14,14 @@ import (
 	"go.vervstack.ru/Velez/internal/pipelines/steps/smerd_steps"
 )
 
-func (p *pipeliner) ConnectServiceToVpn(req domain.ConnectServiceToVpn) Runner[any] {
+func (p *pipeliner) ConnectServiceToVpn(req domain.ConnectServiceToVcn) Runner[any] {
 	return ConnectServiceToVpn(req, p.nodeClients,
 		p.clusterClients.Vpn(), p.clusterClients.ServiceDiscovery())
 }
 
-func ConnectServiceToVpn(req domain.ConnectServiceToVpn,
+func ConnectServiceToVpn(req domain.ConnectServiceToVcn,
 	nc node_clients.NodeClients,
-	vpnClient cluster_clients.VervPrivateNetworkClient,
+	vpnClient cluster_clients.VervClosedNetworkClient,
 	sdClient cluster_clients.ServiceDiscovery,
 ) Runner[any] {
 	// region Pipeline context

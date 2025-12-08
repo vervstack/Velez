@@ -1,4 +1,4 @@
-package vpn_api_impl
+package vcn_api_impl
 
 import (
 	"context"

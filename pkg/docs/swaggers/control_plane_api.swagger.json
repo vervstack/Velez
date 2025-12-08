@@ -69,6 +69,39 @@
           "ControlPlaneAPI"
         ]
       }
+    },
+    "/api/slave/connect": {
+      "post": {
+        "summary": "ConnectSlave - used by other Velez nodes to connect to cluster",
+        "operationId": "ControlPlaneAPI_ConnectSlave",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiConnectSlaveResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiConnectSlaveRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ControlPlaneAPI"
+        ]
+      }
     }
   },
   "definitions": {
@@ -181,6 +214,12 @@
       ],
       "default": "yaml",
       "title": "- yaml: Default"
+    },
+    "velez_apiConnectSlaveRequest": {
+      "type": "object"
+    },
+    "velez_apiConnectSlaveResponse": {
+      "type": "object"
     },
     "velez_apiCreateSmerdRequest": {
       "type": "object",

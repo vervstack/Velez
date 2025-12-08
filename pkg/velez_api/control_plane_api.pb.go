@@ -224,6 +224,42 @@ func (*EnableServices) Descriptor() ([]byte, []int) {
 	return file_control_plane_api_proto_rawDescGZIP(), []int{2}
 }
 
+type ConnectSlave struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConnectSlave) Reset() {
+	*x = ConnectSlave{}
+	mi := &file_control_plane_api_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConnectSlave) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectSlave) ProtoMessage() {}
+
+func (x *ConnectSlave) ProtoReflect() protoreflect.Message {
+	mi := &file_control_plane_api_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectSlave.ProtoReflect.Descriptor instead.
+func (*ConnectSlave) Descriptor() ([]byte, []int) {
+	return file_control_plane_api_proto_rawDescGZIP(), []int{3}
+}
+
 type ListServices_Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -232,7 +268,7 @@ type ListServices_Request struct {
 
 func (x *ListServices_Request) Reset() {
 	*x = ListServices_Request{}
-	mi := &file_control_plane_api_proto_msgTypes[3]
+	mi := &file_control_plane_api_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -244,7 +280,7 @@ func (x *ListServices_Request) String() string {
 func (*ListServices_Request) ProtoMessage() {}
 
 func (x *ListServices_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[3]
+	mi := &file_control_plane_api_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -270,7 +306,7 @@ type ListServices_Response struct {
 
 func (x *ListServices_Response) Reset() {
 	*x = ListServices_Response{}
-	mi := &file_control_plane_api_proto_msgTypes[4]
+	mi := &file_control_plane_api_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -282,7 +318,7 @@ func (x *ListServices_Response) String() string {
 func (*ListServices_Response) ProtoMessage() {}
 
 func (x *ListServices_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[4]
+	mi := &file_control_plane_api_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -321,7 +357,7 @@ type EnableServices_Request struct {
 
 func (x *EnableServices_Request) Reset() {
 	*x = EnableServices_Request{}
-	mi := &file_control_plane_api_proto_msgTypes[5]
+	mi := &file_control_plane_api_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -333,7 +369,7 @@ func (x *EnableServices_Request) String() string {
 func (*EnableServices_Request) ProtoMessage() {}
 
 func (x *EnableServices_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[5]
+	mi := &file_control_plane_api_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -364,7 +400,7 @@ type EnableServices_Response struct {
 
 func (x *EnableServices_Response) Reset() {
 	*x = EnableServices_Response{}
-	mi := &file_control_plane_api_proto_msgTypes[6]
+	mi := &file_control_plane_api_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -376,7 +412,7 @@ func (x *EnableServices_Response) String() string {
 func (*EnableServices_Response) ProtoMessage() {}
 
 func (x *EnableServices_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[6]
+	mi := &file_control_plane_api_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -390,6 +426,78 @@ func (x *EnableServices_Response) ProtoReflect() protoreflect.Message {
 // Deprecated: Use EnableServices_Response.ProtoReflect.Descriptor instead.
 func (*EnableServices_Response) Descriptor() ([]byte, []int) {
 	return file_control_plane_api_proto_rawDescGZIP(), []int{2, 1}
+}
+
+type ConnectSlave_Request struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConnectSlave_Request) Reset() {
+	*x = ConnectSlave_Request{}
+	mi := &file_control_plane_api_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConnectSlave_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectSlave_Request) ProtoMessage() {}
+
+func (x *ConnectSlave_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_control_plane_api_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectSlave_Request.ProtoReflect.Descriptor instead.
+func (*ConnectSlave_Request) Descriptor() ([]byte, []int) {
+	return file_control_plane_api_proto_rawDescGZIP(), []int{3, 0}
+}
+
+type ConnectSlave_Response struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConnectSlave_Response) Reset() {
+	*x = ConnectSlave_Response{}
+	mi := &file_control_plane_api_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConnectSlave_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectSlave_Response) ProtoMessage() {}
+
+func (x *ConnectSlave_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_control_plane_api_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectSlave_Response.ProtoReflect.Descriptor instead.
+func (*ConnectSlave_Response) Descriptor() ([]byte, []int) {
+	return file_control_plane_api_proto_rawDescGZIP(), []int{3, 1}
 }
 
 var File_control_plane_api_proto protoreflect.FileDescriptor
@@ -413,6 +521,10 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\aRequest\x126\n" +
 	"\bservices\x18\x01 \x03(\x0e2\x1a.velez_api.VervServiceTypeR\bservices\x1a\n" +
 	"\n" +
+	"\bResponse\"%\n" +
+	"\fConnectSlave\x1a\t\n" +
+	"\aRequest\x1a\n" +
+	"\n" +
 	"\bResponse*\x7f\n" +
 	"\x0fVervServiceType\x12\x18\n" +
 	"\x14unknown_service_type\x10\x00\x12\r\n" +
@@ -423,10 +535,11 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\x06makosh\x10\x04\x12\r\n" +
 	"\twebserver\x10\x03\x12\r\n" +
 	"\theadscale\x10\x06\x12\r\n" +
-	"\tportainer\x10\x052\x92\x02\n" +
+	"\tportainer\x10\x052\x84\x03\n" +
 	"\x0fControlPlaneAPI\x12v\n" +
 	"\fListServices\x12\x1f.velez_api.ListServices.Request\x1a .velez_api.ListServices.Response\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/control_plane/services\x12\x86\x01\n" +
-	"\x0eEnableServices\x12!.velez_api.EnableServices.Request\x1a\".velez_api.EnableServices.Response\"-\x82\xd3\xe4\x93\x02':\x01*\"\"/api/control_plane/services/enableBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
+	"\x0eEnableServices\x12!.velez_api.EnableServices.Request\x1a\".velez_api.EnableServices.Response\"-\x82\xd3\xe4\x93\x02':\x01*\"\"/api/control_plane/services/enable\x12p\n" +
+	"\fConnectSlave\x12\x1f.velez_api.ConnectSlave.Request\x1a .velez_api.ConnectSlave.Response\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/api/slave/connectBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
 
 var (
 	file_control_plane_api_proto_rawDescOnce sync.Once
@@ -441,33 +554,38 @@ func file_control_plane_api_proto_rawDescGZIP() []byte {
 }
 
 var file_control_plane_api_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_control_plane_api_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_control_plane_api_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_control_plane_api_proto_goTypes = []any{
 	(VervServiceType)(0),            // 0: velez_api.VervServiceType
 	(*ListServices)(nil),            // 1: velez_api.ListServices
 	(*Service)(nil),                 // 2: velez_api.Service
 	(*EnableServices)(nil),          // 3: velez_api.EnableServices
-	(*ListServices_Request)(nil),    // 4: velez_api.ListServices.Request
-	(*ListServices_Response)(nil),   // 5: velez_api.ListServices.Response
-	(*EnableServices_Request)(nil),  // 6: velez_api.EnableServices.Request
-	(*EnableServices_Response)(nil), // 7: velez_api.EnableServices.Response
-	(*CreateSmerd_Request)(nil),     // 8: velez_api.CreateSmerd.Request
+	(*ConnectSlave)(nil),            // 4: velez_api.ConnectSlave
+	(*ListServices_Request)(nil),    // 5: velez_api.ListServices.Request
+	(*ListServices_Response)(nil),   // 6: velez_api.ListServices.Response
+	(*EnableServices_Request)(nil),  // 7: velez_api.EnableServices.Request
+	(*EnableServices_Response)(nil), // 8: velez_api.EnableServices.Response
+	(*ConnectSlave_Request)(nil),    // 9: velez_api.ConnectSlave.Request
+	(*ConnectSlave_Response)(nil),   // 10: velez_api.ConnectSlave.Response
+	(*CreateSmerd_Request)(nil),     // 11: velez_api.CreateSmerd.Request
 }
 var file_control_plane_api_proto_depIdxs = []int32{
-	0, // 0: velez_api.Service.type:type_name -> velez_api.VervServiceType
-	8, // 1: velez_api.Service.constructor:type_name -> velez_api.CreateSmerd.Request
-	2, // 2: velez_api.ListServices.Response.services:type_name -> velez_api.Service
-	2, // 3: velez_api.ListServices.Response.inactive_services:type_name -> velez_api.Service
-	0, // 4: velez_api.EnableServices.Request.services:type_name -> velez_api.VervServiceType
-	4, // 5: velez_api.ControlPlaneAPI.ListServices:input_type -> velez_api.ListServices.Request
-	6, // 6: velez_api.ControlPlaneAPI.EnableServices:input_type -> velez_api.EnableServices.Request
-	5, // 7: velez_api.ControlPlaneAPI.ListServices:output_type -> velez_api.ListServices.Response
-	7, // 8: velez_api.ControlPlaneAPI.EnableServices:output_type -> velez_api.EnableServices.Response
-	7, // [7:9] is the sub-list for method output_type
-	5, // [5:7] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	0,  // 0: velez_api.Service.type:type_name -> velez_api.VervServiceType
+	11, // 1: velez_api.Service.constructor:type_name -> velez_api.CreateSmerd.Request
+	2,  // 2: velez_api.ListServices.Response.services:type_name -> velez_api.Service
+	2,  // 3: velez_api.ListServices.Response.inactive_services:type_name -> velez_api.Service
+	0,  // 4: velez_api.EnableServices.Request.services:type_name -> velez_api.VervServiceType
+	5,  // 5: velez_api.ControlPlaneAPI.ListServices:input_type -> velez_api.ListServices.Request
+	7,  // 6: velez_api.ControlPlaneAPI.EnableServices:input_type -> velez_api.EnableServices.Request
+	9,  // 7: velez_api.ControlPlaneAPI.ConnectSlave:input_type -> velez_api.ConnectSlave.Request
+	6,  // 8: velez_api.ControlPlaneAPI.ListServices:output_type -> velez_api.ListServices.Response
+	8,  // 9: velez_api.ControlPlaneAPI.EnableServices:output_type -> velez_api.EnableServices.Response
+	10, // 10: velez_api.ControlPlaneAPI.ConnectSlave:output_type -> velez_api.ConnectSlave.Response
+	8,  // [8:11] is the sub-list for method output_type
+	5,  // [5:8] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_control_plane_api_proto_init() }
@@ -483,7 +601,7 @@ func file_control_plane_api_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_control_plane_api_proto_rawDesc), len(file_control_plane_api_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   7,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

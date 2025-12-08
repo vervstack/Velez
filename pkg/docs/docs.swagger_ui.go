@@ -39,8 +39,8 @@ func Swagger() (p string, handler http.HandlerFunc) {
 					URL:  path.Join(swaggerPath, "control_plane_api.swagger.json"),
 				},
 				{
-					Name: "Vpn",
-					URL:  path.Join(swaggerPath, "vpn.swagger.json"),
+					Name: "VervClosedNetwork",
+					URL:  path.Join(swaggerPath, "verv_closed_network.swagger.json"),
 				},
 			}),
 		swaggerui.WithShowExtensions(true),

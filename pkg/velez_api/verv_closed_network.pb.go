@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.10
 // 	protoc        v5.28.3
-// source: vpn.proto
+// source: verv_closed_network.proto
 
 package velez_api
 
@@ -31,7 +31,7 @@ type CreateVpnNamespace struct {
 
 func (x *CreateVpnNamespace) Reset() {
 	*x = CreateVpnNamespace{}
-	mi := &file_vpn_proto_msgTypes[0]
+	mi := &file_verv_closed_network_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +43,7 @@ func (x *CreateVpnNamespace) String() string {
 func (*CreateVpnNamespace) ProtoMessage() {}
 
 func (x *CreateVpnNamespace) ProtoReflect() protoreflect.Message {
-	mi := &file_vpn_proto_msgTypes[0]
+	mi := &file_verv_closed_network_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,7 +56,7 @@ func (x *CreateVpnNamespace) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateVpnNamespace.ProtoReflect.Descriptor instead.
 func (*CreateVpnNamespace) Descriptor() ([]byte, []int) {
-	return file_vpn_proto_rawDescGZIP(), []int{0}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{0}
 }
 
 type ListVpnNamespaces struct {
@@ -67,7 +67,7 @@ type ListVpnNamespaces struct {
 
 func (x *ListVpnNamespaces) Reset() {
 	*x = ListVpnNamespaces{}
-	mi := &file_vpn_proto_msgTypes[1]
+	mi := &file_verv_closed_network_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -79,7 +79,7 @@ func (x *ListVpnNamespaces) String() string {
 func (*ListVpnNamespaces) ProtoMessage() {}
 
 func (x *ListVpnNamespaces) ProtoReflect() protoreflect.Message {
-	mi := &file_vpn_proto_msgTypes[1]
+	mi := &file_verv_closed_network_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -92,7 +92,7 @@ func (x *ListVpnNamespaces) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListVpnNamespaces.ProtoReflect.Descriptor instead.
 func (*ListVpnNamespaces) Descriptor() ([]byte, []int) {
-	return file_vpn_proto_rawDescGZIP(), []int{1}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{1}
 }
 
 type DeleteVpnNamespace struct {
@@ -103,7 +103,7 @@ type DeleteVpnNamespace struct {
 
 func (x *DeleteVpnNamespace) Reset() {
 	*x = DeleteVpnNamespace{}
-	mi := &file_vpn_proto_msgTypes[2]
+	mi := &file_verv_closed_network_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -115,7 +115,7 @@ func (x *DeleteVpnNamespace) String() string {
 func (*DeleteVpnNamespace) ProtoMessage() {}
 
 func (x *DeleteVpnNamespace) ProtoReflect() protoreflect.Message {
-	mi := &file_vpn_proto_msgTypes[2]
+	mi := &file_verv_closed_network_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -128,7 +128,7 @@ func (x *DeleteVpnNamespace) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteVpnNamespace.ProtoReflect.Descriptor instead.
 func (*DeleteVpnNamespace) Descriptor() ([]byte, []int) {
-	return file_vpn_proto_rawDescGZIP(), []int{2}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{2}
 }
 
 type ConnectService struct {
@@ -139,7 +139,7 @@ type ConnectService struct {
 
 func (x *ConnectService) Reset() {
 	*x = ConnectService{}
-	mi := &file_vpn_proto_msgTypes[3]
+	mi := &file_verv_closed_network_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -151,7 +151,7 @@ func (x *ConnectService) String() string {
 func (*ConnectService) ProtoMessage() {}
 
 func (x *ConnectService) ProtoReflect() protoreflect.Message {
-	mi := &file_vpn_proto_msgTypes[3]
+	mi := &file_verv_closed_network_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -164,7 +164,7 @@ func (x *ConnectService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectService.ProtoReflect.Descriptor instead.
 func (*ConnectService) Descriptor() ([]byte, []int) {
-	return file_vpn_proto_rawDescGZIP(), []int{3}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{3}
 }
 
 type Namespace struct {
@@ -177,7 +177,7 @@ type Namespace struct {
 
 func (x *Namespace) Reset() {
 	*x = Namespace{}
-	mi := &file_vpn_proto_msgTypes[4]
+	mi := &file_verv_closed_network_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -189,7 +189,7 @@ func (x *Namespace) String() string {
 func (*Namespace) ProtoMessage() {}
 
 func (x *Namespace) ProtoReflect() protoreflect.Message {
-	mi := &file_vpn_proto_msgTypes[4]
+	mi := &file_verv_closed_network_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -202,7 +202,7 @@ func (x *Namespace) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Namespace.ProtoReflect.Descriptor instead.
 func (*Namespace) Descriptor() ([]byte, []int) {
-	return file_vpn_proto_rawDescGZIP(), []int{4}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Namespace) GetId() string {
@@ -219,6 +219,42 @@ func (x *Namespace) GetName() string {
 	return ""
 }
 
+type ConnectUser struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConnectUser) Reset() {
+	*x = ConnectUser{}
+	mi := &file_verv_closed_network_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConnectUser) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectUser) ProtoMessage() {}
+
+func (x *ConnectUser) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectUser.ProtoReflect.Descriptor instead.
+func (*ConnectUser) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{5}
+}
+
 type CreateVpnNamespace_Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -228,7 +264,7 @@ type CreateVpnNamespace_Request struct {
 
 func (x *CreateVpnNamespace_Request) Reset() {
 	*x = CreateVpnNamespace_Request{}
-	mi := &file_vpn_proto_msgTypes[5]
+	mi := &file_verv_closed_network_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -240,7 +276,7 @@ func (x *CreateVpnNamespace_Request) String() string {
 func (*CreateVpnNamespace_Request) ProtoMessage() {}
 
 func (x *CreateVpnNamespace_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_vpn_proto_msgTypes[5]
+	mi := &file_verv_closed_network_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -253,7 +289,7 @@ func (x *CreateVpnNamespace_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateVpnNamespace_Request.ProtoReflect.Descriptor instead.
 func (*CreateVpnNamespace_Request) Descriptor() ([]byte, []int) {
-	return file_vpn_proto_rawDescGZIP(), []int{0, 0}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{0, 0}
 }
 
 func (x *CreateVpnNamespace_Request) GetName() string {
@@ -272,7 +308,7 @@ type CreateVpnNamespace_Response struct {
 
 func (x *CreateVpnNamespace_Response) Reset() {
 	*x = CreateVpnNamespace_Response{}
-	mi := &file_vpn_proto_msgTypes[6]
+	mi := &file_verv_closed_network_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -284,7 +320,7 @@ func (x *CreateVpnNamespace_Response) String() string {
 func (*CreateVpnNamespace_Response) ProtoMessage() {}
 
 func (x *CreateVpnNamespace_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_vpn_proto_msgTypes[6]
+	mi := &file_verv_closed_network_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -297,7 +333,7 @@ func (x *CreateVpnNamespace_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateVpnNamespace_Response.ProtoReflect.Descriptor instead.
 func (*CreateVpnNamespace_Response) Descriptor() ([]byte, []int) {
-	return file_vpn_proto_rawDescGZIP(), []int{0, 1}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{0, 1}
 }
 
 func (x *CreateVpnNamespace_Response) GetNamespace() *Namespace {
@@ -315,7 +351,7 @@ type ListVpnNamespaces_Request struct {
 
 func (x *ListVpnNamespaces_Request) Reset() {
 	*x = ListVpnNamespaces_Request{}
-	mi := &file_vpn_proto_msgTypes[7]
+	mi := &file_verv_closed_network_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -327,7 +363,7 @@ func (x *ListVpnNamespaces_Request) String() string {
 func (*ListVpnNamespaces_Request) ProtoMessage() {}
 
 func (x *ListVpnNamespaces_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_vpn_proto_msgTypes[7]
+	mi := &file_verv_closed_network_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -340,7 +376,7 @@ func (x *ListVpnNamespaces_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListVpnNamespaces_Request.ProtoReflect.Descriptor instead.
 func (*ListVpnNamespaces_Request) Descriptor() ([]byte, []int) {
-	return file_vpn_proto_rawDescGZIP(), []int{1, 0}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{1, 0}
 }
 
 type ListVpnNamespaces_Response struct {
@@ -352,7 +388,7 @@ type ListVpnNamespaces_Response struct {
 
 func (x *ListVpnNamespaces_Response) Reset() {
 	*x = ListVpnNamespaces_Response{}
-	mi := &file_vpn_proto_msgTypes[8]
+	mi := &file_verv_closed_network_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -364,7 +400,7 @@ func (x *ListVpnNamespaces_Response) String() string {
 func (*ListVpnNamespaces_Response) ProtoMessage() {}
 
 func (x *ListVpnNamespaces_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_vpn_proto_msgTypes[8]
+	mi := &file_verv_closed_network_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -377,7 +413,7 @@ func (x *ListVpnNamespaces_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListVpnNamespaces_Response.ProtoReflect.Descriptor instead.
 func (*ListVpnNamespaces_Response) Descriptor() ([]byte, []int) {
-	return file_vpn_proto_rawDescGZIP(), []int{1, 1}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{1, 1}
 }
 
 func (x *ListVpnNamespaces_Response) GetNamespaces() []*Namespace {
@@ -396,7 +432,7 @@ type DeleteVpnNamespace_Request struct {
 
 func (x *DeleteVpnNamespace_Request) Reset() {
 	*x = DeleteVpnNamespace_Request{}
-	mi := &file_vpn_proto_msgTypes[9]
+	mi := &file_verv_closed_network_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -408,7 +444,7 @@ func (x *DeleteVpnNamespace_Request) String() string {
 func (*DeleteVpnNamespace_Request) ProtoMessage() {}
 
 func (x *DeleteVpnNamespace_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_vpn_proto_msgTypes[9]
+	mi := &file_verv_closed_network_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -421,7 +457,7 @@ func (x *DeleteVpnNamespace_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteVpnNamespace_Request.ProtoReflect.Descriptor instead.
 func (*DeleteVpnNamespace_Request) Descriptor() ([]byte, []int) {
-	return file_vpn_proto_rawDescGZIP(), []int{2, 0}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{2, 0}
 }
 
 func (x *DeleteVpnNamespace_Request) GetId() string {
@@ -439,7 +475,7 @@ type DeleteVpnNamespace_Response struct {
 
 func (x *DeleteVpnNamespace_Response) Reset() {
 	*x = DeleteVpnNamespace_Response{}
-	mi := &file_vpn_proto_msgTypes[10]
+	mi := &file_verv_closed_network_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -451,7 +487,7 @@ func (x *DeleteVpnNamespace_Response) String() string {
 func (*DeleteVpnNamespace_Response) ProtoMessage() {}
 
 func (x *DeleteVpnNamespace_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_vpn_proto_msgTypes[10]
+	mi := &file_verv_closed_network_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -464,22 +500,21 @@ func (x *DeleteVpnNamespace_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteVpnNamespace_Response.ProtoReflect.Descriptor instead.
 func (*DeleteVpnNamespace_Response) Descriptor() ([]byte, []int) {
-	return file_vpn_proto_rawDescGZIP(), []int{2, 1}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{2, 1}
 }
 
 type ConnectService_Request struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
-	NamespaceId string                 `protobuf:"bytes,1,opt,name=namespace_id,json=namespaceId,proto3" json:"namespace_id,omitempty"`
-	ServiceName string                 `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	ServiceName string                 `protobuf:"bytes,1,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
 	// not implemented
-	DomainName    *string `protobuf:"bytes,3,opt,name=domain_name,json=domainName,proto3,oneof" json:"domain_name,omitempty"`
+	DomainName    *string `protobuf:"bytes,2,opt,name=domain_name,json=domainName,proto3,oneof" json:"domain_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ConnectService_Request) Reset() {
 	*x = ConnectService_Request{}
-	mi := &file_vpn_proto_msgTypes[11]
+	mi := &file_verv_closed_network_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -491,7 +526,7 @@ func (x *ConnectService_Request) String() string {
 func (*ConnectService_Request) ProtoMessage() {}
 
 func (x *ConnectService_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_vpn_proto_msgTypes[11]
+	mi := &file_verv_closed_network_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -504,14 +539,7 @@ func (x *ConnectService_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectService_Request.ProtoReflect.Descriptor instead.
 func (*ConnectService_Request) Descriptor() ([]byte, []int) {
-	return file_vpn_proto_rawDescGZIP(), []int{3, 0}
-}
-
-func (x *ConnectService_Request) GetNamespaceId() string {
-	if x != nil {
-		return x.NamespaceId
-	}
-	return ""
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{3, 0}
 }
 
 func (x *ConnectService_Request) GetServiceName() string {
@@ -536,7 +564,7 @@ type ConnectService_Response struct {
 
 func (x *ConnectService_Response) Reset() {
 	*x = ConnectService_Response{}
-	mi := &file_vpn_proto_msgTypes[12]
+	mi := &file_verv_closed_network_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -548,7 +576,7 @@ func (x *ConnectService_Response) String() string {
 func (*ConnectService_Response) ProtoMessage() {}
 
 func (x *ConnectService_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_vpn_proto_msgTypes[12]
+	mi := &file_verv_closed_network_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -561,14 +589,102 @@ func (x *ConnectService_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectService_Response.ProtoReflect.Descriptor instead.
 func (*ConnectService_Response) Descriptor() ([]byte, []int) {
-	return file_vpn_proto_rawDescGZIP(), []int{3, 1}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{3, 1}
 }
 
-var File_vpn_proto protoreflect.FileDescriptor
+type ConnectUser_Request struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
 
-const file_vpn_proto_rawDesc = "" +
+func (x *ConnectUser_Request) Reset() {
+	*x = ConnectUser_Request{}
+	mi := &file_verv_closed_network_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConnectUser_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectUser_Request) ProtoMessage() {}
+
+func (x *ConnectUser_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectUser_Request.ProtoReflect.Descriptor instead.
+func (*ConnectUser_Request) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{5, 0}
+}
+
+func (x *ConnectUser_Request) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *ConnectUser_Request) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+type ConnectUser_Response struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConnectUser_Response) Reset() {
+	*x = ConnectUser_Response{}
+	mi := &file_verv_closed_network_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConnectUser_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectUser_Response) ProtoMessage() {}
+
+func (x *ConnectUser_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_verv_closed_network_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectUser_Response.ProtoReflect.Descriptor instead.
+func (*ConnectUser_Response) Descriptor() ([]byte, []int) {
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{5, 1}
+}
+
+var File_verv_closed_network_proto protoreflect.FileDescriptor
+
+const file_verv_closed_network_proto_rawDesc = "" +
 	"\n" +
-	"\tvpn.proto\x12\tvelez_api\x1a\tnpm.proto\x1a\x1cgoogle/api/annotations.proto\"s\n" +
+	"\x19verv_closed_network.proto\x12\tvelez_api\x1a\tnpm.proto\x1a\x1cgoogle/api/annotations.proto\"s\n" +
 	"\x12CreateVpnNamespace\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x1a>\n" +
@@ -584,92 +700,103 @@ const file_vpn_proto_rawDesc = "" +
 	"\aRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x1a\n" +
 	"\n" +
-	"\bResponse\"\xa4\x01\n" +
-	"\x0eConnectService\x1a\x85\x01\n" +
+	"\bResponse\"\x80\x01\n" +
+	"\x0eConnectService\x1ab\n" +
 	"\aRequest\x12!\n" +
-	"\fnamespace_id\x18\x01 \x01(\tR\vnamespaceId\x12!\n" +
-	"\fservice_name\x18\x02 \x01(\tR\vserviceName\x12$\n" +
-	"\vdomain_name\x18\x03 \x01(\tH\x00R\n" +
+	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x12$\n" +
+	"\vdomain_name\x18\x02 \x01(\tH\x00R\n" +
 	"domainName\x88\x01\x01B\x0e\n" +
 	"\f_domain_name\x1a\n" +
 	"\n" +
 	"\bResponse\"/\n" +
 	"\tNamespace\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name2\x9d\x04\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"R\n" +
+	"\vConnectUser\x1a7\n" +
+	"\aRequest\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x1a\n" +
+	"\n" +
+	"\bResponse2\x90\x05\n" +
 	"\x06VpnApi\x12\x84\x01\n" +
 	"\x0fCreateNamespace\x12%.velez_api.CreateVpnNamespace.Request\x1a&.velez_api.CreateVpnNamespace.Response\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/api/vpn/namespaces/new\x12\x82\x01\n" +
 	"\x0eListNamespaces\x12$.velez_api.ListVpnNamespaces.Request\x1a%.velez_api.ListVpnNamespaces.Response\"#\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/api/vpn/namespaces/list\x12}\n" +
-	"\x0eConnectService\x12!.velez_api.ConnectService.Request\x1a\".velez_api.ConnectService.Response\"$\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/api/vpn/services/connect\x12\x87\x01\n" +
+	"\x0eConnectService\x12!.velez_api.ConnectService.Request\x1a\".velez_api.ConnectService.Response\"$\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/api/vpn/services/connect\x12q\n" +
+	"\vConnectUser\x12\x1e.velez_api.ConnectUser.Request\x1a\x1f.velez_api.ConnectUser.Response\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/api/vpn/users/connect\x12\x87\x01\n" +
 	"\x0fDeleteNamespace\x12%.velez_api.DeleteVpnNamespace.Request\x1a&.velez_api.DeleteVpnNamespace.Response\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/api/vpn/namespaces/deleteBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
 
 var (
-	file_vpn_proto_rawDescOnce sync.Once
-	file_vpn_proto_rawDescData []byte
+	file_verv_closed_network_proto_rawDescOnce sync.Once
+	file_verv_closed_network_proto_rawDescData []byte
 )
 
-func file_vpn_proto_rawDescGZIP() []byte {
-	file_vpn_proto_rawDescOnce.Do(func() {
-		file_vpn_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_vpn_proto_rawDesc), len(file_vpn_proto_rawDesc)))
+func file_verv_closed_network_proto_rawDescGZIP() []byte {
+	file_verv_closed_network_proto_rawDescOnce.Do(func() {
+		file_verv_closed_network_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_verv_closed_network_proto_rawDesc), len(file_verv_closed_network_proto_rawDesc)))
 	})
-	return file_vpn_proto_rawDescData
+	return file_verv_closed_network_proto_rawDescData
 }
 
-var file_vpn_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
-var file_vpn_proto_goTypes = []any{
+var file_verv_closed_network_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_verv_closed_network_proto_goTypes = []any{
 	(*CreateVpnNamespace)(nil),          // 0: velez_api.CreateVpnNamespace
 	(*ListVpnNamespaces)(nil),           // 1: velez_api.ListVpnNamespaces
 	(*DeleteVpnNamespace)(nil),          // 2: velez_api.DeleteVpnNamespace
 	(*ConnectService)(nil),              // 3: velez_api.ConnectService
 	(*Namespace)(nil),                   // 4: velez_api.Namespace
-	(*CreateVpnNamespace_Request)(nil),  // 5: velez_api.CreateVpnNamespace.Request
-	(*CreateVpnNamespace_Response)(nil), // 6: velez_api.CreateVpnNamespace.Response
-	(*ListVpnNamespaces_Request)(nil),   // 7: velez_api.ListVpnNamespaces.Request
-	(*ListVpnNamespaces_Response)(nil),  // 8: velez_api.ListVpnNamespaces.Response
-	(*DeleteVpnNamespace_Request)(nil),  // 9: velez_api.DeleteVpnNamespace.Request
-	(*DeleteVpnNamespace_Response)(nil), // 10: velez_api.DeleteVpnNamespace.Response
-	(*ConnectService_Request)(nil),      // 11: velez_api.ConnectService.Request
-	(*ConnectService_Response)(nil),     // 12: velez_api.ConnectService.Response
+	(*ConnectUser)(nil),                 // 5: velez_api.ConnectUser
+	(*CreateVpnNamespace_Request)(nil),  // 6: velez_api.CreateVpnNamespace.Request
+	(*CreateVpnNamespace_Response)(nil), // 7: velez_api.CreateVpnNamespace.Response
+	(*ListVpnNamespaces_Request)(nil),   // 8: velez_api.ListVpnNamespaces.Request
+	(*ListVpnNamespaces_Response)(nil),  // 9: velez_api.ListVpnNamespaces.Response
+	(*DeleteVpnNamespace_Request)(nil),  // 10: velez_api.DeleteVpnNamespace.Request
+	(*DeleteVpnNamespace_Response)(nil), // 11: velez_api.DeleteVpnNamespace.Response
+	(*ConnectService_Request)(nil),      // 12: velez_api.ConnectService.Request
+	(*ConnectService_Response)(nil),     // 13: velez_api.ConnectService.Response
+	(*ConnectUser_Request)(nil),         // 14: velez_api.ConnectUser.Request
+	(*ConnectUser_Response)(nil),        // 15: velez_api.ConnectUser.Response
 }
-var file_vpn_proto_depIdxs = []int32{
+var file_verv_closed_network_proto_depIdxs = []int32{
 	4,  // 0: velez_api.CreateVpnNamespace.Response.namespace:type_name -> velez_api.Namespace
 	4,  // 1: velez_api.ListVpnNamespaces.Response.namespaces:type_name -> velez_api.Namespace
-	5,  // 2: velez_api.VpnApi.CreateNamespace:input_type -> velez_api.CreateVpnNamespace.Request
-	7,  // 3: velez_api.VpnApi.ListNamespaces:input_type -> velez_api.ListVpnNamespaces.Request
-	11, // 4: velez_api.VpnApi.ConnectService:input_type -> velez_api.ConnectService.Request
-	9,  // 5: velez_api.VpnApi.DeleteNamespace:input_type -> velez_api.DeleteVpnNamespace.Request
-	6,  // 6: velez_api.VpnApi.CreateNamespace:output_type -> velez_api.CreateVpnNamespace.Response
-	8,  // 7: velez_api.VpnApi.ListNamespaces:output_type -> velez_api.ListVpnNamespaces.Response
-	12, // 8: velez_api.VpnApi.ConnectService:output_type -> velez_api.ConnectService.Response
-	10, // 9: velez_api.VpnApi.DeleteNamespace:output_type -> velez_api.DeleteVpnNamespace.Response
-	6,  // [6:10] is the sub-list for method output_type
-	2,  // [2:6] is the sub-list for method input_type
+	6,  // 2: velez_api.VpnApi.CreateNamespace:input_type -> velez_api.CreateVpnNamespace.Request
+	8,  // 3: velez_api.VpnApi.ListNamespaces:input_type -> velez_api.ListVpnNamespaces.Request
+	12, // 4: velez_api.VpnApi.ConnectService:input_type -> velez_api.ConnectService.Request
+	14, // 5: velez_api.VpnApi.ConnectUser:input_type -> velez_api.ConnectUser.Request
+	10, // 6: velez_api.VpnApi.DeleteNamespace:input_type -> velez_api.DeleteVpnNamespace.Request
+	7,  // 7: velez_api.VpnApi.CreateNamespace:output_type -> velez_api.CreateVpnNamespace.Response
+	9,  // 8: velez_api.VpnApi.ListNamespaces:output_type -> velez_api.ListVpnNamespaces.Response
+	13, // 9: velez_api.VpnApi.ConnectService:output_type -> velez_api.ConnectService.Response
+	15, // 10: velez_api.VpnApi.ConnectUser:output_type -> velez_api.ConnectUser.Response
+	11, // 11: velez_api.VpnApi.DeleteNamespace:output_type -> velez_api.DeleteVpnNamespace.Response
+	7,  // [7:12] is the sub-list for method output_type
+	2,  // [2:7] is the sub-list for method input_type
 	2,  // [2:2] is the sub-list for extension type_name
 	2,  // [2:2] is the sub-list for extension extendee
 	0,  // [0:2] is the sub-list for field type_name
 }
 
-func init() { file_vpn_proto_init() }
-func file_vpn_proto_init() {
-	if File_vpn_proto != nil {
+func init() { file_verv_closed_network_proto_init() }
+func file_verv_closed_network_proto_init() {
+	if File_verv_closed_network_proto != nil {
 		return
 	}
-	file_vpn_proto_msgTypes[11].OneofWrappers = []any{}
+	file_verv_closed_network_proto_msgTypes[12].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_vpn_proto_rawDesc), len(file_vpn_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_verv_closed_network_proto_rawDesc), len(file_verv_closed_network_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   13,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_vpn_proto_goTypes,
-		DependencyIndexes: file_vpn_proto_depIdxs,
-		MessageInfos:      file_vpn_proto_msgTypes,
+		GoTypes:           file_verv_closed_network_proto_goTypes,
+		DependencyIndexes: file_verv_closed_network_proto_depIdxs,
+		MessageInfos:      file_verv_closed_network_proto_msgTypes,
 	}.Build()
-	File_vpn_proto = out.File
-	file_vpn_proto_goTypes = nil
-	file_vpn_proto_depIdxs = nil
+	File_verv_closed_network_proto = out.File
+	file_verv_closed_network_proto_goTypes = nil
+	file_verv_closed_network_proto_depIdxs = nil
 }

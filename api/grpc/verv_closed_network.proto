@@ -31,6 +31,13 @@ service VpnApi {
     };
   }
 
+  rpc ConnectUser(ConnectUser.Request) returns (ConnectUser.Response) {
+    option (google.api.http) = {
+      post: "/api/vpn/users/connect",
+      body: "*",
+    };
+  }
+
 
   //  Not implemented
   rpc DeleteNamespace(DeleteVpnNamespace.Request) returns (DeleteVpnNamespace.Response) {
@@ -80,3 +87,11 @@ message Namespace {
   string name = 2;
 }
 
+message ConnectUser {
+  message Request {
+    string key = 1;
+    string username = 2;
+  }
+
+  message Response {}
+}

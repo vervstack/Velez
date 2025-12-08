@@ -13,3 +13,7 @@ type ListVpnNamespaces struct {
 type ConnectServiceToVcn struct {
 	ServiceName string
 }
+type RegisterVcnNodeReq struct {
+	Key      string
+	Username string
+}

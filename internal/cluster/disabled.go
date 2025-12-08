@@ -62,6 +62,10 @@ func (d disabledConfigurator) SubscribeOnChanges(_ context.Context, _ ...grpc.Ca
 type disabledVpn struct {
 }
 
+func (d disabledVpn) RegisterNode(ctx context.Context, req domain.RegisterVcnNodeReq) error {
+	return ErrServiceIsDisabled
+}
+
 func (d disabledVpn) GetNamespace(ctx context.Context, name string) (domain.VpnNamespace, error) {
 	return domain.VpnNamespace{}, ErrServiceIsDisabled
 }

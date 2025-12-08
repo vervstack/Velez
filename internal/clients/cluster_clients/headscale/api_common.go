@@ -17,6 +17,7 @@ const authHeader = "Authorization"
 const (
 	userUri      = "/api/v1/user"
 	clientKeyUri = "/api/v1/preauthkey"
+	nodeUri      = "/api/v1/node"
 )
 
 func (s *Client) doApiRequest(ctx context.Context, method string, uri string, req any) (*http.Response, error) {

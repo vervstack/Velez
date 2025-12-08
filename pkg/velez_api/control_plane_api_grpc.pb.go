@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	ControlPlaneAPI_ListServices_FullMethodName   = "/velez_api.ControlPlaneAPI/ListServices"
 	ControlPlaneAPI_EnableServices_FullMethodName = "/velez_api.ControlPlaneAPI/EnableServices"
+	ControlPlaneAPI_ConnectSlave_FullMethodName   = "/velez_api.ControlPlaneAPI/ConnectSlave"
 )
 
 // ControlPlaneAPIClient is the client API for ControlPlaneAPI service.
@@ -29,6 +30,8 @@ const (
 type ControlPlaneAPIClient interface {
 	ListServices(ctx context.Context, in *ListServices_Request, opts ...grpc.CallOption) (*ListServices_Response, error)
 	EnableServices(ctx context.Context, in *EnableServices_Request, opts ...grpc.CallOption) (*EnableServices_Response, error)
+	// ConnectSlave - used by other Velez nodes to connect to cluster
+	ConnectSlave(ctx context.Context, in *ConnectSlave_Request, opts ...grpc.CallOption) (*ConnectSlave_Response, error)
 }
 
 type controlPlaneAPIClient struct {
@@ -59,12 +62,24 @@ func (c *controlPlaneAPIClient) EnableServices(ctx context.Context, in *EnableSe
 	return out, nil
 }
 
+func (c *controlPlaneAPIClient) ConnectSlave(ctx context.Context, in *ConnectSlave_Request, opts ...grpc.CallOption) (*ConnectSlave_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConnectSlave_Response)
+	err := c.cc.Invoke(ctx, ControlPlaneAPI_ConnectSlave_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ControlPlaneAPIServer is the server API for ControlPlaneAPI service.
 // All implementations must embed UnimplementedControlPlaneAPIServer
 // for forward compatibility.
 type ControlPlaneAPIServer interface {
 	ListServices(context.Context, *ListServices_Request) (*ListServices_Response, error)
 	EnableServices(context.Context, *EnableServices_Request) (*EnableServices_Response, error)
+	// ConnectSlave - used by other Velez nodes to connect to cluster
+	ConnectSlave(context.Context, *ConnectSlave_Request) (*ConnectSlave_Response, error)
 	mustEmbedUnimplementedControlPlaneAPIServer()
 }
 
@@ -80,6 +95,9 @@ func (UnimplementedControlPlaneAPIServer) ListServices(context.Context, *ListSer
 }
 func (UnimplementedControlPlaneAPIServer) EnableServices(context.Context, *EnableServices_Request) (*EnableServices_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method EnableServices not implemented")
+}
+func (UnimplementedControlPlaneAPIServer) ConnectSlave(context.Context, *ConnectSlave_Request) (*ConnectSlave_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method ConnectSlave not implemented")
 }
 func (UnimplementedControlPlaneAPIServer) mustEmbedUnimplementedControlPlaneAPIServer() {}
 func (UnimplementedControlPlaneAPIServer) testEmbeddedByValue()                         {}
@@ -138,6 +156,24 @@ func _ControlPlaneAPI_EnableServices_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ControlPlaneAPI_ConnectSlave_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConnectSlave_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControlPlaneAPIServer).ConnectSlave(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ControlPlaneAPI_ConnectSlave_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControlPlaneAPIServer).ConnectSlave(ctx, req.(*ConnectSlave_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ControlPlaneAPI_ServiceDesc is the grpc.ServiceDesc for ControlPlaneAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +188,10 @@ var ControlPlaneAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "EnableServices",
 			Handler:    _ControlPlaneAPI_EnableServices_Handler,
+		},
+		{
+			MethodName: "ConnectSlave",
+			Handler:    _ControlPlaneAPI_ConnectSlave_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1,0 +1,9 @@
+### Register user
+POST {{velez}}/api/vpn/users/connect
+Content-Type: application/json
+Grpc-Metadata-Authorization: {{key}}
+
+{
+  "key": "cWAZq8t8HOm3A9s2V48OmqEL",
+  "username": "AlexSkilled"
+}

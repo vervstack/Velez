@@ -1,8 +1,8 @@
 export * from './velez_common.pb';
 export * from './velez_api.pb';
 export * from './control_plane_api.pb';
-export * from './vpn.pb';
+export * from './verv_closed_network.pb';
 
 export {VelezAPI} from './velez_api.pb';
 export { ControlPlaneAPI } from './control_plane_api.pb';
-export {VpnApi} from './vpn.pb';
+export {VpnApi} from './verv_closed_network.pb';

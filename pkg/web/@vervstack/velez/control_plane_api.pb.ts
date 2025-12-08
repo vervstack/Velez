@@ -43,6 +43,12 @@ export type EnableServicesResponse = Record<string, never>;
 
 export type EnableServices = Record<string, never>;
 
+export type ConnectSlaveRequest = Record<string, never>;
+
+export type ConnectSlaveResponse = Record<string, never>;
+
+export type ConnectSlave = Record<string, never>;
+
 export class ControlPlaneAPI {
   static ListServices(this:void, req: ListServicesRequest, initReq?: fm.InitReq): Promise<ListServicesResponse> {
     return fm.fetchRequest<ListServicesResponse>(`/api/control_plane/services?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
@@ -50,6 +56,14 @@ export class ControlPlaneAPI {
 
     static EnableServices(this: void, req: EnableServicesRequest, initReq?: fm.InitReq): Promise<EnableServicesResponse> {
         return fm.fetchRequest<EnableServicesResponse>(`/api/control_plane/services/enable`, {
+            ...initReq,
+            method: "POST",
+            body: JSON.stringify(req, fm.replacer)
+        });
+    }
+
+    static ConnectSlave(this: void, req: ConnectSlaveRequest, initReq?: fm.InitReq): Promise<ConnectSlaveResponse> {
+        return fm.fetchRequest<ConnectSlaveResponse>(`/api/slave/connect`, {
             ...initReq,
             method: "POST",
             body: JSON.stringify(req, fm.replacer)

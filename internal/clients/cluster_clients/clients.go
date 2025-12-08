@@ -30,4 +30,5 @@ type VervClosedNetworkClient interface {
 	DeleteNamespace(ctx context.Context, id string) error
 
 	IssueClientKey(ctx context.Context, namespace string) (string, error)
+	RegisterNode(ctx context.Context, req domain.RegisterVcnNodeReq) error
 }

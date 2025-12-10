@@ -63,7 +63,6 @@ func (s *VpnSuite) SetupTest() {
 
 func (s *VpnSuite) Test_ConnectVpn() {
 	connectReq := &velez_api.ConnectService_Request{
-		NamespaceId: s.namespaceId,
 		ServiceName: s.serviceName,
 	}
 

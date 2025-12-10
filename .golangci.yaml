@@ -1,4 +1,4 @@
-# configuration settings https://golangci-lint.run/usage/configuration/
+version: 2
 
 run:
   timeout: 5m
@@ -6,25 +6,19 @@ run:
   verbose: true
   issues-exit-code: 42
 
-
-output:
-  formats:
-    - format: colored-line-number
-linters-settings:
-  varnamelen: # scope of variable
-    max-distance: 25 # amount of lines when variable can be used (about 1 screen space)
-    min-name-length: 2 # minimal lenght of variable that goes out of scope
-
-    ignore-type-assert-ok: true
-    check-type-param: true
-    ignore-chan-recv-ok: true
+formatters:
+  output:
+    formats:
+      - format: colored-line-number
+  exclusions:
+    paths:
+      - configs
 
 linters:
-  disable-all: true
+  default: none
   enable:
-    - varnamelen # check lenght of scope of a variable
-
-    - asasalint # prevents from passing []any
+    - varnamelen
+    - asasalint
     - asciicheck
     - bidichk
     - bodyclose
@@ -42,11 +36,9 @@ linters:
     - errname
     - errorlint
     - exhaustive
-    - exportloopref
     - forbidigo
     - forcetypeassert
     - funlen
-    - gci
     - gochecknoinits
     - gocognit
     - goconst
@@ -55,16 +47,12 @@ linters:
     - godot
     - godox
     - err113
-    - gofmt
-    - gofumpt
     - goheader
-    - goimports
     - mnd
     - gomoddirectives
     - gomodguard
     - goprintffuncname
     - gosec
-    - gosimple
     - govet
     - grouper
     - importas
@@ -91,15 +79,11 @@ linters:
     - rowserrcheck
     - sqlclosecheck
     - staticcheck
-    - unused
-    - stylecheck
     - tagliatelle
-    - tenv
     - testableexamples
     - testpackage
     - thelper
     - tparallel
-    - typecheck
     - unconvert
     - unparam
     - unused
@@ -107,19 +91,23 @@ linters:
     - wastedassign
     - whitespace
     - wrapcheck
-
-govet:
-  enable:
-    - fieldalignment
-
-issues:
-  # See the dedicated "issues" documentation section.
-  exclude-rules:
-    - linters:
-        - staticcheck
-      text: "SA9003:"
-    - linters:
-        - lll
-      source: "^//go:generate "
-  exclude-dirs:
-    - configs
+  settings:
+    varnamelen:
+      max-distance: 25
+      min-name-length: 2
+      ignore-type-assert-ok: true
+      check-type-param: true
+      ignore-chan-recv-ok: true
+    govet:
+      enable:
+        - fieldalignment
+  exclusions:
+    paths:
+      - configs
+    rules:
+      - linters:
+          - staticcheck
+        text: "SA9003:"
+      - linters:
+          - lll
+        source: "^//go:generate "

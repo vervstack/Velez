@@ -8,31 +8,31 @@
 import * as fm from "./fetch.pb";
 
 
-export type CreateVpnNamespaceRequest = {
+export type CreateVcnNamespaceRequest = {
     name?: string;
 };
 
-export type CreateVpnNamespaceResponse = {
+export type CreateVcnNamespaceResponse = {
     namespace?: Namespace;
 };
 
-export type CreateVpnNamespace = Record<string, never>;
+export type CreateVcnNamespace = Record<string, never>;
 
-export type ListVpnNamespacesRequest = Record<string, never>;
+export type ListVcnNamespacesRequest = Record<string, never>;
 
-export type ListVpnNamespacesResponse = {
+export type ListVcnNamespacesResponse = {
     namespaces?: Namespace[];
 };
 
-export type ListVpnNamespaces = Record<string, never>;
+export type ListVcnNamespaces = Record<string, never>;
 
-export type DeleteVpnNamespaceRequest = {
+export type DeleteVcnNamespaceRequest = {
     id?: string;
 };
 
-export type DeleteVpnNamespaceResponse = Record<string, never>;
+export type DeleteVcnNamespaceResponse = Record<string, never>;
 
-export type DeleteVpnNamespace = Record<string, never>;
+export type DeleteVcnNamespace = Record<string, never>;
 
 export type ConnectServiceRequest = {
     serviceName?: string;
@@ -57,17 +57,17 @@ export type ConnectUserResponse = Record<string, never>;
 
 export type ConnectUser = Record<string, never>;
 
-export class VpnApi {
-    static CreateNamespace(this: void, req: CreateVpnNamespaceRequest, initReq?: fm.InitReq): Promise<CreateVpnNamespaceResponse> {
-        return fm.fetchRequest<CreateVpnNamespaceResponse>(`/api/vpn/namespaces/new`, {
+export class VcnApi {
+    static CreateNamespace(this: void, req: CreateVcnNamespaceRequest, initReq?: fm.InitReq): Promise<CreateVcnNamespaceResponse> {
+        return fm.fetchRequest<CreateVcnNamespaceResponse>(`/api/vcn/namespaces/new`, {
             ...initReq,
             method: "POST",
             body: JSON.stringify(req, fm.replacer)
         });
     }
 
-    static ListNamespaces(this: void, req: ListVpnNamespacesRequest, initReq?: fm.InitReq): Promise<ListVpnNamespacesResponse> {
-        return fm.fetchRequest<ListVpnNamespacesResponse>(`/api/vpn/namespaces/list`, {
+    static ListNamespaces(this: void, req: ListVcnNamespacesRequest, initReq?: fm.InitReq): Promise<ListVcnNamespacesResponse> {
+        return fm.fetchRequest<ListVcnNamespacesResponse>(`/api/vcn/namespaces/list`, {
             ...initReq,
             method: "POST",
             body: JSON.stringify(req, fm.replacer)
@@ -75,7 +75,7 @@ export class VpnApi {
     }
 
     static ConnectService(this: void, req: ConnectServiceRequest, initReq?: fm.InitReq): Promise<ConnectServiceResponse> {
-        return fm.fetchRequest<ConnectServiceResponse>(`/api/vpn/services/connect`, {
+        return fm.fetchRequest<ConnectServiceResponse>(`/api/vcn/services/connect`, {
             ...initReq,
             method: "POST",
             body: JSON.stringify(req, fm.replacer)
@@ -83,15 +83,15 @@ export class VpnApi {
     }
 
     static ConnectUser(this: void, req: ConnectUserRequest, initReq?: fm.InitReq): Promise<ConnectUserResponse> {
-        return fm.fetchRequest<ConnectUserResponse>(`/api/vpn/users/connect`, {
+        return fm.fetchRequest<ConnectUserResponse>(`/api/vcn/users/connect`, {
             ...initReq,
             method: "POST",
             body: JSON.stringify(req, fm.replacer)
         });
     }
 
-    static DeleteNamespace(this: void, req: DeleteVpnNamespaceRequest, initReq?: fm.InitReq): Promise<DeleteVpnNamespaceResponse> {
-        return fm.fetchRequest<DeleteVpnNamespaceResponse>(`/api/vpn/namespaces/delete`, {
+    static DeleteNamespace(this: void, req: DeleteVcnNamespaceRequest, initReq?: fm.InitReq): Promise<DeleteVcnNamespaceResponse> {
+        return fm.fetchRequest<DeleteVcnNamespaceResponse>(`/api/vcn/namespaces/delete`, {
             ...initReq,
             method: "POST",
             body: JSON.stringify(req, fm.replacer)

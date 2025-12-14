@@ -14,7 +14,7 @@ import (
 )
 
 type Impl struct {
-	velez_api.UnimplementedVpnApiServer
+	velez_api.UnimplementedVcnApiServer
 
 	vpnService cluster_clients.VervClosedNetworkClient
 	pipeliner  pipelines.Pipeliner
@@ -28,13 +28,13 @@ func New(cluster cluster_clients.ClusterClients, pipeliner pipelines.Pipeliner) 
 }
 
 func (impl *Impl) Register(server grpc.ServiceRegistrar) {
-	velez_api.RegisterVpnApiServer(server, impl)
+	velez_api.RegisterVcnApiServer(server, impl)
 }
 
 func (impl *Impl) Gateway(ctx context.Context, endpoint string, opts ...grpc.DialOption) (route string, handler http.Handler) {
 	gwHttpMux := runtime.NewServeMux()
 
-	err := velez_api.RegisterVpnApiHandlerFromEndpoint(
+	err := velez_api.RegisterVcnApiHandlerFromEndpoint(
 		ctx,
 		gwHttpMux,
 		endpoint,
@@ -44,5 +44,5 @@ func (impl *Impl) Gateway(ctx context.Context, endpoint string, opts ...grpc.Dia
 		logrus.Errorf("error registering grpc2http handler: %s", err)
 	}
 
-	return "/api/vpn/", gwHttpMux
+	return "/api/vcn/", gwHttpMux
 }

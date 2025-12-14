@@ -15,6 +15,9 @@
 
     box-sizing: border-box;
 
+    background: var(--secondary-bg-color);
+    color: var(--secondary-fg-color);
+
     font-size: 16px;
     outline: none;
 
@@ -27,13 +30,13 @@
 }
 
 .InputContainer:not(.Borderless) input {
-    border: 1px solid #ccc;
+    border: 1px solid var(--secondary-bg-color);
     border-radius: 4px;
     transition: border-color 0.2s;
 }
 
 .InputContainer:not(.Borderless) input:focus {
-    border-color: #007bff;
+    border-color: var(--accent-bg-color);
 }
 
 .Label {
@@ -41,20 +44,26 @@
     top: 50%;
     left: 12px;
     margin-right: 2px;
+
     transform: translateY(-50%);
+
+    background: var(--secondary-bg-color);
     color: #999;
+
     pointer-events: none;
+
     transition: all 0.2s ease;
-    background: white;
     padding: 0 4px;
     font-size: clamp(1px, 16px, 32px);
 
     box-sizing: border-box;
+
+    border-radius: 0.25em;
 }
 
 .Label.Floating {
     top: 0;
     transform: translateY(-50%) scale(0.85);
-    color: #007bff;
+    color: var(--accent-fg-color);
     left: 8px;
 }

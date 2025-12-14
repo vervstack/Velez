@@ -35,9 +35,9 @@ var (
 	_ = metadata.Join
 )
 
-func request_VpnApi_CreateNamespace_0(ctx context.Context, marshaler runtime.Marshaler, client VpnApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_VcnApi_CreateNamespace_0(ctx context.Context, marshaler runtime.Marshaler, client VcnApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq CreateVpnNamespace_Request
+		protoReq CreateVcnNamespace_Request
 		metadata runtime.ServerMetadata
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
@@ -50,9 +50,9 @@ func request_VpnApi_CreateNamespace_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-func local_request_VpnApi_CreateNamespace_0(ctx context.Context, marshaler runtime.Marshaler, server VpnApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_VcnApi_CreateNamespace_0(ctx context.Context, marshaler runtime.Marshaler, server VcnApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq CreateVpnNamespace_Request
+		protoReq CreateVcnNamespace_Request
 		metadata runtime.ServerMetadata
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
@@ -62,9 +62,9 @@ func local_request_VpnApi_CreateNamespace_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-func request_VpnApi_ListNamespaces_0(ctx context.Context, marshaler runtime.Marshaler, client VpnApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_VcnApi_ListNamespaces_0(ctx context.Context, marshaler runtime.Marshaler, client VcnApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq ListVpnNamespaces_Request
+		protoReq ListVcnNamespaces_Request
 		metadata runtime.ServerMetadata
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
@@ -77,9 +77,9 @@ func request_VpnApi_ListNamespaces_0(ctx context.Context, marshaler runtime.Mars
 	return msg, metadata, err
 }
 
-func local_request_VpnApi_ListNamespaces_0(ctx context.Context, marshaler runtime.Marshaler, server VpnApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_VcnApi_ListNamespaces_0(ctx context.Context, marshaler runtime.Marshaler, server VcnApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq ListVpnNamespaces_Request
+		protoReq ListVcnNamespaces_Request
 		metadata runtime.ServerMetadata
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
@@ -89,7 +89,7 @@ func local_request_VpnApi_ListNamespaces_0(ctx context.Context, marshaler runtim
 	return msg, metadata, err
 }
 
-func request_VpnApi_ConnectService_0(ctx context.Context, marshaler runtime.Marshaler, client VpnApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_VcnApi_ConnectService_0(ctx context.Context, marshaler runtime.Marshaler, client VcnApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ConnectService_Request
 		metadata runtime.ServerMetadata
@@ -104,7 +104,7 @@ func request_VpnApi_ConnectService_0(ctx context.Context, marshaler runtime.Mars
 	return msg, metadata, err
 }
 
-func local_request_VpnApi_ConnectService_0(ctx context.Context, marshaler runtime.Marshaler, server VpnApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_VcnApi_ConnectService_0(ctx context.Context, marshaler runtime.Marshaler, server VcnApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ConnectService_Request
 		metadata runtime.ServerMetadata
@@ -116,7 +116,7 @@ func local_request_VpnApi_ConnectService_0(ctx context.Context, marshaler runtim
 	return msg, metadata, err
 }
 
-func request_VpnApi_ConnectUser_0(ctx context.Context, marshaler runtime.Marshaler, client VpnApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_VcnApi_ConnectUser_0(ctx context.Context, marshaler runtime.Marshaler, client VcnApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ConnectUser_Request
 		metadata runtime.ServerMetadata
@@ -131,7 +131,7 @@ func request_VpnApi_ConnectUser_0(ctx context.Context, marshaler runtime.Marshal
 	return msg, metadata, err
 }
 
-func local_request_VpnApi_ConnectUser_0(ctx context.Context, marshaler runtime.Marshaler, server VpnApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_VcnApi_ConnectUser_0(ctx context.Context, marshaler runtime.Marshaler, server VcnApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq ConnectUser_Request
 		metadata runtime.ServerMetadata
@@ -143,9 +143,9 @@ func local_request_VpnApi_ConnectUser_0(ctx context.Context, marshaler runtime.M
 	return msg, metadata, err
 }
 
-func request_VpnApi_DeleteNamespace_0(ctx context.Context, marshaler runtime.Marshaler, client VpnApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_VcnApi_DeleteNamespace_0(ctx context.Context, marshaler runtime.Marshaler, client VcnApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq DeleteVpnNamespace_Request
+		protoReq DeleteVcnNamespace_Request
 		metadata runtime.ServerMetadata
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
@@ -158,9 +158,9 @@ func request_VpnApi_DeleteNamespace_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-func local_request_VpnApi_DeleteNamespace_0(ctx context.Context, marshaler runtime.Marshaler, server VpnApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_VcnApi_DeleteNamespace_0(ctx context.Context, marshaler runtime.Marshaler, server VcnApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq DeleteVpnNamespace_Request
+		protoReq DeleteVcnNamespace_Request
 		metadata runtime.ServerMetadata
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
@@ -170,119 +170,119 @@ func local_request_VpnApi_DeleteNamespace_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-// RegisterVpnApiHandlerServer registers the http handlers for service VpnApi to "mux".
-// UnaryRPC     :call VpnApiServer directly.
+// RegisterVcnApiHandlerServer registers the http handlers for service VcnApi to "mux".
+// UnaryRPC     :call VcnApiServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterVpnApiHandlerFromEndpoint instead.
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterVcnApiHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
-func RegisterVpnApiHandlerServer(ctx context.Context, mux *runtime.ServeMux, server VpnApiServer) error {
-	mux.Handle(http.MethodPost, pattern_VpnApi_CreateNamespace_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+func RegisterVcnApiHandlerServer(ctx context.Context, mux *runtime.ServeMux, server VcnApiServer) error {
+	mux.Handle(http.MethodPost, pattern_VcnApi_CreateNamespace_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.VpnApi/CreateNamespace", runtime.WithHTTPPathPattern("/api/vpn/namespaces/new"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.VcnApi/CreateNamespace", runtime.WithHTTPPathPattern("/api/vcn/namespaces/new"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_VpnApi_CreateNamespace_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_VcnApi_CreateNamespace_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_VpnApi_CreateNamespace_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_VcnApi_CreateNamespace_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_VpnApi_ListNamespaces_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_VcnApi_ListNamespaces_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.VpnApi/ListNamespaces", runtime.WithHTTPPathPattern("/api/vpn/namespaces/list"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.VcnApi/ListNamespaces", runtime.WithHTTPPathPattern("/api/vcn/namespaces/list"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_VpnApi_ListNamespaces_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_VcnApi_ListNamespaces_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_VpnApi_ListNamespaces_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_VcnApi_ListNamespaces_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_VpnApi_ConnectService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_VcnApi_ConnectService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.VpnApi/ConnectService", runtime.WithHTTPPathPattern("/api/vpn/services/connect"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.VcnApi/ConnectService", runtime.WithHTTPPathPattern("/api/vcn/services/connect"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_VpnApi_ConnectService_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_VcnApi_ConnectService_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_VpnApi_ConnectService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_VcnApi_ConnectService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_VpnApi_ConnectUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_VcnApi_ConnectUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.VpnApi/ConnectUser", runtime.WithHTTPPathPattern("/api/vpn/users/connect"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.VcnApi/ConnectUser", runtime.WithHTTPPathPattern("/api/vcn/users/connect"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_VpnApi_ConnectUser_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_VcnApi_ConnectUser_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_VpnApi_ConnectUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_VcnApi_ConnectUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_VpnApi_DeleteNamespace_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_VcnApi_DeleteNamespace_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.VpnApi/DeleteNamespace", runtime.WithHTTPPathPattern("/api/vpn/namespaces/delete"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.VcnApi/DeleteNamespace", runtime.WithHTTPPathPattern("/api/vcn/namespaces/delete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_VpnApi_DeleteNamespace_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_VcnApi_DeleteNamespace_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_VpnApi_DeleteNamespace_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_VcnApi_DeleteNamespace_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterVpnApiHandlerFromEndpoint is same as RegisterVpnApiHandler but
+// RegisterVcnApiHandlerFromEndpoint is same as RegisterVcnApiHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterVpnApiHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterVcnApiHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.NewClient(endpoint, opts...)
 	if err != nil {
 		return err
@@ -301,121 +301,121 @@ func RegisterVpnApiHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMu
 			}
 		}()
 	}()
-	return RegisterVpnApiHandler(ctx, mux, conn)
+	return RegisterVcnApiHandler(ctx, mux, conn)
 }
 
-// RegisterVpnApiHandler registers the http handlers for service VpnApi to "mux".
+// RegisterVcnApiHandler registers the http handlers for service VcnApi to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterVpnApiHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterVpnApiHandlerClient(ctx, mux, NewVpnApiClient(conn))
+func RegisterVcnApiHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterVcnApiHandlerClient(ctx, mux, NewVcnApiClient(conn))
 }
 
-// RegisterVpnApiHandlerClient registers the http handlers for service VpnApi
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "VpnApiClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "VpnApiClient"
+// RegisterVcnApiHandlerClient registers the http handlers for service VcnApi
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "VcnApiClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "VcnApiClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "VpnApiClient" to call the correct interceptors. This client ignores the HTTP middlewares.
-func RegisterVpnApiHandlerClient(ctx context.Context, mux *runtime.ServeMux, client VpnApiClient) error {
-	mux.Handle(http.MethodPost, pattern_VpnApi_CreateNamespace_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "VcnApiClient" to call the correct interceptors. This client ignores the HTTP middlewares.
+func RegisterVcnApiHandlerClient(ctx context.Context, mux *runtime.ServeMux, client VcnApiClient) error {
+	mux.Handle(http.MethodPost, pattern_VcnApi_CreateNamespace_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.VpnApi/CreateNamespace", runtime.WithHTTPPathPattern("/api/vpn/namespaces/new"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.VcnApi/CreateNamespace", runtime.WithHTTPPathPattern("/api/vcn/namespaces/new"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_VpnApi_CreateNamespace_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_VcnApi_CreateNamespace_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_VpnApi_CreateNamespace_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_VcnApi_CreateNamespace_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_VpnApi_ListNamespaces_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_VcnApi_ListNamespaces_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.VpnApi/ListNamespaces", runtime.WithHTTPPathPattern("/api/vpn/namespaces/list"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.VcnApi/ListNamespaces", runtime.WithHTTPPathPattern("/api/vcn/namespaces/list"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_VpnApi_ListNamespaces_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_VcnApi_ListNamespaces_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_VpnApi_ListNamespaces_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_VcnApi_ListNamespaces_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_VpnApi_ConnectService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_VcnApi_ConnectService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.VpnApi/ConnectService", runtime.WithHTTPPathPattern("/api/vpn/services/connect"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.VcnApi/ConnectService", runtime.WithHTTPPathPattern("/api/vcn/services/connect"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_VpnApi_ConnectService_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_VcnApi_ConnectService_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_VpnApi_ConnectService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_VcnApi_ConnectService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_VpnApi_ConnectUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_VcnApi_ConnectUser_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.VpnApi/ConnectUser", runtime.WithHTTPPathPattern("/api/vpn/users/connect"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.VcnApi/ConnectUser", runtime.WithHTTPPathPattern("/api/vcn/users/connect"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_VpnApi_ConnectUser_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_VcnApi_ConnectUser_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_VpnApi_ConnectUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_VcnApi_ConnectUser_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_VpnApi_DeleteNamespace_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_VcnApi_DeleteNamespace_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.VpnApi/DeleteNamespace", runtime.WithHTTPPathPattern("/api/vpn/namespaces/delete"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.VcnApi/DeleteNamespace", runtime.WithHTTPPathPattern("/api/vcn/namespaces/delete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_VpnApi_DeleteNamespace_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_VcnApi_DeleteNamespace_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_VpnApi_DeleteNamespace_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_VcnApi_DeleteNamespace_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	return nil
 }
 
 var (
-	pattern_VpnApi_CreateNamespace_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "vpn", "namespaces", "new"}, ""))
-	pattern_VpnApi_ListNamespaces_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "vpn", "namespaces", "list"}, ""))
-	pattern_VpnApi_ConnectService_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "vpn", "services", "connect"}, ""))
-	pattern_VpnApi_ConnectUser_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "vpn", "users", "connect"}, ""))
-	pattern_VpnApi_DeleteNamespace_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "vpn", "namespaces", "delete"}, ""))
+	pattern_VcnApi_CreateNamespace_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "vcn", "namespaces", "new"}, ""))
+	pattern_VcnApi_ListNamespaces_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "vcn", "namespaces", "list"}, ""))
+	pattern_VcnApi_ConnectService_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "vcn", "services", "connect"}, ""))
+	pattern_VcnApi_ConnectUser_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "vcn", "users", "connect"}, ""))
+	pattern_VcnApi_DeleteNamespace_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "vcn", "namespaces", "delete"}, ""))
 )
 
 var (
-	forward_VpnApi_CreateNamespace_0 = runtime.ForwardResponseMessage
-	forward_VpnApi_ListNamespaces_0  = runtime.ForwardResponseMessage
-	forward_VpnApi_ConnectService_0  = runtime.ForwardResponseMessage
-	forward_VpnApi_ConnectUser_0     = runtime.ForwardResponseMessage
-	forward_VpnApi_DeleteNamespace_0 = runtime.ForwardResponseMessage
+	forward_VcnApi_CreateNamespace_0 = runtime.ForwardResponseMessage
+	forward_VcnApi_ListNamespaces_0  = runtime.ForwardResponseMessage
+	forward_VcnApi_ConnectService_0  = runtime.ForwardResponseMessage
+	forward_VcnApi_ConnectUser_0     = runtime.ForwardResponseMessage
+	forward_VcnApi_DeleteNamespace_0 = runtime.ForwardResponseMessage
 )

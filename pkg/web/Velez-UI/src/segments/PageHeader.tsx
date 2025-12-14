@@ -31,6 +31,10 @@ export default function PageHeader() {
             title: 'Deploy',
             route: Routes.Deploy,
         },
+        {
+            title: 'VCN',
+            route: Routes.VCN,
+        }
     ]
     const settings = useSettings();
 

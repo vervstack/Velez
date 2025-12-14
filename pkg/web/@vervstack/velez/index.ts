@@ -5,4 +5,4 @@ export * from './verv_closed_network.pb';
 
 export {VelezAPI} from './velez_api.pb';
 export { ControlPlaneAPI } from './control_plane_api.pb';
-export {VpnApi} from './verv_closed_network.pb';
+export {VcnApi} from './verv_closed_network.pb';

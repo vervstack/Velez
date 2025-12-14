@@ -8,47 +8,47 @@ import "google/api/annotations.proto";
 option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
 option (npm_package) = "@vervstack/velez";
 
-// Verv Private Network
-service VpnApi {
-  rpc CreateNamespace(CreateVpnNamespace.Request) returns (CreateVpnNamespace.Response) {
+// Verv Closed Network
+service VcnApi {
+  rpc CreateNamespace(CreateVcnNamespace.Request) returns (CreateVcnNamespace.Response) {
     option (google.api.http) = {
-      post: "/api/vpn/namespaces/new",
+      post: "/api/vcn/namespaces/new",
       body: "*",
     };
   };
 
-  rpc ListNamespaces(ListVpnNamespaces.Request) returns (ListVpnNamespaces.Response) {
+  rpc ListNamespaces(ListVcnNamespaces.Request) returns (ListVcnNamespaces.Response) {
     option (google.api.http) = {
-      post: "/api/vpn/namespaces/list",
+      post: "/api/vcn/namespaces/list",
       body: "*",
     };
   };
 
   rpc ConnectService(ConnectService.Request) returns (ConnectService.Response) {
     option (google.api.http) = {
-      post: "/api/vpn/services/connect",
+      post: "/api/vcn/services/connect",
       body: "*",
     };
   }
 
   rpc ConnectUser(ConnectUser.Request) returns (ConnectUser.Response) {
     option (google.api.http) = {
-      post: "/api/vpn/users/connect",
+      post: "/api/vcn/users/connect",
       body: "*",
     };
   }
 
 
   //  Not implemented
-  rpc DeleteNamespace(DeleteVpnNamespace.Request) returns (DeleteVpnNamespace.Response) {
+  rpc DeleteNamespace(DeleteVcnNamespace.Request) returns (DeleteVcnNamespace.Response) {
     option (google.api.http) = {
-      post: "/api/vpn/namespaces/delete",
+      post: "/api/vcn/namespaces/delete",
       body: "*",
     };
   };
 }
 
-message CreateVpnNamespace {
+message CreateVcnNamespace {
   message Request {
     string name = 1;
   }
@@ -57,7 +57,7 @@ message CreateVpnNamespace {
   }
 }
 
-message ListVpnNamespaces {
+message ListVcnNamespaces {
   message Request {
 
   }
@@ -66,7 +66,7 @@ message ListVpnNamespaces {
   }
 }
 
-message DeleteVpnNamespace {
+message DeleteVcnNamespace {
   message Request {
     string id = 1;
   }

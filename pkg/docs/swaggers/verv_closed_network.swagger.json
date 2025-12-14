@@ -6,7 +6,7 @@
   },
   "tags": [
     {
-      "name": "VpnApi"
+      "name": "VcnApi"
     }
   ],
   "consumes": [
@@ -16,15 +16,15 @@
     "application/json"
   ],
   "paths": {
-    "/api/vpn/namespaces/delete": {
+    "/api/vcn/namespaces/delete": {
       "post": {
         "summary": "Not implemented",
-        "operationId": "VpnApi_DeleteNamespace",
+        "operationId": "VcnApi_DeleteNamespace",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/velez_apiDeleteVpnNamespaceResponse"
+              "$ref": "#/definitions/velez_apiDeleteVcnNamespaceResponse"
             }
           },
           "default": {
@@ -40,23 +40,23 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/velez_apiDeleteVpnNamespaceRequest"
+              "$ref": "#/definitions/velez_apiDeleteVcnNamespaceRequest"
             }
           }
         ],
         "tags": [
-          "VpnApi"
+          "VcnApi"
         ]
       }
     },
-    "/api/vpn/namespaces/list": {
+    "/api/vcn/namespaces/list": {
       "post": {
-        "operationId": "VpnApi_ListNamespaces",
+        "operationId": "VcnApi_ListNamespaces",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/velez_apiListVpnNamespacesResponse"
+              "$ref": "#/definitions/velez_apiListVcnNamespacesResponse"
             }
           },
           "default": {
@@ -72,23 +72,23 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/velez_apiListVpnNamespacesRequest"
+              "$ref": "#/definitions/velez_apiListVcnNamespacesRequest"
             }
           }
         ],
         "tags": [
-          "VpnApi"
+          "VcnApi"
         ]
       }
     },
-    "/api/vpn/namespaces/new": {
+    "/api/vcn/namespaces/new": {
       "post": {
-        "operationId": "VpnApi_CreateNamespace",
+        "operationId": "VcnApi_CreateNamespace",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/velez_apiCreateVpnNamespaceResponse"
+              "$ref": "#/definitions/velez_apiCreateVcnNamespaceResponse"
             }
           },
           "default": {
@@ -104,18 +104,18 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/velez_apiCreateVpnNamespaceRequest"
+              "$ref": "#/definitions/velez_apiCreateVcnNamespaceRequest"
             }
           }
         ],
         "tags": [
-          "VpnApi"
+          "VcnApi"
         ]
       }
     },
-    "/api/vpn/services/connect": {
+    "/api/vcn/services/connect": {
       "post": {
-        "operationId": "VpnApi_ConnectService",
+        "operationId": "VcnApi_ConnectService",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -141,13 +141,13 @@
           }
         ],
         "tags": [
-          "VpnApi"
+          "VcnApi"
         ]
       }
     },
-    "/api/vpn/users/connect": {
+    "/api/vcn/users/connect": {
       "post": {
-        "operationId": "VpnApi_ConnectUser",
+        "operationId": "VcnApi_ConnectUser",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -173,7 +173,7 @@
           }
         ],
         "tags": [
-          "VpnApi"
+          "VcnApi"
         ]
       }
     }
@@ -236,7 +236,7 @@
     "velez_apiConnectUserResponse": {
       "type": "object"
     },
-    "velez_apiCreateVpnNamespaceRequest": {
+    "velez_apiCreateVcnNamespaceRequest": {
       "type": "object",
       "properties": {
         "name": {
@@ -244,7 +244,7 @@
         }
       }
     },
-    "velez_apiCreateVpnNamespaceResponse": {
+    "velez_apiCreateVcnNamespaceResponse": {
       "type": "object",
       "properties": {
         "namespace": {
@@ -252,7 +252,7 @@
         }
       }
     },
-    "velez_apiDeleteVpnNamespaceRequest": {
+    "velez_apiDeleteVcnNamespaceRequest": {
       "type": "object",
       "properties": {
         "id": {
@@ -260,13 +260,13 @@
         }
       }
     },
-    "velez_apiDeleteVpnNamespaceResponse": {
+    "velez_apiDeleteVcnNamespaceResponse": {
       "type": "object"
     },
-    "velez_apiListVpnNamespacesRequest": {
+    "velez_apiListVcnNamespacesRequest": {
       "type": "object"
     },
-    "velez_apiListVpnNamespacesResponse": {
+    "velez_apiListVcnNamespacesResponse": {
       "type": "object",
       "properties": {
         "namespaces": {

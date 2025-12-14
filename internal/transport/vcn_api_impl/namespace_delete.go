@@ -8,11 +8,11 @@ import (
 	api "go.vervstack.ru/Velez/pkg/velez_api"
 )
 
-func (impl *Impl) DeleteNamespace(ctx context.Context, req *api.DeleteVpnNamespace_Request) (*api.DeleteVpnNamespace_Response, error) {
+func (impl *Impl) DeleteNamespace(ctx context.Context, req *api.DeleteVcnNamespace_Request) (*api.DeleteVcnNamespace_Response, error) {
 	err := impl.vpnService.DeleteNamespace(ctx, req.Id)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "")
 	}
 
-	return &api.DeleteVpnNamespace_Response{}, nil
+	return &api.DeleteVcnNamespace_Response{}, nil
 }

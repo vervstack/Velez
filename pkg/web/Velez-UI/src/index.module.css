@@ -16,12 +16,15 @@ root, body {
 }
 
 :root {
-    --main-bg-color: rgba(255, 255, 255, 1);
-    --secondary-bg-color: rgba(10, 183, 238, 0.65);
-    --thirdly-bg-color: rgb(0, 207, 255);
-    --header-color: rgba(255, 237, 237, 100%);
+    --main-bg-color: rgb(23, 23, 23);
+    --accent-bg-color: rgba(128, 209, 236, 0.65);
+    --secondary-bg-color: rgb(233, 234, 234);
+
+    --accent-fg-color: rgb(111, 111, 200);
+
     --quote-background: rgb(171, 171, 171);
-    --primary-fg-color: #232328;
+    --primary-fg-color: #dadada;
+    --secondary-fg-color: var(--main-bg-color);
 
     --disabled-bg-color: #616161;
 
@@ -31,4 +34,5 @@ root, body {
 /*TODO: DO FOR different screen sizes*/
 * {
     font-size: 16px;
+    color: var(--primary-fg-color);
 }

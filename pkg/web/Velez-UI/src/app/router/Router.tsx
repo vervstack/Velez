@@ -5,12 +5,14 @@ import ControlPlanePage from "@/pages/controlplane/ControlPlanePage.tsx";
 import MainLayout from "@/app/router/MainLayout.tsx";
 import SmerdPage from "@/pages/smerd/SmerdPage.tsx";
 import DeployPage from "@/pages/deploy/DeployPage.tsx";
+import VervClosedNetworkPage from "@/pages/vcn/VervClosedNetworkPage.tsx";
 
 export enum Routes {
     Home = "/",
     ControlPlane = "/cp",
     Deploy = "/deploy",
-    Smerd = "/smerd"
+    Smerd = "/smerd",
+    VCN = "/vcn"
 }
 
 export enum Arguments {
@@ -37,8 +39,12 @@ const router = createBrowserRouter([
             },
 
             {
-              path: Routes.Smerd+"/:"+Arguments.Name,
-              element: (<SmerdPage/>),
+                path: Routes.VCN,
+                element: (<VervClosedNetworkPage/>)
+            },
+            {
+                path: Routes.Smerd + "/:" + Arguments.Name,
+                element: (<SmerdPage/>),
             },
         ]
     },

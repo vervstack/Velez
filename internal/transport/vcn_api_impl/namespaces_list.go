@@ -9,8 +9,8 @@ import (
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
-func (impl *Impl) ListNamespaces(ctx context.Context, _ *velez_api.ListVpnNamespaces_Request) (
-	*velez_api.ListVpnNamespaces_Response, error) {
+func (impl *Impl) ListNamespaces(ctx context.Context, _ *velez_api.ListVcnNamespaces_Request) (
+	*velez_api.ListVcnNamespaces_Response, error) {
 	namespaces, err := impl.vpnService.ListNamespaces(ctx)
 	if err != nil {
 		return nil, rerrors.Wrap(err)
@@ -19,8 +19,8 @@ func (impl *Impl) ListNamespaces(ctx context.Context, _ *velez_api.ListVpnNamesp
 	return namespacesToPb(namespaces), nil
 }
 
-func namespacesToPb(namespaces []domain.VpnNamespace) *velez_api.ListVpnNamespaces_Response {
-	resp := &velez_api.ListVpnNamespaces_Response{
+func namespacesToPb(namespaces []domain.VpnNamespace) *velez_api.ListVcnNamespaces_Response {
+	resp := &velez_api.ListVcnNamespaces_Response{
 		Namespaces: make([]*velez_api.Namespace, 0, len(namespaces)),
 	}
 

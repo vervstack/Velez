@@ -19,259 +19,259 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	VpnApi_CreateNamespace_FullMethodName = "/velez_api.VpnApi/CreateNamespace"
-	VpnApi_ListNamespaces_FullMethodName  = "/velez_api.VpnApi/ListNamespaces"
-	VpnApi_ConnectService_FullMethodName  = "/velez_api.VpnApi/ConnectService"
-	VpnApi_ConnectUser_FullMethodName     = "/velez_api.VpnApi/ConnectUser"
-	VpnApi_DeleteNamespace_FullMethodName = "/velez_api.VpnApi/DeleteNamespace"
+	VcnApi_CreateNamespace_FullMethodName = "/velez_api.VcnApi/CreateNamespace"
+	VcnApi_ListNamespaces_FullMethodName  = "/velez_api.VcnApi/ListNamespaces"
+	VcnApi_ConnectService_FullMethodName  = "/velez_api.VcnApi/ConnectService"
+	VcnApi_ConnectUser_FullMethodName     = "/velez_api.VcnApi/ConnectUser"
+	VcnApi_DeleteNamespace_FullMethodName = "/velez_api.VcnApi/DeleteNamespace"
 )
 
-// VpnApiClient is the client API for VpnApi service.
+// VcnApiClient is the client API for VcnApi service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// Verv Private Network
-type VpnApiClient interface {
-	CreateNamespace(ctx context.Context, in *CreateVpnNamespace_Request, opts ...grpc.CallOption) (*CreateVpnNamespace_Response, error)
-	ListNamespaces(ctx context.Context, in *ListVpnNamespaces_Request, opts ...grpc.CallOption) (*ListVpnNamespaces_Response, error)
+// Verv Closed Network
+type VcnApiClient interface {
+	CreateNamespace(ctx context.Context, in *CreateVcnNamespace_Request, opts ...grpc.CallOption) (*CreateVcnNamespace_Response, error)
+	ListNamespaces(ctx context.Context, in *ListVcnNamespaces_Request, opts ...grpc.CallOption) (*ListVcnNamespaces_Response, error)
 	ConnectService(ctx context.Context, in *ConnectService_Request, opts ...grpc.CallOption) (*ConnectService_Response, error)
 	ConnectUser(ctx context.Context, in *ConnectUser_Request, opts ...grpc.CallOption) (*ConnectUser_Response, error)
 	// Not implemented
-	DeleteNamespace(ctx context.Context, in *DeleteVpnNamespace_Request, opts ...grpc.CallOption) (*DeleteVpnNamespace_Response, error)
+	DeleteNamespace(ctx context.Context, in *DeleteVcnNamespace_Request, opts ...grpc.CallOption) (*DeleteVcnNamespace_Response, error)
 }
 
-type vpnApiClient struct {
+type vcnApiClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewVpnApiClient(cc grpc.ClientConnInterface) VpnApiClient {
-	return &vpnApiClient{cc}
+func NewVcnApiClient(cc grpc.ClientConnInterface) VcnApiClient {
+	return &vcnApiClient{cc}
 }
 
-func (c *vpnApiClient) CreateNamespace(ctx context.Context, in *CreateVpnNamespace_Request, opts ...grpc.CallOption) (*CreateVpnNamespace_Response, error) {
+func (c *vcnApiClient) CreateNamespace(ctx context.Context, in *CreateVcnNamespace_Request, opts ...grpc.CallOption) (*CreateVcnNamespace_Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateVpnNamespace_Response)
-	err := c.cc.Invoke(ctx, VpnApi_CreateNamespace_FullMethodName, in, out, cOpts...)
+	out := new(CreateVcnNamespace_Response)
+	err := c.cc.Invoke(ctx, VcnApi_CreateNamespace_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *vpnApiClient) ListNamespaces(ctx context.Context, in *ListVpnNamespaces_Request, opts ...grpc.CallOption) (*ListVpnNamespaces_Response, error) {
+func (c *vcnApiClient) ListNamespaces(ctx context.Context, in *ListVcnNamespaces_Request, opts ...grpc.CallOption) (*ListVcnNamespaces_Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListVpnNamespaces_Response)
-	err := c.cc.Invoke(ctx, VpnApi_ListNamespaces_FullMethodName, in, out, cOpts...)
+	out := new(ListVcnNamespaces_Response)
+	err := c.cc.Invoke(ctx, VcnApi_ListNamespaces_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *vpnApiClient) ConnectService(ctx context.Context, in *ConnectService_Request, opts ...grpc.CallOption) (*ConnectService_Response, error) {
+func (c *vcnApiClient) ConnectService(ctx context.Context, in *ConnectService_Request, opts ...grpc.CallOption) (*ConnectService_Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ConnectService_Response)
-	err := c.cc.Invoke(ctx, VpnApi_ConnectService_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, VcnApi_ConnectService_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *vpnApiClient) ConnectUser(ctx context.Context, in *ConnectUser_Request, opts ...grpc.CallOption) (*ConnectUser_Response, error) {
+func (c *vcnApiClient) ConnectUser(ctx context.Context, in *ConnectUser_Request, opts ...grpc.CallOption) (*ConnectUser_Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ConnectUser_Response)
-	err := c.cc.Invoke(ctx, VpnApi_ConnectUser_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, VcnApi_ConnectUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *vpnApiClient) DeleteNamespace(ctx context.Context, in *DeleteVpnNamespace_Request, opts ...grpc.CallOption) (*DeleteVpnNamespace_Response, error) {
+func (c *vcnApiClient) DeleteNamespace(ctx context.Context, in *DeleteVcnNamespace_Request, opts ...grpc.CallOption) (*DeleteVcnNamespace_Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeleteVpnNamespace_Response)
-	err := c.cc.Invoke(ctx, VpnApi_DeleteNamespace_FullMethodName, in, out, cOpts...)
+	out := new(DeleteVcnNamespace_Response)
+	err := c.cc.Invoke(ctx, VcnApi_DeleteNamespace_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// VpnApiServer is the server API for VpnApi service.
-// All implementations must embed UnimplementedVpnApiServer
+// VcnApiServer is the server API for VcnApi service.
+// All implementations must embed UnimplementedVcnApiServer
 // for forward compatibility.
 //
-// Verv Private Network
-type VpnApiServer interface {
-	CreateNamespace(context.Context, *CreateVpnNamespace_Request) (*CreateVpnNamespace_Response, error)
-	ListNamespaces(context.Context, *ListVpnNamespaces_Request) (*ListVpnNamespaces_Response, error)
+// Verv Closed Network
+type VcnApiServer interface {
+	CreateNamespace(context.Context, *CreateVcnNamespace_Request) (*CreateVcnNamespace_Response, error)
+	ListNamespaces(context.Context, *ListVcnNamespaces_Request) (*ListVcnNamespaces_Response, error)
 	ConnectService(context.Context, *ConnectService_Request) (*ConnectService_Response, error)
 	ConnectUser(context.Context, *ConnectUser_Request) (*ConnectUser_Response, error)
 	// Not implemented
-	DeleteNamespace(context.Context, *DeleteVpnNamespace_Request) (*DeleteVpnNamespace_Response, error)
-	mustEmbedUnimplementedVpnApiServer()
+	DeleteNamespace(context.Context, *DeleteVcnNamespace_Request) (*DeleteVcnNamespace_Response, error)
+	mustEmbedUnimplementedVcnApiServer()
 }
 
-// UnimplementedVpnApiServer must be embedded to have
+// UnimplementedVcnApiServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedVpnApiServer struct{}
+type UnimplementedVcnApiServer struct{}
 
-func (UnimplementedVpnApiServer) CreateNamespace(context.Context, *CreateVpnNamespace_Request) (*CreateVpnNamespace_Response, error) {
+func (UnimplementedVcnApiServer) CreateNamespace(context.Context, *CreateVcnNamespace_Request) (*CreateVcnNamespace_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateNamespace not implemented")
 }
-func (UnimplementedVpnApiServer) ListNamespaces(context.Context, *ListVpnNamespaces_Request) (*ListVpnNamespaces_Response, error) {
+func (UnimplementedVcnApiServer) ListNamespaces(context.Context, *ListVcnNamespaces_Request) (*ListVcnNamespaces_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListNamespaces not implemented")
 }
-func (UnimplementedVpnApiServer) ConnectService(context.Context, *ConnectService_Request) (*ConnectService_Response, error) {
+func (UnimplementedVcnApiServer) ConnectService(context.Context, *ConnectService_Request) (*ConnectService_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method ConnectService not implemented")
 }
-func (UnimplementedVpnApiServer) ConnectUser(context.Context, *ConnectUser_Request) (*ConnectUser_Response, error) {
+func (UnimplementedVcnApiServer) ConnectUser(context.Context, *ConnectUser_Request) (*ConnectUser_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method ConnectUser not implemented")
 }
-func (UnimplementedVpnApiServer) DeleteNamespace(context.Context, *DeleteVpnNamespace_Request) (*DeleteVpnNamespace_Response, error) {
+func (UnimplementedVcnApiServer) DeleteNamespace(context.Context, *DeleteVcnNamespace_Request) (*DeleteVcnNamespace_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteNamespace not implemented")
 }
-func (UnimplementedVpnApiServer) mustEmbedUnimplementedVpnApiServer() {}
-func (UnimplementedVpnApiServer) testEmbeddedByValue()                {}
+func (UnimplementedVcnApiServer) mustEmbedUnimplementedVcnApiServer() {}
+func (UnimplementedVcnApiServer) testEmbeddedByValue()                {}
 
-// UnsafeVpnApiServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to VpnApiServer will
+// UnsafeVcnApiServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to VcnApiServer will
 // result in compilation errors.
-type UnsafeVpnApiServer interface {
-	mustEmbedUnimplementedVpnApiServer()
+type UnsafeVcnApiServer interface {
+	mustEmbedUnimplementedVcnApiServer()
 }
 
-func RegisterVpnApiServer(s grpc.ServiceRegistrar, srv VpnApiServer) {
-	// If the following call panics, it indicates UnimplementedVpnApiServer was
+func RegisterVcnApiServer(s grpc.ServiceRegistrar, srv VcnApiServer) {
+	// If the following call panics, it indicates UnimplementedVcnApiServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&VpnApi_ServiceDesc, srv)
+	s.RegisterService(&VcnApi_ServiceDesc, srv)
 }
 
-func _VpnApi_CreateNamespace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateVpnNamespace_Request)
+func _VcnApi_CreateNamespace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateVcnNamespace_Request)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(VpnApiServer).CreateNamespace(ctx, in)
+		return srv.(VcnApiServer).CreateNamespace(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: VpnApi_CreateNamespace_FullMethodName,
+		FullMethod: VcnApi_CreateNamespace_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VpnApiServer).CreateNamespace(ctx, req.(*CreateVpnNamespace_Request))
+		return srv.(VcnApiServer).CreateNamespace(ctx, req.(*CreateVcnNamespace_Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _VpnApi_ListNamespaces_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListVpnNamespaces_Request)
+func _VcnApi_ListNamespaces_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListVcnNamespaces_Request)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(VpnApiServer).ListNamespaces(ctx, in)
+		return srv.(VcnApiServer).ListNamespaces(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: VpnApi_ListNamespaces_FullMethodName,
+		FullMethod: VcnApi_ListNamespaces_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VpnApiServer).ListNamespaces(ctx, req.(*ListVpnNamespaces_Request))
+		return srv.(VcnApiServer).ListNamespaces(ctx, req.(*ListVcnNamespaces_Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _VpnApi_ConnectService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _VcnApi_ConnectService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ConnectService_Request)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(VpnApiServer).ConnectService(ctx, in)
+		return srv.(VcnApiServer).ConnectService(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: VpnApi_ConnectService_FullMethodName,
+		FullMethod: VcnApi_ConnectService_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VpnApiServer).ConnectService(ctx, req.(*ConnectService_Request))
+		return srv.(VcnApiServer).ConnectService(ctx, req.(*ConnectService_Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _VpnApi_ConnectUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _VcnApi_ConnectUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ConnectUser_Request)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(VpnApiServer).ConnectUser(ctx, in)
+		return srv.(VcnApiServer).ConnectUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: VpnApi_ConnectUser_FullMethodName,
+		FullMethod: VcnApi_ConnectUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VpnApiServer).ConnectUser(ctx, req.(*ConnectUser_Request))
+		return srv.(VcnApiServer).ConnectUser(ctx, req.(*ConnectUser_Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _VpnApi_DeleteNamespace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteVpnNamespace_Request)
+func _VcnApi_DeleteNamespace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteVcnNamespace_Request)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(VpnApiServer).DeleteNamespace(ctx, in)
+		return srv.(VcnApiServer).DeleteNamespace(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: VpnApi_DeleteNamespace_FullMethodName,
+		FullMethod: VcnApi_DeleteNamespace_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VpnApiServer).DeleteNamespace(ctx, req.(*DeleteVpnNamespace_Request))
+		return srv.(VcnApiServer).DeleteNamespace(ctx, req.(*DeleteVcnNamespace_Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// VpnApi_ServiceDesc is the grpc.ServiceDesc for VpnApi service.
+// VcnApi_ServiceDesc is the grpc.ServiceDesc for VcnApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var VpnApi_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "velez_api.VpnApi",
-	HandlerType: (*VpnApiServer)(nil),
+var VcnApi_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "velez_api.VcnApi",
+	HandlerType: (*VcnApiServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "CreateNamespace",
-			Handler:    _VpnApi_CreateNamespace_Handler,
+			Handler:    _VcnApi_CreateNamespace_Handler,
 		},
 		{
 			MethodName: "ListNamespaces",
-			Handler:    _VpnApi_ListNamespaces_Handler,
+			Handler:    _VcnApi_ListNamespaces_Handler,
 		},
 		{
 			MethodName: "ConnectService",
-			Handler:    _VpnApi_ConnectService_Handler,
+			Handler:    _VcnApi_ConnectService_Handler,
 		},
 		{
 			MethodName: "ConnectUser",
-			Handler:    _VpnApi_ConnectUser_Handler,
+			Handler:    _VcnApi_ConnectUser_Handler,
 		},
 		{
 			MethodName: "DeleteNamespace",
-			Handler:    _VpnApi_DeleteNamespace_Handler,
+			Handler:    _VcnApi_DeleteNamespace_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

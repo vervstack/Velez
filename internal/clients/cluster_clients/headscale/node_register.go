@@ -10,21 +10,12 @@ import (
 )
 
 func (s *Client) RegisterNode(ctx context.Context, req domain.RegisterVcnNodeReq) error {
-	//region Dto
-	type reqBody struct {
-		Key      string
-		Username string `json:"user"`
-	}
-
-	//endregion
-
 	execOpts := container.ExecOptions{
 		Cmd: []string{
 			"headscale", "nodes", "register",
-			"--key", req.Key,
-			"--user", req.Username,
+			"-k", req.Key,
+			"-u", req.Username,
 		},
-		Detach: true,
 	}
 	_, err := s.docker.Exec(ctx, s.containerName, execOpts)
 	if err != nil {

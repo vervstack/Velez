@@ -8,9 +8,10 @@ export interface StyleProps {
 
 export interface InputProps {
     label?: string;
-    onChange?: (v: string) => void;
+    onChange: (v: string) => void;
+    inputValue: string | null;
+
     onLeave?: (val: string) => void
-    inputValue?: string | null;
 
     style?: StyleProps
 }

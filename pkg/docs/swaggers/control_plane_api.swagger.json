@@ -401,7 +401,6 @@
       "enum": [
         "unknown_service_type",
         "matreshka",
-        "svarog",
         "makosh",
         "webserver",
         "headscale",

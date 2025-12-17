@@ -16,11 +16,10 @@ export default function VervClosedNetworkPage() {
     return (
         <div className={cls.VcnPageContainer}>
             <div className={cls.QuickActions}>
-                <div className={cls.Action}
+                <div
+                    className={cls.Action}
                      onClick={() => setDialogType(DialogType.RegisterUser)}
-                >Connect new
-                </div>
-
+                >Connect new user</div>
             </div>
 
             <div className={cn(cls.Dialog, {

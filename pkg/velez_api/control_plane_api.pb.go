@@ -28,10 +28,9 @@ type VervServiceType int32
 const (
 	VervServiceType_unknown_service_type VervServiceType = 0
 	VervServiceType_matreshka            VervServiceType = 1
-	VervServiceType_svarog               VervServiceType = 2
-	VervServiceType_makosh               VervServiceType = 4
+	VervServiceType_makosh               VervServiceType = 2
 	VervServiceType_webserver            VervServiceType = 3
-	VervServiceType_headscale            VervServiceType = 6
+	VervServiceType_headscale            VervServiceType = 4
 	VervServiceType_portainer            VervServiceType = 5
 )
 
@@ -40,19 +39,17 @@ var (
 	VervServiceType_name = map[int32]string{
 		0: "unknown_service_type",
 		1: "matreshka",
-		2: "svarog",
-		4: "makosh",
+		2: "makosh",
 		3: "webserver",
-		6: "headscale",
+		4: "headscale",
 		5: "portainer",
 	}
 	VervServiceType_value = map[string]int32{
 		"unknown_service_type": 0,
 		"matreshka":            1,
-		"svarog":               2,
-		"makosh":               4,
+		"makosh":               2,
 		"webserver":            3,
-		"headscale":            6,
+		"headscale":            4,
 		"portainer":            5,
 	}
 )
@@ -525,16 +522,14 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\fConnectSlave\x1a\t\n" +
 	"\aRequest\x1a\n" +
 	"\n" +
-	"\bResponse*\x7f\n" +
+	"\bResponse*s\n" +
 	"\x0fVervServiceType\x12\x18\n" +
 	"\x14unknown_service_type\x10\x00\x12\r\n" +
 	"\tmatreshka\x10\x01\x12\n" +
 	"\n" +
-	"\x06svarog\x10\x02\x12\n" +
-	"\n" +
-	"\x06makosh\x10\x04\x12\r\n" +
+	"\x06makosh\x10\x02\x12\r\n" +
 	"\twebserver\x10\x03\x12\r\n" +
-	"\theadscale\x10\x06\x12\r\n" +
+	"\theadscale\x10\x04\x12\r\n" +
 	"\tportainer\x10\x052\x84\x03\n" +
 	"\x0fControlPlaneAPI\x12v\n" +
 	"\fListServices\x12\x1f.velez_api.ListServices.Request\x1a .velez_api.ListServices.Response\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/control_plane/services\x12\x86\x01\n" +

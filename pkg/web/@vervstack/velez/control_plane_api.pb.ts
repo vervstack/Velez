@@ -12,7 +12,6 @@ import * as VelezApiVelezApi from "./velez_api.pb";
 export enum VervServiceType {
   unknown_service_type = "unknown_service_type",
   matreshka = "matreshka",
-  svarog = "svarog",
   makosh = "makosh",
   webserver = "webserver",
   headscale = "headscale",

@@ -55,11 +55,10 @@ message Service  {
 enum VervServiceType {
   unknown_service_type = 0;
   matreshka = 1;
-  svarog = 2;
-  makosh = 4;
+  makosh = 2;
 
   webserver = 3;
-  headscale = 6;
+  headscale = 4;
 
   portainer = 5;
 }

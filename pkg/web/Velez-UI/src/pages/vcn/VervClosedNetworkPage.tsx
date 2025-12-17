@@ -35,8 +35,7 @@ export default function VervClosedNetworkPage() {
                 <div
                     className={cls.CloseButton}
                     onClick={() => setDialogType(null)}
-                >X
-                </div>
+                >X</div>
             </div>
         </div>
     )

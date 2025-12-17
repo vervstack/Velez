@@ -13,7 +13,7 @@ import (
 	"go.vervstack.ru/Velez/internal/cluster/configuration"
 	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/cluster/service_discovery"
-	"go.vervstack.ru/Velez/internal/cluster/verv_private_network"
+	"go.vervstack.ru/Velez/internal/cluster/verv_closed_network"
 	"go.vervstack.ru/Velez/internal/config"
 )
 
@@ -33,7 +33,7 @@ func Setup(ctx context.Context, cfg config.Config, nodeClients node_clients.Node
 	// 1. Single node - docker network (❌not implemented)
 	// 2. Multi node Tailscale - using 3rd party service (❌not implemented)
 	// 3. Multi node - using headscale setup (⚠️ in development)
-	vcnClient, err := verv_private_network.LaunchHeadscale(ctx, cfg, nodeClients)
+	vcnClient, err := verv_closed_network.LaunchHeadscale(ctx, cfg, nodeClients)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error during vpn server client initialization")
 	}

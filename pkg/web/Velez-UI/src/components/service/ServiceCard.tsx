@@ -92,7 +92,8 @@ export default function ServiceCard({
             </div>
 
             <div className={cls.ActivityPoint}>
-                <ActivityPoint isInactive={disabled}/>
+                <ActivityPoint
+                    isInactive={disabled}/>
             </div>
         </div>
     )

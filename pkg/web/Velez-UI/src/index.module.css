@@ -31,6 +31,13 @@ root, body {
     --action-button-size: 1.75em;
 }
 
+
+:root {
+    --ping-unknown: rgb(243, 204, 24);
+    --ping-health: rgb(48, 138, 35);
+    --ping-disabled: rgb(177, 26, 53);
+}
+
 /*TODO: DO FOR different screen sizes*/
 * {
     font-size: 16px;

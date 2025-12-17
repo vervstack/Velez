@@ -11,21 +11,21 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
-func (s *Client) CreateNamespace(ctx context.Context, name string) (domain.VpnNamespace, error) {
+func (s *Client) CreateNamespace(ctx context.Context, name string) (domain.VcnNamespace, error) {
 	//region Dto
 	type reqBody struct {
 		Name string `json:"name"`
 	}
 
 	type response struct {
-		User domain.VpnNamespace
+		User domain.VcnNamespace
 	}
 	//endregion
 
 	r := reqBody{Name: name}
 	apiResp, err := s.doApiRequest(ctx, http.MethodPost, userUri, r)
 	if err != nil {
-		return domain.VpnNamespace{}, rerrors.Wrap(err, "error creating namespace")
+		return domain.VcnNamespace{}, rerrors.Wrap(err, "error creating namespace")
 	}
 
 	if apiResp.StatusCode == http.StatusOK {
@@ -37,12 +37,12 @@ func (s *Client) CreateNamespace(ctx context.Context, name string) (domain.VpnNa
 
 	err = json.NewDecoder(apiResp.Body).Decode(&e)
 	if err != nil {
-		return domain.VpnNamespace{}, rerrors.Wrap(err, "error decoding error response")
+		return domain.VcnNamespace{}, rerrors.Wrap(err, "error decoding error response")
 	}
 
 	if e.isUniqueError() {
-		return domain.VpnNamespace{}, rerrors.NewUserError("namespace already exists", codes.AlreadyExists)
+		return domain.VcnNamespace{}, rerrors.NewUserError("namespace already exists", codes.AlreadyExists)
 	}
 
-	return domain.VpnNamespace{}, rerrors.Wrap(e)
+	return domain.VcnNamespace{}, rerrors.Wrap(e)
 }

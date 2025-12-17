@@ -62,19 +62,23 @@ func (d disabledConfigurator) SubscribeOnChanges(_ context.Context, _ ...grpc.Ca
 type disabledVpn struct {
 }
 
+func (d disabledVpn) GetClientAuthKey(ctx context.Context, req domain.GetVcnAuthKeyReq) (domain.VcnAuthKey, error) {
+	return domain.VcnAuthKey{}, ErrServiceIsDisabled
+}
+
 func (d disabledVpn) RegisterNode(ctx context.Context, req domain.RegisterVcnNodeReq) error {
 	return ErrServiceIsDisabled
 }
 
-func (d disabledVpn) GetNamespace(ctx context.Context, name string) (domain.VpnNamespace, error) {
-	return domain.VpnNamespace{}, ErrServiceIsDisabled
+func (d disabledVpn) GetNamespace(ctx context.Context, name string) (domain.VcnNamespace, error) {
+	return domain.VcnNamespace{}, ErrServiceIsDisabled
 }
 
-func (d disabledVpn) CreateNamespace(_ context.Context, name string) (domain.VpnNamespace, error) {
-	return domain.VpnNamespace{}, ErrServiceIsDisabled
+func (d disabledVpn) CreateNamespace(_ context.Context, name string) (domain.VcnNamespace, error) {
+	return domain.VcnNamespace{}, ErrServiceIsDisabled
 }
 
-func (d disabledVpn) ListNamespaces(_ context.Context) ([]domain.VpnNamespace, error) {
+func (d disabledVpn) ListNamespaces(_ context.Context) ([]domain.VcnNamespace, error) {
 	return nil, ErrServiceIsDisabled
 }
 
@@ -82,7 +86,7 @@ func (d disabledVpn) DeleteNamespace(_ context.Context, id string) error {
 	return ErrServiceIsDisabled
 }
 
-func (d disabledVpn) IssueClientKey(_ context.Context, namespace string) (string, error) {
+func (d disabledVpn) IssueClientKey(_ context.Context, namespace domain.IssueClientKey) (string, error) {
 	return "", ErrServiceIsDisabled
 }
 

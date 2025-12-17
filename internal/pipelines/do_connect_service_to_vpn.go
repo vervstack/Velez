@@ -32,8 +32,8 @@ func ConnectServiceToVpn(req domain.ConnectServiceToVcn,
 	var loginServer string
 	var namespaceId string
 
-	containerName := req.ServiceName + "-ts-sidecar"
-	hostname := strings.ReplaceAll(req.ServiceName+"-ts-sidecar", "_", "-")
+	containerName := req.ServiceName + "-" + patterns.TailscaleSidecarSuffix
+	hostname := strings.ReplaceAll(containerName, "_", "-")
 
 	//endregion
 
@@ -41,10 +41,9 @@ func ConnectServiceToVpn(req domain.ConnectServiceToVcn,
 		Steps: []steps.Step{
 			network_steps.CheckSidecarExist(nc, containerName),
 			network_steps.PrepareNamespace(vpnClient, &req.ServiceName, &namespaceId),
-			network_steps.IssueClientKey(vpnClient, &namespaceId, &clientKey),
+			network_steps.GetClientKey(vpnClient, &namespaceId, &clientKey),
 			network_steps.GetLoginServerUrl(&loginServer),
 			steps.SingleFunc(func(_ context.Context) error {
-				//TODO Change onto ENV variables
 				launchContainer.Env = append(launchContainer.Env,
 					"TS_HOSTNAME="+hostname,
 					"TS_AUTHKEY="+clientKey,

@@ -36,7 +36,7 @@ func Portainer() *velez_api.CreateSmerd_Request {
 			//},
 		},
 		Labels: map[string]string{
-			labels.CreatedWithVelezLabel: "true",
+			labels.VervServiceLabel: "true",
 		},
 	}
 }

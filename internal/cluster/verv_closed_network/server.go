@@ -1,7 +1,8 @@
-package verv_private_network
+package verv_closed_network
 
 import (
 	"context"
+	_ "embed"
 	"path"
 	"time"
 
@@ -19,28 +20,50 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster/env/container_service_task"
 	"go.vervstack.ru/Velez/internal/config"
+	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/pipelines"
 )
 
-type tailscaleLauncher struct {
+const (
+	Name = "headscale"
+
+	groupName         = "verv_private_network"
+	defaultImage      = "headscale/headscale:0.27.2-rc.1"
+	defaultPort       = nat.Port("8080/tcp")
+	derpPort          = nat.Port("3478/tcp")
+	defaultConfigPath = "/etc/headscale/config.yaml"
+)
+
+var (
+	//go:embed config.yaml
+	defaultConfig []byte
+)
+
+type headscaleLauncher struct {
 	ctx context.Context
 	cfg config.Config
 
 	clients node_clients.NodeClients
 }
 
-// LaunchTailscale creates a tailscale container - client for vpn
-func LaunchTailscale(
+// LaunchHeadscale creates a headscale containe to connect to
+func LaunchHeadscale(
 	ctx context.Context,
 	cfg config.Config,
-	clients node_clients.NodeClients,
+	nodeClients node_clients.NodeClients,
 ) (*headscale.Client, error) {
 
-	l := tailscaleLauncher{ctx, cfg, clients}
+	l := headscaleLauncher{ctx, cfg, nodeClients}
 
 	err := l.initVolume()
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error initiating volume for headscale")
+	}
+
+	err = l.copyConfigToVolume()
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error coping headscale config to volume")
 	}
 
 	err = l.startContainer()
@@ -48,7 +71,7 @@ func LaunchTailscale(
 		return nil, rerrors.Wrap(err, "error starting headscale container")
 	}
 
-	client, err := headscale.New(ctx, clients, Name)
+	client, err := headscale.New(ctx, nodeClients, Name)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error creating headscale client")
 	}
@@ -56,11 +79,12 @@ func LaunchTailscale(
 	return client, nil
 }
 
-func (l tailscaleLauncher) initVolume() error {
+func (l headscaleLauncher) initVolume() error {
 	apiClient := l.clients.Docker().Client()
 
 	req := volume.CreateOptions{
-		Name: Name,
+		// TODO add cluster name
+		Name: Name + "-",
 		Labels: map[string]string{
 			labels.VervServiceLabel:  "true",
 			labels.ComposeGroupLabel: groupName,
@@ -75,13 +99,31 @@ func (l tailscaleLauncher) initVolume() error {
 	return nil
 }
 
-func (l tailscaleLauncher) startContainer() error {
+func (l headscaleLauncher) copyConfigToVolume() (err error) {
+	copyToVolumeReq := domain.CopyToVolumeRequest{
+		VolumeName: Name,
+		PathToFiles: map[string][]byte{
+			defaultConfigPath: defaultConfig,
+		},
+	}
+
+	runner := pipelines.NewCopyToVolumeRunner(l.clients, copyToVolumeReq)
+
+	err = runner.Run(l.ctx)
+	if err != nil {
+		return rerrors.Wrap(err, "error during to volume coping")
+	}
+
+	return nil
+}
+
+func (l headscaleLauncher) startContainer() error {
 	createContainerReq := container.CreateRequest{
 		Config: &container.Config{
-			// TODO add cluster name
-			Hostname: Name + "-",
+			Hostname: Name,
 			ExposedPorts: nat.PortSet{
 				defaultPort: struct{}{},
+				derpPort:    struct{}{},
 			},
 			Cmd: strslice.StrSlice{"serve"},
 			Healthcheck: &container.HealthConfig{
@@ -91,7 +133,6 @@ func (l tailscaleLauncher) startContainer() error {
 			Image: rtb.Coalesce(l.cfg.Environment.VpnServerImage, defaultImage),
 
 			Labels: map[string]string{
-				labels.AutoUpgrade:      "true",
 				labels.VervServiceLabel: "true",
 			},
 		},
@@ -116,6 +157,12 @@ func (l tailscaleLauncher) startContainer() error {
 	createContainerReq.HostConfig.PortBindings[defaultPort] = []nat.PortBinding{
 		{
 			HostPort: "8080",
+		},
+	}
+
+	createContainerReq.HostConfig.PortBindings[derpPort] = []nat.PortBinding{
+		{
+			HostPort: "3478",
 		},
 	}
 

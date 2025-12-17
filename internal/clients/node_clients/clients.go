@@ -5,7 +5,9 @@ import (
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/image"
+	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
+	ocispec "github.com/opencontainers/image-spec/specs-go/v1"
 
 	"go.vervstack.ru/Velez/internal/clients/node_clients/state"
 	"go.vervstack.ru/Velez/pkg/velez_api"
@@ -19,6 +21,8 @@ type Docker interface {
 	Exec(ctx context.Context, contId string, options container.ExecOptions) ([]byte, error)
 
 	Client() client.APIClient
+
+	ContainerCreate(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, networkingConfig *network.NetworkingConfig, platform *ocispec.Platform, containerName string) (container.CreateResponse, error)
 }
 
 type PortManager interface {

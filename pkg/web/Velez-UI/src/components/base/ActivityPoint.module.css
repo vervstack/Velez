@@ -6,16 +6,16 @@
 }
 
 .unknown {
-    background-color: yellow;
+    background-color: var(--ping-unknown);
 }
 
 .active {
-    background-color: green;
+    background-color: var(--ping-health);
     animation: blink 1.5s infinite ease-in-out;
 }
 
 .inactive {
-    background-color: black;
+    background-color: var(--ping-disabled);
     cursor: not-allowed;
 }
 

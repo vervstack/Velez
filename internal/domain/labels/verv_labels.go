@@ -5,6 +5,8 @@ import (
 )
 
 const (
+	// CreatedWithVelezLabel - helps Velez identify it's owns containers.
+	// Set by default when using docker.Docker
 	CreatedWithVelezLabel = "CREATED_WITH_VELEZ"
 	VervServiceLabel      = "VERV_SERVICE"
 	MatreshkaConfigLabel  = "MATRESHKA_CONFIG_ENABLED"

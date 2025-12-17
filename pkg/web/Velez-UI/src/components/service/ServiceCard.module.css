@@ -103,9 +103,12 @@
     transform: translateY(50%);
     background: var(--main-bg-color);
 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
     img {
-        width: 80%;
-        height: 80%;
+        width: 100%;
     }
 }
 

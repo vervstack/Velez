@@ -22,8 +22,8 @@ import (
 type TaskV2 struct {
 	container container.CreateRequest
 
-	docker    node_clients.Docker
-	dockerAPI client.APIClient
+	dockerClient node_clients.Docker
+	dockerAPI    client.APIClient
 
 	containerState *container.InspectResponse
 }
@@ -41,15 +41,15 @@ func NewTaskV2(docker node_clients.Docker, ctr container.CreateRequest) (*TaskV2
 	ctr.NetworkingConfig = rtb.Coalesce(ctr.NetworkingConfig, &network.NetworkingConfig{})
 
 	return &TaskV2{
-		container: ctr,
-		docker:    docker,
-		dockerAPI: docker.Client(),
+		container:    ctr,
+		dockerClient: docker,
+		dockerAPI:    docker.Client(),
 	}, nil
 }
 
 func (t *TaskV2) Start() error {
 	ctx := context.Background()
-	cont, err := t.dockerAPI.ContainerCreate(ctx,
+	cont, err := t.dockerClient.ContainerCreate(ctx,
 		t.container.Config,
 		t.container.HostConfig,
 		t.container.NetworkingConfig,
@@ -104,7 +104,7 @@ func (t *TaskV2) IsAlive() bool {
 func (t *TaskV2) Kill() error {
 	ctx := context.Background()
 
-	err := t.docker.Remove(ctx, t.container.Hostname)
+	err := t.dockerClient.Remove(ctx, t.container.Hostname)
 	if err != nil {
 		if !strings.Contains(err.Error(), docker.NoSuchContainerError) {
 			return rerrors.Wrap(err, "error dropping result")

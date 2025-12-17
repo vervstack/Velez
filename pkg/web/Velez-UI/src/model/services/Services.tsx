@@ -3,6 +3,8 @@ import {VervServiceType, CreateSmerdRequest} from "@vervstack/velez"
 import MatreshkaIcon from "@/assets/icons/services/matreshka.png";
 import MakoshIcon from "@/assets/icons/services/makosh.png";
 import PortainerIcon from "@/assets/icons/services/portainer.svg";
+import HeadscaleIcon from "@/assets/icons/services/headscale.svg";
+import AngieIcon from "@/assets/icons/services/angie.png";
 
 import UnknownServiceIcon from "@/assets/icons/unknown.svg";
 
@@ -44,23 +46,29 @@ const metaByType = new Map<VervServiceType, ServiceMeta>();
 metaByType.set(VervServiceType.makosh, {
     title: "Makosh",
     icon: MakoshIcon,
-    description: `Verv Standard service discovery inside cluster`
+    description: `Verv's Standard service discovery inside cluster`
 });
 metaByType.set(VervServiceType.matreshka, {
     title: "Matreshka",
     icon: MatreshkaIcon,
-    description: `Verv Standard configuration system`
+    description: `Verv's Standard configuration system`
 });
 metaByType.set(VervServiceType.portainer, {
     title: "Portainer",
     icon: PortainerIcon,
     description: `Docker engine web interface`
 });
-// metaByType.set(ServiceType.webserver, {
-//     title: "Angie (WebServer)",
-//     icon: <MatreshkaIcon/>,
-//     description: ``
-// });
+metaByType.set(VervServiceType.headscale, {
+    title: "Headscale",
+    icon: HeadscaleIcon,
+    description: `Verv's default private network manager.`
+})
+
+metaByType.set(VervServiceType.webserver, {
+    title: "Angie (WebServer)",
+    icon: AngieIcon,
+    description: `Cluster entrypoint`
+});
 
 
 export function getLinkToPort(port: number): string {

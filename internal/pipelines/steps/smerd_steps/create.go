@@ -18,8 +18,8 @@ import (
 )
 
 type createSmerdStep struct {
-	docker    node_clients.Docker
-	dockerAPI client.APIClient
+	dockerClient    node_clients.Docker
+	dockerDirectApi client.APIClient
 
 	req         *domain.LaunchSmerd
 	containerId *string
@@ -30,10 +30,10 @@ func Create(nodeClients node_clients.NodeClients,
 	containerId *string,
 ) *createSmerdStep {
 	return &createSmerdStep{
-		docker:      nodeClients.Docker(),
-		dockerAPI:   nodeClients.Docker().Client(),
-		req:         req,
-		containerId: containerId,
+		dockerClient:    nodeClients.Docker(),
+		dockerDirectApi: nodeClients.Docker().Client(),
+		req:             req,
+		containerId:     containerId,
 	}
 }
 
@@ -45,12 +45,12 @@ func (s *createSmerdStep) Do(ctx context.Context) error {
 
 	contName := s.req.GetName()
 
-	createdContainer, err := s.dockerAPI.ContainerCreate(ctx, cfg, hCfg, nCfg, pCfg, contName)
+	createdContainer, err := s.dockerClient.ContainerCreate(ctx, cfg, hCfg, nCfg, pCfg, contName)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating container")
 	}
 
-	containerInfo, err := s.dockerAPI.ContainerInspect(ctx, createdContainer.ID)
+	containerInfo, err := s.dockerDirectApi.ContainerInspect(ctx, createdContainer.ID)
 	if err != nil {
 		return rerrors.Wrap(err, "error inspecting container by id")
 	}
@@ -63,7 +63,7 @@ func (s *createSmerdStep) Do(ctx context.Context) error {
 			ContId:      createdContainer.ID,
 			Aliases:     n.Aliases,
 		}
-		err = dockerutils.ConnectToNetwork(ctx, s.dockerAPI, connectReq)
+		err = dockerutils.ConnectToNetwork(ctx, s.dockerDirectApi, connectReq)
 		if err != nil {
 			return rerrors.Wrap(err)
 		}
@@ -77,7 +77,7 @@ func (s *createSmerdStep) Rollback(ctx context.Context) error {
 		return nil
 	}
 
-	err := s.docker.Remove(ctx, *s.containerId)
+	err := s.dockerClient.Remove(ctx, *s.containerId)
 	if err != nil {
 		if !errdefs.IsNotFound(err) {
 			return rerrors.Wrapf(err, "error removing container '%s'", *s.containerId)

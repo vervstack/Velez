@@ -24,11 +24,12 @@ type ServiceDiscovery interface {
 }
 
 type VervClosedNetworkClient interface {
-	CreateNamespace(ctx context.Context, name string) (domain.VpnNamespace, error)
-	GetNamespace(ctx context.Context, name string) (domain.VpnNamespace, error)
-	ListNamespaces(ctx context.Context) ([]domain.VpnNamespace, error)
+	CreateNamespace(ctx context.Context, name string) (domain.VcnNamespace, error)
+	GetNamespace(ctx context.Context, name string) (domain.VcnNamespace, error)
+	ListNamespaces(ctx context.Context) ([]domain.VcnNamespace, error)
 	DeleteNamespace(ctx context.Context, id string) error
 
-	IssueClientKey(ctx context.Context, namespace string) (string, error)
+	GetClientAuthKey(ctx context.Context, req domain.GetVcnAuthKeyReq) (domain.VcnAuthKey, error)
+	IssueClientKey(ctx context.Context, req domain.IssueClientKey) (string, error)
 	RegisterNode(ctx context.Context, req domain.RegisterVcnNodeReq) error
 }

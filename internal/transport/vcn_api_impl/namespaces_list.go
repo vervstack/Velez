@@ -19,7 +19,7 @@ func (impl *Impl) ListNamespaces(ctx context.Context, _ *velez_api.ListVcnNamesp
 	return namespacesToPb(namespaces), nil
 }
 
-func namespacesToPb(namespaces []domain.VpnNamespace) *velez_api.ListVcnNamespaces_Response {
+func namespacesToPb(namespaces []domain.VcnNamespace) *velez_api.ListVcnNamespaces_Response {
 	resp := &velez_api.ListVcnNamespaces_Response{
 		Namespaces: make([]*velez_api.Namespace, 0, len(namespaces)),
 	}
@@ -31,7 +31,7 @@ func namespacesToPb(namespaces []domain.VpnNamespace) *velez_api.ListVcnNamespac
 	return resp
 }
 
-func namespaceToPb(ns domain.VpnNamespace) *velez_api.Namespace {
+func namespaceToPb(ns domain.VcnNamespace) *velez_api.Namespace {
 	return &velez_api.Namespace{
 		Id:   ns.Id,
 		Name: ns.Name,

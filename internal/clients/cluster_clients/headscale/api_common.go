@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"strings"
 
@@ -15,9 +16,16 @@ import (
 const authHeader = "Authorization"
 
 const (
-	userUri      = "/api/v1/user"
-	clientKeyUri = "/api/v1/preauthkey"
-	nodeUri      = "/api/v1/node"
+	apiBase = "/api/v1"
+
+	userUri       = apiBase + "/user"
+	clientKeyUri  = apiBase + "/preauthkey"
+	nodeUri       = apiBase + "/node"
+	preAuthKeyUri = apiBase + "/preauthkey"
+)
+
+var (
+	ErrNotFound = rerrors.New("not found")
 )
 
 func (s *Client) doApiRequest(ctx context.Context, method string, uri string, req any) (*http.Response, error) {
@@ -44,6 +52,15 @@ func (s *Client) execApiRequest(r *http.Request) (*http.Response, error) {
 	}
 
 	return resp, nil
+}
+
+func (s *Client) handleError(resp *http.Response) error {
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return rerrors.Wrap(err, "error reading response body")
+	}
+
+	return rerrors.New("Unexpected status.", resp.Status, string(body))
 }
 
 type errorResp struct {

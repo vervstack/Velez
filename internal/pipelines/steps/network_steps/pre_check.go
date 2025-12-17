@@ -33,8 +33,17 @@ func (s *checkSidecarExist) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error listing container")
 	}
 
-	if len(conts) != 0 {
+	if len(conts) == 0 {
+		return nil
+	}
+
+	if conts[0].State == "running" {
 		return rerrors.Wrap(steps.ErrAlreadyExists)
+	}
+
+	err = s.docker.Remove(ctx, conts[0].ID)
+	if err != nil {
+		return rerrors.Wrap(err, "error removing dead container")
 	}
 
 	return nil

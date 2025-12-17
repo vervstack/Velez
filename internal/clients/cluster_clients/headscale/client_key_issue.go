@@ -8,9 +8,11 @@ import (
 	"time"
 
 	"go.redsock.ru/rerrors"
+
+	"go.vervstack.ru/Velez/internal/domain"
 )
 
-func (s *Client) IssueClientKey(ctx context.Context, namespaceId string) (string, error) {
+func (s *Client) IssueClientKey(ctx context.Context, req domain.IssueClientKey) (string, error) {
 	// region Request body
 	type reqBody struct {
 		NamespaceId string    `json:"user"`
@@ -30,7 +32,8 @@ func (s *Client) IssueClientKey(ctx context.Context, namespaceId string) (string
 	//endregion
 
 	r := reqBody{
-		NamespaceId: namespaceId,
+		NamespaceId: req.NamespaceId,
+		Reusable:    req.Reusable,
 		Expiration:  time.Now().Add(time.Hour),
 	}
 

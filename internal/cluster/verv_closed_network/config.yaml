@@ -15,15 +15,14 @@ prefixes:
 
 derp:
   server:
-    enabled: true
-    region_id: 999
-    region_code: local
-    region_name: "redsock-derp"
-    stun_listen_addr: "0.0.0.0:3478"
-    private_key_path: /var/lib/headscale/derp_private.key
+    enabled: false
+#    region_id: 999
+#    region_code: local
+#    region_name: "local-development"
+#    stun_listen_addr: "0.0.0.0:3478"
+#    private_key_path: /var/lib/headscale/derp_private.key
   urls:
     - https://controlplane.tailscale.com/derpmap/default
-
 disable_check_updates: false
 
 ephemeral_node_inactivity_timeout: 30m

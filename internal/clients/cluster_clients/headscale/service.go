@@ -19,10 +19,11 @@ func New(ctx context.Context, nc node_clients.NodeClients, containerName string)
 		docker:        nc.Docker(),
 		containerName: containerName,
 		// TODO change onto actual
-		headscaleApiUrl: "http://localhost:8080",
-
+		//headscaleApiUrl: "http://localhost:8080",
+		headscaleApiUrl: "https://vcn.redsock.ru",
 		// Remove
-		apiKey: "_ARnAyX.9BHTGPRGiAPeKhzYLJxNpQABtQUy23Qv",
+		//apiKey: "_ARnAyX.9BHTGPRGiAPeKhzYLJxNpQABtQUy23Qv",
+		apiKey: "v6h7IEa.vqf_q8lZTmBgphgMqfYP8Q6qKRrtW4K4",
 	}
 	//TODO return to live
 	//srv.apiKey, err = issueNewApiKey(ctx, docker, containerName)

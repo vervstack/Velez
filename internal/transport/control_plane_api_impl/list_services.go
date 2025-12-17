@@ -8,6 +8,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/cluster/configuration"
 	"go.vervstack.ru/Velez/internal/cluster/service_discovery"
+	"go.vervstack.ru/Velez/internal/cluster/verv_closed_network"
 	"go.vervstack.ru/Velez/internal/patterns"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
@@ -36,6 +37,8 @@ func (impl *Impl) ListServices(ctx context.Context, _ *velez_api.ListServices_Re
 		case patterns.PortainerServiceName:
 			srv.Type = velez_api.VervServiceType_portainer
 			srv.Port = getPort(smerd.Ports)
+		case verv_closed_network.Name:
+			srv.Type = velez_api.VervServiceType_headscale
 		default:
 			continue
 		}
@@ -95,7 +98,6 @@ func listInactiveServices(enabledServices []*velez_api.Service) []*velez_api.Ser
 var (
 	supportedServicesMapConstructors = map[velez_api.VervServiceType]func() *velez_api.CreateSmerd_Request{
 		velez_api.VervServiceType_matreshka: nil,
-		velez_api.VervServiceType_svarog:    nil,
 		velez_api.VervServiceType_makosh:    nil,
 
 		velez_api.VervServiceType_headscale: nil,

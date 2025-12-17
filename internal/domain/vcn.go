@@ -1,6 +1,6 @@
 package domain
 
-type VpnNamespace struct {
+type VcnNamespace struct {
 	Id   string
 	Name string
 }
@@ -16,4 +16,18 @@ type ConnectServiceToVcn struct {
 type RegisterVcnNodeReq struct {
 	Key      string
 	Username string
+}
+
+type GetVcnAuthKeyReq struct {
+	NamespaceId  string
+	ReusableOnly bool
+}
+
+type VcnAuthKey struct {
+	Key string
+}
+
+type IssueClientKey struct {
+	NamespaceId string
+	Reusable    bool
 }

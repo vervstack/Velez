@@ -14,8 +14,8 @@ import (
 )
 
 type createContainerStep struct {
-	docker    node_clients.Docker
-	dockerAPI client.APIClient
+	dockerClient node_clients.Docker
+	dockerAPI    client.APIClient
 
 	req         *container.CreateRequest
 	name        *string
@@ -30,18 +30,18 @@ func Create(
 	containerId *string,
 ) *createContainerStep {
 	return &createContainerStep{
-		docker:      nc.Docker(),
-		dockerAPI:   nc.Docker().Client(),
-		req:         req,
-		name:        name,
-		containerId: containerId,
+		dockerClient: nc.Docker(),
+		dockerAPI:    nc.Docker().Client(),
+		req:          req,
+		name:         name,
+		containerId:  containerId,
 	}
 }
 
 func (s *createContainerStep) Do(ctx context.Context) error {
 	pCfg := &v1.Platform{}
 
-	createdContainer, err := s.dockerAPI.ContainerCreate(ctx,
+	createdContainer, err := s.dockerClient.ContainerCreate(ctx,
 		s.req.Config,
 		s.req.HostConfig,
 		s.req.NetworkingConfig,
@@ -67,7 +67,7 @@ func (s *createContainerStep) Rollback(ctx context.Context) error {
 		return nil
 	}
 
-	err := s.docker.Remove(ctx, *s.containerId)
+	err := s.dockerClient.Remove(ctx, *s.containerId)
 	if err != nil {
 		if !errdefs.IsNotFound(err) {
 			return rerrors.Wrapf(err, "error removing container '%s'", *s.containerId)

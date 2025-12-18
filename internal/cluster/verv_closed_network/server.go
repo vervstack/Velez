@@ -2,42 +2,27 @@ package verv_closed_network
 
 import (
 	"context"
-	_ "embed"
-	"path"
 	"time"
 
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/mount"
-	"github.com/docker/docker/api/types/strslice"
-	"github.com/docker/docker/api/types/volume"
-	"github.com/docker/go-connections/nat"
+	errors "github.com/Red-Sock/trace-errors"
 	"github.com/sirupsen/logrus"
 	"go.redsock.ru/rerrors"
-	rtb "go.redsock.ru/toolbox"
+	"go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/keep_alive"
 
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/headscale"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster/env/container_service_task"
 	"go.vervstack.ru/Velez/internal/config"
-	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/internal/domain/labels"
-	"go.vervstack.ru/Velez/internal/pipelines"
+	headscalePatterns "go.vervstack.ru/Velez/internal/patterns/headscale"
+	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 const (
 	Name = "headscale"
 
 	groupName         = "verv_private_network"
-	defaultImage      = "headscale/headscale:0.27.2-rc.1"
-	defaultPort       = nat.Port("8080/tcp")
-	derpPort          = nat.Port("3478/tcp")
 	defaultConfigPath = "/etc/headscale/config.yaml"
-)
-
-var (
-	//go:embed config.yaml
-	defaultConfig []byte
 )
 
 type headscaleLauncher struct {
@@ -53,20 +38,21 @@ func LaunchHeadscale(
 	cfg config.Config,
 	nodeClients node_clients.NodeClients,
 ) (*headscale.Client, error) {
-
 	l := headscaleLauncher{ctx, cfg, nodeClients}
 
-	err := l.initVolume()
+	isRunning, err := l.isServiceRunning()
 	if err != nil {
-		return nil, rerrors.Wrap(err, "error initiating volume for headscale")
+		return nil, rerrors.Wrap(err, "error checking if headscale is running")
 	}
 
-	err = l.copyConfigToVolume()
-	if err != nil {
-		return nil, rerrors.Wrap(err, "error coping headscale config to volume")
+	if !isRunning {
+		err = l.deploy()
+		if err != nil {
+			return nil, rerrors.Wrap(err, "error deploying headscale")
+		}
 	}
 
-	err = l.startContainer()
+	err = l.createContainerTask()
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error starting headscale container")
 	}
@@ -79,92 +65,42 @@ func LaunchHeadscale(
 	return client, nil
 }
 
-func (l headscaleLauncher) initVolume() error {
-	apiClient := l.clients.Docker().Client()
+func (l headscaleLauncher) isServiceRunning() (bool, error) {
+	docker := l.clients.Docker()
 
-	req := volume.CreateOptions{
-		// TODO add cluster name
-		Name: Name + "-",
-		Labels: map[string]string{
-			labels.VervServiceLabel:  "true",
-			labels.ComposeGroupLabel: groupName,
-		},
+	listReq := &velez_api.ListSmerds_Request{
+		Limit: toolbox.ToPtr(uint32(1)),
+		Name:  toolbox.ToPtr(headscalePatterns.ServiceName),
 	}
 
-	_, err := apiClient.VolumeCreate(l.ctx, req)
+	conts, err := docker.ListContainers(l.ctx, listReq)
 	if err != nil {
-		return rerrors.Wrap(err, "error creating volume for headscale")
+		return false, rerrors.Wrap(err, "error listing containers")
 	}
 
+	if len(conts) == 0 {
+		return false, nil
+	}
+
+	if conts[0].State == "running" {
+		return true, nil
+	}
+
+	err = docker.Remove(l.ctx, conts[0].ID)
+	if err != nil {
+		return false, errors.Wrap(err, "error removing unhealthy container")
+	}
+
+	return false, nil
+}
+
+func (l headscaleLauncher) deploy() error {
 	return nil
 }
 
-func (l headscaleLauncher) copyConfigToVolume() (err error) {
-	copyToVolumeReq := domain.CopyToVolumeRequest{
-		VolumeName: Name,
-		PathToFiles: map[string][]byte{
-			defaultConfigPath: defaultConfig,
-		},
-	}
-
-	runner := pipelines.NewCopyToVolumeRunner(l.clients, copyToVolumeReq)
-
-	err = runner.Run(l.ctx)
-	if err != nil {
-		return rerrors.Wrap(err, "error during to volume coping")
-	}
-
-	return nil
-}
-
-func (l headscaleLauncher) startContainer() error {
-	createContainerReq := container.CreateRequest{
-		Config: &container.Config{
-			Hostname: Name,
-			ExposedPorts: nat.PortSet{
-				defaultPort: struct{}{},
-				derpPort:    struct{}{},
-			},
-			Cmd: strslice.StrSlice{"serve"},
-			Healthcheck: &container.HealthConfig{
-				Test: []string{"CMD", "headscale", "health"},
-			},
-
-			Image: rtb.Coalesce(l.cfg.Environment.VpnServerImage, defaultImage),
-
-			Labels: map[string]string{
-				labels.VervServiceLabel: "true",
-			},
-		},
-		HostConfig: &container.HostConfig{
-			Mounts: []mount.Mount{
-				{
-					Type:   mount.TypeVolume,
-					Source: Name,
-					Target: path.Dir(defaultConfigPath),
-				},
-				{
-					Type:   mount.TypeVolume,
-					Source: Name,
-					Target: "/var/lib/headscale",
-				},
-			},
-			PortBindings: map[nat.Port][]nat.PortBinding{},
-		},
-	}
-
-	// TODO implement exposure via config
-	createContainerReq.HostConfig.PortBindings[defaultPort] = []nat.PortBinding{
-		{
-			HostPort: "8080",
-		},
-	}
-
-	createContainerReq.HostConfig.PortBindings[derpPort] = []nat.PortBinding{
-		{
-			HostPort: "3478",
-		},
-	}
+func (l headscaleLauncher) createContainerTask() error {
+	//
+	createContainerReq := headscalePatterns.Headscale(headscalePatterns.Settings{})
 
 	taskConstructor, err := container_service_task.NewTaskV2(l.clients.Docker(), createContainerReq)
 	if err != nil {

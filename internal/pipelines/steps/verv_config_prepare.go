@@ -75,7 +75,7 @@ func (p *prepareVervConfig) Do(ctx context.Context) (err error) {
 	for name, val := range p.image.Config.Labels {
 		p.req.Labels[name] = val
 	}
-	
+
 	// Todo: Think about where to get group name
 	p.req.Labels[labels.ComposeGroupLabel] = p.req.GetName()
 	if p.req.AutoUpgrade {

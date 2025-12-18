@@ -7,6 +7,5 @@ import (
 )
 
 type DataSourcesConfig struct {
-	GrpcMatreshkaBe *resources.GRPC
-	GrpcMakosh      *resources.GRPC
+	Postgres *resources.Postgres
 }

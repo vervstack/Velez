@@ -2,6 +2,15 @@ app_info:
     name: go.vervstack.ru/Velez
     version: v0.1.88
     startup_duration: 10s
+data_sources:
+    - resource_name: postgres
+      migrations_folder: ./migrations
+      host: localhost
+      port: 5432
+      user: Velez
+      pwd: ""
+      name: Velez
+      ssl_mode: ""
 servers:
     53890:
         /{GRPC}:

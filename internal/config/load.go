@@ -15,6 +15,7 @@ type Config struct {
 	AppInfo matreshka.AppInfo
 
 	Servers     ServersConfig
+	DataSources DataSourcesConfig
 	Environment EnvironmentConfig
 	Overrides   matreshka.ServiceDiscovery
 
@@ -64,6 +65,10 @@ func Load() (Config, error) {
 	err = defaultConfig.MatreshkaConfig.Servers.ParseToStruct(&defaultConfig.Servers)
 	if err != nil {
 		return defaultConfig, rerrors.Wrap(err, "Error parsing servers to config")
+	}
+	err = defaultConfig.MatreshkaConfig.DataSources.ParseToStruct(&defaultConfig.DataSources)
+	if err != nil {
+		return defaultConfig, rerrors.Wrap(err, "error parsing data sources to struct")
 	}
 	err = defaultConfig.MatreshkaConfig.Environment.ParseToStruct(&defaultConfig.Environment)
 	if err != nil {

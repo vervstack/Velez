@@ -7,7 +7,6 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/service"
-	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 type Pipeliner interface {
@@ -24,15 +23,15 @@ type Pipeliner interface {
 	// image to a new version (latest or specified)
 	UpgradeSmerd(req domain.UpgradeSmerd) Runner[any]
 
-	// EnableVervService - enables verv built-in services like
-	// Matreshka, makosh, VPN with headscale and etc
-	// TODO implement
-	EnableVervService(req velez_api.VervServiceType) Runner[any]
-
 	// ConnectServiceToVpn - connects any user service to cluster vpn
 	ConnectServiceToVpn(vpn domain.ConnectServiceToVcn) Runner[any]
 
 	CopyToVolume(req domain.CopyToVolumeRequest) Runner[any]
+
+	// Built-in services
+
+	// EnableStateFull - deploys postgres and enables cluster mode
+	EnableStateFull() Runner[any]
 }
 
 type Runner[T any] interface {

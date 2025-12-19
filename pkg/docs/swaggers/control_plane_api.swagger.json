@@ -16,6 +16,38 @@
     "application/json"
   ],
   "paths": {
+    "/api/control_plane/service/enable": {
+      "post": {
+        "operationId": "ControlPlaneAPI_EnableService",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiEnableServiceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiEnableServiceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ControlPlaneAPI"
+        ]
+      }
+    },
     "/api/control_plane/services": {
       "get": {
         "operationId": "ControlPlaneAPI_ListServices",
@@ -33,38 +65,6 @@
             }
           }
         },
-        "tags": [
-          "ControlPlaneAPI"
-        ]
-      }
-    },
-    "/api/control_plane/services/enable": {
-      "post": {
-        "operationId": "ControlPlaneAPI_EnableServices",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/velez_apiEnableServicesResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/velez_apiEnableServicesRequest"
-            }
-          }
-        ],
         "tags": [
           "ControlPlaneAPI"
         ]
@@ -271,18 +271,15 @@
         }
       }
     },
-    "velez_apiEnableServicesRequest": {
+    "velez_apiEnableServiceRequest": {
       "type": "object",
       "properties": {
-        "services": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/velez_apiVervServiceType"
-          }
+        "service": {
+          "$ref": "#/definitions/velez_apiVervServiceType"
         }
       }
     },
-    "velez_apiEnableServicesResponse": {
+    "velez_apiEnableServiceResponse": {
       "type": "object"
     },
     "velez_apiListServicesResponse": {
@@ -404,7 +401,8 @@
         "makosh",
         "webserver",
         "headscale",
-        "portainer"
+        "portainer",
+        "cluster_mode"
       ],
       "default": "unknown_service_type"
     },

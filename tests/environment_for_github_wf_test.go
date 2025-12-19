@@ -7,7 +7,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	"go.vervstack.ru/Velez/internal/clients/docker"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
+
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
@@ -20,7 +21,7 @@ func initEnv() {
 		logrus.Fatalf("error connecting to test grpc server: %s ", err)
 	}
 
-	testEnvironment.velezAPI = velez_api.NewVelezAPIClient(conn)
+	testEnvironment.velezAp = velez_api.NewVelezAPIClient(conn)
 	testEnvironment.docker, err = docker.NewClient()
 	if err != nil {
 		logrus.Fatalf("error creating docker client: %s ", err)

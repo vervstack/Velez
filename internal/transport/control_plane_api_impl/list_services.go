@@ -104,6 +104,8 @@ var (
 
 		velez_api.VervServiceType_webserver: nil,
 		velez_api.VervServiceType_portainer: nil,
+
+		velez_api.VervServiceType_cluster_mode: nil,
 	}
 
 	togglableServices = map[velez_api.VervServiceType]struct{}{

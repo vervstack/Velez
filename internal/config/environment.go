@@ -21,6 +21,7 @@ type EnvironmentConfig struct {
 	MatreshkaKey       string
 	MatreshkaPort      int
 	MemorySwapMb       int
+	PgDsn              string
 	RAMMbDefault       int
 	ShutDownOnExit     bool
 	VpnClientImage     string

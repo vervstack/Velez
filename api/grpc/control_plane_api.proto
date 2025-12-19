@@ -17,9 +17,9 @@ service ControlPlaneAPI {
     };
   }
 
-  rpc EnableServices(EnableServices.Request) returns (EnableServices.Response) {
+  rpc EnableService(EnableService.Request) returns (EnableService.Response) {
     option (google.api.http) = {
-      post: "/api/control_plane/services/enable"
+      post: "/api/control_plane/service/enable"
       body: "*"
     };
   }
@@ -61,16 +61,23 @@ enum VervServiceType {
   headscale = 4;
 
   portainer = 5;
+
+  cluster_mode = 6;
 }
 
-message EnableServices {
+message EnableService {
   message Request {
-    repeated VervServiceType services = 1;
+    VervServiceType service = 1;
   }
 
   message Response {}
 }
 
+message InitMaster {
+  message Request{};
+
+  message Response{};
+}
 
 message ConnectSlave {
   message Request {}

@@ -1,10 +1,11 @@
-import {VervServiceType, CreateSmerdRequest} from "@vervstack/velez"
+import {VervServiceType} from "@vervstack/velez"
 
 import MatreshkaIcon from "@/assets/icons/services/matreshka.png";
 import MakoshIcon from "@/assets/icons/services/makosh.png";
 import PortainerIcon from "@/assets/icons/services/portainer.svg";
 import HeadscaleIcon from "@/assets/icons/services/headscale.svg";
 import AngieIcon from "@/assets/icons/services/angie.png";
+import DatabasePixelIcon from "@/assets/icons/services/database-pixel.svg";
 
 import UnknownServiceIcon from "@/assets/icons/unknown.svg";
 
@@ -13,12 +14,12 @@ export class Service {
     icon: string
     webLink?: string
     description: string
-    togglable: boolean = false
-
-    smerdConstructor?: CreateSmerdRequest
+    type: VervServiceType
 
     constructor(type: VervServiceType, port?: number) {
         const serviceMeta = metaByType.get(type);
+        this.type = type;
+
         if (!serviceMeta) {
             this.title = type.toString()
             this.icon = UnknownServiceIcon
@@ -70,6 +71,13 @@ metaByType.set(VervServiceType.webserver, {
     description: `Cluster entrypoint`
 });
 
+metaByType.set(VervServiceType.statefull_pg, {
+    title: "Stateful mode",
+    icon: DatabasePixelIcon,
+    description: `
+    Deploys a Postgres DB to enable stateful deployments and cluster joining. 
+    The Verv API remains operational even if the state is unavailable, avoiding a single point of failure.`
+});
 
 export function getLinkToPort(port: number): string {
     const {protocol, hostname} = window.location;

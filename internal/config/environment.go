@@ -4,6 +4,7 @@ package config
 
 type EnvironmentConfig struct {
 	AvailablePorts     []int
+	ClusterPgDsn       string
 	CPUDefault         float64
 	CustomPassToKey    string
 	DisableAPISecurity bool
@@ -21,7 +22,6 @@ type EnvironmentConfig struct {
 	MatreshkaKey       string
 	MatreshkaPort      int
 	MemorySwapMb       int
-	PgDsn              string
 	RAMMbDefault       int
 	ShutDownOnExit     bool
 	VpnClientImage     string

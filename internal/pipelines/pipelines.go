@@ -30,8 +30,8 @@ type Pipeliner interface {
 
 	// Built-in services
 
-	// EnableStateFull - deploys postgres and enables cluster mode
-	EnableStateFull() Runner[any]
+	// EnableStatefullMode - deploys postgres and enables cluster mode
+	EnableStatefullMode() Runner[any]
 }
 
 type Runner[T any] interface {

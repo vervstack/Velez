@@ -1,4 +1,9 @@
-import {ControlPlaneAPI, ListServicesRequest} from "@vervstack/velez";
+import {
+    ControlPlaneAPI,
+    ListServicesRequest,
+    EnableServiceRequest,
+    VervServiceType,
+} from "@vervstack/velez";
 
 import {toServices} from "@/processes/mappings/services.ts";
 
@@ -18,4 +23,13 @@ export async function ListServices(initReq: InitReq): Promise<CpServices> {
         active: toServices(list.services || []),
         inactive: toServices(list.inactiveServices || []),
     } as CpServices;
+}
+
+
+export async function EnableService(vervService: VervServiceType, initReq: InitReq): Promise<void> {
+    const req: EnableServiceRequest = {
+        service: vervService,
+    }
+
+    return ControlPlaneAPI.EnableService(req, initReq).then();
 }

@@ -6,7 +6,6 @@
  */
 
 import * as fm from "./fetch.pb";
-import * as VelezApiVelezApi from "./velez_api.pb";
 
 
 export enum VervServiceType {
@@ -16,7 +15,7 @@ export enum VervServiceType {
   webserver = "webserver",
   headscale = "headscale",
   portainer = "portainer",
-  cluster_mode = "cluster_mode",
+  statefull_pg = "statefull_pg",
 }
 
 export type ListServicesRequest = Record<string, never>;
@@ -31,8 +30,6 @@ export type ListServices = Record<string, never>;
 export type Service = {
   type?: VervServiceType;
   port?: number;
-  constructor?: VelezApiVelezApi.CreateSmerdRequest;
-  togglable?: boolean;
 };
 
 export type EnableServiceRequest = {

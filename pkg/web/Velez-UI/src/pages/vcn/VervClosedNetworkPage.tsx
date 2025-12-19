@@ -10,7 +10,6 @@ enum DialogType {
 }
 
 export default function VervClosedNetworkPage() {
-
     const [dialogType, setDialogType] = useState<DialogType | null>(null)
 
     return (

@@ -1,7 +1,4 @@
 import {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
-
-import {CreateSmerdRequest} from "@vervstack/velez"
 
 import cls from '@/pages/controlplane/ControlPlanePage.module.css';
 
@@ -9,9 +6,7 @@ import {ListServices} from "@/processes/api/control_plane.ts";
 import {Service} from "@/model/services/Services";
 import ServiceCard from "@/components/service/ServiceCard";
 import Loader from "@/components/Loader.tsx";
-import {Routes} from "@/app/router/Router.tsx";
 
-import {fromProto} from "@/model/smerds/Smerds.ts";
 import {useCredentialsStore} from "@/app/settings/creds.ts";
 
 export default function ControlPlanePage() {
@@ -21,14 +16,9 @@ export default function ControlPlanePage() {
     const [inactiveComponents, setInactiveComponents] =
         useState<Service[]>([]);
 
-    useEffect(() => {
-        console.log(123)
-    }, []);
-
     const [isLoading, setIsLoading] = useState(true)
 
     const credentialsStore = useCredentialsStore();
-    const navigate = useNavigate();
 
     useEffect(() => {
         setIsLoading(true)
@@ -36,7 +26,6 @@ export default function ControlPlanePage() {
             .then((r) => {
                 setActiveComponents(r.active)
                 setInactiveComponents(r.inactive)
-                console.log(421)
             })
             .then(() => setIsLoading(false))
     }, []);
@@ -49,17 +38,14 @@ export default function ControlPlanePage() {
         )
     }
 
-    function extractConstructor(constr: CreateSmerdRequest | undefined) {
-        if (constr == undefined) return
-
-        return () => {
-            navigate(Routes.Deploy, {state: {data: fromProto(constr)}})
-        }
-    }
-
-    function extractTogglable(smerd: Service): boolean {
-        return smerd.togglable
-    }
+    // TODO save for future use
+    // function extractConstructor(constr: CreateSmerdRequest | undefined) {
+    //     if (constr == undefined) return
+    //
+    //     return () => {
+    //         navigate(Routes.Deploy, {state: {data: fromProto(constr)}})
+    //     }
+    // }
 
     return (
         <div className={cls.ControlPlaneContainer}>
@@ -70,12 +56,14 @@ export default function ControlPlanePage() {
                             className={cls.ServiceCardWrapper}
                             key={v.title + idx}
                             onClick={() => {
-                                // TODO disabled for now. Use portainer
+                                // TODO when clicked will navigate to service's page
                                 // navigate(Routes.Smerd + '/' + v.title)
                             }}
 
                         >
-                            <ServiceCard disabled={false} {...v}/>
+                            <ServiceCard disabled={false}
+                                         {...v}
+                            />
                         </div>)
                 }
             </div>
@@ -88,10 +76,13 @@ export default function ControlPlanePage() {
                             key={v.title + idx}
                         >
                             <ServiceCard
-                                onClickConstructor={extractConstructor(v.smerdConstructor)}
-                                isTogglable={extractTogglable(v)}
+                                {...v}
                                 disabled={true}
-                                {...v}/>
+                                doRefresh={() => {
+                                    console.log(123)
+                                    window.location.reload()
+                                }}
+                            />
                         </div>)
                 }
             </div>

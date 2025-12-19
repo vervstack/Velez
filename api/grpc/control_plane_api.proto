@@ -47,9 +47,6 @@ message ListServices {
 message Service  {
   VervServiceType type = 1;
   optional uint32 port = 2;
-
-  optional CreateSmerd.Request constructor = 3;
-  bool togglable = 4;
 }
 
 enum VervServiceType {
@@ -62,7 +59,7 @@ enum VervServiceType {
 
   portainer = 5;
 
-  cluster_mode = 6;
+  statefull_pg = 6;
 }
 
 message EnableService {

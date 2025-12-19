@@ -64,7 +64,7 @@ environment:
     - name: memory_swap_mb
       type: int
       value: 50
-    - name: pg_dsn
+    - name: cluster_pg_dsn
       type: string
       value: ""
     - name: ram_mb_default

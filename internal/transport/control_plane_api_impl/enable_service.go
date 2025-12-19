@@ -18,8 +18,8 @@ func (impl *Impl) EnableService(ctx context.Context, req *pb.EnableService_Reque
 
 	var err error
 	switch req.GetService() {
-	case pb.VervServiceType_cluster_mode:
-		runner := impl.pipeliner.EnableStateFull()
+	case pb.VervServiceType_statefull_pg:
+		runner := impl.pipeliner.EnableStatefullMode()
 		err = runner.Run(ctx)
 	default:
 		return nil, rerrors.Wrap(errUnsupportedService)

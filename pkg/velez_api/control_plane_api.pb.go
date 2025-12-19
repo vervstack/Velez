@@ -32,7 +32,7 @@ const (
 	VervServiceType_webserver            VervServiceType = 3
 	VervServiceType_headscale            VervServiceType = 4
 	VervServiceType_portainer            VervServiceType = 5
-	VervServiceType_cluster_mode         VervServiceType = 6
+	VervServiceType_statefull_pg         VervServiceType = 6
 )
 
 // Enum value maps for VervServiceType.
@@ -44,7 +44,7 @@ var (
 		3: "webserver",
 		4: "headscale",
 		5: "portainer",
-		6: "cluster_mode",
+		6: "statefull_pg",
 	}
 	VervServiceType_value = map[string]int32{
 		"unknown_service_type": 0,
@@ -53,7 +53,7 @@ var (
 		"webserver":            3,
 		"headscale":            4,
 		"portainer":            5,
-		"cluster_mode":         6,
+		"statefull_pg":         6,
 	}
 )
 
@@ -124,8 +124,6 @@ type Service struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Type          VervServiceType        `protobuf:"varint,1,opt,name=type,proto3,enum=velez_api.VervServiceType" json:"type,omitempty"`
 	Port          *uint32                `protobuf:"varint,2,opt,name=port,proto3,oneof" json:"port,omitempty"`
-	Constructor   *CreateSmerd_Request   `protobuf:"bytes,3,opt,name=constructor,proto3,oneof" json:"constructor,omitempty"`
-	Togglable     bool                   `protobuf:"varint,4,opt,name=togglable,proto3" json:"togglable,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -172,20 +170,6 @@ func (x *Service) GetPort() uint32 {
 		return *x.Port
 	}
 	return 0
-}
-
-func (x *Service) GetConstructor() *CreateSmerd_Request {
-	if x != nil {
-		return x.Constructor
-	}
-	return nil
-}
-
-func (x *Service) GetTogglable() bool {
-	if x != nil {
-		return x.Togglable
-	}
-	return false
 }
 
 type EnableService struct {
@@ -617,14 +601,11 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\aRequest\x1a{\n" +
 	"\bResponse\x12.\n" +
 	"\bservices\x18\x01 \x03(\v2\x12.velez_api.ServiceR\bservices\x12?\n" +
-	"\x11inactive_services\x18\x02 \x03(\v2\x12.velez_api.ServiceR\x10inactiveServices\"\xd0\x01\n" +
+	"\x11inactive_services\x18\x02 \x03(\v2\x12.velez_api.ServiceR\x10inactiveServices\"[\n" +
 	"\aService\x12.\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x1a.velez_api.VervServiceTypeR\x04type\x12\x17\n" +
-	"\x04port\x18\x02 \x01(\rH\x00R\x04port\x88\x01\x01\x12E\n" +
-	"\vconstructor\x18\x03 \x01(\v2\x1e.velez_api.CreateSmerd.RequestH\x01R\vconstructor\x88\x01\x01\x12\x1c\n" +
-	"\ttogglable\x18\x04 \x01(\bR\ttogglableB\a\n" +
-	"\x05_portB\x0e\n" +
-	"\f_constructor\"\\\n" +
+	"\x04port\x18\x02 \x01(\rH\x00R\x04port\x88\x01\x01B\a\n" +
+	"\x05_port\"\\\n" +
 	"\rEnableService\x1a?\n" +
 	"\aRequest\x124\n" +
 	"\aservice\x18\x01 \x01(\x0e2\x1a.velez_api.VervServiceTypeR\aservice\x1a\n" +
@@ -647,7 +628,7 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\twebserver\x10\x03\x12\r\n" +
 	"\theadscale\x10\x04\x12\r\n" +
 	"\tportainer\x10\x05\x12\x10\n" +
-	"\fcluster_mode\x10\x062\x80\x03\n" +
+	"\fstatefull_pg\x10\x062\x80\x03\n" +
 	"\x0fControlPlaneAPI\x12v\n" +
 	"\fListServices\x12\x1f.velez_api.ListServices.Request\x1a .velez_api.ListServices.Response\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/control_plane/services\x12\x82\x01\n" +
 	"\rEnableService\x12 .velez_api.EnableService.Request\x1a!.velez_api.EnableService.Response\",\x82\xd3\xe4\x93\x02&:\x01*\"!/api/control_plane/service/enable\x12p\n" +
@@ -682,25 +663,23 @@ var file_control_plane_api_proto_goTypes = []any{
 	(*InitMaster_Response)(nil),    // 11: velez_api.InitMaster.Response
 	(*ConnectSlave_Request)(nil),   // 12: velez_api.ConnectSlave.Request
 	(*ConnectSlave_Response)(nil),  // 13: velez_api.ConnectSlave.Response
-	(*CreateSmerd_Request)(nil),    // 14: velez_api.CreateSmerd.Request
 }
 var file_control_plane_api_proto_depIdxs = []int32{
 	0,  // 0: velez_api.Service.type:type_name -> velez_api.VervServiceType
-	14, // 1: velez_api.Service.constructor:type_name -> velez_api.CreateSmerd.Request
-	2,  // 2: velez_api.ListServices.Response.services:type_name -> velez_api.Service
-	2,  // 3: velez_api.ListServices.Response.inactive_services:type_name -> velez_api.Service
-	0,  // 4: velez_api.EnableService.Request.service:type_name -> velez_api.VervServiceType
-	6,  // 5: velez_api.ControlPlaneAPI.ListServices:input_type -> velez_api.ListServices.Request
-	8,  // 6: velez_api.ControlPlaneAPI.EnableService:input_type -> velez_api.EnableService.Request
-	12, // 7: velez_api.ControlPlaneAPI.ConnectSlave:input_type -> velez_api.ConnectSlave.Request
-	7,  // 8: velez_api.ControlPlaneAPI.ListServices:output_type -> velez_api.ListServices.Response
-	9,  // 9: velez_api.ControlPlaneAPI.EnableService:output_type -> velez_api.EnableService.Response
-	13, // 10: velez_api.ControlPlaneAPI.ConnectSlave:output_type -> velez_api.ConnectSlave.Response
-	8,  // [8:11] is the sub-list for method output_type
-	5,  // [5:8] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	2,  // 1: velez_api.ListServices.Response.services:type_name -> velez_api.Service
+	2,  // 2: velez_api.ListServices.Response.inactive_services:type_name -> velez_api.Service
+	0,  // 3: velez_api.EnableService.Request.service:type_name -> velez_api.VervServiceType
+	6,  // 4: velez_api.ControlPlaneAPI.ListServices:input_type -> velez_api.ListServices.Request
+	8,  // 5: velez_api.ControlPlaneAPI.EnableService:input_type -> velez_api.EnableService.Request
+	12, // 6: velez_api.ControlPlaneAPI.ConnectSlave:input_type -> velez_api.ConnectSlave.Request
+	7,  // 7: velez_api.ControlPlaneAPI.ListServices:output_type -> velez_api.ListServices.Response
+	9,  // 8: velez_api.ControlPlaneAPI.EnableService:output_type -> velez_api.EnableService.Response
+	13, // 9: velez_api.ControlPlaneAPI.ConnectSlave:output_type -> velez_api.ConnectSlave.Response
+	7,  // [7:10] is the sub-list for method output_type
+	4,  // [4:7] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_control_plane_api_proto_init() }

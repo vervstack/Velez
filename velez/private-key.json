@@ -2,6 +2,6 @@
   "VelezKey": "c3QzOFRjbVRMdzlCWW5RZnlHSTlaTWJJVGNtUEdsdzlaaW9zYkVGQUN4QkxGZGo0NkFMMS9BQWZaSEFDSVdyUVhla3BnaEhLU01RWFBPV3IyUFJHQURVa3BaaVptcU1QUmF5R0lUY0RVZmx3QUN4VGNtcUwxL0FEVThWdjU3K1ppb1BCWW56L2ZsdzlaaW9zajRUNkIvQUN4cGdoSEtTR0lUY21xTDFMMS9WdjVzdDM4VnZKTDEvQUN4bHc5WkhL",
   "MatreshkaKey": "SGVndXlFa3FCZWdlZ2d1T0NHT2pDMkhJUDhNV1laNkhJaGlvWEhCVHBwWjZIZUY4Ti9PUmwrSlNVZmowTFF0OU4vb3NNWGFkRjhNV1laNkgyMExRdDlOL2d1ZHgzUEdPUk05NkhsK0hCVDQ3TVdGOGZOLzdiRWtiZWNFa3FCVHZQbWVndXljeDNQQWZqejZCVHBzNDdiMExlZ3V5T1JsKzBML2lucnZDR09ScHNYYVF0OU4vL0JUZWVnUG13MUNH",
   "HeadscaleKey": "",
-  "PgRootDsn": "postgresql://postgres:T1F1QUpTQzlwRUlh@localhost:25432/postgres?sslmode=disable",
+  "PgRootDsn": "postgresql://postgres:d3hSejFkZnF0@localhost:25432/postgres?sslmode=disable",
   "PgNodeDsn": "postgresql://icy_raccoon:d3hSejFkZnF0@localhost:25432/postgres?sslmode=disable"
 }

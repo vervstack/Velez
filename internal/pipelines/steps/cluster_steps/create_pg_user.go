@@ -1,11 +1,9 @@
 package cluster_steps
 
 import (
-	"bytes"
 	"context"
 	"database/sql"
-	_ "embed"
-	"text/template"
+	"fmt"
 
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog/log"
@@ -13,20 +11,6 @@ import (
 
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
 )
-
-var (
-	//go:embed templates/pg_create_user.pattern
-	createUserPattern string
-	createUserTmplt   = template.New("create-pg-user")
-)
-
-func init() {
-	var err error
-	createUserTmplt, err = createUserTmplt.Parse(createUserPattern)
-	if err != nil {
-		panic(rerrors.Wrap(err, "error parsing create user template"))
-	}
-}
 
 type createPgUserStep struct {
 	dsn *string
@@ -60,19 +44,12 @@ func (c *createPgUserStep) Do(ctx context.Context) error {
 		}
 	}()
 
-	buf := bytes.Buffer{}
-
-	err = createUserTmplt.Execute(&buf,
-		map[string]interface{}{
-			"username": c.nodeName,
-			"password": c.pwd,
-			"schema":   c.schema,
-		})
-	if err != nil {
-		return rerrors.Wrap(err, "error compiling create user template")
-	}
-
-	_, err = conn.Exec(buf.String())
+	_, err = conn.Exec(
+		fmt.Sprintf(`
+		CREATE USER %[1]s WITH PASSWORD '%[2]s';
+		
+		GRANT working_node TO %[1]s;
+`, c.nodeName, c.pwd, c.nodeName))
 	if err != nil {
 		return rerrors.Wrap(err, "error creating database user")
 	}

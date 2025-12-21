@@ -1,5 +1,20 @@
 -- +goose Up
 CREATE SCHEMA velez;
 
+CREATE ROLE working_node;
+
+ALTER ROLE working_node SET search_path TO velez;
+
+GRANT USAGE ON SCHEMA velez TO working_node;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA velez TO working_node;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA velez TO working_node;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA velez
+    GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO
+    working_node;
+ALTER DEFAULT PRIVILEGES IN SCHEMA velez
+    GRANT USAGE, SELECT ON SEQUENCES TO
+    working_node;
+
 -- +goose Down
 DROP SCHEMA velez;

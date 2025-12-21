@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"go.redsock.ru/rerrors"
-	"go.redsock.ru/toolbox"
 	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
 
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
@@ -29,11 +28,12 @@ func (p *pipeliner) EnableStatefullMode() Runner[any] {
 		pg_pattern.WithInstanceName(containerName),
 		pg_pattern.WithExposedPort(), // TODO make configurable via request
 		pg_pattern.WithPort(25432),
+		pg_pattern.WithPassword("d3hSejFkZnF0"), // TODO remove after debug
 	)
 
 	var containerId string
 	var rootDsn string
-	userPwd := string(toolbox.RandomBase64(12))
+	userPwd := "d3hSejFkZnF0" //string(toolbox.RandomBase64(12))
 	//var nodeDsn string
 
 	//endregion
@@ -44,11 +44,10 @@ func (p *pipeliner) EnableStatefullMode() Runner[any] {
 				p.nodeClients, &launchContainer.Pattern,
 				&containerName, &containerId),
 			smerd_steps.Start(p.nodeClients, &containerId),
-
 			cluster_steps.GetRgRootDsn(p.nodeClients.Docker(), &containerId, &rootDsn),
 			steps.SingleFunc(func(ctx context.Context) error {
+				// TODO Wait for healthy
 				time.Sleep(3 * time.Second)
-				// Wait for healthy
 				pgClusterState, err := state.NewPgStateManager(rootDsn)
 				if err != nil {
 					return rerrors.Wrap(err, "error initializing pgClusterState")
@@ -57,8 +56,8 @@ func (p *pipeliner) EnableStatefullMode() Runner[any] {
 				p.clusterClients.StateManager().Set(pgClusterState)
 				return nil
 			}),
-			cluster_steps.CreatePgUserForNode(&rootDsn,
-				schema, nodeName, userPwd),
+			cluster_steps.CreatePgUserForNode(
+				&rootDsn, schema, nodeName, userPwd),
 
 			steps.SingleFunc(func(ctx context.Context) error {
 				localStateManager := p.nodeClients.LocalStateManager()

@@ -20,3 +20,9 @@ func WithPort(port uint64) opt {
 		c.IsPortExposed = true
 	}
 }
+
+func WithPassword(pwd string) opt {
+	return func(c *Constructor) {
+		c.MatreshkaPg.Pwd = pwd
+	}
+}

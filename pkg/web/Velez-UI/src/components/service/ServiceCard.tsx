@@ -35,7 +35,9 @@ export default function ServiceCard(serviceProps: ServiceCardProps) {
             [cls.disabled]: serviceProps.disabled,
         })}>
             <div className={cls.CardContent}>
-                <div className={cls.CardTop}>
+                <div className={cn(cls.CardTop, {
+                    [cls.disabled]: serviceProps.disabled,
+                })}>
                     <div className={cls.ServiceIcon}>
                         <img src={serviceProps.icon} alt={serviceProps.icon}/>
                     </div>

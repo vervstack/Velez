@@ -11,6 +11,7 @@ require (
 	github.com/google/go-containerregistry v0.20.7
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3
 	github.com/jaypipes/ghw v0.20.0
+	github.com/jmoiron/sqlx v1.4.0
 	github.com/lib/pq v1.10.9
 	github.com/opencontainers/image-spec v1.1.1
 	github.com/pkg/errors v0.9.1
@@ -25,7 +26,7 @@ require (
 	go.redsock.ru/rerrors v0.0.5
 	go.redsock.ru/toolbox v0.0.11
 	go.vervstack.ru/makosh v0.0.16
-	go.vervstack.ru/matreshka v1.0.93
+	go.vervstack.ru/matreshka v1.0.94
 	golang.org/x/net v0.41.0
 	golang.org/x/sync v0.18.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250929231259-57b25ae835d4

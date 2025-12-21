@@ -13,6 +13,7 @@ type ClusterClients interface {
 	Configurator() Configurator
 	Vpn() VervClosedNetworkClient
 	ServiceDiscovery() ServiceDiscovery
+	StateManager() ClusterStateManagerContainer
 }
 
 type Configurator interface {
@@ -32,4 +33,12 @@ type VervClosedNetworkClient interface {
 	GetClientAuthKey(ctx context.Context, req domain.GetVcnAuthKeyReq) (domain.VcnAuthKey, error)
 	IssueClientKey(ctx context.Context, req domain.IssueClientKey) (string, error)
 	RegisterNode(ctx context.Context, req domain.RegisterVcnNodeReq) error
+}
+
+type ClusterStateManagerContainer interface {
+	Set(state ClusterStateManager)
+	ClusterStateManager
+}
+
+type ClusterStateManager interface {
 }

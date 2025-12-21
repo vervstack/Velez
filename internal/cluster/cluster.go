@@ -9,6 +9,7 @@ import (
 	headscaleClient "go.vervstack.ru/Velez/internal/clients/cluster_clients/headscale"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/makosh"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/matreshka"
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster/configuration"
 	"go.vervstack.ru/Velez/internal/cluster/env"
@@ -21,6 +22,7 @@ type clusterClients struct {
 	matreshka        matreshka.Client
 	serviceDiscovery *makosh.ServiceDiscovery
 	headscale        *headscaleClient.Client
+	stateManager     cluster_clients.ClusterStateManagerContainer
 }
 
 func Setup(ctx context.Context, cfg config.Config, nodeClients node_clients.NodeClients) (cluster_clients.ClusterClients, error) {
@@ -51,10 +53,18 @@ func Setup(ctx context.Context, cfg config.Config, nodeClients node_clients.Node
 		}
 	}
 
+	localStateManager := nodeClients.LocalStateManager()
+
+	stateManager, err := state.New(localStateManager.Get())
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error initializing cluster state manager")
+	}
+
 	return &clusterClients{
 		cfgClient,
 		sdClient,
 		vcnClient,
+		stateManager,
 	}, nil
 }
 
@@ -79,4 +89,8 @@ func (c *clusterClients) ServiceDiscovery() cluster_clients.ServiceDiscovery {
 	}
 
 	return c.serviceDiscovery
+}
+
+func (c *clusterClients) StateManager() cluster_clients.ClusterStateManagerContainer {
+	return c.stateManager
 }

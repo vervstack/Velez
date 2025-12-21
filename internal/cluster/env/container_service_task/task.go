@@ -15,6 +15,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
@@ -49,6 +50,12 @@ func NewTaskV2(docker node_clients.Docker, ctr container.CreateRequest) (*TaskV2
 
 func (t *TaskV2) Start() error {
 	ctx := context.Background()
+
+	_, err := dockerutils.PullImage(ctx, t.dockerAPI, t.container.Config.Image, false)
+	if err != nil {
+		return rerrors.Wrap(err, "error pulling image")
+	}
+
 	cont, err := t.dockerClient.ContainerCreate(ctx,
 		t.container.Config,
 		t.container.HostConfig,

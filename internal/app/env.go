@@ -11,7 +11,7 @@ import (
 func (c *Custom) saveSelfConfig(a *App) (err error) {
 	storeConfig := &matreshka_api.StoreConfig_Request{
 		Format:     matreshka_api.Format_yaml,
-		ConfigName: env.VelezName,
+		ConfigName: env.VelezConfigName(),
 		Config:     nil,
 	}
 

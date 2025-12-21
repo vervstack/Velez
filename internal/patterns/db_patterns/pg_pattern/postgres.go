@@ -1,73 +1,107 @@
 package pg_pattern
 
 import (
+	"strconv"
+
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
+	"github.com/docker/go-connections/nat"
 	rtb "go.redsock.ru/toolbox"
+	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
 
 	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
 const (
-	postgresImage = "postgres:18"
+	postgresImage       = "postgres:18"
+	DbEnvVariable       = "POSTGRES_DB"
+	UserEnvVariable     = "POSTGRES_USER"
+	PasswordEnvVariable = "POSTGRES_PASSWORD"
+
+	TcpPort = "5432/tcp"
 )
 
-type PostgresConstructor struct {
+type Constructor struct {
 	InstanceName  string
-	DatabaseName  string
-	User          string
-	Password      string
-	ExposedToPort *uint32
+	IsPortExposed bool
+	ExposedToPort *uint64
+
+	MatreshkaPg resources.Postgres
 }
 
-type PostgresPattern struct {
-	PostgresConstructor
+type Pattern struct {
+	Constructor
 
 	Pattern container.CreateRequest
 }
 
-func Postgres(opts ...opt) PostgresPattern {
+func Postgres(opts ...opt) Pattern {
 	c := basicPostgresConstructor()
 
 	for _, o := range opts {
 		o(&c)
 	}
 
-	return PostgresPattern{
-		Pattern: container.CreateRequest{
-			Config: &container.Config{
-				Image: postgresImage,
-				Env: []string{
-					"POSTGRES_DB=" + c.DatabaseName,
-					"POSTGRES_USER=" + c.User,
-					"POSTGRES_PASSWORD=" + c.Password,
-				},
-				Volumes: map[string]struct{}{
-					c.InstanceName: {},
-				},
-				Labels: map[string]string{
-					labels.ComposeGroupLabel: c.InstanceName,
-				},
+	createReq := container.CreateRequest{
+		Config: &container.Config{
+			Image: postgresImage,
+			Env: []string{
+				DbEnvVariable + "=" + c.MatreshkaPg.DbName,
+				UserEnvVariable + "=" + c.MatreshkaPg.User,
+				PasswordEnvVariable + "=" + c.MatreshkaPg.Pwd,
 			},
-			HostConfig: &container.HostConfig{
-				Mounts: []mount.Mount{
-					{
-						Type:   mount.TypeVolume,
-						Source: c.InstanceName,
-						Target: "/var/lib/postgresql",
-					},
+			Volumes: map[string]struct{}{
+				c.InstanceName: {},
+			},
+			Labels: map[string]string{
+				labels.ComposeGroupLabel: c.InstanceName,
+			},
+		},
+		HostConfig: &container.HostConfig{
+			Mounts: []mount.Mount{
+				{
+					Type:   mount.TypeVolume,
+					Source: c.InstanceName,
+					Target: "/var/lib/postgresql",
 				},
 			},
 		},
 	}
+
+	if c.IsPortExposed {
+		createReq.Config.ExposedPorts = map[nat.Port]struct{}{
+			TcpPort: {},
+		}
+
+		var hostPort string
+
+		if c.ExposedToPort != nil {
+			hostPort = strconv.FormatUint(*c.ExposedToPort, 10)
+		}
+
+		createReq.HostConfig.PortBindings = map[nat.Port][]nat.PortBinding{
+			TcpPort: {
+				{
+					HostPort: hostPort,
+				},
+			},
+		}
+	}
+
+	return Pattern{
+		Pattern: createReq,
+	}
 }
 
-func basicPostgresConstructor() PostgresConstructor {
-	return PostgresConstructor{
-		InstanceName:  "postgres",
-		DatabaseName:  "postgres",
-		User:          "postgres",
-		Password:      string(rtb.RandomBase64(16)),
+func basicPostgresConstructor() Constructor {
+	return Constructor{
+		InstanceName: "postgres",
+		MatreshkaPg: resources.Postgres{
+			DbName: "postgres",
+			User:   "postgres",
+			Pwd:    string(rtb.RandomBase64(16)),
+			Port:   5432,
+		},
 		ExposedToPort: nil,
 	}
 }

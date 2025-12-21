@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/errdefs"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
@@ -20,6 +21,8 @@ type createContainerStep struct {
 	req         *container.CreateRequest
 	name        *string
 	containerId *string
+
+	containerInfo container.InspectResponse
 }
 
 func Create(
@@ -52,12 +55,12 @@ func (s *createContainerStep) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error creating container")
 	}
 
-	containerInfo, err := s.dockerAPI.ContainerInspect(ctx, createdContainer.ID)
+	s.containerInfo, err = s.dockerAPI.ContainerInspect(ctx, createdContainer.ID)
 	if err != nil {
 		return rerrors.Wrap(err, "error inspecting container by id")
 	}
 
-	*s.containerId = containerInfo.ID
+	*s.containerId = s.containerInfo.ID
 
 	return nil
 }
@@ -71,6 +74,16 @@ func (s *createContainerStep) Rollback(ctx context.Context) error {
 	if err != nil {
 		if !errdefs.IsNotFound(err) {
 			return rerrors.Wrapf(err, "error removing container '%s'", *s.containerId)
+		}
+	}
+
+	for _, m := range s.containerInfo.Mounts {
+		if m.Type != mount.TypeVolume {
+			continue
+		}
+		err = s.dockerAPI.VolumeRemove(ctx, m.Name, false)
+		if err != nil {
+			return rerrors.Wrap(err, "error deleting volume")
 		}
 	}
 

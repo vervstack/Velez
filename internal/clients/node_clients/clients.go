@@ -45,6 +45,9 @@ type StateManager interface {
 	Set(st state.State)
 	Get() state.State
 
+	GetForUpdate() state.State
+	SetAndRelease(state state.State)
+
 	ValidateVelezPrivateKey(in string) bool
 }
 

@@ -21,12 +21,15 @@ type Manager struct {
 	state     State
 
 	sync.Once
+	m sync.RWMutex
 }
 
 type State struct {
 	VelezKey     string
 	MatreshkaKey string
 	HeadscaleKey string
+	PgRootDsn    string
+	PgNodeDsn    string
 }
 
 func NewSecurityManager(cfg config.Config) *Manager {
@@ -50,16 +53,32 @@ func (s *Manager) Start() error {
 }
 
 func (s *Manager) Set(state State) {
+	s.m.Lock()
 	s.state = state
 
 	err := writeKey(s.buildPath, s.state)
+	s.m.Unlock()
 	if err != nil {
 		logrus.Errorf("error setting matreshka key %s", err)
 	}
 }
 
 func (s *Manager) Get() State {
+	s.m.RLock()
+	state := s.state
+	s.m.RUnlock()
+	return state
+}
+
+func (s *Manager) GetForUpdate() State {
+	s.m.Lock()
 	return s.state
+}
+func (s *Manager) SetAndRelease(state State) {
+	s.state = state
+	s.m.Unlock()
+
+	s.Set(s.state)
 }
 
 func (s *Manager) ValidateVelezPrivateKey(in string) bool {
@@ -90,6 +109,7 @@ func (s *Manager) start() error {
 	if err != nil {
 		return rerrors.Wrap(err, "unable to get private keys")
 	}
+	s.state = keys
 
 	s.state.VelezKey = firstNotEmptyKey(keys.VelezKey)
 	s.state.MatreshkaKey = firstNotEmptyKey(s.state.MatreshkaKey, keys.MatreshkaKey)
@@ -113,7 +133,10 @@ func readStateFromPath(buildPath string) (state State, err error) {
 	}
 	defer f.Close()
 
-	_ = json.NewDecoder(f).Decode(&state)
+	err = json.NewDecoder(f).Decode(&state)
+	if err != nil {
+		return state, rerrors.Wrap(err, "error decoding local state file")
+	}
 	return state, nil
 }
 

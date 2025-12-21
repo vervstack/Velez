@@ -1,3 +1,7 @@
 package env
 
-const VelezName = "verv_Velez"
+const velezDefaultName = "verv_Velez"
+
+func VelezConfigName() string {
+	return velezDefaultName
+}

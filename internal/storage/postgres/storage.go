@@ -3,18 +3,21 @@ package postgres
 import (
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/storage"
+	pg_queries "go.vervstack.ru/Velez/internal/storage/postgres/generated"
 )
 
 type Storage struct {
-	userStorage *userStorage
+	nodeStorage *nodeStorage
 }
 
 func New(db sqldb.DB) storage.Storage {
 	return &Storage{
-		userStorage: &userStorage{db},
+		&nodeStorage{
+			pg_queries.New(db),
+		},
 	}
 }
 
-func (s *Storage) User() storage.Users {
-	return s.userStorage
+func (s *Storage) Nodes() storage.NodesStorage {
+	return s.nodeStorage
 }

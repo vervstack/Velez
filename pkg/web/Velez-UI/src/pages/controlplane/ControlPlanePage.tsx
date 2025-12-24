@@ -1,13 +1,17 @@
 import {useEffect, useState} from "react";
 
+import {VervServiceType, EnableStatefullCluster} from "@vervstack/velez";
+
 import cls from '@/pages/controlplane/ControlPlanePage.module.css';
 
-import {ListServices} from "@/processes/api/control_plane.ts";
+import {EnableService, EnableStatefullPgCluster, ListServices} from "@/processes/api/control_plane.ts";
 import {Service} from "@/model/services/Services";
 import ServiceCard from "@/components/service/ServiceCard";
 import Loader from "@/components/Loader.tsx";
 
 import {useCredentialsStore} from "@/app/settings/creds.ts";
+import Dialog from "@/components/complex/dialog/Dialog.tsx";
+import EnableStatefullMode from "@/widgets/services/EnableStatefullMode.tsx";
 
 export default function ControlPlanePage() {
     const [activeComponents, setActiveComponents] =
@@ -17,8 +21,11 @@ export default function ControlPlanePage() {
         useState<Service[]>([]);
 
     const [isLoading, setIsLoading] = useState(true)
+    const [dialogChild, setDialogChild] = useState<React.ReactNode | undefined>();
 
     const credentialsStore = useCredentialsStore();
+
+    const [isDeployRunning, setIsDeployRunning] = useState(false)
 
     useEffect(() => {
         setIsLoading(true)
@@ -30,6 +37,7 @@ export default function ControlPlanePage() {
             .then(() => setIsLoading(false))
     }, []);
 
+
     if (isLoading) {
         return (
             <div className={cls.ControlPlaneContainer}>
@@ -37,6 +45,42 @@ export default function ControlPlanePage() {
             </div>
         )
     }
+
+    function getDeployCallbackByType(serviceType: VervServiceType): (() => void) | undefined {
+        switch (serviceType) {
+            case VervServiceType.statefull_pg:
+                return openDeployStatefullPgDiag
+            case VervServiceType.makosh, VervServiceType.matreshka:
+                return () => {
+                    enableSimpleService(serviceType)
+                }
+            default:
+                return
+        }
+    }
+
+    function openDeployStatefullPgDiag(): void {
+        setDialogChild(<EnableStatefullMode
+            onDeploy={(r: EnableStatefullCluster) => {
+                EnableStatefullPgCluster(r, credentialsStore.getInitReq())
+                    .then()
+            }
+            }/>);
+    }
+
+    function enableSimpleService(serviceType: VervServiceType.matreshka | VervServiceType.makosh) {
+        if (isDeployRunning) {
+            return
+        }
+
+        setIsDeployRunning(true)
+        EnableService(serviceType, credentialsStore.getInitReq())
+            .then(window.location.reload)
+            .finally(() => {
+                setIsDeployRunning(false)
+            })
+    }
+
 
     // TODO save for future use
     // function extractConstructor(constr: CreateSmerdRequest | undefined) {
@@ -49,43 +93,49 @@ export default function ControlPlanePage() {
 
     return (
         <div className={cls.ControlPlaneContainer}>
-            <div className={cls.ServicesBlock}>
-                {activeComponents
-                    .map((v, idx) =>
-                        <div
-                            className={cls.ServiceCardWrapper}
-                            key={v.title + idx}
-                            onClick={() => {
-                                // TODO when clicked will navigate to service's page
-                                // navigate(Routes.Smerd + '/' + v.title)
-                            }}
-
-                        >
-                            <ServiceCard disabled={false}
-                                         {...v}
-                            />
-                        </div>)
-                }
-            </div>
-
-            <div className={cls.ServicesBlock}>
-                {inactiveComponents
-                    .map((v: Service, idx) =>
-                        <div
-                            className={cls.ServiceCardWrapper}
-                            key={v.title + idx}
-                        >
-                            <ServiceCard
-                                {...v}
-                                disabled={true}
-                                doRefresh={() => {
-                                    console.log(123)
-                                    window.location.reload()
+            <div className={cls.Content}>
+                <div className={cls.ServicesBlock}>
+                    {activeComponents
+                        .map((v, idx) =>
+                            <div
+                                className={cls.ServiceCardWrapper}
+                                key={v.title + idx}
+                                onClick={() => {
+                                    // TODO when clicked will navigate to service's page
+                                    // navigate(Routes.Smerd + '/' + v.title)
                                 }}
-                            />
-                        </div>)
-                }
+
+                            >
+                                <ServiceCard disabled={false}
+                                             {...v}
+                                />
+                            </div>)
+                    }
+                </div>
+
+                <div className={cls.ServicesBlock}>
+                    {inactiveComponents
+                        .map((v: Service, idx) =>
+                            <div
+                                className={cls.ServiceCardWrapper}
+                                key={v.title + idx}
+                            >
+                                <ServiceCard
+                                    {...v}
+                                    disabled={true}
+                                    onDeploy={getDeployCallbackByType(v.type)}
+                                    isDeployRunning={isDeployRunning}
+                                />
+                            </div>)
+                    }
+                </div>
             </div>
+            <Dialog
+                isOpen={dialogChild !== undefined}
+                closeDialog={() => setDialogChild(undefined)}
+                children={dialogChild}
+            />
         </div>
     )
 }
+

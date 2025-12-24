@@ -144,11 +144,26 @@
       "properties": {
         "service": {
           "$ref": "#/definitions/velez_apiVervServiceType"
+        },
+        "statefullCluster": {
+          "$ref": "#/definitions/velez_apiEnableStatefullCluster"
         }
       }
     },
     "velez_apiEnableServiceResponse": {
       "type": "object"
+    },
+    "velez_apiEnableStatefullCluster": {
+      "type": "object",
+      "properties": {
+        "isExposePort": {
+          "type": "boolean"
+        },
+        "exposeToPort": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
     },
     "velez_apiListServicesResponse": {
       "type": "object",

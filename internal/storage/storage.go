@@ -5,9 +5,10 @@ import (
 )
 
 type Storage interface {
-	User() Users
+	Nodes() NodesStorage
 }
 
-type Users interface {
-	CreateUser(ctx context.Context)
+type NodesStorage interface {
+	InitNode(ctx context.Context) error
+	UpdateOnline(ctx context.Context) error
 }

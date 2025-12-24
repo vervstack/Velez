@@ -1,27 +1,27 @@
 package pg_pattern
 
-type opt func(*Constructor)
+type Opt func(*Constructor)
 
-func WithInstanceName(instanceName string) opt {
+func WithInstanceName(instanceName string) Opt {
 	return func(c *Constructor) {
 		c.InstanceName = instanceName
 	}
 }
 
-func WithExposedPort() opt {
+func WithExposedPort() Opt {
 	return func(c *Constructor) {
 		c.IsPortExposed = true
 	}
 }
 
-func WithPort(port uint64) opt {
+func WithPort(port uint64) Opt {
 	return func(c *Constructor) {
 		c.ExposedToPort = &port
 		c.IsPortExposed = true
 	}
 }
 
-func WithPassword(pwd string) opt {
+func WithPassword(pwd string) Opt {
 	return func(c *Constructor) {
 		c.MatreshkaPg.Pwd = pwd
 	}

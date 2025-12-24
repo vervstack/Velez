@@ -7,6 +7,7 @@ import (
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/storage"
 )
 
 type ClusterClients interface {
@@ -41,4 +42,5 @@ type ClusterStateManagerContainer interface {
 }
 
 type ClusterStateManager interface {
+	storage.Storage
 }

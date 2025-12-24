@@ -4,7 +4,7 @@ import {useState, useRef, useEffect} from "react";
 import cls from "@/widgets/settings/Settings.Widget.module.css";
 
 import Input from "@/components/base/Input.tsx";
-import useSettings, {SettingsBase} from "@/app/settings/state.ts";
+import useSettings from "@/app/settings/state.ts";
 import {useCredentialsStore} from "@/app/settings/creds.ts";
 
 export default function SettingsWidget() {

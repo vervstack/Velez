@@ -13,7 +13,9 @@ createRoot(document.getElementById('root')!)
     .render(
         <div>
             <link href="@/assets/font/Comfortaa.ttf" rel="stylesheet"/>
-            <RouterProvider router={router}/>
+            <RouterProvider
+                router={router}/>
+
             <SettingsWidget/>
             <Tooltip
                 id={"tooltip"}

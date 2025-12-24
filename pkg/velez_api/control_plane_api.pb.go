@@ -280,6 +280,58 @@ func (*ConnectSlave) Descriptor() ([]byte, []int) {
 	return file_control_plane_api_proto_rawDescGZIP(), []int{4}
 }
 
+type EnableStatefullCluster struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	IsExposePort  *bool                  `protobuf:"varint,1,opt,name=is_expose_port,json=isExposePort,proto3,oneof" json:"is_expose_port,omitempty"`
+	ExposeToPort  *uint64                `protobuf:"varint,2,opt,name=expose_to_port,json=exposeToPort,proto3,oneof" json:"expose_to_port,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EnableStatefullCluster) Reset() {
+	*x = EnableStatefullCluster{}
+	mi := &file_control_plane_api_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EnableStatefullCluster) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EnableStatefullCluster) ProtoMessage() {}
+
+func (x *EnableStatefullCluster) ProtoReflect() protoreflect.Message {
+	mi := &file_control_plane_api_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EnableStatefullCluster.ProtoReflect.Descriptor instead.
+func (*EnableStatefullCluster) Descriptor() ([]byte, []int) {
+	return file_control_plane_api_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *EnableStatefullCluster) GetIsExposePort() bool {
+	if x != nil && x.IsExposePort != nil {
+		return *x.IsExposePort
+	}
+	return false
+}
+
+func (x *EnableStatefullCluster) GetExposeToPort() uint64 {
+	if x != nil && x.ExposeToPort != nil {
+		return *x.ExposeToPort
+	}
+	return 0
+}
+
 type ListServices_Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -288,7 +340,7 @@ type ListServices_Request struct {
 
 func (x *ListServices_Request) Reset() {
 	*x = ListServices_Request{}
-	mi := &file_control_plane_api_proto_msgTypes[5]
+	mi := &file_control_plane_api_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -300,7 +352,7 @@ func (x *ListServices_Request) String() string {
 func (*ListServices_Request) ProtoMessage() {}
 
 func (x *ListServices_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[5]
+	mi := &file_control_plane_api_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -326,7 +378,7 @@ type ListServices_Response struct {
 
 func (x *ListServices_Response) Reset() {
 	*x = ListServices_Response{}
-	mi := &file_control_plane_api_proto_msgTypes[6]
+	mi := &file_control_plane_api_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -338,7 +390,7 @@ func (x *ListServices_Response) String() string {
 func (*ListServices_Response) ProtoMessage() {}
 
 func (x *ListServices_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[6]
+	mi := &file_control_plane_api_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -369,15 +421,19 @@ func (x *ListServices_Response) GetInactiveServices() []*Service {
 }
 
 type EnableService_Request struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Service       VervServiceType        `protobuf:"varint,1,opt,name=service,proto3,enum=velez_api.VervServiceType" json:"service,omitempty"`
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Service VervServiceType        `protobuf:"varint,1,opt,name=service,proto3,enum=velez_api.VervServiceType" json:"service,omitempty"`
+	// Types that are valid to be assigned to Payload:
+	//
+	//	*EnableService_Request_StatefullCluster
+	Payload       isEnableService_Request_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *EnableService_Request) Reset() {
 	*x = EnableService_Request{}
-	mi := &file_control_plane_api_proto_msgTypes[7]
+	mi := &file_control_plane_api_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -389,7 +445,7 @@ func (x *EnableService_Request) String() string {
 func (*EnableService_Request) ProtoMessage() {}
 
 func (x *EnableService_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[7]
+	mi := &file_control_plane_api_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -412,6 +468,32 @@ func (x *EnableService_Request) GetService() VervServiceType {
 	return VervServiceType_unknown_service_type
 }
 
+func (x *EnableService_Request) GetPayload() isEnableService_Request_Payload {
+	if x != nil {
+		return x.Payload
+	}
+	return nil
+}
+
+func (x *EnableService_Request) GetStatefullCluster() *EnableStatefullCluster {
+	if x != nil {
+		if x, ok := x.Payload.(*EnableService_Request_StatefullCluster); ok {
+			return x.StatefullCluster
+		}
+	}
+	return nil
+}
+
+type isEnableService_Request_Payload interface {
+	isEnableService_Request_Payload()
+}
+
+type EnableService_Request_StatefullCluster struct {
+	StatefullCluster *EnableStatefullCluster `protobuf:"bytes,2,opt,name=statefull_cluster,json=statefullCluster,proto3,oneof"`
+}
+
+func (*EnableService_Request_StatefullCluster) isEnableService_Request_Payload() {}
+
 type EnableService_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -420,7 +502,7 @@ type EnableService_Response struct {
 
 func (x *EnableService_Response) Reset() {
 	*x = EnableService_Response{}
-	mi := &file_control_plane_api_proto_msgTypes[8]
+	mi := &file_control_plane_api_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -432,7 +514,7 @@ func (x *EnableService_Response) String() string {
 func (*EnableService_Response) ProtoMessage() {}
 
 func (x *EnableService_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[8]
+	mi := &file_control_plane_api_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -456,7 +538,7 @@ type InitMaster_Request struct {
 
 func (x *InitMaster_Request) Reset() {
 	*x = InitMaster_Request{}
-	mi := &file_control_plane_api_proto_msgTypes[9]
+	mi := &file_control_plane_api_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -468,7 +550,7 @@ func (x *InitMaster_Request) String() string {
 func (*InitMaster_Request) ProtoMessage() {}
 
 func (x *InitMaster_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[9]
+	mi := &file_control_plane_api_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -492,7 +574,7 @@ type InitMaster_Response struct {
 
 func (x *InitMaster_Response) Reset() {
 	*x = InitMaster_Response{}
-	mi := &file_control_plane_api_proto_msgTypes[10]
+	mi := &file_control_plane_api_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -504,7 +586,7 @@ func (x *InitMaster_Response) String() string {
 func (*InitMaster_Response) ProtoMessage() {}
 
 func (x *InitMaster_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[10]
+	mi := &file_control_plane_api_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -528,7 +610,7 @@ type ConnectSlave_Request struct {
 
 func (x *ConnectSlave_Request) Reset() {
 	*x = ConnectSlave_Request{}
-	mi := &file_control_plane_api_proto_msgTypes[11]
+	mi := &file_control_plane_api_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -540,7 +622,7 @@ func (x *ConnectSlave_Request) String() string {
 func (*ConnectSlave_Request) ProtoMessage() {}
 
 func (x *ConnectSlave_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[11]
+	mi := &file_control_plane_api_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -564,7 +646,7 @@ type ConnectSlave_Response struct {
 
 func (x *ConnectSlave_Response) Reset() {
 	*x = ConnectSlave_Response{}
-	mi := &file_control_plane_api_proto_msgTypes[12]
+	mi := &file_control_plane_api_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -576,7 +658,7 @@ func (x *ConnectSlave_Response) String() string {
 func (*ConnectSlave_Response) ProtoMessage() {}
 
 func (x *ConnectSlave_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[12]
+	mi := &file_control_plane_api_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -605,10 +687,12 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\aService\x12.\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x1a.velez_api.VervServiceTypeR\x04type\x12\x17\n" +
 	"\x04port\x18\x02 \x01(\rH\x00R\x04port\x88\x01\x01B\a\n" +
-	"\x05_port\"\\\n" +
-	"\rEnableService\x1a?\n" +
+	"\x05_port\"\xba\x01\n" +
+	"\rEnableService\x1a\x9c\x01\n" +
 	"\aRequest\x124\n" +
-	"\aservice\x18\x01 \x01(\x0e2\x1a.velez_api.VervServiceTypeR\aservice\x1a\n" +
+	"\aservice\x18\x01 \x01(\x0e2\x1a.velez_api.VervServiceTypeR\aservice\x12P\n" +
+	"\x11statefull_cluster\x18\x02 \x01(\v2!.velez_api.EnableStatefullClusterH\x00R\x10statefullClusterB\t\n" +
+	"\apayload\x1a\n" +
 	"\n" +
 	"\bResponse\"#\n" +
 	"\n" +
@@ -619,7 +703,12 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\fConnectSlave\x1a\t\n" +
 	"\aRequest\x1a\n" +
 	"\n" +
-	"\bResponse*\x85\x01\n" +
+	"\bResponse\"\x94\x01\n" +
+	"\x16EnableStatefullCluster\x12)\n" +
+	"\x0eis_expose_port\x18\x01 \x01(\bH\x00R\fisExposePort\x88\x01\x01\x12)\n" +
+	"\x0eexpose_to_port\x18\x02 \x01(\x04H\x01R\fexposeToPort\x88\x01\x01B\x11\n" +
+	"\x0f_is_expose_portB\x11\n" +
+	"\x0f_expose_to_port*\x85\x01\n" +
 	"\x0fVervServiceType\x12\x18\n" +
 	"\x14unknown_service_type\x10\x00\x12\r\n" +
 	"\tmatreshka\x10\x01\x12\n" +
@@ -647,7 +736,7 @@ func file_control_plane_api_proto_rawDescGZIP() []byte {
 }
 
 var file_control_plane_api_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_control_plane_api_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_control_plane_api_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_control_plane_api_proto_goTypes = []any{
 	(VervServiceType)(0),           // 0: velez_api.VervServiceType
 	(*ListServices)(nil),           // 1: velez_api.ListServices
@@ -655,31 +744,33 @@ var file_control_plane_api_proto_goTypes = []any{
 	(*EnableService)(nil),          // 3: velez_api.EnableService
 	(*InitMaster)(nil),             // 4: velez_api.InitMaster
 	(*ConnectSlave)(nil),           // 5: velez_api.ConnectSlave
-	(*ListServices_Request)(nil),   // 6: velez_api.ListServices.Request
-	(*ListServices_Response)(nil),  // 7: velez_api.ListServices.Response
-	(*EnableService_Request)(nil),  // 8: velez_api.EnableService.Request
-	(*EnableService_Response)(nil), // 9: velez_api.EnableService.Response
-	(*InitMaster_Request)(nil),     // 10: velez_api.InitMaster.Request
-	(*InitMaster_Response)(nil),    // 11: velez_api.InitMaster.Response
-	(*ConnectSlave_Request)(nil),   // 12: velez_api.ConnectSlave.Request
-	(*ConnectSlave_Response)(nil),  // 13: velez_api.ConnectSlave.Response
+	(*EnableStatefullCluster)(nil), // 6: velez_api.EnableStatefullCluster
+	(*ListServices_Request)(nil),   // 7: velez_api.ListServices.Request
+	(*ListServices_Response)(nil),  // 8: velez_api.ListServices.Response
+	(*EnableService_Request)(nil),  // 9: velez_api.EnableService.Request
+	(*EnableService_Response)(nil), // 10: velez_api.EnableService.Response
+	(*InitMaster_Request)(nil),     // 11: velez_api.InitMaster.Request
+	(*InitMaster_Response)(nil),    // 12: velez_api.InitMaster.Response
+	(*ConnectSlave_Request)(nil),   // 13: velez_api.ConnectSlave.Request
+	(*ConnectSlave_Response)(nil),  // 14: velez_api.ConnectSlave.Response
 }
 var file_control_plane_api_proto_depIdxs = []int32{
 	0,  // 0: velez_api.Service.type:type_name -> velez_api.VervServiceType
 	2,  // 1: velez_api.ListServices.Response.services:type_name -> velez_api.Service
 	2,  // 2: velez_api.ListServices.Response.inactive_services:type_name -> velez_api.Service
 	0,  // 3: velez_api.EnableService.Request.service:type_name -> velez_api.VervServiceType
-	6,  // 4: velez_api.ControlPlaneAPI.ListServices:input_type -> velez_api.ListServices.Request
-	8,  // 5: velez_api.ControlPlaneAPI.EnableService:input_type -> velez_api.EnableService.Request
-	12, // 6: velez_api.ControlPlaneAPI.ConnectSlave:input_type -> velez_api.ConnectSlave.Request
-	7,  // 7: velez_api.ControlPlaneAPI.ListServices:output_type -> velez_api.ListServices.Response
-	9,  // 8: velez_api.ControlPlaneAPI.EnableService:output_type -> velez_api.EnableService.Response
-	13, // 9: velez_api.ControlPlaneAPI.ConnectSlave:output_type -> velez_api.ConnectSlave.Response
-	7,  // [7:10] is the sub-list for method output_type
-	4,  // [4:7] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	6,  // 4: velez_api.EnableService.Request.statefull_cluster:type_name -> velez_api.EnableStatefullCluster
+	7,  // 5: velez_api.ControlPlaneAPI.ListServices:input_type -> velez_api.ListServices.Request
+	9,  // 6: velez_api.ControlPlaneAPI.EnableService:input_type -> velez_api.EnableService.Request
+	13, // 7: velez_api.ControlPlaneAPI.ConnectSlave:input_type -> velez_api.ConnectSlave.Request
+	8,  // 8: velez_api.ControlPlaneAPI.ListServices:output_type -> velez_api.ListServices.Response
+	10, // 9: velez_api.ControlPlaneAPI.EnableService:output_type -> velez_api.EnableService.Response
+	14, // 10: velez_api.ControlPlaneAPI.ConnectSlave:output_type -> velez_api.ConnectSlave.Response
+	8,  // [8:11] is the sub-list for method output_type
+	5,  // [5:8] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_control_plane_api_proto_init() }
@@ -689,13 +780,17 @@ func file_control_plane_api_proto_init() {
 	}
 	file_velez_api_proto_init()
 	file_control_plane_api_proto_msgTypes[1].OneofWrappers = []any{}
+	file_control_plane_api_proto_msgTypes[5].OneofWrappers = []any{}
+	file_control_plane_api_proto_msgTypes[8].OneofWrappers = []any{
+		(*EnableService_Request_StatefullCluster)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_control_plane_api_proto_rawDesc), len(file_control_plane_api_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   13,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

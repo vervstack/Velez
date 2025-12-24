@@ -1,0 +1,26 @@
+.EnableStatefullModeContainer {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+
+    gap: 1em;
+
+    .ExposeToPortWrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+
+        img {
+            height: 1em;
+        }
+    }
+
+    .PortToggleWrapper {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5em;
+
+        cursor: pointer;
+    }
+}

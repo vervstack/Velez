@@ -4,8 +4,14 @@
     flex-direction: column;
 
     width: 100%;
+    position: relative;
 }
 
+.Content {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
 
 .ServicesBlock {
     display: flex;

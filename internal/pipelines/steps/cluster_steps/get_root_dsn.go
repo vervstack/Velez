@@ -76,7 +76,7 @@ func (p *getPgDbDsn) Do(ctx context.Context) error {
 		}
 	}
 
-	*p.connResp = pgCfg.ConnectionString()
+	*p.connResp = pgCfg.ConnectionString() + "&application_name=RootSetup"
 
 	return nil
 }

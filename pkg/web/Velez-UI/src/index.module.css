@@ -23,12 +23,14 @@ root, body {
     --accent-fg-color: rgb(111, 111, 200);
 
     --quote-background: rgb(171, 171, 171);
-    --primary-fg-color: #dadada;
+    --main-fg-color: #dadada;
     --secondary-fg-color: var(--main-bg-color);
 
     --disabled-bg-color: #616161;
 
     --action-button-size: 1.75em;
+
+    --border-radius: 0.5em;
 }
 
 
@@ -41,5 +43,5 @@ root, body {
 /*TODO: DO FOR different screen sizes*/
 * {
     font-size: 16px;
-    color: var(--primary-fg-color);
+    color: var(--main-fg-color);
 }

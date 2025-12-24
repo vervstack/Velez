@@ -35,7 +35,7 @@ type Pattern struct {
 	Pattern container.CreateRequest
 }
 
-func Postgres(opts ...opt) Pattern {
+func Postgres(opts ...Opt) Pattern {
 	c := basicPostgresConstructor()
 
 	for _, o := range opts {

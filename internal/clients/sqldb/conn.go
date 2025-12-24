@@ -4,19 +4,16 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/pressly/goose/v3"
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
-	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
-
-	"github.com/pressly/goose/v3"
 )
 
-func New(cfg resources.SqlResource) (*sql.DB, error) {
-	dialect := cfg.SqlDialect()
-	connStr := cfg.ConnectionString()
+const dialect = "postgres"
 
-	conn, err := sql.Open(dialect, connStr)
+func New(connectionString string) (*sql.DB, error) {
+	conn, err := sql.Open(dialect, connectionString)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error checking connection to postgres")
 	}
@@ -25,23 +22,34 @@ func New(cfg resources.SqlResource) (*sql.DB, error) {
 		return conn.Close()
 	})
 
+	return conn, nil
+}
+
+func RollMigration(rootDsn string) (err error) {
+	conn, err := sql.Open(dialect, rootDsn)
+	if err != nil {
+		return rerrors.Wrap(err, "error checking connection to postgres")
+	}
+
+	defer func() {
+		e := conn.Close()
+		if e != nil {
+			log.Error().Err(e).Msg("error closing connection to postgres")
+		}
+	}()
+
 	goose.SetLogger(sqlLogger{})
 	err = goose.SetDialect(dialect)
 	if err != nil {
-		return nil, rerrors.Wrap(err, "error setting dialect")
+		return rerrors.Wrap(err, "error setting dialect")
 	}
 
-	mig := cfg.MigrationFolder()
-	if mig == "" {
-		mig = "./migrations"
-	}
-
-	err = goose.Up(conn, mig)
+	err = goose.Up(conn, "./migrations")
 	if err != nil {
-		return nil, rerrors.Wrap(err, "error performing up")
+		return rerrors.Wrap(err, "error performing up")
 	}
 
-	return conn, nil
+	return nil
 }
 
 type DB interface {

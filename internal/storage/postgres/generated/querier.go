@@ -2,14 +2,15 @@
 // versions:
 //   sqlc v1.30.0
 
-package user
+package pg_queries
 
 import (
 	"context"
 )
 
 type Querier interface {
-	CreateNodeUser(ctx context.Context) error
+	InitNode(ctx context.Context) (int32, error)
+	UpdateOnline(ctx context.Context) error
 }
 
 var _ Querier = (*Queries)(nil)

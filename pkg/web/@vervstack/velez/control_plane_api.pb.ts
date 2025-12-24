@@ -7,6 +7,15 @@
 
 import * as fm from "./fetch.pb";
 
+type Absent<T, K extends keyof T> = { [k in Exclude<keyof T, K>]?: undefined };
+
+type OneOf<T> =
+  | { [k in keyof T]?: undefined }
+  | (keyof T extends infer K
+      ? K extends string & keyof T
+        ? { [k in K]: T[K] } & Absent<T, K>
+        : never
+      : never);
 
 export enum VervServiceType {
   unknown_service_type = "unknown_service_type",
@@ -32,9 +41,14 @@ export type Service = {
   port?: number;
 };
 
-export type EnableServiceRequest = {
+type BaseEnableServiceRequest = {
   service?: VervServiceType;
 };
+
+export type EnableServiceRequest = BaseEnableServiceRequest &
+  OneOf<{
+    statefullCluster: EnableStatefullCluster;
+  }>;
 
 export type EnableServiceResponse = Record<string, never>;
 
@@ -51,6 +65,11 @@ export type ConnectSlaveRequest = Record<string, never>;
 export type ConnectSlaveResponse = Record<string, never>;
 
 export type ConnectSlave = Record<string, never>;
+
+export type EnableStatefullCluster = {
+  isExposePort?: boolean;
+  exposeToPort?: string;
+};
 
 export class ControlPlaneAPI {
   static ListServices(this:void, req: ListServicesRequest, initReq?: fm.InitReq): Promise<ListServicesResponse> {

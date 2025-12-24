@@ -12,6 +12,7 @@
     width: 5em;
     height: 2em;
 
+    background: var(--accent-bg-color);
     color: var(--secondary-fg-color);
 
     &.disabled {

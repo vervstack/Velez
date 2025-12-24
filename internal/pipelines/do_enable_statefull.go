@@ -5,10 +5,13 @@ import (
 	"time"
 
 	"go.redsock.ru/rerrors"
+	"go.redsock.ru/toolbox"
 	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
 
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
+	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/cluster/cluster_state"
+	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/patterns/db_patterns/pg_pattern"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/cluster_steps"
@@ -16,25 +19,31 @@ import (
 	"go.vervstack.ru/Velez/internal/pipelines/steps/smerd_steps"
 )
 
-func (p *pipeliner) EnableStatefullMode() Runner[any] {
+func (p *pipeliner) EnableStatefullMode(req domain.EnableStatefullClusterRequest) Runner[any] {
 	//region Pipeline Context
 
 	const schema = "velez"
-	const nodeName = "icy_raccoon"
+	const masterNodeDefaultName = "icy_raccoon"
 
 	containerName := cluster_state.Name
 
-	launchContainer := pg_pattern.Postgres(
-		pg_pattern.WithInstanceName(containerName),
-		pg_pattern.WithExposedPort(), // TODO make configurable via request
-		pg_pattern.WithPort(25432),
-		pg_pattern.WithPassword("d3hSejFkZnF0"), // TODO remove after debug
-	)
+	var ops []pg_pattern.Opt
+	ops = append(ops, pg_pattern.WithInstanceName(containerName))
+
+	if req.ExposePort {
+		if req.ExposeToPort != 0 {
+			ops = append(ops, pg_pattern.WithPort(req.ExposeToPort))
+		} else {
+			ops = append(ops, pg_pattern.WithExposedPort())
+		}
+	}
+
+	launchContainer := pg_pattern.Postgres(ops...)
 
 	var containerId string
 	var rootDsn string
-	userPwd := "d3hSejFkZnF0" //string(toolbox.RandomBase64(12))
-	//var nodeDsn string
+
+	userPwd := string(toolbox.RandomBase64(12))
 
 	//endregion
 
@@ -48,16 +57,15 @@ func (p *pipeliner) EnableStatefullMode() Runner[any] {
 			steps.SingleFunc(func(ctx context.Context) error {
 				// TODO Wait for healthy
 				time.Sleep(3 * time.Second)
-				pgClusterState, err := state.NewPgStateManager(rootDsn)
+				err := sqldb.RollMigration(rootDsn)
 				if err != nil {
-					return rerrors.Wrap(err, "error initializing pgClusterState")
+					return rerrors.Wrap(err, "error rolling migration")
 				}
 
-				p.clusterClients.StateManager().Set(pgClusterState)
 				return nil
 			}),
 			cluster_steps.CreatePgUserForNode(
-				&rootDsn, schema, nodeName, userPwd),
+				&rootDsn, schema, masterNodeDefaultName, userPwd),
 
 			steps.SingleFunc(func(ctx context.Context) error {
 				localStateManager := p.nodeClients.LocalStateManager()
@@ -72,14 +80,31 @@ func (p *pipeliner) EnableStatefullMode() Runner[any] {
 					return rerrors.Wrap(err, "error parsing root user database connection")
 				}
 
-				nodeConnection.User = nodeName
+				nodeConnection.User = masterNodeDefaultName
 				nodeConnection.Pwd = userPwd
-				localState.PgNodeDsn = nodeConnection.ConnectionString()
+
+				localState.PgNodeDsn = nodeConnection.ConnectionString() + "&application_name=" + masterNodeDefaultName
+
+				pgClusterState, err := state.NewPgStateManager(localState.PgNodeDsn)
+				if err != nil {
+					return rerrors.Wrap(err, "error initializing pgClusterState")
+				}
+
+				p.clusterClients.StateManager().Set(pgClusterState)
 
 				localStateManager.SetAndRelease(localState)
 				return nil
 			}),
 
+			steps.SingleFunc(func(ctx context.Context) error {
+				nodeStorage := p.clusterClients.StateManager().Nodes()
+				err := nodeStorage.InitNode(ctx)
+				if err != nil {
+					return rerrors.Wrap(err, "error initializing node storage")
+				}
+
+				return nil
+			}),
 			// Enable integration with state
 		},
 	}

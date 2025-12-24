@@ -5,31 +5,16 @@ import RocketSVG from "@/assets/icons/Rocket.svg"
 
 import {Service} from "@/model/services/Services";
 import ActivityPoint from "@/components/base/ActivityPoint.tsx";
-import {EnableService} from "@/processes/api/control_plane.ts";
-import {useCredentialsStore} from "@/app/settings/creds.ts";
-import {useState} from "react";
+import {Tooltip} from "react-tooltip";
 
 interface ServiceCardProps extends Service {
     disabled?: boolean
-    doRefresh?: () => void
+
+    isDeployRunning?: boolean
+    onDeploy?: () => void
 }
 
 export default function ServiceCard(serviceProps: ServiceCardProps) {
-    const credentialsStore = useCredentialsStore();
-
-    const [isDeployRunning, setIsDeployRunning] = useState(false)
-
-    function enableService() {
-        setIsDeployRunning(true)
-        EnableService(serviceProps.type, credentialsStore.getInitReq())
-            .then(() => {
-                if (serviceProps.doRefresh) serviceProps.doRefresh()
-            })
-            .finally(() => {
-                setIsDeployRunning(false)
-            })
-    }
-
     return (
         <div className={cn(cls.CardContainer, {
             [cls.disabled]: serviceProps.disabled,
@@ -46,8 +31,8 @@ export default function ServiceCard(serviceProps: ServiceCardProps) {
 
                     {
                         serviceProps.webLink && (<div
-                            className={cls.ExternalLink}
-                            data-tooltip-id={"tooltip"}
+                            className={cls.ActionButton}
+                            data-tooltip-id={"ServiceCardTooltip"}
                             data-tooltip-content="Open in new window"
                             data-tooltip-place="left"
                             onClick={() => window.open(serviceProps.webLink, '_blank')}
@@ -59,15 +44,15 @@ export default function ServiceCard(serviceProps: ServiceCardProps) {
                     }
 
                     {
-                        serviceProps.disabled && (
+                        serviceProps.disabled && serviceProps.onDeploy && (
                             <div
-                                className={cn(cls.ExternalLink, {
-                                    [cls.disabled]: isDeployRunning,
+                                className={cn(cls.ActionButton, {
+                                    [cls.disabled]: serviceProps.isDeployRunning,
                                 })}
-                                data-tooltip-id={"tooltip"}
+                                data-tooltip-id={"ServiceCardTooltip"}
                                 data-tooltip-content="Deploy on this node"
                                 data-tooltip-place="left"
-                                onClick={enableService}
+                                onClick={serviceProps.onDeploy}
                             >
                                 <div className={cls.CardButton}>
                                     <img src={RocketSVG} alt={'/'}/>
@@ -87,6 +72,10 @@ export default function ServiceCard(serviceProps: ServiceCardProps) {
                 <ActivityPoint
                     isInactive={serviceProps.disabled}/>
             </div>
+
+            <Tooltip
+                id={"ServiceCardTooltip"}
+            />
         </div>
     )
 }

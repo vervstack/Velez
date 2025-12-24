@@ -3,6 +3,7 @@ import {
     ListServicesRequest,
     EnableServiceRequest,
     VervServiceType,
+    EnableStatefullCluster,
 } from "@vervstack/velez";
 
 import {toServices} from "@/processes/mappings/services.ts";
@@ -29,6 +30,15 @@ export async function ListServices(initReq: InitReq): Promise<CpServices> {
 export async function EnableService(vervService: VervServiceType, initReq: InitReq): Promise<void> {
     const req: EnableServiceRequest = {
         service: vervService,
+    }
+
+    return ControlPlaneAPI.EnableService(req, initReq).then();
+}
+
+export async function EnableStatefullPgCluster(payload: EnableStatefullCluster, initReq: InitReq): Promise<void> {
+    const req: EnableServiceRequest = {
+        service: VervServiceType.statefull_pg,
+        statefullCluster: payload
     }
 
     return ControlPlaneAPI.EnableService(req, initReq).then();

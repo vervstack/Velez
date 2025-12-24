@@ -22,7 +22,7 @@ export default function Search({label, value, onChange}: SearchProps) {
             <Input
                 label={label}
                 onChange={onChange}
-                inputValue={value}
+                inputValue={value || null}
                 style={{
                     borderless: true
                 }}

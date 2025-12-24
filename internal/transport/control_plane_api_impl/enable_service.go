@@ -6,6 +6,7 @@ import (
 	"go.redsock.ru/rerrors"
 	"google.golang.org/grpc/codes"
 
+	"go.vervstack.ru/Velez/internal/domain"
 	pb "go.vervstack.ru/Velez/pkg/velez_api"
 )
 
@@ -19,7 +20,11 @@ func (impl *Impl) EnableService(ctx context.Context, req *pb.EnableService_Reque
 	var err error
 	switch req.GetService() {
 	case pb.VervServiceType_statefull_pg:
-		runner := impl.pipeliner.EnableStatefullMode()
+		r := domain.EnableStatefullClusterRequest{
+			ExposePort:   false,
+			ExposeToPort: 0,
+		}
+		runner := impl.pipeliner.EnableStatefullMode(r)
 		err = runner.Run(ctx)
 	default:
 		return nil, rerrors.Wrap(errUnsupportedService)

@@ -2,12 +2,12 @@ version: "2"
 sql:
   - engine: "postgresql"
     queries:
-      - "internal/storage/postgres/queries/users*.sql"
+      - "internal/storage/postgres/queries/*.sql"
     schema:
       - "migrations/*.sql"
     gen:
       go:
-        package: "user"
+        package: "pg_queries"
         out: "internal/storage/postgres/generated"
         sql_package: "database/sql"
         emit_prepared_queries: false

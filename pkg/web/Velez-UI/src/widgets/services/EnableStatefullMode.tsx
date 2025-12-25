@@ -35,28 +35,31 @@ export default function EnableStatefullMode({onDeploy}: EnableStatefullModeProps
 
     return (
         <div className={cls.EnableStatefullModeContainer}>
-            <div
-                className={cls.PortToggleWrapper}
-                data-tooltip-id={"tooltip"}
-                data-tooltip-content={"Set to true if you want Postgres to be accessible via public internet"}
-                data-tooltip-place="top"
-            >
-                <div>Expose Port</div>
-                <Toggle value={isPortExposed} onChange={setIsPortExposed}/>
-            </div>
+            <div className={cls.HeaderWrapper}>Statefull mode</div>
+            <div className={cls.SettingsWrapper}>
+                <div
+                    className={cls.PortToggleWrapper}
+                    data-tooltip-id={"tooltip"}
+                    data-tooltip-content={"Set to true if you want Postgres to be accessible via public internet"}
+                    data-tooltip-place="top"
+                >
+                    <div>Expose Port</div>
+                    <Toggle value={isPortExposed} onChange={setIsPortExposed}/>
+                </div>
 
-            {isPortExposed && <div
-				className={cls.ExposeToPortWrapper}
-			>
-				<Input
-					disabled={!isPortExposed}
-					label={'Expose To Port'}
-					inputValue={exposeToPort ? exposeToPort.toString() : null}
-					onChange={onPortInput}
-					hint={"If not presented - exposed port will be assign randomly"}
-				/>
-			</div>
-            }
+                {isPortExposed && <div
+					className={cls.ExposeToPortWrapper}
+				>
+					<Input
+						disabled={!isPortExposed}
+						label={'Expose To Port'}
+						inputValue={exposeToPort ? exposeToPort.toString() : null}
+						onChange={onPortInput}
+						hint={"If not presented - exposed port will be assign randomly"}
+					/>
+				</div>
+                }
+            </div>
             <Button
                 onClick={() => {
                     onDeploy({

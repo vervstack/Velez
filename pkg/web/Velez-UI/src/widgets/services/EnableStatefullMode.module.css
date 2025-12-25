@@ -2,25 +2,44 @@
     display: flex;
     flex-direction: column;
     align-content: center;
+    align-items: center;
+    justify-content: space-between;
 
-    gap: 1em;
 
-    .ExposeToPortWrapper {
+    .HeaderWrapper {
+        font-size: 1.50em;
         display: flex;
         align-items: center;
         gap: 0.5em;
-
-        img {
-            height: 1em;
-        }
     }
 
-    .PortToggleWrapper {
+    .SettingsWrapper {
         display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: 0.5em;
+        gap: 1em;
+        flex-direction: column;
+        box-sizing: border-box;
 
-        cursor: pointer;
+        .PortToggleWrapper {
+            width: 12em;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 0.5em;
+
+            cursor: pointer;
+        }
+
+        .ExposeToPortWrapper {
+            width: 12em;
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+
+            img {
+                height: 1em;
+            }
+        }
+
+
     }
 }

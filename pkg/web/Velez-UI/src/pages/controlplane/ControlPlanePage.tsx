@@ -134,6 +134,7 @@ export default function ControlPlanePage() {
                 isOpen={dialogChild !== undefined}
                 closeDialog={() => setDialogChild(undefined)}
                 children={dialogChild}
+                blur={0.5}
             />
         </div>
     )

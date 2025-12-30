@@ -15,6 +15,7 @@ export interface Toaster {
     bake: (t: Toast) => void;
     dismiss: (title: string) => void;
 
+    catchGrpc: (e: Error) => void;
 }
 
 export const useToaster = create<Toaster>(
@@ -40,6 +41,8 @@ export const useToaster = create<Toaster>(
                 toasts: state.toasts.filter((t: Toast) => t.title !== title),
             }));
         },
-
+        catchGrpc: (e: Error) => {
+            get().bake({title: "Error", description: e.message, level: 'Error'})
+        }
     }));
 

@@ -105,6 +105,17 @@
     }
   },
   "definitions": {
+    "ServiceState": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "running",
+        "warning",
+        "dead",
+        "disabled"
+      ],
+      "default": "unknown"
+    },
     "googlerpcStatus": {
       "type": "object",
       "properties": {
@@ -174,13 +185,6 @@
             "type": "object",
             "$ref": "#/definitions/velez_apiService"
           }
-        },
-        "inactiveServices": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/velez_apiService"
-          }
         }
       }
     },
@@ -193,6 +197,9 @@
         "port": {
           "type": "integer",
           "format": "int64"
+        },
+        "state": {
+          "$ref": "#/definitions/ServiceState"
         }
       }
     },

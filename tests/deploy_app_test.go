@@ -109,6 +109,7 @@ func Test_DeploySingleVerv(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			ctx := context.Background()
+
 			for idx, createReq := range tc.reqs {
 				createReq.Name = getServiceName(t)
 
@@ -143,8 +144,6 @@ func Test_DeployMultipleVerv(t *testing.T) {
 	require.NoError(t, err)
 	//TODO check master
 	require.NotNil(t, masterSmerd)
-
-	//testEnvironment.matreshkaApi
 }
 
 func Test_DeployGeneric(t *testing.T) {

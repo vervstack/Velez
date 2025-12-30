@@ -40,7 +40,7 @@ type testEnv struct {
 type serverApi struct {
 	velez        velez_api.VelezAPIClient
 	controlPlane velez_api.ControlPlaneAPIClient
-	vpn          velez_api.VpnApiClient
+	vpn          velez_api.VcnApiClient
 }
 
 type dependenciesApi struct {

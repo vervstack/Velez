@@ -4,14 +4,29 @@
     align-content: center;
     align-items: center;
     justify-content: space-between;
+    gap: 2em;
 
+    height: 20em;
 
     .HeaderWrapper {
-        font-size: 1.50em;
         display: flex;
-        align-items: center;
         gap: 0.5em;
+
+        .HeaderText {
+            display: flex;
+            align-items: center;
+
+            font-size: 1.50em;
+        }
+        .Logo {
+            width: 4em;
+            position: relative;
+            top: 0;
+            left: 0;
+        }
     }
+
+
 
     .SettingsWrapper {
         display: flex;
@@ -19,11 +34,18 @@
         flex-direction: column;
         box-sizing: border-box;
 
+        justify-content: start;
+        align-items: start;
+        height: 80%;
+
         .PortToggleWrapper {
             width: 12em;
+
             display: flex;
             flex-direction: row;
             align-items: center;
+            justify-content: space-between;
+
             gap: 0.5em;
 
             cursor: pointer;

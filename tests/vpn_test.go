@@ -14,7 +14,7 @@ type VpnSuite struct {
 	suite.Suite
 
 	controlPlaneApi velez_api.ControlPlaneAPIClient
-	vpnApi          velez_api.VpnApiClient
+	vpnApi          velez_api.VcnApiClient
 
 	ctx         context.Context
 	namespaceId string
@@ -30,15 +30,11 @@ func (s *VpnSuite) SetupSuite() {
 
 	//endregion
 
-	//region Imperative preps
-	enableVpnRequest := &velez_api.EnableServices_Request{
-		Services: []velez_api.VervServiceType{
-			velez_api.VervServiceType_headscale,
-		},
+	enableVpnRequest := &velez_api.EnableService_Request{
+		Service: velez_api.VervServiceType_headscale,
 	}
-	_, err := s.controlPlaneApi.EnableServices(s.ctx, enableVpnRequest)
+	_, err := s.controlPlaneApi.EnableService(s.ctx, enableVpnRequest)
 	require.NoError(s.T(), err, "error enabling vpn service")
-	//endregion
 }
 
 func (s *VpnSuite) SetupTest() {
@@ -52,7 +48,7 @@ func (s *VpnSuite) SetupTest() {
 	_, err := testEnvironment.createSmerd(s.T().Context(), mainApp)
 	require.NoError(s.T(), err)
 
-	newNamespaceReq := &velez_api.CreateVpnNamespace_Request{
+	newNamespaceReq := &velez_api.CreateVcnNamespace_Request{
 		Name: s.serviceName,
 	}
 	newNamespaceResp, err := s.vpnApi.CreateNamespace(s.T().Context(), newNamespaceReq)
@@ -76,7 +72,7 @@ func (s *VpnSuite) TearDownTest() {
 		return
 	}
 
-	deleteNamespaceReq := &velez_api.DeleteVpnNamespace_Request{
+	deleteNamespaceReq := &velez_api.DeleteVcnNamespace_Request{
 		Id: s.namespaceId,
 	}
 	_, err := s.vpnApi.DeleteNamespace(s.T().Context(), deleteNamespaceReq)

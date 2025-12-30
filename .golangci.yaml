@@ -1,24 +1,27 @@
-version: 2
-
 run:
   timeout: 5m
-  concurrency: 4
-  verbose: true
   issues-exit-code: 42
+  skip-dirs:
+    - configs
 
-formatters:
-  output:
-    formats:
-      - format: colored-line-number
-  exclusions:
-    paths:
-      - configs
+output:
+  format: colored-line-number
+
+linters-settings:
+  varnamelen: # scope of variable
+    max-distance: 25 # amount of lines when variable can be used (about 1 screen space)
+    min-name-length: 2 # minimal lenght of variable that goes out of scope
+
+    ignore-type-assert-ok: true
+    check-type-param: true
+    ignore-chan-recv-ok: true
 
 linters:
-  default: none
+  disable-all: true
   enable:
-    - varnamelen
-    - asasalint
+    - varnamelen # check lenght of scope of a variable
+
+    - asasalint # prevents from passing []any
     - asciicheck
     - bidichk
     - bodyclose
@@ -35,10 +38,14 @@ linters:
     - errchkjson
     - errname
     - errorlint
+    - execinquery
     - exhaustive
+    - exportloopref
     - forbidigo
     - forcetypeassert
     - funlen
+    - gci
+    - gochecknoglobals
     - gochecknoinits
     - gocognit
     - goconst
@@ -46,21 +53,30 @@ linters:
     - gocyclo
     - godot
     - godox
-    - err113
+    - goerr113
+    - gofmt
+    - gofumpt
     - goheader
-    - mnd
+    - goimports
+    - golint
+    - gomnd
     - gomoddirectives
     - gomodguard
     - goprintffuncname
     - gosec
+    - gosimple
     - govet
     - grouper
     - importas
     - ineffassign
+    - interfacebloat
+    - interfacer
+    - ireturn
     - lll
     - loggercheck
     - maintidx
     - makezero
+    - maligned
     - misspell
     - nakedret
     - nestif
@@ -79,11 +95,15 @@ linters:
     - rowserrcheck
     - sqlclosecheck
     - staticcheck
+    - structcheck
+    - stylecheck
     - tagliatelle
+    - tenv
     - testableexamples
     - testpackage
     - thelper
     - tparallel
+    - typecheck
     - unconvert
     - unparam
     - unused
@@ -91,23 +111,13 @@ linters:
     - wastedassign
     - whitespace
     - wrapcheck
-  settings:
-    varnamelen:
-      max-distance: 25
-      min-name-length: 2
-      ignore-type-assert-ok: true
-      check-type-param: true
-      ignore-chan-recv-ok: true
-    govet:
-      enable:
-        - fieldalignment
-  exclusions:
-    paths:
-      - configs
-    rules:
-      - linters:
-          - staticcheck
-        text: "SA9003:"
-      - linters:
-          - lll
-        source: "^//go:generate "
+    - wsl
+issues:
+  # See the dedicated "issues" documentation section.
+  exclude-rules:
+    - linters:
+        - staticcheck
+      text: "SA9003:"
+    - linters:
+        - lll
+      source: "^//go:generate "

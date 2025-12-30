@@ -27,11 +27,18 @@ export enum VervServiceType {
   statefull_pg = "statefull_pg",
 }
 
+export enum ServiceState {
+    unknown = "unknown",
+    running = "running",
+    warning = "warning",
+    dead = "dead",
+    disabled = "disabled",
+}
+
 export type ListServicesRequest = Record<string, never>;
 
 export type ListServicesResponse = {
   services?: Service[];
-  inactiveServices?: Service[];
 };
 
 export type ListServices = Record<string, never>;
@@ -39,6 +46,7 @@ export type ListServices = Record<string, never>;
 export type Service = {
   type?: VervServiceType;
   port?: number;
+    state?: ServiceState;
 };
 
 type BaseEnableServiceRequest = {

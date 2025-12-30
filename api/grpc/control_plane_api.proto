@@ -39,7 +39,6 @@ message ListServices {
   }
   message Response {
     repeated Service services = 1;
-    repeated Service inactive_services = 2;
   }
 }
 
@@ -47,6 +46,15 @@ message ListServices {
 message Service  {
   VervServiceType type = 1;
   optional uint32 port = 2;
+  State state = 3;
+
+  enum State {
+    unknown = 0;
+    running = 1;
+    warning = 2;
+    dead = 3;
+    disabled = 4;
+  }
 }
 
 enum VervServiceType {

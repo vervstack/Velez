@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/sirupsen/logrus"
-	//nolint:typecheck
 	"go.redsock.ru/toolbox/respect"
 
 	"go.vervstack.ru/Velez/internal/app"

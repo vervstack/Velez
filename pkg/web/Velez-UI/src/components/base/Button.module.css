@@ -9,8 +9,8 @@
     border-radius: 0.25em;
     border: none;
 
-    width: 5em;
-    height: 2em;
+    width: 6em;
+    height: 4em;
 
     background: var(--accent-bg-color);
     color: var(--secondary-fg-color);

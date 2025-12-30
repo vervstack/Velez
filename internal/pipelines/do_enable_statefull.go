@@ -53,7 +53,7 @@ func (p *pipeliner) EnableStatefullMode(req domain.EnableStatefullClusterRequest
 				p.nodeClients, &launchContainer.Pattern,
 				&containerName, &containerId),
 			smerd_steps.Start(p.nodeClients, &containerId),
-			cluster_steps.GetRgRootDsn(p.nodeClients.Docker(), &containerId, &rootDsn),
+			cluster_steps.GetRgRootDsn(p.nodeClients.Docker(), &containerId, req.ExposePort, &rootDsn),
 			steps.SingleFunc(func(ctx context.Context) error {
 				// TODO Wait for healthy
 				time.Sleep(3 * time.Second)

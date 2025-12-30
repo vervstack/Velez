@@ -11,7 +11,6 @@ require (
 	github.com/google/go-containerregistry v0.20.7
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3
 	github.com/jaypipes/ghw v0.20.0
-	github.com/jmoiron/sqlx v1.4.0
 	github.com/lib/pq v1.10.9
 	github.com/opencontainers/image-spec v1.1.1
 	github.com/pkg/errors v0.9.1

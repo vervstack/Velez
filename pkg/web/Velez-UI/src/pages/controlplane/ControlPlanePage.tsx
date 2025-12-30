@@ -12,6 +12,7 @@ import Loader from "@/components/Loader.tsx";
 import {useCredentialsStore} from "@/app/settings/creds.ts";
 import Dialog from "@/components/complex/dialog/Dialog.tsx";
 import EnableStatefullMode from "@/widgets/services/EnableStatefullMode.tsx";
+import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 
 export default function ControlPlanePage() {
     const [activeComponents, setActiveComponents] =
@@ -24,6 +25,7 @@ export default function ControlPlanePage() {
     const [dialogChild, setDialogChild] = useState<React.ReactNode | undefined>();
 
     const credentialsStore = useCredentialsStore();
+    const toaster = useToaster();
 
     const [isDeployRunning, setIsDeployRunning] = useState(false)
 
@@ -62,8 +64,8 @@ export default function ControlPlanePage() {
     function openDeployStatefullPgDiag(): void {
         setDialogChild(<EnableStatefullMode
             onDeploy={(r: EnableStatefullCluster) => {
-                EnableStatefullPgCluster(r, credentialsStore.getInitReq())
-                    .then()
+                return EnableStatefullPgCluster(r, credentialsStore.getInitReq())
+                    .catch(toaster.catchGrpc)
             }
             }/>);
     }

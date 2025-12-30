@@ -26,7 +26,8 @@ func (impl *Impl) ListServices(ctx context.Context, _ *pb.ListServices_Request) 
 
 	for _, smerd := range smerds.Smerds {
 		srv := &pb.Service{
-			Type: pb.VervServiceType_unknown_service_type,
+			Type:  pb.VervServiceType_unknown_service_type,
+			State: getState(smerd),
 		}
 
 		switch smerd.Name {
@@ -50,13 +51,24 @@ func (impl *Impl) ListServices(ctx context.Context, _ *pb.ListServices_Request) 
 		resp.Services = append(resp.Services, srv)
 	}
 
-	resp.InactiveServices = listInactiveServices(resp.Services)
-
 	sort.Slice(resp.Services, func(i, j int) bool {
 		return resp.Services[i].Type < resp.Services[j].Type
 	})
 
 	return resp, nil
+}
+
+func getState(smerd *pb.Smerd) pb.Service_State {
+	switch smerd.Status {
+	case pb.Smerd_created, pb.Smerd_restarting, pb.Smerd_removing, pb.Smerd_paused:
+		return pb.Service_warning
+	case pb.Smerd_running:
+		return pb.Service_running
+	case pb.Smerd_exited, pb.Smerd_dead:
+		return pb.Service_dead
+	default:
+		return pb.Service_unknown
+	}
 }
 
 func getPort(ports []*pb.Port) *uint32 {

@@ -1,4 +1,5 @@
 import {useState} from "react";
+import cn from "classnames";
 
 import cls from "@/widgets/services/EnableStatefullMode.module.css";
 
@@ -8,14 +9,17 @@ import Button from "@/components/base/Button.tsx";
 import Input from "@/components/base/Input.tsx";
 import Toggle from "@/components/base/Toggle.tsx";
 
+import DatabasePixel from "@/assets/icons/services/database-pixel.svg";
 
 interface EnableStatefullModeProps {
-    onDeploy: (r: EnableStatefullCluster) => void
+    onDeploy: (r: EnableStatefullCluster) => Promise<void>
 }
 
 export default function EnableStatefullMode({onDeploy}: EnableStatefullModeProps) {
     const [isPortExposed, setIsPortExposed] = useState(false);
     const [exposeToPort, setExposeToPort] = useState<number | null>(null);
+
+    const [isLoading, setIsLoading] = useState(false);
 
     function onPortInput(s: string) {
         if (s == "") {
@@ -35,7 +39,15 @@ export default function EnableStatefullMode({onDeploy}: EnableStatefullModeProps
 
     return (
         <div className={cls.EnableStatefullModeContainer}>
-            <div className={cls.HeaderWrapper}>Statefull mode</div>
+            <div className={cls.HeaderWrapper}>
+                <div className={cls.HeaderText}>Statefull mode</div>
+                <img
+                    className={cls.Logo}
+                    src={DatabasePixel}
+                    alt={'Statfull mode'}
+                />
+            </div>
+
             <div className={cls.SettingsWrapper}>
                 <div
                     className={cls.PortToggleWrapper}
@@ -47,25 +59,28 @@ export default function EnableStatefullMode({onDeploy}: EnableStatefullModeProps
                     <Toggle value={isPortExposed} onChange={setIsPortExposed}/>
                 </div>
 
-                {isPortExposed && <div
-					className={cls.ExposeToPortWrapper}
-				>
-					<Input
-						disabled={!isPortExposed}
-						label={'Expose To Port'}
-						inputValue={exposeToPort ? exposeToPort.toString() : null}
-						onChange={onPortInput}
-						hint={"If not presented - exposed port will be assign randomly"}
-					/>
-				</div>
-                }
+                <div className={cn(cls.ExposeToPortWrapper, {
+                    [cls.enabled]: isPortExposed,
+                })}>
+                    <Input
+                        disabled={!isPortExposed}
+                        label={'Expose To Port'}
+                        inputValue={exposeToPort ? exposeToPort.toString() : null}
+                        onChange={onPortInput}
+                        hint={"If not presented - exposed port will be assign randomly"}
+                    />
+                </div>
+
             </div>
             <Button
+                isDisabled={isLoading}
                 onClick={() => {
+                    setIsLoading(true)
                     onDeploy({
                         isExposePort: isPortExposed,
                         exposeToPort: exposeToPort?.toString(),
                     } as EnableStatefullCluster)
+                        .finally(() => setIsLoading(false))
                 }}
                 title={'Deploy'}/>
         </div>

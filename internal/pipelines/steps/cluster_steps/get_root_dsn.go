@@ -17,19 +17,22 @@ import (
 )
 
 type getPgDbDsn struct {
-	docker      node_clients.Docker
-	containerId *string
-	connResp    *string
+	docker        node_clients.Docker
+	containerId   *string
+	isPortExposed bool
+	connResp      *string
 }
 
 func GetRgRootDsn(
 	docker node_clients.Docker,
 	containerId *string,
+	isPortExposed bool,
 	dsnResp *string,
 ) steps.Step {
 	return &getPgDbDsn{
 		docker,
 		containerId,
+		isPortExposed,
 		dsnResp,
 	}
 }
@@ -68,7 +71,7 @@ func (p *getPgDbDsn) Do(ctx context.Context) error {
 		}
 	}
 
-	if !env.IsInContainer() {
+	if !env.IsInContainer() && p.isPortExposed {
 		pgCfg.Host = "localhost"
 		pgCfg.Port, err = p.getExposedPort(cont)
 		if err != nil {

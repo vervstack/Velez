@@ -147,6 +147,42 @@ func (x *VervAppService) GetName() string {
 	return ""
 }
 
+type CreateDeploy struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateDeploy) Reset() {
+	*x = CreateDeploy{}
+	mi := &file_service_api_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateDeploy) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateDeploy) ProtoMessage() {}
+
+func (x *CreateDeploy) ProtoReflect() protoreflect.Message {
+	mi := &file_service_api_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateDeploy.ProtoReflect.Descriptor instead.
+func (*CreateDeploy) Descriptor() ([]byte, []int) {
+	return file_service_api_proto_rawDescGZIP(), []int{3}
+}
+
 type CreateService_Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -156,7 +192,7 @@ type CreateService_Request struct {
 
 func (x *CreateService_Request) Reset() {
 	*x = CreateService_Request{}
-	mi := &file_service_api_proto_msgTypes[3]
+	mi := &file_service_api_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -168,7 +204,7 @@ func (x *CreateService_Request) String() string {
 func (*CreateService_Request) ProtoMessage() {}
 
 func (x *CreateService_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_service_api_proto_msgTypes[3]
+	mi := &file_service_api_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -199,7 +235,7 @@ type CreateService_Response struct {
 
 func (x *CreateService_Response) Reset() {
 	*x = CreateService_Response{}
-	mi := &file_service_api_proto_msgTypes[4]
+	mi := &file_service_api_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -211,7 +247,7 @@ func (x *CreateService_Response) String() string {
 func (*CreateService_Response) ProtoMessage() {}
 
 func (x *CreateService_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_service_api_proto_msgTypes[4]
+	mi := &file_service_api_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -240,7 +276,7 @@ type GetService_Request struct {
 
 func (x *GetService_Request) Reset() {
 	*x = GetService_Request{}
-	mi := &file_service_api_proto_msgTypes[5]
+	mi := &file_service_api_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -252,7 +288,7 @@ func (x *GetService_Request) String() string {
 func (*GetService_Request) ProtoMessage() {}
 
 func (x *GetService_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_service_api_proto_msgTypes[5]
+	mi := &file_service_api_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -321,7 +357,7 @@ type GetService_Response struct {
 
 func (x *GetService_Response) Reset() {
 	*x = GetService_Response{}
-	mi := &file_service_api_proto_msgTypes[6]
+	mi := &file_service_api_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -333,7 +369,7 @@ func (x *GetService_Response) String() string {
 func (*GetService_Response) ProtoMessage() {}
 
 func (x *GetService_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_service_api_proto_msgTypes[6]
+	mi := &file_service_api_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -375,11 +411,176 @@ type GetService_Response_VervService struct {
 
 func (*GetService_Response_VervService) isGetService_Response_Payload() {}
 
+type CreateDeploy_Request struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Specification:
+	//
+	//	*CreateDeploy_Request_New
+	//	*CreateDeploy_Request_Upgrade_
+	Specification isCreateDeploy_Request_Specification `protobuf_oneof:"specification"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateDeploy_Request) Reset() {
+	*x = CreateDeploy_Request{}
+	mi := &file_service_api_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateDeploy_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateDeploy_Request) ProtoMessage() {}
+
+func (x *CreateDeploy_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_service_api_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateDeploy_Request.ProtoReflect.Descriptor instead.
+func (*CreateDeploy_Request) Descriptor() ([]byte, []int) {
+	return file_service_api_proto_rawDescGZIP(), []int{3, 0}
+}
+
+func (x *CreateDeploy_Request) GetSpecification() isCreateDeploy_Request_Specification {
+	if x != nil {
+		return x.Specification
+	}
+	return nil
+}
+
+func (x *CreateDeploy_Request) GetNew() *CreateSmerd_Request {
+	if x != nil {
+		if x, ok := x.Specification.(*CreateDeploy_Request_New); ok {
+			return x.New
+		}
+	}
+	return nil
+}
+
+func (x *CreateDeploy_Request) GetUpgrade() *CreateDeploy_Request_Upgrade {
+	if x != nil {
+		if x, ok := x.Specification.(*CreateDeploy_Request_Upgrade_); ok {
+			return x.Upgrade
+		}
+	}
+	return nil
+}
+
+type isCreateDeploy_Request_Specification interface {
+	isCreateDeploy_Request_Specification()
+}
+
+type CreateDeploy_Request_New struct {
+	// Creates new deployment specification
+	New *CreateSmerd_Request `protobuf:"bytes,1,opt,name=new,proto3,oneof"`
+}
+
+type CreateDeploy_Request_Upgrade_ struct {
+	// Takes current version and upgrades
+	// only certain part of it (image)
+	Upgrade *CreateDeploy_Request_Upgrade `protobuf:"bytes,2,opt,name=upgrade,proto3,oneof"`
+}
+
+func (*CreateDeploy_Request_New) isCreateDeploy_Request_Specification() {}
+
+func (*CreateDeploy_Request_Upgrade_) isCreateDeploy_Request_Specification() {}
+
+type CreateDeploy_Response struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateDeploy_Response) Reset() {
+	*x = CreateDeploy_Response{}
+	mi := &file_service_api_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateDeploy_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateDeploy_Response) ProtoMessage() {}
+
+func (x *CreateDeploy_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_service_api_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateDeploy_Response.ProtoReflect.Descriptor instead.
+func (*CreateDeploy_Response) Descriptor() ([]byte, []int) {
+	return file_service_api_proto_rawDescGZIP(), []int{3, 1}
+}
+
+type CreateDeploy_Request_Upgrade struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Image         *string                `protobuf:"bytes,1,opt,name=image,proto3,oneof" json:"image,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateDeploy_Request_Upgrade) Reset() {
+	*x = CreateDeploy_Request_Upgrade{}
+	mi := &file_service_api_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateDeploy_Request_Upgrade) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateDeploy_Request_Upgrade) ProtoMessage() {}
+
+func (x *CreateDeploy_Request_Upgrade) ProtoReflect() protoreflect.Message {
+	mi := &file_service_api_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateDeploy_Request_Upgrade.ProtoReflect.Descriptor instead.
+func (*CreateDeploy_Request_Upgrade) Descriptor() ([]byte, []int) {
+	return file_service_api_proto_rawDescGZIP(), []int{3, 0, 0}
+}
+
+func (x *CreateDeploy_Request_Upgrade) GetImage() string {
+	if x != nil && x.Image != nil {
+		return *x.Image
+	}
+	return ""
+}
+
 var File_service_api_proto protoreflect.FileDescriptor
 
 const file_service_api_proto_rawDesc = "" +
 	"\n" +
-	"\x11service_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\tnpm.proto\x1a\x12velez_common.proto\":\n" +
+	"\x11service_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\tnpm.proto\x1a\x12velez_common.proto\x1a\x0fvelez_api.proto\":\n" +
 	"\rCreateService\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x1a\n" +
@@ -396,12 +597,23 @@ const file_service_api_proto_rawDesc = "" +
 	"\apayload\"4\n" +
 	"\x0eVervAppService\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name2\xec\x01\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\xe0\x01\n" +
+	"\fCreateDeploy\x1a\xc3\x01\n" +
+	"\aRequest\x122\n" +
+	"\x03new\x18\x01 \x01(\v2\x1e.velez_api.CreateSmerd.RequestH\x00R\x03new\x12C\n" +
+	"\aupgrade\x18\x02 \x01(\v2'.velez_api.CreateDeploy.Request.UpgradeH\x00R\aupgrade\x1a.\n" +
+	"\aUpgrade\x12\x19\n" +
+	"\x05image\x18\x01 \x01(\tH\x00R\x05image\x88\x01\x01B\b\n" +
+	"\x06_imageB\x0f\n" +
+	"\rspecification\x1a\n" +
+	"\n" +
+	"\bResponse2\xe6\x02\n" +
 	"\n" +
 	"ServiceApi\x12t\n" +
 	"\rCreateService\x12 .velez_api.CreateService.Request\x1a!.velez_api.CreateService.Response\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/service/create\x12h\n" +
 	"\n" +
-	"GetService\x12\x1d.velez_api.GetService.Request\x1a\x1e.velez_api.GetService.Response\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/api/service/getBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
+	"GetService\x12\x1d.velez_api.GetService.Request\x1a\x1e.velez_api.GetService.Response\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/api/service/get\x12x\n" +
+	"\fCreateDeploy\x12\x1f.velez_api.CreateDeploy.Request\x1a .velez_api.CreateDeploy.Response\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/api/service/deploy/createBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
 
 var (
 	file_service_api_proto_rawDescOnce sync.Once
@@ -415,27 +627,36 @@ func file_service_api_proto_rawDescGZIP() []byte {
 	return file_service_api_proto_rawDescData
 }
 
-var file_service_api_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_service_api_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_service_api_proto_goTypes = []any{
-	(*CreateService)(nil),          // 0: velez_api.CreateService
-	(*GetService)(nil),             // 1: velez_api.GetService
-	(*VervAppService)(nil),         // 2: velez_api.VervAppService
-	(*CreateService_Request)(nil),  // 3: velez_api.CreateService.Request
-	(*CreateService_Response)(nil), // 4: velez_api.CreateService.Response
-	(*GetService_Request)(nil),     // 5: velez_api.GetService.Request
-	(*GetService_Response)(nil),    // 6: velez_api.GetService.Response
+	(*CreateService)(nil),                // 0: velez_api.CreateService
+	(*GetService)(nil),                   // 1: velez_api.GetService
+	(*VervAppService)(nil),               // 2: velez_api.VervAppService
+	(*CreateDeploy)(nil),                 // 3: velez_api.CreateDeploy
+	(*CreateService_Request)(nil),        // 4: velez_api.CreateService.Request
+	(*CreateService_Response)(nil),       // 5: velez_api.CreateService.Response
+	(*GetService_Request)(nil),           // 6: velez_api.GetService.Request
+	(*GetService_Response)(nil),          // 7: velez_api.GetService.Response
+	(*CreateDeploy_Request)(nil),         // 8: velez_api.CreateDeploy.Request
+	(*CreateDeploy_Response)(nil),        // 9: velez_api.CreateDeploy.Response
+	(*CreateDeploy_Request_Upgrade)(nil), // 10: velez_api.CreateDeploy.Request.Upgrade
+	(*CreateSmerd_Request)(nil),          // 11: velez_api.CreateSmerd.Request
 }
 var file_service_api_proto_depIdxs = []int32{
-	2, // 0: velez_api.GetService.Response.verv_service:type_name -> velez_api.VervAppService
-	3, // 1: velez_api.ServiceApi.CreateService:input_type -> velez_api.CreateService.Request
-	5, // 2: velez_api.ServiceApi.GetService:input_type -> velez_api.GetService.Request
-	4, // 3: velez_api.ServiceApi.CreateService:output_type -> velez_api.CreateService.Response
-	6, // 4: velez_api.ServiceApi.GetService:output_type -> velez_api.GetService.Response
-	3, // [3:5] is the sub-list for method output_type
-	1, // [1:3] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	2,  // 0: velez_api.GetService.Response.verv_service:type_name -> velez_api.VervAppService
+	11, // 1: velez_api.CreateDeploy.Request.new:type_name -> velez_api.CreateSmerd.Request
+	10, // 2: velez_api.CreateDeploy.Request.upgrade:type_name -> velez_api.CreateDeploy.Request.Upgrade
+	4,  // 3: velez_api.ServiceApi.CreateService:input_type -> velez_api.CreateService.Request
+	6,  // 4: velez_api.ServiceApi.GetService:input_type -> velez_api.GetService.Request
+	8,  // 5: velez_api.ServiceApi.CreateDeploy:input_type -> velez_api.CreateDeploy.Request
+	5,  // 6: velez_api.ServiceApi.CreateService:output_type -> velez_api.CreateService.Response
+	7,  // 7: velez_api.ServiceApi.GetService:output_type -> velez_api.GetService.Response
+	9,  // 8: velez_api.ServiceApi.CreateDeploy:output_type -> velez_api.CreateDeploy.Response
+	6,  // [6:9] is the sub-list for method output_type
+	3,  // [3:6] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_service_api_proto_init() }
@@ -444,20 +665,26 @@ func file_service_api_proto_init() {
 		return
 	}
 	file_velez_common_proto_init()
-	file_service_api_proto_msgTypes[5].OneofWrappers = []any{
+	file_velez_api_proto_init()
+	file_service_api_proto_msgTypes[6].OneofWrappers = []any{
 		(*GetService_Request_Id)(nil),
 		(*GetService_Request_Name)(nil),
 	}
-	file_service_api_proto_msgTypes[6].OneofWrappers = []any{
+	file_service_api_proto_msgTypes[7].OneofWrappers = []any{
 		(*GetService_Response_VervService)(nil),
 	}
+	file_service_api_proto_msgTypes[8].OneofWrappers = []any{
+		(*CreateDeploy_Request_New)(nil),
+		(*CreateDeploy_Request_Upgrade_)(nil),
+	}
+	file_service_api_proto_msgTypes[10].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_service_api_proto_rawDesc), len(file_service_api_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

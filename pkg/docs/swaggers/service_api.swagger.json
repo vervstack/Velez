@@ -48,6 +48,39 @@
         ]
       }
     },
+    "/api/service/deploy/create": {
+      "post": {
+        "summary": "CreateDeploy - create new deployment specification\nand prepares to deploy service\nupdating specification is prohibited by design.\nNew deployment - new specification\nInstance update goes gradually.\nWhen new instances are deployed,\nthe old one stops receive traffic and\nbecome obsolete (schedules to be deleted)",
+        "operationId": "ServiceApi_CreateDeploy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateDeployResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateDeployRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ServiceApi"
+        ]
+      }
+    },
     "/api/service/get": {
       "post": {
         "operationId": "ServiceApi_GetService",
@@ -82,6 +115,87 @@
     }
   },
   "definitions": {
+    "ContainerHardware": {
+      "type": "object",
+      "properties": {
+        "cpuAmount": {
+          "type": "number",
+          "format": "float"
+        },
+        "ramMb": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "memorySwapMb": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "ContainerHealthcheck": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "title": "if command is not presented,\nvelez will simply\nwait \"retires\" times for \"interval_second\" seconds each time,\nuntil container get status Running"
+        },
+        "intervalSecond": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "timeoutSecond": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "retries": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "ContainerSettings": {
+      "type": "object",
+      "properties": {
+        "ports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiPort"
+          }
+        },
+        "network": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiNetworkBind"
+          }
+        },
+        "volumes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiVolume"
+          }
+        }
+      }
+    },
+    "PortProtocol": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "tcp",
+        "udp"
+      ],
+      "default": "unknown"
+    },
+    "RequestUpgrade": {
+      "type": "object",
+      "properties": {
+        "image": {
+          "type": "string"
+        }
+      }
+    },
     "googlerpcStatus": {
       "type": "object",
       "properties": {
@@ -110,6 +224,31 @@
       },
       "additionalProperties": {}
     },
+    "velez_apiConfigFormat": {
+      "type": "string",
+      "enum": [
+        "yaml",
+        "env"
+      ],
+      "default": "yaml",
+      "title": "- yaml: Default"
+    },
+    "velez_apiCreateDeployRequest": {
+      "type": "object",
+      "properties": {
+        "new": {
+          "$ref": "#/definitions/velez_apiCreateSmerdRequest",
+          "title": "Creates new deployment specification"
+        },
+        "upgrade": {
+          "$ref": "#/definitions/RequestUpgrade",
+          "title": "Takes current version and upgrades\nonly certain part of it (image)"
+        }
+      }
+    },
+    "velez_apiCreateDeployResponse": {
+      "type": "object"
+    },
     "velez_apiCreateServiceRequest": {
       "type": "object",
       "properties": {
@@ -120,6 +259,56 @@
     },
     "velez_apiCreateServiceResponse": {
       "type": "object"
+    },
+    "velez_apiCreateSmerdRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "imageName": {
+          "type": "string"
+        },
+        "hardware": {
+          "$ref": "#/definitions/ContainerHardware"
+        },
+        "settings": {
+          "$ref": "#/definitions/ContainerSettings"
+        },
+        "command": {
+          "type": "string"
+        },
+        "env": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "healthcheck": {
+          "$ref": "#/definitions/ContainerHealthcheck"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "ignoreConfig": {
+          "type": "boolean"
+        },
+        "useImagePorts": {
+          "type": "boolean"
+        },
+        "autoUpgrade": {
+          "type": "boolean"
+        },
+        "restart": {
+          "$ref": "#/definitions/velez_apiRestartPolicy"
+        },
+        "config": {
+          "$ref": "#/definitions/velez_apiMatreshkaConfigSpec"
+        }
+      }
     },
     "velez_apiGetServiceRequest": {
       "type": "object",
@@ -142,6 +331,80 @@
         }
       }
     },
+    "velez_apiMatreshkaConfigSpec": {
+      "type": "object",
+      "properties": {
+        "configName": {
+          "type": "string",
+          "title": "Name of config. By default velez will try to guess config by\nindirect signs such as (no priority)\n - special MATRESHKA_CONFIG tags\n - image (e.g. postgres, angie and etc)\n - smerd's name (starting with special prefix)"
+        },
+        "configVersion": {
+          "type": "string",
+          "title": "Version to load into smerd. By default - master"
+        },
+        "configFormat": {
+          "$ref": "#/definitions/velez_apiConfigFormat",
+          "title": "Format of config. Different default for different types\ne.g\n   - verv - sets config as environment variables\n   - pg - writes to a config file\ngeneral rule - if target_path is not set -\u003e it's a environment variables"
+        },
+        "systemPath": {
+          "type": "string",
+          "description": "If not set - writes config as an environment variables",
+          "title": "target path of config.\n   If set and has .yaml extension - writes yaml file at path"
+        }
+      }
+    },
+    "velez_apiNetworkBind": {
+      "type": "object",
+      "properties": {
+        "networkName": {
+          "type": "string"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "velez_apiPort": {
+      "type": "object",
+      "properties": {
+        "servicePortNumber": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "protocol": {
+          "$ref": "#/definitions/PortProtocol"
+        },
+        "exposedTo": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "velez_apiRestartPolicy": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/velez_apiRestartPolicyType"
+        },
+        "FailureCount": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "velez_apiRestartPolicyType": {
+      "type": "string",
+      "enum": [
+        "unless_stopped",
+        "no",
+        "always",
+        "on_failure"
+      ],
+      "default": "unless_stopped"
+    },
     "velez_apiVervAppService": {
       "type": "object",
       "properties": {
@@ -150,6 +413,17 @@
           "format": "uint64"
         },
         "name": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiVolume": {
+      "type": "object",
+      "properties": {
+        "volumeName": {
+          "type": "string"
+        },
+        "containerPath": {
           "type": "string"
         }
       }

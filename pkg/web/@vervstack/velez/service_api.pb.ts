@@ -6,6 +6,7 @@
  */
 
 import * as fm from "./fetch.pb";
+import * as VelezApiVelezApi from "./velez_api.pb";
 
 type Absent<T, K extends keyof T> = { [k in Exclude<keyof T, K>]?: undefined };
 
@@ -47,6 +48,22 @@ export type VervAppService = {
     name?: string;
 };
 
+export type CreateDeployRequestUpgrade = {
+    image?: string;
+};
+
+type BaseCreateDeployRequest = {};
+
+export type CreateDeployRequest = BaseCreateDeployRequest &
+    OneOf<{
+        new: VelezApiVelezApi.CreateSmerdRequest;
+        upgrade: CreateDeployRequestUpgrade;
+    }>;
+
+export type CreateDeployResponse = Record<string, never>;
+
+export type CreateDeploy = Record<string, never>;
+
 export class ServiceApi {
     static CreateService(this: void, req: CreateServiceRequest, initReq?: fm.InitReq): Promise<CreateServiceResponse> {
         return fm.fetchRequest<CreateServiceResponse>(`/api/service/create`, {
@@ -58,6 +75,14 @@ export class ServiceApi {
 
     static GetService(this: void, req: GetServiceRequest, initReq?: fm.InitReq): Promise<GetServiceResponse> {
         return fm.fetchRequest<GetServiceResponse>(`/api/service/get`, {
+            ...initReq,
+            method: "POST",
+            body: JSON.stringify(req, fm.replacer)
+        });
+    }
+
+    static CreateDeploy(this: void, req: CreateDeployRequest, initReq?: fm.InitReq): Promise<CreateDeployResponse> {
+        return fm.fetchRequest<CreateDeployResponse>(`/api/service/deploy/create`, {
             ...initReq,
             method: "POST",
             body: JSON.stringify(req, fm.replacer)

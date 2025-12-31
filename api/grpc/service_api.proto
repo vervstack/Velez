@@ -6,6 +6,7 @@ import "google/api/annotations.proto";
 
 import "npm.proto";
 import "velez_common.proto";
+import "velez_api.proto";
 
 option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
 option (npm_package) = "@vervstack/velez";
@@ -21,6 +22,21 @@ service ServiceApi {
   rpc GetService(GetService.Request) returns (GetService.Response) {
     option (google.api.http) = {
       post: "/api/service/get"
+      body: "*"
+    };
+  }
+
+  // CreateDeploy - create new deployment specification
+  // and prepares to deploy service
+  // updating specification is prohibited by design.
+  // New deployment - new specification
+  // Instance update goes gradually.
+  // When new instances are deployed,
+  // the old one stops receive traffic and
+  // become obsolete (schedules to be deleted)
+  rpc CreateDeploy(CreateDeploy.Request) returns (CreateDeploy.Response) {
+    option (google.api.http) = {
+      post: "/api/service/deploy/create"
       body: "*"
     };
   }
@@ -54,4 +70,22 @@ message GetService {
 message VervAppService {
   uint64 id = 1;
   string name = 2;
+}
+
+message CreateDeploy {
+  message Request {
+    oneof specification {
+      // Creates new deployment specification
+      CreateSmerd.Request new = 1;
+      // Takes current version and upgrades
+      // only certain part of it (image)
+      Upgrade upgrade = 2;
+    }
+
+    message Upgrade {
+      optional string image = 1;
+    }
+  }
+
+  message Response {}
 }

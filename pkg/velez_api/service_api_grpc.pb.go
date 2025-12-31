@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	ServiceApi_CreateService_FullMethodName = "/velez_api.ServiceApi/CreateService"
 	ServiceApi_GetService_FullMethodName    = "/velez_api.ServiceApi/GetService"
+	ServiceApi_CreateDeploy_FullMethodName  = "/velez_api.ServiceApi/CreateDeploy"
 )
 
 // ServiceApiClient is the client API for ServiceApi service.
@@ -29,6 +30,15 @@ const (
 type ServiceApiClient interface {
 	CreateService(ctx context.Context, in *CreateService_Request, opts ...grpc.CallOption) (*CreateService_Response, error)
 	GetService(ctx context.Context, in *GetService_Request, opts ...grpc.CallOption) (*GetService_Response, error)
+	// CreateDeploy - create new deployment specification
+	// and prepares to deploy service
+	// updating specification is prohibited by design.
+	// New deployment - new specification
+	// Instance update goes gradually.
+	// When new instances are deployed,
+	// the old one stops receive traffic and
+	// become obsolete (schedules to be deleted)
+	CreateDeploy(ctx context.Context, in *CreateDeploy_Request, opts ...grpc.CallOption) (*CreateDeploy_Response, error)
 }
 
 type serviceApiClient struct {
@@ -59,12 +69,31 @@ func (c *serviceApiClient) GetService(ctx context.Context, in *GetService_Reques
 	return out, nil
 }
 
+func (c *serviceApiClient) CreateDeploy(ctx context.Context, in *CreateDeploy_Request, opts ...grpc.CallOption) (*CreateDeploy_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateDeploy_Response)
+	err := c.cc.Invoke(ctx, ServiceApi_CreateDeploy_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServiceApiServer is the server API for ServiceApi service.
 // All implementations must embed UnimplementedServiceApiServer
 // for forward compatibility.
 type ServiceApiServer interface {
 	CreateService(context.Context, *CreateService_Request) (*CreateService_Response, error)
 	GetService(context.Context, *GetService_Request) (*GetService_Response, error)
+	// CreateDeploy - create new deployment specification
+	// and prepares to deploy service
+	// updating specification is prohibited by design.
+	// New deployment - new specification
+	// Instance update goes gradually.
+	// When new instances are deployed,
+	// the old one stops receive traffic and
+	// become obsolete (schedules to be deleted)
+	CreateDeploy(context.Context, *CreateDeploy_Request) (*CreateDeploy_Response, error)
 	mustEmbedUnimplementedServiceApiServer()
 }
 
@@ -80,6 +109,9 @@ func (UnimplementedServiceApiServer) CreateService(context.Context, *CreateServi
 }
 func (UnimplementedServiceApiServer) GetService(context.Context, *GetService_Request) (*GetService_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetService not implemented")
+}
+func (UnimplementedServiceApiServer) CreateDeploy(context.Context, *CreateDeploy_Request) (*CreateDeploy_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateDeploy not implemented")
 }
 func (UnimplementedServiceApiServer) mustEmbedUnimplementedServiceApiServer() {}
 func (UnimplementedServiceApiServer) testEmbeddedByValue()                    {}
@@ -138,6 +170,24 @@ func _ServiceApi_GetService_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServiceApi_CreateDeploy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateDeploy_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceApiServer).CreateDeploy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceApi_CreateDeploy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceApiServer).CreateDeploy(ctx, req.(*CreateDeploy_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ServiceApi_ServiceDesc is the grpc.ServiceDesc for ServiceApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +202,10 @@ var ServiceApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetService",
 			Handler:    _ServiceApi_GetService_Handler,
+		},
+		{
+			MethodName: "CreateDeploy",
+			Handler:    _ServiceApi_CreateDeploy_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

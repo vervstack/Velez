@@ -49,7 +49,7 @@ export default function InputSearch(props: InputSearchProps) {
                 className={cn(cls.SuggestionList, {
                     [cls.Open]: isSuggestOpen,
                 })}>
-                {props.suggests ?
+                {props.suggests && props.suggests?.length !== 0 ?
                     props.suggests.map((s) =>
                         <div
                             key={s.name}

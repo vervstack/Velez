@@ -11,19 +11,12 @@ import {toServices} from "@/processes/mappings/services.ts";
 import {InitReq} from "@/app/settings/state.ts";
 import {Service} from "@/model/services/Services.tsx";
 
-interface CpServices {
-    active: Service[];
-    inactive: Service[];
-}
 
-export async function ListServices(initReq: InitReq): Promise<CpServices> {
+export async function ListServices(initReq: InitReq): Promise<Service[]> {
     const req: ListServicesRequest = {} as ListServicesRequest
 
     const list = await ControlPlaneAPI.ListServices(req, initReq);
-    return {
-        active: toServices(list.services || []),
-        inactive: toServices(list.inactiveServices || []),
-    } as CpServices;
+    return toServices(list.services || []);
 }
 
 

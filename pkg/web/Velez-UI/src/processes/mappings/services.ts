@@ -1,5 +1,6 @@
 import {
     VervServiceType,
+    ServiceState,
     Service as ApiServices
 } from "@vervstack/velez";
 
@@ -13,11 +14,7 @@ export function toServices(services: ApiServices[]): Service[] {
 
     services.map(s => {
         const srv = new Service(s.type || VervServiceType.unknown_service_type, s.port)
-
-        if (s.constructor !== Object)
-            srv.smerdConstructor = s.constructor
-
-        srv.togglable = s.togglable || false
+        srv.state = s.state || ServiceState.unknown
         out.push(srv)
     })
 

@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 
-import {VervServiceType, EnableStatefullCluster} from "@vervstack/velez";
+import {VervServiceType, EnableStatefullCluster, ServiceState} from "@vervstack/velez";
 
 import cls from '@/pages/controlplane/ControlPlanePage.module.css';
 
@@ -15,10 +15,7 @@ import EnableStatefullMode from "@/widgets/services/EnableStatefullMode.tsx";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 
 export default function ControlPlanePage() {
-    const [activeComponents, setActiveComponents] =
-        useState<Service[]>([]);
-
-    const [inactiveComponents, setInactiveComponents] =
+    const [services, setServices] =
         useState<Service[]>([]);
 
     const [isLoading, setIsLoading] = useState(true)
@@ -32,10 +29,7 @@ export default function ControlPlanePage() {
     useEffect(() => {
         setIsLoading(true)
         ListServices(credentialsStore.getInitReq())
-            .then((r) => {
-                setActiveComponents(r.active)
-                setInactiveComponents(r.inactive)
-            })
+            .then(setServices)
             .then(() => setIsLoading(false))
     }, []);
 
@@ -97,7 +91,8 @@ export default function ControlPlanePage() {
         <div className={cls.ControlPlaneContainer}>
             <div className={cls.Content}>
                 <div className={cls.ServicesBlock}>
-                    {activeComponents
+                    {services
+                        .filter(s => s.state == ServiceState.running)
                         .map((v, idx) =>
                             <div
                                 className={cls.ServiceCardWrapper}
@@ -108,15 +103,17 @@ export default function ControlPlanePage() {
                                 }}
 
                             >
-                                <ServiceCard disabled={false}
-                                             {...v}
+                                <ServiceCard
+                                    disabled={false}
+                                    {...v}
                                 />
                             </div>)
                     }
                 </div>
 
                 <div className={cls.ServicesBlock}>
-                    {inactiveComponents
+                    {services
+                        .filter(s => s.state != ServiceState.running)
                         .map((v: Service, idx) =>
                             <div
                                 className={cls.ServiceCardWrapper}

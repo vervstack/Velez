@@ -1,4 +1,4 @@
-import {VervServiceType} from "@vervstack/velez"
+import {VervServiceType, ServiceState} from "@vervstack/velez"
 
 import MatreshkaIcon from "@/assets/icons/services/matreshka.png";
 import MakoshIcon from "@/assets/icons/services/makosh.png";
@@ -15,6 +15,8 @@ export class Service {
     webLink?: string
     description: string
     type: VervServiceType
+
+    state: ServiceState = ServiceState.unknown
 
     constructor(type: VervServiceType, port?: number) {
         const serviceMeta = metaByType.get(type);
@@ -75,7 +77,8 @@ metaByType.set(VervServiceType.statefull_pg, {
     title: "Stateful mode",
     icon: DatabasePixelIcon,
     description: `
-    Deploys a Postgres DB to enable stateful deployments and cluster joining. 
+    Deployed Postgres DB that stores information about services and
+    allows multiple Velez nodes assemble into cluster.
     The Verv API remains operational even if the state is unavailable, avoiding a single point of failure.`
 });
 

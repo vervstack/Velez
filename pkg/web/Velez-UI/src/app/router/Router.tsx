@@ -6,17 +6,22 @@ import MainLayout from "@/app/router/MainLayout.tsx";
 import SmerdPage from "@/pages/smerd/SmerdPage.tsx";
 import DeployPage from "@/pages/deploy/DeployPage.tsx";
 import VervClosedNetworkPage from "@/pages/vcn/VervClosedNetworkPage.tsx";
+import NewServicePage from "@/pages/new_service/NewServicePage.tsx";
+import ServiceInfoPage from "@/pages/service_info/ServiceInfoPage.tsx";
 
 export enum Routes {
     Home = "/",
     ControlPlane = "/cp",
     Deploy = "/deploy",
     Smerd = "/smerd",
-    VCN = "/vcn"
+    VCN = "/vcn",
+    NewVervService = '/new_verv_service',
+    Service = '/service'
 }
 
 export enum Arguments {
-    Name = "name"
+    Name = "name",
+    Key = "key"
 }
 
 const router = createBrowserRouter([
@@ -28,6 +33,16 @@ const router = createBrowserRouter([
             {
                 index: true,
                 element: <HomePage/>,
+            },
+
+            {
+                path: Routes.NewVervService,
+                element: (<NewServicePage/>)
+            },
+
+            {
+                path: Routes.Service + "/:" + Arguments.Key,
+                element: (<ServiceInfoPage/>),
             },
             {
                 path: Routes.Deploy,

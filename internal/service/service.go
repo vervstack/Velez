@@ -16,6 +16,8 @@ type Services interface {
 	ConfigurationService() ConfigurationService
 
 	Docker() node_clients.Docker
+
+	VervServices() VervServicesService
 }
 
 type ContainerService interface {
@@ -36,4 +38,9 @@ type ConfigurationService interface {
 	SubscribeOnChanges(serviceNames ...string) error
 	UnsubscribeFromChanges(serviceNames ...string) error
 	GetUpdates() <-chan domain.ConfigurationPatch
+}
+
+// VervServicesService - service provides api for operations over Verv Services
+type VervServicesService interface {
+	Get(ctx context.Context, r domain.GetServiceReq) (domain.Service, error)
 }

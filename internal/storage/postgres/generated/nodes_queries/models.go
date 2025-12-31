@@ -2,13 +2,14 @@
 // versions:
 //   sqlc v1.30.0
 
-package pg_queries
+package nodes_queries
 
 import (
 	"database/sql/driver"
-	"encoding/json"
 	"fmt"
 	"time"
+
+	"github.com/sqlc-dev/pqtype"
 )
 
 type DeploymentStatus string
@@ -59,13 +60,20 @@ func (ns NullDeploymentStatus) Value() (driver.Value, error) {
 }
 
 type VelezDeployment struct {
-	ID                      int64
-	ServiceID               int64
-	NodeID                  int32
-	CreatedAt               time.Time
-	UpdatedAt               time.Time
-	Status                  DeploymentStatus
-	DeploymentSpecification json.RawMessage
+	ID        int64
+	ServiceID int64
+	NodeID    int32
+	SpecID    int64
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Status    DeploymentStatus
+}
+
+type VelezDeploymentSpecification struct {
+	ID          int64
+	Name        string
+	CreatedAt   time.Time
+	VervPayload pqtype.NullRawMessage
 }
 
 type VelezNode struct {

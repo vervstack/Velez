@@ -24,6 +24,10 @@ export default function PageHeader() {
 
     const navigation: NavigationUnit[] = [
         {
+            title: 'New service',
+            route: Routes.NewVervService,
+        },
+        {
             title: 'Deploy',
             route: Routes.Deploy,
         },

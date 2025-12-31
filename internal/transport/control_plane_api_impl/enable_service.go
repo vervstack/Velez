@@ -20,9 +20,14 @@ func (impl *Impl) EnableService(ctx context.Context, req *pb.EnableService_Reque
 	var err error
 	switch req.GetService() {
 	case pb.VervServiceType_statefull_pg:
+		payload, ok := req.Payload.(*pb.EnableService_Request_StatefullCluster)
+		if !ok {
+			return nil, rerrors.New("invalid payload", codes.InvalidArgument)
+		}
+
 		r := domain.EnableStatefullClusterRequest{
-			ExposePort:   false,
-			ExposeToPort: 0,
+			ExposePort:   payload.StatefullCluster.GetIsExposePort(),
+			ExposeToPort: payload.StatefullCluster.GetExposeToPort(),
 		}
 		runner := impl.pipeliner.EnableStatefullMode(r)
 		err = runner.Run(ctx)

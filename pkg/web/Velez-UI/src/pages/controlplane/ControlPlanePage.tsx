@@ -113,7 +113,7 @@ export default function ControlPlanePage() {
 
                 <div className={cls.ServicesBlock}>
                     {services
-                        .filter(s => s.state != ServiceState.running)
+                        .filter(s => s.state !== ServiceState.running)
                         .map((v: Service, idx) =>
                             <div
                                 className={cls.ServiceCardWrapper}

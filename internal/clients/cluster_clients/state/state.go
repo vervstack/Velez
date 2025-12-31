@@ -45,6 +45,16 @@ func (s *stateManager) Nodes() storage.NodesStorage {
 	return cm.Nodes()
 }
 
+func (s *stateManager) Services() storage.ServicesStorage {
+	l := s.state.Load()
+	cm, ok := (*l).(cluster_clients.ClusterStateManager)
+	if !ok {
+		return nil
+	}
+
+	return cm.Services()
+}
+
 func (s *stateManager) Set(manager cluster_clients.ClusterStateManager) {
 	s.state.Store(&manager)
 }

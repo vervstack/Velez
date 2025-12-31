@@ -4,6 +4,6 @@
   "IsHeadscaleEnabled": true,
   "HeadscaleKey": "v6h7IEa.vqf_q8lZTmBgphgMqfYP8Q6qKRrtW4K4",
   "HeadscaleServerUrl": "https://vcn.redsock.ru",
-  "PgRootDsn": "postgresql://postgres:d3hSejFkZnF0@localhost:25432/postgres?sslmode=disable\u0026application_name=RootSetup",
-  "PgNodeDsn": "postgresql://icy_raccoon:d3hSejFkZnF0@localhost:25432/postgres?sslmode=disable\u0026application_name=icy_raccoon"
+  "PgRootDsn": "postgresql://postgres:Z2h0TDFGSE1ZYklR@localhost:32768/postgres?sslmode=disable\u0026application_name=RootSetup",
+  "PgNodeDsn": "postgresql://icy_raccoon:ZW1LQk5EZzI3@localhost:32768/postgres?sslmode=disable\u0026application_name=icy_raccoon"
 }

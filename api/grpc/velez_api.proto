@@ -10,6 +10,7 @@ import "velez_common.proto";
 option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
 option (npm_package) = "@vervstack/velez";
 
+// VelezAPI direct API for work with containers.
 service VelezAPI {
   rpc Version(Version.Request) returns (Version.Response) {
     option (google.api.http) = {

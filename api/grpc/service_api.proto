@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package velez_api;
+
+import "google/api/annotations.proto";
+
+import "npm.proto";
+import "velez_common.proto";
+
+option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
+option (npm_package) = "@vervstack/velez";
+
+service ServiceApi {
+  rpc CreateService(CreateService.Request) returns (CreateService.Response) {
+    option (google.api.http) = {
+      post: "/api/service/create"
+      body: "*"
+    };
+  }
+
+  rpc GetService(GetService.Request) returns (GetService.Response) {
+    option (google.api.http) = {
+      post: "/api/service/get"
+      body: "*"
+    };
+  }
+}
+
+message CreateService {
+  message Request {
+    string name = 1;
+  }
+
+  message Response {}
+}
+
+
+message GetService {
+  message Request {
+    oneof payload {
+      uint64 id = 1;
+      string name = 2;
+    }
+  }
+
+  message Response {
+    oneof payload {
+      VervAppService verv_service = 1;
+      // in future there might be other service types that needs to be managed
+    }
+  }
+}
+
+message VervAppService {
+  uint64 id = 1;
+  string name = 2;
+}

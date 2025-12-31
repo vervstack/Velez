@@ -3,7 +3,7 @@
 //   sqlc v1.30.0
 // source: nodes.sql
 
-package pg_queries
+package nodes_queries
 
 import (
 	"context"

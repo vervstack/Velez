@@ -5,7 +5,7 @@ import (
 
 	"go.redsock.ru/rerrors"
 
-	pg_queries "go.vervstack.ru/Velez/internal/storage/postgres/generated"
+	pg_queries "go.vervstack.ru/Velez/internal/storage/postgres/generated/nodes_queries"
 )
 
 type nodeStorage struct {

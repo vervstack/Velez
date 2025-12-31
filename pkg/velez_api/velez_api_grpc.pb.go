@@ -34,6 +34,8 @@ const (
 // VelezAPIClient is the client API for VelezAPI service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// VelezAPI direct API for work with containers.
 type VelezAPIClient interface {
 	Version(ctx context.Context, in *Version_Request, opts ...grpc.CallOption) (*Version_Response, error)
 	CreateSmerd(ctx context.Context, in *CreateSmerd_Request, opts ...grpc.CallOption) (*Smerd, error)
@@ -162,6 +164,8 @@ func (c *velezAPIClient) SearchImages(ctx context.Context, in *SearchImages_Requ
 // VelezAPIServer is the server API for VelezAPI service.
 // All implementations must embed UnimplementedVelezAPIServer
 // for forward compatibility.
+//
+// VelezAPI direct API for work with containers.
 type VelezAPIServer interface {
 	Version(context.Context, *Version_Request) (*Version_Response, error)
 	CreateSmerd(context.Context, *CreateSmerd_Request) (*Smerd, error)

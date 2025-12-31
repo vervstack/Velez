@@ -51,6 +51,8 @@ func (impl *Impl) ListServices(ctx context.Context, _ *pb.ListServices_Request) 
 		resp.Services = append(resp.Services, srv)
 	}
 
+	resp.Services = append(resp.Services, listInactiveServices(resp.Services)...)
+
 	sort.Slice(resp.Services, func(i, j int) bool {
 		return resp.Services[i].Type < resp.Services[j].Type
 	})

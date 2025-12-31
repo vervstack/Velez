@@ -10,6 +10,10 @@ type noImpl struct {
 
 var _ cluster_clients.ClusterStateManager = (*noImpl)(nil)
 
+func (n noImpl) Services() storage.ServicesStorage {
+	return nil
+}
+
 func (n noImpl) Nodes() storage.NodesStorage {
 	return nil
 }

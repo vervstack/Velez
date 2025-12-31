@@ -32,6 +32,11 @@ type Pipeliner interface {
 
 	// EnableStatefullMode - deploys postgres and enables cluster mode
 	EnableStatefullMode(cluster domain.EnableStatefullClusterRequest) Runner[any]
+
+	// Verv services piplines
+
+	// CreateService - creates empty an Verv-project with configuration mocks
+	CreateService(req domain.CreateServiceReq) Runner[domain.ServiceBasicInfo]
 }
 
 type Runner[T any] interface {

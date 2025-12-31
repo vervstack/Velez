@@ -30,7 +30,7 @@ import (
 )
 
 type Custom struct {
-	// NodeClients - hardware scanner, docker and wrappers
+	// NodeClients - hardware scanner, docker, and wrappers
 	NodeClients node_clients.NodeClients
 
 	// ClusterClients - contains verv cluster's dependencies

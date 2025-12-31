@@ -3,15 +3,35 @@ package headscale
 import (
 	"context"
 
+	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 )
 
 type Client struct {
-	docker        node_clients.Docker
+	docker node_clients.Docker
+
+	// deprecated
 	containerName string
 	apiKey        string
 
 	headscaleApiUrl string
+}
+
+func Connect(ctx context.Context, url, token string) (*Client, error) {
+	srv := &Client{
+		headscaleApiUrl: url,
+		apiKey:          token,
+	}
+
+	namespaces, err := srv.ListNamespaces(ctx)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error listing namespaces")
+	}
+
+	_ = namespaces
+
+	return srv, nil
 }
 
 func New(ctx context.Context, nc node_clients.NodeClients, containerName string) (srv *Client, err error) {

@@ -75,6 +75,7 @@ message EnableService {
     VervServiceType service = 1;
     oneof payload {
       EnableStatefullCluster statefull_cluster = 2;
+      EnableHeadscaleServer headscale_server = 3;
     }
   }
 
@@ -97,4 +98,24 @@ message ConnectSlave {
 message EnableStatefullCluster {
   optional bool is_expose_port = 1;
   optional uint64 expose_to_port = 2;
+}
+
+message EnableHeadscaleServer {
+  oneof payload {
+    DeployHeadscaleConfig deploy_config = 1;
+    ExternalHeadscaleConnection external_connect = 2;
+  }
+
+  message ExternalHeadscaleConnection {
+    string url = 1;
+    string token = 2;
+  }
+
+  message DeployHeadscaleConfig {
+    // Headscale must export any port.
+    // Using custom_port allows you to specify the port to expose to
+    optional uint32 custom_port = 1;
+    // Using custom_image you can specify the exact image to deploy
+    optional string custom_image = 2;
+  }
 }

@@ -6,7 +6,6 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
-	headscaleClient "go.vervstack.ru/Velez/internal/clients/cluster_clients/headscale"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/makosh"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/matreshka"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
@@ -21,7 +20,7 @@ import (
 type clusterClients struct {
 	matreshka        matreshka.Client
 	serviceDiscovery *makosh.ServiceDiscovery
-	headscale        *headscaleClient.Client
+	headscale        cluster_clients.VervClosedNetworkClient
 	stateManager     cluster_clients.ClusterStateManagerContainer
 }
 
@@ -35,7 +34,7 @@ func Setup(ctx context.Context, cfg config.Config, nodeClients node_clients.Node
 	// 1. Single node - docker network (❌not implemented)
 	// 2. Multi node Tailscale - using 3rd party service (❌not implemented)
 	// 3. Multi node - using headscale setup (⚠️ in development)
-	vcnClient, err := verv_closed_network.LaunchHeadscale(ctx, cfg, nodeClients)
+	vcnClient, err := verv_closed_network.SetupVcn(ctx, cfg, nodeClients)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error during vpn server client initialization")
 	}
@@ -78,7 +77,7 @@ func (c *clusterClients) Configurator() cluster_clients.Configurator {
 
 func (c *clusterClients) Vpn() cluster_clients.VervClosedNetworkClient {
 	if c.headscale == nil {
-		return &disabledVpn{}
+		return &verv_closed_network.DisabledVcnImpl{}
 	}
 	return c.headscale
 }

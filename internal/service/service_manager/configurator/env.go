@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"go.vervstack.ru/Velez/internal/cluster"
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
@@ -30,7 +30,7 @@ func (c *Configurator) getEnvFromApi(ctx context.Context, meta domain.ConfigMeta
 		if status.Code(err) == codes.NotFound {
 			return &evon.Node{}, nil
 		}
-		if rerrors.Is(err, cluster.ErrServiceIsDisabled) {
+		if rerrors.Is(err, cluster_clients.ErrServiceIsDisabled) {
 			return &evon.Node{}, nil
 		}
 		return nil, rerrors.Wrap(err, "error getting config nodes")

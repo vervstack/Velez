@@ -31,3 +31,12 @@ type IssueClientKey struct {
 	NamespaceId string
 	Reusable    bool
 }
+
+type SetupHeadscaleRequest struct {
+	ExposeToPort *string
+	CustomImage  *string
+}
+
+type SetupHeadscaleResponse struct {
+	Token string
+}

@@ -56,6 +56,7 @@ type BaseEnableServiceRequest = {
 export type EnableServiceRequest = BaseEnableServiceRequest &
   OneOf<{
     statefullCluster: EnableStatefullCluster;
+      headscaleServer: EnableHeadscaleServer;
   }>;
 
 export type EnableServiceResponse = Record<string, never>;
@@ -78,6 +79,24 @@ export type EnableStatefullCluster = {
   isExposePort?: boolean;
   exposeToPort?: string;
 };
+
+export type EnableHeadscaleServerExternalHeadscaleConnection = {
+    url?: string;
+    token?: string;
+};
+
+export type EnableHeadscaleServerDeployHeadscaleConfig = {
+    customPort?: number;
+    customImage?: string;
+};
+
+type BaseEnableHeadscaleServer = {};
+
+export type EnableHeadscaleServer = BaseEnableHeadscaleServer &
+    OneOf<{
+        deployConfig: EnableHeadscaleServerDeployHeadscaleConfig;
+        externalConnect: EnableHeadscaleServerExternalHeadscaleConnection;
+    }>;
 
 export class ControlPlaneAPI {
   static ListServices(this:void, req: ListServicesRequest, initReq?: fm.InitReq): Promise<ListServicesResponse> {

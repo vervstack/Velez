@@ -24,12 +24,12 @@ export default function PageHeader() {
 
     const navigation: NavigationUnit[] = [
         {
-            title: 'Control Plane',
-            route: Routes.ControlPlane,
-        },
-        {
             title: 'Deploy',
             route: Routes.Deploy,
+        },
+        {
+            title: 'Control Plane',
+            route: Routes.ControlPlane,
         },
         {
             title: 'VCN',

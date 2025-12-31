@@ -3,11 +3,17 @@ package cluster_clients
 import (
 	"context"
 
+	"go.redsock.ru/rerrors"
 	makosh "go.vervstack.ru/makosh/pkg/makosh_be"
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
+	"google.golang.org/grpc/codes"
 
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
+)
+
+var (
+	ErrServiceIsDisabled = rerrors.New("service is disabled", codes.FailedPrecondition)
 )
 
 type ClusterClients interface {

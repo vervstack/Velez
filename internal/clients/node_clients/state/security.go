@@ -27,9 +27,13 @@ type Manager struct {
 type State struct {
 	VelezKey     string
 	MatreshkaKey string
-	HeadscaleKey string
-	PgRootDsn    string
-	PgNodeDsn    string
+
+	IsHeadscaleEnabled bool
+	HeadscaleKey       string
+	HeadscaleServerUrl string
+
+	PgRootDsn string
+	PgNodeDsn string
 }
 
 func NewSecurityManager(cfg config.Config) *Manager {

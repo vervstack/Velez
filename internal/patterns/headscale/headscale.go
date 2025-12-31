@@ -10,6 +10,7 @@ import (
 	"github.com/docker/go-connections/nat"
 	rtb "go.redsock.ru/toolbox"
 
+	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
@@ -25,13 +26,7 @@ const (
 	defaultConfigPath = "/etc/headscale/config.yaml"
 )
 
-type Settings struct {
-	apiPortExposedTo string
-
-	image string
-}
-
-func Headscale(r Settings) container.CreateRequest {
+func Headscale(r domain.SetupHeadscaleRequest) container.CreateRequest {
 	name := ServiceName
 
 	return container.CreateRequest{
@@ -45,7 +40,7 @@ func Headscale(r Settings) container.CreateRequest {
 				Test: []string{"CMD", "headscale", "health"},
 			},
 
-			Image: rtb.Coalesce(r.image, defaultImage),
+			Image: rtb.Coalesce(rtb.FromPtr(r.CustomImage), defaultImage),
 
 			Labels: map[string]string{
 				labels.VervServiceLabel:  "true",
@@ -68,10 +63,16 @@ func Headscale(r Settings) container.CreateRequest {
 			PortBindings: map[nat.Port][]nat.PortBinding{
 				ApiPort: {
 					{
-						HostPort: rtb.Coalesce(r.apiPortExposedTo, ApiPort),
+						HostPort: rtb.Coalesce(rtb.FromPtr(r.ExposeToPort), ApiPort),
 					},
 				},
 			},
 		},
 	}
+}
+
+func BasicConfig() []byte {
+	b := make([]byte, 0, len(headscaleBasicConfig))
+	copy(b, headscaleBasicConfig)
+	return b
 }

@@ -29,6 +29,7 @@ func TailScaleContainerSidecar(serviceName string) container.CreateRequest {
 			},
 			Labels: map[string]string{
 				labels.ComposeGroupLabel: serviceName,
+				labels.Sidecar:           "true",
 			},
 		},
 		HostConfig: &container.HostConfig{

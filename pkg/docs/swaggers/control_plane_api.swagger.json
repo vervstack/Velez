@@ -105,6 +105,31 @@
     }
   },
   "definitions": {
+    "EnableHeadscaleServerDeployHeadscaleConfig": {
+      "type": "object",
+      "properties": {
+        "customPort": {
+          "type": "integer",
+          "format": "int64",
+          "title": "Headscale must export any port.\nUsing custom_port allows you to specify the port to expose to"
+        },
+        "customImage": {
+          "type": "string",
+          "title": "Using custom_image you can specify the exact image to deploy"
+        }
+      }
+    },
+    "EnableHeadscaleServerExternalHeadscaleConnection": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        }
+      }
+    },
     "ServiceState": {
       "type": "string",
       "enum": [
@@ -150,6 +175,17 @@
     "velez_apiConnectSlaveResponse": {
       "type": "object"
     },
+    "velez_apiEnableHeadscaleServer": {
+      "type": "object",
+      "properties": {
+        "deployConfig": {
+          "$ref": "#/definitions/EnableHeadscaleServerDeployHeadscaleConfig"
+        },
+        "externalConnect": {
+          "$ref": "#/definitions/EnableHeadscaleServerExternalHeadscaleConnection"
+        }
+      }
+    },
     "velez_apiEnableServiceRequest": {
       "type": "object",
       "properties": {
@@ -158,6 +194,9 @@
         },
         "statefullCluster": {
           "$ref": "#/definitions/velez_apiEnableStatefullCluster"
+        },
+        "headscaleServer": {
+          "$ref": "#/definitions/velez_apiEnableHeadscaleServer"
         }
       }
     },

@@ -8,6 +8,7 @@ const (
 	// CreatedWithVelezLabel - helps Velez identify it's owns containers.
 	// Set by default when using docker.Docker
 	CreatedWithVelezLabel = "CREATED_WITH_VELEZ"
+	Sidecar               = "SIDECAR"
 	VervServiceLabel      = "VERV_SERVICE"
 	MatreshkaConfigLabel  = "MATRESHKA_CONFIG_ENABLED"
 	AutoUpgrade           = "VELEZ_AUTO_UPGRADE"

@@ -10,10 +10,12 @@ import (
 	"go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/keep_alive"
 
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/headscale"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster/env/container_service_task"
 	"go.vervstack.ru/Velez/internal/config"
+	"go.vervstack.ru/Velez/internal/domain"
 	headscalePatterns "go.vervstack.ru/Velez/internal/patterns/headscale"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
@@ -32,7 +34,34 @@ type headscaleLauncher struct {
 	clients node_clients.NodeClients
 }
 
-// LaunchHeadscale creates a headscale containe to connect to
+func SetupVcn(
+	ctx context.Context,
+	cfg config.Config,
+	nodeClients node_clients.NodeClients) (cluster_clients.VervClosedNetworkClient, error) {
+	state := nodeClients.LocalStateManager().Get()
+
+	if !state.IsHeadscaleEnabled {
+		// TODO return docker network wrapper
+		return DisabledVcnImpl{}, nil
+	}
+
+	if state.HeadscaleKey != "" && state.HeadscaleServerUrl != "" {
+		client, err := headscale.Connect(ctx, state.HeadscaleServerUrl, state.HeadscaleKey)
+		if err != nil {
+			return nil, rerrors.Wrap(err, "error creating headscale client")
+		}
+
+		return client, nil
+	}
+
+	client, err := LaunchHeadscale(ctx, cfg, nodeClients)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error launching headscale in this node")
+	}
+
+	return client, nil
+}
+
 func LaunchHeadscale(
 	ctx context.Context,
 	cfg config.Config,
@@ -40,7 +69,7 @@ func LaunchHeadscale(
 ) (*headscale.Client, error) {
 	l := headscaleLauncher{ctx, cfg, nodeClients}
 
-	isRunning, err := l.isServiceRunning()
+	isRunning, err := l.isServiceRunningOnThisNode()
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error checking if headscale is running")
 	}
@@ -65,7 +94,7 @@ func LaunchHeadscale(
 	return client, nil
 }
 
-func (l headscaleLauncher) isServiceRunning() (bool, error) {
+func (l headscaleLauncher) isServiceRunningOnThisNode() (bool, error) {
 	docker := l.clients.Docker()
 
 	listReq := &velez_api.ListSmerds_Request{
@@ -100,7 +129,7 @@ func (l headscaleLauncher) deploy() error {
 
 func (l headscaleLauncher) createContainerTask() error {
 	//
-	createContainerReq := headscalePatterns.Headscale(headscalePatterns.Settings{})
+	createContainerReq := headscalePatterns.Headscale(domain.SetupHeadscaleRequest{})
 
 	taskConstructor, err := container_service_task.NewTaskV2(l.clients.Docker(), createContainerReq)
 	if err != nil {

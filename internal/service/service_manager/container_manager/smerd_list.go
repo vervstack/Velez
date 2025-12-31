@@ -30,6 +30,10 @@ func (c *ContainerManager) ListSmerds(ctx context.Context, req *velez_api.ListSm
 			continue
 		}
 
+		if container.Labels[labels.Sidecar] == "true" {
+			continue
+		}
+
 		smerd := &velez_api.Smerd{
 			Uuid:      container.ID,
 			ImageName: container.Image,

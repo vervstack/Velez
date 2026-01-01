@@ -1,0 +1,52 @@
+.DeployMenuContainer {
+    width: 50vw;
+    height: 70vh;
+
+    &.fullScreen {
+        width: 90vw;
+        height: 80vh;
+    }
+
+    transition: all 0.5s ease;
+
+    .Tabs {
+        display: flex;
+        flex-direction: row;
+        border: none;
+
+        .Tab {
+            cursor: pointer;
+            transition: scale 0.2s ease;
+            border: none;
+
+            width: 6em;
+            height: 4em;
+
+            background: var(--secondary-accent-bg-color);
+            color: var(--secondary-fg-color);
+
+            &:first-child {
+                border-top-left-radius: 1em;
+            }
+
+            &:last-child {
+                border-top-right-radius: 1em;
+            }
+
+            &.selected {
+                background-color: var(--accent-bg-color);
+                border: none
+            }
+        }
+    }
+
+    .TabContent {
+        background-color: var(--accent-bg-color);
+        height: 90%;
+        box-sizing: border-box;
+        border: none;
+
+        overflow-y: scroll;
+        padding: 0.5em;
+    }
+}

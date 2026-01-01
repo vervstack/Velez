@@ -129,6 +129,7 @@ export default function ControlPlanePage() {
                     }
                 </div>
             </div>
+
             <Dialog
                 isOpen={dialogChild !== undefined}
                 closeDialog={() => setDialogChild(undefined)}

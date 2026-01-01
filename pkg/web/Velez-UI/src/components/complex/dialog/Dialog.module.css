@@ -8,6 +8,7 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease;
+    transition-delay: 0.5s;
 
     &.isOpen {
         opacity: 1;
@@ -27,7 +28,7 @@
     border-radius: var(--border-radius);
     background: var(--main-bg-color);
 
-    transition: scale 0.25s ease;
+    transition: scale 0.5s ease;
 
     transform-origin: left top;
 

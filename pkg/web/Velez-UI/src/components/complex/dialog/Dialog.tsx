@@ -15,14 +15,28 @@ interface DialogProps {
 export default function Dialog({isOpen, children, onClose, blur}: DialogProps) {
     const [open, setOpen] = useState(isOpen);
 
-    useEffect(() => {
-        setOpen(isOpen);
-    }, [isOpen])
-
     function close() {
         setOpen(false)
         setTimeout(() => onClose(), 500)
     }
+
+    useEffect(() => {
+        setOpen(isOpen);
+
+        function handleKeyDown(event: KeyboardEvent) {
+            if (event.key === 'Escape' && isOpen) {
+                close();
+            }
+        }
+
+        if (isOpen) {
+            window.addEventListener('keydown', handleKeyDown);
+        }
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isOpen, onClose])
 
     return (
         <>

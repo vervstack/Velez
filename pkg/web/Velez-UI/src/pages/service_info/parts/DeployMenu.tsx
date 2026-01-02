@@ -21,7 +21,7 @@ export default function DeployMenu() {
                 setContent(<DeployWidget/>)
                 break
             case TabsOptions.Upgrade:
-                setContent(null)
+                setContent(<div> Not implemented yet</div>)
                 break
             default:
                 setContent(<div>Unknown deploy strategy {selectedTab}</div>)

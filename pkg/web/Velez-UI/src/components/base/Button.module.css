@@ -19,7 +19,11 @@
         cursor: not-allowed;
     }
 
-    :hover&:not(.disabled) {
+    &:hover&:not(.disabled) {
         scale: 1.05;
+    }
+
+    &:focus {
+        outline: none;
     }
 }

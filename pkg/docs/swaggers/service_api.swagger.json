@@ -81,6 +81,38 @@
         ]
       }
     },
+    "/api/service/deploy/list": {
+      "post": {
+        "operationId": "ServiceApi_ListDeployments",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListDeploymentsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiListDeploymentsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ServiceApi"
+        ]
+      }
+    },
     "/api/service/get": {
       "post": {
         "operationId": "ServiceApi_GetService",
@@ -191,8 +223,14 @@
     "RequestUpgrade": {
       "type": "object",
       "properties": {
+        "deploymentId": {
+          "type": "string",
+          "format": "uint64",
+          "title": "Id of deployment from which to perform upgrade from"
+        },
         "image": {
-          "type": "string"
+          "type": "string",
+          "title": "Options to upgrade from. All optional.\nIf none is passed - simply creates new deployment\nand restarts smerds"
         }
       }
     },
@@ -243,6 +281,10 @@
         "upgrade": {
           "$ref": "#/definitions/RequestUpgrade",
           "title": "Takes current version and upgrades\nonly certain part of it (image)"
+        },
+        "serviceId": {
+          "type": "string",
+          "format": "uint64"
         }
       }
     },
@@ -331,6 +373,21 @@
         }
       }
     },
+    "velez_apiListDeploymentsRequest": {
+      "type": "object",
+      "properties": {
+        "paging": {
+          "$ref": "#/definitions/velez_apiPaging"
+        },
+        "serviceId": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "velez_apiListDeploymentsResponse": {
+      "type": "object"
+    },
     "velez_apiMatreshkaConfigSpec": {
       "type": "object",
       "properties": {
@@ -364,6 +421,19 @@
           "items": {
             "type": "string"
           }
+        }
+      }
+    },
+    "velez_apiPaging": {
+      "type": "object",
+      "properties": {
+        "limit": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "offset": {
+          "type": "integer",
+          "format": "int64"
         }
       }
     },

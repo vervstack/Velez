@@ -116,3 +116,8 @@ export type Connection = {
   targetNetwork?: string;
   aliases?: string[];
 };
+
+export type Paging = {
+    limit?: number;
+    offset?: number;
+};

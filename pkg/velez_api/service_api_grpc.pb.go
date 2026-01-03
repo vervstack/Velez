@@ -19,9 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ServiceApi_CreateService_FullMethodName = "/velez_api.ServiceApi/CreateService"
-	ServiceApi_GetService_FullMethodName    = "/velez_api.ServiceApi/GetService"
-	ServiceApi_CreateDeploy_FullMethodName  = "/velez_api.ServiceApi/CreateDeploy"
+	ServiceApi_CreateService_FullMethodName   = "/velez_api.ServiceApi/CreateService"
+	ServiceApi_GetService_FullMethodName      = "/velez_api.ServiceApi/GetService"
+	ServiceApi_CreateDeploy_FullMethodName    = "/velez_api.ServiceApi/CreateDeploy"
+	ServiceApi_ListDeployments_FullMethodName = "/velez_api.ServiceApi/ListDeployments"
 )
 
 // ServiceApiClient is the client API for ServiceApi service.
@@ -39,6 +40,7 @@ type ServiceApiClient interface {
 	// the old one stops receive traffic and
 	// become obsolete (schedules to be deleted)
 	CreateDeploy(ctx context.Context, in *CreateDeploy_Request, opts ...grpc.CallOption) (*CreateDeploy_Response, error)
+	ListDeployments(ctx context.Context, in *ListDeployments_Request, opts ...grpc.CallOption) (*ListDeployments_Response, error)
 }
 
 type serviceApiClient struct {
@@ -79,6 +81,16 @@ func (c *serviceApiClient) CreateDeploy(ctx context.Context, in *CreateDeploy_Re
 	return out, nil
 }
 
+func (c *serviceApiClient) ListDeployments(ctx context.Context, in *ListDeployments_Request, opts ...grpc.CallOption) (*ListDeployments_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListDeployments_Response)
+	err := c.cc.Invoke(ctx, ServiceApi_ListDeployments_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServiceApiServer is the server API for ServiceApi service.
 // All implementations must embed UnimplementedServiceApiServer
 // for forward compatibility.
@@ -94,6 +106,7 @@ type ServiceApiServer interface {
 	// the old one stops receive traffic and
 	// become obsolete (schedules to be deleted)
 	CreateDeploy(context.Context, *CreateDeploy_Request) (*CreateDeploy_Response, error)
+	ListDeployments(context.Context, *ListDeployments_Request) (*ListDeployments_Response, error)
 	mustEmbedUnimplementedServiceApiServer()
 }
 
@@ -112,6 +125,9 @@ func (UnimplementedServiceApiServer) GetService(context.Context, *GetService_Req
 }
 func (UnimplementedServiceApiServer) CreateDeploy(context.Context, *CreateDeploy_Request) (*CreateDeploy_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateDeploy not implemented")
+}
+func (UnimplementedServiceApiServer) ListDeployments(context.Context, *ListDeployments_Request) (*ListDeployments_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListDeployments not implemented")
 }
 func (UnimplementedServiceApiServer) mustEmbedUnimplementedServiceApiServer() {}
 func (UnimplementedServiceApiServer) testEmbeddedByValue()                    {}
@@ -188,6 +204,24 @@ func _ServiceApi_CreateDeploy_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServiceApi_ListDeployments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListDeployments_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceApiServer).ListDeployments(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceApi_ListDeployments_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceApiServer).ListDeployments(ctx, req.(*ListDeployments_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ServiceApi_ServiceDesc is the grpc.ServiceDesc for ServiceApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -206,6 +240,10 @@ var ServiceApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateDeploy",
 			Handler:    _ServiceApi_CreateDeploy_Handler,
+		},
+		{
+			MethodName: "ListDeployments",
+			Handler:    _ServiceApi_ListDeployments_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

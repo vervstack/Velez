@@ -139,3 +139,8 @@ enum ConfigFormat {
   yaml = 0; // Default
   env = 1;
 }
+
+message Paging {
+  uint32 limit = 1;
+  uint32 offset = 2;
+}

@@ -40,6 +40,13 @@ service ServiceApi {
       body: "*"
     };
   }
+
+  rpc ListDeployments(ListDeployments.Request) returns (ListDeployments.Response) {
+    option (google.api.http) = {
+      post: "/api/service/deploy/list"
+      body: "*"
+    };
+  }
 }
 
 message CreateService {
@@ -82,10 +89,29 @@ message CreateDeploy {
       Upgrade upgrade = 2;
     }
 
+    uint64 service_id = 3;
+
     message Upgrade {
-      optional string image = 1;
+      // Id of deployment from which to perform upgrade from
+      uint64 deployment_id = 1;
+
+      // Options to upgrade from. All optional.
+      // If none is passed - simply creates new deployment
+      // and restarts smerds
+      optional string image = 2;
     }
   }
 
   message Response {}
+}
+
+message ListDeployments {
+  message Request {
+    Paging paging = 1;
+
+    optional uint64 service_id = 2;
+  }
+  message Response {
+
+  }
 }

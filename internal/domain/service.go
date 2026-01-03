@@ -17,3 +17,15 @@ type GetServiceReq struct {
 	Id   *uint64
 	Name *string
 }
+
+type CreateDeployReq struct {
+	LaunchSmerd
+	ServiceId uint64
+}
+
+type UpgradeDeployReq struct {
+	ServiceId    uint64
+	DeploymentId uint64
+
+	NewImage *string
+}

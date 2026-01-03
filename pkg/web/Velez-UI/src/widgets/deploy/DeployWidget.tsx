@@ -47,8 +47,8 @@ export default function DeployWidget({createSmerdReq, afterDeploy}: DeployWidget
         }
     }
 
-    function booleanFieldUpdater(field: keyof CreateSmerdReq): (v: string) => void {
-        return (v: string) => {
+    function booleanFieldUpdater(field: keyof CreateSmerdReq): (v: boolean) => void {
+        return (v: boolean) => {
             updateField(field, v);
         }
     }

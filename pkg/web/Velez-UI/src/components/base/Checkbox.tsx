@@ -3,7 +3,7 @@ import { FocusEventHandler, useState} from "react";
 
 interface CheckboxProps {
     label?: string;
-    onChange: (v: string) => void;
+    onChange: (v: boolean) => void;
     checked: boolean;
 }
 
@@ -23,7 +23,9 @@ export default function Checkbox({label, onChange, checked}: CheckboxProps) {
         <div className={cls.CheckboxContainer}>
             <input
                 type="checkbox"
-                onChange={(e) => onChange(e.target.value)}
+                onChange={(e) => {
+                    onChange(e.target.checked)
+                }}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 checked={checked}

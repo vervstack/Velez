@@ -14,11 +14,14 @@ export default function DeployMenu() {
 
     const [content, setContent] = useState<React.ReactNode | null>(null);
 
-
     useEffect(() => {
         switch (selectedTab) {
             case TabsOptions.New:
-                setContent(<DeployWidget/>)
+                setContent(<DeployWidget
+                    afterDeploy={(req, smerd) => {
+                        console.log(req, smerd);
+                    }}
+                />)
                 break
             case TabsOptions.Upgrade:
                 setContent(<div> Not implemented yet</div>)

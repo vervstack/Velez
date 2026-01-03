@@ -2,7 +2,6 @@ import {
     CreateSmerdRequest,
     Volume as ProtoVolume,
     Port as ProtoPort,
-    Bind as ProtoBind
 } from "@vervstack/velez";
 
 export interface Smerd {
@@ -23,11 +22,6 @@ export interface Volume {
     virtualVolume: string
 }
 
-export interface Bind {
-    containerPath: string
-    hostPath: string
-}
-
 export class CreateSmerdReq {
     name: string = ''
     imageName: string = ''
@@ -42,7 +36,6 @@ export class CreateSmerdReq {
 
     ports: Port[] = []
     volumes: Volume[] = []
-    binds: Bind[] = []
 
     constructor() {
     }
@@ -68,7 +61,6 @@ export function fromProto(proto: CreateSmerdRequest | undefined): CreateSmerdReq
 
     smerdReq.volumes = fromProtoVolumes(proto.settings?.volumes) || smerdReq.volumes
     smerdReq.ports = fromProtoPorts(proto.settings?.ports) || smerdReq.ports
-    smerdReq.binds = fromProtoBindings(proto.settings?.binds) || smerdReq.binds
 
     return smerdReq
 }
@@ -99,12 +91,6 @@ export function toProto(r: CreateSmerdReq): CreateSmerdRequest {
                 return {
                     containerPath: p.containerPath,
                     volumeName: p.virtualVolume,
-                }
-            }),
-            binds: r.binds.map(p => {
-                return {
-                    containerPath: p.containerPath,
-                    hostPath: p.hostPath,
                 }
             }),
         },
@@ -146,18 +132,3 @@ function fromProtoPort(port: ProtoPort): Port | undefined {
     };
 }
 
-
-function fromProtoBindings(bindins: ProtoBind[] | undefined): Bind[] {
-    return (bindins || [])
-        .map(fromProtoBinding)
-        .filter((v) => v != undefined)
-}
-
-function fromProtoBinding(bind: ProtoBind): Bind | undefined {
-    if (!bind) return
-
-    return {
-        containerPath: bind.containerPath,
-        hostPath: bind.hostPath,
-    } as Bind
-}

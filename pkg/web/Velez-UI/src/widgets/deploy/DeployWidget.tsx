@@ -15,6 +15,7 @@ import {Bind, CreateSmerdReq, Port, Smerd, Volume} from "@/model/smerds/Smerds.t
 import useSettings from "@/app/settings/state.ts";
 import {DeploySmerd} from "@/processes/api/velez.ts";
 import BindingWidget from "@/widgets/BindingsWidget.tsx";
+import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 
 interface DeployWidgetProps {
     createSmerdReq?: CreateSmerdReq;
@@ -24,6 +25,7 @@ interface DeployWidgetProps {
 
 export default function DeployWidget({createSmerdReq, afterDeploy}: DeployWidgetProps) {
     const settings = useSettings();
+    const toaster = useToaster();
 
     const [req, setReq] =
         useState<CreateSmerdReq>(createSmerdReq || new CreateSmerdReq());
@@ -60,6 +62,7 @@ export default function DeployWidget({createSmerdReq, afterDeploy}: DeployWidget
                     afterDeploy(req, smerd)
                 }
             })
+            .catch(toaster.catchGrpc)
     }
 
     return (

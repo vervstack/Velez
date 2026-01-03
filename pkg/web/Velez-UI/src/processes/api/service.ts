@@ -1,27 +1,41 @@
-import {ServiceApi, VervAppService, GetServiceRequest} from "@vervstack/velez"
-import {InitReq} from "@/app/settings/state.ts";
+import {
+    ServiceApi,
+    VervAppService,
+    GetServiceRequest,
+    CreateDeployRequest,
+    CreateSmerdRequest,
+} from "@vervstack/velez"
 
-export async function GetServiceByName(initReq: InitReq, name: string): Promise<VervAppService> {
+import {GetInitReq} from "@/processes/api/api.ts";
+
+export async function GetServiceByName(name: string): Promise<VervAppService> {
     const r: GetServiceRequest = {
         name: name
     }
 
-    const r_1 = await ServiceApi.GetService(r, initReq);
+    const r_1 = await ServiceApi.GetService(r, GetInitReq());
     if (!r_1.vervService) {
         throw new Error("ServiceNotFound");
     }
     return r_1.vervService;
 }
 
-
-export async function GetServiceById(initReq: InitReq, id: string): Promise<VervAppService> {
+export async function GetServiceById(id: string): Promise<VervAppService> {
     const r: GetServiceRequest = {
         id: id.toString()
     }
 
-    const r_1 = await ServiceApi.GetService(r, initReq);
+    const r_1 = await ServiceApi.GetService(r, GetInitReq());
     if (!r_1.vervService) {
         throw new Error("ServiceNotFound");
     }
     return r_1.vervService;
+}
+
+export async function CreateNewDeployment(serviceId: string, newReq: CreateSmerdRequest) {
+    const req: CreateDeployRequest = {
+        serviceId: serviceId,
+        new: newReq,
+    }
+    return ServiceApi.CreateDeploy(req, GetInitReq())
 }

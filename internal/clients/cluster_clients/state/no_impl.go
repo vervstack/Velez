@@ -2,6 +2,7 @@ package state
 
 import (
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
+	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
@@ -9,6 +10,14 @@ type noImpl struct {
 }
 
 var _ cluster_clients.ClusterStateManager = (*noImpl)(nil)
+
+func (n noImpl) Deployments() storage.DeploymentsStorage {
+	return nil
+}
+
+func (n noImpl) TxManager() *sqldb.TxManager {
+	return nil
+}
 
 func (n noImpl) Services() storage.ServicesStorage {
 	return nil

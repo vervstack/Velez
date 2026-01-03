@@ -5,7 +5,6 @@ import {VervAppService} from "@vervstack/velez";
 
 import cls from "@/pages/service_info/ServiceInfoPage.module.css";
 
-import {useCredentialsStore} from "@/app/settings/creds.ts";
 import {GetServiceById, GetServiceByName} from "@/processes/api/service.ts";
 import Header from "@/pages/service_info/parts/Header.tsx";
 import Dialog from "@/components/complex/dialog/Dialog.tsx";
@@ -19,8 +18,6 @@ export default function ServiceInfoPage() {
 
     const [dialogChild, setDialogChild] = useState<React.ReactNode | null>(null);
 
-    const credentialsStore = useCredentialsStore();
-
     function loadService() {
         const key = params['key'];
         if (!key) {
@@ -30,12 +27,12 @@ export default function ServiceInfoPage() {
 
         const serviceId = Number(key)
         if (serviceId.toString() == key) {
-            GetServiceById(credentialsStore.getInitReq(), serviceId.toString())
+            GetServiceById(serviceId.toString())
                 .then(setServiceInfo)
             return
         }
 
-        GetServiceByName(credentialsStore.getInitReq(), key)
+        GetServiceByName(key)
             .then(setServiceInfo)
     }
 
@@ -44,9 +41,13 @@ export default function ServiceInfoPage() {
     }, []);
 
     function openDeployMenu() {
-        if (!serviceInfo || !serviceInfo.id) return
+        if (!serviceInfo || !serviceInfo.id || !serviceInfo.name) return
 
-        setDialogChild(<DeployMenu/>)
+        setDialogChild(
+            <DeployMenu
+                serviceId={serviceInfo.id}
+                serviceName={serviceInfo.name}
+            />)
     }
 
     if (!serviceInfo) {

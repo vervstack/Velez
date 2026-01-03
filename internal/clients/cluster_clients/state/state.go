@@ -7,6 +7,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/state"
+	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
@@ -35,6 +36,10 @@ func New(state state.State) (cluster_clients.ClusterStateManagerContainer, error
 	return sm, nil
 }
 
+func (s *stateManager) Set(manager cluster_clients.ClusterStateManager) {
+	s.state.Store(&manager)
+}
+
 func (s *stateManager) Nodes() storage.NodesStorage {
 	l := s.state.Load()
 	cm, ok := (*l).(cluster_clients.ClusterStateManager)
@@ -55,6 +60,22 @@ func (s *stateManager) Services() storage.ServicesStorage {
 	return cm.Services()
 }
 
-func (s *stateManager) Set(manager cluster_clients.ClusterStateManager) {
-	s.state.Store(&manager)
+func (s *stateManager) Deployments() storage.DeploymentsStorage {
+	l := s.state.Load()
+	cm, ok := (*l).(cluster_clients.ClusterStateManager)
+	if !ok {
+		return nil
+	}
+
+	return cm.Deployments()
+}
+
+func (s *stateManager) TxManager() *sqldb.TxManager {
+	l := s.state.Load()
+	cm, ok := (*l).(cluster_clients.ClusterStateManager)
+	if !ok {
+		return nil
+	}
+
+	return cm.TxManager()
 }

@@ -2,24 +2,36 @@ import cls from "@/pages/service_info/parts/DeployMenu.module.css";
 import {useEffect, useState} from "react";
 
 import cn from "classnames";
-import DeployWidget from "@/widgets/deploy/DeployWidget.tsx";
+
+import DeploymentWidget from "@/widgets/deploy/DeploymentWidget.tsx";
+import {CreateNewDeployment} from "@/processes/api/service.ts";
+import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 
 enum TabsOptions {
     New = 'New',
     Upgrade = 'Upgrade',
 }
 
-export default function DeployMenu() {
+interface DeployMenuProps {
+    serviceId: string;
+    serviceName: string;
+}
+
+export default function DeployMenu(props: DeployMenuProps) {
     const [selectedTab, setSelectedTab] = useState<TabsOptions>(TabsOptions.New);
 
     const [content, setContent] = useState<React.ReactNode | null>(null);
 
+    const toaster = useToaster()
+
     useEffect(() => {
         switch (selectedTab) {
             case TabsOptions.New:
-                setContent(<DeployWidget
-                    afterDeploy={(req, smerd) => {
-                        console.log(req, smerd);
+                setContent(<DeploymentWidget
+                    onCreate={(req) => {
+                        req.name = props.serviceName
+                        CreateNewDeployment(props.serviceId, req)
+                            .catch(toaster.catchGrpc)
                     }}
                 />)
                 break

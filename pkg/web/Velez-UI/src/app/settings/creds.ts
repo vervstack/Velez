@@ -1,5 +1,6 @@
 import {create} from 'zustand';
 import {InitReq, SettingsBase} from "@/app/settings/state.ts";
+import {StoreApiKey, StorePathPrefix} from "@/processes/api/api.ts";
 
 type Credentials = {
     token: string
@@ -20,6 +21,7 @@ export const useCredentialsStore = create<Credentials>((set, get) => ({
     setToken: (token: string) => {
         set({token})
 
+        StoreApiKey(token)
         storeToLocalStorage({
             backendUrl: get().url,
             authHeader: token
@@ -28,6 +30,7 @@ export const useCredentialsStore = create<Credentials>((set, get) => ({
     setUrl: (url: string) => {
         set({url})
 
+        StorePathPrefix(url)
         storeToLocalStorage({
             backendUrl: url,
             authHeader: get().token

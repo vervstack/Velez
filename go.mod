@@ -3,6 +3,7 @@ module go.vervstack.ru/Velez
 go 1.24.2
 
 require (
+	github.com/Masterminds/squirrel v1.5.4
 	github.com/Red-Sock/go-swagger-ui v0.0.2
 	github.com/Red-Sock/trace-errors v0.0.13
 	github.com/containerd/errdefs v1.0.0
@@ -52,6 +53,8 @@ require (
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/jaypipes/pcidb v1.1.1 // indirect
 	github.com/klauspost/compress v1.18.1 // indirect
+	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
+	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mfridman/interpolate v0.0.2 // indirect

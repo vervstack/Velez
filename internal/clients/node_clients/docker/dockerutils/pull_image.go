@@ -48,7 +48,6 @@ func PullImage(ctx context.Context, docker client.CommonAPIClient, name string, 
 		if err != nil {
 			return nil, errors.Wrap(err, "error listing images after pulling")
 		}
-
 	}
 
 	if len(imageList) == 0 {

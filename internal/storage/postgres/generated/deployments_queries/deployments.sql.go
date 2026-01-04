@@ -22,7 +22,7 @@ RETURNING (id, service_id, node_id, created_at, updated_at, status, spec_id)
 type CreateDeploymentParams struct {
 	ServiceID int64
 	NodeID    int32
-	Status    DeploymentStatus
+	Status    VelezDeploymentStatus
 	SpecID    int64
 }
 
@@ -54,4 +54,41 @@ func (q *Queries) CreateSpecification(ctx context.Context, arg CreateSpecificati
 	var id int64
 	err := row.Scan(&id)
 	return id, err
+}
+
+const getSpecificationById = `-- name: GetSpecificationById :one
+SELECT id,
+       name,
+       created_at,
+       verv_payload
+FROM velez.deployment_specifications spec
+WHERE spec.id = $1
+`
+
+func (q *Queries) GetSpecificationById(ctx context.Context, id int64) (VelezDeploymentSpecification, error) {
+	row := q.db.QueryRowContext(ctx, getSpecificationById, id)
+	var i VelezDeploymentSpecification
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.CreatedAt,
+		&i.VervPayload,
+	)
+	return i, err
+}
+
+const updateDeploymentStatus = `-- name: UpdateDeploymentStatus :exec
+UPDATE velez.deployments
+SET status = $1
+WHERE id = $2
+`
+
+type UpdateDeploymentStatusParams struct {
+	Status VelezDeploymentStatus
+	ID     int64
+}
+
+func (q *Queries) UpdateDeploymentStatus(ctx context.Context, arg UpdateDeploymentStatusParams) error {
+	_, err := q.db.ExecContext(ctx, updateDeploymentStatus, arg.Status, arg.ID)
+	return err
 }

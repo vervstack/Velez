@@ -11,6 +11,8 @@ import (
 type Querier interface {
 	CreateDeployment(ctx context.Context, arg CreateDeploymentParams) (interface{}, error)
 	CreateSpecification(ctx context.Context, arg CreateSpecificationParams) (int64, error)
+	GetSpecificationById(ctx context.Context, id int64) (VelezDeploymentSpecification, error)
+	UpdateDeploymentStatus(ctx context.Context, arg UpdateDeploymentStatusParams) error
 }
 
 var _ Querier = (*Queries)(nil)

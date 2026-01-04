@@ -23,14 +23,17 @@ CREATE TABLE IF NOT EXISTS velez.deployment_specifications
     verv_payload json
 );
 
-CREATE TYPE deployment_status AS ENUM (
-    'SCHEDULED',
-    'PREPARING',
-    'CREATED',
-    'RUNNING',
-    'FAILED',
+CREATE TYPE velez.deployment_status AS ENUM (
+    -- Preparation states
+    'SCHEDULED_DEPLOYMENT',
     'SCHEDULED_DELETION',
-    'DELETED');
+    'SCHEDULED_UPGRADE',
+    -- Active states
+    'RUNNING',
+    -- Final states
+    'FAILED',
+    'DELETED'
+    );
 
 CREATE TABLE IF NOT EXISTS velez.deployments
 (
@@ -40,7 +43,7 @@ CREATE TABLE IF NOT EXISTS velez.deployments
     spec_id    INT8              NOT NULL REFERENCES velez.deployment_specifications,
     created_at TIMESTAMPTZ       NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ       NOT NULL DEFAULT now(),
-    status     deployment_status NOT NULL
+    status velez.deployment_status NOT NULL
 );
 
 -- +goose StatementEnd

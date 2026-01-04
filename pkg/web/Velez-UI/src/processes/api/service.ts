@@ -12,8 +12,9 @@ export async function GetServiceByName(name: string): Promise<VervAppService> {
     const r: GetServiceRequest = {
         name: name
     }
-
-    const r_1 = await ServiceApi.GetService(r, GetInitReq());
+    const initReq = GetInitReq()
+    console.log(initReq)
+    const r_1 = await ServiceApi.GetService(r, initReq);
     if (!r_1.vervService) {
         throw new Error("ServiceNotFound");
     }
@@ -37,5 +38,7 @@ export async function CreateNewDeployment(serviceId: string, newReq: CreateSmerd
         serviceId: serviceId,
         new: newReq,
     }
+    //  TODO remove
+    req.new.imageName = 'redsockruf/zpotify'
     return ServiceApi.CreateDeploy(req, GetInitReq())
 }

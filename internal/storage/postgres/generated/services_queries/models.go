@@ -12,51 +12,50 @@ import (
 	"github.com/sqlc-dev/pqtype"
 )
 
-type DeploymentStatus string
+type VelezDeploymentStatus string
 
 const (
-	DeploymentStatusSCHEDULED         DeploymentStatus = "SCHEDULED"
-	DeploymentStatusPREPARING         DeploymentStatus = "PREPARING"
-	DeploymentStatusCREATED           DeploymentStatus = "CREATED"
-	DeploymentStatusRUNNING           DeploymentStatus = "RUNNING"
-	DeploymentStatusFAILED            DeploymentStatus = "FAILED"
-	DeploymentStatusSCHEDULEDDELETION DeploymentStatus = "SCHEDULED_DELETION"
-	DeploymentStatusDELETED           DeploymentStatus = "DELETED"
+	VelezDeploymentStatusSCHEDULEDDEPLOYMENT VelezDeploymentStatus = "SCHEDULED_DEPLOYMENT"
+	VelezDeploymentStatusSCHEDULEDDELETION   VelezDeploymentStatus = "SCHEDULED_DELETION"
+	VelezDeploymentStatusSCHEDULEDUPGRADE    VelezDeploymentStatus = "SCHEDULED_UPGRADE"
+	VelezDeploymentStatusRUNNING             VelezDeploymentStatus = "RUNNING"
+	VelezDeploymentStatusFAILED              VelezDeploymentStatus = "FAILED"
+	VelezDeploymentStatusDELETED             VelezDeploymentStatus = "DELETED"
 )
 
-func (e *DeploymentStatus) Scan(src interface{}) error {
+func (e *VelezDeploymentStatus) Scan(src interface{}) error {
 	switch s := src.(type) {
 	case []byte:
-		*e = DeploymentStatus(s)
+		*e = VelezDeploymentStatus(s)
 	case string:
-		*e = DeploymentStatus(s)
+		*e = VelezDeploymentStatus(s)
 	default:
-		return fmt.Errorf("unsupported scan type for DeploymentStatus: %T", src)
+		return fmt.Errorf("unsupported scan type for VelezDeploymentStatus: %T", src)
 	}
 	return nil
 }
 
-type NullDeploymentStatus struct {
-	DeploymentStatus DeploymentStatus
-	Valid            bool // Valid is true if DeploymentStatus is not NULL
+type NullVelezDeploymentStatus struct {
+	VelezDeploymentStatus VelezDeploymentStatus
+	Valid                 bool // Valid is true if VelezDeploymentStatus is not NULL
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullDeploymentStatus) Scan(value interface{}) error {
+func (ns *NullVelezDeploymentStatus) Scan(value interface{}) error {
 	if value == nil {
-		ns.DeploymentStatus, ns.Valid = "", false
+		ns.VelezDeploymentStatus, ns.Valid = "", false
 		return nil
 	}
 	ns.Valid = true
-	return ns.DeploymentStatus.Scan(value)
+	return ns.VelezDeploymentStatus.Scan(value)
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullDeploymentStatus) Value() (driver.Value, error) {
+func (ns NullVelezDeploymentStatus) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
-	return string(ns.DeploymentStatus), nil
+	return string(ns.VelezDeploymentStatus), nil
 }
 
 type VelezDeployment struct {
@@ -66,7 +65,7 @@ type VelezDeployment struct {
 	SpecID    int64
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Status    DeploymentStatus
+	Status    VelezDeploymentStatus
 }
 
 type VelezDeploymentSpecification struct {

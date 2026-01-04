@@ -25,13 +25,13 @@ func PrepareImage(nc node_clients.NodeClients, imageName string, result *image.I
 }
 
 func (s *stepPrepareImage) Do(ctx context.Context) error {
-	image, err := s.docker.PullImage(ctx, s.imageName)
+	imageInfo, err := s.docker.PullImage(ctx, s.imageName)
 	if err != nil {
 		return rerrors.Wrap(err, "error pulling image")
 	}
 
 	if s.result != nil {
-		*s.result = image
+		*s.result = imageInfo
 	}
 
 	return nil

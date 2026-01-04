@@ -9,29 +9,32 @@ import {GetServiceById, GetServiceByName} from "@/processes/api/service.ts";
 import Header from "@/pages/service_info/parts/Header.tsx";
 import Dialog from "@/components/complex/dialog/Dialog.tsx";
 import DeployMenu from "@/pages/service_info/parts/DeployMenu.tsx";
+import {Toast, useToaster} from "@/app/hooks/toaster/Toaster.ts";
 
 
 export default function ServiceInfoPage() {
     const params = useParams<Record<string, string>>();
 
     const [serviceInfo, setServiceInfo] = useState<VervAppService | null>(null)
-
     const [dialogChild, setDialogChild] = useState<React.ReactNode | null>(null);
 
+    const toaster = useToaster()
+
     function loadService() {
-        const key = params['key'];
-        if (!key) {
-            // TODO redirect to new service
-            throw 'No name or id provided'
+        const key = params['key'] || "";
+        if (key == "") {
+            toaster.bake({
+                title: 'Can\'t load service',
+                description: 'No service name or id provided',
+                level: "Error"
+            } as Toast)
         }
 
         const serviceId = Number(key)
         if (serviceId.toString() == key) {
             GetServiceById(serviceId.toString())
                 .then(setServiceInfo)
-            return
         }
-
         GetServiceByName(key)
             .then(setServiceInfo)
     }

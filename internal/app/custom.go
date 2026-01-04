@@ -25,6 +25,7 @@ import (
 	"go.vervstack.ru/Velez/internal/transport/service_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/vcn_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/velez_api_impl"
+	"go.vervstack.ru/Velez/internal/workers"
 	"go.vervstack.ru/Velez/pkg/docs"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
@@ -44,6 +45,9 @@ type Custom struct {
 	ControlPlaneApiImpl *control_plane_api_impl.Impl
 	VpnApiImpl          *vcn_api_impl.Impl
 	ServiceApiImpl      *service_api_impl.Impl
+
+	//	Background workers
+	DeployWatcher workers.Worker
 }
 
 func (c *Custom) Init(a *App) (err error) {
@@ -71,6 +75,10 @@ func (c *Custom) Init(a *App) (err error) {
 	if err != nil {
 		return rerrors.Wrap(err)
 	}
+
+	c.DeployWatcher = workers.NewDeployWatcher(c.Services, c.Pipeliner, c.ClusterClients, time.Second*5)
+	go c.DeployWatcher.Start(a.Ctx)
+	closer.Add(c.DeployWatcher.Stop)
 
 	return nil
 }

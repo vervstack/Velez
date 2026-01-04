@@ -25,11 +25,9 @@ func New(db *sql.DB) storage.Storage {
 		servicesStorage: &servicesStorage{
 			Querier: services_queries.New(db),
 		},
-		deploymentsStorage: &deploymentsStorage{
-			db: db,
-		},
 
-		txManager: sqldb.NewTxManager(db),
+		deploymentsStorage: newDeploymentsStorage(db),
+		txManager:          sqldb.NewTxManager(db),
 	}
 }
 

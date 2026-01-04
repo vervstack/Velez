@@ -38,7 +38,7 @@ func (v *VervService) CreateNewDeploy(ctx context.Context, request domain.Create
 			deployment := deployments_queries.CreateDeploymentParams{
 				ServiceID: int64(request.ServiceId),
 				NodeID:    1,
-				Status:    deployments_queries.DeploymentStatusSCHEDULED,
+				Status:    deployments_queries.VelezDeploymentStatusSCHEDULEDDEPLOYMENT,
 				SpecID:    specId,
 			}
 

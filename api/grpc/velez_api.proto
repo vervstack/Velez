@@ -117,6 +117,7 @@ message CreateSmerd {
     MatreshkaConfigSpec config = 13;
 
     // TODO add sidecar definition
+    // TODO add resources definition
   }
 }
 

@@ -36,6 +36,7 @@ func Healthcheck(
 }
 
 func (h *healthcheckStep) Do(ctx context.Context) error {
+	// TODO create a basic healthcheck that will at least watch for container not to fail
 	if h.req.Healthcheck == nil {
 		return nil
 	}

@@ -71,7 +71,11 @@ message Smerd {
 
 message Container {
   message Hardware {
-    optional float cpu_amount = 1;
+    // Top level cpu share amount.
+    // 0.5 - give half a core
+    // 1 - allocates 1 core exactly
+    // 2 - allocates 2 cores
+    optional float cpu = 1;
     optional uint32 ram_mb = 2;
     optional uint32 memory_swap_mb = 3;
   }

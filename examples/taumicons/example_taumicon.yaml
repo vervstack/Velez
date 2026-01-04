@@ -1,0 +1,35 @@
+service: "Zpotify"
+image_name: "redsockruf/zpotify"
+
+command: "zpotify serve --port 80"
+env:
+  SOME_ENV_VARIABLE: some_env_value
+labels:
+  is_example: true
+
+
+hardware:
+  cpu: 2
+  ram_mb: 100
+  memory_swap_mb: 0
+
+settings:
+  ports:
+    - service_port_number: 8080
+      protocol: tcp
+      exposed_to: 8081
+  network:
+    - network_name: zpotify_net
+      aliases: [ 'backend' ]
+  volumes:
+    - volume_name: 'zpotify_state'
+      container_path: '/app/data'
+
+ignore_config: false
+use_image_ports: false
+auto_upgrade: true
+
+restart:
+  type: on_failure
+  failure_count: 3
+

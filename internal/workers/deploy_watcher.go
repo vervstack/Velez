@@ -134,16 +134,18 @@ func (d *deployWatcher) processScheduledBatch(ctx context.Context, scheduled []d
 				return rerrors.Wrap(err, "")
 			}
 
-			runner := d.pipeliner.LaunchSmerd(r)
-			err = runner.Run(ctx)
-			if err != nil {
-				return rerrors.Wrap(err, "")
-			}
-
 			updateStatusParams := deployments_queries.UpdateDeploymentStatusParams{
 				Status: deployments_queries.VelezDeploymentStatusRUNNING,
 				ID:     dep.Id,
 			}
+
+			runner := d.pipeliner.LaunchSmerd(r)
+			err = runner.Run(ctx)
+			if err != nil {
+				logrus.Error("error deploying smerd", rerrors.Wrap(err, ""))
+				updateStatusParams.Status = deployments_queries.VelezDeploymentStatusFAILED
+			}
+
 			err = d.deploymentsStorage.UpdateDeploymentStatus(ctx, updateStatusParams)
 			if err != nil {
 				return rerrors.Wrap(err, "")

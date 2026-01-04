@@ -115,6 +115,8 @@ message CreateSmerd {
     RestartPolicy restart = 12;
 
     MatreshkaConfigSpec config = 13;
+
+    // TODO add sidecar definition
   }
 }
 

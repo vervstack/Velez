@@ -4,9 +4,11 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/test/bufconn"
 
 	"go.vervstack.ru/Velez/internal/app"
 	"go.vervstack.ru/Velez/internal/config"
+	"go.vervstack.ru/Velez/internal/transport"
 )
 
 type Environment struct {
@@ -28,8 +30,16 @@ func NewEnvironment(t *testing.T, opts ...envOpt) *Environment {
 		Ctx: t.Context(),
 		Cfg: config.Config{},
 	}
-	// init basic config located at ./config/*.yaml
+
 	var err error
+
+	const bufSize = 1024 * 1024
+	lis := bufconn.Listen(bufSize)
+
+	env.App.ServerMaster, err = transport.NewServerManager(env.App.Ctx, lis)
+	require.NoError(t, err)
+
+	// init basic config located at ./config/*.yaml
 	env.App.Cfg, err = config.Load("./config/config.yaml")
 	require.NoError(t, err)
 

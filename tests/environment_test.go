@@ -2,10 +2,8 @@ package tests
 
 import (
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
-	"go.vervstack.ru/matreshka/pkg/matreshka"
 
 	"go.vervstack.ru/Velez/internal/app"
 	"go.vervstack.ru/Velez/internal/config"
@@ -28,25 +26,19 @@ func NewEnvironment(t *testing.T, opts ...envOpt) *Environment {
 
 	env.App = app.App{
 		Ctx: t.Context(),
-		Cfg: config.Config{
-			AppInfo: matreshka.AppInfo{
-				Name:            getServiceName(t),
-				Version:         getServiceName(t),
-				StartupDuration: 10 * time.Second,
-			},
-			Servers:         config.ServersConfig{},
-			Environment:     config.EnvironmentConfig{},
-			Overrides:       matreshka.ServiceDiscovery{},
-			MatreshkaConfig: matreshka.AppConfig{},
-		},
+		Cfg: config.Config{},
 	}
 	// init basic config located at ./config/*.yaml
-	err := env.App.InitConfig()
+	var err error
+	env.App.Cfg, err = config.Load("./config/config.yaml")
 	require.NoError(t, err)
 
 	for _, opt := range opts {
 		opt(&env.App)
 	}
+
+	env.App.Cfg.AppInfo.Name = getServiceName(t)
+	env.App.Cfg.AppInfo.Version = getServiceName(t)
 
 	err = env.App.Custom.Init(&env.App)
 	require.NoError(t, err)

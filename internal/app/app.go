@@ -10,7 +10,6 @@ import (
 	"go.redsock.ru/toolbox/closer"
 	"go.vervstack.ru/Velez/internal/transport"
 	"golang.org/x/sync/errgroup"
-	"net"
 
 	"go.vervstack.ru/Velez/internal/config"
 )
@@ -49,8 +48,8 @@ func New() (app App, err error) {
 func (a *App) Start() (err error) {
 	var eg *errgroup.Group
 	eg, a.Ctx = errgroup.WithContext(a.Ctx)
-	eg.Go(a.MASTER.Start)
-	closer.Add(func() error { return a.MASTER.Stop() })
+	eg.Go(a.ServerMaster.Start)
+	closer.Add(func() error { return a.ServerMaster.Stop() })
 
 	eg.Go(func() error {
 		return a.Custom.Start(a.Ctx)

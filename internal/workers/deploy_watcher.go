@@ -53,7 +53,9 @@ func (d *deployWatcher) Start(ctx context.Context) {
 		for range d.ticker.C {
 			list, err := d.listDeployments(ctx)
 			if err != nil {
-				logrus.Error("error listing deployments in deploy watcher: ", err)
+				if !rerrors.Is(err, cluster_clients.ErrServiceIsDisabled) {
+					logrus.Error("error listing deployments in deploy watcher: ", err)
+				}
 				continue
 			}
 

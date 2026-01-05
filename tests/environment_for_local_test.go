@@ -31,7 +31,8 @@ func initVelez() {
 	velez_api.RegisterVcnApiServer(serv, testEnvironment.app.Custom.VpnApiImpl)
 
 	go func() {
-		if err := serv.Serve(lis); err != nil {
+		err := serv.Serve(lis)
+		if err != nil {
 			logrus.Fatalf("error serving grpc server for tests %s", err)
 		}
 	}()

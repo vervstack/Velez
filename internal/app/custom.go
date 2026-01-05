@@ -54,26 +54,19 @@ func (c *Custom) Init(a *App) (err error) {
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 	logrus.SetLevel(extractLogLevel(a.Cfg.Environment.LogLevel))
 
-	//region Dependencies
-	nodeClients, err := node_clients.NewNodeClients(a.Ctx, a.Cfg)
+	err = c.InitClients(a)
 	if err != nil {
-		return rerrors.Wrap(err, "error initializing internal clients")
+		return rerrors.Wrap(err, "error during client initialization")
 	}
 
-	clusterClients, err := cluster.Setup(a.Ctx, a.Cfg, nodeClients)
+	err = c.InitServiceLayer(a)
 	if err != nil {
-		return rerrors.Wrap(err, "error setting up verv services")
+		return rerrors.Wrap(err, "error during service initialization")
 	}
 
-	c.NodeClients = nodeClients
-	c.ClusterClients = clusterClients
-	//endregion
-
-	c.initServiceLayer(a)
-
-	err = c.initApiServer(a)
+	err = c.InitApiServer(a)
 	if err != nil {
-		return rerrors.Wrap(err)
+		return rerrors.Wrap(err, "error during server initialization")
 	}
 
 	c.DeployWatcher = workers.NewDeployWatcher(c.Services, c.Pipeliner, c.ClusterClients, time.Second*5)
@@ -107,12 +100,15 @@ func (c *Custom) Stop() error {
 	return nil
 }
 
-func (c *Custom) initServiceLayer(a *App) {
-	var err error
+func (c *Custom) InitServiceLayer(a *App) error {
+	if c.NodeClients == nil || c.ClusterClients == nil {
+		return rerrors.New("clients not initialized")
+	}
 
+	var err error
 	c.Services, err = service_manager.New(a.Ctx, c.NodeClients, c.ClusterClients)
 	if err != nil {
-		logrus.Fatalf("error initializing service manager: %v", err)
+		return rerrors.Wrap(err, "error initializing service manager")
 	}
 
 	c.Pipeliner = pipelines.NewPipeliner(c.NodeClients, c.ClusterClients, c.Services)
@@ -121,9 +117,11 @@ func (c *Custom) initServiceLayer(a *App) {
 	if a.Cfg.Environment.ShutDownOnExit {
 		closer.Add(smerdsDropper(c.Services.SmerdManager()))
 	}
+
+	return nil
 }
 
-func (c *Custom) initApiServer(a *App) error {
+func (c *Custom) InitApiServer(a *App) error {
 	c.ApiGrpcImpl = velez_api_impl.NewImpl(a.Cfg, c.Services, c.Pipeliner)
 	c.ControlPlaneApiImpl = control_plane_api_impl.New(c.Services, c.Pipeliner)
 	c.VpnApiImpl = vcn_api_impl.New(c.ClusterClients, c.Pipeliner)
@@ -139,6 +137,20 @@ func (c *Custom) initApiServer(a *App) error {
 	}
 
 	a.ServerMaster.AddServerOption(middleware.LogInterceptor(), middleware.PanicInterceptor())
+
+	return nil
+}
+
+func (c *Custom) InitClients(a *App) (err error) {
+	c.NodeClients, err = node_clients.NewNodeClients(a.Ctx, a.Cfg)
+	if err != nil {
+		return rerrors.Wrap(err, "error initializing internal clients")
+	}
+
+	c.ClusterClients, err = cluster.Setup(a.Ctx, a.Cfg, c.NodeClients)
+	if err != nil {
+		return rerrors.Wrap(err, "error setting up verv services")
+	}
 
 	return nil
 }

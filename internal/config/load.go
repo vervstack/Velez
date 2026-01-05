@@ -28,7 +28,7 @@ const (
 	prodConfigPath = "./config/config.yaml"
 )
 
-func Load() (Config, error) {
+func Init() (Config, error) {
 	if defaultConfig.AppInfo.Name != "" {
 		return defaultConfig, ErrAlreadyLoaded
 	}
@@ -40,7 +40,7 @@ func Load() (Config, error) {
 	flag.BoolVar(&isDevBuild, "dev", false, "Flag turns on a dev config at ./config/dev.yaml")
 	flag.Parse()
 
-	configsPaths := []string{}
+	var configsPaths []string
 
 	if cfgPath != "" {
 		configsPaths = append(configsPaths, cfgPath)
@@ -49,9 +49,18 @@ func Load() (Config, error) {
 	if isDevBuild {
 		configsPaths = append(configsPaths, devConfigPath)
 	}
-
 	configsPaths = append(configsPaths, prodConfigPath)
 
+	var err error
+	defaultConfig, err = Load()
+	if err != nil {
+		return defaultConfig, rerrors.Wrap(err, "error loading config")
+	}
+
+	return defaultConfig, nil
+}
+
+func Load(configsPaths ...string) (Config, error) {
 	var err error
 	defaultConfig.MatreshkaConfig, err = matreshka.ReadConfigs(configsPaths...)
 	if err != nil {
@@ -61,11 +70,13 @@ func Load() (Config, error) {
 	defaultConfig.AppInfo = defaultConfig.MatreshkaConfig.AppInfo
 	defaultConfig.Overrides = defaultConfig.MatreshkaConfig.ServiceDiscovery
 
-	err = defaultConfig.MatreshkaConfig.Servers.ParseToStruct(&defaultConfig.Servers)
+	err = defaultConfig.MatreshkaConfig.Servers.
+		ParseToStruct(&defaultConfig.Servers)
 	if err != nil {
 		return defaultConfig, rerrors.Wrap(err, "Error parsing servers to config")
 	}
-	err = defaultConfig.MatreshkaConfig.Environment.ParseToStruct(&defaultConfig.Environment)
+	err = defaultConfig.MatreshkaConfig.Environment.
+		ParseToStruct(&defaultConfig.Environment)
 	if err != nil {
 		return defaultConfig, rerrors.Wrap(err, "error parsing environment config")
 	}

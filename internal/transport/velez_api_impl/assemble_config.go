@@ -6,6 +6,7 @@ import (
 	"go.redsock.ru/rerrors"
 	"google.golang.org/grpc/codes"
 
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
@@ -32,7 +33,9 @@ func (impl *Impl) AssembleConfig(ctx context.Context, req *velez_api.AssembleCon
 
 	err = impl.cfgService.UpdateConfig(ctx, *cfg)
 	if err != nil {
-		return nil, rerrors.Wrap(err, "error updating config")
+		if !rerrors.Is(err, cluster_clients.ErrServiceIsDisabled) {
+			return nil, rerrors.Wrap(err, "error updating config")
+		}
 	}
 
 	resp := velez_api.AssembleConfig_Response{

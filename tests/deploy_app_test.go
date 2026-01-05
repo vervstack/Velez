@@ -205,11 +205,13 @@ func Test_DeployGeneric(t *testing.T) {
 				{
 					NetworkName: "verv",
 					Aliases: []string{
-						strings.Replace(t.Name(), "/", "_", 1),
+						getServiceName(t),
 					},
 				},
 			},
 		}
+
+		expectedSmerd.Labels[labels.ComposeGroupLabel] = getServiceName(t)
 
 		assertSmerds(t, expectedSmerd, deployedSmerd)
 	})

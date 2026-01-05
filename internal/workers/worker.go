@@ -1,3 +1,5 @@
+//go:generate minimock -i Worker -o ./../../tests/mocks -g -s "_mock.go"
+
 package workers
 
 import (

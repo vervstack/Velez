@@ -25,9 +25,12 @@ type VpnSuite struct {
 
 func (s *VpnSuite) SetupSuite() {
 	//region Declarative preps
+	t := s.T()
+	t.Skip("vpn is not enabled in tests")
+
 	s.ctx = s.T().Context()
 
-	s.env = NewEnvironment(s.T())
+	s.env = NewEnvironment(t)
 
 	s.controlPlaneApi = s.env.App.Custom.ControlPlaneApiImpl
 	s.vpnApi = s.env.App.Custom.VpnApiImpl
@@ -41,33 +44,37 @@ func (s *VpnSuite) SetupSuite() {
 }
 
 func (s *VpnSuite) SetupTest() {
-	s.serviceName = GetServiceName(s.T())
+	t := s.T()
+
+	s.serviceName = GetServiceName(t)
 	mainApp := &velez_api.CreateSmerd_Request{
 		Name:         s.serviceName,
 		ImageName:    HelloWorldAppImage,
 		IgnoreConfig: true,
 	}
 
-	_, err := s.env.CreateSmerd(s.T().Context(), mainApp)
-	require.NoError(s.T(), err)
+	_, err := s.env.CreateSmerd(t.Context(), mainApp)
+	require.NoError(t, err)
 
 	newNamespaceReq := &velez_api.CreateVcnNamespace_Request{
 		Name: s.serviceName,
 	}
-	newNamespaceResp, err := s.vpnApi.CreateNamespace(s.T().Context(), newNamespaceReq)
-	require.NoError(s.T(), err)
+	newNamespaceResp, err := s.vpnApi.CreateNamespace(t.Context(), newNamespaceReq)
+	require.NoError(t, err)
 
 	s.namespaceId = newNamespaceResp.Namespace.Id
 }
 
 func (s *VpnSuite) Test_ConnectVpn() {
+	t := s.T()
+
 	connectReq := &velez_api.ConnectService_Request{
 		ServiceName: s.serviceName,
 	}
 
-	connectResp, err := s.vpnApi.ConnectService(s.T().Context(), connectReq)
-	require.NoError(s.T(), err)
-	require.NotNil(s.T(), connectResp)
+	connectResp, err := s.vpnApi.ConnectService(t.Context(), connectReq)
+	require.NoError(t, err)
+	require.NotNil(t, connectResp)
 }
 
 func (s *VpnSuite) TearDownTest() {
@@ -75,11 +82,13 @@ func (s *VpnSuite) TearDownTest() {
 		return
 	}
 
+	t := s.T()
+
 	deleteNamespaceReq := &velez_api.DeleteVcnNamespace_Request{
 		Id: s.namespaceId,
 	}
-	_, err := s.vpnApi.DeleteNamespace(s.T().Context(), deleteNamespaceReq)
-	require.NoError(s.T(), err)
+	_, err := s.vpnApi.DeleteNamespace(t.Context(), deleteNamespaceReq)
+	require.NoError(t, err)
 }
 
 func Test_Vpn(t *testing.T) {

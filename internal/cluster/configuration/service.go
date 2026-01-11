@@ -12,11 +12,13 @@ import (
 	"go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/toolbox/keep_alive"
+	"go.vervstack.ru/makosh/pkg/makosh_be"
 
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/makosh"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/matreshka"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/cluster/env/container_service_task"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/domain"
@@ -110,10 +112,32 @@ func SetupMatreshka(
 		ServiceName: Name,
 	}
 
+	if !env.IsInContainer() {
+		_, port := task.GetPortBinding(grpcPort)
+		r := &makosh_be.UpsertEndpoints_Request{
+			Endpoints: []*makosh_be.Endpoint{
+				{
+					ServiceName: "matreshka",
+					Addrs:       []string{"0.0.0.0:" + port},
+				},
+			},
+		}
+		_, err = sdClient.UpsertEndpoints(ctx, r)
+		if err != nil {
+			return nil, rerrors.Wrap(err, "error upserting endpoints")
+		}
+
+		return mClient, nil
+	}
+
 	runner := pipelines.ConnectServiceToVpn(vcnReq, nc, vcnClient, sdClient)
 	err = runner.Run(ctx)
 	if err != nil {
 		if rerrors.Is(err, steps.ErrAlreadyExists) {
+			return mClient, nil
+		}
+
+		if rerrors.Is(err, cluster_clients.ErrServiceIsDisabled) {
 			return mClient, nil
 		}
 

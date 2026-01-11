@@ -920,10 +920,14 @@ func (x *Paging) GetOffset() uint32 {
 }
 
 type Container_Hardware struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	CpuAmount     *float32               `protobuf:"fixed32,1,opt,name=cpu_amount,json=cpuAmount,proto3,oneof" json:"cpu_amount,omitempty"`
-	RamMb         *uint32                `protobuf:"varint,2,opt,name=ram_mb,json=ramMb,proto3,oneof" json:"ram_mb,omitempty"`
-	MemorySwapMb  *uint32                `protobuf:"varint,3,opt,name=memory_swap_mb,json=memorySwapMb,proto3,oneof" json:"memory_swap_mb,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Top level cpu share amount.
+	// 0.5 - give half a core
+	// 1 - allocates 1 core exactly
+	// 2 - allocates 2 cores
+	Cpu           *float32 `protobuf:"fixed32,1,opt,name=cpu,proto3,oneof" json:"cpu,omitempty"`
+	RamMb         *uint32  `protobuf:"varint,2,opt,name=ram_mb,json=ramMb,proto3,oneof" json:"ram_mb,omitempty"`
+	MemorySwapMb  *uint32  `protobuf:"varint,3,opt,name=memory_swap_mb,json=memorySwapMb,proto3,oneof" json:"memory_swap_mb,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -958,9 +962,9 @@ func (*Container_Hardware) Descriptor() ([]byte, []int) {
 	return file_velez_common_proto_rawDescGZIP(), []int{6, 0}
 }
 
-func (x *Container_Hardware) GetCpuAmount() float32 {
-	if x != nil && x.CpuAmount != nil {
-		return *x.CpuAmount
+func (x *Container_Hardware) GetCpu() float32 {
+	if x != nil && x.Cpu != nil {
+		return *x.Cpu
 	}
 	return 0
 }
@@ -1178,14 +1182,13 @@ const file_velez_common_proto_rawDesc = "" +
 	"\x06paused\x10\x05\x12\n" +
 	"\n" +
 	"\x06exited\x10\x06\x12\b\n" +
-	"\x04dead\x10\a\"\x80\x04\n" +
-	"\tContainer\x1a\xa2\x01\n" +
-	"\bHardware\x12\"\n" +
-	"\n" +
-	"cpu_amount\x18\x01 \x01(\x02H\x00R\tcpuAmount\x88\x01\x01\x12\x1a\n" +
+	"\x04dead\x10\a\"\xec\x03\n" +
+	"\tContainer\x1a\x8e\x01\n" +
+	"\bHardware\x12\x15\n" +
+	"\x03cpu\x18\x01 \x01(\x02H\x00R\x03cpu\x88\x01\x01\x12\x1a\n" +
 	"\x06ram_mb\x18\x02 \x01(\rH\x01R\x05ramMb\x88\x01\x01\x12)\n" +
-	"\x0ememory_swap_mb\x18\x03 \x01(\rH\x02R\fmemorySwapMb\x88\x01\x01B\r\n" +
-	"\v_cpu_amountB\t\n" +
+	"\x0ememory_swap_mb\x18\x03 \x01(\rH\x02R\fmemorySwapMb\x88\x01\x01B\x06\n" +
+	"\x04_cpuB\t\n" +
 	"\a_ram_mbB\x11\n" +
 	"\x0f_memory_swap_mb\x1a\x90\x01\n" +
 	"\bSettings\x12%\n" +

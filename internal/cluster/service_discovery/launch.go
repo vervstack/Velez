@@ -116,9 +116,15 @@ func SetupMakosh(
 	runner := pipelines.ConnectServiceToVpn(connToVpnReq, nodeClients, vcnClient, sd)
 	err = runner.Run(ctx)
 	if err != nil {
-		if !rerrors.Is(err, steps.ErrAlreadyExists) {
-			return sd, rerrors.Wrap(err, "error connecting service to verv closed network")
+		if rerrors.Is(err, steps.ErrAlreadyExists) {
+			return sd, nil
 		}
+
+		if rerrors.Is(err, cluster_clients.ErrServiceIsDisabled) {
+			return sd, nil
+		}
+
+		return sd, rerrors.Wrap(err, "error connecting service to verv closed network")
 	}
 
 	return sd, nil

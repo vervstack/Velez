@@ -9,6 +9,7 @@ require (
 	github.com/containerd/errdefs v1.0.0
 	github.com/docker/docker v28.5.2+incompatible
 	github.com/docker/go-connections v0.6.0
+	github.com/gojuno/minimock/v3 v3.4.7
 	github.com/google/go-containerregistry v0.20.7
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3
 	github.com/jaypipes/ghw v0.20.0

@@ -150,9 +150,10 @@
     "ContainerHardware": {
       "type": "object",
       "properties": {
-        "cpuAmount": {
+        "cpu": {
           "type": "number",
-          "format": "float"
+          "format": "float",
+          "title": "Top level cpu share amount.\n0.5 - give half a core\n1 - allocates 1 core exactly\n2 - allocates 2 cores"
         },
         "ramMb": {
           "type": "integer",
@@ -347,8 +348,18 @@
         "restart": {
           "$ref": "#/definitions/velez_apiRestartPolicy"
         },
-        "config": {
+        "verv": {
           "$ref": "#/definitions/velez_apiMatreshkaConfigSpec"
+        },
+        "plain": {
+          "type": "string",
+          "format": "byte",
+          "title": "TODO not implemented"
+        },
+        "isDeclarativeDeploy": {
+          "type": "boolean",
+          "description": "False (default):\n     if defined smerd already exist - api call fails\nTrue: \n     if smerd already exist and healthy\n     this api call won't fail.\nTODO maybe even support to upgrade to presented state will be implemented some day",
+          "title": "is_declarative_deploy - flag allows caller to manage idempotency of calls"
         }
       }
     },

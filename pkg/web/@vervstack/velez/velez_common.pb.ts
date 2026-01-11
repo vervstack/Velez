@@ -79,7 +79,7 @@ export type Smerd = {
 };
 
 export type ContainerHardware = {
-  cpuAmount?: number;
+    cpu?: number;
   ramMb?: number;
   memorySwapMb?: number;
 };

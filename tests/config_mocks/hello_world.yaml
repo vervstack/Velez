@@ -1,0 +1,17 @@
+app_info:
+  name: github.com/godverv/hello_world
+  version: v0.0.14
+  startup_duration: 10s
+data_sources:
+  - resource_name: sqlite
+    path: ./hello_world.db
+    migrations_folder: ./migrations
+servers:
+  80:
+    /{GRPC}:
+      module: pkg/hello_world
+      gateway: /v1
+environment:
+  - name: int_slice
+    type: int
+    value: [ '18501:18519' ]

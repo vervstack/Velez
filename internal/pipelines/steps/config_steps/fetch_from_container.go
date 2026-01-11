@@ -89,8 +89,9 @@ func (c *getConfigFromContainerStep) extractConfig(ctx context.Context,
 }
 
 func (c *getConfigFromContainerStep) getSpec(mount *domain.ConfigMount) *velez_api.MatreshkaConfigSpec {
-	if c.req.Config != nil {
-		return c.req.Config
+	vervCfg := c.req.GetVerv()
+	if vervCfg != nil {
+		return vervCfg
 	}
 
 	spec := &velez_api.MatreshkaConfigSpec{

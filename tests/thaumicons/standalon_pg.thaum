@@ -1,0 +1,17 @@
+service: analytics_pg
+image: postgres:18
+env:
+  POSTGRES_HOST_AUTH_METHOD: "trust"
+
+---
+healthcheck:
+  cmd: 'pg_isready -U postgres'
+  interval_seconds: 2
+  timeout_seconds: 2
+  retries: 3
+---
+ignore_config: true
+use_image_ports: true
+
+labels:
+

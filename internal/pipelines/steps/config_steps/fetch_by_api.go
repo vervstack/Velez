@@ -52,20 +52,26 @@ func (c *fetchConfigStep) Do(ctx context.Context) (err error) {
 	}
 
 	if c.req.Config == nil {
-		c.req.Config = &velez_api.MatreshkaConfigSpec{
-			ConfigName: toolbox.ToPtr(c.req.Name),
+		c.req.Config = &velez_api.CreateSmerd_Request_Verv{
+			Verv: &velez_api.MatreshkaConfigSpec{
+				ConfigName: toolbox.ToPtr(c.req.Name),
+			},
 		}
 	}
 
-	*c.result, err = c.do(ctx, c.req.Config)
-	if err != nil {
-		return rerrors.Wrap(err, "error getting config to mount")
+	vervCfg := c.req.GetVerv()
+	if vervCfg != nil {
+		*c.result, err = c.doVerv(ctx, vervCfg)
+		if err != nil {
+			return rerrors.Wrap(err, "error getting config to mount")
+		}
+		return nil
 	}
 
-	return nil
+	return rerrors.New("only verv config supported for now")
 }
 
-func (c *fetchConfigStep) do(ctx context.Context, spec *velez_api.MatreshkaConfigSpec) (mount domain.ConfigMount, err error) {
+func (c *fetchConfigStep) doVerv(ctx context.Context, spec *velez_api.MatreshkaConfigSpec) (mount domain.ConfigMount, err error) {
 	mount.FilePath = spec.SystemPath
 
 	fillMeta(c.image, &mount)
@@ -154,4 +160,8 @@ func isPostgresByImageTags(tags []string) bool {
 	}
 
 	return false
+}
+
+type isCreateSmerd_Request_Config interface {
+	isCreateSmerd_Request_Config()
 }

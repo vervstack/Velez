@@ -114,7 +114,21 @@ message CreateSmerd {
 
     RestartPolicy restart = 12;
 
-    MatreshkaConfigSpec config = 13;
+    oneof config {
+      MatreshkaConfigSpec verv = 13;
+      // TODO not implemented
+      bytes plain = 14;
+    }
+
+    // is_declarative_deploy - flag allows caller to manage idempotency of calls
+    //
+    // False (default):
+    //      if defined smerd already exist - api call fails
+    // True: 
+    //      if smerd already exist and healthy
+    //      this api call won't fail.
+    // TODO maybe even support to upgrade to presented state will be implemented some day
+    bool is_declarative_deploy = 15;
 
     // TODO add sidecar definition
     // TODO add resources definition

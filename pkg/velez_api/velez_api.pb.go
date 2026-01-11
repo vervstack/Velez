@@ -477,9 +477,26 @@ type CreateSmerd_Request struct {
 	UseImagePorts bool                   `protobuf:"varint,10,opt,name=use_image_ports,json=useImagePorts,proto3" json:"use_image_ports,omitempty"`
 	AutoUpgrade   bool                   `protobuf:"varint,11,opt,name=auto_upgrade,json=autoUpgrade,proto3" json:"auto_upgrade,omitempty"`
 	Restart       *RestartPolicy         `protobuf:"bytes,12,opt,name=restart,proto3" json:"restart,omitempty"`
-	Config        *MatreshkaConfigSpec   `protobuf:"bytes,13,opt,name=config,proto3" json:"config,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Types that are valid to be assigned to Config:
+	//
+	//	*CreateSmerd_Request_Verv
+	//	*CreateSmerd_Request_Plain
+	Config isCreateSmerd_Request_Config `protobuf_oneof:"config"`
+	// is_declarative_deploy - flag allows caller to manage idempotency of calls
+	//
+	// False (default):
+	//
+	//	if defined smerd already exist - api call fails
+	//
+	// True:
+	//
+	//	if smerd already exist and healthy
+	//	this api call won't fail.
+	//
+	// TODO maybe even support to upgrade to presented state will be implemented some day
+	IsDeclarativeDeploy bool `protobuf:"varint,15,opt,name=is_declarative_deploy,json=isDeclarativeDeploy,proto3" json:"is_declarative_deploy,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *CreateSmerd_Request) Reset() {
@@ -596,12 +613,54 @@ func (x *CreateSmerd_Request) GetRestart() *RestartPolicy {
 	return nil
 }
 
-func (x *CreateSmerd_Request) GetConfig() *MatreshkaConfigSpec {
+func (x *CreateSmerd_Request) GetConfig() isCreateSmerd_Request_Config {
 	if x != nil {
 		return x.Config
 	}
 	return nil
 }
+
+func (x *CreateSmerd_Request) GetVerv() *MatreshkaConfigSpec {
+	if x != nil {
+		if x, ok := x.Config.(*CreateSmerd_Request_Verv); ok {
+			return x.Verv
+		}
+	}
+	return nil
+}
+
+func (x *CreateSmerd_Request) GetPlain() []byte {
+	if x != nil {
+		if x, ok := x.Config.(*CreateSmerd_Request_Plain); ok {
+			return x.Plain
+		}
+	}
+	return nil
+}
+
+func (x *CreateSmerd_Request) GetIsDeclarativeDeploy() bool {
+	if x != nil {
+		return x.IsDeclarativeDeploy
+	}
+	return false
+}
+
+type isCreateSmerd_Request_Config interface {
+	isCreateSmerd_Request_Config()
+}
+
+type CreateSmerd_Request_Verv struct {
+	Verv *MatreshkaConfigSpec `protobuf:"bytes,13,opt,name=verv,proto3,oneof"`
+}
+
+type CreateSmerd_Request_Plain struct {
+	// TODO not implemented
+	Plain []byte `protobuf:"bytes,14,opt,name=plain,proto3,oneof"`
+}
+
+func (*CreateSmerd_Request_Verv) isCreateSmerd_Request_Config() {}
+
+func (*CreateSmerd_Request_Plain) isCreateSmerd_Request_Config() {}
 
 type ListSmerds_Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1491,30 +1550,33 @@ const file_velez_api_proto_rawDesc = "" +
 	"\aVersion\x1a\t\n" +
 	"\aRequest\x1a$\n" +
 	"\bResponse\x12\x18\n" +
-	"\aversion\x18\x01 \x01(\tR\aversion\"\xb8\x06\n" +
-	"\vCreateSmerd\x1a\xa8\x06\n" +
+	"\aversion\x18\x01 \x01(\tR\aversion\"\x8c\a\n" +
+	"\vCreateSmerd\x1a\xfc\x06\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
 	"image_name\x18\x02 \x01(\tR\timageName\x12>\n" +
-	"\bhardware\x18\x03 \x01(\v2\x1d.velez_api.Container.HardwareH\x00R\bhardware\x88\x01\x01\x12>\n" +
-	"\bsettings\x18\x04 \x01(\v2\x1d.velez_api.Container.SettingsH\x01R\bsettings\x88\x01\x01\x12\x1d\n" +
-	"\acommand\x18\x05 \x01(\tH\x02R\acommand\x88\x01\x01\x129\n" +
+	"\bhardware\x18\x03 \x01(\v2\x1d.velez_api.Container.HardwareH\x01R\bhardware\x88\x01\x01\x12>\n" +
+	"\bsettings\x18\x04 \x01(\v2\x1d.velez_api.Container.SettingsH\x02R\bsettings\x88\x01\x01\x12\x1d\n" +
+	"\acommand\x18\x05 \x01(\tH\x03R\acommand\x88\x01\x01\x129\n" +
 	"\x03env\x18\x06 \x03(\v2'.velez_api.CreateSmerd.Request.EnvEntryR\x03env\x12G\n" +
-	"\vhealthcheck\x18\a \x01(\v2 .velez_api.Container.HealthcheckH\x03R\vhealthcheck\x88\x01\x01\x12B\n" +
+	"\vhealthcheck\x18\a \x01(\v2 .velez_api.Container.HealthcheckH\x04R\vhealthcheck\x88\x01\x01\x12B\n" +
 	"\x06labels\x18\b \x03(\v2*.velez_api.CreateSmerd.Request.LabelsEntryR\x06labels\x12#\n" +
 	"\rignore_config\x18\t \x01(\bR\fignoreConfig\x12&\n" +
 	"\x0fuse_image_ports\x18\n" +
 	" \x01(\bR\ruseImagePorts\x12!\n" +
 	"\fauto_upgrade\x18\v \x01(\bR\vautoUpgrade\x122\n" +
-	"\arestart\x18\f \x01(\v2\x18.velez_api.RestartPolicyR\arestart\x126\n" +
-	"\x06config\x18\r \x01(\v2\x1e.velez_api.MatreshkaConfigSpecR\x06config\x1a6\n" +
+	"\arestart\x18\f \x01(\v2\x18.velez_api.RestartPolicyR\arestart\x124\n" +
+	"\x04verv\x18\r \x01(\v2\x1e.velez_api.MatreshkaConfigSpecH\x00R\x04verv\x12\x16\n" +
+	"\x05plain\x18\x0e \x01(\fH\x00R\x05plain\x122\n" +
+	"\x15is_declarative_deploy\x18\x0f \x01(\bR\x13isDeclarativeDeploy\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\v\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\b\n" +
+	"\x06configB\v\n" +
 	"\t_hardwareB\v\n" +
 	"\t_settingsB\n" +
 	"\n" +
@@ -1668,7 +1730,7 @@ var file_velez_api_proto_depIdxs = []int32{
 	36, // 3: velez_api.CreateSmerd.Request.healthcheck:type_name -> velez_api.Container.Healthcheck
 	14, // 4: velez_api.CreateSmerd.Request.labels:type_name -> velez_api.CreateSmerd.Request.LabelsEntry
 	37, // 5: velez_api.CreateSmerd.Request.restart:type_name -> velez_api.RestartPolicy
-	38, // 6: velez_api.CreateSmerd.Request.config:type_name -> velez_api.MatreshkaConfigSpec
+	38, // 6: velez_api.CreateSmerd.Request.verv:type_name -> velez_api.MatreshkaConfigSpec
 	17, // 7: velez_api.ListSmerds.Request.label:type_name -> velez_api.ListSmerds.Request.LabelEntry
 	39, // 8: velez_api.ListSmerds.Response.smerds:type_name -> velez_api.Smerd
 	20, // 9: velez_api.DropSmerd.Response.failed:type_name -> velez_api.DropSmerd.Response.Error
@@ -1711,7 +1773,10 @@ func file_velez_api_proto_init() {
 		return
 	}
 	file_velez_common_proto_init()
-	file_velez_api_proto_msgTypes[12].OneofWrappers = []any{}
+	file_velez_api_proto_msgTypes[12].OneofWrappers = []any{
+		(*CreateSmerd_Request_Verv)(nil),
+		(*CreateSmerd_Request_Plain)(nil),
+	}
 	file_velez_api_proto_msgTypes[15].OneofWrappers = []any{}
 	file_velez_api_proto_msgTypes[32].OneofWrappers = []any{}
 	type x struct{}

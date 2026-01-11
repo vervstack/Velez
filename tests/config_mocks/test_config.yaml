@@ -16,7 +16,7 @@ environment:
     value: true
   - name: custom_pass_to_key
     type: string
-    value: /tmp/velez/private.key
+    value: ./test_data/private-key.json
   - name: cpu_default
     type: float
     value: 0.5

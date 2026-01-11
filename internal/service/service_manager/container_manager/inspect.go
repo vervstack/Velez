@@ -21,7 +21,7 @@ func (c *ContainerManager) InspectSmerd(ctx context.Context, contId string) (*ve
 
 	smerd := &velez_api.Smerd{
 		Uuid:    contInfo.ContainerJSONBase.ID,
-		Name:    contInfo.ContainerJSONBase.Name,
+		Name:    strings.Replace(contInfo.ContainerJSONBase.Name, "/", "", 1),
 		Ports:   parser.ToPortsMapping(contInfo.ContainerJSONBase.HostConfig.PortBindings),
 		Volumes: parser.ToVolume(contInfo.ContainerJSONBase.HostConfig.Mounts),
 		Env:     parser.ToDockerEnv(contInfo.Config.Env),

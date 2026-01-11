@@ -13,8 +13,10 @@ import (
 type VpnSuite struct {
 	suite.Suite
 
-	controlPlaneApi velez_api.ControlPlaneAPIClient
-	vpnApi          velez_api.VcnApiClient
+	env *Environment
+
+	controlPlaneApi velez_api.ControlPlaneAPIServer
+	vpnApi          velez_api.VcnApiServer
 
 	ctx         context.Context
 	namespaceId string
@@ -25,9 +27,10 @@ func (s *VpnSuite) SetupSuite() {
 	//region Declarative preps
 	s.ctx = s.T().Context()
 
-	s.controlPlaneApi = testEnvironment.api.controlPlane
-	s.vpnApi = testEnvironment.api.vpn
+	s.env = NewEnvironment(s.T())
 
+	s.controlPlaneApi = s.env.App.Custom.ControlPlaneApiImpl
+	s.vpnApi = s.env.App.Custom.VpnApiImpl
 	//endregion
 
 	enableVpnRequest := &velez_api.EnableService_Request{
@@ -38,14 +41,14 @@ func (s *VpnSuite) SetupSuite() {
 }
 
 func (s *VpnSuite) SetupTest() {
-	s.serviceName = getServiceName(s.T())
+	s.serviceName = GetServiceName(s.T())
 	mainApp := &velez_api.CreateSmerd_Request{
 		Name:         s.serviceName,
-		ImageName:    helloWorldAppImage,
+		ImageName:    HelloWorldAppImage,
 		IgnoreConfig: true,
 	}
 
-	_, err := testEnvironment.createSmerd(s.T().Context(), mainApp)
+	_, err := s.env.CreateSmerd(s.T().Context(), mainApp)
 	require.NoError(s.T(), err)
 
 	newNamespaceReq := &velez_api.CreateVcnNamespace_Request{

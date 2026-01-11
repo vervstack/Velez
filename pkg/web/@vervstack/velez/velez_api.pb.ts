@@ -8,6 +8,15 @@
 import * as fm from "./fetch.pb";
 import * as VelezApiVelezCommon from "./velez_common.pb";
 
+type Absent<T, K extends keyof T> = { [k in Exclude<keyof T, K>]?: undefined };
+
+type OneOf<T> =
+    | { [k in keyof T]?: undefined }
+    | (keyof T extends infer K
+    ? K extends string & keyof T
+        ? { [k in K]: T[K] } & Absent<T, K>
+        : never
+    : never);
 
 export type VersionRequest = Record<string, never>;
 
@@ -17,21 +26,27 @@ export type VersionResponse = {
 
 export type Version = Record<string, never>;
 
-export type CreateSmerdRequest = {
+type BaseCreateSmerdRequest = {
   name?: string;
   imageName?: string;
-  hardware?: VelezApiVelezCommon.ContainerHardware;
-  settings?: VelezApiVelezCommon.ContainerSettings;
-  command?: string;
   env?: Record<string, string>;
-  healthcheck?: VelezApiVelezCommon.ContainerHealthcheck;
   labels?: Record<string, string>;
   ignoreConfig?: boolean;
   useImagePorts?: boolean;
   autoUpgrade?: boolean;
   restart?: VelezApiVelezCommon.RestartPolicy;
-  config?: VelezApiVelezCommon.MatreshkaConfigSpec;
+    isDeclarativeDeploy?: boolean;
+    hardware?: VelezApiVelezCommon.ContainerHardware;
+    settings?: VelezApiVelezCommon.ContainerSettings;
+    command?: string;
+    healthcheck?: VelezApiVelezCommon.ContainerHealthcheck;
 };
+
+export type CreateSmerdRequest = BaseCreateSmerdRequest &
+    OneOf<{
+        verv: VelezApiVelezCommon.MatreshkaConfigSpec;
+        plain: Uint8Array;
+    }>;
 
 export type CreateSmerd = Record<string, never>;
 

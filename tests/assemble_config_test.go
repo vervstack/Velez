@@ -9,6 +9,7 @@ import (
 	"go.redsock.ru/toolbox"
 
 	"go.vervstack.ru/Velez/pkg/velez_api"
+	"go.vervstack.ru/Velez/tests/config_mocks"
 )
 
 type AssembleConfigSuite struct {
@@ -22,17 +23,21 @@ func (s *AssembleConfigSuite) SetupSuite() {
 }
 
 func (s *AssembleConfigSuite) Test_AssembleHelloWorld() {
-	t := s.Suite.T()
-	serviceName := getServiceName(t)
+	t := s.T()
+
+	serviceName := GetServiceName(t)
 	req := &velez_api.AssembleConfig_Request{
-		ImageName:   helloWorldAppImage,
+		ImageName:   HelloWorldAppImage,
 		ServiceName: serviceName,
 	}
-	assembleResponse, err := testEnvironment.app.Custom.ApiGrpcImpl.AssembleConfig(s.ctx, req)
+
+	env := NewEnvironment(t)
+
+	assembleResponse, err := env.App.Custom.ApiGrpcImpl.AssembleConfig(s.ctx, req)
 	require.NoError(t, err)
 
 	expected := &velez_api.AssembleConfig_Response{
-		Config: s.helloWorldConfig(),
+		Config: config_mocks.HelloWorld,
 	}
 
 	require.YAMLEq(t, string(expected.Config), string(assembleResponse.Config))
@@ -40,31 +45,9 @@ func (s *AssembleConfigSuite) Test_AssembleHelloWorld() {
 	listReq := &velez_api.ListSmerds_Request{
 		Name: toolbox.ToPtr(serviceName),
 	}
-	cont, err := testEnvironment.deps.docker.ListContainers(s.ctx, listReq)
+	cont, err := env.App.Custom.NodeClients.Docker().ListContainers(s.ctx, listReq)
 	require.NoError(t, err)
 	require.Empty(t, cont)
-}
-
-func (s *AssembleConfigSuite) helloWorldConfig() []byte {
-	return []byte(`
-app_info:
-    name: github.com/godverv/hello_world
-    version: v0.0.14
-    startup_duration: 10s
-data_sources:
-    - resource_name: sqlite
-      path: ./hello_world.db
-      migrations_folder: ./migrations
-servers:
-    80:
-        /{GRPC}:
-            module: pkg/hello_world
-            gateway: /v1
-environment:
-    - name: int_slice
-      type: int
-      value: ['18501:18519']
-`)[1:]
 }
 
 func Test_AssembleConfig(t *testing.T) {

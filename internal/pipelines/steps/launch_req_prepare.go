@@ -35,8 +35,10 @@ func (p *prepareRequestStep) Do(_ context.Context) error {
 	}
 
 	if p.req.Config == nil {
-		p.req.Config = &velez_api.MatreshkaConfigSpec{
-			ConfigName: &p.req.Name,
+		p.req.Config = &velez_api.CreateSmerd_Request_Verv{
+			Verv: &velez_api.MatreshkaConfigSpec{
+				ConfigName: &p.req.Name,
+			},
 		}
 	}
 

@@ -34,7 +34,7 @@ func Setup(ctx context.Context, cfg config.Config, nodeClients node_clients.Node
 	// 1. Single node - docker network (❌not implemented)
 	// 2. Multi node Tailscale - using 3rd party service (❌not implemented)
 	// 3. Multi node - using headscale setup (⚠️ in development)
-	vcnClient, err := verv_closed_network.SetupVcn(ctx, cfg, nodeClients)
+	vcnClient, err := verv_closed_network.SetupVcn(ctx, nodeClients)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error during vpn server client initialization")
 	}

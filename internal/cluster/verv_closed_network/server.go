@@ -14,7 +14,6 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/headscale"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster/env/container_service_task"
-	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/domain"
 	headscalePatterns "go.vervstack.ru/Velez/internal/patterns/headscale"
 	"go.vervstack.ru/Velez/pkg/velez_api"
@@ -29,15 +28,13 @@ const (
 
 type headscaleLauncher struct {
 	ctx context.Context
-	cfg config.Config
 
 	clients node_clients.NodeClients
 }
 
 func SetupVcn(
-	ctx context.Context,
-	cfg config.Config,
-	nodeClients node_clients.NodeClients) (cluster_clients.VervClosedNetworkClient, error) {
+	ctx context.Context, nodeClients node_clients.NodeClients) (
+	cluster_clients.VervClosedNetworkClient, error) {
 	state := nodeClients.LocalStateManager().Get()
 
 	if !state.IsHeadscaleEnabled {
@@ -54,7 +51,7 @@ func SetupVcn(
 		return client, nil
 	}
 
-	client, err := LaunchHeadscale(ctx, cfg, nodeClients)
+	client, err := LaunchHeadscale(ctx, nodeClients)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error launching headscale in this node")
 	}
@@ -64,10 +61,9 @@ func SetupVcn(
 
 func LaunchHeadscale(
 	ctx context.Context,
-	cfg config.Config,
 	nodeClients node_clients.NodeClients,
 ) (*headscale.Client, error) {
-	l := headscaleLauncher{ctx, cfg, nodeClients}
+	l := headscaleLauncher{ctx, nodeClients}
 
 	isRunning, err := l.isServiceRunningOnThisNode()
 	if err != nil {

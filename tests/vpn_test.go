@@ -26,11 +26,10 @@ type VpnSuite struct {
 func (s *VpnSuite) SetupSuite() {
 	//region Declarative preps
 	t := s.T()
-	t.Skip("vpn is not enabled in tests")
 
 	s.ctx = s.T().Context()
 
-	s.env = NewEnvironment(t)
+	s.env = NewEnvironment(t, WithVcn())
 
 	s.controlPlaneApi = s.env.App.Custom.ControlPlaneApiImpl
 	s.vpnApi = s.env.App.Custom.VpnApiImpl

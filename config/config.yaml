@@ -11,6 +11,9 @@ environment:
     - name: available_ports
       type: int
       value: ['18501:19000']
+    - name: cluster_pg_dsn
+      type: string
+      value: ""
     - name: cpu_default
       type: float
       value: 0.5
@@ -64,9 +67,6 @@ environment:
     - name: memory_swap_mb
       type: int
       value: 50
-    - name: cluster_pg_dsn
-      type: string
-      value: ""
     - name: ram_mb_default
       type: int
       value: 50
@@ -75,13 +75,13 @@ environment:
       value: false
     - name: vpn_client_image
       type: string
-      value: ""
+      value: tailscale/tailscale:v1.90.8
     - name: vpn_is_enabled
       type: bool
       value: true
     - name: vpn_server_image
       type: string
-      value: ""
+      value: headscale/headscale:0.27.2-rc.1
     - name: vpn_server_url
       type: string
       value: ""

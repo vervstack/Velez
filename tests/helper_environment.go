@@ -32,6 +32,12 @@ func WithMatreshka() EnvOpt {
 	}
 }
 
+func WithVcn() EnvOpt {
+	return func(a *app.App) {
+		a.Cfg.Environment.VpnIsEnabled = true
+	}
+}
+
 func NewEnvironment(t *testing.T, opts ...EnvOpt) *Environment {
 	var env Environment
 

@@ -6,7 +6,6 @@ type EnvironmentConfig struct {
 	AvailablePorts     []int
 	ClusterPgDsn       string
 	CPUDefault         float64
-	CustomPassToKey    string
 	DisableAPISecurity bool
 	LogFormat          string
 	LogLevel           string
@@ -24,6 +23,7 @@ type EnvironmentConfig struct {
 	MemorySwapMb       int
 	RAMMbDefault       int
 	ShutDownOnExit     bool
+	StatePath          string
 	VpnServerURL       string
 }
 

@@ -165,7 +165,7 @@ func Test_Deploy_Generic_Api(t *testing.T) {
 			ctx := t.Context()
 			// region Preparations
 			tcArgs := tc.assemble(t)
-			var opts []EnvOpt
+			var opts []TestEnvOpt
 
 			if tcArgs.appVervConfig != nil {
 				opts = append(opts, WithMatreshka())

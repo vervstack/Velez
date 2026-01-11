@@ -14,9 +14,9 @@ environment:
   - name: shut_down_on_exit
     type: bool
     value: true
-  - name: custom_pass_to_key
+  - name: state_path
     type: string
-    value: ./test_data/private-key.json
+    value: ./test_data/default-private-key.json
   - name: cpu_default
     type: float
     value: 0.5

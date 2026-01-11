@@ -16,30 +16,30 @@ import (
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
-// Environment exposes only what is needed in test suite (API client, other node and cluster clients with test wrappers)
-// TODO as for now Environment is fully exposed. It suppose to be the other way around.
-type Environment struct {
+// TestEnvironment exposes only what is needed in test suite (API client, other node and cluster clients with test wrappers)
+// TODO as for now TestEnvironment is fully exposed. It suppose to be the other way around.
+type TestEnvironment struct {
 	app.App
 
 	t *testing.T
 }
 
-type EnvOpt func(a *app.App)
+type TestEnvOpt func(a *TestEnvironment)
 
-func WithMatreshka() EnvOpt {
-	return func(a *app.App) {
+func WithMatreshka() TestEnvOpt {
+	return func(a *TestEnvironment) {
 		a.Cfg.Environment.MatreshkaIsEnabled = true
 	}
 }
 
-func WithVcn() EnvOpt {
-	return func(a *app.App) {
-		a.Cfg.Environment.VpnIsEnabled = true
+func WithVcn() TestEnvOpt {
+	return func(a *TestEnvironment) {
+		a.Cfg.Environment.CustomPassToKey
 	}
 }
 
-func NewEnvironment(t *testing.T, opts ...EnvOpt) *Environment {
-	var env Environment
+func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
+	var env TestEnvironment
 
 	env.t = t
 
@@ -50,32 +50,39 @@ func NewEnvironment(t *testing.T, opts ...EnvOpt) *Environment {
 
 	var err error
 
+	//region Default Test Application setup
+	// Bare minimal functionality. Just Api for containers
+
+	// init basic config located at ./config/*.yaml
+	env.App.Cfg, err = config.Load("./config_mocks/test_config.yaml")
+	require.NoError(t, err)
+
 	const bufSize = 1024 * 1024
 	lis := bufconn.Listen(bufSize)
 
 	env.App.ServerMaster, err = transport.NewServerManager(env.App.Ctx, lis)
 	require.NoError(t, err)
 
-	// init basic config located at ./config/*.yaml
-	env.App.Cfg, err = config.Load("./config_mocks/test_config.yaml")
-	require.NoError(t, err)
+	//endregion
+
 	for _, opt := range opts {
-		opt(&env.App)
+		opt(&env)
 	}
 
 	env.App.Cfg.AppInfo.Name = GetServiceName(t)
 	env.App.Cfg.AppInfo.Version = GetServiceName(t)
 
+	//region Application start
 	err = env.App.Custom.Init(&env.App)
 	require.NoError(t, err)
-
+	//endregion
 	env.clean()
 	t.Cleanup(env.clean)
 
 	return &env
 }
 
-func (e *Environment) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (smerd *velez_api.Smerd, err error) {
+func (e *TestEnvironment) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (smerd *velez_api.Smerd, err error) {
 	if req.Labels == nil {
 		req.Labels = map[string]string{}
 	}
@@ -92,7 +99,7 @@ func (e *Environment) CreateSmerd(ctx context.Context, req *velez_api.CreateSmer
 	return response, nil
 }
 
-func (e *Environment) clean() {
+func (e *TestEnvironment) clean() {
 	ctx := context.Background()
 	dockerClient := e.Custom.NodeClients.Docker().Client()
 

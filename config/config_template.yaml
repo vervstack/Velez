@@ -14,7 +14,7 @@ environment:
     - name: cpu_default
       type: float
       value: 0.5
-    - name: custom_pass_to_key
+    - name: state_path
       type: string
       value: /tmp/velez/private.key
     - name: disable_api_security

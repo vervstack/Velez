@@ -13,7 +13,7 @@ import (
 type VpnSuite struct {
 	suite.Suite
 
-	env *Environment
+	env *TestEnvironment
 
 	controlPlaneApi velez_api.ControlPlaneAPIServer
 	vpnApi          velez_api.VcnApiServer
@@ -26,6 +26,7 @@ type VpnSuite struct {
 func (s *VpnSuite) SetupSuite() {
 	//region Declarative preps
 	t := s.T()
+	t.Parallel()
 
 	s.ctx = s.T().Context()
 
@@ -44,6 +45,7 @@ func (s *VpnSuite) SetupSuite() {
 
 func (s *VpnSuite) SetupTest() {
 	t := s.T()
+	t.Parallel()
 
 	s.serviceName = GetServiceName(t)
 	mainApp := &velez_api.CreateSmerd_Request{

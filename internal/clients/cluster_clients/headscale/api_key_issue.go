@@ -135,13 +135,18 @@ func (s *keyIssuer) deleteOldApiKeys(ctx context.Context, keyPrefixes []string) 
 
 func (s *keyIssuer) issueNewKey(ctx context.Context) (string, error) {
 	execIssueNewKey := container.ExecOptions{
-		Cmd: strings.Split(issueApiKey, " "),
-		Env: envs,
+		Cmd:          strings.Split(issueApiKey, " "),
+		Env:          envs,
+		AttachStdout: true,
 	}
 
 	res, err := s.docker.Exec(ctx, s.containerName, execIssueNewKey)
 	if err != nil {
 		return "", rerrors.Wrap(err)
+	}
+
+	if len(res) == 0 {
+		return "", rerrors.New("can't parse output")
 	}
 
 	return string(res[1 : len(res)-1]), nil

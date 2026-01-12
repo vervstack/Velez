@@ -37,12 +37,8 @@ type State struct {
 }
 
 func NewSecurityManager(cfg config.Config) *Manager {
-	if cfg.Environment.CustomPassToKey == "" {
-		cfg.Environment.CustomPassToKey = defaultPath
-	}
-
 	return &Manager{
-		buildPath: cfg.Environment.CustomPassToKey,
+		buildPath: rtb.Coalesce(cfg.Environment.StatePath, defaultPath),
 		state:     State{},
 	}
 }

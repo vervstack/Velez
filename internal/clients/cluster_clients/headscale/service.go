@@ -6,15 +6,11 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/cluster/env"
 )
 
 type Client struct {
-	docker node_clients.Docker
-
-	// deprecated
-	containerName string
-	apiKey        string
-
+	apiKey          string
 	headscaleApiUrl string
 }
 
@@ -34,22 +30,58 @@ func Connect(ctx context.Context, url, token string) (*Client, error) {
 	return srv, nil
 }
 
-func New(ctx context.Context, nc node_clients.NodeClients, containerName string) (srv *Client, err error) {
-	srv = &Client{
-		docker:        nc.Docker(),
-		containerName: containerName,
-		// TODO change onto actual
-		//headscaleApiUrl: "http://localhost:8080",
-		headscaleApiUrl: "https://vcn.redsock.ru",
-		// Remove
-		//apiKey: "_ARnAyX.9BHTGPRGiAPeKhzYLJxNpQABtQUy23Qv",
-		apiKey: "v6h7IEa.vqf_q8lZTmBgphgMqfYP8Q6qKRrtW4K4",
-	}
-	//TODO return to live
-	//srv.apiKey, err = issueNewApiKey(ctx, docker, containerName)
-	//if err != nil {
-	//	return nil, rerrors.Wrap(err, "error issuing api key")
-	//}
+func ConnectToContainer(ctx context.Context, nc node_clients.NodeClients, containerName string) (*Client, error) {
+	var srv Client
+	var err error
 
-	return srv, nil
+	srv.headscaleApiUrl, err = getApiAddress(ctx, nc.Docker(), containerName)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error getting api address")
+	}
+
+	srv.apiKey, err = issueNewApiKey(ctx, nc.Docker(), containerName)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error issuing api key")
+	}
+
+	stateManager := nc.LocalStateManager()
+	localState := stateManager.GetForUpdate()
+	defer stateManager.SetAndRelease(localState)
+
+	localState.HeadscaleServerUrl = srv.headscaleApiUrl
+	localState.HeadscaleKey = srv.apiKey
+
+	return &srv, nil
+}
+
+func getApiAddress(ctx context.Context, dockerClient node_clients.Docker, containerName string) (address string, err error) {
+	dockerApi := dockerClient.Client()
+
+	cont, err := dockerApi.ContainerInspect(ctx, containerName)
+	if err != nil {
+		return "", rerrors.Wrap(err, "error inspecting headscale container")
+	}
+
+	var contPort, hostPort string
+
+	for port, pb := range cont.HostConfig.PortBindings {
+		contPort = port.Port()
+		for _, p := range pb {
+			hostPort = p.HostPort
+		}
+	}
+
+	if !env.IsInContainer() {
+		return "http://localhost:" + hostPort, nil
+	}
+	vervNet, isExists := cont.NetworkSettings.Networks[env.VervNetwork]
+	if !isExists {
+		return "", rerrors.New("headscale container isn't connected to vervnet")
+	}
+
+	if len(vervNet.Aliases) == 0 {
+		return "", rerrors.New("headscale container doesn't have any aliases")
+	}
+
+	return "http://" + vervNet.Aliases[0] + ":" + contPort, nil
 }

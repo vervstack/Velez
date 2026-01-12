@@ -14,6 +14,7 @@ func (s *Client) DeleteNamespace(ctx context.Context, id string) error {
 		return rerrors.Wrap(err, "error executing request")
 	}
 
+	// TODO add handling error for dangling nodes of namespace
 	r, _ := io.ReadAll(resp.Body)
 	_ = r
 

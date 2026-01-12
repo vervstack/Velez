@@ -6,6 +6,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
@@ -16,7 +18,7 @@ type VpnSuite struct {
 	env *TestEnvironment
 
 	controlPlaneApi velez_api.ControlPlaneAPIServer
-	vpnApi          velez_api.VcnApiServer
+	vpnApi          velez_api.VcnApiClient
 
 	ctx         context.Context
 	namespaceId string
@@ -30,17 +32,13 @@ func (s *VpnSuite) SetupSuite() {
 
 	s.ctx = s.T().Context()
 
-	s.env = NewEnvironment(t, WithVcn())
+	s.env = NewEnvironment(t,
+		WithState(t,
+			WithStateVcnEnabled()))
 
 	s.controlPlaneApi = s.env.App.Custom.ControlPlaneApiImpl
-	s.vpnApi = s.env.App.Custom.VpnApiImpl
+	s.vpnApi = s.env.VpnClient()
 	//endregion
-
-	enableVpnRequest := &velez_api.EnableService_Request{
-		Service: velez_api.VervServiceType_headscale,
-	}
-	_, err := s.controlPlaneApi.EnableService(s.ctx, enableVpnRequest)
-	require.NoError(s.T(), err, "error enabling vpn service")
 }
 
 func (s *VpnSuite) SetupTest() {
@@ -57,13 +55,7 @@ func (s *VpnSuite) SetupTest() {
 	_, err := s.env.CreateSmerd(t.Context(), mainApp)
 	require.NoError(t, err)
 
-	newNamespaceReq := &velez_api.CreateVcnNamespace_Request{
-		Name: s.serviceName,
-	}
-	newNamespaceResp, err := s.vpnApi.CreateNamespace(t.Context(), newNamespaceReq)
-	require.NoError(t, err)
-
-	s.namespaceId = newNamespaceResp.Namespace.Id
+	s.prepareNamespace()
 }
 
 func (s *VpnSuite) Test_ConnectVpn() {
@@ -83,13 +75,45 @@ func (s *VpnSuite) TearDownTest() {
 		return
 	}
 
+	// TODO not only delete namespace but also drop
+
 	t := s.T()
 
-	deleteNamespaceReq := &velez_api.DeleteVcnNamespace_Request{
+	r := &velez_api.DeleteVcnNamespace_Request{
 		Id: s.namespaceId,
 	}
-	_, err := s.vpnApi.DeleteNamespace(t.Context(), deleteNamespaceReq)
+	_, err := s.vpnApi.DeleteNamespace(s.ctx, r)
 	require.NoError(t, err)
+}
+
+func (s *VpnSuite) prepareNamespace() {
+	t := s.T()
+	ctx := t.Context()
+	newNamespaceReq := &velez_api.CreateVcnNamespace_Request{
+		Name: s.serviceName,
+	}
+
+	newNamespaceResp, err := s.vpnApi.CreateNamespace(ctx, newNamespaceReq)
+	if err == nil {
+		s.namespaceId = newNamespaceResp.Namespace.Id
+		return
+	}
+
+	c, k := status.FromError(err)
+	if !(k && c.Code() == codes.AlreadyExists) {
+		require.NoError(t, err)
+	}
+	// TODO add listing with name
+	listReq := &velez_api.ListVcnNamespaces_Request{}
+
+	listNamespacesResp, err := s.vpnApi.ListNamespaces(ctx, listReq)
+	require.NoError(t, err)
+
+	for _, ns := range listNamespacesResp.Namespaces {
+		if ns.Id == s.serviceName {
+			s.namespaceId = ns.Id
+		}
+	}
 }
 
 func Test_Vpn(t *testing.T) {

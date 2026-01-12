@@ -33,7 +33,7 @@ func Headscale(r domain.SetupHeadscaleRequest) container.CreateRequest {
 		Config: &container.Config{
 			Hostname: name,
 			ExposedPorts: nat.PortSet{
-				ApiPort + "/tcp": struct{}{},
+				ApiPort: struct{}{},
 			},
 			Cmd: strslice.StrSlice{"serve"},
 			Healthcheck: &container.HealthConfig{

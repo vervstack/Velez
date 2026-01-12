@@ -83,3 +83,8 @@ require (
 	gotest.tools/v3 v3.5.1 // indirect
 	howett.net/plist v1.0.2-0.20250314012144-ee69052608d9 // indirect
 )
+
+
+replace (
+	go.redsock.ru/rerrors => /Users/alexbukov/redsock/rerrors
+)

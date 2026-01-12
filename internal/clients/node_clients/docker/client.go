@@ -82,7 +82,7 @@ func (d *Docker) Exec(ctx context.Context, containerId string, execCfg container
 		return nil, rerrors.Wrap(err)
 	}
 
-	if !execCfg.AttachStdout || !execCfg.AttachStderr {
+	if !execCfg.AttachStdout && !execCfg.AttachStderr {
 		return nil, nil
 	}
 

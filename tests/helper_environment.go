@@ -102,6 +102,9 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 	env.App.Cfg.AppInfo.Name = GetServiceName(t)
 	env.App.Cfg.AppInfo.Version = GetServiceName(t)
 
+	env.App.Cfg.Environment.CustomLabels = append(env.App.Cfg.Environment.CustomLabels,
+		testCaseNameLabel+"="+t.Name())
+
 	//region Application start
 	err = env.App.Custom.Init(&env.App)
 	require.NoError(t, err)
@@ -167,8 +170,7 @@ func (e *TestEnvironment) clean() {
 
 	listReq := &velez_api.ListSmerds_Request{
 		Label: map[string]string{
-			integrationTestLabel: "true",
-			testCaseNameLabel:    e.t.Name(),
+			testCaseNameLabel: e.t.Name(),
 		},
 	}
 

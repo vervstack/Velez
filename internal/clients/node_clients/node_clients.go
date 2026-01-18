@@ -42,7 +42,7 @@ func NewNodeClients(ctx context.Context, cfg config.Config) (NodeClients, error)
 	// Docker engine
 	{
 		logrus.Debug("Initializing docker client")
-		cls.docker, err = docker.NewClient()
+		cls.docker, err = docker.NewClient(cfg.Environment.CustomLabels)
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting docker api client")
 		}

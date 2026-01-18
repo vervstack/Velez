@@ -20,10 +20,11 @@ import (
 )
 
 type Docker struct {
-	directApi client.APIClient
+	directApi   client.APIClient
+	bakedLabels []string
 }
 
-func NewClient() (*Docker, error) {
+func NewClient(bakedLabels []string) (*Docker, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error getting docker client")
@@ -32,7 +33,8 @@ func NewClient() (*Docker, error) {
 	closer.Add(cli.Close)
 
 	return &Docker{
-		directApi: cli,
+		directApi:   cli,
+		bakedLabels: bakedLabels,
 	}, nil
 }
 
@@ -124,6 +126,18 @@ func (d *Docker) ContainerCreate(ctx context.Context, config *container.Config, 
 	}
 
 	config.Labels[labels.CreatedWithVelezLabel] = "true"
+
+	for _, label := range d.bakedLabels {
+		sepIdx := strings.Index(label, "=")
+		name := label
+		var val string
+		if sepIdx != -1 {
+			val = label[sepIdx+1:]
+			name = label[:sepIdx]
+		}
+
+		config.Labels[name] = val
+	}
 
 	return d.directApi.ContainerCreate(ctx, config, hostConfig, networkingConfig, platform, containerName)
 }

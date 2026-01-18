@@ -11,12 +11,15 @@ environment:
     - name: available_ports
       type: int
       value: ['18501:18519']
+    - name: cluster_pg_dsn
+      type: string
+      value: ""
     - name: cpu_default
       type: float
       value: 0.5
-    - name: state_path
+    - name: custom_labels
       type: string
-      value: /tmp/velez/private.key
+      value: [""]
     - name: disable_api_security
       type: bool
       value: false
@@ -62,15 +65,15 @@ environment:
     - name: memory_swap_mb
       type: int
       value: 50
-    - name: cluster_pg_dsn
-      type: string
-      value: ""
     - name: ram_mb_default
       type: int
       value: 50
     - name: shut_down_on_exit
       type: bool
       value: false
+    - name: state_path
+      type: string
+      value: /tmp/velez/private.key
     - name: vpn_server_url
       type: string
       value: ""

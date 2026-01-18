@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/grpc/codes"
@@ -75,15 +76,13 @@ func (s *VpnSuite) TearDownTest() {
 		return
 	}
 
-	// TODO not only delete namespace but also drop
-
 	t := s.T()
 
 	r := &velez_api.DeleteVcnNamespace_Request{
 		Id: s.namespaceId,
 	}
 	_, err := s.vpnApi.DeleteNamespace(s.ctx, r)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 }
 
 func (s *VpnSuite) prepareNamespace() {

@@ -60,7 +60,7 @@ func (s *Client) handleError(resp *http.Response) error {
 		return rerrors.Wrap(err, "error reading response body")
 	}
 
-	return rerrors.New("Unexpected status.", resp.Status, string(body))
+	return rerrors.Wrap(ErrUnexpectedStatus, resp.Status, string(body))
 }
 
 type errorResp struct {

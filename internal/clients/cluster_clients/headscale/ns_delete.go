@@ -18,5 +18,10 @@ func (s *Client) DeleteNamespace(ctx context.Context, id string) error {
 	r, _ := io.ReadAll(resp.Body)
 	_ = r
 
-	return rerrors.New("unexpected status")
+	switch resp.StatusCode {
+	case http.StatusOK:
+		return nil
+	}
+
+	return rerrors.Wrap(ErrUnexpectedStatus, "deleting namespace")
 }

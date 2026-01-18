@@ -6,6 +6,7 @@ type EnvironmentConfig struct {
 	AvailablePorts     []int
 	ClusterPgDsn       string
 	CPUDefault         float64
+	CustomLabels       []string
 	DisableAPISecurity bool
 	LogFormat          string
 	LogLevel           string

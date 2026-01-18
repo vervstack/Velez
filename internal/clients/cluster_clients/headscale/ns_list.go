@@ -28,5 +28,5 @@ func (s *Client) ListNamespaces(ctx context.Context) ([]domain.VcnNamespace, err
 		return nameSpaces.Users, json.NewDecoder(resp.Body).Decode(&nameSpaces)
 	}
 
-	return nil, rerrors.New("unexpected status")
+	return nil, rerrors.Wrap(ErrUnexpectedStatus, "listing namespaces")
 }

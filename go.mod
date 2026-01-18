@@ -5,7 +5,6 @@ go 1.24.2
 require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/Red-Sock/go-swagger-ui v0.0.2
-	github.com/Red-Sock/trace-errors v0.0.13
 	github.com/containerd/errdefs v1.0.0
 	github.com/docker/docker v28.5.2+incompatible
 	github.com/docker/go-connections v0.6.0
@@ -25,7 +24,7 @@ require (
 	github.com/stretchr/testify v1.11.1
 	go.redsock.ru/evon v0.0.30
 	go.redsock.ru/protoc-gen-npm v0.0.12
-	go.redsock.ru/rerrors v0.0.5
+	go.redsock.ru/rerrors v0.0.7
 	go.redsock.ru/toolbox v0.0.11
 	go.vervstack.ru/makosh v0.0.16
 	go.vervstack.ru/matreshka v1.0.94
@@ -39,6 +38,7 @@ require (
 
 require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
+	github.com/Red-Sock/trace-errors v0.0.13 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/containerd/errdefs/pkg v0.3.0 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.18.1 // indirect
@@ -82,9 +82,4 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250929231259-57b25ae835d4 // indirect
 	gotest.tools/v3 v3.5.1 // indirect
 	howett.net/plist v1.0.2-0.20250314012144-ee69052608d9 // indirect
-)
-
-
-replace (
-	go.redsock.ru/rerrors => /Users/alexbukov/redsock/rerrors
 )

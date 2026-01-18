@@ -52,5 +52,5 @@ func (s *Client) IssueClientKey(ctx context.Context, req domain.IssueClientKey) 
 		return "", rerrors.Wrap(err, "error reading response body")
 	}
 
-	return "", rerrors.New("unexpected status", string(bd), apiResp.StatusCode)
+	return "", rerrors.Wrap(ErrUnexpectedStatus, string(bd), apiResp.StatusCode)
 }

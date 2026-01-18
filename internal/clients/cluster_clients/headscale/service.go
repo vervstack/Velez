@@ -9,6 +9,8 @@ import (
 	"go.vervstack.ru/Velez/internal/cluster/env"
 )
 
+var ErrUnexpectedStatus = rerrors.New("unexpected status")
+
 type Client struct {
 	apiKey          string
 	headscaleApiUrl string

@@ -1,8 +1,8 @@
 .ToastContainer {
     position: fixed;
 
-    right: calc(var(--header-height) / 2);
-    top: calc(var(--header-height) + 1.5em);
+    right: 0;
+    top: calc(5vh + 1.5em);
     width: clamp(25vw, 392px, 95vw);
 
     display: flex;
@@ -11,7 +11,6 @@
 }
 
 .Toast {
-    height: clamp(5vh, 64px, 14vh);
     border: var(--accent-bg-color) 1px solid;
     border-radius: 1em;
     padding: 1em;
@@ -34,8 +33,6 @@
     &.info {
         border-color: var(--info-color);
     }
-
-
 
     .Description {
         border-top: var(--accent-bg-color) solid var(--accent-bg-color) 1px;

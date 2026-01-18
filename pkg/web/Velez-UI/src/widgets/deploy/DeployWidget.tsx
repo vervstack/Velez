@@ -11,10 +11,9 @@ import PlainMap from "@/components/base/PlainMap.tsx";
 import PortsWidget from "@/widgets/PortsWidget.tsx";
 import VolumesWidget from "@/widgets/VolumesWidget.tsx";
 
-import {Bind, CreateSmerdReq, Port, Smerd, Volume} from "@/model/smerds/Smerds.ts";
+import {CreateSmerdReq, Port, Smerd, Volume} from "@/model/smerds/Smerds.ts";
 import useSettings from "@/app/settings/state.ts";
 import {DeploySmerd} from "@/processes/api/velez.ts";
-import BindingWidget from "@/widgets/BindingsWidget.tsx";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 
 interface DeployWidgetProps {
@@ -32,7 +31,7 @@ export default function DeployWidget({createSmerdReq, afterDeploy}: DeployWidget
 
     const updateField = (
         field: keyof CreateSmerdReq,
-        value: string | boolean | null | Record<string, string> | Port[] | Volume[] | Bind[]) => {
+        value: string | boolean | null | Record<string, string> | Port[] | Volume[] ) => {
         setReq(prev => ({
             ...prev,
             [field]: value
@@ -154,12 +153,6 @@ export default function DeployWidget({createSmerdReq, afterDeploy}: DeployWidget
                         volumes={req.volumes}
                         onChange={(v) => {
                             updateField('volumes', v)
-                        }}
-                    />
-                    <BindingWidget
-                        bindings={req.binds}
-                        onChange={(v) => {
-                            updateField('binds', v)
                         }}
                     />
                 </div>

@@ -32,8 +32,11 @@ root, body {
     --action-button-size: 1.75em;
 
     --border-radius: 0.5em;
-}
 
+    --error-color: rgb(239, 90, 113);
+    --warning-color: rgb(243, 204, 24);
+    --info-color: rgb(168, 232, 203);
+}
 
 :root {
     --ping-unknown: rgb(243, 204, 24);

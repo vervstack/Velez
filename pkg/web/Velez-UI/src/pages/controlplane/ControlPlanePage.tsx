@@ -130,9 +130,10 @@ export default function ControlPlanePage() {
                 </div>
             </div>
 
+            {/* TODO VERV-165 add animation for deployments*/}
             <Dialog
                 isOpen={dialogChild !== undefined}
-                closeDialog={() => setDialogChild(undefined)}
+                onClose={() => setDialogChild(undefined)}
                 children={dialogChild}
                 blur={0.5}
             />

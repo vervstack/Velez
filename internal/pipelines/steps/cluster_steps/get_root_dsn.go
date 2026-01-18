@@ -71,7 +71,11 @@ func (p *getPgDbDsn) Do(ctx context.Context) error {
 		}
 	}
 
-	if !env.IsInContainer() && p.isPortExposed {
+	if !env.IsInContainer() {
+		if !p.isPortExposed {
+			return rerrors.New("when running velez as a binary - the created container ports must be exposed")
+		}
+
 		pgCfg.Host = "localhost"
 		pgCfg.Port, err = p.getExposedPort(cont)
 		if err != nil {

@@ -46,9 +46,18 @@ func (c *createPgUserStep) Do(ctx context.Context) error {
 
 	_, err = conn.Exec(
 		fmt.Sprintf(`
-		CREATE USER %[1]s WITH PASSWORD '%[2]s';
+	DO
+	$$BEGIN
+	   IF NOT EXISTS (
+		  SELECT
+		  FROM   pg_catalog.pg_roles
+		  WHERE  rolname = '%[1]s'
+	   ) THEN
+			CREATE USER %[1]s WITH PASSWORD '%[2]s';
 		
-		GRANT working_node TO %[1]s;
+			GRANT working_node TO %[1]s;
+		END IF;
+	END$$;
 `, c.nodeName, c.pwd, c.nodeName))
 	if err != nil {
 		return rerrors.Wrap(err, "error creating database user")

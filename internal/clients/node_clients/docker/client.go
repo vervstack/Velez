@@ -6,6 +6,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/network"
@@ -139,5 +140,13 @@ func (d *Docker) ContainerCreate(ctx context.Context, config *container.Config, 
 		config.Labels[name] = val
 	}
 
-	return d.directApi.ContainerCreate(ctx, config, hostConfig, networkingConfig, platform, containerName)
+	createResponse, err := d.directApi.ContainerCreate(ctx, config, hostConfig, networkingConfig, platform, containerName)
+	if err != nil {
+		if errdefs.IsConflict(err) {
+			return container.CreateResponse{}, handleConflictMessage(err)
+		}
+		return container.CreateResponse{}, rerrors.Wrap(err)
+	}
+
+	return createResponse, nil
 }

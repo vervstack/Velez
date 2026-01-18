@@ -55,6 +55,9 @@ func (d *deployWatcher) Start(ctx context.Context) {
 			if err != nil {
 				if !rerrors.Is(err, cluster_clients.ErrServiceIsDisabled) {
 					logrus.Error("error listing deployments in deploy watcher: ", err)
+					// TODO make it fail only when state is not available
+					// retry via api handle
+					return
 				}
 				continue
 			}

@@ -41,17 +41,24 @@ func (p *pipeliner) EnableStatefullMode(req domain.EnableStatefullClusterRequest
 	launchContainer := pg_pattern.Postgres(ops...)
 
 	var containerId string
+	var userPwd string
 	var rootDsn string
 
-	userPwd := string(toolbox.RandomBase64(12))
+	localState := p.nodeClients.LocalStateManager().Get()
 
+	pg := resources.Postgres{}
+	if pg.ParseFromDsn(localState.PgRootDsn) == nil {
+		userPwd = pg.Pwd
+	} else {
+		userPwd = string(toolbox.RandomBase64(12))
+	}
 	//endregion
 
 	return &runner[any]{
 		Steps: []steps.Step{
-			container_steps.Create(
-				p.nodeClients, &launchContainer.Pattern,
-				&containerName, &containerId),
+			// TODO Conflicts decisions must be handled on client side.
+			// There is already existing state? Allow user to choose to delete\start it
+			container_steps.Create(p.nodeClients, &launchContainer.Pattern, &containerName, &containerId),
 			smerd_steps.Start(p.nodeClients, &containerId),
 			cluster_steps.GetRgRootDsn(p.nodeClients.Docker(), &containerId, req.ExposePort, &rootDsn),
 			steps.SingleFunc(func(ctx context.Context) error {

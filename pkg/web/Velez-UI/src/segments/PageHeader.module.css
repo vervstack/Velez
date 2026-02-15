@@ -1,6 +1,6 @@
 .PageHeaderContainer {
     width: 100%;
-    height: 5vh;
+    height: var(--page-header-vh);
 
     display: flex;
     flex-direction: row;
@@ -15,12 +15,16 @@
 
 .HomeLogo {
     width: 5vh;
-    height: 5vh;
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
 
     cursor: pointer;
+
+    img {
+        max-height: var(--page-header-vh);
+    }
 }
 
 .Navigation {

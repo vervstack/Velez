@@ -36,6 +36,8 @@ root, body {
     --error-color: rgb(239, 90, 113);
     --warning-color: rgb(243, 204, 24);
     --info-color: rgb(168, 232, 203);
+
+    --page-header-vh: 4vh;
 }
 
 :root {
@@ -46,6 +48,6 @@ root, body {
 
 /*TODO: DO FOR different screen sizes*/
 * {
-    font-size: 16px;
+    font-size: 24px;
     color: var(--main-fg-color);
 }

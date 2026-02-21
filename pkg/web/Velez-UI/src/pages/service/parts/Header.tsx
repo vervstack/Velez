@@ -1,4 +1,5 @@
-import cls from "@/pages/service_info/parts/Header.module.css";
+import cls from "@/pages/service/parts/Header.module.css";
+
 import Button from "@/components/base/Button.tsx";
 
 interface HeaderProps {

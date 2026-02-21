@@ -1,7 +1,7 @@
-import cls from "@/pages/service_info/parts/DeployMenu.module.css";
 import {useEffect, useState} from "react";
-
 import cn from "classnames";
+
+import cls from "@/pages/service/parts/DeployMenu.module.css";
 
 import DeploymentWidget from "@/widgets/deploy/DeploymentWidget.tsx";
 import {CreateNewDeployment} from "@/processes/api/service.ts";

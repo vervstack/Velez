@@ -6,8 +6,9 @@ import MainLayout from "@/app/router/MainLayout.tsx";
 import SmerdPage from "@/pages/smerd/SmerdPage.tsx";
 import DeployPage from "@/pages/deploy/DeployPage.tsx";
 import VervClosedNetworkPage from "@/pages/vcn/VervClosedNetworkPage.tsx";
-import NewServicePage from "@/pages/new_service/NewServicePage.tsx";
-import ServiceInfoPage from "@/pages/service_info/ServiceInfoPage.tsx";
+
+import NewServicePage from "@/pages/service/NewServicePage.tsx";
+import ServiceInfoPage from "@/pages/service/ServiceInfoPage.tsx";
 
 export enum Routes {
     Home = "/",

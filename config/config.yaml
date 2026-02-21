@@ -73,9 +73,9 @@ environment:
     - name: shut_down_on_exit
       type: bool
       value: false
-    - name: state_path
+    - name: local_state_path
       type: string
-      value: /tmp/velez/private.key
+      value: /tmp/velez/local_state.json
     - name: vpn_server_url
       type: string
       value: ""

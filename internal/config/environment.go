@@ -8,6 +8,7 @@ type EnvironmentConfig struct {
 	CPUDefault         float64
 	CustomLabels       []string
 	DisableAPISecurity bool
+	LocalStatePath     string
 	LogFormat          string
 	LogLevel           string
 	MakoshExposePort   bool
@@ -24,7 +25,6 @@ type EnvironmentConfig struct {
 	MemorySwapMb       int
 	RAMMbDefault       int
 	ShutDownOnExit     bool
-	StatePath          string
 	VpnServerURL       string
 }
 

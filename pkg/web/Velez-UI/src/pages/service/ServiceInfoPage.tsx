@@ -3,14 +3,14 @@ import {useEffect, useState} from "react";
 
 import {VervAppService} from "@vervstack/velez";
 
-import cls from "@/pages/service_info/ServiceInfoPage.module.css";
+import cls from "@/pages/service/ServiceInfoPage.module.css";
 
-import {GetServiceById, GetServiceByName} from "@/processes/api/service.ts";
-import Header from "@/pages/service_info/parts/Header.tsx";
+import Header from "@/pages/service/parts/Header.tsx";
 import Dialog from "@/components/complex/dialog/Dialog.tsx";
-import DeployMenu from "@/pages/service_info/parts/DeployMenu.tsx";
-import {Toast, useToaster} from "@/app/hooks/toaster/Toaster.ts";
+import DeployMenu from "@/pages/service/parts/DeployMenu.tsx";
 
+import {Toast, useToaster} from "@/app/hooks/toaster/Toaster.ts";
+import {GetServiceById, GetServiceByName} from "@/processes/api/service.ts";
 
 export default function ServiceInfoPage() {
     const params = useParams<Record<string, string>>();

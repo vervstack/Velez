@@ -48,6 +48,6 @@ root, body {
 
 /*TODO: DO FOR different screen sizes*/
 * {
-    font-size: 24px;
+    font-size: 16px;
     color: var(--main-fg-color);
 }

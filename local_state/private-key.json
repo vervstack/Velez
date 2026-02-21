@@ -5,5 +5,6 @@
   "HeadscaleKey": "v6h7IEa.vqf_q8lZTmBgphgMqfYP8Q6qKRrtW4K4",
   "HeadscaleServerUrl": "https://vcn.redsock.ru",
   "PgRootDsn": "postgresql://postgres:b0VGSWF2L0lhT0J5@localhost:32775/postgres?sslmode=disable\u0026application_name=RootSetup",
-  "PgNodeDsn": "postgresql://icy_raccoon:Z2h0TDFGSE1ZYklR@localhost:32775/postgres?sslmode=disable\u0026application_name=icy_raccoon"
+  "PgNodeDsn": "postgresql://icy_raccoon:Z2h0TDFGSE1ZYklR@localhost:32775/postgres?sslmode=disable\u0026application_name=icy_raccoon",
+  "StateMode": ""
 }

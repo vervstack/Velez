@@ -25,16 +25,21 @@ type Manager struct {
 }
 
 type State struct {
-	VelezKey     string
-	MatreshkaKey string
+	VelezKey     string `json:"VelezKey"`
+	MatreshkaKey string `json:"MatreshkaKey"`
 
-	IsHeadscaleEnabled bool
-	HeadscaleKey       string
-	HeadscaleServerUrl string
+	IsHeadscaleEnabled bool   `json:"IsHeadscaleEnabled"`
+	HeadscaleKey       string `json:"HeadscaleKey"`
+	HeadscaleServerUrl string `json:"HeadscaleServerUrl"`
 
-	PgRootDsn string
-	PgNodeDsn string
+	PgRootDsn string `json:"PgRootDsn"`
+	PgNodeDsn string `json:"PgNodeDsn"`
+	StateMode string `json:"StateMode"`
 }
+
+const (
+	LocalStateMode = ""
+)
 
 func NewSecurityManager(cfg config.Config) *Manager {
 	return &Manager{

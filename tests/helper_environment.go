@@ -36,7 +36,7 @@ type TestEnvironment struct {
 }
 
 type TestEnvOpt func(a *TestEnvironment)
-type StateOpt func(a *state.State)
+type StateOpt func(a *local_state.State)
 
 func WithMatreshka() TestEnvOpt {
 	return func(a *TestEnvironment) {
@@ -58,7 +58,7 @@ func WithState(t *testing.T, stateOps ...StateOpt) TestEnvOpt {
 }
 
 func WithStateVcnEnabled() StateOpt {
-	return func(a *state.State) {
+	return func(a *local_state.State) {
 		a.IsHeadscaleEnabled = true
 	}
 }
@@ -196,8 +196,8 @@ func (e *TestEnvironment) VpnClient() velez_api.VcnApiClient {
 
 }
 
-func readDefaultState(t *testing.T) state.State {
-	var defaultState state.State
+func readDefaultState(t *testing.T) local_state.State {
+	var defaultState local_state.State
 	defaultStateFile, err := os.Open("./test_data/default-private-key.json")
 	require.NoError(t, err)
 	defer func() {
@@ -211,7 +211,7 @@ func readDefaultState(t *testing.T) state.State {
 	return defaultState
 }
 
-func writeState(t *testing.T, st state.State) (statePath string) {
+func writeState(t *testing.T, st local_state.State) (statePath string) {
 	dirPath := t.TempDir()
 	statePath = filepath.Join(dirPath, "state.json")
 

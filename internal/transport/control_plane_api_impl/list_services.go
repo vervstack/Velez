@@ -6,7 +6,7 @@ import (
 
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/cluster/cluster_state"
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
 	"go.vervstack.ru/Velez/internal/cluster/configuration"
 	"go.vervstack.ru/Velez/internal/cluster/service_discovery"
 	"go.vervstack.ru/Velez/internal/cluster/verv_closed_network"
@@ -41,7 +41,7 @@ func (impl *Impl) ListServices(ctx context.Context, _ *pb.ListServices_Request) 
 			srv.Port = getPort(smerd.Ports)
 		case verv_closed_network.Name:
 			srv.Type = pb.VervServiceType_headscale
-		case cluster_state.Name:
+		case state.PgName:
 			srv.Type = pb.VervServiceType_statefull_pg
 			srv.Port = getPort(smerd.Ports)
 		default:

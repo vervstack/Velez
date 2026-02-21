@@ -1,4 +1,4 @@
-package state
+package local_state
 
 import (
 	"bytes"
@@ -28,22 +28,14 @@ type State struct {
 	VelezKey     string `json:"VelezKey"`
 	MatreshkaKey string `json:"MatreshkaKey"`
 
-	IsHeadscaleEnabled bool   `json:"IsHeadscaleEnabled"`
-	HeadscaleKey       string `json:"HeadscaleKey"`
-	HeadscaleServerUrl string `json:"HeadscaleServerUrl"`
+	Network Network `json:"Network"`
 
-	PgRootDsn string `json:"PgRootDsn"`
-	PgNodeDsn string `json:"PgNodeDsn"`
-	StateMode string `json:"StateMode"`
+	ClusterState ClusterState `json:"ClusterState"`
 }
-
-const (
-	LocalStateMode = ""
-)
 
 func NewSecurityManager(cfg config.Config) *Manager {
 	return &Manager{
-		buildPath: rtb.Coalesce(cfg.Environment.StatePath, defaultPath),
+		buildPath: rtb.Coalesce(cfg.Environment.LocalStatePath, defaultPath),
 		state:     State{},
 	}
 }
@@ -142,6 +134,7 @@ func readStateFromPath(buildPath string) (state State, err error) {
 	if err != nil {
 		return state, rerrors.Wrap(err, "error decoding local state file")
 	}
+
 	return state, nil
 }
 

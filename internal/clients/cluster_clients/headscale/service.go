@@ -50,8 +50,8 @@ func ConnectToContainer(ctx context.Context, nc node_clients.NodeClients, contai
 	localState := stateManager.GetForUpdate()
 	defer stateManager.SetAndRelease(localState)
 
-	localState.HeadscaleServerUrl = srv.headscaleApiUrl
-	localState.HeadscaleKey = srv.apiKey
+	localState.Network.Headscale.ServerUrl = srv.headscaleApiUrl
+	localState.Network.Headscale.Key = srv.apiKey
 
 	return &srv, nil
 }

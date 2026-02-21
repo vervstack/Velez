@@ -13,6 +13,8 @@ type pgState struct {
 	storage.Storage
 }
 
+const PgName = "verv-cluster-state"
+
 func NewPgStateManager(dsn string) (cluster_clients.ClusterStateManager, error) {
 	conn, err := sqldb.New(dsn)
 	if err != nil {

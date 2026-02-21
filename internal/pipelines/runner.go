@@ -8,6 +8,8 @@ import (
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
 )
 
+var ErrNoGetResultFunction = rerrors.New("no get result function")
+
 type runner[T any] struct {
 	Steps     []steps.Step
 	getResult func() (res *T, err error)
@@ -31,7 +33,10 @@ func (p *runner[T]) Run(ctx context.Context) (err error) {
 }
 
 func (p *runner[T]) Result() (res *T, err error) {
-	return p.getResult()
+	if p.getResult != nil {
+		return p.getResult()
+	}
+	return nil, ErrNoGetResultFunction
 }
 
 func (p *runner[T]) run(ctx context.Context) error {

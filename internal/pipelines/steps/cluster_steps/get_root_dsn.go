@@ -9,8 +9,8 @@ import (
 	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
 
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
-	"go.vervstack.ru/Velez/internal/cluster/cluster_state"
 	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/patterns/db_patterns/pg_pattern"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
@@ -39,7 +39,7 @@ func GetRgRootDsn(
 
 func (p *getPgDbDsn) Do(ctx context.Context) error {
 	pgCfg := &resources.Postgres{
-		Host: cluster_state.Name,
+		Host: state.PgName,
 		Port: 5432,
 
 		User:    "postgres",

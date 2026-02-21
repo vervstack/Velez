@@ -10,8 +10,8 @@ import (
 
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/hardware"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
-	"go.vervstack.ru/Velez/internal/clients/node_clients/state"
 	"go.vervstack.ru/Velez/internal/config"
 )
 
@@ -60,7 +60,7 @@ func NewNodeClients(ctx context.Context, cfg config.Config) (NodeClients, error)
 		if !cfg.Environment.DisableAPISecurity {
 			logrus.Debug("Initializing security manager")
 
-			cls.securityManager = state.NewSecurityManager(cfg)
+			cls.securityManager = local_state.NewSecurityManager(cfg)
 
 			err = cls.securityManager.Start()
 			if err != nil {

@@ -1,10 +1,15 @@
 {
   "VelezKey": "c3QzOFRjbVRMdzlCWW5RZnlHSTlaTWJJVGNtUEdsdzlaaW9zYkVGQUN4QkxGZGo0NkFMMS9BQWZaSEFDSVdyUVhla3BnaEhLU01RWFBPV3IyUFJHQURVa3BaaVptcU1QUmF5R0lUY0RVZmx3QUN4VGNtcUwxL0FEVThWdjU3K1ppb1BCWW56L2ZsdzlaaW9zajRUNkIvQUN4cGdoSEtTR0lUY21xTDFMMS9WdjVzdDM4VnZKTDEvQUN4bHc5WkhL",
   "MatreshkaKey": "SGVndXlFa3FCZWdlZ2d1T0NHT2pDMkhJUDhNV1laNkhJaGlvWEhCVHBwWjZIZUY4Ti9PUmwrSlNVZmowTFF0OU4vb3NNWGFkRjhNV1laNkgyMExRdDlOL2d1ZHgzUEdPUk05NkhsK0hCVDQ3TVdGOGZOLzdiRWtiZWNFa3FCVHZQbWVndXljeDNQQWZqejZCVHBzNDdiMExlZ3V5T1JsKzBML2lucnZDR09ScHNYYVF0OU4vL0JUZWVnUG13MUNH",
-  "IsHeadscaleEnabled": true,
-  "HeadscaleKey": "v6h7IEa.vqf_q8lZTmBgphgMqfYP8Q6qKRrtW4K4",
-  "HeadscaleServerUrl": "https://vcn.redsock.ru",
-  "PgRootDsn": "postgresql://postgres:b0VGSWF2L0lhT0J5@localhost:32775/postgres?sslmode=disable\u0026application_name=RootSetup",
-  "PgNodeDsn": "postgresql://icy_raccoon:Z2h0TDFGSE1ZYklR@localhost:32775/postgres?sslmode=disable\u0026application_name=icy_raccoon",
-  "StateMode": ""
+  "Network": {
+    "Headscale": {
+      "ServerUrl": "https://vcn.redsock.ru",
+      "Key": "v6h7IEa.vqf_q8lZTmBgphgMqfYP8Q6qKRrtW4K4"
+    }
+  },
+  "ClusterState": {
+    "PgRootDsn": "postgresql://postgres:b0VGSWF2L0lhT0J5@localhost:32775/postgres?sslmode=disable\u0026application_name=RootSetup",
+    "PgNodeDsn": "postgresql://icy_raccoon:Z2h0TDFGSE1ZYklR@localhost:32775/postgres?sslmode=disable\u0026application_name=icy_raccoon",
+    "StateMode": ""
+  }
 }

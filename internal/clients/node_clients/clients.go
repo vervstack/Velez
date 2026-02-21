@@ -9,7 +9,7 @@ import (
 	"github.com/docker/docker/client"
 	ocispec "github.com/opencontainers/image-spec/specs-go/v1"
 
-	"go.vervstack.ru/Velez/internal/clients/node_clients/state"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
@@ -42,11 +42,11 @@ type StateManager interface {
 	Start() error
 	Stop() error
 
-	Set(st state.State)
-	Get() state.State
+	Set(st local_state.State)
+	Get() local_state.State
 
-	GetForUpdate() state.State
-	SetAndRelease(state state.State)
+	GetForUpdate() local_state.State
+	SetAndRelease(state local_state.State)
 
 	ValidateVelezPrivateKey(in string) bool
 }

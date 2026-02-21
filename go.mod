@@ -25,7 +25,7 @@ require (
 	go.redsock.ru/evon v0.0.30
 	go.redsock.ru/protoc-gen-npm v0.0.12
 	go.redsock.ru/rerrors v0.0.7
-	go.redsock.ru/toolbox v0.0.11
+	go.redsock.ru/toolbox v0.0.13
 	go.vervstack.ru/makosh v0.0.16
 	go.vervstack.ru/matreshka v1.0.94
 	golang.org/x/net v0.41.0

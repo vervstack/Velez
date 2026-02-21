@@ -31,7 +31,7 @@ type Pipeliner interface {
 	// Built-in services
 
 	// EnableStatefullMode - deploys postgres and enables cluster mode
-	EnableStatefullMode(cluster domain.EnableStatefullClusterRequest) Runner[any]
+	EnableStatefullMode(cluster domain.EnableStatefullClusterRequest) Runner[domain.StateClusterDefinition]
 
 	// Verv services piplines
 

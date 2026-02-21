@@ -10,7 +10,6 @@ import (
 
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
-	"go.vervstack.ru/Velez/internal/cluster/cluster_state"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/patterns/db_patterns/pg_pattern"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
@@ -19,13 +18,13 @@ import (
 	"go.vervstack.ru/Velez/internal/pipelines/steps/smerd_steps"
 )
 
-func (p *pipeliner) EnableStatefullMode(req domain.EnableStatefullClusterRequest) Runner[any] {
+func (p *pipeliner) EnableStatefullMode(req domain.EnableStatefullClusterRequest) Runner[domain.StateClusterDefinition] {
 	//region Pipeline Context
 
 	const schema = "velez"
 	const masterNodeDefaultName = "icy_raccoon"
 
-	containerName := cluster_state.Name
+	containerName := state.PgName
 
 	var ops []pg_pattern.Opt
 	ops = append(ops, pg_pattern.WithInstanceName(containerName))
@@ -38,23 +37,39 @@ func (p *pipeliner) EnableStatefullMode(req domain.EnableStatefullClusterRequest
 		}
 	}
 
-	launchContainer := pg_pattern.Postgres(ops...)
-
 	var containerId string
-	var userPwd string
+
 	var rootDsn string
 
 	localState := p.nodeClients.LocalStateManager().Get()
 
-	pg := resources.Postgres{}
-	if pg.ParseFromDsn(localState.PgRootDsn) == nil {
-		userPwd = pg.Pwd
+	var rootPwd string
+	rootPg := resources.Postgres{}
+	if rootPg.ParseFromDsn(localState.ClusterState.PgRootDsn) == nil {
+		rootPwd = rootPg.Pwd
+	} else {
+		rootPwd = string(toolbox.RandomBase64(12))
+	}
+
+	ops = append(ops, pg_pattern.WithPassword(rootPwd))
+
+	launchContainer := pg_pattern.Postgres(ops...)
+
+	var userPwd string
+	userPg := resources.Postgres{}
+	if userPg.ParseFromDsn(localState.ClusterState.PgNodeDsn) == nil {
+		userPwd = userPg.Pwd
 	} else {
 		userPwd = string(toolbox.RandomBase64(12))
 	}
 	//endregion
 
-	return &runner[any]{
+	response := domain.StateClusterDefinition{
+		CreateReq:    launchContainer.Pattern,
+		RootPostgres: rootPg,
+	}
+
+	return &runner[domain.StateClusterDefinition]{
 		Steps: []steps.Step{
 			// TODO Conflicts decisions must be handled on client side.
 			// There is already existing state? Allow user to choose to delete\start it
@@ -78,7 +93,8 @@ func (p *pipeliner) EnableStatefullMode(req domain.EnableStatefullClusterRequest
 				localStateManager := p.nodeClients.LocalStateManager()
 
 				localState := localStateManager.GetForUpdate()
-				localState.PgRootDsn = rootDsn
+
+				localState.ClusterState.PgRootDsn = rootDsn
 
 				var nodeConnection resources.Postgres
 
@@ -90,9 +106,9 @@ func (p *pipeliner) EnableStatefullMode(req domain.EnableStatefullClusterRequest
 				nodeConnection.User = masterNodeDefaultName
 				nodeConnection.Pwd = userPwd
 
-				localState.PgNodeDsn = nodeConnection.ConnectionString() + "&application_name=" + masterNodeDefaultName
+				localState.ClusterState.PgNodeDsn = nodeConnection.ConnectionString() + "&application_name=" + masterNodeDefaultName
 
-				pgClusterState, err := state.NewPgStateManager(localState.PgNodeDsn)
+				pgClusterState, err := state.NewPgStateManager(localState.ClusterState.PgNodeDsn)
 				if err != nil {
 					return rerrors.Wrap(err, "error initializing pgClusterState")
 				}
@@ -113,6 +129,10 @@ func (p *pipeliner) EnableStatefullMode(req domain.EnableStatefullClusterRequest
 				return nil
 			}),
 			// Enable integration with state
+		},
+
+		getResult: func() (res *domain.StateClusterDefinition, err error) {
+			return &response, nil
 		},
 	}
 }

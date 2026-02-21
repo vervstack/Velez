@@ -2,6 +2,7 @@ package pg_pattern
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
@@ -44,7 +45,8 @@ func Postgres(opts ...Opt) Pattern {
 
 	createReq := container.CreateRequest{
 		Config: &container.Config{
-			Image: postgresImage,
+			Hostname: c.InstanceName,
+			Image:    postgresImage,
 			Env: []string{
 				DbEnvVariable + "=" + c.MatreshkaPg.DbName,
 				UserEnvVariable + "=" + c.MatreshkaPg.User,
@@ -55,6 +57,13 @@ func Postgres(opts ...Opt) Pattern {
 			},
 			Labels: map[string]string{
 				labels.ComposeGroupLabel: c.InstanceName,
+			},
+			Healthcheck: &container.HealthConfig{
+				Test:        []string{"CMD-SHELL", "pg_isready -U \"$" + UserEnvVariable + "\" -d \"$" + DbEnvVariable + "\" -h 127.0.0.1 -p 5432"},
+				Interval:    2 * time.Second,
+				Timeout:     3 * time.Second,
+				Retries:     3,
+				StartPeriod: 10 * time.Second,
 			},
 		},
 		HostConfig: &container.HostConfig{

@@ -10,6 +10,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/matreshka"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/cluster/cluster_state"
 	"go.vervstack.ru/Velez/internal/cluster/configuration"
 	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/cluster/service_discovery"
@@ -52,18 +53,31 @@ func Setup(ctx context.Context, cfg config.Config, nodeClients node_clients.Node
 		}
 	}
 
-	localStateManager := nodeClients.LocalStateManager()
+	clusterStateManagerContainer := state.NewContainer()
 
-	stateManager, err := state.New(localStateManager.Get())
-	if err != nil {
-		return nil, rerrors.Wrap(err, "error initializing cluster state manager")
+	localState := nodeClients.LocalStateManager().Get()
+	if localState.ClusterState.PgRootDsn != "" {
+		err = cluster_state.SetupMasterPg(ctx, nodeClients)
+		if err != nil {
+			return nil, rerrors.Wrap(err, "error setting up master postgres for cluster state")
+		}
 	}
+
+	//
+	//// TODO make separate state manager for root user
+	//pg, err := NewPgStateManager(state.ClusterState.PgNodeDsn)
+	//if err != nil {
+	//	log.Err(err).
+	//		Msg("error connecting to PgRootDsn")
+	//} else {
+	//	sm.Set(pg)
+	//}
 
 	return &clusterClients{
 		cfgClient,
 		sdClient,
 		vcnClient,
-		stateManager,
+		clusterStateManagerContainer,
 	}, nil
 }
 

@@ -63,9 +63,11 @@ func (c *createPgUserStep) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error creating database user")
 	}
 
+	// TODO Think about it really gud
+
 	log.Info().
 		Str("pwd", c.pwd).
-		Msg("user with created")
+		Msg("user created")
 
 	return nil
 }

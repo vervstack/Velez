@@ -34,13 +34,17 @@ func SetupVcn(
 	cluster_clients.VervClosedNetworkClient, error) {
 	state := nodeClients.LocalStateManager().Get()
 
-	if !state.IsHeadscaleEnabled {
+	// TODO implement multi network handler it will work for tailnets, headscale nets, docker nets and other networks.
+
+	if state.Network.Headscale.ServerUrl == "" {
 		// TODO return docker network wrapper
 		return DisabledVcnImpl{}, nil
 	}
 
-	if state.HeadscaleKey != "" && state.HeadscaleServerUrl != "" {
-		client, err := headscale.Connect(ctx, state.HeadscaleServerUrl, state.HeadscaleKey)
+	headscaleLocalConfig := state.Network.Headscale
+
+	if headscaleLocalConfig.Key != "" && headscaleLocalConfig.ServerUrl != "" {
+		client, err := headscale.Connect(ctx, headscaleLocalConfig.ServerUrl, headscaleLocalConfig.Key)
 		if err != nil {
 			return nil, rerrors.Wrap(err, "error creating headscale client")
 		}

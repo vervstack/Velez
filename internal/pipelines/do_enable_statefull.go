@@ -108,7 +108,7 @@ func (p *pipeliner) EnableStatefullMode(req domain.EnableStatefullClusterRequest
 
 				localState.ClusterState.PgNodeDsn = nodeConnection.ConnectionString() + "&application_name=" + masterNodeDefaultName
 
-				pgClusterState, err := state.NewPgStateManager(localState.ClusterState.PgNodeDsn)
+				pgClusterState, err := state.NewPgStateManager(ctx, localState.ClusterState.PgNodeDsn)
 				if err != nil {
 					return rerrors.Wrap(err, "error initializing pgClusterState")
 				}

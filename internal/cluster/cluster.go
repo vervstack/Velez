@@ -3,6 +3,7 @@ package cluster
 import (
 	"context"
 
+	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
@@ -57,21 +58,19 @@ func Setup(ctx context.Context, cfg config.Config, nodeClients node_clients.Node
 
 	localState := nodeClients.LocalStateManager().Get()
 	if localState.ClusterState.PgRootDsn != "" {
+		// TODO make a flag for strict/not strict setup
 		err = cluster_state.SetupMasterPg(ctx, nodeClients)
 		if err != nil {
 			return nil, rerrors.Wrap(err, "error setting up master postgres for cluster state")
 		}
 	}
 
-	//
-	//// TODO make separate state manager for root user
-	//pg, err := NewPgStateManager(state.ClusterState.PgNodeDsn)
-	//if err != nil {
-	//	log.Err(err).
-	//		Msg("error connecting to PgRootDsn")
-	//} else {
-	//	sm.Set(pg)
-	//}
+	if localState.ClusterState.PgNodeDsn != "" {
+		log.Info().
+			Msg("PgNodeDsn is presented in local state. Trying to connect.")
+		// TODO make a flag for strict/not strict setup
+		cluster_state.SetupWorkerPg(ctx, localState.ClusterState.PgNodeDsn, clusterStateManagerContainer)
+	}
 
 	return &clusterClients{
 		cfgClient,

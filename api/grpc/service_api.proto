@@ -47,6 +47,13 @@ service ServiceApi {
       body: "*"
     };
   }
+
+  rpc ListServices(ListServices.Request) returns (ListServices.Response) {
+    option (google.api.http) = {
+      post: "/api/service/list"
+      body: "*"
+    };
+  }
 }
 
 message CreateService {
@@ -114,4 +121,19 @@ message ListDeployments {
   message Response {
 
   }
+}
+
+message ListServices {
+  message Request {
+    Paging paging = 1;
+
+    optional string search_pattern = 2;
+  };
+  message Response {
+    repeated ServiceBaseInfo services = 1;
+  };
+}
+
+message ServiceBaseInfo {
+    string name = 1;
 }

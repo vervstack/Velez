@@ -29,7 +29,7 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
+              "$ref": "#/definitions/googleRpcStatus"
             }
           }
         },
@@ -62,7 +62,7 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
+              "$ref": "#/definitions/googleRpcStatus"
             }
           }
         },
@@ -94,7 +94,7 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
+              "$ref": "#/definitions/googleRpcStatus"
             }
           }
         },
@@ -126,7 +126,7 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
+              "$ref": "#/definitions/googleRpcStatus"
             }
           }
         },
@@ -137,6 +137,38 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/velez_apiGetServiceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ServiceApi"
+        ]
+      }
+    },
+    "/api/service/list": {
+      "post": {
+        "operationId": "ServiceApi_ListServices",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListServicesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiListServicesRequest"
             }
           }
         ],
@@ -235,7 +267,7 @@
         }
       }
     },
-    "googlerpcStatus": {
+    "googleRpcStatus": {
       "type": "object",
       "properties": {
         "code": {
@@ -399,6 +431,33 @@
     "velez_apiListDeploymentsResponse": {
       "type": "object"
     },
+    "velez_apiListServicesRequest": {
+      "type": "object",
+      "properties": {
+        "paging": {
+          "$ref": "#/definitions/velez_apiPaging"
+        },
+        "searchPattern": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiListServicesResponse": {
+      "type": "object",
+      "properties": {
+        "Total": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "services": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiServiceBaseInfo"
+          }
+        }
+      }
+    },
     "velez_apiMatreshkaConfigSpec": {
       "type": "object",
       "properties": {
@@ -439,12 +498,12 @@
       "type": "object",
       "properties": {
         "limit": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string",
+          "format": "uint64"
         },
         "offset": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string",
+          "format": "uint64"
         }
       }
     },
@@ -485,6 +544,14 @@
         "on_failure"
       ],
       "default": "unless_stopped"
+    },
+    "velez_apiServiceBaseInfo": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
     },
     "velez_apiVervAppService": {
       "type": "object",

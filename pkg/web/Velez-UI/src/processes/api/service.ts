@@ -4,9 +4,12 @@ import {
     GetServiceRequest,
     CreateDeployRequest,
     CreateSmerdRequest,
+    ListServicesRequest,
+    ListServicesResponse,
 } from "@vervstack/velez"
 
 import {GetInitReq} from "@/processes/api/api.ts";
+
 
 export async function GetServiceByName(name: string): Promise<VervAppService> {
     const r: GetServiceRequest = {
@@ -41,4 +44,8 @@ export async function CreateNewDeployment(serviceId: string, newReq: CreateSmerd
     //  TODO remove
     req.new.imageName = 'redsockruf/zpotify'
     return ServiceApi.CreateDeploy(req, GetInitReq())
+}
+
+export async function ListServices(r: ListServicesRequest): Promise<ListServicesResponse> {
+    return ServiceApi.ListServices(r, GetInitReq());
 }

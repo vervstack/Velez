@@ -16,7 +16,7 @@ export function StorePathPrefix(pathPrefix: string) {
 
 export function GetInitReq(): InitReq {
     const key = localStorage.getItem(keyPath())
-    if (!key) throw new Error("unauthorized: no apit key in settings");
+    if (!key) throw new Error("unauthorized: no api key in settings");
 
     return {
         pathPrefix: localStorage.getItem(pathPrefixPath()) || "",

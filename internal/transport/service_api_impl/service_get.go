@@ -28,7 +28,7 @@ func (impl *Impl) GetService(ctx context.Context, pbReq *pb.GetService_Request) 
 		Payload: &pb.GetService_Response_VervService{
 			VervService: &pb.VervAppService{
 				Id:   s.Id,
-				Name: s.ServiceBasicInfo.Name,
+				Name: s.ServiceBaseInfo.Name,
 			},
 		},
 	}, nil

@@ -14,5 +14,3 @@ codegen:
 
 lint:
 	golangci-lint run ./...
-
-test:

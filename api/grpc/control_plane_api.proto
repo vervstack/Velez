@@ -11,7 +11,7 @@ option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
 option (npm_package) = "@vervstack/velez";
 
 service ControlPlaneAPI {
-  rpc ListServices(ListServices.Request) returns (ListServices.Response) {
+  rpc ListVervServices(ListVervServices.Request) returns (ListVervServices.Response) {
     option (google.api.http) = {
       get: "/api/control_plane/services"
     };
@@ -33,17 +33,17 @@ service ControlPlaneAPI {
   }
 }
 
-message ListServices {
+message ListVervServices {
   message Request {
 
   }
   message Response {
-    repeated Service services = 1;
+    repeated VervService services = 1;
   }
 }
 
 
-message Service  {
+message VervService  {
   VervServiceType type = 1;
   optional uint32 port = 2;
   State state = 3;

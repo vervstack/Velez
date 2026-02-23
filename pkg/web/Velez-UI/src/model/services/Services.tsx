@@ -1,4 +1,4 @@
-import {VervServiceType, ServiceState} from "@vervstack/velez"
+import {VervServiceType, VervServiceState} from "@vervstack/velez"
 
 import MatreshkaIcon from "@/assets/icons/services/matreshka.png";
 import MakoshIcon from "@/assets/icons/services/makosh.png";
@@ -16,7 +16,7 @@ export class Service {
     description: string
     type: VervServiceType
 
-    state: ServiceState = ServiceState.unknown
+    state: VervServiceState = VervServiceState.unknown
 
     constructor(type: VervServiceType, port?: number) {
         const serviceMeta = metaByType.get(type);

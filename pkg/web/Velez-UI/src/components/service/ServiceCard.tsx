@@ -1,7 +1,7 @@
 import cn from "classnames";
 
 import {Tooltip} from "react-tooltip";
-import {ServiceState} from "@vervstack/velez";
+import {VervServiceState} from "@vervstack/velez";
 
 import cls from '@/components/service/ServiceCard.module.css'
 import RocketSVG from "@/assets/icons/Rocket.svg"
@@ -72,7 +72,7 @@ export default function ServiceCard(serviceProps: ServiceCardProps) {
 
             <div className={cls.ActivityPoint}>
                 <ActivityPoint
-                    isInactive={serviceProps.disabled || serviceProps.state != ServiceState.running}/>
+                    isInactive={serviceProps.disabled || serviceProps.state != VervServiceState.running}/>
             </div>
 
             <Tooltip

@@ -1,6 +1,6 @@
 import {
     ControlPlaneAPI,
-    ListServicesRequest,
+    ListVervServicesRequest,
     EnableServiceRequest,
     VervServiceType,
     EnableStatefullCluster,
@@ -12,10 +12,10 @@ import {InitReq} from "@/app/settings/state.ts";
 import {Service} from "@/model/services/Services.tsx";
 
 
-export async function ListServices(initReq: InitReq): Promise<Service[]> {
-    const req: ListServicesRequest = {} as ListServicesRequest
+export async function ListVervServices(initReq: InitReq): Promise<Service[]> {
+    const req: ListVervServicesRequest = {} as ListVervServicesRequest
 
-    const list = await ControlPlaneAPI.ListServices(req, initReq);
+    const list = await ControlPlaneAPI.ListVervServices(req, initReq);
     return toServices(list.services || []);
 }
 

@@ -11,12 +11,12 @@ import * as VelezApiVelezCommon from "./velez_common.pb";
 type Absent<T, K extends keyof T> = { [k in Exclude<keyof T, K>]?: undefined };
 
 type OneOf<T> =
-    | { [k in keyof T]?: undefined }
-    | (keyof T extends infer K
-    ? K extends string & keyof T
+  | { [k in keyof T]?: undefined }
+  | (keyof T extends infer K
+      ? K extends string & keyof T
         ? { [k in K]: T[K] } & Absent<T, K>
         : never
-    : never);
+      : never);
 
 export type VersionRequest = Record<string, never>;
 
@@ -35,18 +35,14 @@ type BaseCreateSmerdRequest = {
   useImagePorts?: boolean;
   autoUpgrade?: boolean;
   restart?: VelezApiVelezCommon.RestartPolicy;
-    isDeclarativeDeploy?: boolean;
-    hardware?: VelezApiVelezCommon.ContainerHardware;
-    settings?: VelezApiVelezCommon.ContainerSettings;
-    command?: string;
-    healthcheck?: VelezApiVelezCommon.ContainerHealthcheck;
+  isDeclarativeDeploy?: boolean;hardware?: VelezApiVelezCommon.ContainerHardware;settings?: VelezApiVelezCommon.ContainerSettings;command?: string;healthcheck?: VelezApiVelezCommon.ContainerHealthcheck;
 };
 
 export type CreateSmerdRequest = BaseCreateSmerdRequest &
-    OneOf<{
-        verv: VelezApiVelezCommon.MatreshkaConfigSpec;
-        plain: Uint8Array;
-    }>;
+  OneOf<{
+    verv: VelezApiVelezCommon.MatreshkaConfigSpec;
+    plain: Uint8Array;
+  }>;
 
 export type CreateSmerd = Record<string, never>;
 

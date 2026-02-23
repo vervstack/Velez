@@ -3,6 +3,8 @@ package postgres
 import (
 	"database/sql"
 
+	"github.com/rs/zerolog/log"
+
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/nodes_queries"
@@ -23,6 +25,7 @@ func New(db *sql.DB) storage.Storage {
 			querier: nodes_queries.New(db),
 		},
 		servicesStorage: &servicesStorage{
+			conn:    db,
 			Querier: services_queries.New(db),
 		},
 
@@ -45,4 +48,17 @@ func (s *Storage) Deployments() storage.DeploymentsStorage {
 
 func (s *Storage) TxManager() *sqldb.TxManager {
 	return s.txManager
+}
+
+func wrapPgErr(err error) error {
+	return err
+}
+
+func closeRows(rows *sql.Rows) {
+	err := rows.Close()
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("error closing rows")
+	}
 }

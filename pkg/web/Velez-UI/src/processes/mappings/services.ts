@@ -1,7 +1,7 @@
 import {
     VervServiceType,
-    ServiceState,
-    Service as ApiServices
+    VervServiceState,
+    VervService as ApiServices
 } from "@vervstack/velez";
 
 import {
@@ -14,7 +14,7 @@ export function toServices(services: ApiServices[]): Service[] {
 
     services.map(s => {
         const srv = new Service(s.type || VervServiceType.unknown_service_type, s.port)
-        srv.state = s.state || ServiceState.unknown
+        srv.state = s.state || VervServiceState.unknown
         out.push(srv)
     })
 

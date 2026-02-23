@@ -13,14 +13,14 @@ import (
 type upsertServiceState struct {
 	servicesStorage storage.ServicesStorage
 
-	serviceInfoPtr *domain.ServiceBasicInfo
+	serviceInfoPtr *domain.ServiceBaseInfo
 
 	serviceIdRespPtr *uint64
 }
 
 func UpsertServiceState(
 	dataStorage storage.Storage,
-	serviceInfoPtr *domain.ServiceBasicInfo,
+	serviceInfoPtr *domain.ServiceBaseInfo,
 	serviceIdRespPtr *uint64,
 ) steps.Step {
 	return &upsertServiceState{

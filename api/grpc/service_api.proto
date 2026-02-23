@@ -130,10 +130,11 @@ message ListServices {
     optional string search_pattern = 2;
   };
   message Response {
-    repeated ServiceBaseInfo services = 1;
+    uint64 Total = 1;
+    repeated ServiceBaseInfo services = 2;
   };
 }
 
 message ServiceBaseInfo {
-    string name = 1;
+  string name = 1;
 }

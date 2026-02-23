@@ -2,10 +2,8 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sirupsen/logrus"
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
@@ -92,11 +90,4 @@ func (d *deploymentsStorage) List(ctx context.Context, req domain.ListDeployment
 	}
 
 	return out, nil
-}
-
-func closeRows(rows *sql.Rows) {
-	err := rows.Close()
-	if err != nil {
-		logrus.Error("error closing rows", err)
-	}
 }

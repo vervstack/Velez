@@ -41,8 +41,8 @@ func (v *VervService) getByName(ctx context.Context, name string) (domain.Servic
 
 func fromStorageToDomainServiceInfo(vServ services_queries.VelezService) domain.Service {
 	return domain.Service{
-		Id: uint64(vServ.ID),
-		ServiceBasicInfo: domain.ServiceBasicInfo{
+		ServiceBaseInfo: domain.ServiceBaseInfo{
+			Id:   uint64(vServ.ID),
 			Name: vServ.Name,
 		},
 	}

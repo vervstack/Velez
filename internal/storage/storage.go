@@ -25,6 +25,8 @@ type NodesStorage interface {
 
 type ServicesStorage interface {
 	services_queries.Querier
+
+	List(ctx context.Context, req domain.ListServicesReq) (domain.ServiceList, error)
 }
 
 type DeploymentsStorage interface {

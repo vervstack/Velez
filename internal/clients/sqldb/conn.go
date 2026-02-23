@@ -75,3 +75,7 @@ func (s sqlLogger) Fatalf(format string, v ...interface{}) {
 func (s sqlLogger) Printf(format string, v ...interface{}) {
 	log.Printf(format, v...)
 }
+
+type Scannable interface {
+	Scan(dest ...any) error
+}

@@ -27,26 +27,26 @@ export enum VervServiceType {
   statefull_pg = "statefull_pg",
 }
 
-export enum ServiceState {
-    unknown = "unknown",
-    running = "running",
-    warning = "warning",
-    dead = "dead",
-    disabled = "disabled",
+export enum VervServiceState {
+  unknown = "unknown",
+  running = "running",
+  warning = "warning",
+  dead = "dead",
+  disabled = "disabled",
 }
 
-export type ListServicesRequest = Record<string, never>;
+export type ListVervServicesRequest = Record<string, never>;
 
-export type ListServicesResponse = {
-  services?: Service[];
+export type ListVervServicesResponse = {
+  services?: VervService[];
 };
 
-export type ListServices = Record<string, never>;
+export type ListVervServices = Record<string, never>;
 
-export type Service = {
+export type VervService = {
   type?: VervServiceType;
   port?: number;
-    state?: ServiceState;
+  state?: VervServiceState;
 };
 
 type BaseEnableServiceRequest = {
@@ -56,7 +56,7 @@ type BaseEnableServiceRequest = {
 export type EnableServiceRequest = BaseEnableServiceRequest &
   OneOf<{
     statefullCluster: EnableStatefullCluster;
-      headscaleServer: EnableHeadscaleServer;
+    headscaleServer: EnableHeadscaleServer;
   }>;
 
 export type EnableServiceResponse = Record<string, never>;
@@ -81,26 +81,27 @@ export type EnableStatefullCluster = {
 };
 
 export type EnableHeadscaleServerExternalHeadscaleConnection = {
-    url?: string;
-    token?: string;
+  url?: string;
+  token?: string;
 };
 
 export type EnableHeadscaleServerDeployHeadscaleConfig = {
-    customPort?: number;
-    customImage?: string;
+  customPort?: number;
+  customImage?: string;
 };
 
-type BaseEnableHeadscaleServer = {};
+type BaseEnableHeadscaleServer = {
+};
 
 export type EnableHeadscaleServer = BaseEnableHeadscaleServer &
-    OneOf<{
-        deployConfig: EnableHeadscaleServerDeployHeadscaleConfig;
-        externalConnect: EnableHeadscaleServerExternalHeadscaleConnection;
-    }>;
+  OneOf<{
+    deployConfig: EnableHeadscaleServerDeployHeadscaleConfig;
+    externalConnect: EnableHeadscaleServerExternalHeadscaleConnection;
+  }>;
 
 export class ControlPlaneAPI {
-  static ListServices(this:void, req: ListServicesRequest, initReq?: fm.InitReq): Promise<ListServicesResponse> {
-    return fm.fetchRequest<ListServicesResponse>(`/api/control_plane/services?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
+  static ListVervServices(this:void, req: ListVervServicesRequest, initReq?: fm.InitReq): Promise<ListVervServicesResponse> {
+    return fm.fetchRequest<ListVervServicesResponse>(`/api/control_plane/services?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
   }
   static EnableService(this:void, req: EnableServiceRequest, initReq?: fm.InitReq): Promise<EnableServiceResponse> {
     return fm.fetchRequest<EnableServiceResponse>(`/api/control_plane/service/enable`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});

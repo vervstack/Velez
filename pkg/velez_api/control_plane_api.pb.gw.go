@@ -35,24 +35,24 @@ var (
 	_ = metadata.Join
 )
 
-func request_ControlPlaneAPI_ListServices_0(ctx context.Context, marshaler runtime.Marshaler, client ControlPlaneAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ControlPlaneAPI_ListVervServices_0(ctx context.Context, marshaler runtime.Marshaler, client ControlPlaneAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq ListServices_Request
+		protoReq ListVervServices_Request
 		metadata runtime.ServerMetadata
 	)
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	msg, err := client.ListServices(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ListVervServices(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_ControlPlaneAPI_ListServices_0(ctx context.Context, marshaler runtime.Marshaler, server ControlPlaneAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ControlPlaneAPI_ListVervServices_0(ctx context.Context, marshaler runtime.Marshaler, server ControlPlaneAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq ListServices_Request
+		protoReq ListVervServices_Request
 		metadata runtime.ServerMetadata
 	)
-	msg, err := server.ListServices(ctx, &protoReq)
+	msg, err := server.ListVervServices(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -116,25 +116,25 @@ func local_request_ControlPlaneAPI_ConnectSlave_0(ctx context.Context, marshaler
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterControlPlaneAPIHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterControlPlaneAPIHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ControlPlaneAPIServer) error {
-	mux.Handle(http.MethodGet, pattern_ControlPlaneAPI_ListServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ControlPlaneAPI_ListVervServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.ControlPlaneAPI/ListServices", runtime.WithHTTPPathPattern("/api/control_plane/services"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.ControlPlaneAPI/ListVervServices", runtime.WithHTTPPathPattern("/api/control_plane/services"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ControlPlaneAPI_ListServices_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ControlPlaneAPI_ListVervServices_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_ControlPlaneAPI_ListServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ControlPlaneAPI_ListVervServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodPost, pattern_ControlPlaneAPI_EnableService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -216,22 +216,22 @@ func RegisterControlPlaneAPIHandler(ctx context.Context, mux *runtime.ServeMux, 
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "ControlPlaneAPIClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterControlPlaneAPIHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ControlPlaneAPIClient) error {
-	mux.Handle(http.MethodGet, pattern_ControlPlaneAPI_ListServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ControlPlaneAPI_ListVervServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.ControlPlaneAPI/ListServices", runtime.WithHTTPPathPattern("/api/control_plane/services"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.ControlPlaneAPI/ListVervServices", runtime.WithHTTPPathPattern("/api/control_plane/services"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ControlPlaneAPI_ListServices_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ControlPlaneAPI_ListVervServices_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_ControlPlaneAPI_ListServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ControlPlaneAPI_ListVervServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodPost, pattern_ControlPlaneAPI_EnableService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -271,13 +271,13 @@ func RegisterControlPlaneAPIHandlerClient(ctx context.Context, mux *runtime.Serv
 }
 
 var (
-	pattern_ControlPlaneAPI_ListServices_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "control_plane", "services"}, ""))
-	pattern_ControlPlaneAPI_EnableService_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "control_plane", "service", "enable"}, ""))
-	pattern_ControlPlaneAPI_ConnectSlave_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "slave", "connect"}, ""))
+	pattern_ControlPlaneAPI_ListVervServices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "control_plane", "services"}, ""))
+	pattern_ControlPlaneAPI_EnableService_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "control_plane", "service", "enable"}, ""))
+	pattern_ControlPlaneAPI_ConnectSlave_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "slave", "connect"}, ""))
 )
 
 var (
-	forward_ControlPlaneAPI_ListServices_0  = runtime.ForwardResponseMessage
-	forward_ControlPlaneAPI_EnableService_0 = runtime.ForwardResponseMessage
-	forward_ControlPlaneAPI_ConnectSlave_0  = runtime.ForwardResponseMessage
+	forward_ControlPlaneAPI_ListVervServices_0 = runtime.ForwardResponseMessage
+	forward_ControlPlaneAPI_EnableService_0    = runtime.ForwardResponseMessage
+	forward_ControlPlaneAPI_ConnectSlave_0     = runtime.ForwardResponseMessage
 )

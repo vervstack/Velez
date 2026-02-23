@@ -36,7 +36,7 @@ type Pipeliner interface {
 	// Verv services piplines
 
 	// CreateService - creates empty an Verv-project with configuration mocks
-	CreateService(req domain.CreateServiceReq) Runner[domain.ServiceBasicInfo]
+	CreateService(req domain.CreateServiceReq) Runner[domain.ServiceBaseInfo]
 }
 
 type Runner[T any] interface {

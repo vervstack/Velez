@@ -58,6 +58,7 @@ func New(
 
 func (s *ServiceManager) VervServices() service.VervServicesService {
 	return s.vervServices
+
 }
 
 func (s *ServiceManager) SmerdManager() service.ContainerService {

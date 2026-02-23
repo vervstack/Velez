@@ -869,8 +869,8 @@ func (x *Connection) GetAliases() []string {
 
 type Paging struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Limit         uint32                 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
-	Offset        uint32                 `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
+	Limit         uint64                 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset        uint64                 `protobuf:"varint,2,opt,name=offset,proto3" json:"offset,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -905,14 +905,14 @@ func (*Paging) Descriptor() ([]byte, []int) {
 	return file_velez_common_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *Paging) GetLimit() uint32 {
+func (x *Paging) GetLimit() uint64 {
 	if x != nil {
 		return x.Limit
 	}
 	return 0
 }
 
-func (x *Paging) GetOffset() uint32 {
+func (x *Paging) GetOffset() uint64 {
 	if x != nil {
 		return x.Offset
 	}
@@ -1224,8 +1224,8 @@ const file_velez_common_proto_rawDesc = "" +
 	"\x0etarget_network\x18\x02 \x01(\tR\rtargetNetwork\x12\x18\n" +
 	"\aaliases\x18\x03 \x03(\tR\aaliases\"6\n" +
 	"\x06Paging\x12\x14\n" +
-	"\x05limit\x18\x01 \x01(\rR\x05limit\x12\x16\n" +
-	"\x06offset\x18\x02 \x01(\rR\x06offset*K\n" +
+	"\x05limit\x18\x01 \x01(\x04R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x02 \x01(\x04R\x06offset*K\n" +
 	"\x11RestartPolicyType\x12\x12\n" +
 	"\x0eunless_stopped\x10\x00\x12\x06\n" +
 	"\x02no\x10\x01\x12\n" +

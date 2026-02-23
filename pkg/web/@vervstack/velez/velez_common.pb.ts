@@ -79,7 +79,7 @@ export type Smerd = {
 };
 
 export type ContainerHardware = {
-    cpu?: number;
+  cpu?: number;
   ramMb?: number;
   memorySwapMb?: number;
 };
@@ -118,6 +118,6 @@ export type Connection = {
 };
 
 export type Paging = {
-    limit?: number;
-    offset?: number;
+  limit?: string;
+  offset?: string;
 };

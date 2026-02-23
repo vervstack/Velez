@@ -1,10 +1,10 @@
 import {useEffect, useState} from "react";
 
-import {VervServiceType, EnableStatefullCluster, ServiceState} from "@vervstack/velez";
+import {VervServiceType, EnableStatefullCluster, VervServiceState} from "@vervstack/velez";
 
 import cls from '@/pages/controlplane/ControlPlanePage.module.css';
 
-import {EnableService, EnableStatefullPgCluster, ListServices} from "@/processes/api/control_plane.ts";
+import {EnableService, EnableStatefullPgCluster, ListVervServices} from "@/processes/api/control_plane.ts";
 import {Service} from "@/model/services/Services";
 import ServiceCard from "@/components/service/ServiceCard";
 import Loader from "@/components/Loader.tsx";
@@ -28,7 +28,7 @@ export default function ControlPlanePage() {
 
     useEffect(() => {
         setIsLoading(true)
-        ListServices(credentialsStore.getInitReq())
+        ListVervServices(credentialsStore.getInitReq())
             .then(setServices)
             .then(() => setIsLoading(false))
     }, []);
@@ -92,7 +92,7 @@ export default function ControlPlanePage() {
             <div className={cls.Content}>
                 <div className={cls.ServicesBlock}>
                     {services
-                        .filter(s => s.state == ServiceState.running)
+                        .filter(s => s.state == VervServiceState.running)
                         .map((v, idx) =>
                             <div
                                 className={cls.ServiceCardWrapper}
@@ -113,7 +113,7 @@ export default function ControlPlanePage() {
 
                 <div className={cls.ServicesBlock}>
                     {services
-                        .filter(s => s.state !== ServiceState.running)
+                        .filter(s => s.state !== VervServiceState.running)
                         .map((v: Service, idx) =>
                             <div
                                 className={cls.ServiceCardWrapper}

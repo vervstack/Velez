@@ -145,6 +145,6 @@ enum ConfigFormat {
 }
 
 message Paging {
-  uint32 limit = 1;
-  uint32 offset = 2;
+  uint64 limit = 1;
+  uint64 offset = 2;
 }

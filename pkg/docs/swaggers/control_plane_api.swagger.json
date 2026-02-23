@@ -29,7 +29,7 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
+              "$ref": "#/definitions/googleRpcStatus"
             }
           }
         },
@@ -50,18 +50,18 @@
     },
     "/api/control_plane/services": {
       "get": {
-        "operationId": "ControlPlaneAPI_ListServices",
+        "operationId": "ControlPlaneAPI_ListVervServices",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/velez_apiListServicesResponse"
+              "$ref": "#/definitions/velez_apiListVervServicesResponse"
             }
           },
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
+              "$ref": "#/definitions/googleRpcStatus"
             }
           }
         },
@@ -84,7 +84,7 @@
           "default": {
             "description": "An unexpected error response.",
             "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
+              "$ref": "#/definitions/googleRpcStatus"
             }
           }
         },
@@ -130,7 +130,7 @@
         }
       }
     },
-    "ServiceState": {
+    "VervServiceState": {
       "type": "string",
       "enum": [
         "unknown",
@@ -141,7 +141,7 @@
       ],
       "default": "unknown"
     },
-    "googlerpcStatus": {
+    "googleRpcStatus": {
       "type": "object",
       "properties": {
         "code": {
@@ -215,19 +215,19 @@
         }
       }
     },
-    "velez_apiListServicesResponse": {
+    "velez_apiListVervServicesResponse": {
       "type": "object",
       "properties": {
         "services": {
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/velez_apiService"
+            "$ref": "#/definitions/velez_apiVervService"
           }
         }
       }
     },
-    "velez_apiService": {
+    "velez_apiVervService": {
       "type": "object",
       "properties": {
         "type": {
@@ -238,7 +238,7 @@
           "format": "int64"
         },
         "state": {
-          "$ref": "#/definitions/ServiceState"
+          "$ref": "#/definitions/VervServiceState"
         }
       }
     },

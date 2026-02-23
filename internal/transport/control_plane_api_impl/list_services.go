@@ -14,18 +14,18 @@ import (
 	pb "go.vervstack.ru/Velez/pkg/velez_api"
 )
 
-func (impl *Impl) ListServices(ctx context.Context, _ *pb.ListServices_Request) (
-	*pb.ListServices_Response, error) {
+func (impl *Impl) ListServices(ctx context.Context, _ *pb.ListVervServices_Request) (
+	*pb.ListVervServices_Response, error) {
 
 	smerds, err := impl.smerdManager.ListSmerds(ctx, nil)
 	if err != nil {
 		return nil, rerrors.Wrap(err)
 	}
 
-	resp := &pb.ListServices_Response{}
+	resp := &pb.ListVervServices_Response{}
 
 	for _, smerd := range smerds.Smerds {
-		srv := &pb.Service{
+		srv := &pb.VervService{
 			Type:  pb.VervServiceType_unknown_service_type,
 			State: getState(smerd),
 		}
@@ -60,16 +60,16 @@ func (impl *Impl) ListServices(ctx context.Context, _ *pb.ListServices_Request) 
 	return resp, nil
 }
 
-func getState(smerd *pb.Smerd) pb.Service_State {
+func getState(smerd *pb.Smerd) pb.VervService_State {
 	switch smerd.Status {
 	case pb.Smerd_created, pb.Smerd_restarting, pb.Smerd_removing, pb.Smerd_paused:
-		return pb.Service_warning
+		return pb.VervService_warning
 	case pb.Smerd_running:
-		return pb.Service_running
+		return pb.VervService_running
 	case pb.Smerd_exited, pb.Smerd_dead:
-		return pb.Service_dead
+		return pb.VervService_dead
 	default:
-		return pb.Service_unknown
+		return pb.VervService_unknown
 	}
 }
 
@@ -83,13 +83,13 @@ func getPort(ports []*pb.Port) *uint32 {
 	return nil
 }
 
-func listInactiveServices(enabledServices []*pb.Service) []*pb.Service {
+func listInactiveServices(enabledServices []*pb.VervService) []*pb.VervService {
 	enabledServicesMap := make(map[pb.VervServiceType]struct{})
 	for _, s := range enabledServices {
 		enabledServicesMap[s.Type] = struct{}{}
 	}
 
-	var disabledServices []*pb.Service
+	var disabledServices []*pb.VervService
 	for vervService := range pb.VervServiceType_name {
 		if vervService == 0 {
 			continue
@@ -100,7 +100,7 @@ func listInactiveServices(enabledServices []*pb.Service) []*pb.Service {
 			continue
 		}
 
-		srv := &pb.Service{
+		srv := &pb.VervService{
 			Type: pb.VervServiceType(vervService),
 		}
 

@@ -14,7 +14,7 @@ import (
 	pb "go.vervstack.ru/Velez/pkg/velez_api"
 )
 
-func (impl *Impl) ListServices(ctx context.Context, _ *pb.ListVervServices_Request) (
+func (impl *Impl) ListVervServices(ctx context.Context, _ *pb.ListVervServices_Request) (
 	*pb.ListVervServices_Response, error) {
 
 	smerds, err := impl.smerdManager.ListSmerds(ctx, nil)

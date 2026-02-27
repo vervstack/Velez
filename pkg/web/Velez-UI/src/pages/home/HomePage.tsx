@@ -12,13 +12,12 @@ import cls from '@/pages/home/Home.module.css';
 
 import {ListServices} from "@/processes/api/service.ts";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
-import LoaderWithError from "@/components/LoaderWithError.tsx";
+import LoaderWrapper from "@/components/LoaderWrapper.tsx";
 import {Routes} from "@/app/router/Router.tsx";
 import {useNavigate} from "react-router-dom";
 
 export default function HomePage() {
-    const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [loadError, setLoadError] = useState<string | undefined>();
+    const [load, doLoad] = useState<Promise<void> | undefined>(undefined)
 
     const toaster = useToaster()
     const [list, setList] = useState<ServiceBaseInfo[]>([]);
@@ -36,42 +35,27 @@ export default function HomePage() {
         // TODO handle paging and total
     }
 
-
     useEffect(() => {
-        setIsLoading(false)
-        ListServices(req)
-            .then(handleResponse)
-            .catch((e) => {
-                setLoadError(e.toString())
-                toaster.catchGrpc(e);
-            })
-            .finally(() => setIsLoading(false))
+        doLoad(ListServices(req).then(handleResponse))
+
     }, [req, toaster]);
-
-
-    if (isLoading || loadError != undefined) {
-        return (<div className={cls.HomeContainer}><LoaderWithError err={loadError}/></div>)
-    }
 
     return (
         <div className={cls.HomeContainer}>
-            <div className={cls.ServicesDashboard}>
-                {
-                    list.length > 0 ?
+            <LoaderWrapper load={load}>
+                <div className={cls.ServicesDashboard}>
+                    {list.length > 0 ?
                         <div>
-                            {
-                                list.map((service: ServiceBaseInfo) => {
-                                    return (
-                                        <ServiceCard
-                                            {...service}
-                                        />
-                                    )
-                                })
+                            {list.map((service: ServiceBaseInfo) => {
+                                return (<ServiceCard{...service}/>
+                                )
+                            })
                             }
                         </div> :
                         <div>No services yet on this cluster</div>
-                }
-            </div>
+                    }
+                </div>
+            </LoaderWrapper>
         </div>
     )
 }

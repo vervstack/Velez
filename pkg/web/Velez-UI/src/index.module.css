@@ -34,7 +34,7 @@ root, body {
     --border-radius: 0.5em;
 
     --error-color: rgb(239, 90, 113);
-    --warning-color: rgb(243, 204, 24);
+    --warning-color: rgb(243, 141, 24);
     --info-color: rgb(168, 232, 203);
 
     --page-header-vh: 4vh;

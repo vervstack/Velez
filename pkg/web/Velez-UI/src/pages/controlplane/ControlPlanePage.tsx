@@ -7,18 +7,19 @@ import cls from '@/pages/controlplane/ControlPlanePage.module.css';
 import {EnableService, EnableStatefullPgCluster, ListVervServices} from "@/processes/api/control_plane.ts";
 import {Service} from "@/model/services/Services";
 import ServiceCard from "@/components/service/ServiceCard";
-import Loader from "@/components/Loader.tsx";
 
 import {useCredentialsStore} from "@/app/settings/creds.ts";
 import Dialog from "@/components/complex/dialog/Dialog.tsx";
 import EnableStatefullMode from "@/widgets/services/EnableStatefullMode.tsx";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
+import LoaderWrapper from "@/components/LoaderWrapper.tsx";
 
 export default function ControlPlanePage() {
     const [services, setServices] =
         useState<Service[]>([]);
 
-    const [isLoading, setIsLoading] = useState(true)
+    const [load, doLoad] = useState<Promise<void> | undefined>();
+
     const [dialogChild, setDialogChild] = useState<React.ReactNode | undefined>();
 
     const credentialsStore = useCredentialsStore();
@@ -27,20 +28,11 @@ export default function ControlPlanePage() {
     const [isDeployRunning, setIsDeployRunning] = useState(false)
 
     useEffect(() => {
-        setIsLoading(true)
-        ListVervServices(credentialsStore.getInitReq())
+        doLoad(ListVervServices(credentialsStore.getInitReq())
             .then(setServices)
-            .then(() => setIsLoading(false))
+        )
     }, []);
 
-
-    if (isLoading) {
-        return (
-            <div className={cls.ControlPlaneContainer}>
-                <Loader/>
-            </div>
-        )
-    }
 
     function getDeployCallbackByType(serviceType: VervServiceType): (() => void) | undefined {
         switch (serviceType) {
@@ -89,54 +81,58 @@ export default function ControlPlanePage() {
 
     return (
         <div className={cls.ControlPlaneContainer}>
-            <div className={cls.Content}>
-                <div className={cls.ServicesBlock}>
-                    {services
-                        .filter(s => s.state == VervServiceState.running)
-                        .map((v, idx) =>
-                            <div
-                                className={cls.ServiceCardWrapper}
-                                key={v.title + idx}
-                                onClick={() => {
-                                    // TODO when clicked will navigate to service's page
-                                    // navigate(Routes.Smerd + '/' + v.title)
-                                }}
+            <LoaderWrapper load={load}>
+                <div>
+                    <div className={cls.Content}>
+                        <div className={cls.ServicesBlock}>
+                            {services
+                                .filter(s => s.state == VervServiceState.running)
+                                .map((v, idx) =>
+                                    <div
+                                        className={cls.ServiceCardWrapper}
+                                        key={v.title + idx}
+                                        onClick={() => {
+                                            // TODO when clicked will navigate to service's page
+                                            // navigate(Routes.Smerd + '/' + v.title)
+                                        }}
 
-                            >
-                                <ServiceCard
-                                    disabled={false}
-                                    {...v}
-                                />
-                            </div>)
-                    }
+                                    >
+                                        <ServiceCard
+                                            disabled={false}
+                                            {...v}
+                                        />
+                                    </div>)
+                            }
+                        </div>
+
+                        <div className={cls.ServicesBlock}>
+                            {services
+                                .filter(s => s.state !== VervServiceState.running)
+                                .map((v: Service, idx) =>
+                                    <div
+                                        className={cls.ServiceCardWrapper}
+                                        key={v.title + idx}
+                                    >
+                                        <ServiceCard
+                                            {...v}
+                                            disabled={true}
+                                            onDeploy={getDeployCallbackByType(v.type)}
+                                            isDeployRunning={isDeployRunning}
+                                        />
+                                    </div>)
+                            }
+                        </div>
+                    </div>
+
+                    {/* TODO VERV-165 add animation for deployments*/}
+                    <Dialog
+                        isOpen={dialogChild !== undefined}
+                        onClose={() => setDialogChild(undefined)}
+                        children={dialogChild}
+                        blur={0.5}
+                    />
                 </div>
-
-                <div className={cls.ServicesBlock}>
-                    {services
-                        .filter(s => s.state !== VervServiceState.running)
-                        .map((v: Service, idx) =>
-                            <div
-                                className={cls.ServiceCardWrapper}
-                                key={v.title + idx}
-                            >
-                                <ServiceCard
-                                    {...v}
-                                    disabled={true}
-                                    onDeploy={getDeployCallbackByType(v.type)}
-                                    isDeployRunning={isDeployRunning}
-                                />
-                            </div>)
-                    }
-                </div>
-            </div>
-
-            {/* TODO VERV-165 add animation for deployments*/}
-            <Dialog
-                isOpen={dialogChild !== undefined}
-                onClose={() => setDialogChild(undefined)}
-                children={dialogChild}
-                blur={0.5}
-            />
+            </LoaderWrapper>
         </div>
     )
 }

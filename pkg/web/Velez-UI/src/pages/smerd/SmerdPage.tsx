@@ -7,12 +7,14 @@ import {GetSmerd} from "@/processes/api/velez.ts";
 import {Smerd} from "@/model/smerds/Smerds.ts";
 import useSettings from "@/app/settings/state.ts";
 
-import Loader from "@/components/Loader.tsx";
 import PortsWidget from "@/widgets/PortsWidget.tsx";
 import VolumesWidget from "@/widgets/VolumesWidget.tsx";
+import LoaderWrapper from "@/components/LoaderWrapper.tsx";
 
 export default function SmerdPage() {
-    const [smerdInfo, setSmerdInfo] = useState<Smerd>()
+    const [smerdInfo, setSmerdInfo] = useState<Smerd>({} as Smerd)
+
+    const [load, doLoad] = useState<Promise<void> | undefined>()
 
     const settings = useSettings();
 
@@ -24,32 +26,26 @@ export default function SmerdPage() {
     }
 
     useEffect(() => {
-        GetSmerd(smerdName, settings.initReq())
-            .then(setSmerdInfo)
+        doLoad(GetSmerd(smerdName, settings.initReq())
+            .then(setSmerdInfo))
     }, []);
 
 
-    if (!smerdInfo) {
-        return (
-            <div className={cls.SmerdPageContainer}>
-                <Loader/>
-            </div>
-        )
-    }
-
     return (
         <div className={cls.SmerdPageContainer}>
-            <div className={cls.Header}>
-                {smerdInfo.name}
-            </div>
-            <div className={cls.Body}>
-                <div className={cls.InfoBox}>
-                    <PortsWidget ports={smerdInfo.ports}/>
+            <LoaderWrapper load={load}>
+                <div className={cls.Header}>
+                    {smerdInfo.name}
                 </div>
-                <div className={cls.InfoBox}>
-                    <VolumesWidget volumes={smerdInfo.volumes}/>
+                <div className={cls.Body}>
+                    <div className={cls.InfoBox}>
+                        <PortsWidget ports={smerdInfo.ports}/>
+                    </div>
+                    <div className={cls.InfoBox}>
+                        <VolumesWidget volumes={smerdInfo.volumes}/>
+                    </div>
                 </div>
-            </div>
+            </LoaderWrapper>
         </div>
     )
 }

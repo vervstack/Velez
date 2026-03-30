@@ -5,8 +5,8 @@ package velez_api;
 import "google/api/annotations.proto";
 
 import "npm.proto";
-import "velez_common.proto";
-import "velez_api.proto";
+import "api/grpc/velez_common.proto";
+import "api/grpc/velez_api.proto";
 
 option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
 option (npm_package) = "@vervstack/velez";

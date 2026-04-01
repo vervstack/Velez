@@ -6,9 +6,9 @@ import (
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 
+	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func (impl *Impl) SearchImages(ctx context.Context, req *velez_api.SearchImages_Request) (

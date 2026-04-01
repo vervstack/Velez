@@ -1,8 +1,8 @@
 package service_api_impl
 
 import (
+	pb "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/domain"
-	pb "go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func toServiceBaseInfoList(in []domain.ServiceBaseInfo) []*pb.ServiceBaseInfo {

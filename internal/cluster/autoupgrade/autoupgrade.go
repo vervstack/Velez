@@ -15,11 +15,11 @@ import (
 	"go.redsock.ru/rerrors"
 	"golang.org/x/sync/errgroup"
 
+	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/pipelines"
-	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 type AutoUpgrade struct {

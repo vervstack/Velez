@@ -12,11 +12,11 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/utils/configutils"
-	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 type fetchConfigStep struct {

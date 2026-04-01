@@ -10,10 +10,10 @@ import (
 	"go.redsock.ru/toolbox/closer"
 )
 
-const dialect = "postgres"
+const Dialect = "postgres"
 
 func New(connectionString string) (*sql.DB, error) {
-	conn, err := sql.Open(dialect, connectionString)
+	conn, err := sql.Open(Dialect, connectionString)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error checking connection to postgres")
 	}
@@ -26,7 +26,7 @@ func New(connectionString string) (*sql.DB, error) {
 }
 
 func RollMigration(rootDsn string) (err error) {
-	conn, err := sql.Open(dialect, rootDsn)
+	conn, err := sql.Open(Dialect, rootDsn)
 	if err != nil {
 		return rerrors.Wrap(err, "error checking connection to postgres")
 	}
@@ -39,10 +39,12 @@ func RollMigration(rootDsn string) (err error) {
 	}()
 
 	goose.SetLogger(sqlLogger{})
-	err = goose.SetDialect(dialect)
+	err = goose.SetDialect(Dialect)
 	if err != nil {
 		return rerrors.Wrap(err, "error setting dialect")
 	}
+
+	goose.SetTableName("velez.__migrations")
 
 	err = goose.Up(conn, "./migrations")
 	if err != nil {

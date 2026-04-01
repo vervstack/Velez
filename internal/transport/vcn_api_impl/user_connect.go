@@ -5,8 +5,8 @@ import (
 
 	"go.redsock.ru/rerrors"
 
+	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func (impl *Impl) ConnectUser(ctx context.Context, req *velez_api.ConnectUser_Request) (

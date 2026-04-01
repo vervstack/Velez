@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.redsock.ru/toolbox"
 
-	"go.vervstack.ru/Velez/pkg/velez_api"
+	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/tests/config_mocks"
 )
 

@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 
 interface LoaderWithErrorProps {
-    children: React.JSX.Element[];
+    children: React.JSX.Element[] | React.JSX.Element;
 
     load?: Promise<void>;
 }

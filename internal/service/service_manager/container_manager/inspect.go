@@ -9,8 +9,8 @@ import (
 	errors "go.redsock.ru/rerrors"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
-	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func (c *ContainerManager) InspectSmerd(ctx context.Context, contId string) (*velez_api.Smerd, error) {

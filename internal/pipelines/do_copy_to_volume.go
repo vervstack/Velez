@@ -5,12 +5,12 @@ import (
 
 	rtb "go.redsock.ru/toolbox"
 
+	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/container_steps"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/smerd_steps"
-	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func (p *pipeliner) CopyToVolume(req domain.CopyToVolumeRequest) Runner[any] {

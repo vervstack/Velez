@@ -6,8 +6,8 @@ import (
 	"go.redsock.ru/rerrors"
 	"google.golang.org/grpc/codes"
 
+	pb "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/domain"
-	pb "go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 var (

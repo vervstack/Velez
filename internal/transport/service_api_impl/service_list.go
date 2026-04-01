@@ -6,9 +6,9 @@ import (
 	"go.redsock.ru/rerrors"
 	rtb "go.redsock.ru/toolbox"
 
+	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/transport/common"
-	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func (impl *Impl) ListServices(ctx context.Context, pbReq *velez_api.ListServices_Request) (*velez_api.ListServices_Response, error) {

@@ -1,8 +1,8 @@
 package patterns
 
 import (
+	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/domain/labels"
-	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 const (

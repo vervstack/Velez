@@ -4,7 +4,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"go.redsock.ru/toolbox"
 
-	"go.vervstack.ru/Velez/pkg/velez_api"
+	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 )
 
 const (

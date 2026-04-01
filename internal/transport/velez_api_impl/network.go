@@ -5,8 +5,8 @@ import (
 
 	"go.redsock.ru/rerrors"
 
+	api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/domain"
-	api "go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func (impl *Impl) MakeConnections(ctx context.Context, req *api.MakeConnections_Request) (

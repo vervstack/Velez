@@ -9,6 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 
+	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
 )
 
@@ -32,7 +33,7 @@ func CreatePgUserForNode(rootDsn *string,
 }
 
 func (c *createPgUserStep) Do(ctx context.Context) error {
-	conn, err := sql.Open("postgres", *c.dsn)
+	conn, err := sql.Open(sqldb.Dialect, *c.dsn)
 	if err != nil {
 		return rerrors.Wrap(err, "error opening connection to database")
 	}

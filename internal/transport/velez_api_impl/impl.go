@@ -9,11 +9,11 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
+	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/pipelines"
 	"go.vervstack.ru/Velez/internal/service"
-	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 type Impl struct {

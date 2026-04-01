@@ -6,12 +6,12 @@ import (
 
 	"go.redsock.ru/rerrors"
 
+	pb "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
 	"go.vervstack.ru/Velez/internal/cluster/configuration"
 	"go.vervstack.ru/Velez/internal/cluster/service_discovery"
 	"go.vervstack.ru/Velez/internal/cluster/verv_closed_network"
 	"go.vervstack.ru/Velez/internal/patterns"
-	pb "go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func (impl *Impl) ListVervServices(ctx context.Context, _ *pb.ListVervServices_Request) (

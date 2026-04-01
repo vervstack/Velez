@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v5.28.3
-// source: velez_common.proto
+// source: api/grpc/velez_common.proto
 
 package velez_api
 
@@ -59,11 +59,11 @@ func (x RestartPolicyType) String() string {
 }
 
 func (RestartPolicyType) Descriptor() protoreflect.EnumDescriptor {
-	return file_velez_common_proto_enumTypes[0].Descriptor()
+	return file_api_grpc_velez_common_proto_enumTypes[0].Descriptor()
 }
 
 func (RestartPolicyType) Type() protoreflect.EnumType {
-	return &file_velez_common_proto_enumTypes[0]
+	return &file_api_grpc_velez_common_proto_enumTypes[0]
 }
 
 func (x RestartPolicyType) Number() protoreflect.EnumNumber {
@@ -72,7 +72,7 @@ func (x RestartPolicyType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use RestartPolicyType.Descriptor instead.
 func (RestartPolicyType) EnumDescriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{0}
+	return file_api_grpc_velez_common_proto_rawDescGZIP(), []int{0}
 }
 
 type ConfigFormat int32
@@ -105,11 +105,11 @@ func (x ConfigFormat) String() string {
 }
 
 func (ConfigFormat) Descriptor() protoreflect.EnumDescriptor {
-	return file_velez_common_proto_enumTypes[1].Descriptor()
+	return file_api_grpc_velez_common_proto_enumTypes[1].Descriptor()
 }
 
 func (ConfigFormat) Type() protoreflect.EnumType {
-	return &file_velez_common_proto_enumTypes[1]
+	return &file_api_grpc_velez_common_proto_enumTypes[1]
 }
 
 func (x ConfigFormat) Number() protoreflect.EnumNumber {
@@ -118,7 +118,7 @@ func (x ConfigFormat) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ConfigFormat.Descriptor instead.
 func (ConfigFormat) EnumDescriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{1}
+	return file_api_grpc_velez_common_proto_rawDescGZIP(), []int{1}
 }
 
 type Port_Protocol int32
@@ -154,11 +154,11 @@ func (x Port_Protocol) String() string {
 }
 
 func (Port_Protocol) Descriptor() protoreflect.EnumDescriptor {
-	return file_velez_common_proto_enumTypes[2].Descriptor()
+	return file_api_grpc_velez_common_proto_enumTypes[2].Descriptor()
 }
 
 func (Port_Protocol) Type() protoreflect.EnumType {
-	return &file_velez_common_proto_enumTypes[2]
+	return &file_api_grpc_velez_common_proto_enumTypes[2]
 }
 
 func (x Port_Protocol) Number() protoreflect.EnumNumber {
@@ -167,7 +167,7 @@ func (x Port_Protocol) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Port_Protocol.Descriptor instead.
 func (Port_Protocol) EnumDescriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{1, 0}
+	return file_api_grpc_velez_common_proto_rawDescGZIP(), []int{1, 0}
 }
 
 type Smerd_Status int32
@@ -218,11 +218,11 @@ func (x Smerd_Status) String() string {
 }
 
 func (Smerd_Status) Descriptor() protoreflect.EnumDescriptor {
-	return file_velez_common_proto_enumTypes[3].Descriptor()
+	return file_api_grpc_velez_common_proto_enumTypes[3].Descriptor()
 }
 
 func (Smerd_Status) Type() protoreflect.EnumType {
-	return &file_velez_common_proto_enumTypes[3]
+	return &file_api_grpc_velez_common_proto_enumTypes[3]
 }
 
 func (x Smerd_Status) Number() protoreflect.EnumNumber {
@@ -231,7 +231,7 @@ func (x Smerd_Status) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Smerd_Status.Descriptor instead.
 func (Smerd_Status) EnumDescriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{5, 0}
+	return file_api_grpc_velez_common_proto_rawDescGZIP(), []int{5, 0}
 }
 
 type SearchImageItem struct {
@@ -245,7 +245,7 @@ type SearchImageItem struct {
 
 func (x *SearchImageItem) Reset() {
 	*x = SearchImageItem{}
-	mi := &file_velez_common_proto_msgTypes[0]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -257,7 +257,7 @@ func (x *SearchImageItem) String() string {
 func (*SearchImageItem) ProtoMessage() {}
 
 func (x *SearchImageItem) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[0]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -270,7 +270,7 @@ func (x *SearchImageItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchImageItem.ProtoReflect.Descriptor instead.
 func (*SearchImageItem) Descriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{0}
+	return file_api_grpc_velez_common_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *SearchImageItem) GetName() string {
@@ -305,7 +305,7 @@ type Port struct {
 
 func (x *Port) Reset() {
 	*x = Port{}
-	mi := &file_velez_common_proto_msgTypes[1]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -317,7 +317,7 @@ func (x *Port) String() string {
 func (*Port) ProtoMessage() {}
 
 func (x *Port) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[1]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -330,7 +330,7 @@ func (x *Port) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Port.ProtoReflect.Descriptor instead.
 func (*Port) Descriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{1}
+	return file_api_grpc_velez_common_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Port) GetServicePortNumber() uint32 {
@@ -364,7 +364,7 @@ type Volume struct {
 
 func (x *Volume) Reset() {
 	*x = Volume{}
-	mi := &file_velez_common_proto_msgTypes[2]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -376,7 +376,7 @@ func (x *Volume) String() string {
 func (*Volume) ProtoMessage() {}
 
 func (x *Volume) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[2]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -389,7 +389,7 @@ func (x *Volume) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Volume.ProtoReflect.Descriptor instead.
 func (*Volume) Descriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{2}
+	return file_api_grpc_velez_common_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Volume) GetVolumeName() string {
@@ -416,7 +416,7 @@ type NetworkBind struct {
 
 func (x *NetworkBind) Reset() {
 	*x = NetworkBind{}
-	mi := &file_velez_common_proto_msgTypes[3]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -428,7 +428,7 @@ func (x *NetworkBind) String() string {
 func (*NetworkBind) ProtoMessage() {}
 
 func (x *NetworkBind) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[3]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -441,7 +441,7 @@ func (x *NetworkBind) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NetworkBind.ProtoReflect.Descriptor instead.
 func (*NetworkBind) Descriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{3}
+	return file_api_grpc_velez_common_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *NetworkBind) GetNetworkName() string {
@@ -469,7 +469,7 @@ type Image struct {
 
 func (x *Image) Reset() {
 	*x = Image{}
-	mi := &file_velez_common_proto_msgTypes[4]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -481,7 +481,7 @@ func (x *Image) String() string {
 func (*Image) ProtoMessage() {}
 
 func (x *Image) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[4]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -494,7 +494,7 @@ func (x *Image) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Image.ProtoReflect.Descriptor instead.
 func (*Image) Descriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{4}
+	return file_api_grpc_velez_common_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Image) GetName() string {
@@ -536,7 +536,7 @@ type Smerd struct {
 
 func (x *Smerd) Reset() {
 	*x = Smerd{}
-	mi := &file_velez_common_proto_msgTypes[5]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -548,7 +548,7 @@ func (x *Smerd) String() string {
 func (*Smerd) ProtoMessage() {}
 
 func (x *Smerd) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[5]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -561,7 +561,7 @@ func (x *Smerd) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Smerd.ProtoReflect.Descriptor instead.
 func (*Smerd) Descriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{5}
+	return file_api_grpc_velez_common_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Smerd) GetUuid() string {
@@ -642,7 +642,7 @@ type Container struct {
 
 func (x *Container) Reset() {
 	*x = Container{}
-	mi := &file_velez_common_proto_msgTypes[6]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -654,7 +654,7 @@ func (x *Container) String() string {
 func (*Container) ProtoMessage() {}
 
 func (x *Container) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[6]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -667,7 +667,7 @@ func (x *Container) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Container.ProtoReflect.Descriptor instead.
 func (*Container) Descriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{6}
+	return file_api_grpc_velez_common_proto_rawDescGZIP(), []int{6}
 }
 
 type RestartPolicy struct {
@@ -680,7 +680,7 @@ type RestartPolicy struct {
 
 func (x *RestartPolicy) Reset() {
 	*x = RestartPolicy{}
-	mi := &file_velez_common_proto_msgTypes[7]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -692,7 +692,7 @@ func (x *RestartPolicy) String() string {
 func (*RestartPolicy) ProtoMessage() {}
 
 func (x *RestartPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[7]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -705,7 +705,7 @@ func (x *RestartPolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RestartPolicy.ProtoReflect.Descriptor instead.
 func (*RestartPolicy) Descriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{7}
+	return file_api_grpc_velez_common_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *RestartPolicy) GetType() RestartPolicyType {
@@ -751,7 +751,7 @@ type MatreshkaConfigSpec struct {
 
 func (x *MatreshkaConfigSpec) Reset() {
 	*x = MatreshkaConfigSpec{}
-	mi := &file_velez_common_proto_msgTypes[8]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -763,7 +763,7 @@ func (x *MatreshkaConfigSpec) String() string {
 func (*MatreshkaConfigSpec) ProtoMessage() {}
 
 func (x *MatreshkaConfigSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[8]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -776,7 +776,7 @@ func (x *MatreshkaConfigSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MatreshkaConfigSpec.ProtoReflect.Descriptor instead.
 func (*MatreshkaConfigSpec) Descriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{8}
+	return file_api_grpc_velez_common_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *MatreshkaConfigSpec) GetConfigName() string {
@@ -818,7 +818,7 @@ type Connection struct {
 
 func (x *Connection) Reset() {
 	*x = Connection{}
-	mi := &file_velez_common_proto_msgTypes[9]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -830,7 +830,7 @@ func (x *Connection) String() string {
 func (*Connection) ProtoMessage() {}
 
 func (x *Connection) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[9]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -843,7 +843,7 @@ func (x *Connection) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Connection.ProtoReflect.Descriptor instead.
 func (*Connection) Descriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{9}
+	return file_api_grpc_velez_common_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *Connection) GetServiceName() string {
@@ -877,7 +877,7 @@ type Paging struct {
 
 func (x *Paging) Reset() {
 	*x = Paging{}
-	mi := &file_velez_common_proto_msgTypes[10]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -889,7 +889,7 @@ func (x *Paging) String() string {
 func (*Paging) ProtoMessage() {}
 
 func (x *Paging) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[10]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -902,7 +902,7 @@ func (x *Paging) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Paging.ProtoReflect.Descriptor instead.
 func (*Paging) Descriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{10}
+	return file_api_grpc_velez_common_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *Paging) GetLimit() uint64 {
@@ -934,7 +934,7 @@ type Container_Hardware struct {
 
 func (x *Container_Hardware) Reset() {
 	*x = Container_Hardware{}
-	mi := &file_velez_common_proto_msgTypes[14]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -946,7 +946,7 @@ func (x *Container_Hardware) String() string {
 func (*Container_Hardware) ProtoMessage() {}
 
 func (x *Container_Hardware) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[14]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -959,7 +959,7 @@ func (x *Container_Hardware) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Container_Hardware.ProtoReflect.Descriptor instead.
 func (*Container_Hardware) Descriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{6, 0}
+	return file_api_grpc_velez_common_proto_rawDescGZIP(), []int{6, 0}
 }
 
 func (x *Container_Hardware) GetCpu() float32 {
@@ -994,7 +994,7 @@ type Container_Settings struct {
 
 func (x *Container_Settings) Reset() {
 	*x = Container_Settings{}
-	mi := &file_velez_common_proto_msgTypes[15]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1006,7 +1006,7 @@ func (x *Container_Settings) String() string {
 func (*Container_Settings) ProtoMessage() {}
 
 func (x *Container_Settings) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[15]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1019,7 +1019,7 @@ func (x *Container_Settings) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Container_Settings.ProtoReflect.Descriptor instead.
 func (*Container_Settings) Descriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{6, 1}
+	return file_api_grpc_velez_common_proto_rawDescGZIP(), []int{6, 1}
 }
 
 func (x *Container_Settings) GetPorts() []*Port {
@@ -1059,7 +1059,7 @@ type Container_Healthcheck struct {
 
 func (x *Container_Healthcheck) Reset() {
 	*x = Container_Healthcheck{}
-	mi := &file_velez_common_proto_msgTypes[16]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1071,7 +1071,7 @@ func (x *Container_Healthcheck) String() string {
 func (*Container_Healthcheck) ProtoMessage() {}
 
 func (x *Container_Healthcheck) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[16]
+	mi := &file_api_grpc_velez_common_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1084,7 +1084,7 @@ func (x *Container_Healthcheck) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Container_Healthcheck.ProtoReflect.Descriptor instead.
 func (*Container_Healthcheck) Descriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{6, 2}
+	return file_api_grpc_velez_common_proto_rawDescGZIP(), []int{6, 2}
 }
 
 func (x *Container_Healthcheck) GetCommand() string {
@@ -1115,11 +1115,11 @@ func (x *Container_Healthcheck) GetRetries() uint32 {
 	return 0
 }
 
-var File_velez_common_proto protoreflect.FileDescriptor
+var File_api_grpc_velez_common_proto protoreflect.FileDescriptor
 
-const file_velez_common_proto_rawDesc = "" +
+const file_api_grpc_velez_common_proto_rawDesc = "" +
 	"\n" +
-	"\x12velez_common.proto\x12\tvelez_api\x1a\tnpm.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"t\n" +
+	"\x1bapi/grpc/velez_common.proto\x12\tvelez_api\x1a\tnpm.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"t\n" +
 	"\x0fSearchImageItem\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\timage_url\x18\x02 \x01(\tH\x00R\bimageUrl\x88\x01\x01\x12\x1d\n" +
@@ -1238,20 +1238,20 @@ const file_velez_common_proto_rawDesc = "" +
 	"\x03env\x10\x01BC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
 
 var (
-	file_velez_common_proto_rawDescOnce sync.Once
-	file_velez_common_proto_rawDescData []byte
+	file_api_grpc_velez_common_proto_rawDescOnce sync.Once
+	file_api_grpc_velez_common_proto_rawDescData []byte
 )
 
-func file_velez_common_proto_rawDescGZIP() []byte {
-	file_velez_common_proto_rawDescOnce.Do(func() {
-		file_velez_common_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_velez_common_proto_rawDesc), len(file_velez_common_proto_rawDesc)))
+func file_api_grpc_velez_common_proto_rawDescGZIP() []byte {
+	file_api_grpc_velez_common_proto_rawDescOnce.Do(func() {
+		file_api_grpc_velez_common_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_grpc_velez_common_proto_rawDesc), len(file_api_grpc_velez_common_proto_rawDesc)))
 	})
-	return file_velez_common_proto_rawDescData
+	return file_api_grpc_velez_common_proto_rawDescData
 }
 
-var file_velez_common_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_velez_common_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
-var file_velez_common_proto_goTypes = []any{
+var file_api_grpc_velez_common_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_api_grpc_velez_common_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_api_grpc_velez_common_proto_goTypes = []any{
 	(RestartPolicyType)(0),        // 0: velez_api.RestartPolicyType
 	(ConfigFormat)(0),             // 1: velez_api.ConfigFormat
 	(Port_Protocol)(0),            // 2: velez_api.Port.Protocol
@@ -1275,7 +1275,7 @@ var file_velez_common_proto_goTypes = []any{
 	(*Container_Healthcheck)(nil), // 20: velez_api.Container.Healthcheck
 	(*timestamppb.Timestamp)(nil), // 21: google.protobuf.Timestamp
 }
-var file_velez_common_proto_depIdxs = []int32{
+var file_api_grpc_velez_common_proto_depIdxs = []int32{
 	2,  // 0: velez_api.Port.protocol:type_name -> velez_api.Port.Protocol
 	15, // 1: velez_api.Image.labels:type_name -> velez_api.Image.LabelsEntry
 	5,  // 2: velez_api.Smerd.ports:type_name -> velez_api.Port
@@ -1297,33 +1297,33 @@ var file_velez_common_proto_depIdxs = []int32{
 	0,  // [0:14] is the sub-list for field type_name
 }
 
-func init() { file_velez_common_proto_init() }
-func file_velez_common_proto_init() {
-	if File_velez_common_proto != nil {
+func init() { file_api_grpc_velez_common_proto_init() }
+func file_api_grpc_velez_common_proto_init() {
+	if File_api_grpc_velez_common_proto != nil {
 		return
 	}
-	file_velez_common_proto_msgTypes[0].OneofWrappers = []any{}
-	file_velez_common_proto_msgTypes[1].OneofWrappers = []any{}
-	file_velez_common_proto_msgTypes[7].OneofWrappers = []any{}
-	file_velez_common_proto_msgTypes[8].OneofWrappers = []any{}
-	file_velez_common_proto_msgTypes[14].OneofWrappers = []any{}
-	file_velez_common_proto_msgTypes[16].OneofWrappers = []any{}
+	file_api_grpc_velez_common_proto_msgTypes[0].OneofWrappers = []any{}
+	file_api_grpc_velez_common_proto_msgTypes[1].OneofWrappers = []any{}
+	file_api_grpc_velez_common_proto_msgTypes[7].OneofWrappers = []any{}
+	file_api_grpc_velez_common_proto_msgTypes[8].OneofWrappers = []any{}
+	file_api_grpc_velez_common_proto_msgTypes[14].OneofWrappers = []any{}
+	file_api_grpc_velez_common_proto_msgTypes[16].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_velez_common_proto_rawDesc), len(file_velez_common_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_grpc_velez_common_proto_rawDesc), len(file_api_grpc_velez_common_proto_rawDesc)),
 			NumEnums:      4,
 			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_velez_common_proto_goTypes,
-		DependencyIndexes: file_velez_common_proto_depIdxs,
-		EnumInfos:         file_velez_common_proto_enumTypes,
-		MessageInfos:      file_velez_common_proto_msgTypes,
+		GoTypes:           file_api_grpc_velez_common_proto_goTypes,
+		DependencyIndexes: file_api_grpc_velez_common_proto_depIdxs,
+		EnumInfos:         file_api_grpc_velez_common_proto_enumTypes,
+		MessageInfos:      file_api_grpc_velez_common_proto_msgTypes,
 	}.Build()
-	File_velez_common_proto = out.File
-	file_velez_common_proto_goTypes = nil
-	file_velez_common_proto_depIdxs = nil
+	File_api_grpc_velez_common_proto = out.File
+	file_api_grpc_velez_common_proto_goTypes = nil
+	file_api_grpc_velez_common_proto_depIdxs = nil
 }

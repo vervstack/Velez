@@ -5,8 +5,8 @@ import (
 
 	"go.redsock.ru/rerrors"
 
+	pb "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/domain"
-	pb "go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func (impl *Impl) CreateService(ctx context.Context, apiReq *pb.CreateService_Request) (*pb.CreateService_Response, error) {

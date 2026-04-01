@@ -3,8 +3,8 @@ package steps
 import (
 	"context"
 
+	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/service"
-	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 type enableVervServiceInMatreshkaStep struct {

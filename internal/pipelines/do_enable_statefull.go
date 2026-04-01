@@ -2,8 +2,10 @@ package pipelines
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
@@ -79,7 +81,24 @@ func (p *pipeliner) EnableStatefullMode(req domain.EnableStatefullClusterRequest
 			steps.SingleFunc(func(ctx context.Context) error {
 				// TODO Wait for healthy
 				time.Sleep(3 * time.Second)
-				err := sqldb.RollMigration(rootDsn)
+
+				conn, err := sql.Open(sqldb.Dialect, rootDsn)
+				if err != nil {
+					return rerrors.Wrap(err, "error checking connection to postgres")
+				}
+				defer func() {
+					closeErr := conn.Close()
+					if closeErr != nil {
+						log.Error().Err(closeErr).Msg("error closing postgres root connection when rolling prep migration")
+					}
+				}()
+
+				_, err = conn.Exec(`CREATE SCHEMA IF NOT EXISTS velez`)
+				if err != nil {
+					return rerrors.Wrap(err, "error creating postgres schema")
+				}
+
+				err = sqldb.RollMigration(rootDsn)
 				if err != nil {
 					return rerrors.Wrap(err, "error rolling migration")
 				}

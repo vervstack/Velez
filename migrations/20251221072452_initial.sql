@@ -1,9 +1,8 @@
 -- +goose Up
-CREATE SCHEMA velez;
-
 CREATE ROLE working_node;
 
 ALTER ROLE working_node SET search_path TO velez;
+ALTER ROLE working_node SET DEFAULT_TABLESPACE TO velez;
 
 GRANT USAGE ON SCHEMA velez TO working_node;
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA velez TO working_node;
@@ -17,4 +16,5 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA velez
     working_node;
 
 -- +goose Down
-DROP SCHEMA velez;
+DROP ROLE working_node;
+

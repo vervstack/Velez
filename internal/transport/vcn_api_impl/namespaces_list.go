@@ -5,8 +5,8 @@ import (
 
 	"go.redsock.ru/rerrors"
 
+	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func (impl *Impl) ListNamespaces(ctx context.Context, _ *velez_api.ListVcnNamespaces_Request) (

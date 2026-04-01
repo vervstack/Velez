@@ -9,12 +9,12 @@ import (
 	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
 
+	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/config_steps"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/smerd_steps"
-	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 const configFetchingPostfix = "_config_scanning"

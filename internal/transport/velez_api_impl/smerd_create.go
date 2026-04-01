@@ -5,8 +5,8 @@ import (
 
 	"go.redsock.ru/rerrors"
 
+	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func (impl *Impl) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (*velez_api.Smerd, error) {

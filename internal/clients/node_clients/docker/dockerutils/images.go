@@ -9,8 +9,8 @@ import (
 	"github.com/docker/docker/client"
 	errors "go.redsock.ru/rerrors"
 
+	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func ListImages(ctx context.Context, docker client.APIClient, req domain.ImageListRequest) ([]*velez_api.Image, error) {

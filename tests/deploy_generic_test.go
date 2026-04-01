@@ -7,8 +7,8 @@ import (
 	rtb "go.redsock.ru/toolbox"
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 
+	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/domain/labels"
-	"go.vervstack.ru/Velez/pkg/velez_api"
 	"go.vervstack.ru/Velez/tests/config_mocks"
 )
 

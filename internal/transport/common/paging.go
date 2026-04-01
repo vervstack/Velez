@@ -1,8 +1,8 @@
 package common
 
 import (
+	pb "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/domain"
-	pb "go.vervstack.ru/Velez/pkg/velez_api"
 )
 
 func FromPaging(in *pb.Paging) domain.Paging {

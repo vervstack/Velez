@@ -5,7 +5,7 @@ import (
 
 	"go.redsock.ru/rerrors"
 
-	api "go.vervstack.ru/Velez/pkg/velez_api"
+	api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 )
 
 func (impl *Impl) DeleteNamespace(ctx context.Context, req *api.DeleteVcnNamespace_Request) (*api.DeleteVcnNamespace_Response, error) {

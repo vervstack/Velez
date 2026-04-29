@@ -104,6 +104,18 @@ Key pipeline files: `do_smerd_launch.go`, `do_smerd_upgrade.go`, `do_create_serv
 - `@vervstack/velez/` — TypeScript client library (compiled to `dist/`)
 - `Velez-UI/` — React 18 + Vite application (Zustand state, React Query data fetching)
 
+## Code Style
+
+- **Error handling**: never assign and check an error in the same `if` statement. Always use two separate lines:
+  ```go
+  // correct
+  err = doSomething()
+  if err != nil { ... }
+
+  // forbidden
+  if err = doSomething(); err != nil { ... }
+  ```
+
 ## Key Dependencies
 
 - **Docker**: `github.com/docker/docker`

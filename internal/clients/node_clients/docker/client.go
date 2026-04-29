@@ -59,15 +59,25 @@ func (d *Docker) Remove(ctx context.Context, contUUID string) error {
 	}
 
 	err := d.directApi.ContainerRemove(ctx, contUUID, roReq)
-
 	if err != nil {
-		if !strings.Contains(err.Error(), NoSuchContainerError) {
+		if strings.Contains(err.Error(), NoSuchContainerError) {
 			return nil
 		}
 		return rerrors.Wrap(err, "error removing container")
 	}
 
 	return nil
+}
+
+func (d *Docker) IsContainerRunning(ctx context.Context, nameOrId string) (bool, bool, error) {
+	resp, err := d.directApi.ContainerInspect(ctx, nameOrId)
+	if err != nil {
+		if strings.Contains(err.Error(), NoSuchContainerError) {
+			return false, false, nil
+		}
+		return false, false, rerrors.Wrap(err, "error inspecting container")
+	}
+	return resp.State.Running, true, nil
 }
 
 func (d *Docker) ListContainers(ctx context.Context, req *velez_api.ListSmerds_Request) ([]container.Summary, error) {

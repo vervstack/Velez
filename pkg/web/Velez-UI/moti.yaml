@@ -1,0 +1,18 @@
+deps:
+  - github.com/googleapis/googleapis
+  - go.redsock.ru/protoc-gen-npm@v0.0.17
+  - go.vervstack.ru/Velez@220e0db758f9ce96d9b1f457234616284530622b
+generate:
+  - inputs:
+      - git_repo:
+          url: go.vervstack.ru/Velez@220e0db758f9ce96d9b1f457234616284530622b
+          sub_directory: "api/grpc"
+    plugins:
+      - name: grpc-gateway-ts
+        out: src/app/api/velez
+      - name: npm
+        out: src/app/api/velez
+
+replace:
+  - old: go.vervstack.ru/Velez
+    new: /Users/alexbukov/verv/Velez

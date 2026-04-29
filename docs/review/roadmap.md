@@ -7,11 +7,6 @@
 **Goal:** The basic lifecycle — deploy a container, upgrade it, drop it — works end-to-end without panics, silent
 failures, or stale state.
 
-### Complete the critical stubs
-
-- **`syncRunningBatch()`** — reconcile running containers against DB: inspect each, mark FAILED if stopped/dead
-- **`deleteBatch()`** — drop containers in SCHEDULED_DELETION, update status to DELETED
-
 ### Fix proto + storage blockers
 
 - **`ListDeployments.Response`** — add fields: `repeated DeploymentInfo deployments = 1; uint64 total = 2;` with a

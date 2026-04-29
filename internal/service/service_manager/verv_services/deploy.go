@@ -82,7 +82,8 @@ func (v *VervService) UpgradeDeploy(ctx context.Context, request domain.UpgradeD
 	}
 
 	smerdReq := &velez_api.CreateSmerd_Request{}
-	if err = json.Unmarshal(currentSpec.VervPayload.RawMessage, smerdReq); err != nil {
+	err = json.Unmarshal(currentSpec.VervPayload.RawMessage, smerdReq)
+	if err != nil {
 		return rerrors.Wrap(err, "error unmarshaling spec payload")
 	}
 

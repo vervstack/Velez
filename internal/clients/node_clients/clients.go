@@ -20,6 +20,11 @@ type Docker interface {
 
 	Exec(ctx context.Context, contId string, options container.ExecOptions) ([]byte, error)
 
+	// IsContainerRunning returns (running=true, exists=true) if the container is up,
+	// (running=false, exists=true) if it exists but has exited/paused/died,
+	// and (false, false, nil) if no container with that name/id was found.
+	IsContainerRunning(ctx context.Context, nameOrId string) (running bool, exists bool, err error)
+
 	Client() client.APIClient
 
 	ContainerCreate(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, networkingConfig *network.NetworkingConfig, platform *ocispec.Platform, containerName string) (container.CreateResponse, error)

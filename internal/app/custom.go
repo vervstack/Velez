@@ -69,7 +69,7 @@ func (c *Custom) Init(a *App) (err error) {
 		return rerrors.Wrap(err, "error during server initialization")
 	}
 
-	c.DeployWatcher = workers.NewDeployWatcher(c.Services, c.Pipeliner, c.ClusterClients, time.Second*5)
+	c.DeployWatcher = workers.NewDeployWatcher(c.Services, c.Pipeliner, c.ClusterClients, c.NodeClients, time.Second*5)
 	go c.DeployWatcher.Start(a.Ctx)
 	closer.Add(c.DeployWatcher.Stop)
 

@@ -12,6 +12,7 @@ import (
 
 	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/pipelines"
 	"go.vervstack.ru/Velez/internal/service"
@@ -23,6 +24,7 @@ type deployWatcher struct {
 	services           service.Services
 	pipeliner          pipelines.Pipeliner
 	deploymentsStorage storage.DeploymentsStorage
+	nodeClients        node_clients.NodeClients
 
 	nodeId int64
 
@@ -36,12 +38,14 @@ func NewDeployWatcher(
 	services service.Services,
 	runner pipelines.Pipeliner,
 	clusterClients cluster_clients.ClusterClients,
+	nodeClients node_clients.NodeClients,
 
 	interval time.Duration) Worker {
 	return &deployWatcher{
 		services:           services,
 		pipeliner:          runner,
 		deploymentsStorage: clusterClients.StateManager().Deployments(),
+		nodeClients:        nodeClients,
 
 		nodeId: 1,
 
@@ -165,17 +169,18 @@ func (d *deployWatcher) processScheduledBatch(ctx context.Context, scheduled []d
 
 			err = d.deploymentsStorage.UpdateDeploymentStatus(ctx, updateStatusParams)
 			if err != nil {
-				return rerrors.Wrap(err, "")
+				return rerrors.Wrap(err, "UpdateDeploymentStatus")
 			}
 		case deployments_queries.VelezDeploymentStatusSCHEDULEDDELETION:
 		case deployments_queries.VelezDeploymentStatusSCHEDULEDUPGRADE:
 			spec, err := d.deploymentsStorage.GetSpecificationById(ctx, dep.SpecId)
 			if err != nil {
-				return rerrors.Wrap(err, "")
+				return rerrors.Wrap(err, "GetSpecificationById")
 			}
 
 			smerdReq := &velez_api.CreateSmerd_Request{}
-			if err = json.Unmarshal(spec.VervPayload.RawMessage, smerdReq); err != nil {
+			err = json.Unmarshal(spec.VervPayload.RawMessage, smerdReq)
+			if err != nil {
 				return rerrors.Wrap(err, "")
 			}
 
@@ -188,13 +193,15 @@ func (d *deployWatcher) processScheduledBatch(ctx context.Context, scheduled []d
 				Name:  smerdReq.GetName(),
 				Image: smerdReq.GetImageName(),
 			})
-			if err = upgradeRunner.Run(ctx); err != nil {
+			err = upgradeRunner.Run(ctx)
+			if err != nil {
 				logrus.Error("error upgrading smerd: ", rerrors.Wrap(err, ""))
 				updateStatusParams.Status = deployments_queries.VelezDeploymentStatusFAILED
 			}
 
-			if err = d.deploymentsStorage.UpdateDeploymentStatus(ctx, updateStatusParams); err != nil {
-				return rerrors.Wrap(err, "")
+			err = d.deploymentsStorage.UpdateDeploymentStatus(ctx, updateStatusParams)
+			if err != nil {
+				return rerrors.Wrap(err, "UpdateDeploymentStatus")
 			}
 		}
 	}
@@ -202,9 +209,65 @@ func (d *deployWatcher) processScheduledBatch(ctx context.Context, scheduled []d
 }
 
 func (d *deployWatcher) syncRunningBatch(ctx context.Context, active []domain.Deployment) error {
+	for _, dep := range active {
+		spec, err := d.deploymentsStorage.GetSpecificationById(ctx, dep.SpecId)
+		if err != nil {
+			return rerrors.Wrap(err, "error getting spec for running deployment")
+		}
+
+		smerdReq := &velez_api.CreateSmerd_Request{}
+		err = json.Unmarshal(spec.VervPayload.RawMessage, smerdReq)
+		if err != nil {
+			return rerrors.Wrap(err, "error unmarshaling spec")
+		}
+
+		running, _, err := d.nodeClients.Docker().IsContainerRunning(ctx, smerdReq.GetName())
+		if err != nil {
+			logrus.Errorf("error inspecting container %s: %v", smerdReq.GetName(), err)
+			continue
+		}
+
+		if running {
+			continue
+		}
+
+		err = d.deploymentsStorage.UpdateDeploymentStatus(ctx, deployments_queries.UpdateDeploymentStatusParams{
+			Status: deployments_queries.VelezDeploymentStatusFAILED,
+			ID:     dep.Id,
+		})
+		if err != nil {
+			return rerrors.Wrap(err, "error marking deployment as failed")
+		}
+	}
 	return nil
 }
 
 func (d *deployWatcher) deleteBatch(ctx context.Context, deletion []domain.Deployment) error {
+	for _, dep := range deletion {
+		spec, err := d.deploymentsStorage.GetSpecificationById(ctx, dep.SpecId)
+		if err != nil {
+			return rerrors.Wrap(err, "error getting spec for deletion")
+		}
+
+		smerdReq := &velez_api.CreateSmerd_Request{}
+		err = json.Unmarshal(spec.VervPayload.RawMessage, smerdReq)
+		if err != nil {
+			return rerrors.Wrap(err, "error unmarshaling spec")
+		}
+
+		err = d.nodeClients.Docker().Remove(ctx, smerdReq.GetName())
+		if err != nil {
+			logrus.Errorf("error removing container %s: %v", smerdReq.GetName(), err)
+			continue
+		}
+
+		err = d.deploymentsStorage.UpdateDeploymentStatus(ctx, deployments_queries.UpdateDeploymentStatusParams{
+			Status: deployments_queries.VelezDeploymentStatusDELETED,
+			ID:     dep.Id,
+		})
+		if err != nil {
+			return rerrors.Wrap(err, "error marking deployment as deleted")
+		}
+	}
 	return nil
 }

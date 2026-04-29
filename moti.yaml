@@ -2,12 +2,12 @@ cache_path: proto_modules
 
 deps:
   - github.com/googleapis/googleapis
-  - go.redsock.ru/protoc-gen-npm@v0.0.13
+  - go.redsock.ru/protoc-gen-npm@v0.0.17
   - github.com/vervstack/Matreshka@v1.0.95
 
 generate:
   - inputs:
-      - directory: "."
+      - directory: "api/grpc"
     plugins:
       - name: go
         out: internal/api/server/velez_api

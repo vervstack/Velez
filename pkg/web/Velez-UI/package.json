@@ -7,7 +7,8 @@
     "link": "npm link @vervstack/velez",
     "build:ui": "tsc -b && vite build",
     "build": "npm run build:api && npm run link && npm run build:ui",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "gen-proto": "moti g && mv ./src/app/api/velez/@vervstack/velez/index.ts ./src/app/api/velez/index.ts && rm -rf ./src/app/api/velez/@vervstack"
   },
   "dependencies": {
     "@hookstate/core": "^4.0.1",

@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"github.com/sirupsen/logrus"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/keep_alive"
@@ -46,7 +47,11 @@ func SetupVcn(
 	if headscaleLocalConfig.Key != "" && headscaleLocalConfig.ServerUrl != "" {
 		client, err := headscale.Connect(ctx, headscaleLocalConfig.ServerUrl, headscaleLocalConfig.Key)
 		if err != nil {
-			return nil, rerrors.Wrap(err, "error creating headscale client")
+			log.Error().
+				Err(rerrors.Wrap(err, "error creating headscale client")).
+				Msg("couldn't connect to headscale server")
+			// TODO create a fallback
+			return DisabledVcnImpl{}, nil
 		}
 
 		return client, nil

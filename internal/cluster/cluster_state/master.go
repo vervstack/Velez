@@ -57,6 +57,10 @@ func SetupMasterPg(
 		if err != nil {
 			return rerrors.Wrap(err, "error inspecting postgres cluster state container after start")
 		}
+
+		log.Info().
+			Str("container_name", containerName).
+			Msg("Postgres container started successfully")
 	}
 
 	for try := range 5 {

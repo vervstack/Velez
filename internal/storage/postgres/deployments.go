@@ -65,7 +65,7 @@ func (d *deploymentsStorage) List(ctx context.Context, req domain.ListDeployment
 
 	rows, err := d.db.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, rerrors.Wrap(err, "error quering")
+		return nil, wrapPgErr(err)
 	}
 	defer closeRows(rows)
 
@@ -83,7 +83,7 @@ func (d *deploymentsStorage) List(ctx context.Context, req domain.ListDeployment
 			&dep.Status,
 		)
 		if err != nil {
-			return nil, rerrors.Wrap(err, "error scanning row")
+			return nil, wrapPgErr(err)
 		}
 
 		out = append(out, dep)

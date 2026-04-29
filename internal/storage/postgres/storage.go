@@ -2,8 +2,11 @@ package postgres
 
 import (
 	"database/sql"
+	"errors"
 
+	"github.com/lib/pq"
 	"github.com/rs/zerolog/log"
+	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/storage"
@@ -51,6 +54,21 @@ func (s *Storage) TxManager() *sqldb.TxManager {
 }
 
 func wrapPgErr(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return rerrors.Wrap(storage.ErrNotFound)
+	}
+
+	var pgErr *pq.Error
+	if errors.As(err, &pgErr) {
+		switch pgErr.Code {
+		case "23505": // unique_violation
+			return errors.Join(storage.ErrAlreadyExists, err)
+		}
+	}
 	return err
 }
 

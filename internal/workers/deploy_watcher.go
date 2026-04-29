@@ -26,8 +26,10 @@ type deployWatcher struct {
 
 	nodeId int64
 
-	starter sync.Once
-	ticker  *time.Ticker
+	starter  sync.Once
+	stopOnce sync.Once
+	ticker   *time.Ticker
+	done     chan struct{}
 }
 
 func NewDeployWatcher(
@@ -45,39 +47,49 @@ func NewDeployWatcher(
 
 		starter: sync.Once{},
 		ticker:  time.NewTicker(interval),
+		done:    make(chan struct{}),
 	}
 }
 
 func (d *deployWatcher) Start(ctx context.Context) {
 	d.starter.Do(func() {
-		for range d.ticker.C {
-			list, err := d.listDeployments(ctx)
-			if err != nil {
-				if !rerrors.Is(err, cluster_clients.ErrServiceIsDisabled) {
-					logrus.Error("error listing deployments in deploy watcher: ", err)
-					// TODO make it fail only when state is not available
-					// retry via api handle
-					return
+		for {
+			select {
+			case <-d.done:
+				return
+			case <-d.ticker.C:
+				list, err := d.listDeployments(ctx)
+				if err != nil {
+					if !rerrors.Is(err, cluster_clients.ErrServiceIsDisabled) {
+						logrus.Error("error listing deployments in deploy watcher: ", err)
+						// TODO make it fail only when state is not available
+						// retry via api handle
+						return
+					}
+					continue
 				}
-				continue
-			}
 
-			g, errCtx := errgroup.WithContext(ctx)
+				g, errCtx := errgroup.WithContext(ctx)
 
-			g.Go(func() error { return d.processScheduledBatch(errCtx, list.scheduled) })
-			g.Go(func() error { return d.syncRunningBatch(errCtx, list.active) })
-			g.Go(func() error { return d.deleteBatch(errCtx, list.scheduledDeletion) })
+				g.Go(func() error { return d.processScheduledBatch(errCtx, list.scheduled) })
+				g.Go(func() error { return d.syncRunningBatch(errCtx, list.active) })
+				g.Go(func() error { return d.deleteBatch(errCtx, list.scheduledDeletion) })
 
-			err = g.Wait()
-			if err != nil {
-				logrus.Error("error running deploy watcher: ", err)
-				continue
+				err = g.Wait()
+				if err != nil {
+					logrus.Error("error running deploy watcher: ", err)
+					continue
+				}
 			}
 		}
 	})
 }
 
 func (d *deployWatcher) Stop() error {
+	d.stopOnce.Do(func() {
+		d.ticker.Stop()
+		close(d.done)
+	})
 	return nil
 }
 
@@ -108,7 +120,7 @@ func (d *deployWatcher) listDeployments(ctx context.Context) (deploymentsList, e
 			deployments_queries.VelezDeploymentStatusSCHEDULEDUPGRADE:
 			list.scheduled = append(list.scheduled, dep)
 		case deployments_queries.VelezDeploymentStatusRUNNING:
-			list.active = append(list.scheduled, dep)
+			list.active = append(list.active, dep)
 		case deployments_queries.VelezDeploymentStatusSCHEDULEDDELETION:
 			list.scheduledDeletion = append(list.scheduledDeletion, dep)
 
@@ -157,7 +169,33 @@ func (d *deployWatcher) processScheduledBatch(ctx context.Context, scheduled []d
 			}
 		case deployments_queries.VelezDeploymentStatusSCHEDULEDDELETION:
 		case deployments_queries.VelezDeploymentStatusSCHEDULEDUPGRADE:
+			spec, err := d.deploymentsStorage.GetSpecificationById(ctx, dep.SpecId)
+			if err != nil {
+				return rerrors.Wrap(err, "")
+			}
 
+			smerdReq := &velez_api.CreateSmerd_Request{}
+			if err = json.Unmarshal(spec.VervPayload.RawMessage, smerdReq); err != nil {
+				return rerrors.Wrap(err, "")
+			}
+
+			updateStatusParams := deployments_queries.UpdateDeploymentStatusParams{
+				Status: deployments_queries.VelezDeploymentStatusRUNNING,
+				ID:     dep.Id,
+			}
+
+			upgradeRunner := d.pipeliner.UpgradeSmerd(domain.UpgradeSmerd{
+				Name:  smerdReq.GetName(),
+				Image: smerdReq.GetImageName(),
+			})
+			if err = upgradeRunner.Run(ctx); err != nil {
+				logrus.Error("error upgrading smerd: ", rerrors.Wrap(err, ""))
+				updateStatusParams.Status = deployments_queries.VelezDeploymentStatusFAILED
+			}
+
+			if err = d.deploymentsStorage.UpdateDeploymentStatus(ctx, updateStatusParams); err != nil {
+				return rerrors.Wrap(err, "")
+			}
 		}
 	}
 	return nil

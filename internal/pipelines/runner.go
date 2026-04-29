@@ -2,6 +2,7 @@ package pipelines
 
 import (
 	"context"
+	"time"
 
 	"go.redsock.ru/rerrors"
 
@@ -24,7 +25,9 @@ func (p *runner[T]) Run(ctx context.Context) (err error) {
 
 	err = rerrors.Wrap(runErr)
 
-	rollbackErr := p.rollback(context.Background())
+	rollbackCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	rollbackErr := p.rollback(rollbackCtx)
 	if rollbackErr != nil {
 		err = rerrors.Join(err, rerrors.Wrap(rollbackErr))
 	}

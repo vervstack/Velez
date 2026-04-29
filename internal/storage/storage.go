@@ -4,10 +4,17 @@ import (
 	"context"
 	"database/sql"
 
+	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/services_queries"
+)
+
+var (
+	ErrAlreadyExists = rerrors.New("already exists")
+	ErrNotFound      = rerrors.New("not found")
 )
 
 type Storage interface {

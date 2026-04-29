@@ -11,6 +11,8 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
+var errRetriesExhausts = rerrors.New("retries exhausted")
+
 const (
 	dockerContainerStatusRunning = "running"
 )
@@ -41,7 +43,7 @@ func (h *healthcheckStep) Do(ctx context.Context) error {
 		return nil
 	}
 
-	if h.containerId == nil && *h.containerId == "" {
+	if h.containerId == nil || *h.containerId == "" {
 		return rerrors.New("container was not created")
 	}
 
@@ -66,6 +68,8 @@ func (h *healthcheckStep) Do(ctx context.Context) error {
 				return
 			}
 		}
+
+		errC <- rerrors.Wrap(errRetriesExhausts)
 	}()
 
 	err := <-errC

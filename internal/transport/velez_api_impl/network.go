@@ -5,7 +5,7 @@ import (
 
 	"go.redsock.ru/rerrors"
 
-	api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
+	api "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 )
 

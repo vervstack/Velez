@@ -1,7 +1,7 @@
 package service_api_impl
 
 import (
-	pb "go.vervstack.ru/Velez/internal/api/server/api/grpc"
+	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 )
 

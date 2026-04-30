@@ -6,7 +6,7 @@ import (
 	"go.redsock.ru/rerrors"
 	rtb "go.redsock.ru/toolbox"
 
-	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
+	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/transport/common"
 )

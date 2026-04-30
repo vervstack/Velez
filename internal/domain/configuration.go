@@ -4,7 +4,7 @@ import (
 	"go.redsock.ru/evon"
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 
-	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
+	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
 type ConfigurationPatch struct {

@@ -16,10 +16,9 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/test/bufconn"
 
-	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
+	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/app"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
-	"go.vervstack.ru/Velez/internal/clients/node_clients/state"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/middleware"
 	"go.vervstack.ru/Velez/internal/transport"

@@ -9,7 +9,7 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/pkg/errors"
 
-	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
+	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
 func PullImage(ctx context.Context, docker client.CommonAPIClient, name string, force bool) (_ *velez_api.Image, err error) {

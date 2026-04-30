@@ -15,6 +15,7 @@ import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import LoaderWrapper from "@/components/LoaderWrapper.tsx";
 import {Routes} from "@/app/router/Router.tsx";
 import {useNavigate} from "react-router-dom";
+import Button from "@/components/base/Button.tsx";
 
 export default function HomePage() {
     const [load, doLoad] = useState<Promise<void> | undefined>(undefined)
@@ -40,21 +41,34 @@ export default function HomePage() {
 
     }, [req, toaster]);
 
+    function openCreateService() {
+
+    }
+
     return (
         <div className={cls.HomeContainer}>
             <LoaderWrapper load={load}>
-                <div className={cls.ServicesDashboard}>
-                    {list.length > 0 ?
-                        <div>
-                            {list.map((service: ServiceBaseInfo) => {
-                                return (<ServiceCard{...service}/>
-                                )
-                            })
-                            }
+                {
+                    list.length > 0 ?
+                        <div className={cls.ServicesDashboard}>
+                            <div>
+                                {list.map((service: ServiceBaseInfo) => {
+                                    return (<ServiceCard{...service}/>
+                                    )
+                                })
+                                }
+                            </div>
                         </div> :
-                        <div>No services yet on this cluster</div>
-                    }
-                </div>
+                        <div className={cls.NoServicesMessageWrapper}>
+                            <div>No services yet on this cluster. Want to deploy?</div>
+                            <div className={cls.CreateServiceButton}>
+                                <Button
+                                    title={'Create a service'}
+                                    onClick={openCreateService}
+                                />
+                            </div>
+                        </div>
+                }
             </LoaderWrapper>
         </div>
     )

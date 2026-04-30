@@ -3,7 +3,7 @@ package parser
 import (
 	"github.com/docker/docker/api/types/mount"
 
-	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
+	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
 func FromVolume(settings *velez_api.Container_Settings) []mount.Mount {

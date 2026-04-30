@@ -6,7 +6,7 @@ import (
 	"go.redsock.ru/rerrors"
 	"google.golang.org/grpc/codes"
 
-	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
+	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/domain"
 )

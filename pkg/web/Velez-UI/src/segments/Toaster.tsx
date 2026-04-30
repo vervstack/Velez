@@ -21,7 +21,6 @@ export default function Toaster() {
                         animate={{opacity: 1, x: 0, y: 0}}
                         exit={{opacity: 0, y: -50}} // move up and fade out
                         transition={{type: "spring", stiffness: 300, damping: 20}}
-
                     >
                         <Toast {...toast}/>
                     </motion.div>

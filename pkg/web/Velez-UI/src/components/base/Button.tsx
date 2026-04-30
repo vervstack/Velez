@@ -10,9 +10,10 @@ interface ButtonProps {
 export default function Button({onClick, title, isDisabled}: ButtonProps) {
     return (
         <button
-            className={cn(cls.ButtonContainer, {
-                [cls.disabled]: isDisabled
-            })}
+            className={cn(cls.ButtonContainer,
+                {
+                    [cls.disabled]: isDisabled
+                })}
             onClick={onClick}
             disabled={isDisabled}
         >

@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.1
 // - protoc             v5.28.3
-// source: verv_closed_network.proto
+// source: api/grpc/verv_closed_network.proto
 
 package velez_api
 
@@ -275,5 +275,5 @@ var VcnApi_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "verv_closed_network.proto",
+	Metadata: "api/grpc/verv_closed_network.proto",
 }

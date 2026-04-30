@@ -3,7 +3,7 @@ package hardware
 import (
 	"github.com/jaypipes/ghw"
 
-	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
+	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
 type Manager struct {

@@ -13,7 +13,7 @@ import (
 	"go.redsock.ru/rerrors"
 	rtb "go.redsock.ru/toolbox"
 
-	velez_api "go.vervstack.ru/Velez/internal/api/server/api/grpc"
+	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"

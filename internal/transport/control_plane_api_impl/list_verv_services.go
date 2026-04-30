@@ -6,7 +6,7 @@ import (
 
 	"go.redsock.ru/rerrors"
 
-	pb "go.vervstack.ru/Velez/internal/api/server/api/grpc"
+	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
 	"go.vervstack.ru/Velez/internal/cluster/configuration"
 	"go.vervstack.ru/Velez/internal/cluster/service_discovery"

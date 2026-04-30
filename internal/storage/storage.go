@@ -38,6 +38,7 @@ type ServicesStorage interface {
 
 type DeploymentsStorage interface {
 	List(ctx context.Context, req domain.ListDeploymentsReq) ([]domain.Deployment, error)
+	ListDeployments(ctx context.Context, req domain.ListDeploymentsReq) (domain.DeploymentList, error)
 
 	deployments_queries.Querier
 	WithTx(tx *sql.Tx) *deployments_queries.Queries

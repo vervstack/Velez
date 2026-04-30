@@ -62,6 +62,7 @@ func (au *AutoUpgrade) Start() error {
 					logrus.WithError(err).Error("autoupgrade start failed")
 				}
 			case <-au.stopC:
+				return
 			}
 
 		}

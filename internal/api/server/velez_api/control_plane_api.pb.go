@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v5.28.3
-// source: api/grpc/control_plane_api.proto
+// source: control_plane_api.proto
 
 package velez_api
 
@@ -68,11 +68,11 @@ func (x VervServiceType) String() string {
 }
 
 func (VervServiceType) Descriptor() protoreflect.EnumDescriptor {
-	return file_api_grpc_control_plane_api_proto_enumTypes[0].Descriptor()
+	return file_control_plane_api_proto_enumTypes[0].Descriptor()
 }
 
 func (VervServiceType) Type() protoreflect.EnumType {
-	return &file_api_grpc_control_plane_api_proto_enumTypes[0]
+	return &file_control_plane_api_proto_enumTypes[0]
 }
 
 func (x VervServiceType) Number() protoreflect.EnumNumber {
@@ -81,7 +81,7 @@ func (x VervServiceType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use VervServiceType.Descriptor instead.
 func (VervServiceType) EnumDescriptor() ([]byte, []int) {
-	return file_api_grpc_control_plane_api_proto_rawDescGZIP(), []int{0}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{0}
 }
 
 type VervService_State int32
@@ -123,11 +123,11 @@ func (x VervService_State) String() string {
 }
 
 func (VervService_State) Descriptor() protoreflect.EnumDescriptor {
-	return file_api_grpc_control_plane_api_proto_enumTypes[1].Descriptor()
+	return file_control_plane_api_proto_enumTypes[1].Descriptor()
 }
 
 func (VervService_State) Type() protoreflect.EnumType {
-	return &file_api_grpc_control_plane_api_proto_enumTypes[1]
+	return &file_control_plane_api_proto_enumTypes[1]
 }
 
 func (x VervService_State) Number() protoreflect.EnumNumber {
@@ -136,7 +136,7 @@ func (x VervService_State) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use VervService_State.Descriptor instead.
 func (VervService_State) EnumDescriptor() ([]byte, []int) {
-	return file_api_grpc_control_plane_api_proto_rawDescGZIP(), []int{1, 0}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{1, 0}
 }
 
 type ListVervServices struct {
@@ -147,7 +147,7 @@ type ListVervServices struct {
 
 func (x *ListVervServices) Reset() {
 	*x = ListVervServices{}
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[0]
+	mi := &file_control_plane_api_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -159,7 +159,7 @@ func (x *ListVervServices) String() string {
 func (*ListVervServices) ProtoMessage() {}
 
 func (x *ListVervServices) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[0]
+	mi := &file_control_plane_api_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -172,7 +172,7 @@ func (x *ListVervServices) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListVervServices.ProtoReflect.Descriptor instead.
 func (*ListVervServices) Descriptor() ([]byte, []int) {
-	return file_api_grpc_control_plane_api_proto_rawDescGZIP(), []int{0}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{0}
 }
 
 type VervService struct {
@@ -186,7 +186,7 @@ type VervService struct {
 
 func (x *VervService) Reset() {
 	*x = VervService{}
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[1]
+	mi := &file_control_plane_api_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -198,7 +198,7 @@ func (x *VervService) String() string {
 func (*VervService) ProtoMessage() {}
 
 func (x *VervService) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[1]
+	mi := &file_control_plane_api_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -211,7 +211,7 @@ func (x *VervService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VervService.ProtoReflect.Descriptor instead.
 func (*VervService) Descriptor() ([]byte, []int) {
-	return file_api_grpc_control_plane_api_proto_rawDescGZIP(), []int{1}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *VervService) GetType() VervServiceType {
@@ -243,7 +243,7 @@ type EnableService struct {
 
 func (x *EnableService) Reset() {
 	*x = EnableService{}
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[2]
+	mi := &file_control_plane_api_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -255,7 +255,7 @@ func (x *EnableService) String() string {
 func (*EnableService) ProtoMessage() {}
 
 func (x *EnableService) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[2]
+	mi := &file_control_plane_api_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -268,7 +268,7 @@ func (x *EnableService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnableService.ProtoReflect.Descriptor instead.
 func (*EnableService) Descriptor() ([]byte, []int) {
-	return file_api_grpc_control_plane_api_proto_rawDescGZIP(), []int{2}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{2}
 }
 
 type InitMaster struct {
@@ -279,7 +279,7 @@ type InitMaster struct {
 
 func (x *InitMaster) Reset() {
 	*x = InitMaster{}
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[3]
+	mi := &file_control_plane_api_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -291,7 +291,7 @@ func (x *InitMaster) String() string {
 func (*InitMaster) ProtoMessage() {}
 
 func (x *InitMaster) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[3]
+	mi := &file_control_plane_api_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -304,7 +304,7 @@ func (x *InitMaster) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InitMaster.ProtoReflect.Descriptor instead.
 func (*InitMaster) Descriptor() ([]byte, []int) {
-	return file_api_grpc_control_plane_api_proto_rawDescGZIP(), []int{3}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{3}
 }
 
 type ConnectSlave struct {
@@ -315,7 +315,7 @@ type ConnectSlave struct {
 
 func (x *ConnectSlave) Reset() {
 	*x = ConnectSlave{}
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[4]
+	mi := &file_control_plane_api_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -327,7 +327,7 @@ func (x *ConnectSlave) String() string {
 func (*ConnectSlave) ProtoMessage() {}
 
 func (x *ConnectSlave) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[4]
+	mi := &file_control_plane_api_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -340,7 +340,7 @@ func (x *ConnectSlave) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectSlave.ProtoReflect.Descriptor instead.
 func (*ConnectSlave) Descriptor() ([]byte, []int) {
-	return file_api_grpc_control_plane_api_proto_rawDescGZIP(), []int{4}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{4}
 }
 
 type EnableStatefullCluster struct {
@@ -353,7 +353,7 @@ type EnableStatefullCluster struct {
 
 func (x *EnableStatefullCluster) Reset() {
 	*x = EnableStatefullCluster{}
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[5]
+	mi := &file_control_plane_api_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -365,7 +365,7 @@ func (x *EnableStatefullCluster) String() string {
 func (*EnableStatefullCluster) ProtoMessage() {}
 
 func (x *EnableStatefullCluster) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[5]
+	mi := &file_control_plane_api_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -378,7 +378,7 @@ func (x *EnableStatefullCluster) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnableStatefullCluster.ProtoReflect.Descriptor instead.
 func (*EnableStatefullCluster) Descriptor() ([]byte, []int) {
-	return file_api_grpc_control_plane_api_proto_rawDescGZIP(), []int{5}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *EnableStatefullCluster) GetIsExposePort() bool {
@@ -408,7 +408,7 @@ type EnableHeadscaleServer struct {
 
 func (x *EnableHeadscaleServer) Reset() {
 	*x = EnableHeadscaleServer{}
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[6]
+	mi := &file_control_plane_api_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -420,7 +420,7 @@ func (x *EnableHeadscaleServer) String() string {
 func (*EnableHeadscaleServer) ProtoMessage() {}
 
 func (x *EnableHeadscaleServer) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[6]
+	mi := &file_control_plane_api_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -433,7 +433,7 @@ func (x *EnableHeadscaleServer) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnableHeadscaleServer.ProtoReflect.Descriptor instead.
 func (*EnableHeadscaleServer) Descriptor() ([]byte, []int) {
-	return file_api_grpc_control_plane_api_proto_rawDescGZIP(), []int{6}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *EnableHeadscaleServer) GetPayload() isEnableHeadscaleServer_Payload {
@@ -485,7 +485,7 @@ type ListVervServices_Request struct {
 
 func (x *ListVervServices_Request) Reset() {
 	*x = ListVervServices_Request{}
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[7]
+	mi := &file_control_plane_api_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -497,7 +497,7 @@ func (x *ListVervServices_Request) String() string {
 func (*ListVervServices_Request) ProtoMessage() {}
 
 func (x *ListVervServices_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[7]
+	mi := &file_control_plane_api_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -510,7 +510,7 @@ func (x *ListVervServices_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListVervServices_Request.ProtoReflect.Descriptor instead.
 func (*ListVervServices_Request) Descriptor() ([]byte, []int) {
-	return file_api_grpc_control_plane_api_proto_rawDescGZIP(), []int{0, 0}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{0, 0}
 }
 
 type ListVervServices_Response struct {
@@ -522,7 +522,7 @@ type ListVervServices_Response struct {
 
 func (x *ListVervServices_Response) Reset() {
 	*x = ListVervServices_Response{}
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[8]
+	mi := &file_control_plane_api_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -534,7 +534,7 @@ func (x *ListVervServices_Response) String() string {
 func (*ListVervServices_Response) ProtoMessage() {}
 
 func (x *ListVervServices_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[8]
+	mi := &file_control_plane_api_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -547,7 +547,7 @@ func (x *ListVervServices_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListVervServices_Response.ProtoReflect.Descriptor instead.
 func (*ListVervServices_Response) Descriptor() ([]byte, []int) {
-	return file_api_grpc_control_plane_api_proto_rawDescGZIP(), []int{0, 1}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{0, 1}
 }
 
 func (x *ListVervServices_Response) GetServices() []*VervService {
@@ -571,7 +571,7 @@ type EnableService_Request struct {
 
 func (x *EnableService_Request) Reset() {
 	*x = EnableService_Request{}
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[9]
+	mi := &file_control_plane_api_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -583,7 +583,7 @@ func (x *EnableService_Request) String() string {
 func (*EnableService_Request) ProtoMessage() {}
 
 func (x *EnableService_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[9]
+	mi := &file_control_plane_api_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -596,7 +596,7 @@ func (x *EnableService_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnableService_Request.ProtoReflect.Descriptor instead.
 func (*EnableService_Request) Descriptor() ([]byte, []int) {
-	return file_api_grpc_control_plane_api_proto_rawDescGZIP(), []int{2, 0}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{2, 0}
 }
 
 func (x *EnableService_Request) GetService() VervServiceType {
@@ -655,7 +655,7 @@ type EnableService_Response struct {
 
 func (x *EnableService_Response) Reset() {
 	*x = EnableService_Response{}
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[10]
+	mi := &file_control_plane_api_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -667,7 +667,7 @@ func (x *EnableService_Response) String() string {
 func (*EnableService_Response) ProtoMessage() {}
 
 func (x *EnableService_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[10]
+	mi := &file_control_plane_api_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -680,7 +680,7 @@ func (x *EnableService_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnableService_Response.ProtoReflect.Descriptor instead.
 func (*EnableService_Response) Descriptor() ([]byte, []int) {
-	return file_api_grpc_control_plane_api_proto_rawDescGZIP(), []int{2, 1}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{2, 1}
 }
 
 type InitMaster_Request struct {
@@ -691,7 +691,7 @@ type InitMaster_Request struct {
 
 func (x *InitMaster_Request) Reset() {
 	*x = InitMaster_Request{}
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[11]
+	mi := &file_control_plane_api_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -703,7 +703,7 @@ func (x *InitMaster_Request) String() string {
 func (*InitMaster_Request) ProtoMessage() {}
 
 func (x *InitMaster_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[11]
+	mi := &file_control_plane_api_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -716,7 +716,7 @@ func (x *InitMaster_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InitMaster_Request.ProtoReflect.Descriptor instead.
 func (*InitMaster_Request) Descriptor() ([]byte, []int) {
-	return file_api_grpc_control_plane_api_proto_rawDescGZIP(), []int{3, 0}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{3, 0}
 }
 
 type InitMaster_Response struct {
@@ -727,7 +727,7 @@ type InitMaster_Response struct {
 
 func (x *InitMaster_Response) Reset() {
 	*x = InitMaster_Response{}
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[12]
+	mi := &file_control_plane_api_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -739,7 +739,7 @@ func (x *InitMaster_Response) String() string {
 func (*InitMaster_Response) ProtoMessage() {}
 
 func (x *InitMaster_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[12]
+	mi := &file_control_plane_api_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -752,7 +752,7 @@ func (x *InitMaster_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InitMaster_Response.ProtoReflect.Descriptor instead.
 func (*InitMaster_Response) Descriptor() ([]byte, []int) {
-	return file_api_grpc_control_plane_api_proto_rawDescGZIP(), []int{3, 1}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{3, 1}
 }
 
 type ConnectSlave_Request struct {
@@ -763,7 +763,7 @@ type ConnectSlave_Request struct {
 
 func (x *ConnectSlave_Request) Reset() {
 	*x = ConnectSlave_Request{}
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[13]
+	mi := &file_control_plane_api_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -775,7 +775,7 @@ func (x *ConnectSlave_Request) String() string {
 func (*ConnectSlave_Request) ProtoMessage() {}
 
 func (x *ConnectSlave_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[13]
+	mi := &file_control_plane_api_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -788,7 +788,7 @@ func (x *ConnectSlave_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectSlave_Request.ProtoReflect.Descriptor instead.
 func (*ConnectSlave_Request) Descriptor() ([]byte, []int) {
-	return file_api_grpc_control_plane_api_proto_rawDescGZIP(), []int{4, 0}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{4, 0}
 }
 
 type ConnectSlave_Response struct {
@@ -799,7 +799,7 @@ type ConnectSlave_Response struct {
 
 func (x *ConnectSlave_Response) Reset() {
 	*x = ConnectSlave_Response{}
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[14]
+	mi := &file_control_plane_api_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -811,7 +811,7 @@ func (x *ConnectSlave_Response) String() string {
 func (*ConnectSlave_Response) ProtoMessage() {}
 
 func (x *ConnectSlave_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[14]
+	mi := &file_control_plane_api_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -824,7 +824,7 @@ func (x *ConnectSlave_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectSlave_Response.ProtoReflect.Descriptor instead.
 func (*ConnectSlave_Response) Descriptor() ([]byte, []int) {
-	return file_api_grpc_control_plane_api_proto_rawDescGZIP(), []int{4, 1}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{4, 1}
 }
 
 type EnableHeadscaleServer_ExternalHeadscaleConnection struct {
@@ -837,7 +837,7 @@ type EnableHeadscaleServer_ExternalHeadscaleConnection struct {
 
 func (x *EnableHeadscaleServer_ExternalHeadscaleConnection) Reset() {
 	*x = EnableHeadscaleServer_ExternalHeadscaleConnection{}
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[15]
+	mi := &file_control_plane_api_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -849,7 +849,7 @@ func (x *EnableHeadscaleServer_ExternalHeadscaleConnection) String() string {
 func (*EnableHeadscaleServer_ExternalHeadscaleConnection) ProtoMessage() {}
 
 func (x *EnableHeadscaleServer_ExternalHeadscaleConnection) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[15]
+	mi := &file_control_plane_api_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -862,7 +862,7 @@ func (x *EnableHeadscaleServer_ExternalHeadscaleConnection) ProtoReflect() proto
 
 // Deprecated: Use EnableHeadscaleServer_ExternalHeadscaleConnection.ProtoReflect.Descriptor instead.
 func (*EnableHeadscaleServer_ExternalHeadscaleConnection) Descriptor() ([]byte, []int) {
-	return file_api_grpc_control_plane_api_proto_rawDescGZIP(), []int{6, 0}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{6, 0}
 }
 
 func (x *EnableHeadscaleServer_ExternalHeadscaleConnection) GetUrl() string {
@@ -892,7 +892,7 @@ type EnableHeadscaleServer_DeployHeadscaleConfig struct {
 
 func (x *EnableHeadscaleServer_DeployHeadscaleConfig) Reset() {
 	*x = EnableHeadscaleServer_DeployHeadscaleConfig{}
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[16]
+	mi := &file_control_plane_api_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -904,7 +904,7 @@ func (x *EnableHeadscaleServer_DeployHeadscaleConfig) String() string {
 func (*EnableHeadscaleServer_DeployHeadscaleConfig) ProtoMessage() {}
 
 func (x *EnableHeadscaleServer_DeployHeadscaleConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_control_plane_api_proto_msgTypes[16]
+	mi := &file_control_plane_api_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -917,7 +917,7 @@ func (x *EnableHeadscaleServer_DeployHeadscaleConfig) ProtoReflect() protoreflec
 
 // Deprecated: Use EnableHeadscaleServer_DeployHeadscaleConfig.ProtoReflect.Descriptor instead.
 func (*EnableHeadscaleServer_DeployHeadscaleConfig) Descriptor() ([]byte, []int) {
-	return file_api_grpc_control_plane_api_proto_rawDescGZIP(), []int{6, 1}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{6, 1}
 }
 
 func (x *EnableHeadscaleServer_DeployHeadscaleConfig) GetCustomPort() uint32 {
@@ -934,11 +934,11 @@ func (x *EnableHeadscaleServer_DeployHeadscaleConfig) GetCustomImage() string {
 	return ""
 }
 
-var File_api_grpc_control_plane_api_proto protoreflect.FileDescriptor
+var File_control_plane_api_proto protoreflect.FileDescriptor
 
-const file_api_grpc_control_plane_api_proto_rawDesc = "" +
+const file_control_plane_api_proto_rawDesc = "" +
 	"\n" +
-	" api/grpc/control_plane_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\tnpm.proto\x1a\x18api/grpc/velez_api.proto\"]\n" +
+	"\x17control_plane_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\tnpm.proto\x1a\x0fvelez_api.proto\"]\n" +
 	"\x10ListVervServices\x1a\t\n" +
 	"\aRequest\x1a>\n" +
 	"\bResponse\x122\n" +
@@ -1004,20 +1004,20 @@ const file_api_grpc_control_plane_api_proto_rawDesc = "" +
 	"\fConnectSlave\x12\x1f.velez_api.ConnectSlave.Request\x1a .velez_api.ConnectSlave.Response\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/api/slave/connectBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
 
 var (
-	file_api_grpc_control_plane_api_proto_rawDescOnce sync.Once
-	file_api_grpc_control_plane_api_proto_rawDescData []byte
+	file_control_plane_api_proto_rawDescOnce sync.Once
+	file_control_plane_api_proto_rawDescData []byte
 )
 
-func file_api_grpc_control_plane_api_proto_rawDescGZIP() []byte {
-	file_api_grpc_control_plane_api_proto_rawDescOnce.Do(func() {
-		file_api_grpc_control_plane_api_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_grpc_control_plane_api_proto_rawDesc), len(file_api_grpc_control_plane_api_proto_rawDesc)))
+func file_control_plane_api_proto_rawDescGZIP() []byte {
+	file_control_plane_api_proto_rawDescOnce.Do(func() {
+		file_control_plane_api_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_control_plane_api_proto_rawDesc), len(file_control_plane_api_proto_rawDesc)))
 	})
-	return file_api_grpc_control_plane_api_proto_rawDescData
+	return file_control_plane_api_proto_rawDescData
 }
 
-var file_api_grpc_control_plane_api_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_api_grpc_control_plane_api_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
-var file_api_grpc_control_plane_api_proto_goTypes = []any{
+var file_control_plane_api_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_control_plane_api_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_control_plane_api_proto_goTypes = []any{
 	(VervServiceType)(0),                                      // 0: velez_api.VervServiceType
 	(VervService_State)(0),                                    // 1: velez_api.VervService.State
 	(*ListVervServices)(nil),                                  // 2: velez_api.ListVervServices
@@ -1038,7 +1038,7 @@ var file_api_grpc_control_plane_api_proto_goTypes = []any{
 	(*EnableHeadscaleServer_ExternalHeadscaleConnection)(nil), // 17: velez_api.EnableHeadscaleServer.ExternalHeadscaleConnection
 	(*EnableHeadscaleServer_DeployHeadscaleConfig)(nil),       // 18: velez_api.EnableHeadscaleServer.DeployHeadscaleConfig
 }
-var file_api_grpc_control_plane_api_proto_depIdxs = []int32{
+var file_control_plane_api_proto_depIdxs = []int32{
 	0,  // 0: velez_api.VervService.type:type_name -> velez_api.VervServiceType
 	1,  // 1: velez_api.VervService.state:type_name -> velez_api.VervService.State
 	18, // 2: velez_api.EnableHeadscaleServer.deploy_config:type_name -> velez_api.EnableHeadscaleServer.DeployHeadscaleConfig
@@ -1060,39 +1060,39 @@ var file_api_grpc_control_plane_api_proto_depIdxs = []int32{
 	0,  // [0:8] is the sub-list for field type_name
 }
 
-func init() { file_api_grpc_control_plane_api_proto_init() }
-func file_api_grpc_control_plane_api_proto_init() {
-	if File_api_grpc_control_plane_api_proto != nil {
+func init() { file_control_plane_api_proto_init() }
+func file_control_plane_api_proto_init() {
+	if File_control_plane_api_proto != nil {
 		return
 	}
-	file_api_grpc_velez_api_proto_init()
-	file_api_grpc_control_plane_api_proto_msgTypes[1].OneofWrappers = []any{}
-	file_api_grpc_control_plane_api_proto_msgTypes[5].OneofWrappers = []any{}
-	file_api_grpc_control_plane_api_proto_msgTypes[6].OneofWrappers = []any{
+	file_velez_api_proto_init()
+	file_control_plane_api_proto_msgTypes[1].OneofWrappers = []any{}
+	file_control_plane_api_proto_msgTypes[5].OneofWrappers = []any{}
+	file_control_plane_api_proto_msgTypes[6].OneofWrappers = []any{
 		(*EnableHeadscaleServer_DeployConfig)(nil),
 		(*EnableHeadscaleServer_ExternalConnect)(nil),
 	}
-	file_api_grpc_control_plane_api_proto_msgTypes[9].OneofWrappers = []any{
+	file_control_plane_api_proto_msgTypes[9].OneofWrappers = []any{
 		(*EnableService_Request_StatefullCluster)(nil),
 		(*EnableService_Request_HeadscaleServer)(nil),
 	}
-	file_api_grpc_control_plane_api_proto_msgTypes[16].OneofWrappers = []any{}
+	file_control_plane_api_proto_msgTypes[16].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_grpc_control_plane_api_proto_rawDesc), len(file_api_grpc_control_plane_api_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_control_plane_api_proto_rawDesc), len(file_control_plane_api_proto_rawDesc)),
 			NumEnums:      2,
 			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_api_grpc_control_plane_api_proto_goTypes,
-		DependencyIndexes: file_api_grpc_control_plane_api_proto_depIdxs,
-		EnumInfos:         file_api_grpc_control_plane_api_proto_enumTypes,
-		MessageInfos:      file_api_grpc_control_plane_api_proto_msgTypes,
+		GoTypes:           file_control_plane_api_proto_goTypes,
+		DependencyIndexes: file_control_plane_api_proto_depIdxs,
+		EnumInfos:         file_control_plane_api_proto_enumTypes,
+		MessageInfos:      file_control_plane_api_proto_msgTypes,
 	}.Build()
-	File_api_grpc_control_plane_api_proto = out.File
-	file_api_grpc_control_plane_api_proto_goTypes = nil
-	file_api_grpc_control_plane_api_proto_depIdxs = nil
+	File_control_plane_api_proto = out.File
+	file_control_plane_api_proto_goTypes = nil
+	file_control_plane_api_proto_depIdxs = nil
 }

@@ -28,6 +28,67 @@ func newDeploymentsStorage(db sqldb.DB) *deploymentsStorage {
 	}
 }
 
+func (d *deploymentsStorage) ListDeployments(ctx context.Context, req domain.ListDeploymentsReq) (domain.DeploymentList, error) {
+	baseQuery := sq.Select().
+		From("velez.deployments").
+		PlaceholderFormat(sq.Dollar)
+
+	if len(req.NodeIds) != 0 {
+		baseQuery = baseQuery.Where(sq.Eq{"node_id": req.NodeIds})
+	}
+	if len(req.ServiceIds) != 0 {
+		baseQuery = baseQuery.Where(sq.Eq{"service_id": req.ServiceIds})
+	}
+	if len(req.NotStatus) != 0 {
+		baseQuery = baseQuery.Where(sq.NotEq{"status": req.NotStatus})
+	}
+
+	total, err := countTotal(ctx, d.db, baseQuery)
+	if err != nil {
+		return domain.DeploymentList{}, wrapPgErr(err)
+	}
+
+	limit := req.Paging.Limit
+	if limit == 0 || limit > defaultDeploymentsLimit {
+		limit = defaultDeploymentsLimit
+	}
+
+	selectQuery, args, err := baseQuery.
+		Columns("id", "service_id", "node_id", "spec_id", "created_at", "updated_at", "status").
+		Limit(limit).
+		Offset(req.Paging.Offset).
+		ToSql()
+	if err != nil {
+		return domain.DeploymentList{}, rerrors.Wrap(err, "error building sql query")
+	}
+
+	rows, err := d.db.QueryContext(ctx, selectQuery, args...)
+	if err != nil {
+		return domain.DeploymentList{}, wrapPgErr(err)
+	}
+	defer closeRows(rows)
+
+	out := domain.DeploymentList{Total: total}
+	for rows.Next() {
+		var dep domain.Deployment
+		err = rows.Scan(
+			&dep.Id,
+			&dep.ServiceId,
+			&dep.NodeId,
+			&dep.SpecId,
+			&dep.CreatedAt,
+			&dep.UpdatedAt,
+			&dep.Status,
+		)
+		if err != nil {
+			return domain.DeploymentList{}, wrapPgErr(err)
+		}
+		out.Deployments = append(out.Deployments, dep)
+	}
+
+	return out, nil
+}
+
 func (d *deploymentsStorage) List(ctx context.Context, req domain.ListDeploymentsReq) ([]domain.Deployment, error) {
 	q := sq.Select("id",
 		"service_id",

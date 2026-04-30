@@ -11,7 +11,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
-	"golang.org/x/sync/errgroup"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
@@ -48,6 +47,7 @@ type Custom struct {
 
 	//	Background workers
 	DeployWatcher workers.Worker
+	autoupgrader  *autoupgrade.AutoUpgrade
 }
 
 func (c *Custom) Init(a *App) (err error) {
@@ -69,6 +69,8 @@ func (c *Custom) Init(a *App) (err error) {
 		return rerrors.Wrap(err, "error during server initialization")
 	}
 
+	c.autoupgrader = autoupgrade.New(c.NodeClients.Docker().Client(), time.Second*30, c.Pipeliner)
+
 	c.DeployWatcher = workers.NewDeployWatcher(c.Services, c.Pipeliner, c.ClusterClients, c.NodeClients, time.Second*5)
 	go c.DeployWatcher.Start(a.Ctx)
 	closer.Add(c.DeployWatcher.Stop)
@@ -77,27 +79,28 @@ func (c *Custom) Init(a *App) (err error) {
 }
 
 func (c *Custom) Start(ctx context.Context) error {
-	errG, ctx := errgroup.WithContext(ctx)
-	errG.Go(func() error {
-		err := autoupgrade.New(c.NodeClients.Docker().Client(), time.Second*30, c.Pipeliner).Start()
-		if err != nil {
-			return rerrors.Wrap(err, "error starting autoupgrade")
-		}
-
-		return nil
-	})
-
-	err := errG.Wait()
+	err := c.autoupgrader.Start()
 	if err != nil {
-		return rerrors.Wrap(err, "error starting custom workers")
+		return rerrors.Wrap(err, "error starting autoupgrade")
 	}
 
 	return nil
 }
 
 func (c *Custom) Stop() error {
+	var firstErr error
 
-	return nil
+	err := c.DeployWatcher.Stop()
+	if err != nil && firstErr == nil {
+		firstErr = err
+	}
+
+	err = c.autoupgrader.Stop()
+	if err != nil && firstErr == nil {
+		firstErr = err
+	}
+
+	return firstErr
 }
 
 func (c *Custom) InitServiceLayer(a *App) error {

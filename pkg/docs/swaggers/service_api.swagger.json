@@ -395,6 +395,39 @@
         }
       }
     },
+    "velez_apiDeploymentInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "status": {
+          "$ref": "#/definitions/velez_apiDeploymentStatus"
+        },
+        "specId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "velez_apiDeploymentStatus": {
+      "type": "string",
+      "enum": [
+        "DEPLOYMENT_STATUS_UNKNOWN",
+        "SCHEDULED_DEPLOYMENT",
+        "SCHEDULED_DELETION",
+        "SCHEDULED_UPGRADE",
+        "RUNNING",
+        "FAILED",
+        "DELETED"
+      ],
+      "default": "DEPLOYMENT_STATUS_UNKNOWN"
+    },
     "velez_apiGetServiceRequest": {
       "type": "object",
       "properties": {
@@ -429,7 +462,20 @@
       }
     },
     "velez_apiListDeploymentsResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "deployments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiDeploymentInfo"
+          }
+        },
+        "total": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
     },
     "velez_apiListServicesRequest": {
       "type": "object",
@@ -562,6 +608,13 @@
         },
         "name": {
           "type": "string"
+        },
+        "currentDeploymentId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "status": {
+          "$ref": "#/definitions/velez_apiDeploymentStatus"
         }
       }
     },

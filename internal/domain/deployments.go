@@ -24,6 +24,11 @@ type Deployment struct {
 	Status    deployments_queries.VelezDeploymentStatus
 }
 
+type DeploymentList struct {
+	Deployments []Deployment
+	Total       uint64
+}
+
 type DeploymentSpecification struct {
 	Id      int64
 	Payload []byte

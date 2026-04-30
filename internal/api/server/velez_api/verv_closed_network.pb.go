@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v5.28.3
-// source: api/grpc/verv_closed_network.proto
+// source: verv_closed_network.proto
 
 package velez_api
 
@@ -31,7 +31,7 @@ type CreateVcnNamespace struct {
 
 func (x *CreateVcnNamespace) Reset() {
 	*x = CreateVcnNamespace{}
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[0]
+	mi := &file_verv_closed_network_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +43,7 @@ func (x *CreateVcnNamespace) String() string {
 func (*CreateVcnNamespace) ProtoMessage() {}
 
 func (x *CreateVcnNamespace) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[0]
+	mi := &file_verv_closed_network_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,7 +56,7 @@ func (x *CreateVcnNamespace) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateVcnNamespace.ProtoReflect.Descriptor instead.
 func (*CreateVcnNamespace) Descriptor() ([]byte, []int) {
-	return file_api_grpc_verv_closed_network_proto_rawDescGZIP(), []int{0}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{0}
 }
 
 type ListVcnNamespaces struct {
@@ -67,7 +67,7 @@ type ListVcnNamespaces struct {
 
 func (x *ListVcnNamespaces) Reset() {
 	*x = ListVcnNamespaces{}
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[1]
+	mi := &file_verv_closed_network_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -79,7 +79,7 @@ func (x *ListVcnNamespaces) String() string {
 func (*ListVcnNamespaces) ProtoMessage() {}
 
 func (x *ListVcnNamespaces) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[1]
+	mi := &file_verv_closed_network_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -92,7 +92,7 @@ func (x *ListVcnNamespaces) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListVcnNamespaces.ProtoReflect.Descriptor instead.
 func (*ListVcnNamespaces) Descriptor() ([]byte, []int) {
-	return file_api_grpc_verv_closed_network_proto_rawDescGZIP(), []int{1}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{1}
 }
 
 type DeleteVcnNamespace struct {
@@ -103,7 +103,7 @@ type DeleteVcnNamespace struct {
 
 func (x *DeleteVcnNamespace) Reset() {
 	*x = DeleteVcnNamespace{}
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[2]
+	mi := &file_verv_closed_network_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -115,7 +115,7 @@ func (x *DeleteVcnNamespace) String() string {
 func (*DeleteVcnNamespace) ProtoMessage() {}
 
 func (x *DeleteVcnNamespace) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[2]
+	mi := &file_verv_closed_network_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -128,7 +128,7 @@ func (x *DeleteVcnNamespace) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteVcnNamespace.ProtoReflect.Descriptor instead.
 func (*DeleteVcnNamespace) Descriptor() ([]byte, []int) {
-	return file_api_grpc_verv_closed_network_proto_rawDescGZIP(), []int{2}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{2}
 }
 
 type ConnectService struct {
@@ -139,7 +139,7 @@ type ConnectService struct {
 
 func (x *ConnectService) Reset() {
 	*x = ConnectService{}
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[3]
+	mi := &file_verv_closed_network_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -151,7 +151,7 @@ func (x *ConnectService) String() string {
 func (*ConnectService) ProtoMessage() {}
 
 func (x *ConnectService) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[3]
+	mi := &file_verv_closed_network_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -164,7 +164,7 @@ func (x *ConnectService) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectService.ProtoReflect.Descriptor instead.
 func (*ConnectService) Descriptor() ([]byte, []int) {
-	return file_api_grpc_verv_closed_network_proto_rawDescGZIP(), []int{3}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{3}
 }
 
 type Namespace struct {
@@ -177,7 +177,7 @@ type Namespace struct {
 
 func (x *Namespace) Reset() {
 	*x = Namespace{}
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[4]
+	mi := &file_verv_closed_network_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -189,7 +189,7 @@ func (x *Namespace) String() string {
 func (*Namespace) ProtoMessage() {}
 
 func (x *Namespace) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[4]
+	mi := &file_verv_closed_network_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -202,7 +202,7 @@ func (x *Namespace) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Namespace.ProtoReflect.Descriptor instead.
 func (*Namespace) Descriptor() ([]byte, []int) {
-	return file_api_grpc_verv_closed_network_proto_rawDescGZIP(), []int{4}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Namespace) GetId() string {
@@ -227,7 +227,7 @@ type ConnectUser struct {
 
 func (x *ConnectUser) Reset() {
 	*x = ConnectUser{}
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[5]
+	mi := &file_verv_closed_network_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -239,7 +239,7 @@ func (x *ConnectUser) String() string {
 func (*ConnectUser) ProtoMessage() {}
 
 func (x *ConnectUser) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[5]
+	mi := &file_verv_closed_network_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -252,7 +252,7 @@ func (x *ConnectUser) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectUser.ProtoReflect.Descriptor instead.
 func (*ConnectUser) Descriptor() ([]byte, []int) {
-	return file_api_grpc_verv_closed_network_proto_rawDescGZIP(), []int{5}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{5}
 }
 
 type CreateVcnNamespace_Request struct {
@@ -264,7 +264,7 @@ type CreateVcnNamespace_Request struct {
 
 func (x *CreateVcnNamespace_Request) Reset() {
 	*x = CreateVcnNamespace_Request{}
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[6]
+	mi := &file_verv_closed_network_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -276,7 +276,7 @@ func (x *CreateVcnNamespace_Request) String() string {
 func (*CreateVcnNamespace_Request) ProtoMessage() {}
 
 func (x *CreateVcnNamespace_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[6]
+	mi := &file_verv_closed_network_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -289,7 +289,7 @@ func (x *CreateVcnNamespace_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateVcnNamespace_Request.ProtoReflect.Descriptor instead.
 func (*CreateVcnNamespace_Request) Descriptor() ([]byte, []int) {
-	return file_api_grpc_verv_closed_network_proto_rawDescGZIP(), []int{0, 0}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{0, 0}
 }
 
 func (x *CreateVcnNamespace_Request) GetName() string {
@@ -308,7 +308,7 @@ type CreateVcnNamespace_Response struct {
 
 func (x *CreateVcnNamespace_Response) Reset() {
 	*x = CreateVcnNamespace_Response{}
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[7]
+	mi := &file_verv_closed_network_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -320,7 +320,7 @@ func (x *CreateVcnNamespace_Response) String() string {
 func (*CreateVcnNamespace_Response) ProtoMessage() {}
 
 func (x *CreateVcnNamespace_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[7]
+	mi := &file_verv_closed_network_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -333,7 +333,7 @@ func (x *CreateVcnNamespace_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateVcnNamespace_Response.ProtoReflect.Descriptor instead.
 func (*CreateVcnNamespace_Response) Descriptor() ([]byte, []int) {
-	return file_api_grpc_verv_closed_network_proto_rawDescGZIP(), []int{0, 1}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{0, 1}
 }
 
 func (x *CreateVcnNamespace_Response) GetNamespace() *Namespace {
@@ -351,7 +351,7 @@ type ListVcnNamespaces_Request struct {
 
 func (x *ListVcnNamespaces_Request) Reset() {
 	*x = ListVcnNamespaces_Request{}
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[8]
+	mi := &file_verv_closed_network_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -363,7 +363,7 @@ func (x *ListVcnNamespaces_Request) String() string {
 func (*ListVcnNamespaces_Request) ProtoMessage() {}
 
 func (x *ListVcnNamespaces_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[8]
+	mi := &file_verv_closed_network_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -376,7 +376,7 @@ func (x *ListVcnNamespaces_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListVcnNamespaces_Request.ProtoReflect.Descriptor instead.
 func (*ListVcnNamespaces_Request) Descriptor() ([]byte, []int) {
-	return file_api_grpc_verv_closed_network_proto_rawDescGZIP(), []int{1, 0}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{1, 0}
 }
 
 type ListVcnNamespaces_Response struct {
@@ -388,7 +388,7 @@ type ListVcnNamespaces_Response struct {
 
 func (x *ListVcnNamespaces_Response) Reset() {
 	*x = ListVcnNamespaces_Response{}
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[9]
+	mi := &file_verv_closed_network_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -400,7 +400,7 @@ func (x *ListVcnNamespaces_Response) String() string {
 func (*ListVcnNamespaces_Response) ProtoMessage() {}
 
 func (x *ListVcnNamespaces_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[9]
+	mi := &file_verv_closed_network_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -413,7 +413,7 @@ func (x *ListVcnNamespaces_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListVcnNamespaces_Response.ProtoReflect.Descriptor instead.
 func (*ListVcnNamespaces_Response) Descriptor() ([]byte, []int) {
-	return file_api_grpc_verv_closed_network_proto_rawDescGZIP(), []int{1, 1}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{1, 1}
 }
 
 func (x *ListVcnNamespaces_Response) GetNamespaces() []*Namespace {
@@ -432,7 +432,7 @@ type DeleteVcnNamespace_Request struct {
 
 func (x *DeleteVcnNamespace_Request) Reset() {
 	*x = DeleteVcnNamespace_Request{}
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[10]
+	mi := &file_verv_closed_network_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -444,7 +444,7 @@ func (x *DeleteVcnNamespace_Request) String() string {
 func (*DeleteVcnNamespace_Request) ProtoMessage() {}
 
 func (x *DeleteVcnNamespace_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[10]
+	mi := &file_verv_closed_network_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -457,7 +457,7 @@ func (x *DeleteVcnNamespace_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteVcnNamespace_Request.ProtoReflect.Descriptor instead.
 func (*DeleteVcnNamespace_Request) Descriptor() ([]byte, []int) {
-	return file_api_grpc_verv_closed_network_proto_rawDescGZIP(), []int{2, 0}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{2, 0}
 }
 
 func (x *DeleteVcnNamespace_Request) GetId() string {
@@ -475,7 +475,7 @@ type DeleteVcnNamespace_Response struct {
 
 func (x *DeleteVcnNamespace_Response) Reset() {
 	*x = DeleteVcnNamespace_Response{}
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[11]
+	mi := &file_verv_closed_network_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -487,7 +487,7 @@ func (x *DeleteVcnNamespace_Response) String() string {
 func (*DeleteVcnNamespace_Response) ProtoMessage() {}
 
 func (x *DeleteVcnNamespace_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[11]
+	mi := &file_verv_closed_network_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -500,7 +500,7 @@ func (x *DeleteVcnNamespace_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteVcnNamespace_Response.ProtoReflect.Descriptor instead.
 func (*DeleteVcnNamespace_Response) Descriptor() ([]byte, []int) {
-	return file_api_grpc_verv_closed_network_proto_rawDescGZIP(), []int{2, 1}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{2, 1}
 }
 
 type ConnectService_Request struct {
@@ -514,7 +514,7 @@ type ConnectService_Request struct {
 
 func (x *ConnectService_Request) Reset() {
 	*x = ConnectService_Request{}
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[12]
+	mi := &file_verv_closed_network_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -526,7 +526,7 @@ func (x *ConnectService_Request) String() string {
 func (*ConnectService_Request) ProtoMessage() {}
 
 func (x *ConnectService_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[12]
+	mi := &file_verv_closed_network_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -539,7 +539,7 @@ func (x *ConnectService_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectService_Request.ProtoReflect.Descriptor instead.
 func (*ConnectService_Request) Descriptor() ([]byte, []int) {
-	return file_api_grpc_verv_closed_network_proto_rawDescGZIP(), []int{3, 0}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{3, 0}
 }
 
 func (x *ConnectService_Request) GetServiceName() string {
@@ -564,7 +564,7 @@ type ConnectService_Response struct {
 
 func (x *ConnectService_Response) Reset() {
 	*x = ConnectService_Response{}
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[13]
+	mi := &file_verv_closed_network_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -576,7 +576,7 @@ func (x *ConnectService_Response) String() string {
 func (*ConnectService_Response) ProtoMessage() {}
 
 func (x *ConnectService_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[13]
+	mi := &file_verv_closed_network_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -589,7 +589,7 @@ func (x *ConnectService_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectService_Response.ProtoReflect.Descriptor instead.
 func (*ConnectService_Response) Descriptor() ([]byte, []int) {
-	return file_api_grpc_verv_closed_network_proto_rawDescGZIP(), []int{3, 1}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{3, 1}
 }
 
 type ConnectUser_Request struct {
@@ -602,7 +602,7 @@ type ConnectUser_Request struct {
 
 func (x *ConnectUser_Request) Reset() {
 	*x = ConnectUser_Request{}
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[14]
+	mi := &file_verv_closed_network_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -614,7 +614,7 @@ func (x *ConnectUser_Request) String() string {
 func (*ConnectUser_Request) ProtoMessage() {}
 
 func (x *ConnectUser_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[14]
+	mi := &file_verv_closed_network_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -627,7 +627,7 @@ func (x *ConnectUser_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectUser_Request.ProtoReflect.Descriptor instead.
 func (*ConnectUser_Request) Descriptor() ([]byte, []int) {
-	return file_api_grpc_verv_closed_network_proto_rawDescGZIP(), []int{5, 0}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{5, 0}
 }
 
 func (x *ConnectUser_Request) GetKey() string {
@@ -652,7 +652,7 @@ type ConnectUser_Response struct {
 
 func (x *ConnectUser_Response) Reset() {
 	*x = ConnectUser_Response{}
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[15]
+	mi := &file_verv_closed_network_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -664,7 +664,7 @@ func (x *ConnectUser_Response) String() string {
 func (*ConnectUser_Response) ProtoMessage() {}
 
 func (x *ConnectUser_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_api_grpc_verv_closed_network_proto_msgTypes[15]
+	mi := &file_verv_closed_network_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -677,14 +677,14 @@ func (x *ConnectUser_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConnectUser_Response.ProtoReflect.Descriptor instead.
 func (*ConnectUser_Response) Descriptor() ([]byte, []int) {
-	return file_api_grpc_verv_closed_network_proto_rawDescGZIP(), []int{5, 1}
+	return file_verv_closed_network_proto_rawDescGZIP(), []int{5, 1}
 }
 
-var File_api_grpc_verv_closed_network_proto protoreflect.FileDescriptor
+var File_verv_closed_network_proto protoreflect.FileDescriptor
 
-const file_api_grpc_verv_closed_network_proto_rawDesc = "" +
+const file_verv_closed_network_proto_rawDesc = "" +
 	"\n" +
-	"\"api/grpc/verv_closed_network.proto\x12\tvelez_api\x1a\tnpm.proto\x1a\x1cgoogle/api/annotations.proto\"s\n" +
+	"\x19verv_closed_network.proto\x12\tvelez_api\x1a\tnpm.proto\x1a\x1cgoogle/api/annotations.proto\"s\n" +
 	"\x12CreateVcnNamespace\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x1a>\n" +
@@ -726,19 +726,19 @@ const file_api_grpc_verv_closed_network_proto_rawDesc = "" +
 	"\x0fDeleteNamespace\x12%.velez_api.DeleteVcnNamespace.Request\x1a&.velez_api.DeleteVcnNamespace.Response\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/api/vcn/namespaces/deleteBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
 
 var (
-	file_api_grpc_verv_closed_network_proto_rawDescOnce sync.Once
-	file_api_grpc_verv_closed_network_proto_rawDescData []byte
+	file_verv_closed_network_proto_rawDescOnce sync.Once
+	file_verv_closed_network_proto_rawDescData []byte
 )
 
-func file_api_grpc_verv_closed_network_proto_rawDescGZIP() []byte {
-	file_api_grpc_verv_closed_network_proto_rawDescOnce.Do(func() {
-		file_api_grpc_verv_closed_network_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_api_grpc_verv_closed_network_proto_rawDesc), len(file_api_grpc_verv_closed_network_proto_rawDesc)))
+func file_verv_closed_network_proto_rawDescGZIP() []byte {
+	file_verv_closed_network_proto_rawDescOnce.Do(func() {
+		file_verv_closed_network_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_verv_closed_network_proto_rawDesc), len(file_verv_closed_network_proto_rawDesc)))
 	})
-	return file_api_grpc_verv_closed_network_proto_rawDescData
+	return file_verv_closed_network_proto_rawDescData
 }
 
-var file_api_grpc_verv_closed_network_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
-var file_api_grpc_verv_closed_network_proto_goTypes = []any{
+var file_verv_closed_network_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_verv_closed_network_proto_goTypes = []any{
 	(*CreateVcnNamespace)(nil),          // 0: velez_api.CreateVcnNamespace
 	(*ListVcnNamespaces)(nil),           // 1: velez_api.ListVcnNamespaces
 	(*DeleteVcnNamespace)(nil),          // 2: velez_api.DeleteVcnNamespace
@@ -756,7 +756,7 @@ var file_api_grpc_verv_closed_network_proto_goTypes = []any{
 	(*ConnectUser_Request)(nil),         // 14: velez_api.ConnectUser.Request
 	(*ConnectUser_Response)(nil),        // 15: velez_api.ConnectUser.Response
 }
-var file_api_grpc_verv_closed_network_proto_depIdxs = []int32{
+var file_verv_closed_network_proto_depIdxs = []int32{
 	4,  // 0: velez_api.CreateVcnNamespace.Response.namespace:type_name -> velez_api.Namespace
 	4,  // 1: velez_api.ListVcnNamespaces.Response.namespaces:type_name -> velez_api.Namespace
 	6,  // 2: velez_api.VcnApi.CreateNamespace:input_type -> velez_api.CreateVcnNamespace.Request
@@ -776,27 +776,27 @@ var file_api_grpc_verv_closed_network_proto_depIdxs = []int32{
 	0,  // [0:2] is the sub-list for field type_name
 }
 
-func init() { file_api_grpc_verv_closed_network_proto_init() }
-func file_api_grpc_verv_closed_network_proto_init() {
-	if File_api_grpc_verv_closed_network_proto != nil {
+func init() { file_verv_closed_network_proto_init() }
+func file_verv_closed_network_proto_init() {
+	if File_verv_closed_network_proto != nil {
 		return
 	}
-	file_api_grpc_verv_closed_network_proto_msgTypes[12].OneofWrappers = []any{}
+	file_verv_closed_network_proto_msgTypes[12].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_grpc_verv_closed_network_proto_rawDesc), len(file_api_grpc_verv_closed_network_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_verv_closed_network_proto_rawDesc), len(file_verv_closed_network_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_api_grpc_verv_closed_network_proto_goTypes,
-		DependencyIndexes: file_api_grpc_verv_closed_network_proto_depIdxs,
-		MessageInfos:      file_api_grpc_verv_closed_network_proto_msgTypes,
+		GoTypes:           file_verv_closed_network_proto_goTypes,
+		DependencyIndexes: file_verv_closed_network_proto_depIdxs,
+		MessageInfos:      file_verv_closed_network_proto_msgTypes,
 	}.Build()
-	File_api_grpc_verv_closed_network_proto = out.File
-	file_api_grpc_verv_closed_network_proto_goTypes = nil
-	file_api_grpc_verv_closed_network_proto_depIdxs = nil
+	File_verv_closed_network_proto = out.File
+	file_verv_closed_network_proto_goTypes = nil
+	file_verv_closed_network_proto_depIdxs = nil
 }

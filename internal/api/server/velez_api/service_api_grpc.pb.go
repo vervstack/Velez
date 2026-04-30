@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.1
 // - protoc             v5.28.3
-// source: api/grpc/service_api.proto
+// source: service_api.proto
 
 package velez_api
 
@@ -285,5 +285,5 @@ var ServiceApi_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/grpc/service_api.proto",
+	Metadata: "service_api.proto",
 }

@@ -3,6 +3,7 @@ syntax = "proto3";
 package velez_api;
 
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
 import "npm.proto";
 import "velez_common.proto";
@@ -84,6 +85,8 @@ message GetService {
 message VervAppService {
   uint64 id = 1;
   string name = 2;
+  optional uint64 current_deployment_id = 3;
+  DeploymentStatus status = 4;
 }
 
 message CreateDeploy {
@@ -112,6 +115,23 @@ message CreateDeploy {
   message Response {}
 }
 
+enum DeploymentStatus {
+  DEPLOYMENT_STATUS_UNKNOWN = 0;
+  SCHEDULED_DEPLOYMENT = 1;
+  SCHEDULED_DELETION = 2;
+  SCHEDULED_UPGRADE = 3;
+  RUNNING = 4;
+  FAILED = 5;
+  DELETED = 6;
+}
+
+message DeploymentInfo {
+  uint64 id = 1;
+  DeploymentStatus status = 2;
+  uint64 spec_id = 3;
+  google.protobuf.Timestamp created_at = 4;
+}
+
 message ListDeployments {
   message Request {
     Paging paging = 1;
@@ -119,7 +139,8 @@ message ListDeployments {
     optional uint64 service_id = 2;
   }
   message Response {
-
+    repeated DeploymentInfo deployments = 1;
+    uint64 total = 2;
   }
 }
 

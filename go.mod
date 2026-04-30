@@ -10,6 +10,7 @@ require (
 	github.com/docker/go-connections v0.6.0
 	github.com/gojuno/minimock/v3 v3.4.7
 	github.com/google/go-containerregistry v0.20.7
+	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.3
 	github.com/jaypipes/ghw v0.20.0
 	github.com/lib/pq v1.10.9

@@ -39,6 +39,10 @@ func (n *noImplPg) List(ctx context.Context, req domain.ListDeploymentsReq) ([]d
 	return nil, cluster_clients.ErrServiceIsDisabled
 }
 
+func (n *noImplPg) ListDeployments(ctx context.Context, req domain.ListDeploymentsReq) (domain.DeploymentList, error) {
+	return domain.DeploymentList{}, cluster_clients.ErrServiceIsDisabled
+}
+
 func (n *noImplPg) CreateDeployment(ctx context.Context, arg deployments_queries.CreateDeploymentParams) (interface{}, error) {
 	return nil, cluster_clients.ErrServiceIsDisabled
 }

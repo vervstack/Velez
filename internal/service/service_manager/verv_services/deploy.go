@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"strconv"
 
+	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 	"go.redsock.ru/rerrors"
 
@@ -20,7 +20,7 @@ func (v *VervService) CreateNewDeploy(ctx context.Context, request domain.Create
 			q := v.deploymentsStorage.WithTx(tx)
 
 			spec := deployments_queries.CreateSpecificationParams{
-				Name: "service_id=" + strconv.FormatUint(request.ServiceId, 10),
+				Name: uuid.New().String(),
 				VervPayload: pqtype.NullRawMessage{
 					RawMessage: nil,
 					Valid:      true,
@@ -55,6 +55,15 @@ func (v *VervService) CreateNewDeploy(ctx context.Context, request domain.Create
 	}
 
 	return nil
+}
+
+func (v *VervService) ListDeployments(ctx context.Context, req domain.ListDeploymentsReq) (domain.DeploymentList, error) {
+	list, err := v.deploymentsStorage.ListDeployments(ctx, req)
+	if err != nil {
+		return domain.DeploymentList{}, rerrors.Wrap(err)
+	}
+
+	return list, nil
 }
 
 func (v *VervService) UpgradeDeploy(ctx context.Context, request domain.UpgradeDeployReq) error {
@@ -100,7 +109,7 @@ func (v *VervService) UpgradeDeploy(ctx context.Context, request domain.UpgradeD
 		q := v.deploymentsStorage.WithTx(tx)
 
 		newSpecId, err := q.CreateSpecification(ctx, deployments_queries.CreateSpecificationParams{
-			Name: currentSpec.Name,
+			Name: uuid.New().String(),
 			VervPayload: pqtype.NullRawMessage{
 				RawMessage: payload,
 				Valid:      true,

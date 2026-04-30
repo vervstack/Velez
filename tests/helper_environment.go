@@ -19,6 +19,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/app"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/middleware"
 	"go.vervstack.ru/Velez/internal/transport"
@@ -52,13 +53,13 @@ func WithState(t *testing.T, stateOps ...StateOpt) TestEnvOpt {
 		}
 
 		statePath := writeState(t, st)
-		a.Cfg.Environment.StatePath = statePath
+		a.Cfg.Environment.LocalStatePath = statePath
 	}
 }
 
 func WithStateVcnEnabled() StateOpt {
 	return func(a *local_state.State) {
-		a.IsHeadscaleEnabled = true
+		a.Network.Headscale.ServerUrl = "http://localhost:8080"
 	}
 }
 

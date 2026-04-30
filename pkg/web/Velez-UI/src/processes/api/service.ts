@@ -6,7 +6,9 @@ import {
     CreateSmerdRequest,
     ListServicesRequest,
     ListServicesResponse,
-} from "@vervstack/velez"
+    ListDeploymentsRequest,
+    ListDeploymentsResponse,
+} from "@/app/api/velez"
 
 import {GetInitReq} from "@/processes/api/api.ts";
 
@@ -48,4 +50,25 @@ export async function CreateNewDeployment(serviceId: string, newReq: CreateSmerd
 
 export async function ListServices(r: ListServicesRequest): Promise<ListServicesResponse> {
     return ServiceApi.ListServices(r, GetInitReq());
+}
+
+export async function FetchService(key: string): Promise<VervAppService> {
+    const serviceId = Number(key)
+    const req: GetServiceRequest = serviceId.toString() === key
+        ? {id: key}
+        : {name: key}
+
+    const res = await ServiceApi.GetService(req, GetInitReq())
+    if (!res.vervService) {
+        throw new Error("ServiceNotFound")
+    }
+    return res.vervService
+}
+
+export async function FetchDeployments(serviceId: string): Promise<ListDeploymentsResponse> {
+    const req: ListDeploymentsRequest = {
+        serviceId,
+        paging: {limit: '10', offset: '0'},
+    }
+    return ServiceApi.ListDeployments(req, GetInitReq())
 }

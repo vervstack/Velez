@@ -6,6 +6,7 @@
  */
 
 import * as fm from "./fetch.pb";
+import * as GoogleProtobufTimestamp from "./google/protobuf/timestamp.pb";
 import * as VelezApiVelezApi from "./velez_api.pb";
 import * as VelezApiVelezCommon from "./velez_common.pb";
 
@@ -18,6 +19,16 @@ type OneOf<T> =
         ? { [k in K]: T[K] } & Absent<T, K>
         : never
       : never);
+
+export enum DeploymentStatus {
+  DEPLOYMENT_STATUS_UNKNOWN = "DEPLOYMENT_STATUS_UNKNOWN",
+  SCHEDULED_DEPLOYMENT = "SCHEDULED_DEPLOYMENT",
+  SCHEDULED_DELETION = "SCHEDULED_DELETION",
+  SCHEDULED_UPGRADE = "SCHEDULED_UPGRADE",
+  RUNNING = "RUNNING",
+  FAILED = "FAILED",
+  DELETED = "DELETED",
+}
 
 export type CreateServiceRequest = {
   name?: string;
@@ -49,6 +60,8 @@ export type GetService = Record<string, never>;
 export type VervAppService = {
   id?: string;
   name?: string;
+  currentDeploymentId?: string;
+  status?: DeploymentStatus;
 };
 
 export type CreateDeployRequestUpgrade = {
@@ -70,12 +83,22 @@ export type CreateDeployResponse = Record<string, never>;
 
 export type CreateDeploy = Record<string, never>;
 
+export type DeploymentInfo = {
+  id?: string;
+  status?: DeploymentStatus;
+  specId?: string;
+  createdAt?: GoogleProtobufTimestamp.Timestamp;
+};
+
 export type ListDeploymentsRequest = {
   paging?: VelezApiVelezCommon.Paging;
   serviceId?: string;
 };
 
-export type ListDeploymentsResponse = Record<string, never>;
+export type ListDeploymentsResponse = {
+  deployments?: DeploymentInfo[];
+  total?: string;
+};
 
 export type ListDeployments = Record<string, never>;
 

@@ -1,60 +1,192 @@
 .HomeContainer {
     display: flex;
-
     flex-direction: column;
+    box-sizing: border-box;
+    padding: 1.5rem;
+    min-height: 100vh;
+    width: 100%;
+}
 
-    gap: 0;
+.LoadingMessage {
+    display: flex;
     justify-content: center;
     align-items: center;
-    box-sizing: border-box;
+    height: 50vh;
+    font-size: 1rem;
+    opacity: 0.6;
+}
 
-    height: 100vh;
-    width: 100vw;
+.DashboardWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 100%;
+}
 
-    .ServicesDashboard {
-        display: flex;
-        box-sizing: border-box;
-        padding: 1em;
+/* ── Sections ─────────────────────────────────── */
 
-        width: 100%;
-        height: 100%;
+.Section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
 
-        gap: 1em;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
+.SectionTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin: 0;
+}
 
-    .NoServicesMessageWrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 2em;
+/* ── Service cards ────────────────────────────── */
 
-        .CreateServiceButton {
-            width: 8em;
-        }
-    }
+.CardGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .ServiceCardContainer {
-    width: 15em;
-    height: 15em;
+    width: 12rem;
+    padding: 1rem;
     box-sizing: border-box;
-    padding: 0.5em;
 
-    border-bottom: var(--info-color) 0.25em solid;
+    border-bottom: var(--info-color) 0.2rem solid;
     background: var(--accent-bg-color);
     border-radius: var(--border-radius);
 
-    transition: scale 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    cursor: pointer;
+    transition: scale 0.2s ease;
 
     &:hover {
-        scale: 1.05;
-        cursor: pointer;
+        scale: 1.04;
     }
-    /*TODO remove this when more basic info appears e.g logo, alerts, group|vertical|envs -  */
+}
+
+.CardName {
+    font-size: 0.95rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.CardStatus {
+    display: flex;
+    align-items: center;
+}
+
+/* ── Smerd list rows ──────────────────────────── */
+
+.SmerdList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.SmerdRowContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+
+    padding: 0.6rem 1rem;
+    border-radius: var(--border-radius);
+    background: var(--accent-bg-color);
+
+    cursor: pointer;
+    transition: scale 0.15s ease;
+
+    &:hover {
+        scale: 1.01;
+    }
+}
+
+.SmerdDot {
+    flex-shrink: 0;
+}
+
+.SmerdName {
+    flex: 1;
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.SmerdImage {
+    flex: 2;
+    font-size: 0.8rem;
+    opacity: 0.65;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.SmerdStatusLabel {
+    flex-shrink: 0;
+}
+
+/* ── Status indicators ────────────────────────── */
+
+.StatusDot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+}
+
+.StatusBadge {
+    font-size: 0.72rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 1rem;
+    text-transform: lowercase;
+    font-weight: 500;
+}
+
+.statusRunning {
+    background-color: var(--ping-health);
+    color: #fff;
+}
+
+.statusError {
+    background-color: var(--ping-disabled);
+    color: #fff;
+}
+
+.statusUnknown {
+    background-color: var(--ping-unknown);
+    color: #222;
+}
+
+/* ── Empty state ──────────────────────────────── */
+
+.EmptyStateContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 1.25rem;
+    height: 60vh;
+}
+
+.EmptyStateIcon {
+    font-size: 4rem;
+    opacity: 0.25;
+}
+
+.EmptyStateMessage {
+    font-size: 1rem;
+    opacity: 0.55;
+    text-align: center;
+}
+
+.EmptyStateAction {
+    width: 10rem;
 }

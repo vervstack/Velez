@@ -1,6 +1,7 @@
 import {createRoot} from 'react-dom/client'
 import {RouterProvider} from "react-router-dom";
 import {Tooltip} from "react-tooltip";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 
 import '@/index.module.css'
 import 'react-tooltip/dist/react-tooltip.css'
@@ -9,16 +10,20 @@ import SettingsWidget from "@/widgets/settings/SettingsWidget.tsx";
 
 import router from "@/app/router/Router";
 
+const queryClient = new QueryClient();
+
 createRoot(document.getElementById('root')!)
     .render(
-        <div>
-            <link href="@/assets/font/Comfortaa.ttf" rel="stylesheet"/>
-            <RouterProvider
-                router={router}/>
+        <QueryClientProvider client={queryClient}>
+            <div>
+                <link href="@/assets/font/Comfortaa.ttf" rel="stylesheet"/>
+                <RouterProvider
+                    router={router}/>
 
-            <SettingsWidget/>
-            <Tooltip
-                id={"tooltip"}
-            />
-        </div>
+                <SettingsWidget/>
+                <Tooltip
+                    id={"tooltip"}
+                />
+            </div>
+        </QueryClientProvider>
     )

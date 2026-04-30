@@ -1,4 +1,4 @@
 declare const _default: ({ mode }: {
-    mode: any;
+    mode: string;
 }) => import("vite").UserConfig;
 export default _default;

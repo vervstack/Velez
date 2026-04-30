@@ -1,14 +1,32 @@
 import {
     VelezAPI,
     ListSmerdsRequest,
-    SearchImagesResponse
+    ListSmerdsResponse,
+    SearchImagesResponse,
+    Smerd as ProtoSmerd,
 } from "@vervstack/velez";
 import {InitReq} from "@/app/settings/state.ts";
 import {CreateSmerdReq, Port, Smerd, toProto, Volume} from "@/model/smerds/Smerds.ts";
+import {GetInitReq} from "@/processes/api/api.ts";
 
 export async function ListSmerds(req: ListSmerdsRequest, initReq: InitReq) {
     req.limit = req.limit || 10
     return VelezAPI.ListSmerds(req, initReq)
+}
+
+export async function FetchSmerds(): Promise<ListSmerdsResponse> {
+    const req: ListSmerdsRequest = {limit: 50}
+    return VelezAPI.ListSmerds(req, GetInitReq())
+}
+
+export async function FetchSmerd(name: string): Promise<ProtoSmerd> {
+    const req: ListSmerdsRequest = {name, limit: 1}
+    return VelezAPI.ListSmerds(req, GetInitReq()).then((res) => {
+        if (!res.smerds || res.smerds.length === 0) {
+            throw new Error("Smerd not found")
+        }
+        return res.smerds[0]
+    })
 }
 
 

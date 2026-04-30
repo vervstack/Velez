@@ -6,6 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - do not make architectural decisions on your own, always suggest and ask before doing
 - never break backward compatibility
+- before handing out results run tests and validate that code changes didn't break things
 
 ## Project Overview
 

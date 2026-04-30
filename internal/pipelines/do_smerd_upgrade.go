@@ -9,6 +9,7 @@ import (
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/config_steps"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/smerd_steps"
+	"go.vervstack.ru/Velez/internal/pipelines/steps/upgrade_steps"
 )
 
 const configSuffix = "_configuration_fetcher"
@@ -23,6 +24,7 @@ func (p *pipeliner) UpgradeSmerd(req domain.UpgradeSmerd) Runner[any] {
 
 	return &runner[any]{
 		Steps: []steps.Step{
+			upgrade_steps.CheckUpgradeIsAvailable(p.services, &req.Name),
 			// Preparation stage
 			steps.FromContainerToRequest(req.Name, p.services.SmerdManager(), &newLaunch, &oldContId),
 			steps.PrepareImage(p.nodeClients, req.Image, &img),

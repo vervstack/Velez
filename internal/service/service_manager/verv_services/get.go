@@ -6,7 +6,6 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/services_queries"
 )
 
 func (v *VervService) Get(ctx context.Context, r domain.GetServiceReq) (domain.Service, error) {
@@ -22,28 +21,19 @@ func (v *VervService) Get(ctx context.Context, r domain.GetServiceReq) (domain.S
 }
 
 func (v *VervService) getById(ctx context.Context, id uint64) (domain.Service, error) {
-	vService, err := v.servicesStorage.GetById(ctx, int64(id))
+	service, err := v.servicesStorage.GetById(ctx, int64(id))
 	if err != nil {
 		return domain.Service{}, rerrors.Wrap(err, "error getting service by id from storage")
 	}
 
-	return fromStorageToDomainServiceInfo(vService), nil
+	return service, nil
 }
 
 func (v *VervService) getByName(ctx context.Context, name string) (domain.Service, error) {
-	vService, err := v.servicesStorage.GetByName(ctx, name)
+	service, err := v.servicesStorage.GetByName(ctx, name)
 	if err != nil {
 		return domain.Service{}, rerrors.Wrap(err, "error getting service by id from storage")
 	}
 
-	return fromStorageToDomainServiceInfo(vService), nil
-}
-
-func fromStorageToDomainServiceInfo(vServ services_queries.VelezService) domain.Service {
-	return domain.Service{
-		ServiceBaseInfo: domain.ServiceBaseInfo{
-			Id:   uint64(vServ.ID),
-			Name: vServ.Name,
-		},
-	}
+	return service, nil
 }

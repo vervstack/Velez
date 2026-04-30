@@ -12,8 +12,39 @@ import (
 )
 
 type servicesStorage struct {
-	conn sqldb.DB
-	pg_queries.Querier
+	conn    sqldb.DB
+	querier pg_queries.Querier
+}
+
+func (s *servicesStorage) GetById(ctx context.Context, id int64) (domain.Service, error) {
+	row, err := s.querier.GetById(ctx, id)
+	if err != nil {
+		return domain.Service{}, wrapPgErr(err)
+	}
+
+	return fromStorageToDomainService(row), nil
+}
+
+func (s *servicesStorage) GetByName(ctx context.Context, name string) (domain.Service, error) {
+	row, err := s.querier.GetByName(ctx, name)
+	if err != nil {
+		return domain.Service{}, wrapPgErr(err)
+	}
+
+	return fromStorageToDomainService(row), nil
+}
+
+func (s *servicesStorage) UpsertService(ctx context.Context, name string) error {
+	return s.querier.UpsertService(ctx, name)
+}
+
+func fromStorageToDomainService(row pg_queries.VelezService) domain.Service {
+	return domain.Service{
+		ServiceBaseInfo: domain.ServiceBaseInfo{
+			Id:   uint64(row.ID),
+			Name: row.Name,
+		},
+	}
 }
 
 var listServiceHelper = serviceBaseInfoHelper{}

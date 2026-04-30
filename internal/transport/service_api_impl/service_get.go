@@ -27,8 +27,10 @@ func (impl *Impl) GetService(ctx context.Context, pbReq *pb.GetService_Request) 
 	return &pb.GetService_Response{
 		Payload: &pb.GetService_Response_VervService{
 			VervService: &pb.VervAppService{
-				Id:   s.Id,
-				Name: s.ServiceBaseInfo.Name,
+				Id:                  s.Id,
+				Name:                s.ServiceBaseInfo.Name,
+				CurrentDeploymentId: s.CurrentDeploymentId,
+				Status:              s.Status,
 			},
 		},
 	}, nil

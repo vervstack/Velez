@@ -41,6 +41,6 @@ func (u *upsertServiceState) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "get service info")
 	}
 
-	*u.serviceIdRespPtr = uint64(service.ID)
+	*u.serviceIdRespPtr = service.Id
 	return nil
 }

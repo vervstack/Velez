@@ -9,7 +9,6 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/services_queries"
 )
 
 var (
@@ -31,7 +30,9 @@ type NodesStorage interface {
 }
 
 type ServicesStorage interface {
-	services_queries.Querier
+	GetById(ctx context.Context, id int64) (domain.Service, error)
+	GetByName(ctx context.Context, name string) (domain.Service, error)
+	UpsertService(ctx context.Context, name string) error
 
 	List(ctx context.Context, req domain.ListServicesReq) (domain.ServiceList, error)
 }

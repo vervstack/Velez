@@ -2,6 +2,8 @@ package domain
 
 import (
 	rtb "go.redsock.ru/toolbox"
+
+	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
 type CreateServiceReq struct {
@@ -10,6 +12,8 @@ type CreateServiceReq struct {
 
 type Service struct {
 	ServiceBaseInfo
+	CurrentDeploymentId *uint64
+	Status              velez_api.DeploymentStatus
 }
 
 type ServiceBaseInfo struct {

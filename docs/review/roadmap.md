@@ -2,30 +2,6 @@
 
 ---
 
-## Milestone 1 — Unfuck Current Setup
-
-**Goal:** The basic lifecycle — deploy a container, upgrade it, drop it — works end-to-end without panics, silent
-failures, or stale state.
-
-### Fix proto + storage blockers
-
-- **`ListDeployments.Response`** — add fields: `repeated DeploymentInfo deployments = 1; uint64 total = 2;` with a
-  `DeploymentInfo` message (id, status, spec_id, created_at)
-- **`VervAppService`** — add `current_deployment_id` and `status` to `GetService` response
-- Implement `ListDeployments` handler and storage query once proto is updated
-
-### Fix wiring
-
-- **`Custom.Stop()`** — implement graceful shutdown: stop workers, flush in-flight pipelines
-- **`autoupgrade`** — run in a goroutine with context cancellation, not blocking the errgroup; add a startup timeout
-
-### Add self-upgrade guard
-
-- Before upgrading a container, check if it's the velez container itself (by label or name pattern); refuse or schedule
-  a controlled restart
-
----
-
 ## Milestone 2 — Harden & Observe
 
 **Goal:** Safe enough to run continuously. Failures are visible, recoverable, and don't cascade.

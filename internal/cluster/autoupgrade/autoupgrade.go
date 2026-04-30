@@ -11,7 +11,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	"golang.org/x/sync/errgroup"
 
@@ -47,21 +47,25 @@ func New(api client.APIClient, checkPeriod time.Duration, pipeliner pipelines.Pi
 	}
 }
 
-func (au *AutoUpgrade) Start() error {
+func (au *AutoUpgrade) Start(ctx context.Context) error {
 	go au.starter.Do(func() {
-		err := au.do()
+		err := au.do(ctx)
 		if err != nil {
-			logrus.WithError(err).Error("autoupgrade start failed")
+			log.Err(err).
+				Msg("autoupgrade start failed")
 		}
 
 		for {
 			select {
 			case <-time.After(au.checkPeriod):
-				err = au.do()
+				err = au.do(ctx)
 				if err != nil {
-					logrus.WithError(err).Error("autoupgrade start failed")
+					log.Err(err).
+						Msg("autoupgrade failed")
 				}
 			case <-au.stopC:
+				return
+			case <-ctx.Done():
 				return
 			}
 
@@ -72,16 +76,15 @@ func (au *AutoUpgrade) Start() error {
 }
 
 func (au *AutoUpgrade) Stop() error {
-	au.closer.Do(func() {
-		close(au.stopC)
-	})
+	au.closer.Do(
+		func() {
+			close(au.stopC)
+		})
 
 	return nil
 }
 
-func (au *AutoUpgrade) do() error {
-	ctx := context.Background()
-
+func (au *AutoUpgrade) do(ctx context.Context) error {
 	smerds, err := au.getAutoUpdateSmerds(ctx)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting smerds to upgrade")
@@ -93,10 +96,9 @@ func (au *AutoUpgrade) do() error {
 		var newImage *string
 		newImage, err = au.getNewImageVersion(ctx, smerd.Image)
 		if err != nil {
-			logrus.Error("error getting new image version",
-				logrus.WithError(err),
-				logrus.WithField("image", smerd.Image),
-			)
+			log.Err(err).
+				Str("image", smerd.Image).
+				Msg("error getting new image version")
 			continue
 		}
 		if newImage == nil {

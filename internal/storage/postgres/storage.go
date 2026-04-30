@@ -29,7 +29,7 @@ func New(db *sql.DB) storage.Storage {
 		},
 		servicesStorage: &servicesStorage{
 			conn:    db,
-			Querier: services_queries.New(db),
+			querier: services_queries.New(db),
 		},
 
 		deploymentsStorage: newDeploymentsStorage(db),

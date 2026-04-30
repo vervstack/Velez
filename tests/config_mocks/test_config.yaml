@@ -14,7 +14,7 @@ environment:
   - name: shut_down_on_exit
     type: bool
     value: true
-  - name: state_path
+  - name: local_state_path
     type: string
     value: ./test_data/default-private-key.json
   - name: cpu_default

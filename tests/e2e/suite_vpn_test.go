@@ -1,4 +1,4 @@
-package tests
+package e2e
 
 import (
 	"context"
@@ -38,15 +38,14 @@ func (s *VpnSuite) SetupSuite() {
 	}
 	conn.Close()
 
-	s.ctx = s.T().Context()
+	s.ctx = t.Context()
 
 	s.env = NewEnvironment(t,
 		WithState(t,
 			WithStateVcnEnabled()))
 
-	s.controlPlaneApi = s.env.App.Custom.ControlPlaneApiImpl
+	s.controlPlaneApi = s.env.Custom.ControlPlaneApiImpl
 	s.vpnApi = s.env.VpnClient()
-	//endregion
 }
 
 func (s *VpnSuite) SetupTest() {
@@ -54,6 +53,7 @@ func (s *VpnSuite) SetupTest() {
 	t.Parallel()
 
 	s.serviceName = GetServiceName(t)
+
 	mainApp := &velez_api.CreateSmerd_Request{
 		Name:         s.serviceName,
 		ImageName:    HelloWorldAppImage,
@@ -95,6 +95,7 @@ func (s *VpnSuite) TearDownTest() {
 func (s *VpnSuite) prepareNamespace() {
 	t := s.T()
 	ctx := t.Context()
+
 	newNamespaceReq := &velez_api.CreateVcnNamespace_Request{
 		Name: s.serviceName,
 	}
@@ -109,6 +110,7 @@ func (s *VpnSuite) prepareNamespace() {
 	if !(k && c.Code() == codes.AlreadyExists) {
 		require.NoError(t, err)
 	}
+
 	// TODO add listing with name
 	listReq := &velez_api.ListVcnNamespaces_Request{}
 

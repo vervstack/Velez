@@ -1,4 +1,4 @@
-package tests
+package e2e
 
 import (
 	"strings"
@@ -24,7 +24,7 @@ const (
 )
 
 func GetServiceName(t *testing.T) string {
-	return strings.ToLower(strings.ReplaceAll(t.Name(), "/", "_"))
+	return "e2e_" + strings.ToLower(strings.ReplaceAll(t.Name(), "/", "_"))
 }
 
 func GetExpectedLabels(t *testing.T) map[string]string {
@@ -36,6 +36,8 @@ func GetExpectedLabels(t *testing.T) map[string]string {
 }
 
 func AssertSmerds(t *testing.T, expected, actual *velez_api.Smerd) {
+	t.Helper()
+
 	require.NotEmpty(t, actual.Uuid)
 	actual.Uuid = ""
 
@@ -49,7 +51,6 @@ func AssertSmerds(t *testing.T, expected, actual *velez_api.Smerd) {
 		require.GreaterOrEqual(t, *port.ExposedTo, minPortToExposeTo)
 
 		expected.Ports[idx].ExposedTo = port.ExposedTo
-
 	}
 
 	if !proto.Equal(expected, actual) {

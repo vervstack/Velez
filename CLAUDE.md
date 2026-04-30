@@ -2,6 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Agent code of conduct
+
+- do not make architectural decisions on your own, always suggest and ask before doing
+- never break backward compatibility
+
 ## Project Overview
 
 Velez is a lightweight node manager for the Vervstack ecosystem. It starts/stops services on machines using Docker,
@@ -114,6 +119,23 @@ Key pipeline files: `do_smerd_launch.go`, `do_smerd_upgrade.go`, `do_create_serv
 
   // forbidden
   if err = doSomething(); err != nil { ... }
+  ```
+
+- **Struct literals**: never construct a struct literal inline inside a function call. Always assign to a named variable
+  first:
+  ```go
+  // correct
+  req := &velez_api.CreateSmerd_Request{
+      Name:      name,
+      ImageName: image,
+  }
+  result, err := client.CreateSmerd(ctx, req)
+
+  // forbidden
+  result, err := client.CreateSmerd(ctx, &velez_api.CreateSmerd_Request{
+      Name:      name,
+      ImageName: image,
+  })
   ```
 
 ## Key Dependencies

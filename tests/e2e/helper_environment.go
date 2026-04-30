@@ -1,4 +1,4 @@
-package tests
+package e2e
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
@@ -25,8 +26,19 @@ import (
 	"go.vervstack.ru/Velez/internal/transport"
 )
 
-// TestEnvironment exposes only what is needed in test suite (API client, other node and cluster clients with test wrappers)
-// TODO as for now TestEnvironment is fully exposed. It suppose to be the other way around.
+var (
+	defaultConfigPath string
+	testDataDir       string
+)
+
+func init() {
+	_, filename, _, _ := runtime.Caller(0)
+	// filename → tests/e2e/helper_environment.go; go up two levels to reach tests/
+	testsDir := filepath.Dir(filepath.Dir(filename))
+	defaultConfigPath = filepath.Join(testsDir, "config_mocks", "test_config.yaml")
+	testDataDir = filepath.Join(testsDir, "test_data")
+}
+
 type TestEnvironment struct {
 	t          *testing.T
 	configPath string
@@ -64,8 +76,6 @@ func WithStateVcnEnabled() StateOpt {
 	}
 }
 
-// WithConfigPath overrides the config file loaded by NewEnvironment.
-// Useful when tests run from a different working directory (e.g. tests/e2e/).
 func WithConfigPath(path string) TestEnvOpt {
 	return func(a *TestEnvironment) {
 		a.configPath = path
@@ -76,29 +86,23 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 	t.Helper()
 
 	var env TestEnvironment
-
 	env.t = t
-
 	env.App = app.App{
 		Ctx: t.Context(),
 		Cfg: config.Config{},
 	}
 
-	// Pre-config pass: collect any opts that affect config loading (e.g. WithConfigPath).
+	// Pre-config pass: collect opts that affect config loading (e.g. WithConfigPath).
 	for _, opt := range opts {
 		opt(&env)
 	}
 
 	if env.configPath == "" {
-		env.configPath = "./config_mocks/test_config.yaml"
+		env.configPath = defaultConfigPath
 	}
 
 	var err error
 
-	//region Default Test Application setup
-	// Bare minimal functionality. Just Api for containers
-
-	// init basic config located at ./config/*.yaml
 	env.App.Cfg, err = config.Load(env.configPath)
 	require.NoError(t, err)
 
@@ -114,7 +118,6 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 	dialer := func(context.Context, string) (net.Conn, error) {
 		return lis.Dial()
 	}
-	//endregion
 
 	// Post-config pass: re-apply opts that modify loaded config fields (e.g. WithMatreshka, WithState).
 	for _, opt := range opts {
@@ -127,10 +130,9 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 	env.App.Cfg.Environment.CustomLabels = append(env.App.Cfg.Environment.CustomLabels,
 		testCaseNameLabel+"="+t.Name())
 
-	//region Application start
 	err = env.App.Custom.Init(&env.App)
 	require.NoError(t, err)
-	//endregion
+
 	env.clean()
 	t.Cleanup(env.clean)
 
@@ -141,7 +143,6 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 		require.NoError(t, e)
 	})
 
-	// region Clients setup
 	env.grpcConn, err = grpc.NewClient("passthrough:///bufnet",
 		grpc.WithContextDialer(dialer),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -164,19 +165,18 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 		closeErr := env.grpcConn.Close()
 		require.NoError(t, closeErr)
 	})
-	//endregion
 
 	return &env
 }
 
-func (e *TestEnvironment) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (smerd *velez_api.Smerd, err error) {
+func (e *TestEnvironment) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (*velez_api.Smerd, error) {
 	if req.Labels == nil {
 		req.Labels = map[string]string{}
 	}
 
 	addTestLabels(e.t, req.Labels)
 
-	response, err := e.App.Custom.ApiGrpcImpl.CreateSmerd(ctx, req)
+	response, err := e.Custom.ApiGrpcImpl.CreateSmerd(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -192,6 +192,10 @@ func (e *TestEnvironment) ListSmerds(ctx context.Context, req *velez_api.ListSme
 
 func (e *TestEnvironment) DropSmerd(ctx context.Context, req *velez_api.DropSmerd_Request) (*velez_api.DropSmerd_Response, error) {
 	return e.Custom.ApiGrpcImpl.DropSmerd(ctx, req)
+}
+
+func (e *TestEnvironment) VpnClient() velez_api.VcnApiClient {
+	return velez_api.NewVcnApiClient(e.grpcConn)
 }
 
 func (e *TestEnvironment) clean() {
@@ -221,14 +225,13 @@ func (e *TestEnvironment) clean() {
 	}
 }
 
-func (e *TestEnvironment) VpnClient() velez_api.VcnApiClient {
-	return velez_api.NewVcnApiClient(e.grpcConn)
-
-}
-
 func readDefaultState(t *testing.T) local_state.State {
+	t.Helper()
+
 	var defaultState local_state.State
-	defaultStateFile, err := os.Open("./test_data/default-private-key.json")
+
+	defaultStateFilePath := filepath.Join(testDataDir, "default-private-key.json")
+	defaultStateFile, err := os.Open(defaultStateFilePath)
 	require.NoError(t, err)
 	defer func() {
 		fErr := defaultStateFile.Close()
@@ -242,6 +245,8 @@ func readDefaultState(t *testing.T) local_state.State {
 }
 
 func writeState(t *testing.T, st local_state.State) (statePath string) {
+	t.Helper()
+
 	dirPath := t.TempDir()
 	statePath = filepath.Join(dirPath, "state.json")
 

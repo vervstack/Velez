@@ -1,32 +1,143 @@
-.SettingsContainer {
+.SettingsOverlay {
     position: fixed;
-
-    width: 50vh;
-    height: 50vh;
-
-    top: 25%;
-    left: 25%;
-
-    background: wheat;
-    border-radius: 2em;
-    padding: 2em;
-
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
     display: flex;
-    flex-direction: column;
-
-    justify-content: start;
     align-items: center;
+    justify-content: center;
 }
 
-.SettingsContainer.hidden {
-    display: none;
+.SettingsContainer {
+    width: 32rem;
+    background: var(--bg-color, #1e1e2e);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.SettingsTitle {
+    font-size: 1.1rem;
+    font-weight: 600;
 }
 
 .SettingsClause {
     display: flex;
-    flex-direction: row;
-    gap: 1em;
+    flex-direction: column;
+    gap: 0.35rem;
+}
 
-    justify-content: center;
+.SettingsLabel {
+    font-size: 0.8rem;
+    opacity: 0.65;
+    font-weight: 500;
+}
+
+.TokenRow {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
     align-items: center;
+}
+
+.RevealButton {
+    padding: 0.3rem 0.75rem;
+    border-radius: var(--border-radius, 0.4rem);
+    border: 1px solid var(--info-color, #888);
+    background: transparent;
+    color: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover {
+        background: var(--accent-bg-color);
+    }
+}
+
+.ValidationError {
+    font-size: 0.75rem;
+    color: var(--ping-disabled, #e55);
+}
+
+.ValidationWarn {
+    font-size: 0.75rem;
+    color: var(--ping-unknown, #f90);
+}
+
+.SettingsActions {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.ResetButton {
+    padding: 0.4rem 1rem;
+    border-radius: var(--border-radius, 0.4rem);
+    border: 1px solid var(--info-color, #888);
+    background: transparent;
+    color: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+
+    &:hover {
+        background: var(--accent-bg-color);
+    }
+}
+
+.SaveButton {
+    padding: 0.4rem 1.25rem;
+    border-radius: var(--border-radius, 0.4rem);
+    border: none;
+    background: var(--ping-health, #3a7);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    &:not(:disabled):hover {
+        filter: brightness(1.1);
+    }
+}
+
+.EnvSection {
+    border-top: 1px solid var(--accent-bg-color, #333);
+    padding-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.EnvTitle {
+    font-size: 0.75rem;
+    font-weight: 600;
+    opacity: 0.5;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.EnvRow {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    font-size: 0.78rem;
+}
+
+.EnvKey {
+    font-family: monospace;
+    opacity: 0.55;
+    flex-shrink: 0;
+}
+
+.EnvVal {
+    font-family: monospace;
+    word-break: break-all;
 }

@@ -1,0 +1,3175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Velez — Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+          rel="stylesheet"/>
+    <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"
+            integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L"
+            crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"
+            integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm"
+            crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"
+            integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
+            crossorigin="anonymous"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body, #root {
+            width: 100%;
+            height: 100%;
+            background: #0c0c0f;
+            overflow: hidden;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1
+            }
+            50% {
+                opacity: 0.4
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(6px)
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-6px)
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0)
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0
+            }
+            100% {
+                background-position: 200% 0
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(10, 183, 238, 0.18);
+            border-radius: 99px;
+        }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+    const {useState, useEffect, useRef, useCallback, useMemo} = React;
+
+    // ─── Tweaks panel (inlined) ───────────────────────────────────────
+    const __TWEAKS_STYLE = `
+  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
+    max-height:calc(100vh - 32px);display:flex;flex-direction:column;
+    background:rgba(250,249,247,.88);color:#29261b;
+    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
+    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
+    box-shadow:0 12px 40px rgba(0,0,0,.22);
+    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
+  .twk-hd{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 8px 10px 14px;cursor:move;user-select:none}
+  .twk-hd b{font-size:12px;font-weight:600}
+  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);
+    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
+  .twk-x:hover{background:rgba(0,0,0,.06)}
+  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;
+    overflow-y:auto;min-height:0}
+  .twk-row{display:flex;flex-direction:column;gap:5px}
+  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;color:rgba(41,38,27,.72)}
+  .twk-lbl>span:first-child{font-weight:500}
+  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:rgba(41,38,27,.45);padding:10px 0 0}
+  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;
+    background:rgba(0,0,0,.06);user-select:none}
+  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;
+    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);
+    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
+  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;
+    background:transparent;color:inherit;font:inherit;font-weight:500;min-height:22px;
+    border-radius:6px;cursor:default;padding:4px 6px}
+  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;
+    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
+  .twk-toggle[data-on="1"]{background:#34c759}
+  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
+`;
+
+    function useTweaks(defaults) {
+        const [values, setValues] = useState(defaults);
+        const setTweak = useCallback((keyOrEdits, val) => {
+            const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null
+                ? keyOrEdits : {[keyOrEdits]: val};
+            setValues(prev => ({...prev, ...edits}));
+            window.parent.postMessage({type: '__edit_mode_set_keys', edits}, '*');
+        }, []);
+
+        function TweaksPanel({children}) {
+            const [open, setOpen] = useState(false);
+            const dragRef = useRef(null);
+            const offsetRef = useRef({x: 16, y: 16});
+
+            useEffect(() => {
+                const onMsg = e => {
+                    const t = e?.data?.type;
+                    if (t === '__activate_edit_mode') setOpen(true);
+                    else if (t === '__deactivate_edit_mode') setOpen(false);
+                };
+                window.addEventListener('message', onMsg);
+                window.parent.postMessage({type: '__edit_mode_available'}, '*');
+                return () => window.removeEventListener('message', onMsg);
+            }, []);
+
+            const dismiss = () => {
+                setOpen(false);
+                window.parent.postMessage({type: '__edit_mode_dismissed'}, '*');
+            };
+
+            const onDragStart = e => {
+                const panel = dragRef.current;
+                if (!panel) return;
+                const r = panel.getBoundingClientRect();
+                const sx = e.clientX, sy = e.clientY;
+                const startRight = window.innerWidth - r.right;
+                const startBottom = window.innerHeight - r.bottom;
+                const move = ev => {
+                    offsetRef.current = {
+                        x: Math.max(8, startRight - (ev.clientX - sx)),
+                        y: Math.max(8, startBottom - (ev.clientY - sy)),
+                    };
+                    if (panel) {
+                        panel.style.right = offsetRef.current.x + 'px';
+                        panel.style.bottom = offsetRef.current.y + 'px';
+                    }
+                };
+                const up = () => {
+                    window.removeEventListener('mousemove', move);
+                    window.removeEventListener('mouseup', up);
+                };
+                window.addEventListener('mousemove', move);
+                window.addEventListener('mouseup', up);
+            };
+
+            if (!open) return null;
+            return (
+                <>
+                    <style>{__TWEAKS_STYLE}</style>
+                    <div ref={dragRef} className="twk-panel"
+                         style={{right: offsetRef.current.x, bottom: offsetRef.current.y}}>
+                        <div className="twk-hd" onMouseDown={onDragStart}>
+                            <b>Tweaks</b>
+                            <button className="twk-x" onMouseDown={e => e.stopPropagation()} onClick={dismiss}>✕
+                            </button>
+                        </div>
+                        <div className="twk-body">{children}</div>
+                    </div>
+                </>
+            );
+        }
+
+        function TweakSection({label}) {
+            return <div className="twk-sect">{label}</div>;
+        }
+
+        function TweakToggle({id, label}) {
+            return (
+                <div className="twk-row twk-row-h">
+                    <div className="twk-lbl"><span>{label}</span></div>
+                    <button type="button" className="twk-toggle" data-on={values[id] ? '1' : '0'}
+                            onClick={() => setTweak(id, !values[id])}><i/></button>
+                </div>
+            );
+        }
+
+        function TweakRadio({id, label, options}) {
+            const trackRef = useRef(null);
+            const opts = options.map(o => typeof o === 'object' ? o : {value: o, label: o});
+            const idx = Math.max(0, opts.findIndex(o => o.value === values[id]));
+            const n = opts.length;
+            return (
+                <div className="twk-row">
+                    <div className="twk-lbl"><span>{label}</span></div>
+                    <div ref={trackRef} className="twk-seg">
+                        <div className="twk-seg-thumb"
+                             style={{left: `calc(2px + ${idx}*(100% - 4px)/${n})`, width: `calc((100% - 4px)/${n})`}}/>
+                        {opts.map(o => (
+                            <button key={o.value} type="button" onClick={() => setTweak(id, o.value)}>{o.label}</button>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        return {tweaks: values, setTweak, TweaksPanel, TweakSection, TweakToggle, TweakRadio};
+    }
+
+    // ─── Design tokens (matches landing page) ─────────────────────────
+    const T = {
+        bg: '#0c0c0f',
+        bg2: '#13131a',
+        bg3: '#1c1c26',
+        bg4: '#22222f',
+        border: 'rgba(10,183,238,0.12)',
+        borderM: 'rgba(10,183,238,0.28)',
+        borderH: 'rgba(10,183,238,0.45)',
+        cyan: '#0ab7ee',
+        cyanDim: 'rgba(10,183,238,0.10)',
+        cyanGlow: 'rgba(10,183,238,0.06)',
+        red: '#ed2f32',
+        redDim: 'rgba(237,47,50,0.12)',
+        green: '#28c840',
+        greenDim: 'rgba(40,200,64,0.12)',
+        amber: '#f5a623',
+        amberDim: 'rgba(245,166,35,0.12)',
+        fg: '#e8e8f0',
+        fgMid: '#b0b0c8',
+        fgDim: '#72728a',
+        fgFaint: '#3a3a52',
+        mono: "'JetBrains Mono', monospace",
+        sans: "'Comfortaa', sans-serif",
+    };
+
+    // ─── Mock data ────────────────────────────────────────────────────
+    const NODES = [
+        {id: 'node01', host: '192.168.1.10', region: 'eu-west', status: 'online', cpu: 38, mem: 52, services: 5},
+        {id: 'node02', host: '192.168.1.42', region: 'eu-west', status: 'online', cpu: 71, mem: 68, services: 3},
+        {id: 'node03', host: '10.0.0.15', region: 'us-east', status: 'degraded', cpu: 89, mem: 81, services: 2},
+    ];
+
+    const SERVICES = [
+        // Running
+        {
+            id: 's1',
+            name: 'matreshka-be',
+            image: 'godverv/matreshka:latest',
+            node: 'node01',
+            status: 'running',
+            cpu: 12,
+            mem: 180,
+            uptime: '14d 3h',
+            ports: ['8080'],
+            secrets: 3,
+            restarts: 0,
+            column: 'running',
+            env: 'prod',
+            incident: false,
+            releaseFrozen: false
+        },
+        {
+            id: 's2',
+            name: 'svarog',
+            image: 'godverv/svarog:0.4.1',
+            node: 'node01',
+            status: 'running',
+            cpu: 4,
+            mem: 96,
+            uptime: '14d 3h',
+            ports: ['9090'],
+            secrets: 1,
+            restarts: 0,
+            column: 'running',
+            env: 'prod',
+            incident: false,
+            releaseFrozen: true
+        },
+        {
+            id: 's3',
+            name: 'makosh',
+            image: 'godverv/makosh:latest',
+            node: 'node01',
+            status: 'running',
+            cpu: 8,
+            mem: 128,
+            uptime: '9d 11h',
+            ports: ['50051'],
+            secrets: 2,
+            restarts: 1,
+            column: 'running',
+            env: 'stage',
+            incident: false,
+            releaseFrozen: false
+        },
+        {
+            id: 's4',
+            name: 'api-gateway',
+            image: 'internal/gateway:v2.1',
+            node: 'node02',
+            status: 'running',
+            cpu: 33,
+            mem: 512,
+            uptime: '6d 4h',
+            ports: ['443', '80'],
+            secrets: 5,
+            restarts: 0,
+            column: 'running',
+            env: 'prod',
+            incident: true,
+            releaseFrozen: false
+        },
+        {
+            id: 's5',
+            name: 'worker-queue',
+            image: 'internal/worker:v1.9',
+            node: 'node02',
+            status: 'running',
+            cpu: 21,
+            mem: 256,
+            uptime: '6d 4h',
+            ports: [],
+            secrets: 2,
+            restarts: 2,
+            column: 'running',
+            env: 'stage',
+            incident: false,
+            releaseFrozen: true
+        },
+        // Degraded
+        {
+            id: 's6',
+            name: 'postgres-main',
+            image: 'postgres:16-alpine',
+            node: 'node03',
+            status: 'degraded',
+            cpu: 89,
+            mem: 1800,
+            uptime: '3d 7h',
+            ports: ['5432'],
+            secrets: 4,
+            restarts: 12,
+            column: 'degraded',
+            env: 'prod',
+            incident: true,
+            releaseFrozen: false
+        },
+        {
+            id: 's7',
+            name: 'redis-cache',
+            image: 'redis:7-alpine',
+            node: 'node02',
+            status: 'degraded',
+            cpu: 44,
+            mem: 320,
+            uptime: '1h 20m',
+            ports: ['6379'],
+            secrets: 0,
+            restarts: 5,
+            column: 'degraded',
+            env: 'prod',
+            incident: false,
+            releaseFrozen: false
+        },
+        // Stopped
+        {
+            id: 's8',
+            name: 'prometheus',
+            image: 'prom/prometheus:latest',
+            node: 'node01',
+            status: 'stopped',
+            cpu: 0,
+            mem: 0,
+            uptime: 'stopped',
+            ports: ['9091'],
+            secrets: 0,
+            restarts: 0,
+            column: 'stopped',
+            env: 'stage',
+            incident: false,
+            releaseFrozen: false
+        },
+        {
+            id: 's9',
+            name: 'grafana',
+            image: 'grafana/grafana:latest',
+            node: 'node01',
+            status: 'stopped',
+            cpu: 0,
+            mem: 0,
+            uptime: 'stopped',
+            ports: ['3000'],
+            secrets: 1,
+            restarts: 0,
+            column: 'stopped',
+            env: 'stage',
+            incident: false,
+            releaseFrozen: false
+        },
+    ];
+
+    const VCN_PEERS = [
+        {
+            id: 'p1',
+            name: 'node01 ↔ node02',
+            type: 'mesh',
+            latency: '1.2ms',
+            status: 'active',
+            rx: '2.4 GB',
+            tx: '1.8 GB'
+        },
+        {
+            id: 'p2',
+            name: 'node01 ↔ node03',
+            type: 'mesh',
+            latency: '18ms',
+            status: 'active',
+            rx: '840 MB',
+            tx: '620 MB'
+        },
+        {
+            id: 'p3',
+            name: 'node02 ↔ node03',
+            type: 'mesh',
+            latency: '19ms',
+            status: 'degraded',
+            rx: '120 MB',
+            tx: '88 MB'
+        },
+        {id: 'p4', name: 'edge-01', type: 'gateway', latency: '—', status: 'active', rx: '5.2 GB', tx: '3.1 GB'},
+        {id: 'p5', name: 'vpn-client-1', type: 'client', latency: '42ms', status: 'active', rx: '220 MB', tx: '90 MB'},
+    ];
+
+    // ─── Tiny helpers ─────────────────────────────────────────────────
+    function Badge({label, color, dim}) {
+        return (
+            <span style={{
+                fontFamily: T.mono, fontSize: 10, color: color,
+                border: `1px solid ${color}44`, borderRadius: 4,
+                padding: '1px 7px', flexShrink: 0, letterSpacing: '0.04em',
+                background: dim || 'transparent',
+            }}>{label}</span>
+        );
+    }
+
+    function StatusDot({status, pulse: doPulse}) {
+        const c = {
+            running: T.green,
+            degraded: T.amber,
+            stopped: T.fgFaint,
+            online: T.green,
+            offline: T.red
+        }[status] || T.fgDim;
+        return (
+            <span style={{
+                display: 'inline-block', width: 7, height: 7, borderRadius: '50%',
+                background: c, flexShrink: 0,
+                animation: (doPulse && status === 'running') ? 'pulse 2.2s ease-in-out infinite' : 'none',
+            }}></span>
+        );
+    }
+
+    function MiniBar({val, color, max = 100}) {
+        const pct = Math.min(100, (val / max) * 100);
+        const c = pct > 80 ? T.red : pct > 60 ? T.amber : color || T.cyan;
+        return (
+            <div style={{height: 3, background: T.bg4, borderRadius: 99, overflow: 'hidden', width: '100%'}}>
+                <div style={{
+                    height: '100%',
+                    width: `${pct}%`,
+                    background: c,
+                    borderRadius: 99,
+                    transition: 'width 0.6s ease'
+                }}></div>
+            </div>
+        );
+    }
+
+    function IconBtn({label, title, onClick, danger}) {
+        const [hov, setHov] = useState(false);
+        return (
+            <button title={title} onClick={onClick}
+                    onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+                    style={{
+                        background: hov ? (danger ? T.redDim : T.cyanDim) : 'transparent',
+                        border: `1px solid ${hov ? (danger ? T.red + '44' : T.borderM) : T.border}`,
+                        borderRadius: 6, color: danger ? T.red : T.fgMid,
+                        fontFamily: T.mono, fontSize: 11, padding: '4px 8px', cursor: 'pointer',
+                        transition: 'all 0.15s',
+                    }}>{label}</button>
+        );
+    }
+
+    // ─── Status chips ─────────────────────────────────────────────────
+    function EnvChip({env}) {
+        const isProd = env === 'prod';
+        return (
+            <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                fontFamily: T.mono, fontSize: 10, fontWeight: 500,
+                padding: '2px 7px', borderRadius: 99,
+                background: isProd ? 'rgba(10,183,238,0.10)' : 'rgba(114,114,138,0.12)',
+                border: `1px solid ${isProd ? 'rgba(10,183,238,0.30)' : 'rgba(114,114,138,0.25)'}`,
+                color: isProd ? T.cyan : T.fgDim,
+                letterSpacing: '0.03em',
+            }}>
+      <span style={{
+          width: 5,
+          height: 5,
+          borderRadius: '50%',
+          background: isProd ? T.cyan : T.fgDim,
+          display: 'block',
+          opacity: 0.7
+      }}></span>
+                {env}
+    </span>
+        );
+    }
+
+    function IncidentChip() {
+        return (
+            <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                fontFamily: T.mono, fontSize: 10, fontWeight: 500,
+                padding: '2px 7px', borderRadius: 99,
+                background: 'rgba(237,47,50,0.10)',
+                border: `1px solid rgba(237,47,50,0.30)`,
+                color: T.red,
+                letterSpacing: '0.03em',
+            }}>
+      {/* warning triangle */}
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{flexShrink: 0}}>
+        <path d="M5 1.2L9.2 8.8H0.8L5 1.2Z" stroke={T.red} strokeWidth="1.2" strokeLinejoin="round"
+              fill="rgba(237,47,50,0.18)"/>
+        <line x1="5" y1="4.2" x2="5" y2="6.4" stroke={T.red} strokeWidth="1.1" strokeLinecap="round"/>
+        <circle cx="5" cy="7.5" r="0.55" fill={T.red}/>
+      </svg>
+      incident
+    </span>
+        );
+    }
+
+    function FreezChip() {
+        return (
+            <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                fontFamily: T.mono, fontSize: 10, fontWeight: 500,
+                padding: '2px 7px', borderRadius: 99,
+                background: 'rgba(96,165,250,0.10)',
+                border: `1px solid rgba(96,165,250,0.28)`,
+                color: '#60a5fa',
+                letterSpacing: '0.03em',
+            }}>
+      {/* snowflake */}
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{flexShrink: 0}}>
+        <line x1="5" y1="1" x2="5" y2="9" stroke="#60a5fa" strokeWidth="1.2" strokeLinecap="round"/>
+        <line x1="1" y1="5" x2="9" y2="5" stroke="#60a5fa" strokeWidth="1.2" strokeLinecap="round"/>
+        <line x1="2.05" y1="2.05" x2="7.95" y2="7.95" stroke="#60a5fa" strokeWidth="1.2" strokeLinecap="round"/>
+        <line x1="7.95" y1="2.05" x2="2.05" y2="7.95" stroke="#60a5fa" strokeWidth="1.2" strokeLinecap="round"/>
+        <circle cx="5" cy="1" r="0.9" fill="#60a5fa"/>
+        <circle cx="5" cy="9" r="0.9" fill="#60a5fa"/>
+        <circle cx="1" cy="5" r="0.9" fill="#60a5fa"/>
+        <circle cx="9" cy="5" r="0.9" fill="#60a5fa"/>
+      </svg>
+      freeze
+    </span>
+        );
+    }
+
+    // ─── Three-dot context menu ───────────────────────────────────────
+    function ThreeDotMenu({svc}) {
+        const [open, setOpen] = useState(false);
+        const ref = useRef(null);
+
+        useEffect(() => {
+            if (!open) return;
+            const handler = e => {
+                if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+            };
+            document.addEventListener('mousedown', handler);
+            return () => document.removeEventListener('mousedown', handler);
+        }, [open]);
+
+        const actions = [];
+        if (svc.status === 'running') actions.push({label: 'Restart', icon: '↺', danger: false});
+        if (svc.status === 'running') actions.push({label: 'Stop', icon: '◼', danger: true});
+        if (svc.status === 'stopped') actions.push({label: 'Start', icon: '▶', danger: false});
+        if (svc.status === 'degraded') actions.push({label: 'Restart', icon: '↺', danger: false});
+        actions.push({label: 'View logs', icon: '≈', danger: false});
+        actions.push({label: 'Shell', icon: '$', danger: false});
+
+        return (
+            <div ref={ref} style={{position: 'relative'}}>
+                <button
+                    onClick={e => {
+                        e.stopPropagation();
+                        setOpen(o => !o);
+                    }}
+                    style={{
+                        background: open ? T.bg4 : 'transparent',
+                        border: `1px solid ${open ? T.borderM : T.border}`,
+                        borderRadius: 6, color: T.fgDim, width: 26, height: 26,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', fontSize: 14, letterSpacing: '-1px',
+                        transition: 'all 0.12s', flexShrink: 0,
+                        fontFamily: 'serif',
+                    }}>
+                    ···
+                </button>
+                {open && (
+                    <div style={{
+                        position: 'absolute', top: 'calc(100% + 4px)', right: 0, zIndex: 100,
+                        background: T.bg3, border: `1px solid ${T.borderM}`,
+                        borderRadius: 9, padding: 4, minWidth: 140,
+                        boxShadow: `0 8px 24px rgba(0,0,0,0.5)`,
+                        animation: 'fadeUp 0.12s ease both',
+                    }}>
+                        {actions.map((a, i) => (
+                            <button key={i} onClick={() => setOpen(false)}
+                                    style={{
+                                        display: 'flex', alignItems: 'center', gap: 9,
+                                        width: '100%', background: 'transparent', border: 'none',
+                                        borderRadius: 6, padding: '7px 10px', cursor: 'pointer',
+                                        color: a.danger ? T.red : T.fgMid,
+                                        fontFamily: T.mono, fontSize: 11.5, textAlign: 'left',
+                                        transition: 'background 0.1s',
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.background = a.danger ? T.redDim : T.bg4}
+                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                                <span
+                                    style={{fontSize: 12, opacity: 0.7, width: 14, textAlign: 'center'}}>{a.icon}</span>
+                                {a.label}
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    // ─── Velez icon (copied from landing) ────────────────────────────
+    function VelezIcon({size = 24}) {
+        return (
+            <svg width={size} height={size} viewBox="0 0 128 128" fill="none">
+                <path d="M92.531 64L64 92.5311L75.3137 103.845L103.845 75.3137L92.531 64Z" fill="url(#da)"/>
+                <path d="M35.3137 64L63.8448 92.5311L52.5311 103.845L24 75.3137L35.3137 64Z" fill="url(#db)"/>
+                <path d="M16 32V56H32V32H16Z" fill="url(#dc)"/>
+                <path d="M96 36V56H112V36H96Z" fill="url(#dd)"/>
+                <path
+                    d="M24 36C30.6274 36 36 30.6274 36 24C36 17.3726 30.6274 12 24 12C17.3726 12 12 17.3726 12 24C12 30.6274 17.3726 36 24 36Z"
+                    stroke="url(#de)" strokeWidth="8"/>
+                <path
+                    d="M24 76C30.6274 76 36 70.6274 36 64C36 57.3726 30.6274 52 24 52C17.3726 52 12 57.3726 12 64C12 70.6274 17.3726 76 24 76Z"
+                    stroke="url(#df)" strokeWidth="8"/>
+                <path
+                    d="M104 36C110.627 36 116 30.6274 116 24C116 17.3726 110.627 12 104 12C97.3726 12 92 17.3726 92 24C92 30.6274 97.3726 36 104 36Z"
+                    stroke="url(#dg)" strokeWidth="8"/>
+                <path
+                    d="M104 76C110.627 76 116 70.6274 116 64C116 57.3726 110.627 52 104 52C97.3726 52 92 57.3726 92 64C92 70.6274 97.3726 76 104 76Z"
+                    stroke="url(#dh)" strokeWidth="8"/>
+                <path
+                    d="M64 116C70.6274 116 76 110.627 76 104C76 97.3726 70.6274 92 64 92C57.3726 92 52 97.3726 52 104C52 110.627 57.3726 116 64 116Z"
+                    stroke="url(#di)" strokeWidth="8"/>
+                <path
+                    d="M64 38C70.6274 38 76 32.6274 76 26C76 19.3726 70.6274 14 64 14C57.3726 14 52 19.3726 52 26C52 32.6274 57.3726 38 64 38Z"
+                    stroke="url(#dj)" strokeWidth="8"/>
+                <path
+                    d="M64 52C70.6274 52 76 57.3726 76 64C76 70.6274 70.6274 76 64 76C57.3726 76 52 70.6274 52 64C52 57.3726 57.3726 52 64 52Z"
+                    stroke="url(#dk)" strokeWidth="8"/>
+                <defs>
+                    <linearGradient id="da" x1="88.985" y1="68.7" x2="75.557" y2="97.734"
+                                    gradientUnits="userSpaceOnUse">
+                        <stop stopColor="#890F11"/>
+                        <stop offset="1" stopColor="#ED2F32"/>
+                    </linearGradient>
+                    <linearGradient id="db" x1="38.86" y1="68.7" x2="52.288" y2="97.734" gradientUnits="userSpaceOnUse">
+                        <stop stopColor="#890F11"/>
+                        <stop offset="1" stopColor="#ED2F32"/>
+                    </linearGradient>
+                    <linearGradient id="dc" x1="24" y1="39.61" x2="24" y2="48.39" gradientUnits="userSpaceOnUse">
+                        <stop stopColor="#690506"/>
+                        <stop offset="0.71" stopColor="#F03033"/>
+                    </linearGradient>
+                    <linearGradient id="dd" x1="104" y1="34" x2="104" y2="55" gradientUnits="userSpaceOnUse">
+                        <stop offset="0.227" stopColor="#690506"/>
+                        <stop offset="0.797" stopColor="#FD3438"/>
+                    </linearGradient>
+                    <linearGradient id="de" x1="24" y1="40" x2="24" y2="8" gradientUnits="userSpaceOnUse">
+                        <stop offset="0.095" stopColor="#690506"/>
+                        <stop offset="0.96" stopColor="#F03033"/>
+                    </linearGradient>
+                    <linearGradient id="df" x1="24" y1="48" x2="24" y2="80" gradientUnits="userSpaceOnUse">
+                        <stop stopColor="#FF3438"/>
+                        <stop offset="1" stopColor="#620204"/>
+                    </linearGradient>
+                    <linearGradient id="dg" x1="104" y1="8" x2="104" y2="40" gradientUnits="userSpaceOnUse">
+                        <stop stopColor="#FF3438"/>
+                        <stop offset="1" stopColor="#620204"/>
+                    </linearGradient>
+                    <linearGradient id="dh" x1="104" y1="48" x2="104" y2="80" gradientUnits="userSpaceOnUse">
+                        <stop stopColor="#FF3438"/>
+                        <stop offset="1" stopColor="#620204"/>
+                    </linearGradient>
+                    <linearGradient id="di" x1="64" y1="88" x2="64" y2="120" gradientUnits="userSpaceOnUse">
+                        <stop stopColor="#D5282A"/>
+                        <stop offset="1" stopColor="#6F1516"/>
+                    </linearGradient>
+                    <linearGradient id="dj" x1="64" y1="10" x2="64" y2="42" gradientUnits="userSpaceOnUse">
+                        <stop stopColor="#D5282A"/>
+                        <stop offset="1" stopColor="#6F1516"/>
+                    </linearGradient>
+                    <linearGradient id="dk" x1="64" y1="80" x2="64" y2="48" gradientUnits="userSpaceOnUse">
+                        <stop stopColor="#D5282A"/>
+                        <stop offset="1" stopColor="#6F1516"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+        );
+    }
+
+    // ─── Sidebar ──────────────────────────────────────────────────────
+    function Sidebar({collapsed, activeNode, setActiveNode, activeNav, setActiveNav}) {
+        const W = collapsed ? 56 : 220;
+
+        const navItems = [
+            {id: 'controlplane', label: 'Control Plane', icon: '⬡'},
+            {id: 'vcn', label: 'VCN', icon: '◎'},
+            {id: 'deployments', label: 'Deployments', icon: '⬕'},
+            {id: 'search', label: 'Search', icon: '⌕'},
+        ];
+
+        const secItems = [
+            {id: 'secrets', label: 'Secrets', icon: '⊡'},
+            {id: 'config', label: 'Config', icon: '≡'},
+            {id: 'logs', label: 'Logs', icon: '≈'},
+            {id: 'settings', label: 'Settings', icon: '◈'},
+        ];
+
+        return (
+            <div style={{
+                width: W, flexShrink: 0, background: T.bg2,
+                borderRight: `1px solid ${T.border}`,
+                display: 'flex', flexDirection: 'column',
+                transition: 'width 0.22s cubic-bezier(.4,0,.2,1)',
+                overflow: 'hidden',
+            }}>
+                {/* Logo */}
+                <div style={{
+                    height: 56, display: 'flex', alignItems: 'center',
+                    padding: collapsed ? '0 14px' : '0 18px',
+                    borderBottom: `1px solid ${T.border}`, gap: 10, flexShrink: 0,
+                }}>
+                    <VelezIcon size={22}/>
+                    {!collapsed && (
+                        <span style={{
+                            fontFamily: T.sans,
+                            fontWeight: 700,
+                            fontSize: 15,
+                            color: T.fg,
+                            whiteSpace: 'nowrap'
+                        }}>
+            Velez
+            <span style={{color: T.fgDim, fontWeight: 300, marginLeft: 5, fontSize: 13}}> / VervStack</span>
+          </span>
+                    )}
+                </div>
+
+                {/* Nodes */}
+                {!collapsed && (
+                    <div style={{padding: '14px 12px 8px', flexShrink: 0}}>
+                        <div style={{
+                            fontFamily: T.mono,
+                            fontSize: 9,
+                            color: T.fgDim,
+                            letterSpacing: '0.1em',
+                            textTransform: 'uppercase',
+                            marginBottom: 8,
+                            paddingLeft: 6
+                        }}>Nodes
+                        </div>
+                        {NODES.map(n => (
+                            <div key={n.id} onClick={() => setActiveNode(n.id)}
+                                 style={{
+                                     display: 'flex', alignItems: 'center', gap: 8,
+                                     padding: '7px 8px', borderRadius: 7, cursor: 'pointer',
+                                     background: activeNode === n.id ? T.bg3 : 'transparent',
+                                     border: activeNode === n.id ? `1px solid ${T.border}` : '1px solid transparent',
+                                     marginBottom: 2, transition: 'all 0.12s',
+                                 }}>
+                                <StatusDot status={n.status}/>
+                                <div style={{flex: 1, minWidth: 0}}>
+                                    <div style={{
+                                        fontFamily: T.mono,
+                                        fontSize: 11.5,
+                                        color: activeNode === n.id ? T.fg : T.fgMid,
+                                        fontWeight: 500,
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis'
+                                    }}>{n.id}</div>
+                                    <div style={{fontFamily: T.mono, fontSize: 9.5, color: T.fgDim}}>{n.host}</div>
+                                </div>
+                                {n.status === 'degraded' && <span style={{fontSize: 9, color: T.amber}}>!</span>}
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {collapsed && (
+                    <div style={{
+                        padding: '10px 0',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 6,
+                        alignItems: 'center'
+                    }}>
+                        {NODES.map(n => (
+                            <div key={n.id} onClick={() => setActiveNode(n.id)} title={n.id}
+                                 style={{cursor: 'pointer', padding: 6}}>
+                                <StatusDot status={n.status}/>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                <div style={{height: 1, background: T.border, margin: '4px 12px', flexShrink: 0}}></div>
+
+                {/* Main nav */}
+                <div style={{padding: '8px 8px', flex: 1, display: 'flex', flexDirection: 'column'}}>
+                    <div style={{
+                        fontFamily: T.mono,
+                        fontSize: 9,
+                        color: T.fgDim,
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
+                        marginBottom: 8,
+                        paddingLeft: collapsed ? 0 : 6,
+                        textAlign: collapsed ? 'center' : 'left',
+                        flexShrink: 0
+                    }}>
+                        {!collapsed && 'Services'}
+                    </div>
+                    {navItems.map(item => {
+                        const active = activeNav === item.id;
+                        return (
+                            <div key={item.id} onClick={() => setActiveNav(item.id)} title={collapsed ? item.label : ''}
+                                 style={{
+                                     display: 'flex', alignItems: 'center', gap: 10,
+                                     padding: collapsed ? '10px 0' : '9px 10px',
+                                     justifyContent: collapsed ? 'center' : 'flex-start',
+                                     borderRadius: 8, cursor: 'pointer', marginBottom: 2,
+                                     background: active ? T.redDim : 'transparent',
+                                     border: active ? `1px solid ${T.red}22` : '1px solid transparent',
+                                     color: active ? T.red : T.fgDim,
+                                     transition: 'all 0.12s',
+                                 }}
+                                 onMouseEnter={e => {
+                                     if (!active) e.currentTarget.style.background = T.bg3;
+                                 }}
+                                 onMouseLeave={e => {
+                                     if (!active) e.currentTarget.style.background = 'transparent';
+                                 }}>
+                                <span style={{fontSize: 14, flexShrink: 0}}>{item.icon}</span>
+                                {!collapsed && <span style={{
+                                    fontFamily: T.sans,
+                                    fontSize: 13,
+                                    fontWeight: active ? 700 : 400
+                                }}>{item.label}</span>}
+                            </div>
+                        );
+                    })}
+
+                    <div style={{height: 1, background: T.border, margin: '8px 4px', flexShrink: 0}}></div>
+                    <div style={{
+                        fontFamily: T.mono,
+                        fontSize: 9,
+                        color: T.fgDim,
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
+                        marginBottom: 8,
+                        paddingLeft: collapsed ? 0 : 6,
+                        textAlign: collapsed ? 'center' : 'left',
+                        flexShrink: 0
+                    }}>
+                        {!collapsed && 'Tools'}
+                    </div>
+
+                    {secItems.map(item => (
+                        <div key={item.id} title={collapsed ? item.label : ''}
+                             style={{
+                                 display: 'flex', alignItems: 'center', gap: 10,
+                                 padding: collapsed ? '8px 0' : '8px 10px',
+                                 justifyContent: collapsed ? 'center' : 'flex-start',
+                                 borderRadius: 8, cursor: 'pointer', marginBottom: 1,
+                                 color: T.fgDim, transition: 'all 0.12s',
+                             }}
+                             onMouseEnter={e => {
+                                 e.currentTarget.style.background = T.bg3;
+                                 e.currentTarget.style.color = T.fgMid;
+                             }}
+                             onMouseLeave={e => {
+                                 e.currentTarget.style.background = 'transparent';
+                                 e.currentTarget.style.color = T.fgDim;
+                             }}>
+                            <span style={{fontSize: 13, flexShrink: 0}}>{item.icon}</span>
+                            {!collapsed && <span style={{fontFamily: T.sans, fontSize: 12.5}}>{item.label}</span>}
+                        </div>
+                    ))}
+                </div>
+
+                {/* Bottom user */}
+                <div style={{
+                    borderTop: `1px solid ${T.border}`,
+                    padding: collapsed ? '12px 0' : '12px 14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    justifyContent: collapsed ? 'center' : 'flex-start',
+                    flexShrink: 0
+                }}>
+                    <div style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: '50%',
+                        background: `linear-gradient(135deg, ${T.red}, ${T.cyan})`,
+                        flexShrink: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontFamily: T.mono,
+                        fontSize: 11,
+                        color: '#fff',
+                        fontWeight: 600
+                    }}>RS
+                    </div>
+                    {!collapsed && (
+                        <div>
+                            <div style={{fontFamily: T.sans, fontSize: 12, color: T.fg, fontWeight: 600}}>RedSock</div>
+                            <div style={{fontFamily: T.mono, fontSize: 10, color: T.fgDim}}>admin</div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    // ─── Top bar ──────────────────────────────────────────────────────
+    function TopBar({
+                        collapsed,
+                        setCollapsed,
+                        activeNav,
+                        setActiveNav,
+                        activeNode,
+                        showAllNodes,
+                        setShowAllNodes,
+                        onDeploy
+                    }) {
+        const node = NODES.find(n => n.id === activeNode);
+        const tabs = [
+            {id: 'controlplane', label: 'Control Plane'},
+            {id: 'vcn', label: 'VCN'},
+            {id: 'deployments', label: 'Deployments'},
+            {id: 'search', label: 'Search'},
+        ];
+
+        return (
+            <div style={{
+                height: 56, display: 'flex', alignItems: 'center',
+                borderBottom: `1px solid ${T.border}`,
+                background: T.bg2, flexShrink: 0,
+                gap: 0,
+            }}>
+                {/* Collapse toggle */}
+                <button onClick={() => setCollapsed(c => !c)}
+                        style={{
+                            width: 56, height: 56, flexShrink: 0,
+                            background: 'transparent', border: 'none', borderRight: `1px solid ${T.border}`,
+                            color: T.fgDim, cursor: 'pointer', fontSize: 14,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            transition: 'color 0.15s',
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.color = T.fg}
+                        onMouseLeave={e => e.currentTarget.style.color = T.fgDim}
+                        title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
+                    {collapsed ? '→' : '←'}
+                </button>
+
+                {/* Breadcrumb + all-nodes toggle */}
+                <div style={{
+                    padding: '0 20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    borderRight: `1px solid ${T.border}`,
+                    height: '100%'
+                }}>
+                    <span style={{fontFamily: T.mono, fontSize: 11, color: T.fgDim}}>cluster</span>
+                    <span style={{fontFamily: T.mono, fontSize: 11, color: T.fgFaint}}>/</span>
+                    {showAllNodes ? (
+                        <span
+                            style={{fontFamily: T.mono, fontSize: 11, color: T.cyan, fontWeight: 500}}>all nodes</span>
+                    ) : (
+                        <>
+                            <span style={{
+                                fontFamily: T.mono,
+                                fontSize: 11,
+                                color: T.fg,
+                                fontWeight: 500
+                            }}>{activeNode}</span>
+                            {node?.status === 'degraded' && (
+                                <span style={{
+                                    fontFamily: T.mono,
+                                    fontSize: 9,
+                                    color: T.amber,
+                                    border: `1px solid ${T.amber}44`,
+                                    borderRadius: 4,
+                                    padding: '1px 6px'
+                                }}>degraded</span>
+                            )}
+                        </>
+                    )}
+                    {/* All nodes pill toggle */}
+                    <button onClick={() => setShowAllNodes(v => !v)}
+                            style={{
+                                marginLeft: 4,
+                                fontFamily: T.mono, fontSize: 10, fontWeight: 500,
+                                padding: '3px 10px', borderRadius: 99, cursor: 'pointer',
+                                border: `1px solid ${showAllNodes ? T.cyan + '66' : T.border}`,
+                                background: showAllNodes ? `rgba(10,183,238,0.12)` : 'transparent',
+                                color: showAllNodes ? T.cyan : T.fgDim,
+                                transition: 'all 0.15s',
+                            }}>all nodes
+                    </button>
+                </div>
+
+                {/* Tab switcher */}
+                <div style={{padding: '0 20px', display: 'flex', alignItems: 'center', gap: 2, flex: 1}}>
+                    <div style={{
+                        display: 'flex',
+                        gap: 2,
+                        background: T.bg3,
+                        borderRadius: 9,
+                        padding: 3,
+                        border: `1px solid ${T.border}`
+                    }}>
+                        {tabs.map(tab => {
+                            const active = activeNav === tab.id;
+                            return (
+                                <button key={tab.id} onClick={() => setActiveNav(tab.id)}
+                                        style={{
+                                            fontFamily: T.sans, fontSize: 12.5, fontWeight: active ? 700 : 400,
+                                            padding: '6px 16px', borderRadius: 7, border: 'none', cursor: 'pointer',
+                                            background: active ? T.red : 'transparent',
+                                            color: active ? '#fff' : T.fgDim,
+                                            transition: 'all 0.15s',
+                                        }}>
+                                    {tab.label}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* Right actions */}
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    padding: '0 20px',
+                    borderLeft: `1px solid ${T.border}`,
+                    height: '100%'
+                }}>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        fontFamily: T.mono,
+                        fontSize: 10.5,
+                        color: T.green
+                    }}>
+                        <span style={{
+                            width: 6,
+                            height: 6,
+                            borderRadius: '50%',
+                            background: T.green,
+                            display: 'block',
+                            animation: 'pulse 2s ease-in-out infinite'
+                        }}></span>
+                        {NODES.filter(n => n.status === 'online').length}/{NODES.length} nodes
+                    </div>
+                    <button onClick={onDeploy} style={{
+                        background: T.red, border: 'none', borderRadius: 7,
+                        color: '#fff', fontFamily: T.sans, fontWeight: 700, fontSize: 12,
+                        padding: '7px 16px', cursor: 'pointer', transition: 'opacity 0.15s', whiteSpace: 'nowrap',
+                    }}
+                            onMouseEnter={e => e.currentTarget.style.opacity = '0.82'}
+                            onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
+                        + Deploy
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // ─── Service Card (Kanban) ─────────────────────────────────────────
+    function ServiceCard({svc, compact}) {
+        const [hov, setHov] = useState(false);
+        const node = NODES.find(n => n.id === svc.node);
+
+        return (
+            <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+                 style={{
+                     background: hov ? T.bg3 : T.bg2,
+                     border: `1px solid ${hov ? T.borderM : T.border}`,
+                     borderRadius: 10, padding: '14px 16px',
+                     transition: 'all 0.15s', animation: 'fadeUp 0.3s ease both',
+                     cursor: 'default',
+                 }}>
+                {/* Header */}
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: 'space-between',
+                    marginBottom: 8,
+                    gap: 8
+                }}>
+                    <div style={{display: 'flex', alignItems: 'center', gap: 8, minWidth: 0}}>
+                        <StatusDot status={svc.status} pulse/>
+                        <span
+                            style={{fontFamily: T.mono, fontSize: 12.5, color: T.fg, fontWeight: 500}}>{svc.name}</span>
+                        {svc.restarts > 0 && (
+                            <span title={`${svc.restarts} restarts`} style={{
+                                fontFamily: T.mono,
+                                fontSize: 9.5,
+                                color: T.amber,
+                                border: `1px solid ${T.amber}33`,
+                                borderRadius: 4,
+                                padding: '1px 6px',
+                                flexShrink: 0
+                            }}>↺{svc.restarts}</span>
+                        )}
+                    </div>
+                    <ThreeDotMenu svc={svc}/>
+                </div>
+
+                {/* Status chips row */}
+                <div style={{display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 10}}>
+                    <EnvChip env={svc.env}/>
+                    {svc.incident && <IncidentChip/>}
+                    {svc.releaseFrozen && <FreezChip/>}
+                </div>
+
+                {/* Image */}
+                <div style={{
+                    fontFamily: T.mono,
+                    fontSize: 10,
+                    color: T.fgDim,
+                    marginBottom: 10,
+                    wordBreak: 'break-all',
+                    lineHeight: 1.5
+                }}>
+                    {svc.image}
+                </div>
+
+                {/* Node badge */}
+                <div style={{display: 'flex', alignItems: 'center', gap: 5, marginBottom: 10}}>
+                    <StatusDot status={node?.status || 'online'}/>
+                    <span style={{fontFamily: T.mono, fontSize: 10, color: T.fgDim}}>{svc.node}</span>
+                    <span style={{fontFamily: T.mono, fontSize: 9.5, color: T.fgFaint}}>{node?.host}</span>
+                </div>
+
+                {/* Stats */}
+                {svc.status !== 'stopped' && (
+                    <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 12px', marginBottom: 4}}>
+                        <div>
+                            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 3}}>
+                                <span style={{fontFamily: T.mono, fontSize: 9.5, color: T.fgDim}}>CPU</span>
+                                <span style={{
+                                    fontFamily: T.mono,
+                                    fontSize: 9.5,
+                                    color: svc.cpu > 80 ? T.red : svc.cpu > 60 ? T.amber : T.fgMid
+                                }}>{svc.cpu}%</span>
+                            </div>
+                            <MiniBar val={svc.cpu} color={T.cyan}/>
+                        </div>
+                        <div>
+                            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 3}}>
+                                <span style={{fontFamily: T.mono, fontSize: 9.5, color: T.fgDim}}>MEM</span>
+                                <span style={{
+                                    fontFamily: T.mono,
+                                    fontSize: 9.5,
+                                    color: T.fgMid
+                                }}>{svc.mem < 1000 ? svc.mem + 'M' : (svc.mem / 1000).toFixed(1) + 'G'}</span>
+                            </div>
+                            <MiniBar val={svc.mem} max={2048} color={T.cyan}/>
+                        </div>
+                        <div style={{gridColumn: '1/-1', display: 'flex', justifyContent: 'space-between'}}>
+                            <span style={{fontFamily: T.mono, fontSize: 9.5, color: T.fgDim}}>uptime</span>
+                            <span style={{fontFamily: T.mono, fontSize: 9.5, color: T.fgMid}}>{svc.uptime}</span>
+                        </div>
+                    </div>
+                )}
+
+                {svc.status === 'stopped' && (
+                    <div style={{fontFamily: T.mono, fontSize: 10, color: T.fgFaint, fontStyle: 'italic'}}>container
+                        stopped</div>
+                )}
+            </div>
+        );
+    }
+
+    // ─── Service List Row ────────────────────────────────────────────
+    function ServiceListRow({svc}) {
+        const [hov, setHov] = useState(false);
+        const node = NODES.find(n => n.id === svc.node);
+        return (
+            <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+                 style={{
+                     display: 'grid', gridTemplateColumns: '28px 1fr 120px 80px 80px 80px 36px',
+                     alignItems: 'center', gap: 12,
+                     padding: '10px 20px',
+                     background: hov ? T.bg3 : 'transparent',
+                     borderBottom: `1px solid ${T.border}`,
+                     transition: 'background 0.12s', cursor: 'default',
+                 }}>
+                <StatusDot status={svc.status} pulse/>
+                <div style={{minWidth: 0}}>
+                    <div style={{display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4}}>
+                        <span
+                            style={{fontFamily: T.mono, fontSize: 12.5, color: T.fg, fontWeight: 500}}>{svc.name}</span>
+                        {svc.restarts > 0 && <span style={{
+                            fontFamily: T.mono,
+                            fontSize: 9.5,
+                            color: T.amber,
+                            border: `1px solid ${T.amber}33`,
+                            borderRadius: 4,
+                            padding: '1px 5px'
+                        }}>↺{svc.restarts}</span>}
+                    </div>
+                    <div style={{display: 'flex', gap: 4, flexWrap: 'wrap'}}>
+                        <EnvChip env={svc.env}/>
+                        {svc.incident && <IncidentChip/>}
+                        {svc.releaseFrozen && <FreezChip/>}
+                    </div>
+                </div>
+                <div style={{display: 'flex', alignItems: 'center', gap: 5}}>
+                    <StatusDot status={node?.status || 'online'}/>
+                    <span style={{fontFamily: T.mono, fontSize: 11, color: T.fgDim}}>{svc.node}</span>
+                </div>
+                <div>
+                    {svc.status !== 'stopped' ? (
+                        <div>
+                            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 3}}>
+                                <span style={{fontFamily: T.mono, fontSize: 9, color: T.fgDim}}>CPU</span>
+                                <span style={{
+                                    fontFamily: T.mono,
+                                    fontSize: 9,
+                                    color: svc.cpu > 80 ? T.red : svc.cpu > 60 ? T.amber : T.fgMid
+                                }}>{svc.cpu}%</span>
+                            </div>
+                            <MiniBar val={svc.cpu} color={T.cyan}/>
+                        </div>
+                    ) : <span style={{fontFamily: T.mono, fontSize: 10, color: T.fgFaint}}>—</span>}
+                </div>
+                <div>
+                    {svc.status !== 'stopped' ? (
+                        <div>
+                            <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 3}}>
+                                <span style={{fontFamily: T.mono, fontSize: 9, color: T.fgDim}}>MEM</span>
+                                <span style={{
+                                    fontFamily: T.mono,
+                                    fontSize: 9,
+                                    color: T.fgMid
+                                }}>{svc.mem < 1000 ? svc.mem + 'M' : (svc.mem / 1000).toFixed(1) + 'G'}</span>
+                            </div>
+                            <MiniBar val={svc.mem} max={2048} color={T.cyan}/>
+                        </div>
+                    ) : <span style={{fontFamily: T.mono, fontSize: 10, color: T.fgFaint}}>—</span>}
+                </div>
+                <div style={{fontFamily: T.mono, fontSize: 11, color: T.fgDim}}>
+                    {svc.status !== 'stopped' ? svc.uptime : <span style={{color: T.fgFaint}}>stopped</span>}
+                </div>
+                <ThreeDotMenu svc={svc}/>
+            </div>
+        );
+    }
+
+    // ─── Deployments tab (Kanban + List) ─────────────────────────────
+    function DeploymentsTab({activeNode}) {
+        const [viewMode, setViewMode] = useState('kanban');
+        const [search, setSearch] = useState('');
+        const [statusFilters, setStatusFilters] = useState(new Set());
+        const [envFilters, setEnvFilters] = useState(new Set());
+
+        const cols = [
+            {id: 'running', label: 'Running', color: T.green},
+            {id: 'degraded', label: 'Degraded', color: T.amber},
+            {id: 'stopped', label: 'Stopped', color: T.fgFaint},
+        ];
+
+        const toggleStatus = id => setStatusFilters(prev => {
+            const next = new Set(prev);
+            next.has(id) ? next.delete(id) : next.add(id);
+            return next;
+        });
+
+        const toggleEnv = id => setEnvFilters(prev => {
+            const next = new Set(prev);
+            next.has(id) ? next.delete(id) : next.add(id);
+            return next;
+        });
+
+        const filtered = useMemo(() => {
+            let svcs = activeNode === 'all' ? SERVICES : SERVICES.filter(s => s.node === activeNode);
+            if (search.trim()) {
+                const q = search.trim().toLowerCase();
+                svcs = svcs.filter(s => s.name.toLowerCase().includes(q) || s.image.toLowerCase().includes(q));
+            }
+            if (statusFilters.size > 0) svcs = svcs.filter(s => statusFilters.has(s.column));
+            if (envFilters.size > 0) svcs = svcs.filter(s => envFilters.has(s.env));
+            return svcs;
+        }, [activeNode, search, statusFilters, envFilters]);
+
+        const statusOptions = [
+            {id: 'running', label: 'Running', color: T.green, dot: true},
+            {id: 'degraded', label: 'Degraded', color: T.amber, dot: true},
+            {id: 'stopped', label: 'Stopped', color: T.fgFaint, dot: true},
+        ];
+
+        const envOptions = [
+            {id: 'prod', label: 'prod', color: T.cyan},
+            {id: 'stage', label: 'stage', color: T.fgDim},
+        ];
+
+        return (
+            <div style={{display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden'}}>
+                {/* Toolbar */}
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    padding: '12px 24px 0',
+                    flexShrink: 0,
+                    flexWrap: 'wrap'
+                }}>
+
+                    {/* Search input */}
+                    <div style={{position: 'relative', flexShrink: 0}}>
+          <span style={{
+              position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)',
+              fontFamily: T.mono, fontSize: 12, color: T.fgFaint, pointerEvents: 'none',
+          }}>⌕</span>
+                        <input
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            placeholder="search services…"
+                            style={{
+                                background: T.bg3, border: `1px solid ${T.border}`, borderRadius: 8,
+                                padding: '6px 10px 6px 26px', fontFamily: T.mono, fontSize: 11.5,
+                                color: T.fg, width: 200, outline: 'none', transition: 'border-color 0.15s',
+                            }}
+                            onFocus={e => e.target.style.borderColor = T.borderH}
+                            onBlur={e => e.target.style.borderColor = T.border}
+                        />
+                    </div>
+
+                    {/* Separator */}
+                    <div style={{width: 1, height: 20, background: T.border, flexShrink: 0}}></div>
+
+                    {/* Status multi-select chips */}
+                    <div style={{display: 'flex', gap: 5, alignItems: 'center'}}>
+                        {statusOptions.map(opt => {
+                            const active = statusFilters.has(opt.id);
+                            return (
+                                <button key={opt.id} onClick={() => toggleStatus(opt.id)}
+                                        style={{
+                                            display: 'inline-flex', alignItems: 'center', gap: 5,
+                                            fontFamily: T.mono, fontSize: 11, padding: '4px 10px', borderRadius: 99,
+                                            border: `1px solid ${active ? opt.color + '66' : T.border}`,
+                                            background: active ? opt.color + '18' : 'transparent',
+                                            color: active ? opt.color : T.fgDim,
+                                            cursor: 'pointer', transition: 'all 0.12s',
+                                        }}>
+                                    <span style={{
+                                        width: 5,
+                                        height: 5,
+                                        borderRadius: '50%',
+                                        background: active ? opt.color : T.fgFaint,
+                                        display: 'block',
+                                        transition: 'background 0.12s'
+                                    }}></span>
+                                    {opt.label}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {/* Separator */}
+                    <div style={{width: 1, height: 20, background: T.border, flexShrink: 0}}></div>
+
+                    {/* Env multi-select chips */}
+                    <div style={{display: 'flex', gap: 5, alignItems: 'center'}}>
+                        {envOptions.map(opt => {
+                            const active = envFilters.has(opt.id);
+                            return (
+                                <button key={opt.id} onClick={() => toggleEnv(opt.id)}
+                                        style={{
+                                            display: 'inline-flex', alignItems: 'center', gap: 5,
+                                            fontFamily: T.mono, fontSize: 11, padding: '4px 10px', borderRadius: 99,
+                                            border: `1px solid ${active ? opt.color + '66' : T.border}`,
+                                            background: active ? opt.color + '18' : 'transparent',
+                                            color: active ? opt.color : T.fgDim,
+                                            cursor: 'pointer', transition: 'all 0.12s',
+                                        }}>
+                                    {opt.label}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {/* Clear filters — only shown when any active */}
+                    {(statusFilters.size > 0 || envFilters.size > 0 || search) && (
+                        <button onClick={() => {
+                            setStatusFilters(new Set());
+                            setEnvFilters(new Set());
+                            setSearch('');
+                        }}
+                                style={{
+                                    fontFamily: T.mono, fontSize: 10, padding: '3px 9px', borderRadius: 99,
+                                    border: `1px solid ${T.border}`, background: 'transparent',
+                                    color: T.fgDim, cursor: 'pointer', transition: 'all 0.12s',
+                                }}
+                                onMouseEnter={e => {
+                                    e.currentTarget.style.borderColor = T.borderM;
+                                    e.currentTarget.style.color = T.fg;
+                                }}
+                                onMouseLeave={e => {
+                                    e.currentTarget.style.borderColor = T.border;
+                                    e.currentTarget.style.color = T.fgDim;
+                                }}>
+                            ✕ clear
+                        </button>
+                    )}
+
+                    {/* View mode switcher */}
+                    <div style={{
+                        display: 'flex',
+                        gap: 1,
+                        background: T.bg3,
+                        borderRadius: 8,
+                        padding: 2,
+                        border: `1px solid ${T.border}`,
+                        marginLeft: 'auto'
+                    }}>
+                        {[{id: 'kanban', icon: '⬛⬛', label: 'Kanban'}, {
+                            id: 'list',
+                            icon: '≡',
+                            label: 'List'
+                        }].map(v => (
+                            <button key={v.id} onClick={() => setViewMode(v.id)}
+                                    style={{
+                                        fontFamily: T.mono, fontSize: 11, padding: '5px 12px', borderRadius: 6,
+                                        border: 'none', cursor: 'pointer',
+                                        background: viewMode === v.id ? T.bg2 : 'transparent',
+                                        color: viewMode === v.id ? T.fg : T.fgDim,
+                                        transition: 'all 0.12s', display: 'flex', alignItems: 'center', gap: 5,
+                                        boxShadow: viewMode === v.id ? `0 1px 3px rgba(0,0,0,0.3)` : 'none',
+                                    }}>
+                                <span style={{fontSize: 9}}>{v.icon}</span>{v.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    <span style={{
+                        fontFamily: T.mono,
+                        fontSize: 11,
+                        color: T.fgDim,
+                        flexShrink: 0
+                    }}>{filtered.length} services</span>
+                </div>
+
+                {/* Kanban view */}
+                {viewMode === 'kanban' && (
+                    <div style={{
+                        display: 'flex',
+                        gap: 18,
+                        flex: 1,
+                        padding: '16px 24px 20px',
+                        overflowX: 'auto',
+                        overflowY: 'hidden',
+                        alignItems: 'flex-start'
+                    }}>
+                        {cols.map(col => {
+                            if (statusFilters.size > 0 && !statusFilters.has(col.id)) return null;
+                            const svcs = filtered.filter(s => s.column === col.id);
+                            return (
+                                <div key={col.id} style={{
+                                    width: 330,
+                                    flexShrink: 0,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    height: '100%'
+                                }}>
+                                    <div style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 8,
+                                        marginBottom: 12,
+                                        padding: '0 2px'
+                                    }}>
+                                        <span style={{
+                                            width: 7,
+                                            height: 7,
+                                            borderRadius: '50%',
+                                            background: col.color,
+                                            display: 'block'
+                                        }}></span>
+                                        <span style={{
+                                            fontFamily: T.sans,
+                                            fontSize: 13,
+                                            fontWeight: 700,
+                                            color: T.fgMid
+                                        }}>{col.label}</span>
+                                        <span style={{
+                                            fontFamily: T.mono,
+                                            fontSize: 11,
+                                            color: T.fgDim,
+                                            marginLeft: 'auto',
+                                            background: T.bg3,
+                                            border: `1px solid ${T.border}`,
+                                            borderRadius: 99,
+                                            padding: '1px 8px'
+                                        }}>
+                    {svcs.length}
+                  </span>
+                                    </div>
+                                    <div style={{
+                                        flex: 1,
+                                        overflowY: 'auto',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 10,
+                                        paddingBottom: 4,
+                                        paddingRight: 2
+                                    }}>
+                                        {svcs.length === 0 && (
+                                            <div style={{
+                                                border: `1px dashed ${T.border}`,
+                                                borderRadius: 10,
+                                                padding: '32px 16px',
+                                                textAlign: 'center',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: 6
+                                            }}>
+                                                <div style={{fontFamily: T.mono, fontSize: 18, color: T.fgFaint}}>—
+                                                </div>
+                                                <div style={{fontFamily: T.mono, fontSize: 11, color: T.fgFaint}}>
+                                                    {search ? `no match for "${search}"` : `no services`}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {svcs.map(s => <ServiceCard key={s.id} svc={s}/>)}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+
+                {/* List view */}
+                {viewMode === 'list' && (
+                    <div style={{
+                        flex: 1,
+                        overflowY: 'auto',
+                        margin: '16px 24px 20px',
+                        background: T.bg2,
+                        border: `1px solid ${T.border}`,
+                        borderRadius: 10,
+                        overflow: 'hidden'
+                    }}>
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: '28px 1fr 120px 80px 80px 80px 36px',
+                            gap: 12,
+                            padding: '10px 20px',
+                            borderBottom: `1px solid ${T.border}`,
+                            background: T.bg3,
+                            position: 'sticky',
+                            top: 0,
+                            zIndex: 1
+                        }}>
+                            {['', 'Service', 'Node', 'CPU', 'Memory', 'Uptime', ''].map((h, i) => (
+                                <span key={i} style={{fontFamily: T.mono, fontSize: 10, color: T.fgDim}}>{h}</span>
+                            ))}
+                        </div>
+                        {filtered.length === 0 && (
+                            <div style={{
+                                padding: '40px 20px',
+                                textAlign: 'center',
+                                fontFamily: T.mono,
+                                fontSize: 12,
+                                color: T.fgFaint
+                            }}>
+                                no services match current filters
+                            </div>
+                        )}
+                        {cols.map(col => {
+                            if (statusFilters.size > 0 && !statusFilters.has(col.id)) return null;
+                            const svcs = filtered.filter(s => s.column === col.id);
+                            if (svcs.length === 0) return null;
+                            return (
+                                <div key={col.id}>
+                                    <div style={{
+                                        padding: '8px 20px 4px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 8
+                                    }}>
+                                        <span style={{
+                                            width: 6,
+                                            height: 6,
+                                            borderRadius: '50%',
+                                            background: col.color,
+                                            display: 'block'
+                                        }}></span>
+                                        <span style={{
+                                            fontFamily: T.mono,
+                                            fontSize: 10,
+                                            color: T.fgDim,
+                                            letterSpacing: '0.06em',
+                                            textTransform: 'uppercase'
+                                        }}>{col.label}</span>
+                                        <span style={{
+                                            fontFamily: T.mono,
+                                            fontSize: 10,
+                                            color: T.fgFaint
+                                        }}>{svcs.length}</span>
+                                    </div>
+                                    {svcs.map(s => <ServiceListRow key={s.id} svc={s}/>)}
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    // ─── Control Plane tab ────────────────────────────────────────────
+    function ControlPlaneTab({activeNode}) {
+        const nodes = activeNode === 'all' ? NODES : NODES.filter(n => n.id === activeNode);
+
+        return (
+            <div style={{
+                padding: '24px',
+                overflowY: 'auto',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 20
+            }}>
+                {/* Cluster overview */}
+                <div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12}}>
+                    {[
+                        {label: 'Total nodes', val: NODES.length, unit: '', color: T.cyan},
+                        {
+                            label: 'Online',
+                            val: NODES.filter(n => n.status === 'online').length,
+                            unit: '',
+                            color: T.green
+                        },
+                        {
+                            label: 'Degraded',
+                            val: NODES.filter(n => n.status === 'degraded').length,
+                            unit: '',
+                            color: T.amber
+                        },
+                        {label: 'Total services', val: SERVICES.length, unit: '', color: T.cyan},
+                    ].map((s, i) => (
+                        <div key={i} style={{
+                            background: T.bg2,
+                            border: `1px solid ${T.border}`,
+                            borderRadius: 10,
+                            padding: '18px 20px'
+                        }}>
+                            <div style={{
+                                fontFamily: T.mono,
+                                fontSize: 26,
+                                fontWeight: 600,
+                                color: s.color,
+                                marginBottom: 4
+                            }}>{s.val}</div>
+                            <div style={{fontFamily: T.sans, fontSize: 12, color: T.fgDim}}>{s.label}</div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Node cards */}
+                <div>
+                    <div style={{
+                        fontFamily: T.mono,
+                        fontSize: 10,
+                        color: T.fgDim,
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
+                        marginBottom: 14
+                    }}>Node health
+                    </div>
+                    <div style={{display: 'flex', flexDirection: 'column', gap: 10}}>
+                        {nodes.map(node => (
+                            <div key={node.id} style={{
+                                background: T.bg2,
+                                border: `1px solid ${node.status === 'degraded' ? T.amber + '44' : T.border}`,
+                                borderRadius: 10,
+                                padding: '18px 20px',
+                                display: 'grid',
+                                gridTemplateColumns: '220px 1fr 1fr 1fr auto',
+                                gap: 20,
+                                alignItems: 'center',
+                                animation: 'fadeUp 0.3s ease both',
+                            }}>
+                                {/* Identity */}
+                                <div>
+                                    <div style={{display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4}}>
+                                        <StatusDot status={node.status} pulse/>
+                                        <span style={{
+                                            fontFamily: T.mono,
+                                            fontSize: 13,
+                                            color: T.fg,
+                                            fontWeight: 600
+                                        }}>{node.id}</span>
+                                        {node.status === 'degraded' && <Badge label="degraded" color={T.amber}/>}
+                                    </div>
+                                    <div style={{fontFamily: T.mono, fontSize: 11, color: T.fgDim}}>{node.host}</div>
+                                    <div
+                                        style={{fontFamily: T.mono, fontSize: 10, color: T.fgFaint}}>{node.region}</div>
+                                </div>
+                                {/* CPU */}
+                                <div>
+                                    <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 5}}>
+                                        <span style={{fontFamily: T.mono, fontSize: 10, color: T.fgDim}}>CPU</span>
+                                        <span style={{
+                                            fontFamily: T.mono,
+                                            fontSize: 10,
+                                            color: node.cpu > 80 ? T.red : node.cpu > 60 ? T.amber : T.fgMid
+                                        }}>{node.cpu}%</span>
+                                    </div>
+                                    <MiniBar val={node.cpu} color={T.cyan}/>
+                                </div>
+                                {/* Memory */}
+                                <div>
+                                    <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 5}}>
+                                        <span style={{fontFamily: T.mono, fontSize: 10, color: T.fgDim}}>Memory</span>
+                                        <span style={{
+                                            fontFamily: T.mono,
+                                            fontSize: 10,
+                                            color: node.mem > 80 ? T.red : node.mem > 60 ? T.amber : T.fgMid
+                                        }}>{node.mem}%</span>
+                                    </div>
+                                    <MiniBar val={node.mem} color={T.cyan}/>
+                                </div>
+                                {/* Services */}
+                                <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
+                                    <span style={{
+                                        fontFamily: T.mono,
+                                        fontSize: 22,
+                                        color: T.fg,
+                                        fontWeight: 500
+                                    }}>{node.services}</span>
+                                    <span style={{fontFamily: T.mono, fontSize: 10, color: T.fgDim}}>services</span>
+                                </div>
+                                {/* Actions */}
+                                <div style={{display: 'flex', gap: 6}}>
+                                    <IconBtn label="shell" title="Open terminal"/>
+                                    <IconBtn label="drain" title="Drain node" danger/>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Plugin matrix */}
+                <div>
+                    <div style={{
+                        fontFamily: T.mono,
+                        fontSize: 10,
+                        color: T.fgDim,
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
+                        marginBottom: 14
+                    }}>VervStack plugins
+                    </div>
+                    <div style={{
+                        background: T.bg2,
+                        border: `1px solid ${T.border}`,
+                        borderRadius: 10,
+                        overflow: 'hidden'
+                    }}>
+                        {/* Header row */}
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: '180px repeat(3,1fr)',
+                            padding: '12px 20px',
+                            borderBottom: `1px solid ${T.border}`,
+                            background: T.bg3
+                        }}>
+                            <span style={{fontFamily: T.mono, fontSize: 10, color: T.fgDim}}>Plugin</span>
+                            {nodes.map(n => (
+                                <span key={n.id} style={{
+                                    fontFamily: T.mono,
+                                    fontSize: 10,
+                                    color: T.fgDim,
+                                    textAlign: 'center'
+                                }}>{n.id}</span>
+                            ))}
+                        </div>
+                        {[
+                            {name: 'Matreshka', tag: 'config', statuses: ['enabled', 'enabled', 'enabled']},
+                            {name: 'Makosh', tag: 'gRPC', statuses: ['enabled', 'enabled', 'disabled']},
+                            {name: 'Svarog', tag: 'secrets', statuses: ['enabled', 'enabled', 'enabled']},
+                        ].map((p, pi) => (
+                            <div key={pi} style={{
+                                display: 'grid',
+                                gridTemplateColumns: '180px repeat(3,1fr)',
+                                padding: '14px 20px',
+                                borderBottom: `1px solid ${T.border}`,
+                                alignItems: 'center'
+                            }}>
+                                <div>
+                                    <span style={{
+                                        fontFamily: T.mono,
+                                        fontSize: 12,
+                                        color: T.fg,
+                                        fontWeight: 500
+                                    }}>{p.name}</span>
+                                    <span style={{
+                                        fontFamily: T.mono,
+                                        fontSize: 10,
+                                        color: T.fgDim,
+                                        marginLeft: 8
+                                    }}>{p.tag}</span>
+                                </div>
+                                {nodes.map((n, ni) => (
+                                    <div key={n.id} style={{display: 'flex', justifyContent: 'center'}}>
+                                        <Badge
+                                            label={p.statuses[ni] || 'disabled'}
+                                            color={p.statuses[ni] === 'enabled' ? T.green : T.fgDim}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // ─── VCN (Velez Closed Network) tab ──────────────────────────────
+    function VCNTopologyMap({nodes}) {
+        // Simple SVG network diagram
+        const W = 520, H = 220;
+        const positions = {
+            node01: [130, 110],
+            node02: [390, 60],
+            node03: [390, 170],
+        };
+        const edges = [
+            {from: 'node01', to: 'node02', status: 'active'},
+            {from: 'node01', to: 'node03', status: 'active'},
+            {from: 'node02', to: 'node03', status: 'degraded'},
+        ];
+
+        return (
+            <div style={{
+                background: T.bg3,
+                border: `1px solid ${T.border}`,
+                borderRadius: 10,
+                padding: '24px',
+                overflow: 'hidden'
+            }}>
+                <div style={{
+                    fontFamily: T.mono,
+                    fontSize: 10,
+                    color: T.fgDim,
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    marginBottom: 16
+                }}>Network topology
+                </div>
+                <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display: 'block', maxHeight: 220}}>
+                    {/* Grid */}
+                    <defs>
+                        <pattern id="grid" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+                            <path d="M 30 0 L 0 0 0 30" fill="none" stroke={T.border} strokeWidth="0.5"/>
+                        </pattern>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="2" result="blur"/>
+                            <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+                        </filter>
+                    </defs>
+                    <rect width={W} height={H} fill="url(#grid)"/>
+
+                    {/* Edges */}
+                    {edges.map((e, i) => {
+                        const [x1, y1] = positions[e.from];
+                        const [x2, y2] = positions[e.to];
+                        return (
+                            <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}
+                                  stroke={e.status === 'degraded' ? T.amber : T.cyan}
+                                  strokeWidth={e.status === 'degraded' ? 1 : 1.5}
+                                  strokeOpacity={e.status === 'degraded' ? 0.5 : 0.4}
+                                  strokeDasharray={e.status === 'degraded' ? '5,4' : 'none'}/>
+                        );
+                    })}
+
+                    {/* Nodes */}
+                    {nodes.map(n => {
+                        const [cx, cy] = positions[n.id] || [0, 0];
+                        const c = n.status === 'degraded' ? T.amber : T.green;
+                        return (
+                            <g key={n.id} filter="url(#glow)">
+                                <circle cx={cx} cy={cy} r={20} fill={T.bg2} stroke={c} strokeWidth="1.5"
+                                        strokeOpacity="0.7"/>
+                                <circle cx={cx} cy={cy} r={5} fill={c} fillOpacity="0.85"/>
+                                <text x={cx} y={cy + 34} textAnchor="middle" fontFamily={T.mono} fontSize="10"
+                                      fill={T.fgDim}>{n.id}</text>
+                                <text x={cx} y={cy + 46} textAnchor="middle" fontFamily={T.mono} fontSize="9"
+                                      fill={T.fgFaint}>{n.host}</text>
+                            </g>
+                        );
+                    })}
+
+                    {/* Legend */}
+                    <g transform={`translate(${W - 120}, ${H - 32})`}>
+                        <line x1="0" y1="8" x2="18" y2="8" stroke={T.cyan} strokeWidth="1.5" strokeOpacity="0.5"/>
+                        <text x="22" y="11" fontFamily={T.mono} fontSize="9" fill={T.fgDim}>mesh</text>
+                        <line x1="60" y1="8" x2="78" y2="8" stroke={T.amber} strokeWidth="1" strokeOpacity="0.5"
+                              strokeDasharray="4,3"/>
+                        <text x="82" y="11" fontFamily={T.mono} fontSize="9" fill={T.fgDim}>degraded</text>
+                    </g>
+                </svg>
+            </div>
+        );
+    }
+
+    function VCNTab({activeNode}) {
+        const nodes = activeNode === 'all' ? NODES : NODES.filter(n => n.id === activeNode);
+
+        return (
+            <div style={{
+                padding: '24px',
+                overflowY: 'auto',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 20
+            }}>
+                {/* Stats */}
+                <div style={{display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12}}>
+                    {[
+                        {label: 'Tunnel peers', val: '5', color: T.cyan},
+                        {label: 'Active tunnels', val: '4', color: T.green},
+                        {label: 'Total RX', val: '8.8 GB', color: T.cyan},
+                        {label: 'Total TX', val: '5.7 GB', color: T.cyan},
+                    ].map((s, i) => (
+                        <div key={i} style={{
+                            background: T.bg2,
+                            border: `1px solid ${T.border}`,
+                            borderRadius: 10,
+                            padding: '18px 20px'
+                        }}>
+                            <div style={{
+                                fontFamily: T.mono,
+                                fontSize: 22,
+                                fontWeight: 600,
+                                color: s.color,
+                                marginBottom: 4
+                            }}>{s.val}</div>
+                            <div style={{fontFamily: T.sans, fontSize: 12, color: T.fgDim}}>{s.label}</div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Topology map */}
+                <VCNTopologyMap nodes={nodes}/>
+
+                {/* Peer table */}
+                <div>
+                    <div style={{
+                        fontFamily: T.mono,
+                        fontSize: 10,
+                        color: T.fgDim,
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
+                        marginBottom: 14
+                    }}>Peers
+                    </div>
+                    <div style={{
+                        background: T.bg2,
+                        border: `1px solid ${T.border}`,
+                        borderRadius: 10,
+                        overflow: 'hidden'
+                    }}>
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 100px 80px 80px 80px 80px',
+                            padding: '10px 20px',
+                            borderBottom: `1px solid ${T.border}`,
+                            background: T.bg3
+                        }}>
+                            {['Name', 'Type', 'Latency', 'Status', 'RX', 'TX'].map(h => (
+                                <span key={h} style={{fontFamily: T.mono, fontSize: 10, color: T.fgDim}}>{h}</span>
+                            ))}
+                        </div>
+                        {VCN_PEERS.map((p, pi) => (
+                            <div key={pi} style={{
+                                display: 'grid',
+                                gridTemplateColumns: '1fr 100px 80px 80px 80px 80px',
+                                padding: '13px 20px',
+                                borderBottom: pi < VCN_PEERS.length - 1 ? `1px solid ${T.border}` : 'none',
+                                alignItems: 'center'
+                            }}>
+                                <span style={{fontFamily: T.mono, fontSize: 12, color: T.fg}}>{p.name}</span>
+                                <span style={{fontFamily: T.mono, fontSize: 11, color: T.fgDim}}>{p.type}</span>
+                                <span style={{fontFamily: T.mono, fontSize: 11, color: T.fgMid}}>{p.latency}</span>
+                                <div>
+                                    <Badge label={p.status} color={p.status === 'active' ? T.green : T.amber}/>
+                                </div>
+                                <span style={{fontFamily: T.mono, fontSize: 11, color: T.fgDim}}>{p.rx}</span>
+                                <span style={{fontFamily: T.mono, fontSize: 11, color: T.fgDim}}>{p.tx}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Network config snippet */}
+                <div style={{background: T.bg2, border: `1px solid ${T.border}`, borderRadius: 10, overflow: 'hidden'}}>
+                    <div style={{
+                        padding: '12px 18px',
+                        borderBottom: `1px solid ${T.border}`,
+                        background: T.bg3,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8
+                    }}>
+                        <span style={{fontFamily: T.mono, fontSize: 10, color: T.fgDim}}>vcn config — node01</span>
+                        <span style={{
+                            marginLeft: 'auto',
+                            fontFamily: T.mono,
+                            fontSize: 10,
+                            color: T.cyan,
+                            cursor: 'pointer'
+                        }}>copy</span>
+                    </div>
+                    <div style={{
+                        padding: '16px 20px',
+                        fontFamily: T.mono,
+                        fontSize: 11.5,
+                        color: T.fgMid,
+                        lineHeight: 1.9
+                    }}>
+                        <div><span style={{color: T.fgDim}}># /etc/velez/vcn.yaml</span></div>
+                        <div><span style={{color: T.cyan}}>network</span>:</div>
+                        <div>&nbsp;&nbsp;<span style={{color: T.cyan}}>mode</span>: <span
+                            style={{color: T.green}}>mesh</span></div>
+                        <div>&nbsp;&nbsp;<span style={{color: T.cyan}}>subnet</span>: <span
+                            style={{color: T.fg}}>10.100.0.0/24</span></div>
+                        <div>&nbsp;&nbsp;<span style={{color: T.cyan}}>peers</span>:</div>
+                        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style={{color: T.fgDim}}>- host: 192.168.1.42 # node02</span>
+                        </div>
+                        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style={{color: T.fgDim}}>- host: 10.0.0.15   # node03</span>
+                        </div>
+                        <div>&nbsp;&nbsp;<span style={{color: T.cyan}}>encryption</span>: <span
+                            style={{color: T.green}}>wireguard</span></div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // ─── Search Tab ───────────────────────────────────────────────────
+    function SearchTab() {
+        const [query, setQuery] = useState('');
+        const inputRef = useRef(null);
+
+        useEffect(() => {
+            if (inputRef.current) inputRef.current.focus();
+        }, []);
+
+        const results = useMemo(() => {
+            const q = query.trim().toLowerCase();
+            if (!q) return [];
+            if (q === 'incident') return SERVICES.filter(s => s.incident);
+            if (q === 'freeze') return SERVICES.filter(s => s.releaseFrozen);
+            return SERVICES.filter(s =>
+                s.name.toLowerCase().includes(q) ||
+                s.image.toLowerCase().includes(q) ||
+                s.node.toLowerCase().includes(q) ||
+                s.env.toLowerCase().includes(q) ||
+                s.column.toLowerCase().includes(q)
+            );
+        }, [query]);
+
+        const hasQuery = query.trim().length > 0;
+
+        return (
+            <div style={{display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden'}}>
+                {/* Search hero */}
+                <div style={{padding: '32px 40px 20px', flexShrink: 0}}>
+                    <div style={{
+                        fontFamily: T.mono,
+                        fontSize: 10,
+                        color: T.fgDim,
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
+                        marginBottom: 14
+                    }}>
+                        Service search
+                    </div>
+                    <div style={{position: 'relative', maxWidth: 600}}>
+          <span style={{
+              position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)',
+              fontFamily: T.mono, fontSize: 18, color: T.fgFaint, pointerEvents: 'none', lineHeight: 1,
+          }}>⌕</span>
+                        <input
+                            ref={inputRef}
+                            value={query}
+                            onChange={e => setQuery(e.target.value)}
+                            placeholder="search by name, image, node, env…"
+                            style={{
+                                width: '100%', background: T.bg2,
+                                border: `1px solid ${T.borderM}`, borderRadius: 10,
+                                padding: '13px 16px 13px 44px',
+                                fontFamily: T.mono, fontSize: 14, color: T.fg,
+                                outline: 'none', transition: 'border-color 0.15s, box-shadow 0.15s',
+                            }}
+                            onFocus={e => {
+                                e.target.style.borderColor = T.cyan;
+                                e.target.style.boxShadow = `0 0 0 3px rgba(10,183,238,0.08)`;
+                            }}
+                            onBlur={e => {
+                                e.target.style.borderColor = T.borderM;
+                                e.target.style.boxShadow = 'none';
+                            }}
+                        />
+                        {hasQuery && (
+                            <button onClick={() => setQuery('')}
+                                    style={{
+                                        position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+                                        background: 'transparent', border: 'none', color: T.fgDim,
+                                        fontFamily: T.mono, fontSize: 14, cursor: 'pointer', padding: '2px 6px',
+                                        borderRadius: 5, lineHeight: 1,
+                                    }}>✕</button>
+                        )}
+                    </div>
+
+                    {/* Quick filter chips */}
+                    <div style={{display: 'flex', gap: 6, marginTop: 12, flexWrap: 'wrap', alignItems: 'center'}}>
+                        <span style={{fontFamily: T.mono, fontSize: 10, color: T.fgFaint, marginRight: 2}}>quick:</span>
+                        {[
+                            {tag: 'prod', color: T.cyan, label: 'prod'},
+                            {tag: 'stage', color: T.fgDim, label: 'stage'},
+                            {tag: 'running', color: T.green, label: 'running'},
+                            {tag: 'degraded', color: T.amber, label: 'degraded'},
+                            {tag: 'stopped', color: T.fgFaint, label: 'stopped'},
+                            {tag: 'incident', color: T.red, label: 'incident'},
+                            {tag: 'freeze', color: '#60a5fa', label: 'freeze'},
+                        ].map(({tag, color, label}) => {
+                            const active = query === tag;
+                            return (
+                                <button key={tag}
+                                        onClick={() => setQuery(active ? '' : tag)}
+                                        style={{
+                                            fontFamily: T.mono, fontSize: 10, padding: '3px 10px', borderRadius: 99,
+                                            border: `1px solid ${active ? color + '66' : T.border}`,
+                                            background: active ? color + '18' : 'transparent',
+                                            color: active ? color : T.fgDim,
+                                            cursor: 'pointer', transition: 'all 0.12s',
+                                        }}
+                                        onMouseEnter={e => {
+                                            if (!active) {
+                                                e.currentTarget.style.background = T.bg3;
+                                                e.currentTarget.style.borderColor = T.borderM;
+                                                e.currentTarget.style.color = T.fg;
+                                            }
+                                        }}
+                                        onMouseLeave={e => {
+                                            if (!active) {
+                                                e.currentTarget.style.background = 'transparent';
+                                                e.currentTarget.style.borderColor = T.border;
+                                                e.currentTarget.style.color = T.fgDim;
+                                            }
+                                        }}>
+                                    {label}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* Divider */}
+                <div style={{height: 1, background: T.border, margin: '0 40px', flexShrink: 0}}></div>
+
+                {/* Results */}
+                <div style={{flex: 1, overflowY: 'auto', padding: '16px 40px 24px'}}>
+                    {!hasQuery && (
+                        <div style={{
+                            paddingTop: 48,
+                            textAlign: 'center',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 10,
+                            alignItems: 'center'
+                        }}>
+                            <div style={{fontFamily: T.mono, fontSize: 32, color: T.fgFaint, opacity: 0.4}}>⌕</div>
+                            <div style={{fontFamily: T.mono, fontSize: 12, color: T.fgFaint}}>type to search all
+                                services across all nodes
+                            </div>
+                            <div style={{display: 'flex', gap: 16, marginTop: 8}}>
+                                {[
+                                    {label: SERVICES.length, sub: 'total services'},
+                                    {label: NODES.length, sub: 'nodes'},
+                                    {label: SERVICES.filter(s => s.incident).length, sub: 'incidents'},
+                                    {label: SERVICES.filter(s => s.releaseFrozen).length, sub: 'frozen'},
+                                ].map((s, i) => (
+                                    <div key={i} style={{textAlign: 'center'}}>
+                                        <div style={{
+                                            fontFamily: T.mono,
+                                            fontSize: 22,
+                                            fontWeight: 600,
+                                            color: T.cyan
+                                        }}>{s.label}</div>
+                                        <div style={{
+                                            fontFamily: T.mono,
+                                            fontSize: 10,
+                                            color: T.fgDim,
+                                            marginTop: 2
+                                        }}>{s.sub}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {hasQuery && results.length === 0 && (
+                        <div style={{
+                            paddingTop: 48,
+                            textAlign: 'center',
+                            fontFamily: T.mono,
+                            fontSize: 12,
+                            color: T.fgFaint
+                        }}>
+                            no services match <span style={{color: T.fg}}>"{query}"</span>
+                        </div>
+                    )}
+
+                    {hasQuery && results.length > 0 && (
+                        <div style={{display: 'flex', flexDirection: 'column', gap: 0}}>
+                            <div style={{fontFamily: T.mono, fontSize: 10, color: T.fgDim, marginBottom: 10}}>
+                                {results.length} result{results.length !== 1 ? 's' : ''}
+                            </div>
+                            <div style={{
+                                background: T.bg2,
+                                border: `1px solid ${T.border}`,
+                                borderRadius: 10,
+                                overflow: 'hidden'
+                            }}>
+                                {/* header */}
+                                <div style={{
+                                    display: 'grid', gridTemplateColumns: '28px 1fr 120px 80px 80px 80px 36px', gap: 12,
+                                    padding: '10px 20px', borderBottom: `1px solid ${T.border}`, background: T.bg3
+                                }}>
+                                    {['', 'Service', 'Node', 'CPU', 'Memory', 'Uptime', ''].map((h, i) => (
+                                        <span key={i}
+                                              style={{fontFamily: T.mono, fontSize: 10, color: T.fgDim}}>{h}</span>
+                                    ))}
+                                </div>
+                                {results.map(s => <ServiceListRow key={s.id} svc={s}/>)}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    // ─── Deploy Dialog ────────────────────────────────────────────────
+    const DEPLOY_STEPS = ['Image', 'Config', 'Resources', 'Review'];
+
+    function DeployDialog({onClose}) {
+        const [step, setStep] = useState(0);
+        const [deploying, setDeploying] = useState(false);
+        const [deployed, setDeployed] = useState(false);
+        const [logLines, setLogLines] = useState([]);
+
+        // Form state
+        const [form, setForm] = useState({
+            name: '',
+            image: '',
+            tag: 'latest',
+            node: 'node01',
+            env: 'prod',
+            ports: '8080',
+            secrets: [],
+            replicas: 1,
+            cpuLimit: '500m',
+            memLimit: '512Mi',
+            envVars: [{key: '', value: ''}],
+            pullPolicy: 'IfNotPresent',
+            restart: 'always',
+        });
+
+        const set = (k, v) => setForm(f => ({...f, [k]: v}));
+
+        // Input styling helper
+        const inputStyle = (focused) => ({
+            background: T.bg4,
+            border: `1px solid ${focused ? T.borderH : T.border}`,
+            borderRadius: 7,
+            padding: '8px 12px',
+            fontFamily: T.mono,
+            fontSize: 12,
+            color: T.fg,
+            width: '100%',
+            outline: 'none',
+            transition: 'border-color 0.15s',
+        });
+
+        const [focusedField, setFocusedField] = useState(null);
+        const inp = (id) => ({
+            style: inputStyle(focusedField === id),
+            onFocus: () => setFocusedField(id),
+            onBlur: () => setFocusedField(null),
+        });
+
+        // Select styling
+        const selStyle = {
+            background: T.bg4,
+            border: `1px solid ${T.border}`,
+            borderRadius: 7,
+            padding: '8px 12px',
+            fontFamily: T.mono,
+            fontSize: 12,
+            color: T.fg,
+            width: '100%',
+            outline: 'none',
+            appearance: 'none',
+            cursor: 'pointer',
+        };
+
+        // Env vars management
+        const addEnvVar = () => set('envVars', [...form.envVars, {key: '', value: ''}]);
+        const removeEnvVar = i => set('envVars', form.envVars.filter((_, idx) => idx !== i));
+        const setEnvVar = (i, field, val) => {
+            const next = form.envVars.map((ev, idx) => idx === i ? {...ev, [field]: val} : ev);
+            set('envVars', next);
+        };
+
+        // Simulate deploy
+        const runDeploy = () => {
+            setDeploying(true);
+            const lines = [
+                {t: 0, text: `pulling ${form.image}:${form.tag}…`, color: T.fgMid},
+                {t: 600, text: `✓ image digest sha256:a1b2c3d4`, color: T.green},
+                {t: 1000, text: `creating container on ${form.node}…`, color: T.fgMid},
+                {t: 1600, text: `✓ container created`, color: T.green},
+                {t: 2000, text: `applying resource limits…`, color: T.fgMid},
+                {t: 2400, text: `✓ cpu=${form.cpuLimit} mem=${form.memLimit}`, color: T.green},
+                {t: 2900, text: `injecting ${form.secrets.length} secrets…`, color: T.fgMid},
+                {t: 3300, text: `✓ secrets mounted`, color: T.green},
+                {t: 3700, text: `starting service "${form.name || 'my-service'}"…`, color: T.cyan},
+                {t: 4200, text: `✓ service running on :${form.ports}`, color: T.green},
+                {t: 4600, text: `deploy complete`, color: T.cyan},
+            ];
+            lines.forEach(({t, text, color}) => {
+                setTimeout(() => {
+                    setLogLines(prev => [...prev, {text, color}]);
+                    if (t === 4600) setDeployed(true);
+                }, t);
+            });
+        };
+
+        // Label component
+        const Label = ({children, sub}) => (
+            <div style={{marginBottom: 6}}>
+                <span style={{fontFamily: T.mono, fontSize: 11, color: T.fgDim, fontWeight: 500}}>{children}</span>
+                {sub && <span style={{fontFamily: T.mono, fontSize: 10, color: T.fgFaint, marginLeft: 6}}>{sub}</span>}
+            </div>
+        );
+
+        const Field = ({label, sub, children}) => (
+            <div style={{display: 'flex', flexDirection: 'column', gap: 0}}>
+                <Label sub={sub}>{label}</Label>
+                {children}
+            </div>
+        );
+
+        const Divider = () => (
+            <div style={{height: 1, background: T.border, margin: '4px 0'}}></div>
+        );
+
+        // ── Step contents ──
+        const StepImage = () => (
+            <div style={{display: 'flex', flexDirection: 'column', gap: 18}}>
+                <div style={{display: 'grid', gridTemplateColumns: '1fr 140px', gap: 12}}>
+                    <Field label="Service name" sub="required">
+                        <input value={form.name} onChange={e => set('name', e.target.value)}
+                               placeholder="e.g. matreshka-be" {...inp('name')}/>
+                    </Field>
+                    <Field label="Environment">
+                        <div style={{position: 'relative'}}>
+                            <select value={form.env} onChange={e => set('env', e.target.value)} style={selStyle}>
+                                <option value="prod">prod</option>
+                                <option value="stage">stage</option>
+                                <option value="dev">dev</option>
+                            </select>
+                            <span style={{
+                                position: 'absolute',
+                                right: 10,
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                color: T.fgDim,
+                                pointerEvents: 'none',
+                                fontSize: 9
+                            }}>▾</span>
+                        </div>
+                    </Field>
+                </div>
+                <div style={{display: 'grid', gridTemplateColumns: '1fr 140px', gap: 12}}>
+                    <Field label="Image" sub="registry/name">
+                        <input value={form.image} onChange={e => set('image', e.target.value)}
+                               placeholder="godverv/matreshka" {...inp('image')}/>
+                    </Field>
+                    <Field label="Tag">
+                        <input value={form.tag} onChange={e => set('tag', e.target.value)}
+                               placeholder="latest" {...inp('tag')}/>
+                    </Field>
+                </div>
+                <Field label="Target node">
+                    <div style={{display: 'flex', gap: 8}}>
+                        {NODES.map(n => {
+                            const active = form.node === n.id;
+                            return (
+                                <button key={n.id} onClick={() => set('node', n.id)}
+                                        style={{
+                                            flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+                                            gap: 4, padding: '10px 12px', borderRadius: 8, cursor: 'pointer',
+                                            background: active ? T.redDim : T.bg4,
+                                            border: `1px solid ${active ? T.red + '55' : T.border}`,
+                                            transition: 'all 0.15s',
+                                        }}>
+                                    <div style={{display: 'flex', alignItems: 'center', gap: 6}}>
+                                        <StatusDot status={n.status}/>
+                                        <span style={{
+                                            fontFamily: T.mono,
+                                            fontSize: 11.5,
+                                            color: active ? T.fg : T.fgMid,
+                                            fontWeight: 600
+                                        }}>{n.id}</span>
+                                    </div>
+                                    <span style={{fontFamily: T.mono, fontSize: 10, color: T.fgDim}}>{n.host}</span>
+                                    <span style={{fontFamily: T.mono, fontSize: 10, color: T.fgFaint}}>{n.region}</span>
+                                    {n.status === 'degraded' && (
+                                        <span style={{
+                                            fontFamily: T.mono,
+                                            fontSize: 9,
+                                            color: T.amber,
+                                            border: `1px solid ${T.amber}44`,
+                                            borderRadius: 4,
+                                            padding: '1px 5px'
+                                        }}>degraded</span>
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </Field>
+                <Field label="Pull policy">
+                    <div style={{display: 'flex', gap: 6}}>
+                        {['Always', 'IfNotPresent', 'Never'].map(p => {
+                            const active = form.pullPolicy === p;
+                            return (
+                                <button key={p} onClick={() => set('pullPolicy', p)}
+                                        style={{
+                                            fontFamily: T.mono, fontSize: 11, padding: '6px 14px', borderRadius: 7,
+                                            border: `1px solid ${active ? T.borderH : T.border}`,
+                                            background: active ? T.cyanDim : 'transparent',
+                                            color: active ? T.cyan : T.fgDim,
+                                            cursor: 'pointer', transition: 'all 0.12s',
+                                        }}>{p}</button>
+                            );
+                        })}
+                    </div>
+                </Field>
+            </div>
+        );
+
+        const StepConfig = () => (
+            <div style={{display: 'flex', flexDirection: 'column', gap: 18}}>
+                <Field label="Exposed ports" sub="comma-separated">
+                    <input value={form.ports} onChange={e => set('ports', e.target.value)}
+                           placeholder="8080, 9090" {...inp('ports')}/>
+                </Field>
+                <Field label="Restart policy">
+                    <div style={{display: 'flex', gap: 6}}>
+                        {['always', 'on-failure', 'never'].map(p => {
+                            const active = form.restart === p;
+                            return (
+                                <button key={p} onClick={() => set('restart', p)}
+                                        style={{
+                                            fontFamily: T.mono, fontSize: 11, padding: '6px 14px', borderRadius: 7,
+                                            border: `1px solid ${active ? T.borderH : T.border}`,
+                                            background: active ? T.cyanDim : 'transparent',
+                                            color: active ? T.cyan : T.fgDim,
+                                            cursor: 'pointer', transition: 'all 0.12s',
+                                        }}>{p}</button>
+                            );
+                        })}
+                    </div>
+                </Field>
+                <Divider/>
+                <Field label="Environment variables">
+                    <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
+                        {form.envVars.map((ev, i) => (
+                            <div key={i} style={{
+                                display: 'grid',
+                                gridTemplateColumns: '1fr 1fr 28px',
+                                gap: 6,
+                                alignItems: 'center'
+                            }}>
+                                <input value={ev.key} onChange={e => setEnvVar(i, 'key', e.target.value)}
+                                       placeholder="KEY" {...inp(`evk${i}`)}
+                                       style={{...inputStyle(focusedField === `evk${i}`), fontWeight: 500}}/>
+                                <input value={ev.value} onChange={e => setEnvVar(i, 'value', e.target.value)}
+                                       placeholder="value" {...inp(`evv${i}`)}/>
+                                <button onClick={() => removeEnvVar(i)}
+                                        style={{
+                                            width: 28,
+                                            height: 34,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            background: 'transparent',
+                                            border: `1px solid ${T.border}`,
+                                            borderRadius: 7,
+                                            color: T.fgFaint,
+                                            cursor: 'pointer',
+                                            fontSize: 14,
+                                            transition: 'all 0.12s',
+                                        }}
+                                        onMouseEnter={e => {
+                                            e.currentTarget.style.borderColor = T.red + '55';
+                                            e.currentTarget.style.color = T.red;
+                                        }}
+                                        onMouseLeave={e => {
+                                            e.currentTarget.style.borderColor = T.border;
+                                            e.currentTarget.style.color = T.fgFaint;
+                                        }}>
+                                    ×
+                                </button>
+                            </div>
+                        ))}
+                        <button onClick={addEnvVar}
+                                style={{
+                                    fontFamily: T.mono, fontSize: 11, padding: '6px 12px', borderRadius: 7,
+                                    border: `1px dashed ${T.border}`, background: 'transparent',
+                                    color: T.fgDim, cursor: 'pointer', textAlign: 'left',
+                                    transition: 'all 0.12s',
+                                }}
+                                onMouseEnter={e => {
+                                    e.currentTarget.style.borderColor = T.borderM;
+                                    e.currentTarget.style.color = T.fg;
+                                }}
+                                onMouseLeave={e => {
+                                    e.currentTarget.style.borderColor = T.border;
+                                    e.currentTarget.style.color = T.fgDim;
+                                }}>
+                            + add variable
+                        </button>
+                    </div>
+                </Field>
+            </div>
+        );
+
+        const StepResources = () => (
+            <div style={{display: 'flex', flexDirection: 'column', gap: 18}}>
+                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12}}>
+                    <Field label="CPU limit" sub="e.g. 500m, 2">
+                        <input value={form.cpuLimit} onChange={e => set('cpuLimit', e.target.value)}
+                               placeholder="500m" {...inp('cpu')}/>
+                    </Field>
+                    <Field label="Memory limit" sub="e.g. 512Mi, 2Gi">
+                        <input value={form.memLimit} onChange={e => set('memLimit', e.target.value)}
+                               placeholder="512Mi" {...inp('mem')}/>
+                    </Field>
+                </div>
+                <Field label="Replicas">
+                    <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
+                        <button onClick={() => set('replicas', Math.max(1, form.replicas - 1))}
+                                style={{
+                                    width: 34,
+                                    height: 34,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    background: T.bg4,
+                                    border: `1px solid ${T.border}`,
+                                    borderRadius: 7,
+                                    color: T.fgMid,
+                                    cursor: 'pointer',
+                                    fontSize: 16,
+                                    fontFamily: T.mono,
+                                    transition: 'all 0.12s',
+                                }}
+                                onMouseEnter={e => {
+                                    e.currentTarget.style.borderColor = T.borderM;
+                                    e.currentTarget.style.color = T.fg;
+                                }}
+                                onMouseLeave={e => {
+                                    e.currentTarget.style.borderColor = T.border;
+                                    e.currentTarget.style.color = T.fgMid;
+                                }}>
+                            −
+                        </button>
+                        <span style={{
+                            fontFamily: T.mono,
+                            fontSize: 20,
+                            fontWeight: 600,
+                            color: T.fg,
+                            minWidth: 32,
+                            textAlign: 'center'
+                        }}>
+            {form.replicas}
+          </span>
+                        <button onClick={() => set('replicas', Math.min(8, form.replicas + 1))}
+                                style={{
+                                    width: 34,
+                                    height: 34,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    background: T.bg4,
+                                    border: `1px solid ${T.border}`,
+                                    borderRadius: 7,
+                                    color: T.fgMid,
+                                    cursor: 'pointer',
+                                    fontSize: 16,
+                                    fontFamily: T.mono,
+                                    transition: 'all 0.12s',
+                                }}
+                                onMouseEnter={e => {
+                                    e.currentTarget.style.borderColor = T.borderM;
+                                    e.currentTarget.style.color = T.fg;
+                                }}
+                                onMouseLeave={e => {
+                                    e.currentTarget.style.borderColor = T.border;
+                                    e.currentTarget.style.color = T.fgMid;
+                                }}>
+                            +
+                        </button>
+                        <div style={{flex: 1, display: 'flex', gap: 3}}>
+                            {Array.from({length: 8}).map((_, i) => (
+                                <div key={i} style={{
+                                    flex: 1, height: 6, borderRadius: 3,
+                                    background: i < form.replicas ? T.cyan : T.bg4,
+                                    transition: 'background 0.15s',
+                                }}></div>
+                            ))}
+                        </div>
+                    </div>
+                </Field>
+                <Divider/>
+                {/* Resource preview */}
+                <div
+                    style={{background: T.bg4, border: `1px solid ${T.border}`, borderRadius: 9, padding: '14px 16px'}}>
+                    <div style={{
+                        fontFamily: T.mono,
+                        fontSize: 10,
+                        color: T.fgDim,
+                        marginBottom: 10,
+                        letterSpacing: '0.06em',
+                        textTransform: 'uppercase'
+                    }}>Allocation preview
+                    </div>
+                    <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16}}>
+                        {[
+                            {label: 'CPU total', value: `${form.replicas} × ${form.cpuLimit}`, color: T.cyan},
+                            {label: 'Mem total', value: `${form.replicas} × ${form.memLimit}`, color: T.cyan},
+                            {label: 'Replicas', value: form.replicas, color: T.fg},
+                        ].map((s, i) => (
+                            <div key={i}>
+                                <div style={{
+                                    fontFamily: T.mono,
+                                    fontSize: 18,
+                                    fontWeight: 600,
+                                    color: s.color
+                                }}>{s.value}</div>
+                                <div style={{
+                                    fontFamily: T.mono,
+                                    fontSize: 10,
+                                    color: T.fgDim,
+                                    marginTop: 2
+                                }}>{s.label}</div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+
+        const StepReview = () => (
+            <div style={{display: 'flex', flexDirection: 'column', gap: 0}}>
+                {!deploying && !deployed && (
+                    <>
+                        <div style={{
+                            background: T.bg4,
+                            border: `1px solid ${T.border}`,
+                            borderRadius: 10,
+                            overflow: 'hidden',
+                            marginBottom: 16
+                        }}>
+                            {[
+                                ['Service', form.name || '(unnamed)'],
+                                ['Image', `${form.image || '(none)'}:${form.tag}`],
+                                ['Node', form.node],
+                                ['Environment', form.env],
+                                ['Ports', form.ports || '—'],
+                                ['CPU limit', form.cpuLimit],
+                                ['Mem limit', form.memLimit],
+                                ['Replicas', form.replicas],
+                                ['Restart', form.restart],
+                                ['Pull policy', form.pullPolicy],
+                                ['Env vars', `${form.envVars.filter(e => e.key).length} configured`],
+                            ].map(([k, v], i, arr) => (
+                                <div key={k} style={{
+                                    display: 'grid', gridTemplateColumns: '140px 1fr', gap: 12,
+                                    padding: '10px 16px',
+                                    borderBottom: i < arr.length - 1 ? `1px solid ${T.border}` : 'none',
+                                }}>
+                                    <span style={{fontFamily: T.mono, fontSize: 11, color: T.fgDim}}>{k}</span>
+                                    <span style={{
+                                        fontFamily: T.mono,
+                                        fontSize: 11,
+                                        color: T.fg,
+                                        wordBreak: 'break-all'
+                                    }}>{String(v)}</span>
+                                </div>
+                            ))}
+                        </div>
+                        {/* Warning if deploying to degraded node */}
+                        {NODES.find(n => n.id === form.node)?.status === 'degraded' && (
+                            <div style={{
+                                display: 'flex', gap: 10, padding: '10px 14px',
+                                background: T.amberDim, border: `1px solid ${T.amber}44`,
+                                borderRadius: 8, marginBottom: 16,
+                            }}>
+                                <svg width="14" height="14" viewBox="0 0 10 10" fill="none"
+                                     style={{flexShrink: 0, marginTop: 1}}>
+                                    <path d="M5 1.2L9.2 8.8H0.8L5 1.2Z" stroke={T.amber} strokeWidth="1.2"
+                                          strokeLinejoin="round" fill="rgba(245,166,35,0.18)"/>
+                                    <line x1="5" y1="4.2" x2="5" y2="6.4" stroke={T.amber} strokeWidth="1.1"
+                                          strokeLinecap="round"/>
+                                    <circle cx="5" cy="7.5" r="0.55" fill={T.amber}/>
+                                </svg>
+                                <span style={{fontFamily: T.mono, fontSize: 11, color: T.amber, lineHeight: 1.5}}>
+                {form.node} is currently <strong>degraded</strong>. Deploying here may be unstable.
+              </span>
+                            </div>
+                        )}
+                    </>
+                )}
+
+                {/* Deploy log */}
+                {(deploying || deployed) && (
+                    <div style={{
+                        background: T.bg, border: `1px solid ${T.border}`, borderRadius: 10,
+                        padding: '14px 16px', fontFamily: T.mono, fontSize: 11.5,
+                        minHeight: 200, display: 'flex', flexDirection: 'column', gap: 5,
+                    }}>
+                        <div style={{
+                            color: T.fgDim,
+                            fontSize: 10,
+                            marginBottom: 6,
+                            letterSpacing: '0.06em',
+                            textTransform: 'uppercase'
+                        }}>deploy log
+                        </div>
+                        {logLines.map((line, i) => (
+                            <div key={i} style={{
+                                color: line.color,
+                                animation: 'fadeUp 0.15s ease both',
+                                display: 'flex',
+                                gap: 10
+                            }}>
+                                <span style={{
+                                    color: T.fgFaint,
+                                    userSelect: 'none'
+                                }}>{String(i + 1).padStart(2, '0')}</span>
+                                <span>{line.text}</span>
+                            </div>
+                        ))}
+                        {deploying && !deployed && (
+                            <div style={{display: 'flex', alignItems: 'center', gap: 8, marginTop: 4}}>
+                                <div style={{
+                                    width: 10, height: 10, borderRadius: '50%',
+                                    border: `2px solid ${T.cyan}`, borderTopColor: 'transparent',
+                                    animation: 'spin 0.7s linear infinite', flexShrink: 0,
+                                }}></div>
+                                <span style={{color: T.fgDim, fontSize: 11}}>running…</span>
+                            </div>
+                        )}
+                        {deployed && (
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 8,
+                                marginTop: 8,
+                                padding: '10px 14px',
+                                background: T.greenDim,
+                                border: `1px solid ${T.green}44`,
+                                borderRadius: 8
+                            }}>
+                                <span style={{color: T.green, fontSize: 14}}>✓</span>
+                                <span style={{fontFamily: T.mono, fontSize: 12, color: T.green, fontWeight: 600}}>
+                {form.name || 'service'} deployed successfully
+              </span>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+        );
+
+        const steps = [<StepImage/>, <StepConfig/>, <StepResources/>, <StepReview/>];
+        const isLastStep = step === DEPLOY_STEPS.length - 1;
+        const canDeploy = isLastStep && !deploying && !deployed;
+
+        // Backdrop click closes (unless deploying)
+        const handleBackdrop = (e) => {
+            if (e.target === e.currentTarget && !deploying) onClose();
+        };
+
+        return (
+            <div onClick={handleBackdrop}
+                 style={{
+                     position: 'fixed', inset: 0, zIndex: 500,
+                     background: 'rgba(0,0,0,0.72)',
+                     backdropFilter: 'blur(4px)',
+                     display: 'flex', alignItems: 'center', justifyContent: 'center',
+                     animation: 'fadeUp 0.18s ease both',
+                 }}>
+                <div style={{
+                    width: 580, maxHeight: 'calc(100vh - 64px)',
+                    background: T.bg2,
+                    border: `1px solid ${T.borderM}`,
+                    borderRadius: 14,
+                    display: 'flex', flexDirection: 'column',
+                    boxShadow: `0 24px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(10,183,238,0.06)`,
+                    overflow: 'hidden',
+                }}>
+                    {/* Header */}
+                    <div style={{
+                        display: 'flex', alignItems: 'center', gap: 12,
+                        padding: '18px 22px 16px',
+                        borderBottom: `1px solid ${T.border}`,
+                        flexShrink: 0,
+                    }}>
+                        <div style={{
+                            width: 32, height: 32, borderRadius: 8,
+                            background: T.redDim, border: `1px solid ${T.red}44`,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M8 2L13 5.5V10.5L8 14L3 10.5V5.5L8 2Z" stroke={T.red} strokeWidth="1.3"
+                                      strokeLinejoin="round"/>
+                                <circle cx="8" cy="8" r="2" fill={T.red} opacity="0.7"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div style={{fontFamily: T.sans, fontSize: 15, fontWeight: 700, color: T.fg}}>Deploy
+                                service
+                            </div>
+                            <div style={{fontFamily: T.mono, fontSize: 10, color: T.fgDim, marginTop: 1}}>
+                                {form.name ? `${form.name} → ${form.node}` : 'configure a new container deployment'}
+                            </div>
+                        </div>
+                        <button onClick={!deploying ? onClose : undefined}
+                                style={{
+                                    marginLeft: 'auto', width: 28, height: 28,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    background: 'transparent', border: `1px solid ${T.border}`,
+                                    borderRadius: 7, color: T.fgDim, cursor: deploying ? 'not-allowed' : 'pointer',
+                                    fontSize: 14, transition: 'all 0.12s', opacity: deploying ? 0.4 : 1,
+                                }}
+                                onMouseEnter={e => {
+                                    if (!deploying) {
+                                        e.currentTarget.style.borderColor = T.borderM;
+                                        e.currentTarget.style.color = T.fg;
+                                    }
+                                }}
+                                onMouseLeave={e => {
+                                    e.currentTarget.style.borderColor = T.border;
+                                    e.currentTarget.style.color = T.fgDim;
+                                }}>
+                            ✕
+                        </button>
+                    </div>
+
+                    {/* Step indicator */}
+                    <div style={{
+                        display: 'flex', alignItems: 'center', gap: 0,
+                        padding: '12px 22px', borderBottom: `1px solid ${T.border}`,
+                        flexShrink: 0,
+                    }}>
+                        {DEPLOY_STEPS.map((s, i) => {
+                            const done = i < step;
+                            const active = i === step;
+                            return (
+                                <React.Fragment key={s}>
+                                    <button
+                                        onClick={() => {
+                                            if (!deploying && !deployed && i < step) setStep(i);
+                                        }}
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 7,
+                                            background: 'transparent',
+                                            border: 'none',
+                                            cursor: (done && !deploying) ? 'pointer' : 'default',
+                                            padding: '4px 0',
+                                        }}>
+                                        <div style={{
+                                            width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            background: done ? T.green : active ? T.red : T.bg4,
+                                            border: `1px solid ${done ? T.green + '66' : active ? T.red + '66' : T.border}`,
+                                            transition: 'all 0.2s',
+                                        }}>
+                                            {done ? (
+                                                <span style={{color: '#fff', fontSize: 9, fontWeight: 700}}>✓</span>
+                                            ) : (
+                                                <span style={{
+                                                    fontFamily: T.mono,
+                                                    fontSize: 9,
+                                                    color: active ? '#fff' : T.fgFaint,
+                                                    fontWeight: 600
+                                                }}>{i + 1}</span>
+                                            )}
+                                        </div>
+                                        <span style={{
+                                            fontFamily: T.mono, fontSize: 11, fontWeight: active ? 600 : 400,
+                                            color: done ? T.green : active ? T.fg : T.fgDim,
+                                            transition: 'color 0.2s',
+                                        }}>{s}</span>
+                                    </button>
+                                    {i < DEPLOY_STEPS.length - 1 && (
+                                        <div style={{
+                                            flex: 1, height: 1, margin: '0 8px',
+                                            background: i < step ? T.green + '55' : T.border,
+                                            transition: 'background 0.3s',
+                                        }}></div>
+                                    )}
+                                </React.Fragment>
+                            );
+                        })}
+                    </div>
+
+                    {/* Step content */}
+                    <div style={{flex: 1, overflowY: 'auto', padding: '22px 22px 4px'}} key={step}>
+                        {steps[step]}
+                    </div>
+
+                    {/* Footer */}
+                    <div style={{
+                        display: 'flex', alignItems: 'center', gap: 10,
+                        padding: '16px 22px',
+                        borderTop: `1px solid ${T.border}`,
+                        flexShrink: 0,
+                    }}>
+                        {!deployed && (
+                            <button onClick={step > 0 && !deploying ? () => setStep(s => s - 1) : undefined}
+                                    style={{
+                                        fontFamily: T.mono, fontSize: 12, padding: '8px 18px', borderRadius: 8,
+                                        border: `1px solid ${T.border}`, background: 'transparent',
+                                        color: step === 0 || deploying ? T.fgFaint : T.fgMid,
+                                        cursor: step === 0 || deploying ? 'not-allowed' : 'pointer',
+                                        transition: 'all 0.15s', opacity: step === 0 ? 0.4 : 1,
+                                    }}
+                                    onMouseEnter={e => {
+                                        if (step > 0 && !deploying) {
+                                            e.currentTarget.style.borderColor = T.borderM;
+                                            e.currentTarget.style.color = T.fg;
+                                        }
+                                    }}
+                                    onMouseLeave={e => {
+                                        e.currentTarget.style.borderColor = T.border;
+                                        e.currentTarget.style.color = T.fgMid;
+                                    }}>
+                                ← back
+                            </button>
+                        )}
+
+                        <div style={{flex: 1}}></div>
+
+                        {deployed ? (
+                            <button onClick={onClose}
+                                    style={{
+                                        fontFamily: T.sans, fontSize: 13, fontWeight: 700, padding: '8px 24px',
+                                        borderRadius: 8, border: 'none', cursor: 'pointer',
+                                        background: T.green, color: '#fff', transition: 'opacity 0.15s',
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
+                                    onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
+                                done
+                            </button>
+                        ) : isLastStep ? (
+                            <button onClick={!deploying ? runDeploy : undefined}
+                                    disabled={deploying}
+                                    style={{
+                                        fontFamily: T.sans, fontSize: 13, fontWeight: 700, padding: '8px 24px',
+                                        borderRadius: 8, border: 'none', cursor: deploying ? 'not-allowed' : 'pointer',
+                                        background: deploying ? T.bg4 : T.red,
+                                        color: deploying ? T.fgDim : '#fff',
+                                        display: 'flex', alignItems: 'center', gap: 8,
+                                        transition: 'all 0.15s',
+                                    }}
+                                    onMouseEnter={e => {
+                                        if (!deploying) e.currentTarget.style.opacity = '0.82';
+                                    }}
+                                    onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
+                                {deploying && (
+                                    <div style={{
+                                        width: 12,
+                                        height: 12,
+                                        borderRadius: '50%',
+                                        border: `2px solid rgba(255,255,255,0.3)`,
+                                        borderTopColor: '#fff',
+                                        animation: 'spin 0.7s linear infinite'
+                                    }}></div>
+                                )}
+                                {deploying ? 'deploying…' : '⬕ deploy'}
+                            </button>
+                        ) : (
+                            <button onClick={() => setStep(s => s + 1)}
+                                    style={{
+                                        fontFamily: T.sans, fontSize: 13, fontWeight: 700, padding: '8px 24px',
+                                        borderRadius: 8, border: 'none', cursor: 'pointer',
+                                        background: T.red, color: '#fff', transition: 'opacity 0.15s',
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.opacity = '0.82'}
+                                    onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
+                                next →
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // ─── Main App ─────────────────────────────────────────────────────
+    function App() {
+        const [collapsed, setCollapsed] = useState(false);
+        const [activeNode, setActiveNode] = useState('node01');
+        const [activeNav, setActiveNav] = useState('deployments');
+        const [showAllNodes, setShowAllNodes] = useState(false);
+        const [deployOpen, setDeployOpen] = useState(false);
+
+        const {tweaks, setTweak, TweaksPanel, TweakSection, TweakToggle, TweakRadio} = useTweaks(/*EDITMODE-BEGIN*/{
+            "compactCards": false,
+            "accentColor": "red"
+        }/*EDITMODE-END*/);
+
+        const effectiveNode = showAllNodes ? 'all' : activeNode;
+
+        return (
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100vh',
+                background: T.bg,
+                fontFamily: T.sans,
+                color: T.fg,
+                overflow: 'hidden'
+            }}>
+                <div style={{display: 'flex', flex: 1, overflow: 'hidden'}}>
+                    <Sidebar
+                        collapsed={collapsed}
+                        activeNode={activeNode}
+                        setActiveNode={n => {
+                            setActiveNode(n);
+                            setShowAllNodes(false);
+                        }}
+                        activeNav={activeNav}
+                        setActiveNav={setActiveNav}
+                    />
+                    <div style={{flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden'}}>
+                        <TopBar
+                            collapsed={collapsed}
+                            setCollapsed={setCollapsed}
+                            activeNav={activeNav}
+                            setActiveNav={setActiveNav}
+                            activeNode={activeNode}
+                            showAllNodes={showAllNodes}
+                            setShowAllNodes={setShowAllNodes}
+                            onDeploy={() => setDeployOpen(true)}
+                        />
+                        {/* Tab content */}
+                        <div style={{flex: 1, overflow: 'hidden', animation: 'fadeUp 0.25s ease both'}} key={activeNav}>
+                            {activeNav === 'controlplane' && <ControlPlaneTab activeNode={effectiveNode}/>}
+                            {activeNav === 'vcn' && <VCNTab activeNode={effectiveNode}/>}
+                            {activeNav === 'deployments' && <DeploymentsTab activeNode={effectiveNode}/>}
+                            {activeNav === 'search' && <SearchTab/>}
+                        </div>
+                    </div>
+                </div>
+
+                {deployOpen && <DeployDialog onClose={() => setDeployOpen(false)}/>}
+
+                <TweaksPanel>
+                    <TweakSection label="View"/>
+                    <TweakToggle id="compactCards" label="Compact cards"/>
+                    <TweakSection label="Theme"/>
+                    <TweakRadio id="accentColor" label="Accent"
+                                options={[{value: 'red', label: 'Red'}, {value: 'cyan', label: 'Cyan'}]}/>
+                </TweaksPanel>
+            </div>
+        );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

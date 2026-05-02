@@ -100,7 +100,58 @@
     }
 }
 
+.HeaderRight {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
 .Settings {
     display: flex;
     cursor: pointer;
+    white-space: nowrap;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--border-radius, 0.4rem);
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.06);
+    }
+}
+
+.HealthDot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.healthChecking {
+    background: var(--ping-unknown, #aaa);
+    animation: pulse 1.2s ease-in-out infinite;
+}
+
+.healthHealthy {
+    background: var(--ping-health, #3a7);
+}
+
+.healthUnhealthy {
+    background: var(--ping-disabled, #e55);
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.navActive {
+    font-weight: 600;
+
+    &::before {
+        clip-path: polygon(
+            0% 0%, 100% 0%, 100% 100%, 0% 100%
+        );
+        border-color: var(--ping-health, #3a7);
+    }
 }

@@ -6,8 +6,6 @@ import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 import '@/index.module.css'
 import 'react-tooltip/dist/react-tooltip.css'
 
-import SettingsWidget from "@/widgets/settings/SettingsWidget.tsx";
-
 import router from "@/app/router/Router";
 
 const queryClient = new QueryClient();
@@ -20,7 +18,6 @@ createRoot(document.getElementById('root')!)
                 <RouterProvider
                     router={router}/>
 
-                <SettingsWidget/>
                 <Tooltip
                     id={"tooltip"}
                 />

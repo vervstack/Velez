@@ -1,0 +1,213 @@
+{
+  "main": {
+    "id": "7294794f24f5c009",
+    "type": "split",
+    "children": [
+      {
+        "id": "3bfb392cdae4374e",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "62dcb7d7907919e6",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "New tab"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "642df36fac15a1b1",
+    "type": "split",
+    "children": [
+      {
+        "id": "cb8a5d1b0460c82f",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "cded31ef9a47528b",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "4f77ec2b03a51dcd",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "abb1011f8d94673a",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "34bdb52313e44e87",
+    "type": "split",
+    "children": [
+      {
+        "id": "e05dfefd2a9e14c4",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ceceaf3e091f4ffb",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "69a01830801b391e",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "8d26ddf79a859b7e",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "95e5b4c75be47df0",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "63764f8fd9dfcbee",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "62dcb7d7907919e6",
+  "lastOpenFiles": [
+    "paas/ui/tasks/M6-T29-search-page.md",
+    "paas/ui/tasks/M6-T28-vcn-page.md",
+    "paas/ui/tasks/M6-T27-deployments-page.md",
+    "paas/ui/tasks/M6-T26-control-plane-page.md",
+    "paas/ui/tasks/M5-T25-main-layout.md",
+    "paas/ui/tasks/M4-T24-vcn-peer-table.md",
+    "paas/ui/tasks/M4-T23-network-topology.md",
+    "paas/ui/tasks/M4-T22-plugin-matrix.md",
+    "paas/ui/tasks/M4-T21-node-health-list.md",
+    "paas/ui/tasks/M4-T20-service-list-view.md",
+    "paas/ui/tasks/M4-T19-kanban-board.md",
+    "paas/ui/tasks/M4-T18-deployment-filters.md",
+    "paas/ui/tasks/M4-T17-top-bar.md",
+    "paas/ui/tasks/M4-T16-sidebar.md",
+    "paas/ui/tasks/M3-T15-code-block.md",
+    "paas/ui/tasks/M3-T14-vcn-peer-row.md",
+    "paas/ui/tasks/M3-T13-node-card.md",
+    "paas/ui/tasks/M3-T12-service-list-row.md",
+    "paas/ui/tasks/M3-T11-service-card.md",
+    "paas/ui/tasks/M3-T10-three-dot-menu.md",
+    "paas/ui/tasks/M2-T09-stat-card.md",
+    "paas/ui/tasks/M2-T08-section-label.md",
+    "paas/ui/tasks/M2-T07-button.md",
+    "paas/ui/tasks/M2-T06-icon-button.md",
+    "paas/ui/tasks/M2-T05-chips.md",
+    "paas/ui/tasks/M2-T04-mini-bar.md",
+    "paas/ui/tasks",
+    "paas/ui/examples/Velez Dashboard.html",
+    "paas/ui/examples",
+    "paas/ui",
+    "pr"
+  ]
+}

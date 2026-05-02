@@ -17,3 +17,4 @@ local_data
 
 *.local
 proto_modules
+/docs/pr/

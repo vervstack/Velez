@@ -1,0 +1,114 @@
+# T01 — Design Tokens
+
+**File to modify:** `src/index.module.css`
+
+## Context
+
+Replace the existing `:root` CSS custom properties with the new design-system tokens. These tokens are used by every
+component. After this task all existing references to old variables (e.g. `--main-bg-color`) will break — that is
+expected and will be fixed in subsequent tasks.
+
+## What to do
+
+Replace the entire content of `src/index.module.css` with the following:
+
+```css
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body, #root {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+}
+
+:root {
+    /* Backgrounds */
+    --bg:       #0c0c0f;
+    --bg2:      #13131a;
+    --bg3:      #1c1c26;
+    --bg4:      #22222f;
+
+    /* Borders */
+    --border:   rgba(10, 183, 238, 0.12);
+    --border-m: rgba(10, 183, 238, 0.28);
+    --border-h: rgba(10, 183, 238, 0.45);
+
+    /* Cyan */
+    --cyan:         #0ab7ee;
+    --cyan-dim:     rgba(10, 183, 238, 0.10);
+    --cyan-glow:    rgba(10, 183, 238, 0.06);
+
+    /* Red */
+    --red:      #ed2f32;
+    --red-dim:  rgba(237, 47, 50, 0.12);
+
+    /* Green */
+    --green:        #28c840;
+    --green-dim:    rgba(40, 200, 64, 0.12);
+
+    /* Amber */
+    --amber:        #f5a623;
+    --amber-dim:    rgba(245, 166, 35, 0.12);
+
+    /* Blue (freeze) */
+    --blue:         #60a5fa;
+    --blue-dim:     rgba(96, 165, 250, 0.10);
+
+    /* Foreground */
+    --fg:       #e8e8f0;
+    --fg-mid:   #b0b0c8;
+    --fg-dim:   #72728a;
+    --fg-faint: #3a3a52;
+
+    /* Typography */
+    --font-sans: 'Comfortaa', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    /* Misc */
+    --radius:   0.625rem; /* 10px */
+    --radius-sm: 0.375rem; /* 6px */
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--cyan-dim); border-radius: 99px; }
+
+/* Animations */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-6px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+```
+
+## Notes
+
+- Keep the local font files in `src/assets/font/` — they are used as fallback.
+- The `overflow: hidden` on `#root` is intentional — the layout scrolls inside panels, not the whole page.
+- Do not remove the `@keyframes` — they will be referenced by component CSS modules.

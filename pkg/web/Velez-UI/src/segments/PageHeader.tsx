@@ -1,5 +1,6 @@
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useLocation} from "react-router-dom";
 import {useEffect, useRef, useState} from "react";
+import cn from "classnames";
 
 import cls from "@/segments/PageHeader.module.css";
 import VelezIcon from "@/assets/icons/services/velez.svg";
@@ -8,9 +9,10 @@ import {Routes} from "@/app/router/Router.tsx";
 
 import {ListSmerdsRequest} from "@vervstack/velez";
 
-import {ListSmerds} from "@/processes/api/velez.ts";
+import {ListSmerds, FetchSmerds} from "@/processes/api/velez.ts";
 import useSettings from "@/app/settings/state.ts";
 import {SuggestElem} from "@/model/common/suggest.ts";
+import SettingsWidget from "@/widgets/settings/SettingsWidget.tsx";
 
 import InputSearch from "@/components/complex/search/InputSearch.tsx";
 
@@ -19,8 +21,45 @@ interface NavigationUnit {
     route: Routes
 }
 
+type HealthStatus = "checking" | "healthy" | "unhealthy";
+
+function useConnectionHealth(backendUrl: string, authHeader: string): HealthStatus {
+    const [status, setStatus] = useState<HealthStatus>("checking");
+
+    useEffect(() => {
+        setStatus("checking");
+        const controller = new AbortController();
+        const timer = setTimeout(() => {
+            FetchSmerds()
+                .then(() => setStatus("healthy"))
+                .catch(() => setStatus("unhealthy"));
+        }, 0);
+        return () => {
+            clearTimeout(timer);
+            controller.abort();
+        };
+    }, [backendUrl, authHeader]);
+
+    return status;
+}
+
+function HealthDot({status}: { status: HealthStatus }) {
+    return (
+        <div
+            className={cn(cls.HealthDot, {
+                [cls.healthChecking]: status === "checking",
+                [cls.healthHealthy]: status === "healthy",
+                [cls.healthUnhealthy]: status === "unhealthy",
+            })}
+            title={status === "healthy" ? "Backend connected" : status === "unhealthy" ? "Backend unreachable" : "Checking connection…"}
+        />
+    );
+}
+
 export default function PageHeader() {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [settingsOpen, setSettingsOpen] = useState(false);
 
     const navigation: NavigationUnit[] = [
         {
@@ -41,6 +80,7 @@ export default function PageHeader() {
         }
     ]
     const settings = useSettings();
+    const health = useConnectionHealth(settings.backendUrl, settings.authHeader);
 
     const [search, setSearch] = useState('')
     const [suggestList, setSuggestList] = useState<SuggestElem[]>([])
@@ -95,10 +135,12 @@ export default function PageHeader() {
 
             <div className={cls.Navigation}>
                 {navigation.map(u => {
+                    const isActive = location.pathname === u.route ||
+                        (u.route !== "/" && location.pathname.startsWith(u.route));
                     return (
                         <div
                             key={u.title}
-                            className={cls.NavElement}
+                            className={cn(cls.NavElement, {[cls.navActive]: isActive})}
                             onClick={() => navigate(u.route)}>
                             {u.title}
                         </div>
@@ -117,7 +159,11 @@ export default function PageHeader() {
                 </div>
             </div>
 
-            <div className={cls.Settings}>Settings</div>
+            <div className={cls.HeaderRight}>
+                <HealthDot status={health}/>
+                <div className={cls.Settings} onClick={() => setSettingsOpen(v => !v)}>Settings</div>
+            </div>
+            <SettingsWidget isOpen={settingsOpen} onClose={() => setSettingsOpen(false)}/>
         </div>
     )
 }

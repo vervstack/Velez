@@ -12,22 +12,8 @@ import SearchPage from "@/pages/search/SearchPage";
 import NewServicePage from "@/pages/service/NewServicePage.tsx";
 import ServiceInfoPage from "@/pages/service/ServiceInfoPage.tsx";
 
-export enum Routes {
-    Home = "/",
-    ControlPlane = "/cp",
-    Deploy = "/deploy",
-    Deployments = "/deployments",
-    Smerd = "/smerd",
-    VCN = "/vcn",
-    Search = "/search",
-    NewVervService = '/new_verv_service',
-    Service = '/service'
-}
-
-export enum Arguments {
-    Name = "name",
-    Key = "key"
-}
+import { Routes, Arguments } from "@/app/router/Routes";
+export { Routes, Arguments };
 
 const router = createBrowserRouter([
     {

@@ -4,7 +4,7 @@ import cls from '@/app/router/MainLayout.module.css';
 import Sidebar from '@/widgets/sidebar/Sidebar';
 import TopBar from '@/widgets/topbar/TopBar';
 import Toaster from '@/segments/Toaster';
-import { Routes } from '@/app/router/Router';
+import { Routes } from '@/app/router/Routes';
 
 type NavId = 'controlplane' | 'vcn' | 'deployments' | 'search';
 

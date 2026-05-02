@@ -1,0 +1,10 @@
+.BadgeContainer {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;   /* 10px */
+    border: 1px solid;
+    border-radius: 0.25rem;
+    padding: 0.0625rem 0.4375rem; /* 1px 7px */
+    flex-shrink: 0;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}

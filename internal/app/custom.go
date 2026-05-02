@@ -79,7 +79,7 @@ func (c *Custom) Init(a *App) (err error) {
 }
 
 func (c *Custom) Start(ctx context.Context) error {
-	err := c.autoupgrader.Start()
+	err := c.autoupgrader.Start(ctx)
 	if err != nil {
 		return rerrors.Wrap(err, "error starting autoupgrade")
 	}
@@ -91,7 +91,7 @@ func (c *Custom) Stop() error {
 	var firstErr error
 
 	err := c.DeployWatcher.Stop()
-	if err != nil && firstErr == nil {
+	if err != nil {
 		firstErr = err
 	}
 

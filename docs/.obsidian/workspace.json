@@ -178,6 +178,8 @@
   },
   "active": "62dcb7d7907919e6",
   "lastOpenFiles": [
+    "factory/README.md",
+    "factory",
     "paas/ui/tasks/M6-T29-search-page.md",
     "paas/ui/tasks/M6-T28-vcn-page.md",
     "paas/ui/tasks/M6-T27-deployments-page.md",
@@ -203,7 +205,6 @@
     "paas/ui/tasks/M2-T07-button.md",
     "paas/ui/tasks/M2-T06-icon-button.md",
     "paas/ui/tasks/M2-T05-chips.md",
-    "paas/ui/tasks/M2-T04-mini-bar.md",
     "paas/ui/tasks",
     "paas/ui/examples/Velez Dashboard.html",
     "paas/ui/examples",

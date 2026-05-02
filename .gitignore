@@ -1,5 +1,6 @@
 # Configs
 config/dev.yaml
+CLAUDE.local.md
 
 # Dependency directories (remove the comment below to include it)
 # vendor/

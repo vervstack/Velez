@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {CreateSmerdRequest} from "@vervstack/velez";
+import {CreateSmerdRequest} from "@/app/api/velez";
 
 import cls from "@/widgets/deploy/DeployWidget.module.css"
 

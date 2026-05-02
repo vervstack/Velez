@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 
-import {ListSmerdsRequest, Smerd} from "@vervstack/velez";
+import {ListSmerdsRequest, Smerd} from "@/app/api/velez";
 
 import useSettings from "@/app/settings/state.ts";
 import {ListSmerds} from "@/processes/api/velez.ts";

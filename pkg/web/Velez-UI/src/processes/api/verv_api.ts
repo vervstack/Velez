@@ -1,4 +1,4 @@
-import {ServiceApi, CreateServiceRequest} from "@vervstack/velez";
+import {ServiceApi, CreateServiceRequest} from "@/app/api/velez";
 
 import {InitReq} from "@/app/settings/state.ts";
 

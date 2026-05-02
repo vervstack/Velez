@@ -2,7 +2,7 @@ import {
     VervServiceType,
     VervServiceState,
     VervService as ApiServices
-} from "@vervstack/velez";
+} from "@/app/api/velez";
 
 import {
 

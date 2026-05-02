@@ -1,4 +1,4 @@
-import {Smerd} from "@vervstack/velez";
+import {Smerd} from "@/app/api/velez";
 
 export default function SmerdCard({smerdInfo}: { smerdInfo: Smerd }) {
     return (

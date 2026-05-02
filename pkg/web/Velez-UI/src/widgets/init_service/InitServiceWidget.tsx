@@ -1,4 +1,4 @@
-import {CreateServiceRequest} from "@vervstack/velez";
+import {CreateServiceRequest} from "@/app/api/velez";
 import Button from "@/components/base/Button.tsx";
 import Input from "@/components/base/Input.tsx";
 import {useState} from "react";

@@ -3,7 +3,7 @@ import cn from "classnames";
 
 import cls from "@/widgets/services/EnableStatefullMode.module.css";
 
-import {EnableStatefullCluster} from "@vervstack/velez";
+import {EnableStatefullCluster} from "@/app/api/velez";
 
 import Button from "@/components/base/Button.tsx";
 import Input from "@/components/base/Input.tsx";

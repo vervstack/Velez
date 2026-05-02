@@ -2,7 +2,7 @@ import {
     CreateSmerdRequest,
     Volume as ProtoVolume,
     Port as ProtoPort,
-} from "@vervstack/velez";
+} from "@/app/api/velez";
 
 export interface Smerd {
     name: string

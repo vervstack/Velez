@@ -1,4 +1,4 @@
-import {VervServiceType, VervServiceState} from "@vervstack/velez"
+import {VervServiceType, VervServiceState} from "@/app/api/velez"
 
 import MatreshkaIcon from "@/assets/icons/services/matreshka.png";
 import MakoshIcon from "@/assets/icons/services/makosh.png";

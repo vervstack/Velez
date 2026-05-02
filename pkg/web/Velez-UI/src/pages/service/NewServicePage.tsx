@@ -1,4 +1,4 @@
-import {CreateServiceRequest} from "@vervstack/velez";
+import {CreateServiceRequest} from "@/app/api/velez";
 
 import InitServiceWidget from "@/widgets/init_service/InitServiceWidget.tsx";
 import {CreateService} from "@/processes/api/verv_api.ts";

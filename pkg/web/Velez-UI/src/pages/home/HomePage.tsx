@@ -2,7 +2,7 @@ import {useQuery} from "@tanstack/react-query";
 import {useNavigate} from "react-router-dom";
 import cn from "classnames";
 
-import {ServiceBaseInfo, Smerd, SmerdStatus} from "@vervstack/velez";
+import {ServiceBaseInfo, Smerd, SmerdStatus} from "@/app/api/velez";
 
 import cls from "@/pages/home/Home.module.css";
 

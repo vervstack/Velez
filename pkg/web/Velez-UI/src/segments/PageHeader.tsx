@@ -7,7 +7,7 @@ import VelezIcon from "@/assets/icons/services/velez.svg";
 
 import {Routes} from "@/app/router/Router.tsx";
 
-import {ListSmerdsRequest} from "@vervstack/velez";
+import {ListSmerdsRequest} from "@/app/api/velez";
 
 import {ListSmerds, FetchSmerds} from "@/processes/api/velez.ts";
 import useSettings from "@/app/settings/state.ts";

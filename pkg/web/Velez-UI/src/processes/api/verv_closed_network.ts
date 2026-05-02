@@ -1,4 +1,4 @@
-import {VcnApi, ConnectUserRequest} from "@vervstack/velez";
+import {VcnApi, ConnectUserRequest} from "@/app/api/velez";
 
 import {InitReq} from "@/app/settings/state.ts";
 

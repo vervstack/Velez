@@ -4,7 +4,7 @@ import {
     ListSmerdsResponse,
     SearchImagesResponse,
     Smerd as ProtoSmerd,
-} from "@vervstack/velez";
+} from "@/app/api/velez";
 import {InitReq} from "@/app/settings/state.ts";
 import {CreateSmerdReq, Port, Smerd, toProto, Volume} from "@/model/smerds/Smerds.ts";
 import {GetInitReq} from "@/processes/api/api.ts";

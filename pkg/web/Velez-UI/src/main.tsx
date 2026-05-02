@@ -13,14 +13,10 @@ const queryClient = new QueryClient();
 createRoot(document.getElementById('root')!)
     .render(
         <QueryClientProvider client={queryClient}>
-            <div>
+            <>
                 <link href="@/assets/font/Comfortaa.ttf" rel="stylesheet"/>
-                <RouterProvider
-                    router={router}/>
-
-                <Tooltip
-                    id={"tooltip"}
-                />
-            </div>
+                <RouterProvider router={router}/>
+                <Tooltip id={"tooltip"}/>
+            </>
         </QueryClientProvider>
     )

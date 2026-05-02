@@ -4,7 +4,7 @@ import {
     EnableServiceRequest,
     VervServiceType,
     EnableStatefullCluster,
-} from "@vervstack/velez";
+} from "@/app/api/velez";
 
 import {toServices} from "@/processes/mappings/services.ts";
 

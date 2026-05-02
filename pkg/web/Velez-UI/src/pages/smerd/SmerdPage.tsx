@@ -3,7 +3,7 @@ import {useParams, useNavigate} from "react-router-dom";
 import {useQuery} from "@tanstack/react-query";
 import cn from "classnames";
 
-import {Smerd, SmerdStatus} from "@vervstack/velez";
+import {Smerd, SmerdStatus} from "@/app/api/velez";
 
 import cls from "@/pages/smerd/SmerdPage.module.css";
 

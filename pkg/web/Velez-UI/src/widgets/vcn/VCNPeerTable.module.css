@@ -1,0 +1,27 @@
+/* src/widgets/vcn/VCNPeerTable.module.css */
+.VCNPeerTableContainer { }
+
+.sectionHeader {
+    margin-bottom: 0.875rem;
+}
+
+.table {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.tableHeader {
+    display: grid;
+    grid-template-columns: 1fr 6.25rem 5rem 5rem 5rem 5rem;
+    padding: 0.625rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+}
+
+.headerCell {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    color: var(--fg-dim);
+}

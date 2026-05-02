@@ -1,0 +1,19 @@
+.StatCardContainer {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.125rem 1.25rem; /* 18px 20px */
+}
+
+.value {
+    font-family: var(--font-mono);
+    font-size: 1.625rem;  /* 26px */
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.label {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;  /* 12px */
+    color: var(--fg-dim);
+}

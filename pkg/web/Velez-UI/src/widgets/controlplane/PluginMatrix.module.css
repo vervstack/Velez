@@ -1,0 +1,64 @@
+/* src/widgets/controlplane/PluginMatrix.module.css */
+.PluginMatrixContainer { }
+
+.header {
+    margin-bottom: 0.875rem;
+}
+
+.table {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.tableHeader {
+    display: grid;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+}
+
+.headerCell {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    color: var(--fg-dim);
+}
+
+.headerCellCenter {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    color: var(--fg-dim);
+    text-align: center;
+}
+
+.tableRow {
+    display: grid;
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+}
+
+.pluginCell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pluginName {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--fg);
+    font-weight: 500;
+}
+
+.pluginTag {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    color: var(--fg-dim);
+}
+
+.statusCell {
+    display: flex;
+    justify-content: center;
+}

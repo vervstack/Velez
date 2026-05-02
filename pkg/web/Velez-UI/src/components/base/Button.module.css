@@ -1,29 +1,48 @@
 .ButtonContainer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    cursor: pointer;
-    transition: scale 0.2s ease;
-
-    border-radius: 0.25em;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 0.75rem;  /* 12px */
+    padding: 0.4375rem 1rem; /* 7px 16px */
+    border-radius: var(--radius-sm);
     border: none;
+    cursor: pointer;
+    transition: opacity 0.15s, background 0.15s, border-color 0.15s;
+    white-space: nowrap;
 
-    width: 6em;
-    height: 4em;
-
-    background: var(--accent-bg-color);
-    color: var(--secondary-fg-color);
-
-    &.disabled {
+    &:disabled {
+        opacity: 0.4;
         cursor: not-allowed;
     }
+}
 
-    &:hover&:not(.disabled) {
-        scale: 1.05;
+.primary {
+    background: var(--red);
+    color: #fff;
+    border: none;
+
+    &:hover:not(:disabled) {
+        opacity: 0.82;
     }
+}
 
-    &:focus {
-        outline: none;
+.secondary {
+    background: transparent;
+    color: var(--fg-mid);
+    border: 1px solid var(--border);
+
+    &:hover:not(:disabled) {
+        background: var(--bg3);
+        border-color: var(--border-m);
+    }
+}
+
+.danger {
+    background: var(--red-dim);
+    color: var(--red);
+    border: 1px solid rgba(237, 47, 50, 0.30);
+
+    &:hover:not(:disabled) {
+        background: rgba(237, 47, 50, 0.20);
+        border-color: rgba(237, 47, 50, 0.50);
     }
 }

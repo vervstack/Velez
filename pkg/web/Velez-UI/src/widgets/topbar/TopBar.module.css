@@ -1,0 +1,184 @@
+/* src/widgets/topbar/TopBar.module.css */
+.TopBarContainer {
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    flex-shrink: 0;
+}
+
+/* Collapse button */
+.collapseBtn {
+    width: 3.5rem;
+    height: 3.5rem;
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    border-right: 1px solid var(--border);
+    color: var(--fg-dim);
+    cursor: pointer;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s;
+
+    &:hover { color: var(--fg); }
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    padding: 0 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-right: 1px solid var(--border);
+    height: 100%;
+    flex-shrink: 0;
+}
+
+.crumbDim {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--fg-dim);
+}
+
+.crumbSep {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--fg-faint);
+}
+
+.crumbNode {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--fg);
+    font-weight: 500;
+}
+
+.crumbActive {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--cyan);
+    font-weight: 500;
+}
+
+.degradedBadge {
+    font-family: var(--font-mono);
+    font-size: 0.5625rem;
+    color: var(--amber);
+    border: 1px solid rgba(245, 166, 35, 0.44);
+    border-radius: 0.25rem;
+    padding: 0.0625rem 0.375rem;
+}
+
+.allNodesPill {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 500;
+    padding: 0.1875rem 0.625rem;
+    border-radius: 99px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--fg-dim);
+    margin-left: 0.25rem;
+    transition: all 0.15s;
+
+    &:hover {
+        border-color: var(--border-m);
+        color: var(--fg);
+    }
+}
+
+.allNodesActive {
+    border-color: rgba(10, 183, 238, 0.4);
+    background: var(--cyan-dim);
+    color: var(--cyan);
+}
+
+/* Tabs */
+.tabs {
+    padding: 0 1.25rem;
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.tabGroup {
+    display: flex;
+    gap: 0.125rem;
+    background: var(--bg3);
+    border-radius: 0.5625rem;
+    padding: 0.1875rem;
+    border: 1px solid var(--border);
+}
+
+.tab {
+    font-family: var(--font-sans);
+    font-size: 0.78125rem;
+    font-weight: 400;
+    padding: 0.375rem 1rem;
+    border-radius: 0.4375rem;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    color: var(--fg-dim);
+    transition: all 0.15s;
+
+    &:hover:not(.tabActive) {
+        color: var(--fg-mid);
+    }
+}
+
+.tabActive {
+    background: var(--red);
+    color: #fff;
+    font-weight: 700;
+}
+
+/* Right zone */
+.rightZone {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0 1.25rem;
+    border-left: 1px solid var(--border);
+    height: 100%;
+    flex-shrink: 0;
+}
+
+.healthCounter {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-family: var(--font-mono);
+    font-size: 0.65625rem;
+    color: var(--green);
+}
+
+.healthDot {
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 50%;
+    background: var(--green);
+    display: block;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.deployBtn {
+    background: var(--red);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: #fff;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 0.75rem;
+    padding: 0.4375rem 1rem;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+
+    &:hover { opacity: 0.82; }
+}

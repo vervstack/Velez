@@ -1,44 +1,16 @@
-.ControlPlaneContainer {
+/* src/pages/controlplane/ControlPlanePage.module.css */
+.ControlPlanePageContainer {
+    padding: 1.5rem;
+    overflow-y: auto;
+    height: 100%;
     display: flex;
-
     flex-direction: column;
-
-    width: 100%;
-    position: relative;
+    gap: 1.25rem;
 }
 
-.Content {
-    position: absolute;
-    top: 0;
-    left: 0;
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    flex-shrink: 0;
 }
-
-.ServicesBlock {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2em;
-
-    justify-content: stretch;
-    padding: 1em;
-}
-
-
-.ServiceCardWrapper {
-    flex: 1 1 20em;
-
-    width: 20em;
-    height: 15em;
-
-    max-width: 25em;
-    min-width: 15em;
-    transition: all 0.125s ease-in-out;
-    border-radius: 12px;
-    box-shadow: 5px 5px 5px -5px rgba(34, 60, 80, 0.6);
-
-    cursor: pointer;
-}
-
-.ServiceCardWrapper:hover {
-    transform: scale(1.05);
-}
-

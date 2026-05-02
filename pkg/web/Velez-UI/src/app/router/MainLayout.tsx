@@ -17,15 +17,15 @@ const MOCK_NODES = [
 const NAV_TO_ROUTE: Record<NavId, string> = {
     controlplane: Routes.ControlPlane,
     vcn:          Routes.VCN,
-    deployments:  Routes.Deploy,
-    search:       Routes.Home,
+    deployments:  Routes.Deployments,
+    search:       Routes.Search,
 };
 
 const ROUTE_TO_NAV: Record<string, NavId> = {
     [Routes.ControlPlane]: 'controlplane',
     [Routes.VCN]:          'vcn',
-    [Routes.Deploy]:       'deployments',
-    [Routes.Home]:         'search',
+    [Routes.Deployments]:  'deployments',
+    [Routes.Search]:       'search',
 };
 
 export default function MainLayout() {

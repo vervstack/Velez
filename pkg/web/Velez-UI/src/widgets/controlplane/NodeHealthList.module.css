@@ -1,0 +1,12 @@
+/* src/widgets/controlplane/NodeHealthList.module.css */
+.NodeHealthListContainer { }
+
+.header {
+    margin-bottom: 0.875rem;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}

@@ -1,0 +1,142 @@
+/* src/widgets/deployments/DeploymentFilters.module.css */
+.DeploymentFiltersContainer {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.75rem 1.5rem 0;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+/* Search */
+.searchWrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 0.5625rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--fg-faint);
+    pointer-events: none;
+}
+
+.searchInput {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    padding: 0.375rem 0.625rem 0.375rem 1.625rem;
+    font-family: var(--font-mono);
+    font-size: 0.71875rem;
+    color: var(--fg);
+    width: 12.5rem;
+    outline: none;
+    transition: border-color 0.15s;
+
+    &::placeholder { color: var(--fg-faint); }
+    &:focus { border-color: var(--border-h); }
+}
+
+/* Separator */
+.sep {
+    width: 1px;
+    height: 1.25rem;
+    background: var(--border);
+    flex-shrink: 0;
+}
+
+/* Chip groups */
+.chipGroup {
+    display: flex;
+    gap: 0.3125rem;
+    align-items: center;
+}
+
+.filterChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3125rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--fg-dim);
+    cursor: pointer;
+    transition: all 0.12s;
+
+    &:hover:not(.filterChipActive) {
+        border-color: var(--border-m);
+        color: var(--fg-mid);
+    }
+}
+
+.filterChipActive { }  /* colors applied inline */
+
+.chipDot {
+    width: 0.3125rem;
+    height: 0.3125rem;
+    border-radius: 50%;
+    display: block;
+    transition: background 0.12s;
+}
+
+/* Clear */
+.clearBtn {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    padding: 0.1875rem 0.5625rem;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--fg-dim);
+    cursor: pointer;
+    transition: all 0.12s;
+
+    &:hover {
+        border-color: var(--border-m);
+        color: var(--fg);
+    }
+}
+
+/* View mode toggle */
+.viewToggle {
+    display: flex;
+    gap: 0.0625rem;
+    background: var(--bg3);
+    border-radius: 0.5rem;
+    padding: 0.125rem;
+    border: 1px solid var(--border);
+    margin-left: auto;
+}
+
+.viewBtn {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    padding: 0.3125rem 0.75rem;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    color: var(--fg-dim);
+    transition: all 0.12s;
+}
+
+.viewBtnActive {
+    background: var(--bg2);
+    color: var(--fg);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Count */
+.count {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--fg-dim);
+    flex-shrink: 0;
+}

@@ -1,0 +1,18 @@
+/* src/widgets/vcn/NetworkTopologyMap.module.css */
+.NetworkTopologyMapContainer {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    overflow: hidden;
+}
+
+.header {
+    margin-bottom: 1rem;
+}
+
+.svg {
+    display: block;
+    width: 100%;
+    max-height: 13.75rem; /* 220px */
+}

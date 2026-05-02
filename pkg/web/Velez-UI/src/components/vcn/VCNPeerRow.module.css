@@ -1,0 +1,35 @@
+.VCNPeerRowContainer {
+    display: grid;
+    grid-template-columns: 1fr 6.25rem 5rem 5rem 5rem 5rem;
+    padding: 0.8125rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+}
+
+.VCNPeerRowContainer.last {
+    border-bottom: none;
+}
+
+.name {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--fg);
+}
+
+.type {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--fg-dim);
+}
+
+.latency {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--fg-mid);
+}
+
+.traffic {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--fg-dim);
+}

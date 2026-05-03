@@ -164,12 +164,10 @@ export default function ServiceInfoPage() {
                 <SmerdMetaSection smerd={currentSmerd}/>
             )}
 
-            {deployments.length > 0 && (
-                <DeploymentsSection
-                    deployments={deployments}
-                    currentDeploymentId={service.currentDeploymentId}
-                />
-            )}
+            <DeploymentsSection
+                deployments={deployments}
+                currentDeploymentId={service.currentDeploymentId}
+            />
 
             <Dialog
                 isOpen={dialogChild !== null}
@@ -255,49 +253,53 @@ function DeploymentsSection({deployments, currentDeploymentId}: {
     return (
         <div className={cls.DeploymentsSection}>
             <div className={cls.SectionTitle}>Deployments</div>
-            <div className={cls.DeploymentsList}>
-                {deployments.map(function renderDeployment(dep) {
-                    const isCurrent = dep.id === currentDeploymentId;
-                    const isExpanded = expandedId === dep.id;
+            {deployments.length === 0 ? (
+                <div className={cls.DeploymentsEmptyState}>No deployments yet.</div>
+            ) : (
+                <div className={cls.DeploymentsList}>
+                    {deployments.map(function renderDeployment(dep) {
+                        const isCurrent = dep.id === currentDeploymentId;
+                        const isExpanded = expandedId === dep.id;
 
-                    function onClick() {
-                        toggleExpand(dep.id || "");
-                    }
+                        function onClick() {
+                            toggleExpand(dep.id || "");
+                        }
 
-                    return (
-                        <div key={dep.id} className={cls.DeploymentRowWrapper}>
-                            <div className={`${cls.DeploymentRow} ${isCurrent ? cls.deploymentCurrent : ""}`} onClick={onClick}>
-                                <span className={cls.DeployExpandIcon}>{isExpanded ? "▼" : "▶"}</span>
-                                <span className={cls.DeployId}>{dep.id}</span>
-                                {isCurrent && <span className={cls.CurrentBadge}>current</span>}
-                                <span className={cls.DeployStatus}>
-                                    <StatusBadge status={dep.status}/>
-                                </span>
-                            </div>
-                            {isExpanded && (
-                                <div className={cls.DeploymentDetail}>
-                                    {dep.specId && (
-                                        <div className={cls.MetaRow}>
-                                            <span className={cls.MetaLabel}>Spec ID</span>
-                                            <span className={cls.MetaValue}>{dep.specId}</span>
-                                        </div>
-                                    )}
-                                    {dep.createdAt && (
-                                        <div className={cls.MetaRow}>
-                                            <span className={cls.MetaLabel}>Created at</span>
-                                            <span className={cls.MetaValue}>{formatTimestamp(dep.createdAt)}</span>
-                                        </div>
-                                    )}
-                                    <div className={cls.MetaRow}>
-                                        <span className={cls.MetaLabel}>Raw</span>
-                                        <pre className={cls.RawJson}>{JSON.stringify(dep, null, 2)}</pre>
-                                    </div>
+                        return (
+                            <div key={dep.id} className={cls.DeploymentRowWrapper}>
+                                <div className={`${cls.DeploymentRow} ${isCurrent ? cls.deploymentCurrent : ""}`} onClick={onClick}>
+                                    <span className={cls.DeployExpandIcon}>{isExpanded ? "▼" : "▶"}</span>
+                                    <span className={cls.DeployId}>{dep.id}</span>
+                                    {isCurrent && <span className={cls.CurrentBadge}>current</span>}
+                                    <span className={cls.DeployStatus}>
+                                        <StatusBadge status={dep.status}/>
+                                    </span>
                                 </div>
-                            )}
-                        </div>
-                    );
-                })}
-            </div>
+                                {isExpanded && (
+                                    <div className={cls.DeploymentDetail}>
+                                        {dep.specId && (
+                                            <div className={cls.MetaRow}>
+                                                <span className={cls.MetaLabel}>Spec ID</span>
+                                                <span className={cls.MetaValue}>{dep.specId}</span>
+                                            </div>
+                                        )}
+                                        {dep.createdAt && (
+                                            <div className={cls.MetaRow}>
+                                                <span className={cls.MetaLabel}>Created at</span>
+                                                <span className={cls.MetaValue}>{formatTimestamp(dep.createdAt)}</span>
+                                            </div>
+                                        )}
+                                        <div className={cls.MetaRow}>
+                                            <span className={cls.MetaLabel}>Raw</span>
+                                            <pre className={cls.RawJson}>{JSON.stringify(dep, null, 2)}</pre>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
         </div>
     );
 }

@@ -146,6 +146,12 @@
     gap: 0.35rem;
 }
 
+.DeploymentsEmptyState {
+    color: var(--fg-dim);
+    font-size: 0.8125rem;
+    padding: 0.75rem 0;
+}
+
 .DeploymentRowWrapper {
     display: flex;
     flex-direction: column;

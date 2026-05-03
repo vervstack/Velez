@@ -122,37 +122,37 @@ function ServicesSection({services, smerds}: { services: ServiceBaseInfo[]; smer
 function SmerdsSection({smerds}: { smerds: Smerd[] }) {
     const navigate = useNavigate();
 
-    if (smerds.length === 0) {
-        return null;
-    }
-
     return (
         <section className={cls.Section}>
             <h2 className={cls.SectionTitle}>Containers</h2>
-            <div className={cls.SmerdList}>
-                {smerds.map(function renderSmerdRow(smerd: Smerd) {
-                    function onClick() {
-                        navigate(Routes.Smerd + "/" + smerd.name);
-                    }
+            {smerds.length === 0 ? (
+                <div className={cls.EmptyFilter}>No containers running.</div>
+            ) : (
+                <div className={cls.SmerdList}>
+                    {smerds.map(function renderSmerdRow(smerd: Smerd) {
+                        function onClick() {
+                            navigate(Routes.Smerd + "/" + smerd.name);
+                        }
 
-                    return (
-                        <div
-                            key={smerd.uuid || smerd.name}
-                            className={cls.SmerdRowContainer}
-                            onClick={onClick}
-                        >
-                            <div className={cls.SmerdDot}>
-                                <SmerdStatusDot status={smerd.status}/>
+                        return (
+                            <div
+                                key={smerd.uuid || smerd.name}
+                                className={cls.SmerdRowContainer}
+                                onClick={onClick}
+                            >
+                                <div className={cls.SmerdDot}>
+                                    <SmerdStatusDot status={smerd.status}/>
+                                </div>
+                                <div className={cls.SmerdName}>{smerd.name}</div>
+                                <div className={cls.SmerdImage}>{smerd.imageName}</div>
+                                <div className={cls.SmerdStatusLabel}>
+                                    <StatusBadge status={smerd.status || "unknown"}/>
+                                </div>
                             </div>
-                            <div className={cls.SmerdName}>{smerd.name}</div>
-                            <div className={cls.SmerdImage}>{smerd.imageName}</div>
-                            <div className={cls.SmerdStatusLabel}>
-                                <StatusBadge status={smerd.status || "unknown"}/>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
+                        );
+                    })}
+                </div>
+            )}
         </section>
     );
 }

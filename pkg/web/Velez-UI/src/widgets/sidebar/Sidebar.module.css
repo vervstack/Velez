@@ -1,6 +1,7 @@
-/* src/widgets/sidebar/Sidebar.module.css */
 .SidebarContainer {
-    width: 13.75rem; /* 220px */
+    width: var(--sidebar-width);
+    height: 100vh;
+
     flex-shrink: 0;
     background: var(--bg2);
     border-right: 1px solid var(--border);
@@ -8,10 +9,10 @@
     flex-direction: column;
     transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
-}
 
-.SidebarContainer.collapsed {
-    width: 3.5rem; /* 56px */
+    &.collapsed {
+        width: 3.5rem;
+    }
 }
 
 /* Logo */
@@ -98,7 +99,9 @@
     text-overflow: ellipsis;
 }
 
-.nodeIdActive { color: var(--fg); }
+.nodeIdActive {
+    color: var(--fg);
+}
 
 .nodeHost {
     font-family: var(--font-mono);
@@ -176,7 +179,10 @@
     color: var(--red);
 }
 
-.navIcon { font-size: 0.875rem; flex-shrink: 0; }
+.navIcon {
+    font-size: 0.875rem;
+    flex-shrink: 0;
+}
 
 .navLabel {
     font-family: var(--font-sans);
@@ -184,7 +190,9 @@
     font-weight: 400;
 }
 
-.navLabelActive { font-weight: 700; }
+.navLabelActive {
+    font-weight: 700;
+}
 
 /* Tool items */
 .toolItem {
@@ -209,7 +217,10 @@
     justify-content: center;
 }
 
-.toolIcon { font-size: 0.8125rem; flex-shrink: 0; }
+.toolIcon {
+    font-size: 0.8125rem;
+    flex-shrink: 0;
+}
 
 .toolLabel {
     font-family: var(--font-sans);
@@ -240,13 +251,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: var(--font-mono);
+
     font-size: 0.6875rem;
     color: #fff;
     font-weight: 600;
 }
 
-.userInfo { }
+.userInfo {
+}
 
 .userName {
     font-family: var(--font-sans);

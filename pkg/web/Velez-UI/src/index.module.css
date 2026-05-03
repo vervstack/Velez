@@ -20,41 +20,41 @@ body {
 
 :root {
     /* Backgrounds */
-    --bg:       #0c0c0f;
-    --bg2:      #13131a;
-    --bg3:      #1c1c26;
-    --bg4:      #22222f;
+    --bg: #0c0c0f;
+    --bg2: #13131a;
+    --bg3: #1c1c26;
+    --bg4: #22222f;
 
     /* Borders */
-    --border:   rgba(10, 183, 238, 0.12);
+    --border: rgba(10, 183, 238, 0.12);
     --border-m: rgba(10, 183, 238, 0.28);
     --border-h: rgba(10, 183, 238, 0.45);
 
     /* Cyan */
-    --cyan:         #0ab7ee;
-    --cyan-dim:     rgba(10, 183, 238, 0.10);
-    --cyan-glow:    rgba(10, 183, 238, 0.06);
+    --cyan: #0ab7ee;
+    --cyan-dim: rgba(10, 183, 238, 0.10);
+    --cyan-glow: rgba(10, 183, 238, 0.06);
 
     /* Red */
-    --red:      #ed2f32;
-    --red-dim:  rgba(237, 47, 50, 0.12);
+    --red: #ed2f32;
+    --red-dim: rgba(237, 47, 50, 0.12);
 
     /* Green */
-    --green:        #28c840;
-    --green-dim:    rgba(40, 200, 64, 0.12);
+    --green: #28c840;
+    --green-dim: rgba(40, 200, 64, 0.12);
 
     /* Amber */
-    --amber:        #f5a623;
-    --amber-dim:    rgba(245, 166, 35, 0.12);
+    --amber: #f5a623;
+    --amber-dim: rgba(245, 166, 35, 0.12);
 
     /* Blue (freeze) */
-    --blue:         #60a5fa;
-    --blue-dim:     rgba(96, 165, 250, 0.10);
+    --blue: #60a5fa;
+    --blue-dim: rgba(96, 165, 250, 0.10);
 
     /* Foreground */
-    --fg:       #e8e8f0;
-    --fg-mid:   #b0b0c8;
-    --fg-dim:   #72728a;
+    --fg: #e8e8f0;
+    --fg-mid: #b0b0c8;
+    --fg-dim: #72728a;
     --fg-faint: #3a3a52;
 
     /* Typography */
@@ -62,31 +62,63 @@ body {
     --font-mono: 'JetBrains Mono', monospace;
 
     /* Misc */
-    --radius:   0.625rem; /* 10px */
+    --radius: 0.625rem; /* 10px */
     --radius-sm: 0.375rem; /* 6px */
+
+
+    /*    Sidebar */
+    --sidebar-width: 13.75rem;
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--cyan-dim); border-radius: 99px; }
+::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--cyan-dim);
+    border-radius: 99px;
+}
 
 /* Animations */
 @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.4; }
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.4;
+    }
 }
 
 @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes slideIn {
-    from { opacity: 0; transform: translateX(-6px); }
-    to   { opacity: 1; transform: translateX(0); }
+    from {
+        opacity: 0;
+        transform: translateX(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }

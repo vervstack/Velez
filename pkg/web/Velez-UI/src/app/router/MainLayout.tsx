@@ -1,31 +1,33 @@
-import { useState } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import {useState} from 'react';
+import {Outlet, useNavigate, useLocation} from 'react-router-dom';
+
 import cls from '@/app/router/MainLayout.module.css';
+
 import Sidebar from '@/widgets/sidebar/Sidebar';
 import TopBar from '@/widgets/topbar/TopBar';
 import Toaster from '@/segments/Toaster';
-import { Routes } from '@/app/router/Routes';
+import {Routes} from '@/app/router/Routes';
 
 type NavId = 'controlplane' | 'vcn' | 'deployments' | 'search';
 
 const MOCK_NODES = [
-    { id: 'node01', host: '192.168.1.10', status: 'online'   as const },
-    { id: 'node02', host: '192.168.1.42', status: 'online'   as const },
-    { id: 'node03', host: '10.0.0.15',    status: 'degraded' as const },
+    {id: 'node01', host: '192.168.1.10', status: 'online' as const},
+    {id: 'node02', host: '192.168.1.42', status: 'online' as const},
+    {id: 'node03', host: '10.0.0.15', status: 'degraded' as const},
 ];
 
 const NAV_TO_ROUTE: Record<NavId, string> = {
     controlplane: Routes.ControlPlane,
-    vcn:          Routes.VCN,
-    deployments:  Routes.Deployments,
-    search:       Routes.Search,
+    vcn: Routes.VCN,
+    deployments: Routes.Deployments,
+    search: Routes.Search,
 };
 
 const ROUTE_TO_NAV: Record<string, NavId> = {
     [Routes.ControlPlane]: 'controlplane',
-    [Routes.VCN]:          'vcn',
-    [Routes.Deployments]:  'deployments',
-    [Routes.Search]:       'search',
+    [Routes.VCN]: 'vcn',
+    [Routes.Deployments]: 'deployments',
+    [Routes.Search]: 'search',
 };
 
 export default function MainLayout() {
@@ -64,8 +66,7 @@ export default function MainLayout() {
                 activeNav={activeNav}
                 onNavChange={handleNavChange}
             />
-
-            <div className={cls.content}>
+            <div className={cls.ContentWithHeader}>
                 <TopBar
                     collapsed={collapsed}
                     onCollapse={handleCollapse}
@@ -78,12 +79,12 @@ export default function MainLayout() {
                     onDeploy={handleDeploy}
                 />
 
-                <main className={cls.main}>
-                    <Outlet />
+                <main className={cls.ContentWrapper}>
+                    <Outlet/>
                 </main>
             </div>
 
-            <Toaster />
+            <Toaster/>
         </div>
     );
 }

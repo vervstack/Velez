@@ -22,32 +22,32 @@ interface SidebarProps {
 }
 
 const NAV_ITEMS: Array<{ id: NavId; label: string; icon: string }> = [
-    { id: 'controlplane', label: 'Control Plane', icon: '⬡' },
-    { id: 'vcn',          label: 'VCN',           icon: '◎' },
-    { id: 'deployments',  label: 'Deployments',   icon: '⬕' },
-    { id: 'search',       label: 'Search',        icon: '⌕' },
+    {id: 'controlplane', label: 'Control Plane', icon: '⬡'},
+    {id: 'vcn', label: 'VCN', icon: '◎'},
+    {id: 'deployments', label: 'Deployments', icon: '⬕'},
+    {id: 'search', label: 'Search', icon: '⌕'},
 ];
 
 const TOOL_ITEMS = [
-    { id: 'secrets',  label: 'Secrets',  icon: '⊡' },
-    { id: 'config',   label: 'Config',   icon: '≡' },
-    { id: 'logs',     label: 'Logs',     icon: '≈' },
-    { id: 'settings', label: 'Settings', icon: '◈' },
+    {id: 'secrets', label: 'Secrets', icon: '⊡'},
+    {id: 'config', label: 'Config', icon: '≡'},
+    {id: 'logs', label: 'Logs', icon: '≈'},
+    {id: 'settings', label: 'Settings', icon: '◈'},
 ];
 
-export default function Sidebar({
-    collapsed,
-    nodes,
-    activeNodeId,
-    onNodeSelect,
-    activeNav,
-    onNavChange,
-}: SidebarProps) {
+export default function Sidebar(
+    {
+        collapsed, nodes,
+        activeNodeId, onNodeSelect,
+        activeNav, onNavChange,
+    }: SidebarProps) {
     return (
-        <aside className={cn(cls.SidebarContainer, { [cls.collapsed]: collapsed })}>
-            {/* Logo */}
+        <aside className={
+            cn(cls.SidebarContainer, {
+                [cls.collapsed]: collapsed,
+            })}>
             <div className={cls.logo}>
-                <img src={VelezIcon} alt="Velez" className={cls.logoIcon} />
+                <img src={VelezIcon} alt="Velez" className={cls.logoIcon}/>
                 {!collapsed && (
                     <span className={cls.logoText}>
                         Velez
@@ -56,23 +56,25 @@ export default function Sidebar({
                 )}
             </div>
 
-            {/* Nodes */}
             {!collapsed && (
                 <div className={cls.nodesSection}>
                     <div className={cls.sectionHeader}>
                         <SectionLabel>Nodes</SectionLabel>
                     </div>
                     {nodes.map(function renderNode(node) {
-                        function handleClick() { onNodeSelect(node.id); }
+                        function handleClick() {
+                            onNodeSelect(node.id);
+                        }
+
                         return (
                             <div
                                 key={node.id}
-                                className={cn(cls.nodeRow, { [cls.nodeActive]: activeNodeId === node.id })}
+                                className={cn(cls.nodeRow, {[cls.nodeActive]: activeNodeId === node.id})}
                                 onClick={handleClick}
                             >
-                                <StatusDot status={node.status} />
+                                <StatusDot status={node.status}/>
                                 <div className={cls.nodeInfo}>
-                                    <div className={cn(cls.nodeId, { [cls.nodeIdActive]: activeNodeId === node.id })}>
+                                    <div className={cn(cls.nodeId, {[cls.nodeIdActive]: activeNodeId === node.id})}>
                                         {node.id}
                                     </div>
                                     <div className={cls.nodeHost}>{node.host}</div>
@@ -89,17 +91,20 @@ export default function Sidebar({
             {collapsed && (
                 <div className={cls.nodesCollapsed}>
                     {nodes.map(function renderDot(node) {
-                        function handleClick() { onNodeSelect(node.id); }
+                        function handleClick() {
+                            onNodeSelect(node.id);
+                        }
+
                         return (
                             <div key={node.id} className={cls.dotRow} title={node.id} onClick={handleClick}>
-                                <StatusDot status={node.status} />
+                                <StatusDot status={node.status}/>
                             </div>
                         );
                     })}
                 </div>
             )}
 
-            <div className={cls.divider} />
+            <div className={cls.divider}/>
 
             {/* Main nav */}
             <nav className={cls.nav}>
@@ -110,17 +115,24 @@ export default function Sidebar({
                 )}
                 {NAV_ITEMS.map(function renderNavItem(item) {
                     const active = activeNav === item.id;
-                    function handleClick() { onNavChange(item.id); }
+
+                    function handleClick() {
+                        onNavChange(item.id);
+                    }
+
                     return (
                         <div
                             key={item.id}
-                            className={cn(cls.navItem, { [cls.navItemActive]: active, [cls.navItemCollapsed]: collapsed })}
+                            className={cn(cls.navItem, {
+                                [cls.navItemActive]: active,
+                                [cls.navItemCollapsed]: collapsed
+                            })}
                             onClick={handleClick}
                             title={collapsed ? item.label : undefined}
                         >
                             <span className={cls.navIcon}>{item.icon}</span>
                             {!collapsed && (
-                                <span className={cn(cls.navLabel, { [cls.navLabelActive]: active })}>
+                                <span className={cn(cls.navLabel, {[cls.navLabelActive]: active})}>
                                     {item.label}
                                 </span>
                             )}
@@ -128,7 +140,7 @@ export default function Sidebar({
                     );
                 })}
 
-                <div className={cls.divider} />
+                <div className={cls.divider}/>
                 {!collapsed && (
                     <div className={cn(cls.sectionHeader, cls.navSectionHeader)}>
                         <SectionLabel>Tools</SectionLabel>
@@ -139,7 +151,7 @@ export default function Sidebar({
                     return (
                         <div
                             key={item.id}
-                            className={cn(cls.toolItem, { [cls.toolItemCollapsed]: collapsed })}
+                            className={cn(cls.toolItem, {[cls.toolItemCollapsed]: collapsed})}
                             title={collapsed ? item.label : undefined}
                         >
                             <span className={cls.toolIcon}>{item.icon}</span>
@@ -150,7 +162,7 @@ export default function Sidebar({
             </nav>
 
             {/* User */}
-            <div className={cn(cls.user, { [cls.userCollapsed]: collapsed })}>
+            <div className={cn(cls.user, {[cls.userCollapsed]: collapsed})}>
                 <div className={cls.avatar}>RS</div>
                 {!collapsed && (
                     <div className={cls.userInfo}>

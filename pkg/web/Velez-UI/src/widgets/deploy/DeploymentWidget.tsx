@@ -15,6 +15,7 @@ interface DeployWidgetProps {
 export default function DeploymentWidget({predefined, onCreate}: DeployWidgetProps) {
     const [req, setReq] =
         useState<CreateSmerdRequest>(predefined || {} as CreateSmerdRequest);
+    const [validationError, setValidationError] = useState<string>("");
 
     function updateField(
         field: keyof CreateSmerdRequest,
@@ -23,6 +24,9 @@ export default function DeploymentWidget({predefined, onCreate}: DeployWidgetPro
             ...prev,
             [field]: value
         }));
+        if (validationError) {
+            setValidationError("");
+        }
     }
 
     function stringFieldUpdater(field: keyof CreateSmerdRequest): (v: string) => void {
@@ -32,6 +36,17 @@ export default function DeploymentWidget({predefined, onCreate}: DeployWidgetPro
                 return
             }
             updateField(field, v);
+        }
+    }
+
+    function validateAndDeploy() {
+        if (!req.imageName || req.imageName.trim() === "") {
+            setValidationError("Image name is required");
+            return;
+        }
+
+        if (onCreate) {
+            onCreate(req);
         }
     }
 
@@ -46,15 +61,19 @@ export default function DeploymentWidget({predefined, onCreate}: DeployWidgetPro
                             onChange={stringFieldUpdater("imageName")}
                         />
                     </div>
+                    {validationError && (
+                        <div className={cls.ValidationError}>
+                            {validationError}
+                        </div>
+                    )}
                 </div>
             </div>
 
             <div className={cls.Controls}>
-                {onCreate &&
-					<button
-						onClick={() => onCreate(req)}
-						className={cls.DeployButton}>Deploy
-					</button>}
+                <button
+                    onClick={validateAndDeploy}
+                    className={cls.DeployButton}>Deploy
+                </button>
             </div>
         </div>
     );

@@ -144,6 +144,9 @@ message DeploymentInfo {
   DeploymentStatus status = 2;
   uint64 spec_id = 3;
   google.protobuf.Timestamp created_at = 4;
+  optional string image = 5;
+  optional string triggered_by = 6;
+  optional string image_digest = 7;
 }
 
 message ListDeployments {

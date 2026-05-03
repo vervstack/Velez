@@ -50,3 +50,76 @@
         padding: 0.5em;
     }
 }
+
+/* ── Upgrade Panel ───────────────────────────── */
+
+.UpgradePanelContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 2rem;
+}
+
+.UpgradePanelContent {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius);
+    max-width: 400px;
+}
+
+.UpgradePanelTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.UpgradePanelInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.UpgradePanelRow {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.UpgradePanelLabel {
+    font-size: 0.85rem;
+    font-weight: 500;
+    opacity: 0.7;
+}
+
+.UpgradePanelValue {
+    font-family: monospace;
+    font-size: 0.9rem;
+    word-break: break-all;
+}
+
+.UpgradePanelActions {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.UpgradeButton {
+    padding: 0.5rem 1.5rem;
+    border-radius: var(--border-radius);
+    border: none;
+    background: var(--info-color);
+    color: #fff;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+        filter: brightness(1.1);
+    }
+}

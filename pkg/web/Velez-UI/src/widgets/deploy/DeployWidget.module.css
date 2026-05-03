@@ -99,3 +99,12 @@
     align-items: center;
     gap: 0.25em;
 }
+
+.ValidationError {
+    padding: 0.5rem 0.75rem;
+    background-color: rgba(200, 50, 50, 0.2);
+    color: #ff6b6b;
+    border-radius: var(--border-radius);
+    font-size: 0.85rem;
+    border-left: 3px solid #ff6b6b;
+}

@@ -88,6 +88,9 @@ export type DeploymentInfo = {
   status?: DeploymentStatus;
   specId?: string;
   createdAt?: GoogleProtobufTimestamp.Timestamp;
+  image?: string;
+  triggeredBy?: string;
+  imageDigest?: string;
 };
 
 export type ListDeploymentsRequest = {

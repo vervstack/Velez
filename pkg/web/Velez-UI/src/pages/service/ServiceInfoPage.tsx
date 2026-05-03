@@ -88,7 +88,14 @@ export default function ServiceInfoPage() {
             return;
         }
         setDialogChild(
-            <DeployMenu serviceId={service.id} serviceName={service.name}/>
+            <DeployMenu
+                serviceId={service.id}
+                serviceName={service.name}
+                onDeploymentCreated={() => {
+                    setDialogChild(null);
+                    deploymentsQuery.refetch();
+                }}
+            />
         );
     }
 
@@ -289,10 +296,29 @@ function DeploymentsSection({deployments, currentDeploymentId}: {
     currentDeploymentId?: string;
 }) {
     const [expandedId, setExpandedId] = useState<string | null>(null);
+    const [currentPage, setCurrentPage] = useState(0);
+    const deploymentsPerPage = 10;
 
     const toggleExpand = useCallback(function toggleExpand(id: string) {
         setExpandedId(prev => prev === id ? null : id);
     }, []);
+
+    const totalPages = Math.ceil(deployments.length / deploymentsPerPage);
+    const start = currentPage * deploymentsPerPage;
+    const end = start + deploymentsPerPage;
+    const paginatedDeployments = deployments.slice(start, end);
+
+    function goToNextPage() {
+        if (currentPage < totalPages - 1) {
+            setCurrentPage(currentPage + 1);
+        }
+    }
+
+    function goToPreviousPage() {
+        if (currentPage > 0) {
+            setCurrentPage(currentPage - 1);
+        }
+    }
 
     return (
         <div className={cls.DeploymentsSection}>
@@ -300,49 +326,96 @@ function DeploymentsSection({deployments, currentDeploymentId}: {
             {deployments.length === 0 ? (
                 <div className={cls.DeploymentsEmptyState}>No deployments yet.</div>
             ) : (
-                <div className={cls.DeploymentsList}>
-                    {deployments.map(function renderDeployment(dep) {
-                        const isCurrent = dep.id === currentDeploymentId;
-                        const isExpanded = expandedId === dep.id;
+                <>
+                    <div className={cls.DeploymentsList}>
+                        {paginatedDeployments.map(function renderDeployment(dep) {
+                            const isCurrent = dep.id === currentDeploymentId;
+                            const isExpanded = expandedId === dep.id;
 
-                        function onClick() {
-                            toggleExpand(dep.id || "");
-                        }
+                            function onClick() {
+                                toggleExpand(dep.id || "");
+                            }
 
-                        return (
-                            <div key={dep.id} className={cls.DeploymentRowWrapper}>
-                                <div className={`${cls.DeploymentRow} ${isCurrent ? cls.deploymentCurrent : ""}`} onClick={onClick}>
-                                    <span className={cls.DeployExpandIcon}>{isExpanded ? "▼" : "▶"}</span>
-                                    <span className={cls.DeployId}>{dep.id}</span>
-                                    {isCurrent && <span className={cls.CurrentBadge}>current</span>}
-                                    <span className={cls.DeployStatus}>
-                                        <StatusBadge status={dep.status}/>
-                                    </span>
-                                </div>
-                                {isExpanded && (
-                                    <div className={cls.DeploymentDetail}>
-                                        {dep.specId && (
-                                            <div className={cls.MetaRow}>
-                                                <span className={cls.MetaLabel}>Spec ID</span>
-                                                <span className={cls.MetaValue}>{dep.specId}</span>
-                                            </div>
+                            return (
+                                <div key={dep.id} className={cls.DeploymentRowWrapper}>
+                                    <div className={`${cls.DeploymentRow} ${isCurrent ? cls.deploymentCurrent : ""}`} onClick={onClick}>
+                                        <span className={cls.DeployExpandIcon}>{isExpanded ? "▼" : "▶"}</span>
+                                        <span className={cls.DeployId}>{dep.id}</span>
+                                        {dep.image && (
+                                            <span className={cls.DeployImage}>{dep.image}</span>
                                         )}
-                                        {dep.createdAt && (
-                                            <div className={cls.MetaRow}>
-                                                <span className={cls.MetaLabel}>Created at</span>
-                                                <span className={cls.MetaValue}>{formatTimestamp(dep.createdAt)}</span>
-                                            </div>
+                                        {dep.triggeredBy && (
+                                            <span className={cls.DeployTriggeredBy}>{dep.triggeredBy}</span>
                                         )}
-                                        <div className={cls.MetaRow}>
-                                            <span className={cls.MetaLabel}>Raw</span>
-                                            <pre className={cls.RawJson}>{JSON.stringify(dep, null, 2)}</pre>
-                                        </div>
+                                        {isCurrent && <span className={cls.CurrentBadge}>current</span>}
+                                        <span className={cls.DeployStatus}>
+                                            <StatusBadge status={dep.status}/>
+                                        </span>
                                     </div>
-                                )}
-                            </div>
-                        );
-                    })}
-                </div>
+                                    {isExpanded && (
+                                        <div className={cls.DeploymentDetail}>
+                                            {dep.specId && (
+                                                <div className={cls.MetaRow}>
+                                                    <span className={cls.MetaLabel}>Spec ID</span>
+                                                    <span className={cls.MetaValue}>{dep.specId}</span>
+                                                </div>
+                                            )}
+                                            {dep.image && (
+                                                <div className={cls.MetaRow}>
+                                                    <span className={cls.MetaLabel}>Image</span>
+                                                    <span className={cls.MetaValue}>{dep.image}</span>
+                                                </div>
+                                            )}
+                                            {dep.imageDigest && (
+                                                <div className={cls.MetaRow}>
+                                                    <span className={cls.MetaLabel}>Image Digest</span>
+                                                    <span className={cls.MetaValue}>{dep.imageDigest}</span>
+                                                </div>
+                                            )}
+                                            {dep.triggeredBy && (
+                                                <div className={cls.MetaRow}>
+                                                    <span className={cls.MetaLabel}>Triggered By</span>
+                                                    <span className={cls.MetaValue}>{dep.triggeredBy}</span>
+                                                </div>
+                                            )}
+                                            {dep.createdAt && (
+                                                <div className={cls.MetaRow}>
+                                                    <span className={cls.MetaLabel}>Created at</span>
+                                                    <span className={cls.MetaValue}>{formatTimestamp(dep.createdAt)}</span>
+                                                </div>
+                                            )}
+                                            <div className={cls.MetaRow}>
+                                                <span className={cls.MetaLabel}>Raw</span>
+                                                <pre className={cls.RawJson}>{JSON.stringify(dep, null, 2)}</pre>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                    {totalPages > 1 && (
+                        <div className={cls.PaginationControls}>
+                            <button
+                                className={cls.PaginationButton}
+                                onClick={goToPreviousPage}
+                                disabled={currentPage === 0}
+                            >
+                                ← Previous
+                            </button>
+                            <span className={cls.PaginationInfo}>
+                                Page {currentPage + 1} of {totalPages}
+                            </span>
+                            <button
+                                className={cls.PaginationButton}
+                                onClick={goToNextPage}
+                                disabled={currentPage === totalPages - 1}
+                            >
+                                Next →
+                            </button>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );

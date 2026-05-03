@@ -50,7 +50,7 @@ export default function HomePage() {
         <div className={cls.HomeContainer}>
             {hasContent ? (
                 <div className={cls.DashboardWrapper}>
-                    <ServicesSection services={services}/>
+                    <ServicesSection services={services} smerds={smerds}/>
                     <SmerdsSection smerds={smerds}/>
                 </div>
             ) : (
@@ -60,7 +60,9 @@ export default function HomePage() {
     );
 }
 
-function ServicesSection({services}: { services: ServiceBaseInfo[] }) {
+// TODO: requires API change — ListServices returns ServiceBaseInfo which only has `name`.
+// image and last-deployed timestamp need to be added to ServiceBaseInfo in the backend API.
+function ServicesSection({services, smerds}: { services: ServiceBaseInfo[]; smerds: Smerd[] }) {
     const navigate = useNavigate();
 
     if (services.length === 0) {
@@ -76,6 +78,11 @@ function ServicesSection({services}: { services: ServiceBaseInfo[] }) {
                         navigate(Routes.Service + "/" + service.name);
                     }
 
+                    const relatedSmerd = smerds.find(
+                        (s) => s.name === service.name || s.name?.startsWith(service.name + "-")
+                    );
+                    const imageLabel = relatedSmerd?.imageName || null;
+
                     return (
                         <div
                             key={service.name}
@@ -83,6 +90,9 @@ function ServicesSection({services}: { services: ServiceBaseInfo[] }) {
                             onClick={onClick}
                         >
                             <div className={cls.CardName}>{service.name}</div>
+                            {imageLabel && (
+                                <div className={cls.CardImage}>{imageLabel}</div>
+                            )}
                             <div className={cls.CardStatus}>
                                 <StatusBadge status="unknown"/>
                             </div>

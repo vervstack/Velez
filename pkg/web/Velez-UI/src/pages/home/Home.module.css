@@ -77,6 +77,15 @@
     text-overflow: ellipsis;
 }
 
+.CardImage {
+    font-size: 0.72rem;
+    font-family: monospace;
+    opacity: 0.55;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .CardStatus {
     display: flex;
     align-items: center;

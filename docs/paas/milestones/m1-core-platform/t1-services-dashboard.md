@@ -7,28 +7,30 @@ Give the operator a clear at-a-glance view of every service registered in Velez 
 ## Tasks
 
 ### 1.1 Services list (HomePage)
-- Fetch services via `ListServices` (already exists in `src/pages/HomePage`)
-- Display name, image, current state (running / stopped / unknown), and last-deployed timestamp
-- Link each row to `/service/:key`
-- Empty-state illustration when no services exist
+- [x] Fetch services via `ListServices`
+- [x] Display name and image (image cross-referenced from smerds list by name match)
+- [ ] Last-deployed timestamp — requires API change: `ServiceBaseInfo` must include `lastDeployedAt`
+- [x] Link each row to `/service/:key`
+- [x] Empty-state illustration when no services exist
 
 ### 1.2 Service detail (ServiceInfoPage)
-- Header: service name, image tag, overall health indicator
-- Quick-action bar: Stop / Restart / Open deploy flow
-- Metadata section: environment variables, volumes, port bindings — read-only display
-- Navigation back to home
+- [x] Header: service name + overall health indicator (colored status badge)
+- [x] Image tag shown in metadata section (from first matching smerd)
+- [ ] Stop / Restart actions — requires new API endpoints (`StopService`, `RestartService`) — not present in gRPC API
+- [x] Metadata section: image, environment variables, volumes, port bindings (fetched via `FetchSmerdsByServiceName`)
+- [x] Navigation back to home
 
 ### 1.3 Smerds list (smerd containers)
-- On `HomePage`, show smerds alongside services (already fetched; needs layout cleanup)
-- Status badge: running / exited / created
-- Link to `/smerd/:name`
+- [x] On `HomePage`, show smerds alongside services
+- [x] Status badge: running / exited / created
+- [x] Link to `/smerd/:name`
 
 ### 1.4 Smerd detail (SmerdPage)
-- Container metadata: image, ports, status, started-at
-- Raw container inspect collapsible section (for debugging)
+- [x] Container metadata: image, ports, status, created-at
+- [x] Raw container inspect collapsible section
 
 ## Acceptance criteria
 
-- List refreshes on a short polling interval (React Query `refetchInterval`)
-- State changes (e.g. container stops) are reflected without a page reload
-- No API calls made directly from components — all go through `src/processes/api/`
+- [x] List refreshes on a short polling interval (React Query `refetchInterval`)
+- [x] State changes are reflected without a page reload
+- [x] No API calls made directly from components — all go through `src/processes/api/`

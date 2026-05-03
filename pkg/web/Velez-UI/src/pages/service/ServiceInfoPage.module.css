@@ -95,6 +95,35 @@
     word-break: break-all;
 }
 
+/* ── Smerd metadata (containers) ────────────── */
+
+.SmerdMetaSection {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.SmerdMetaBlock {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.PortsList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.PortTag {
+    font-size: 0.8rem;
+    font-family: monospace;
+    padding: 0.2rem 0.6rem;
+    border-radius: 0.25rem;
+    background: var(--accent-bg-color);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 /* ── Deployments section ─────────────────────── */
 
 .DeploymentsSection {

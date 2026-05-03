@@ -2,7 +2,7 @@ import {useState, useCallback} from "react";
 import {useParams, useNavigate} from "react-router-dom";
 import {useQuery} from "@tanstack/react-query";
 
-import {DeploymentStatus, DeploymentInfo} from "@/app/api/velez";
+import {DeploymentStatus, DeploymentInfo, Smerd} from "@/app/api/velez";
 
 import cls from "@/pages/service/ServiceInfoPage.module.css";
 
@@ -10,6 +10,7 @@ import Dialog from "@/components/complex/dialog/Dialog.tsx";
 import DeployMenu from "@/pages/service/parts/DeployMenu.tsx";
 import {Toast, useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {FetchService, FetchDeployments} from "@/processes/api/service.ts";
+import {FetchSmerdsByServiceName} from "@/processes/api/velez.ts";
 
 const POLL_INTERVAL = 5000;
 
@@ -40,6 +41,16 @@ export default function ServiceInfoPage() {
             return {deployments: []};
         }),
         enabled: !!service?.id,
+        refetchInterval: POLL_INTERVAL,
+    });
+
+    const smerdsQuery = useQuery({
+        queryKey: ["service-smerds", key],
+        queryFn: () => FetchSmerdsByServiceName(key).catch((e) => {
+            toaster.catchGrpc(e);
+            return {smerds: []};
+        }),
+        enabled: key !== "",
         refetchInterval: POLL_INTERVAL,
     });
 
@@ -82,6 +93,7 @@ export default function ServiceInfoPage() {
     }
 
     const deployments = deploymentsQuery.data?.deployments || [];
+    const currentSmerd = smerdsQuery.data?.smerds?.[0];
 
     return (
         <div className={cls.ServiceInfoPageContainer}>
@@ -102,7 +114,14 @@ export default function ServiceInfoPage() {
                 <MetaRow label="Service ID" value={service.id}/>
                 <MetaRow label="Current deployment" value={service.currentDeploymentId}/>
                 <MetaRow label="Status" value={service.status}/>
+                {currentSmerd?.imageName && (
+                    <MetaRow label="Image" value={currentSmerd.imageName}/>
+                )}
             </div>
+
+            {currentSmerd && (
+                <SmerdMetaSection smerd={currentSmerd}/>
+            )}
 
             {deployments.length > 0 && (
                 <DeploymentsSection
@@ -116,6 +135,68 @@ export default function ServiceInfoPage() {
                 onClose={() => setDialogChild(null)}
                 children={dialogChild}
             />
+        </div>
+    );
+}
+
+function SmerdMetaSection({smerd}: { smerd: Smerd }) {
+    const hasEnv = smerd.env && Object.keys(smerd.env).length > 0;
+    const hasPorts = smerd.ports && smerd.ports.length > 0;
+    const hasVolumes = smerd.volumes && smerd.volumes.length > 0;
+
+    if (!hasEnv && !hasPorts && !hasVolumes) {
+        return null;
+    }
+
+    return (
+        <div className={cls.SmerdMetaSection}>
+            {hasPorts && (
+                <div className={cls.SmerdMetaBlock}>
+                    <div className={cls.SectionTitle}>Ports</div>
+                    <div className={cls.PortsList}>
+                        {smerd.ports!.map(function renderPort(port, i) {
+                            const label = port.exposedTo
+                                ? `${port.servicePortNumber} → ${port.exposedTo}`
+                                : String(port.servicePortNumber);
+                            return (
+                                <span key={i} className={cls.PortTag}>
+                                    {label}{port.protocol ? ` (${port.protocol})` : ""}
+                                </span>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+            {hasVolumes && (
+                <div className={cls.SmerdMetaBlock}>
+                    <div className={cls.SectionTitle}>Volumes</div>
+                    <div className={cls.MetaSection}>
+                        {smerd.volumes!.map(function renderVolume(vol, i) {
+                            return (
+                                <div key={i} className={cls.MetaRow}>
+                                    <span className={cls.MetaLabel}>{vol.volumeName || "—"}</span>
+                                    <span className={cls.MetaValue}>{vol.containerPath}</span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+            {hasEnv && (
+                <div className={cls.SmerdMetaBlock}>
+                    <div className={cls.SectionTitle}>Environment</div>
+                    <div className={cls.MetaSection}>
+                        {Object.entries(smerd.env!).map(function renderEnvRow([k, v]) {
+                            return (
+                                <div key={k} className={cls.MetaRow}>
+                                    <span className={cls.MetaLabel}>{k}</span>
+                                    <span className={cls.MetaValue}>{v}</span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

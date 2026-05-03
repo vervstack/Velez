@@ -29,15 +29,6 @@
 - Tasks live in `tasks/` as markdown files
 - Naming: `task-NNN-short-description.md` (e.g. `task-001-auth-handler.md`)
 - Status tracked in task file frontmatter
-- One branch per task: `task/NNN-short-description`
-- After completion: commit, push branch, trigger Haiku review
-
-## Git Conventions
-
-- Branch from `main` for each task
-- Commit message format: `[NNN] short description of what was done`
-- Never commit directly to `main`
-- PR description should include task file content + review result
 
 ## Agent Rules
 

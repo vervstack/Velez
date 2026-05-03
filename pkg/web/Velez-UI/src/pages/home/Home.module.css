@@ -86,6 +86,11 @@
     text-overflow: ellipsis;
 }
 
+.CardLastDeployed {
+    font-size: 0.7rem;
+    opacity: 0.5;
+}
+
 .CardStatus {
     display: flex;
     align-items: center;

@@ -16,6 +16,8 @@ import (
 type Docker interface {
 	PullImage(ctx context.Context, imageName string) (image.InspectResponse, error)
 	Remove(ctx context.Context, uuid string) error
+	Stop(ctx context.Context, nameOrId string) error
+	Restart(ctx context.Context, nameOrId string) error
 	ListContainers(ctx context.Context, req *velez_api.ListSmerds_Request) ([]container.Summary, error)
 
 	Exec(ctx context.Context, contId string, options container.ExecOptions) ([]byte, error)

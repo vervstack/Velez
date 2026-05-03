@@ -24,6 +24,8 @@ const (
 	ServiceApi_CreateDeploy_FullMethodName    = "/velez_api.ServiceApi/CreateDeploy"
 	ServiceApi_ListDeployments_FullMethodName = "/velez_api.ServiceApi/ListDeployments"
 	ServiceApi_ListServices_FullMethodName    = "/velez_api.ServiceApi/ListServices"
+	ServiceApi_StopService_FullMethodName     = "/velez_api.ServiceApi/StopService"
+	ServiceApi_RestartService_FullMethodName  = "/velez_api.ServiceApi/RestartService"
 )
 
 // ServiceApiClient is the client API for ServiceApi service.
@@ -43,6 +45,8 @@ type ServiceApiClient interface {
 	CreateDeploy(ctx context.Context, in *CreateDeploy_Request, opts ...grpc.CallOption) (*CreateDeploy_Response, error)
 	ListDeployments(ctx context.Context, in *ListDeployments_Request, opts ...grpc.CallOption) (*ListDeployments_Response, error)
 	ListServices(ctx context.Context, in *ListServices_Request, opts ...grpc.CallOption) (*ListServices_Response, error)
+	StopService(ctx context.Context, in *StopService_Request, opts ...grpc.CallOption) (*StopService_Response, error)
+	RestartService(ctx context.Context, in *RestartService_Request, opts ...grpc.CallOption) (*RestartService_Response, error)
 }
 
 type serviceApiClient struct {
@@ -103,6 +107,26 @@ func (c *serviceApiClient) ListServices(ctx context.Context, in *ListServices_Re
 	return out, nil
 }
 
+func (c *serviceApiClient) StopService(ctx context.Context, in *StopService_Request, opts ...grpc.CallOption) (*StopService_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StopService_Response)
+	err := c.cc.Invoke(ctx, ServiceApi_StopService_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceApiClient) RestartService(ctx context.Context, in *RestartService_Request, opts ...grpc.CallOption) (*RestartService_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RestartService_Response)
+	err := c.cc.Invoke(ctx, ServiceApi_RestartService_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServiceApiServer is the server API for ServiceApi service.
 // All implementations must embed UnimplementedServiceApiServer
 // for forward compatibility.
@@ -120,6 +144,8 @@ type ServiceApiServer interface {
 	CreateDeploy(context.Context, *CreateDeploy_Request) (*CreateDeploy_Response, error)
 	ListDeployments(context.Context, *ListDeployments_Request) (*ListDeployments_Response, error)
 	ListServices(context.Context, *ListServices_Request) (*ListServices_Response, error)
+	StopService(context.Context, *StopService_Request) (*StopService_Response, error)
+	RestartService(context.Context, *RestartService_Request) (*RestartService_Response, error)
 	mustEmbedUnimplementedServiceApiServer()
 }
 
@@ -144,6 +170,12 @@ func (UnimplementedServiceApiServer) ListDeployments(context.Context, *ListDeplo
 }
 func (UnimplementedServiceApiServer) ListServices(context.Context, *ListServices_Request) (*ListServices_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListServices not implemented")
+}
+func (UnimplementedServiceApiServer) StopService(context.Context, *StopService_Request) (*StopService_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method StopService not implemented")
+}
+func (UnimplementedServiceApiServer) RestartService(context.Context, *RestartService_Request) (*RestartService_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method RestartService not implemented")
 }
 func (UnimplementedServiceApiServer) mustEmbedUnimplementedServiceApiServer() {}
 func (UnimplementedServiceApiServer) testEmbeddedByValue()                    {}
@@ -256,6 +288,42 @@ func _ServiceApi_ListServices_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServiceApi_StopService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StopService_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceApiServer).StopService(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceApi_StopService_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceApiServer).StopService(ctx, req.(*StopService_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceApi_RestartService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RestartService_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceApiServer).RestartService(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceApi_RestartService_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceApiServer).RestartService(ctx, req.(*RestartService_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ServiceApi_ServiceDesc is the grpc.ServiceDesc for ServiceApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -282,6 +350,14 @@ var ServiceApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListServices",
 			Handler:    _ServiceApi_ListServices_Handler,
+		},
+		{
+			MethodName: "StopService",
+			Handler:    _ServiceApi_StopService_Handler,
+		},
+		{
+			MethodName: "RestartService",
+			Handler:    _ServiceApi_RestartService_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

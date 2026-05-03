@@ -8,6 +8,8 @@ import {
     ListServicesResponse,
     ListDeploymentsRequest,
     ListDeploymentsResponse,
+    StopServiceRequest,
+    RestartServiceRequest,
 } from "@/app/api/velez"
 
 import {GetInitReq} from "@/processes/api/api.ts";
@@ -71,4 +73,14 @@ export async function FetchDeployments(serviceId: string): Promise<ListDeploymen
         paging: {limit: '10', offset: '0'},
     }
     return ServiceApi.ListDeployments(req, GetInitReq())
+}
+
+export async function StopService(name: string): Promise<void> {
+    const req: StopServiceRequest = {name}
+    await ServiceApi.StopService(req, GetInitReq())
+}
+
+export async function RestartService(name: string): Promise<void> {
+    const req: RestartServiceRequest = {name}
+    await ServiceApi.RestartService(req, GetInitReq())
 }

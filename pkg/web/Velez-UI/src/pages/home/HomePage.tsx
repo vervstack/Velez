@@ -61,8 +61,26 @@ export default function HomePage() {
     );
 }
 
-// TODO: requires API change — ListServices returns ServiceBaseInfo which only has `name`.
-// image and last-deployed timestamp need to be added to ServiceBaseInfo in the backend API.
+function formatLastDeployed(ts?: {seconds?: string | number; nanos?: number}): string {
+    if (!ts?.seconds) return "";
+    const seconds = Number(ts.seconds);
+    if (!seconds) return "";
+    const date = new Date(seconds * 1000);
+    const diffMs = Date.now() - date.getTime();
+    const diffDays = Math.floor(diffMs / 86400000);
+    if (diffDays === 0) {
+        const diffHours = Math.floor(diffMs / 3600000);
+        if (diffHours === 0) {
+            const diffMinutes = Math.floor(diffMs / 60000);
+            return diffMinutes <= 1 ? "just now" : `${diffMinutes}m ago`;
+        }
+        return `${diffHours}h ago`;
+    }
+    if (diffDays === 1) return "yesterday";
+    if (diffDays < 30) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+}
+
 function ServicesSection({services, smerds}: { services: ServiceBaseInfo[]; smerds: Smerd[] }) {
     const navigate = useNavigate();
     const [query, setQuery] = useState("");
@@ -97,6 +115,8 @@ function ServicesSection({services, smerds}: { services: ServiceBaseInfo[]; smer
                         );
                         const imageLabel = relatedSmerd?.imageName || null;
 
+                        const lastDeployed = formatLastDeployed(service.lastDeployedAt);
+
                         return (
                             <div
                                 key={service.name}
@@ -106,6 +126,9 @@ function ServicesSection({services, smerds}: { services: ServiceBaseInfo[]; smer
                                 <div className={cls.CardName}>{service.name}</div>
                                 {imageLabel && (
                                     <div className={cls.CardImage}>{imageLabel}</div>
+                                )}
+                                {lastDeployed && (
+                                    <div className={cls.CardLastDeployed}>{lastDeployed}</div>
                                 )}
                                 <div className={cls.CardStatus}>
                                     <StatusBadge status="unknown"/>

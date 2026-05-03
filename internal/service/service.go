@@ -47,4 +47,6 @@ type VervServicesService interface {
 	UpgradeDeploy(ctx context.Context, request domain.UpgradeDeployReq) error
 	List(ctx context.Context, req domain.ListServicesReq) (domain.ServiceList, error)
 	ListDeployments(ctx context.Context, req domain.ListDeploymentsReq) (domain.DeploymentList, error)
+	StopService(ctx context.Context, name string) error
+	RestartService(ctx context.Context, name string) error
 }

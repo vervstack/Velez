@@ -116,7 +116,24 @@ export type ListServices = Record<string, never>;
 
 export type ServiceBaseInfo = {
   name?: string;
+  lastDeployedAt?: GoogleProtobufTimestamp.Timestamp;
 };
+
+export type StopServiceRequest = {
+  name?: string;
+};
+
+export type StopServiceResponse = Record<string, never>;
+
+export type StopService = Record<string, never>;
+
+export type RestartServiceRequest = {
+  name?: string;
+};
+
+export type RestartServiceResponse = Record<string, never>;
+
+export type RestartService = Record<string, never>;
 
 export class ServiceApi {
   static CreateService(this:void, req: CreateServiceRequest, initReq?: fm.InitReq): Promise<CreateServiceResponse> {
@@ -133,5 +150,11 @@ export class ServiceApi {
   }
   static ListServices(this:void, req: ListServicesRequest, initReq?: fm.InitReq): Promise<ListServicesResponse> {
     return fm.fetchRequest<ListServicesResponse>(`/api/service/list`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static StopService(this:void, req: StopServiceRequest, initReq?: fm.InitReq): Promise<StopServiceResponse> {
+    return fm.fetchRequest<StopServiceResponse>(`/api/service/stop`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static RestartService(this:void, req: RestartServiceRequest, initReq?: fm.InitReq): Promise<RestartServiceResponse> {
+    return fm.fetchRequest<RestartServiceResponse>(`/api/service/restart`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
 }

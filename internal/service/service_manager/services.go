@@ -41,11 +41,13 @@ func New(
 		return nil, rerrors.Wrap(err, "error initializing configurator")
 	}
 
+	cm := container_manager.New(nodeClients, configService)
+
 	sm := &ServiceManager{
 		configurator:     configService,
 		vpnService:       clusterClients.Vpn(),
-		containerManager: container_manager.New(nodeClients, configService),
-		vervServices:     verv_services.New(clusterClients.StateManager()),
+		containerManager: cm,
+		vervServices:     verv_services.New(clusterClients.StateManager(), cm, nodeClients.Docker()),
 
 		docker: nodeClients.Docker(),
 	}

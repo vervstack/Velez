@@ -55,6 +55,20 @@ service ServiceApi {
       body: "*"
     };
   }
+
+  rpc StopService(StopService.Request) returns (StopService.Response) {
+    option (google.api.http) = {
+      post: "/api/service/stop"
+      body: "*"
+    };
+  }
+
+  rpc RestartService(RestartService.Request) returns (RestartService.Response) {
+    option (google.api.http) = {
+      post: "/api/service/restart"
+      body: "*"
+    };
+  }
 }
 
 message CreateService {
@@ -158,4 +172,19 @@ message ListServices {
 
 message ServiceBaseInfo {
   string name = 1;
+  google.protobuf.Timestamp last_deployed_at = 2;
+}
+
+message StopService {
+  message Request {
+    string name = 1;
+  }
+  message Response {}
+}
+
+message RestartService {
+  message Request {
+    string name = 1;
+  }
+  message Response {}
 }

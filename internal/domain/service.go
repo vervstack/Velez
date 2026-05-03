@@ -1,6 +1,8 @@
 package domain
 
 import (
+	"time"
+
 	rtb "go.redsock.ru/toolbox"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
@@ -17,8 +19,9 @@ type Service struct {
 }
 
 type ServiceBaseInfo struct {
-	Id   uint64
-	Name string
+	Id             uint64
+	Name           string
+	LastDeployedAt *time.Time
 }
 
 type GetServiceReq struct {

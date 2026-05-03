@@ -91,12 +91,13 @@ type serviceBaseInfoHelper struct {
 
 func (s serviceBaseInfoHelper) buildListQuery(req domain.ListServicesReq) sq.SelectBuilder {
 	q := sq.Select().
-		From("velez.services").
+		From("velez.services s").
+		LeftJoin("(SELECT ds.service_id, MAX(d.created_at) AS last_deployed_at FROM velez.deployments d JOIN velez.deployment_specifications ds ON ds.id = d.spec_id GROUP BY ds.service_id) ld ON ld.service_id = s.id").
 		PlaceholderFormat(sq.Dollar)
 
 	if req.NamePattern.Valid {
 		q = q.Where(sq.ILike{
-			"name": req.NamePattern.Value,
+			"s.name": req.NamePattern.Value,
 		})
 	}
 
@@ -104,13 +105,14 @@ func (s serviceBaseInfoHelper) buildListQuery(req domain.ListServicesReq) sq.Sel
 }
 
 func (s serviceBaseInfoHelper) columns() []string {
-	return []string{"id", "name"}
+	return []string{"s.id", "s.name", "ld.last_deployed_at"}
 }
 
 func (s serviceBaseInfoHelper) scanServiceBaseInfo(row sqldb.Scannable) (baseInfo domain.ServiceBaseInfo, err error) {
 	err = row.Scan(
 		&baseInfo.Id,
 		&baseInfo.Name,
+		&baseInfo.LastDeployedAt,
 	)
 	if err != nil {
 		return baseInfo, rerrors.Wrap(err)

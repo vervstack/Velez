@@ -9,7 +9,7 @@ import cls from "@/pages/service/ServiceInfoPage.module.css";
 import Dialog from "@/components/complex/dialog/Dialog.tsx";
 import DeployMenu from "@/pages/service/parts/DeployMenu.tsx";
 import {Toast, useToaster} from "@/app/hooks/toaster/Toaster.ts";
-import {FetchService, FetchDeployments} from "@/processes/api/service.ts";
+import {FetchService, FetchDeployments, StopService, RestartService} from "@/processes/api/service.ts";
 import {FetchSmerdsByServiceName} from "@/processes/api/velez.ts";
 
 const POLL_INTERVAL = 5000;
@@ -130,6 +130,44 @@ export default function ServiceInfoPage() {
         setDialogChild(removeDialogContent);
     }
 
+    function handleStop() {
+        if (!service?.name) {
+            return;
+        }
+        const serviceName = service.name;
+        StopService(serviceName)
+            .then(function onStopSuccess() {
+                const t: Toast = {
+                    title: "Service stopped",
+                    description: serviceName,
+                    level: "Info",
+                };
+                toaster.bake(t);
+            })
+            .catch(function onStopError(e) {
+                toaster.catchGrpc(e);
+            });
+    }
+
+    function handleRestart() {
+        if (!service?.name) {
+            return;
+        }
+        const serviceName = service.name;
+        RestartService(serviceName)
+            .then(function onRestartSuccess() {
+                const t: Toast = {
+                    title: "Service restarted",
+                    description: serviceName,
+                    level: "Info",
+                };
+                toaster.bake(t);
+            })
+            .catch(function onRestartError(e) {
+                toaster.catchGrpc(e);
+            });
+    }
+
     const deployments = deploymentsQuery.data?.deployments || [];
     const currentSmerd = smerdsQuery.data?.smerds?.[0];
 
@@ -145,6 +183,12 @@ export default function ServiceInfoPage() {
             <div className={cls.ActionBar}>
                 <button className={cls.ActionButton} onClick={openDeployMenu}>
                     Deploy
+                </button>
+                <button className={cls.ActionButton} onClick={handleStop}>
+                    Stop
+                </button>
+                <button className={cls.ActionButton} onClick={handleRestart}>
+                    Restart
                 </button>
                 <button className={`${cls.ActionButton} ${cls.DangerButton}`} onClick={openRemoveDialog}>
                     Remove

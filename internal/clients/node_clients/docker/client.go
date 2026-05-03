@@ -69,6 +69,32 @@ func (d *Docker) Remove(ctx context.Context, contUUID string) error {
 	return nil
 }
 
+func (d *Docker) Stop(ctx context.Context, nameOrId string) error {
+	stopOpts := container.StopOptions{}
+	err := d.directApi.ContainerStop(ctx, nameOrId, stopOpts)
+	if err != nil {
+		if strings.Contains(err.Error(), NoSuchContainerError) {
+			return nil
+		}
+		return rerrors.Wrap(err, "error stopping container")
+	}
+
+	return nil
+}
+
+func (d *Docker) Restart(ctx context.Context, nameOrId string) error {
+	restartOpts := container.StopOptions{}
+	err := d.directApi.ContainerRestart(ctx, nameOrId, restartOpts)
+	if err != nil {
+		if strings.Contains(err.Error(), NoSuchContainerError) {
+			return nil
+		}
+		return rerrors.Wrap(err, "error restarting container")
+	}
+
+	return nil
+}
+
 func (d *Docker) IsContainerRunning(ctx context.Context, nameOrId string) (bool, bool, error) {
 	resp, err := d.directApi.ContainerInspect(ctx, nameOrId)
 	if err != nil {

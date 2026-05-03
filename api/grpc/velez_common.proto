@@ -148,3 +148,17 @@ message Paging {
   uint64 limit = 1;
   uint64 offset = 2;
 }
+
+message NodeBaseInfo {
+  int64 id = 1;
+  string name = 2;
+  string addr = 3;
+  NodeStatus status = 4;
+}
+
+enum NodeStatus {
+  NodeStatus_Unknown = 0;
+  NodeStatus_Online = 1;
+  NodeStatus_Offline = 2;
+  NodeStatus_Degraded = 3;
+}

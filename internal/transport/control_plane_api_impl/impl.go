@@ -16,15 +16,19 @@ import (
 type Impl struct {
 	velez_api.UnimplementedControlPlaneAPIServer
 
-	smerdManager service.ContainerService
-
 	pipeliner pipelines.Pipeliner
+
+	smerdManager service.ContainerService
+	nodeService  service.NodeService
 }
 
 func New(srv service.Services, pipeliner pipelines.Pipeliner) *Impl {
 	return &Impl{
-		smerdManager: srv.SmerdManager(),
-		pipeliner:    pipeliner,
+		velez_api.UnimplementedControlPlaneAPIServer{},
+		pipeliner,
+
+		srv.SmerdManager(),
+		srv.NodeService(),
 	}
 }
 

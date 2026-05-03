@@ -13,6 +13,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/service_manager/configurator"
 	"go.vervstack.ru/Velez/internal/service/service_manager/container_manager"
+	"go.vervstack.ru/Velez/internal/service/service_manager/nodes_service"
 	"go.vervstack.ru/Velez/internal/service/service_manager/verv_services"
 )
 
@@ -22,7 +23,8 @@ type ServiceManager struct {
 	vpnService       cluster_clients.VervClosedNetworkClient
 	vervServices     *verv_services.VervService
 
-	docker node_clients.Docker
+	docker      node_clients.Docker
+	nodeService *nodes_service.Service
 }
 
 func New(
@@ -44,12 +46,13 @@ func New(
 	cm := container_manager.New(nodeClients, configService)
 
 	sm := &ServiceManager{
-		configurator:     configService,
-		vpnService:       clusterClients.Vpn(),
-		containerManager: cm,
-		vervServices:     verv_services.New(clusterClients.StateManager(), cm, nodeClients.Docker()),
+		cm,
+		configService,
+		clusterClients.Vpn(),
+		verv_services.New(clusterClients.StateManager(), cm, nodeClients.Docker()),
 
-		docker: nodeClients.Docker(),
+		nodeClients.Docker(),
+		nodes_service.NewService(clusterClients.StateManager()),
 	}
 
 	// TODO VERV-128
@@ -73,6 +76,10 @@ func (s *ServiceManager) ConfigurationService() service.ConfigurationService {
 
 func (s *ServiceManager) Docker() node_clients.Docker {
 	return s.docker
+}
+
+func (s *ServiceManager) NodeService() service.NodeService {
+	return s.nodeService
 }
 
 func handleConfigurationSubscription(configurationService service.ConfigurationService, manager service.Services) {

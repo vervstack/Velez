@@ -10,7 +10,6 @@ import (
 
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/storage"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/nodes_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/services_queries"
 )
 
@@ -24,9 +23,7 @@ type Storage struct {
 
 func New(db *sql.DB) storage.Storage {
 	return &Storage{
-		nodeStorage: &nodeStorage{
-			querier: nodes_queries.New(db),
-		},
+		nodeStorage: newNodeStorage(db),
 		servicesStorage: &servicesStorage{
 			conn:    db,
 			querier: services_queries.New(db),

@@ -267,6 +267,9 @@ type DeploymentInfo struct {
 	Status        DeploymentStatus       `protobuf:"varint,2,opt,name=status,proto3,enum=velez_api.DeploymentStatus" json:"status,omitempty"`
 	SpecId        uint64                 `protobuf:"varint,3,opt,name=spec_id,json=specId,proto3" json:"spec_id,omitempty"`
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	Image         *string                `protobuf:"bytes,5,opt,name=image,proto3,oneof" json:"image,omitempty"`
+	TriggeredBy   *string                `protobuf:"bytes,6,opt,name=triggered_by,json=triggeredBy,proto3,oneof" json:"triggered_by,omitempty"`
+	ImageDigest   *string                `protobuf:"bytes,7,opt,name=image_digest,json=imageDigest,proto3,oneof" json:"image_digest,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -327,6 +330,27 @@ func (x *DeploymentInfo) GetCreatedAt() *timestamppb.Timestamp {
 		return x.CreatedAt
 	}
 	return nil
+}
+
+func (x *DeploymentInfo) GetImage() string {
+	if x != nil && x.Image != nil {
+		return *x.Image
+	}
+	return ""
+}
+
+func (x *DeploymentInfo) GetTriggeredBy() string {
+	if x != nil && x.TriggeredBy != nil {
+		return *x.TriggeredBy
+	}
+	return ""
+}
+
+func (x *DeploymentInfo) GetImageDigest() string {
+	if x != nil && x.ImageDigest != nil {
+		return *x.ImageDigest
+	}
+	return ""
 }
 
 type ListDeployments struct {
@@ -1343,13 +1367,19 @@ const file_service_api_proto_rawDesc = "" +
 	"\x06_imageB\x0f\n" +
 	"\rspecification\x1a\n" +
 	"\n" +
-	"\bResponse\"\xa9\x01\n" +
+	"\bResponse\"\xc0\x02\n" +
 	"\x0eDeploymentInfo\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x123\n" +
 	"\x06status\x18\x02 \x01(\x0e2\x1b.velez_api.DeploymentStatusR\x06status\x12\x17\n" +
 	"\aspec_id\x18\x03 \x01(\x04R\x06specId\x129\n" +
 	"\n" +
-	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xd9\x01\n" +
+	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x19\n" +
+	"\x05image\x18\x05 \x01(\tH\x00R\x05image\x88\x01\x01\x12&\n" +
+	"\ftriggered_by\x18\x06 \x01(\tH\x01R\vtriggeredBy\x88\x01\x01\x12&\n" +
+	"\fimage_digest\x18\a \x01(\tH\x02R\vimageDigest\x88\x01\x01B\b\n" +
+	"\x06_imageB\x0f\n" +
+	"\r_triggered_byB\x0f\n" +
+	"\r_image_digest\"\xd9\x01\n" +
 	"\x0fListDeployments\x1ag\n" +
 	"\aRequest\x12)\n" +
 	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x12\"\n" +
@@ -1486,6 +1516,7 @@ func file_service_api_proto_init() {
 	file_velez_common_proto_init()
 	file_velez_api_proto_init()
 	file_service_api_proto_msgTypes[2].OneofWrappers = []any{}
+	file_service_api_proto_msgTypes[4].OneofWrappers = []any{}
 	file_service_api_proto_msgTypes[12].OneofWrappers = []any{
 		(*GetService_Request_Id)(nil),
 		(*GetService_Request_Name)(nil),

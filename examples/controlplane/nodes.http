@@ -1,0 +1,5 @@
+POST {{velez}}/api/control_plane/nodes/list
+Content-Type: application/json
+Authorization: {{key}}
+
+{}

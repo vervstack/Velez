@@ -89,6 +89,7 @@ func (d *deploymentsStorage) ListDeployments(ctx context.Context, req domain.Lis
 	return out, nil
 }
 
+// TODO work on how listing works
 func (d *deploymentsStorage) List(ctx context.Context, req domain.ListDeploymentsReq) ([]domain.Deployment, error) {
 	q := sq.Select("id",
 		"service_id",
@@ -97,14 +98,15 @@ func (d *deploymentsStorage) List(ctx context.Context, req domain.ListDeployment
 		"created_at",
 		"updated_at",
 		"status").
-		From("velez.deployments")
+		From("deployments")
 
 	if len(req.NodeIds) != 0 {
 		q = q.Where(sq.Eq{"node_id": req.NodeIds})
 	}
 
 	if len(req.ServiceIds) != 0 {
-		q = q.Where(sq.Eq{"service_id": req.ServiceIds})
+		// TODO
+		//q = q.Where(sq.Eq{"service_id": req.ServiceIds})
 	}
 
 	if len(req.NotStatus) != 0 {

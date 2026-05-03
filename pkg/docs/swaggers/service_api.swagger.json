@@ -476,6 +476,15 @@
         "createdAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "image": {
+          "type": "string"
+        },
+        "triggeredBy": {
+          "type": "string"
+        },
+        "imageDigest": {
+          "type": "string"
         }
       }
     },

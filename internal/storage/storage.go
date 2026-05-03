@@ -27,6 +27,7 @@ type Storage interface {
 type NodesStorage interface {
 	InitNode(ctx context.Context) error
 	UpdateOnline(ctx context.Context) error
+	List(ctx context.Context, req domain.ListNodesReq) (domain.NodesList, error)
 }
 
 type ServicesStorage interface {

@@ -6,6 +6,7 @@ import "google/api/annotations.proto";
 import "npm.proto";
 
 import "velez_api.proto";
+import "velez_common.proto";
 
 option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
 option (npm_package) = "@vervstack/velez";
@@ -27,7 +28,14 @@ service ControlPlaneAPI {
   // ConnectSlave - used by other Velez nodes to connect to cluster
   rpc ConnectSlave(ConnectSlave.Request) returns (ConnectSlave.Response) {
     option (google.api.http) = {
-      post: "/api/slave/connect"
+      post: "/api/control_plane/slave/connect"
+      body: "*"
+    };
+  }
+
+  rpc ListNodes(ListNodes.Request) returns (ListNodes.Response) {
+    option (google.api.http) = {
+      post: "/api/control_plane/nodes/list"
       body: "*"
     };
   }
@@ -117,5 +125,15 @@ message EnableHeadscaleServer {
     optional uint32 custom_port = 1;
     // Using custom_image you can specify the exact image to deploy
     optional string custom_image = 2;
+  }
+}
+
+message ListNodes {
+  message Request {
+    Paging paging = 1;
+  }
+  message Response {
+    repeated NodeBaseInfo nodes = 1;
+    uint64 total = 2;
   }
 }

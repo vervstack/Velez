@@ -8,7 +8,7 @@
 - [ ] Each service shows its deployments and current status (deployments listed; service status always "unknown", no
   env/volumes/ports display)
 - [x] User can trigger a new deployment from the UI
-- [ ] Verv services can be created, viewed, and removed (create + view done; delete missing)
+- [ ] Verv services can be created, viewed, and removed (create + view + delete UI done; backend delete API not yet wired)
 - [x] Settings (backend URL, auth header) are editable and persisted
 
 ## Task groups

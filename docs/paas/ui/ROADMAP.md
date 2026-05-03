@@ -82,6 +82,27 @@ order. Complete each milestone before starting the next.
 
 ---
 
+## Milestone 7 — API Wiring (replace mocks with real data)
+
+Milestone 6 pages all use hardcoded `MOCK_*` arrays. M7 replaces them with live React Query
+calls. Frontend tasks require backend task **B1-T01** to be complete for full data richness,
+but T31 can land first to wire available fields and show real service names immediately.
+
+| #   | Task                                                                          | Depends on | Files                                                                         |
+|-----|-------------------------------------------------------------------------------|------------|-------------------------------------------------------------------------------|
+| T31 | [Wire mock pages to real API (frontend)](tasks/M7-T31-api-wiring-frontend.md) | —          | `DeploymentsPage`, `AppsPage`, `SearchPage`, `ControlPlanePage` + new mapping |
+
+**Backend companion task:** [
+`docs/paas/backend/tasks/B1-T01-api-enrichment.md`](../backend/tasks/B1-T01-api-enrichment.md) — extends
+`ServiceBaseInfo`, adds `ListNodes`, adds VCN peer listing. Unlocks cpu/mem/uptime data and node selector wiring.
+
+**Remaining mocks after T31 + B1-T01:**
+
+- `MainLayout` node selector (`MOCK_NODES`) — wired once `ListNodes` API lands
+- `VervClosedNetworkPage` peer table — wired once VCN `ListPeers` API lands
+
+---
+
 ## Coding Rules (must be followed in every task)
 
 - **Function declarations only** — no `const Foo = () => {}`. Use `function Foo() {}`.

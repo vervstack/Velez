@@ -199,3 +199,22 @@
 .EmptyStateAction {
     width: 10rem;
 }
+
+/* ── Search and filter ──────────────────────── */
+
+.SearchInput {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.4rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.05);
+    color: inherit;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.EmptyFilter {
+    font-size: 0.85rem;
+    padding: 1rem 0;
+    color: rgba(255, 255, 255, 0.4);
+}

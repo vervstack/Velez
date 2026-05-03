@@ -42,7 +42,7 @@ export default function ValuesPair({name, value, onChange}: VolumeMappingProps) 
                 data-tooltip-place="bottom"
             >
                 <Input
-                    inputValue={value}
+                    inputValue={value ?? null}
                     onChange={handleValueChange}
                 />
             </div>

@@ -92,6 +92,44 @@ export default function ServiceInfoPage() {
         );
     }
 
+    function openRemoveDialog() {
+        if (!service?.name) {
+            return;
+        }
+        const serviceName = service.name;
+
+        function onCancel() {
+            setDialogChild(null);
+        }
+
+        function onConfirmRemove() {
+            const t: Toast = {
+                title: "Service deletion not yet available",
+                description: "",
+                level: "Info",
+            };
+            toaster.bake(t);
+            setDialogChild(null);
+        }
+
+        const removeDialogContent = (
+            <div className={cls.RemoveDialogWrapper}>
+                <div className={cls.RemoveDialogMessage}>
+                    Remove service {serviceName}?
+                </div>
+                <div className={cls.RemoveDialogActions}>
+                    <button className={cls.ActionButton} onClick={onCancel}>
+                        Cancel
+                    </button>
+                    <button className={`${cls.ActionButton} ${cls.DangerButton}`} onClick={onConfirmRemove}>
+                        Confirm Remove
+                    </button>
+                </div>
+            </div>
+        );
+        setDialogChild(removeDialogContent);
+    }
+
     const deployments = deploymentsQuery.data?.deployments || [];
     const currentSmerd = smerdsQuery.data?.smerds?.[0];
 
@@ -107,6 +145,9 @@ export default function ServiceInfoPage() {
             <div className={cls.ActionBar}>
                 <button className={cls.ActionButton} onClick={openDeployMenu}>
                     Deploy
+                </button>
+                <button className={`${cls.ActionButton} ${cls.DangerButton}`} onClick={openRemoveDialog}>
+                    Remove
                 </button>
             </div>
 

@@ -22,6 +22,11 @@ export interface Volume {
     virtualVolume: string
 }
 
+export interface Bind {
+    containerPath: string
+    hostPath: string
+}
+
 export class CreateSmerdReq {
     name: string = ''
     imageName: string = ''

@@ -239,3 +239,36 @@
     background-color: var(--ping-unknown);
     color: #222;
 }
+
+/* ── Danger button ───────────────────────────── */
+
+.DangerButton {
+    background-color: #c0392b;
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 0.4rem;
+    border: none;
+    cursor: pointer;
+}
+
+.DangerButton:hover {
+    background-color: #a93226;
+}
+
+.RemoveDialogWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.RemoveDialogMessage {
+    font-size: 0.95rem;
+}
+
+.RemoveDialogActions {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}

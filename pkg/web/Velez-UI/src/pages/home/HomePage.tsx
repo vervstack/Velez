@@ -1,5 +1,6 @@
 import {useQuery} from "@tanstack/react-query";
 import {useNavigate} from "react-router-dom";
+import {useState} from "react";
 import cn from "classnames";
 
 import {ServiceBaseInfo, Smerd, SmerdStatus} from "@/app/api/velez";
@@ -64,42 +65,56 @@ export default function HomePage() {
 // image and last-deployed timestamp need to be added to ServiceBaseInfo in the backend API.
 function ServicesSection({services, smerds}: { services: ServiceBaseInfo[]; smerds: Smerd[] }) {
     const navigate = useNavigate();
+    const [query, setQuery] = useState("");
 
     if (services.length === 0) {
         return null;
     }
 
+    const filteredServices = services.filter(s => s.name?.toLowerCase().includes(query.toLowerCase()));
+
     return (
         <section className={cls.Section}>
             <h2 className={cls.SectionTitle}>Services</h2>
-            <div className={cls.CardGrid}>
-                {services.map(function renderServiceCard(service: ServiceBaseInfo) {
-                    function onClick() {
-                        navigate(Routes.Service + "/" + service.name);
-                    }
+            <input
+                type="text"
+                className={cls.SearchInput}
+                placeholder="Search services..."
+                value={query}
+                onChange={function onQueryChange(e) { setQuery(e.target.value); }}
+            />
+            {filteredServices.length === 0 && services.length > 0 ? (
+                <div className={cls.EmptyFilter}>No services match your search.</div>
+            ) : (
+                <div className={cls.CardGrid}>
+                    {filteredServices.map(function renderServiceCard(service: ServiceBaseInfo) {
+                        function onClick() {
+                            navigate(Routes.Service + "/" + service.name);
+                        }
 
-                    const relatedSmerd = smerds.find(
-                        (s) => s.name === service.name || s.name?.startsWith(service.name + "-")
-                    );
-                    const imageLabel = relatedSmerd?.imageName || null;
+                        const relatedSmerd = smerds.find(
+                            (s) => s.name === service.name || s.name?.startsWith(service.name + "-")
+                        );
+                        const imageLabel = relatedSmerd?.imageName || null;
 
-                    return (
-                        <div
-                            key={service.name}
-                            className={cls.ServiceCardContainer}
-                            onClick={onClick}
-                        >
-                            <div className={cls.CardName}>{service.name}</div>
-                            {imageLabel && (
-                                <div className={cls.CardImage}>{imageLabel}</div>
-                            )}
-                            <div className={cls.CardStatus}>
-                                <StatusBadge status="unknown"/>
+                        return (
+                            <div
+                                key={service.name}
+                                className={cls.ServiceCardContainer}
+                                onClick={onClick}
+                            >
+                                <div className={cls.CardName}>{service.name}</div>
+                                {imageLabel && (
+                                    <div className={cls.CardImage}>{imageLabel}</div>
+                                )}
+                                <div className={cls.CardStatus}>
+                                    <StatusBadge status="unknown"/>
+                                </div>
                             </div>
-                        </div>
-                    );
-                })}
-            </div>
+                        );
+                    })}
+                </div>
+            )}
         </section>
     );
 }

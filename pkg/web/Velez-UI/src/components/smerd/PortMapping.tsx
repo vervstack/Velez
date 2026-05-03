@@ -53,7 +53,7 @@ export default function PortMapping({portFrom, portTo, onChange, isRunning}: Por
                     <Input
                         label={isRunning ? 'Not exposed' :
                             portTo ? undefined : 'Port will be exposed once you deploy'}
-                        inputValue={(portTo || 0) > 0 ? portTo?.toString() : ''}
+                        inputValue={(portTo || 0) > 0 ? portTo!.toString() : ''}
                         onChange={(v: string) => {
                             if (v == '') {
                                 onChange(portFrom, null)

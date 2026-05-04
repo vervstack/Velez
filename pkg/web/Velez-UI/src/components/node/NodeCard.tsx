@@ -4,72 +4,86 @@ import StatusDot from '@/components/base/StatusDot';
 import Badge from '@/components/base/Badge';
 import MiniBar from '@/components/base/MiniBar';
 import IconButton from '@/components/base/IconButton';
+import {NodeBaseInfo, NodeStatus} from "@/app/api/velez";
 
 export interface NodeCardData {
     id: string;
     host: string;
     region: string;
     status: 'online' | 'degraded' | 'offline';
+
     cpu: number;
     mem: number;
     services: number;
 }
 
 interface NodeCardProps {
-    node: NodeCardData;
+    node: NodeBaseInfo;
+
     onShell?: () => void;
     onDrain?: () => void;
 }
 
-export default function NodeCard({ node, onShell, onDrain }: NodeCardProps) {
+export default function NodeCard({node, onShell, onDrain}: NodeCardProps) {
     return (
-        <div className={cn(cls.NodeCardContainer, { [cls.degraded]: node.status === 'degraded' })}>
+        <div className={
+            cn(cls.NodeCardContainer,
+                {
+                    [cls.degraded]: node.status === NodeStatus.NodeStatus_Degraded,
+                }
+            )}>
             <div className={cls.identity}>
                 <div className={cls.nameRow}>
-                    <StatusDot status={node.status} pulse />
+                    <StatusDot status={node.status || NodeStatus.NodeStatus_Unknown} pulse/>
                     <span className={cls.nodeId}>{node.id}</span>
-                    {node.status === 'degraded' && (
-                        <Badge label="degraded" color="var(--amber)" />
+
+                    {node.status === NodeStatus.NodeStatus_Degraded && (
+                        <Badge label="degraded" color="var(--amber)"/>
                     )}
                 </div>
-                <div className={cls.host}>{node.host}</div>
-                <div className={cls.region}>{node.region}</div>
+                <div className={cls.host}>{node.addr}</div>
+                {/*TODO add region to Node description*/}
+                <div className={cls.region}>{'spb-1'}</div>
             </div>
 
             <div className={cls.metric}>
                 <div className={cls.metricHeader}>
                     <span className={cls.metricLabel}>CPU</span>
                     <span className={cn(cls.metricValue, {
-                        [cls.valueRed]: node.cpu > 80,
-                        [cls.valueAmber]: node.cpu > 60 && node.cpu <= 80,
+                        [cls.valueRed]: false, // node.cpu > 80,
+                        [cls.valueAmber]: true, // node.cpu > 60 && node.cpu <= 80,
                     })}>
-                        {node.cpu}%
+                        {/*TODO*/}
+                        {50}%
                     </span>
                 </div>
-                <MiniBar val={node.cpu} />
+                <MiniBar val={50}/>
             </div>
 
             <div className={cls.metric}>
                 <div className={cls.metricHeader}>
                     <span className={cls.metricLabel}>Memory</span>
-                    <span className={cn(cls.metricValue, {
-                        [cls.valueRed]: node.mem > 80,
-                        [cls.valueAmber]: node.mem > 60 && node.mem <= 80,
-                    })}>
-                        {node.mem}%
+                    <span className={
+                        cn(cls.metricValue, {
+                            [cls.valueRed]: true,//node.mem > 80,
+                            [cls.valueAmber]: false, //node.mem > 60 && node.mem <= 80,
+                        })}>
+                        {/*TODO*/}
+                        {81}%
                     </span>
                 </div>
-                <MiniBar val={node.mem} />
+                <MiniBar val={81}/>
             </div>
 
             <div className={cls.servicesBlock}>
-                <span className={cls.servicesCount}>{node.services}</span>
+                {/*TODO Add services count*/}
+                <span className={cls.servicesCount}>{5}</span>
                 <span className={cls.servicesLabel}>services</span>
             </div>
 
             <div className={cls.actions}>
-                <IconButton label="shell" title="Open terminal" onClick={onShell} />
-                <IconButton label="drain" title="Drain node" danger onClick={onDrain} />
+                <IconButton label="shell" title="Open terminal" onClick={onShell}/>
+                <IconButton label="drain" title="Drain node" danger onClick={onDrain}/>
             </div>
         </div>
     );

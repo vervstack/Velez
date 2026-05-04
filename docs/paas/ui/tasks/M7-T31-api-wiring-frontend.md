@@ -1,6 +1,6 @@
 # T31 — Wire mock pages to real API (frontend)
 
-**Status:** pending
+**Status:** done
 
 ## Goal
 
@@ -165,14 +165,14 @@ Add a visible `// TODO(T32): replace with ListNodes once backend API is availabl
 
 ## Acceptance Criteria
 
-- [ ] `DeploymentsPage` renders real container names and images from the backend
-- [ ] `AppsPage` renders real container names and images from the backend
-- [ ] `SearchPage` filters real container results; nodes section renders empty with no crash
-- [ ] `ControlPlanePage` plugins section shows real installed services; nodes section still uses mock
-- [ ] All four pages show a loading state while queries are in flight
-- [ ] gRPC errors surface as toasts (via `toaster.catchGrpc`)
-- [ ] `yarn build:ui` passes with no TypeScript errors
-- [ ] No `MOCK_SERVICES` or `MOCK_APPS` or `MOCK_PLUGINS` constants remain in the wired pages
+- [x] `DeploymentsPage` renders real container names and images from the backend
+- [x] `AppsPage` renders real container names and images from the backend
+- [x] `SearchPage` filters real container results; nodes section renders empty with no crash
+- [x] `ControlPlanePage` plugins section shows real installed services; nodes section still uses mock
+- [x] All four pages show a loading state while queries are in flight
+- [x] gRPC errors surface as toasts (via `toaster.catchGrpc`)
+- [x] `yarn build:ui` passes with no TypeScript errors
+- [x] No `MOCK_SERVICES` or `MOCK_APPS` or `MOCK_PLUGINS` constants remain in the wired pages
 
 ## Notes
 

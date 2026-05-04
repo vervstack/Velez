@@ -24,6 +24,7 @@ const (
 	VcnApi_ConnectService_FullMethodName  = "/velez_api.VcnApi/ConnectService"
 	VcnApi_ConnectUser_FullMethodName     = "/velez_api.VcnApi/ConnectUser"
 	VcnApi_DeleteNamespace_FullMethodName = "/velez_api.VcnApi/DeleteNamespace"
+	VcnApi_ListPeers_FullMethodName       = "/velez_api.VcnApi/ListPeers"
 )
 
 // VcnApiClient is the client API for VcnApi service.
@@ -38,6 +39,7 @@ type VcnApiClient interface {
 	ConnectUser(ctx context.Context, in *ConnectUser_Request, opts ...grpc.CallOption) (*ConnectUser_Response, error)
 	// Not implemented
 	DeleteNamespace(ctx context.Context, in *DeleteVcnNamespace_Request, opts ...grpc.CallOption) (*DeleteVcnNamespace_Response, error)
+	ListPeers(ctx context.Context, in *ListPeers_Request, opts ...grpc.CallOption) (*ListPeers_Response, error)
 }
 
 type vcnApiClient struct {
@@ -98,6 +100,16 @@ func (c *vcnApiClient) DeleteNamespace(ctx context.Context, in *DeleteVcnNamespa
 	return out, nil
 }
 
+func (c *vcnApiClient) ListPeers(ctx context.Context, in *ListPeers_Request, opts ...grpc.CallOption) (*ListPeers_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListPeers_Response)
+	err := c.cc.Invoke(ctx, VcnApi_ListPeers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // VcnApiServer is the server API for VcnApi service.
 // All implementations must embed UnimplementedVcnApiServer
 // for forward compatibility.
@@ -110,6 +122,7 @@ type VcnApiServer interface {
 	ConnectUser(context.Context, *ConnectUser_Request) (*ConnectUser_Response, error)
 	// Not implemented
 	DeleteNamespace(context.Context, *DeleteVcnNamespace_Request) (*DeleteVcnNamespace_Response, error)
+	ListPeers(context.Context, *ListPeers_Request) (*ListPeers_Response, error)
 	mustEmbedUnimplementedVcnApiServer()
 }
 
@@ -134,6 +147,9 @@ func (UnimplementedVcnApiServer) ConnectUser(context.Context, *ConnectUser_Reque
 }
 func (UnimplementedVcnApiServer) DeleteNamespace(context.Context, *DeleteVcnNamespace_Request) (*DeleteVcnNamespace_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteNamespace not implemented")
+}
+func (UnimplementedVcnApiServer) ListPeers(context.Context, *ListPeers_Request) (*ListPeers_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListPeers not implemented")
 }
 func (UnimplementedVcnApiServer) mustEmbedUnimplementedVcnApiServer() {}
 func (UnimplementedVcnApiServer) testEmbeddedByValue()                {}
@@ -246,6 +262,24 @@ func _VcnApi_DeleteNamespace_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _VcnApi_ListPeers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListPeers_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VcnApiServer).ListPeers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VcnApi_ListPeers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VcnApiServer).ListPeers(ctx, req.(*ListPeers_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // VcnApi_ServiceDesc is the grpc.ServiceDesc for VcnApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -272,6 +306,10 @@ var VcnApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteNamespace",
 			Handler:    _VcnApi_DeleteNamespace_Handler,
+		},
+		{
+			MethodName: "ListPeers",
+			Handler:    _VcnApi_ListPeers_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

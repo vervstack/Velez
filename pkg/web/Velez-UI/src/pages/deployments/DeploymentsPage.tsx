@@ -1,25 +1,29 @@
 import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import cls from '@/pages/deployments/DeploymentsPage.module.css';
 import DeploymentFilters from '@/widgets/deployments/DeploymentFilters';
 import KanbanBoard from '@/widgets/deployments/KanbanBoard';
 import ServiceListView from '@/widgets/deployments/ServiceListView';
 import { type ServiceCardData } from '@/components/service/ServiceCard';
+import { FetchSmerds } from '@/processes/api/velez';
+import { mapSmerdToServiceCard } from '@/processes/mappings/smerds';
+import { useToaster } from '@/app/hooks/toaster/Toaster';
 
 type ViewMode = 'kanban' | 'list';
 
-const MOCK_SERVICES: ServiceCardData[] = [
-    { name: 'matreshka-be', image: 'godverv/matreshka:latest', status: 'running',  cpu: 12, mem: 180,  uptime: '14d 3h',  restarts: 0,  env: 'prod',  incident: false, releaseFrozen: false, node: { id: 'node01', host: '192.168.1.10', status: 'online'   } },
-    { name: 'api-gateway',  image: 'internal/gateway:v2.1',    status: 'running',  cpu: 33, mem: 512,  uptime: '6d 4h',   restarts: 0,  env: 'prod',  incident: true,  releaseFrozen: false, node: { id: 'node02', host: '192.168.1.42', status: 'online'   } },
-    { name: 'postgres-main',image: 'postgres:16-alpine',        status: 'degraded', cpu: 89, mem: 1800, uptime: '3d 7h',   restarts: 12, env: 'prod',  incident: true,  releaseFrozen: false, node: { id: 'node03', host: '10.0.0.15',    status: 'degraded' } },
-    { name: 'redis-cache',  image: 'redis:7-alpine',            status: 'degraded', cpu: 44, mem: 320,  uptime: '1h 20m',  restarts: 5,  env: 'prod',  incident: false, releaseFrozen: false, node: { id: 'node02', host: '192.168.1.42', status: 'online'   } },
-    { name: 'prometheus',   image: 'prom/prometheus:latest',    status: 'stopped',  cpu: 0,  mem: 0,    uptime: 'stopped', restarts: 0,  env: 'stage', incident: false, releaseFrozen: false, node: { id: 'node01', host: '192.168.1.10', status: 'online'   } },
-];
-
 export default function DeploymentsPage() {
+    const toaster = useToaster();
     const [search,        setSearch]        = useState('');
     const [statusFilters, setStatusFilters] = useState<Set<string>>(new Set());
     const [envFilters,    setEnvFilters]    = useState<Set<string>>(new Set());
     const [viewMode,      setViewMode]      = useState<ViewMode>('kanban');
+
+    const smerdsQuery = useQuery({
+        queryKey: ['smerds'],
+        queryFn: () => FetchSmerds().catch((e) => { toaster.catchGrpc(e); return { smerds: [] }; }),
+    });
+
+    const services: ServiceCardData[] = (smerdsQuery.data?.smerds ?? []).map(mapSmerdToServiceCard);
 
     function handleToggleStatus(id: string) {
         setStatusFilters(prev => {
@@ -48,7 +52,7 @@ export default function DeploymentsPage() {
     }
 
     const filtered = useMemo(function computeFiltered() {
-        let result = MOCK_SERVICES;
+        let result = services;
         if (search.trim()) {
             const q = search.trim().toLowerCase();
             result = result.filter(s =>
@@ -63,7 +67,15 @@ export default function DeploymentsPage() {
             result = result.filter(s => envFilters.has(s.env));
         }
         return result;
-    }, [search, statusFilters, envFilters]);
+    }, [services, search, statusFilters, envFilters]);
+
+    if (smerdsQuery.isLoading) {
+        return (
+            <div className={cls.DeploymentsPageContainer}>
+                <div className={cls.loadingSpinner}>Loading services...</div>
+            </div>
+        );
+    }
 
     return (
         <div className={cls.DeploymentsPageContainer}>

@@ -6,7 +6,7 @@ import VelezIcon from '@/assets/icons/services/velez.svg';
 import {NodeBaseInfo, NodeStatus} from "@/app/api/velez";
 import SkeletonNodeRow from '@/components/node/SkeletonNodeRow';
 
-type NavId = 'controlplane' | 'vcn' | 'deployments' | 'search';
+type NavId = 'controlplane' | 'vcn' | 'deployments' | 'apps' | 'search';
 
 interface SidebarProps {
     collapsed: boolean;
@@ -24,6 +24,7 @@ const NAV_ITEMS: Array<{ id: NavId; label: string; icon: string }> = [
     {id: 'controlplane', label: 'Control Plane', icon: '⬡'},
     {id: 'vcn', label: 'VCN', icon: '◎'},
     {id: 'deployments', label: 'Deployments', icon: '⬕'},
+    {id: 'apps', label: 'Apps', icon: '⬡'},
     {id: 'search', label: 'Search', icon: '⌕'},
 ];
 
@@ -181,7 +182,7 @@ function NodesList(
                         cls.nodeId, {
                             [cls.nodeIdActive]: activeNodeId === node.id,
                         })}>
-                        {node.id}
+                        {node.name}
                     </div>
 
                     <div className={cls.nodeHost}>{node.addr}</div>

@@ -27,15 +27,21 @@ export default function SmerdPage() {
     });
 
     if (!smerdName) {
-        return <div className={cls.SmerdPageContainer}><div className={cls.ErrorMessage}>No name provided.</div></div>;
+        return <div className={cls.SmerdPageContainer}>
+            <div className={cls.ErrorMessage}>No name provided.</div>
+        </div>;
     }
 
     if (isLoading) {
-        return <div className={cls.SmerdPageContainer}><div className={cls.LoadingMessage}>Loading...</div></div>;
+        return <div className={cls.SmerdPageContainer}>
+            <div className={cls.LoadingMessage}>Loading...</div>
+        </div>;
     }
 
     if (!smerd) {
-        return <div className={cls.SmerdPageContainer}><div className={cls.ErrorMessage}>Container not found.</div></div>;
+        return <div className={cls.SmerdPageContainer}>
+            <div className={cls.ErrorMessage}>Container not found.</div>
+        </div>;
     }
 
     return (
@@ -152,7 +158,7 @@ function StatusBadge({status}: { status?: SmerdStatus }) {
     );
 }
 
-function formatTimestamp(ts: {seconds?: string | number; nanos?: number}): string {
+function formatTimestamp(ts: { seconds?: string | number; nanos?: number }): string {
     const seconds = Number(ts.seconds || 0);
     if (!seconds) return "—";
     return new Date(seconds * 1000).toLocaleString();

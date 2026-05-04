@@ -684,6 +684,18 @@
         "lastDeployedAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "imageName": {
+          "type": "string",
+          "title": "primary container image (imageName from latest smerd)"
+        },
+        "status": {
+          "type": "string",
+          "title": "running | degraded | stopped — derived from smerd status"
+        },
+        "env": {
+          "type": "string",
+          "title": "value of the 'env' label if set, else empty"
         }
       }
     },

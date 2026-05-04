@@ -13,12 +13,13 @@ import {ListNodes} from "@/processes/api/control_plane.ts";
 import {useQuery} from "@tanstack/react-query";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 
-type NavId = 'controlplane' | 'vcn' | 'deployments' | 'search';
+type NavId = 'controlplane' | 'vcn' | 'deployments' | 'apps' | 'search';
 
 const NAV_TO_ROUTE: Record<NavId, string> = {
     controlplane: Routes.ControlPlane,
     vcn: Routes.VCN,
     deployments: Routes.Deployments,
+    apps: Routes.Apps,
     search: Routes.Search,
 };
 
@@ -26,6 +27,7 @@ const ROUTE_TO_NAV: Record<string, NavId> = {
     [Routes.ControlPlane]: 'controlplane',
     [Routes.VCN]: 'vcn',
     [Routes.Deployments]: 'deployments',
+    [Routes.Apps]: 'apps',
     [Routes.Search]: 'search',
 };
 
@@ -39,7 +41,7 @@ export default function MainLayout() {
 
     const [nodes, setNodes] = useState<NodeBaseInfo[]>([]);
 
-    const activeNav: NavId = ROUTE_TO_NAV[location.pathname] ?? 'controlplane';
+    const activeNav: NavId = ROUTE_TO_NAV[location.pathname] ?? 'apps';
 
     function handleCollapse() {
         setCollapsed(prev => !prev);

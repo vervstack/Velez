@@ -1,6 +1,7 @@
 import cls from '@/widgets/controlplane/PluginMatrix.module.css';
 import Badge from '@/components/base/Badge';
 import SectionLabel from '@/components/base/SectionLabel';
+import {NodeBaseInfo} from "@/app/api/velez";
 
 interface PluginStatus {
     pluginName: string;
@@ -9,56 +10,70 @@ interface PluginStatus {
 }
 
 interface PluginMatrixProps {
-    nodes: Array<{ id: string }>;
+    nodes: NodeBaseInfo[];
     plugins: PluginStatus[];
 }
 
-export default function PluginMatrix({ nodes, plugins }: PluginMatrixProps) {
-    const colTemplate = `180px repeat(${nodes.length}, 1fr)`;
-
+export default function PluginMatrix(props: PluginMatrixProps) {
     return (
         <div className={cls.PluginMatrixContainer}>
-            <div className={cls.header}>
+            <div className={cls.Header}>
                 <SectionLabel>VervStack Plugins</SectionLabel>
             </div>
-            <div className={cls.table}>
-                {/* Table header */}
-                <div className={cls.tableHeader} style={{ gridTemplateColumns: colTemplate }}>
-                    <span className={cls.headerCell}>Plugin</span>
-                    {nodes.map(function renderNodeHeader(n) {
-                        return <span key={n.id} className={cls.headerCellCenter}>{n.id}</span>;
-                    })}
-                </div>
 
-                {/* Rows */}
-                {plugins.map(function renderPlugin(plugin, pi) {
-                    const isLast = pi === plugins.length - 1;
-                    return (
-                        <div
-                            key={plugin.pluginName}
-                            className={cls.tableRow}
-                            style={{
-                                gridTemplateColumns: colTemplate,
-                                borderBottom: isLast ? 'none' : undefined,
-                            }}
-                        >
-                            <div className={cls.pluginCell}>
-                                <span className={cls.pluginName}>{plugin.pluginName}</span>
-                                <span className={cls.pluginTag}>{plugin.tag}</span>
-                            </div>
-                            {nodes.map(function renderCell(n) {
-                                const status = plugin.nodeStatuses[n.id] ?? 'disabled';
-                                const color = status === 'enabled' ? 'var(--green)' : 'var(--fg-dim)';
-                                return (
-                                    <div key={n.id} className={cls.statusCell}>
-                                        <Badge label={status} color={color} />
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    );
-                })}
-            </div>
+            <Table {...props}/>
         </div>
     );
+}
+
+function Table({nodes, plugins}: PluginMatrixProps) {
+    const colTemplate = `180px repeat(${nodes.length}, 1fr)`;
+
+    function renderNodeHeader(n: NodeBaseInfo) {
+        return <span key={n.id} className={cls.HeaderCellCenter}>{n.id}</span>;
+    }
+
+    function renderPlugin(plugin: PluginStatus, pi: number) {
+        const isLast = pi === plugins.length - 1;
+
+        function renderCell(n: NodeBaseInfo) {
+            const status = plugin.nodeStatuses[n.id || ''] ?? 'disabled';
+            const color = status === 'enabled' ? 'var(--green)' : 'var(--fg-dim)';
+            return (
+                <div key={n.id} className={cls.statusCell}>
+                    <Badge label={status} color={color}/>
+                </div>
+            );
+        }
+
+        return (
+            <div
+                key={plugin.pluginName}
+                className={cls.TableRow}
+                style={{
+                    gridTemplateColumns: colTemplate,
+                    borderBottom: isLast ? 'none' : undefined,
+                }}
+            >
+                <div className={cls.PluginCell}>
+                    <span className={cls.pluginName}>{plugin.pluginName}</span>
+                    <span className={cls.pluginTag}>{plugin.tag}</span>
+                </div>
+
+                {nodes.map(renderCell)}
+            </div>
+        );
+    }
+
+    return (
+        <div className={cls.TableContainer}>
+            <div className={cls.TableHeader}
+                 style={{gridTemplateColumns: colTemplate}}>
+                <span className={cls.HeaderCell}>Plugin</span>
+                {nodes.map(renderNodeHeader)}
+            </div>
+
+            {plugins.map(renderPlugin)}
+        </div>
+    )
 }

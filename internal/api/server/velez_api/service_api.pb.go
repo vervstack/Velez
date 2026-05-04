@@ -429,6 +429,9 @@ type ServiceBaseInfo struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Name           string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	LastDeployedAt *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=last_deployed_at,json=lastDeployedAt,proto3" json:"last_deployed_at,omitempty"`
+	ImageName      string                 `protobuf:"bytes,3,opt,name=image_name,json=imageName,proto3" json:"image_name,omitempty"` // primary container image (imageName from latest smerd)
+	Status         string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`                        // running | degraded | stopped — derived from smerd status
+	Env            string                 `protobuf:"bytes,5,opt,name=env,proto3" json:"env,omitempty"`                              // value of the 'env' label if set, else empty
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -475,6 +478,27 @@ func (x *ServiceBaseInfo) GetLastDeployedAt() *timestamppb.Timestamp {
 		return x.LastDeployedAt
 	}
 	return nil
+}
+
+func (x *ServiceBaseInfo) GetImageName() string {
+	if x != nil {
+		return x.ImageName
+	}
+	return ""
+}
+
+func (x *ServiceBaseInfo) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ServiceBaseInfo) GetEnv() string {
+	if x != nil {
+		return x.Env
+	}
+	return ""
 }
 
 type StopService struct {
@@ -1396,10 +1420,14 @@ const file_service_api_proto_rawDesc = "" +
 	"\x0f_search_pattern\x1aX\n" +
 	"\bResponse\x12\x14\n" +
 	"\x05Total\x18\x01 \x01(\x04R\x05Total\x126\n" +
-	"\bservices\x18\x02 \x03(\v2\x1a.velez_api.ServiceBaseInfoR\bservices\"k\n" +
+	"\bservices\x18\x02 \x03(\v2\x1a.velez_api.ServiceBaseInfoR\bservices\"\xb4\x01\n" +
 	"\x0fServiceBaseInfo\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12D\n" +
-	"\x10last_deployed_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x0elastDeployedAt\"8\n" +
+	"\x10last_deployed_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x0elastDeployedAt\x12\x1d\n" +
+	"\n" +
+	"image_name\x18\x03 \x01(\tR\timageName\x12\x16\n" +
+	"\x06status\x18\x04 \x01(\tR\x06status\x12\x10\n" +
+	"\x03env\x18\x05 \x01(\tR\x03env\"8\n" +
 	"\vStopService\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x1a\n" +

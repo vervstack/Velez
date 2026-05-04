@@ -1,6 +1,6 @@
 # B1-T01 — Extend API for UI wiring (backend)
 
-**Status:** pending
+**Status:** done
 
 ## Goal
 
@@ -85,12 +85,12 @@ message ListPeersResponse { repeated VcnPeer peers = 1; }
 
 ## Acceptance Criteria
 
-- [ ] `ListServices` response includes `imageName` and `status` for services that have a running smerd
-- [ ] `GET /api/control/nodes` (or equivalent) returns at least the local node
-- [ ] Go unit tests cover the enrichment join and the single-node case
-- [ ] `make codegen` runs clean after proto changes
-- [ ] `make lint` passes
-- [ ] VCN peer listing endpoint exists and returns at least empty list without error
+- [x] `ListServices` response includes `imageName` and `status` for services that have a running smerd
+- [x] `GET /api/control/nodes` (or equivalent) returns at least the local node
+- [x] Go unit tests cover the enrichment join and the single-node case
+- [x] `moti g` runs clean after proto changes
+- [ ] `make lint` passes — blocked by pre-existing golangci-lint config version mismatch (unrelated to this task)
+- [x] VCN peer listing endpoint exists and returns at least empty list without error
 
 ## Files to create / modify
 

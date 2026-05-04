@@ -1,27 +1,29 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import cls from '@/pages/search/SearchPage.module.css';
 import StatusDot from '@/components/base/StatusDot';
 import EnvChip from '@/components/base/chips/EnvChip';
 import IncidentChip from '@/components/base/chips/IncidentChip';
 import { type ServiceCardData } from '@/components/service/ServiceCard';
+import { FetchSmerds } from '@/processes/api/velez';
+import { mapSmerdToServiceCard } from '@/processes/mappings/smerds';
+import { useToaster } from '@/app/hooks/toaster/Toaster';
 
-// Mock data — replace with React Query calls
-const MOCK_SERVICES: ServiceCardData[] = [
-    { name: 'matreshka-be', image: 'godverv/matreshka:latest', status: 'running',  cpu: 12, mem: 180,  uptime: '14d 3h', restarts: 0,  env: 'prod',  incident: false, releaseFrozen: false, node: { id: 'node01', host: '192.168.1.10', status: 'online'   } },
-    { name: 'api-gateway',  image: 'internal/gateway:v2.1',    status: 'running',  cpu: 33, mem: 512,  uptime: '6d 4h',  restarts: 0,  env: 'prod',  incident: true,  releaseFrozen: false, node: { id: 'node02', host: '192.168.1.42', status: 'online'   } },
-    { name: 'postgres-main',image: 'postgres:16-alpine',        status: 'degraded', cpu: 89, mem: 1800, uptime: '3d 7h',  restarts: 12, env: 'prod',  incident: true,  releaseFrozen: false, node: { id: 'node03', host: '10.0.0.15',    status: 'degraded' } },
-    { name: 'prometheus',   image: 'prom/prometheus:latest',    status: 'stopped',  cpu: 0,  mem: 0,    uptime: 'stopped',restarts: 0,  env: 'stage', incident: false, releaseFrozen: false, node: { id: 'node01', host: '192.168.1.10', status: 'online'   } },
-];
-
-const MOCK_NODES = [
-    { id: 'node01', host: '192.168.1.10', status: 'online'   as const },
-    { id: 'node02', host: '192.168.1.42', status: 'online'   as const },
-    { id: 'node03', host: '10.0.0.15',    status: 'degraded' as const },
-];
+type NodeInfo = { id: string; host: string; status: 'online' | 'degraded' | 'offline' };
 
 export default function SearchPage() {
+    const toaster = useToaster();
     const [query, setQuery] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
+
+    const smerdsQuery = useQuery({
+        queryKey: ['smerds'],
+        queryFn: () => FetchSmerds().catch((e) => { toaster.catchGrpc(e); return { smerds: [] }; }),
+    });
+
+    const services: ServiceCardData[] = (smerdsQuery.data?.smerds ?? []).map(mapSmerdToServiceCard);
+    // TODO(T32): replace with ListNodes once backend API is available
+    const nodes: NodeInfo[] = [];
 
     useEffect(function autoFocus() {
         inputRef.current?.focus();
@@ -35,19 +37,19 @@ export default function SearchPage() {
         const q = query.trim().toLowerCase();
         if (!q) return { matchedServices: [], matchedNodes: [] };
 
-        const matchedServices = MOCK_SERVICES.filter(s =>
+        const matchedServices = services.filter(s =>
             s.name.toLowerCase().includes(q) ||
             s.image.toLowerCase().includes(q) ||
             s.node.id.toLowerCase().includes(q)
         );
 
-        const matchedNodes = MOCK_NODES.filter(n =>
+        const matchedNodes = nodes.filter(n =>
             n.id.toLowerCase().includes(q) ||
             n.host.toLowerCase().includes(q)
         );
 
         return { matchedServices, matchedNodes };
-    }, [query]);
+    }, [services, nodes, query]);
 
     const hasResults = matchedServices.length > 0 || matchedNodes.length > 0;
 

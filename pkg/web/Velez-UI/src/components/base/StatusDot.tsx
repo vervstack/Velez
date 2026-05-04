@@ -5,7 +5,7 @@ import cls from '@/components/base/StatusDot.module.css';
 import {NodeStatus} from "@/app/api/velez";
 
 interface StatusDotProps {
-    status: NodeStatus;
+    status: NodeStatus | 'running' | 'degraded' | 'stopped' | 'online' | 'offline';
     pulse?: boolean;
 }
 

@@ -46,6 +46,13 @@ service VcnApi {
       body: "*",
     };
   };
+
+  rpc ListPeers(ListPeers.Request) returns (ListPeers.Response) {
+    option (google.api.http) = {
+      post: "/api/vcn/peers/list",
+      body: "*",
+    };
+  }
 }
 
 message CreateVcnNamespace {
@@ -94,4 +101,23 @@ message ConnectUser {
   }
 
   message Response {}
+}
+
+message VcnPeer {
+  string id = 1;
+  string host = 2;
+  string type = 3;      // gateway | mesh | client
+  string status = 4;    // online | offline
+  string latency = 5;   // e.g. "12ms"
+  string rx = 6;        // e.g. "1.2 MiB"
+  string tx = 7;
+}
+
+message ListPeers {
+  message Request {
+    string namespace_key = 1;
+  }
+  message Response {
+    repeated VcnPeer peers = 1;
+  }
 }

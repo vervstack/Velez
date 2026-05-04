@@ -73,24 +73,25 @@ order. Complete ea/ch milestone before starting the next.
 
 ## ~~Milestone 6 — Pages~~ ✓
 
-| #       | Task                                                                 | Files                                                             |
-|---------|----------------------------------------------------------------------|-------------------------------------------------------------------|
-| ~~T26~~ | ~~[ControlPlanePage (rebuild)](tasks/M6-T26-control-plane-page.md)~~ | ~~`src/pages/controlplane/ControlPlanePage.tsx` + `.module.css`~~ |
-| ~~T27~~ | ~~[DeploymentsPage (rebuild)](tasks/M6-T27-deployments-page.md)~~    | ~~`src/pages/deployments/DeploymentsPage.tsx` + `.module.css`~~   |
-| ~~T28~~ | ~~[VCNPage (rebuild)](tasks/M6-T28-vcn-page.md)~~                    | ~~`src/pages/vcn/VervClosedNetworkPage.tsx` + `.module.css`~~     |
-| ~~T29~~ | ~~[SearchPage](tasks/M6-T29-search-page.md)~~                        | ~~`src/pages/search/SearchPage.tsx` + `.module.css`~~             |
+| #       | Task                                                                 | Files                                                                      |
+|---------|----------------------------------------------------------------------|----------------------------------------------------------------------------|
+| ~~T26~~ | ~~[ControlPlanePage (rebuild)](tasks/M6-T26-control-plane-page.md)~~ | ~~`src/pages/controlplane/ControlPlanePage.tsx` + `.module.css`~~          |
+| ~~T27~~ | ~~[DeploymentsPage (rebuild)](tasks/M6-T27-deployments-page.md)~~    | ~~`src/pages/deployments/DeploymentsPage.tsx` + `.module.css`~~            |
+| ~~T28~~ | ~~[VCNPage (rebuild)](tasks/M6-T28-vcn-page.md)~~                    | ~~`src/pages/vcn/VervClosedNetworkPage.tsx` + `.module.css`~~              |
+| ~~T29~~ | ~~[SearchPage](tasks/M6-T29-search-page.md)~~                        | ~~`src/pages/search/SearchPage.tsx` + `.module.css`~~                      |
+| ~~T30~~ | ~~[AppsPage + AppCard](tasks/M6-T30-apps-page.md)~~                  | ~~`src/pages/apps/AppsPage.tsx`, `src/components/apps/AppCard.tsx` + CSS~~ |
 
 ---
 
-## Milestone 7 — API Wiring (replace mocks with real data)
+## ~~Milestone 7 — API Wiring (replace mocks with real data)~~ ✓
 
 Milestone 6 pages all use hardcoded `MOCK_*` arrays. M7 replaces them with live React Query
 calls. Frontend tasks require backend task **B1-T01** to be complete for full data richness,
 but T31 can land first to wire available fields and show real service names immediately.
 
-| #   | Task                                                                          | Depends on | Files                                                                         |
-|-----|-------------------------------------------------------------------------------|------------|-------------------------------------------------------------------------------|
-| T31 | [Wire mock pages to real API (frontend)](tasks/M7-T31-api-wiring-frontend.md) | —          | `DeploymentsPage`, `AppsPage`, `SearchPage`, `ControlPlanePage` + new mapping |
+| #       | Task                                                                              | Depends on | Files                                                                             |
+|---------|-----------------------------------------------------------------------------------|------------|-----------------------------------------------------------------------------------|
+| ~~T31~~ | ~~[Wire mock pages to real API (frontend)](tasks/M7-T31-api-wiring-frontend.md)~~ | —          | ~~`DeploymentsPage`, `AppsPage`, `SearchPage`, `ControlPlanePage` + new mapping~~ |
 
 **Backend companion task:** [
 `docs/paas/backend/tasks/B1-T01-api-enrichment.md`](../backend/tasks/B1-T01-api-enrichment.md) — extends

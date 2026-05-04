@@ -176,6 +176,9 @@ message ListServices {
 message ServiceBaseInfo {
   string name = 1;
   google.protobuf.Timestamp last_deployed_at = 2;
+  string image_name = 3;  // primary container image (imageName from latest smerd)
+  string status = 4;      // running | degraded | stopped — derived from smerd status
+  string env = 5;         // value of the 'env' label if set, else empty
 }
 
 message StopService {

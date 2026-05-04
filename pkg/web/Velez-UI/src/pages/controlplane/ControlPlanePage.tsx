@@ -2,7 +2,7 @@ import {useQuery} from '@tanstack/react-query';
 
 import cls from '@/pages/controlplane/ControlPlanePage.module.css';
 
-import {NodeStatus} from "@/app/api/velez";
+import {NodeStatus, VervServiceState} from "@/app/api/velez";
 
 import StatCard, {Level} from '@/components/base/StatCard';
 import NodeHealthList from '@/widgets/controlplane/NodeHealthList';
@@ -10,29 +10,43 @@ import PluginMatrix from '@/widgets/controlplane/PluginMatrix';
 import SkeletonNodeCard from '@/components/node/SkeletonNodeCard';
 
 import {useToaster} from '@/app/hooks/toaster/Toaster';
-import {ListNodes} from '@/processes/api/control_plane';
+import {ListNodes, ListVervServices} from '@/processes/api/control_plane';
 import {CacheKey} from "@/app/query/Cache.ts";
+import useSettings from '@/app/settings/state';
+import {Service} from '@/model/services/Services';
 
-const MOCK_PLUGINS = [
-    {
-        pluginName: 'Matreshka',
-        tag: 'config',
-        nodeStatuses: {node01: 'enabled' as const, node02: 'enabled' as const, node03: 'enabled' as const}
-    },
-    {
-        pluginName: 'Makosh',
-        tag: 'gRPC',
-        nodeStatuses: {node01: 'enabled' as const, node02: 'enabled' as const, node03: 'disabled' as const}
-    },
-    {
-        pluginName: 'Svarog',
-        tag: 'secrets',
-        nodeStatuses: {node01: 'enabled' as const, node02: 'enabled' as const, node03: 'enabled' as const}
-    },
-];
+function mapVervServiceStateToPluginStatus(state?: VervServiceState): 'enabled' | 'disabled' | 'error' {
+    switch (state) {
+        case VervServiceState.running:
+            return 'enabled';
+        case VervServiceState.disabled:
+            return 'disabled';
+        case VervServiceState.warning:
+        case VervServiceState.dead:
+            return 'error';
+        default:
+            return 'disabled';
+    }
+}
+
+function mapPluginsForDisplay(vervServices: Service[], nodes: any[]) {
+    const plugins = vervServices.map(function mapService(service) {
+        return {
+            pluginName: service.type || 'unknown',
+            tag: 'service',
+            nodeStatuses: nodes.reduce((acc, node) => {
+                acc[node.id || ''] = mapVervServiceStateToPluginStatus(service.state) as 'enabled' | 'disabled';
+                return acc;
+            }, {} as Record<string, 'enabled' | 'disabled'>),
+        };
+    });
+
+    return <PluginMatrix nodes={nodes} plugins={plugins} />;
+}
 
 export default function ControlPlanePage() {
     const toaster = useToaster();
+    const { initReq } = useSettings();
 
     const nodesQuery = useQuery({
         queryKey: [CacheKey.Nodes],
@@ -41,7 +55,15 @@ export default function ControlPlanePage() {
                 .catch(toaster.catchGrpc),
     });
 
+    const pluginsQuery = useQuery({
+        queryKey: ['vervServices'],
+        queryFn: () =>
+            ListVervServices(initReq())
+                .catch((e) => { toaster.catchGrpc(e); return []; }),
+    });
+
     const nodes = nodesQuery.data?.nodes || [];
+    const vervServices = pluginsQuery.data || [];
 
     const onlineCount = nodes
         .filter(n => n.status === NodeStatus.NodeStatus_Online).length;
@@ -101,10 +123,7 @@ export default function ControlPlanePage() {
 
             {renderNodeList()}
 
-            <PluginMatrix
-                nodes={nodes}
-                plugins={MOCK_PLUGINS}
-            />
+            {mapPluginsForDisplay(vervServices, nodes)}
         </div>
     );
 }

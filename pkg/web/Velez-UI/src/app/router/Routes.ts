@@ -1,8 +1,8 @@
 export enum Routes {
-    Home = "/",
     ControlPlane = "/cp",
     Deploy = "/deploy",
     Deployments = "/deployments",
+    Apps = "/apps",
     Smerd = "/smerd",
     VCN = "/vcn",
     Search = "/search",

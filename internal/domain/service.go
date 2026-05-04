@@ -22,6 +22,9 @@ type ServiceBaseInfo struct {
 	Id             uint64
 	Name           string
 	LastDeployedAt *time.Time
+	ImageName      string
+	Status         string
+	Env            string
 }
 
 type GetServiceReq struct {

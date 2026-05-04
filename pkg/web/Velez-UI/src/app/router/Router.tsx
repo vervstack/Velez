@@ -8,21 +8,34 @@ import DeployPage from "@/pages/deploy/DeployPage.tsx";
 import VervClosedNetworkPage from "@/pages/vcn/VervClosedNetworkPage.tsx";
 import DeploymentsPage from "@/pages/deployments/DeploymentsPage";
 import SearchPage from "@/pages/search/SearchPage";
+import AppsPage from "@/pages/apps/AppsPage";
 
 import NewServicePage from "@/pages/service/NewServicePage.tsx";
 import ServiceInfoPage from "@/pages/service/ServiceInfoPage.tsx";
 
-import { Routes, Arguments } from "@/app/router/Routes";
-export { Routes, Arguments };
+import {Routes, Arguments} from "@/app/router/Routes";
+
+export {Routes, Arguments};
 
 const router = createBrowserRouter([
     {
-        path: Routes.Home,
+        path: '/',
         element: <MainLayout/>,
         errorElement: <ErrorPage/>,
         children: [
             {
                 index: true,
+                element: (<AppsPage/>),
+            },
+
+            {
+                path: Routes.Apps,
+                element: (<AppsPage/>),
+            },
+
+
+            {
+                path: Routes.Smerd,
                 element: <HomePage/>,
             },
 
@@ -48,6 +61,7 @@ const router = createBrowserRouter([
                 path: Routes.Deployments,
                 element: (<DeploymentsPage/>),
             },
+
 
             {
                 path: Routes.VCN,

@@ -13,7 +13,6 @@ import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {Routes} from "@/app/router/Router.tsx";
 import Button from "@/components/base/Button.tsx";
 
-const POLL_INTERVAL = 5000;
 const LIST_REQ = {paging: {limit: '50', offset: '0'}};
 
 export default function HomePage() {
@@ -25,7 +24,6 @@ export default function HomePage() {
             toaster.catchGrpc(e);
             return {services: []};
         }),
-        refetchInterval: POLL_INTERVAL,
     });
 
     const smerdsQuery = useQuery({
@@ -34,7 +32,6 @@ export default function HomePage() {
             toaster.catchGrpc(e);
             return {smerds: []};
         }),
-        refetchInterval: POLL_INTERVAL,
     });
 
     const services = servicesQuery.data?.services || [];

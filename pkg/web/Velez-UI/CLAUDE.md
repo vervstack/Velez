@@ -99,3 +99,5 @@ All API calls go through `src/processes/api/` which calls the generated stubs in
 - Do not use `!important` or `z-index`
 - Use `rem` units for font sizes and spacing; avoid hardcoded `px`/`em` in component CSS
 - Animations: CSS `transition`/`animation`/`@keyframes` first — use `framer-motion` only when CSS cannot achieve the effect
+- One component must have no more than three levels of enclosure: Root div, wrapper around content(s), content components. 
+  Everything that doesn't fit - should be a separate component. 

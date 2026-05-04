@@ -3,14 +3,20 @@ import {
     ListVervServicesRequest,
     EnableServiceRequest,
     VervServiceType,
-    EnableStatefullCluster,
+    EnableStatefullCluster, ListNodesResponse, ListNodesRequest,
 } from "@/app/api/velez";
 
 import {toServices} from "@/processes/mappings/services.ts";
 
 import {InitReq} from "@/app/settings/state.ts";
 import {Service} from "@/model/services/Services.tsx";
+import {GetInitReq} from "@/processes/api/api.ts";
 
+export async function ListNodes(): Promise<ListNodesResponse> {
+    const req: ListNodesRequest = {}
+
+    return ControlPlaneAPI.ListNodes(req, GetInitReq())
+}
 
 export async function ListVervServices(initReq: InitReq): Promise<Service[]> {
     const req: ListVervServicesRequest = {} as ListVervServicesRequest

@@ -3,18 +3,17 @@ import {Outlet, useNavigate, useLocation} from 'react-router-dom';
 
 import cls from '@/app/router/MainLayout.module.css';
 
+import {NodeBaseInfo} from "@/app/api/velez";
 import Sidebar from '@/widgets/sidebar/Sidebar';
 import TopBar from '@/widgets/topbar/TopBar';
 import Toaster from '@/segments/Toaster';
 import {Routes} from '@/app/router/Routes';
+import {ListNodes} from "@/processes/api/control_plane.ts";
+
+import {useQuery} from "@tanstack/react-query";
+import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 
 type NavId = 'controlplane' | 'vcn' | 'deployments' | 'search';
-
-const MOCK_NODES = [
-    {id: 'node01', host: '192.168.1.10', status: 'online' as const},
-    {id: 'node02', host: '192.168.1.42', status: 'online' as const},
-    {id: 'node03', host: '10.0.0.15', status: 'degraded' as const},
-];
 
 const NAV_TO_ROUTE: Record<NavId, string> = {
     controlplane: Routes.ControlPlane,
@@ -35,8 +34,10 @@ export default function MainLayout() {
     const location = useLocation();
 
     const [collapsed, setCollapsed] = useState(false);
-    const [activeNodeId, setActiveNodeId] = useState(MOCK_NODES[0].id);
+    const [activeNodeId, setActiveNodeId] = useState<string | undefined>();
     const [showAllNodes, setShowAllNodes] = useState(false);
+
+    const [nodes, setNodes] = useState<NodeBaseInfo[]>([]);
 
     const activeNav: NavId = ROUTE_TO_NAV[location.pathname] ?? 'controlplane';
 
@@ -56,13 +57,30 @@ export default function MainLayout() {
         navigate(Routes.Deploy);
     }
 
+    const toaster = useToaster();
+
+    const nodesQuery = useQuery({
+        queryKey: ["nodes_main_layout"],
+        queryFn: () => {
+            ListNodes()
+                .then((nodesList) => {
+                    setNodes(nodesList.nodes || [])
+                    return
+                })
+                .catch(toaster.catchGrpc)
+        },
+    })
+
     return (
         <div className={cls.MainLayoutContainer}>
             <Sidebar
                 collapsed={collapsed}
-                nodes={MOCK_NODES}
+
+                nodes={nodes}
                 activeNodeId={activeNodeId}
                 onNodeSelect={setActiveNodeId}
+                isNodesLoading={nodesQuery.isLoading}
+
                 activeNav={activeNav}
                 onNavChange={handleNavChange}
             />
@@ -70,7 +88,7 @@ export default function MainLayout() {
                 <TopBar
                     collapsed={collapsed}
                     onCollapse={handleCollapse}
-                    nodes={MOCK_NODES}
+                    nodes={nodes}
                     activeNodeId={activeNodeId}
                     showAllNodes={showAllNodes}
                     onToggleAllNodes={handleToggleAllNodes}

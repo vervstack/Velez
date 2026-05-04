@@ -6,6 +6,7 @@
  */
 
 import * as fm from "./fetch.pb";
+import * as VelezApiVelezCommon from "./velez_common.pb";
 
 type Absent<T, K extends keyof T> = { [k in Exclude<keyof T, K>]?: undefined };
 
@@ -99,6 +100,17 @@ export type EnableHeadscaleServer = BaseEnableHeadscaleServer &
     externalConnect: EnableHeadscaleServerExternalHeadscaleConnection;
   }>;
 
+export type ListNodesRequest = {
+  paging?: VelezApiVelezCommon.Paging;
+};
+
+export type ListNodesResponse = {
+  nodes?: VelezApiVelezCommon.NodeBaseInfo[];
+  total?: string;
+};
+
+export type ListNodes = Record<string, never>;
+
 export class ControlPlaneAPI {
   static ListVervServices(this:void, req: ListVervServicesRequest, initReq?: fm.InitReq): Promise<ListVervServicesResponse> {
     return fm.fetchRequest<ListVervServicesResponse>(`/api/control_plane/services?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
@@ -107,6 +119,9 @@ export class ControlPlaneAPI {
     return fm.fetchRequest<EnableServiceResponse>(`/api/control_plane/service/enable`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
   static ConnectSlave(this:void, req: ConnectSlaveRequest, initReq?: fm.InitReq): Promise<ConnectSlaveResponse> {
-    return fm.fetchRequest<ConnectSlaveResponse>(`/api/slave/connect`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+    return fm.fetchRequest<ConnectSlaveResponse>(`/api/control_plane/slave/connect`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static ListNodes(this:void, req: ListNodesRequest, initReq?: fm.InitReq): Promise<ListNodesResponse> {
+    return fm.fetchRequest<ListNodesResponse>(`/api/control_plane/nodes/list`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
 }

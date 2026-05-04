@@ -3,20 +3,18 @@ import cn from 'classnames';
 import StatusDot from '@/components/base/StatusDot';
 import SectionLabel from '@/components/base/SectionLabel';
 import VelezIcon from '@/assets/icons/services/velez.svg';
-
-interface SidebarNode {
-    id: string;
-    host: string;
-    status: 'online' | 'degraded' | 'offline';
-}
+import {NodeBaseInfo, NodeStatus} from "@/app/api/velez";
 
 type NavId = 'controlplane' | 'vcn' | 'deployments' | 'search';
 
 interface SidebarProps {
     collapsed: boolean;
-    nodes: SidebarNode[];
-    activeNodeId: string;
-    onNodeSelect: (id: string) => void;
+
+    nodes: NodeBaseInfo[];
+    activeNodeId?: string;
+    onNodeSelect: (id?: string) => void;
+    isNodesLoading: boolean;
+
     activeNav: NavId;
     onNavChange: (id: NavId) => void;
 }
@@ -40,67 +38,42 @@ export default function Sidebar(
         collapsed, nodes,
         activeNodeId, onNodeSelect,
         activeNav, onNavChange,
+        isNodesLoading
     }: SidebarProps) {
+
+
+    function renderDot(node: NodeBaseInfo) {
+        function handleClick() {
+            onNodeSelect(node.id);
+        }
+
+        return (
+            <div key={node.id} className={cls.dotRow} title={node.id} onClick={handleClick}>
+                <StatusDot
+                    status={node.status || NodeStatus.NodeStatus_Unknown}/>
+            </div>
+        );
+    }
+
     return (
         <aside className={
             cn(cls.SidebarContainer, {
                 [cls.collapsed]: collapsed,
             })}>
-            <div className={cls.logo}>
-                <img src={VelezIcon} alt="Velez" className={cls.logoIcon}/>
-                {!collapsed && (
-                    <span className={cls.logoText}>
-                        Velez
-                        <span className={cls.logoSub}> / VervStack</span>
-                    </span>
-                )}
-            </div>
 
-            {!collapsed && (
-                <div className={cls.nodesSection}>
-                    <div className={cls.sectionHeader}>
-                        <SectionLabel>Nodes</SectionLabel>
-                    </div>
-                    {nodes.map(function renderNode(node) {
-                        function handleClick() {
-                            onNodeSelect(node.id);
-                        }
-
-                        return (
-                            <div
-                                key={node.id}
-                                className={cn(cls.nodeRow, {[cls.nodeActive]: activeNodeId === node.id})}
-                                onClick={handleClick}
-                            >
-                                <StatusDot status={node.status}/>
-                                <div className={cls.nodeInfo}>
-                                    <div className={cn(cls.nodeId, {[cls.nodeIdActive]: activeNodeId === node.id})}>
-                                        {node.id}
-                                    </div>
-                                    <div className={cls.nodeHost}>{node.host}</div>
-                                </div>
-                                {node.status === 'degraded' && (
-                                    <span className={cls.degradedMark}>!</span>
-                                )}
-                            </div>
-                        );
-                    })}
-                </div>
-            )}
+            <Logo collapsed={collapsed}/>
+            <NodesList
+                isNodesLoading={isNodesLoading}
+                collapsed={collapsed}
+                nodes={nodes}
+                onNodeSelect={onNodeSelect}
+                activeNodeId={activeNodeId}
+                activeNav={activeNav}
+                onNavChange={onNavChange}/>
 
             {collapsed && (
                 <div className={cls.nodesCollapsed}>
-                    {nodes.map(function renderDot(node) {
-                        function handleClick() {
-                            onNodeSelect(node.id);
-                        }
-
-                        return (
-                            <div key={node.id} className={cls.dotRow} title={node.id} onClick={handleClick}>
-                                <StatusDot status={node.status}/>
-                            </div>
-                        );
-                    })}
+                    {nodes.map(renderDot)}
                 </div>
             )}
 
@@ -113,32 +86,16 @@ export default function Sidebar(
                         <SectionLabel>Services</SectionLabel>
                     </div>
                 )}
-                {NAV_ITEMS.map(function renderNavItem(item) {
-                    const active = activeNav === item.id;
-
-                    function handleClick() {
-                        onNavChange(item.id);
-                    }
-
-                    return (
-                        <div
-                            key={item.id}
-                            className={cn(cls.navItem, {
-                                [cls.navItemActive]: active,
-                                [cls.navItemCollapsed]: collapsed
-                            })}
-                            onClick={handleClick}
-                            title={collapsed ? item.label : undefined}
-                        >
-                            <span className={cls.navIcon}>{item.icon}</span>
-                            {!collapsed && (
-                                <span className={cn(cls.navLabel, {[cls.navLabelActive]: active})}>
-                                    {item.label}
-                                </span>
-                            )}
-                        </div>
-                    );
-                })}
+                {
+                    NAV_ITEMS.map((n) =>
+                        <NavItem
+                            id={n.id}
+                            label={n.label}
+                            icon={n.icon}
+                            isActive={activeNodeId == n.id}
+                            onNavChange={onNavChange}
+                            collapsed={collapsed}
+                        />)}
 
                 <div className={cls.divider}/>
                 {!collapsed && (
@@ -161,16 +118,137 @@ export default function Sidebar(
                 })}
             </nav>
 
-            {/* User */}
-            <div className={cn(cls.user, {[cls.userCollapsed]: collapsed})}>
-                <div className={cls.avatar}>RS</div>
-                {!collapsed && (
-                    <div className={cls.userInfo}>
-                        <div className={cls.userName}>RedSock</div>
-                        <div className={cls.userRole}>admin</div>
-                    </div>
-                )}
-            </div>
+            <UserBar
+                collapsed={collapsed}/>
+
         </aside>
     );
+}
+
+
+function Logo({collapsed}: { collapsed: boolean }) {
+    return (
+        <div className={cls.LogoContainer}>
+            <img src={VelezIcon} alt="Velez" className={cls.logoIcon}/>
+            {!collapsed && (
+                <span className={cls.logoText}>
+                        Velez
+                        <span className={cls.logoSub}> / VervStack</span>
+                    </span>
+            )}
+        </div>
+    )
+}
+
+function NodesList(
+    {
+        collapsed, nodes,
+        onNodeSelect, activeNodeId
+    }: SidebarProps) {
+
+    if (collapsed) return null;
+
+    function renderNode(node: NodeBaseInfo) {
+        function handleClick() {
+            onNodeSelect(node.id);
+        }
+
+        return (
+            <div
+                key={node.id}
+                className={
+                    cn(cls.nodeRow, {
+                        [cls.nodeActive]: activeNodeId === node.id,
+                    })}
+                onClick={handleClick}
+            >
+                <StatusDot
+                    status={node.status || NodeStatus.NodeStatus_Unknown}/>
+
+                <div className={cls.NodeInfo}>
+                    <div className={cn(
+                        cls.nodeId, {
+                            [cls.nodeIdActive]: activeNodeId === node.id,
+                        })}>
+                        {node.id}
+                    </div>
+
+                    <div className={cls.nodeHost}>{node.addr}</div>
+                </div>
+
+                {
+                    node.status === NodeStatus.NodeStatus_Degraded && (
+                        <span className={cls.degradedMark}>!</span>
+                    )}
+            </div>
+        );
+    }
+
+    return (
+        <div className={cls.NodesSection}>
+            <div className={cls.sectionHeader}>
+                <SectionLabel>Nodes</SectionLabel>
+            </div>
+
+            {nodes.map(renderNode)}
+        </div>
+    )
+}
+
+
+interface NavItemProps {
+    id: NavId;
+    label: string;
+    icon: string;
+    isActive: boolean;
+    onNavChange: (id: NavId) => void;
+    collapsed: boolean;
+}
+
+function NavItem({
+                     isActive, onNavChange,
+                     id, collapsed,
+                     label, icon
+                 }: NavItemProps) {
+
+    function handleClick() {
+        onNavChange(id);
+    }
+
+    return (
+        <div
+            key={id}
+            className=
+                {cn(cls.navItem, {
+                    [cls.navItemActive]: isActive,
+                    [cls.navItemCollapsed]: collapsed
+                })}
+            onClick={handleClick}
+            title={collapsed ? label : undefined}
+        >
+            <span className={cls.navIcon}>{icon}</span>
+            {!collapsed && (
+                <span className={
+                    cn(cls.navLabel, {
+                        [cls.navLabelActive]: isActive,
+                    })}>
+                                    {label}
+                                </span>
+            )}
+        </div>
+    );
+}
+
+function UserBar({collapsed}: { collapsed: boolean }) {
+    return (
+        <div className={cls.UserBarContainer}>
+            <div className={cls.Avatar}>RS</div>
+
+            {!collapsed && (
+                <div>
+                    <div className={cls.UserName}>RedSock</div>
+                    <div className={cls.UserRole}>admin</div>
+                </div>
+            )}
+        </div>)
 }

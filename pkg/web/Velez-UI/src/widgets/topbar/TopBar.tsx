@@ -1,18 +1,20 @@
-import cls from '@/widgets/topbar/TopBar.module.css';
 import cn from 'classnames';
+
+import cls from '@/widgets/topbar/TopBar.module.css';
+
+import {NodeBaseInfo, NodeStatus} from "@/app/api/velez";
 
 type NavId = 'controlplane' | 'vcn' | 'deployments' | 'search';
 
-interface TopBarNode {
-    id: string;
-    status: 'online' | 'degraded' | 'offline';
-}
 
 interface TopBarProps {
     collapsed: boolean;
     onCollapse: () => void;
-    nodes: TopBarNode[];
-    activeNodeId: string;
+
+    nodes: NodeBaseInfo[];
+
+    activeNodeId?: string;
+
     showAllNodes: boolean;
     onToggleAllNodes: () => void;
     activeNav: NavId;
@@ -21,25 +23,26 @@ interface TopBarProps {
 }
 
 const TABS: Array<{ id: NavId; label: string }> = [
-    { id: 'controlplane', label: 'Control Plane' },
-    { id: 'vcn',          label: 'VCN' },
-    { id: 'deployments',  label: 'Deployments' },
-    { id: 'search',       label: 'Search' },
+    {id: 'controlplane', label: 'Control Plane'},
+    {id: 'vcn', label: 'VCN'},
+    {id: 'deployments', label: 'Deployments'},
+    {id: 'search', label: 'Search'},
 ];
 
 export default function TopBar({
-    collapsed,
-    onCollapse,
-    nodes,
-    activeNodeId,
-    showAllNodes,
-    onToggleAllNodes,
-    activeNav,
-    onNavChange,
-    onDeploy,
-}: TopBarProps) {
+                                   collapsed,
+                                   onCollapse,
+                                   nodes,
+                                   activeNodeId,
+                                   showAllNodes,
+                                   onToggleAllNodes,
+                                   activeNav,
+                                   onNavChange,
+                                   onDeploy,
+                               }: TopBarProps) {
     const activeNode = nodes.find(n => n.id === activeNodeId);
-    const onlineCount = nodes.filter(n => n.status === 'online').length;
+    const onlineCount = nodes
+        .filter(n => n.status === NodeStatus.NodeStatus_Online).length;
 
     return (
         <div className={cls.TopBarContainer}>
@@ -61,13 +64,13 @@ export default function TopBar({
                 ) : (
                     <>
                         <span className={cls.crumbNode}>{activeNodeId}</span>
-                        {activeNode?.status === 'degraded' && (
+                        {activeNode?.status === NodeStatus.NodeStatus_Degraded && (
                             <span className={cls.degradedBadge}>degraded</span>
                         )}
                     </>
                 )}
                 <button
-                    className={cn(cls.allNodesPill, { [cls.allNodesActive]: showAllNodes })}
+                    className={cn(cls.allNodesPill, {[cls.allNodesActive]: showAllNodes})}
                     onClick={onToggleAllNodes}
                 >
                     all nodes
@@ -78,11 +81,14 @@ export default function TopBar({
             <div className={cls.tabs}>
                 <div className={cls.tabGroup}>
                     {TABS.map(function renderTab(tab) {
-                        function handleClick() { onNavChange(tab.id); }
+                        function handleClick() {
+                            onNavChange(tab.id);
+                        }
+
                         return (
                             <button
                                 key={tab.id}
-                                className={cn(cls.tab, { [cls.tabActive]: activeNav === tab.id })}
+                                className={cn(cls.tab, {[cls.tabActive]: activeNav === tab.id})}
                                 onClick={handleClick}
                             >
                                 {tab.label}
@@ -95,7 +101,7 @@ export default function TopBar({
             {/* Right zone */}
             <div className={cls.rightZone}>
                 <div className={cls.healthCounter}>
-                    <span className={cls.healthDot} />
+                    <span className={cls.healthDot}/>
                     {onlineCount}/{nodes.length} nodes
                 </div>
                 <button className={cls.deployBtn} onClick={onDeploy}>

@@ -20,6 +20,13 @@ export enum ConfigFormat {
   env = "env",
 }
 
+export enum NodeStatus {
+  NodeStatus_Unknown = "NodeStatus_Unknown",
+  NodeStatus_Online = "NodeStatus_Online",
+  NodeStatus_Offline = "NodeStatus_Offline",
+  NodeStatus_Degraded = "NodeStatus_Degraded",
+}
+
 export enum PortProtocol {
   unknown = "unknown",
   tcp = "tcp",
@@ -120,4 +127,11 @@ export type Connection = {
 export type Paging = {
   limit?: string;
   offset?: string;
+};
+
+export type NodeBaseInfo = {
+  id?: string;
+  name?: string;
+  addr?: string;
+  status?: NodeStatus;
 };

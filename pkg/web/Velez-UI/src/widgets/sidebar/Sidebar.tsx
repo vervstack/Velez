@@ -4,6 +4,7 @@ import StatusDot from '@/components/base/StatusDot';
 import SectionLabel from '@/components/base/SectionLabel';
 import VelezIcon from '@/assets/icons/services/velez.svg';
 import {NodeBaseInfo, NodeStatus} from "@/app/api/velez";
+import SkeletonNodeRow from '@/components/node/SkeletonNodeRow';
 
 type NavId = 'controlplane' | 'vcn' | 'deployments' | 'search';
 
@@ -73,7 +74,15 @@ export default function Sidebar(
 
             {collapsed && (
                 <div className={cls.nodesCollapsed}>
-                    {nodes.map(renderDot)}
+                    {isNodesLoading ? (
+                        <>
+                            <div className={cls.skeletonDot}/>
+                            <div className={cls.skeletonDot}/>
+                            <div className={cls.skeletonDot}/>
+                        </>
+                    ) : (
+                        nodes.map(renderDot)
+                    )}
                 </div>
             )}
 
@@ -143,10 +152,12 @@ function Logo({collapsed}: { collapsed: boolean }) {
 function NodesList(
     {
         collapsed, nodes,
-        onNodeSelect, activeNodeId
+        onNodeSelect, activeNodeId,
+        isNodesLoading
     }: SidebarProps) {
 
     if (collapsed) return null;
+
 
     function renderNode(node: NodeBaseInfo) {
         function handleClick() {
@@ -190,7 +201,13 @@ function NodesList(
                 <SectionLabel>Nodes</SectionLabel>
             </div>
 
-            {nodes.map(renderNode)}
+            {!isNodesLoading ? nodes.map(renderNode) :
+                <>
+                    <SkeletonNodeRow/>
+                    <SkeletonNodeRow/>
+                    <SkeletonNodeRow/>
+                </>
+            }
         </div>
     )
 }

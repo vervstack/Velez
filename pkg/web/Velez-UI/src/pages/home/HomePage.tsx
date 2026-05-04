@@ -12,6 +12,8 @@ import {FetchSmerds} from "@/processes/api/velez.ts";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {Routes} from "@/app/router/Router.tsx";
 import Button from "@/components/base/Button.tsx";
+import SkeletonServiceCard from "@/components/service/SkeletonServiceCard.tsx";
+import SkeletonSmerdRow from "@/components/smerd/SkeletonSmerdRow.tsx";
 
 const LIST_REQ = {paging: {limit: '50', offset: '0'}};
 
@@ -36,17 +38,19 @@ export default function HomePage() {
 
     const services = servicesQuery.data?.services || [];
     const smerds = smerdsQuery.data?.smerds || [];
-    const isLoading = servicesQuery.isLoading && smerdsQuery.isLoading;
-
-    if (isLoading) {
-        return <div className={cls.HomeContainer}><div className={cls.LoadingMessage}>Loading...</div></div>;
-    }
+    const isLoadingServices = servicesQuery.isLoading;
+    const isLoadingSmerds = smerdsQuery.isLoading;
 
     const hasContent = services.length > 0 || smerds.length > 0;
 
     return (
         <div className={cls.HomeContainer}>
-            {hasContent ? (
+            {isLoadingServices || isLoadingSmerds ? (
+                <div className={cls.DashboardWrapper}>
+                    {isLoadingServices && <ServicesSectionSkeleton />}
+                    {isLoadingSmerds && <SmerdsSectionSkeleton />}
+                </div>
+            ) : hasContent ? (
                 <div className={cls.DashboardWrapper}>
                     <ServicesSection services={services} smerds={smerds}/>
                     <SmerdsSection smerds={smerds}/>
@@ -192,6 +196,32 @@ function EmptyState() {
                 <Button title="Create a service" onClick={onCreateService}/>
             </div>
         </div>
+    );
+}
+
+function ServicesSectionSkeleton() {
+    return (
+        <section className={cls.Section}>
+            <h2 className={cls.SectionTitle}>Services</h2>
+            <div className={cls.CardGrid}>
+                <SkeletonServiceCard />
+                <SkeletonServiceCard />
+                <SkeletonServiceCard />
+            </div>
+        </section>
+    );
+}
+
+function SmerdsSectionSkeleton() {
+    return (
+        <section className={cls.Section}>
+            <h2 className={cls.SectionTitle}>Containers</h2>
+            <div className={cls.SmerdList}>
+                <SkeletonSmerdRow />
+                <SkeletonSmerdRow />
+                <SkeletonSmerdRow />
+            </div>
+        </section>
     );
 }
 

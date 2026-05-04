@@ -7,6 +7,7 @@ import DeploymentWidget from "@/widgets/deploy/DeploymentWidget.tsx";
 import {CreateNewDeployment, FetchDeployments} from "@/processes/api/service.ts";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {useQuery} from "@tanstack/react-query";
+import SkeletonDeploymentHistory from "@/components/deploy/SkeletonDeploymentHistory.tsx";
 
 enum TabsOptions {
     New = 'New',
@@ -143,7 +144,11 @@ function UpgradePanel({latestDeployment, onUpgrade, isLoading}: {
     isLoading: boolean;
 }) {
     if (isLoading) {
-        return <div className={cls.UpgradePanelContainer}>Loading deployment history...</div>;
+        return (
+            <div className={cls.UpgradePanelContainer}>
+                <SkeletonDeploymentHistory />
+            </div>
+        );
     }
 
     if (!latestDeployment) {

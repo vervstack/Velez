@@ -129,6 +129,23 @@
     padding: 0.375rem;
 }
 
+.skeletonDot {
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 50%;
+    background: var(--bg3);
+    animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes skeletonPulse {
+    0%, 100% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 0.4;
+    }
+}
+
 /* Divider */
 .divider {
     height: 1px;

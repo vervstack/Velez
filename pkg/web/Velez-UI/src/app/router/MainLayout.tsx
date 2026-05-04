@@ -62,7 +62,7 @@ export default function MainLayout() {
     const nodesQuery = useQuery({
         queryKey: ["nodes_main_layout"],
         queryFn: () => {
-            ListNodes()
+            return ListNodes()
                 .then((nodesList) => {
                     setNodes(nodesList.nodes || [])
                     return

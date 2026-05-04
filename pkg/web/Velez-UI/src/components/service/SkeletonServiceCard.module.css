@@ -1,0 +1,12 @@
+.SkeletonServiceCardContainer {
+    width: 12rem;
+    padding: 1rem;
+    box-sizing: border-box;
+    border-bottom: var(--info-color) 0.2rem solid;
+    background: var(--accent-bg-color);
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    animation: fadeUp 0.3s ease both;
+}

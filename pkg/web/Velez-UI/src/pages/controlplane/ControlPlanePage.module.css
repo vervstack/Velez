@@ -8,9 +8,15 @@
     gap: 1.25rem;
 }
 
-.statsGrid {
+.StatsGrid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 0.75rem;
     flex-shrink: 0;
+}
+
+.skeletonList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
 }

@@ -15,44 +15,6 @@ import {CacheKey} from "@/app/query/Cache.ts";
 import useSettings from '@/app/settings/state';
 import {Service} from '@/model/services/Services';
 
-function mapVervServiceStateToPluginStatus(state?: VervServiceState): 'enabled' | 'disabled' | 'error' {
-    switch (state) {
-        case VervServiceState.running:
-            return 'enabled';
-        case VervServiceState.disabled:
-            return 'disabled';
-        case VervServiceState.warning:
-        case VervServiceState.dead:
-            return 'error';
-        default:
-            return 'disabled';
-    }
-}
-
-function mapPluginsForDisplay(vervServices: Service[], nodes: any[]) {
-    const plugins = vervServices.map(function mapService(service) {
-        return {
-            pluginName: service.type || 'unknown',
-            tag: 'service',
-            nodeStatuses: nodes.reduce((acc, node) => {
-                acc[node.id || ''] = mapVervServiceStateToPluginStatus(service.state) as 'enabled' | 'disabled';
-                return acc;
-            }, {} as Record<string, 'enabled' | 'disabled'>),
-            serviceKey: service.type || 'unknown',
-        };
-    });
-
-    function handleEnable(pluginName: string, nodeId: string) {
-        alert(`not implemented: enable ${pluginName} on ${nodeId}`);
-    }
-
-    function handleDisable(pluginName: string, nodeId: string) {
-        alert(`not implemented: disable ${pluginName} on ${nodeId}`);
-    }
-
-    return <PluginMatrix nodes={nodes} plugins={plugins} onEnable={handleEnable} onDisable={handleDisable} />;
-}
-
 export default function ControlPlanePage() {
     const toaster = useToaster();
     const { initReq } = useSettings();
@@ -136,3 +98,42 @@ export default function ControlPlanePage() {
         </div>
     );
 }
+
+function mapPluginsForDisplay(vervServices: Service[], nodes: any[]) {
+    const plugins = vervServices.map(function mapService(service) {
+        return {
+            pluginName: service.type || 'unknown',
+            tag: 'service',
+            nodeStatuses: nodes.reduce((acc, node) => {
+                acc[node.id || ''] = mapVervServiceStateToPluginStatus(service.state) as 'enabled' | 'disabled';
+                return acc;
+            }, {} as Record<string, 'enabled' | 'disabled'>),
+            serviceKey: service.type || 'unknown',
+        };
+    });
+
+    function handleEnable(pluginName: string, nodeId: string) {
+        alert(`not implemented: enable ${pluginName} on ${nodeId}`);
+    }
+
+    function handleDisable(pluginName: string, nodeId: string) {
+        alert(`not implemented: disable ${pluginName} on ${nodeId}`);
+    }
+
+    return <PluginMatrix nodes={nodes} plugins={plugins} onEnable={handleEnable} onDisable={handleDisable} />;
+}
+
+function mapVervServiceStateToPluginStatus(state?: VervServiceState): 'enabled' | 'disabled' | 'error' {
+    switch (state) {
+        case VervServiceState.running:
+            return 'enabled';
+        case VervServiceState.disabled:
+            return 'disabled';
+        case VervServiceState.warning:
+        case VervServiceState.dead:
+            return 'error';
+        default:
+            return 'disabled';
+    }
+}
+

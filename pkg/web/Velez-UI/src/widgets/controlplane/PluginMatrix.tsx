@@ -1,6 +1,9 @@
+import {useState} from 'react';
 import cls from '@/widgets/controlplane/PluginMatrix.module.css';
 import SectionLabel from '@/components/base/SectionLabel';
+import StatusDot from '@/components/base/StatusDot';
 import IconButton from '@/components/base/IconButton';
+import PluginManageDialog from '@/components/complex/PluginManageDialog/PluginManageDialog';
 import {NodeBaseInfo} from "@/app/api/velez";
 import {useNavigate} from 'react-router-dom';
 import {Routes} from '@/app/router/Routes';
@@ -20,23 +23,45 @@ interface PluginMatrixProps {
 }
 
 export default function PluginMatrix(props: PluginMatrixProps) {
+    const [selectedPlugin, setSelectedPlugin] = useState<string | null>(null);
+
+    function handleManagePlugin(pluginName: string) {
+        setSelectedPlugin(pluginName);
+    }
+
+    function handleCloseDialog() {
+        setSelectedPlugin(null);
+    }
+
     return (
         <div className={cls.PluginMatrixContainer}>
             <div className={cls.Header}>
                 <SectionLabel>VervStack Plugins</SectionLabel>
             </div>
 
-            <Table {...props}/>
+            <Table {...props} onManagePlugin={handleManagePlugin}/>
+
+            {selectedPlugin && (
+                <PluginManageDialog
+                    isOpen={true}
+                    pluginName={selectedPlugin}
+                    onClose={handleCloseDialog}
+                />
+            )}
         </div>
     );
 }
 
-function Table({nodes, plugins, onEnable, onDisable}: PluginMatrixProps) {
+interface TableProps extends PluginMatrixProps {
+    onManagePlugin: (pluginName: string) => void;
+}
+
+function Table({nodes, plugins, onManagePlugin}: TableProps) {
     const navigate = useNavigate();
-    const colTemplate = `180px repeat(${nodes.length}, 1fr)`;
+    const colTemplate = `180px repeat(${nodes.length}, 1fr) 80px`;
 
     function renderNodeHeader(n: NodeBaseInfo) {
-        return <span key={n.id} className={cls.HeaderCellCenter}>{n.id}</span>;
+        return <span key={n.id} className={cls.HeaderCellCenter}>Status</span>;
     }
 
     function handlePluginNameClick(serviceKey?: string) {
@@ -49,43 +74,18 @@ function Table({nodes, plugins, onEnable, onDisable}: PluginMatrixProps) {
         const isLast = pi === plugins.length - 1;
         const isClickable = !!plugin.serviceKey;
 
-        function handleEnableClick(nodeId: string | undefined) {
-            if (nodeId && onEnable) {
-                onEnable(plugin.pluginName, nodeId);
-            }
-        }
-
-        function handleDisableClick(nodeId: string | undefined) {
-            if (nodeId && onDisable) {
-                onDisable(plugin.pluginName, nodeId);
-            }
-        }
-
         function renderCell(n: NodeBaseInfo) {
             const status = plugin.nodeStatuses[n.id || ''] ?? 'disabled';
-            const isEnabled = status === 'enabled';
-
-            function handleButtonClick() {
-                if (isEnabled) {
-                    handleDisableClick(n.id);
-                } else {
-                    handleEnableClick(n.id);
-                }
-            }
-
-            const buttonLabel = isEnabled ? '✓' : '✕';
-            const buttonTitle = isEnabled ? 'Disable' : 'Enable';
 
             return (
                 <div key={n.id} className={cls.statusCell}>
-                    <IconButton
-                        label={buttonLabel}
-                        title={buttonTitle}
-                        onClick={handleButtonClick}
-                        danger={isEnabled}
-                    />
+                    <StatusDot status={status as 'enabled' | 'disabled'}/>
                 </div>
             );
+        }
+
+        function handleManageClick() {
+            onManagePlugin(plugin.pluginName);
         }
 
         return (
@@ -106,6 +106,14 @@ function Table({nodes, plugins, onEnable, onDisable}: PluginMatrixProps) {
                 </div>
 
                 {nodes.map(renderCell)}
+
+                <div className={cls.manageCell}>
+                    <IconButton
+                        label="Manage"
+                        onClick={handleManageClick}
+                        title="Manage plugin"
+                    />
+                </div>
             </div>
         );
     }
@@ -116,6 +124,7 @@ function Table({nodes, plugins, onEnable, onDisable}: PluginMatrixProps) {
                  style={{gridTemplateColumns: colTemplate}}>
                 <span className={cls.HeaderCell}>Plugin</span>
                 {nodes.map(renderNodeHeader)}
+                <span className={cls.HeaderCell}></span>
             </div>
 
             {plugins.map(renderPlugin)}

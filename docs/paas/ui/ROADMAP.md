@@ -120,13 +120,14 @@ environment tabs, and a tags strip. Backend companion task **B2-T01** adds Docke
 
 Task order: T33 first (layout shell), then T34 + T35 in any order.
 
-| #   | Task                                                                                        | Depends on | Files                                                                                           |
-|-----|---------------------------------------------------------------------------------------------|------------|-------------------------------------------------------------------------------------------------|
-| T33 | [ServiceInfoPage — full redesign with design system](tasks/M9-T33-service-page-redesign.md) | —          | `ServiceInfoPage.tsx` + `.module.css`, `parts/Header.*`                                         |
-| T34 | [ObservabilityLinksPanel widget](tasks/M9-T34-observability-links.md)                       | T33        | `widgets/service/ObservabilityLinksPanel.*`, `useSettings.ts`, `SettingsWidget.tsx`             |
-| T35 | [Environment tab switcher + tags strip](tasks/M9-T35-service-env-tags.md)                   | T33        | `ServiceInfoPage.tsx`, `processes/mappings/smerds.ts`                                           |
-| T36 | [Fix sidebar active nav highlight](tasks/M9-T36-sidebar-active-nav.md)                      | —          | `Sidebar.tsx`                                                                                   |
-| T37 | [Settings page + sidebar wiring](tasks/M9-T37-settings-page.md)                             | —          | `src/pages/settings/SettingsPage.*`, `Router.tsx`, `Routes.ts`, `Sidebar.tsx`, `MainLayout.tsx` |
+| #       | Task                                                                                                                                          | Depends on | Files                                                                                               |
+|---------|-----------------------------------------------------------------------------------------------------------------------------------------------|------------|-----------------------------------------------------------------------------------------------------|
+| T33     | [ServiceInfoPage — full redesign with design system](tasks/M9-T33-service-page-redesign.md)                                                   | —          | `ServiceInfoPage.tsx` + `.module.css`, `parts/Header.*`                                             |
+| T34     | [ObservabilityLinksPanel widget](tasks/M9-T34-observability-links.md)                                                                         | T33        | `widgets/service/ObservabilityLinksPanel.*`, `useSettings.ts`, `SettingsWidget.tsx`                 |
+| T35     | [Environment tab switcher + tags strip](tasks/M9-T35-service-env-tags.md)                                                                     | T33        | `ServiceInfoPage.tsx`, `processes/mappings/smerds.ts`                                               |
+| T36     | [Fix sidebar active nav highlight](tasks/M9-T36-sidebar-active-nav.md)                                                                        | —          | `Sidebar.tsx`                                                                                       |
+| T37     | [Settings page + sidebar wiring](tasks/M9-T37-settings-page.md)                                                                               | —          | `src/pages/settings/SettingsPage.*`, `Router.tsx`, `Routes.ts`, `Sidebar.tsx`, `MainLayout.tsx`     |
+| ~~T38~~ | ~~[PluginMatrix: restore status display + separate Manage button with empty dialog](tasks/M9-T38-plugin-matrix-status-and-manage-dialog.md)~~ | ~~—~~      | ~~`PluginMatrix.tsx` + `.module.css`, `PluginManageDialog/PluginManageDialog.tsx` + `.module.css`~~ |
 
 **Backend companion task:** [
 `docs/paas/backend/tasks/B2-T01-service-runtime-stats.md`](../backend/tasks/B2-T01-service-runtime-stats.md) — adds

@@ -75,3 +75,8 @@
     display: flex;
     justify-content: center;
 }
+
+.manageCell {
+    display: flex;
+    justify-content: center;
+}

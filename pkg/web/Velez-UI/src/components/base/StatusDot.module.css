@@ -26,3 +26,11 @@
 .pulse {
     animation: pulse 2.2s ease-in-out infinite;
 }
+
+.enabled {
+    background: var(--green);
+}
+
+.disabled {
+    background: var(--fg-dim);
+}

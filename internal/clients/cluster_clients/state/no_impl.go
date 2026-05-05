@@ -12,13 +12,12 @@ import (
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/plugins_queries"
 )
 
-type noImpl struct {
-}
+type noImpl struct{}
 
 var _ cluster_clients.ClusterStateManager = (*noImpl)(nil)
 
 func (n noImpl) Deployments() storage.DeploymentsStorage {
-	return &noImplPg{}
+	return &noImplDeployments{}
 }
 
 func (n noImpl) TxManager() *sqldb.TxManager {
@@ -30,60 +29,45 @@ func (n noImpl) Services() storage.ServicesStorage {
 }
 
 func (n noImpl) Nodes() storage.NodesStorage {
-	return &noImplNodes{}
+	return nil
 }
 
 func (n noImpl) Plugins() storage.PluginsStorage {
 	return &noImplPlugins{}
 }
 
-type noImplPg struct {
-}
+type noImplDeployments struct{}
 
-func (n *noImplPg) InitNode(ctx context.Context) error {
-	return cluster_clients.ErrServiceIsDisabled
-}
-
-func (n *noImplPg) UpdateOnline(ctx context.Context) error {
-	return cluster_clients.ErrServiceIsDisabled
-}
-
-func (n *noImplPg) List(ctx context.Context, req domain.ListNodesReq) (domain.NodesList, error) {
-	return domain.NodesList{}, cluster_clients.ErrServiceIsDisabled
-
-}
-
-func (n *noImplPg) List(ctx context.Context, req domain.ListDeploymentsReq) ([]domain.Deployment, error) {
+func (n *noImplDeployments) List(_ context.Context, _ domain.ListDeploymentsReq) ([]domain.Deployment, error) {
 	return nil, cluster_clients.ErrServiceIsDisabled
 }
 
-func (n *noImplPg) ListDeployments(ctx context.Context, req domain.ListDeploymentsReq) (domain.DeploymentList, error) {
+func (n *noImplDeployments) ListDeployments(_ context.Context, _ domain.ListDeploymentsReq) (domain.DeploymentList, error) {
 	return domain.DeploymentList{}, cluster_clients.ErrServiceIsDisabled
 }
 
-func (n *noImplPg) CreateDeployment(ctx context.Context, arg deployments_queries.CreateDeploymentParams) (interface{}, error) {
+func (n *noImplDeployments) CreateDeployment(_ context.Context, _ deployments_queries.CreateDeploymentParams) (interface{}, error) {
 	return nil, cluster_clients.ErrServiceIsDisabled
 }
 
-func (n *noImplPg) CreateSpecification(ctx context.Context, arg deployments_queries.CreateSpecificationParams) (int64, error) {
+func (n *noImplDeployments) CreateSpecification(_ context.Context, _ deployments_queries.CreateSpecificationParams) (int64, error) {
 	return 0, cluster_clients.ErrServiceIsDisabled
 }
 
-func (n *noImplPg) GetSpecificationById(ctx context.Context, id int64) (deployments_queries.GetSpecificationByIdRow, error) {
+func (n *noImplDeployments) GetSpecificationById(_ context.Context, _ int64) (deployments_queries.GetSpecificationByIdRow, error) {
 	return deployments_queries.GetSpecificationByIdRow{}, cluster_clients.ErrServiceIsDisabled
 }
 
-func (n *noImplPg) UpdateDeploymentStatus(ctx context.Context, arg deployments_queries.UpdateDeploymentStatusParams) error {
+func (n *noImplDeployments) UpdateDeploymentStatus(_ context.Context, _ deployments_queries.UpdateDeploymentStatusParams) error {
 	return cluster_clients.ErrServiceIsDisabled
 }
 
-func (n *noImplPg) WithTx(tx *sql.Tx) *deployments_queries.Queries {
+func (n *noImplDeployments) WithTx(tx *sql.Tx) *deployments_queries.Queries {
 	q := deployments_queries.Queries{}
 	return q.WithTx(tx)
 }
 
-type noImplPlugins struct {
-}
+type noImplPlugins struct{}
 
 func (n *noImplPlugins) ListPlugins(_ context.Context) ([]domain.PluginBaseInfo, error) {
 	return nil, cluster_clients.ErrServiceIsDisabled

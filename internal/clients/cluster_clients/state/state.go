@@ -12,12 +12,12 @@ type stateManager struct {
 	state atomic.Pointer[cluster_clients.ClusterStateManager]
 }
 
-func NewContainer() cluster_clients.ClusterStateManagerContainer {
+func NewContainer(init cluster_clients.ClusterStateManager) cluster_clients.ClusterStateManagerContainer {
 	sm := &stateManager{
 		state: atomic.Pointer[cluster_clients.ClusterStateManager]{},
 	}
 
-	sm.Set(&noImpl{})
+	sm.Set(init)
 
 	return sm
 }

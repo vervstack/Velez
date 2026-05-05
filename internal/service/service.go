@@ -21,7 +21,7 @@ type Services interface {
 	VervServices() VervServicesService
 	NodeService() NodeService
 	PluginService() PluginService
-	PluginsStorageContainer() *storage.PluginsStorageContainer
+	StorageContainer() *storage.Container
 }
 
 type ContainerService interface {

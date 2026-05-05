@@ -116,8 +116,7 @@ func (c *Custom) InitServiceLayer(a *App) error {
 
 	localState := c.NodeClients.LocalStateManager().Get()
 	if localState.ClusterState.PgNodeDsn != "" {
-		pgPluginsStorage := c.ClusterClients.StateManager().Plugins()
-		c.Services.PluginsStorageContainer().Set(pgPluginsStorage)
+		c.Services.StorageContainer().Set(c.ClusterClients.StateManager())
 	}
 
 	c.Pipeliner = pipelines.NewPipeliner(c.NodeClients, c.ClusterClients, c.Services)

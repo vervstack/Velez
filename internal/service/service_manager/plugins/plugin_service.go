@@ -12,15 +12,15 @@ import (
 )
 
 type pluginService struct {
-	plugins storage.PluginsStorage
+	storage storage.Storage
 }
 
-func NewPluginService(plugins storage.PluginsStorage) service.PluginService {
-	return &pluginService{plugins: plugins}
+func NewPluginService(stg storage.Storage) service.PluginService {
+	return &pluginService{storage: stg}
 }
 
 func (p *pluginService) ListPlugins(ctx context.Context) (*pb.ListPlugins_Response, error) {
-	rows, err := p.plugins.ListPlugins(ctx)
+	rows, err := p.storage.Plugins().ListPlugins(ctx)
 	if err != nil {
 		return nil, rerrors.Wrap(err)
 	}

@@ -10,17 +10,17 @@ import (
 )
 
 type Service struct {
-	nodes storage.NodesStorage
+	storage storage.Storage
 }
 
 func NewService(st storage.Storage) *Service {
 	return &Service{
-		st.Nodes(),
+		st,
 	}
 }
 
 func (s *Service) ListNodes(ctx context.Context, req domain.ListNodesReq) (domain.NodesList, error) {
-	list, err := s.nodes.List(ctx, req)
+	list, err := s.storage.Nodes().List(ctx, req)
 	if err != nil {
 		return domain.NodesList{}, errors.Wrap(err)
 	}

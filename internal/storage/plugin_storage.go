@@ -1,33 +1,41 @@
 package storage
 
 import (
-	"context"
 	"sync/atomic"
 
-	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/plugins_queries"
+	"go.vervstack.ru/Velez/internal/clients/sqldb"
 )
 
-type PluginsStorageContainer struct {
-	impl atomic.Pointer[PluginsStorage]
+type Container struct {
+	impl atomic.Pointer[Storage]
 }
 
-func NewPluginsStorageContainer(initial PluginsStorage) *PluginsStorageContainer {
-	c := &PluginsStorageContainer{}
+func NewStorageContainer(initial Storage) *Container {
+	c := &Container{}
 	c.Set(initial)
 	return c
 }
 
-func (c *PluginsStorageContainer) Set(impl PluginsStorage) {
+func (c *Container) Set(impl Storage) {
 	c.impl.Store(&impl)
 }
 
-func (c *PluginsStorageContainer) ListPlugins(ctx context.Context) ([]domain.PluginBaseInfo, error) {
-	l := c.impl.Load()
-	return (*l).ListPlugins(ctx)
+func (c *Container) Nodes() NodesStorage {
+	return (*c.impl.Load()).Nodes()
 }
 
-func (c *PluginsStorageContainer) UpsertPlugin(ctx context.Context, arg plugins_queries.UpsertPluginParams) error {
-	l := c.impl.Load()
-	return (*l).UpsertPlugin(ctx, arg)
+func (c *Container) Services() ServicesStorage {
+	return (*c.impl.Load()).Services()
+}
+
+func (c *Container) Deployments() DeploymentsStorage {
+	return (*c.impl.Load()).Deployments()
+}
+
+func (c *Container) Plugins() PluginsStorage {
+	return (*c.impl.Load()).Plugins()
+}
+
+func (c *Container) TxManager() *sqldb.TxManager {
+	return (*c.impl.Load()).TxManager()
 }

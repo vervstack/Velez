@@ -17,6 +17,7 @@ import (
 	"go.vervstack.ru/Velez/internal/cluster/service_discovery"
 	"go.vervstack.ru/Velez/internal/cluster/verv_closed_network"
 	"go.vervstack.ru/Velez/internal/config"
+	"go.vervstack.ru/Velez/internal/storage/local_storage"
 )
 
 type clusterClients struct {
@@ -54,7 +55,7 @@ func Setup(ctx context.Context, cfg config.Config, nodeClients node_clients.Node
 		}
 	}
 
-	clusterStateManagerContainer := state.NewContainer()
+	clusterStateManagerContainer := state.NewContainer(local_storage.New())
 
 	localState := nodeClients.LocalStateManager().Get()
 	if localState.ClusterState.PgRootDsn != "" {

@@ -17,7 +17,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/service_manager/plugins"
 	"go.vervstack.ru/Velez/internal/service/service_manager/verv_services"
 	"go.vervstack.ru/Velez/internal/storage"
-	storageplugins "go.vervstack.ru/Velez/internal/storage/plugins"
+	"go.vervstack.ru/Velez/internal/storage/local_storage"
 )
 
 type ServiceManager struct {
@@ -29,8 +29,8 @@ type ServiceManager struct {
 	docker      node_clients.Docker
 	nodeService *nodes_service.Service
 
-	pluginService           service.PluginService
-	pluginsStorageContainer *storage.PluginsStorageContainer
+	pluginService    service.PluginService
+	storageContainer *storage.Container
 }
 
 func New(
@@ -51,9 +51,8 @@ func New(
 
 	cm := container_manager.New(nodeClients, configService)
 
-	dockerStorage := storageplugins.NewDockerImpl(nodeClients.Docker())
-	pluginsContainer := storage.NewPluginsStorageContainer(dockerStorage)
-	svc := plugins.NewPluginService(pluginsContainer)
+	storageContainer := storage.NewStorageContainer(local_storage.New())
+	svc := plugins.NewPluginService(storageContainer)
 
 	sm := &ServiceManager{
 		containerManager: cm,
@@ -64,8 +63,8 @@ func New(
 		docker:      nodeClients.Docker(),
 		nodeService: nodes_service.NewService(clusterClients.StateManager()),
 
-		pluginService:           svc,
-		pluginsStorageContainer: pluginsContainer,
+		pluginService:    svc,
+		storageContainer: storageContainer,
 	}
 
 	// TODO VERV-128
@@ -99,8 +98,8 @@ func (s *ServiceManager) PluginService() service.PluginService {
 	return s.pluginService
 }
 
-func (s *ServiceManager) PluginsStorageContainer() *storage.PluginsStorageContainer {
-	return s.pluginsStorageContainer
+func (s *ServiceManager) StorageContainer() *storage.Container {
+	return s.storageContainer
 }
 
 func handleConfigurationSubscription(configurationService service.ConfigurationService, manager service.Services) {

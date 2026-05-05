@@ -134,8 +134,7 @@ func (p *pipeliner) EnableStatefullMode(req domain.EnableStatefullClusterRequest
 
 				p.clusterClients.StateManager().Set(pgClusterState)
 
-				pgPluginsStorage := pgClusterState.Plugins()
-				p.services.PluginsStorageContainer().Set(pgPluginsStorage)
+				p.services.StorageContainer().Set(pgClusterState)
 
 				localStateManager.SetAndRelease(localState)
 				return nil

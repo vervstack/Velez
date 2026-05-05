@@ -6,7 +6,7 @@
     flex-direction: column;
     gap: 1.25rem;
 
-    .StatsGrid {
+    .StatsGridContainer {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 0.75rem;

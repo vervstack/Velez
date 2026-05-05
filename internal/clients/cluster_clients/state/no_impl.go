@@ -30,7 +30,7 @@ func (n noImpl) Services() storage.ServicesStorage {
 }
 
 func (n noImpl) Nodes() storage.NodesStorage {
-	return nil
+	return &noImplNodes{}
 }
 
 func (n noImpl) Plugins() storage.PluginsStorage {
@@ -38,6 +38,19 @@ func (n noImpl) Plugins() storage.PluginsStorage {
 }
 
 type noImplPg struct {
+}
+
+func (n *noImplPg) InitNode(ctx context.Context) error {
+	return cluster_clients.ErrServiceIsDisabled
+}
+
+func (n *noImplPg) UpdateOnline(ctx context.Context) error {
+	return cluster_clients.ErrServiceIsDisabled
+}
+
+func (n *noImplPg) List(ctx context.Context, req domain.ListNodesReq) (domain.NodesList, error) {
+	return domain.NodesList{}, cluster_clients.ErrServiceIsDisabled
+
 }
 
 func (n *noImplPg) List(ctx context.Context, req domain.ListDeploymentsReq) ([]domain.Deployment, error) {
@@ -56,8 +69,8 @@ func (n *noImplPg) CreateSpecification(ctx context.Context, arg deployments_quer
 	return 0, cluster_clients.ErrServiceIsDisabled
 }
 
-func (n *noImplPg) GetSpecificationById(ctx context.Context, id int64) (deployments_queries.VelezDeploymentSpecification, error) {
-	return deployments_queries.VelezDeploymentSpecification{}, cluster_clients.ErrServiceIsDisabled
+func (n *noImplPg) GetSpecificationById(ctx context.Context, id int64) (deployments_queries.GetSpecificationByIdRow, error) {
+	return deployments_queries.GetSpecificationByIdRow{}, cluster_clients.ErrServiceIsDisabled
 }
 
 func (n *noImplPg) UpdateDeploymentStatus(ctx context.Context, arg deployments_queries.UpdateDeploymentStatusParams) error {
@@ -72,7 +85,7 @@ func (n *noImplPg) WithTx(tx *sql.Tx) *deployments_queries.Queries {
 type noImplPlugins struct {
 }
 
-func (n *noImplPlugins) ListPlugins(_ context.Context) ([]plugins_queries.ListPluginsRow, error) {
+func (n *noImplPlugins) ListPlugins(_ context.Context) ([]domain.PluginBaseInfo, error) {
 	return nil, cluster_clients.ErrServiceIsDisabled
 }
 

@@ -9,6 +9,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
+	"go.vervstack.ru/Velez/internal/storage/postgres/generated/plugins_queries"
 )
 
 var (
@@ -25,12 +26,6 @@ type Storage interface {
 	TxManager() *sqldb.TxManager
 }
 
-type NodesStorage interface {
-	InitNode(ctx context.Context) error
-	UpdateOnline(ctx context.Context) error
-	List(ctx context.Context, req domain.ListNodesReq) (domain.NodesList, error)
-}
-
 type ServicesStorage interface {
 	GetById(ctx context.Context, id int64) (domain.Service, error)
 	GetByName(ctx context.Context, name string) (domain.Service, error)
@@ -45,4 +40,15 @@ type DeploymentsStorage interface {
 
 	deployments_queries.Querier
 	WithTx(tx *sql.Tx) *deployments_queries.Queries
+}
+
+type NodesStorage interface {
+	InitNode(ctx context.Context) error
+	UpdateOnline(ctx context.Context) error
+	List(ctx context.Context, req domain.ListNodesReq) (domain.NodesList, error)
+}
+
+type PluginsStorage interface {
+	ListPlugins(ctx context.Context) ([]domain.PluginBaseInfo, error)
+	UpsertPlugin(ctx context.Context, arg plugins_queries.UpsertPluginParams) error
 }

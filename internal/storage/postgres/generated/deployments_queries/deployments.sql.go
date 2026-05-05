@@ -7,6 +7,7 @@ package deployments_queries
 
 import (
 	"context"
+	"time"
 
 	"github.com/sqlc-dev/pqtype"
 )
@@ -14,25 +15,19 @@ import (
 const createDeployment = `-- name: CreateDeployment :one
 INSERT
 INTO velez.deployments
-    (service_id, node_id, status, spec_id)
-VALUES ($1, $2, $3, $4)
-RETURNING (id, service_id, node_id, created_at, updated_at, status, spec_id)
+    (node_id, status, spec_id)
+VALUES ($1, $2, $3)
+RETURNING (id, node_id, created_at, updated_at, status, spec_id)
 `
 
 type CreateDeploymentParams struct {
-	ServiceID int64
-	NodeID    int32
-	Status    VelezDeploymentStatus
-	SpecID    int64
+	NodeID int32
+	Status VelezDeploymentStatus
+	SpecID int64
 }
 
 func (q *Queries) CreateDeployment(ctx context.Context, arg CreateDeploymentParams) (interface{}, error) {
-	row := q.db.QueryRowContext(ctx, createDeployment,
-		arg.ServiceID,
-		arg.NodeID,
-		arg.Status,
-		arg.SpecID,
-	)
+	row := q.db.QueryRowContext(ctx, createDeployment, arg.NodeID, arg.Status, arg.SpecID)
 	var column_1 interface{}
 	err := row.Scan(&column_1)
 	return column_1, err
@@ -65,9 +60,16 @@ FROM velez.deployment_specifications spec
 WHERE spec.id = $1
 `
 
-func (q *Queries) GetSpecificationById(ctx context.Context, id int64) (VelezDeploymentSpecification, error) {
+type GetSpecificationByIdRow struct {
+	ID          int64
+	Name        string
+	CreatedAt   time.Time
+	VervPayload pqtype.NullRawMessage
+}
+
+func (q *Queries) GetSpecificationById(ctx context.Context, id int64) (GetSpecificationByIdRow, error) {
 	row := q.db.QueryRowContext(ctx, getSpecificationById, id)
-	var i VelezDeploymentSpecification
+	var i GetSpecificationByIdRow
 	err := row.Scan(
 		&i.ID,
 		&i.Name,

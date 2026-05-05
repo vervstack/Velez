@@ -5,6 +5,7 @@
 package nodes_queries
 
 import (
+	"database/sql"
 	"database/sql/driver"
 	"fmt"
 	"time"
@@ -60,7 +61,6 @@ func (ns NullVelezDeploymentStatus) Value() (driver.Value, error) {
 
 type VelezDeployment struct {
 	ID        int64
-	ServiceID int64
 	NodeID    int32
 	SpecID    int64
 	CreatedAt time.Time
@@ -71,18 +71,37 @@ type VelezDeployment struct {
 type VelezDeploymentSpecification struct {
 	ID          int64
 	Name        string
-	CreatedAt   time.Time
+	ServiceID   sql.NullInt64
 	VervPayload pqtype.NullRawMessage
+	CreatedAt   time.Time
 }
 
 type VelezNode struct {
 	ID         int32
 	Name       string
 	LastOnline time.Time
+	IsEnabled  bool
+	Addr       string
+}
+
+type VelezPlugin struct {
+	PluginType string
+	ServiceID  sql.NullInt64
 }
 
 type VelezService struct {
 	ID        int64
 	Name      string
 	CreatedAt time.Time
+}
+
+type VelezSharedVolume struct {
+	ID         int64
+	NodeID     sql.NullInt32
+	VolumeName string
+	ServiceID  int64
+	// You can define a specification to mount a volume to. In case if not null volume will be mounted to all deployments under this specification
+	SpecificationID sql.NullInt64
+	// You can specify a specific deployment to mount a volume to. In case if not null volume will be mounted only to this deployment
+	DeploymentID sql.NullInt64
 }

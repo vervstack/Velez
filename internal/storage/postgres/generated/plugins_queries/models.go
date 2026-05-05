@@ -6,12 +6,102 @@ package plugins_queries
 
 import (
 	"database/sql"
+	"database/sql/driver"
+	"fmt"
 	"time"
+
+	"github.com/sqlc-dev/pqtype"
 )
 
+type VelezDeploymentStatus string
+
+const (
+	VelezDeploymentStatusSCHEDULEDDEPLOYMENT VelezDeploymentStatus = "SCHEDULED_DEPLOYMENT"
+	VelezDeploymentStatusSCHEDULEDDELETION   VelezDeploymentStatus = "SCHEDULED_DELETION"
+	VelezDeploymentStatusSCHEDULEDUPGRADE    VelezDeploymentStatus = "SCHEDULED_UPGRADE"
+	VelezDeploymentStatusRUNNING             VelezDeploymentStatus = "RUNNING"
+	VelezDeploymentStatusFAILED              VelezDeploymentStatus = "FAILED"
+	VelezDeploymentStatusDELETED             VelezDeploymentStatus = "DELETED"
+)
+
+func (e *VelezDeploymentStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = VelezDeploymentStatus(s)
+	case string:
+		*e = VelezDeploymentStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for VelezDeploymentStatus: %T", src)
+	}
+	return nil
+}
+
+type NullVelezDeploymentStatus struct {
+	VelezDeploymentStatus VelezDeploymentStatus
+	Valid                 bool // Valid is true if VelezDeploymentStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullVelezDeploymentStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.VelezDeploymentStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.VelezDeploymentStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullVelezDeploymentStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.VelezDeploymentStatus), nil
+}
+
+type VelezDeployment struct {
+	ID        int64
+	NodeID    int32
+	SpecID    int64
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Status    VelezDeploymentStatus
+}
+
+type VelezDeploymentSpecification struct {
+	ID          int64
+	Name        string
+	ServiceID   sql.NullInt64
+	VervPayload pqtype.NullRawMessage
+	CreatedAt   time.Time
+}
+
+type VelezNode struct {
+	ID         int32
+	Name       string
+	LastOnline time.Time
+	IsEnabled  bool
+	Addr       string
+}
+
 type VelezPlugin struct {
-	PluginType int32
-	State      int32
-	Port       sql.NullInt32
-	UpdatedAt  time.Time
+	PluginType string
+	ServiceID  sql.NullInt64
+}
+
+type VelezService struct {
+	ID        int64
+	Name      string
+	CreatedAt time.Time
+}
+
+type VelezSharedVolume struct {
+	ID         int64
+	NodeID     sql.NullInt32
+	VolumeName string
+	ServiceID  int64
+	// You can define a specification to mount a volume to. In case if not null volume will be mounted to all deployments under this specification
+	SpecificationID sql.NullInt64
+	// You can specify a specific deployment to mount a volume to. In case if not null volume will be mounted only to this deployment
+	DeploymentID sql.NullInt64
 }

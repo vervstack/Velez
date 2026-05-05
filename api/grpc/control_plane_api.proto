@@ -12,12 +12,6 @@ option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
 option (npm_package) = "@vervstack/velez";
 
 service ControlPlaneAPI {
-  rpc ListVervServices(ListVervServices.Request) returns (ListVervServices.Response) {
-    option (google.api.http) = {
-      get: "/api/control_plane/services"
-    };
-  }
-
   rpc EnableService(EnableService.Request) returns (EnableService.Response) {
     option (google.api.http) = {
       post: "/api/control_plane/service/enable"

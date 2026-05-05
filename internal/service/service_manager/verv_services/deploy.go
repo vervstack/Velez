@@ -37,10 +37,9 @@ func (v *VervService) CreateNewDeploy(ctx context.Context, request domain.Create
 			}
 
 			deployment := deployments_queries.CreateDeploymentParams{
-				ServiceID: int64(request.ServiceId),
-				NodeID:    1,
-				Status:    deployments_queries.VelezDeploymentStatusSCHEDULEDDEPLOYMENT,
-				SpecID:    specId,
+				NodeID: 1,
+				Status: deployments_queries.VelezDeploymentStatusSCHEDULEDDEPLOYMENT,
+				SpecID: specId,
 			}
 
 			_, err = q.CreateDeployment(ctx, deployment)
@@ -109,23 +108,27 @@ func (v *VervService) UpgradeDeploy(ctx context.Context, request domain.UpgradeD
 	err = v.txManager.Execute(func(tx *sql.Tx) error {
 		q := v.deploymentsStorage.WithTx(tx)
 
-		newSpecId, err := q.CreateSpecification(ctx, deployments_queries.CreateSpecificationParams{
+		createSpecsParams := deployments_queries.CreateSpecificationParams{
 			Name: uuid.New().String(),
 			VervPayload: pqtype.NullRawMessage{
 				RawMessage: payload,
 				Valid:      true,
 			},
-		})
+		}
+
+		var newSpecId int64
+
+		newSpecId, err = q.CreateSpecification(ctx, createSpecsParams)
 		if err != nil {
 			return rerrors.Wrap(err, "error creating updated spec")
 		}
 
-		_, err = q.CreateDeployment(ctx, deployments_queries.CreateDeploymentParams{
-			ServiceID: int64(request.ServiceId),
-			NodeID:    int32(runningDep.NodeId),
-			Status:    deployments_queries.VelezDeploymentStatusSCHEDULEDUPGRADE,
-			SpecID:    newSpecId,
-		})
+		createDeploymentParams := deployments_queries.CreateDeploymentParams{
+			NodeID: int32(runningDep.NodeId),
+			Status: deployments_queries.VelezDeploymentStatusSCHEDULEDUPGRADE,
+			SpecID: newSpecId,
+		}
+		_, err = q.CreateDeployment(ctx, createDeploymentParams)
 		if err != nil {
 			return rerrors.Wrap(err, "error creating upgrade deployment")
 		}

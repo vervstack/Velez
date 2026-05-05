@@ -3,10 +3,8 @@
 
 CREATE TABLE IF NOT EXISTS velez.plugins
 (
-    plugin_type INT         NOT NULL PRIMARY KEY,
-    state       INT         NOT NULL DEFAULT 0,
-    port        INT,
-    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+    plugin_type TEXT   NOT NULL PRIMARY KEY,
+    service_id  BIGINT NULL REFERENCES velez.services (id)
 );
 
 -- +goose StatementEnd

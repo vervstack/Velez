@@ -65,12 +65,6 @@
     font-weight: 500;
 }
 
-.pluginTag {
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    color: var(--fg-dim);
-}
-
 .statusCell {
     display: flex;
     justify-content: center;

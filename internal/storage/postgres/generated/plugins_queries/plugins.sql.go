@@ -8,19 +8,27 @@ package plugins_queries
 import (
 	"context"
 	"database/sql"
+
+	"github.com/lib/pq"
 )
 
 const listPlugins = `-- name: ListPlugins :many
-SELECT plugin_type,
-       state,
-       port
-FROM velez.plugins
+SELECT velez.plugins.plugin_type,
+       velez.plugins.service_id,
+       array_agg(depl.status)::text[] AS statuses
+FROM velez.plugins AS plugins
+         LEFT JOIN velez.deployment_specifications AS dep_spec
+                   ON dep_spec.service_id = plugins.service_id
+         LEFT JOIN velez.deployments AS depl
+                   ON depl.spec_id = dep_spec.id
+GROUP BY plugins.plugin_type,
+         plugins.service_id
 `
 
 type ListPluginsRow struct {
-	PluginType int32
-	State      int32
-	Port       sql.NullInt32
+	PluginType string
+	ServiceID  sql.NullInt64
+	Statuses   []string
 }
 
 func (q *Queries) ListPlugins(ctx context.Context) ([]ListPluginsRow, error) {
@@ -29,47 +37,37 @@ func (q *Queries) ListPlugins(ctx context.Context) ([]ListPluginsRow, error) {
 		return nil, err
 	}
 	defer rows.Close()
-
-	var items []ListPluginsRow
+	items := []ListPluginsRow{}
 	for rows.Next() {
 		var i ListPluginsRow
-		err = rows.Scan(
-			&i.PluginType,
-			&i.State,
-			&i.Port,
-		)
-		if err != nil {
+		if err := rows.Scan(&i.PluginType, &i.ServiceID, pq.Array(&i.Statuses)); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
 	}
-	err = rows.Close()
-	if err != nil {
+	if err := rows.Close(); err != nil {
 		return nil, err
 	}
-	err = rows.Err()
-	if err != nil {
+	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 	return items, nil
 }
 
 const upsertPlugin = `-- name: UpsertPlugin :exec
-INSERT INTO velez.plugins (plugin_type, state, port, updated_at)
-VALUES ($1, $2, $3, now())
-ON CONFLICT (plugin_type) DO UPDATE
-    SET state      = EXCLUDED.state,
-        port       = EXCLUDED.port,
-        updated_at = now()
+INSERT INTO velez.plugins (plugin_type, service_id)
+VALUES ($1, $2)
+ON CONFLICT (plugin_type)
+    DO UPDATE
+    SET service_id = EXCLUDED.service_id
 `
 
 type UpsertPluginParams struct {
-	PluginType int32
-	State      int32
-	Port       sql.NullInt32
+	PluginType string
+	ServiceID  sql.NullInt64
 }
 
 func (q *Queries) UpsertPlugin(ctx context.Context, arg UpsertPluginParams) error {
-	_, err := q.db.ExecContext(ctx, upsertPlugin, arg.PluginType, arg.State, arg.Port)
+	_, err := q.db.ExecContext(ctx, upsertPlugin, arg.PluginType, arg.ServiceID)
 	return err
 }

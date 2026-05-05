@@ -1,23 +1,20 @@
 import {useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+
+import {NodeBaseInfo, VervService, VervServiceState, VervServiceType} from "@/app/api/velez";
+
 import cls from '@/widgets/controlplane/PluginMatrix.module.css';
+
 import SectionLabel from '@/components/base/SectionLabel';
 import StatusDot from '@/components/base/StatusDot';
 import IconButton from '@/components/base/IconButton';
 import PluginManageDialog from '@/components/complex/PluginManageDialog/PluginManageDialog';
-import {NodeBaseInfo} from "@/app/api/velez";
-import {useNavigate} from 'react-router-dom';
 import {Routes} from '@/app/router/Routes';
 
-interface PluginStatus {
-    pluginName: string;
-    tag: string;
-    nodeStatuses: Record<string, 'enabled' | 'disabled'>;
-    serviceKey?: string;
-}
 
 interface PluginMatrixProps {
     nodes: NodeBaseInfo[];
-    plugins: PluginStatus[];
+    plugins: VervService[];
     onEnable?: (pluginName: string, nodeId: string) => void;
     onDisable?: (pluginName: string, nodeId: string) => void;
 }
@@ -53,7 +50,7 @@ export default function PluginMatrix(props: PluginMatrixProps) {
 }
 
 interface TableProps extends PluginMatrixProps {
-    onManagePlugin: (pluginName: string) => void;
+    onManagePlugin: (pluginName: VervServiceType) => void;
 }
 
 function Table({nodes, plugins, onManagePlugin}: TableProps) {
@@ -70,39 +67,39 @@ function Table({nodes, plugins, onManagePlugin}: TableProps) {
         }
     }
 
-    function renderPlugin(plugin: PluginStatus, pi: number) {
+    function renderPlugin(plugin: VervService, pi: number) {
         const isLast = pi === plugins.length - 1;
-        const isClickable = !!plugin.serviceKey;
 
         function renderCell(n: NodeBaseInfo) {
-            const status = plugin.nodeStatuses[n.id || ''] ?? 'disabled';
-
             return (
-                <div key={n.id} className={cls.statusCell}>
-                    <StatusDot status={status as 'enabled' | 'disabled'}/>
+                <div
+                    key={n.id}
+                    className={cls.statusCell}>
+                    <StatusDot
+                        status={mapVervServiceStateToPluginStatus(plugin.state)}/>
                 </div>
             );
         }
 
         function handleManageClick() {
-            onManagePlugin(plugin.pluginName);
+            onManagePlugin(plugin.type || VervServiceType.unknown_service_type);
         }
 
         return (
             <div
-                key={plugin.pluginName}
+                key={plugin.type}
                 className={cls.TableRow}
                 style={{
                     gridTemplateColumns: colTemplate,
                     borderBottom: isLast ? 'none' : undefined,
                 }}
             >
+                {/*TODO add logic on open dialog when clicked*/}
                 <div
-                    className={`${cls.PluginCell} ${isClickable ? cls.PluginCellClickable : ''}`}
-                    onClick={() => handlePluginNameClick(plugin.serviceKey)}
+                    className={`${cls.PluginCell} ${cls.PluginCellClickable}`}
+                    onClick={() => handlePluginNameClick(plugin.type)}
                 >
-                    <span className={cls.pluginName}>{plugin.pluginName}</span>
-                    <span className={cls.pluginTag}>{plugin.tag}</span>
+                    <span className={cls.pluginName}>{plugin.type?.toString()}</span>
                 </div>
 
                 {nodes.map(renderCell)}
@@ -130,4 +127,19 @@ function Table({nodes, plugins, onManagePlugin}: TableProps) {
             {plugins.map(renderPlugin)}
         </div>
     )
+}
+
+
+function mapVervServiceStateToPluginStatus(state?: VervServiceState): 'running' | 'degraded' | 'stopped' | 'online' | 'offline' | 'enabled' | 'disabled' {
+    switch (state) {
+        case VervServiceState.running:
+            return 'enabled';
+        case VervServiceState.disabled:
+            return 'disabled';
+        case VervServiceState.warning:
+        case VervServiceState.dead:
+            return 'degraded';
+        default:
+            return 'disabled';
+    }
 }

@@ -57,6 +57,26 @@ export type ConnectUserResponse = Record<string, never>;
 
 export type ConnectUser = Record<string, never>;
 
+export type VcnPeer = {
+  id?: string;
+  host?: string;
+  type?: string;
+  status?: string;
+  latency?: string;
+  rx?: string;
+  tx?: string;
+};
+
+export type ListPeersRequest = {
+  namespaceKey?: string;
+};
+
+export type ListPeersResponse = {
+  peers?: VcnPeer[];
+};
+
+export type ListPeers = Record<string, never>;
+
 export class VcnApi {
   static CreateNamespace(this:void, req: CreateVcnNamespaceRequest, initReq?: fm.InitReq): Promise<CreateVcnNamespaceResponse> {
     return fm.fetchRequest<CreateVcnNamespaceResponse>(`/api/vcn/namespaces/new`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
@@ -72,5 +92,8 @@ export class VcnApi {
   }
   static DeleteNamespace(this:void, req: DeleteVcnNamespaceRequest, initReq?: fm.InitReq): Promise<DeleteVcnNamespaceResponse> {
     return fm.fetchRequest<DeleteVcnNamespaceResponse>(`/api/vcn/namespaces/delete`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static ListPeers(this:void, req: ListPeersRequest, initReq?: fm.InitReq): Promise<ListPeersResponse> {
+    return fm.fetchRequest<ListPeersResponse>(`/api/vcn/peers/list`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
 }

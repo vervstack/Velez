@@ -111,6 +111,20 @@ export type ListNodesResponse = {
 
 export type ListNodes = Record<string, never>;
 
+export type Plugin = {
+  type?: VervServiceType;
+  state?: VervServiceState;
+  port?: number;
+};
+
+export type ListPluginsRequest = Record<string, never>;
+
+export type ListPluginsResponse = {
+  plugins?: Plugin[];
+};
+
+export type ListPlugins = Record<string, never>;
+
 export class ControlPlaneAPI {
   static ListVervServices(this:void, req: ListVervServicesRequest, initReq?: fm.InitReq): Promise<ListVervServicesResponse> {
     return fm.fetchRequest<ListVervServicesResponse>(`/api/control_plane/services?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
@@ -123,5 +137,8 @@ export class ControlPlaneAPI {
   }
   static ListNodes(this:void, req: ListNodesRequest, initReq?: fm.InitReq): Promise<ListNodesResponse> {
     return fm.fetchRequest<ListNodesResponse>(`/api/control_plane/nodes/list`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static ListPlugins(this:void, req: ListPluginsRequest, initReq?: fm.InitReq): Promise<ListPluginsResponse> {
+    return fm.fetchRequest<ListPluginsResponse>(`/api/control_plane/plugins?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
   }
 }

@@ -1,8 +1,8 @@
-import {useQuery} from '@tanstack/react-query';
+import {useQuery, UseQueryResult} from '@tanstack/react-query';
 
 import cls from '@/pages/controlplane/ControlPlanePage.module.css';
 
-import {NodeStatus, VervServiceState} from "@/app/api/velez";
+import {ListNodesResponse, NodeStatus} from "@/app/api/velez";
 
 import StatCard, {Level} from '@/components/base/StatCard';
 import NodeHealthList from '@/widgets/controlplane/NodeHealthList';
@@ -10,14 +10,14 @@ import PluginMatrix from '@/widgets/controlplane/PluginMatrix';
 import SkeletonNodeCard from '@/components/node/SkeletonNodeCard';
 
 import {useToaster} from '@/app/hooks/toaster/Toaster';
-import {ListNodes, ListVervServices} from '@/processes/api/control_plane';
+import {ListNodes, ListPlugins} from '@/processes/api/control_plane';
 import {CacheKey} from "@/app/query/Cache.ts";
 import useSettings from '@/app/settings/state';
 import {Service} from '@/model/services/Services';
 
 export default function ControlPlanePage() {
     const toaster = useToaster();
-    const { initReq } = useSettings();
+    const {initReq} = useSettings();
 
     const nodesQuery = useQuery({
         queryKey: [CacheKey.Nodes],
@@ -27,14 +27,36 @@ export default function ControlPlanePage() {
     });
 
     const pluginsQuery = useQuery({
-        queryKey: ['vervServices'],
+        queryKey: [CacheKey.Plugins],
         queryFn: () =>
-            ListVervServices(initReq())
-                .catch((e) => { toaster.catchGrpc(e); return []; }),
+            ListPlugins(initReq())
+                .catch(toaster.catchGrpc)
     });
 
+    return (
+        <div className={cls.ControlPlanePageContainer}>
+            <StatsGrid
+                nodesQuery={nodesQuery}/>
+
+            <NodeList
+                nodesQuery={nodesQuery}
+            />
+
+            <PluginsList
+                pluginsQuery={pluginsQuery}
+                nodesQuery={nodesQuery}
+            />
+
+        </div>
+    );
+}
+
+interface StatsGridProps {
+    nodesQuery: UseQueryResult<void | ListNodesResponse, Error>;
+}
+
+function StatsGrid({nodesQuery}: StatsGridProps) {
     const nodes = nodesQuery.data?.nodes || [];
-    const vervServices = pluginsQuery.data || [];
 
     const onlineCount = nodes
         .filter(n => n.status === NodeStatus.NodeStatus_Online).length;
@@ -43,7 +65,33 @@ export default function ControlPlanePage() {
 
     // TODO add listing services
     const offlineCount = 0;
+    return (
+        <div className={cls.StatsGridContainer}>
+            <StatCard value={nodes.length}
+                      label="Total nodes"
+                      level={Level.INFO}
+            />
+            <StatCard value={onlineCount}
+                      label="Online"
+                      level={Level.Good}
+            />
+            <StatCard value={degradedCount}
+                      label="Degraded"
+                      level={Level.WARN}
+            />
+            <StatCard value={offlineCount}
+                      label="Offline"
+                      level={offlineCount == 0 ? Level.INFO : Level.ERROR}
+            />
+        </div>
+    )
+}
 
+interface NodeListProps {
+    nodesQuery: UseQueryResult<void | ListNodesResponse, Error>;
+}
+
+function NodeList({nodesQuery}: NodeListProps) {
     function handleShell() {
         alert('shell is not available yet');
     }
@@ -52,66 +100,31 @@ export default function ControlPlanePage() {
         alert('drain is not available yet');
     }
 
-    function renderNodeList() {
-        if (nodesQuery.isLoading) {
-            return (
-                <div className={cls.skeletonList}>
-                    <SkeletonNodeCard/>
-                    <SkeletonNodeCard/>
-                    <SkeletonNodeCard/>
-                </div>
-            );
-        }
+    if (nodesQuery.isLoading) {
         return (
-            <NodeHealthList
-                nodes={nodes}
-                onShell={handleShell}
-                onDrain={handleDrain}
-            />
+            <div className={cls.skeletonList}>
+                <SkeletonNodeCard/>
+                <SkeletonNodeCard/>
+                <SkeletonNodeCard/>
+            </div>
         );
     }
 
     return (
-        <div className={cls.ControlPlanePageContainer}>
-            <div className={cls.StatsGrid}>
-                <StatCard value={nodes.length}
-                          label="Total nodes"
-                          level={Level.INFO}
-                />
-                <StatCard value={onlineCount}
-                          label="Online"
-                          level={Level.Good}
-                />
-                <StatCard value={degradedCount}
-                          label="Degraded"
-                          level={Level.WARN}
-                />
-                <StatCard value={offlineCount}
-                          label="Offline"
-                          level={offlineCount == 0 ? Level.INFO : Level.ERROR}
-                />
-            </div>
-
-            {renderNodeList()}
-
-            {mapPluginsForDisplay(vervServices, nodes)}
-        </div>
+        <NodeHealthList
+            nodes={nodesQuery.data?.nodes || []}
+            onShell={handleShell}
+            onDrain={handleDrain}
+        />
     );
 }
 
-function mapPluginsForDisplay(vervServices: Service[], nodes: any[]) {
-    const plugins = vervServices.map(function mapService(service) {
-        return {
-            pluginName: service.type || 'unknown',
-            tag: 'service',
-            nodeStatuses: nodes.reduce((acc, node) => {
-                acc[node.id || ''] = mapVervServiceStateToPluginStatus(service.state) as 'enabled' | 'disabled';
-                return acc;
-            }, {} as Record<string, 'enabled' | 'disabled'>),
-            serviceKey: service.type || 'unknown',
-        };
-    });
+interface PluginsListProps {
+    pluginsQuery: UseQueryResult<void | Service[], Error>;
+    nodesQuery: UseQueryResult<void | ListNodesResponse, Error>;
+}
 
+function PluginsList({pluginsQuery, nodesQuery}: PluginsListProps) {
     function handleEnable(pluginName: string, nodeId: string) {
         alert(`not implemented: enable ${pluginName} on ${nodeId}`);
     }
@@ -120,20 +133,13 @@ function mapPluginsForDisplay(vervServices: Service[], nodes: any[]) {
         alert(`not implemented: disable ${pluginName} on ${nodeId}`);
     }
 
-    return <PluginMatrix nodes={nodes} plugins={plugins} onEnable={handleEnable} onDisable={handleDisable} />;
-}
 
-function mapVervServiceStateToPluginStatus(state?: VervServiceState): 'enabled' | 'disabled' | 'error' {
-    switch (state) {
-        case VervServiceState.running:
-            return 'enabled';
-        case VervServiceState.disabled:
-            return 'disabled';
-        case VervServiceState.warning:
-        case VervServiceState.dead:
-            return 'error';
-        default:
-            return 'disabled';
-    }
+    return (
+        <PluginMatrix
+            nodes={nodesQuery.data?.nodes || []}
+            plugins={pluginsQuery.data || []}
+            onEnable={handleEnable}
+            onDisable={handleDisable}/>
+    )
 }
 

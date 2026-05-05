@@ -29,19 +29,21 @@ func (p *pluginService) ListPlugins(ctx context.Context) (*pb.ListPlugins_Respon
 
 	for _, row := range rows {
 		plugin := &pb.Plugin{
-			Type:  pb.VervServiceType(row.PluginType),
-			State: pb.VervService_State(row.State),
+			Type:  pb.VervServiceType(pb.VervServiceType_value[row.Name]),
+			State: row.State,
 		}
 
-		if row.Port.Valid {
-			port := uint32(row.Port.Int32)
-			plugin.Port = &port
-		}
+		//TODO get from service
+		//if row.Port.Valid {
+		//	port := uint32(row.Port.Int32)
+		//	plugin.Port = &port
+		//}
 
 		active = append(active, plugin)
 	}
 
-	result := append(active, listInactivePlugins(active)...)
+	result := append(active,
+		listInactivePlugins(active)...)
 
 	sort.Slice(result, func(i, j int) bool {
 		return result[i].Type < result[j].Type

@@ -4,13 +4,9 @@ import (
 	"context"
 	"sync/atomic"
 
+	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/plugins_queries"
 )
-
-type PluginsStorage interface {
-	ListPlugins(ctx context.Context) ([]plugins_queries.ListPluginsRow, error)
-	UpsertPlugin(ctx context.Context, arg plugins_queries.UpsertPluginParams) error
-}
 
 type PluginsStorageContainer struct {
 	impl atomic.Pointer[PluginsStorage]
@@ -26,7 +22,7 @@ func (c *PluginsStorageContainer) Set(impl PluginsStorage) {
 	c.impl.Store(&impl)
 }
 
-func (c *PluginsStorageContainer) ListPlugins(ctx context.Context) ([]plugins_queries.ListPluginsRow, error) {
+func (c *PluginsStorageContainer) ListPlugins(ctx context.Context) ([]domain.PluginBaseInfo, error) {
 	l := c.impl.Load()
 	return (*l).ListPlugins(ctx)
 }

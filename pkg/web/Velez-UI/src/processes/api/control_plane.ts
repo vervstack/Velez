@@ -1,6 +1,6 @@
 import {
     ControlPlaneAPI,
-    ListVervServicesRequest,
+    ListPluginsRequest,
     EnableServiceRequest,
     VervServiceType,
     EnableStatefullCluster, ListNodesResponse, ListNodesRequest,
@@ -18,11 +18,11 @@ export async function ListNodes(): Promise<ListNodesResponse> {
     return ControlPlaneAPI.ListNodes(req, GetInitReq())
 }
 
-export async function ListVervServices(initReq: InitReq): Promise<Service[]> {
-    const req: ListVervServicesRequest = {} as ListVervServicesRequest
+export async function ListPlugins(initReq: InitReq): Promise<Service[]> {
+    const req: ListPluginsRequest = {} as ListPluginsRequest
 
-    const list = await ControlPlaneAPI.ListVervServices(req, initReq);
-    return toServices(list.services || []);
+    const list = await ControlPlaneAPI.ListPlugins(req, initReq);
+    return toServices(list.plugins || []);
 }
 
 

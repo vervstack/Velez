@@ -4,7 +4,10 @@ import (
 	"context"
 	"database/sql"
 
-	"go.vervstack.ru/Velez/internal/storage"
+	"go.redsock.ru/rerrors"
+
+	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/plugins_queries"
 )
 
@@ -18,12 +21,63 @@ func newPluginsStorage(db *sql.DB) *pluginsStorage {
 	}
 }
 
-func (p *pluginsStorage) ListPlugins(ctx context.Context) ([]plugins_queries.ListPluginsRow, error) {
-	return p.querier.ListPlugins(ctx)
+func (p *pluginsStorage) ListPlugins(ctx context.Context) ([]domain.PluginBaseInfo, error) {
+	plugins, err := p.querier.ListPlugins(ctx)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error listing plugins")
+	}
+
+	result := make([]domain.PluginBaseInfo, 0, len(plugins))
+	for _, pluginRow := range plugins {
+
+		plugin := domain.PluginBaseInfo{
+			Name:  pluginRow.PluginType,
+			State: 0,
+		}
+
+		if pluginRow.ServiceID.Valid {
+			plugin.ServiceId = &pluginRow.ServiceID.Int64
+		}
+
+		plugin.State = calculatePluginState(pluginRow.Statuses)
+
+		result = append(result, plugin)
+	}
+
+	return result, nil
 }
 
 func (p *pluginsStorage) UpsertPlugin(ctx context.Context, arg plugins_queries.UpsertPluginParams) error {
 	return p.querier.UpsertPlugin(ctx, arg)
 }
 
-var _ storage.PluginsStorage = (*pluginsStorage)(nil)
+func calculatePluginState(statusesArr []string) pb.VervService_State {
+	isRunning := false
+	isDeleted := false
+	for _, status := range statusesArr {
+		switch plugins_queries.VelezDeploymentStatus(status) {
+		case plugins_queries.VelezDeploymentStatusFAILED:
+			return pb.VervService_dead
+
+		case plugins_queries.VelezDeploymentStatusRUNNING:
+			isRunning = true
+
+		case plugins_queries.VelezDeploymentStatusDELETED:
+			isDeleted = true
+
+		case plugins_queries.VelezDeploymentStatusSCHEDULEDUPGRADE,
+			plugins_queries.VelezDeploymentStatusSCHEDULEDDEPLOYMENT:
+			return pb.VervService_warning
+		}
+	}
+
+	if isRunning {
+		return pb.VervService_running
+	}
+
+	if isDeleted {
+		return pb.VervService_disabled
+	}
+
+	return pb.VervService_unknown
+}

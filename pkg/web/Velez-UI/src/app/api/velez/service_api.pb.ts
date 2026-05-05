@@ -120,6 +120,9 @@ export type ListServices = Record<string, never>;
 export type ServiceBaseInfo = {
   name?: string;
   lastDeployedAt?: GoogleProtobufTimestamp.Timestamp;
+  imageName?: string;
+  status?: string;
+  env?: string;
 };
 
 export type StopServiceRequest = {

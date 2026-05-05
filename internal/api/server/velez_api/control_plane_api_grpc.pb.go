@@ -23,6 +23,7 @@ const (
 	ControlPlaneAPI_EnableService_FullMethodName    = "/velez_api.ControlPlaneAPI/EnableService"
 	ControlPlaneAPI_ConnectSlave_FullMethodName     = "/velez_api.ControlPlaneAPI/ConnectSlave"
 	ControlPlaneAPI_ListNodes_FullMethodName        = "/velez_api.ControlPlaneAPI/ListNodes"
+	ControlPlaneAPI_ListPlugins_FullMethodName      = "/velez_api.ControlPlaneAPI/ListPlugins"
 )
 
 // ControlPlaneAPIClient is the client API for ControlPlaneAPI service.
@@ -34,6 +35,7 @@ type ControlPlaneAPIClient interface {
 	// ConnectSlave - used by other Velez nodes to connect to cluster
 	ConnectSlave(ctx context.Context, in *ConnectSlave_Request, opts ...grpc.CallOption) (*ConnectSlave_Response, error)
 	ListNodes(ctx context.Context, in *ListNodes_Request, opts ...grpc.CallOption) (*ListNodes_Response, error)
+	ListPlugins(ctx context.Context, in *ListPlugins_Request, opts ...grpc.CallOption) (*ListPlugins_Response, error)
 }
 
 type controlPlaneAPIClient struct {
@@ -84,6 +86,16 @@ func (c *controlPlaneAPIClient) ListNodes(ctx context.Context, in *ListNodes_Req
 	return out, nil
 }
 
+func (c *controlPlaneAPIClient) ListPlugins(ctx context.Context, in *ListPlugins_Request, opts ...grpc.CallOption) (*ListPlugins_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListPlugins_Response)
+	err := c.cc.Invoke(ctx, ControlPlaneAPI_ListPlugins_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ControlPlaneAPIServer is the server API for ControlPlaneAPI service.
 // All implementations must embed UnimplementedControlPlaneAPIServer
 // for forward compatibility.
@@ -93,6 +105,7 @@ type ControlPlaneAPIServer interface {
 	// ConnectSlave - used by other Velez nodes to connect to cluster
 	ConnectSlave(context.Context, *ConnectSlave_Request) (*ConnectSlave_Response, error)
 	ListNodes(context.Context, *ListNodes_Request) (*ListNodes_Response, error)
+	ListPlugins(context.Context, *ListPlugins_Request) (*ListPlugins_Response, error)
 	mustEmbedUnimplementedControlPlaneAPIServer()
 }
 
@@ -114,6 +127,9 @@ func (UnimplementedControlPlaneAPIServer) ConnectSlave(context.Context, *Connect
 }
 func (UnimplementedControlPlaneAPIServer) ListNodes(context.Context, *ListNodes_Request) (*ListNodes_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListNodes not implemented")
+}
+func (UnimplementedControlPlaneAPIServer) ListPlugins(context.Context, *ListPlugins_Request) (*ListPlugins_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListPlugins not implemented")
 }
 func (UnimplementedControlPlaneAPIServer) mustEmbedUnimplementedControlPlaneAPIServer() {}
 func (UnimplementedControlPlaneAPIServer) testEmbeddedByValue()                         {}
@@ -208,6 +224,24 @@ func _ControlPlaneAPI_ListNodes_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ControlPlaneAPI_ListPlugins_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListPlugins_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControlPlaneAPIServer).ListPlugins(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ControlPlaneAPI_ListPlugins_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControlPlaneAPIServer).ListPlugins(ctx, req.(*ListPlugins_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ControlPlaneAPI_ServiceDesc is the grpc.ServiceDesc for ControlPlaneAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -230,6 +264,10 @@ var ControlPlaneAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListNodes",
 			Handler:    _ControlPlaneAPI_ListNodes_Handler,
+		},
+		{
+			MethodName: "ListPlugins",
+			Handler:    _ControlPlaneAPI_ListPlugins_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

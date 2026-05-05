@@ -20,6 +20,7 @@ type Storage interface {
 	Nodes() NodesStorage
 	Services() ServicesStorage
 	Deployments() DeploymentsStorage
+	Plugins() PluginsStorage
 
 	TxManager() *sqldb.TxManager
 }

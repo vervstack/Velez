@@ -9,7 +9,7 @@ warmup:
 	PROTOPACKPATH=proto_deps protopack mod download
 # generates code on warm project
 codegen:
-	PROTOPACKPATH=proto_deps protopack generate
+	moti g
 	cd pkg/web/@vervstack/velez && npm run build
 
 lint:

@@ -48,6 +48,28 @@
         ]
       }
     },
+    "/api/control_plane/plugins": {
+      "get": {
+        "operationId": "ControlPlaneAPI_ListPlugins",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListPluginsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "ControlPlaneAPI"
+        ]
+      }
+    },
     "/api/control_plane/service/enable": {
       "post": {
         "operationId": "ControlPlaneAPI_EnableService",
@@ -271,6 +293,18 @@
         }
       }
     },
+    "velez_apiListPluginsResponse": {
+      "type": "object",
+      "properties": {
+        "plugins": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiPlugin"
+          }
+        }
+      }
+    },
     "velez_apiListVervServicesResponse": {
       "type": "object",
       "properties": {
@@ -321,6 +355,21 @@
         "offset": {
           "type": "string",
           "format": "uint64"
+        }
+      }
+    },
+    "velez_apiPlugin": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/velez_apiVervServiceType"
+        },
+        "state": {
+          "$ref": "#/definitions/VervServiceState"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64"
         }
       }
     },

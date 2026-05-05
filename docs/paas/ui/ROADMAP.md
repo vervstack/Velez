@@ -137,9 +137,9 @@ Task order: T33 first (layout shell), then T34 + T35 in any order.
 
 ## Backend Milestone 3 — Plugin Service
 
-| #      | Task                                                                                                 | Files                                                                                                                                           |
-|--------|------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| B3-T01 | [Plugin service with dual-mode storage and hot-switch](../../backend/tasks/B3-T01-plugin-service.md) | `control_plane_api.proto`, `internal/service/plugin_service.go`, `service_manager/plugins/`, `transport/control_plane_api_impl/list_plugins.go` |
+| #          | Task                                                                                                     | Files                                                                                                                                               |
+|------------|----------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| ~~B3-T01~~ | ~~[Plugin service with dual-mode storage and hot-switch](../../backend/tasks/B3-T01-plugin-service.md)~~ | ~~`control_plane_api.proto`, `internal/service/plugin_service.go`, `service_manager/plugins/`, `transport/control_plane_api_impl/list_plugins.go`~~ |
 
 ---
 

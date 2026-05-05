@@ -39,6 +39,12 @@ service ControlPlaneAPI {
       body: "*"
     };
   }
+
+  rpc ListPlugins(ListPlugins.Request) returns (ListPlugins.Response) {
+    option (google.api.http) = {
+      get: "/api/control_plane/plugins"
+    };
+  }
 }
 
 message ListVervServices {
@@ -135,5 +141,18 @@ message ListNodes {
   message Response {
     repeated NodeBaseInfo nodes = 1;
     uint64 total = 2;
+  }
+}
+
+message Plugin {
+  VervServiceType type = 1;
+  VervService.State state = 2;
+  optional uint32 port = 3;
+}
+
+message ListPlugins {
+  message Request {}
+  message Response {
+    repeated Plugin plugins = 1;
   }
 }

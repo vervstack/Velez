@@ -114,6 +114,12 @@ func (c *Custom) InitServiceLayer(a *App) error {
 		return rerrors.Wrap(err, "error initializing service manager")
 	}
 
+	localState := c.NodeClients.LocalStateManager().Get()
+	if localState.ClusterState.PgNodeDsn != "" {
+		pgPluginsStorage := c.ClusterClients.StateManager().Plugins()
+		c.Services.PluginsStorageContainer().Set(pgPluginsStorage)
+	}
+
 	c.Pipeliner = pipelines.NewPipeliner(c.NodeClients, c.ClusterClients, c.Services)
 
 	logrus.Info("shut down on exit is set to: ", a.Cfg.Environment.ShutDownOnExit)

@@ -1,7 +1,7 @@
 ---
 id: "B3-T01"
 title: "Plugin service with dual-mode storage and hot-switch"
-status: "pending"
+status: "done"
 created: "2026-05-05"
 branch: "task/B3-T01-plugin-service"
 ---

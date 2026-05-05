@@ -66,6 +66,16 @@ func (s *stateManager) TxManager() *sqldb.TxManager {
 	return cm.TxManager()
 }
 
+func (s *stateManager) Plugins() storage.PluginsStorage {
+	l := s.state.Load()
+	cm, ok := (*l).(cluster_clients.ClusterStateManager)
+	if !ok {
+		return nil
+	}
+
+	return cm.Plugins()
+}
+
 func (s *stateManager) tryConnect() {
 
 }

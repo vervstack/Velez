@@ -18,17 +18,19 @@ type Impl struct {
 
 	pipeliner pipelines.Pipeliner
 
-	smerdManager service.ContainerService
-	nodeService  service.NodeService
+	smerdManager  service.ContainerService
+	nodeService   service.NodeService
+	pluginService service.PluginService
 }
 
 func New(srv service.Services, pipeliner pipelines.Pipeliner) *Impl {
 	return &Impl{
-		velez_api.UnimplementedControlPlaneAPIServer{},
-		pipeliner,
+		UnimplementedControlPlaneAPIServer: velez_api.UnimplementedControlPlaneAPIServer{},
+		pipeliner:                          pipeliner,
 
-		srv.SmerdManager(),
-		srv.NodeService(),
+		smerdManager:  srv.SmerdManager(),
+		nodeService:   srv.NodeService(),
+		pluginService: srv.PluginService(),
 	}
 }
 

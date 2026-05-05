@@ -9,6 +9,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
+	"go.vervstack.ru/Velez/internal/storage/postgres/generated/plugins_queries"
 )
 
 type noImpl struct {
@@ -30,6 +31,10 @@ func (n noImpl) Services() storage.ServicesStorage {
 
 func (n noImpl) Nodes() storage.NodesStorage {
 	return nil
+}
+
+func (n noImpl) Plugins() storage.PluginsStorage {
+	return &noImplPlugins{}
 }
 
 type noImplPg struct {
@@ -62,4 +67,15 @@ func (n *noImplPg) UpdateDeploymentStatus(ctx context.Context, arg deployments_q
 func (n *noImplPg) WithTx(tx *sql.Tx) *deployments_queries.Queries {
 	q := deployments_queries.Queries{}
 	return q.WithTx(tx)
+}
+
+type noImplPlugins struct {
+}
+
+func (n *noImplPlugins) ListPlugins(_ context.Context) ([]plugins_queries.ListPluginsRow, error) {
+	return nil, cluster_clients.ErrServiceIsDisabled
+}
+
+func (n *noImplPlugins) UpsertPlugin(_ context.Context, _ plugins_queries.UpsertPluginParams) error {
+	return cluster_clients.ErrServiceIsDisabled
 }

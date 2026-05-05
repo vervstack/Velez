@@ -17,6 +17,7 @@ type Storage struct {
 	nodeStorage        *nodeStorage
 	servicesStorage    *servicesStorage
 	deploymentsStorage *deploymentsStorage
+	pluginsStorage     *pluginsStorage
 
 	txManager *sqldb.TxManager
 }
@@ -30,6 +31,7 @@ func New(db *sql.DB) storage.Storage {
 		},
 
 		deploymentsStorage: newDeploymentsStorage(db),
+		pluginsStorage:     newPluginsStorage(db),
 		txManager:          sqldb.NewTxManager(db),
 	}
 }
@@ -44,6 +46,10 @@ func (s *Storage) Services() storage.ServicesStorage {
 
 func (s *Storage) Deployments() storage.DeploymentsStorage {
 	return s.deploymentsStorage
+}
+
+func (s *Storage) Plugins() storage.PluginsStorage {
+	return s.pluginsStorage
 }
 
 func (s *Storage) TxManager() *sqldb.TxManager {

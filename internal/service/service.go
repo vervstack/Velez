@@ -9,6 +9,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/storage"
 )
 
 type Services interface {
@@ -19,6 +20,8 @@ type Services interface {
 
 	VervServices() VervServicesService
 	NodeService() NodeService
+	PluginService() PluginService
+	PluginsStorageContainer() *storage.PluginsStorageContainer
 }
 
 type ContainerService interface {
@@ -54,4 +57,8 @@ type VervServicesService interface {
 
 type NodeService interface {
 	ListNodes(ctx context.Context, req domain.ListNodesReq) (domain.NodesList, error)
+}
+
+type PluginService interface {
+	ListPlugins(ctx context.Context) (*velez_api.ListPlugins_Response, error)
 }

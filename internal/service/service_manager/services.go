@@ -14,7 +14,10 @@ import (
 	"go.vervstack.ru/Velez/internal/service/service_manager/configurator"
 	"go.vervstack.ru/Velez/internal/service/service_manager/container_manager"
 	"go.vervstack.ru/Velez/internal/service/service_manager/nodes_service"
+	"go.vervstack.ru/Velez/internal/service/service_manager/plugins"
 	"go.vervstack.ru/Velez/internal/service/service_manager/verv_services"
+	"go.vervstack.ru/Velez/internal/storage"
+	storageplugins "go.vervstack.ru/Velez/internal/storage/plugins"
 )
 
 type ServiceManager struct {
@@ -25,6 +28,9 @@ type ServiceManager struct {
 
 	docker      node_clients.Docker
 	nodeService *nodes_service.Service
+
+	pluginService           service.PluginService
+	pluginsStorageContainer *storage.PluginsStorageContainer
 }
 
 func New(
@@ -45,14 +51,21 @@ func New(
 
 	cm := container_manager.New(nodeClients, configService)
 
-	sm := &ServiceManager{
-		cm,
-		configService,
-		clusterClients.Vpn(),
-		verv_services.New(clusterClients.StateManager(), cm, nodeClients.Docker()),
+	dockerStorage := storageplugins.NewDockerImpl(nodeClients.Docker())
+	pluginsContainer := storage.NewPluginsStorageContainer(dockerStorage)
+	svc := plugins.NewPluginService(pluginsContainer)
 
-		nodeClients.Docker(),
-		nodes_service.NewService(clusterClients.StateManager()),
+	sm := &ServiceManager{
+		containerManager: cm,
+		configurator:     configService,
+		vpnService:       clusterClients.Vpn(),
+		vervServices:     verv_services.New(clusterClients.StateManager(), cm, nodeClients.Docker()),
+
+		docker:      nodeClients.Docker(),
+		nodeService: nodes_service.NewService(clusterClients.StateManager()),
+
+		pluginService:           svc,
+		pluginsStorageContainer: pluginsContainer,
 	}
 
 	// TODO VERV-128
@@ -80,6 +93,14 @@ func (s *ServiceManager) Docker() node_clients.Docker {
 
 func (s *ServiceManager) NodeService() service.NodeService {
 	return s.nodeService
+}
+
+func (s *ServiceManager) PluginService() service.PluginService {
+	return s.pluginService
+}
+
+func (s *ServiceManager) PluginsStorageContainer() *storage.PluginsStorageContainer {
+	return s.pluginsStorageContainer
 }
 
 func handleConfigurationSubscription(configurationService service.ConfigurationService, manager service.Services) {

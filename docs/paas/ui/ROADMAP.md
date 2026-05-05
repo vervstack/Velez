@@ -104,6 +104,36 @@ but T31 can land first to wire available fields and show real service names imme
 
 ---
 
+## Milestone 8 — Plugin Management UX
+
+| #       | Task                                                                                                        | Files                                                          |
+|---------|-------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
+| ~~T32~~ | ~~[PluginMatrix: enable/disable actions + service page navigation](tasks/M8-T32-plugin-matrix-actions.md)~~ | ~~`PluginMatrix.tsx` + `.module.css`, `ControlPlanePage.tsx`~~ |
+
+---
+
+## Milestone 9 — Service Page
+
+Rebuild `ServiceInfoPage` with the new design system and extend it with observability links,
+environment tabs, and a tags strip. Backend companion task **B2-T01** adds Docker runtime stats
+(CPU%, memory) to power the Overview stats section.
+
+Task order: T33 first (layout shell), then T34 + T35 in any order.
+
+| #   | Task                                                                                        | Depends on | Files                                                                                           |
+|-----|---------------------------------------------------------------------------------------------|------------|-------------------------------------------------------------------------------------------------|
+| T33 | [ServiceInfoPage — full redesign with design system](tasks/M9-T33-service-page-redesign.md) | —          | `ServiceInfoPage.tsx` + `.module.css`, `parts/Header.*`                                         |
+| T34 | [ObservabilityLinksPanel widget](tasks/M9-T34-observability-links.md)                       | T33        | `widgets/service/ObservabilityLinksPanel.*`, `useSettings.ts`, `SettingsWidget.tsx`             |
+| T35 | [Environment tab switcher + tags strip](tasks/M9-T35-service-env-tags.md)                   | T33        | `ServiceInfoPage.tsx`, `processes/mappings/smerds.ts`                                           |
+| T36 | [Fix sidebar active nav highlight](tasks/M9-T36-sidebar-active-nav.md)                      | —          | `Sidebar.tsx`                                                                                   |
+| T37 | [Settings page + sidebar wiring](tasks/M9-T37-settings-page.md)                             | —          | `src/pages/settings/SettingsPage.*`, `Router.tsx`, `Routes.ts`, `Sidebar.tsx`, `MainLayout.tsx` |
+
+**Backend companion task:** [
+`docs/paas/backend/tasks/B2-T01-service-runtime-stats.md`](../backend/tasks/B2-T01-service-runtime-stats.md) — adds
+`GetServiceStats` RPC (CPU%, memory from Docker stats). Unlocks runtime stats display in T33's Overview tab placeholder.
+
+---
+
 ## Coding Rules (must be followed in every task)
 
 - **Function declarations only** — no `const Foo = () => {}`. Use `function Foo() {}`.

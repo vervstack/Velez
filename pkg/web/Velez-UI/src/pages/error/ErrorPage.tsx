@@ -1,9 +1,6 @@
-import PageHeader from "@/segments/PageHeader.tsx";
-
 export default function ErrorPage() {
     return (
         <div>
-            <PageHeader/>
             Not implemented
         </div>
     )

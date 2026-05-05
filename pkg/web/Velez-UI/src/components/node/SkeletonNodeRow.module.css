@@ -1,0 +1,15 @@
+.SkeletonNodeRowContainer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4375rem 0.5rem;
+    border-radius: 0.4375rem;
+    margin-bottom: 0.125rem;
+}
+
+.info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}

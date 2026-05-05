@@ -1,0 +1,49 @@
+.AppsPageContainer {
+    padding: 1.25rem 1.5rem;
+    overflow-y: auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
+.search {
+    height: 2rem;
+    padding: 0 0.75rem;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 0.78125rem;
+    outline: none;
+    width: 18rem;
+
+    &:focus {
+        border-color: var(--border-m);
+    }
+
+    &::placeholder {
+        color: var(--fg-faint);
+    }
+}
+
+.count {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--fg-dim);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+    gap: 0.75rem;
+    align-content: start;
+}

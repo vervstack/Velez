@@ -38,10 +38,19 @@ function mapPluginsForDisplay(vervServices: Service[], nodes: any[]) {
                 acc[node.id || ''] = mapVervServiceStateToPluginStatus(service.state) as 'enabled' | 'disabled';
                 return acc;
             }, {} as Record<string, 'enabled' | 'disabled'>),
+            serviceKey: service.type || 'unknown',
         };
     });
 
-    return <PluginMatrix nodes={nodes} plugins={plugins} />;
+    function handleEnable(pluginName: string, nodeId: string) {
+        alert(`not implemented: enable ${pluginName} on ${nodeId}`);
+    }
+
+    function handleDisable(pluginName: string, nodeId: string) {
+        alert(`not implemented: disable ${pluginName} on ${nodeId}`);
+    }
+
+    return <PluginMatrix nodes={nodes} plugins={plugins} onEnable={handleEnable} onDisable={handleDisable} />;
 }
 
 export default function ControlPlanePage() {

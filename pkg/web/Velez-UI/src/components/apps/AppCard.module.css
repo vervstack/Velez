@@ -1,0 +1,84 @@
+.AppCardContainer {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    animation: fadeUp 0.3s ease both;
+}
+
+.AppCardContainer:hover {
+    background: var(--bg3);
+    border-color: var(--border-m);
+}
+
+
+.extra {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.22s ease;
+}
+
+.AppCardContainer:hover .extra {
+    max-height: 10rem;
+}
+
+.divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0.5rem 0;
+}
+
+.detailsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 0.75rem;
+    margin-bottom: 0.625rem;
+}
+
+.detailRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.detailLabel {
+    font-family: var(--font-mono);
+    font-size: 0.59375rem;
+    color: var(--fg-dim);
+}
+
+.detailValue {
+    font-family: var(--font-mono);
+    font-size: 0.59375rem;
+    color: var(--fg-mid);
+}
+
+.actionButtons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.625rem;
+}
+
+.actionButton {
+    flex: 1;
+    padding: 0.375rem 0.5rem;
+    background: var(--bg1);
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) - 1px);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.actionButton:hover {
+    background: var(--border);
+    border-color: var(--border-m);
+}
+
+.actionButton:active {
+    background: var(--border-m);
+}

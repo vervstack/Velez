@@ -6,12 +6,18 @@ import (
 )
 
 type localStorage struct {
-	nodes *nodes
+	nodes       *nodes
+	services    *services
+	deployments *deployments
+	plugins     *plugins
 }
 
 func New() storage.Storage {
 	return &localStorage{
-		newNodesStorage(),
+		nodes:       newNodesStorage(),
+		services:    newServicesStorage(),
+		deployments: newDeploymentsStorage(),
+		plugins:     newPluginsStorage(),
 	}
 }
 
@@ -20,15 +26,15 @@ func (l *localStorage) Nodes() storage.NodesStorage {
 }
 
 func (l *localStorage) Services() storage.ServicesStorage {
-	return nil // TODO
+	return l.services
 }
 
 func (l *localStorage) Deployments() storage.DeploymentsStorage {
-	return nil // TODO
+	return l.deployments
 }
 
 func (l *localStorage) Plugins() storage.PluginsStorage {
-	return nil // TODO
+	return l.plugins
 }
 
 func (l *localStorage) TxManager() *sqldb.TxManager {

@@ -23,7 +23,7 @@ import (
 type clusterClients struct {
 	matreshka        matreshka.Client
 	serviceDiscovery *makosh.ServiceDiscovery
-	headscale        cluster_clients.VervClosedNetworkClient
+	vcn              cluster_clients.VervClosedNetworkClient
 	stateManager     cluster_clients.ClusterStateManagerContainer
 }
 
@@ -74,10 +74,10 @@ func Setup(ctx context.Context, cfg config.Config, nodeClients node_clients.Node
 	}
 
 	return &clusterClients{
-		cfgClient,
-		sdClient,
-		vcnClient,
-		clusterStateManagerContainer,
+		matreshka:        cfgClient,
+		serviceDiscovery: sdClient,
+		vcn:              vcnClient,
+		stateManager:     clusterStateManagerContainer,
 	}, nil
 }
 
@@ -90,10 +90,10 @@ func (c *clusterClients) Configurator() cluster_clients.Configurator {
 }
 
 func (c *clusterClients) Vpn() cluster_clients.VervClosedNetworkClient {
-	if c.headscale == nil {
+	if c.vcn == nil {
 		return &verv_closed_network.DisabledVcnImpl{}
 	}
-	return c.headscale
+	return c.vcn
 }
 
 func (c *clusterClients) ServiceDiscovery() cluster_clients.ServiceDiscovery {

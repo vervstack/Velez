@@ -17,6 +17,8 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     min-width: 24rem;
     max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .ModalHeader {
@@ -37,5 +39,141 @@
 
 .ModalContent {
     padding: 1.25rem;
-    min-height: 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.StatusSection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.StatusLabel {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--fg-muted);
+}
+
+.StatusRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.StatusText {
+    font-size: 0.875rem;
+    color: var(--fg);
+    text-transform: capitalize;
+}
+
+.ActionSection {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.EnableButton {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--fg-inverse);
+    background: var(--primary, #2563eb);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.EnableButton:hover:not(:disabled) {
+    background: var(--primary-hover, #1d4ed8);
+}
+
+.EnableButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.CheckboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+.CheckboxLabel input[type="checkbox"] {
+    cursor: pointer;
+}
+
+.RadioGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.RadioLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+.RadioLabel input[type="radio"] {
+    cursor: pointer;
+}
+
+.ConfigSection {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--bg-secondary, rgba(255, 255, 255, 0.03));
+    border-radius: var(--radius);
+}
+
+.InputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.InputLabel {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--fg-muted);
+}
+
+.PortInput,
+.ConfigInput {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--fg);
+    background: var(--input-bg, var(--bg));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.PortInput:focus,
+.ConfigInput:focus {
+    outline: none;
+    border-color: var(--primary, #2563eb);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.PortInput:disabled,
+.ConfigInput:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.DisabledMessage {
+    padding: 1rem;
+    font-size: 0.875rem;
+    color: var(--fg-muted);
+    background: var(--bg-secondary, rgba(255, 255, 255, 0.03));
+    border-radius: var(--radius);
+    text-align: center;
 }

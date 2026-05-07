@@ -14,6 +14,7 @@ import {useQuery} from "@tanstack/react-query";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 
 type NavId = 'controlplane' | 'vcn' | 'deployments' | 'apps' | 'search';
+type ToolId = 'secrets' | 'config' | 'logs' | 'settings';
 
 const NAV_TO_ROUTE: Record<NavId, string> = {
     controlplane: Routes.ControlPlane,
@@ -29,6 +30,13 @@ const ROUTE_TO_NAV: Record<string, NavId> = {
     [Routes.Deployments]: 'deployments',
     [Routes.Apps]: 'apps',
     [Routes.Search]: 'search',
+};
+
+const TOOL_TO_ROUTE: Record<ToolId, string> = {
+    settings: Routes.Settings,
+    secrets: '',
+    config: '',
+    logs: '',
 };
 
 export default function MainLayout() {
@@ -49,6 +57,13 @@ export default function MainLayout() {
 
     function handleNavChange(id: NavId) {
         navigate(NAV_TO_ROUTE[id]);
+    }
+
+    function handleToolNav(id: ToolId) {
+        const route = TOOL_TO_ROUTE[id];
+        if (route) {
+            navigate(route);
+        }
     }
 
     function handleToggleAllNodes() {
@@ -85,6 +100,7 @@ export default function MainLayout() {
 
                 activeNav={activeNav}
                 onNavChange={handleNavChange}
+                onToolNav={handleToolNav}
             />
             <div className={cls.ContentWithHeader}>
                 <TopBar

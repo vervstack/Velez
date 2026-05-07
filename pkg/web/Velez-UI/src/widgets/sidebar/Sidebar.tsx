@@ -6,7 +6,17 @@ import VelezIcon from '@/assets/icons/services/velez.svg';
 import {NodeBaseInfo, NodeStatus} from "@/app/api/velez";
 import SkeletonNodeRow from '@/components/node/SkeletonNodeRow';
 
+function mapNodeStatus(status?: NodeStatus): 'online' | 'offline' | 'degraded' | 'stopped' {
+    switch (status) {
+        case NodeStatus.NodeStatus_Online: return 'online';
+        case NodeStatus.NodeStatus_Degraded: return 'degraded';
+        case NodeStatus.NodeStatus_Offline: return 'offline';
+        default: return 'stopped';
+    }
+}
+
 type NavId = 'controlplane' | 'vcn' | 'deployments' | 'apps' | 'search';
+type ToolId = 'secrets' | 'config' | 'logs' | 'settings';
 
 interface SidebarProps {
     collapsed: boolean;
@@ -18,6 +28,7 @@ interface SidebarProps {
 
     activeNav: NavId;
     onNavChange: (id: NavId) => void;
+    onToolNav?: (id: ToolId) => void;
 }
 
 const NAV_ITEMS: Array<{ id: NavId; label: string; icon: string }> = [
@@ -40,7 +51,7 @@ export default function Sidebar(
         collapsed, nodes,
         activeNodeId, onNodeSelect,
         activeNav, onNavChange,
-        isNodesLoading
+        isNodesLoading, onToolNav
     }: SidebarProps) {
 
 
@@ -52,7 +63,7 @@ export default function Sidebar(
         return (
             <div key={node.id} className={cls.dotRow} title={node.id} onClick={handleClick}>
                 <StatusDot
-                    status={node.status || NodeStatus.NodeStatus_Unknown}/>
+                    status={mapNodeStatus(node.status)}/>
             </div>
         );
     }
@@ -102,7 +113,7 @@ export default function Sidebar(
                             id={n.id}
                             label={n.label}
                             icon={n.icon}
-                            isActive={activeNodeId == n.id}
+                            isActive={activeNav === n.id}
                             onNavChange={onNavChange}
                             collapsed={collapsed}
                         />)}
@@ -115,11 +126,18 @@ export default function Sidebar(
                 )}
 
                 {TOOL_ITEMS.map(function renderToolItem(item) {
+                    function handleToolClick() {
+                        if (onToolNav) {
+                            onToolNav(item.id as ToolId);
+                        }
+                    }
+
                     return (
                         <div
                             key={item.id}
                             className={cn(cls.toolItem, {[cls.toolItemCollapsed]: collapsed})}
                             title={collapsed ? item.label : undefined}
+                            onClick={handleToolClick}
                         >
                             <span className={cls.toolIcon}>{item.icon}</span>
                             {!collapsed && <span className={cls.toolLabel}>{item.label}</span>}
@@ -175,7 +193,7 @@ function NodesList(
                 onClick={handleClick}
             >
                 <StatusDot
-                    status={node.status || NodeStatus.NodeStatus_Unknown}/>
+                    status={mapNodeStatus(node.status)}/>
 
                 <div className={cls.NodeInfo}>
                     <div className={cn(

@@ -12,7 +12,6 @@ import {Toast, useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {FetchService, FetchDeployments, StopService, RestartService} from "@/processes/api/service.ts";
 import {FetchSmerdsByServiceName} from "@/processes/api/velez.ts";
 
-const POLL_INTERVAL = 5000;
 
 export default function ServiceInfoPage() {
     const params = useParams<Record<string, string>>();
@@ -29,7 +28,6 @@ export default function ServiceInfoPage() {
             throw e;
         }),
         enabled: key !== "",
-        refetchInterval: POLL_INTERVAL,
     });
 
     const service = serviceQuery.data;
@@ -41,7 +39,6 @@ export default function ServiceInfoPage() {
             return {deployments: []};
         }),
         enabled: !!service?.id,
-        refetchInterval: POLL_INTERVAL,
     });
 
     const smerdsQuery = useQuery({
@@ -51,7 +48,6 @@ export default function ServiceInfoPage() {
             return {smerds: []};
         }),
         enabled: key !== "",
-        refetchInterval: POLL_INTERVAL,
     });
 
     if (key === "") {
@@ -338,7 +334,8 @@ function DeploymentsSection({deployments, currentDeploymentId}: {
 
                             return (
                                 <div key={dep.id} className={cls.DeploymentRowWrapper}>
-                                    <div className={`${cls.DeploymentRow} ${isCurrent ? cls.deploymentCurrent : ""}`} onClick={onClick}>
+                                    <div className={`${cls.DeploymentRow} ${isCurrent ? cls.deploymentCurrent : ""}`}
+                                         onClick={onClick}>
                                         <span className={cls.DeployExpandIcon}>{isExpanded ? "▼" : "▶"}</span>
                                         <span className={cls.DeployId}>{dep.id}</span>
                                         {dep.image && (
@@ -381,7 +378,8 @@ function DeploymentsSection({deployments, currentDeploymentId}: {
                                             {dep.createdAt && (
                                                 <div className={cls.MetaRow}>
                                                     <span className={cls.MetaLabel}>Created at</span>
-                                                    <span className={cls.MetaValue}>{formatTimestamp(dep.createdAt)}</span>
+                                                    <span
+                                                        className={cls.MetaValue}>{formatTimestamp(dep.createdAt)}</span>
                                                 </div>
                                             )}
                                             <div className={cls.MetaRow}>
@@ -421,7 +419,7 @@ function DeploymentsSection({deployments, currentDeploymentId}: {
     );
 }
 
-function formatTimestamp(ts: {seconds?: string | number; nanos?: number}): string {
+function formatTimestamp(ts: { seconds?: string | number; nanos?: number }): string {
     const seconds = Number(ts.seconds || 0);
     if (!seconds) return "—";
     return new Date(seconds * 1000).toLocaleString();

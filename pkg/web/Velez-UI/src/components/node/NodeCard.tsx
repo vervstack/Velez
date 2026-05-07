@@ -24,6 +24,15 @@ interface NodeCardProps {
     onDrain?: () => void;
 }
 
+function mapNodeStatus(status?: NodeStatus): 'online' | 'offline' | 'degraded' | 'stopped' {
+    switch (status) {
+        case NodeStatus.NodeStatus_Online: return 'online';
+        case NodeStatus.NodeStatus_Degraded: return 'degraded';
+        case NodeStatus.NodeStatus_Offline: return 'offline';
+        default: return 'stopped';
+    }
+}
+
 export default function NodeCard({node, onShell, onDrain}: NodeCardProps) {
     return (
         <div className={
@@ -34,7 +43,7 @@ export default function NodeCard({node, onShell, onDrain}: NodeCardProps) {
             )}>
             <div className={cls.identity}>
                 <div className={cls.nameRow}>
-                    <StatusDot status={node.status || NodeStatus.NodeStatus_Unknown} pulse/>
+                    <StatusDot status={mapNodeStatus(node.status)} pulse/>
                     <span className={cls.nodeId}>{node.id}</span>
 
                     {node.status === NodeStatus.NodeStatus_Degraded && (

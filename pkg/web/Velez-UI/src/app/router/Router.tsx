@@ -1,4 +1,4 @@
-import {createBrowserRouter} from "react-router-dom";
+import {createBrowserRouter, Navigate} from "react-router-dom";
 import HomePage from "@/pages/home/HomePage";
 import ErrorPage from "@/pages/error/ErrorPage";
 import ControlPlanePage from "@/pages/controlplane/ControlPlanePage.tsx";
@@ -12,6 +12,7 @@ import AppsPage from "@/pages/apps/AppsPage";
 
 import NewServicePage from "@/pages/service/NewServicePage.tsx";
 import ServiceInfoPage from "@/pages/service/ServiceInfoPage.tsx";
+import SettingsPage from "@/pages/settings/SettingsPage.tsx";
 
 import {Routes, Arguments} from "@/app/router/Routes";
 
@@ -73,8 +74,18 @@ const router = createBrowserRouter([
             },
 
             {
+                path: Routes.Settings,
+                element: (<SettingsPage/>),
+            },
+
+            {
                 path: Routes.Smerd + "/:" + Arguments.Name,
                 element: (<SmerdPage/>),
+            },
+
+            {
+                path: '*',
+                element: <Navigate to="/" replace/>,
             },
         ]
     },

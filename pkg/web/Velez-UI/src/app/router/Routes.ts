@@ -7,7 +7,8 @@ export enum Routes {
     VCN = "/vcn",
     Search = "/search",
     NewVervService = '/new_verv_service',
-    Service = '/service'
+    Service = '/service',
+    Settings = '/settings'
 }
 
 export enum Arguments {

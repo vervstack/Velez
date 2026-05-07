@@ -1,8 +1,8 @@
-import {useQuery, UseQueryResult} from '@tanstack/react-query';
+import {useQuery, UseQueryResult, useQueryClient} from '@tanstack/react-query';
 
 import cls from '@/pages/controlplane/ControlPlanePage.module.css';
 
-import {ListNodesResponse, NodeStatus} from "@/app/api/velez";
+import {ListNodesResponse, NodeStatus, VervServiceType} from "@/app/api/velez";
 
 import StatCard, {Level} from '@/components/base/StatCard';
 import NodeHealthList from '@/widgets/controlplane/NodeHealthList';
@@ -10,7 +10,7 @@ import PluginMatrix from '@/widgets/controlplane/PluginMatrix';
 import SkeletonNodeCard from '@/components/node/SkeletonNodeCard';
 
 import {useToaster} from '@/app/hooks/toaster/Toaster';
-import {ListNodes, ListPlugins} from '@/processes/api/control_plane';
+import {ListNodes, ListPlugins, EnableService, EnableStatefullPgCluster} from '@/processes/api/control_plane';
 import {CacheKey} from "@/app/query/Cache.ts";
 import useSettings from '@/app/settings/state';
 import {Service} from '@/model/services/Services';
@@ -125,8 +125,23 @@ interface PluginsListProps {
 }
 
 function PluginsList({pluginsQuery, nodesQuery}: PluginsListProps) {
-    function handleEnable(pluginName: string, nodeId: string) {
-        alert(`not implemented: enable ${pluginName} on ${nodeId}`);
+    const toaster = useToaster();
+    const {initReq} = useSettings();
+    const queryClient = useQueryClient();
+
+    async function handleEnable(pluginType: VervServiceType, payload?: any) {
+        try {
+            if (pluginType === VervServiceType.statefull_pg && payload) {
+                await EnableStatefullPgCluster(payload, initReq());
+            } else {
+                await EnableService(pluginType, initReq());
+            }
+            queryClient.invalidateQueries({ queryKey: [CacheKey.Plugins] });
+        } catch (error) {
+            if (error instanceof Error) {
+                toaster.catchGrpc(error);
+            }
+        }
     }
 
     function handleDisable(pluginName: string, nodeId: string) {

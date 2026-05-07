@@ -23,7 +23,6 @@ export default function SmerdPage() {
             throw e;
         }),
         enabled: smerdName !== "",
-        refetchInterval: 5000,
     });
 
     if (!smerdName) {

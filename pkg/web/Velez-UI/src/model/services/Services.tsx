@@ -74,7 +74,7 @@ metaByType.set(VervServiceType.webserver, {
 });
 
 metaByType.set(VervServiceType.statefull_pg, {
-    title: "Stateful mode",
+    title: "Stateful mode (Postgres)",
     icon: DatabasePixelIcon,
     description: `
     Deployed Postgres DB that stores information about services and

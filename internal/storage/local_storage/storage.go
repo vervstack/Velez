@@ -1,6 +1,7 @@
 package local_storage
 
 import (
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/storage"
 )
@@ -9,15 +10,15 @@ type localStorage struct {
 	nodes       *nodes
 	services    *services
 	deployments *deployments
-	plugins     *plugins
+	plugins     *dockerPluginsStorage
 }
 
-func New() storage.Storage {
+func New(containerApi node_clients.Docker) storage.Storage {
 	return &localStorage{
 		nodes:       newNodesStorage(),
 		services:    newServicesStorage(),
 		deployments: newDeploymentsStorage(),
-		plugins:     newPluginsStorage(),
+		plugins:     newPluginsStorage(containerApi),
 	}
 }
 

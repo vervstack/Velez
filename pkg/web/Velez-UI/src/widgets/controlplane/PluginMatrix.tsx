@@ -1,7 +1,8 @@
-import {useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import {NodeBaseInfo, VervService, VervServiceState, VervServiceType} from "@/app/api/velez";
+import { NodeBaseInfo, VervServiceState, VervServiceType } from "@/app/api/velez";
+import { Service } from "@/model/services/Services";
 
 import cls from '@/widgets/controlplane/PluginMatrix.module.css';
 
@@ -14,16 +15,16 @@ import {Routes} from '@/app/router/Routes';
 
 interface PluginMatrixProps {
     nodes: NodeBaseInfo[];
-    plugins: VervService[];
-    onEnable?: (pluginName: string, nodeId: string) => void;
+    plugins: Service[];
+    onEnable?: (pluginType: VervServiceType, payload?: any) => Promise<void>;
     onDisable?: (pluginName: string, nodeId: string) => void;
 }
 
 export default function PluginMatrix(props: PluginMatrixProps) {
-    const [selectedPlugin, setSelectedPlugin] = useState<string | null>(null);
+    const [selectedPlugin, setSelectedPlugin] = useState<Service | null>(null);
 
-    function handleManagePlugin(pluginName: string) {
-        setSelectedPlugin(pluginName);
+    function handleManagePlugin(plugin: Service) {
+        setSelectedPlugin(plugin);
     }
 
     function handleCloseDialog() {
@@ -41,7 +42,10 @@ export default function PluginMatrix(props: PluginMatrixProps) {
             {selectedPlugin && (
                 <PluginManageDialog
                     isOpen={true}
-                    pluginName={selectedPlugin}
+                    pluginName={selectedPlugin.title}
+                    pluginType={selectedPlugin.type || VervServiceType.unknown_service_type}
+                    pluginState={selectedPlugin.state || VervServiceState.unknown}
+                    onEnable={props.onEnable || (() => Promise.resolve())}
                     onClose={handleCloseDialog}
                 />
             )}
@@ -50,7 +54,7 @@ export default function PluginMatrix(props: PluginMatrixProps) {
 }
 
 interface TableProps extends PluginMatrixProps {
-    onManagePlugin: (pluginName: VervServiceType) => void;
+    onManagePlugin: (plugin: Service) => void;
 }
 
 function Table({nodes, plugins, onManagePlugin}: TableProps) {
@@ -67,8 +71,9 @@ function Table({nodes, plugins, onManagePlugin}: TableProps) {
         }
     }
 
-    function renderPlugin(plugin: VervService, pi: number) {
+    function renderPlugin(plugin: Service, pi: number) {
         const isLast = pi === plugins.length - 1;
+        const isDisabled = plugin.state === VervServiceState.disabled;
 
         function renderCell(n: NodeBaseInfo) {
             return (
@@ -82,7 +87,7 @@ function Table({nodes, plugins, onManagePlugin}: TableProps) {
         }
 
         function handleManageClick() {
-            onManagePlugin(plugin.type || VervServiceType.unknown_service_type);
+            onManagePlugin(plugin);
         }
 
         return (
@@ -94,12 +99,11 @@ function Table({nodes, plugins, onManagePlugin}: TableProps) {
                     borderBottom: isLast ? 'none' : undefined,
                 }}
             >
-                {/*TODO add logic on open dialog when clicked*/}
                 <div
-                    className={`${cls.PluginCell} ${cls.PluginCellClickable}`}
-                    onClick={() => handlePluginNameClick(plugin.type)}
+                    className={`${cls.PluginCell} ${isDisabled ? '' : cls.PluginCellClickable}`}
+                    onClick={isDisabled ? undefined : () => handlePluginNameClick(plugin.type)}
                 >
-                    <span className={cls.pluginName}>{plugin.type?.toString()}</span>
+                    <span className={cls.pluginName}>{plugin.title}</span>
                 </div>
 
                 {nodes.map(renderCell)}

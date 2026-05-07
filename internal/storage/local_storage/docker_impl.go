@@ -1,4 +1,4 @@
-package plugins
+package local_storage
 
 import (
 	"context"
@@ -9,7 +9,6 @@ import (
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/plugins_queries"
 )
 
@@ -25,8 +24,16 @@ type dockerPluginsStorage struct {
 	docker node_clients.Docker
 }
 
-func NewDockerImpl(docker node_clients.Docker) storage.PluginsStorage {
+func newPluginsStorage(docker node_clients.Docker) *dockerPluginsStorage {
 	return &dockerPluginsStorage{docker: docker}
+}
+
+var pluginContainerNames = map[string]pb.VervServiceType{
+	makoshContainerName:    pb.VervServiceType_makosh,
+	matreshkaContainerName: pb.VervServiceType_matreshka,
+	portainerContainerName: pb.VervServiceType_portainer,
+	headscaleContainerName: pb.VervServiceType_headscale,
+	pgContainerName:        pb.VervServiceType_statefull_pg,
 }
 
 func (d *dockerPluginsStorage) ListPlugins(ctx context.Context) ([]domain.PluginBaseInfo, error) {
@@ -36,37 +43,36 @@ func (d *dockerPluginsStorage) ListPlugins(ctx context.Context) ([]domain.Plugin
 		return nil, rerrors.Wrap(err)
 	}
 
-	var rows []domain.PluginBaseInfo
-
+	containerStates := make(map[string]string, len(containers))
 	for _, c := range containers {
-		name := ""
-		if len(c.Names) > 0 {
-			name = strings.TrimPrefix(c.Names[0], "/")
-		}
-
-		var pluginType pb.VervServiceType
-
-		switch name {
-		case makoshContainerName:
-			pluginType = pb.VervServiceType_makosh
-		case matreshkaContainerName:
-			pluginType = pb.VervServiceType_matreshka
-		case portainerContainerName:
-			pluginType = pb.VervServiceType_portainer
-		case headscaleContainerName:
-			pluginType = pb.VervServiceType_headscale
-		case pgContainerName:
-			pluginType = pb.VervServiceType_statefull_pg
-		default:
+		if len(c.Names) == 0 {
 			continue
+		}
+		name := strings.TrimPrefix(c.Names[0], "/")
+		containerStates[name] = c.State
+	}
+
+	rows := make([]domain.PluginBaseInfo, 0, len(pluginContainerNames))
+	for containerName, pluginType := range pluginContainerNames {
+		dockerState, exists := containerStates[containerName]
+
+		var state pb.VervService_State
+		switch {
+		case !exists:
+			state = pb.VervService_disabled
+		case dockerState == "running":
+			state = pb.VervService_running
+		case dockerState == "restarting":
+			state = pb.VervService_warning
+		default:
+			state = pb.VervService_dead
 		}
 
 		row := domain.PluginBaseInfo{
-			Name: pluginType.String(),
-			// Not in statfull mode - no service
+			Name:      pluginType.String(),
+			State:     state,
 			ServiceId: nil,
 		}
-
 		rows = append(rows, row)
 	}
 

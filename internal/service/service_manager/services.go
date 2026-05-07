@@ -51,7 +51,7 @@ func New(
 
 	cm := container_manager.New(nodeClients, configService)
 
-	storageContainer := storage.NewStorageContainer(local_storage.New())
+	storageContainer := storage.NewStorageContainer(local_storage.New(nodeClients.Docker()))
 	svc := plugins.NewPluginService(storageContainer)
 
 	sm := &ServiceManager{

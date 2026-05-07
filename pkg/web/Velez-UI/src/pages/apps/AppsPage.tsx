@@ -21,7 +21,7 @@ export default function AppsPage() {
                 toaster.catchGrpc(e);
                 return { smerds: [] };
             }),
-        refetchInterval: 5000,
+
     });
 
     const apps: AppData[] = (smerdsQuery.data?.smerds ?? []).map(mapSmerdToAppData);

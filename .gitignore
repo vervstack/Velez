@@ -19,3 +19,4 @@ local_data
 *.local
 proto_modules
 /docs/pr/
+/docs/.obsidian/

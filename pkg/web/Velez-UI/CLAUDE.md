@@ -90,7 +90,8 @@ All API calls go through `src/processes/api/` which calls the generated stubs in
 - All functions inside components (handlers, helpers) must also be named function declarations — never `const fn = () => {}`
 - One file — one component
 - `@/` resolves to `src/` — use it for all imports
-
+- Component can't have more that three levels of nesting. A root '*ComponentName*Container', Content elements and '*ComponentName*Wrapper's over them.
+- If component can't use 3 levels of nesting model, it should be a separate into a private components below (unless components are reusable - then just ask and we feagure it out).
 ## Styling Rules
 
 - Always use CSS Modules — no inline styles for new code
@@ -100,4 +101,4 @@ All API calls go through `src/processes/api/` which calls the generated stubs in
 - Use `rem` units for font sizes and spacing; avoid hardcoded `px`/`em` in component CSS
 - Animations: CSS `transition`/`animation`/`@keyframes` first — use `framer-motion` only when CSS cannot achieve the effect
 - One component must have no more than three levels of enclosure: Root div, wrapper around content(s), content components. 
-  Everything that doesn't fit - should be a separate component. 
+  Everything that doesn't fit - should be a separate component.

@@ -194,3 +194,9 @@ message RestartService {
   }
   message Response {}
 }
+
+// TODO: add RPC GetServiceMetrics — returns cpu%, mem_mi, mem_max_mi, replicas_running, replicas_desired, uptime_seconds per service
+// TODO: add RPC GetServiceResources — returns list of bound resources (redis/kafka/postgres/s3/elastic) with status + usage stats
+// TODO: add RPC GetServiceGraph — returns incoming callers and outgoing dependencies with proto + request rate info
+// TODO: add RPC GetServiceEnvironments — returns per-env status, deployed version, deployed-ago, health
+// TODO: add RPC GetVervonomicon — returns YAML/HCL config documents: vervonomicon, deployment, configuration, secrets

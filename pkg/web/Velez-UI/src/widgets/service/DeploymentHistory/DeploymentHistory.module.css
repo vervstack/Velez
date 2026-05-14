@@ -1,0 +1,56 @@
+.DeploymentHistoryContainer {
+    width: 100%;
+    overflow: hidden;
+}
+
+.TableWrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.HeaderRow {
+    display: grid;
+    grid-template-columns: 46px 120px 160px 120px 1fr 80px 180px;
+    padding: 0.375rem 0.75rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--info-color) 20%, transparent);
+}
+
+.HeaderCell {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ping-unknown);
+    padding-right: 0.5rem;
+    white-space: nowrap;
+}
+
+.RowsWrapper {
+    width: 100%;
+}
+
+.Empty {
+    color: var(--ping-unknown);
+    font-size: 0.875rem;
+    text-align: center;
+    padding: 2rem 0;
+}
+
+.ToggleBtn {
+    display: block;
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.4rem 0;
+    font-size: 0.8125rem;
+    color: var(--info-color);
+    background: transparent;
+    border: none;
+    border-top: 1px solid color-mix(in srgb, var(--info-color) 15%, transparent);
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.1s ease;
+
+    &:hover {
+        background: var(--accent-bg-color);
+    }
+}

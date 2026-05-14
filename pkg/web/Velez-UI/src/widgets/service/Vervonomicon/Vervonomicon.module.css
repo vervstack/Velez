@@ -1,0 +1,150 @@
+.VervonomiconContainer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--info-color) 15%, transparent);
+}
+
+.HeaderWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--info-color) 15%, transparent);
+    background: var(--accent-bg-color);
+}
+
+.TitleGroup {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.Title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.Subtitle {
+    font-size: 0.75rem;
+    color: var(--ping-unknown);
+    font-family: monospace;
+}
+
+.TabsWrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.TabBtn {
+    font-size: 0.75rem;
+    font-family: monospace;
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--border-radius);
+    border: 1px solid transparent;
+    background: transparent;
+    color: color-mix(in srgb, currentColor 60%, transparent);
+    cursor: pointer;
+    transition: color 0.1s ease, border-color 0.1s ease, background 0.1s ease;
+
+    &:hover {
+        color: currentColor;
+        border-color: color-mix(in srgb, var(--info-color) 30%, transparent);
+    }
+
+    &.active {
+        color: var(--info-color);
+        border-color: var(--info-color);
+        background: color-mix(in srgb, var(--info-color) 8%, transparent);
+    }
+}
+
+.CodeWrapper {
+    flex: 1;
+    overflow: auto;
+    max-height: 28rem;
+    background: color-mix(in srgb, var(--accent-bg-color) 50%, transparent);
+}
+
+.CodeBlock {
+    margin: 0;
+    padding: 0.75rem 0;
+    font-family: monospace;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    white-space: pre;
+    overflow: visible;
+}
+
+.CodeLine {
+    display: flex;
+    align-items: baseline;
+    gap: 0;
+    padding: 0 1rem;
+    min-height: 1.4rem;
+
+    &:hover {
+        background: color-mix(in srgb, var(--info-color) 5%, transparent);
+    }
+}
+
+.LineNumber {
+    width: 2.5rem;
+    flex-shrink: 0;
+    color: var(--ping-unknown);
+    font-size: 0.75rem;
+    text-align: right;
+    padding-right: 1rem;
+    user-select: none;
+    opacity: 0.5;
+}
+
+.LineContent {
+    flex: 1;
+    white-space: pre;
+}
+
+.SyntaxComment {
+    color: var(--ping-unknown);
+    opacity: 0.7;
+}
+
+.SyntaxKey {
+    color: var(--info-color);
+}
+
+.LoadingText {
+    padding: 2rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--ping-unknown);
+}
+
+.FooterWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.4rem 1rem;
+    border-top: 1px solid color-mix(in srgb, var(--info-color) 10%, transparent);
+    background: var(--accent-bg-color);
+}
+
+.FooterMeta {
+    font-size: 0.6875rem;
+    color: var(--ping-unknown);
+    font-family: monospace;
+}
+
+.FooterReadOnly {
+    font-size: 0.6875rem;
+    color: var(--ping-unknown);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.6;
+}

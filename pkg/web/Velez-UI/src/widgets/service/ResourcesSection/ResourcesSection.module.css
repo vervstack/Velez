@@ -1,0 +1,39 @@
+.ResourcesSectionContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.HeaderWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.Title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--fg, #e0e0f0);
+    margin: 0;
+}
+
+.Subtitle {
+    font-size: 0.75rem;
+    color: var(--fg-dim, #888aaa);
+    margin: 0;
+}
+
+.Grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: 0.75rem;
+}
+
+.Empty {
+    padding: 2rem 1rem;
+    border: 1px dashed var(--border-radius, #2a2a3a);
+    border-radius: var(--border-radius, 0.5rem);
+    text-align: center;
+    font-size: 0.8125rem;
+    color: var(--fg-dim, #888aaa);
+}

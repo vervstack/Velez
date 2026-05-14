@@ -1,0 +1,199 @@
+@keyframes flowDash {
+    to { stroke-dashoffset: -16; }
+}
+
+.ServiceGraphContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
+.SvgWrapper {
+    background: #13131a;
+    border: 1px solid rgba(10, 183, 238, 0.12);
+    border-radius: 0.6875rem;
+    padding: 0.875rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.LaneLabelsRow {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 0.25rem 0.375rem;
+    pointer-events: none;
+}
+
+.LaneLabel {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.59375rem;
+    color: #72728a;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.Graph {
+    display: block;
+    max-height: 23.75rem;
+}
+
+.Empty {
+    padding: 2rem 1rem;
+    border: 1px dashed rgba(10, 183, 238, 0.12);
+    border-radius: 0.6875rem;
+    text-align: center;
+    font-size: 0.8125rem;
+    color: #72728a;
+}
+
+.separator {
+    stroke: rgba(10, 183, 238, 0.12);
+    stroke-dasharray: 2 5;
+}
+
+/* ── Edges ── */
+.incomingEdge {
+    stroke: #0ab7ee;
+    stroke-width: 1.4;
+    fill: none;
+    stroke-opacity: 0.55;
+    stroke-dasharray: 6 6;
+    animation: flowDash 1.2s linear infinite;
+}
+
+.outgoingEdge {
+    stroke: #f5a623;
+    stroke-width: 1.4;
+    fill: none;
+    stroke-opacity: 0.55;
+    stroke-dasharray: 6 6;
+    animation: flowDash 1.5s linear infinite;
+}
+
+/* ── Center node ── */
+.centerNode {
+    fill: #1c1c26;
+    stroke: #ed2f32;
+    stroke-width: 2;
+}
+
+.centerRing {
+    fill: none;
+    stroke: #ed2f32;
+    stroke-width: 1;
+    stroke-opacity: 0.25;
+    stroke-dasharray: 3 4;
+}
+
+.centerLabel {
+    fill: #e8e8f0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-anchor: middle;
+    dominant-baseline: middle;
+}
+
+.centerMeta {
+    fill: #72728a;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.5625rem;
+    text-anchor: middle;
+    dominant-baseline: middle;
+}
+
+/* ── Peripheral nodes ── */
+.incomingServiceNode {
+    fill: #1c1c26;
+    stroke: #0ab7ee;
+    stroke-opacity: 0.5;
+    stroke-width: 1;
+}
+
+.incomingResourceNode {
+    fill: #1c1c26;
+    stroke: #0ab7ee;
+    stroke-opacity: 0.5;
+    stroke-width: 1;
+}
+
+.outgoingServiceNode {
+    fill: #1c1c26;
+    stroke: #f5a623;
+    stroke-opacity: 0.55;
+    stroke-width: 1;
+}
+
+.outgoingResourceNode {
+    fill: #1c1c26;
+    stroke: #f5a623;
+    stroke-opacity: 0.55;
+    stroke-width: 1;
+}
+
+.nodeLabel {
+    fill: #e8e8f0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.625rem;
+    text-anchor: middle;
+    dominant-baseline: middle;
+}
+
+.nodeMeta {
+    fill: #72728a;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.5rem;
+    text-anchor: middle;
+    dominant-baseline: middle;
+}
+
+/* ── Legend ── */
+.Legend {
+    display: flex;
+    align-items: center;
+    gap: 1.125rem;
+    padding: 0.25rem 0.375rem;
+    justify-content: center;
+}
+
+.LegendItem {
+    display: flex;
+    align-items: center;
+    gap: 0.4375rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.625rem;
+    color: #72728a;
+}
+
+.LegendLine {
+    width: 1.125rem;
+    height: 0.125rem;
+    border-radius: 0.0625rem;
+    flex-shrink: 0;
+}
+
+.legendIncoming {
+    background: #0ab7ee;
+    opacity: 0.7;
+}
+
+.legendOutgoing {
+    background: #f5a623;
+    opacity: 0.75;
+}
+
+.LegendShape {
+    flex-shrink: 0;
+
+    & rect {
+        fill: none;
+        stroke: #72728a;
+        stroke-width: 1;
+    }
+
+    & circle {
+        fill: none;
+        stroke: #72728a;
+        stroke-width: 1;
+    }
+}

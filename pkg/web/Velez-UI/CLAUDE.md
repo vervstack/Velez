@@ -9,23 +9,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Ask which file to edit if uncertain — don't explore to find out
 - Never read more than 3 files before acting
 
-## Commands
-
-```bash
-yarn dev           # Start dev server (Vite)
-yarn build:ui      # Type-check + Vite build (UI only)
-yarn build         # Build TypeScript client lib + link it + build UI
-yarn lint          # ESLint
-
-# Regenerate protobuf TypeScript bindings (requires moti CLI)
-yarn gen-proto     # Runs moti g, then moves generated index.ts into place
-```
-
-The build has two parts that must be kept in sync:
-1. `../@@vervstack/velez/` — TypeScript client library compiled from proto definitions
-2. This UI app — consumes the library via `npm link @vervstack/velez`
-
-When proto files change in `api/grpc/`, run `yarn gen-proto` to regenerate `src/app/api/velez/`, then rebuild the library via `yarn build:api && yarn link` before starting the dev server.
 
 ## Environment
 

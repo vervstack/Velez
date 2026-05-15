@@ -138,7 +138,7 @@ func (c *Custom) InitApiServer(a *App) error {
 
 	a.ServerMaster.AddImplementation(c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl, c.ServiceApiImpl)
 	a.ServerMaster.AddHttpHandler(docs.Swagger())
-	a.ServerMaster.AddHttpHandler("/", ui.NewHandler())
+	a.ServerMaster.AddHttpHandler("/", ui.NewServer())
 
 	if !a.Cfg.Environment.DisableAPISecurity {
 		a.ServerMaster.AddServerOption(

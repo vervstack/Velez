@@ -18,6 +18,23 @@ export default (function (_a) {
     return defineConfig({
         base: '/',
         plugins: [react()],
+        build: {
+            rollupOptions: {
+                output: {
+                    manualChunks: function (id) {
+                        if (id.includes('node_modules')) {
+                            if (id.includes('react-dom') || id.includes('react-router')) {
+                                return 'vendor-react';
+                            }
+                            if (id.includes('@tanstack')) {
+                                return 'vendor-query';
+                            }
+                            return 'vendor';
+                        }
+                    },
+                },
+            },
+        },
         resolve: {
             alias: {
                 '@': fileURLToPath(new URL('./src', import.meta.url)),

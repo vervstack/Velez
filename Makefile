@@ -9,7 +9,7 @@ codegen:
 
 build-ui:
 	@echo --- Building WebUI ---
-	cd pkg/web/Velez-UI && bun && bun run build
+	cd pkg/web/Velez-UI && bun i && bun run build
 	@echo --- Copying dist into Go embed path ---
 	rm -rf internal/transport/ui/dist
 	cp -r pkg/web/Velez-UI/dist internal/transport/ui/dist

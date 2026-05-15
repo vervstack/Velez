@@ -3,7 +3,7 @@ import {RouterProvider} from "react-router-dom";
 import {Tooltip} from "react-tooltip";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 
-import '@/index.module.css'
+import '@/index.css'
 import 'react-tooltip/dist/react-tooltip.css'
 
 import router from "@/app/router/Router";

@@ -11,6 +11,9 @@ private.key
 test
 
 dist
+!internal/transport/ui/dist/
+internal/transport/ui/dist/*
+!internal/transport/ui/dist/.gitkeep
 node_modules
 proto_deps
 /pkg/VelezWeb/.idea/

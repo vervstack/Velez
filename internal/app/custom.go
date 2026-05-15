@@ -23,6 +23,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/service_manager"
 	"go.vervstack.ru/Velez/internal/transport/control_plane_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/service_api_impl"
+	"go.vervstack.ru/Velez/internal/transport/ui"
 	"go.vervstack.ru/Velez/internal/transport/vcn_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/velez_api_impl"
 	"go.vervstack.ru/Velez/internal/workers"
@@ -137,6 +138,7 @@ func (c *Custom) InitApiServer(a *App) error {
 
 	a.ServerMaster.AddImplementation(c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl, c.ServiceApiImpl)
 	a.ServerMaster.AddHttpHandler(docs.Swagger())
+	a.ServerMaster.AddHttpHandler("/", ui.NewHandler())
 
 	if !a.Cfg.Environment.DisableAPISecurity {
 		a.ServerMaster.AddServerOption(

@@ -1,16 +1,18 @@
-include rscli.mk
+.PHONY: setup
+setup: codegen build-ui
 
-.PHONY: codegen
-
-# generates folders and installs dependencies
-warmup:
-	make .prepare-grpc-folders
-	make .deps-grpc
-	PROTOPACKPATH=proto_deps protopack mod download
-# generates code on warm project
 codegen:
+	@echo --- Generating contracts ---
 	moti g
-	cd pkg/web/@vervstack/velez && npm run build
+	@echo --- Generating sql queries ---
+	sqlc generate
+
+build-ui:
+	@echo --- Building WebUI ---
+	cd pkg/web/Velez-UI && bun && bun run build
+	@echo --- Copying dist into Go embed path ---
+	rm -rf internal/transport/ui/dist
+	cp -r pkg/web/Velez-UI/dist internal/transport/ui/dist
 
 lint:
 	golangci-lint run ./...

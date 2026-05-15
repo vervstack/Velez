@@ -19,18 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ControlPlaneAPI_ListVervServices_FullMethodName = "/velez_api.ControlPlaneAPI/ListVervServices"
-	ControlPlaneAPI_EnableService_FullMethodName    = "/velez_api.ControlPlaneAPI/EnableService"
-	ControlPlaneAPI_ConnectSlave_FullMethodName     = "/velez_api.ControlPlaneAPI/ConnectSlave"
-	ControlPlaneAPI_ListNodes_FullMethodName        = "/velez_api.ControlPlaneAPI/ListNodes"
-	ControlPlaneAPI_ListPlugins_FullMethodName      = "/velez_api.ControlPlaneAPI/ListPlugins"
+	ControlPlaneAPI_EnableService_FullMethodName = "/velez_api.ControlPlaneAPI/EnableService"
+	ControlPlaneAPI_ConnectSlave_FullMethodName  = "/velez_api.ControlPlaneAPI/ConnectSlave"
+	ControlPlaneAPI_ListNodes_FullMethodName     = "/velez_api.ControlPlaneAPI/ListNodes"
+	ControlPlaneAPI_ListPlugins_FullMethodName   = "/velez_api.ControlPlaneAPI/ListPlugins"
 )
 
 // ControlPlaneAPIClient is the client API for ControlPlaneAPI service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ControlPlaneAPIClient interface {
-	ListVervServices(ctx context.Context, in *ListVervServices_Request, opts ...grpc.CallOption) (*ListVervServices_Response, error)
 	EnableService(ctx context.Context, in *EnableService_Request, opts ...grpc.CallOption) (*EnableService_Response, error)
 	// ConnectSlave - used by other Velez nodes to connect to cluster
 	ConnectSlave(ctx context.Context, in *ConnectSlave_Request, opts ...grpc.CallOption) (*ConnectSlave_Response, error)
@@ -44,16 +42,6 @@ type controlPlaneAPIClient struct {
 
 func NewControlPlaneAPIClient(cc grpc.ClientConnInterface) ControlPlaneAPIClient {
 	return &controlPlaneAPIClient{cc}
-}
-
-func (c *controlPlaneAPIClient) ListVervServices(ctx context.Context, in *ListVervServices_Request, opts ...grpc.CallOption) (*ListVervServices_Response, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListVervServices_Response)
-	err := c.cc.Invoke(ctx, ControlPlaneAPI_ListVervServices_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *controlPlaneAPIClient) EnableService(ctx context.Context, in *EnableService_Request, opts ...grpc.CallOption) (*EnableService_Response, error) {
@@ -100,7 +88,6 @@ func (c *controlPlaneAPIClient) ListPlugins(ctx context.Context, in *ListPlugins
 // All implementations must embed UnimplementedControlPlaneAPIServer
 // for forward compatibility.
 type ControlPlaneAPIServer interface {
-	ListVervServices(context.Context, *ListVervServices_Request) (*ListVervServices_Response, error)
 	EnableService(context.Context, *EnableService_Request) (*EnableService_Response, error)
 	// ConnectSlave - used by other Velez nodes to connect to cluster
 	ConnectSlave(context.Context, *ConnectSlave_Request) (*ConnectSlave_Response, error)
@@ -116,9 +103,6 @@ type ControlPlaneAPIServer interface {
 // pointer dereference when methods are called.
 type UnimplementedControlPlaneAPIServer struct{}
 
-func (UnimplementedControlPlaneAPIServer) ListVervServices(context.Context, *ListVervServices_Request) (*ListVervServices_Response, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListVervServices not implemented")
-}
 func (UnimplementedControlPlaneAPIServer) EnableService(context.Context, *EnableService_Request) (*EnableService_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method EnableService not implemented")
 }
@@ -150,24 +134,6 @@ func RegisterControlPlaneAPIServer(s grpc.ServiceRegistrar, srv ControlPlaneAPIS
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&ControlPlaneAPI_ServiceDesc, srv)
-}
-
-func _ControlPlaneAPI_ListVervServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListVervServices_Request)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ControlPlaneAPIServer).ListVervServices(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ControlPlaneAPI_ListVervServices_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ControlPlaneAPIServer).ListVervServices(ctx, req.(*ListVervServices_Request))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _ControlPlaneAPI_EnableService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -249,10 +215,6 @@ var ControlPlaneAPI_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "velez_api.ControlPlaneAPI",
 	HandlerType: (*ControlPlaneAPIServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "ListVervServices",
-			Handler:    _ControlPlaneAPI_ListVervServices_Handler,
-		},
 		{
 			MethodName: "EnableService",
 			Handler:    _ControlPlaneAPI_EnableService_Handler,

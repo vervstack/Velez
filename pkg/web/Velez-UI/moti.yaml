@@ -15,4 +15,4 @@ generate:
 
 replace:
   - old: go.vervstack.ru/Velez
-    new: /Users/alexbukov/verv/Velez
+    new: ./../../..

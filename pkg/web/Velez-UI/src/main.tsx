@@ -14,7 +14,6 @@ createRoot(document.getElementById('root')!)
     .render(
         <QueryClientProvider client={queryClient}>
             <>
-                <link href="@/assets/font/Comfortaa.ttf" rel="stylesheet"/>
                 <RouterProvider router={router}/>
                 <Tooltip id={"tooltip"}/>
             </>

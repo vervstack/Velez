@@ -11,19 +11,22 @@ interface ServiceGraphProps {
 }
 
 const SVG_W = 980
-const SVG_H = 380
+const SVG_H = 500
 const CENTER_X = SVG_W / 2
 const CENTER_Y = SVG_H / 2
 const INCOMING_X = 130
 const OUTGOING_X = SVG_W - 130
-const NODE_R = 32
+const CENTER_R = 42
+const CENTER_RING_R = 62
+const NODE_R = 44
 const RECT_W = 116
-const RECT_H = 36
+const RECT_H = 40
 
 function spreadY(index: number, total: number): number {
     if (total === 1) return CENTER_Y
-    const span = Math.min((total - 1) * 72, 280)
-    return CENTER_Y - span / 2 + index * (span / (total - 1))
+    const step = NODE_R * 2 + 8
+    const span = (total - 1) * step
+    return CENTER_Y - span / 2 + index * step
 }
 
 function nodeEdgeX(node: ServiceGraphNode, side: 'right' | 'left'): number {
@@ -80,6 +83,10 @@ export default function ServiceGraph({ serviceId, serviceName }: ServiceGraphPro
 
     return (
         <div className={cls.ServiceGraphContainer}>
+            <div className={cls.SectionHeader}>
+                <h2 className={cls.SectionTitle}>Service Graph</h2>
+                <span className={cls.SectionSubtitle}>incoming on left · outgoing on right · live edge animation reflects request rate</span>
+            </div>
             <div className={cls.SvgWrapper}>
                 <div className={cls.LaneLabelsRow}>
                     <span className={cls.LaneLabel}>← incoming · {incoming.length} callers</span>
@@ -113,7 +120,7 @@ export default function ServiceGraph({ serviceId, serviceName }: ServiceGraphPro
                         return (
                             <path
                                 key={`in-edge-${node.id}`}
-                                d={`M ${startX} ${y} C ${c1x} ${y}, ${c2x} ${CENTER_Y}, ${CENTER_X - 44} ${CENTER_Y}`}
+                                d={`M ${startX} ${y} C ${c1x} ${y}, ${c2x} ${CENTER_Y}, ${CENTER_X - CENTER_R} ${CENTER_Y}`}
                                 className={cls.incomingEdge}
                                 markerEnd={`url(#sg-arr-in-${serviceId})`}
                             />
@@ -128,17 +135,17 @@ export default function ServiceGraph({ serviceId, serviceName }: ServiceGraphPro
                         return (
                             <path
                                 key={`out-edge-${node.id}`}
-                                d={`M ${CENTER_X + 44} ${CENTER_Y} C ${c1x} ${CENTER_Y}, ${c2x} ${y}, ${endX} ${y}`}
+                                d={`M ${CENTER_X + CENTER_R} ${CENTER_Y} C ${c1x} ${CENTER_Y}, ${c2x} ${y}, ${endX} ${y}`}
                                 className={cls.outgoingEdge}
                                 markerEnd={`url(#sg-arr-out-${serviceId})`}
                             />
                         )
                     })}
 
-                    <circle cx={CENTER_X} cy={CENTER_Y} r={NODE_R + 10} className={cls.centerRing} />
-                    <circle cx={CENTER_X} cy={CENTER_Y} r={NODE_R} className={cls.centerNode} />
-                    <text x={CENTER_X} y={CENTER_Y - 4} className={cls.centerLabel}>{serviceName}</text>
-                    <text x={CENTER_X} y={CENTER_Y + 10} className={cls.centerMeta}>·service·</text>
+                    <circle cx={CENTER_X} cy={CENTER_Y} r={CENTER_RING_R} className={cls.centerRing} />
+                    <circle cx={CENTER_X} cy={CENTER_Y} r={CENTER_R} className={cls.centerNode} />
+                    <text x={CENTER_X} y={CENTER_Y - 7} className={cls.centerLabel}>{serviceName}</text>
+                    <text x={CENTER_X} y={CENTER_Y + 9} className={cls.centerMeta}>·service·</text>
 
                     {incoming.map(function renderIncomingNode(node: ServiceGraphNode, i: number) {
                         return renderNode(node, INCOMING_X, spreadY(i, incoming.length), 'incoming')
@@ -148,9 +155,8 @@ export default function ServiceGraph({ serviceId, serviceName }: ServiceGraphPro
                         return renderNode(node, OUTGOING_X, spreadY(i, outgoing.length), 'outgoing')
                     })}
                 </svg>
-            </div>
 
-            <div className={cls.Legend}>
+                <div className={cls.Legend}>
                 <div className={cls.LegendItem}>
                     <span className={`${cls.LegendLine} ${cls.legendIncoming}`} />
                     <span>incoming (callers)</span>
@@ -170,6 +176,7 @@ export default function ServiceGraph({ serviceId, serviceName }: ServiceGraphPro
                         <circle cx="5" cy="5" r="4.5" />
                     </svg>
                     <span>service</span>
+                </div>
                 </div>
             </div>
         </div>

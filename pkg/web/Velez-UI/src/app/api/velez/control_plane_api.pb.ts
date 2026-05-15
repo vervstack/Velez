@@ -126,9 +126,6 @@ export type ListPluginsResponse = {
 export type ListPlugins = Record<string, never>;
 
 export class ControlPlaneAPI {
-  static ListVervServices(this:void, req: ListVervServicesRequest, initReq?: fm.InitReq): Promise<ListVervServicesResponse> {
-    return fm.fetchRequest<ListVervServicesResponse>(`/api/control_plane/services?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
-  }
   static EnableService(this:void, req: EnableServiceRequest, initReq?: fm.InitReq): Promise<EnableServiceResponse> {
     return fm.fetchRequest<EnableServiceResponse>(`/api/control_plane/service/enable`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }

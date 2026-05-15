@@ -17,6 +17,8 @@ FROM --platform=$BUILDPLATFORM golang:1.24.2 AS builder
 
 WORKDIR /app
 
+COPY --from=webclient /dist internal/transport/ui/dist
+
 RUN --mount=target=. \
         --mount=type=cache,target=/root/.cache/go-build \
         --mount=type=cache,target=/go/pkg \

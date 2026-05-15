@@ -102,28 +102,6 @@
         ]
       }
     },
-    "/api/control_plane/services": {
-      "get": {
-        "operationId": "ControlPlaneAPI_ListVervServices",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/velez_apiListVervServicesResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googleRpcStatus"
-            }
-          }
-        },
-        "tags": [
-          "ControlPlaneAPI"
-        ]
-      }
-    },
     "/api/control_plane/slave/connect": {
       "post": {
         "summary": "ConnectSlave - used by other Velez nodes to connect to cluster",
@@ -305,18 +283,6 @@
         }
       }
     },
-    "velez_apiListVervServicesResponse": {
-      "type": "object",
-      "properties": {
-        "services": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/velez_apiVervService"
-          }
-        }
-      }
-    },
     "velez_apiNodeBaseInfo": {
       "type": "object",
       "properties": {
@@ -370,21 +336,6 @@
         "port": {
           "type": "integer",
           "format": "int64"
-        }
-      }
-    },
-    "velez_apiVervService": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "$ref": "#/definitions/velez_apiVervServiceType"
-        },
-        "port": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "state": {
-          "$ref": "#/definitions/VervServiceState"
         }
       }
     },

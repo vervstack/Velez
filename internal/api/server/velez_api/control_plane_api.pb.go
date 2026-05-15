@@ -1320,9 +1320,8 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\twebserver\x10\x03\x12\r\n" +
 	"\theadscale\x10\x04\x12\r\n" +
 	"\tportainer\x10\x05\x12\x10\n" +
-	"\fstatefull_pg\x10\x062\x83\x05\n" +
+	"\fstatefull_pg\x10\x062\xfe\x03\n" +
 	"\x0fControlPlaneAPI\x12\x82\x01\n" +
-	"\x10ListVervServices\x12#.velez_api.ListVervServices.Request\x1a$.velez_api.ListVervServices.Response\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/control_plane/services\x12\x82\x01\n" +
 	"\rEnableService\x12 .velez_api.EnableService.Request\x1a!.velez_api.EnableService.Response\",\x82\xd3\xe4\x93\x02&:\x01*\"!/api/control_plane/service/enable\x12~\n" +
 	"\fConnectSlave\x12\x1f.velez_api.ConnectSlave.Request\x1a .velez_api.ConnectSlave.Response\"+\x82\xd3\xe4\x93\x02%:\x01*\" /api/control_plane/slave/connect\x12r\n" +
 	"\tListNodes\x12\x1c.velez_api.ListNodes.Request\x1a\x1d.velez_api.ListNodes.Response\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/api/control_plane/nodes/list\x12r\n" +
@@ -1386,18 +1385,16 @@ var file_control_plane_api_proto_depIdxs = []int32{
 	26, // 10: velez_api.ListNodes.Request.paging:type_name -> velez_api.Paging
 	27, // 11: velez_api.ListNodes.Response.nodes:type_name -> velez_api.NodeBaseInfo
 	10, // 12: velez_api.ListPlugins.Response.plugins:type_name -> velez_api.Plugin
-	12, // 13: velez_api.ControlPlaneAPI.ListVervServices:input_type -> velez_api.ListVervServices.Request
-	14, // 14: velez_api.ControlPlaneAPI.EnableService:input_type -> velez_api.EnableService.Request
-	18, // 15: velez_api.ControlPlaneAPI.ConnectSlave:input_type -> velez_api.ConnectSlave.Request
-	22, // 16: velez_api.ControlPlaneAPI.ListNodes:input_type -> velez_api.ListNodes.Request
-	24, // 17: velez_api.ControlPlaneAPI.ListPlugins:input_type -> velez_api.ListPlugins.Request
-	13, // 18: velez_api.ControlPlaneAPI.ListVervServices:output_type -> velez_api.ListVervServices.Response
-	15, // 19: velez_api.ControlPlaneAPI.EnableService:output_type -> velez_api.EnableService.Response
-	19, // 20: velez_api.ControlPlaneAPI.ConnectSlave:output_type -> velez_api.ConnectSlave.Response
-	23, // 21: velez_api.ControlPlaneAPI.ListNodes:output_type -> velez_api.ListNodes.Response
-	25, // 22: velez_api.ControlPlaneAPI.ListPlugins:output_type -> velez_api.ListPlugins.Response
-	18, // [18:23] is the sub-list for method output_type
-	13, // [13:18] is the sub-list for method input_type
+	14, // 13: velez_api.ControlPlaneAPI.EnableService:input_type -> velez_api.EnableService.Request
+	18, // 14: velez_api.ControlPlaneAPI.ConnectSlave:input_type -> velez_api.ConnectSlave.Request
+	22, // 15: velez_api.ControlPlaneAPI.ListNodes:input_type -> velez_api.ListNodes.Request
+	24, // 16: velez_api.ControlPlaneAPI.ListPlugins:input_type -> velez_api.ListPlugins.Request
+	15, // 17: velez_api.ControlPlaneAPI.EnableService:output_type -> velez_api.EnableService.Response
+	19, // 18: velez_api.ControlPlaneAPI.ConnectSlave:output_type -> velez_api.ConnectSlave.Response
+	23, // 19: velez_api.ControlPlaneAPI.ListNodes:output_type -> velez_api.ListNodes.Response
+	25, // 20: velez_api.ControlPlaneAPI.ListPlugins:output_type -> velez_api.ListPlugins.Response
+	17, // [17:21] is the sub-list for method output_type
+	13, // [13:17] is the sub-list for method input_type
 	13, // [13:13] is the sub-list for extension type_name
 	13, // [13:13] is the sub-list for extension extendee
 	0,  // [0:13] is the sub-list for field type_name

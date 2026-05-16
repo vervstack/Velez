@@ -1,4 +1,4 @@
-import {VervServiceType, VervServiceState} from "@/app/api/velez"
+import {VervPluginType, VervPluginState} from "@/app/api/velez"
 
 import MatreshkaIcon from "@/assets/icons/services/matreshka.png";
 import MakoshIcon from "@/assets/icons/services/makosh.png";
@@ -14,11 +14,11 @@ export class Service {
     icon: string
     webLink?: string
     description: string
-    type: VervServiceType
+    type: VervPluginType
 
-    state: VervServiceState = VervServiceState.unknown
+    state: VervPluginState = VervPluginState.unknown
 
-    constructor(type: VervServiceType, port?: number) {
+    constructor(type: VervPluginType, port?: number) {
         const serviceMeta = metaByType.get(type);
         this.type = type;
 
@@ -45,35 +45,35 @@ interface ServiceMeta {
     description: string
 }
 
-const metaByType = new Map<VervServiceType, ServiceMeta>();
-metaByType.set(VervServiceType.makosh, {
+const metaByType = new Map<VervPluginType, ServiceMeta>();
+metaByType.set(VervPluginType.makosh, {
     title: "Makosh",
     icon: MakoshIcon,
     description: `Verv's Standard service discovery inside cluster`
 });
-metaByType.set(VervServiceType.matreshka, {
+metaByType.set(VervPluginType.matreshka, {
     title: "Matreshka",
     icon: MatreshkaIcon,
     description: `Verv's Standard configuration system`
 });
-metaByType.set(VervServiceType.portainer, {
+metaByType.set(VervPluginType.portainer, {
     title: "Portainer",
     icon: PortainerIcon,
     description: `Docker engine web interface`
 });
-metaByType.set(VervServiceType.headscale, {
+metaByType.set(VervPluginType.headscale, {
     title: "Headscale",
     icon: HeadscaleIcon,
     description: `Verv's default private network manager.`
 })
 
-metaByType.set(VervServiceType.webserver, {
+metaByType.set(VervPluginType.webserver, {
     title: "Angie (WebServer)",
     icon: AngieIcon,
     description: `Cluster entrypoint`
 });
 
-metaByType.set(VervServiceType.statefull_pg, {
+metaByType.set(VervPluginType.statefull_pg, {
     title: "Stateful mode (Postgres)",
     icon: DatabasePixelIcon,
     description: `

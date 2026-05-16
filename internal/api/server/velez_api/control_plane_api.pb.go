@@ -23,21 +23,21 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type VervServiceType int32
+type VervPluginType int32
 
 const (
-	VervServiceType_unknown_service_type VervServiceType = 0
-	VervServiceType_matreshka            VervServiceType = 1
-	VervServiceType_makosh               VervServiceType = 2
-	VervServiceType_webserver            VervServiceType = 3
-	VervServiceType_headscale            VervServiceType = 4
-	VervServiceType_portainer            VervServiceType = 5
-	VervServiceType_statefull_pg         VervServiceType = 6
+	VervPluginType_unknown_service_type VervPluginType = 0
+	VervPluginType_matreshka            VervPluginType = 1
+	VervPluginType_makosh               VervPluginType = 2
+	VervPluginType_webserver            VervPluginType = 3
+	VervPluginType_headscale            VervPluginType = 4
+	VervPluginType_portainer            VervPluginType = 5
+	VervPluginType_statefull_pg         VervPluginType = 6
 )
 
-// Enum value maps for VervServiceType.
+// Enum value maps for VervPluginType.
 var (
-	VervServiceType_name = map[int32]string{
+	VervPluginType_name = map[int32]string{
 		0: "unknown_service_type",
 		1: "matreshka",
 		2: "makosh",
@@ -46,7 +46,7 @@ var (
 		5: "portainer",
 		6: "statefull_pg",
 	}
-	VervServiceType_value = map[string]int32{
+	VervPluginType_value = map[string]int32{
 		"unknown_service_type": 0,
 		"matreshka":            1,
 		"makosh":               2,
@@ -57,53 +57,53 @@ var (
 	}
 )
 
-func (x VervServiceType) Enum() *VervServiceType {
-	p := new(VervServiceType)
+func (x VervPluginType) Enum() *VervPluginType {
+	p := new(VervPluginType)
 	*p = x
 	return p
 }
 
-func (x VervServiceType) String() string {
+func (x VervPluginType) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (VervServiceType) Descriptor() protoreflect.EnumDescriptor {
+func (VervPluginType) Descriptor() protoreflect.EnumDescriptor {
 	return file_control_plane_api_proto_enumTypes[0].Descriptor()
 }
 
-func (VervServiceType) Type() protoreflect.EnumType {
+func (VervPluginType) Type() protoreflect.EnumType {
 	return &file_control_plane_api_proto_enumTypes[0]
 }
 
-func (x VervServiceType) Number() protoreflect.EnumNumber {
+func (x VervPluginType) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use VervServiceType.Descriptor instead.
-func (VervServiceType) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use VervPluginType.Descriptor instead.
+func (VervPluginType) EnumDescriptor() ([]byte, []int) {
 	return file_control_plane_api_proto_rawDescGZIP(), []int{0}
 }
 
-type VervService_State int32
+type VervPlugin_State int32
 
 const (
-	VervService_unknown  VervService_State = 0
-	VervService_running  VervService_State = 1
-	VervService_warning  VervService_State = 2
-	VervService_dead     VervService_State = 3
-	VervService_disabled VervService_State = 4
+	VervPlugin_unknown  VervPlugin_State = 0
+	VervPlugin_running  VervPlugin_State = 1
+	VervPlugin_warning  VervPlugin_State = 2
+	VervPlugin_dead     VervPlugin_State = 3
+	VervPlugin_disabled VervPlugin_State = 4
 )
 
-// Enum value maps for VervService_State.
+// Enum value maps for VervPlugin_State.
 var (
-	VervService_State_name = map[int32]string{
+	VervPlugin_State_name = map[int32]string{
 		0: "unknown",
 		1: "running",
 		2: "warning",
 		3: "dead",
 		4: "disabled",
 	}
-	VervService_State_value = map[string]int32{
+	VervPlugin_State_value = map[string]int32{
 		"unknown":  0,
 		"running":  1,
 		"warning":  2,
@@ -112,53 +112,53 @@ var (
 	}
 )
 
-func (x VervService_State) Enum() *VervService_State {
-	p := new(VervService_State)
+func (x VervPlugin_State) Enum() *VervPlugin_State {
+	p := new(VervPlugin_State)
 	*p = x
 	return p
 }
 
-func (x VervService_State) String() string {
+func (x VervPlugin_State) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (VervService_State) Descriptor() protoreflect.EnumDescriptor {
+func (VervPlugin_State) Descriptor() protoreflect.EnumDescriptor {
 	return file_control_plane_api_proto_enumTypes[1].Descriptor()
 }
 
-func (VervService_State) Type() protoreflect.EnumType {
+func (VervPlugin_State) Type() protoreflect.EnumType {
 	return &file_control_plane_api_proto_enumTypes[1]
 }
 
-func (x VervService_State) Number() protoreflect.EnumNumber {
+func (x VervPlugin_State) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use VervService_State.Descriptor instead.
-func (VervService_State) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use VervPlugin_State.Descriptor instead.
+func (VervPlugin_State) EnumDescriptor() ([]byte, []int) {
 	return file_control_plane_api_proto_rawDescGZIP(), []int{1, 0}
 }
 
-type ListVervServices struct {
+type ListVervPlugins struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListVervServices) Reset() {
-	*x = ListVervServices{}
+func (x *ListVervPlugins) Reset() {
+	*x = ListVervPlugins{}
 	mi := &file_control_plane_api_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListVervServices) String() string {
+func (x *ListVervPlugins) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListVervServices) ProtoMessage() {}
+func (*ListVervPlugins) ProtoMessage() {}
 
-func (x *ListVervServices) ProtoReflect() protoreflect.Message {
+func (x *ListVervPlugins) ProtoReflect() protoreflect.Message {
 	mi := &file_control_plane_api_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -170,34 +170,34 @@ func (x *ListVervServices) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListVervServices.ProtoReflect.Descriptor instead.
-func (*ListVervServices) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListVervPlugins.ProtoReflect.Descriptor instead.
+func (*ListVervPlugins) Descriptor() ([]byte, []int) {
 	return file_control_plane_api_proto_rawDescGZIP(), []int{0}
 }
 
-type VervService struct {
+type VervPlugin struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          VervServiceType        `protobuf:"varint,1,opt,name=type,proto3,enum=velez_api.VervServiceType" json:"type,omitempty"`
+	Type          VervPluginType         `protobuf:"varint,1,opt,name=type,proto3,enum=velez_api.VervPluginType" json:"type,omitempty"`
 	Port          *uint32                `protobuf:"varint,2,opt,name=port,proto3,oneof" json:"port,omitempty"`
-	State         VervService_State      `protobuf:"varint,3,opt,name=state,proto3,enum=velez_api.VervService_State" json:"state,omitempty"`
+	State         VervPlugin_State       `protobuf:"varint,3,opt,name=state,proto3,enum=velez_api.VervPlugin_State" json:"state,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *VervService) Reset() {
-	*x = VervService{}
+func (x *VervPlugin) Reset() {
+	*x = VervPlugin{}
 	mi := &file_control_plane_api_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *VervService) String() string {
+func (x *VervPlugin) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*VervService) ProtoMessage() {}
+func (*VervPlugin) ProtoMessage() {}
 
-func (x *VervService) ProtoReflect() protoreflect.Message {
+func (x *VervPlugin) ProtoReflect() protoreflect.Message {
 	mi := &file_control_plane_api_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -209,52 +209,52 @@ func (x *VervService) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use VervService.ProtoReflect.Descriptor instead.
-func (*VervService) Descriptor() ([]byte, []int) {
+// Deprecated: Use VervPlugin.ProtoReflect.Descriptor instead.
+func (*VervPlugin) Descriptor() ([]byte, []int) {
 	return file_control_plane_api_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *VervService) GetType() VervServiceType {
+func (x *VervPlugin) GetType() VervPluginType {
 	if x != nil {
 		return x.Type
 	}
-	return VervServiceType_unknown_service_type
+	return VervPluginType_unknown_service_type
 }
 
-func (x *VervService) GetPort() uint32 {
+func (x *VervPlugin) GetPort() uint32 {
 	if x != nil && x.Port != nil {
 		return *x.Port
 	}
 	return 0
 }
 
-func (x *VervService) GetState() VervService_State {
+func (x *VervPlugin) GetState() VervPlugin_State {
 	if x != nil {
 		return x.State
 	}
-	return VervService_unknown
+	return VervPlugin_unknown
 }
 
-type EnableService struct {
+type EnablePlugin struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *EnableService) Reset() {
-	*x = EnableService{}
+func (x *EnablePlugin) Reset() {
+	*x = EnablePlugin{}
 	mi := &file_control_plane_api_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *EnableService) String() string {
+func (x *EnablePlugin) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*EnableService) ProtoMessage() {}
+func (*EnablePlugin) ProtoMessage() {}
 
-func (x *EnableService) ProtoReflect() protoreflect.Message {
+func (x *EnablePlugin) ProtoReflect() protoreflect.Message {
 	mi := &file_control_plane_api_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -266,8 +266,8 @@ func (x *EnableService) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use EnableService.ProtoReflect.Descriptor instead.
-func (*EnableService) Descriptor() ([]byte, []int) {
+// Deprecated: Use EnablePlugin.ProtoReflect.Descriptor instead.
+func (*EnablePlugin) Descriptor() ([]byte, []int) {
 	return file_control_plane_api_proto_rawDescGZIP(), []int{2}
 }
 
@@ -515,8 +515,8 @@ func (*ListNodes) Descriptor() ([]byte, []int) {
 
 type Plugin struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          VervServiceType        `protobuf:"varint,1,opt,name=type,proto3,enum=velez_api.VervServiceType" json:"type,omitempty"`
-	State         VervService_State      `protobuf:"varint,2,opt,name=state,proto3,enum=velez_api.VervService_State" json:"state,omitempty"`
+	Type          VervPluginType         `protobuf:"varint,1,opt,name=type,proto3,enum=velez_api.VervPluginType" json:"type,omitempty"`
+	State         VervPlugin_State       `protobuf:"varint,2,opt,name=state,proto3,enum=velez_api.VervPlugin_State" json:"state,omitempty"`
 	Port          *uint32                `protobuf:"varint,3,opt,name=port,proto3,oneof" json:"port,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -552,18 +552,18 @@ func (*Plugin) Descriptor() ([]byte, []int) {
 	return file_control_plane_api_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *Plugin) GetType() VervServiceType {
+func (x *Plugin) GetType() VervPluginType {
 	if x != nil {
 		return x.Type
 	}
-	return VervServiceType_unknown_service_type
+	return VervPluginType_unknown_service_type
 }
 
-func (x *Plugin) GetState() VervService_State {
+func (x *Plugin) GetState() VervPlugin_State {
 	if x != nil {
 		return x.State
 	}
-	return VervService_unknown
+	return VervPlugin_unknown
 }
 
 func (x *Plugin) GetPort() uint32 {
@@ -609,26 +609,26 @@ func (*ListPlugins) Descriptor() ([]byte, []int) {
 	return file_control_plane_api_proto_rawDescGZIP(), []int{9}
 }
 
-type ListVervServices_Request struct {
+type ListVervPlugins_Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListVervServices_Request) Reset() {
-	*x = ListVervServices_Request{}
+func (x *ListVervPlugins_Request) Reset() {
+	*x = ListVervPlugins_Request{}
 	mi := &file_control_plane_api_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListVervServices_Request) String() string {
+func (x *ListVervPlugins_Request) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListVervServices_Request) ProtoMessage() {}
+func (*ListVervPlugins_Request) ProtoMessage() {}
 
-func (x *ListVervServices_Request) ProtoReflect() protoreflect.Message {
+func (x *ListVervPlugins_Request) ProtoReflect() protoreflect.Message {
 	mi := &file_control_plane_api_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -640,32 +640,32 @@ func (x *ListVervServices_Request) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListVervServices_Request.ProtoReflect.Descriptor instead.
-func (*ListVervServices_Request) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListVervPlugins_Request.ProtoReflect.Descriptor instead.
+func (*ListVervPlugins_Request) Descriptor() ([]byte, []int) {
 	return file_control_plane_api_proto_rawDescGZIP(), []int{0, 0}
 }
 
-type ListVervServices_Response struct {
+type ListVervPlugins_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Services      []*VervService         `protobuf:"bytes,1,rep,name=services,proto3" json:"services,omitempty"`
+	Plugins       []*VervPlugin          `protobuf:"bytes,1,rep,name=plugins,proto3" json:"plugins,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListVervServices_Response) Reset() {
-	*x = ListVervServices_Response{}
+func (x *ListVervPlugins_Response) Reset() {
+	*x = ListVervPlugins_Response{}
 	mi := &file_control_plane_api_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListVervServices_Response) String() string {
+func (x *ListVervPlugins_Response) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListVervServices_Response) ProtoMessage() {}
+func (*ListVervPlugins_Response) ProtoMessage() {}
 
-func (x *ListVervServices_Response) ProtoReflect() protoreflect.Message {
+func (x *ListVervPlugins_Response) ProtoReflect() protoreflect.Message {
 	mi := &file_control_plane_api_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -677,44 +677,44 @@ func (x *ListVervServices_Response) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListVervServices_Response.ProtoReflect.Descriptor instead.
-func (*ListVervServices_Response) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListVervPlugins_Response.ProtoReflect.Descriptor instead.
+func (*ListVervPlugins_Response) Descriptor() ([]byte, []int) {
 	return file_control_plane_api_proto_rawDescGZIP(), []int{0, 1}
 }
 
-func (x *ListVervServices_Response) GetServices() []*VervService {
+func (x *ListVervPlugins_Response) GetPlugins() []*VervPlugin {
 	if x != nil {
-		return x.Services
+		return x.Plugins
 	}
 	return nil
 }
 
-type EnableService_Request struct {
-	state   protoimpl.MessageState `protogen:"open.v1"`
-	Service VervServiceType        `protobuf:"varint,1,opt,name=service,proto3,enum=velez_api.VervServiceType" json:"service,omitempty"`
+type EnablePlugin_Request struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Plugin VervPluginType         `protobuf:"varint,1,opt,name=plugin,proto3,enum=velez_api.VervPluginType" json:"plugin,omitempty"`
 	// Types that are valid to be assigned to Payload:
 	//
-	//	*EnableService_Request_StatefullCluster
-	//	*EnableService_Request_HeadscaleServer
-	Payload       isEnableService_Request_Payload `protobuf_oneof:"payload"`
+	//	*EnablePlugin_Request_StatefullCluster
+	//	*EnablePlugin_Request_HeadscaleServer
+	Payload       isEnablePlugin_Request_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *EnableService_Request) Reset() {
-	*x = EnableService_Request{}
+func (x *EnablePlugin_Request) Reset() {
+	*x = EnablePlugin_Request{}
 	mi := &file_control_plane_api_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *EnableService_Request) String() string {
+func (x *EnablePlugin_Request) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*EnableService_Request) ProtoMessage() {}
+func (*EnablePlugin_Request) ProtoMessage() {}
 
-func (x *EnableService_Request) ProtoReflect() protoreflect.Message {
+func (x *EnablePlugin_Request) ProtoReflect() protoreflect.Message {
 	mi := &file_control_plane_api_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -726,79 +726,79 @@ func (x *EnableService_Request) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use EnableService_Request.ProtoReflect.Descriptor instead.
-func (*EnableService_Request) Descriptor() ([]byte, []int) {
+// Deprecated: Use EnablePlugin_Request.ProtoReflect.Descriptor instead.
+func (*EnablePlugin_Request) Descriptor() ([]byte, []int) {
 	return file_control_plane_api_proto_rawDescGZIP(), []int{2, 0}
 }
 
-func (x *EnableService_Request) GetService() VervServiceType {
+func (x *EnablePlugin_Request) GetPlugin() VervPluginType {
 	if x != nil {
-		return x.Service
+		return x.Plugin
 	}
-	return VervServiceType_unknown_service_type
+	return VervPluginType_unknown_service_type
 }
 
-func (x *EnableService_Request) GetPayload() isEnableService_Request_Payload {
+func (x *EnablePlugin_Request) GetPayload() isEnablePlugin_Request_Payload {
 	if x != nil {
 		return x.Payload
 	}
 	return nil
 }
 
-func (x *EnableService_Request) GetStatefullCluster() *EnableStatefullCluster {
+func (x *EnablePlugin_Request) GetStatefullCluster() *EnableStatefullCluster {
 	if x != nil {
-		if x, ok := x.Payload.(*EnableService_Request_StatefullCluster); ok {
+		if x, ok := x.Payload.(*EnablePlugin_Request_StatefullCluster); ok {
 			return x.StatefullCluster
 		}
 	}
 	return nil
 }
 
-func (x *EnableService_Request) GetHeadscaleServer() *EnableHeadscaleServer {
+func (x *EnablePlugin_Request) GetHeadscaleServer() *EnableHeadscaleServer {
 	if x != nil {
-		if x, ok := x.Payload.(*EnableService_Request_HeadscaleServer); ok {
+		if x, ok := x.Payload.(*EnablePlugin_Request_HeadscaleServer); ok {
 			return x.HeadscaleServer
 		}
 	}
 	return nil
 }
 
-type isEnableService_Request_Payload interface {
-	isEnableService_Request_Payload()
+type isEnablePlugin_Request_Payload interface {
+	isEnablePlugin_Request_Payload()
 }
 
-type EnableService_Request_StatefullCluster struct {
+type EnablePlugin_Request_StatefullCluster struct {
 	StatefullCluster *EnableStatefullCluster `protobuf:"bytes,2,opt,name=statefull_cluster,json=statefullCluster,proto3,oneof"`
 }
 
-type EnableService_Request_HeadscaleServer struct {
+type EnablePlugin_Request_HeadscaleServer struct {
 	HeadscaleServer *EnableHeadscaleServer `protobuf:"bytes,3,opt,name=headscale_server,json=headscaleServer,proto3,oneof"`
 }
 
-func (*EnableService_Request_StatefullCluster) isEnableService_Request_Payload() {}
+func (*EnablePlugin_Request_StatefullCluster) isEnablePlugin_Request_Payload() {}
 
-func (*EnableService_Request_HeadscaleServer) isEnableService_Request_Payload() {}
+func (*EnablePlugin_Request_HeadscaleServer) isEnablePlugin_Request_Payload() {}
 
-type EnableService_Response struct {
+type EnablePlugin_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *EnableService_Response) Reset() {
-	*x = EnableService_Response{}
+func (x *EnablePlugin_Response) Reset() {
+	*x = EnablePlugin_Response{}
 	mi := &file_control_plane_api_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *EnableService_Response) String() string {
+func (x *EnablePlugin_Response) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*EnableService_Response) ProtoMessage() {}
+func (*EnablePlugin_Response) ProtoMessage() {}
 
-func (x *EnableService_Response) ProtoReflect() protoreflect.Message {
+func (x *EnablePlugin_Response) ProtoReflect() protoreflect.Message {
 	mi := &file_control_plane_api_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -810,8 +810,8 @@ func (x *EnableService_Response) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use EnableService_Response.ProtoReflect.Descriptor instead.
-func (*EnableService_Response) Descriptor() ([]byte, []int) {
+// Deprecated: Use EnablePlugin_Response.ProtoReflect.Descriptor instead.
+func (*EnablePlugin_Response) Descriptor() ([]byte, []int) {
 	return file_control_plane_api_proto_rawDescGZIP(), []int{2, 1}
 }
 
@@ -1246,25 +1246,26 @@ var File_control_plane_api_proto protoreflect.FileDescriptor
 
 const file_control_plane_api_proto_rawDesc = "" +
 	"\n" +
-	"\x17control_plane_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\tnpm.proto\x1a\x0fvelez_api.proto\x1a\x12velez_common.proto\"]\n" +
-	"\x10ListVervServices\x1a\t\n" +
-	"\aRequest\x1a>\n" +
-	"\bResponse\x122\n" +
-	"\bservices\x18\x01 \x03(\v2\x16.velez_api.VervServiceR\bservices\"\xdb\x01\n" +
-	"\vVervService\x12.\n" +
-	"\x04type\x18\x01 \x01(\x0e2\x1a.velez_api.VervServiceTypeR\x04type\x12\x17\n" +
-	"\x04port\x18\x02 \x01(\rH\x00R\x04port\x88\x01\x01\x122\n" +
-	"\x05state\x18\x03 \x01(\x0e2\x1c.velez_api.VervService.StateR\x05state\"F\n" +
+	"\x17control_plane_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\tnpm.proto\x1a\x0fvelez_api.proto\x1a\x12velez_common.proto\"Y\n" +
+	"\x0fListVervPlugins\x1a\t\n" +
+	"\aRequest\x1a;\n" +
+	"\bResponse\x12/\n" +
+	"\aplugins\x18\x01 \x03(\v2\x15.velez_api.VervPluginR\aplugins\"\xd8\x01\n" +
+	"\n" +
+	"VervPlugin\x12-\n" +
+	"\x04type\x18\x01 \x01(\x0e2\x19.velez_api.VervPluginTypeR\x04type\x12\x17\n" +
+	"\x04port\x18\x02 \x01(\rH\x00R\x04port\x88\x01\x01\x121\n" +
+	"\x05state\x18\x03 \x01(\x0e2\x1b.velez_api.VervPlugin.StateR\x05state\"F\n" +
 	"\x05State\x12\v\n" +
 	"\aunknown\x10\x00\x12\v\n" +
 	"\arunning\x10\x01\x12\v\n" +
 	"\awarning\x10\x02\x12\b\n" +
 	"\x04dead\x10\x03\x12\f\n" +
 	"\bdisabled\x10\x04B\a\n" +
-	"\x05_port\"\x89\x02\n" +
-	"\rEnableService\x1a\xeb\x01\n" +
-	"\aRequest\x124\n" +
-	"\aservice\x18\x01 \x01(\x0e2\x1a.velez_api.VervServiceTypeR\aservice\x12P\n" +
+	"\x05_port\"\x85\x02\n" +
+	"\fEnablePlugin\x1a\xe8\x01\n" +
+	"\aRequest\x121\n" +
+	"\x06plugin\x18\x01 \x01(\x0e2\x19.velez_api.VervPluginTypeR\x06plugin\x12P\n" +
 	"\x11statefull_cluster\x18\x02 \x01(\v2!.velez_api.EnableStatefullClusterH\x00R\x10statefullCluster\x12M\n" +
 	"\x10headscale_server\x18\x03 \x01(\v2 .velez_api.EnableHeadscaleServerH\x00R\x0fheadscaleServerB\t\n" +
 	"\apayload\x1a\n" +
@@ -1302,17 +1303,17 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x1aO\n" +
 	"\bResponse\x12-\n" +
 	"\x05nodes\x18\x01 \x03(\v2\x17.velez_api.NodeBaseInfoR\x05nodes\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x04R\x05total\"\x8e\x01\n" +
-	"\x06Plugin\x12.\n" +
-	"\x04type\x18\x01 \x01(\x0e2\x1a.velez_api.VervServiceTypeR\x04type\x122\n" +
-	"\x05state\x18\x02 \x01(\x0e2\x1c.velez_api.VervService.StateR\x05state\x12\x17\n" +
+	"\x05total\x18\x02 \x01(\x04R\x05total\"\x8c\x01\n" +
+	"\x06Plugin\x12-\n" +
+	"\x04type\x18\x01 \x01(\x0e2\x19.velez_api.VervPluginTypeR\x04type\x121\n" +
+	"\x05state\x18\x02 \x01(\x0e2\x1b.velez_api.VervPlugin.StateR\x05state\x12\x17\n" +
 	"\x04port\x18\x03 \x01(\rH\x00R\x04port\x88\x01\x01B\a\n" +
 	"\x05_port\"Q\n" +
 	"\vListPlugins\x1a\t\n" +
 	"\aRequest\x1a7\n" +
 	"\bResponse\x12+\n" +
-	"\aplugins\x18\x01 \x03(\v2\x11.velez_api.PluginR\aplugins*\x85\x01\n" +
-	"\x0fVervServiceType\x12\x18\n" +
+	"\aplugins\x18\x01 \x03(\v2\x11.velez_api.PluginR\aplugins*\x84\x01\n" +
+	"\x0eVervPluginType\x12\x18\n" +
 	"\x14unknown_service_type\x10\x00\x12\r\n" +
 	"\tmatreshka\x10\x01\x12\n" +
 	"\n" +
@@ -1320,9 +1321,9 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\twebserver\x10\x03\x12\r\n" +
 	"\theadscale\x10\x04\x12\r\n" +
 	"\tportainer\x10\x05\x12\x10\n" +
-	"\fstatefull_pg\x10\x062\xfe\x03\n" +
-	"\x0fControlPlaneAPI\x12\x82\x01\n" +
-	"\rEnableService\x12 .velez_api.EnableService.Request\x1a!.velez_api.EnableService.Response\",\x82\xd3\xe4\x93\x02&:\x01*\"!/api/control_plane/service/enable\x12~\n" +
+	"\fstatefull_pg\x10\x062\xf9\x03\n" +
+	"\x0fControlPlaneAPI\x12~\n" +
+	"\fEnablePlugin\x12\x1f.velez_api.EnablePlugin.Request\x1a .velez_api.EnablePlugin.Response\"+\x82\xd3\xe4\x93\x02%:\x01*\" /api/control_plane/plugin/enable\x12~\n" +
 	"\fConnectSlave\x12\x1f.velez_api.ConnectSlave.Request\x1a .velez_api.ConnectSlave.Response\"+\x82\xd3\xe4\x93\x02%:\x01*\" /api/control_plane/slave/connect\x12r\n" +
 	"\tListNodes\x12\x1c.velez_api.ListNodes.Request\x1a\x1d.velez_api.ListNodes.Response\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/api/control_plane/nodes/list\x12r\n" +
 	"\vListPlugins\x12\x1e.velez_api.ListPlugins.Request\x1a\x1f.velez_api.ListPlugins.Response\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/control_plane/pluginsBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
@@ -1342,11 +1343,11 @@ func file_control_plane_api_proto_rawDescGZIP() []byte {
 var file_control_plane_api_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_control_plane_api_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_control_plane_api_proto_goTypes = []any{
-	(VervServiceType)(0),                                      // 0: velez_api.VervServiceType
-	(VervService_State)(0),                                    // 1: velez_api.VervService.State
-	(*ListVervServices)(nil),                                  // 2: velez_api.ListVervServices
-	(*VervService)(nil),                                       // 3: velez_api.VervService
-	(*EnableService)(nil),                                     // 4: velez_api.EnableService
+	(VervPluginType)(0),                                       // 0: velez_api.VervPluginType
+	(VervPlugin_State)(0),                                     // 1: velez_api.VervPlugin.State
+	(*ListVervPlugins)(nil),                                   // 2: velez_api.ListVervPlugins
+	(*VervPlugin)(nil),                                        // 3: velez_api.VervPlugin
+	(*EnablePlugin)(nil),                                      // 4: velez_api.EnablePlugin
 	(*InitMaster)(nil),                                        // 5: velez_api.InitMaster
 	(*ConnectSlave)(nil),                                      // 6: velez_api.ConnectSlave
 	(*EnableStatefullCluster)(nil),                            // 7: velez_api.EnableStatefullCluster
@@ -1354,10 +1355,10 @@ var file_control_plane_api_proto_goTypes = []any{
 	(*ListNodes)(nil),                                         // 9: velez_api.ListNodes
 	(*Plugin)(nil),                                            // 10: velez_api.Plugin
 	(*ListPlugins)(nil),                                       // 11: velez_api.ListPlugins
-	(*ListVervServices_Request)(nil),                          // 12: velez_api.ListVervServices.Request
-	(*ListVervServices_Response)(nil),                         // 13: velez_api.ListVervServices.Response
-	(*EnableService_Request)(nil),                             // 14: velez_api.EnableService.Request
-	(*EnableService_Response)(nil),                            // 15: velez_api.EnableService.Response
+	(*ListVervPlugins_Request)(nil),                           // 12: velez_api.ListVervPlugins.Request
+	(*ListVervPlugins_Response)(nil),                          // 13: velez_api.ListVervPlugins.Response
+	(*EnablePlugin_Request)(nil),                              // 14: velez_api.EnablePlugin.Request
+	(*EnablePlugin_Response)(nil),                             // 15: velez_api.EnablePlugin.Response
 	(*InitMaster_Request)(nil),                                // 16: velez_api.InitMaster.Request
 	(*InitMaster_Response)(nil),                               // 17: velez_api.InitMaster.Response
 	(*ConnectSlave_Request)(nil),                              // 18: velez_api.ConnectSlave.Request
@@ -1372,24 +1373,24 @@ var file_control_plane_api_proto_goTypes = []any{
 	(*NodeBaseInfo)(nil),                                      // 27: velez_api.NodeBaseInfo
 }
 var file_control_plane_api_proto_depIdxs = []int32{
-	0,  // 0: velez_api.VervService.type:type_name -> velez_api.VervServiceType
-	1,  // 1: velez_api.VervService.state:type_name -> velez_api.VervService.State
+	0,  // 0: velez_api.VervPlugin.type:type_name -> velez_api.VervPluginType
+	1,  // 1: velez_api.VervPlugin.state:type_name -> velez_api.VervPlugin.State
 	21, // 2: velez_api.EnableHeadscaleServer.deploy_config:type_name -> velez_api.EnableHeadscaleServer.DeployHeadscaleConfig
 	20, // 3: velez_api.EnableHeadscaleServer.external_connect:type_name -> velez_api.EnableHeadscaleServer.ExternalHeadscaleConnection
-	0,  // 4: velez_api.Plugin.type:type_name -> velez_api.VervServiceType
-	1,  // 5: velez_api.Plugin.state:type_name -> velez_api.VervService.State
-	3,  // 6: velez_api.ListVervServices.Response.services:type_name -> velez_api.VervService
-	0,  // 7: velez_api.EnableService.Request.service:type_name -> velez_api.VervServiceType
-	7,  // 8: velez_api.EnableService.Request.statefull_cluster:type_name -> velez_api.EnableStatefullCluster
-	8,  // 9: velez_api.EnableService.Request.headscale_server:type_name -> velez_api.EnableHeadscaleServer
+	0,  // 4: velez_api.Plugin.type:type_name -> velez_api.VervPluginType
+	1,  // 5: velez_api.Plugin.state:type_name -> velez_api.VervPlugin.State
+	3,  // 6: velez_api.ListVervPlugins.Response.plugins:type_name -> velez_api.VervPlugin
+	0,  // 7: velez_api.EnablePlugin.Request.plugin:type_name -> velez_api.VervPluginType
+	7,  // 8: velez_api.EnablePlugin.Request.statefull_cluster:type_name -> velez_api.EnableStatefullCluster
+	8,  // 9: velez_api.EnablePlugin.Request.headscale_server:type_name -> velez_api.EnableHeadscaleServer
 	26, // 10: velez_api.ListNodes.Request.paging:type_name -> velez_api.Paging
 	27, // 11: velez_api.ListNodes.Response.nodes:type_name -> velez_api.NodeBaseInfo
 	10, // 12: velez_api.ListPlugins.Response.plugins:type_name -> velez_api.Plugin
-	14, // 13: velez_api.ControlPlaneAPI.EnableService:input_type -> velez_api.EnableService.Request
+	14, // 13: velez_api.ControlPlaneAPI.EnablePlugin:input_type -> velez_api.EnablePlugin.Request
 	18, // 14: velez_api.ControlPlaneAPI.ConnectSlave:input_type -> velez_api.ConnectSlave.Request
 	22, // 15: velez_api.ControlPlaneAPI.ListNodes:input_type -> velez_api.ListNodes.Request
 	24, // 16: velez_api.ControlPlaneAPI.ListPlugins:input_type -> velez_api.ListPlugins.Request
-	15, // 17: velez_api.ControlPlaneAPI.EnableService:output_type -> velez_api.EnableService.Response
+	15, // 17: velez_api.ControlPlaneAPI.EnablePlugin:output_type -> velez_api.EnablePlugin.Response
 	19, // 18: velez_api.ControlPlaneAPI.ConnectSlave:output_type -> velez_api.ConnectSlave.Response
 	23, // 19: velez_api.ControlPlaneAPI.ListNodes:output_type -> velez_api.ListNodes.Response
 	25, // 20: velez_api.ControlPlaneAPI.ListPlugins:output_type -> velez_api.ListPlugins.Response
@@ -1415,8 +1416,8 @@ func file_control_plane_api_proto_init() {
 	}
 	file_control_plane_api_proto_msgTypes[8].OneofWrappers = []any{}
 	file_control_plane_api_proto_msgTypes[12].OneofWrappers = []any{
-		(*EnableService_Request_StatefullCluster)(nil),
-		(*EnableService_Request_HeadscaleServer)(nil),
+		(*EnablePlugin_Request_StatefullCluster)(nil),
+		(*EnablePlugin_Request_HeadscaleServer)(nil),
 	}
 	file_control_plane_api_proto_msgTypes[19].OneofWrappers = []any{}
 	type x struct{}

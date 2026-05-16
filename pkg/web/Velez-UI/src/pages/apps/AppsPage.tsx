@@ -5,6 +5,7 @@ import cls from '@/pages/apps/AppsPage.module.css';
 import AppCard from '@/components/apps/AppCard';
 import { Routes } from '@/app/router/Routes';
 import { FetchSmerds } from '@/processes/api/velez';
+import { listSmerdsQuery } from '@/processes/queries/smerds';
 import { mapSmerdToAppData } from '@/processes/mappings/smerds';
 import { useToaster } from '@/app/hooks/toaster/Toaster';
 import { AppData } from '@/processes/mappings/smerds';
@@ -15,13 +16,12 @@ export default function AppsPage() {
     const toaster = useToaster();
 
     const smerdsQuery = useQuery({
-        queryKey: ['smerds'],
+        ...listSmerdsQuery(),
         queryFn: () =>
             FetchSmerds().catch((e) => {
                 toaster.catchGrpc(e);
                 return { smerds: [] };
             }),
-
     });
 
     const apps: AppData[] = (smerdsQuery.data?.smerds ?? []).map(mapSmerdToAppData);

@@ -14,6 +14,8 @@ import {Routes} from "@/app/router/Router.tsx";
 import Button from "@/components/base/Button.tsx";
 import SkeletonServiceCard from "@/components/service/SkeletonServiceCard.tsx";
 import SkeletonSmerdRow from "@/components/smerd/SkeletonSmerdRow.tsx";
+import {listServicesQuery} from "@/processes/queries/services.ts";
+import {listSmerdsQuery} from "@/processes/queries/smerds.ts";
 
 const LIST_REQ = {paging: {limit: '50', offset: '0'}};
 
@@ -21,7 +23,7 @@ export default function HomePage() {
     const toaster = useToaster();
 
     const servicesQuery = useQuery({
-        queryKey: ["services"],
+        ...listServicesQuery(),
         queryFn: () => ListServices(LIST_REQ).catch((e) => {
             toaster.catchGrpc(e);
             return {services: []};
@@ -29,7 +31,7 @@ export default function HomePage() {
     });
 
     const smerdsQuery = useQuery({
-        queryKey: ["smerds"],
+        ...listSmerdsQuery(),
         queryFn: () => FetchSmerds().catch((e) => {
             toaster.catchGrpc(e);
             return {smerds: []};

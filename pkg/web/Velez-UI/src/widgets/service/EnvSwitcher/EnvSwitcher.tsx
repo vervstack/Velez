@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 
 import cls from '@/widgets/service/EnvSwitcher/EnvSwitcher.module.css'
 
-import { FetchServiceEnvironments } from '@/processes/api/service'
+import { listServiceEnvsQuery } from '@/processes/queries/services'
 import type { ServiceEnvironment } from '@/model/service_page/ServicePageModel'
 
 interface EnvSwitcherProps {
@@ -11,12 +11,7 @@ interface EnvSwitcherProps {
 }
 
 export default function EnvSwitcher({ serviceId }: EnvSwitcherProps) {
-    const { data: envs = [] } = useQuery({
-        queryKey: ['service-envs', serviceId],
-        queryFn: function fetchEnvs() {
-            return FetchServiceEnvironments(serviceId)
-        },
-    })
+    const { data: envs = [] } = useQuery(listServiceEnvsQuery(serviceId))
 
     const [activeEnv, setActiveEnv] = useState<string>(() =>
         envs.length > 0 ? envs[0].id : 'prod'

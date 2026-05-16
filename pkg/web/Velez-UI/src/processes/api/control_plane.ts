@@ -1,44 +1,44 @@
 import {
     ControlPlaneAPI,
     ListPluginsRequest,
-    EnableServiceRequest,
-    VervServiceType,
-    EnableStatefullCluster, ListNodesResponse, ListNodesRequest,
+    EnablePluginRequest,
+    VervPluginType,
+    EnableStatefullCluster,
+    ListNodesResponse,
 } from "@/app/api/velez";
 
 import {toServices} from "@/processes/mappings/services.ts";
-
-import {InitReq} from "@/app/settings/state.ts";
 import {Service} from "@/model/services/Services.tsx";
-import {GetInitReq} from "@/processes/api/api.ts";
+import {ApiService} from "@/processes/ApiService.ts";
 
-export async function ListNodes(): Promise<ListNodesResponse> {
-    const req: ListNodesRequest = {}
-
-    return ControlPlaneAPI.ListNodes(req, GetInitReq())
-}
-
-export async function ListPlugins(initReq: InitReq): Promise<Service[]> {
-    const req: ListPluginsRequest = {} as ListPluginsRequest
-
-    const list = await ControlPlaneAPI.ListPlugins(req, initReq);
-    return toServices(list.plugins || []);
-}
-
-
-export async function EnableService(vervService: VervServiceType, initReq: InitReq): Promise<void> {
-    const req: EnableServiceRequest = {
-        service: vervService,
+class ControlPlaneService extends ApiService {
+    async listNodes(): Promise<ListNodesResponse> {
+        return this.execute((req) => ControlPlaneAPI.ListNodes({}, req))
     }
 
-    return ControlPlaneAPI.EnableService(req, initReq).then();
-}
-
-export async function EnableStatefullPgCluster(payload: EnableStatefullCluster, initReq: InitReq): Promise<void> {
-    const req: EnableServiceRequest = {
-        service: VervServiceType.statefull_pg,
-        statefullCluster: payload
+    async listPlugins(): Promise<Service[]> {
+        return this.execute(async (req) => {
+            const list = await ControlPlaneAPI.ListPlugins({} as ListPluginsRequest, req)
+            return toServices(list.plugins || [])
+        })
     }
 
-    return ControlPlaneAPI.EnableService(req, initReq).then();
+    async enablePlugin(pluginType: VervPluginType): Promise<void> {
+        return this.mutate((req) => {
+            const payload: EnablePluginRequest = {plugin: pluginType}
+            return ControlPlaneAPI.EnablePlugin(payload, req).then()
+        })
+    }
+
+    async enableStatefullPgCluster(cluster: EnableStatefullCluster): Promise<void> {
+        return this.mutate((req) => {
+            const payload: EnablePluginRequest = {
+                plugin: VervPluginType.statefull_pg,
+                statefullCluster: cluster,
+            }
+            return ControlPlaneAPI.EnablePlugin(payload, req).then()
+        })
+    }
 }
+
+export const controlPlaneService = new ControlPlaneService()

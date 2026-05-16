@@ -2,24 +2,24 @@ import React, { useState } from 'react';
 import cls from '@/components/complex/PluginManageDialog/PluginManageDialog.module.css';
 import IconButton from '@/components/base/IconButton';
 import StatusDot from '@/components/base/StatusDot';
-import { VervServiceType, VervServiceState, EnableStatefullCluster, EnableHeadscaleServer } from '@/app/api/velez';
+import { VervPluginType, VervPluginState, EnableStatefullCluster, EnableHeadscaleServer } from '@/app/api/velez';
 import { useToaster } from '@/app/hooks/toaster/Toaster';
 
 interface PluginManageDialogProps {
     isOpen: boolean;
     pluginName: string;
-    pluginType: VervServiceType;
-    pluginState: VervServiceState;
+    pluginType: VervPluginType;
+    pluginState: VervPluginState;
     onClose: () => void;
-    onEnable: (type: VervServiceType, payload?: any) => Promise<void>;
+    onEnable: (type: VervPluginType, payload?: any) => Promise<void>;
 }
 
-function formatState(state?: VervServiceState): string {
+function formatState(state?: VervPluginState): string {
     switch (state) {
-        case VervServiceState.running: return 'Running';
-        case VervServiceState.disabled: return 'Disabled';
-        case VervServiceState.warning: return 'Warning';
-        case VervServiceState.dead: return 'Dead';
+        case VervPluginState.running: return 'Running';
+        case VervPluginState.disabled: return 'Disabled';
+        case VervPluginState.warning: return 'Warning';
+        case VervPluginState.dead: return 'Dead';
         default: return 'Not installed';
     }
 }
@@ -53,14 +53,14 @@ export default function PluginManageDialog({
         e.stopPropagation();
     }
 
-    function mapStateToStatus(state?: VervServiceState): 'running' | 'degraded' | 'stopped' | 'online' | 'offline' | 'enabled' | 'disabled' {
+    function mapStateToStatus(state?: VervPluginState): 'running' | 'degraded' | 'stopped' | 'online' | 'offline' | 'enabled' | 'disabled' {
         switch (state) {
-            case VervServiceState.running:
+            case VervPluginState.running:
                 return 'enabled';
-            case VervServiceState.disabled:
+            case VervPluginState.disabled:
                 return 'disabled';
-            case VervServiceState.warning:
-            case VervServiceState.dead:
+            case VervPluginState.warning:
+            case VervPluginState.dead:
                 return 'degraded';
             default:
                 return 'disabled';
@@ -134,12 +134,12 @@ export default function PluginManageDialog({
         }
     }
 
-    const isRunning = pluginState === VervServiceState.running;
+    const isRunning = pluginState === VervPluginState.running;
     const isSimplePlugin = [
-        VervServiceType.matreshka,
-        VervServiceType.makosh,
-        VervServiceType.webserver,
-        VervServiceType.portainer,
+        VervPluginType.matreshka,
+        VervPluginType.makosh,
+        VervPluginType.webserver,
+        VervPluginType.portainer,
     ].includes(pluginType);
 
     return (
@@ -172,7 +172,7 @@ export default function PluginManageDialog({
                                 </div>
                             )}
 
-                            {pluginType === VervServiceType.statefull_pg && (
+                            {pluginType === VervPluginType.statefull_pg && (
                                 <div className={cls.ActionSection}>
                                     <label className={cls.CheckboxLabel}>
                                         <input
@@ -205,7 +205,7 @@ export default function PluginManageDialog({
                                 </div>
                             )}
 
-                            {pluginType === VervServiceType.headscale && (
+                            {pluginType === VervPluginType.headscale && (
                                 <div className={cls.ActionSection}>
                                     <div className={cls.RadioGroup}>
                                         <label className={cls.RadioLabel}>

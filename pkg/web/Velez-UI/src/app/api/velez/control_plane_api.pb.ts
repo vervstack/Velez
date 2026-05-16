@@ -18,7 +18,7 @@ type OneOf<T> =
         : never
       : never);
 
-export enum VervServiceType {
+export enum VervPluginType {
   unknown_service_type = "unknown_service_type",
   matreshka = "matreshka",
   makosh = "makosh",
@@ -28,7 +28,7 @@ export enum VervServiceType {
   statefull_pg = "statefull_pg",
 }
 
-export enum VervServiceState {
+export enum VervPluginState {
   unknown = "unknown",
   running = "running",
   warning = "warning",
@@ -36,33 +36,33 @@ export enum VervServiceState {
   disabled = "disabled",
 }
 
-export type ListVervServicesRequest = Record<string, never>;
+export type ListVervPluginsRequest = Record<string, never>;
 
-export type ListVervServicesResponse = {
-  services?: VervService[];
+export type ListVervPluginsResponse = {
+  plugins?: VervPlugin[];
 };
 
-export type ListVervServices = Record<string, never>;
+export type ListVervPlugins = Record<string, never>;
 
-export type VervService = {
-  type?: VervServiceType;
+export type VervPlugin = {
+  type?: VervPluginType;
   port?: number;
-  state?: VervServiceState;
+  state?: VervPluginState;
 };
 
-type BaseEnableServiceRequest = {
-  service?: VervServiceType;
+type BaseEnablePluginRequest = {
+  plugin?: VervPluginType;
 };
 
-export type EnableServiceRequest = BaseEnableServiceRequest &
+export type EnablePluginRequest = BaseEnablePluginRequest &
   OneOf<{
     statefullCluster: EnableStatefullCluster;
     headscaleServer: EnableHeadscaleServer;
   }>;
 
-export type EnableServiceResponse = Record<string, never>;
+export type EnablePluginResponse = Record<string, never>;
 
-export type EnableService = Record<string, never>;
+export type EnablePlugin = Record<string, never>;
 
 export type InitMasterRequest = Record<string, never>;
 
@@ -112,8 +112,8 @@ export type ListNodesResponse = {
 export type ListNodes = Record<string, never>;
 
 export type Plugin = {
-  type?: VervServiceType;
-  state?: VervServiceState;
+  type?: VervPluginType;
+  state?: VervPluginState;
   port?: number;
 };
 
@@ -126,8 +126,8 @@ export type ListPluginsResponse = {
 export type ListPlugins = Record<string, never>;
 
 export class ControlPlaneAPI {
-  static EnableService(this:void, req: EnableServiceRequest, initReq?: fm.InitReq): Promise<EnableServiceResponse> {
-    return fm.fetchRequest<EnableServiceResponse>(`/api/control_plane/service/enable`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  static EnablePlugin(this:void, req: EnablePluginRequest, initReq?: fm.InitReq): Promise<EnablePluginResponse> {
+    return fm.fetchRequest<EnablePluginResponse>(`/api/control_plane/plugin/enable`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
   static ConnectSlave(this:void, req: ConnectSlaveRequest, initReq?: fm.InitReq): Promise<ConnectSlaveResponse> {
     return fm.fetchRequest<ConnectSlaveResponse>(`/api/control_plane/slave/connect`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});

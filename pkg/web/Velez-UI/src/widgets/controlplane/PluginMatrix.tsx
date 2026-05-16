@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { NodeBaseInfo, VervServiceState, VervServiceType } from "@/app/api/velez";
+import { NodeBaseInfo, VervPluginState, VervPluginType } from "@/app/api/velez";
 import { Service } from "@/model/services/Services";
 
 import cls from '@/widgets/controlplane/PluginMatrix.module.css';
@@ -16,7 +16,7 @@ import {Routes} from '@/app/router/Routes';
 interface PluginMatrixProps {
     nodes: NodeBaseInfo[];
     plugins: Service[];
-    onEnable?: (pluginType: VervServiceType, payload?: any) => Promise<void>;
+    onEnable?: (pluginType: VervPluginType, payload?: any) => Promise<void>;
     onDisable?: (pluginName: string, nodeId: string) => void;
 }
 
@@ -43,8 +43,8 @@ export default function PluginMatrix(props: PluginMatrixProps) {
                 <PluginManageDialog
                     isOpen={true}
                     pluginName={selectedPlugin.title}
-                    pluginType={selectedPlugin.type || VervServiceType.unknown_service_type}
-                    pluginState={selectedPlugin.state || VervServiceState.unknown}
+                    pluginType={selectedPlugin.type || VervPluginType.unknown_service_type}
+                    pluginState={selectedPlugin.state || VervPluginState.unknown}
                     onEnable={props.onEnable || (() => Promise.resolve())}
                     onClose={handleCloseDialog}
                 />
@@ -73,7 +73,7 @@ function Table({nodes, plugins, onManagePlugin}: TableProps) {
 
     function renderPlugin(plugin: Service, pi: number) {
         const isLast = pi === plugins.length - 1;
-        const isDisabled = plugin.state === VervServiceState.disabled;
+        const isDisabled = plugin.state === VervPluginState.disabled;
 
         function renderCell(n: NodeBaseInfo) {
             return (
@@ -81,7 +81,7 @@ function Table({nodes, plugins, onManagePlugin}: TableProps) {
                     key={n.id}
                     className={cls.statusCell}>
                     <StatusDot
-                        status={mapVervServiceStateToPluginStatus(plugin.state)}/>
+                        status={mapVervPluginStateToPluginStatus(plugin.state)}/>
                 </div>
             );
         }
@@ -134,14 +134,14 @@ function Table({nodes, plugins, onManagePlugin}: TableProps) {
 }
 
 
-function mapVervServiceStateToPluginStatus(state?: VervServiceState): 'running' | 'degraded' | 'stopped' | 'online' | 'offline' | 'enabled' | 'disabled' {
+function mapVervPluginStateToPluginStatus(state?: VervPluginState): 'running' | 'degraded' | 'stopped' | 'online' | 'offline' | 'enabled' | 'disabled' {
     switch (state) {
-        case VervServiceState.running:
+        case VervPluginState.running:
             return 'enabled';
-        case VervServiceState.disabled:
+        case VervPluginState.disabled:
             return 'disabled';
-        case VervServiceState.warning:
-        case VervServiceState.dead:
+        case VervPluginState.warning:
+        case VervPluginState.dead:
             return 'degraded';
         default:
             return 'disabled';

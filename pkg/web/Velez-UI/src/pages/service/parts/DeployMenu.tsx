@@ -7,6 +7,7 @@ import DeploymentWidget from "@/widgets/deploy/DeploymentWidget.tsx";
 import {CreateNewDeployment, FetchDeployments} from "@/processes/api/service.ts";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {useQuery} from "@tanstack/react-query";
+import {listDeploymentsQuery} from "@/processes/queries/services.ts";
 import SkeletonDeploymentHistory from "@/components/deploy/SkeletonDeploymentHistory.tsx";
 
 enum TabsOptions {
@@ -26,7 +27,7 @@ export default function DeployMenu(props: DeployMenuProps) {
     const toaster = useToaster();
 
     const deploymentsQuery = useQuery({
-        queryKey: ["deployments", props.serviceId],
+        ...listDeploymentsQuery(props.serviceId),
         queryFn: () => FetchDeployments(props.serviceId).catch((e) => {
             toaster.catchGrpc(e);
             return {deployments: []};

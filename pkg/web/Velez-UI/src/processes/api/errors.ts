@@ -17,3 +17,36 @@ export enum Errors {
     DATA_LOSS = 15,
     UNAUTHENTICATED = 16
 }
+
+export type GrpcError = {
+    message: string
+    code: number
+    details?: unknown[]
+}
+
+export class ServiceError extends Error {
+    readonly isRetryable: boolean
+    readonly grpcCode?: number
+
+    constructor(opts: { title: string; isRetryable?: boolean; grpcCode?: number }) {
+        super(opts.title)
+        this.isRetryable = opts.isRetryable ?? false
+        this.grpcCode = opts.grpcCode
+    }
+}
+
+export function parseGrpcError(e: unknown): ServiceError {
+    if (e instanceof ServiceError) return e
+
+    if (e instanceof Error && e.message === 'Failed to fetch') {
+        return new ServiceError({ title: 'Server unavailable. Try again later', isRetryable: true })
+    }
+
+    if (typeof e === 'object' && e !== null && 'code' in e) {
+        const grpc = e as GrpcError
+        const retryable = grpc.code === Errors.UNAVAILABLE || grpc.code === Errors.INTERNAL
+        return new ServiceError({ title: grpc.message, isRetryable: retryable, grpcCode: grpc.code })
+    }
+
+    return new ServiceError({ title: String(e), isRetryable: false })
+}

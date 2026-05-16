@@ -12,9 +12,9 @@ option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
 option (npm_package) = "@vervstack/velez";
 
 service ControlPlaneAPI {
-  rpc EnableService(EnableService.Request) returns (EnableService.Response) {
+  rpc EnablePlugin(EnablePlugin.Request) returns (EnablePlugin.Response) {
     option (google.api.http) = {
-      post: "/api/control_plane/service/enable"
+      post: "/api/control_plane/plugin/enable"
       body: "*"
     };
   }
@@ -41,18 +41,18 @@ service ControlPlaneAPI {
   }
 }
 
-message ListVervServices {
+message ListVervPlugins {
   message Request {
 
   }
   message Response {
-    repeated VervService services = 1;
+    repeated VervPlugin plugins = 1;
   }
 }
 
 
-message VervService  {
-  VervServiceType type = 1;
+message VervPlugin  {
+  VervPluginType type = 1;
   optional uint32 port = 2;
   State state = 3;
 
@@ -65,7 +65,7 @@ message VervService  {
   }
 }
 
-enum VervServiceType {
+enum VervPluginType {
   unknown_service_type = 0;
   matreshka = 1;
   makosh = 2;
@@ -78,9 +78,9 @@ enum VervServiceType {
   statefull_pg = 6;
 }
 
-message EnableService {
+message EnablePlugin {
   message Request {
-    VervServiceType service = 1;
+    VervPluginType plugin = 1;
     oneof payload {
       EnableStatefullCluster statefull_cluster = 2;
       EnableHeadscaleServer headscale_server = 3;
@@ -139,8 +139,8 @@ message ListNodes {
 }
 
 message Plugin {
-  VervServiceType type = 1;
-  VervService.State state = 2;
+  VervPluginType type = 1;
+  VervPlugin.State state = 2;
   optional uint32 port = 3;
 }
 

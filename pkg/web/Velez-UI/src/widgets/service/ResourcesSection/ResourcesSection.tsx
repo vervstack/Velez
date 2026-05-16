@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 
 import type { ServiceResource } from '@/model/service_page/ServicePageModel'
-import { FetchServiceResources } from '@/processes/api/service'
+import { getServiceResourcesQuery } from '@/processes/queries/services'
 
 import ResourceCard from './ResourceCard'
 import cls from './ResourcesSection.module.css'
@@ -11,12 +11,7 @@ interface ResourcesSectionProps {
 }
 
 export default function ResourcesSection({ serviceId }: ResourcesSectionProps) {
-    const { data: resources = [] } = useQuery({
-        queryKey: ['service-resources', serviceId],
-        queryFn: function fetchResources() {
-            return FetchServiceResources(serviceId)
-        },
-    })
+    const { data: resources = [] } = useQuery(getServiceResourcesQuery(serviceId))
 
     return (
         <div className={cls.ResourcesSectionContainer}>

@@ -9,6 +9,7 @@ import cls from "@/pages/smerd/SmerdPage.module.css";
 
 import {FetchSmerd} from "@/processes/api/velez.ts";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
+import {getSmerdQuery} from "@/processes/queries/smerds.ts";
 
 export default function SmerdPage() {
     const params = useParams<Record<string, string>>();
@@ -17,7 +18,7 @@ export default function SmerdPage() {
     const smerdName = params["name"] || "";
 
     const {data: smerd, isLoading} = useQuery({
-        queryKey: ["smerd", smerdName],
+        ...getSmerdQuery(smerdName),
         queryFn: () => FetchSmerd(smerdName).catch((e) => {
             toaster.catchGrpc(e);
             throw e;

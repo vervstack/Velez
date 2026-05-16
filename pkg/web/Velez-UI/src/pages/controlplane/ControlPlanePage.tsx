@@ -2,7 +2,7 @@ import {useQuery, UseQueryResult, useQueryClient} from '@tanstack/react-query';
 
 import cls from '@/pages/controlplane/ControlPlanePage.module.css';
 
-import {ListNodesResponse, NodeStatus, VervServiceType} from "@/app/api/velez";
+import {ListNodesResponse, NodeStatus, VervPluginType} from "@/app/api/velez";
 
 import StatCard, {Level} from '@/components/base/StatCard';
 import NodeHealthList from '@/widgets/controlplane/NodeHealthList';
@@ -10,27 +10,21 @@ import PluginMatrix from '@/widgets/controlplane/PluginMatrix';
 import SkeletonNodeCard from '@/components/node/SkeletonNodeCard';
 
 import {useToaster} from '@/app/hooks/toaster/Toaster';
-import {ListNodes, ListPlugins, EnableService, EnableStatefullPgCluster} from '@/processes/api/control_plane';
-import {CacheKey} from "@/app/query/Cache.ts";
-import useSettings from '@/app/settings/state';
+import {controlPlaneService} from '@/processes/api/control_plane';
+import {listNodesQuery, listPluginsQuery} from '@/processes/queries/control_plane';
 import {Service} from '@/model/services/Services';
 
 export default function ControlPlanePage() {
     const toaster = useToaster();
-    const {initReq} = useSettings();
 
     const nodesQuery = useQuery({
-        queryKey: [CacheKey.Nodes],
-        queryFn: () =>
-            ListNodes()
-                .catch(toaster.catchGrpc),
+        ...listNodesQuery(),
+        queryFn: () => controlPlaneService.listNodes().catch((e) => { toaster.catchGrpc(e); throw e; }),
     });
 
     const pluginsQuery = useQuery({
-        queryKey: [CacheKey.Plugins],
-        queryFn: () =>
-            ListPlugins(initReq())
-                .catch(toaster.catchGrpc)
+        ...listPluginsQuery(),
+        queryFn: () => controlPlaneService.listPlugins().catch((e) => { toaster.catchGrpc(e); throw e; }),
     });
 
     return (
@@ -126,17 +120,16 @@ interface PluginsListProps {
 
 function PluginsList({pluginsQuery, nodesQuery}: PluginsListProps) {
     const toaster = useToaster();
-    const {initReq} = useSettings();
     const queryClient = useQueryClient();
 
-    async function handleEnable(pluginType: VervServiceType, payload?: any) {
+    async function handleEnable(pluginType: VervPluginType, payload?: any) {
         try {
-            if (pluginType === VervServiceType.statefull_pg && payload) {
-                await EnableStatefullPgCluster(payload, initReq());
+            if (pluginType === VervPluginType.statefull_pg && payload) {
+                await controlPlaneService.enableStatefullPgCluster(payload);
             } else {
-                await EnableService(pluginType, initReq());
+                await controlPlaneService.enablePlugin(pluginType);
             }
-            queryClient.invalidateQueries({ queryKey: [CacheKey.Plugins] });
+            queryClient.invalidateQueries({ queryKey: listPluginsQuery().queryKey });
         } catch (error) {
             if (error instanceof Error) {
                 toaster.catchGrpc(error);

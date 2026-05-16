@@ -6,6 +6,7 @@ import EnvChip from '@/components/base/chips/EnvChip';
 import IncidentChip from '@/components/base/chips/IncidentChip';
 import { type ServiceCardData } from '@/components/service/ServiceCard';
 import { FetchSmerds } from '@/processes/api/velez';
+import { listSmerdsQuery } from '@/processes/queries/smerds';
 import { mapSmerdToServiceCard } from '@/processes/mappings/smerds';
 import { useToaster } from '@/app/hooks/toaster/Toaster';
 
@@ -17,7 +18,7 @@ export default function SearchPage() {
     const inputRef = useRef<HTMLInputElement>(null);
 
     const smerdsQuery = useQuery({
-        queryKey: ['smerds'],
+        ...listSmerdsQuery(),
         queryFn: () => FetchSmerds().catch((e) => { toaster.catchGrpc(e); return { smerds: [] }; }),
     });
 

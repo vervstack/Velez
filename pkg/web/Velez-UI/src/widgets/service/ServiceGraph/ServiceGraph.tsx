@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 
 import type { ServiceGraphNode } from '@/model/service_page/ServicePageModel'
-import { FetchServiceGraph } from '@/processes/api/service'
+import { getServiceGraphQuery } from '@/processes/queries/services'
 
 import cls from './ServiceGraph.module.css'
 
@@ -63,12 +63,7 @@ function renderNode(node: ServiceGraphNode, x: number, y: number, direction: 'in
 }
 
 export default function ServiceGraph({ serviceId, serviceName }: ServiceGraphProps) {
-    const { data } = useQuery({
-        queryKey: ['service-graph', serviceId],
-        queryFn: function fetchGraph() {
-            return FetchServiceGraph(serviceId)
-        },
-    })
+    const { data } = useQuery(getServiceGraphQuery(serviceId))
 
     const incoming: ServiceGraphNode[] = data?.incoming ?? []
     const outgoing: ServiceGraphNode[] = data?.outgoing ?? []

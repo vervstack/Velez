@@ -8,7 +8,7 @@ import Sidebar from '@/widgets/sidebar/Sidebar';
 import TopBar from '@/widgets/topbar/TopBar';
 import Toaster from '@/segments/Toaster';
 import {Routes} from '@/app/router/Routes';
-import {ListNodes} from "@/processes/api/control_plane.ts";
+import {controlPlaneService} from "@/processes/api/control_plane.ts";
 
 import {useQuery} from "@tanstack/react-query";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
@@ -79,7 +79,7 @@ export default function MainLayout() {
     const nodesQuery = useQuery({
         queryKey: ["nodes_main_layout"],
         queryFn: () => {
-            return ListNodes()
+            return controlPlaneService.listNodes()
                 .then((nodesList) => {
                     setNodes(nodesList.nodes || [])
                     return

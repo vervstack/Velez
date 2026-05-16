@@ -10,10 +10,10 @@ import (
 type enableVervServiceInMatreshkaStep struct {
 	cfg service.ConfigurationService
 
-	vervServiceType velez_api.VervServiceType
+	vervServiceType velez_api.VervPluginType
 }
 
-func EnableVervServiceInMatreshka(cfg service.Services, vervServiceType velez_api.VervServiceType) Step {
+func EnableVervServiceInMatreshka(cfg service.Services, vervServiceType velez_api.VervPluginType) Step {
 	return &enableVervServiceInMatreshkaStep{
 		cfg:             cfg.ConfigurationService(),
 		vervServiceType: vervServiceType,

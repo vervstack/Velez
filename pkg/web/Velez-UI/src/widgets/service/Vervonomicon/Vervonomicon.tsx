@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 
-import { FetchVervonomicon } from '@/processes/api/service'
+import { getVervonomiconQuery } from '@/processes/queries/services'
 import type { VervonomiconDocs } from '@/model/service_page/ServicePageModel'
 import cls from '@/widgets/service/Vervonomicon/Vervonomicon.module.css'
 
@@ -59,12 +59,7 @@ function isAllEmpty(docs: VervonomiconDocs): boolean {
 export default function Vervonomicon({ serviceId, serviceName }: VervonomiconProps) {
     const [activeTab, setActiveTab] = useState<TabKey>('vervonomicon')
 
-    const { data: docs, isLoading } = useQuery({
-        queryKey: ['vervonomicon', serviceId],
-        queryFn: function fetchDocs() {
-            return FetchVervonomicon(serviceId)
-        },
-    })
+    const { data: docs, isLoading } = useQuery(getVervonomiconQuery(serviceId))
 
     const activeContent = docs
         ? (isAllEmpty(docs) ? STUB_PLACEHOLDER : (docs[activeTab] || STUB_PLACEHOLDER))

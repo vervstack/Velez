@@ -14,13 +14,13 @@ var (
 	errUnsupportedService = rerrors.New("unsupported service", codes.InvalidArgument)
 )
 
-func (impl *Impl) EnableService(ctx context.Context, req *pb.EnableService_Request) (
-	*pb.EnableService_Response, error) {
+func (impl *Impl) EnablePlugin(ctx context.Context, req *pb.EnablePlugin_Request) (
+	*pb.EnablePlugin_Response, error) {
 
 	var err error
-	switch req.GetService() {
-	case pb.VervServiceType_statefull_pg:
-		payload, ok := req.Payload.(*pb.EnableService_Request_StatefullCluster)
+	switch req.GetPlugin() {
+	case pb.VervPluginType_statefull_pg:
+		payload, ok := req.Payload.(*pb.EnablePlugin_Request_StatefullCluster)
 		if !ok {
 			return nil, rerrors.New("invalid payload", codes.InvalidArgument)
 		}
@@ -36,8 +36,8 @@ func (impl *Impl) EnableService(ctx context.Context, req *pb.EnableService_Reque
 	}
 
 	if err != nil {
-		return &pb.EnableService_Response{}, rerrors.Wrap(err)
+		return &pb.EnablePlugin_Response{}, rerrors.Wrap(err)
 	}
 
-	return &pb.EnableService_Response{}, nil
+	return &pb.EnablePlugin_Response{}, nil
 }

@@ -51,13 +51,13 @@ func (p *pluginsStorage) UpsertPlugin(ctx context.Context, arg plugins_queries.U
 	return p.querier.UpsertPlugin(ctx, arg)
 }
 
-func calculatePluginState(statusesArr []string) pb.VervService_State {
+func calculatePluginState(statusesArr []string) pb.VervPlugin_State {
 	isRunning := false
 	isDeleted := false
 	for _, status := range statusesArr {
 		switch plugins_queries.VelezDeploymentStatus(status) {
 		case plugins_queries.VelezDeploymentStatusFAILED:
-			return pb.VervService_dead
+			return pb.VervPlugin_dead
 
 		case plugins_queries.VelezDeploymentStatusRUNNING:
 			isRunning = true
@@ -67,17 +67,17 @@ func calculatePluginState(statusesArr []string) pb.VervService_State {
 
 		case plugins_queries.VelezDeploymentStatusSCHEDULEDUPGRADE,
 			plugins_queries.VelezDeploymentStatusSCHEDULEDDEPLOYMENT:
-			return pb.VervService_warning
+			return pb.VervPlugin_warning
 		}
 	}
 
 	if isRunning {
-		return pb.VervService_running
+		return pb.VervPlugin_running
 	}
 
 	if isDeleted {
-		return pb.VervService_disabled
+		return pb.VervPlugin_disabled
 	}
 
-	return pb.VervService_unknown
+	return pb.VervPlugin_unknown
 }

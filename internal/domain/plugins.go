@@ -6,7 +6,7 @@ import (
 
 type PluginBaseInfo struct {
 	Name           string
-	State          pb.VervService_State
+	State          pb.VervPlugin_State
 	ServiceId      *int64
 	DeployStatuses []pb.DeploymentStatus
 }

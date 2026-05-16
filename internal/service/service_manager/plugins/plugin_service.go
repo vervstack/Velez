@@ -29,7 +29,7 @@ func (p *pluginService) ListPlugins(ctx context.Context) (*pb.ListPlugins_Respon
 
 	for _, row := range rows {
 		plugin := &pb.Plugin{
-			Type:  pb.VervServiceType(pb.VervServiceType_value[row.Name]),
+			Type:  pb.VervPluginType(pb.VervPluginType_value[row.Name]),
 			State: row.State,
 		}
 
@@ -57,24 +57,24 @@ func (p *pluginService) ListPlugins(ctx context.Context) (*pb.ListPlugins_Respon
 }
 
 func listInactivePlugins(activePlugins []*pb.Plugin) []*pb.Plugin {
-	activeMap := make(map[pb.VervServiceType]struct{})
+	activeMap := make(map[pb.VervPluginType]struct{})
 	for _, p := range activePlugins {
 		activeMap[p.Type] = struct{}{}
 	}
 
 	var disabled []*pb.Plugin
-	for vervService := range pb.VervServiceType_name {
+	for vervService := range pb.VervPluginType_name {
 		if vervService == 0 {
 			continue
 		}
 
-		_, exists := activeMap[pb.VervServiceType(vervService)]
+		_, exists := activeMap[pb.VervPluginType(vervService)]
 		if exists {
 			continue
 		}
 
 		plugin := &pb.Plugin{
-			Type: pb.VervServiceType(vervService),
+			Type: pb.VervPluginType(vervService),
 		}
 
 		disabled = append(disabled, plugin)

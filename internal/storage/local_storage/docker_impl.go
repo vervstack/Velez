@@ -28,12 +28,12 @@ func newPluginsStorage(docker node_clients.Docker) *dockerPluginsStorage {
 	return &dockerPluginsStorage{docker: docker}
 }
 
-var pluginContainerNames = map[string]pb.VervServiceType{
-	makoshContainerName:    pb.VervServiceType_makosh,
-	matreshkaContainerName: pb.VervServiceType_matreshka,
-	portainerContainerName: pb.VervServiceType_portainer,
-	headscaleContainerName: pb.VervServiceType_headscale,
-	pgContainerName:        pb.VervServiceType_statefull_pg,
+var pluginContainerNames = map[string]pb.VervPluginType{
+	makoshContainerName:    pb.VervPluginType_makosh,
+	matreshkaContainerName: pb.VervPluginType_matreshka,
+	portainerContainerName: pb.VervPluginType_portainer,
+	headscaleContainerName: pb.VervPluginType_headscale,
+	pgContainerName:        pb.VervPluginType_statefull_pg,
 }
 
 func (d *dockerPluginsStorage) ListPlugins(ctx context.Context) ([]domain.PluginBaseInfo, error) {
@@ -56,16 +56,16 @@ func (d *dockerPluginsStorage) ListPlugins(ctx context.Context) ([]domain.Plugin
 	for containerName, pluginType := range pluginContainerNames {
 		dockerState, exists := containerStates[containerName]
 
-		var state pb.VervService_State
+		var state pb.VervPlugin_State
 		switch {
 		case !exists:
-			state = pb.VervService_disabled
+			state = pb.VervPlugin_disabled
 		case dockerState == "running":
-			state = pb.VervService_running
+			state = pb.VervPlugin_running
 		case dockerState == "restarting":
-			state = pb.VervService_warning
+			state = pb.VervPlugin_warning
 		default:
-			state = pb.VervService_dead
+			state = pb.VervPlugin_dead
 		}
 
 		row := domain.PluginBaseInfo{

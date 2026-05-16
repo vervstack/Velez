@@ -6,6 +6,7 @@ import KanbanBoard from '@/widgets/deployments/KanbanBoard';
 import ServiceListView from '@/widgets/deployments/ServiceListView';
 import { type ServiceCardData } from '@/components/service/ServiceCard';
 import { FetchSmerds } from '@/processes/api/velez';
+import { listSmerdsQuery } from '@/processes/queries/smerds';
 import { mapSmerdToServiceCard } from '@/processes/mappings/smerds';
 import { useToaster } from '@/app/hooks/toaster/Toaster';
 
@@ -19,7 +20,7 @@ export default function DeploymentsPage() {
     const [viewMode,      setViewMode]      = useState<ViewMode>('kanban');
 
     const smerdsQuery = useQuery({
-        queryKey: ['smerds'],
+        ...listSmerdsQuery(),
         queryFn: () => FetchSmerds().catch((e) => { toaster.catchGrpc(e); return { smerds: [] }; }),
     });
 

@@ -5,6 +5,8 @@ import {useQuery} from "@tanstack/react-query";
 import {Toast, useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {FetchService, FetchDeployments, StopService, RestartService} from "@/processes/api/service.ts";
 import {FetchSmerdsByServiceName} from "@/processes/api/velez.ts";
+import {getServiceQuery, listDeploymentsQuery} from "@/processes/queries/services.ts";
+import {listSmerdsByServiceQuery} from "@/processes/queries/smerds.ts";
 
 import Dialog from "@/components/complex/dialog/Dialog.tsx";
 import DeployMenu from "@/pages/service/parts/DeployMenu.tsx";
@@ -39,7 +41,7 @@ export default function ServiceInfoPage() {
     const key = params["key"] || "";
 
     const serviceQuery = useQuery({
-        queryKey: ["service", key],
+        ...getServiceQuery(key),
         queryFn: () => FetchService(key).catch((e) => {
             toaster.catchGrpc(e);
             throw e;
@@ -50,7 +52,7 @@ export default function ServiceInfoPage() {
     const service = serviceQuery.data;
 
     const deploymentsQuery = useQuery({
-        queryKey: ["deployments", service?.id],
+        ...listDeploymentsQuery(service?.id ?? ""),
         queryFn: () => FetchDeployments(service!.id!).catch((e) => {
             toaster.catchGrpc(e);
             return {deployments: []};
@@ -59,7 +61,7 @@ export default function ServiceInfoPage() {
     });
 
     const smerdsQuery = useQuery({
-        queryKey: ["service-smerds", key],
+        ...listSmerdsByServiceQuery(key),
         queryFn: () => FetchSmerdsByServiceName(key).catch((e) => {
             toaster.catchGrpc(e);
             return {smerds: []};

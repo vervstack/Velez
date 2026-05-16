@@ -19,13 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ServiceApi_CreateService_FullMethodName   = "/velez_api.ServiceApi/CreateService"
-	ServiceApi_GetService_FullMethodName      = "/velez_api.ServiceApi/GetService"
-	ServiceApi_CreateDeploy_FullMethodName    = "/velez_api.ServiceApi/CreateDeploy"
-	ServiceApi_ListDeployments_FullMethodName = "/velez_api.ServiceApi/ListDeployments"
-	ServiceApi_ListServices_FullMethodName    = "/velez_api.ServiceApi/ListServices"
-	ServiceApi_StopService_FullMethodName     = "/velez_api.ServiceApi/StopService"
-	ServiceApi_RestartService_FullMethodName  = "/velez_api.ServiceApi/RestartService"
+	ServiceApi_CreateService_FullMethodName          = "/velez_api.ServiceApi/CreateService"
+	ServiceApi_GetService_FullMethodName             = "/velez_api.ServiceApi/GetService"
+	ServiceApi_CreateDeploy_FullMethodName           = "/velez_api.ServiceApi/CreateDeploy"
+	ServiceApi_ListDeployments_FullMethodName        = "/velez_api.ServiceApi/ListDeployments"
+	ServiceApi_ListServices_FullMethodName           = "/velez_api.ServiceApi/ListServices"
+	ServiceApi_StopService_FullMethodName            = "/velez_api.ServiceApi/StopService"
+	ServiceApi_RestartService_FullMethodName         = "/velez_api.ServiceApi/RestartService"
+	ServiceApi_GetServiceMetrics_FullMethodName      = "/velez_api.ServiceApi/GetServiceMetrics"
+	ServiceApi_GetServiceResources_FullMethodName    = "/velez_api.ServiceApi/GetServiceResources"
+	ServiceApi_GetServiceGraph_FullMethodName        = "/velez_api.ServiceApi/GetServiceGraph"
+	ServiceApi_GetServiceEnvironments_FullMethodName = "/velez_api.ServiceApi/GetServiceEnvironments"
+	ServiceApi_GetVervonomicon_FullMethodName        = "/velez_api.ServiceApi/GetVervonomicon"
 )
 
 // ServiceApiClient is the client API for ServiceApi service.
@@ -47,6 +52,11 @@ type ServiceApiClient interface {
 	ListServices(ctx context.Context, in *ListServices_Request, opts ...grpc.CallOption) (*ListServices_Response, error)
 	StopService(ctx context.Context, in *StopService_Request, opts ...grpc.CallOption) (*StopService_Response, error)
 	RestartService(ctx context.Context, in *RestartService_Request, opts ...grpc.CallOption) (*RestartService_Response, error)
+	GetServiceMetrics(ctx context.Context, in *GetServiceMetrics_Request, opts ...grpc.CallOption) (*GetServiceMetrics_Response, error)
+	GetServiceResources(ctx context.Context, in *GetServiceResources_Request, opts ...grpc.CallOption) (*GetServiceResources_Response, error)
+	GetServiceGraph(ctx context.Context, in *GetServiceGraph_Request, opts ...grpc.CallOption) (*GetServiceGraph_Response, error)
+	GetServiceEnvironments(ctx context.Context, in *GetServiceEnvironments_Request, opts ...grpc.CallOption) (*GetServiceEnvironments_Response, error)
+	GetVervonomicon(ctx context.Context, in *GetVervonomicon_Request, opts ...grpc.CallOption) (*GetVervonomicon_Response, error)
 }
 
 type serviceApiClient struct {
@@ -127,6 +137,56 @@ func (c *serviceApiClient) RestartService(ctx context.Context, in *RestartServic
 	return out, nil
 }
 
+func (c *serviceApiClient) GetServiceMetrics(ctx context.Context, in *GetServiceMetrics_Request, opts ...grpc.CallOption) (*GetServiceMetrics_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetServiceMetrics_Response)
+	err := c.cc.Invoke(ctx, ServiceApi_GetServiceMetrics_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceApiClient) GetServiceResources(ctx context.Context, in *GetServiceResources_Request, opts ...grpc.CallOption) (*GetServiceResources_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetServiceResources_Response)
+	err := c.cc.Invoke(ctx, ServiceApi_GetServiceResources_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceApiClient) GetServiceGraph(ctx context.Context, in *GetServiceGraph_Request, opts ...grpc.CallOption) (*GetServiceGraph_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetServiceGraph_Response)
+	err := c.cc.Invoke(ctx, ServiceApi_GetServiceGraph_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceApiClient) GetServiceEnvironments(ctx context.Context, in *GetServiceEnvironments_Request, opts ...grpc.CallOption) (*GetServiceEnvironments_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetServiceEnvironments_Response)
+	err := c.cc.Invoke(ctx, ServiceApi_GetServiceEnvironments_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceApiClient) GetVervonomicon(ctx context.Context, in *GetVervonomicon_Request, opts ...grpc.CallOption) (*GetVervonomicon_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetVervonomicon_Response)
+	err := c.cc.Invoke(ctx, ServiceApi_GetVervonomicon_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServiceApiServer is the server API for ServiceApi service.
 // All implementations must embed UnimplementedServiceApiServer
 // for forward compatibility.
@@ -146,6 +206,11 @@ type ServiceApiServer interface {
 	ListServices(context.Context, *ListServices_Request) (*ListServices_Response, error)
 	StopService(context.Context, *StopService_Request) (*StopService_Response, error)
 	RestartService(context.Context, *RestartService_Request) (*RestartService_Response, error)
+	GetServiceMetrics(context.Context, *GetServiceMetrics_Request) (*GetServiceMetrics_Response, error)
+	GetServiceResources(context.Context, *GetServiceResources_Request) (*GetServiceResources_Response, error)
+	GetServiceGraph(context.Context, *GetServiceGraph_Request) (*GetServiceGraph_Response, error)
+	GetServiceEnvironments(context.Context, *GetServiceEnvironments_Request) (*GetServiceEnvironments_Response, error)
+	GetVervonomicon(context.Context, *GetVervonomicon_Request) (*GetVervonomicon_Response, error)
 	mustEmbedUnimplementedServiceApiServer()
 }
 
@@ -176,6 +241,21 @@ func (UnimplementedServiceApiServer) StopService(context.Context, *StopService_R
 }
 func (UnimplementedServiceApiServer) RestartService(context.Context, *RestartService_Request) (*RestartService_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method RestartService not implemented")
+}
+func (UnimplementedServiceApiServer) GetServiceMetrics(context.Context, *GetServiceMetrics_Request) (*GetServiceMetrics_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetServiceMetrics not implemented")
+}
+func (UnimplementedServiceApiServer) GetServiceResources(context.Context, *GetServiceResources_Request) (*GetServiceResources_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetServiceResources not implemented")
+}
+func (UnimplementedServiceApiServer) GetServiceGraph(context.Context, *GetServiceGraph_Request) (*GetServiceGraph_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetServiceGraph not implemented")
+}
+func (UnimplementedServiceApiServer) GetServiceEnvironments(context.Context, *GetServiceEnvironments_Request) (*GetServiceEnvironments_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetServiceEnvironments not implemented")
+}
+func (UnimplementedServiceApiServer) GetVervonomicon(context.Context, *GetVervonomicon_Request) (*GetVervonomicon_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetVervonomicon not implemented")
 }
 func (UnimplementedServiceApiServer) mustEmbedUnimplementedServiceApiServer() {}
 func (UnimplementedServiceApiServer) testEmbeddedByValue()                    {}
@@ -324,6 +404,96 @@ func _ServiceApi_RestartService_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServiceApi_GetServiceMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetServiceMetrics_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceApiServer).GetServiceMetrics(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceApi_GetServiceMetrics_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceApiServer).GetServiceMetrics(ctx, req.(*GetServiceMetrics_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceApi_GetServiceResources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetServiceResources_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceApiServer).GetServiceResources(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceApi_GetServiceResources_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceApiServer).GetServiceResources(ctx, req.(*GetServiceResources_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceApi_GetServiceGraph_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetServiceGraph_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceApiServer).GetServiceGraph(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceApi_GetServiceGraph_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceApiServer).GetServiceGraph(ctx, req.(*GetServiceGraph_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceApi_GetServiceEnvironments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetServiceEnvironments_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceApiServer).GetServiceEnvironments(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceApi_GetServiceEnvironments_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceApiServer).GetServiceEnvironments(ctx, req.(*GetServiceEnvironments_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServiceApi_GetVervonomicon_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetVervonomicon_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceApiServer).GetVervonomicon(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceApi_GetVervonomicon_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceApiServer).GetVervonomicon(ctx, req.(*GetVervonomicon_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ServiceApi_ServiceDesc is the grpc.ServiceDesc for ServiceApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -358,6 +528,26 @@ var ServiceApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RestartService",
 			Handler:    _ServiceApi_RestartService_Handler,
+		},
+		{
+			MethodName: "GetServiceMetrics",
+			Handler:    _ServiceApi_GetServiceMetrics_Handler,
+		},
+		{
+			MethodName: "GetServiceResources",
+			Handler:    _ServiceApi_GetServiceResources_Handler,
+		},
+		{
+			MethodName: "GetServiceGraph",
+			Handler:    _ServiceApi_GetServiceGraph_Handler,
+		},
+		{
+			MethodName: "GetServiceEnvironments",
+			Handler:    _ServiceApi_GetServiceEnvironments_Handler,
+		},
+		{
+			MethodName: "GetVervonomicon",
+			Handler:    _ServiceApi_GetVervonomicon_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

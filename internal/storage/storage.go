@@ -22,6 +22,8 @@ type Storage interface {
 	Services() ServicesStorage
 	Deployments() DeploymentsStorage
 	Plugins() PluginsStorage
+	ServiceDependencies() ServiceDependenciesStorage
+	ServiceResources() ServiceResourcesStorage
 
 	TxManager() *sqldb.TxManager
 }
@@ -51,4 +53,15 @@ type NodesStorage interface {
 type PluginsStorage interface {
 	ListPlugins(ctx context.Context) ([]domain.PluginBaseInfo, error)
 	UpsertPlugin(ctx context.Context, arg plugins_queries.UpsertPluginParams) error
+}
+
+type ServiceDependenciesStorage interface {
+	UpsertDependency(ctx context.Context, source, target, proto string) error
+	GetDependencies(ctx context.Context, serviceName string) ([]domain.ServiceDependency, error)
+	GetCallers(ctx context.Context, serviceName string) ([]domain.ServiceDependency, error)
+}
+
+type ServiceResourcesStorage interface {
+	GetResources(ctx context.Context, serviceName string) ([]domain.BoundResource, error)
+	UpsertResource(ctx context.Context, serviceName, resourceName, resourceType string) error
 }

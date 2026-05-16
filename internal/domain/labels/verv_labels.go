@@ -12,6 +12,9 @@ const (
 	VervServiceLabel      = "VERV_SERVICE"
 	MatreshkaConfigLabel  = "MATRESHKA_CONFIG_ENABLED"
 	AutoUpgrade           = "VELEZ_AUTO_UPGRADE"
+	// DependsOnLabel — comma-separated list of service names this service depends on.
+	// Used by GetServiceGraph to discover and persist service-to-service dependencies.
+	DependsOnLabel = "VERV_DEPENDS_ON"
 )
 
 func IsMatreshkaImage(r *image.InspectResponse) bool {

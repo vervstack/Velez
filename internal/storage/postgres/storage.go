@@ -14,10 +14,12 @@ import (
 )
 
 type Storage struct {
-	nodeStorage        *nodeStorage
-	servicesStorage    *servicesStorage
-	deploymentsStorage *deploymentsStorage
-	pluginsStorage     *pluginsStorage
+	nodeStorage                *nodeStorage
+	servicesStorage            *servicesStorage
+	deploymentsStorage         *deploymentsStorage
+	pluginsStorage             *pluginsStorage
+	serviceDependenciesStorage *serviceDependenciesStorage
+	serviceResourcesStorage    *serviceResourcesStorage
 
 	txManager *sqldb.TxManager
 }
@@ -30,9 +32,11 @@ func New(db *sql.DB) storage.Storage {
 			querier: services_queries.New(db),
 		},
 
-		deploymentsStorage: newDeploymentsStorage(db),
-		pluginsStorage:     newPluginsStorage(db),
-		txManager:          sqldb.NewTxManager(db),
+		deploymentsStorage:         newDeploymentsStorage(db),
+		pluginsStorage:             newPluginsStorage(db),
+		serviceDependenciesStorage: newServiceDependenciesStorage(db),
+		serviceResourcesStorage:    newServiceResourcesStorage(db),
+		txManager:                  sqldb.NewTxManager(db),
 	}
 }
 
@@ -50,6 +54,14 @@ func (s *Storage) Deployments() storage.DeploymentsStorage {
 
 func (s *Storage) Plugins() storage.PluginsStorage {
 	return s.pluginsStorage
+}
+
+func (s *Storage) ServiceDependencies() storage.ServiceDependenciesStorage {
+	return s.serviceDependenciesStorage
+}
+
+func (s *Storage) ServiceResources() storage.ServiceResourcesStorage {
+	return s.serviceResourcesStorage
 }
 
 func (s *Storage) TxManager() *sqldb.TxManager {

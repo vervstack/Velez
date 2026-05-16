@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.30.0
 
-package deployments_queries
+package service_resources_queries
 
 import (
 	"database/sql"

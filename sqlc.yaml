@@ -56,3 +56,31 @@ sql:
         emit_interface: true
         emit_exact_table_names: false
         emit_empty_slices: true
+  - engine: "postgresql"
+    queries:
+      - "internal/storage/postgres/queries/service_dependencies*.sql"
+    schema:
+      - "migrations/*.sql"
+    gen:
+      go:
+        package: "service_dependencies_queries"
+        out: "internal/storage/postgres/generated/service_dependencies_queries"
+        sql_package: "database/sql"
+        emit_prepared_queries: false
+        emit_interface: true
+        emit_exact_table_names: false
+        emit_empty_slices: true
+  - engine: "postgresql"
+    queries:
+      - "internal/storage/postgres/queries/service_resources*.sql"
+    schema:
+      - "migrations/*.sql"
+    gen:
+      go:
+        package: "service_resources_queries"
+        out: "internal/storage/postgres/generated/service_resources_queries"
+        sql_package: "database/sql"
+        emit_prepared_queries: false
+        emit_interface: true
+        emit_exact_table_names: false
+        emit_empty_slices: true

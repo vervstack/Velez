@@ -39,3 +39,11 @@ func (c *Container) Plugins() PluginsStorage {
 func (c *Container) TxManager() *sqldb.TxManager {
 	return (*c.impl.Load()).TxManager()
 }
+
+func (c *Container) ServiceDependencies() ServiceDependenciesStorage {
+	return (*c.impl.Load()).ServiceDependencies()
+}
+
+func (c *Container) ServiceResources() ServiceResourcesStorage {
+	return (*c.impl.Load()).ServiceResources()
+}

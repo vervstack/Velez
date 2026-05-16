@@ -7,18 +7,22 @@ import (
 )
 
 type localStorage struct {
-	nodes       *nodes
-	services    *services
-	deployments *deployments
-	plugins     *dockerPluginsStorage
+	nodes            *nodes
+	services         *services
+	deployments      *deployments
+	plugins          *dockerPluginsStorage
+	serviceDeps      *dockerServiceDepsStorage
+	serviceResources *dockerServiceResourcesStorage
 }
 
 func New(containerApi node_clients.Docker) storage.Storage {
 	return &localStorage{
-		nodes:       newNodesStorage(),
-		services:    newServicesStorage(),
-		deployments: newDeploymentsStorage(),
-		plugins:     newPluginsStorage(containerApi),
+		nodes:            newNodesStorage(),
+		services:         newServicesStorage(),
+		deployments:      newDeploymentsStorage(),
+		plugins:          newPluginsStorage(containerApi),
+		serviceDeps:      newServiceDepsStorage(containerApi),
+		serviceResources: newServiceResourcesStorage(containerApi),
 	}
 }
 
@@ -36,6 +40,14 @@ func (l *localStorage) Deployments() storage.DeploymentsStorage {
 
 func (l *localStorage) Plugins() storage.PluginsStorage {
 	return l.plugins
+}
+
+func (l *localStorage) ServiceDependencies() storage.ServiceDependenciesStorage {
+	return l.serviceDeps
+}
+
+func (l *localStorage) ServiceResources() storage.ServiceResourcesStorage {
+	return l.serviceResources
 }
 
 func (l *localStorage) TxManager() *sqldb.TxManager {

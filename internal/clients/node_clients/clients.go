@@ -11,6 +11,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
+	"go.vervstack.ru/Velez/internal/domain"
 )
 
 type Docker interface {
@@ -30,6 +31,8 @@ type Docker interface {
 	Client() client.APIClient
 
 	ContainerCreate(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, networkingConfig *network.NetworkingConfig, platform *ocispec.Platform, containerName string) (container.CreateResponse, error)
+
+	Stats(ctx context.Context, nameOrId string) (domain.ContainerStats, error)
 }
 
 type PortManager interface {

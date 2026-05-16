@@ -11,6 +11,9 @@ type VervService struct {
 	servicesStorage    storage.ServicesStorage
 	deploymentsStorage storage.DeploymentsStorage
 
+	serviceDepsStorage      storage.ServiceDependenciesStorage
+	serviceResourcesStorage storage.ServiceResourcesStorage
+
 	txManager *sqldb.TxManager
 
 	containerService service.ContainerService
@@ -21,6 +24,9 @@ func New(dataStorage storage.Storage, containerService service.ContainerService,
 	return &VervService{
 		servicesStorage:    dataStorage.Services(),
 		deploymentsStorage: dataStorage.Deployments(),
+
+		serviceDepsStorage:      dataStorage.ServiceDependencies(),
+		serviceResourcesStorage: dataStorage.ServiceResources(),
 
 		txManager: dataStorage.TxManager(),
 

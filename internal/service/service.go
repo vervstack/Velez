@@ -53,6 +53,11 @@ type VervServicesService interface {
 	ListDeployments(ctx context.Context, req domain.ListDeploymentsReq) (domain.DeploymentList, error)
 	StopService(ctx context.Context, name string) error
 	RestartService(ctx context.Context, name string) error
+
+	GetServiceMetrics(ctx context.Context, serviceName string) (domain.ServiceMetrics, error)
+	GetServiceResources(ctx context.Context, serviceName string) ([]domain.BoundResource, error)
+	GetServiceGraph(ctx context.Context, serviceName string) (domain.ServiceGraph, error)
+	GetServiceEnvironments(ctx context.Context, serviceName string) ([]domain.ServiceEnvironment, error)
 }
 
 type NodeService interface {

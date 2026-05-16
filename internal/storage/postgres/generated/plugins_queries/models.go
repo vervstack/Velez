@@ -95,6 +95,23 @@ type VelezService struct {
 	CreatedAt time.Time
 }
 
+type VelezServiceDependency struct {
+	SourceService string
+	TargetService string
+	Proto         string
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
+type VelezServiceResource struct {
+	ServiceName  string
+	ResourceName string
+	ResourceType string
+	Status       string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
 type VelezSharedVolume struct {
 	ID         int64
 	NodeID     sql.NullInt32

@@ -113,6 +113,38 @@
         ]
       }
     },
+    "/api/service/environments": {
+      "post": {
+        "operationId": "ServiceApi_GetServiceEnvironments",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetServiceEnvironmentsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetServiceEnvironmentsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ServiceApi"
+        ]
+      }
+    },
     "/api/service/get": {
       "post": {
         "operationId": "ServiceApi_GetService",
@@ -145,6 +177,38 @@
         ]
       }
     },
+    "/api/service/graph": {
+      "post": {
+        "operationId": "ServiceApi_GetServiceGraph",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetServiceGraphResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetServiceGraphRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ServiceApi"
+        ]
+      }
+    },
     "/api/service/list": {
       "post": {
         "operationId": "ServiceApi_ListServices",
@@ -169,6 +233,70 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/velez_apiListServicesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ServiceApi"
+        ]
+      }
+    },
+    "/api/service/metrics": {
+      "post": {
+        "operationId": "ServiceApi_GetServiceMetrics",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetServiceMetricsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetServiceMetricsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ServiceApi"
+        ]
+      }
+    },
+    "/api/service/resources": {
+      "post": {
+        "operationId": "ServiceApi_GetServiceResources",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetServiceResourcesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetServiceResourcesRequest"
             }
           }
         ],
@@ -233,6 +361,38 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/velez_apiStopServiceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ServiceApi"
+        ]
+      }
+    },
+    "/api/service/vervonomicon": {
+      "post": {
+        "operationId": "ServiceApi_GetVervonomicon",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetVervonomiconResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetVervonomiconRequest"
             }
           }
         ],
@@ -358,6 +518,20 @@
         }
       },
       "additionalProperties": {}
+    },
+    "velez_apiBoundResource": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "resourceType": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
     },
     "velez_apiConfigFormat": {
       "type": "string",
@@ -501,6 +675,90 @@
       ],
       "default": "DEPLOYMENT_STATUS_UNKNOWN"
     },
+    "velez_apiGetServiceEnvironmentsRequest": {
+      "type": "object",
+      "properties": {
+        "serviceName": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiGetServiceEnvironmentsResponse": {
+      "type": "object",
+      "properties": {
+        "environments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiServiceEnvironmentInfo"
+          }
+        }
+      }
+    },
+    "velez_apiGetServiceGraphRequest": {
+      "type": "object",
+      "properties": {
+        "serviceName": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiGetServiceGraphResponse": {
+      "type": "object",
+      "properties": {
+        "callers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiServiceDependencyInfo"
+          }
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiServiceDependencyInfo"
+          }
+        }
+      }
+    },
+    "velez_apiGetServiceMetricsRequest": {
+      "type": "object",
+      "properties": {
+        "serviceName": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiGetServiceMetricsResponse": {
+      "type": "object",
+      "properties": {
+        "cpuPercent": {
+          "type": "number",
+          "format": "double"
+        },
+        "memMi": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "memMaxMi": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "replicasRunning": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "replicasDesired": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "uptimeSeconds": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
     "velez_apiGetServiceRequest": {
       "type": "object",
       "properties": {
@@ -513,6 +771,26 @@
         }
       }
     },
+    "velez_apiGetServiceResourcesRequest": {
+      "type": "object",
+      "properties": {
+        "serviceName": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiGetServiceResourcesResponse": {
+      "type": "object",
+      "properties": {
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiBoundResource"
+          }
+        }
+      }
+    },
     "velez_apiGetServiceResponse": {
       "type": "object",
       "properties": {
@@ -521,6 +799,17 @@
           "title": "in future there might be other service types that needs to be managed"
         }
       }
+    },
+    "velez_apiGetVervonomiconRequest": {
+      "type": "object",
+      "properties": {
+        "serviceName": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiGetVervonomiconResponse": {
+      "type": "object"
     },
     "velez_apiListDeploymentsRequest": {
       "type": "object",
@@ -696,6 +985,42 @@
         "env": {
           "type": "string",
           "title": "value of the 'env' label if set, else empty"
+        }
+      }
+    },
+    "velez_apiServiceDependencyInfo": {
+      "type": "object",
+      "properties": {
+        "serviceName": {
+          "type": "string"
+        },
+        "proto": {
+          "type": "string"
+        },
+        "requestRate": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "velez_apiServiceEnvironmentInfo": {
+      "type": "object",
+      "properties": {
+        "env": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "deployedVersion": {
+          "type": "string"
+        },
+        "deployedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "health": {
+          "type": "string"
         }
       }
     },

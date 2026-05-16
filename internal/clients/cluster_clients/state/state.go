@@ -76,6 +76,26 @@ func (s *stateManager) Plugins() storage.PluginsStorage {
 	return cm.Plugins()
 }
 
+func (s *stateManager) ServiceDependencies() storage.ServiceDependenciesStorage {
+	l := s.state.Load()
+	cm, ok := (*l).(cluster_clients.ClusterStateManager)
+	if !ok {
+		return nil
+	}
+
+	return cm.ServiceDependencies()
+}
+
+func (s *stateManager) ServiceResources() storage.ServiceResourcesStorage {
+	l := s.state.Load()
+	cm, ok := (*l).(cluster_clients.ClusterStateManager)
+	if !ok {
+		return nil
+	}
+
+	return cm.ServiceResources()
+}
+
 func (s *stateManager) tryConnect() {
 
 }

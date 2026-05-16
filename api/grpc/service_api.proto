@@ -69,6 +69,41 @@ service ServiceApi {
       body: "*"
     };
   }
+
+  rpc GetServiceMetrics(GetServiceMetrics.Request) returns (GetServiceMetrics.Response) {
+    option (google.api.http) = {
+      post: "/api/service/metrics"
+      body: "*"
+    };
+  }
+
+  rpc GetServiceResources(GetServiceResources.Request) returns (GetServiceResources.Response) {
+    option (google.api.http) = {
+      post: "/api/service/resources"
+      body: "*"
+    };
+  }
+
+  rpc GetServiceGraph(GetServiceGraph.Request) returns (GetServiceGraph.Response) {
+    option (google.api.http) = {
+      post: "/api/service/graph"
+      body: "*"
+    };
+  }
+
+  rpc GetServiceEnvironments(GetServiceEnvironments.Request) returns (GetServiceEnvironments.Response) {
+    option (google.api.http) = {
+      post: "/api/service/environments"
+      body: "*"
+    };
+  }
+
+  rpc GetVervonomicon(GetVervonomicon.Request) returns (GetVervonomicon.Response) {
+    option (google.api.http) = {
+      post: "/api/service/vervonomicon"
+      body: "*"
+    };
+  }
 }
 
 message CreateService {
@@ -195,8 +230,71 @@ message RestartService {
   message Response {}
 }
 
-// TODO: add RPC GetServiceMetrics — returns cpu%, mem_mi, mem_max_mi, replicas_running, replicas_desired, uptime_seconds per service
-// TODO: add RPC GetServiceResources — returns list of bound resources (redis/kafka/postgres/s3/elastic) with status + usage stats
-// TODO: add RPC GetServiceGraph — returns incoming callers and outgoing dependencies with proto + request rate info
-// TODO: add RPC GetServiceEnvironments — returns per-env status, deployed version, deployed-ago, health
-// TODO: add RPC GetVervonomicon — returns YAML/HCL config documents: vervonomicon, deployment, configuration, secrets
+message GetServiceMetrics {
+  message Request {
+    string service_name = 1;
+  }
+  message Response {
+    double cpu_percent = 1;
+    uint64 mem_mi = 2;
+    uint64 mem_max_mi = 3;
+    uint32 replicas_running = 4;
+    uint32 replicas_desired = 5;
+    uint64 uptime_seconds = 6;
+  }
+}
+
+message BoundResource {
+  string name = 1;
+  string resource_type = 2;
+  string status = 3;
+}
+
+message GetServiceResources {
+  message Request {
+    string service_name = 1;
+  }
+  message Response {
+    repeated BoundResource resources = 1;
+  }
+}
+
+message ServiceDependencyInfo {
+  string service_name = 1;
+  string proto = 2;
+  double request_rate = 3;
+}
+
+message GetServiceGraph {
+  message Request {
+    string service_name = 1;
+  }
+  message Response {
+    repeated ServiceDependencyInfo callers = 1;
+    repeated ServiceDependencyInfo dependencies = 2;
+  }
+}
+
+message ServiceEnvironmentInfo {
+  string env = 1;
+  string status = 2;
+  string deployed_version = 3;
+  google.protobuf.Timestamp deployed_at = 4;
+  string health = 5;
+}
+
+message GetServiceEnvironments {
+  message Request {
+    string service_name = 1;
+  }
+  message Response {
+    repeated ServiceEnvironmentInfo environments = 1;
+  }
+}
+
+message GetVervonomicon {
+  message Request {
+    string service_name = 1;
+  }
+  message Response {}
+}

@@ -7,6 +7,7 @@ import Sidebar from '@/widgets/sidebar/Sidebar';
 import TopBar from '@/widgets/topbar/TopBar';
 import Toaster from '@/segments/Toaster';
 import {Routes} from '@/app/router/Routes';
+import Dialog from "@/app/hooks/dialog/Dialog.tsx";
 
 type NavId = 'controlplane' | 'vcn' | 'deployments' | 'apps' | 'search';
 type ToolId = 'secrets' | 'config' | 'logs' | 'settings';
@@ -93,6 +94,7 @@ export default function MainLayout() {
                 </main>
             </div>
 
+            <Dialog/>
             <Toaster/>
         </div>
     );

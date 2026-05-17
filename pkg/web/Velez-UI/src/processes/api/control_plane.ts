@@ -8,7 +8,7 @@ import {
 } from "@/app/api/velez";
 
 import {toServices} from "@/processes/mappings/services.ts";
-import {Service} from "@/model/services/Services.tsx";
+import {VervPlugin} from "@/model/services/VervPlugins.tsx";
 import {ApiService} from "@/processes/ApiService.ts";
 
 class ControlPlaneService extends ApiService {
@@ -16,7 +16,7 @@ class ControlPlaneService extends ApiService {
         return this.execute((req) => ControlPlaneAPI.ListNodes({}, req))
     }
 
-    async listPlugins(): Promise<Service[]> {
+    async listPlugins(): Promise<VervPlugin[]> {
         return this.execute(async (req) => {
             const list = await ControlPlaneAPI.ListPlugins({} as ListPluginsRequest, req)
             return toServices(list.plugins || [])

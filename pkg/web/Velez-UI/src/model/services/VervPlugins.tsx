@@ -9,7 +9,7 @@ import DatabasePixelIcon from "@/assets/icons/services/database-pixel.svg";
 
 import UnknownServiceIcon from "@/assets/icons/unknown.svg";
 
-export class Service {
+export class VervPlugin {
     title: string
     icon: string
     webLink?: string

@@ -1,35 +1,36 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 
-import { NodeBaseInfo, VervPluginState, VervPluginType } from "@/app/api/velez";
-import { Service } from "@/model/services/Services";
+import {NodeBaseInfo, VervPluginState, VervPluginType} from "@/app/api/velez";
+import {VervPlugin} from "@/model/services/VervPlugins.tsx";
 
 import cls from '@/widgets/controlplane/PluginMatrix.module.css';
 
 import SectionLabel from '@/components/base/SectionLabel';
 import StatusDot from '@/components/base/StatusDot';
 import IconButton from '@/components/base/IconButton';
-import PluginManageDialog from '@/components/complex/PluginManageDialog/PluginManageDialog';
+import PluginManageDialog from '@/dialogs/PluginManageDialog/PluginManageDialog';
 import {Routes} from '@/app/router/Routes';
+import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
 
 
 interface PluginMatrixProps {
     nodes: NodeBaseInfo[];
-    plugins: Service[];
-    onEnable?: (pluginType: VervPluginType, payload?: any) => Promise<void>;
+    plugins: VervPlugin[];
+    onEnable?: (pluginType: VervPluginType, payload?: never) => Promise<void>;
     onDisable?: (pluginName: string, nodeId: string) => void;
 }
 
 export default function PluginMatrix(props: PluginMatrixProps) {
-    const [selectedPlugin, setSelectedPlugin] = useState<Service | null>(null);
+    const {OpenDialog} = useDialog()
 
-    function handleManagePlugin(plugin: Service) {
-        setSelectedPlugin(plugin);
+
+    function handleManagePlugin(plugin: VervPlugin) {
+        OpenDialog(
+            <PluginManageDialog
+                pluginType={plugin.type}
+            />)
     }
 
-    function handleCloseDialog() {
-        setSelectedPlugin(null);
-    }
 
     return (
         <div className={cls.PluginMatrixContainer}>
@@ -38,27 +39,17 @@ export default function PluginMatrix(props: PluginMatrixProps) {
             </div>
 
             <Table {...props} onManagePlugin={handleManagePlugin}/>
-
-            {selectedPlugin && (
-                <PluginManageDialog
-                    isOpen={true}
-                    pluginName={selectedPlugin.title}
-                    pluginType={selectedPlugin.type || VervPluginType.unknown_service_type}
-                    pluginState={selectedPlugin.state || VervPluginState.unknown}
-                    onEnable={props.onEnable || (() => Promise.resolve())}
-                    onClose={handleCloseDialog}
-                />
-            )}
         </div>
     );
 }
 
 interface TableProps extends PluginMatrixProps {
-    onManagePlugin: (plugin: Service) => void;
+    onManagePlugin: (plugin: VervPlugin) => void;
 }
 
 function Table({nodes, plugins, onManagePlugin}: TableProps) {
     const navigate = useNavigate();
+
     const colTemplate = `180px repeat(${nodes.length}, 1fr) 80px`;
 
     function renderNodeHeader(n: NodeBaseInfo) {
@@ -71,7 +62,7 @@ function Table({nodes, plugins, onManagePlugin}: TableProps) {
         }
     }
 
-    function renderPlugin(plugin: Service, pi: number) {
+    function renderPlugin(plugin: VervPlugin, pi: number) {
         const isLast = pi === plugins.length - 1;
         const isDisabled = plugin.state === VervPluginState.disabled;
 

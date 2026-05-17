@@ -8,11 +8,22 @@
     cursor: pointer;
     transition: opacity 0.15s, background 0.15s, border-color 0.15s;
     white-space: nowrap;
+    background: var(--bg3);
 
     &:disabled {
         opacity: 0.4;
         cursor: not-allowed;
     }
+
+
+    &.warn {
+        color: var(--amber);
+
+        &:hover:not(:disabled) {
+            opacity: 0.82;
+        }
+    }
+
 }
 
 .primary {
@@ -31,7 +42,6 @@
     border: 1px solid var(--border);
 
     &:hover:not(:disabled) {
-        background: var(--bg3);
         border-color: var(--border-m);
     }
 }

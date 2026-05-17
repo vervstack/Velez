@@ -48,7 +48,7 @@ go build -o ./service ./cmd/service/main.go
 cd pkg/web/@vervstack/velez && npm run build
 
 # React UI
-cd pkg/web/Velez-UI && yarn install && yarn build
+cd pkg/web/Velez-UI && bun install && bun run build
 ```
 
 ### Database Migrations

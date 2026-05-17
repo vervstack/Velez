@@ -5,7 +5,7 @@ interface ButtonProps {
     children?: React.ReactNode;
     /** @deprecated use children */
     title?: string;
-    variant?: 'primary' | 'secondary' | 'danger';
+    variant?: 'primary' | 'secondary' | 'danger' | 'warn';
     onClick?: () => void;
     disabled?: boolean;
     /** @deprecated use disabled */
@@ -14,18 +14,23 @@ interface ButtonProps {
 }
 
 export default function Button({
-    children,
-    title,
-    variant = 'secondary',
-    onClick,
-    disabled,
-    isDisabled,
-    type = 'button',
-}: ButtonProps) {
+                                   children,
+                                   title,
+                                   variant = 'secondary',
+                                   onClick,
+                                   disabled,
+                                   isDisabled,
+                                   type = 'button',
+                               }: ButtonProps) {
     const isOff = disabled ?? isDisabled;
+
     return (
         <button
-            className={cn(cls.ButtonContainer, cls[variant])}
+            className={
+                cn(
+                    cls.ButtonContainer,
+                    cls[variant],
+                )}
             onClick={onClick}
             disabled={isOff}
             type={type}

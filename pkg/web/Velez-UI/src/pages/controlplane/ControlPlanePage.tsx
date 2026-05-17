@@ -2,17 +2,15 @@ import {UseQueryResult} from '@tanstack/react-query';
 
 import cls from '@/pages/controlplane/ControlPlanePage.module.css';
 
-import {ListNodesResponse, NodeStatus, VervPluginType} from "@/app/api/velez";
+import {ListNodesResponse, NodeStatus} from "@/app/api/velez";
 
 import StatCard, {Level} from '@/components/base/StatCard';
 import NodeHealthList from '@/widgets/controlplane/NodeHealthList';
 import PluginMatrix from '@/widgets/controlplane/PluginMatrix';
 import SkeletonNodeCard from '@/components/node/SkeletonNodeCard';
 
-import {useToaster} from '@/app/hooks/toaster/Toaster';
-import {controlPlaneService} from '@/processes/api/control_plane';
 import {ListNodesQuery, ListPluginsQuery} from '@/processes/queries/control_plane';
-import {Service} from '@/model/services/Services';
+import {VervPlugin} from '@/model/services/VervPlugins';
 
 export default function ControlPlanePage() {
 
@@ -107,37 +105,20 @@ function NodeList({nodesQuery}: NodeListProps) {
 }
 
 interface PluginsListProps {
-    pluginsQuery: UseQueryResult<void | Service[], Error>;
+    pluginsQuery: UseQueryResult<void | VervPlugin[], Error>;
     nodesQuery: UseQueryResult<void | ListNodesResponse, Error>;
 }
 
 function PluginsList({pluginsQuery, nodesQuery}: PluginsListProps) {
-    const toaster = useToaster();
-
-    async function handleEnable(pluginType: VervPluginType, payload?: never) {
-        try {
-            if (pluginType === VervPluginType.statefull_pg && payload) {
-                await controlPlaneService.enableStatefullPgCluster(payload);
-            } else {
-                await controlPlaneService.enablePlugin(pluginType);
-            }
-        } catch (error) {
-            if (error instanceof Error) {
-                toaster.catchGrpc(error);
-            }
-        }
-    }
 
     function handleDisable(pluginName: string, nodeId: string) {
         alert(`not implemented: disable ${pluginName} on ${nodeId}`);
     }
 
-
     return (
         <PluginMatrix
             nodes={nodesQuery.data?.nodes || []}
             plugins={pluginsQuery.data || []}
-            onEnable={handleEnable}
             onDisable={handleDisable}/>
     )
 }

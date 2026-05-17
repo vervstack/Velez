@@ -5,15 +5,14 @@ import {
 } from "@/app/api/velez";
 
 import {
+    VervPlugin,
+} from "@/model/services/VervPlugins.tsx";
 
-    Service,
-} from "@/model/services/Services";
-
-export function toServices(services: ApiPlugin[]): Service[] {
-    const out: Service[] = []
+export function toServices(services: ApiPlugin[]): VervPlugin[] {
+    const out: VervPlugin[] = []
 
     services.map(s => {
-        const srv = new Service(s.type || VervPluginType.unknown_service_type, s.port)
+        const srv = new VervPlugin(s.type || VervPluginType.unknown_service_type, s.port)
         srv.state = s.state || VervPluginState.unknown
         out.push(srv)
     })

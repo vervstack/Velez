@@ -4,7 +4,7 @@ import OpenInTab from "@/assets/icons/OpenInTab.svg";
 import cls from "@/components/smerd/PortMapping.module.css";
 
 import ArrowForward from "@/assets/icons/ArrowForward.svg";
-import {getLinkToPort} from "@/model/services/Services.tsx";
+import {getLinkToPort} from "@/model/services/VervPlugins.tsx";
 import Input from "@/components/base/Input.tsx";
 
 interface PortMappingProps {

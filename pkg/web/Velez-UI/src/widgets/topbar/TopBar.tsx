@@ -6,6 +6,9 @@ import {NodeBaseInfo, NodeStatus, VervPluginType} from "@/app/api/velez";
 import {ListNodesQuery, ListPluginsQuery} from "@/processes/queries/control_plane.ts";
 import {useNavigate} from "react-router-dom";
 import {Routes} from "@/app/router/Routes.ts";
+import Button from "@/components/base/Button.tsx";
+import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
+import PluginManageDialog from "@/dialogs/PluginManageDialog/PluginManageDialog.tsx";
 
 type NavId = 'controlplane' | 'vcn' | 'deployments' | 'apps' | 'search';
 
@@ -25,8 +28,6 @@ interface TopBarProps extends LeftSideProps {
 }
 
 export default function TopBar(props: TopBarProps) {
-
-
     return (
         <div className={cls.TopBarContainer}>
             <LeftZone
@@ -83,7 +84,6 @@ function RightZone() {
         navigate(Routes.Deploy);
     }
 
-
     const isLoading = pluginsQuery.isLoading && nodesQuery.isLoading
 
     const isStateFullMode = !pluginsQuery.isLoading &&
@@ -92,21 +92,36 @@ function RightZone() {
 
     return (
         <div className={cls.RightZoneContainer}>
-
             {!isLoading && (isStateFullMode ? <SingleNodeStub/> : <NodesHealthStatus/>)}
-            <button className={cls.DeployBtn} onClick={handleDeploy}>
-                + Deploy
-            </button>
+            <Button
+                variant={'primary'}
+                onClick={handleDeploy}
+            >Deploy</Button>
         </div>
     )
 }
 
 function SingleNodeStub() {
+    const {OpenDialog} = useDialog();
+
+    function onClick() {
+        OpenDialog(<PluginManageDialog
+            pluginType={VervPluginType.statefull_pg}
+        />)
+    }
+
     return (
-        <div>
-            <p>Single node mode</p>
-            <button>Setup statefull</button>
-            </div>
+        <div className={cls.SingleNodeContainer}>
+            <span className={cls.SingleNodeLabel}>
+                Single node mode
+            </span>
+            <Button
+                variant={'warn'}
+                onClick={onClick}
+            >
+                Setup
+            </Button>
+        </div>
     )
 }
 

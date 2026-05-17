@@ -141,7 +141,7 @@ message ListNodes {
 message Plugin {
   VervPluginType type = 1;
   VervPlugin.State state = 2;
-  optional uint32 port = 3;
+  string service_name = 3;
 }
 
 message ListPlugins {

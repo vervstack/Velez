@@ -4,13 +4,14 @@ import cls from '@/dialogs/PluginManageDialog/PluginManageDialog.module.css';
 
 import StatusDot from '@/components/base/StatusDot';
 
-import {VervPluginType, VervPluginState, VervPlugin} from '@/app/api/velez';
+import {VervPluginState, VervPluginType} from '@/app/api/velez';
 
 import SimplePluginForm from '@/dialogs/PluginManageDialog/plugins/SimplePluginForm';
 import StatefullPgPluginForm from '@/dialogs/PluginManageDialog/plugins/StatefullPgPluginForm';
 import HeadscalePluginForm from '@/dialogs/PluginManageDialog/plugins/HeadscalePluginForm';
 import {ListPluginsQuery} from "@/processes/queries/control_plane.ts";
 import UnknownPlugin from "@/dialogs/PluginManageDialog/plugins/UnknownPlugin.tsx";
+import {VervPlugin} from "@/model/services/VervPlugins.tsx";
 
 export default function PluginManageDialog({pluginType}: PluginManageDialogProps) {
 
@@ -18,16 +19,12 @@ export default function PluginManageDialog({pluginType}: PluginManageDialogProps
 
     const pluginsQuery = ListPluginsQuery();
 
-    const plugin = pluginsQuery.data?.find(p => p.type == pluginType)
-
-    function handleContainerClick(e: React.MouseEvent) {
-        e.stopPropagation();
-    }
+    const plugin = pluginsQuery.data?.find(p => p.type == pluginType) || new VervPlugin(VervPluginType.unknown_service_type, "")
 
     return (
         <div
             className={cls.ModalContainer}
-            onClick={handleContainerClick}>
+        >
 
             <div className={cls.ModalHeader}>
                 <h2 className={cls.ModalTitle}>Manage {pluginType}</h2>

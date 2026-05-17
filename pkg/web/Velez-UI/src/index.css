@@ -61,13 +61,48 @@ body {
     --font-sans: 'Comfortaa', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
 
+    /* Borders (subtle neutral) */
+    --border-s: rgba(255, 255, 255, 0.06);
+
+    /* Violet */
+    --violet: #a78bfa;
+    --violet-dim: rgba(167, 139, 250, 0.12);
+
     /* Misc */
     --radius: 0.625rem; /* 10px */
     --radius-sm: 0.375rem; /* 6px */
 
-
     /*    Sidebar */
     --sidebar-width: 13.75rem;
+
+    /* ── Supplemental VS tokens (from design handoff) ─────────── */
+    --vs-bg-5:        #2a2a3a;
+    --vs-fs-h1:       26px;
+    --vs-fs-h2:       18px;
+    --vs-fs-body:     13.5px;
+    --vs-fs-label:    12.5px;
+    --vs-fs-nav:      12.5px;
+    --vs-fs-button:   13px;
+    --vs-fs-button-sm: 12px;
+    --vs-fs-hint:     10.5px;
+    --vs-fs-eyebrow:  10px;
+    --vs-fs-mini:     9px;
+    --vs-radius-xs:   4px;
+    --vs-radius-sm:   7px;
+    --vs-radius-md:   9px;
+    --vs-radius-lg:   11px;
+    --vs-radius-pill: 99px;
+    --vs-space-1:     4px;
+    --vs-space-2:     8px;
+    --vs-space-3:     12px;
+    --vs-space-4:     16px;
+    --vs-space-5:     18px;
+    --vs-space-6:     24px;
+    --vs-space-7:     28px;
+    --vs-space-8:     32px;
+    --vs-ease:        0.15s ease-out;
+    --vs-ease-fast:   0.12s ease-out;
+    --vs-ease-slow:   0.18s ease-out;
 }
 
 /* Scrollbar */

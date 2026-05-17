@@ -1,12 +1,10 @@
-import { useState, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useMemo, useEffect } from 'react';
 import cls from '@/pages/deployments/DeploymentsPage.module.css';
 import DeploymentFilters from '@/widgets/deployments/DeploymentFilters';
 import KanbanBoard from '@/widgets/deployments/KanbanBoard';
 import ServiceListView from '@/widgets/deployments/ServiceListView';
 import { type ServiceCardData } from '@/components/service/ServiceCard';
-import { FetchSmerds } from '@/processes/api/velez';
-import { listSmerdsQuery } from '@/processes/queries/smerds';
+import { useListSmerdsQuery } from '@/processes/queries/smerds';
 import { mapSmerdToServiceCard } from '@/processes/mappings/smerds';
 import { useToaster } from '@/app/hooks/toaster/Toaster';
 
@@ -19,10 +17,10 @@ export default function DeploymentsPage() {
     const [envFilters,    setEnvFilters]    = useState<Set<string>>(new Set());
     const [viewMode,      setViewMode]      = useState<ViewMode>('kanban');
 
-    const smerdsQuery = useQuery({
-        ...listSmerdsQuery(),
-        queryFn: () => FetchSmerds().catch((e) => { toaster.catchGrpc(e); return { smerds: [] }; }),
-    });
+    const smerdsQuery = useListSmerdsQuery();
+    useEffect(() => {
+        if (smerdsQuery.error) toaster.catchGrpc(smerdsQuery.error);
+    }, [smerdsQuery.error]);
 
     const services: ServiceCardData[] = (smerdsQuery.data?.smerds ?? []).map(mapSmerdToServiceCard);
 

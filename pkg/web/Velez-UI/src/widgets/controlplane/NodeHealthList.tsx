@@ -21,10 +21,15 @@ export default function NodeHealthList({nodes, onShell, onDrain}: NodeHealthList
             <div className={cls.list}>
                 {nodes
                     .map(n =>
-                        <Node
-                            node={n}
-                            onShell={onShell}
-                            onDrain={onDrain}/>)}
+                        <div
+                            key={n.id}
+                        >
+                            <Node
+                                node={n}
+                                onShell={onShell}
+                                onDrain={onDrain}/>
+                        </div>
+                    )}
             </div>
         </div>
     );

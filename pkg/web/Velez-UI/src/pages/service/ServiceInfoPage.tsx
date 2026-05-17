@@ -1,12 +1,9 @@
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import {useParams, useNavigate} from "react-router-dom";
-import {useQuery} from "@tanstack/react-query";
-
 import {Toast, useToaster} from "@/app/hooks/toaster/Toaster.ts";
-import {FetchService, FetchDeployments, StopService, RestartService} from "@/processes/api/service.ts";
-import {FetchSmerdsByServiceName} from "@/processes/api/velez.ts";
-import {getServiceQuery, listDeploymentsQuery} from "@/processes/queries/services.ts";
-import {listSmerdsByServiceQuery} from "@/processes/queries/smerds.ts";
+import {serviceService} from "@/processes/api/service.ts";
+import {useGetServiceQuery, useListDeploymentsQuery} from "@/processes/queries/services.ts";
+import {useListSmerdsByServiceQuery} from "@/processes/queries/smerds.ts";
 
 import Dialog from "@/components/complex/dialog/Dialog.tsx";
 import DeployMenu from "@/pages/service/parts/DeployMenu.tsx";
@@ -40,34 +37,22 @@ export default function ServiceInfoPage() {
 
     const key = params["key"] || "";
 
-    const serviceQuery = useQuery({
-        ...getServiceQuery(key),
-        queryFn: () => FetchService(key).catch((e) => {
-            toaster.catchGrpc(e);
-            throw e;
-        }),
-        enabled: key !== "",
-    });
+    const serviceQuery = useGetServiceQuery(key, key !== "");
+    useEffect(() => {
+        if (serviceQuery.error) toaster.catchGrpc(serviceQuery.error);
+    }, [serviceQuery.error]);
 
     const service = serviceQuery.data;
 
-    const deploymentsQuery = useQuery({
-        ...listDeploymentsQuery(service?.id ?? ""),
-        queryFn: () => FetchDeployments(service!.id!).catch((e) => {
-            toaster.catchGrpc(e);
-            return {deployments: []};
-        }),
-        enabled: !!service?.id,
-    });
+    const deploymentsQuery = useListDeploymentsQuery(service?.id ?? "", !!service?.id);
+    useEffect(() => {
+        if (deploymentsQuery.error) toaster.catchGrpc(deploymentsQuery.error);
+    }, [deploymentsQuery.error]);
 
-    const smerdsQuery = useQuery({
-        ...listSmerdsByServiceQuery(key),
-        queryFn: () => FetchSmerdsByServiceName(key).catch((e) => {
-            toaster.catchGrpc(e);
-            return {smerds: []};
-        }),
-        enabled: key !== "",
-    });
+    const smerdsQuery = useListSmerdsByServiceQuery(key, key !== "");
+    useEffect(() => {
+        if (smerdsQuery.error) toaster.catchGrpc(smerdsQuery.error);
+    }, [smerdsQuery.error]);
 
     if (key === "") {
         return (
@@ -117,7 +102,7 @@ export default function ServiceInfoPage() {
     function handleStop() {
         if (!service?.name) return;
         const serviceName = service.name;
-        StopService(serviceName)
+        serviceService.stopService(serviceName)
             .then(function onStopSuccess() {
                 toaster.bake({title: "Service stopped", description: serviceName, level: "Info"} as Toast);
             })
@@ -129,7 +114,7 @@ export default function ServiceInfoPage() {
     function handleRestart() {
         if (!service?.name) return;
         const serviceName = service.name;
-        RestartService(serviceName)
+        serviceService.restartService(serviceName)
             .then(function onRestartSuccess() {
                 toaster.bake({title: "Service restarted", description: serviceName, level: "Info"} as Toast);
             })

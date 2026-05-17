@@ -8,5 +8,6 @@ type PluginBaseInfo struct {
 	Name           string
 	State          pb.VervPlugin_State
 	ServiceId      *int64
+	ServiceName    string
 	DeployStatuses []pb.DeploymentStatus
 }

@@ -69,9 +69,10 @@ func (d *dockerPluginsStorage) ListPlugins(ctx context.Context) ([]domain.Plugin
 		}
 
 		row := domain.PluginBaseInfo{
-			Name:      pluginType.String(),
-			State:     state,
-			ServiceId: nil,
+			Name:        pluginType.String(),
+			State:       state,
+			ServiceId:   nil,
+			ServiceName: containerName,
 		}
 		rows = append(rows, row)
 	}

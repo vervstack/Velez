@@ -141,6 +141,80 @@ export type RestartServiceResponse = Record<string, never>;
 
 export type RestartService = Record<string, never>;
 
+export type GetServiceMetricsRequest = {
+  serviceName?: string;
+};
+
+export type GetServiceMetricsResponse = {
+  cpuPercent?: number;
+  memMi?: string;
+  memMaxMi?: string;
+  replicasRunning?: number;
+  replicasDesired?: number;
+  uptimeSeconds?: string;
+};
+
+export type GetServiceMetrics = Record<string, never>;
+
+export type BoundResource = {
+  name?: string;
+  resourceType?: string;
+  status?: string;
+};
+
+export type GetServiceResourcesRequest = {
+  serviceName?: string;
+};
+
+export type GetServiceResourcesResponse = {
+  resources?: BoundResource[];
+};
+
+export type GetServiceResources = Record<string, never>;
+
+export type ServiceDependencyInfo = {
+  serviceName?: string;
+  proto?: string;
+  requestRate?: number;
+};
+
+export type GetServiceGraphRequest = {
+  serviceName?: string;
+};
+
+export type GetServiceGraphResponse = {
+  callers?: ServiceDependencyInfo[];
+  dependencies?: ServiceDependencyInfo[];
+};
+
+export type GetServiceGraph = Record<string, never>;
+
+export type ServiceEnvironmentInfo = {
+  env?: string;
+  status?: string;
+  deployedVersion?: string;
+  deployedAt?: GoogleProtobufTimestamp.Timestamp;
+  health?: string;
+};
+
+export type GetServiceEnvironmentsRequest = {
+  serviceName?: string;
+};
+
+export type GetServiceEnvironmentsResponse = {
+  environments?: ServiceEnvironmentInfo[];
+};
+
+export type GetServiceEnvironments = Record<string, never>;
+
+export type GetVervonomiconRequest = {
+  serviceName?: string;
+};
+
+export type GetVervonomiconResponse = Record<string, never>;
+
+export type GetVervonomicon = Record<string, never>;
+
 export class ServiceApi {
   static CreateService(this:void, req: CreateServiceRequest, initReq?: fm.InitReq): Promise<CreateServiceResponse> {
     return fm.fetchRequest<CreateServiceResponse>(`/api/service/create`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
@@ -162,5 +236,20 @@ export class ServiceApi {
   }
   static RestartService(this:void, req: RestartServiceRequest, initReq?: fm.InitReq): Promise<RestartServiceResponse> {
     return fm.fetchRequest<RestartServiceResponse>(`/api/service/restart`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static GetServiceMetrics(this:void, req: GetServiceMetricsRequest, initReq?: fm.InitReq): Promise<GetServiceMetricsResponse> {
+    return fm.fetchRequest<GetServiceMetricsResponse>(`/api/service/metrics`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static GetServiceResources(this:void, req: GetServiceResourcesRequest, initReq?: fm.InitReq): Promise<GetServiceResourcesResponse> {
+    return fm.fetchRequest<GetServiceResourcesResponse>(`/api/service/resources`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static GetServiceGraph(this:void, req: GetServiceGraphRequest, initReq?: fm.InitReq): Promise<GetServiceGraphResponse> {
+    return fm.fetchRequest<GetServiceGraphResponse>(`/api/service/graph`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static GetServiceEnvironments(this:void, req: GetServiceEnvironmentsRequest, initReq?: fm.InitReq): Promise<GetServiceEnvironmentsResponse> {
+    return fm.fetchRequest<GetServiceEnvironmentsResponse>(`/api/service/environments`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static GetVervonomicon(this:void, req: GetVervonomiconRequest, initReq?: fm.InitReq): Promise<GetVervonomiconResponse> {
+    return fm.fetchRequest<GetVervonomiconResponse>(`/api/service/vervonomicon`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
 }

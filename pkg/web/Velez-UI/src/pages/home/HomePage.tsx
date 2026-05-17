@@ -1,42 +1,31 @@
-import {useQuery} from "@tanstack/react-query";
 import {useNavigate} from "react-router-dom";
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import cn from "classnames";
 
 import {ServiceBaseInfo, Smerd, SmerdStatus} from "@/app/api/velez";
 
 import cls from "@/pages/home/Home.module.css";
 
-import {ListServices} from "@/processes/api/service.ts";
-import {FetchSmerds} from "@/processes/api/velez.ts";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {Routes} from "@/app/router/Router.tsx";
 import Button from "@/components/base/Button.tsx";
 import SkeletonServiceCard from "@/components/service/SkeletonServiceCard.tsx";
 import SkeletonSmerdRow from "@/components/smerd/SkeletonSmerdRow.tsx";
-import {listServicesQuery} from "@/processes/queries/services.ts";
-import {listSmerdsQuery} from "@/processes/queries/smerds.ts";
-
-const LIST_REQ = {paging: {limit: '50', offset: '0'}};
+import {useListServicesQuery} from "@/processes/queries/services.ts";
+import {useListSmerdsQuery} from "@/processes/queries/smerds.ts";
 
 export default function HomePage() {
     const toaster = useToaster();
 
-    const servicesQuery = useQuery({
-        ...listServicesQuery(),
-        queryFn: () => ListServices(LIST_REQ).catch((e) => {
-            toaster.catchGrpc(e);
-            return {services: []};
-        }),
-    });
+    const servicesQuery = useListServicesQuery();
+    useEffect(() => {
+        if (servicesQuery.error) toaster.catchGrpc(servicesQuery.error);
+    }, [servicesQuery.error]);
 
-    const smerdsQuery = useQuery({
-        ...listSmerdsQuery(),
-        queryFn: () => FetchSmerds().catch((e) => {
-            toaster.catchGrpc(e);
-            return {smerds: []};
-        }),
-    });
+    const smerdsQuery = useListSmerdsQuery();
+    useEffect(() => {
+        if (smerdsQuery.error) toaster.catchGrpc(smerdsQuery.error);
+    }, [smerdsQuery.error]);
 
     const services = servicesQuery.data?.services || [];
     const smerds = smerdsQuery.data?.smerds || [];

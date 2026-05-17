@@ -1,15 +1,13 @@
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import {useParams, useNavigate} from "react-router-dom";
-import {useQuery} from "@tanstack/react-query";
 import cn from "classnames";
 
 import {Smerd, SmerdStatus} from "@/app/api/velez";
 
 import cls from "@/pages/smerd/SmerdPage.module.css";
 
-import {FetchSmerd} from "@/processes/api/velez.ts";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
-import {getSmerdQuery} from "@/processes/queries/smerds.ts";
+import {useGetSmerdQuery} from "@/processes/queries/smerds.ts";
 
 export default function SmerdPage() {
     const params = useParams<Record<string, string>>();
@@ -17,14 +15,10 @@ export default function SmerdPage() {
     const toaster = useToaster();
     const smerdName = params["name"] || "";
 
-    const {data: smerd, isLoading} = useQuery({
-        ...getSmerdQuery(smerdName),
-        queryFn: () => FetchSmerd(smerdName).catch((e) => {
-            toaster.catchGrpc(e);
-            throw e;
-        }),
-        enabled: smerdName !== "",
-    });
+    const {data: smerd, isLoading, error} = useGetSmerdQuery(smerdName, smerdName !== "");
+    useEffect(() => {
+        if (error) toaster.catchGrpc(error);
+    }, [error]);
 
     if (!smerdName) {
         return <div className={cls.SmerdPageContainer}>

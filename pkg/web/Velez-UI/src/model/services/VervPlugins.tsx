@@ -12,15 +12,17 @@ import UnknownServiceIcon from "@/assets/icons/unknown.svg";
 export class VervPlugin {
     title: string
     icon: string
-    webLink?: string
+    serviceName: string
+
     description: string
     type: VervPluginType
 
     state: VervPluginState = VervPluginState.unknown
 
-    constructor(type: VervPluginType, port?: number) {
+    constructor(type: VervPluginType, serviceName: string) {
         const serviceMeta = metaByType.get(type);
         this.type = type;
+        this.serviceName = serviceName;
 
         if (!serviceMeta) {
             this.title = type.toString()
@@ -33,9 +35,6 @@ export class VervPlugin {
         this.icon = serviceMeta.icon;
         this.description = serviceMeta.description;
 
-        if (port) {
-            this.webLink = getLinkToPort(port)
-        }
     }
 }
 

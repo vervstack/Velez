@@ -1,12 +1,10 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import cls from '@/pages/search/SearchPage.module.css';
 import StatusDot from '@/components/base/StatusDot';
 import EnvChip from '@/components/base/chips/EnvChip';
 import IncidentChip from '@/components/base/chips/IncidentChip';
 import { type ServiceCardData } from '@/components/service/ServiceCard';
-import { FetchSmerds } from '@/processes/api/velez';
-import { listSmerdsQuery } from '@/processes/queries/smerds';
+import { useListSmerdsQuery } from '@/processes/queries/smerds';
 import { mapSmerdToServiceCard } from '@/processes/mappings/smerds';
 import { useToaster } from '@/app/hooks/toaster/Toaster';
 
@@ -17,10 +15,10 @@ export default function SearchPage() {
     const [query, setQuery] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const smerdsQuery = useQuery({
-        ...listSmerdsQuery(),
-        queryFn: () => FetchSmerds().catch((e) => { toaster.catchGrpc(e); return { smerds: [] }; }),
-    });
+    const smerdsQuery = useListSmerdsQuery();
+    useEffect(() => {
+        if (smerdsQuery.error) toaster.catchGrpc(smerdsQuery.error);
+    }, [smerdsQuery.error]);
 
     const services: ServiceCardData[] = (smerdsQuery.data?.smerds ?? []).map(mapSmerdToServiceCard);
     // TODO(T32): replace with ListNodes once backend API is available

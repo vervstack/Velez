@@ -333,9 +333,8 @@
         "state": {
           "$ref": "#/definitions/VervPluginState"
         },
-        "port": {
-          "type": "integer",
-          "format": "int64"
+        "serviceName": {
+          "type": "string"
         }
       }
     },

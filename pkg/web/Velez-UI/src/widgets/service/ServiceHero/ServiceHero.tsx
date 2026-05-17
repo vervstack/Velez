@@ -1,8 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
-
 import cls from '@/widgets/service/ServiceHero/ServiceHero.module.css'
 
-import { getServiceMetricsQuery } from '@/processes/queries/services'
+import { useGetServiceMetricsQuery } from '@/processes/queries/services'
 
 interface ServiceHeroProps {
     serviceId: string
@@ -54,7 +52,7 @@ export default function ServiceHero({
     serviceStatus,
     imageFromSmerd,
 }: ServiceHeroProps) {
-    const { data: metrics } = useQuery(getServiceMetricsQuery(serviceId))
+    const { data: metrics } = useGetServiceMetricsQuery(serviceId)
 
     const replicas = metrics?.replicas ?? '—'
     const uptime = metrics?.uptime ?? '—'

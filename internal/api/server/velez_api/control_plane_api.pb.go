@@ -517,7 +517,7 @@ type Plugin struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Type          VervPluginType         `protobuf:"varint,1,opt,name=type,proto3,enum=velez_api.VervPluginType" json:"type,omitempty"`
 	State         VervPlugin_State       `protobuf:"varint,2,opt,name=state,proto3,enum=velez_api.VervPlugin_State" json:"state,omitempty"`
-	Port          *uint32                `protobuf:"varint,3,opt,name=port,proto3,oneof" json:"port,omitempty"`
+	ServiceName   string                 `protobuf:"bytes,3,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -566,11 +566,11 @@ func (x *Plugin) GetState() VervPlugin_State {
 	return VervPlugin_unknown
 }
 
-func (x *Plugin) GetPort() uint32 {
-	if x != nil && x.Port != nil {
-		return *x.Port
+func (x *Plugin) GetServiceName() string {
+	if x != nil {
+		return x.ServiceName
 	}
-	return 0
+	return ""
 }
 
 type ListPlugins struct {
@@ -1303,12 +1303,11 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x1aO\n" +
 	"\bResponse\x12-\n" +
 	"\x05nodes\x18\x01 \x03(\v2\x17.velez_api.NodeBaseInfoR\x05nodes\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x04R\x05total\"\x8c\x01\n" +
+	"\x05total\x18\x02 \x01(\x04R\x05total\"\x8d\x01\n" +
 	"\x06Plugin\x12-\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x19.velez_api.VervPluginTypeR\x04type\x121\n" +
-	"\x05state\x18\x02 \x01(\x0e2\x1b.velez_api.VervPlugin.StateR\x05state\x12\x17\n" +
-	"\x04port\x18\x03 \x01(\rH\x00R\x04port\x88\x01\x01B\a\n" +
-	"\x05_port\"Q\n" +
+	"\x05state\x18\x02 \x01(\x0e2\x1b.velez_api.VervPlugin.StateR\x05state\x12!\n" +
+	"\fservice_name\x18\x03 \x01(\tR\vserviceName\"Q\n" +
 	"\vListPlugins\x1a\t\n" +
 	"\aRequest\x1a7\n" +
 	"\bResponse\x12+\n" +
@@ -1414,7 +1413,6 @@ func file_control_plane_api_proto_init() {
 		(*EnableHeadscaleServer_DeployConfig)(nil),
 		(*EnableHeadscaleServer_ExternalConnect)(nil),
 	}
-	file_control_plane_api_proto_msgTypes[8].OneofWrappers = []any{}
 	file_control_plane_api_proto_msgTypes[12].OneofWrappers = []any{
 		(*EnablePlugin_Request_StatefullCluster)(nil),
 		(*EnablePlugin_Request_HeadscaleServer)(nil),

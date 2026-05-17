@@ -113,14 +113,16 @@ export default function Sidebar(
                 )}
                 {
                     NAV_ITEMS.map((n) =>
-                        <NavItem
-                            id={n.id}
-                            label={n.label}
-                            icon={n.icon}
-                            isActive={activeNav === n.id}
-                            onNavChange={onNavChange}
-                            collapsed={collapsed}
-                        />)}
+                        <div key={n.id}>
+                            <NavItem
+                                id={n.id}
+                                label={n.label}
+                                icon={n.icon}
+                                isActive={activeNav === n.id}
+                                onNavChange={onNavChange}
+                                collapsed={collapsed}
+                            />
+                        </div>)}
 
                 <div className={cls.divider}/>
                 {!collapsed && (

@@ -81,7 +81,8 @@ const upsertServiceDependency = `-- name: UpsertServiceDependency :exec
 INSERT INTO velez.service_dependencies (source_service, target_service, proto)
 VALUES ($1, $2, $3)
 ON CONFLICT (source_service, target_service)
-DO UPDATE SET proto = EXCLUDED.proto, updated_at = NOW()
+    DO UPDATE SET proto      = EXCLUDED.proto,
+                  updated_at = NOW()
 `
 
 type UpsertServiceDependencyParams struct {

@@ -1,14 +1,18 @@
 -- name: ListPlugins :many
 SELECT velez.plugins.plugin_type,
        velez.plugins.service_id,
+       svc.name                        AS service_name,
        array_agg(depl.status)::text[] AS statuses
 FROM velez.plugins AS plugins
+         LEFT JOIN velez.services AS svc
+                   ON svc.id = plugins.service_id
          LEFT JOIN velez.deployment_specifications AS dep_spec
                    ON dep_spec.service_id = plugins.service_id
          LEFT JOIN velez.deployments AS depl
                    ON depl.spec_id = dep_spec.id
 GROUP BY plugins.plugin_type,
-         plugins.service_id;
+         plugins.service_id,
+         svc.name;
 
 -- name: UpsertPlugin :exec
 INSERT INTO velez.plugins (plugin_type, service_id)

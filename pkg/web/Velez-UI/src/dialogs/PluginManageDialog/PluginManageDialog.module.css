@@ -63,27 +63,6 @@
     gap: 1rem;
 }
 
-.EnableButton {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--fg-inverse);
-    background: var(--primary, #2563eb);
-    border: none;
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.EnableButton:hover:not(:disabled) {
-    background: var(--primary-hover, #1d4ed8);
-}
-
-.EnableButton:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
 .CheckboxLabel {
     display: flex;
     align-items: center;

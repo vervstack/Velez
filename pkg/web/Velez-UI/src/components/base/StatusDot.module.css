@@ -7,30 +7,33 @@
     background: var(--fg-dim);
 }
 
-.NodeStatus_Online {
+.running,
+.healthy,
+.online,
+.enabled {
     background: var(--green);
+    box-shadow: 0 0 6px rgba(40, 200, 64, 0.5);
 }
 
-.NodeStatus_Degraded {
+.degraded,
+.pending {
     background: var(--amber);
 }
 
-.NodeStatus_Offline {
+.stopped,
+.disabled {
+    background: var(--fg-faint);
+}
+
+.offline,
+.error {
     background: var(--red);
 }
 
-.stopped {
-    background: var(--fg-faint);
+.creating {
+    background: var(--cyan);
 }
 
 .pulse {
     animation: pulse 2.2s ease-in-out infinite;
-}
-
-.enabled {
-    background: var(--green);
-}
-
-.disabled {
-    background: var(--fg-dim);
 }

@@ -15,20 +15,25 @@ import (
 const listPlugins = `-- name: ListPlugins :many
 SELECT velez.plugins.plugin_type,
        velez.plugins.service_id,
+       svc.name                        AS service_name,
        array_agg(depl.status)::text[] AS statuses
 FROM velez.plugins AS plugins
+         LEFT JOIN velez.services AS svc
+                   ON svc.id = plugins.service_id
          LEFT JOIN velez.deployment_specifications AS dep_spec
                    ON dep_spec.service_id = plugins.service_id
          LEFT JOIN velez.deployments AS depl
                    ON depl.spec_id = dep_spec.id
 GROUP BY plugins.plugin_type,
-         plugins.service_id
+         plugins.service_id,
+         svc.name
 `
 
 type ListPluginsRow struct {
-	PluginType string
-	ServiceID  sql.NullInt64
-	Statuses   []string
+	PluginType  string
+	ServiceID   sql.NullInt64
+	ServiceName sql.NullString
+	Statuses    []string
 }
 
 func (q *Queries) ListPlugins(ctx context.Context) ([]ListPluginsRow, error) {
@@ -40,7 +45,12 @@ func (q *Queries) ListPlugins(ctx context.Context) ([]ListPluginsRow, error) {
 	items := []ListPluginsRow{}
 	for rows.Next() {
 		var i ListPluginsRow
-		if err := rows.Scan(&i.PluginType, &i.ServiceID, pq.Array(&i.Statuses)); err != nil {
+		if err := rows.Scan(
+			&i.PluginType,
+			&i.ServiceID,
+			&i.ServiceName,
+			pq.Array(&i.Statuses),
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

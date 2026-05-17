@@ -39,6 +39,10 @@ func (p *pluginsStorage) ListPlugins(ctx context.Context) ([]domain.PluginBaseIn
 			plugin.ServiceId = &pluginRow.ServiceID.Int64
 		}
 
+		if pluginRow.ServiceName.Valid {
+			plugin.ServiceName = pluginRow.ServiceName.String
+		}
+
 		plugin.State = calculatePluginState(pluginRow.Statuses)
 
 		result = append(result, plugin)

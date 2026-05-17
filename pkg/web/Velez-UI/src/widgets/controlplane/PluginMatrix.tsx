@@ -25,10 +25,7 @@ export default function PluginMatrix(props: PluginMatrixProps) {
 
 
     function handleManagePlugin(plugin: VervPlugin) {
-        OpenDialog(
-            <PluginManageDialog
-                pluginType={plugin.type}
-            />)
+        OpenDialog(<PluginManageDialog pluginType={plugin.type}/>)
     }
 
 
@@ -81,6 +78,10 @@ function Table({nodes, plugins, onManagePlugin}: TableProps) {
             onManagePlugin(plugin);
         }
 
+        function openServicePage(serviceName: string) {
+            navigate(`${Routes.Service}/${serviceName}`);
+        }
+
         return (
             <div
                 key={plugin.type}
@@ -100,14 +101,21 @@ function Table({nodes, plugins, onManagePlugin}: TableProps) {
                 {nodes.map(renderCell)}
 
                 <div className={cls.manageCell}>
-                    <IconButton
-                        label="Manage"
-                        onClick={handleManageClick}
-                        title="Manage plugin"
-                    />
+                    {
+                        plugin.state == VervPluginState.running ?
+                            <IconButton
+                                label={"Open service"}
+                                onClick={() => openServicePage(plugin.serviceName)}
+                            />
+                            :
+                            <IconButton
+                                label="Manage"
+                                onClick={handleManageClick}
+                                title="Manage plugin"
+                            />
+                    }
                 </div>
-            </div>
-        );
+            </div>)
     }
 
     return (

@@ -1,20 +1,42 @@
 .ButtonContainer {
     font-family: var(--font-sans);
-    font-weight: 700;
-    font-size: 0.75rem;  /* 12px */
-    padding: 0.4375rem 1rem; /* 7px 16px */
-    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: var(--vs-fs-button);
+    padding: 10px 20px;
+    border-radius: var(--vs-radius-sm);
     border: none;
     cursor: pointer;
     transition: opacity 0.15s, background 0.15s, border-color 0.15s;
     white-space: nowrap;
     background: var(--bg3);
+    color: var(--fg);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 
     &:disabled {
         opacity: 0.4;
         cursor: not-allowed;
     }
 
+    &:focus-visible {
+        outline: 2px solid var(--cyan);
+        outline-offset: 2px;
+    }
+
+    &:active:not(:disabled) {
+        transform: translateY(1px);
+    }
+
+    &.sm {
+        padding: 7px 14px;
+        font-size: var(--vs-fs-button-sm);
+    }
+
+    &.fullWidth {
+        width: 100%;
+        justify-content: center;
+    }
 
     &.warn {
         color: var(--amber);
@@ -23,16 +45,21 @@
             opacity: 0.82;
         }
     }
+}
 
+.LeftIcon {
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
 }
 
 .primary {
-    background: var(--red);
-    color: #fff;
+    background: var(--cyan);
+    color: #000;
     border: none;
 
     &:hover:not(:disabled) {
-        opacity: 0.82;
+        filter: brightness(1.1);
     }
 }
 
@@ -43,6 +70,17 @@
 
     &:hover:not(:disabled) {
         border-color: var(--border-m);
+        background: rgba(255, 255, 255, 0.04);
+    }
+}
+
+.ghost {
+    background: transparent;
+    color: var(--fg-mid);
+    border: 1px solid var(--border-s);
+
+    &:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.04);
     }
 }
 

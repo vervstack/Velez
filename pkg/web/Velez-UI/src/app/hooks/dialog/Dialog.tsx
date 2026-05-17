@@ -53,7 +53,12 @@ export default function Dialog() {
                 if (e.target === e.currentTarget) CloseDialog();
             }}
         >
-            {children}
+            {children.map((c, index) => {
+                return (
+                    <div key={index}>
+                        {c}
+                    </div>)
+            })}
         </div>
     );
 }

@@ -15,10 +15,10 @@
 
     box-sizing: border-box;
 
-    background: var(--secondary-bg-color);
-    color: var(--secondary-fg-color);
+    background: var(--bg2);
+    color: var(--fg);
 
-    font-size: 16px;
+    font-size: var(--vs-fs-body);
     outline: none;
 
     border: none;
@@ -26,7 +26,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    text-justify: distribute-center-last;
 
     &.Disabled {
         cursor: not-allowed;
@@ -34,13 +33,13 @@
 }
 
 .InputContainer:not(.Borderless) input {
-    border: 1px solid var(--secondary-bg-color);
-    border-radius: 4px;
+    border: 1px solid var(--border-s);
+    border-radius: var(--vs-radius-sm);
     transition: border-color 0.2s;
 }
 
 .InputContainer:not(.Borderless) input:focus {
-    border-color: var(--accent-bg-color);
+    border-color: var(--cyan);
 }
 
 .Label {
@@ -51,14 +50,14 @@
 
     transform: translateY(-50%);
 
-    background: var(--secondary-bg-color);
-    color: #999;
+    background: var(--bg2);
+    color: var(--fg-dim);
 
     pointer-events: none;
 
     transition: all 0.2s ease;
     padding: 0 4px;
-    font-size: clamp(1px, 16px, 32px);
+    font-size: var(--vs-fs-body);
 
     box-sizing: border-box;
 
@@ -68,7 +67,7 @@
 .Label.Floating {
     top: 0;
     transform: translateY(-50%) scale(0.85);
-    color: var(--accent-fg-color);
+    color: var(--cyan);
     left: 8px;
 }
 

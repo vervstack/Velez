@@ -1,69 +1,62 @@
-import { queryOptions } from '@tanstack/react-query'
-import {
-    ListServices,
-    FetchService,
-    FetchDeployments,
-    FetchServiceMetrics,
-    FetchServiceResources,
-    FetchServiceGraph,
-    FetchServiceEnvironments,
-    FetchVervonomicon,
-} from '@/processes/api/service'
+import { useQuery } from '@tanstack/react-query'
+import { serviceService } from '@/processes/api/service'
 
 const LIST_REQ = { paging: { limit: '50', offset: '0' } }
 
-export function listServicesQuery() {
-    return queryOptions({
+export function useListServicesQuery() {
+    return useQuery({
         queryKey: ['services'] as const,
-        queryFn: () => ListServices(LIST_REQ),
+        queryFn: () => serviceService.listServices(LIST_REQ),
     })
 }
 
-export function getServiceQuery(key: string) {
-    return queryOptions({
+export function useGetServiceQuery(key: string, enabled = true) {
+    return useQuery({
         queryKey: ['service', key] as const,
-        queryFn: () => FetchService(key),
+        queryFn: () => serviceService.fetchService(key),
+        enabled,
     })
 }
 
-export function listDeploymentsQuery(serviceId: string) {
-    return queryOptions({
+export function useListDeploymentsQuery(serviceId: string, enabled = true) {
+    return useQuery({
         queryKey: ['deployments', serviceId] as const,
-        queryFn: () => FetchDeployments(serviceId),
+        queryFn: () => serviceService.fetchDeployments(serviceId),
+        enabled,
     })
 }
 
-export function getServiceMetricsQuery(serviceId: string) {
-    return queryOptions({
+export function useGetServiceMetricsQuery(serviceId: string) {
+    return useQuery({
         queryKey: ['service-metrics', serviceId] as const,
-        queryFn: () => FetchServiceMetrics(serviceId),
+        queryFn: () => serviceService.fetchServiceMetrics(serviceId),
     })
 }
 
-export function getServiceResourcesQuery(serviceId: string) {
-    return queryOptions({
+export function useGetServiceResourcesQuery(serviceId: string) {
+    return useQuery({
         queryKey: ['service-resources', serviceId] as const,
-        queryFn: () => FetchServiceResources(serviceId),
+        queryFn: () => serviceService.fetchServiceResources(serviceId),
     })
 }
 
-export function getServiceGraphQuery(serviceId: string) {
-    return queryOptions({
+export function useGetServiceGraphQuery(serviceId: string) {
+    return useQuery({
         queryKey: ['service-graph', serviceId] as const,
-        queryFn: () => FetchServiceGraph(serviceId),
+        queryFn: () => serviceService.fetchServiceGraph(serviceId),
     })
 }
 
-export function listServiceEnvsQuery(serviceId: string) {
-    return queryOptions({
+export function useListServiceEnvsQuery(serviceId: string) {
+    return useQuery({
         queryKey: ['service-envs', serviceId] as const,
-        queryFn: () => FetchServiceEnvironments(serviceId),
+        queryFn: () => serviceService.fetchServiceEnvironments(serviceId),
     })
 }
 
-export function getVervonomiconQuery(serviceId: string) {
-    return queryOptions({
+export function useGetVervonomiconQuery(serviceId: string) {
+    return useQuery({
         queryKey: ['vervonomicon', serviceId] as const,
-        queryFn: () => FetchVervonomicon(serviceId),
+        queryFn: () => serviceService.fetchVervonomicon(serviceId),
     })
 }

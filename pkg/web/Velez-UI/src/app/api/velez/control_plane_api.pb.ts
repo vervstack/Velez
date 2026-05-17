@@ -114,7 +114,7 @@ export type ListNodes = Record<string, never>;
 export type Plugin = {
   type?: VervPluginType;
   state?: VervPluginState;
-  port?: number;
+  serviceName?: string;
 };
 
 export type ListPluginsRequest = Record<string, never>;

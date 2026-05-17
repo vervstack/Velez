@@ -1,0 +1,50 @@
+.SectionContainer {
+    border-bottom: 1px solid var(--border-s);
+    padding: var(--vs-space-7) var(--vs-space-8) var(--vs-space-8);
+}
+
+.Header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.Num {
+    font-family: var(--font-mono);
+    font-size: var(--vs-fs-eyebrow);
+    color: var(--cyan);
+    border: 1px solid var(--border-m);
+    border-radius: var(--vs-radius-pill);
+    padding: 2px 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.Titles {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.Label {
+    font-family: var(--font-sans);
+    font-size: var(--vs-fs-h2);
+    font-weight: 700;
+    color: var(--fg);
+    letter-spacing: -0.01em;
+}
+
+.Sub {
+    font-family: var(--font-sans);
+    font-size: var(--vs-fs-body);
+    color: var(--fg-mid);
+    line-height: 1.55;
+}
+
+.Body {
+    &.indented {
+        padding-left: 38px;
+    }
+}

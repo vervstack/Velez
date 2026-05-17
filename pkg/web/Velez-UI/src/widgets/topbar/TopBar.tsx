@@ -86,13 +86,12 @@ function RightZone() {
 
     const isLoading = pluginsQuery.isLoading && nodesQuery.isLoading
 
-    const isStateFullMode = !pluginsQuery.isLoading &&
-        pluginsQuery.data
-            ?.find(p => p.type == VervPluginType.statefull_pg) !== undefined;
+    const isStateFullMode = pluginsQuery.data
+        ?.find(p => p.type == VervPluginType.statefull_pg) !== undefined;
 
     return (
         <div className={cls.RightZoneContainer}>
-            {!isLoading && (isStateFullMode ? <SingleNodeStub/> : <NodesHealthStatus/>)}
+            {!isLoading && (isStateFullMode ? <NodesHealthStatus/> : <SingleNodeStub/>)}
             <Button
                 variant={'primary'}
                 onClick={handleDeploy}

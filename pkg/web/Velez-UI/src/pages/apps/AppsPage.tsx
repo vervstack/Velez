@@ -1,11 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
 import cls from '@/pages/apps/AppsPage.module.css';
 import AppCard from '@/components/apps/AppCard';
 import { Routes } from '@/app/router/Routes';
-import { FetchSmerds } from '@/processes/api/velez';
-import { listSmerdsQuery } from '@/processes/queries/smerds';
+import { useListSmerdsQuery } from '@/processes/queries/smerds';
 import { mapSmerdToAppData } from '@/processes/mappings/smerds';
 import { useToaster } from '@/app/hooks/toaster/Toaster';
 import { AppData } from '@/processes/mappings/smerds';
@@ -15,14 +13,10 @@ export default function AppsPage() {
     const [search, setSearch] = useState('');
     const toaster = useToaster();
 
-    const smerdsQuery = useQuery({
-        ...listSmerdsQuery(),
-        queryFn: () =>
-            FetchSmerds().catch((e) => {
-                toaster.catchGrpc(e);
-                return { smerds: [] };
-            }),
-    });
+    const smerdsQuery = useListSmerdsQuery();
+    useEffect(() => {
+        if (smerdsQuery.error) toaster.catchGrpc(smerdsQuery.error);
+    }, [smerdsQuery.error]);
 
     const apps: AppData[] = (smerdsQuery.data?.smerds ?? []).map(mapSmerdToAppData);
 

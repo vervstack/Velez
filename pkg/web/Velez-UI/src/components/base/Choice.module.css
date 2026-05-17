@@ -1,0 +1,57 @@
+.ChoiceContainer {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 16px;
+    border-radius: var(--vs-radius-md);
+    background: var(--bg2);
+    border: 1px solid var(--border-s);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color var(--vs-ease), background var(--vs-ease);
+
+    &:hover:not(.active) {
+        border-color: var(--border);
+    }
+
+    &.active {
+        background: var(--cyan-dim);
+        border-color: var(--border-h);
+    }
+}
+
+.Check {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--cyan);
+    color: #000;
+    font-size: 9px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.Title {
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--fg-mid);
+
+    &.activeTitle {
+        color: var(--fg);
+    }
+}
+
+.Sub {
+    font-family: var(--font-mono);
+    font-size: var(--vs-fs-hint);
+    color: var(--fg-dim);
+}

@@ -6,7 +6,7 @@
     background: var(--bg2);
     flex-shrink: 0;
 
-    .LeftZone {
+    .LeftZoneContainer {
         height: 3.5rem;
         display: flex;
         align-items: center;
@@ -101,7 +101,7 @@
         }
     }
 
-    .RightZone {
+    .RightZoneContainer {
         display: flex;
         align-items: center;
         gap: 0.625rem;

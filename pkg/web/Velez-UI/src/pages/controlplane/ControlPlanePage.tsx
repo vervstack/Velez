@@ -1,4 +1,4 @@
-import {useQuery, UseQueryResult, useQueryClient} from '@tanstack/react-query';
+import {UseQueryResult} from '@tanstack/react-query';
 
 import cls from '@/pages/controlplane/ControlPlanePage.module.css';
 
@@ -11,21 +11,14 @@ import SkeletonNodeCard from '@/components/node/SkeletonNodeCard';
 
 import {useToaster} from '@/app/hooks/toaster/Toaster';
 import {controlPlaneService} from '@/processes/api/control_plane';
-import {listNodesQuery, listPluginsQuery} from '@/processes/queries/control_plane';
+import {ListNodesQuery, ListPluginsQuery} from '@/processes/queries/control_plane';
 import {Service} from '@/model/services/Services';
 
 export default function ControlPlanePage() {
-    const toaster = useToaster();
 
-    const nodesQuery = useQuery({
-        ...listNodesQuery(),
-        queryFn: () => controlPlaneService.listNodes().catch((e) => { toaster.catchGrpc(e); throw e; }),
-    });
+    const nodesQuery = ListNodesQuery();
 
-    const pluginsQuery = useQuery({
-        ...listPluginsQuery(),
-        queryFn: () => controlPlaneService.listPlugins().catch((e) => { toaster.catchGrpc(e); throw e; }),
-    });
+    const pluginsQuery = ListPluginsQuery();
 
     return (
         <div className={cls.ControlPlanePageContainer}>
@@ -120,16 +113,14 @@ interface PluginsListProps {
 
 function PluginsList({pluginsQuery, nodesQuery}: PluginsListProps) {
     const toaster = useToaster();
-    const queryClient = useQueryClient();
 
-    async function handleEnable(pluginType: VervPluginType, payload?: any) {
+    async function handleEnable(pluginType: VervPluginType, payload?: never) {
         try {
             if (pluginType === VervPluginType.statefull_pg && payload) {
                 await controlPlaneService.enableStatefullPgCluster(payload);
             } else {
                 await controlPlaneService.enablePlugin(pluginType);
             }
-            queryClient.invalidateQueries({ queryKey: listPluginsQuery().queryKey });
         } catch (error) {
             if (error instanceof Error) {
                 toaster.catchGrpc(error);

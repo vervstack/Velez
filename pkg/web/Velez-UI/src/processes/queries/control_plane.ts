@@ -1,17 +1,23 @@
-import { queryOptions } from '@tanstack/react-query'
-import { CacheKey } from '@/app/query/Cache'
+import {queryOptions, useQuery} from '@tanstack/react-query'
 import { controlPlaneService } from '@/processes/api/control_plane'
 
-export function listNodesQuery() {
-    return queryOptions({
-        queryKey: [CacheKey.Nodes],
+export function ListNodesQuery() {
+    return useQuery({
+        queryKey: ["nodes"],
         queryFn: () => controlPlaneService.listNodes(),
     })
 }
 
-export function listPluginsQuery() {
+export function nodesSidebar() {
     return queryOptions({
-        queryKey: [CacheKey.Plugins],
+        queryKey: ["nodes_main_layout"],
+        queryFn: () => controlPlaneService.listNodes(),
+    })
+}
+
+export function ListPluginsQuery() {
+    return useQuery({
+        queryKey: ["plugins"],
         queryFn: () => controlPlaneService.listPlugins(),
     })
 }

@@ -5,13 +5,18 @@ import SectionLabel from '@/components/base/SectionLabel';
 import VelezIcon from '@/assets/icons/services/velez.svg';
 import {NodeBaseInfo, NodeStatus} from "@/app/api/velez";
 import SkeletonNodeRow from '@/components/node/SkeletonNodeRow';
+import {ListNodesQuery} from "@/processes/queries/control_plane.ts";
 
 function mapNodeStatus(status?: NodeStatus): 'online' | 'offline' | 'degraded' | 'stopped' {
     switch (status) {
-        case NodeStatus.NodeStatus_Online: return 'online';
-        case NodeStatus.NodeStatus_Degraded: return 'degraded';
-        case NodeStatus.NodeStatus_Offline: return 'offline';
-        default: return 'stopped';
+        case NodeStatus.NodeStatus_Online:
+            return 'online';
+        case NodeStatus.NodeStatus_Degraded:
+            return 'degraded';
+        case NodeStatus.NodeStatus_Offline:
+            return 'offline';
+        default:
+            return 'stopped';
     }
 }
 
@@ -21,10 +26,8 @@ type ToolId = 'secrets' | 'config' | 'logs' | 'settings';
 interface SidebarProps {
     collapsed: boolean;
 
-    nodes: NodeBaseInfo[];
     activeNodeId?: string;
     onNodeSelect: (id?: string) => void;
-    isNodesLoading: boolean;
 
     activeNav: NavId;
     onNavChange: (id: NavId) => void;
@@ -48,10 +51,10 @@ const TOOL_ITEMS = [
 
 export default function Sidebar(
     {
-        collapsed, nodes,
+        collapsed,
         activeNodeId, onNodeSelect,
         activeNav, onNavChange,
-        isNodesLoading, onToolNav
+        onToolNav
     }: SidebarProps) {
 
 
@@ -68,6 +71,9 @@ export default function Sidebar(
         );
     }
 
+
+    const nodesQuery = ListNodesQuery();
+
     return (
         <aside className={
             cn(cls.SidebarContainer, {
@@ -76,9 +82,7 @@ export default function Sidebar(
 
             <Logo collapsed={collapsed}/>
             <NodesList
-                isNodesLoading={isNodesLoading}
                 collapsed={collapsed}
-                nodes={nodes}
                 onNodeSelect={onNodeSelect}
                 activeNodeId={activeNodeId}
                 activeNav={activeNav}
@@ -86,14 +90,14 @@ export default function Sidebar(
 
             {collapsed && (
                 <div className={cls.nodesCollapsed}>
-                    {isNodesLoading ? (
+                    {nodesQuery.isLoading ? (
                         <>
                             <div className={cls.skeletonDot}/>
                             <div className={cls.skeletonDot}/>
                             <div className={cls.skeletonDot}/>
                         </>
                     ) : (
-                        nodes.map(renderDot)
+                        (nodesQuery.data?.nodes || []).map(renderDot)
                     )}
                 </div>
             )}
@@ -170,9 +174,8 @@ function Logo({collapsed}: { collapsed: boolean }) {
 
 function NodesList(
     {
-        collapsed, nodes,
+        collapsed,
         onNodeSelect, activeNodeId,
-        isNodesLoading
     }: SidebarProps) {
 
     if (collapsed) return null;
@@ -214,13 +217,15 @@ function NodesList(
         );
     }
 
+    const nodesQuery = ListNodesQuery();
+
     return (
         <div className={cls.NodesSection}>
             <div className={cls.sectionHeader}>
                 <SectionLabel>Nodes</SectionLabel>
             </div>
 
-            {!isNodesLoading ? nodes.map(renderNode) :
+            {!nodesQuery.isLoading ? (nodesQuery.data?.nodes || []).map(renderNode) :
                 <>
                     <SkeletonNodeRow/>
                     <SkeletonNodeRow/>

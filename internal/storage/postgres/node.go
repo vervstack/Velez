@@ -61,7 +61,7 @@ func (n *nodeStorage) List(ctx context.Context, req domain.ListNodesReq) (domain
 		"is_enabled",
 		"addr",
 	)
-	if req.Paging.Limit == 0 || req.Paging.Limit > defaultNodeListLimit {
+	if req.Paging.Limit == 0 {
 		req.Paging.Limit = defaultNodeListLimit
 	}
 

@@ -16,18 +16,18 @@ func (p *pipeliner) LaunchSmerd(req domain.LaunchSmerd) Runner[domain.LaunchSmer
 
 	containerId := ""
 
-	cfgMount := &domain.ConfigMount{}
+	mounts := make([]domain.FileMountPoint, 0)
 
 	return &runner[domain.LaunchSmerdResult]{
 		Steps: []steps.Step{
 			// Prepare stage
 			steps.PrepareCreateRequest(&req),
 			steps.PrepareImage(p.nodeClients, req.ImageName, imageResp),
-			config_steps.FetchConfig(p.services, &req, imageResp, cfgMount),
+			config_steps.FetchConfig(p.services, &req, imageResp, &mounts),
 			steps.PrepareVervConfig(p.nodeClients, p.services, &req, imageResp),
 			// Deploy stage
 			smerd_steps.Create(p.nodeClients, &req, &containerId),
-			container_steps.CopyToContainer(p.nodeClients, &containerId, &cfgMount.FileMountPoint),
+			container_steps.CopyToContainer(p.nodeClients, &containerId, &mounts),
 			smerd_steps.Start(p.nodeClients, &containerId),
 			// Post deploy stage
 			steps.Healthcheck(p.nodeClients, &req, &containerId),

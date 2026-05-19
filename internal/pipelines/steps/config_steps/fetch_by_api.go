@@ -25,7 +25,7 @@ type fetchConfigStep struct {
 	req   *domain.LaunchSmerd
 	image *image.InspectResponse
 
-	result *domain.ConfigMount
+	mounts *[]domain.FileMountPoint
 }
 
 func FetchConfig(
@@ -33,7 +33,7 @@ func FetchConfig(
 
 	req *domain.LaunchSmerd,
 	image *image.InspectResponse,
-	result *domain.ConfigMount,
+	mounts *[]domain.FileMountPoint,
 ) *fetchConfigStep {
 	return &fetchConfigStep{
 		configService: services.ConfigurationService(),
@@ -41,7 +41,7 @@ func FetchConfig(
 		req:   req,
 		image: image,
 
-		result: result,
+		mounts: mounts,
 	}
 }
 
@@ -61,43 +61,62 @@ func (c *fetchConfigStep) Do(ctx context.Context) (err error) {
 
 	vervCfg := c.req.GetVerv()
 	if vervCfg != nil {
-		*c.result, err = c.doVerv(ctx, vervCfg)
+		mount, err := c.doVerv(ctx, vervCfg)
 		if err != nil {
 			return rerrors.Wrap(err, "error getting config to mount")
 		}
+		*c.mounts = append(*c.mounts, mount)
 		return nil
+	}
+
+	plainCfg := c.req.GetPlain()
+	if plainCfg != nil {
+		return c.doPlain(plainCfg)
 	}
 
 	return rerrors.New("only verv config supported for now")
 }
 
-func (c *fetchConfigStep) doVerv(ctx context.Context, spec *velez_api.MatreshkaConfigSpec) (mount domain.ConfigMount, err error) {
-	mount.FilePath = spec.SystemPath
+func (c *fetchConfigStep) doVerv(ctx context.Context, spec *velez_api.MatreshkaConfigSpec) (domain.FileMountPoint, error) {
+	var cfgMount domain.ConfigMount
+	cfgMount.FilePath = spec.SystemPath
 
-	fillMeta(c.image, &mount)
+	fillMeta(c.image, &cfgMount)
 
 	configName := toolbox.Coalesce(spec.ConfigName, &c.req.Name)
-	mount.Meta.Name = configutils.AppendPrefix(mount.Meta.ConfType, *configName)
+	cfgMount.Meta.Name = configutils.AppendPrefix(cfgMount.Meta.ConfType, *configName)
 
-	mount.Meta.Version = spec.ConfigVersion
+	cfgMount.Meta.Version = spec.ConfigVersion
 
-	mount.Meta.Format = *toolbox.Coalesce(spec.ConfigFormat, &mount.Meta.Format)
+	cfgMount.Meta.Format = *toolbox.Coalesce(spec.ConfigFormat, &cfgMount.Meta.Format)
 
 	if c.req.IgnoreConfig {
-		return mount, nil
+		return cfgMount.FileMountPoint, nil
 	}
 
-	if mount.Meta.Format == velez_api.ConfigFormat_env {
-		err = c.setEnv(ctx, mount.Meta)
+	var err error
+	if cfgMount.Meta.Format == velez_api.ConfigFormat_env {
+		err = c.setEnv(ctx, cfgMount.Meta)
 	} else {
-		mount.Content, err = c.getPlain(ctx, mount.Meta)
+		cfgMount.Content, err = c.getPlain(ctx, cfgMount.Meta)
 	}
 
 	if err != nil {
-		return mount, rerrors.Wrap(err, "error getting config from matreshka")
+		return domain.FileMountPoint{}, rerrors.Wrap(err, "error getting config from matreshka")
 	}
 
-	return mount, nil
+	return cfgMount.FileMountPoint, nil
+}
+
+func (c *fetchConfigStep) doPlain(spec *velez_api.PlainConfigSpec) error {
+	for sysPath, content := range spec.GetConfigs() {
+		p := sysPath
+		*c.mounts = append(*c.mounts, domain.FileMountPoint{
+			FilePath: &p,
+			Content:  content,
+		})
+	}
+	return nil
 }
 
 func (c *fetchConfigStep) setEnv(ctx context.Context, meta domain.ConfigMeta) error {
@@ -137,8 +156,8 @@ func (c *fetchConfigStep) getPlain(ctx context.Context, meta domain.ConfigMeta) 
 }
 
 func (c *fetchConfigStep) validate() error {
-	if c.result == nil {
-		return rerrors.New("empty result pointer")
+	if c.mounts == nil {
+		return rerrors.New("empty mounts pointer")
 	}
 
 	if c.image.Config == nil {

@@ -6,7 +6,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	rtb "go.redsock.ru/toolbox"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 	"google.golang.org/protobuf/proto"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
@@ -103,6 +102,33 @@ func (s *LifecycleSuite) Test_Stateless_Postgres() {
 			require.EqualValues(t, 5432, smerd.Ports[0].ServicePortNumber)
 		})
 }
+func (s *LifecycleSuite) Test_StatelessMode_Loki() {
+	t := s.T()
+	t.Parallel()
+
+	env := NewEnvironment(t)
+
+	req := &velez_api.CreateSmerd_Request{
+		ImageName: "grafana/loki:main-bc418c4",
+		Settings: &velez_api.Container_Settings{
+			Network: []*velez_api.NetworkBind{
+				{NetworkName: "redsockru"},
+			},
+		},
+		Restart: &velez_api.RestartPolicy{
+			Type: velez_api.RestartPolicyType_always,
+		},
+		Config: &velez_api.CreateSmerd_Request_Plain{
+			Plain: &velez_api.PlainConfigSpec{
+				Configs: map[string][]byte{
+					"/etc/loki/local-config.yaml": config_mocks.Loki,
+				},
+			},
+		},
+	}
+
+	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {})
+}
 
 func (s *LifecycleSuite) Test_ClusterMode_HelloWorld() {
 	t := s.T()
@@ -157,44 +183,6 @@ func (s *LifecycleSuite) Test_ClusterMode_Postgres() {
 			require.Len(t, smerd.Ports, 1)
 			require.EqualValues(t, 5432, smerd.Ports[0].ServicePortNumber)
 		})
-}
-func (s *LifecycleSuite) Test_ClusterMode_Loki() {
-	t := s.T()
-	t.Parallel()
-
-	ctx := t.Context()
-
-	env := NewEnvironment(t, WithMatreshka())
-
-	serviceName := GetServiceName(t)
-
-	storeReq := &matreshka_api.StoreConfig_Request{
-		Format:     matreshka_api.Format_yaml,
-		ConfigName: serviceName,
-		Config:     config_mocks.Loki,
-	}
-
-	_, err := env.Custom.ClusterClients.Configurator().StoreConfig(ctx, storeReq)
-	require.NoError(t, err)
-
-	req := &velez_api.CreateSmerd_Request{
-		ImageName: "grafana/loki:main-bc418c4",
-		Settings: &velez_api.Container_Settings{
-			Network: []*velez_api.NetworkBind{
-				{NetworkName: "redsockru"},
-			},
-		},
-		Restart: &velez_api.RestartPolicy{
-			Type: velez_api.RestartPolicyType_always,
-		},
-		Config: &velez_api.CreateSmerd_Request_Verv{
-			Verv: &velez_api.MatreshkaConfigSpec{
-				SystemPath: rtb.ToPtr("/etc/loki/local-config.yaml"),
-			},
-		},
-	}
-
-	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {})
 }
 
 func Test_Lifecycle(t *testing.T) {

@@ -116,8 +116,7 @@ message CreateSmerd {
 
     oneof config {
       MatreshkaConfigSpec verv = 13;
-      // TODO not implemented
-      bytes plain = 14;
+      PlainConfigSpec plain = 14;
     }
 
     // is_declarative_deploy - flag allows caller to manage idempotency of calls

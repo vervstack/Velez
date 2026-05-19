@@ -14,18 +14,16 @@ import (
 func (p *pipeliner) SetupHeadscale(req domain.SetupHeadscaleRequest) Runner[domain.SetupHeadscaleResponse] {
 	contReq := headscale.Headscale(req)
 	var containerId string
-	mountPoint := &domain.FileMountPoint{
-		FilePath: nil,
-		Content:  headscale.BasicConfig(),
-	}
+	headscaleConfig := headscale.BasicConfig()
+	mountPoints := []domain.FileMountPoint{{Content: headscaleConfig}}
 
 	return &runner[domain.SetupHeadscaleResponse]{
 		Steps: []steps.Step{
 			container_steps.Create(p.nodeClients, &contReq, toolbox.ToPtr(headscale.ServiceName),
 				&containerId),
-			container_steps.CopyToContainer(p.nodeClients, &containerId, mountPoint),
+			container_steps.CopyToContainer(p.nodeClients, &containerId, &mountPoints),
 			config_steps.StoreConfig(p.clusterClients,
-				headscale.ServiceName, mountPoint.Content,
+				headscale.ServiceName, headscaleConfig,
 				matreshka_api.ConfigTypePrefix_plain, matreshka_api.Format_yaml),
 		},
 	}

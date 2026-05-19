@@ -629,7 +629,7 @@ func (x *CreateSmerd_Request) GetVerv() *MatreshkaConfigSpec {
 	return nil
 }
 
-func (x *CreateSmerd_Request) GetPlain() []byte {
+func (x *CreateSmerd_Request) GetPlain() *PlainConfigSpec {
 	if x != nil {
 		if x, ok := x.Config.(*CreateSmerd_Request_Plain); ok {
 			return x.Plain
@@ -654,8 +654,7 @@ type CreateSmerd_Request_Verv struct {
 }
 
 type CreateSmerd_Request_Plain struct {
-	// TODO not implemented
-	Plain []byte `protobuf:"bytes,14,opt,name=plain,proto3,oneof"`
+	Plain *PlainConfigSpec `protobuf:"bytes,14,opt,name=plain,proto3,oneof"`
 }
 
 func (*CreateSmerd_Request_Verv) isCreateSmerd_Request_Config() {}
@@ -1550,8 +1549,8 @@ const file_velez_api_proto_rawDesc = "" +
 	"\aVersion\x1a\t\n" +
 	"\aRequest\x1a$\n" +
 	"\bResponse\x12\x18\n" +
-	"\aversion\x18\x01 \x01(\tR\aversion\"\x8c\a\n" +
-	"\vCreateSmerd\x1a\xfc\x06\n" +
+	"\aversion\x18\x01 \x01(\tR\aversion\"\xa8\a\n" +
+	"\vCreateSmerd\x1a\x98\a\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
@@ -1567,8 +1566,8 @@ const file_velez_api_proto_rawDesc = "" +
 	" \x01(\bR\ruseImagePorts\x12!\n" +
 	"\fauto_upgrade\x18\v \x01(\bR\vautoUpgrade\x122\n" +
 	"\arestart\x18\f \x01(\v2\x18.velez_api.RestartPolicyR\arestart\x124\n" +
-	"\x04verv\x18\r \x01(\v2\x1e.velez_api.MatreshkaConfigSpecH\x00R\x04verv\x12\x16\n" +
-	"\x05plain\x18\x0e \x01(\fH\x00R\x05plain\x122\n" +
+	"\x04verv\x18\r \x01(\v2\x1e.velez_api.MatreshkaConfigSpecH\x00R\x04verv\x122\n" +
+	"\x05plain\x18\x0e \x01(\v2\x1a.velez_api.PlainConfigSpecH\x00R\x05plain\x122\n" +
 	"\x15is_declarative_deploy\x18\x0f \x01(\bR\x13isDeclarativeDeploy\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -1719,9 +1718,10 @@ var file_velez_api_proto_goTypes = []any{
 	(*Container_Healthcheck)(nil),      // 36: velez_api.Container.Healthcheck
 	(*RestartPolicy)(nil),              // 37: velez_api.RestartPolicy
 	(*MatreshkaConfigSpec)(nil),        // 38: velez_api.MatreshkaConfigSpec
-	(*Smerd)(nil),                      // 39: velez_api.Smerd
-	(*Connection)(nil),                 // 40: velez_api.Connection
-	(*SearchImageItem)(nil),            // 41: velez_api.SearchImageItem
+	(*PlainConfigSpec)(nil),            // 39: velez_api.PlainConfigSpec
+	(*Smerd)(nil),                      // 40: velez_api.Smerd
+	(*Connection)(nil),                 // 41: velez_api.Connection
+	(*SearchImageItem)(nil),            // 42: velez_api.SearchImageItem
 }
 var file_velez_api_proto_depIdxs = []int32{
 	34, // 0: velez_api.CreateSmerd.Request.hardware:type_name -> velez_api.Container.Hardware
@@ -1731,40 +1731,41 @@ var file_velez_api_proto_depIdxs = []int32{
 	14, // 4: velez_api.CreateSmerd.Request.labels:type_name -> velez_api.CreateSmerd.Request.LabelsEntry
 	37, // 5: velez_api.CreateSmerd.Request.restart:type_name -> velez_api.RestartPolicy
 	38, // 6: velez_api.CreateSmerd.Request.verv:type_name -> velez_api.MatreshkaConfigSpec
-	17, // 7: velez_api.ListSmerds.Request.label:type_name -> velez_api.ListSmerds.Request.LabelEntry
-	39, // 8: velez_api.ListSmerds.Response.smerds:type_name -> velez_api.Smerd
-	20, // 9: velez_api.DropSmerd.Response.failed:type_name -> velez_api.DropSmerd.Response.Error
-	23, // 10: velez_api.GetHardware.Response.cpu:type_name -> velez_api.GetHardware.Response.Value
-	23, // 11: velez_api.GetHardware.Response.disk_mem:type_name -> velez_api.GetHardware.Response.Value
-	23, // 12: velez_api.GetHardware.Response.ram:type_name -> velez_api.GetHardware.Response.Value
-	40, // 13: velez_api.MakeConnections.Request.connections:type_name -> velez_api.Connection
-	40, // 14: velez_api.BreakConnections.Request.connections:type_name -> velez_api.Connection
-	41, // 15: velez_api.SearchImages.Response.images:type_name -> velez_api.SearchImageItem
-	10, // 16: velez_api.VelezAPI.Version:input_type -> velez_api.Version.Request
-	12, // 17: velez_api.VelezAPI.CreateSmerd:input_type -> velez_api.CreateSmerd.Request
-	15, // 18: velez_api.VelezAPI.ListSmerds:input_type -> velez_api.ListSmerds.Request
-	18, // 19: velez_api.VelezAPI.DropSmerd:input_type -> velez_api.DropSmerd.Request
-	21, // 20: velez_api.VelezAPI.GetHardware:input_type -> velez_api.GetHardware.Request
-	26, // 21: velez_api.VelezAPI.UpgradeSmerd:input_type -> velez_api.UpgradeSmerd.Request
-	24, // 22: velez_api.VelezAPI.AssembleConfig:input_type -> velez_api.AssembleConfig.Request
-	28, // 23: velez_api.VelezAPI.MakeConnections:input_type -> velez_api.MakeConnections.Request
-	30, // 24: velez_api.VelezAPI.BreakConnections:input_type -> velez_api.BreakConnections.Request
-	32, // 25: velez_api.VelezAPI.SearchImages:input_type -> velez_api.SearchImages.Request
-	11, // 26: velez_api.VelezAPI.Version:output_type -> velez_api.Version.Response
-	39, // 27: velez_api.VelezAPI.CreateSmerd:output_type -> velez_api.Smerd
-	16, // 28: velez_api.VelezAPI.ListSmerds:output_type -> velez_api.ListSmerds.Response
-	19, // 29: velez_api.VelezAPI.DropSmerd:output_type -> velez_api.DropSmerd.Response
-	22, // 30: velez_api.VelezAPI.GetHardware:output_type -> velez_api.GetHardware.Response
-	27, // 31: velez_api.VelezAPI.UpgradeSmerd:output_type -> velez_api.UpgradeSmerd.Response
-	25, // 32: velez_api.VelezAPI.AssembleConfig:output_type -> velez_api.AssembleConfig.Response
-	29, // 33: velez_api.VelezAPI.MakeConnections:output_type -> velez_api.MakeConnections.Response
-	31, // 34: velez_api.VelezAPI.BreakConnections:output_type -> velez_api.BreakConnections.Response
-	33, // 35: velez_api.VelezAPI.SearchImages:output_type -> velez_api.SearchImages.Response
-	26, // [26:36] is the sub-list for method output_type
-	16, // [16:26] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	39, // 7: velez_api.CreateSmerd.Request.plain:type_name -> velez_api.PlainConfigSpec
+	17, // 8: velez_api.ListSmerds.Request.label:type_name -> velez_api.ListSmerds.Request.LabelEntry
+	40, // 9: velez_api.ListSmerds.Response.smerds:type_name -> velez_api.Smerd
+	20, // 10: velez_api.DropSmerd.Response.failed:type_name -> velez_api.DropSmerd.Response.Error
+	23, // 11: velez_api.GetHardware.Response.cpu:type_name -> velez_api.GetHardware.Response.Value
+	23, // 12: velez_api.GetHardware.Response.disk_mem:type_name -> velez_api.GetHardware.Response.Value
+	23, // 13: velez_api.GetHardware.Response.ram:type_name -> velez_api.GetHardware.Response.Value
+	41, // 14: velez_api.MakeConnections.Request.connections:type_name -> velez_api.Connection
+	41, // 15: velez_api.BreakConnections.Request.connections:type_name -> velez_api.Connection
+	42, // 16: velez_api.SearchImages.Response.images:type_name -> velez_api.SearchImageItem
+	10, // 17: velez_api.VelezAPI.Version:input_type -> velez_api.Version.Request
+	12, // 18: velez_api.VelezAPI.CreateSmerd:input_type -> velez_api.CreateSmerd.Request
+	15, // 19: velez_api.VelezAPI.ListSmerds:input_type -> velez_api.ListSmerds.Request
+	18, // 20: velez_api.VelezAPI.DropSmerd:input_type -> velez_api.DropSmerd.Request
+	21, // 21: velez_api.VelezAPI.GetHardware:input_type -> velez_api.GetHardware.Request
+	26, // 22: velez_api.VelezAPI.UpgradeSmerd:input_type -> velez_api.UpgradeSmerd.Request
+	24, // 23: velez_api.VelezAPI.AssembleConfig:input_type -> velez_api.AssembleConfig.Request
+	28, // 24: velez_api.VelezAPI.MakeConnections:input_type -> velez_api.MakeConnections.Request
+	30, // 25: velez_api.VelezAPI.BreakConnections:input_type -> velez_api.BreakConnections.Request
+	32, // 26: velez_api.VelezAPI.SearchImages:input_type -> velez_api.SearchImages.Request
+	11, // 27: velez_api.VelezAPI.Version:output_type -> velez_api.Version.Response
+	40, // 28: velez_api.VelezAPI.CreateSmerd:output_type -> velez_api.Smerd
+	16, // 29: velez_api.VelezAPI.ListSmerds:output_type -> velez_api.ListSmerds.Response
+	19, // 30: velez_api.VelezAPI.DropSmerd:output_type -> velez_api.DropSmerd.Response
+	22, // 31: velez_api.VelezAPI.GetHardware:output_type -> velez_api.GetHardware.Response
+	27, // 32: velez_api.VelezAPI.UpgradeSmerd:output_type -> velez_api.UpgradeSmerd.Response
+	25, // 33: velez_api.VelezAPI.AssembleConfig:output_type -> velez_api.AssembleConfig.Response
+	29, // 34: velez_api.VelezAPI.MakeConnections:output_type -> velez_api.MakeConnections.Response
+	31, // 35: velez_api.VelezAPI.BreakConnections:output_type -> velez_api.BreakConnections.Response
+	33, // 36: velez_api.VelezAPI.SearchImages:output_type -> velez_api.SearchImages.Response
+	27, // [27:37] is the sub-list for method output_type
+	17, // [17:27] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_velez_api_proto_init() }

@@ -111,6 +111,11 @@ enum RestartPolicyType {
   on_failure = 3;
 }
 
+message PlainConfigSpec {
+  // key: target path inside container, value: raw config bytes
+  map<string, bytes> configs = 1;
+}
+
 message MatreshkaConfigSpec {
   // Name of config. By default velez will try to guess config by
   // indirect signs such as (no priority)

@@ -21,6 +21,7 @@ func (p *pipeliner) UpgradeSmerd(req domain.UpgradeSmerd) Runner[any] {
 	var oldContId string
 
 	var cfgMount domain.ConfigMount
+	upgradeMounts := make([]domain.FileMountPoint, 0)
 
 	return &runner[any]{
 		Steps: []steps.Step{
@@ -47,7 +48,7 @@ func (p *pipeliner) UpgradeSmerd(req domain.UpgradeSmerd) Runner[any] {
 				return nil
 			}),
 			// Deploy stage
-			config_steps.FetchConfig(p.services, &newLaunch, &img, &cfgMount),
+			config_steps.FetchConfig(p.services, &newLaunch, &img, &upgradeMounts),
 			steps.PrepareVervConfig(p.nodeClients, p.services, &newLaunch, &img),
 			// Config stage
 			steps.SingleFunc(func(_ context.Context) error {

@@ -15,57 +15,53 @@ type copyToContainerStep struct {
 	dockerAPI client.APIClient
 
 	contId *string
-	mount  *domain.FileMountPoint
+	mounts *[]domain.FileMountPoint
 }
 
 func CopyToContainer(
 	nodeClients node_clients.NodeClients,
 	contId *string,
-	mount *domain.FileMountPoint,
+	mounts *[]domain.FileMountPoint,
 ) *copyToContainerStep {
 	return &copyToContainerStep{
 		dockerAPI: nodeClients.Docker().Client(),
 		contId:    contId,
-		mount:     mount,
+		mounts:    mounts,
 	}
 }
 
 func (s *copyToContainerStep) Do(ctx context.Context) error {
-	if s.mount == nil {
-		// nothing to mount
-		return nil
-	}
+	for _, mount := range *s.mounts {
+		m := mount
+		if m.Content == nil {
+			continue
+		}
 
-	if s.mount.Content == nil {
-		// no actual file-content. May be set via env
-		return nil
-	}
+		err := s.validate(&m)
+		if err != nil {
+			return rerrors.Wrap(err, "error during validation")
+		}
 
-	err := s.validate()
-	if err != nil {
-		return rerrors.Wrap(err, "error during validation")
-	}
-
-	err = dockerutils.WriteToContainer(ctx, s.dockerAPI,
-		*s.contId, *s.mount.FilePath,
-		s.mount.Content,
-	)
-	if err != nil {
-		return rerrors.Wrap(err, "error copying to container")
+		err = dockerutils.WriteToContainer(ctx, s.dockerAPI,
+			*s.contId, *m.FilePath,
+			m.Content,
+		)
+		if err != nil {
+			return rerrors.Wrap(err, "error copying to container")
+		}
 	}
 
 	return nil
 }
 
-func (s *copyToContainerStep) validate() error {
+func (s *copyToContainerStep) validate(m *domain.FileMountPoint) error {
 	if s.contId == nil {
 		return rerrors.New("no container id provided")
 	}
 
-	if s.mount.FilePath == nil {
+	if m.FilePath == nil {
 		return rerrors.New("no file path provided")
 	}
 
 	return nil
-
 }

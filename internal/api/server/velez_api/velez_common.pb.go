@@ -774,6 +774,51 @@ func (x *RestartPolicy) GetFailureCount() uint32 {
 	return 0
 }
 
+type PlainConfigSpec struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// key: target path inside container, value: raw config bytes
+	Configs       map[string][]byte `protobuf:"bytes,1,rep,name=configs,proto3" json:"configs,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PlainConfigSpec) Reset() {
+	*x = PlainConfigSpec{}
+	mi := &file_velez_common_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PlainConfigSpec) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PlainConfigSpec) ProtoMessage() {}
+
+func (x *PlainConfigSpec) ProtoReflect() protoreflect.Message {
+	mi := &file_velez_common_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PlainConfigSpec.ProtoReflect.Descriptor instead.
+func (*PlainConfigSpec) Descriptor() ([]byte, []int) {
+	return file_velez_common_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *PlainConfigSpec) GetConfigs() map[string][]byte {
+	if x != nil {
+		return x.Configs
+	}
+	return nil
+}
+
 type MatreshkaConfigSpec struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Name of config. By default velez will try to guess config by
@@ -803,7 +848,7 @@ type MatreshkaConfigSpec struct {
 
 func (x *MatreshkaConfigSpec) Reset() {
 	*x = MatreshkaConfigSpec{}
-	mi := &file_velez_common_proto_msgTypes[8]
+	mi := &file_velez_common_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -815,7 +860,7 @@ func (x *MatreshkaConfigSpec) String() string {
 func (*MatreshkaConfigSpec) ProtoMessage() {}
 
 func (x *MatreshkaConfigSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[8]
+	mi := &file_velez_common_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -828,7 +873,7 @@ func (x *MatreshkaConfigSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MatreshkaConfigSpec.ProtoReflect.Descriptor instead.
 func (*MatreshkaConfigSpec) Descriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{8}
+	return file_velez_common_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *MatreshkaConfigSpec) GetConfigName() string {
@@ -870,7 +915,7 @@ type Connection struct {
 
 func (x *Connection) Reset() {
 	*x = Connection{}
-	mi := &file_velez_common_proto_msgTypes[9]
+	mi := &file_velez_common_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -882,7 +927,7 @@ func (x *Connection) String() string {
 func (*Connection) ProtoMessage() {}
 
 func (x *Connection) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[9]
+	mi := &file_velez_common_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -895,7 +940,7 @@ func (x *Connection) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Connection.ProtoReflect.Descriptor instead.
 func (*Connection) Descriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{9}
+	return file_velez_common_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *Connection) GetServiceName() string {
@@ -929,7 +974,7 @@ type Paging struct {
 
 func (x *Paging) Reset() {
 	*x = Paging{}
-	mi := &file_velez_common_proto_msgTypes[10]
+	mi := &file_velez_common_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -941,7 +986,7 @@ func (x *Paging) String() string {
 func (*Paging) ProtoMessage() {}
 
 func (x *Paging) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[10]
+	mi := &file_velez_common_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -954,7 +999,7 @@ func (x *Paging) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Paging.ProtoReflect.Descriptor instead.
 func (*Paging) Descriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{10}
+	return file_velez_common_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *Paging) GetLimit() uint64 {
@@ -983,7 +1028,7 @@ type NodeBaseInfo struct {
 
 func (x *NodeBaseInfo) Reset() {
 	*x = NodeBaseInfo{}
-	mi := &file_velez_common_proto_msgTypes[11]
+	mi := &file_velez_common_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -995,7 +1040,7 @@ func (x *NodeBaseInfo) String() string {
 func (*NodeBaseInfo) ProtoMessage() {}
 
 func (x *NodeBaseInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[11]
+	mi := &file_velez_common_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1008,7 +1053,7 @@ func (x *NodeBaseInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NodeBaseInfo.ProtoReflect.Descriptor instead.
 func (*NodeBaseInfo) Descriptor() ([]byte, []int) {
-	return file_velez_common_proto_rawDescGZIP(), []int{11}
+	return file_velez_common_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *NodeBaseInfo) GetId() int64 {
@@ -1054,7 +1099,7 @@ type Container_Hardware struct {
 
 func (x *Container_Hardware) Reset() {
 	*x = Container_Hardware{}
-	mi := &file_velez_common_proto_msgTypes[15]
+	mi := &file_velez_common_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1066,7 +1111,7 @@ func (x *Container_Hardware) String() string {
 func (*Container_Hardware) ProtoMessage() {}
 
 func (x *Container_Hardware) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[15]
+	mi := &file_velez_common_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1114,7 +1159,7 @@ type Container_Settings struct {
 
 func (x *Container_Settings) Reset() {
 	*x = Container_Settings{}
-	mi := &file_velez_common_proto_msgTypes[16]
+	mi := &file_velez_common_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1126,7 +1171,7 @@ func (x *Container_Settings) String() string {
 func (*Container_Settings) ProtoMessage() {}
 
 func (x *Container_Settings) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[16]
+	mi := &file_velez_common_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1179,7 +1224,7 @@ type Container_Healthcheck struct {
 
 func (x *Container_Healthcheck) Reset() {
 	*x = Container_Healthcheck{}
-	mi := &file_velez_common_proto_msgTypes[17]
+	mi := &file_velez_common_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1191,7 +1236,7 @@ func (x *Container_Healthcheck) String() string {
 func (*Container_Healthcheck) ProtoMessage() {}
 
 func (x *Container_Healthcheck) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[17]
+	mi := &file_velez_common_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1326,7 +1371,12 @@ const file_velez_common_proto_rawDesc = "" +
 	"\rRestartPolicy\x120\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x1c.velez_api.RestartPolicyTypeR\x04type\x12'\n" +
 	"\fFailureCount\x18\x02 \x01(\rH\x00R\fFailureCount\x88\x01\x01B\x0f\n" +
-	"\r_FailureCount\"\x95\x02\n" +
+	"\r_FailureCount\"\x90\x01\n" +
+	"\x0fPlainConfigSpec\x12A\n" +
+	"\aconfigs\x18\x01 \x03(\v2'.velez_api.PlainConfigSpec.ConfigsEntryR\aconfigs\x1a:\n" +
+	"\fConfigsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\fR\x05value:\x028\x01\"\x95\x02\n" +
 	"\x13MatreshkaConfigSpec\x12$\n" +
 	"\vconfig_name\x18\x01 \x01(\tH\x00R\n" +
 	"configName\x88\x01\x01\x12*\n" +
@@ -1381,7 +1431,7 @@ func file_velez_common_proto_rawDescGZIP() []byte {
 }
 
 var file_velez_common_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_velez_common_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_velez_common_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_velez_common_proto_goTypes = []any{
 	(RestartPolicyType)(0),        // 0: velez_api.RestartPolicyType
 	(ConfigFormat)(0),             // 1: velez_api.ConfigFormat
@@ -1396,39 +1446,42 @@ var file_velez_common_proto_goTypes = []any{
 	(*Smerd)(nil),                 // 10: velez_api.Smerd
 	(*Container)(nil),             // 11: velez_api.Container
 	(*RestartPolicy)(nil),         // 12: velez_api.RestartPolicy
-	(*MatreshkaConfigSpec)(nil),   // 13: velez_api.MatreshkaConfigSpec
-	(*Connection)(nil),            // 14: velez_api.Connection
-	(*Paging)(nil),                // 15: velez_api.Paging
-	(*NodeBaseInfo)(nil),          // 16: velez_api.NodeBaseInfo
-	nil,                           // 17: velez_api.Image.LabelsEntry
-	nil,                           // 18: velez_api.Smerd.LabelsEntry
-	nil,                           // 19: velez_api.Smerd.EnvEntry
-	(*Container_Hardware)(nil),    // 20: velez_api.Container.Hardware
-	(*Container_Settings)(nil),    // 21: velez_api.Container.Settings
-	(*Container_Healthcheck)(nil), // 22: velez_api.Container.Healthcheck
-	(*timestamppb.Timestamp)(nil), // 23: google.protobuf.Timestamp
+	(*PlainConfigSpec)(nil),       // 13: velez_api.PlainConfigSpec
+	(*MatreshkaConfigSpec)(nil),   // 14: velez_api.MatreshkaConfigSpec
+	(*Connection)(nil),            // 15: velez_api.Connection
+	(*Paging)(nil),                // 16: velez_api.Paging
+	(*NodeBaseInfo)(nil),          // 17: velez_api.NodeBaseInfo
+	nil,                           // 18: velez_api.Image.LabelsEntry
+	nil,                           // 19: velez_api.Smerd.LabelsEntry
+	nil,                           // 20: velez_api.Smerd.EnvEntry
+	(*Container_Hardware)(nil),    // 21: velez_api.Container.Hardware
+	(*Container_Settings)(nil),    // 22: velez_api.Container.Settings
+	(*Container_Healthcheck)(nil), // 23: velez_api.Container.Healthcheck
+	nil,                           // 24: velez_api.PlainConfigSpec.ConfigsEntry
+	(*timestamppb.Timestamp)(nil), // 25: google.protobuf.Timestamp
 }
 var file_velez_common_proto_depIdxs = []int32{
 	3,  // 0: velez_api.Port.protocol:type_name -> velez_api.Port.Protocol
-	17, // 1: velez_api.Image.labels:type_name -> velez_api.Image.LabelsEntry
+	18, // 1: velez_api.Image.labels:type_name -> velez_api.Image.LabelsEntry
 	6,  // 2: velez_api.Smerd.ports:type_name -> velez_api.Port
 	7,  // 3: velez_api.Smerd.volumes:type_name -> velez_api.Volume
 	4,  // 4: velez_api.Smerd.status:type_name -> velez_api.Smerd.Status
-	23, // 5: velez_api.Smerd.created_at:type_name -> google.protobuf.Timestamp
+	25, // 5: velez_api.Smerd.created_at:type_name -> google.protobuf.Timestamp
 	8,  // 6: velez_api.Smerd.networks:type_name -> velez_api.NetworkBind
-	18, // 7: velez_api.Smerd.labels:type_name -> velez_api.Smerd.LabelsEntry
-	19, // 8: velez_api.Smerd.env:type_name -> velez_api.Smerd.EnvEntry
+	19, // 7: velez_api.Smerd.labels:type_name -> velez_api.Smerd.LabelsEntry
+	20, // 8: velez_api.Smerd.env:type_name -> velez_api.Smerd.EnvEntry
 	0,  // 9: velez_api.RestartPolicy.type:type_name -> velez_api.RestartPolicyType
-	1,  // 10: velez_api.MatreshkaConfigSpec.config_format:type_name -> velez_api.ConfigFormat
-	2,  // 11: velez_api.NodeBaseInfo.status:type_name -> velez_api.NodeStatus
-	6,  // 12: velez_api.Container.Settings.ports:type_name -> velez_api.Port
-	8,  // 13: velez_api.Container.Settings.network:type_name -> velez_api.NetworkBind
-	7,  // 14: velez_api.Container.Settings.volumes:type_name -> velez_api.Volume
-	15, // [15:15] is the sub-list for method output_type
-	15, // [15:15] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	24, // 10: velez_api.PlainConfigSpec.configs:type_name -> velez_api.PlainConfigSpec.ConfigsEntry
+	1,  // 11: velez_api.MatreshkaConfigSpec.config_format:type_name -> velez_api.ConfigFormat
+	2,  // 12: velez_api.NodeBaseInfo.status:type_name -> velez_api.NodeStatus
+	6,  // 13: velez_api.Container.Settings.ports:type_name -> velez_api.Port
+	8,  // 14: velez_api.Container.Settings.network:type_name -> velez_api.NetworkBind
+	7,  // 15: velez_api.Container.Settings.volumes:type_name -> velez_api.Volume
+	16, // [16:16] is the sub-list for method output_type
+	16, // [16:16] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_velez_common_proto_init() }
@@ -1439,16 +1492,16 @@ func file_velez_common_proto_init() {
 	file_velez_common_proto_msgTypes[0].OneofWrappers = []any{}
 	file_velez_common_proto_msgTypes[1].OneofWrappers = []any{}
 	file_velez_common_proto_msgTypes[7].OneofWrappers = []any{}
-	file_velez_common_proto_msgTypes[8].OneofWrappers = []any{}
-	file_velez_common_proto_msgTypes[15].OneofWrappers = []any{}
-	file_velez_common_proto_msgTypes[17].OneofWrappers = []any{}
+	file_velez_common_proto_msgTypes[9].OneofWrappers = []any{}
+	file_velez_common_proto_msgTypes[16].OneofWrappers = []any{}
+	file_velez_common_proto_msgTypes[18].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_velez_common_proto_rawDesc), len(file_velez_common_proto_rawDesc)),
 			NumEnums:      5,
-			NumMessages:   18,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

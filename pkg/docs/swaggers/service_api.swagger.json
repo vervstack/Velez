@@ -621,9 +621,7 @@
           "$ref": "#/definitions/velez_apiMatreshkaConfigSpec"
         },
         "plain": {
-          "type": "string",
-          "format": "byte",
-          "title": "TODO not implemented"
+          "$ref": "#/definitions/velez_apiPlainConfigSpec"
         },
         "isDeclarativeDeploy": {
           "type": "boolean",
@@ -906,6 +904,19 @@
         "offset": {
           "type": "string",
           "format": "uint64"
+        }
+      }
+    },
+    "velez_apiPlainConfigSpec": {
+      "type": "object",
+      "properties": {
+        "configs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "format": "byte"
+          },
+          "title": "key: target path inside container, value: raw config bytes"
         }
       }
     },

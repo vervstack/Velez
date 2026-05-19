@@ -65,9 +65,10 @@ func NewCopyToVolumeRunner(nodeClients node_clients.NodeClients, req domain.Copy
 	}
 
 	for _, ftm := range filesToMount {
+		mounts := []domain.FileMountPoint{ftm}
 		actualSteps = append(actualSteps,
 			smerd_steps.Exec(nodeClients, &contId, rtb.ToPtr("mkdir -p "+path.Dir(*ftm.FilePath))),
-			container_steps.CopyToContainer(nodeClients, &contId, &ftm))
+			container_steps.CopyToContainer(nodeClients, &contId, &mounts))
 	}
 
 	actualSteps = append(actualSteps, smerd_steps.DropContainerStep(nodeClients, &contId))

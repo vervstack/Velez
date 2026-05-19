@@ -43,11 +43,12 @@ func SetupMakosh(
 	cfg config.Config,
 	nodeClients node_clients.NodeClients,
 	vcnClient cluster_clients.VervClosedNetworkClient,
-) (sd *makosh.ServiceDiscovery, err error) {
+) (sd cluster_clients.ServiceDiscovery, err error) {
 	if !cfg.Environment.MakoshIsEnabled {
-		//TOOD add stub ?
-		return nil, nil
+		return newDockerServiceDiscovery(nodeClients.Docker()), nil
 	}
+
+	var makoshSd *makosh.ServiceDiscovery
 
 	// TODO statefull token?
 	token := string(rtb.RandomBase64(256))
@@ -109,28 +110,28 @@ func SetupMakosh(
 		cfg.Environment.MakoshURL = addr + ":" + port
 	}
 
-	sd, err = makosh.NewServiceDiscovery(cfg)
+	makoshSd, err = makosh.NewServiceDiscovery(cfg)
 	if err != nil {
-		return sd, rerrors.Wrap(err, "error initializing service discovery ")
+		return nil, rerrors.Wrap(err, "error initializing service discovery ")
 	}
 
 	connToVpnReq := domain.ConnectServiceToVcn{
 		ServiceName: Name,
 	}
 
-	runner := pipelines.ConnectServiceToVpn(connToVpnReq, nodeClients, vcnClient, sd)
+	runner := pipelines.ConnectServiceToVpn(connToVpnReq, nodeClients, vcnClient, makoshSd)
 	err = runner.Run(ctx)
 	if err != nil {
 		if rerrors.Is(err, steps.ErrAlreadyExists) {
-			return sd, nil
+			return makoshSd, nil
 		}
 
 		if rerrors.Is(err, cluster_clients.ErrServiceIsDisabled) {
-			return sd, nil
+			return makoshSd, nil
 		}
 
-		return sd, rerrors.Wrap(err, "error connecting service to verv closed network")
+		return nil, rerrors.Wrap(err, "error connecting service to verv closed network")
 	}
 
-	return sd, nil
+	return makoshSd, nil
 }

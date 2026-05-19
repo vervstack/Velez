@@ -7,7 +7,6 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
-	"go.vervstack.ru/Velez/internal/clients/cluster_clients/makosh"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/matreshka"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
@@ -22,7 +21,7 @@ import (
 
 type clusterClients struct {
 	matreshka        matreshka.Client
-	serviceDiscovery *makosh.ServiceDiscovery
+	serviceDiscovery cluster_clients.ServiceDiscovery
 	vcn              cluster_clients.VervClosedNetworkClient
 	stateManager     cluster_clients.ClusterStateManagerContainer
 }

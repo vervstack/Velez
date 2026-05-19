@@ -15,7 +15,6 @@ import (
 	"go.vervstack.ru/makosh/pkg/makosh_be"
 
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
-	"go.vervstack.ru/Velez/internal/clients/cluster_clients/makosh"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/matreshka"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster/env"
@@ -31,7 +30,7 @@ func SetupMatreshka(
 	ctx context.Context,
 	cfg config.Config,
 	nc node_clients.NodeClients,
-	sdClient *makosh.ServiceDiscovery,
+	sdClient cluster_clients.ServiceDiscovery,
 	vcnClient cluster_clients.VervClosedNetworkClient,
 ) (matreshka.Client, error) {
 	key, err := initKey(ctx, nc)

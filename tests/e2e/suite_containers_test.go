@@ -38,8 +38,7 @@ func (s *ContainerSuite) Test_CreateAndList() {
 		ImageName:    HelloWorldAppImage,
 		IgnoreConfig: true,
 	}
-	created, err := s.env.CreateSmerd(s.ctx, createReq)
-	require.NoError(t, err)
+	created := s.env.CreateSmerd(t, createReq)
 
 	require.Equal(t, name, created.Name)
 	require.Equal(t, velez_api.Smerd_running, created.Status)
@@ -49,8 +48,7 @@ func (s *ContainerSuite) Test_CreateAndList() {
 	listReq := &velez_api.ListSmerds_Request{
 		Name: rtb.ToPtr(name),
 	}
-	listed, err := s.env.ListSmerds(s.ctx, listReq)
-	require.NoError(t, err)
+	listed := s.env.ListSmerds(t, s.ctx, listReq)
 
 	require.Len(t, listed.Smerds, 1)
 	smerd := listed.Smerds[0]

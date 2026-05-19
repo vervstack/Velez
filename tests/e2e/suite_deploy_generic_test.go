@@ -181,8 +181,7 @@ func (s *DeploySuite) Test_GenericApi() {
 				require.NoError(t, err)
 			}
 
-			deployedSmerd, err := env.CreateSmerd(ctx, tcArgs.req)
-			require.NoError(t, err)
+			deployedSmerd := env.CreateSmerd(t, tcArgs.req)
 
 			AssertSmerds(t, tcArgs.expected, deployedSmerd)
 		})
@@ -297,7 +296,6 @@ func (s *DeploySuite) Test_VervApi() {
 	for name, tcConstructor := range testCases {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			ctx := t.Context()
 
 			tc := tcConstructor.new(t)
 
@@ -305,8 +303,7 @@ func (s *DeploySuite) Test_VervApi() {
 
 			env := NewEnvironment(t)
 
-			launchedSmerd, err := env.CreateSmerd(ctx, tc.req)
-			require.NoError(t, err)
+			launchedSmerd := env.CreateSmerd(t, tc.req)
 
 			AssertSmerds(t, tc.expected, launchedSmerd)
 		})

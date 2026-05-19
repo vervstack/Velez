@@ -169,7 +169,11 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 	return &env
 }
 
-func (e *TestEnvironment) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (*velez_api.Smerd, error) {
+func (e *TestEnvironment) CreateSmerd(t *testing.T, req *velez_api.CreateSmerd_Request) *velez_api.Smerd {
+	ctx := t.Context()
+
+	t.Helper()
+
 	if req.Labels == nil {
 		req.Labels = map[string]string{}
 	}
@@ -177,21 +181,29 @@ func (e *TestEnvironment) CreateSmerd(ctx context.Context, req *velez_api.Create
 	addTestLabels(e.t, req.Labels)
 
 	response, err := e.Custom.ApiGrpcImpl.CreateSmerd(ctx, req)
-	if err != nil {
-		return nil, err
-	}
+	require.NoError(t, err)
 
 	removeTestLabels(response.Labels)
 
-	return response, nil
+	return response
 }
 
-func (e *TestEnvironment) ListSmerds(ctx context.Context, req *velez_api.ListSmerds_Request) (*velez_api.ListSmerds_Response, error) {
-	return e.Custom.ApiGrpcImpl.ListSmerds(ctx, req)
+func (e *TestEnvironment) ListSmerds(t *testing.T, ctx context.Context, req *velez_api.ListSmerds_Request) *velez_api.ListSmerds_Response {
+	t.Helper()
+
+	resp, err := e.Custom.ApiGrpcImpl.ListSmerds(ctx, req)
+	require.NoError(t, err)
+
+	return resp
 }
 
-func (e *TestEnvironment) DropSmerd(ctx context.Context, req *velez_api.DropSmerd_Request) (*velez_api.DropSmerd_Response, error) {
-	return e.Custom.ApiGrpcImpl.DropSmerd(ctx, req)
+func (e *TestEnvironment) DropSmerd(t *testing.T, ctx context.Context, req *velez_api.DropSmerd_Request) *velez_api.DropSmerd_Response {
+	t.Helper()
+
+	resp, err := e.Custom.ApiGrpcImpl.DropSmerd(ctx, req)
+	require.NoError(t, err)
+
+	return resp
 }
 
 func (e *TestEnvironment) VpnClient() velez_api.VcnApiClient {

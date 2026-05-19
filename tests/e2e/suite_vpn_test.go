@@ -60,8 +60,7 @@ func (s *VpnSuite) SetupTest() {
 		IgnoreConfig: true,
 	}
 
-	_, err := s.env.CreateSmerd(t.Context(), mainApp)
-	require.NoError(t, err)
+	s.env.CreateSmerd(t, mainApp)
 
 	s.prepareNamespace()
 }

@@ -6,10 +6,12 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	rtb "go.redsock.ru/toolbox"
+	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 	"google.golang.org/protobuf/proto"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/tests/config_mocks"
 )
 
 type LifecycleSuite struct {
@@ -29,7 +31,6 @@ func (s *LifecycleSuite) Test_Stateless_HelloWorld() {
 
 	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {})
 }
-
 func (s *LifecycleSuite) Test_Stateless_HelloWorld_WithHealthcheck() {
 	t := s.T()
 	t.Parallel()
@@ -46,7 +47,6 @@ func (s *LifecycleSuite) Test_Stateless_HelloWorld_WithHealthcheck() {
 	}
 	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {})
 }
-
 func (s *LifecycleSuite) Test_Stateless_HelloWorld_DefaultConfig() {
 	t := s.T()
 	t.Parallel()
@@ -61,7 +61,6 @@ func (s *LifecycleSuite) Test_Stateless_HelloWorld_DefaultConfig() {
 		require.Equal(t, smerd.Name, smerd.Env["VERV_NAME"])
 	})
 }
-
 func (s *LifecycleSuite) Test_Stateless_Nginx() {
 	t := s.T()
 	t.Parallel()
@@ -78,7 +77,6 @@ func (s *LifecycleSuite) Test_Stateless_Nginx() {
 			require.NotEmpty(t, smerd.Ports)
 		})
 }
-
 func (s *LifecycleSuite) Test_Stateless_Postgres() {
 	timeoutSec := uint32(5)
 
@@ -118,7 +116,6 @@ func (s *LifecycleSuite) Test_ClusterMode_HelloWorld() {
 	}
 	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {})
 }
-
 func (s *LifecycleSuite) Test_ClusterMode_PlainNginx() {
 	t := s.T()
 	t.Parallel()
@@ -134,7 +131,6 @@ func (s *LifecycleSuite) Test_ClusterMode_PlainNginx() {
 		require.NotEmpty(t, smerd.Ports)
 	})
 }
-
 func (s *LifecycleSuite) Test_ClusterMode_Postgres() {
 	t := s.T()
 	t.Parallel()
@@ -156,10 +152,49 @@ func (s *LifecycleSuite) Test_ClusterMode_Postgres() {
 		UseImagePorts: true,
 	}
 
-	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {
-		require.Len(t, smerd.Ports, 1)
-		require.EqualValues(t, 5432, smerd.Ports[0].ServicePortNumber)
-	})
+	runLifecycle(t, env, req,
+		func(t *testing.T, smerd *velez_api.Smerd) {
+			require.Len(t, smerd.Ports, 1)
+			require.EqualValues(t, 5432, smerd.Ports[0].ServicePortNumber)
+		})
+}
+func (s *LifecycleSuite) Test_ClusterMode_Loki() {
+	t := s.T()
+	t.Parallel()
+
+	ctx := t.Context()
+
+	env := NewEnvironment(t, WithMatreshka())
+
+	serviceName := GetServiceName(t)
+
+	storeReq := &matreshka_api.StoreConfig_Request{
+		Format:     matreshka_api.Format_yaml,
+		ConfigName: serviceName,
+		Config:     config_mocks.Loki,
+	}
+
+	_, err := env.Custom.ClusterClients.Configurator().StoreConfig(ctx, storeReq)
+	require.NoError(t, err)
+
+	req := &velez_api.CreateSmerd_Request{
+		ImageName: "grafana/loki:main-bc418c4",
+		Settings: &velez_api.Container_Settings{
+			Network: []*velez_api.NetworkBind{
+				{NetworkName: "redsockru"},
+			},
+		},
+		Restart: &velez_api.RestartPolicy{
+			Type: velez_api.RestartPolicyType_always,
+		},
+		Config: &velez_api.CreateSmerd_Request_Verv{
+			Verv: &velez_api.MatreshkaConfigSpec{
+				SystemPath: rtb.ToPtr("/etc/loki/local-config.yaml"),
+			},
+		},
+	}
+
+	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {})
 }
 
 func Test_Lifecycle(t *testing.T) {
@@ -198,5 +233,4 @@ func runLifecycle(t *testing.T, env *TestEnvironment, req *velez_api.CreateSmerd
 
 	require.NotNil(t, actualSmerd)
 	require.Equal(t, created.Uuid, actualSmerd.Uuid)
-
 }

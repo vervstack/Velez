@@ -3,7 +3,6 @@ import cls from '@/widgets/service/ServiceHero/ServiceHero.module.css'
 import { useGetServiceMetricsQuery } from '@/processes/queries/services'
 
 interface ServiceHeroProps {
-    serviceId: string
     serviceName: string
     serviceStatus?: string
     imageFromSmerd?: string
@@ -47,12 +46,11 @@ function MetricTile({ label, value, sub, barPct }: MetricTileProps) {
 }
 
 export default function ServiceHero({
-    serviceId,
     serviceName,
     serviceStatus,
     imageFromSmerd,
 }: ServiceHeroProps) {
-    const { data: metrics } = useGetServiceMetricsQuery(serviceId)
+    const {data: metrics} = useGetServiceMetricsQuery(serviceName)
 
     const replicas = metrics?.replicas ?? '—'
     const uptime = metrics?.uptime ?? '—'

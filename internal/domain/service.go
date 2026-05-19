@@ -19,7 +19,6 @@ type Service struct {
 }
 
 type ServiceBaseInfo struct {
-	Id             uint64
 	Name           string
 	LastDeployedAt *time.Time
 	ImageName      string
@@ -28,17 +27,16 @@ type ServiceBaseInfo struct {
 }
 
 type GetServiceReq struct {
-	Id   *uint64
-	Name *string
+	Name string
 }
 
 type CreateDeployReq struct {
 	LaunchSmerd
-	ServiceId uint64
+	ServiceName string
 }
 
 type UpgradeDeployReq struct {
-	ServiceId    uint64
+	ServiceName  string
 	DeploymentId uint64
 
 	NewImage *string

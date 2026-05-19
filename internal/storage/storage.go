@@ -29,7 +29,6 @@ type Storage interface {
 }
 
 type ServicesStorage interface {
-	GetById(ctx context.Context, id int64) (domain.Service, error)
 	GetByName(ctx context.Context, name string) (domain.Service, error)
 	UpsertService(ctx context.Context, name string) error
 

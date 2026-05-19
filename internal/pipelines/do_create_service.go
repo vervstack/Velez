@@ -11,12 +11,10 @@ func (p *pipeliner) CreateService(req domain.CreateServiceReq) Runner[domain.Ser
 		Name: req.Name,
 	}
 
-	var serviceId uint64
-
 	return &runner[domain.ServiceBaseInfo]{
 		Steps: []steps.Step{
 			service_steps.ValidateServiceName(req.Name),
-			service_steps.UpsertServiceState(p.clusterClients.StateManager(), &serviceInfo, &serviceId),
+			service_steps.UpsertServiceState(p.clusterClients.StateManager(), &serviceInfo),
 		},
 	}
 }

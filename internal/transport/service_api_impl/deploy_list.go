@@ -17,8 +17,8 @@ func (impl *Impl) ListDeployments(ctx context.Context, pbReq *pb.ListDeployments
 		Paging: common.FromPaging(pbReq.GetPaging()),
 	}
 
-	if pbReq.ServiceId != nil {
-		req.ServiceIds = []int64{int64(*pbReq.ServiceId)}
+	if pbReq.ServiceName != nil {
+		req.ServiceName = *pbReq.ServiceName
 	}
 
 	list, err := impl.servicesService.ListDeployments(ctx, req)

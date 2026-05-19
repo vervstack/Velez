@@ -67,7 +67,7 @@ func (v *VervService) ListDeployments(ctx context.Context, req domain.ListDeploy
 
 func (v *VervService) UpgradeDeploy(ctx context.Context, request domain.UpgradeDeployReq) error {
 	listReq := domain.ListDeploymentsReq{
-		ServiceIds: []int64{int64(request.ServiceId)},
+		ServiceName: request.ServiceName,
 	}
 	deployments, err := v.deploymentsStorage.List(ctx, listReq)
 	if err != nil {

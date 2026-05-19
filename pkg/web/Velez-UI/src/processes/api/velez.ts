@@ -19,7 +19,7 @@ export async function FetchSmerds(): Promise<ListSmerdsResponse> {
     return VelezAPI.ListSmerds(req, GetInitReq())
 }
 
-export async function FetchSmerdsByServiceName(serviceName: string): Promise<ListSmerdsResponse> {
+export async function FetchSmerdsByServiceId(serviceName: string): Promise<ListSmerdsResponse> {
     const req: ListSmerdsRequest = {name: serviceName, limit: 10}
     return VelezAPI.ListSmerds(req, GetInitReq())
 }

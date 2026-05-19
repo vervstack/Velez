@@ -44,6 +44,11 @@ func SetupMakosh(
 	nodeClients node_clients.NodeClients,
 	vcnClient cluster_clients.VervClosedNetworkClient,
 ) (sd *makosh.ServiceDiscovery, err error) {
+	if !cfg.Environment.MakoshIsEnabled {
+		//TOOD add stub ?
+		return nil, nil
+	}
+
 	// TODO statefull token?
 	token := string(rtb.RandomBase64(256))
 

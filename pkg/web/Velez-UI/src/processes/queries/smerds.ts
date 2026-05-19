@@ -1,5 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
-import { FetchSmerds, FetchSmerd, FetchSmerdsByServiceName } from '@/processes/api/velez'
+import {useQuery} from '@tanstack/react-query'
+import {FetchSmerds, FetchSmerd, FetchSmerdsByServiceId} from '@/processes/api/velez'
+import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 
 export function useListSmerdsQuery() {
     return useQuery({
@@ -16,10 +17,13 @@ export function useGetSmerdQuery(name: string, enabled = true) {
     })
 }
 
-export function useListSmerdsByServiceQuery(serviceName: string, enabled = true) {
+export function ListSmerdsByServiceIdQuery(serviceName: string) {
+    const toaster = useToaster();
+
     return useQuery({
-        queryKey: ['service-smerds', serviceName] as const,
-        queryFn: () => FetchSmerdsByServiceName(serviceName),
-        enabled,
+        queryKey: ['service-smerds', 'name', serviceName] as const,
+        queryFn: () =>
+            FetchSmerdsByServiceId(serviceName)
+                .catch(toaster.catchGrpc),
     })
 }

@@ -16,3 +16,6 @@ build-ui:
 
 lint:
 	golangci-lint run ./...
+
+run-web-client:
+	cd pkg/web/Velez-UI && vite

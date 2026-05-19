@@ -7,9 +7,9 @@ import (
 )
 
 type ListDeploymentsReq struct {
-	ServiceIds []int64
-	NodeIds    []int64
-	NotStatus  []deployments_queries.VelezDeploymentStatus
+	ServiceName string
+	NodeIds     []int64
+	NotStatus   []deployments_queries.VelezDeploymentStatus
 
 	Paging Paging
 }

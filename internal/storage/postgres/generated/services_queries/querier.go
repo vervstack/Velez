@@ -9,7 +9,6 @@ import (
 )
 
 type Querier interface {
-	GetById(ctx context.Context, id int64) (VelezService, error)
 	GetByName(ctx context.Context, name string) (VelezService, error)
 	UpsertService(ctx context.Context, name string) error
 }

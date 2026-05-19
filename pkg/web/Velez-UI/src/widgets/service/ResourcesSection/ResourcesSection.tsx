@@ -5,11 +5,11 @@ import ResourceCard from './ResourceCard'
 import cls from './ResourcesSection.module.css'
 
 interface ResourcesSectionProps {
-    serviceId: string
+    serviceName: string
 }
 
-export default function ResourcesSection({ serviceId }: ResourcesSectionProps) {
-    const { data: resources = [] } = useGetServiceResourcesQuery(serviceId)
+export default function ResourcesSection({serviceName}: ResourcesSectionProps) {
+    const {data: resources = []} = useGetServiceResourcesQuery(serviceName)
 
     return (
         <div className={cls.ResourcesSectionContainer}>

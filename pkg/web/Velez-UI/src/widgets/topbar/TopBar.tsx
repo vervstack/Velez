@@ -2,7 +2,7 @@ import cn from 'classnames';
 
 import cls from '@/widgets/topbar/TopBar.module.css';
 
-import {NodeBaseInfo, NodeStatus, VervPluginType} from "@/app/api/velez";
+import {NodeBaseInfo, NodeStatus, VervPluginState, VervPluginType} from "@/app/api/velez";
 import {ListNodesQuery, ListPluginsQuery} from "@/processes/queries/control_plane.ts";
 import {useNavigate} from "react-router-dom";
 import {Routes} from "@/app/router/Routes.ts";
@@ -87,7 +87,9 @@ function RightZone() {
     const isLoading = pluginsQuery.isLoading && nodesQuery.isLoading
 
     const isStateFullMode = pluginsQuery.data
-        ?.find(p => p.type == VervPluginType.statefull_pg) !== undefined;
+        ?.find(p => p.type == VervPluginType.statefull_pg && p.state == VervPluginState.running) !== undefined;
+
+    console.debug(pluginsQuery.data)
 
     return (
         <div className={cls.RightZoneContainer}>

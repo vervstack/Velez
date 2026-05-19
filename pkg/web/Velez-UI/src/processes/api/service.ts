@@ -20,24 +20,15 @@ class ServiceService extends ApiService {
         return this.execute(async (req) => {
             const payload: GetServiceRequest = {name}
             const res = await ServiceApi.GetService(payload, req)
+            console.log(res)
             if (!res.vervService) throw new Error("ServiceNotFound")
             return res.vervService
         })
     }
 
-    async getServiceById(id: string): Promise<VervAppService> {
+    async fetchService(name: string): Promise<VervAppService> {
         return this.execute(async (req) => {
-            const payload: GetServiceRequest = {id}
-            const res = await ServiceApi.GetService(payload, req)
-            if (!res.vervService) throw new Error("ServiceNotFound")
-            return res.vervService
-        })
-    }
-
-    async fetchService(key: string): Promise<VervAppService> {
-        return this.execute(async (req) => {
-            const serviceId = Number(key)
-            const payload: GetServiceRequest = serviceId.toString() === key ? {id: key} : {name: key}
+            const payload: GetServiceRequest = {name}
             const res = await ServiceApi.GetService(payload, req)
             if (!res.vervService) throw new Error("ServiceNotFound")
             return res.vervService
@@ -48,20 +39,20 @@ class ServiceService extends ApiService {
         return this.execute((req) => ServiceApi.ListServices(r, req))
     }
 
-    async fetchDeployments(serviceId: string): Promise<ListDeploymentsResponse> {
+    async fetchDeploymentsByServiceName(serviceName: string): Promise<ListDeploymentsResponse> {
         return this.execute((req) => {
             const payload: ListDeploymentsRequest = {
-                serviceId,
+                serviceName,
                 paging: {limit: '10', offset: '0'},
             }
             return ServiceApi.ListDeployments(payload, req)
         })
     }
 
-    async createNewDeployment(serviceId: string, newReq: CreateSmerdRequest): Promise<void> {
+    async createNewDeployment(serviceName: string, newReq: CreateSmerdRequest): Promise<void> {
         return this.mutate((req) => {
             const payload: CreateDeployRequest = {
-                serviceId,
+                serviceName,
                 new: newReq,
             }
             //  TODO remove
@@ -85,7 +76,7 @@ class ServiceService extends ApiService {
     }
 
     // TODO: implement — requires GetServiceMetrics RPC in api/grpc/service_api.proto
-    async fetchServiceMetrics(_serviceId: string): Promise<ServiceMetrics> {
+    async fetchServiceMetrics(_serviceName: string): Promise<ServiceMetrics> {
         return {
             replicas: '3 / 3',
             uptime: '14d 3h 22m',
@@ -102,7 +93,7 @@ class ServiceService extends ApiService {
     }
 
     // TODO: implement — requires GetServiceResources RPC in api/grpc/service_api.proto
-    async fetchServiceResources(_serviceId: string): Promise<ServiceResource[]> {
+    async fetchServiceResources(_serviceName: string): Promise<ServiceResource[]> {
         return [
             { id: 'redis-cache',    kind: 'redis',    icon: 'R', desc: 'cache + session',   host: 'redis.internal:6379',    status: 'healthy',  use: 'r/w',                  hits: '12.4k/s', color: '#ed2f32' },
             { id: 'kafka-events',   kind: 'kafka',    icon: 'K', desc: 'event stream',      host: 'kafka-1.internal:9092',  status: 'healthy',  use: 'producer · 4 topics',  hits: '820/s',   color: '#f5a623' },
@@ -113,7 +104,7 @@ class ServiceService extends ApiService {
     }
 
     // TODO: implement — requires GetServiceGraph RPC in api/grpc/service_api.proto
-    async fetchServiceGraph(_serviceId: string): Promise<ServiceGraphData> {
+    async fetchServiceGraph(_serviceName: string): Promise<ServiceGraphData> {
         return {
             incoming: [
                 { id: 'api-gateway',  kind: 'service', proto: 'gRPC', rate: '1.8k rps' },
@@ -132,7 +123,7 @@ class ServiceService extends ApiService {
     }
 
     // TODO: implement — requires GetServiceEnvironments RPC in api/grpc/service_api.proto
-    async fetchServiceEnvironments(_serviceId: string): Promise<ServiceEnvironment[]> {
+    async fetchServiceEnvironments(_serviceName: string): Promise<ServiceEnvironment[]> {
         return [
             { id: 'dev',     label: 'dev',     status: 'running',  version: '0.4.9-rc.2', deployedAgo: '2h',  health: 'healthy'  },
             { id: 'test',    label: 'test',    status: 'running',  version: '0.4.8',      deployedAgo: '1d',  health: 'healthy'  },
@@ -142,7 +133,7 @@ class ServiceService extends ApiService {
     }
 
     // TODO: implement — requires GetVervonomicon RPC in api/grpc/service_api.proto
-    async fetchVervonomicon(_serviceId: string): Promise<VervonomiconDocs> {
+    async fetchVervonomicon(_serviceName: string): Promise<VervonomiconDocs> {
         return {
             vervonomicon: `# vervonomicon.yaml — service manifest
 # Single source of truth for matreshka-be across all environments.

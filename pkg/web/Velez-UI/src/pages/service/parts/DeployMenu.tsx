@@ -6,7 +6,7 @@ import cls from "@/pages/service/parts/DeployMenu.module.css";
 import DeploymentWidget from "@/widgets/deploy/DeploymentWidget.tsx";
 import {serviceService} from "@/processes/api/service.ts";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
-import {useListDeploymentsQuery} from "@/processes/queries/services.ts";
+import {ListDeploymentsByServiceNameQuery} from "@/processes/queries/services.ts";
 import SkeletonDeploymentHistory from "@/components/deploy/SkeletonDeploymentHistory.tsx";
 
 enum TabsOptions {
@@ -15,7 +15,6 @@ enum TabsOptions {
 }
 
 interface DeployMenuProps {
-    serviceId: string;
     serviceName: string;
     onDeploymentCreated?: () => void;
 }
@@ -25,7 +24,7 @@ export default function DeployMenu(props: DeployMenuProps) {
     const [content, setContent] = useState<React.ReactNode | null>(null);
     const toaster = useToaster();
 
-    const deploymentsQuery = useListDeploymentsQuery(props.serviceId);
+    const deploymentsQuery = ListDeploymentsByServiceNameQuery(props.serviceName);
     useEffect(() => {
         if (deploymentsQuery.error) toaster.catchGrpc(deploymentsQuery.error);
     }, [deploymentsQuery.error]);
@@ -52,7 +51,7 @@ export default function DeployMenu(props: DeployMenuProps) {
             return;
         }
 
-        serviceService.createNewDeployment(props.serviceId, {
+        serviceService.createNewDeployment(props.serviceName, {
             name: props.serviceName,
             imageName: latestDeployment.image,
         })
@@ -67,7 +66,7 @@ export default function DeployMenu(props: DeployMenuProps) {
                 }
             })
             .catch(toaster.catchGrpc);
-    }, [latestDeployment, props.serviceId, props.serviceName, toaster]);
+    }, [latestDeployment, props.serviceName, toaster]);
 
     useEffect(() => {
         switch (selectedTab) {
@@ -75,7 +74,7 @@ export default function DeployMenu(props: DeployMenuProps) {
                 setContent(<DeploymentWidget
                     onCreate={(req) => {
                         req.name = props.serviceName
-                        serviceService.createNewDeployment(props.serviceId, req)
+                        serviceService.createNewDeployment(props.serviceName, req)
                             .then(() => {
                                 toaster.bake({
                                     title: "Deployment triggered",

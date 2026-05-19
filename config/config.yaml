@@ -39,7 +39,7 @@ environment:
       value: ""
     - name: makosh_is_enabled
       type: bool
-      value: true
+      value: false
     - name: makosh_key
       type: string
       value: string
@@ -57,7 +57,7 @@ environment:
       value: ""
     - name: matreshka_is_enabled
       type: bool
-      value: true
+      value: false
     - name: matreshka_key
       type: string
       value: string

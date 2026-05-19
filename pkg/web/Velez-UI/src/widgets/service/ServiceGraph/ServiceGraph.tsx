@@ -4,7 +4,6 @@ import { useGetServiceGraphQuery } from '@/processes/queries/services'
 import cls from './ServiceGraph.module.css'
 
 interface ServiceGraphProps {
-    serviceId: string
     serviceName: string
 }
 
@@ -60,8 +59,8 @@ function renderNode(node: ServiceGraphNode, x: number, y: number, direction: 'in
     )
 }
 
-export default function ServiceGraph({ serviceId, serviceName }: ServiceGraphProps) {
-    const { data } = useGetServiceGraphQuery(serviceId)
+export default function ServiceGraph({serviceName}: ServiceGraphProps) {
+    const {data} = useGetServiceGraphQuery(serviceName)
 
     const incoming: ServiceGraphNode[] = data?.incoming ?? []
     const outgoing: ServiceGraphNode[] = data?.outgoing ?? []
@@ -88,19 +87,21 @@ export default function ServiceGraph({ serviceId, serviceName }: ServiceGraphPro
 
                 <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} width="100%" className={cls.Graph}>
                     <defs>
-                        <radialGradient id={`sg-glow-${serviceId}`} cx="50%" cy="50%" r="50%">
+                        <radialGradient id={`sg-glow-${serviceName}`} cx="50%" cy="50%" r="50%">
                             <stop offset="0%" stopColor="#ed2f32" stopOpacity="0.18" />
                             <stop offset="100%" stopColor="#ed2f32" stopOpacity="0" />
                         </radialGradient>
-                        <marker id={`sg-arr-in-${serviceId}`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <marker id={`sg-arr-in-${serviceName}`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6"
+                                markerHeight="6" orient="auto-start-reverse">
                             <path d="M0,1 L9,5 L0,9 z" fill="#0ab7ee" opacity="0.7" />
                         </marker>
-                        <marker id={`sg-arr-out-${serviceId}`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <marker id={`sg-arr-out-${serviceName}`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6"
+                                markerHeight="6" orient="auto-start-reverse">
                             <path d="M0,1 L9,5 L0,9 z" fill="#f5a623" opacity="0.75" />
                         </marker>
                     </defs>
 
-                    <ellipse cx={CENTER_X} cy={CENTER_Y} rx="180" ry="140" fill={`url(#sg-glow-${serviceId})`} />
+                    <ellipse cx={CENTER_X} cy={CENTER_Y} rx="180" ry="140" fill={`url(#sg-glow-${serviceName})`}/>
 
                     <line x1={INCOMING_X + 90} y1={36} x2={INCOMING_X + 90} y2={SVG_H - 20} className={cls.separator} />
                     <line x1={OUTGOING_X - 90} y1={36} x2={OUTGOING_X - 90} y2={SVG_H - 20} className={cls.separator} />
@@ -115,7 +116,7 @@ export default function ServiceGraph({ serviceId, serviceName }: ServiceGraphPro
                                 key={`in-edge-${node.id}`}
                                 d={`M ${startX} ${y} C ${c1x} ${y}, ${c2x} ${CENTER_Y}, ${CENTER_X - CENTER_R} ${CENTER_Y}`}
                                 className={cls.incomingEdge}
-                                markerEnd={`url(#sg-arr-in-${serviceId})`}
+                                markerEnd={`url(#sg-arr-in-${serviceName})`}
                             />
                         )
                     })}
@@ -130,7 +131,7 @@ export default function ServiceGraph({ serviceId, serviceName }: ServiceGraphPro
                                 key={`out-edge-${node.id}`}
                                 d={`M ${CENTER_X + CENTER_R} ${CENTER_Y} C ${c1x} ${CENTER_Y}, ${c2x} ${y}, ${endX} ${y}`}
                                 className={cls.outgoingEdge}
-                                markerEnd={`url(#sg-arr-out-${serviceId})`}
+                                markerEnd={`url(#sg-arr-out-${serviceName})`}
                             />
                         )
                     })}

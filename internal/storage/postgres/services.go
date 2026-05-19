@@ -16,15 +16,6 @@ type servicesStorage struct {
 	querier pg_queries.Querier
 }
 
-func (s *servicesStorage) GetById(ctx context.Context, id int64) (domain.Service, error) {
-	row, err := s.querier.GetById(ctx, id)
-	if err != nil {
-		return domain.Service{}, wrapPgErr(err)
-	}
-
-	return fromStorageToDomainService(row), nil
-}
-
 func (s *servicesStorage) GetByName(ctx context.Context, name string) (domain.Service, error) {
 	row, err := s.querier.GetByName(ctx, name)
 	if err != nil {
@@ -41,7 +32,6 @@ func (s *servicesStorage) UpsertService(ctx context.Context, name string) error 
 func fromStorageToDomainService(row pg_queries.VelezService) domain.Service {
 	return domain.Service{
 		ServiceBaseInfo: domain.ServiceBaseInfo{
-			Id:   uint64(row.ID),
 			Name: row.Name,
 		},
 	}
@@ -105,12 +95,11 @@ func (s serviceBaseInfoHelper) buildListQuery(req domain.ListServicesReq) sq.Sel
 }
 
 func (s serviceBaseInfoHelper) columns() []string {
-	return []string{"s.id", "s.name", "ld.last_deployed_at"}
+	return []string{"s.name", "ld.last_deployed_at"}
 }
 
 func (s serviceBaseInfoHelper) scanServiceBaseInfo(row sqldb.Scannable) (baseInfo domain.ServiceBaseInfo, err error) {
 	err = row.Scan(
-		&baseInfo.Id,
 		&baseInfo.Name,
 		&baseInfo.LastDeployedAt,
 	)

@@ -15,7 +15,7 @@ const (
 	defaultRetryDelay = time.Second * 6
 )
 
-func SetupWorkerPg(ctx context.Context, workerNodeDsn string, sm cluster_clients.ClusterStateManagerContainer) {
+func SetupPgState(ctx context.Context, workerNodeDsn string, sm cluster_clients.ClusterStateManagerContainer) {
 	pg, err := state.NewPgStateManager(ctx, workerNodeDsn)
 	if err == nil {
 		log.Info().Msg("Successfully connected to Pg cluster state as node")
@@ -50,5 +50,4 @@ func SetupWorkerPg(ctx context.Context, workerNodeDsn string, sm cluster_clients
 		Err(err).
 		Msg("Can't connect to pg cluster as working node. Retry loop is stopped. " +
 			"You can try connecting to cluster again via UI or API.")
-
 }

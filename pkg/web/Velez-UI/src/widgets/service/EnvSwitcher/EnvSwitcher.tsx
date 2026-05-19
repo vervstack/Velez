@@ -6,11 +6,11 @@ import { useListServiceEnvsQuery } from '@/processes/queries/services'
 import type { ServiceEnvironment } from '@/model/service_page/ServicePageModel'
 
 interface EnvSwitcherProps {
-    serviceId: string
+    serviceName: string
 }
 
-export default function EnvSwitcher({ serviceId }: EnvSwitcherProps) {
-    const { data: envs = [] } = useListServiceEnvsQuery(serviceId)
+export default function EnvSwitcher({serviceName}: EnvSwitcherProps) {
+    const {data: envs = []} = useListServiceEnvsQuery(serviceName)
 
     const [activeEnv, setActiveEnv] = useState<string>(() =>
         envs.length > 0 ? envs[0].id : 'prod'

@@ -15,7 +15,6 @@ const TABS: { key: TabKey; label: string }[] = [
 const STUB_PLACEHOLDER = '# No config available yet\n# TODO: implement GetVervonomicon RPC'
 
 interface VervonomiconProps {
-    serviceId: string
     serviceName: string
 }
 
@@ -54,10 +53,10 @@ function isAllEmpty(docs: VervonomiconDocs): boolean {
     return !docs.vervonomicon && !docs.deployment && !docs.configuration && !docs.secrets
 }
 
-export default function Vervonomicon({ serviceId, serviceName }: VervonomiconProps) {
+export default function Vervonomicon({serviceName}: VervonomiconProps) {
     const [activeTab, setActiveTab] = useState<TabKey>('vervonomicon')
 
-    const { data: docs, isLoading } = useGetVervonomiconQuery(serviceId)
+    const {data: docs, isLoading} = useGetVervonomiconQuery(serviceName)
 
     const activeContent = docs
         ? (isAllEmpty(docs) ? STUB_PLACEHOLDER : (docs[activeTab] || STUB_PLACEHOLDER))

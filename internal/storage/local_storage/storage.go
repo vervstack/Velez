@@ -18,7 +18,7 @@ type localStorage struct {
 func New(containerApi node_clients.Docker) storage.Storage {
 	return &localStorage{
 		nodes:            newNodesStorage(),
-		services:         newServicesStorage(),
+		services:         newServicesStorage(containerApi),
 		deployments:      newDeploymentsStorage(),
 		plugins:          newPluginsStorage(containerApi),
 		serviceDeps:      newServiceDepsStorage(containerApi),

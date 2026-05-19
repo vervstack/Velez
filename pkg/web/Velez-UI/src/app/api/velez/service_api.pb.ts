@@ -38,14 +38,9 @@ export type CreateServiceResponse = Record<string, never>;
 
 export type CreateService = Record<string, never>;
 
-type BaseGetServiceRequest = {
+export type GetServiceRequest = {
+    name?: string;
 };
-
-export type GetServiceRequest = BaseGetServiceRequest &
-  OneOf<{
-    id: string;
-    name: string;
-  }>;
 
 type BaseGetServiceResponse = {
 };
@@ -58,7 +53,6 @@ export type GetServiceResponse = BaseGetServiceResponse &
 export type GetService = Record<string, never>;
 
 export type VervAppService = {
-  id?: string;
   name?: string;
   currentDeploymentId?: string;
   status?: DeploymentStatus;
@@ -70,7 +64,7 @@ export type CreateDeployRequestUpgrade = {
 };
 
 type BaseCreateDeployRequest = {
-  serviceId?: string;
+    serviceName?: string;
 };
 
 export type CreateDeployRequest = BaseCreateDeployRequest &
@@ -95,7 +89,7 @@ export type DeploymentInfo = {
 
 export type ListDeploymentsRequest = {
   paging?: VelezApiVelezCommon.Paging;
-  serviceId?: string;
+    serviceName?: string;
 };
 
 export type ListDeploymentsResponse = {

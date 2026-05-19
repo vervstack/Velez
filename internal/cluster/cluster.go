@@ -69,8 +69,7 @@ func Setup(ctx context.Context, cfg config.Config, nodeClients node_clients.Node
 	if localState.ClusterState.PgNodeDsn != "" {
 		log.Info().
 			Msg("PgNodeDsn is presented in local state. Trying to connect.")
-		// TODO make a flag for strict/not strict setup
-		cluster_state.SetupWorkerPg(ctx, localState.ClusterState.PgNodeDsn, clusterStateManagerContainer)
+		cluster_state.SetupPgState(ctx, localState.ClusterState.PgNodeDsn, clusterStateManagerContainer)
 	}
 
 	return &clusterClients{

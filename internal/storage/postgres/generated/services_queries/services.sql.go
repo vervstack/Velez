@@ -9,22 +9,6 @@ import (
 	"context"
 )
 
-const getById = `-- name: GetById :one
-SELECT id,
-       name,
-       created_at
-FROM velez.services
-WHERE id = $1
-    FETCH FIRST 1 ROWS ONLY
-`
-
-func (q *Queries) GetById(ctx context.Context, id int64) (VelezService, error) {
-	row := q.db.QueryRowContext(ctx, getById, id)
-	var i VelezService
-	err := row.Scan(&i.ID, &i.Name, &i.CreatedAt)
-	return i, err
-}
-
 const getByName = `-- name: GetByName :one
 SELECT id,
        name,

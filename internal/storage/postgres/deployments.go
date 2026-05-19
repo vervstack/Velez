@@ -36,8 +36,8 @@ func (d *deploymentsStorage) ListDeployments(ctx context.Context, req domain.Lis
 	if len(req.NodeIds) != 0 {
 		baseQuery = baseQuery.Where(sq.Eq{"node_id": req.NodeIds})
 	}
-	if len(req.ServiceIds) != 0 {
-		baseQuery = baseQuery.Where(sq.Eq{"service_id": req.ServiceIds})
+	if req.ServiceName != "" {
+		baseQuery = baseQuery.Where(sq.Expr("service_id = (SELECT id FROM velez.services WHERE name = ?)", req.ServiceName))
 	}
 	if len(req.NotStatus) != 0 {
 		baseQuery = baseQuery.Where(sq.NotEq{"status": req.NotStatus})
@@ -103,8 +103,8 @@ func (d *deploymentsStorage) List(ctx context.Context, req domain.ListDeployment
 		q = q.Where(sq.Eq{"node_id": req.NodeIds})
 	}
 
-	if len(req.ServiceIds) != 0 {
-		q = q.Where(sq.Eq{"service_id": req.ServiceIds})
+	if req.ServiceName != "" {
+		q = q.Where(sq.Expr("service_id = (SELECT id FROM velez.services WHERE name = ?)", req.ServiceName))
 	}
 
 	if len(req.NotStatus) != 0 {

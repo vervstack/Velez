@@ -553,9 +553,8 @@
           "$ref": "#/definitions/RequestUpgrade",
           "title": "Takes current version and upgrades\nonly certain part of it (image)"
         },
-        "serviceId": {
-          "type": "string",
-          "format": "uint64"
+        "serviceName": {
+          "type": "string"
         }
       }
     },
@@ -762,10 +761,6 @@
     "velez_apiGetServiceRequest": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "string",
-          "format": "uint64"
-        },
         "name": {
           "type": "string"
         }
@@ -817,9 +812,8 @@
         "paging": {
           "$ref": "#/definitions/velez_apiPaging"
         },
-        "serviceId": {
-          "type": "string",
-          "format": "uint64"
+        "serviceName": {
+          "type": "string"
         }
       }
     },
@@ -1038,10 +1032,6 @@
     "velez_apiVervAppService": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "string",
-          "format": "uint64"
-        },
         "name": {
           "type": "string"
         },

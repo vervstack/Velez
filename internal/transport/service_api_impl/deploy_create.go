@@ -29,7 +29,7 @@ func (impl *Impl) CreateDeploy(ctx context.Context, apiReq *pb.CreateDeploy_Requ
 
 func (impl *Impl) handleNewDeployment(ctx context.Context, apiReq *pb.CreateDeploy_Request, payload *pb.CreateDeploy_Request_New) (*pb.CreateDeploy_Response, error) {
 	req := domain.CreateDeployReq{
-		ServiceId: apiReq.ServiceId,
+		ServiceName: apiReq.ServiceName,
 		LaunchSmerd: domain.LaunchSmerd{
 			CreateSmerd_Request: payload.New,
 		},
@@ -47,7 +47,7 @@ func (impl *Impl) handleUpgradeDeployment(ctx context.Context,
 	apiReq *pb.CreateDeploy_Request, payload *pb.CreateDeploy_Request_Upgrade_) (
 	*pb.CreateDeploy_Response, error) {
 	req := domain.UpgradeDeployReq{
-		ServiceId:    apiReq.ServiceId,
+		ServiceName:  apiReq.ServiceName,
 		DeploymentId: payload.Upgrade.DeploymentId,
 		NewImage:     payload.Upgrade.Image,
 	}

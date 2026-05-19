@@ -117,10 +117,7 @@ message CreateService {
 
 message GetService {
   message Request {
-    oneof payload {
-      uint64 id = 1;
-      string name = 2;
-    }
+    string name = 1;
   }
 
   message Response {
@@ -132,7 +129,6 @@ message GetService {
 }
 
 message VervAppService {
-  uint64 id = 1;
   string name = 2;
   optional uint64 current_deployment_id = 3;
   DeploymentStatus status = 4;
@@ -148,7 +144,7 @@ message CreateDeploy {
       Upgrade upgrade = 2;
     }
 
-    uint64 service_id = 3;
+    string service_name = 3;
 
     message Upgrade {
       // Id of deployment from which to perform upgrade from
@@ -188,7 +184,7 @@ message ListDeployments {
   message Request {
     Paging paging = 1;
 
-    optional uint64 service_id = 2;
+    optional string service_name = 2;
   }
   message Response {
     repeated DeploymentInfo deployments = 1;

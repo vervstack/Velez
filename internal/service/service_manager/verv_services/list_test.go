@@ -49,10 +49,6 @@ func (m *testStorageService) List(ctx context.Context, req domain.ListServicesRe
 	return domain.ServiceList{}, nil
 }
 
-func (m *testStorageService) GetById(ctx context.Context, id int64) (domain.Service, error) {
-	return domain.Service{}, nil
-}
-
 func (m *testStorageService) GetByName(ctx context.Context, name string) (domain.Service, error) {
 	return domain.Service{}, nil
 }
@@ -64,7 +60,6 @@ func (m *testStorageService) UpsertService(ctx context.Context, name string) err
 // Test that services are enriched with smerd data
 func TestEnrichServiceWithSmerdData(t *testing.T) {
 	baseInfo := domain.ServiceBaseInfo{
-		Id:   1,
 		Name: "my-service",
 	}
 
@@ -126,7 +121,6 @@ func TestEnrichServiceWithSmerdData(t *testing.T) {
 // Test that services without smerds are left with empty fields
 func TestServiceWithoutSmerd(t *testing.T) {
 	baseInfo := domain.ServiceBaseInfo{
-		Id:   1,
 		Name: "my-service",
 	}
 
@@ -204,7 +198,6 @@ func TestMapSmerdStatus(t *testing.T) {
 func TestServicePreservesLastDeployedAt(t *testing.T) {
 	now := time.Now()
 	baseInfo := domain.ServiceBaseInfo{
-		Id:             1,
 		Name:           "my-service",
 		LastDeployedAt: &now,
 	}

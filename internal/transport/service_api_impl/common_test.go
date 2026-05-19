@@ -13,7 +13,6 @@ import (
 func TestToServiceBaseInfoWithEnrichedFields(t *testing.T) {
 	now := time.Now()
 	input := domain.ServiceBaseInfo{
-		Id:             1,
 		Name:           "test-service",
 		LastDeployedAt: &now,
 		ImageName:      "docker.io/test-service:v1.0",
@@ -52,7 +51,6 @@ func TestToServiceBaseInfoWithEnrichedFields(t *testing.T) {
 // Test that ServiceBaseInfo conversion handles empty fields
 func TestToServiceBaseInfoWithEmptyFields(t *testing.T) {
 	input := domain.ServiceBaseInfo{
-		Id:        1,
 		Name:      "test-service",
 		ImageName: "",
 		Status:    "",
@@ -87,7 +85,6 @@ func TestToServiceBaseInfoList(t *testing.T) {
 	now := time.Now()
 	input := []domain.ServiceBaseInfo{
 		{
-			Id:             1,
 			Name:           "service1",
 			LastDeployedAt: &now,
 			ImageName:      "image1",
@@ -95,7 +92,6 @@ func TestToServiceBaseInfoList(t *testing.T) {
 			Env:            "prod",
 		},
 		{
-			Id:        2,
 			Name:      "service2",
 			ImageName: "image2",
 			Status:    "stopped",

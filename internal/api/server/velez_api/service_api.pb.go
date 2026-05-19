@@ -159,7 +159,6 @@ func (*GetService) Descriptor() ([]byte, []int) {
 
 type VervAppService struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
-	Id                  uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name                string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	CurrentDeploymentId *uint64                `protobuf:"varint,3,opt,name=current_deployment_id,json=currentDeploymentId,proto3,oneof" json:"current_deployment_id,omitempty"`
 	Status              DeploymentStatus       `protobuf:"varint,4,opt,name=status,proto3,enum=velez_api.DeploymentStatus" json:"status,omitempty"`
@@ -195,13 +194,6 @@ func (x *VervAppService) ProtoReflect() protoreflect.Message {
 // Deprecated: Use VervAppService.ProtoReflect.Descriptor instead.
 func (*VervAppService) Descriptor() ([]byte, []int) {
 	return file_service_api_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *VervAppService) GetId() uint64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
 }
 
 func (x *VervAppService) GetName() string {
@@ -1030,12 +1022,8 @@ func (*CreateService_Response) Descriptor() ([]byte, []int) {
 }
 
 type GetService_Request struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Types that are valid to be assigned to Payload:
-	//
-	//	*GetService_Request_Id
-	//	*GetService_Request_Name
-	Payload       isGetService_Request_Payload `protobuf_oneof:"payload"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1070,46 +1058,12 @@ func (*GetService_Request) Descriptor() ([]byte, []int) {
 	return file_service_api_proto_rawDescGZIP(), []int{1, 0}
 }
 
-func (x *GetService_Request) GetPayload() isGetService_Request_Payload {
-	if x != nil {
-		return x.Payload
-	}
-	return nil
-}
-
-func (x *GetService_Request) GetId() uint64 {
-	if x != nil {
-		if x, ok := x.Payload.(*GetService_Request_Id); ok {
-			return x.Id
-		}
-	}
-	return 0
-}
-
 func (x *GetService_Request) GetName() string {
 	if x != nil {
-		if x, ok := x.Payload.(*GetService_Request_Name); ok {
-			return x.Name
-		}
+		return x.Name
 	}
 	return ""
 }
-
-type isGetService_Request_Payload interface {
-	isGetService_Request_Payload()
-}
-
-type GetService_Request_Id struct {
-	Id uint64 `protobuf:"varint,1,opt,name=id,proto3,oneof"`
-}
-
-type GetService_Request_Name struct {
-	Name string `protobuf:"bytes,2,opt,name=name,proto3,oneof"`
-}
-
-func (*GetService_Request_Id) isGetService_Request_Payload() {}
-
-func (*GetService_Request_Name) isGetService_Request_Payload() {}
 
 type GetService_Response struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1184,7 +1138,7 @@ type CreateDeploy_Request struct {
 	//	*CreateDeploy_Request_New
 	//	*CreateDeploy_Request_Upgrade_
 	Specification isCreateDeploy_Request_Specification `protobuf_oneof:"specification"`
-	ServiceId     uint64                               `protobuf:"varint,3,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	ServiceName   string                               `protobuf:"bytes,3,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1244,11 +1198,11 @@ func (x *CreateDeploy_Request) GetUpgrade() *CreateDeploy_Request_Upgrade {
 	return nil
 }
 
-func (x *CreateDeploy_Request) GetServiceId() uint64 {
+func (x *CreateDeploy_Request) GetServiceName() string {
 	if x != nil {
-		return x.ServiceId
+		return x.ServiceName
 	}
-	return 0
+	return ""
 }
 
 type isCreateDeploy_Request_Specification interface {
@@ -1365,7 +1319,7 @@ func (x *CreateDeploy_Request_Upgrade) GetImage() string {
 type ListDeployments_Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Paging        *Paging                `protobuf:"bytes,1,opt,name=paging,proto3" json:"paging,omitempty"`
-	ServiceId     *uint64                `protobuf:"varint,2,opt,name=service_id,json=serviceId,proto3,oneof" json:"service_id,omitempty"`
+	ServiceName   *string                `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3,oneof" json:"service_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1407,11 +1361,11 @@ func (x *ListDeployments_Request) GetPaging() *Paging {
 	return nil
 }
 
-func (x *ListDeployments_Request) GetServiceId() uint64 {
-	if x != nil && x.ServiceId != nil {
-		return *x.ServiceId
+func (x *ListDeployments_Request) GetServiceName() string {
+	if x != nil && x.ServiceName != nil {
+		return *x.ServiceName
 	}
-	return 0
+	return ""
 }
 
 type ListDeployments_Response struct {
@@ -2219,28 +2173,24 @@ const file_service_api_proto_rawDesc = "" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x1a\n" +
 	"\n" +
-	"\bResponse\"\xa1\x01\n" +
+	"\bResponse\"\x82\x01\n" +
 	"\n" +
-	"GetService\x1a<\n" +
-	"\aRequest\x12\x10\n" +
-	"\x02id\x18\x01 \x01(\x04H\x00R\x02id\x12\x14\n" +
-	"\x04name\x18\x02 \x01(\tH\x00R\x04nameB\t\n" +
-	"\apayload\x1aU\n" +
+	"GetService\x1a\x1d\n" +
+	"\aRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x1aU\n" +
 	"\bResponse\x12>\n" +
 	"\fverv_service\x18\x01 \x01(\v2\x19.velez_api.VervAppServiceH\x00R\vvervServiceB\t\n" +
-	"\apayload\"\xbc\x01\n" +
-	"\x0eVervAppService\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x12\n" +
+	"\apayload\"\xac\x01\n" +
+	"\x0eVervAppService\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x127\n" +
 	"\x15current_deployment_id\x18\x03 \x01(\x04H\x00R\x13currentDeploymentId\x88\x01\x01\x123\n" +
 	"\x06status\x18\x04 \x01(\x0e2\x1b.velez_api.DeploymentStatusR\x06statusB\x18\n" +
-	"\x16_current_deployment_id\"\xa4\x02\n" +
-	"\fCreateDeploy\x1a\x87\x02\n" +
+	"\x16_current_deployment_id\"\xa8\x02\n" +
+	"\fCreateDeploy\x1a\x8b\x02\n" +
 	"\aRequest\x122\n" +
 	"\x03new\x18\x01 \x01(\v2\x1e.velez_api.CreateSmerd.RequestH\x00R\x03new\x12C\n" +
-	"\aupgrade\x18\x02 \x01(\v2'.velez_api.CreateDeploy.Request.UpgradeH\x00R\aupgrade\x12\x1d\n" +
-	"\n" +
-	"service_id\x18\x03 \x01(\x04R\tserviceId\x1aS\n" +
+	"\aupgrade\x18\x02 \x01(\v2'.velez_api.CreateDeploy.Request.UpgradeH\x00R\aupgrade\x12!\n" +
+	"\fservice_name\x18\x03 \x01(\tR\vserviceName\x1aS\n" +
 	"\aUpgrade\x12#\n" +
 	"\rdeployment_id\x18\x01 \x01(\x04R\fdeploymentId\x12\x19\n" +
 	"\x05image\x18\x02 \x01(\tH\x00R\x05image\x88\x01\x01B\b\n" +
@@ -2259,13 +2209,12 @@ const file_service_api_proto_rawDesc = "" +
 	"\fimage_digest\x18\a \x01(\tH\x02R\vimageDigest\x88\x01\x01B\b\n" +
 	"\x06_imageB\x0f\n" +
 	"\r_triggered_byB\x0f\n" +
-	"\r_image_digest\"\xd9\x01\n" +
-	"\x0fListDeployments\x1ag\n" +
+	"\r_image_digest\"\xdf\x01\n" +
+	"\x0fListDeployments\x1am\n" +
 	"\aRequest\x12)\n" +
-	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x12\"\n" +
-	"\n" +
-	"service_id\x18\x02 \x01(\x04H\x00R\tserviceId\x88\x01\x01B\r\n" +
-	"\v_service_id\x1a]\n" +
+	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x12&\n" +
+	"\fservice_name\x18\x02 \x01(\tH\x00R\vserviceName\x88\x01\x01B\x0f\n" +
+	"\r_service_name\x1a]\n" +
 	"\bResponse\x12;\n" +
 	"\vdeployments\x18\x01 \x03(\v2\x19.velez_api.DeploymentInfoR\vdeployments\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x04R\x05total\"\xdd\x01\n" +
@@ -2487,10 +2436,6 @@ func file_service_api_proto_init() {
 	file_velez_api_proto_init()
 	file_service_api_proto_msgTypes[2].OneofWrappers = []any{}
 	file_service_api_proto_msgTypes[4].OneofWrappers = []any{}
-	file_service_api_proto_msgTypes[20].OneofWrappers = []any{
-		(*GetService_Request_Id)(nil),
-		(*GetService_Request_Name)(nil),
-	}
 	file_service_api_proto_msgTypes[21].OneofWrappers = []any{
 		(*GetService_Response_VervService)(nil),
 	}

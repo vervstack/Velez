@@ -8,9 +8,6 @@ var (
 	//go:embed loki.yaml
 	Loki []byte
 
-	//go:embed test_config.yaml
-	DefaultTestConfig []byte
-
 	//go:embed hello_world.yaml
 	HelloWorld []byte
 )

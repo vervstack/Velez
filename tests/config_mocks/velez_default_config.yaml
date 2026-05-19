@@ -26,24 +26,3 @@ environment:
   - name: ram_mb_default
     type: int
     value: "50"
-  - name: makosh_port
-    type: int
-    value: "50051"
-  - name: matreshka_port
-    type: int
-    value: "50050"
-  - name: makosh_expose_port
-    type: bool
-    value: true
-  - name: makosh_key
-    type: string
-    value: string
-  - name: makosh_url
-    type: string
-    value: verv://makosh
-
-#service_discovery:
-#  overrides:
-#    - service_name: matreshka
-#      urls:
-#        - 0.0.0.0:50049

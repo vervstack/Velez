@@ -9,6 +9,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
 type LifecycleSuite struct {
@@ -29,7 +30,39 @@ func (s *LifecycleSuite) Test_Stateless_HelloWorld() {
 	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {})
 }
 
-func (s *LifecycleSuite) Test_Stateless_PlainNginx() {
+func (s *LifecycleSuite) Test_Stateless_HelloWorld_WithHealthcheck() {
+	t := s.T()
+	t.Parallel()
+
+	env := NewEnvironment(t)
+
+	req := &velez_api.CreateSmerd_Request{
+		ImageName: HelloWorldAppImage,
+		Healthcheck: &velez_api.Container_Healthcheck{
+			IntervalSecond: 1,
+			Retries:        3,
+		},
+		IgnoreConfig: true,
+	}
+	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {})
+}
+
+func (s *LifecycleSuite) Test_Stateless_HelloWorld_DefaultConfig() {
+	t := s.T()
+	t.Parallel()
+
+	env := NewEnvironment(t)
+
+	req := &velez_api.CreateSmerd_Request{
+		ImageName: HelloWorldAppImage,
+	}
+	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {
+		require.Equal(t, "true", smerd.Labels[labels.MatreshkaConfigLabel])
+		require.Equal(t, smerd.Name, smerd.Env["VERV_NAME"])
+	})
+}
+
+func (s *LifecycleSuite) Test_Stateless_Nginx() {
 	t := s.T()
 	t.Parallel()
 
@@ -50,6 +83,7 @@ func (s *LifecycleSuite) Test_Stateless_Postgres() {
 	timeoutSec := uint32(5)
 
 	t := s.T()
+	t.Parallel()
 
 	env := NewEnvironment(t)
 
@@ -74,6 +108,7 @@ func (s *LifecycleSuite) Test_Stateless_Postgres() {
 
 func (s *LifecycleSuite) Test_ClusterMode_HelloWorld() {
 	t := s.T()
+	t.Parallel()
 
 	env := NewEnvironment(t, WithMatreshka())
 
@@ -86,6 +121,7 @@ func (s *LifecycleSuite) Test_ClusterMode_HelloWorld() {
 
 func (s *LifecycleSuite) Test_ClusterMode_PlainNginx() {
 	t := s.T()
+	t.Parallel()
 
 	env := NewEnvironment(t, WithMatreshka())
 
@@ -101,6 +137,7 @@ func (s *LifecycleSuite) Test_ClusterMode_PlainNginx() {
 
 func (s *LifecycleSuite) Test_ClusterMode_Postgres() {
 	t := s.T()
+	t.Parallel()
 
 	env := NewEnvironment(t, WithMatreshka())
 
@@ -130,7 +167,6 @@ func Test_Lifecycle(t *testing.T) {
 }
 
 func runLifecycle(t *testing.T, env *TestEnvironment, req *velez_api.CreateSmerd_Request, verify func(t *testing.T, smerd *velez_api.Smerd)) {
-
 	ctx := t.Context()
 	name := GetServiceName(t)
 
@@ -142,6 +178,8 @@ func runLifecycle(t *testing.T, env *TestEnvironment, req *velez_api.CreateSmerd
 	created := env.CreateSmerd(t, req)
 	require.Equal(t, name, created.Name)
 	require.Equal(t, velez_api.Smerd_running, created.Status)
+	require.NotEmpty(t, created.Uuid)
+	require.NotNil(t, created.CreatedAt)
 	if req.UseImagePorts {
 		require.NotEmpty(t, created.Ports)
 	}
@@ -151,6 +189,14 @@ func runLifecycle(t *testing.T, env *TestEnvironment, req *velez_api.CreateSmerd
 	listReq := &velez_api.ListSmerds_Request{Name: rtb.ToPtr(name)}
 
 	listed := env.ListSmerds(t, ctx, listReq)
-	require.Len(t, listed.Smerds, 1)
-	require.Equal(t, created.Uuid, listed.Smerds[0].Uuid)
+	var actualSmerd *velez_api.Smerd
+	for _, smerd := range listed.Smerds {
+		if name == smerd.Name {
+			actualSmerd = smerd
+		}
+	}
+
+	require.NotNil(t, actualSmerd)
+	require.Equal(t, created.Uuid, actualSmerd.Uuid)
+
 }

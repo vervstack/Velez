@@ -2,6 +2,8 @@ package ports
 
 import (
 	"context"
+	"fmt"
+	"net"
 	"sync"
 
 	"github.com/docker/docker/api/types/container"
@@ -60,6 +62,13 @@ func (p *PortManager) GetPort() (uint32, error) {
 			continue
 		}
 
+		ln, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", port))
+		if err != nil {
+			p.freePorts[port] = true
+			continue
+		}
+		ln.Close()
+
 		portCopy := port
 		p.freePorts[portCopy] = true
 		return portCopy, nil
@@ -93,14 +102,8 @@ func (p *PortManager) LockPort(ports ...uint32) (err error) {
 			return
 		}
 
-		if len(pL) == cap(pL) {
-			break
-		}
-	}
-
-	if len(pL) != cap(pL) {
-		err = errors.Wrap(ErrNoPortsAvailable)
-		return
+		p.freePorts[port] = true
+		pL = append(pL, port)
 	}
 
 	return nil

@@ -35,7 +35,7 @@ func init() {
 	_, filename, _, _ := runtime.Caller(0)
 	// filename → tests/e2e/helper_environment.go; go up two levels to reach tests/
 	testsDir := filepath.Dir(filepath.Dir(filename))
-	defaultConfigPath = filepath.Join(testsDir, "config_mocks", "test_config.yaml")
+	defaultConfigPath = filepath.Join(testsDir, "config_mocks", "velez_default_config.yaml")
 	testDataDir = filepath.Join(testsDir, "test_data")
 }
 

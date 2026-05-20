@@ -120,7 +120,7 @@ func (c *Custom) InitServiceLayer(a *App) error {
 		c.Services.StorageContainer().Set(c.ClusterClients.StateManager())
 	}
 
-	c.Pipeliner = pipelines.NewPipeliner(c.NodeClients, c.ClusterClients, c.Services)
+	c.Pipeliner = pipelines.NewPipeliner(c.NodeClients, c.ClusterClients, c.Services, a.Cfg.Environment.ContainerSuffix)
 
 	logrus.Info("shut down on exit is set to: ", a.Cfg.Environment.ShutDownOnExit)
 	if a.Cfg.Environment.ShutDownOnExit {

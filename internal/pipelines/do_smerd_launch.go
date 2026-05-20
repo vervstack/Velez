@@ -12,6 +12,10 @@ import (
 )
 
 func (p *pipeliner) LaunchSmerd(req domain.LaunchSmerd) Runner[domain.LaunchSmerdResult] {
+	if p.suffix != "" {
+		req.Name = req.GetName() + "_" + p.suffix
+	}
+
 	imageResp := &image.InspectResponse{}
 
 	containerId := ""

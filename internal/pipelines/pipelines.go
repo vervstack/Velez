@@ -48,15 +48,18 @@ type pipeliner struct {
 	nodeClients    node_clients.NodeClients
 	clusterClients cluster_clients.ClusterClients
 	services       service.Services
+	suffix         string
 }
 
 func NewPipeliner(nodeClients node_clients.NodeClients,
 	clusterClients cluster_clients.ClusterClients,
-	services service.Services) Pipeliner {
+	services service.Services,
+	suffix string,
+) Pipeliner {
 	return &pipeliner{
 		nodeClients:    nodeClients,
 		clusterClients: clusterClients,
-
-		services: services,
+		services:       services,
+		suffix:         suffix,
 	}
 }

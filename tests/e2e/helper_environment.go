@@ -87,6 +87,12 @@ func WithConfigPath(path string) TestEnvOpt {
 	}
 }
 
+func WithContainerSuffix(suffix string) TestEnvOpt {
+	return func(a *TestEnvironment) {
+		a.Cfg.Environment.ContainerSuffix = suffix
+	}
+}
+
 func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 	t.Helper()
 

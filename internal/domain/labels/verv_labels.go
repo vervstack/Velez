@@ -15,6 +15,9 @@ const (
 	// DependsOnLabel — comma-separated list of service names this service depends on.
 	// Used by GetServiceGraph to discover and persist service-to-service dependencies.
 	DependsOnLabel = "VERV_DEPENDS_ON"
+	// SuffixLabel stores the ContainerSuffix value this Velez instance was configured with.
+	// Used to isolate containers when multiple Velez instances share the same Docker host.
+	SuffixLabel = "VELEZ_SUFFIX"
 )
 
 func IsMatreshkaImage(r *image.InspectResponse) bool {

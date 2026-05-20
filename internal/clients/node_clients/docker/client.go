@@ -24,11 +24,12 @@ import (
 )
 
 type Docker struct {
-	directApi   client.APIClient
-	bakedLabels []string
+	directApi       client.APIClient
+	bakedLabels     []string
+	containerSuffix string
 }
 
-func NewClient(bakedLabels []string) (*Docker, error) {
+func NewClient(bakedLabels []string, containerSuffix string) (*Docker, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error getting docker client")
@@ -37,8 +38,9 @@ func NewClient(bakedLabels []string) (*Docker, error) {
 	closer.Add(cli.Close)
 
 	return &Docker{
-		directApi:   cli,
-		bakedLabels: bakedLabels,
+		directApi:       cli,
+		bakedLabels:     bakedLabels,
+		containerSuffix: containerSuffix,
 	}, nil
 }
 
@@ -110,6 +112,12 @@ func (d *Docker) IsContainerRunning(ctx context.Context, nameOrId string) (bool,
 }
 
 func (d *Docker) ListContainers(ctx context.Context, req *velez_api.ListSmerds_Request) ([]container.Summary, error) {
+	if req.Label == nil {
+		req.Label = map[string]string{}
+	}
+
+	req.Label[labels.SuffixLabel] = d.containerSuffix
+
 	list, err := dockerutils.ListContainers(ctx, d.directApi, req)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error listing containers")
@@ -166,6 +174,7 @@ func (d *Docker) ContainerCreate(ctx context.Context, config *container.Config, 
 	}
 
 	config.Labels[labels.CreatedWithVelezLabel] = "true"
+	config.Labels[labels.SuffixLabel] = d.containerSuffix
 
 	for _, label := range d.bakedLabels {
 		sepIdx := strings.Index(label, "=")

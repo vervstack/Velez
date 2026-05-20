@@ -16,7 +16,7 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	d, err := docker.NewClient(cfg.Environment.CustomLabels)
+	d, err := docker.NewClient(cfg.Environment.CustomLabels, "")
 	if err != nil {
 		panic(err)
 	}

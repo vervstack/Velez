@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sync"
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
@@ -19,6 +20,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/app"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
@@ -28,8 +30,12 @@ import (
 )
 
 // sharedPortManagerImpl is a single PortManager shared across all parallel test environments.
-// Initialized in TestMain before any tests run.
-var sharedPortManagerImpl ports.PortManager
+// Initialized once on first NewEnvironment call.
+var (
+	sharedPortManagerImpl ports.PortManager
+	initPortManagerOnce   sync.Once
+	initPortManagerErr    error
+)
 
 var (
 	defaultConfigPath string
@@ -116,6 +122,23 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 
 	env.App.Cfg, err = config.Load(env.configPath)
 	require.NoError(t, err)
+
+	initPortManagerOnce.Do(func() {
+		var d *docker.Docker
+		d, initPortManagerErr = docker.NewClient(env.App.Cfg.Environment.CustomLabels, "")
+		if initPortManagerErr != nil {
+			return
+		}
+
+		var usedPorts []uint32
+		usedPorts, initPortManagerErr = d.ListOccupiedPorts(context.Background())
+		if initPortManagerErr != nil {
+			return
+		}
+
+		sharedPortManagerImpl = ports.NewPortManager(env.App.Cfg.Environment.AvailablePorts, usedPorts)
+	})
+	require.NoError(t, initPortManagerErr)
 
 	defaultSt := readDefaultState(t)
 	env.App.Cfg.Environment.LocalStatePath = writeState(t, defaultSt)

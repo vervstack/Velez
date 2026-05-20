@@ -21,10 +21,12 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 
-	sharedPortManagerImpl, err = ports.NewPortManager(context.Background(), cfg, d)
+	usedPorts, err := d.ListOccupiedPorts(context.Background())
 	if err != nil {
 		panic(err)
 	}
+
+	sharedPortManagerImpl = ports.NewPortManager(cfg.Environment.AvailablePorts, usedPorts)
 
 	os.Exit(m.Run())
 }

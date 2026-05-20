@@ -24,6 +24,7 @@ type Docker interface {
 	Stop(ctx context.Context, nameOrId string) error
 	Restart(ctx context.Context, nameOrId string) error
 	ListContainers(ctx context.Context, req *velez_api.ListSmerds_Request) ([]container.Summary, error)
+	ListOccupiedPorts(ctx context.Context) ([]uint32, error)
 
 	Exec(ctx context.Context, contId string, options container.ExecOptions) ([]byte, error)
 

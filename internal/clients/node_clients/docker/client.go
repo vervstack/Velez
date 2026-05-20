@@ -111,6 +111,24 @@ func (d *Docker) IsContainerRunning(ctx context.Context, nameOrId string) (bool,
 	return resp.State.Running, true, nil
 }
 
+func (d *Docker) ListOccupiedPorts(ctx context.Context) ([]uint32, error) {
+	containerList, err := d.directApi.ContainerList(ctx, container.ListOptions{})
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error listing containers")
+	}
+
+	usedPorts := make([]uint32, 0)
+	for _, c := range containerList {
+		for _, p := range c.Ports {
+			if p.PublicPort != 0 {
+				usedPorts = append(usedPorts, uint32(p.PublicPort))
+			}
+		}
+	}
+
+	return usedPorts, nil
+}
+
 func (d *Docker) ListContainers(ctx context.Context, req *velez_api.ListSmerds_Request) ([]container.Summary, error) {
 	if req.Label == nil {
 		req.Label = map[string]string{}

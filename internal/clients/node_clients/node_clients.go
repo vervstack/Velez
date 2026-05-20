@@ -78,12 +78,13 @@ func NewNodeClients(ctx context.Context, cfg config.Config) (NodeClients, error)
 	{
 		logrus.Debug("Initializing port manager")
 
-		var realPM PortManager
-		realPM, err = ports.NewPortManager(ctx, cfg, cls.docker)
-		if err != nil {
-			logrus.Fatalf("error creating port manager %s", err)
+		usedPorts, listErr := cls.docker.ListOccupiedPorts(ctx)
+		if listErr != nil {
+			logrus.Error("error listing occupied ports")
 		}
-		cls.portManager = ports.NewContainer(realPM)
+
+		portManager := ports.NewPortManager(cfg.Environment.AvailablePorts, usedPorts)
+		cls.portManager = ports.NewContainer(portManager)
 	}
 
 	// Hardware

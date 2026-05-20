@@ -1,16 +1,11 @@
 package ports
 
 import (
-	"context"
 	"fmt"
 	"net"
 	"sync"
 
-	"github.com/docker/docker/api/types/container"
 	errors "go.redsock.ru/rerrors"
-
-	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
-	"go.vervstack.ru/Velez/internal/config"
 )
 
 var (
@@ -27,30 +22,21 @@ type portManagerImpl struct {
 	pausedPorts map[uint32]bool
 }
 
-func NewPortManager(ctx context.Context, cfg config.Config, docker *docker.Docker) (PortManager, error) {
+func NewPortManager(availablePorts []int, usedPorts []uint32) PortManager {
 	pm := &portManagerImpl{
-		freePorts:   make(map[uint32]bool, len(cfg.Environment.AvailablePorts)),
-		pausedPorts: make(map[uint32]bool, len(cfg.Environment.AvailablePorts)),
+		freePorts:   make(map[uint32]bool, len(availablePorts)),
+		pausedPorts: make(map[uint32]bool, len(availablePorts)),
 	}
 
-	containerList, err := docker.Client().ContainerList(ctx, container.ListOptions{})
-	if err != nil {
-		return nil, errors.Wrap(err, "error listing container")
+	for _, p := range availablePorts {
+		pm.freePorts[uint32(p)] = false
 	}
 
-	for _, item := range cfg.Environment.AvailablePorts {
-		pm.freePorts[uint32(item)] = false
+	for _, p := range usedPorts {
+		pm.freePorts[p] = true
 	}
 
-	for _, item := range containerList {
-		for _, port := range item.Ports {
-			if port.PublicPort != 0 {
-				pm.freePorts[uint32(port.PublicPort)] = true
-			}
-		}
-	}
-
-	return pm, nil
+	return pm
 }
 
 func (p *portManagerImpl) GetPort() (uint32, error) {

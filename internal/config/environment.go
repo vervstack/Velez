@@ -5,6 +5,7 @@ package config
 type EnvironmentConfig struct {
 	AvailablePorts     []int
 	ClusterPgDsn       string
+	ContainerSuffix    string
 	CPUDefault         float64
 	CustomLabels       []string
 	DisableAPISecurity bool

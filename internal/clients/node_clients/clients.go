@@ -11,8 +11,12 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
 	"go.vervstack.ru/Velez/internal/domain"
 )
+
+// PortManager is an alias for the interface defined in the ports sub-package.
+type PortManager = ports.PortManager
 
 type Docker interface {
 	PullImage(ctx context.Context, imageName string) (image.InspectResponse, error)
@@ -33,19 +37,6 @@ type Docker interface {
 	ContainerCreate(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, networkingConfig *network.NetworkingConfig, platform *ocispec.Platform, containerName string) (container.CreateResponse, error)
 
 	Stats(ctx context.Context, nameOrId string) (domain.ContainerStats, error)
-}
-
-type PortManager interface {
-	GetPort() (uint32, error)
-	LockPort(ports ...uint32) error
-	UnlockPorts(ports []uint32)
-
-	// HoldPort returns true if port was not on hold (you set it on hold)
-	// returns false if port is already on hold
-	HoldPort(port uint32) bool
-	// UnHoldPort return true if port was on hold (you take it)
-	// returns false if port is not on hold
-	UnHoldPort(port uint32) bool
 }
 
 type StateManager interface {

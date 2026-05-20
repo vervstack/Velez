@@ -21,6 +21,7 @@ type NodeClients interface {
 	Docker() Docker
 
 	PortManager() PortManager
+	PortManagerContainer() *ports.Container
 	LocalStateManager() StateManager
 
 	HardwareManager() HardwareManager
@@ -29,7 +30,7 @@ type NodeClients interface {
 type nodeClients struct {
 	docker *docker.Docker
 
-	portManager     PortManager
+	portManager     *ports.Container
 	hardwareManager HardwareManager
 
 	securityManager StateManager
@@ -77,10 +78,12 @@ func NewNodeClients(ctx context.Context, cfg config.Config) (NodeClients, error)
 	{
 		logrus.Debug("Initializing port manager")
 
-		cls.portManager, err = ports.NewPortManager(ctx, cfg, cls.docker)
+		var realPM PortManager
+		realPM, err = ports.NewPortManager(ctx, cfg, cls.docker)
 		if err != nil {
 			logrus.Fatalf("error creating port manager %s", err)
 		}
+		cls.portManager = ports.NewContainer(realPM)
 	}
 
 	// Hardware
@@ -97,6 +100,10 @@ func (c *nodeClients) Docker() Docker {
 }
 
 func (c *nodeClients) PortManager() PortManager {
+	return c.portManager
+}
+
+func (c *nodeClients) PortManagerContainer() *ports.Container {
 	return c.portManager
 }
 

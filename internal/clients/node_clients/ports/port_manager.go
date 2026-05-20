@@ -19,7 +19,7 @@ var (
 	ErrNoPortsAvailable  = errors.New("no ports available")
 )
 
-type PortManager struct {
+type portManagerImpl struct {
 	m         sync.Mutex
 	freePorts map[uint32]bool
 
@@ -27,8 +27,8 @@ type PortManager struct {
 	pausedPorts map[uint32]bool
 }
 
-func NewPortManager(ctx context.Context, cfg config.Config, docker *docker.Docker) (*PortManager, error) {
-	pm := &PortManager{
+func NewPortManager(ctx context.Context, cfg config.Config, docker *docker.Docker) (PortManager, error) {
+	pm := &portManagerImpl{
 		freePorts:   make(map[uint32]bool, len(cfg.Environment.AvailablePorts)),
 		pausedPorts: make(map[uint32]bool, len(cfg.Environment.AvailablePorts)),
 	}
@@ -53,31 +53,45 @@ func NewPortManager(ctx context.Context, cfg config.Config, docker *docker.Docke
 	return pm, nil
 }
 
-func (p *PortManager) GetPort() (uint32, error) {
+func (p *portManagerImpl) GetPort() (uint32, error) {
 	p.m.Lock()
 	defer p.m.Unlock()
 
+	// First pass: only consider ports not already marked as in-use in memory.
+	// This avoids the TOCTOU race between allocation and Docker binding.
 	for port, ok := range p.freePorts {
 		if ok {
 			continue
 		}
-
 		ln, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", port))
 		if err != nil {
 			p.freePorts[port] = true
 			continue
 		}
 		ln.Close()
+		p.freePorts[port] = true
+		return port, nil
+	}
 
-		portCopy := port
-		p.freePorts[portCopy] = true
-		return portCopy, nil
+	// Second pass: reclaim ports that were allocated before but whose containers
+	// have since been removed (e.g. between repeated test runs in -count mode).
+	for port, ok := range p.freePorts {
+		if !ok {
+			continue
+		}
+		ln, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", port))
+		if err != nil {
+			continue
+		}
+		ln.Close()
+		p.freePorts[port] = true
+		return port, nil
 	}
 
 	return 0, ErrNoPortsAvailable
 }
 
-func (p *PortManager) LockPort(ports ...uint32) (err error) {
+func (p *portManagerImpl) LockPort(ports ...uint32) (err error) {
 	if len(ports) == 0 {
 		return nil
 	}
@@ -109,7 +123,7 @@ func (p *PortManager) LockPort(ports ...uint32) (err error) {
 	return nil
 }
 
-func (p *PortManager) UnlockPorts(ports []uint32) {
+func (p *portManagerImpl) UnlockPorts(ports []uint32) {
 	p.m.Lock()
 
 	for _, item := range ports {
@@ -119,7 +133,7 @@ func (p *PortManager) UnlockPorts(ports []uint32) {
 	p.m.Unlock()
 }
 
-func (p *PortManager) HoldPort(port uint32) bool {
+func (p *portManagerImpl) HoldPort(port uint32) bool {
 	p.holdM.Lock()
 	wasOnHold := p.pausedPorts[port]
 	p.pausedPorts[port] = true
@@ -128,7 +142,7 @@ func (p *PortManager) HoldPort(port uint32) bool {
 	return !wasOnHold
 }
 
-func (p *PortManager) UnHoldPort(port uint32) bool {
+func (p *portManagerImpl) UnHoldPort(port uint32) bool {
 	p.holdM.Lock()
 	wasOnHold := p.pausedPorts[port]
 	p.pausedPorts[port] = false

@@ -21,10 +21,15 @@ import (
 	"go.vervstack.ru/Velez/internal/app"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/middleware"
 	"go.vervstack.ru/Velez/internal/transport"
 )
+
+// sharedPortManagerImpl is a single PortManager shared across all parallel test environments.
+// Initialized in TestMain before any tests run.
+var sharedPortManagerImpl ports.PortManager
 
 var (
 	defaultConfigPath string
@@ -132,6 +137,8 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 
 	err = env.App.Custom.Init(&env.App)
 	require.NoError(t, err)
+
+	env.App.Custom.NodeClients.PortManagerContainer().Set(sharedPortManagerImpl)
 
 	env.clean()
 	t.Cleanup(env.clean)

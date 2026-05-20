@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"sync"
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
@@ -20,22 +19,16 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/app"
-	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
-	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/middleware"
 	"go.vervstack.ru/Velez/internal/transport"
+	"go.vervstack.ru/Velez/tests/test_helper"
 )
 
 // sharedPortManagerImpl is a single PortManager shared across all parallel test environments.
 // Initialized once on first NewEnvironment call.
-var (
-	sharedPortManagerImpl ports.PortManager
-	initPortManagerOnce   sync.Once
-	initPortManagerErr    error
-)
 
 var (
 	defaultConfigPath string
@@ -114,44 +107,7 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 		opt(&env)
 	}
 
-	if env.configPath == "" {
-		env.configPath = defaultConfigPath
-	}
-
-	var err error
-
-	env.App.Cfg, err = config.Load(env.configPath)
-	require.NoError(t, err)
-
-	initPortManagerOnce.Do(func() {
-		var d *docker.Docker
-		d, initPortManagerErr = docker.NewClient(env.App.Cfg.Environment.CustomLabels, "")
-		if initPortManagerErr != nil {
-			return
-		}
-
-		var usedPorts []uint32
-		usedPorts, initPortManagerErr = d.ListOccupiedPorts(context.Background())
-		if initPortManagerErr != nil {
-			return
-		}
-
-		sharedPortManagerImpl = ports.NewPortManager(env.App.Cfg.Environment.AvailablePorts, usedPorts)
-	})
-	require.NoError(t, initPortManagerErr)
-
-	defaultSt := readDefaultState(t)
-	env.App.Cfg.Environment.LocalStatePath = writeState(t, defaultSt)
-
-	const bufSize = 1024 * 1024
-	lis := bufconn.Listen(bufSize)
-
-	env.App.ServerMaster, err = transport.NewServerManager(env.App.Ctx, lis)
-	require.NoError(t, err)
-
-	dialer := func(context.Context, string) (net.Conn, error) {
-		return lis.Dial()
-	}
+	initConfig(t, env)
 
 	// Post-config pass: re-apply opts that modify loaded config fields (e.g. WithMatreshka, WithState).
 	for _, opt := range opts {
@@ -164,13 +120,47 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 	env.App.Cfg.Environment.CustomLabels = append(env.App.Cfg.Environment.CustomLabels,
 		testCaseNameLabel+"="+t.Name())
 
-	err = env.App.Custom.Init(&env.App)
+	err := env.App.Custom.Init(&env.App)
 	require.NoError(t, err)
 
-	env.App.Custom.NodeClients.PortManagerContainer().Set(sharedPortManagerImpl)
+	portManager := test_helper.GetSharedPortManager(t, env.App.Cfg.Environment.AvailablePorts)
+	env.App.Custom.NodeClients.PortManagerContainer().
+		Set(portManager)
 
 	env.clean()
 	t.Cleanup(env.clean)
+
+	initGrpc(t, &env)
+
+	return &env
+}
+
+func initConfig(t *testing.T, env TestEnvironment) {
+	if env.configPath == "" {
+		env.configPath = defaultConfigPath
+	}
+
+	var err error
+
+	env.App.Cfg, err = config.Load(env.configPath)
+	require.NoError(t, err)
+
+	defaultSt := readDefaultState(t)
+	env.App.Cfg.Environment.LocalStatePath = writeState(t, defaultSt)
+}
+
+func initGrpc(t *testing.T, env *TestEnvironment) {
+	const bufSize = 1024 * 1024
+	lis := bufconn.Listen(bufSize)
+
+	var err error
+
+	env.App.ServerMaster, err = transport.NewServerManager(env.App.Ctx, lis)
+	require.NoError(t, err)
+
+	dialer := func(context.Context, string) (net.Conn, error) {
+		return lis.Dial()
+	}
 
 	go func() { env.ServerMaster.Start() }()
 
@@ -202,7 +192,6 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 		require.NoError(t, closeErr)
 	})
 
-	return &env
 }
 
 func (e *TestEnvironment) CreateSmerd(t *testing.T, req *velez_api.CreateSmerd_Request) *velez_api.Smerd {

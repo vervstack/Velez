@@ -8,7 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
 
@@ -52,8 +53,7 @@ type Custom struct {
 }
 
 func (c *Custom) Init(a *App) (err error) {
-	logrus.SetFormatter(&logrus.JSONFormatter{})
-	logrus.SetLevel(extractLogLevel(a.Cfg.Environment.LogLevel))
+	zerolog.SetGlobalLevel(parseLogLevel(a.Cfg.Environment.LogLevel))
 
 	err = c.InitClients(a)
 	if err != nil {
@@ -122,7 +122,7 @@ func (c *Custom) InitServiceLayer(a *App) error {
 
 	c.Pipeliner = pipelines.NewPipeliner(c.NodeClients, c.ClusterClients, c.Services, a.Cfg.Environment.ContainerSuffix)
 
-	logrus.Info("shut down on exit is set to: ", a.Cfg.Environment.ShutDownOnExit)
+	log.Info().Bool("shutDownOnExit", a.Cfg.Environment.ShutDownOnExit).Msg("shut down on exit")
 	if a.Cfg.Environment.ShutDownOnExit {
 		closer.Add(smerdsDropper(c.Services.SmerdManager()))
 	}
@@ -167,8 +167,8 @@ func (c *Custom) InitClients(a *App) (err error) {
 
 func smerdsDropper(smerdService service.ContainerService) func() error {
 	return func() error {
-		logrus.Infof("ShutDownOnExit env variable is set to TRUE. Dropping launched smerds")
-		logrus.Infof("Listing launched smerds")
+		log.Info().Msg("ShutDownOnExit env variable is set to TRUE. Dropping launched smerds")
+		log.Info().Msg("Listing launched smerds")
 		ctx := context.Background()
 
 		smerds, err := smerdService.ListSmerds(ctx, &velez_api.ListSmerds_Request{})
@@ -182,7 +182,7 @@ func smerdsDropper(smerdService service.ContainerService) func() error {
 			names = append(names, sm.Name)
 		}
 
-		logrus.Infof("%d smerds is active. %v", len(smerds.Smerds), names)
+		log.Info().Int("count", len(smerds.Smerds)).Strs("names", names).Msg("smerds active")
 
 		dropReq := &velez_api.DropSmerd_Request{
 			Uuids: make([]string, len(smerds.Smerds)),
@@ -192,22 +192,22 @@ func smerdsDropper(smerdService service.ContainerService) func() error {
 			dropReq.Uuids[i] = smerds.Smerds[i].Uuid
 		}
 
-		logrus.Infof("Dropping %d smerds", len(smerds.Smerds))
+		log.Info().Int("count", len(smerds.Smerds)).Msg("dropping smerds")
 
 		dropSmerds, err := smerdService.DropSmerds(ctx, dropReq)
 		if err != nil {
 			return err
 		}
 
-		logrus.Infof("%d smerds dropped successfully", len(dropSmerds.Successful))
+		log.Info().Int("count", len(dropSmerds.Successful)).Msg("smerds dropped successfully")
 		if len(dropSmerds.Successful) != 0 {
-			logrus.Infof("Dropped smerds: %v", dropSmerds.Successful)
+			log.Info().Strs("dropped", dropSmerds.Successful).Msg("dropped smerds")
 		}
 
 		if len(dropSmerds.Failed) != 0 {
-			logrus.Errorf("%d smerds failed to drop", len(dropSmerds.Failed))
+			log.Error().Int("count", len(dropSmerds.Failed)).Msg("smerds failed to drop")
 			for _, f := range dropSmerds.Failed {
-				logrus.Errorf("error dropping %s. Cause: %s", f.Uuid, f.Cause)
+				log.Error().Str("uuid", f.Uuid).Str("cause", f.Cause).Msg("error dropping smerd")
 			}
 		}
 
@@ -215,24 +215,14 @@ func smerdsDropper(smerdService service.ContainerService) func() error {
 	}
 }
 
-func extractLogLevel(str string) logrus.Level {
-	switch strings.ToLower(str) {
-	case logrus.PanicLevel.String():
-		return logrus.PanicLevel
-	case logrus.FatalLevel.String():
-		return logrus.FatalLevel
-	case logrus.ErrorLevel.String():
-		return logrus.ErrorLevel
-	case logrus.WarnLevel.String():
-		return logrus.WarnLevel
-	case logrus.InfoLevel.String():
-		return logrus.InfoLevel
-	case logrus.DebugLevel.String():
-		return logrus.DebugLevel
-	case logrus.TraceLevel.String():
-		return logrus.TraceLevel
-
-	default:
-		return logrus.InfoLevel
+func parseLogLevel(str string) zerolog.Level {
+	str = strings.ToLower(str)
+	if str == "warning" {
+		str = "warn"
 	}
+	level, err := zerolog.ParseLevel(str)
+	if err != nil {
+		return zerolog.InfoLevel
+	}
+	return level
 }

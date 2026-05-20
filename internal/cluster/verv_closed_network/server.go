@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
-	"github.com/sirupsen/logrus"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/keep_alive"
 
@@ -92,7 +91,7 @@ func (l headscaleLauncher) deploy() error {
 		return rerrors.Wrap(err, "error building task for headscale")
 	}
 
-	logrus.Info("Preparing HeadScale background task")
+	log.Info().Msg("Preparing HeadScale background task")
 
 	// Launch
 	_ = keep_alive.KeepAlive(

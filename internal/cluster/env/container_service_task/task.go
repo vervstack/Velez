@@ -9,7 +9,7 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	rtb "go.redsock.ru/toolbox"
 
@@ -91,7 +91,7 @@ func (t *TaskV2) IsAlive() bool {
 		if strings.Contains(err.Error(), docker.NoSuchContainerError) {
 			return false
 		}
-		logrus.Error(rerrors.Wrap(err, "error getting container of dependency: "+t.container.Hostname))
+		log.Error().Err(rerrors.Wrap(err, "error getting container of dependency: "+t.container.Hostname)).Send()
 		return false
 	}
 

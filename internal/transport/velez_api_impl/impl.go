@@ -6,7 +6,7 @@ import (
 
 	"github.com/docker/docker/client"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
@@ -54,7 +54,7 @@ func (impl *Impl) Gateway(ctx context.Context, endpoint string, opts ...grpc.Dia
 		opts,
 	)
 	if err != nil {
-		logrus.Errorf("error registering grpc2http handler: %s", err)
+		log.Error().Err(err).Msg("error registering grpc2http handler")
 	}
 
 	return "/api/", gwHttpMux

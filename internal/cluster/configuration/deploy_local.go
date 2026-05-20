@@ -5,7 +5,7 @@ import (
 
 	cerrdefs "github.com/containerd/errdefs"
 	"github.com/docker/docker/client"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	version "go.vervstack.ru/matreshka/config"
 	"golang.org/x/net/context"
@@ -41,7 +41,7 @@ func initKey(ctx context.Context, nodeClients node_clients.NodeClients) (string,
 		return keyFromLocalState, nil
 	}
 
-	logrus.Infof("Using key from local state: %s", keyFromLocalState)
+	log.Info().Str("key", keyFromLocalState).Msg("using key from local state")
 
 	stateManager := nodeClients.LocalStateManager()
 	localState := stateManager.Get()

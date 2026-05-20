@@ -7,7 +7,7 @@ import (
 	"path"
 	"sync"
 
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	rtb "go.redsock.ru/toolbox"
 
@@ -56,7 +56,7 @@ func (s *Manager) Set(state State) {
 	err := writeKey(s.buildPath, s.state)
 	s.m.Unlock()
 	if err != nil {
-		logrus.Errorf("error setting matreshka key %s", err)
+		log.Error().Err(err).Msg("error setting matreshka key")
 	}
 }
 

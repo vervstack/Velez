@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/docker/docker/api/types"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	errors "go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
 
@@ -42,7 +42,7 @@ func NewNodeClients(ctx context.Context, cfg config.Config) (NodeClients, error)
 
 	// Docker engine
 	{
-		logrus.Debug("Initializing docker client")
+		log.Debug().Msg("Initializing docker client")
 		cls.docker, err = docker.NewClient(cfg.Environment.CustomLabels, cfg.Environment.ContainerSuffix)
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting docker api client")
@@ -59,28 +59,28 @@ func NewNodeClients(ctx context.Context, cfg config.Config) (NodeClients, error)
 	// Security access layer
 	{
 		if !cfg.Environment.DisableAPISecurity {
-			logrus.Debug("Initializing security manager")
+			log.Debug().Msg("Initializing security manager")
 
 			cls.securityManager = local_state.NewSecurityManager(cfg)
 
 			err = cls.securityManager.Start()
 			if err != nil {
-				logrus.Fatalf("error starting security manager: %s", err)
+				log.Fatal().Err(err).Msg("error starting security manager")
 			}
 
 			closer.Add(cls.securityManager.Stop)
 		} else {
-			logrus.Fatalf("Security manager disabled")
+			log.Fatal().Msg("Security manager disabled")
 		}
 	}
 
 	// Port manager
 	{
-		logrus.Debug("Initializing port manager")
+		log.Debug().Msg("Initializing port manager")
 
 		usedPorts, listErr := cls.docker.ListOccupiedPorts(ctx)
 		if listErr != nil {
-			logrus.Error("error listing occupied ports")
+			log.Error().Err(listErr).Msg("error listing occupied ports")
 		}
 
 		portManager := ports.NewPortManager(cfg.Environment.AvailablePorts, usedPorts)
@@ -89,7 +89,7 @@ func NewNodeClients(ctx context.Context, cfg config.Config) (NodeClients, error)
 
 	// Hardware
 	{
-		logrus.Debug("Initializing hardware manager")
+		log.Debug().Msg("Initializing hardware manager")
 		cls.hardwareManager = hardware.New()
 	}
 

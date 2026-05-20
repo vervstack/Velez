@@ -7,7 +7,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/go-connections/nat"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
@@ -91,7 +91,7 @@ func SetupMatreshka(
 		return nil, rerrors.Wrap(err, "error creating verv service task")
 	}
 
-	logrus.Info("Preparing matreshka service background task")
+	log.Info().Msg("Preparing matreshka service background task")
 
 	ka := keep_alive.KeepAlive(task, keep_alive.WithCancel(ctx.Done()))
 

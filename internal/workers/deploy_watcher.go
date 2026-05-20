@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	"golang.org/x/sync/errgroup"
 
@@ -65,7 +65,7 @@ func (d *deployWatcher) Start(ctx context.Context) {
 				list, err := d.listDeployments(ctx)
 				if err != nil {
 					if !rerrors.Is(err, cluster_clients.ErrServiceIsDisabled) {
-						logrus.Error("error listing deployments in deploy watcher: ", err)
+						log.Error().Err(err).Msg("error listing deployments in deploy watcher")
 						// TODO make it fail only when state is not available
 						// retry via api handle
 						return
@@ -81,7 +81,7 @@ func (d *deployWatcher) Start(ctx context.Context) {
 
 				err = g.Wait()
 				if err != nil {
-					logrus.Error("error running deploy watcher: ", err)
+					log.Error().Err(err).Msg("error running deploy watcher")
 					continue
 				}
 			}
@@ -129,7 +129,7 @@ func (d *deployWatcher) listDeployments(ctx context.Context) (deploymentsList, e
 			list.scheduledDeletion = append(list.scheduledDeletion, dep)
 
 		default:
-			logrus.Errorf("Error during listing deployments in deploy watcher: unknown deployment status: %v", dep.Status)
+			log.Error().Any("status", dep.Status).Msg("unknown deployment status in deploy watcher")
 		}
 	}
 
@@ -163,7 +163,7 @@ func (d *deployWatcher) processScheduledBatch(ctx context.Context, scheduled []d
 			runner := d.pipeliner.LaunchSmerd(r)
 			err = runner.Run(ctx)
 			if err != nil {
-				logrus.Error("error deploying smerd", rerrors.Wrap(err, ""))
+				log.Error().Err(rerrors.Wrap(err, "")).Msg("error deploying smerd")
 				updateStatusParams.Status = deployments_queries.VelezDeploymentStatusFAILED
 			}
 
@@ -195,7 +195,7 @@ func (d *deployWatcher) processScheduledBatch(ctx context.Context, scheduled []d
 			})
 			err = upgradeRunner.Run(ctx)
 			if err != nil {
-				logrus.Error("error upgrading smerd: ", rerrors.Wrap(err, ""))
+				log.Error().Err(rerrors.Wrap(err, "")).Msg("error upgrading smerd")
 				updateStatusParams.Status = deployments_queries.VelezDeploymentStatusFAILED
 			}
 
@@ -223,7 +223,7 @@ func (d *deployWatcher) syncRunningBatch(ctx context.Context, active []domain.De
 
 		running, _, err := d.nodeClients.Docker().IsContainerRunning(ctx, smerdReq.GetName())
 		if err != nil {
-			logrus.Errorf("error inspecting container %s: %v", smerdReq.GetName(), err)
+			log.Error().Err(err).Str("container", smerdReq.GetName()).Msg("error inspecting container")
 			continue
 		}
 
@@ -257,7 +257,7 @@ func (d *deployWatcher) deleteBatch(ctx context.Context, deletion []domain.Deplo
 
 		err = d.nodeClients.Docker().Remove(ctx, smerdReq.GetName())
 		if err != nil {
-			logrus.Errorf("error removing container %s: %v", smerdReq.GetName(), err)
+			log.Error().Err(err).Str("container", smerdReq.GetName()).Msg("error removing container")
 			continue
 		}
 

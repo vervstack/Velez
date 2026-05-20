@@ -3,7 +3,7 @@ package service_manager
 import (
 	"context"
 
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 
@@ -113,12 +113,12 @@ func handleConfigurationSubscription(configurationService service.ConfigurationS
 
 		smerds, err := manager.SmerdManager().ListSmerds(ctx, listReq)
 		if err != nil {
-			logrus.Error(rerrors.Wrap(err, "error listing smerds for configuration update hook"))
+			log.Error().Err(rerrors.Wrap(err, "error listing smerds for configuration update hook")).Send()
 			continue
 		}
 
 		if len(smerds.Smerds) != 1 {
-			logrus.Error(rerrors.New("unexpected number of smerds for configuration update hook. Expected 1 got %d", len(smerds.Smerds)))
+			log.Error().Int("count", len(smerds.Smerds)).Msg("unexpected number of smerds for configuration update hook, expected 1")
 			continue
 		}
 

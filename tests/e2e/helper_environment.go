@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -235,7 +235,7 @@ func (e *TestEnvironment) clean() {
 
 	cList, err := dockerutils.ListContainers(ctx, dockerClient, listReq)
 	if err != nil {
-		logrus.Fatal(err)
+		log.Fatal().Err(err).Send()
 	}
 
 	for _, cont := range cList {
@@ -245,7 +245,7 @@ func (e *TestEnvironment) clean() {
 
 		err = dockerClient.ContainerRemove(ctx, cont.ID, removeOps)
 		if err != nil {
-			logrus.Fatal(err)
+			log.Fatal().Err(err).Send()
 		}
 	}
 }

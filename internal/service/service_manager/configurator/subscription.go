@@ -4,7 +4,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 
@@ -51,7 +51,7 @@ func handleSubscriptionStream(stream api.MatreshkaBeAPI_SubscribeOnChangesClient
 			changes, err := stream.Recv()
 			if err != nil {
 				if !rerrors.Is(err, io.EOF) {
-					logrus.Errorf("Error recieving changes from matreshka subscription stream: %s", err)
+					log.Error().Err(err).Msg("error receiving changes from matreshka subscription stream")
 					errorsCount--
 					time.Sleep(time.Second)
 					if errorsCount <= 0 {

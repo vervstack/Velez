@@ -3,7 +3,7 @@ package config_steps
 import (
 	"context"
 
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/service"
@@ -27,7 +27,7 @@ func SubscribeForConfigChanges(
 func (s *subscribeForConfigChangesStep) Do(_ context.Context) error {
 	err := s.cfg.SubscribeOnChanges(s.name)
 	if err != nil {
-		logrus.Error(rerrors.Wrap(err, "error handling subscription on service with name: "+s.name))
+		log.Error().Err(rerrors.Wrap(err, "error handling subscription on service with name: "+s.name)).Send()
 	}
 
 	return nil

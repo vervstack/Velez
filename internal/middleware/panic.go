@@ -3,7 +3,7 @@ package middleware
 import (
 	"context"
 
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 )
 
@@ -13,7 +13,7 @@ func PanicInterceptor() grpc.ServerOption {
 			defer func() {
 				if r := recover(); r != nil {
 					err = r.(error)
-					logrus.WithError(err).Error("panic in grpc handler")
+					log.Error().Err(err).Msg("panic in grpc handler")
 				}
 			}()
 

@@ -26,6 +26,12 @@ environment:
     - name: disable_api_security
       type: bool
       value: false
+    - name: environments
+      type: string
+      value: [""]
+    - name: local_state_path
+      type: string
+      value: /tmp/velez/private.key
     - name: log_format
       type: string
       value: TEXT
@@ -74,9 +80,6 @@ environment:
     - name: shut_down_on_exit
       type: bool
       value: false
-    - name: local_state_path
-      type: string
-      value: /tmp/velez/private.key
     - name: vpn_server_url
       type: string
       value: ""

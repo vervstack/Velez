@@ -9,6 +9,7 @@ type EnvironmentConfig struct {
 	CPUDefault         float64
 	CustomLabels       []string
 	DisableAPISecurity bool
+	Environments       []string
 	LocalStatePath     string
 	LogFormat          string
 	LogLevel           string

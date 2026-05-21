@@ -14,27 +14,34 @@
     opacity: 0.55;
 }
 
-/* ─── Tab bar ─────────────────────────────── */
+/* ─── Header bar ─────────────────────────────── */
 
-.ServicePageTabsWrapper {
+.ServicePageHeaderContainer {
     display: flex;
     align-items: center;
     gap: 1rem;
     padding: 0 1.25rem;
     height: 3.5rem;
     flex-shrink: 0;
-    border-bottom: 1px solid var(--info-color);
-    background: var(--accent-bg-color);
+    background: var(--bg);
+
+    .TabBreadcrumbsWrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        height: 100%;
+        flex-direction: column;
+
+        .BreadcrumbContainer {
+            display: flex;
+            width: 100%;
+            gap: 0.4rem;
+            height: 100%;
+            padding: 0.5rem;
+        }
+    }
 }
 
-.BreadcrumbWrapper {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding-right: 1.25rem;
-    border-right: 1px solid var(--info-color);
-    height: 100%;
-}
 
 .BreadcrumbLink {
     font-family: monospace;

@@ -5,7 +5,6 @@ import {serviceService} from "@/processes/api/service.ts";
 import {GetServiceByNameQuery, ListDeploymentsByServiceNameQuery} from "@/processes/queries/services.ts";
 import {ListSmerdsByServiceIdQuery} from "@/processes/queries/smerds.ts";
 
-import Dialog from "@/components/complex/dialog/Dialog.tsx";
 import DeployMenu from "@/pages/service/parts/DeployMenu.tsx";
 
 import EnvSwitcher from "@/widgets/service/EnvSwitcher/EnvSwitcher.tsx";
@@ -32,7 +31,6 @@ const TABS: { id: ServiceTab; label: string }[] = [
 export default function ServiceInfoPage() {
     const params = useParams<Record<string, string>>();
     const toaster = useToaster();
-    const [dialogChild, setDialogChild] = useState<React.ReactNode | null>(null);
     const [activeTab, setActiveTab] = useState<ServiceTab>('overview');
 
     const key = params["key"] || "";
@@ -80,7 +78,7 @@ export default function ServiceInfoPage() {
 
     return (
         <div className={cls.ServiceInfoPageContainer}>
-            <Tabs
+            <ServicePageHeader
                 serviceName={key}
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
@@ -118,11 +116,6 @@ export default function ServiceInfoPage() {
                 )}
             </div>
 
-            <Dialog
-                isOpen={dialogChild !== null}
-                onClose={() => setDialogChild(null)}
-                children={dialogChild}
-            />
         </div>
     );
 }
@@ -135,12 +128,11 @@ interface TabsProps {
     setActiveTab: (s: ServiceTab) => void
 }
 
-function Tabs(
+function ServicePageHeader(
     {
         serviceName,
         activeTab, setActiveTab
     }: TabsProps) {
-    const navigate = useNavigate();
     const toaster = useToaster();
     const {OpenDialog, CloseDialog} = useDialog();
 
@@ -150,7 +142,7 @@ function Tabs(
 
     if (!service || !service.name) return null;
 
-    const deploymentsQuery = ListDeploymentsByServiceNameQuery(service.name)
+    const deploymentsQuery = ListDeploymentsByServiceNameQuery(service.name);
 
     function openDeployMenu() {
         if (!service?.name) {
@@ -173,8 +165,6 @@ function Tabs(
     }
 
     function handleStop() {
-        console.debug(service)
-
         if (!service?.name) return;
 
         const serviceName = service.name;
@@ -186,50 +176,70 @@ function Tabs(
                     description: serviceName,
                     level: "Info"
                 } as Toast))
-            .catch(toaster.catchGrpc);
+            .catch(toaster.catchGrpc)
+            .finally(window.location.reload);
     }
 
     function handleRestart() {
         if (!service?.name) return;
         const serviceName = service.name;
         serviceService.restartService(serviceName)
-            .then(function onRestartSuccess() {
-                toaster.bake({title: "Service restarted", description: serviceName, level: "Info"} as Toast);
-            })
-            .catch(function onRestartError(e) {
-                toaster.catchGrpc(e);
-            });
+            .then(
+                () => toaster.bake({
+                    title: "Service restarted",
+                    description: serviceName,
+                    level: "Info",
+                } as Toast),
+            )
+            .catch(toaster.catchGrpc)
+            .finally(window.location.reload);
     }
 
     return (
-        <div className={cls.ServicePageTabsWrapper}>
-            <div className={cls.BreadcrumbWrapper}>
-                <span className={cls.BreadcrumbLink} onClick={() => navigate("/")}>services</span>
-                <span className={cls.BreadcrumbSep}>/</span>
-                <span className={cls.BreadcrumbCurrent}>{serviceName}</span>
-            </div>
-            <div className={cls.TabStripWrapper}>
-                {TABS.map(function renderTab(tab) {
-                    function onTabClick() {
-                        setActiveTab(tab.id);
-                    }
+        <div className={cls.ServicePageHeaderContainer}>
+            <div className={cls.TabBreadcrumbsWrapper}>
+                <Breadcrumbs
+                    serviceName={serviceName} />
 
-                    return (
-                        <button
-                            key={tab.id}
-                            className={`${cls.TabButton} ${activeTab === tab.id ? cls.tabActive : ''}`}
-                            onClick={onTabClick}
-                        >
-                            {tab.label}
-                        </button>
-                    );
-                })}
+                <div className={cls.TabStripWrapper}>
+                    {TABS.map(function renderTab(tab) {
+                        function onTabClick() {
+                            setActiveTab(tab.id);
+                        }
+
+                        return (
+                            <button
+                                key={tab.id}
+                                className={`${cls.TabButton} ${activeTab === tab.id ? cls.tabActive : ''}`}
+                                onClick={onTabClick}
+                            >
+                                {tab.label}
+                            </button>
+                        );
+                    })}
+                </div>
             </div>
+
             <div className={cls.TabActionsWrapper}>
                 <button className={cls.RestartButton} onClick={handleStop}>■ Stop</button>
                 <button className={cls.RestartButton} onClick={handleRestart}>↺ Restart</button>
                 <button className={cls.DeployButton} onClick={openDeployMenu}>+ Deploy</button>
             </div>
+
+        </div>
+    )
+}
+
+interface BreadcrumbsProps {
+    serviceName: string
+}
+function Breadcrumbs({serviceName}:BreadcrumbsProps) {
+    const navigate = useNavigate();
+    return (
+        <div className={cls.BreadcrumbContainer}>
+            <span className={cls.BreadcrumbLink} onClick={() => navigate("/")}>services</span>
+            <span className={cls.BreadcrumbSep}>/</span>
+            <span className={cls.BreadcrumbCurrent}>{serviceName}</span>
         </div>
     )
 }

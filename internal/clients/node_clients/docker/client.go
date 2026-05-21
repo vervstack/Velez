@@ -134,7 +134,9 @@ func (d *Docker) ListContainers(ctx context.Context, req *velez_api.ListSmerds_R
 		req.Label = map[string]string{}
 	}
 
-	req.Label[labels.SuffixLabel] = d.containerSuffix
+	if d.containerSuffix != "" {
+		req.Label[labels.SuffixLabel] = d.containerSuffix
+	}
 
 	list, err := dockerutils.ListContainers(ctx, d.directApi, req)
 	if err != nil {

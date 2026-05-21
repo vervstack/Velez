@@ -4,6 +4,7 @@ import cls from '@/dialogs/PluginManageDialog/PluginManageDialog.module.css';
 
 import {EnableStatefullCluster, VervPluginState} from '@/app/api/velez';
 import {controlPlaneService} from "@/processes/api/control_plane.ts";
+import {serviceService} from "@/processes/api/service.ts";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import Button from "@/components/base/Button.tsx";
 import Choice from "@/components/base/Choice.tsx";
@@ -41,13 +42,16 @@ export default function StatefullPgPluginForm(pl: VervPlugin) {
             .catch(toaster.catchGrpc)
     }
 
+    function handleRestart() {
+        serviceService.restartService(pl.serviceName)
+            .catch(toaster.catchGrpc)
+    }
+
     if (pl.state == VervPluginState.dead) {
         return (
             <div className={cls.ActionSection}>
                 <span>Service is down. Run it?</span>
-                <Button
-
-                >
+                <Button onClick={handleRestart}>
                     Restart
                 </Button>
             </div>

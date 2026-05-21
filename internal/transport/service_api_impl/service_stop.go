@@ -16,12 +16,3 @@ func (impl *Impl) StopService(ctx context.Context, req *velez_api.StopService_Re
 
 	return &velez_api.StopService_Response{}, nil
 }
-
-func (impl *Impl) RestartService(ctx context.Context, req *velez_api.RestartService_Request) (*velez_api.RestartService_Response, error) {
-	err := impl.servicesService.RestartService(ctx, req.GetName())
-	if err != nil {
-		return nil, rerrors.Wrap(err)
-	}
-
-	return &velez_api.RestartService_Response{}, nil
-}

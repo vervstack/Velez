@@ -85,7 +85,6 @@ function PluginContent(
         }
     }
 
-
     function openServicePage(serviceName: string) {
         navigate(`${Routes.Service}/${serviceName}`);
     }

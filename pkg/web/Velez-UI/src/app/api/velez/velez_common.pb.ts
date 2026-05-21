@@ -111,6 +111,10 @@ export type RestartPolicy = {
   FailureCount?: number;
 };
 
+export type PlainConfigSpec = {
+  configs?: Record<string, Uint8Array>;
+};
+
 export type MatreshkaConfigSpec = {
   configName?: string;
   configVersion?: string;

@@ -28,6 +28,7 @@ export enum DeploymentStatus {
   RUNNING = "RUNNING",
   FAILED = "FAILED",
   DELETED = "DELETED",
+  STOPPED = "STOPPED",
 }
 
 export type CreateServiceRequest = {
@@ -39,7 +40,7 @@ export type CreateServiceResponse = Record<string, never>;
 export type CreateService = Record<string, never>;
 
 export type GetServiceRequest = {
-    name?: string;
+  name?: string;
 };
 
 type BaseGetServiceResponse = {
@@ -64,7 +65,7 @@ export type CreateDeployRequestUpgrade = {
 };
 
 type BaseCreateDeployRequest = {
-    serviceName?: string;
+  serviceName?: string;
 };
 
 export type CreateDeployRequest = BaseCreateDeployRequest &
@@ -89,7 +90,7 @@ export type DeploymentInfo = {
 
 export type ListDeploymentsRequest = {
   paging?: VelezApiVelezCommon.Paging;
-    serviceName?: string;
+  serviceName?: string;
 };
 
 export type ListDeploymentsResponse = {

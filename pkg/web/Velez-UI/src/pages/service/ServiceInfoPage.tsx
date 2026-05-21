@@ -1,5 +1,5 @@
-import {useState, useEffect} from "react";
-import {useParams, useNavigate} from "react-router-dom";
+import {useEffect, useState} from "react";
+import {useNavigate, useParams} from "react-router-dom";
 import {Toast, useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {serviceService} from "@/processes/api/service.ts";
 import {GetServiceByNameQuery, ListDeploymentsByServiceNameQuery} from "@/processes/queries/services.ts";
@@ -17,6 +17,8 @@ import Vervonomicon from "@/widgets/service/Vervonomicon/Vervonomicon.tsx";
 
 import cls from "@/pages/service/ServiceInfoPage.module.css";
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
+import {DeploymentStatus} from "@/app/api/velez";
+import Button from "@/components/base/Button.tsx";
 
 type ServiceTab = 'overview' | 'metrics' | 'instances' | 'history' | 'access';
 
@@ -143,7 +145,10 @@ function ServicePageHeader({serviceName, activeTab, setActiveTab}: TabsProps) {
                                 isActive={activeTab === t.id} key={t.id}/>)}
                 </div>
 
-                <ActionsRow serviceName={service.name}/>
+                <ActionsRow
+                    serviceName={service.name}
+                    serviceState={service.status || DeploymentStatus.DEPLOYMENT_STATUS_UNKNOWN}
+                />
             </div>
 
             <div className={cls.HeaderRightWrapper}>
@@ -171,9 +176,10 @@ function BreadcrumbsBar({serviceName}: BreadcrumbsBarProps) {
 
 interface ActionsRowProps {
     serviceName: string
+    serviceState: DeploymentStatus
 }
 
-function ActionsRow({serviceName}: ActionsRowProps) {
+function ActionsRow({serviceName, serviceState}: ActionsRowProps) {
     const toaster = useToaster();
     const {OpenDialog, CloseDialog} = useDialog();
     const deploymentsQuery = ListDeploymentsByServiceNameQuery(serviceName);
@@ -216,9 +222,22 @@ function ActionsRow({serviceName}: ActionsRowProps) {
 
     return (
         <div className={cls.HeaderActionsRow}>
-            <button className={cls.RestartButton} onClick={handleStop}>■ Stop</button>
-            <button className={cls.RestartButton} onClick={handleRestart}>↺ Restart</button>
-            <button className={cls.DeployButton} onClick={openDeployMenu}>+ Deploy</button>
+            <Button
+                onClick={handleStop}
+                disabled={serviceState != DeploymentStatus.RUNNING}
+            >
+                ■ Stop
+            </Button>
+            <Button
+                onClick={handleRestart}>
+                {serviceState == DeploymentStatus.RUNNING ? '↺ Restart' : '▶ Start'}
+            </Button>
+            {/*TODO - remake deployment page than enable this*/}
+            <Button
+                disabled={true}
+                onClick={openDeployMenu}>
+                + Deploy
+            </Button>
         </div>
     )
 }

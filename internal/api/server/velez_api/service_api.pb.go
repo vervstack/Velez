@@ -34,6 +34,7 @@ const (
 	DeploymentStatus_RUNNING                   DeploymentStatus = 4
 	DeploymentStatus_FAILED                    DeploymentStatus = 5
 	DeploymentStatus_DELETED                   DeploymentStatus = 6
+	DeploymentStatus_STOPPED                   DeploymentStatus = 7
 )
 
 // Enum value maps for DeploymentStatus.
@@ -46,6 +47,7 @@ var (
 		4: "RUNNING",
 		5: "FAILED",
 		6: "DELETED",
+		7: "STOPPED",
 	}
 	DeploymentStatus_value = map[string]int32{
 		"DEPLOYMENT_STATUS_UNKNOWN": 0,
@@ -55,6 +57,7 @@ var (
 		"RUNNING":                   4,
 		"FAILED":                    5,
 		"DELETED":                   6,
+		"STOPPED":                   7,
 	}
 )
 
@@ -2290,7 +2293,7 @@ const file_service_api_proto_rawDesc = "" +
 	"\aRequest\x12!\n" +
 	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x1a\n" +
 	"\n" +
-	"\bResponse*\xa0\x01\n" +
+	"\bResponse*\xad\x01\n" +
 	"\x10DeploymentStatus\x12\x1d\n" +
 	"\x19DEPLOYMENT_STATUS_UNKNOWN\x10\x00\x12\x18\n" +
 	"\x14SCHEDULED_DEPLOYMENT\x10\x01\x12\x16\n" +
@@ -2299,7 +2302,8 @@ const file_service_api_proto_rawDesc = "" +
 	"\aRUNNING\x10\x04\x12\n" +
 	"\n" +
 	"\x06FAILED\x10\x05\x12\v\n" +
-	"\aDELETED\x10\x062\xe6\v\n" +
+	"\aDELETED\x10\x06\x12\v\n" +
+	"\aSTOPPED\x10\a2\xe6\v\n" +
 	"\n" +
 	"ServiceApi\x12t\n" +
 	"\rCreateService\x12 .velez_api.CreateService.Request\x1a!.velez_api.CreateService.Response\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/service/create\x12h\n" +

@@ -41,7 +41,7 @@ type BaseCreateSmerdRequest = {
 export type CreateSmerdRequest = BaseCreateSmerdRequest &
   OneOf<{
     verv: VelezApiVelezCommon.MatreshkaConfigSpec;
-    plain: Uint8Array;
+    plain: VelezApiVelezCommon.PlainConfigSpec;
   }>;
 
 export type CreateSmerd = Record<string, never>;

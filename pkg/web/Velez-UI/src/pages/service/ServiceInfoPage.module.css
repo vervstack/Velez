@@ -105,44 +105,11 @@
 }
 
 .tabActive {
-    background: var(--ping-disabled);
     color: #fff;
     opacity: 1;
     font-weight: 700;
 }
 
-.RestartButton {
-    background: transparent;
-    border: 1px solid var(--info-color);
-    border-radius: var(--border-radius);
-    color: inherit;
-    font-family: monospace;
-    font-size: 0.7rem;
-    padding: 0.375rem 0.75rem;
-    cursor: pointer;
-    opacity: 0.7;
-    transition: opacity 0.15s;
-
-    &:hover {
-        opacity: 1;
-    }
-}
-
-.DeployButton {
-    background: var(--ping-disabled);
-    border: none;
-    border-radius: var(--border-radius);
-    color: #fff;
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 0.4rem 1rem;
-    cursor: pointer;
-    transition: filter 0.15s;
-
-    &:hover {
-        filter: brightness(1.15);
-    }
-}
 
 /* ─── Content area ─────────────────────────── */
 

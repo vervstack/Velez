@@ -13,15 +13,15 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
-type services struct {
+type dockerServices struct {
 	docker node_clients.Docker
 }
 
-func newServicesStorage(docker node_clients.Docker) *services {
-	return &services{docker: docker}
+func newServicesStorage(docker node_clients.Docker) *dockerServices {
+	return &dockerServices{docker: docker}
 }
 
-func (s *services) GetByName(ctx context.Context, name string) (domain.Service, error) {
+func (s *dockerServices) GetByName(ctx context.Context, name string) (domain.Service, error) {
 	listReq := &pb.ListSmerds_Request{
 		Name: &name,
 	}
@@ -51,8 +51,10 @@ func containerStateToDeploymentStatus(state string) pb.DeploymentStatus {
 	switch state {
 	case "running":
 		return pb.DeploymentStatus_RUNNING
-	case "exited", "dead":
+	case "dead":
 		return pb.DeploymentStatus_FAILED
+	case "exited":
+		return pb.DeploymentStatus_STOPPED
 	default:
 		return pb.DeploymentStatus_DEPLOYMENT_STATUS_UNKNOWN
 	}
@@ -71,11 +73,11 @@ func containerStateToString(state string) string {
 	}
 }
 
-func (s *services) UpsertService(_ context.Context, _ string) error {
+func (s *dockerServices) UpsertService(_ context.Context, _ string) error {
 	return nil
 }
 
-func (s *services) List(ctx context.Context, req domain.ListServicesReq) (domain.ServiceList, error) {
+func (s *dockerServices) List(ctx context.Context, req domain.ListServicesReq) (domain.ServiceList, error) {
 	listReq := &pb.ListSmerds_Request{}
 
 	containers, err := s.docker.ListContainers(ctx, listReq)

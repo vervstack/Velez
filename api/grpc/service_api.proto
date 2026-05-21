@@ -168,6 +168,7 @@ enum DeploymentStatus {
   RUNNING = 4;
   FAILED = 5;
   DELETED = 6;
+  STOPPED = 7;
 }
 
 message DeploymentInfo {

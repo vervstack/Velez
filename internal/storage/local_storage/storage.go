@@ -8,7 +8,7 @@ import (
 
 type localStorage struct {
 	nodes            *nodes
-	services         *services
+	services         *dockerServices
 	deployments      *deployments
 	plugins          *dockerPluginsStorage
 	serviceDeps      *dockerServiceDepsStorage

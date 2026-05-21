@@ -668,7 +668,8 @@
         "SCHEDULED_UPGRADE",
         "RUNNING",
         "FAILED",
-        "DELETED"
+        "DELETED",
+        "STOPPED"
       ],
       "default": "DEPLOYMENT_STATUS_UNKNOWN"
     },

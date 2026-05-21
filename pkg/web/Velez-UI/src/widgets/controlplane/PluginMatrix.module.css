@@ -31,8 +31,11 @@
         .TableRow {
             display: grid;
             padding: 0.875rem 1.25rem;
-            border-bottom: 1px solid var(--border);
             align-items: center;
+        }
+
+        .TableRow:not(:last-child) {
+            border-bottom: 1px solid var(--border);
         }
     }
 }

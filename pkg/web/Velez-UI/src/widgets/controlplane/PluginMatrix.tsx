@@ -21,36 +21,62 @@ interface PluginMatrixProps {
 }
 
 export default function PluginMatrix(props: PluginMatrixProps) {
-    const {OpenDialog} = useDialog()
-
-
-    function handleManagePlugin(plugin: VervPlugin) {
-        OpenDialog(<PluginManageDialog pluginType={plugin.type}/>)
-    }
-
-
     return (
         <div className={cls.PluginMatrixContainer}>
             <div className={cls.Header}>
                 <SectionLabel>VervStack Plugins</SectionLabel>
             </div>
 
-            <Table {...props} onManagePlugin={handleManagePlugin}/>
+            <Table {...props}/>
         </div>
     );
 }
 
 interface TableProps extends PluginMatrixProps {
-    onManagePlugin: (plugin: VervPlugin) => void;
 }
 
-function Table({nodes, plugins, onManagePlugin}: TableProps) {
-    const navigate = useNavigate();
+function Table({nodes, plugins}: TableProps) {
 
     const colTemplate = `180px repeat(${nodes.length}, 1fr) 80px`;
 
-    function renderNodeHeader(n: NodeBaseInfo) {
-        return <span key={n.id} className={cls.HeaderCellCenter}>Status</span>;
+    return (
+        <div className={cls.TableContainer}>
+            <div className={cls.TableHeader}
+                 style={{gridTemplateColumns: colTemplate}}>
+
+                <span className={cls.HeaderCell}>Plugin</span>
+
+                {nodes.map(NodeHeader)}
+
+                <span className={cls.HeaderCell}></span>
+            </div>
+
+            {plugins.map(v => PluginContent(v, colTemplate))}
+        </div>
+    )
+}
+
+
+function NodeHeader(n: NodeBaseInfo) {
+    return (
+        <span key={n.id} className={cls.HeaderCellCenter}>
+            Status
+        </span>)
+        ;
+}
+
+
+function PluginContent(
+    plugin: VervPlugin,
+    colTemplate: string,
+) {
+    const navigate = useNavigate();
+    const {OpenDialog} = useDialog();
+
+    const isDisabled = plugin.state === VervPluginState.disabled;
+
+    function handleManagePlugin(plugin: VervPlugin) {
+        OpenDialog(<PluginManageDialog pluginType={plugin.type}/>)
     }
 
     function handlePluginNameClick(serviceKey?: string) {
@@ -59,79 +85,48 @@ function Table({nodes, plugins, onManagePlugin}: TableProps) {
         }
     }
 
-    function renderPlugin(plugin: VervPlugin, pi: number) {
-        const isLast = pi === plugins.length - 1;
-        const isDisabled = plugin.state === VervPluginState.disabled;
 
-        function renderCell(n: NodeBaseInfo) {
-            return (
-                <div
-                    key={n.id}
-                    className={cls.statusCell}>
-                    <StatusDot
-                        status={mapVervPluginStateToPluginStatus(plugin.state)}/>
-                </div>
-            );
-        }
-
-        function handleManageClick() {
-            onManagePlugin(plugin);
-        }
-
-        function openServicePage(serviceName: string) {
-            navigate(`${Routes.Service}/${serviceName}`);
-        }
-
-        return (
-            <div
-                key={plugin.type}
-                className={cls.TableRow}
-                style={{
-                    gridTemplateColumns: colTemplate,
-                    borderBottom: isLast ? 'none' : undefined,
-                }}
-            >
-                <div
-                    className={`${cls.PluginCell} ${isDisabled ? '' : cls.PluginCellClickable}`}
-                    onClick={isDisabled ? undefined : () => handlePluginNameClick(plugin.type)}
-                >
-                    <span className={cls.pluginName}>{plugin.title}</span>
-                </div>
-
-                {nodes.map(renderCell)}
-
-                <div className={cls.manageCell}>
-                    {
-                        plugin.state == VervPluginState.running ?
-                            <IconButton
-                                label={"Open service"}
-                                onClick={() => openServicePage(plugin.serviceName)}
-                            />
-                            :
-                            <IconButton
-                                label="Manage"
-                                onClick={handleManageClick}
-                                title="Manage plugin"
-                            />
-                    }
-                </div>
-            </div>)
+    function openServicePage(serviceName: string) {
+        navigate(`${Routes.Service}/${serviceName}`);
     }
 
     return (
-        <div className={cls.TableContainer}>
-            <div className={cls.TableHeader}
-                 style={{gridTemplateColumns: colTemplate}}>
-                <span className={cls.HeaderCell}>Plugin</span>
-                {nodes.map(renderNodeHeader)}
-                <span className={cls.HeaderCell}></span>
+        <div
+            key={plugin.type}
+            className={cls.TableRow}
+            style={{
+                gridTemplateColumns: colTemplate,
+            }}
+        >
+            <div
+                className={`${cls.PluginCell} ${isDisabled ? '' : cls.PluginCellClickable}`}
+                onClick={isDisabled ? undefined : () => handlePluginNameClick(plugin.type)}
+            >
+                <span className={cls.pluginName}>{plugin.title}</span>
             </div>
 
-            {plugins.map(renderPlugin)}
-        </div>
-    )
-}
+            <div className={cls.statusCell}>
+                <StatusDot
+                    status={mapVervPluginStateToPluginStatus(plugin.state)}/>
+            </div>
 
+            <div className={cls.manageCell}>
+                {
+                    plugin.state == VervPluginState.running ?
+                        <IconButton
+                            label={"Open service"}
+                            onClick={() => openServicePage(plugin.serviceName)}
+                        />
+                        :
+                        <IconButton
+                            label="Manage"
+                            onClick={() => handleManagePlugin(plugin)}
+                            title="Manage plugin"
+                        />
+                }
+            </div>
+        </div>)
+}
 
 function mapVervPluginStateToPluginStatus(state?: VervPluginState): 'running' | 'degraded' | 'stopped' | 'online' | 'offline' | 'enabled' | 'disabled' {
     switch (state) {

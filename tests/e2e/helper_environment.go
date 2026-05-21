@@ -107,7 +107,7 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 		opt(&env)
 	}
 
-	initConfig(t, env)
+	initConfig(t, &env)
 
 	// Post-config pass: re-apply opts that modify loaded config fields (e.g. WithMatreshka, WithState).
 	for _, opt := range opts {
@@ -117,25 +117,36 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 	env.App.Cfg.AppInfo.Name = GetServiceName(t)
 	env.App.Cfg.AppInfo.Version = GetServiceName(t)
 
-	env.App.Cfg.Environment.CustomLabels = append(env.App.Cfg.Environment.CustomLabels,
+	env.App.Cfg.Environment.CustomLabels = append(
+		env.App.Cfg.Environment.CustomLabels,
 		testCaseNameLabel+"="+t.Name())
+
+	initGrpc(t, &env)
 
 	err := env.App.Custom.Init(&env.App)
 	require.NoError(t, err)
+
+	go func() {
+		startServerMasterErr := env.ServerMaster.Start()
+		require.NoError(t, startServerMasterErr)
+	}()
+	t.Cleanup(func() {
+		e := env.ServerMaster.Stop()
+		require.NoError(t, e)
+	})
 
 	portManager := test_helper.GetSharedPortManager(t, env.App.Cfg.Environment.AvailablePorts)
 	env.App.Custom.NodeClients.PortManagerContainer().
 		Set(portManager)
 
+	// Cleaning dished before and after dinner just in case
 	env.clean()
 	t.Cleanup(env.clean)
-
-	initGrpc(t, &env)
 
 	return &env
 }
 
-func initConfig(t *testing.T, env TestEnvironment) {
+func initConfig(t *testing.T, env *TestEnvironment) {
 	if env.configPath == "" {
 		env.configPath = defaultConfigPath
 	}
@@ -161,13 +172,6 @@ func initGrpc(t *testing.T, env *TestEnvironment) {
 	dialer := func(context.Context, string) (net.Conn, error) {
 		return lis.Dial()
 	}
-
-	go func() { env.ServerMaster.Start() }()
-
-	t.Cleanup(func() {
-		e := env.ServerMaster.Stop()
-		require.NoError(t, e)
-	})
 
 	env.grpcConn, err = grpc.NewClient("passthrough:///bufnet",
 		grpc.WithContextDialer(dialer),

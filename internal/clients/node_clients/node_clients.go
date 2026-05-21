@@ -65,7 +65,7 @@ func NewNodeClients(ctx context.Context, cfg config.Config) (NodeClients, error)
 
 			err = cls.securityManager.Start()
 			if err != nil {
-				log.Fatal().Err(err).Msg("error starting security manager")
+				return nil, errors.Wrap(err, "error starting security manager")
 			}
 
 			closer.Add(cls.securityManager.Stop)

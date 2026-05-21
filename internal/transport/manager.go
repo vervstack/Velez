@@ -2,6 +2,7 @@ package transport
 
 import (
 	"context"
+	"errors"
 	"net"
 	"net/http"
 
@@ -50,7 +51,11 @@ func (m *ServersManager) Start() error {
 		return nil
 	case errC <- errGroup.Wait():
 		err := <-errC
-		return rerrors.Wrap(err)
+		if !errors.Is(err, cmux.ErrServerClosed) {
+			return rerrors.Wrap(err)
+		}
+
+		return nil
 	}
 }
 

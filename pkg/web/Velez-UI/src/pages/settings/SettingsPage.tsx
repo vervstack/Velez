@@ -6,8 +6,10 @@ export default function SettingsPage() {
     return (
         <div className={cls.SettingsPageContainer}>
             <h1 className={cls.PageTitle}>Settings</h1>
-            <ApiSettings/>
-            <EnvironmentsSettings/>
+            <div className={cls.SettingsGrid}>
+                <ApiSettings/>
+                <EnvironmentsSettings/>
+            </div>
         </div>
     );
 }

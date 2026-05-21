@@ -22,6 +22,7 @@ import (
 	"go.vervstack.ru/Velez/internal/pipelines"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/service_manager"
+	"go.vervstack.ru/Velez/internal/transport"
 	"go.vervstack.ru/Velez/internal/transport/control_plane_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/service_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/ui"
@@ -46,6 +47,8 @@ type Custom struct {
 	ControlPlaneApiImpl *control_plane_api_impl.Impl
 	VpnApiImpl          *vcn_api_impl.Impl
 	ServiceApiImpl      *service_api_impl.Impl
+
+	serverManager *transport.ServersManager
 
 	//	Background workers
 	DeployWatcher workers.Worker
@@ -80,6 +83,13 @@ func (c *Custom) Init(a *App) (err error) {
 }
 
 func (c *Custom) Start(ctx context.Context) error {
+	go func() {
+		err := c.serverManager.Start()
+		if err != nil {
+			log.Error().Err(err).Msg("server stopped")
+		}
+	}()
+
 	err := c.autoupgrader.Start(ctx)
 	if err != nil {
 		return rerrors.Wrap(err, "error starting autoupgrade")
@@ -91,8 +101,13 @@ func (c *Custom) Start(ctx context.Context) error {
 func (c *Custom) Stop() error {
 	var firstErr error
 
-	err := c.DeployWatcher.Stop()
+	err := c.serverManager.Stop()
 	if err != nil {
+		firstErr = err
+	}
+
+	err = c.DeployWatcher.Stop()
+	if err != nil && firstErr == nil {
 		firstErr = err
 	}
 
@@ -131,22 +146,28 @@ func (c *Custom) InitServiceLayer(a *App) error {
 }
 
 func (c *Custom) InitApiServer(a *App) error {
+	var err error
+	c.serverManager, err = transport.NewServerManager(a.Ctx, a.MASTER)
+	if err != nil {
+		return rerrors.Wrap(err, "error initializing server manager")
+	}
+
 	c.ApiGrpcImpl = velez_api_impl.NewImpl(a.Cfg, c.Services, c.Pipeliner)
 	c.ControlPlaneApiImpl = control_plane_api_impl.New(c.Services, c.Pipeliner)
 	c.VpnApiImpl = vcn_api_impl.New(c.ClusterClients, c.Pipeliner)
 	c.ServiceApiImpl = service_api_impl.New(c.Pipeliner, c.Services)
 
-	a.ServerMaster.AddImplementation(c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl, c.ServiceApiImpl)
-	a.ServerMaster.AddHttpHandler(docs.Swagger())
-	a.ServerMaster.AddHttpHandler("/", ui.NewServer())
+	c.serverManager.AddImplementation(c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl, c.ServiceApiImpl)
+	c.serverManager.AddHttpHandler(docs.Swagger())
+	c.serverManager.AddHttpHandler("/", ui.NewServer())
 
 	if !a.Cfg.Environment.DisableAPISecurity {
-		a.ServerMaster.AddServerOption(
+		c.serverManager.AddServerOption(
 			middleware.GrpcIncomingInterceptor(
 				c.NodeClients.LocalStateManager().ValidateVelezPrivateKey))
 	}
 
-	a.ServerMaster.AddServerOption(middleware.LogInterceptor(), middleware.PanicInterceptor())
+	c.serverManager.AddServerOption(middleware.LogInterceptor(), middleware.PanicInterceptor())
 
 	return nil
 }

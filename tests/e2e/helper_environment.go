@@ -23,7 +23,6 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/middleware"
-	"go.vervstack.ru/Velez/internal/transport"
 	"go.vervstack.ru/Velez/tests/test_helper"
 )
 
@@ -127,11 +126,11 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 	require.NoError(t, err)
 
 	go func() {
-		startServerMasterErr := env.ServerMaster.Start()
+		startServerMasterErr := env.App.Custom.Start(env.App.Ctx)
 		require.NoError(t, startServerMasterErr)
 	}()
 	t.Cleanup(func() {
-		e := env.ServerMaster.Stop()
+		e := env.App.Custom.Stop()
 		require.NoError(t, e)
 	})
 
@@ -164,10 +163,9 @@ func initGrpc(t *testing.T, env *TestEnvironment) {
 	const bufSize = 1024 * 1024
 	lis := bufconn.Listen(bufSize)
 
-	var err error
+	env.App.MASTER = lis
 
-	env.App.ServerMaster, err = transport.NewServerManager(env.App.Ctx, lis)
-	require.NoError(t, err)
+	var err error
 
 	dialer := func(context.Context, string) (net.Conn, error) {
 		return lis.Dial()

@@ -1,0 +1,23 @@
+{
+  "name": "@vervstack/velez",
+  "version": "v0.0.0",
+  "scripts": {
+    "build": "tsc"
+  },
+  "types": "dist/index.d.ts",
+  "main": "dist/index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "5.7.2"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist/",
+    "fetch.pb.ts"
+  ]
+}

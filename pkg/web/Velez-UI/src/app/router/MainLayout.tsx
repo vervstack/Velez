@@ -8,6 +8,7 @@ import TopBar from '@/widgets/topbar/TopBar';
 import Toaster from '@/segments/Toaster';
 import {Routes} from '@/app/router/Routes';
 import Dialog from "@/app/hooks/dialog/Dialog.tsx";
+import {Tooltip} from "react-tooltip";
 
 type NavId = 'controlplane' | 'vcn' | 'deployments' | 'apps' | 'search';
 type ToolId = 'secrets' | 'config' | 'logs' | 'settings';
@@ -96,6 +97,7 @@ export default function MainLayout() {
 
             <Dialog/>
             <Toaster/>
+            <Tooltip id="root-tooltip"/>
         </div>
     );
 }

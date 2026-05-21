@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import {Tooltip} from "react-tooltip";
 import {useNavigate, useParams} from "react-router-dom";
 import {Toast, useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {serviceService} from "@/processes/api/service.ts";
@@ -193,7 +194,7 @@ function ActionsRow({serviceName, serviceState}: ActionsRowProps) {
                 level: "Info",
             } as Toast))
             .catch(toaster.catchGrpc)
-            .finally(window.location.reload);
+            .finally(() => window.location.reload());
     }
 
     function handleRestart() {
@@ -204,7 +205,7 @@ function ActionsRow({serviceName, serviceState}: ActionsRowProps) {
                 level: "Info",
             } as Toast))
             .catch(toaster.catchGrpc)
-            .finally(window.location.reload);
+            .finally(() => window.location.reload());
     }
 
     function openDeployMenu() {
@@ -233,11 +234,16 @@ function ActionsRow({serviceName, serviceState}: ActionsRowProps) {
                 {serviceState == DeploymentStatus.RUNNING ? '↺ Restart' : '▶ Start'}
             </Button>
             {/*TODO - remake deployment page than enable this*/}
-            <Button
-                disabled={true}
-                onClick={openDeployMenu}>
-                + Deploy
-            </Button>
+            <span
+                data-tooltip-id="root-tooltip"
+                data-tooltip-content="Not available for now, deploy widget is not ready"
+            >
+                <Button
+                    disabled={true}
+                    onClick={openDeployMenu}>
+                    + Deploy
+                </Button>
+            </span>
         </div>
     )
 }

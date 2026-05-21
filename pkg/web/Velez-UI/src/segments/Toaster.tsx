@@ -31,7 +31,7 @@ export default function Toaster() {
 }
 
 
-function Toast({title, description, isDismissable}: ToastProp) {
+function Toast({title, description}: ToastProp) {
     const [isLeaving, setIsLeaving] = useState(false);
     const toaster = useToaster();
 
@@ -54,12 +54,12 @@ function Toast({title, description, isDismissable}: ToastProp) {
             <div>{title}</div>
             <div className={cls.Description}> {description}</div>
 
-            {isDismissable && <div
-				className={cls.DismissButton}
-				onClick={() => toaster.dismiss(title)}
-			>
-				-
-			</div>}
+            <div
+                className={cls.DismissButton}
+                onClick={() => toaster.dismiss(title)}
+            >
+                ×
+            </div>
         </div>
     )
 }

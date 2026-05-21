@@ -58,6 +58,7 @@ type VervServicesService interface {
 	GetServiceResources(ctx context.Context, serviceName string) ([]domain.BoundResource, error)
 	GetServiceGraph(ctx context.Context, serviceName string) (domain.ServiceGraph, error)
 	GetServiceEnvironments(ctx context.Context, serviceName string) ([]domain.ServiceEnvironment, error)
+	ListEnvironments(ctx context.Context) ([]string, error)
 }
 
 type NodeService interface {

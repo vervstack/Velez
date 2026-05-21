@@ -17,6 +17,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/service_manager/plugins"
 	"go.vervstack.ru/Velez/internal/service/service_manager/verv_services"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/storage/local_storage"
 )
 
@@ -37,6 +38,7 @@ func New(
 	ctx context.Context,
 	nodeClients node_clients.NodeClients,
 	clusterClients cluster_clients.ClusterClients,
+	envs []string,
 ) (service.Services, error) {
 
 	configService, err := configurator.New(
@@ -54,11 +56,13 @@ func New(
 	storageContainer := storage.NewStorageContainer(local_storage.New(nodeClients.Docker()))
 	svc := plugins.NewPluginService(storageContainer)
 
+	envStorageContainer := environments.NewContainer(environments.NewStatic(envs))
+
 	sm := &ServiceManager{
 		containerManager: cm,
 		configurator:     configService,
 		vpnService:       clusterClients.Vpn(),
-		vervServices:     verv_services.New(clusterClients.StateManager(), cm, nodeClients.Docker()),
+		vervServices:     verv_services.New(clusterClients.StateManager(), cm, nodeClients.Docker(), envStorageContainer),
 
 		docker:      nodeClients.Docker(),
 		nodeService: nodes_service.NewService(clusterClients.StateManager()),

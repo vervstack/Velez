@@ -16,6 +16,38 @@
     "application/json"
   ],
   "paths": {
+    "/api/environment/list": {
+      "post": {
+        "operationId": "ServiceApi_ListEnvironments",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListEnvironmentsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiListEnvironmentsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ServiceApi"
+        ]
+      }
+    },
     "/api/service/create": {
       "post": {
         "operationId": "ServiceApi_CreateService",
@@ -829,6 +861,20 @@
         "total": {
           "type": "string",
           "format": "uint64"
+        }
+      }
+    },
+    "velez_apiListEnvironmentsRequest": {
+      "type": "object"
+    },
+    "velez_apiListEnvironmentsResponse": {
+      "type": "object",
+      "properties": {
+        "environments": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },

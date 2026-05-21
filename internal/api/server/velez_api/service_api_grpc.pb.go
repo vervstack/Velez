@@ -30,6 +30,7 @@ const (
 	ServiceApi_GetServiceResources_FullMethodName    = "/velez_api.ServiceApi/GetServiceResources"
 	ServiceApi_GetServiceGraph_FullMethodName        = "/velez_api.ServiceApi/GetServiceGraph"
 	ServiceApi_GetServiceEnvironments_FullMethodName = "/velez_api.ServiceApi/GetServiceEnvironments"
+	ServiceApi_ListEnvironments_FullMethodName       = "/velez_api.ServiceApi/ListEnvironments"
 	ServiceApi_GetVervonomicon_FullMethodName        = "/velez_api.ServiceApi/GetVervonomicon"
 )
 
@@ -56,6 +57,7 @@ type ServiceApiClient interface {
 	GetServiceResources(ctx context.Context, in *GetServiceResources_Request, opts ...grpc.CallOption) (*GetServiceResources_Response, error)
 	GetServiceGraph(ctx context.Context, in *GetServiceGraph_Request, opts ...grpc.CallOption) (*GetServiceGraph_Response, error)
 	GetServiceEnvironments(ctx context.Context, in *GetServiceEnvironments_Request, opts ...grpc.CallOption) (*GetServiceEnvironments_Response, error)
+	ListEnvironments(ctx context.Context, in *ListEnvironments_Request, opts ...grpc.CallOption) (*ListEnvironments_Response, error)
 	GetVervonomicon(ctx context.Context, in *GetVervonomicon_Request, opts ...grpc.CallOption) (*GetVervonomicon_Response, error)
 }
 
@@ -177,6 +179,16 @@ func (c *serviceApiClient) GetServiceEnvironments(ctx context.Context, in *GetSe
 	return out, nil
 }
 
+func (c *serviceApiClient) ListEnvironments(ctx context.Context, in *ListEnvironments_Request, opts ...grpc.CallOption) (*ListEnvironments_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListEnvironments_Response)
+	err := c.cc.Invoke(ctx, ServiceApi_ListEnvironments_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *serviceApiClient) GetVervonomicon(ctx context.Context, in *GetVervonomicon_Request, opts ...grpc.CallOption) (*GetVervonomicon_Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetVervonomicon_Response)
@@ -210,6 +222,7 @@ type ServiceApiServer interface {
 	GetServiceResources(context.Context, *GetServiceResources_Request) (*GetServiceResources_Response, error)
 	GetServiceGraph(context.Context, *GetServiceGraph_Request) (*GetServiceGraph_Response, error)
 	GetServiceEnvironments(context.Context, *GetServiceEnvironments_Request) (*GetServiceEnvironments_Response, error)
+	ListEnvironments(context.Context, *ListEnvironments_Request) (*ListEnvironments_Response, error)
 	GetVervonomicon(context.Context, *GetVervonomicon_Request) (*GetVervonomicon_Response, error)
 	mustEmbedUnimplementedServiceApiServer()
 }
@@ -253,6 +266,9 @@ func (UnimplementedServiceApiServer) GetServiceGraph(context.Context, *GetServic
 }
 func (UnimplementedServiceApiServer) GetServiceEnvironments(context.Context, *GetServiceEnvironments_Request) (*GetServiceEnvironments_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetServiceEnvironments not implemented")
+}
+func (UnimplementedServiceApiServer) ListEnvironments(context.Context, *ListEnvironments_Request) (*ListEnvironments_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListEnvironments not implemented")
 }
 func (UnimplementedServiceApiServer) GetVervonomicon(context.Context, *GetVervonomicon_Request) (*GetVervonomicon_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetVervonomicon not implemented")
@@ -476,6 +492,24 @@ func _ServiceApi_GetServiceEnvironments_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServiceApi_ListEnvironments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListEnvironments_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceApiServer).ListEnvironments(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceApi_ListEnvironments_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceApiServer).ListEnvironments(ctx, req.(*ListEnvironments_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ServiceApi_GetVervonomicon_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetVervonomicon_Request)
 	if err := dec(in); err != nil {
@@ -544,6 +578,10 @@ var ServiceApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetServiceEnvironments",
 			Handler:    _ServiceApi_GetServiceEnvironments_Handler,
+		},
+		{
+			MethodName: "ListEnvironments",
+			Handler:    _ServiceApi_ListEnvironments_Handler,
 		},
 		{
 			MethodName: "GetVervonomicon",

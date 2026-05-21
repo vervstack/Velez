@@ -16,11 +16,12 @@ type VervService struct {
 
 	txManager *sqldb.TxManager
 
-	containerService service.ContainerService
-	docker           node_clients.Docker
+	containerService    service.ContainerService
+	docker              node_clients.Docker
+	environmentsStorage storage.EnvironmentsStorageContainer
 }
 
-func New(dataStorage storage.Storage, containerService service.ContainerService, docker node_clients.Docker) *VervService {
+func New(dataStorage storage.Storage, containerService service.ContainerService, docker node_clients.Docker, environmentsStorage storage.EnvironmentsStorageContainer) *VervService {
 	return &VervService{
 		servicesStorage:    dataStorage.Services(),
 		deploymentsStorage: dataStorage.Deployments(),
@@ -30,7 +31,8 @@ func New(dataStorage storage.Storage, containerService service.ContainerService,
 
 		txManager: dataStorage.TxManager(),
 
-		containerService: containerService,
-		docker:           docker,
+		containerService:    containerService,
+		docker:              docker,
+		environmentsStorage: environmentsStorage,
 	}
 }

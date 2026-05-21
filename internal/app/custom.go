@@ -110,7 +110,7 @@ func (c *Custom) InitServiceLayer(a *App) error {
 	}
 
 	var err error
-	c.Services, err = service_manager.New(a.Ctx, c.NodeClients, c.ClusterClients)
+	c.Services, err = service_manager.New(a.Ctx, c.NodeClients, c.ClusterClients, a.Cfg.Environment.Environments)
 	if err != nil {
 		return rerrors.Wrap(err, "error initializing service manager")
 	}

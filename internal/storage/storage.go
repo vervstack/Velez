@@ -64,3 +64,12 @@ type ServiceResourcesStorage interface {
 	GetResources(ctx context.Context, serviceName string) ([]domain.BoundResource, error)
 	UpsertResource(ctx context.Context, serviceName, resourceName, resourceType string) error
 }
+
+type EnvironmentsStorage interface {
+	ListEnvironments(ctx context.Context) ([]string, error)
+}
+
+type EnvironmentsStorageContainer interface {
+	Set(EnvironmentsStorage)
+	EnvironmentsStorage
+}

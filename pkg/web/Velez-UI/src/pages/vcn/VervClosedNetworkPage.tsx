@@ -4,6 +4,7 @@ import NetworkTopologyMap from '@/widgets/vcn/NetworkTopologyMap';
 import VCNPeerTable from '@/widgets/vcn/VCNPeerTable';
 import CodeBlock from '@/components/complex/CodeBlock/CodeBlock';
 import {type VCNPeerData} from '@/components/vcn/VCNPeerRow';
+import EnvSwitcher from '@/widgets/service/EnvSwitcher/EnvSwitcher';
 
 const MOCK_NODES = [
     {id: 'node01', host: '192.168.1.10', status: 'online' as const},
@@ -41,6 +42,8 @@ const totalTx = '5.7 GB';
 export default function VervClosedNetworkPage() {
     return (
         <div className={cls.VervClosedNetworkPageContainer}>
+
+            <EnvSwitcher />
 
             <div className={cls.StatsGrid}>
                 <StatCard value={MOCK_PEERS.length} label="Tunnel peers" level={Level.INFO}/>

@@ -153,7 +153,7 @@ function ServicePageHeader({serviceName, activeTab, setActiveTab}: TabsProps) {
             </div>
 
             <div className={cls.HeaderRightWrapper}>
-                <EnvSwitcher serviceName={serviceName}/>
+                <EnvSwitcher />
             </div>
         </div>
     );

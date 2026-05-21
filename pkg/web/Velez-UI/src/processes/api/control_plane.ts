@@ -5,6 +5,7 @@ import {
     VervPluginType,
     EnableStatefullCluster,
     ListNodesResponse,
+    ListEnvironmentsResponse,
 } from "@/app/api/velez";
 
 import {toServices} from "@/processes/mappings/services.ts";
@@ -28,6 +29,10 @@ class ControlPlaneService extends ApiService {
             const payload: EnablePluginRequest = {plugin: pluginType}
             return ControlPlaneAPI.EnablePlugin(payload, req).then()
         })
+    }
+
+    async listEnvironments(): Promise<ListEnvironmentsResponse> {
+        return this.execute((req) => ControlPlaneAPI.ListEnvironments({}, req))
     }
 
     async enableStatefullPgCluster(cluster: EnableStatefullCluster): Promise<void> {

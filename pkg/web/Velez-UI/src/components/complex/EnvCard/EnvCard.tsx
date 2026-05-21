@@ -16,7 +16,6 @@ export default function EnvCard({ env, isActive = false, onClick }: EnvCardProps
             <div className={cls.CardHeaderWrapper}>
                 <span className={`${cls.StatusDot} ${cls[`status_${env.status}`]}`} />
                 <span className={cls.Label}>{env.label}</span>
-                {isActive && <span className={cls.ViewingBadge}>viewing</span>}
             </div>
             <div className={cls.CardMetaWrapper}>
                 <span className={cls.Version}>{env.version}</span>

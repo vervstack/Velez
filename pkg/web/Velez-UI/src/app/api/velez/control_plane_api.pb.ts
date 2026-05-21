@@ -125,6 +125,14 @@ export type ListPluginsResponse = {
 
 export type ListPlugins = Record<string, never>;
 
+export type ListEnvironmentsRequest = Record<string, never>;
+
+export type ListEnvironmentsResponse = {
+  environments?: string[];
+};
+
+export type ListEnvironments = Record<string, never>;
+
 export class ControlPlaneAPI {
   static EnablePlugin(this:void, req: EnablePluginRequest, initReq?: fm.InitReq): Promise<EnablePluginResponse> {
     return fm.fetchRequest<EnablePluginResponse>(`/api/control_plane/plugin/enable`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
@@ -137,5 +145,8 @@ export class ControlPlaneAPI {
   }
   static ListPlugins(this:void, req: ListPluginsRequest, initReq?: fm.InitReq): Promise<ListPluginsResponse> {
     return fm.fetchRequest<ListPluginsResponse>(`/api/control_plane/plugins?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"});
+  }
+  static ListEnvironments(this:void, req: ListEnvironmentsRequest, initReq?: fm.InitReq): Promise<ListEnvironmentsResponse> {
+    return fm.fetchRequest<ListEnvironmentsResponse>(`/api/control_plane/environments/list`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
 }

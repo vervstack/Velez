@@ -21,3 +21,10 @@ export function ListPluginsQuery() {
         queryFn: () => controlPlaneService.listPlugins(),
     })
 }
+
+export function ListEnvironmentsQuery() {
+    return useQuery({
+        queryKey: ["environments"],
+        queryFn: () => controlPlaneService.listEnvironments(),
+    })
+}

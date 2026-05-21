@@ -20,6 +20,11 @@ import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
 
 type ServiceTab = 'overview' | 'metrics' | 'instances' | 'history' | 'access';
 
+interface TabInfo {
+    id: ServiceTab;
+    label: string;
+}
+
 const TABS: { id: ServiceTab; label: string }[] = [
     {id: 'overview', label: 'Overview'},
     {id: 'metrics', label: 'Metrics'},
@@ -41,9 +46,7 @@ export default function ServiceInfoPage() {
     }, [serviceQuery.error, toaster]);
     const service = serviceQuery.data;
 
-
     const deploymentsQuery = ListDeploymentsByServiceNameQuery(service?.name || "");
-
     const smerdsQuery = ListSmerdsByServiceIdQuery(service?.name || "");
 
     if (!service || !service.name) return null;
@@ -72,12 +75,12 @@ export default function ServiceInfoPage() {
         );
     }
 
-
     const deployments = deploymentsQuery.data?.deployments || [];
     const currentSmerd = smerdsQuery.data?.smerds?.[0];
 
     return (
         <div className={cls.ServiceInfoPageContainer}>
+            <BreadcrumbsBar serviceName={key}/>
             <ServicePageHeader
                 serviceName={key}
                 activeTab={activeTab}
@@ -87,10 +90,6 @@ export default function ServiceInfoPage() {
             <div className={cls.ServicePageContentWrapper}>
                 {activeTab === 'overview' && (
                     <>
-                        <div className={cls.EnvSwitcherWrapper}>
-                            <span className={cls.SectionLabel}>Environment</span>
-                            <EnvSwitcher serviceName={service.name}/>
-                        </div>
                         <ServiceHero
                             serviceName={service.name}
                             serviceStatus={service.status as string | undefined}
@@ -115,7 +114,6 @@ export default function ServiceInfoPage() {
                     </div>
                 )}
             </div>
-
         </div>
     );
 }
@@ -123,39 +121,90 @@ export default function ServiceInfoPage() {
 
 interface TabsProps {
     serviceName: string
-
     activeTab: ServiceTab
     setActiveTab: (s: ServiceTab) => void
 }
 
-function ServicePageHeader(
-    {
-        serviceName,
-        activeTab, setActiveTab
-    }: TabsProps) {
-    const toaster = useToaster();
-    const {OpenDialog, CloseDialog} = useDialog();
-
-
+function ServicePageHeader({serviceName, activeTab, setActiveTab}: TabsProps) {
     const serviceQuery = GetServiceByNameQuery(serviceName);
-    const service = serviceQuery.data
+    const service = serviceQuery.data;
 
     if (!service || !service.name) return null;
 
-    const deploymentsQuery = ListDeploymentsByServiceNameQuery(service.name);
+    return (
+        <div className={cls.ServicePageHeaderContainer}>
+            <div className={cls.HeaderLeftWrapper}>
+                <div className={cls.TabStripWrapper}>
+                    {
+                        TABS.map(t =>
+                            <Tab
+                                tab={t}
+                                setActiveTab={setActiveTab}
+                                isActive={activeTab === t.id} key={t.id}/>)}
+                </div>
+
+                <ActionsRow serviceName={service.name}/>
+            </div>
+
+            <div className={cls.HeaderRightWrapper}>
+                <EnvSwitcher serviceName={serviceName}/>
+            </div>
+        </div>
+    );
+}
+
+
+interface BreadcrumbsBarProps {
+    serviceName: string
+}
+
+function BreadcrumbsBar({serviceName}: BreadcrumbsBarProps) {
+    const navigate = useNavigate();
+    return (
+        <div className={cls.BreadcrumbsBarContainer}>
+            <span className={cls.BreadcrumbLink} onClick={() => navigate("/")}>services</span>
+            <span className={cls.BreadcrumbSep}>/</span>
+            <span className={cls.BreadcrumbCurrent}>{serviceName}</span>
+        </div>
+    );
+}
+
+interface ActionsRowProps {
+    serviceName: string
+}
+
+function ActionsRow({serviceName}: ActionsRowProps) {
+    const toaster = useToaster();
+    const {OpenDialog, CloseDialog} = useDialog();
+    const deploymentsQuery = ListDeploymentsByServiceNameQuery(serviceName);
+
+    function handleStop() {
+
+        serviceService.stopService(serviceName)
+            .then(() => toaster.bake({
+                title: "Service stopped",
+                description: serviceName,
+                level: "Info",
+            } as Toast))
+            .catch(toaster.catchGrpc)
+            .finally(window.location.reload);
+    }
+
+    function handleRestart() {
+        serviceService.restartService(serviceName)
+            .then(() => toaster.bake({
+                title: "Service restarted",
+                description: serviceName,
+                level: "Info",
+            } as Toast))
+            .catch(toaster.catchGrpc)
+            .finally(window.location.reload);
+    }
 
     function openDeployMenu() {
-        if (!service?.name) {
-            toaster.bake({
-                title: "Cannot deploy",
-                description: "Service name is missing",
-                level: "Error",
-            } as Toast);
-            return;
-        }
         OpenDialog(
             <DeployMenu
-                serviceName={service.name}
+                serviceName={serviceName}
                 onDeploymentCreated={() => {
                     CloseDialog();
                     deploymentsQuery.refetch();
@@ -164,82 +213,35 @@ function ServicePageHeader(
         );
     }
 
-    function handleStop() {
-        if (!service?.name) return;
-
-        const serviceName = service.name;
-
-        serviceService.stopService(serviceName)
-            .then(() => toaster
-                .bake({
-                    title: "Service stopped",
-                    description: serviceName,
-                    level: "Info"
-                } as Toast))
-            .catch(toaster.catchGrpc)
-            .finally(window.location.reload);
-    }
-
-    function handleRestart() {
-        if (!service?.name) return;
-        const serviceName = service.name;
-        serviceService.restartService(serviceName)
-            .then(
-                () => toaster.bake({
-                    title: "Service restarted",
-                    description: serviceName,
-                    level: "Info",
-                } as Toast),
-            )
-            .catch(toaster.catchGrpc)
-            .finally(window.location.reload);
-    }
 
     return (
-        <div className={cls.ServicePageHeaderContainer}>
-            <div className={cls.TabBreadcrumbsWrapper}>
-                <Breadcrumbs
-                    serviceName={serviceName} />
-
-                <div className={cls.TabStripWrapper}>
-                    {TABS.map(function renderTab(tab) {
-                        function onTabClick() {
-                            setActiveTab(tab.id);
-                        }
-
-                        return (
-                            <button
-                                key={tab.id}
-                                className={`${cls.TabButton} ${activeTab === tab.id ? cls.tabActive : ''}`}
-                                onClick={onTabClick}
-                            >
-                                {tab.label}
-                            </button>
-                        );
-                    })}
-                </div>
-            </div>
-
-            <div className={cls.TabActionsWrapper}>
-                <button className={cls.RestartButton} onClick={handleStop}>■ Stop</button>
-                <button className={cls.RestartButton} onClick={handleRestart}>↺ Restart</button>
-                <button className={cls.DeployButton} onClick={openDeployMenu}>+ Deploy</button>
-            </div>
-
+        <div className={cls.HeaderActionsRow}>
+            <button className={cls.RestartButton} onClick={handleStop}>■ Stop</button>
+            <button className={cls.RestartButton} onClick={handleRestart}>↺ Restart</button>
+            <button className={cls.DeployButton} onClick={openDeployMenu}>+ Deploy</button>
         </div>
     )
 }
 
-interface BreadcrumbsProps {
-    serviceName: string
+
+interface TabProps {
+    tab: TabInfo
+    isActive: boolean
+    setActiveTab: (s: ServiceTab) => void
 }
-function Breadcrumbs({serviceName}:BreadcrumbsProps) {
-    const navigate = useNavigate();
+
+function Tab({tab, isActive, setActiveTab}: TabProps) {
+    function onTabClick() {
+        setActiveTab(tab.id);
+    }
+
     return (
-        <div className={cls.BreadcrumbContainer}>
-            <span className={cls.BreadcrumbLink} onClick={() => navigate("/")}>services</span>
-            <span className={cls.BreadcrumbSep}>/</span>
-            <span className={cls.BreadcrumbCurrent}>{serviceName}</span>
-        </div>
-    )
+        <button
+            key={tab.id}
+            className={`${cls.TabButton} ${isActive ? cls.tabActive : ''}`}
+            onClick={onTabClick}
+        >
+            {tab.label}
+        </button>
+    );
 }

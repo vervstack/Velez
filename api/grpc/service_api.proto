@@ -98,13 +98,6 @@ service ServiceApi {
     };
   }
 
-  rpc ListEnvironments(ListEnvironments.Request) returns (ListEnvironments.Response) {
-    option (google.api.http) = {
-      post: "/api/environment/list"
-      body: "*"
-    };
-  }
-
   rpc GetVervonomicon(GetVervonomicon.Request) returns (GetVervonomicon.Response) {
     option (google.api.http) = {
       post: "/api/service/vervonomicon"
@@ -303,9 +296,3 @@ message GetVervonomicon {
   message Response {}
 }
 
-message ListEnvironments {
-  message Request {}
-  message Response {
-    repeated string environments = 1;
-  }
-}

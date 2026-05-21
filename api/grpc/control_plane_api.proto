@@ -39,6 +39,13 @@ service ControlPlaneAPI {
       get: "/api/control_plane/plugins"
     };
   }
+
+  rpc ListEnvironments(ListEnvironments.Request) returns (ListEnvironments.Response) {
+    option (google.api.http) = {
+      post: "/api/control_plane/environments/list"
+      body: "*"
+    };
+  }
 }
 
 message ListVervPlugins {
@@ -148,5 +155,12 @@ message ListPlugins {
   message Request {}
   message Response {
     repeated Plugin plugins = 1;
+  }
+}
+
+message ListEnvironments {
+  message Request {}
+  message Response {
+    repeated string environments = 1;
   }
 }

@@ -91,6 +91,12 @@ func WithContainerSuffix(suffix string) TestEnvOpt {
 	}
 }
 
+func WithEnvironments(envs []string) TestEnvOpt {
+	return func(a *TestEnvironment) {
+		a.Cfg.Environment.Environments = envs
+	}
+}
+
 func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 	t.Helper()
 

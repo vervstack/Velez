@@ -1,4 +1,4 @@
-package service_api_impl
+package control_plane_api_impl
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 )
 
 func (impl *Impl) ListEnvironments(ctx context.Context, _ *pb.ListEnvironments_Request) (*pb.ListEnvironments_Response, error) {
-	envs, err := impl.servicesService.ListEnvironments(ctx)
+	envs, err := impl.vervServices.ListEnvironments(ctx)
 	if err != nil {
 		return nil, rerrors.Wrap(err)
 	}

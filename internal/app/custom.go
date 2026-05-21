@@ -5,13 +5,16 @@ package app
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/soheilhy/cmux"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
+	"golang.org/x/sync/errgroup"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
@@ -83,16 +86,27 @@ func (c *Custom) Init(a *App) (err error) {
 }
 
 func (c *Custom) Start(ctx context.Context) error {
-	go func() {
+	g := errgroup.Group{}
+	g.Go(func() error {
 		err := c.serverManager.Start()
-		if err != nil {
-			log.Error().Err(err).Msg("server stopped")
+		if err != nil && !errors.Is(err, cmux.ErrServerClosed) {
+			return err
 		}
-	}()
+		return nil
+	})
 
-	err := c.autoupgrader.Start(ctx)
+	g.Go(func() error {
+		err := c.autoupgrader.Start(ctx)
+		if err != nil {
+			return rerrors.Wrap(err, "error starting autoupgrade")
+		}
+
+		return nil
+	})
+
+	err := g.Wait()
 	if err != nil {
-		return rerrors.Wrap(err, "error starting autoupgrade")
+		return rerrors.Wrap(err)
 	}
 
 	return nil

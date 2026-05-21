@@ -21,6 +21,7 @@ type Impl struct {
 	smerdManager  service.ContainerService
 	nodeService   service.NodeService
 	pluginService service.PluginService
+	vervServices  service.VervServicesService
 }
 
 func New(srv service.Services, pipeliner pipelines.Pipeliner) *Impl {
@@ -31,6 +32,7 @@ func New(srv service.Services, pipeliner pipelines.Pipeliner) *Impl {
 		smerdManager:  srv.SmerdManager(),
 		nodeService:   srv.NodeService(),
 		pluginService: srv.PluginService(),
+		vervServices:  srv.VervServices(),
 	}
 }
 

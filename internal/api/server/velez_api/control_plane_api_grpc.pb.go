@@ -19,10 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ControlPlaneAPI_EnablePlugin_FullMethodName = "/velez_api.ControlPlaneAPI/EnablePlugin"
-	ControlPlaneAPI_ConnectSlave_FullMethodName = "/velez_api.ControlPlaneAPI/ConnectSlave"
-	ControlPlaneAPI_ListNodes_FullMethodName    = "/velez_api.ControlPlaneAPI/ListNodes"
-	ControlPlaneAPI_ListPlugins_FullMethodName  = "/velez_api.ControlPlaneAPI/ListPlugins"
+	ControlPlaneAPI_EnablePlugin_FullMethodName     = "/velez_api.ControlPlaneAPI/EnablePlugin"
+	ControlPlaneAPI_ConnectSlave_FullMethodName     = "/velez_api.ControlPlaneAPI/ConnectSlave"
+	ControlPlaneAPI_ListNodes_FullMethodName        = "/velez_api.ControlPlaneAPI/ListNodes"
+	ControlPlaneAPI_ListPlugins_FullMethodName      = "/velez_api.ControlPlaneAPI/ListPlugins"
+	ControlPlaneAPI_ListEnvironments_FullMethodName = "/velez_api.ControlPlaneAPI/ListEnvironments"
 )
 
 // ControlPlaneAPIClient is the client API for ControlPlaneAPI service.
@@ -34,6 +35,7 @@ type ControlPlaneAPIClient interface {
 	ConnectSlave(ctx context.Context, in *ConnectSlave_Request, opts ...grpc.CallOption) (*ConnectSlave_Response, error)
 	ListNodes(ctx context.Context, in *ListNodes_Request, opts ...grpc.CallOption) (*ListNodes_Response, error)
 	ListPlugins(ctx context.Context, in *ListPlugins_Request, opts ...grpc.CallOption) (*ListPlugins_Response, error)
+	ListEnvironments(ctx context.Context, in *ListEnvironments_Request, opts ...grpc.CallOption) (*ListEnvironments_Response, error)
 }
 
 type controlPlaneAPIClient struct {
@@ -84,6 +86,16 @@ func (c *controlPlaneAPIClient) ListPlugins(ctx context.Context, in *ListPlugins
 	return out, nil
 }
 
+func (c *controlPlaneAPIClient) ListEnvironments(ctx context.Context, in *ListEnvironments_Request, opts ...grpc.CallOption) (*ListEnvironments_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListEnvironments_Response)
+	err := c.cc.Invoke(ctx, ControlPlaneAPI_ListEnvironments_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ControlPlaneAPIServer is the server API for ControlPlaneAPI service.
 // All implementations must embed UnimplementedControlPlaneAPIServer
 // for forward compatibility.
@@ -93,6 +105,7 @@ type ControlPlaneAPIServer interface {
 	ConnectSlave(context.Context, *ConnectSlave_Request) (*ConnectSlave_Response, error)
 	ListNodes(context.Context, *ListNodes_Request) (*ListNodes_Response, error)
 	ListPlugins(context.Context, *ListPlugins_Request) (*ListPlugins_Response, error)
+	ListEnvironments(context.Context, *ListEnvironments_Request) (*ListEnvironments_Response, error)
 	mustEmbedUnimplementedControlPlaneAPIServer()
 }
 
@@ -114,6 +127,9 @@ func (UnimplementedControlPlaneAPIServer) ListNodes(context.Context, *ListNodes_
 }
 func (UnimplementedControlPlaneAPIServer) ListPlugins(context.Context, *ListPlugins_Request) (*ListPlugins_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListPlugins not implemented")
+}
+func (UnimplementedControlPlaneAPIServer) ListEnvironments(context.Context, *ListEnvironments_Request) (*ListEnvironments_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListEnvironments not implemented")
 }
 func (UnimplementedControlPlaneAPIServer) mustEmbedUnimplementedControlPlaneAPIServer() {}
 func (UnimplementedControlPlaneAPIServer) testEmbeddedByValue()                         {}
@@ -208,6 +224,24 @@ func _ControlPlaneAPI_ListPlugins_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ControlPlaneAPI_ListEnvironments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListEnvironments_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControlPlaneAPIServer).ListEnvironments(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ControlPlaneAPI_ListEnvironments_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControlPlaneAPIServer).ListEnvironments(ctx, req.(*ListEnvironments_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ControlPlaneAPI_ServiceDesc is the grpc.ServiceDesc for ControlPlaneAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -230,6 +264,10 @@ var ControlPlaneAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListPlugins",
 			Handler:    _ControlPlaneAPI_ListPlugins_Handler,
+		},
+		{
+			MethodName: "ListEnvironments",
+			Handler:    _ControlPlaneAPI_ListEnvironments_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

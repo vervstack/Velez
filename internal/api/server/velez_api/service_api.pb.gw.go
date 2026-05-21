@@ -332,33 +332,6 @@ func local_request_ServiceApi_GetServiceEnvironments_0(ctx context.Context, mars
 	return msg, metadata, err
 }
 
-func request_ServiceApi_ListEnvironments_0(ctx context.Context, marshaler runtime.Marshaler, client ServiceApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq ListEnvironments_Request
-		metadata runtime.ServerMetadata
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
-	msg, err := client.ListEnvironments(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_ServiceApi_ListEnvironments_0(ctx context.Context, marshaler runtime.Marshaler, server ServiceApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq ListEnvironments_Request
-		metadata runtime.ServerMetadata
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	msg, err := server.ListEnvironments(ctx, &protoReq)
-	return msg, metadata, err
-}
-
 func request_ServiceApi_GetVervonomicon_0(ctx context.Context, marshaler runtime.Marshaler, client ServiceApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetVervonomicon_Request
@@ -612,26 +585,6 @@ func RegisterServiceApiHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 		forward_ServiceApi_GetServiceEnvironments_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_ServiceApi_ListEnvironments_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.ServiceApi/ListEnvironments", runtime.WithHTTPPathPattern("/api/environment/list"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_ServiceApi_ListEnvironments_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_ServiceApi_ListEnvironments_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
 	mux.Handle(http.MethodPost, pattern_ServiceApi_GetVervonomicon_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -879,23 +832,6 @@ func RegisterServiceApiHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 		forward_ServiceApi_GetServiceEnvironments_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_ServiceApi_ListEnvironments_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.ServiceApi/ListEnvironments", runtime.WithHTTPPathPattern("/api/environment/list"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_ServiceApi_ListEnvironments_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_ServiceApi_ListEnvironments_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
 	mux.Handle(http.MethodPost, pattern_ServiceApi_GetVervonomicon_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -928,7 +864,6 @@ var (
 	pattern_ServiceApi_GetServiceResources_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "service", "resources"}, ""))
 	pattern_ServiceApi_GetServiceGraph_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "service", "graph"}, ""))
 	pattern_ServiceApi_GetServiceEnvironments_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "service", "environments"}, ""))
-	pattern_ServiceApi_ListEnvironments_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "environment", "list"}, ""))
 	pattern_ServiceApi_GetVervonomicon_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "service", "vervonomicon"}, ""))
 )
 
@@ -944,6 +879,5 @@ var (
 	forward_ServiceApi_GetServiceResources_0    = runtime.ForwardResponseMessage
 	forward_ServiceApi_GetServiceGraph_0        = runtime.ForwardResponseMessage
 	forward_ServiceApi_GetServiceEnvironments_0 = runtime.ForwardResponseMessage
-	forward_ServiceApi_ListEnvironments_0       = runtime.ForwardResponseMessage
 	forward_ServiceApi_GetVervonomicon_0        = runtime.ForwardResponseMessage
 )

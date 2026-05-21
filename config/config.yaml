@@ -28,7 +28,7 @@ environment:
       value: false
     - name: environments
       type: string
-      value: []
+      value: [ "prod" ]
     - name: log_format
       type: string
       enum: [TEXT, JSON]

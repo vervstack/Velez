@@ -1,5 +1,6 @@
 import {queryOptions, useQuery} from '@tanstack/react-query'
-import { controlPlaneService } from '@/processes/api/control_plane'
+import {controlPlaneService} from '@/processes/api/control_plane'
+import {VervPluginState, VervPluginType} from "@/app/api/velez";
 
 export function ListNodesQuery() {
     return useQuery({
@@ -27,4 +28,12 @@ export function ListEnvironmentsQuery() {
         queryKey: ["environments"],
         queryFn: () => controlPlaneService.listEnvironments(),
     })
+}
+
+export function IsStatefullModeEnabled(): boolean {
+    return ListPluginsQuery().data
+        ?.find(p =>
+            p.type == VervPluginType.statefull_pg &&
+            p.state == VervPluginState.running)
+        !== undefined;
 }

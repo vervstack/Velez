@@ -79,11 +79,6 @@ function PluginContent(
         OpenDialog(<PluginManageDialog pluginType={plugin.type}/>)
     }
 
-    function handlePluginNameClick(serviceKey?: string) {
-        if (serviceKey) {
-            navigate(`${Routes.Service}/${serviceKey}`);
-        }
-    }
 
     function openServicePage(serviceName: string) {
         navigate(`${Routes.Service}/${serviceName}`);
@@ -99,7 +94,7 @@ function PluginContent(
         >
             <div
                 className={`${cls.PluginCell} ${isDisabled ? '' : cls.PluginCellClickable}`}
-                onClick={isDisabled ? undefined : () => handlePluginNameClick(plugin.type)}
+                onClick={isDisabled ? undefined : () => openServicePage(plugin.serviceName)}
             >
                 <span className={cls.pluginName}>{plugin.title}</span>
             </div>

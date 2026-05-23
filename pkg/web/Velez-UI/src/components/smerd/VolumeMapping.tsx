@@ -19,7 +19,7 @@ export default function VolumeMapping({containerPath, volumeName, onChange}: Vol
                 <div
                     className={cls.Volume}
 
-                    data-tooltip-id={"tooltip"}
+                    data-tooltip-id={"root-tooltip"}
                     data-tooltip-content="Container path"
                     data-tooltip-place="top"
                 >
@@ -37,7 +37,7 @@ export default function VolumeMapping({containerPath, volumeName, onChange}: Vol
 
                 <div
                     className={cls.Volume}
-                    data-tooltip-id={"tooltip"}
+                    data-tooltip-id={"root-tooltip"}
                     data-tooltip-content="Host path"
                     data-tooltip-place="bottom"
                 >

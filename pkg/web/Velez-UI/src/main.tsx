@@ -1,6 +1,5 @@
 import {createRoot} from 'react-dom/client'
 import {RouterProvider} from "react-router-dom";
-import {Tooltip} from "react-tooltip";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
 
 import '@/index.css'
@@ -15,7 +14,6 @@ createRoot(document.getElementById('root')!)
         <QueryClientProvider client={queryClient}>
             <>
                 <RouterProvider router={router}/>
-                <Tooltip id={"tooltip"}/>
             </>
         </QueryClientProvider>
     )

@@ -2,6 +2,9 @@ import {
     ServiceApi,
     VervAppService,
     GetServiceRequest,
+    GetServiceMetricsRequest,
+    GetServiceGraphRequest,
+    ServiceDependencyInfo,
     CreateDeployRequest,
     CreateSmerdRequest,
     ListServicesRequest,
@@ -13,7 +16,20 @@ import {
 } from "@/app/api/velez"
 
 import {ApiService} from "@/processes/ApiService.ts"
-import type {ServiceMetrics, ServiceResource, ServiceGraphData, ServiceEnvironment, VervonomiconDocs} from "@/model/service_page/ServicePageModel"
+import type {ServiceAbout, ServiceMetrics, ServiceResource, ServiceGraphData, ServiceGraphNode, ServiceEnvironment, VervonomiconDocs} from "@/model/service_page/ServicePageModel"
+
+function formatUptime(seconds?: string): string {
+    const total = Number(seconds ?? 0)
+    if (total <= 0) return '—'
+    const d = Math.floor(total / 86400)
+    const h = Math.floor((total % 86400) / 3600)
+    const m = Math.floor((total % 3600) / 60)
+    const parts: string[] = []
+    if (d > 0) parts.push(`${d}d`)
+    if (h > 0) parts.push(`${h}h`)
+    if (m > 0 || parts.length === 0) parts.push(`${m}m`)
+    return parts.join(' ')
+}
 
 class ServiceService extends ApiService {
     async getServiceByName(name: string): Promise<VervAppService> {
@@ -75,21 +91,35 @@ class ServiceService extends ApiService {
         })
     }
 
-    // TODO: implement — requires GetServiceMetrics RPC in api/grpc/service_api.proto
-    async fetchServiceMetrics(_serviceName: string): Promise<ServiceMetrics> {
-        return {
-            replicas: '3 / 3',
-            uptime: '14d 3h 22m',
-            cpu: 18,
-            mem: 312,
-            memMax: 1024,
-            description: 'Multilevel YAML config sync. Pushes runtime config to subscribed services without redeploy.',
-            type: 'gRPC service',
-            team: 'platform',
-            repo: 'godverv/matreshka',
-            image: 'godverv/matreshka:0.4.7',
-            port: '50051',
-        }
+    async fetchServiceAbout(name: string): Promise<ServiceAbout> {
+        return this.execute(async (req) => {
+            const payload: GetServiceRequest = {name}
+            const res = await ServiceApi.GetService(payload, req)
+            const a = res.about
+            return {
+                description:  a?.description  ?? '',
+                originalName: a?.originalName ?? '',
+                env:          a?.env          ?? '',
+                type:         a?.serviceType  ?? '',
+                team:         a?.team         ?? '',
+                repo:         a?.repo         ?? '',
+                port:         a?.port         ?? '',
+            }
+        })
+    }
+
+    async fetchServiceMetrics(serviceName: string): Promise<ServiceMetrics> {
+        return this.execute(async (req) => {
+            const payload: GetServiceMetricsRequest = {serviceName}
+            const res = await ServiceApi.GetServiceMetrics(payload, req)
+            return {
+                replicas: `${res.replicasRunning ?? 0} / ${res.replicasDesired ?? 0}`,
+                uptime:   formatUptime(res.uptimeSeconds),
+                cpu:      res.cpuPercent ?? 0,
+                mem:      Number(res.memMi ?? 0),
+                memMax:   Number(res.memMaxMi ?? 0),
+            }
+        })
     }
 
     // TODO: implement — requires GetServiceResources RPC in api/grpc/service_api.proto
@@ -103,23 +133,25 @@ class ServiceService extends ApiService {
         ]
     }
 
-    // TODO: implement — requires GetServiceGraph RPC in api/grpc/service_api.proto
-    async fetchServiceGraph(_serviceName: string): Promise<ServiceGraphData> {
-        return {
-            incoming: [
-                { id: 'api-gateway',  kind: 'service', proto: 'gRPC', rate: '1.8k rps' },
-                { id: 'worker-queue', kind: 'service', proto: 'gRPC', rate: '420 rps'  },
-                { id: 'velez-ui',     kind: 'service', proto: 'HTTP', rate: '12 rps'   },
-                { id: 'makosh',       kind: 'service', proto: 'gRPC', rate: '6 rps'    },
-            ],
-            outgoing: [
-                { id: 'postgres-main', kind: 'resource', proto: 'pg',    rate: '2.1k qps' },
-                { id: 'redis-cache',   kind: 'resource', proto: 'resp',  rate: '12k/s'    },
-                { id: 'kafka-events',  kind: 'resource', proto: 'kafka', rate: '820/s'    },
-                { id: 's3-blobs',      kind: 'resource', proto: 'http',  rate: '180/s'    },
-                { id: 'svarog',        kind: 'service',  proto: 'gRPC',  rate: '40 rps'   },
-            ],
-        }
+    async fetchServiceGraph(serviceName: string): Promise<ServiceGraphData> {
+        return this.execute(async (req) => {
+            const payload: GetServiceGraphRequest = { serviceName }
+            const res = await ServiceApi.GetServiceGraph(payload, req)
+
+            function toNode(dep: ServiceDependencyInfo): ServiceGraphNode {
+                return {
+                    id:    dep.serviceName ?? '',
+                    kind:  dep.nodeType === 'NODE_TYPE_RESOURCE' ? 'resource' : 'service',
+                    proto: dep.proto ?? '',
+                    rate:  dep.requestRate != null ? `${dep.requestRate} rps` : '',
+                }
+            }
+
+            return {
+                incoming: (res.callers      ?? []).map(toNode),
+                outgoing: (res.dependencies ?? []).map(toNode),
+            }
+        })
     }
 
     // TODO: implement — requires GetServiceEnvironments RPC in api/grpc/service_api.proto

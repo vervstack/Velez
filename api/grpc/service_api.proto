@@ -115,6 +115,16 @@ message CreateService {
 }
 
 
+message AboutService {
+  string description = 1;
+  string original_name = 2;
+  string env = 3;
+  string service_type = 4;
+  string team = 5;
+  string repo = 6;
+  string port = 7;
+}
+
 message GetService {
   message Request {
     string name = 1;
@@ -125,6 +135,7 @@ message GetService {
       VervAppService verv_service = 1;
       // in future there might be other service types that needs to be managed
     }
+    optional AboutService about = 2;
   }
 }
 
@@ -256,10 +267,16 @@ message GetServiceResources {
   }
 }
 
+enum NodeType {
+  NODE_TYPE_SERVICE = 0;
+  NODE_TYPE_RESOURCE = 1;
+}
+
 message ServiceDependencyInfo {
   string service_name = 1;
   string proto = 2;
   double request_rate = 3;
+  NodeType node_type = 4;
 }
 
 message GetServiceGraph {

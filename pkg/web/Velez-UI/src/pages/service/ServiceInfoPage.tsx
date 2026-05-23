@@ -1,5 +1,4 @@
 import {useEffect, useState} from "react";
-import {Tooltip} from "react-tooltip";
 import {useNavigate, useParams} from "react-router-dom";
 import {Toast, useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {serviceService} from "@/processes/api/service.ts";
@@ -98,10 +97,12 @@ export default function ServiceInfoPage() {
                             serviceStatus={service.status as string | undefined}
                             imageFromSmerd={currentSmerd?.imageName}
                         />
+
                         <div className={cls.ObservabilityWrapper}>
                             <span className={cls.SectionLabel}>Observability & Tools</span>
                             <ObservabilityTools serviceName={service.name}/>
                         </div>
+
                         <ResourcesSection serviceName={service.name}/>
                         <ServiceGraph serviceName={service.name}/>
                         <DeploymentHistory
@@ -229,13 +230,15 @@ function ActionsRow({serviceName, serviceState}: ActionsRowProps) {
             >
                 ■ Stop
             </Button>
+
             <Button
                 onClick={handleRestart}>
                 {serviceState == DeploymentStatus.RUNNING ? '↺ Restart' : '▶ Start'}
             </Button>
             {/*TODO - remake deployment page than enable this*/}
+
             <span
-                data-tooltip-id="root-tooltip"
+                data-tooltip-id={"root-tooltip"}
                 data-tooltip-content="Not available for now, deploy widget is not ready"
             >
                 <Button

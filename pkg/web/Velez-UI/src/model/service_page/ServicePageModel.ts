@@ -7,18 +7,22 @@ export interface ServiceEnvironment {
     health: 'healthy' | 'degraded' | 'unhealthy'
 }
 
-export interface ServiceMetrics {
-    replicas: string        // e.g. "3 / 3"
-    uptime: string          // e.g. "14d 3h 22m"
-    cpu: number             // percent 0-100
-    mem: number             // MiB used
-    memMax: number          // MiB limit
+export interface ServiceAbout {
     description: string
-    type: string            // e.g. "gRPC service"
+    originalName: string
+    env: string
+    type: string
     team: string
     repo: string
-    image: string
     port: string
+}
+
+export interface ServiceMetrics {
+    replicas: string
+    uptime: string
+    cpu: number
+    mem: number
+    memMax: number
 }
 
 export interface ServiceResource {

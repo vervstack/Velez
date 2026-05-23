@@ -18,6 +18,14 @@ const (
 	// SuffixLabel stores the ContainerSuffix value this Velez instance was configured with.
 	// Used to isolate containers when multiple Velez instances share the same Docker host.
 	SuffixLabel = "VELEZ_SUFFIX"
+
+	// Service metadata labels — stored on Docker containers, surfaced via AboutService.
+	DescriptionLabel = "velez.description"
+	ServiceTypeLabel = "velez.type"
+	TeamLabel        = "velez.team"
+	RepoLabel        = "velez.repo"
+	PortLabel        = "velez.port"
+	EnvLabel         = "env"
 )
 
 func IsMatreshkaImage(r *image.InspectResponse) bool {

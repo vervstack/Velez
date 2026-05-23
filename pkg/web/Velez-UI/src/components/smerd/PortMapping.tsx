@@ -23,7 +23,7 @@ export default function PortMapping({portFrom, portTo, onChange, isRunning}: Por
                 <div
                     className={cls.Port}
 
-                    data-tooltip-id={"open-port"}
+                    data-tooltip-id={"root-tooltip"}
                     data-tooltip-content="Service port"
                     data-tooltip-place="top"
                 >
@@ -46,7 +46,7 @@ export default function PortMapping({portFrom, portTo, onChange, isRunning}: Por
                 </div>
                 <div
                     className={cls.Port}
-                    data-tooltip-id={"open-port"}
+                    data-tooltip-id={"root-tooltip"}
                     data-tooltip-content="Exposed to port"
                     data-tooltip-place="bottom"
                 >
@@ -74,7 +74,7 @@ export default function PortMapping({portFrom, portTo, onChange, isRunning}: Por
 
                         className={cls.OpenPort}
 
-                        data-tooltip-id={"open-port"}
+                        data-tooltip-id={"root-tooltip"}
                         data-tooltip-content="Open port"
                         data-tooltip-place="top-start"
                         onClick={() => {

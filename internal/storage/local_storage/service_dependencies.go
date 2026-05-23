@@ -12,6 +12,13 @@ import (
 	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
+func containerName(names []string) string {
+	if len(names) == 0 {
+		return ""
+	}
+	return strings.TrimPrefix(names[0], "/")
+}
+
 type dockerServiceDepsStorage struct {
 	docker node_clients.Docker
 }
@@ -42,28 +49,36 @@ func (d *dockerServiceDepsStorage) GetDependencies(ctx context.Context, serviceN
 
 	for _, c := range containers {
 		dependsOn := c.Labels[labels.DependsOnLabel]
-		if dependsOn == "" {
-			continue
-		}
+		if dependsOn != "" {
+			targets := strings.Split(dependsOn, ",")
+			for _, target := range targets {
+				target = strings.TrimSpace(target)
+				if target == "" {
+					continue
+				}
 
-		targets := strings.Split(dependsOn, ",")
-		for _, target := range targets {
-			target = strings.TrimSpace(target)
-			if target == "" {
-				continue
-			}
+				if seen[target] {
+					continue
+				}
+				seen[target] = true
 
-			key := target
-			if seen[key] {
-				continue
+				dep := domain.ServiceDependency{
+					SourceService: serviceName,
+					TargetService: target,
+					NodeType:      domain.NodeTypeService,
+				}
+				result = append(result, dep)
 			}
-			seen[key] = true
-
-			dep := domain.ServiceDependency{
-				SourceService: serviceName,
-				TargetService: target,
+		} else {
+			name := containerName(c.Names)
+			if name != "" && name != serviceName {
+				dep := domain.ServiceDependency{
+					SourceService: serviceName,
+					TargetService: name,
+					NodeType:      domain.NodeTypeResource,
+				}
+				result = append(result, dep)
 			}
-			result = append(result, dep)
 		}
 	}
 

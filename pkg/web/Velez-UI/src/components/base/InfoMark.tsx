@@ -11,7 +11,7 @@ export default function InfoMark({tooltip}: InfoMarkProps) {
             <img
                 src={InfoMarkSVG}
                 alt={'?'}
-                data-tooltip-id={"tooltip"}
+                data-tooltip-id={"root-tooltip"}
                 data-tooltip-content={tooltip}
             />
         </div>

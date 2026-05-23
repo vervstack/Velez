@@ -20,6 +20,15 @@ func (v *VervService) GetServiceMetrics(ctx context.Context, serviceName string)
 		return domain.ServiceMetrics{}, rerrors.Wrap(err)
 	}
 
+	// single-mode fallback: find container by name when VERV_SERVICE label is absent
+	if len(resp.Smerds) == 0 {
+		req = &velez_api.ListSmerds_Request{Name: &serviceName}
+		resp, err = v.containerService.ListSmerds(ctx, req)
+		if err != nil {
+			return domain.ServiceMetrics{}, rerrors.Wrap(err)
+		}
+	}
+
 	metrics := domain.ServiceMetrics{
 		ReplicasDesired: uint32(len(resp.Smerds)),
 	}
@@ -30,7 +39,8 @@ func (v *VervService) GetServiceMetrics(ctx context.Context, serviceName string)
 
 	var (
 		totalCPU            float64
-		maxMemory           uint64
+		maxMemUsage         uint64
+		maxMemLimit         uint64
 		replicasRunning     uint32
 		earliestStartedTime *time.Time
 	)
@@ -46,8 +56,11 @@ func (v *VervService) GetServiceMetrics(ctx context.Context, serviceName string)
 		}
 
 		totalCPU += stats.CPUPercent
-		if stats.MemUsageMi > maxMemory {
-			maxMemory = stats.MemUsageMi
+		if stats.MemUsageMi > maxMemUsage {
+			maxMemUsage = stats.MemUsageMi
+		}
+		if stats.MemLimitMi > maxMemLimit {
+			maxMemLimit = stats.MemLimitMi
 		}
 		replicasRunning++
 
@@ -57,8 +70,8 @@ func (v *VervService) GetServiceMetrics(ctx context.Context, serviceName string)
 	}
 
 	metrics.CPUPercent = totalCPU
-	metrics.MemMi = maxMemory
-	metrics.MemMaxMi = maxMemory
+	metrics.MemMi = maxMemUsage
+	metrics.MemMaxMi = maxMemLimit
 	metrics.ReplicasRunning = replicasRunning
 
 	if earliestStartedTime != nil {

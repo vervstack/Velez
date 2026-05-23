@@ -20,11 +20,6 @@
     cursor: pointer;
     text-align: left;
     transition: background 0.15s ease, border-color 0.15s ease;
-
-    &:hover {
-        background: #1c1c26;
-        border-color: color-mix(in srgb, var(--tool-accent, #0ab7ee) 30%, transparent);
-    }
 }
 
 .IconSquare {

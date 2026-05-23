@@ -29,6 +29,13 @@ export function ListDeploymentsByServiceNameQuery(serviceName: string) {
     })
 }
 
+export function useGetServiceAboutQuery(name: string) {
+    return useQuery({
+        queryKey: ['service', 'about', name] as const,
+        queryFn: () => serviceService.fetchServiceAbout(name),
+    })
+}
+
 export function useGetServiceMetricsQuery(serviceName: string) {
     return useQuery({
         queryKey: ['service-metrics', serviceName] as const,

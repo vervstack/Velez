@@ -12,10 +12,21 @@ type CreateServiceReq struct {
 	Name string
 }
 
+type AboutService struct {
+	Description  string
+	OriginalName string
+	Env          string
+	ServiceType  string
+	Team         string
+	Repo         string
+	Port         string
+}
+
 type Service struct {
 	ServiceBaseInfo
 	CurrentDeploymentId *uint64
 	Status              velez_api.DeploymentStatus
+	About               AboutService
 }
 
 type ServiceBaseInfo struct {

@@ -1,6 +1,6 @@
 import cls from '@/widgets/service/ServiceHero/ServiceHero.module.css'
 
-import { useGetServiceMetricsQuery } from '@/processes/queries/services'
+import { useGetServiceAboutQuery, useGetServiceMetricsQuery } from '@/processes/queries/services'
 
 interface ServiceHeroProps {
     serviceName: string
@@ -50,6 +50,7 @@ export default function ServiceHero({
     serviceStatus,
     imageFromSmerd,
 }: ServiceHeroProps) {
+    const {data: about} = useGetServiceAboutQuery(serviceName)
     const {data: metrics} = useGetServiceMetricsQuery(serviceName)
 
     const replicas = metrics?.replicas ?? '—'
@@ -64,21 +65,24 @@ export default function ServiceHero({
     const cpuPct = cpu
     const memPct = memMax > 0 ? (mem / memMax) * 100 : 0
 
-    const description = metrics?.description || 'No description available.'
-    const serviceType = metrics?.type || '—'
-    const team = metrics?.team || '—'
-    const image = metrics?.image || imageFromSmerd || ''
-    const port = metrics?.port || ''
-    const repo = metrics?.repo || ''
+    const displayName = about?.originalName || serviceName
+    const description = about?.description || 'No description available.'
+    const serviceType = about?.type || '—'
+    const team = about?.team || '—'
+    const env = about?.env || ''
+    const image = imageFromSmerd || ''
+    const port = about?.port || ''
+    const repo = about?.repo || ''
 
     return (
         <div className={cls.ServiceHeroContainer}>
             <div className={cls.LeftWrapper}>
                 <div className={cls.NameRow}>
                     <span className={`${cls.StatusDot} ${statusDotClass(serviceStatus)}`} />
-                    <h1 className={cls.ServiceName}>{serviceName}</h1>
+                    <h1 className={cls.ServiceName}>{displayName}</h1>
                     <span className={cls.TagCyan}>{serviceType}</span>
                     <span className={cls.Tag}>team · {team}</span>
+                    {env && <span className={cls.Tag}>env · {env}</span>}
                 </div>
 
                 <p className={cls.Description}>{description}</p>

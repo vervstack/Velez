@@ -18,7 +18,7 @@ export default function ActivityPoint({isInactive}: ActivityPointProps) {
     return (
         <div>
             <div
-                data-tooltip-id={"tooltip"}
+                data-tooltip-id={"root-tooltip"}
                 data-tooltip-content={getTooltipContent()}
                 data-tooltip-place="left"
                 className={cn(cls.activityPoint, {

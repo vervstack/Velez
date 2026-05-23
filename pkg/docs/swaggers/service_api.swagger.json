@@ -519,6 +519,32 @@
       },
       "additionalProperties": {}
     },
+    "velez_apiAboutService": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "originalName": {
+          "type": "string"
+        },
+        "env": {
+          "type": "string"
+        },
+        "serviceType": {
+          "type": "string"
+        },
+        "team": {
+          "type": "string"
+        },
+        "repo": {
+          "type": "string"
+        },
+        "port": {
+          "type": "string"
+        }
+      }
+    },
     "velez_apiBoundResource": {
       "type": "object",
       "properties": {
@@ -791,6 +817,9 @@
         "vervService": {
           "$ref": "#/definitions/velez_apiVervAppService",
           "title": "in future there might be other service types that needs to be managed"
+        },
+        "about": {
+          "$ref": "#/definitions/velez_apiAboutService"
         }
       }
     },
@@ -894,6 +923,14 @@
           }
         }
       }
+    },
+    "velez_apiNodeType": {
+      "type": "string",
+      "enum": [
+        "NODE_TYPE_SERVICE",
+        "NODE_TYPE_RESOURCE"
+      ],
+      "default": "NODE_TYPE_SERVICE"
     },
     "velez_apiPaging": {
       "type": "object",
@@ -1006,6 +1043,9 @@
         "requestRate": {
           "type": "number",
           "format": "double"
+        },
+        "nodeType": {
+          "$ref": "#/definitions/velez_apiNodeType"
         }
       }
     },

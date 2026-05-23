@@ -20,6 +20,7 @@ func (impl *Impl) GetServiceGraph(ctx context.Context, pbReq *pb.GetServiceGraph
 			ServiceName: dep.TargetService,
 			Proto:       dep.Proto,
 			RequestRate: dep.RequestRate,
+			NodeType:    pb.NodeType(dep.NodeType),
 		}
 		pbDependencies = append(pbDependencies, pbDep)
 	}
@@ -30,6 +31,7 @@ func (impl *Impl) GetServiceGraph(ctx context.Context, pbReq *pb.GetServiceGraph
 			ServiceName: caller.SourceService,
 			Proto:       caller.Proto,
 			RequestRate: caller.RequestRate,
+			NodeType:    pb.NodeType_NODE_TYPE_SERVICE,
 		}
 		pbCallers = append(pbCallers, pbCaller)
 	}

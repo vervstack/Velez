@@ -72,7 +72,7 @@ export default function Input({label, onChange, inputValue, style, onLeave, disa
                         className={cls.Hint}
                         src={InfoMark}
                         alt={'?'}
-                        data-tooltip-id={"tooltip"}
+                        data-tooltip-id={"root-tooltip"}
                         data-tooltip-content={hint}
                         data-tooltip-place="top"
                     />

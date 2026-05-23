@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go build *)",
+      "Bash(go vet *)",
+      "Bash(make lint *)",
+      "Bash(npx tsc --noEmit *)",
+      "mcp__claude_ai_PersonalVault__read_note"
+    ]
+  }
+}

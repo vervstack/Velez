@@ -31,6 +31,11 @@ export enum DeploymentStatus {
   STOPPED = "STOPPED",
 }
 
+export enum NodeType {
+  NODE_TYPE_SERVICE = "NODE_TYPE_SERVICE",
+  NODE_TYPE_RESOURCE = "NODE_TYPE_RESOURCE",
+}
+
 export type CreateServiceRequest = {
   name?: string;
 };
@@ -39,11 +44,21 @@ export type CreateServiceResponse = Record<string, never>;
 
 export type CreateService = Record<string, never>;
 
+export type AboutService = {
+  description?: string;
+  originalName?: string;
+  env?: string;
+  serviceType?: string;
+  team?: string;
+  repo?: string;
+  port?: string;
+};
+
 export type GetServiceRequest = {
   name?: string;
 };
 
-type BaseGetServiceResponse = {
+type BaseGetServiceResponse = {about?: AboutService;
 };
 
 export type GetServiceResponse = BaseGetServiceResponse &
@@ -171,6 +186,7 @@ export type ServiceDependencyInfo = {
   serviceName?: string;
   proto?: string;
   requestRate?: number;
+  nodeType?: NodeType;
 };
 
 export type GetServiceGraphRequest = {

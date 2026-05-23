@@ -1,6 +1,11 @@
 package e2e
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"strings"
 	"testing"
 	"time"
 
@@ -24,7 +29,6 @@ type HelloWorldClusterSuite struct {
 	dockerClient client.APIClient
 
 	networkName string
-	svcSuffix   string
 
 	pgName string
 
@@ -46,9 +50,6 @@ func (s *HelloWorldClusterSuite) SetupTest() {
 
 	s.pgAppName = GetServiceName(t) + "_app_pg"
 	s.sqliteAppName = GetServiceName(t) + "_hw_sqlite"
-
-	s.svcSuffix = GetServiceName(t)
-
 }
 
 func (s *HelloWorldClusterSuite) Test_ConnectedCluster() {
@@ -64,7 +65,6 @@ func (s *HelloWorldClusterSuite) Test_ConnectedCluster() {
 	// Assert obligatory labels on the PG hello_world
 	assert.Equal(t, s.pgAppName, s.pgAppSmerd.Labels[labels.VervServiceLabel])
 	assert.Equal(t, "postgres", s.pgAppSmerd.Labels[labels.DependsOnLabel])
-	assert.Equal(t, s.svcSuffix, s.pgAppSmerd.Labels[labels.SuffixLabel])
 	assert.Equal(t, "web", s.pgAppSmerd.Labels[labels.ServiceTypeLabel])
 
 	// Assert all labels on the SQLite hello_world
@@ -72,13 +72,93 @@ func (s *HelloWorldClusterSuite) Test_ConnectedCluster() {
 	assert.Equal(t, "false", s.sqliteAppSmerd.Labels[labels.Sidecar])
 	assert.Equal(t, "false", s.sqliteAppSmerd.Labels[labels.AutoUpgrade])
 	assert.Equal(t, s.pgAppName, s.sqliteAppSmerd.Labels[labels.DependsOnLabel])
-	assert.Equal(t, s.svcSuffix, s.sqliteAppSmerd.Labels[labels.SuffixLabel])
 	assert.Equal(t, "Hello World SQLite instance", s.sqliteAppSmerd.Labels[labels.DescriptionLabel])
 	assert.Equal(t, "web", s.sqliteAppSmerd.Labels[labels.ServiceTypeLabel])
 	assert.Equal(t, "test-team", s.sqliteAppSmerd.Labels[labels.TeamLabel])
 	assert.Equal(t, "github.com/godverv/hello_world", s.sqliteAppSmerd.Labels[labels.RepoLabel])
 	assert.Equal(t, "80", s.sqliteAppSmerd.Labels[labels.PortLabel])
 	assert.Equal(t, "test", s.sqliteAppSmerd.Labels[labels.EnvLabel])
+
+	s._testAPIIsolation()
+}
+
+func (s *HelloWorldClusterSuite) _testAPIIsolation() {
+	t := s.T()
+	ctx := t.Context()
+
+	require.NotEmpty(t, s.pgAppSmerd.Ports, "pg app must have exposed ports")
+	require.NotEmpty(t, s.sqliteAppSmerd.Ports, "sqlite app must have exposed ports")
+
+	pgBase := fmt.Sprintf("http://localhost:%d", s.pgAppSmerd.Ports[0].GetExposedTo())
+	sqliteBase := fmt.Sprintf("http://localhost:%d", s.sqliteAppSmerd.Ports[0].GetExposedTo())
+
+	s._waitForApp(t, pgBase)
+	s._waitForApp(t, sqliteBase)
+
+	// 1. sqlite get '1' — empty store
+	s._assertGetKey(t, ctx, sqliteBase, "1", false, "")
+
+	// 2. pg get '1' — empty store
+	s._assertGetKey(t, ctx, pgBase, "1", false, "")
+
+	// 3. set '1' in sqlite, set '2' in pg
+	s._setKey(t, ctx, sqliteBase, "1", "val1")
+	s._setKey(t, ctx, pgBase, "2", "val2")
+
+	// 4. sqlite get '1' — found locally
+	s._assertGetKey(t, ctx, sqliteBase, "1", true, "val1")
+
+	// 5. pg get '1' — not in pg (only in sqlite)
+	s._assertGetKey(t, ctx, pgBase, "1", false, "")
+
+	// 6. both get '2' — sqlite proxies to peer, pg finds it locally
+	s._assertGetKey(t, ctx, sqliteBase, "2", true, "val2")
+	s._assertGetKey(t, ctx, pgBase, "2", true, "val2")
+}
+
+func (s *HelloWorldClusterSuite) _waitForApp(t *testing.T, baseURL string) {
+	t.Helper()
+	require.Eventually(t, func() bool {
+		resp, err := http.Get(baseURL + "/info")
+		if err != nil {
+			return false
+		}
+		_ = resp.Body.Close()
+		return resp.StatusCode == http.StatusOK
+	}, 30*time.Second, 500*time.Millisecond, "app at %s did not become ready", baseURL)
+}
+
+func (s *HelloWorldClusterSuite) _setKey(t *testing.T, ctx context.Context, baseURL, key, value string) {
+	t.Helper()
+	body := fmt.Sprintf(`{"vals":{"values":[{"key":%q,"value":%q}]}}`, key, value)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, baseURL+"/api/set", strings.NewReader(body))
+	require.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = resp.Body.Close() })
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func (s *HelloWorldClusterSuite) _assertGetKey(t *testing.T, ctx context.Context, baseURL, key string, expectFound bool, expectedValue string) {
+	t.Helper()
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, baseURL+"/api/get/"+key, nil)
+	require.NoError(t, err)
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = resp.Body.Close() })
+	if !expectFound {
+		require.NotEqual(t, http.StatusOK, resp.StatusCode, "expected key %q to be absent", key)
+		return
+	}
+	require.Equal(t, http.StatusOK, resp.StatusCode, "expected key %q to be present", key)
+	var result struct {
+		Key   string `json:"key"`
+		Value string `json:"value"`
+	}
+	err = json.NewDecoder(resp.Body).Decode(&result)
+	require.NoError(t, err)
+	require.Equal(t, expectedValue, result.Value)
 }
 
 func (s *HelloWorldClusterSuite) _preparePostgresContainer() {
@@ -113,8 +193,6 @@ func (s *HelloWorldClusterSuite) _preparePostgresContainer() {
 		Labels: map[string]string{
 			labels.VervServiceLabel: "postgres",
 			labels.ServiceTypeLabel: "resource.database",
-			labels.DependsOnLabel:   "",
-			labels.SuffixLabel:      s.svcSuffix,
 			"VERV_SERVICE_OWNER":    s.pgAppName,
 		},
 		IgnoreConfig: true,
@@ -179,10 +257,10 @@ func (s *HelloWorldClusterSuite) _preparePgApp() {
 		Labels: map[string]string{
 			labels.VervServiceLabel: s.pgAppName,
 			labels.DependsOnLabel:   "postgres",
-			labels.SuffixLabel:      s.svcSuffix,
 			labels.ServiceTypeLabel: "web",
 		},
-		IgnoreConfig: true,
+		IgnoreConfig:  true,
+		UseImagePorts: true,
 	}
 
 	s.pgAppSmerd = s.env.CreateSmerd(t, pgHWReq)
@@ -211,7 +289,6 @@ func (s *HelloWorldClusterSuite) _prepareSqliteApp() {
 			labels.MatreshkaConfigLabel:  "false",
 			labels.AutoUpgrade:           "false",
 			labels.DependsOnLabel:        s.pgAppName,
-			labels.SuffixLabel:           s.svcSuffix,
 			labels.DescriptionLabel:      "Hello World SQLite instance",
 			labels.ServiceTypeLabel:      "web",
 			labels.TeamLabel:             "test-team",
@@ -219,7 +296,8 @@ func (s *HelloWorldClusterSuite) _prepareSqliteApp() {
 			labels.PortLabel:             "80",
 			labels.EnvLabel:              "test",
 		},
-		IgnoreConfig: true,
+		IgnoreConfig:  true,
+		UseImagePorts: true,
 	}
 
 	s.sqliteAppSmerd = s.env.CreateSmerd(t, sqliteReq)

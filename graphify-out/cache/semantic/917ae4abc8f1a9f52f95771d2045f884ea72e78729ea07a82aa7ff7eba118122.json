@@ -1,0 +1,1 @@
+{"nodes": [{"id": "grpc_service_api_service", "label": "ServiceAPI (service_api.proto)", "file_type": "code", "source_file": "api/grpc/service_api.proto", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}

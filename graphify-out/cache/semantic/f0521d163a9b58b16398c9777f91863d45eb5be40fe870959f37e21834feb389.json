@@ -1,0 +1,1 @@
+{"nodes": [{"id": "container_manager_inspect", "label": "internal/service/service_manager/container_manager/inspect.go", "file_type": "code", "source_file": "internal/service/service_manager/container_manager/inspect.go", "source_location": "line 36", "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}

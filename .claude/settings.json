@@ -7,5 +7,65 @@
       "Bash(npx tsc --noEmit *)",
       "mcp__claude_ai_PersonalVault__read_note"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/graphify hook-guard search"
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/homebrew/bin/graphify hook-guard read"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/validate-commit-msg.py 2>/dev/null || true",
+            "statusMessage": "Checking commit message format..."
+          }
+        ]
+      },
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ST=$(python3 -c \"import json,sys; d=json.load(sys.stdin); print(d.get('tool_input',d).get('subagent_type',''))\" 2>/dev/null || true); case \"$ST\" in Explore|general-purpose)   [ -f graphify-out/graph.json ] &&   echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"graphify: knowledge graph at graphify-out/. Before spawning this exploration agent, try graphify yourself first: run graphify query <seeded with an actual class/function/file name, not a vague phrase> (or graphify explain / graphify path). One good query often returns the whole relevant slice in seconds - cheaper than a subagent trace. Only fall back to this agent if graphify does not surface enough.\"}}'   || true ;; esac"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -f graphify-out/graph.json ] && git status --porcelain -- '*.go' '*.ts' '*.tsx' '*.sql' '*.proto' 2>/dev/null | grep -q . && find . \\( -name node_modules -o -name graphify-out -o -name .git \\) -prune -o \\( -name '*.go' -o -name '*.ts' -o -name '*.tsx' -o -name '*.sql' -o -name '*.proto' \\) -newer graphify-out/graph.json -print 2>/dev/null | grep -q . && echo '{\"decision\":\"block\",\"reason\":\"graphify-out/ is stale relative to source changes made this turn. Run `graphify update .` before finishing.\"}' || true"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "git status --porcelain -- graphify-out 2>/dev/null | grep -q . && PREV=$(git log -1 --format=%s --invert-grep --grep='^\\[Graphify\\]' 2>/dev/null) && git add -- graphify-out && git commit --quiet -m \"[Graphify] chore: update code graph after ${PREV:-source changes}\" -- graphify-out || true",
+            "statusMessage": "Committing graphify-out..."
+          }
+        ]
+      }
+    ]
   }
 }

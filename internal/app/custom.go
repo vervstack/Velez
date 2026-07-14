@@ -6,6 +6,7 @@ package app
 import (
 	"context"
 	"errors"
+	"os"
 	"strings"
 	"time"
 
@@ -21,6 +22,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster"
 	"go.vervstack.ru/Velez/internal/cluster/autoupgrade"
+	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/middleware"
 	"go.vervstack.ru/Velez/internal/pipelines"
 	"go.vervstack.ru/Velez/internal/service"
@@ -28,6 +30,7 @@ import (
 	"go.vervstack.ru/Velez/internal/transport"
 	"go.vervstack.ru/Velez/internal/transport/control_plane_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/service_api_impl"
+	"go.vervstack.ru/Velez/internal/transport/tasks_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/ui"
 	"go.vervstack.ru/Velez/internal/transport/vcn_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/velez_api_impl"
@@ -45,16 +48,20 @@ type Custom struct {
 	// Services - contains business logic services
 	Services  service.Services
 	Pipeliner pipelines.Pipeliner
+	// JobsEngine - durable, resumable task/job engine (see internal/jobs)
+	JobsEngine jobs.Engine
 	// Api implementation
 	ApiGrpcImpl         *velez_api_impl.Impl
 	ControlPlaneApiImpl *control_plane_api_impl.Impl
 	VpnApiImpl          *vcn_api_impl.Impl
 	ServiceApiImpl      *service_api_impl.Impl
+	TasksApiImpl        *tasks_api_impl.Impl
 
 	serverManager *transport.ServersManager
 
 	//	Background workers
 	DeployWatcher workers.Worker
+	TaskWorker    workers.Worker
 	autoupgrader  *autoupgrade.AutoUpgrade
 }
 
@@ -81,6 +88,25 @@ func (c *Custom) Init(a *App) (err error) {
 	c.DeployWatcher = workers.NewDeployWatcher(c.Services, c.Pipeliner, c.ClusterClients, c.NodeClients, time.Second*5)
 	go c.DeployWatcher.Start(a.Ctx)
 	closer.Add(c.DeployWatcher.Stop)
+
+	registry := jobs.NewRegistry()
+	registry.Register(jobs.NewCreateSmerdHandler(c.NodeClients))
+	registry.Register(jobs.NewCreateServiceHandler(c.ClusterClients.StateManager().Services()))
+
+	workerId, hostErr := os.Hostname()
+	if hostErr != nil || workerId == "" {
+		workerId = "velez-worker"
+	}
+
+	c.TaskWorker = jobs.NewTaskWorker(
+		c.ClusterClients.StateManager().Tasks(),
+		c.ClusterClients.StateManager().Jobs(),
+		registry,
+		workerId,
+		time.Second*2,
+	)
+	go c.TaskWorker.Start(a.Ctx)
+	closer.Add(c.TaskWorker.Stop)
 
 	return nil
 }
@@ -125,6 +151,11 @@ func (c *Custom) Stop() error {
 		firstErr = err
 	}
 
+	err = c.TaskWorker.Stop()
+	if err != nil && firstErr == nil {
+		firstErr = err
+	}
+
 	err = c.autoupgrader.Stop()
 	if err != nil && firstErr == nil {
 		firstErr = err
@@ -150,6 +181,7 @@ func (c *Custom) InitServiceLayer(a *App) error {
 	}
 
 	c.Pipeliner = pipelines.NewPipeliner(c.NodeClients, c.ClusterClients, c.Services, a.Cfg.Environment.ContainerSuffix)
+	c.JobsEngine = jobs.NewEngine(c.ClusterClients.StateManager().Tasks())
 
 	log.Info().Bool("shutDownOnExit", a.Cfg.Environment.ShutDownOnExit).Msg("shut down on exit")
 	if a.Cfg.Environment.ShutDownOnExit {
@@ -170,8 +202,9 @@ func (c *Custom) InitApiServer(a *App) error {
 	c.ControlPlaneApiImpl = control_plane_api_impl.New(c.Services, c.Pipeliner)
 	c.VpnApiImpl = vcn_api_impl.New(c.ClusterClients, c.Pipeliner)
 	c.ServiceApiImpl = service_api_impl.New(c.Pipeliner, c.Services)
+	c.TasksApiImpl = tasks_api_impl.New(c.JobsEngine)
 
-	c.serverManager.AddImplementation(c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl, c.ServiceApiImpl)
+	c.serverManager.AddImplementation(c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl, c.ServiceApiImpl, c.TasksApiImpl)
 	c.serverManager.AddHttpHandler(docs.Swagger())
 	c.serverManager.AddHttpHandler("/", ui.NewServer())
 

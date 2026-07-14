@@ -59,6 +59,93 @@ func (ns NullVelezDeploymentStatus) Value() (driver.Value, error) {
 	return string(ns.VelezDeploymentStatus), nil
 }
 
+type VelezJobStatus string
+
+const (
+	VelezJobStatusRUNNING VelezJobStatus = "RUNNING"
+	VelezJobStatusDONE    VelezJobStatus = "DONE"
+	VelezJobStatusFAILED  VelezJobStatus = "FAILED"
+)
+
+func (e *VelezJobStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = VelezJobStatus(s)
+	case string:
+		*e = VelezJobStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for VelezJobStatus: %T", src)
+	}
+	return nil
+}
+
+type NullVelezJobStatus struct {
+	VelezJobStatus VelezJobStatus
+	Valid          bool // Valid is true if VelezJobStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullVelezJobStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.VelezJobStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.VelezJobStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullVelezJobStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.VelezJobStatus), nil
+}
+
+type VelezTaskStatus string
+
+const (
+	VelezTaskStatusPENDING VelezTaskStatus = "PENDING"
+	VelezTaskStatusRUNNING VelezTaskStatus = "RUNNING"
+	VelezTaskStatusDONE    VelezTaskStatus = "DONE"
+	VelezTaskStatusFAILED  VelezTaskStatus = "FAILED"
+)
+
+func (e *VelezTaskStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = VelezTaskStatus(s)
+	case string:
+		*e = VelezTaskStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for VelezTaskStatus: %T", src)
+	}
+	return nil
+}
+
+type NullVelezTaskStatus struct {
+	VelezTaskStatus VelezTaskStatus
+	Valid           bool // Valid is true if VelezTaskStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullVelezTaskStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.VelezTaskStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.VelezTaskStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullVelezTaskStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.VelezTaskStatus), nil
+}
+
 type VelezDeployment struct {
 	ID        int64
 	NodeID    int32
@@ -74,6 +161,16 @@ type VelezDeploymentSpecification struct {
 	ServiceID   sql.NullInt64
 	VervPayload pqtype.NullRawMessage
 	CreatedAt   time.Time
+}
+
+type VelezJob struct {
+	ID        int64
+	TaskID    int64
+	JobName   string
+	Status    VelezJobStatus
+	Error     sql.NullString
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type VelezNode struct {
@@ -121,4 +218,17 @@ type VelezSharedVolume struct {
 	SpecificationID sql.NullInt64
 	// You can specify a specific deployment to mount a volume to. In case if not null volume will be mounted only to this deployment
 	DeploymentID sql.NullInt64
+}
+
+type VelezTask struct {
+	ID        int64
+	EntityID  string
+	Action    string
+	Status    VelezTaskStatus
+	Context   pqtype.NullRawMessage
+	Error     sql.NullString
+	ClaimedAt sql.NullTime
+	ClaimedBy sql.NullString
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

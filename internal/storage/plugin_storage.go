@@ -47,3 +47,11 @@ func (c *Container) ServiceDependencies() ServiceDependenciesStorage {
 func (c *Container) ServiceResources() ServiceResourcesStorage {
 	return (*c.impl.Load()).ServiceResources()
 }
+
+func (c *Container) Tasks() TasksStorage {
+	return (*c.impl.Load()).Tasks()
+}
+
+func (c *Container) Jobs() JobsStorage {
+	return (*c.impl.Load()).Jobs()
+}

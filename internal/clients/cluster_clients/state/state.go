@@ -96,6 +96,26 @@ func (s *stateManager) ServiceResources() storage.ServiceResourcesStorage {
 	return cm.ServiceResources()
 }
 
+func (s *stateManager) Tasks() storage.TasksStorage {
+	l := s.state.Load()
+	cm, ok := (*l).(cluster_clients.ClusterStateManager)
+	if !ok {
+		return nil
+	}
+
+	return cm.Tasks()
+}
+
+func (s *stateManager) Jobs() storage.JobsStorage {
+	l := s.state.Load()
+	cm, ok := (*l).(cluster_clients.ClusterStateManager)
+	if !ok {
+		return nil
+	}
+
+	return cm.Jobs()
+}
+
 func (s *stateManager) tryConnect() {
 
 }

@@ -20,6 +20,8 @@ type Storage struct {
 	pluginsStorage             *pluginsStorage
 	serviceDependenciesStorage *serviceDependenciesStorage
 	serviceResourcesStorage    *serviceResourcesStorage
+	tasksStorage               *tasksStorage
+	jobsStorage                *jobsStorage
 
 	txManager *sqldb.TxManager
 }
@@ -36,6 +38,8 @@ func New(db *sql.DB) storage.Storage {
 		pluginsStorage:             newPluginsStorage(db),
 		serviceDependenciesStorage: newServiceDependenciesStorage(db),
 		serviceResourcesStorage:    newServiceResourcesStorage(db),
+		tasksStorage:               newTasksStorage(db),
+		jobsStorage:                newJobsStorage(db),
 		txManager:                  sqldb.NewTxManager(db),
 	}
 }
@@ -62,6 +66,14 @@ func (s *Storage) ServiceDependencies() storage.ServiceDependenciesStorage {
 
 func (s *Storage) ServiceResources() storage.ServiceResourcesStorage {
 	return s.serviceResourcesStorage
+}
+
+func (s *Storage) Tasks() storage.TasksStorage {
+	return s.tasksStorage
+}
+
+func (s *Storage) Jobs() storage.JobsStorage {
+	return s.jobsStorage
 }
 
 func (s *Storage) TxManager() *sqldb.TxManager {

@@ -43,6 +43,10 @@ func Swagger() (p string, handler http.HandlerFunc) {
 					URL:  path.Join(swaggerPath, "service_api.swagger.json"),
 				},
 				{
+					Name: "Tasks",
+					URL:  path.Join(swaggerPath, "tasks.swagger.json"),
+				},
+				{
 					Name: "VervClosedNetwork",
 					URL:  path.Join(swaggerPath, "verv_closed_network.swagger.json"),
 				},

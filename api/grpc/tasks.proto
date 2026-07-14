@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package velez_api;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+import "npm.proto";
+import "velez_api.proto";
+
+option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
+option (npm_package) = "@vervstack/velez";
+
+// TasksApi exposes progress/status for durable, resumable tasks
+// executed by the internal task/job engine.
+service TasksApi {
+  rpc WatchTask(WatchTask.Request) returns (stream TaskStatus) {
+    option (google.api.http) = {
+      get: "/api/tasks/watch"
+    };
+  }
+}
+
+message WatchTask {
+  message Request {
+    string entity_id = 1;
+    string action = 2;
+  }
+}
+
+message TaskStatus {
+  enum Status {
+    UNKNOWN = 0;
+    PENDING = 1;
+    RUNNING = 2;
+    DONE = 3;
+    FAILED = 4;
+  }
+
+  Status status = 1;
+  optional string error = 2;
+  google.protobuf.Timestamp updated_at = 3;
+}
+
+// CreateSmerdTaskPayload is the task context for the "create_smerd" action.
+// It carries only the business data jobs need to hand off to one another;
+// per-job execution status lives separately in the task engine's own tables.
+message CreateSmerdTaskPayload {
+  CreateSmerd.Request request = 1;
+
+  // Set once the image has been prepared/inspected.
+  optional string image_id = 2;
+  // Set once the container has been created.
+  optional string container_id = 3;
+}
+
+// CreateServiceTaskPayload is the task context for the "create_service" action.
+message CreateServiceTaskPayload {
+  string name = 1;
+}

@@ -9,7 +9,9 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
+	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/plugins_queries"
+	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
 var (
@@ -24,6 +26,8 @@ type Storage interface {
 	Plugins() PluginsStorage
 	ServiceDependencies() ServiceDependenciesStorage
 	ServiceResources() ServiceResourcesStorage
+	Tasks() TasksStorage
+	Jobs() JobsStorage
 
 	TxManager() *sqldb.TxManager
 }
@@ -63,6 +67,16 @@ type ServiceDependenciesStorage interface {
 type ServiceResourcesStorage interface {
 	GetResources(ctx context.Context, serviceName string) ([]domain.BoundResource, error)
 	UpsertResource(ctx context.Context, serviceName, resourceName, resourceType string) error
+}
+
+type TasksStorage interface {
+	tasks_queries.Querier
+	WithTx(tx *sql.Tx) *tasks_queries.Queries
+}
+
+type JobsStorage interface {
+	jobs_queries.Querier
+	WithTx(tx *sql.Tx) *jobs_queries.Queries
 }
 
 type EnvironmentsStorage interface {

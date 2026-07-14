@@ -747,5 +747,16 @@
   "745": "ListEnvironments_Response",
   "746": "ListNodes",
   "747": "create_service.go",
-  "748": ".WithTx"
+  "748": ".WithTx",
+  "749": "InitMaster",
+  "750": "StopService_Response",
+  "751": "CreatePgUserForNode",
+  "752": ".EnablePlugin",
+  "753": "Pipelines → Jobs Migration",
+  "754": "pgStorage",
+  "755": "NewStatic",
+  "756": "GetLoginServerUrl",
+  "757": ".Get",
+  "758": "NewService",
+  "759": "createSmerdHandler"
 }

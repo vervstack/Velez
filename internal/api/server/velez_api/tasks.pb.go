@@ -285,6 +285,139 @@ func (x *CreateServiceTaskPayload) GetName() string {
 	return ""
 }
 
+// AssembleConfigTaskPayload is the task context for the "assemble_config" action.
+type AssembleConfigTaskPayload struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	ServiceName string                 `protobuf:"bytes,1,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	ImageName   string                 `protobuf:"bytes,2,opt,name=image_name,json=imageName,proto3" json:"image_name,omitempty"`
+	// Set once the scratch image has been pulled/inspected.
+	ImageLabels map[string]string `protobuf:"bytes,3,rep,name=image_labels,json=imageLabels,proto3" json:"image_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	ImageTags   []string          `protobuf:"bytes,4,rep,name=image_tags,json=imageTags,proto3" json:"image_tags,omitempty"`
+	// Set once the scratch container has been created.
+	ContainerId *string `protobuf:"bytes,5,opt,name=container_id,json=containerId,proto3,oneof" json:"container_id,omitempty"`
+	// Set once config metadata has been resolved and its raw content fetched
+	// from the container.
+	ConfigName    *string `protobuf:"bytes,6,opt,name=config_name,json=configName,proto3,oneof" json:"config_name,omitempty"`
+	ConfigVersion *string `protobuf:"bytes,7,opt,name=config_version,json=configVersion,proto3,oneof" json:"config_version,omitempty"`
+	// matreshka_api.ConfigTypePrefix's enum name, e.g. "plain"/"verv"/"pg".
+	// Kept as a string rather than the typed enum to avoid a proto dependency
+	// on the matreshka_api package (see moti.yaml deps for its pinned version).
+	ConfType     *string       `protobuf:"bytes,8,opt,name=conf_type,json=confType,proto3,oneof" json:"conf_type,omitempty"`
+	ConfigFormat *ConfigFormat `protobuf:"varint,9,opt,name=config_format,json=configFormat,proto3,enum=velez_api.ConfigFormat,oneof" json:"config_format,omitempty"`
+	ContentRaw   []byte        `protobuf:"bytes,10,opt,name=content_raw,json=contentRaw,proto3,oneof" json:"content_raw,omitempty"`
+	// Set once content_raw has been parsed into evon (env) format.
+	Content       []byte `protobuf:"bytes,11,opt,name=content,proto3,oneof" json:"content,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AssembleConfigTaskPayload) Reset() {
+	*x = AssembleConfigTaskPayload{}
+	mi := &file_tasks_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AssembleConfigTaskPayload) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AssembleConfigTaskPayload) ProtoMessage() {}
+
+func (x *AssembleConfigTaskPayload) ProtoReflect() protoreflect.Message {
+	mi := &file_tasks_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AssembleConfigTaskPayload.ProtoReflect.Descriptor instead.
+func (*AssembleConfigTaskPayload) Descriptor() ([]byte, []int) {
+	return file_tasks_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *AssembleConfigTaskPayload) GetServiceName() string {
+	if x != nil {
+		return x.ServiceName
+	}
+	return ""
+}
+
+func (x *AssembleConfigTaskPayload) GetImageName() string {
+	if x != nil {
+		return x.ImageName
+	}
+	return ""
+}
+
+func (x *AssembleConfigTaskPayload) GetImageLabels() map[string]string {
+	if x != nil {
+		return x.ImageLabels
+	}
+	return nil
+}
+
+func (x *AssembleConfigTaskPayload) GetImageTags() []string {
+	if x != nil {
+		return x.ImageTags
+	}
+	return nil
+}
+
+func (x *AssembleConfigTaskPayload) GetContainerId() string {
+	if x != nil && x.ContainerId != nil {
+		return *x.ContainerId
+	}
+	return ""
+}
+
+func (x *AssembleConfigTaskPayload) GetConfigName() string {
+	if x != nil && x.ConfigName != nil {
+		return *x.ConfigName
+	}
+	return ""
+}
+
+func (x *AssembleConfigTaskPayload) GetConfigVersion() string {
+	if x != nil && x.ConfigVersion != nil {
+		return *x.ConfigVersion
+	}
+	return ""
+}
+
+func (x *AssembleConfigTaskPayload) GetConfType() string {
+	if x != nil && x.ConfType != nil {
+		return *x.ConfType
+	}
+	return ""
+}
+
+func (x *AssembleConfigTaskPayload) GetConfigFormat() ConfigFormat {
+	if x != nil && x.ConfigFormat != nil {
+		return *x.ConfigFormat
+	}
+	return ConfigFormat_yaml
+}
+
+func (x *AssembleConfigTaskPayload) GetContentRaw() []byte {
+	if x != nil {
+		return x.ContentRaw
+	}
+	return nil
+}
+
+func (x *AssembleConfigTaskPayload) GetContent() []byte {
+	if x != nil {
+		return x.Content
+	}
+	return nil
+}
+
 type WatchTask_Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	EntityId      string                 `protobuf:"bytes,1,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
@@ -295,7 +428,7 @@ type WatchTask_Request struct {
 
 func (x *WatchTask_Request) Reset() {
 	*x = WatchTask_Request{}
-	mi := &file_tasks_proto_msgTypes[4]
+	mi := &file_tasks_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -307,7 +440,7 @@ func (x *WatchTask_Request) String() string {
 func (*WatchTask_Request) ProtoMessage() {}
 
 func (x *WatchTask_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_tasks_proto_msgTypes[4]
+	mi := &file_tasks_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -341,7 +474,7 @@ var File_tasks_proto protoreflect.FileDescriptor
 
 const file_tasks_proto_rawDesc = "" +
 	"\n" +
-	"\vtasks.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\x1a\x0fvelez_api.proto\"K\n" +
+	"\vtasks.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\x1a\x0fvelez_api.proto\x1a\x12velez_common.proto\"K\n" +
 	"\tWatchTask\x1a>\n" +
 	"\aRequest\x12\x1b\n" +
 	"\tentity_id\x18\x01 \x01(\tR\bentityId\x12\x16\n" +
@@ -367,7 +500,36 @@ const file_tasks_proto_rawDesc = "" +
 	"\t_image_idB\x0f\n" +
 	"\r_container_id\".\n" +
 	"\x18CreateServiceTaskPayload\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name2h\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"\xaa\x05\n" +
+	"\x19AssembleConfigTaskPayload\x12!\n" +
+	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x12\x1d\n" +
+	"\n" +
+	"image_name\x18\x02 \x01(\tR\timageName\x12X\n" +
+	"\fimage_labels\x18\x03 \x03(\v25.velez_api.AssembleConfigTaskPayload.ImageLabelsEntryR\vimageLabels\x12\x1d\n" +
+	"\n" +
+	"image_tags\x18\x04 \x03(\tR\timageTags\x12&\n" +
+	"\fcontainer_id\x18\x05 \x01(\tH\x00R\vcontainerId\x88\x01\x01\x12$\n" +
+	"\vconfig_name\x18\x06 \x01(\tH\x01R\n" +
+	"configName\x88\x01\x01\x12*\n" +
+	"\x0econfig_version\x18\a \x01(\tH\x02R\rconfigVersion\x88\x01\x01\x12 \n" +
+	"\tconf_type\x18\b \x01(\tH\x03R\bconfType\x88\x01\x01\x12A\n" +
+	"\rconfig_format\x18\t \x01(\x0e2\x17.velez_api.ConfigFormatH\x04R\fconfigFormat\x88\x01\x01\x12$\n" +
+	"\vcontent_raw\x18\n" +
+	" \x01(\fH\x05R\n" +
+	"contentRaw\x88\x01\x01\x12\x1d\n" +
+	"\acontent\x18\v \x01(\fH\x06R\acontent\x88\x01\x01\x1a>\n" +
+	"\x10ImageLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x0f\n" +
+	"\r_container_idB\x0e\n" +
+	"\f_config_nameB\x11\n" +
+	"\x0f_config_versionB\f\n" +
+	"\n" +
+	"_conf_typeB\x10\n" +
+	"\x0e_config_formatB\x0e\n" +
+	"\f_content_rawB\n" +
+	"\n" +
+	"\b_content2h\n" +
 	"\bTasksApi\x12\\\n" +
 	"\tWatchTask\x12\x1c.velez_api.WatchTask.Request\x1a\x15.velez_api.TaskStatus\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/api/tasks/watch0\x01BC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
 
@@ -384,28 +546,33 @@ func file_tasks_proto_rawDescGZIP() []byte {
 }
 
 var file_tasks_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_tasks_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_tasks_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_tasks_proto_goTypes = []any{
-	(TaskStatus_Status)(0),           // 0: velez_api.TaskStatus.Status
-	(*WatchTask)(nil),                // 1: velez_api.WatchTask
-	(*TaskStatus)(nil),               // 2: velez_api.TaskStatus
-	(*CreateSmerdTaskPayload)(nil),   // 3: velez_api.CreateSmerdTaskPayload
-	(*CreateServiceTaskPayload)(nil), // 4: velez_api.CreateServiceTaskPayload
-	(*WatchTask_Request)(nil),        // 5: velez_api.WatchTask.Request
-	(*timestamppb.Timestamp)(nil),    // 6: google.protobuf.Timestamp
-	(*CreateSmerd_Request)(nil),      // 7: velez_api.CreateSmerd.Request
+	(TaskStatus_Status)(0),            // 0: velez_api.TaskStatus.Status
+	(*WatchTask)(nil),                 // 1: velez_api.WatchTask
+	(*TaskStatus)(nil),                // 2: velez_api.TaskStatus
+	(*CreateSmerdTaskPayload)(nil),    // 3: velez_api.CreateSmerdTaskPayload
+	(*CreateServiceTaskPayload)(nil),  // 4: velez_api.CreateServiceTaskPayload
+	(*AssembleConfigTaskPayload)(nil), // 5: velez_api.AssembleConfigTaskPayload
+	(*WatchTask_Request)(nil),         // 6: velez_api.WatchTask.Request
+	nil,                               // 7: velez_api.AssembleConfigTaskPayload.ImageLabelsEntry
+	(*timestamppb.Timestamp)(nil),     // 8: google.protobuf.Timestamp
+	(*CreateSmerd_Request)(nil),       // 9: velez_api.CreateSmerd.Request
+	(ConfigFormat)(0),                 // 10: velez_api.ConfigFormat
 }
 var file_tasks_proto_depIdxs = []int32{
-	0, // 0: velez_api.TaskStatus.status:type_name -> velez_api.TaskStatus.Status
-	6, // 1: velez_api.TaskStatus.updated_at:type_name -> google.protobuf.Timestamp
-	7, // 2: velez_api.CreateSmerdTaskPayload.request:type_name -> velez_api.CreateSmerd.Request
-	5, // 3: velez_api.TasksApi.WatchTask:input_type -> velez_api.WatchTask.Request
-	2, // 4: velez_api.TasksApi.WatchTask:output_type -> velez_api.TaskStatus
-	4, // [4:5] is the sub-list for method output_type
-	3, // [3:4] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	0,  // 0: velez_api.TaskStatus.status:type_name -> velez_api.TaskStatus.Status
+	8,  // 1: velez_api.TaskStatus.updated_at:type_name -> google.protobuf.Timestamp
+	9,  // 2: velez_api.CreateSmerdTaskPayload.request:type_name -> velez_api.CreateSmerd.Request
+	7,  // 3: velez_api.AssembleConfigTaskPayload.image_labels:type_name -> velez_api.AssembleConfigTaskPayload.ImageLabelsEntry
+	10, // 4: velez_api.AssembleConfigTaskPayload.config_format:type_name -> velez_api.ConfigFormat
+	6,  // 5: velez_api.TasksApi.WatchTask:input_type -> velez_api.WatchTask.Request
+	2,  // 6: velez_api.TasksApi.WatchTask:output_type -> velez_api.TaskStatus
+	6,  // [6:7] is the sub-list for method output_type
+	5,  // [5:6] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_tasks_proto_init() }
@@ -414,15 +581,17 @@ func file_tasks_proto_init() {
 		return
 	}
 	file_velez_api_proto_init()
+	file_velez_common_proto_init()
 	file_tasks_proto_msgTypes[1].OneofWrappers = []any{}
 	file_tasks_proto_msgTypes[2].OneofWrappers = []any{}
+	file_tasks_proto_msgTypes[4].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_tasks_proto_rawDesc), len(file_tasks_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   5,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -7,6 +7,15 @@ import (
 	"sync"
 	"time"
 
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/image"
+	"github.com/docker/docker/api/types/network"
+	"github.com/docker/docker/client"
+	v1 "github.com/opencontainers/image-spec/specs-go/v1"
+
+	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
@@ -276,4 +285,108 @@ func (f *fakeServicesStorage) UpsertService(_ context.Context, name string) erro
 
 func (f *fakeServicesStorage) List(_ context.Context, _ domain.ListServicesReq) (domain.ServiceList, error) {
 	return domain.ServiceList{}, nil
+}
+
+// fakeDocker is a minimal in-memory implementation of node_clients.Docker
+// for exercising assemble_config's Docker-touching jobs without a real
+// Docker daemon. Only the methods those jobs actually call
+// (PullImage/ContainerCreate/Remove) are configurable; the rest return zero
+// values since the jobs under test never invoke them.
+type fakeDocker struct {
+	mu sync.Mutex
+
+	pullImageResp image.InspectResponse
+	pullImageErr  error
+
+	containerCreateResp container.CreateResponse
+	containerCreateErr  error
+
+	removeErr        error
+	removeCalledWith []string
+}
+
+func newFakeDocker() *fakeDocker {
+	return &fakeDocker{}
+}
+
+func (f *fakeDocker) PullImage(_ context.Context, _ string) (image.InspectResponse, error) {
+	return f.pullImageResp, f.pullImageErr
+}
+
+func (f *fakeDocker) Remove(_ context.Context, uuid string) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.removeCalledWith = append(f.removeCalledWith, uuid)
+
+	return f.removeErr
+}
+
+func (f *fakeDocker) Stop(_ context.Context, _ string) error {
+	return nil
+}
+
+func (f *fakeDocker) Restart(_ context.Context, _ string) error {
+	return nil
+}
+
+func (f *fakeDocker) ListContainers(_ context.Context, _ *velez_api.ListSmerds_Request) ([]container.Summary, error) {
+	return nil, nil
+}
+
+func (f *fakeDocker) ListOccupiedPorts(_ context.Context) ([]uint32, error) {
+	return nil, nil
+}
+
+func (f *fakeDocker) Exec(_ context.Context, _ string, _ container.ExecOptions) ([]byte, error) {
+	return nil, nil
+}
+
+func (f *fakeDocker) IsContainerRunning(_ context.Context, _ string) (bool, bool, error) {
+	return false, false, nil
+}
+
+func (f *fakeDocker) Client() client.APIClient {
+	return nil
+}
+
+func (f *fakeDocker) ContainerCreate(
+	_ context.Context, _ *container.Config, _ *container.HostConfig, _ *network.NetworkingConfig, _ *v1.Platform, _ string,
+) (container.CreateResponse, error) {
+	return f.containerCreateResp, f.containerCreateErr
+}
+
+func (f *fakeDocker) Stats(_ context.Context, _ string) (domain.ContainerStats, error) {
+	return domain.ContainerStats{}, nil
+}
+
+// fakeNodeClients is a minimal node_clients.NodeClients wrapping a
+// fakeDocker, for jobs (like createScratchContainerJob) that depend on the
+// full NodeClients container but only ever call Docker() on it.
+type fakeNodeClients struct {
+	docker *fakeDocker
+}
+
+func newFakeNodeClients(docker *fakeDocker) *fakeNodeClients {
+	return &fakeNodeClients{docker: docker}
+}
+
+func (f *fakeNodeClients) Docker() node_clients.Docker {
+	return f.docker
+}
+
+func (f *fakeNodeClients) PortManager() node_clients.PortManager {
+	return nil
+}
+
+func (f *fakeNodeClients) PortManagerContainer() *ports.Container {
+	return nil
+}
+
+func (f *fakeNodeClients) LocalStateManager() node_clients.StateManager {
+	return nil
+}
+
+func (f *fakeNodeClients) HardwareManager() node_clients.HardwareManager {
+	return nil
 }

@@ -7,6 +7,7 @@ import "google/protobuf/timestamp.proto";
 
 import "npm.proto";
 import "velez_api.proto";
+import "velez_common.proto";
 
 option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
 option (npm_package) = "@vervstack/velez";
@@ -57,4 +58,31 @@ message CreateSmerdTaskPayload {
 // CreateServiceTaskPayload is the task context for the "create_service" action.
 message CreateServiceTaskPayload {
   string name = 1;
+}
+
+// AssembleConfigTaskPayload is the task context for the "assemble_config" action.
+message AssembleConfigTaskPayload {
+  string service_name = 1;
+  string image_name = 2;
+
+  // Set once the scratch image has been pulled/inspected.
+  map<string, string> image_labels = 3;
+  repeated string image_tags = 4;
+
+  // Set once the scratch container has been created.
+  optional string container_id = 5;
+
+  // Set once config metadata has been resolved and its raw content fetched
+  // from the container.
+  optional string config_name = 6;
+  optional string config_version = 7;
+  // matreshka_api.ConfigTypePrefix's enum name, e.g. "plain"/"verv"/"pg".
+  // Kept as a string rather than the typed enum to avoid a proto dependency
+  // on the matreshka_api package (see moti.yaml deps for its pinned version).
+  optional string conf_type = 8;
+  optional ConfigFormat config_format = 9;
+  optional bytes content_raw = 10;
+
+  // Set once content_raw has been parsed into evon (env) format.
+  optional bytes content = 11;
 }

@@ -15,3 +15,39 @@ func (x *CreateSmerdTaskPayload) SetImageId(v string) {
 func (x *CreateSmerdTaskPayload) SetContainerId(v string) {
 	x.ContainerId = &v
 }
+
+func (x *AssembleConfigTaskPayload) SetImageLabels(v map[string]string) {
+	x.ImageLabels = v
+}
+
+func (x *AssembleConfigTaskPayload) SetImageTags(v []string) {
+	x.ImageTags = v
+}
+
+func (x *AssembleConfigTaskPayload) SetContainerId(v string) {
+	x.ContainerId = &v
+}
+
+func (x *AssembleConfigTaskPayload) SetConfigName(v string) {
+	x.ConfigName = &v
+}
+
+func (x *AssembleConfigTaskPayload) SetConfigVersion(v string) {
+	x.ConfigVersion = &v
+}
+
+func (x *AssembleConfigTaskPayload) SetConfType(v string) {
+	x.ConfType = &v
+}
+
+func (x *AssembleConfigTaskPayload) SetConfigFormat(v ConfigFormat) {
+	x.ConfigFormat = &v
+}
+
+func (x *AssembleConfigTaskPayload) SetContentRaw(v []byte) {
+	x.ContentRaw = v
+}
+
+func (x *AssembleConfigTaskPayload) SetContent(v []byte) {
+	x.Content = v
+}

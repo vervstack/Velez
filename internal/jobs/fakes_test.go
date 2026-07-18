@@ -3,6 +3,7 @@ package jobs
 import (
 	"context"
 	"database/sql"
+	"io"
 	"strconv"
 	"sync"
 	"time"
@@ -303,6 +304,10 @@ type fakeDocker struct {
 
 	removeErr        error
 	removeCalledWith []string
+
+	execResp       []byte
+	execErr        error
+	execCalledWith []container.ExecOptions
 }
 
 func newFakeDocker() *fakeDocker {
@@ -338,8 +343,13 @@ func (f *fakeDocker) ListOccupiedPorts(_ context.Context) ([]uint32, error) {
 	return nil, nil
 }
 
-func (f *fakeDocker) Exec(_ context.Context, _ string, _ container.ExecOptions) ([]byte, error) {
-	return nil, nil
+func (f *fakeDocker) Exec(_ context.Context, _ string, opts container.ExecOptions) ([]byte, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.execCalledWith = append(f.execCalledWith, opts)
+
+	return f.execResp, f.execErr
 }
 
 func (f *fakeDocker) IsContainerRunning(_ context.Context, _ string) (bool, bool, error) {
@@ -389,4 +399,84 @@ func (f *fakeNodeClients) LocalStateManager() node_clients.StateManager {
 
 func (f *fakeNodeClients) HardwareManager() node_clients.HardwareManager {
 	return nil
+}
+
+// fakeContainerAPI is a minimal hand-written fake for the narrow docker
+// client.APIClient slices copy_to_volume's startLoaderContainerJob (startAPI)
+// and copyFileJob (copyAPI) depend on - container start/stop and tar-based
+// copy - so those jobs are unit-testable without implementing the full
+// (100+ method) client.APIClient interface and without minimock.
+type fakeContainerAPI struct {
+	mu sync.Mutex
+
+	startErr        error
+	startCalledWith []string
+
+	stopErr        error
+	stopCalledWith []string
+
+	copyErr error
+	// copyErrOnCall, if non-zero, makes CopyToContainer return copyErr only
+	// on its Nth call (1-indexed) and succeed on every other call - used to
+	// simulate one file failing mid-loop while earlier files already
+	// succeeded.
+	copyErrOnCall  int
+	copyCalledWith []fakeCopyCall
+}
+
+type fakeCopyCall struct {
+	containerID string
+	dstPath     string
+	content     []byte
+}
+
+func newFakeContainerAPI() *fakeContainerAPI {
+	return &fakeContainerAPI{}
+}
+
+func (f *fakeContainerAPI) ContainerStart(_ context.Context, containerID string, _ container.StartOptions) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.startCalledWith = append(f.startCalledWith, containerID)
+
+	return f.startErr
+}
+
+func (f *fakeContainerAPI) ContainerStop(_ context.Context, containerID string, _ container.StopOptions) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.stopCalledWith = append(f.stopCalledWith, containerID)
+
+	return f.stopErr
+}
+
+func (f *fakeContainerAPI) CopyToContainer(
+	_ context.Context, containerID string, dstPath string, content io.Reader, _ container.CopyToContainerOptions,
+) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	raw, err := io.ReadAll(content)
+	if err != nil {
+		return err
+	}
+
+	call := fakeCopyCall{
+		containerID: containerID,
+		dstPath:     dstPath,
+		content:     raw,
+	}
+	f.copyCalledWith = append(f.copyCalledWith, call)
+
+	if f.copyErrOnCall != 0 {
+		if len(f.copyCalledWith) == f.copyErrOnCall {
+			return f.copyErr
+		}
+
+		return nil
+	}
+
+	return f.copyErr
 }

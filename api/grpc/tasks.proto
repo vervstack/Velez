@@ -86,3 +86,15 @@ message AssembleConfigTaskPayload {
   // Set once content_raw has been parsed into evon (env) format.
   optional bytes content = 11;
 }
+
+// CopyToVolumeTaskPayload is the task context for the "copy_to_volume" action.
+message CopyToVolumeTaskPayload {
+  string volume_name = 1;
+  // Path inside the loader container -> file content. A dynamic number of
+  // copy_file_<n> jobs are built from this map, one per entry, sorted by
+  // path so job naming stays stable across BuildJobs re-runs.
+  map<string, bytes> path_to_files = 2;
+
+  // Set once the loader container has been created.
+  optional string container_id = 3;
+}

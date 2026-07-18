@@ -51,3 +51,7 @@ func (x *AssembleConfigTaskPayload) SetContentRaw(v []byte) {
 func (x *AssembleConfigTaskPayload) SetContent(v []byte) {
 	x.Content = v
 }
+
+func (x *CopyToVolumeTaskPayload) SetContainerId(v string) {
+	x.ContainerId = &v
+}

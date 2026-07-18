@@ -93,6 +93,7 @@ func (c *Custom) Init(a *App) (err error) {
 	registry.Register(jobs.NewCreateSmerdHandler(c.NodeClients))
 	registry.Register(jobs.NewCreateServiceHandler(c.ClusterClients.StateManager().Services()))
 	registry.Register(jobs.NewAssembleConfigHandler(c.NodeClients))
+	registry.Register(jobs.NewCopyToVolumeHandler(c.NodeClients))
 
 	workerId, hostErr := os.Hostname()
 	if hostErr != nil || workerId == "" {

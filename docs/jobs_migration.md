@@ -13,7 +13,7 @@ start here instead of re-deriving the pattern from scratch.
 | `LaunchSmerd`          | `create_smerd`   | Scaffolded     | `internal/jobs/create_smerd.go`       | 4          | No — `velez_api_impl.CreateSmerd` still calls the old pipeliner |
 | `CreateService`        | `create_service` | Scaffolded     | `internal/jobs/create_service.go`     | 2          | No — `service_api_impl.CreateService` still calls the old pipeliner |
 | `AssembleConfig`       | `assemble_config` | Scaffolded    | `internal/jobs/assemble_config.go`    | 5          | No — `velez_api_impl.AssembleConfig` still calls the old pipeliner |
-| `CopyToVolume`         | —                | Not started    | —                                      | variable (loops over input files) | — |
+| `CopyToVolume`         | `copy_to_volume` | Scaffolded     | `internal/jobs/copy_to_volume.go`     | 3 + N (dynamic) | No — CopyToVolume has no live caller today (see docs/jobs_migrations/questions.md #1) |
 | `ConnectServiceToVpn`  | —                | Not started    | —                                      | 9          | — |
 | `UpgradeSmerd`         | —                | Not started    | —                                      | ~18, multi-stage | — |
 | `EnableStatefullMode`  | —                | Not started    | —                                      | ~7, bootstraps Postgres + mutates cluster state | — |

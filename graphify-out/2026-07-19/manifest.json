@@ -2845,8 +2845,8 @@
     "semantic_hash": ""
   },
   "internal/jobs/fakes_test.go": {
-    "mtime": 1784009843.9793625,
-    "ast_hash": "a6e64db864b836e0b3f03ee424f86506",
+    "mtime": 1784409813.8257864,
+    "ast_hash": "51a6a88082149ef7e6aa30d92f1c4e54",
     "semantic_hash": ""
   },
   "internal/jobs/job.go": {
@@ -2975,13 +2975,23 @@
     "semantic_hash": ""
   },
   "internal/jobs/assemble_config_test.go": {
-    "mtime": 1784014137.5214703,
-    "ast_hash": "86da898627361f9fa274df2907c63edd",
+    "mtime": 1784409931.7556033,
+    "ast_hash": "39fb80808d9915850c7937613be34633",
     "semantic_hash": ""
   },
   "tests/e2e/suite_assemble_config_job_test.go": {
     "mtime": 1784014939.1355069,
     "ast_hash": "258a32995b415b024f26141c0896dc47",
+    "semantic_hash": ""
+  },
+  "docs/jobs_migrations/questions.md": {
+    "mtime": 1784409949.1628537,
+    "ast_hash": "8dea92974cb07e79251045fb2916d729",
+    "semantic_hash": ""
+  },
+  "docs/research/task_schedulling.md": {
+    "mtime": 1784409525.0626976,
+    "ast_hash": "b65fa18253b55796d74ed05a905d7f85",
     "semantic_hash": ""
   }
 }

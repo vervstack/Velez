@@ -2978,5 +2978,10 @@
     "mtime": 1784014137.5214703,
     "ast_hash": "86da898627361f9fa274df2907c63edd",
     "semantic_hash": ""
+  },
+  "tests/e2e/suite_assemble_config_job_test.go": {
+    "mtime": 1784014939.1355069,
+    "ast_hash": "258a32995b415b024f26141c0896dc47",
+    "semantic_hash": ""
   }
 }

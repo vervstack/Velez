@@ -1360,8 +1360,8 @@
     "semantic_hash": "a6226f169946d502f18b51c883d18a17"
   },
   "internal/transport/velez_api_impl/smerd_create.go": {
-    "mtime": 1784457535.3834374,
-    "ast_hash": "3904aa312ccdbe9c1860725bed3d9c74",
+    "mtime": 1784458302.1959198,
+    "ast_hash": "a546c3fef944dcad3784144e82c30a1a",
     "semantic_hash": ""
   },
   "internal/transport/velez_api_impl/smerd_drop.go": {
@@ -2820,7 +2820,7 @@
     "semantic_hash": ""
   },
   "internal/jobs/checkpoint.go": {
-    "mtime": 1784457889.4109325,
+    "mtime": 1784458270.8915317,
     "ast_hash": "2c051f1e4b343230e7e410f7d6e3b9b7",
     "semantic_hash": ""
   },
@@ -2965,8 +2965,8 @@
     "semantic_hash": ""
   },
   "docs/jobs_migration.md": {
-    "mtime": 1784446960.1253943,
-    "ast_hash": "370a313d891efcea20f50c4fcc9b35c0",
+    "mtime": 1784458390.2972286,
+    "ast_hash": "6c159ea3245855821404dc66473dfee9",
     "semantic_hash": ""
   },
   "internal/jobs/assemble_config.go": {
@@ -3040,8 +3040,8 @@
     "semantic_hash": ""
   },
   "docs/plans/testing.md": {
-    "mtime": 1784453903.2730472,
-    "ast_hash": "7a4e64c765a766e12df9f69b085aa579",
+    "mtime": 1784458415.5448253,
+    "ast_hash": "4b755c453337345805739520f973d216",
     "semantic_hash": ""
   },
   "internal/api/server/velez_api/create_smerd_request_json.go": {

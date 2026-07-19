@@ -1,6 +1,8 @@
 package jobs
 
 import (
+	"archive/tar"
+	"bytes"
 	"context"
 	"database/sql"
 	"io"
@@ -12,14 +14,19 @@ import (
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
+	"go.redsock.ru/evon"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"go.vervstack.ru/makosh/pkg/makosh_be"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
 	"google.golang.org/grpc"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
+	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
@@ -310,6 +317,12 @@ type fakeDocker struct {
 	execResp       []byte
 	execErr        error
 	execCalledWith []container.ExecOptions
+
+	// clientAPI, if set via withClient, is returned by Client() instead of
+	// nil - lets tests that need the raw Docker engine client (e.g. jobs
+	// depending on a narrow client.APIClient slice like pauseAPI/renameAPI)
+	// inject a fakeContainerAPI instead of hitting a nil dereference.
+	clientAPI client.APIClient
 }
 
 func newFakeDocker() *fakeDocker {
@@ -359,7 +372,14 @@ func (f *fakeDocker) IsContainerRunning(_ context.Context, _ string) (bool, bool
 }
 
 func (f *fakeDocker) Client() client.APIClient {
-	return nil
+	return f.clientAPI
+}
+
+// withClient sets the value Client() returns; see the clientAPI field's
+// comment. Defaults to nil (existing behavior for every other job's tests).
+func (f *fakeDocker) withClient(api client.APIClient) *fakeDocker {
+	f.clientAPI = api
+	return f
 }
 
 func (f *fakeDocker) ContainerCreate(
@@ -376,11 +396,22 @@ func (f *fakeDocker) Stats(_ context.Context, _ string) (domain.ContainerStats, 
 // fakeDocker, for jobs (like createScratchContainerJob) that depend on the
 // full NodeClients container but only ever call Docker() on it.
 type fakeNodeClients struct {
-	docker *fakeDocker
+	docker      *fakeDocker
+	localState  node_clients.StateManager
+	portManager node_clients.PortManager
 }
 
 func newFakeNodeClients(docker *fakeDocker) *fakeNodeClients {
 	return &fakeNodeClients{docker: docker}
+}
+
+// withPortManager attaches a real ports.PortManager (in-memory, no external
+// dependency beyond a local net.Listen availability probe) so jobs like
+// upgrade_smerd.go's pauseOldContainerJob/prepareUpgradeVervConfigJob can be
+// exercised at unit level without a hand-written PortManager fake.
+func (f *fakeNodeClients) withPortManager(pm node_clients.PortManager) *fakeNodeClients {
+	f.portManager = pm
+	return f
 }
 
 func (f *fakeNodeClients) Docker() node_clients.Docker {
@@ -388,7 +419,7 @@ func (f *fakeNodeClients) Docker() node_clients.Docker {
 }
 
 func (f *fakeNodeClients) PortManager() node_clients.PortManager {
-	return nil
+	return f.portManager
 }
 
 func (f *fakeNodeClients) PortManagerContainer() *ports.Container {
@@ -396,11 +427,98 @@ func (f *fakeNodeClients) PortManagerContainer() *ports.Container {
 }
 
 func (f *fakeNodeClients) LocalStateManager() node_clients.StateManager {
-	return nil
+	return f.localState
 }
 
 func (f *fakeNodeClients) HardwareManager() node_clients.HardwareManager {
 	return nil
+}
+
+// fakeStateManager is a minimal in-memory implementation of
+// node_clients.StateManager for exercising enable_statefull's jobs without
+// touching disk - the real local_state.Manager persists to a JSON file on
+// every Set/SetAndRelease call.
+type fakeStateManager struct {
+	mu    sync.Mutex
+	state local_state.State
+}
+
+func newFakeStateManager(initial local_state.State) *fakeStateManager {
+	return &fakeStateManager{state: initial}
+}
+
+func (f *fakeStateManager) Start() error { return nil }
+func (f *fakeStateManager) Stop() error  { return nil }
+
+func (f *fakeStateManager) Set(st local_state.State) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.state = st
+}
+
+func (f *fakeStateManager) Get() local_state.State {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	return f.state
+}
+
+// GetForUpdate/SetAndRelease mirror local_state.Manager's lock/unlock
+// contract: GetForUpdate acquires the lock and SetAndRelease releases it.
+func (f *fakeStateManager) GetForUpdate() local_state.State {
+	f.mu.Lock()
+
+	return f.state
+}
+
+func (f *fakeStateManager) SetAndRelease(st local_state.State) {
+	f.state = st
+	f.mu.Unlock()
+}
+
+func (f *fakeStateManager) ValidateVelezPrivateKey(_ string) bool { return false }
+
+// fakeClusterStorage is a minimal in-memory implementation of
+// storage.Storage (== cluster_clients.ClusterStateManager) for exercising
+// enable_statefull's update_cluster_state/init_node_storage jobs without a
+// real Postgres-backed cluster state. Only Nodes() is configurable; the
+// other accessors return nil since those jobs never call them.
+type fakeClusterStorage struct {
+	nodes storage.NodesStorage
+}
+
+func (f *fakeClusterStorage) Nodes() storage.NodesStorage                             { return f.nodes }
+func (f *fakeClusterStorage) Services() storage.ServicesStorage                       { return nil }
+func (f *fakeClusterStorage) Deployments() storage.DeploymentsStorage                 { return nil }
+func (f *fakeClusterStorage) Plugins() storage.PluginsStorage                         { return nil }
+func (f *fakeClusterStorage) ServiceDependencies() storage.ServiceDependenciesStorage { return nil }
+func (f *fakeClusterStorage) ServiceResources() storage.ServiceResourcesStorage       { return nil }
+func (f *fakeClusterStorage) Tasks() storage.TasksStorage                             { return nil }
+func (f *fakeClusterStorage) Jobs() storage.JobsStorage                               { return nil }
+func (f *fakeClusterStorage) TxManager() *sqldb.TxManager                             { return nil }
+
+// fakeNodesStorage is a minimal in-memory implementation of
+// storage.NodesStorage for exercising init_node_storage's InitNode call.
+type fakeNodesStorage struct {
+	mu            sync.Mutex
+	initNodeErr   error
+	initNodeCalls int
+}
+
+func (f *fakeNodesStorage) InitNode(_ context.Context) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.initNodeCalls++
+
+	return f.initNodeErr
+}
+
+func (f *fakeNodesStorage) UpdateOnline(_ context.Context) error { return nil }
+
+func (f *fakeNodesStorage) List(_ context.Context, _ domain.ListNodesReq) (domain.NodesList, error) {
+	return domain.NodesList{}, nil
 }
 
 // fakeContainerAPI is a minimal hand-written fake for the narrow docker
@@ -409,6 +527,13 @@ func (f *fakeNodeClients) HardwareManager() node_clients.HardwareManager {
 // copy - so those jobs are unit-testable without implementing the full
 // (100+ method) client.APIClient interface and without minimock.
 type fakeContainerAPI struct {
+	// client.APIClient is embedded as a nil interface value purely so
+	// fakeContainerAPI satisfies the full (100+ method) interface and can be
+	// injected via fakeDocker.withClient - only the methods explicitly
+	// defined below are actually safe to call; anything else panics on the
+	// nil embedded value, same as calling a method on a nil interface.
+	client.APIClient
+
 	mu sync.Mutex
 
 	startErr        error
@@ -424,6 +549,38 @@ type fakeContainerAPI struct {
 	// succeeded.
 	copyErrOnCall  int
 	copyCalledWith []fakeCopyCall
+
+	inspectResp container.InspectResponse
+	inspectErr  error
+
+	pauseErr        error
+	pauseCalledWith []string
+
+	unpauseErr        error
+	unpauseCalledWith []string
+
+	renameErr        error
+	renameCalledWith []fakeRenameCall
+
+	networkDisconnectErr        error
+	networkDisconnectCalledWith []string
+
+	networkConnectErr        error
+	networkConnectCalledWith []string
+
+	networkListResp []network.Summary
+	networkListErr  error
+
+	networkCreateErr        error
+	networkCreateCalledWith []string
+
+	copyFromResp []byte
+	copyFromErr  error
+}
+
+type fakeRenameCall struct {
+	containerID string
+	newName     string
 }
 
 type fakeCopyCall struct {
@@ -454,6 +611,13 @@ func (f *fakeContainerAPI) ContainerStop(_ context.Context, containerID string, 
 	return f.stopErr
 }
 
+func (f *fakeContainerAPI) ContainerInspect(_ context.Context, _ string) (container.InspectResponse, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	return f.inspectResp, f.inspectErr
+}
+
 func (f *fakeContainerAPI) CopyToContainer(
 	_ context.Context, containerID string, dstPath string, content io.Reader, _ container.CopyToContainerOptions,
 ) error {
@@ -481,6 +645,90 @@ func (f *fakeContainerAPI) CopyToContainer(
 	}
 
 	return f.copyErr
+}
+
+func (f *fakeContainerAPI) ContainerPause(_ context.Context, containerID string) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.pauseCalledWith = append(f.pauseCalledWith, containerID)
+
+	return f.pauseErr
+}
+
+func (f *fakeContainerAPI) ContainerUnpause(_ context.Context, containerID string) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.unpauseCalledWith = append(f.unpauseCalledWith, containerID)
+
+	return f.unpauseErr
+}
+
+func (f *fakeContainerAPI) ContainerRename(_ context.Context, containerID, newName string) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.renameCalledWith = append(f.renameCalledWith, fakeRenameCall{containerID: containerID, newName: newName})
+
+	return f.renameErr
+}
+
+func (f *fakeContainerAPI) NetworkDisconnect(_ context.Context, networkID, _ string, _ bool) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.networkDisconnectCalledWith = append(f.networkDisconnectCalledWith, networkID)
+
+	return f.networkDisconnectErr
+}
+
+func (f *fakeContainerAPI) NetworkConnect(_ context.Context, networkID, _ string, _ *network.EndpointSettings) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.networkConnectCalledWith = append(f.networkConnectCalledWith, networkID)
+
+	return f.networkConnectErr
+}
+
+func (f *fakeContainerAPI) NetworkList(_ context.Context, _ network.ListOptions) ([]network.Summary, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	return f.networkListResp, f.networkListErr
+}
+
+func (f *fakeContainerAPI) NetworkCreate(_ context.Context, name string, _ network.CreateOptions) (network.CreateResponse, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.networkCreateCalledWith = append(f.networkCreateCalledWith, name)
+
+	return network.CreateResponse{}, f.networkCreateErr
+}
+
+// CopyFromContainer returns copyFromResp wrapped as a single-entry tar
+// stream, mirroring what the real Docker engine returns for a file path -
+// getConfigFromScratchContainerJob's readFileFromContainer unwraps that tar
+// layer itself, same as dockerutils.ReadFromContainer does.
+func (f *fakeContainerAPI) CopyFromContainer(
+	_ context.Context, _ string, _ string,
+) (io.ReadCloser, container.PathStat, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	if f.copyFromErr != nil {
+		return nil, container.PathStat{}, f.copyFromErr
+	}
+
+	var buf bytes.Buffer
+	tw := tar.NewWriter(&buf)
+	_ = tw.WriteHeader(&tar.Header{Name: "content", Size: int64(len(f.copyFromResp))})
+	_, _ = tw.Write(f.copyFromResp)
+	_ = tw.Close()
+
+	return io.NopCloser(&buf), container.PathStat{}, nil
 }
 
 // fakeVpnClient is a minimal in-memory implementation of
@@ -593,4 +841,105 @@ func (f *fakeServiceDiscovery) UpsertEndpoints(_ context.Context, in *makosh_be.
 	}
 
 	return &makosh_be.UpsertEndpoints_Response{}, nil
+}
+
+// fakeContainerService is a minimal in-memory implementation of
+// service.ContainerService for exercising upgrade_smerd's
+// checkSelfUpgradeJob/captureOldContainerJob without a real Docker-backed
+// service layer. Only InspectSmerd is configurable; the rest return zero
+// values since the jobs under test never invoke them.
+type fakeContainerService struct {
+	mu sync.Mutex
+
+	inspectResp *velez_api.Smerd
+	inspectErr  error
+
+	inspectCalledWith []string
+}
+
+func newFakeContainerService() *fakeContainerService {
+	return &fakeContainerService{}
+}
+
+func (f *fakeContainerService) ListSmerds(_ context.Context, _ *velez_api.ListSmerds_Request) (*velez_api.ListSmerds_Response, error) {
+	return &velez_api.ListSmerds_Response{}, nil
+}
+
+func (f *fakeContainerService) DropSmerds(_ context.Context, _ *velez_api.DropSmerd_Request) (*velez_api.DropSmerd_Response, error) {
+	return &velez_api.DropSmerd_Response{}, nil
+}
+
+func (f *fakeContainerService) InspectSmerd(_ context.Context, contId string) (*velez_api.Smerd, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.inspectCalledWith = append(f.inspectCalledWith, contId)
+
+	return f.inspectResp, f.inspectErr
+}
+
+func (f *fakeContainerService) ConnectToNetwork(_ context.Context, _ domain.Connection) error {
+	return nil
+}
+
+func (f *fakeContainerService) DisconnectFromNetwork(_ context.Context, _ domain.Connection) error {
+	return nil
+}
+
+// fakeConfigurationService is a minimal in-memory implementation of
+// service.ConfigurationService for exercising upgrade_smerd's
+// fetchUpgradeConfigJob without a real Matreshka instance. Only
+// GetEnvFromApi is configurable; the rest return zero values since the jobs
+// under test never invoke them.
+type fakeConfigurationService struct {
+	mu sync.Mutex
+
+	envResp *evon.Node
+	envErr  error
+
+	envCalledWith []domain.ConfigMeta
+}
+
+func newFakeConfigurationService() *fakeConfigurationService {
+	return &fakeConfigurationService{}
+}
+
+func (f *fakeConfigurationService) GetVervFromApi(_ context.Context, _ domain.ConfigMeta) (matreshka.AppConfig, error) {
+	return matreshka.AppConfig{}, nil
+}
+
+func (f *fakeConfigurationService) GetEnvFromApi(_ context.Context, meta domain.ConfigMeta) (*evon.Node, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.envCalledWith = append(f.envCalledWith, meta)
+
+	if f.envResp == nil && f.envErr == nil {
+		// Matches configurator.Configurator.GetEnvFromApi's real contract:
+		// an empty (not-found) config still comes back as a non-nil zero
+		// Node, never a bare nil - evon.NodeStorage.AddNode panics on nil.
+		return &evon.Node{}, nil
+	}
+
+	return f.envResp, f.envErr
+}
+
+func (f *fakeConfigurationService) UpdateConfig(_ context.Context, _ domain.AppConfig) error {
+	return nil
+}
+
+func (f *fakeConfigurationService) GetPlainFromApi(_ context.Context, _ domain.ConfigMeta) ([]byte, error) {
+	return nil, nil
+}
+
+func (f *fakeConfigurationService) SubscribeOnChanges(_ ...string) error {
+	return nil
+}
+
+func (f *fakeConfigurationService) UnsubscribeFromChanges(_ ...string) error {
+	return nil
+}
+
+func (f *fakeConfigurationService) GetUpdates() <-chan domain.ConfigurationPatch {
+	return nil
 }

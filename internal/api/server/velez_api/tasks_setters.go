@@ -71,3 +71,39 @@ func (x *ConnectServiceToVpnTaskPayload) SetLoginServerUrl(v string) {
 func (x *ConnectServiceToVpnTaskPayload) SetContainerId(v string) {
 	x.ContainerId = &v
 }
+
+func (x *EnableStatefullTaskPayload) SetRootPwd(v string) {
+	x.RootPwd = &v
+}
+
+func (x *EnableStatefullTaskPayload) SetUserPwd(v string) {
+	x.UserPwd = &v
+}
+
+func (x *EnableStatefullTaskPayload) SetContainerId(v string) {
+	x.ContainerId = &v
+}
+
+func (x *EnableStatefullTaskPayload) SetRootDsn(v string) {
+	x.RootDsn = &v
+}
+
+func (x *UpgradeSmerdTaskPayload) SetRequest(v *CreateSmerd_Request) {
+	x.Request = v
+}
+
+func (x *UpgradeSmerdTaskPayload) SetOldContainerId(v string) {
+	x.OldContainerId = &v
+}
+
+func (x *UpgradeSmerdTaskPayload) SetImageLabels(v map[string]string) {
+	x.ImageLabels = v
+}
+
+func (x *UpgradeSmerdTaskPayload) SetImageTags(v []string) {
+	x.ImageTags = v
+}
+
+func (x *UpgradeSmerdTaskPayload) SetContainerId(v string) {
+	x.ContainerId = &v
+}

@@ -137,6 +137,134 @@ session finished the migration checklist against the existing proto scaffold.
       specific step being replaced, unlike the other jobs' precedents which
       replaced steps that never had this extra tolerance to begin with.
 
+## EnableStatefullMode — resolved 2026-07-19
+
+14. **Password idempotency across resumes.** The pipeline generates the
+    Postgres root/node-user passwords by checking whether
+    `localState.ClusterState.PgRootDsn`/`PgNodeDsn` are already parseable -
+    but those fields aren't written until the *last* pipeline step. If a job
+    task fails and resumes before that point, recomputing this check in
+    `BuildJobs` on every rebuild would mint a fresh random password each
+    time, mismatching whatever password was already baked into the running
+    container or already-created Postgres user.
+    - **Decision:** promoted the check into its own `generate_credentials`
+      job that only generates once and persists the result into
+      `EnableStatefullTaskPayload.root_pwd`/`user_pwd`, reusing it on
+      resume - same idempotency precedent as `ConnectServiceToVpn`'s
+      `client_key` (question #10). 7 pipeline steps become 8 named jobs.
+
+15. **`ClusterStateManager`/`StorageContainer` singleton swap.** The
+    pipeline's last-but-one step mutates live, shared service state
+    (`p.clusterClients.StateManager().Set(...)`,
+    `p.services.StorageContainer().Set(...)`), not just Docker or SQL.
+    - **Decision:** carried over as-is inside `updateClusterStateJob`,
+      unchanged. Changing *how* that swap happens is out of scope for a
+      behavior-preserving migration; flagging since it's the first job in
+      this migration series to mutate cross-cutting live singletons rather
+      than a single container's own state.
+
+16. **No SQL fake/mock exists in this repo** (no `sqlmock`/`go-sqlmock`
+    dependency), unlike question #4's Docker fake. `create_schema_and_migrate`
+    and `create_pg_user` reuse `sqldb.RollMigration`/
+    `cluster_steps.CreatePgUserForNode` verbatim, both of which open a real
+    `*sql.DB` connection via `sql.Open` + `Exec`.
+    - **Decision:** left these two jobs' success path untested at unit level,
+      same untested status quo as the original (never unit-tested)
+      `cluster_steps` pipeline steps they reuse - no new test debt
+      introduced, but no new coverage added either. Only their
+      connection-failure path is exercised (a real dial against an
+      unreachable port), which also doubles as this migration's required
+      end-to-end failure-path test, exercising the full rollback cascade
+      through `start_container`/`create_container`. The success path needs a
+      real Postgres and stays `tests/e2e`-only, consistent with how Docker
+      daemon-required behavior is already handled there.
+
+17. **`get_root_dsn`'s Docker dependency.** `cluster_steps.GetRgRootDsn`
+    (the pipeline step this job replaces) takes the full `node_clients.Docker`
+    interface and writes its result through a raw `*string` fixed at
+    construction time - neither trait fits a resumable job (the container id
+    it needs is only available from the task's persisted context at `Do()`
+    time, and `fakeDocker.Client()` always returns `nil` so no fake
+    `node_clients.Docker` can be built for it anyway).
+    - **Decision:** duplicated the inspect/env-parse logic in `getRootDsnJob`
+      against the narrow `containerInspectAPI` interface instead - same
+      narrow-interface-over-duplication tradeoff as `copy_to_volume.go`'s
+      `writeFileToContainer` helper (question #8).
+
+## UpgradeSmerd — resolved 2026-07-19
+
+The most complex pipeline, saved for last per the suggested order: 3 stages
+(pause the old container, build+extract config from a throwaway "scratch"
+container running the new image, build+launch the real new container), with
+in-place container renames threading through all three.
+
+18. **A pipeline stage looks like dead/unfinished wiring.** do_smerd_upgrade.go
+    creates a full "config-fetcher" container (same Settings/Ports/Volumes as
+    the final container, just a different Name), reads a config file out of
+    it into a local `cfgMount` variable, then drops the container - but
+    `cfgMount` is never read again anywhere in the pipeline. Every other
+    field `FromContainerToRequest`/`FetchConfig`/`PrepareVervConfig` populate
+    is threaded through to the final container; this one isn't.
+    - **Decision: preserve it anyway.** `getConfigFromScratchContainerJob`
+      still performs the container-create, tar-read and container-drop
+      exactly as before, computing a result it never persists to any
+      accessor. This is the same "behavior-preserving migration, don't fix
+      what you find" rule used for question #12's latent pointer bug and
+      question #13's dropped error tolerance - flagging in case you want this
+      whole stage (`create_config_fetcher_container` /
+      `get_config_from_container` / `drop_config_fetcher_container`, 3 of the
+      15 jobs) stripped out as genuinely dead work in a follow-up.
+
+19. **Shared `container_id` field reused across two container-create stages,
+    on purpose.** The original pipeline reuses one `newContId` variable
+    (via step closures) for both the scratch config-fetcher container and
+    the final container. Because both `smerd_steps.Create` calls close over
+    the *same* pointer, the old pipeline's own rollback already has a latent
+    quirk: if the final-container stage fails, rolling back the
+    config-fetcher stage's `Create` step reads whatever the shared pointer
+    holds *now* (the final container's id, not its own), so it can end up
+    trying to remove the wrong id - harmless only because
+    `node_clients.Docker.Remove` tolerates `NotFound`.
+    - **Decision: replicate this with a single shared `container_id` proto
+      field**, rather than giving the scratch and final containers separate
+      fields (which would be strictly *safer* than the original but would
+      change rollback behavior versus what's being migrated). Same
+      "behavior-preserving, including its quirks" rule as #18.
+      `old_container_id` stays a separate field since the original never
+      shared it with `newContId` either.
+
+20. **`smerd_steps.PauseContainer`/`RenameContainer`/
+    `config_steps.getConfigFromContainerStep` all take `client.APIClient`
+    (or need it via `dockerutils.DisconnectFromNetworks`/`ConnectToNetwork`/
+    `CreateNetwork`/`ReadFromContainer`, all parameterized on the full
+    interface too) - none of them fit a fake, same wall as question #8's
+    `copyAPI`/`writeFileToContainer`.
+    - **Decision: reuse the go-forward pattern from question #8, applied
+      four more times.** New narrow interfaces `pauseAPI`, `renameAPI`,
+      `copyFromAPI`, `createNetworkAPI` in `upgrade_smerd.go`, each with a
+      duplicated helper function reproducing the relevant dockerutils
+      function's logic against the narrow interface instead of calling it
+      directly. `fakeContainerAPI` (in `fakes_test.go`) grew matching methods
+      (`ContainerPause`/`Unpause`/`Rename`, `NetworkDisconnect`/`Connect`/
+      `List`/`Create`, `CopyFromContainer`) and now embeds `client.APIClient`
+      as a nil interface (satisfies the full 100+ method interface via
+      promotion; only the explicitly-overridden methods are safe to call) so
+      it can also be injected as `fakeDocker`'s `Client()` return value via a
+      new `withClient` builder - `fakeDocker.Client()` previously always
+      returned `nil` (question #17), which meant no test in this repo had
+      ever exercised a full end-to-end happy path through jobs needing the
+      raw Docker client. This unblocked a genuine 15-job happy-path
+      end-to-end test for the first time, not just a failure path.
+
+21. **No `node_clients.PortManager` fake exists** (question-mark left open
+    implicitly since no prior migration's jobs needed port locking at unit
+    level). `ports.NewPortManager` is a real, in-memory implementation with
+    no external dependency beyond a local `net.Listen` availability probe.
+    - **Decision: use the real one directly in tests** rather than
+      hand-writing a fake, via a new `fakeNodeClients.withPortManager`
+      builder (defaults to nil, unchanged for every other migration's
+      tests). Cheap and correct; no PortManager fake needed.
+
 ## Cross-cutting (all pipelines)
 
 6. **Live-RPC cut-over** stays OFF for every pipeline unless you say otherwise

@@ -6,6 +6,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
 import "npm.proto";
+import "control_plane_api.proto";
 import "velez_api.proto";
 import "velez_common.proto";
 
@@ -113,4 +114,47 @@ message ConnectServiceToVpnTaskPayload {
   optional string login_server_url = 4;
   // Set once the tailscale sidecar container has been created.
   optional string container_id = 5;
+}
+
+// EnableStatefullTaskPayload is the task context for the
+// "enable_statefull_mode" action.
+message EnableStatefullTaskPayload {
+  EnableStatefullCluster request = 1;
+
+  // Generated once by generate_credentials (or derived from any
+  // pre-existing root dsn) and persisted so resuming a partially-completed
+  // task reuses the same passwords instead of regenerating ones that would
+  // mismatch an already-created container/user - same secret-persistence
+  // precedent as ConnectServiceToVpnTaskPayload.client_key.
+  optional string root_pwd = 2;
+  optional string user_pwd = 3;
+
+  // Set once the postgres container has been created.
+  optional string container_id = 4;
+  // Set once the root connection dsn has been resolved from the running
+  // container.
+  optional string root_dsn = 5;
+}
+
+// UpgradeSmerdTaskPayload is the task context for the "upgrade_smerd" action.
+message UpgradeSmerdTaskPayload {
+  UpgradeSmerd.Request upgrade_request = 1;
+
+  // Built from inspecting the currently-running container and mutated in
+  // place across stages (name changes for the scratch config-fetcher
+  // container, then the "_new" container) - mirrors do_smerd_upgrade.go's
+  // single mutable newLaunch variable. See docs/jobs_migrations/questions.md.
+  CreateSmerd.Request request = 2;
+
+  // Set once the old (currently running) container has been inspected.
+  optional string old_container_id = 3;
+
+  // Set once the new image has been pulled/inspected.
+  map<string, string> image_labels = 4;
+  repeated string image_tags = 5;
+
+  // Reused across both container-create stages (scratch config-fetcher
+  // container, then the final "_new" container) - mirrors the original
+  // pipeline's single newContId variable reuse; see questions.md.
+  optional string container_id = 6;
 }

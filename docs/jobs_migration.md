@@ -15,8 +15,8 @@ start here instead of re-deriving the pattern from scratch.
 | `AssembleConfig`       | `assemble_config` | Scaffolded    | `internal/jobs/assemble_config.go`    | 5          | No — `velez_api_impl.AssembleConfig` still calls the old pipeliner |
 | `CopyToVolume`         | `copy_to_volume` | Scaffolded     | `internal/jobs/copy_to_volume.go`     | 3 + N (dynamic) | No — CopyToVolume has no live caller today (see docs/jobs_migrations/questions.md #1) |
 | `ConnectServiceToVpn`  | `connect_service_to_vpn` | Scaffolded | `internal/jobs/connect_service_to_vpn.go` | 8 (9 pipeline steps, 1 folded — see questions.md) | No — `service_api_impl`/`velez_api_impl` still call the old pipeliner for VPN connect |
-| `UpgradeSmerd`         | —                | Not started    | —                                      | ~18, multi-stage | — |
-| `EnableStatefullMode`  | —                | Not started    | —                                      | ~7, bootstraps Postgres + mutates cluster state | — |
+| `EnableStatefullMode`  | `enable_statefull_mode` | Scaffolded | `internal/jobs/enable_statefull.go` | 8 (7 pipeline steps + 1 new — see questions.md) | No — `control_plane_api_impl.EnablePlugin` still calls the old pipeliner |
+| `UpgradeSmerd`         | `upgrade_smerd`  | Scaffolded     | `internal/jobs/upgrade_smerd.go`      | 15 (19 pipeline steps, 4 SingleFunc renames folded — see questions.md) | No — `velez_api_impl.UpgradeSmerd` still calls the old pipeliner |
 
 **"Scaffolded" ≠ "cut over."** A scaffolded pipeline has a working, tested
 `TaskHandler` registered in the worker (`internal/app/custom.go`), but the
@@ -41,12 +41,32 @@ bigger decision to make explicitly per pipeline, not a default next step.
    (the inline env-append closure was folded into `create_container`, same
    precedent as `CopyToVolume`'s combined mkdir+copy). `clientKey`,
    `loginServer`, `namespaceId` map directly to `TaskContext` fields.
-4. **`EnableStatefullMode`** — higher risk: bootstraps Postgres, swaps out the
-   live `ClusterStateManager`/`StorageContainer` mid-pipeline. Migrate only
-   after the pattern is well-proven on simpler cases.
-5. **`UpgradeSmerd`** — most complex: ~18 steps, multiple in-place renames of
-   the same container, several stages that reuse and mutate one shared
-   `newLaunch` value. Do this last.
+4. ~~**`EnableStatefullMode`**~~ — done. 7 pipeline steps became 8 named jobs:
+   the pipeline's inline password-generation setup (computed once per
+   pipeline invocation) was promoted to its own `generate_credentials` job so
+   a resumed task reuses the same passwords instead of regenerating ones
+   that would mismatch an already-created container/user — same idempotency
+   precedent as `ConnectServiceToVpn`'s `client_key`. The live
+   `ClusterStateManager`/`StorageContainer` singleton swap was carried over
+   as a job side effect unchanged. See questions.md for the SQL-testability
+   gap this migration left open.
+5. ~~**`UpgradeSmerd`**~~ — done, last as planned. 19 pipeline steps became 15
+   named jobs: 4 pure-rename SingleFunc steps were folded into whichever
+   real job immediately follows them, same fold precedent as
+   ConnectServiceToVpn/CopyToVolume. The pipeline's single mutable
+   `newLaunch`/`newContId` variables (reused across the scratch
+   config-fetcher container and the final container) became a single
+   `request`/`container_id` field pair reused the same way, replicating the
+   original's rollback quirk on purpose rather than "fixing" it away. A
+   likely-dead pipeline stage (the scratch container's config extraction,
+   whose result is discarded and never read again) was preserved as-is
+   rather than removed. See questions.md #18-21 for details and the
+   `pauseAPI`/`renameAPI`/`copyFromAPI`/`createNetworkAPI` narrow-interface
+   duplication this needed to stay unit-testable.
+
+Every pipeliner method in the status table above is now scaffolded. No
+pipeline has been cut over to serve its live gRPC endpoint from the jobs
+engine - see the cross-cutting note below.
 
 ## Migration checklist (repeat per pipeline)
 

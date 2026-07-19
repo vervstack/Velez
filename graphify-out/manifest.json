@@ -1355,9 +1355,9 @@
     "semantic_hash": "875f09cb59f42d1897c469659bf8da90"
   },
   "internal/transport/velez_api_impl/smerd_upgrade.go": {
-    "mtime": 1777569955.2378647,
-    "ast_hash": "6cb943d4eac2d8d386747f01893d6b80",
-    "semantic_hash": "6cb943d4eac2d8d386747f01893d6b80"
+    "mtime": 1784465426.3070881,
+    "ast_hash": "cda81722999f1f233ca01a918a51cc7c",
+    "semantic_hash": ""
   },
   "internal/utils/common/closer.go": {
     "mtime": 1777836477.5268884,
@@ -2945,8 +2945,8 @@
     "semantic_hash": ""
   },
   "docs/jobs_migration.md": {
-    "mtime": 1784464759.943525,
-    "ast_hash": "d116a29e0b159f0b0f32b97df4538800",
+    "mtime": 1784465589.741979,
+    "ast_hash": "a621018ebc3e685c18f6d0694f15fcca",
     "semantic_hash": ""
   },
   "internal/jobs/assemble_config.go": {
@@ -2965,8 +2965,8 @@
     "semantic_hash": ""
   },
   "docs/jobs_migrations/questions.md": {
-    "mtime": 1784446950.0541046,
-    "ast_hash": "305708474b5df08bb2c5270a72f1111e",
+    "mtime": 1784465601.8513432,
+    "ast_hash": "7b5e2d20d79302b8388bcb741ad7ffd7",
     "semantic_hash": ""
   },
   "docs/research/task_schedulling.md": {

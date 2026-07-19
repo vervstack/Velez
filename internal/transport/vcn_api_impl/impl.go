@@ -10,6 +10,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
+	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/pipelines"
 )
 
@@ -18,12 +19,14 @@ type Impl struct {
 
 	vpnService cluster_clients.VervClosedNetworkClient
 	pipeliner  pipelines.Pipeliner
+	jobsEngine jobs.Engine
 }
 
-func New(cluster cluster_clients.ClusterClients, pipeliner pipelines.Pipeliner) *Impl {
+func New(cluster cluster_clients.ClusterClients, pipeliner pipelines.Pipeliner, jobsEngine jobs.Engine) *Impl {
 	return &Impl{
 		vpnService: cluster.Vpn(),
 		pipeliner:  pipeliner,
+		jobsEngine: jobsEngine,
 	}
 }
 

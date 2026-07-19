@@ -14,7 +14,7 @@ start here instead of re-deriving the pattern from scratch.
 | `CreateService`        | `create_service` | Cut over     | `internal/jobs/create_service.go`     | 2          | Yes — `service_api_impl.CreateService` now calls `Engine.Enqueue`+`Watch` (sync facade); step parity was already 2-for-2 with `do_create_service.go`, no job changes needed |
 | `AssembleConfig`       | `assemble_config` | Cut over     | `internal/jobs/assemble_config.go`    | 5          | Yes — `velez_api_impl.AssembleConfig` now calls `Engine.Enqueue`+`Watch` (sync facade); step parity was already 5-for-5 with `do_assemble_config.go` (4 pipeline steps + `getResult` folded into `parse_config`, precedent already noted below), no oneof fields in `AssembleConfigTaskPayload` so the round-trip test was skipped. The pipeline's post-`Result()` `cfgService.UpdateConfig(ctx, *cfg)` side effect (not modeled by any job) stays in the RPC handler, called after the `Watch` loop with a `domain.AppConfig` reconstructed from the final task's payload: `Meta.Name`/`Version`/`Format` map directly, `Meta.ConfType` converts the payload's plain string (`"verv"`/`"pg"`/`"plain"`) to `matreshka_api.ConfigTypePrefix` via `ConfigTypePrefix_value`, and `ContentRaw` comes from `content_raw`. `Meta.Content` (`*evon.Node`) is left nil rather than reconstructed from the payload's `content` field — the old pipeline's own `evon.Unmarshal(bytes, &appConfig.Content)` for the `ConfigFormat_env` case (the only format AssembleConfig ever produces) is a silent no-op (verified empirically: `reflect.Value.Elem()` on a nil `*evon.Node` yields an invalid `Value`, so no field mapping is built), so `Content` was already always nil in production before this cutover; reproduced as-is rather than fixed. `domain.AssembleConfig` (the pipeliner-only request struct) was removed alongside `do_assemble_config.go` since nothing else referenced it. |
 | `CopyToVolume`         | `copy_to_volume` | Scaffolded     | `internal/jobs/copy_to_volume.go`     | 3 + N (dynamic) | No — CopyToVolume has no live caller today (see docs/jobs_migrations/questions.md #1) |
-| `ConnectServiceToVpn`  | `connect_service_to_vpn` | Scaffolded | `internal/jobs/connect_service_to_vpn.go` | 8 (9 pipeline steps, 1 folded — see questions.md) | No — `service_api_impl`/`velez_api_impl` still call the old pipeliner for VPN connect |
+| `ConnectServiceToVpn`  | `connect_service_to_vpn` | Cut over     | `internal/jobs/connect_service_to_vpn.go` | 8 (9 pipeline steps, 1 folded — see questions.md) | Yes — `vcn_api_impl.ConnectService` now calls `Engine.Enqueue`+`Watch` (sync facade); step parity re-verified at cutover (8-for-8, matches scaffold). No oneof fields in `ConnectServiceToVpnTaskPayload`, so the round-trip test was skipped. **Removal shape differs from `CreateService`/`AssembleConfig`**: `do_connect_service_to_vpn.go` defines both the `Pipeliner.ConnectServiceToVpn` interface method/adapter (RPC-only, now dead, removed) *and* a package-level free function `ConnectServiceToVpn(req, nc, vpnClient, sdClient)` that two unrelated app-bootstrap call sites (`internal/cluster/configuration/service.go`, `internal/cluster/service_discovery/launch.go`) call directly, bypassing the `Pipeliner` interface, to connect the node's own matreshka/service-discovery sidecar to the VPN at startup. Those callers check `rerrors.Is` against the typed error the `Runner` returns — routing them through the jobs engine would flatten that into a string (`finalTask.Error.String`) and add persistence/checkpointing to synchronous in-process bootstrap logic, out of scope for this migration. Only the interface method and the `(p *pipeliner)` adapter were removed; the free function and both bootstrap callers are untouched and still compile/run exactly as before. |
 | `EnableStatefullMode`  | `enable_statefull_mode` | Scaffolded | `internal/jobs/enable_statefull.go` | 8 (7 pipeline steps + 1 new — see questions.md) | No — `control_plane_api_impl.EnablePlugin` still calls the old pipeliner |
 | `UpgradeSmerd`         | `upgrade_smerd`  | Scaffolded     | `internal/jobs/upgrade_smerd.go`      | 15 (19 pipeline steps, 4 SingleFunc renames folded — see questions.md) | No — `velez_api_impl.UpgradeSmerd` still calls the old pipeliner |
 
@@ -65,11 +65,12 @@ bigger decision to make explicitly per pipeline, not a default next step.
    duplication this needed to stay unit-testable.
 
 Every pipeliner method in the status table above is now scaffolded.
-`LaunchSmerd`/`create_smerd`, `CreateService`/`create_service`, and
-`AssembleConfig`/`assemble_config` have been cut over to serve their live
-gRPC endpoints from the jobs engine; the remaining four (`CopyToVolume`,
-`ConnectServiceToVpn`, `EnableStatefullMode`, `UpgradeSmerd`) still run the
-old pipeliner - see the cross-cutting note below.
+`LaunchSmerd`/`create_smerd`, `CreateService`/`create_service`,
+`AssembleConfig`/`assemble_config`, and `ConnectServiceToVpn`/
+`connect_service_to_vpn` have been cut over to serve their live gRPC
+endpoints from the jobs engine; the remaining three (`CopyToVolume`,
+`EnableStatefullMode`, `UpgradeSmerd`) still run the old pipeliner - see the
+cross-cutting note below.
 
 ## Migration checklist (repeat per pipeline)
 

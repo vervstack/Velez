@@ -18,9 +18,6 @@ type Pipeliner interface {
 	// image to a new version (latest or specified)
 	UpgradeSmerd(req domain.UpgradeSmerd) Runner[any]
 
-	// ConnectServiceToVpn - connects any user service to cluster vpn
-	ConnectServiceToVpn(vpn domain.ConnectServiceToVcn) Runner[any]
-
 	CopyToVolume(req domain.CopyToVolumeRequest) Runner[any]
 
 	// Built-in services

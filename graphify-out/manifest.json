@@ -140,8 +140,8 @@
     "semantic_hash": "05ec538258de2b8a217e6668062b4f65"
   },
   "internal/app/custom.go": {
-    "mtime": 1784463577.0559378,
-    "ast_hash": "7af4bfe8b30c39087f2d0cf73bebf87d",
+    "mtime": 1784464338.7392192,
+    "ast_hash": "98949cc48c268bee770e94b9b247dc8a",
     "semantic_hash": ""
   },
   "internal/app/env.go": {
@@ -500,9 +500,9 @@
     "semantic_hash": "df82bf03d4c7cb59c7a47da12e84cce1"
   },
   "internal/domain/node.go": {
-    "mtime": 1777837192.0999804,
-    "ast_hash": "fb8e487f99b9d8dfe0128978d7987c15",
-    "semantic_hash": "fb8e487f99b9d8dfe0128978d7987c15"
+    "mtime": 1784464444.671707,
+    "ast_hash": "10ebed975a68197a0f31003a96d47610",
+    "semantic_hash": ""
   },
   "internal/domain/pipeline_request.go": {
     "mtime": 1777474038.539409,
@@ -589,11 +589,6 @@
     "ast_hash": "21b94c02cc1e836c516d9655d903577b",
     "semantic_hash": "21b94c02cc1e836c516d9655d903577b"
   },
-  "internal/pipelines/do_enable_statefull.go": {
-    "mtime": 1777981012.5862164,
-    "ast_hash": "e93822df1f23f40088d75a1504bc6efb",
-    "semantic_hash": "e93822df1f23f40088d75a1504bc6efb"
-  },
   "internal/pipelines/do_setup_headscale.go": {
     "mtime": 1784013675.1432507,
     "ast_hash": "7b6e0148d35002a5d46db666027de1b0",
@@ -610,8 +605,8 @@
     "semantic_hash": "1ddeef8b6f55668f8fbddf20088c3687"
   },
   "internal/pipelines/pipelines.go": {
-    "mtime": 1784463669.9810135,
-    "ast_hash": "caf469a55ecc2127f96297bffdb473cb",
+    "mtime": 1784464422.6788404,
+    "ast_hash": "2a172a35b0c92ffcddb0ff252e0c39fb",
     "semantic_hash": ""
   },
   "internal/pipelines/runner.go": {
@@ -1155,14 +1150,14 @@
     "semantic_hash": "58c7c7bd0739be7f0f69e2f1bde0b012"
   },
   "internal/transport/control_plane_api_impl/enable_plugin.go": {
-    "mtime": 1778914022.3051052,
-    "ast_hash": "4ad6b885fa5df98018a9dc1c7e85fe02",
-    "semantic_hash": "4ad6b885fa5df98018a9dc1c7e85fe02"
+    "mtime": 1784464314.8411818,
+    "ast_hash": "1ce37789f8bf7ff2d580c14acd3fc769",
+    "semantic_hash": ""
   },
   "internal/transport/control_plane_api_impl/impl.go": {
-    "mtime": 1779395976.139392,
-    "ast_hash": "421cfc14991b88a7ebab5ab694f49bbe",
-    "semantic_hash": "421cfc14991b88a7ebab5ab694f49bbe"
+    "mtime": 1784464327.4462721,
+    "ast_hash": "a934d1630ff885f0d29cbb18e2e857c4",
+    "semantic_hash": ""
   },
   "internal/transport/control_plane_api_impl/list_environments.go": {
     "mtime": 1779395427.1947153,
@@ -2950,8 +2945,8 @@
     "semantic_hash": ""
   },
   "docs/jobs_migration.md": {
-    "mtime": 1784462191.9254444,
-    "ast_hash": "69e04ad60a4d208c84007ba842785cdf",
+    "mtime": 1784464759.943525,
+    "ast_hash": "d116a29e0b159f0b0f32b97df4538800",
     "semantic_hash": ""
   },
   "internal/jobs/assemble_config.go": {

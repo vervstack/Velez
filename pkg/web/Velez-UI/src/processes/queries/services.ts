@@ -51,9 +51,13 @@ export function useGetServiceResourcesQuery(serviceName: string) {
 }
 
 export function useGetServiceGraphQuery(serviceName: string) {
+    const toaster = useToaster()
     return useQuery({
         queryKey: ['service-graph', serviceName] as const,
-        queryFn: () => serviceService.fetchServiceGraph(serviceName),
+        queryFn: () =>
+            serviceService.fetchServiceGraph(serviceName)
+                .catch(toaster.catchGrpc),
+        enabled: !!serviceName,
     })
 }
 

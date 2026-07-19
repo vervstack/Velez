@@ -8,7 +8,7 @@ interface ServiceGraphProps {
 }
 
 const SVG_W = 980
-const SVG_H = 500
+const SVG_H = 700
 const CENTER_X = SVG_W / 2
 const CENTER_Y = SVG_H / 2
 const INCOMING_X = 130
@@ -18,10 +18,20 @@ const CENTER_RING_R = 62
 const NODE_R = 44
 const RECT_W = 116
 const RECT_H = 40
+const LINE_HEIGHT = 11
+
+function labelLines(name: string): string[] {
+    const MAX = 15
+    const lines: string[] = []
+    for (let i = 0; i < name.length; i += MAX) {
+        lines.push(name.slice(i, i + MAX))
+    }
+    return lines.length > 0 ? lines : [name]
+}
 
 function spreadY(index: number, total: number): number {
     if (total === 1) return CENTER_Y
-    const step = NODE_R * 2 + 8
+    const step = NODE_R * 2 + 62
     const span = (total - 1) * step
     return CENTER_Y - span / 2 + index * step
 }
@@ -50,20 +60,41 @@ function renderNode(node: ServiceGraphNode, x: number, y: number, direction: 'in
         <circle cx={x} cy={y} r={NODE_R} className={shapeClass} />
     )
 
+    const lines = labelLines(node.id)
+    const labelStartY = isResource ? y + RECT_H / 2 + 12 : y + NODE_R + 12
+
     return (
         <g key={node.id}>
             {shape}
-            <text x={x} y={y - 4} className={cls.nodeLabel}>{node.id}</text>
-            <text x={x} y={y + 9} className={cls.nodeMeta}>{node.proto} · {node.rate}</text>
+            {lines.map(function renderLabelLine(part: string, i: number) {
+                return <text key={i} x={x} y={labelStartY + i * LINE_HEIGHT} className={cls.nodeLabel}>{part}</text>
+            })}
+            <text x={x} y={labelStartY + lines.length * LINE_HEIGHT + 2} className={cls.nodeMeta}>{node.proto} · {node.rate}</text>
         </g>
     )
 }
 
 export default function ServiceGraph({serviceName}: ServiceGraphProps) {
-    const {data} = useGetServiceGraphQuery(serviceName)
+    const {data, isLoading, isError} = useGetServiceGraphQuery(serviceName)
 
     const incoming: ServiceGraphNode[] = data?.incoming ?? []
     const outgoing: ServiceGraphNode[] = data?.outgoing ?? []
+
+    if (isLoading) {
+        return (
+            <div className={cls.ServiceGraphContainer}>
+                <p className={cls.Empty}>Loading graph…</p>
+            </div>
+        )
+    }
+
+    if (isError) {
+        return (
+            <div className={cls.ServiceGraphContainer}>
+                <p className={cls.Empty}>Failed to load graph</p>
+            </div>
+        )
+    }
 
     if (incoming.length === 0 && outgoing.length === 0) {
         return (
@@ -138,8 +169,10 @@ export default function ServiceGraph({serviceName}: ServiceGraphProps) {
 
                     <circle cx={CENTER_X} cy={CENTER_Y} r={CENTER_RING_R} className={cls.centerRing} />
                     <circle cx={CENTER_X} cy={CENTER_Y} r={CENTER_R} className={cls.centerNode} />
-                    <text x={CENTER_X} y={CENTER_Y - 7} className={cls.centerLabel}>{serviceName}</text>
-                    <text x={CENTER_X} y={CENTER_Y + 9} className={cls.centerMeta}>·service·</text>
+                    <text x={CENTER_X} y={CENTER_Y} className={cls.centerMeta}>·service·</text>
+                    {labelLines(serviceName).map(function renderCenterPart(part: string, i: number) {
+                        return <text key={i} x={CENTER_X} y={CENTER_Y + CENTER_RING_R + 14 + i * LINE_HEIGHT} className={cls.centerLabel}>{part}</text>
+                    })}
 
                     {incoming.map(function renderIncomingNode(node: ServiceGraphNode, i: number) {
                         return renderNode(node, INCOMING_X, spreadY(i, incoming.length), 'incoming')

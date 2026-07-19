@@ -206,7 +206,7 @@ func (c *Custom) InitApiServer(a *App) error {
 	c.ApiGrpcImpl = velez_api_impl.NewImpl(a.Cfg, c.Services, c.Pipeliner, c.JobsEngine)
 	c.ControlPlaneApiImpl = control_plane_api_impl.New(c.Services, c.Pipeliner)
 	c.VpnApiImpl = vcn_api_impl.New(c.ClusterClients, c.Pipeliner)
-	c.ServiceApiImpl = service_api_impl.New(c.Pipeliner, c.Services)
+	c.ServiceApiImpl = service_api_impl.New(c.Pipeliner, c.Services, c.JobsEngine)
 	c.TasksApiImpl = tasks_api_impl.New(c.JobsEngine)
 
 	c.serverManager.AddImplementation(c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl, c.ServiceApiImpl, c.TasksApiImpl)

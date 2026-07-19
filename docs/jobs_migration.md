@@ -11,7 +11,7 @@ start here instead of re-deriving the pattern from scratch.
 | Pipeliner method     | Job action       | Status         | Handler                              | Steps/Jobs | Live RPC cut over? |
 |-----------------------|------------------|----------------|---------------------------------------|------------|---------------------|
 | `LaunchSmerd`          | `create_smerd`   | Cut over     | `internal/jobs/create_smerd.go`       | 9          | Yes — `velez_api_impl.CreateSmerd` now calls `Engine.Enqueue`+`Watch` (sync facade); scaffold grew from 4 to 9 jobs to reach parity with `do_smerd_launch.go` (prepare_request, fetch_config, prepare_verv_config, copy_to_container, subscribe_for_config_changes added) |
-| `CreateService`        | `create_service` | Scaffolded     | `internal/jobs/create_service.go`     | 2          | No — `service_api_impl.CreateService` still calls the old pipeliner |
+| `CreateService`        | `create_service` | Cut over     | `internal/jobs/create_service.go`     | 2          | Yes — `service_api_impl.CreateService` now calls `Engine.Enqueue`+`Watch` (sync facade); step parity was already 2-for-2 with `do_create_service.go`, no job changes needed |
 | `AssembleConfig`       | `assemble_config` | Scaffolded    | `internal/jobs/assemble_config.go`    | 5          | No — `velez_api_impl.AssembleConfig` still calls the old pipeliner |
 | `CopyToVolume`         | `copy_to_volume` | Scaffolded     | `internal/jobs/copy_to_volume.go`     | 3 + N (dynamic) | No — CopyToVolume has no live caller today (see docs/jobs_migrations/questions.md #1) |
 | `ConnectServiceToVpn`  | `connect_service_to_vpn` | Scaffolded | `internal/jobs/connect_service_to_vpn.go` | 8 (9 pipeline steps, 1 folded — see questions.md) | No — `service_api_impl`/`velez_api_impl` still call the old pipeliner for VPN connect |
@@ -64,9 +64,12 @@ bigger decision to make explicitly per pipeline, not a default next step.
    `pauseAPI`/`renameAPI`/`copyFromAPI`/`createNetworkAPI` narrow-interface
    duplication this needed to stay unit-testable.
 
-Every pipeliner method in the status table above is now scaffolded. No
-pipeline has been cut over to serve its live gRPC endpoint from the jobs
-engine - see the cross-cutting note below.
+Every pipeliner method in the status table above is now scaffolded.
+`LaunchSmerd`/`create_smerd` and `CreateService`/`create_service` have been
+cut over to serve their live gRPC endpoints from the jobs engine; the
+remaining five (`AssembleConfig`, `CopyToVolume`, `ConnectServiceToVpn`,
+`EnableStatefullMode`, `UpgradeSmerd`) still run the old pipeliner - see the
+cross-cutting note below.
 
 ## Migration checklist (repeat per pipeline)
 

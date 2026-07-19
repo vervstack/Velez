@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/pipelines"
 	"go.vervstack.ru/Velez/internal/service"
 )
@@ -18,13 +19,15 @@ type Impl struct {
 
 	servicesService service.VervServicesService
 
-	pipeliner pipelines.Pipeliner
+	pipeliner  pipelines.Pipeliner
+	jobsEngine jobs.Engine
 }
 
-func New(pipeliner pipelines.Pipeliner, services service.Services) *Impl {
+func New(pipeliner pipelines.Pipeliner, services service.Services, jobsEngine jobs.Engine) *Impl {
 	return &Impl{
 		servicesService: services.VervServices(),
 		pipeliner:       pipeliner,
+		jobsEngine:      jobsEngine,
 	}
 }
 

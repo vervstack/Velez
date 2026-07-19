@@ -98,3 +98,19 @@ message CopyToVolumeTaskPayload {
   // Set once the loader container has been created.
   optional string container_id = 3;
 }
+
+// ConnectServiceToVpnTaskPayload is the task context for the
+// "connect_service_to_vpn" action.
+message ConnectServiceToVpnTaskPayload {
+  string service_name = 1;
+
+  // Set once the Headscale namespace has been found/created.
+  optional string namespace_id = 2;
+  // Headscale auth key - sensitive, persisted verbatim into the task's
+  // JSON context (see docs/jobs_migrations/questions.md).
+  optional string client_key = 3;
+  // Set once the login server url has been resolved (currently a constant).
+  optional string login_server_url = 4;
+  // Set once the tailscale sidecar container has been created.
+  optional string container_id = 5;
+}

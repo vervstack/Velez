@@ -13,6 +13,8 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
+	"go.vervstack.ru/makosh/pkg/makosh_be"
+	"google.golang.org/grpc"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
@@ -479,4 +481,116 @@ func (f *fakeContainerAPI) CopyToContainer(
 	}
 
 	return f.copyErr
+}
+
+// fakeVpnClient is a minimal in-memory implementation of
+// cluster_clients.VervClosedNetworkClient for exercising
+// connect_service_to_vpn's namespace/client-key jobs without a real
+// Headscale server. Only the methods those jobs actually call are
+// configurable; the rest return zero values since the jobs under test never
+// invoke them.
+type fakeVpnClient struct {
+	mu sync.Mutex
+
+	namespaces map[string]domain.VcnNamespace
+
+	getNamespaceErr    error
+	createNamespaceErr error
+
+	authKeyResp domain.VcnAuthKey
+	authKeyErr  error
+
+	issuedKey   string
+	issueKeyErr error
+	issueCalls  int
+}
+
+func newFakeVpnClient() *fakeVpnClient {
+	return &fakeVpnClient{namespaces: make(map[string]domain.VcnNamespace)}
+}
+
+func (f *fakeVpnClient) CreateNamespace(_ context.Context, name string) (domain.VcnNamespace, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	if f.createNamespaceErr != nil {
+		return domain.VcnNamespace{}, f.createNamespaceErr
+	}
+
+	ns := domain.VcnNamespace{Id: "ns-" + name, Name: name}
+	f.namespaces[name] = ns
+
+	return ns, nil
+}
+
+func (f *fakeVpnClient) GetNamespace(_ context.Context, name string) (domain.VcnNamespace, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	if f.getNamespaceErr != nil {
+		return domain.VcnNamespace{}, f.getNamespaceErr
+	}
+
+	return f.namespaces[name], nil
+}
+
+func (f *fakeVpnClient) ListNamespaces(_ context.Context) ([]domain.VcnNamespace, error) {
+	return nil, nil
+}
+
+func (f *fakeVpnClient) DeleteNamespace(_ context.Context, _ string) error {
+	return nil
+}
+
+func (f *fakeVpnClient) GetClientAuthKey(_ context.Context, _ domain.GetVcnAuthKeyReq) (domain.VcnAuthKey, error) {
+	return f.authKeyResp, f.authKeyErr
+}
+
+func (f *fakeVpnClient) IssueClientKey(_ context.Context, _ domain.IssueClientKey) (string, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.issueCalls++
+
+	return f.issuedKey, f.issueKeyErr
+}
+
+func (f *fakeVpnClient) RegisterNode(_ context.Context, _ domain.RegisterVcnNodeReq) error {
+	return nil
+}
+
+// fakeServiceDiscovery is a minimal in-memory implementation of
+// cluster_clients.ServiceDiscovery (== makosh_be.MakoshBeAPIClient) for
+// exercising connect_service_to_vpn's add_makosh_record job without a real
+// makosh server.
+type fakeServiceDiscovery struct {
+	mu sync.Mutex
+
+	upsertErr        error
+	upsertCalledWith []*makosh_be.UpsertEndpoints_Request
+}
+
+func newFakeServiceDiscovery() *fakeServiceDiscovery {
+	return &fakeServiceDiscovery{}
+}
+
+func (f *fakeServiceDiscovery) Version(_ context.Context, _ *makosh_be.Version_Request, _ ...grpc.CallOption) (*makosh_be.Version_Response, error) {
+	return &makosh_be.Version_Response{}, nil
+}
+
+func (f *fakeServiceDiscovery) ListEndpoints(_ context.Context, _ *makosh_be.ListEndpoints_Request, _ ...grpc.CallOption) (*makosh_be.ListEndpoints_Response, error) {
+	return &makosh_be.ListEndpoints_Response{}, nil
+}
+
+func (f *fakeServiceDiscovery) UpsertEndpoints(_ context.Context, in *makosh_be.UpsertEndpoints_Request, _ ...grpc.CallOption) (*makosh_be.UpsertEndpoints_Response, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.upsertCalledWith = append(f.upsertCalledWith, in)
+
+	if f.upsertErr != nil {
+		return nil, f.upsertErr
+	}
+
+	return &makosh_be.UpsertEndpoints_Response{}, nil
 }

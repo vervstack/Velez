@@ -14,7 +14,7 @@ start here instead of re-deriving the pattern from scratch.
 | `CreateService`        | `create_service` | Scaffolded     | `internal/jobs/create_service.go`     | 2          | No — `service_api_impl.CreateService` still calls the old pipeliner |
 | `AssembleConfig`       | `assemble_config` | Scaffolded    | `internal/jobs/assemble_config.go`    | 5          | No — `velez_api_impl.AssembleConfig` still calls the old pipeliner |
 | `CopyToVolume`         | `copy_to_volume` | Scaffolded     | `internal/jobs/copy_to_volume.go`     | 3 + N (dynamic) | No — CopyToVolume has no live caller today (see docs/jobs_migrations/questions.md #1) |
-| `ConnectServiceToVpn`  | —                | Not started    | —                                      | 9          | — |
+| `ConnectServiceToVpn`  | `connect_service_to_vpn` | Scaffolded | `internal/jobs/connect_service_to_vpn.go` | 8 (9 pipeline steps, 1 folded — see questions.md) | No — `service_api_impl`/`velez_api_impl` still call the old pipeliner for VPN connect |
 | `UpgradeSmerd`         | —                | Not started    | —                                      | ~18, multi-stage | — |
 | `EnableStatefullMode`  | —                | Not started    | —                                      | ~7, bootstraps Postgres + mutates cluster state | — |
 
@@ -27,19 +27,20 @@ bigger decision to make explicitly per pipeline, not a default next step.
 
 ## Suggested pick-up order (easiest first)
 
-1. **`AssembleConfig`** — same shape as `CreateService`/`create_smerd`: a short,
-   fixed step list. The one wrinkle is the `getResult` post-processing (yaml/evon
-   parsing) — the job version needs somewhere to stash that logic since jobs
-   don't have a `Runner.Result()` equivalent (their output is the persisted
-   `TaskContext`, read back by the caller after the task is `DONE`).
-2. **`CopyToVolume`** — logic is simple (create loader container, copy files,
-   drop container) but the step count is dynamic (one create/copy pair per
-   mounted folder). `BuildJobs` can still build this as a loop, same as the
-   pipeline does — no engine changes needed, just needs care in naming each
-   job uniquely for checkpointing (e.g. `copy_file_<n>`).
-3. **`ConnectServiceToVpn`** — 9 steps, moderate complexity, several steps share
-   state via closures (`clientKey`, `loginServer`, `namespaceId`) which map
-   naturally to `TaskContext` fields.
+1. ~~**`AssembleConfig`**~~ — done. Same shape as `CreateService`/`create_smerd`:
+   a short, fixed step list. The one wrinkle was the `getResult` post-processing
+   (yaml/evon parsing) — the job version stashes that logic in a `parse_config`
+   job since jobs don't have a `Runner.Result()` equivalent (their output is
+   the persisted `TaskContext`, read back by the caller after the task is `DONE`).
+2. ~~**`CopyToVolume`**~~ — done. Logic is simple (create loader container, copy
+   files, drop container) but the step count is dynamic (one create/copy pair
+   per mounted folder). `BuildJobs` builds this as a loop — no engine changes
+   needed, just care in naming each job uniquely for checkpointing
+   (`copy_file_<n>`).
+3. ~~**`ConnectServiceToVpn`**~~ — done. 9 pipeline steps became 8 named jobs
+   (the inline env-append closure was folded into `create_container`, same
+   precedent as `CopyToVolume`'s combined mkdir+copy). `clientKey`,
+   `loginServer`, `namespaceId` map directly to `TaskContext` fields.
 4. **`EnableStatefullMode`** — higher risk: bootstraps Postgres, swaps out the
    live `ClusterStateManager`/`StorageContainer` mid-pipeline. Migrate only
    after the pattern is well-proven on simpler cases.

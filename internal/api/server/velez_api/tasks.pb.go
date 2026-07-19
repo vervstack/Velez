@@ -483,6 +483,89 @@ func (x *CopyToVolumeTaskPayload) GetContainerId() string {
 	return ""
 }
 
+// ConnectServiceToVpnTaskPayload is the task context for the
+// "connect_service_to_vpn" action.
+type ConnectServiceToVpnTaskPayload struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	ServiceName string                 `protobuf:"bytes,1,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	// Set once the Headscale namespace has been found/created.
+	NamespaceId *string `protobuf:"bytes,2,opt,name=namespace_id,json=namespaceId,proto3,oneof" json:"namespace_id,omitempty"`
+	// Headscale auth key - sensitive, persisted verbatim into the task's
+	// JSON context (see docs/jobs_migrations/questions.md).
+	ClientKey *string `protobuf:"bytes,3,opt,name=client_key,json=clientKey,proto3,oneof" json:"client_key,omitempty"`
+	// Set once the login server url has been resolved (currently a constant).
+	LoginServerUrl *string `protobuf:"bytes,4,opt,name=login_server_url,json=loginServerUrl,proto3,oneof" json:"login_server_url,omitempty"`
+	// Set once the tailscale sidecar container has been created.
+	ContainerId   *string `protobuf:"bytes,5,opt,name=container_id,json=containerId,proto3,oneof" json:"container_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConnectServiceToVpnTaskPayload) Reset() {
+	*x = ConnectServiceToVpnTaskPayload{}
+	mi := &file_tasks_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConnectServiceToVpnTaskPayload) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectServiceToVpnTaskPayload) ProtoMessage() {}
+
+func (x *ConnectServiceToVpnTaskPayload) ProtoReflect() protoreflect.Message {
+	mi := &file_tasks_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectServiceToVpnTaskPayload.ProtoReflect.Descriptor instead.
+func (*ConnectServiceToVpnTaskPayload) Descriptor() ([]byte, []int) {
+	return file_tasks_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ConnectServiceToVpnTaskPayload) GetServiceName() string {
+	if x != nil {
+		return x.ServiceName
+	}
+	return ""
+}
+
+func (x *ConnectServiceToVpnTaskPayload) GetNamespaceId() string {
+	if x != nil && x.NamespaceId != nil {
+		return *x.NamespaceId
+	}
+	return ""
+}
+
+func (x *ConnectServiceToVpnTaskPayload) GetClientKey() string {
+	if x != nil && x.ClientKey != nil {
+		return *x.ClientKey
+	}
+	return ""
+}
+
+func (x *ConnectServiceToVpnTaskPayload) GetLoginServerUrl() string {
+	if x != nil && x.LoginServerUrl != nil {
+		return *x.LoginServerUrl
+	}
+	return ""
+}
+
+func (x *ConnectServiceToVpnTaskPayload) GetContainerId() string {
+	if x != nil && x.ContainerId != nil {
+		return *x.ContainerId
+	}
+	return ""
+}
+
 type WatchTask_Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	EntityId      string                 `protobuf:"bytes,1,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
@@ -493,7 +576,7 @@ type WatchTask_Request struct {
 
 func (x *WatchTask_Request) Reset() {
 	*x = WatchTask_Request{}
-	mi := &file_tasks_proto_msgTypes[6]
+	mi := &file_tasks_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -505,7 +588,7 @@ func (x *WatchTask_Request) String() string {
 func (*WatchTask_Request) ProtoMessage() {}
 
 func (x *WatchTask_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_tasks_proto_msgTypes[6]
+	mi := &file_tasks_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -603,6 +686,17 @@ const file_tasks_proto_rawDesc = "" +
 	"\x10PathToFilesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\fR\x05value:\x028\x01B\x0f\n" +
+	"\r_container_id\"\xac\x02\n" +
+	"\x1eConnectServiceToVpnTaskPayload\x12!\n" +
+	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x12&\n" +
+	"\fnamespace_id\x18\x02 \x01(\tH\x00R\vnamespaceId\x88\x01\x01\x12\"\n" +
+	"\n" +
+	"client_key\x18\x03 \x01(\tH\x01R\tclientKey\x88\x01\x01\x12-\n" +
+	"\x10login_server_url\x18\x04 \x01(\tH\x02R\x0eloginServerUrl\x88\x01\x01\x12&\n" +
+	"\fcontainer_id\x18\x05 \x01(\tH\x03R\vcontainerId\x88\x01\x01B\x0f\n" +
+	"\r_namespace_idB\r\n" +
+	"\v_client_keyB\x13\n" +
+	"\x11_login_server_urlB\x0f\n" +
 	"\r_container_id2h\n" +
 	"\bTasksApi\x12\\\n" +
 	"\tWatchTask\x12\x1c.velez_api.WatchTask.Request\x1a\x15.velez_api.TaskStatus\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/api/tasks/watch0\x01BC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
@@ -620,30 +714,31 @@ func file_tasks_proto_rawDescGZIP() []byte {
 }
 
 var file_tasks_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_tasks_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_tasks_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_tasks_proto_goTypes = []any{
-	(TaskStatus_Status)(0),            // 0: velez_api.TaskStatus.Status
-	(*WatchTask)(nil),                 // 1: velez_api.WatchTask
-	(*TaskStatus)(nil),                // 2: velez_api.TaskStatus
-	(*CreateSmerdTaskPayload)(nil),    // 3: velez_api.CreateSmerdTaskPayload
-	(*CreateServiceTaskPayload)(nil),  // 4: velez_api.CreateServiceTaskPayload
-	(*AssembleConfigTaskPayload)(nil), // 5: velez_api.AssembleConfigTaskPayload
-	(*CopyToVolumeTaskPayload)(nil),   // 6: velez_api.CopyToVolumeTaskPayload
-	(*WatchTask_Request)(nil),         // 7: velez_api.WatchTask.Request
-	nil,                               // 8: velez_api.AssembleConfigTaskPayload.ImageLabelsEntry
-	nil,                               // 9: velez_api.CopyToVolumeTaskPayload.PathToFilesEntry
-	(*timestamppb.Timestamp)(nil),     // 10: google.protobuf.Timestamp
-	(*CreateSmerd_Request)(nil),       // 11: velez_api.CreateSmerd.Request
-	(ConfigFormat)(0),                 // 12: velez_api.ConfigFormat
+	(TaskStatus_Status)(0),                 // 0: velez_api.TaskStatus.Status
+	(*WatchTask)(nil),                      // 1: velez_api.WatchTask
+	(*TaskStatus)(nil),                     // 2: velez_api.TaskStatus
+	(*CreateSmerdTaskPayload)(nil),         // 3: velez_api.CreateSmerdTaskPayload
+	(*CreateServiceTaskPayload)(nil),       // 4: velez_api.CreateServiceTaskPayload
+	(*AssembleConfigTaskPayload)(nil),      // 5: velez_api.AssembleConfigTaskPayload
+	(*CopyToVolumeTaskPayload)(nil),        // 6: velez_api.CopyToVolumeTaskPayload
+	(*ConnectServiceToVpnTaskPayload)(nil), // 7: velez_api.ConnectServiceToVpnTaskPayload
+	(*WatchTask_Request)(nil),              // 8: velez_api.WatchTask.Request
+	nil,                                    // 9: velez_api.AssembleConfigTaskPayload.ImageLabelsEntry
+	nil,                                    // 10: velez_api.CopyToVolumeTaskPayload.PathToFilesEntry
+	(*timestamppb.Timestamp)(nil),          // 11: google.protobuf.Timestamp
+	(*CreateSmerd_Request)(nil),            // 12: velez_api.CreateSmerd.Request
+	(ConfigFormat)(0),                      // 13: velez_api.ConfigFormat
 }
 var file_tasks_proto_depIdxs = []int32{
 	0,  // 0: velez_api.TaskStatus.status:type_name -> velez_api.TaskStatus.Status
-	10, // 1: velez_api.TaskStatus.updated_at:type_name -> google.protobuf.Timestamp
-	11, // 2: velez_api.CreateSmerdTaskPayload.request:type_name -> velez_api.CreateSmerd.Request
-	8,  // 3: velez_api.AssembleConfigTaskPayload.image_labels:type_name -> velez_api.AssembleConfigTaskPayload.ImageLabelsEntry
-	12, // 4: velez_api.AssembleConfigTaskPayload.config_format:type_name -> velez_api.ConfigFormat
-	9,  // 5: velez_api.CopyToVolumeTaskPayload.path_to_files:type_name -> velez_api.CopyToVolumeTaskPayload.PathToFilesEntry
-	7,  // 6: velez_api.TasksApi.WatchTask:input_type -> velez_api.WatchTask.Request
+	11, // 1: velez_api.TaskStatus.updated_at:type_name -> google.protobuf.Timestamp
+	12, // 2: velez_api.CreateSmerdTaskPayload.request:type_name -> velez_api.CreateSmerd.Request
+	9,  // 3: velez_api.AssembleConfigTaskPayload.image_labels:type_name -> velez_api.AssembleConfigTaskPayload.ImageLabelsEntry
+	13, // 4: velez_api.AssembleConfigTaskPayload.config_format:type_name -> velez_api.ConfigFormat
+	10, // 5: velez_api.CopyToVolumeTaskPayload.path_to_files:type_name -> velez_api.CopyToVolumeTaskPayload.PathToFilesEntry
+	8,  // 6: velez_api.TasksApi.WatchTask:input_type -> velez_api.WatchTask.Request
 	2,  // 7: velez_api.TasksApi.WatchTask:output_type -> velez_api.TaskStatus
 	7,  // [7:8] is the sub-list for method output_type
 	6,  // [6:7] is the sub-list for method input_type
@@ -663,13 +758,14 @@ func file_tasks_proto_init() {
 	file_tasks_proto_msgTypes[2].OneofWrappers = []any{}
 	file_tasks_proto_msgTypes[4].OneofWrappers = []any{}
 	file_tasks_proto_msgTypes[5].OneofWrappers = []any{}
+	file_tasks_proto_msgTypes[6].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_tasks_proto_rawDesc), len(file_tasks_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   9,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

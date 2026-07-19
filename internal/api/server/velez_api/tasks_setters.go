@@ -55,3 +55,19 @@ func (x *AssembleConfigTaskPayload) SetContent(v []byte) {
 func (x *CopyToVolumeTaskPayload) SetContainerId(v string) {
 	x.ContainerId = &v
 }
+
+func (x *ConnectServiceToVpnTaskPayload) SetNamespaceId(v string) {
+	x.NamespaceId = &v
+}
+
+func (x *ConnectServiceToVpnTaskPayload) SetClientKey(v string) {
+	x.ClientKey = &v
+}
+
+func (x *ConnectServiceToVpnTaskPayload) SetLoginServerUrl(v string) {
+	x.LoginServerUrl = &v
+}
+
+func (x *ConnectServiceToVpnTaskPayload) SetContainerId(v string) {
+	x.ContainerId = &v
+}

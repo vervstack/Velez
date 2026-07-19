@@ -94,6 +94,7 @@ func (c *Custom) Init(a *App) (err error) {
 	registry.Register(jobs.NewCreateServiceHandler(c.ClusterClients.StateManager().Services()))
 	registry.Register(jobs.NewAssembleConfigHandler(c.NodeClients))
 	registry.Register(jobs.NewCopyToVolumeHandler(c.NodeClients))
+	registry.Register(jobs.NewConnectServiceToVpnHandler(c.NodeClients, c.ClusterClients.Vpn(), c.ClusterClients.ServiceDiscovery()))
 
 	workerId, hostErr := os.Hostname()
 	if hostErr != nil || workerId == "" {

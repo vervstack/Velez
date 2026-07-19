@@ -753,7 +753,6 @@
   "751": "CreateService",
   "752": "CreateSmerd",
   "753": "Pipelines → Jobs Migration",
-  "754": ".ListSmerds",
   "755": "overview.md",
   "756": "EnableStatefullTaskPayload",
   "757": "VPN client key (Headscale auth key) storage in task context",

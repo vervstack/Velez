@@ -2965,8 +2965,8 @@
     "semantic_hash": ""
   },
   "docs/jobs_migration.md": {
-    "mtime": 1784446960.1253943,
-    "ast_hash": "370a313d891efcea20f50c4fcc9b35c0",
+    "mtime": 1784458390.2972286,
+    "ast_hash": "6c159ea3245855821404dc66473dfee9",
     "semantic_hash": ""
   },
   "internal/jobs/assemble_config.go": {
@@ -3040,8 +3040,8 @@
     "semantic_hash": ""
   },
   "docs/plans/testing.md": {
-    "mtime": 1784453903.2730472,
-    "ast_hash": "7a4e64c765a766e12df9f69b085aa579",
+    "mtime": 1784458415.5448253,
+    "ast_hash": "4b755c453337345805739520f973d216",
     "semantic_hash": ""
   },
   "internal/api/server/velez_api/create_smerd_request_json.go": {

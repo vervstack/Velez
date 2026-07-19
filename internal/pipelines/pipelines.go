@@ -19,11 +19,6 @@ type Pipeliner interface {
 	UpgradeSmerd(req domain.UpgradeSmerd) Runner[any]
 
 	CopyToVolume(req domain.CopyToVolumeRequest) Runner[any]
-
-	// Built-in services
-
-	// EnableStatefullMode - deploys postgres and enables cluster mode
-	EnableStatefullMode(cluster domain.EnableStatefullClusterRequest) Runner[domain.StateClusterDefinition]
 }
 
 type Runner[T any] interface {

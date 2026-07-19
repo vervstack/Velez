@@ -16,7 +16,7 @@ start here instead of re-deriving the pattern from scratch.
 | `CopyToVolume`         | `copy_to_volume` | Scaffolded     | `internal/jobs/copy_to_volume.go`     | 3 + N (dynamic) | No — CopyToVolume has no live caller today (see docs/jobs_migrations/questions.md #1) |
 | `ConnectServiceToVpn`  | `connect_service_to_vpn` | Cut over     | `internal/jobs/connect_service_to_vpn.go` | 8 (9 pipeline steps, 1 folded — see questions.md) | Yes — `vcn_api_impl.ConnectService` now calls `Engine.Enqueue`+`Watch` (sync facade); step parity re-verified at cutover (8-for-8, matches scaffold). No oneof fields in `ConnectServiceToVpnTaskPayload`, so the round-trip test was skipped. **Removal shape differs from `CreateService`/`AssembleConfig`**: `do_connect_service_to_vpn.go` defines both the `Pipeliner.ConnectServiceToVpn` interface method/adapter (RPC-only, now dead, removed) *and* a package-level free function `ConnectServiceToVpn(req, nc, vpnClient, sdClient)` that two unrelated app-bootstrap call sites (`internal/cluster/configuration/service.go`, `internal/cluster/service_discovery/launch.go`) call directly, bypassing the `Pipeliner` interface, to connect the node's own matreshka/service-discovery sidecar to the VPN at startup. Those callers check `rerrors.Is` against the typed error the `Runner` returns — routing them through the jobs engine would flatten that into a string (`finalTask.Error.String`) and add persistence/checkpointing to synchronous in-process bootstrap logic, out of scope for this migration. Only the interface method and the `(p *pipeliner)` adapter were removed; the free function and both bootstrap callers are untouched and still compile/run exactly as before. |
 | `EnableStatefullMode`  | `enable_statefull_mode` | Cut over     | `internal/jobs/enable_statefull.go` | 8 (7 pipeline steps + 1 new — see questions.md) | Yes — `control_plane_api_impl.EnablePlugin`'s `statefull_pg` case now calls `Engine.Enqueue`+`Watch` (sync facade); step parity re-verified at cutover (8-for-8, matches scaffold). `EnableStatefullTaskPayload.request` (`velez_api.EnableStatefullCluster`) is a plain non-oneof message (`optional bool`/`optional uint64`), unlike `CreateSmerd.Request`, so the round-trip test was skipped — confirmed by inspecting `api/grpc/control_plane_api.proto`. `EnablePlugin_Response` is always empty and the old pipeline's `getResult` was never read by the RPC handler, so no response reconstruction was needed (simpler than `AssembleConfig`, same shape as `CreateService`/`ConnectServiceToVpn`). The RPC's pre-existing quirk of returning a non-nil `&EnablePlugin_Response{}` even on error was preserved exactly. `domain.EnableStatefullClusterRequest`/`domain.StateClusterDefinition` (pipeliner-only request/result types) were removed alongside `do_enable_statefull.go` since nothing else referenced them. |
-| `UpgradeSmerd`         | `upgrade_smerd`  | Scaffolded     | `internal/jobs/upgrade_smerd.go`      | 15 (19 pipeline steps, 4 SingleFunc renames folded — see questions.md) | No — `velez_api_impl.UpgradeSmerd` still calls the old pipeliner |
+| `UpgradeSmerd`         | `upgrade_smerd`  | Cut over     | `internal/jobs/upgrade_smerd.go`      | 15 (19 pipeline steps, 4 SingleFunc renames folded — see questions.md) | Yes — `velez_api_impl.UpgradeSmerd` now calls `Engine.Enqueue`+`Watch` (sync facade); step parity re-verified at cutover (15-for-19, matches scaffold), and the oneof round-trip through `UpgradeSmerdTaskPayload.Request` (`*CreateSmerd_Request`, same oneof-bearing type `create_smerd`'s cutover hit) was independently re-verified safe — `create_smerd_request_json.go`'s hand-written `MarshalJSON`/`UnmarshalJSON` on `*CreateSmerd_Request` apply automatically regardless of which parent message embeds the field. Watch timeout set to 120s (`upgradeSmerdWatchTimeout`), double `create_smerd`'s 60s, since this pipeline's 15 jobs do roughly twice the Docker work (two container creates instead of one, plus pause/rename/drop of the old container). **Removal shape differs from every single-caller pipeline, same as `ConnectServiceToVpn`**: `Pipeliner.UpgradeSmerd`/`do_smerd_upgrade.go` has no free-standing function to partially remove at all — its only content is the interface method itself, called directly (not via the RPC layer) by two background workers, `internal/cluster/autoupgrade/autoupgrade.go:114` and `internal/workers/deploy_watcher.go:192`. Confirmed via a repo-wide grep for `.UpgradeSmerd(` turning up exactly these two call sites plus the RPC handler being rewritten here. Nothing was removed: `do_smerd_upgrade.go`, `Pipeliner.UpgradeSmerd`'s interface declaration, and both background workers are untouched. This is now the **second** pipeline in this table (after `ConnectServiceToVpn`) where "remove the old impl" is legitimately a no-op rather than a completed step — a future reader should not expect `do_smerd_upgrade.go` to ever go away as part of this migration; it will only go away if/when the two background workers are themselves migrated off `pipelines.Pipeliner` directly. |
 
 **"Scaffolded" ≠ "cut over."** A scaffolded pipeline has a working, tested
 `TaskHandler` registered in the worker (`internal/app/custom.go`), but the
@@ -50,9 +50,9 @@ bigger decision to make explicitly per pipeline, not a default next step.
    `ClusterStateManager`/`StorageContainer` singleton swap was carried over
    as a job side effect unchanged. See questions.md for the SQL-testability
    gap this migration left open.
-5. ~~**`UpgradeSmerd`**~~ — done, last as planned. 19 pipeline steps became 15
-   named jobs: 4 pure-rename SingleFunc steps were folded into whichever
-   real job immediately follows them, same fold precedent as
+5. ~~**`UpgradeSmerd`**~~ — done, last as planned, and cut over. 19 pipeline
+   steps became 15 named jobs: 4 pure-rename SingleFunc steps were folded
+   into whichever real job immediately follows them, same fold precedent as
    ConnectServiceToVpn/CopyToVolume. The pipeline's single mutable
    `newLaunch`/`newContId` variables (reused across the scratch
    config-fetcher container and the final container) became a single
@@ -62,15 +62,24 @@ bigger decision to make explicitly per pipeline, not a default next step.
    whose result is discarded and never read again) was preserved as-is
    rather than removed. See questions.md #18-21 for details and the
    `pauseAPI`/`renameAPI`/`copyFromAPI`/`createNetworkAPI` narrow-interface
-   duplication this needed to stay unit-testable.
+   duplication this needed to stay unit-testable. `velez_api_impl.UpgradeSmerd`
+   now calls `Engine.Enqueue`+`Watch`; `do_smerd_upgrade.go`/
+   `Pipeliner.UpgradeSmerd` could not be removed (two background workers call
+   it directly — see the status table row above), same shape as
+   `ConnectServiceToVpn`.
 
-Every pipeliner method in the status table above is now scaffolded.
-`LaunchSmerd`/`create_smerd`, `CreateService`/`create_service`,
-`AssembleConfig`/`assemble_config`, `ConnectServiceToVpn`/
-`connect_service_to_vpn`, and `EnableStatefullMode`/`enable_statefull_mode`
-have been cut over to serve their live gRPC endpoints from the jobs engine;
-the remaining two (`CopyToVolume`, `UpgradeSmerd`) still run the old
-pipeliner - see the cross-cutting note below.
+Every pipeliner method in the status table above is now scaffolded, and every
+one except `CopyToVolume` has been cut over to serve its live gRPC endpoint
+(or, for `UpgradeSmerd`, its two direct callers stay on the old pipeliner by
+necessity, not by omission) from the jobs engine: `LaunchSmerd`/`create_smerd`,
+`CreateService`/`create_service`, `AssembleConfig`/`assemble_config`,
+`ConnectServiceToVpn`/`connect_service_to_vpn`, `EnableStatefullMode`/
+`enable_statefull_mode`, and `UpgradeSmerd`/`upgrade_smerd` are all cut over.
+Only `CopyToVolume` remains scaffolded-but-not-cut-over, and it has no live
+caller to cut over in the first place (see `docs/jobs_migrations/questions.md`
+#1 and its now-updated cross-cutting note) — so this migration is
+functionally complete: nothing is left in a "should be cut over but isn't
+yet" state.
 
 ## Migration checklist (repeat per pipeline)
 

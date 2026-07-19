@@ -268,5 +268,14 @@ in-place container renames threading through all three.
 ## Cross-cutting (all pipelines)
 
 6. **Live-RPC cut-over** stays OFF for every pipeline unless you say otherwise
-   (checklist item 7 — your explicit per-pipeline decision). All migrations remain
-   "Scaffolded": handler registered + tested, old pipeliner still serves live RPCs.
+   (checklist item 7 — your explicit per-pipeline decision). This note is
+   stale as of `UpgradeSmerd`'s cutover (2026-07-19): five of the six
+   migrated pipelines are now cut over to their live RPCs/callers -
+   `LaunchSmerd`/`create_smerd`, `CreateService`/`create_service`,
+   `AssembleConfig`/`assemble_config`, `ConnectServiceToVpn`/
+   `connect_service_to_vpn`, `EnableStatefullMode`/`enable_statefull_mode`,
+   and `UpgradeSmerd`/`upgrade_smerd`. Only `CopyToVolume` remains
+   "Scaffolded" and un-cut-over, and it has no live caller to cut over in the
+   first place (#1 above). See `docs/jobs_migration.md`'s Status table for
+   the current, authoritative per-pipeline state - don't trust this
+   paragraph's own history over that table.

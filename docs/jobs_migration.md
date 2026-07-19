@@ -10,7 +10,7 @@ start here instead of re-deriving the pattern from scratch.
 
 | Pipeliner method     | Job action       | Status         | Handler                              | Steps/Jobs | Live RPC cut over? |
 |-----------------------|------------------|----------------|---------------------------------------|------------|---------------------|
-| `LaunchSmerd`          | `create_smerd`   | Scaffolded     | `internal/jobs/create_smerd.go`       | 4          | No — `velez_api_impl.CreateSmerd` still calls the old pipeliner |
+| `LaunchSmerd`          | `create_smerd`   | Cut over     | `internal/jobs/create_smerd.go`       | 9          | Yes — `velez_api_impl.CreateSmerd` now calls `Engine.Enqueue`+`Watch` (sync facade); scaffold grew from 4 to 9 jobs to reach parity with `do_smerd_launch.go` (prepare_request, fetch_config, prepare_verv_config, copy_to_container, subscribe_for_config_changes added) |
 | `CreateService`        | `create_service` | Scaffolded     | `internal/jobs/create_service.go`     | 2          | No — `service_api_impl.CreateService` still calls the old pipeliner |
 | `AssembleConfig`       | `assemble_config` | Scaffolded    | `internal/jobs/assemble_config.go`    | 5          | No — `velez_api_impl.AssembleConfig` still calls the old pipeliner |
 | `CopyToVolume`         | `copy_to_volume` | Scaffolded     | `internal/jobs/copy_to_volume.go`     | 3 + N (dynamic) | No — CopyToVolume has no live caller today (see docs/jobs_migrations/questions.md #1) |
@@ -77,6 +77,18 @@ engine - see the cross-cutting note below.
    proto3 scalar, add a hand-written `Set*` in
    `internal/api/server/velez_api/tasks_setters.go` (protoc-gen-go only emits
    getters).
+   - **oneof check.** If the payload embeds a message with a `oneof` field
+     (e.g. `CreateSmerd.Request.config`), write a throwaway test that
+     marshals a populated instance via `encoding/json` and unmarshals it back
+     into a fresh value, then asserts the oneof survived. A oneof is a Go
+     interface field — `Marshal` serializes it fine, but `Unmarshal` can never
+     allocate a concrete type back into an interface field, so this silently
+     breaks with no compile-time warning. If the test fails, add hand-written
+     `MarshalJSON`/`UnmarshalJSON` before writing any job code — pattern in
+     `internal/api/server/velez_api/create_smerd_request_json.go`. Skipping
+     this check is exactly what caused a multi-hour hang-debugging session
+     during `CreateSmerd`'s cutover (see `docs/plans/testing.md`'s progress
+     log, 2026-07-19).
 2. **Handler + jobs** — new file `internal/jobs/{name}.go`:
    - `const {Name}Action = "{name}"`
    - narrow accessor interfaces (`GetX() T`, `SetX(T)`) instead of depending on
@@ -88,6 +100,15 @@ engine - see the cross-cutting note below.
      satisfies `jobs.Job` with no wrapper needed (see `create_service.go`'s
      reuse of `service_steps.ValidateServiceName`). Steps with rollback need a
      `Rollback(ctx) error` method to satisfy `RollbackableJob`.
+   - **step-parity check.** List the original pipeline's `Steps: []steps.Step{...}`
+     (in its `do_*.go` file) next to `BuildJobs()`'s returned list, one by one.
+     Every original step must be accounted for: ported as a job, deliberately
+     folded into an adjacent job (state the precedent, e.g. `docs/jobs_migrations/questions.md`'s
+     mkdir+copy fold), or explicitly out of scope with a stated reason. An
+     unexplained gap is a bug, not a simplification — `create_smerd.go`'s
+     original scaffold silently dropped 5 of 9 steps (config-assembly,
+     `use_image_ports`) this way, and it wasn't caught until cutover broke
+     5 of 9 e2e subtests.
 3. **Register** — add `registry.Register(jobs.NewXxxHandler(...))` next to the
    existing registrations in `internal/app/custom.go`.
 4. **Tests** — `internal/jobs/{name}_test.go`. Reuse the fakes in
@@ -96,6 +117,12 @@ engine - see the cross-cutting note below.
    least: happy path end-to-end through `taskWorker.run`, and one failure path.
 5. **Verify** — `go build ./...` and `go test ./...` clean. Run
    `graphify update .` so the code graph stays current.
-6. **Update this table** — flip the row to Scaffolded and note the job count.
+6. **Update this table** — flip the row to Scaffolded and note the job count
+   *and* the original pipeline's step count (e.g. "9 (4 originally, corrected)")
+   so a future cutover session can see at a glance whether parity was checked.
 7. **Cut-over is a separate, explicit decision** — ask before wiring a live RPC
    to `Engine.Enqueue`/`Watch`; don't do it as part of the scaffolding step.
+   Before cutting over, re-run the step-parity and oneof checks above even if
+   the pipeline was scaffolded long ago — a scaffold's own tests only cover
+   what its (possibly incomplete) job list does, not what the original
+   pipeline did.

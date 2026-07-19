@@ -90,7 +90,7 @@ func (c *Custom) Init(a *App) (err error) {
 	closer.Add(c.DeployWatcher.Stop)
 
 	registry := jobs.NewRegistry()
-	registry.Register(jobs.NewCreateSmerdHandler(c.NodeClients))
+	registry.Register(jobs.NewCreateSmerdHandler(c.NodeClients, c.Services.ConfigurationService()))
 	registry.Register(jobs.NewCreateServiceHandler(c.ClusterClients.StateManager().Services()))
 	registry.Register(jobs.NewAssembleConfigHandler(c.NodeClients))
 	registry.Register(jobs.NewCopyToVolumeHandler(c.NodeClients))
@@ -203,7 +203,7 @@ func (c *Custom) InitApiServer(a *App) error {
 		return rerrors.Wrap(err, "error initializing server manager")
 	}
 
-	c.ApiGrpcImpl = velez_api_impl.NewImpl(a.Cfg, c.Services, c.Pipeliner)
+	c.ApiGrpcImpl = velez_api_impl.NewImpl(a.Cfg, c.Services, c.Pipeliner, c.JobsEngine)
 	c.ControlPlaneApiImpl = control_plane_api_impl.New(c.Services, c.Pipeliner)
 	c.VpnApiImpl = vcn_api_impl.New(c.ClusterClients, c.Pipeliner)
 	c.ServiceApiImpl = service_api_impl.New(c.Pipeliner, c.Services)

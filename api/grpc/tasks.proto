@@ -54,6 +54,18 @@ message CreateSmerdTaskPayload {
   optional string image_id = 2;
   // Set once the container has been created.
   optional string container_id = 3;
+
+  // Set once the image has been pulled/inspected.
+  map<string, string> image_labels = 4;
+  repeated string image_tags = 5;
+  // Raw nat.Port keys (e.g. "5432/tcp") from the image's exposed ports,
+  // used by prepare_verv_config when the request has use_image_ports set.
+  repeated string image_exposed_ports = 6;
+
+  // Config file content to copy into the container before it starts,
+  // resolved by fetch_config. Same shape/purpose as
+  // CopyToVolumeTaskPayload.path_to_files.
+  map<string, bytes> path_to_files = 7;
 }
 
 // CreateServiceTaskPayload is the task context for the "create_service" action.

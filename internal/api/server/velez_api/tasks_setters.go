@@ -16,6 +16,22 @@ func (x *CreateSmerdTaskPayload) SetContainerId(v string) {
 	x.ContainerId = &v
 }
 
+func (x *CreateSmerdTaskPayload) SetImageLabels(v map[string]string) {
+	x.ImageLabels = v
+}
+
+func (x *CreateSmerdTaskPayload) SetImageTags(v []string) {
+	x.ImageTags = v
+}
+
+func (x *CreateSmerdTaskPayload) SetImageExposedPorts(v []string) {
+	x.ImageExposedPorts = v
+}
+
+func (x *CreateSmerdTaskPayload) SetPathToFiles(v map[string][]byte) {
+	x.PathToFiles = v
+}
+
 func (x *AssembleConfigTaskPayload) SetImageLabels(v map[string]string) {
 	x.ImageLabels = v
 }

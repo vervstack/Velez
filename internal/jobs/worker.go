@@ -101,25 +101,14 @@ func (w *taskWorker) processOne(ctx context.Context) {
 func (w *taskWorker) run(ctx context.Context, task tasks_queries.VelezTask) error {
 	handler, ok := w.registry.Get(task.Action)
 	if !ok {
-		notFoundErr := rerrors.New("no handler registered for action " + task.Action)
-
-		finishErr := w.tasksStorage.FinishTask(ctx, tasks_queries.FinishTaskParams{
-			ID:     task.ID,
-			Status: tasks_queries.VelezTaskStatusFAILED,
-			Error:  sql.NullString{String: notFoundErr.Error(), Valid: true},
-		})
-		if finishErr != nil {
-			return rerrors.Join(notFoundErr, finishErr)
-		}
-
-		return notFoundErr
+		return w.failTask(ctx, task.ID, rerrors.New("no handler registered for action "+task.Action))
 	}
 
 	taskCtx := handler.NewContext()
 	if task.Context.Valid {
 		err := json.Unmarshal(task.Context.RawMessage, taskCtx)
 		if err != nil {
-			return rerrors.Wrap(err, "error unmarshaling task context")
+			return w.failTask(ctx, task.ID, rerrors.Wrap(err, "error unmarshaling task context"))
 		}
 	}
 
@@ -142,6 +131,24 @@ func (w *taskWorker) run(ctx context.Context, task tasks_queries.VelezTask) erro
 	}
 
 	return runErr
+}
+
+// failTask marks a task FAILED before any job ever ran for it (no handler
+// registered, or the persisted context couldn't be unmarshaled) - without
+// this, a task that fails here would stay claimed at RUNNING forever, only
+// reclaimable after the stale lease expires, and would fail identically on
+// every retry.
+func (w *taskWorker) failTask(ctx context.Context, taskID int64, taskErr error) error {
+	finishErr := w.tasksStorage.FinishTask(ctx, tasks_queries.FinishTaskParams{
+		ID:     taskID,
+		Status: tasks_queries.VelezTaskStatusFAILED,
+		Error:  sql.NullString{String: taskErr.Error(), Valid: true},
+	})
+	if finishErr != nil {
+		return rerrors.Join(taskErr, finishErr)
+	}
+
+	return taskErr
 }
 
 func (w *taskWorker) runJobs(ctx context.Context, taskID int64, taskCtx TaskContext, namedJobs []NamedJob) error {

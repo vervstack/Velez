@@ -1385,9 +1385,9 @@
     "semantic_hash": "d252b4e47ef166899d215c5e9cc86d7c"
   },
   "migrations/20251221072452_initial.sql": {
-    "mtime": 1777972772.776081,
-    "ast_hash": "c7cf131059472a41bcadc520abff6cb9",
-    "semantic_hash": "c7cf131059472a41bcadc520abff6cb9"
+    "mtime": 1784471824.1262534,
+    "ast_hash": "7766b07bcf78ba34085360602a4a21c6",
+    "semantic_hash": ""
   },
   "migrations/20251221075707_init_service_table.sql": {
     "mtime": 1772367757.6017718,
@@ -2995,13 +2995,13 @@
     "semantic_hash": ""
   },
   "internal/jobs/enable_statefull.go": {
-    "mtime": 1784444138.876933,
-    "ast_hash": "3e3beb14d9ebb8bcf206c14becfcc94c",
+    "mtime": 1784471820.6698964,
+    "ast_hash": "9cd78e5bc1b3c85131ab7b113807056f",
     "semantic_hash": ""
   },
   "internal/jobs/enable_statefull_test.go": {
-    "mtime": 1784444613.3250153,
-    "ast_hash": "d14ae12f5c2f579427897696bea9fb79",
+    "mtime": 1784467847.7771618,
+    "ast_hash": "4790cf682dff776e768e9b75624b1d0d",
     "semantic_hash": ""
   },
   "docs/security/vpn_client_key_storage.md": {
@@ -3032,6 +3032,16 @@
   "internal/api/server/velez_api/create_smerd_request_json_test.go": {
     "mtime": 1784459596.7862084,
     "ast_hash": "33ff13ef2e8c949deb072b43ba9cd7ea",
+    "semantic_hash": ""
+  },
+  "tests/e2e/suite_enable_statefull_test.go": {
+    "mtime": 1784467934.362781,
+    "ast_hash": "86e487b94dfa1fc1c6388c60a24bf9b0",
+    "semantic_hash": ""
+  },
+  "tests/e2e/suite_upgrade_smerd_test.go": {
+    "mtime": 1784466466.1534376,
+    "ast_hash": "9898db2b77dc146b9951be576909ebb0",
     "semantic_hash": ""
   }
 }

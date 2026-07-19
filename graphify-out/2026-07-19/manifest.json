@@ -454,11 +454,6 @@
     "ast_hash": "bd289d918f417950491034b290842f24",
     "semantic_hash": "bd289d918f417950491034b290842f24"
   },
-  "internal/domain/assemble_config.go": {
-    "mtime": 1761674620.8226957,
-    "ast_hash": "33006dfe8e8c3f47165242b14b7ac60a",
-    "semantic_hash": "33006dfe8e8c3f47165242b14b7ac60a"
-  },
   "internal/domain/common.go": {
     "mtime": 1767512300.2353091,
     "ast_hash": "e32824dab927c87466e19c852b2f9928",
@@ -584,11 +579,6 @@
     "ast_hash": "0f614a4ea0c424934b53a0a6ee6ee7af",
     "semantic_hash": "0f614a4ea0c424934b53a0a6ee6ee7af"
   },
-  "internal/pipelines/do_assemble_config.go": {
-    "mtime": 1777474038.5692515,
-    "ast_hash": "ecd08f63562633892d393a8a8d3694a2",
-    "semantic_hash": "ecd08f63562633892d393a8a8d3694a2"
-  },
   "internal/pipelines/do_connect_service_to_vpn.go": {
     "mtime": 1768738433.7879627,
     "ast_hash": "79dc4c7fd0c876dcf713ea02b632c815",
@@ -620,8 +610,8 @@
     "semantic_hash": "1ddeef8b6f55668f8fbddf20088c3687"
   },
   "internal/pipelines/pipelines.go": {
-    "mtime": 1784461138.0921178,
-    "ast_hash": "5515ded648cd45cd126716a5b6dc2457",
+    "mtime": 1784462070.324254,
+    "ast_hash": "6e436e82d904107a76abafce9cc88dc1",
     "semantic_hash": ""
   },
   "internal/pipelines/runner.go": {
@@ -1325,9 +1315,9 @@
     "semantic_hash": "0e9accbf2f34f4ba4ec13f8a864a29e7"
   },
   "internal/transport/velez_api_impl/assemble_config.go": {
-    "mtime": 1777474038.5820308,
-    "ast_hash": "fd955c84c280a14e19f785aad2598df0",
-    "semantic_hash": "fd955c84c280a14e19f785aad2598df0"
+    "mtime": 1784461891.3638217,
+    "ast_hash": "dd6bce2cde3300d894732b4e90e9d21b",
+    "semantic_hash": ""
   },
   "internal/transport/velez_api_impl/get_hardware.go": {
     "mtime": 1777474038.5911653,
@@ -2960,8 +2950,8 @@
     "semantic_hash": ""
   },
   "docs/jobs_migration.md": {
-    "mtime": 1784459596.7850416,
-    "ast_hash": "ef069457630a2ba4cc5997b891c31ab9",
+    "mtime": 1784461275.0676641,
+    "ast_hash": "ab8216debedcbf618b0fb69d0daf9dca",
     "semantic_hash": ""
   },
   "internal/jobs/assemble_config.go": {

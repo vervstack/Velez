@@ -66,7 +66,7 @@ func (s *createContainerStep) Do(ctx context.Context) error {
 
 	*s.containerIdResp = createResp.ID
 
-	return createErr
+	return nil
 }
 
 func (s *createContainerStep) Rollback(ctx context.Context) error {

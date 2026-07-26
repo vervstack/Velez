@@ -13,9 +13,9 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const authHeader = "Authorization"
-
 const (
+	authHeader = "Authorization"
+
 	apiBase = "/api/v1"
 
 	userURI       = apiBase + "/user"
@@ -61,9 +61,9 @@ func (s *Client) handleError(resp *http.Response) error {
 }
 
 type RespError struct {
-	Code    codes.Code    `json:"code"`
-	Message string        `json:"message"`
-	Details []interface{} `json:"details"`
+	Code    codes.Code `json:"code"`
+	Message string     `json:"message"`
+	Details []any      `json:"details"`
 }
 
 func (e RespError) Error() string {

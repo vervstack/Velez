@@ -66,8 +66,8 @@ func (c *ContainerManager) InspectSmerd(ctx context.Context, contId string) (*ve
 		smerd.Networks = append(smerd.Networks, nb)
 	}
 
-	sort.Slice(smerd.Networks, func(i, j int) bool {
-		return smerd.Networks[i].NetworkName < smerd.Networks[j].NetworkName
+	sort.Slice(smerd.GetNetworks(), func(i, j int) bool {
+		return smerd.GetNetworks()[i].GetNetworkName() < smerd.GetNetworks()[j].GetNetworkName()
 	})
 
 	return smerd, nil

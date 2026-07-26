@@ -16,11 +16,16 @@ import (
 // normal operation should ever hit - create_service is a 2-step, DB-only
 // task (validate_name, upsert_service) so it should complete far faster than
 // this.
-const createServiceWatchTimeout = 60 * time.Second
+const (
+	createServiceWatchTimeout = 60 * time.Second
+)
 
-func (impl *Impl) CreateService(ctx context.Context, apiReq *pb.CreateService_Request) (*pb.CreateService_Response, error) {
+func (impl *Impl) CreateService(
+	ctx context.Context,
+	apiReq *pb.CreateService_Request,
+) (*pb.CreateService_Response, error) {
 	initialContext := &pb.CreateServiceTaskPayload{
-		Name: apiReq.Name,
+		Name: apiReq.GetName(),
 	}
 
 	_, err := impl.jobsEngine.Enqueue(ctx, apiReq.GetName(), jobs.CreateServiceAction, initialContext)
@@ -32,6 +37,7 @@ func (impl *Impl) CreateService(ctx context.Context, apiReq *pb.CreateService_Re
 	defer cancel()
 
 	var finalTask tasks_queries.VelezTask
+
 	for task := range impl.jobsEngine.Watch(watchCtx, apiReq.GetName(), jobs.CreateServiceAction) {
 		finalTask = task
 	}

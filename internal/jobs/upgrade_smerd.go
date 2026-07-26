@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"maps"
 	"strconv"
 	"strings"
 
@@ -28,15 +29,13 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const UpgradeSmerdAction = "upgrade_smerd"
-
 const (
+	UpgradeSmerdAction = "upgrade_smerd"
+
 	configFetcherContainerSuffix = "_configuration_fetcher"
 	newContainerSuffix           = "_new"
 	oldContainerSuffix           = "_old"
-)
 
-const (
 	stepCheckSelfUpgrade             = "check_self_upgrade"
 	stepCaptureOldContainer          = "capture_old_container"
 	stepPauseOldContainer            = "pause_old_container"
@@ -270,7 +269,7 @@ func (j *checkSelfUpgradeJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err)
 	}
 
-	if smerd.Uuid == *id {
+	if smerd.GetUuid() == *id {
 		return upgrade_steps.ErrSelfUpgradeIsForbidden
 	}
 
@@ -296,35 +295,35 @@ func (j *captureOldContainerJob) Do(ctx context.Context) error {
 	}
 
 	req := &velez_api.CreateSmerd_Request{
-		Name:      cont.Name,
+		Name:      cont.GetName(),
 		ImageName: j.upgradeReq.GetUpgradeRequest().GetImage(),
 		Settings: &velez_api.Container_Settings{
-			Ports:   cont.Ports,
+			Ports:   cont.GetPorts(),
 			Network: fromContainerNetwork(cont),
-			Volumes: cont.Volumes,
+			Volumes: cont.GetVolumes(),
 		},
-		Env:    cont.Env,
-		Labels: cont.Labels,
+		Env:    cont.GetEnv(),
+		Labels: cont.GetLabels(),
 	}
 
 	j.ctx.SetRequest(req)
-	j.ctx.SetOldContainerId(cont.Uuid)
+	j.ctx.SetOldContainerId(cont.GetUuid())
 
 	return nil
 }
 
 func fromContainerNetwork(cont *velez_api.Smerd) []*velez_api.NetworkBind {
-	out := make([]*velez_api.NetworkBind, 0, len(cont.Networks))
+	out := make([]*velez_api.NetworkBind, 0, len(cont.GetNetworks()))
 
-	for _, n := range cont.Networks {
-		net := &velez_api.NetworkBind{NetworkName: n.NetworkName}
-		for _, a := range n.Aliases {
-			if !strings.HasPrefix(cont.Uuid, a) {
+	for _, n := range cont.GetNetworks() {
+		net := &velez_api.NetworkBind{NetworkName: n.GetNetworkName()}
+		for _, a := range n.GetAliases() {
+			if !strings.HasPrefix(cont.GetUuid(), a) {
 				net.Aliases = append(net.Aliases, a)
 			}
 		}
 
-		if len(net.Aliases) != 0 {
+		if len(net.GetAliases()) != 0 {
 			out = append(out, net)
 		}
 	}
@@ -346,6 +345,7 @@ func (j *prepareUpgradeImageJob) Do(ctx context.Context) error {
 	}
 
 	var imageLabels map[string]string
+
 	if imageInfo.Config != nil {
 		imageLabels = imageInfo.Config.Labels
 	}
@@ -417,6 +417,7 @@ func (j *pauseOldContainerJob) Do(ctx context.Context) error {
 			port, _ := strconv.ParseUint(hostPort.HostPort, 10, 32)
 			p := uint32(port)
 			j.portManager.HoldPort(p)
+
 			j.portsOnHold = append(j.portsOnHold, p)
 		}
 	}
@@ -541,6 +542,7 @@ type renamingCreateContainerJob struct {
 
 func (j *renamingCreateContainerJob) Do(ctx context.Context) error {
 	request := j.req.GetRequest()
+
 	request.Name = j.newName(request.GetName())
 
 	inner := &createContainerJob{nodeClients: j.nodeClients, req: j.req, ctx: j.ctx}
@@ -606,6 +608,7 @@ func readFileFromContainer(ctx context.Context, d copyFromAPI, contID, path stri
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error copying from container")
 	}
+
 	defer func() {
 		closeErr := rc.Close()
 		if closeErr != nil {
@@ -645,6 +648,7 @@ type fetchUpgradeConfigJob struct {
 // the preceding create_config_fetcher_container stage left it renamed.
 func (j *fetchUpgradeConfigJob) Do(ctx context.Context) error {
 	request := j.req.GetRequest()
+
 	request.Name = j.upgradeReq.GetUpgradeRequest().GetName()
 
 	confType, format, _ := classifyImage(j.imageMeta.GetImageLabels(), j.imageMeta.GetImageTags())
@@ -730,16 +734,14 @@ func (j *prepareUpgradeVervConfigJob) Do(ctx context.Context) error {
 
 	request.Env[matreshka.VervName] = request.GetName()
 
-	for name, val := range j.imageMeta.GetImageLabels() {
-		request.Labels[name] = val
-	}
+	maps.Copy(request.GetLabels(), j.imageMeta.GetImageLabels())
 
 	request.Labels[labels.ComposeGroupLabel] = request.GetName()
 
-	for _, n := range request.Settings.Network {
-		err = createNetworkIfMissing(ctx, j.dockerAPI, n.NetworkName)
+	for _, n := range request.GetSettings().GetNetwork() {
+		err = createNetworkIfMissing(ctx, j.dockerAPI, n.GetNetworkName())
 		if err != nil {
-			return rerrors.Wrap(err, "error creating network: %s", n.NetworkName)
+			return rerrors.Wrap(err, "error creating network: %s", n.GetNetworkName())
 		}
 	}
 
@@ -785,18 +787,18 @@ func createNetworkIfMissing(ctx context.Context, dockerAPI createNetworkAPI, net
 }
 
 func (j *prepareUpgradeVervConfigJob) lockPorts(request *velez_api.CreateSmerd_Request) (err error) {
-	j.lockedPorts = make([]uint32, 0, len(request.Settings.Ports))
+	j.lockedPorts = make([]uint32, 0, len(request.GetSettings().GetPorts()))
 
-	for _, p := range request.Settings.Ports {
+	for _, p := range request.GetSettings().GetPorts() {
 		if p.ExposedTo == nil {
 			var port uint32
 
 			port, err = j.portManager.GetPort()
 			p.ExposedTo = &port
 		} else {
-			ok := j.portManager.UnHoldPort(*p.ExposedTo)
+			ok := j.portManager.UnHoldPort(p.GetExposedTo())
 			if !ok {
-				err = j.portManager.LockPort(*p.ExposedTo)
+				err = j.portManager.LockPort(p.GetExposedTo())
 			}
 		}
 
@@ -804,7 +806,7 @@ func (j *prepareUpgradeVervConfigJob) lockPorts(request *velez_api.CreateSmerd_R
 			return rerrors.Wrap(err, "error locking host port")
 		}
 
-		j.lockedPorts = append(j.lockedPorts, *p.ExposedTo)
+		j.lockedPorts = append(j.lockedPorts, p.GetExposedTo())
 	}
 
 	return nil

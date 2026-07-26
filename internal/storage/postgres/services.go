@@ -5,6 +5,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
 	pg_queries "go.vervstack.ru/Velez/internal/storage/postgres/generated/services_queries"
@@ -98,7 +99,8 @@ func (s *servicesStorage) List(ctx context.Context, req domain.ListServicesReq) 
 type serviceBaseInfoHelper struct{}
 
 func (s serviceBaseInfoHelper) buildListQuery(req domain.ListServicesReq) sq.SelectBuilder {
-	q := sq.Select().
+	//nolint:unqueryvet base query for count and select
+	query := sq.Select().
 		From("velez.services s").
 		LeftJoin("(SELECT ds.service_id, MAX(d.created_at) AS last_deployed_at FROM velez.deployments d " +
 			"JOIN velez.deployment_specifications ds ON ds.id = d.spec_id GROUP BY ds.service_id) " +
@@ -106,12 +108,12 @@ func (s serviceBaseInfoHelper) buildListQuery(req domain.ListServicesReq) sq.Sel
 		PlaceholderFormat(sq.Dollar)
 
 	if req.NamePattern.Valid {
-		q = q.Where(sq.ILike{
+		query = query.Where(sq.ILike{
 			"s.name": req.NamePattern.Value,
 		})
 	}
 
-	return q
+	return query
 }
 
 func (s serviceBaseInfoHelper) columns() []string {

@@ -21,7 +21,7 @@ func (v *VervService) GetServiceMetrics(ctx context.Context, serviceName string)
 	}
 
 	// single-mode fallback: find container by name when VERV_SERVICE label is absent
-	if len(resp.Smerds) == 0 {
+	if len(resp.GetSmerds()) == 0 {
 		req = &velez_api.ListSmerds_Request{Name: &serviceName}
 
 		resp, err = v.containerService.ListSmerds(ctx, req)
@@ -31,10 +31,10 @@ func (v *VervService) GetServiceMetrics(ctx context.Context, serviceName string)
 	}
 
 	metrics := domain.ServiceMetrics{
-		ReplicasDesired: uint32(len(resp.Smerds)),
+		ReplicasDesired: uint32(len(resp.GetSmerds())),
 	}
 
-	if len(resp.Smerds) == 0 {
+	if len(resp.GetSmerds()) == 0 {
 		return metrics, nil
 	}
 
@@ -46,12 +46,12 @@ func (v *VervService) GetServiceMetrics(ctx context.Context, serviceName string)
 		earliestStartedTime *time.Time
 	)
 
-	for _, smerd := range resp.Smerds {
-		if smerd.Status != velez_api.Smerd_running {
+	for _, smerd := range resp.GetSmerds() {
+		if smerd.GetStatus() != velez_api.Smerd_running {
 			continue
 		}
 
-		stats, err := v.docker.Stats(ctx, smerd.Name)
+		stats, err := v.docker.Stats(ctx, smerd.GetName())
 		if err != nil {
 			continue
 		}

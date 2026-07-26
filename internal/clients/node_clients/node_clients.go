@@ -14,8 +14,10 @@ import (
 	"go.vervstack.ru/Velez/internal/config"
 )
 
-const dockerSocketHint = "Can't ping docker api. If you are running Velez inside a container " +
-	"please provide docker socket via volume flag: -v /var/run/docker.sock:/var/run/docker.sock"
+const (
+	dockerSocketHint = "Can't ping docker api. If you are running Velez inside a container " +
+		"please provide docker socket via volume flag: -v /var/run/docker.sock:/var/run/docker.sock"
+)
 
 // NodeClients - container for node level clients.
 type NodeClients interface {
@@ -90,6 +92,7 @@ func NewNodeClients(ctx context.Context, cfg config.Config) (NodeClients, error)
 		}
 
 		portManager := ports.NewPortManager(cfg.Environment.AvailablePorts, usedPorts)
+
 		cls.portManager = ports.NewContainer(portManager)
 	}
 

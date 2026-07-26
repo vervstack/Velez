@@ -16,7 +16,9 @@ import (
 // waiting for the drop_smerd task to reach a terminal status. See
 // createSmerdWatchTimeout's doc comment for why this exists - the same
 // safety-net reasoning applies here.
-const dropSmerdWatchTimeout = 60 * time.Second
+const (
+	dropSmerdWatchTimeout = 60 * time.Second
+)
 
 func (impl *Impl) DropSmerd(
 	ctx context.Context,
@@ -41,6 +43,7 @@ func (impl *Impl) DropSmerd(
 	defer cancel()
 
 	var finalTask tasks_queries.VelezTask
+
 	for task := range impl.jobsEngine.Watch(watchCtx, entityID, jobs.DropSmerdAction) {
 		finalTask = task
 	}

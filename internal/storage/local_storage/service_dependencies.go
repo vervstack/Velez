@@ -53,8 +53,8 @@ func (d *dockerServiceDepsStorage) GetDependencies(ctx context.Context,
 	for _, c := range containers {
 		dependsOn := c.Labels[labels.DependsOnLabel]
 		if dependsOn != "" {
-			targets := strings.Split(dependsOn, ",")
-			for _, target := range targets {
+			targets := strings.SplitSeq(dependsOn, ",")
+			for target := range targets {
 				target = strings.TrimSpace(target)
 				if target == "" {
 					continue
@@ -71,6 +71,7 @@ func (d *dockerServiceDepsStorage) GetDependencies(ctx context.Context,
 					TargetService: target,
 					NodeType:      domain.NodeTypeService,
 				}
+
 				result = append(result, dep)
 			}
 		} else {
@@ -81,6 +82,7 @@ func (d *dockerServiceDepsStorage) GetDependencies(ctx context.Context,
 					TargetService: name,
 					NodeType:      domain.NodeTypeResource,
 				}
+
 				result = append(result, dep)
 			}
 		}
@@ -132,6 +134,7 @@ func (d *dockerServiceDepsStorage) GetCallers(ctx context.Context,
 			SourceService: sourceService,
 			TargetService: serviceName,
 		}
+
 		result = append(result, dep)
 	}
 

@@ -14,7 +14,9 @@ import (
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
-const defaultWatchPollInterval = time.Second
+const (
+	defaultWatchPollInterval = time.Second
+)
 
 // Engine lets callers enqueue durable, resumable tasks and observe their
 // progress, without needing to know about the worker that executes them.

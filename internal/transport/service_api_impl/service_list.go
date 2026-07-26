@@ -10,7 +10,10 @@ import (
 	"go.vervstack.ru/Velez/internal/transport/common"
 )
 
-func (impl *Impl) ListServices(ctx context.Context, pbReq *velez_api.ListServices_Request) (*velez_api.ListServices_Response, error) {
+func (impl *Impl) ListServices(
+	ctx context.Context,
+	pbReq *velez_api.ListServices_Request,
+) (*velez_api.ListServices_Response, error) {
 	req := fromListServiceRequest(pbReq)
 
 	services, err := impl.servicesService.List(ctx, req)
@@ -27,7 +30,7 @@ func fromListServiceRequest(pbReq *velez_api.ListServices_Request) domain.ListSe
 	}
 
 	if pbReq.SearchPattern != nil {
-		req.NamePattern = rtb.NewOptional[string](*pbReq.SearchPattern)
+		req.NamePattern = rtb.NewOptional[string](pbReq.GetSearchPattern())
 	}
 
 	return req

@@ -9,12 +9,12 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 )
 
 type detachContainerFromVervStep struct {
-	docker    node_clients.Docker
 	dockerAPI client.APIClient
 
 	portManager node_clients.PortManager
@@ -32,7 +32,6 @@ func PauseContainer(
 	containerID *string,
 ) *detachContainerFromVervStep {
 	return &detachContainerFromVervStep{
-		nodeClients.Docker(),
 		nodeClients.Docker().Client(),
 		nodeClients.PortManager(),
 		containerID,
@@ -69,6 +68,7 @@ func (s *detachContainerFromVervStep) Do(ctx context.Context) error {
 			port, _ := strconv.ParseUint(hostPort.HostPort, 10, 32)
 			p := uint32(port)
 			s.portManager.HoldPort(p)
+
 			s.portsOnHold = append(s.portsOnHold, p)
 		}
 	}

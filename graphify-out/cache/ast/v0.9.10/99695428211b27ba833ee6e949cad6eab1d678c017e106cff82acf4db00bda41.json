@@ -1,0 +1,132 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_service_service_manager_configurator_subscription_go",
+      "label": "subscription.go",
+      "file_type": "code",
+      "source_file": "internal/service/service_manager/configurator/subscription.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "configurator_configurator",
+      "label": "Configurator",
+      "file_type": "code",
+      "source_file": "internal/service/service_manager/configurator/subscription.go",
+      "source_location": "L10"
+    },
+    {
+      "id": "configurator_configurator_subscribeonchanges",
+      "label": ".SubscribeOnChanges()",
+      "file_type": "code",
+      "source_file": "internal/service/service_manager/configurator/subscription.go",
+      "source_location": "L10"
+    },
+    {
+      "id": "configurator_configurator_unsubscribefromchanges",
+      "label": ".UnsubscribeFromChanges()",
+      "file_type": "code",
+      "source_file": "internal/service/service_manager/configurator/subscription.go",
+      "source_location": "L21"
+    },
+    {
+      "id": "configurator_configurator_getupdates",
+      "label": ".GetUpdates()",
+      "file_type": "code",
+      "source_file": "internal/service/service_manager/configurator/subscription.go",
+      "source_location": "L34"
+    },
+    {
+      "id": "configurationpatch",
+      "label": "ConfigurationPatch",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/configurator/subscription.go"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_configurator_subscription_go",
+      "target": "go_pkg_go_redsock_ru_rerrors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/configurator/subscription.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_configurator_subscription_go",
+      "target": "go_pkg_go_vervstack_ru_matreshka_pkg_matreshka_api",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/configurator/subscription.go",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_configurator_subscription_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_domain",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/configurator/subscription.go",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "configurator_configurator",
+      "target": "configurator_configurator_subscribeonchanges",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/configurator/subscription.go",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "configurator_configurator",
+      "target": "configurator_configurator_unsubscribefromchanges",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/configurator/subscription.go",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "configurator_configurator",
+      "target": "configurator_configurator_getupdates",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/configurator/subscription.go",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "configurator_configurator_getupdates",
+      "target": "configurationpatch",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/configurator/subscription.go",
+      "source_location": "L34",
+      "weight": 1.0,
+      "context": "return_type"
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "configurator_configurator_unsubscribefromchanges",
+      "callee": "Send",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/configurator/subscription.go",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "configurator_configurator_unsubscribefromchanges",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/configurator/subscription.go",
+      "source_location": "L28"
+    }
+  ]
+}

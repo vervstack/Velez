@@ -11,7 +11,7 @@ import (
 
 func (impl *Impl) ListNodes(ctx context.Context, req *pb.ListNodes_Request) (*pb.ListNodes_Response, error) {
 	r := domain.ListNodesReq{
-		Paging: common.FromPaging(req.Paging),
+		Paging: common.FromPaging(req.GetPaging()),
 	}
 
 	nodesList, err := impl.nodeService.ListNodes(ctx, r)

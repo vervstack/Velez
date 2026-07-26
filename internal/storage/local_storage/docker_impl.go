@@ -57,6 +57,7 @@ func (d *dockerPluginsStorage) ListPlugins(ctx context.Context) ([]domain.Plugin
 		}
 
 		name := strings.TrimPrefix(c.Names[0], "/")
+
 		containerStates[name] = c.State
 	}
 
@@ -83,6 +84,7 @@ func (d *dockerPluginsStorage) ListPlugins(ctx context.Context) ([]domain.Plugin
 			ServiceId:   nil,
 			ServiceName: containerName,
 		}
+
 		rows = append(rows, row)
 	}
 

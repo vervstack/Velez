@@ -8,7 +8,10 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
-func (impl *Impl) RemoveService(ctx context.Context, req *velez_api.RemoveService_Request) (*velez_api.RemoveService_Response, error) {
+func (impl *Impl) RemoveService(
+	ctx context.Context,
+	req *velez_api.RemoveService_Request,
+) (*velez_api.RemoveService_Response, error) {
 	removeReq := domain.RemoveServiceReq{
 		Name:                 req.GetName(),
 		DropRunningInstances: req.GetDropRunningInstances(),

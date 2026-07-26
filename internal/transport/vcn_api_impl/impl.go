@@ -6,25 +6,24 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/pipelines"
-	"google.golang.org/grpc"
 )
 
 type Impl struct {
 	velez_api.UnimplementedVcnApiServer
 
 	vpnService cluster_clients.VervClosedNetworkClient
-	pipeliner  pipelines.Pipeliner
 	jobsEngine jobs.Engine
 }
 
 func New(cluster cluster_clients.ClusterClients, pipeliner pipelines.Pipeliner, jobsEngine jobs.Engine) *Impl {
 	return &Impl{
 		vpnService: cluster.Vpn(),
-		pipeliner:  pipeliner,
 		jobsEngine: jobsEngine,
 	}
 }

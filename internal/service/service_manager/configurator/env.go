@@ -37,25 +37,25 @@ func (c *Configurator) getEnvFromApi(ctx context.Context, meta domain.ConfigMeta
 		return nil, rerrors.Wrap(err, "error getting config nodes")
 	}
 
-	if cfgNodes.Root == nil {
+	if cfgNodes.GetRoot() == nil {
 		return &evon.Node{}, nil
 	}
 
-	return &evon.Node{InnerNodes: fromApiNodes(cfgNodes.Root)}, nil
+	return &evon.Node{InnerNodes: fromApiNodes(cfgNodes.GetRoot())}, nil
 }
 
 func fromApiNodes(root *matreshka_api.Node) []*evon.Node {
 	out := make([]*evon.Node, 0)
 
-	for _, node := range root.InnerNodes {
-		if len(node.InnerNodes) != 0 {
+	for _, node := range root.GetInnerNodes() {
+		if len(node.GetInnerNodes()) != 0 {
 			out = append(out, fromApiNodes(node)...)
 		}
 
 		if node.Value != nil {
 			out = append(out, &evon.Node{
-				Name:  node.Name,
-				Value: *node.Value,
+				Name:  node.GetName(),
+				Value: node.GetValue(),
 			})
 		}
 	}

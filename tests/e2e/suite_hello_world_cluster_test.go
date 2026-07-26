@@ -15,13 +15,15 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	rtb "go.redsock.ru/toolbox"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
-const helloWorldImageV0015 = "vervstack/hello_world:v0.0.15"
-
-const postgresAlias = "postgres"
+const (
+	helloWorldImageV0015 = "vervstack/hello_world:v0.0.15"
+	postgresAlias        = "postgres"
+)
 
 type HelloWorldClusterSuite struct {
 	suite.Suite
@@ -64,34 +66,36 @@ func (s *HelloWorldClusterSuite) Test_ConnectedCluster() {
 	s._prepareSqliteApp()
 
 	// Assert obligatory labels on the PG hello_world
-	assert.Equal(t, s.pgAppName, s.pgAppSmerd.Labels[labels.VervServiceLabel])
-	assert.Equal(t, postgresAlias, s.pgAppSmerd.Labels[labels.DependsOnLabel])
-	assert.Equal(t, "web", s.pgAppSmerd.Labels[labels.ServiceTypeLabel])
+	assert.Equal(t, s.pgAppName, s.pgAppSmerd.GetLabels()[labels.VervServiceLabel])
+	assert.Equal(t, postgresAlias, s.pgAppSmerd.GetLabels()[labels.DependsOnLabel])
+	assert.Equal(t, "web", s.pgAppSmerd.GetLabels()[labels.ServiceTypeLabel])
 
 	// Assert all labels on the SQLite hello_world
-	assert.Equal(t, s.sqliteAppName, s.sqliteAppSmerd.Labels[labels.VervServiceLabel])
-	assert.Equal(t, labelValueFalse, s.sqliteAppSmerd.Labels[labels.Sidecar])
-	assert.Equal(t, labelValueFalse, s.sqliteAppSmerd.Labels[labels.AutoUpgrade])
-	assert.Equal(t, s.pgAppName, s.sqliteAppSmerd.Labels[labels.DependsOnLabel])
-	assert.Equal(t, "Hello World SQLite instance", s.sqliteAppSmerd.Labels[labels.DescriptionLabel])
-	assert.Equal(t, "web", s.sqliteAppSmerd.Labels[labels.ServiceTypeLabel])
-	assert.Equal(t, "test-team", s.sqliteAppSmerd.Labels[labels.TeamLabel])
-	assert.Equal(t, "github.com/godverv/hello_world", s.sqliteAppSmerd.Labels[labels.RepoLabel])
-	assert.Equal(t, "80", s.sqliteAppSmerd.Labels[labels.PortLabel])
-	assert.Equal(t, "test", s.sqliteAppSmerd.Labels[labels.EnvLabel])
+	assert.Equal(t, s.sqliteAppName, s.sqliteAppSmerd.GetLabels()[labels.VervServiceLabel])
+	assert.Equal(t, labelValueFalse, s.sqliteAppSmerd.GetLabels()[labels.Sidecar])
+	assert.Equal(t, labelValueFalse, s.sqliteAppSmerd.GetLabels()[labels.AutoUpgrade])
+	assert.Equal(t, s.pgAppName, s.sqliteAppSmerd.GetLabels()[labels.DependsOnLabel])
+	assert.Equal(t, "Hello World SQLite instance", s.sqliteAppSmerd.GetLabels()[labels.DescriptionLabel])
+	assert.Equal(t, "web", s.sqliteAppSmerd.GetLabels()[labels.ServiceTypeLabel])
+	assert.Equal(t, "test-team", s.sqliteAppSmerd.GetLabels()[labels.TeamLabel])
+	assert.Equal(t, "github.com/godverv/hello_world", s.sqliteAppSmerd.GetLabels()[labels.RepoLabel])
+	assert.Equal(t, "80", s.sqliteAppSmerd.GetLabels()[labels.PortLabel])
+	assert.Equal(t, "test", s.sqliteAppSmerd.GetLabels()[labels.EnvLabel])
 
 	s._testAPIIsolation()
 }
 
 func (s *HelloWorldClusterSuite) _testAPIIsolation() {
+	s.T().Helper()
+
 	t := s.T()
 	ctx := t.Context()
 
-	require.NotEmpty(t, s.pgAppSmerd.Ports, "pg app must have exposed ports")
-	require.NotEmpty(t, s.sqliteAppSmerd.Ports, "sqlite app must have exposed ports")
+	require.NotEmpty(t, s.pgAppSmerd.GetPorts(), "pg app must have exposed ports")
+	require.NotEmpty(t, s.sqliteAppSmerd.GetPorts(), "sqlite app must have exposed ports")
 
-	pgBase := fmt.Sprintf("http://localhost:%d", s.pgAppSmerd.Ports[0].GetExposedTo())
-	sqliteBase := fmt.Sprintf("http://localhost:%d", s.sqliteAppSmerd.Ports[0].GetExposedTo())
+	pgBase := fmt.Sprintf("http://localhost:%d", s.pgAppSmerd.GetPorts()[0].GetExposedTo())
+	sqliteBase := fmt.Sprintf("http://localhost:%d", s.sqliteAppSmerd.GetPorts()[0].GetExposedTo())
 
 	s._waitForApp(ctx, t, pgBase)
 	s._waitForApp(ctx, t, sqliteBase)
@@ -118,6 +122,8 @@ func (s *HelloWorldClusterSuite) _testAPIIsolation() {
 }
 
 func (s *HelloWorldClusterSuite) _waitForApp(ctx context.Context, t *testing.T, baseURL string) {
+	s.T().Helper()
+
 	t.Helper()
 	require.Eventually(t, func() bool {
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, baseURL+"/info", nil)
@@ -137,12 +143,15 @@ func (s *HelloWorldClusterSuite) _waitForApp(ctx context.Context, t *testing.T, 
 }
 
 func (s *HelloWorldClusterSuite) _setKey(ctx context.Context, t *testing.T, baseURL, key, value string) {
+	s.T().Helper()
+
 	t.Helper()
 
 	body := fmt.Sprintf(`{"vals":{"values":[{"key":%q,"value":%q}]}}`, key, value)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, baseURL+"/api/set", strings.NewReader(body))
 	require.NoError(t, err)
 	req.Header.Set("Content-Type", "application/json")
+
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = resp.Body.Close() })
@@ -156,10 +165,13 @@ func (s *HelloWorldClusterSuite) _assertGetKey(
 	expectFound bool,
 	expectedValue string,
 ) {
+	s.T().Helper()
+
 	t.Helper()
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, baseURL+"/api/get/"+key, nil)
 	require.NoError(t, err)
+
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = resp.Body.Close() })
@@ -183,6 +195,8 @@ func (s *HelloWorldClusterSuite) _assertGetKey(
 }
 
 func (s *HelloWorldClusterSuite) _preparePostgresContainer() {
+	s.T().Helper()
+
 	t := s.T()
 	ctx := t.Context()
 
@@ -220,10 +234,10 @@ func (s *HelloWorldClusterSuite) _preparePostgresContainer() {
 	}
 
 	s.pgSmerd = s.env.CreateSmerd(t, pgReq)
-	require.Equal(t, velez_api.Smerd_running, s.pgSmerd.Status)
+	require.Equal(t, velez_api.Smerd_running, s.pgSmerd.GetStatus())
 
 	require.Eventually(t, func() bool {
-		info, inspectErr := s.dockerClient.ContainerInspect(ctx, s.pgSmerd.Uuid)
+		info, inspectErr := s.dockerClient.ContainerInspect(ctx, s.pgSmerd.GetUuid())
 		if inspectErr != nil {
 			return false
 		}
@@ -233,6 +247,8 @@ func (s *HelloWorldClusterSuite) _preparePostgresContainer() {
 }
 
 func (s *HelloWorldClusterSuite) _prepareNetwork() {
+	s.T().Helper()
+
 	t := s.T()
 	ctx := t.Context()
 
@@ -242,16 +258,19 @@ func (s *HelloWorldClusterSuite) _prepareNetwork() {
 	s.networkName = GetServiceName(t) + "_net"
 
 	err := s.dockerClient.NetworkRemove(ctx, s.networkName)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	createNetOpts := dockernetwork.CreateOptions{
 		Driver: "bridge",
 	}
+
 	_, err = s.dockerClient.NetworkCreate(ctx, s.networkName, createNetOpts)
 	require.NoError(t, err)
 }
 
 func (s *HelloWorldClusterSuite) TeardownTest() {
+	s.T().Helper()
+
 	t := s.T()
 	ctx := t.Context()
 

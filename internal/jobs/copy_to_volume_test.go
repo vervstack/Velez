@@ -10,6 +10,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/errdefs"
 	"github.com/sqlc-dev/pqtype"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
@@ -75,11 +76,11 @@ func TestMountedFolders_DedupPreservesFirstSeenOrder(t *testing.T) {
 		t.Fatalf("expected 2 distinct folders, got %d: %v", len(got), got)
 	}
 
-	if got[0].ContainerPath != "/data/a" || got[1].ContainerPath != "/data/b" {
-		t.Errorf("expected folders [/data/a /data/b], got [%s %s]", got[0].ContainerPath, got[1].ContainerPath)
+	if got[0].GetContainerPath() != "/data/a" || got[1].GetContainerPath() != "/data/b" {
+		t.Errorf("expected folders [/data/a /data/b], got [%s %s]", got[0].GetContainerPath(), got[1].GetContainerPath())
 	}
 
-	if got[0].VolumeName != testVolumeName || got[1].VolumeName != testVolumeName {
+	if got[0].GetVolumeName() != testVolumeName || got[1].GetVolumeName() != testVolumeName {
 		t.Errorf("expected volume name 'myvol' on every entry, got %v", got)
 	}
 }
@@ -127,9 +128,9 @@ func TestCopyToVolumeHandler_BuildJobs_Deterministic(t *testing.T) {
 	nodeClients := newFakeNodeClients(docker)
 	h := NewCopyToVolumeHandler(nodeClients)
 
-	var runs [][]string
+	runs := make([][]string, 0, 10)
 
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		namedJobs := h.BuildJobs(payload)
 
 		names := make([]string, len(namedJobs))
@@ -230,7 +231,9 @@ func TestCreateLoaderContainerJob_Success(t *testing.T) {
 	payload := &velez_api.CopyToVolumeTaskPayload{VolumeName: testVolumeName}
 
 	docker := newFakeDocker()
+
 	docker.containerCreateResp = container.CreateResponse{ID: testLoaderContID}
+
 	nodeClients := newFakeNodeClients(docker)
 
 	folders := mountedFolders(testVolumeName, []string{testPathDataA})
@@ -254,7 +257,9 @@ func TestCreateLoaderContainerJob_ContainerCreateError(t *testing.T) {
 	payload := &velez_api.CopyToVolumeTaskPayload{VolumeName: testVolumeName}
 
 	docker := newFakeDocker()
+
 	docker.containerCreateErr = errors.New("no space left on device")
+
 	nodeClients := newFakeNodeClients(docker)
 
 	j := &createLoaderContainerJob{nodeClients: nodeClients, req: payload, ctx: payload}
@@ -311,7 +316,9 @@ func TestCreateLoaderContainerJob_Rollback_NotFoundIsSwallowed(t *testing.T) {
 	payload.SetContainerId(testLoaderContID)
 
 	docker := newFakeDocker()
+
 	docker.removeErr = errdefs.NotFound(errors.New("no such container"))
+
 	nodeClients := newFakeNodeClients(docker)
 
 	j := &createLoaderContainerJob{nodeClients: nodeClients, ctx: payload}
@@ -365,6 +372,7 @@ func TestStartLoaderContainerJob_ContainerStartError(t *testing.T) {
 	payload.SetContainerId(testLoaderContID)
 
 	containerAPI := newFakeContainerAPI()
+
 	containerAPI.startErr = errors.New("docker daemon unreachable")
 
 	j := &startLoaderContainerJob{dockerAPI: containerAPI, ctx: payload}
@@ -518,7 +526,9 @@ func TestCopyFileJob_ExecError(t *testing.T) {
 	payload.SetContainerId(testLoaderContID)
 
 	docker := newFakeDocker()
+
 	docker.execErr = errors.New("exec failed: container not running")
+
 	containerAPI := newFakeContainerAPI()
 
 	j := &copyFileJob{
@@ -546,6 +556,7 @@ func TestCopyFileJob_CopyToContainerError(t *testing.T) {
 
 	docker := newFakeDocker()
 	containerAPI := newFakeContainerAPI()
+
 	containerAPI.copyErr = errors.New("no space left on device")
 
 	j := &copyFileJob{
@@ -607,6 +618,7 @@ func TestDropLoaderContainerJob_RemoveErrorPropagates(t *testing.T) {
 	payload.SetContainerId(testLoaderContID)
 
 	docker := newFakeDocker()
+
 	docker.removeErr = errors.New("docker daemon unreachable")
 
 	j := &dropLoaderContainerJob{docker: docker, ctx: payload}
@@ -682,7 +694,9 @@ func TestCopyToVolumeHandler_HappyPath_EndToEnd(t *testing.T) {
 	task := copyToVolumeTask(t, tasksStorage, testVolumeName, payload)
 
 	docker := newFakeDocker()
+
 	docker.containerCreateResp = container.CreateResponse{ID: testLoaderContID}
+
 	nodeClients := newFakeNodeClients(docker)
 
 	handler := NewCopyToVolumeHandler(nodeClients)
@@ -763,7 +777,9 @@ func TestCopyToVolumeHandler_FailurePath_CreateContainerFails(t *testing.T) {
 	task := copyToVolumeTask(t, tasksStorage, testVolumeName, payload)
 
 	docker := newFakeDocker()
+
 	docker.containerCreateErr = errors.New("no space left on device")
+
 	nodeClients := newFakeNodeClients(docker)
 
 	registry := NewRegistry()
@@ -811,7 +827,9 @@ func TestCopyToVolumeHandler_FailurePath_LaterFileFailsCascadesRollback(t *testi
 	task := copyToVolumeTask(t, tasksStorage, testVolumeName, payload)
 
 	docker := newFakeDocker()
+
 	docker.containerCreateResp = container.CreateResponse{ID: testLoaderContID}
+
 	nodeClients := newFakeNodeClients(docker)
 
 	handler := NewCopyToVolumeHandler(nodeClients)
@@ -826,6 +844,7 @@ func TestCopyToVolumeHandler_FailurePath_LaterFileFailsCascadesRollback(t *testi
 	namedJobs := handler.BuildJobs(taskCtx)
 
 	containerAPI := newFakeContainerAPI()
+
 	containerAPI.copyErrOnCall = 2 // copy_file_0 (a.txt) succeeds, copy_file_1 (b.txt) fails.
 	containerAPI.copyErr = errors.New("no space left on device")
 	patchClientAPIFields(namedJobs, containerAPI)

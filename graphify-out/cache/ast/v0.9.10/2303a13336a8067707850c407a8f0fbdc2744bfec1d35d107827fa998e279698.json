@@ -1,0 +1,239 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_service_service_manager_container_manager_network_go",
+      "label": "network.go",
+      "file_type": "code",
+      "source_file": "internal/service/service_manager/container_manager/network.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "container_manager_containermanager",
+      "label": "ContainerManager",
+      "file_type": "code",
+      "source_file": "internal/service/service_manager/container_manager/network.go",
+      "source_location": "L15"
+    },
+    {
+      "id": "container_manager_containermanager_connecttonetwork",
+      "label": ".ConnectToNetwork()",
+      "file_type": "code",
+      "source_file": "internal/service/service_manager/container_manager/network.go",
+      "source_location": "L15"
+    },
+    {
+      "id": "context",
+      "label": "Context",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/container_manager/network.go"
+    },
+    {
+      "id": "connection",
+      "label": "Connection",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/container_manager/network.go"
+    },
+    {
+      "id": "container_manager_containermanager_disconnectfromnetwork",
+      "label": ".DisconnectFromNetwork()",
+      "file_type": "code",
+      "source_file": "internal/service/service_manager/container_manager/network.go",
+      "source_location": "L34"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_container_manager_network_go",
+      "target": "go_pkg_context",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/container_manager/network.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_container_manager_network_go",
+      "target": "go_pkg_errors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/container_manager/network.go",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_container_manager_network_go",
+      "target": "go_pkg_strings",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/container_manager/network.go",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_container_manager_network_go",
+      "target": "go_pkg_github_com_docker_docker_api_types_network",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/container_manager/network.go",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_container_manager_network_go",
+      "target": "go_pkg_github_com_docker_docker_errdefs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/container_manager/network.go",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_container_manager_network_go",
+      "target": "go_pkg_go_redsock_ru_rerrors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/container_manager/network.go",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_container_manager_network_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_domain",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/container_manager/network.go",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_container_manager_network_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_user_errors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/container_manager/network.go",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "container_manager_containermanager",
+      "target": "container_manager_containermanager_connecttonetwork",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/container_manager/network.go",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "container_manager_containermanager_connecttonetwork",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/container_manager/network.go",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "container_manager_containermanager_connecttonetwork",
+      "target": "connection",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/container_manager/network.go",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "container_manager_containermanager",
+      "target": "container_manager_containermanager_disconnectfromnetwork",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/container_manager/network.go",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "container_manager_containermanager_disconnectfromnetwork",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/container_manager/network.go",
+      "source_location": "L34",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "container_manager_containermanager_disconnectfromnetwork",
+      "target": "connection",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/container_manager/network.go",
+      "source_location": "L34",
+      "weight": 1.0,
+      "context": "parameter_type"
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "container_manager_containermanager_connecttonetwork",
+      "callee": "NetworkConnect",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/container_manager/network.go",
+      "source_location": "L20"
+    },
+    {
+      "caller_nid": "container_manager_containermanager_connecttonetwork",
+      "callee": "As",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/container_manager/network.go",
+      "source_location": "L27"
+    },
+    {
+      "caller_nid": "container_manager_containermanager_connecttonetwork",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/container_manager/network.go",
+      "source_location": "L28"
+    },
+    {
+      "caller_nid": "container_manager_containermanager_connecttonetwork",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/container_manager/network.go",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "container_manager_containermanager_disconnectfromnetwork",
+      "callee": "NetworkDisconnect",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/container_manager/network.go",
+      "source_location": "L35"
+    },
+    {
+      "caller_nid": "container_manager_containermanager_disconnectfromnetwork",
+      "callee": "Contains",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/container_manager/network.go",
+      "source_location": "L40"
+    },
+    {
+      "caller_nid": "container_manager_containermanager_disconnectfromnetwork",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/container_manager/network.go",
+      "source_location": "L44"
+    }
+  ]
+}

@@ -18,14 +18,14 @@ func (v *VervService) Remove(ctx context.Context, req domain.RemoveServiceReq) e
 		return rerrors.Wrap(err, "error listing smerds for service")
 	}
 
-	if len(resp.Smerds) > 0 {
+	if len(resp.GetSmerds()) > 0 {
 		if !req.DropRunningInstances {
 			return rerrors.New("service has running instances, stop/drop them first or set drop_running_instances")
 		}
 
-		uuids := make([]string, 0, len(resp.Smerds))
-		for _, smerd := range resp.Smerds {
-			uuids = append(uuids, smerd.Uuid)
+		uuids := make([]string, 0, len(resp.GetSmerds()))
+		for _, smerd := range resp.GetSmerds() {
+			uuids = append(uuids, smerd.GetUuid())
 		}
 
 		dropReq := &velez_api.DropSmerd_Request{
@@ -39,8 +39,8 @@ func (v *VervService) Remove(ctx context.Context, req domain.RemoveServiceReq) e
 			return rerrors.Wrap(err, "error dropping smerds for service")
 		}
 
-		if len(dropResp.Failed) > 0 {
-			return rerrors.New("failed to drop some instances of the service", dropResp.Failed)
+		if len(dropResp.GetFailed()) > 0 {
+			return rerrors.New("failed to drop some instances of the service", dropResp.GetFailed())
 		}
 	}
 

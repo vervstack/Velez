@@ -1,0 +1,2775 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "label": "enable_statefull_test.go",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_action",
+      "label": "TestEnableStatefullHandler_Action()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L30"
+    },
+    {
+      "id": "t",
+      "label": "T",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_newcontext",
+      "label": "TestEnableStatefullHandler_NewContext()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L38"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_buildjobs_namesandorder",
+      "label": "TestEnableStatefullHandler_BuildJobs_NamesAndOrder()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L46"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_noexistingstate_generatesrandompasswords",
+      "label": "TestGenerateCredentialsJob_NoExistingState_GeneratesRandomPasswords()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L80"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_existingdsn_reusespassword",
+      "label": "TestGenerateCredentialsJob_ExistingDsn_ReusesPassword()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L100"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_alreadypersisted_doesnotregenerate",
+      "label": "TestGenerateCredentialsJob_AlreadyPersisted_DoesNotRegenerate()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L132"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_success",
+      "label": "TestCreatePgContainerJob_Success()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L157"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_containercreateerror",
+      "label": "TestCreatePgContainerJob_ContainerCreateError()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L181"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_nocontainerid_noop",
+      "label": "TestCreatePgContainerJob_Rollback_NoContainerId_NoOp()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L205"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_removescontainer",
+      "label": "TestCreatePgContainerJob_Rollback_RemovesContainer()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L222"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_notfoundisswallowed",
+      "label": "TestCreatePgContainerJob_Rollback_NotFoundIsSwallowed()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L239"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_success",
+      "label": "TestStartPgContainerJob_Success()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L257"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_nocontainerid_error",
+      "label": "TestStartPgContainerJob_NoContainerId_Error()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L273"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_rollback_stopscontainer",
+      "label": "TestStartPgContainerJob_Rollback_StopsContainer()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L285"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_alreadyhealthy_success",
+      "label": "TestWaitForPgReadyJob_AlreadyHealthy_Success()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L303"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_nocontainerid_error",
+      "label": "TestWaitForPgReadyJob_NoContainerId_Error()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L322"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_inspecterror",
+      "label": "TestWaitForPgReadyJob_InspectError()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L334"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_notyethealthy_contextcancelled",
+      "label": "TestWaitForPgReadyJob_NotYetHealthy_ContextCancelled()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L349"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_nilcontainerstate_doesnotpanic_contextcancelled",
+      "label": "TestWaitForPgReadyJob_NilContainerState_DoesNotPanic_ContextCancelled()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L371"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_success_parsesenvvars",
+      "label": "TestGetRootDsnJob_Success_ParsesEnvVars()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L396"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_notexposedandnotincontainer_error",
+      "label": "TestGetRootDsnJob_NotExposedAndNotInContainer_Error()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L440"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_inspecterror",
+      "label": "TestGetRootDsnJob_InspectError()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L462"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreateschemaandmigratejob_connectionfailure",
+      "label": "TestCreateSchemaAndMigrateJob_ConnectionFailure()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L485"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepguserjob_connectionfailure",
+      "label": "TestCreatePgUserJob_ConnectionFailure()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L498"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_success",
+      "label": "TestUpdateClusterStateJob_Success()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L514"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_newpgstatemanagererror",
+      "label": "TestUpdateClusterStateJob_NewPgStateManagerError()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L572"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testinitnodestoragejob_success",
+      "label": "TestInitNodeStorageJob_Success()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L609"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testinitnodestoragejob_error",
+      "label": "TestInitNodeStorageJob_Error()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L625"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_enablestatefulltask",
+      "label": "enableStatefullTask()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L649"
+    },
+    {
+      "id": "faketasksstorage",
+      "label": "fakeTasksStorage",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go"
+    },
+    {
+      "id": "enablestatefulltaskpayload",
+      "label": "EnableStatefullTaskPayload",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go"
+    },
+    {
+      "id": "veleztask",
+      "label": "VelezTask",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_patchenablestatefulldockerfields",
+      "label": "patchEnableStatefullDockerFields()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L674"
+    },
+    {
+      "id": "namedjob",
+      "label": "NamedJob",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go"
+    },
+    {
+      "id": "fakecontainerapi",
+      "label": "fakeContainerAPI",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "label": "TestEnableStatefullHandler_FailurePath_UnreachablePostgres_RollsBack()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L687"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_protobool",
+      "label": "protoBool()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L785"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "go_pkg_context",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "go_pkg_database_sql",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "go_pkg_encoding_json",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "go_pkg_errors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "go_pkg_testing",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "go_pkg_time",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "go_pkg_github_com_docker_docker_api_types_container",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "go_pkg_github_com_docker_docker_errdefs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "go_pkg_github_com_docker_go_connections_nat",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "go_pkg_github_com_sqlc_dev_pqtype",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_api_server_velez_api",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_cluster_clients",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L16",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_cluster_clients_state",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_node_clients_local_state",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L18",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_cluster_env",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_storage",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_storage_postgres_generated_jobs_queries",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L21",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_storage_postgres_generated_tasks_queries",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "go_pkg_go_vervstack_ru_matreshka_pkg_matreshka_resources",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L23",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_action",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_action",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L30",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_newcontext",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_newcontext",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L38",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_buildjobs_namesandorder",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_buildjobs_namesandorder",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L46",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_noexistingstate_generatesrandompasswords",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L80",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_noexistingstate_generatesrandompasswords",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L80",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_existingdsn_reusespassword",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L100",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_existingdsn_reusespassword",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L100",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_alreadypersisted_doesnotregenerate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L132",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_alreadypersisted_doesnotregenerate",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L132",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_success",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L157",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_success",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L157",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_containercreateerror",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L181",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_containercreateerror",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L181",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_nocontainerid_noop",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L205",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_nocontainerid_noop",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L205",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_removescontainer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L222",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_removescontainer",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L222",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_notfoundisswallowed",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L239",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_notfoundisswallowed",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L239",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_success",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L257",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_success",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L257",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_nocontainerid_error",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L273",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_nocontainerid_error",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L273",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_rollback_stopscontainer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L285",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_rollback_stopscontainer",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L285",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_alreadyhealthy_success",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L303",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_alreadyhealthy_success",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L303",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_nocontainerid_error",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L322",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_nocontainerid_error",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L322",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_inspecterror",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L334",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_inspecterror",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L334",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_notyethealthy_contextcancelled",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L349",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_notyethealthy_contextcancelled",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L349",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_nilcontainerstate_doesnotpanic_contextcancelled",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L371",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_nilcontainerstate_doesnotpanic_contextcancelled",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L371",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_success_parsesenvvars",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L396",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_success_parsesenvvars",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L396",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_notexposedandnotincontainer_error",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L440",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_notexposedandnotincontainer_error",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L440",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_inspecterror",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L462",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_inspecterror",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L462",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreateschemaandmigratejob_connectionfailure",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L485",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreateschemaandmigratejob_connectionfailure",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L485",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepguserjob_connectionfailure",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L498",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepguserjob_connectionfailure",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L498",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_success",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L514",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_success",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L514",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_newpgstatemanagererror",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L572",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_newpgstatemanagererror",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L572",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testinitnodestoragejob_success",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L609",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testinitnodestoragejob_success",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L609",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testinitnodestoragejob_error",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L625",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testinitnodestoragejob_error",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L625",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_enablestatefulltask",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L649",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_enablestatefulltask",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L649",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_enablestatefulltask",
+      "target": "faketasksstorage",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L649",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_enablestatefulltask",
+      "target": "enablestatefulltaskpayload",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L649",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_enablestatefulltask",
+      "target": "veleztask",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L649",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_patchenablestatefulldockerfields",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L674",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_patchenablestatefulldockerfields",
+      "target": "namedjob",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L674",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_patchenablestatefulldockerfields",
+      "target": "fakecontainerapi",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L674",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L687",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L687",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_protobool",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L785",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_success_parsesenvvars",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_protobool",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L417",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_notexposedandnotincontainer_error",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_protobool",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L450",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_protobool",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L691",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_enablestatefulltask",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L693",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_patchenablestatefulldockerfields",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull_test.go",
+      "source_location": "L733",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_action",
+      "callee": "NewEnableStatefullHandler",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_action",
+      "callee": "Action",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_action",
+      "callee": "Errorf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_action",
+      "callee": "Action",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_newcontext",
+      "callee": "NewEnableStatefullHandler",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L39"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_newcontext",
+      "callee": "NewContext",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_newcontext",
+      "callee": "Fatal",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_buildjobs_namesandorder",
+      "callee": "newFakeDocker",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L49"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_buildjobs_namesandorder",
+      "callee": "newFakeNodeClients",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_buildjobs_namesandorder",
+      "callee": "newFakeStateManager",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_buildjobs_namesandorder",
+      "callee": "NewContainer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L55"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_buildjobs_namesandorder",
+      "callee": "NewStorageContainer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L56"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_buildjobs_namesandorder",
+      "callee": "NewEnableStatefullHandler",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_buildjobs_namesandorder",
+      "callee": "BuildJobs",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L60"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_buildjobs_namesandorder",
+      "callee": "Fatalf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L68"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_buildjobs_namesandorder",
+      "callee": "Errorf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L73"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_noexistingstate_generatesrandompasswords",
+      "callee": "newFakeStateManager",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_noexistingstate_generatesrandompasswords",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_noexistingstate_generatesrandompasswords",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_noexistingstate_generatesrandompasswords",
+      "callee": "Fatalf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_noexistingstate_generatesrandompasswords",
+      "callee": "GetRootPwd",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L91"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_noexistingstate_generatesrandompasswords",
+      "callee": "GetUserPwd",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_existingdsn_reusespassword",
+      "callee": "newFakeStateManager",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L108"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_existingdsn_reusespassword",
+      "callee": "ConnectionString",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_existingdsn_reusespassword",
+      "callee": "ConnectionString",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_existingdsn_reusespassword",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L118"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_existingdsn_reusespassword",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L118"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_existingdsn_reusespassword",
+      "callee": "Fatalf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L120"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_existingdsn_reusespassword",
+      "callee": "GetRootPwd",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L123"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_existingdsn_reusespassword",
+      "callee": "Errorf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_existingdsn_reusespassword",
+      "callee": "GetRootPwd",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_existingdsn_reusespassword",
+      "callee": "GetUserPwd",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L127"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_existingdsn_reusespassword",
+      "callee": "Errorf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_existingdsn_reusespassword",
+      "callee": "GetUserPwd",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_alreadypersisted_doesnotregenerate",
+      "callee": "newFakeStateManager",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L133"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_alreadypersisted_doesnotregenerate",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L135"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_alreadypersisted_doesnotregenerate",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L136"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_alreadypersisted_doesnotregenerate",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L141"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_alreadypersisted_doesnotregenerate",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L141"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_alreadypersisted_doesnotregenerate",
+      "callee": "Fatalf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L143"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_alreadypersisted_doesnotregenerate",
+      "callee": "GetRootPwd",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L146"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_alreadypersisted_doesnotregenerate",
+      "callee": "Errorf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L147"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_alreadypersisted_doesnotregenerate",
+      "callee": "GetRootPwd",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L147"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_alreadypersisted_doesnotregenerate",
+      "callee": "GetUserPwd",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L150"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_alreadypersisted_doesnotregenerate",
+      "callee": "Errorf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L151"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgeneratecredentialsjob_alreadypersisted_doesnotregenerate",
+      "callee": "GetUserPwd",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L151"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_success",
+      "callee": "newFakeDocker",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L158"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_success",
+      "callee": "newFakeNodeClients",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L162"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_success",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L166"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_success",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L171"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_success",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L171"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_success",
+      "callee": "Fatalf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L173"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_success",
+      "callee": "GetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L176"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_success",
+      "callee": "Errorf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L177"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_success",
+      "callee": "GetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L177"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_containercreateerror",
+      "callee": "newFakeDocker",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L182"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_containercreateerror",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L184"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_containercreateerror",
+      "callee": "newFakeNodeClients",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L186"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_containercreateerror",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L190"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_containercreateerror",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L195"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_containercreateerror",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L195"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_containercreateerror",
+      "callee": "Fatal",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L197"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_containercreateerror",
+      "callee": "GetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L200"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_containercreateerror",
+      "callee": "Errorf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L201"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_containercreateerror",
+      "callee": "GetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L201"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_nocontainerid_noop",
+      "callee": "newFakeDocker",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L206"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_nocontainerid_noop",
+      "callee": "newFakeNodeClients",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L207"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_nocontainerid_noop",
+      "callee": "Rollback",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L212"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_nocontainerid_noop",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L212"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_nocontainerid_noop",
+      "callee": "Fatalf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L214"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_nocontainerid_noop",
+      "callee": "Errorf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L218"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_removescontainer",
+      "callee": "newFakeDocker",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L223"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_removescontainer",
+      "callee": "newFakeNodeClients",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L224"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_removescontainer",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L225"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_removescontainer",
+      "callee": "Rollback",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L229"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_removescontainer",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L229"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_removescontainer",
+      "callee": "Fatalf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L231"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_removescontainer",
+      "callee": "Errorf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_notfoundisswallowed",
+      "callee": "newFakeDocker",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L240"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_notfoundisswallowed",
+      "callee": "NotFound",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L242"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_notfoundisswallowed",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L242"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_notfoundisswallowed",
+      "callee": "newFakeNodeClients",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L244"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_notfoundisswallowed",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L245"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_notfoundisswallowed",
+      "callee": "Rollback",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L249"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_notfoundisswallowed",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L249"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepgcontainerjob_rollback_notfoundisswallowed",
+      "callee": "Fatalf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L251"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_success",
+      "callee": "newFakeContainerAPI",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L258"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_success",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L259"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_success",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L263"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_success",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L263"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_success",
+      "callee": "Fatalf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L265"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_success",
+      "callee": "Errorf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L269"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_nocontainerid_error",
+      "callee": "newFakeContainerAPI",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L274"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_nocontainerid_error",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L279"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_nocontainerid_error",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L279"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_nocontainerid_error",
+      "callee": "Fatal",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L281"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_rollback_stopscontainer",
+      "callee": "newFakeContainerAPI",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L286"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_rollback_stopscontainer",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L287"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_rollback_stopscontainer",
+      "callee": "Rollback",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L291"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_rollback_stopscontainer",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L291"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_rollback_stopscontainer",
+      "callee": "Fatalf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L293"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_teststartpgcontainerjob_rollback_stopscontainer",
+      "callee": "Errorf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L297"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_alreadyhealthy_success",
+      "callee": "newFakeContainerAPI",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L304"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_alreadyhealthy_success",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L312"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_alreadyhealthy_success",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L316"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_alreadyhealthy_success",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L316"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_alreadyhealthy_success",
+      "callee": "Fatalf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L318"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_nocontainerid_error",
+      "callee": "newFakeContainerAPI",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L323"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_nocontainerid_error",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L328"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_nocontainerid_error",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L328"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_nocontainerid_error",
+      "callee": "Fatal",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L330"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_inspecterror",
+      "callee": "newFakeContainerAPI",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L335"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_inspecterror",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L337"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_inspecterror",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L339"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_inspecterror",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L343"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_inspecterror",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L343"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_inspecterror",
+      "callee": "Fatal",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L345"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_notyethealthy_contextcancelled",
+      "callee": "newFakeContainerAPI",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L350"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_notyethealthy_contextcancelled",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L358"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_notyethealthy_contextcancelled",
+      "callee": "WithCancel",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L362"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_notyethealthy_contextcancelled",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L362"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_notyethealthy_contextcancelled",
+      "callee": "cancel",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L363"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_notyethealthy_contextcancelled",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L365"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_notyethealthy_contextcancelled",
+      "callee": "Fatal",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L367"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_nilcontainerstate_doesnotpanic_contextcancelled",
+      "callee": "newFakeContainerAPI",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L372"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_nilcontainerstate_doesnotpanic_contextcancelled",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L376"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_nilcontainerstate_doesnotpanic_contextcancelled",
+      "callee": "WithCancel",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L380"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_nilcontainerstate_doesnotpanic_contextcancelled",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L380"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_nilcontainerstate_doesnotpanic_contextcancelled",
+      "callee": "cancel",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L381"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_nilcontainerstate_doesnotpanic_contextcancelled",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L383"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testwaitforpgreadyjob_nilcontainerstate_doesnotpanic_contextcancelled",
+      "callee": "Fatal",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L385"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_success_parsesenvvars",
+      "callee": "newFakeContainerAPI",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L397"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_success_parsesenvvars",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L418"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_success_parsesenvvars",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L423"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_success_parsesenvvars",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L423"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_success_parsesenvvars",
+      "callee": "Fatalf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L425"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_success_parsesenvvars",
+      "callee": "ParseFromDsn",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L430"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_success_parsesenvvars",
+      "callee": "GetRootDsn",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L430"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_success_parsesenvvars",
+      "callee": "Fatalf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L432"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_success_parsesenvvars",
+      "callee": "Errorf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L436"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_notexposedandnotincontainer_error",
+      "callee": "IsInContainer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L441"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_notexposedandnotincontainer_error",
+      "callee": "Skip",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L442"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_notexposedandnotincontainer_error",
+      "callee": "newFakeContainerAPI",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L445"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_notexposedandnotincontainer_error",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L451"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_notexposedandnotincontainer_error",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L456"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_notexposedandnotincontainer_error",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L456"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_notexposedandnotincontainer_error",
+      "callee": "Fatal",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L458"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_inspecterror",
+      "callee": "newFakeContainerAPI",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L463"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_inspecterror",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L465"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_inspecterror",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L467"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_inspecterror",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L471"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_inspecterror",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L471"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testgetrootdsnjob_inspecterror",
+      "callee": "Fatal",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L473"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreateschemaandmigratejob_connectionfailure",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L487"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreateschemaandmigratejob_connectionfailure",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L492"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreateschemaandmigratejob_connectionfailure",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L492"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreateschemaandmigratejob_connectionfailure",
+      "callee": "Fatal",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L494"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepguserjob_connectionfailure",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L500"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepguserjob_connectionfailure",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L501"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepguserjob_connectionfailure",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L506"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepguserjob_connectionfailure",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L506"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testcreatepguserjob_connectionfailure",
+      "callee": "Fatal",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L508"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_success",
+      "callee": "newFakeStateManager",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L515"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_success",
+      "callee": "NewContainer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L518"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_success",
+      "callee": "NewStorageContainer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L519"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_success",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L532"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_success",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L533"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_success",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L545"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_success",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L545"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_success",
+      "callee": "Fatalf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L547"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_success",
+      "callee": "Get",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L554"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_success",
+      "callee": "GetRootDsn",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L555"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_success",
+      "callee": "Errorf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L556"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_success",
+      "callee": "Nodes",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L563"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_success",
+      "callee": "Nodes",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L567"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_newpgstatemanagererror",
+      "callee": "newFakeStateManager",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L573"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_newpgstatemanagererror",
+      "callee": "NewContainer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L576"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_newpgstatemanagererror",
+      "callee": "NewStorageContainer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L577"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_newpgstatemanagererror",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L580"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_newpgstatemanagererror",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L584"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_newpgstatemanagererror",
+      "callee": "proto",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L585"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_newpgstatemanagererror",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L597"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_newpgstatemanagererror",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L597"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_newpgstatemanagererror",
+      "callee": "Fatal",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L599"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testupdateclusterstatejob_newpgstatemanagererror",
+      "callee": "Nodes",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L602"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testinitnodestoragejob_success",
+      "callee": "NewContainer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L611"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testinitnodestoragejob_success",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L615"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testinitnodestoragejob_success",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L615"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testinitnodestoragejob_success",
+      "callee": "Fatalf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L617"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testinitnodestoragejob_success",
+      "callee": "Errorf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L621"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testinitnodestoragejob_error",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L626"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testinitnodestoragejob_error",
+      "callee": "NewContainer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L627"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testinitnodestoragejob_error",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L631"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testinitnodestoragejob_error",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L631"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testinitnodestoragejob_error",
+      "callee": "Fatal",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L633"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_enablestatefulltask",
+      "callee": "Helper",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L652"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_enablestatefulltask",
+      "callee": "Marshal",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L654"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_enablestatefulltask",
+      "callee": "Fatalf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L656"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_enablestatefulltask",
+      "callee": "CreateTask",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L666"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_enablestatefulltask",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L666"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_enablestatefulltask",
+      "callee": "Fatalf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L668"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "newFakeTasksStorage",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L688"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "newFakeJobsStorage",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L689"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "newFakeDocker",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L695"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "newFakeNodeClients",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L699"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "newFakeStateManager",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L701"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "NewContainer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L704"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "NewStorageContainer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L705"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "NewEnableStatefullHandler",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L707"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "NewContext",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L709"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "Unmarshal",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L711"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "Fatalf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L713"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "BuildJobs",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L716"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "newFakeContainerAPI",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L718"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "NewRegistry",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L735"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "Register",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L736"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "NewTaskWorker",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L738"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "Fatal",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L740"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "runJobs",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L747"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L747"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "Fatal",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L749"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "FinishTask",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L752"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L752"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "Fatalf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L758"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "get",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L761"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "Errorf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L763"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "jobKey",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L770"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "Errorf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L772"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "Errorf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L777"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_test_testenablestatefullhandler_failurepath_unreachablepostgres_rollsback",
+      "callee": "Errorf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go",
+      "source_location": "L781"
+    }
+  ]
+}

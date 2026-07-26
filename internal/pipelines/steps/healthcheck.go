@@ -50,8 +50,8 @@ func (h *healthcheckStep) Do(ctx context.Context) error {
 	go func() {
 		defer close(errC)
 
-		for i := uint32(0); i < h.req.Healthcheck.Retries; i++ {
-			time.Sleep(time.Duration(h.req.Healthcheck.IntervalSecond) * time.Second)
+		for i := uint32(0); i < h.req.Healthcheck.GetRetries(); i++ {
+			time.Sleep(time.Duration(h.req.Healthcheck.GetIntervalSecond()) * time.Second)
 
 			cont, err := h.dockerAPI.ContainerInspect(ctx, *h.containerId)
 			if err != nil {

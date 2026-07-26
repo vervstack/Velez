@@ -37,6 +37,7 @@ func (t *tasks) CreateTask(_ context.Context, arg tasks_queries.CreateTaskParams
 	}
 
 	t.nextID++
+
 	now := time.Now()
 
 	task := tasks_queries.VelezTask{
@@ -48,6 +49,7 @@ func (t *tasks) CreateTask(_ context.Context, arg tasks_queries.CreateTaskParams
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
+
 	t.byID[task.ID] = task
 
 	return task, nil

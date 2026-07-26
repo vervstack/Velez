@@ -177,6 +177,7 @@ func TestPrepareScratchImageJob_Success(t *testing.T) {
 	}
 
 	docker := newFakeDocker()
+
 	docker.pullImageResp = image.InspectResponse{
 		RepoTags: []string{testNginxImage},
 		Config:   imageConfig,
@@ -207,6 +208,7 @@ func TestPrepareScratchImageJob_PullImageError(t *testing.T) {
 	}
 
 	docker := newFakeDocker()
+
 	docker.pullImageErr = errors.New("registry unreachable")
 
 	j := &prepareScratchImageJob{docker: docker, req: payload, ctx: payload}
@@ -232,6 +234,7 @@ func TestCreateScratchContainerJob_Success(t *testing.T) {
 	}
 
 	docker := newFakeDocker()
+
 	docker.containerCreateResp = container.CreateResponse{ID: testContainerID}
 
 	nodeClients := newFakeNodeClients(docker)
@@ -258,6 +261,7 @@ func TestCreateScratchContainerJob_ContainerCreateError(t *testing.T) {
 	}
 
 	docker := newFakeDocker()
+
 	docker.containerCreateErr = errors.New("no space left on device")
 
 	nodeClients := newFakeNodeClients(docker)
@@ -319,6 +323,7 @@ func TestCreateScratchContainerJob_Rollback_RemoveErrorPropagates(t *testing.T) 
 	payload.SetContainerId(testContainerID)
 
 	docker := newFakeDocker()
+
 	docker.removeErr = errors.New("docker daemon unreachable")
 
 	nodeClients := newFakeNodeClients(docker)
@@ -336,6 +341,7 @@ func TestCreateScratchContainerJob_Rollback_NotFoundIsSwallowed(t *testing.T) {
 	payload.SetContainerId(testContainerID)
 
 	docker := newFakeDocker()
+
 	docker.removeErr = errdefs.NotFound(errors.New("no such container"))
 
 	nodeClients := newFakeNodeClients(docker)
@@ -455,6 +461,7 @@ func TestDropScratchContainerJob_RemoveErrorPropagates(t *testing.T) {
 	payload.SetContainerId(testContainerID)
 
 	docker := newFakeDocker()
+
 	docker.removeErr = errors.New("docker daemon unreachable")
 
 	j := &dropScratchContainerJob{docker: docker, ctx: payload}

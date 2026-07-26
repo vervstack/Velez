@@ -21,5 +21,5 @@ func (c *Configurator) GetPlainFromApi(ctx context.Context, meta domain.ConfigMe
 		return nil, rerrors.Wrap(err, "error getting config")
 	}
 
-	return cfg.Config, nil
+	return cfg.GetConfig(), nil
 }

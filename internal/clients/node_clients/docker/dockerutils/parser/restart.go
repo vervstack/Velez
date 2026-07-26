@@ -2,7 +2,7 @@ package parser
 
 import (
 	"github.com/docker/docker/api/types/container"
-	"go.redsock.ru/toolbox"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
@@ -18,11 +18,11 @@ func FromRestart(r *velez_api.RestartPolicy) container.RestartPolicy {
 
 	maxRetryCount := maxRetryCountDefault
 	if r != nil && r.FailureCount != nil {
-		maxRetryCount = int(*r.FailureCount)
+		maxRetryCount = int(r.GetFailureCount())
 		maxRetryCount = min(maxRetryCount, maxRetryCountBound)
 	}
 
-	switch toolbox.FromPtr(r).Type {
+	switch r.GetType() {
 	case velez_api.RestartPolicyType_no:
 		rp.Name = container.RestartPolicyDisabled
 

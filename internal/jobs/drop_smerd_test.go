@@ -24,6 +24,7 @@ const (
 // node_clients.NodeClients, satisfying dropSmerdHandler's only dependency.
 type dockerOnlyNodeClients struct {
 	node_clients.NodeClients
+
 	docker node_clients.Docker
 }
 
@@ -242,6 +243,7 @@ func TestDropSmerdHandler_ResumeSkipsAlreadyDoneJobs(t *testing.T) {
 // mid-batch while others succeed.
 type selectiveFailDocker struct {
 	*fakeDocker
+
 	failOn string
 }
 

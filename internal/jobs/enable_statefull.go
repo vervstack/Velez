@@ -13,6 +13,8 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
+	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
@@ -22,42 +24,34 @@ import (
 	"go.vervstack.ru/Velez/internal/patterns/db_patterns/pg_pattern"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/cluster_steps"
 	"go.vervstack.ru/Velez/internal/storage"
-	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
 )
 
-const EnableStatefullAction = "enable_statefull_mode"
-
 const (
-	pgSchema                = "velez"
+	EnableStatefullAction = "enable_statefull_mode"
+
 	pgMasterNodeDefaultName = "icy_raccoon"
-)
 
-const (
 	stepGenerateCredentials  = "generate_credentials"
 	stepCreatePgContainer    = "create_container"
 	stepWaitForPostgresReady = "wait_for_postgres_ready"
 	stepGetRootDsn           = "get_root_dsn"
-)
 
-const pgDefaultUser = "postgres"
+	pgDefaultUser = "postgres"
 
-// generatedPwdLength is the byte length passed to toolbox.RandomBase64 when
-// generating a fresh root/user postgres password.
-const generatedPwdLength = 12
+	// generatedPwdLength is the byte length passed to toolbox.RandomBase64 when
+	// generating a fresh root/user postgres password.
+	generatedPwdLength = 12
 
-const (
 	pgDefaultPort   = 5432
 	envKVPartsCount = 2
-)
 
-// pgReadyPollInterval/pgReadyTimeout bound waitForPgReadyJob's poll loop. A
-// freshly started postgres:18 container runs initdb and restarts itself
-// before it truly accepts connections - observed ~6s on a quiet local Docker
-// host - closing any connection attempted during that window with a bare
-// EOF, which is what create_schema_and_migrate saw when this wait step
-// didn't exist yet. 30s gives ample margin on a loaded host without letting
-// a genuinely wedged container hang the task indefinitely.
-const (
+	// pgReadyPollInterval/pgReadyTimeout bound waitForPgReadyJob's poll loop. A
+	// freshly started postgres:18 container runs initdb and restarts itself
+	// before it truly accepts connections - observed ~6s on a quiet local Docker
+	// host - closing any connection attempted during that window with a bare
+	// EOF, which is what create_schema_and_migrate saw when this wait step
+	// didn't exist yet. 30s gives ample margin on a loaded host without letting
+	// a genuinely wedged container hang the task indefinitely.
 	pgReadyPollInterval = 500 * time.Millisecond
 	pgReadyTimeout      = 30 * time.Second
 )
@@ -523,6 +517,7 @@ func (j *createSchemaAndMigrateJob) Do(ctx context.Context) error {
 	if err != nil {
 		return rerrors.Wrap(err, "error checking connection to postgres")
 	}
+
 	defer func() {
 		closeErr := conn.Close()
 		if closeErr != nil {
@@ -555,7 +550,7 @@ type createPgUserJob struct {
 func (j *createPgUserJob) Do(ctx context.Context) error {
 	rootDsn := j.dsn.GetRootDsn()
 
-	step := cluster_steps.CreatePgUserForNode(&rootDsn, pgSchema, pgMasterNodeDefaultName, j.pwd.GetUserPwd())
+	step := cluster_steps.CreatePgUserForNode(&rootDsn, pgMasterNodeDefaultName, j.pwd.GetUserPwd())
 
 	err := step.Do(ctx)
 	if err != nil {
@@ -589,6 +584,7 @@ func (j *updateClusterStateJob) Do(ctx context.Context) error {
 	localState := j.localStateManager.GetForUpdate()
 
 	rootDsn := j.dsn.GetRootDsn()
+
 	localState.ClusterState.PgRootDsn = rootDsn
 
 	var nodeConnection resources.Postgres

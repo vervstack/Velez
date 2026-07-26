@@ -21,7 +21,12 @@ type VervService struct {
 	environmentsStorage storage.EnvironmentsStorageContainer
 }
 
-func New(dataStorage storage.Storage, containerService service.ContainerService, docker node_clients.Docker, environmentsStorage storage.EnvironmentsStorageContainer) *VervService {
+func New(
+	dataStorage storage.Storage,
+	containerService service.ContainerService,
+	docker node_clients.Docker,
+	environmentsStorage storage.EnvironmentsStorageContainer,
+) *VervService {
 	return &VervService{
 		servicesStorage:    dataStorage.Services(),
 		deploymentsStorage: dataStorage.Deployments(),

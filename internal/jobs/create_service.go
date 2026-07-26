@@ -9,7 +9,9 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
-const CreateServiceAction = "create_service"
+const (
+	CreateServiceAction = "create_service"
+)
 
 // Accessor interface the create_service jobs need from their TaskContext.
 // *velez_api.CreateServiceTaskPayload satisfies it.

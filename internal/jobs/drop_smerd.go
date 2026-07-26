@@ -8,7 +8,9 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 )
 
-const DropSmerdAction = "drop_smerd"
+const (
+	DropSmerdAction = "drop_smerd"
+)
 
 // dropResultAccessor is the narrow slice of *velez_api.DropSmerdTaskPayload
 // dropContainerJob needs to record its per-identifier outcome.
@@ -65,6 +67,7 @@ func (h *dropSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		}
 
 		name := fmt.Sprintf("drop_container_%d", i)
+
 		namedJobs = append(namedJobs, NamedJob{Name: name, Job: job})
 	}
 

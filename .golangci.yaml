@@ -4,167 +4,177 @@ run:
   timeout: 5m
   issues-exit-code: 42
 
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
 output:
   formats:
     text:
       path: stdout
+      colors: true
 
 linters:
   default: none
+  settings:
+    depguard:
+      rules:
+        no-direct-zerolog-log:
+          list-mode: lax
+          files:
+            - "!**/internal/log/**"
+            - "!**/internal/utils/closer.go"
+          deny:
+            - pkg: "github.com/rs/zerolog/log"
+              desc: "use go.zpotify.ru/zpotify/internal/log instead"
+    exhaustive:
+      default-signifies-exhaustive: true
+    govet:
+      enable-all: true
+      disable:
+        - fieldalignment
+    grouper:
+      const-require-single-const: true
+      const-require-grouping: true
+      import-require-single-import: true
+      import-require-grouping: true
+      var-require-single-var: true
+    iface:
+      enable:
+        - identical
+        - unexported
+    importas:
+      # Do not allow unaliased imports of aliased packages.
+      # Default: false
+      no-unaliased: true
+    unused:
+      field-writes-are-uses: false
+      exported-fields-are-used: false
+      #      parameters-are-used: false
+      local-variables-are-used: false
+      generated-is-used: false
+    wsl_v5:
+      default: all
   enable:
-    - varnamelen # check lenght of scope of a variable
-
-    - asasalint # prevents from passing []any
+    - govet
+    - asasalint
     - asciicheck
     - bidichk
     - bodyclose
+    - canonicalheader
     - containedctx
     - contextcheck
+    - copyloopvar
     - cyclop
     - decorder
+    - dupword
     - dogsled
     - dupl
     - dupword
     - durationcheck
+    - embeddedstructfieldcheck
+    - err113
     - errcheck
     - errchkjson
     - errname
-    - errorlint
     - exhaustive
+    - exptostd
     - forbidigo
     - forcetypeassert
+    - funcorder
     - funlen
-    - gochecknoglobals
+    - gocheckcompilerdirectives
     - gochecknoinits
     - gocognit
     - goconst
     - gocritic
-    - gocyclo
-    - godot
-    - godox
-    - err113
-    - goheader
-    - mnd
-    - gomoddirectives
-    - gomodguard
     - goprintffuncname
-    - gosec
+    #    - gosec # Whole repo works with exec | folders | files on disk
+    - gosmopolitan
     - govet
     - grouper
+    - iface
     - importas
+    - iotamixing
+    - inamedparam
     - ineffassign
     - interfacebloat
-    - ireturn
+    - intrange
     - lll
     - loggercheck
     - maintidx
     - makezero
+    - mirror
     - misspell
+    - mnd
+    - modernize
+    - musttag
     - nakedret
     - nestif
     - nilerr
-    - nilnil
+    - nilnesserr
+    # Too much to handle now
+    #    - nilnil
     - nlreturn
     - noctx
     - nolintlint
+    - noinlineerr
     - nosprintfhostport
-    - paralleltest
+    - perfsprint
     - prealloc
     - predeclared
     - promlinter
+    - protogetter
     - reassign
-    - revive
+    - recvcheck
+    #TODO TOO MUCH RIGHT NOW
+    #    - revive
     - rowserrcheck
-    - sqlclosecheck
+    - spancheck
+    #    TODO too much to setup
     - staticcheck
-    - tagliatelle
+    - tagalign
     - testableexamples
-    - testpackage
+    #    - testifylint
     - thelper
     - tparallel
     - unconvert
-    - unparam
+    #    - unparam
     - unused
     - usestdlibvars
+    - usetesting
+    # TODO
+    #    - varnamelen
     - wastedassign
     - whitespace
     - wrapcheck
     - wsl_v5
-
-  settings:
-    varnamelen: # scope of variable
-      max-distance: 25 # amount of lines when variable can be used (about 1 screen space)
-      min-name-length: 2 # minimal lenght of variable that goes out of scope
-
-      ignore-type-assert-ok: true
-      check-type-param: true
-      ignore-chan-recv-ok: true
-
-    ireturn:
-      allow:
-        - anon
-        - error
-        - empty
-        - stdlib
-        - generic
-        - Storage$ # storage layer is designed to have interchangeable postgres/local_storage implementations
-        - TaskContext # jobs engine context is intentionally polymorphic per task handler
-
-    revive:
-      rules:
-        - name: blank-imports
-        - name: context-as-argument
-        - name: context-keys-type
-        - name: dot-imports
-        - name: empty-block
-        - name: error-naming
-        - name: error-return
-        - name: error-strings
-        - name: errorf
-        - name: exported
-          disabled: true # conflicts with project convention of no comments unless the WHY is non-obvious
-        - name: increment-decrement
-        - name: indent-error-flow
-        - name: package-comments
-          disabled: true # same as exported above
-        - name: range
-        - name: receiver-naming
-        - name: redefines-builtin-id
-        - name: superfluous-else
-        - name: time-naming
-        - name: unexported-return
-        - name: unreachable-code
-        - name: unused-parameter
-        - name: var-declaration
-        - name: var-naming
-        - name: waitgroup-by-value
-
+    - zerologlint
   exclusions:
-    paths:
-      - configs
     rules:
-      - path: docs\.swagger_ui\.go
-        linters:
-          - typecheck
       - linters:
           - staticcheck
         text: "SA9003:"
       - linters:
           - lll
         source: "^//go:generate "
-      - path: ^tests/e2e/
-        linters:
-          - paralleltest # e2e suite intentionally shares one matreshka fixture; see CLAUDE.md E2E shared-fixture rules
-      - path: internal/clients/node_clients/docker/client\.go
-        linters:
-          - tagliatelle # struct mirrors Docker daemon's own snake_case stats API response
-      - path: internal/clients/node_clients/local_state/.*\.go
-        linters:
-          - tagliatelle # JSON tags are the on-disk state file format; renaming breaks backward compatibility
-
+      - linters:
+          - forbidigo
+        path: internal/io/std_printer.go
+      - linters:
+          - funlen
+        text: "Test_"
+    paths:
+      - configs
+      - node_modules
+      - pkg/web/ZpotifyUI/node_modules
+      - tests/mocks
 formatters:
   enable:
-    - gci
     - gofmt
-    - gofumpt
     - goimports
+  exclusions:
+    paths:
+      - configs
+      - node_modules
+      - pkg/web/Velez-UI/node_modules

@@ -21,6 +21,8 @@ func (f *Filter) Exited(exitCode int) {
 
 type status string
 
+type health string
+
 const (
 	Created    status = "created"
 	Restarting status = "restarting"
@@ -29,6 +31,11 @@ const (
 	Paused     status = "paused"
 	Exited     status = "exited"
 	Dead       status = "dead"
+
+	Starting  health = "starting"
+	Healthy   health = "healthy"
+	Unhealthy health = "unhealthy"
+	None      health = "none"
 )
 
 func (f *Filter) Status(in status) {
@@ -50,15 +57,6 @@ func (f *Filter) Name(name string) {
 func (f *Filter) IsTask(isTask bool) {
 	f.args.Add("is-task", strconv.FormatBool(isTask))
 }
-
-type health string
-
-const (
-	Starting  health = "starting"
-	Healthy   health = "healthy"
-	Unhealthy health = "unhealthy"
-	None      health = "none"
-)
 
 func (f *Filter) Health(h health) {
 	f.args.Add("health", string(h))

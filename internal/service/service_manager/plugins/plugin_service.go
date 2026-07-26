@@ -40,7 +40,7 @@ func (p *pluginService) ListPlugins(ctx context.Context) (*pb.ListPlugins_Respon
 		listInactivePlugins(active)...)
 
 	sort.Slice(result, func(i, j int) bool {
-		return result[i].Type < result[j].Type
+		return result[i].GetType() < result[j].GetType()
 	})
 
 	resp := &pb.ListPlugins_Response{
@@ -53,7 +53,7 @@ func (p *pluginService) ListPlugins(ctx context.Context) (*pb.ListPlugins_Respon
 func listInactivePlugins(activePlugins []*pb.Plugin) []*pb.Plugin {
 	activeMap := make(map[pb.VervPluginType]struct{})
 	for _, p := range activePlugins {
-		activeMap[p.Type] = struct{}{}
+		activeMap[p.GetType()] = struct{}{}
 	}
 
 	var disabled []*pb.Plugin

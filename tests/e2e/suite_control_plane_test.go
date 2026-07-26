@@ -14,7 +14,6 @@ type ControlPlaneSuite struct {
 
 func (s *ControlPlaneSuite) Test_ListEnvironments_WithLocalStateConfig() {
 	t := s.T()
-	t.Parallel()
 
 	expectedEnvs := []string{"dev", "staging", "prod"}
 	env := NewEnvironment(t, WithEnvironments(expectedEnvs))
@@ -23,12 +22,11 @@ func (s *ControlPlaneSuite) Test_ListEnvironments_WithLocalStateConfig() {
 	resp, err := env.Custom.ControlPlaneApiImpl.ListEnvironments(t.Context(), req)
 	require.NoError(t, err)
 	require.NotNil(t, resp)
-	require.ElementsMatch(t, expectedEnvs, resp.Environments)
+	require.ElementsMatch(t, expectedEnvs, resp.GetEnvironments())
 }
 
 func (s *ControlPlaneSuite) Test_ListEnvironments_EmptyLocalStateConfig() {
 	t := s.T()
-	t.Parallel()
 
 	env := NewEnvironment(t)
 
@@ -36,7 +34,7 @@ func (s *ControlPlaneSuite) Test_ListEnvironments_EmptyLocalStateConfig() {
 	resp, err := env.Custom.ControlPlaneApiImpl.ListEnvironments(t.Context(), req)
 	require.NoError(t, err)
 	require.NotNil(t, resp)
-	require.Empty(t, resp.Environments)
+	require.Empty(t, resp.GetEnvironments())
 }
 
 func Test_ControlPlane(t *testing.T) {

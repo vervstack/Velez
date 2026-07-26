@@ -1,0 +1,327 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_service_go",
+      "label": "service.go",
+      "file_type": "code",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "verv_services_vervservice",
+      "label": "VervService",
+      "file_type": "code",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L10"
+    },
+    {
+      "id": "servicesstorage",
+      "label": "ServicesStorage",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/service.go"
+    },
+    {
+      "id": "deploymentsstorage",
+      "label": "DeploymentsStorage",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/service.go"
+    },
+    {
+      "id": "servicedependenciesstorage",
+      "label": "ServiceDependenciesStorage",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/service.go"
+    },
+    {
+      "id": "serviceresourcesstorage",
+      "label": "ServiceResourcesStorage",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/service.go"
+    },
+    {
+      "id": "txmanager",
+      "label": "TxManager",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/service.go"
+    },
+    {
+      "id": "containerservice",
+      "label": "ContainerService",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/service.go"
+    },
+    {
+      "id": "docker",
+      "label": "Docker",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/service.go"
+    },
+    {
+      "id": "environmentsstoragecontainer",
+      "label": "EnvironmentsStorageContainer",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/service.go"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_service_new",
+      "label": "New()",
+      "file_type": "code",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L24"
+    },
+    {
+      "id": "storage",
+      "label": "Storage",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/service.go"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_service_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_node_clients",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_service_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_sqldb",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_service_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_service",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_service_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_storage",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_service_go",
+      "target": "verv_services_vervservice",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "verv_services_vervservice",
+      "target": "servicesstorage",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "verv_services_vervservice",
+      "target": "deploymentsstorage",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "verv_services_vervservice",
+      "target": "servicedependenciesstorage",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "verv_services_vervservice",
+      "target": "serviceresourcesstorage",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "verv_services_vervservice",
+      "target": "txmanager",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "verv_services_vervservice",
+      "target": "containerservice",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "verv_services_vervservice",
+      "target": "docker",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "verv_services_vervservice",
+      "target": "environmentsstoragecontainer",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L21",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_service_go",
+      "target": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_service_new",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_service_new",
+      "target": "storage",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L24",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_service_new",
+      "target": "containerservice",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L24",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_service_new",
+      "target": "docker",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L24",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_service_new",
+      "target": "environmentsstoragecontainer",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L24",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_service_new",
+      "target": "verv_services_vervservice",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L24",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_service_new",
+      "target": "txmanager",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/service.go",
+      "source_location": "L37",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_service_new",
+      "callee": "Services",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/service.go",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_service_new",
+      "callee": "Deployments",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/service.go",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_service_new",
+      "callee": "ServiceDependencies",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/service.go",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_service_new",
+      "callee": "ServiceResources",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/service.go",
+      "source_location": "L35"
+    }
+  ]
+}

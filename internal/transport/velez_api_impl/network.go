@@ -11,7 +11,7 @@ import (
 func (impl *Impl) MakeConnections(ctx context.Context, req *api.MakeConnections_Request) (
 	*api.MakeConnections_Response, error,
 ) {
-	for _, conn := range req.Connections {
+	for _, conn := range req.GetConnections() {
 		err := impl.smerdService.ConnectToNetwork(ctx, toConnection(conn))
 		if err != nil {
 			return nil, rerrors.Wrap(err, "error connecting to network")
@@ -24,7 +24,7 @@ func (impl *Impl) MakeConnections(ctx context.Context, req *api.MakeConnections_
 func (impl *Impl) BreakConnections(ctx context.Context, req *api.BreakConnections_Request) (
 	*api.BreakConnections_Response, error,
 ) {
-	for _, conn := range req.Connections {
+	for _, conn := range req.GetConnections() {
 		err := impl.smerdService.DisconnectFromNetwork(ctx, toConnection(conn))
 		if err != nil {
 			return nil, rerrors.Wrap(err, "error connecting to network")
@@ -36,8 +36,8 @@ func (impl *Impl) BreakConnections(ctx context.Context, req *api.BreakConnection
 
 func toConnection(in *api.Connection) domain.Connection {
 	return domain.Connection{
-		SmerdName: in.ServiceName,
-		Network:   in.TargetNetwork,
-		Aliases:   in.Aliases,
+		SmerdName: in.GetServiceName(),
+		Network:   in.GetTargetNetwork(),
+		Aliases:   in.GetAliases(),
 	}
 }

@@ -7,8 +7,11 @@ import (
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
-func (impl *Impl) GetServiceMetrics(ctx context.Context, pbReq *pb.GetServiceMetrics_Request) (*pb.GetServiceMetrics_Response, error) {
-	metrics, err := impl.servicesService.GetServiceMetrics(ctx, pbReq.ServiceName)
+func (impl *Impl) GetServiceMetrics(
+	ctx context.Context,
+	pbReq *pb.GetServiceMetrics_Request,
+) (*pb.GetServiceMetrics_Response, error) {
+	metrics, err := impl.servicesService.GetServiceMetrics(ctx, pbReq.GetServiceName())
 	if err != nil {
 		return nil, rerrors.Wrap(err)
 	}

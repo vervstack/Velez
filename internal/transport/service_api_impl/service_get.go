@@ -10,7 +10,7 @@ import (
 
 func (impl *Impl) GetService(ctx context.Context, pbReq *pb.GetService_Request) (*pb.GetService_Response, error) {
 	req := domain.GetServiceReq{
-		Name: pbReq.Name,
+		Name: pbReq.GetName(),
 	}
 
 	s, err := impl.servicesService.Get(ctx, req)

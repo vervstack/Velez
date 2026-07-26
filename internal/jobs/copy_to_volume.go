@@ -20,17 +20,19 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
 )
 
-const CopyToVolumeAction = "copy_to_volume"
+const (
+	CopyToVolumeAction = "copy_to_volume"
 
-const stepDropContainer = "drop_container"
+	stepDropContainer = "drop_container"
 
-// fixedJobCount is the number of BuildJobs entries that aren't per-file
-// copy_file_N jobs: create_container, start_container, drop_container.
-const fixedJobCount = 3
+	// fixedJobCount is the number of BuildJobs entries that aren't per-file
+	// copy_file_N jobs: create_container, start_container, drop_container.
+	fixedJobCount = 3
 
-// loaderContainerSuffix mirrors do_copy_to_volume.go's "<volume>_loader"
-// container name.
-const loaderContainerSuffix = "_loader"
+	// loaderContainerSuffix mirrors do_copy_to_volume.go's "<volume>_loader"
+	// container name.
+	loaderContainerSuffix = "_loader"
+)
 
 // Accessor interfaces the copy_to_volume jobs need from their TaskContext.
 // *velez_api.CopyToVolumeTaskPayload satisfies all of them. containerIDAccessor
@@ -104,12 +106,14 @@ func (h *copyToVolumeHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		folders:     folders,
 		ctx:         payload,
 	}
+
 	namedJobs = append(namedJobs, NamedJob{Name: stepCreatePgContainer, Job: createJob})
 
 	startJob := &startLoaderContainerJob{
 		dockerAPI: h.nodeClients.Docker().Client(),
 		ctx:       payload,
 	}
+
 	namedJobs = append(namedJobs, NamedJob{Name: stepStartSidecar, Job: startJob})
 
 	for i, filePath := range sortedPaths {
@@ -122,6 +126,7 @@ func (h *copyToVolumeHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		}
 
 		name := fmt.Sprintf("copy_file_%d", i)
+
 		namedJobs = append(namedJobs, NamedJob{Name: name, Job: copyJob})
 	}
 
@@ -129,6 +134,7 @@ func (h *copyToVolumeHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		docker: h.nodeClients.Docker(),
 		ctx:    payload,
 	}
+
 	namedJobs = append(namedJobs, NamedJob{Name: stepDropContainer, Job: dropJob})
 
 	return namedJobs
@@ -170,6 +176,7 @@ func mountedFolders(volumeName string, sortedPaths []string) []*velez_api.Volume
 			VolumeName:    volumeName,
 			ContainerPath: folder,
 		}
+
 		volumes = append(volumes, volume)
 	}
 
@@ -208,7 +215,7 @@ func (j *createLoaderContainerJob) Do(ctx context.Context) error {
 		Mounts: mounts,
 	}
 	if len(j.folders) != 0 {
-		hostCfg.VolumeDriver = j.folders[0].VolumeName
+		hostCfg.VolumeDriver = j.folders[0].GetVolumeName()
 	}
 
 	netCfg := &network.NetworkingConfig{}

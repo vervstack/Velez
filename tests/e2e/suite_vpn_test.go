@@ -9,9 +9,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
 type VpnSuite struct {
@@ -19,8 +20,7 @@ type VpnSuite struct {
 
 	env *TestEnvironment
 
-	controlPlaneAPI velez_api.ControlPlaneAPIServer
-	vpnAPI          velez_api.VcnApiClient
+	vpnAPI velez_api.VcnApiClient
 
 	ctx         context.Context
 	namespaceID string
@@ -29,7 +29,6 @@ type VpnSuite struct {
 
 func (s *VpnSuite) SetupSuite() {
 	t := s.T()
-	t.Parallel()
 
 	dialer := &net.Dialer{Timeout: 2 * time.Second}
 
@@ -47,13 +46,11 @@ func (s *VpnSuite) SetupSuite() {
 		WithState(t,
 			WithStateVcnEnabled()))
 
-	s.controlPlaneAPI = s.env.Custom.ControlPlaneApiImpl
 	s.vpnAPI = s.env.VpnClient()
 }
 
 func (s *VpnSuite) SetupTest() {
 	t := s.T()
-	t.Parallel()
 
 	s.serviceName = GetServiceName(t)
 
@@ -95,6 +92,8 @@ func (s *VpnSuite) TearDownTest() {
 }
 
 func (s *VpnSuite) prepareNamespace() {
+	s.T().Helper()
+
 	t := s.T()
 	ctx := t.Context()
 
@@ -104,7 +103,7 @@ func (s *VpnSuite) prepareNamespace() {
 
 	newNamespaceResp, err := s.vpnAPI.CreateNamespace(ctx, newNamespaceReq)
 	if err == nil {
-		s.namespaceID = newNamespaceResp.Namespace.Id
+		s.namespaceID = newNamespaceResp.GetNamespace().GetId()
 
 		return
 	}
@@ -120,9 +119,9 @@ func (s *VpnSuite) prepareNamespace() {
 	listNamespacesResp, err := s.vpnAPI.ListNamespaces(ctx, listReq)
 	require.NoError(t, err)
 
-	for _, ns := range listNamespacesResp.Namespaces {
-		if ns.Id == s.serviceName {
-			s.namespaceID = ns.Id
+	for _, ns := range listNamespacesResp.GetNamespaces() {
+		if ns.GetId() == s.serviceName {
+			s.namespaceID = ns.GetId()
 		}
 	}
 }

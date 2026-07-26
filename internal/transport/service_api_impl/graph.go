@@ -7,8 +7,11 @@ import (
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
-func (impl *Impl) GetServiceGraph(ctx context.Context, pbReq *pb.GetServiceGraph_Request) (*pb.GetServiceGraph_Response, error) {
-	graph, err := impl.servicesService.GetServiceGraph(ctx, pbReq.ServiceName)
+func (impl *Impl) GetServiceGraph(
+	ctx context.Context,
+	pbReq *pb.GetServiceGraph_Request,
+) (*pb.GetServiceGraph_Response, error) {
+	graph, err := impl.servicesService.GetServiceGraph(ctx, pbReq.GetServiceName())
 	if err != nil {
 		return nil, rerrors.Wrap(err)
 	}
@@ -21,6 +24,7 @@ func (impl *Impl) GetServiceGraph(ctx context.Context, pbReq *pb.GetServiceGraph
 			RequestRate: dep.RequestRate,
 			NodeType:    pb.NodeType(dep.NodeType),
 		}
+
 		pbDependencies = append(pbDependencies, pbDep)
 	}
 
@@ -32,6 +36,7 @@ func (impl *Impl) GetServiceGraph(ctx context.Context, pbReq *pb.GetServiceGraph
 			RequestRate: caller.RequestRate,
 			NodeType:    pb.NodeType_NODE_TYPE_SERVICE,
 		}
+
 		pbCallers = append(pbCallers, pbCaller)
 	}
 

@@ -14,6 +14,7 @@ func (s *Client) GetNamespace(ctx context.Context, name string) (domain.VcnNames
 	type response struct {
 		Users []domain.VcnNamespace
 	}
+
 	// endregion
 
 	resp, err := s.doAPIRequest(ctx, http.MethodGet, userURI+"?name="+name, nil)

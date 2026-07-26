@@ -12,8 +12,6 @@ import (
 	"go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/toolbox/keep_alive"
-	"go.vervstack.ru/makosh/pkg/makosh_be"
-
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/matreshka"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
@@ -24,6 +22,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/pipelines"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
+	"go.vervstack.ru/makosh/pkg/makosh_be"
 )
 
 // sharedInstanceCtxKey is an unexported context key used to hand an
@@ -97,7 +96,12 @@ func sharedTaskFromContext(ctx context.Context) (*container_service_task.TaskV2,
 // container, and starts its keep-alive loop. Extracted out of
 // SetupMatreshka so StartSharedInstance can reuse the exact same
 // container-config logic instead of duplicating it.
-func startContainer(ctx context.Context, cfg config.Config, nc node_clients.NodeClients, key string) (*container_service_task.TaskV2, *keep_alive.AliveKeeper, error) {
+func startContainer(
+	ctx context.Context,
+	cfg config.Config,
+	nc node_clients.NodeClients,
+	key string,
+) (*container_service_task.TaskV2, *keep_alive.AliveKeeper, error) {
 	// region Create Container request
 	matreshkaContainerCfg := container.CreateRequest{
 		Config: &container.Config{

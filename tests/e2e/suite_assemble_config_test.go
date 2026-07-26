@@ -40,7 +40,7 @@ func (s *AssembleConfigSuite) Test_AssembleHelloWorld() {
 		Config: config_mocks.HelloWorld,
 	}
 
-	require.YAMLEq(t, string(expected.Config), string(assembleResponse.Config))
+	require.YAMLEq(t, string(expected.GetConfig()), string(assembleResponse.GetConfig()))
 
 	listReq := &velez_api.ListSmerds_Request{
 		Name: toolbox.ToPtr(serviceName),

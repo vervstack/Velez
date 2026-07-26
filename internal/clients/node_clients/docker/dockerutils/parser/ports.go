@@ -14,25 +14,25 @@ func FromPorts(settings *velez_api.Container_Settings) map[nat.Port][]nat.PortBi
 		return nil
 	}
 
-	out := make(map[nat.Port][]nat.PortBinding, len(settings.Ports))
+	out := make(map[nat.Port][]nat.PortBinding, len(settings.GetPorts()))
 
-	for _, item := range settings.Ports {
+	for _, item := range settings.GetPorts() {
 		if item.ExposedTo == nil {
 			// TODO auto asigne if not exists
 			continue
 		}
 
-		if item.Protocol == velez_api.Port_unknown {
+		if item.GetProtocol() == velez_api.Port_unknown {
 			item.Protocol = velez_api.Port_tcp
 		}
 
-		servicePortStr := strconv.FormatUint(uint64(item.ServicePortNumber), 10)
-		containerPort, _ := nat.NewPort(item.Protocol.String(), servicePortStr)
+		servicePortStr := strconv.FormatUint(uint64(item.GetServicePortNumber()), 10)
+		containerPort, _ := nat.NewPort(item.GetProtocol().String(), servicePortStr)
 
 		out[containerPort] = []nat.PortBinding{
 			{
 				HostIP:   "0.0.0.0",
-				HostPort: strconv.FormatUint(uint64(*item.ExposedTo), 10),
+				HostPort: strconv.FormatUint(uint64(item.GetExposedTo()), 10),
 			},
 		}
 	}
@@ -74,12 +74,12 @@ func ToPortsSlice(ports []container.Port) []*velez_api.Port {
 		newP := ToPort(p)
 
 		if newP.ExposedTo != nil {
-			_, alreadyExists := uniquePublicPort[*newP.ExposedTo]
+			_, alreadyExists := uniquePublicPort[newP.GetExposedTo()]
 			if alreadyExists {
 				continue
 			}
 
-			uniquePublicPort[*newP.ExposedTo] = struct{}{}
+			uniquePublicPort[newP.GetExposedTo()] = struct{}{}
 		}
 
 		out = append(out, newP)

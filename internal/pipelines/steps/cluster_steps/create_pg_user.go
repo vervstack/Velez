@@ -8,6 +8,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
 )
@@ -15,17 +16,13 @@ import (
 type createPgUserStep struct {
 	dsn *string
 
-	schema   string
 	nodeName string
 	pwd      string
 }
 
-func CreatePgUserForNode(rootDsn *string,
-	schema, nodeName, pwd string,
-) steps.Step {
+func CreatePgUserForNode(rootDsn *string, nodeName, pwd string) steps.Step {
 	return &createPgUserStep{
 		rootDsn,
-		schema,
 		nodeName,
 		pwd,
 	}
@@ -36,6 +33,7 @@ func (c *createPgUserStep) Do(ctx context.Context) error {
 	if err != nil {
 		return rerrors.Wrap(err, "error opening connection to database")
 	}
+
 	defer func() {
 		closeErr := conn.Close()
 		if closeErr != nil {

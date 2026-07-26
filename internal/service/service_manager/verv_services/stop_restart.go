@@ -17,8 +17,8 @@ func (v *VervService) StopService(ctx context.Context, name string) error {
 		return rerrors.Wrap(err, "error listing smerds for service")
 	}
 
-	for _, smerd := range resp.Smerds {
-		err = v.docker.Stop(ctx, smerd.Uuid)
+	for _, smerd := range resp.GetSmerds() {
+		err = v.docker.Stop(ctx, smerd.GetUuid())
 		if err != nil {
 			return rerrors.Wrap(err, "error stopping smerd")
 		}
@@ -37,8 +37,8 @@ func (v *VervService) RestartService(ctx context.Context, name string) error {
 		return rerrors.Wrap(err, "error listing smerds for service")
 	}
 
-	for _, smerd := range resp.Smerds {
-		err = v.docker.Restart(ctx, smerd.Uuid)
+	for _, smerd := range resp.GetSmerds() {
+		err = v.docker.Restart(ctx, smerd.GetUuid())
 		if err != nil {
 			return rerrors.Wrap(err, "error restarting smerd")
 		}

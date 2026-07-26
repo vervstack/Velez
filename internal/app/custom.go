@@ -15,8 +15,6 @@ import (
 	"github.com/soheilhy/cmux"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
-	"golang.org/x/sync/errgroup"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
@@ -36,6 +34,7 @@ import (
 	"go.vervstack.ru/Velez/internal/transport/velez_api_impl"
 	"go.vervstack.ru/Velez/internal/workers"
 	"go.vervstack.ru/Velez/pkg/docs"
+	"golang.org/x/sync/errgroup"
 )
 
 type Custom struct {
@@ -95,9 +94,12 @@ func (c *Custom) Init(a *App) (err error) {
 	registry.Register(jobs.NewCreateServiceHandler(c.ClusterClients.StateManager().Services()))
 	registry.Register(jobs.NewAssembleConfigHandler(c.NodeClients))
 	registry.Register(jobs.NewCopyToVolumeHandler(c.NodeClients))
-	registry.Register(jobs.NewConnectServiceToVpnHandler(c.NodeClients, c.ClusterClients.Vpn(), c.ClusterClients.ServiceDiscovery()))
-	registry.Register(jobs.NewEnableStatefullHandler(c.NodeClients, c.ClusterClients.StateManager(), c.Services.StorageContainer()))
-	registry.Register(jobs.NewUpgradeSmerdHandler(c.NodeClients, c.Services.SmerdManager(), c.Services.ConfigurationService()))
+	registry.Register(jobs.NewConnectServiceToVpnHandler(
+		c.NodeClients, c.ClusterClients.Vpn(), c.ClusterClients.ServiceDiscovery()))
+	registry.Register(jobs.NewEnableStatefullHandler(
+		c.NodeClients, c.ClusterClients.StateManager(), c.Services.StorageContainer()))
+	registry.Register(jobs.NewUpgradeSmerdHandler(
+		c.NodeClients, c.Services.SmerdManager(), c.Services.ConfigurationService()))
 	registry.Register(jobs.NewDropSmerdHandler(c.NodeClients))
 
 	workerId, hostErr := os.Hostname()
@@ -257,40 +259,40 @@ func smerdsDropper(smerdService service.ContainerService) func() error {
 			return rerrors.Wrap(err)
 		}
 
-		names := make([]string, 0, len(smerds.Smerds))
+		names := make([]string, 0, len(smerds.GetSmerds()))
 
-		for _, sm := range smerds.Smerds {
-			names = append(names, sm.Name)
+		for _, sm := range smerds.GetSmerds() {
+			names = append(names, sm.GetName())
 		}
 
-		log.Info().Int("count", len(smerds.Smerds)).Strs("names", names).Msg("smerds active")
+		log.Info().Int("count", len(smerds.GetSmerds())).Strs("names", names).Msg("smerds active")
 
 		dropReq := &velez_api.DropSmerd_Request{
-			Uuids: make([]string, len(smerds.Smerds)),
+			Uuids: make([]string, len(smerds.GetSmerds())),
 		}
 
-		for i := range smerds.Smerds {
-			dropReq.Uuids[i] = smerds.Smerds[i].Uuid
+		for i := range smerds.GetSmerds() {
+			dropReq.Uuids[i] = smerds.GetSmerds()[i].GetUuid()
 		}
 
-		log.Info().Int("count", len(smerds.Smerds)).Msg("dropping smerds")
+		log.Info().Int("count", len(smerds.GetSmerds())).Msg("dropping smerds")
 
 		dropSmerds, err := smerdService.DropSmerds(ctx, dropReq)
 		if err != nil {
 			return rerrors.Wrap(err)
 		}
 
-		log.Info().Int("count", len(dropSmerds.Successful)).Msg("smerds dropped successfully")
+		log.Info().Int("count", len(dropSmerds.GetSuccessful())).Msg("smerds dropped successfully")
 
-		if len(dropSmerds.Successful) != 0 {
-			log.Info().Strs("dropped", dropSmerds.Successful).Msg("dropped smerds")
+		if len(dropSmerds.GetSuccessful()) != 0 {
+			log.Info().Strs("dropped", dropSmerds.GetSuccessful()).Msg("dropped smerds")
 		}
 
-		if len(dropSmerds.Failed) != 0 {
-			log.Error().Int("count", len(dropSmerds.Failed)).Msg("smerds failed to drop")
+		if len(dropSmerds.GetFailed()) != 0 {
+			log.Error().Int("count", len(dropSmerds.GetFailed())).Msg("smerds failed to drop")
 
-			for _, f := range dropSmerds.Failed {
-				log.Error().Str("uuid", f.Uuid).Str("cause", f.Cause).Msg("error dropping smerd")
+			for _, f := range dropSmerds.GetFailed() {
+				log.Error().Str("uuid", f.GetUuid()).Str("cause", f.GetCause()).Msg("error dropping smerd")
 			}
 		}
 

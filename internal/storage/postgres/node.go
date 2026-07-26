@@ -5,14 +5,15 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
 	pg_queries "go.vervstack.ru/Velez/internal/storage/postgres/generated/nodes_queries"
 	"go.vervstack.ru/Velez/internal/utils/common"
 )
 
-const defaultNodeListLimit = 3
+const (
+	defaultNodeListLimit = 3
+)
 
 type nodeStorage struct {
 	db      sqldb.DB

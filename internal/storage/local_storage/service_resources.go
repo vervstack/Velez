@@ -56,6 +56,7 @@ func (d *dockerServiceResourcesStorage) GetResources(ctx context.Context,
 			ResourceType: resourceType,
 			Status:       status,
 		}
+
 		result = append(result, resource)
 	}
 

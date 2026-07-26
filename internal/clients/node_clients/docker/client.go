@@ -217,13 +217,14 @@ func (d *Docker) ContainerCreate(
 	config.Labels[labels.SuffixLabel] = d.containerSuffix
 
 	for _, label := range d.bakedLabels {
-		sepIdx := strings.Index(label, "=")
+		before, after, ok := strings.Cut(label, "=")
 		name := label
 
 		var val string
-		if sepIdx != -1 {
-			val = label[sepIdx+1:]
-			name = label[:sepIdx]
+
+		if ok {
+			val = after
+			name = before
 		}
 
 		config.Labels[name] = val
@@ -246,6 +247,7 @@ func (d *Docker) Stats(ctx context.Context, nameOrId string) (domain.ContainerSt
 	if err != nil {
 		return domain.ContainerStats{}, rerrors.Wrap(err, "error getting container stats")
 	}
+
 	defer func() { _ = resp.Body.Close() }()
 
 	var stats struct {

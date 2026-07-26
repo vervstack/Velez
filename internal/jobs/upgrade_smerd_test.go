@@ -111,6 +111,7 @@ func TestCheckSelfUpgradeJob_NotInsideContainer_NoOp(t *testing.T) {
 
 func TestCaptureOldContainerJob_InspectError(t *testing.T) {
 	containerService := newFakeContainerService()
+
 	containerService.inspectErr = errors.New("no such container")
 
 	payload := &velez_api.UpgradeSmerdTaskPayload{
@@ -127,6 +128,7 @@ func TestCaptureOldContainerJob_InspectError(t *testing.T) {
 
 func TestCaptureOldContainerJob_Success(t *testing.T) {
 	containerService := newFakeContainerService()
+
 	containerService.inspectResp = &velez_api.Smerd{
 		Uuid:      testOldContainerID,
 		Name:      testUpgradeSvcName,
@@ -168,7 +170,7 @@ func TestCaptureOldContainerJob_Success(t *testing.T) {
 		t.Errorf("expected env carried over from old container, got %v", req.GetEnv())
 	}
 
-	if len(req.GetSettings().GetNetwork()) != 1 || len(req.GetSettings().GetNetwork()[0].Aliases) != 1 {
+	if len(req.GetSettings().GetNetwork()) != 1 || len(req.GetSettings().GetNetwork()[0].GetAliases()) != 1 {
 		t.Errorf("expected the container's own uuid filtered out of network aliases, got %v", req.GetSettings().GetNetwork())
 	}
 }
@@ -177,6 +179,7 @@ func TestCaptureOldContainerJob_Success(t *testing.T) {
 
 func TestPrepareUpgradeImageJob_PullError(t *testing.T) {
 	docker := newFakeDocker()
+
 	docker.pullImageErr = errors.New("no such image")
 
 	payload := &velez_api.UpgradeSmerdTaskPayload{
@@ -193,6 +196,7 @@ func TestPrepareUpgradeImageJob_PullError(t *testing.T) {
 
 func TestPrepareUpgradeImageJob_Success(t *testing.T) {
 	docker := newFakeDocker()
+
 	docker.pullImageResp = image.InspectResponse{
 		Config: &dockerspec.DockerOCIImageConfig{
 			ImageConfig: ocispec.ImageConfig{Labels: map[string]string{labels.MatreshkaConfigLabel: vervConfigLabelEnabled}},
@@ -235,6 +239,7 @@ func TestPauseOldContainerJob_Success(t *testing.T) {
 	networkSettings := &container.NetworkSettings{
 		Networks: map[string]*network.EndpointSettings{testNetworkName: {Aliases: []string{testNetworkAlias}}},
 	}
+
 	networkSettings.Ports = nat.PortMap{testUpgradePgPort: []nat.PortBinding{{HostPort: "40001"}}}
 
 	containerAPI.inspectResp = container.InspectResponse{
@@ -289,12 +294,16 @@ func TestPauseOldContainerJob_Success(t *testing.T) {
 
 func TestRenamingCreateContainerJob_Success(t *testing.T) {
 	docker := newFakeDocker()
+
 	docker.containerCreateResp = container.CreateResponse{ID: testCreatedID}
+
 	containerAPI := newFakeContainerAPI()
+
 	containerAPI.inspectResp = container.InspectResponse{
 		ContainerJSONBase: &container.ContainerJSONBase{ID: testCreatedID},
 	}
 	docker.withClient(containerAPI)
+
 	nodeClients := newFakeNodeClients(docker)
 
 	payload := &velez_api.UpgradeSmerdTaskPayload{
@@ -360,6 +369,7 @@ func TestGetConfigFromScratchContainerJob_NonVervImage_NoOp(t *testing.T) {
 
 func TestGetConfigFromScratchContainerJob_VervImage_ReadsConfig(t *testing.T) {
 	containerAPI := newFakeContainerAPI()
+
 	containerAPI.copyFromResp = []byte("KEY=value")
 
 	payload := &velez_api.UpgradeSmerdTaskPayload{
@@ -409,6 +419,7 @@ func TestFetchUpgradeConfigJob_RestoresNameAndMergesEnv(t *testing.T) {
 
 func TestPrepareUpgradeVervConfigJob_Success(t *testing.T) {
 	containerAPI := newFakeContainerAPI()
+
 	containerAPI.networkListResp = nil // network not found -> gets created
 
 	payload := &velez_api.UpgradeSmerdTaskPayload{
@@ -470,6 +481,7 @@ func TestRenameContainerJob_EmptyContainerId_Error(t *testing.T) {
 
 func TestRenameContainerJob_SuccessAndRollback(t *testing.T) {
 	containerAPI := newFakeContainerAPI()
+
 	containerAPI.inspectResp = container.InspectResponse{
 		ContainerJSONBase: &container.ContainerJSONBase{Name: "/mysvc_new"},
 	}
@@ -542,6 +554,7 @@ func TestUpgradeSmerdHandler_HappyPath_EndToEnd(t *testing.T) {
 	networkSettings := &container.NetworkSettings{
 		Networks: map[string]*network.EndpointSettings{testNetworkName: {Aliases: []string{testNetworkAlias}}},
 	}
+
 	networkSettings.Ports = nat.PortMap{testUpgradePgPort: []nat.PortBinding{{HostPort: "40001"}}}
 
 	containerAPI.inspectResp = container.InspectResponse{
@@ -555,6 +568,7 @@ func TestUpgradeSmerdHandler_HappyPath_EndToEnd(t *testing.T) {
 	containerAPI.copyFromResp = []byte("KEY=value")
 
 	docker := newFakeDocker()
+
 	docker.pullImageResp = image.InspectResponse{
 		Config: &dockerspec.DockerOCIImageConfig{
 			ImageConfig: ocispec.ImageConfig{Labels: map[string]string{labels.MatreshkaConfigLabel: vervConfigLabelEnabled}},
@@ -567,6 +581,7 @@ func TestUpgradeSmerdHandler_HappyPath_EndToEnd(t *testing.T) {
 	nodeClients := newFakeNodeClients(docker).withPortManager(realPortManager(t))
 
 	containerService := newFakeContainerService()
+
 	containerService.inspectResp = &velez_api.Smerd{
 		Uuid:      testOldContainerID,
 		Name:      testUpgradeSvcName,
@@ -611,6 +626,7 @@ func TestUpgradeSmerdHandler_HappyPath_EndToEnd(t *testing.T) {
 	if finishedPayload.GetOldContainerId() != testOldContainerID {
 		t.Errorf("expected old container id 'old123', got %q", finishedPayload.GetOldContainerId())
 	}
+
 	// Nothing resets Request.Name after the final "_new" rename stage - only
 	// the real Docker container gets renamed back to testUpgradeSvcName (rename_new_container),
 	// matching do_smerd_upgrade.go's own newLaunch, which is never touched
@@ -657,6 +673,7 @@ func TestUpgradeSmerdHandler_FailurePath_NetworkCreateFails(t *testing.T) {
 	networkSettings := &container.NetworkSettings{
 		Networks: map[string]*network.EndpointSettings{testNetworkName: {Aliases: []string{testNetworkAlias}}},
 	}
+
 	networkSettings.Ports = nat.PortMap{testUpgradePgPort: []nat.PortBinding{{HostPort: "40001"}}}
 
 	containerAPI.inspectResp = container.InspectResponse{
@@ -671,6 +688,7 @@ func TestUpgradeSmerdHandler_FailurePath_NetworkCreateFails(t *testing.T) {
 	containerAPI.networkCreateErr = errors.New("network create failed")
 
 	docker := newFakeDocker()
+
 	docker.pullImageResp = image.InspectResponse{
 		Config: &dockerspec.DockerOCIImageConfig{
 			ImageConfig: ocispec.ImageConfig{Labels: map[string]string{labels.MatreshkaConfigLabel: vervConfigLabelEnabled}},
@@ -683,6 +701,7 @@ func TestUpgradeSmerdHandler_FailurePath_NetworkCreateFails(t *testing.T) {
 	nodeClients := newFakeNodeClients(docker).withPortManager(realPortManager(t))
 
 	containerService := newFakeContainerService()
+
 	containerService.inspectResp = &velez_api.Smerd{
 		Uuid:     testOldContainerID,
 		Name:     testUpgradeSvcName,

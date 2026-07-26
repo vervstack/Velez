@@ -11,7 +11,9 @@ import (
 
 // AuthHeader is a header containing auth token to talk to service.
 // In order to perform REST call should preappend runtime.MetadataHeaderPrefix (e.g., "Grpc-Metadata-").
-const AuthHeader = "Authorization"
+const (
+	AuthHeader = "Authorization"
+)
 
 func GrpcIncomingInterceptor(keyValidator func(key string) bool) grpc.ServerOption {
 	return grpc.ChainUnaryInterceptor(

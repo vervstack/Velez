@@ -21,29 +21,33 @@ func TestToServiceBaseInfoWithEnrichedFields(t *testing.T) {
 
 	result := toServiceBaseInfo(input)
 
-	if result.Name != "test-service" {
-		t.Errorf("expected Name 'test-service', got %q", result.Name)
+	if result.GetName() != "test-service" {
+		t.Errorf("expected Name 'test-service', got %q", result.GetName())
 	}
 
-	if result.ImageName != "docker.io/test-service:v1.0" {
-		t.Errorf("expected ImageName 'docker.io/test-service:v1.0', got %q", result.ImageName)
+	if result.GetImageName() != "docker.io/test-service:v1.0" {
+		t.Errorf("expected ImageName 'docker.io/test-service:v1.0', got %q", result.GetImageName())
 	}
 
-	if result.Status != "running" {
-		t.Errorf("expected Status 'running', got %q", result.Status)
+	if result.GetStatus() != "running" {
+		t.Errorf("expected Status 'running', got %q", result.GetStatus())
 	}
 
-	if result.Env != "production" {
-		t.Errorf("expected Env 'production', got %q", result.Env)
+	if result.GetEnv() != "production" {
+		t.Errorf("expected Env 'production', got %q", result.GetEnv())
 	}
 
-	if result.LastDeployedAt == nil {
+	if result.GetLastDeployedAt() == nil {
 		t.Error("expected LastDeployedAt to be set, got nil")
 	}
 
 	expectedTime := timestamppb.New(now)
-	if result.LastDeployedAt.Seconds != expectedTime.Seconds {
-		t.Errorf("expected LastDeployedAt seconds %d, got %d", expectedTime.Seconds, result.LastDeployedAt.Seconds)
+	if result.GetLastDeployedAt().GetSeconds() != expectedTime.GetSeconds() {
+		t.Errorf(
+			"expected LastDeployedAt seconds %d, got %d",
+			expectedTime.GetSeconds(),
+			result.GetLastDeployedAt().GetSeconds(),
+		)
 	}
 }
 
@@ -58,23 +62,23 @@ func TestToServiceBaseInfoWithEmptyFields(t *testing.T) {
 
 	result := toServiceBaseInfo(input)
 
-	if result.Name != "test-service" {
-		t.Errorf("expected Name 'test-service', got %q", result.Name)
+	if result.GetName() != "test-service" {
+		t.Errorf("expected Name 'test-service', got %q", result.GetName())
 	}
 
-	if result.ImageName != "" {
-		t.Errorf("expected empty ImageName, got %q", result.ImageName)
+	if result.GetImageName() != "" {
+		t.Errorf("expected empty ImageName, got %q", result.GetImageName())
 	}
 
-	if result.Status != "" {
-		t.Errorf("expected empty Status, got %q", result.Status)
+	if result.GetStatus() != "" {
+		t.Errorf("expected empty Status, got %q", result.GetStatus())
 	}
 
-	if result.Env != "" {
-		t.Errorf("expected empty Env, got %q", result.Env)
+	if result.GetEnv() != "" {
+		t.Errorf("expected empty Env, got %q", result.GetEnv())
 	}
 
-	if result.LastDeployedAt != nil {
+	if result.GetLastDeployedAt() != nil {
 		t.Error("expected LastDeployedAt to be nil, got set")
 	}
 }
@@ -103,19 +107,19 @@ func TestToServiceBaseInfoList(t *testing.T) {
 		t.Errorf("expected 2 items, got %d", len(result))
 	}
 
-	if result[0].Name != "service1" {
-		t.Errorf("expected first service name 'service1', got %q", result[0].Name)
+	if result[0].GetName() != "service1" {
+		t.Errorf("expected first service name 'service1', got %q", result[0].GetName())
 	}
 
-	if result[0].ImageName != "image1" {
-		t.Errorf("expected first service image 'image1', got %q", result[0].ImageName)
+	if result[0].GetImageName() != "image1" {
+		t.Errorf("expected first service image 'image1', got %q", result[0].GetImageName())
 	}
 
-	if result[1].Name != "service2" {
-		t.Errorf("expected second service name 'service2', got %q", result[1].Name)
+	if result[1].GetName() != "service2" {
+		t.Errorf("expected second service name 'service2', got %q", result[1].GetName())
 	}
 
-	if result[1].Status != "stopped" {
-		t.Errorf("expected second service status 'stopped', got %q", result[1].Status)
+	if result[1].GetStatus() != "stopped" {
+		t.Errorf("expected second service status 'stopped', got %q", result[1].GetStatus())
 	}
 }

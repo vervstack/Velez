@@ -11,7 +11,9 @@ import (
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
-const testCreateServiceName = "my_service"
+const (
+	testCreateServiceName = "my_service"
+)
 
 func createServiceTask(t *testing.T, tasksStorage *fakeTasksStorage, entityID, name string) tasks_queries.VelezTask {
 	t.Helper()

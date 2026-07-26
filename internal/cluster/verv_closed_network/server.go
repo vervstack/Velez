@@ -7,6 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/keep_alive"
+
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/headscale"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
@@ -17,9 +18,6 @@ import (
 
 const (
 	Name = "headscale"
-
-	groupName         = "verv_private_network"
-	defaultConfigPath = "/etc/headscale/config.yaml"
 )
 
 type headscaleLauncher struct {
@@ -49,6 +47,7 @@ func SetupVcn(
 			log.Error().
 				Err(rerrors.Wrap(err, "error creating headscale client")).
 				Msg("couldn't connect to headscale server")
+
 			// TODO create a fallback
 			return DisabledVcnImpl{}, nil
 		}

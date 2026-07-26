@@ -12,8 +12,8 @@ func (impl *Impl) ConnectUser(ctx context.Context, req *velez_api.ConnectUser_Re
 	*velez_api.ConnectUser_Response, error,
 ) {
 	domainReq := domain.RegisterVcnNodeReq{
-		Key:      req.Key,
-		Username: req.Username,
+		Key:      req.GetKey(),
+		Username: req.GetUsername(),
 	}
 
 	err := impl.vpnService.RegisterNode(ctx, domainReq)

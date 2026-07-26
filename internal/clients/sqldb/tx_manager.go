@@ -29,6 +29,7 @@ func (m *TxManager) Execute(do func(tx *sql.Tx) error) error {
 	err = do(tx)
 
 	var commitErr error
+
 	if err != nil {
 		commitErr = tx.Rollback()
 	} else {

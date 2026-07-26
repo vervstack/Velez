@@ -1,0 +1,101 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_clients_node_clients_docker_errors_go",
+      "label": "errors.go",
+      "file_type": "code",
+      "source_file": "internal/clients/node_clients/docker/errors.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_clients_node_clients_docker_errors_handleconflictmessage",
+      "label": "handleConflictMessage()",
+      "file_type": "code",
+      "source_file": "internal/clients/node_clients/docker/errors.go",
+      "source_location": "L20"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_clients_node_clients_docker_errors_containsall",
+      "label": "containsAll()",
+      "file_type": "code",
+      "source_file": "internal/clients/node_clients/docker/errors.go",
+      "source_location": "L30"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_clients_node_clients_docker_errors_go",
+      "target": "go_pkg_strings",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/clients/node_clients/docker/errors.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_clients_node_clients_docker_errors_go",
+      "target": "go_pkg_go_redsock_ru_rerrors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/clients/node_clients/docker/errors.go",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_clients_node_clients_docker_errors_go",
+      "target": "go_pkg_google_golang_org_grpc_codes",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/clients/node_clients/docker/errors.go",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_clients_node_clients_docker_errors_go",
+      "target": "users_alexbukov_verv_velez_internal_clients_node_clients_docker_errors_handleconflictmessage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/clients/node_clients/docker/errors.go",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_clients_node_clients_docker_errors_go",
+      "target": "users_alexbukov_verv_velez_internal_clients_node_clients_docker_errors_containsall",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/clients/node_clients/docker/errors.go",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_clients_node_clients_docker_errors_handleconflictmessage",
+      "target": "users_alexbukov_verv_velez_internal_clients_node_clients_docker_errors_containsall",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/clients/node_clients/docker/errors.go",
+      "source_location": "L23",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_clients_node_clients_docker_errors_handleconflictmessage",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/clients/node_clients/docker/errors.go",
+      "source_location": "L27"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_clients_node_clients_docker_errors_containsall",
+      "callee": "Contains",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/clients/node_clients/docker/errors.go",
+      "source_location": "L32"
+    }
+  ]
+}

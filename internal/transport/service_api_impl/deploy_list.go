@@ -11,13 +11,16 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (impl *Impl) ListDeployments(ctx context.Context, pbReq *pb.ListDeployments_Request) (*pb.ListDeployments_Response, error) {
+func (impl *Impl) ListDeployments(
+	ctx context.Context,
+	pbReq *pb.ListDeployments_Request,
+) (*pb.ListDeployments_Response, error) {
 	req := domain.ListDeploymentsReq{
 		Paging: common.FromPaging(pbReq.GetPaging()),
 	}
 
 	if pbReq.ServiceName != nil {
-		req.ServiceName = *pbReq.ServiceName
+		req.ServiceName = pbReq.GetServiceName()
 	}
 
 	list, err := impl.servicesService.ListDeployments(ctx, req)

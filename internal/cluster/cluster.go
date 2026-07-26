@@ -25,7 +25,11 @@ type clusterClients struct {
 	stateManager     cluster_clients.ClusterStateManagerContainer
 }
 
-func Setup(ctx context.Context, cfg config.Config, nodeClients node_clients.NodeClients) (cluster_clients.ClusterClients, error) {
+func Setup(
+	ctx context.Context,
+	cfg config.Config,
+	nodeClients node_clients.NodeClients,
+) (cluster_clients.ClusterClients, error) {
 	err := env.SetupEnvironment(nodeClients)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error settings up environment")
@@ -46,6 +50,7 @@ func Setup(ctx context.Context, cfg config.Config, nodeClients node_clients.Node
 	}
 
 	var cfgClient matreshka.Client
+
 	if cfg.Environment.MatreshkaIsEnabled {
 		cfgClient, err = configuration.SetupMatreshka(ctx, cfg, nodeClients, sdClient, vcnClient)
 		if err != nil {

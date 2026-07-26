@@ -18,7 +18,9 @@ import (
 // not something normal operation should ever hit - sized loosely above the
 // slowest observed real run (~17s for postgres:16 under full parallel
 // Docker contention in the e2e suite).
-const createSmerdWatchTimeout = 60 * time.Second
+const (
+	createSmerdWatchTimeout = 60 * time.Second
+)
 
 func (impl *Impl) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (*velez_api.Smerd, error) {
 	initialContext := &velez_api.CreateSmerdTaskPayload{}
@@ -33,6 +35,7 @@ func (impl *Impl) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Re
 	defer cancel()
 
 	var finalTask tasks_queries.VelezTask
+
 	for task := range impl.jobsEngine.Watch(watchCtx, req.GetName(), jobs.CreateSmerdAction) {
 		finalTask = task
 	}
@@ -64,6 +67,7 @@ func (impl *Impl) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Re
 	}
 
 	var containerID string
+
 	if result.ContainerId != nil {
 		containerID = *result.ContainerId
 	}

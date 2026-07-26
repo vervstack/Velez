@@ -18,7 +18,6 @@ type LifecycleSuite struct {
 
 func (s *LifecycleSuite) Test_Stateless_HelloWorld() {
 	t := s.T()
-	t.Parallel()
 
 	env := NewEnvironment(t)
 
@@ -32,7 +31,6 @@ func (s *LifecycleSuite) Test_Stateless_HelloWorld() {
 
 func (s *LifecycleSuite) Test_Stateless_HelloWorld_WithHealthcheck() {
 	t := s.T()
-	t.Parallel()
 
 	env := NewEnvironment(t)
 
@@ -49,7 +47,6 @@ func (s *LifecycleSuite) Test_Stateless_HelloWorld_WithHealthcheck() {
 
 func (s *LifecycleSuite) Test_Stateless_HelloWorld_DefaultConfig() {
 	t := s.T()
-	t.Parallel()
 
 	env := NewEnvironment(t)
 
@@ -59,14 +56,13 @@ func (s *LifecycleSuite) Test_Stateless_HelloWorld_DefaultConfig() {
 	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {
 		t.Helper()
 
-		require.Equal(t, labelValueTrue, smerd.Labels[labels.MatreshkaConfigLabel])
-		require.Equal(t, smerd.Name, smerd.Env["VERV_NAME"])
+		require.Equal(t, labelValueTrue, smerd.GetLabels()[labels.MatreshkaConfigLabel])
+		require.Equal(t, smerd.GetName(), smerd.GetEnv()["VERV_NAME"])
 	})
 }
 
 func (s *LifecycleSuite) Test_Stateless_Nginx() {
 	t := s.T()
-	t.Parallel()
 
 	env := NewEnvironment(t)
 
@@ -79,7 +75,7 @@ func (s *LifecycleSuite) Test_Stateless_Nginx() {
 		func(t *testing.T, smerd *velez_api.Smerd) {
 			t.Helper()
 
-			require.NotEmpty(t, smerd.Ports)
+			require.NotEmpty(t, smerd.GetPorts())
 		})
 }
 
@@ -87,7 +83,6 @@ func (s *LifecycleSuite) Test_Stateless_Postgres() {
 	timeoutSec := uint32(5)
 
 	t := s.T()
-	t.Parallel()
 
 	env := NewEnvironment(t)
 
@@ -107,14 +102,13 @@ func (s *LifecycleSuite) Test_Stateless_Postgres() {
 		func(t *testing.T, smerd *velez_api.Smerd) {
 			t.Helper()
 
-			require.Len(t, smerd.Ports, 1)
-			require.EqualValues(t, 5432, smerd.Ports[0].ServicePortNumber)
+			require.Len(t, smerd.GetPorts(), 1)
+			require.EqualValues(t, 5432, smerd.GetPorts()[0].GetServicePortNumber())
 		})
 }
 
 func (s *LifecycleSuite) Test_StatelessMode_Loki() {
 	t := s.T()
-	t.Parallel()
 
 	env := NewEnvironment(t)
 
@@ -146,7 +140,6 @@ func (s *LifecycleSuite) Test_StatelessMode_Loki() {
 // to another package without reading main_test.go first.
 func (s *LifecycleSuite) Test_ClusterMode_HelloWorld() {
 	t := s.T()
-	t.Parallel()
 
 	env := NewEnvironment(t, WithMatreshka())
 
@@ -159,7 +152,6 @@ func (s *LifecycleSuite) Test_ClusterMode_HelloWorld() {
 
 func (s *LifecycleSuite) Test_ClusterMode_PlainNginx() {
 	t := s.T()
-	t.Parallel()
 
 	env := NewEnvironment(t, WithMatreshka())
 
@@ -171,13 +163,12 @@ func (s *LifecycleSuite) Test_ClusterMode_PlainNginx() {
 	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {
 		t.Helper()
 
-		require.NotEmpty(t, smerd.Ports)
+		require.NotEmpty(t, smerd.GetPorts())
 	})
 }
 
 func (s *LifecycleSuite) Test_ClusterMode_Postgres() {
 	t := s.T()
-	t.Parallel()
 
 	env := NewEnvironment(t, WithMatreshka())
 
@@ -200,14 +191,13 @@ func (s *LifecycleSuite) Test_ClusterMode_Postgres() {
 		func(t *testing.T, smerd *velez_api.Smerd) {
 			t.Helper()
 
-			require.Len(t, smerd.Ports, 1)
-			require.EqualValues(t, 5432, smerd.Ports[0].ServicePortNumber)
+			require.Len(t, smerd.GetPorts(), 1)
+			require.EqualValues(t, 5432, smerd.GetPorts()[0].GetServicePortNumber())
 		})
 }
 
 func (s *LifecycleSuite) Test_DropSmerd_ByUuid() {
 	t := s.T()
-	t.Parallel()
 
 	env := NewEnvironment(t)
 	ctx := t.Context()
@@ -220,21 +210,21 @@ func (s *LifecycleSuite) Test_DropSmerd_ByUuid() {
 	}
 
 	created := env.CreateSmerd(t, req)
-	require.NotEmpty(t, created.Uuid)
+	require.NotEmpty(t, created.GetUuid())
 
 	dropReq := &velez_api.DropSmerd_Request{
-		Uuids: []string{created.Uuid},
+		Uuids: []string{created.GetUuid()},
 	}
 	dropped := env.DropSmerd(ctx, t, dropReq)
 
-	require.Empty(t, dropped.Failed)
-	require.Equal(t, []string{created.Uuid}, dropped.Successful)
+	require.Empty(t, dropped.GetFailed())
+	require.Equal(t, []string{created.GetUuid()}, dropped.GetSuccessful())
 
 	listReq := &velez_api.ListSmerds_Request{Name: rtb.ToPtr(name)}
 
 	listed := env.ListSmerds(t, ctx, listReq)
-	for _, smerd := range listed.Smerds {
-		require.NotEqual(t, created.Uuid, smerd.Uuid, "expected dropped smerd to no longer be listed")
+	for _, smerd := range listed.GetSmerds() {
+		require.NotEqual(t, created.GetUuid(), smerd.GetUuid(), "expected dropped smerd to no longer be listed")
 	}
 }
 
@@ -262,13 +252,13 @@ func runLifecycle(
 	t.Logf(`Creating smerd. Req: %v`, req)
 
 	created := env.CreateSmerd(t, req)
-	require.Equal(t, name, created.Name)
-	require.Equal(t, velez_api.Smerd_running, created.Status)
-	require.NotEmpty(t, created.Uuid)
-	require.NotNil(t, created.CreatedAt)
+	require.Equal(t, name, created.GetName())
+	require.Equal(t, velez_api.Smerd_running, created.GetStatus())
+	require.NotEmpty(t, created.GetUuid())
+	require.NotNil(t, created.GetCreatedAt())
 
-	if req.UseImagePorts {
-		require.NotEmpty(t, created.Ports)
+	if req.GetUseImagePorts() {
+		require.NotEmpty(t, created.GetPorts())
 	}
 
 	verify(t, created)
@@ -279,12 +269,12 @@ func runLifecycle(
 
 	var actualSmerd *velez_api.Smerd
 
-	for _, smerd := range listed.Smerds {
-		if name == smerd.Name {
+	for _, smerd := range listed.GetSmerds() {
+		if name == smerd.GetName() {
 			actualSmerd = smerd
 		}
 	}
 
 	require.NotNil(t, actualSmerd)
-	require.Equal(t, created.Uuid, actualSmerd.Uuid)
+	require.Equal(t, created.GetUuid(), actualSmerd.GetUuid())
 }

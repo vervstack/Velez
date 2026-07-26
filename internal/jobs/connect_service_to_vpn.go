@@ -18,9 +18,9 @@ import (
 	"go.vervstack.ru/makosh/pkg/makosh_be"
 )
 
-const ConnectServiceToVpnAction = "connect_service_to_vpn"
-
 const (
+	ConnectServiceToVpnAction = "connect_service_to_vpn"
+
 	stepCheckSidecar        = "check_sidecar"
 	stepPrepareNamespace    = "prepare_namespace"
 	stepGetClientKey        = "get_client_key"

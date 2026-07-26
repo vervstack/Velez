@@ -7,12 +7,11 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"go.redsock.ru/rerrors"
-	"go.vervstack.ru/makosh/pkg/makosh_be"
-	"google.golang.org/grpc"
-
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/makosh/pkg/makosh_be"
+	"google.golang.org/grpc"
 )
 
 type dockerServiceDiscovery struct {
@@ -23,11 +22,19 @@ func newDockerServiceDiscovery(d node_clients.Docker) cluster_clients.ServiceDis
 	return &dockerServiceDiscovery{docker: d}
 }
 
-func (d *dockerServiceDiscovery) UpsertEndpoints(_ context.Context, _ *makosh_be.UpsertEndpoints_Request, _ ...grpc.CallOption) (*makosh_be.UpsertEndpoints_Response, error) {
+func (d *dockerServiceDiscovery) UpsertEndpoints(
+	_ context.Context,
+	_ *makosh_be.UpsertEndpoints_Request,
+	_ ...grpc.CallOption,
+) (*makosh_be.UpsertEndpoints_Response, error) {
 	return &makosh_be.UpsertEndpoints_Response{}, nil
 }
 
-func (d *dockerServiceDiscovery) ListEndpoints(ctx context.Context, req *makosh_be.ListEndpoints_Request, _ ...grpc.CallOption) (*makosh_be.ListEndpoints_Response, error) {
+func (d *dockerServiceDiscovery) ListEndpoints(
+	ctx context.Context,
+	req *makosh_be.ListEndpoints_Request,
+	_ ...grpc.CallOption,
+) (*makosh_be.ListEndpoints_Response, error) {
 	opts := container.ListOptions{
 		All: true,
 		Filters: filters.NewArgs(
@@ -62,6 +69,10 @@ func (d *dockerServiceDiscovery) ListEndpoints(ctx context.Context, req *makosh_
 	return resp, nil
 }
 
-func (d *dockerServiceDiscovery) Version(_ context.Context, _ *makosh_be.Version_Request, _ ...grpc.CallOption) (*makosh_be.Version_Response, error) {
+func (d *dockerServiceDiscovery) Version(
+	_ context.Context,
+	_ *makosh_be.Version_Request,
+	_ ...grpc.CallOption,
+) (*makosh_be.Version_Response, error) {
 	return &makosh_be.Version_Response{}, nil
 }

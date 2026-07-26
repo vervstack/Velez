@@ -13,12 +13,13 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
+	"golang.org/x/sync/errgroup"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/pipelines"
-	"golang.org/x/sync/errgroup"
 )
 
 type AutoUpgrade struct {
@@ -28,7 +29,6 @@ type AutoUpgrade struct {
 	closer  sync.Once
 
 	stopC chan struct{}
-	errC  chan error
 
 	checkPeriod time.Duration
 
@@ -39,7 +39,6 @@ func New(api client.APIClient, checkPeriod time.Duration, pipeliner pipelines.Pi
 	return &AutoUpgrade{
 		dockerAPI: api,
 		stopC:     make(chan struct{}),
-		errC:      make(chan error),
 
 		checkPeriod: max(checkPeriod, time.Second*30),
 		pipeliner:   pipeliner,

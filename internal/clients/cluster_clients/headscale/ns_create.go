@@ -19,6 +19,7 @@ func (s *Client) CreateNamespace(ctx context.Context, name string) (domain.VcnNa
 	type response struct {
 		User domain.VcnNamespace
 	}
+
 	// endregion
 
 	r := reqBody{Name: name}

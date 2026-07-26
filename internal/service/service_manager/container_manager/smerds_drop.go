@@ -6,10 +6,13 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
-func (c *ContainerManager) DropSmerds(ctx context.Context, req *velez_api.DropSmerd_Request) (*velez_api.DropSmerd_Response, error) {
+func (c *ContainerManager) DropSmerds(
+	ctx context.Context,
+	req *velez_api.DropSmerd_Request,
+) (*velez_api.DropSmerd_Response, error) {
 	out := &velez_api.DropSmerd_Response{}
 
-	for _, uuid := range append(req.Uuids, req.Name...) {
+	for _, uuid := range append(req.Uuids, req.GetName()...) {
 		err := c.dockerWrapper.Remove(ctx, uuid)
 		if err == nil {
 			out.Successful = append(out.Successful, uuid)

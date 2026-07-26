@@ -19,7 +19,9 @@ var errUnsupportedService = rerrors.New("unsupported service", codes.InvalidArgu
 // status. Same safety-net rationale as createSmerdWatchTimeout/
 // assembleConfigWatchTimeout/connectServiceWatchTimeout - not something
 // normal operation should ever hit.
-const enableStatefullWatchTimeout = 60 * time.Second
+const (
+	enableStatefullWatchTimeout = 60 * time.Second
+)
 
 func (impl *Impl) EnablePlugin(ctx context.Context, req *pb.EnablePlugin_Request) (
 	*pb.EnablePlugin_Response, error,
@@ -28,7 +30,7 @@ func (impl *Impl) EnablePlugin(ctx context.Context, req *pb.EnablePlugin_Request
 
 	switch req.GetPlugin() {
 	case pb.VervPluginType_statefull_pg:
-		payload, ok := req.Payload.(*pb.EnablePlugin_Request_StatefullCluster)
+		payload, ok := req.GetPayload().(*pb.EnablePlugin_Request_StatefullCluster)
 		if !ok {
 			return nil, rerrors.New("invalid payload", codes.InvalidArgument)
 		}
@@ -48,6 +50,7 @@ func (impl *Impl) EnablePlugin(ctx context.Context, req *pb.EnablePlugin_Request
 			defer cancel()
 
 			var finalTask tasks_queries.VelezTask
+
 			for task := range impl.jobsEngine.Watch(watchCtx, state.PgName, jobs.EnableStatefullAction) {
 				finalTask = task
 			}

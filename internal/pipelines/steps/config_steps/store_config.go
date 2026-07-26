@@ -4,9 +4,10 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+	"go.vervstack.ru/matreshka/pkg/matreshka_api"
+
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 type storeConfigStep struct {
@@ -14,7 +15,6 @@ type storeConfigStep struct {
 
 	configName string
 	content    []byte
-	prefix     matreshka_api.ConfigTypePrefix
 	format     matreshka_api.Format
 }
 
@@ -22,14 +22,12 @@ func StoreConfig(
 	clusterClients cluster_clients.ClusterClients,
 	configName string,
 	content []byte,
-	prefix matreshka_api.ConfigTypePrefix,
 	format matreshka_api.Format,
 ) steps.Step {
 	return &storeConfigStep{
 		clusterClients.Configurator(),
 		configName,
 		content,
-		prefix,
 		format,
 	}
 }

@@ -101,15 +101,34 @@ func Test_CreateSmerdStream(t *testing.T) {
 			Status:   tasks_queries.VelezTaskStatusPENDING,
 		},
 		watchSequence: []tasks_queries.VelezTask{
-			{ID: 1, EntityID: "my-smerd", Action: jobs.CreateSmerdAction, Status: tasks_queries.VelezTaskStatusPENDING, UpdatedAt: now},
-			{ID: 1, EntityID: "my-smerd", Action: jobs.CreateSmerdAction, Status: tasks_queries.VelezTaskStatusRUNNING, UpdatedAt: now.Add(time.Second)},
-			{ID: 1, EntityID: "my-smerd", Action: jobs.CreateSmerdAction, Status: tasks_queries.VelezTaskStatusDONE, UpdatedAt: now.Add(2 * time.Second)},
+			{
+				ID:        1,
+				EntityID:  "my-smerd",
+				Action:    jobs.CreateSmerdAction,
+				Status:    tasks_queries.VelezTaskStatusPENDING,
+				UpdatedAt: now,
+			},
+			{
+				ID:        1,
+				EntityID:  "my-smerd",
+				Action:    jobs.CreateSmerdAction,
+				Status:    tasks_queries.VelezTaskStatusRUNNING,
+				UpdatedAt: now.Add(time.Second),
+			},
+			{
+				ID:        1,
+				EntityID:  "my-smerd",
+				Action:    jobs.CreateSmerdAction,
+				Status:    tasks_queries.VelezTaskStatusDONE,
+				UpdatedAt: now.Add(2 * time.Second),
+			},
 		},
 	}
 
 	impl := New(engine)
 
 	req := &velez_api.CreateSmerd_Request{}
+
 	req.Name = "my-smerd"
 
 	stream := &fakeTaskStatusStream{ctx: context.Background()}
@@ -146,6 +165,7 @@ func Test_CreateSmerdStream_EnqueueError(t *testing.T) {
 	impl := New(engine)
 
 	req := &velez_api.CreateSmerd_Request{}
+
 	req.Name = "my-smerd"
 
 	stream := &fakeTaskStatusStream{ctx: context.Background()}

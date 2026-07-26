@@ -9,15 +9,13 @@ import (
 
 const (
 	NoSuchContainerError = "No such container"
-)
 
-var ErrNameIsTaken = rerrors.New("container name is taken", codes.AlreadyExists)
-
-const (
 	subjectContainerName = "The container name"
 
 	problemInUseByOtherContainer = "is already in use by container"
 )
+
+var ErrNameIsTaken = rerrors.New("container name is taken", codes.AlreadyExists)
 
 func handleConflictMessage(err error) error {
 	msg := err.Error()

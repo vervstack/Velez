@@ -9,13 +9,14 @@ import (
 	"go.redsock.ru/evon"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/utils/configutils"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type fetchConfigStep struct {
@@ -78,7 +79,10 @@ func (c *fetchConfigStep) Do(ctx context.Context) (err error) {
 	return rerrors.New("only verv config supported for now")
 }
 
-func (c *fetchConfigStep) doVerv(ctx context.Context, spec *velez_api.MatreshkaConfigSpec) (domain.FileMountPoint, error) {
+func (c *fetchConfigStep) doVerv(
+	ctx context.Context,
+	spec *velez_api.MatreshkaConfigSpec,
+) (domain.FileMountPoint, error) {
 	var cfgMount domain.ConfigMount
 
 	cfgMount.FilePath = spec.SystemPath
@@ -86,6 +90,7 @@ func (c *fetchConfigStep) doVerv(ctx context.Context, spec *velez_api.MatreshkaC
 	fillMeta(c.image, &cfgMount)
 
 	configName := toolbox.Coalesce(spec.ConfigName, &c.req.Name)
+
 	cfgMount.Meta.Name = configutils.AppendPrefix(cfgMount.Meta.ConfType, *configName)
 
 	cfgMount.Meta.Version = spec.ConfigVersion
@@ -97,6 +102,7 @@ func (c *fetchConfigStep) doVerv(ctx context.Context, spec *velez_api.MatreshkaC
 	}
 
 	var err error
+
 	if cfgMount.Meta.Format == velez_api.ConfigFormat_env {
 		err = c.setEnv(ctx, cfgMount.Meta)
 	} else {
@@ -113,6 +119,7 @@ func (c *fetchConfigStep) doVerv(ctx context.Context, spec *velez_api.MatreshkaC
 func (c *fetchConfigStep) doPlain(spec *velez_api.PlainConfigSpec) error {
 	for sysPath, content := range spec.GetConfigs() {
 		p := sysPath
+
 		*c.mounts = append(*c.mounts, domain.FileMountPoint{
 			FilePath: &p,
 			Content:  content,
@@ -185,8 +192,4 @@ func isPostgresByImageTags(tags []string) bool {
 	}
 
 	return false
-}
-
-type isCreateSmerd_Request_Config interface {
-	isCreateSmerd_Request_Config()
 }

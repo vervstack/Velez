@@ -1,0 +1,408 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_drop_smerd_go",
+      "label": "drop_smerd.go",
+      "file_type": "code",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "jobs_dropresultaccessor",
+      "label": "dropResultAccessor",
+      "file_type": "code",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L16"
+    },
+    {
+      "id": "jobs_dropsmerdhandler",
+      "label": "dropSmerdHandler",
+      "file_type": "code",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L23"
+    },
+    {
+      "id": "nodeclients",
+      "label": "NodeClients",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/drop_smerd.go"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_drop_smerd_newdropsmerdhandler",
+      "label": "NewDropSmerdHandler()",
+      "file_type": "code",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L27"
+    },
+    {
+      "id": "taskhandler",
+      "label": "TaskHandler",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/drop_smerd.go"
+    },
+    {
+      "id": "jobs_dropsmerdhandler_action",
+      "label": ".Action()",
+      "file_type": "code",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L33"
+    },
+    {
+      "id": "jobs_dropsmerdhandler_newcontext",
+      "label": ".NewContext()",
+      "file_type": "code",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L37"
+    },
+    {
+      "id": "taskcontext",
+      "label": "TaskContext",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/drop_smerd.go"
+    },
+    {
+      "id": "jobs_dropsmerdhandler_buildjobs",
+      "label": ".BuildJobs()",
+      "file_type": "code",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L49"
+    },
+    {
+      "id": "namedjob",
+      "label": "NamedJob",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/drop_smerd.go"
+    },
+    {
+      "id": "jobs_dropcontainerjob",
+      "label": "dropContainerJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L80"
+    },
+    {
+      "id": "docker",
+      "label": "Docker",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/drop_smerd.go"
+    },
+    {
+      "id": "jobs_dropcontainerjob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L94"
+    },
+    {
+      "id": "context",
+      "label": "Context",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/drop_smerd.go"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_drop_smerd_go",
+      "target": "go_pkg_context",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_drop_smerd_go",
+      "target": "go_pkg_fmt",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_drop_smerd_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_api_server_velez_api",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_drop_smerd_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_node_clients",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_drop_smerd_go",
+      "target": "jobs_dropresultaccessor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_drop_smerd_go",
+      "target": "jobs_dropsmerdhandler",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_dropsmerdhandler",
+      "target": "nodeclients",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L24",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_drop_smerd_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_drop_smerd_newdropsmerdhandler",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_drop_smerd_newdropsmerdhandler",
+      "target": "nodeclients",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L27",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_drop_smerd_newdropsmerdhandler",
+      "target": "taskhandler",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L27",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "jobs_dropsmerdhandler",
+      "target": "jobs_dropsmerdhandler_action",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_dropsmerdhandler",
+      "target": "jobs_dropsmerdhandler_newcontext",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_dropsmerdhandler_newcontext",
+      "target": "taskcontext",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L37",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "jobs_dropsmerdhandler",
+      "target": "jobs_dropsmerdhandler_buildjobs",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_dropsmerdhandler_buildjobs",
+      "target": "taskcontext",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L49",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_dropsmerdhandler_buildjobs",
+      "target": "namedjob",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L49",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_drop_smerd_go",
+      "target": "jobs_dropcontainerjob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L80",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_dropcontainerjob",
+      "target": "docker",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L81",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_dropcontainerjob",
+      "target": "jobs_dropresultaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L83",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_dropcontainerjob",
+      "target": "jobs_dropcontainerjob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L94",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_dropcontainerjob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L94",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_dropsmerdhandler_buildjobs",
+      "target": "docker",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/drop_smerd.go",
+      "source_location": "L62",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "jobs_dropsmerdhandler_buildjobs",
+      "callee": "panic",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/drop_smerd.go",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "jobs_dropsmerdhandler_buildjobs",
+      "callee": "GetRequest",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/drop_smerd.go",
+      "source_location": "L55"
+    },
+    {
+      "caller_nid": "jobs_dropsmerdhandler_buildjobs",
+      "callee": "append",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/drop_smerd.go",
+      "source_location": "L56"
+    },
+    {
+      "caller_nid": "jobs_dropsmerdhandler_buildjobs",
+      "callee": "GetUuids",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/drop_smerd.go",
+      "source_location": "L56"
+    },
+    {
+      "caller_nid": "jobs_dropsmerdhandler_buildjobs",
+      "callee": "GetName",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/drop_smerd.go",
+      "source_location": "L56"
+    },
+    {
+      "caller_nid": "jobs_dropsmerdhandler_buildjobs",
+      "callee": "make",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/drop_smerd.go",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "jobs_dropsmerdhandler_buildjobs",
+      "callee": "Sprintf",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/drop_smerd.go",
+      "source_location": "L67"
+    },
+    {
+      "caller_nid": "jobs_dropsmerdhandler_buildjobs",
+      "callee": "append",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/drop_smerd.go",
+      "source_location": "L69"
+    },
+    {
+      "caller_nid": "jobs_dropcontainerjob_do",
+      "callee": "Remove",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/drop_smerd.go",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "jobs_dropcontainerjob_do",
+      "callee": "AppendFailed",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/drop_smerd.go",
+      "source_location": "L101"
+    },
+    {
+      "caller_nid": "jobs_dropcontainerjob_do",
+      "callee": "AppendSuccessful",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/drop_smerd.go",
+      "source_location": "L106"
+    }
+  ]
+}

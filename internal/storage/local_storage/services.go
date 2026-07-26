@@ -108,6 +108,7 @@ func (s *dockerServices) List(ctx context.Context, req domain.ListServicesReq) (
 		info := domain.ServiceBaseInfo{
 			Name: serviceName,
 		}
+
 		all = append(all, info)
 	}
 

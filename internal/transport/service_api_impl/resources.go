@@ -7,8 +7,11 @@ import (
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
-func (impl *Impl) GetServiceResources(ctx context.Context, pbReq *pb.GetServiceResources_Request) (*pb.GetServiceResources_Response, error) {
-	resources, err := impl.servicesService.GetServiceResources(ctx, pbReq.ServiceName)
+func (impl *Impl) GetServiceResources(
+	ctx context.Context,
+	pbReq *pb.GetServiceResources_Request,
+) (*pb.GetServiceResources_Response, error) {
+	resources, err := impl.servicesService.GetServiceResources(ctx, pbReq.GetServiceName())
 	if err != nil {
 		return nil, rerrors.Wrap(err)
 	}
@@ -20,6 +23,7 @@ func (impl *Impl) GetServiceResources(ctx context.Context, pbReq *pb.GetServiceR
 			ResourceType: r.ResourceType,
 			Status:       r.Status,
 		}
+
 		pbResources = append(pbResources, pbResource)
 	}
 

@@ -29,8 +29,9 @@ func (v *VervService) GetServiceEnvironments(ctx context.Context, serviceName st
 
 	envGroups := make(map[string][]*velez_api.Smerd)
 
-	for _, smerd := range resp.Smerds {
-		env := smerd.Labels["env"]
+	for _, smerd := range resp.GetSmerds() {
+		env := smerd.GetLabels()["env"]
+
 		envGroups[env] = append(envGroups[env], smerd)
 	}
 
@@ -44,7 +45,7 @@ func (v *VervService) GetServiceEnvironments(ctx context.Context, serviceName st
 		runningCount := 0
 
 		for _, smerd := range smerds {
-			if smerd.Status == velez_api.Smerd_running {
+			if smerd.GetStatus() == velez_api.Smerd_running {
 				runningCount++
 			}
 		}
@@ -60,18 +61,20 @@ func (v *VervService) GetServiceEnvironments(ctx context.Context, serviceName st
 
 		var deployedAt *time.Time
 
-		if firstSmerd.CreatedAt != nil {
-			t := firstSmerd.CreatedAt.AsTime()
+		if firstSmerd.GetCreatedAt() != nil {
+			t := firstSmerd.GetCreatedAt().AsTime()
+
 			deployedAt = &t
 		}
 
 		envEntry := domain.ServiceEnvironment{
 			Env:             env,
 			Status:          status,
-			DeployedVersion: firstSmerd.ImageName,
+			DeployedVersion: firstSmerd.GetImageName(),
 			Health:          status,
 			DeployedAt:      deployedAt,
 		}
+
 		result = append(result, envEntry)
 	}
 

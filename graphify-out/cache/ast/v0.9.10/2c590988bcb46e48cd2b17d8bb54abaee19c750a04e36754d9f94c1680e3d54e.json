@@ -1,0 +1,136 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_domain_graph_go",
+      "label": "graph.go",
+      "file_type": "code",
+      "source_file": "internal/domain/graph.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "domain_nodetype",
+      "label": "NodeType",
+      "file_type": "code",
+      "source_file": "internal/domain/graph.go",
+      "source_location": "L7"
+    },
+    {
+      "id": "domain_servicedependency",
+      "label": "ServiceDependency",
+      "file_type": "code",
+      "source_file": "internal/domain/graph.go",
+      "source_location": "L14"
+    },
+    {
+      "id": "domain_servicegraph",
+      "label": "ServiceGraph",
+      "file_type": "code",
+      "source_file": "internal/domain/graph.go",
+      "source_location": "L22"
+    },
+    {
+      "id": "domain_serviceenvironment",
+      "label": "ServiceEnvironment",
+      "file_type": "code",
+      "source_file": "internal/domain/graph.go",
+      "source_location": "L27"
+    },
+    {
+      "id": "time",
+      "label": "Time",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/domain/graph.go"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_domain_graph_go",
+      "target": "go_pkg_time",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/domain/graph.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_domain_graph_go",
+      "target": "domain_nodetype",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/domain/graph.go",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_domain_graph_go",
+      "target": "domain_servicedependency",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/domain/graph.go",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "domain_servicedependency",
+      "target": "domain_nodetype",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/domain/graph.go",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_domain_graph_go",
+      "target": "domain_servicegraph",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/domain/graph.go",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "domain_servicegraph",
+      "target": "domain_servicedependency",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/domain/graph.go",
+      "source_location": "L23",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "domain_servicegraph",
+      "target": "domain_servicedependency",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/domain/graph.go",
+      "source_location": "L24",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_domain_graph_go",
+      "target": "domain_serviceenvironment",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/domain/graph.go",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "domain_serviceenvironment",
+      "target": "time",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/domain/graph.go",
+      "source_location": "L31",
+      "weight": 1.0,
+      "context": "field"
+    }
+  ],
+  "raw_calls": []
+}

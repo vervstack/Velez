@@ -42,18 +42,18 @@ func (s *fromContainerToRequest) Do(ctx context.Context) error {
 	}
 
 	// base
-	*s.fromContId = cont.Uuid
+	*s.fromContId = cont.GetUuid()
 	*s.result = domain.LaunchSmerd{
 		CreateSmerd_Request: &velez_api.CreateSmerd_Request{
-			Name:      cont.Name,
-			ImageName: cont.ImageName,
+			Name:      cont.GetName(),
+			ImageName: cont.GetImageName(),
 			Settings: &velez_api.Container_Settings{
-				Ports:   cont.Ports,
+				Ports:   cont.GetPorts(),
 				Network: s.fromContainerNetwork(cont),
-				Volumes: cont.Volumes,
+				Volumes: cont.GetVolumes(),
 			},
-			Env:    cont.Env,
-			Labels: cont.Labels,
+			Env:    cont.GetEnv(),
+			Labels: cont.GetLabels(),
 
 			// TODO: when MVP of upgrade will work may think about this one
 			Hardware:      nil,
@@ -69,20 +69,20 @@ func (s *fromContainerToRequest) Do(ctx context.Context) error {
 }
 
 func (s *fromContainerToRequest) fromContainerNetwork(cont *velez_api.Smerd) []*velez_api.NetworkBind {
-	out := make([]*velez_api.NetworkBind, 0, len(cont.Networks))
+	out := make([]*velez_api.NetworkBind, 0, len(cont.GetNetworks()))
 
-	for _, n := range cont.Networks {
+	for _, n := range cont.GetNetworks() {
 		net := &velez_api.NetworkBind{
-			NetworkName: n.NetworkName,
+			NetworkName: n.GetNetworkName(),
 			Aliases:     nil,
 		}
-		for _, a := range n.Aliases {
-			if !strings.HasPrefix(cont.Uuid, a) {
+		for _, a := range n.GetAliases() {
+			if !strings.HasPrefix(cont.GetUuid(), a) {
 				net.Aliases = append(net.Aliases, a)
 			}
 		}
 
-		if len(net.Aliases) != 0 {
+		if len(net.GetAliases()) != 0 {
 			out = append(out, net)
 		}
 	}

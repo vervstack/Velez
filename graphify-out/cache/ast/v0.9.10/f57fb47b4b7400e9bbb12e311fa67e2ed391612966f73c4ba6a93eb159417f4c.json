@@ -1,0 +1,204 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_pipelines_do_setup_headscale_go",
+      "label": "do_setup_headscale.go",
+      "file_type": "code",
+      "source_file": "internal/pipelines/do_setup_headscale.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "pipelines_pipeliner",
+      "label": "pipeliner",
+      "file_type": "code",
+      "source_file": "internal/pipelines/do_setup_headscale.go",
+      "source_location": "L14"
+    },
+    {
+      "id": "pipelines_pipeliner_setupheadscale",
+      "label": ".SetupHeadscale()",
+      "file_type": "code",
+      "source_file": "internal/pipelines/do_setup_headscale.go",
+      "source_location": "L14"
+    },
+    {
+      "id": "setupheadscalerequest",
+      "label": "SetupHeadscaleRequest",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/pipelines/do_setup_headscale.go"
+    },
+    {
+      "id": "runner",
+      "label": "Runner",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/pipelines/do_setup_headscale.go"
+    },
+    {
+      "id": "setupheadscaleresponse",
+      "label": "SetupHeadscaleResponse",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/pipelines/do_setup_headscale.go"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_do_setup_headscale_go",
+      "target": "go_pkg_go_redsock_ru_toolbox",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/do_setup_headscale.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_do_setup_headscale_go",
+      "target": "go_pkg_go_vervstack_ru_matreshka_pkg_matreshka_api",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/do_setup_headscale.go",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_do_setup_headscale_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_domain",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/do_setup_headscale.go",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_do_setup_headscale_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_patterns_headscale",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/do_setup_headscale.go",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_do_setup_headscale_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_pipelines_steps",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/do_setup_headscale.go",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_do_setup_headscale_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_pipelines_steps_config_steps",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/do_setup_headscale.go",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_do_setup_headscale_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_pipelines_steps_container_steps",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/do_setup_headscale.go",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "pipelines_pipeliner",
+      "target": "pipelines_pipeliner_setupheadscale",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/do_setup_headscale.go",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "pipelines_pipeliner_setupheadscale",
+      "target": "setupheadscalerequest",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/do_setup_headscale.go",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "pipelines_pipeliner_setupheadscale",
+      "target": "runner",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/do_setup_headscale.go",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "pipelines_pipeliner_setupheadscale",
+      "target": "setupheadscaleresponse",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/do_setup_headscale.go",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "generic_arg"
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "pipelines_pipeliner_setupheadscale",
+      "callee": "Headscale",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/do_setup_headscale.go",
+      "source_location": "L15"
+    },
+    {
+      "caller_nid": "pipelines_pipeliner_setupheadscale",
+      "callee": "BasicConfig",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/do_setup_headscale.go",
+      "source_location": "L19"
+    },
+    {
+      "caller_nid": "pipelines_pipeliner_setupheadscale",
+      "callee": "Create",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/do_setup_headscale.go",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "pipelines_pipeliner_setupheadscale",
+      "callee": "ToPtr",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/do_setup_headscale.go",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "pipelines_pipeliner_setupheadscale",
+      "callee": "CopyToContainer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/do_setup_headscale.go",
+      "source_location": "L26"
+    },
+    {
+      "caller_nid": "pipelines_pipeliner_setupheadscale",
+      "callee": "StoreConfig",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/do_setup_headscale.go",
+      "source_location": "L27"
+    }
+  ]
+}

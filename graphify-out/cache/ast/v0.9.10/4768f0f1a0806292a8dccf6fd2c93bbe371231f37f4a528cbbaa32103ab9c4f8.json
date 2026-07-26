@@ -1,0 +1,265 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_storage_local_storage_service_resources_go",
+      "label": "service_resources.go",
+      "file_type": "code",
+      "source_file": "internal/storage/local_storage/service_resources.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "local_storage_dockerserviceresourcesstorage",
+      "label": "dockerServiceResourcesStorage",
+      "file_type": "code",
+      "source_file": "internal/storage/local_storage/service_resources.go",
+      "source_location": "L13"
+    },
+    {
+      "id": "docker",
+      "label": "Docker",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_resources.go"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_storage_local_storage_service_resources_newserviceresourcesstorage",
+      "label": "newServiceResourcesStorage()",
+      "file_type": "code",
+      "source_file": "internal/storage/local_storage/service_resources.go",
+      "source_location": "L17"
+    },
+    {
+      "id": "local_storage_dockerserviceresourcesstorage_upsertresource",
+      "label": ".UpsertResource()",
+      "file_type": "code",
+      "source_file": "internal/storage/local_storage/service_resources.go",
+      "source_location": "L21"
+    },
+    {
+      "id": "context",
+      "label": "Context",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_resources.go"
+    },
+    {
+      "id": "local_storage_dockerserviceresourcesstorage_getresources",
+      "label": ".GetResources()",
+      "file_type": "code",
+      "source_file": "internal/storage/local_storage/service_resources.go",
+      "source_location": "L27"
+    },
+    {
+      "id": "boundresource",
+      "label": "BoundResource",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_resources.go"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_resources_go",
+      "target": "go_pkg_context",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_resources.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_resources_go",
+      "target": "go_pkg_strings",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_resources.go",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_resources_go",
+      "target": "go_pkg_go_redsock_ru_rerrors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_resources.go",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_resources_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_api_server_velez_api",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_resources.go",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_resources_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_node_clients",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_resources.go",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_resources_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_domain",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_resources.go",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_resources_go",
+      "target": "local_storage_dockerserviceresourcesstorage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_resources.go",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "local_storage_dockerserviceresourcesstorage",
+      "target": "docker",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_resources.go",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_resources_go",
+      "target": "users_alexbukov_verv_velez_internal_storage_local_storage_service_resources_newserviceresourcesstorage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_resources.go",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_resources_newserviceresourcesstorage",
+      "target": "docker",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_resources.go",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_resources_newserviceresourcesstorage",
+      "target": "local_storage_dockerserviceresourcesstorage",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_resources.go",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "local_storage_dockerserviceresourcesstorage",
+      "target": "local_storage_dockerserviceresourcesstorage_upsertresource",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_resources.go",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "local_storage_dockerserviceresourcesstorage_upsertresource",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_resources.go",
+      "source_location": "L21",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "local_storage_dockerserviceresourcesstorage",
+      "target": "local_storage_dockerserviceresourcesstorage_getresources",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_resources.go",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "local_storage_dockerserviceresourcesstorage_getresources",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_resources.go",
+      "source_location": "L27",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "local_storage_dockerserviceresourcesstorage_getresources",
+      "target": "boundresource",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_resources.go",
+      "source_location": "L27",
+      "weight": 1.0,
+      "context": "return_type"
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "local_storage_dockerserviceresourcesstorage_getresources",
+      "callee": "ListContainers",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_resources.go",
+      "source_location": "L32"
+    },
+    {
+      "caller_nid": "local_storage_dockerserviceresourcesstorage_getresources",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_resources.go",
+      "source_location": "L34"
+    },
+    {
+      "caller_nid": "local_storage_dockerserviceresourcesstorage_getresources",
+      "callee": "TrimPrefix",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_resources.go",
+      "source_location": "L46"
+    },
+    {
+      "caller_nid": "local_storage_dockerserviceresourcesstorage_getresources",
+      "callee": "HasPrefix",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_resources.go",
+      "source_location": "L47"
+    },
+    {
+      "caller_nid": "local_storage_dockerserviceresourcesstorage_getresources",
+      "callee": "TrimPrefix",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_resources.go",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "local_storage_dockerserviceresourcesstorage_getresources",
+      "callee": "append",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_resources.go",
+      "source_location": "L60"
+    }
+  ]
+}

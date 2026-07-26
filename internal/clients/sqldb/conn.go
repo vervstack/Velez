@@ -10,7 +10,9 @@ import (
 	"go.redsock.ru/toolbox/closer"
 )
 
-const Dialect = "postgres"
+const (
+	Dialect = "postgres"
+)
 
 func New(connectionString string) (*sql.DB, error) {
 	conn, err := sql.Open(Dialect, connectionString)
@@ -71,11 +73,11 @@ type DB interface {
 
 type sqlLogger struct{}
 
-func (s sqlLogger) Fatalf(format string, v ...interface{}) {
+func (s sqlLogger) Fatalf(format string, v ...any) {
 	log.Fatal().Msgf(format, v...)
 }
 
-func (s sqlLogger) Printf(format string, v ...interface{}) {
+func (s sqlLogger) Printf(format string, v ...any) {
 	log.Printf(format, v...)
 }
 

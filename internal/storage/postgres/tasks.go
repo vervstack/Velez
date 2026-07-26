@@ -6,14 +6,11 @@ import (
 )
 
 type tasksStorage struct {
-	db sqldb.DB
-
 	*tasks_queries.Queries
 }
 
 func newTasksStorage(db sqldb.DB) *tasksStorage {
 	return &tasksStorage{
-		db:      db,
 		Queries: tasks_queries.New(db),
 	}
 }

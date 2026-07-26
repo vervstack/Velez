@@ -1,0 +1,174 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_transport_service_api_impl_environments_go",
+      "label": "environments.go",
+      "file_type": "code",
+      "source_file": "internal/transport/service_api_impl/environments.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "service_api_impl_impl",
+      "label": "Impl",
+      "file_type": "code",
+      "source_file": "internal/transport/service_api_impl/environments.go",
+      "source_location": "L11"
+    },
+    {
+      "id": "service_api_impl_impl_getserviceenvironments",
+      "label": ".GetServiceEnvironments()",
+      "file_type": "code",
+      "source_file": "internal/transport/service_api_impl/environments.go",
+      "source_location": "L11"
+    },
+    {
+      "id": "context",
+      "label": "Context",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/environments.go"
+    },
+    {
+      "id": "getserviceenvironments_request",
+      "label": "GetServiceEnvironments_Request",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/environments.go"
+    },
+    {
+      "id": "getserviceenvironments_response",
+      "label": "GetServiceEnvironments_Response",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/environments.go"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_transport_service_api_impl_environments_go",
+      "target": "go_pkg_context",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/transport/service_api_impl/environments.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_transport_service_api_impl_environments_go",
+      "target": "go_pkg_go_redsock_ru_rerrors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/transport/service_api_impl/environments.go",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_transport_service_api_impl_environments_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_api_server_velez_api",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/transport/service_api_impl/environments.go",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_transport_service_api_impl_environments_go",
+      "target": "go_pkg_google_golang_org_protobuf_types_known_timestamppb",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/transport/service_api_impl/environments.go",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "service_api_impl_impl",
+      "target": "service_api_impl_impl_getserviceenvironments",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/transport/service_api_impl/environments.go",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "service_api_impl_impl_getserviceenvironments",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/transport/service_api_impl/environments.go",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "service_api_impl_impl_getserviceenvironments",
+      "target": "getserviceenvironments_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/transport/service_api_impl/environments.go",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "service_api_impl_impl_getserviceenvironments",
+      "target": "getserviceenvironments_response",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/transport/service_api_impl/environments.go",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "return_type"
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "service_api_impl_impl_getserviceenvironments",
+      "callee": "GetServiceEnvironments",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/environments.go",
+      "source_location": "L15"
+    },
+    {
+      "caller_nid": "service_api_impl_impl_getserviceenvironments",
+      "callee": "GetServiceName",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/environments.go",
+      "source_location": "L15"
+    },
+    {
+      "caller_nid": "service_api_impl_impl_getserviceenvironments",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/environments.go",
+      "source_location": "L17"
+    },
+    {
+      "caller_nid": "service_api_impl_impl_getserviceenvironments",
+      "callee": "make",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/environments.go",
+      "source_location": "L20"
+    },
+    {
+      "caller_nid": "service_api_impl_impl_getserviceenvironments",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/environments.go",
+      "source_location": "L30"
+    },
+    {
+      "caller_nid": "service_api_impl_impl_getserviceenvironments",
+      "callee": "append",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/environments.go",
+      "source_location": "L33"
+    }
+  ]
+}

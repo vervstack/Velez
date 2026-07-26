@@ -23,7 +23,9 @@ import (
 	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
 )
 
-const testPgContainerID = "pg123"
+const (
+	testPgContainerID = "pg123"
+)
 
 func TestEnableStatefullHandler_Action(t *testing.T) {
 	h := NewEnableStatefullHandler(nil, nil, nil)
@@ -46,6 +48,7 @@ func TestEnableStatefullHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 
 	docker := newFakeDocker()
 	nodeClients := newFakeNodeClients(docker)
+
 	nodeClients.localState = newFakeStateManager(local_state.State{})
 
 	clusterStorage := &fakeClusterStorage{nodes: &fakeNodesStorage{}}
@@ -153,7 +156,9 @@ func TestGenerateCredentialsJob_AlreadyPersisted_DoesNotRegenerate(t *testing.T)
 
 func TestCreatePgContainerJob_Success(t *testing.T) {
 	docker := newFakeDocker()
+
 	docker.containerCreateResp = container.CreateResponse{ID: testPgContainerID}
+
 	nodeClients := newFakeNodeClients(docker)
 
 	payload := &velez_api.EnableStatefullTaskPayload{
@@ -175,7 +180,9 @@ func TestCreatePgContainerJob_Success(t *testing.T) {
 
 func TestCreatePgContainerJob_ContainerCreateError(t *testing.T) {
 	docker := newFakeDocker()
+
 	docker.containerCreateErr = errors.New("no space left on device")
+
 	nodeClients := newFakeNodeClients(docker)
 
 	payload := &velez_api.EnableStatefullTaskPayload{
@@ -231,7 +238,9 @@ func TestCreatePgContainerJob_Rollback_RemovesContainer(t *testing.T) {
 
 func TestCreatePgContainerJob_Rollback_NotFoundIsSwallowed(t *testing.T) {
 	docker := newFakeDocker()
+
 	docker.removeErr = errdefs.NotFound(errors.New("no such container"))
+
 	nodeClients := newFakeNodeClients(docker)
 	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
 
@@ -293,11 +302,13 @@ func TestStartPgContainerJob_Rollback_StopsContainer(t *testing.T) {
 
 func TestWaitForPgReadyJob_AlreadyHealthy_Success(t *testing.T) {
 	api := newFakeContainerAPI()
+
 	api.inspectResp = container.InspectResponse{
 		ContainerJSONBase: &container.ContainerJSONBase{
 			State: &container.State{Health: &container.Health{Status: container.Healthy}},
 		},
 	}
+
 	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
 
 	j := &waitForPgReadyJob{dockerAPI: api, ctx: payload}
@@ -322,7 +333,9 @@ func TestWaitForPgReadyJob_NoContainerId_Error(t *testing.T) {
 
 func TestWaitForPgReadyJob_InspectError(t *testing.T) {
 	api := newFakeContainerAPI()
+
 	api.inspectErr = errors.New("no such container")
+
 	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
 
 	j := &waitForPgReadyJob{dockerAPI: api, ctx: payload}
@@ -335,11 +348,13 @@ func TestWaitForPgReadyJob_InspectError(t *testing.T) {
 
 func TestWaitForPgReadyJob_NotYetHealthy_ContextCancelled(t *testing.T) {
 	api := newFakeContainerAPI()
+
 	api.inspectResp = container.InspectResponse{
 		ContainerJSONBase: &container.ContainerJSONBase{
 			State: &container.State{Health: &container.Health{Status: container.Starting}},
 		},
 	}
+
 	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
 
 	j := &waitForPgReadyJob{dockerAPI: api, ctx: payload}
@@ -355,7 +370,9 @@ func TestWaitForPgReadyJob_NotYetHealthy_ContextCancelled(t *testing.T) {
 
 func TestWaitForPgReadyJob_NilContainerState_DoesNotPanic_ContextCancelled(t *testing.T) {
 	api := newFakeContainerAPI()
+
 	api.inspectResp = container.InspectResponse{}
+
 	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
 
 	j := &waitForPgReadyJob{dockerAPI: api, ctx: payload}
@@ -380,6 +397,7 @@ func TestGetRootDsnJob_Success_ParsesEnvVars(t *testing.T) {
 	api := newFakeContainerAPI()
 
 	networkSettings := &container.NetworkSettings{}
+
 	networkSettings.Ports = nat.PortMap{
 		"5432/tcp": []nat.PortBinding{{HostPort: "15432"}},
 	}
@@ -425,6 +443,7 @@ func TestGetRootDsnJob_NotExposedAndNotInContainer_Error(t *testing.T) {
 	}
 
 	api := newFakeContainerAPI()
+
 	api.inspectResp = container.InspectResponse{Config: &container.Config{}}
 
 	payload := &velez_api.EnableStatefullTaskPayload{
@@ -442,6 +461,7 @@ func TestGetRootDsnJob_NotExposedAndNotInContainer_Error(t *testing.T) {
 
 func TestGetRootDsnJob_InspectError(t *testing.T) {
 	api := newFakeContainerAPI()
+
 	api.inspectErr = errors.New("no such container")
 
 	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
@@ -673,8 +693,11 @@ func TestEnableStatefullHandler_FailurePath_UnreachablePostgres_RollsBack(t *tes
 	task := enableStatefullTask(t, tasksStorage, "cluster", payload)
 
 	docker := newFakeDocker()
+
 	docker.containerCreateResp = container.CreateResponse{ID: testPgContainerID}
+
 	nodeClients := newFakeNodeClients(docker)
+
 	nodeClients.localState = newFakeStateManager(local_state.State{})
 
 	clusterStorage := &fakeClusterStorage{nodes: &fakeNodesStorage{}}
@@ -695,6 +718,7 @@ func TestEnableStatefullHandler_FailurePath_UnreachablePostgres_RollsBack(t *tes
 	containerAPI := newFakeContainerAPI()
 
 	networkSettings := &container.NetworkSettings{}
+
 	networkSettings.Ports = nat.PortMap{"5432/tcp": []nat.PortBinding{{HostPort: "1"}}}
 
 	containerAPI.inspectResp = container.InspectResponse{

@@ -21,7 +21,10 @@ type testContainerService struct {
 	listSmerdsFunc func(ctx context.Context, req *velez_api.ListSmerds_Request) (*velez_api.ListSmerds_Response, error)
 }
 
-func (m *testContainerService) ListSmerds(ctx context.Context, req *velez_api.ListSmerds_Request) (*velez_api.ListSmerds_Response, error) {
+func (m *testContainerService) ListSmerds(
+	ctx context.Context,
+	req *velez_api.ListSmerds_Request,
+) (*velez_api.ListSmerds_Response, error) {
 	if m.listSmerdsFunc != nil {
 		return m.listSmerdsFunc(ctx, req)
 	}
@@ -29,7 +32,10 @@ func (m *testContainerService) ListSmerds(ctx context.Context, req *velez_api.Li
 	return &velez_api.ListSmerds_Response{}, nil
 }
 
-func (m *testContainerService) DropSmerds(ctx context.Context, req *velez_api.DropSmerd_Request) (*velez_api.DropSmerd_Response, error) {
+func (m *testContainerService) DropSmerds(
+	ctx context.Context,
+	req *velez_api.DropSmerd_Request,
+) (*velez_api.DropSmerd_Response, error) {
 	return nil, nil
 }
 

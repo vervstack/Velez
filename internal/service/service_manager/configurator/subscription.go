@@ -1,13 +1,10 @@
 package configurator
 
 import (
-	"io"
-	"time"
-
-	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
-	"go.vervstack.ru/Velez/internal/domain"
 	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
+
+	"go.vervstack.ru/Velez/internal/domain"
 )
 
 func (c *Configurator) SubscribeOnChanges(serviceNames ...string) error {
@@ -15,7 +12,7 @@ func (c *Configurator) SubscribeOnChanges(serviceNames ...string) error {
 	//	SubscribeServiceNames: serviceNames,
 	//}
 	// err := c.subscriptionStream.Send(subReq)
-	//if err != nil {
+	// if err != nil {
 	//	return rerrors.Wrap(err, "error sending subscription request to stream")
 	//}
 	return nil
@@ -36,56 +33,4 @@ func (c *Configurator) UnsubscribeFromChanges(serviceNames ...string) error {
 
 func (c *Configurator) GetUpdates() <-chan domain.ConfigurationPatch {
 	return c.updatesChan
-}
-
-func handleSubscriptionStream(stream api.MatreshkaBeAPI_SubscribeOnChangesClient) chan domain.ConfigurationPatch {
-	errorsCount := 3
-	patchesChan := make(chan domain.ConfigurationPatch)
-
-	go func() {
-		defer close(patchesChan)
-
-		for {
-			changes, err := stream.Recv()
-			if err != nil {
-				if !rerrors.Is(err, io.EOF) {
-					log.Error().Err(err).Msg("error receiving changes from matreshka subscription stream")
-
-					errorsCount--
-
-					time.Sleep(time.Second)
-
-					if errorsCount <= 0 {
-						return
-					}
-
-					continue
-				}
-
-				return
-			}
-
-			patch := domain.ConfigurationPatch{
-				ConfigName: changes.ConfigName,
-			}
-			for _, p := range changes.Patches {
-				switch v := p.GetPatch().(type) {
-				case *api.PatchConfig_Patch_UpdateValue:
-					//	TODO implement
-				case *api.PatchConfig_Patch_Rename:
-				//	TODO implement
-				case *api.PatchConfig_Patch_Delete:
-				//	TODO implement
-				default:
-					_ = v
-				}
-			}
-
-			if len(patch.EnvVarsMap) != 0 {
-				patchesChan <- patch
-			}
-		}
-	}()
-
-	return patchesChan
 }

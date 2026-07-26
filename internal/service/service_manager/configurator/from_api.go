@@ -26,7 +26,7 @@ func (c *Configurator) GetVervFromApi(ctx context.Context, meta domain.ConfigMet
 		return matreshka.NewEmptyConfig(), nil
 	}
 
-	err = apiConfig.Unmarshal(matreshkaConfig.Config)
+	err = apiConfig.Unmarshal(matreshkaConfig.GetConfig())
 	if err != nil {
 		return matreshka.AppConfig{}, errors.Wrap(err, "error unmarshalling config from api")
 	}

@@ -75,7 +75,11 @@ func ConnectToNetwork(ctx context.Context, d client.APIClient, req ConnectToNetw
 	return nil
 }
 
-func DisconnectFromNetworks(ctx context.Context, d client.APIClient, contId string) (disconnectedNetworks map[string]*network.EndpointSettings, err error) {
+func DisconnectFromNetworks(
+	ctx context.Context,
+	d client.APIClient,
+	contId string,
+) (disconnectedNetworks map[string]*network.EndpointSettings, err error) {
 	cont, err := d.ContainerInspect(ctx, contId)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error getting Velez container info")

@@ -1,3 +1,5 @@
 package sqldb
 
-import _ "github.com/lib/pq" // PostgreSQL driver
+import (
+	_ "github.com/lib/pq" // PostgreSQL driver
+)

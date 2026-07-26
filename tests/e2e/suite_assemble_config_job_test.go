@@ -43,6 +43,7 @@ func (s *AssembleConfigJobSuite) Test_AssembleHelloWorld() {
 	require.NoError(t, err)
 
 	var finalTask tasks_queries.VelezTask
+
 	for task := range env.Custom.JobsEngine.Watch(s.ctx, serviceName, jobs.AssembleConfigAction) {
 		finalTask = task
 	}
@@ -52,6 +53,7 @@ func (s *AssembleConfigJobSuite) Test_AssembleHelloWorld() {
 	var payload velez_api.AssembleConfigTaskPayload
 
 	require.True(t, finalTask.Context.Valid)
+
 	err = json.Unmarshal(finalTask.Context.RawMessage, &payload)
 	require.NoError(t, err)
 

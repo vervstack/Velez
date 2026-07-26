@@ -112,6 +112,7 @@ func (t *TaskV2) IsAlive() bool {
 	}
 
 	t.stateMu.Lock()
+
 	t.containerState = &cont
 	t.stateMu.Unlock()
 

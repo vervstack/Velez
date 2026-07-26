@@ -7,12 +7,11 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
-	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/timestamppb"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Impl struct {
@@ -31,7 +30,11 @@ func (impl *Impl) Register(server grpc.ServiceRegistrar) {
 	velez_api.RegisterTasksApiServer(server, impl)
 }
 
-func (impl *Impl) Gateway(ctx context.Context, endpoint string, opts ...grpc.DialOption) (route string, handler http.Handler) {
+func (impl *Impl) Gateway(
+	ctx context.Context,
+	endpoint string,
+	opts ...grpc.DialOption,
+) (route string, handler http.Handler) {
 	gwHttpMux := runtime.NewServeMux()
 
 	err := velez_api.RegisterTasksApiHandlerFromEndpoint(
@@ -47,7 +50,10 @@ func (impl *Impl) Gateway(ctx context.Context, endpoint string, opts ...grpc.Dia
 	return "/api/tasks/", gwHttpMux
 }
 
-func (impl *Impl) WatchTask(req *velez_api.WatchTask_Request, stream grpc.ServerStreamingServer[velez_api.TaskStatus]) error {
+func (impl *Impl) WatchTask(
+	req *velez_api.WatchTask_Request,
+	stream grpc.ServerStreamingServer[velez_api.TaskStatus],
+) error {
 	ctx := stream.Context()
 
 	for task := range impl.jobsEngine.Watch(ctx, req.GetEntityId(), req.GetAction()) {
@@ -65,7 +71,10 @@ func (impl *Impl) WatchTask(req *velez_api.WatchTask_Request, stream grpc.Server
 // (dedup'd on the same (name, action) key the unary RPC uses) and forwards
 // TaskStatus updates as the task progresses, instead of blocking until it
 // completes. The unary CreateSmerd stays untouched.
-func (impl *Impl) CreateSmerdStream(req *velez_api.CreateSmerd_Request, stream grpc.ServerStreamingServer[velez_api.TaskStatus]) error {
+func (impl *Impl) CreateSmerdStream(
+	req *velez_api.CreateSmerd_Request,
+	stream grpc.ServerStreamingServer[velez_api.TaskStatus],
+) error {
 	ctx := stream.Context()
 
 	initialContext := &velez_api.CreateSmerdTaskPayload{}

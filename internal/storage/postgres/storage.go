@@ -89,6 +89,7 @@ func wrapPgErr(err error) error {
 	}
 
 	var pgErr *pq.Error
+
 	if errors.As(err, &pgErr) {
 		if pgErr.Code == "23505" { // unique_violation
 			return errors.Join(storage.ErrAlreadyExists, err)

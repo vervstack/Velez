@@ -8,12 +8,13 @@ import (
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 	"github.com/pkg/errors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
 func PullImage(
 	ctx context.Context,
-	docker client.CommonAPIClient,
+	docker client.APIClient,
 	name string,
 	force bool,
 ) (_ *velez_api.Image, err error) {

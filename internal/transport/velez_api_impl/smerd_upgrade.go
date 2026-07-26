@@ -18,15 +18,17 @@ import (
 // container and the final one - plus pause/rename/drop of the old container
 // on top of the same pull/config/healthcheck stages), so its slowest real
 // run should be expected to run longer than create_smerd's ~17s baseline.
-const upgradeSmerdWatchTimeout = 120 * time.Second
+const (
+	upgradeSmerdWatchTimeout = 120 * time.Second
+)
 
 func (impl *Impl) UpgradeSmerd(ctx context.Context,
 	req *velez_api.UpgradeSmerd_Request,
 ) (*velez_api.UpgradeSmerd_Response, error) {
 	initialContext := &velez_api.UpgradeSmerdTaskPayload{
 		UpgradeRequest: &velez_api.UpgradeSmerd_Request{
-			Name:  req.Name,
-			Image: req.Image,
+			Name:  req.GetName(),
+			Image: req.GetImage(),
 		},
 	}
 
@@ -39,6 +41,7 @@ func (impl *Impl) UpgradeSmerd(ctx context.Context,
 	defer cancel()
 
 	var finalTask tasks_queries.VelezTask
+
 	for task := range impl.jobsEngine.Watch(watchCtx, req.GetName(), jobs.UpgradeSmerdAction) {
 		finalTask = task
 	}

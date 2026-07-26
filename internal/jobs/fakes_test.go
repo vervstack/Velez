@@ -6,6 +6,7 @@ import (
 	"context"
 	"database/sql"
 	"io"
+	"slices"
 	"strconv"
 	"sync"
 	"time"
@@ -17,6 +18,10 @@ import (
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"go.redsock.ru/evon"
 	"go.redsock.ru/rerrors"
+	"go.vervstack.ru/makosh/pkg/makosh_be"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
+	"google.golang.org/grpc"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
@@ -26,9 +31,6 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
-	"go.vervstack.ru/makosh/pkg/makosh_be"
-	"go.vervstack.ru/matreshka/pkg/matreshka"
-	"google.golang.org/grpc"
 )
 
 // fakeTasksStorage and fakeJobsStorage are minimal in-memory implementations
@@ -59,6 +61,7 @@ func (f *fakeTasksStorage) CreateTask(
 	}
 
 	f.nextID++
+
 	task := tasks_queries.VelezTask{
 		ID:        f.nextID,
 		EntityID:  arg.EntityID,
@@ -68,6 +71,7 @@ func (f *fakeTasksStorage) CreateTask(
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
+
 	f.byID[task.ID] = task
 
 	return task, nil
@@ -215,6 +219,7 @@ func (f *fakeJobsStorage) CreateRunningJob(
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
+
 	f.rows[key] = row
 
 	return row, nil
@@ -285,10 +290,8 @@ func (f *fakeServicesStorage) GetByName(_ context.Context, name string) (domain.
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
-	for _, n := range f.upserted {
-		if n == name {
-			return domain.Service{ServiceBaseInfo: domain.ServiceBaseInfo{Name: name}}, nil
-		}
+	if slices.Contains(f.upserted, name) {
+		return domain.Service{ServiceBaseInfo: domain.ServiceBaseInfo{Name: name}}, nil
 	}
 
 	return domain.Service{}, sql.ErrNoRows
@@ -604,14 +607,12 @@ type fakeContainerAPI struct {
 }
 
 type fakeRenameCall struct {
-	containerID string
-	newName     string
+	newName string
 }
 
 type fakeCopyCall struct {
 	containerID string
 	dstPath     string
-	content     []byte
 }
 
 func newFakeContainerAPI() *fakeContainerAPI {
@@ -644,12 +645,16 @@ func (f *fakeContainerAPI) ContainerInspect(_ context.Context, _ string) (contai
 }
 
 func (f *fakeContainerAPI) CopyToContainer(
-	_ context.Context, containerID string, dstPath string, content io.Reader, _ container.CopyToContainerOptions,
+	_ context.Context,
+	containerID string,
+	dstPath string,
+	content io.Reader,
+	_ container.CopyToContainerOptions,
 ) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
-	raw, err := io.ReadAll(content)
+	_, err := io.ReadAll(content)
 	if err != nil {
 		return rerrors.Wrap(err, "error reading fake copy content")
 	}
@@ -657,8 +662,8 @@ func (f *fakeContainerAPI) CopyToContainer(
 	call := fakeCopyCall{
 		containerID: containerID,
 		dstPath:     dstPath,
-		content:     raw,
 	}
+
 	f.copyCalledWith = append(f.copyCalledWith, call)
 
 	if f.copyErrOnCall != 0 {
@@ -690,11 +695,11 @@ func (f *fakeContainerAPI) ContainerUnpause(_ context.Context, containerID strin
 	return f.unpauseErr
 }
 
-func (f *fakeContainerAPI) ContainerRename(_ context.Context, containerID, newName string) error {
+func (f *fakeContainerAPI) ContainerRename(_ context.Context, _, newName string) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
-	f.renameCalledWith = append(f.renameCalledWith, fakeRenameCall{containerID: containerID, newName: newName})
+	f.renameCalledWith = append(f.renameCalledWith, fakeRenameCall{newName: newName})
 
 	return f.renameErr
 }
@@ -752,6 +757,7 @@ func (f *fakeContainerAPI) CopyFromContainer(
 	var buf bytes.Buffer
 
 	tw := tar.NewWriter(&buf)
+
 	_ = tw.WriteHeader(&tar.Header{Name: "content", Size: int64(len(f.copyFromResp))})
 	_, _ = tw.Write(f.copyFromResp)
 	_ = tw.Close()
@@ -794,6 +800,7 @@ func (f *fakeVpnClient) CreateNamespace(_ context.Context, name string) (domain.
 	}
 
 	ns := domain.VcnNamespace{Id: "ns-" + name, Name: name}
+
 	f.namespaces[name] = ns
 
 	return ns, nil

@@ -1,6 +1,8 @@
 package jobs
 
-import "context"
+import (
+	"context"
+)
 
 // Job is a tiny, atomic, reusable unit of execution inside a Task.
 // Unlike internal/pipelines/steps.Step, a Job's completion is durably
@@ -25,7 +27,7 @@ type NamedJob struct {
 // pointer in practice). Jobs never depend on the concrete type directly -
 // they declare narrow Getter/Setter accessor interfaces instead, so the
 // same Job can be reused across any TaskContext that satisfies them.
-type TaskContext interface{}
+type TaskContext any
 
 // TaskHandler builds the ordered Job list for one task action.
 type TaskHandler interface {

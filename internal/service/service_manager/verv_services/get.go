@@ -37,11 +37,11 @@ func (v *VervService) enrichServiceAbout(ctx context.Context, svc *domain.Servic
 		return rerrors.Wrap(err, "error listing smerds for about")
 	}
 
-	if len(resp.Smerds) == 0 {
+	if len(resp.GetSmerds()) == 0 {
 		return nil
 	}
 
-	lbl := resp.Smerds[0].Labels
+	lbl := resp.GetSmerds()[0].GetLabels()
 	if lbl == nil {
 		return nil
 	}

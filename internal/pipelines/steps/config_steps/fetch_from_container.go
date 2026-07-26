@@ -8,17 +8,17 @@ import (
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
+	"go.vervstack.ru/matreshka/pkg/matreshka_api"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/service"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 type getConfigFromContainerStep struct {
-	dockerAPI     client.APIClient
-	configService service.ConfigurationService
+	dockerAPI client.APIClient
 
 	req *domain.LaunchSmerd
 
@@ -38,8 +38,7 @@ func GetConfigFromContainerStep(
 	result *domain.ConfigMount,
 ) *getConfigFromContainerStep {
 	return &getConfigFromContainerStep{
-		dockerAPI:     nodeClients.Docker().Client(),
-		configService: services.ConfigurationService(),
+		dockerAPI: nodeClients.Docker().Client(),
 
 		req: req,
 
@@ -80,7 +79,7 @@ func (c *getConfigFromContainerStep) extractConfig(ctx context.Context,
 		return nil, nil
 	}
 
-	res, err = dockerutils.ReadFromContainer(ctx, c.dockerAPI, *c.contId, *spec.SystemPath)
+	res, err = dockerutils.ReadFromContainer(ctx, c.dockerAPI, *c.contId, spec.GetSystemPath())
 	if err != nil {
 		return nil, rerrors.Wrap(err)
 	}

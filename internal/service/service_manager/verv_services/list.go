@@ -37,26 +37,26 @@ func (v *VervService) enrichServiceWithSmerdData(ctx context.Context, svc *domai
 		return rerrors.Wrap(err, "error listing smerds for service")
 	}
 
-	if len(resp.Smerds) == 0 {
+	if len(resp.GetSmerds()) == 0 {
 		// No smerd exists, leave fields empty
 		return nil
 	}
 
 	// Use the first smerd (latest by creation)
-	latestSmerd := resp.Smerds[0]
+	latestSmerd := resp.GetSmerds()[0]
 
-	svc.ImageName = latestSmerd.ImageName
+	svc.ImageName = latestSmerd.GetImageName()
 
 	// Map smerd status to service status (best-effort mapping)
-	svc.Status = mapSmerdStatus(latestSmerd.Status)
+	svc.Status = mapSmerdStatus(latestSmerd.GetStatus())
 
 	// Extract 'env' label if it exists
 	if latestSmerd.Labels != nil {
-		if envVal, ok := latestSmerd.Labels["env"]; ok {
+		if envVal, ok := latestSmerd.GetLabels()["env"]; ok {
 			svc.Env = envVal
 		}
 
-		svc.Repo = latestSmerd.Labels[labels.RepoLabel]
+		svc.Repo = latestSmerd.GetLabels()[labels.RepoLabel]
 	}
 
 	return nil

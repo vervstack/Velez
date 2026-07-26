@@ -41,6 +41,7 @@ func (s *EnableStatefullSuite) Test_EnableStatefullMode_HappyPath() {
 	t.Cleanup(func() {
 		ctx := context.Background()
 		removeOpts := container.RemoveOptions{Force: true}
+
 		_ = dockerClient.ContainerRemove(ctx, state.PgName, removeOpts)
 		_ = dockerClient.VolumeRemove(ctx, state.PgName, true)
 	})
@@ -79,7 +80,6 @@ func (s *EnableStatefullSuite) Test_EnableStatefullMode_HappyPath() {
 
 func (s *EnableStatefullSuite) Test_EnableStatefullMode_UnsupportedPlugin_Fails() {
 	t := s.T()
-	t.Parallel()
 
 	env := NewEnvironment(t)
 
@@ -102,6 +102,7 @@ func repoRoot(t *testing.T) string {
 	t.Helper()
 
 	pc, filename, _, _ := runtime.Caller(0)
+
 	_ = pc
 
 	return filepath.Dir(filepath.Dir(filepath.Dir(filename)))

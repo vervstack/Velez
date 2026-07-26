@@ -8,21 +8,23 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-const minServiceNameLen = 4
+const (
+	minServiceNameLen = 4
+)
 
-var allowedNameSymbols = map[rune]struct{}{}
+var (
+	allowedNameSymbols     = map[rune]struct{}{}
+	ErrInvalidServiceName  = rerrors.New("service name contains invalid characters", codes.InvalidArgument)
+	ErrTooShortServiceName = rerrors.New("service name is too short", codes.InvalidArgument)
+)
 
 func init() {
 	const allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_abcdefghijklmnopqrstuvwxyz1234567890"
+
 	for _, r := range allowedChars {
 		allowedNameSymbols[r] = struct{}{}
 	}
 }
-
-var (
-	ErrInvalidServiceName  = rerrors.New("service name contains invalid characters", codes.InvalidArgument)
-	ErrTooShortServiceName = rerrors.New("service name is too short", codes.InvalidArgument)
-)
 
 func ValidateServiceName(name string) steps.Step {
 	return steps.SingleFunc(func(_ context.Context) error {

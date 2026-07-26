@@ -56,11 +56,11 @@ func (s *createSmerdStep) Do(ctx context.Context) error {
 
 	*s.containerID = containerInfo.ID
 
-	for _, n := range s.req.Settings.Network {
+	for _, n := range s.req.Settings.GetNetwork() {
 		connectReq := dockerutils.ConnectToNetworkRequest{
-			NetworkName: n.NetworkName,
+			NetworkName: n.GetNetworkName(),
 			ContId:      createdContainer.ID,
-			Aliases:     n.Aliases,
+			Aliases:     n.GetAliases(),
 		}
 
 		err = dockerutils.ConnectToNetwork(ctx, s.dockerDirectAPI, connectReq)
@@ -107,8 +107,8 @@ func (s *createSmerdStep) getHostConfig() (hostConfig *container.HostConfig) {
 		RestartPolicy: parser.FromRestart(s.req.Restart),
 	}
 
-	if s.req.Settings != nil && len(s.req.Settings.Volumes) != 0 {
-		hostConfig.VolumeDriver = s.req.Settings.Volumes[0].VolumeName
+	if s.req.Settings != nil && len(s.req.Settings.GetVolumes()) != 0 {
+		hostConfig.VolumeDriver = s.req.Settings.GetVolumes()[0].GetVolumeName()
 	}
 
 	return hostConfig
@@ -117,7 +117,7 @@ func (s *createSmerdStep) getHostConfig() (hostConfig *container.HostConfig) {
 func (s *createSmerdStep) getNetworkConfig() (networkConfig *network.NetworkingConfig) {
 	networkConfig = &network.NetworkingConfig{}
 
-	if len(s.req.Settings.Ports) == 0 {
+	if len(s.req.Settings.GetPorts()) == 0 {
 		return networkConfig
 	}
 
@@ -126,14 +126,15 @@ func (s *createSmerdStep) getNetworkConfig() (networkConfig *network.NetworkingC
 	vervNetwork := &network.EndpointSettings{
 		Aliases: []string{s.req.GetName()},
 	}
+
 	networkConfig.EndpointsConfig[env.VervNetwork] = vervNetwork
 
 	// required in order to expose ports on some platforms (e.g. orbs)
 	networkConfig.EndpointsConfig["bridge"] = &network.EndpointSettings{}
 
-	for _, v := range s.req.Settings.Network {
-		networkConfig.EndpointsConfig[v.NetworkName] = &network.EndpointSettings{
-			Aliases: v.Aliases,
+	for _, v := range s.req.Settings.GetNetwork() {
+		networkConfig.EndpointsConfig[v.GetNetworkName()] = &network.EndpointSettings{
+			Aliases: v.GetAliases(),
 		}
 	}
 

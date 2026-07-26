@@ -23,7 +23,6 @@ import (
 // value is never read; it only exists to keep encoding/json from ever
 // touching the real (interface-typed) Config field directly.
 type createSmerdRequestJSON struct {
-	*rawCreateSmerdRequest
 	//nolint:tagliatelle // must stay "Config" (exact case) to match the
 	// promoted, untagged field's default JSON key - encoding/json shadows by
 	// exact key match, not just nesting depth, so a differently-cased tag
@@ -33,15 +32,12 @@ type createSmerdRequestJSON struct {
 	ConfigPlain *PlainConfigSpec     `json:"configPlain,omitempty"`
 }
 
-type rawCreateSmerdRequest CreateSmerd_Request
-
 // MarshalJSON flattens Config (see the package-level comment above) so it
 // survives a subsequent UnmarshalJSON round-trip.
 func (x *CreateSmerd_Request) MarshalJSON() ([]byte, error) {
 	aux := createSmerdRequestJSON{
-		rawCreateSmerdRequest: (*rawCreateSmerdRequest)(x),
-		ConfigVerv:            x.GetVerv(),
-		ConfigPlain:           x.GetPlain(),
+		ConfigVerv:  x.GetVerv(),
+		ConfigPlain: x.GetPlain(),
 	}
 
 	data, err := json.Marshal(aux)
@@ -55,9 +51,7 @@ func (x *CreateSmerd_Request) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON reconstructs Config from the flattened fields MarshalJSON
 // produced (see the package-level comment above).
 func (x *CreateSmerd_Request) UnmarshalJSON(data []byte) error {
-	aux := createSmerdRequestJSON{
-		rawCreateSmerdRequest: (*rawCreateSmerdRequest)(x),
-	}
+	aux := createSmerdRequestJSON{}
 
 	err := json.Unmarshal(data, &aux)
 	if err != nil {

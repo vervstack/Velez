@@ -2,12 +2,13 @@ package pipelines
 
 import (
 	"go.redsock.ru/toolbox"
+	"go.vervstack.ru/matreshka/pkg/matreshka_api"
+
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/patterns/headscale"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/config_steps"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/container_steps"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 func (p *pipeliner) SetupHeadscale(req domain.SetupHeadscaleRequest) Runner[domain.SetupHeadscaleResponse] {
@@ -25,7 +26,7 @@ func (p *pipeliner) SetupHeadscale(req domain.SetupHeadscaleRequest) Runner[doma
 			container_steps.CopyToContainer(p.nodeClients, &containerId, &mountPoints),
 			config_steps.StoreConfig(p.clusterClients,
 				headscale.ServiceName, headscaleConfig,
-				matreshka_api.ConfigTypePrefix_plain, matreshka_api.Format_yaml),
+				matreshka_api.Format_yaml),
 		},
 	}
 }

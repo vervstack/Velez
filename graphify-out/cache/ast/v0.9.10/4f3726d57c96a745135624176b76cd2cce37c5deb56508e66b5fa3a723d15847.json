@@ -1,0 +1,928 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_cluster_disabled_go",
+      "label": "disabled.go",
+      "file_type": "code",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "cluster_disabledconfigurator",
+      "label": "disabledConfigurator",
+      "file_type": "code",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L12"
+    },
+    {
+      "id": "cluster_disabledconfigurator_apiversion",
+      "label": ".ApiVersion()",
+      "file_type": "code",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L14"
+    },
+    {
+      "id": "context",
+      "label": "Context",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "apiversion_request",
+      "label": "ApiVersion_Request",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "apiversion_response",
+      "label": "ApiVersion_Response",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "cluster_disabledconfigurator_getconfig",
+      "label": ".GetConfig()",
+      "file_type": "code",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L22"
+    },
+    {
+      "id": "getconfig_request",
+      "label": "GetConfig_Request",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "getconfig_response",
+      "label": "GetConfig_Response",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "cluster_disabledconfigurator_getconfignodes",
+      "label": ".GetConfigNodes()",
+      "file_type": "code",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L30"
+    },
+    {
+      "id": "getconfignode_request",
+      "label": "GetConfigNode_Request",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "getconfignode_response",
+      "label": "GetConfigNode_Response",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "cluster_disabledconfigurator_listconfigs",
+      "label": ".ListConfigs()",
+      "file_type": "code",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L38"
+    },
+    {
+      "id": "listconfigs_request",
+      "label": "ListConfigs_Request",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "listconfigs_response",
+      "label": "ListConfigs_Response",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "cluster_disabledconfigurator_createconfig",
+      "label": ".CreateConfig()",
+      "file_type": "code",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L46"
+    },
+    {
+      "id": "createconfig_request",
+      "label": "CreateConfig_Request",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "createconfig_response",
+      "label": "CreateConfig_Response",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "cluster_disabledconfigurator_patchconfig",
+      "label": ".PatchConfig()",
+      "file_type": "code",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L54"
+    },
+    {
+      "id": "patchconfig_request",
+      "label": "PatchConfig_Request",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "patchconfig_response",
+      "label": "PatchConfig_Response",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "cluster_disabledconfigurator_storeconfig",
+      "label": ".StoreConfig()",
+      "file_type": "code",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L62"
+    },
+    {
+      "id": "storeconfig_request",
+      "label": "StoreConfig_Request",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "storeconfig_response",
+      "label": "StoreConfig_Response",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "cluster_disabledconfigurator_renameconfig",
+      "label": ".RenameConfig()",
+      "file_type": "code",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L70"
+    },
+    {
+      "id": "renameconfig_request",
+      "label": "RenameConfig_Request",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "renameconfig_response",
+      "label": "RenameConfig_Response",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "cluster_disabledconfigurator_deleteconfig",
+      "label": ".DeleteConfig()",
+      "file_type": "code",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L78"
+    },
+    {
+      "id": "deleteconfig_request",
+      "label": "DeleteConfig_Request",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "deleteconfig_response",
+      "label": "DeleteConfig_Response",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "cluster_disabledconfigurator_subscribeonchanges",
+      "label": ".SubscribeOnChanges()",
+      "file_type": "code",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L86"
+    },
+    {
+      "id": "bidistreamingclient",
+      "label": "BidiStreamingClient",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "subscribeonchanges_request",
+      "label": "SubscribeOnChanges_Request",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "subscribeonchanges_response",
+      "label": "SubscribeOnChanges_Response",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "cluster_disabledservicediscovery",
+      "label": "disabledServiceDiscovery",
+      "file_type": "code",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L96"
+    },
+    {
+      "id": "cluster_disabledservicediscovery_version",
+      "label": ".Version()",
+      "file_type": "code",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L98"
+    },
+    {
+      "id": "version_request",
+      "label": "Version_Request",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "version_response",
+      "label": "Version_Response",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "cluster_disabledservicediscovery_listendpoints",
+      "label": ".ListEndpoints()",
+      "file_type": "code",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L106"
+    },
+    {
+      "id": "listendpoints_request",
+      "label": "ListEndpoints_Request",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "listendpoints_response",
+      "label": "ListEndpoints_Response",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "cluster_disabledservicediscovery_upsertendpoints",
+      "label": ".UpsertEndpoints()",
+      "file_type": "code",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L114"
+    },
+    {
+      "id": "upsertendpoints_request",
+      "label": "UpsertEndpoints_Request",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    },
+    {
+      "id": "upsertendpoints_response",
+      "label": "UpsertEndpoints_Response",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/disabled.go"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_disabled_go",
+      "target": "go_pkg_context",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_disabled_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_cluster_clients",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_disabled_go",
+      "target": "go_pkg_go_vervstack_ru_makosh_pkg_makosh_be",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_disabled_go",
+      "target": "go_pkg_go_vervstack_ru_matreshka_pkg_matreshka_api",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_disabled_go",
+      "target": "go_pkg_google_golang_org_grpc",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_disabled_go",
+      "target": "cluster_disabledconfigurator",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "cluster_disabledconfigurator",
+      "target": "cluster_disabledconfigurator_apiversion",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "cluster_disabledconfigurator_apiversion",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator_apiversion",
+      "target": "apiversion_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator_apiversion",
+      "target": "apiversion_response",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator",
+      "target": "cluster_disabledconfigurator_getconfig",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "cluster_disabledconfigurator_getconfig",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator_getconfig",
+      "target": "getconfig_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator_getconfig",
+      "target": "getconfig_response",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator",
+      "target": "cluster_disabledconfigurator_getconfignodes",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "cluster_disabledconfigurator_getconfignodes",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L30",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator_getconfignodes",
+      "target": "getconfignode_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L30",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator_getconfignodes",
+      "target": "getconfignode_response",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L30",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator",
+      "target": "cluster_disabledconfigurator_listconfigs",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L38",
+      "weight": 1.0
+    },
+    {
+      "source": "cluster_disabledconfigurator_listconfigs",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L38",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator_listconfigs",
+      "target": "listconfigs_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L38",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator_listconfigs",
+      "target": "listconfigs_response",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L38",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator",
+      "target": "cluster_disabledconfigurator_createconfig",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "cluster_disabledconfigurator_createconfig",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L46",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator_createconfig",
+      "target": "createconfig_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L46",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator_createconfig",
+      "target": "createconfig_response",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L46",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator",
+      "target": "cluster_disabledconfigurator_patchconfig",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "cluster_disabledconfigurator_patchconfig",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L54",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator_patchconfig",
+      "target": "patchconfig_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L54",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator_patchconfig",
+      "target": "patchconfig_response",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L54",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator",
+      "target": "cluster_disabledconfigurator_storeconfig",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L62",
+      "weight": 1.0
+    },
+    {
+      "source": "cluster_disabledconfigurator_storeconfig",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L62",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator_storeconfig",
+      "target": "storeconfig_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L62",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator_storeconfig",
+      "target": "storeconfig_response",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L62",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator",
+      "target": "cluster_disabledconfigurator_renameconfig",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L70",
+      "weight": 1.0
+    },
+    {
+      "source": "cluster_disabledconfigurator_renameconfig",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L70",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator_renameconfig",
+      "target": "renameconfig_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L70",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator_renameconfig",
+      "target": "renameconfig_response",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L70",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator",
+      "target": "cluster_disabledconfigurator_deleteconfig",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L78",
+      "weight": 1.0
+    },
+    {
+      "source": "cluster_disabledconfigurator_deleteconfig",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L78",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator_deleteconfig",
+      "target": "deleteconfig_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L78",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator_deleteconfig",
+      "target": "deleteconfig_response",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L78",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator",
+      "target": "cluster_disabledconfigurator_subscribeonchanges",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L86",
+      "weight": 1.0
+    },
+    {
+      "source": "cluster_disabledconfigurator_subscribeonchanges",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L86",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator_subscribeonchanges",
+      "target": "bidistreamingclient",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L86",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "cluster_disabledconfigurator_subscribeonchanges",
+      "target": "subscribeonchanges_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L86",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "cluster_disabledconfigurator_subscribeonchanges",
+      "target": "subscribeonchanges_response",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L86",
+      "weight": 1.0,
+      "context": "generic_arg"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_disabled_go",
+      "target": "cluster_disabledservicediscovery",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L96",
+      "weight": 1.0
+    },
+    {
+      "source": "cluster_disabledservicediscovery",
+      "target": "cluster_disabledservicediscovery_version",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L98",
+      "weight": 1.0
+    },
+    {
+      "source": "cluster_disabledservicediscovery_version",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L98",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledservicediscovery_version",
+      "target": "version_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L98",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledservicediscovery_version",
+      "target": "version_response",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L98",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "cluster_disabledservicediscovery",
+      "target": "cluster_disabledservicediscovery_listendpoints",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L106",
+      "weight": 1.0
+    },
+    {
+      "source": "cluster_disabledservicediscovery_listendpoints",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L106",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledservicediscovery_listendpoints",
+      "target": "listendpoints_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L106",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledservicediscovery_listendpoints",
+      "target": "listendpoints_response",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L106",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "cluster_disabledservicediscovery",
+      "target": "cluster_disabledservicediscovery_upsertendpoints",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L114",
+      "weight": 1.0
+    },
+    {
+      "source": "cluster_disabledservicediscovery_upsertendpoints",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L114",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledservicediscovery_upsertendpoints",
+      "target": "upsertendpoints_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L114",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "cluster_disabledservicediscovery_upsertendpoints",
+      "target": "upsertendpoints_response",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/disabled.go",
+      "source_location": "L114",
+      "weight": 1.0,
+      "context": "return_type"
+    }
+  ],
+  "raw_calls": []
+}

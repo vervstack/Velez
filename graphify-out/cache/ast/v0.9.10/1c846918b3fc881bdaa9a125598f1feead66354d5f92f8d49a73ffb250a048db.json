@@ -1,0 +1,119 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_storage_postgres_tasks_go",
+      "label": "tasks.go",
+      "file_type": "code",
+      "source_file": "internal/storage/postgres/tasks.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "postgres_tasksstorage",
+      "label": "tasksStorage",
+      "file_type": "code",
+      "source_file": "internal/storage/postgres/tasks.go",
+      "source_location": "L8"
+    },
+    {
+      "id": "queries",
+      "label": "Queries",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/storage/postgres/tasks.go"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_storage_postgres_tasks_newtasksstorage",
+      "label": "newTasksStorage()",
+      "file_type": "code",
+      "source_file": "internal/storage/postgres/tasks.go",
+      "source_location": "L12"
+    },
+    {
+      "id": "db",
+      "label": "DB",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/storage/postgres/tasks.go"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_postgres_tasks_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_sqldb",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/postgres/tasks.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_postgres_tasks_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_storage_postgres_generated_tasks_queries",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/postgres/tasks.go",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_postgres_tasks_go",
+      "target": "postgres_tasksstorage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/postgres/tasks.go",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "postgres_tasksstorage",
+      "target": "queries",
+      "relation": "embeds",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/postgres/tasks.go",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_postgres_tasks_go",
+      "target": "users_alexbukov_verv_velez_internal_storage_postgres_tasks_newtasksstorage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/postgres/tasks.go",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_postgres_tasks_newtasksstorage",
+      "target": "db",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/postgres/tasks.go",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_postgres_tasks_newtasksstorage",
+      "target": "postgres_tasksstorage",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/postgres/tasks.go",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "return_type"
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_storage_postgres_tasks_newtasksstorage",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/storage/postgres/tasks.go",
+      "source_location": "L14"
+    }
+  ]
+}

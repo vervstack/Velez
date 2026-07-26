@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
 )
@@ -15,6 +16,8 @@ var (
 )
 
 func GetSharedPortManager(t *testing.T, portsToOccupy []int) ports.PortManager {
+	t.Helper()
+
 	initPortManagerOnce.Do(func() {
 		d, err := docker.NewClient(nil, "")
 		require.NoError(t, err)

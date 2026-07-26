@@ -29,15 +29,20 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const CreateSmerdAction = "create_smerd"
-
-// stepHealthcheck names the healthcheck job shared with upgrade_smerd.go's
-// BuildJobs.
-const stepHealthcheck = "healthcheck"
-
 const (
+	CreateSmerdAction = "create_smerd"
+
+	// stepHealthcheck names the healthcheck job shared with upgrade_smerd.go's
+	// BuildJobs.
+	stepHealthcheck = "healthcheck"
+
 	stepPrepareCreateImage = "prepare_image"
 	stepPrepareVervConfig  = "prepare_verv_config"
+
+	vervConfigLabelEnabled  = "true"
+	vervConfigLabelDisabled = "false"
+
+	dockerContainerStatusRunning = "running"
 )
 
 // Accessor interfaces the create_smerd jobs need from their TaskContext.
@@ -82,7 +87,9 @@ type createSmerdHandler struct {
 }
 
 // NewCreateSmerdHandler builds the TaskHandler for the "create_smerd" action.
-func NewCreateSmerdHandler(nodeClients node_clients.NodeClients, configService service.ConfigurationService) TaskHandler {
+func NewCreateSmerdHandler(
+	nodeClients node_clients.NodeClients, configService service.ConfigurationService,
+) TaskHandler {
 	return &createSmerdHandler{
 		nodeClients:   nodeClients,
 		configService: configService,
@@ -190,11 +197,11 @@ type prepareSmerdRequestJob struct {
 func (j *prepareSmerdRequestJob) Do(_ context.Context) error {
 	request := j.req.GetRequest()
 
-	if request.Settings == nil {
+	if request.GetSettings() == nil {
 		request.Settings = &velez_api.Container_Settings{}
 	}
 
-	if request.Hardware == nil {
+	if request.GetHardware() == nil {
 		request.Hardware = &velez_api.Container_Hardware{}
 	}
 
@@ -289,26 +296,27 @@ func (j *fetchSmerdConfigJob) doVerv(
 	request *velez_api.CreateSmerd_Request,
 	spec *velez_api.MatreshkaConfigSpec,
 ) error {
-	if request.IgnoreConfig {
+	if request.GetIgnoreConfig() {
 		return nil
 	}
 
 	confType, format, defaultSystemPath := classifyImage(j.imageMeta.GetImageLabels(), j.imageMeta.GetImageTags())
 	if spec.ConfigFormat != nil {
-		format = *spec.ConfigFormat
+		format = spec.GetConfigFormat()
 	}
 
 	systemPath := defaultSystemPath
 	if spec.SystemPath != nil {
-		systemPath = *spec.SystemPath
+		systemPath = spec.GetSystemPath()
 	}
 
 	configName := request.GetName()
 	if spec.ConfigName != nil {
-		configName = *spec.ConfigName
+		configName = spec.GetConfigName()
 	}
 
 	confTypePrefix := toConfTypePrefix(confType)
+
 	configName = configutils.AppendPrefix(confTypePrefix, configName)
 
 	meta := domain.ConfigMeta{
@@ -399,7 +407,7 @@ type prepareSmerdVervConfigJob struct {
 func (j *prepareSmerdVervConfigJob) Do(ctx context.Context) error {
 	request := j.req.GetRequest()
 
-	if request.UseImagePorts {
+	if request.GetUseImagePorts() {
 		err := j.getPortsFromImage(request)
 		if err != nil {
 			return rerrors.Wrap(err, "error locking ports")
@@ -411,7 +419,7 @@ func (j *prepareSmerdVervConfigJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error locking ports")
 	}
 
-	if !request.IgnoreConfig {
+	if !request.GetIgnoreConfig() {
 		request.Env[matreshka.VervName] = request.GetName()
 	}
 
@@ -427,7 +435,7 @@ func (j *prepareSmerdVervConfigJob) Do(ctx context.Context) error {
 
 func (j *prepareSmerdVervConfigJob) applyLabels(request *velez_api.CreateSmerd_Request) {
 	for name, val := range j.imageMeta.GetImageLabels() {
-		if request.IgnoreConfig && name == labels.MatreshkaConfigLabel && val == vervConfigLabelEnabled {
+		if request.GetIgnoreConfig() && name == labels.MatreshkaConfigLabel && val == vervConfigLabelEnabled {
 			val = vervConfigLabelDisabled
 		}
 
@@ -435,31 +443,26 @@ func (j *prepareSmerdVervConfigJob) applyLabels(request *velez_api.CreateSmerd_R
 	}
 
 	request.Labels[labels.ComposeGroupLabel] = request.GetName()
-	if request.AutoUpgrade {
+	if request.GetAutoUpgrade() {
 		request.Labels[labels.AutoUpgrade] = vervConfigLabelEnabled
 	}
 }
 
 func (j *prepareSmerdVervConfigJob) ensureNetworks(ctx context.Context, request *velez_api.CreateSmerd_Request) error {
-	for _, n := range request.Settings.Network {
-		err := createNetworkIfMissing(ctx, j.dockerAPI, n.NetworkName)
+	for _, n := range request.GetSettings().GetNetwork() {
+		err := createNetworkIfMissing(ctx, j.dockerAPI, n.GetNetworkName())
 		if err != nil {
-			return rerrors.Wrap(err, "error creating network: %s", n.NetworkName)
+			return rerrors.Wrap(err, "error creating network: %s", n.GetNetworkName())
 		}
 	}
 
 	return nil
 }
 
-const (
-	vervConfigLabelEnabled  = "true"
-	vervConfigLabelDisabled = "false"
-)
-
 func (j *prepareSmerdVervConfigJob) getPortsFromImage(request *velez_api.CreateSmerd_Request) error {
 	portsFromReq := map[uint32]*velez_api.Port{}
-	for _, port := range request.Settings.Ports {
-		portsFromReq[port.ServicePortNumber] = port
+	for _, port := range request.GetSettings().GetPorts() {
+		portsFromReq[port.GetServicePortNumber()] = port
 	}
 
 	for _, portProtoc := range j.imageExposedPorts.GetImageExposedPorts() {
@@ -488,18 +491,18 @@ func (j *prepareSmerdVervConfigJob) getPortsFromImage(request *velez_api.CreateS
 }
 
 func (j *prepareSmerdVervConfigJob) lockPorts(request *velez_api.CreateSmerd_Request) (err error) {
-	j.lockedPorts = make([]uint32, 0, len(request.Settings.Ports))
+	j.lockedPorts = make([]uint32, 0, len(request.GetSettings().GetPorts()))
 
-	for _, imagePort := range request.Settings.Ports {
+	for _, imagePort := range request.GetSettings().GetPorts() {
 		if imagePort.ExposedTo == nil {
 			var port uint32
 
 			port, err = j.portManager.GetPort()
 			imagePort.ExposedTo = &port
 		} else {
-			ok := j.portManager.UnHoldPort(*imagePort.ExposedTo)
+			ok := j.portManager.UnHoldPort(imagePort.GetExposedTo())
 			if !ok {
-				err = j.portManager.LockPort(*imagePort.ExposedTo)
+				err = j.portManager.LockPort(imagePort.GetExposedTo())
 			}
 		}
 
@@ -507,7 +510,7 @@ func (j *prepareSmerdVervConfigJob) lockPorts(request *velez_api.CreateSmerd_Req
 			return rerrors.Wrap(err, "error locking host port")
 		}
 
-		j.lockedPorts = append(j.lockedPorts, *imagePort.ExposedTo)
+		j.lockedPorts = append(j.lockedPorts, imagePort.GetExposedTo())
 	}
 
 	return nil
@@ -585,22 +588,22 @@ func (j *createContainerJob) Do(ctx context.Context) error {
 		Image:       req.GetImageName(),
 		Hostname:    req.GetName(),
 		Cmd:         parser.FromCommand(req.Command),
-		Healthcheck: parser.FromHealthcheck(req.Healthcheck),
-		Env:         parser.FromDockerEnv(req.Env),
-		Labels:      req.Labels,
+		Healthcheck: parser.FromHealthcheck(req.GetHealthcheck()),
+		Env:         parser.FromDockerEnv(req.GetEnv()),
+		Labels:      req.GetLabels(),
 	}
 
 	hostCfg := &container.HostConfig{
-		PortBindings:  parser.FromPorts(req.Settings),
-		Mounts:        parser.FromVolume(req.Settings),
-		RestartPolicy: parser.FromRestart(req.Restart),
+		PortBindings:  parser.FromPorts(req.GetSettings()),
+		Mounts:        parser.FromVolume(req.GetSettings()),
+		RestartPolicy: parser.FromRestart(req.GetRestart()),
 	}
-	if req.Settings != nil && len(req.Settings.Volumes) != 0 {
-		hostCfg.VolumeDriver = req.Settings.Volumes[0].VolumeName
+	if req.GetSettings() != nil && len(req.GetSettings().GetVolumes()) != 0 {
+		hostCfg.VolumeDriver = req.GetSettings().GetVolumes()[0].GetVolumeName()
 	}
 
 	netCfg := &network.NetworkingConfig{}
-	if req.Settings != nil && len(req.Settings.Ports) != 0 {
+	if req.GetSettings() != nil && len(req.GetSettings().GetPorts()) != 0 {
 		netCfg.EndpointsConfig = make(map[string]*network.EndpointSettings)
 		netCfg.EndpointsConfig[env.VervNetwork] = &network.EndpointSettings{
 			Aliases: []string{req.GetName()},
@@ -621,12 +624,12 @@ func (j *createContainerJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error inspecting container by id")
 	}
 
-	if req.Settings != nil {
-		for _, n := range req.Settings.Network {
+	if req.GetSettings() != nil {
+		for _, n := range req.GetSettings().GetNetwork() {
 			connectReq := dockerutils.ConnectToNetworkRequest{
-				NetworkName: n.NetworkName,
+				NetworkName: n.GetNetworkName(),
 				ContId:      created.ID,
-				Aliases:     n.Aliases,
+				Aliases:     n.GetAliases(),
 			}
 
 			err = dockerutils.ConnectToNetwork(ctx, dockerClient.Client(), connectReq)
@@ -726,5 +729,3 @@ func (j *healthcheckJob) Do(ctx context.Context) error {
 
 	return rerrors.New("healthcheck retries exhausted")
 }
-
-const dockerContainerStatusRunning = "running"

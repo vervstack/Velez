@@ -22,7 +22,6 @@ type UpgradeSmerdSuite struct {
 
 func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_HappyPath() {
 	t := s.T()
-	t.Parallel()
 
 	serviceName := GetServiceName(t)
 	env := NewEnvironment(t)
@@ -33,7 +32,7 @@ func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_HappyPath() {
 		IgnoreConfig: true,
 	}
 	created := env.CreateSmerd(t, createReq)
-	require.Equal(t, velez_api.Smerd_running, created.Status)
+	require.Equal(t, velez_api.Smerd_running, created.GetStatus())
 
 	upgradeReq := &velez_api.UpgradeSmerd_Request{
 		Name:  serviceName,
@@ -44,16 +43,15 @@ func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_HappyPath() {
 
 	listReq := &velez_api.ListSmerds_Request{Name: toolbox.ToPtr(serviceName)}
 	resp := env.ListSmerds(t, t.Context(), listReq)
-	require.Len(t, resp.Smerds, 1, "expected exactly one container named %q after upgrade", serviceName)
+	require.Len(t, resp.GetSmerds(), 1, "expected exactly one container named %q after upgrade", serviceName)
 
-	upgraded := resp.Smerds[0]
-	require.Equal(t, helloWorldImageV0015, upgraded.ImageName)
-	require.Equal(t, velez_api.Smerd_running, upgraded.Status)
+	upgraded := resp.GetSmerds()[0]
+	require.Equal(t, helloWorldImageV0015, upgraded.GetImageName())
+	require.Equal(t, velez_api.Smerd_running, upgraded.GetStatus())
 }
 
 func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_NonExistentContainer_Fails() {
 	t := s.T()
-	t.Parallel()
 
 	serviceName := GetServiceName(t)
 	env := NewEnvironment(t)

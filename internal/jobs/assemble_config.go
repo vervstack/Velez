@@ -12,31 +12,32 @@ import (
 	"github.com/stretchr/testify/assert/yaml"
 	"go.redsock.ru/evon"
 	"go.redsock.ru/rerrors"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain/labels"
-	"go.vervstack.ru/matreshka/pkg/matreshka"
 )
 
-const AssembleConfigAction = "assemble_config"
-
-// scratchContainerSuffix names the throwaway container used to read a
-// config out of an image, mirroring pipelines.configFetchingPostfix.
-const scratchContainerSuffix = "_config_scanning"
-
-// stepFetchConfig names the fetch_config job shared with create_smerd.go and
-// upgrade_smerd.go's BuildJobs. stepDropContainer (same job name across
-// assemble_config.go and copy_to_volume.go) is declared once in
-// copy_to_volume.go and reused here.
-const stepFetchConfig = "fetch_config"
-
-const stepPrepareScratchImage = "prepare_image"
-
-// matreshka_api.ConfigTypePrefix's enum names. Kept as plain strings in the
-// TaskContext rather than the typed enum - see the conf_type field comment
-// in api/grpc/tasks.proto for why.
 const (
+	AssembleConfigAction = "assemble_config"
+
+	// scratchContainerSuffix names the throwaway container used to read a
+	// config out of an image, mirroring pipelines.configFetchingPostfix.
+	scratchContainerSuffix = "_config_scanning"
+
+	// stepFetchConfig names the fetch_config job shared with create_smerd.go and
+	// upgrade_smerd.go's BuildJobs. stepDropContainer (same job name across
+	// assemble_config.go and copy_to_volume.go) is declared once in
+	// copy_to_volume.go and reused here.
+	stepFetchConfig = "fetch_config"
+
+	stepPrepareScratchImage = "prepare_image"
+
+	// matreshka_api.ConfigTypePrefix's enum names. Kept as plain strings in the
+	// TaskContext rather than the typed enum - see the conf_type field comment
+	// in api/grpc/tasks.proto for why.
 	confTypeVerv  = "verv"
 	confTypePg    = "pg"
 	confTypePlain = "plain"
@@ -156,6 +157,7 @@ func (j *prepareScratchImageJob) Do(ctx context.Context) error {
 	}
 
 	var imageLabels map[string]string
+
 	if imageInfo.Config != nil {
 		imageLabels = imageInfo.Config.Labels
 	}

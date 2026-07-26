@@ -23,6 +23,7 @@ type AboutService struct {
 
 type Service struct {
 	ServiceBaseInfo
+
 	CurrentDeploymentId *uint64
 	Status              velez_api.DeploymentStatus
 	About               AboutService
@@ -48,6 +49,7 @@ type RemoveServiceReq struct {
 
 type CreateDeployReq struct {
 	LaunchSmerd
+
 	ServiceName string
 }
 

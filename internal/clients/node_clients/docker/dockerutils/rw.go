@@ -14,7 +14,9 @@ import (
 	"go.redsock.ru/rerrors"
 )
 
-const tarFilePermissions = 0o644
+const (
+	tarFilePermissions = 0o644
+)
 
 func ReadFromContainer(ctx context.Context, dockerAPI client.APIClient, contId string, path string) ([]byte, error) {
 	rc, _, err := dockerAPI.CopyFromContainer(ctx, contId, path)
@@ -50,7 +52,13 @@ func ReadFromContainer(ctx context.Context, dockerAPI client.APIClient, contId s
 	return res, nil
 }
 
-func WriteToContainer(ctx context.Context, dockerAPI client.APIClient, contId string, systemPath string, content []byte) error {
+func WriteToContainer(
+	ctx context.Context,
+	dockerAPI client.APIClient,
+	contId string,
+	systemPath string,
+	content []byte,
+) error {
 	buf := new(bytes.Buffer)
 	tw := tar.NewWriter(buf)
 

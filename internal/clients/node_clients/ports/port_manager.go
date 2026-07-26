@@ -96,6 +96,7 @@ func (p *portManagerImpl) LockPort(ports ...uint32) (err error) {
 	pL := make([]uint32, 0, len(ports))
 
 	p.m.Lock()
+
 	defer func() {
 		if err != nil {
 			p.UnlockPorts(pL)
@@ -136,7 +137,9 @@ func (p *portManagerImpl) UnlockPorts(ports []uint32) {
 
 func (p *portManagerImpl) HoldPort(port uint32) bool {
 	p.holdM.Lock()
+
 	wasOnHold := p.pausedPorts[port]
+
 	p.pausedPorts[port] = true
 	p.holdM.Unlock()
 
@@ -145,7 +148,9 @@ func (p *portManagerImpl) HoldPort(port uint32) bool {
 
 func (p *portManagerImpl) UnHoldPort(port uint32) bool {
 	p.holdM.Lock()
+
 	wasOnHold := p.pausedPorts[port]
+
 	p.pausedPorts[port] = false
 	p.holdM.Unlock()
 

@@ -3,22 +3,24 @@ package dockerutils
 import (
 	"context"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	errors "go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/list_request"
 	"go.vervstack.ru/Velez/internal/utils/common"
 )
 
-const maxList = 10
+const (
+	maxList = 10
+)
 
 func ListContainers(
 	ctx context.Context,
 	docker client.APIClient,
 	req *velez_api.ListSmerds_Request,
-) ([]types.Container, error) {
+) ([]container.Summary, error) {
 	dockerReq := container.ListOptions{
 		All:   true,
 		Limit: maxList,
@@ -39,7 +41,7 @@ func ListContainers(
 	}
 
 	if req.GetLabel() != nil {
-		for k, v := range req.Label {
+		for k, v := range req.GetLabel() {
 			filter.Label(k + "=" + v)
 		}
 	}

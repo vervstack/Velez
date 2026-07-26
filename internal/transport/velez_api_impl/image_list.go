@@ -14,7 +14,7 @@ func (impl *Impl) SearchImages(ctx context.Context, req *velez_api.SearchImages_
 	*velez_api.SearchImages_Response, error,
 ) {
 	searchReq := domain.ImageSearchRequest{
-		Term:            req.Name,
+		Term:            req.GetName(),
 		UseOfficialOnly: toolbox.FromPtr(req.UseOnlyOfficial),
 	}
 

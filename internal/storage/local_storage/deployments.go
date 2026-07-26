@@ -31,7 +31,7 @@ func (d *deployments) ListDeployments(_ context.Context,
 
 func (d *deployments) CreateDeployment(_ context.Context,
 	_ deployments_queries.CreateDeploymentParams,
-) (interface{}, error) {
+) (any, error) {
 	return nil, errNotImplemented
 }
 

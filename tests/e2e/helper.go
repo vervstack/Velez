@@ -15,16 +15,10 @@ const (
 	integrationTestLabel = testLabelPrefix + "integration"
 	testCaseNameLabel    = testLabelPrefix + "name"
 	minPortToExposeTo    = uint32(18501)
-)
-
-const (
-	labelValueTrue  = "true"
-	labelValueFalse = "false"
-)
-
-const (
-	HelloWorldAppImage = "godverv/hello_world:v0.0.14"
-	PostgresImage      = "postgres:16"
+	labelValueTrue       = "true"
+	labelValueFalse      = "false"
+	HelloWorldAppImage   = "godverv/hello_world:v0.0.14"
+	PostgresImage        = "postgres:16"
 )
 
 func GetServiceName(t *testing.T) string {
@@ -46,17 +40,19 @@ func GetExpectedLabels(t *testing.T) map[string]string {
 func AssertSmerds(t *testing.T, expected, actual *velez_api.Smerd) {
 	t.Helper()
 
-	require.NotEmpty(t, actual.Uuid)
+	require.NotEmpty(t, actual.GetUuid())
+
 	actual.Uuid = ""
 
-	require.NotEmpty(t, actual.CreatedAt)
+	require.NotEmpty(t, actual.GetCreatedAt())
+
 	actual.CreatedAt = nil
 
-	require.Len(t, actual.Ports, len(expected.Ports))
+	require.Len(t, actual.GetPorts(), len(expected.GetPorts()))
 
-	for idx, port := range actual.Ports {
+	for idx, port := range actual.GetPorts() {
 		require.NotNil(t, port.ExposedTo)
-		require.GreaterOrEqual(t, *port.ExposedTo, minPortToExposeTo)
+		require.GreaterOrEqual(t, port.GetExposedTo(), minPortToExposeTo)
 
 		expected.Ports[idx].ExposedTo = port.ExposedTo
 	}

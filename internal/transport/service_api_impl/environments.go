@@ -8,8 +8,11 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (impl *Impl) GetServiceEnvironments(ctx context.Context, pbReq *pb.GetServiceEnvironments_Request) (*pb.GetServiceEnvironments_Response, error) {
-	environments, err := impl.servicesService.GetServiceEnvironments(ctx, pbReq.ServiceName)
+func (impl *Impl) GetServiceEnvironments(
+	ctx context.Context,
+	pbReq *pb.GetServiceEnvironments_Request,
+) (*pb.GetServiceEnvironments_Response, error) {
+	environments, err := impl.servicesService.GetServiceEnvironments(ctx, pbReq.GetServiceName())
 	if err != nil {
 		return nil, rerrors.Wrap(err)
 	}

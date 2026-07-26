@@ -4,7 +4,9 @@ import (
 	"strings"
 )
 
-const minEnvParts = 2
+const (
+	minEnvParts = 2
+)
 
 func FromDockerEnv(env map[string]string) []string {
 	out := make([]string, 0, len(env))

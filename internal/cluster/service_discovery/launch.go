@@ -109,6 +109,7 @@ func SetupMakosh(
 		// When running outside of container (e.g. direct binary execution / local debug)
 		// changing target address to accessible from localhost
 		addr, port := task.GetPortBinding(grpcPort)
+
 		cfg.Environment.MakoshURL = addr + ":" + port
 	}
 

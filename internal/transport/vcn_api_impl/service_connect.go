@@ -15,13 +15,15 @@ import (
 // status. Same safety-net rationale as createSmerdWatchTimeout/
 // assembleConfigWatchTimeout - not something normal operation should ever
 // hit.
-const connectServiceWatchTimeout = 60 * time.Second
+const (
+	connectServiceWatchTimeout = 60 * time.Second
+)
 
 func (impl *Impl) ConnectService(ctx context.Context, req *velez_api.ConnectService_Request) (
 	*velez_api.ConnectService_Response, error,
 ) {
 	initialContext := &velez_api.ConnectServiceToVpnTaskPayload{
-		ServiceName: req.ServiceName,
+		ServiceName: req.GetServiceName(),
 	}
 
 	_, err := impl.jobsEngine.Enqueue(ctx, req.GetServiceName(), jobs.ConnectServiceToVpnAction, initialContext)
@@ -33,6 +35,7 @@ func (impl *Impl) ConnectService(ctx context.Context, req *velez_api.ConnectServ
 	defer cancel()
 
 	var finalTask tasks_queries.VelezTask
+
 	for task := range impl.jobsEngine.Watch(watchCtx, req.GetServiceName(), jobs.ConnectServiceToVpnAction) {
 		finalTask = task
 	}

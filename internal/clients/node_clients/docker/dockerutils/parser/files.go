@@ -10,17 +10,17 @@ func FromVolume(settings *velez_api.Container_Settings) []mount.Mount {
 		return nil
 	}
 
-	if len(settings.Volumes) == 0 {
+	if len(settings.GetVolumes()) == 0 {
 		return nil
 	}
 
-	out := make([]mount.Mount, 0, len(settings.Volumes))
+	out := make([]mount.Mount, 0, len(settings.GetVolumes()))
 
-	for _, item := range settings.Volumes {
+	for _, item := range settings.GetVolumes() {
 		out = append(out, mount.Mount{
 			Type:   mount.TypeVolume,
-			Source: item.VolumeName,
-			Target: item.ContainerPath,
+			Source: item.GetVolumeName(),
+			Target: item.GetContainerPath(),
 		})
 	}
 

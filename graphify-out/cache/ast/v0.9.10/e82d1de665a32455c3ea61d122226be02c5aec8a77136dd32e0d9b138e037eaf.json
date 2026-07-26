@@ -1,0 +1,2947 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "label": "create_smerd.go",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "jobs_smerdrequestaccessor",
+      "label": "smerdRequestAccessor",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L52"
+    },
+    {
+      "id": "jobs_imageidaccessor",
+      "label": "imageIDAccessor",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L56"
+    },
+    {
+      "id": "jobs_containeridaccessor",
+      "label": "containerIDAccessor",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L61"
+    },
+    {
+      "id": "jobs_createsmerdimageaccessor",
+      "label": "createSmerdImageAccessor",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L69"
+    },
+    {
+      "id": "imagemetaaccessor",
+      "label": "imageMetaAccessor",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go"
+    },
+    {
+      "id": "jobs_imageexposedportsaccessor",
+      "label": "imageExposedPortsAccessor",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L75"
+    },
+    {
+      "id": "jobs_pathtofilesaccessor",
+      "label": "pathToFilesAccessor",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L79"
+    },
+    {
+      "id": "jobs_createsmerdhandler",
+      "label": "createSmerdHandler",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L84"
+    },
+    {
+      "id": "nodeclients",
+      "label": "NodeClients",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go"
+    },
+    {
+      "id": "configurationservice",
+      "label": "ConfigurationService",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_create_smerd_newcreatesmerdhandler",
+      "label": "NewCreateSmerdHandler()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L90"
+    },
+    {
+      "id": "taskhandler",
+      "label": "TaskHandler",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go"
+    },
+    {
+      "id": "jobs_createsmerdhandler_action",
+      "label": ".Action()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L99"
+    },
+    {
+      "id": "jobs_createsmerdhandler_newcontext",
+      "label": ".NewContext()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L103"
+    },
+    {
+      "id": "taskcontext",
+      "label": "TaskContext",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go"
+    },
+    {
+      "id": "jobs_createsmerdhandler_buildjobs",
+      "label": ".BuildJobs()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L107"
+    },
+    {
+      "id": "namedjob",
+      "label": "NamedJob",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go"
+    },
+    {
+      "id": "jobs_preparesmerdrequestjob",
+      "label": "prepareSmerdRequestJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L193"
+    },
+    {
+      "id": "jobs_preparesmerdrequestjob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L197"
+    },
+    {
+      "id": "context",
+      "label": "Context",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go"
+    },
+    {
+      "id": "jobs_prepareimagejob",
+      "label": "prepareImageJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L227"
+    },
+    {
+      "id": "docker",
+      "label": "Docker",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go"
+    },
+    {
+      "id": "jobs_prepareimagejob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L234"
+    },
+    {
+      "id": "jobs_fetchsmerdconfigjob",
+      "label": "fetchSmerdConfigJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L268"
+    },
+    {
+      "id": "jobs_fetchsmerdconfigjob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L276"
+    },
+    {
+      "id": "jobs_fetchsmerdconfigjob_doverv",
+      "label": ".doVerv()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L294"
+    },
+    {
+      "id": "createsmerd_request",
+      "label": "CreateSmerd_Request",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go"
+    },
+    {
+      "id": "matreshkaconfigspec",
+      "label": "MatreshkaConfigSpec",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go"
+    },
+    {
+      "id": "jobs_fetchsmerdconfigjob_setenv",
+      "label": ".setEnv()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L336"
+    },
+    {
+      "id": "configmeta",
+      "label": "ConfigMeta",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go"
+    },
+    {
+      "id": "jobs_fetchsmerdconfigjob_getplain",
+      "label": ".getPlain()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L362"
+    },
+    {
+      "id": "jobs_fetchsmerdconfigjob_doplain",
+      "label": ".doPlain()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L379"
+    },
+    {
+      "id": "plainconfigspec",
+      "label": "PlainConfigSpec",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go"
+    },
+    {
+      "id": "jobs_fetchsmerdconfigjob_addmount",
+      "label": ".addMount()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L385"
+    },
+    {
+      "id": "jobs_preparesmerdvervconfigjob",
+      "label": "prepareSmerdVervConfigJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L396"
+    },
+    {
+      "id": "createnetworkapi",
+      "label": "createNetworkAPI",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go"
+    },
+    {
+      "id": "portmanager",
+      "label": "PortManager",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go"
+    },
+    {
+      "id": "jobs_preparesmerdvervconfigjob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L407"
+    },
+    {
+      "id": "jobs_preparesmerdvervconfigjob_applylabels",
+      "label": ".applyLabels()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L436"
+    },
+    {
+      "id": "jobs_preparesmerdvervconfigjob_ensurenetworks",
+      "label": ".ensureNetworks()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L451"
+    },
+    {
+      "id": "jobs_preparesmerdvervconfigjob_getportsfromimage",
+      "label": ".getPortsFromImage()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L465"
+    },
+    {
+      "id": "jobs_preparesmerdvervconfigjob_lockports",
+      "label": ".lockPorts()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L496"
+    },
+    {
+      "id": "jobs_preparesmerdvervconfigjob_rollback",
+      "label": ".Rollback()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L522"
+    },
+    {
+      "id": "jobs_copytocontainerjob",
+      "label": "copyToContainerJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L533"
+    },
+    {
+      "id": "apiclient",
+      "label": "APIClient",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go"
+    },
+    {
+      "id": "jobs_copytocontainerjob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L540"
+    },
+    {
+      "id": "jobs_subscribesmerdconfigchangesjob",
+      "label": "subscribeSmerdConfigChangesJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L564"
+    },
+    {
+      "id": "jobs_subscribesmerdconfigchangesjob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L569"
+    },
+    {
+      "id": "jobs_createcontainerjob",
+      "label": "createContainerJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L580"
+    },
+    {
+      "id": "jobs_createcontainerjob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L587"
+    },
+    {
+      "id": "jobs_createcontainerjob_rollback",
+      "label": ".Rollback()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L650"
+    },
+    {
+      "id": "jobs_startcontainerjob",
+      "label": "startContainerJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L664"
+    },
+    {
+      "id": "jobs_startcontainerjob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L670"
+    },
+    {
+      "id": "jobs_startcontainerjob_rollback",
+      "label": ".Rollback()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L684"
+    },
+    {
+      "id": "jobs_healthcheckjob",
+      "label": "healthcheckJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L698"
+    },
+    {
+      "id": "jobs_healthcheckjob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L705"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_context",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_fmt",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_strconv",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_strings",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_time",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_github_com_containerd_errdefs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_github_com_docker_docker_api_types_container",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_github_com_docker_docker_api_types_network",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_github_com_docker_docker_client",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_github_com_opencontainers_image_spec_specs_go_v1",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_github_com_rs_zerolog_log",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_go_redsock_ru_evon",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L16",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_go_redsock_ru_rerrors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_api_server_velez_api",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L18",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_node_clients",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_node_clients_docker_dockerutils",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_node_clients_docker_dockerutils_parser",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L21",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_cluster_env",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_domain",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L23",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_domain_labels",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L24",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_service",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L25",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_utils_configutils",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L26",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_go_vervstack_ru_matreshka_pkg_matreshka",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L27",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_google_golang_org_grpc_codes",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L28",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "go_pkg_google_golang_org_grpc_status",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L29",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "jobs_smerdrequestaccessor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "jobs_imageidaccessor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L56",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "jobs_containeridaccessor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "jobs_createsmerdimageaccessor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L69",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createsmerdimageaccessor",
+      "target": "jobs_imageidaccessor",
+      "relation": "embeds",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L70",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createsmerdimageaccessor",
+      "target": "imagemetaaccessor",
+      "relation": "embeds",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L71",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "jobs_imageexposedportsaccessor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "jobs_pathtofilesaccessor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L79",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "jobs_createsmerdhandler",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L84",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createsmerdhandler",
+      "target": "nodeclients",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L85",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_createsmerdhandler",
+      "target": "configurationservice",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L86",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_create_smerd_newcreatesmerdhandler",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L90",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_newcreatesmerdhandler",
+      "target": "nodeclients",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L90",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_newcreatesmerdhandler",
+      "target": "configurationservice",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L90",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_newcreatesmerdhandler",
+      "target": "taskhandler",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L90",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "jobs_createsmerdhandler",
+      "target": "jobs_createsmerdhandler_action",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L99",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createsmerdhandler",
+      "target": "jobs_createsmerdhandler_newcontext",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L103",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createsmerdhandler_newcontext",
+      "target": "taskcontext",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L103",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "jobs_createsmerdhandler",
+      "target": "jobs_createsmerdhandler_buildjobs",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L107",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createsmerdhandler_buildjobs",
+      "target": "taskcontext",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L107",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_createsmerdhandler_buildjobs",
+      "target": "namedjob",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L107",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "jobs_preparesmerdrequestjob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L193",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_preparesmerdrequestjob",
+      "target": "jobs_smerdrequestaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L194",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_preparesmerdrequestjob",
+      "target": "jobs_preparesmerdrequestjob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L197",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_preparesmerdrequestjob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L197",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "jobs_prepareimagejob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L227",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_prepareimagejob",
+      "target": "docker",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L228",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_prepareimagejob",
+      "target": "jobs_smerdrequestaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L230",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_prepareimagejob",
+      "target": "jobs_createsmerdimageaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L231",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_prepareimagejob",
+      "target": "jobs_prepareimagejob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L234",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_prepareimagejob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L234",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "jobs_fetchsmerdconfigjob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L268",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob",
+      "target": "configurationservice",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L269",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob",
+      "target": "jobs_smerdrequestaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L271",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob",
+      "target": "imagemetaaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L272",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob",
+      "target": "jobs_pathtofilesaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L273",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob",
+      "target": "jobs_fetchsmerdconfigjob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L276",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L276",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob",
+      "target": "jobs_fetchsmerdconfigjob_doverv",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L294",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob_doverv",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L294",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob_doverv",
+      "target": "createsmerd_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L294",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob_doverv",
+      "target": "matreshkaconfigspec",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L294",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob",
+      "target": "jobs_fetchsmerdconfigjob_setenv",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L336",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob_setenv",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L336",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob_setenv",
+      "target": "createsmerd_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L336",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob_setenv",
+      "target": "configmeta",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L336",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob",
+      "target": "jobs_fetchsmerdconfigjob_getplain",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L362",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob_getplain",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L362",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob_getplain",
+      "target": "configmeta",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L362",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob",
+      "target": "jobs_fetchsmerdconfigjob_doplain",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L379",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob_doplain",
+      "target": "plainconfigspec",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L379",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob",
+      "target": "jobs_fetchsmerdconfigjob_addmount",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L385",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "jobs_preparesmerdvervconfigjob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L396",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob",
+      "target": "createnetworkapi",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L397",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob",
+      "target": "portmanager",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L398",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob",
+      "target": "jobs_smerdrequestaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L400",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob",
+      "target": "imagemetaaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L401",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob",
+      "target": "jobs_imageexposedportsaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L402",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob",
+      "target": "jobs_preparesmerdvervconfigjob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L407",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L407",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob",
+      "target": "jobs_preparesmerdvervconfigjob_applylabels",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L436",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob_applylabels",
+      "target": "createsmerd_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L436",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob",
+      "target": "jobs_preparesmerdvervconfigjob_ensurenetworks",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L451",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob_ensurenetworks",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L451",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob_ensurenetworks",
+      "target": "createsmerd_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L451",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob",
+      "target": "jobs_preparesmerdvervconfigjob_getportsfromimage",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L465",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob_getportsfromimage",
+      "target": "createsmerd_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L465",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob",
+      "target": "jobs_preparesmerdvervconfigjob_lockports",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L496",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob_lockports",
+      "target": "createsmerd_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L496",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob",
+      "target": "jobs_preparesmerdvervconfigjob_rollback",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L522",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob_rollback",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L522",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "jobs_copytocontainerjob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L533",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_copytocontainerjob",
+      "target": "apiclient",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L534",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_copytocontainerjob",
+      "target": "jobs_containeridaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L536",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_copytocontainerjob",
+      "target": "jobs_pathtofilesaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L537",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_copytocontainerjob",
+      "target": "jobs_copytocontainerjob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L540",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_copytocontainerjob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L540",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "jobs_subscribesmerdconfigchangesjob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L564",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_subscribesmerdconfigchangesjob",
+      "target": "configurationservice",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L565",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_subscribesmerdconfigchangesjob",
+      "target": "jobs_smerdrequestaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L566",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_subscribesmerdconfigchangesjob",
+      "target": "jobs_subscribesmerdconfigchangesjob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L569",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_subscribesmerdconfigchangesjob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L569",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "jobs_createcontainerjob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L580",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createcontainerjob",
+      "target": "nodeclients",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L581",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_createcontainerjob",
+      "target": "jobs_smerdrequestaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L583",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_createcontainerjob",
+      "target": "jobs_containeridaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L584",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_createcontainerjob",
+      "target": "jobs_createcontainerjob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L587",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createcontainerjob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L587",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_createcontainerjob",
+      "target": "jobs_createcontainerjob_rollback",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L650",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createcontainerjob_rollback",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L650",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "jobs_startcontainerjob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L664",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_startcontainerjob",
+      "target": "apiclient",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L665",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_startcontainerjob",
+      "target": "jobs_containeridaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L667",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_startcontainerjob",
+      "target": "jobs_startcontainerjob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L670",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_startcontainerjob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L670",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_startcontainerjob",
+      "target": "jobs_startcontainerjob_rollback",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L684",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_startcontainerjob_rollback",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L684",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_create_smerd_go",
+      "target": "jobs_healthcheckjob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L698",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_healthcheckjob",
+      "target": "apiclient",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L699",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_healthcheckjob",
+      "target": "jobs_smerdrequestaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L701",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_healthcheckjob",
+      "target": "jobs_containeridaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L702",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_healthcheckjob",
+      "target": "jobs_healthcheckjob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L705",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_healthcheckjob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L705",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_createsmerdhandler_buildjobs",
+      "target": "docker",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L113",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createsmerdhandler_buildjobs",
+      "target": "portmanager",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L143",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob_do",
+      "target": "jobs_fetchsmerdconfigjob_doverv",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L281",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob_do",
+      "target": "jobs_fetchsmerdconfigjob_doplain",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L286",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob_doverv",
+      "target": "jobs_fetchsmerdconfigjob_setenv",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L330",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob_doverv",
+      "target": "jobs_fetchsmerdconfigjob_getplain",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L333",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob_getplain",
+      "target": "jobs_fetchsmerdconfigjob_addmount",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L374",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_fetchsmerdconfigjob_doplain",
+      "target": "jobs_fetchsmerdconfigjob_addmount",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L381",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob_do",
+      "target": "jobs_preparesmerdvervconfigjob_getportsfromimage",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L411",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob_do",
+      "target": "jobs_preparesmerdvervconfigjob_lockports",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L417",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob_do",
+      "target": "jobs_preparesmerdvervconfigjob_applylabels",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L426",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_preparesmerdvervconfigjob_do",
+      "target": "jobs_preparesmerdvervconfigjob_ensurenetworks",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L428",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createcontainerjob_do",
+      "target": "docker",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L618",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createcontainerjob_rollback",
+      "target": "docker",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/create_smerd.go",
+      "source_location": "L656",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "jobs_createsmerdhandler_buildjobs",
+      "callee": "panic",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "jobs_createsmerdhandler_buildjobs",
+      "callee": "Client",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L113"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdrequestjob_do",
+      "callee": "GetRequest",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L198"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdrequestjob_do",
+      "callee": "GetSettings",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L200"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdrequestjob_do",
+      "callee": "GetHardware",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L204"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdrequestjob_do",
+      "callee": "make",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L209"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdrequestjob_do",
+      "callee": "make",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L213"
+    },
+    {
+      "caller_nid": "jobs_prepareimagejob_do",
+      "callee": "PullImage",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "jobs_prepareimagejob_do",
+      "callee": "GetImageName",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "jobs_prepareimagejob_do",
+      "callee": "GetRequest",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "jobs_prepareimagejob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L237"
+    },
+    {
+      "caller_nid": "jobs_prepareimagejob_do",
+      "callee": "SetImageId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L240"
+    },
+    {
+      "caller_nid": "jobs_prepareimagejob_do",
+      "callee": "make",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L249"
+    },
+    {
+      "caller_nid": "jobs_prepareimagejob_do",
+      "callee": "append",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L251"
+    },
+    {
+      "caller_nid": "jobs_prepareimagejob_do",
+      "callee": "SetImageLabels",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L255"
+    },
+    {
+      "caller_nid": "jobs_prepareimagejob_do",
+      "callee": "SetImageTags",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L256"
+    },
+    {
+      "caller_nid": "jobs_prepareimagejob_do",
+      "callee": "SetImageExposedPorts",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L257"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_do",
+      "callee": "GetRequest",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L277"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_do",
+      "callee": "GetVerv",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L279"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_do",
+      "callee": "GetPlain",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L284"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_do",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L291"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_doverv",
+      "callee": "GetIgnoreConfig",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L299"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_doverv",
+      "callee": "classifyImage",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L303"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_doverv",
+      "callee": "GetImageLabels",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L303"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_doverv",
+      "callee": "GetImageTags",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L303"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_doverv",
+      "callee": "GetConfigFormat",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L305"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_doverv",
+      "callee": "GetSystemPath",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L310"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_doverv",
+      "callee": "GetName",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L313"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_doverv",
+      "callee": "GetConfigName",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L315"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_doverv",
+      "callee": "toConfTypePrefix",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L318"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_doverv",
+      "callee": "AppendPrefix",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L320"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_setenv",
+      "callee": "GetEnvFromApi",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L341"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_setenv",
+      "callee": "Code",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L343"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_setenv",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L344"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_setenv",
+      "callee": "AddNode",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L349"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_setenv",
+      "callee": "Sprint",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L356"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_getplain",
+      "callee": "GetPlainFromApi",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L367"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_getplain",
+      "callee": "Code",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L369"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_getplain",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L370"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_doplain",
+      "callee": "GetConfigs",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L380"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_addmount",
+      "callee": "GetPathToFiles",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L386"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_addmount",
+      "callee": "make",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L388"
+    },
+    {
+      "caller_nid": "jobs_fetchsmerdconfigjob_addmount",
+      "callee": "SetPathToFiles",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L392"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_do",
+      "callee": "GetRequest",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L408"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_do",
+      "callee": "GetUseImagePorts",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L410"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L413"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L419"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_do",
+      "callee": "GetIgnoreConfig",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L422"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_do",
+      "callee": "GetName",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L423"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_applylabels",
+      "callee": "GetImageLabels",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L437"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_applylabels",
+      "callee": "GetIgnoreConfig",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L438"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_applylabels",
+      "callee": "GetName",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L445"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_applylabels",
+      "callee": "GetAutoUpgrade",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L446"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_ensurenetworks",
+      "callee": "GetNetwork",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L452"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_ensurenetworks",
+      "callee": "GetSettings",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L452"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_ensurenetworks",
+      "callee": "createNetworkIfMissing",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L453"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_ensurenetworks",
+      "callee": "GetNetworkName",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L453"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_ensurenetworks",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L455"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_ensurenetworks",
+      "callee": "GetNetworkName",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L455"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_getportsfromimage",
+      "callee": "GetPorts",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L467"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_getportsfromimage",
+      "callee": "GetSettings",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L467"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_getportsfromimage",
+      "callee": "GetServicePortNumber",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L468"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_getportsfromimage",
+      "callee": "GetImageExposedPorts",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L471"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_getportsfromimage",
+      "callee": "Split",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L472"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_getportsfromimage",
+      "callee": "ParseUint",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L474"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_getportsfromimage",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L476"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_getportsfromimage",
+      "callee": "uint32",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L479"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_getportsfromimage",
+      "callee": "uint32",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L485"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_getportsfromimage",
+      "callee": "Port_Protocol",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L486"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_getportsfromimage",
+      "callee": "append",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L489"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_getportsfromimage",
+      "callee": "uint32",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L490"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_lockports",
+      "callee": "make",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L497"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_lockports",
+      "callee": "GetPorts",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L497"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_lockports",
+      "callee": "GetSettings",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L497"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_lockports",
+      "callee": "GetPorts",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L499"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_lockports",
+      "callee": "GetSettings",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L499"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_lockports",
+      "callee": "GetPort",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L503"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_lockports",
+      "callee": "UnHoldPort",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L506"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_lockports",
+      "callee": "GetExposedTo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L506"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_lockports",
+      "callee": "LockPort",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L508"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_lockports",
+      "callee": "GetExposedTo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L508"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_lockports",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L513"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_lockports",
+      "callee": "append",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L516"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_lockports",
+      "callee": "GetExposedTo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L516"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_rollback",
+      "callee": "UnHoldPort",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L524"
+    },
+    {
+      "caller_nid": "jobs_preparesmerdvervconfigjob_rollback",
+      "callee": "UnlockPorts",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L525"
+    },
+    {
+      "caller_nid": "jobs_copytocontainerjob_do",
+      "callee": "GetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L541"
+    },
+    {
+      "caller_nid": "jobs_copytocontainerjob_do",
+      "callee": "GetPathToFiles",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L543"
+    },
+    {
+      "caller_nid": "jobs_copytocontainerjob_do",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L549"
+    },
+    {
+      "caller_nid": "jobs_copytocontainerjob_do",
+      "callee": "WriteToContainer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L552"
+    },
+    {
+      "caller_nid": "jobs_copytocontainerjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L554"
+    },
+    {
+      "caller_nid": "jobs_subscribesmerdconfigchangesjob_do",
+      "callee": "GetName",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L570"
+    },
+    {
+      "caller_nid": "jobs_subscribesmerdconfigchangesjob_do",
+      "callee": "GetRequest",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L570"
+    },
+    {
+      "caller_nid": "jobs_subscribesmerdconfigchangesjob_do",
+      "callee": "SubscribeOnChanges",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L572"
+    },
+    {
+      "caller_nid": "jobs_subscribesmerdconfigchangesjob_do",
+      "callee": "Send",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L574"
+    },
+    {
+      "caller_nid": "jobs_subscribesmerdconfigchangesjob_do",
+      "callee": "Err",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L574"
+    },
+    {
+      "caller_nid": "jobs_subscribesmerdconfigchangesjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L574"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetRequest",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L588"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetImageName",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L591"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetName",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L592"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "FromCommand",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L593"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "FromHealthcheck",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L594"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetHealthcheck",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L594"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "FromDockerEnv",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L595"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetEnv",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L595"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetLabels",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L596"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "FromPorts",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L600"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetSettings",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L600"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "FromVolume",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L601"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetSettings",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L601"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "FromRestart",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L602"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetRestart",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L602"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetSettings",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L604"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetVolumes",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L604"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetSettings",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L604"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetVolumeName",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L605"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetVolumes",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L605"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetSettings",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L605"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetSettings",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L609"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetPorts",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L609"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetSettings",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L609"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "make",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L610"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetName",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L612"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "ContainerCreate",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L620"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetName",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L620"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L622"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "ContainerInspect",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L625"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "Client",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L625"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L627"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetSettings",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L630"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetNetwork",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L631"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetSettings",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L631"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetNetworkName",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L633"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "GetAliases",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L635"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "ConnectToNetwork",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L638"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "Client",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L638"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L640"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_do",
+      "callee": "SetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L645"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_rollback",
+      "callee": "GetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L651"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_rollback",
+      "callee": "Remove",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L656"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_rollback",
+      "callee": "IsNotFound",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L657"
+    },
+    {
+      "caller_nid": "jobs_createcontainerjob_rollback",
+      "callee": "Wrapf",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L658"
+    },
+    {
+      "caller_nid": "jobs_startcontainerjob_do",
+      "callee": "GetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L671"
+    },
+    {
+      "caller_nid": "jobs_startcontainerjob_do",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L673"
+    },
+    {
+      "caller_nid": "jobs_startcontainerjob_do",
+      "callee": "ContainerStart",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L676"
+    },
+    {
+      "caller_nid": "jobs_startcontainerjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L678"
+    },
+    {
+      "caller_nid": "jobs_startcontainerjob_rollback",
+      "callee": "GetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L685"
+    },
+    {
+      "caller_nid": "jobs_startcontainerjob_rollback",
+      "callee": "ContainerStop",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L690"
+    },
+    {
+      "caller_nid": "jobs_startcontainerjob_rollback",
+      "callee": "Wrapf",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L692"
+    },
+    {
+      "caller_nid": "jobs_healthcheckjob_do",
+      "callee": "GetHealthcheck",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L706"
+    },
+    {
+      "caller_nid": "jobs_healthcheckjob_do",
+      "callee": "GetRequest",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L706"
+    },
+    {
+      "caller_nid": "jobs_healthcheckjob_do",
+      "callee": "GetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L711"
+    },
+    {
+      "caller_nid": "jobs_healthcheckjob_do",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L713"
+    },
+    {
+      "caller_nid": "jobs_healthcheckjob_do",
+      "callee": "uint32",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L716"
+    },
+    {
+      "caller_nid": "jobs_healthcheckjob_do",
+      "callee": "GetRetries",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L716"
+    },
+    {
+      "caller_nid": "jobs_healthcheckjob_do",
+      "callee": "Done",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L718"
+    },
+    {
+      "caller_nid": "jobs_healthcheckjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L719"
+    },
+    {
+      "caller_nid": "jobs_healthcheckjob_do",
+      "callee": "Err",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L719"
+    },
+    {
+      "caller_nid": "jobs_healthcheckjob_do",
+      "callee": "After",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L720"
+    },
+    {
+      "caller_nid": "jobs_healthcheckjob_do",
+      "callee": "Duration",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L720"
+    },
+    {
+      "caller_nid": "jobs_healthcheckjob_do",
+      "callee": "GetIntervalSecond",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L720"
+    },
+    {
+      "caller_nid": "jobs_healthcheckjob_do",
+      "callee": "ContainerInspect",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L723"
+    },
+    {
+      "caller_nid": "jobs_healthcheckjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L725"
+    },
+    {
+      "caller_nid": "jobs_healthcheckjob_do",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go",
+      "source_location": "L733"
+    }
+  ]
+}

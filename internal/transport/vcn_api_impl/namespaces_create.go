@@ -10,7 +10,7 @@ import (
 func (impl *Impl) CreateNamespace(ctx context.Context, req *velez_api.CreateVcnNamespace_Request) (
 	*velez_api.CreateVcnNamespace_Response, error,
 ) {
-	namespace, err := impl.vpnService.CreateNamespace(ctx, req.Name)
+	namespace, err := impl.vpnService.CreateNamespace(ctx, req.GetName())
 	if err != nil {
 		return nil, rerrors.Wrap(err)
 	}

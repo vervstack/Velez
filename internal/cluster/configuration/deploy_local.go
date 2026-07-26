@@ -44,6 +44,7 @@ func initKey(ctx context.Context, nodeClients node_clients.NodeClients) (string,
 
 	stateManager := nodeClients.LocalStateManager()
 	localState := stateManager.Get()
+
 	localState.MatreshkaKey = keyFromCont
 	stateManager.Set(localState)
 

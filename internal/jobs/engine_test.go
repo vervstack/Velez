@@ -18,13 +18,15 @@ func TestEngine_EnqueueDedupesConcurrentCalls(t *testing.T) {
 	errs := make([]error, n)
 
 	var wg sync.WaitGroup
+
 	wg.Add(n)
 
-	for i := 0; i < n; i++ {
+	for i := range n {
 		go func(i int) {
 			defer wg.Done()
 
 			task, err := engine.Enqueue(context.Background(), "same-entity", "same-action", &dummyContext{Value: "x"})
+
 			ids[i] = task.ID
 			errs[i] = err
 		}(i)
@@ -46,6 +48,7 @@ func TestEngine_EnqueueDedupesConcurrentCalls(t *testing.T) {
 	}
 
 	tasksStorage.mu.Lock()
+
 	count := len(tasksStorage.byID)
 	tasksStorage.mu.Unlock()
 
@@ -64,7 +67,9 @@ func TestEngine_EnqueueReturnsExistingFailedTaskInstead(t *testing.T) {
 	}
 
 	tasksStorage.mu.Lock()
+
 	failed := tasksStorage.byID[first.ID]
+
 	failed.Status = tasks_queries.VelezTaskStatusFAILED
 	tasksStorage.byID[first.ID] = failed
 	tasksStorage.mu.Unlock()

@@ -28,6 +28,7 @@ func (s *Client) IssueClientKey(ctx context.Context, req domain.IssueClientKey) 
 			Key string `json:"key"`
 		} `json:"preAuthKey"`
 	}
+
 	// endregion
 
 	r := reqBody{
@@ -55,6 +56,7 @@ func (s *Client) IssueClientKey(ctx context.Context, req domain.IssueClientKey) 
 	}
 
 	bd, err := io.ReadAll(apiResp.Body)
+
 	_ = apiResp.Body.Close()
 
 	if err != nil {

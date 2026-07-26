@@ -7,13 +7,14 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/pipelines"
 	"go.vervstack.ru/Velez/internal/service"
-	"google.golang.org/grpc"
 )
 
 type Impl struct {
@@ -24,7 +25,6 @@ type Impl struct {
 	hardwareManager node_clients.HardwareManager
 	cfgService      service.ConfigurationService
 	smerdService    service.ContainerService
-	pipeliner       pipelines.Pipeliner
 	jobsEngine      jobs.Engine
 
 	dockerAPI client.APIClient
@@ -35,7 +35,6 @@ func NewImpl(cfg config.Config, srv service.Services, pipeliner pipelines.Pipeli
 		version:      cfg.AppInfo.Version,
 		cfgService:   srv.ConfigurationService(),
 		smerdService: srv.SmerdManager(),
-		pipeliner:    pipeliner,
 		jobsEngine:   jobsEngine,
 
 		dockerAPI: srv.Docker().Client(),

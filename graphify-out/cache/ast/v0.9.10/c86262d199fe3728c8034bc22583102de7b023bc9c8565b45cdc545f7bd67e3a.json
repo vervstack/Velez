@@ -1,0 +1,331 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_go",
+      "label": "conn.go",
+      "file_type": "code",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_new",
+      "label": "New()",
+      "file_type": "code",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L17"
+    },
+    {
+      "id": "db",
+      "label": "DB",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/clients/sqldb/conn.go"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_rollmigration",
+      "label": "RollMigration()",
+      "file_type": "code",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L30"
+    },
+    {
+      "id": "sqldb_db",
+      "label": "DB",
+      "file_type": "code",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L60"
+    },
+    {
+      "id": "sqldb_sqllogger",
+      "label": "sqlLogger",
+      "file_type": "code",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L74"
+    },
+    {
+      "id": "sqldb_sqllogger_fatalf",
+      "label": ".Fatalf()",
+      "file_type": "code",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L76"
+    },
+    {
+      "id": "sqldb_sqllogger_printf",
+      "label": ".Printf()",
+      "file_type": "code",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L80"
+    },
+    {
+      "id": "sqldb_scannable",
+      "label": "Scannable",
+      "file_type": "code",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L84"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_go",
+      "target": "go_pkg_context",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_go",
+      "target": "go_pkg_database_sql",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_go",
+      "target": "go_pkg_github_com_pressly_goose_v3",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_go",
+      "target": "go_pkg_github_com_rs_zerolog_log",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_go",
+      "target": "go_pkg_go_redsock_ru_rerrors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_go",
+      "target": "go_pkg_go_redsock_ru_toolbox_closer",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_go",
+      "target": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_new",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_new",
+      "target": "db",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_go",
+      "target": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_rollmigration",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_go",
+      "target": "sqldb_db",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_go",
+      "target": "sqldb_sqllogger",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L74",
+      "weight": 1.0
+    },
+    {
+      "source": "sqldb_sqllogger",
+      "target": "sqldb_sqllogger_fatalf",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L76",
+      "weight": 1.0
+    },
+    {
+      "source": "sqldb_sqllogger",
+      "target": "sqldb_sqllogger_printf",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L80",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_go",
+      "target": "sqldb_scannable",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/clients/sqldb/conn.go",
+      "source_location": "L84",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_new",
+      "callee": "Open",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/clients/sqldb/conn.go",
+      "source_location": "L18"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_new",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/clients/sqldb/conn.go",
+      "source_location": "L20"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_new",
+      "callee": "Add",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/clients/sqldb/conn.go",
+      "source_location": "L23"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_new",
+      "callee": "Close",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/clients/sqldb/conn.go",
+      "source_location": "L24"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_rollmigration",
+      "callee": "Open",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/clients/sqldb/conn.go",
+      "source_location": "L31"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_rollmigration",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/clients/sqldb/conn.go",
+      "source_location": "L33"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_rollmigration",
+      "callee": "Close",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/clients/sqldb/conn.go",
+      "source_location": "L37"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_rollmigration",
+      "callee": "Msg",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/clients/sqldb/conn.go",
+      "source_location": "L39"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_rollmigration",
+      "callee": "Err",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/clients/sqldb/conn.go",
+      "source_location": "L39"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_rollmigration",
+      "callee": "SetLogger",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/clients/sqldb/conn.go",
+      "source_location": "L43"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_rollmigration",
+      "callee": "SetDialect",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/clients/sqldb/conn.go",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_rollmigration",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/clients/sqldb/conn.go",
+      "source_location": "L47"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_rollmigration",
+      "callee": "SetTableName",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/clients/sqldb/conn.go",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_rollmigration",
+      "callee": "Up",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/clients/sqldb/conn.go",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_clients_sqldb_conn_rollmigration",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/clients/sqldb/conn.go",
+      "source_location": "L54"
+    },
+    {
+      "caller_nid": "sqldb_sqllogger_fatalf",
+      "callee": "Msgf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/clients/sqldb/conn.go",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "sqldb_sqllogger_fatalf",
+      "callee": "Fatal",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/clients/sqldb/conn.go",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "sqldb_sqllogger_printf",
+      "callee": "Printf",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/clients/sqldb/conn.go",
+      "source_location": "L81"
+    }
+  ]
+}

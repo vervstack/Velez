@@ -18,13 +18,16 @@ func Test_Load_Concurrent_NoRace(t *testing.T) {
 	if !ok {
 		t.Fatal("runtime.Caller failed")
 	}
+
 	// filename -> internal/config/load_test.go; go up two levels to repo root.
 	repoRoot := filepath.Dir(filepath.Dir(filepath.Dir(filename)))
 	configPath := filepath.Join(repoRoot, "tests", "config_mocks", "velez_default_config.yaml")
 
 	var wg sync.WaitGroup
-	for i := 0; i < 20; i++ {
+
+	for range 20 {
 		wg.Add(1)
+
 		go func() {
 			defer wg.Done()
 

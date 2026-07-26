@@ -58,6 +58,7 @@ func (j *jobs) CreateRunningJob(_ context.Context,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
+
 	j.rows[key] = row
 
 	return row, nil

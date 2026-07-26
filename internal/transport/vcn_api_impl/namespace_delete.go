@@ -11,7 +11,7 @@ func (impl *Impl) DeleteNamespace(
 	ctx context.Context,
 	req *api.DeleteVcnNamespace_Request,
 ) (*api.DeleteVcnNamespace_Response, error) {
-	err := impl.vpnService.DeleteNamespace(ctx, req.Id)
+	err := impl.vpnService.DeleteNamespace(ctx, req.GetId())
 	if err != nil {
 		return nil, rerrors.Wrap(err, "")
 	}

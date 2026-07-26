@@ -11,7 +11,9 @@ import (
 	"go.vervstack.ru/Velez/internal/pipelines/steps/upgrade_steps"
 )
 
-const configSuffix = "_configuration_fetcher"
+const (
+	configSuffix = "_configuration_fetcher"
+)
 
 func (p *pipeliner) UpgradeSmerd(req domain.UpgradeSmerd) Runner[any] {
 	newLaunch := domain.LaunchSmerd{}

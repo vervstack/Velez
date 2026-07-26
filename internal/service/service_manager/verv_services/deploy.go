@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
@@ -57,7 +56,10 @@ func (v *VervService) CreateNewDeploy(ctx context.Context, request domain.Create
 	return nil
 }
 
-func (v *VervService) ListDeployments(ctx context.Context, req domain.ListDeploymentsReq) (domain.DeploymentList, error) {
+func (v *VervService) ListDeployments(
+	ctx context.Context,
+	req domain.ListDeploymentsReq,
+) (domain.DeploymentList, error) {
 	list, err := v.deploymentsStorage.ListDeployments(ctx, req)
 	if err != nil {
 		return domain.DeploymentList{}, rerrors.Wrap(err)

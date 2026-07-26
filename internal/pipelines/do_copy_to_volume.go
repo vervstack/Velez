@@ -4,6 +4,7 @@ import (
 	"path"
 
 	rtb "go.redsock.ru/toolbox"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
@@ -56,15 +57,19 @@ func NewCopyToVolumeRunner(nodeClients node_clients.NodeClients, req domain.Copy
 				ContainerPath: fold,
 			})
 	}
+
 	// endregion
 
-	actualSteps := []steps.Step{
+	actualSteps := make([]steps.Step, 0, 2+2*len(filesToMount))
+
+	actualSteps = append(actualSteps,
 		smerd_steps.Create(nodeClients, &baseContainer, &contId),
 		smerd_steps.Start(nodeClients, &contId),
-	}
+	)
 
 	for _, ftm := range filesToMount {
 		mounts := []domain.FileMountPoint{ftm}
+
 		actualSteps = append(actualSteps,
 			smerd_steps.Exec(nodeClients, &contId, rtb.ToPtr("mkdir -p "+path.Dir(*ftm.FilePath))),
 			container_steps.CopyToContainer(nodeClients, &contId, &mounts))

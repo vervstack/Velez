@@ -54,6 +54,7 @@ func (s *Manager) Start() error {
 
 func (s *Manager) Set(state State) {
 	s.m.Lock()
+
 	s.state = state
 
 	err := writeKey(s.buildPath, s.state)
@@ -66,6 +67,7 @@ func (s *Manager) Set(state State) {
 
 func (s *Manager) Get() State {
 	s.m.RLock()
+
 	state := s.state
 	s.m.RUnlock()
 
@@ -136,6 +138,7 @@ func readStateFromPath(buildPath string) (state State, err error) {
 
 		return state, rerrors.Wrap(err, "error opening file")
 	}
+
 	defer func() { _ = f.Close() }()
 
 	err = json.NewDecoder(f).Decode(&state)

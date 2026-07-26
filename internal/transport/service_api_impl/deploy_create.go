@@ -13,7 +13,7 @@ func (impl *Impl) CreateDeploy(ctx context.Context, apiReq *pb.CreateDeploy_Requ
 ) {
 	var err error
 
-	switch payload := apiReq.Specification.(type) {
+	switch payload := apiReq.GetSpecification().(type) {
 	case *pb.CreateDeploy_Request_New:
 		return impl.handleNewDeployment(ctx, apiReq, payload)
 	case *pb.CreateDeploy_Request_Upgrade_:
@@ -27,9 +27,13 @@ func (impl *Impl) CreateDeploy(ctx context.Context, apiReq *pb.CreateDeploy_Requ
 	return &pb.CreateDeploy_Response{}, nil
 }
 
-func (impl *Impl) handleNewDeployment(ctx context.Context, apiReq *pb.CreateDeploy_Request, payload *pb.CreateDeploy_Request_New) (*pb.CreateDeploy_Response, error) {
+func (impl *Impl) handleNewDeployment(
+	ctx context.Context,
+	apiReq *pb.CreateDeploy_Request,
+	payload *pb.CreateDeploy_Request_New,
+) (*pb.CreateDeploy_Response, error) {
 	req := domain.CreateDeployReq{
-		ServiceName: apiReq.ServiceName,
+		ServiceName: apiReq.GetServiceName(),
 		LaunchSmerd: domain.LaunchSmerd{
 			CreateSmerd_Request: payload.New,
 		},
@@ -48,8 +52,8 @@ func (impl *Impl) handleUpgradeDeployment(ctx context.Context,
 	*pb.CreateDeploy_Response, error,
 ) {
 	req := domain.UpgradeDeployReq{
-		ServiceName:  apiReq.ServiceName,
-		DeploymentId: payload.Upgrade.DeploymentId,
+		ServiceName:  apiReq.GetServiceName(),
+		DeploymentId: payload.Upgrade.GetDeploymentId(),
 		NewImage:     payload.Upgrade.Image,
 	}
 

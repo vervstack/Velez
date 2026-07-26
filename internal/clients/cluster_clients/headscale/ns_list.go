@@ -24,6 +24,7 @@ func (s *Client) ListNamespaces(ctx context.Context) ([]domain.VcnNamespace, err
 
 	if resp.StatusCode == http.StatusOK {
 		nameSpaces := response{}
+
 		err = json.NewDecoder(resp.Body).Decode(&nameSpaces)
 		_ = resp.Body.Close()
 

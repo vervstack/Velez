@@ -2,26 +2,27 @@ package steps
 
 import (
 	"context"
+	"maps"
 	"strconv"
 	"strings"
 
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/service"
-	"go.vervstack.ru/matreshka/pkg/matreshka"
 )
 
 type prepareVervConfig struct {
 	dockerAPI client.APIClient
 
-	configService service.ConfigurationService
-	portManager   node_clients.PortManager
+	portManager node_clients.PortManager
 
 	req   *domain.LaunchSmerd
 	image *image.InspectResponse
@@ -37,9 +38,8 @@ func PrepareVervConfig(
 	image *image.InspectResponse,
 ) *prepareVervConfig {
 	return &prepareVervConfig{
-		dockerAPI:     nodeClients.Docker().Client(),
-		configService: srv.ConfigurationService(),
-		portManager:   nodeClients.PortManager(),
+		dockerAPI:   nodeClients.Docker().Client(),
+		portManager: nodeClients.PortManager(),
 
 		req:   req,
 		image: image,
@@ -71,9 +71,7 @@ func (p *prepareVervConfig) Do(ctx context.Context) (err error) {
 		}
 	}
 
-	for name, val := range p.image.Config.Labels {
-		p.req.Labels[name] = val
-	}
+	maps.Copy(p.req.Labels, p.image.Config.Labels)
 
 	// Todo: Think about where to get group name
 	p.req.Labels[labels.ComposeGroupLabel] = p.req.GetName()
@@ -81,10 +79,10 @@ func (p *prepareVervConfig) Do(ctx context.Context) (err error) {
 		p.req.Labels[labels.AutoUpgrade] = "true"
 	}
 
-	for _, networks := range p.req.Settings.Network {
-		err = dockerutils.CreateNetwork(ctx, p.dockerAPI, networks.NetworkName)
+	for _, networks := range p.req.Settings.GetNetwork() {
+		err = dockerutils.CreateNetwork(ctx, p.dockerAPI, networks.GetNetworkName())
 		if err != nil {
-			return rerrors.Wrap(err, "error creating network: %s", networks.NetworkName)
+			return rerrors.Wrap(err, "error creating network: %s", networks.GetNetworkName())
 		}
 	}
 
@@ -103,8 +101,8 @@ func (p *prepareVervConfig) Rollback(_ context.Context) error {
 
 func (p *prepareVervConfig) getPortsFromImage() error {
 	portsFromReq := map[uint32]*velez_api.Port{}
-	for _, port := range p.req.Settings.Ports {
-		portsFromReq[port.ServicePortNumber] = port
+	for _, port := range p.req.Settings.GetPorts() {
+		portsFromReq[port.GetServicePortNumber()] = port
 	}
 
 	for portProtoc := range p.image.Config.ExposedPorts {
@@ -134,18 +132,18 @@ func (p *prepareVervConfig) getPortsFromImage() error {
 }
 
 func (p *prepareVervConfig) lockPorts() (err error) {
-	p.lockedPorts = make([]uint32, 0, len(p.req.Settings.Ports))
+	p.lockedPorts = make([]uint32, 0, len(p.req.Settings.GetPorts()))
 
-	for _, imagePort := range p.req.Settings.Ports {
+	for _, imagePort := range p.req.Settings.GetPorts() {
 		if imagePort.ExposedTo == nil {
 			var port uint32
 
 			port, err = p.portManager.GetPort()
 			imagePort.ExposedTo = &port
 		} else {
-			ok := p.portManager.UnHoldPort(*imagePort.ExposedTo)
+			ok := p.portManager.UnHoldPort(imagePort.GetExposedTo())
 			if !ok {
-				err = p.portManager.LockPort(*imagePort.ExposedTo)
+				err = p.portManager.LockPort(imagePort.GetExposedTo())
 			}
 		}
 
@@ -155,7 +153,7 @@ func (p *prepareVervConfig) lockPorts() (err error) {
 			return
 		}
 
-		p.lockedPorts = append(p.lockedPorts, *imagePort.ExposedTo)
+		p.lockedPorts = append(p.lockedPorts, imagePort.GetExposedTo())
 	}
 
 	return nil

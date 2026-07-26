@@ -91,7 +91,9 @@ func TestTaskWorker_ReclaimsStaleRunningTaskAndSkipsDoneJobs(t *testing.T) {
 	// Simulate a worker that claimed this task, completed "first", then crashed
 	// before testJobNameSecond ran: claimed_at is stale and "first" is already DONE.
 	tasksStorage.mu.Lock()
+
 	stale := tasksStorage.byID[task.ID]
+
 	stale.Status = tasks_queries.VelezTaskStatusRUNNING
 	stale.ClaimedAt = sql.NullTime{Time: time.Now().Add(-time.Hour), Valid: true}
 	stale.ClaimedBy = sql.NullString{String: "dead-worker", Valid: true}

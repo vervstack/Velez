@@ -11,9 +11,12 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (c *ContainerManager) ListSmerds(ctx context.Context, req *velez_api.ListSmerds_Request) (*velez_api.ListSmerds_Response, error) {
+func (c *ContainerManager) ListSmerds(
+	ctx context.Context,
+	req *velez_api.ListSmerds_Request,
+) (*velez_api.ListSmerds_Response, error) {
 	if req.GetName() != "" {
-		*req.Name = strings.ToLower(*req.Name)
+		*req.Name = strings.ToLower(req.GetName())
 	}
 
 	cl, err := c.dockerWrapper.ListContainers(ctx, req)

@@ -20,12 +20,14 @@ import (
 // createServiceWatchTimeout - assemble_config additionally pulls an image
 // and spins up/tears down a scratch container, so it's given the same
 // budget as create_smerd rather than create_service's lighter DB-only one.
-const assembleConfigWatchTimeout = 60 * time.Second
+const (
+	assembleConfigWatchTimeout = 60 * time.Second
+)
 
 func (impl *Impl) AssembleConfig(ctx context.Context, req *velez_api.AssembleConfig_Request) (*velez_api.AssembleConfig_Response, error) {
 	initialContext := &velez_api.AssembleConfigTaskPayload{
-		ServiceName: req.ServiceName,
-		ImageName:   req.ImageName,
+		ServiceName: req.GetServiceName(),
+		ImageName:   req.GetImageName(),
 	}
 
 	_, err := impl.jobsEngine.Enqueue(ctx, req.GetServiceName(), jobs.AssembleConfigAction, initialContext)
@@ -37,6 +39,7 @@ func (impl *Impl) AssembleConfig(ctx context.Context, req *velez_api.AssembleCon
 	defer cancel()
 
 	var finalTask tasks_queries.VelezTask
+
 	for task := range impl.jobsEngine.Watch(watchCtx, req.GetServiceName(), jobs.AssembleConfigAction) {
 		finalTask = task
 	}

@@ -6,14 +6,11 @@ import (
 )
 
 type jobsStorage struct {
-	db sqldb.DB
-
 	*jobs_queries.Queries
 }
 
 func newJobsStorage(db sqldb.DB) *jobsStorage {
 	return &jobsStorage{
-		db:      db,
 		Queries: jobs_queries.New(db),
 	}
 }

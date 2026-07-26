@@ -21,9 +21,11 @@ const (
 // called concurrently by multiple in-process environments (e.g. parallel
 // e2e TestEnvironments), and without this lock that's a data race caught by
 // `go test -race`.
-var volumeMu sync.RWMutex
-
-var vervVolumeName = "verv"
+var (
+	volumeMu       sync.RWMutex
+	vervVolumeName = "verv"
+	vervVolumePath string
+)
 
 func GetVervVolumeName() string {
 	volumeMu.RLock()
@@ -79,8 +81,6 @@ func StartVolumes(dockerAPI client.APIClient) error {
 
 	return nil
 }
-
-var vervVolumePath string
 
 func GetVervVolumePath() (string, error) {
 	volumeMu.RLock()

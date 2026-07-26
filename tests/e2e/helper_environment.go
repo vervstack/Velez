@@ -36,9 +36,11 @@ var (
 
 func init() {
 	pc, filename, _, _ := runtime.Caller(0)
+
 	_ = pc
 	// filename → tests/e2e/helper_environment.go; go up two levels to reach tests/
 	testsDir := filepath.Dir(filepath.Dir(filename))
+
 	defaultConfigPath = filepath.Join(testsDir, "config_mocks", "velez_default_config.yaml")
 	testDataDir = filepath.Join(testsDir, "test_data")
 }
@@ -89,6 +91,7 @@ func WithState(t *testing.T, stateOps ...StateOpt) TestEnvOpt {
 		}
 
 		statePath := writeState(t, st)
+
 		a.Cfg.Environment.LocalStatePath = statePath
 	}
 }
@@ -186,6 +189,7 @@ func initConfig(t *testing.T, env *TestEnvironment) {
 	require.NoError(t, err)
 
 	defaultSt := readDefaultState(t)
+
 	env.Cfg.Environment.LocalStatePath = writeState(t, defaultSt)
 }
 
@@ -216,6 +220,7 @@ func initGrpc(t *testing.T, env *TestEnvironment) {
 			) error {
 				stateManager := env.Custom.NodeClients.LocalStateManager()
 				localState := stateManager.Get()
+
 				ctx = metadata.AppendToOutgoingContext(ctx, middleware.AuthHeader, localState.VelezKey)
 
 				return invoker(ctx, method, req, reply, cc, opts...)
@@ -238,17 +243,21 @@ func (e *TestEnvironment) CreateSmerd(t *testing.T, req *velez_api.CreateSmerd_R
 		req.Labels = map[string]string{}
 	}
 
-	addTestLabels(e.t, req.Labels)
+	addTestLabels(e.t, req.GetLabels())
 
 	response, err := e.Custom.ApiGrpcImpl.CreateSmerd(ctx, req)
 	require.NoError(t, err)
 
-	removeTestLabels(response.Labels)
+	removeTestLabels(response.GetLabels())
 
 	return response
 }
 
-func (e *TestEnvironment) ListSmerds(t *testing.T, ctx context.Context, req *velez_api.ListSmerds_Request) *velez_api.ListSmerds_Response {
+func (e *TestEnvironment) ListSmerds(
+	t *testing.T,
+	ctx context.Context,
+	req *velez_api.ListSmerds_Request,
+) *velez_api.ListSmerds_Response {
 	t.Helper()
 
 	resp, err := e.Custom.ApiGrpcImpl.ListSmerds(ctx, req)
@@ -325,6 +334,7 @@ func writeState(t *testing.T, st local_state.State) (statePath string) {
 	t.Helper()
 
 	dirPath := t.TempDir()
+
 	statePath = filepath.Join(dirPath, "state.json")
 
 	f, err := os.Create(statePath)

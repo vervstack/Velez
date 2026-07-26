@@ -8,6 +8,8 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
+	"golang.org/x/sync/errgroup"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
@@ -16,11 +18,9 @@ import (
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
-	"golang.org/x/sync/errgroup"
 )
 
 type deployWatcher struct {
-	services           service.Services
 	pipeliner          pipelines.Pipeliner
 	deploymentsStorage storage.DeploymentsStorage
 	nodeClients        node_clients.NodeClients
@@ -42,7 +42,6 @@ func NewDeployWatcher(
 	interval time.Duration,
 ) Worker {
 	return &deployWatcher{
-		services:           services,
 		pipeliner:          runner,
 		deploymentsStorage: clusterClients.StateManager().Deployments(),
 		nodeClients:        nodeClients,
@@ -66,6 +65,7 @@ func (d *deployWatcher) Start(ctx context.Context) {
 				if err != nil {
 					if !rerrors.Is(err, cluster_clients.ErrServiceIsDisabled) {
 						log.Error().Err(err).Msg("error listing deployments in deploy watcher")
+
 						// TODO make it fail only when state is not available
 						// retry via api handle
 						return

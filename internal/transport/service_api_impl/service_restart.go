@@ -7,7 +7,10 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
-func (impl *Impl) RestartService(ctx context.Context, req *velez_api.RestartService_Request) (*velez_api.RestartService_Response, error) {
+func (impl *Impl) RestartService(
+	ctx context.Context,
+	req *velez_api.RestartService_Request,
+) (*velez_api.RestartService_Response, error) {
 	err := impl.servicesService.RestartService(ctx, req.GetName())
 	if err != nil {
 		return nil, rerrors.Wrap(err)

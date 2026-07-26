@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 
 import cls from '@/widgets/settings/ApiSettings/ApiSettings.module.css';
 import Input from '@/components/base/Input.tsx';
+import StatusDot from '@/components/base/StatusDot.tsx';
 import { useCredentialsStore } from '@/app/settings/creds.ts';
 import { useToaster } from '@/app/hooks/toaster/Toaster.ts';
+import { useConnectionHealth } from '@/app/hooks/health/useConnectionHealth.ts';
 
 const DEFAULT_URL = import.meta.env.VITE_VELEZ_BACKEND_URL || 'http://0.0.0.0:53891';
 const DEFAULT_AUTH = import.meta.env.VITE_VELEZ_AUTH_HEADER || '';
@@ -17,9 +19,16 @@ function isValidUrl(v: string): boolean {
     }
 }
 
+function mapHealthToDotStatus(status: 'checking' | 'healthy' | 'unhealthy'): 'pending' | 'healthy' | 'error' {
+    if (status === 'healthy') return 'healthy';
+    if (status === 'unhealthy') return 'error';
+    return 'pending';
+}
+
 export default function ApiSettings() {
     const toaster = useToaster();
     const credStore = useCredentialsStore();
+    const health = useConnectionHealth();
 
     const [url, setUrl] = useState(credStore.url || DEFAULT_URL);
     const [token, setToken] = useState(credStore.token || DEFAULT_AUTH);
@@ -44,6 +53,14 @@ export default function ApiSettings() {
             description: 'Your backend URL and auth token have been updated.',
             level: 'Info',
         });
+        health.recheck();
+    }
+
+    function healthTooltip(): string {
+        const checkedAt = health.lastCheckedAt ? health.lastCheckedAt.toLocaleTimeString() : 'never';
+        if (health.status === 'checking') return 'Checking connection…';
+        if (health.status === 'unhealthy') return `Unreachable as of ${checkedAt}${health.error ? ` — ${health.error}` : ''}`;
+        return `Healthy as of ${checkedAt}`;
     }
 
     function handleReset() {
@@ -59,7 +76,16 @@ export default function ApiSettings() {
         <div className={cls.ApiSettingsContainer}>
             <div className={cls.SettingsSection}>
                 <label className={cls.SettingsLabel}>Backend URL</label>
-                <Input onChange={setUrl} inputValue={url} />
+                <div className={cls.UrlRow}>
+                    <Input onChange={setUrl} inputValue={url} />
+                    <span
+                        className={cls.HealthDotWrapper}
+                        data-tooltip-id="root-tooltip"
+                        data-tooltip-content={healthTooltip()}
+                    >
+                        <StatusDot status={mapHealthToDotStatus(health.status)} />
+                    </span>
+                </div>
                 {!urlValid && url && <div className={cls.ValidationError}>Invalid URL</div>}
                 {urlWarning && <div className={cls.ValidationWarn}>{urlWarning}</div>}
             </div>

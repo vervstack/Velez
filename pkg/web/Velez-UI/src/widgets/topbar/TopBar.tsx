@@ -1,4 +1,5 @@
 import cn from 'classnames';
+import {useIsFetching} from "@tanstack/react-query";
 
 import cls from '@/widgets/topbar/TopBar.module.css';
 
@@ -7,6 +8,7 @@ import {IsStatefullModeEnabled, ListNodesQuery, ListPluginsQuery} from "@/proces
 import {useNavigate} from "react-router-dom";
 import {Routes} from "@/app/router/Routes.ts";
 import Button from "@/components/base/Button.tsx";
+import IconButton from "@/components/base/IconButton.tsx";
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
 import PluginManageDialog from "@/dialogs/PluginManageDialog/PluginManageDialog.tsx";
 
@@ -20,6 +22,8 @@ interface LeftSideProps {
     showAllNodes: boolean;
     activeNodeId?: string;
     onToggleAllNodes: () => void;
+
+    onToggleMobileNav: () => void;
 }
 
 interface TopBarProps extends LeftSideProps {
@@ -42,6 +46,13 @@ export default function TopBar(props: TopBarProps) {
 function LeftZone(props: LeftSideProps) {
     return (
         <div className={cls.LeftZoneContainer}>
+            <div className={cls.HamburgerWrapper}>
+                <IconButton
+                    label="☰"
+                    title="Toggle navigation"
+                    onClick={props.onToggleMobileNav}
+                />
+            </div>
             <button
                 className={cls.CollapseBtn}
                 onClick={props.onCollapse}
@@ -79,6 +90,7 @@ function RightZone() {
 
     const pluginsQuery = ListPluginsQuery();
     const nodesQuery = ListNodesQuery();
+    const isFetching = useIsFetching() > 0;
 
     function handleDeploy() {
         navigate(Routes.Deploy);
@@ -90,11 +102,20 @@ function RightZone() {
 
     return (
         <div className={cls.RightZoneContainer}>
+            {isFetching && <FetchingIndicator/>}
             {!isLoading && (isStateFullMode ? <NodesHealthStatus/> : <SingleNodeStub/>)}
             <Button
                 variant={'primary'}
                 onClick={handleDeploy}
             >Deploy</Button>
+        </div>
+    )
+}
+
+function FetchingIndicator() {
+    return (
+        <div className={cls.FetchingIndicatorContainer} title="Loading data...">
+            <span className={cls.FetchingDot}/>
         </div>
     )
 }

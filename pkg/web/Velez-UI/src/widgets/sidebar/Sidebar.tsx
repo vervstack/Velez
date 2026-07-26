@@ -32,6 +32,9 @@ interface SidebarProps {
     activeNav: NavId;
     onNavChange: (id: NavId) => void;
     onToolNav?: (id: ToolId) => void;
+
+    mobileOpen?: boolean;
+    onCloseMobile?: () => void;
 }
 
 const NAV_ITEMS: Array<{ id: NavId; label: string; icon: string }> = [
@@ -54,7 +57,8 @@ export default function Sidebar(
         collapsed,
         activeNodeId, onNodeSelect,
         activeNav, onNavChange,
-        onToolNav
+        onToolNav,
+        mobileOpen, onCloseMobile
     }: SidebarProps) {
 
 
@@ -75,87 +79,94 @@ export default function Sidebar(
     const nodesQuery = ListNodesQuery();
 
     return (
-        <aside className={
-            cn(cls.SidebarContainer, {
-                [cls.collapsed]: collapsed,
-            })}>
+        <>
+            <aside className={
+                cn(cls.SidebarContainer, {
+                    [cls.collapsed]: collapsed,
+                    [cls.mobileOpen]: mobileOpen,
+                })}>
 
-            <Logo collapsed={collapsed}/>
-            <NodesList
-                collapsed={collapsed}
-                onNodeSelect={onNodeSelect}
-                activeNodeId={activeNodeId}
-                activeNav={activeNav}
-                onNavChange={onNavChange}/>
+                <Logo collapsed={collapsed}/>
+                <NodesList
+                    collapsed={collapsed}
+                    onNodeSelect={onNodeSelect}
+                    activeNodeId={activeNodeId}
+                    activeNav={activeNav}
+                    onNavChange={onNavChange}/>
 
-            {collapsed && (
-                <div className={cls.nodesCollapsed}>
-                    {nodesQuery.isLoading ? (
-                        <>
-                            <div className={cls.skeletonDot}/>
-                            <div className={cls.skeletonDot}/>
-                            <div className={cls.skeletonDot}/>
-                        </>
-                    ) : (
-                        (nodesQuery.data?.nodes || []).map(renderDot)
-                    )}
-                </div>
-            )}
-
-            <div className={cls.divider}/>
-
-            {/* Main nav */}
-            <nav className={cls.nav}>
-                {!collapsed && (
-                    <div className={cn(cls.sectionHeader, cls.navSectionHeader)}>
-                        <SectionLabel>Services</SectionLabel>
+                {collapsed && (
+                    <div className={cls.nodesCollapsed}>
+                        {nodesQuery.isLoading ? (
+                            <>
+                                <div className={cls.skeletonDot}/>
+                                <div className={cls.skeletonDot}/>
+                                <div className={cls.skeletonDot}/>
+                            </>
+                        ) : (
+                            (nodesQuery.data?.nodes || []).map(renderDot)
+                        )}
                     </div>
                 )}
-                {
-                    NAV_ITEMS.map((n) =>
-                        <div key={n.id}>
-                            <NavItem
-                                id={n.id}
-                                label={n.label}
-                                icon={n.icon}
-                                isActive={activeNav === n.id}
-                                onNavChange={onNavChange}
-                                collapsed={collapsed}
-                            />
-                        </div>)}
 
                 <div className={cls.divider}/>
-                {!collapsed && (
-                    <div className={cn(cls.sectionHeader, cls.navSectionHeader)}>
-                        <SectionLabel>Tools</SectionLabel>
-                    </div>
-                )}
 
-                {TOOL_ITEMS.map(function renderToolItem(item) {
-                    function handleToolClick() {
-                        if (onToolNav) {
-                            onToolNav(item.id as ToolId);
-                        }
-                    }
-
-                    return (
-                        <div
-                            key={item.id}
-                            className={cn(cls.toolItem, {[cls.toolItemCollapsed]: collapsed})}
-                            title={collapsed ? item.label : undefined}
-                            onClick={handleToolClick}
-                        >
-                            <span className={cls.toolIcon}>{item.icon}</span>
-                            {!collapsed && <span className={cls.toolLabel}>{item.label}</span>}
+                {/* Main nav */}
+                <nav className={cls.nav}>
+                    {!collapsed && (
+                        <div className={cn(cls.sectionHeader, cls.navSectionHeader)}>
+                            <SectionLabel>Services</SectionLabel>
                         </div>
-                    );
-                })}
-            </nav>
+                    )}
+                    {
+                        NAV_ITEMS.map((n) =>
+                            <div key={n.id}>
+                                <NavItem
+                                    id={n.id}
+                                    label={n.label}
+                                    icon={n.icon}
+                                    isActive={activeNav === n.id}
+                                    onNavChange={onNavChange}
+                                    collapsed={collapsed}
+                                />
+                            </div>)}
 
-            <UserBar
-                collapsed={collapsed}/>
+                    <div className={cls.divider}/>
+                    {!collapsed && (
+                        <div className={cn(cls.sectionHeader, cls.navSectionHeader)}>
+                            <SectionLabel>Tools</SectionLabel>
+                        </div>
+                    )}
 
-        </aside>
+                    {TOOL_ITEMS.map(function renderToolItem(item) {
+                        function handleToolClick() {
+                            if (onToolNav) {
+                                onToolNav(item.id as ToolId);
+                            }
+                        }
+
+                        return (
+                            <div
+                                key={item.id}
+                                className={cn(cls.toolItem, {[cls.toolItemCollapsed]: collapsed})}
+                                title={collapsed ? item.label : undefined}
+                                onClick={handleToolClick}
+                            >
+                                <span className={cls.toolIcon}>{item.icon}</span>
+                                {!collapsed && <span className={cls.toolLabel}>{item.label}</span>}
+                            </div>
+                        );
+                    })}
+                </nav>
+
+                <UserBar
+                    collapsed={collapsed}/>
+
+            </aside>
+
+            {mobileOpen && (
+                <div className={cls.MobileBackdrop} onClick={onCloseMobile}/>
+            )}
+        </>
     );
 }
 

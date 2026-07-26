@@ -43,6 +43,7 @@ export default function MainLayout() {
     const [collapsed, setCollapsed] = useState(false);
     const [activeNodeId, setActiveNodeId] = useState<string | undefined>();
     const [showAllNodes, setShowAllNodes] = useState(false);
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
 
     const activeNav: NavId = ROUTE_TO_NAV[location.pathname] ?? 'apps';
@@ -66,6 +67,14 @@ export default function MainLayout() {
         setShowAllNodes(prev => !prev);
     }
 
+    function handleToggleMobileNav() {
+        setMobileNavOpen(prev => !prev);
+    }
+
+    function handleCloseMobileNav() {
+        setMobileNavOpen(false);
+    }
+
 
     return (
         <div className={cls.MainLayoutContainer}>
@@ -78,6 +87,9 @@ export default function MainLayout() {
                 activeNav={activeNav}
                 onNavChange={handleNavChange}
                 onToolNav={handleToolNav}
+
+                mobileOpen={mobileNavOpen}
+                onCloseMobile={handleCloseMobileNav}
             />
             <div className={cls.ContentWithHeader}>
                 <TopBar
@@ -88,6 +100,7 @@ export default function MainLayout() {
                     onToggleAllNodes={handleToggleAllNodes}
                     activeNav={activeNav}
                     onNavChange={handleNavChange}
+                    onToggleMobileNav={handleToggleMobileNav}
                 />
 
                 <main className={cls.ContentWrapper}>

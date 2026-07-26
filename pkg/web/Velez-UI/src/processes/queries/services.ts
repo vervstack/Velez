@@ -65,6 +65,7 @@ export function useListServiceEnvsQuery(serviceName: string) {
     return useQuery({
         queryKey: ['service-envs', serviceName] as const,
         queryFn: () => serviceService.fetchServiceEnvironments(serviceName),
+        enabled: !!serviceName,
     })
 }
 

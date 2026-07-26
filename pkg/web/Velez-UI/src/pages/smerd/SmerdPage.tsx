@@ -8,6 +8,9 @@ import cls from "@/pages/smerd/SmerdPage.module.css";
 
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {useGetSmerdQuery} from "@/processes/queries/smerds.ts";
+import SkeletonLoader from "@/components/base/SkeletonLoader.tsx";
+import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorState.tsx";
+import BreadcrumbsBar from "@/components/complex/BreadcrumbsBar/BreadcrumbsBar.tsx";
 
 export default function SmerdPage() {
     const params = useParams<Record<string, string>>();
@@ -15,7 +18,7 @@ export default function SmerdPage() {
     const toaster = useToaster();
     const smerdName = params["name"] || "";
 
-    const {data: smerd, isLoading, error} = useGetSmerdQuery(smerdName, smerdName !== "");
+    const {data: smerd, isLoading, isError, error, refetch} = useGetSmerdQuery(smerdName, smerdName !== "");
     useEffect(() => {
         if (error) toaster.catchGrpc(error);
     }, [error]);
@@ -27,9 +30,15 @@ export default function SmerdPage() {
     }
 
     if (isLoading) {
-        return <div className={cls.SmerdPageContainer}>
-            <div className={cls.LoadingMessage}>Loading...</div>
-        </div>;
+        return <SmerdPageSkeleton/>;
+    }
+
+    if (isError) {
+        return (
+            <div className={cls.SmerdPageContainer}>
+                <QueryErrorState message="Failed to load container." onRetry={refetch}/>
+            </div>
+        );
     }
 
     if (!smerd) {
@@ -40,7 +49,10 @@ export default function SmerdPage() {
 
     return (
         <div className={cls.SmerdPageContainer}>
-            <div className={cls.BackLink} onClick={() => navigate("/")}>← Back</div>
+            <BreadcrumbsBar crumbs={[
+                {label: "Home", onClick: () => navigate("/")},
+                {label: smerd.name || smerdName},
+            ]}/>
 
             <div className={cls.Header}>
                 <div className={cls.SmerdName}>{smerd.name}</div>
@@ -78,6 +90,25 @@ export default function SmerdPage() {
             )}
 
             <RawInspect smerd={smerd}/>
+        </div>
+    );
+}
+
+function SmerdPageSkeleton() {
+    return (
+        <div className={cls.SmerdPageContainer}>
+            <div className={cls.Header}>
+                <SkeletonLoader shape="line" width="12rem" height="2rem"/>
+                <SkeletonLoader shape="block" width="4rem" height="1.2rem"/>
+            </div>
+            <div className={cls.InfoBoxContainer}>
+                <SkeletonLoader shape="line" width="6rem" height="0.8rem"/>
+                <div className={cls.InfoBoxBody}>
+                    <SkeletonLoader shape="line" width="60%" height="0.9rem"/>
+                    <SkeletonLoader shape="line" width="40%" height="0.9rem"/>
+                    <SkeletonLoader shape="line" width="50%" height="0.9rem"/>
+                </div>
+            </div>
         </div>
     );
 }

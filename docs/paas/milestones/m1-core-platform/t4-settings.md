@@ -15,9 +15,9 @@ Operators can configure the connection to the Velez backend and any per-session 
 
 ### 4.2 Connection health indicator
 
-- [ ] Small status indicator in the page header (green / yellow / red)
-- [ ] Health-check call on mount and after settings save
-- [ ] Tooltip showing last-checked time and error message if unhealthy
+- [x] Small status indicator in the page header (green / yellow / red) — `StatusDot` in `ApiSettings.tsx`, next to the Backend URL field
+- [x] Health-check call on mount and after settings save — new `useConnectionHealth` hook (`src/app/hooks/health/`), probes via the existing `serviceService.listServices({})` call
+- [x] Tooltip showing last-checked time and error message if unhealthy
 
 ### 4.3 Settings validation
 

@@ -1,4 +1,4 @@
-import {useEffect, useState, useCallback} from "react";
+import {useEffect, useState, useCallback, useRef} from "react";
 import cn from "classnames";
 
 import cls from "@/pages/service/parts/DeployMenu.module.css";
@@ -8,6 +8,18 @@ import {serviceService} from "@/processes/api/service.ts";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {ListDeploymentsByServiceNameQuery} from "@/processes/queries/services.ts";
 import SkeletonDeploymentHistory from "@/components/deploy/SkeletonDeploymentHistory.tsx";
+import DeploymentStatusBadge from "@/components/deploy/DeploymentStatusBadge.tsx";
+import {DeploymentInfo, DeploymentStatus} from "@/app/api/velez";
+
+const TERMINAL_STATUSES: DeploymentStatus[] = [
+    DeploymentStatus.RUNNING,
+    DeploymentStatus.FAILED,
+    DeploymentStatus.DELETED,
+    DeploymentStatus.STOPPED,
+];
+
+const MAX_POLLS = 10;
+const POLL_INTERVAL_MS = 3000;
 
 enum TabsOptions {
     New = 'New',
@@ -31,6 +43,37 @@ export default function DeployMenu(props: DeployMenuProps) {
 
     const deployments = deploymentsQuery.data?.deployments || [];
     const latestDeployment = deployments.length > 0 ? deployments[0] : null;
+
+    const [isPolling, setIsPolling] = useState(false);
+    const pollCountRef = useRef(0);
+
+    function startPolling() {
+        pollCountRef.current = 0;
+        setIsPolling(true);
+    }
+
+    useEffect(() => {
+        if (!isPolling) return;
+
+        const interval = setInterval(function pollDeployments() {
+            pollCountRef.current += 1;
+            deploymentsQuery.refetch();
+        }, POLL_INTERVAL_MS);
+
+        return () => clearInterval(interval);
+        // deploymentsQuery is intentionally omitted: its identity changes every render,
+        // which would tear down and recreate the interval constantly.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isPolling]);
+
+    useEffect(() => {
+        if (!isPolling) return;
+
+        const isTerminal = !!latestDeployment?.status && TERMINAL_STATUSES.includes(latestDeployment.status);
+        if (isTerminal || pollCountRef.current >= MAX_POLLS) {
+            setIsPolling(false);
+        }
+    }, [isPolling, latestDeployment]);
 
     const handleUpgradeLatest = useCallback(function handleUpgradeLatest() {
         if (!latestDeployment?.id) {
@@ -61,6 +104,7 @@ export default function DeployMenu(props: DeployMenuProps) {
                     description: `Upgrading to latest`,
                     level: "Info",
                 });
+                startPolling();
                 if (props.onDeploymentCreated) {
                     props.onDeploymentCreated();
                 }
@@ -81,6 +125,7 @@ export default function DeployMenu(props: DeployMenuProps) {
                                     description: `Creating new deployment for ${props.serviceName}`,
                                     level: "Info",
                                 });
+                                startPolling();
                                 if (props.onDeploymentCreated) {
                                     props.onDeploymentCreated();
                                 }
@@ -99,6 +144,7 @@ export default function DeployMenu(props: DeployMenuProps) {
             default:
                 setContent(<div>Unknown deploy strategy {selectedTab}</div>)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedTab, latestDeployment, handleUpgradeLatest, deploymentsQuery.isLoading]);
 
     const tabs = [
@@ -135,7 +181,7 @@ export default function DeployMenu(props: DeployMenuProps) {
 }
 
 function UpgradePanel({latestDeployment, onUpgrade, isLoading}: {
-    latestDeployment: any;
+    latestDeployment: DeploymentInfo | null;
     onUpgrade: () => void;
     isLoading: boolean;
 }) {
@@ -156,6 +202,10 @@ function UpgradePanel({latestDeployment, onUpgrade, isLoading}: {
             <div className={cls.UpgradePanelContent}>
                 <div className={cls.UpgradePanelTitle}>Deploy Latest</div>
                 <div className={cls.UpgradePanelInfo}>
+                    <div className={cls.UpgradePanelRow}>
+                        <span className={cls.UpgradePanelLabel}>Status:</span>
+                        <DeploymentStatusBadge status={latestDeployment.status}/>
+                    </div>
                     {latestDeployment.image && (
                         <div className={cls.UpgradePanelRow}>
                             <span className={cls.UpgradePanelLabel}>Image:</span>

@@ -28,6 +28,19 @@
     align-items: center;
 }
 
+.UrlRow {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.HealthDotWrapper {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
 .RevealButton {
     padding: 0.5rem 0.875rem;
     border-radius: var(--radius);

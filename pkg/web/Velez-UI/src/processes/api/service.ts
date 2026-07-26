@@ -13,10 +13,66 @@ import {
     ListDeploymentsResponse,
     StopServiceRequest,
     RestartServiceRequest,
+    RemoveServiceRequest,
+    GetServiceEnvironmentsRequest,
+    ServiceEnvironmentInfo,
 } from "@/app/api/velez"
 
 import {ApiService} from "@/processes/ApiService.ts"
 import type {ServiceAbout, ServiceMetrics, ServiceResource, ServiceGraphData, ServiceGraphNode, ServiceEnvironment, VervonomiconDocs} from "@/model/service_page/ServicePageModel"
+
+function formatDeployedAgo(ts?: { seconds?: string | number; nanos?: number }): string {
+    if (!ts?.seconds) return ''
+    const seconds = Number(ts.seconds)
+    if (!seconds) return ''
+    const diffMs = Date.now() - seconds * 1000
+    const diffDays = Math.floor(diffMs / 86400000)
+    if (diffDays === 0) {
+        const diffHours = Math.floor(diffMs / 3600000)
+        if (diffHours === 0) {
+            const diffMinutes = Math.floor(diffMs / 60000)
+            return diffMinutes <= 1 ? 'just now' : `${diffMinutes}m`
+        }
+        return `${diffHours}h`
+    }
+    if (diffDays === 1) return '1d'
+    return `${diffDays}d`
+}
+
+function mapEnvStatus(status?: string): ServiceEnvironment['status'] {
+    switch ((status ?? '').toLowerCase()) {
+        case 'running':
+            return 'running'
+        case 'degraded':
+            return 'degraded'
+        case 'failed':
+            return 'failed'
+        default:
+            return 'stopped'
+    }
+}
+
+function mapEnvHealth(health?: string): ServiceEnvironment['health'] {
+    switch ((health ?? '').toLowerCase()) {
+        case 'healthy':
+            return 'healthy'
+        case 'degraded':
+            return 'degraded'
+        default:
+            return 'unhealthy'
+    }
+}
+
+function toServiceEnvironment(info: ServiceEnvironmentInfo): ServiceEnvironment {
+    return {
+        id: info.env ?? '',
+        label: info.env ?? '',
+        status: mapEnvStatus(info.status),
+        version: info.deployedVersion ?? '',
+        deployedAgo: formatDeployedAgo(info.deployedAt),
+        health: mapEnvHealth(info.health),
+    }
+}
 
 function formatUptime(seconds?: string): string {
     const total = Number(seconds ?? 0)
@@ -91,6 +147,13 @@ class ServiceService extends ApiService {
         })
     }
 
+    async removeService(name: string, dropRunningInstances: boolean): Promise<void> {
+        return this.mutate((req) => {
+            const payload: RemoveServiceRequest = {name, dropRunningInstances}
+            return ServiceApi.RemoveService(payload, req).then()
+        })
+    }
+
     async fetchServiceAbout(name: string): Promise<ServiceAbout> {
         return this.execute(async (req) => {
             const payload: GetServiceRequest = {name}
@@ -154,14 +217,12 @@ class ServiceService extends ApiService {
         })
     }
 
-    // TODO: implement — requires GetServiceEnvironments RPC in api/grpc/service_api.proto
-    async fetchServiceEnvironments(_serviceName: string): Promise<ServiceEnvironment[]> {
-        return [
-            { id: 'dev',     label: 'dev',     status: 'running',  version: '0.4.9-rc.2', deployedAgo: '2h',  health: 'healthy'  },
-            { id: 'test',    label: 'test',    status: 'running',  version: '0.4.8',      deployedAgo: '1d',  health: 'healthy'  },
-            { id: 'staging', label: 'staging', status: 'degraded', version: '0.4.7',      deployedAgo: '5d',  health: 'degraded' },
-            { id: 'prod',    label: 'prod',    status: 'running',  version: '0.4.7',      deployedAgo: '14d', health: 'healthy'  },
-        ]
+    async fetchServiceEnvironments(serviceName: string): Promise<ServiceEnvironment[]> {
+        return this.execute(async (req) => {
+            const payload: GetServiceEnvironmentsRequest = {serviceName}
+            const res = await ServiceApi.GetServiceEnvironments(payload, req)
+            return (res.environments ?? []).map(toServiceEnvironment)
+        })
     }
 
     // TODO: implement — requires GetVervonomicon RPC in api/grpc/service_api.proto

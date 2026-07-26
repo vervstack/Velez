@@ -4,6 +4,7 @@ import {Toast, useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {serviceService} from "@/processes/api/service.ts";
 import {GetServiceByNameQuery, ListDeploymentsByServiceNameQuery} from "@/processes/queries/services.ts";
 import {ListSmerdsByServiceIdQuery} from "@/processes/queries/smerds.ts";
+import {getSmerdTags} from "@/processes/mappings/smerds.ts";
 
 import DeployMenu from "@/pages/service/parts/DeployMenu.tsx";
 
@@ -19,6 +20,11 @@ import cls from "@/pages/service/ServiceInfoPage.module.css";
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
 import {DeploymentStatus} from "@/app/api/velez";
 import Button from "@/components/base/Button.tsx";
+import SkeletonLoader from "@/components/base/SkeletonLoader.tsx";
+import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorState.tsx";
+import BreadcrumbsBar from "@/components/complex/BreadcrumbsBar/BreadcrumbsBar.tsx";
+import TagChip from "@/components/base/chips/TagChip.tsx";
+import RemoveServiceDialog from "@/dialogs/RemoveServiceDialog/RemoveServiceDialog.tsx";
 
 type ServiceTab = 'overview' | 'metrics' | 'instances' | 'history' | 'access';
 
@@ -37,6 +43,7 @@ const TABS: { id: ServiceTab; label: string }[] = [
 
 export default function ServiceInfoPage() {
     const params = useParams<Record<string, string>>();
+    const navigate = useNavigate();
     const toaster = useToaster();
     const [activeTab, setActiveTab] = useState<ServiceTab>('overview');
 
@@ -51,8 +58,6 @@ export default function ServiceInfoPage() {
     const deploymentsQuery = ListDeploymentsByServiceNameQuery(service?.name || "");
     const smerdsQuery = ListSmerdsByServiceIdQuery(service?.name || "");
 
-    if (!service || !service.name) return null;
-
     if (key === "") {
         return (
             <div className={cls.ServiceInfoPageContainer}>
@@ -62,14 +67,18 @@ export default function ServiceInfoPage() {
     }
 
     if (serviceQuery.isLoading) {
+        return <ServicePageSkeleton/>;
+    }
+
+    if (serviceQuery.isError) {
         return (
             <div className={cls.ServiceInfoPageContainer}>
-                <div className={cls.StatusMessage}>Loading service...</div>
+                <QueryErrorState message="Failed to load service." onRetry={serviceQuery.refetch}/>
             </div>
         );
     }
 
-    if (!service) {
+    if (!service || !service.name) {
         return (
             <div className={cls.ServiceInfoPageContainer}>
                 <div className={cls.StatusMessage}>Service not found.</div>
@@ -82,7 +91,10 @@ export default function ServiceInfoPage() {
 
     return (
         <div className={cls.ServiceInfoPageContainer}>
-            <BreadcrumbsBar serviceName={key}/>
+            <BreadcrumbsBar crumbs={[
+                {label: "services", onClick: () => navigate("/")},
+                {label: key},
+            ]}/>
             <ServicePageHeader
                 serviceName={key}
                 activeTab={activeTab}
@@ -123,6 +135,19 @@ export default function ServiceInfoPage() {
 }
 
 
+function ServicePageSkeleton() {
+    return (
+        <div className={cls.ServiceInfoPageContainer}>
+            <div className={cls.ServicePageContentWrapper}>
+                <SkeletonLoader shape="block" width="100%" height="6rem"/>
+                <SkeletonLoader shape="block" width="100%" height="8rem"/>
+                <SkeletonLoader shape="block" width="100%" height="10rem"/>
+            </div>
+        </div>
+    );
+}
+
+
 interface TabsProps {
     serviceName: string
     activeTab: ServiceTab
@@ -154,27 +179,13 @@ function ServicePageHeader({serviceName, activeTab, setActiveTab}: TabsProps) {
             </div>
 
             <div className={cls.HeaderRightWrapper}>
-                <EnvSwitcher />
+                <EnvSwitcher serviceName={serviceName} />
+                <ServiceTagsStrip serviceName={serviceName} />
             </div>
         </div>
     );
 }
 
-
-interface BreadcrumbsBarProps {
-    serviceName: string
-}
-
-function BreadcrumbsBar({serviceName}: BreadcrumbsBarProps) {
-    const navigate = useNavigate();
-    return (
-        <div className={cls.BreadcrumbsBarContainer}>
-            <span className={cls.BreadcrumbLink} onClick={() => navigate("/")}>services</span>
-            <span className={cls.BreadcrumbSep}>/</span>
-            <span className={cls.BreadcrumbCurrent}>{serviceName}</span>
-        </div>
-    );
-}
 
 interface ActionsRowProps {
     serviceName: string
@@ -183,6 +194,7 @@ interface ActionsRowProps {
 
 function ActionsRow({serviceName, serviceState}: ActionsRowProps) {
     const toaster = useToaster();
+    const navigate = useNavigate();
     const {OpenDialog, CloseDialog} = useDialog();
     const deploymentsQuery = ListDeploymentsByServiceNameQuery(serviceName);
 
@@ -221,6 +233,19 @@ function ActionsRow({serviceName, serviceState}: ActionsRowProps) {
         );
     }
 
+    function openRemoveDialog() {
+        OpenDialog(
+            <RemoveServiceDialog
+                serviceName={serviceName}
+                onCancel={CloseDialog}
+                onRemoved={() => {
+                    CloseDialog();
+                    navigate("/");
+                }}
+            />
+        );
+    }
+
 
     return (
         <div className={cls.HeaderActionsRow}>
@@ -235,20 +260,37 @@ function ActionsRow({serviceName, serviceState}: ActionsRowProps) {
                 onClick={handleRestart}>
                 {serviceState == DeploymentStatus.RUNNING ? '↺ Restart' : '▶ Start'}
             </Button>
-            {/*TODO - remake deployment page than enable this*/}
 
-            <span
-                data-tooltip-id={"root-tooltip"}
-                data-tooltip-content="Not available for now, deploy widget is not ready"
-            >
-                <Button
-                    disabled={true}
-                    onClick={openDeployMenu}>
-                    + Deploy
-                </Button>
-            </span>
+            <Button onClick={openDeployMenu}>
+                + Deploy
+            </Button>
+
+            <Button variant="danger" onClick={openRemoveDialog}>
+                ✕ Remove
+            </Button>
         </div>
     )
+}
+
+
+interface ServiceTagsStripProps {
+    serviceName: string
+}
+
+function ServiceTagsStrip({serviceName}: ServiceTagsStripProps) {
+    const smerdsQuery = ListSmerdsByServiceIdQuery(serviceName);
+    const currentSmerd = smerdsQuery.data?.smerds?.[0];
+    const tags = getSmerdTags(currentSmerd);
+
+    if (tags.length === 0) return null;
+
+    return (
+        <div className={cls.TagsStrip}>
+            {tags.map(function renderTag(tag) {
+                return <TagChip key={tag.key} tagKey={tag.key} value={tag.value}/>;
+            })}
+        </div>
+    );
 }
 
 

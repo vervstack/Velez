@@ -22,17 +22,17 @@ Let the operator see the deployment history for a service and trigger new deploy
 
 - [x] Form exists via `DeploymentWidget` in `DeployMenu` (opens from ServiceInfoPage)
 - [x] Submit calls `CreateNewDeployment` (service deployment API)
-- [x] Live status polling after submission — no step progress display
+- [x] Live status polling after submission (short-lived, `DeployMenu.tsx` — 3s interval, stops on terminal status or after 10 polls) with a per-status `DeploymentStatusBadge` — still coarse (7-value `DeploymentStatus` enum), not true per-pipeline-step progress since no step-level data exists in `domain.Deployment`
 - [x] Success: redirect to ServiceInfoPage with new deployment highlighted
 - [x] Failure: surface the failed step and error message via toast
 
 ### 2.4 "Deploy latest" shortcut
 
-- [x] One-click button on ServiceInfoPage — "Upgrade" tab in DeployMenu is "Not implemented yet"
+- [x] One-click button on ServiceInfoPage (`+ Deploy`, previously hardcoded disabled — now enabled) — "Upgrade" tab in DeployMenu is fully implemented
 - [x] Confirmation dialog before submission
 
 ## Acceptance criteria
 
 - [x] Deploy form validates required fields before sending
-- [x] Pipeline progress is visible in real time (polling or streaming)
+- [x] Pipeline progress is visible in real time (polling or streaming) — coarse status only, not per-step
 - [x] A failed deploy does not silently succeed — catchGrpc used in .catch()

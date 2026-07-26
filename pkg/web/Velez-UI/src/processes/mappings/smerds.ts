@@ -49,6 +49,20 @@ export function mapSmerdToAppData(s: Smerd): AppData {
     };
 }
 
+const TAG_LABEL_PREFIX = 'verv.tag.';
+
+export interface SmerdTag {
+    key: string;
+    value: string;
+}
+
+export function getSmerdTags(smerd?: Smerd): SmerdTag[] {
+    const labels = smerd?.labels ?? {};
+    return Object.entries(labels)
+        .filter(([key]) => key.startsWith(TAG_LABEL_PREFIX))
+        .map(([key, value]) => ({key: key.slice(TAG_LABEL_PREFIX.length), value}));
+}
+
 function mapSmerdStatus(s?: SmerdStatus): 'running' | 'degraded' | 'stopped' {
     switch (s) {
         case SmerdStatus.running:

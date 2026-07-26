@@ -133,6 +133,7 @@ export type ServiceBaseInfo = {
   imageName?: string;
   status?: string;
   env?: string;
+  repo?: string;
 };
 
 export type StopServiceRequest = {
@@ -150,6 +151,15 @@ export type RestartServiceRequest = {
 export type RestartServiceResponse = Record<string, never>;
 
 export type RestartService = Record<string, never>;
+
+export type RemoveServiceRequest = {
+  name?: string;
+  dropRunningInstances?: boolean;
+};
+
+export type RemoveServiceResponse = Record<string, never>;
+
+export type RemoveService = Record<string, never>;
 
 export type GetServiceMetricsRequest = {
   serviceName?: string;
@@ -247,6 +257,9 @@ export class ServiceApi {
   }
   static RestartService(this:void, req: RestartServiceRequest, initReq?: fm.InitReq): Promise<RestartServiceResponse> {
     return fm.fetchRequest<RestartServiceResponse>(`/api/service/restart`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static RemoveService(this:void, req: RemoveServiceRequest, initReq?: fm.InitReq): Promise<RemoveServiceResponse> {
+    return fm.fetchRequest<RemoveServiceResponse>(`/api/service/remove`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
   static GetServiceMetrics(this:void, req: GetServiceMetricsRequest, initReq?: fm.InitReq): Promise<GetServiceMetricsResponse> {
     return fm.fetchRequest<GetServiceMetricsResponse>(`/api/service/metrics`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});

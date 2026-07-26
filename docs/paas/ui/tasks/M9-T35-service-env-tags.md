@@ -31,14 +31,21 @@ Tags are read from `verv.tag.*` labels of the **currently active smerd** (the on
 
 ## Acceptance Criteria
 
-- [ ] Environment tabs appear below the header when more than one distinct `verv.env` value is detected across smerds;
-  selecting a tab filters the Deployments tab to show only deployments from that env
-- [ ] When `verv.env` is absent or uniform, the tab row is not rendered (not an empty strip)
-- [ ] Tags strip renders below the env tabs showing `key: value` chips from `verv.tag.*` labels of the active smerd;
-  absent if no tags
-- [ ] Chips use the existing `EnvChip` or `Badge` component from `src/components/base/`
-- [ ] Active env tab is visually distinct (accent underline using `--color-accent`)
-- [ ] `yarn build:ui` passes with no TypeScript errors
+**Superseded, 2026-07-26**: `ServiceInfoPage` already had a working `EnvSwitcher` widget (real `ListEnvironments`
+RPC, but hardcoded per-env `status`/`health`) that this task's literal spec — a second, `verv.env`-label-derived
+tab row — would have duplicated. Extended `EnvSwitcher` instead of building a parallel env-tabs concept:
+
+- [x] ~~Environment tabs appear below the header when more than one distinct `verv.env` value is detected across
+  smerds~~ — `EnvSwitcher` now wired to the real `GetServiceEnvironments` RPC (was already generated with a dead
+  `useListServiceEnvsQuery` hook, zero call sites before this) instead of hardcoded per-env fields
+- [ ] ~~selecting a tab filters the Deployments tab to show only deployments from that env~~ — dropped:
+  `DeploymentInfo` carries no env field, so there's nothing to filter by without a separate proto change (not in
+  scope this round)
+- [x] Tags strip renders below `EnvSwitcher` showing `key: value` chips from `verv.tag.*` labels of the active
+  smerd (`ServiceTagsStrip`, new `TagChip` component); absent if no tags
+- [x] Chips use the existing chip pattern (`src/components/base/chips/`, new `TagChip.tsx` alongside `EnvChip.tsx`)
+- [x] `bun run build` passes with no new TypeScript errors (one pre-existing, unrelated error in
+  `HeadscalePluginForm.tsx` predates this change)
 
 ## Files to Create / Modify
 

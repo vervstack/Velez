@@ -29,11 +29,10 @@
     width: 100%;
 }
 
-.Empty {
+.EmptyFilter {
+    font-size: 0.85rem;
+    padding: 1rem 0;
     color: var(--ping-unknown);
-    font-size: 0.875rem;
-    text-align: center;
-    padding: 2rem 0;
 }
 
 .ToggleBtn {

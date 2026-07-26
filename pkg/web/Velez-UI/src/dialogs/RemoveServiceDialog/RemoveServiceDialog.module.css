@@ -1,0 +1,56 @@
+.ModalContainer {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 22rem;
+    max-width: 90vw;
+}
+
+.ModalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.ModalTitle {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--fg);
+    margin: 0;
+    flex: 1;
+}
+
+.ModalContent {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.ConfirmText {
+    font-size: 0.875rem;
+    color: var(--fg);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.CheckboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+}
+
+.CheckboxLabel input[type="checkbox"] {
+    cursor: pointer;
+}
+
+.ActionsRow {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}

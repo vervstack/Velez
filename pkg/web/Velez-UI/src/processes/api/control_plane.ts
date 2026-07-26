@@ -4,6 +4,7 @@ import {
     EnablePluginRequest,
     VervPluginType,
     EnableStatefullCluster,
+    EnableHeadscaleServer,
     ListNodesResponse,
     ListEnvironmentsResponse,
 } from "@/app/api/velez";
@@ -40,6 +41,16 @@ class ControlPlaneService extends ApiService {
             const payload: EnablePluginRequest = {
                 plugin: VervPluginType.statefull_pg,
                 statefullCluster: cluster,
+            }
+            return ControlPlaneAPI.EnablePlugin(payload, req).then()
+        })
+    }
+
+    async enableHeadscaleServer(config: EnableHeadscaleServer): Promise<void> {
+        return this.mutate((req) => {
+            const payload: EnablePluginRequest = {
+                plugin: VervPluginType.headscale,
+                headscaleServer: config,
             }
             return ControlPlaneAPI.EnablePlugin(payload, req).then()
         })

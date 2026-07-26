@@ -86,6 +86,14 @@
     text-overflow: ellipsis;
 }
 
+.CardRepo {
+    font-size: 0.7rem;
+    opacity: 0.5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .CardLastDeployed {
     font-size: 0.7rem;
     opacity: 0.5;
@@ -94,6 +102,13 @@
 .CardStatus {
     display: flex;
     align-items: center;
+}
+
+.CardActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin-top: 0.25rem;
 }
 
 /* ── Smerd list rows ──────────────────────────── */

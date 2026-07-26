@@ -3,14 +3,16 @@ import { useState } from 'react';
 import cls from '@/widgets/service/EnvSwitcher/EnvSwitcher.module.css';
 import EnvCard from '@/components/complex/EnvCard/EnvCard.tsx';
 
-import { ListEnvironmentsQuery } from '@/processes/queries/control_plane';
+import { useListServiceEnvsQuery } from '@/processes/queries/services.ts';
 import type { ServiceEnvironment } from '@/model/service_page/ServicePageModel';
 
-export default function EnvSwitcher() {
-    const { data } = ListEnvironmentsQuery();
-    const envs: ServiceEnvironment[] = (data?.environments ?? []).map(function toEnv(name) {
-        return { id: name, label: name, status: 'running', version: '', deployedAgo: '', health: 'healthy' };
-    });
+interface EnvSwitcherProps {
+    serviceName?: string;
+}
+
+export default function EnvSwitcher({ serviceName = '' }: EnvSwitcherProps) {
+    const { data } = useListServiceEnvsQuery(serviceName);
+    const envs: ServiceEnvironment[] = data ?? [];
 
     const [activeEnv, setActiveEnv] = useState<string>(() =>
         envs.length > 0 ? envs[0].id : 'prod'

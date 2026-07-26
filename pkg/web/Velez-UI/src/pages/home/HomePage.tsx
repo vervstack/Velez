@@ -1,18 +1,22 @@
 import {useNavigate} from "react-router-dom";
-import {useState, useEffect} from "react";
+import {useState, useEffect, type MouseEvent} from "react";
 import cn from "classnames";
 
 import {ServiceBaseInfo, Smerd, SmerdStatus} from "@/app/api/velez";
 
 import cls from "@/pages/home/Home.module.css";
 
-import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
+import {Toast, useToaster} from "@/app/hooks/toaster/Toaster.ts";
+import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
 import {Routes} from "@/app/router/Router.tsx";
 import Button from "@/components/base/Button.tsx";
 import SkeletonServiceCard from "@/components/service/SkeletonServiceCard.tsx";
 import SkeletonSmerdRow from "@/components/smerd/SkeletonSmerdRow.tsx";
+import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorState.tsx";
 import {useListServicesQuery} from "@/processes/queries/services.ts";
 import {useListSmerdsQuery} from "@/processes/queries/smerds.ts";
+import {serviceService} from "@/processes/api/service.ts";
+import RemoveServiceDialog from "@/dialogs/RemoveServiceDialog/RemoveServiceDialog.tsx";
 
 export default function HomePage() {
     const toaster = useToaster();
@@ -31,6 +35,8 @@ export default function HomePage() {
     const smerds = smerdsQuery.data?.smerds || [];
     const isLoadingServices = servicesQuery.isLoading;
     const isLoadingSmerds = smerdsQuery.isLoading;
+    const isServicesError = servicesQuery.isError;
+    const isSmerdsError = smerdsQuery.isError;
 
     const hasContent = services.length > 0 || smerds.length > 0;
 
@@ -41,10 +47,19 @@ export default function HomePage() {
                     {isLoadingServices && <ServicesSectionSkeleton />}
                     {isLoadingSmerds && <SmerdsSectionSkeleton />}
                 </div>
-            ) : hasContent ? (
+            ) : hasContent || isServicesError || isSmerdsError ? (
                 <div className={cls.DashboardWrapper}>
-                    <ServicesSection services={services} smerds={smerds}/>
-                    <SmerdsSection smerds={smerds}/>
+                    <ServicesSection
+                        services={services}
+                        smerds={smerds}
+                        isError={isServicesError}
+                        onRetry={servicesQuery.refetch}
+                    />
+                    <SmerdsSection
+                        smerds={smerds}
+                        isError={isSmerdsError}
+                        onRetry={smerdsQuery.refetch}
+                    />
                 </div>
             ) : (
                 <EmptyState/>
@@ -73,9 +88,26 @@ function formatLastDeployed(ts?: {seconds?: string | number; nanos?: number}): s
     return date.toLocaleDateString();
 }
 
-function ServicesSection({services, smerds}: { services: ServiceBaseInfo[]; smerds: Smerd[] }) {
+interface ServicesSectionProps {
+    services: ServiceBaseInfo[];
+    smerds: Smerd[];
+    isError: boolean;
+    onRetry: () => void;
+}
+
+function ServicesSection({services, smerds, isError, onRetry}: ServicesSectionProps) {
     const navigate = useNavigate();
+    const {OpenDialog, CloseDialog} = useDialog();
     const [query, setQuery] = useState("");
+
+    if (isError) {
+        return (
+            <section className={cls.Section}>
+                <h2 className={cls.SectionTitle}>Services</h2>
+                <QueryErrorState message="Failed to load services." onRetry={onRetry}/>
+            </section>
+        );
+    }
 
     if (services.length === 0) {
         return null;
@@ -102,6 +134,20 @@ function ServicesSection({services, smerds}: { services: ServiceBaseInfo[]; smer
                             navigate(Routes.Service + "/" + service.name);
                         }
 
+                        function openRemoveDialog(e?: MouseEvent) {
+                            e?.stopPropagation();
+                            OpenDialog(
+                                <RemoveServiceDialog
+                                    serviceName={service.name || ""}
+                                    onCancel={CloseDialog}
+                                    onRemoved={() => {
+                                        CloseDialog();
+                                        onRetry();
+                                    }}
+                                />
+                            );
+                        }
+
                         const relatedSmerd = smerds.find(
                             (s) => s.name === service.name || s.name?.startsWith(service.name + "-")
                         );
@@ -119,12 +165,20 @@ function ServicesSection({services, smerds}: { services: ServiceBaseInfo[]; smer
                                 {imageLabel && (
                                     <div className={cls.CardImage}>{imageLabel}</div>
                                 )}
+                                {service.repo && (
+                                    <div className={cls.CardRepo}>{service.repo}</div>
+                                )}
                                 {lastDeployed && (
                                     <div className={cls.CardLastDeployed}>{lastDeployed}</div>
                                 )}
                                 <div className={cls.CardStatus}>
-                                    <StatusBadge status="unknown"/>
+                                    <StatusBadge status={service.status || "unknown"}/>
                                 </div>
+                                <ServiceCardActions
+                                    serviceName={service.name || ""}
+                                    onChanged={onRetry}
+                                    onRemoveClick={openRemoveDialog}
+                                />
                             </div>
                         );
                     })}
@@ -134,13 +188,68 @@ function ServicesSection({services, smerds}: { services: ServiceBaseInfo[]; smer
     );
 }
 
-function SmerdsSection({smerds}: { smerds: Smerd[] }) {
+interface ServiceCardActionsProps {
+    serviceName: string;
+    onChanged: () => void;
+    onRemoveClick: (e?: MouseEvent) => void;
+}
+
+function ServiceCardActions({serviceName, onChanged, onRemoveClick}: ServiceCardActionsProps) {
+    const toaster = useToaster();
+
+    function handleStop(e?: MouseEvent) {
+        e?.stopPropagation();
+        serviceService.stopService(serviceName)
+            .then(() => {
+                toaster.bake({
+                    title: "Service stopped",
+                    description: serviceName,
+                    level: "Info",
+                } as Toast);
+                onChanged();
+            })
+            .catch(toaster.catchGrpc);
+    }
+
+    function handleRestart(e?: MouseEvent) {
+        e?.stopPropagation();
+        serviceService.restartService(serviceName)
+            .then(() => {
+                toaster.bake({
+                    title: "Service restarted",
+                    description: serviceName,
+                    level: "Info",
+                } as Toast);
+                onChanged();
+            })
+            .catch(toaster.catchGrpc);
+    }
+
+    return (
+        <div className={cls.CardActions}>
+            <Button sm onClick={handleStop}>Stop</Button>
+            <Button sm onClick={handleRestart}>Restart</Button>
+            <Button sm variant="danger" onClick={onRemoveClick}>Remove</Button>
+        </div>
+    );
+}
+
+
+interface SmerdsSectionProps {
+    smerds: Smerd[];
+    isError: boolean;
+    onRetry: () => void;
+}
+
+function SmerdsSection({smerds, isError, onRetry}: SmerdsSectionProps) {
     const navigate = useNavigate();
 
     return (
         <section className={cls.Section}>
             <h2 className={cls.SectionTitle}>Containers</h2>
-            {smerds.length === 0 ? (
+            {isError ? (
+                <QueryErrorState message="Failed to load containers." onRetry={onRetry}/>
+            ) : smerds.length === 0 ? (
                 <div className={cls.EmptyFilter}>No containers running.</div>
             ) : (
                 <div className={cls.SmerdList}>

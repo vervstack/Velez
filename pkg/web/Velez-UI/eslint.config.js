@@ -24,6 +24,7 @@ export default tseslint.config([
 			'@typescript-eslint/no-empty-object-type': 'off',
 			'@typescript-eslint/ban-ts-comment': 'off',
 			'react-refresh/only-export-components': 'off',
+			'@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
 		}
 	},
 ])

@@ -14,7 +14,10 @@ import (
 // TestEnvironments, each of which calls config.Load(configPath) during
 // setup) never race, no matter how many call it at once. Run with -race.
 func Test_Load_Concurrent_NoRace(t *testing.T) {
-	_, filename, _, _ := runtime.Caller(0)
+	_, filename, _, ok := runtime.Caller(0)
+	if !ok {
+		t.Fatal("runtime.Caller failed")
+	}
 	// filename -> internal/config/load_test.go; go up two levels to repo root.
 	repoRoot := filepath.Dir(filepath.Dir(filepath.Dir(filename)))
 	configPath := filepath.Join(repoRoot, "tests", "config_mocks", "velez_default_config.yaml")
@@ -29,5 +32,6 @@ func Test_Load_Concurrent_NoRace(t *testing.T) {
 			require.NoError(t, err)
 		}()
 	}
+
 	wg.Wait()
 }

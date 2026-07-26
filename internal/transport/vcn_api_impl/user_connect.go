@@ -4,14 +4,13 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
 func (impl *Impl) ConnectUser(ctx context.Context, req *velez_api.ConnectUser_Request) (
-	*velez_api.ConnectUser_Response, error) {
-
+	*velez_api.ConnectUser_Response, error,
+) {
 	domainReq := domain.RegisterVcnNodeReq{
 		Key:      req.Key,
 		Username: req.Username,

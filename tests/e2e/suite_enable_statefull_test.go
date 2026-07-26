@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"go.redsock.ru/toolbox"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
 )
@@ -102,6 +101,8 @@ func Test_EnableStatefull(t *testing.T) {
 func repoRoot(t *testing.T) string {
 	t.Helper()
 
-	_, filename, _, _ := runtime.Caller(0)
+	pc, filename, _, _ := runtime.Caller(0)
+	_ = pc
+
 	return filepath.Dir(filepath.Dir(filepath.Dir(filename)))
 }

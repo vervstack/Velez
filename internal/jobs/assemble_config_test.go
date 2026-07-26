@@ -10,10 +10,16 @@ import (
 	"github.com/docker/docker/errdefs"
 	dockerspec "github.com/moby/docker-image-spec/specs-go/v1"
 	ocispec "github.com/opencontainers/image-spec/specs-go/v1"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/tests/config_mocks"
+)
+
+const (
+	testLabelBar    = "bar"
+	testSvcName     = "my-svc"
+	testContainerID = "abc123"
+	testNginxImage  = "nginx:1.25"
 )
 
 func TestAssembleConfigHandler_Action(t *testing.T) {
@@ -43,7 +49,7 @@ func TestClassifyImage(t *testing.T) {
 	}{
 		{
 			name:           "matreshka labeled image",
-			imageLabels:    map[string]string{labels.MatreshkaConfigLabel: "true"},
+			imageLabels:    map[string]string{labels.MatreshkaConfigLabel: vervConfigLabelEnabled},
 			wantConfType:   confTypeVerv,
 			wantFormat:     velez_api.ConfigFormat_env,
 			wantSystemPath: "/app/config/config.yaml",
@@ -69,9 +75,11 @@ func TestClassifyImage(t *testing.T) {
 			if confType != tc.wantConfType {
 				t.Errorf("expected confType %q, got %q", tc.wantConfType, confType)
 			}
+
 			if format != tc.wantFormat {
 				t.Errorf("expected format %v, got %v", tc.wantFormat, format)
 			}
+
 			if systemPath != tc.wantSystemPath {
 				t.Errorf("expected systemPath %q, got %q", tc.wantSystemPath, systemPath)
 			}
@@ -159,18 +167,18 @@ func TestParseConfigJob_EnvFormat(t *testing.T) {
 
 func TestPrepareScratchImageJob_Success(t *testing.T) {
 	payload := &velez_api.AssembleConfigTaskPayload{
-		ImageName: "nginx:1.25",
+		ImageName: testNginxImage,
 	}
 
 	imageConfig := &dockerspec.DockerOCIImageConfig{
 		ImageConfig: ocispec.ImageConfig{
-			Labels: map[string]string{"foo": "bar"},
+			Labels: map[string]string{"foo": testLabelBar},
 		},
 	}
 
 	docker := newFakeDocker()
 	docker.pullImageResp = image.InspectResponse{
-		RepoTags: []string{"nginx:1.25"},
+		RepoTags: []string{testNginxImage},
 		Config:   imageConfig,
 	}
 
@@ -181,10 +189,11 @@ func TestPrepareScratchImageJob_Success(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if payload.GetImageLabels()["foo"] != "bar" {
+	if payload.GetImageLabels()["foo"] != testLabelBar {
 		t.Errorf("expected image label foo=bar, got %v", payload.GetImageLabels())
 	}
-	if len(payload.GetImageTags()) != 1 || payload.GetImageTags()[0] != "nginx:1.25" {
+
+	if len(payload.GetImageTags()) != 1 || payload.GetImageTags()[0] != testNginxImage {
 		t.Errorf("expected image tags [nginx:1.25], got %v", payload.GetImageTags())
 	}
 }
@@ -194,7 +203,7 @@ func TestPrepareScratchImageJob_Success(t *testing.T) {
 // out of Do, and no image metadata should be recorded on the task context.
 func TestPrepareScratchImageJob_PullImageError(t *testing.T) {
 	payload := &velez_api.AssembleConfigTaskPayload{
-		ImageName: "nginx:1.25",
+		ImageName: testNginxImage,
 	}
 
 	docker := newFakeDocker()
@@ -218,12 +227,12 @@ func TestPrepareScratchImageJob_PullImageError(t *testing.T) {
 
 func TestCreateScratchContainerJob_Success(t *testing.T) {
 	payload := &velez_api.AssembleConfigTaskPayload{
-		ServiceName: "my-svc",
-		ImageName:   "nginx:1.25",
+		ServiceName: testSvcName,
+		ImageName:   testNginxImage,
 	}
 
 	docker := newFakeDocker()
-	docker.containerCreateResp = container.CreateResponse{ID: "abc123"}
+	docker.containerCreateResp = container.CreateResponse{ID: testContainerID}
 
 	nodeClients := newFakeNodeClients(docker)
 
@@ -234,7 +243,7 @@ func TestCreateScratchContainerJob_Success(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if payload.GetContainerId() != "abc123" {
+	if payload.GetContainerId() != testContainerID {
 		t.Errorf("expected container id 'abc123', got %q", payload.GetContainerId())
 	}
 }
@@ -244,8 +253,8 @@ func TestCreateScratchContainerJob_Success(t *testing.T) {
 // and no container id should be recorded.
 func TestCreateScratchContainerJob_ContainerCreateError(t *testing.T) {
 	payload := &velez_api.AssembleConfigTaskPayload{
-		ServiceName: "my-svc",
-		ImageName:   "nginx:1.25",
+		ServiceName: testSvcName,
+		ImageName:   testNginxImage,
 	}
 
 	docker := newFakeDocker()
@@ -285,7 +294,7 @@ func TestCreateScratchContainerJob_Rollback_NoContainerId_NoOp(t *testing.T) {
 
 func TestCreateScratchContainerJob_Rollback_RemovesContainer(t *testing.T) {
 	payload := &velez_api.AssembleConfigTaskPayload{}
-	payload.SetContainerId("abc123")
+	payload.SetContainerId(testContainerID)
 
 	docker := newFakeDocker()
 	nodeClients := newFakeNodeClients(docker)
@@ -297,7 +306,7 @@ func TestCreateScratchContainerJob_Rollback_RemovesContainer(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if len(docker.removeCalledWith) != 1 || docker.removeCalledWith[0] != "abc123" {
+	if len(docker.removeCalledWith) != 1 || docker.removeCalledWith[0] != testContainerID {
 		t.Errorf("expected Remove called with 'abc123', got %v", docker.removeCalledWith)
 	}
 }
@@ -307,7 +316,7 @@ func TestCreateScratchContainerJob_Rollback_RemovesContainer(t *testing.T) {
 // propagate out of Rollback rather than being swallowed.
 func TestCreateScratchContainerJob_Rollback_RemoveErrorPropagates(t *testing.T) {
 	payload := &velez_api.AssembleConfigTaskPayload{}
-	payload.SetContainerId("abc123")
+	payload.SetContainerId(testContainerID)
 
 	docker := newFakeDocker()
 	docker.removeErr = errors.New("docker daemon unreachable")
@@ -324,7 +333,7 @@ func TestCreateScratchContainerJob_Rollback_RemoveErrorPropagates(t *testing.T) 
 
 func TestCreateScratchContainerJob_Rollback_NotFoundIsSwallowed(t *testing.T) {
 	payload := &velez_api.AssembleConfigTaskPayload{}
-	payload.SetContainerId("abc123")
+	payload.SetContainerId(testContainerID)
 
 	docker := newFakeDocker()
 	docker.removeErr = errdefs.NotFound(errors.New("no such container"))
@@ -353,7 +362,7 @@ func TestCreateScratchContainerJob_Rollback_NotFoundIsSwallowed(t *testing.T) {
 // test for this job.
 func TestFetchConfigJob_EmptyContainerId_Error(t *testing.T) {
 	payload := &velez_api.AssembleConfigTaskPayload{
-		ServiceName: "my-svc",
+		ServiceName: testSvcName,
 	}
 
 	j := &fetchConfigJob{
@@ -372,9 +381,9 @@ func TestFetchConfigJob_EmptyContainerId_Error(t *testing.T) {
 
 func TestFetchConfigJob_PlainImage_SkipsDockerRead(t *testing.T) {
 	payload := &velez_api.AssembleConfigTaskPayload{
-		ServiceName: "my-svc",
+		ServiceName: testSvcName,
 	}
-	payload.SetContainerId("abc123")
+	payload.SetContainerId(testContainerID)
 	payload.SetImageTags([]string{"docker.io/library/nginx:1"})
 
 	j := &fetchConfigJob{
@@ -393,6 +402,7 @@ func TestFetchConfigJob_PlainImage_SkipsDockerRead(t *testing.T) {
 	if payload.GetConfType() != confTypePlain {
 		t.Errorf("expected conf type %q, got %q", confTypePlain, payload.GetConfType())
 	}
+
 	if len(payload.GetContentRaw()) != 0 {
 		t.Errorf("expected no content raw fetched, got %q", payload.GetContentRaw())
 	}
@@ -420,7 +430,7 @@ func TestDropScratchContainerJob_NoContainerId_NoOp(t *testing.T) {
 
 func TestDropScratchContainerJob_Success(t *testing.T) {
 	payload := &velez_api.AssembleConfigTaskPayload{}
-	payload.SetContainerId("abc123")
+	payload.SetContainerId(testContainerID)
 
 	docker := newFakeDocker()
 
@@ -431,7 +441,7 @@ func TestDropScratchContainerJob_Success(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if len(docker.removeCalledWith) != 1 || docker.removeCalledWith[0] != "abc123" {
+	if len(docker.removeCalledWith) != 1 || docker.removeCalledWith[0] != testContainerID {
 		t.Errorf("expected Remove called with 'abc123', got %v", docker.removeCalledWith)
 	}
 }
@@ -442,7 +452,7 @@ func TestDropScratchContainerJob_Success(t *testing.T) {
 // error, including NotFound.
 func TestDropScratchContainerJob_RemoveErrorPropagates(t *testing.T) {
 	payload := &velez_api.AssembleConfigTaskPayload{}
-	payload.SetContainerId("abc123")
+	payload.SetContainerId(testContainerID)
 
 	docker := newFakeDocker()
 	docker.removeErr = errors.New("docker daemon unreachable")

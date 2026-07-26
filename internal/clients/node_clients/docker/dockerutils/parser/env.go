@@ -4,6 +4,8 @@ import (
 	"strings"
 )
 
+const minEnvParts = 2
+
 func FromDockerEnv(env map[string]string) []string {
 	out := make([]string, 0, len(env))
 
@@ -19,7 +21,7 @@ func ToDockerEnv(env []string) map[string]string {
 
 	for _, e := range env {
 		nameVal := strings.Split(e, "=")
-		if len(nameVal) < 2 {
+		if len(nameVal) < minEnvParts {
 			continue
 		}
 

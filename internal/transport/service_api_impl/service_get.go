@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
-
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 )
@@ -32,7 +31,7 @@ func (impl *Impl) GetService(ctx context.Context, pbReq *pb.GetService_Request) 
 	return &pb.GetService_Response{
 		Payload: &pb.GetService_Response_VervService{
 			VervService: &pb.VervAppService{
-				Name:                s.ServiceBaseInfo.Name,
+				Name:                s.Name,
 				CurrentDeploymentId: s.CurrentDeploymentId,
 				Status:              s.Status,
 			},

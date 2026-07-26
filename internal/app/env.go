@@ -2,10 +2,9 @@ package app
 
 import (
 	"go.redsock.ru/rerrors"
+	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 	"gopkg.in/yaml.v3"
-
-	"go.vervstack.ru/Velez/internal/cluster/env"
 )
 
 func (c *Custom) saveSelfConfig(a *App) (err error) {

@@ -5,7 +5,6 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/matreshka"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
@@ -91,6 +90,7 @@ func (c *clusterClients) Vpn() cluster_clients.VervClosedNetworkClient {
 	if c.vcn == nil {
 		return &verv_closed_network.DisabledVcnImpl{}
 	}
+
 	return c.vcn
 }
 

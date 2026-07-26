@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	//containerVervMountPoint = "/opt/velez/smerds"
+	// containerVervMountPoint = "/opt/velez/smerds".
 	containerVervMountPoint = "/Users/alexbukov/Desktop/verv"
 )
 
@@ -32,7 +32,7 @@ func GetVervVolumeName() string {
 	return vervVolumeName
 }
 
-func StartVolumes(dockerAPI client.CommonAPIClient) error {
+func StartVolumes(dockerAPI client.APIClient) error {
 	volumeMu.Lock()
 	defer volumeMu.Unlock()
 
@@ -59,6 +59,7 @@ func StartVolumes(dockerAPI client.CommonAPIClient) error {
 	for _, v := range volumes.Volumes {
 		if v.Name == vervVolumeName {
 			vervVolume = v
+
 			break
 		}
 	}
@@ -94,7 +95,7 @@ func GetVervVolumePath() (string, error) {
 
 // createVervVolume is only ever called by StartVolumes, with volumeMu
 // already held — it must not lock volumeMu itself.
-func createVervVolume(ctx context.Context, dockerAPI client.CommonAPIClient) (*volume.Volume, error) {
+func createVervVolume(ctx context.Context, dockerAPI client.APIClient) (*volume.Volume, error) {
 	createOptions := volume.CreateOptions{
 		Name: vervVolumeName,
 	}
@@ -103,6 +104,7 @@ func createVervVolume(ctx context.Context, dockerAPI client.CommonAPIClient) (*v
 
 	if !isInContainer {
 		var err error
+
 		vervVolumePath, err = os.UserCacheDir()
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting cache dir")
@@ -116,7 +118,7 @@ func createVervVolume(ctx context.Context, dockerAPI client.CommonAPIClient) (*v
 			"o":      "bind",
 		}
 
-		err = os.MkdirAll(vervVolumePath, 0755)
+		err = os.MkdirAll(vervVolumePath, 0o755)
 		if err != nil {
 			return nil, errors.Wrap(err, "error creating verv volume dir")
 		}

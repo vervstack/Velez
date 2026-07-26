@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
@@ -15,6 +14,7 @@ func (v *VervService) GetServiceMetrics(ctx context.Context, serviceName string)
 	req := &velez_api.ListSmerds_Request{
 		Label: map[string]string{labels.VervServiceLabel: serviceName},
 	}
+
 	resp, err := v.containerService.ListSmerds(ctx, req)
 	if err != nil {
 		return domain.ServiceMetrics{}, rerrors.Wrap(err)
@@ -23,6 +23,7 @@ func (v *VervService) GetServiceMetrics(ctx context.Context, serviceName string)
 	// single-mode fallback: find container by name when VERV_SERVICE label is absent
 	if len(resp.Smerds) == 0 {
 		req = &velez_api.ListSmerds_Request{Name: &serviceName}
+
 		resp, err = v.containerService.ListSmerds(ctx, req)
 		if err != nil {
 			return domain.ServiceMetrics{}, rerrors.Wrap(err)
@@ -59,9 +60,11 @@ func (v *VervService) GetServiceMetrics(ctx context.Context, serviceName string)
 		if stats.MemUsageMi > maxMemUsage {
 			maxMemUsage = stats.MemUsageMi
 		}
+
 		if stats.MemLimitMi > maxMemLimit {
 			maxMemLimit = stats.MemLimitMi
 		}
+
 		replicasRunning++
 
 		if earliestStartedTime == nil || stats.StartedAt.Before(*earliestStartedTime) {

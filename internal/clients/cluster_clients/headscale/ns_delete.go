@@ -9,17 +9,16 @@ import (
 )
 
 func (s *Client) DeleteNamespace(ctx context.Context, id string) error {
-	resp, err := s.doApiRequest(ctx, http.MethodDelete, userUri+"/"+id, nil)
+	resp, err := s.doAPIRequest(ctx, http.MethodDelete, userURI+"/"+id, nil)
 	if err != nil {
 		return rerrors.Wrap(err, "error executing request")
 	}
 
 	// TODO add handling error for dangling nodes of namespace
-	r, _ := io.ReadAll(resp.Body)
-	_ = r
+	_, _ = io.ReadAll(resp.Body)
+	_ = resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
+	if resp.StatusCode == http.StatusOK {
 		return nil
 	}
 

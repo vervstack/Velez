@@ -5,17 +5,14 @@ import (
 	"time"
 
 	"go.redsock.ru/rerrors"
-	"google.golang.org/grpc/codes"
-
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"google.golang.org/grpc/codes"
 )
 
-var (
-	errUnsupportedService = rerrors.New("unsupported service", codes.InvalidArgument)
-)
+var errUnsupportedService = rerrors.New("unsupported service", codes.InvalidArgument)
 
 // enableStatefullWatchTimeout bounds how long the synchronous EnablePlugin
 // RPC blocks waiting for the enable_statefull_mode task to reach a terminal
@@ -25,9 +22,10 @@ var (
 const enableStatefullWatchTimeout = 60 * time.Second
 
 func (impl *Impl) EnablePlugin(ctx context.Context, req *pb.EnablePlugin_Request) (
-	*pb.EnablePlugin_Response, error) {
-
+	*pb.EnablePlugin_Response, error,
+) {
 	var err error
+
 	switch req.GetPlugin() {
 	case pb.VervPluginType_statefull_pg:
 		payload, ok := req.Payload.(*pb.EnablePlugin_Request_StatefullCluster)

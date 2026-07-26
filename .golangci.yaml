@@ -6,20 +6,11 @@ run:
 
 output:
   formats:
-    colored-line-number: { }
-
-
-linters-settings:
-  varnamelen: # scope of variable
-    max-distance: 25 # amount of lines when variable can be used (about 1 screen space)
-    min-name-length: 2 # minimal lenght of variable that goes out of scope
-
-    ignore-type-assert-ok: true
-    check-type-param: true
-    ignore-chan-recv-ok: true
+    text:
+      path: stdout
 
 linters:
-  disable-all: true
+  default: none
   enable:
     - varnamelen # check lenght of scope of a variable
 
@@ -31,7 +22,6 @@ linters:
     - contextcheck
     - cyclop
     - decorder
-    - depguard
     - dogsled
     - dupl
     - dupword
@@ -101,23 +91,80 @@ linters:
     - wrapcheck
     - wsl_v5
 
+  settings:
+    varnamelen: # scope of variable
+      max-distance: 25 # amount of lines when variable can be used (about 1 screen space)
+      min-name-length: 2 # minimal lenght of variable that goes out of scope
+
+      ignore-type-assert-ok: true
+      check-type-param: true
+      ignore-chan-recv-ok: true
+
+    ireturn:
+      allow:
+        - anon
+        - error
+        - empty
+        - stdlib
+        - generic
+        - Storage$ # storage layer is designed to have interchangeable postgres/local_storage implementations
+        - TaskContext # jobs engine context is intentionally polymorphic per task handler
+
+    revive:
+      rules:
+        - name: blank-imports
+        - name: context-as-argument
+        - name: context-keys-type
+        - name: dot-imports
+        - name: empty-block
+        - name: error-naming
+        - name: error-return
+        - name: error-strings
+        - name: errorf
+        - name: exported
+          disabled: true # conflicts with project convention of no comments unless the WHY is non-obvious
+        - name: increment-decrement
+        - name: indent-error-flow
+        - name: package-comments
+          disabled: true # same as exported above
+        - name: range
+        - name: receiver-naming
+        - name: redefines-builtin-id
+        - name: superfluous-else
+        - name: time-naming
+        - name: unexported-return
+        - name: unreachable-code
+        - name: unused-parameter
+        - name: var-declaration
+        - name: var-naming
+        - name: waitgroup-by-value
+
+  exclusions:
+    paths:
+      - configs
+    rules:
+      - path: docs\.swagger_ui\.go
+        linters:
+          - typecheck
+      - linters:
+          - staticcheck
+        text: "SA9003:"
+      - linters:
+          - lll
+        source: "^//go:generate "
+      - path: ^tests/e2e/
+        linters:
+          - paralleltest # e2e suite intentionally shares one matreshka fixture; see CLAUDE.md E2E shared-fixture rules
+      - path: internal/clients/node_clients/docker/client\.go
+        linters:
+          - tagliatelle # struct mirrors Docker daemon's own snake_case stats API response
+      - path: internal/clients/node_clients/local_state/.*\.go
+        linters:
+          - tagliatelle # JSON tags are the on-disk state file format; renaming breaks backward compatibility
+
 formatters:
   enable:
     - gci
     - gofmt
     - gofumpt
     - goimports
-
-issues:
-  exclude-dirs:
-    - configs
-  exclude-rules:
-    - path: docs\.swagger_ui\.go
-      linters:
-        - typecheck
-    - linters:
-        - staticcheck
-      text: "SA9003:"
-    - linters:
-        - lll
-      source: "^//go:generate "

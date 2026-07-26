@@ -8,7 +8,6 @@ import (
 	"github.com/docker/docker/api/types/registry"
 	"github.com/docker/docker/client"
 	errors "go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 )
@@ -59,5 +58,4 @@ func SearchImages(ctx context.Context, docker client.APIClient, req domain.Image
 	_ = images
 
 	return nil, nil
-
 }

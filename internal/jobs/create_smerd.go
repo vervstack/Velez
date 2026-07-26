@@ -7,18 +7,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
-	"github.com/docker/docker/errdefs"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/evon"
 	"go.redsock.ru/rerrors"
-	"go.vervstack.ru/matreshka/pkg/matreshka"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
@@ -28,9 +24,21 @@ import (
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/utils/configutils"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 const CreateSmerdAction = "create_smerd"
+
+// stepHealthcheck names the healthcheck job shared with upgrade_smerd.go's
+// BuildJobs.
+const stepHealthcheck = "healthcheck"
+
+const (
+	stepPrepareCreateImage = "prepare_image"
+	stepPrepareVervConfig  = "prepare_verv_config"
+)
 
 // Accessor interfaces the create_smerd jobs need from their TaskContext.
 // *velez_api.CreateSmerdTaskPayload satisfies all of them, but any other
@@ -40,12 +48,12 @@ type smerdRequestAccessor interface {
 	GetRequest() *velez_api.CreateSmerd_Request
 }
 
-type imageIdAccessor interface {
+type imageIDAccessor interface {
 	GetImageId() string
 	SetImageId(string)
 }
 
-type containerIdAccessor interface {
+type containerIDAccessor interface {
 	GetContainerId() string
 	SetContainerId(string)
 }
@@ -54,7 +62,7 @@ type containerIdAccessor interface {
 // pulling/inspecting the image - imageMetaAccessor (labels/tags) is declared
 // in assemble_config.go and reused here as-is.
 type createSmerdImageAccessor interface {
-	imageIdAccessor
+	imageIDAccessor
 	imageMetaAccessor
 	SetImageExposedPorts([]string)
 }
@@ -90,7 +98,11 @@ func (h *createSmerdHandler) NewContext() TaskContext {
 }
 
 func (h *createSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
-	payload := taskCtx.(*velez_api.CreateSmerdTaskPayload)
+	payload, ok := taskCtx.(*velez_api.CreateSmerdTaskPayload)
+	if !ok {
+		panic("create_smerd: BuildJobs called with mismatched TaskContext type")
+	}
+
 	dockerAPI := h.nodeClients.Docker().Client()
 
 	return []NamedJob{
@@ -101,7 +113,7 @@ func (h *createSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: "prepare_image",
+			Name: stepPrepareCreateImage,
 			Job: &prepareImageJob{
 				docker: h.nodeClients.Docker(),
 				req:    payload,
@@ -109,7 +121,7 @@ func (h *createSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: "fetch_config",
+			Name: stepFetchConfig,
 			Job: &fetchSmerdConfigJob{
 				configService: h.configService,
 				req:           payload,
@@ -118,7 +130,7 @@ func (h *createSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: "prepare_verv_config",
+			Name: stepPrepareVervConfig,
 			Job: &prepareSmerdVervConfigJob{
 				dockerAPI:         dockerAPI,
 				portManager:       h.nodeClients.PortManager(),
@@ -144,14 +156,14 @@ func (h *createSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: "start_container",
+			Name: stepStartSidecar,
 			Job: &startContainerJob{
 				dockerAPI: dockerAPI,
 				ctx:       payload,
 			},
 		},
 		{
-			Name: "healthcheck",
+			Name: stepHealthcheck,
 			Job: &healthcheckJob{
 				dockerAPI: dockerAPI,
 				req:       payload,
@@ -229,7 +241,7 @@ func (j *prepareImageJob) Do(ctx context.Context) error {
 
 		exposedPorts = make([]string, 0, len(imageInfo.Config.ExposedPorts))
 		for port := range imageInfo.Config.ExposedPorts {
-			exposedPorts = append(exposedPorts, string(port))
+			exposedPorts = append(exposedPorts, port)
 		}
 	}
 
@@ -515,23 +527,23 @@ func (j *prepareSmerdVervConfigJob) Rollback(_ context.Context) error {
 type copyToContainerJob struct {
 	dockerAPI client.APIClient
 
-	ctx    containerIdAccessor
+	ctx    containerIDAccessor
 	mounts pathToFilesAccessor
 }
 
 func (j *copyToContainerJob) Do(ctx context.Context) error {
-	containerId := j.ctx.GetContainerId()
+	containerID := j.ctx.GetContainerId()
 
 	for path, content := range j.mounts.GetPathToFiles() {
 		if content == nil {
 			continue
 		}
 
-		if containerId == "" {
+		if containerID == "" {
 			return rerrors.New("no container id provided")
 		}
 
-		err := dockerutils.WriteToContainer(ctx, j.dockerAPI, containerId, path, content)
+		err := dockerutils.WriteToContainer(ctx, j.dockerAPI, containerID, path, content)
 		if err != nil {
 			return rerrors.Wrap(err, "error copying to container")
 		}
@@ -563,7 +575,7 @@ type createContainerJob struct {
 	nodeClients node_clients.NodeClients
 
 	req smerdRequestAccessor
-	ctx containerIdAccessor
+	ctx containerIDAccessor
 }
 
 func (j *createContainerJob) Do(ctx context.Context) error {
@@ -630,14 +642,14 @@ func (j *createContainerJob) Do(ctx context.Context) error {
 }
 
 func (j *createContainerJob) Rollback(ctx context.Context) error {
-	containerId := j.ctx.GetContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
 		return nil
 	}
 
-	err := j.nodeClients.Docker().Remove(ctx, containerId)
+	err := j.nodeClients.Docker().Remove(ctx, containerID)
 	if err != nil && !errdefs.IsNotFound(err) {
-		return rerrors.Wrapf(err, "error removing container '%s'", containerId)
+		return rerrors.Wrapf(err, "error removing container '%s'", containerID)
 	}
 
 	return nil
@@ -646,16 +658,16 @@ func (j *createContainerJob) Rollback(ctx context.Context) error {
 type startContainerJob struct {
 	dockerAPI client.APIClient
 
-	ctx containerIdAccessor
+	ctx containerIDAccessor
 }
 
 func (j *startContainerJob) Do(ctx context.Context) error {
-	containerId := j.ctx.GetContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
 		return rerrors.New("no container id provided")
 	}
 
-	err := j.dockerAPI.ContainerStart(ctx, containerId, container.StartOptions{})
+	err := j.dockerAPI.ContainerStart(ctx, containerID, container.StartOptions{})
 	if err != nil {
 		return rerrors.Wrap(err, "error starting container")
 	}
@@ -664,14 +676,14 @@ func (j *startContainerJob) Do(ctx context.Context) error {
 }
 
 func (j *startContainerJob) Rollback(ctx context.Context) error {
-	containerId := j.ctx.GetContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
 		return nil
 	}
 
-	err := j.dockerAPI.ContainerStop(ctx, containerId, container.StopOptions{})
+	err := j.dockerAPI.ContainerStop(ctx, containerID, container.StopOptions{})
 	if err != nil {
-		return rerrors.Wrapf(err, "error stopping container '%s'", containerId)
+		return rerrors.Wrapf(err, "error stopping container '%s'", containerID)
 	}
 
 	return nil
@@ -681,7 +693,7 @@ type healthcheckJob struct {
 	dockerAPI client.APIClient
 
 	req smerdRequestAccessor
-	ctx containerIdAccessor
+	ctx containerIDAccessor
 }
 
 func (j *healthcheckJob) Do(ctx context.Context) error {
@@ -690,19 +702,19 @@ func (j *healthcheckJob) Do(ctx context.Context) error {
 		return nil
 	}
 
-	containerId := j.ctx.GetContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
 		return rerrors.New("container was not created")
 	}
 
 	for i := uint32(0); i < healthcheck.GetRetries(); i++ {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return rerrors.Wrap(ctx.Err(), "healthcheck context done")
 		case <-time.After(time.Duration(healthcheck.GetIntervalSecond()) * time.Second):
 		}
 
-		cont, err := j.dockerAPI.ContainerInspect(ctx, containerId)
+		cont, err := j.dockerAPI.ContainerInspect(ctx, containerID)
 		if err != nil {
 			return rerrors.Wrap(err, "error during healthcheck")
 		}

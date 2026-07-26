@@ -6,7 +6,6 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/storage"
@@ -17,7 +16,10 @@ type pgState struct {
 	storage.Storage
 }
 
-const PgName = "verv-cluster-state"
+const (
+	PgName               = "verv-cluster-state"
+	heartbeatIntervalSec = 5
+)
 
 func NewPgStateManager(ctx context.Context, dsn string) (cluster_clients.ClusterStateManager, error) {
 	conn, err := sqldb.New(dsn)
@@ -35,7 +37,7 @@ func NewPgStateManager(ctx context.Context, dsn string) (cluster_clients.Cluster
 }
 
 func (s *pgState) doHeartbeat(ctx context.Context) {
-	ticker := time.NewTicker(time.Second * 5)
+	ticker := time.NewTicker(time.Second * time.Duration(heartbeatIntervalSec))
 
 	for {
 		select {
@@ -49,7 +51,5 @@ func (s *pgState) doHeartbeat(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		}
-
 	}
-
 }

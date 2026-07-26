@@ -4,13 +4,13 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
-
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
 func (impl *Impl) CreateDeploy(ctx context.Context, apiReq *pb.CreateDeploy_Request) (
-	*pb.CreateDeploy_Response, error) {
+	*pb.CreateDeploy_Response, error,
+) {
 	var err error
 
 	switch payload := apiReq.Specification.(type) {
@@ -45,12 +45,14 @@ func (impl *Impl) handleNewDeployment(ctx context.Context, apiReq *pb.CreateDepl
 
 func (impl *Impl) handleUpgradeDeployment(ctx context.Context,
 	apiReq *pb.CreateDeploy_Request, payload *pb.CreateDeploy_Request_Upgrade_) (
-	*pb.CreateDeploy_Response, error) {
+	*pb.CreateDeploy_Response, error,
+) {
 	req := domain.UpgradeDeployReq{
 		ServiceName:  apiReq.ServiceName,
 		DeploymentId: payload.Upgrade.DeploymentId,
 		NewImage:     payload.Upgrade.Image,
 	}
+
 	err := impl.servicesService.UpgradeDeploy(ctx, req)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error upgrading deployment")

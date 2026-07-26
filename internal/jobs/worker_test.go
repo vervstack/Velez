@@ -9,6 +9,12 @@ import (
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
+const (
+	testJobNameFirst  = "first"
+	testJobNameSecond = "second"
+	testAction        = "test_action"
+)
+
 type orderedJob struct {
 	name    string
 	log     *[]string
@@ -17,6 +23,7 @@ type orderedJob struct {
 
 func (o *orderedJob) Do(_ context.Context) error {
 	*o.log = append(*o.log, o.name)
+
 	return o.failure
 }
 
@@ -33,19 +40,22 @@ func TestTaskWorker_ClaimsAndRunsAllJobsInOrder(t *testing.T) {
 	tasksStorage := newFakeTasksStorage()
 	jobsStorage := newFakeJobsStorage()
 
-	task, err := tasksStorage.CreateTask(context.Background(), tasks_queries.CreateTaskParams{EntityID: "e1", Action: "test_action"})
+	createParams := tasks_queries.CreateTaskParams{EntityID: "e1", Action: testAction}
+
+	task, err := tasksStorage.CreateTask(context.Background(), createParams)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
 	var log []string
+
 	registry := NewRegistry()
 	registry.Register(&testHandler{
-		action: "test_action",
+		action: testAction,
 		jobs: func(TaskContext) []NamedJob {
 			return []NamedJob{
-				{Name: "first", Job: &orderedJob{name: "first", log: &log}},
-				{Name: "second", Job: &orderedJob{name: "second", log: &log}},
+				{Name: testJobNameFirst, Job: &orderedJob{name: testJobNameFirst, log: &log}},
+				{Name: testJobNameSecond, Job: &orderedJob{name: testJobNameSecond, log: &log}},
 			}
 		},
 	})
@@ -57,7 +67,7 @@ func TestTaskWorker_ClaimsAndRunsAllJobsInOrder(t *testing.T) {
 
 	w.processOne(context.Background())
 
-	if len(log) != 2 || log[0] != "first" || log[1] != "second" {
+	if len(log) != 2 || log[0] != testJobNameFirst || log[1] != testJobNameSecond {
 		t.Errorf("expected jobs to run in order [first second], got %v", log)
 	}
 
@@ -71,13 +81,15 @@ func TestTaskWorker_ReclaimsStaleRunningTaskAndSkipsDoneJobs(t *testing.T) {
 	tasksStorage := newFakeTasksStorage()
 	jobsStorage := newFakeJobsStorage()
 
-	task, err := tasksStorage.CreateTask(context.Background(), tasks_queries.CreateTaskParams{EntityID: "e2", Action: "test_action"})
+	createParams := tasks_queries.CreateTaskParams{EntityID: "e2", Action: testAction}
+
+	task, err := tasksStorage.CreateTask(context.Background(), createParams)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
 	// Simulate a worker that claimed this task, completed "first", then crashed
-	// before "second" ran: claimed_at is stale and "first" is already DONE.
+	// before testJobNameSecond ran: claimed_at is stale and "first" is already DONE.
 	tasksStorage.mu.Lock()
 	stale := tasksStorage.byID[task.ID]
 	stale.Status = tasks_queries.VelezTaskStatusRUNNING
@@ -86,16 +98,17 @@ func TestTaskWorker_ReclaimsStaleRunningTaskAndSkipsDoneJobs(t *testing.T) {
 	tasksStorage.byID[task.ID] = stale
 	tasksStorage.mu.Unlock()
 
-	jobsStorage.seedDone(task.ID, "first")
+	jobsStorage.seedDone(task.ID, testJobNameFirst)
 
 	var log []string
+
 	registry := NewRegistry()
 	registry.Register(&testHandler{
-		action: "test_action",
+		action: testAction,
 		jobs: func(TaskContext) []NamedJob {
 			return []NamedJob{
-				{Name: "first", Job: &orderedJob{name: "first", log: &log}},
-				{Name: "second", Job: &orderedJob{name: "second", log: &log}},
+				{Name: testJobNameFirst, Job: &orderedJob{name: testJobNameFirst, log: &log}},
+				{Name: testJobNameSecond, Job: &orderedJob{name: testJobNameSecond, log: &log}},
 			}
 		},
 	})
@@ -107,7 +120,7 @@ func TestTaskWorker_ReclaimsStaleRunningTaskAndSkipsDoneJobs(t *testing.T) {
 
 	w.processOne(context.Background())
 
-	if len(log) != 1 || log[0] != "second" {
+	if len(log) != 1 || log[0] != testJobNameSecond {
 		t.Errorf("expected only the not-yet-done job to run, got %v", log)
 	}
 

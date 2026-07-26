@@ -1,6 +1,7 @@
 package sqldb
 
 import (
+	"context"
 	"database/sql"
 	stdErrors "errors"
 
@@ -18,7 +19,9 @@ func NewTxManager(conn *sql.DB) *TxManager {
 }
 
 func (m *TxManager) Execute(do func(tx *sql.Tx) error) error {
-	tx, err := m.conn.Begin()
+	ctx := context.Background()
+
+	tx, err := m.conn.BeginTx(ctx, nil)
 	if err != nil {
 		return errors.Wrap(err)
 	}

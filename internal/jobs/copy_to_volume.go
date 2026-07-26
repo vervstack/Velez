@@ -10,12 +10,11 @@ import (
 	"sort"
 	"time"
 
+	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
-	"github.com/docker/docker/errdefs"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
@@ -23,12 +22,18 @@ import (
 
 const CopyToVolumeAction = "copy_to_volume"
 
+const stepDropContainer = "drop_container"
+
+// fixedJobCount is the number of BuildJobs entries that aren't per-file
+// copy_file_N jobs: create_container, start_container, drop_container.
+const fixedJobCount = 3
+
 // loaderContainerSuffix mirrors do_copy_to_volume.go's "<volume>_loader"
 // container name.
 const loaderContainerSuffix = "_loader"
 
 // Accessor interfaces the copy_to_volume jobs need from their TaskContext.
-// *velez_api.CopyToVolumeTaskPayload satisfies all of them. containerIdAccessor
+// *velez_api.CopyToVolumeTaskPayload satisfies all of them. containerIDAccessor
 // is declared in create_smerd.go and reused here as-is.
 
 type copyToVolumeRequestAccessor interface {
@@ -52,7 +57,9 @@ type startAPI interface {
 // write a file into the loader container. See startAPI's doc comment for why
 // this stays a small local interface rather than depending on client.APIClient.
 type copyAPI interface {
-	CopyToContainer(ctx context.Context, containerID, dstPath string, content io.Reader, options container.CopyToContainerOptions) error
+	CopyToContainer(
+		ctx context.Context, containerID, dstPath string, content io.Reader, options container.CopyToContainerOptions,
+	) error
 }
 
 type copyToVolumeHandler struct {
@@ -80,13 +87,16 @@ func (h *copyToVolumeHandler) NewContext() TaskContext {
 // so sortedFilePaths sorts payload.GetPathToFiles()'s keys before the loop
 // below assigns indices - see TestCopyToVolumeHandler_BuildJobs_Deterministic.
 func (h *copyToVolumeHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
-	payload := taskCtx.(*velez_api.CopyToVolumeTaskPayload)
+	payload, ok := taskCtx.(*velez_api.CopyToVolumeTaskPayload)
+	if !ok {
+		panic("copy_to_volume: BuildJobs called with mismatched TaskContext type")
+	}
 
 	pathToFiles := payload.GetPathToFiles()
 	sortedPaths := sortedFilePaths(pathToFiles)
 	folders := mountedFolders(payload.GetVolumeName(), sortedPaths)
 
-	namedJobs := make([]NamedJob, 0, len(sortedPaths)+3)
+	namedJobs := make([]NamedJob, 0, len(sortedPaths)+fixedJobCount)
 
 	createJob := &createLoaderContainerJob{
 		nodeClients: h.nodeClients,
@@ -94,13 +104,13 @@ func (h *copyToVolumeHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		folders:     folders,
 		ctx:         payload,
 	}
-	namedJobs = append(namedJobs, NamedJob{Name: "create_container", Job: createJob})
+	namedJobs = append(namedJobs, NamedJob{Name: stepCreatePgContainer, Job: createJob})
 
 	startJob := &startLoaderContainerJob{
 		dockerAPI: h.nodeClients.Docker().Client(),
 		ctx:       payload,
 	}
-	namedJobs = append(namedJobs, NamedJob{Name: "start_container", Job: startJob})
+	namedJobs = append(namedJobs, NamedJob{Name: stepStartSidecar, Job: startJob})
 
 	for i, filePath := range sortedPaths {
 		copyJob := &copyFileJob{
@@ -119,7 +129,7 @@ func (h *copyToVolumeHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		docker: h.nodeClients.Docker(),
 		ctx:    payload,
 	}
-	namedJobs = append(namedJobs, NamedJob{Name: "drop_container", Job: dropJob})
+	namedJobs = append(namedJobs, NamedJob{Name: stepDropContainer, Job: dropJob})
 
 	return namedJobs
 }
@@ -132,6 +142,7 @@ func sortedFilePaths(m map[string][]byte) []string {
 	for k := range m {
 		keys = append(keys, k)
 	}
+
 	sort.Strings(keys)
 
 	return keys
@@ -152,6 +163,7 @@ func mountedFolders(volumeName string, sortedPaths []string) []*velez_api.Volume
 		if ok {
 			continue
 		}
+
 		seen[folder] = struct{}{}
 
 		volume := &velez_api.Volume{
@@ -177,7 +189,7 @@ type createLoaderContainerJob struct {
 
 	req     copyToVolumeRequestAccessor
 	folders []*velez_api.Volume
-	ctx     containerIdAccessor
+	ctx     containerIDAccessor
 }
 
 func (j *createLoaderContainerJob) Do(ctx context.Context) error {
@@ -215,14 +227,14 @@ func (j *createLoaderContainerJob) Do(ctx context.Context) error {
 }
 
 func (j *createLoaderContainerJob) Rollback(ctx context.Context) error {
-	containerId := j.ctx.GetContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
 		return nil
 	}
 
-	err := j.nodeClients.Docker().Remove(ctx, containerId)
+	err := j.nodeClients.Docker().Remove(ctx, containerID)
 	if err != nil && !errdefs.IsNotFound(err) {
-		return rerrors.Wrapf(err, "error removing loader container '%s'", containerId)
+		return rerrors.Wrapf(err, "error removing loader container '%s'", containerID)
 	}
 
 	return nil
@@ -231,18 +243,18 @@ func (j *createLoaderContainerJob) Rollback(ctx context.Context) error {
 type startLoaderContainerJob struct {
 	dockerAPI startAPI
 
-	ctx containerIdAccessor
+	ctx containerIDAccessor
 }
 
 func (j *startLoaderContainerJob) Do(ctx context.Context) error {
-	containerId := j.ctx.GetContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
 		return rerrors.New("no container id provided")
 	}
 
 	startOpts := container.StartOptions{}
 
-	err := j.dockerAPI.ContainerStart(ctx, containerId, startOpts)
+	err := j.dockerAPI.ContainerStart(ctx, containerID, startOpts)
 	if err != nil {
 		return rerrors.Wrap(err, "error starting loader container")
 	}
@@ -251,16 +263,16 @@ func (j *startLoaderContainerJob) Do(ctx context.Context) error {
 }
 
 func (j *startLoaderContainerJob) Rollback(ctx context.Context) error {
-	containerId := j.ctx.GetContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
 		return nil
 	}
 
 	stopOpts := container.StopOptions{}
 
-	err := j.dockerAPI.ContainerStop(ctx, containerId, stopOpts)
+	err := j.dockerAPI.ContainerStop(ctx, containerID, stopOpts)
 	if err != nil {
-		return rerrors.Wrapf(err, "error stopping loader container '%s'", containerId)
+		return rerrors.Wrapf(err, "error stopping loader container '%s'", containerID)
 	}
 
 	return nil
@@ -276,7 +288,7 @@ type copyFileJob struct {
 	docker  node_clients.Docker
 	copyAPI copyAPI
 
-	ctx containerIdAccessor
+	ctx containerIDAccessor
 
 	filePath string
 	content  []byte
@@ -290,8 +302,8 @@ func (j *copyFileJob) Do(ctx context.Context) error {
 		return nil
 	}
 
-	containerId := j.ctx.GetContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
 		return rerrors.New("no container id provided")
 	}
 
@@ -305,12 +317,12 @@ func (j *copyFileJob) Do(ctx context.Context) error {
 	// smerd_steps.Exec ignores the command's exit code (ops result is
 	// discarded), so a failing mkdir surfaces only as a transport-level
 	// Docker error here too - inherited unchanged (see questions.md #5).
-	_, err := j.docker.Exec(ctx, containerId, execOpts)
+	_, err := j.docker.Exec(ctx, containerID, execOpts)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating directory in container")
 	}
 
-	err = writeFileToContainer(ctx, j.copyAPI, containerId, j.filePath, j.content)
+	err = writeFileToContainer(ctx, j.copyAPI, containerID, j.filePath, j.content)
 	if err != nil {
 		return rerrors.Wrap(err, "error copying file to container")
 	}
@@ -326,13 +338,15 @@ func (j *copyFileJob) Do(ctx context.Context) error {
 // client.APIClient, so its logic is duplicated here rather than reused,
 // trading a small amount of duplication for unit-testability without
 // minimock.
-func writeFileToContainer(ctx context.Context, dockerAPI copyAPI, contId string, systemPath string, content []byte) error {
+func writeFileToContainer(
+	ctx context.Context, dockerAPI copyAPI, contID string, systemPath string, content []byte,
+) error {
 	buf := new(bytes.Buffer)
 	tw := tar.NewWriter(buf)
 
 	hdr := &tar.Header{
 		Name:    path.Base(systemPath),
-		Mode:    0644,
+		Mode:    0o644,
 		Size:    int64(len(content)),
 		ModTime: time.Now(),
 	}
@@ -354,7 +368,7 @@ func writeFileToContainer(ctx context.Context, dockerAPI copyAPI, contId string,
 
 	copyOpts := container.CopyToContainerOptions{}
 
-	err = dockerAPI.CopyToContainer(ctx, contId, path.Dir(systemPath), buf, copyOpts)
+	err = dockerAPI.CopyToContainer(ctx, contID, path.Dir(systemPath), buf, copyOpts)
 	if err != nil {
 		return rerrors.Wrap(err, "error writing to container")
 	}
@@ -365,16 +379,16 @@ func writeFileToContainer(ctx context.Context, dockerAPI copyAPI, contId string,
 // dropLoaderContainerJob mirrors dropScratchContainerJob's shape.
 type dropLoaderContainerJob struct {
 	docker node_clients.Docker
-	ctx    containerIdAccessor
+	ctx    containerIDAccessor
 }
 
 func (j *dropLoaderContainerJob) Do(ctx context.Context) error {
-	containerId := j.ctx.GetContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
 		return nil
 	}
 
-	err := j.docker.Remove(ctx, containerId)
+	err := j.docker.Remove(ctx, containerID)
 	if err != nil {
 		return rerrors.Wrap(err, "error dropping loader container")
 	}

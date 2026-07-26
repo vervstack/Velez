@@ -3,13 +3,12 @@ package smerd_steps
 import (
 	"context"
 
+	cerrdefs "github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
-	"github.com/docker/docker/errdefs"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
@@ -19,21 +18,21 @@ import (
 
 type createSmerdStep struct {
 	dockerClient    node_clients.Docker
-	dockerDirectApi client.APIClient
+	dockerDirectAPI client.APIClient
 
 	req         *domain.LaunchSmerd
-	containerId *string
+	containerID *string
 }
 
 func Create(nodeClients node_clients.NodeClients,
 	req *domain.LaunchSmerd,
-	containerId *string,
+	containerID *string,
 ) *createSmerdStep {
 	return &createSmerdStep{
 		dockerClient:    nodeClients.Docker(),
-		dockerDirectApi: nodeClients.Docker().Client(),
+		dockerDirectAPI: nodeClients.Docker().Client(),
 		req:             req,
-		containerId:     containerId,
+		containerID:     containerID,
 	}
 }
 
@@ -50,12 +49,12 @@ func (s *createSmerdStep) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error creating container")
 	}
 
-	containerInfo, err := s.dockerDirectApi.ContainerInspect(ctx, createdContainer.ID)
+	containerInfo, err := s.dockerDirectAPI.ContainerInspect(ctx, createdContainer.ID)
 	if err != nil {
 		return rerrors.Wrap(err, "error inspecting container by id")
 	}
 
-	*s.containerId = containerInfo.ID
+	*s.containerID = containerInfo.ID
 
 	for _, n := range s.req.Settings.Network {
 		connectReq := dockerutils.ConnectToNetworkRequest{
@@ -63,7 +62,8 @@ func (s *createSmerdStep) Do(ctx context.Context) error {
 			ContId:      createdContainer.ID,
 			Aliases:     n.Aliases,
 		}
-		err = dockerutils.ConnectToNetwork(ctx, s.dockerDirectApi, connectReq)
+
+		err = dockerutils.ConnectToNetwork(ctx, s.dockerDirectAPI, connectReq)
 		if err != nil {
 			return rerrors.Wrap(err)
 		}
@@ -73,14 +73,14 @@ func (s *createSmerdStep) Do(ctx context.Context) error {
 }
 
 func (s *createSmerdStep) Rollback(ctx context.Context) error {
-	if s.containerId == nil {
+	if s.containerID == nil {
 		return nil
 	}
 
-	err := s.dockerClient.Remove(ctx, *s.containerId)
+	err := s.dockerClient.Remove(ctx, *s.containerID)
 	if err != nil {
-		if !errdefs.IsNotFound(err) {
-			return rerrors.Wrapf(err, "error removing container '%s'", *s.containerId)
+		if !cerrdefs.IsNotFound(err) {
+			return rerrors.Wrapf(err, "error removing container '%s'", *s.containerID)
 		}
 	}
 

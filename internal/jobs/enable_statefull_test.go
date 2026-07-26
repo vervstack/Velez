@@ -12,8 +12,6 @@ import (
 	"github.com/docker/docker/errdefs"
 	"github.com/docker/go-connections/nat"
 	"github.com/sqlc-dev/pqtype"
-	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
@@ -22,7 +20,10 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
 )
+
+const testPgContainerID = "pg123"
 
 func TestEnableStatefullHandler_Action(t *testing.T) {
 	h := NewEnableStatefullHandler(nil, nil, nil)
@@ -56,13 +57,14 @@ func TestEnableStatefullHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 	namedJobs := h.BuildJobs(payload)
 
 	wantNames := []string{
-		"generate_credentials", "create_container", "start_container", "wait_for_postgres_ready",
-		"get_root_dsn", "create_schema_and_migrate", "create_pg_user", "update_cluster_state",
+		stepGenerateCredentials, stepCreatePgContainer, stepStartSidecar, "wait_for_postgres_ready",
+		stepGetRootDsn, "create_schema_and_migrate", "create_pg_user", "update_cluster_state",
 		"init_node_storage",
 	}
 	if len(namedJobs) != len(wantNames) {
 		t.Fatalf("expected %d jobs, got %d", len(wantNames), len(namedJobs))
 	}
+
 	for i, name := range wantNames {
 		if namedJobs[i].Name != name {
 			t.Errorf("expected job %d named %q, got %q", i, name, namedJobs[i].Name)
@@ -82,17 +84,23 @@ func TestGenerateCredentialsJob_NoExistingState_GeneratesRandomPasswords(t *test
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if payload.GetRootPwd() == "" {
 		t.Error("expected a root password to be generated")
 	}
+
 	if payload.GetUserPwd() == "" {
 		t.Error("expected a user password to be generated")
 	}
 }
 
 func TestGenerateCredentialsJob_ExistingDsn_ReusesPassword(t *testing.T) {
-	rootPg := resources.Postgres{Host: "h", Port: 5432, User: "postgres", Pwd: "existing-root-pwd", DbName: "postgres"}
-	nodePg := resources.Postgres{Host: "h", Port: 5432, User: "icy_raccoon", Pwd: "existing-user-pwd", DbName: "postgres"}
+	rootPg := resources.Postgres{
+		Host: "h", Port: 5432, User: pgDefaultUser, Pwd: "existing-root-pwd", DbName: pgDefaultUser,
+	}
+	nodePg := resources.Postgres{
+		Host: "h", Port: 5432, User: "icy_raccoon", Pwd: "existing-user-pwd", DbName: pgDefaultUser,
+	}
 
 	localState := newFakeStateManager(local_state.State{
 		ClusterState: local_state.ClusterState{
@@ -108,9 +116,11 @@ func TestGenerateCredentialsJob_ExistingDsn_ReusesPassword(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if payload.GetRootPwd() != "existing-root-pwd" {
 		t.Errorf("expected reused root password, got %q", payload.GetRootPwd())
 	}
+
 	if payload.GetUserPwd() != "existing-user-pwd" {
 		t.Errorf("expected reused user password, got %q", payload.GetUserPwd())
 	}
@@ -129,9 +139,11 @@ func TestGenerateCredentialsJob_AlreadyPersisted_DoesNotRegenerate(t *testing.T)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if payload.GetRootPwd() != "already-set-root" {
 		t.Errorf("expected persisted root password preserved, got %q", payload.GetRootPwd())
 	}
+
 	if payload.GetUserPwd() != "already-set-user" {
 		t.Errorf("expected persisted user password preserved, got %q", payload.GetUserPwd())
 	}
@@ -141,7 +153,7 @@ func TestGenerateCredentialsJob_AlreadyPersisted_DoesNotRegenerate(t *testing.T)
 
 func TestCreatePgContainerJob_Success(t *testing.T) {
 	docker := newFakeDocker()
-	docker.containerCreateResp = container.CreateResponse{ID: "pg123"}
+	docker.containerCreateResp = container.CreateResponse{ID: testPgContainerID}
 	nodeClients := newFakeNodeClients(docker)
 
 	payload := &velez_api.EnableStatefullTaskPayload{
@@ -155,7 +167,8 @@ func TestCreatePgContainerJob_Success(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if payload.GetContainerId() != "pg123" {
+
+	if payload.GetContainerId() != testPgContainerID {
 		t.Errorf("expected container id 'pg123', got %q", payload.GetContainerId())
 	}
 }
@@ -176,6 +189,7 @@ func TestCreatePgContainerJob_ContainerCreateError(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected an error when ContainerCreate fails")
 	}
+
 	if payload.GetContainerId() != "" {
 		t.Errorf("expected no container id set on failure, got %q", payload.GetContainerId())
 	}
@@ -192,6 +206,7 @@ func TestCreatePgContainerJob_Rollback_NoContainerId_NoOp(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if len(docker.removeCalledWith) != 0 {
 		t.Errorf("expected Remove not to be called, got %v", docker.removeCalledWith)
 	}
@@ -200,7 +215,7 @@ func TestCreatePgContainerJob_Rollback_NoContainerId_NoOp(t *testing.T) {
 func TestCreatePgContainerJob_Rollback_RemovesContainer(t *testing.T) {
 	docker := newFakeDocker()
 	nodeClients := newFakeNodeClients(docker)
-	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto("pg123")}
+	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
 
 	j := &createPgContainerJob{nodeClients: nodeClients, ctx: payload}
 
@@ -208,7 +223,8 @@ func TestCreatePgContainerJob_Rollback_RemovesContainer(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if len(docker.removeCalledWith) != 1 || docker.removeCalledWith[0] != "pg123" {
+
+	if len(docker.removeCalledWith) != 1 || docker.removeCalledWith[0] != testPgContainerID {
 		t.Errorf("expected Remove called with 'pg123', got %v", docker.removeCalledWith)
 	}
 }
@@ -217,7 +233,7 @@ func TestCreatePgContainerJob_Rollback_NotFoundIsSwallowed(t *testing.T) {
 	docker := newFakeDocker()
 	docker.removeErr = errdefs.NotFound(errors.New("no such container"))
 	nodeClients := newFakeNodeClients(docker)
-	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto("pg123")}
+	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
 
 	j := &createPgContainerJob{nodeClients: nodeClients, ctx: payload}
 
@@ -231,7 +247,7 @@ func TestCreatePgContainerJob_Rollback_NotFoundIsSwallowed(t *testing.T) {
 
 func TestStartPgContainerJob_Success(t *testing.T) {
 	api := newFakeContainerAPI()
-	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto("pg123")}
+	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
 
 	j := &startPgContainerJob{dockerAPI: api, ctx: payload}
 
@@ -239,7 +255,8 @@ func TestStartPgContainerJob_Success(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if len(api.startCalledWith) != 1 || api.startCalledWith[0] != "pg123" {
+
+	if len(api.startCalledWith) != 1 || api.startCalledWith[0] != testPgContainerID {
 		t.Errorf("expected container started with 'pg123', got %v", api.startCalledWith)
 	}
 }
@@ -258,7 +275,7 @@ func TestStartPgContainerJob_NoContainerId_Error(t *testing.T) {
 
 func TestStartPgContainerJob_Rollback_StopsContainer(t *testing.T) {
 	api := newFakeContainerAPI()
-	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto("pg123")}
+	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
 
 	j := &startPgContainerJob{dockerAPI: api, ctx: payload}
 
@@ -266,7 +283,8 @@ func TestStartPgContainerJob_Rollback_StopsContainer(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if len(api.stopCalledWith) != 1 || api.stopCalledWith[0] != "pg123" {
+
+	if len(api.stopCalledWith) != 1 || api.stopCalledWith[0] != testPgContainerID {
 		t.Errorf("expected container stopped with 'pg123', got %v", api.stopCalledWith)
 	}
 }
@@ -280,7 +298,7 @@ func TestWaitForPgReadyJob_AlreadyHealthy_Success(t *testing.T) {
 			State: &container.State{Health: &container.Health{Status: container.Healthy}},
 		},
 	}
-	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto("pg123")}
+	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
 
 	j := &waitForPgReadyJob{dockerAPI: api, ctx: payload}
 
@@ -305,7 +323,7 @@ func TestWaitForPgReadyJob_NoContainerId_Error(t *testing.T) {
 func TestWaitForPgReadyJob_InspectError(t *testing.T) {
 	api := newFakeContainerAPI()
 	api.inspectErr = errors.New("no such container")
-	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto("pg123")}
+	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
 
 	j := &waitForPgReadyJob{dockerAPI: api, ctx: payload}
 
@@ -322,7 +340,7 @@ func TestWaitForPgReadyJob_NotYetHealthy_ContextCancelled(t *testing.T) {
 			State: &container.State{Health: &container.Health{Status: container.Starting}},
 		},
 	}
-	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto("pg123")}
+	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
 
 	j := &waitForPgReadyJob{dockerAPI: api, ctx: payload}
 
@@ -338,7 +356,7 @@ func TestWaitForPgReadyJob_NotYetHealthy_ContextCancelled(t *testing.T) {
 func TestWaitForPgReadyJob_NilContainerState_DoesNotPanic_ContextCancelled(t *testing.T) {
 	api := newFakeContainerAPI()
 	api.inspectResp = container.InspectResponse{}
-	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto("pg123")}
+	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
 
 	j := &waitForPgReadyJob{dockerAPI: api, ctx: payload}
 
@@ -360,6 +378,12 @@ func TestWaitForPgReadyJob_NilContainerState_DoesNotPanic_ContextCancelled(t *te
 
 func TestGetRootDsnJob_Success_ParsesEnvVars(t *testing.T) {
 	api := newFakeContainerAPI()
+
+	networkSettings := &container.NetworkSettings{}
+	networkSettings.Ports = nat.PortMap{
+		"5432/tcp": []nat.PortBinding{{HostPort: "15432"}},
+	}
+
 	api.inspectResp = container.InspectResponse{
 		Config: &container.Config{
 			Env: []string{
@@ -368,18 +392,12 @@ func TestGetRootDsnJob_Success_ParsesEnvVars(t *testing.T) {
 				"POSTGRES_PASSWORD=root-pwd",
 			},
 		},
-		NetworkSettings: &container.NetworkSettings{
-			NetworkSettingsBase: container.NetworkSettingsBase{
-				Ports: nat.PortMap{
-					"5432/tcp": []nat.PortBinding{{HostPort: "15432"}},
-				},
-			},
-		},
+		NetworkSettings: networkSettings,
 	}
 
 	payload := &velez_api.EnableStatefullTaskPayload{
 		Request:     &velez_api.EnableStatefullCluster{IsExposePort: protoBool(true)},
-		ContainerId: proto("pg123"),
+		ContainerId: proto(testPgContainerID),
 	}
 
 	j := &getRootDsnJob{dockerAPI: api, req: payload, ctx: payload}
@@ -390,11 +408,13 @@ func TestGetRootDsnJob_Success_ParsesEnvVars(t *testing.T) {
 	}
 
 	var got resources.Postgres
+
 	err = got.ParseFromDsn(payload.GetRootDsn())
 	if err != nil {
 		t.Fatalf("expected a parseable dsn, got error: %v", err)
 	}
-	if got.User != "postgres" || got.Pwd != "root-pwd" || got.DbName != "postgres" {
+
+	if got.User != pgDefaultUser || got.Pwd != "root-pwd" || got.DbName != pgDefaultUser {
 		t.Errorf("expected user/pwd/db to be parsed from container env, got %+v", got)
 	}
 }
@@ -409,7 +429,7 @@ func TestGetRootDsnJob_NotExposedAndNotInContainer_Error(t *testing.T) {
 
 	payload := &velez_api.EnableStatefullTaskPayload{
 		Request:     &velez_api.EnableStatefullCluster{IsExposePort: protoBool(false)},
-		ContainerId: proto("pg123"),
+		ContainerId: proto(testPgContainerID),
 	}
 
 	j := &getRootDsnJob{dockerAPI: api, req: payload, ctx: payload}
@@ -424,7 +444,7 @@ func TestGetRootDsnJob_InspectError(t *testing.T) {
 	api := newFakeContainerAPI()
 	api.inspectErr = errors.New("no such container")
 
-	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto("pg123")}
+	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
 
 	j := &getRootDsnJob{dockerAPI: api, req: payload, ctx: payload}
 
@@ -479,9 +499,12 @@ func TestUpdateClusterStateJob_Success(t *testing.T) {
 	storageContainer := storage.NewStorageContainer(initialStorage)
 
 	newStorage := &fakeClusterStorage{nodes: &fakeNodesStorage{}}
+
 	var gotDsn string
+
 	newPgStateManager := func(_ context.Context, dsn string) (cluster_clients.ClusterStateManager, error) {
 		gotDsn = dsn
+
 		return newStorage, nil
 	}
 
@@ -503,6 +526,7 @@ func TestUpdateClusterStateJob_Success(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if gotDsn == "" {
 		t.Error("expected newPgStateManager to be called with a node dsn")
 	}
@@ -511,6 +535,7 @@ func TestUpdateClusterStateJob_Success(t *testing.T) {
 	if finalState.ClusterState.PgRootDsn != payload.GetRootDsn() {
 		t.Errorf("expected PgRootDsn to be persisted, got %q", finalState.ClusterState.PgRootDsn)
 	}
+
 	if finalState.ClusterState.PgNodeDsn == "" {
 		t.Error("expected PgNodeDsn to be persisted")
 	}
@@ -518,6 +543,7 @@ func TestUpdateClusterStateJob_Success(t *testing.T) {
 	if clusterStateManager.Nodes() != newStorage.nodes {
 		t.Error("expected clusterStateManager to be swapped to the new storage")
 	}
+
 	if storageContainer.Nodes() != newStorage.nodes {
 		t.Error("expected storageContainer to be swapped to the new storage")
 	}
@@ -552,6 +578,7 @@ func TestUpdateClusterStateJob_NewPgStateManagerError(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected an error when newPgStateManager fails")
 	}
+
 	if clusterStateManager.Nodes() != initialStorage.nodes {
 		t.Error("expected clusterStateManager to remain unchanged on failure")
 	}
@@ -569,6 +596,7 @@ func TestInitNodeStorageJob_Success(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if nodes.initNodeCalls != 1 {
 		t.Errorf("expected InitNode called once, got %d", nodes.initNodeCalls)
 	}
@@ -598,7 +626,9 @@ func TestInitNodeStorageJob_Error(t *testing.T) {
 // doubles as this handler's required failure-path test, exercising rollback
 // of start_container/create_container through the real checkpoint chain.
 
-func enableStatefullTask(t *testing.T, tasksStorage *fakeTasksStorage, entityID string, payload *velez_api.EnableStatefullTaskPayload) tasks_queries.VelezTask {
+func enableStatefullTask(
+	t *testing.T, tasksStorage *fakeTasksStorage, entityID string, payload *velez_api.EnableStatefullTaskPayload,
+) tasks_queries.VelezTask {
 	t.Helper()
 
 	payloadJSON, err := json.Marshal(payload)
@@ -638,11 +668,12 @@ func TestEnableStatefullHandler_FailurePath_UnreachablePostgres_RollsBack(t *tes
 	tasksStorage := newFakeTasksStorage()
 	jobsStorage := newFakeJobsStorage()
 
-	payload := &velez_api.EnableStatefullTaskPayload{Request: &velez_api.EnableStatefullCluster{IsExposePort: protoBool(true)}}
+	request := &velez_api.EnableStatefullCluster{IsExposePort: protoBool(true)}
+	payload := &velez_api.EnableStatefullTaskPayload{Request: request}
 	task := enableStatefullTask(t, tasksStorage, "cluster", payload)
 
 	docker := newFakeDocker()
-	docker.containerCreateResp = container.CreateResponse{ID: "pg123"}
+	docker.containerCreateResp = container.CreateResponse{ID: testPgContainerID}
 	nodeClients := newFakeNodeClients(docker)
 	nodeClients.localState = newFakeStateManager(local_state.State{})
 
@@ -653,6 +684,7 @@ func TestEnableStatefullHandler_FailurePath_UnreachablePostgres_RollsBack(t *tes
 	handler := NewEnableStatefullHandler(nodeClients, clusterStateManager, storageContainer)
 
 	taskCtx := handler.NewContext()
+
 	err := json.Unmarshal(task.Context.RawMessage, taskCtx)
 	if err != nil {
 		t.Fatalf("unexpected error unmarshaling task context: %v", err)
@@ -661,6 +693,10 @@ func TestEnableStatefullHandler_FailurePath_UnreachablePostgres_RollsBack(t *tes
 	namedJobs := handler.BuildJobs(taskCtx)
 
 	containerAPI := newFakeContainerAPI()
+
+	networkSettings := &container.NetworkSettings{}
+	networkSettings.Ports = nat.PortMap{"5432/tcp": []nat.PortBinding{{HostPort: "1"}}}
+
 	containerAPI.inspectResp = container.InspectResponse{
 		ContainerJSONBase: &container.ContainerJSONBase{
 			State: &container.State{Health: &container.Health{Status: container.Healthy}},
@@ -668,11 +704,7 @@ func TestEnableStatefullHandler_FailurePath_UnreachablePostgres_RollsBack(t *tes
 		Config: &container.Config{
 			Env: []string{"POSTGRES_DB=postgres", "POSTGRES_USER=postgres", "POSTGRES_PASSWORD=root-pwd"},
 		},
-		NetworkSettings: &container.NetworkSettings{
-			NetworkSettingsBase: container.NetworkSettingsBase{
-				Ports: nat.PortMap{"5432/tcp": []nat.PortBinding{{HostPort: "1"}}},
-			},
-		},
+		NetworkSettings: networkSettings,
 	}
 	patchEnableStatefullDockerFields(namedJobs, containerAPI)
 
@@ -707,17 +739,21 @@ func TestEnableStatefullHandler_FailurePath_UnreachablePostgres_RollsBack(t *tes
 		t.Errorf("expected task status FAILED, got %v", finished.Status)
 	}
 
-	for _, name := range []string{"generate_credentials", "create_container", "start_container", "wait_for_postgres_ready", "get_root_dsn"} {
+	stepNames := []string{
+		stepGenerateCredentials, stepCreatePgContainer, stepStartSidecar, "wait_for_postgres_ready", stepGetRootDsn,
+	}
+	for _, name := range stepNames {
 		row, ok := jobsStorage.rows[jobKey(task.ID, name)]
 		if !ok || row.Status != jobs_queries.VelezJobStatusDONE {
 			t.Errorf("expected job %q checkpointed DONE, got %+v (ok=%v)", name, row, ok)
 		}
 	}
 
-	if len(containerAPI.stopCalledWith) != 1 || containerAPI.stopCalledWith[0] != "pg123" {
+	if len(containerAPI.stopCalledWith) != 1 || containerAPI.stopCalledWith[0] != testPgContainerID {
 		t.Errorf("expected the postgres container stopped on rollback, got %v", containerAPI.stopCalledWith)
 	}
-	if len(docker.removeCalledWith) != 1 || docker.removeCalledWith[0] != "pg123" {
+
+	if len(docker.removeCalledWith) != 1 || docker.removeCalledWith[0] != testPgContainerID {
 		t.Errorf("expected the postgres container removed on rollback, got %v", docker.removeCalledWith)
 	}
 }

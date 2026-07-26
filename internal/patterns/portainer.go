@@ -27,13 +27,13 @@ func Portainer() *velez_api.CreateSmerd_Request {
 					ContainerPath: "/data",
 				},
 			},
-			//Binds: []*velez_api.Bind{
+			// Binds: []*velez_api.Bind{
 			//	{
 			//		// TODO move portainer to private service due to socket bind (not allowed)
 			//		HostPath:      strings.ReplaceAll(client.DefaultDockerHost, "unix://", ""),
 			//		ContainerPath: "/var/run/docker.sock",
 			//	},
-			//},
+			// },
 		},
 		Labels: map[string]string{
 			labels.VervServiceLabel: "true",

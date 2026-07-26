@@ -13,6 +13,7 @@ func (c *ContainerManager) DropSmerds(ctx context.Context, req *velez_api.DropSm
 		err := c.dockerWrapper.Remove(ctx, uuid)
 		if err == nil {
 			out.Successful = append(out.Successful, uuid)
+
 			continue
 		}
 

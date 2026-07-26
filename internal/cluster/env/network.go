@@ -6,7 +6,6 @@ import (
 
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 )
@@ -24,12 +23,12 @@ func StartNetwork(dockerAPI client.APIClient) error {
 		return rerrors.Wrap(err, "error creating network")
 	}
 
-	contId := GetContainerId()
-	if contId == nil {
+	contID := GetContainerId()
+	if contID == nil {
 		return nil
 	}
 
-	_, err = dockerAPI.ContainerInspect(ctx, *contId)
+	_, err = dockerAPI.ContainerInspect(ctx, *contID)
 	if err != nil {
 		if strings.Contains(err.Error(), docker.NoSuchContainerError) {
 			return nil
@@ -40,9 +39,10 @@ func StartNetwork(dockerAPI client.APIClient) error {
 
 	connReq := dockerutils.ConnectToNetworkRequest{
 		NetworkName: VervNetwork,
-		ContId:      *contId,
+		ContId:      *contID,
 		Aliases:     []string{VelezNetworkAlias},
 	}
+
 	err = dockerutils.ConnectToNetwork(ctx, dockerAPI, connReq)
 	if err != nil {
 		return rerrors.Wrap(err, "error connecting velez to network")

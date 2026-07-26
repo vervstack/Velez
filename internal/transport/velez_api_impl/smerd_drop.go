@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/uuid"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
@@ -19,7 +18,10 @@ import (
 // safety-net reasoning applies here.
 const dropSmerdWatchTimeout = 60 * time.Second
 
-func (impl *Impl) DropSmerd(ctx context.Context, req *velez_api.DropSmerd_Request) (*velez_api.DropSmerd_Response, error) {
+func (impl *Impl) DropSmerd(
+	ctx context.Context,
+	req *velez_api.DropSmerd_Request,
+) (*velez_api.DropSmerd_Response, error) {
 	initialContext := &velez_api.DropSmerdTaskPayload{}
 	initialContext.SetRequest(req)
 

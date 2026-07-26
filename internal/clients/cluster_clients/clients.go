@@ -4,17 +4,14 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/storage"
 	makosh "go.vervstack.ru/makosh/pkg/makosh_be"
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 	"google.golang.org/grpc/codes"
-
-	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/internal/storage"
 )
 
-var (
-	ErrServiceIsDisabled = rerrors.New("service is disabled", codes.FailedPrecondition)
-)
+var ErrServiceIsDisabled = rerrors.New("service is disabled", codes.FailedPrecondition)
 
 type ClusterClients interface {
 	Configurator() Configurator

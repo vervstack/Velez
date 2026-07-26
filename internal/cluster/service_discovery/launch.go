@@ -11,8 +11,6 @@ import (
 	rtb "go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/toolbox/keep_alive"
-	version "go.vervstack.ru/makosh/config"
-
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/makosh"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
@@ -23,6 +21,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/pipelines"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
+	version "go.vervstack.ru/makosh/config"
 )
 
 const (
@@ -73,7 +72,9 @@ func SetupMakosh(
 		if cfg.Environment.MakoshPort == 0 {
 			port = ""
 		}
+
 		strconv.Itoa(cfg.Environment.MakoshPort)
+
 		containerReq.ExposedPorts[grpcPort] = struct{}{}
 		containerReq.HostConfig.PortBindings = nat.PortMap{
 			grpcPort: []nat.PortBinding{
@@ -99,6 +100,7 @@ func SetupMakosh(
 	if cfg.Environment.ShutDownOnExit {
 		closer.Add(func() error {
 			keepAlive.Stop()
+
 			return nil
 		})
 	}
@@ -120,6 +122,7 @@ func SetupMakosh(
 	}
 
 	runner := pipelines.ConnectServiceToVpn(connToVpnReq, nodeClients, vcnClient, makoshSd)
+
 	err = runner.Run(ctx)
 	if err != nil {
 		if rerrors.Is(err, steps.ErrAlreadyExists) {

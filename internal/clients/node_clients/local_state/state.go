@@ -10,11 +10,13 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	rtb "go.redsock.ru/toolbox"
-
 	"go.vervstack.ru/Velez/internal/config"
 )
 
-const defaultPath = "/tmp/velez/private-keys.json"
+const (
+	defaultPath     = "/tmp/velez/private-keys.json"
+	randomKeyLength = 256
+)
 
 type Manager struct {
 	buildPath string
@@ -42,7 +44,8 @@ func NewSecurityManager(cfg config.Config) *Manager {
 
 func (s *Manager) Start() error {
 	var err error
-	s.Once.Do(func() {
+
+	s.Do(func() {
 		err = s.start()
 	})
 
@@ -55,6 +58,7 @@ func (s *Manager) Set(state State) {
 
 	err := writeKey(s.buildPath, s.state)
 	s.m.Unlock()
+
 	if err != nil {
 		log.Error().Err(err).Msg("error setting matreshka key")
 	}
@@ -64,13 +68,16 @@ func (s *Manager) Get() State {
 	s.m.RLock()
 	state := s.state
 	s.m.RUnlock()
+
 	return state
 }
 
 func (s *Manager) GetForUpdate() State {
 	s.m.Lock()
+
 	return s.state
 }
+
 func (s *Manager) SetAndRelease(state State) {
 	s.state = state
 	s.m.Unlock()
@@ -106,6 +113,7 @@ func (s *Manager) start() error {
 	if err != nil {
 		return rerrors.Wrap(err, "unable to get private keys")
 	}
+
 	s.state = keys
 
 	s.state.VelezKey = firstNotEmptyKey(keys.VelezKey)
@@ -128,7 +136,7 @@ func readStateFromPath(buildPath string) (state State, err error) {
 
 		return state, rerrors.Wrap(err, "error opening file")
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	err = json.NewDecoder(f).Decode(&state)
 	if err != nil {
@@ -139,7 +147,7 @@ func readStateFromPath(buildPath string) (state State, err error) {
 }
 
 func writeKey(buildPath string, keys State) error {
-	err := os.MkdirAll(path.Dir(buildPath), 0777)
+	err := os.MkdirAll(path.Dir(buildPath), 0o777)
 	if err != nil {
 		return rerrors.Wrap(err, "error making dir")
 	}
@@ -150,13 +158,15 @@ func writeKey(buildPath string, keys State) error {
 	}
 
 	b := bytes.NewBuffer([]byte{})
+
 	err = json.Indent(b, data, "", "  ")
 	if err != nil {
 		return rerrors.Wrap(err, "error indenting key")
 	}
+
 	data = b.Bytes()
 
-	err = os.WriteFile(buildPath, data, 0777)
+	err = os.WriteFile(buildPath, data, 0o777)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating file")
 	}
@@ -171,5 +181,5 @@ func firstNotEmptyKey(arrs ...string) string {
 		}
 	}
 
-	return string(rtb.RandomBase64(256))
+	return string(rtb.RandomBase64(randomKeyLength))
 }

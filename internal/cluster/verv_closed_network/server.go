@@ -7,7 +7,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/keep_alive"
-
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/headscale"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
@@ -31,7 +30,8 @@ type headscaleLauncher struct {
 
 func SetupVcn(
 	ctx context.Context, nodeClients node_clients.NodeClients) (
-	cluster_clients.VervClosedNetworkClient, error) {
+	cluster_clients.VervClosedNetworkClient, error,
+) {
 	state := nodeClients.LocalStateManager().Get()
 
 	// TODO implement multi network handler it will work for tailnets, headscale nets, docker nets and other networks.

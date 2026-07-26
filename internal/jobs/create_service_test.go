@@ -7,10 +7,11 @@ import (
 	"time"
 
 	"github.com/sqlc-dev/pqtype"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
+
+const testCreateServiceName = "my_service"
 
 func createServiceTask(t *testing.T, tasksStorage *fakeTasksStorage, entityID, name string) tasks_queries.VelezTask {
 	t.Helper()
@@ -45,7 +46,7 @@ func TestCreateServiceHandler_ValidNameUpsertsService(t *testing.T) {
 	jobsStorage := newFakeJobsStorage()
 	servicesStorage := newFakeServicesStorage()
 
-	task := createServiceTask(t, tasksStorage, "my_service", "my_service")
+	task := createServiceTask(t, tasksStorage, testCreateServiceName, testCreateServiceName)
 
 	registry := NewRegistry()
 	registry.Register(NewCreateServiceHandler(servicesStorage))
@@ -60,7 +61,7 @@ func TestCreateServiceHandler_ValidNameUpsertsService(t *testing.T) {
 		t.Fatalf("unexpected error running task: %v", err)
 	}
 
-	if len(servicesStorage.upserted) != 1 || servicesStorage.upserted[0] != "my_service" {
+	if len(servicesStorage.upserted) != 1 || servicesStorage.upserted[0] != testCreateServiceName {
 		t.Errorf("expected service 'my_service' to be upserted, got %v", servicesStorage.upserted)
 	}
 

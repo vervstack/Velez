@@ -47,12 +47,15 @@ func Test_TaskV2_ConcurrentIsAliveAndGetPortBinding_NoRace(t *testing.T) {
 		wg.Add(2)
 		go func() {
 			defer wg.Done()
+
 			task.IsAlive()
 		}()
 		go func() {
 			defer wg.Done()
+
 			task.GetPortBinding("50049")
 		}()
 	}
+
 	wg.Wait()
 }

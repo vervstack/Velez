@@ -5,7 +5,6 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/service"
 )
 

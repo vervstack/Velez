@@ -4,12 +4,11 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
-	"google.golang.org/protobuf/types/known/timestamppb"
-
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
 	"go.vervstack.ru/Velez/internal/transport/common"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (impl *Impl) ListDeployments(ctx context.Context, pbReq *pb.ListDeployments_Request) (*pb.ListDeployments_Response, error) {

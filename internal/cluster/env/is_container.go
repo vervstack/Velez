@@ -7,34 +7,35 @@ import (
 	"go.redsock.ru/toolbox"
 )
 
-var instanceContainerId *string
+var instanceContainerID *string
 
 // IsInContainer - function to determine weather
 // this instance ran inside a container or as a standalone app
-// returns container uuid if so
+// returns container uuid if so.
 func IsInContainer() bool {
 	return GetContainerId() != nil
 }
 
 func GetContainerId() *string {
-	if instanceContainerId == nil {
-		instanceContainerId = getContainerId()
-		if instanceContainerId == nil {
-			instanceContainerId = toolbox.ToPtr("")
+	if instanceContainerID == nil {
+		instanceContainerID = getContainerID()
+		if instanceContainerID == nil {
+			instanceContainerID = toolbox.ToPtr("")
 		}
 	}
 
-	if *instanceContainerId == "" {
+	if *instanceContainerID == "" {
 		return nil
 	}
 
-	return instanceContainerId
+	return instanceContainerID
 }
 
-func getContainerId() *string {
+func getContainerID() *string {
 	hm, err := os.ReadFile("/etc/hostname")
 	if err != nil {
 		return nil
 	}
+
 	return toolbox.ToPtr(strings.TrimRight(string(hm), "\n"))
 }

@@ -7,7 +7,6 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	errors "go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/list_request"
 	"go.vervstack.ru/Velez/internal/utils/common"
@@ -15,7 +14,11 @@ import (
 
 const maxList = 10
 
-func ListContainers(ctx context.Context, docker client.APIClient, req *velez_api.ListSmerds_Request) ([]types.Container, error) {
+func ListContainers(
+	ctx context.Context,
+	docker client.APIClient,
+	req *velez_api.ListSmerds_Request,
+) ([]types.Container, error) {
 	dockerReq := container.ListOptions{
 		All:   true,
 		Limit: maxList,
@@ -39,7 +42,6 @@ func ListContainers(ctx context.Context, docker client.APIClient, req *velez_api
 		for k, v := range req.Label {
 			filter.Label(k + "=" + v)
 		}
-
 	}
 
 	dockerReq.Filters = filter.Args()

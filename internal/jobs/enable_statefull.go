@@ -7,14 +7,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/errdefs"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
-	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
@@ -24,6 +22,7 @@ import (
 	"go.vervstack.ru/Velez/internal/patterns/db_patterns/pg_pattern"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/cluster_steps"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
 )
 
 const EnableStatefullAction = "enable_statefull_mode"
@@ -31,6 +30,24 @@ const EnableStatefullAction = "enable_statefull_mode"
 const (
 	pgSchema                = "velez"
 	pgMasterNodeDefaultName = "icy_raccoon"
+)
+
+const (
+	stepGenerateCredentials  = "generate_credentials"
+	stepCreatePgContainer    = "create_container"
+	stepWaitForPostgresReady = "wait_for_postgres_ready"
+	stepGetRootDsn           = "get_root_dsn"
+)
+
+const pgDefaultUser = "postgres"
+
+// generatedPwdLength is the byte length passed to toolbox.RandomBase64 when
+// generating a fresh root/user postgres password.
+const generatedPwdLength = 12
+
+const (
+	pgDefaultPort   = 5432
+	envKVPartsCount = 2
 )
 
 // pgReadyPollInterval/pgReadyTimeout bound waitForPgReadyJob's poll loop. A
@@ -47,7 +64,7 @@ const (
 
 // Accessor interfaces the enable_statefull jobs need from their TaskContext.
 // *velez_api.EnableStatefullTaskPayload satisfies all of them.
-// containerIdAccessor is declared in create_smerd.go and reused here as-is.
+// containerIDAccessor is declared in create_smerd.go and reused here as-is.
 
 type statefullRequestAccessor interface {
 	GetRequest() *velez_api.EnableStatefullCluster
@@ -114,18 +131,21 @@ func (h *enableStatefullHandler) NewContext() TaskContext {
 // job chain racing a freshly started postgres container (see
 // waitForPgReadyJob's doc comment).
 func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
-	payload := taskCtx.(*velez_api.EnableStatefullTaskPayload)
+	payload, ok := taskCtx.(*velez_api.EnableStatefullTaskPayload)
+	if !ok {
+		panic("enable_statefull: BuildJobs called with mismatched TaskContext type")
+	}
 
 	return []NamedJob{
 		{
-			Name: "generate_credentials",
+			Name: stepGenerateCredentials,
 			Job: &generateCredentialsJob{
 				localStateManager: h.nodeClients.LocalStateManager(),
 				ctx:               payload,
 			},
 		},
 		{
-			Name: "create_container",
+			Name: stepCreatePgContainer,
 			Job: &createPgContainerJob{
 				nodeClients: h.nodeClients,
 				req:         payload,
@@ -134,21 +154,21 @@ func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: "start_container",
+			Name: stepStartSidecar,
 			Job: &startPgContainerJob{
 				dockerAPI: h.nodeClients.Docker().Client(),
 				ctx:       payload,
 			},
 		},
 		{
-			Name: "wait_for_postgres_ready",
+			Name: stepWaitForPostgresReady,
 			Job: &waitForPgReadyJob{
 				dockerAPI: h.nodeClients.Docker().Client(),
 				ctx:       payload,
 			},
 		},
 		{
-			Name: "get_root_dsn",
+			Name: stepGetRootDsn,
 			Job: &getRootDsnJob{
 				dockerAPI: h.nodeClients.Docker().Client(),
 				req:       payload,
@@ -208,11 +228,12 @@ func (j *generateCredentialsJob) Do(_ context.Context) error {
 		localState := j.localStateManager.Get()
 
 		var rootPwd string
+
 		rootPg := resources.Postgres{}
 		if rootPg.ParseFromDsn(localState.ClusterState.PgRootDsn) == nil {
 			rootPwd = rootPg.Pwd
 		} else {
-			rootPwd = string(toolbox.RandomBase64(12))
+			rootPwd = string(toolbox.RandomBase64(generatedPwdLength))
 		}
 
 		j.ctx.SetRootPwd(rootPwd)
@@ -222,11 +243,12 @@ func (j *generateCredentialsJob) Do(_ context.Context) error {
 		localState := j.localStateManager.Get()
 
 		var userPwd string
+
 		userPg := resources.Postgres{}
 		if userPg.ParseFromDsn(localState.ClusterState.PgNodeDsn) == nil {
 			userPwd = userPg.Pwd
 		} else {
-			userPwd = string(toolbox.RandomBase64(12))
+			userPwd = string(toolbox.RandomBase64(generatedPwdLength))
 		}
 
 		j.ctx.SetUserPwd(userPwd)
@@ -247,13 +269,14 @@ type createPgContainerJob struct {
 
 	req statefullRequestAccessor
 	pwd rootPwdAccessor
-	ctx containerIdAccessor
+	ctx containerIDAccessor
 }
 
 func (j *createPgContainerJob) Do(ctx context.Context) error {
 	req := j.req.GetRequest()
 
 	var ops []pg_pattern.Opt
+
 	ops = append(ops, pg_pattern.WithInstanceName(state.PgName))
 
 	if req.GetIsExposePort() {
@@ -285,35 +308,35 @@ func (j *createPgContainerJob) Do(ctx context.Context) error {
 }
 
 func (j *createPgContainerJob) Rollback(ctx context.Context) error {
-	containerId := j.ctx.GetContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
 		return nil
 	}
 
-	err := j.nodeClients.Docker().Remove(ctx, containerId)
+	err := j.nodeClients.Docker().Remove(ctx, containerID)
 	if err != nil && !errdefs.IsNotFound(err) {
-		return rerrors.Wrapf(err, "error removing postgres container '%s'", containerId)
+		return rerrors.Wrapf(err, "error removing postgres container '%s'", containerID)
 	}
 
 	return nil
 }
 
-// startPgContainerJob mirrors smerd_steps.Start, reusing the containerIdAccessor
+// startPgContainerJob mirrors smerd_steps.Start, reusing the containerIDAccessor
 // and startAPI-shaped dependency already established for create_smerd.go/
 // connect_service_to_vpn.go.
 type startPgContainerJob struct {
 	dockerAPI startAPI
 
-	ctx containerIdAccessor
+	ctx containerIDAccessor
 }
 
 func (j *startPgContainerJob) Do(ctx context.Context) error {
-	containerId := j.ctx.GetContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
 		return rerrors.New("no container id provided")
 	}
 
-	err := j.dockerAPI.ContainerStart(ctx, containerId, container.StartOptions{})
+	err := j.dockerAPI.ContainerStart(ctx, containerID, container.StartOptions{})
 	if err != nil {
 		return rerrors.Wrap(err, "error starting postgres container")
 	}
@@ -322,14 +345,14 @@ func (j *startPgContainerJob) Do(ctx context.Context) error {
 }
 
 func (j *startPgContainerJob) Rollback(ctx context.Context) error {
-	containerId := j.ctx.GetContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
 		return nil
 	}
 
-	err := j.dockerAPI.ContainerStop(ctx, containerId, container.StopOptions{})
+	err := j.dockerAPI.ContainerStop(ctx, containerID, container.StopOptions{})
 	if err != nil {
-		return rerrors.Wrapf(err, "error stopping postgres container '%s'", containerId)
+		return rerrors.Wrapf(err, "error stopping postgres container '%s'", containerID)
 	}
 
 	return nil
@@ -346,24 +369,26 @@ func (j *startPgContainerJob) Rollback(ctx context.Context) error {
 type waitForPgReadyJob struct {
 	dockerAPI containerInspectAPI
 
-	ctx containerIdAccessor
+	ctx containerIDAccessor
 }
 
 func (j *waitForPgReadyJob) Do(ctx context.Context) error {
-	containerId := j.ctx.GetContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
 		return rerrors.New("no container id provided")
 	}
 
 	deadline := time.Now().Add(pgReadyTimeout)
 
 	for {
-		cont, err := j.dockerAPI.ContainerInspect(ctx, containerId)
+		cont, err := j.dockerAPI.ContainerInspect(ctx, containerID)
 		if err != nil {
 			return rerrors.Wrap(err, "error inspecting postgres container while waiting for readiness")
 		}
 
-		if cont.ContainerJSONBase != nil && cont.State != nil && cont.State.Health != nil && cont.State.Health.Status == container.Healthy {
+		isHealthy := cont.ContainerJSONBase != nil && cont.State != nil && cont.State.Health != nil &&
+			cont.State.Health.Status == container.Healthy
+		if isHealthy {
 			return nil
 		}
 
@@ -373,7 +398,7 @@ func (j *waitForPgReadyJob) Do(ctx context.Context) error {
 
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return rerrors.Wrap(ctx.Err(), "wait for postgres ready context done")
 		case <-time.After(pgReadyPollInterval):
 		}
 	}
@@ -393,32 +418,32 @@ type getRootDsnJob struct {
 
 	req statefullRequestAccessor
 	ctx interface {
-		containerIdAccessor
+		containerIDAccessor
 		rootDsnAccessor
 	}
 }
 
 func (j *getRootDsnJob) Do(ctx context.Context) error {
-	containerId := j.ctx.GetContainerId()
+	containerID := j.ctx.GetContainerId()
 
 	pgCfg := &resources.Postgres{
 		Host: state.PgName,
-		Port: 5432,
+		Port: pgDefaultPort,
 
-		User:    "postgres",
+		User:    pgDefaultUser,
 		Pwd:     "",
 		DbName:  "",
 		SslMode: "disable",
 	}
 
-	cont, err := j.dockerAPI.ContainerInspect(ctx, containerId)
+	cont, err := j.dockerAPI.ContainerInspect(ctx, containerID)
 	if err != nil {
 		return rerrors.Wrap(err, "error inspecting postgres container")
 	}
 
 	for _, v := range cont.Config.Env {
-		envVarParts := strings.SplitN(v, "=", 2)
-		if len(envVarParts) < 2 {
+		envVarParts := strings.SplitN(v, "=", envKVPartsCount)
+		if len(envVarParts) < envKVPartsCount {
 			continue
 		}
 
@@ -442,6 +467,7 @@ func (j *getRootDsnJob) Do(ctx context.Context) error {
 		}
 
 		pgCfg.Host = "localhost"
+
 		pgCfg.Port, err = getExposedPgPort(cont)
 		if err != nil {
 			return rerrors.Wrap(err)
@@ -458,12 +484,13 @@ func getExposedPgPort(cont container.InspectResponse) (uint64, error) {
 		return 0, rerrors.New("no network settings found in container")
 	}
 
-	ports := cont.NetworkSettings.Ports[pg_pattern.TcpPort]
+	ports := cont.NetworkSettings.Ports[pg_pattern.TCPPort]
 	if len(ports) == 0 {
 		return 0, rerrors.New("no exposure for 5432 found")
 	}
 
 	hostPort := ports[0].HostPort
+
 	port, err := strconv.ParseUint(hostPort, 10, 64)
 	if err != nil {
 		return 0, rerrors.Wrap(err, "error parsing exposed port for container to uint64")
@@ -489,7 +516,7 @@ type createSchemaAndMigrateJob struct {
 	dsn rootDsnAccessor
 }
 
-func (j *createSchemaAndMigrateJob) Do(_ context.Context) error {
+func (j *createSchemaAndMigrateJob) Do(ctx context.Context) error {
 	rootDsn := j.dsn.GetRootDsn()
 
 	conn, err := sql.Open(sqldb.Dialect, rootDsn)
@@ -503,7 +530,7 @@ func (j *createSchemaAndMigrateJob) Do(_ context.Context) error {
 		}
 	}()
 
-	_, err = conn.Exec(`CREATE SCHEMA IF NOT EXISTS velez`)
+	_, err = conn.ExecContext(ctx, `CREATE SCHEMA IF NOT EXISTS velez`)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating postgres schema")
 	}

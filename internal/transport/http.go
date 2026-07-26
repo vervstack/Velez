@@ -19,7 +19,7 @@ type httpServer struct {
 	registeredPaths map[string]struct{}
 }
 
-func newHttpServer(listener net.Listener, httpMux *http.ServeMux) httpServer {
+func newHTTPServer(listener net.Listener, httpMux *http.ServeMux) httpServer {
 	return httpServer{
 		server: &http.Server{
 			Handler: setUpCors().Handler(httpMux),
@@ -61,11 +61,12 @@ func (s *httpServer) stop() error {
 
 func (s *httpServer) buildHomePageHandler() http.Handler {
 	var err error
-	dummyHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+	dummyHandler := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		_, _ = w.Write([]byte("Error during server creation " + err.Error()))
 	})
 
-	aboutHtml := `<!DOCTYPE html>
+	aboutHTML := `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -79,7 +80,8 @@ func (s *httpServer) buildHomePageHandler() http.Handler {
 </ul>
 </body>
 </html>`
-	tmpl, err := template.New("about").Parse(aboutHtml)
+
+	tmpl, err := template.New("about").Parse(aboutHTML)
 	if err != nil {
 		return dummyHandler
 	}
@@ -87,6 +89,7 @@ func (s *httpServer) buildHomePageHandler() http.Handler {
 	type AboutPage struct {
 		Routes []string
 	}
+
 	ap := AboutPage{
 		Routes: make([]string, 0, len(s.registeredPaths)),
 	}
@@ -95,12 +98,13 @@ func (s *httpServer) buildHomePageHandler() http.Handler {
 	}
 
 	buf := &bytes.Buffer{}
+
 	err = tmpl.Execute(buf, ap)
 	if err != nil {
 		return dummyHandler
 	}
 
-	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+	return http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
 		_, _ = writer.Write(buf.Bytes())
 	})
 }

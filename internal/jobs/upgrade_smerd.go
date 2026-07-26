@@ -12,13 +12,9 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/network"
+	"github.com/rs/zerolog/log"
 	"go.redsock.ru/evon"
 	"go.redsock.ru/rerrors"
-	"go.vervstack.ru/matreshka/pkg/matreshka"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster/env"
@@ -26,6 +22,10 @@ import (
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/upgrade_steps"
 	"go.vervstack.ru/Velez/internal/service"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
+	"go.vervstack.ru/matreshka/pkg/matreshka_api"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 const UpgradeSmerdAction = "upgrade_smerd"
@@ -36,32 +36,46 @@ const (
 	oldContainerSuffix           = "_old"
 )
 
+const (
+	stepCheckSelfUpgrade             = "check_self_upgrade"
+	stepCaptureOldContainer          = "capture_old_container"
+	stepPauseOldContainer            = "pause_old_container"
+	stepCreateConfigFetcherContainer = "create_config_fetcher_container"
+	stepGetConfigFromContainer       = "get_config_from_container"
+	stepDropConfigFetcherContainer   = "drop_config_fetcher_container"
+	stepCreateFinalContainer         = "create_final_container"
+	stepStartFinalContainer          = "start_final_container"
+	stepRenameOldContainer           = "rename_old_container"
+	stepDropOldContainer             = "drop_old_container"
+	stepRenameNewContainer           = "rename_new_container"
+)
+
 // Accessor interfaces the upgrade_smerd jobs need from their TaskContext.
 // *velez_api.UpgradeSmerdTaskPayload satisfies all of them.
-// smerdRequestAccessor, containerIdAccessor and imageMetaAccessor are
+// smerdRequestAccessor, containerIDAccessor and imageMetaAccessor are
 // declared in create_smerd.go/assemble_config.go and reused here as-is.
 
 type upgradeRequestAccessor interface {
 	GetUpgradeRequest() *velez_api.UpgradeSmerd_Request
 }
 
-type oldContainerIdAccessor interface {
+type oldContainerIDAccessor interface {
 	GetOldContainerId() string
 	SetOldContainerId(string)
 }
 
 type captureOldContainerCtx interface {
 	SetRequest(*velez_api.CreateSmerd_Request)
-	oldContainerIdAccessor
+	oldContainerIDAccessor
 }
 
-// oldContainerAsCurrent adapts oldContainerIdAccessor to containerIdAccessor
+// oldContainerAsCurrent adapts oldContainerIDAccessor to containerIDAccessor
 // so jobs already written against "the current container id"
 // (dropScratchContainerJob, renameContainerJob) can be reused unmodified
 // against old_container_id too, instead of a second near-identical copy of
 // each job type.
 type oldContainerAsCurrent struct {
-	ctx oldContainerIdAccessor
+	ctx oldContainerIDAccessor
 }
 
 func (a oldContainerAsCurrent) GetContainerId() string {
@@ -99,19 +113,23 @@ func (h *upgradeSmerdHandler) NewContext() TaskContext {
 }
 
 func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
-	payload := taskCtx.(*velez_api.UpgradeSmerdTaskPayload)
+	payload, ok := taskCtx.(*velez_api.UpgradeSmerdTaskPayload)
+	if !ok {
+		panic("upgrade_smerd: BuildJobs called with mismatched TaskContext type")
+	}
+
 	dockerAPI := h.nodeClients.Docker().Client()
 
 	return []NamedJob{
 		{
-			Name: "check_self_upgrade",
+			Name: stepCheckSelfUpgrade,
 			Job: &checkSelfUpgradeJob{
 				containerService: h.containerService,
 				upgradeReq:       payload,
 			},
 		},
 		{
-			Name: "capture_old_container",
+			Name: stepCaptureOldContainer,
 			Job: &captureOldContainerJob{
 				containerService: h.containerService,
 				upgradeReq:       payload,
@@ -119,7 +137,7 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: "prepare_image",
+			Name: stepPrepareCreateImage,
 			Job: &prepareUpgradeImageJob{
 				docker:     h.nodeClients.Docker(),
 				upgradeReq: payload,
@@ -127,7 +145,7 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: "pause_old_container",
+			Name: stepPauseOldContainer,
 			Job: &pauseOldContainerJob{
 				dockerAPI:   dockerAPI,
 				portManager: h.nodeClients.PortManager(),
@@ -135,7 +153,7 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: "create_config_fetcher_container",
+			Name: stepCreateConfigFetcherContainer,
 			Job: &renamingCreateContainerJob{
 				nodeClients: h.nodeClients,
 				req:         payload,
@@ -146,7 +164,7 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: "get_config_from_container",
+			Name: stepGetConfigFromContainer,
 			Job: &getConfigFromScratchContainerJob{
 				dockerAPI: dockerAPI,
 				imageMeta: payload,
@@ -154,14 +172,14 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: "drop_config_fetcher_container",
+			Name: stepDropConfigFetcherContainer,
 			Job: &dropScratchContainerJob{
 				docker: h.nodeClients.Docker(),
 				ctx:    payload,
 			},
 		},
 		{
-			Name: "fetch_config",
+			Name: stepFetchConfig,
 			Job: &fetchUpgradeConfigJob{
 				configService: h.configService,
 				upgradeReq:    payload,
@@ -170,7 +188,7 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: "prepare_verv_config",
+			Name: stepPrepareVervConfig,
 			Job: &prepareUpgradeVervConfigJob{
 				dockerAPI:   dockerAPI,
 				portManager: h.nodeClients.PortManager(),
@@ -179,7 +197,7 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: "create_final_container",
+			Name: stepCreateFinalContainer,
 			Job: &renamingCreateContainerJob{
 				nodeClients: h.nodeClients,
 				req:         payload,
@@ -190,14 +208,14 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: "start_final_container",
+			Name: stepStartFinalContainer,
 			Job: &startContainerJob{
 				dockerAPI: dockerAPI,
 				ctx:       payload,
 			},
 		},
 		{
-			Name: "healthcheck",
+			Name: stepHealthcheck,
 			Job: &healthcheckJob{
 				dockerAPI: dockerAPI,
 				req:       payload,
@@ -205,7 +223,7 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: "rename_old_container",
+			Name: stepRenameOldContainer,
 			Job: &renameContainerJob{
 				dockerAPI: dockerAPI,
 				ctx:       oldContainerAsCurrent{payload},
@@ -213,14 +231,14 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: "drop_old_container",
+			Name: stepDropOldContainer,
 			Job: &dropScratchContainerJob{
 				docker: h.nodeClients.Docker(),
 				ctx:    oldContainerAsCurrent{payload},
 			},
 		},
 		{
-			Name: "rename_new_container",
+			Name: stepRenameNewContainer,
 			Job: &renameContainerJob{
 				dockerAPI: dockerAPI,
 				ctx:       payload,
@@ -357,7 +375,7 @@ type pauseOldContainerJob struct {
 	dockerAPI   pauseAPI
 	portManager node_clients.PortManager
 
-	ctx oldContainerIdAccessor
+	ctx oldContainerIDAccessor
 
 	stateBeforePause container.ContainerState
 	disconnectedNets map[string]*network.EndpointSettings
@@ -372,24 +390,24 @@ type pauseOldContainerJob struct {
 // same wall copy_to_volume.go hit (see docs/jobs_migrations/questions.md
 // #8) - so their logic is duplicated below against pauseAPI instead.
 func (j *pauseOldContainerJob) Do(ctx context.Context) error {
-	containerId := j.ctx.GetOldContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetOldContainerId()
+	if containerID == "" {
 		return rerrors.New("container id is required")
 	}
 
-	cont, err := j.dockerAPI.ContainerInspect(ctx, containerId)
+	cont, err := j.dockerAPI.ContainerInspect(ctx, containerID)
 	if err != nil {
 		return rerrors.Wrap(err, "error inspecting container")
 	}
 
 	j.stateBeforePause = cont.State.Status
 
-	err = j.stopContainer(ctx, containerId, cont)
+	err = j.stopContainer(ctx, containerID, cont)
 	if err != nil {
 		return rerrors.Wrap(err, "error stopping container")
 	}
 
-	j.disconnectedNets, err = disconnectFromNetworks(ctx, j.dockerAPI, containerId)
+	j.disconnectedNets, err = disconnectFromNetworks(ctx, j.dockerAPI, containerID)
 	if err != nil {
 		return rerrors.Wrap(err, "error disconnecting from network")
 	}
@@ -406,17 +424,19 @@ func (j *pauseOldContainerJob) Do(ctx context.Context) error {
 	return nil
 }
 
-func (j *pauseOldContainerJob) stopContainer(ctx context.Context, containerId string, cont container.InspectResponse) error {
+func (j *pauseOldContainerJob) stopContainer(
+	ctx context.Context, containerID string, cont container.InspectResponse,
+) error {
 	switch cont.State.Status {
 	case container.StateRunning:
-		err := j.dockerAPI.ContainerPause(ctx, containerId)
+		err := j.dockerAPI.ContainerPause(ctx, containerID)
 		if err != nil {
 			if !errdefs2.IsConflict(err) {
 				return rerrors.Wrap(err, "error pausing container")
 			}
 		}
 	case container.StateRestarting:
-		err := j.dockerAPI.ContainerStop(ctx, containerId, container.StopOptions{})
+		err := j.dockerAPI.ContainerStop(ctx, containerID, container.StopOptions{})
 		if err != nil {
 			return rerrors.Wrap(err, "error stopping container")
 		}
@@ -426,8 +446,8 @@ func (j *pauseOldContainerJob) stopContainer(ctx context.Context, containerId st
 }
 
 func (j *pauseOldContainerJob) Rollback(ctx context.Context) error {
-	containerId := j.ctx.GetOldContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetOldContainerId()
+	if containerID == "" {
 		return nil
 	}
 
@@ -439,14 +459,15 @@ func (j *pauseOldContainerJob) Rollback(ctx context.Context) error {
 		j.portManager.UnHoldPort(p)
 	}
 
-	err := j.dockerAPI.ContainerUnpause(ctx, containerId)
+	err := j.dockerAPI.ContainerUnpause(ctx, containerID)
 	if err != nil {
-		return rerrors.Wrapf(err, "error unpausing container '%s'", containerId)
+		return rerrors.Wrapf(err, "error unpausing container '%s'", containerID)
 	}
 
 	var globErr error
+
 	for netName, net := range j.disconnectedNets {
-		err = connectToNetwork(ctx, j.dockerAPI, netName, containerId, net.Aliases)
+		err = connectToNetwork(ctx, j.dockerAPI, netName, containerID, net.Aliases)
 		if err != nil {
 			globErr = rerrors.Join(globErr, rerrors.Wrap(err, "error connecting to network on rollback"))
 		}
@@ -462,18 +483,22 @@ func (j *pauseOldContainerJob) Rollback(ctx context.Context) error {
 // disconnectFromNetworks duplicates dockerutils.DisconnectFromNetworks
 // against the narrow pauseAPI interface - see pauseOldContainerJob.Do's
 // comment for why the dockerutils helper itself can't be called here.
-func disconnectFromNetworks(ctx context.Context, d pauseAPI, contId string) (map[string]*network.EndpointSettings, error) {
-	cont, err := d.ContainerInspect(ctx, contId)
+func disconnectFromNetworks(
+	ctx context.Context, d pauseAPI, contID string,
+) (map[string]*network.EndpointSettings, error) {
+	cont, err := d.ContainerInspect(ctx, contID)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error getting container info")
 	}
 
 	disconnected := make(map[string]*network.EndpointSettings)
+
 	for netName, net := range cont.NetworkSettings.Networks {
 		err = d.NetworkDisconnect(ctx, netName, cont.Name, false)
 		if err != nil {
 			return nil, rerrors.Wrap(err, "error disconnecting from network")
 		}
+
 		disconnected[netName] = net
 	}
 
@@ -482,8 +507,8 @@ func disconnectFromNetworks(ctx context.Context, d pauseAPI, contId string) (map
 
 // connectToNetwork duplicates dockerutils.ConnectToNetwork against the
 // narrow pauseAPI interface, for the same reason as disconnectFromNetworks.
-func connectToNetwork(ctx context.Context, d pauseAPI, networkName, contId string, aliases []string) error {
-	cont, err := d.ContainerInspect(ctx, contId)
+func connectToNetwork(ctx context.Context, d pauseAPI, networkName, contID string, aliases []string) error {
+	cont, err := d.ContainerInspect(ctx, contID)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting container info")
 	}
@@ -491,6 +516,7 @@ func connectToNetwork(ctx context.Context, d pauseAPI, networkName, contId strin
 	isConnected := cont.NetworkSettings != nil && cont.NetworkSettings.Networks[networkName] != nil
 	if !isConnected {
 		conn := &network.EndpointSettings{Aliases: aliases}
+
 		err = d.NetworkConnect(ctx, networkName, cont.Name, conn)
 		if err != nil {
 			return rerrors.Wrap(err, "error connecting to network")
@@ -508,7 +534,7 @@ type renamingCreateContainerJob struct {
 	nodeClients node_clients.NodeClients
 
 	req smerdRequestAccessor
-	ctx containerIdAccessor
+	ctx containerIDAccessor
 
 	newName func(current string) string
 }
@@ -518,11 +544,13 @@ func (j *renamingCreateContainerJob) Do(ctx context.Context) error {
 	request.Name = j.newName(request.GetName())
 
 	inner := &createContainerJob{nodeClients: j.nodeClients, req: j.req, ctx: j.ctx}
+
 	return inner.Do(ctx)
 }
 
 func (j *renamingCreateContainerJob) Rollback(ctx context.Context) error {
 	inner := &createContainerJob{nodeClients: j.nodeClients, ctx: j.ctx}
+
 	return inner.Rollback(ctx)
 }
 
@@ -540,7 +568,7 @@ type getConfigFromScratchContainerJob struct {
 	dockerAPI copyFromAPI
 
 	imageMeta imageMetaAccessor
-	ctx       containerIdAccessor
+	ctx       containerIDAccessor
 }
 
 // Do mirrors config_steps.getConfigFromContainerStep, restricted to the
@@ -553,8 +581,8 @@ type getConfigFromScratchContainerJob struct {
 // preserved as-is rather than fixed, per the behavior-preserving migration
 // rule.
 func (j *getConfigFromScratchContainerJob) Do(ctx context.Context) error {
-	containerId := j.ctx.GetContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
 		return rerrors.New("empty container id")
 	}
 
@@ -563,7 +591,7 @@ func (j *getConfigFromScratchContainerJob) Do(ctx context.Context) error {
 		return nil
 	}
 
-	_, err := readFileFromContainer(ctx, j.dockerAPI, containerId, systemPath)
+	_, err := readFileFromContainer(ctx, j.dockerAPI, containerID, systemPath)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting config to mount")
 	}
@@ -573,14 +601,20 @@ func (j *getConfigFromScratchContainerJob) Do(ctx context.Context) error {
 
 // readFileFromContainer duplicates dockerutils.ReadFromContainer against the
 // narrow copyFromAPI interface.
-func readFileFromContainer(ctx context.Context, d copyFromAPI, contId, path string) ([]byte, error) {
-	rc, _, err := d.CopyFromContainer(ctx, contId, path)
+func readFileFromContainer(ctx context.Context, d copyFromAPI, contID, path string) ([]byte, error) {
+	rc, _, err := d.CopyFromContainer(ctx, contID, path)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error copying from container")
 	}
-	defer rc.Close()
+	defer func() {
+		closeErr := rc.Close()
+		if closeErr != nil {
+			log.Error().Err(closeErr).Msg("error closing container copy-from reader")
+		}
+	}()
 
 	reader := tar.NewReader(rc)
+
 	_, err = reader.Next()
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error reading tar header")
@@ -632,7 +666,6 @@ func (j *fetchUpgradeConfigJob) Do(ctx context.Context) error {
 		if code != codes.NotFound {
 			return rerrors.Wrap(err, "error getting matreshka config from matreshka api")
 		}
-		err = nil
 	}
 
 	ns := evon.NodeStorage{}
@@ -642,6 +675,7 @@ func (j *fetchUpgradeConfigJob) Do(ctx context.Context) error {
 		if n.Value == nil {
 			continue
 		}
+
 		request.Env[n.Name] = fmt.Sprint(n.Value)
 	}
 
@@ -699,6 +733,7 @@ func (j *prepareUpgradeVervConfigJob) Do(ctx context.Context) error {
 	for name, val := range j.imageMeta.GetImageLabels() {
 		request.Labels[name] = val
 	}
+
 	request.Labels[labels.ComposeGroupLabel] = request.GetName()
 
 	for _, n := range request.Settings.Network {
@@ -713,11 +748,11 @@ func (j *prepareUpgradeVervConfigJob) Do(ctx context.Context) error {
 
 // createNetworkIfMissing duplicates dockerutils.CreateNetwork against the
 // narrow createNetworkAPI interface.
-func createNetworkIfMissing(ctx context.Context, d createNetworkAPI, networkName string) error {
+func createNetworkIfMissing(ctx context.Context, dockerAPI createNetworkAPI, networkName string) error {
 	f := filters.NewArgs()
 	f.Add("name", networkName)
 
-	nets, err := d.NetworkList(ctx, network.ListOptions{Filters: f})
+	nets, err := dockerAPI.NetworkList(ctx, network.ListOptions{Filters: f})
 	if err != nil {
 		return rerrors.Wrap(err, "error inspecting network")
 	}
@@ -741,7 +776,7 @@ func createNetworkIfMissing(ctx context.Context, d createNetworkAPI, networkName
 		},
 	}
 
-	_, err = d.NetworkCreate(ctx, networkName, createOpts)
+	_, err = dockerAPI.NetworkCreate(ctx, networkName, createOpts)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating network")
 	}
@@ -755,6 +790,7 @@ func (j *prepareUpgradeVervConfigJob) lockPorts(request *velez_api.CreateSmerd_R
 	for _, p := range request.Settings.Ports {
 		if p.ExposedTo == nil {
 			var port uint32
+
 			port, err = j.portManager.GetPort()
 			p.ExposedTo = &port
 		} else {
@@ -763,6 +799,7 @@ func (j *prepareUpgradeVervConfigJob) lockPorts(request *velez_api.CreateSmerd_R
 				err = j.portManager.LockPort(*p.ExposedTo)
 			}
 		}
+
 		if err != nil {
 			return rerrors.Wrap(err, "error locking host port")
 		}
@@ -779,6 +816,7 @@ func (j *prepareUpgradeVervConfigJob) Rollback(_ context.Context) error {
 			j.portManager.UnlockPorts(j.lockedPorts)
 		}
 	}
+
 	return nil
 }
 
@@ -795,26 +833,26 @@ type renameAPI interface {
 type renameContainerJob struct {
 	dockerAPI renameAPI
 
-	ctx     containerIdAccessor
+	ctx     containerIDAccessor
 	newName string
 
 	oldName string
 }
 
 func (j *renameContainerJob) Do(ctx context.Context) error {
-	containerId := j.ctx.GetContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
 		return rerrors.New("container id is required")
 	}
 
-	cont, err := j.dockerAPI.ContainerInspect(ctx, containerId)
+	cont, err := j.dockerAPI.ContainerInspect(ctx, containerID)
 	if err != nil {
 		return rerrors.Wrap(err, "error inspecting container")
 	}
 
 	j.oldName = cont.Name
 
-	err = j.dockerAPI.ContainerRename(ctx, containerId, j.newName)
+	err = j.dockerAPI.ContainerRename(ctx, containerID, j.newName)
 	if err != nil {
 		return rerrors.Wrap(err, "error renaming container")
 	}
@@ -823,12 +861,12 @@ func (j *renameContainerJob) Do(ctx context.Context) error {
 }
 
 func (j *renameContainerJob) Rollback(ctx context.Context) error {
-	containerId := j.ctx.GetContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
 		return nil
 	}
 
-	err := j.dockerAPI.ContainerRename(ctx, containerId, j.oldName)
+	err := j.dockerAPI.ContainerRename(ctx, containerID, j.oldName)
 	if err != nil {
 		return rerrors.Wrap(err, "error renaming container on rollback")
 	}

@@ -14,8 +14,6 @@ const (
 var ErrNameIsTaken = rerrors.New("container name is taken", codes.AlreadyExists)
 
 const (
-	conflictMessage = "Conflict"
-
 	subjectContainerName = "The container name"
 
 	problemInUseByOtherContainer = "is already in use by container"

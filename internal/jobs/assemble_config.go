@@ -4,20 +4,19 @@ import (
 	"context"
 	"strings"
 
+	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
-	"github.com/docker/docker/errdefs"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/stretchr/testify/assert/yaml"
 	"go.redsock.ru/evon"
 	"go.redsock.ru/rerrors"
-	"go.vervstack.ru/matreshka/pkg/matreshka"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
 )
 
 const AssembleConfigAction = "assemble_config"
@@ -25,6 +24,14 @@ const AssembleConfigAction = "assemble_config"
 // scratchContainerSuffix names the throwaway container used to read a
 // config out of an image, mirroring pipelines.configFetchingPostfix.
 const scratchContainerSuffix = "_config_scanning"
+
+// stepFetchConfig names the fetch_config job shared with create_smerd.go and
+// upgrade_smerd.go's BuildJobs. stepDropContainer (same job name across
+// assemble_config.go and copy_to_volume.go) is declared once in
+// copy_to_volume.go and reused here.
+const stepFetchConfig = "fetch_config"
+
+const stepPrepareScratchImage = "prepare_image"
 
 // matreshka_api.ConfigTypePrefix's enum names. Kept as plain strings in the
 // TaskContext rather than the typed enum - see the conf_type field comment
@@ -36,7 +43,7 @@ const (
 )
 
 // Accessor interfaces the assemble_config jobs need from their TaskContext.
-// *velez_api.AssembleConfigTaskPayload satisfies all of them. containerIdAccessor
+// *velez_api.AssembleConfigTaskPayload satisfies all of them. containerIDAccessor
 // is declared in create_smerd.go and reused here as-is.
 
 type assembleConfigRequestAccessor interface {
@@ -85,11 +92,14 @@ func (h *assembleConfigHandler) NewContext() TaskContext {
 }
 
 func (h *assembleConfigHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
-	payload := taskCtx.(*velez_api.AssembleConfigTaskPayload)
+	payload, ok := taskCtx.(*velez_api.AssembleConfigTaskPayload)
+	if !ok {
+		panic("assemble_config: BuildJobs called with mismatched TaskContext type")
+	}
 
 	return []NamedJob{
 		{
-			Name: "prepare_image",
+			Name: stepPrepareScratchImage,
 			Job: &prepareScratchImageJob{
 				docker: h.nodeClients.Docker(),
 				req:    payload,
@@ -97,7 +107,7 @@ func (h *assembleConfigHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: "create_container",
+			Name: stepCreatePgContainer,
 			Job: &createScratchContainerJob{
 				nodeClients: h.nodeClients,
 				req:         payload,
@@ -105,7 +115,7 @@ func (h *assembleConfigHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: "fetch_config",
+			Name: stepFetchConfig,
 			Job: &fetchConfigJob{
 				dockerAPI: h.nodeClients.Docker().Client(),
 				req:       payload,
@@ -116,7 +126,7 @@ func (h *assembleConfigHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: "drop_container",
+			Name: stepDropContainer,
 			Job: &dropScratchContainerJob{
 				docker: h.nodeClients.Docker(),
 				ctx:    payload,
@@ -160,7 +170,7 @@ type createScratchContainerJob struct {
 	nodeClients node_clients.NodeClients
 
 	req assembleConfigRequestAccessor
-	ctx containerIdAccessor
+	ctx containerIDAccessor
 }
 
 func (j *createScratchContainerJob) Do(ctx context.Context) error {
@@ -183,14 +193,14 @@ func (j *createScratchContainerJob) Do(ctx context.Context) error {
 }
 
 func (j *createScratchContainerJob) Rollback(ctx context.Context) error {
-	containerId := j.ctx.GetContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
 		return nil
 	}
 
-	err := j.nodeClients.Docker().Remove(ctx, containerId)
+	err := j.nodeClients.Docker().Remove(ctx, containerID)
 	if err != nil && !errdefs.IsNotFound(err) {
-		return rerrors.Wrapf(err, "error removing scratch container '%s'", containerId)
+		return rerrors.Wrapf(err, "error removing scratch container '%s'", containerID)
 	}
 
 	return nil
@@ -201,7 +211,7 @@ type fetchConfigJob struct {
 
 	req       assembleConfigRequestAccessor
 	imageMeta imageMetaAccessor
-	container containerIdAccessor
+	container containerIDAccessor
 	ctx       configMetaAccessor
 	content   configContentAccessor
 }
@@ -211,8 +221,8 @@ type fetchConfigJob struct {
 // config override (unlike LaunchSmerd/UpgradeSmerd), so that branch of the
 // original step is omitted here.
 func (j *fetchConfigJob) Do(ctx context.Context) error {
-	containerId := j.container.GetContainerId()
-	if containerId == "" {
+	containerID := j.container.GetContainerId()
+	if containerID == "" {
 		return rerrors.New("empty container id")
 	}
 
@@ -226,7 +236,7 @@ func (j *fetchConfigJob) Do(ctx context.Context) error {
 		return nil
 	}
 
-	raw, err := dockerutils.ReadFromContainer(ctx, j.dockerAPI, containerId, systemPath)
+	raw, err := dockerutils.ReadFromContainer(ctx, j.dockerAPI, containerID, systemPath)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting config to mount")
 	}
@@ -244,7 +254,7 @@ func classifyImage(imageLabels map[string]string, imageTags []string) (
 	confType string, format velez_api.ConfigFormat, systemPath string,
 ) {
 	switch {
-	case imageLabels[labels.MatreshkaConfigLabel] == "true":
+	case imageLabels[labels.MatreshkaConfigLabel] == vervConfigLabelEnabled:
 		return confTypeVerv, velez_api.ConfigFormat_env, "/app/config/config.yaml"
 	case isPostgresByImageTags(imageTags):
 		return confTypePg, velez_api.ConfigFormat_env, ""
@@ -265,16 +275,16 @@ func isPostgresByImageTags(tags []string) bool {
 
 type dropScratchContainerJob struct {
 	docker node_clients.Docker
-	ctx    containerIdAccessor
+	ctx    containerIDAccessor
 }
 
 func (j *dropScratchContainerJob) Do(ctx context.Context) error {
-	containerId := j.ctx.GetContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
 		return nil
 	}
 
-	err := j.docker.Remove(ctx, containerId)
+	err := j.docker.Remove(ctx, containerID)
 	if err != nil {
 		return rerrors.Wrap(err, "error dropping scratch container")
 	}
@@ -291,7 +301,7 @@ type parseConfigJob struct {
 // have no Runner.Result() equivalent, the parsed content is marshaled back
 // to env-formatted bytes and stashed in the TaskContext's content field for
 // the caller to read once the task is DONE.
-func (j *parseConfigJob) Do(ctx context.Context) error {
+func (j *parseConfigJob) Do(_ context.Context) error {
 	raw := j.content.GetContentRaw()
 	if len(raw) == 0 {
 		return nil
@@ -309,6 +319,7 @@ func (j *parseConfigJob) Do(ctx context.Context) error {
 		} else {
 			parsed, err = fromYamlToEvon(raw)
 		}
+
 		if err != nil {
 			return rerrors.Wrap(err, "error parsing from yaml to evon")
 		}
@@ -330,6 +341,7 @@ func (j *parseConfigJob) Do(ctx context.Context) error {
 
 func fromMatreshkaYamlToEvon(content []byte) (*evon.Node, error) {
 	c := matreshka.NewEmptyConfig()
+
 	err := c.Unmarshal(content)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error unmarshalling to matreshka config")
@@ -345,6 +357,7 @@ func fromMatreshkaYamlToEvon(content []byte) (*evon.Node, error) {
 
 func fromYamlToEvon(content []byte) (*evon.Node, error) {
 	m := map[string]any{}
+
 	err := yaml.Unmarshal(content, &m)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error unmarshalling from yaml to map")

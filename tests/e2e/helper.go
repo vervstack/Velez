@@ -5,10 +5,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"google.golang.org/protobuf/proto"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"google.golang.org/protobuf/proto"
 )
 
 const (
@@ -19,18 +18,27 @@ const (
 )
 
 const (
+	labelValueTrue  = "true"
+	labelValueFalse = "false"
+)
+
+const (
 	HelloWorldAppImage = "godverv/hello_world:v0.0.14"
 	PostgresImage      = "postgres:16"
 )
 
 func GetServiceName(t *testing.T) string {
+	t.Helper()
+
 	return "e2e_" + strings.ToLower(strings.ReplaceAll(t.Name(), "/", "_"))
 }
 
 func GetExpectedLabels(t *testing.T) map[string]string {
+	t.Helper()
+
 	return map[string]string{
-		labels.CreatedWithVelezLabel: "true",
-		labels.MatreshkaConfigLabel:  "false",
+		labels.CreatedWithVelezLabel: labelValueTrue,
+		labels.MatreshkaConfigLabel:  labelValueFalse,
 		labels.ComposeGroupLabel:     GetServiceName(t),
 	}
 }
@@ -59,7 +67,9 @@ func AssertSmerds(t *testing.T, expected, actual *velez_api.Smerd) {
 }
 
 func addTestLabels(t *testing.T, m map[string]string) {
-	m[integrationTestLabel] = "true"
+	t.Helper()
+
+	m[integrationTestLabel] = labelValueTrue
 	m[testCaseNameLabel] = t.Name()
 }
 

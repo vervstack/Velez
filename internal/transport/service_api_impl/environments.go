@@ -4,9 +4,8 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
-	"google.golang.org/protobuf/types/known/timestamppb"
-
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (impl *Impl) GetServiceEnvironments(ctx context.Context, pbReq *pb.GetServiceEnvironments_Request) (*pb.GetServiceEnvironments_Response, error) {

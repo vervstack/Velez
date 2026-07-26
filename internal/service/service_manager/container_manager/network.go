@@ -8,7 +8,6 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/errdefs"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/domain"
 )
 

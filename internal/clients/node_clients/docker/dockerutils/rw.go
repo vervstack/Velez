@@ -14,6 +14,8 @@ import (
 	"go.redsock.ru/rerrors"
 )
 
+const tarFilePermissions = 0o644
+
 func ReadFromContainer(ctx context.Context, dockerAPI client.APIClient, contId string, path string) ([]byte, error) {
 	rc, _, err := dockerAPI.CopyFromContainer(ctx, contId, path)
 	if err != nil {
@@ -29,11 +31,12 @@ func ReadFromContainer(ctx context.Context, dockerAPI client.APIClient, contId s
 		if err == nil {
 			err = errClose
 		} else {
-			stderrs.Join(err, errClose)
+			err = stderrs.Join(err, errClose)
 		}
 	}()
 
 	reader := tar.NewReader(rc)
+
 	_, err = reader.Next()
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error getting next")
@@ -48,13 +51,12 @@ func ReadFromContainer(ctx context.Context, dockerAPI client.APIClient, contId s
 }
 
 func WriteToContainer(ctx context.Context, dockerAPI client.APIClient, contId string, systemPath string, content []byte) error {
-
 	buf := new(bytes.Buffer)
 	tw := tar.NewWriter(buf)
 
 	hdr := &tar.Header{
 		Name:    path.Base(systemPath),
-		Mode:    0644,
+		Mode:    tarFilePermissions,
 		Size:    int64(len(content)),
 		ModTime: time.Now(),
 	}
@@ -63,6 +65,7 @@ func WriteToContainer(ctx context.Context, dockerAPI client.APIClient, contId st
 	if err != nil {
 		return rerrors.Wrap(err, "error writing tar header")
 	}
+
 	_, err = tw.Write(content)
 	if err != nil {
 		return rerrors.Wrap(err, "error writing content")

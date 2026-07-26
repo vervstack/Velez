@@ -6,7 +6,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
@@ -40,13 +39,11 @@ func New(
 	clusterClients cluster_clients.ClusterClients,
 	envs []string,
 ) (service.Services, error) {
-
 	configService, err := configurator.New(
 		ctx,
 		clusterClients,
 		nodeClients.Docker(),
 	)
-
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error initializing configurator")
 	}
@@ -72,14 +69,13 @@ func New(
 	}
 
 	// TODO VERV-128
-	//go handleConfigurationSubscription(configService, sm)
+	// go handleConfigurationSubscription(configService, sm)
 
 	return sm, nil
 }
 
 func (s *ServiceManager) VervServices() service.VervServicesService {
 	return s.vervServices
-
 }
 
 func (s *ServiceManager) SmerdManager() service.ContainerService {
@@ -107,7 +103,6 @@ func (s *ServiceManager) StorageContainer() *storage.Container {
 }
 
 func handleConfigurationSubscription(configurationService service.ConfigurationService, manager service.Services) {
-
 	ctx := context.Background()
 
 	for patch := range configurationService.GetUpdates() {
@@ -118,15 +113,16 @@ func handleConfigurationSubscription(configurationService service.ConfigurationS
 		smerds, err := manager.SmerdManager().ListSmerds(ctx, listReq)
 		if err != nil {
 			log.Error().Err(rerrors.Wrap(err, "error listing smerds for configuration update hook")).Send()
+
 			continue
 		}
 
 		if len(smerds.Smerds) != 1 {
 			log.Error().Int("count", len(smerds.Smerds)).Msg("unexpected number of smerds for configuration update hook, expected 1")
+
 			continue
 		}
 
 		// TODO VERV-128
-
 	}
 }

@@ -10,10 +10,18 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/errdefs"
 	"github.com/sqlc-dev/pqtype"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+)
+
+const (
+	testVolumeName      = "myvol"
+	testPathDataA       = "/data/a.txt"
+	testPathDataB       = "/data/b.txt"
+	testPathDataDir     = "/data"
+	testLoaderContID    = "loader123"
+	stepCreateContainer = "create_container"
 )
 
 func TestCopyToVolumeHandler_Action(t *testing.T) {
@@ -39,12 +47,12 @@ func TestCopyToVolumeHandler_NewContext(t *testing.T) {
 func TestSortedFilePaths(t *testing.T) {
 	m := map[string][]byte{
 		"/data/c.txt": []byte("c"),
-		"/data/a.txt": []byte("a"),
-		"/data/b.txt": []byte("b"),
+		testPathDataA: []byte("a"),
+		testPathDataB: []byte("b"),
 	}
 
 	got := sortedFilePaths(m)
-	want := []string{"/data/a.txt", "/data/b.txt", "/data/c.txt"}
+	want := []string{testPathDataA, testPathDataB, "/data/c.txt"}
 
 	if !equalStrings(got, want) {
 		t.Errorf("expected %v, got %v", want, got)
@@ -61,21 +69,23 @@ func TestSortedFilePaths_Empty(t *testing.T) {
 func TestMountedFolders_DedupPreservesFirstSeenOrder(t *testing.T) {
 	sortedPaths := []string{"/data/a/1.txt", "/data/a/2.txt", "/data/b/1.txt"}
 
-	got := mountedFolders("myvol", sortedPaths)
+	got := mountedFolders(testVolumeName, sortedPaths)
 
 	if len(got) != 2 {
 		t.Fatalf("expected 2 distinct folders, got %d: %v", len(got), got)
 	}
+
 	if got[0].ContainerPath != "/data/a" || got[1].ContainerPath != "/data/b" {
 		t.Errorf("expected folders [/data/a /data/b], got [%s %s]", got[0].ContainerPath, got[1].ContainerPath)
 	}
-	if got[0].VolumeName != "myvol" || got[1].VolumeName != "myvol" {
+
+	if got[0].VolumeName != testVolumeName || got[1].VolumeName != testVolumeName {
 		t.Errorf("expected volume name 'myvol' on every entry, got %v", got)
 	}
 }
 
 func TestMountedFolders_Empty(t *testing.T) {
-	got := mountedFolders("myvol", nil)
+	got := mountedFolders(testVolumeName, nil)
 	if len(got) != 0 {
 		t.Errorf("expected no folders, got %v", got)
 	}
@@ -85,11 +95,13 @@ func equalStrings(a, b []string) bool {
 	if len(a) != len(b) {
 		return false
 	}
+
 	for i := range a {
 		if a[i] != b[i] {
 			return false
 		}
 	}
+
 	return true
 }
 
@@ -102,7 +114,7 @@ func equalStrings(a, b []string) bool {
 // order, every time.
 func TestCopyToVolumeHandler_BuildJobs_Deterministic(t *testing.T) {
 	payload := &velez_api.CopyToVolumeTaskPayload{
-		VolumeName: "myvol",
+		VolumeName: testVolumeName,
 		PathToFiles: map[string][]byte{
 			"/data/zzz.txt":  []byte("z"),
 			"/data/aaa.txt":  []byte("a"),
@@ -116,6 +128,7 @@ func TestCopyToVolumeHandler_BuildJobs_Deterministic(t *testing.T) {
 	h := NewCopyToVolumeHandler(nodeClients)
 
 	var runs [][]string
+
 	for i := 0; i < 10; i++ {
 		namedJobs := h.BuildJobs(payload)
 
@@ -123,6 +136,7 @@ func TestCopyToVolumeHandler_BuildJobs_Deterministic(t *testing.T) {
 		for i, nj := range namedJobs {
 			names[i] = nj.Name
 		}
+
 		runs = append(runs, names)
 	}
 
@@ -137,10 +151,12 @@ func TestCopyToVolumeHandler_BuildJobs_Deterministic(t *testing.T) {
 	if len(first) != wantCount {
 		t.Fatalf("expected %d jobs, got %d: %v", wantCount, len(first), first)
 	}
-	if first[0] != "create_container" || first[1] != "start_container" {
+
+	if first[0] != stepCreateContainer || first[1] != stepStartSidecar {
 		t.Errorf("expected fixed jobs first, got %v", first[:2])
 	}
-	if first[len(first)-1] != "drop_container" {
+
+	if first[len(first)-1] != stepDropContainer {
 		t.Errorf("expected drop_container last, got %q", first[len(first)-1])
 	}
 }
@@ -149,7 +165,7 @@ func TestCopyToVolumeHandler_BuildJobs_Deterministic(t *testing.T) {
 // the 3 fixed jobs should be built.
 func TestCopyToVolumeHandler_BuildJobs_NoFiles(t *testing.T) {
 	payload := &velez_api.CopyToVolumeTaskPayload{
-		VolumeName: "myvol",
+		VolumeName: testVolumeName,
 	}
 
 	docker := newFakeDocker()
@@ -161,7 +177,7 @@ func TestCopyToVolumeHandler_BuildJobs_NoFiles(t *testing.T) {
 		t.Fatalf("expected 3 fixed jobs with no files, got %d", len(namedJobs))
 	}
 
-	wantNames := []string{"create_container", "start_container", "drop_container"}
+	wantNames := []string{stepCreateContainer, stepStartSidecar, stepDropContainer}
 	for i, nj := range namedJobs {
 		if nj.Name != wantNames[i] {
 			t.Errorf("expected job %d named %q, got %q", i, wantNames[i], nj.Name)
@@ -174,10 +190,10 @@ func TestCopyToVolumeHandler_BuildJobs_NoFiles(t *testing.T) {
 // break the ordering guarantee tested above.
 func TestCopyToVolumeHandler_BuildJobs_CopyFileNamesMapToSortedPaths(t *testing.T) {
 	payload := &velez_api.CopyToVolumeTaskPayload{
-		VolumeName: "myvol",
+		VolumeName: testVolumeName,
 		PathToFiles: map[string][]byte{
-			"/data/b.txt": []byte("b"),
-			"/data/a.txt": []byte("a"),
+			testPathDataB: []byte("b"),
+			testPathDataA: []byte("a"),
 		},
 	}
 
@@ -191,7 +207,8 @@ func TestCopyToVolumeHandler_BuildJobs_CopyFileNamesMapToSortedPaths(t *testing.
 	if !ok {
 		t.Fatalf("expected namedJobs[2] to be a *copyFileJob, got %T", namedJobs[2].Job)
 	}
-	if namedJobs[2].Name != "copy_file_0" || job0.filePath != "/data/a.txt" {
+
+	if namedJobs[2].Name != "copy_file_0" || job0.filePath != testPathDataA {
 		t.Errorf("expected copy_file_0 -> /data/a.txt, got %s -> %s", namedJobs[2].Name, job0.filePath)
 	}
 
@@ -199,7 +216,8 @@ func TestCopyToVolumeHandler_BuildJobs_CopyFileNamesMapToSortedPaths(t *testing.
 	if !ok {
 		t.Fatalf("expected namedJobs[3] to be a *copyFileJob, got %T", namedJobs[3].Job)
 	}
-	if namedJobs[3].Name != "copy_file_1" || job1.filePath != "/data/b.txt" {
+
+	if namedJobs[3].Name != "copy_file_1" || job1.filePath != testPathDataB {
 		t.Errorf("expected copy_file_1 -> /data/b.txt, got %s -> %s", namedJobs[3].Name, job1.filePath)
 	}
 }
@@ -209,13 +227,13 @@ func TestCopyToVolumeHandler_BuildJobs_CopyFileNamesMapToSortedPaths(t *testing.
 // it's fully unit-testable with fakeDocker/fakeNodeClients.
 
 func TestCreateLoaderContainerJob_Success(t *testing.T) {
-	payload := &velez_api.CopyToVolumeTaskPayload{VolumeName: "myvol"}
+	payload := &velez_api.CopyToVolumeTaskPayload{VolumeName: testVolumeName}
 
 	docker := newFakeDocker()
-	docker.containerCreateResp = container.CreateResponse{ID: "loader123"}
+	docker.containerCreateResp = container.CreateResponse{ID: testLoaderContID}
 	nodeClients := newFakeNodeClients(docker)
 
-	folders := mountedFolders("myvol", []string{"/data/a.txt"})
+	folders := mountedFolders(testVolumeName, []string{testPathDataA})
 
 	j := &createLoaderContainerJob{nodeClients: nodeClients, req: payload, folders: folders, ctx: payload}
 
@@ -224,7 +242,7 @@ func TestCreateLoaderContainerJob_Success(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if payload.GetContainerId() != "loader123" {
+	if payload.GetContainerId() != testLoaderContID {
 		t.Errorf("expected container id 'loader123', got %q", payload.GetContainerId())
 	}
 }
@@ -233,7 +251,7 @@ func TestCreateLoaderContainerJob_Success(t *testing.T) {
 // failure-path test: ContainerCreate's error must propagate, and no
 // container id should be recorded.
 func TestCreateLoaderContainerJob_ContainerCreateError(t *testing.T) {
-	payload := &velez_api.CopyToVolumeTaskPayload{VolumeName: "myvol"}
+	payload := &velez_api.CopyToVolumeTaskPayload{VolumeName: testVolumeName}
 
 	docker := newFakeDocker()
 	docker.containerCreateErr = errors.New("no space left on device")
@@ -245,6 +263,7 @@ func TestCreateLoaderContainerJob_ContainerCreateError(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected an error when ContainerCreate fails")
 	}
+
 	if payload.GetContainerId() != "" {
 		t.Errorf("expected no container id set on failure, got %q", payload.GetContainerId())
 	}
@@ -262,6 +281,7 @@ func TestCreateLoaderContainerJob_Rollback_NoContainerId_NoOp(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if len(docker.removeCalledWith) != 0 {
 		t.Errorf("expected Remove not to be called, got %v", docker.removeCalledWith)
 	}
@@ -269,7 +289,7 @@ func TestCreateLoaderContainerJob_Rollback_NoContainerId_NoOp(t *testing.T) {
 
 func TestCreateLoaderContainerJob_Rollback_RemovesContainer(t *testing.T) {
 	payload := &velez_api.CopyToVolumeTaskPayload{}
-	payload.SetContainerId("loader123")
+	payload.SetContainerId(testLoaderContID)
 
 	docker := newFakeDocker()
 	nodeClients := newFakeNodeClients(docker)
@@ -280,14 +300,15 @@ func TestCreateLoaderContainerJob_Rollback_RemovesContainer(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if len(docker.removeCalledWith) != 1 || docker.removeCalledWith[0] != "loader123" {
+
+	if len(docker.removeCalledWith) != 1 || docker.removeCalledWith[0] != testLoaderContID {
 		t.Errorf("expected Remove called with 'loader123', got %v", docker.removeCalledWith)
 	}
 }
 
 func TestCreateLoaderContainerJob_Rollback_NotFoundIsSwallowed(t *testing.T) {
 	payload := &velez_api.CopyToVolumeTaskPayload{}
-	payload.SetContainerId("loader123")
+	payload.SetContainerId(testLoaderContID)
 
 	docker := newFakeDocker()
 	docker.removeErr = errdefs.NotFound(errors.New("no such container"))
@@ -306,7 +327,7 @@ func TestCreateLoaderContainerJob_Rollback_NotFoundIsSwallowed(t *testing.T) {
 
 func TestStartLoaderContainerJob_Success(t *testing.T) {
 	payload := &velez_api.CopyToVolumeTaskPayload{}
-	payload.SetContainerId("loader123")
+	payload.SetContainerId(testLoaderContID)
 
 	containerAPI := newFakeContainerAPI()
 
@@ -316,7 +337,8 @@ func TestStartLoaderContainerJob_Success(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if len(containerAPI.startCalledWith) != 1 || containerAPI.startCalledWith[0] != "loader123" {
+
+	if len(containerAPI.startCalledWith) != 1 || containerAPI.startCalledWith[0] != testLoaderContID {
 		t.Errorf("expected ContainerStart called with 'loader123', got %v", containerAPI.startCalledWith)
 	}
 }
@@ -340,7 +362,7 @@ func TestStartLoaderContainerJob_NoContainerId_Error(t *testing.T) {
 // test: ContainerStart's error must propagate.
 func TestStartLoaderContainerJob_ContainerStartError(t *testing.T) {
 	payload := &velez_api.CopyToVolumeTaskPayload{}
-	payload.SetContainerId("loader123")
+	payload.SetContainerId(testLoaderContID)
 
 	containerAPI := newFakeContainerAPI()
 	containerAPI.startErr = errors.New("docker daemon unreachable")
@@ -355,7 +377,7 @@ func TestStartLoaderContainerJob_ContainerStartError(t *testing.T) {
 
 func TestStartLoaderContainerJob_Rollback_StopsContainer(t *testing.T) {
 	payload := &velez_api.CopyToVolumeTaskPayload{}
-	payload.SetContainerId("loader123")
+	payload.SetContainerId(testLoaderContID)
 
 	containerAPI := newFakeContainerAPI()
 
@@ -365,7 +387,8 @@ func TestStartLoaderContainerJob_Rollback_StopsContainer(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if len(containerAPI.stopCalledWith) != 1 || containerAPI.stopCalledWith[0] != "loader123" {
+
+	if len(containerAPI.stopCalledWith) != 1 || containerAPI.stopCalledWith[0] != testLoaderContID {
 		t.Errorf("expected ContainerStop called with 'loader123', got %v", containerAPI.stopCalledWith)
 	}
 }
@@ -381,6 +404,7 @@ func TestStartLoaderContainerJob_Rollback_NoContainerId_NoOp(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if len(containerAPI.stopCalledWith) != 0 {
 		t.Errorf("expected ContainerStop not to be called, got %v", containerAPI.stopCalledWith)
 	}
@@ -392,7 +416,7 @@ func TestStartLoaderContainerJob_Rollback_NoContainerId_NoOp(t *testing.T) {
 
 func TestCopyFileJob_Success(t *testing.T) {
 	payload := &velez_api.CopyToVolumeTaskPayload{}
-	payload.SetContainerId("loader123")
+	payload.SetContainerId(testLoaderContID)
 
 	docker := newFakeDocker()
 	containerAPI := newFakeContainerAPI()
@@ -401,7 +425,7 @@ func TestCopyFileJob_Success(t *testing.T) {
 		docker:   docker,
 		copyAPI:  containerAPI,
 		ctx:      payload,
-		filePath: "/data/a.txt",
+		filePath: testPathDataA,
 		content:  []byte("hello"),
 	}
 
@@ -413,7 +437,8 @@ func TestCopyFileJob_Success(t *testing.T) {
 	if len(docker.execCalledWith) != 1 {
 		t.Fatalf("expected exactly 1 Exec call for mkdir, got %d", len(docker.execCalledWith))
 	}
-	wantCmd := []string{"mkdir", "-p", "/data"}
+
+	wantCmd := []string{"mkdir", "-p", testPathDataDir}
 	if !equalStrings(docker.execCalledWith[0].Cmd, wantCmd) {
 		t.Errorf("expected mkdir command %v, got %v", wantCmd, docker.execCalledWith[0].Cmd)
 	}
@@ -421,11 +446,13 @@ func TestCopyFileJob_Success(t *testing.T) {
 	if len(containerAPI.copyCalledWith) != 1 {
 		t.Fatalf("expected exactly 1 CopyToContainer call, got %d", len(containerAPI.copyCalledWith))
 	}
+
 	call := containerAPI.copyCalledWith[0]
-	if call.containerID != "loader123" {
+	if call.containerID != testLoaderContID {
 		t.Errorf("expected copy to container 'loader123', got %q", call.containerID)
 	}
-	if call.dstPath != "/data" {
+
+	if call.dstPath != testPathDataDir {
 		t.Errorf("expected copy dst path '/data', got %q", call.dstPath)
 	}
 }
@@ -436,7 +463,7 @@ func TestCopyFileJob_Success(t *testing.T) {
 // []byte value in PathToFiles is possible since it's map[string][]byte.
 func TestCopyFileJob_NilContent_Skipped(t *testing.T) {
 	payload := &velez_api.CopyToVolumeTaskPayload{}
-	payload.SetContainerId("loader123")
+	payload.SetContainerId(testLoaderContID)
 
 	docker := newFakeDocker()
 	containerAPI := newFakeContainerAPI()
@@ -445,7 +472,7 @@ func TestCopyFileJob_NilContent_Skipped(t *testing.T) {
 		docker:   docker,
 		copyAPI:  containerAPI,
 		ctx:      payload,
-		filePath: "/data/a.txt",
+		filePath: testPathDataA,
 		content:  nil,
 	}
 
@@ -457,6 +484,7 @@ func TestCopyFileJob_NilContent_Skipped(t *testing.T) {
 	if len(docker.execCalledWith) != 0 {
 		t.Errorf("expected no Exec call for nil content, got %d", len(docker.execCalledWith))
 	}
+
 	if len(containerAPI.copyCalledWith) != 0 {
 		t.Errorf("expected no CopyToContainer call for nil content, got %d", len(containerAPI.copyCalledWith))
 	}
@@ -473,7 +501,7 @@ func TestCopyFileJob_NoContainerId_Error(t *testing.T) {
 		docker:   docker,
 		copyAPI:  containerAPI,
 		ctx:      payload,
-		filePath: "/data/a.txt",
+		filePath: testPathDataA,
 		content:  []byte("hello"),
 	}
 
@@ -487,7 +515,7 @@ func TestCopyFileJob_NoContainerId_Error(t *testing.T) {
 // mkdir must propagate and the write must never be attempted.
 func TestCopyFileJob_ExecError(t *testing.T) {
 	payload := &velez_api.CopyToVolumeTaskPayload{}
-	payload.SetContainerId("loader123")
+	payload.SetContainerId(testLoaderContID)
 
 	docker := newFakeDocker()
 	docker.execErr = errors.New("exec failed: container not running")
@@ -497,7 +525,7 @@ func TestCopyFileJob_ExecError(t *testing.T) {
 		docker:   docker,
 		copyAPI:  containerAPI,
 		ctx:      payload,
-		filePath: "/data/a.txt",
+		filePath: testPathDataA,
 		content:  []byte("hello"),
 	}
 
@@ -505,6 +533,7 @@ func TestCopyFileJob_ExecError(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected an error when Exec (mkdir) fails")
 	}
+
 	if len(containerAPI.copyCalledWith) != 0 {
 		t.Errorf("expected no CopyToContainer call after a failed mkdir, got %d", len(containerAPI.copyCalledWith))
 	}
@@ -513,7 +542,7 @@ func TestCopyFileJob_ExecError(t *testing.T) {
 // TestCopyFileJob_CopyToContainerError is a required failure-path test.
 func TestCopyFileJob_CopyToContainerError(t *testing.T) {
 	payload := &velez_api.CopyToVolumeTaskPayload{}
-	payload.SetContainerId("loader123")
+	payload.SetContainerId(testLoaderContID)
 
 	docker := newFakeDocker()
 	containerAPI := newFakeContainerAPI()
@@ -523,7 +552,7 @@ func TestCopyFileJob_CopyToContainerError(t *testing.T) {
 		docker:   docker,
 		copyAPI:  containerAPI,
 		ctx:      payload,
-		filePath: "/data/a.txt",
+		filePath: testPathDataA,
 		content:  []byte("hello"),
 	}
 
@@ -547,6 +576,7 @@ func TestDropLoaderContainerJob_NoContainerId_NoOp(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+
 	if len(docker.removeCalledWith) != 0 {
 		t.Errorf("expected Remove not to be called, got %v", docker.removeCalledWith)
 	}
@@ -554,7 +584,7 @@ func TestDropLoaderContainerJob_NoContainerId_NoOp(t *testing.T) {
 
 func TestDropLoaderContainerJob_Success(t *testing.T) {
 	payload := &velez_api.CopyToVolumeTaskPayload{}
-	payload.SetContainerId("loader123")
+	payload.SetContainerId(testLoaderContID)
 
 	docker := newFakeDocker()
 
@@ -564,7 +594,8 @@ func TestDropLoaderContainerJob_Success(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if len(docker.removeCalledWith) != 1 || docker.removeCalledWith[0] != "loader123" {
+
+	if len(docker.removeCalledWith) != 1 || docker.removeCalledWith[0] != testLoaderContID {
 		t.Errorf("expected Remove called with 'loader123', got %v", docker.removeCalledWith)
 	}
 }
@@ -573,7 +604,7 @@ func TestDropLoaderContainerJob_Success(t *testing.T) {
 // failure-path test.
 func TestDropLoaderContainerJob_RemoveErrorPropagates(t *testing.T) {
 	payload := &velez_api.CopyToVolumeTaskPayload{}
-	payload.SetContainerId("loader123")
+	payload.SetContainerId(testLoaderContID)
 
 	docker := newFakeDocker()
 	docker.removeErr = errors.New("docker daemon unreachable")
@@ -599,7 +630,9 @@ func TestDropLoaderContainerJob_RemoveErrorPropagates(t *testing.T) {
 // fakeContainerAPI (both are same-package unexported fields, and this test
 // file is in package jobs) before handing the jobs to taskWorker.runJobs.
 
-func copyToVolumeTask(t *testing.T, tasksStorage *fakeTasksStorage, entityID string, payload *velez_api.CopyToVolumeTaskPayload) tasks_queries.VelezTask {
+func copyToVolumeTask(
+	t *testing.T, tasksStorage *fakeTasksStorage, entityID string, payload *velez_api.CopyToVolumeTaskPayload,
+) tasks_queries.VelezTask {
 	t.Helper()
 
 	payloadJSON, err := json.Marshal(payload)
@@ -640,21 +673,22 @@ func TestCopyToVolumeHandler_HappyPath_EndToEnd(t *testing.T) {
 	jobsStorage := newFakeJobsStorage()
 
 	payload := &velez_api.CopyToVolumeTaskPayload{
-		VolumeName: "myvol",
+		VolumeName: testVolumeName,
 		PathToFiles: map[string][]byte{
-			"/data/a.txt": []byte("A"),
-			"/data/b.txt": []byte("B"),
+			testPathDataA: []byte("A"),
+			testPathDataB: []byte("B"),
 		},
 	}
-	task := copyToVolumeTask(t, tasksStorage, "myvol", payload)
+	task := copyToVolumeTask(t, tasksStorage, testVolumeName, payload)
 
 	docker := newFakeDocker()
-	docker.containerCreateResp = container.CreateResponse{ID: "loader123"}
+	docker.containerCreateResp = container.CreateResponse{ID: testLoaderContID}
 	nodeClients := newFakeNodeClients(docker)
 
 	handler := NewCopyToVolumeHandler(nodeClients)
 
 	taskCtx := handler.NewContext()
+
 	err := json.Unmarshal(task.Context.RawMessage, taskCtx)
 	if err != nil {
 		t.Fatalf("unexpected error unmarshaling task context: %v", err)
@@ -678,25 +712,34 @@ func TestCopyToVolumeHandler_HappyPath_EndToEnd(t *testing.T) {
 		t.Fatalf("unexpected error running jobs: %v", runErr)
 	}
 
-	if len(containerAPI.startCalledWith) != 1 || containerAPI.startCalledWith[0] != "loader123" {
+	if len(containerAPI.startCalledWith) != 1 || containerAPI.startCalledWith[0] != testLoaderContID {
 		t.Errorf("expected container started, got %v", containerAPI.startCalledWith)
 	}
+
 	if len(containerAPI.copyCalledWith) != 2 {
 		t.Fatalf("expected 2 files copied, got %d", len(containerAPI.copyCalledWith))
 	}
-	if containerAPI.copyCalledWith[0].dstPath != "/data" || containerAPI.copyCalledWith[1].dstPath != "/data" {
+
+	firstDst := containerAPI.copyCalledWith[0].dstPath
+
+	secondDst := containerAPI.copyCalledWith[1].dstPath
+	if firstDst != testPathDataDir || secondDst != testPathDataDir {
 		t.Errorf("expected both files copied under /data, got %v", containerAPI.copyCalledWith)
 	}
-	if len(docker.removeCalledWith) != 1 || docker.removeCalledWith[0] != "loader123" {
+
+	if len(docker.removeCalledWith) != 1 || docker.removeCalledWith[0] != testLoaderContID {
 		t.Errorf("expected loader container dropped at the end, got %v", docker.removeCalledWith)
 	}
 
-	for _, name := range []string{"create_container", "start_container", "copy_file_0", "copy_file_1", "drop_container"} {
+	stepNames := []string{stepCreateContainer, stepStartSidecar, "copy_file_0", "copy_file_1", stepDropContainer}
+	for _, name := range stepNames {
 		row, ok := jobsStorage.rows[jobKey(task.ID, name)]
 		if !ok {
 			t.Errorf("expected a checkpoint row for job %q", name)
+
 			continue
 		}
+
 		if row.Status != jobs_queries.VelezJobStatusDONE {
 			t.Errorf("expected job %q checkpoint DONE, got %v", name, row.Status)
 		}
@@ -712,12 +755,12 @@ func TestCopyToVolumeHandler_FailurePath_CreateContainerFails(t *testing.T) {
 	jobsStorage := newFakeJobsStorage()
 
 	payload := &velez_api.CopyToVolumeTaskPayload{
-		VolumeName: "myvol",
+		VolumeName: testVolumeName,
 		PathToFiles: map[string][]byte{
-			"/data/a.txt": []byte("A"),
+			testPathDataA: []byte("A"),
 		},
 	}
-	task := copyToVolumeTask(t, tasksStorage, "myvol", payload)
+	task := copyToVolumeTask(t, tasksStorage, testVolumeName, payload)
 
 	docker := newFakeDocker()
 	docker.containerCreateErr = errors.New("no space left on device")
@@ -742,7 +785,8 @@ func TestCopyToVolumeHandler_FailurePath_CreateContainerFails(t *testing.T) {
 	}
 
 	if len(docker.removeCalledWith) != 0 {
-		t.Errorf("expected Rollback to be a no-op (no container id was ever set), got Remove called with %v", docker.removeCalledWith)
+		t.Errorf("expected Rollback to be a no-op (no container id was ever set), got Remove called with %v",
+			docker.removeCalledWith)
 	}
 }
 
@@ -758,21 +802,22 @@ func TestCopyToVolumeHandler_FailurePath_LaterFileFailsCascadesRollback(t *testi
 	jobsStorage := newFakeJobsStorage()
 
 	payload := &velez_api.CopyToVolumeTaskPayload{
-		VolumeName: "myvol",
+		VolumeName: testVolumeName,
 		PathToFiles: map[string][]byte{
-			"/data/a.txt": []byte("A"),
-			"/data/b.txt": []byte("B"),
+			testPathDataA: []byte("A"),
+			testPathDataB: []byte("B"),
 		},
 	}
-	task := copyToVolumeTask(t, tasksStorage, "myvol", payload)
+	task := copyToVolumeTask(t, tasksStorage, testVolumeName, payload)
 
 	docker := newFakeDocker()
-	docker.containerCreateResp = container.CreateResponse{ID: "loader123"}
+	docker.containerCreateResp = container.CreateResponse{ID: testLoaderContID}
 	nodeClients := newFakeNodeClients(docker)
 
 	handler := NewCopyToVolumeHandler(nodeClients)
 
 	taskCtx := handler.NewContext()
+
 	err := json.Unmarshal(task.Context.RawMessage, taskCtx)
 	if err != nil {
 		t.Fatalf("unexpected error unmarshaling task context: %v", err)
@@ -802,10 +847,11 @@ func TestCopyToVolumeHandler_FailurePath_LaterFileFailsCascadesRollback(t *testi
 		t.Fatalf("expected both files attempted (0 succeeds, 1 fails), got %d calls", len(containerAPI.copyCalledWith))
 	}
 
-	if len(containerAPI.stopCalledWith) != 1 || containerAPI.stopCalledWith[0] != "loader123" {
+	if len(containerAPI.stopCalledWith) != 1 || containerAPI.stopCalledWith[0] != testLoaderContID {
 		t.Errorf("expected rollback to stop the loader container, got %v", containerAPI.stopCalledWith)
 	}
-	if len(docker.removeCalledWith) != 1 || docker.removeCalledWith[0] != "loader123" {
+
+	if len(docker.removeCalledWith) != 1 || docker.removeCalledWith[0] != testLoaderContID {
 		t.Errorf("expected rollback to remove the loader container, got %v", docker.removeCalledWith)
 	}
 
@@ -813,6 +859,7 @@ func TestCopyToVolumeHandler_FailurePath_LaterFileFailsCascadesRollback(t *testi
 	if !ok {
 		t.Fatal("expected copy_file_0's checkpoint row to exist")
 	}
+
 	if copyFile0Row.Status != jobs_queries.VelezJobStatusDONE {
 		t.Errorf("expected copy_file_0 checkpoint to stay DONE despite the later failure, got %v", copyFile0Row.Status)
 	}

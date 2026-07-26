@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
@@ -64,14 +63,14 @@ func (impl *Impl) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Re
 		return nil, rerrors.Wrap(err, "error unmarshaling task context")
 	}
 
-	var containerId string
+	var containerID string
 	if result.ContainerId != nil {
-		containerId = *result.ContainerId
+		containerID = *result.ContainerId
 	}
 
-	smerd, err := impl.smerdService.InspectSmerd(ctx, containerId)
+	smerd, err := impl.smerdService.InspectSmerd(ctx, containerID)
 	if err != nil {
-		return nil, err
+		return nil, rerrors.Wrap(err, "error inspecting smerd")
 	}
 
 	return smerd, nil

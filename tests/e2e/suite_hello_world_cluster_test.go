@@ -15,12 +15,13 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	rtb "go.redsock.ru/toolbox"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
 const helloWorldImageV0015 = "vervstack/hello_world:v0.0.15"
+
+const postgresAlias = "postgres"
 
 type HelloWorldClusterSuite struct {
 	suite.Suite
@@ -64,13 +65,13 @@ func (s *HelloWorldClusterSuite) Test_ConnectedCluster() {
 
 	// Assert obligatory labels on the PG hello_world
 	assert.Equal(t, s.pgAppName, s.pgAppSmerd.Labels[labels.VervServiceLabel])
-	assert.Equal(t, "postgres", s.pgAppSmerd.Labels[labels.DependsOnLabel])
+	assert.Equal(t, postgresAlias, s.pgAppSmerd.Labels[labels.DependsOnLabel])
 	assert.Equal(t, "web", s.pgAppSmerd.Labels[labels.ServiceTypeLabel])
 
 	// Assert all labels on the SQLite hello_world
 	assert.Equal(t, s.sqliteAppName, s.sqliteAppSmerd.Labels[labels.VervServiceLabel])
-	assert.Equal(t, "false", s.sqliteAppSmerd.Labels[labels.Sidecar])
-	assert.Equal(t, "false", s.sqliteAppSmerd.Labels[labels.AutoUpgrade])
+	assert.Equal(t, labelValueFalse, s.sqliteAppSmerd.Labels[labels.Sidecar])
+	assert.Equal(t, labelValueFalse, s.sqliteAppSmerd.Labels[labels.AutoUpgrade])
 	assert.Equal(t, s.pgAppName, s.sqliteAppSmerd.Labels[labels.DependsOnLabel])
 	assert.Equal(t, "Hello World SQLite instance", s.sqliteAppSmerd.Labels[labels.DescriptionLabel])
 	assert.Equal(t, "web", s.sqliteAppSmerd.Labels[labels.ServiceTypeLabel])
@@ -92,44 +93,52 @@ func (s *HelloWorldClusterSuite) _testAPIIsolation() {
 	pgBase := fmt.Sprintf("http://localhost:%d", s.pgAppSmerd.Ports[0].GetExposedTo())
 	sqliteBase := fmt.Sprintf("http://localhost:%d", s.sqliteAppSmerd.Ports[0].GetExposedTo())
 
-	s._waitForApp(t, pgBase)
-	s._waitForApp(t, sqliteBase)
+	s._waitForApp(ctx, t, pgBase)
+	s._waitForApp(ctx, t, sqliteBase)
 
 	// 1. sqlite get '1' — empty store
-	s._assertGetKey(t, ctx, sqliteBase, "1", false, "")
+	s._assertGetKey(ctx, t, sqliteBase, "1", false, "")
 
 	// 2. pg get '1' — empty store
-	s._assertGetKey(t, ctx, pgBase, "1", false, "")
+	s._assertGetKey(ctx, t, pgBase, "1", false, "")
 
 	// 3. set '1' in sqlite, set '2' in pg
-	s._setKey(t, ctx, sqliteBase, "1", "val1")
-	s._setKey(t, ctx, pgBase, "2", "val2")
+	s._setKey(ctx, t, sqliteBase, "1", "val1")
+	s._setKey(ctx, t, pgBase, "2", "val2")
 
 	// 4. sqlite get '1' — found locally
-	s._assertGetKey(t, ctx, sqliteBase, "1", true, "val1")
+	s._assertGetKey(ctx, t, sqliteBase, "1", true, "val1")
 
 	// 5. pg get '1' — not in pg (only in sqlite)
-	s._assertGetKey(t, ctx, pgBase, "1", false, "")
+	s._assertGetKey(ctx, t, pgBase, "1", false, "")
 
 	// 6. both get '2' — sqlite proxies to peer, pg finds it locally
-	s._assertGetKey(t, ctx, sqliteBase, "2", true, "val2")
-	s._assertGetKey(t, ctx, pgBase, "2", true, "val2")
+	s._assertGetKey(ctx, t, sqliteBase, "2", true, "val2")
+	s._assertGetKey(ctx, t, pgBase, "2", true, "val2")
 }
 
-func (s *HelloWorldClusterSuite) _waitForApp(t *testing.T, baseURL string) {
+func (s *HelloWorldClusterSuite) _waitForApp(ctx context.Context, t *testing.T, baseURL string) {
 	t.Helper()
 	require.Eventually(t, func() bool {
-		resp, err := http.Get(baseURL + "/info")
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, baseURL+"/info", nil)
 		if err != nil {
 			return false
 		}
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return false
+		}
+
 		_ = resp.Body.Close()
+
 		return resp.StatusCode == http.StatusOK
 	}, 30*time.Second, 500*time.Millisecond, "app at %s did not become ready", baseURL)
 }
 
-func (s *HelloWorldClusterSuite) _setKey(t *testing.T, ctx context.Context, baseURL, key, value string) {
+func (s *HelloWorldClusterSuite) _setKey(ctx context.Context, t *testing.T, baseURL, key, value string) {
 	t.Helper()
+
 	body := fmt.Sprintf(`{"vals":{"values":[{"key":%q,"value":%q}]}}`, key, value)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, baseURL+"/api/set", strings.NewReader(body))
 	require.NoError(t, err)
@@ -140,22 +149,34 @@ func (s *HelloWorldClusterSuite) _setKey(t *testing.T, ctx context.Context, base
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func (s *HelloWorldClusterSuite) _assertGetKey(t *testing.T, ctx context.Context, baseURL, key string, expectFound bool, expectedValue string) {
+func (s *HelloWorldClusterSuite) _assertGetKey(
+	ctx context.Context,
+	t *testing.T,
+	baseURL, key string,
+	expectFound bool,
+	expectedValue string,
+) {
 	t.Helper()
+
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, baseURL+"/api/get/"+key, nil)
 	require.NoError(t, err)
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = resp.Body.Close() })
+
 	if !expectFound {
 		require.NotEqual(t, http.StatusOK, resp.StatusCode, "expected key %q to be absent", key)
+
 		return
 	}
+
 	require.Equal(t, http.StatusOK, resp.StatusCode, "expected key %q to be present", key)
+
 	var result struct {
 		Key   string `json:"key"`
 		Value string `json:"value"`
 	}
+
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	require.NoError(t, err)
 	require.Equal(t, expectedValue, result.Value)
@@ -169,7 +190,7 @@ func (s *HelloWorldClusterSuite) _preparePostgresContainer() {
 
 	testCaseNetwork := &velez_api.NetworkBind{
 		NetworkName: s.networkName,
-		Aliases:     []string{"postgres"},
+		Aliases:     []string{postgresAlias},
 	}
 	pgSettings := &velez_api.Container_Settings{
 		Network: []*velez_api.NetworkBind{testCaseNetwork},
@@ -191,7 +212,7 @@ func (s *HelloWorldClusterSuite) _preparePostgresContainer() {
 		Settings:    pgSettings,
 		Healthcheck: pgHealthcheck,
 		Labels: map[string]string{
-			labels.VervServiceLabel: "postgres",
+			labels.VervServiceLabel: postgresAlias,
 			labels.ServiceTypeLabel: "resource.database",
 			"VERV_SERVICE_OWNER":    s.pgAppName,
 		},
@@ -206,6 +227,7 @@ func (s *HelloWorldClusterSuite) _preparePostgresContainer() {
 		if inspectErr != nil {
 			return false
 		}
+
 		return info.State.Health != nil && info.State.Health.Status == "healthy"
 	}, 30*time.Second, 2*time.Second, "postgres did not become healthy in time")
 }
@@ -256,7 +278,7 @@ func (s *HelloWorldClusterSuite) _preparePgApp() {
 		Settings: pgHWSettings,
 		Labels: map[string]string{
 			labels.VervServiceLabel: s.pgAppName,
-			labels.DependsOnLabel:   "postgres",
+			labels.DependsOnLabel:   postgresAlias,
 			labels.ServiceTypeLabel: "web",
 		},
 		IgnoreConfig:  true,
@@ -283,11 +305,11 @@ func (s *HelloWorldClusterSuite) _prepareSqliteApp() {
 		},
 		Settings: sqliteSettings,
 		Labels: map[string]string{
-			labels.CreatedWithVelezLabel: "true",
-			labels.Sidecar:               "false",
+			labels.CreatedWithVelezLabel: labelValueTrue,
+			labels.Sidecar:               labelValueFalse,
 			labels.VervServiceLabel:      s.sqliteAppName,
-			labels.MatreshkaConfigLabel:  "false",
-			labels.AutoUpgrade:           "false",
+			labels.MatreshkaConfigLabel:  labelValueFalse,
+			labels.AutoUpgrade:           labelValueFalse,
 			labels.DependsOnLabel:        s.pgAppName,
 			labels.DescriptionLabel:      "Hello World SQLite instance",
 			labels.ServiceTypeLabel:      "web",

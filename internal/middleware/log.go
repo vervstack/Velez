@@ -20,6 +20,7 @@ func LogInterceptor() grpc.ServerOption {
 			}()
 
 			resp, err = handler(ctx, req)
+
 			return resp, err
 		})
 }

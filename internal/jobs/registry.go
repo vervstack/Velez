@@ -18,5 +18,6 @@ func (r *Registry) Register(h TaskHandler) {
 
 func (r *Registry) Get(action string) (TaskHandler, bool) {
 	h, ok := r.handlers[action]
+
 	return h, ok
 }

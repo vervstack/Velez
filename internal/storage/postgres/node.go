@@ -5,7 +5,6 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
 	pg_queries "go.vervstack.ru/Velez/internal/storage/postgres/generated/nodes_queries"
@@ -61,6 +60,7 @@ func (n *nodeStorage) List(ctx context.Context, req domain.ListNodesReq) (domain
 		"is_enabled",
 		"addr",
 	)
+
 	if req.Paging.Limit == 0 {
 		req.Paging.Limit = defaultNodeListLimit
 	}
@@ -80,15 +80,23 @@ func (n *nodeStorage) List(ctx context.Context, req domain.ListNodesReq) (domain
 	}
 
 	defer common.CloseWithLog(rows.Close, "list nodes query")
+
 	list := make([]domain.NodeBaseInfo, 0, totalNodes)
+
 	for rows.Next() {
 		var node domain.NodeBaseInfo
+
 		node, err = scanNode(rows)
 		if err != nil {
 			return domain.NodesList{}, rerrors.Wrap(err, "error scanning list nodes")
 		}
 
 		list = append(list, node)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return domain.NodesList{}, rerrors.Wrap(err, "error iterating list nodes")
 	}
 
 	return domain.NodesList{
@@ -99,6 +107,7 @@ func (n *nodeStorage) List(ctx context.Context, req domain.ListNodesReq) (domain
 
 func (n *nodeStorage) countTotal(ctx context.Context, builder sq.SelectBuilder) (uint64, error) {
 	var total uint64
+
 	builder = builder.Column("count(*)")
 
 	q, args, err := builder.ToSql()
@@ -115,13 +124,9 @@ func (n *nodeStorage) countTotal(ctx context.Context, builder sq.SelectBuilder) 
 	return total, nil
 }
 
-func (n *nodeStorage) applyListNodesFilters(builder sq.SelectBuilder, req domain.ListNodesReq) sq.SelectBuilder {
-
-	return builder
-}
-
 func scanNode(scannable sqldb.Scannable) (domain.NodeBaseInfo, error) {
 	node := domain.NodeBaseInfo{}
+
 	return node, scannable.Scan(
 		&node.Id,
 		&node.Name,

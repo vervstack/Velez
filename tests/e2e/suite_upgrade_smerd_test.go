@@ -6,7 +6,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"go.redsock.ru/toolbox"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 

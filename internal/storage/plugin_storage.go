@@ -13,6 +13,7 @@ type Container struct {
 func NewStorageContainer(initial Storage) *Container {
 	c := &Container{}
 	c.Set(initial)
+
 	return c
 }
 

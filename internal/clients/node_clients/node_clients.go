@@ -7,7 +7,6 @@ import (
 	"github.com/rs/zerolog/log"
 	errors "go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
-
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/hardware"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
@@ -15,7 +14,10 @@ import (
 	"go.vervstack.ru/Velez/internal/config"
 )
 
-// NodeClients - container for node level clients
+const dockerSocketHint = "Can't ping docker api. If you are running Velez inside a container " +
+	"please provide docker socket via volume flag: -v /var/run/docker.sock:/var/run/docker.sock"
+
+// NodeClients - container for node level clients.
 type NodeClients interface {
 	// Docker - returns basic DockerEngine API
 	Docker() Docker
@@ -38,21 +40,25 @@ type nodeClients struct {
 
 func NewNodeClients(ctx context.Context, cfg config.Config) (NodeClients, error) {
 	var err error
+
 	cls := &nodeClients{}
 
 	// Docker engine
 	{
 		log.Debug().Msg("Initializing docker client")
+
 		cls.docker, err = docker.NewClient(cfg.Environment.CustomLabels, cfg.Environment.ContainerSuffix)
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting docker api client")
 		}
 
 		var pong types.Ping
+
 		pong, err = cls.docker.Client().Ping(ctx)
 		if err != nil {
-			return nil, errors.Wrap(err, "Can't ping docker api. If you are running Velez inside a container please provide docker socket via volume flag: -v /var/run/docker.sock:/var/run/docker.sock")
+			return nil, errors.Wrap(err, dockerSocketHint)
 		}
+
 		_ = pong
 	}
 
@@ -90,6 +96,7 @@ func NewNodeClients(ctx context.Context, cfg config.Config) (NodeClients, error)
 	// Hardware
 	{
 		log.Debug().Msg("Initializing hardware manager")
+
 		cls.hardwareManager = hardware.New()
 	}
 

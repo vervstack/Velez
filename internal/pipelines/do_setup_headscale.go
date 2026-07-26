@@ -2,18 +2,19 @@ package pipelines
 
 import (
 	"go.redsock.ru/toolbox"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
-
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/patterns/headscale"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/config_steps"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/container_steps"
+	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 func (p *pipeliner) SetupHeadscale(req domain.SetupHeadscaleRequest) Runner[domain.SetupHeadscaleResponse] {
 	contReq := headscale.Headscale(req)
+
 	var containerId string
+
 	headscaleConfig := headscale.BasicConfig()
 	mountPoints := []domain.FileMountPoint{{Content: headscaleConfig}}
 

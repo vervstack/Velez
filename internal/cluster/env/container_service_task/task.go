@@ -13,7 +13,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	rtb "go.redsock.ru/toolbox"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
@@ -41,7 +40,7 @@ func NewTaskV2(docker node_clients.Docker, ctr container.CreateRequest) (*TaskV2
 		return nil, rerrors.New("config is nil")
 	}
 
-	if ctr.Config.Hostname == "" {
+	if ctr.Hostname == "" {
 		return nil, rerrors.New("hostname is empty")
 	}
 
@@ -58,7 +57,7 @@ func NewTaskV2(docker node_clients.Docker, ctr container.CreateRequest) (*TaskV2
 func (t *TaskV2) Start() error {
 	ctx := context.Background()
 
-	_, err := dockerutils.PullImage(ctx, t.dockerAPI, t.container.Config.Image, false)
+	_, err := dockerutils.PullImage(ctx, t.dockerAPI, t.container.Image, false)
 	if err != nil {
 		return rerrors.Wrap(err, "error pulling image")
 	}
@@ -98,7 +97,9 @@ func (t *TaskV2) IsAlive() bool {
 		if strings.Contains(err.Error(), docker.NoSuchContainerError) {
 			return false
 		}
+
 		log.Error().Err(rerrors.Wrap(err, "error getting container of dependency: "+t.container.Hostname)).Send()
+
 		return false
 	}
 
@@ -168,5 +169,6 @@ func appendTCP(port string) string {
 	if !strings.HasSuffix(port, "/tcp") {
 		return port + "/tcp"
 	}
+
 	return port
 }

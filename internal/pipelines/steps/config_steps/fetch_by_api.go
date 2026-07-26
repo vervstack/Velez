@@ -9,14 +9,13 @@ import (
 	"go.redsock.ru/evon"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/utils/configutils"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type fetchConfigStep struct {
@@ -65,7 +64,9 @@ func (c *fetchConfigStep) Do(ctx context.Context) (err error) {
 		if err != nil {
 			return rerrors.Wrap(err, "error getting config to mount")
 		}
+
 		*c.mounts = append(*c.mounts, mount)
+
 		return nil
 	}
 
@@ -79,6 +80,7 @@ func (c *fetchConfigStep) Do(ctx context.Context) (err error) {
 
 func (c *fetchConfigStep) doVerv(ctx context.Context, spec *velez_api.MatreshkaConfigSpec) (domain.FileMountPoint, error) {
 	var cfgMount domain.ConfigMount
+
 	cfgMount.FilePath = spec.SystemPath
 
 	fillMeta(c.image, &cfgMount)
@@ -116,6 +118,7 @@ func (c *fetchConfigStep) doPlain(spec *velez_api.PlainConfigSpec) error {
 			Content:  content,
 		})
 	}
+
 	return nil
 }
 
@@ -126,6 +129,7 @@ func (c *fetchConfigStep) setEnv(ctx context.Context, meta domain.ConfigMeta) er
 		if code != codes.NotFound {
 			return rerrors.Wrap(err, "error getting matreshka config from matreshka api")
 		}
+
 		err = nil
 	}
 
@@ -136,6 +140,7 @@ func (c *fetchConfigStep) setEnv(ctx context.Context, meta domain.ConfigMeta) er
 		if n.Value == nil {
 			continue
 		}
+
 		c.req.Env[n.Name] = fmt.Sprint(n.Value)
 	}
 
@@ -149,6 +154,7 @@ func (c *fetchConfigStep) getPlain(ctx context.Context, meta domain.ConfigMeta) 
 		if code != codes.NotFound {
 			return nil, rerrors.Wrap(err, "error getting matreshka config from matreshka api")
 		}
+
 		err = nil
 	}
 

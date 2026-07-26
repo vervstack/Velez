@@ -5,7 +5,6 @@ import (
 
 	"github.com/docker/docker/api/types/image"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 )
 

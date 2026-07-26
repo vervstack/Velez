@@ -4,12 +4,10 @@ import (
 	"context"
 	"strings"
 
+	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/errdefs"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"go.redsock.ru/rerrors"
-	"go.vervstack.ru/makosh/pkg/makosh_be"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/headscale"
@@ -17,20 +15,31 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/patterns"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/network_steps"
+	"go.vervstack.ru/makosh/pkg/makosh_be"
 )
 
 const ConnectServiceToVpnAction = "connect_service_to_vpn"
 
+const (
+	stepCheckSidecar        = "check_sidecar"
+	stepPrepareNamespace    = "prepare_namespace"
+	stepGetClientKey        = "get_client_key"
+	stepGetLoginServerURL   = "get_login_server_url"
+	stepPrepareSidecarImage = "prepare_image"
+	stepStartSidecar        = "start_container"
+	stepAddMakoshRecord     = "add_makosh_record"
+)
+
 // Accessor interfaces the connect_service_to_vpn jobs need from their
 // TaskContext. *velez_api.ConnectServiceToVpnTaskPayload satisfies all of
-// them. containerIdAccessor is declared in create_smerd.go and reused here
+// them. containerIDAccessor is declared in create_smerd.go and reused here
 // as-is.
 
 type connectServiceToVpnRequestAccessor interface {
 	GetServiceName() string
 }
 
-type namespaceIdAccessor interface {
+type namespaceIDAccessor interface {
 	GetNamespaceId() string
 	SetNamespaceId(string)
 }
@@ -40,7 +49,7 @@ type clientKeyAccessor interface {
 	SetClientKey(string)
 }
 
-type loginServerUrlAccessor interface {
+type loginServerURLAccessor interface {
 	GetLoginServerUrl() string
 	SetLoginServerUrl(string)
 }
@@ -77,7 +86,10 @@ func (h *connectServiceToVpnHandler) NewContext() TaskContext {
 // pure logic with no side effect of its own, so it doesn't need its own
 // checkpoint row) - 9 pipeline steps become 8 named jobs.
 func (h *connectServiceToVpnHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
-	payload := taskCtx.(*velez_api.ConnectServiceToVpnTaskPayload)
+	payload, ok := taskCtx.(*velez_api.ConnectServiceToVpnTaskPayload)
+	if !ok {
+		panic("connect_service_to_vpn: BuildJobs called with mismatched TaskContext type")
+	}
 
 	serviceName := payload.GetServiceName()
 	containerName := serviceName + "-" + patterns.TailscaleSidecarSuffix
@@ -90,11 +102,11 @@ func (h *connectServiceToVpnHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			// pipeline-only dependency, so it's reused as-is - steps.Step and
 			// jobs.Job are both just Do(ctx) error (see create_service.go's
 			// reuse of service_steps.ValidateServiceName).
-			Name: "check_sidecar",
+			Name: stepCheckSidecar,
 			Job:  network_steps.CheckSidecarExist(h.nodeClients, containerName),
 		},
 		{
-			Name: "prepare_namespace",
+			Name: stepPrepareNamespace,
 			Job: &prepareNamespaceJob{
 				vpnClient: h.vpnClient,
 				req:       payload,
@@ -102,7 +114,7 @@ func (h *connectServiceToVpnHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: "get_client_key",
+			Name: stepGetClientKey,
 			Job: &getClientKeyJob{
 				vpnClient: h.vpnClient,
 				namespace: payload,
@@ -110,39 +122,39 @@ func (h *connectServiceToVpnHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: "get_login_server_url",
-			Job: &getLoginServerUrlJob{
+			Name: stepGetLoginServerURL,
+			Job: &getLoginServerURLJob{
 				ctx: payload,
 			},
 		},
 		{
-			Name: "prepare_image",
+			Name: stepPrepareSidecarImage,
 			Job: &prepareSidecarImageJob{
 				docker: h.nodeClients.Docker(),
 				req:    &launchContainer,
 			},
 		},
 		{
-			Name: "create_container",
+			Name: stepCreatePgContainer,
 			Job: &createSidecarContainerJob{
 				nodeClients:     h.nodeClients,
 				launchContainer: &launchContainer,
 				containerName:   containerName,
 				hostname:        hostname,
 				clientKey:       payload,
-				loginUrl:        payload,
+				loginURL:        payload,
 				ctx:             payload,
 			},
 		},
 		{
-			Name: "start_container",
+			Name: stepStartSidecar,
 			Job: &startSidecarContainerJob{
 				dockerAPI: h.nodeClients.Docker().Client(),
 				ctx:       payload,
 			},
 		},
 		{
-			Name: "add_makosh_record",
+			Name: stepAddMakoshRecord,
 			Job: &addMakoshRecordJob{
 				sd:          h.serviceDiscovery,
 				serviceName: serviceName,
@@ -156,7 +168,7 @@ type prepareNamespaceJob struct {
 	vpnClient cluster_clients.VervClosedNetworkClient
 
 	req connectServiceToVpnRequestAccessor
-	ctx namespaceIdAccessor
+	ctx namespaceIDAccessor
 }
 
 func (j *prepareNamespaceJob) Do(ctx context.Context) error {
@@ -182,7 +194,7 @@ func (j *prepareNamespaceJob) Do(ctx context.Context) error {
 type getClientKeyJob struct {
 	vpnClient cluster_clients.VervClosedNetworkClient
 
-	namespace namespaceIdAccessor
+	namespace namespaceIDAccessor
 	ctx       clientKeyAccessor
 }
 
@@ -195,10 +207,10 @@ type getClientKeyJob struct {
 // value), so this job returns the existing key correctly. Flagged as a
 // behavior improvement, not a deliberate migration decision.
 func (j *getClientKeyJob) Do(ctx context.Context) error {
-	namespaceId := j.namespace.GetNamespaceId()
+	namespaceID := j.namespace.GetNamespaceId()
 
 	getAuthKeyReq := domain.GetVcnAuthKeyReq{
-		NamespaceId:  namespaceId,
+		NamespaceId:  namespaceID,
 		ReusableOnly: true,
 	}
 
@@ -211,11 +223,12 @@ func (j *getClientKeyJob) Do(ctx context.Context) error {
 
 	if authKey.Key != "" {
 		j.ctx.SetClientKey(authKey.Key)
+
 		return nil
 	}
 
 	issueClientKeyReq := domain.IssueClientKey{
-		NamespaceId: namespaceId,
+		NamespaceId: namespaceID,
 		Reusable:    true,
 	}
 
@@ -229,11 +242,11 @@ func (j *getClientKeyJob) Do(ctx context.Context) error {
 	return nil
 }
 
-type getLoginServerUrlJob struct {
-	ctx loginServerUrlAccessor
+type getLoginServerURLJob struct {
+	ctx loginServerURLAccessor
 }
 
-func (j *getLoginServerUrlJob) Do(_ context.Context) error {
+func (j *getLoginServerURLJob) Do(_ context.Context) error {
 	// TODO For multiple nodes implement different urls - mirrors
 	// network_steps.GetLoginServerUrl's hardcoded constant.
 	j.ctx.SetLoginServerUrl("https://vcn.redsock.ru")
@@ -248,7 +261,7 @@ type prepareSidecarImageJob struct {
 }
 
 func (j *prepareSidecarImageJob) Do(ctx context.Context) error {
-	_, err := j.docker.PullImage(ctx, j.req.Config.Image)
+	_, err := j.docker.PullImage(ctx, j.req.Image)
 	if err != nil {
 		return rerrors.Wrap(err, "error pulling image")
 	}
@@ -270,15 +283,15 @@ type createSidecarContainerJob struct {
 	hostname        string
 
 	clientKey clientKeyAccessor
-	loginUrl  loginServerUrlAccessor
-	ctx       containerIdAccessor
+	loginURL  loginServerURLAccessor
+	ctx       containerIDAccessor
 }
 
 func (j *createSidecarContainerJob) Do(ctx context.Context) error {
-	j.launchContainer.Config.Env = append(j.launchContainer.Config.Env,
+	j.launchContainer.Env = append(j.launchContainer.Env,
 		"TS_HOSTNAME="+j.hostname,
 		"TS_AUTHKEY="+j.clientKey.GetClientKey(),
-		"TS_EXTRA_ARGS=--login-server="+j.loginUrl.GetLoginServerUrl(),
+		"TS_EXTRA_ARGS=--login-server="+j.loginURL.GetLoginServerUrl(),
 	)
 
 	dockerClient := j.nodeClients.Docker()
@@ -296,14 +309,14 @@ func (j *createSidecarContainerJob) Do(ctx context.Context) error {
 }
 
 func (j *createSidecarContainerJob) Rollback(ctx context.Context) error {
-	containerId := j.ctx.GetContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
 		return nil
 	}
 
-	err := j.nodeClients.Docker().Remove(ctx, containerId)
+	err := j.nodeClients.Docker().Remove(ctx, containerID)
 	if err != nil && !errdefs.IsNotFound(err) {
-		return rerrors.Wrapf(err, "error removing sidecar container '%s'", containerId)
+		return rerrors.Wrapf(err, "error removing sidecar container '%s'", containerID)
 	}
 
 	return nil
@@ -315,16 +328,16 @@ func (j *createSidecarContainerJob) Rollback(ctx context.Context) error {
 type startSidecarContainerJob struct {
 	dockerAPI startAPI
 
-	ctx containerIdAccessor
+	ctx containerIDAccessor
 }
 
 func (j *startSidecarContainerJob) Do(ctx context.Context) error {
-	containerId := j.ctx.GetContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
 		return rerrors.New("no container id provided")
 	}
 
-	err := j.dockerAPI.ContainerStart(ctx, containerId, container.StartOptions{})
+	err := j.dockerAPI.ContainerStart(ctx, containerID, container.StartOptions{})
 	if err != nil {
 		return rerrors.Wrap(err, "error starting sidecar container")
 	}
@@ -333,14 +346,14 @@ func (j *startSidecarContainerJob) Do(ctx context.Context) error {
 }
 
 func (j *startSidecarContainerJob) Rollback(ctx context.Context) error {
-	containerId := j.ctx.GetContainerId()
-	if containerId == "" {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
 		return nil
 	}
 
-	err := j.dockerAPI.ContainerStop(ctx, containerId, container.StopOptions{})
+	err := j.dockerAPI.ContainerStop(ctx, containerID, container.StopOptions{})
 	if err != nil {
-		return rerrors.Wrapf(err, "error stopping sidecar container '%s'", containerId)
+		return rerrors.Wrapf(err, "error stopping sidecar container '%s'", containerID)
 	}
 
 	return nil

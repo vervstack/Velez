@@ -3,15 +3,13 @@ package cluster
 import (
 	"context"
 
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/makosh/pkg/makosh_be"
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 	"google.golang.org/grpc"
-
-	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 )
 
-type disabledConfigurator struct {
-}
+type disabledConfigurator struct{}
 
 func (d disabledConfigurator) ApiVersion(_ context.Context, _ *matreshka_api.ApiVersion_Request, _ ...grpc.CallOption) (*matreshka_api.ApiVersion_Response, error) {
 	return nil, cluster_clients.ErrServiceIsDisabled
@@ -53,8 +51,7 @@ func (d disabledConfigurator) SubscribeOnChanges(_ context.Context, _ ...grpc.Ca
 	return nil, cluster_clients.ErrServiceIsDisabled
 }
 
-type disabledServiceDiscovery struct {
-}
+type disabledServiceDiscovery struct{}
 
 func (d disabledServiceDiscovery) Version(_ context.Context, _ *makosh_be.Version_Request, _ ...grpc.CallOption) (*makosh_be.Version_Response, error) {
 	return nil, cluster_clients.ErrServiceIsDisabled

@@ -19,6 +19,6 @@ func GetLoginServerUrl(responsePtr *string) steps.Step {
 func (g *getLoginServerUrlStep) Do(_ context.Context) error {
 	// TODO For multiple nodes implement different urls
 	*g.responsePtr = "https://vcn.redsock.ru"
-	//"http://headscale.verv:8080"
+	// "http://headscale.verv:8080"
 	return nil
 }

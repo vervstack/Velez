@@ -5,14 +5,13 @@ import (
 
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 )
 
 type renameContainerStep struct {
 	dockerAPI client.APIClient
 
-	containerId *string
+	containerID *string
 	newName     string
 
 	oldName string
@@ -20,29 +19,29 @@ type renameContainerStep struct {
 
 func RenameContainer(
 	nodeClients node_clients.NodeClients,
-	containerId *string,
+	containerID *string,
 	newName string,
 ) *renameContainerStep {
 	return &renameContainerStep{
 		dockerAPI:   nodeClients.Docker().Client(),
-		containerId: containerId,
+		containerID: containerID,
 		newName:     newName,
 	}
 }
 
 func (s *renameContainerStep) Do(ctx context.Context) error {
-	if s.containerId == nil {
+	if s.containerID == nil {
 		return rerrors.New("container id is required")
 	}
 
-	smerd, err := s.dockerAPI.ContainerInspect(ctx, *s.containerId)
+	smerd, err := s.dockerAPI.ContainerInspect(ctx, *s.containerID)
 	if err != nil {
 		return rerrors.Wrap(err, "error inspecting container")
 	}
 
 	s.oldName = smerd.Name
 
-	err = s.dockerAPI.ContainerRename(ctx, *s.containerId, s.newName)
+	err = s.dockerAPI.ContainerRename(ctx, *s.containerID, s.newName)
 	if err != nil {
 		return rerrors.Wrap(err, "error renaming container")
 	}
@@ -51,7 +50,7 @@ func (s *renameContainerStep) Do(ctx context.Context) error {
 }
 
 func (s *renameContainerStep) Rollback(ctx context.Context) error {
-	err := s.dockerAPI.ContainerRename(ctx, *s.containerId, s.oldName)
+	err := s.dockerAPI.ContainerRename(ctx, *s.containerID, s.oldName)
 	if err != nil {
 		return rerrors.Wrap(err, "error renaming container on rollback")
 	}

@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
@@ -20,8 +19,7 @@ func (v *VervService) List(ctx context.Context, req domain.ListServicesReq) (dom
 	for i := range list.Services {
 		err = v.enrichServiceWithSmerdData(ctx, &list.Services[i])
 		if err != nil {
-			// Log the error but continue enriching other services
-			// (non-blocking, as smerd may not exist)
+			continue
 		}
 	}
 
@@ -67,12 +65,14 @@ func (v *VervService) enrichServiceWithSmerdData(ctx context.Context, svc *domai
 func mapSmerdStatus(smerdStatus velez_api.Smerd_Status) string {
 	switch smerdStatus {
 	case velez_api.Smerd_running:
-		return "running"
+		return statusRunning
 	case velez_api.Smerd_paused:
-		return "degraded"
+		return statusDegraded
 	case velez_api.Smerd_exited, velez_api.Smerd_dead:
-		return "stopped"
-	default:
+		return statusStopped
+	case velez_api.Smerd_unknown, velez_api.Smerd_created, velez_api.Smerd_restarting, velez_api.Smerd_removing:
 		return ""
 	}
+
+	return ""
 }

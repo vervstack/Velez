@@ -4,10 +4,9 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
-	"go.vervstack.ru/makosh/pkg/makosh_be"
-
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
+	"go.vervstack.ru/makosh/pkg/makosh_be"
 )
 
 type addMakoshRecord struct {
@@ -29,7 +28,6 @@ func AddMakoshRecord(
 }
 
 func (a *addMakoshRecord) Do(ctx context.Context) error {
-
 	upsertReq := &makosh_be.UpsertEndpoints_Request{
 		Endpoints: []*makosh_be.Endpoint{
 			{

@@ -8,14 +8,13 @@ import (
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
-	"go.vervstack.ru/matreshka/pkg/matreshka"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/service"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
 )
 
 type prepareVervConfig struct {
@@ -98,6 +97,7 @@ func (p *prepareVervConfig) Rollback(_ context.Context) error {
 			p.portManager.UnlockPorts(p.lockedPorts)
 		}
 	}
+
 	return nil
 }
 
@@ -109,8 +109,8 @@ func (p *prepareVervConfig) getPortsFromImage() error {
 
 	for portProtoc := range p.image.Config.ExposedPorts {
 		// TODO for some reasone there was a panic
-
 		pp := strings.Split(portProtoc, "/")
+
 		portVal, err := strconv.ParseUint(pp[0], 10, 32)
 		if err != nil {
 			return rerrors.Wrap(err, "error parsing port")
@@ -139,6 +139,7 @@ func (p *prepareVervConfig) lockPorts() (err error) {
 	for _, imagePort := range p.req.Settings.Ports {
 		if imagePort.ExposedTo == nil {
 			var port uint32
+
 			port, err = p.portManager.GetPort()
 			imagePort.ExposedTo = &port
 		} else {
@@ -147,8 +148,10 @@ func (p *prepareVervConfig) lockPorts() (err error) {
 				err = p.portManager.LockPort(*imagePort.ExposedTo)
 			}
 		}
+
 		if err != nil {
 			err = rerrors.Wrap(err, "error locking host port")
+
 			return
 		}
 

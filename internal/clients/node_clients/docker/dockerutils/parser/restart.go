@@ -3,14 +3,13 @@ package parser
 import (
 	"github.com/docker/docker/api/types/container"
 	"go.redsock.ru/toolbox"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
 const (
-	// By default, container restarts maxRetryCountDefault times
+	// By default, container restarts maxRetryCountDefault times.
 	maxRetryCountDefault = 3
-	// But not more that maxRetryCountBound times
+	// But not more that maxRetryCountBound times.
 	maxRetryCountBound = 10
 )
 
@@ -26,6 +25,7 @@ func FromRestart(r *velez_api.RestartPolicy) container.RestartPolicy {
 	switch toolbox.FromPtr(r).Type {
 	case velez_api.RestartPolicyType_no:
 		rp.Name = container.RestartPolicyDisabled
+
 		return container.RestartPolicy{}
 
 	case velez_api.RestartPolicyType_always,
@@ -33,7 +33,6 @@ func FromRestart(r *velez_api.RestartPolicy) container.RestartPolicy {
 		velez_api.RestartPolicyType_unless_stopped:
 		rp.Name = container.RestartPolicyOnFailure
 		rp.MaximumRetryCount = maxRetryCount
-
 	}
 
 	return rp

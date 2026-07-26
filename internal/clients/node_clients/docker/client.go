@@ -16,11 +16,15 @@ import (
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+)
+
+const (
+	percentageMultiplier = 100.0
+	bytesPerMB           = 1024 * 1024
 )
 
 type Docker struct {
@@ -68,6 +72,7 @@ func (d *Docker) Remove(ctx context.Context, contUUID string) error {
 		if strings.Contains(err.Error(), NoSuchContainerError) {
 			return nil
 		}
+
 		return rerrors.Wrap(err, "error removing container")
 	}
 
@@ -76,11 +81,13 @@ func (d *Docker) Remove(ctx context.Context, contUUID string) error {
 
 func (d *Docker) Stop(ctx context.Context, nameOrId string) error {
 	stopOpts := container.StopOptions{}
+
 	err := d.directApi.ContainerStop(ctx, nameOrId, stopOpts)
 	if err != nil {
 		if strings.Contains(err.Error(), NoSuchContainerError) {
 			return nil
 		}
+
 		return rerrors.Wrap(err, "error stopping container")
 	}
 
@@ -89,11 +96,13 @@ func (d *Docker) Stop(ctx context.Context, nameOrId string) error {
 
 func (d *Docker) Restart(ctx context.Context, nameOrId string) error {
 	restartOpts := container.StopOptions{}
+
 	err := d.directApi.ContainerRestart(ctx, nameOrId, restartOpts)
 	if err != nil {
 		if strings.Contains(err.Error(), NoSuchContainerError) {
 			return nil
 		}
+
 		return rerrors.Wrap(err, "error restarting container")
 	}
 
@@ -106,8 +115,10 @@ func (d *Docker) IsContainerRunning(ctx context.Context, nameOrId string) (bool,
 		if strings.Contains(err.Error(), NoSuchContainerError) {
 			return false, false, nil
 		}
+
 		return false, false, rerrors.Wrap(err, "error inspecting container")
 	}
+
 	return resp.State.Running, true, nil
 }
 
@@ -118,6 +129,7 @@ func (d *Docker) ListOccupiedPorts(ctx context.Context) ([]uint32, error) {
 	}
 
 	usedPorts := make([]uint32, 0)
+
 	for _, c := range containerList {
 		for _, p := range c.Ports {
 			if p.PublicPort != 0 {
@@ -179,6 +191,7 @@ func (d *Docker) Client() client.APIClient {
 
 func asciiSymbolsOnly(in []byte) []byte {
 	cleanBuff := bytes.NewBuffer(nil)
+
 	for _, b := range in {
 		if b >= 32 && b <= 127 || b == '\n' {
 			cleanBuff.WriteByte(b)
@@ -188,7 +201,14 @@ func asciiSymbolsOnly(in []byte) []byte {
 	return cleanBuff.Bytes()
 }
 
-func (d *Docker) ContainerCreate(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, networkingConfig *network.NetworkingConfig, platform *v1.Platform, containerName string) (container.CreateResponse, error) {
+func (d *Docker) ContainerCreate(
+	ctx context.Context,
+	config *container.Config,
+	hostConfig *container.HostConfig,
+	networkingConfig *network.NetworkingConfig,
+	platform *v1.Platform,
+	containerName string,
+) (container.CreateResponse, error) {
 	if config.Labels == nil {
 		config.Labels = map[string]string{}
 	}
@@ -199,6 +219,7 @@ func (d *Docker) ContainerCreate(ctx context.Context, config *container.Config, 
 	for _, label := range d.bakedLabels {
 		sepIdx := strings.Index(label, "=")
 		name := label
+
 		var val string
 		if sepIdx != -1 {
 			val = label[sepIdx+1:]
@@ -213,6 +234,7 @@ func (d *Docker) ContainerCreate(ctx context.Context, config *container.Config, 
 		if errdefs.IsConflict(err) {
 			return container.CreateResponse{}, handleConflictMessage(err)
 		}
+
 		return container.CreateResponse{}, rerrors.Wrap(err)
 	}
 
@@ -224,7 +246,7 @@ func (d *Docker) Stats(ctx context.Context, nameOrId string) (domain.ContainerSt
 	if err != nil {
 		return domain.ContainerStats{}, rerrors.Wrap(err, "error getting container stats")
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var stats struct {
 		CPUStats struct {
@@ -254,17 +276,19 @@ func (d *Docker) Stats(ctx context.Context, nameOrId string) (domain.ContainerSt
 
 	cpuPercent := 0.0
 	cpuDelta := float64(stats.CPUStats.CPUUsage.TotalUsage - stats.PreCPUStats.CPUUsage.TotalUsage)
+
 	systemDelta := float64(stats.CPUStats.SystemUsage - stats.PreCPUStats.SystemUsage)
 	if cpuDelta > 0 && systemDelta > 0 {
 		numCPU := stats.CPUStats.OnlineCPUs
 		if numCPU == 0 {
 			numCPU = int64(len(stats.CPUStats.CPUUsage.PercpuUsage))
 		}
-		cpuPercent = (cpuDelta / systemDelta) * float64(numCPU) * 100.0
+
+		cpuPercent = (cpuDelta / systemDelta) * float64(numCPU) * percentageMultiplier
 	}
 
-	memUsageMi := stats.MemoryStats.Usage / (1024 * 1024)
-	memLimitMi := stats.MemoryStats.Limit / (1024 * 1024)
+	memUsageMi := stats.MemoryStats.Usage / bytesPerMB
+	memLimitMi := stats.MemoryStats.Limit / bytesPerMB
 
 	inspectResp, err := d.directApi.ContainerInspect(ctx, nameOrId)
 	if err != nil {
@@ -272,6 +296,7 @@ func (d *Docker) Stats(ctx context.Context, nameOrId string) (domain.ContainerSt
 	}
 
 	var startedAt time.Time
+
 	startedAtStr := inspectResp.State.StartedAt
 	if startedAtStr != "" {
 		t, err := time.Parse(time.RFC3339, startedAtStr)
@@ -282,8 +307,8 @@ func (d *Docker) Stats(ctx context.Context, nameOrId string) (domain.ContainerSt
 
 	return domain.ContainerStats{
 		CPUPercent: cpuPercent,
-		MemUsageMi: uint64(memUsageMi),
-		MemLimitMi: uint64(memLimitMi),
+		MemUsageMi: memUsageMi,
+		MemLimitMi: memLimitMi,
 		StartedAt:  startedAt,
 	}, nil
 }

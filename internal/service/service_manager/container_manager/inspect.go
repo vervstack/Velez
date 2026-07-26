@@ -7,10 +7,9 @@ import (
 	"time"
 
 	errors "go.redsock.ru/rerrors"
-	"google.golang.org/protobuf/types/known/timestamppb"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (c *ContainerManager) InspectSmerd(ctx context.Context, contId string) (*velez_api.Smerd, error) {
@@ -20,15 +19,15 @@ func (c *ContainerManager) InspectSmerd(ctx context.Context, contId string) (*ve
 	}
 
 	smerd := &velez_api.Smerd{
-		Uuid:    contInfo.ContainerJSONBase.ID,
-		Name:    strings.Replace(contInfo.ContainerJSONBase.Name, "/", "", 1),
-		Ports:   parser.ToPortsMapping(contInfo.ContainerJSONBase.HostConfig.PortBindings),
-		Volumes: parser.ToVolume(contInfo.ContainerJSONBase.HostConfig.Mounts),
+		Uuid:    contInfo.ID,
+		Name:    strings.Replace(contInfo.Name, "/", "", 1),
+		Ports:   parser.ToPortsMapping(contInfo.HostConfig.PortBindings),
+		Volumes: parser.ToVolume(contInfo.HostConfig.Mounts),
 		Env:     parser.ToDockerEnv(contInfo.Config.Env),
 		Labels:  contInfo.Config.Labels,
 	}
 
-	imageInfo, err := c.dockerAPI.ImageInspect(ctx, contInfo.ContainerJSONBase.Image)
+	imageInfo, err := c.dockerAPI.ImageInspect(ctx, contInfo.Image)
 	if err != nil {
 		return nil, errors.Wrap(err, "error getting image info")
 	}
@@ -37,12 +36,12 @@ func (c *ContainerManager) InspectSmerd(ctx context.Context, contId string) (*ve
 		smerd.ImageName = imageName
 	}
 
-	if contInfo.ContainerJSONBase.State != nil {
+	if contInfo.State != nil {
 		smerd.Status = velez_api.Smerd_Status(
-			velez_api.Smerd_Status_value[contInfo.ContainerJSONBase.State.Status])
+			velez_api.Smerd_Status_value[contInfo.State.Status])
 	}
 
-	createdAt, err := time.Parse("2006-01-02T15:04:05Z", contInfo.ContainerJSONBase.Created)
+	createdAt, err := time.Parse("2006-01-02T15:04:05Z", contInfo.Created)
 	if err != nil {
 		return nil, errors.Wrap(err, "error parsing created at time")
 	}

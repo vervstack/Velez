@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 )
@@ -34,6 +33,7 @@ func (v *VervService) Remove(ctx context.Context, req domain.RemoveServiceReq) e
 		}
 
 		var dropResp *velez_api.DropSmerd_Response
+
 		dropResp, err = v.containerService.DropSmerds(ctx, dropReq)
 		if err != nil {
 			return rerrors.Wrap(err, "error dropping smerds for service")

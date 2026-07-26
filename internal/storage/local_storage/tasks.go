@@ -53,7 +53,9 @@ func (t *tasks) CreateTask(_ context.Context, arg tasks_queries.CreateTaskParams
 	return task, nil
 }
 
-func (t *tasks) GetTaskByEntityAction(_ context.Context, arg tasks_queries.GetTaskByEntityActionParams) (tasks_queries.VelezTask, error) {
+func (t *tasks) GetTaskByEntityAction(_ context.Context,
+	arg tasks_queries.GetTaskByEntityActionParams,
+) (tasks_queries.VelezTask, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
@@ -86,7 +88,8 @@ func (t *tasks) ClaimTask(_ context.Context, arg tasks_queries.ClaimTaskParams) 
 
 	for id, task := range t.byID {
 		claimable := task.Status == tasks_queries.VelezTaskStatusPENDING ||
-			(task.Status == tasks_queries.VelezTaskStatusRUNNING && task.ClaimedAt.Valid && task.ClaimedAt.Time.Before(staleThreshold))
+			(task.Status == tasks_queries.VelezTaskStatusRUNNING && task.ClaimedAt.Valid &&
+				task.ClaimedAt.Time.Before(staleThreshold))
 		if !claimable {
 			continue
 		}

@@ -2,7 +2,6 @@ package container_manager
 
 import (
 	"github.com/docker/docker/client"
-
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/service"
 )
@@ -20,7 +19,6 @@ func New(
 	internalClients node_clients.NodeClients,
 	configurator service.ConfigurationService,
 ) *ContainerManager {
-
 	return &ContainerManager{
 		dockerAPI:   internalClients.Docker().Client(),
 		portManager: internalClients.PortManager(),

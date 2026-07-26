@@ -6,20 +6,18 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
-	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
-
 	"go.vervstack.ru/Velez/internal/domain"
+	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 func (c *Configurator) SubscribeOnChanges(serviceNames ...string) error {
-	//subReq := &api.SubscribeOnChanges_Request{
+	// subReq := &api.SubscribeOnChanges_Request{
 	//	SubscribeServiceNames: serviceNames,
 	//}
 	//err := c.subscriptionStream.Send(subReq)
 	//if err != nil {
 	//	return rerrors.Wrap(err, "error sending subscription request to stream")
 	//}
-
 	return nil
 }
 
@@ -52,13 +50,18 @@ func handleSubscriptionStream(stream api.MatreshkaBeAPI_SubscribeOnChangesClient
 			if err != nil {
 				if !rerrors.Is(err, io.EOF) {
 					log.Error().Err(err).Msg("error receiving changes from matreshka subscription stream")
+
 					errorsCount--
+
 					time.Sleep(time.Second)
+
 					if errorsCount <= 0 {
 						return
 					}
+
 					continue
 				}
+
 				return
 			}
 
@@ -77,6 +80,7 @@ func handleSubscriptionStream(stream api.MatreshkaBeAPI_SubscribeOnChangesClient
 					_ = v
 				}
 			}
+
 			if len(patch.EnvVarsMap) != 0 {
 				patchesChan <- patch
 			}

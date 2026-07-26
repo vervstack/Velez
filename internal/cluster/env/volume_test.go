@@ -9,11 +9,11 @@ import (
 	"github.com/docker/docker/client"
 )
 
-// fakeVolumeAPIClient embeds client.CommonAPIClient as a nil interface value
+// fakeVolumeAPIClient embeds client.APIClient as a nil interface value
 // purely so this type satisfies the interface without minimock; only
 // VolumeList/VolumeCreate are overridden, since that's all StartVolumes calls.
 type fakeVolumeAPIClient struct {
-	client.CommonAPIClient
+	client.APIClient
 }
 
 func (f *fakeVolumeAPIClient) VolumeList(_ context.Context, _ volume.ListOptions) (volume.ListResponse, error) {
@@ -46,5 +46,6 @@ func Test_StartVolumes_Concurrent_NoRace(t *testing.T) {
 			_, _ = GetVervVolumePath()
 		}()
 	}
+
 	wg.Wait()
 }

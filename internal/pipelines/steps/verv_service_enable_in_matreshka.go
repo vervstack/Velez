@@ -20,12 +20,10 @@ func EnableVervServiceInMatreshka(cfg service.Services, vervServiceType velez_ap
 	}
 }
 
-func (p *enableVervServiceInMatreshkaStep) Do(ctx context.Context) (err error) {
-
+func (p *enableVervServiceInMatreshkaStep) Do(_ context.Context) (err error) {
 	return nil
 }
 
 func (p *enableVervServiceInMatreshkaStep) Rollback(_ context.Context) error {
-
 	return nil
 }

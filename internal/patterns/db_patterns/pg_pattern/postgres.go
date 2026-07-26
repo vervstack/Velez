@@ -1,3 +1,4 @@
+// Package pg_pattern provides a Docker container pattern for PostgreSQL.
 package pg_pattern
 
 import (
@@ -8,20 +9,29 @@ import (
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/go-connections/nat"
 	rtb "go.redsock.ru/toolbox"
-	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
-
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
 )
 
 const (
-	postgresImage       = "postgres:18"
-	DbEnvVariable       = "POSTGRES_DB"
-	UserEnvVariable     = "POSTGRES_USER"
-	PasswordEnvVariable = "POSTGRES_PASSWORD"
+	postgresImage              = "postgres:18"
+	postgresInstanceName       = "postgres"
+	postgresDbName             = "postgres"
+	postgresUser               = "postgres"
+	postgresPort               = 5432
+	postgresRandomPasswordSize = 16
+	DbEnvVariable              = "POSTGRES_DB"
+	UserEnvVariable            = "POSTGRES_USER"
+	PasswordEnvVariable        = "POSTGRES_PASSWORD"
+	TCPPort                    = "5432/tcp"
 
-	TcpPort = "5432/tcp"
+	healthCheckInterval    = 2 * time.Second
+	healthCheckTimeout     = 3 * time.Second
+	healthCheckRetries     = 3
+	healthCheckStartPeriod = 10 * time.Second
 )
 
+// Constructor contains PostgreSQL container configuration options.
 type Constructor struct {
 	InstanceName  string
 	IsPortExposed bool
@@ -30,66 +40,75 @@ type Constructor struct {
 	MatreshkaPg resources.Postgres
 }
 
+// Pattern is a Docker container pattern for PostgreSQL.
 type Pattern struct {
 	Constructor
 
 	Pattern container.CreateRequest
 }
 
+// Postgres creates a PostgreSQL container with the given options.
 func Postgres(opts ...Opt) Pattern {
-	c := basicPostgresConstructor()
+	ctor := basicPostgresConstructor()
 
 	for _, o := range opts {
-		o(&c)
+		o(&ctor)
 	}
+
+	portStr := strconv.Itoa(postgresPort)
+	healthCheckCmd := "pg_isready -U \"$" + UserEnvVariable + "\" -d \"$" + DbEnvVariable +
+		"\" -h 127.0.0.1 -p " + portStr
 
 	createReq := container.CreateRequest{
 		Config: &container.Config{
-			Hostname: c.InstanceName,
+			Hostname: ctor.InstanceName,
 			Image:    postgresImage,
 			Env: []string{
-				DbEnvVariable + "=" + c.MatreshkaPg.DbName,
-				UserEnvVariable + "=" + c.MatreshkaPg.User,
-				PasswordEnvVariable + "=" + c.MatreshkaPg.Pwd,
+				DbEnvVariable + "=" + ctor.MatreshkaPg.DbName,
+				UserEnvVariable + "=" + ctor.MatreshkaPg.User,
+				PasswordEnvVariable + "=" + ctor.MatreshkaPg.Pwd,
 			},
 			Volumes: map[string]struct{}{
-				c.InstanceName: {},
+				ctor.InstanceName: {},
 			},
 			Labels: map[string]string{
-				labels.ComposeGroupLabel: c.InstanceName,
+				labels.ComposeGroupLabel: ctor.InstanceName,
 			},
 			Healthcheck: &container.HealthConfig{
-				Test:        []string{"CMD-SHELL", "pg_isready -U \"$" + UserEnvVariable + "\" -d \"$" + DbEnvVariable + "\" -h 127.0.0.1 -p 5432"},
-				Interval:    2 * time.Second,
-				Timeout:     3 * time.Second,
-				Retries:     3,
-				StartPeriod: 10 * time.Second,
+				Test: []string{
+					"CMD-SHELL",
+					healthCheckCmd,
+				},
+				Interval:    healthCheckInterval,
+				Timeout:     healthCheckTimeout,
+				Retries:     healthCheckRetries,
+				StartPeriod: healthCheckStartPeriod,
 			},
 		},
 		HostConfig: &container.HostConfig{
 			Mounts: []mount.Mount{
 				{
 					Type:   mount.TypeVolume,
-					Source: c.InstanceName,
+					Source: ctor.InstanceName,
 					Target: "/var/lib/postgresql",
 				},
 			},
 		},
 	}
 
-	if c.IsPortExposed {
-		createReq.Config.ExposedPorts = map[nat.Port]struct{}{
-			TcpPort: {},
+	if ctor.IsPortExposed {
+		createReq.ExposedPorts = map[nat.Port]struct{}{
+			TCPPort: {},
 		}
 
 		var hostPort string
 
-		if c.ExposedToPort != nil {
-			hostPort = strconv.FormatUint(*c.ExposedToPort, 10)
+		if ctor.ExposedToPort != nil {
+			hostPort = strconv.FormatUint(*ctor.ExposedToPort, 10)
 		}
 
 		createReq.HostConfig.PortBindings = map[nat.Port][]nat.PortBinding{
-			TcpPort: {
+			TCPPort: {
 				{
 					HostPort: hostPort,
 				},
@@ -104,12 +123,12 @@ func Postgres(opts ...Opt) Pattern {
 
 func basicPostgresConstructor() Constructor {
 	return Constructor{
-		InstanceName: "postgres",
+		InstanceName: postgresInstanceName,
 		MatreshkaPg: resources.Postgres{
-			DbName: "postgres",
-			User:   "postgres",
-			Pwd:    string(rtb.RandomBase64(16)),
-			Port:   5432,
+			DbName: postgresDbName,
+			User:   postgresUser,
+			Pwd:    string(rtb.RandomBase64(postgresRandomPasswordSize)),
+			Port:   postgresPort,
 		},
 		ExposedToPort: nil,
 	}

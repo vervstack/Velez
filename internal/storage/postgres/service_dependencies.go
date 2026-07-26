@@ -24,15 +24,19 @@ func (s *serviceDependenciesStorage) UpsertDependency(ctx context.Context, sourc
 		TargetService: target,
 		Proto:         proto,
 	}
-	err := s.Queries.UpsertServiceDependency(ctx, params)
+
+	err := s.UpsertServiceDependency(ctx, params)
 	if err != nil {
 		return wrapPgErr(err)
 	}
+
 	return nil
 }
 
-func (s *serviceDependenciesStorage) GetDependencies(ctx context.Context, serviceName string) ([]domain.ServiceDependency, error) {
-	rows, err := s.Queries.GetServiceDependencies(ctx, serviceName)
+func (s *serviceDependenciesStorage) GetDependencies(ctx context.Context,
+	serviceName string,
+) ([]domain.ServiceDependency, error) {
+	rows, err := s.GetServiceDependencies(ctx, serviceName)
 	if err != nil {
 		return nil, wrapPgErr(err)
 	}
@@ -49,8 +53,10 @@ func (s *serviceDependenciesStorage) GetDependencies(ctx context.Context, servic
 	return result, nil
 }
 
-func (s *serviceDependenciesStorage) GetCallers(ctx context.Context, serviceName string) ([]domain.ServiceDependency, error) {
-	rows, err := s.Queries.GetServiceCallers(ctx, serviceName)
+func (s *serviceDependenciesStorage) GetCallers(ctx context.Context,
+	serviceName string,
+) ([]domain.ServiceDependency, error) {
+	rows, err := s.GetServiceCallers(ctx, serviceName)
 	if err != nil {
 		return nil, wrapPgErr(err)
 	}

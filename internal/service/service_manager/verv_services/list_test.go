@@ -9,7 +9,14 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
-// Mock container service for testing
+const (
+	testServiceName    = "my-service"
+	testStatusRunning  = "running"
+	testStatusDegraded = "degraded"
+	testStatusStopped  = "stopped"
+)
+
+// Mock container service for testing.
 type testContainerService struct {
 	listSmerdsFunc func(ctx context.Context, req *velez_api.ListSmerds_Request) (*velez_api.ListSmerds_Response, error)
 }
@@ -18,6 +25,7 @@ func (m *testContainerService) ListSmerds(ctx context.Context, req *velez_api.Li
 	if m.listSmerdsFunc != nil {
 		return m.listSmerdsFunc(ctx, req)
 	}
+
 	return &velez_api.ListSmerds_Response{}, nil
 }
 
@@ -37,7 +45,7 @@ func (m *testContainerService) DisconnectFromNetwork(ctx context.Context, req do
 	return nil
 }
 
-// Mock storage service for testing
+// Mock storage service for testing.
 type testStorageService struct {
 	listFunc func(ctx context.Context, req domain.ListServicesReq) (domain.ServiceList, error)
 }
@@ -46,6 +54,7 @@ func (m *testStorageService) List(ctx context.Context, req domain.ListServicesRe
 	if m.listFunc != nil {
 		return m.listFunc(ctx, req)
 	}
+
 	return domain.ServiceList{}, nil
 }
 
@@ -61,10 +70,10 @@ func (m *testStorageService) Delete(ctx context.Context, name string) error {
 	return nil
 }
 
-// Test that services are enriched with smerd data
+// Test that services are enriched with smerd data.
 func TestEnrichServiceWithSmerdData(t *testing.T) {
 	baseInfo := domain.ServiceBaseInfo{
-		Name: "my-service",
+		Name: testServiceName,
 	}
 
 	mockStorage := &testStorageService{
@@ -81,7 +90,7 @@ func TestEnrichServiceWithSmerdData(t *testing.T) {
 			return &velez_api.ListSmerds_Response{
 				Smerds: []*velez_api.Smerd{
 					{
-						Name:      "my-service",
+						Name:      testServiceName,
 						ImageName: "docker.io/my-service:latest",
 						Status:    velez_api.Smerd_running,
 						Labels: map[string]string{
@@ -109,27 +118,31 @@ func TestEnrichServiceWithSmerdData(t *testing.T) {
 	}
 
 	enrichedService := result.Services[0]
-	if enrichedService.Name != "my-service" {
-		t.Errorf("expected name 'my-service', got %q", enrichedService.Name)
+	if enrichedService.Name != testServiceName {
+		t.Errorf("expected name %q, got %q", testServiceName, enrichedService.Name)
 	}
+
 	if enrichedService.ImageName != "docker.io/my-service:latest" {
 		t.Errorf("expected image 'docker.io/my-service:latest', got %q", enrichedService.ImageName)
 	}
-	if enrichedService.Status != "running" {
-		t.Errorf("expected status 'running', got %q", enrichedService.Status)
+
+	if enrichedService.Status != testStatusRunning {
+		t.Errorf("expected status %q, got %q", testStatusRunning, enrichedService.Status)
 	}
+
 	if enrichedService.Env != "production" {
 		t.Errorf("expected env 'production', got %q", enrichedService.Env)
 	}
+
 	if enrichedService.Repo != "https://github.com/vervstack/my-service" {
 		t.Errorf("expected repo 'https://github.com/vervstack/my-service', got %q", enrichedService.Repo)
 	}
 }
 
-// Test that services without smerds are left with empty fields
+// Test that services without smerds are left with empty fields.
 func TestServiceWithoutSmerd(t *testing.T) {
 	baseInfo := domain.ServiceBaseInfo{
-		Name: "my-service",
+		Name: testServiceName,
 	}
 
 	mockStorage := &testStorageService{
@@ -164,34 +177,38 @@ func TestServiceWithoutSmerd(t *testing.T) {
 	}
 
 	enrichedService := result.Services[0]
-	if enrichedService.Name != "my-service" {
-		t.Errorf("expected name 'my-service', got %q", enrichedService.Name)
+	if enrichedService.Name != testServiceName {
+		t.Errorf("expected name %q, got %q", testServiceName, enrichedService.Name)
 	}
+
 	if enrichedService.ImageName != "" {
 		t.Errorf("expected empty image, got %q", enrichedService.ImageName)
 	}
+
 	if enrichedService.Status != "" {
 		t.Errorf("expected empty status, got %q", enrichedService.Status)
 	}
+
 	if enrichedService.Env != "" {
 		t.Errorf("expected empty env, got %q", enrichedService.Env)
 	}
+
 	if enrichedService.Repo != "" {
 		t.Errorf("expected empty repo, got %q", enrichedService.Repo)
 	}
 }
 
-// Test smerd status mapping
+// Test smerd status mapping.
 func TestMapSmerdStatus(t *testing.T) {
 	tests := []struct {
 		name     string
 		status   velez_api.Smerd_Status
 		expected string
 	}{
-		{"running", velez_api.Smerd_running, "running"},
-		{"paused", velez_api.Smerd_paused, "degraded"},
-		{"exited", velez_api.Smerd_exited, "stopped"},
-		{"dead", velez_api.Smerd_dead, "stopped"},
+		{"running", velez_api.Smerd_running, testStatusRunning},
+		{"paused", velez_api.Smerd_paused, testStatusDegraded},
+		{"exited", velez_api.Smerd_exited, testStatusStopped},
+		{"dead", velez_api.Smerd_dead, testStatusStopped},
 		{"unknown", velez_api.Smerd_unknown, ""},
 	}
 
@@ -205,11 +222,11 @@ func TestMapSmerdStatus(t *testing.T) {
 	}
 }
 
-// Test that services with LastDeployedAt preserve that data
+// Test that services with LastDeployedAt preserve that data.
 func TestServicePreservesLastDeployedAt(t *testing.T) {
 	now := time.Now()
 	baseInfo := domain.ServiceBaseInfo{
-		Name:           "my-service",
+		Name:           testServiceName,
 		LastDeployedAt: &now,
 	}
 
@@ -227,7 +244,7 @@ func TestServicePreservesLastDeployedAt(t *testing.T) {
 			return &velez_api.ListSmerds_Response{
 				Smerds: []*velez_api.Smerd{
 					{
-						Name:      "my-service",
+						Name:      testServiceName,
 						ImageName: "my-image:v1",
 						Status:    velez_api.Smerd_running,
 					},

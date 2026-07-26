@@ -5,7 +5,6 @@ import (
 	"database/sql"
 
 	"go.redsock.ru/rerrors"
-
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/plugins_queries"
@@ -29,7 +28,6 @@ func (p *pluginsStorage) ListPlugins(ctx context.Context) ([]domain.PluginBaseIn
 
 	result := make([]domain.PluginBaseInfo, 0, len(plugins))
 	for _, pluginRow := range plugins {
-
 		plugin := domain.PluginBaseInfo{
 			Name:  pluginRow.PluginType,
 			State: 0,
@@ -52,12 +50,18 @@ func (p *pluginsStorage) ListPlugins(ctx context.Context) ([]domain.PluginBaseIn
 }
 
 func (p *pluginsStorage) UpsertPlugin(ctx context.Context, arg plugins_queries.UpsertPluginParams) error {
-	return p.querier.UpsertPlugin(ctx, arg)
+	err := p.querier.UpsertPlugin(ctx, arg)
+	if err != nil {
+		return rerrors.Wrap(err, "error upserting plugin")
+	}
+
+	return nil
 }
 
 func calculatePluginState(statusesArr []string) pb.VervPlugin_State {
 	isRunning := false
 	isDeleted := false
+
 	for _, status := range statusesArr {
 		switch plugins_queries.VelezDeploymentStatus(status) {
 		case plugins_queries.VelezDeploymentStatusFAILED:
@@ -70,7 +74,8 @@ func calculatePluginState(statusesArr []string) pb.VervPlugin_State {
 			isDeleted = true
 
 		case plugins_queries.VelezDeploymentStatusSCHEDULEDUPGRADE,
-			plugins_queries.VelezDeploymentStatusSCHEDULEDDEPLOYMENT:
+			plugins_queries.VelezDeploymentStatusSCHEDULEDDEPLOYMENT,
+			plugins_queries.VelezDeploymentStatusSCHEDULEDDELETION:
 			return pb.VervPlugin_warning
 		}
 	}

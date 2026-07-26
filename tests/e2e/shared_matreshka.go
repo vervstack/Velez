@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster/configuration"
 	"go.vervstack.ru/Velez/internal/config"
@@ -19,7 +18,7 @@ import (
 var (
 	sharedMatreshka         *configuration.SharedInstance
 	initSharedMatreshkaOnce sync.Once
-	initSharedMatreshkaErr  error
+	errInitSharedMatreshka  error
 )
 
 // getSharedMatreshka lazily creates the one matreshka container + keep-alive
@@ -35,21 +34,23 @@ func getSharedMatreshka(t *testing.T) *configuration.SharedInstance {
 		ctx := context.Background()
 
 		var cfg config.Config
-		cfg, initSharedMatreshkaErr = config.Load(defaultConfigPath)
-		if initSharedMatreshkaErr != nil {
+
+		cfg, errInitSharedMatreshka = config.Load(defaultConfigPath)
+		if errInitSharedMatreshka != nil {
 			return
 		}
 
 		var nc node_clients.NodeClients
-		nc, initSharedMatreshkaErr = node_clients.NewNodeClients(ctx, cfg)
-		if initSharedMatreshkaErr != nil {
+
+		nc, errInitSharedMatreshka = node_clients.NewNodeClients(ctx, cfg)
+		if errInitSharedMatreshka != nil {
 			return
 		}
 
-		sharedMatreshka, initSharedMatreshkaErr = configuration.StartSharedInstance(ctx, cfg, nc)
+		sharedMatreshka, errInitSharedMatreshka = configuration.StartSharedInstance(ctx, cfg, nc)
 	})
 
-	require.NoError(t, initSharedMatreshkaErr)
+	require.NoError(t, errInitSharedMatreshka)
 
 	return sharedMatreshka
 }

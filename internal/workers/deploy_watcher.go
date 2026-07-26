@@ -8,8 +8,6 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
-	"golang.org/x/sync/errgroup"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
@@ -18,6 +16,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
+	"golang.org/x/sync/errgroup"
 )
 
 type deployWatcher struct {
@@ -40,7 +39,8 @@ func NewDeployWatcher(
 	clusterClients cluster_clients.ClusterClients,
 	nodeClients node_clients.NodeClients,
 
-	interval time.Duration) Worker {
+	interval time.Duration,
+) Worker {
 	return &deployWatcher{
 		services:           services,
 		pipeliner:          runner,
@@ -70,6 +70,7 @@ func (d *deployWatcher) Start(ctx context.Context) {
 						// retry via api handle
 						return
 					}
+
 					continue
 				}
 
@@ -82,6 +83,7 @@ func (d *deployWatcher) Start(ctx context.Context) {
 				err = g.Wait()
 				if err != nil {
 					log.Error().Err(err).Msg("error running deploy watcher")
+
 					continue
 				}
 			}
@@ -94,6 +96,7 @@ func (d *deployWatcher) Stop() error {
 		d.ticker.Stop()
 		close(d.done)
 	})
+
 	return nil
 }
 
@@ -111,6 +114,7 @@ func (d *deployWatcher) listDeployments(ctx context.Context) (deploymentsList, e
 			deployments_queries.VelezDeploymentStatusFAILED,
 		},
 	}
+
 	deployments, err := d.deploymentsStorage.List(ctx, listReq)
 	if err != nil {
 		return deploymentsList{}, rerrors.Wrap(err, "error listing deployments")
@@ -161,9 +165,11 @@ func (d *deployWatcher) processScheduledBatch(ctx context.Context, scheduled []d
 			}
 
 			runner := d.pipeliner.LaunchSmerd(r)
+
 			err = runner.Run(ctx)
 			if err != nil {
 				log.Error().Err(rerrors.Wrap(err, "")).Msg("error deploying smerd")
+
 				updateStatusParams.Status = deployments_queries.VelezDeploymentStatusFAILED
 			}
 
@@ -179,6 +185,7 @@ func (d *deployWatcher) processScheduledBatch(ctx context.Context, scheduled []d
 			}
 
 			smerdReq := &velez_api.CreateSmerd_Request{}
+
 			err = json.Unmarshal(spec.VervPayload.RawMessage, smerdReq)
 			if err != nil {
 				return rerrors.Wrap(err, "")
@@ -193,9 +200,11 @@ func (d *deployWatcher) processScheduledBatch(ctx context.Context, scheduled []d
 				Name:  smerdReq.GetName(),
 				Image: smerdReq.GetImageName(),
 			})
+
 			err = upgradeRunner.Run(ctx)
 			if err != nil {
 				log.Error().Err(rerrors.Wrap(err, "")).Msg("error upgrading smerd")
+
 				updateStatusParams.Status = deployments_queries.VelezDeploymentStatusFAILED
 			}
 
@@ -205,6 +214,7 @@ func (d *deployWatcher) processScheduledBatch(ctx context.Context, scheduled []d
 			}
 		}
 	}
+
 	return nil
 }
 
@@ -216,6 +226,7 @@ func (d *deployWatcher) syncRunningBatch(ctx context.Context, active []domain.De
 		}
 
 		smerdReq := &velez_api.CreateSmerd_Request{}
+
 		err = json.Unmarshal(spec.VervPayload.RawMessage, smerdReq)
 		if err != nil {
 			return rerrors.Wrap(err, "error unmarshaling spec")
@@ -224,6 +235,7 @@ func (d *deployWatcher) syncRunningBatch(ctx context.Context, active []domain.De
 		running, _, err := d.nodeClients.Docker().IsContainerRunning(ctx, smerdReq.GetName())
 		if err != nil {
 			log.Error().Err(err).Str("container", smerdReq.GetName()).Msg("error inspecting container")
+
 			continue
 		}
 
@@ -239,6 +251,7 @@ func (d *deployWatcher) syncRunningBatch(ctx context.Context, active []domain.De
 			return rerrors.Wrap(err, "error marking deployment as failed")
 		}
 	}
+
 	return nil
 }
 
@@ -250,6 +263,7 @@ func (d *deployWatcher) deleteBatch(ctx context.Context, deletion []domain.Deplo
 		}
 
 		smerdReq := &velez_api.CreateSmerd_Request{}
+
 		err = json.Unmarshal(spec.VervPayload.RawMessage, smerdReq)
 		if err != nil {
 			return rerrors.Wrap(err, "error unmarshaling spec")
@@ -258,6 +272,7 @@ func (d *deployWatcher) deleteBatch(ctx context.Context, deletion []domain.Deplo
 		err = d.nodeClients.Docker().Remove(ctx, smerdReq.GetName())
 		if err != nil {
 			log.Error().Err(err).Str("container", smerdReq.GetName()).Msg("error removing container")
+
 			continue
 		}
 
@@ -269,5 +284,6 @@ func (d *deployWatcher) deleteBatch(ctx context.Context, deletion []domain.Deplo
 			return rerrors.Wrap(err, "error marking deployment as deleted")
 		}
 	}
+
 	return nil
 }

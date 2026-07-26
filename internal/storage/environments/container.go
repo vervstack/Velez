@@ -4,6 +4,7 @@ import (
 	"context"
 	"sync/atomic"
 
+	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
@@ -14,6 +15,7 @@ type envContainer struct {
 func NewContainer(init storage.EnvironmentsStorage) storage.EnvironmentsStorageContainer {
 	c := &envContainer{}
 	c.Set(init)
+
 	return c
 }
 
@@ -22,5 +24,10 @@ func (c *envContainer) Set(s storage.EnvironmentsStorage) {
 }
 
 func (c *envContainer) ListEnvironments(ctx context.Context) ([]string, error) {
-	return (*c.state.Load()).ListEnvironments(ctx)
+	envs, err := (*c.state.Load()).ListEnvironments(ctx)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error listing environments")
+	}
+
+	return envs, nil
 }

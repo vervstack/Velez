@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"go.redsock.ru/rerrors"
-
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"

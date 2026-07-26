@@ -1,10 +1,9 @@
 package service_api_impl
 
 import (
-	"google.golang.org/protobuf/types/known/timestamppb"
-
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func toServiceBaseInfoList(in []domain.ServiceBaseInfo) []*pb.ServiceBaseInfo {

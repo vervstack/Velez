@@ -4,7 +4,6 @@ import (
 	"path"
 
 	rtb "go.redsock.ru/toolbox"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
@@ -19,7 +18,6 @@ func (p *pipeliner) CopyToVolume(req domain.CopyToVolumeRequest) Runner[any] {
 
 func NewCopyToVolumeRunner(nodeClients node_clients.NodeClients, req domain.CopyToVolumeRequest) Runner[any] {
 	// region Pipeline context
-
 	baseContainer := domain.LaunchSmerd{
 		CreateSmerd_Request: &velez_api.CreateSmerd_Request{
 			Name:      req.VolumeName + "_loader",
@@ -36,6 +34,7 @@ func NewCopyToVolumeRunner(nodeClients node_clients.NodeClients, req domain.Copy
 	var filesToMount []domain.FileMountPoint
 
 	mountedFolders := map[string]struct{}{}
+
 	for filePath, fileContent := range req.PathToFiles {
 		filesToMount = append(filesToMount, domain.FileMountPoint{
 			FilePath: rtb.ToPtr(filePath),
@@ -57,7 +56,7 @@ func NewCopyToVolumeRunner(nodeClients node_clients.NodeClients, req domain.Copy
 				ContainerPath: fold,
 			})
 	}
-	//endregion
+	// endregion
 
 	actualSteps := []steps.Step{
 		smerd_steps.Create(nodeClients, &baseContainer, &contId),
@@ -72,6 +71,7 @@ func NewCopyToVolumeRunner(nodeClients node_clients.NodeClients, req domain.Copy
 	}
 
 	actualSteps = append(actualSteps, smerd_steps.DropContainerStep(nodeClients, &contId))
+
 	return &runner[any]{
 		Steps: actualSteps,
 	}

@@ -7,11 +7,10 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/metadata"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"google.golang.org/grpc/metadata"
 )
 
 // fakeJobsEngine is a minimal hand-written fake for jobs.Engine, following

@@ -12,11 +12,6 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/test/bufconn"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/app"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
@@ -25,6 +20,10 @@ import (
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/middleware"
 	"go.vervstack.ru/Velez/tests/test_helper"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/test/bufconn"
 )
 
 // sharedPortManagerImpl is a single PortManager shared across all parallel test environments.
@@ -36,7 +35,8 @@ var (
 )
 
 func init() {
-	_, filename, _, _ := runtime.Caller(0)
+	pc, filename, _, _ := runtime.Caller(0)
+	_ = pc
 	// filename → tests/e2e/helper_environment.go; go up two levels to reach tests/
 	testsDir := filepath.Dir(filepath.Dir(filename))
 	defaultConfigPath = filepath.Join(testsDir, "config_mocks", "velez_default_config.yaml")
@@ -52,8 +52,10 @@ type TestEnvironment struct {
 	grpcConn *grpc.ClientConn
 }
 
-type TestEnvOpt func(a *TestEnvironment)
-type StateOpt func(a *local_state.State)
+type (
+	TestEnvOpt func(a *TestEnvironment)
+	StateOpt   func(a *local_state.State)
+)
 
 // WithMatreshka enables cluster mode against a shared matreshka container.
 // The container + its keep-alive loop are created exactly once per test
@@ -77,6 +79,8 @@ func WithMatreshka() TestEnvOpt {
 }
 
 func WithState(t *testing.T, stateOps ...StateOpt) TestEnvOpt {
+	t.Helper()
+
 	return func(a *TestEnvironment) {
 		st := readDefaultState(t)
 
@@ -117,6 +121,7 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 	t.Helper()
 
 	var env TestEnvironment
+
 	env.t = t
 	env.App = app.App{
 		Ctx: t.Context(),
@@ -135,29 +140,30 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 		opt(&env)
 	}
 
-	env.App.Cfg.AppInfo.Name = GetServiceName(t)
-	env.App.Cfg.AppInfo.Version = GetServiceName(t)
+	env.Cfg.AppInfo.Name = GetServiceName(t)
+	env.Cfg.AppInfo.Version = GetServiceName(t)
 
-	env.App.Cfg.Environment.CustomLabels = append(
-		env.App.Cfg.Environment.CustomLabels,
+	env.Cfg.Environment.CustomLabels = append(
+		env.Cfg.Environment.CustomLabels,
 		testCaseNameLabel+"="+t.Name())
 
 	initGrpc(t, &env)
 
-	err := env.App.Custom.Init(&env.App)
+	err := env.Custom.Init(&env.App)
 	require.NoError(t, err)
 
 	go func() {
-		startServerMasterErr := env.App.Custom.Start(env.App.Ctx)
+		startServerMasterErr := env.Custom.Start(env.Ctx)
 		require.NoError(t, startServerMasterErr)
 	}()
+
 	t.Cleanup(func() {
-		e := env.App.Custom.Stop()
+		e := env.Custom.Stop()
 		require.NoError(t, e)
 	})
 
-	portManager := test_helper.GetSharedPortManager(t, env.App.Cfg.Environment.AvailablePorts)
-	env.App.Custom.NodeClients.PortManagerContainer().
+	portManager := test_helper.GetSharedPortManager(t, env.Cfg.Environment.AvailablePorts)
+	env.Custom.NodeClients.PortManagerContainer().
 		Set(portManager)
 
 	// Cleaning dished before and after dinner just in case
@@ -168,24 +174,29 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 }
 
 func initConfig(t *testing.T, env *TestEnvironment) {
+	t.Helper()
+
 	if env.configPath == "" {
 		env.configPath = defaultConfigPath
 	}
 
 	var err error
 
-	env.App.Cfg, err = config.Load(env.configPath)
+	env.Cfg, err = config.Load(env.configPath)
 	require.NoError(t, err)
 
 	defaultSt := readDefaultState(t)
-	env.App.Cfg.Environment.LocalStatePath = writeState(t, defaultSt)
+	env.Cfg.Environment.LocalStatePath = writeState(t, defaultSt)
 }
 
 func initGrpc(t *testing.T, env *TestEnvironment) {
+	t.Helper()
+
 	const bufSize = 1024 * 1024
+
 	lis := bufconn.Listen(bufSize)
 
-	env.App.MASTER = lis
+	env.MASTER = lis
 
 	var err error
 
@@ -201,11 +212,12 @@ func initGrpc(t *testing.T, env *TestEnvironment) {
 				method string,
 				req, reply any,
 				cc *grpc.ClientConn,
-				invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
-
+				invoker grpc.UnaryInvoker, opts ...grpc.CallOption,
+			) error {
 				stateManager := env.Custom.NodeClients.LocalStateManager()
 				localState := stateManager.Get()
 				ctx = metadata.AppendToOutgoingContext(ctx, middleware.AuthHeader, localState.VelezKey)
+
 				return invoker(ctx, method, req, reply, cc, opts...)
 			}),
 	)
@@ -215,13 +227,12 @@ func initGrpc(t *testing.T, env *TestEnvironment) {
 		closeErr := env.grpcConn.Close()
 		require.NoError(t, closeErr)
 	})
-
 }
 
 func (e *TestEnvironment) CreateSmerd(t *testing.T, req *velez_api.CreateSmerd_Request) *velez_api.Smerd {
-	ctx := t.Context()
-
 	t.Helper()
+
+	ctx := t.Context()
 
 	if req.Labels == nil {
 		req.Labels = map[string]string{}
@@ -246,7 +257,11 @@ func (e *TestEnvironment) ListSmerds(t *testing.T, ctx context.Context, req *vel
 	return resp
 }
 
-func (e *TestEnvironment) DropSmerd(t *testing.T, ctx context.Context, req *velez_api.DropSmerd_Request) *velez_api.DropSmerd_Response {
+func (e *TestEnvironment) DropSmerd(
+	ctx context.Context,
+	t *testing.T,
+	req *velez_api.DropSmerd_Request,
+) *velez_api.DropSmerd_Response {
 	t.Helper()
 
 	resp, err := e.Custom.ApiGrpcImpl.DropSmerd(ctx, req)
@@ -294,6 +309,7 @@ func readDefaultState(t *testing.T) local_state.State {
 	defaultStateFilePath := filepath.Join(testDataDir, "default-private-key.json")
 	defaultStateFile, err := os.Open(defaultStateFilePath)
 	require.NoError(t, err)
+
 	defer func() {
 		fErr := defaultStateFile.Close()
 		require.NoError(t, fErr)
@@ -313,6 +329,7 @@ func writeState(t *testing.T, st local_state.State) (statePath string) {
 
 	f, err := os.Create(statePath)
 	require.NoError(t, err)
+
 	defer func() {
 		fErr := f.Close()
 		require.NoError(t, fErr)

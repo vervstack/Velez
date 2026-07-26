@@ -7,10 +7,9 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	version "go.vervstack.ru/matreshka/config"
 	"golang.org/x/net/context"
-
-	"go.vervstack.ru/Velez/internal/clients/node_clients"
 )
 
 const (
@@ -66,5 +65,6 @@ func getKeyFromMatreshkaContainerEnv(ctx context.Context, docker client.APIClien
 			return e[len(passEnv)+1:], nil
 		}
 	}
+
 	return "", nil
 }

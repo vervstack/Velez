@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"go.redsock.ru/toolbox"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
@@ -51,6 +50,7 @@ func (s *AssembleConfigJobSuite) Test_AssembleHelloWorld() {
 	require.Equal(t, tasks_queries.VelezTaskStatusDONE, finalTask.Status, "task error: %s", finalTask.Error.String)
 
 	var payload velez_api.AssembleConfigTaskPayload
+
 	require.True(t, finalTask.Context.Valid)
 	err = json.Unmarshal(finalTask.Context.RawMessage, &payload)
 	require.NoError(t, err)

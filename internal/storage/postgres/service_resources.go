@@ -18,8 +18,10 @@ func newServiceResourcesStorage(db sqldb.DB) *serviceResourcesStorage {
 	}
 }
 
-func (s *serviceResourcesStorage) GetResources(ctx context.Context, serviceName string) ([]domain.BoundResource, error) {
-	rows, err := s.Queries.GetServiceResources(ctx, serviceName)
+func (s *serviceResourcesStorage) GetResources(ctx context.Context,
+	serviceName string,
+) ([]domain.BoundResource, error) {
+	rows, err := s.GetServiceResources(ctx, serviceName)
 	if err != nil {
 		return nil, wrapPgErr(err)
 	}
@@ -36,15 +38,19 @@ func (s *serviceResourcesStorage) GetResources(ctx context.Context, serviceName 
 	return result, nil
 }
 
-func (s *serviceResourcesStorage) UpsertResource(ctx context.Context, serviceName, resourceName, resourceType string) error {
+func (s *serviceResourcesStorage) UpsertResource(ctx context.Context, serviceName, resourceName,
+	resourceType string,
+) error {
 	params := service_resources_queries.UpsertServiceResourceParams{
 		ServiceName:  serviceName,
 		ResourceName: resourceName,
 		ResourceType: resourceType,
 	}
-	err := s.Queries.UpsertServiceResource(ctx, params)
+
+	err := s.UpsertServiceResource(ctx, params)
 	if err != nil {
 		return wrapPgErr(err)
 	}
+
 	return nil
 }

@@ -6,12 +6,11 @@ import (
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
-	"go.vervstack.ru/makosh/pkg/makosh_be"
-	"google.golang.org/grpc"
-
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/makosh/pkg/makosh_be"
+	"google.golang.org/grpc"
 )
 
 type dockerServiceDiscovery struct {
@@ -40,6 +39,7 @@ func (d *dockerServiceDiscovery) ListEndpoints(ctx context.Context, req *makosh_
 	}
 
 	var urls []string
+
 	for _, c := range containers {
 		for _, p := range c.Ports {
 			if p.PublicPort != 0 {
@@ -47,6 +47,7 @@ func (d *dockerServiceDiscovery) ListEndpoints(ctx context.Context, req *makosh_
 				if ip == "" || ip == "0.0.0.0" {
 					ip = "127.0.0.1"
 				}
+
 				urls = append(urls, fmt.Sprintf("%s:%d", ip, p.PublicPort))
 			}
 		}
@@ -55,6 +56,7 @@ func (d *dockerServiceDiscovery) ListEndpoints(ctx context.Context, req *makosh_
 	resp := &makosh_be.ListEndpoints_Response{
 		Urls: urls,
 	}
+
 	return resp, nil
 }
 

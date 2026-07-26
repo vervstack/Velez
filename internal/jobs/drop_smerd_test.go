@@ -8,10 +8,14 @@ import (
 	"time"
 
 	"github.com/sqlc-dev/pqtype"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+)
+
+const (
+	testUUID1 = "uuid-1"
+	testUUID2 = "uuid-2"
 )
 
 // dockerOnlyNodeClients wraps an arbitrary node_clients.Docker (including
@@ -27,7 +31,9 @@ func (f *dockerOnlyNodeClients) Docker() node_clients.Docker {
 	return f.docker
 }
 
-func dropSmerdTask(t *testing.T, tasksStorage *fakeTasksStorage, entityID string, req *velez_api.DropSmerd_Request) tasks_queries.VelezTask {
+func dropSmerdTask(
+	t *testing.T, tasksStorage *fakeTasksStorage, entityID string, req *velez_api.DropSmerd_Request,
+) tasks_queries.VelezTask {
 	t.Helper()
 
 	initialContext := &velez_api.DropSmerdTaskPayload{}
@@ -67,7 +73,7 @@ func TestDropSmerdHandler_AllSucceed(t *testing.T) {
 	docker := newFakeDocker()
 
 	req := &velez_api.DropSmerd_Request{
-		Uuids: []string{"uuid-1", "uuid-2"},
+		Uuids: []string{testUUID1, testUUID2},
 		Name:  []string{"name-1"},
 	}
 	task := dropSmerdTask(t, tasksStorage, "batch-1", req)
@@ -91,6 +97,7 @@ func TestDropSmerdHandler_AllSucceed(t *testing.T) {
 	}
 
 	var result velez_api.DropSmerdTaskPayload
+
 	err = json.Unmarshal(finished.Context.RawMessage, &result)
 	if err != nil {
 		t.Fatalf("unexpected error unmarshaling task context: %v", err)
@@ -100,11 +107,13 @@ func TestDropSmerdHandler_AllSucceed(t *testing.T) {
 		t.Errorf("expected no failures, got %v", result.GetFailed())
 	}
 
-	wantSuccessful := []string{"uuid-1", "uuid-2", "name-1"}
+	wantSuccessful := []string{testUUID1, testUUID2, "name-1"}
+
 	gotSuccessful := result.GetSuccessful()
 	if len(gotSuccessful) != len(wantSuccessful) {
 		t.Fatalf("expected successful %v, got %v", wantSuccessful, gotSuccessful)
 	}
+
 	for i, want := range wantSuccessful {
 		if gotSuccessful[i] != want {
 			t.Errorf("expected successful[%d] = %q, got %q", i, want, gotSuccessful[i])
@@ -155,6 +164,7 @@ func TestDropSmerdHandler_PartialFailureStillReachesDone(t *testing.T) {
 	}
 
 	var result velez_api.DropSmerdTaskPayload
+
 	err = json.Unmarshal(finished.Context.RawMessage, &result)
 	if err != nil {
 		t.Fatalf("unexpected error unmarshaling task context: %v", err)
@@ -164,18 +174,22 @@ func TestDropSmerdHandler_PartialFailureStillReachesDone(t *testing.T) {
 	if len(failed) != 1 {
 		t.Fatalf("expected exactly one failure, got %v", failed)
 	}
+
 	if failed[0].GetUuid() != failingUUID {
 		t.Errorf("expected failed uuid %q, got %q", failingUUID, failed[0].GetUuid())
 	}
+
 	if failed[0].GetCause() == "" {
 		t.Errorf("expected a non-empty failure cause")
 	}
 
 	wantSuccessful := []string{"uuid-good-1", "uuid-good-2"}
+
 	gotSuccessful := result.GetSuccessful()
 	if len(gotSuccessful) != len(wantSuccessful) {
 		t.Fatalf("expected successful %v, got %v", wantSuccessful, gotSuccessful)
 	}
+
 	for i, want := range wantSuccessful {
 		if gotSuccessful[i] != want {
 			t.Errorf("expected successful[%d] = %q, got %q", i, want, gotSuccessful[i])
@@ -189,7 +203,7 @@ func TestDropSmerdHandler_ResumeSkipsAlreadyDoneJobs(t *testing.T) {
 	docker := newFakeDocker()
 
 	req := &velez_api.DropSmerd_Request{
-		Uuids: []string{"uuid-1", "uuid-2"},
+		Uuids: []string{testUUID1, testUUID2},
 	}
 	task := dropSmerdTask(t, tasksStorage, "batch-3", req)
 
@@ -217,7 +231,7 @@ func TestDropSmerdHandler_ResumeSkipsAlreadyDoneJobs(t *testing.T) {
 
 	// Only drop_container_1 (uuid-2) should have actually called Remove -
 	// drop_container_0 was already DONE and must be skipped.
-	if len(docker.removeCalledWith) != 1 || docker.removeCalledWith[0] != "uuid-2" {
+	if len(docker.removeCalledWith) != 1 || docker.removeCalledWith[0] != testUUID2 {
 		t.Errorf("expected only uuid-2 to be removed, got %v", docker.removeCalledWith)
 	}
 }

@@ -8,7 +8,6 @@ import (
 
 	"github.com/sqlc-dev/pqtype"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
@@ -63,8 +62,9 @@ func (c *checkpointedJob) Do(ctx context.Context) error {
 			if existing.Error.Valid {
 				errMsg = existing.Error.String
 			}
+
 			return rerrors.New(errMsg)
-		default:
+		case jobs_queries.VelezJobStatusRUNNING:
 			// RUNNING left over from a worker that crashed mid-job - re-run it.
 		}
 	case errors.Is(err, sql.ErrNoRows):
@@ -97,7 +97,7 @@ func (c *checkpointedJob) Do(ctx context.Context) error {
 	}
 
 	if doErr != nil {
-		return doErr
+		return rerrors.Wrap(doErr, "error executing job")
 	}
 
 	return c.persistContext(ctx)
@@ -126,5 +126,10 @@ func (c *checkpointedJob) Rollback(ctx context.Context) error {
 		return nil
 	}
 
-	return rb.Rollback(ctx)
+	err := rb.Rollback(ctx)
+	if err != nil {
+		return rerrors.Wrap(err, "error rolling back job")
+	}
+
+	return nil
 }

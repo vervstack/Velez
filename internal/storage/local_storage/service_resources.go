@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"go.redsock.ru/rerrors"
-
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
@@ -19,18 +18,24 @@ func newServiceResourcesStorage(docker node_clients.Docker) *dockerServiceResour
 	return &dockerServiceResourcesStorage{docker: docker}
 }
 
-func (d *dockerServiceResourcesStorage) UpsertResource(ctx context.Context, serviceName, resourceName, resourceType string) error {
+func (d *dockerServiceResourcesStorage) UpsertResource(_ context.Context, _, _,
+	_ string,
+) error {
 	return nil
 }
 
-func (d *dockerServiceResourcesStorage) GetResources(ctx context.Context, serviceName string) ([]domain.BoundResource, error) {
+func (d *dockerServiceResourcesStorage) GetResources(ctx context.Context,
+	serviceName string,
+) ([]domain.BoundResource, error) {
 	listReq := &pb.ListSmerds_Request{}
+
 	containers, err := d.docker.ListContainers(ctx, listReq)
 	if err != nil {
 		return nil, rerrors.Wrap(err)
 	}
 
 	var result []domain.BoundResource
+
 	prefix := serviceName + "_"
 
 	for _, c := range containers {

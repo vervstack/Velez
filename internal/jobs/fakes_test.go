@@ -16,10 +16,7 @@ import (
 	"github.com/docker/docker/client"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"go.redsock.ru/evon"
-	"go.vervstack.ru/makosh/pkg/makosh_be"
-	"go.vervstack.ru/matreshka/pkg/matreshka"
-	"google.golang.org/grpc"
-
+	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
@@ -29,6 +26,9 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/makosh/pkg/makosh_be"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
+	"google.golang.org/grpc"
 )
 
 // fakeTasksStorage and fakeJobsStorage are minimal in-memory implementations
@@ -46,7 +46,9 @@ func newFakeTasksStorage() *fakeTasksStorage {
 	return &fakeTasksStorage{byID: make(map[int64]tasks_queries.VelezTask)}
 }
 
-func (f *fakeTasksStorage) CreateTask(_ context.Context, arg tasks_queries.CreateTaskParams) (tasks_queries.VelezTask, error) {
+func (f *fakeTasksStorage) CreateTask(
+	_ context.Context, arg tasks_queries.CreateTaskParams,
+) (tasks_queries.VelezTask, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
@@ -71,7 +73,9 @@ func (f *fakeTasksStorage) CreateTask(_ context.Context, arg tasks_queries.Creat
 	return task, nil
 }
 
-func (f *fakeTasksStorage) GetTaskByEntityAction(_ context.Context, arg tasks_queries.GetTaskByEntityActionParams) (tasks_queries.VelezTask, error) {
+func (f *fakeTasksStorage) GetTaskByEntityAction(
+	_ context.Context, arg tasks_queries.GetTaskByEntityActionParams,
+) (tasks_queries.VelezTask, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
@@ -96,7 +100,9 @@ func (f *fakeTasksStorage) GetTaskById(_ context.Context, id int64) (tasks_queri
 	return t, nil
 }
 
-func (f *fakeTasksStorage) ClaimTask(_ context.Context, arg tasks_queries.ClaimTaskParams) (tasks_queries.VelezTask, error) {
+func (f *fakeTasksStorage) ClaimTask(
+	_ context.Context, arg tasks_queries.ClaimTaskParams,
+) (tasks_queries.VelezTask, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
@@ -191,7 +197,9 @@ func (f *fakeJobsStorage) GetJob(_ context.Context, arg jobs_queries.GetJobParam
 	return row, nil
 }
 
-func (f *fakeJobsStorage) CreateRunningJob(_ context.Context, arg jobs_queries.CreateRunningJobParams) (jobs_queries.VelezJob, error) {
+func (f *fakeJobsStorage) CreateRunningJob(
+	_ context.Context, arg jobs_queries.CreateRunningJobParams,
+) (jobs_queries.VelezJob, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
@@ -217,6 +225,7 @@ func (f *fakeJobsStorage) FinishJob(_ context.Context, arg jobs_queries.FinishJo
 	defer f.mu.Unlock()
 
 	key := jobKey(arg.TaskID, arg.JobName)
+
 	row, ok := f.rows[key]
 	if !ok {
 		return sql.ErrNoRows
@@ -235,6 +244,7 @@ func (f *fakeJobsStorage) ListJobsByTask(_ context.Context, taskID int64) ([]job
 	defer f.mu.Unlock()
 
 	out := make([]jobs_queries.VelezJob, 0)
+
 	for _, row := range f.rows {
 		if row.TaskID == taskID {
 			out = append(out, row)
@@ -304,6 +314,7 @@ func (f *fakeServicesStorage) Delete(_ context.Context, name string) error {
 	for i, n := range f.upserted {
 		if n == name {
 			f.upserted = append(f.upserted[:i], f.upserted[i+1:]...)
+
 			break
 		}
 	}
@@ -391,9 +402,8 @@ func (f *fakeDocker) Client() client.APIClient {
 
 // withClient sets the value Client() returns; see the clientAPI field's
 // comment. Defaults to nil (existing behavior for every other job's tests).
-func (f *fakeDocker) withClient(api client.APIClient) *fakeDocker {
+func (f *fakeDocker) withClient(api client.APIClient) {
 	f.clientAPI = api
-	return f
 }
 
 func (f *fakeDocker) ContainerCreate(
@@ -425,6 +435,7 @@ func newFakeNodeClients(docker *fakeDocker) *fakeNodeClients {
 // exercised at unit level without a hand-written PortManager fake.
 func (f *fakeNodeClients) withPortManager(pm node_clients.PortManager) *fakeNodeClients {
 	f.portManager = pm
+
 	return f
 }
 
@@ -640,7 +651,7 @@ func (f *fakeContainerAPI) CopyToContainer(
 
 	raw, err := io.ReadAll(content)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err, "error reading fake copy content")
 	}
 
 	call := fakeCopyCall{
@@ -713,7 +724,9 @@ func (f *fakeContainerAPI) NetworkList(_ context.Context, _ network.ListOptions)
 	return f.networkListResp, f.networkListErr
 }
 
-func (f *fakeContainerAPI) NetworkCreate(_ context.Context, name string, _ network.CreateOptions) (network.CreateResponse, error) {
+func (f *fakeContainerAPI) NetworkCreate(
+	_ context.Context, name string, _ network.CreateOptions,
+) (network.CreateResponse, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
@@ -737,6 +750,7 @@ func (f *fakeContainerAPI) CopyFromContainer(
 	}
 
 	var buf bytes.Buffer
+
 	tw := tar.NewWriter(&buf)
 	_ = tw.WriteHeader(&tar.Header{Name: "content", Size: int64(len(f.copyFromResp))})
 	_, _ = tw.Write(f.copyFromResp)
@@ -836,15 +850,21 @@ func newFakeServiceDiscovery() *fakeServiceDiscovery {
 	return &fakeServiceDiscovery{}
 }
 
-func (f *fakeServiceDiscovery) Version(_ context.Context, _ *makosh_be.Version_Request, _ ...grpc.CallOption) (*makosh_be.Version_Response, error) {
+func (f *fakeServiceDiscovery) Version(
+	_ context.Context, _ *makosh_be.Version_Request, _ ...grpc.CallOption,
+) (*makosh_be.Version_Response, error) {
 	return &makosh_be.Version_Response{}, nil
 }
 
-func (f *fakeServiceDiscovery) ListEndpoints(_ context.Context, _ *makosh_be.ListEndpoints_Request, _ ...grpc.CallOption) (*makosh_be.ListEndpoints_Response, error) {
+func (f *fakeServiceDiscovery) ListEndpoints(
+	_ context.Context, _ *makosh_be.ListEndpoints_Request, _ ...grpc.CallOption,
+) (*makosh_be.ListEndpoints_Response, error) {
 	return &makosh_be.ListEndpoints_Response{}, nil
 }
 
-func (f *fakeServiceDiscovery) UpsertEndpoints(_ context.Context, in *makosh_be.UpsertEndpoints_Request, _ ...grpc.CallOption) (*makosh_be.UpsertEndpoints_Response, error) {
+func (f *fakeServiceDiscovery) UpsertEndpoints(
+	_ context.Context, in *makosh_be.UpsertEndpoints_Request, _ ...grpc.CallOption,
+) (*makosh_be.UpsertEndpoints_Response, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
@@ -875,19 +895,23 @@ func newFakeContainerService() *fakeContainerService {
 	return &fakeContainerService{}
 }
 
-func (f *fakeContainerService) ListSmerds(_ context.Context, _ *velez_api.ListSmerds_Request) (*velez_api.ListSmerds_Response, error) {
+func (f *fakeContainerService) ListSmerds(
+	_ context.Context, _ *velez_api.ListSmerds_Request,
+) (*velez_api.ListSmerds_Response, error) {
 	return &velez_api.ListSmerds_Response{}, nil
 }
 
-func (f *fakeContainerService) DropSmerds(_ context.Context, _ *velez_api.DropSmerd_Request) (*velez_api.DropSmerd_Response, error) {
+func (f *fakeContainerService) DropSmerds(
+	_ context.Context, _ *velez_api.DropSmerd_Request,
+) (*velez_api.DropSmerd_Response, error) {
 	return &velez_api.DropSmerd_Response{}, nil
 }
 
-func (f *fakeContainerService) InspectSmerd(_ context.Context, contId string) (*velez_api.Smerd, error) {
+func (f *fakeContainerService) InspectSmerd(_ context.Context, contID string) (*velez_api.Smerd, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
-	f.inspectCalledWith = append(f.inspectCalledWith, contId)
+	f.inspectCalledWith = append(f.inspectCalledWith, contID)
 
 	return f.inspectResp, f.inspectErr
 }

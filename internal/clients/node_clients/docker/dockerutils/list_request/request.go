@@ -14,7 +14,7 @@ func New() Filter {
 	return Filter{filters.NewArgs()}
 }
 
-// Exited add filter with for containers with exit code of exitCode
+// Exited add filter with for containers with exit code of exitCode.
 func (f *Filter) Exited(exitCode int) {
 	f.args.Add("exited", strconv.Itoa(exitCode))
 }

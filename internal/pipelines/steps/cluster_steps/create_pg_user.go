@@ -8,7 +8,6 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
 )

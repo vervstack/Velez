@@ -6,7 +6,6 @@ import (
 
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
 )
@@ -57,14 +56,17 @@ func (h *healthcheckStep) Do(ctx context.Context) error {
 			cont, err := h.dockerAPI.ContainerInspect(ctx, *h.containerId)
 			if err != nil {
 				errC <- err
+
 				return
 			}
+
 			if cont.State.Health == nil {
 				continue
 			}
 
 			if cont.State.Status == dockerContainerStatusRunning {
 				errC <- nil
+
 				return
 			}
 		}

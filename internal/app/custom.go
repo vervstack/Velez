@@ -15,8 +15,6 @@ import (
 	"github.com/soheilhy/cmux"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
-	"golang.org/x/sync/errgroup"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
@@ -36,6 +34,7 @@ import (
 	"go.vervstack.ru/Velez/internal/transport/velez_api_impl"
 	"go.vervstack.ru/Velez/internal/workers"
 	"go.vervstack.ru/Velez/pkg/docs"
+	"golang.org/x/sync/errgroup"
 )
 
 type Custom struct {
@@ -87,6 +86,7 @@ func (c *Custom) Init(a *App) (err error) {
 
 	c.DeployWatcher = workers.NewDeployWatcher(c.Services, c.Pipeliner, c.ClusterClients, c.NodeClients, time.Second*5)
 	go c.DeployWatcher.Start(a.Ctx)
+
 	closer.Add(c.DeployWatcher.Stop)
 
 	registry := jobs.NewRegistry()
@@ -112,6 +112,7 @@ func (c *Custom) Init(a *App) (err error) {
 		time.Second*2,
 	)
 	go c.TaskWorker.Start(a.Ctx)
+
 	closer.Add(c.TaskWorker.Stop)
 
 	return nil
@@ -124,6 +125,7 @@ func (c *Custom) Start(ctx context.Context) error {
 		if err != nil && !errors.Is(err, cmux.ErrServerClosed) {
 			return err
 		}
+
 		return nil
 	})
 
@@ -176,6 +178,7 @@ func (c *Custom) InitServiceLayer(a *App) error {
 	}
 
 	var err error
+
 	c.Services, err = service_manager.New(a.Ctx, c.NodeClients, c.ClusterClients, a.Cfg.Environment.Environments)
 	if err != nil {
 		return rerrors.Wrap(err, "error initializing service manager")
@@ -190,6 +193,7 @@ func (c *Custom) InitServiceLayer(a *App) error {
 	c.JobsEngine = jobs.NewEngine(c.ClusterClients.StateManager().Tasks())
 
 	log.Info().Bool("shutDownOnExit", a.Cfg.Environment.ShutDownOnExit).Msg("shut down on exit")
+
 	if a.Cfg.Environment.ShutDownOnExit {
 		closer.Add(smerdsDropper(c.Services.SmerdManager()))
 	}
@@ -199,6 +203,7 @@ func (c *Custom) InitServiceLayer(a *App) error {
 
 func (c *Custom) InitApiServer(a *App) error {
 	var err error
+
 	c.serverManager, err = transport.NewServerManager(a.Ctx, a.MASTER)
 	if err != nil {
 		return rerrors.Wrap(err, "error initializing server manager")
@@ -243,6 +248,7 @@ func smerdsDropper(smerdService service.ContainerService) func() error {
 	return func() error {
 		log.Info().Msg("ShutDownOnExit env variable is set to TRUE. Dropping launched smerds")
 		log.Info().Msg("Listing launched smerds")
+
 		ctx := context.Background()
 
 		smerds, err := smerdService.ListSmerds(ctx, &velez_api.ListSmerds_Request{})
@@ -274,12 +280,14 @@ func smerdsDropper(smerdService service.ContainerService) func() error {
 		}
 
 		log.Info().Int("count", len(dropSmerds.Successful)).Msg("smerds dropped successfully")
+
 		if len(dropSmerds.Successful) != 0 {
 			log.Info().Strs("dropped", dropSmerds.Successful).Msg("dropped smerds")
 		}
 
 		if len(dropSmerds.Failed) != 0 {
 			log.Error().Int("count", len(dropSmerds.Failed)).Msg("smerds failed to drop")
+
 			for _, f := range dropSmerds.Failed {
 				log.Error().Str("uuid", f.Uuid).Str("cause", f.Cause).Msg("error dropping smerd")
 			}
@@ -294,9 +302,11 @@ func parseLogLevel(str string) zerolog.Level {
 	if str == "warning" {
 		str = "warn"
 	}
+
 	level, err := zerolog.ParseLevel(str)
 	if err != nil {
 		return zerolog.InfoLevel
 	}
+
 	return level
 }

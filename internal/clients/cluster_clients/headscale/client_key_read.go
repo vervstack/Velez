@@ -7,14 +7,13 @@ import (
 	"time"
 
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
 func (s *Client) GetClientAuthKey(ctx context.Context, req domain.GetVcnAuthKeyReq) (
-	domain.VcnAuthKey, error) {
-
-	//region Response body
+	domain.VcnAuthKey, error,
+) {
+	// region Response body
 	type preAuthKey struct {
 		Id         string    `json:"id"`
 		Key        string    `json:"key"`
@@ -23,21 +22,25 @@ func (s *Client) GetClientAuthKey(ctx context.Context, req domain.GetVcnAuthKeyR
 		Used       bool      `json:"used"`
 		Expiration time.Time `json:"expiration"`
 		CreatedAt  time.Time `json:"createdAt"`
-		//AclTags    []interface{} `json:"aclTags"`
+		// AclTags    []interface{} `json:"aclTags"`
 	}
+
 	type response struct {
 		PreAuthKeys []preAuthKey `json:"preAuthKeys"`
 	}
-	//endregion
+	// endregion
 
-	resp, err := s.doApiRequest(ctx, http.MethodGet, preAuthKeyUri+"?user="+req.NamespaceId, nil)
+	resp, err := s.doAPIRequest(ctx, http.MethodGet, preAuthKeyURI+"?user="+req.NamespaceId, nil)
 	if err != nil {
 		return domain.VcnAuthKey{}, rerrors.Wrap(err, "error executing request")
 	}
 
 	if resp.StatusCode == http.StatusOK {
 		var r response
+
 		err = json.NewDecoder(resp.Body).Decode(&r)
+		_ = resp.Body.Close()
+
 		if err != nil {
 			return domain.VcnAuthKey{}, rerrors.Wrap(err, "error decoding response")
 		}

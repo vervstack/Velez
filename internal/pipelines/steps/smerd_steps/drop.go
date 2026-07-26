@@ -4,28 +4,27 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 )
 
 type dropContainer struct {
 	docker node_clients.Docker
-	contId *string
+	contID *string
 }
 
-func DropContainerStep(nodeClients node_clients.NodeClients, contId *string) *dropContainer {
+func DropContainerStep(nodeClients node_clients.NodeClients, contID *string) *dropContainer {
 	return &dropContainer{
 		docker: nodeClients.Docker(),
-		contId: contId,
+		contID: contID,
 	}
 }
 
 func (d *dropContainer) Do(ctx context.Context) error {
-	if d.contId == nil {
+	if d.contID == nil {
 		return nil
 	}
 
-	err := d.docker.Remove(ctx, *d.contId)
+	err := d.docker.Remove(ctx, *d.contID)
 	if err != nil {
 		return rerrors.Wrap(err, "error dropping container")
 	}

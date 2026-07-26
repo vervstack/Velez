@@ -2,12 +2,10 @@ package hardware
 
 import (
 	"github.com/jaypipes/ghw"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
-type Manager struct {
-}
+type Manager struct{}
 
 func New() *Manager {
 	return &Manager{}

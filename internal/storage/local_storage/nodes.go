@@ -7,18 +7,17 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
-type nodes struct {
-}
+type nodes struct{}
 
 func newNodesStorage() *nodes {
 	return &nodes{}
 }
 
-func (n *nodes) InitNode(ctx context.Context) error {
+func (n *nodes) InitNode(_ context.Context) error {
 	return nil
 }
 
-func (n *nodes) UpdateOnline(ctx context.Context) error {
+func (n *nodes) UpdateOnline(_ context.Context) error {
 	return nil
 }
 

@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/service"
@@ -86,20 +85,6 @@ func (s *fromContainerToRequest) fromContainerNetwork(cont *velez_api.Smerd) []*
 		if len(net.Aliases) != 0 {
 			out = append(out, net)
 		}
-	}
-
-	return out
-}
-
-func (s *fromContainerToRequest) fromContainerEnv(env []string) map[string]string {
-	out := make(map[string]string)
-	for _, e := range env {
-		nameVal := strings.Split(e, "=")
-		if len(nameVal) < 2 {
-			continue
-		}
-
-		out[nameVal[0]] = strings.Join(nameVal[1:], "")
 	}
 
 	return out

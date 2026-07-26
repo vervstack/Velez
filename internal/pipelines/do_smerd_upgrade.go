@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/docker/docker/api/types/image"
-
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/config_steps"
@@ -17,10 +16,14 @@ const configSuffix = "_configuration_fetcher"
 func (p *pipeliner) UpgradeSmerd(req domain.UpgradeSmerd) Runner[any] {
 	newLaunch := domain.LaunchSmerd{}
 	img := image.InspectResponse{}
-	var newContId string
-	var oldContId string
+
+	var (
+		newContId string
+		oldContId string
+	)
 
 	var cfgMount domain.ConfigMount
+
 	upgradeMounts := make([]domain.FileMountPoint, 0)
 
 	return &runner[any]{
@@ -31,12 +34,14 @@ func (p *pipeliner) UpgradeSmerd(req domain.UpgradeSmerd) Runner[any] {
 			steps.PrepareImage(p.nodeClients, req.Image, &img),
 			steps.SingleFunc(func(_ context.Context) error {
 				newLaunch.ImageName = req.Image
+
 				return nil
 			}),
 			smerd_steps.PauseContainer(p.nodeClients, &oldContId),
 			// Config stage
 			steps.SingleFunc(func(_ context.Context) error {
 				newLaunch.Name = req.Name + configSuffix
+
 				return nil
 			}),
 			smerd_steps.Create(p.nodeClients, &newLaunch, &newContId),
@@ -45,6 +50,7 @@ func (p *pipeliner) UpgradeSmerd(req domain.UpgradeSmerd) Runner[any] {
 			// Config stage
 			steps.SingleFunc(func(_ context.Context) error {
 				newLaunch.Name = req.Name
+
 				return nil
 			}),
 			// Deploy stage
@@ -53,6 +59,7 @@ func (p *pipeliner) UpgradeSmerd(req domain.UpgradeSmerd) Runner[any] {
 			// Config stage
 			steps.SingleFunc(func(_ context.Context) error {
 				newLaunch.Name = req.Name + "_new"
+
 				return nil
 			}),
 			smerd_steps.Create(p.nodeClients, &newLaunch, &newContId),

@@ -4,12 +4,11 @@ import (
 	"testing"
 	"time"
 
-	"google.golang.org/protobuf/types/known/timestamppb"
-
 	"go.vervstack.ru/Velez/internal/domain"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-// Test that ServiceBaseInfo is properly converted with all enriched fields
+// Test that ServiceBaseInfo is properly converted with all enriched fields.
 func TestToServiceBaseInfoWithEnrichedFields(t *testing.T) {
 	now := time.Now()
 	input := domain.ServiceBaseInfo{
@@ -48,7 +47,7 @@ func TestToServiceBaseInfoWithEnrichedFields(t *testing.T) {
 	}
 }
 
-// Test that ServiceBaseInfo conversion handles empty fields
+// Test that ServiceBaseInfo conversion handles empty fields.
 func TestToServiceBaseInfoWithEmptyFields(t *testing.T) {
 	input := domain.ServiceBaseInfo{
 		Name:      "test-service",
@@ -80,7 +79,7 @@ func TestToServiceBaseInfoWithEmptyFields(t *testing.T) {
 	}
 }
 
-// Test conversion of list
+// Test conversion of list.
 func TestToServiceBaseInfoList(t *testing.T) {
 	now := time.Now()
 	input := []domain.ServiceBaseInfo{

@@ -3,7 +3,6 @@ package pipelines
 import (
 	"github.com/docker/docker/api/types/image"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/config_steps"

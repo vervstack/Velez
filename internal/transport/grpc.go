@@ -19,7 +19,6 @@ type GrpcWithGateway interface {
 }
 
 type grpcServer struct {
-	ctx      context.Context
 	listener net.Listener
 
 	gatewayMux *http.ServeMux
@@ -32,11 +31,11 @@ type grpcServer struct {
 }
 
 func newGrpcServer(
-	ctx context.Context,
+	_ context.Context,
 	listener net.Listener,
-	gatewayMux *http.ServeMux) grpcServer {
+	gatewayMux *http.ServeMux,
+) grpcServer {
 	return grpcServer{
-		ctx:        ctx,
 		listener:   listener,
 		stopCall:   func() {},
 		gatewayMux: gatewayMux,
@@ -64,6 +63,7 @@ func (s *grpcServer) start() error {
 
 func (s *grpcServer) stop() error {
 	s.stopCall()
+
 	return nil
 }
 
@@ -73,7 +73,7 @@ func (s *grpcServer) AddImplementation(grpcImpls ...GrpcImpl) {
 
 		grpcWithGateway, ok := grpcImpl.(GrpcWithGateway)
 		if ok {
-			s.gatewayMux.Handle(grpcWithGateway.Gateway(s.ctx,
+			s.gatewayMux.Handle(grpcWithGateway.Gateway(context.Background(),
 				s.listener.Addr().String(),
 				grpc.WithTransportCredentials(insecure.NewCredentials())))
 		}

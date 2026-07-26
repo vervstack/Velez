@@ -4,14 +4,13 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
-
 	api "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
 func (impl *Impl) MakeConnections(ctx context.Context, req *api.MakeConnections_Request) (
-	*api.MakeConnections_Response, error) {
-
+	*api.MakeConnections_Response, error,
+) {
 	for _, conn := range req.Connections {
 		err := impl.smerdService.ConnectToNetwork(ctx, toConnection(conn))
 		if err != nil {
@@ -23,8 +22,8 @@ func (impl *Impl) MakeConnections(ctx context.Context, req *api.MakeConnections_
 }
 
 func (impl *Impl) BreakConnections(ctx context.Context, req *api.BreakConnections_Request) (
-	*api.BreakConnections_Response, error) {
-
+	*api.BreakConnections_Response, error,
+) {
 	for _, conn := range req.Connections {
 		err := impl.smerdService.DisconnectFromNetwork(ctx, toConnection(conn))
 		if err != nil {

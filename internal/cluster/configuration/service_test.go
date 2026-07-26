@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
 	"go.vervstack.ru/Velez/internal/cluster/env/container_service_task"
 )
 

@@ -4,13 +4,13 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
 func (impl *Impl) ListNamespaces(ctx context.Context, _ *velez_api.ListVcnNamespaces_Request) (
-	*velez_api.ListVcnNamespaces_Response, error) {
+	*velez_api.ListVcnNamespaces_Response, error,
+) {
 	namespaces, err := impl.vpnService.ListNamespaces(ctx)
 	if err != nil {
 		return nil, rerrors.Wrap(err)

@@ -6,11 +6,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	rtb "go.redsock.ru/toolbox"
-	"google.golang.org/protobuf/proto"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/tests/config_mocks"
+	"google.golang.org/protobuf/proto"
 )
 
 type LifecycleSuite struct {
@@ -28,8 +27,9 @@ func (s *LifecycleSuite) Test_Stateless_HelloWorld() {
 		IgnoreConfig: true,
 	}
 
-	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {})
+	runLifecycle(t, env, req, func(_ *testing.T, _ *velez_api.Smerd) {})
 }
+
 func (s *LifecycleSuite) Test_Stateless_HelloWorld_WithHealthcheck() {
 	t := s.T()
 	t.Parallel()
@@ -44,8 +44,9 @@ func (s *LifecycleSuite) Test_Stateless_HelloWorld_WithHealthcheck() {
 		},
 		IgnoreConfig: true,
 	}
-	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {})
+	runLifecycle(t, env, req, func(_ *testing.T, _ *velez_api.Smerd) {})
 }
+
 func (s *LifecycleSuite) Test_Stateless_HelloWorld_DefaultConfig() {
 	t := s.T()
 	t.Parallel()
@@ -56,10 +57,13 @@ func (s *LifecycleSuite) Test_Stateless_HelloWorld_DefaultConfig() {
 		ImageName: HelloWorldAppImage,
 	}
 	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {
-		require.Equal(t, "true", smerd.Labels[labels.MatreshkaConfigLabel])
+		t.Helper()
+
+		require.Equal(t, labelValueTrue, smerd.Labels[labels.MatreshkaConfigLabel])
 		require.Equal(t, smerd.Name, smerd.Env["VERV_NAME"])
 	})
 }
+
 func (s *LifecycleSuite) Test_Stateless_Nginx() {
 	t := s.T()
 	t.Parallel()
@@ -73,9 +77,12 @@ func (s *LifecycleSuite) Test_Stateless_Nginx() {
 	}
 	runLifecycle(t, env, req,
 		func(t *testing.T, smerd *velez_api.Smerd) {
+			t.Helper()
+
 			require.NotEmpty(t, smerd.Ports)
 		})
 }
+
 func (s *LifecycleSuite) Test_Stateless_Postgres() {
 	timeoutSec := uint32(5)
 
@@ -98,10 +105,13 @@ func (s *LifecycleSuite) Test_Stateless_Postgres() {
 	}
 	runLifecycle(t, env, req,
 		func(t *testing.T, smerd *velez_api.Smerd) {
+			t.Helper()
+
 			require.Len(t, smerd.Ports, 1)
 			require.EqualValues(t, 5432, smerd.Ports[0].ServicePortNumber)
 		})
 }
+
 func (s *LifecycleSuite) Test_StatelessMode_Loki() {
 	t := s.T()
 	t.Parallel()
@@ -127,7 +137,7 @@ func (s *LifecycleSuite) Test_StatelessMode_Loki() {
 		},
 	}
 
-	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {})
+	runLifecycle(t, env, req, func(_ *testing.T, _ *velez_api.Smerd) {})
 }
 
 // Test_ClusterMode_* subtests below run in parallel against one shared
@@ -144,8 +154,9 @@ func (s *LifecycleSuite) Test_ClusterMode_HelloWorld() {
 		ImageName:    HelloWorldAppImage,
 		IgnoreConfig: true,
 	}
-	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {})
+	runLifecycle(t, env, req, func(_ *testing.T, _ *velez_api.Smerd) {})
 }
+
 func (s *LifecycleSuite) Test_ClusterMode_PlainNginx() {
 	t := s.T()
 	t.Parallel()
@@ -158,9 +169,12 @@ func (s *LifecycleSuite) Test_ClusterMode_PlainNginx() {
 		UseImagePorts: true,
 	}
 	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {
+		t.Helper()
+
 		require.NotEmpty(t, smerd.Ports)
 	})
 }
+
 func (s *LifecycleSuite) Test_ClusterMode_Postgres() {
 	t := s.T()
 	t.Parallel()
@@ -184,6 +198,8 @@ func (s *LifecycleSuite) Test_ClusterMode_Postgres() {
 
 	runLifecycle(t, env, req,
 		func(t *testing.T, smerd *velez_api.Smerd) {
+			t.Helper()
+
 			require.Len(t, smerd.Ports, 1)
 			require.EqualValues(t, 5432, smerd.Ports[0].ServicePortNumber)
 		})
@@ -209,12 +225,13 @@ func (s *LifecycleSuite) Test_DropSmerd_ByUuid() {
 	dropReq := &velez_api.DropSmerd_Request{
 		Uuids: []string{created.Uuid},
 	}
-	dropped := env.DropSmerd(t, ctx, dropReq)
+	dropped := env.DropSmerd(ctx, t, dropReq)
 
 	require.Empty(t, dropped.Failed)
 	require.Equal(t, []string{created.Uuid}, dropped.Successful)
 
 	listReq := &velez_api.ListSmerds_Request{Name: rtb.ToPtr(name)}
+
 	listed := env.ListSmerds(t, ctx, listReq)
 	for _, smerd := range listed.Smerds {
 		require.NotEqual(t, created.Uuid, smerd.Uuid, "expected dropped smerd to no longer be listed")
@@ -225,11 +242,21 @@ func Test_Lifecycle(t *testing.T) {
 	suite.Run(t, new(LifecycleSuite))
 }
 
-func runLifecycle(t *testing.T, env *TestEnvironment, req *velez_api.CreateSmerd_Request, verify func(t *testing.T, smerd *velez_api.Smerd)) {
+func runLifecycle(
+	t *testing.T,
+	env *TestEnvironment,
+	req *velez_api.CreateSmerd_Request,
+	verify func(t *testing.T, smerd *velez_api.Smerd),
+) {
+	t.Helper()
+
 	ctx := t.Context()
 	name := GetServiceName(t)
 
-	req = proto.Clone(req).(*velez_api.CreateSmerd_Request)
+	clonedReq, ok := proto.Clone(req).(*velez_api.CreateSmerd_Request)
+	require.True(t, ok, "proto.Clone must preserve the concrete CreateSmerd_Request type")
+
+	req = clonedReq
 	req.Name = name
 
 	t.Logf(`Creating smerd. Req: %v`, req)
@@ -239,6 +266,7 @@ func runLifecycle(t *testing.T, env *TestEnvironment, req *velez_api.CreateSmerd
 	require.Equal(t, velez_api.Smerd_running, created.Status)
 	require.NotEmpty(t, created.Uuid)
 	require.NotNil(t, created.CreatedAt)
+
 	if req.UseImagePorts {
 		require.NotEmpty(t, created.Ports)
 	}
@@ -248,7 +276,9 @@ func runLifecycle(t *testing.T, env *TestEnvironment, req *velez_api.CreateSmerd
 	listReq := &velez_api.ListSmerds_Request{Name: rtb.ToPtr(name)}
 
 	listed := env.ListSmerds(t, ctx, listReq)
+
 	var actualSmerd *velez_api.Smerd
+
 	for _, smerd := range listed.Smerds {
 		if name == smerd.Name {
 			actualSmerd = smerd

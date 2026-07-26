@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
@@ -26,6 +25,7 @@ func (v *VervService) CreateNewDeploy(ctx context.Context, request domain.Create
 					Valid:      true,
 				},
 			}
+
 			spec.VervPayload.RawMessage, err = json.Marshal(request.LaunchSmerd)
 			if err != nil {
 				return rerrors.Wrap(err, "error marshaling specification")
@@ -69,18 +69,22 @@ func (v *VervService) UpgradeDeploy(ctx context.Context, request domain.UpgradeD
 	listReq := domain.ListDeploymentsReq{
 		ServiceName: request.ServiceName,
 	}
+
 	deployments, err := v.deploymentsStorage.List(ctx, listReq)
 	if err != nil {
 		return rerrors.Wrap(err, "error listing deployments")
 	}
 
 	var runningDep *domain.Deployment
+
 	for i := range deployments {
 		if deployments[i].Status == deployments_queries.VelezDeploymentStatusRUNNING {
 			runningDep = &deployments[i]
+
 			break
 		}
 	}
+
 	if runningDep == nil {
 		return rerrors.New("no running deployment found for service")
 	}
@@ -91,6 +95,7 @@ func (v *VervService) UpgradeDeploy(ctx context.Context, request domain.UpgradeD
 	}
 
 	smerdReq := &velez_api.CreateSmerd_Request{}
+
 	err = json.Unmarshal(currentSpec.VervPayload.RawMessage, smerdReq)
 	if err != nil {
 		return rerrors.Wrap(err, "error unmarshaling spec payload")
@@ -128,6 +133,7 @@ func (v *VervService) UpgradeDeploy(ctx context.Context, request domain.UpgradeD
 			Status: deployments_queries.VelezDeploymentStatusSCHEDULEDUPGRADE,
 			SpecID: newSpecId,
 		}
+
 		_, err = q.CreateDeployment(ctx, createDeploymentParams)
 		if err != nil {
 			return rerrors.Wrap(err, "error creating upgrade deployment")

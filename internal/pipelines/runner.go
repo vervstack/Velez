@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
 )
 
@@ -27,6 +26,7 @@ func (p *runner[T]) Run(ctx context.Context) (err error) {
 
 	rollbackCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
+
 	rollbackErr := p.rollback(rollbackCtx)
 	if rollbackErr != nil {
 		err = rerrors.Join(err, rerrors.Wrap(rollbackErr))
@@ -39,6 +39,7 @@ func (p *runner[T]) Result() (res *T, err error) {
 	if p.getResult != nil {
 		return p.getResult()
 	}
+
 	return nil, ErrNoGetResultFunction
 }
 
@@ -50,7 +51,6 @@ func (p *runner[T]) run(ctx context.Context) error {
 		if err != nil {
 			return rerrors.Wrapf(err, "error during execution of step: %T", s)
 		}
-
 	}
 
 	return nil

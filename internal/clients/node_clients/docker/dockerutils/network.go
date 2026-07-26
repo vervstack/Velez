@@ -6,7 +6,6 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/list_request"
 )
 
@@ -66,6 +65,7 @@ func ConnectToNetwork(ctx context.Context, d client.APIClient, req ConnectToNetw
 		connection := &network.EndpointSettings{
 			Aliases: req.Aliases,
 		}
+
 		err = d.NetworkConnect(ctx, req.NetworkName, cont.Name, connection)
 		if err != nil {
 			return rerrors.Wrap(err, "error connecting this instance to network")

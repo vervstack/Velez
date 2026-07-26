@@ -28,94 +28,81 @@ func (s *stateManager) Set(manager cluster_clients.ClusterStateManager) {
 
 func (s *stateManager) Nodes() storage.NodesStorage {
 	l := s.state.Load()
-	cm, ok := (*l).(cluster_clients.ClusterStateManager)
-	if !ok {
+	if l == nil {
 		return nil
 	}
 
-	return cm.Nodes()
+	return (*l).Nodes()
 }
 
 func (s *stateManager) Services() storage.ServicesStorage {
 	l := s.state.Load()
-	cm, ok := (*l).(cluster_clients.ClusterStateManager)
-	if !ok {
+	if l == nil {
 		return nil
 	}
 
-	return cm.Services()
+	return (*l).Services()
 }
 
 func (s *stateManager) Deployments() storage.DeploymentsStorage {
 	l := s.state.Load()
-	cm, ok := (*l).(cluster_clients.ClusterStateManager)
-	if !ok {
+	if l == nil {
 		return nil
 	}
 
-	return cm.Deployments()
+	return (*l).Deployments()
 }
 
 func (s *stateManager) TxManager() *sqldb.TxManager {
 	l := s.state.Load()
-	cm, ok := (*l).(cluster_clients.ClusterStateManager)
-	if !ok {
+	if l == nil {
 		return nil
 	}
 
-	return cm.TxManager()
+	return (*l).TxManager()
 }
 
 func (s *stateManager) Plugins() storage.PluginsStorage {
 	l := s.state.Load()
-	cm, ok := (*l).(cluster_clients.ClusterStateManager)
-	if !ok {
+	if l == nil {
 		return nil
 	}
 
-	return cm.Plugins()
+	return (*l).Plugins()
 }
 
 func (s *stateManager) ServiceDependencies() storage.ServiceDependenciesStorage {
 	l := s.state.Load()
-	cm, ok := (*l).(cluster_clients.ClusterStateManager)
-	if !ok {
+	if l == nil {
 		return nil
 	}
 
-	return cm.ServiceDependencies()
+	return (*l).ServiceDependencies()
 }
 
 func (s *stateManager) ServiceResources() storage.ServiceResourcesStorage {
 	l := s.state.Load()
-	cm, ok := (*l).(cluster_clients.ClusterStateManager)
-	if !ok {
+	if l == nil {
 		return nil
 	}
 
-	return cm.ServiceResources()
+	return (*l).ServiceResources()
 }
 
 func (s *stateManager) Tasks() storage.TasksStorage {
 	l := s.state.Load()
-	cm, ok := (*l).(cluster_clients.ClusterStateManager)
-	if !ok {
+	if l == nil {
 		return nil
 	}
 
-	return cm.Tasks()
+	return (*l).Tasks()
 }
 
 func (s *stateManager) Jobs() storage.JobsStorage {
 	l := s.state.Load()
-	cm, ok := (*l).(cluster_clients.ClusterStateManager)
-	if !ok {
+	if l == nil {
 		return nil
 	}
 
-	return cm.Jobs()
-}
-
-func (s *stateManager) tryConnect() {
-
+	return (*l).Jobs()
 }

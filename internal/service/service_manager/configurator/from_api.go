@@ -4,10 +4,9 @@ import (
 	"context"
 
 	errors "go.redsock.ru/rerrors"
+	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
-
-	"go.vervstack.ru/Velez/internal/domain"
 )
 
 func (c *Configurator) GetVervFromApi(ctx context.Context, meta domain.ConfigMeta) (matreshka.AppConfig, error) {
@@ -17,7 +16,8 @@ func (c *Configurator) GetVervFromApi(ctx context.Context, meta domain.ConfigMet
 		ConfigName: meta.Name,
 		Version:    meta.Version,
 	}
-	matreshkaConfig, err := c.MatreshkaBeAPIClient.GetConfig(ctx, req)
+
+	matreshkaConfig, err := c.GetConfig(ctx, req)
 	if err != nil {
 		return matreshka.AppConfig{}, errors.Wrap(err, "error obtaining raw config")
 	}

@@ -2,9 +2,8 @@ package domain
 
 import (
 	"go.redsock.ru/evon"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 type ConfigurationPatch struct {

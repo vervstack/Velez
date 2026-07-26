@@ -39,6 +39,7 @@ func RollMigration(rootDsn string) (err error) {
 	}()
 
 	goose.SetLogger(sqlLogger{})
+
 	err = goose.SetDialect(Dialect)
 	if err != nil {
 		return rerrors.Wrap(err, "error setting dialect")

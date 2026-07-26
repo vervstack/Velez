@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
@@ -19,8 +18,8 @@ import (
 const connectServiceWatchTimeout = 60 * time.Second
 
 func (impl *Impl) ConnectService(ctx context.Context, req *velez_api.ConnectService_Request) (
-	*velez_api.ConnectService_Response, error) {
-
+	*velez_api.ConnectService_Response, error,
+) {
 	initialContext := &velez_api.ConnectServiceToVpnTaskPayload{
 		ServiceName: req.ServiceName,
 	}

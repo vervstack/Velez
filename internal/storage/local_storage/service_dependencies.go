@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"go.redsock.ru/rerrors"
-
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
@@ -16,6 +15,7 @@ func containerName(names []string) string {
 	if len(names) == 0 {
 		return ""
 	}
+
 	return strings.TrimPrefix(names[0], "/")
 }
 
@@ -27,11 +27,13 @@ func newServiceDepsStorage(docker node_clients.Docker) *dockerServiceDepsStorage
 	return &dockerServiceDepsStorage{docker: docker}
 }
 
-func (d *dockerServiceDepsStorage) UpsertDependency(ctx context.Context, source, target, proto string) error {
+func (d *dockerServiceDepsStorage) UpsertDependency(_ context.Context, _, _, _ string) error {
 	return nil
 }
 
-func (d *dockerServiceDepsStorage) GetDependencies(ctx context.Context, serviceName string) ([]domain.ServiceDependency, error) {
+func (d *dockerServiceDepsStorage) GetDependencies(ctx context.Context,
+	serviceName string,
+) ([]domain.ServiceDependency, error) {
 	labelFilter := map[string]string{
 		labels.VervServiceLabel: serviceName,
 	}
@@ -45,6 +47,7 @@ func (d *dockerServiceDepsStorage) GetDependencies(ctx context.Context, serviceN
 	}
 
 	seen := make(map[string]bool)
+
 	var result []domain.ServiceDependency
 
 	for _, c := range containers {
@@ -60,6 +63,7 @@ func (d *dockerServiceDepsStorage) GetDependencies(ctx context.Context, serviceN
 				if seen[target] {
 					continue
 				}
+
 				seen[target] = true
 
 				dep := domain.ServiceDependency{
@@ -85,8 +89,11 @@ func (d *dockerServiceDepsStorage) GetDependencies(ctx context.Context, serviceN
 	return result, nil
 }
 
-func (d *dockerServiceDepsStorage) GetCallers(ctx context.Context, serviceName string) ([]domain.ServiceDependency, error) {
+func (d *dockerServiceDepsStorage) GetCallers(ctx context.Context,
+	serviceName string,
+) ([]domain.ServiceDependency, error) {
 	listReq := &pb.ListSmerds_Request{}
+
 	containers, err := d.docker.ListContainers(ctx, listReq)
 	if err != nil {
 		return nil, rerrors.Wrap(err)
@@ -102,10 +109,12 @@ func (d *dockerServiceDepsStorage) GetCallers(ctx context.Context, serviceName s
 
 		targets := strings.Split(dependsOn, ",")
 		found := false
+
 		for _, target := range targets {
 			target = strings.TrimSpace(target)
 			if target == serviceName {
 				found = true
+
 				break
 			}
 		}

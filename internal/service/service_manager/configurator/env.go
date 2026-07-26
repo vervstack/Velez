@@ -6,12 +6,11 @@ import (
 	"go.redsock.ru/evon"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
+	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
-	"go.vervstack.ru/Velez/internal/domain"
 )
 
 func (c *Configurator) GetEnvFromApi(ctx context.Context, meta domain.ConfigMeta) (*evon.Node, error) {
@@ -21,18 +20,20 @@ func (c *Configurator) GetEnvFromApi(ctx context.Context, meta domain.ConfigMeta
 func (c *Configurator) getEnvFromApi(ctx context.Context, meta domain.ConfigMeta) (*evon.Node, error) {
 	req := &matreshka_api.GetConfigNode_Request{
 		ConfigName: meta.Name,
-		//TODO replace master down below onto constant from matreshka
+		// TODO replace master down below onto constant from matreshka
 		Version: toolbox.Coalesce(toolbox.FromPtr(meta.Version), "master"),
 	}
 
-	cfgNodes, err := c.MatreshkaBeAPIClient.GetConfigNodes(ctx, req)
+	cfgNodes, err := c.GetConfigNodes(ctx, req)
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
 			return &evon.Node{}, nil
 		}
+
 		if rerrors.Is(err, cluster_clients.ErrServiceIsDisabled) {
 			return &evon.Node{}, nil
 		}
+
 		return nil, rerrors.Wrap(err, "error getting config nodes")
 	}
 
@@ -50,6 +51,7 @@ func fromApiNodes(root *matreshka_api.Node) []*evon.Node {
 		if len(node.InnerNodes) != 0 {
 			out = append(out, fromApiNodes(node)...)
 		}
+
 		if node.Value != nil {
 			out = append(out, &evon.Node{
 				Name:  node.Name,

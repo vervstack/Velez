@@ -7,8 +7,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
-type DisabledVcnImpl struct {
-}
+type DisabledVcnImpl struct{}
 
 func (d DisabledVcnImpl) GetClientAuthKey(ctx context.Context, req domain.GetVcnAuthKeyReq) (domain.VcnAuthKey, error) {
 	return domain.VcnAuthKey{}, cluster_clients.ErrServiceIsDisabled

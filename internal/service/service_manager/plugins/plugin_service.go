@@ -5,7 +5,6 @@ import (
 	"sort"
 
 	"go.redsock.ru/rerrors"
-
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/storage"
@@ -58,6 +57,7 @@ func listInactivePlugins(activePlugins []*pb.Plugin) []*pb.Plugin {
 	}
 
 	var disabled []*pb.Plugin
+
 	for vervService := range pb.VervPluginType_name {
 		if vervService == 0 {
 			continue

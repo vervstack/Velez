@@ -7,7 +7,6 @@ import (
 	"github.com/lib/pq"
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/services_queries"
@@ -91,11 +90,11 @@ func wrapPgErr(err error) error {
 
 	var pgErr *pq.Error
 	if errors.As(err, &pgErr) {
-		switch pgErr.Code {
-		case "23505": // unique_violation
+		if pgErr.Code == "23505" { // unique_violation
 			return errors.Join(storage.ErrAlreadyExists, err)
 		}
 	}
+
 	return err
 }
 

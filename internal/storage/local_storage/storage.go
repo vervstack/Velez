@@ -17,14 +17,14 @@ type localStorage struct {
 	jobs             *jobs
 }
 
-func New(containerApi node_clients.Docker) storage.Storage {
+func New(containerAPI node_clients.Docker) storage.Storage {
 	return &localStorage{
 		nodes:            newNodesStorage(),
-		services:         newServicesStorage(containerApi),
+		services:         newServicesStorage(containerAPI),
 		deployments:      newDeploymentsStorage(),
-		plugins:          newPluginsStorage(containerApi),
-		serviceDeps:      newServiceDepsStorage(containerApi),
-		serviceResources: newServiceResourcesStorage(containerApi),
+		plugins:          newPluginsStorage(containerAPI),
+		serviceDeps:      newServiceDepsStorage(containerAPI),
+		serviceResources: newServiceResourcesStorage(containerAPI),
 		tasks:            newTasksStorage(),
 		jobs:             newJobsStorage(),
 	}

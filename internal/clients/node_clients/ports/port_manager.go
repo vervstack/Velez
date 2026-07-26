@@ -1,6 +1,7 @@
 package ports
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"sync"
@@ -43,19 +44,26 @@ func (p *portManagerImpl) GetPort() (uint32, error) {
 	p.m.Lock()
 	defer p.m.Unlock()
 
+	lc := net.ListenConfig{}
+	ctx := context.Background()
+
 	// First pass: only consider ports not already marked as in-use in memory.
 	// This avoids the TOCTOU race between allocation and Docker binding.
 	for port, ok := range p.freePorts {
 		if ok {
 			continue
 		}
-		ln, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", port))
+
+		ln, err := lc.Listen(ctx, "tcp", fmt.Sprintf("0.0.0.0:%d", port))
 		if err != nil {
 			p.freePorts[port] = true
+
 			continue
 		}
-		ln.Close()
+
+		_ = ln.Close()
 		p.freePorts[port] = true
+
 		return port, nil
 	}
 
@@ -65,12 +73,15 @@ func (p *portManagerImpl) GetPort() (uint32, error) {
 		if !ok {
 			continue
 		}
-		ln, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", port))
+
+		ln, err := lc.Listen(ctx, "tcp", fmt.Sprintf("0.0.0.0:%d", port))
 		if err != nil {
 			continue
 		}
-		ln.Close()
+
+		_ = ln.Close()
 		p.freePorts[port] = true
+
 		return port, nil
 	}
 
@@ -81,6 +92,7 @@ func (p *portManagerImpl) LockPort(ports ...uint32) (err error) {
 	if len(ports) == 0 {
 		return nil
 	}
+
 	pL := make([]uint32, 0, len(ports))
 
 	p.m.Lock()
@@ -95,10 +107,13 @@ func (p *portManagerImpl) LockPort(ports ...uint32) (err error) {
 		isLocked, ok := p.freePorts[port]
 		if !ok {
 			err = errors.Wrap(ErrUnavailablePort)
+
 			return
 		}
+
 		if isLocked {
 			err = errors.Wrap(ErrPortAlreadyLocked)
+
 			return
 		}
 

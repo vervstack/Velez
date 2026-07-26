@@ -2,11 +2,10 @@ package configuration
 
 import (
 	"go.redsock.ru/rerrors"
-	"go.vervstack.ru/matreshka/pkg/app/matreshka_client"
-	"google.golang.org/grpc"
-
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/matreshka"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/matreshka/pkg/app/matreshka_client"
+	"google.golang.org/grpc"
 )
 
 func newClient(nodeClients node_clients.NodeClients) (matreshka.Client, error) {

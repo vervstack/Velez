@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
@@ -21,7 +20,7 @@ func (s *Client) IssueClientKey(ctx context.Context, req domain.IssueClientKey) 
 		Expiration  time.Time `json:"expiration"`
 		AclTags     []string  `json:"aclTags"`
 	}
-	//endregion
+	// endregion
 
 	// region Response body
 	type response struct {
@@ -29,7 +28,7 @@ func (s *Client) IssueClientKey(ctx context.Context, req domain.IssueClientKey) 
 			Key string `json:"key"`
 		} `json:"preAuthKey"`
 	}
-	//endregion
+	// endregion
 
 	r := reqBody{
 		NamespaceId: req.NamespaceId,
@@ -37,17 +36,27 @@ func (s *Client) IssueClientKey(ctx context.Context, req domain.IssueClientKey) 
 		Expiration:  time.Now().Add(time.Hour),
 	}
 
-	apiResp, err := s.doApiRequest(ctx, http.MethodPost, clientKeyUri, r)
+	apiResp, err := s.doAPIRequest(ctx, http.MethodPost, clientKeyURI, r)
 	if err != nil {
 		return "", rerrors.Wrap(err, "error creating namespace")
 	}
 
 	if apiResp.StatusCode == http.StatusOK {
 		var resp response
-		return resp.PreAuthKey.Key, json.NewDecoder(apiResp.Body).Decode(&resp)
+
+		err = json.NewDecoder(apiResp.Body).Decode(&resp)
+		_ = apiResp.Body.Close()
+
+		if err != nil {
+			return "", rerrors.Wrap(err, "error decoding response")
+		}
+
+		return resp.PreAuthKey.Key, nil
 	}
 
 	bd, err := io.ReadAll(apiResp.Body)
+	_ = apiResp.Body.Close()
+
 	if err != nil {
 		return "", rerrors.Wrap(err, "error reading response body")
 	}

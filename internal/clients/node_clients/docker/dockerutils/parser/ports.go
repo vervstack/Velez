@@ -6,7 +6,6 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/go-connections/nat"
 	"go.redsock.ru/toolbox"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
@@ -22,6 +21,7 @@ func FromPorts(settings *velez_api.Container_Settings) map[nat.Port][]nat.PortBi
 			// TODO auto asigne if not exists
 			continue
 		}
+
 		if item.Protocol == velez_api.Port_unknown {
 			item.Protocol = velez_api.Port_tcp
 		}
@@ -60,7 +60,6 @@ func ToPortsMapping(ports map[nat.Port][]nat.PortBinding) []*velez_api.Port {
 
 			out = append(out, binding)
 		}
-
 	}
 
 	return out
@@ -72,7 +71,6 @@ func ToPortsSlice(ports []container.Port) []*velez_api.Port {
 	uniquePublicPort := map[uint32]struct{}{}
 
 	for _, p := range ports {
-
 		newP := ToPort(p)
 
 		if newP.ExposedTo != nil {

@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"go.redsock.ru/rerrors"
-
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
@@ -13,11 +12,18 @@ import (
 )
 
 const (
-	makoshContainerName    = "makosh"
-	matreshkaContainerName = "matreshka"
-	portainerContainerName = "portainer"
-	headscaleContainerName = "headscale"
-	pgContainerName        = "verv-cluster-state"
+	makoshContainerName      = "makosh"
+	matreshkaContainerName   = "matreshka"
+	portainerContainerName   = "portainer"
+	headscaleContainerName   = "headscale"
+	pgContainerName          = "verv-cluster-state"
+	containerStateRunning    = "running"
+	containerStateRestarting = "restarting"
+	containerStateExited     = "exited"
+	containerStateDead       = "dead"
+	containerStatePaused     = "paused"
+	containerStateDegraded   = "degraded"
+	containerStateStopped    = "stopped"
 )
 
 type dockerPluginsStorage struct {
@@ -38,6 +44,7 @@ var pluginContainerNames = map[string]pb.VervPluginType{
 
 func (d *dockerPluginsStorage) ListPlugins(ctx context.Context) ([]domain.PluginBaseInfo, error) {
 	listReq := &pb.ListSmerds_Request{}
+
 	containers, err := d.docker.ListContainers(ctx, listReq)
 	if err != nil {
 		return nil, rerrors.Wrap(err)
@@ -48,6 +55,7 @@ func (d *dockerPluginsStorage) ListPlugins(ctx context.Context) ([]domain.Plugin
 		if len(c.Names) == 0 {
 			continue
 		}
+
 		name := strings.TrimPrefix(c.Names[0], "/")
 		containerStates[name] = c.State
 	}
@@ -57,12 +65,13 @@ func (d *dockerPluginsStorage) ListPlugins(ctx context.Context) ([]domain.Plugin
 		dockerState, exists := containerStates[containerName]
 
 		var state pb.VervPlugin_State
+
 		switch {
 		case !exists:
 			state = pb.VervPlugin_disabled
-		case dockerState == "running":
+		case dockerState == containerStateRunning:
 			state = pb.VervPlugin_running
-		case dockerState == "restarting":
+		case dockerState == containerStateRestarting:
 			state = pb.VervPlugin_warning
 		default:
 			state = pb.VervPlugin_dead

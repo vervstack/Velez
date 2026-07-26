@@ -5,7 +5,6 @@ import (
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types/strslice"
-
 	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
@@ -16,6 +15,7 @@ const (
 
 func TailScaleContainerSidecar(serviceName string) container.CreateRequest {
 	volumeName := serviceName + "-" + TailscaleSidecarSuffix
+
 	return container.CreateRequest{
 		Config: &container.Config{
 			Image: tailscaleImage,

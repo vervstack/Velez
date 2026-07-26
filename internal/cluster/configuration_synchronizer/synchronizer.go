@@ -4,9 +4,8 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
-
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/matreshka"
+	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 type Synchronizer struct {
@@ -19,6 +18,7 @@ func New(ctx context.Context, matreshkaClient matreshka.Client) (*Synchronizer, 
 	s := &Synchronizer{
 		updatesChan: make(chan []string),
 	}
+
 	var err error
 
 	s.stream, err = matreshkaClient.SubscribeOnChanges(ctx)
@@ -30,22 +30,20 @@ func New(ctx context.Context, matreshkaClient matreshka.Client) (*Synchronizer, 
 }
 
 func (s *Synchronizer) Start() error {
-
-	//for {
-	//updates, err := s.stream.Recv()
-	//if err != nil {
-	//	if !rerrors.Is(err, io.EOF) {
-	//		logrus.Errorf("error recieving message from stream %s", err)
-	//		continue
-	//	}
+	// for {
+	// updates, err := s.stream.Recv()
+	// if err != nil {
+	// if !rerrors.Is(err, io.EOF) {
+	// logrus.Errorf("error receiving message from stream %s", err)
+	// continue
+	// }
 	//
-	//	return nil
-	//}
-	//envVars := make([]string, len(updates.Changes))
+	// return nil
+	// }
+	// envVars := make([]string, len(updates.Changes))
 	//
-	//s.updatesChan <- updates
-	//}
-
+	// s.updatesChan <- updates
+	// }
 	return nil
 }
 
@@ -54,5 +52,10 @@ func (s *Synchronizer) Updates() <-chan []string {
 }
 
 func (s *Synchronizer) Stop() error {
-	return s.stream.CloseSend()
+	err := s.stream.CloseSend()
+	if err != nil {
+		return rerrors.Wrap(err, "error closing stream")
+	}
+
+	return nil
 }

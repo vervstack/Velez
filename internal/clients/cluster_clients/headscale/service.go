@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster/env"
 )
@@ -33,20 +32,23 @@ func Connect(ctx context.Context, url, token string) (*Client, error) {
 }
 
 func ConnectToContainer(ctx context.Context, nc node_clients.NodeClients, containerName string) (*Client, error) {
-	var srv Client
-	var err error
+	var (
+		srv Client
+		err error
+	)
 
-	srv.headscaleApiUrl, err = getApiAddress(ctx, nc.Docker(), containerName)
+	srv.headscaleApiUrl, err = getAPIAddress(ctx, nc.Docker(), containerName)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error getting api address")
 	}
 
-	srv.apiKey, err = issueNewApiKey(ctx, nc.Docker(), containerName)
+	srv.apiKey, err = issueNewAPIKey(ctx, nc.Docker(), containerName)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error issuing api key")
 	}
 
 	stateManager := nc.LocalStateManager()
+
 	localState := stateManager.GetForUpdate()
 	defer stateManager.SetAndRelease(localState)
 
@@ -56,10 +58,14 @@ func ConnectToContainer(ctx context.Context, nc node_clients.NodeClients, contai
 	return &srv, nil
 }
 
-func getApiAddress(ctx context.Context, dockerClient node_clients.Docker, containerName string) (address string, err error) {
-	dockerApi := dockerClient.Client()
+func getAPIAddress(
+	ctx context.Context,
+	dockerClient node_clients.Docker,
+	containerName string,
+) (address string, err error) {
+	dockerAPI := dockerClient.Client()
 
-	cont, err := dockerApi.ContainerInspect(ctx, containerName)
+	cont, err := dockerAPI.ContainerInspect(ctx, containerName)
 	if err != nil {
 		return "", rerrors.Wrap(err, "error inspecting headscale container")
 	}
@@ -68,6 +74,7 @@ func getApiAddress(ctx context.Context, dockerClient node_clients.Docker, contai
 
 	for port, pb := range cont.HostConfig.PortBindings {
 		contPort = port.Port()
+
 		for _, p := range pb {
 			hostPort = p.HostPort
 		}
@@ -76,6 +83,7 @@ func getApiAddress(ctx context.Context, dockerClient node_clients.Docker, contai
 	if !env.IsInContainer() {
 		return "http://localhost:" + hostPort, nil
 	}
+
 	vervNet, isExists := cont.NetworkSettings.Networks[env.VervNetwork]
 	if !isExists {
 		return "", rerrors.New("headscale container isn't connected to vervnet")

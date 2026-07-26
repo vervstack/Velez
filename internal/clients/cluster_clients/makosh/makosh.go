@@ -5,15 +5,13 @@ import (
 
 	errors "go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
-	makosh "go.vervstack.ru/makosh/pkg/makosh_be"
-	pb "go.vervstack.ru/makosh/pkg/makosh_be"
+	"go.vervstack.ru/Velez/internal/config"
+	"go.vervstack.ru/Velez/internal/middleware"
+	"go.vervstack.ru/makosh/pkg/makosh_be"
 	vervResolver "go.vervstack.ru/makosh/pkg/resolver"
 	"go.vervstack.ru/makosh/pkg/resolver/makosh_resolver"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-
-	"go.vervstack.ru/Velez/internal/config"
-	"go.vervstack.ru/Velez/internal/middleware"
 )
 
 const (
@@ -22,7 +20,7 @@ const (
 	ServiceName = "makosh"
 )
 
-func NewClient(token string, opts ...grpc.DialOption) (makosh.MakoshBeAPIClient, error) {
+func NewClient(token string, opts ...grpc.DialOption) (makosh_be.MakoshBeAPIClient, error) {
 	opts = append(opts,
 		grpc.WithUnaryInterceptor(middleware.HeaderOutgoingInterceptor(AuthHeader, token)))
 
@@ -31,12 +29,12 @@ func NewClient(token string, opts ...grpc.DialOption) (makosh.MakoshBeAPIClient,
 		return nil, errors.Wrap(err, "error dialing")
 	}
 
-	return pb.NewMakoshBeAPIClient(dial), nil
+	return makosh_be.NewMakoshBeAPIClient(dial), nil
 }
 
 type ServiceDiscovery struct {
 	Sd *vervResolver.ServiceDiscovery
-	makosh.MakoshBeAPIClient
+	makosh_be.MakoshBeAPIClient
 }
 
 func NewServiceDiscovery(cfg config.Config) (*ServiceDiscovery, error) {
@@ -44,6 +42,7 @@ func NewServiceDiscovery(cfg config.Config) (*ServiceDiscovery, error) {
 	token := toolbox.Coalesce(cfg.Overrides.MakoshToken, cfg.Environment.MakoshKey)
 
 	sd := &ServiceDiscovery{}
+
 	var err error
 
 	_ = os.Setenv(makosh_resolver.MakoshURL, url)

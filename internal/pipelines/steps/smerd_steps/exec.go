@@ -7,20 +7,19 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
-
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 )
 
 type execStep struct {
 	docker      node_clients.Docker
-	containerId *string
+	containerID *string
 	command     *string
 }
 
-func Exec(nodeClients node_clients.NodeClients, containerId *string, command *string) *execStep {
+func Exec(nodeClients node_clients.NodeClients, containerID *string, command *string) *execStep {
 	return &execStep{
 		docker:      nodeClients.Docker(),
-		containerId: containerId,
+		containerID: containerID,
 		command:     command,
 	}
 }
@@ -31,7 +30,7 @@ func (s *execStep) Do(ctx context.Context) error {
 		Detach: false,
 	}
 
-	res, err := s.docker.Exec(ctx, toolbox.FromPtr(s.containerId), ops)
+	res, err := s.docker.Exec(ctx, toolbox.FromPtr(s.containerID), ops)
 	if err != nil {
 		return rerrors.Wrap(err)
 	}

@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/service_steps"
 	"go.vervstack.ru/Velez/internal/storage"
@@ -38,7 +37,10 @@ func (h *createServiceHandler) NewContext() TaskContext {
 }
 
 func (h *createServiceHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
-	payload := taskCtx.(*velez_api.CreateServiceTaskPayload)
+	payload, ok := taskCtx.(*velez_api.CreateServiceTaskPayload)
+	if !ok {
+		panic("create_service: BuildJobs called with mismatched TaskContext type")
+	}
 
 	return []NamedJob{
 		{

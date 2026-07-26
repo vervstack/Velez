@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"go.redsock.ru/rerrors"
-
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
@@ -44,16 +43,17 @@ func (s *dockerServices) GetByName(ctx context.Context, name string) (domain.Ser
 		},
 		Status: containerStateToDeploymentStatus(c.State),
 	}
+
 	return svc, nil
 }
 
 func containerStateToDeploymentStatus(state string) pb.DeploymentStatus {
 	switch state {
-	case "running":
+	case containerStateRunning:
 		return pb.DeploymentStatus_RUNNING
-	case "dead":
+	case containerStateDead:
 		return pb.DeploymentStatus_FAILED
-	case "exited":
+	case containerStateExited:
 		return pb.DeploymentStatus_STOPPED
 	default:
 		return pb.DeploymentStatus_DEPLOYMENT_STATUS_UNKNOWN
@@ -62,12 +62,12 @@ func containerStateToDeploymentStatus(state string) pb.DeploymentStatus {
 
 func containerStateToString(state string) string {
 	switch state {
-	case "running":
-		return "running"
-	case "paused":
-		return "degraded"
-	case "exited", "dead":
-		return "stopped"
+	case containerStateRunning:
+		return containerStateRunning
+	case containerStatePaused:
+		return containerStateDegraded
+	case containerStateExited, containerStateDead:
+		return containerStateStopped
 	default:
 		return ""
 	}
@@ -94,6 +94,7 @@ func (s *dockerServices) List(ctx context.Context, req domain.ListServicesReq) (
 	}
 
 	seen := make(map[string]bool)
+
 	var all []domain.ServiceBaseInfo
 
 	for _, c := range containers {
@@ -101,6 +102,7 @@ func (s *dockerServices) List(ctx context.Context, req domain.ListServicesReq) (
 		if serviceName == "" || seen[serviceName] {
 			continue
 		}
+
 		seen[serviceName] = true
 
 		info := domain.ServiceBaseInfo{
@@ -111,12 +113,14 @@ func (s *dockerServices) List(ctx context.Context, req domain.ListServicesReq) (
 
 	if req.NamePattern.Valid {
 		pattern := strings.ToLower(req.NamePattern.Value)
+
 		filtered := all[:0]
 		for _, svc := range all {
 			if strings.Contains(strings.ToLower(svc.Name), pattern) {
 				filtered = append(filtered, svc)
 			}
 		}
+
 		all = filtered
 	}
 
@@ -136,5 +140,6 @@ func (s *dockerServices) List(ctx context.Context, req domain.ListServicesReq) (
 		Total:    total,
 		Services: all,
 	}
+
 	return out, nil
 }

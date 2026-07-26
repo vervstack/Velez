@@ -9,7 +9,6 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 )
@@ -20,7 +19,7 @@ type detachContainerFromVervStep struct {
 
 	portManager node_clients.PortManager
 
-	containerId *string
+	containerID *string
 
 	disconnectedNets map[string]*network.EndpointSettings
 
@@ -30,13 +29,13 @@ type detachContainerFromVervStep struct {
 
 func PauseContainer(
 	nodeClients node_clients.NodeClients,
-	containerId *string,
+	containerID *string,
 ) *detachContainerFromVervStep {
 	return &detachContainerFromVervStep{
 		nodeClients.Docker(),
 		nodeClients.Docker().Client(),
 		nodeClients.PortManager(),
-		containerId,
+		containerID,
 		make(map[string]*network.EndpointSettings),
 		make([]uint32, 0),
 		"unspecified",
@@ -44,11 +43,11 @@ func PauseContainer(
 }
 
 func (s *detachContainerFromVervStep) Do(ctx context.Context) error {
-	if s.containerId == nil {
+	if s.containerID == nil {
 		return rerrors.New("container id is required")
 	}
 
-	cont, err := s.dockerAPI.ContainerInspect(ctx, *s.containerId)
+	cont, err := s.dockerAPI.ContainerInspect(ctx, *s.containerID)
 	if err != nil {
 		return rerrors.Wrap(err, "error inspecting container")
 	}
@@ -78,7 +77,7 @@ func (s *detachContainerFromVervStep) Do(ctx context.Context) error {
 }
 
 func (s *detachContainerFromVervStep) Rollback(ctx context.Context) error {
-	if s.containerId == nil {
+	if s.containerID == nil {
 		return nil
 	}
 
@@ -90,9 +89,9 @@ func (s *detachContainerFromVervStep) Rollback(ctx context.Context) error {
 		s.portManager.UnHoldPort(p)
 	}
 
-	err := s.dockerAPI.ContainerUnpause(ctx, *s.containerId)
+	err := s.dockerAPI.ContainerUnpause(ctx, *s.containerID)
 	if err != nil {
-		return rerrors.Wrapf(err, "error unpausing container '%s'", *s.containerId)
+		return rerrors.Wrapf(err, "error unpausing container '%s'", *s.containerID)
 	}
 
 	var globErr error
@@ -100,9 +99,10 @@ func (s *detachContainerFromVervStep) Rollback(ctx context.Context) error {
 	for netName, net := range s.disconnectedNets {
 		connReq := dockerutils.ConnectToNetworkRequest{
 			NetworkName: netName,
-			ContId:      *s.containerId,
+			ContId:      *s.containerID,
 			Aliases:     net.Aliases,
 		}
+
 		err = dockerutils.ConnectToNetwork(ctx, s.dockerAPI, connReq)
 		if err != nil {
 			globErr = rerrors.Join(globErr, rerrors.Wrap(err, "error connecting to network on rollback"))
@@ -120,7 +120,7 @@ func (s *detachContainerFromVervStep) stopContainer(ctx context.Context, cont co
 	switch cont.State.Status {
 	case container.StateRunning:
 		// Running. Can softly pause
-		err := s.dockerAPI.ContainerPause(ctx, *s.containerId)
+		err := s.dockerAPI.ContainerPause(ctx, *s.containerID)
 		if err != nil {
 			if !errdefs2.IsConflict(err) {
 				return rerrors.Wrap(err, "error pausing container")
@@ -132,7 +132,8 @@ func (s *detachContainerFromVervStep) stopContainer(ctx context.Context, cont co
 	//	Do nothing. Already paused
 	case container.StateRestarting:
 		stopOps := container.StopOptions{}
-		err := s.dockerAPI.ContainerStop(ctx, *s.containerId, stopOps)
+
+		err := s.dockerAPI.ContainerStop(ctx, *s.containerID, stopOps)
 		if err != nil {
 			return rerrors.Wrap(err, "error stopping container")
 		}

@@ -22,15 +22,17 @@ func ConnectServiceToVpn(req domain.ConnectServiceToVcn,
 	// region Pipeline context
 	launchContainer := patterns.TailScaleContainerSidecar(req.ServiceName)
 
-	var containerId string
-	var clientKey string
-	var loginServer string
-	var namespaceId string
+	var (
+		containerId string
+		clientKey   string
+		loginServer string
+		namespaceId string
+	)
 
 	containerName := req.ServiceName + "-" + patterns.TailscaleSidecarSuffix
 	hostname := strings.ReplaceAll(containerName, "_", "-")
 
-	//endregion
+	// endregion
 
 	return &runner[any]{
 		Steps: []steps.Step{
@@ -44,6 +46,7 @@ func ConnectServiceToVpn(req domain.ConnectServiceToVcn,
 					"TS_AUTHKEY="+clientKey,
 					"TS_EXTRA_ARGS=--login-server="+loginServer,
 				)
+
 				return nil
 			}),
 			steps.PrepareImage(nc, launchContainer.Image, nil),

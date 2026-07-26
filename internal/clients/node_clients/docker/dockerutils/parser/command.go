@@ -6,7 +6,6 @@ import (
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/strslice"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 

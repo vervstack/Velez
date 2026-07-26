@@ -12,8 +12,6 @@ import (
 	"go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/toolbox/keep_alive"
-	"go.vervstack.ru/makosh/pkg/makosh_be"
-
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/matreshka"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
@@ -24,6 +22,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/pipelines"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
+	"go.vervstack.ru/makosh/pkg/makosh_be"
 )
 
 // sharedInstanceCtxKey is an unexported context key used to hand an
@@ -84,6 +83,7 @@ func WithSharedInstance(ctx context.Context, instance *SharedInstance) context.C
 
 func sharedTaskFromContext(ctx context.Context) (*container_service_task.TaskV2, bool) {
 	task, ok := ctx.Value(sharedInstanceCtxKey{}).(*container_service_task.TaskV2)
+
 	return task, ok
 }
 
@@ -92,7 +92,7 @@ func sharedTaskFromContext(ctx context.Context) (*container_service_task.TaskV2,
 // SetupMatreshka so StartSharedInstance can reuse the exact same
 // container-config logic instead of duplicating it.
 func startContainer(ctx context.Context, cfg config.Config, nc node_clients.NodeClients, key string) (*container_service_task.TaskV2, *keep_alive.AliveKeeper, error) {
-	//region Create Container request
+	// region Create Container request
 	matreshkaContainerCfg := container.CreateRequest{
 		Config: &container.Config{
 			Hostname: Name,
@@ -126,10 +126,10 @@ func startContainer(ctx context.Context, cfg config.Config, nc node_clients.Node
 			},
 		},
 	}
-	//endregion
+	// endregion
 
 	if cfg.Environment.MatreshkaPort > 0 {
-		matreshkaContainerCfg.Config.ExposedPorts[grpcPort] = struct{}{}
+		matreshkaContainerCfg.ExposedPorts[grpcPort] = struct{}{}
 
 		matreshkaContainerCfg.HostConfig.PortBindings = map[nat.Port][]nat.PortBinding{
 			grpcPort: {
@@ -176,6 +176,7 @@ func SetupMatreshka(
 		if cfg.Environment.ShutDownOnExit {
 			closer.Add(func() error {
 				ka.Stop()
+
 				return nil
 			})
 		}
@@ -200,6 +201,7 @@ func SetupMatreshka(
 				},
 			},
 		}
+
 		_, err = sdClient.UpsertEndpoints(ctx, r)
 		if err != nil {
 			return nil, rerrors.Wrap(err, "error upserting endpoints")
@@ -209,6 +211,7 @@ func SetupMatreshka(
 	}
 
 	runner := pipelines.ConnectServiceToVpn(vcnReq, nc, vcnClient, sdClient)
+
 	err = runner.Run(ctx)
 	if err != nil {
 		if rerrors.Is(err, steps.ErrAlreadyExists) {

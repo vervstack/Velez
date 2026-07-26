@@ -19,14 +19,17 @@ func TestEngine_EnqueueDedupesConcurrentCalls(t *testing.T) {
 
 	var wg sync.WaitGroup
 	wg.Add(n)
+
 	for i := 0; i < n; i++ {
 		go func(i int) {
 			defer wg.Done()
+
 			task, err := engine.Enqueue(context.Background(), "same-entity", "same-action", &dummyContext{Value: "x"})
 			ids[i] = task.ID
 			errs[i] = err
 		}(i)
 	}
+
 	wg.Wait()
 
 	for i, err := range errs {
@@ -74,6 +77,7 @@ func TestEngine_EnqueueReturnsExistingFailedTaskInstead(t *testing.T) {
 	if second.ID != first.ID {
 		t.Errorf("expected Enqueue to return the existing task, got a different id")
 	}
+
 	if second.Status != tasks_queries.VelezTaskStatusFAILED {
 		t.Errorf("expected caller to see the existing FAILED status, got %v", second.Status)
 	}

@@ -47,10 +47,13 @@ func (h *dropSmerdHandler) NewContext() TaskContext {
 // identifier-based since raw identifiers (container names/uuids) aren't safe
 // job-name material.
 func (h *dropSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
-	payload := taskCtx.(*velez_api.DropSmerdTaskPayload)
+	payload, ok := taskCtx.(*velez_api.DropSmerdTaskPayload)
+	if !ok {
+		panic("drop_smerd: BuildJobs called with mismatched TaskContext type")
+	}
 
 	req := payload.GetRequest()
-	worklist := append(req.GetUuids(), req.GetName()...) //nolint:gocritic // mirrors old code's append(req.Uuids, req.Name...)
+	worklist := append(req.GetUuids(), req.GetName()...)
 
 	namedJobs := make([]NamedJob, 0, len(worklist))
 

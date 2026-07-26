@@ -4,12 +4,11 @@ import (
 	"context"
 
 	"go.redsock.ru/evon"
-	"go.vervstack.ru/matreshka/pkg/matreshka"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
 )
 
 type Services interface {
@@ -27,7 +26,7 @@ type Services interface {
 type ContainerService interface {
 	ListSmerds(ctx context.Context, req *velez_api.ListSmerds_Request) (*velez_api.ListSmerds_Response, error)
 	DropSmerds(ctx context.Context, req *velez_api.DropSmerd_Request) (*velez_api.DropSmerd_Response, error)
-	InspectSmerd(ctx context.Context, contId string) (*velez_api.Smerd, error)
+	InspectSmerd(ctx context.Context, contID string) (*velez_api.Smerd, error)
 
 	ConnectToNetwork(ctx context.Context, req domain.Connection) error
 	DisconnectFromNetwork(ctx context.Context, req domain.Connection) error
@@ -44,7 +43,7 @@ type ConfigurationService interface {
 	GetUpdates() <-chan domain.ConfigurationPatch
 }
 
-// VervServicesService - service provides api for operations over Verv Services
+// VervServicesService provides API for operations over Verv Services.
 type VervServicesService interface {
 	Get(ctx context.Context, r domain.GetServiceReq) (domain.Service, error)
 	CreateNewDeploy(ctx context.Context, request domain.CreateDeployReq) error

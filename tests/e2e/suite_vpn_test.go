@@ -9,10 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
 type VpnSuite struct {
@@ -20,11 +19,11 @@ type VpnSuite struct {
 
 	env *TestEnvironment
 
-	controlPlaneApi velez_api.ControlPlaneAPIServer
-	vpnApi          velez_api.VcnApiClient
+	controlPlaneAPI velez_api.ControlPlaneAPIServer
+	vpnAPI          velez_api.VcnApiClient
 
 	ctx         context.Context
-	namespaceId string
+	namespaceID string
 	serviceName string
 }
 
@@ -32,11 +31,15 @@ func (s *VpnSuite) SetupSuite() {
 	t := s.T()
 	t.Parallel()
 
-	conn, err := net.DialTimeout("tcp", "localhost:8080", 2*time.Second)
+	dialer := &net.Dialer{Timeout: 2 * time.Second}
+
+	conn, err := dialer.DialContext(t.Context(), "tcp", "localhost:8080")
 	if err != nil {
 		t.Skip("headscale not available at localhost:8080, skipping VPN tests")
 	}
-	conn.Close()
+
+	err = conn.Close()
+	require.NoError(t, err)
 
 	s.ctx = t.Context()
 
@@ -44,8 +47,8 @@ func (s *VpnSuite) SetupSuite() {
 		WithState(t,
 			WithStateVcnEnabled()))
 
-	s.controlPlaneApi = s.env.Custom.ControlPlaneApiImpl
-	s.vpnApi = s.env.VpnClient()
+	s.controlPlaneAPI = s.env.Custom.ControlPlaneApiImpl
+	s.vpnAPI = s.env.VpnClient()
 }
 
 func (s *VpnSuite) SetupTest() {
@@ -72,22 +75,22 @@ func (s *VpnSuite) Test_ConnectVpn() {
 		ServiceName: s.serviceName,
 	}
 
-	connectResp, err := s.vpnApi.ConnectService(t.Context(), connectReq)
+	connectResp, err := s.vpnAPI.ConnectService(t.Context(), connectReq)
 	require.NoError(t, err)
 	require.NotNil(t, connectResp)
 }
 
 func (s *VpnSuite) TearDownTest() {
-	if s.namespaceId == "" {
+	if s.namespaceID == "" {
 		return
 	}
 
 	t := s.T()
 
 	r := &velez_api.DeleteVcnNamespace_Request{
-		Id: s.namespaceId,
+		Id: s.namespaceID,
 	}
-	_, err := s.vpnApi.DeleteNamespace(s.ctx, r)
+	_, err := s.vpnAPI.DeleteNamespace(s.ctx, r)
 	assert.NoError(t, err)
 }
 
@@ -99,26 +102,27 @@ func (s *VpnSuite) prepareNamespace() {
 		Name: s.serviceName,
 	}
 
-	newNamespaceResp, err := s.vpnApi.CreateNamespace(ctx, newNamespaceReq)
+	newNamespaceResp, err := s.vpnAPI.CreateNamespace(ctx, newNamespaceReq)
 	if err == nil {
-		s.namespaceId = newNamespaceResp.Namespace.Id
+		s.namespaceID = newNamespaceResp.Namespace.Id
+
 		return
 	}
 
 	c, k := status.FromError(err)
-	if !(k && c.Code() == codes.AlreadyExists) {
+	if !k || c.Code() != codes.AlreadyExists {
 		require.NoError(t, err)
 	}
 
 	// TODO add listing with name
 	listReq := &velez_api.ListVcnNamespaces_Request{}
 
-	listNamespacesResp, err := s.vpnApi.ListNamespaces(ctx, listReq)
+	listNamespacesResp, err := s.vpnAPI.ListNamespaces(ctx, listReq)
 	require.NoError(t, err)
 
 	for _, ns := range listNamespacesResp.Namespaces {
 		if ns.Id == s.serviceName {
-			s.namespaceId = ns.Id
+			s.namespaceID = ns.Id
 		}
 	}
 }

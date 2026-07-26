@@ -8,7 +8,6 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
@@ -30,6 +29,7 @@ func SetupMasterPg(
 				Err(err).
 				Str("container_name", containerName).
 				Msg("PgRootDsn was defined but postgres for cluster state isn't running on this node")
+
 			return nil
 		}
 

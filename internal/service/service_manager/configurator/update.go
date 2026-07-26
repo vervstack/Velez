@@ -6,10 +6,9 @@ import (
 
 	"go.redsock.ru/evon"
 	errors "go.redsock.ru/rerrors"
-	matrapi "go.vervstack.ru/matreshka/pkg/matreshka_api"
-
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/utils/configutils"
+	matrapi "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 func (c *Configurator) UpdateConfig(ctx context.Context, cfg domain.AppConfig) (err error) {
@@ -54,7 +53,7 @@ func (c *Configurator) UpdateConfig(ctx context.Context, cfg domain.AppConfig) (
 		)
 	}
 
-	_, err = c.MatreshkaBeAPIClient.PatchConfig(ctx, patchRequest)
+	_, err = c.PatchConfig(ctx, patchRequest)
 	if err != nil {
 		return errors.Wrap(err, "error patching config")
 	}

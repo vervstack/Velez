@@ -10,13 +10,15 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 	"go.vervstack.ru/Velez/internal/workers"
 )
 
-const defaultClaimLease = 2 * time.Minute
+const (
+	defaultClaimLease = 2 * time.Minute
+	rollbackTimeout   = 30 * time.Second
+)
 
 // taskWorker generalizes internal/workers/deploy_watcher.go's ticker-driven
 // polling into a claim-any-registered-action loop backed by SELECT ... FOR
@@ -73,6 +75,7 @@ func (w *taskWorker) Stop() error {
 		w.ticker.Stop()
 		close(w.done)
 	})
+
 	return nil
 }
 
@@ -85,6 +88,7 @@ func (w *taskWorker) processOne(ctx context.Context) {
 		if !errors.Is(err, sql.ErrNoRows) {
 			log.Error().Err(err).Msg("error claiming task")
 		}
+
 		return
 	}
 
@@ -153,6 +157,7 @@ func (w *taskWorker) failTask(ctx context.Context, taskID int64, taskErr error) 
 
 func (w *taskWorker) runJobs(ctx context.Context, taskID int64, taskCtx TaskContext, namedJobs []NamedJob) error {
 	failedIdx := -1
+
 	var runErr error
 
 	for i, nj := range namedJobs {
@@ -161,6 +166,7 @@ func (w *taskWorker) runJobs(ctx context.Context, taskID int64, taskCtx TaskCont
 		runErr = checkpointed.Do(ctx)
 		if runErr != nil {
 			failedIdx = i
+
 			break
 		}
 	}
@@ -169,7 +175,7 @@ func (w *taskWorker) runJobs(ctx context.Context, taskID int64, taskCtx TaskCont
 		return nil
 	}
 
-	rollbackCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	rollbackCtx, cancel := context.WithTimeout(context.Background(), rollbackTimeout)
 	defer cancel()
 
 	for i := failedIdx; i >= 0; i-- {
@@ -187,5 +193,5 @@ func (w *taskWorker) runJobs(ctx context.Context, taskID int64, taskCtx TaskCont
 		}
 	}
 
-	return runErr
+	return rerrors.Wrapf(runErr, "job %q failed", namedJobs[failedIdx].Name)
 }

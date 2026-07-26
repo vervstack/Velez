@@ -13,13 +13,12 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
-	"golang.org/x/sync/errgroup"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/pipelines"
+	"golang.org/x/sync/errgroup"
 )
 
 type AutoUpgrade struct {
@@ -68,7 +67,6 @@ func (au *AutoUpgrade) Start(ctx context.Context) error {
 			case <-ctx.Done():
 				return
 			}
-
 		}
 	})
 
@@ -94,13 +92,16 @@ func (au *AutoUpgrade) do(ctx context.Context) error {
 
 	for _, smerd := range smerds {
 		var newImage *string
+
 		newImage, err = au.getNewImageVersion(ctx, smerd.Image)
 		if err != nil {
 			log.Err(err).
 				Str("image", smerd.Image).
 				Msg("error getting new image version")
+
 			continue
 		}
+
 		if newImage == nil {
 			continue
 		}
@@ -112,6 +113,7 @@ func (au *AutoUpgrade) do(ctx context.Context) error {
 
 		eg.Go(func() error {
 			runner := au.pipeliner.UpgradeSmerd(r)
+
 			err = runner.Run(ctx)
 			if err != nil {
 				return rerrors.Wrapf(err, "error upgrading smerd %s", r.Name)
@@ -128,6 +130,7 @@ func (au *AutoUpgrade) do(ctx context.Context) error {
 
 	return nil
 }
+
 func (au *AutoUpgrade) getAutoUpdateSmerds(ctx context.Context) ([]container.Summary, error) {
 	listReq := &velez_api.ListSmerds_Request{
 		Label: map[string]string{

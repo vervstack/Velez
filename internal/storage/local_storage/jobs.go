@@ -39,7 +39,9 @@ func (j *jobs) GetJob(_ context.Context, arg jobs_queries.GetJobParams) (jobs_qu
 	return row, nil
 }
 
-func (j *jobs) CreateRunningJob(_ context.Context, arg jobs_queries.CreateRunningJobParams) (jobs_queries.VelezJob, error) {
+func (j *jobs) CreateRunningJob(_ context.Context,
+	arg jobs_queries.CreateRunningJobParams,
+) (jobs_queries.VelezJob, error) {
 	j.mu.Lock()
 	defer j.mu.Unlock()
 
@@ -66,6 +68,7 @@ func (j *jobs) FinishJob(_ context.Context, arg jobs_queries.FinishJobParams) er
 	defer j.mu.Unlock()
 
 	key := jobKey(arg.TaskID, arg.JobName)
+
 	row, ok := j.rows[key]
 	if !ok {
 		return sql.ErrNoRows
@@ -84,6 +87,7 @@ func (j *jobs) ListJobsByTask(_ context.Context, taskID int64) ([]jobs_queries.V
 	defer j.mu.Unlock()
 
 	out := make([]jobs_queries.VelezJob, 0)
+
 	for _, row := range j.rows {
 		if row.TaskID == taskID {
 			out = append(out, row)

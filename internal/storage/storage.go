@@ -5,7 +5,6 @@ import (
 	"database/sql"
 
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"

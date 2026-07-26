@@ -1,6 +1,10 @@
 package ports
 
-import "sync/atomic"
+import (
+	"sync/atomic"
+
+	"go.redsock.ru/rerrors"
+)
 
 type Container struct {
 	impl atomic.Pointer[PortManager]
@@ -9,6 +13,7 @@ type Container struct {
 func NewContainer(initial PortManager) *Container {
 	c := &Container{}
 	c.Set(initial)
+
 	return c
 }
 
@@ -17,11 +22,21 @@ func (c *Container) Set(impl PortManager) {
 }
 
 func (c *Container) GetPort() (uint32, error) {
-	return (*c.impl.Load()).GetPort()
+	port, err := (*c.impl.Load()).GetPort()
+	if err != nil {
+		return 0, rerrors.Wrap(err, "error getting port")
+	}
+
+	return port, nil
 }
 
 func (c *Container) LockPort(p ...uint32) error {
-	return (*c.impl.Load()).LockPort(p...)
+	err := (*c.impl.Load()).LockPort(p...)
+	if err != nil {
+		return rerrors.Wrap(err, "error locking port")
+	}
+
+	return nil
 }
 
 func (c *Container) UnlockPorts(p []uint32) {

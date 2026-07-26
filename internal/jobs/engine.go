@@ -10,7 +10,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/sqlc-dev/pqtype"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
@@ -42,7 +41,9 @@ func NewEngine(tasksStorage storage.TasksStorage) Engine {
 	}
 }
 
-func (e *engine) Enqueue(ctx context.Context, entityID, action string, initialContext any) (tasks_queries.VelezTask, error) {
+func (e *engine) Enqueue(
+	ctx context.Context, entityID, action string, initialContext any,
+) (tasks_queries.VelezTask, error) {
 	contextJSON, err := json.Marshal(initialContext)
 	if err != nil {
 		return tasks_queries.VelezTask{}, rerrors.Wrap(err, "error marshaling initial context")
@@ -109,6 +110,7 @@ func (e *engine) Watch(ctx context.Context, entityID, action string) <-chan task
 				// task not created yet - keep polling
 			default:
 				log.Error().Err(err).Str("entity_id", entityID).Str("action", action).Msg("error watching task")
+
 				return
 			}
 

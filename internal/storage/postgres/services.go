@@ -5,7 +5,6 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
 	pg_queries "go.vervstack.ru/Velez/internal/storage/postgres/generated/services_queries"
@@ -26,7 +25,12 @@ func (s *servicesStorage) GetByName(ctx context.Context, name string) (domain.Se
 }
 
 func (s *servicesStorage) UpsertService(ctx context.Context, name string) error {
-	return s.querier.UpsertService(ctx, name)
+	err := s.querier.UpsertService(ctx, name)
+	if err != nil {
+		return wrapPgErr(err)
+	}
+
+	return nil
 }
 
 func (s *servicesStorage) Delete(ctx context.Context, name string) error {
@@ -74,6 +78,7 @@ func (s *servicesStorage) List(ctx context.Context, req domain.ListServicesReq) 
 
 	for rows.Next() {
 		var serviceBaseInfo domain.ServiceBaseInfo
+
 		serviceBaseInfo, err = listServiceHelper.scanServiceBaseInfo(rows)
 		if err != nil {
 			return domain.ServiceList{}, wrapPgErr(err)
@@ -82,16 +87,22 @@ func (s *servicesStorage) List(ctx context.Context, req domain.ListServicesReq) 
 		out.Services = append(out.Services, serviceBaseInfo)
 	}
 
+	err = rows.Err()
+	if err != nil {
+		return domain.ServiceList{}, wrapPgErr(err)
+	}
+
 	return out, nil
 }
 
-type serviceBaseInfoHelper struct {
-}
+type serviceBaseInfoHelper struct{}
 
 func (s serviceBaseInfoHelper) buildListQuery(req domain.ListServicesReq) sq.SelectBuilder {
 	q := sq.Select().
 		From("velez.services s").
-		LeftJoin("(SELECT ds.service_id, MAX(d.created_at) AS last_deployed_at FROM velez.deployments d JOIN velez.deployment_specifications ds ON ds.id = d.spec_id GROUP BY ds.service_id) ld ON ld.service_id = s.id").
+		LeftJoin("(SELECT ds.service_id, MAX(d.created_at) AS last_deployed_at FROM velez.deployments d " +
+			"JOIN velez.deployment_specifications ds ON ds.id = d.spec_id GROUP BY ds.service_id) " +
+			"ld ON ld.service_id = s.id").
 		PlaceholderFormat(sq.Dollar)
 
 	if req.NamePattern.Valid {
@@ -121,6 +132,7 @@ func (s serviceBaseInfoHelper) scanServiceBaseInfo(row sqldb.Scannable) (baseInf
 
 func countTotal(ctx context.Context, conn sqldb.DB, baseQuery sq.SelectBuilder) (uint64, error) {
 	var totalRows uint64
+
 	countQuery, args, err := baseQuery.Columns("count(*)").ToSql()
 	if err != nil {
 		return totalRows, rerrors.Wrap(err, "building count query")

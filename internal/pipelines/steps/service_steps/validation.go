@@ -4,18 +4,19 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
-	"google.golang.org/grpc/codes"
-
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
+	"google.golang.org/grpc/codes"
 )
+
+const minServiceNameLen = 4
 
 var allowedNameSymbols = map[rune]struct{}{}
 
 func init() {
-	for _, r := range []rune(`ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_abcdefghijklmnopqrstuvwxyz1234567890`) {
+	const allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_abcdefghijklmnopqrstuvwxyz1234567890"
+	for _, r := range allowedChars {
 		allowedNameSymbols[r] = struct{}{}
 	}
-
 }
 
 var (
@@ -24,16 +25,16 @@ var (
 )
 
 func ValidateServiceName(name string) steps.Step {
-	return steps.SingleFunc(func(ctx context.Context) error {
-
-		if len(name) < 4 {
+	return steps.SingleFunc(func(_ context.Context) error {
+		if len(name) < minServiceNameLen {
 			return rerrors.Wrap(ErrTooShortServiceName)
 		}
 
 		invalidCharsMap := map[rune]struct{}{}
+
 		var invalidChars []rune
 
-		for _, r := range []rune(name) {
+		for _, r := range name {
 			_, ok := allowedNameSymbols[r]
 			if !ok {
 				_, alreadyHave := invalidCharsMap[r]
@@ -43,6 +44,7 @@ func ValidateServiceName(name string) steps.Step {
 				}
 			}
 		}
+
 		if len(invalidChars) == 0 {
 			return nil
 		}

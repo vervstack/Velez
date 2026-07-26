@@ -18,32 +18,29 @@ const authHeader = "Authorization"
 const (
 	apiBase = "/api/v1"
 
-	userUri       = apiBase + "/user"
-	clientKeyUri  = apiBase + "/preauthkey"
-	nodeUri       = apiBase + "/node"
-	preAuthKeyUri = apiBase + "/preauthkey"
+	userURI       = apiBase + "/user"
+	clientKeyURI  = apiBase + "/preauthkey"
+	nodeURI       = apiBase + "/node"
+	preAuthKeyURI = apiBase + "/preauthkey"
 )
 
-var (
-	ErrNotFound = rerrors.New("not found")
-)
+var ErrNotFound = rerrors.New("not found")
 
-func (s *Client) doApiRequest(ctx context.Context, method string, uri string, req any) (*http.Response, error) {
+func (s *Client) doAPIRequest(ctx context.Context, method string, uri string, req any) (*http.Response, error) {
 	reqEncoded, err := json.Marshal(req)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error marshalling request")
 	}
 
-	r, err := http.NewRequest(method, s.headscaleApiUrl+uri, bytes.NewBuffer(reqEncoded))
+	r, err := http.NewRequestWithContext(ctx, method, s.headscaleApiUrl+uri, bytes.NewBuffer(reqEncoded))
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error creating request")
 	}
-	r = r.WithContext(ctx)
 
-	return s.execApiRequest(r)
+	return s.execAPIRequest(r)
 }
 
-func (s *Client) execApiRequest(r *http.Request) (*http.Response, error) {
+func (s *Client) execAPIRequest(r *http.Request) (*http.Response, error) {
 	r.Header.Add(authHeader, "Bearer "+s.apiKey)
 
 	resp, err := http.DefaultClient.Do(r)
@@ -63,16 +60,16 @@ func (s *Client) handleError(resp *http.Response) error {
 	return rerrors.Wrap(ErrUnexpectedStatus, resp.Status, string(body))
 }
 
-type errorResp struct {
+type RespError struct {
 	Code    codes.Code    `json:"code"`
 	Message string        `json:"message"`
 	Details []interface{} `json:"details"`
 }
 
-func (e errorResp) Error() string {
+func (e RespError) Error() string {
 	return status.Error(e.Code, e.Message).Error()
 }
 
-func (e errorResp) isUniqueError() bool {
+func (e RespError) isUniqueError() bool {
 	return strings.Contains(e.Message, "UNIQUE constraint failed")
 }

@@ -7,14 +7,13 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/zerolog/log"
-	"google.golang.org/grpc"
-
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/pipelines"
 	"go.vervstack.ru/Velez/internal/service"
+	"google.golang.org/grpc"
 )
 
 type Impl struct {
@@ -47,12 +46,16 @@ func (impl *Impl) Register(srv grpc.ServiceRegistrar) {
 	velez_api.RegisterVelezAPIServer(srv, impl)
 }
 
-func (impl *Impl) Gateway(ctx context.Context, endpoint string, opts ...grpc.DialOption) (route string, handler http.Handler) {
-	gwHttpMux := runtime.NewServeMux()
+func (impl *Impl) Gateway(
+	ctx context.Context,
+	endpoint string,
+	opts ...grpc.DialOption,
+) (route string, handler http.Handler) {
+	gwHTTPMux := runtime.NewServeMux()
 
 	err := velez_api.RegisterVelezAPIHandlerFromEndpoint(
 		ctx,
-		gwHttpMux,
+		gwHTTPMux,
 		endpoint,
 		opts,
 	)
@@ -60,5 +63,5 @@ func (impl *Impl) Gateway(ctx context.Context, endpoint string, opts ...grpc.Dia
 		log.Error().Err(err).Msg("error registering grpc2http handler")
 	}
 
-	return "/api/", gwHttpMux
+	return "/api/", gwHTTPMux
 }

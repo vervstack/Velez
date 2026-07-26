@@ -7,7 +7,7 @@ import (
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
-// Test that ListPeers returns empty list without error
+// Test that ListPeers returns empty list without error.
 func TestListPeersReturnsEmpty(t *testing.T) {
 	impl := &Impl{
 		pipeliner:  nil,
@@ -24,7 +24,7 @@ func TestListPeersReturnsEmpty(t *testing.T) {
 	}
 
 	if resp == nil {
-		t.Error("expected response, got nil")
+		t.Fatal("expected response, got nil")
 	}
 
 	if len(resp.Peers) != 0 {

@@ -56,8 +56,9 @@ func TestEnableStatefullHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 	namedJobs := h.BuildJobs(payload)
 
 	wantNames := []string{
-		"generate_credentials", "create_container", "start_container", "get_root_dsn",
-		"create_schema_and_migrate", "create_pg_user", "update_cluster_state", "init_node_storage",
+		"generate_credentials", "create_container", "start_container", "wait_for_postgres_ready",
+		"get_root_dsn", "create_schema_and_migrate", "create_pg_user", "update_cluster_state",
+		"init_node_storage",
 	}
 	if len(namedJobs) != len(wantNames) {
 		t.Fatalf("expected %d jobs, got %d", len(wantNames), len(namedJobs))
@@ -267,6 +268,86 @@ func TestStartPgContainerJob_Rollback_StopsContainer(t *testing.T) {
 	}
 	if len(api.stopCalledWith) != 1 || api.stopCalledWith[0] != "pg123" {
 		t.Errorf("expected container stopped with 'pg123', got %v", api.stopCalledWith)
+	}
+}
+
+// waitForPgReadyJob
+
+func TestWaitForPgReadyJob_AlreadyHealthy_Success(t *testing.T) {
+	api := newFakeContainerAPI()
+	api.inspectResp = container.InspectResponse{
+		ContainerJSONBase: &container.ContainerJSONBase{
+			State: &container.State{Health: &container.Health{Status: container.Healthy}},
+		},
+	}
+	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto("pg123")}
+
+	j := &waitForPgReadyJob{dockerAPI: api, ctx: payload}
+
+	err := j.Do(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestWaitForPgReadyJob_NoContainerId_Error(t *testing.T) {
+	api := newFakeContainerAPI()
+	payload := &velez_api.EnableStatefullTaskPayload{}
+
+	j := &waitForPgReadyJob{dockerAPI: api, ctx: payload}
+
+	err := j.Do(context.Background())
+	if err == nil {
+		t.Fatal("expected an error when no container id is set")
+	}
+}
+
+func TestWaitForPgReadyJob_InspectError(t *testing.T) {
+	api := newFakeContainerAPI()
+	api.inspectErr = errors.New("no such container")
+	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto("pg123")}
+
+	j := &waitForPgReadyJob{dockerAPI: api, ctx: payload}
+
+	err := j.Do(context.Background())
+	if err == nil {
+		t.Fatal("expected an error when ContainerInspect fails")
+	}
+}
+
+func TestWaitForPgReadyJob_NotYetHealthy_ContextCancelled(t *testing.T) {
+	api := newFakeContainerAPI()
+	api.inspectResp = container.InspectResponse{
+		ContainerJSONBase: &container.ContainerJSONBase{
+			State: &container.State{Health: &container.Health{Status: container.Starting}},
+		},
+	}
+	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto("pg123")}
+
+	j := &waitForPgReadyJob{dockerAPI: api, ctx: payload}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	err := j.Do(ctx)
+	if err == nil {
+		t.Fatal("expected an error when the context is cancelled before the container becomes healthy")
+	}
+}
+
+func TestWaitForPgReadyJob_NilContainerState_DoesNotPanic_ContextCancelled(t *testing.T) {
+	api := newFakeContainerAPI()
+	api.inspectResp = container.InspectResponse{}
+	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto("pg123")}
+
+	j := &waitForPgReadyJob{dockerAPI: api, ctx: payload}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	err := j.Do(ctx)
+	if err == nil {
+		t.Fatal("expected an error when the context is cancelled before the container becomes healthy")
 	}
 }
 
@@ -545,6 +626,8 @@ func patchEnableStatefullDockerFields(namedJobs []NamedJob, containerAPI *fakeCo
 		switch j := nj.Job.(type) {
 		case *startPgContainerJob:
 			j.dockerAPI = containerAPI
+		case *waitForPgReadyJob:
+			j.dockerAPI = containerAPI
 		case *getRootDsnJob:
 			j.dockerAPI = containerAPI
 		}
@@ -579,6 +662,9 @@ func TestEnableStatefullHandler_FailurePath_UnreachablePostgres_RollsBack(t *tes
 
 	containerAPI := newFakeContainerAPI()
 	containerAPI.inspectResp = container.InspectResponse{
+		ContainerJSONBase: &container.ContainerJSONBase{
+			State: &container.State{Health: &container.Health{Status: container.Healthy}},
+		},
 		Config: &container.Config{
 			Env: []string{"POSTGRES_DB=postgres", "POSTGRES_USER=postgres", "POSTGRES_PASSWORD=root-pwd"},
 		},
@@ -621,7 +707,7 @@ func TestEnableStatefullHandler_FailurePath_UnreachablePostgres_RollsBack(t *tes
 		t.Errorf("expected task status FAILED, got %v", finished.Status)
 	}
 
-	for _, name := range []string{"generate_credentials", "create_container", "start_container", "get_root_dsn"} {
+	for _, name := range []string{"generate_credentials", "create_container", "start_container", "wait_for_postgres_ready", "get_root_dsn"} {
 		row, ok := jobsStorage.rows[jobKey(task.ID, name)]
 		if !ok || row.Status != jobs_queries.VelezJobStatusDONE {
 			t.Errorf("expected job %q checkpointed DONE, got %+v (ok=%v)", name, row, ok)

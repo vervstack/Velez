@@ -1,5 +1,11 @@
 # Pipelines → Jobs Migration
 
+**Status: functionally complete** for the 7-pipeline `Pipeliner` migration this doc tracks (all cut over to live
+RPCs except `CopyToVolume`, which has no live caller — see the table below). For current, not-yet-done work
+(`DropSmerd`, the `CreateSmerdStream` pilot, and everything else outstanding across the codebase), see
+[`docs/roadmap.md`](roadmap.md) — that file is the source of truth for open work; this one is kept as the detailed
+per-pipeline history and as the recipe/checklist for migrating any future pipeline.
+
 Goal: move business logic off the old in-memory, non-resumable `internal/pipelines`
 runner onto the durable, checkpointed task engine in `internal/jobs` (see
 `internal/jobs/job.go` for the core interfaces). This doc tracks what's moved,

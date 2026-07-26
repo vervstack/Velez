@@ -77,8 +77,9 @@ like once the job runs *through the RPC* instead of being invoked directly.
 2. Check `tests/e2e/` for existing coverage of that RPC. Add/extend a test
    in the same style as `suite_api_deploy_test.go` (real bufconn server,
    real Docker) covering: happy path, at least one failure path, and any
-   edge cases from `docs/review/testing_plan.md` relevant to this handler
-   (idempotency, duplicate-name rejection, self-upgrade guard, etc.).
+   edge cases relevant to this handler (idempotency, duplicate-name rejection,
+   self-upgrade guard, etc. — formerly tracked in the now-deleted
+   `docs/review/testing_plan.md`; see `docs/roadmap.md` for current status).
 3. Run it against the **current** (old pipeliner) code. It must pass before
    you touch anything else — this is the safety net the rest of the recipe
    depends on.

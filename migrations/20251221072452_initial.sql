@@ -4,7 +4,7 @@ CREATE ROLE working_node;
 ALTER ROLE working_node SET search_path TO velez;
 ALTER ROLE working_node SET DEFAULT_TABLESPACE TO velez;
 
-CREATE SCHEMA velez;
+CREATE SCHEMA IF NOT EXISTS velez;
 
 GRANT USAGE ON SCHEMA velez TO working_node;
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA velez TO working_node;

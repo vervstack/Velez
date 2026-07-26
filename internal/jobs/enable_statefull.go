@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/errdefs"
@@ -30,6 +31,18 @@ const EnableStatefullAction = "enable_statefull_mode"
 const (
 	pgSchema                = "velez"
 	pgMasterNodeDefaultName = "icy_raccoon"
+)
+
+// pgReadyPollInterval/pgReadyTimeout bound waitForPgReadyJob's poll loop. A
+// freshly started postgres:18 container runs initdb and restarts itself
+// before it truly accepts connections - observed ~6s on a quiet local Docker
+// host - closing any connection attempted during that window with a bare
+// EOF, which is what create_schema_and_migrate saw when this wait step
+// didn't exist yet. 30s gives ample margin on a loaded host without letting
+// a genuinely wedged container hang the task indefinitely.
+const (
+	pgReadyPollInterval = 500 * time.Millisecond
+	pgReadyTimeout      = 30 * time.Second
 )
 
 // Accessor interfaces the enable_statefull jobs need from their TaskContext.
@@ -89,14 +102,17 @@ func (h *enableStatefullHandler) NewContext() TaskContext {
 	return &velez_api.EnableStatefullTaskPayload{}
 }
 
-// BuildJobs mirrors do_enable_statefull.go's 7 pipeline steps, plus one extra
-// job (generate_credentials) promoted out of the pipeline's inline "Pipeline
-// Context" setup - see docs/jobs_migrations/questions.md for why that setup
-// can't stay inline BuildJobs code: it derives passwords by checking whether
-// they're already persisted in local/cluster state, which for jobs must be
-// checked against the task's own persisted context instead, exactly once,
-// guarded by a checkpoint (same idempotency precedent as
-// ConnectServiceToVpnTaskPayload.client_key).
+// BuildJobs mirrors do_enable_statefull.go's 7 pipeline steps, plus two extra
+// jobs. generate_credentials is promoted out of the pipeline's inline
+// "Pipeline Context" setup - see docs/jobs_migrations/questions.md for why
+// that setup can't stay inline BuildJobs code: it derives passwords by
+// checking whether they're already persisted in local/cluster state, which
+// for jobs must be checked against the task's own persisted context instead,
+// exactly once, guarded by a checkpoint (same idempotency precedent as
+// ConnectServiceToVpnTaskPayload.client_key). wait_for_postgres_ready has no
+// pipeline-step equivalent at all: it was added after tests/e2e caught this
+// job chain racing a freshly started postgres container (see
+// waitForPgReadyJob's doc comment).
 func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 	payload := taskCtx.(*velez_api.EnableStatefullTaskPayload)
 
@@ -120,6 +136,13 @@ func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: "start_container",
 			Job: &startPgContainerJob{
+				dockerAPI: h.nodeClients.Docker().Client(),
+				ctx:       payload,
+			},
+		},
+		{
+			Name: "wait_for_postgres_ready",
+			Job: &waitForPgReadyJob{
 				dockerAPI: h.nodeClients.Docker().Client(),
 				ctx:       payload,
 			},
@@ -312,6 +335,50 @@ func (j *startPgContainerJob) Rollback(ctx context.Context) error {
 	return nil
 }
 
+// waitForPgReadyJob polls the postgres container's Docker healthcheck
+// (pg_isready, defined by pg_pattern.Postgres) until it reports "healthy" or
+// pgReadyTimeout elapses. Without this step, create_schema_and_migrate
+// dials the container immediately after ContainerStart returns, which races
+// postgres's initdb-then-restart sequence and fails with a bare EOF on
+// essentially every cold start - caught by tests/e2e's EnableStatefullSuite.
+// No Rollback: this job only observes the container it doesn't own, mirroring
+// checkSelfUpgradeJob's read-only, non-rollbackable shape.
+type waitForPgReadyJob struct {
+	dockerAPI containerInspectAPI
+
+	ctx containerIdAccessor
+}
+
+func (j *waitForPgReadyJob) Do(ctx context.Context) error {
+	containerId := j.ctx.GetContainerId()
+	if containerId == "" {
+		return rerrors.New("no container id provided")
+	}
+
+	deadline := time.Now().Add(pgReadyTimeout)
+
+	for {
+		cont, err := j.dockerAPI.ContainerInspect(ctx, containerId)
+		if err != nil {
+			return rerrors.Wrap(err, "error inspecting postgres container while waiting for readiness")
+		}
+
+		if cont.ContainerJSONBase != nil && cont.State != nil && cont.State.Health != nil && cont.State.Health.Status == container.Healthy {
+			return nil
+		}
+
+		if time.Now().After(deadline) {
+			return rerrors.New("timed out waiting for postgres container to become healthy")
+		}
+
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(pgReadyPollInterval):
+		}
+	}
+}
+
 // getRootDsnJob duplicates cluster_steps.GetRgRootDsn's inspect/env-parse
 // logic against the narrow containerInspectAPI instead of depending on
 // GetRgRootDsn's steps.Step value directly (which requires the full
@@ -407,9 +474,17 @@ func getExposedPgPort(cont container.InspectResponse) (uint64, error) {
 
 // createSchemaAndMigrateJob mirrors do_enable_statefull.go's inline
 // steps.SingleFunc that creates the velez schema and rolls the goose
-// migration. It reuses sqldb.RollMigration verbatim, so it inherits that
-// function's existing (already untested at unit level, pre-migration) real
-// Postgres connection requirement - see docs/jobs_migrations/questions.md.
+// migration. The pre-emptive `CREATE SCHEMA IF NOT EXISTS velez` is required,
+// not redundant: goose.Up (sqldb.RollMigration) bootstraps its own
+// schema-qualified tracking table ("velez.__migrations", see
+// sqldb.RollMigration's SetTableName call) before it runs any migration
+// file, so the "velez" schema must already exist or that bootstrap itself
+// fails with "schema \"velez\" does not exist" - confirmed against a real,
+// truly fresh Postgres via tests/e2e's EnableStatefullSuite, which is the
+// first thing to have ever exercised this path end to end.
+// migrations/20251221072452_initial.sql's own `CREATE SCHEMA velez;` was
+// changed to `CREATE SCHEMA IF NOT EXISTS velez;` to stop conflicting with
+// this pre-create (see that file's comment).
 type createSchemaAndMigrateJob struct {
 	dsn rootDsnAccessor
 }

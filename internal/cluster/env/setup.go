@@ -8,7 +8,7 @@ import (
 func SetupEnvironment(clients node_clients.NodeClients) (err error) {
 	// Verv network for communication inside node
 	// err = StartNetwork(clients.Docker().Client())
-	//if err != nil {
+	// if err != nil {
 	//	return rerrors.Wrap(err, "error creating network")
 	//}
 

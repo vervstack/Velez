@@ -25,7 +25,7 @@ func New(
 ) (c *Configurator, err error) {
 	// TODO VERV-128
 	// stream, err := matreshka.SubscribeOnChanges(ctx)
-	//if err != nil {
+	// if err != nil {
 	//	return nil, rerrors.Wrap(err, "error subscribing to stream")
 	//}
 	//closer.Add(stream.CloseSend)

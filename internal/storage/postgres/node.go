@@ -5,6 +5,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
 	pg_queries "go.vervstack.ru/Velez/internal/storage/postgres/generated/nodes_queries"
@@ -127,11 +128,16 @@ func (n *nodeStorage) countTotal(ctx context.Context, builder sq.SelectBuilder) 
 func scanNode(scannable sqldb.Scannable) (domain.NodeBaseInfo, error) {
 	node := domain.NodeBaseInfo{}
 
-	return node, scannable.Scan(
+	err := scannable.Scan(
 		&node.Id,
 		&node.Name,
 		&node.LastOnline,
 		&node.IsEnabled,
 		&node.Addr,
 	)
+	if err != nil {
+		return node, rerrors.Wrap(err)
+	}
+
+	return node, nil
 }

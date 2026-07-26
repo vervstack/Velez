@@ -10,6 +10,7 @@ import (
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
+
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
@@ -59,6 +60,8 @@ func (s *createContainerStep) Do(ctx context.Context) error {
 		if !rerrors.Is(createErr, docker.ErrNameIsTaken) {
 			return rerrors.Wrap(createErr, "error creating container")
 		}
+
+		return rerrors.Wrap(createErr)
 	}
 
 	*s.containerIdResp = createResp.ID

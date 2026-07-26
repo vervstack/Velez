@@ -60,6 +60,7 @@ func (m *ServersManager) Stop() error {
 	eg.Go(m.httpServer.stop)
 	eg.Go(func() error {
 		m.mux.Close()
+
 		return nil
 	})
 

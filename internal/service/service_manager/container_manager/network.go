@@ -8,7 +8,9 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/errdefs"
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 func (c *ContainerManager) ConnectToNetwork(ctx context.Context, req domain.Connection) error {
@@ -23,7 +25,7 @@ func (c *ContainerManager) ConnectToNetwork(ctx context.Context, req domain.Conn
 
 	var notFound errdefs.ErrNotFound
 	if errors.As(err, &notFound) {
-		return rerrors.NewUserError("network not found")
+		return rerrors.Wrap(user_errors.ErrNetworkNotFound)
 	}
 
 	return rerrors.Wrap(err, "error connecting to network")

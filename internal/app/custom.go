@@ -15,6 +15,8 @@ import (
 	"github.com/soheilhy/cmux"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
+	"golang.org/x/sync/errgroup"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
@@ -34,7 +36,6 @@ import (
 	"go.vervstack.ru/Velez/internal/transport/velez_api_impl"
 	"go.vervstack.ru/Velez/internal/workers"
 	"go.vervstack.ru/Velez/pkg/docs"
-	"golang.org/x/sync/errgroup"
 )
 
 type Custom struct {
@@ -123,7 +124,7 @@ func (c *Custom) Start(ctx context.Context) error {
 	g.Go(func() error {
 		err := c.serverManager.Start()
 		if err != nil && !errors.Is(err, cmux.ErrServerClosed) {
-			return err
+			return rerrors.Wrap(err)
 		}
 
 		return nil
@@ -253,7 +254,7 @@ func smerdsDropper(smerdService service.ContainerService) func() error {
 
 		smerds, err := smerdService.ListSmerds(ctx, &velez_api.ListSmerds_Request{})
 		if err != nil {
-			return err
+			return rerrors.Wrap(err)
 		}
 
 		names := make([]string, 0, len(smerds.Smerds))
@@ -276,7 +277,7 @@ func smerdsDropper(smerdService service.ContainerService) func() error {
 
 		dropSmerds, err := smerdService.DropSmerds(ctx, dropReq)
 		if err != nil {
-			return err
+			return rerrors.Wrap(err)
 		}
 
 		log.Info().Int("count", len(dropSmerds.Successful)).Msg("smerds dropped successfully")

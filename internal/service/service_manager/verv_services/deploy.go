@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
@@ -16,7 +17,7 @@ import (
 func (v *VervService) CreateNewDeploy(ctx context.Context, request domain.CreateDeployReq) error {
 	err := v.txManager.Execute(
 		func(tx *sql.Tx) (err error) {
-			q := v.deploymentsStorage.WithTx(tx)
+			deploymentStorage := v.deploymentsStorage.WithTx(tx)
 
 			spec := deployments_queries.CreateSpecificationParams{
 				Name: uuid.New().String(),
@@ -31,7 +32,7 @@ func (v *VervService) CreateNewDeploy(ctx context.Context, request domain.Create
 				return rerrors.Wrap(err, "error marshaling specification")
 			}
 
-			specId, err := q.CreateSpecification(ctx, spec)
+			specId, err := deploymentStorage.CreateSpecification(ctx, spec)
 			if err != nil {
 				return rerrors.Wrap(err, "error creating specification")
 			}
@@ -42,7 +43,7 @@ func (v *VervService) CreateNewDeploy(ctx context.Context, request domain.Create
 				SpecID: specId,
 			}
 
-			_, err = q.CreateDeployment(ctx, deployment)
+			_, err = deploymentStorage.CreateDeployment(ctx, deployment)
 			if err != nil {
 				return rerrors.Wrap(err, "error creating new deploy")
 			}

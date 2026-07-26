@@ -12,6 +12,8 @@ import (
 	"go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/toolbox/keep_alive"
+	"go.vervstack.ru/makosh/pkg/makosh_be"
+
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/matreshka"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
@@ -22,7 +24,6 @@ import (
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/pipelines"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
-	"go.vervstack.ru/makosh/pkg/makosh_be"
 )
 
 // sharedInstanceCtxKey is an unexported context key used to hand an
@@ -70,7 +71,12 @@ func StartSharedInstance(ctx context.Context, cfg config.Config, nc node_clients
 // the process on exit regardless, same as any other leftover goroutine in
 // a test binary.
 func (s *SharedInstance) Stop() error {
-	return s.task.Kill()
+	err := s.task.Kill()
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	return nil
 }
 
 // WithSharedInstance returns a context that makes SetupMatreshka reuse an

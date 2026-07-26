@@ -6,11 +6,13 @@ import (
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
+	"go.redsock.ru/rerrors"
+	"go.vervstack.ru/makosh/pkg/makosh_be"
+	"google.golang.org/grpc"
+
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain/labels"
-	"go.vervstack.ru/makosh/pkg/makosh_be"
-	"google.golang.org/grpc"
 )
 
 type dockerServiceDiscovery struct {
@@ -35,7 +37,7 @@ func (d *dockerServiceDiscovery) ListEndpoints(ctx context.Context, req *makosh_
 
 	containers, err := d.docker.Client().ContainerList(ctx, opts)
 	if err != nil {
-		return nil, err
+		return nil, rerrors.Wrap(err)
 	}
 
 	var urls []string

@@ -7,11 +7,12 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
+	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
-	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Impl struct {
@@ -52,7 +53,7 @@ func (impl *Impl) WatchTask(req *velez_api.WatchTask_Request, stream grpc.Server
 	for task := range impl.jobsEngine.Watch(ctx, req.GetEntityId(), req.GetAction()) {
 		err := stream.Send(taskToProto(task))
 		if err != nil {
-			return err
+			return rerrors.Wrap(err)
 		}
 	}
 
@@ -78,7 +79,7 @@ func (impl *Impl) CreateSmerdStream(req *velez_api.CreateSmerd_Request, stream g
 	for task := range impl.jobsEngine.Watch(ctx, req.GetName(), jobs.CreateSmerdAction) {
 		err = stream.Send(taskToProto(task))
 		if err != nil {
-			return err
+			return rerrors.Wrap(err)
 		}
 	}
 

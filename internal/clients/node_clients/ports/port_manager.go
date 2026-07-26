@@ -108,13 +108,13 @@ func (p *portManagerImpl) LockPort(ports ...uint32) (err error) {
 		if !ok {
 			err = errors.Wrap(ErrUnavailablePort)
 
-			return
+			return err
 		}
 
 		if isLocked {
 			err = errors.Wrap(ErrPortAlreadyLocked)
 
-			return
+			return err
 		}
 
 		p.freePorts[port] = true

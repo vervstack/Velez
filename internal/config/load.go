@@ -4,6 +4,7 @@ package config
 
 import (
 	"flag"
+	"sync"
 
 	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
@@ -21,38 +22,50 @@ type Config struct {
 	MatreshkaConfig matreshka.AppConfig
 }
 
-var defaultConfig Config
+var (
+	defaultConfig     Config
+	defaultConfigOnce sync.Once
+)
 
 const (
 	devConfigPath  = "./config/dev.yaml"
 	prodConfigPath = "./config/config.yaml"
 )
 
+// Init loads the process-wide default config exactly once; every call after
+// the first returns ErrAlreadyLoaded instead of reloading. Safe to call from
+// multiple goroutines.
 func Init() (Config, error) {
-	if defaultConfig.AppInfo.Name != "" {
+	loadedNow := false
+	var err error
+
+	defaultConfigOnce.Do(func() {
+		loadedNow = true
+
+		var cfgPath string
+		var isDevBuild bool
+
+		flag.StringVar(&cfgPath, "config", "", "Path to configuration file")
+		flag.BoolVar(&isDevBuild, "dev", false, "Flag turns on a dev config at ./config/dev.yaml")
+		flag.Parse()
+
+		var configsPaths []string
+
+		if cfgPath != "" {
+			configsPaths = append(configsPaths, cfgPath)
+		}
+
+		if isDevBuild {
+			configsPaths = append(configsPaths, devConfigPath)
+		}
+		configsPaths = append(configsPaths, prodConfigPath)
+
+		defaultConfig, err = Load(configsPaths...)
+	})
+
+	if !loadedNow {
 		return defaultConfig, ErrAlreadyLoaded
 	}
-
-	var cfgPath string
-	var isDevBuild bool
-
-	flag.StringVar(&cfgPath, "config", "", "Path to configuration file")
-	flag.BoolVar(&isDevBuild, "dev", false, "Flag turns on a dev config at ./config/dev.yaml")
-	flag.Parse()
-
-	var configsPaths []string
-
-	if cfgPath != "" {
-		configsPaths = append(configsPaths, cfgPath)
-	}
-
-	if isDevBuild {
-		configsPaths = append(configsPaths, devConfigPath)
-	}
-	configsPaths = append(configsPaths, prodConfigPath)
-
-	var err error
-	defaultConfig, err = Load(configsPaths...)
 	if err != nil {
 		return defaultConfig, rerrors.Wrap(err, "error loading config")
 	}
@@ -60,26 +73,31 @@ func Init() (Config, error) {
 	return defaultConfig, nil
 }
 
+// Load reads and parses configsPaths into a fresh Config on every call. It
+// holds no shared state, so concurrent calls (even with different
+// configsPaths) never race or interfere with one another.
 func Load(configsPaths ...string) (Config, error) {
+	var cfg Config
 	var err error
-	defaultConfig.MatreshkaConfig, err = matreshka.ReadConfigs(configsPaths...)
+
+	cfg.MatreshkaConfig, err = matreshka.ReadConfigs(configsPaths...)
 	if err != nil {
-		return defaultConfig, rerrors.Wrap(err, "error reading matreshka config")
+		return cfg, rerrors.Wrap(err, "error reading matreshka config")
 	}
 
-	defaultConfig.AppInfo = defaultConfig.MatreshkaConfig.AppInfo
-	defaultConfig.Overrides = defaultConfig.MatreshkaConfig.ServiceDiscovery
+	cfg.AppInfo = cfg.MatreshkaConfig.AppInfo
+	cfg.Overrides = cfg.MatreshkaConfig.ServiceDiscovery
 
-	err = defaultConfig.MatreshkaConfig.Servers.
-		ParseToStruct(&defaultConfig.Servers)
+	err = cfg.MatreshkaConfig.Servers.
+		ParseToStruct(&cfg.Servers)
 	if err != nil {
-		return defaultConfig, rerrors.Wrap(err, "Error parsing servers to config")
+		return cfg, rerrors.Wrap(err, "Error parsing servers to config")
 	}
-	err = defaultConfig.MatreshkaConfig.Environment.
-		ParseToStruct(&defaultConfig.Environment)
+	err = cfg.MatreshkaConfig.Environment.
+		ParseToStruct(&cfg.Environment)
 	if err != nil {
-		return defaultConfig, rerrors.Wrap(err, "error parsing environment config")
+		return cfg, rerrors.Wrap(err, "error parsing environment config")
 	}
 
-	return defaultConfig, nil
+	return cfg, nil
 }

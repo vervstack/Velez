@@ -45,9 +45,9 @@
     "semantic_hash": "5b0c612dd21e653bfb3ad0f509f1014c"
   },
   "go.mod": {
-    "mtime": 1784013675.1406574,
-    "ast_hash": "e83c76ecb0f718867f70fbe30009bb6f",
-    "semantic_hash": "e83c76ecb0f718867f70fbe30009bb6f"
+    "mtime": 1785080355.9610093,
+    "ast_hash": "93dd9eb2dfa6e7d1216e7cf1a4b66d4a",
+    "semantic_hash": ""
   },
   "internal/api/clients/matreshka/pkg/matreshka_api/matreshka_api.pb.go": {
     "mtime": 1785070924.1684022,
@@ -130,12 +130,12 @@
     "semantic_hash": "549382ae3a69c559c8ae6f8beb734e67"
   },
   "internal/app/app.go": {
-    "mtime": 1779394915.299715,
+    "mtime": 1785080356.771528,
     "ast_hash": "925edfb7c188f23b577b5aa03163134f",
     "semantic_hash": "925edfb7c188f23b577b5aa03163134f"
   },
   "internal/app/config.go": {
-    "mtime": 1779394915.299946,
+    "mtime": 1785080356.7718494,
     "ast_hash": "05ec538258de2b8a217e6668062b4f65",
     "semantic_hash": "05ec538258de2b8a217e6668062b4f65"
   },
@@ -150,7 +150,7 @@
     "semantic_hash": "1eb6c61cc4040aee464dc12066b76294"
   },
   "internal/app/server.go": {
-    "mtime": 1779394915.300127,
+    "mtime": 1785080356.7719903,
     "ast_hash": "90d24fb773b18ae530d87d86f0bcbea4",
     "semantic_hash": "90d24fb773b18ae530d87d86f0bcbea4"
   },
@@ -435,7 +435,7 @@
     "semantic_hash": "20a34a30d8763a26e3fc73785813b035"
   },
   "internal/config/environment.go": {
-    "mtime": 1779394915.3003376,
+    "mtime": 1785080356.7722585,
     "ast_hash": "20b88ac5d00c0e4557173c7a71cb7cff",
     "semantic_hash": "20b88ac5d00c0e4557173c7a71cb7cff"
   },
@@ -445,12 +445,12 @@
     "semantic_hash": "90bc28117bb441a58b4d2f94fd28fd83"
   },
   "internal/config/load.go": {
-    "mtime": 1779394915.3004727,
-    "ast_hash": "2fc45403d405f427398895fbad6ae091",
-    "semantic_hash": "2fc45403d405f427398895fbad6ae091"
+    "mtime": 1785080356.772377,
+    "ast_hash": "7c230d3a4bc7c64c557426feddca98b4",
+    "semantic_hash": ""
   },
   "internal/config/servers.go": {
-    "mtime": 1779394915.3006372,
+    "mtime": 1785080356.7725017,
     "ast_hash": "bd289d918f417950491034b290842f24",
     "semantic_hash": "bd289d918f417950491034b290842f24"
   },
@@ -1155,8 +1155,8 @@
     "semantic_hash": ""
   },
   "internal/transport/control_plane_api_impl/impl.go": {
-    "mtime": 1784464327.4462721,
-    "ast_hash": "a934d1630ff885f0d29cbb18e2e857c4",
+    "mtime": 1785080356.7730885,
+    "ast_hash": "87c2c6330f7aaec09c379068f9c11557",
     "semantic_hash": ""
   },
   "internal/transport/control_plane_api_impl/list_environments.go": {
@@ -1175,17 +1175,17 @@
     "semantic_hash": "cf6b189f69233b233eb04dcca44c8db4"
   },
   "internal/transport/grpc.go": {
-    "mtime": 1779394914.3610125,
+    "mtime": 1785080354.6526468,
     "ast_hash": "d76a7392c3fe182f6280a23353d475cb",
     "semantic_hash": "d76a7392c3fe182f6280a23353d475cb"
   },
   "internal/transport/http.go": {
-    "mtime": 1779394914.3611066,
+    "mtime": 1785080354.6527379,
     "ast_hash": "40d14837472326776503113466cbe786",
     "semantic_hash": "40d14837472326776503113466cbe786"
   },
   "internal/transport/manager.go": {
-    "mtime": 1779394914.3612008,
+    "mtime": 1785080354.6528335,
     "ast_hash": "e9396f1c0ab5c45ec93d1ec4f7347d58",
     "semantic_hash": "e9396f1c0ab5c45ec93d1ec4f7347d58"
   },
@@ -2200,7 +2200,7 @@
     "semantic_hash": "b214d72c4ab44e93cb54efeb46d2c0b4"
   },
   "tests/e2e/test_data/default-private-key.json": {
-    "mtime": 1785079596.3241985,
+    "mtime": 1785080462.5937958,
     "ast_hash": "cae2e59515c093157fa819ebb76bbc72",
     "semantic_hash": "cae2e59515c093157fa819ebb76bbc72"
   },
@@ -2275,9 +2275,9 @@
     "semantic_hash": "b7b88a6f6bd16d663a4705a9cdde5183"
   },
   "config/config.yaml": {
-    "mtime": 1779395975.636118,
-    "ast_hash": "aaec162721ee947da87c5c149a674fd3",
-    "semantic_hash": "aaec162721ee947da87c5c149a674fd3"
+    "mtime": 1785080354.638105,
+    "ast_hash": "1c8f1cb6151d5f8bec348beef8d86c10",
+    "semantic_hash": ""
   },
   "config/config_template.yaml": {
     "mtime": 1779393989.098905,
@@ -2790,8 +2790,8 @@
     "semantic_hash": ""
   },
   "internal/jobs/worker_test.go": {
-    "mtime": 1784009843.9801588,
-    "ast_hash": "e0aec02bd73bb48664c064d45b15a6af",
+    "mtime": 1785080356.772771,
+    "ast_hash": "de68e6b337955b76a515e099611cfb7b",
     "semantic_hash": ""
   },
   "internal/storage/local_storage/jobs.go": {
@@ -3085,8 +3085,18 @@
     "semantic_hash": ""
   },
   "docs/plans/e2e_flaky_lifecycle_matreshka.md": {
-    "mtime": 1785079735.98168,
-    "ast_hash": "020bc0ad21cd225fea06de69d6f67edd",
+    "mtime": 1785080677.348835,
+    "ast_hash": "ed07d7f19bcef4ea847db967ec4605aa",
+    "semantic_hash": ""
+  },
+  ".githooks/pre-commit": {
+    "mtime": 1785080354.654378,
+    "ast_hash": "c367b942ac3baacd684a960ae3173e95",
+    "semantic_hash": ""
+  },
+  "internal/config/load_test.go": {
+    "mtime": 1785080568.2086499,
+    "ast_hash": "12e5e5a91f0ba5080af1e82d1421c13a",
     "semantic_hash": ""
   }
 }

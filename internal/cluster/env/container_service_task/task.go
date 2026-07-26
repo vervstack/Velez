@@ -3,6 +3,7 @@ package container_service_task
 import (
 	"context"
 	"strings"
+	"sync"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
@@ -26,6 +27,12 @@ type TaskV2 struct {
 	dockerClient node_clients.Docker
 	dockerAPI    client.APIClient
 
+	// stateMu guards containerState. A single TaskV2 can be shared across
+	// multiple concurrent SetupMatreshka callers in tests (see
+	// configuration.SharedInstance), each reading containerState via
+	// GetPortBinding while a background keep-alive loop writes it via
+	// IsAlive on its own ticker.
+	stateMu        sync.RWMutex
 	containerState *container.InspectResponse
 }
 
@@ -103,7 +110,9 @@ func (t *TaskV2) IsAlive() bool {
 		return false
 	}
 
+	t.stateMu.Lock()
 	t.containerState = &cont
+	t.stateMu.Unlock()
 
 	return true
 }
@@ -126,6 +135,9 @@ func (t *TaskV2) GetName() string {
 }
 
 func (t *TaskV2) GetPortBinding(port string) (addr string, mappedPort string) {
+	t.stateMu.RLock()
+	defer t.stateMu.RUnlock()
+
 	if t.containerState == nil {
 		return "", ""
 	}

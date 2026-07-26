@@ -21,6 +21,7 @@ import (
 	"go.vervstack.ru/Velez/internal/app"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
+	"go.vervstack.ru/Velez/internal/cluster/configuration"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/middleware"
 	"go.vervstack.ru/Velez/tests/test_helper"
@@ -54,9 +55,24 @@ type TestEnvironment struct {
 type TestEnvOpt func(a *TestEnvironment)
 type StateOpt func(a *local_state.State)
 
+// WithMatreshka enables cluster mode against a shared matreshka container.
+// The container + its keep-alive loop are created exactly once per test
+// binary (see main_test.go) and reused by every TestEnvironment that calls
+// this option — matreshka's container name and gRPC port are fixed by
+// design (mirrors production: exactly one matreshka instance per node), so
+// running more than one real container under that name races on
+// create/kill. See docs/plans/e2e_flaky_lifecycle_matreshka.md.
+//
+// IMPORTANT: this fixture is a single-process (in-memory) singleton. Go
+// compiles one test binary per package, so it only coordinates tests
+// within *this* package (tests/e2e). A test in a different package runs in
+// its own OS process, never observes this singleton, and silently
+// reintroduces the container-collision hazard this fixture exists to
+// prevent. Any test that needs WithMatreshka() must live in package e2e.
 func WithMatreshka() TestEnvOpt {
 	return func(a *TestEnvironment) {
 		a.Cfg.Environment.MatreshkaIsEnabled = true
+		a.Ctx = configuration.WithSharedInstance(a.Ctx, getSharedMatreshka(a.t))
 	}
 }
 

@@ -30,7 +30,7 @@ func New(srv service.Services, pipeliner pipelines.Pipeliner, jobsEngine jobs.En
 	return &Impl{
 		UnimplementedControlPlaneAPIServer: velez_api.UnimplementedControlPlaneAPIServer{},
 		pipeliner:                          pipeliner,
-		jobsEngine:                          jobsEngine,
+		jobsEngine:                         jobsEngine,
 
 		smerdManager:  srv.SmerdManager(),
 		nodeService:   srv.NodeService(),

@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"path"
+	"sync"
 
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/volume"
@@ -16,11 +17,25 @@ const (
 	containerVervMountPoint = "/Users/alexbukov/Desktop/verv"
 )
 
+// volumeMu guards vervVolumeName and vervVolumePath: StartVolumes can be
+// called concurrently by multiple in-process environments (e.g. parallel
+// e2e TestEnvironments), and without this lock that's a data race caught by
+// `go test -race`.
+var volumeMu sync.RWMutex
+
 var vervVolumeName = "verv"
 
-func GetVervVolumeName() string { return vervVolumeName }
+func GetVervVolumeName() string {
+	volumeMu.RLock()
+	defer volumeMu.RUnlock()
+
+	return vervVolumeName
+}
 
 func StartVolumes(dockerAPI client.CommonAPIClient) error {
+	volumeMu.Lock()
+	defer volumeMu.Unlock()
+
 	ctx := context.Background()
 
 	isInContainer := IsInContainer()
@@ -67,6 +82,9 @@ func StartVolumes(dockerAPI client.CommonAPIClient) error {
 var vervVolumePath string
 
 func GetVervVolumePath() (string, error) {
+	volumeMu.RLock()
+	defer volumeMu.RUnlock()
+
 	if vervVolumePath != "" {
 		return vervVolumePath, nil
 	}
@@ -74,6 +92,8 @@ func GetVervVolumePath() (string, error) {
 	return "", errors.New("no verv volume found")
 }
 
+// createVervVolume is only ever called by StartVolumes, with volumeMu
+// already held — it must not lock volumeMu itself.
 func createVervVolume(ctx context.Context, dockerAPI client.CommonAPIClient) (*volume.Volume, error) {
 	createOptions := volume.CreateOptions{
 		Name: vervVolumeName,

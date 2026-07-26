@@ -25,8 +25,8 @@ type testHandler struct {
 	jobs   func(taskCtx TaskContext) []NamedJob
 }
 
-func (h *testHandler) Action() string             { return h.action }
-func (h *testHandler) NewContext() TaskContext    { return &dummyContext{} }
+func (h *testHandler) Action() string                      { return h.action }
+func (h *testHandler) NewContext() TaskContext             { return &dummyContext{} }
 func (h *testHandler) BuildJobs(tc TaskContext) []NamedJob { return h.jobs(tc) }
 
 func TestTaskWorker_ClaimsAndRunsAllJobsInOrder(t *testing.T) {

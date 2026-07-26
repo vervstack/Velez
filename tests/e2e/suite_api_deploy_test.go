@@ -130,6 +130,10 @@ func (s *LifecycleSuite) Test_StatelessMode_Loki() {
 	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {})
 }
 
+// Test_ClusterMode_* subtests below run in parallel against one shared
+// matreshka container fixture (see WithMatreshka / main_test.go). This only
+// works because they live in this package/test binary — don't move these
+// to another package without reading main_test.go first.
 func (s *LifecycleSuite) Test_ClusterMode_HelloWorld() {
 	t := s.T()
 	t.Parallel()

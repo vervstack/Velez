@@ -35,10 +35,16 @@ type ServiceBaseInfo struct {
 	ImageName      string
 	Status         string
 	Env            string
+	Repo           string
 }
 
 type GetServiceReq struct {
 	Name string
+}
+
+type RemoveServiceReq struct {
+	Name                 string
+	DropRunningInstances bool
 }
 
 type CreateDeployReq struct {

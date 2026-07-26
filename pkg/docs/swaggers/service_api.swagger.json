@@ -273,6 +273,38 @@
         ]
       }
     },
+    "/api/service/remove": {
+      "post": {
+        "operationId": "ServiceApi_RemoveService",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiRemoveServiceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiRemoveServiceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ServiceApi"
+        ]
+      }
+    },
     "/api/service/resources": {
       "post": {
         "operationId": "ServiceApi_GetServiceResources",
@@ -974,6 +1006,21 @@
         }
       }
     },
+    "velez_apiRemoveServiceRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "dropRunningInstances": {
+          "type": "boolean",
+          "description": "If true, any smerd/container attached to this service is dropped\nfirst. If false and a smerd exists, the call fails instead."
+        }
+      }
+    },
+    "velez_apiRemoveServiceResponse": {
+      "type": "object"
+    },
     "velez_apiRestartPolicy": {
       "type": "object",
       "properties": {
@@ -1028,6 +1075,10 @@
         "env": {
           "type": "string",
           "title": "value of the 'env' label if set, else empty"
+        },
+        "repo": {
+          "type": "string",
+          "title": "value of the 'repo' label if set, else empty"
         }
       }
     },

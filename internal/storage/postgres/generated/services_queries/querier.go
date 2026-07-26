@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	DeleteByName(ctx context.Context, name string) error
 	GetByName(ctx context.Context, name string) (VelezService, error)
 	UpsertService(ctx context.Context, name string) error
 }

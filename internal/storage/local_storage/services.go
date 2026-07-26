@@ -77,6 +77,14 @@ func (s *dockerServices) UpsertService(_ context.Context, _ string) error {
 	return nil
 }
 
+// Delete is a no-op: this backend has no persisted service row, it derives
+// the service list from live Docker container labels (see List), so there
+// is nothing to delete here — dropping the containers is what makes a
+// service disappear.
+func (s *dockerServices) Delete(_ context.Context, _ string) error {
+	return nil
+}
+
 func (s *dockerServices) List(ctx context.Context, req domain.ListServicesReq) (domain.ServiceList, error) {
 	listReq := &pb.ListSmerds_Request{}
 

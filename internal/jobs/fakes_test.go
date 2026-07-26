@@ -14,8 +14,8 @@ import (
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
-	"go.redsock.ru/evon"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
+	"go.redsock.ru/evon"
 	"go.vervstack.ru/makosh/pkg/makosh_be"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
 	"google.golang.org/grpc"
@@ -295,6 +295,20 @@ func (f *fakeServicesStorage) UpsertService(_ context.Context, name string) erro
 
 func (f *fakeServicesStorage) List(_ context.Context, _ domain.ListServicesReq) (domain.ServiceList, error) {
 	return domain.ServiceList{}, nil
+}
+
+func (f *fakeServicesStorage) Delete(_ context.Context, name string) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	for i, n := range f.upserted {
+		if n == name {
+			f.upserted = append(f.upserted[:i], f.upserted[i+1:]...)
+			break
+		}
+	}
+
+	return nil
 }
 
 // fakeDocker is a minimal in-memory implementation of node_clients.Docker

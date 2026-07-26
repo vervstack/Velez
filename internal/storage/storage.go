@@ -35,6 +35,7 @@ type Storage interface {
 type ServicesStorage interface {
 	GetByName(ctx context.Context, name string) (domain.Service, error)
 	UpsertService(ctx context.Context, name string) error
+	Delete(ctx context.Context, name string) error
 
 	List(ctx context.Context, req domain.ListServicesReq) (domain.ServiceList, error)
 }

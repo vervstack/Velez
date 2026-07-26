@@ -7,6 +7,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
 func (v *VervService) List(ctx context.Context, req domain.ListServicesReq) (domain.ServiceList, error) {
@@ -56,6 +57,8 @@ func (v *VervService) enrichServiceWithSmerdData(ctx context.Context, svc *domai
 		if envVal, ok := latestSmerd.Labels["env"]; ok {
 			svc.Env = envVal
 		}
+
+		svc.Repo = latestSmerd.Labels[labels.RepoLabel]
 	}
 
 	return nil

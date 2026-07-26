@@ -70,6 +70,13 @@ service ServiceApi {
     };
   }
 
+  rpc RemoveService(RemoveService.Request) returns (RemoveService.Response) {
+    option (google.api.http) = {
+      post: "/api/service/remove"
+      body: "*"
+    };
+  }
+
   rpc GetServiceMetrics(GetServiceMetrics.Request) returns (GetServiceMetrics.Response) {
     option (google.api.http) = {
       post: "/api/service/metrics"
@@ -222,6 +229,7 @@ message ServiceBaseInfo {
   string image_name = 3;  // primary container image (imageName from latest smerd)
   string status = 4;      // running | degraded | stopped — derived from smerd status
   string env = 5;         // value of the 'env' label if set, else empty
+  string repo = 6;        // value of the 'repo' label if set, else empty
 }
 
 message StopService {
@@ -234,6 +242,16 @@ message StopService {
 message RestartService {
   message Request {
     string name = 1;
+  }
+  message Response {}
+}
+
+message RemoveService {
+  message Request {
+    string name = 1;
+    // If true, any smerd/container attached to this service is dropped
+    // first. If false and a smerd exists, the call fails instead.
+    bool drop_running_instances = 2;
   }
   message Response {}
 }

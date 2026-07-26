@@ -26,6 +26,7 @@ const (
 	ServiceApi_ListServices_FullMethodName           = "/velez_api.ServiceApi/ListServices"
 	ServiceApi_StopService_FullMethodName            = "/velez_api.ServiceApi/StopService"
 	ServiceApi_RestartService_FullMethodName         = "/velez_api.ServiceApi/RestartService"
+	ServiceApi_RemoveService_FullMethodName          = "/velez_api.ServiceApi/RemoveService"
 	ServiceApi_GetServiceMetrics_FullMethodName      = "/velez_api.ServiceApi/GetServiceMetrics"
 	ServiceApi_GetServiceResources_FullMethodName    = "/velez_api.ServiceApi/GetServiceResources"
 	ServiceApi_GetServiceGraph_FullMethodName        = "/velez_api.ServiceApi/GetServiceGraph"
@@ -52,6 +53,7 @@ type ServiceApiClient interface {
 	ListServices(ctx context.Context, in *ListServices_Request, opts ...grpc.CallOption) (*ListServices_Response, error)
 	StopService(ctx context.Context, in *StopService_Request, opts ...grpc.CallOption) (*StopService_Response, error)
 	RestartService(ctx context.Context, in *RestartService_Request, opts ...grpc.CallOption) (*RestartService_Response, error)
+	RemoveService(ctx context.Context, in *RemoveService_Request, opts ...grpc.CallOption) (*RemoveService_Response, error)
 	GetServiceMetrics(ctx context.Context, in *GetServiceMetrics_Request, opts ...grpc.CallOption) (*GetServiceMetrics_Response, error)
 	GetServiceResources(ctx context.Context, in *GetServiceResources_Request, opts ...grpc.CallOption) (*GetServiceResources_Response, error)
 	GetServiceGraph(ctx context.Context, in *GetServiceGraph_Request, opts ...grpc.CallOption) (*GetServiceGraph_Response, error)
@@ -137,6 +139,16 @@ func (c *serviceApiClient) RestartService(ctx context.Context, in *RestartServic
 	return out, nil
 }
 
+func (c *serviceApiClient) RemoveService(ctx context.Context, in *RemoveService_Request, opts ...grpc.CallOption) (*RemoveService_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RemoveService_Response)
+	err := c.cc.Invoke(ctx, ServiceApi_RemoveService_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *serviceApiClient) GetServiceMetrics(ctx context.Context, in *GetServiceMetrics_Request, opts ...grpc.CallOption) (*GetServiceMetrics_Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetServiceMetrics_Response)
@@ -206,6 +218,7 @@ type ServiceApiServer interface {
 	ListServices(context.Context, *ListServices_Request) (*ListServices_Response, error)
 	StopService(context.Context, *StopService_Request) (*StopService_Response, error)
 	RestartService(context.Context, *RestartService_Request) (*RestartService_Response, error)
+	RemoveService(context.Context, *RemoveService_Request) (*RemoveService_Response, error)
 	GetServiceMetrics(context.Context, *GetServiceMetrics_Request) (*GetServiceMetrics_Response, error)
 	GetServiceResources(context.Context, *GetServiceResources_Request) (*GetServiceResources_Response, error)
 	GetServiceGraph(context.Context, *GetServiceGraph_Request) (*GetServiceGraph_Response, error)
@@ -241,6 +254,9 @@ func (UnimplementedServiceApiServer) StopService(context.Context, *StopService_R
 }
 func (UnimplementedServiceApiServer) RestartService(context.Context, *RestartService_Request) (*RestartService_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method RestartService not implemented")
+}
+func (UnimplementedServiceApiServer) RemoveService(context.Context, *RemoveService_Request) (*RemoveService_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method RemoveService not implemented")
 }
 func (UnimplementedServiceApiServer) GetServiceMetrics(context.Context, *GetServiceMetrics_Request) (*GetServiceMetrics_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetServiceMetrics not implemented")
@@ -404,6 +420,24 @@ func _ServiceApi_RestartService_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServiceApi_RemoveService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveService_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceApiServer).RemoveService(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceApi_RemoveService_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceApiServer).RemoveService(ctx, req.(*RemoveService_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ServiceApi_GetServiceMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetServiceMetrics_Request)
 	if err := dec(in); err != nil {
@@ -528,6 +562,10 @@ var ServiceApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RestartService",
 			Handler:    _ServiceApi_RestartService_Handler,
+		},
+		{
+			MethodName: "RemoveService",
+			Handler:    _ServiceApi_RemoveService_Handler,
 		},
 		{
 			MethodName: "GetServiceMetrics",

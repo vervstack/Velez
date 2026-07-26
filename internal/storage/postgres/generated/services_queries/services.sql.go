@@ -9,6 +9,16 @@ import (
 	"context"
 )
 
+const deleteByName = `-- name: DeleteByName :exec
+DELETE FROM velez.services
+WHERE name = $1
+`
+
+func (q *Queries) DeleteByName(ctx context.Context, name string) error {
+	_, err := q.db.ExecContext(ctx, deleteByName, name)
+	return err
+}
+
 const getByName = `-- name: GetByName :one
 SELECT id,
        name,

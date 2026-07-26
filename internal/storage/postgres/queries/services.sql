@@ -11,3 +11,7 @@ FROM velez.services
 WHERE name = $1
     FETCH FIRST 1 ROWS ONLY;
 
+-- name: DeleteByName :exec
+DELETE FROM velez.services
+WHERE name = $1;
+

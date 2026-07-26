@@ -29,6 +29,15 @@ func (s *servicesStorage) UpsertService(ctx context.Context, name string) error 
 	return s.querier.UpsertService(ctx, name)
 }
 
+func (s *servicesStorage) Delete(ctx context.Context, name string) error {
+	err := s.querier.DeleteByName(ctx, name)
+	if err != nil {
+		return wrapPgErr(err)
+	}
+
+	return nil
+}
+
 func fromStorageToDomainService(row pg_queries.VelezService) domain.Service {
 	return domain.Service{
 		ServiceBaseInfo: domain.ServiceBaseInfo{

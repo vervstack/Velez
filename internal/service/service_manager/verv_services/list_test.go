@@ -57,6 +57,10 @@ func (m *testStorageService) UpsertService(ctx context.Context, name string) err
 	return nil
 }
 
+func (m *testStorageService) Delete(ctx context.Context, name string) error {
+	return nil
+}
+
 // Test that services are enriched with smerd data
 func TestEnrichServiceWithSmerdData(t *testing.T) {
 	baseInfo := domain.ServiceBaseInfo{
@@ -81,7 +85,8 @@ func TestEnrichServiceWithSmerdData(t *testing.T) {
 						ImageName: "docker.io/my-service:latest",
 						Status:    velez_api.Smerd_running,
 						Labels: map[string]string{
-							"env": "production",
+							"env":        "production",
+							"velez.repo": "https://github.com/vervstack/my-service",
 						},
 					},
 				},
@@ -115,6 +120,9 @@ func TestEnrichServiceWithSmerdData(t *testing.T) {
 	}
 	if enrichedService.Env != "production" {
 		t.Errorf("expected env 'production', got %q", enrichedService.Env)
+	}
+	if enrichedService.Repo != "https://github.com/vervstack/my-service" {
+		t.Errorf("expected repo 'https://github.com/vervstack/my-service', got %q", enrichedService.Repo)
 	}
 }
 
@@ -167,6 +175,9 @@ func TestServiceWithoutSmerd(t *testing.T) {
 	}
 	if enrichedService.Env != "" {
 		t.Errorf("expected empty env, got %q", enrichedService.Env)
+	}
+	if enrichedService.Repo != "" {
+		t.Errorf("expected empty repo, got %q", enrichedService.Repo)
 	}
 }
 

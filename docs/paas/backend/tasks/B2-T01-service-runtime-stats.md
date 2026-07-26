@@ -1,12 +1,22 @@
 ---
 id: "B2-T01"
 title: "Service runtime stats API (CPU%, memory)"
-status: "pending"
+status: "done"
 created: "2026-05-04"
 branch: "task/B2-T01-service-runtime-stats"
 ---
 
 # Task B2-T01 — Service Runtime Stats API
+
+> **2026-07-26 update:** this shipped already, under the RPC name `GetServiceMetrics` rather than
+> `GetServiceStats` (hence a literal grep for the latter turned up nothing and the roadmap listed
+> this as not started). See `api/grpc/service_api.proto:73` (RPC) and `:241` (messages),
+> `internal/service/service_manager/verv_services/metrics.go:14` (aggregation logic using
+> `Docker.Stats()`), `internal/transport/service_api_impl/metrics.go:11` (handler), and
+> `pkg/web/Velez-UI/src/widgets/service/ServiceHero/ServiceHero.tsx` (frontend consumer via
+> `useGetServiceMetricsQuery`). The response is richer than this spec asked for — it also includes
+> `replicas_running`/`replicas_desired`/`uptime_seconds`. Acceptance criteria below are left as
+> originally written for reference; all are satisfied by the shipped implementation.
 
 ## Goal
 

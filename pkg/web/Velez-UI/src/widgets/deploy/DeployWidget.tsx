@@ -13,8 +13,9 @@ import VolumesWidget from "@/widgets/VolumesWidget.tsx";
 
 import {CreateSmerdReq, Port, Smerd, Volume} from "@/model/smerds/Smerds.ts";
 import useSettings from "@/app/settings/state.ts";
-import {DeploySmerd} from "@/processes/api/velez.ts";
+import {DeploySmerdStream, GetSmerd} from "@/processes/api/velez.ts";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
+import {TaskStatus, TaskStatusStatus} from "@/app/api/velez";
 
 interface DeployWidgetProps {
     createSmerdReq?: CreateSmerdReq;
@@ -28,6 +29,8 @@ export default function DeployWidget({createSmerdReq, afterDeploy}: DeployWidget
 
     const [req, setReq] =
         useState<CreateSmerdReq>(createSmerdReq || new CreateSmerdReq());
+
+    const [streamStatus, setStreamStatus] = useState<TaskStatusStatus | null>(null);
 
     const updateField = (
         field: keyof CreateSmerdReq,
@@ -55,13 +58,35 @@ export default function DeployWidget({createSmerdReq, afterDeploy}: DeployWidget
     }
 
     function deploy() {
-        DeploySmerd(req, settings.initReq())
+        setStreamStatus(TaskStatusStatus.PENDING);
+
+        let finalStatus: TaskStatusStatus | undefined;
+        let finalError: string | undefined;
+
+        function onStatus(status: TaskStatus) {
+            finalStatus = status.status;
+            finalError = status.error;
+            if (status.status) {
+                setStreamStatus(status.status);
+            }
+        }
+
+        DeploySmerdStream(req, settings.initReq(), onStatus)
+            .then(() => {
+                if (finalStatus === TaskStatusStatus.FAILED) {
+                    throw new Error(finalError || "smerd creation failed");
+                }
+                return GetSmerd(req.name, settings.initReq());
+            })
             .then((smerd: Smerd) => {
                 if (afterDeploy) {
                     afterDeploy(req, smerd)
                 }
             })
             .catch(toaster.catchGrpc)
+            .finally(() => {
+                setStreamStatus(null);
+            })
     }
 
     return (
@@ -180,6 +205,9 @@ export default function DeployWidget({createSmerdReq, afterDeploy}: DeployWidget
 
 
             <div className={cls.Controls}>
+                {streamStatus &&
+                    <span className={cls.StreamStatus}>{formatStreamStatus(streamStatus)}</span>
+                }
                 <button
                     onClick={deploy}
                     className={cls.DeployButton}>Deploy
@@ -187,4 +215,19 @@ export default function DeployWidget({createSmerdReq, afterDeploy}: DeployWidget
             </div>
         </div>
     );
+}
+
+function formatStreamStatus(status: TaskStatusStatus): string {
+    switch (status) {
+        case TaskStatusStatus.PENDING:
+            return "Deploying: pending…";
+        case TaskStatusStatus.RUNNING:
+            return "Deploying: running…";
+        case TaskStatusStatus.DONE:
+            return "Deploying: done";
+        case TaskStatusStatus.FAILED:
+            return "Deploying: failed";
+        default:
+            return "Deploying…";
+    }
 }

@@ -97,6 +97,7 @@ func (c *Custom) Init(a *App) (err error) {
 	registry.Register(jobs.NewConnectServiceToVpnHandler(c.NodeClients, c.ClusterClients.Vpn(), c.ClusterClients.ServiceDiscovery()))
 	registry.Register(jobs.NewEnableStatefullHandler(c.NodeClients, c.ClusterClients.StateManager(), c.Services.StorageContainer()))
 	registry.Register(jobs.NewUpgradeSmerdHandler(c.NodeClients, c.Services.SmerdManager(), c.Services.ConfigurationService()))
+	registry.Register(jobs.NewDropSmerdHandler(c.NodeClients))
 
 	workerId, hostErr := os.Hostname()
 	if hostErr != nil || workerId == "" {

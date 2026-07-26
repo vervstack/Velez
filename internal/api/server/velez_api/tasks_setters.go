@@ -123,3 +123,15 @@ func (x *UpgradeSmerdTaskPayload) SetImageTags(v []string) {
 func (x *UpgradeSmerdTaskPayload) SetContainerId(v string) {
 	x.ContainerId = &v
 }
+
+func (x *DropSmerdTaskPayload) SetRequest(v *DropSmerd_Request) {
+	x.Request = v
+}
+
+func (x *DropSmerdTaskPayload) AppendFailed(v *DropSmerd_Response_Error) {
+	x.Failed = append(x.Failed, v)
+}
+
+func (x *DropSmerdTaskPayload) AppendSuccessful(v string) {
+	x.Successful = append(x.Successful, v)
+}

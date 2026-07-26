@@ -24,6 +24,13 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    gap: 1em;
+
+    .StreamStatus {
+        font-size: 0.9rem;
+        color: var(--color-text-secondary, #888);
+        white-space: nowrap;
+    }
 
     .DeployButton {
         width: 100%;

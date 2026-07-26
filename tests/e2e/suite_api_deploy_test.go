@@ -185,6 +185,38 @@ func (s *LifecycleSuite) Test_ClusterMode_Postgres() {
 		})
 }
 
+func (s *LifecycleSuite) Test_DropSmerd_ByUuid() {
+	t := s.T()
+	t.Parallel()
+
+	env := NewEnvironment(t)
+	ctx := t.Context()
+	name := GetServiceName(t)
+
+	req := &velez_api.CreateSmerd_Request{
+		Name:         name,
+		ImageName:    HelloWorldAppImage,
+		IgnoreConfig: true,
+	}
+
+	created := env.CreateSmerd(t, req)
+	require.NotEmpty(t, created.Uuid)
+
+	dropReq := &velez_api.DropSmerd_Request{
+		Uuids: []string{created.Uuid},
+	}
+	dropped := env.DropSmerd(t, ctx, dropReq)
+
+	require.Empty(t, dropped.Failed)
+	require.Equal(t, []string{created.Uuid}, dropped.Successful)
+
+	listReq := &velez_api.ListSmerds_Request{Name: rtb.ToPtr(name)}
+	listed := env.ListSmerds(t, ctx, listReq)
+	for _, smerd := range listed.Smerds {
+		require.NotEqual(t, created.Uuid, smerd.Uuid, "expected dropped smerd to no longer be listed")
+	}
+}
+
 func Test_Lifecycle(t *testing.T) {
 	suite.Run(t, new(LifecycleSuite))
 }

@@ -13,26 +13,38 @@ verified against current code, not carried forward from older docs at face value
 
 ## 1. Backend jobs engine
 
-**Status: functionally complete** for the original 7-pipeline `Pipeliner` migration. See
-[`docs/jobs_migration.md`](jobs_migration.md) for the full per-pipeline history, methodology, and the checklist to
-follow for any future pipeline migration. Summary: `LaunchSmerd`, `CreateService`, `AssembleConfig`,
-`ConnectServiceToVpn`, `EnableStatefullMode`, and `UpgradeSmerd` are all scaffolded as jobs *and* cut over to serve
-their live gRPC endpoints. Only `CopyToVolume` remains scaffolded-but-not-cut-over, and it has no live caller to cut
-over to in the first place.
+**Status: functionally complete.** The original 7-pipeline `Pipeliner` migration is done, and both items that were
+previously tracked as "what's left" below — `DropSmerd` and the `CreateSmerdStream` pilot — were completed
+2026-07-26. See [`docs/jobs_migration.md`](jobs_migration.md) for the full per-pipeline history, methodology, and
+the checklist to follow for any future pipeline migration. Summary: `LaunchSmerd`, `CreateService`,
+`AssembleConfig`, `ConnectServiceToVpn`, `EnableStatefullMode`, `UpgradeSmerd`, and now `DropSmerd` are all
+scaffolded as jobs *and* cut over to serve their live gRPC endpoints. Only `CopyToVolume` remains
+scaffolded-but-not-cut-over, and it has no live caller to cut over to in the first place.
 
 ### What's left
 
-- **`DropSmerd` was never migrated to the jobs engine.** `internal/transport/velez_api_impl/smerd_drop.go:10` still
-  calls `impl.smerdService.DropSmerds(ctx, req)` directly — there is no `internal/jobs/drop_smerd.go`, and `DropSmerd`
-  was never part of the `Pipeliner` interface (`internal/pipelines/pipelines.go:12-22` only declares `LaunchSmerd`,
-  `UpgradeSmerd`, `CopyToVolume`) so it fell outside the original migration's scope entirely. It's flagged as an open,
-  unresolved decision in `docs/plans/testing.md` (decision #4 / backlog row 8) — needs explicit user sign-off on
-  whether to scaffold it before any cutover work starts there.
-- **`CreateSmerdStream` streaming pilot not started.** `docs/plans/testing.md` decision #1a describes an additive
-  streaming RPC alongside the existing (already cut-over) unary `CreateSmerd`, to forward live job progress to
-  clients. No proto or handler for it exists yet.
 - **`CopyToVolume`** (`internal/jobs/copy_to_volume.go`) stays scaffolded, no live caller — parked per
   `docs/jobs_migrations/questions.md` #1 unless a `CopyToVolume` RPC is ever added.
+
+### Recently completed (2026-07-26)
+
+- **`DropSmerd`** is now scaffolded (`internal/jobs/drop_smerd.go`) and cut over
+  (`internal/transport/velez_api_impl/smerd_drop.go`). One `drop_container_<n>` job per identifier in
+  `request.uuids ++ request.name`; each job swallows its own `Docker.Remove` error into the task context's
+  `Failed`/`Successful` lists rather than failing the task, preserving the old `DropSmerds`' contract that the RPC's
+  top-level error is always nil. `container_manager.DropSmerds` (the old logic) is not removed — `custom.go`'s
+  `smerdsDropper` shutdown hook still calls it directly, bypassing the RPC layer, same carve-out shape as
+  `ConnectServiceToVpn`/`UpgradeSmerd`. First-ever test coverage for this RPC, via the previously-unused
+  `env.DropSmerd()` e2e helper (`Test_Lifecycle/Test_DropSmerd_ByUuid`). See `docs/jobs_migration.md`'s status
+  table for details.
+- **`CreateSmerdStream`** now exists: an additive server-streaming RPC on `TasksApi` (not `VelezAPI` — avoids a
+  circular proto import, since `tasks.proto` already imports `velez_api.proto`) that enqueues the same
+  `create_smerd` task as the untouched unary `CreateSmerd` and forwards `TaskStatus` updates via the same
+  `Engine.Watch` mechanism `WatchTask` already uses. Same `(name, create_smerd)` entity/action key as unary
+  `CreateSmerd`, so a client on either path attaches to the same in-flight task. TS client regenerated for the
+  first time (`pkg/web/Velez-UI/src/app/api/velez/tasks.pb.ts` didn't exist before this — neither did one for the
+  pre-existing `WatchTask`), and wired into `DeployWidget.tsx`'s smerd-creation flow to show live status instead of
+  a static spinner.
 
 > `docs/plans/testing.md`'s own "Backlog" status table (its lines ~140-149) is stale — it still shows most pipelines
 > as "Not started" even though they were subsequently cut over. Trust `docs/jobs_migration.md`'s status table (kept

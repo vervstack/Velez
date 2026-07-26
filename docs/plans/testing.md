@@ -67,7 +67,7 @@ like once the job runs *through the RPC* instead of being invoked directly.
 | 1a | `CreateSmerd` streaming pilot | **Resolved 2026-07-19.** `CreateSmerd` (`rpc CreateSmerd(CreateSmerd.Request) returns (Smerd)`) is left **unary and unchanged** — existing callers (Go client, TS client, `Velez-UI`'s current code paths) keep working exactly as today; internally it's cut over per decision #1 (sync facade). Alongside it, add a **new** streaming RPC (name TBD, e.g. `CreateSmerdStream`) that `Enqueue`s the same `create_smerd` task and forwards status as it progresses — reuse `tasks.proto`'s `TaskStatus` shape, same pattern as `TasksApi.WatchTask`, rather than inventing a new message. This is additive, so it doesn't touch the "never break backward compatibility" rule. Rejected alternative: changing `CreateSmerd` itself to `returns (stream ...)` — breaks every existing caller, rejected. **Reload/resume:** works for free via the already-existing `TasksApi.WatchTask(entity_id, action)` — `Watch` polls storage, not an in-memory stream, so a client that reconnects after a page reload just re-attaches to wherever the task currently stands. `Engine.Enqueue` already dedupes per `(entityID, action)`, so re-issuing the create call after a reload re-attaches to the same in-flight task instead of erroring or double-creating. No resume-token machinery needed — the task's row *is* the resume point. **Scope: this streaming pattern is a pilot for `CreateSmerd` only.** Other pipelines in the backlog keep decision #1's sync facade unless/until revisited individually. |
 | 2 | What to do about `CopyToVolume` — it has no live RPC caller today (per `docs/jobs_migration.md`), so there's nothing to cut over. Skip it in this plan, or is a new endpoint planned? | Can't cut over a handler that doesn't exist without inventing one. |
 | 3 | `ConnectServiceToVpn`'s only e2e coverage (`suite_vpn_test.go`) skips without a local headscale instance. Do we stand up headscale in CI/dev for this cutover, or accept reduced coverage? | Affects whether Step A (baseline test) can actually run for that pipeline. |
-| 4 | `DropSmerd` isn't scaffolded as a job at all yet (no `internal/jobs/drop_smerd.go`). Confirm it should be scaffolded from scratch (full `docs/jobs_migration.md` checklist) as part of this plan, or is it explicitly out of scope. | It can't follow the Step A–D recipe below until a job exists to cut over to. |
+| 4 | `DropSmerd` isn't scaffolded as a job at all yet (no `internal/jobs/drop_smerd.go`). Confirm it should be scaffolded from scratch (full `docs/jobs_migration.md` checklist) as part of this plan, or is it explicitly out of scope. | **Resolved 2026-07-26: scaffolded and cut over.** `internal/jobs/drop_smerd.go` (dynamic fan-out, one `drop_container_<n>` job per identifier) + `velez_api_impl.DropSmerd` now on the sync facade. See `docs/jobs_migration.md`'s status table for the full writeup. |
 
 ## Per-pipeline recipe (repeat for each row in the backlog)
 
@@ -140,19 +140,32 @@ like every other pipeline):
 
 | # | Pipeline | Live handler | Job action | Existing e2e coverage (as of 2026-07-19) | Status |
 |---|----------|-------------|------------|--------------------------------------------|--------|
-| 1 | `LaunchSmerd` | `internal/transport/velez_api_impl/smerd_create.go` (`CreateSmerd`) + new `CreateSmerdStream` (pilot, see #1a) | `create_smerd` | `suite_api_deploy_test.go` covers create+list (stateless/cluster, healthcheck, ports) - full 9-subtest suite green against the cut-over job path. **Missing:** declarative-deploy idempotency, duplicate-name-without-declarative rejection (testing_plan.md 1.4/1.5); no test yet for the new streaming RPC or reload/resume. | **Unary `CreateSmerd` cut over** (sync facade). `CreateSmerdStream` pilot not started. |
+| 1 | `LaunchSmerd` | `internal/transport/velez_api_impl/smerd_create.go` (`CreateSmerd`) + new `CreateSmerdStream` (pilot, see #1a) | `create_smerd` | `suite_api_deploy_test.go` covers create+list (stateless/cluster, healthcheck, ports) - full 9-subtest suite green against the cut-over job path (now 10, with `Test_DropSmerd_ByUuid` added under row 8 below). **Missing:** declarative-deploy idempotency, duplicate-name-without-declarative rejection (testing_plan.md 1.4/1.5); `CreateSmerdStream` has backend unit test coverage (`internal/transport/tasks_api_impl/impl_test.go`) but no e2e/reload-resume test yet. | **Unary `CreateSmerd` cut over** (sync facade). `CreateSmerdStream` pilot **implemented 2026-07-26** — `TasksApi.CreateSmerdStream`, backend + TS client + minimal `DeployWidget.tsx` UI wiring. |
 | 2 | `AssembleConfig` | `internal/transport/velez_api_impl/assemble_config.go` | `assemble_config` | Old path: `suite_assemble_config_test.go`. New engine path already driven directly: `suite_assemble_config_job_test.go`. Nearly cutover-ready — use as the template. | Not started |
 | 3 | `CreateService` | `internal/transport/service_api_impl/service_create.go` | `create_service` | None found. Needs a new e2e suite. | Not started |
 | 4 | `CopyToVolume` | none (no live RPC caller) | `copy_to_volume` | N/A | Blocked — open decision #2 |
 | 5 | `ConnectServiceToVpn` | `service_api_impl`/`velez_api_impl` VPN-connect handlers | `connect_service_to_vpn` | `suite_vpn_test.go` exists but skips without local headscale. | Blocked — open decision #3 |
 | 6 | `EnableStatefullMode` | `internal/transport/control_plane_api_impl/` (`EnablePlugin`) | `enable_statefull_mode` | None found. Needs a new e2e suite. | Not started |
 | 7 | `UpgradeSmerd` | `internal/transport/velez_api_impl/smerd_upgrade.go` | `upgrade_smerd` | None found (only fakes-based `internal/jobs/upgrade_smerd_test.go`). Needs a new e2e suite. | Not started |
-| 8 | `DropSmerd` (destroy) | `internal/transport/velez_api_impl/smerd_drop.go` | none yet — not scaffolded | None found; `env.DropSmerd()` test helper exists but is never called by any suite. | Blocked — open decision #4 (needs full scaffold first, then this recipe) |
+| 8 | `DropSmerd` (destroy) | `internal/transport/velez_api_impl/smerd_drop.go` | `drop_smerd` | `internal/jobs/drop_smerd_test.go` (happy path, partial-failure-still-DONE, resume) + `suite_api_deploy_test.go`'s `Test_DropSmerd_ByUuid` — first-ever caller of the previously-unused `env.DropSmerd()` helper. | **Cut over 2026-07-26** (sync facade, decision #4 resolved). |
 
 ## Progress log
 
 Append an entry here each time a pipeline's status changes, newest first.
 
+- 2026-07-26 — Pipeline #8 (`DropSmerd`) scaffolded from scratch and cut over
+  in the same pass (open decision #4 resolved) — the last pipeline left
+  outside the original 7-pipeline `Pipeliner` migration's scope. One
+  `drop_container_<n>` job per identifier; each job swallows its own Docker
+  error into the task context rather than failing the task, preserving the
+  old `DropSmerds`' "top-level error always nil" contract. Also implemented
+  the `CreateSmerdStream` pilot from decision #1a: additive `TasksApi`
+  server-streaming RPC, backend + TS client + minimal UI wiring in
+  `DeployWidget.tsx`. Both verified: `go build ./...`, full non-e2e
+  `go test ./...`, and `Test_Lifecycle`'s full 10-subtest suite (including
+  the new `Test_DropSmerd_ByUuid`) all green; `bun run build`/`tsc` clean
+  aside from one confirmed pre-existing, unrelated `HeadscalePluginForm.tsx`
+  error. This closes both items `docs/roadmap.md` §1 had tracked as open.
 - 2026-07-19 — Pipeline #1 (`CreateSmerd`) unary handler cut over to the
   jobs engine (Step A-C complete). Step A baseline (`Test_Lifecycle`, 9
   subtests) was green against the old pipeliner. Step B cutover initially

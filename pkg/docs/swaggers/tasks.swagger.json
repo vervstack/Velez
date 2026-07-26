@@ -16,6 +16,48 @@
     "application/json"
   ],
   "paths": {
+    "/api/smerd/create/stream": {
+      "post": {
+        "summary": "CreateSmerdStream is an additive streaming pilot alongside VelezAPI's\nexisting unary CreateSmerd: it enqueues the same create_smerd task and\nforwards TaskStatus updates as the task progresses, reusing WatchTask's\nTaskStatus shape rather than inventing a new message. Lives here (not on\nVelezAPI) because tasks.proto imports velez_api.proto - the reverse\nimport would be circular. The unary CreateSmerd is untouched.",
+        "operationId": "TasksApi_CreateSmerdStream",
+        "responses": {
+          "200": {
+            "description": "A successful response.(streaming responses)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/velez_apiTaskStatus"
+                },
+                "error": {
+                  "$ref": "#/definitions/googleRpcStatus"
+                }
+              },
+              "title": "Stream result of velez_apiTaskStatus"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateSmerdRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TasksApi"
+        ]
+      }
+    },
     "/api/tasks/watch": {
       "get": {
         "operationId": "TasksApi_WatchTask",
@@ -63,6 +105,80 @@
     }
   },
   "definitions": {
+    "ContainerHardware": {
+      "type": "object",
+      "properties": {
+        "cpu": {
+          "type": "number",
+          "format": "float",
+          "title": "Top level cpu share amount.\n0.5 - give half a core\n1 - allocates 1 core exactly\n2 - allocates 2 cores"
+        },
+        "ramMb": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "memorySwapMb": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "ContainerHealthcheck": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "title": "if command is not presented,\nvelez will simply\nwait \"retires\" times for \"interval_second\" seconds each time,\nuntil container get status Running"
+        },
+        "intervalSecond": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "timeoutSecond": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "retries": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "ContainerSettings": {
+      "type": "object",
+      "properties": {
+        "ports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiPort"
+          }
+        },
+        "network": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiNetworkBind"
+          }
+        },
+        "volumes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiVolume"
+          }
+        }
+      }
+    },
+    "PortProtocol": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "tcp",
+        "udp"
+      ],
+      "default": "unknown"
+    },
     "googleRpcStatus": {
       "type": "object",
       "properties": {
@@ -91,6 +207,160 @@
       },
       "additionalProperties": {}
     },
+    "velez_apiConfigFormat": {
+      "type": "string",
+      "enum": [
+        "yaml",
+        "env"
+      ],
+      "default": "yaml",
+      "title": "- yaml: Default"
+    },
+    "velez_apiCreateSmerdRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "imageName": {
+          "type": "string"
+        },
+        "hardware": {
+          "$ref": "#/definitions/ContainerHardware"
+        },
+        "settings": {
+          "$ref": "#/definitions/ContainerSettings"
+        },
+        "command": {
+          "type": "string"
+        },
+        "env": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "healthcheck": {
+          "$ref": "#/definitions/ContainerHealthcheck"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "ignoreConfig": {
+          "type": "boolean"
+        },
+        "useImagePorts": {
+          "type": "boolean"
+        },
+        "autoUpgrade": {
+          "type": "boolean"
+        },
+        "restart": {
+          "$ref": "#/definitions/velez_apiRestartPolicy"
+        },
+        "verv": {
+          "$ref": "#/definitions/velez_apiMatreshkaConfigSpec"
+        },
+        "plain": {
+          "$ref": "#/definitions/velez_apiPlainConfigSpec"
+        },
+        "isDeclarativeDeploy": {
+          "type": "boolean",
+          "description": "False (default):\n     if defined smerd already exist - api call fails\nTrue: \n     if smerd already exist and healthy\n     this api call won't fail.\nTODO maybe even support to upgrade to presented state will be implemented some day",
+          "title": "is_declarative_deploy - flag allows caller to manage idempotency of calls"
+        }
+      }
+    },
+    "velez_apiMatreshkaConfigSpec": {
+      "type": "object",
+      "properties": {
+        "configName": {
+          "type": "string",
+          "title": "Name of config. By default velez will try to guess config by\nindirect signs such as (no priority)\n - special MATRESHKA_CONFIG tags\n - image (e.g. postgres, angie and etc)\n - smerd's name (starting with special prefix)"
+        },
+        "configVersion": {
+          "type": "string",
+          "title": "Version to load into smerd. By default - master"
+        },
+        "configFormat": {
+          "$ref": "#/definitions/velez_apiConfigFormat",
+          "title": "Format of config. Different default for different types\ne.g\n   - verv - sets config as environment variables\n   - pg - writes to a config file\ngeneral rule - if target_path is not set -\u003e it's a environment variables"
+        },
+        "systemPath": {
+          "type": "string",
+          "description": "If not set - writes config as an environment variables",
+          "title": "target path of config.\n   If set and has .yaml extension - writes yaml file at path"
+        }
+      }
+    },
+    "velez_apiNetworkBind": {
+      "type": "object",
+      "properties": {
+        "networkName": {
+          "type": "string"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "velez_apiPlainConfigSpec": {
+      "type": "object",
+      "properties": {
+        "configs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "format": "byte"
+          },
+          "title": "key: target path inside container, value: raw config bytes"
+        }
+      }
+    },
+    "velez_apiPort": {
+      "type": "object",
+      "properties": {
+        "servicePortNumber": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "protocol": {
+          "$ref": "#/definitions/PortProtocol"
+        },
+        "exposedTo": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "velez_apiRestartPolicy": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/velez_apiRestartPolicyType"
+        },
+        "FailureCount": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "velez_apiRestartPolicyType": {
+      "type": "string",
+      "enum": [
+        "unless_stopped",
+        "no",
+        "always",
+        "on_failure"
+      ],
+      "default": "unless_stopped"
+    },
     "velez_apiTaskStatus": {
       "type": "object",
       "properties": {
@@ -116,6 +386,17 @@
         "FAILED"
       ],
       "default": "UNKNOWN"
+    },
+    "velez_apiVolume": {
+      "type": "object",
+      "properties": {
+        "volumeName": {
+          "type": "string"
+        },
+        "containerPath": {
+          "type": "string"
+        }
+      }
     }
   }
 }

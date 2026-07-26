@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TasksApi_WatchTask_FullMethodName = "/velez_api.TasksApi/WatchTask"
+	TasksApi_WatchTask_FullMethodName         = "/velez_api.TasksApi/WatchTask"
+	TasksApi_CreateSmerdStream_FullMethodName = "/velez_api.TasksApi/CreateSmerdStream"
 )
 
 // TasksApiClient is the client API for TasksApi service.
@@ -30,6 +31,13 @@ const (
 // executed by the internal task/job engine.
 type TasksApiClient interface {
 	WatchTask(ctx context.Context, in *WatchTask_Request, opts ...grpc.CallOption) (grpc.ServerStreamingClient[TaskStatus], error)
+	// CreateSmerdStream is an additive streaming pilot alongside VelezAPI's
+	// existing unary CreateSmerd: it enqueues the same create_smerd task and
+	// forwards TaskStatus updates as the task progresses, reusing WatchTask's
+	// TaskStatus shape rather than inventing a new message. Lives here (not on
+	// VelezAPI) because tasks.proto imports velez_api.proto - the reverse
+	// import would be circular. The unary CreateSmerd is untouched.
+	CreateSmerdStream(ctx context.Context, in *CreateSmerd_Request, opts ...grpc.CallOption) (grpc.ServerStreamingClient[TaskStatus], error)
 }
 
 type tasksApiClient struct {
@@ -59,6 +67,25 @@ func (c *tasksApiClient) WatchTask(ctx context.Context, in *WatchTask_Request, o
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type TasksApi_WatchTaskClient = grpc.ServerStreamingClient[TaskStatus]
 
+func (c *tasksApiClient) CreateSmerdStream(ctx context.Context, in *CreateSmerd_Request, opts ...grpc.CallOption) (grpc.ServerStreamingClient[TaskStatus], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &TasksApi_ServiceDesc.Streams[1], TasksApi_CreateSmerdStream_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[CreateSmerd_Request, TaskStatus]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type TasksApi_CreateSmerdStreamClient = grpc.ServerStreamingClient[TaskStatus]
+
 // TasksApiServer is the server API for TasksApi service.
 // All implementations must embed UnimplementedTasksApiServer
 // for forward compatibility.
@@ -67,6 +94,13 @@ type TasksApi_WatchTaskClient = grpc.ServerStreamingClient[TaskStatus]
 // executed by the internal task/job engine.
 type TasksApiServer interface {
 	WatchTask(*WatchTask_Request, grpc.ServerStreamingServer[TaskStatus]) error
+	// CreateSmerdStream is an additive streaming pilot alongside VelezAPI's
+	// existing unary CreateSmerd: it enqueues the same create_smerd task and
+	// forwards TaskStatus updates as the task progresses, reusing WatchTask's
+	// TaskStatus shape rather than inventing a new message. Lives here (not on
+	// VelezAPI) because tasks.proto imports velez_api.proto - the reverse
+	// import would be circular. The unary CreateSmerd is untouched.
+	CreateSmerdStream(*CreateSmerd_Request, grpc.ServerStreamingServer[TaskStatus]) error
 	mustEmbedUnimplementedTasksApiServer()
 }
 
@@ -79,6 +113,9 @@ type UnimplementedTasksApiServer struct{}
 
 func (UnimplementedTasksApiServer) WatchTask(*WatchTask_Request, grpc.ServerStreamingServer[TaskStatus]) error {
 	return status.Error(codes.Unimplemented, "method WatchTask not implemented")
+}
+func (UnimplementedTasksApiServer) CreateSmerdStream(*CreateSmerd_Request, grpc.ServerStreamingServer[TaskStatus]) error {
+	return status.Error(codes.Unimplemented, "method CreateSmerdStream not implemented")
 }
 func (UnimplementedTasksApiServer) mustEmbedUnimplementedTasksApiServer() {}
 func (UnimplementedTasksApiServer) testEmbeddedByValue()                  {}
@@ -112,6 +149,17 @@ func _TasksApi_WatchTask_Handler(srv interface{}, stream grpc.ServerStream) erro
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type TasksApi_WatchTaskServer = grpc.ServerStreamingServer[TaskStatus]
 
+func _TasksApi_CreateSmerdStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(CreateSmerd_Request)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(TasksApiServer).CreateSmerdStream(m, &grpc.GenericServerStream[CreateSmerd_Request, TaskStatus]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type TasksApi_CreateSmerdStreamServer = grpc.ServerStreamingServer[TaskStatus]
+
 // TasksApi_ServiceDesc is the grpc.ServiceDesc for TasksApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -123,6 +171,11 @@ var TasksApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "WatchTask",
 			Handler:       _TasksApi_WatchTask_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "CreateSmerdStream",
+			Handler:       _TasksApi_CreateSmerdStream_Handler,
 			ServerStreams: true,
 		},
 	},

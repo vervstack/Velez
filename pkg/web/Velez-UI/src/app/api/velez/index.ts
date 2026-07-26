@@ -3,10 +3,12 @@ export * from './velez_api.pb';
 export * from './control_plane_api.pb';
 export * from './service_api.pb';
 export * from './verv_closed_network.pb';
+export * from './tasks.pb';
 
 export { VelezAPI } from './velez_api.pb';
 export { ControlPlaneAPI } from './control_plane_api.pb';
 export { ServiceApi } from './service_api.pb';
 export { VcnApi } from './verv_closed_network.pb';
+export { TasksApi } from './tasks.pb';
 
 export * from './fetch.pb';

@@ -1,9 +1,11 @@
 import {
     VelezAPI,
+    TasksApi,
     ListSmerdsRequest,
     ListSmerdsResponse,
     SearchImagesResponse,
     Smerd as ProtoSmerd,
+    TaskStatus,
 } from "@/app/api/velez";
 import {InitReq} from "@/app/settings/state.ts";
 import {CreateSmerdReq, Port, Smerd, toProto, Volume} from "@/model/smerds/Smerds.ts";
@@ -76,6 +78,21 @@ export async function ListImages(name: string, initReq: InitReq): Promise<Search
     } as ListSmerdsRequest
 
     return VelezAPI.SearchImages(req, initReq)
+}
+
+
+// DeploySmerdStream is a pilot streaming counterpart to DeploySmerd: it
+// enqueues the same create_smerd task (dedup'd on the smerd's name, same as
+// the unary call) and forwards live TaskStatus updates to onStatus as the
+// task progresses, instead of blocking until it's done. TaskStatus doesn't
+// carry the created container's details, so once the stream ends the caller
+// is expected to fetch the final Smerd separately (e.g. via GetSmerd).
+export async function DeploySmerdStream(
+    smerd: CreateSmerdReq,
+    initReq: InitReq,
+    onStatus: (status: TaskStatus) => void
+): Promise<void> {
+    return TasksApi.CreateSmerdStream(toProto(smerd), onStatus, initReq)
 }
 
 

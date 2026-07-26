@@ -6,6 +6,7 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/zerolog/log"
+	"go.redsock.ru/rerrors"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -51,6 +52,32 @@ func (impl *Impl) WatchTask(req *velez_api.WatchTask_Request, stream grpc.Server
 
 	for task := range impl.jobsEngine.Watch(ctx, req.GetEntityId(), req.GetAction()) {
 		err := stream.Send(taskToProto(task))
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// CreateSmerdStream is an additive streaming pilot alongside VelezAPI's
+// existing unary CreateSmerd: it enqueues the same create_smerd task
+// (dedup'd on the same (name, action) key the unary RPC uses) and forwards
+// TaskStatus updates as the task progresses, instead of blocking until it
+// completes. The unary CreateSmerd stays untouched.
+func (impl *Impl) CreateSmerdStream(req *velez_api.CreateSmerd_Request, stream grpc.ServerStreamingServer[velez_api.TaskStatus]) error {
+	ctx := stream.Context()
+
+	initialContext := &velez_api.CreateSmerdTaskPayload{}
+	initialContext.SetRequest(req)
+
+	_, err := impl.jobsEngine.Enqueue(ctx, req.GetName(), jobs.CreateSmerdAction, initialContext)
+	if err != nil {
+		return rerrors.Wrap(err, "error enqueuing create_smerd task")
+	}
+
+	for task := range impl.jobsEngine.Watch(ctx, req.GetName(), jobs.CreateSmerdAction) {
+		err = stream.Send(taskToProto(task))
 		if err != nil {
 			return err
 		}

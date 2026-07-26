@@ -63,6 +63,29 @@ func request_TasksApi_WatchTask_0(ctx context.Context, marshaler runtime.Marshal
 	return stream, metadata, nil
 }
 
+func request_TasksApi_CreateSmerdStream_0(ctx context.Context, marshaler runtime.Marshaler, client TasksApiClient, req *http.Request, pathParams map[string]string) (TasksApi_CreateSmerdStreamClient, runtime.ServerMetadata, error) {
+	var (
+		protoReq CreateSmerd_Request
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	stream, err := client.CreateSmerdStream(ctx, &protoReq)
+	if err != nil {
+		return nil, metadata, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		return nil, metadata, err
+	}
+	metadata.HeaderMD = header
+	return stream, metadata, nil
+}
+
 // RegisterTasksApiHandlerServer registers the http handlers for service TasksApi to "mux".
 // UnaryRPC     :call TasksApiServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -70,6 +93,13 @@ func request_TasksApi_WatchTask_0(ctx context.Context, marshaler runtime.Marshal
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterTasksApiHandlerServer(ctx context.Context, mux *runtime.ServeMux, server TasksApiServer) error {
 	mux.Handle(http.MethodGet, pattern_TasksApi_WatchTask_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
+		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+		return
+	})
+
+	mux.Handle(http.MethodPost, pattern_TasksApi_CreateSmerdStream_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
 		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -132,13 +162,32 @@ func RegisterTasksApiHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 		forward_TasksApi_WatchTask_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_TasksApi_CreateSmerdStream_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.TasksApi/CreateSmerdStream", runtime.WithHTTPPathPattern("/api/smerd/create/stream"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_TasksApi_CreateSmerdStream_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_TasksApi_CreateSmerdStream_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+	})
 	return nil
 }
 
 var (
-	pattern_TasksApi_WatchTask_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "tasks", "watch"}, ""))
+	pattern_TasksApi_WatchTask_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "tasks", "watch"}, ""))
+	pattern_TasksApi_CreateSmerdStream_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "smerd", "create", "stream"}, ""))
 )
 
 var (
-	forward_TasksApi_WatchTask_0 = runtime.ForwardResponseStream
+	forward_TasksApi_WatchTask_0         = runtime.ForwardResponseStream
+	forward_TasksApi_CreateSmerdStream_0 = runtime.ForwardResponseStream
 )

@@ -690,6 +690,72 @@ func (x *EnableStatefullTaskPayload) GetRootDsn() string {
 	return ""
 }
 
+// DropSmerdTaskPayload is the task context for the "drop_smerd" action. One
+// drop_container_<n> job is built per identifier in request.uuids ++
+// request.name; each job appends its own result into failed/successful
+// rather than failing the task, mirroring the old DropSmerds' contract that
+// the RPC's top-level error is always nil and per-item failures are only
+// visible in the response body.
+type DropSmerdTaskPayload struct {
+	state         protoimpl.MessageState      `protogen:"open.v1"`
+	Request       *DropSmerd_Request          `protobuf:"bytes,1,opt,name=request,proto3" json:"request,omitempty"`
+	Failed        []*DropSmerd_Response_Error `protobuf:"bytes,2,rep,name=failed,proto3" json:"failed,omitempty"`
+	Successful    []string                    `protobuf:"bytes,3,rep,name=successful,proto3" json:"successful,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DropSmerdTaskPayload) Reset() {
+	*x = DropSmerdTaskPayload{}
+	mi := &file_tasks_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DropSmerdTaskPayload) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DropSmerdTaskPayload) ProtoMessage() {}
+
+func (x *DropSmerdTaskPayload) ProtoReflect() protoreflect.Message {
+	mi := &file_tasks_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DropSmerdTaskPayload.ProtoReflect.Descriptor instead.
+func (*DropSmerdTaskPayload) Descriptor() ([]byte, []int) {
+	return file_tasks_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *DropSmerdTaskPayload) GetRequest() *DropSmerd_Request {
+	if x != nil {
+		return x.Request
+	}
+	return nil
+}
+
+func (x *DropSmerdTaskPayload) GetFailed() []*DropSmerd_Response_Error {
+	if x != nil {
+		return x.Failed
+	}
+	return nil
+}
+
+func (x *DropSmerdTaskPayload) GetSuccessful() []string {
+	if x != nil {
+		return x.Successful
+	}
+	return nil
+}
+
 // UpgradeSmerdTaskPayload is the task context for the "upgrade_smerd" action.
 type UpgradeSmerdTaskPayload struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
@@ -714,7 +780,7 @@ type UpgradeSmerdTaskPayload struct {
 
 func (x *UpgradeSmerdTaskPayload) Reset() {
 	*x = UpgradeSmerdTaskPayload{}
-	mi := &file_tasks_proto_msgTypes[8]
+	mi := &file_tasks_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -726,7 +792,7 @@ func (x *UpgradeSmerdTaskPayload) String() string {
 func (*UpgradeSmerdTaskPayload) ProtoMessage() {}
 
 func (x *UpgradeSmerdTaskPayload) ProtoReflect() protoreflect.Message {
-	mi := &file_tasks_proto_msgTypes[8]
+	mi := &file_tasks_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -739,7 +805,7 @@ func (x *UpgradeSmerdTaskPayload) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpgradeSmerdTaskPayload.ProtoReflect.Descriptor instead.
 func (*UpgradeSmerdTaskPayload) Descriptor() ([]byte, []int) {
-	return file_tasks_proto_rawDescGZIP(), []int{8}
+	return file_tasks_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UpgradeSmerdTaskPayload) GetUpgradeRequest() *UpgradeSmerd_Request {
@@ -794,7 +860,7 @@ type WatchTask_Request struct {
 
 func (x *WatchTask_Request) Reset() {
 	*x = WatchTask_Request{}
-	mi := &file_tasks_proto_msgTypes[9]
+	mi := &file_tasks_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -806,7 +872,7 @@ func (x *WatchTask_Request) String() string {
 func (*WatchTask_Request) ProtoMessage() {}
 
 func (x *WatchTask_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_tasks_proto_msgTypes[9]
+	mi := &file_tasks_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -936,7 +1002,13 @@ const file_tasks_proto_rawDesc = "" +
 	"\t_root_pwdB\v\n" +
 	"\t_user_pwdB\x0f\n" +
 	"\r_container_idB\v\n" +
-	"\t_root_dsn\"\xd1\x03\n" +
+	"\t_root_dsn\"\xab\x01\n" +
+	"\x14DropSmerdTaskPayload\x126\n" +
+	"\arequest\x18\x01 \x01(\v2\x1c.velez_api.DropSmerd.RequestR\arequest\x12;\n" +
+	"\x06failed\x18\x02 \x03(\v2#.velez_api.DropSmerd.Response.ErrorR\x06failed\x12\x1e\n" +
+	"\n" +
+	"successful\x18\x03 \x03(\tR\n" +
+	"successful\"\xd1\x03\n" +
 	"\x17UpgradeSmerdTaskPayload\x12H\n" +
 	"\x0fupgrade_request\x18\x01 \x01(\v2\x1f.velez_api.UpgradeSmerd.RequestR\x0eupgradeRequest\x128\n" +
 	"\arequest\x18\x02 \x01(\v2\x1e.velez_api.CreateSmerd.RequestR\arequest\x12-\n" +
@@ -949,9 +1021,10 @@ const file_tasks_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x13\n" +
 	"\x11_old_container_idB\x0f\n" +
-	"\r_container_id2h\n" +
+	"\r_container_id2\xdb\x01\n" +
 	"\bTasksApi\x12\\\n" +
-	"\tWatchTask\x12\x1c.velez_api.WatchTask.Request\x1a\x15.velez_api.TaskStatus\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/api/tasks/watch0\x01BC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
+	"\tWatchTask\x12\x1c.velez_api.WatchTask.Request\x1a\x15.velez_api.TaskStatus\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/api/tasks/watch0\x01\x12q\n" +
+	"\x11CreateSmerdStream\x12\x1e.velez_api.CreateSmerd.Request\x1a\x15.velez_api.TaskStatus\"#\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/api/smerd/create/stream0\x01BC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
 
 var (
 	file_tasks_proto_rawDescOnce sync.Once
@@ -966,7 +1039,7 @@ func file_tasks_proto_rawDescGZIP() []byte {
 }
 
 var file_tasks_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_tasks_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_tasks_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_tasks_proto_goTypes = []any{
 	(TaskStatus_Status)(0),                 // 0: velez_api.TaskStatus.Status
 	(*WatchTask)(nil),                      // 1: velez_api.WatchTask
@@ -977,39 +1050,46 @@ var file_tasks_proto_goTypes = []any{
 	(*CopyToVolumeTaskPayload)(nil),        // 6: velez_api.CopyToVolumeTaskPayload
 	(*ConnectServiceToVpnTaskPayload)(nil), // 7: velez_api.ConnectServiceToVpnTaskPayload
 	(*EnableStatefullTaskPayload)(nil),     // 8: velez_api.EnableStatefullTaskPayload
-	(*UpgradeSmerdTaskPayload)(nil),        // 9: velez_api.UpgradeSmerdTaskPayload
-	(*WatchTask_Request)(nil),              // 10: velez_api.WatchTask.Request
-	nil,                                    // 11: velez_api.CreateSmerdTaskPayload.ImageLabelsEntry
-	nil,                                    // 12: velez_api.CreateSmerdTaskPayload.PathToFilesEntry
-	nil,                                    // 13: velez_api.AssembleConfigTaskPayload.ImageLabelsEntry
-	nil,                                    // 14: velez_api.CopyToVolumeTaskPayload.PathToFilesEntry
-	nil,                                    // 15: velez_api.UpgradeSmerdTaskPayload.ImageLabelsEntry
-	(*timestamppb.Timestamp)(nil),          // 16: google.protobuf.Timestamp
-	(*CreateSmerd_Request)(nil),            // 17: velez_api.CreateSmerd.Request
-	(ConfigFormat)(0),                      // 18: velez_api.ConfigFormat
-	(*EnableStatefullCluster)(nil),         // 19: velez_api.EnableStatefullCluster
-	(*UpgradeSmerd_Request)(nil),           // 20: velez_api.UpgradeSmerd.Request
+	(*DropSmerdTaskPayload)(nil),           // 9: velez_api.DropSmerdTaskPayload
+	(*UpgradeSmerdTaskPayload)(nil),        // 10: velez_api.UpgradeSmerdTaskPayload
+	(*WatchTask_Request)(nil),              // 11: velez_api.WatchTask.Request
+	nil,                                    // 12: velez_api.CreateSmerdTaskPayload.ImageLabelsEntry
+	nil,                                    // 13: velez_api.CreateSmerdTaskPayload.PathToFilesEntry
+	nil,                                    // 14: velez_api.AssembleConfigTaskPayload.ImageLabelsEntry
+	nil,                                    // 15: velez_api.CopyToVolumeTaskPayload.PathToFilesEntry
+	nil,                                    // 16: velez_api.UpgradeSmerdTaskPayload.ImageLabelsEntry
+	(*timestamppb.Timestamp)(nil),          // 17: google.protobuf.Timestamp
+	(*CreateSmerd_Request)(nil),            // 18: velez_api.CreateSmerd.Request
+	(ConfigFormat)(0),                      // 19: velez_api.ConfigFormat
+	(*EnableStatefullCluster)(nil),         // 20: velez_api.EnableStatefullCluster
+	(*DropSmerd_Request)(nil),              // 21: velez_api.DropSmerd.Request
+	(*DropSmerd_Response_Error)(nil),       // 22: velez_api.DropSmerd.Response.Error
+	(*UpgradeSmerd_Request)(nil),           // 23: velez_api.UpgradeSmerd.Request
 }
 var file_tasks_proto_depIdxs = []int32{
 	0,  // 0: velez_api.TaskStatus.status:type_name -> velez_api.TaskStatus.Status
-	16, // 1: velez_api.TaskStatus.updated_at:type_name -> google.protobuf.Timestamp
-	17, // 2: velez_api.CreateSmerdTaskPayload.request:type_name -> velez_api.CreateSmerd.Request
-	11, // 3: velez_api.CreateSmerdTaskPayload.image_labels:type_name -> velez_api.CreateSmerdTaskPayload.ImageLabelsEntry
-	12, // 4: velez_api.CreateSmerdTaskPayload.path_to_files:type_name -> velez_api.CreateSmerdTaskPayload.PathToFilesEntry
-	13, // 5: velez_api.AssembleConfigTaskPayload.image_labels:type_name -> velez_api.AssembleConfigTaskPayload.ImageLabelsEntry
-	18, // 6: velez_api.AssembleConfigTaskPayload.config_format:type_name -> velez_api.ConfigFormat
-	14, // 7: velez_api.CopyToVolumeTaskPayload.path_to_files:type_name -> velez_api.CopyToVolumeTaskPayload.PathToFilesEntry
-	19, // 8: velez_api.EnableStatefullTaskPayload.request:type_name -> velez_api.EnableStatefullCluster
-	20, // 9: velez_api.UpgradeSmerdTaskPayload.upgrade_request:type_name -> velez_api.UpgradeSmerd.Request
-	17, // 10: velez_api.UpgradeSmerdTaskPayload.request:type_name -> velez_api.CreateSmerd.Request
-	15, // 11: velez_api.UpgradeSmerdTaskPayload.image_labels:type_name -> velez_api.UpgradeSmerdTaskPayload.ImageLabelsEntry
-	10, // 12: velez_api.TasksApi.WatchTask:input_type -> velez_api.WatchTask.Request
-	2,  // 13: velez_api.TasksApi.WatchTask:output_type -> velez_api.TaskStatus
-	13, // [13:14] is the sub-list for method output_type
-	12, // [12:13] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	17, // 1: velez_api.TaskStatus.updated_at:type_name -> google.protobuf.Timestamp
+	18, // 2: velez_api.CreateSmerdTaskPayload.request:type_name -> velez_api.CreateSmerd.Request
+	12, // 3: velez_api.CreateSmerdTaskPayload.image_labels:type_name -> velez_api.CreateSmerdTaskPayload.ImageLabelsEntry
+	13, // 4: velez_api.CreateSmerdTaskPayload.path_to_files:type_name -> velez_api.CreateSmerdTaskPayload.PathToFilesEntry
+	14, // 5: velez_api.AssembleConfigTaskPayload.image_labels:type_name -> velez_api.AssembleConfigTaskPayload.ImageLabelsEntry
+	19, // 6: velez_api.AssembleConfigTaskPayload.config_format:type_name -> velez_api.ConfigFormat
+	15, // 7: velez_api.CopyToVolumeTaskPayload.path_to_files:type_name -> velez_api.CopyToVolumeTaskPayload.PathToFilesEntry
+	20, // 8: velez_api.EnableStatefullTaskPayload.request:type_name -> velez_api.EnableStatefullCluster
+	21, // 9: velez_api.DropSmerdTaskPayload.request:type_name -> velez_api.DropSmerd.Request
+	22, // 10: velez_api.DropSmerdTaskPayload.failed:type_name -> velez_api.DropSmerd.Response.Error
+	23, // 11: velez_api.UpgradeSmerdTaskPayload.upgrade_request:type_name -> velez_api.UpgradeSmerd.Request
+	18, // 12: velez_api.UpgradeSmerdTaskPayload.request:type_name -> velez_api.CreateSmerd.Request
+	16, // 13: velez_api.UpgradeSmerdTaskPayload.image_labels:type_name -> velez_api.UpgradeSmerdTaskPayload.ImageLabelsEntry
+	11, // 14: velez_api.TasksApi.WatchTask:input_type -> velez_api.WatchTask.Request
+	18, // 15: velez_api.TasksApi.CreateSmerdStream:input_type -> velez_api.CreateSmerd.Request
+	2,  // 16: velez_api.TasksApi.WatchTask:output_type -> velez_api.TaskStatus
+	2,  // 17: velez_api.TasksApi.CreateSmerdStream:output_type -> velez_api.TaskStatus
+	16, // [16:18] is the sub-list for method output_type
+	14, // [14:16] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_tasks_proto_init() }
@@ -1026,14 +1106,14 @@ func file_tasks_proto_init() {
 	file_tasks_proto_msgTypes[5].OneofWrappers = []any{}
 	file_tasks_proto_msgTypes[6].OneofWrappers = []any{}
 	file_tasks_proto_msgTypes[7].OneofWrappers = []any{}
-	file_tasks_proto_msgTypes[8].OneofWrappers = []any{}
+	file_tasks_proto_msgTypes[9].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_tasks_proto_rawDesc), len(file_tasks_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   15,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

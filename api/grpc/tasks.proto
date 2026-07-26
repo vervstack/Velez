@@ -21,6 +21,19 @@ service TasksApi {
       get: "/api/tasks/watch"
     };
   }
+
+  // CreateSmerdStream is an additive streaming pilot alongside VelezAPI's
+  // existing unary CreateSmerd: it enqueues the same create_smerd task and
+  // forwards TaskStatus updates as the task progresses, reusing WatchTask's
+  // TaskStatus shape rather than inventing a new message. Lives here (not on
+  // VelezAPI) because tasks.proto imports velez_api.proto - the reverse
+  // import would be circular. The unary CreateSmerd is untouched.
+  rpc CreateSmerdStream(CreateSmerd.Request) returns (stream TaskStatus) {
+    option (google.api.http) = {
+      post: "/api/smerd/create/stream"
+      body: "*"
+    };
+  }
 }
 
 message WatchTask {
@@ -146,6 +159,19 @@ message EnableStatefullTaskPayload {
   // Set once the root connection dsn has been resolved from the running
   // container.
   optional string root_dsn = 5;
+}
+
+// DropSmerdTaskPayload is the task context for the "drop_smerd" action. One
+// drop_container_<n> job is built per identifier in request.uuids ++
+// request.name; each job appends its own result into failed/successful
+// rather than failing the task, mirroring the old DropSmerds' contract that
+// the RPC's top-level error is always nil and per-item failures are only
+// visible in the response body.
+message DropSmerdTaskPayload {
+  DropSmerd.Request request = 1;
+
+  repeated DropSmerd.Response.Error failed = 2;
+  repeated string successful = 3;
 }
 
 // UpgradeSmerdTaskPayload is the task context for the "upgrade_smerd" action.

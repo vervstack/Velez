@@ -515,9 +515,9 @@
     "semantic_hash": "f8375488afb68a200b7a3cf80e72accc"
   },
   "internal/domain/service.go": {
-    "mtime": 1779536133.3008385,
-    "ast_hash": "788c999f3c402e0608e7f3f5f7181b78",
-    "semantic_hash": "788c999f3c402e0608e7f3f5f7181b78"
+    "mtime": 1785071078.1638396,
+    "ast_hash": "0a5e4785b18e4d5c1ac4b316c2d5483f",
+    "semantic_hash": ""
   },
   "internal/domain/upgrade.go": {
     "mtime": 1761674620.8234072,
@@ -860,9 +860,9 @@
     "semantic_hash": "eda9b3d630bf1bcf4f4e07c5ff76a62f"
   },
   "internal/service/service_manager/verv_services/list.go": {
-    "mtime": 1777926003.2140393,
-    "ast_hash": "2584a4b9e1fd4740341e177773dcfc2a",
-    "semantic_hash": "2584a4b9e1fd4740341e177773dcfc2a"
+    "mtime": 1785071084.9261205,
+    "ast_hash": "9f22c3faeafcd8d706ba272ea08defb5",
+    "semantic_hash": ""
   },
   "internal/service/service_manager/verv_services/list_environments.go": {
     "mtime": 1779394116.731695,
@@ -870,9 +870,9 @@
     "semantic_hash": "5965820971dd41f00e4bd4736281d7e2"
   },
   "internal/service/service_manager/verv_services/list_test.go": {
-    "mtime": 1779048299.2124288,
-    "ast_hash": "66231b31a7e0ce551cdccb4583f06f71",
-    "semantic_hash": "66231b31a7e0ce551cdccb4583f06f71"
+    "mtime": 1785071091.7132852,
+    "ast_hash": "b16f0dad388f81e7ca14070f6670964e",
+    "semantic_hash": ""
   },
   "internal/service/service_manager/verv_services/metrics.go": {
     "mtime": 1779536133.3768923,
@@ -1190,9 +1190,9 @@
     "semantic_hash": "e9396f1c0ab5c45ec93d1ec4f7347d58"
   },
   "internal/transport/service_api_impl/common.go": {
-    "mtime": 1777926003.214319,
-    "ast_hash": "64a88eabf5d862e0e87b48ac0a592f66",
-    "semantic_hash": "64a88eabf5d862e0e87b48ac0a592f66"
+    "mtime": 1785071088.3283005,
+    "ast_hash": "134f823efad3964940a9ff51b6aec2cc",
+    "semantic_hash": ""
   },
   "internal/transport/service_api_impl/common_test.go": {
     "mtime": 1779048299.2139084,

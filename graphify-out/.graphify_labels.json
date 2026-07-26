@@ -558,6 +558,7 @@
   "556": "ServiceListView widget",
   "557": "DeploymentsSection component",
   "558": "Pure UI component must not call API directly (callback-only pattern)",
+  "559": "selectiveFailDocker",
   "560": "ApplyNetworkPolicy (pipeline step)",
   "561": "ApplyWebserverConfig (pipeline step)",
   "562": "auth.yaml (inter-service access control)",

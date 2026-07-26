@@ -870,8 +870,8 @@
     "semantic_hash": "5965820971dd41f00e4bd4736281d7e2"
   },
   "internal/service/service_manager/verv_services/list_test.go": {
-    "mtime": 1785071091.7132852,
-    "ast_hash": "b16f0dad388f81e7ca14070f6670964e",
+    "mtime": 1785071103.8364542,
+    "ast_hash": "7eec4e419791712a6fe6d9161e23b6d2",
     "semantic_hash": ""
   },
   "internal/service/service_manager/verv_services/metrics.go": {
@@ -1135,8 +1135,8 @@
     "semantic_hash": ""
   },
   "internal/storage/storage.go": {
-    "mtime": 1784009843.9884539,
-    "ast_hash": "c42c7e0183550a1cb6ef2a004aeb8001",
+    "mtime": 1785071112.6411355,
+    "ast_hash": "ebf954f3f2c78e1e70c85f6d1c971aae",
     "semantic_hash": ""
   },
   "internal/transport/common/nodes.go": {
@@ -2770,8 +2770,8 @@
     "semantic_hash": ""
   },
   "internal/jobs/fakes_test.go": {
-    "mtime": 1784446682.1135278,
-    "ast_hash": "73bb6318b8691b2529029302fcb9a248",
+    "mtime": 1785071108.461476,
+    "ast_hash": "d435ef8401dfc590e35bede81346252d",
     "semantic_hash": ""
   },
   "internal/jobs/job.go": {

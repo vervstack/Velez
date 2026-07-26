@@ -1470,9 +1470,9 @@
     "semantic_hash": "5e9eb0038ec5808e1a5717e0d631c87e"
   },
   "pkg/web/Velez-UI/eslint.config.js": {
-    "mtime": 1777918821.6643646,
-    "ast_hash": "d214b1ffdf124c740a4ee58cffae0787",
-    "semantic_hash": "d214b1ffdf124c740a4ee58cffae0787"
+    "mtime": 1785072886.860002,
+    "ast_hash": "ac8cf05fd5954d0e1fc53e7f345888a5",
+    "semantic_hash": ""
   },
   "pkg/web/Velez-UI/package.json": {
     "mtime": 1778840483.7842054,
@@ -1780,9 +1780,9 @@
     "semantic_hash": "c75af9886560f4a61f3b2e657a9bb4a4"
   },
   "pkg/web/Velez-UI/src/dialogs/PluginManageDialog/plugins/HeadscalePluginForm.tsx": {
-    "mtime": 1779003203.3781528,
-    "ast_hash": "a537df6490a0cf4725799b7a0acd9918",
-    "semantic_hash": "a537df6490a0cf4725799b7a0acd9918"
+    "mtime": 1785072841.6781857,
+    "ast_hash": "b356d5de93912cf44792969a8bc3869a",
+    "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/dialogs/PluginManageDialog/plugins/SimplePluginForm.tsx": {
     "mtime": 1779353318.2762377,
@@ -1845,9 +1845,9 @@
     "semantic_hash": "c7f256037c8c0ce1e22dc38a86917ff0"
   },
   "pkg/web/Velez-UI/src/pages/deployments/DeploymentsPage.tsx": {
-    "mtime": 1779011181.0014071,
-    "ast_hash": "ef8adc2548ad72b2db08765619ec3968",
-    "semantic_hash": "ef8adc2548ad72b2db08765619ec3968"
+    "mtime": 1785072851.8856177,
+    "ast_hash": "a05318d178d17ef2e50e47e7cf0b58d4",
+    "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/pages/error/ErrorPage.tsx": {
     "mtime": 1778959366.3357627,
@@ -1910,9 +1910,9 @@
     "semantic_hash": "cbbb1802ac5d8efcc600fbd7c1acd941"
   },
   "pkg/web/Velez-UI/src/processes/api/control_plane.ts": {
-    "mtime": 1779431987.5801115,
-    "ast_hash": "b15228a4cadda9e2b60e6669bb543bcf",
-    "semantic_hash": "b15228a4cadda9e2b60e6669bb543bcf"
+    "mtime": 1785072848.6303854,
+    "ast_hash": "2f03aabb2cfef427431cf1c4a446a988",
+    "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/processes/api/errors.ts": {
     "mtime": 1778910064.494675,

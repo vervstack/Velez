@@ -225,8 +225,8 @@
     "semantic_hash": ""
   },
   "internal/clients/cluster_clients/state/state.go": {
-    "mtime": 1785083255.828839,
-    "ast_hash": "24e9491ebefe9c052f47e7abab2fc369",
+    "mtime": 1785083264.0065072,
+    "ast_hash": "40130d94041b949310b6f4f9f028f245",
     "semantic_hash": ""
   },
   "internal/clients/node_clients/clients.go": {
@@ -1125,8 +1125,8 @@
     "semantic_hash": ""
   },
   "internal/storage/postgres/services.go": {
-    "mtime": 1785082989.4020398,
-    "ast_hash": "01c760c29aa9ed696d56f8cc7328771b",
+    "mtime": 1785083258.2411613,
+    "ast_hash": "7003ca4912cc8ceb2482fd6f082de011",
     "semantic_hash": ""
   },
   "internal/storage/postgres/storage.go": {
@@ -1185,8 +1185,8 @@
     "semantic_hash": ""
   },
   "internal/transport/manager.go": {
-    "mtime": 1785083184.699324,
-    "ast_hash": "49a0d3cbd0224808726bc9d18f57c081",
+    "mtime": 1785083263.853398,
+    "ast_hash": "03e489e4473106c05a8f613f219608d5",
     "semantic_hash": ""
   },
   "internal/transport/service_api_impl/common.go": {

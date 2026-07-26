@@ -395,9 +395,9 @@
     "semantic_hash": "a028acf0d4a6b2f417acb67c4c7e12d2"
   },
   "internal/cluster/configuration/service.go": {
-    "mtime": 1779295856.604747,
-    "ast_hash": "864ffb6681003ee0a2a6fbf214066131",
-    "semantic_hash": "864ffb6681003ee0a2a6fbf214066131"
+    "mtime": 1785079051.229951,
+    "ast_hash": "2f7a519dc6faa52bc559fbf15ea36640",
+    "semantic_hash": ""
   },
   "internal/cluster/configuration_synchronizer/synchronizer.go": {
     "mtime": 1765348427.3380473,
@@ -2170,13 +2170,13 @@
     "semantic_hash": "6e55f7f6f275516403641514c380c857"
   },
   "tests/e2e/helper_environment.go": {
-    "mtime": 1779395751.1930876,
-    "ast_hash": "a39e7f96b5f9dd77ba34b93ebebe2e15",
-    "semantic_hash": "a39e7f96b5f9dd77ba34b93ebebe2e15"
+    "mtime": 1785079051.231473,
+    "ast_hash": "7ce0b22710ff0a160f5328c54247e38e",
+    "semantic_hash": ""
   },
   "tests/e2e/suite_api_deploy_test.go": {
-    "mtime": 1785055078.9630475,
-    "ast_hash": "7764fe0f61ccc54a84a8f703eb5383a9",
+    "mtime": 1785079051.2319708,
+    "ast_hash": "23dede0f7b7e3e972871912603a0edd4",
     "semantic_hash": ""
   },
   "tests/e2e/suite_assemble_config_test.go": {
@@ -2200,7 +2200,7 @@
     "semantic_hash": "b214d72c4ab44e93cb54efeb46d2c0b4"
   },
   "tests/e2e/test_data/default-private-key.json": {
-    "mtime": 1777561983.5146677,
+    "mtime": 1785078945.6613343,
     "ast_hash": "cae2e59515c093157fa819ebb76bbc72",
     "semantic_hash": "cae2e59515c093157fa819ebb76bbc72"
   },
@@ -2265,8 +2265,8 @@
     "semantic_hash": "f237bb9234bd112311b0a4e6d7239758"
   },
   "CLAUDE.md": {
-    "mtime": 1784459596.784412,
-    "ast_hash": "babd6d813f4ace9245647e5d82cefe68",
+    "mtime": 1785079051.229442,
+    "ast_hash": "9d5ec1e5d2a44a48fd52c8b677329852",
     "semantic_hash": ""
   },
   "README.md": {
@@ -3067,6 +3067,26 @@
   "pkg/web/Velez-UI/src/app/hooks/health/useConnectionHealth.ts": {
     "mtime": 1785072260.7431881,
     "ast_hash": "838934dfe3c2c9f26e9e17a3446fbf67",
+    "semantic_hash": ""
+  },
+  "internal/cluster/configuration/service_test.go": {
+    "mtime": 1785079051.255683,
+    "ast_hash": "7367096314ca41da3e6f14aa0d3860fa",
+    "semantic_hash": ""
+  },
+  "tests/e2e/main_test.go": {
+    "mtime": 1785079051.2565017,
+    "ast_hash": "3a8aef17938486d47fb75293c7ec4ddd",
+    "semantic_hash": ""
+  },
+  "tests/e2e/shared_matreshka.go": {
+    "mtime": 1785079051.2568278,
+    "ast_hash": "c201d7e6546d6f33163cb081753e5100",
+    "semantic_hash": ""
+  },
+  "docs/plans/e2e_flaky_lifecycle_matreshka.md": {
+    "mtime": 1785079071.9378855,
+    "ast_hash": "0e95da5c545e2d77030374ad74f1b212",
     "semantic_hash": ""
   }
 }

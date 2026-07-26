@@ -1875,9 +1875,9 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/pages/service/parts/DeployMenu.tsx": {
-    "mtime": 1779048299.215495,
-    "ast_hash": "0e5dee21966b65bac4758468f68102f4",
-    "semantic_hash": "0e5dee21966b65bac4758468f68102f4"
+    "mtime": 1785071525.6465235,
+    "ast_hash": "e4fad204aff4f1964243730c1efda84b",
+    "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/pages/service/parts/Header.tsx": {
     "mtime": 1772192521.3013387,
@@ -3057,6 +3057,11 @@
   "pkg/web/Velez-UI/src/dialogs/RemoveServiceDialog/RemoveServiceDialog.tsx": {
     "mtime": 1785071388.9718573,
     "ast_hash": "84f714db407e303bfb1316f35bbd75c4",
+    "semantic_hash": ""
+  },
+  "pkg/web/Velez-UI/src/components/deploy/DeploymentStatusBadge.tsx": {
+    "mtime": 1785071516.026706,
+    "ast_hash": "ce8506b3c960bf916937519f7b20917f",
     "semantic_hash": ""
   }
 }

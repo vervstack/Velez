@@ -1250,9 +1250,9 @@
     "semantic_hash": ""
   },
   "internal/transport/ui/ui.go": {
-    "mtime": 1778850099.7939913,
-    "ast_hash": "dfd1746468f96f537f874922a5b257ac",
-    "semantic_hash": "dfd1746468f96f537f874922a5b257ac"
+    "mtime": 1785171261.092438,
+    "ast_hash": "e0f1f5362d26555431ac9487606ac619",
+    "semantic_hash": ""
   },
   "internal/transport/vcn_api_impl/impl.go": {
     "mtime": 1785091607.7659059,
@@ -2185,7 +2185,7 @@
     "semantic_hash": ""
   },
   "tests/e2e/test_data/default-private-key.json": {
-    "mtime": 1785149816.4979923,
+    "mtime": 1785171299.020865,
     "ast_hash": "cae2e59515c093157fa819ebb76bbc72",
     "semantic_hash": "cae2e59515c093157fa819ebb76bbc72"
   },
@@ -3087,6 +3087,11 @@
   "internal/jobs/create_smerd_test.go": {
     "mtime": 1785144222.6922758,
     "ast_hash": "1bcb14b741b307d2e4a47474efe7e72e",
+    "semantic_hash": ""
+  },
+  "internal/transport/ui/ui_test.go": {
+    "mtime": 1785171261.0927627,
+    "ast_hash": "b73d0d63d66f406f3d3670519322baf9",
     "semantic_hash": ""
   }
 }

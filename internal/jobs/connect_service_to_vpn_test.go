@@ -10,11 +10,13 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/errdefs"
 	"github.com/sqlc-dev/pqtype"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/headscale"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -24,6 +26,14 @@ const (
 	testTailscaleImg = "tailscale/tailscale:v1.90.8"
 	testSidecarID    = "sidecar123"
 	testSvcTsSidecar = "svc-ts-sidecar"
+)
+
+var (
+	errMakoshUnreachable        = errors.New("makosh unreachable")
+	errEngineUnavailable        = errors.New("engine unavailable")
+	errRegistryUnreachable      = errors.New("registry unreachable")
+	errHeadscaleRejectedRequest = errors.New("headscale rejected the request")
+	errQuotaExceede             = errors.New("quota exceeded")
 )
 
 func TestConnectServiceToVpnHandler_Action(t *testing.T) {
@@ -105,7 +115,7 @@ func TestPrepareNamespaceJob_CreatesWhenMissing(t *testing.T) {
 func TestPrepareNamespaceJob_GetNamespaceError(t *testing.T) {
 	vpn := newFakeVpnClient()
 
-	vpn.getNamespaceErr = errors.New("headscale unreachable")
+	vpn.getNamespaceErr = errHeadscaleRejectedRequest
 
 	payload := &velez_api.ConnectServiceToVpnTaskPayload{ServiceName: testSvc}
 	j := &prepareNamespaceJob{vpnClient: vpn, req: payload, ctx: payload}
@@ -123,7 +133,7 @@ func TestPrepareNamespaceJob_GetNamespaceError(t *testing.T) {
 func TestPrepareNamespaceJob_CreateNamespaceError(t *testing.T) {
 	vpn := newFakeVpnClient()
 
-	vpn.createNamespaceErr = errors.New("quota exceeded")
+	vpn.createNamespaceErr = errQuotaExceede
 
 	payload := &velez_api.ConnectServiceToVpnTaskPayload{ServiceName: testSvc}
 	j := &prepareNamespaceJob{vpnClient: vpn, req: payload, ctx: payload}
@@ -187,7 +197,7 @@ func TestGetClientKeyJob_NotFoundIssuesNewKey(t *testing.T) {
 func TestGetClientKeyJob_UnexpectedGetAuthKeyErrorPropagates(t *testing.T) {
 	vpn := newFakeVpnClient()
 
-	vpn.authKeyErr = errors.New("headscale down")
+	vpn.authKeyErr = errHeadscaleRejectedRequest
 
 	payload := &velez_api.ConnectServiceToVpnTaskPayload{NamespaceId: proto("ns-1")}
 	j := &getClientKeyJob{vpnClient: vpn, namespace: payload, ctx: payload}
@@ -202,7 +212,7 @@ func TestGetClientKeyJob_IssueClientKeyError(t *testing.T) {
 	vpn := newFakeVpnClient()
 
 	vpn.authKeyErr = headscale.ErrNotFound
-	vpn.issueKeyErr = errors.New("headscale rejected the request")
+	vpn.issueKeyErr = errHeadscaleRejectedRequest
 
 	payload := &velez_api.ConnectServiceToVpnTaskPayload{NamespaceId: proto("ns-1")}
 	j := &getClientKeyJob{vpnClient: vpn, namespace: payload, ctx: payload}
@@ -246,7 +256,7 @@ func TestPrepareSidecarImageJob_Success(t *testing.T) {
 func TestPrepareSidecarImageJob_PullImageError(t *testing.T) {
 	docker := newFakeDocker()
 
-	docker.pullImageErr = errors.New("registry unreachable")
+	docker.pullImageErr = errRegistryUnreachable
 
 	req := &container.CreateRequest{Config: &container.Config{Image: testTailscaleImg}}
 
@@ -313,7 +323,7 @@ func TestCreateSidecarContainerJob_Success(t *testing.T) {
 func TestCreateSidecarContainerJob_ContainerCreateError(t *testing.T) {
 	docker := newFakeDocker()
 
-	docker.containerCreateErr = errors.New("no space left on device")
+	docker.containerCreateErr = errNoSpaceLeftOnDevice
 
 	nodeClients := newFakeNodeClients(docker)
 
@@ -377,7 +387,7 @@ func TestCreateSidecarContainerJob_Rollback_RemovesContainer(t *testing.T) {
 func TestCreateSidecarContainerJob_Rollback_NotFoundIsSwallowed(t *testing.T) {
 	docker := newFakeDocker()
 
-	docker.removeErr = errdefs.NotFound(errors.New("no such container"))
+	docker.removeErr = errdefs.NotFound(user_errors.ErrNoSuchContainer)
 
 	nodeClients := newFakeNodeClients(docker)
 	payload := &velez_api.ConnectServiceToVpnTaskPayload{ContainerId: proto(testSidecarID)}
@@ -423,7 +433,7 @@ func TestStartSidecarContainerJob_NoContainerId_Error(t *testing.T) {
 func TestStartSidecarContainerJob_ContainerStartError(t *testing.T) {
 	api := newFakeContainerAPI()
 
-	api.startErr = errors.New("engine unavailable")
+	api.startErr = errEngineUnavailable
 
 	payload := &velez_api.ConnectServiceToVpnTaskPayload{ContainerId: proto(testSidecarID)}
 
@@ -480,7 +490,7 @@ func TestAddMakoshRecordJob_Success(t *testing.T) {
 func TestAddMakoshRecordJob_UpsertError(t *testing.T) {
 	sd := newFakeServiceDiscovery()
 
-	sd.upsertErr = errors.New("makosh unreachable")
+	sd.upsertErr = errMakoshUnreachable
 
 	j := &addMakoshRecordJob{sd: sd, serviceName: testSvc, hostname: testSvcTsSidecar}
 
@@ -628,7 +638,7 @@ func TestConnectServiceToVpnHandler_FailurePath_CreateContainerFails(t *testing.
 
 	docker := newFakeDocker()
 
-	docker.containerCreateErr = errors.New("no space left on device")
+	docker.containerCreateErr = errNoSpaceLeftOnDevice
 
 	nodeClients := newFakeNodeClients(docker)
 

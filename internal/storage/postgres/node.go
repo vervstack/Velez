@@ -5,6 +5,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
 	pg_queries "go.vervstack.ru/Velez/internal/storage/postgres/generated/nodes_queries"
@@ -137,7 +138,7 @@ func scanNode(scannable sqldb.Scannable) (domain.NodeBaseInfo, error) {
 		&node.Addr,
 	)
 	if err != nil {
-		return node, rerrors.Wrap(err)
+		return node, rerrors.Wrap(err, "error scanning result for node base info")
 	}
 
 	return node, nil

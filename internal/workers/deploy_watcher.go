@@ -143,6 +143,7 @@ func (d *deployWatcher) listDeployments(ctx context.Context) (deploymentsList, e
 func (d *deployWatcher) processScheduledBatch(ctx context.Context, scheduled []domain.Deployment) error {
 	for _, dep := range scheduled {
 		//	Step 1 - define what's needs to  be done - upgrade or new deployment
+		//nolint:exhaustive
 		switch dep.Status {
 		case deployments_queries.VelezDeploymentStatusSCHEDULEDDEPLOYMENT:
 			spec, err := d.deploymentsStorage.GetSpecificationById(ctx, dep.SpecId)

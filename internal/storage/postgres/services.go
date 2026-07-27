@@ -99,7 +99,6 @@ func (s *servicesStorage) List(ctx context.Context, req domain.ListServicesReq) 
 type serviceBaseInfoHelper struct{}
 
 func (s serviceBaseInfoHelper) buildListQuery(req domain.ListServicesReq) sq.SelectBuilder {
-	//nolint:unqueryvet base query for count and select
 	query := sq.Select().
 		From("velez.services s").
 		LeftJoin("(SELECT ds.service_id, MAX(d.created_at) AS last_deployed_at FROM velez.deployments d " +
@@ -126,7 +125,7 @@ func (s serviceBaseInfoHelper) scanServiceBaseInfo(row sqldb.Scannable) (baseInf
 		&baseInfo.LastDeployedAt,
 	)
 	if err != nil {
-		return baseInfo, rerrors.Wrap(err)
+		return baseInfo, rerrors.Wrap(err, "error scanning service base info")
 	}
 
 	return baseInfo, nil

@@ -54,24 +54,24 @@ type assembleConfigRequestAccessor interface {
 
 type imageMetaAccessor interface {
 	GetImageLabels() map[string]string
-	SetImageLabels(map[string]string)
+	SetImageLabels(labels map[string]string)
 	GetImageTags() []string
-	SetImageTags([]string)
+	SetImageTags(tags []string)
 }
 
 type configMetaAccessor interface {
 	GetConfigName() string
-	SetConfigName(string)
+	SetConfigName(configName string)
 	GetConfType() string
-	SetConfType(string)
+	SetConfType(confType string)
 	GetConfigFormat() velez_api.ConfigFormat
-	SetConfigFormat(velez_api.ConfigFormat)
+	SetConfigFormat(confFormat velez_api.ConfigFormat)
 }
 
 type configContentAccessor interface {
 	GetContentRaw() []byte
-	SetContentRaw([]byte)
-	SetContent([]byte)
+	SetContentRaw(content []byte)
+	SetContent(content []byte)
 }
 
 type assembleConfigHandler struct {

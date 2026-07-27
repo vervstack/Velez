@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 )
@@ -11,17 +12,11 @@ import (
 func (impl *Impl) CreateDeploy(ctx context.Context, apiReq *pb.CreateDeploy_Request) (
 	*pb.CreateDeploy_Response, error,
 ) {
-	var err error
-
 	switch payload := apiReq.GetSpecification().(type) {
 	case *pb.CreateDeploy_Request_New:
 		return impl.handleNewDeployment(ctx, apiReq, payload)
 	case *pb.CreateDeploy_Request_Upgrade_:
 		return impl.handleUpgradeDeployment(ctx, apiReq, payload)
-	}
-
-	if err != nil {
-		return nil, rerrors.Wrap(err)
 	}
 
 	return &pb.CreateDeploy_Response{}, nil

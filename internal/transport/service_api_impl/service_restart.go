@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
@@ -13,7 +14,7 @@ func (impl *Impl) RestartService(
 ) (*velez_api.RestartService_Response, error) {
 	err := impl.servicesService.RestartService(ctx, req.GetName())
 	if err != nil {
-		return nil, rerrors.Wrap(err)
+		return nil, rerrors.Wrap(err, "error restarting service")
 	}
 
 	return &velez_api.RestartService_Response{}, nil

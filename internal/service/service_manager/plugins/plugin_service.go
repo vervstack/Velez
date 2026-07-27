@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	"go.redsock.ru/rerrors"
+
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/storage"
@@ -21,7 +22,7 @@ func NewPluginService(stg storage.Storage) service.PluginService {
 func (p *pluginService) ListPlugins(ctx context.Context) (*pb.ListPlugins_Response, error) {
 	rows, err := p.storage.Plugins().ListPlugins(ctx)
 	if err != nil {
-		return nil, rerrors.Wrap(err)
+		return nil, rerrors.Wrap(err, "error listing plugins")
 	}
 
 	var active []*pb.Plugin
@@ -36,15 +37,15 @@ func (p *pluginService) ListPlugins(ctx context.Context) (*pb.ListPlugins_Respon
 		active = append(active, plugin)
 	}
 
-	result := append(active,
+	active = append(active,
 		listInactivePlugins(active)...)
 
-	sort.Slice(result, func(i, j int) bool {
-		return result[i].GetType() < result[j].GetType()
+	sort.Slice(active, func(i, j int) bool {
+		return active[i].GetType() < active[j].GetType()
 	})
 
 	resp := &pb.ListPlugins_Response{
-		Plugins: result,
+		Plugins: active,
 	}
 
 	return resp, nil

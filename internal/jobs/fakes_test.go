@@ -403,12 +403,6 @@ func (f *fakeDocker) Client() client.APIClient {
 	return f.clientAPI
 }
 
-// withClient sets the value Client() returns; see the clientAPI field's
-// comment. Defaults to nil (existing behavior for every other job's tests).
-func (f *fakeDocker) withClient(api client.APIClient) {
-	f.clientAPI = api
-}
-
 func (f *fakeDocker) ContainerCreate(
 	_ context.Context, _ *container.Config, _ *container.HostConfig, _ *network.NetworkingConfig, _ *v1.Platform, _ string,
 ) (container.CreateResponse, error) {
@@ -417,6 +411,12 @@ func (f *fakeDocker) ContainerCreate(
 
 func (f *fakeDocker) Stats(_ context.Context, _ string) (domain.ContainerStats, error) {
 	return domain.ContainerStats{}, nil
+}
+
+// withClient sets the value Client() returns; see the clientAPI field's
+// comment. Defaults to nil (existing behavior for every other job's tests).
+func (f *fakeDocker) withClient(api client.APIClient) {
+	f.clientAPI = api
 }
 
 // fakeNodeClients is a minimal node_clients.NodeClients wrapping a
@@ -430,16 +430,6 @@ type fakeNodeClients struct {
 
 func newFakeNodeClients(docker *fakeDocker) *fakeNodeClients {
 	return &fakeNodeClients{docker: docker}
-}
-
-// withPortManager attaches a real ports.PortManager (in-memory, no external
-// dependency beyond a local net.Listen availability probe) so jobs like
-// upgrade_smerd.go's pauseOldContainerJob/prepareUpgradeVervConfigJob can be
-// exercised at unit level without a hand-written PortManager fake.
-func (f *fakeNodeClients) withPortManager(pm node_clients.PortManager) *fakeNodeClients {
-	f.portManager = pm
-
-	return f
 }
 
 func (f *fakeNodeClients) Docker() node_clients.Docker {
@@ -460,6 +450,16 @@ func (f *fakeNodeClients) LocalStateManager() node_clients.StateManager {
 
 func (f *fakeNodeClients) HardwareManager() node_clients.HardwareManager {
 	return nil
+}
+
+// withPortManager attaches a real ports.PortManager (in-memory, no external
+// dependency beyond a local net.Listen availability probe) so jobs like
+// upgrade_smerd.go's pauseOldContainerJob/prepareUpgradeVervConfigJob can be
+// exercised at unit level without a hand-written PortManager fake.
+func (f *fakeNodeClients) withPortManager(pm node_clients.PortManager) *fakeNodeClients {
+	f.portManager = pm
+
+	return f
 }
 
 // fakeStateManager is a minimal in-memory implementation of

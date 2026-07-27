@@ -6,12 +6,13 @@ import (
 	"time"
 
 	"go.redsock.ru/rerrors"
+	"go.vervstack.ru/matreshka/pkg/matreshka_api"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 // assembleConfigWatchTimeout bounds how long the synchronous AssembleConfig
@@ -24,7 +25,8 @@ const (
 	assembleConfigWatchTimeout = 60 * time.Second
 )
 
-func (impl *Impl) AssembleConfig(ctx context.Context, req *velez_api.AssembleConfig_Request) (*velez_api.AssembleConfig_Response, error) {
+func (impl *Impl) AssembleConfig(ctx context.Context, req *velez_api.AssembleConfig_Request) (
+	*velez_api.AssembleConfig_Response, error) {
 	initialContext := &velez_api.AssembleConfigTaskPayload{
 		ServiceName: req.GetServiceName(),
 		ImageName:   req.GetImageName(),
@@ -44,14 +46,11 @@ func (impl *Impl) AssembleConfig(ctx context.Context, req *velez_api.AssembleCon
 		finalTask = task
 	}
 
-	isDone := finalTask.Status == tasks_queries.VelezTaskStatusDONE
-	isFailed := finalTask.Status == tasks_queries.VelezTaskStatusFAILED
-
-	if !isDone && !isFailed && watchCtx.Err() != nil {
+	if finalTask.Status != tasks_queries.VelezTaskStatusDONE &&
+		finalTask.Status != tasks_queries.VelezTaskStatusFAILED &&
+		watchCtx.Err() != nil {
 		return nil, rerrors.Wrapf(
-			watchCtx.Err(),
-			"timed out waiting for assemble_config task, last status: %q",
-			finalTask.Status,
+			watchCtx.Err(), "timed out waiting for assemble_config task, last status: %q", finalTask.Status,
 		)
 	}
 
@@ -66,27 +65,6 @@ func (impl *Impl) AssembleConfig(ctx context.Context, req *velez_api.AssembleCon
 		return nil, rerrors.Wrap(err, "error unmarshaling task context")
 	}
 
-	// Reconstruct the domain.AppConfig UpdateConfig needs. Meta.Name/
-	// Version/ConfType/Format come straight from the persisted payload,
-	// converting the payload's plain-string conf_type (kept as a string in
-	// the proto to avoid a matreshka_api proto dependency - see
-	// AssembleConfigTaskPayload.conf_type's comment) into the typed enum via
-	// matreshka_api.ConfigTypePrefix_value.
-	//
-	// Meta.Content (*evon.Node) is deliberately left nil rather than
-	// reconstructed from the payload's content field. The old pipeline's own
-	// getResult, for the ConfigFormat_env case (which is the only format
-	// AssembleConfig ever produces - see classifyImage/fillMeta, neither
-	// sets a Verv/Plain override with a .yaml FilePath), did
-	// `evon.Unmarshal(bytes, &appConfig.Content)` where Content is a bare
-	// *evon.Node. That call is a silent no-op: evon.Unmarshal only knows how
-	// to populate struct/map destinations, and reflect.Value.Elem() on a nil
-	// *evon.Node target yields an invalid Value, so no field mapping is ever
-	// built and Content is left nil. Verified empirically (throwaway
-	// evon.Marshal/Unmarshal round-trip) rather than just read off the
-	// reflect code. So today, in production, AppConfig.Content is already
-	// always nil by the time UpdateConfig runs - this cutover reproduces
-	// that exactly rather than "fixing" a pre-existing bug as a side effect.
 	confType := matreshka_api.ConfigTypePrefix(matreshka_api.ConfigTypePrefix_value[payload.GetConfType()])
 
 	appConfig := domain.AppConfig{
@@ -106,9 +84,7 @@ func (impl *Impl) AssembleConfig(ctx context.Context, req *velez_api.AssembleCon
 		}
 	}
 
-	resp := velez_api.AssembleConfig_Response{
+	return &velez_api.AssembleConfig_Response{
 		Config: appConfig.ContentRaw,
-	}
-
-	return &resp, nil
+	}, nil
 }

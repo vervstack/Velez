@@ -7,6 +7,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
+
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 )
 
@@ -32,7 +33,7 @@ func (s *execStep) Do(ctx context.Context) error {
 
 	res, err := s.docker.Exec(ctx, toolbox.FromPtr(s.containerID), ops)
 	if err != nil {
-		return rerrors.Wrap(err)
+		return rerrors.Wrap(err, "error calling exec inside of a container")
 	}
 
 	_ = res

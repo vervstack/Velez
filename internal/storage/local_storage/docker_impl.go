@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"go.redsock.ru/rerrors"
+
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
@@ -47,7 +48,7 @@ func (d *dockerPluginsStorage) ListPlugins(ctx context.Context) ([]domain.Plugin
 
 	containers, err := d.docker.ListContainers(ctx, listReq)
 	if err != nil {
-		return nil, rerrors.Wrap(err)
+		return nil, rerrors.Wrap(err, "error listing containers")
 	}
 
 	containerStates := make(map[string]string, len(containers))

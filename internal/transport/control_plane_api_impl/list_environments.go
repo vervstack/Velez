@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
@@ -13,7 +14,7 @@ func (impl *Impl) ListEnvironments(
 ) (*pb.ListEnvironments_Response, error) {
 	envs, err := impl.vervServices.ListEnvironments(ctx)
 	if err != nil {
-		return nil, rerrors.Wrap(err)
+		return nil, rerrors.Wrap(err, "error listing environment")
 	}
 
 	resp := &pb.ListEnvironments_Response{

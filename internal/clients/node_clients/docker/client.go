@@ -16,6 +16,7 @@ import (
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain"
@@ -161,7 +162,7 @@ func (d *Docker) ListContainers(ctx context.Context, req *velez_api.ListSmerds_R
 func (d *Docker) Exec(ctx context.Context, containerId string, execCfg container.ExecOptions) ([]byte, error) {
 	execResp, err := d.directApi.ContainerExecCreate(ctx, containerId, execCfg)
 	if err != nil {
-		return nil, rerrors.Wrap(err)
+		return nil, rerrors.Wrap(err, "error calling exec create on container via docker api")
 	}
 
 	if !execCfg.AttachStdout && !execCfg.AttachStderr {
@@ -171,7 +172,7 @@ func (d *Docker) Exec(ctx context.Context, containerId string, execCfg container
 	// Attach to execution
 	attachResp, err := d.directApi.ContainerExecAttach(ctx, execResp.ID, container.ExecAttachOptions{})
 	if err != nil {
-		return nil, rerrors.Wrap(err)
+		return nil, rerrors.Wrap(err, "error calling exec attach on container via docker api")
 	}
 	defer attachResp.Close()
 
@@ -179,7 +180,7 @@ func (d *Docker) Exec(ctx context.Context, containerId string, execCfg container
 
 	_, err = io.Copy(dataOut, attachResp.Reader)
 	if err != nil {
-		return nil, rerrors.Wrap(err)
+		return nil, rerrors.Wrap(err, "error during copying bytes from attached to container exec")
 	}
 
 	return asciiSymbolsOnly(dataOut.Bytes()), nil
@@ -236,7 +237,7 @@ func (d *Docker) ContainerCreate(
 			return container.CreateResponse{}, handleConflictMessage(err)
 		}
 
-		return container.CreateResponse{}, rerrors.Wrap(err)
+		return container.CreateResponse{}, rerrors.Wrap(err, "error during container creation via docker api")
 	}
 
 	return createResponse, nil

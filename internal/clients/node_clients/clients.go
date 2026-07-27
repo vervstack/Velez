@@ -8,6 +8,7 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	ocispec "github.com/opencontainers/image-spec/specs-go/v1"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
@@ -17,6 +18,7 @@ import (
 // PortManager is an alias for the interface defined in the ports sub-package.
 type PortManager = ports.PortManager
 
+//nolint:interfacebloat
 type Docker interface {
 	PullImage(ctx context.Context, imageName string) (image.InspectResponse, error)
 	Remove(ctx context.Context, uuid string) error

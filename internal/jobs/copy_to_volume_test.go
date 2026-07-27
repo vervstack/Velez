@@ -14,6 +14,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -23,6 +24,11 @@ const (
 	testPathDataDir     = "/data"
 	testLoaderContID    = "loader123"
 	stepCreateContainer = "create_container"
+)
+
+var (
+	errDockerUnreachable   = errors.New("docker unreachable")
+	errContainerNotRunning = errors.New("exec failed: container not running")
 )
 
 func TestCopyToVolumeHandler_Action(t *testing.T) {
@@ -258,7 +264,7 @@ func TestCreateLoaderContainerJob_ContainerCreateError(t *testing.T) {
 
 	docker := newFakeDocker()
 
-	docker.containerCreateErr = errors.New("no space left on device")
+	docker.containerCreateErr = errNoSpaceLeftOnDevice
 
 	nodeClients := newFakeNodeClients(docker)
 
@@ -317,7 +323,7 @@ func TestCreateLoaderContainerJob_Rollback_NotFoundIsSwallowed(t *testing.T) {
 
 	docker := newFakeDocker()
 
-	docker.removeErr = errdefs.NotFound(errors.New("no such container"))
+	docker.removeErr = errdefs.NotFound(user_errors.ErrNoSuchContainer)
 
 	nodeClients := newFakeNodeClients(docker)
 
@@ -373,7 +379,7 @@ func TestStartLoaderContainerJob_ContainerStartError(t *testing.T) {
 
 	containerAPI := newFakeContainerAPI()
 
-	containerAPI.startErr = errors.New("docker daemon unreachable")
+	containerAPI.startErr = errDockerUnreachable
 
 	j := &startLoaderContainerJob{dockerAPI: containerAPI, ctx: payload}
 
@@ -527,7 +533,7 @@ func TestCopyFileJob_ExecError(t *testing.T) {
 
 	docker := newFakeDocker()
 
-	docker.execErr = errors.New("exec failed: container not running")
+	docker.execErr = errContainerNotRunning
 
 	containerAPI := newFakeContainerAPI()
 
@@ -557,7 +563,7 @@ func TestCopyFileJob_CopyToContainerError(t *testing.T) {
 	docker := newFakeDocker()
 	containerAPI := newFakeContainerAPI()
 
-	containerAPI.copyErr = errors.New("no space left on device")
+	containerAPI.copyErr = errNoSpaceLeftOnDevice
 
 	j := &copyFileJob{
 		docker:   docker,
@@ -619,7 +625,7 @@ func TestDropLoaderContainerJob_RemoveErrorPropagates(t *testing.T) {
 
 	docker := newFakeDocker()
 
-	docker.removeErr = errors.New("docker daemon unreachable")
+	docker.removeErr = errDockerUnreachable
 
 	j := &dropLoaderContainerJob{docker: docker, ctx: payload}
 
@@ -778,7 +784,7 @@ func TestCopyToVolumeHandler_FailurePath_CreateContainerFails(t *testing.T) {
 
 	docker := newFakeDocker()
 
-	docker.containerCreateErr = errors.New("no space left on device")
+	docker.containerCreateErr = errNoSpaceLeftOnDevice
 
 	nodeClients := newFakeNodeClients(docker)
 
@@ -846,7 +852,7 @@ func TestCopyToVolumeHandler_FailurePath_LaterFileFailsCascadesRollback(t *testi
 	containerAPI := newFakeContainerAPI()
 
 	containerAPI.copyErrOnCall = 2 // copy_file_0 (a.txt) succeeds, copy_file_1 (b.txt) fails.
-	containerAPI.copyErr = errors.New("no space left on device")
+	containerAPI.copyErr = errNoSpaceLeftOnDevice
 	patchClientAPIFields(namedJobs, containerAPI)
 
 	registry := NewRegistry()

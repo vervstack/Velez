@@ -2,10 +2,14 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/rs/zerolog/log"
+	"go.redsock.ru/rerrors"
 	"google.golang.org/grpc"
+)
+
+var (
+	ErrPanicCough = rerrors.New("panic cough")
 )
 
 func PanicInterceptor() grpc.ServerOption {
@@ -15,7 +19,7 @@ func PanicInterceptor() grpc.ServerOption {
 				if r := recover(); r != nil {
 					e, ok := r.(error)
 					if !ok {
-						e = fmt.Errorf("panic: %v", r)
+						e = rerrors.Wrap(ErrPanicCough, r)
 					}
 
 					err = e

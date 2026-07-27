@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
@@ -13,7 +14,7 @@ func (impl *Impl) GetServiceResources(
 ) (*pb.GetServiceResources_Response, error) {
 	resources, err := impl.servicesService.GetServiceResources(ctx, pbReq.GetServiceName())
 	if err != nil {
-		return nil, rerrors.Wrap(err)
+		return nil, rerrors.Wrap(err, "error getting service resources")
 	}
 
 	pbResources := make([]*pb.BoundResource, 0, len(resources))

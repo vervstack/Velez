@@ -5,6 +5,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
@@ -15,19 +16,20 @@ const (
 )
 
 type deploymentsStorage struct {
-	db sqldb.DB
-
 	*deployments_queries.Queries
+
+	db sqldb.DB
 }
 
 func newDeploymentsStorage(db sqldb.DB) *deploymentsStorage {
 	return &deploymentsStorage{
-		db:      db,
 		Queries: deployments_queries.New(db),
+		db:      db,
 	}
 }
 
-func (d *deploymentsStorage) ListDeployments(ctx context.Context, req domain.ListDeploymentsReq) (domain.DeploymentList, error) {
+func (d *deploymentsStorage) ListDeployments(ctx context.Context, req domain.ListDeploymentsReq) (
+	domain.DeploymentList, error) {
 	baseQuery := sq.Select().
 		From("velez.deployments").
 		PlaceholderFormat(sq.Dollar)

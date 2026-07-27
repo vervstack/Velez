@@ -18,6 +18,8 @@ import (
 
 const (
 	Name = "headscale"
+
+	defaultIntervalCheck = time.Second / 2
 )
 
 type headscaleLauncher struct {
@@ -96,7 +98,7 @@ func (l headscaleLauncher) deploy() error {
 	_ = keep_alive.KeepAlive(
 		taskConstructor,
 		keep_alive.WithCancel(l.ctx.Done()),
-		keep_alive.WithCheckInterval(time.Second/2),
+		keep_alive.WithCheckInterval(defaultIntervalCheck),
 	)
 
 	return nil

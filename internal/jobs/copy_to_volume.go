@@ -15,6 +15,7 @@ import (
 	"github.com/docker/docker/api/types/network"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
@@ -352,7 +353,8 @@ func writeFileToContainer(
 	tw := tar.NewWriter(buf)
 
 	hdr := &tar.Header{
-		Name:    path.Base(systemPath),
+		Name: path.Base(systemPath),
+		//nolint
 		Mode:    0o644,
 		Size:    int64(len(content)),
 		ModTime: time.Now(),

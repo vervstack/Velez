@@ -15,6 +15,10 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/evon"
 	"go.redsock.ru/rerrors"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
@@ -24,9 +28,6 @@ import (
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/utils/configutils"
-	"go.vervstack.ru/matreshka/pkg/matreshka"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 const (
@@ -55,12 +56,12 @@ type smerdRequestAccessor interface {
 
 type imageIDAccessor interface {
 	GetImageId() string
-	SetImageId(string)
+	SetImageId(imageId string)
 }
 
 type containerIDAccessor interface {
 	GetContainerId() string
-	SetContainerId(string)
+	SetContainerId(cId string)
 }
 
 // createSmerdImageAccessor is what prepare_image needs to persist after
@@ -69,7 +70,7 @@ type containerIDAccessor interface {
 type createSmerdImageAccessor interface {
 	imageIDAccessor
 	imageMetaAccessor
-	SetImageExposedPorts([]string)
+	SetImageExposedPorts(ports []string)
 }
 
 type imageExposedPortsAccessor interface {
@@ -78,7 +79,7 @@ type imageExposedPortsAccessor interface {
 
 type pathToFilesAccessor interface {
 	GetPathToFiles() map[string][]byte
-	SetPathToFiles(map[string][]byte)
+	SetPathToFiles(pathToFiles map[string][]byte)
 }
 
 type createSmerdHandler struct {
@@ -433,6 +434,16 @@ func (j *prepareSmerdVervConfigJob) Do(ctx context.Context) error {
 	return nil
 }
 
+func (j *prepareSmerdVervConfigJob) Rollback(_ context.Context) error {
+	for _, port := range j.lockedPorts {
+		if !j.portManager.UnHoldPort(port) {
+			j.portManager.UnlockPorts(j.lockedPorts)
+		}
+	}
+
+	return nil
+}
+
 func (j *prepareSmerdVervConfigJob) applyLabels(request *velez_api.CreateSmerd_Request) {
 	for name, val := range j.imageMeta.GetImageLabels() {
 		if request.GetIgnoreConfig() && name == labels.MatreshkaConfigLabel && val == vervConfigLabelEnabled {
@@ -511,16 +522,6 @@ func (j *prepareSmerdVervConfigJob) lockPorts(request *velez_api.CreateSmerd_Req
 		}
 
 		j.lockedPorts = append(j.lockedPorts, imagePort.GetExposedTo())
-	}
-
-	return nil
-}
-
-func (j *prepareSmerdVervConfigJob) Rollback(_ context.Context) error {
-	for _, port := range j.lockedPorts {
-		if !j.portManager.UnHoldPort(port) {
-			j.portManager.UnlockPorts(j.lockedPorts)
-		}
 	}
 
 	return nil
@@ -634,7 +635,7 @@ func (j *createContainerJob) Do(ctx context.Context) error {
 
 			err = dockerutils.ConnectToNetwork(ctx, dockerClient.Client(), connectReq)
 			if err != nil {
-				return rerrors.Wrap(err)
+				return rerrors.Wrap(err, "error connecting container to network")
 			}
 		}
 	}
@@ -710,7 +711,7 @@ func (j *healthcheckJob) Do(ctx context.Context) error {
 		return rerrors.New("container was not created")
 	}
 
-	for i := uint32(0); i < healthcheck.GetRetries(); i++ {
+	for range healthcheck.GetRetries() {
 		select {
 		case <-ctx.Done():
 			return rerrors.Wrap(ctx.Err(), "healthcheck context done")

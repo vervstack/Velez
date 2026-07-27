@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
@@ -13,7 +14,7 @@ func (impl *Impl) GetServiceMetrics(
 ) (*pb.GetServiceMetrics_Response, error) {
 	metrics, err := impl.servicesService.GetServiceMetrics(ctx, pbReq.GetServiceName())
 	if err != nil {
-		return nil, rerrors.Wrap(err)
+		return nil, rerrors.Wrap(err, "error getting service metrics")
 	}
 
 	resp := &pb.GetServiceMetrics_Response{

@@ -65,10 +65,8 @@ func (p *prepareVervConfig) Do(ctx context.Context) (err error) {
 
 	if !p.req.IgnoreConfig {
 		p.req.Env[matreshka.VervName] = p.req.GetName()
-	} else {
-		if p.image.Config.Labels[labels.MatreshkaConfigLabel] == "true" {
-			p.image.Config.Labels[labels.MatreshkaConfigLabel] = "false"
-		}
+	} else if p.image.Config.Labels[labels.MatreshkaConfigLabel] == "true" {
+		p.image.Config.Labels[labels.MatreshkaConfigLabel] = "false"
 	}
 
 	maps.Copy(p.req.Labels, p.image.Config.Labels)

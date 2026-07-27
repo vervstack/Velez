@@ -42,7 +42,7 @@ func (c *createPgUserStep) Do(ctx context.Context) error {
 		}
 	}()
 
-	_, err = conn.Exec(
+	_, err = conn.ExecContext(ctx,
 		fmt.Sprintf(`
 	DO
 	$$BEGIN

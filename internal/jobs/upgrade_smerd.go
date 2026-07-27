@@ -16,6 +16,11 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/evon"
 	"go.redsock.ru/rerrors"
+	"go.vervstack.ru/matreshka/pkg/matreshka"
+	"go.vervstack.ru/matreshka/pkg/matreshka_api"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster/env"
@@ -23,10 +28,6 @@ import (
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/upgrade_steps"
 	"go.vervstack.ru/Velez/internal/service"
-	"go.vervstack.ru/matreshka/pkg/matreshka"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 const (
@@ -60,11 +61,11 @@ type upgradeRequestAccessor interface {
 
 type oldContainerIDAccessor interface {
 	GetOldContainerId() string
-	SetOldContainerId(string)
+	SetOldContainerId(cId string)
 }
 
 type captureOldContainerCtx interface {
-	SetRequest(*velez_api.CreateSmerd_Request)
+	SetRequest(createReq *velez_api.CreateSmerd_Request)
 	oldContainerIDAccessor
 }
 
@@ -266,7 +267,7 @@ func (j *checkSelfUpgradeJob) Do(ctx context.Context) error {
 
 	smerd, err := j.containerService.InspectSmerd(ctx, j.upgradeReq.GetUpgradeRequest().GetName())
 	if err != nil {
-		return rerrors.Wrap(err)
+		return rerrors.Wrap(err, "error during smerd inspection")
 	}
 
 	if smerd.GetUuid() == *id {
@@ -425,27 +426,6 @@ func (j *pauseOldContainerJob) Do(ctx context.Context) error {
 	return nil
 }
 
-func (j *pauseOldContainerJob) stopContainer(
-	ctx context.Context, containerID string, cont container.InspectResponse,
-) error {
-	switch cont.State.Status {
-	case container.StateRunning:
-		err := j.dockerAPI.ContainerPause(ctx, containerID)
-		if err != nil {
-			if !errdefs2.IsConflict(err) {
-				return rerrors.Wrap(err, "error pausing container")
-			}
-		}
-	case container.StateRestarting:
-		err := j.dockerAPI.ContainerStop(ctx, containerID, container.StopOptions{})
-		if err != nil {
-			return rerrors.Wrap(err, "error stopping container")
-		}
-	}
-
-	return nil
-}
-
 func (j *pauseOldContainerJob) Rollback(ctx context.Context) error {
 	containerID := j.ctx.GetOldContainerId()
 	if containerID == "" {
@@ -476,6 +456,27 @@ func (j *pauseOldContainerJob) Rollback(ctx context.Context) error {
 
 	if globErr != nil {
 		return rerrors.Wrap(globErr)
+	}
+
+	return nil
+}
+
+func (j *pauseOldContainerJob) stopContainer(
+	ctx context.Context, containerID string, cont container.InspectResponse,
+) error {
+	switch cont.State.Status {
+	case container.StateRunning:
+		err := j.dockerAPI.ContainerPause(ctx, containerID)
+		if err != nil {
+			if !errdefs2.IsConflict(err) {
+				return rerrors.Wrap(err, "error pausing container")
+			}
+		}
+	case container.StateRestarting:
+		err := j.dockerAPI.ContainerStop(ctx, containerID, container.StopOptions{})
+		if err != nil {
+			return rerrors.Wrap(err, "error stopping container")
+		}
 	}
 
 	return nil
@@ -786,6 +787,16 @@ func createNetworkIfMissing(ctx context.Context, dockerAPI createNetworkAPI, net
 	return nil
 }
 
+func (j *prepareUpgradeVervConfigJob) Rollback(_ context.Context) error {
+	for _, port := range j.lockedPorts {
+		if !j.portManager.UnHoldPort(port) {
+			j.portManager.UnlockPorts(j.lockedPorts)
+		}
+	}
+
+	return nil
+}
+
 func (j *prepareUpgradeVervConfigJob) lockPorts(request *velez_api.CreateSmerd_Request) (err error) {
 	j.lockedPorts = make([]uint32, 0, len(request.GetSettings().GetPorts()))
 
@@ -807,16 +818,6 @@ func (j *prepareUpgradeVervConfigJob) lockPorts(request *velez_api.CreateSmerd_R
 		}
 
 		j.lockedPorts = append(j.lockedPorts, p.GetExposedTo())
-	}
-
-	return nil
-}
-
-func (j *prepareUpgradeVervConfigJob) Rollback(_ context.Context) error {
-	for _, port := range j.lockedPorts {
-		if !j.portManager.UnHoldPort(port) {
-			j.portManager.UnlockPorts(j.lockedPorts)
-		}
 	}
 
 	return nil

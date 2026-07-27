@@ -4,8 +4,9 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
-	"go.vervstack.ru/Velez/internal/pipelines/steps"
 	"google.golang.org/grpc/codes"
+
+	"go.vervstack.ru/Velez/internal/pipelines/steps"
 )
 
 const (
@@ -18,6 +19,7 @@ var (
 	ErrTooShortServiceName = rerrors.New("service name is too short", codes.InvalidArgument)
 )
 
+//nolint:gochecknoinits
 func init() {
 	const allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_abcdefghijklmnopqrstuvwxyz1234567890"
 

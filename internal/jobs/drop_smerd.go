@@ -16,8 +16,8 @@ const (
 // dropContainerJob needs to record its per-identifier outcome.
 // *velez_api.DropSmerdTaskPayload satisfies it.
 type dropResultAccessor interface {
-	AppendFailed(*velez_api.DropSmerd_Response_Error)
-	AppendSuccessful(string)
+	AppendFailed(err *velez_api.DropSmerd_Response_Error)
+	AppendSuccessful(msg string)
 }
 
 // dropSmerdHandler is the leanest dependency footprint of any handler in
@@ -101,11 +101,9 @@ func (j *dropContainerJob) Do(ctx context.Context) error {
 			Cause: err.Error(),
 		}
 		j.ctx.AppendFailed(failure)
-
-		return nil
+	} else {
+		j.ctx.AppendSuccessful(j.identifier)
 	}
-
-	j.ctx.AppendSuccessful(j.identifier)
 
 	return nil
 }

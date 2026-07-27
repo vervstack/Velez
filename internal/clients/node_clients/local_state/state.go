@@ -10,6 +10,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	rtb "go.redsock.ru/toolbox"
+
 	"go.vervstack.ru/Velez/internal/config"
 )
 
@@ -19,10 +20,11 @@ const (
 )
 
 type Manager struct {
+	sync.Once
+
 	buildPath string
 	state     State
 
-	sync.Once
 	m sync.RWMutex
 }
 
@@ -150,6 +152,7 @@ func readStateFromPath(buildPath string) (state State, err error) {
 }
 
 func writeKey(buildPath string, keys State) error {
+	//nolint
 	err := os.MkdirAll(path.Dir(buildPath), 0o777)
 	if err != nil {
 		return rerrors.Wrap(err, "error making dir")
@@ -169,6 +172,7 @@ func writeKey(buildPath string, keys State) error {
 
 	data = b.Bytes()
 
+	//nolint
 	err = os.WriteFile(buildPath, data, 0o777)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating file")

@@ -5,10 +5,11 @@ import (
 
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
+	"google.golang.org/grpc/codes"
+
 	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
 	"go.vervstack.ru/Velez/internal/service"
-	"google.golang.org/grpc/codes"
 )
 
 var ErrSelfUpgradeIsForbidden = rerrors.NewUserError("Can't perform self upgrade", codes.FailedPrecondition)
@@ -34,7 +35,7 @@ func (s *checkUpgradeIsAvailableStep) Do(ctx context.Context) error {
 	if id != nil {
 		smerd, err := s.smerdService.InspectSmerd(ctx, toolbox.FromPtr(s.smerdName))
 		if err != nil {
-			return rerrors.Wrap(err)
+			return rerrors.Wrap(err, "error inspecting smerd")
 		}
 
 		if smerd.GetUuid() == *id {

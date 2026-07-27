@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
@@ -13,7 +14,7 @@ func (impl *Impl) GetServiceGraph(
 ) (*pb.GetServiceGraph_Response, error) {
 	graph, err := impl.servicesService.GetServiceGraph(ctx, pbReq.GetServiceName())
 	if err != nil {
-		return nil, rerrors.Wrap(err)
+		return nil, rerrors.Wrap(err, "error getting service graph")
 	}
 
 	pbDependencies := make([]*pb.ServiceDependencyInfo, 0, len(graph.Dependencies))

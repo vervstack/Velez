@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 )
@@ -15,7 +16,7 @@ func (impl *Impl) GetService(ctx context.Context, pbReq *pb.GetService_Request) 
 
 	s, err := impl.servicesService.Get(ctx, req)
 	if err != nil {
-		return nil, rerrors.Wrap(err)
+		return nil, rerrors.Wrap(err, "error getting service info")
 	}
 
 	about := &pb.AboutService{

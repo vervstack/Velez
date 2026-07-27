@@ -1,0 +1,386 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_storage_local_storage_service_dependencies_go",
+      "label": "service_dependencies.go",
+      "file_type": "code",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_storage_local_storage_service_dependencies_containername",
+      "label": "containerName()",
+      "file_type": "code",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L15"
+    },
+    {
+      "id": "local_storage_dockerservicedepsstorage",
+      "label": "dockerServiceDepsStorage",
+      "file_type": "code",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L23"
+    },
+    {
+      "id": "docker",
+      "label": "Docker",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_dependencies.go"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_storage_local_storage_service_dependencies_newservicedepsstorage",
+      "label": "newServiceDepsStorage()",
+      "file_type": "code",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L27"
+    },
+    {
+      "id": "local_storage_dockerservicedepsstorage_upsertdependency",
+      "label": ".UpsertDependency()",
+      "file_type": "code",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L31"
+    },
+    {
+      "id": "context",
+      "label": "Context",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_dependencies.go"
+    },
+    {
+      "id": "local_storage_dockerservicedepsstorage_getdependencies",
+      "label": ".GetDependencies()",
+      "file_type": "code",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L35"
+    },
+    {
+      "id": "servicedependency",
+      "label": "ServiceDependency",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_dependencies.go"
+    },
+    {
+      "id": "local_storage_dockerservicedepsstorage_getcallers",
+      "label": ".GetCallers()",
+      "file_type": "code",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L95"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_dependencies_go",
+      "target": "go_pkg_context",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_dependencies_go",
+      "target": "go_pkg_strings",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_dependencies_go",
+      "target": "go_pkg_go_redsock_ru_rerrors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_dependencies_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_api_server_velez_api",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_dependencies_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_node_clients",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_dependencies_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_domain",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_dependencies_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_domain_labels",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_dependencies_go",
+      "target": "users_alexbukov_verv_velez_internal_storage_local_storage_service_dependencies_containername",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_dependencies_go",
+      "target": "local_storage_dockerservicedepsstorage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "local_storage_dockerservicedepsstorage",
+      "target": "docker",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L24",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_dependencies_go",
+      "target": "users_alexbukov_verv_velez_internal_storage_local_storage_service_dependencies_newservicedepsstorage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_dependencies_newservicedepsstorage",
+      "target": "docker",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L27",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_storage_local_storage_service_dependencies_newservicedepsstorage",
+      "target": "local_storage_dockerservicedepsstorage",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L27",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "local_storage_dockerservicedepsstorage",
+      "target": "local_storage_dockerservicedepsstorage_upsertdependency",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "local_storage_dockerservicedepsstorage_upsertdependency",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L31",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "local_storage_dockerservicedepsstorage",
+      "target": "local_storage_dockerservicedepsstorage_getdependencies",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "local_storage_dockerservicedepsstorage_getdependencies",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L35",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "local_storage_dockerservicedepsstorage_getdependencies",
+      "target": "servicedependency",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L35",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "local_storage_dockerservicedepsstorage",
+      "target": "local_storage_dockerservicedepsstorage_getcallers",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L95",
+      "weight": 1.0
+    },
+    {
+      "source": "local_storage_dockerservicedepsstorage_getcallers",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L95",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "local_storage_dockerservicedepsstorage_getcallers",
+      "target": "servicedependency",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L95",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "local_storage_dockerservicedepsstorage_getdependencies",
+      "target": "users_alexbukov_verv_velez_internal_storage_local_storage_service_dependencies_containername",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L79",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_storage_local_storage_service_dependencies_containername",
+      "callee": "TrimPrefix",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L20"
+    },
+    {
+      "caller_nid": "local_storage_dockerservicedepsstorage_getdependencies",
+      "callee": "ListContainers",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "local_storage_dockerservicedepsstorage_getdependencies",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L47"
+    },
+    {
+      "caller_nid": "local_storage_dockerservicedepsstorage_getdependencies",
+      "callee": "make",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "local_storage_dockerservicedepsstorage_getdependencies",
+      "callee": "SplitSeq",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "local_storage_dockerservicedepsstorage_getdependencies",
+      "callee": "TrimSpace",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L59"
+    },
+    {
+      "caller_nid": "local_storage_dockerservicedepsstorage_getdependencies",
+      "callee": "append",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "local_storage_dockerservicedepsstorage_getdependencies",
+      "callee": "append",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L87"
+    },
+    {
+      "caller_nid": "local_storage_dockerservicedepsstorage_getcallers",
+      "callee": "ListContainers",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "local_storage_dockerservicedepsstorage_getcallers",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "local_storage_dockerservicedepsstorage_getcallers",
+      "callee": "Split",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L113"
+    },
+    {
+      "caller_nid": "local_storage_dockerservicedepsstorage_getcallers",
+      "callee": "TrimSpace",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L117"
+    },
+    {
+      "caller_nid": "local_storage_dockerservicedepsstorage_getcallers",
+      "callee": "append",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_dependencies.go",
+      "source_location": "L139"
+    }
+  ]
+}

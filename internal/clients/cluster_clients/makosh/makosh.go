@@ -5,13 +5,14 @@ import (
 
 	errors "go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
-	"go.vervstack.ru/Velez/internal/config"
-	"go.vervstack.ru/Velez/internal/middleware"
 	"go.vervstack.ru/makosh/pkg/makosh_be"
 	vervResolver "go.vervstack.ru/makosh/pkg/resolver"
 	"go.vervstack.ru/makosh/pkg/resolver/makosh_resolver"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+
+	"go.vervstack.ru/Velez/internal/config"
+	"go.vervstack.ru/Velez/internal/middleware"
 )
 
 const (
@@ -33,8 +34,9 @@ func NewClient(token string, opts ...grpc.DialOption) (makosh_be.MakoshBeAPIClie
 }
 
 type ServiceDiscovery struct {
-	Sd *vervResolver.ServiceDiscovery
 	makosh_be.MakoshBeAPIClient
+
+	Sd *vervResolver.ServiceDiscovery
 }
 
 func NewServiceDiscovery(cfg config.Config) (*ServiceDiscovery, error) {

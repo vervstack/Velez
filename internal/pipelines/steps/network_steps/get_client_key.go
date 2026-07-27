@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/headscale"
 	"go.vervstack.ru/Velez/internal/domain"
@@ -41,7 +42,7 @@ func (h *getClientKeyStep) Do(ctx context.Context) error {
 	authKey, err := h.networkService.GetClientAuthKey(ctx, getAuthKeyReq)
 	if err != nil {
 		if !rerrors.Is(err, headscale.ErrNotFound) {
-			return rerrors.Wrap(err)
+			return rerrors.Wrap(err, "error getting client auth key from network service")
 		}
 	}
 
@@ -58,7 +59,7 @@ func (h *getClientKeyStep) Do(ctx context.Context) error {
 
 	clientKey, err := h.networkService.IssueClientKey(ctx, issueClientKeyReq)
 	if err != nil {
-		return rerrors.Wrap(err)
+		return rerrors.Wrap(err, "error issuing client key bia network service")
 	}
 
 	*h.keyResponse = clientKey

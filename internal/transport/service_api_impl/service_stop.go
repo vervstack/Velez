@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
@@ -13,7 +14,7 @@ func (impl *Impl) StopService(
 ) (*velez_api.StopService_Response, error) {
 	err := impl.servicesService.StopService(ctx, req.GetName())
 	if err != nil {
-		return nil, rerrors.Wrap(err)
+		return nil, rerrors.Wrap(err, "error stopping service")
 	}
 
 	return &velez_api.StopService_Response{}, nil

@@ -7,10 +7,19 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/metadata"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
-	"google.golang.org/grpc/metadata"
+)
+
+const (
+	entityId = "my-smerd"
+)
+
+var (
+	errTest = errors.New("boom")
 )
 
 // fakeJobsEngine is a minimal hand-written fake for jobs.Engine, following
@@ -96,28 +105,28 @@ func Test_CreateSmerdStream(t *testing.T) {
 	engine := &fakeJobsEngine{
 		enqueueResp: tasks_queries.VelezTask{
 			ID:       1,
-			EntityID: "my-smerd",
+			EntityID: entityId,
 			Action:   jobs.CreateSmerdAction,
 			Status:   tasks_queries.VelezTaskStatusPENDING,
 		},
 		watchSequence: []tasks_queries.VelezTask{
 			{
 				ID:        1,
-				EntityID:  "my-smerd",
+				EntityID:  entityId,
 				Action:    jobs.CreateSmerdAction,
 				Status:    tasks_queries.VelezTaskStatusPENDING,
 				UpdatedAt: now,
 			},
 			{
 				ID:        1,
-				EntityID:  "my-smerd",
+				EntityID:  entityId,
 				Action:    jobs.CreateSmerdAction,
 				Status:    tasks_queries.VelezTaskStatusRUNNING,
 				UpdatedAt: now.Add(time.Second),
 			},
 			{
 				ID:        1,
-				EntityID:  "my-smerd",
+				EntityID:  entityId,
 				Action:    jobs.CreateSmerdAction,
 				Status:    tasks_queries.VelezTaskStatusDONE,
 				UpdatedAt: now.Add(2 * time.Second),
@@ -129,7 +138,7 @@ func Test_CreateSmerdStream(t *testing.T) {
 
 	req := &velez_api.CreateSmerd_Request{}
 
-	req.Name = "my-smerd"
+	req.Name = entityId
 
 	stream := &fakeTaskStatusStream{ctx: context.Background()}
 
@@ -140,11 +149,11 @@ func Test_CreateSmerdStream(t *testing.T) {
 	// unary CreateSmerd uses, so an in-flight unary create and a stream call
 	// for the same name attach to the same task instead of double-creating.
 	require.Len(t, engine.enqueueCalls, 1)
-	require.Equal(t, "my-smerd", engine.enqueueCalls[0].entityID)
+	require.Equal(t, entityId, engine.enqueueCalls[0].entityID)
 	require.Equal(t, jobs.CreateSmerdAction, engine.enqueueCalls[0].action)
 
 	require.Len(t, engine.watchCalls, 1)
-	require.Equal(t, "my-smerd", engine.watchCalls[0].entityID)
+	require.Equal(t, entityId, engine.watchCalls[0].entityID)
 	require.Equal(t, jobs.CreateSmerdAction, engine.watchCalls[0].action)
 
 	// The stream must have received every status update in order, and closed
@@ -159,14 +168,14 @@ func Test_CreateSmerdStream_EnqueueError(t *testing.T) {
 	t.Parallel()
 
 	engine := &fakeJobsEngine{
-		enqueueErr: errors.New("boom"),
+		enqueueErr: errTest,
 	}
 
 	impl := New(engine)
 
 	req := &velez_api.CreateSmerd_Request{}
 
-	req.Name = "my-smerd"
+	req.Name = entityId
 
 	stream := &fakeTaskStatusStream{ctx: context.Background()}
 

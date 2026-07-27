@@ -12,7 +12,7 @@ import (
 )
 
 type dummyContext struct {
-	Value string
+	Value string `json:"value"`
 }
 
 type recordingJob struct {

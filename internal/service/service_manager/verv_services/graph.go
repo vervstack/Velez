@@ -4,18 +4,19 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
 func (v *VervService) GetServiceGraph(ctx context.Context, serviceName string) (domain.ServiceGraph, error) {
 	deps, err := v.serviceDepsStorage.GetDependencies(ctx, serviceName)
 	if err != nil {
-		return domain.ServiceGraph{}, rerrors.Wrap(err)
+		return domain.ServiceGraph{}, rerrors.Wrap(err, "error getting service dependencies")
 	}
 
 	callers, err := v.serviceDepsStorage.GetCallers(ctx, serviceName)
 	if err != nil {
-		return domain.ServiceGraph{}, rerrors.Wrap(err)
+		return domain.ServiceGraph{}, rerrors.Wrap(err, "error getting service callers via dependency graph")
 	}
 
 	return domain.ServiceGraph{

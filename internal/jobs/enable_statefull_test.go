@@ -12,6 +12,8 @@ import (
 	"github.com/docker/docker/errdefs"
 	"github.com/docker/go-connections/nat"
 	"github.com/sqlc-dev/pqtype"
+	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
@@ -20,11 +22,17 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
-	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
 	testPgContainerID = "pg123"
+)
+
+var (
+	errDbUnreachable       = errors.New("db unreachable")
+	errConnectionRefused   = errors.New("connection refused")
+	errNoSpaceLeftOnDevice = errors.New("no space left on device")
 )
 
 func TestEnableStatefullHandler_Action(t *testing.T) {
@@ -181,7 +189,7 @@ func TestCreatePgContainerJob_Success(t *testing.T) {
 func TestCreatePgContainerJob_ContainerCreateError(t *testing.T) {
 	docker := newFakeDocker()
 
-	docker.containerCreateErr = errors.New("no space left on device")
+	docker.containerCreateErr = errNoSpaceLeftOnDevice
 
 	nodeClients := newFakeNodeClients(docker)
 
@@ -239,7 +247,7 @@ func TestCreatePgContainerJob_Rollback_RemovesContainer(t *testing.T) {
 func TestCreatePgContainerJob_Rollback_NotFoundIsSwallowed(t *testing.T) {
 	docker := newFakeDocker()
 
-	docker.removeErr = errdefs.NotFound(errors.New("no such container"))
+	docker.removeErr = errdefs.NotFound(user_errors.ErrNoSuchContainer)
 
 	nodeClients := newFakeNodeClients(docker)
 	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
@@ -334,7 +342,7 @@ func TestWaitForPgReadyJob_NoContainerId_Error(t *testing.T) {
 func TestWaitForPgReadyJob_InspectError(t *testing.T) {
 	api := newFakeContainerAPI()
 
-	api.inspectErr = errors.New("no such container")
+	api.inspectErr = user_errors.ErrNoSuchContainer
 
 	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
 
@@ -462,7 +470,7 @@ func TestGetRootDsnJob_NotExposedAndNotInContainer_Error(t *testing.T) {
 func TestGetRootDsnJob_InspectError(t *testing.T) {
 	api := newFakeContainerAPI()
 
-	api.inspectErr = errors.New("no such container")
+	api.inspectErr = user_errors.ErrNoSuchContainer
 
 	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
 
@@ -577,7 +585,7 @@ func TestUpdateClusterStateJob_NewPgStateManagerError(t *testing.T) {
 	storageContainer := storage.NewStorageContainer(initialStorage)
 
 	newPgStateManager := func(_ context.Context, _ string) (cluster_clients.ClusterStateManager, error) {
-		return nil, errors.New("connection refused")
+		return nil, errConnectionRefused
 	}
 
 	payload := &velez_api.EnableStatefullTaskPayload{
@@ -623,7 +631,7 @@ func TestInitNodeStorageJob_Success(t *testing.T) {
 }
 
 func TestInitNodeStorageJob_Error(t *testing.T) {
-	nodes := &fakeNodesStorage{initNodeErr: errors.New("db unreachable")}
+	nodes := &fakeNodesStorage{initNodeErr: errDbUnreachable}
 	clusterStateManager := state.NewContainer(&fakeClusterStorage{nodes: nodes})
 
 	j := &initNodeStorageJob{clusterStateManager: clusterStateManager}

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 )
@@ -19,7 +20,7 @@ func (impl *Impl) RemoveService(
 
 	err := impl.servicesService.Remove(ctx, removeReq)
 	if err != nil {
-		return nil, rerrors.Wrap(err)
+		return nil, rerrors.Wrap(err, "error removing service")
 	}
 
 	return &velez_api.RemoveService_Response{}, nil

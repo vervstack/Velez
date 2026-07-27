@@ -15,6 +15,8 @@ import (
 	"github.com/soheilhy/cmux"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
+	"golang.org/x/sync/errgroup"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
@@ -34,7 +36,12 @@ import (
 	"go.vervstack.ru/Velez/internal/transport/velez_api_impl"
 	"go.vervstack.ru/Velez/internal/workers"
 	"go.vervstack.ru/Velez/pkg/docs"
-	"golang.org/x/sync/errgroup"
+)
+
+const (
+	defaultTaskWorkerTimeout = time.Second * 2
+	autoUpgradeIntervalCheck = time.Second * 30
+	deployWatcherInterval    = time.Second * 5
 )
 
 type Custom struct {
@@ -82,9 +89,10 @@ func (c *Custom) Init(a *App) (err error) {
 		return rerrors.Wrap(err, "error during server initialization")
 	}
 
-	c.autoupgrader = autoupgrade.New(c.NodeClients.Docker().Client(), time.Second*30, c.Pipeliner)
+	c.autoupgrader = autoupgrade.New(c.NodeClients.Docker().Client(), autoUpgradeIntervalCheck, c.Pipeliner)
 
-	c.DeployWatcher = workers.NewDeployWatcher(c.Services, c.Pipeliner, c.ClusterClients, c.NodeClients, time.Second*5)
+	c.DeployWatcher = workers.NewDeployWatcher(c.Services, c.Pipeliner, c.ClusterClients, c.NodeClients,
+		deployWatcherInterval)
 	go c.DeployWatcher.Start(a.Ctx)
 
 	closer.Add(c.DeployWatcher.Stop)
@@ -112,7 +120,7 @@ func (c *Custom) Init(a *App) (err error) {
 		c.ClusterClients.StateManager().Jobs(),
 		registry,
 		workerId,
-		time.Second*2,
+		defaultTaskWorkerTimeout,
 	)
 	go c.TaskWorker.Start(a.Ctx)
 
@@ -126,7 +134,7 @@ func (c *Custom) Start(ctx context.Context) error {
 	g.Go(func() error {
 		err := c.serverManager.Start()
 		if err != nil && !errors.Is(err, cmux.ErrServerClosed) {
-			return rerrors.Wrap(err)
+			return rerrors.Wrap(err, "server manager failed to start")
 		}
 
 		return nil
@@ -143,7 +151,7 @@ func (c *Custom) Start(ctx context.Context) error {
 
 	err := g.Wait()
 	if err != nil {
-		return rerrors.Wrap(err)
+		return rerrors.Wrap(err, "waining on sub tasks failed in custom")
 	}
 
 	return nil
@@ -256,7 +264,7 @@ func smerdsDropper(smerdService service.ContainerService) func() error {
 
 		smerds, err := smerdService.ListSmerds(ctx, &velez_api.ListSmerds_Request{})
 		if err != nil {
-			return rerrors.Wrap(err)
+			return rerrors.Wrap(err, "error listing smerds before dropping")
 		}
 
 		names := make([]string, 0, len(smerds.GetSmerds()))
@@ -279,7 +287,7 @@ func smerdsDropper(smerdService service.ContainerService) func() error {
 
 		dropSmerds, err := smerdService.DropSmerds(ctx, dropReq)
 		if err != nil {
-			return rerrors.Wrap(err)
+			return rerrors.Wrap(err, "error dropping smerds")
 		}
 
 		log.Info().Int("count", len(dropSmerds.GetSuccessful())).Msg("smerds dropped successfully")

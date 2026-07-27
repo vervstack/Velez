@@ -7,9 +7,10 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
-	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	version "go.vervstack.ru/matreshka/config"
 	"golang.org/x/net/context"
+
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 )
 
 const (
@@ -24,6 +25,7 @@ const (
 
 var image string
 
+//nolint:gochecknoinits
 func init() {
 	image = defaultImage + ":" + version.GetVersion()
 }

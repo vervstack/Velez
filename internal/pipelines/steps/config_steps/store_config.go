@@ -41,7 +41,7 @@ func (s *storeConfigStep) Do(ctx context.Context) error {
 
 	_, err := s.configApi.StoreConfig(ctx, storeConfigReq)
 	if err != nil {
-		return rerrors.Wrap(err)
+		return rerrors.Wrap(err, "error storing config via config api")
 	}
 
 	return nil

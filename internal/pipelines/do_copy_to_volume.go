@@ -59,8 +59,12 @@ func NewCopyToVolumeRunner(nodeClients node_clients.NodeClients, req domain.Copy
 	}
 
 	// endregion
+	const (
+		baseStepsCount = 2
+		stepsPerMount  = 2
+	)
 
-	actualSteps := make([]steps.Step, 0, 2+2*len(filesToMount))
+	actualSteps := make([]steps.Step, 0, baseStepsCount+stepsPerMount*len(filesToMount))
 
 	actualSteps = append(actualSteps,
 		smerd_steps.Create(nodeClients, &baseContainer, &contId),

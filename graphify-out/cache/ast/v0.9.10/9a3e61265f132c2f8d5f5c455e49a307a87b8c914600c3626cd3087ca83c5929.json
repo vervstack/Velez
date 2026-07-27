@@ -1,0 +1,1294 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "label": "copy_to_volume.go",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "jobs_copytovolumerequestaccessor",
+      "label": "copyToVolumeRequestAccessor",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L42"
+    },
+    {
+      "id": "jobs_startapi",
+      "label": "startAPI",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L54"
+    },
+    {
+      "id": "jobs_copyapi",
+      "label": "copyAPI",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L62"
+    },
+    {
+      "id": "jobs_copytovolumehandler",
+      "label": "copyToVolumeHandler",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L68"
+    },
+    {
+      "id": "nodeclients",
+      "label": "NodeClients",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_newcopytovolumehandler",
+      "label": "NewCopyToVolumeHandler()",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L72"
+    },
+    {
+      "id": "taskhandler",
+      "label": "TaskHandler",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go"
+    },
+    {
+      "id": "jobs_copytovolumehandler_action",
+      "label": ".Action()",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L78"
+    },
+    {
+      "id": "jobs_copytovolumehandler_newcontext",
+      "label": ".NewContext()",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L82"
+    },
+    {
+      "id": "taskcontext",
+      "label": "TaskContext",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go"
+    },
+    {
+      "id": "jobs_copytovolumehandler_buildjobs",
+      "label": ".BuildJobs()",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L92"
+    },
+    {
+      "id": "namedjob",
+      "label": "NamedJob",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_sortedfilepaths",
+      "label": "sortedFilePaths()",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L147"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_mountedfolders",
+      "label": "mountedFolders()",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L162"
+    },
+    {
+      "id": "volume",
+      "label": "Volume",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go"
+    },
+    {
+      "id": "jobs_createloadercontainerjob",
+      "label": "createLoaderContainerJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L195"
+    },
+    {
+      "id": "containeridaccessor",
+      "label": "containerIDAccessor",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go"
+    },
+    {
+      "id": "jobs_createloadercontainerjob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L203"
+    },
+    {
+      "id": "context",
+      "label": "Context",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go"
+    },
+    {
+      "id": "jobs_createloadercontainerjob_rollback",
+      "label": ".Rollback()",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L237"
+    },
+    {
+      "id": "jobs_startloadercontainerjob",
+      "label": "startLoaderContainerJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L251"
+    },
+    {
+      "id": "jobs_startloadercontainerjob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L257"
+    },
+    {
+      "id": "jobs_startloadercontainerjob_rollback",
+      "label": ".Rollback()",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L273"
+    },
+    {
+      "id": "jobs_copyfilejob",
+      "label": "copyFileJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L295"
+    },
+    {
+      "id": "docker",
+      "label": "Docker",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go"
+    },
+    {
+      "id": "jobs_copyfilejob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L305"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_writefiletocontainer",
+      "label": "writeFileToContainer()",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L349"
+    },
+    {
+      "id": "jobs_droploadercontainerjob",
+      "label": "dropLoaderContainerJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L389"
+    },
+    {
+      "id": "jobs_droploadercontainerjob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L394"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "go_pkg_archive_tar",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "go_pkg_bytes",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "go_pkg_context",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "go_pkg_fmt",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "go_pkg_io",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "go_pkg_path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "go_pkg_sort",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "go_pkg_time",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "go_pkg_github_com_containerd_errdefs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "go_pkg_github_com_docker_docker_api_types_container",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "go_pkg_github_com_docker_docker_api_types_network",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "go_pkg_github_com_opencontainers_image_spec_specs_go_v1",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L16",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "go_pkg_go_redsock_ru_rerrors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_api_server_velez_api",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_node_clients",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_node_clients_docker_dockerutils_parser",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L21",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "jobs_copytovolumerequestaccessor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "jobs_startapi",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "jobs_copyapi",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L62",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "jobs_copytovolumehandler",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L68",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_copytovolumehandler",
+      "target": "nodeclients",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L69",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_newcopytovolumehandler",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L72",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_newcopytovolumehandler",
+      "target": "nodeclients",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L72",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_newcopytovolumehandler",
+      "target": "taskhandler",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L72",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "jobs_copytovolumehandler",
+      "target": "jobs_copytovolumehandler_action",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L78",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_copytovolumehandler",
+      "target": "jobs_copytovolumehandler_newcontext",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L82",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_copytovolumehandler_newcontext",
+      "target": "taskcontext",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L82",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "jobs_copytovolumehandler",
+      "target": "jobs_copytovolumehandler_buildjobs",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L92",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_copytovolumehandler_buildjobs",
+      "target": "taskcontext",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L92",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_copytovolumehandler_buildjobs",
+      "target": "namedjob",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L92",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_sortedfilepaths",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L147",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_mountedfolders",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L162",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_mountedfolders",
+      "target": "volume",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L162",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "jobs_createloadercontainerjob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L195",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createloadercontainerjob",
+      "target": "nodeclients",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L196",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_createloadercontainerjob",
+      "target": "jobs_copytovolumerequestaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L198",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_createloadercontainerjob",
+      "target": "volume",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L199",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_createloadercontainerjob",
+      "target": "containeridaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L200",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_createloadercontainerjob",
+      "target": "jobs_createloadercontainerjob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L203",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createloadercontainerjob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L203",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_createloadercontainerjob",
+      "target": "jobs_createloadercontainerjob_rollback",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L237",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createloadercontainerjob_rollback",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L237",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "jobs_startloadercontainerjob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L251",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_startloadercontainerjob",
+      "target": "jobs_startapi",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L252",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_startloadercontainerjob",
+      "target": "containeridaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L254",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_startloadercontainerjob",
+      "target": "jobs_startloadercontainerjob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L257",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_startloadercontainerjob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L257",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_startloadercontainerjob",
+      "target": "jobs_startloadercontainerjob_rollback",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L273",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_startloadercontainerjob_rollback",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L273",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "jobs_copyfilejob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L295",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_copyfilejob",
+      "target": "docker",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L296",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_copyfilejob",
+      "target": "jobs_copyapi",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L297",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_copyfilejob",
+      "target": "containeridaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L299",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_copyfilejob",
+      "target": "jobs_copyfilejob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L305",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_copyfilejob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L305",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_writefiletocontainer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L349",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_writefiletocontainer",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L349",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_writefiletocontainer",
+      "target": "jobs_copyapi",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L349",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_go",
+      "target": "jobs_droploadercontainerjob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L389",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_droploadercontainerjob",
+      "target": "docker",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L390",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_droploadercontainerjob",
+      "target": "containeridaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L391",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_droploadercontainerjob",
+      "target": "jobs_droploadercontainerjob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L394",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_droploadercontainerjob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L394",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_copytovolumehandler_buildjobs",
+      "target": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_sortedfilepaths",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L99",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_copytovolumehandler_buildjobs",
+      "target": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_mountedfolders",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L100",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_copytovolumehandler_buildjobs",
+      "target": "docker",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L114",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createloadercontainerjob_do",
+      "target": "docker",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L225",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createloadercontainerjob_rollback",
+      "target": "docker",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L243",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_copyfilejob_do",
+      "target": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_writefiletocontainer",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/copy_to_volume.go",
+      "source_location": "L333",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "jobs_copytovolumehandler_buildjobs",
+      "callee": "panic",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "jobs_copytovolumehandler_buildjobs",
+      "callee": "GetPathToFiles",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L98"
+    },
+    {
+      "caller_nid": "jobs_copytovolumehandler_buildjobs",
+      "callee": "GetVolumeName",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L100"
+    },
+    {
+      "caller_nid": "jobs_copytovolumehandler_buildjobs",
+      "callee": "make",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "jobs_copytovolumehandler_buildjobs",
+      "callee": "append",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "jobs_copytovolumehandler_buildjobs",
+      "callee": "Client",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "jobs_copytovolumehandler_buildjobs",
+      "callee": "append",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L118"
+    },
+    {
+      "caller_nid": "jobs_copytovolumehandler_buildjobs",
+      "callee": "Client",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L123"
+    },
+    {
+      "caller_nid": "jobs_copytovolumehandler_buildjobs",
+      "callee": "Sprintf",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L129"
+    },
+    {
+      "caller_nid": "jobs_copytovolumehandler_buildjobs",
+      "callee": "append",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "jobs_copytovolumehandler_buildjobs",
+      "callee": "append",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L139"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_sortedfilepaths",
+      "callee": "make",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_sortedfilepaths",
+      "callee": "append",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L150"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_sortedfilepaths",
+      "callee": "Strings",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L153"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_mountedfolders",
+      "callee": "make",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L164"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_mountedfolders",
+      "callee": "Dir",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L167"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_mountedfolders",
+      "callee": "append",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L181"
+    },
+    {
+      "caller_nid": "jobs_createloadercontainerjob_do",
+      "callee": "GetVolumeName",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L204"
+    },
+    {
+      "caller_nid": "jobs_createloadercontainerjob_do",
+      "callee": "FromVolume",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L213"
+    },
+    {
+      "caller_nid": "jobs_createloadercontainerjob_do",
+      "callee": "GetVolumeName",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L219"
+    },
+    {
+      "caller_nid": "jobs_createloadercontainerjob_do",
+      "callee": "ContainerCreate",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L227"
+    },
+    {
+      "caller_nid": "jobs_createloadercontainerjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L229"
+    },
+    {
+      "caller_nid": "jobs_createloadercontainerjob_do",
+      "callee": "SetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L232"
+    },
+    {
+      "caller_nid": "jobs_createloadercontainerjob_rollback",
+      "callee": "GetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L238"
+    },
+    {
+      "caller_nid": "jobs_createloadercontainerjob_rollback",
+      "callee": "Remove",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L243"
+    },
+    {
+      "caller_nid": "jobs_createloadercontainerjob_rollback",
+      "callee": "IsNotFound",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L244"
+    },
+    {
+      "caller_nid": "jobs_createloadercontainerjob_rollback",
+      "callee": "Wrapf",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L245"
+    },
+    {
+      "caller_nid": "jobs_startloadercontainerjob_do",
+      "callee": "GetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L258"
+    },
+    {
+      "caller_nid": "jobs_startloadercontainerjob_do",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L260"
+    },
+    {
+      "caller_nid": "jobs_startloadercontainerjob_do",
+      "callee": "ContainerStart",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L265"
+    },
+    {
+      "caller_nid": "jobs_startloadercontainerjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L267"
+    },
+    {
+      "caller_nid": "jobs_startloadercontainerjob_rollback",
+      "callee": "GetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L274"
+    },
+    {
+      "caller_nid": "jobs_startloadercontainerjob_rollback",
+      "callee": "ContainerStop",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L281"
+    },
+    {
+      "caller_nid": "jobs_startloadercontainerjob_rollback",
+      "callee": "Wrapf",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L283"
+    },
+    {
+      "caller_nid": "jobs_copyfilejob_do",
+      "callee": "GetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L313"
+    },
+    {
+      "caller_nid": "jobs_copyfilejob_do",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L315"
+    },
+    {
+      "caller_nid": "jobs_copyfilejob_do",
+      "callee": "Dir",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L318"
+    },
+    {
+      "caller_nid": "jobs_copyfilejob_do",
+      "callee": "Exec",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L328"
+    },
+    {
+      "caller_nid": "jobs_copyfilejob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L330"
+    },
+    {
+      "caller_nid": "jobs_copyfilejob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L335"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_writefiletocontainer",
+      "callee": "new",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L352"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_writefiletocontainer",
+      "callee": "NewWriter",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L353"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_writefiletocontainer",
+      "callee": "Base",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L356"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_writefiletocontainer",
+      "callee": "int64",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L359"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_writefiletocontainer",
+      "callee": "Now",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L360"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_writefiletocontainer",
+      "callee": "WriteHeader",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L363"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_writefiletocontainer",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L365"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_writefiletocontainer",
+      "callee": "Write",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L368"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_writefiletocontainer",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L370"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_writefiletocontainer",
+      "callee": "Close",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L373"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_writefiletocontainer",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L375"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_writefiletocontainer",
+      "callee": "CopyToContainer",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L380"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_writefiletocontainer",
+      "callee": "Dir",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L380"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_copy_to_volume_writefiletocontainer",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L382"
+    },
+    {
+      "caller_nid": "jobs_droploadercontainerjob_do",
+      "callee": "GetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L395"
+    },
+    {
+      "caller_nid": "jobs_droploadercontainerjob_do",
+      "callee": "Remove",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L400"
+    },
+    {
+      "caller_nid": "jobs_droploadercontainerjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go",
+      "source_location": "L402"
+    }
+  ]
+}

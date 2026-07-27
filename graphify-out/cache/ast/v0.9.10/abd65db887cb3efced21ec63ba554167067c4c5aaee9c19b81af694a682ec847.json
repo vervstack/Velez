@@ -1,0 +1,90 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_list_environments_go",
+      "label": "list_environments.go",
+      "file_type": "code",
+      "source_file": "internal/service/service_manager/verv_services/list_environments.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "verv_services_vervservice",
+      "label": "VervService",
+      "file_type": "code",
+      "source_file": "internal/service/service_manager/verv_services/list_environments.go",
+      "source_location": "L9"
+    },
+    {
+      "id": "verv_services_vervservice_listenvironments",
+      "label": ".ListEnvironments()",
+      "file_type": "code",
+      "source_file": "internal/service/service_manager/verv_services/list_environments.go",
+      "source_location": "L9"
+    },
+    {
+      "id": "context",
+      "label": "Context",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/list_environments.go"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_list_environments_go",
+      "target": "go_pkg_context",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/list_environments.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_service_service_manager_verv_services_list_environments_go",
+      "target": "go_pkg_go_redsock_ru_rerrors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/list_environments.go",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "verv_services_vervservice",
+      "target": "verv_services_vervservice_listenvironments",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/list_environments.go",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "verv_services_vervservice_listenvironments",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/service/service_manager/verv_services/list_environments.go",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "parameter_type"
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "verv_services_vervservice_listenvironments",
+      "callee": "ListEnvironments",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/list_environments.go",
+      "source_location": "L10"
+    },
+    {
+      "caller_nid": "verv_services_vervservice_listenvironments",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/list_environments.go",
+      "source_location": "L12"
+    }
+  ]
+}

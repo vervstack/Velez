@@ -12,10 +12,10 @@ import (
 )
 
 type ServersManager struct {
-	mux cmux.CMux
-
 	grpcServer
 	httpServer
+
+	mux cmux.CMux
 }
 
 func NewServerManager(ctx context.Context, listener net.Listener) (*ServersManager, error) {
@@ -49,7 +49,7 @@ func (m *ServersManager) Start() error {
 	case errC <- errGroup.Wait():
 		err := <-errC
 
-		return rerrors.Wrap(err)
+		return rerrors.Wrap(err, "received error via channel")
 	}
 }
 

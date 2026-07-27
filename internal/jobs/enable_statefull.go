@@ -66,17 +66,17 @@ type statefullRequestAccessor interface {
 
 type rootPwdAccessor interface {
 	GetRootPwd() string
-	SetRootPwd(string)
+	SetRootPwd(rootPwd string)
 }
 
 type userPwdAccessor interface {
 	GetUserPwd() string
-	SetUserPwd(string)
+	SetUserPwd(userPwd string)
 }
 
 type rootDsnAccessor interface {
 	GetRootDsn() string
-	SetRootDsn(string)
+	SetRootDsn(rootDsn string)
 }
 
 // containerInspectAPI is the narrow docker slice getRootDsnJob depends on
@@ -464,7 +464,7 @@ func (j *getRootDsnJob) Do(ctx context.Context) error {
 
 		pgCfg.Port, err = getExposedPgPort(cont)
 		if err != nil {
-			return rerrors.Wrap(err)
+			return rerrors.Wrap(err, "error getting exposed pg port")
 		}
 	}
 

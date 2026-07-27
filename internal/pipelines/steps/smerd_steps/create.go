@@ -9,6 +9,7 @@ import (
 	"github.com/docker/docker/client"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
@@ -65,7 +66,7 @@ func (s *createSmerdStep) Do(ctx context.Context) error {
 
 		err = dockerutils.ConnectToNetwork(ctx, s.dockerDirectAPI, connectReq)
 		if err != nil {
-			return rerrors.Wrap(err)
+			return rerrors.Wrap(err, "error connecting container to network", connectReq.ContId, connectReq.NetworkName)
 		}
 	}
 

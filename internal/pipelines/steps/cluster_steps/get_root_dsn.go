@@ -7,12 +7,13 @@ import (
 
 	"github.com/docker/docker/api/types/container"
 	"go.redsock.ru/rerrors"
+	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
+
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/patterns/db_patterns/pg_pattern"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
-	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
 )
 
 const (
@@ -84,7 +85,7 @@ func (p *getPgDbDsn) Do(ctx context.Context) error {
 
 		pgCfg.Port, err = p.getExposedPort(cont)
 		if err != nil {
-			return rerrors.Wrap(err)
+			return rerrors.Wrap(err, "error getting exposed port")
 		}
 	}
 

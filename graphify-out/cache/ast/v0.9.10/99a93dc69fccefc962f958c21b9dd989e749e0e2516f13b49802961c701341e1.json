@@ -1,0 +1,526 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "label": "launch.go",
+      "file_type": "code",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_init",
+      "label": "init()",
+      "file_type": "code",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L41"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "label": "SetupMakosh()",
+      "file_type": "code",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L45"
+    },
+    {
+      "id": "context",
+      "label": "Context",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go"
+    },
+    {
+      "id": "config",
+      "label": "Config",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go"
+    },
+    {
+      "id": "nodeclients",
+      "label": "NodeClients",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go"
+    },
+    {
+      "id": "vervclosednetworkclient",
+      "label": "VervClosedNetworkClient",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go"
+    },
+    {
+      "id": "servicediscovery",
+      "label": "ServiceDiscovery",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "go_pkg_context",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "go_pkg_strconv",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "go_pkg_time",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "go_pkg_github_com_docker_docker_api_types_container",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "go_pkg_github_com_docker_go_connections_nat",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "go_pkg_go_redsock_ru_rerrors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "go_pkg_go_redsock_ru_toolbox",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "go_pkg_go_redsock_ru_toolbox_closer",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "go_pkg_go_redsock_ru_toolbox_keep_alive",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "go_pkg_go_vervstack_ru_makosh_config",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_cluster_clients",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L16",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_cluster_clients_makosh",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_node_clients",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L18",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_cluster_env",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_cluster_env_container_service_task",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_config",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L21",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_domain",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_domain_labels",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L23",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_pipelines",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L24",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_pipelines_steps",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L25",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_init",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_go",
+      "target": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L45",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "target": "config",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L45",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "target": "nodeclients",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L45",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "target": "vervclosednetworkclient",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L45",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "target": "servicediscovery",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/cluster/service_discovery/launch.go",
+      "source_location": "L45",
+      "weight": 1.0,
+      "context": "return_type"
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_init",
+      "callee": "GetVersion",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L42"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "newDockerServiceDiscovery",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "Docker",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L52"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "string",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "RandomBase64",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L58"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "Coalesce",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "IsInContainer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L75"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "Itoa",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "Itoa",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L81"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "NewTaskV2",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "Docker",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "KeepAlive",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L99"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "WithCancel",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L101"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "Done",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L101"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "WithCheckInterval",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L102"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "Add",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "Stop",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L107"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "IsInContainer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L113"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "GetPortBinding",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L116"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "NewServiceDiscovery",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L121"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L123"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "ConnectServiceToVpn",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L130"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "Run",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L132"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "Is",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L134"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "Is",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L138"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_cluster_service_discovery_launch_setupmakosh",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go",
+      "source_location": "L142"
+    }
+  ]
+}

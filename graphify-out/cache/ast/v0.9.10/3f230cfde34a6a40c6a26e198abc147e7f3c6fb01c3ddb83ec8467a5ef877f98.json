@@ -1,0 +1,2052 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "label": "enable_statefull.go",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "jobs_statefullrequestaccessor",
+      "label": "statefullRequestAccessor",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L63"
+    },
+    {
+      "id": "jobs_rootpwdaccessor",
+      "label": "rootPwdAccessor",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L67"
+    },
+    {
+      "id": "jobs_userpwdaccessor",
+      "label": "userPwdAccessor",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L72"
+    },
+    {
+      "id": "jobs_rootdsnaccessor",
+      "label": "rootDsnAccessor",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L77"
+    },
+    {
+      "id": "jobs_containerinspectapi",
+      "label": "containerInspectAPI",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L86"
+    },
+    {
+      "id": "jobs_enablestatefullhandler",
+      "label": "enableStatefullHandler",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L90"
+    },
+    {
+      "id": "nodeclients",
+      "label": "NodeClients",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go"
+    },
+    {
+      "id": "clusterstatemanagercontainer",
+      "label": "ClusterStateManagerContainer",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go"
+    },
+    {
+      "id": "container",
+      "label": "Container",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_newenablestatefullhandler",
+      "label": "NewEnableStatefullHandler()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L96"
+    },
+    {
+      "id": "taskhandler",
+      "label": "TaskHandler",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go"
+    },
+    {
+      "id": "jobs_enablestatefullhandler_action",
+      "label": ".Action()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L108"
+    },
+    {
+      "id": "jobs_enablestatefullhandler_newcontext",
+      "label": ".NewContext()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L112"
+    },
+    {
+      "id": "taskcontext",
+      "label": "TaskContext",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go"
+    },
+    {
+      "id": "jobs_enablestatefullhandler_buildjobs",
+      "label": ".BuildJobs()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L127"
+    },
+    {
+      "id": "namedjob",
+      "label": "NamedJob",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go"
+    },
+    {
+      "id": "jobs_generatecredentialsjob",
+      "label": "generateCredentialsJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L211"
+    },
+    {
+      "id": "statemanager",
+      "label": "StateManager",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go"
+    },
+    {
+      "id": "jobs_generatecredentialsjob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L220"
+    },
+    {
+      "id": "context",
+      "label": "Context",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go"
+    },
+    {
+      "id": "jobs_createpgcontainerjob",
+      "label": "createPgContainerJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L261"
+    },
+    {
+      "id": "containeridaccessor",
+      "label": "containerIDAccessor",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go"
+    },
+    {
+      "id": "jobs_createpgcontainerjob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L269"
+    },
+    {
+      "id": "jobs_createpgcontainerjob_rollback",
+      "label": ".Rollback()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L304"
+    },
+    {
+      "id": "jobs_startpgcontainerjob",
+      "label": "startPgContainerJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L321"
+    },
+    {
+      "id": "startapi",
+      "label": "startAPI",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go"
+    },
+    {
+      "id": "jobs_startpgcontainerjob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L327"
+    },
+    {
+      "id": "jobs_startpgcontainerjob_rollback",
+      "label": ".Rollback()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L341"
+    },
+    {
+      "id": "jobs_waitforpgreadyjob",
+      "label": "waitForPgReadyJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L363"
+    },
+    {
+      "id": "jobs_waitforpgreadyjob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L369"
+    },
+    {
+      "id": "jobs_getrootdsnjob",
+      "label": "getRootDsnJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L410"
+    },
+    {
+      "id": "jobs_getrootdsnjob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L420"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_getexposedpgport",
+      "label": "getExposedPgPort()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L476"
+    },
+    {
+      "id": "inspectresponse",
+      "label": "InspectResponse",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go"
+    },
+    {
+      "id": "jobs_createschemaandmigratejob",
+      "label": "createSchemaAndMigrateJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L509"
+    },
+    {
+      "id": "jobs_createschemaandmigratejob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L513"
+    },
+    {
+      "id": "jobs_createpguserjob",
+      "label": "createPgUserJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L545"
+    },
+    {
+      "id": "jobs_createpguserjob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L550"
+    },
+    {
+      "id": "jobs_updateclusterstatejob",
+      "label": "updateClusterStateJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L572"
+    },
+    {
+      "id": "clusterstatemanager",
+      "label": "ClusterStateManager",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go"
+    },
+    {
+      "id": "jobs_updateclusterstatejob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L583"
+    },
+    {
+      "id": "jobs_initnodestoragejob",
+      "label": "initNodeStorageJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L618"
+    },
+    {
+      "id": "jobs_initnodestoragejob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L622"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "go_pkg_context",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "go_pkg_database_sql",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "go_pkg_strconv",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "go_pkg_strings",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "go_pkg_time",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "go_pkg_github_com_containerd_errdefs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "go_pkg_github_com_docker_docker_api_types_container",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "go_pkg_github_com_opencontainers_image_spec_specs_go_v1",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "go_pkg_github_com_rs_zerolog_log",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "go_pkg_go_redsock_ru_rerrors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "go_pkg_go_redsock_ru_toolbox",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "go_pkg_go_vervstack_ru_matreshka_pkg_matreshka_resources",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L16",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_api_server_velez_api",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L18",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_cluster_clients",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_cluster_clients_state",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L20",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_node_clients",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L21",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_sqldb",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_cluster_env",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L23",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_patterns_db_patterns_pg_pattern",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L24",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_pipelines_steps_cluster_steps",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L25",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_storage",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L26",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "jobs_statefullrequestaccessor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "jobs_rootpwdaccessor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L67",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "jobs_userpwdaccessor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L72",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "jobs_rootdsnaccessor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L77",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "jobs_containerinspectapi",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L86",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "jobs_enablestatefullhandler",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L90",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_enablestatefullhandler",
+      "target": "nodeclients",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L91",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_enablestatefullhandler",
+      "target": "clusterstatemanagercontainer",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L92",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_enablestatefullhandler",
+      "target": "container",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L93",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_newenablestatefullhandler",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L96",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_newenablestatefullhandler",
+      "target": "nodeclients",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L96",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_newenablestatefullhandler",
+      "target": "clusterstatemanagercontainer",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L96",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_newenablestatefullhandler",
+      "target": "container",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L96",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_newenablestatefullhandler",
+      "target": "taskhandler",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L96",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "jobs_enablestatefullhandler",
+      "target": "jobs_enablestatefullhandler_action",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L108",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_enablestatefullhandler",
+      "target": "jobs_enablestatefullhandler_newcontext",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L112",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_enablestatefullhandler_newcontext",
+      "target": "taskcontext",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L112",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "jobs_enablestatefullhandler",
+      "target": "jobs_enablestatefullhandler_buildjobs",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L127",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_enablestatefullhandler_buildjobs",
+      "target": "taskcontext",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L127",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_enablestatefullhandler_buildjobs",
+      "target": "namedjob",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L127",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "jobs_generatecredentialsjob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L211",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_generatecredentialsjob",
+      "target": "statemanager",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L212",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_generatecredentialsjob",
+      "target": "jobs_rootpwdaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L214",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_generatecredentialsjob",
+      "target": "jobs_userpwdaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L214",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_generatecredentialsjob",
+      "target": "jobs_generatecredentialsjob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L220",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_generatecredentialsjob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L220",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "jobs_createpgcontainerjob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L261",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createpgcontainerjob",
+      "target": "nodeclients",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L262",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_createpgcontainerjob",
+      "target": "jobs_statefullrequestaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L264",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_createpgcontainerjob",
+      "target": "jobs_rootpwdaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L265",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_createpgcontainerjob",
+      "target": "containeridaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L266",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_createpgcontainerjob",
+      "target": "jobs_createpgcontainerjob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L269",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createpgcontainerjob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L269",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_createpgcontainerjob",
+      "target": "jobs_createpgcontainerjob_rollback",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L304",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createpgcontainerjob_rollback",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L304",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "jobs_startpgcontainerjob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L321",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_startpgcontainerjob",
+      "target": "startapi",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L322",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_startpgcontainerjob",
+      "target": "containeridaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L324",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_startpgcontainerjob",
+      "target": "jobs_startpgcontainerjob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L327",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_startpgcontainerjob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L327",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_startpgcontainerjob",
+      "target": "jobs_startpgcontainerjob_rollback",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L341",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_startpgcontainerjob_rollback",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L341",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "jobs_waitforpgreadyjob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L363",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_waitforpgreadyjob",
+      "target": "jobs_containerinspectapi",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L364",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_waitforpgreadyjob",
+      "target": "containeridaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L366",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_waitforpgreadyjob",
+      "target": "jobs_waitforpgreadyjob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L369",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_waitforpgreadyjob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L369",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "jobs_getrootdsnjob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L410",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_getrootdsnjob",
+      "target": "jobs_containerinspectapi",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L411",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_getrootdsnjob",
+      "target": "jobs_statefullrequestaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L413",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_getrootdsnjob",
+      "target": "containeridaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L414",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_getrootdsnjob",
+      "target": "jobs_rootdsnaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L414",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_getrootdsnjob",
+      "target": "jobs_getrootdsnjob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L420",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_getrootdsnjob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L420",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_getexposedpgport",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L476",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_getexposedpgport",
+      "target": "inspectresponse",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L476",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "jobs_createschemaandmigratejob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L509",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createschemaandmigratejob",
+      "target": "jobs_rootdsnaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L510",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_createschemaandmigratejob",
+      "target": "jobs_createschemaandmigratejob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L513",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createschemaandmigratejob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L513",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "jobs_createpguserjob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L545",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createpguserjob",
+      "target": "jobs_rootdsnaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L546",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_createpguserjob",
+      "target": "jobs_userpwdaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L547",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_createpguserjob",
+      "target": "jobs_createpguserjob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L550",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createpguserjob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L550",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "jobs_updateclusterstatejob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L572",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_updateclusterstatejob",
+      "target": "statemanager",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L573",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_updateclusterstatejob",
+      "target": "clusterstatemanagercontainer",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L574",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_updateclusterstatejob",
+      "target": "container",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L575",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_updateclusterstatejob",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L577",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_updateclusterstatejob",
+      "target": "clusterstatemanager",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L577",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_updateclusterstatejob",
+      "target": "jobs_rootdsnaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L579",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_updateclusterstatejob",
+      "target": "jobs_userpwdaccessor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L580",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_updateclusterstatejob",
+      "target": "jobs_updateclusterstatejob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L583",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_updateclusterstatejob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L583",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_go",
+      "target": "jobs_initnodestoragejob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L618",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_initnodestoragejob",
+      "target": "clusterstatemanagercontainer",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L619",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_initnodestoragejob",
+      "target": "jobs_initnodestoragejob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L622",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_initnodestoragejob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L622",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_getrootdsnjob_do",
+      "target": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_getexposedpgport",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L465",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_createpguserjob_do",
+      "target": "jobs_initnodestoragejob_do",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/enable_statefull.go",
+      "source_location": "L555",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "jobs_enablestatefullhandler_buildjobs",
+      "callee": "panic",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L130"
+    },
+    {
+      "caller_nid": "jobs_enablestatefullhandler_buildjobs",
+      "callee": "LocalStateManager",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L137"
+    },
+    {
+      "caller_nid": "jobs_enablestatefullhandler_buildjobs",
+      "callee": "Client",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L153"
+    },
+    {
+      "caller_nid": "jobs_enablestatefullhandler_buildjobs",
+      "callee": "Docker",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L153"
+    },
+    {
+      "caller_nid": "jobs_enablestatefullhandler_buildjobs",
+      "callee": "Client",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L160"
+    },
+    {
+      "caller_nid": "jobs_enablestatefullhandler_buildjobs",
+      "callee": "Docker",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L160"
+    },
+    {
+      "caller_nid": "jobs_enablestatefullhandler_buildjobs",
+      "callee": "Client",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L167"
+    },
+    {
+      "caller_nid": "jobs_enablestatefullhandler_buildjobs",
+      "callee": "Docker",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L167"
+    },
+    {
+      "caller_nid": "jobs_enablestatefullhandler_buildjobs",
+      "callee": "LocalStateManager",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L188"
+    },
+    {
+      "caller_nid": "jobs_generatecredentialsjob_do",
+      "callee": "GetRootPwd",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L221"
+    },
+    {
+      "caller_nid": "jobs_generatecredentialsjob_do",
+      "callee": "Get",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L222"
+    },
+    {
+      "caller_nid": "jobs_generatecredentialsjob_do",
+      "callee": "ParseFromDsn",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L227"
+    },
+    {
+      "caller_nid": "jobs_generatecredentialsjob_do",
+      "callee": "string",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L230"
+    },
+    {
+      "caller_nid": "jobs_generatecredentialsjob_do",
+      "callee": "RandomBase64",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L230"
+    },
+    {
+      "caller_nid": "jobs_generatecredentialsjob_do",
+      "callee": "SetRootPwd",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L233"
+    },
+    {
+      "caller_nid": "jobs_generatecredentialsjob_do",
+      "callee": "GetUserPwd",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L236"
+    },
+    {
+      "caller_nid": "jobs_generatecredentialsjob_do",
+      "callee": "Get",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L237"
+    },
+    {
+      "caller_nid": "jobs_generatecredentialsjob_do",
+      "callee": "ParseFromDsn",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L242"
+    },
+    {
+      "caller_nid": "jobs_generatecredentialsjob_do",
+      "callee": "string",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L245"
+    },
+    {
+      "caller_nid": "jobs_generatecredentialsjob_do",
+      "callee": "RandomBase64",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L245"
+    },
+    {
+      "caller_nid": "jobs_generatecredentialsjob_do",
+      "callee": "SetUserPwd",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L248"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_do",
+      "callee": "GetRequest",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L270"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_do",
+      "callee": "append",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L274"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_do",
+      "callee": "WithInstanceName",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L274"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_do",
+      "callee": "GetIsExposePort",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L276"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_do",
+      "callee": "GetExposeToPort",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L277"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_do",
+      "callee": "append",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L278"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_do",
+      "callee": "WithPort",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L278"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_do",
+      "callee": "GetExposeToPort",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L278"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_do",
+      "callee": "append",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L280"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_do",
+      "callee": "WithExposedPort",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L280"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_do",
+      "callee": "append",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L284"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_do",
+      "callee": "WithPassword",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L284"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_do",
+      "callee": "GetRootPwd",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L284"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_do",
+      "callee": "Postgres",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L286"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_do",
+      "callee": "Docker",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L288"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_do",
+      "callee": "ContainerCreate",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L290"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L296"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_do",
+      "callee": "SetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L299"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_rollback",
+      "callee": "GetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L305"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_rollback",
+      "callee": "Remove",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L310"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_rollback",
+      "callee": "Docker",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L310"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_rollback",
+      "callee": "IsNotFound",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L311"
+    },
+    {
+      "caller_nid": "jobs_createpgcontainerjob_rollback",
+      "callee": "Wrapf",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L312"
+    },
+    {
+      "caller_nid": "jobs_startpgcontainerjob_do",
+      "callee": "GetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L328"
+    },
+    {
+      "caller_nid": "jobs_startpgcontainerjob_do",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L330"
+    },
+    {
+      "caller_nid": "jobs_startpgcontainerjob_do",
+      "callee": "ContainerStart",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L333"
+    },
+    {
+      "caller_nid": "jobs_startpgcontainerjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L335"
+    },
+    {
+      "caller_nid": "jobs_startpgcontainerjob_rollback",
+      "callee": "GetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L342"
+    },
+    {
+      "caller_nid": "jobs_startpgcontainerjob_rollback",
+      "callee": "ContainerStop",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L347"
+    },
+    {
+      "caller_nid": "jobs_startpgcontainerjob_rollback",
+      "callee": "Wrapf",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L349"
+    },
+    {
+      "caller_nid": "jobs_waitforpgreadyjob_do",
+      "callee": "GetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L370"
+    },
+    {
+      "caller_nid": "jobs_waitforpgreadyjob_do",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L372"
+    },
+    {
+      "caller_nid": "jobs_waitforpgreadyjob_do",
+      "callee": "Add",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L375"
+    },
+    {
+      "caller_nid": "jobs_waitforpgreadyjob_do",
+      "callee": "Now",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L375"
+    },
+    {
+      "caller_nid": "jobs_waitforpgreadyjob_do",
+      "callee": "ContainerInspect",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L378"
+    },
+    {
+      "caller_nid": "jobs_waitforpgreadyjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L380"
+    },
+    {
+      "caller_nid": "jobs_waitforpgreadyjob_do",
+      "callee": "After",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L389"
+    },
+    {
+      "caller_nid": "jobs_waitforpgreadyjob_do",
+      "callee": "Now",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L389"
+    },
+    {
+      "caller_nid": "jobs_waitforpgreadyjob_do",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L390"
+    },
+    {
+      "caller_nid": "jobs_waitforpgreadyjob_do",
+      "callee": "Done",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L394"
+    },
+    {
+      "caller_nid": "jobs_waitforpgreadyjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L395"
+    },
+    {
+      "caller_nid": "jobs_waitforpgreadyjob_do",
+      "callee": "Err",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L395"
+    },
+    {
+      "caller_nid": "jobs_waitforpgreadyjob_do",
+      "callee": "After",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L396"
+    },
+    {
+      "caller_nid": "jobs_getrootdsnjob_do",
+      "callee": "GetContainerId",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L421"
+    },
+    {
+      "caller_nid": "jobs_getrootdsnjob_do",
+      "callee": "ContainerInspect",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L433"
+    },
+    {
+      "caller_nid": "jobs_getrootdsnjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L435"
+    },
+    {
+      "caller_nid": "jobs_getrootdsnjob_do",
+      "callee": "SplitN",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L439"
+    },
+    {
+      "caller_nid": "jobs_getrootdsnjob_do",
+      "callee": "GetIsExposePort",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L456"
+    },
+    {
+      "caller_nid": "jobs_getrootdsnjob_do",
+      "callee": "GetRequest",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L456"
+    },
+    {
+      "caller_nid": "jobs_getrootdsnjob_do",
+      "callee": "IsInContainer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L458"
+    },
+    {
+      "caller_nid": "jobs_getrootdsnjob_do",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L460"
+    },
+    {
+      "caller_nid": "jobs_getrootdsnjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L467"
+    },
+    {
+      "caller_nid": "jobs_getrootdsnjob_do",
+      "callee": "SetRootDsn",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L471"
+    },
+    {
+      "caller_nid": "jobs_getrootdsnjob_do",
+      "callee": "ConnectionString",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L471"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_getexposedpgport",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L478"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_getexposedpgport",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L483"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_getexposedpgport",
+      "callee": "ParseUint",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L488"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_jobs_enable_statefull_getexposedpgport",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L490"
+    },
+    {
+      "caller_nid": "jobs_createschemaandmigratejob_do",
+      "callee": "GetRootDsn",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L514"
+    },
+    {
+      "caller_nid": "jobs_createschemaandmigratejob_do",
+      "callee": "Open",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L516"
+    },
+    {
+      "caller_nid": "jobs_createschemaandmigratejob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L518"
+    },
+    {
+      "caller_nid": "jobs_createschemaandmigratejob_do",
+      "callee": "Close",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L522"
+    },
+    {
+      "caller_nid": "jobs_createschemaandmigratejob_do",
+      "callee": "Msg",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L524"
+    },
+    {
+      "caller_nid": "jobs_createschemaandmigratejob_do",
+      "callee": "Err",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L524"
+    },
+    {
+      "caller_nid": "jobs_createschemaandmigratejob_do",
+      "callee": "ExecContext",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L528"
+    },
+    {
+      "caller_nid": "jobs_createschemaandmigratejob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L530"
+    },
+    {
+      "caller_nid": "jobs_createschemaandmigratejob_do",
+      "callee": "RollMigration",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L533"
+    },
+    {
+      "caller_nid": "jobs_createschemaandmigratejob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L535"
+    },
+    {
+      "caller_nid": "jobs_createpguserjob_do",
+      "callee": "GetRootDsn",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L551"
+    },
+    {
+      "caller_nid": "jobs_createpguserjob_do",
+      "callee": "CreatePgUserForNode",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L553"
+    },
+    {
+      "caller_nid": "jobs_createpguserjob_do",
+      "callee": "GetUserPwd",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L553"
+    },
+    {
+      "caller_nid": "jobs_createpguserjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L557"
+    },
+    {
+      "caller_nid": "jobs_updateclusterstatejob_do",
+      "callee": "GetForUpdate",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L584"
+    },
+    {
+      "caller_nid": "jobs_updateclusterstatejob_do",
+      "callee": "GetRootDsn",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L586"
+    },
+    {
+      "caller_nid": "jobs_updateclusterstatejob_do",
+      "callee": "ParseFromDsn",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L592"
+    },
+    {
+      "caller_nid": "jobs_updateclusterstatejob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L594"
+    },
+    {
+      "caller_nid": "jobs_updateclusterstatejob_do",
+      "callee": "GetUserPwd",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L598"
+    },
+    {
+      "caller_nid": "jobs_updateclusterstatejob_do",
+      "callee": "ConnectionString",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L600"
+    },
+    {
+      "caller_nid": "jobs_updateclusterstatejob_do",
+      "callee": "newPgStateManager",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L602"
+    },
+    {
+      "caller_nid": "jobs_updateclusterstatejob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L604"
+    },
+    {
+      "caller_nid": "jobs_updateclusterstatejob_do",
+      "callee": "SetAndRelease",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L610"
+    },
+    {
+      "caller_nid": "jobs_initnodestoragejob_do",
+      "callee": "InitNode",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L623"
+    },
+    {
+      "caller_nid": "jobs_initnodestoragejob_do",
+      "callee": "Nodes",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L623"
+    },
+    {
+      "caller_nid": "jobs_initnodestoragejob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go",
+      "source_location": "L625"
+    }
+  ]
+}

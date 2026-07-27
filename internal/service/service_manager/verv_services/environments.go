@@ -6,25 +6,27 @@ import (
 	"time"
 
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
 const (
-	statusRunning  = "running"
-	statusDegraded = "degraded"
-	statusStopped  = "stopped"
+	StatusRunning  = "running"
+	StatusDegraded = "degraded"
+	StatusStopped  = "stopped"
 )
 
-func (v *VervService) GetServiceEnvironments(ctx context.Context, serviceName string) ([]domain.ServiceEnvironment, error) {
+func (v *VervService) GetServiceEnvironments(ctx context.Context, serviceName string) (
+	[]domain.ServiceEnvironment, error) {
 	req := &velez_api.ListSmerds_Request{
 		Label: map[string]string{labels.VervServiceLabel: serviceName},
 	}
 
 	resp, err := v.containerService.ListSmerds(ctx, req)
 	if err != nil {
-		return nil, rerrors.Wrap(err)
+		return nil, rerrors.Wrap(err, "error listing smerds")
 	}
 
 	envGroups := make(map[string][]*velez_api.Smerd)
@@ -50,11 +52,11 @@ func (v *VervService) GetServiceEnvironments(ctx context.Context, serviceName st
 			}
 		}
 
-		status := statusStopped
+		status := StatusStopped
 		if runningCount == len(smerds) {
-			status = statusRunning
+			status = StatusRunning
 		} else if runningCount > 0 {
-			status = statusDegraded
+			status = StatusDegraded
 		}
 
 		firstSmerd := smerds[0]

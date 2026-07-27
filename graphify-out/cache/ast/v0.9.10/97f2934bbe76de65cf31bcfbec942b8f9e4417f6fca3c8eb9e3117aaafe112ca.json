@@ -1,0 +1,1807 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "label": "helper_environment.go",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_tests_e2e_helper_environment_init",
+      "label": "init()",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L40"
+    },
+    {
+      "id": "e2e_testenvironment",
+      "label": "TestEnvironment",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L51"
+    },
+    {
+      "id": "app",
+      "label": "App",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go"
+    },
+    {
+      "id": "t",
+      "label": "T",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go"
+    },
+    {
+      "id": "clientconn",
+      "label": "ClientConn",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go"
+    },
+    {
+      "id": "e2e_testenvopt",
+      "label": "TestEnvOpt",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L62"
+    },
+    {
+      "id": "e2e_stateopt",
+      "label": "StateOpt",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L63"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withmatreshka",
+      "label": "WithMatreshka()",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L80"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withstate",
+      "label": "WithState()",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L87"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withstatevcnenabled",
+      "label": "WithStateVcnEnabled()",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L103"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withconfigpath",
+      "label": "WithConfigPath()",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L109"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withcontainersuffix",
+      "label": "WithContainerSuffix()",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L115"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withenvironments",
+      "label": "WithEnvironments()",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L121"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "label": "NewEnvironment()",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L127"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initconfig",
+      "label": "initConfig()",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L183"
+    },
+    {
+      "id": "e2e_tracinglistener",
+      "label": "tracingListener",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L200"
+    },
+    {
+      "id": "listener",
+      "label": "Listener",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go"
+    },
+    {
+      "id": "e2e_tracinglistener_close",
+      "label": ".Close()",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L204"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initgrpc",
+      "label": "initGrpc()",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L210"
+    },
+    {
+      "id": "e2e_testenvironment_createsmerd",
+      "label": ".CreateSmerd()",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L251"
+    },
+    {
+      "id": "createsmerd_request",
+      "label": "CreateSmerd_Request",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go"
+    },
+    {
+      "id": "smerd",
+      "label": "Smerd",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go"
+    },
+    {
+      "id": "e2e_testenvironment_listsmerds",
+      "label": ".ListSmerds()",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L270"
+    },
+    {
+      "id": "context",
+      "label": "Context",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go"
+    },
+    {
+      "id": "listsmerds_request",
+      "label": "ListSmerds_Request",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go"
+    },
+    {
+      "id": "listsmerds_response",
+      "label": "ListSmerds_Response",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go"
+    },
+    {
+      "id": "e2e_testenvironment_dropsmerd",
+      "label": ".DropSmerd()",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L283"
+    },
+    {
+      "id": "dropsmerd_request",
+      "label": "DropSmerd_Request",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go"
+    },
+    {
+      "id": "dropsmerd_response",
+      "label": "DropSmerd_Response",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go"
+    },
+    {
+      "id": "e2e_testenvironment_vpnclient",
+      "label": ".VpnClient()",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L296"
+    },
+    {
+      "id": "vcnapiclient",
+      "label": "VcnApiClient",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go"
+    },
+    {
+      "id": "e2e_testenvironment_clean",
+      "label": ".clean()",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L300"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_tests_e2e_helper_environment_readdefaultstate",
+      "label": "readDefaultState()",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L327"
+    },
+    {
+      "id": "state",
+      "label": "State",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_tests_e2e_helper_environment_writestate",
+      "label": "writeState()",
+      "file_type": "code",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L347"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_context",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_encoding_json",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_net",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_os",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_path_filepath",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_runtime",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_runtime_debug",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_testing",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_github_com_docker_docker_api_types_container",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_github_com_rs_zerolog_log",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_github_com_stretchr_testify_require",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_google_golang_org_grpc",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L16",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_google_golang_org_grpc_credentials_insecure",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_google_golang_org_grpc_metadata",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L18",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_google_golang_org_grpc_test_bufconn",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L19",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_api_server_velez_api",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L21",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_app",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_node_clients_docker_dockerutils",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L23",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_node_clients_local_state",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L24",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_cluster_configuration",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L25",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_config",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L26",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_middleware",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L27",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "go_pkg_go_vervstack_ru_velez_tests_test_helper",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L28",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "users_alexbukov_verv_velez_tests_e2e_helper_environment_init",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "e2e_testenvironment",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "e2e_testenvironment",
+      "target": "app",
+      "relation": "embeds",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "e2e_testenvironment",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L54",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "e2e_testenvironment",
+      "target": "clientconn",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L58",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "e2e_testenvopt",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L62",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "e2e_stateopt",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withmatreshka",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L80",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withmatreshka",
+      "target": "e2e_testenvopt",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L80",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withstate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L87",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withstate",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L87",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withstate",
+      "target": "e2e_testenvopt",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L87",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withstatevcnenabled",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L103",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withstatevcnenabled",
+      "target": "e2e_stateopt",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L103",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withconfigpath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L109",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withconfigpath",
+      "target": "e2e_testenvopt",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L109",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withcontainersuffix",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L115",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withcontainersuffix",
+      "target": "e2e_testenvopt",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L115",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withenvironments",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L121",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withenvironments",
+      "target": "e2e_testenvopt",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L121",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L127",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L127",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "target": "e2e_testenvironment",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L127",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initconfig",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L183",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initconfig",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L183",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initconfig",
+      "target": "e2e_testenvironment",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L183",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "e2e_tracinglistener",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L200",
+      "weight": 1.0
+    },
+    {
+      "source": "e2e_tracinglistener",
+      "target": "listener",
+      "relation": "embeds",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L201",
+      "weight": 1.0
+    },
+    {
+      "source": "e2e_tracinglistener",
+      "target": "e2e_tracinglistener_close",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L204",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initgrpc",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L210",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initgrpc",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L210",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initgrpc",
+      "target": "e2e_testenvironment",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L210",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "e2e_testenvironment",
+      "target": "e2e_testenvironment_createsmerd",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L251",
+      "weight": 1.0
+    },
+    {
+      "source": "e2e_testenvironment_createsmerd",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L251",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "e2e_testenvironment_createsmerd",
+      "target": "createsmerd_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L251",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "e2e_testenvironment_createsmerd",
+      "target": "smerd",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L251",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "e2e_testenvironment",
+      "target": "e2e_testenvironment_listsmerds",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L270",
+      "weight": 1.0
+    },
+    {
+      "source": "e2e_testenvironment_listsmerds",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L270",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "e2e_testenvironment_listsmerds",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L270",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "e2e_testenvironment_listsmerds",
+      "target": "listsmerds_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L270",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "e2e_testenvironment_listsmerds",
+      "target": "listsmerds_response",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L270",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "e2e_testenvironment",
+      "target": "e2e_testenvironment_dropsmerd",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L283",
+      "weight": 1.0
+    },
+    {
+      "source": "e2e_testenvironment_dropsmerd",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L283",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "e2e_testenvironment_dropsmerd",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L283",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "e2e_testenvironment_dropsmerd",
+      "target": "dropsmerd_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L283",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "e2e_testenvironment_dropsmerd",
+      "target": "dropsmerd_response",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L283",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "e2e_testenvironment",
+      "target": "e2e_testenvironment_vpnclient",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L296",
+      "weight": 1.0
+    },
+    {
+      "source": "e2e_testenvironment_vpnclient",
+      "target": "vcnapiclient",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L296",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "e2e_testenvironment",
+      "target": "e2e_testenvironment_clean",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L300",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "users_alexbukov_verv_velez_tests_e2e_helper_environment_readdefaultstate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L327",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_readdefaultstate",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L327",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_readdefaultstate",
+      "target": "state",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L327",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_go",
+      "target": "users_alexbukov_verv_velez_tests_e2e_helper_environment_writestate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L347",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_writestate",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L347",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_writestate",
+      "target": "state",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L347",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withstate",
+      "target": "users_alexbukov_verv_velez_tests_e2e_helper_environment_readdefaultstate",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L91",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withstate",
+      "target": "users_alexbukov_verv_velez_tests_e2e_helper_environment_writestate",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L97",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "target": "context",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L134",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "target": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initconfig",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L143",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "target": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initgrpc",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L157",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "target": "e2e_testenvironment_clean",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L177",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initconfig",
+      "target": "users_alexbukov_verv_velez_tests_e2e_helper_environment_readdefaultstate",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L195",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initconfig",
+      "target": "users_alexbukov_verv_velez_tests_e2e_helper_environment_writestate",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L197",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initgrpc",
+      "target": "e2e_tracinglistener_close",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L246",
+      "weight": 1.0
+    },
+    {
+      "source": "e2e_testenvironment_createsmerd",
+      "target": "context",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L254",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_readdefaultstate",
+      "target": "e2e_tracinglistener_close",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L337",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_tests_e2e_helper_environment_writestate",
+      "target": "e2e_tracinglistener_close",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/e2e/helper_environment.go",
+      "source_location": "L358",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_init",
+      "callee": "Caller",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_init",
+      "callee": "Dir",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_init",
+      "callee": "Dir",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_init",
+      "callee": "Join",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L47"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_init",
+      "callee": "Join",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withmatreshka",
+      "callee": "WithSharedInstance",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L83"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withmatreshka",
+      "callee": "getSharedMatreshka",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L83"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withstate",
+      "callee": "Helper",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L88"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_withstate",
+      "callee": "op",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L94"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "callee": "Helper",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L128"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "callee": "opt",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L140"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "callee": "opt",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L147"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "callee": "GetServiceName",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L150"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "callee": "GetServiceName",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L151"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "callee": "append",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L153"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "callee": "Name",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L155"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "callee": "Init",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L159"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "callee": "NoError",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L160"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "callee": "Start",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L163"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "callee": "NoError",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L164"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "callee": "Cleanup",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L167"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "callee": "Stop",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L168"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "callee": "NoError",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L169"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "callee": "GetSharedPortManager",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L172"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "callee": "PortManagerContainer",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L173"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_newenvironment",
+      "callee": "Cleanup",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L178"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initconfig",
+      "callee": "Helper",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L184"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initconfig",
+      "callee": "Load",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L192"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initconfig",
+      "callee": "NoError",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L193"
+    },
+    {
+      "caller_nid": "e2e_tracinglistener_close",
+      "callee": "Msg",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L205"
+    },
+    {
+      "caller_nid": "e2e_tracinglistener_close",
+      "callee": "string",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L205"
+    },
+    {
+      "caller_nid": "e2e_tracinglistener_close",
+      "callee": "Stack",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L205"
+    },
+    {
+      "caller_nid": "e2e_tracinglistener_close",
+      "callee": "Close",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L207"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initgrpc",
+      "callee": "Helper",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L211"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initgrpc",
+      "callee": "Listen",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L215"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initgrpc",
+      "callee": "Dial",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L222"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initgrpc",
+      "callee": "NewClient",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L225"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initgrpc",
+      "callee": "WithContextDialer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L226"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initgrpc",
+      "callee": "WithTransportCredentials",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L227"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initgrpc",
+      "callee": "NewCredentials",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L227"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initgrpc",
+      "callee": "WithUnaryInterceptor",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L228"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initgrpc",
+      "callee": "LocalStateManager",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initgrpc",
+      "callee": "Get",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L236"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initgrpc",
+      "callee": "AppendToOutgoingContext",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L238"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initgrpc",
+      "callee": "invoker",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L240"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initgrpc",
+      "callee": "NoError",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L243"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initgrpc",
+      "callee": "Cleanup",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L245"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_initgrpc",
+      "callee": "NoError",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L247"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_createsmerd",
+      "callee": "Helper",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L252"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_createsmerd",
+      "callee": "addTestLabels",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L260"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_createsmerd",
+      "callee": "GetLabels",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L260"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_createsmerd",
+      "callee": "CreateSmerd",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L262"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_createsmerd",
+      "callee": "NoError",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L263"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_createsmerd",
+      "callee": "removeTestLabels",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L265"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_createsmerd",
+      "callee": "GetLabels",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L265"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_listsmerds",
+      "callee": "Helper",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L275"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_listsmerds",
+      "callee": "ListSmerds",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L277"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_listsmerds",
+      "callee": "NoError",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L278"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_dropsmerd",
+      "callee": "Helper",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L288"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_dropsmerd",
+      "callee": "DropSmerd",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L290"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_dropsmerd",
+      "callee": "NoError",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L291"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_vpnclient",
+      "callee": "NewVcnApiClient",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L297"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_clean",
+      "callee": "Background",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L301"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_clean",
+      "callee": "Client",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L302"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_clean",
+      "callee": "Docker",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L302"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_clean",
+      "callee": "Name",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L306"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_clean",
+      "callee": "ListContainers",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L310"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_clean",
+      "callee": "Send",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L312"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_clean",
+      "callee": "Err",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L312"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_clean",
+      "callee": "Fatal",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L312"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_clean",
+      "callee": "ContainerRemove",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L320"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_clean",
+      "callee": "Send",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L322"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_clean",
+      "callee": "Err",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L322"
+    },
+    {
+      "caller_nid": "e2e_testenvironment_clean",
+      "callee": "Fatal",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L322"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_readdefaultstate",
+      "callee": "Helper",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L328"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_readdefaultstate",
+      "callee": "Join",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L332"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_readdefaultstate",
+      "callee": "Open",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L333"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_readdefaultstate",
+      "callee": "NoError",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L334"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_readdefaultstate",
+      "callee": "NoError",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L338"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_readdefaultstate",
+      "callee": "Decode",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L341"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_readdefaultstate",
+      "callee": "NewDecoder",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L341"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_readdefaultstate",
+      "callee": "NoError",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L342"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_writestate",
+      "callee": "Helper",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L348"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_writestate",
+      "callee": "TempDir",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L350"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_writestate",
+      "callee": "Join",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L352"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_writestate",
+      "callee": "Create",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L354"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_writestate",
+      "callee": "NoError",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L355"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_writestate",
+      "callee": "NoError",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L359"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_writestate",
+      "callee": "Cleanup",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L362"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_writestate",
+      "callee": "NoError",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L363"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_writestate",
+      "callee": "Remove",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L363"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_writestate",
+      "callee": "Encode",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L366"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_writestate",
+      "callee": "NewEncoder",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L366"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_tests_e2e_helper_environment_writestate",
+      "callee": "NoError",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go",
+      "source_location": "L367"
+    }
+  ]
+}

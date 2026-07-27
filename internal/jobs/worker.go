@@ -10,6 +10,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 	"go.vervstack.ru/Velez/internal/workers"
@@ -95,7 +96,7 @@ func (w *taskWorker) processOne(ctx context.Context) {
 	err = w.run(ctx, task)
 	if err != nil {
 		log.Error().
-			Err(rerrors.Wrap(err)).
+			Err(rerrors.Wrap(err, "error running task")).
 			Int64("task_id", task.ID).
 			Str("action", task.Action).
 			Msg("error running task")

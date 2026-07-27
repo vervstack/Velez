@@ -1,0 +1,219 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_api_server_velez_api_create_smerd_request_json_go",
+      "label": "create_smerd_request_json.go",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "velez_api_createsmerdrequestjson",
+      "label": "createSmerdRequestJSON",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L25"
+    },
+    {
+      "id": "rawcreatesmerdrequest",
+      "label": "rawCreateSmerdRequest",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/create_smerd_request_json.go"
+    },
+    {
+      "id": "rawmessage",
+      "label": "RawMessage",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/create_smerd_request_json.go"
+    },
+    {
+      "id": "matreshkaconfigspec",
+      "label": "MatreshkaConfigSpec",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/create_smerd_request_json.go"
+    },
+    {
+      "id": "plainconfigspec",
+      "label": "PlainConfigSpec",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/create_smerd_request_json.go"
+    },
+    {
+      "id": "velez_api_rawcreatesmerdrequest",
+      "label": "rawCreateSmerdRequest",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L37"
+    },
+    {
+      "id": "velez_api_createsmerd_request",
+      "label": "CreateSmerd_Request",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L41"
+    },
+    {
+      "id": "velez_api_createsmerd_request_marshaljson",
+      "label": ".MarshalJSON()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L41"
+    },
+    {
+      "id": "velez_api_createsmerd_request_unmarshaljson",
+      "label": ".UnmarshalJSON()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L58"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_create_smerd_request_json_go",
+      "target": "go_pkg_encoding_json",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_create_smerd_request_json_go",
+      "target": "go_pkg_go_redsock_ru_rerrors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_create_smerd_request_json_go",
+      "target": "velez_api_createsmerdrequestjson",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createsmerdrequestjson",
+      "target": "rawcreatesmerdrequest",
+      "relation": "embeds",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createsmerdrequestjson",
+      "target": "rawmessage",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L32",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_createsmerdrequestjson",
+      "target": "matreshkaconfigspec",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L33",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_createsmerdrequestjson",
+      "target": "plainconfigspec",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L34",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_create_smerd_request_json_go",
+      "target": "velez_api_rawcreatesmerdrequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createsmerd_request",
+      "target": "velez_api_createsmerd_request_marshaljson",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createsmerd_request",
+      "target": "velez_api_createsmerd_request_unmarshaljson",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L58",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "velez_api_createsmerd_request_marshaljson",
+      "callee": "GetVerv",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L44"
+    },
+    {
+      "caller_nid": "velez_api_createsmerd_request_marshaljson",
+      "callee": "GetPlain",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L45"
+    },
+    {
+      "caller_nid": "velez_api_createsmerd_request_marshaljson",
+      "callee": "Marshal",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L48"
+    },
+    {
+      "caller_nid": "velez_api_createsmerd_request_marshaljson",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L50"
+    },
+    {
+      "caller_nid": "velez_api_createsmerd_request_unmarshaljson",
+      "callee": "Unmarshal",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "velez_api_createsmerd_request_unmarshaljson",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/create_smerd_request_json.go",
+      "source_location": "L65"
+    }
+  ]
+}

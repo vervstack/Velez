@@ -16,12 +16,14 @@ import (
 	dockerspec "github.com/moby/docker-image-spec/specs-go/v1"
 	ocispec "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sqlc-dev/pqtype"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -35,6 +37,11 @@ const (
 	testUpgradeSvcName  = "mysvc"
 	testOldContainerID  = "old123"
 	testNetworkName     = "vervnet"
+)
+
+var (
+	errNetworkCreate = errors.New("network create failed")
+	errNoSuchImage   = errors.New("no such image")
 )
 
 func TestUpgradeSmerdHandler_Action(t *testing.T) {
@@ -112,7 +119,7 @@ func TestCheckSelfUpgradeJob_NotInsideContainer_NoOp(t *testing.T) {
 func TestCaptureOldContainerJob_InspectError(t *testing.T) {
 	containerService := newFakeContainerService()
 
-	containerService.inspectErr = errors.New("no such container")
+	containerService.inspectErr = user_errors.ErrNoSuchContainer
 
 	payload := &velez_api.UpgradeSmerdTaskPayload{
 		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Name: testUpgradeSvcName, Image: testUpgradeImage},
@@ -180,7 +187,7 @@ func TestCaptureOldContainerJob_Success(t *testing.T) {
 func TestPrepareUpgradeImageJob_PullError(t *testing.T) {
 	docker := newFakeDocker()
 
-	docker.pullImageErr = errors.New("no such image")
+	docker.pullImageErr = errNoSuchImage
 
 	payload := &velez_api.UpgradeSmerdTaskPayload{
 		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Image: testUpgradeImage},
@@ -330,7 +337,7 @@ func TestRenamingCreateContainerJob_Success(t *testing.T) {
 		t.Errorf("expected container id 'created123', got %q", payload.GetContainerId())
 	}
 
-	docker.removeErr = errdefs.NotFound(errors.New("no such container"))
+	docker.removeErr = errdefs.NotFound(user_errors.ErrNetworkNotFound)
 
 	err = j.Rollback(context.Background())
 	if err != nil {
@@ -685,7 +692,7 @@ func TestUpgradeSmerdHandler_FailurePath_NetworkCreateFails(t *testing.T) {
 		NetworkSettings: networkSettings,
 	}
 	containerAPI.copyFromResp = []byte("KEY=value")
-	containerAPI.networkCreateErr = errors.New("network create failed")
+	containerAPI.networkCreateErr = errNetworkCreate
 
 	docker := newFakeDocker()
 

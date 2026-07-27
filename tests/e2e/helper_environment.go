@@ -12,6 +12,11 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/test/bufconn"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/app"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
@@ -20,10 +25,6 @@ import (
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/middleware"
 	"go.vervstack.ru/Velez/tests/test_helper"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/test/bufconn"
 )
 
 // sharedPortManagerImpl is a single PortManager shared across all parallel test environments.
@@ -34,6 +35,7 @@ var (
 	testDataDir       string
 )
 
+//nolint:gochecknoinits
 func init() {
 	pc, filename, _, _ := runtime.Caller(0)
 
@@ -46,10 +48,11 @@ func init() {
 }
 
 type TestEnvironment struct {
-	t          *testing.T
-	configPath string
-
 	app.App
+
+	t *testing.T
+
+	configPath string
 
 	grpcConn *grpc.ClientConn
 }

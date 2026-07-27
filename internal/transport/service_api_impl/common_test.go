@@ -5,23 +5,29 @@ import (
 	"time"
 
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/service/service_manager/verv_services"
+
 	"google.golang.org/protobuf/types/known/timestamppb"
+)
+
+const (
+	testServiceName = "test-service"
 )
 
 // Test that ServiceBaseInfo is properly converted with all enriched fields.
 func TestToServiceBaseInfoWithEnrichedFields(t *testing.T) {
 	now := time.Now()
 	input := domain.ServiceBaseInfo{
-		Name:           "test-service",
+		Name:           testServiceName,
 		LastDeployedAt: &now,
 		ImageName:      "docker.io/test-service:v1.0",
-		Status:         "running",
+		Status:         verv_services.StatusRunning,
 		Env:            "production",
 	}
 
 	result := toServiceBaseInfo(input)
 
-	if result.GetName() != "test-service" {
+	if result.GetName() != testServiceName {
 		t.Errorf("expected Name 'test-service', got %q", result.GetName())
 	}
 

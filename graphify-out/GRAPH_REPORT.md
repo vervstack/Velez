@@ -1,19 +1,19 @@
-# Graph Report - Velez  (2026-07-26)
+# Graph Report - Velez  (2026-07-27)
 
 ## Corpus Check
 
-- 585 files · ~285,659 words
+- 585 files · ~285,873 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
 
-- 6693 nodes · 11390 edges · 723 communities (380 shown, 343 thin omitted)
-- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 619 edges (avg confidence: 0.8)
+- 6698 nodes · 11401 edges · 715 communities (370 shown, 345 thin omitted)
+- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 621 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
 
-- Built from commit: `999e83de`
+- Built from commit: `3471a357`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -254,12 +254,12 @@
 - internal/api (ListPeers_Request)
 - internal/api (StopService_Request)
 - internal/api (Version_Response)
-- internal/domain (node.go)
+- GetServiceGraph
 - tests/e2e (suite_control_plane_test.go)
 - internal/clients (list_containers.go)
 - internal/clients (Filter)
 - Community 240
-- Exec
+- selectiveFailDocker
 - pkg/web (.GetService())
 - pkg/web (MockDeployRow.tsx)
 - internal/api (ConnectSlave_Response)
@@ -274,7 +274,7 @@
 - internal/api (ListVcnNamespaces)
 - internal/api (ListVcnNamespaces_Request)
 - internal/api (MakeConnections_Response)
-- .ConnectService
+- Message
 - internal/api (StopService)
 - ListNodes
 - internal/api (UpgradeSmerd)
@@ -292,7 +292,7 @@
 - internal/api (SizeCache)
 - internal/api (UnknownFields)
 - internal/clients (pull_image.go)
-- internal/clients (volume.go)
+- .ListNodes
 - VelezAPI
 - internal/storage (.GetByName())
 - internal/transport (.GetServiceGraph())
@@ -357,7 +357,7 @@
 - internal/domain (UpgradeSmerd)
 - pkg/web (eslint)
 - prepareVervConfig
-- RemoveService_Response
+- file_control_plane_api_proto_rawDescGZIP
 - internal/storage (querier.go)
 - internal/storage (querier.go)
 - internal/storage (querier.go)
@@ -374,6 +374,9 @@
 - Community 356
 - scripts/run_local.sh (run_local.sh)
 - internal/app (env.go)
+- fakeJobsStorage
+- internal/clients (ns_get.go)
+- internal/clients (ns_list.go)
 - .GetServiceEnvironments
 - .enrichServiceWithSmerdData
 - go.mod (go.vervstack.ru/Velez)
@@ -383,7 +386,7 @@
 - Velez UI Redesign — Roadmap
 - ApiService.ts
 - T30 — AppsPage + AppCard (logical services view)
-- UpsertServiceState
+- .InspectSmerd
 - UpsertPluginParams
 - Tasks
 - FileMountPoint
@@ -395,7 +398,7 @@
 - Tasks
 - Tasks
 - Tasks
-- ApiService.ts
+- SmerdsWidget.tsx
 - WatchTask_Request
 - checkpointedJob
 - fetchSmerdConfigJob
@@ -436,7 +439,7 @@
 - DisconnectFromNetworks
 - db.go
 - db.go
-- PrepareImage
+- NewPgStateManager
 - Exec
 - UpsertPluginParams
 - T17 — TopBar Widget
@@ -446,19 +449,16 @@
 - T24 — VCNPeerTable Widget
 - T26 — ControlPlanePage (rebuild)
 - T28 — VCNPage (rebuild)
-- RestartService
+- .EnablePlugin
 - InitMaster_Response
 - fetch_by_api.go
 - ContainerStats
-- NewEngine
-- ConnectSlave_Response
 - CreateSmerdTaskPayload
 - factory-worker.md
 - Smerds management logic
 - Velez (lightweight node manager)
 - DataSourcesConfig
 - React + TypeScript + Vite
-- ListEnvironments_Response
 - easyp.yaml proto codegen config
 - VCN Headscale Config
 - querier.go
@@ -487,19 +487,15 @@
 - Go struct literal rule (named variable first)
 - Claude Haiku review step
 - Pi Ollama code-generation host
-- .SetupHeadscale
 - Option B: shell factory with direct Ollama API calls
 - Config subscription is commented out (handleConfigurationSubscription)
-- NewStatic
 - internal/service/service_manager/container_manager/smerd_list.go
 - internal/service/service_manager/container_manager/smerds_drop.go
 - ControlPlanePage component
 - NodeHealthList widget
 - PluginMatrix widget
-- ListEnvironments
 - Custom.Stop() does nothing
 - GetLoginServerUrl
-- .WithTx
 - DeployPage (existing deploy form)
 - .ListServices
 - DeploymentFilters widget
@@ -561,7 +557,6 @@
 - Health-gated promotion
 - Version
 - TestMain
-- .EnablePlugin
 - StopService
 - Version_Request
 - pre-commit
@@ -698,11 +693,11 @@
 ## Hyperedges (group relationships)
 
 - **Velez Configuration Environment Variable Schema** —
-  config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_configyaml,
+  config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_configyaml,
   config_configtemplate, docs_configuration [INFERRED 0.90]
 - **Matreshka Config Mock Pattern** — tests_config_mocks_hello_world_matreshkaconfig, tests_config_mocks_velez_default_config_matreshkaconfig, schemas_smerds_matreshka [INFERRED 0.75]
 
-## Communities (723 total, 343 thin omitted)
+## Communities (715 total, 345 thin omitted)
 
 ### Community 0 - "internal/api (service_api.pb.gw.go)"
 Cohesion: 0.06
@@ -713,13 +708,11 @@ Cohesion: 0.07
 Nodes (72): AssembleConfig_Request, AssembleConfig_Response, BreakConnections_Request, BreakConnections_Response, ClientConnInterface, Context, CreateSmerd_Request, DropSmerd_Request (+64 more)
 
 ### Community 2 - "internal/api (matreshka_api.pb.go)"
-
 Cohesion: 0.04
-Nodes (20): file_matreshka_api_proto_init(), file_matreshka_api_proto_rawDescGZIP(), Message, MessageState, SizeCache,
-UnknownFields, init(), CreateConfig (+12 more)
+Nodes (19): file_matreshka_api_proto_init(), file_matreshka_api_proto_rawDescGZIP(), Message, MessageState, SizeCache,
+UnknownFields, init(), CreateConfig (+11 more)
 
 ### Community 3 - "internal/api (verv_closed_network.pb.gw.go)"
-
 Cohesion: 0.09
 Nodes (52): ClientConnInterface, ConnectService_Request, ConnectService_Response, ConnectUser_Request,
 ConnectUser_Response, Context, CreateVcnNamespace_Request, CreateVcnNamespace_Response (+44 more)
@@ -729,13 +722,11 @@ Cohesion: 0.09
 Nodes (47): ConnectSlave_Request, ConnectSlave_Response, _ControlPlaneAPI_ConnectSlave_Handler(), _ControlPlaneAPI_EnablePlugin_Handler(), _ControlPlaneAPI_ListEnvironments_Handler(), _ControlPlaneAPI_ListNodes_Handler(), _ControlPlaneAPI_ListPlugins_Handler(), ClientConnInterface (+39 more)
 
 ### Community 5 - "pkg/web (velez_api.pb.ts)"
-
 Cohesion: 0.10
 Nodes (26): connectToNetwork(), disconnectFromNetworks(), fromContainerNetwork(), ConfigTypePrefix, ContainerState,
 Context, EndpointSettings, InspectResponse (+18 more)
 
 ### Community 6 - "pkg/web (ServiceCard.tsx)"
-
 Cohesion: 0.08
 Nodes (38): SmerdStatus, AppCard(), AppCardProps, EnvChip(), EnvChipProps, FreezeChip(), IncidentChip(), MiniBar() (+30
 more)
@@ -746,50 +737,47 @@ Nodes (13): 1. DeploymentsPage (`src/pages/deployments/DeploymentsPage.tsx`), 2.
 
 ### Community 8 - "internal/storage (Storage)"
 Cohesion: 0.07
-Nodes (37): VervPluginState, NodeStatus, Dialog(), DialogManager, useDialog, Toast, Toaster, useToaster (+29 more)
+Nodes (22): ConnectService, ConnectServiceRequest, ConnectServiceResponse, ConnectUser, ConnectUserRequest,
+ConnectUserResponse, CreateVcnNamespace, CreateVcnNamespaceRequest (+14 more)
 
 ### Community 9 - "pkg/web (ServiceInfoPage.tsx)"
 
-Cohesion: 0.07
-Nodes (22): ServiceBaseInfo, SkeletonLoader(), SkeletonLoaderProps, BreadcrumbsBarProps, Crumb, QueryErrorState(),
-QueryErrorStateProps, SkeletonNodeCard() (+14 more)
+Cohesion: 0.04
+Nodes (54): ServiceBaseInfo, Toast, Toaster, useToaster, Button(), ButtonProps, TagChip(), TagChipProps (+46 more)
 
 ### Community 11 - "internal/clients (create.go)"
 
-Cohesion: 0.09
-Nodes (23): CreateServiceRequest, ConnectionHealth, ConnectionHealthStatus, useConnectionHealth(), router, Arguments,
-useCredentialsStore, queryClient (+15 more)
+Cohesion: 0.08
+Nodes (27): CreateServiceRequest, ConnectionHealth, ConnectionHealthStatus, useConnectionHealth(), Credentials, ls,
+useCredentialsStore, InitReq (+19 more)
 
 ### Community 12 - "pkg/web (DeployWidget.tsx)"
-
 Cohesion: 0.10
 Nodes (22): APIClient, Context, ReadFromContainer(), WriteToContainer(), classifyImage(), fromMatreshkaYamlToEvon(),
 fromYamlToEvon(), APIClient (+14 more)
 
 ### Community 13 - "internal/clients (PortManager)"
-
 Cohesion: 0.14
 Nodes (18): Connect(), ConnectToContainer(), getAPIAddress(), Context, Docker, Client, Container, Docker (+10 more)
 
 ### Community 14 - "internal/storage (storage.go)"
 
-Cohesion: 0.06
-Nodes (17): Pointer, Pointer, Storage, Querier, fakeClusterStorage, localStorage, stateManager, Container (+9 more)
+Cohesion: 0.05
+Nodes (20): ClusterStateManager, Storage, Pointer, NewContainer(), Context, Pointer, Storage, Querier (+12 more)
 
 ### Community 15 - "internal/pipelines (fetch_by_api.go)"
 
-Cohesion: 0.06
-Nodes (31): EnvCard(), EnvCardProps, SkeletonNodeRow(), ServiceEnvironment, ServiceResource, VervonomiconDocs,
-ControlPlanePage(), IsStatefullModeEnabled() (+23 more)
+Cohesion: 0.07
+Nodes (26): Absent, BaseEnableHeadscaleServer, BaseEnablePluginRequest, ConnectSlave, ConnectSlaveRequest,
+ConnectSlaveResponse, EnableHeadscaleServerDeployHeadscaleConfig, EnableHeadscaleServerExternalHeadscaleConnection (+18
+more)
 
 ### Community 16 - "internal/transport (Pipeliner)"
-
 Cohesion: 0.14
 Nodes (15): FromVolume(), Container_Settings, Volume, ToVolume(), Context, Docker, Volume, writeFileToContainer() (+7
 more)
 
 ### Community 17 - "internal/transport (grpcServer)"
-
 Cohesion: 0.11
 Nodes (15): CMux, Context, Listener, ServeMux, ServerOption, newGrpcServer(), Context, Listener (+7 more)
 
@@ -799,64 +787,65 @@ Nodes (7): EnumDescriptor, EnumNumber, EnumType, ConfigFormat, NodeStatus, Port_
 
 ### Community 19 - "pkg/web (index.ts)"
 
-Cohesion: 0.10
-Nodes (16): Custom, Impl, App, Context, Listener, New(), App, App (+8 more)
+Cohesion: 0.09
+Nodes (18): Custom, Impl, App, Context, Listener, New(), App, App (+10 more)
 
 ### Community 20 - "pkg/web (VervClosedNetworkPage.tsx)"
-
 Cohesion: 0.07
 Nodes (26): Absent, AssembleConfig, AssembleConfigRequest, AssembleConfigResponse, BaseCreateSmerdRequest,
 BreakConnections, BreakConnectionsRequest, BreakConnectionsResponse (+18 more)
 
 ### Community 21 - "pkg/web (Router.tsx)"
 
-Cohesion: 0.12
+Cohesion: 0.10
 Nodes (37): EnableStatefullTaskPayload, proto(), TestStartSidecarContainerJob_ContainerStartError(),
-TestStartSidecarContainerJob_Rollback_StopsContainer(), TestStartSidecarContainerJob_Success(),
-NewEnableStatefullHandler(), enableStatefullTask(), VelezTask (+29 more)
+TestStartSidecarContainerJob_NoContainerId_Error(), TestStartSidecarContainerJob_Rollback_StopsContainer(),
+TestStartSidecarContainerJob_Success(), TestStartLoaderContainerJob_ContainerStartError(),
+TestStartLoaderContainerJob_NoContainerId_Error() (+29 more)
 
 ### Community 22 - "internal/api (Context)"
 
-Cohesion: 0.09
-Nodes (23): BidiStreamingClient, ClientConnInterface, Context, ServiceRegistrar, UnaryServerInterceptor,
-Version_Request, Version_Response, _MatreshkaApi_CreateConfig_Handler() (+15 more)
+Cohesion: 0.12
+Nodes (21): ClientConnInterface, Context, ServiceRegistrar, UnaryServerInterceptor, Version_Request, Version_Response, _
+MatreshkaApi_CreateConfig_Handler(), _MatreshkaApi_DeleteConfig_Handler() (+13 more)
 
 ### Community 23 - "pkg/web (service_api.pb.ts)"
 Cohesion: 0.03
-Nodes (61): AboutService, Absent, BaseCreateDeployRequest, BaseGetServiceResponse, BoundResource, CreateDeploy, CreateDeployRequest, CreateDeployRequestUpgrade (+53 more)
+Nodes (62): AboutService, Absent, BaseCreateDeployRequest, BaseGetServiceResponse, BoundResource, CreateDeploy,
+CreateDeployRequest, CreateDeployRequestUpgrade (+54 more)
 
 ### Community 24 - "internal/clients (cluster.go)"
-
 Cohesion: 0.11
-Nodes (5): fromApiNodes(), Configurator, Context, GetConfigNode_Response, Node
+Nodes (18): Checkbox(), CheckboxProps, InfoMark(), InfoMarkProps, Search(), SearchParam, SearchProps, PortMapping() (+10
+more)
 
 ### Community 25 - "internal/storage (deployments)"
 
-Cohesion: 0.12
+Cohesion: 0.13
 Nodes (15): Deployment, DeploymentList, DeploymentSpecification, ListDeploymentsReq, Paging, Time,
 VelezDeploymentStatus, Context (+7 more)
 
 ### Community 26 - "pkg/web (PluginMatrix.tsx)"
 
-Cohesion: 0.08
-Nodes (4): isPatch_Patch, Patch, PatchConfig_Request, SubscribeOnChanges_Response
+Cohesion: 0.12
+Nodes (17): Port, Volume, ActionButton(), ActionButtonProps, VolumesWidgetProps, ValuesPair(), VolumeMappingProps,
+Bind (+9 more)
 
 ### Community 27 - "internal/app (custom.go)"
 
-Cohesion: 0.11
-Nodes (15): VervClosedNetworkClient, Context, ServiceDiscovery, SetupMakosh(), ConnectServiceToVpn(), ServiceDiscovery,
-GetClientKey(), Context (+7 more)
+Cohesion: 0.13
+Nodes (12): NewCreateSmerdHandler(), NewEnableStatefullHandler(), TestEnableStatefullHandler_Action(),
+TestEnableStatefullHandler_NewContext(), Context, Duration, Once, Ticker (+4 more)
 
 ### Community 28 - "internal/clients (client.go)"
-
 Cohesion: 0.09
 Nodes (19): Docker, BoundResource, ContainerStats, ServiceMetrics, asciiSymbolsOnly(), APIClient, Context,
 CreateResponse (+11 more)
 
 ### Community 29 - "internal/api (MessageState)"
 Cohesion: 0.08
-Nodes (9): MessageState, SizeCache, UnknownFields, ConnectSlave, ConnectSlave_Request, ConnectSlave_Response,
-ListEnvironments_Request, ListVervPlugins (+1 more)
+Nodes (9): MessageState, SizeCache, UnknownFields, ConnectSlave_Request, EnablePlugin_Response, InitMaster,
+ListEnvironments_Request, ListPlugins (+1 more)
 
 ### Community 30 - "CLAUDE.md (Velez CLAUDE.md project guide)"
 Cohesion: 0.40
@@ -872,14 +861,16 @@ Cohesion: 0.08
 Nodes (23): 1. Ubuntu / Debian (apt), 2. Homebrew (macOS), 3. Chocolatey (Windows), Community repo vs. self-hosted feed, Config file placement, Docker's host-access requirements don't disappear on macOS, Does Velez support running as a native Windows service today?, Formula structure and the goreleaser nuance (+15 more)
 
 ### Community 33 - "internal/service (list_test.go)"
-Cohesion: 0.15
-Nodes (13): Connection, Context, DropSmerd_Request, DropSmerd_Response, ListSmerds_Request, ListSmerds_Response, Service, Smerd (+5 more)
+
+Cohesion: 0.09
+Nodes (22): ListServicesReq, Paging, Context, ServiceBaseInfo, VervService, mapSmerdStatus(), Connection, Context (+14
+more)
 
 ### Community 34 - "internal/transport (deploy_list.go)"
 
-Cohesion: 0.08
-Nodes (24): NodeBaseInfo, NodeStatusFromLastOnline(), ToBasicNodeInfo(), ToNodeList(), FromPaging(), Paging, Context,
-Impl (+16 more)
+Cohesion: 0.12
+Nodes (15): FromPaging(), Paging, Context, DeploymentStatus, ListDeployments_Request, ListDeployments_Response, Impl,
+VelezDeploymentStatus (+7 more)
 
 ### Community 35 - "pkg/web (compilerOptions)"
 Cohesion: 0.08
@@ -887,37 +878,40 @@ Nodes (24): compilerOptions, allowImportingTsExtensions, allowJs, allowSynthetic
 
 ### Community 37 - "internal/config (launch.go)"
 
-Cohesion: 0.09
-Nodes (26): AliveKeeper, AppInfo, Config, EnvironmentConfig, ServersConfig, SharedInstance, sharedInstanceCtxKey,
-NewSecurityManager() (+18 more)
+Cohesion: 0.08
+Nodes (30): AliveKeeper, AppInfo, Config, EnvironmentConfig, ServersConfig, SharedInstance, sharedInstanceCtxKey,
+NewSecurityManager() (+22 more)
 
 ### Community 38 - "internal/api (VervAppService)"
-Cohesion: 0.10
-Nodes (6): EnumDescriptor, EnumNumber, EnumType, DeploymentStatus, GetVervonomicon_Response, NodeType
+
+Cohesion: 0.07
+Nodes (8): EnumDescriptor, EnumNumber, EnumType, DeploymentStatus, GetService_Response_VervService,
+GetVervonomicon_Response, NodeType, VervAppService
 
 ### Community 39 - "pkg/web (services.ts)"
-
 Cohesion: 0.13
 Nodes (14): VelezTask, Context, NullRawMessage, NullString, NullTime, Queries, VelezTask, VelezTaskStatus (+6 more)
 
 ### Community 40 - "internal/cluster (Context)"
-Cohesion: 0.06
-Nodes (16): ApiVersion_Request, ApiVersion_Response, disabledConfigurator, disabledServiceDiscovery, BidiStreamingClient, Context, ListEndpoints_Request, ListEndpoints_Response (+8 more)
+
+Cohesion: 0.08
+Nodes (14): ApiVersion_Request, ApiVersion_Response, disabledConfigurator, disabledServiceDiscovery, Context,
+ListEndpoints_Request, ListEndpoints_Response, UpsertEndpoints_Request (+6 more)
 
 ### Community 41 - "internal/pipelines (ConnectServiceToVpn())"
 
-Cohesion: 0.10
-Nodes (23): NewPortManager(), newFakeContainerService(), NewUpgradeSmerdHandler(), VelezTask, realPortManager(),
-strPtr(), TestCaptureOldContainerJob_InspectError(), TestCaptureOldContainerJob_Success() (+15 more)
+Cohesion: 0.11
+Nodes (22): NewPortManager(), newFakeContainerService(), NewUpgradeSmerdHandler(), realPortManager(), strPtr(),
+TestCaptureOldContainerJob_InspectError(), TestCaptureOldContainerJob_Success(),
+TestCheckSelfUpgradeJob_NotInsideContainer_NoOp() (+14 more)
 
 ### Community 42 - "internal/pipelines (ConfigurationService)"
 
-Cohesion: 0.17
-Nodes (9): subscribeForConfigChangesStep, unsubscribeForConfigChangesStep, NewCreateSmerdHandler(), Context,
-SubscribeForConfigChanges(), Context, UnSubscribeForConfigChanges(), createSmerdHandler (+1 more)
+Cohesion: 0.12
+Nodes (13): subscribeForConfigChangesStep, unsubscribeForConfigChangesStep, Context, SubscribeForConfigChanges(),
+Context, UnSubscribeForConfigChanges(), APIClient, Context (+5 more)
 
 ### Community 43 - "internal/api (Smerd)"
-
 Cohesion: 0.08
 Nodes (5): Timestamp, UnknownFields, NetworkBind, Smerd, Volume
 
@@ -927,15 +921,15 @@ Nodes (8): Container_Hardware, Container_Healthcheck, Container_Settings, Matres
 CreateSmerd_Request, CreateSmerd_Request_Verv, isCreateSmerd_Request_Config
 
 ### Community 45 - "internal/pipelines (LaunchSmerd)"
-
 Cohesion: 0.10
-Nodes (19): Context, CreateRequest, Docker, ServiceDiscovery, CreateRequest, TailScaleContainerSidecar(),
-addMakoshRecordJob, clientKeyAccessor (+11 more)
+Nodes (18): Context, CreateRequest, Docker, ServiceDiscovery, CreateRequest, TailScaleContainerSidecar(),
+addMakoshRecordJob, clientKeyAccessor (+10 more)
 
 ### Community 46 - "internal/api (VervPluginType)"
 
-Cohesion: 0.31
-Nodes (7): Context, ListPlugins_Response, Storage, listInactivePlugins(), NewPluginService(), Plugin, pluginService
+Cohesion: 0.09
+Nodes (11): EnumType, Context, ListPlugins_Response, Storage, listInactivePlugins(), NewPluginService(), Plugin,
+pluginService (+3 more)
 
 ### Community 47 - "pkg/web (Button.tsx)"
 Cohesion: 0.10
@@ -943,37 +937,38 @@ Nodes (23): NullInt32, NullInt64, NullRawMessage, NullString, NullTime, Time, Va
 
 ### Community 48 - "pkg/web (creds.ts)"
 
-Cohesion: 0.12
-Nodes (24): ServiceGraphNode, LIST_REQ, useGetServiceAboutQuery(), useGetServiceGraphQuery(),
-useGetServiceMetricsQuery(), useGetVervonomiconQuery(), labelLines(), nodeEdgeX() (+16 more)
+Cohesion: 0.07
+Nodes (40): EnvCard(), EnvCardProps, ServiceEnvironment, ServiceGraphNode, ServiceResource, IsStatefullModeEnabled(),
+ListEnvironmentsQuery(), LIST_REQ (+32 more)
 
 ### Community 49 - "internal/pipelines (do_copy_to_volume.go)"
-
 Cohesion: 0.12
 Nodes (18): b64, b64Decode(), b64Encode(), fetchStreamingRequest(), FlattenedRequestPayload, flattenRequestPayload(),
 getNewLineDelimitedJSONDecodingStream(), getNotifyEntityArrivalSink() (+10 more)
 
 ### Community 50 - "internal/clients (NodeClients)"
 
-Cohesion: 0.12
-Nodes (13): ListNodesReq, NodeBaseInfo, NodesList, NodeBaseInfo, Paging, Time, Context, Context (+5 more)
+Cohesion: 0.15
+Nodes (12): Context, newNodesStorage(), BoundResource, Context, Docker, newServiceResourcesStorage(), Docker, Storage (
++4 more)
 
 ### Community 51 - "internal/pipelines (.UpgradeSmerd())"
 Cohesion: 0.05
-Nodes (44): parseLogLevel(), ListNodesResponse, NodeBaseInfo, Badge(), BadgeProps, IconButton(), IconButtonProps,
-SectionLabel() (+36 more)
+Nodes (43): NodeBaseInfo, NodeStatus, Badge(), BadgeProps, SectionLabel(), SectionLabelProps, StatCard(),
+StatCardProps (+35 more)
 
 ### Community 52 - "internal/api (SubscribeOnChanges_Response)"
 
-Cohesion: 0.17
-Nodes (4): BidiStreamingServer, ServerStream, _MatreshkaApi_SubscribeOnChanges_Handler(), SubscribeOnChanges_Request
+Cohesion: 0.09
+Nodes (7): BidiStreamingServer, BidiStreamingClient, ServerStream, _MatreshkaApi_SubscribeOnChanges_Handler(),
+BidiStreamingClient, SubscribeOnChanges_Request, SubscribeOnChanges_Response
 
 ### Community 53 - "tests/e2e (T)"
 
-Cohesion: 0.06
-Nodes (78): T, TestCreateSmerdRequest_NilConfigStaysNil(), TestCreateSmerdRequest_PlainConfigSurvivesRoundTrip(),
+Cohesion: 0.07
+Nodes (69): T, TestCreateSmerdRequest_NilConfigStaysNil(), TestCreateSmerdRequest_PlainConfigSurvivesRoundTrip(),
 TestCreateSmerdRequest_SurvivesRoundTripEmbeddedInTaskPayload(), TestCreateSmerdRequest_VervConfigSurvivesRoundTrip(),
-Time, NewAssembleConfigHandler(), TestAssembleConfigHandler_Action() (+70 more)
+Time, NewAssembleConfigHandler(), TestAssembleConfigHandler_Action() (+61 more)
 
 ### Community 54 - "internal/api (AboutService)"
 Cohesion: 0.09
@@ -988,9 +983,10 @@ Cohesion: 0.05
 Nodes (37): dependencies, framer-motion, @hookstate/core, @microlink/react-json-view, react, react-dom, react-highlight, react-json-pretty (+29 more)
 
 ### Community 58 - "internal/storage (ListServicesReq)"
-Cohesion: 0.09
-Nodes (20): ListServicesReq, Paging, Context, Queries, newServiceDependenciesStorage(), BoundResource, Context,
-countTotal() (+12 more)
+
+Cohesion: 0.10
+Nodes (17): Context, Queries, newServiceDependenciesStorage(), BoundResource, Context, countTotal(),
+fromStorageToDomainService(), Context (+9 more)
 
 ### Community 59 - "internal/api (control_plane_api.pb.go)"
 Cohesion: 0.12
@@ -1005,7 +1001,6 @@ Cohesion: 0.10
 Nodes (3): Timestamp, GetServiceEnvironments_Response, ServiceEnvironmentInfo
 
 ### Community 62 - "internal/clients (state.go)"
-
 Cohesion: 0.15
 Nodes (11): firstNotEmptyKey(), Once, State, readStateFromPath(), writeKey(), ClusterState, Headscale, Manager (+3 more)
 
@@ -1016,12 +1011,17 @@ Context, Queries, Tx, newDeploymentsStorage() (+6 more)
 
 ### Community 64 - "pkg/web (ServiceService)"
 
-Cohesion: 0.11
-Nodes (19): APIClient, Context, Docker, MatreshkaConfigSpec, PlainConfigSpec, containerIDAccessor, copyToContainerJob,
-createContainerJob (+11 more)
+Cohesion: 0.10
+Nodes (20): APIClient, Context, Docker, MatreshkaConfigSpec, PlainConfigSpec, containerIDAccessor, copyToContainerJob,
+createContainerJob (+12 more)
+
+### Community 65 - "pkg/web (HomePage.tsx)"
+
+Cohesion: 0.12
+Nodes (7): file_matreshka_common_proto_init(), init(), isPatch_Patch, Patch, Patch_Delete, Patch_Rename,
+Patch_UpdateValue
 
 ### Community 66 - "internal/storage (docker_impl.go)"
-
 Cohesion: 0.18
 Nodes (8): Docker, FromContainerToRequest(), Context, NetworkBind, Smerd, upgradeSmerdHandler, ContainerService,
 fromContainerToRequest
@@ -1033,39 +1033,33 @@ imageExposedPortsAccessor, prepareSmerdVervConfigJob, prepareUpgradeVervConfigJo
 
 ### Community 68 - "internal/api (VervPlugin_State)"
 
-Cohesion: 0.09
-Nodes (6): EnumDescriptor, EnumNumber, EnumType, VervPlugin, VervPlugin_State, VervPluginType
+Cohesion: 0.12
+Nodes (4): EnumDescriptor, EnumNumber, ListEnvironments_Response, VervPlugin_State
 
 ### Community 69 - "pkg/web (service.ts)"
 
-Cohesion: 0.11
-Nodes (19): New(), NewTxManager(), Queries, newDeploymentsStorage(), Queries, newJobsStorage(), Queries, newServiceResourcesStorage() (+11 more)
+Cohesion: 0.08
+Nodes (25): New(), NewTxManager(), Queries, newDeploymentsStorage(), Queries, newJobsStorage(), calculatePluginState(),
+Context (+17 more)
 
 ### Community 70 - "pkg/web (verv_closed_network.pb.ts)"
 
-Cohesion: 0.17
-Nodes (10): Closable, Context, NodeBaseInfo, Querier, SelectBuilder, newNodeStorage(), scanNode(), CloseWithLog() (+2
-more)
+Cohesion: 0.10
+Nodes (18): ListNodesReq, NodeBaseInfo, NodesList, NodeBaseInfo, Paging, Time, Context, Storage (+10 more)
 
 ### Community 71 - "internal/storage (models.go)"
 Cohesion: 0.10
 Nodes (23): NullVelezDeploymentStatus, NullVelezJobStatus, NullVelezTaskStatus, VelezDeployment, VelezDeploymentSpecification, VelezDeploymentStatus, VelezJob, VelezJobStatus (+15 more)
 
 ### Community 72 - "internal/domain (service.go)"
-Cohesion: 0.23
-Nodes (7): Context, Mutex, Queries, Tx, VelezTask, newTasksStorage(), tasks
+
+Cohesion: 0.16
+Nodes (12): ClusterClients, staticStorage, Pipeliner, NewPipeliner(), Context, New(), Context, NewStatic() (+4 more)
 
 ### Community 73 - "tests/e2e (NewEnvironment())"
-
 Cohesion: 0.06
 Nodes (40): ControlPlaneSuite, LifecycleSuite, StateOpt, TestEnvironment, TestEnvOpt, UpgradeSmerdSuite,
 addTestLabels(), AssertSmerds() (+32 more)
-
-### Community 74 - "internal/api (velez_common.pb.go)"
-
-Cohesion: 0.31
-Nodes (8): DeploymentInfo, DeploymentHistoryProps, DeployRow(), DeployRowProps, formatTimestamp(), getStatusClass(),
-parseImageTag(), TODO: replace with git commit hash when GetServiceGraph adds git field
 
 ### Community 75 - "internal/storage (models.go)"
 Cohesion: 0.10
@@ -1088,31 +1082,24 @@ Cohesion: 0.10
 Nodes (23): NullInt32, NullInt64, NullRawMessage, NullString, NullTime, Time, Value, NullVelezDeploymentStatus (+15 more)
 
 ### Community 81 - "internal/pipelines (fetch_from_container.go)"
-
 Cohesion: 0.13
 Nodes (9): AppConfig, ConfigMeta, ConfigurationPatch, ConfigFormat, ConfigTypePrefix, Configurator, Context,
 Configurator (+1 more)
 
-### Community 83 - "internal/storage (EnvironmentsStorage)"
+### Community 82 - "internal/storage (service_dependencies.go)"
 
-Cohesion: 0.08
-Nodes (7): storeConfigStep, Configurator, Context, StoreConfig(), Format, GetConfig_Request, SaveConfig_Request
+Cohesion: 0.13
+Nodes (6): Mutex, Service, State, fakeNodesStorage, fakeServicesStorage, fakeStateManager
 
 ### Community 86 - "internal/api (Format)"
 Cohesion: 0.21
 Nodes (9): AutoUpgrade, Tx, APIClient, Context, Duration, Once, Summary, imageNameWithoutTag() (+1 more)
 
-### Community 87 - "internal/api (service_api.pb.go)"
-
-Cohesion: 0.10
-Nodes (19): ConnectService, ConnectServiceRequest, ConnectServiceResponse, ConnectUser, ConnectUserResponse,
-CreateVcnNamespace, CreateVcnNamespaceRequest, CreateVcnNamespaceResponse (+11 more)
-
 ### Community 88 - "internal/api (Message)"
 
-Cohesion: 0.09
-Nodes (23): createPgUserStep, RollMigration(), getExposedPgPort(), Container, Context, InspectResponse,
-CreatePgUserForNode(), Context (+15 more)
+Cohesion: 0.07
+Nodes (35): extract_message(), main(), createPgUserStep, RollMigration(), getExposedPgPort(), Context, InspectResponse,
+WithExposedPort() (+27 more)
 
 ### Community 90 - "internal/api (ListDeployments_Request)"
 Cohesion: 0.13
@@ -1120,18 +1107,28 @@ Nodes (3): Paging, ListDeployments_Request, ListServices_Request
 
 ### Community 91 - "internal/api (SizeCache)"
 
-Cohesion: 0.06
-Nodes (32): AboutService, CreateDeployReq, CreateServiceReq, GetServiceReq, RemoveServiceReq, Service, ServiceBaseInfo,
-ServiceList (+24 more)
+Cohesion: 0.09
+Nodes (24): AboutService, CreateDeployReq, CreateServiceReq, GetServiceReq, RemoveServiceReq, Service, ServiceBaseInfo,
+ServiceList (+16 more)
+
+### Community 92 - "internal/api (UnknownFields)"
+
+Cohesion: 0.12
+Nodes (14): AssembleConfigTaskPayload, ConnectServiceToVpnTaskPayload, CopyToVolumeTaskPayload,
+CreateServiceTaskPayload, CreateSmerdTaskPayload, DropSmerdTaskPayload, EnableStatefullTaskPayload, TasksApi (+6 more)
+
+### Community 93 - "internal/api (GetConfig_Request)"
+
+Cohesion: 0.18
+Nodes (3): UnknownFields, BreakConnections_Response, CreateSmerd
 
 ### Community 94 - "pkg/web (Input.tsx)"
 
-Cohesion: 0.17
-Nodes (11): LaunchSmerd, LaunchSmerdResult, CreateSmerd_Request, pipeliner, APIClient, Context, Healthcheck(), Context (
-+3 more)
+Cohesion: 0.09
+Nodes (22): copyToContainerStep, FileMountPoint, LaunchSmerd, LaunchSmerdResult, CreateSmerd_Request, pipeliner,
+FetchConfig(), CopyToContainer() (+14 more)
 
 ### Community 98 - "internal/service (configurator.go)"
-
 Cohesion: 0.50
 Nodes (4): Configurator, MatreshkaBeAPI_SubscribeOnChangesClient, MatreshkaBeAPIClient, New()
 
@@ -1144,25 +1141,25 @@ Cohesion: 0.20
 Nodes (7): Connection, DropSmerd_Request, DropSmerd_Response, ListSmerds_Request, ListSmerds_Response, Smerd, fakeContainerService
 
 ### Community 103 - "internal/api (SaveConfig_Request)"
-Cohesion: 0.06
-Nodes (28): CopyToContainerOptions, CreateOptions, Context, APIClient, Context, CreateResponse, EndpointSettings,
-ExecOptions (+20 more)
+
+Cohesion: 0.07
+Nodes (24): CopyToContainerOptions, CreateOptions, Context, APIClient, Context, CreateResponse, EndpointSettings,
+ExecOptions (+16 more)
 
 ### Community 104 - "pkg/web (control_plane.ts)"
 
-Cohesion: 0.12
-Nodes (14): CopyToVolumeRequest, pipeliner, NewCopyToVolumeRunner(), pipeliner, Runner, DropContainerStep(), Context,
-Docker (+6 more)
+Cohesion: 0.10
+Nodes (18): CopyToVolumeRequest, pipeliner, NewCopyToVolumeRunner(), pipeliner, Runner, DropContainerStep(), Context,
+Docker (+10 more)
 
 ### Community 105 - "pkg/web (Sidebar.tsx)"
 Cohesion: 0.14
-Nodes (15): Checkbox(), CheckboxProps, InfoMark(), InfoMarkProps, Search(), SearchParam, SearchProps, PortMapping() (+7
-more)
+Nodes (12): MainLayout(), NAV_TO_ROUTE, NavId, ROUTE_TO_NAV, TOOL_TO_ROUTE, ToolId, router, Arguments (+4 more)
 
 ### Community 109 - "internal/api (Sort_Type)"
-
 Cohesion: 0.08
-Nodes (6): EnumDescriptor, EnumNumber, EnumType, ConfigType, CreateConfig_Request, Sort_Type
+Nodes (7): file_matreshka_common_proto_rawDescGZIP(), EnumDescriptor, EnumNumber, EnumType, ConfigType, Format,
+Sort_Type
 
 ### Community 110 - "internal/api (BreakConnections_Request)"
 Cohesion: 0.15
@@ -1172,24 +1169,21 @@ Nodes (3): Connection, BreakConnections_Request, MakeConnections_Request
 Cohesion: 0.16
 Nodes (11): Context, Docker, ListEndpoints_Request, ListEndpoints_Response, ServiceDiscovery, UpsertEndpoints_Request, UpsertEndpoints_Response, Version_Request (+3 more)
 
-### Community 113 - "pkg/web (SmerdsWidget.tsx)"
-
-Cohesion: 0.24
-Nodes (8): ToDockerEnv(), ContainerManager, Context, Smerd, APIClient, ContainerManager, Docker, New()
-
 ### Community 114 - "Community 114"
 Cohesion: 0.18
 Nodes (10): CSS, EnvChip, EnvChip, FreezeChip, FreezeChip, IncidentChip, IncidentChip, Notes (+2 more)
 
 ### Community 115 - "internal/api (velez_api.pb.go)"
-Cohesion: 0.20
-Nodes (3): CreateDeploy_Request_Upgrade, CreateDeploy_Request, isCreateDeploy_Request_Specification
+
+Cohesion: 0.12
+Nodes (6): file_service_api_proto_init(), CreateDeploy_Request_Upgrade, init(), CreateDeploy_Request, GetVervonomicon,
+isCreateDeploy_Request_Specification
 
 ### Community 116 - "internal/api (Message)"
 
-Cohesion: 0.05
-Nodes (42): Absent, BaseEnableHeadscaleServer, BaseEnablePluginRequest, ConnectSlave, ConnectSlaveRequest,
-ConnectSlaveResponse, ControlPlaneAPI, EnableHeadscaleServer (+34 more)
+Cohesion: 0.06
+Nodes (47): ControlPlaneAPI, EnableHeadscaleServer, EnableStatefullCluster, ListEnvironmentsResponse, ListNodesResponse,
+VervPlugin, VervPluginState, VervPluginType (+39 more)
 
 ### Community 117 - "internal/clients (Filter)"
 Cohesion: 0.19
@@ -1205,9 +1199,9 @@ Nodes (13): Context, CreateSmerd_Request, Handler, ServerStreamingServer, TaskSt
 
 ### Community 120 - "pkg/web (DeploymentHistory.tsx)"
 
-Cohesion: 0.07
-Nodes (33): DeploymentStatus, CreateSmerdRequest, TagChip(), TagChipProps, DeploymentStatusBadge(),
-DeploymentStatusBadgeProps, STATUS_COLOR, STATUS_DIM (+25 more)
+Cohesion: 0.11
+Nodes (21): DeploymentInfo, DeploymentStatus, CreateSmerdRequest, DeploymentStatusBadge(), DeploymentStatusBadgeProps,
+STATUS_COLOR, STATUS_DIM, SkeletonDeploymentHistory() (+13 more)
 
 ### Community 124 - ".claude/factory (factory.sh)"
 Cohesion: 0.35
@@ -1218,39 +1212,26 @@ Cohesion: 0.16
 Nodes (18): App (Velez Dashboard reference mockup), Badge component (mockup), ControlPlaneTab component (mockup), DeployDialog (multi-step deploy modal), DeploymentsTab (kanban + list view), EnvChip component (mockup), FreezChip (release-freeze chip, mockup), IncidentChip component (mockup) (+10 more)
 
 ### Community 126 - "tests/e2e (helper_environment.go)"
-
 Cohesion: 0.11
-Nodes (15): HealthConfig, FromCommand(), FromHealthcheck(), Container_Healthcheck, FromDockerEnv(), FromRestart(),
-RestartPolicy, Create() (+7 more)
+Nodes (16): HealthConfig, FromCommand(), FromHealthcheck(), Container_Healthcheck, FromDockerEnv(), ToDockerEnv(),
+FromRestart(), RestartPolicy (+8 more)
 
 ### Community 127 - "internal/api (ConfigBase)"
 Cohesion: 0.27
 Nodes (5): HelloWorldClusterSuite, APIClient, Context, Smerd, Suite
-
-### Community 129 - "tests/e2e (TestEnvironment)"
-
-Cohesion: 0.12
-Nodes (4): MessageState, RemoveService, RemoveService_Response, RestartService_Response
 
 ### Community 131 - "internal/transport (.CreateDeploy())"
 Cohesion: 0.29
 Nodes (7): CreateSmerd_Request, Context, CreateDeploy_Request, CreateDeploy_Request_Upgrade_, CreateDeploy_Response, Impl, CreateDeploy_Request_New
 
 ### Community 132 - "internal/api (MessageState)"
-
 Cohesion: 0.18
 Nodes (4): MessageState, SizeCache, Container, PlainConfigSpec
 
 ### Community 133 - "internal/pipelines (Step)"
-
 Cohesion: 0.08
-Nodes (19): runner, AddMakoshRecord(), Context, ServiceDiscovery, Context, ServiceBaseInfo, Storage,
-UpsertServiceState() (+11 more)
-
-### Community 134 - "internal/storage (New())"
-
-Cohesion: 0.17
-Nodes (5): file_velez_api_proto_init(), PlainConfigSpec, init(), CreateSmerd_Request_Plain, GetHardware
+Nodes (20): createContainerStep, runner, Create(), APIClient, Context, CreateRequest, Docker, AddMakoshRecord() (+12
+more)
 
 ### Community 135 - "internal/storage (services.go)"
 Cohesion: 0.24
@@ -1258,41 +1239,36 @@ Nodes (8): containerStateToDeploymentStatus(), containerStateToString(), Context
 
 ### Community 136 - "pkg/web (ResourcesSection.tsx)"
 
-Cohesion: 0.07
-Nodes (17): Pointer, NewContainer(), Container, Docker, APIClient, ContainerState, Context, EndpointSettings (+9 more)
+Cohesion: 0.09
+Nodes (10): Pointer, NewContainer(), Container, Docker, fakeNodeClients, Docker, HardwareManager, StateManager (+2 more)
 
 ### Community 140 - "Community 140"
 
-Cohesion: 0.12
-Nodes (17): Port, Volume, ActionButton(), ActionButtonProps, VolumesWidgetProps, ValuesPair(), VolumeMappingProps,
-Bind (+9 more)
+Cohesion: 0.22
+Nodes (6): Closable, Context, Client, Context, Client, CloseWithLog()
 
 ### Community 142 - "internal/pipelines (create.go)"
 
-Cohesion: 0.05
-Nodes (16): file_matreshka_common_proto_init(), file_matreshka_common_proto_rawDescGZIP(), Message, MessageState,
-SizeCache, Timestamp, UnknownFields, init() (+8 more)
+Cohesion: 0.07
+Nodes (9): Message, MessageState, SizeCache, Timestamp, UnknownFields, ConfigBase, ConfigInfo, Paging (+1 more)
 
 ### Community 143 - "internal/api (CreateDeploy_Request)"
 
-Cohesion: 0.15
-Nodes (22): ConnectServiceToVpnTaskPayload, NewConnectServiceToVpnHandler(), connectServiceToVpnTask(), VelezTask,
+Cohesion: 0.14
+Nodes (23): ConnectServiceToVpnTaskPayload, NewConnectServiceToVpnHandler(), connectServiceToVpnTask(), VelezTask,
 TestAddMakoshRecordJob_Success(), TestAddMakoshRecordJob_UpsertError(), TestConnectServiceToVpnHandler_Action(),
-TestConnectServiceToVpnHandler_BuildJobs_NamesAndOrder() (+14 more)
+TestConnectServiceToVpnHandler_BuildJobs_NamesAndOrder() (+15 more)
 
 ### Community 144 - "internal/api (file_velez_api_proto_rawDescGZIP())"
 
-Cohesion: 0.21
-Nodes (13): extract_message(), main(), WithExposedPort(), WithInstanceName(), WithPassword(), WithPort(),
-basicPostgresConstructor(), CreateRequest (+5 more)
+Cohesion: 0.18
+Nodes (8): envContainer, pgStorage, Context, Pointer, NewContainer(), Context, NewPg(), EnvironmentsStorage
 
 ### Community 147 - "internal/api (SizeCache)"
-
 Cohesion: 0.19
 Nodes (10): Cors, HandlerFunc, Handler, Listener, ServeMux, Server, newHTTPServer(), setUpCors() (+2 more)
 
 ### Community 150 - "internal/api (Message)"
-
 Cohesion: 0.25
 Nodes (3): file_verv_closed_network_proto_init(), init(), DeleteVcnNamespace
 
@@ -1302,35 +1278,35 @@ Nodes (8): BreakConnections_Request, BreakConnections_Response, Connection, Cont
 
 ### Community 152 - "pkg/web (ControlPlanePage.tsx)"
 
-Cohesion: 0.09
-Nodes (44): CopyToVolumeTaskPayload, Checkpoint(), Context, TestCheckpoint_FailFastWhenFailed(),
+Cohesion: 0.10
+Nodes (45): CopyToVolumeTaskPayload, Checkpoint(), Context, TestCheckpoint_FailFastWhenFailed(),
 TestCheckpoint_RunsAndPersistsContextOnSuccess(), TestCheckpoint_SkipsWhenDone(),
-TestConnectServiceToVpnHandler_HappyPath_EndToEnd(), copyToVolumeTask() (+36 more)
-
-### Community 153 - "internal/api (EnableStatefullCluster)"
-
-Cohesion: 0.11
-Nodes (4): EnablePlugin_Request, EnablePlugin_Request_StatefullCluster, EnableStatefullCluster,
-isEnablePlugin_Request_Payload
+TestConnectServiceToVpnHandler_HappyPath_EndToEnd(), copyToVolumeTask() (+37 more)
 
 ### Community 156 - "internal/transport (VcnNamespace)"
 Cohesion: 0.16
 Nodes (11): Context, CreateVcnNamespace_Request, CreateVcnNamespace_Response, Impl, Context, ListVcnNamespaces_Request, ListVcnNamespaces_Response, Impl (+3 more)
 
+### Community 157 - "internal/api (ListConfigs_Request)"
+
+Cohesion: 0.11
+Nodes (3): Paging, ListConfigs_Request, ListConfigs_Response
+
 ### Community 158 - "internal/api (file_control_plane_api_proto_rawDescGZIP())"
-Cohesion: 0.31
-Nodes (6): createContainerStep, Create(), APIClient, Context, CreateRequest, Docker
+
+Cohesion: 0.26
+Nodes (12): GetInitReq(), InitReq, keyPath(), pathPrefixPath(), StoreApiKey(), StorePathPrefix(), FetchSmerd(),
+FetchSmerds() (+4 more)
 
 ### Community 159 - "tests/e2e (suite_hello_world_cluster_test.go)"
-
 Cohesion: 0.07
 Nodes (17): AssembleConfigJobSuite, AssembleConfigSuite, EnableStatefullSuite, Context, runner[T], Context, Suite,
 Test_AssembleConfigJob() (+9 more)
 
 ### Community 161 - "pkg/web (VcnApi)"
 
-Cohesion: 0.08
-Nodes (4): Message, CreateService_Response, GetServiceResources_Request, GetVervonomicon_Request
+Cohesion: 0.31
+Nodes (4): VpnSuite, Context, Suite, Test_Vpn()
 
 ### Community 162 - "pkg/web (compilerOptions)"
 Cohesion: 0.22
@@ -1342,9 +1318,9 @@ Nodes (5): Synchronizer, Client, Context, MatreshkaBeAPI_SubscribeOnChangesClien
 
 ### Community 166 - "internal/pipelines (create_and_inspect.go)"
 
-Cohesion: 0.07
-Nodes (22): ClusterStateManager, ClusterStateManagerContainer, Configurator, ServiceDiscovery, clusterClients,
-MakoshBeAPIClient, MatreshkaBeAPIClient, Storage (+14 more)
+Cohesion: 0.11
+Nodes (15): VervClosedNetworkClient, Context, ServiceDiscovery, SetupMakosh(), ConnectServiceToVpn(), ServiceDiscovery,
+GetClientKey(), Context (+7 more)
 
 ### Community 167 - "internal/domain (images.go)"
 Cohesion: 0.31
@@ -1352,26 +1328,24 @@ Nodes (7): ImageListRequest, ImageSearchRequest, APIClient, Context, Image, List
 
 ### Community 168 - "internal/cluster (DisabledVcnImpl)"
 
-Cohesion: 0.07
-Nodes (22): ConnectServiceToVcn, GetVcnAuthKeyReq, IssueClientKey, ListVpnNamespaces, RegisterVcnNodeReq, VcnAuthKey,
-VcnNamespace, Context (+14 more)
+Cohesion: 0.05
+Nodes (28): ConnectServiceToVcn, GetVcnAuthKeyReq, IssueClientKey, ListVpnNamespaces, RegisterVcnNodeReq,
+SetupHeadscaleRequest, SetupHeadscaleResponse, VcnAuthKey (+20 more)
 
 ### Community 170 - "internal/clients (api_key_issue.go)"
 Cohesion: 0.32
 Nodes (5): getPgDbDsn, GetRgRootDsn(), Context, Docker, InspectResponse
 
 ### Community 171 - "internal/api (matreshka_common.pb.go)"
-
 Cohesion: 0.16
-Nodes (10): Code, fetchConfigStep, RespError, FetchConfig(), Context, InspectResponse, MatreshkaConfigSpec,
-PlainConfigSpec (+2 more)
+Nodes (9): Code, fetchConfigStep, RespError, Context, InspectResponse, MatreshkaConfigSpec, PlainConfigSpec,
+isPostgresByImageTags() (+1 more)
 
 ### Community 174 - "internal/storage (service_dependencies.sql.go)"
 Cohesion: 0.33
 Nodes (5): Context, Queries, GetServiceCallersRow, GetServiceDependenciesRow, UpsertServiceDependencyParams
 
 ### Community 175 - "pkg/web (package.json)"
-
 Cohesion: 0.13
 Nodes (6): MessageState, SizeCache, UnknownFields, CreateServiceTaskPayload, WatchTask, WatchTask_Request
 
@@ -1381,24 +1355,17 @@ Nodes (8): Backlog (suggested order — confirm before starting if you'd rather 
 
 ### Community 189 - "internal/patterns (headscale.go)"
 
-Cohesion: 0.21
-Nodes (8): ListSmerdsRequest, Settings, SettingsBase, storeToLocalStorage(), useSettings(), SmerdCard(), ListSmerds(),
-SmerdsWidget()
+Cohesion: 0.40
+Nodes (4): CheckSidecarExist(), Context, Docker, checkSidecarExist
 
 ### Community 190 - "TestEnvironment"
 
-Cohesion: 0.28
-Nodes (6): Context, ServiceBaseInfo, VervService, mapSmerdStatus(), TestMapSmerdStatus(), Smerd_Status
+Cohesion: 0.33
+Nodes (5): Context, ServiceBaseInfo, Storage, UpsertServiceState(), upsertServiceState
 
 ### Community 193 - "internal/patterns (.EnableStatefullMode())"
-
 Cohesion: 0.12
-Nodes (3): file_service_api_proto_rawDescGZIP(), GetServiceEnvironments, RestartService_Request
-
-### Community 194 - "PortsWidget.tsx"
-
-Cohesion: 0.40
-Nodes (4): CheckSidecarExist(), Context, Docker, checkSidecarExist
+Nodes (3): file_service_api_proto_rawDescGZIP(), GetServiceEnvironments, RestartService
 
 ### Community 195 - "internal/api (GetConfigNode_Request)"
 Cohesion: 0.20
@@ -1407,11 +1374,6 @@ Nodes (9): Artel "Tract", Common ground (both systems converged independently �
 ### Community 196 - "internal/api (GetConfigNode_Response)"
 Cohesion: 0.09
 Nodes (20): Agent code of conduct, API (Proto definitions in `api/grpc/`), Architecture, Building, Code Generation, Code Style, Commands, Configuration (+12 more)
-
-### Community 197 - "Paging"
-
-Cohesion: 0.31
-Nodes (5): APIClient, Context, InspectResponse, PrepareVervConfig(), prepareVervConfig
 
 ### Community 208 - ".claude/factory (review.sh)"
 Cohesion: 0.52
@@ -1422,7 +1384,6 @@ Cohesion: 0.38
 Nodes (5): DBTX, Queries, Queries, Tx, New()
 
 ### Community 212 - "Version_Response"
-
 Cohesion: 0.15
 Nodes (7): InputProps, StyleProps, KeyValueProps, PlainMapProps, InputSearchProps, VolumeMappingProps, SuggestElem
 
@@ -1469,8 +1430,8 @@ Nodes (3): ErrorBoundary, Props, State
 
 ### Community 224 - "internal/api (AssembleConfig_Response)"
 
-Cohesion: 0.16
-Nodes (13): ClusterClients, Pipeliner, NewPipeliner(), APIClient, Context, Handler, ServiceRegistrar, Impl (+5 more)
+Cohesion: 0.12
+Nodes (4): MessageState, CreateService, GetServiceMetrics, RemoveService
 
 ### Community 225 - "internal/api (CreateService_Request)"
 Cohesion: 0.33
@@ -1478,28 +1439,23 @@ Nodes (5): Component, CSS, Props interface, T15 — CodeBlock, What it looks lik
 
 ### Community 228 - "internal/api (GetService_Request)"
 
-Cohesion: 0.43
-Nodes (7): ConnectToNetworkRequest, ConnectToNetwork(), CreateNetwork(), DisconnectFromNetworks(), APIClient, Context,
-EndpointSettings
+Cohesion: 0.16
+Nodes (14): ConnectToNetworkRequest, ConnectToNetwork(), CreateNetwork(), DisconnectFromNetworks(), APIClient, Context,
+EndpointSettings, APIClient (+6 more)
 
 ### Community 229 - "internal/api (GetServiceEnvironments_Request)"
-
-Cohesion: 0.12
-Nodes (3): Message, EnablePlugin, InitMaster_Response
+Cohesion: 0.20
+Nodes (13): FromPorts(), Container_Settings, ToPort(), ToPortProtocol(), ToPortsMapping(), ToPortsSlice(), ContainerManager, Context (+5 more)
 
 ### Community 231 - "internal/api (GetServiceResources_Request)"
 
 Cohesion: 0.12
-Nodes (4): UnknownFields, CreateDeploy, GetService, GetServiceGraph
+Nodes (4): SizeCache, CreateDeploy, CreateDeploy_Response, CreateService_Response
 
-### Community 232 - "internal/api (GetVervonomicon_Request)"
+### Community 236 - "GetServiceGraph"
 
-Cohesion: 0.22
-Nodes (3): ConnectUserRequest, VcnApi, ConnectUserToVcn()
-
-### Community 236 - "internal/domain (node.go)"
-Cohesion: 0.20
-Nodes (13): FromPorts(), Container_Settings, ToPort(), ToPortProtocol(), ToPortsMapping(), ToPortsSlice(), ContainerManager, Context (+5 more)
+Cohesion: 0.12
+Nodes (4): UnknownFields, GetService, GetServiceGraph, ListServices
 
 ### Community 237 - "tests/e2e (suite_control_plane_test.go)"
 Cohesion: 0.13
@@ -1517,26 +1473,32 @@ Nodes (3): Args, New(), Filter
 Cohesion: 0.13
 Nodes (13): API calls, Architecture, Coding Rules, Commands, Environment, Exploration Rules, Layer structure, Proto regeneration (+5 more)
 
-### Community 241 - "Exec"
+### Community 241 - "selectiveFailDocker"
 
-Cohesion: 0.25
-Nodes (7): Credentials, ls, InitReq, keyPath(), pathPrefixPath(), StoreApiKey(), StorePathPrefix()
+Cohesion: 0.23
+Nodes (7): Context, Mutex, Queries, Tx, VelezTask, newTasksStorage(), tasks
 
 ### Community 242 - "pkg/web (.GetService())"
 Cohesion: 0.40
 Nodes (4): Context, RemoveService_Request, RemoveService_Response, Impl
 
 ### Community 244 - "internal/api (ConnectSlave_Response)"
-Cohesion: 0.13
-Nodes (12): Queries, Tx, VelezJob, Context, Queries, NullString, VelezJob, fakeJobsStorage (+4 more)
+
+Cohesion: 0.12
+Nodes (16): Context, Mutex, Queries, Tx, VelezJob, jobKey(), newJobsStorage(), Context (+8 more)
+
+### Community 245 - "internal/api (CreateDeploy)"
+
+Cohesion: 0.12
+Nodes (3): Message, InitMaster_Request, ListNodes
 
 ### Community 248 - "internal/api (GetHardware_Request)"
 
-Cohesion: 0.08
-Nodes (18): patchStartAPIField(), Context, Docker, Context, Duration, Once, Ticker, VelezTask (+10 more)
+Cohesion: 0.09
+Nodes (17): patchStartAPIField(), sortedFilePaths(), TestSortedFilePaths_Empty(), Context, Docker, Container,
+patchEnableStatefullDockerFields(), copyToVolumeHandler (+9 more)
 
 ### Community 249 - "internal/api (InitMaster_Response)"
-
 Cohesion: 0.22
 Nodes (6): Configurator, Context, Configurator, Context, AppendPrefix(), ConfigTypePrefix
 
@@ -1546,24 +1508,19 @@ Nodes (3): DropSmerd_Request, DropSmerd_Response_Error, DropSmerdTaskPayload
 
 ### Community 257 - "internal/api (MakeConnections_Response)"
 
-Cohesion: 0.12
-Nodes (4): SizeCache, CreateDeploy_Response, CreateService, GetServiceMetrics
-
-### Community 258 - ".ConnectService"
-
-Cohesion: 0.10
-Nodes (15): ContainerManager, staticStorage, Storage, NewService(), Configurator, Container, Context, Docker (+7 more)
+Cohesion: 0.11
+Nodes (3): Message, GetServiceResources_Request, GetVervonomicon_Request
 
 ### Community 259 - "internal/api (StopService)"
 Cohesion: 0.40
-Nodes (4): MatreshkaConfigSpec, PlainConfigSpec, RawMessage, createSmerdRequestJSON
+Nodes (5): MatreshkaConfigSpec, PlainConfigSpec, RawMessage, createSmerdRequestJSON, rawCreateSmerdRequest
 
 ### Community 260 - "ListNodes"
-Cohesion: 0.27
-Nodes (7): InitReq, Errors, GrpcError, parseGrpcError(), ServiceError, ApiService, withRetries()
+
+Cohesion: 0.47
+Nodes (4): storeConfigStep, Configurator, Context, StoreConfig()
 
 ### Community 261 - "internal/api (UpgradeSmerd)"
-
 Cohesion: 0.18
 Nodes (3): SizeCache, DropSmerd, UpgradeSmerd
 
@@ -1576,8 +1533,9 @@ Cohesion: 0.70
 Nodes (4): err(), log(), ok(), new-task.sh script
 
 ### Community 265 - "jobs"
-Cohesion: 0.25
-Nodes (8): Context, Mutex, Queries, Tx, VelezJob, jobKey(), newJobsStorage(), jobs
+
+Cohesion: 0.18
+Nodes (4): fromApiNodes(), Configurator, Context, Node
 
 ### Community 266 - "internal/service (.ConnectToNetwork())"
 Cohesion: 0.60
@@ -1607,10 +1565,11 @@ Nodes (3): Manager, GetHardware_Response, New()
 Cohesion: 0.40
 Nodes (4): APIClient, Context, Image, PullImage()
 
-### Community 276 - "internal/clients (volume.go)"
+### Community 276 - ".ListNodes"
 
-Cohesion: 0.31
-Nodes (4): VpnSuite, Context, Suite, Test_Vpn()
+Cohesion: 0.25
+Nodes (9): NodeBaseInfo, NodeStatusFromLastOnline(), ToBasicNodeInfo(), ToNodeList(), Context, Impl, ListNodes_Request,
+ListNodes_Response (+1 more)
 
 ### Community 277 - "VelezAPI"
 Cohesion: 0.19
@@ -1662,8 +1621,9 @@ Nodes (4): Context, DeleteVcnNamespace_Request, DeleteVcnNamespace_Response, Imp
 
 ### Community 289 - "getConfigFromContainerStep"
 
-Cohesion: 0.39
-Nodes (5): copyToContainerStep, FileMountPoint, CopyToContainer(), APIClient, Context
+Cohesion: 0.10
+Nodes (15): ClusterStateManagerContainer, Configurator, ServiceDiscovery, clusterClients, MakoshBeAPIClient,
+MatreshkaBeAPIClient, Client, Configurator (+7 more)
 
 ### Community 291 - "internal/transport (.ConnectUser())"
 Cohesion: 0.40
@@ -1727,8 +1687,8 @@ Nodes (3): IMAGE, run_velez.sh script, VELEZ_PORT_GRPC
 
 ### Community 308 - "internal/app (.saveSelfConfig())"
 
-Cohesion: 0.29
-Nodes (4): Context, createServiceHandler, serviceNameAccessor, upsertServiceJob
+Cohesion: 0.18
+Nodes (5): Context, createServiceHandler, serviceNameAccessor, upsertServiceJob, ServicesStorage
 
 ### Community 310 - "PostgreSQL Database"
 Cohesion: 0.67
@@ -1750,10 +1710,6 @@ Nodes (13): Velez — Features, `auth.yaml` — inter-service access control, `c
 Cohesion: 0.31
 Nodes (6): Context, CreateSmerd_Request, ServerStreamingServer, TaskStatus, WatchTask_Request, ServerStreamingClient
 
-### Community 342 - "RemoveService_Response"
-Cohesion: 0.15
-Nodes (12): AssembleConfigTaskPayload, ConnectServiceToVpnTaskPayload, CopyToVolumeTaskPayload, CreateServiceTaskPayload, CreateSmerdTaskPayload, DropSmerdTaskPayload, EnableStatefullTaskPayload, TaskStatus (+4 more)
-
 ### Community 351 - "pkg/web (react)"
 Cohesion: 0.13
 Nodes (14): Access key, Advanced, Basic v1, Default port, Docker run script, Download and start, Features checklist, generated with love for coding by [RedSock CLI](https://github.com/Red-Sock/rscli) (+6 more)
@@ -1770,12 +1726,21 @@ Nodes (6): M3 — Observability, Scope (draft), M4 — Access & Multi-tenancy, S
 Cohesion: 0.33
 Nodes (5): Component, CSS, Props interface, T06 — IconButton, What it looks like
 
+### Community 365 - "fakeJobsStorage"
+
+Cohesion: 0.29
+Nodes (4): Queries, Tx, VelezJob, fakeJobsStorage
+
+### Community 367 - "internal/clients (ns_get.go)"
+
+Cohesion: 0.17
+Nodes (5): file_velez_api_proto_init(), PlainConfigSpec, init(), CreateSmerd_Request_Plain, GetHardware
+
 ### Community 372 - ".GetServiceEnvironments"
 Cohesion: 0.31
 Nodes (6): MakoshBeAPIClient, NewClient(), NewServiceDiscovery(), HeaderOutgoingInterceptor(), ServiceDiscovery, UnaryClientInterceptor
 
 ### Community 373 - ".enrichServiceWithSmerdData"
-
 Cohesion: 0.53
 Nodes (4): keyIssuer, Context, Docker, issueNewAPIKey()
 
@@ -1785,22 +1750,24 @@ Nodes (8): 1. Start the first node and let it self-host Headscale, 2. Point a se
 
 ### Community 430 - "ApiService.ts"
 
-Cohesion: 0.08
-Nodes (22): TasksApi, DropSmerdRequest, DropSmerdResponse, ListSmerdsResponse, SearchImagesRequest,
-SearchImagesResponse, UpgradeSmerdRequest, VelezAPI (+14 more)
+Cohesion: 0.09
+Nodes (13): DropSmerdRequest, DropSmerdResponse, ListSmerdsResponse, SearchImagesRequest, SearchImagesResponse,
+UpgradeSmerdRequest, VelezAPI, Smerd (+5 more)
 
 ### Community 431 - "T30 — AppsPage + AppCard (logical services view)"
 Cohesion: 0.17
 Nodes (11): AppCard CSS highlights, AppCard data type, AppCard layout, AppCard props, AppsPage component, AppsPage CSS, Notes, Routes update (+3 more)
 
-### Community 432 - "UpsertServiceState"
+### Community 432 - ".InspectSmerd"
 
-Cohesion: 0.47
-Nodes (4): getKeyFromMatreshkaContainerEnv(), APIClient, Context, initKey()
+Cohesion: 0.28
+Nodes (7): ContainerManager, Context, Smerd, APIClient, ContainerManager, Docker, New()
 
 ### Community 433 - "UpsertPluginParams"
-Cohesion: 0.09
-Nodes (19): PluginBaseInfo, DeploymentStatus, VervPlugin_State, Context, Docker, newPluginsStorage(), Context, NullInt64 (+11 more)
+
+Cohesion: 0.13
+Nodes (13): PluginBaseInfo, DeploymentStatus, VervPlugin_State, Context, Docker, newPluginsStorage(), Context,
+NullInt64 (+5 more)
 
 ### Community 434 - "Tasks"
 Cohesion: 0.20
@@ -1823,7 +1790,6 @@ Cohesion: 0.22
 Nodes (8): Acceptance Criteria, Context, Do NOT change, Files to Create / Modify, Goal, Notes, Proto Changes, Task B2-T01 — Service Runtime Stats API
 
 ### Community 440 - "Tasks"
-
 Cohesion: 0.14
 Nodes (12): Approach, Exit criteria, M1 — Core Platform, Task groups, 1.1 Services list (HomePage), 1.2 Service detail (
 ServiceInfoPage), 1.3 Smerds list (smerd containers), 1.4 Smerd detail (SmerdPage) (+4 more)
@@ -1833,7 +1799,6 @@ Cohesion: 0.22
 Nodes (8): 2.1 Deployments list (inside ServiceInfoPage), 2.2 Deployment detail drawer / page, 2.3 Deploy flow (DeployPage / DeployMenu), 2.4 "Deploy latest" shortcut, Acceptance criteria, Goal, T2 — Deployments, Tasks
 
 ### Community 442 - "Tasks"
-
 Cohesion: 0.22
 Nodes (8): 3.1 Verv services list (HomePage or dedicated page), 3.2 New service form (NewServicePage), 3.3 Service
 delete, 3.4 Edit service (stretch goal for M1), Acceptance criteria, Goal, T3 — Verv Services Management, Tasks
@@ -1841,6 +1806,11 @@ delete, 3.4 Edit service (stretch goal for M1), Acceptance criteria, Goal, T3 �
 ### Community 443 - "Tasks"
 Cohesion: 0.22
 Nodes (8): 4.1 Settings widget (already partially exists), 4.2 Connection health indicator, 4.3 Settings validation, 4.4 Environment variable display (informational), Acceptance criteria, Goal, T4 — Settings Panel, Tasks
+
+### Community 444 - "SmerdsWidget.tsx"
+
+Cohesion: 0.28
+Nodes (5): ListSmerdsRequest, storeToLocalStorage(), useSettings(), SmerdCard(), SmerdsWidget()
 
 ### Community 448 - "Project Factory — Agent Context"
 Cohesion: 0.25
@@ -1911,7 +1881,6 @@ Cohesion: 0.25
 Nodes (7): Acceptance Criteria, Context, Do NOT change, Files to Create / Modify, Goal, Notes, Task 038 — PluginMatrix: restore status display + separate Manage button with empty dialog
 
 ### Community 466 - "PatchConfig_Response"
-
 Cohesion: 0.10
 Nodes (19): ServiceBaseInfo, TestToServiceBaseInfoList(), TestToServiceBaseInfoWithEmptyFields(),
 TestToServiceBaseInfoWithEnrichedFields(), toServiceBaseInfo(), toServiceBaseInfoList(), Context,
@@ -1985,14 +1954,10 @@ Nodes (5): Queries, Queries, Tx, New(), DBTX
 Cohesion: 0.38
 Nodes (5): Queries, Queries, Tx, New(), DBTX
 
-### Community 485 - "PrepareImage"
-Cohesion: 0.12
-Nodes (5): file_service_api_proto_init(), init(), GetService_Response_VervService, GetServiceResources, VervAppService
+### Community 485 - "NewPgStateManager"
 
-### Community 486 - "Exec"
-
-Cohesion: 0.53
-Nodes (4): Exec(), Context, Docker, execStep
+Cohesion: 0.47
+Nodes (4): Context, Storage, NewPgStateManager(), pgState
 
 ### Community 488 - "T17 — TopBar Widget"
 Cohesion: 0.33
@@ -2022,6 +1987,11 @@ Nodes (5): Component, CSS, Data, T26 — ControlPlanePage (rebuild), What it loo
 Cohesion: 0.33
 Nodes (5): Component, CSS, Mock data, T28 — VCNPage (rebuild), What it looks like
 
+### Community 495 - ".EnablePlugin"
+
+Cohesion: 0.40
+Nodes (4): Context, Impl, EnablePlugin_Request, EnablePlugin_Response
+
 ### Community 496 - "InitMaster_Response"
 Cohesion: 0.31
 Nodes (3): TaskStatus, MD, fakeTaskStatusStream
@@ -2029,10 +1999,6 @@ Nodes (3): TaskStatus, MD, fakeTaskStatusStream
 ### Community 497 - "fetch_by_api.go"
 Cohesion: 0.40
 Nodes (5): 2. PaaS platform, 3. UI redesign, 4. Genuinely open items carried forward from `docs/review/`, M1 — Core Platform, task-by-task, Velez Roadmap
-
-### Community 499 - "NewEngine"
-Cohesion: 0.50
-Nodes (3): NewEngine(), TestEngine_EnqueueDedupesConcurrentCalls(), TestEngine_EnqueueReturnsExistingFailedTaskInstead()
 
 ### Community 501 - "CreateSmerdTaskPayload"
 Cohesion: 0.13
@@ -2050,11 +2016,6 @@ Nodes (3): Engines, Smerds management logic, Updating / Restarting
 Cohesion: 1.00
 Nodes (3): Velez (lightweight node manager), master-actions RELEASE workflow, branch-push CI workflow
 
-### Community 538 - ".SetupHeadscale"
-
-Cohesion: 0.29
-Nodes (6): SetupHeadscaleRequest, SetupHeadscaleResponse, BasicConfig(), CreateRequest, Headscale(), pipeliner
-
 ### Community 539 - "Option B: shell factory with direct Ollama API calls"
 Cohesion: 0.33
 Nodes (5): Component, CSS, Props interface, T08 — SectionLabel, What it looks like
@@ -2062,11 +2023,6 @@ Nodes (5): Component, CSS, Props interface, T08 — SectionLabel, What it looks 
 ### Community 540 - "Config subscription is commented out (handleConfigurationSubscription)"
 Cohesion: 0.33
 Nodes (3): DropSmerd_Request, DropSmerd_Response_Error, DropSmerdTaskPayload
-
-### Community 541 - "NewStatic"
-
-Cohesion: 0.36
-Nodes (5): BoundResource, Context, Docker, newServiceResourcesStorage(), dockerServiceResourcesStorage
 
 ### Community 548 - "Custom.Stop() does nothing"
 Cohesion: 0.43
@@ -2078,19 +2034,14 @@ Nodes (4): DeploymentFiltersProps, ENV_OPTIONS, STATUS_OPTIONS, ViewMode
 
 ### Community 552 - ".ListServices"
 
-Cohesion: 0.13
-Nodes (13): Context, Duration, VelezTask, Context, Handler, ServiceRegistrar, Impl, New() (+5 more)
-
-### Community 620 - "Version_Request"
-
-Cohesion: 0.18
-Nodes (3): UnknownFields, BreakConnections_Response, MakeConnections
+Cohesion: 0.11
+Nodes (16): Context, Duration, VelezTask, NewEngine(), TestEngine_EnqueueDedupesConcurrentCalls(),
+TestEngine_EnqueueReturnsExistingFailedTaskInstead(), Context, Handler (+8 more)
 
 ### Community 679 - ".EnablePlugin"
 
-Cohesion: 0.13
-Nodes (12): Context, Impl, EnablePlugin_Request, EnablePlugin_Response, Context, Impl, Handler, ServiceRegistrar (+4
-more)
+Cohesion: 0.11
+Nodes (15): ContainerManager, Configurator, Container, Docker, Service, Context, Impl, Handler (+7 more)
 
 ### Community 742 - "Jobs Migration — Open Questions"
 Cohesion: 0.25
@@ -2106,40 +2057,32 @@ Nodes (3): Decision, If this needs to change later, VPN client key (Headscale au
 
 ## Knowledge Gaps
 
-- **1045 isolated node(s):** `status.sh script`, `go.vervstack.ru/Velez`, `UnsafeMatreshkaApiServer`,
-  `UnsafeControlPlaneAPIServer`, `UnsafeServiceApiServer` (+1040 more)
+- **1046 isolated node(s):** `status.sh script`, `go.vervstack.ru/Velez`, `UnsafeMatreshkaApiServer`,
+  `UnsafeControlPlaneAPIServer`, `UnsafeServiceApiServer` (+1041 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **343 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **345 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `T` connect `tests/e2e (T)`
-  to `tests/e2e (suite_hello_world_cluster_test.go)`, `internal/service (list_test.go)`, `internal/config (launch.go)`,
-  `internal/pipelines (Step)`, `tests/e2e (NewEnvironment())`, `internal/pipelines (ConnectServiceToVpn())`,
-  `internal/api (CreateDeploy_Request)`, `internal/pipelines (do_copy_to_volume.go)`, `PatchConfig_Response`,
-  `NewEngine`, `internal/clients (volume.go)`, `pkg/web (Router.tsx)`, `CreatePgUserForNode`,
-  `pkg/web (ControlPlanePage.tsx)`, `TestEnvironment`, `internal/api (ConfigBase)`?**
-  _High betweenness centrality (0.183) - this node is a cross-community bridge._
+  to `tests/e2e (suite_hello_world_cluster_test.go)`, `pkg/web (VcnApi)`, `internal/api (GetHardware_Request)`,
+  `internal/service (list_test.go)`, `internal/config (launch.go)`, `internal/pipelines (Step)`, `.ListServices`,
+  `tests/e2e (NewEnvironment())`, `internal/pipelines (ConnectServiceToVpn())`, `internal/api (CreateDeploy_Request)`,
+  `internal/pipelines (do_copy_to_volume.go)`, `PatchConfig_Response`, `pkg/web (Router.tsx)`, `CreatePgUserForNode`,
+  `pkg/web (ControlPlanePage.tsx)`, `internal/app (custom.go)`, `internal/api (ConfigBase)`?**
+  _High betweenness centrality (0.163) - this node is a cross-community bridge._
 - **Why does `file_velez_common_proto_init()` connect `internal/storage (node.go)`
-  to `internal/api (control_plane_api.pb.go)`, `PrepareImage`, `internal/storage (New())`, `GetConfigNode_Response`?**
-  _High betweenness centrality (0.165) - this node is a cross-community bridge._
-- **Why does `NodeClients` connect `internal/clients (PortManager)`
-  to `.ConnectService`, `pkg/web (ResourcesSection.tsx)`, `pkg/web (DeployWidget.tsx)`, `ListConfigs_Response`,
-  `internal/api (CreateDeploy_Request)`, `internal/transport (Pipeliner)`, `pkg/web (index.ts)`, `pkg/web (Router.tsx)`,
-  `pkg/web (ControlPlanePage.tsx)`, `internal/storage (deployments)`, `internal/app (custom.go)`,
-  `internal/api (file_control_plane_api_proto_rawDescGZIP())`, `getConfigFromContainerStep`,
-  `Custom.Stop() does nothing`, `internal/config (launch.go)`, `internal/pipelines (create_and_inspect.go)`,
-  `internal/pipelines (ConnectServiceToVpn())`, `internal/pipelines (ConfigurationService)`,
-  `internal/pipelines (LaunchSmerd)`, `UpsertServiceState`, `tests/e2e (T)`, `pkg/web (ServiceService)`,
-  `PortsWidget.tsx`, `internal/storage (docker_impl.go)`, `Paging`, `internal/api (Message)`, `pkg/web (Input.tsx)`,
-  `internal/api (AssembleConfig_Response)`, `internal/api (Message)`, `Exec`, `pkg/web (control_plane.ts)`,
-  `pkg/web (SmerdsWidget.tsx)`, `internal/api (GetHardware_Request)`, `tests/e2e (helper_environment.go)`?**
-  _High betweenness centrality (0.131) - this node is a cross-community bridge._
+  to `internal/api (velez_api.pb.go)`, `internal/api (control_plane_api.pb.go)`, `GetConfigNode_Response`,
+  `internal/clients (ns_get.go)`?**
+  _High betweenness centrality (0.160) - this node is a cross-community bridge._
+- **Why does `Port_Protocol` connect `internal/api (EnumNumber)`
+  to `internal/api (ConfigInfo)`, `internal/api (Port)`, `pkg/web (Input.tsx)`, `internal/storage (node.go)`?**
+  _High betweenness centrality (0.121) - this node is a cross-community bridge._
 - **Are the 57 inferred relationships involving `newFakeDocker()` (e.g. with `TestCreateScratchContainerJob_ContainerCreateError()` and `TestCreateScratchContainerJob_Rollback_NoContainerId_NoOp()`) actually correct?**
   _`newFakeDocker()` has 57 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `status.sh script`, `go.vervstack.ru/Velez`, `UnsafeMatreshkaApiServer` to the rest of the system?**
-  _1059 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _1060 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `internal/api (service_api.pb.gw.go)` be split into smaller, more focused modules?**
   _Cohesion score 0.058502799882110226 - nodes in this community are weakly interconnected._
 - **Should `internal/api (velez_api.pb.gw.go)` be split into smaller, more focused modules?**

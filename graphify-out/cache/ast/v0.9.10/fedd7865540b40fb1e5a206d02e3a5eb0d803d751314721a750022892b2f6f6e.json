@@ -1,0 +1,481 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_checkpoint_go",
+      "label": "checkpoint.go",
+      "file_type": "code",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "jobs_checkpointedjob",
+      "label": "checkpointedJob",
+      "file_type": "code",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L21"
+    },
+    {
+      "id": "jobsstorage",
+      "label": "JobsStorage",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go"
+    },
+    {
+      "id": "tasksstorage",
+      "label": "TasksStorage",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go"
+    },
+    {
+      "id": "taskcontext",
+      "label": "TaskContext",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go"
+    },
+    {
+      "id": "job",
+      "label": "Job",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_jobs_checkpoint_checkpoint",
+      "label": "Checkpoint()",
+      "file_type": "code",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L32"
+    },
+    {
+      "id": "jobs_checkpointedjob_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L50"
+    },
+    {
+      "id": "context",
+      "label": "Context",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go"
+    },
+    {
+      "id": "jobs_checkpointedjob_rollback",
+      "label": ".Rollback()",
+      "file_type": "code",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L107"
+    },
+    {
+      "id": "jobs_checkpointedjob_persistcontext",
+      "label": ".persistContext()",
+      "file_type": "code",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L121"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_checkpoint_go",
+      "target": "go_pkg_context",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_checkpoint_go",
+      "target": "go_pkg_database_sql",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_checkpoint_go",
+      "target": "go_pkg_encoding_json",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L6",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_checkpoint_go",
+      "target": "go_pkg_errors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_checkpoint_go",
+      "target": "go_pkg_github_com_sqlc_dev_pqtype",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_checkpoint_go",
+      "target": "go_pkg_go_redsock_ru_rerrors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_checkpoint_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_storage",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_checkpoint_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_storage_postgres_generated_jobs_queries",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_checkpoint_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_storage_postgres_generated_tasks_queries",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_checkpoint_go",
+      "target": "jobs_checkpointedjob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_checkpointedjob",
+      "target": "jobsstorage",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L22",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_checkpointedjob",
+      "target": "tasksstorage",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L23",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_checkpointedjob",
+      "target": "taskcontext",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L27",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "jobs_checkpointedjob",
+      "target": "job",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L29",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_checkpoint_go",
+      "target": "users_alexbukov_verv_velez_internal_jobs_checkpoint_checkpoint",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_checkpoint_checkpoint",
+      "target": "jobsstorage",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L32",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_checkpoint_checkpoint",
+      "target": "tasksstorage",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L32",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_checkpoint_checkpoint",
+      "target": "taskcontext",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L32",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_checkpoint_checkpoint",
+      "target": "job",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L32",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_jobs_checkpoint_checkpoint",
+      "target": "job",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L32",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "jobs_checkpointedjob",
+      "target": "jobs_checkpointedjob_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L50",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_checkpointedjob_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L50",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_checkpointedjob",
+      "target": "jobs_checkpointedjob_rollback",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L107",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_checkpointedjob_rollback",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L107",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_checkpointedjob",
+      "target": "jobs_checkpointedjob_persistcontext",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L121",
+      "weight": 1.0
+    },
+    {
+      "source": "jobs_checkpointedjob_persistcontext",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L121",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "jobs_checkpointedjob_do",
+      "target": "jobs_checkpointedjob_persistcontext",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/jobs/checkpoint.go",
+      "source_location": "L104",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "jobs_checkpointedjob_do",
+      "callee": "GetJob",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go",
+      "source_location": "L51"
+    },
+    {
+      "caller_nid": "jobs_checkpointedjob_do",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go",
+      "source_location": "L67"
+    },
+    {
+      "caller_nid": "jobs_checkpointedjob_do",
+      "callee": "Is",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go",
+      "source_location": "L71"
+    },
+    {
+      "caller_nid": "jobs_checkpointedjob_do",
+      "callee": "CreateRunningJob",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go",
+      "source_location": "L72"
+    },
+    {
+      "caller_nid": "jobs_checkpointedjob_do",
+      "callee": "Is",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go",
+      "source_location": "L76"
+    },
+    {
+      "caller_nid": "jobs_checkpointedjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go",
+      "source_location": "L77"
+    },
+    {
+      "caller_nid": "jobs_checkpointedjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go",
+      "source_location": "L80"
+    },
+    {
+      "caller_nid": "jobs_checkpointedjob_do",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go",
+      "source_location": "L83"
+    },
+    {
+      "caller_nid": "jobs_checkpointedjob_do",
+      "callee": "FinishJob",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go",
+      "source_location": "L95"
+    },
+    {
+      "caller_nid": "jobs_checkpointedjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "jobs_checkpointedjob_do",
+      "callee": "Join",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "jobs_checkpointedjob_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go",
+      "source_location": "L101"
+    },
+    {
+      "caller_nid": "jobs_checkpointedjob_rollback",
+      "callee": "Rollback",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go",
+      "source_location": "L113"
+    },
+    {
+      "caller_nid": "jobs_checkpointedjob_rollback",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go",
+      "source_location": "L115"
+    },
+    {
+      "caller_nid": "jobs_checkpointedjob_persistcontext",
+      "callee": "Marshal",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go",
+      "source_location": "L122"
+    },
+    {
+      "caller_nid": "jobs_checkpointedjob_persistcontext",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go",
+      "source_location": "L124"
+    },
+    {
+      "caller_nid": "jobs_checkpointedjob_persistcontext",
+      "callee": "UpdateTaskContext",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go",
+      "source_location": "L127"
+    },
+    {
+      "caller_nid": "jobs_checkpointedjob_persistcontext",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go",
+      "source_location": "L132"
+    }
+  ]
+}

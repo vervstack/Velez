@@ -81,7 +81,9 @@ func (c *getConfigFromContainerStep) extractConfig(ctx context.Context,
 
 	res, err = dockerutils.ReadFromContainer(ctx, c.dockerAPI, *c.contId, spec.GetSystemPath())
 	if err != nil {
-		return nil, rerrors.Wrap(err)
+		return nil, rerrors.Wrap(err,
+			"error reading file from container. ContId: %s: %s",
+			*c.contId, spec.GetSystemPath())
 	}
 
 	return res, nil

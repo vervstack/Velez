@@ -8,6 +8,8 @@ import (
 	"github.com/docker/docker/api/types/container"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"go.redsock.ru/rerrors"
+	"go.vervstack.ru/makosh/pkg/makosh_be"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/headscale"
@@ -15,7 +17,6 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/patterns"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/network_steps"
-	"go.vervstack.ru/makosh/pkg/makosh_be"
 )
 
 const (
@@ -41,17 +42,17 @@ type connectServiceToVpnRequestAccessor interface {
 
 type namespaceIDAccessor interface {
 	GetNamespaceId() string
-	SetNamespaceId(string)
+	SetNamespaceId(namespaceId string)
 }
 
 type clientKeyAccessor interface {
 	GetClientKey() string
-	SetClientKey(string)
+	SetClientKey(key string)
 }
 
 type loginServerURLAccessor interface {
 	GetLoginServerUrl() string
-	SetLoginServerUrl(string)
+	SetLoginServerUrl(serverUrl string)
 }
 
 type connectServiceToVpnHandler struct {
@@ -217,7 +218,7 @@ func (j *getClientKeyJob) Do(ctx context.Context) error {
 	authKey, err := j.vpnClient.GetClientAuthKey(ctx, getAuthKeyReq)
 	if err != nil {
 		if !rerrors.Is(err, headscale.ErrNotFound) {
-			return rerrors.Wrap(err)
+			return rerrors.Wrap(err, "error getting client auth key from vpn client")
 		}
 	}
 
@@ -234,7 +235,7 @@ func (j *getClientKeyJob) Do(ctx context.Context) error {
 
 	clientKey, err := j.vpnClient.IssueClientKey(ctx, issueClientKeyReq)
 	if err != nil {
-		return rerrors.Wrap(err)
+		return rerrors.Wrap(err, "error issuing client key via vpn client")
 	}
 
 	j.ctx.SetClientKey(clientKey)

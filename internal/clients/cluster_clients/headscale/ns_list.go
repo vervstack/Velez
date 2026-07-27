@@ -6,24 +6,22 @@ import (
 	"net/http"
 
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
+type listNamespacesResponse struct {
+	Users []domain.VcnNamespace `json:"users"`
+}
+
 func (s *Client) ListNamespaces(ctx context.Context) ([]domain.VcnNamespace, error) {
-	// region Response body
-	type response struct {
-		Users []domain.VcnNamespace `json:"users"`
-	}
-
-	// endregion
-
 	resp, err := s.doAPIRequest(ctx, http.MethodGet, userURI, nil)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error executing request")
 	}
 
 	if resp.StatusCode == http.StatusOK {
-		nameSpaces := response{}
+		nameSpaces := listNamespacesResponse{}
 
 		err = json.NewDecoder(resp.Body).Decode(&nameSpaces)
 		_ = resp.Body.Close()

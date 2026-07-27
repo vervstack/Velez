@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"go.redsock.ru/rerrors"
+
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
@@ -27,7 +28,7 @@ func (s *dockerServices) GetByName(ctx context.Context, name string) (domain.Ser
 
 	containers, err := s.docker.ListContainers(ctx, listReq)
 	if err != nil {
-		return domain.Service{}, rerrors.Wrap(err)
+		return domain.Service{}, rerrors.Wrap(err, "error listing containers")
 	}
 
 	if len(containers) == 0 {
@@ -90,7 +91,7 @@ func (s *dockerServices) List(ctx context.Context, req domain.ListServicesReq) (
 
 	containers, err := s.docker.ListContainers(ctx, listReq)
 	if err != nil {
-		return domain.ServiceList{}, rerrors.Wrap(err)
+		return domain.ServiceList{}, rerrors.Wrap(err, "error listing containers")
 	}
 
 	seen := make(map[string]bool)

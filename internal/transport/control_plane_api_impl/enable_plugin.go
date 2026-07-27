@@ -5,11 +5,12 @@ import (
 	"time"
 
 	"go.redsock.ru/rerrors"
+	"google.golang.org/grpc/codes"
+
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
-	"google.golang.org/grpc/codes"
 )
 
 var errUnsupportedService = rerrors.New("unsupported service", codes.InvalidArgument)
@@ -73,7 +74,7 @@ func (impl *Impl) EnablePlugin(ctx context.Context, req *pb.EnablePlugin_Request
 	}
 
 	if err != nil {
-		return &pb.EnablePlugin_Response{}, rerrors.Wrap(err)
+		return &pb.EnablePlugin_Response{}, rerrors.Wrap(err, "error during enabling plugin")
 	}
 
 	return &pb.EnablePlugin_Response{}, nil

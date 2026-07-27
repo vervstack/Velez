@@ -5,10 +5,17 @@ import (
 	"time"
 
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
 )
 
-var ErrNoGetResultFunction = rerrors.New("no get result function")
+var (
+	ErrNoGetResultFunction = rerrors.New("no get result function")
+)
+
+const (
+	defaultRollbackTimeout = 30 * time.Second
+)
 
 type runner[T any] struct {
 	Steps     []steps.Step
@@ -24,7 +31,7 @@ func (p *runner[T]) Run(ctx context.Context) (err error) {
 
 	err = rerrors.Wrap(runErr)
 
-	rollbackCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	rollbackCtx, cancel := context.WithTimeout(context.Background(), defaultRollbackTimeout)
 	defer cancel()
 
 	rollbackErr := p.rollback(rollbackCtx)

@@ -11,6 +11,8 @@ import (
 	rtb "go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/toolbox/keep_alive"
+	version "go.vervstack.ru/makosh/config"
+
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/makosh"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
@@ -21,7 +23,6 @@ import (
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/pipelines"
 	"go.vervstack.ru/Velez/internal/pipelines/steps"
-	version "go.vervstack.ru/makosh/config"
 )
 
 const (
@@ -29,10 +30,14 @@ const (
 	defaultImageBase     = "vervstack/makosh"
 	authTokenEnvVariable = "MAKOSH_ENVIRONMENT_AUTH-TOKEN"
 	grpcPort             = "8080/tcp"
+
+	defaultIntervalCheck  = time.Second / 2
+	defaultTokenSizeBytes = 256
 )
 
 var image string
 
+//nolint:gochecknoinits
 func init() {
 	image = defaultImageBase + ":" + version.GetVersion()
 }
@@ -50,7 +55,7 @@ func SetupMakosh(
 	var makoshSd *makosh.ServiceDiscovery
 
 	// TODO statefull token?
-	token := string(rtb.RandomBase64(256))
+	token := string(rtb.RandomBase64(defaultTokenSizeBytes))
 
 	containerReq := container.CreateRequest{
 		Config: &container.Config{
@@ -94,7 +99,7 @@ func SetupMakosh(
 	keepAlive := keep_alive.KeepAlive(
 		task,
 		keep_alive.WithCancel(ctx.Done()),
-		keep_alive.WithCheckInterval(time.Second/2),
+		keep_alive.WithCheckInterval(defaultIntervalCheck),
 	)
 
 	if cfg.Environment.ShutDownOnExit {

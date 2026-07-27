@@ -6,6 +6,7 @@ import (
 
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
 )
@@ -50,7 +51,7 @@ func (h *healthcheckStep) Do(ctx context.Context) error {
 	go func() {
 		defer close(errC)
 
-		for i := uint32(0); i < h.req.Healthcheck.GetRetries(); i++ {
+		for range h.req.Healthcheck.GetRetries() {
 			time.Sleep(time.Duration(h.req.Healthcheck.GetIntervalSecond()) * time.Second)
 
 			cont, err := h.dockerAPI.ContainerInspect(ctx, *h.containerId)

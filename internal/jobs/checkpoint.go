@@ -8,6 +8,7 @@ import (
 
 	"github.com/sqlc-dev/pqtype"
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
@@ -103,6 +104,20 @@ func (c *checkpointedJob) Do(ctx context.Context) error {
 	return c.persistContext(ctx)
 }
 
+func (c *checkpointedJob) Rollback(ctx context.Context) error {
+	rb, ok := c.inner.(RollbackableJob)
+	if !ok {
+		return nil
+	}
+
+	err := rb.Rollback(ctx)
+	if err != nil {
+		return rerrors.Wrap(err, "error rolling back job")
+	}
+
+	return nil
+}
+
 func (c *checkpointedJob) persistContext(ctx context.Context) error {
 	contextJSON, err := json.Marshal(c.taskCtx)
 	if err != nil {
@@ -115,20 +130,6 @@ func (c *checkpointedJob) persistContext(ctx context.Context) error {
 	})
 	if err != nil {
 		return rerrors.Wrap(err, "error persisting task context")
-	}
-
-	return nil
-}
-
-func (c *checkpointedJob) Rollback(ctx context.Context) error {
-	rb, ok := c.inner.(RollbackableJob)
-	if !ok {
-		return nil
-	}
-
-	err := rb.Rollback(ctx)
-	if err != nil {
-		return rerrors.Wrap(err, "error rolling back job")
 	}
 
 	return nil

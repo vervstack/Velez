@@ -136,8 +136,6 @@ func (c *fetchConfigStep) setEnv(ctx context.Context, meta domain.ConfigMeta) er
 		if code != codes.NotFound {
 			return rerrors.Wrap(err, "error getting matreshka config from matreshka api")
 		}
-
-		err = nil
 	}
 
 	ns := evon.NodeStorage{}
@@ -161,8 +159,6 @@ func (c *fetchConfigStep) getPlain(ctx context.Context, meta domain.ConfigMeta) 
 		if code != codes.NotFound {
 			return nil, rerrors.Wrap(err, "error getting matreshka config from matreshka api")
 		}
-
-		err = nil
 	}
 
 	return plainConfig, nil

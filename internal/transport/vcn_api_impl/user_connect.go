@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 )
@@ -18,7 +19,7 @@ func (impl *Impl) ConnectUser(ctx context.Context, req *velez_api.ConnectUser_Re
 
 	err := impl.vpnService.RegisterNode(ctx, domainReq)
 	if err != nil {
-		return nil, rerrors.Wrap(err)
+		return nil, rerrors.Wrap(err, "error registering network node")
 	}
 
 	return &velez_api.ConnectUser_Response{}, nil

@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
@@ -62,7 +63,7 @@ func (v *VervService) ListDeployments(
 ) (domain.DeploymentList, error) {
 	list, err := v.deploymentsStorage.ListDeployments(ctx, req)
 	if err != nil {
-		return domain.DeploymentList{}, rerrors.Wrap(err)
+		return domain.DeploymentList{}, rerrors.Wrap(err, "error listing deployments")
 	}
 
 	return list, nil

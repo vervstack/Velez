@@ -22,6 +22,10 @@ import (
 	"go.vervstack.ru/Velez/internal/pipelines"
 )
 
+const (
+	defaultCheckPeriod = time.Second * 30
+)
+
 type AutoUpgrade struct {
 	dockerAPI client.APIClient
 
@@ -40,7 +44,7 @@ func New(api client.APIClient, checkPeriod time.Duration, pipeliner pipelines.Pi
 		dockerAPI: api,
 		stopC:     make(chan struct{}),
 
-		checkPeriod: max(checkPeriod, time.Second*30),
+		checkPeriod: max(checkPeriod, defaultCheckPeriod),
 		pipeliner:   pipeliner,
 	}
 }
@@ -124,7 +128,7 @@ func (au *AutoUpgrade) do(ctx context.Context) error {
 
 	err = eg.Wait()
 	if err != nil {
-		return rerrors.Wrap(err)
+		return rerrors.Wrap(err, "error returned from error group")
 	}
 
 	return nil

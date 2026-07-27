@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
@@ -12,7 +13,7 @@ func (impl *Impl) CreateNamespace(ctx context.Context, req *velez_api.CreateVcnN
 ) {
 	namespace, err := impl.vpnService.CreateNamespace(ctx, req.GetName())
 	if err != nil {
-		return nil, rerrors.Wrap(err)
+		return nil, rerrors.Wrap(err, "error creating namespace")
 	}
 
 	return &velez_api.CreateVcnNamespace_Response{

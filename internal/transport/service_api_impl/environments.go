@@ -4,8 +4,9 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
-	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"google.golang.org/protobuf/types/known/timestamppb"
+
+	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
 func (impl *Impl) GetServiceEnvironments(
@@ -14,7 +15,7 @@ func (impl *Impl) GetServiceEnvironments(
 ) (*pb.GetServiceEnvironments_Response, error) {
 	environments, err := impl.servicesService.GetServiceEnvironments(ctx, pbReq.GetServiceName())
 	if err != nil {
-		return nil, rerrors.Wrap(err)
+		return nil, rerrors.Wrap(err, "error getting service's environments")
 	}
 
 	pbEnvironments := make([]*pb.ServiceEnvironmentInfo, 0, len(environments))

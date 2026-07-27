@@ -90,9 +90,9 @@
     "hash": "c17b8089b819e3af3407b74b6f516de2b37aa6b023b585a8c56238399483533c"
   },
   "/Users/alexbukov/verv/Velez/.golangci.yaml": {
-    "size": 3482,
-    "mtime_ns": 1785092662075967835,
-    "word_count": 365
+    "size": 3459,
+    "mtime_ns": 1785098270243499171,
+    "word_count": 359
   },
   "/Users/alexbukov/verv/Velez/CLAUDE.md": {
     "size": 11240,
@@ -107,10 +107,10 @@
     "hash": "90411a2f9b3b3eb59d9f31918f089957bd911e2dbb80fa8bb6a6e2b688961933"
   },
   "/Users/alexbukov/verv/Velez/cmd/service/main.go": {
-    "size": 308,
-    "mtime_ns": 1785086368250849439,
-    "word_count": 34,
-    "hash": "ff8e04c7240d6195fa40a3e48284954e03aa6e8e93a9041f4f7ff67a219ce221"
+    "size": 249,
+    "mtime_ns": 1785097568757152953,
+    "word_count": 32,
+    "hash": "c26222391b94ba9f1ce36403768e6125700edd960ac73ca18a241684edacaaf4"
   },
   "/Users/alexbukov/verv/Velez/config/config.yaml": {
     "size": 1891,
@@ -646,10 +646,10 @@
     "hash": "24738bf7c55a54e8f3fe8f4ce77a76412d46673209f69732ec65f4af312cb7be"
   },
   "/Users/alexbukov/verv/Velez/internal/app/custom.go": {
-    "size": 9051,
-    "mtime_ns": 1785093084995099065,
-    "word_count": 735,
-    "hash": "39f14f351a6b91e19c3e2a53700923a218b0ecf34f60871246fd18007e66db36"
+    "size": 9367,
+    "mtime_ns": 1785136887815550813,
+    "word_count": 773,
+    "hash": "458742a2d46546c2459548a3cc01be8cb647972a2abdb36d04a425581e9cf3ce"
   },
   "/Users/alexbukov/verv/Velez/internal/app/env.go": {
     "size": 721,
@@ -676,10 +676,10 @@
     "hash": "c658eeb38f763aab74ab8a7c125790bf10c172fedfefb32033a235bdd6e20aaf"
   },
   "/Users/alexbukov/verv/Velez/internal/clients/cluster_clients/headscale/api_key_issue.go": {
-    "size": 1513,
-    "mtime_ns": 1785086368276001357,
-    "word_count": 186,
-    "hash": "bc7a70889fadc7ef798dccb7f0941dba653e73df5ad69f81a8b6e1d6bc972b24"
+    "size": 1549,
+    "mtime_ns": 1785136907525713988,
+    "word_count": 191,
+    "hash": "97b3bca4e17c78526d94c5ee1e7ff4e35cb587bb758b151b860ace5c0bb5eab0"
   },
   "/Users/alexbukov/verv/Velez/internal/clients/cluster_clients/headscale/client_key_issue.go": {
     "size": 1428,
@@ -700,10 +700,10 @@
     "hash": "d64a8a6947461ea368ef11612a7dcc83fe5650ac6fcac2f9661e898f0e87a5ea"
   },
   "/Users/alexbukov/verv/Velez/internal/clients/cluster_clients/headscale/ns_create.go": {
-    "size": 1307,
-    "mtime_ns": 1785091486620524843,
-    "word_count": 136,
-    "hash": "7812ae867368b529710ee42c1b0afb3b3cfc546ea841cb7dc43388895648ee79"
+    "size": 1464,
+    "mtime_ns": 1785094390783498404,
+    "word_count": 139,
+    "hash": "17e13d39428c59aeb8c895a1a7c618bd71d5ad7796ea9a4eea06a92b94199f61"
   },
   "/Users/alexbukov/verv/Velez/internal/clients/cluster_clients/headscale/ns_delete.go": {
     "size": 544,
@@ -712,16 +712,16 @@
     "hash": "75ec0c4bca2ca34be4c8933872c0fcb92ee06fa0ce66af59a5a2cb6a553ae2e2"
   },
   "/Users/alexbukov/verv/Velez/internal/clients/cluster_clients/headscale/ns_get.go": {
-    "size": 869,
-    "mtime_ns": 1785091486329438715,
-    "word_count": 95,
-    "hash": "560cfee18a3ed9363aa98e8314d1c733faa00d13f36c7688b30c7a83bbbdb43d"
+    "size": 979,
+    "mtime_ns": 1785094260807637290,
+    "word_count": 96,
+    "hash": "1f3e67871675dfb5b224328a13b905a2f3e52bd617b2262c753c1e0a8d28765f"
   },
   "/Users/alexbukov/verv/Velez/internal/clients/cluster_clients/headscale/ns_list.go": {
-    "size": 817,
-    "mtime_ns": 1785091485911778524,
-    "word_count": 87,
-    "hash": "df2894d616b61bdec3cd6fc27088c9f15457ac253b3155d709d15a4c5f6fddc7"
+    "size": 803,
+    "mtime_ns": 1785094103864521098,
+    "word_count": 81,
+    "hash": "de31cbbb3dfa92d39414598b3afb0bbde230fc53214d2c67ed15c98ce64eff92"
   },
   "/Users/alexbukov/verv/Velez/internal/clients/cluster_clients/headscale/service.go": {
     "size": 2225,
@@ -730,10 +730,10 @@
     "hash": "06b2cc9993b4c77334f145fa8a870720025d5e6b008761f2de908a4382d7d1c9"
   },
   "/Users/alexbukov/verv/Velez/internal/clients/cluster_clients/makosh/makosh.go": {
-    "size": 1953,
-    "mtime_ns": 1785086367558268628,
+    "size": 1955,
+    "mtime_ns": 1785098241603999186,
     "word_count": 162,
-    "hash": "d03e26fb425fa2b3e8f8e99d297dd40a1fbf31e3917077bdbf2913563349a55a"
+    "hash": "7c25c4095608f6eb90b973666d6515be6d7982d93caeda685622e4659e68d414"
   },
   "/Users/alexbukov/verv/Velez/internal/clients/cluster_clients/matreshka/matreshka.go": {
     "size": 648,
@@ -754,16 +754,16 @@
     "hash": "e0de5eb09643a93c0dab0056bfae0a11b7fb9568625fc0fc72ff6678fdc4f334"
   },
   "/Users/alexbukov/verv/Velez/internal/clients/node_clients/clients.go": {
-    "size": 2127,
-    "mtime_ns": 1785086368084153809,
-    "word_count": 171,
-    "hash": "605b6bb348900e02a575354dfe3835193926bcf3853673a0d718247c916266a2"
+    "size": 2152,
+    "mtime_ns": 1785096464105969551,
+    "word_count": 172,
+    "hash": "6980ae137472b75dcddcff9b17b4ec427505be0c09a3738b87d804464eb469a6"
   },
   "/Users/alexbukov/verv/Velez/internal/clients/node_clients/docker/client.go": {
-    "size": 7975,
-    "mtime_ns": 1785091485813883202,
-    "word_count": 836,
-    "hash": "78dcec4ec99888747295290784f19e0176fcd421478cfd09ce37ad327c4d2d23"
+    "size": 8202,
+    "mtime_ns": 1785136823013442174,
+    "word_count": 870,
+    "hash": "c84367c83a0bf4073f3b0c1bd83787632a50f217ad1193345aeecb0d5c989818"
   },
   "/Users/alexbukov/verv/Velez/internal/clients/node_clients/docker/dockerutils/images.go": {
     "size": 1443,
@@ -868,10 +868,10 @@
     "hash": "064b421e00106fa3022ba272dd0cff939f819fb81defe4edde9c1c0656e0d081"
   },
   "/Users/alexbukov/verv/Velez/internal/clients/node_clients/local_state/state.go": {
-    "size": 3267,
-    "mtime_ns": 1785091486072944918,
-    "word_count": 421,
-    "hash": "8215b72c9ef8a1ed7f9c80d973159e35ba9dd2b63bb453d03b43c598666bae49"
+    "size": 3289,
+    "mtime_ns": 1785098211605538700,
+    "word_count": 423,
+    "hash": "9732e7502fb90da8445d38d99b5d9095d8e1ffcf36b33e4a572c7d89e3e25fce"
   },
   "/Users/alexbukov/verv/Velez/internal/clients/node_clients/node_clients.go": {
     "size": 2948,
@@ -916,10 +916,10 @@
     "hash": "41f9efc7d4cb265c2a36f3764541404cc0c8d5e2d0e78916ff1f7fe7d37c7e14"
   },
   "/Users/alexbukov/verv/Velez/internal/cluster/autoupgrade/autoupgrade.go": {
-    "size": 3598,
-    "mtime_ns": 1785091966855417785,
-    "word_count": 372,
-    "hash": "ceff3a9008833bb24657e8a83ab127ea3fbbe534ecee17618b0aa6874b719bad"
+    "size": 3687,
+    "mtime_ns": 1785136941018427634,
+    "word_count": 385,
+    "hash": "6b7f5fba0954976ffe9be88e02df2f7d27cf1df6ba91bdeb77aa1e1241737839"
   },
   "/Users/alexbukov/verv/Velez/internal/cluster/cluster.go": {
     "size": 3487,
@@ -946,16 +946,16 @@
     "hash": "0053a504a8c7ef3c7be9358c81380c8ed19290ed9eeb0c7b99785b200b55f668"
   },
   "/Users/alexbukov/verv/Velez/internal/cluster/configuration/deploy_local.go": {
-    "size": 1599,
-    "mtime_ns": 1785091486534802452,
-    "word_count": 156,
-    "hash": "9f3667903bfea568d660b19dba7fb4289e98fc8bcc5243f1f63988545e6900de"
+    "size": 1624,
+    "mtime_ns": 1785097022939084334,
+    "word_count": 157,
+    "hash": "503c4bef9179de0bc97f71cb2256d9993a9af4f43ae813384df1258255e354e4"
   },
   "/Users/alexbukov/verv/Velez/internal/cluster/configuration/service.go": {
-    "size": 7212,
-    "mtime_ns": 1785093041464648383,
-    "word_count": 759,
-    "hash": "0a06892bf45dcf47dab011deec473eb3e661b5a984b93496b8b7059a8741ae02"
+    "size": 7242,
+    "mtime_ns": 1785136941262481818,
+    "word_count": 763,
+    "hash": "353a9fe3a1c8817e3278d3be00e8828d7300ff3318bc13e4f575abc33b0dfe85"
   },
   "/Users/alexbukov/verv/Velez/internal/cluster/configuration_synchronizer/synchronizer.go": {
     "size": 1240,
@@ -970,16 +970,16 @@
     "hash": "4f3726d57c96a745135624176b76cd2cce37c5deb56508e66b5fa3a723d15847"
   },
   "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/launch.go": {
-    "size": 3613,
-    "mtime_ns": 1785091486454747151,
-    "word_count": 297,
-    "hash": "98639fd1d3e8083fb002095970e5800c5a6871c4923d1c287173812f2a0f46e4"
+    "size": 3734,
+    "mtime_ns": 1785097020345551925,
+    "word_count": 306,
+    "hash": "99a93dc69fccefc962f958c21b9dd989e749e0e2516f13b49802961c701341e1"
   },
   "/Users/alexbukov/verv/Velez/internal/cluster/service_discovery/local.go": {
-    "size": 1846,
-    "mtime_ns": 1785093140747776894,
-    "word_count": 163,
-    "hash": "79e67730f48a8def6cbdff222218a4e81a89d0e734a5f0650d2d2fb658c8c6c0"
+    "size": 1890,
+    "mtime_ns": 1785136956156750551,
+    "word_count": 169,
+    "hash": "d82777c36352be40ecf70e8b8c54e04d2efe12fb30a230d69b9568bedb475497"
   },
   "/Users/alexbukov/verv/Velez/internal/cluster/verv_closed_network/config.yaml": {
     "size": 1170,
@@ -994,10 +994,10 @@
     "hash": "6e838a8c13a5583e65510f99d8fd6fa05b4cbda17c05304fe8e1eac00c393574"
   },
   "/Users/alexbukov/verv/Velez/internal/cluster/verv_closed_network/server.go": {
-    "size": 2660,
-    "mtime_ns": 1785091955921444846,
-    "word_count": 246,
-    "hash": "79fbc4a2dd572d548d978db8de04aa06251da37d65270aa19ff6f60218d90e66"
+    "size": 2708,
+    "mtime_ns": 1785094512000660160,
+    "word_count": 251,
+    "hash": "afd42cd7b3fe163974bf0d9b661923f72e82bbf169cacf111ca18518c061e9ce"
   },
   "/Users/alexbukov/verv/Velez/internal/config/data_sources.go": {
     "size": 193,
@@ -1042,10 +1042,10 @@
     "hash": "f04e871345cea2a776263e0d56bdc2cf5a4e76a223ca8a3027b0befb2a0b4aca"
   },
   "/Users/alexbukov/verv/Velez/internal/domain/configuration.go": {
-    "size": 595,
-    "mtime_ns": 1785086367960989764,
+    "size": 597,
+    "mtime_ns": 1785098242601719598,
     "word_count": 58,
-    "hash": "d75358f6fa3ee5f8eda4099e5c32ef716e8349b704fac722c82cc33a460b1d78"
+    "hash": "0980d6298100858e24793133e7eb99a0f63517be5aa754f5fed68faeefa0a9c4"
   },
   "/Users/alexbukov/verv/Velez/internal/domain/deployments.go": {
     "size": 608,
@@ -1120,10 +1120,10 @@
     "hash": "ec3fcc2bd60e29b521385c7b9499de0d5c1403eb29a54e501a887fff16a8cbca"
   },
   "/Users/alexbukov/verv/Velez/internal/domain/vcn.go": {
-    "size": 581,
-    "mtime_ns": 1767123619553171699,
-    "word_count": 77,
-    "hash": "0c0ed4859707f20a76318ff28c3aee0ea6c97b0fb9f3c935a2871b39e1a0a5af"
+    "size": 849,
+    "mtime_ns": 1785094170398912193,
+    "word_count": 92,
+    "hash": "2f1755af62b0d2704387ceafa7546e61d6bb9ceb2d23d9da2378d3114ac17871"
   },
   "/Users/alexbukov/verv/Velez/internal/domain/volume.go": {
     "size": 103,
@@ -1150,10 +1150,10 @@
     "hash": "04f7efcf9722edb6ebc0d185fba39e02cc87e72eaf109bc958573b01e89a5bae"
   },
   "/Users/alexbukov/verv/Velez/internal/middleware/panic.go": {
-    "size": 551,
-    "mtime_ns": 1785086367345260371,
-    "word_count": 66,
-    "hash": "3be35f9229f9aeb900914011023486eeabe81561da49b51d52a30b53b64ed3fd"
+    "size": 626,
+    "mtime_ns": 1785097509196071666,
+    "word_count": 72,
+    "hash": "1bb0de16b1b8f98f284a8b4890d8ae7869b81f1ec1361d323122692cf2df0d22"
   },
   "/Users/alexbukov/verv/Velez/internal/patterns/db_patterns/pg_pattern/opts.go": {
     "size": 808,
@@ -1204,10 +1204,10 @@
     "hash": "6b833405d22e77ab6b60a6d0c8428568449420ae53f2fbc8051a72687f17ba51"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/do_copy_to_volume.go": {
-    "size": 2178,
-    "mtime_ns": 1785092559904318648,
-    "word_count": 156,
-    "hash": "90324e2e598ccb5387034494ee748deb64dee26f27635feefb8d60e1136d74a3"
+    "size": 2257,
+    "mtime_ns": 1785094378417699133,
+    "word_count": 165,
+    "hash": "890c3e10fea777369d3dc79bad11e09627a8b6fad628bd76656c5ed4e7ed6dcb"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/do_create_service.go": {
     "size": 550,
@@ -1246,22 +1246,22 @@
     "hash": "457ed72827c1730bc7a50d1c9f382396c4b71ad5ae5710987d0e09c55b47f759"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/runner.go": {
-    "size": 1456,
-    "mtime_ns": 1785086365316699234,
-    "word_count": 186,
-    "hash": "9e06dee255b64bc35d716ca780f931aa0d40e8282c74e0304e4e25728c664f05"
+    "size": 1524,
+    "mtime_ns": 1785094438056708120,
+    "word_count": 196,
+    "hash": "78c5ced438c82b959b72b69d0f43871d707643b6251c4a4a9e2e10587fb104f9"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/steps/cluster_steps/create_pg_user.go": {
-    "size": 1311,
-    "mtime_ns": 1785091864552235601,
+    "size": 1322,
+    "mtime_ns": 1785093936289816956,
     "word_count": 154,
-    "hash": "a6a3fcdcc2307a11f21681b7728c60d9ec901a267f3e76b11741e1432e014a43"
+    "hash": "82b7491e1bb623bb64961c31148450273fd81bde3dc1471740862c96bf656ce9"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/steps/cluster_steps/get_root_dsn.go": {
-    "size": 2554,
-    "mtime_ns": 1785086365371600194,
-    "word_count": 253,
-    "hash": "fd666eb25ef4fa933073a12f8576b2bce6c5ea009a31e2544e8f3747966462ce"
+    "size": 2585,
+    "mtime_ns": 1785137094627362041,
+    "word_count": 257,
+    "hash": "77a77a7cf5cd1ea77e2dd2e63a46ab69448388b6b8add102f0c83cc2f97224ff"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/changes_sub.go": {
     "size": 688,
@@ -1276,22 +1276,22 @@
     "hash": "4fe4e0006e1008f4aea69f62284b97048c34fa665dbc4e2cac73308994467dee"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_by_api.go": {
-    "size": 4176,
-    "mtime_ns": 1785093098407224686,
-    "word_count": 432,
-    "hash": "a7b337930b9e2416438e07e034a66de2057252a2ab9aaa7dc5865d0e63d6baba"
+    "size": 4150,
+    "mtime_ns": 1785096490344927767,
+    "word_count": 426,
+    "hash": "156f5ddab22465f84ee3f9c9a1e95ce58818079dcb287b57f5a849933e03a9c1"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go": {
-    "size": 3619,
-    "mtime_ns": 1785091888488383285,
-    "word_count": 319,
-    "hash": "2e040bc19434263acbb3f1a5646e7d9bfa3f28714168d9851a62eb043bfbb285"
+    "size": 3711,
+    "mtime_ns": 1785137098446163745,
+    "word_count": 329,
+    "hash": "77aeac762930708be887babd2d73e6f1f49c5401d956d4f94c06532babba3590"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/store_config.go": {
-    "size": 932,
-    "mtime_ns": 1785091807865184847,
-    "word_count": 77,
-    "hash": "734de4f3628a2067f54608bd3da1d85e518eabcf94e740f1a2137052bbf5b8d4"
+    "size": 971,
+    "mtime_ns": 1785137160430873819,
+    "word_count": 83,
+    "hash": "00dfa0d236be02392d0b73363ccdc8673b6b8780faf83262dd0c26d637ed6e2a"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/steps/container_steps/copy_to_container.go": {
     "size": 1341,
@@ -1306,10 +1306,10 @@
     "hash": "43cd95a266f4241113c0f35c2367f3f034709b3cb77149fd31a14c5f145fa03e"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/steps/healthcheck.go": {
-    "size": 1608,
-    "mtime_ns": 1785091485767714482,
-    "word_count": 175,
-    "hash": "790b6050f04ee8cf140464f3efc20c6f1d49f5d6a376f439a3d161750b5ff7fa"
+    "size": 1590,
+    "mtime_ns": 1785096412438145858,
+    "word_count": 170,
+    "hash": "f4fe0f5eef759a5313f4ee66c4f63d08399e784371e92b030998c862850dc75b"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/steps/image_prepare.go": {
     "size": 748,
@@ -1336,10 +1336,10 @@
     "hash": "c7fb65dadb8f709d90a405a4a108ed41d739b48cc7df31d679d85406dbfdd741"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/steps/network_steps/get_client_key.go": {
-    "size": 1392,
-    "mtime_ns": 1785086367337800288,
-    "word_count": 129,
-    "hash": "74cc6c0cc8dca1c818cd64b8fdb792850cc445c65a4676bf9c96043c32f118de"
+    "size": 1495,
+    "mtime_ns": 1785137160718676945,
+    "word_count": 144,
+    "hash": "ef39ec296d448ab94271fffc36c7e0db1d1117a0a37d9727a6db008d068b3dc2"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/steps/network_steps/get_login_server_url.go": {
     "size": 485,
@@ -1366,16 +1366,16 @@
     "hash": "a97e0d131a21795b348cdbb90ca50eb5fe12498609801e31995668cab7335e3f"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/steps/service_steps/validation.go": {
-    "size": 1249,
-    "mtime_ns": 1785093124705781064,
-    "word_count": 124,
-    "hash": "9d5c4a236cd3698d9b3f1aef451721703472b7627d8d9771f6139cfbdb425750"
+    "size": 1274,
+    "mtime_ns": 1785097012922727978,
+    "word_count": 125,
+    "hash": "f97d552d4ab89d72438636d5ae2e92ae61c6cda68f768abfd53d142388f01acc"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/steps/smerd_steps/create.go": {
-    "size": 3855,
-    "mtime_ns": 1785091486099158532,
-    "word_count": 311,
-    "hash": "dda5ed6cc65bac6adbbeeae95cdf1677e42598b70ba10b24a4a98fb6a3ed8861"
+    "size": 3940,
+    "mtime_ns": 1785137160724653590,
+    "word_count": 318,
+    "hash": "7b880a7b6d46f9f2c178622d4ec3efff7e5870656817e98a153cd8f55a82f4d8"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/steps/smerd_steps/drop.go": {
     "size": 599,
@@ -1384,10 +1384,10 @@
     "hash": "0f7f87c8d3b676d0a8565923a5dbab2c53a378ecdbb8f2b2b5bc2de36522c2c8"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/steps/smerd_steps/exec.go": {
-    "size": 824,
-    "mtime_ns": 1785086368191321896,
-    "word_count": 78,
-    "hash": "c027d9d2cc7fabaebc077d6293d8565566140818dda4d45824d6a5fbbd50a4c9"
+    "size": 869,
+    "mtime_ns": 1785137501112261743,
+    "word_count": 85,
+    "hash": "30e75a4005e3e8dddbc910b4496fa72768e174b8a0b1331d8d8c11456a677d76"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/steps/smerd_steps/pause.go": {
     "size": 3699,
@@ -1414,16 +1414,16 @@
     "hash": "dc14c2f8871f4db4546e8d5cb9779260ffad4120efbe1d062110a3f5fc5f06c0"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/steps/upgrade_steps/check_upgrade_is_available.go": {
-    "size": 1032,
-    "mtime_ns": 1785091486665216685,
-    "word_count": 86,
-    "hash": "190be468e1b9e5eac1af55ced1fd38036fb61a45dd1eb0de68b506490c672583"
+    "size": 1059,
+    "mtime_ns": 1785137501109877653,
+    "word_count": 89,
+    "hash": "186d7aa70d865ff2fd62fa54e04c5ebbd585e3a6e4812895526f277b15dec1ee"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/steps/verv_config_prepare.go": {
-    "size": 3785,
-    "mtime_ns": 1785091767381306572,
-    "word_count": 354,
-    "hash": "e671701749e4a723caa854e3ebd720dc1ec682cd813379ab47aa603e59c2867d"
+    "size": 3776,
+    "mtime_ns": 1785096782757224324,
+    "word_count": 352,
+    "hash": "96aed5bcfcca38139d06a27ddee5aa583d38be97ce7352485bf37336fb736a67"
   },
   "/Users/alexbukov/verv/Velez/internal/pipelines/steps/verv_service_enable_in_matreshka.go": {
     "size": 687,
@@ -1432,10 +1432,10 @@
     "hash": "aef7200eda6d9a7673da5d450a305a76f543909d05df9ee60eb37b2d2b0059e6"
   },
   "/Users/alexbukov/verv/Velez/internal/service/service.go": {
-    "size": 2894,
-    "mtime_ns": 1785086368004501515,
-    "word_count": 206,
-    "hash": "e48fe7a4bfed0299db10d177de50c4094024242c5a9a722a2ce1ef95f644c04f"
+    "size": 2930,
+    "mtime_ns": 1785096456437420146,
+    "word_count": 210,
+    "hash": "1ed49a154170b727ea662dbfba524105037911845bcb7b3575afd8c98cecffea"
   },
   "/Users/alexbukov/verv/Velez/internal/service/service_manager/configurator/configurator.go": {
     "size": 518,
@@ -1510,10 +1510,10 @@
     "hash": "15a84f5525ca5c455da7c572f403199abf4781e72b3909d0096d41203aa19f91"
   },
   "/Users/alexbukov/verv/Velez/internal/service/service_manager/plugins/plugin_service.go": {
-    "size": 1600,
-    "mtime_ns": 1785091485590123899,
-    "word_count": 157,
-    "hash": "72595e74699f59af154ee3806dfa9a72a90af5953ed38654dd8b36ceba9af7ea"
+    "size": 1625,
+    "mtime_ns": 1785137500025148114,
+    "word_count": 160,
+    "hash": "e3142609f6c82984ce1dad2d23e2248fd806f7eb9186b4692ffd02573b14cefc"
   },
   "/Users/alexbukov/verv/Velez/internal/service/service_manager/services.go": {
     "size": 2759,
@@ -1522,16 +1522,16 @@
     "hash": "dc3bd373ba98325491de2540fdecd46deeb69b1f3bd08ee1fca746342da581fd"
   },
   "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/deploy.go": {
-    "size": 3855,
-    "mtime_ns": 1785093135257882768,
-    "word_count": 364,
-    "hash": "8d2cf5af066561aaf970263d846563839b11b565be295cb49bd6870fc026f3c1"
+    "size": 3885,
+    "mtime_ns": 1785137501119589514,
+    "word_count": 367,
+    "hash": "c634c8f7787e5fb75215578e21a8cdd754576d809cfba574a426c2a8ab59510e"
   },
   "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/environments.go": {
-    "size": 1798,
-    "mtime_ns": 1785091486302579059,
-    "word_count": 184,
-    "hash": "c932e4035aeda9d68522564219764973dad94bcb2018942918cc87d318d811e5"
+    "size": 1825,
+    "mtime_ns": 1785137499985848169,
+    "word_count": 188,
+    "hash": "bb7c6fa1180c55d15234583f7404afa9fac83a18aa75a74bfbd0cc63863292a9"
   },
   "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/get.go": {
     "size": 1473,
@@ -1540,22 +1540,22 @@
     "hash": "b193aebba1846929e318ed2477eb60d0862f6e66618cbe8dbd7cd47c259c79ab"
   },
   "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/graph.go": {
-    "size": 587,
-    "mtime_ns": 1785086368120747810,
-    "word_count": 55,
-    "hash": "061a251a121d281d9824762a92cd92f069f8449fb2969b2bb8e956f144198313"
+    "size": 680,
+    "mtime_ns": 1785137501097489827,
+    "word_count": 66,
+    "hash": "3b98c8e368fb5f0ecf5ee269062b92c08441b7ae7d9aabd97f4ee9d442912942"
   },
   "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/list.go": {
-    "size": 1962,
-    "mtime_ns": 1785091486742226226,
-    "word_count": 206,
-    "hash": "7970bf4b979f7d71947a71e5709302075b49593b25e65707a464c6f8bf7b539b"
+    "size": 1989,
+    "mtime_ns": 1785137500038112901,
+    "word_count": 209,
+    "hash": "d43d2f7ea30a49b49d194a5a1a6e538a146281039ce999f814c943c33c7eb295"
   },
   "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/list_environments.go": {
-    "size": 283,
-    "mtime_ns": 1779394116731694962,
-    "word_count": 32,
-    "hash": "613337be92f102274b934d504bfe80a7e2022c888d1d298e821c76e5bd95281a"
+    "size": 326,
+    "mtime_ns": 1785137499978572149,
+    "word_count": 37,
+    "hash": "abd65db887cb3efced21ec63ba554167067c4c5aaee9c19b81af694a682ec847"
   },
   "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/list_test.go": {
     "size": 7686,
@@ -1564,16 +1564,16 @@
     "hash": "45c2a3ff6027d7fe1f0fc73a3c675f4b20dd9a671ab8c9404b32184410dd4125"
   },
   "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/metrics.go": {
-    "size": 2001,
-    "mtime_ns": 1785091486632052690,
-    "word_count": 191,
-    "hash": "9689073555dde73c209bade4fb65e0eab13edfe3dcb884b00627005ae360431a"
+    "size": 2050,
+    "mtime_ns": 1785137501103896470,
+    "word_count": 197,
+    "hash": "c5e0bbaf485d769da77b972cad7ec6bda7cbefaa178e5541f87dec52f3f51c76"
   },
   "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/resources.go": {
-    "size": 384,
-    "mtime_ns": 1785086368025610349,
-    "word_count": 36,
-    "hash": "0c03065a48229fc3be36ee5fcc93468d3054a53c8758ebc5fe6d0aeec5316ae4"
+    "size": 425,
+    "mtime_ns": 1785137501101127587,
+    "word_count": 41,
+    "hash": "e9bda8780bef11fcb7082fbd394b60c83bdef90e6cba96aa890fd98440da2eeb"
   },
   "/Users/alexbukov/verv/Velez/internal/service/service_manager/verv_services/service.go": {
     "size": 1224,
@@ -1612,10 +1612,10 @@
     "hash": "5755c8afdac484021fa4b9581077dd63ab59ab94f42ed58f6ec8b3a8dd820452"
   },
   "/Users/alexbukov/verv/Velez/internal/storage/local_storage/docker_impl.go": {
-    "size": 2596,
-    "mtime_ns": 1785091486720583620,
-    "word_count": 212,
-    "hash": "c31025a833e64844d10755f23f47aec06e7f7b88f6a3de3671aa938022c01376"
+    "size": 2625,
+    "mtime_ns": 1785137501122531397,
+    "word_count": 215,
+    "hash": "c670fbd4f3035cb9330196029eaac70e6577ebd8fe54959d779c1f44af6c5f05"
   },
   "/Users/alexbukov/verv/Velez/internal/storage/local_storage/nodes.go": {
     "size": 619,
@@ -1624,22 +1624,22 @@
     "hash": "4fc7f1b416195c036530591ad0e6d09af62bea22341fd732207bf14e8af3eede"
   },
   "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_dependencies.go": {
-    "size": 2934,
-    "mtime_ns": 1785091486587424305,
-    "word_count": 305,
-    "hash": "e9e9160517704277a09dd0aa95847be2e5b159116ca92c1e99d8435502e15dab"
+    "size": 2991,
+    "mtime_ns": 1785137501105214932,
+    "word_count": 311,
+    "hash": "b2d974b4d092eab0a89b60613232e965c008abe7c3ee1190792d60ac1e5597ee"
   },
   "/Users/alexbukov/verv/Velez/internal/storage/local_storage/service_resources.go": {
-    "size": 1356,
-    "mtime_ns": 1785091485629524281,
-    "word_count": 129,
-    "hash": "4768f0f1a0806292a8dccf6fd2c93bbe371231f37f4a528cbbaa32103ab9c4f8"
+    "size": 1385,
+    "mtime_ns": 1785137501106920395,
+    "word_count": 132,
+    "hash": "89eae0b7f9c2cade60ff072076f3b461130814dd4e263f438902178c5412d48e"
   },
   "/Users/alexbukov/verv/Velez/internal/storage/local_storage/services.go": {
-    "size": 3353,
-    "mtime_ns": 1785091485924387080,
-    "word_count": 349,
-    "hash": "8c488ad290523b407ba660bf01965403d49f8d0fc877129a5a75e6f88690fdd0"
+    "size": 3410,
+    "mtime_ns": 1785137501121123477,
+    "word_count": 355,
+    "hash": "2b6810014ec2b351fc0296500c3a833674bace1e9345111631c11fc8dc7b00d0"
   },
   "/Users/alexbukov/verv/Velez/internal/storage/local_storage/storage.go": {
     "size": 1708,
@@ -1654,10 +1654,10 @@
     "hash": "462ec7379687bfcd7009ccb420ad3e1e2e4b3a819955997640b8300604228020"
   },
   "/Users/alexbukov/verv/Velez/internal/storage/postgres/deployments.go": {
-    "size": 3729,
-    "mtime_ns": 1785086365703034379,
-    "word_count": 385,
-    "hash": "9336b19df56292eb8bf9e0e56986a353a5a91d33f71487dbedad9ccc1e5b6379"
+    "size": 3732,
+    "mtime_ns": 1785098247141659207,
+    "word_count": 386,
+    "hash": "216fc89375975658e93cb3f01146946d1f9c040b16c3c76dc2495faa151a07f1"
   },
   "/Users/alexbukov/verv/Velez/internal/storage/postgres/generated/deployments_queries/db.go": {
     "size": 612,
@@ -1804,10 +1804,10 @@
     "hash": "eb0243f60ff78b792b062c8ac2560a12a2927d06958960e735a7ae5c25d33124"
   },
   "/Users/alexbukov/verv/Velez/internal/storage/postgres/node.go": {
-    "size": 3043,
-    "mtime_ns": 1785093046347039260,
-    "word_count": 342,
-    "hash": "09bc2f4111c57883b92706f0288656cba46fd6b287771dd82cf2792ce4e6342e"
+    "size": 3088,
+    "mtime_ns": 1785137501108467441,
+    "word_count": 349,
+    "hash": "a47568a27672119a703142f6b3bdff141dbaadc92f7d62b738d37211447c89cc"
   },
   "/Users/alexbukov/verv/Velez/internal/storage/postgres/plugins.go": {
     "size": 2169,
@@ -1864,10 +1864,10 @@
     "hash": "ada09b455f99b3e80172a9d4b1024aabada4e0c44e046bf1e373952dbd6cc098"
   },
   "/Users/alexbukov/verv/Velez/internal/storage/postgres/services.go": {
-    "size": 3722,
-    "mtime_ns": 1785092221851827059,
-    "word_count": 380,
-    "hash": "72507ae808c906135be6c76192e80bb5e2a901432e5c39b07993616dffd08b6a"
+    "size": 3705,
+    "mtime_ns": 1785137500036396813,
+    "word_count": 378,
+    "hash": "b4877835bf4722788f8d1da0f7553092bcb926e9785bff63925cd8936003b79a"
   },
   "/Users/alexbukov/verv/Velez/internal/storage/postgres/storage.go": {
     "size": 2547,
@@ -1876,10 +1876,10 @@
     "hash": "87e3f1f007fd996f2baf92d5404d77912295ec9a7e562d8bd4eec07491bf32f4"
   },
   "/Users/alexbukov/verv/Velez/internal/storage/storage.go": {
-    "size": 2770,
-    "mtime_ns": 1785086367712278007,
-    "word_count": 203,
-    "hash": "ac554d79abc9e15f5694314a50131cd39f5a592db339de47db0890134ca61ed0"
+    "size": 2782,
+    "mtime_ns": 1785096522156133721,
+    "word_count": 204,
+    "hash": "dc6d34e7c8651abb51799ceddb5c674493d20c43b567d08b6487f9df645e93b2"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/common/nodes.go": {
     "size": 833,
@@ -1894,10 +1894,10 @@
     "hash": "36f6b4d390a540e191a38fe809f5fb6a538f5ffdbb9916f6460891efc4a13be9"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/control_plane_api_impl/enable_plugin.go": {
-    "size": 2625,
-    "mtime_ns": 1785093062743034569,
-    "word_count": 246,
-    "hash": "68cc3e3cbea205e29d2b5fc2fa9665a90f6ddf7c4ecf9e5c5ba0544a4f6babd1"
+    "size": 2658,
+    "mtime_ns": 1785137501114807709,
+    "word_count": 250,
+    "hash": "823e809578fa4f6b67432fc75f8e523df3e8aecff157efbdaa2688f04e7e818d"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/control_plane_api_impl/impl.go": {
     "size": 1452,
@@ -1906,10 +1906,10 @@
     "hash": "e9824fb0a3df7ce5f983c7c227a058e3dacdb5c3246d58954c2350d658fd9b32"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/control_plane_api_impl/list_environments.go": {
-    "size": 466,
-    "mtime_ns": 1785086368312764524,
-    "word_count": 44,
-    "hash": "ea637ad2827d2106f60b0d4ef6f097359eee3392007f2d8ee7e756c8b25ed2eb"
+    "size": 496,
+    "mtime_ns": 1785137501110811656,
+    "word_count": 47,
+    "hash": "361d3918b3ae6824c0ffb4794776f3cfcf9a81176440786e760c7c4317d14648"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/control_plane_api_impl/list_nodes.go": {
     "size": 661,
@@ -1925,9 +1925,9 @@
   },
   "/Users/alexbukov/verv/Velez/internal/transport/grpc.go": {
     "size": 1702,
-    "mtime_ns": 1785086366865281185,
+    "mtime_ns": 1785097307857471855,
     "word_count": 170,
-    "hash": "69ac15720591ec55aecb84551000d84ee854fa2ae0bb99cba672766b753de9fe"
+    "hash": "18a1984c65725641ed9c731a72330bd736fc157c8f5fc078447183b09d36a7df"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/http.go": {
     "size": 2371,
@@ -1936,10 +1936,10 @@
     "hash": "4e29e949ad852387ff1c7045cf9a975c7a1a6c40b44cb795b4846e4112fcdb93"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/manager.go": {
-    "size": 1357,
-    "mtime_ns": 1785090776534805156,
-    "word_count": 129,
-    "hash": "303b5fe9cb8d0a874f993adc0724194b2bbd3e0c233a4f1a6c1b1b9dcd0171aa"
+    "size": 1387,
+    "mtime_ns": 1785138901256176877,
+    "word_count": 133,
+    "hash": "d5c71f8bed7fcec3a401312b6b31c03ef7c2d6a0a5efa75087a1ded2ee01e354"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/common.go": {
     "size": 736,
@@ -1948,34 +1948,34 @@
     "hash": "4257a8a794f7c6c86c2befeb3ac2ffdb50ade37084150224cd93f7f0479682d1"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/common_test.go": {
-    "size": 3196,
-    "mtime_ns": 1785093103947077450,
-    "word_count": 322,
-    "hash": "c1fe8cbbb9b69604bc50858c8bed1d986092e257c786bd88ac18dff05dc49d5b"
+    "size": 3334,
+    "mtime_ns": 1785136431887366933,
+    "word_count": 329,
+    "hash": "bba4696fbce73d640cc4b43e5388a43ba9464e04adda1d7fe022bdf4b4f1b40a"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/deploy_create.go": {
-    "size": 1699,
-    "mtime_ns": 1785093079116703879,
-    "word_count": 146,
-    "hash": "ceb0c18ed5c626a4a0fdfb1f064f5434990813ac2f36cc3a3a7e05c4ebc22ffe"
+    "size": 1631,
+    "mtime_ns": 1785096687673701707,
+    "word_count": 134,
+    "hash": "243ef5c3705267048c92c564e94eb87e43850cec83a81b6ce284464e5ed15c7d"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/deploy_list.go": {
-    "size": 1989,
-    "mtime_ns": 1785093087825153695,
-    "word_count": 126,
-    "hash": "82647ffbfe7d3f6737d9cbffe9c3c49200338b2f997e66297e53377c5e741c38"
+    "size": 2018,
+    "mtime_ns": 1785137659724764117,
+    "word_count": 129,
+    "hash": "1e35be092bd20a9c5f945401b8128669d5b288c33113e0e0a3d7c9327873a42c"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/environments.go": {
-    "size": 1025,
-    "mtime_ns": 1785093096983094598,
-    "word_count": 84,
-    "hash": "121b8e22e4ba27621036938b751aded42dbef28441ba2abf16149118d4840c80"
+    "size": 1066,
+    "mtime_ns": 1785137659732420147,
+    "word_count": 88,
+    "hash": "9b2f15d9109fb530f9bb478cad6938a33e53e8b44e9f0a6180e3900f67c6f22a"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/graph.go": {
-    "size": 1235,
-    "mtime_ns": 1785093105433710881,
-    "word_count": 105,
-    "hash": "466cc72d009f5e6fbe30f80d1c18c35a38e4dbdd6cd04f9ba9909978b1a6f10b"
+    "size": 1267,
+    "mtime_ns": 1785137659733288942,
+    "word_count": 109,
+    "hash": "2939406c0b7490d1a913bdd38d8da47e070c3353f76e963d8d666df24fe72ed8"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/impl.go": {
     "size": 1181,
@@ -1984,16 +1984,16 @@
     "hash": "34dca292ce18a6d4be3ddc43e8ca5eba9314d06e73406fe7270ba9aca0a2f6f5"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/metrics.go": {
-    "size": 717,
-    "mtime_ns": 1785093123587257327,
-    "word_count": 55,
-    "hash": "c39f13f3727e20a5d031c5f2804e3ff4cfcc13b4d5d49f3184bffb8593bcced5"
+    "size": 751,
+    "mtime_ns": 1785137659731383768,
+    "word_count": 59,
+    "hash": "e6ddf0c656be13a9b671ec10d5e7a9e07f9045af0478e690618b213087b924a5"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/resources.go": {
-    "size": 784,
-    "mtime_ns": 1785093073138078523,
-    "word_count": 72,
-    "hash": "f1bebcc1c51dfbc7f24fe15d2ff76c95fe63816c0010c9f1bd2f111e4024dedd"
+    "size": 820,
+    "mtime_ns": 1785137659723816863,
+    "word_count": 76,
+    "hash": "2109195439cc946b3784b3a8e3dc0eb8d32b5ba587ebcf0b27298a6e57254a6b"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/service_create.go": {
     "size": 1845,
@@ -2002,28 +2002,28 @@
     "hash": "93c561f83b411cf25a5e7233d5e46f953179b39c4125864071f58a6ba73a2692"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/service_get.go": {
-    "size": 980,
-    "mtime_ns": 1785091486674040027,
-    "word_count": 77,
-    "hash": "06ff8a123c8ca31d14e45b2da984477ba63806cd5429f35900b9b9aaf88bfb95"
+    "size": 1011,
+    "mtime_ns": 1785137659721692022,
+    "word_count": 81,
+    "hash": "9c7d0d0745114139b9adf30467aa099f220f478218083fdcf2adbb169ad6c7b7"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/service_list.go": {
-    "size": 1104,
-    "mtime_ns": 1785093078149601133,
-    "word_count": 84,
-    "hash": "2fae0f9f5ea62a888b52bbdc3a15b5981b9cd02162fa6fec06cea0d910192513"
+    "size": 1131,
+    "mtime_ns": 1785137659727308710,
+    "word_count": 87,
+    "hash": "535dc636d98d0ae5b5c3885e74b9bbf6d2f8d622cf35ed68926ff89f2f2f0c7e"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/service_restart.go": {
-    "size": 443,
-    "mtime_ns": 1785093088441979070,
-    "word_count": 37,
-    "hash": "c75e03d34b5f4a9720600847a2c6d3410ec2e42f3f18e40aec7d745b3365f8ab"
+    "size": 472,
+    "mtime_ns": 1785137659720719435,
+    "word_count": 40,
+    "hash": "e6f3b63ae8a0708a02a800e9b3a49a7c3472e099ea8e3d3d38fd45274258c55b"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/service_stop.go": {
-    "size": 428,
-    "mtime_ns": 1785093093784622443,
-    "word_count": 37,
-    "hash": "a0013d47937a3d605a039d2a67f02de5dc9d5c449c4edda99f4b53347bd464fa"
+    "size": 455,
+    "mtime_ns": 1785137659719403804,
+    "word_count": 40,
+    "hash": "631a34631315eedaa3fbc166042d52e966c57115059808710e6e21bd4799fe5f"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/vervonomicon.go": {
     "size": 289,
@@ -2062,16 +2062,16 @@
     "hash": "b5bb66b95dc22e432a0f5ea05e5adc446cc8520699bfc383b0e0c6284472d3b9"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/vcn_api_impl/namespaces_create.go": {
-    "size": 499,
-    "mtime_ns": 1785091486490743026,
-    "word_count": 41,
-    "hash": "2d2238d664054be23d05e757e29a47721bd27a4152148e8c433d9437105721a9"
+    "size": 528,
+    "mtime_ns": 1785137658750604598,
+    "word_count": 44,
+    "hash": "e72ef6ef54469f01623fcb9200b75b9b462d3282107acc459e652ec6347d5277"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/vcn_api_impl/namespaces_list.go": {
-    "size": 925,
-    "mtime_ns": 1785086367986604473,
-    "word_count": 79,
-    "hash": "e96e2f9cf551df514a5d34b844a200c2b09c41e110f80ec0e5070bfde39abd01"
+    "size": 962,
+    "mtime_ns": 1785137658688422811,
+    "word_count": 83,
+    "hash": "72b05b28a3b7019e2d67f750c5f57eb38546fb089c58d5c86ed89f1c94f46b21"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/vcn_api_impl/service_connect.go": {
     "size": 1831,
@@ -2080,16 +2080,16 @@
     "hash": "77c7d94cb7b52bcb6537c213d0229da794561e36604d7b8b6986906f9c68d438"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/vcn_api_impl/user_connect.go": {
-    "size": 558,
-    "mtime_ns": 1785091485990861490,
-    "word_count": 46,
-    "hash": "88a54205762249458f95ac55bf317da0e6d47d1e5445a411567f7e3d7bd6a4d1"
+    "size": 593,
+    "mtime_ns": 1785137659715407872,
+    "word_count": 50,
+    "hash": "dc85bbca87f701ac6ba8ee084770d51cc8587a3102ff074f328d694a72dabc79"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/velez_api_impl/assemble_config.go": {
-    "size": 4315,
-    "mtime_ns": 1785093072914471461,
-    "word_count": 450,
-    "hash": "2d338e5385040b306b14de857b0371177eb2b3f97d9b55d823ad44b8a2044399"
+    "size": 2870,
+    "mtime_ns": 1785097205759402098,
+    "word_count": 248,
+    "hash": "144d135f1f51bd1a01bb05200e7549e94f4ee706278e5abf69c5845cb7034bd6"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/velez_api_impl/get_hardware.go": {
     "size": 403,
@@ -2104,10 +2104,10 @@
     "hash": "8beac9d5d4000860d2c7bf54ef570169ce1b296a2d7d4e08769210103eb0926a"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/velez_api_impl/image_list.go": {
-    "size": 782,
-    "mtime_ns": 1785091486682809579,
+    "size": 783,
+    "mtime_ns": 1785093829692318863,
     "word_count": 56,
-    "hash": "113c21dd6d66f1b54b17cd60fb7614c68a71d7e9ae2a278f9837127ec2de6179"
+    "hash": "3472c353c007446930d320733fa37ea602daf993dd4cd9e478061dd6498b20a3"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/velez_api_impl/impl.go": {
     "size": 1560,
@@ -2164,10 +2164,10 @@
     "hash": "e3445422ea43c46c6468b3ddabbf704b1a53ac4a2dbb12531dc68f2ef4c385a0"
   },
   "/Users/alexbukov/verv/Velez/internal/workers/deploy_watcher.go": {
-    "size": 7977,
-    "mtime_ns": 1785091523457102599,
-    "word_count": 669,
-    "hash": "78c19d7e51a14ea0efaa9c975bf41ed33cfba457b45e2914ac14f9530bf39658"
+    "size": 7999,
+    "mtime_ns": 1785097426087978436,
+    "word_count": 670,
+    "hash": "a5fe03dce8264a7c8e7f0b7d89f862c94817005d0506fad010465237878dbfbe"
   },
   "/Users/alexbukov/verv/Velez/internal/workers/worker.go": {
     "size": 182,
@@ -3262,16 +3262,16 @@
     "hash": "9b2ed321fce402dabb2213561c9fe69763f3e31388762680c2eb55868155c9fe"
   },
   "/Users/alexbukov/verv/Velez/tests/e2e/helper.go": {
-    "size": 1788,
-    "mtime_ns": 1785093095667147543,
+    "size": 1789,
+    "mtime_ns": 1785093829439243018,
     "word_count": 150,
-    "hash": "47d146a47f9865cc1f9845cb460eab15debb26e034c0823093456d202448e7f1"
+    "hash": "1a5061ef28ba3f217ff2df9a6f7c79a9ed0641b4985e8f8e6f8e2a8b778de24d"
   },
   "/Users/alexbukov/verv/Velez/tests/e2e/helper_environment.go": {
-    "size": 8469,
-    "mtime_ns": 1785093117163819710,
-    "word_count": 830,
-    "hash": "cbae4299575b3fa11676e68cd37f70b96758169c748453b53bcdea3241638b52"
+    "size": 8486,
+    "mtime_ns": 1785138909839322007,
+    "word_count": 831,
+    "hash": "ec7d58d6adbaaf5e19f75b5d6643e04e038cbb411586c14d2bd745e6e93b79ab"
   },
   "/Users/alexbukov/verv/Velez/tests/e2e/suite_api_deploy_test.go": {
     "size": 6848,
@@ -3305,7 +3305,7 @@
   },
   "/Users/alexbukov/verv/Velez/tests/e2e/test_data/default-private-key.json": {
     "size": 704,
-    "mtime_ns": 1785080462593795727,
+    "mtime_ns": 1785138672376891873,
     "word_count": 23,
     "hash": "d348df15f9a2c3af00d7e0bf79968043807644531d34656399fba8b63c972571"
   },
@@ -3367,22 +3367,22 @@
     "hash": "dd0d06a67e94e81bf1829f8cf5309232884f538c0c74ef6a4d70a5326d395968"
   },
   "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint.go": {
-    "size": 3389,
-    "mtime_ns": 1785086365382220820,
+    "size": 3390,
+    "mtime_ns": 1785097384257431710,
     "word_count": 351,
-    "hash": "97d6b2b4d258cd4884fa3b89ed922ee48748871320c5f2eb75d0bd0f9bafb3d2"
+    "hash": "fedd7865540b40fb1e5a206d02e3a5eb0d803d751314721a750022892b2f6f6e"
   },
   "/Users/alexbukov/verv/Velez/internal/jobs/checkpoint_test.go": {
-    "size": 3263,
-    "mtime_ns": 1785086366651761385,
-    "word_count": 346,
-    "hash": "b5f749989e90948f04317571c3eeef2089fb6b6e2da74bbb6fb4fac92885d067"
+    "size": 3278,
+    "mtime_ns": 1785094048009963670,
+    "word_count": 347,
+    "hash": "a53c51cc63c893aea3ce1625e37872d3c38d4c3353277cf87d4f276b09377576"
   },
   "/Users/alexbukov/verv/Velez/internal/jobs/create_smerd.go": {
-    "size": 18393,
-    "mtime_ns": 1785093100096818899,
-    "word_count": 1774,
-    "hash": "78774b00a10d5b83a8abc415967b38bd21dafe9a88990fd698af3f12e2ece111"
+    "size": 18446,
+    "mtime_ns": 1785137093580144082,
+    "word_count": 1778,
+    "hash": "123abc4e6e251ee3af4bda8c4660e7afb412c20d28b4c82352fcb70b90710df3"
   },
   "/Users/alexbukov/verv/Velez/internal/jobs/engine.go": {
     "size": 3350,
@@ -3398,9 +3398,9 @@
   },
   "/Users/alexbukov/verv/Velez/internal/jobs/fakes_test.go": {
     "size": 26673,
-    "mtime_ns": 1785091989469995302,
+    "mtime_ns": 1785097354960331102,
     "word_count": 2764,
-    "hash": "a2547ce67cd1737704a78355557f33e041dbf1364d9ba8cbab52f7302689d1f8"
+    "hash": "c476263c420b8dacaf1996489fb84fea62c5b0a7931a6a35d77db376e6073135"
   },
   "/Users/alexbukov/verv/Velez/internal/jobs/job.go": {
     "size": 1456,
@@ -3415,10 +3415,10 @@
     "hash": "8a880660087d4fa3afcda004ac7986b8db4d4f05988c9de8757db8ea73a8f8e2"
   },
   "/Users/alexbukov/verv/Velez/internal/jobs/worker.go": {
-    "size": 4714,
-    "mtime_ns": 1785086366990208815,
-    "word_count": 509,
-    "hash": "f93b0d09c3412025a50cda09da1731076a64043de556bf40d99295c14a1aeb51"
+    "size": 4737,
+    "mtime_ns": 1785137094636095138,
+    "word_count": 512,
+    "hash": "1d6e7ce8e0125aaf0146faa60e23e585b041fd106a72bcaeffb8b39e81472bbe"
   },
   "/Users/alexbukov/verv/Velez/internal/jobs/worker_test.go": {
     "size": 3788,
@@ -3511,10 +3511,10 @@
     "hash": "1c846918b3fc881bdaa9a125598f1feead66354d5f92f8d49a73ffb250a048db"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/tasks_api_impl/impl.go": {
-    "size": 3174,
-    "mtime_ns": 1785093093916735012,
-    "word_count": 285,
-    "hash": "4bb8b47084082c1b5ef721025d4471c1602d75fa0e3608629aba024ca817d382"
+    "size": 3239,
+    "mtime_ns": 1785137659722893610,
+    "word_count": 295,
+    "hash": "105eeaf011fe3bb5d17dc3d78f36286ead851217675272687d60bb7eb01a3512"
   },
   "/Users/alexbukov/verv/Velez/migrations/20260714000000_tasks_jobs.sql": {
     "size": 1376,
@@ -3547,16 +3547,16 @@
     "hash": "2672a2a5532ebc6f7c5a11e6cde2cd7cde5b3fdc528a9c2ba984e068d9e70761"
   },
   "/Users/alexbukov/verv/Velez/internal/jobs/assemble_config.go": {
-    "size": 9487,
-    "mtime_ns": 1785093047664538289,
-    "word_count": 968,
-    "hash": "919a18e3ad5ec98657376ce22fea9b1beed02d2a0c9d79eadcb5b3651528ca34"
+    "size": 9546,
+    "mtime_ns": 1785096673213839814,
+    "word_count": 975,
+    "hash": "d84d4bc5496959a34016cc94ad9e1098b8cec44ff06d615c0a3d61352382f354"
   },
   "/Users/alexbukov/verv/Velez/internal/jobs/assemble_config_test.go": {
-    "size": 14112,
-    "mtime_ns": 1785091485900160344,
-    "word_count": 1375,
-    "hash": "6869190c122e585eefc419992f0eb64b456dd67683c1b825cc9430f87c738503"
+    "size": 14083,
+    "mtime_ns": 1785098172195785852,
+    "word_count": 1364,
+    "hash": "4bee591984c42f537b88aaf46a3f443cf3db2c40be3acfe1b32167c82a97425a"
   },
   "/Users/alexbukov/verv/Velez/tests/e2e/suite_assemble_config_job_test.go": {
     "size": 2386,
@@ -3577,28 +3577,28 @@
     "hash": "814fd73b90424002f87f9c76d57f3d69ce080427bb7dec9c5e17cfc238710d5a"
   },
   "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume.go": {
-    "size": 11894,
-    "mtime_ns": 1785093068048080054,
-    "word_count": 1354,
-    "hash": "ee36c591d228d19f7095b7991793b01d7c84ac9d53ffb0522c1e10cc7cd7f4a8"
+    "size": 11903,
+    "mtime_ns": 1785094465997073921,
+    "word_count": 1355,
+    "hash": "9a3e61265f132c2f8d5f5c455e49a307a87b8c914600c3626cd3087ca83c5929"
   },
   "/Users/alexbukov/verv/Velez/internal/jobs/copy_to_volume_test.go": {
-    "size": 27175,
-    "mtime_ns": 1785092578221429148,
-    "word_count": 2778,
-    "hash": "df4944e288407a0b6b60603583164297600be722b507edfb4f898688380d423f"
+    "size": 27239,
+    "mtime_ns": 1785097875779687953,
+    "word_count": 2767,
+    "hash": "7fc31f7c198e26fc132764e6ccbf103eb25fbe48a8bf233b18746cac0e9c84a0"
   },
   "/Users/alexbukov/verv/Velez/internal/jobs/connect_service_to_vpn.go": {
-    "size": 10672,
-    "mtime_ns": 1785093058079147068,
-    "word_count": 1003,
-    "hash": "716496216f2ccfefe7c70ecd3ab72b29e40553cb8c38d3a5a1e8242ad4675164"
+    "size": 10791,
+    "mtime_ns": 1785137093528350968,
+    "word_count": 1021,
+    "hash": "34fd2258b632e600ba349730dbb3f9c61f0228f6cfc0de5c063adc995b55a9a7"
   },
   "/Users/alexbukov/verv/Velez/internal/jobs/connect_service_to_vpn_test.go": {
-    "size": 20216,
-    "mtime_ns": 1785091486046464638,
-    "word_count": 1908,
-    "hash": "44b16a7fd6fbbc20b4e9f4fad349a88c657c6d2852feb5009f57e15f9111a095"
+    "size": 20496,
+    "mtime_ns": 1785098137670212282,
+    "word_count": 1915,
+    "hash": "bf4b9e31d11d686c83cb794409fc8255886abb8842f99e63f7bb24a3b78e2677"
   },
   "/Users/alexbukov/verv/Velez/docs/security/vpn_client_key_storage.md": {
     "size": 1904,
@@ -3607,28 +3607,28 @@
     "hash": "705d206c314cd1f116f256bfec4a0554cae9df482befa8436900c07d67fff7fe"
   },
   "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull.go": {
-    "size": 19061,
-    "mtime_ns": 1785093125890881118,
-    "word_count": 1986,
-    "hash": "4a817771366b59518b4425609d94d38549526d59492c780d29e3e1a4f0d9893d"
+    "size": 19118,
+    "mtime_ns": 1785137093524203504,
+    "word_count": 1994,
+    "hash": "3e7597b66974901eb66e79568eed3a3c6f7f8985ab49816d8adc492114e5f4d0"
   },
   "/Users/alexbukov/verv/Velez/internal/jobs/enable_statefull_test.go": {
-    "size": 24442,
-    "mtime_ns": 1785093139714714634,
-    "word_count": 2219,
-    "hash": "46e99db9c9eecec13098570bbdeda0cfd621c4f4abcf63a5e5c7508017d6634e"
+    "size": 24634,
+    "mtime_ns": 1785097762715166951,
+    "word_count": 2226,
+    "hash": "11f956fdd289e43e9cdf4e311251da8539f6767b9cdf7de75a0522263b9a33fd"
   },
   "/Users/alexbukov/verv/Velez/internal/jobs/upgrade_smerd.go": {
-    "size": 25440,
-    "mtime_ns": 1785093168857230800,
-    "word_count": 2575,
-    "hash": "660da7c4acfee006740f3a4563d5cf8c7f69b0f679feb98a0e650da9d66272da"
+    "size": 25488,
+    "mtime_ns": 1785137093502025557,
+    "word_count": 2581,
+    "hash": "66881429b54eab4f412eca294060da1193502cbbb73538448bc0d215c27aa8fc"
   },
   "/Users/alexbukov/verv/Velez/internal/jobs/upgrade_smerd_test.go": {
-    "size": 26463,
-    "mtime_ns": 1785091486482007141,
-    "word_count": 2275,
-    "hash": "cd134014b8709d47fccc111a74d5c3c69560f863e900e31d1fa4371556a29f33"
+    "size": 26589,
+    "mtime_ns": 1785097652818930992,
+    "word_count": 2281,
+    "hash": "754a6e03afc13aa09728c42b87d38c9720a34992ecc7c4c037a3d34b7fc1ad00"
   },
   "/Users/alexbukov/verv/Velez/docs/plans/testing.md": {
     "size": 16536,
@@ -3637,16 +3637,16 @@
     "hash": "5e09b4ad00b50f5bf40714a5eb8f68481f8d3f84cea6be2bcb173eb1c875a89e"
   },
   "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/create_smerd_request_json.go": {
-    "size": 2629,
-    "mtime_ns": 1785092239823772193,
-    "word_count": 328,
-    "hash": "faa213ba75f932fa5ff132dffc897e82cbb06c37bad0a56c3e6e656aea138851"
+    "size": 2847,
+    "mtime_ns": 1785136493601172744,
+    "word_count": 338,
+    "hash": "d94fbc282fefe6e363c801535736dc663bc69179fc2729afd488603e39eb54a5"
   },
   "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/create_smerd_request_json_test.go": {
-    "size": 2979,
-    "mtime_ns": 1784459596786208322,
-    "word_count": 272,
-    "hash": "7687324dfcefcb7f56a2951df861877068c4a722181d5273f18186a674a3cbf1"
+    "size": 3354,
+    "mtime_ns": 1785135758635329992,
+    "word_count": 289,
+    "hash": "44837d2820ad01702c63031a8ab2e97235069c5d1e695b5cc71105b7fa4a02a8"
   },
   "/Users/alexbukov/verv/Velez/tests/e2e/suite_enable_statefull_test.go": {
     "size": 3682,
@@ -3690,10 +3690,10 @@
     "word_count": 277
   },
   "/Users/alexbukov/verv/Velez/internal/jobs/drop_smerd.go": {
-    "size": 3559,
-    "mtime_ns": 1785093109690817101,
-    "word_count": 416,
-    "hash": "70bdb1407cd765df109716da2493845babe4113cf0ef09cb7f46876135c67524"
+    "size": 3563,
+    "mtime_ns": 1785096626771300452,
+    "word_count": 419,
+    "hash": "88b844193cc96ae95239365a717151482647de76d70815be6513468cc42aa3dc"
   },
   "/Users/alexbukov/verv/Velez/internal/jobs/drop_smerd_test.go": {
     "size": 7816,
@@ -3702,10 +3702,10 @@
     "hash": "da04751c7114adccb8a58c65a4871aa0db7273d083adfeb263ca5c299e7ed3f9"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/tasks_api_impl/impl_test.go": {
-    "size": 5211,
-    "mtime_ns": 1785093105433474422,
-    "word_count": 516,
-    "hash": "7848dcf299f818abe3131a5a9593b51930eeb92360a126fcc8e8ec7243a52295"
+    "size": 5258,
+    "mtime_ns": 1785136431969209073,
+    "word_count": 528,
+    "hash": "7a35960b6b9d370007482c10a30a1293cb054a91220915d04afcf775c21c892b"
   },
   "/Users/alexbukov/verv/Velez/pkg/web/Velez-UI/src/components/complex/BreadcrumbsBar/BreadcrumbsBar.tsx": {
     "size": 998,
@@ -3730,10 +3730,10 @@
     "hash": "a7c4e1f503473812af6048e02707a4a83fd8f00a9c856c4bbc9d61823fe7fbe2"
   },
   "/Users/alexbukov/verv/Velez/internal/transport/service_api_impl/service_remove.go": {
-    "size": 605,
-    "mtime_ns": 1785093083256478281,
-    "word_count": 46,
-    "hash": "c4b5e9e0d74fd5f4b1748515ce0c0ec88adc0c69ea567262b6f7c508b09dd388"
+    "size": 632,
+    "mtime_ns": 1785137659726065580,
+    "word_count": 49,
+    "hash": "5db069673b97cc7f3f19c8622bd1e4ce444f5e2fa2d590085a248df1122a9c66"
   },
   "/Users/alexbukov/verv/Velez/pkg/web/Velez-UI/src/components/base/chips/TagChip.tsx": {
     "size": 350,
@@ -3792,9 +3792,9 @@
     "hash": "b5c2c5a1eac6cd0b88fefe6154fc194ad8d6ddc729c02fa9e626f6f0deb55502"
   },
   "/Users/alexbukov/verv/Velez/internal/user_errors/network.go": {
-    "size": 125,
-    "mtime_ns": 1785091352227249883,
-    "word_count": 12,
-    "hash": "a3c9c9afc0d4e855ffd0f5809ebc2b194e8cc2c67c875618507048b80bdf5a51"
+    "size": 194,
+    "mtime_ns": 1785097607597248943,
+    "word_count": 19,
+    "hash": "180717b6142c5871e104a3962af851d986448ea48a29f6a1908d019151a2d5b9"
   }
 }

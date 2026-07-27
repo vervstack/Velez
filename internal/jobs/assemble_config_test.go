@@ -2,7 +2,6 @@ package jobs
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
@@ -10,8 +9,10 @@ import (
 	"github.com/docker/docker/errdefs"
 	dockerspec "github.com/moby/docker-image-spec/specs-go/v1"
 	ocispec "github.com/opencontainers/image-spec/specs-go/v1"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/user_errors"
 	"go.vervstack.ru/Velez/tests/config_mocks"
 )
 
@@ -209,7 +210,7 @@ func TestPrepareScratchImageJob_PullImageError(t *testing.T) {
 
 	docker := newFakeDocker()
 
-	docker.pullImageErr = errors.New("registry unreachable")
+	docker.pullImageErr = errRegistryUnreachable
 
 	j := &prepareScratchImageJob{docker: docker, req: payload, ctx: payload}
 
@@ -262,7 +263,7 @@ func TestCreateScratchContainerJob_ContainerCreateError(t *testing.T) {
 
 	docker := newFakeDocker()
 
-	docker.containerCreateErr = errors.New("no space left on device")
+	docker.containerCreateErr = errNoSpaceLeftOnDevice
 
 	nodeClients := newFakeNodeClients(docker)
 
@@ -324,7 +325,7 @@ func TestCreateScratchContainerJob_Rollback_RemoveErrorPropagates(t *testing.T) 
 
 	docker := newFakeDocker()
 
-	docker.removeErr = errors.New("docker daemon unreachable")
+	docker.removeErr = errDockerUnreachable
 
 	nodeClients := newFakeNodeClients(docker)
 
@@ -342,7 +343,7 @@ func TestCreateScratchContainerJob_Rollback_NotFoundIsSwallowed(t *testing.T) {
 
 	docker := newFakeDocker()
 
-	docker.removeErr = errdefs.NotFound(errors.New("no such container"))
+	docker.removeErr = errdefs.NotFound(user_errors.ErrNoSuchContainer)
 
 	nodeClients := newFakeNodeClients(docker)
 
@@ -462,7 +463,7 @@ func TestDropScratchContainerJob_RemoveErrorPropagates(t *testing.T) {
 
 	docker := newFakeDocker()
 
-	docker.removeErr = errors.New("docker daemon unreachable")
+	docker.removeErr = errDockerUnreachable
 
 	j := &dropScratchContainerJob{docker: docker, ctx: payload}
 

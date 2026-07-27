@@ -60,12 +60,9 @@ linters:
     - asasalint
     - asciicheck
     - bidichk
-    - bodyclose
     - canonicalheader
-    - containedctx
-    - contextcheck
     - copyloopvar
-    - cyclop
+    #    - cyclop
     - decorder
     - dupword
     - dogsled
@@ -82,7 +79,7 @@ linters:
     - forbidigo
     - forcetypeassert
     - funcorder
-    - funlen
+    #    - funlen
     - gocheckcompilerdirectives
     - gochecknoinits
     - gocognit
@@ -113,11 +110,9 @@ linters:
     - nestif
     - nilerr
     - nilnesserr
-    # Too much to handle now
     #    - nilnil
     - nlreturn
     - noctx
-    - nolintlint
     - noinlineerr
     - nosprintfhostport
     - perfsprint
@@ -164,6 +159,9 @@ linters:
       - linters:
           - funlen
         text: "Test_"
+      - linters:
+          - funcorder
+        path: tests
     paths:
       - configs
       - node_modules

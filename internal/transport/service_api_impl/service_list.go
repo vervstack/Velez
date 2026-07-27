@@ -5,6 +5,7 @@ import (
 
 	"go.redsock.ru/rerrors"
 	rtb "go.redsock.ru/toolbox"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/transport/common"
@@ -18,7 +19,7 @@ func (impl *Impl) ListServices(
 
 	services, err := impl.servicesService.List(ctx, req)
 	if err != nil {
-		return nil, rerrors.Wrap(err)
+		return nil, rerrors.Wrap(err, "error listing services")
 	}
 
 	return toListServiceResponse(services), nil

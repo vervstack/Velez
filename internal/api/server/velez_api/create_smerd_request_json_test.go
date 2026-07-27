@@ -38,6 +38,7 @@ func TestCreateSmerdRequest_PlainConfigSurvivesRoundTrip(t *testing.T) {
 
 	require.NotNil(t, restored.GetPlain())
 	require.Equal(t, req.GetPlain().GetConfigs(), restored.GetPlain().GetConfigs())
+	require.Equal(t, req.GetName(), restored.GetName())
 }
 
 func TestCreateSmerdRequest_VervConfigSurvivesRoundTrip(t *testing.T) {
@@ -57,6 +58,7 @@ func TestCreateSmerdRequest_VervConfigSurvivesRoundTrip(t *testing.T) {
 
 	require.NotNil(t, restored.GetVerv())
 	require.Equal(t, configName, restored.GetVerv().GetConfigName())
+	require.Equal(t, req.GetName(), restored.GetName())
 }
 
 func TestCreateSmerdRequest_NilConfigStaysNil(t *testing.T) {
@@ -71,6 +73,7 @@ func TestCreateSmerdRequest_NilConfigStaysNil(t *testing.T) {
 	require.NoError(t, err)
 
 	require.Nil(t, restored.GetConfig())
+	require.Equal(t, req.GetName(), restored.GetName())
 }
 
 // TestCreateSmerdRequest_SurvivesRoundTripEmbeddedInTaskPayload mirrors how
@@ -80,7 +83,8 @@ func TestCreateSmerdRequest_NilConfigStaysNil(t *testing.T) {
 func TestCreateSmerdRequest_SurvivesRoundTripEmbeddedInTaskPayload(t *testing.T) {
 	payload := &CreateSmerdTaskPayload{
 		Request: &CreateSmerd_Request{
-			Name: "loki",
+			Name:      "loki",
+			ImageName: "grafana/loki:main",
 			Config: &CreateSmerd_Request_Plain{
 				Plain: &PlainConfigSpec{Configs: map[string][]byte{"a.yaml": []byte("x")}},
 			},
@@ -96,4 +100,6 @@ func TestCreateSmerdRequest_SurvivesRoundTripEmbeddedInTaskPayload(t *testing.T)
 	require.NoError(t, err)
 
 	require.NotNil(t, restored.GetRequest().GetPlain())
+	require.Equal(t, payload.GetRequest().GetName(), restored.GetRequest().GetName())
+	require.Equal(t, payload.GetRequest().GetImageName(), restored.GetRequest().GetImageName())
 }

@@ -1,0 +1,668 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_go",
+      "label": "fetch_from_container.go",
+      "file_type": "code",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "config_steps_getconfigfromcontainerstep",
+      "label": "getConfigFromContainerStep",
+      "file_type": "code",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L20"
+    },
+    {
+      "id": "apiclient",
+      "label": "APIClient",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go"
+    },
+    {
+      "id": "launchsmerd",
+      "label": "LaunchSmerd",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go"
+    },
+    {
+      "id": "inspectresponse",
+      "label": "InspectResponse",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go"
+    },
+    {
+      "id": "configmount",
+      "label": "ConfigMount",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_getconfigfromcontainerstep",
+      "label": "GetConfigFromContainerStep()",
+      "file_type": "code",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L30"
+    },
+    {
+      "id": "nodeclients",
+      "label": "NodeClients",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go"
+    },
+    {
+      "id": "services",
+      "label": "Services",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go"
+    },
+    {
+      "id": "config_steps_getconfigfromcontainerstep_do",
+      "label": ".Do()",
+      "file_type": "code",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L51"
+    },
+    {
+      "id": "context",
+      "label": "Context",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go"
+    },
+    {
+      "id": "config_steps_getconfigfromcontainerstep_extractconfig",
+      "label": ".extractConfig()",
+      "file_type": "code",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L75"
+    },
+    {
+      "id": "matreshkaconfigspec",
+      "label": "MatreshkaConfigSpec",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go"
+    },
+    {
+      "id": "config_steps_getconfigfromcontainerstep_getspec",
+      "label": ".getSpec()",
+      "file_type": "code",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L92"
+    },
+    {
+      "id": "config_steps_getconfigfromcontainerstep_validate",
+      "label": ".validate()",
+      "file_type": "code",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L108"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_fillmeta",
+      "label": "fillMeta()",
+      "file_type": "code",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L124"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_go",
+      "target": "go_pkg_context",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L4",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_go",
+      "target": "go_pkg_strings",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_go",
+      "target": "go_pkg_github_com_docker_docker_api_types_image",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L7",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_go",
+      "target": "go_pkg_github_com_docker_docker_client",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L8",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_go",
+      "target": "go_pkg_go_redsock_ru_rerrors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L9",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_go",
+      "target": "go_pkg_go_redsock_ru_toolbox",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_go",
+      "target": "go_pkg_go_vervstack_ru_matreshka_pkg_matreshka_api",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_api_server_velez_api",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L13",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_node_clients",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_clients_node_clients_docker_dockerutils",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_domain",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L16",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_go",
+      "target": "go_pkg_go_vervstack_ru_velez_internal_service",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_go",
+      "target": "config_steps_getconfigfromcontainerstep",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "config_steps_getconfigfromcontainerstep",
+      "target": "apiclient",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L21",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "config_steps_getconfigfromcontainerstep",
+      "target": "launchsmerd",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L23",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "config_steps_getconfigfromcontainerstep",
+      "target": "inspectresponse",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L26",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "config_steps_getconfigfromcontainerstep",
+      "target": "configmount",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L27",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_go",
+      "target": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_getconfigfromcontainerstep",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_getconfigfromcontainerstep",
+      "target": "nodeclients",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L30",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_getconfigfromcontainerstep",
+      "target": "services",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L30",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_getconfigfromcontainerstep",
+      "target": "launchsmerd",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L30",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_getconfigfromcontainerstep",
+      "target": "inspectresponse",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L30",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_getconfigfromcontainerstep",
+      "target": "configmount",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L30",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_getconfigfromcontainerstep",
+      "target": "config_steps_getconfigfromcontainerstep",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L30",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "config_steps_getconfigfromcontainerstep",
+      "target": "config_steps_getconfigfromcontainerstep_do",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "config_steps_getconfigfromcontainerstep_do",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L51",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "config_steps_getconfigfromcontainerstep",
+      "target": "config_steps_getconfigfromcontainerstep_extractconfig",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "config_steps_getconfigfromcontainerstep_extractconfig",
+      "target": "context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L75",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "config_steps_getconfigfromcontainerstep_extractconfig",
+      "target": "matreshkaconfigspec",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L75",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "config_steps_getconfigfromcontainerstep",
+      "target": "config_steps_getconfigfromcontainerstep_getspec",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L92",
+      "weight": 1.0
+    },
+    {
+      "source": "config_steps_getconfigfromcontainerstep_getspec",
+      "target": "configmount",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L92",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "config_steps_getconfigfromcontainerstep_getspec",
+      "target": "matreshkaconfigspec",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L92",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "config_steps_getconfigfromcontainerstep",
+      "target": "config_steps_getconfigfromcontainerstep_validate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L108",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_go",
+      "target": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_fillmeta",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L124",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_fillmeta",
+      "target": "inspectresponse",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L124",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_fillmeta",
+      "target": "configmount",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L124",
+      "weight": 1.0,
+      "context": "parameter_type"
+    },
+    {
+      "source": "config_steps_getconfigfromcontainerstep_do",
+      "target": "config_steps_getconfigfromcontainerstep_validate",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "config_steps_getconfigfromcontainerstep_do",
+      "target": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_fillmeta",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "config_steps_getconfigfromcontainerstep_do",
+      "target": "config_steps_getconfigfromcontainerstep_getspec",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "config_steps_getconfigfromcontainerstep_do",
+      "target": "config_steps_getconfigfromcontainerstep_extractconfig",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L67",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_getconfigfromcontainerstep",
+      "callee": "Client",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_getconfigfromcontainerstep",
+      "callee": "Docker",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L41"
+    },
+    {
+      "caller_nid": "config_steps_getconfigfromcontainerstep_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L54"
+    },
+    {
+      "caller_nid": "config_steps_getconfigfromcontainerstep_do",
+      "callee": "Coalesce",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "config_steps_getconfigfromcontainerstep_do",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L64"
+    },
+    {
+      "caller_nid": "config_steps_getconfigfromcontainerstep_do",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L69"
+    },
+    {
+      "caller_nid": "config_steps_getconfigfromcontainerstep_extractconfig",
+      "callee": "ReadFromContainer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "config_steps_getconfigfromcontainerstep_extractconfig",
+      "callee": "GetSystemPath",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L82"
+    },
+    {
+      "caller_nid": "config_steps_getconfigfromcontainerstep_extractconfig",
+      "callee": "Wrap",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L84"
+    },
+    {
+      "caller_nid": "config_steps_getconfigfromcontainerstep_extractconfig",
+      "callee": "GetSystemPath",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L86"
+    },
+    {
+      "caller_nid": "config_steps_getconfigfromcontainerstep_getspec",
+      "callee": "GetVerv",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "config_steps_getconfigfromcontainerstep_validate",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L110"
+    },
+    {
+      "caller_nid": "config_steps_getconfigfromcontainerstep_validate",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L114"
+    },
+    {
+      "caller_nid": "config_steps_getconfigfromcontainerstep_validate",
+      "callee": "New",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L118"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_fillmeta",
+      "callee": "isVervImage",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L126"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_fillmeta",
+      "callee": "Coalesce",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L129"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_fillmeta",
+      "callee": "ToPtr",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L131"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_fillmeta",
+      "callee": "isPostgresByImageTags",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L135"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_fillmeta",
+      "callee": "FromPtr",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_fillmeta",
+      "callee": "HasSuffix",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L149"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_pipelines_steps_config_steps_fetch_from_container_fillmeta",
+      "callee": "HasSuffix",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/pipelines/steps/config_steps/fetch_from_container.go",
+      "source_location": "L149"
+    }
+  ]
+}

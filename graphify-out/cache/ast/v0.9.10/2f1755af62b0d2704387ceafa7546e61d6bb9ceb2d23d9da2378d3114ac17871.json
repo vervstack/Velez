@@ -1,0 +1,158 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_domain_vcn_go",
+      "label": "vcn.go",
+      "file_type": "code",
+      "source_file": "internal/domain/vcn.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "domain_vcnnamespace",
+      "label": "VcnNamespace",
+      "file_type": "code",
+      "source_file": "internal/domain/vcn.go",
+      "source_location": "L3"
+    },
+    {
+      "id": "domain_listvpnnamespaces",
+      "label": "ListVpnNamespaces",
+      "file_type": "code",
+      "source_file": "internal/domain/vcn.go",
+      "source_location": "L8"
+    },
+    {
+      "id": "domain_connectservicetovcn",
+      "label": "ConnectServiceToVcn",
+      "file_type": "code",
+      "source_file": "internal/domain/vcn.go",
+      "source_location": "L13"
+    },
+    {
+      "id": "domain_registervcnnodereq",
+      "label": "RegisterVcnNodeReq",
+      "file_type": "code",
+      "source_file": "internal/domain/vcn.go",
+      "source_location": "L16"
+    },
+    {
+      "id": "domain_getvcnauthkeyreq",
+      "label": "GetVcnAuthKeyReq",
+      "file_type": "code",
+      "source_file": "internal/domain/vcn.go",
+      "source_location": "L21"
+    },
+    {
+      "id": "domain_vcnauthkey",
+      "label": "VcnAuthKey",
+      "file_type": "code",
+      "source_file": "internal/domain/vcn.go",
+      "source_location": "L26"
+    },
+    {
+      "id": "domain_issueclientkey",
+      "label": "IssueClientKey",
+      "file_type": "code",
+      "source_file": "internal/domain/vcn.go",
+      "source_location": "L30"
+    },
+    {
+      "id": "domain_setupheadscalerequest",
+      "label": "SetupHeadscaleRequest",
+      "file_type": "code",
+      "source_file": "internal/domain/vcn.go",
+      "source_location": "L35"
+    },
+    {
+      "id": "domain_setupheadscaleresponse",
+      "label": "SetupHeadscaleResponse",
+      "file_type": "code",
+      "source_file": "internal/domain/vcn.go",
+      "source_location": "L40"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_domain_vcn_go",
+      "target": "domain_vcnnamespace",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/domain/vcn.go",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_domain_vcn_go",
+      "target": "domain_listvpnnamespaces",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/domain/vcn.go",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_domain_vcn_go",
+      "target": "domain_connectservicetovcn",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/domain/vcn.go",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_domain_vcn_go",
+      "target": "domain_registervcnnodereq",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/domain/vcn.go",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_domain_vcn_go",
+      "target": "domain_getvcnauthkeyreq",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/domain/vcn.go",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_domain_vcn_go",
+      "target": "domain_vcnauthkey",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/domain/vcn.go",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_domain_vcn_go",
+      "target": "domain_issueclientkey",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/domain/vcn.go",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_domain_vcn_go",
+      "target": "domain_setupheadscalerequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/domain/vcn.go",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_domain_vcn_go",
+      "target": "domain_setupheadscaleresponse",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/domain/vcn.go",
+      "source_location": "L40",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": []
+}

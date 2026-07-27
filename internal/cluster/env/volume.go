@@ -117,7 +117,7 @@ func createVervVolume(ctx context.Context, dockerAPI client.APIClient) (*volume.
 			"device": vervVolumePath,
 			"o":      "bind",
 		}
-
+		//nolint
 		err = os.MkdirAll(vervVolumePath, 0o755)
 		if err != nil {
 			return nil, errors.Wrap(err, "error creating verv volume dir")

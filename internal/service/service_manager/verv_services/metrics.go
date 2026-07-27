@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
@@ -17,7 +18,7 @@ func (v *VervService) GetServiceMetrics(ctx context.Context, serviceName string)
 
 	resp, err := v.containerService.ListSmerds(ctx, req)
 	if err != nil {
-		return domain.ServiceMetrics{}, rerrors.Wrap(err)
+		return domain.ServiceMetrics{}, rerrors.Wrap(err, "error listing smerds")
 	}
 
 	// single-mode fallback: find container by name when VERV_SERVICE label is absent
@@ -26,7 +27,7 @@ func (v *VervService) GetServiceMetrics(ctx context.Context, serviceName string)
 
 		resp, err = v.containerService.ListSmerds(ctx, req)
 		if err != nil {
-			return domain.ServiceMetrics{}, rerrors.Wrap(err)
+			return domain.ServiceMetrics{}, rerrors.Wrap(err, "error listing smerds")
 		}
 	}
 

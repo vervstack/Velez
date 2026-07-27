@@ -6,6 +6,7 @@ import (
 
 	"github.com/docker/docker/api/types/container"
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 )
 
@@ -53,7 +54,7 @@ func (s *keyIssuer) issueNewKey(ctx context.Context) (string, error) {
 
 	res, err := s.docker.Exec(ctx, s.containerName, execIssueNewKey)
 	if err != nil {
-		return "", rerrors.Wrap(err)
+		return "", rerrors.Wrap(err, "error calling exec on container")
 	}
 
 	if len(res) == 0 {

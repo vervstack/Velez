@@ -25,12 +25,21 @@ func ToBasicNodeInfo(info domain.NodeBaseInfo) *pb.NodeBaseInfo {
 	}
 }
 
+const (
+	nodeDegradedThreshold = time.Minute
+	nodeOfflineThreshold  = 5 * time.Minute
+)
+
 func NodeStatusFromLastOnline(inf domain.NodeBaseInfo) pb.NodeStatus {
 	if !inf.IsEnabled {
 		return pb.NodeStatus_NodeStatus_Offline
 	}
 
-	if inf.LastOnline.Before(time.Now().Add(-time.Minute)) {
+	if inf.LastOnline.Before(time.Now().Add(-nodeOfflineThreshold)) {
+		return pb.NodeStatus_NodeStatus_Offline
+	}
+
+	if inf.LastOnline.Before(time.Now().Add(-nodeDegradedThreshold)) {
 		return pb.NodeStatus_NodeStatus_Degraded
 	}
 

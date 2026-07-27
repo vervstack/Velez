@@ -48,8 +48,8 @@ function StatsGrid({nodesQuery}: StatsGridProps) {
     const degradedCount = nodes
         .filter(n => n.status === NodeStatus.NodeStatus_Degraded).length;
 
-    // TODO add listing services
-    const offlineCount = 0;
+    const offlineCount = nodes
+        .filter(n => n.status === NodeStatus.NodeStatus_Offline).length;
     return (
         <div className={cls.StatsGridContainer}>
             <StatCard value={nodes.length}

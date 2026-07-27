@@ -122,11 +122,10 @@ func (s *LifecycleSuite) Test_StatelessMode_Loki() {
 		Restart: &velez_api.RestartPolicy{
 			Type: velez_api.RestartPolicyType_always,
 		},
-		Config: &velez_api.CreateSmerd_Request_Plain{
-			Plain: &velez_api.PlainConfigSpec{
-				Configs: map[string][]byte{
-					"/etc/loki/local-config.yaml": config_mocks.Loki,
-				},
+		Plain: []*velez_api.FileConfig{
+			{
+				Path:    "/etc/loki/local-config.yaml",
+				Content: config_mocks.Loki,
 			},
 		},
 	}

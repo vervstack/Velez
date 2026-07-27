@@ -115,6 +115,11 @@ export type PlainConfigSpec = {
   configs?: Record<string, Uint8Array>;
 };
 
+export type FileConfig = {
+    path?: string;
+    content?: Uint8Array;
+};
+
 export type MatreshkaConfigSpec = {
   configName?: string;
   configVersion?: string;

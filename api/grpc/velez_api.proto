@@ -114,20 +114,24 @@ message CreateSmerd {
 
     RestartPolicy restart = 12;
 
-    oneof config {
-      MatreshkaConfigSpec verv = 13;
-      PlainConfigSpec plain = 14;
-    }
+    // verv and plain are independent and may both be set at once: verv is
+    // fetched/applied first, then plain's files are mounted on top - they no
+    // longer form a mutually-exclusive oneof.
+    optional MatreshkaConfigSpec verv = 13;
+
+    reserved 14; // was PlainConfigSpec plain - do not reuse, see FileConfig plain below.
 
     // is_declarative_deploy - flag allows caller to manage idempotency of calls
     //
     // False (default):
     //      if defined smerd already exist - api call fails
-    // True: 
+    // True:
     //      if smerd already exist and healthy
     //      this api call won't fail.
     // TODO maybe even support to upgrade to presented state will be implemented some day
     bool is_declarative_deploy = 15;
+
+    repeated FileConfig plain = 16;
 
     // TODO add sidecar definition
     // TODO add resources definition

@@ -34,12 +34,12 @@ func (p *prepareRequestStep) Do(_ context.Context) error {
 		p.req.Labels = make(map[string]string)
 	}
 
-	if p.req.Config == nil {
-		p.req.Config = &velez_api.CreateSmerd_Request_Verv{
-			Verv: &velez_api.MatreshkaConfigSpec{
-				ConfigName: &p.req.Name,
-			},
+	if p.req.GetVerv() == nil {
+		vervSpec := &velez_api.MatreshkaConfigSpec{
+			ConfigName: &p.req.Name,
 		}
+
+		p.req.Verv = vervSpec
 	}
 
 	return nil

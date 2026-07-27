@@ -51,32 +51,35 @@ func (c *fetchConfigStep) Do(ctx context.Context) (err error) {
 		return rerrors.Wrap(err, "error during validation")
 	}
 
-	if c.req.Config == nil {
-		c.req.Config = &velez_api.CreateSmerd_Request_Verv{
-			Verv: &velez_api.MatreshkaConfigSpec{
-				ConfigName: toolbox.ToPtr(c.req.Name),
-			},
+	if c.req.GetVerv() == nil {
+		vervSpec := &velez_api.MatreshkaConfigSpec{
+			ConfigName: toolbox.ToPtr(c.req.Name),
 		}
+
+		c.req.Verv = vervSpec
 	}
 
 	vervCfg := c.req.GetVerv()
 	if vervCfg != nil {
-		mount, err := c.doVerv(ctx, vervCfg)
+		var mount domain.FileMountPoint
+
+		mount, err = c.doVerv(ctx, vervCfg)
 		if err != nil {
 			return rerrors.Wrap(err, "error getting config to mount")
 		}
 
 		*c.mounts = append(*c.mounts, mount)
-
-		return nil
 	}
 
 	plainCfg := c.req.GetPlain()
-	if plainCfg != nil {
-		return c.doPlain(plainCfg)
+	if len(plainCfg) > 0 {
+		err = c.doPlain(plainCfg)
+		if err != nil {
+			return rerrors.Wrap(err, "error mounting plain config")
+		}
 	}
 
-	return rerrors.New("only verv config supported for now")
+	return nil
 }
 
 func (c *fetchConfigStep) doVerv(
@@ -116,14 +119,16 @@ func (c *fetchConfigStep) doVerv(
 	return cfgMount.FileMountPoint, nil
 }
 
-func (c *fetchConfigStep) doPlain(spec *velez_api.PlainConfigSpec) error {
-	for sysPath, content := range spec.GetConfigs() {
-		p := sysPath
+func (c *fetchConfigStep) doPlain(files []*velez_api.FileConfig) error {
+	for _, f := range files {
+		p := f.GetPath()
 
-		*c.mounts = append(*c.mounts, domain.FileMountPoint{
+		mountPoint := domain.FileMountPoint{
 			FilePath: &p,
-			Content:  content,
-		})
+			Content:  f.GetContent(),
+		}
+
+		*c.mounts = append(*c.mounts, mountPoint)
 	}
 
 	return nil

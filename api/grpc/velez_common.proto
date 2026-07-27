@@ -111,9 +111,19 @@ enum RestartPolicyType {
   on_failure = 3;
 }
 
+// Deprecated: superseded by FileConfig (repeated, one message per file)
+// used by CreateSmerd_Request.plain. Left defined for historical generated
+// code compatibility; no longer referenced by any RPC.
 message PlainConfigSpec {
   // key: target path inside container, value: raw config bytes
   map<string, bytes> configs = 1;
+}
+
+message FileConfig {
+  // target path inside container
+  string path = 1;
+  // raw file content
+  bytes content = 2;
 }
 
 message MatreshkaConfigSpec {
@@ -137,6 +147,7 @@ message MatreshkaConfigSpec {
   //    If not set - writes config as an environment variables
   optional string system_path = 4;
 }
+
 
 message Connection {
   string service_name = 1;

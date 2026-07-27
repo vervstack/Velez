@@ -641,9 +641,10 @@ type fetchUpgradeConfigJob struct {
 }
 
 // Do mirrors config_steps.fetchConfigStep.doVerv+setEnv. UpgradeSmerd never
-// sets req.Config (capture_old_container leaves it nil), so the original
-// step's doPlain/yaml branches are unreachable here - restricted to the env
-// branch only, same restriction style as assemble_config.go's fetchConfigJob.
+// sets req.Verv/req.Plain (capture_old_container leaves both nil), so the
+// original step's doPlain/yaml branches are unreachable here - restricted to
+// the env branch only, same restriction style as assemble_config.go's
+// fetchConfigJob.
 // Also restores Request.Name to the upgrade's target name (the SingleFunc
 // step immediately preceding FetchConfig in the original pipeline), since
 // the preceding create_config_fetcher_container stage left it renamed.

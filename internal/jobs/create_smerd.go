@@ -214,12 +214,12 @@ func (j *prepareSmerdRequestJob) Do(_ context.Context) error {
 		request.Labels = make(map[string]string)
 	}
 
-	if request.Config == nil {
-		request.Config = &velez_api.CreateSmerd_Request_Verv{
-			Verv: &velez_api.MatreshkaConfigSpec{
-				ConfigName: &request.Name,
-			},
+	if request.GetVerv() == nil {
+		vervSpec := &velez_api.MatreshkaConfigSpec{
+			ConfigName: &request.Name,
 		}
+
+		request.Verv = vervSpec
 	}
 
 	return nil
@@ -260,12 +260,12 @@ func (j *prepareImageJob) Do(ctx context.Context) error {
 	return nil
 }
 
-// fetchSmerdConfigJob mirrors config_steps.fetchConfigStep, restricted to
-// the branches actually reachable once prepare_request has run: Config is
-// always non-nil (Verv or Plain), so the original step's "no config at all"
-// error path is unreachable in practice - kept anyway for parity. Reuses
-// classifyImage/confType constants from assemble_config.go rather than
-// re-deriving fillMeta's image-classification rules.
+// fetchSmerdConfigJob mirrors config_steps.fetchConfigStep. Verv and Plain
+// are independent fields (not a oneof): once prepare_request has run, Verv
+// is always non-nil (defaulted there), and Plain is applied in addition,
+// whenever the caller set it. Reuses classifyImage/confType constants from
+// assemble_config.go rather than re-deriving fillMeta's image-classification
+// rules.
 type fetchSmerdConfigJob struct {
 	configService service.ConfigurationService
 
@@ -279,17 +279,18 @@ func (j *fetchSmerdConfigJob) Do(ctx context.Context) error {
 
 	vervCfg := request.GetVerv()
 	if vervCfg != nil {
-		return j.doVerv(ctx, request, vervCfg)
+		err := j.doVerv(ctx, request, vervCfg)
+		if err != nil {
+			return err
+		}
 	}
 
 	plainCfg := request.GetPlain()
-	if plainCfg != nil {
+	if len(plainCfg) > 0 {
 		j.doPlain(plainCfg)
-
-		return nil
 	}
 
-	return rerrors.New("only verv config supported for now")
+	return nil
 }
 
 func (j *fetchSmerdConfigJob) doVerv(
@@ -354,6 +355,12 @@ func (j *fetchSmerdConfigJob) setEnv(
 			continue
 		}
 
+		_, exists := request.GetEnv()[n.Name]
+		if exists {
+			// caller-supplied env values win over a colliding verv-fetched value.
+			continue
+		}
+
 		request.Env[n.Name] = fmt.Sprint(n.Value)
 	}
 
@@ -377,9 +384,9 @@ func (j *fetchSmerdConfigJob) getPlain(ctx context.Context, meta domain.ConfigMe
 	return nil
 }
 
-func (j *fetchSmerdConfigJob) doPlain(spec *velez_api.PlainConfigSpec) {
-	for path, content := range spec.GetConfigs() {
-		j.addMount(path, content)
+func (j *fetchSmerdConfigJob) doPlain(files []*velez_api.FileConfig) {
+	for _, f := range files {
+		j.addMount(f.GetPath(), f.GetContent())
 	}
 }
 

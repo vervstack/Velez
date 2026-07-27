@@ -101,7 +101,6 @@ export function toProto(r: CreateSmerdReq): CreateSmerdRequest {
         },
         healthcheck: undefined,
         restart: undefined,
-        config: undefined,
     } as CreateSmerdRequest
 }
 

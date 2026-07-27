@@ -33,6 +33,7 @@ const (
 	testUpgradePgPort   = "8080/tcp"
 	testCreatedID       = "created123"
 	testContFixtureID   = "cont-fixture"
+	testEnvKeyFoo       = "FOO"
 	testEnvFoo          = "bar"
 	testUpgradeSvcName  = "mysvc"
 	testOldContainerID  = "old123"
@@ -145,7 +146,7 @@ func TestCaptureOldContainerJob_Success(t *testing.T) {
 		Networks: []*velez_api.NetworkBind{
 			{NetworkName: testNetworkName, Aliases: []string{testNetworkAlias, testOldContainerID}},
 		},
-		Env:    map[string]string{"FOO": testEnvFoo},
+		Env:    map[string]string{testEnvKeyFoo: testEnvFoo},
 		Labels: map[string]string{"team": "core"},
 	}
 
@@ -173,7 +174,7 @@ func TestCaptureOldContainerJob_Success(t *testing.T) {
 		t.Errorf("expected request image 'myimg:new' (the upgrade target, not the old image), got %q", req.GetImageName())
 	}
 
-	if req.GetEnv()["FOO"] != testEnvFoo {
+	if req.GetEnv()[testEnvKeyFoo] != testEnvFoo {
 		t.Errorf("expected env carried over from old container, got %v", req.GetEnv())
 	}
 
@@ -595,7 +596,7 @@ func TestUpgradeSmerdHandler_HappyPath_EndToEnd(t *testing.T) {
 		ImageName: "myimg:old",
 		Ports:     []*velez_api.Port{{ServicePortNumber: 8080}},
 		Networks:  []*velez_api.NetworkBind{{NetworkName: testNetworkName, Aliases: []string{testNetworkAlias}}},
-		Env:       map[string]string{"FOO": testEnvFoo},
+		Env:       map[string]string{testEnvKeyFoo: testEnvFoo},
 		Labels:    map[string]string{"team": "core"},
 	}
 

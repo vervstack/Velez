@@ -477,11 +477,10 @@ type CreateSmerd_Request struct {
 	UseImagePorts bool                   `protobuf:"varint,10,opt,name=use_image_ports,json=useImagePorts,proto3" json:"use_image_ports,omitempty"`
 	AutoUpgrade   bool                   `protobuf:"varint,11,opt,name=auto_upgrade,json=autoUpgrade,proto3" json:"auto_upgrade,omitempty"`
 	Restart       *RestartPolicy         `protobuf:"bytes,12,opt,name=restart,proto3" json:"restart,omitempty"`
-	// Types that are valid to be assigned to Config:
-	//
-	//	*CreateSmerd_Request_Verv
-	//	*CreateSmerd_Request_Plain
-	Config isCreateSmerd_Request_Config `protobuf_oneof:"config"`
+	// verv and plain are independent and may both be set at once: verv is
+	// fetched/applied first, then plain's files are mounted on top - they no
+	// longer form a mutually-exclusive oneof.
+	Verv *MatreshkaConfigSpec `protobuf:"bytes,13,opt,name=verv,proto3,oneof" json:"verv,omitempty"`
 	// is_declarative_deploy - flag allows caller to manage idempotency of calls
 	//
 	// False (default):
@@ -494,7 +493,8 @@ type CreateSmerd_Request struct {
 	//	this api call won't fail.
 	//
 	// TODO maybe even support to upgrade to presented state will be implemented some day
-	IsDeclarativeDeploy bool `protobuf:"varint,15,opt,name=is_declarative_deploy,json=isDeclarativeDeploy,proto3" json:"is_declarative_deploy,omitempty"`
+	IsDeclarativeDeploy bool          `protobuf:"varint,15,opt,name=is_declarative_deploy,json=isDeclarativeDeploy,proto3" json:"is_declarative_deploy,omitempty"`
+	Plain               []*FileConfig `protobuf:"bytes,16,rep,name=plain,proto3" json:"plain,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -613,27 +613,9 @@ func (x *CreateSmerd_Request) GetRestart() *RestartPolicy {
 	return nil
 }
 
-func (x *CreateSmerd_Request) GetConfig() isCreateSmerd_Request_Config {
-	if x != nil {
-		return x.Config
-	}
-	return nil
-}
-
 func (x *CreateSmerd_Request) GetVerv() *MatreshkaConfigSpec {
 	if x != nil {
-		if x, ok := x.Config.(*CreateSmerd_Request_Verv); ok {
-			return x.Verv
-		}
-	}
-	return nil
-}
-
-func (x *CreateSmerd_Request) GetPlain() *PlainConfigSpec {
-	if x != nil {
-		if x, ok := x.Config.(*CreateSmerd_Request_Plain); ok {
-			return x.Plain
-		}
+		return x.Verv
 	}
 	return nil
 }
@@ -645,21 +627,12 @@ func (x *CreateSmerd_Request) GetIsDeclarativeDeploy() bool {
 	return false
 }
 
-type isCreateSmerd_Request_Config interface {
-	isCreateSmerd_Request_Config()
+func (x *CreateSmerd_Request) GetPlain() []*FileConfig {
+	if x != nil {
+		return x.Plain
+	}
+	return nil
 }
-
-type CreateSmerd_Request_Verv struct {
-	Verv *MatreshkaConfigSpec `protobuf:"bytes,13,opt,name=verv,proto3,oneof"`
-}
-
-type CreateSmerd_Request_Plain struct {
-	Plain *PlainConfigSpec `protobuf:"bytes,14,opt,name=plain,proto3,oneof"`
-}
-
-func (*CreateSmerd_Request_Verv) isCreateSmerd_Request_Config() {}
-
-func (*CreateSmerd_Request_Plain) isCreateSmerd_Request_Config() {}
 
 type ListSmerds_Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1549,38 +1522,38 @@ const file_velez_api_proto_rawDesc = "" +
 	"\aVersion\x1a\t\n" +
 	"\aRequest\x1a$\n" +
 	"\bResponse\x12\x18\n" +
-	"\aversion\x18\x01 \x01(\tR\aversion\"\xa8\a\n" +
-	"\vCreateSmerd\x1a\x98\a\n" +
+	"\aversion\x18\x01 \x01(\tR\aversion\"\xa9\a\n" +
+	"\vCreateSmerd\x1a\x99\a\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
 	"image_name\x18\x02 \x01(\tR\timageName\x12>\n" +
-	"\bhardware\x18\x03 \x01(\v2\x1d.velez_api.Container.HardwareH\x01R\bhardware\x88\x01\x01\x12>\n" +
-	"\bsettings\x18\x04 \x01(\v2\x1d.velez_api.Container.SettingsH\x02R\bsettings\x88\x01\x01\x12\x1d\n" +
-	"\acommand\x18\x05 \x01(\tH\x03R\acommand\x88\x01\x01\x129\n" +
+	"\bhardware\x18\x03 \x01(\v2\x1d.velez_api.Container.HardwareH\x00R\bhardware\x88\x01\x01\x12>\n" +
+	"\bsettings\x18\x04 \x01(\v2\x1d.velez_api.Container.SettingsH\x01R\bsettings\x88\x01\x01\x12\x1d\n" +
+	"\acommand\x18\x05 \x01(\tH\x02R\acommand\x88\x01\x01\x129\n" +
 	"\x03env\x18\x06 \x03(\v2'.velez_api.CreateSmerd.Request.EnvEntryR\x03env\x12G\n" +
-	"\vhealthcheck\x18\a \x01(\v2 .velez_api.Container.HealthcheckH\x04R\vhealthcheck\x88\x01\x01\x12B\n" +
+	"\vhealthcheck\x18\a \x01(\v2 .velez_api.Container.HealthcheckH\x03R\vhealthcheck\x88\x01\x01\x12B\n" +
 	"\x06labels\x18\b \x03(\v2*.velez_api.CreateSmerd.Request.LabelsEntryR\x06labels\x12#\n" +
 	"\rignore_config\x18\t \x01(\bR\fignoreConfig\x12&\n" +
 	"\x0fuse_image_ports\x18\n" +
 	" \x01(\bR\ruseImagePorts\x12!\n" +
 	"\fauto_upgrade\x18\v \x01(\bR\vautoUpgrade\x122\n" +
-	"\arestart\x18\f \x01(\v2\x18.velez_api.RestartPolicyR\arestart\x124\n" +
-	"\x04verv\x18\r \x01(\v2\x1e.velez_api.MatreshkaConfigSpecH\x00R\x04verv\x122\n" +
-	"\x05plain\x18\x0e \x01(\v2\x1a.velez_api.PlainConfigSpecH\x00R\x05plain\x122\n" +
-	"\x15is_declarative_deploy\x18\x0f \x01(\bR\x13isDeclarativeDeploy\x1a6\n" +
+	"\arestart\x18\f \x01(\v2\x18.velez_api.RestartPolicyR\arestart\x127\n" +
+	"\x04verv\x18\r \x01(\v2\x1e.velez_api.MatreshkaConfigSpecH\x04R\x04verv\x88\x01\x01\x122\n" +
+	"\x15is_declarative_deploy\x18\x0f \x01(\bR\x13isDeclarativeDeploy\x12+\n" +
+	"\x05plain\x18\x10 \x03(\v2\x15.velez_api.FileConfigR\x05plain\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\b\n" +
-	"\x06configB\v\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\v\n" +
 	"\t_hardwareB\v\n" +
 	"\t_settingsB\n" +
 	"\n" +
 	"\b_commandB\x0e\n" +
-	"\f_healthcheck\"\xab\x02\n" +
+	"\f_healthcheckB\a\n" +
+	"\x05_vervJ\x04\b\x0e\x10\x0f\"\xab\x02\n" +
 	"\n" +
 	"ListSmerds\x1a\xe6\x01\n" +
 	"\aRequest\x12\x19\n" +
@@ -1718,7 +1691,7 @@ var file_velez_api_proto_goTypes = []any{
 	(*Container_Healthcheck)(nil),      // 36: velez_api.Container.Healthcheck
 	(*RestartPolicy)(nil),              // 37: velez_api.RestartPolicy
 	(*MatreshkaConfigSpec)(nil),        // 38: velez_api.MatreshkaConfigSpec
-	(*PlainConfigSpec)(nil),            // 39: velez_api.PlainConfigSpec
+	(*FileConfig)(nil),                 // 39: velez_api.FileConfig
 	(*Smerd)(nil),                      // 40: velez_api.Smerd
 	(*Connection)(nil),                 // 41: velez_api.Connection
 	(*SearchImageItem)(nil),            // 42: velez_api.SearchImageItem
@@ -1731,7 +1704,7 @@ var file_velez_api_proto_depIdxs = []int32{
 	14, // 4: velez_api.CreateSmerd.Request.labels:type_name -> velez_api.CreateSmerd.Request.LabelsEntry
 	37, // 5: velez_api.CreateSmerd.Request.restart:type_name -> velez_api.RestartPolicy
 	38, // 6: velez_api.CreateSmerd.Request.verv:type_name -> velez_api.MatreshkaConfigSpec
-	39, // 7: velez_api.CreateSmerd.Request.plain:type_name -> velez_api.PlainConfigSpec
+	39, // 7: velez_api.CreateSmerd.Request.plain:type_name -> velez_api.FileConfig
 	17, // 8: velez_api.ListSmerds.Request.label:type_name -> velez_api.ListSmerds.Request.LabelEntry
 	40, // 9: velez_api.ListSmerds.Response.smerds:type_name -> velez_api.Smerd
 	20, // 10: velez_api.DropSmerd.Response.failed:type_name -> velez_api.DropSmerd.Response.Error
@@ -1774,10 +1747,7 @@ func file_velez_api_proto_init() {
 		return
 	}
 	file_velez_common_proto_init()
-	file_velez_api_proto_msgTypes[12].OneofWrappers = []any{
-		(*CreateSmerd_Request_Verv)(nil),
-		(*CreateSmerd_Request_Plain)(nil),
-	}
+	file_velez_api_proto_msgTypes[12].OneofWrappers = []any{}
 	file_velez_api_proto_msgTypes[15].OneofWrappers = []any{}
 	file_velez_api_proto_msgTypes[32].OneofWrappers = []any{}
 	type x struct{}

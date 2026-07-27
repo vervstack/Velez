@@ -262,15 +262,34 @@
           "$ref": "#/definitions/velez_apiRestartPolicy"
         },
         "verv": {
-          "$ref": "#/definitions/velez_apiMatreshkaConfigSpec"
-        },
-        "plain": {
-          "$ref": "#/definitions/velez_apiPlainConfigSpec"
+          "$ref": "#/definitions/velez_apiMatreshkaConfigSpec",
+          "description": "verv and plain are independent and may both be set at once: verv is\nfetched/applied first, then plain's files are mounted on top - they no\nlonger form a mutually-exclusive oneof."
         },
         "isDeclarativeDeploy": {
           "type": "boolean",
-          "description": "False (default):\n     if defined smerd already exist - api call fails\nTrue: \n     if smerd already exist and healthy\n     this api call won't fail.\nTODO maybe even support to upgrade to presented state will be implemented some day",
+          "description": "False (default):\n     if defined smerd already exist - api call fails\nTrue:\n     if smerd already exist and healthy\n     this api call won't fail.\nTODO maybe even support to upgrade to presented state will be implemented some day",
           "title": "is_declarative_deploy - flag allows caller to manage idempotency of calls"
+        },
+        "plain": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiFileConfig"
+          }
+        }
+      }
+    },
+    "velez_apiFileConfig": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "title": "target path inside container"
+        },
+        "content": {
+          "type": "string",
+          "format": "byte",
+          "title": "raw file content"
         }
       }
     },
@@ -307,19 +326,6 @@
           "items": {
             "type": "string"
           }
-        }
-      }
-    },
-    "velez_apiPlainConfigSpec": {
-      "type": "object",
-      "properties": {
-        "configs": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string",
-            "format": "byte"
-          },
-          "title": "key: target path inside container, value: raw config bytes"
         }
       }
     },

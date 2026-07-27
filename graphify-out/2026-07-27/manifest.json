@@ -625,7 +625,7 @@
     "semantic_hash": ""
   },
   "internal/pipelines/steps/config_steps/fetch_by_api.go": {
-    "mtime": 1785144118.8400552,
+    "mtime": 1785171956.8843005,
     "ast_hash": "3288b5f8af4d049e2fb0ca1ded3de7bb",
     "semantic_hash": ""
   },
@@ -1455,14 +1455,14 @@
     "semantic_hash": "5e9eb0038ec5808e1a5717e0d631c87e"
   },
   "pkg/web/Velez-UI/eslint.config.js": {
-    "mtime": 1785072886.860002,
-    "ast_hash": "ac8cf05fd5954d0e1fc53e7f345888a5",
+    "mtime": 1785172658.6581006,
+    "ast_hash": "ad6444f8f59d2a9e1bcd7ef15525eb5a",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/package.json": {
-    "mtime": 1778840483.7842054,
-    "ast_hash": "00641cc73760ed41a93185baf7993513",
-    "semantic_hash": "00641cc73760ed41a93185baf7993513"
+    "mtime": 1785173678.955771,
+    "ast_hash": "c19f17a8b5c157a28582b1bb564037c9",
+    "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/app/api/velez/control_plane_api.pb.ts": {
     "mtime": 1785153601.6213264,
@@ -1485,13 +1485,13 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/app/api/velez/velez_api.pb.ts": {
-    "mtime": 1785153601.622259,
-    "ast_hash": "900c8f7ddae13387cc78906792f6313b",
+    "mtime": 1785171955.8694482,
+    "ast_hash": "d61a8895885b295355309d8e21794c0d",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/app/api/velez/velez_common.pb.ts": {
-    "mtime": 1785153601.6223538,
-    "ast_hash": "070500c31009049562580f605a0e6094",
+    "mtime": 1785171955.9039059,
+    "ast_hash": "29058de033be2c45e596c241412faced",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/app/api/velez/verv_closed_network.pb.ts": {
@@ -1534,11 +1534,6 @@
     "ast_hash": "3474ea7e0d96a65007fd1bc08190ef61",
     "semantic_hash": "3474ea7e0d96a65007fd1bc08190ef61"
   },
-  "pkg/web/Velez-UI/src/components/LoaderWrapper.tsx": {
-    "mtime": 1772632642.0333116,
-    "ast_hash": "1fd648e954942f2009b2f27d05baaa62",
-    "semantic_hash": "1fd648e954942f2009b2f27d05baaa62"
-  },
   "pkg/web/Velez-UI/src/components/apps/AppCard.tsx": {
     "mtime": 1777925616.410891,
     "ast_hash": "19d01ff1ca5c7d4b973674905a4af9c6",
@@ -1548,11 +1543,6 @@
     "mtime": 1761674626.319291,
     "ast_hash": "9e37642240981d9264e347eed85b0611",
     "semantic_hash": "9e37642240981d9264e347eed85b0611"
-  },
-  "pkg/web/Velez-UI/src/components/base/ActivityPoint.tsx": {
-    "mtime": 1779439564.2589734,
-    "ast_hash": "843b8b1ebd9b996d08a543a1693535d7",
-    "semantic_hash": "843b8b1ebd9b996d08a543a1693535d7"
   },
   "pkg/web/Velez-UI/src/components/base/Badge.tsx": {
     "mtime": 1777748755.17752,
@@ -1573,11 +1563,6 @@
     "mtime": 1779008399.0468366,
     "ast_hash": "abb5a44624335abf71e1a70288ee0a6b",
     "semantic_hash": "abb5a44624335abf71e1a70288ee0a6b"
-  },
-  "pkg/web/Velez-UI/src/components/base/Field.tsx": {
-    "mtime": 1779008388.007792,
-    "ast_hash": "90a661b3b3788865724a11dcb482704b",
-    "semantic_hash": "90a661b3b3788865724a11dcb482704b"
   },
   "pkg/web/Velez-UI/src/components/base/IconButton.tsx": {
     "mtime": 1777748755.179964,
@@ -1609,11 +1594,6 @@
     "ast_hash": "384614e13c1ddaa1e98915a019f685d7",
     "semantic_hash": "384614e13c1ddaa1e98915a019f685d7"
   },
-  "pkg/web/Velez-UI/src/components/base/Section.tsx": {
-    "mtime": 1779008412.9173553,
-    "ast_hash": "f0a28621e5642a366f96622bf1621b99",
-    "semantic_hash": "f0a28621e5642a366f96622bf1621b99"
-  },
   "pkg/web/Velez-UI/src/components/base/SectionLabel.tsx": {
     "mtime": 1777748755.1810813,
     "ast_hash": "f189cd308ffbe32be36b1f424d4920c3",
@@ -1633,16 +1613,6 @@
     "mtime": 1779008441.594455,
     "ast_hash": "a43089212a3510152d3b236b3a55c803",
     "semantic_hash": "a43089212a3510152d3b236b3a55c803"
-  },
-  "pkg/web/Velez-UI/src/components/base/TextInput.tsx": {
-    "mtime": 1779008374.4051666,
-    "ast_hash": "7da2de27ec6f185da71e6a70e0999985",
-    "semantic_hash": "7da2de27ec6f185da71e6a70e0999985"
-  },
-  "pkg/web/Velez-UI/src/components/base/Toggle.tsx": {
-    "mtime": 1763285825.9454613,
-    "ast_hash": "952f0ad335656206845d979d6c912e66",
-    "semantic_hash": "952f0ad335656206845d979d6c912e66"
   },
   "pkg/web/Velez-UI/src/components/base/chips/EnvChip.tsx": {
     "mtime": 1777748755.1852841,
@@ -1669,20 +1639,10 @@
     "ast_hash": "fead4f5f6be37f8d61de9e0a7d5e2ba6",
     "semantic_hash": "fead4f5f6be37f8d61de9e0a7d5e2ba6"
   },
-  "pkg/web/Velez-UI/src/components/complex/ErrorBoundary.tsx": {
-    "mtime": 1777577953.3390732,
-    "ast_hash": "58700d1021328293969706525bd48a18",
-    "semantic_hash": "58700d1021328293969706525bd48a18"
-  },
   "pkg/web/Velez-UI/src/components/complex/ThreeDotMenu/ThreeDotMenu.tsx": {
     "mtime": 1777748755.1879585,
     "ast_hash": "a0d09b93d74fafe566a794adc019d779",
     "semantic_hash": "a0d09b93d74fafe566a794adc019d779"
-  },
-  "pkg/web/Velez-UI/src/components/complex/dialog/Dialog.tsx": {
-    "mtime": 1767342255.0621338,
-    "ast_hash": "863d3944ce7203645f4262ed695a02df",
-    "semantic_hash": "863d3944ce7203645f4262ed695a02df"
   },
   "pkg/web/Velez-UI/src/components/complex/mapping/ValuesMapping.tsx": {
     "mtime": 1761674626.310928,
@@ -1693,11 +1653,6 @@
     "mtime": 1779439564.2681625,
     "ast_hash": "3bb63b550fe240b0e0bc6da312a476a2",
     "semantic_hash": "3bb63b550fe240b0e0bc6da312a476a2"
-  },
-  "pkg/web/Velez-UI/src/components/complex/search/InputSearch.tsx": {
-    "mtime": 1767167143.2625425,
-    "ast_hash": "555a387b91a2758cee84983097c16f71",
-    "semantic_hash": "555a387b91a2758cee84983097c16f71"
   },
   "pkg/web/Velez-UI/src/components/deploy/SkeletonDeploymentHistory.tsx": {
     "mtime": 1777915433.6644642,
@@ -1744,16 +1699,6 @@
     "ast_hash": "cce098b9a2dc2005c849141f047c89f3",
     "semantic_hash": "cce098b9a2dc2005c849141f047c89f3"
   },
-  "pkg/web/Velez-UI/src/components/smerd/SmerdCard.tsx": {
-    "mtime": 1777748755.1904438,
-    "ast_hash": "8bdec2565051976554bbd6456f866caf",
-    "semantic_hash": "8bdec2565051976554bbd6456f866caf"
-  },
-  "pkg/web/Velez-UI/src/components/smerd/VolumeMapping.tsx": {
-    "mtime": 1779439564.2735333,
-    "ast_hash": "2ae8b7596412a0386be7e87e9d2bc563",
-    "semantic_hash": "2ae8b7596412a0386be7e87e9d2bc563"
-  },
   "pkg/web/Velez-UI/src/components/vcn/VCNPeerRow.tsx": {
     "mtime": 1777748755.1910636,
     "ast_hash": "4ae9c02d27ae6f8310a45b99107357dd",
@@ -1784,20 +1729,10 @@
     "ast_hash": "8c0dd2e0871089f0c110ba869885adc1",
     "semantic_hash": "8c0dd2e0871089f0c110ba869885adc1"
   },
-  "pkg/web/Velez-UI/src/helpers/focus.ts": {
-    "mtime": 1761674626.365726,
-    "ast_hash": "9321dd3362b4a8373dd877c7df898f0f",
-    "semantic_hash": "9321dd3362b4a8373dd877c7df898f0f"
-  },
   "pkg/web/Velez-UI/src/main.tsx": {
     "mtime": 1779439512.4078875,
     "ast_hash": "8d95df1eaea1e0efdbc958fcb57c64bf",
     "semantic_hash": "8d95df1eaea1e0efdbc958fcb57c64bf"
-  },
-  "pkg/web/Velez-UI/src/model/common/suggest.ts": {
-    "mtime": 1761674626.3252056,
-    "ast_hash": "4ddc6df9a3ec9f7c541745a43607c60b",
-    "semantic_hash": "4ddc6df9a3ec9f7c541745a43607c60b"
   },
   "pkg/web/Velez-UI/src/model/service_page/ServicePageModel.ts": {
     "mtime": 1779435883.8422472,
@@ -1864,11 +1799,6 @@
     "ast_hash": "9ed527705c141d9a8afa49b35ba6bb9d",
     "semantic_hash": ""
   },
-  "pkg/web/Velez-UI/src/pages/service/parts/Header.tsx": {
-    "mtime": 1772192521.3013387,
-    "ast_hash": "58af48a49d2f1b03019b38bbd1cbe11d",
-    "semantic_hash": "58af48a49d2f1b03019b38bbd1cbe11d"
-  },
   "pkg/web/Velez-UI/src/pages/settings/SettingsPage.tsx": {
     "mtime": 1779394552.946928,
     "ast_hash": "272e778e95a8efbc105ab11e539eaea4",
@@ -1909,11 +1839,6 @@
     "ast_hash": "b2176e10589b6ee65835823cb5ba706c",
     "semantic_hash": ""
   },
-  "pkg/web/Velez-UI/src/processes/api/smerd.ts": {
-    "mtime": 1779358120.7510417,
-    "ast_hash": "663a0d873cfe494bb37ec516bd2bb9d5",
-    "semantic_hash": "663a0d873cfe494bb37ec516bd2bb9d5"
-  },
   "pkg/web/Velez-UI/src/processes/api/velez.ts": {
     "mtime": 1785055078.96189,
     "ast_hash": "696f4f81b5a8d07cd697cf856373ab5a",
@@ -1923,11 +1848,6 @@
     "mtime": 1777748755.1994884,
     "ast_hash": "89db219cd71b1f2798c196115a9b9fd6",
     "semantic_hash": "89db219cd71b1f2798c196115a9b9fd6"
-  },
-  "pkg/web/Velez-UI/src/processes/api/verv_closed_network.ts": {
-    "mtime": 1777748755.1998317,
-    "ast_hash": "49ed19e535fd559de653ec920b4c592b",
-    "semantic_hash": "49ed19e535fd559de653ec920b4c592b"
   },
   "pkg/web/Velez-UI/src/processes/mappings/services.ts": {
     "mtime": 1779009547.0269337,
@@ -1963,11 +1883,6 @@
     "mtime": 1761674626.3238044,
     "ast_hash": "0352474ba2918efe13895edbc3780d94",
     "semantic_hash": "0352474ba2918efe13895edbc3780d94"
-  },
-  "pkg/web/Velez-UI/src/widgets/BindingsWidget.tsx": {
-    "mtime": 1761674626.3666358,
-    "ast_hash": "22e5a7d6b66ef93efd007051534acc86",
-    "semantic_hash": "22e5a7d6b66ef93efd007051534acc86"
   },
   "pkg/web/Velez-UI/src/widgets/PortsWidget.tsx": {
     "mtime": 1761674626.3699296,
@@ -2074,20 +1989,10 @@
     "ast_hash": "78b61ec985d84bb7d17c05fe48b7368e",
     "semantic_hash": "78b61ec985d84bb7d17c05fe48b7368e"
   },
-  "pkg/web/Velez-UI/src/widgets/settings/SettingsWidget.tsx": {
-    "mtime": 1777578119.671735,
-    "ast_hash": "279f63304f18657af579ff7a1478ecde",
-    "semantic_hash": "279f63304f18657af579ff7a1478ecde"
-  },
   "pkg/web/Velez-UI/src/widgets/sidebar/Sidebar.tsx": {
     "mtime": 1785072045.0778,
     "ast_hash": "2021fddaf3da953ab5b7a258393db21d",
     "semantic_hash": ""
-  },
-  "pkg/web/Velez-UI/src/widgets/smerds/SmerdsWidget.tsx": {
-    "mtime": 1777748755.2088888,
-    "ast_hash": "e3e9e2e6be4fe17597e129982558c9ea",
-    "semantic_hash": "e3e9e2e6be4fe17597e129982558c9ea"
   },
   "pkg/web/Velez-UI/src/widgets/topbar/TopBar.tsx": {
     "mtime": 1785072045.079974,
@@ -2098,11 +2003,6 @@
     "mtime": 1777748755.2103257,
     "ast_hash": "1cedf79de23c3b4f13815cecdbfb650b",
     "semantic_hash": "1cedf79de23c3b4f13815cecdbfb650b"
-  },
-  "pkg/web/Velez-UI/src/widgets/vcn/RegisterVcnUserWidget.tsx": {
-    "mtime": 1765696837.8130424,
-    "ast_hash": "13cdec153c61789984f110643b0b4632",
-    "semantic_hash": "13cdec153c61789984f110643b0b4632"
   },
   "pkg/web/Velez-UI/src/widgets/vcn/VCNPeerTable.tsx": {
     "mtime": 1777748755.2112987,
@@ -2185,7 +2085,7 @@
     "semantic_hash": ""
   },
   "tests/e2e/test_data/default-private-key.json": {
-    "mtime": 1785171299.020865,
+    "mtime": 1785171976.3431432,
     "ast_hash": "cae2e59515c093157fa819ebb76bbc72",
     "semantic_hash": "cae2e59515c093157fa819ebb76bbc72"
   },
@@ -2945,7 +2845,7 @@
     "semantic_hash": ""
   },
   "internal/jobs/upgrade_smerd_test.go": {
-    "mtime": 1785144159.8442187,
+    "mtime": 1785171956.6496522,
     "ast_hash": "c9f1720bbdc94089c8b1a1a473faf44c",
     "semantic_hash": ""
   },
@@ -3092,6 +2992,16 @@
   "internal/transport/ui/ui_test.go": {
     "mtime": 1785171261.0927627,
     "ast_hash": "b73d0d63d66f406f3d3670519322baf9",
+    "semantic_hash": ""
+  },
+  "pkg/web/Velez-UI/knip.json": {
+    "mtime": 1785173364.994433,
+    "ast_hash": "c649d9b91bdd44a5874121a7d6814199",
+    "semantic_hash": ""
+  },
+  "pkg/web/Velez-UI/stylelint.config.js": {
+    "mtime": 1785172799.1584084,
+    "ast_hash": "420e0b9c289c0b9be484315070f45aaa",
     "semantic_hash": ""
   }
 }

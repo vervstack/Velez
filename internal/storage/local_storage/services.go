@@ -87,30 +87,9 @@ func (s *dockerServices) Delete(_ context.Context, _ string) error {
 }
 
 func (s *dockerServices) List(ctx context.Context, req domain.ListServicesReq) (domain.ServiceList, error) {
-	listReq := &pb.ListSmerds_Request{}
-
-	containers, err := s.docker.ListContainers(ctx, listReq)
+	all, err := listDistinctServices(ctx, s.docker)
 	if err != nil {
-		return domain.ServiceList{}, rerrors.Wrap(err, "error listing containers")
-	}
-
-	seen := make(map[string]bool)
-
-	var all []domain.ServiceBaseInfo
-
-	for _, c := range containers {
-		serviceName := c.Labels[labels.VervServiceLabel]
-		if serviceName == "" || seen[serviceName] {
-			continue
-		}
-
-		seen[serviceName] = true
-
-		info := domain.ServiceBaseInfo{
-			Name: serviceName,
-		}
-
-		all = append(all, info)
+		return domain.ServiceList{}, err
 	}
 
 	if req.NamePattern.Valid {
@@ -144,4 +123,50 @@ func (s *dockerServices) List(ctx context.Context, req domain.ListServicesReq) (
 	}
 
 	return out, nil
+}
+
+// listDistinctServices derives the list of distinct Verv service names from
+// live Docker container labels. It is shared between dockerServices.List
+// (service listing) and nodes.List (running-services count for the Node
+// Health panel) to avoid duplicating the label-filtering logic.
+func listDistinctServices(ctx context.Context, docker node_clients.Docker) ([]domain.ServiceBaseInfo, error) {
+	listReq := &pb.ListSmerds_Request{}
+
+	containers, err := docker.ListContainers(ctx, listReq)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error listing containers")
+	}
+
+	seen := make(map[string]bool)
+
+	var all []domain.ServiceBaseInfo
+
+	for _, c := range containers {
+		serviceName := c.Labels[labels.VervServiceLabel]
+		if serviceName == "" || seen[serviceName] {
+			continue
+		}
+
+		seen[serviceName] = true
+
+		info := domain.ServiceBaseInfo{
+			Name: serviceName,
+		}
+
+		all = append(all, info)
+	}
+
+	return all, nil
+}
+
+// countRunningServices returns the number of distinct running Verv services
+// on this node, derived from the same Docker label logic as
+// listDistinctServices.
+func countRunningServices(ctx context.Context, docker node_clients.Docker) (uint64, error) {
+	all, err := listDistinctServices(ctx, docker)
+	if err != nil {
+		return 0, rerrors.Wrap(err, "error counting running services")
+	}
+
+	return uint64(len(all)), nil
 }

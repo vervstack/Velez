@@ -21,6 +21,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/cluster/env"
+	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/patterns/db_patterns/pg_pattern"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/cluster_steps"
 	"go.vervstack.ru/Velez/internal/storage"
@@ -91,17 +92,20 @@ type enableStatefullHandler struct {
 	nodeClients         node_clients.NodeClients
 	clusterStateManager cluster_clients.ClusterStateManagerContainer
 	storageContainer    *storage.Container
+	cfg                 config.Config
 }
 
 func NewEnableStatefullHandler(
 	nodeClients node_clients.NodeClients,
 	clusterStateManager cluster_clients.ClusterStateManagerContainer,
 	storageContainer *storage.Container,
+	cfg config.Config,
 ) TaskHandler {
 	return &enableStatefullHandler{
 		nodeClients:         nodeClients,
 		clusterStateManager: clusterStateManager,
 		storageContainer:    storageContainer,
+		cfg:                 cfg,
 	}
 }
 
@@ -197,6 +201,7 @@ func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			Name: "init_node_storage",
 			Job: &initNodeStorageJob{
 				clusterStateManager: h.clusterStateManager,
+				region:              h.cfg.Environment.NodeRegion,
 			},
 		},
 	}
@@ -617,10 +622,11 @@ func (j *updateClusterStateJob) Do(ctx context.Context) error {
 // new Postgres-backed one.
 type initNodeStorageJob struct {
 	clusterStateManager cluster_clients.ClusterStateManagerContainer
+	region              string
 }
 
 func (j *initNodeStorageJob) Do(ctx context.Context) error {
-	err := j.clusterStateManager.Nodes().InitNode(ctx)
+	err := j.clusterStateManager.Nodes().InitNode(ctx, j.region)
 	if err != nil {
 		return rerrors.Wrap(err, "error initializing node storage")
 	}

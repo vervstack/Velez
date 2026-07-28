@@ -6,17 +6,6 @@ import MiniBar from '@/components/base/MiniBar';
 import IconButton from '@/components/base/IconButton';
 import {NodeBaseInfo, NodeStatus} from "@/app/api/velez";
 
-export interface NodeCardData {
-    id: string;
-    host: string;
-    region: string;
-    status: 'online' | 'degraded' | 'offline';
-
-    cpu: number;
-    mem: number;
-    services: number;
-}
-
 interface NodeCardProps {
     node: NodeBaseInfo;
 
@@ -33,7 +22,19 @@ function mapNodeStatus(status?: NodeStatus): 'online' | 'offline' | 'degraded' |
     }
 }
 
+function isMetricRed(percent: number): boolean {
+    return percent > 80;
+}
+
+function isMetricAmber(percent: number): boolean {
+    return percent > 60 && percent <= 80;
+}
+
 export default function NodeCard({node, onShell, onDrain}: NodeCardProps) {
+    const cpuPercent = node.cpuPercent ?? 0;
+    const memPercent = node.memPercent ?? 0;
+    const servicesCount = Number(node.servicesCount ?? 0);
+
     return (
         <div className={
             cn(cls.NodeCardContainer,
@@ -51,22 +52,20 @@ export default function NodeCard({node, onShell, onDrain}: NodeCardProps) {
                     )}
                 </div>
                 <div className={cls.host}>{node.addr}</div>
-                {/*TODO add region to Node description*/}
-                <div className={cls.region}>{'spb-1'}</div>
+                <div className={cls.region}>{node.region}</div>
             </div>
 
             <div className={cls.metric}>
                 <div className={cls.metricHeader}>
                     <span className={cls.metricLabel}>CPU</span>
                     <span className={cn(cls.metricValue, {
-                        [cls.valueRed]: false, // node.cpu > 80,
-                        [cls.valueAmber]: true, // node.cpu > 60 && node.cpu <= 80,
+                        [cls.valueRed]: isMetricRed(cpuPercent),
+                        [cls.valueAmber]: isMetricAmber(cpuPercent),
                     })}>
-                        {/*TODO*/}
-                        {50}%
+                        {Math.round(cpuPercent)}%
                     </span>
                 </div>
-                <MiniBar val={50}/>
+                <MiniBar val={cpuPercent}/>
             </div>
 
             <div className={cls.metric}>
@@ -74,25 +73,23 @@ export default function NodeCard({node, onShell, onDrain}: NodeCardProps) {
                     <span className={cls.metricLabel}>Memory</span>
                     <span className={
                         cn(cls.metricValue, {
-                            [cls.valueRed]: true,//node.mem > 80,
-                            [cls.valueAmber]: false, //node.mem > 60 && node.mem <= 80,
+                            [cls.valueRed]: isMetricRed(memPercent),
+                            [cls.valueAmber]: isMetricAmber(memPercent),
                         })}>
-                        {/*TODO*/}
-                        {81}%
+                        {Math.round(memPercent)}%
                     </span>
                 </div>
-                <MiniBar val={81}/>
+                <MiniBar val={memPercent}/>
             </div>
 
             <div className={cls.servicesBlock}>
-                {/*TODO Add services count*/}
-                <span className={cls.servicesCount}>{5}</span>
+                <span className={cls.servicesCount}>{servicesCount}</span>
                 <span className={cls.servicesLabel}>services</span>
             </div>
 
             <div className={cls.actions}>
-                <IconButton label="shell" title="Open terminal" onClick={onShell}/>
-                <IconButton label="drain" title="Drain node" danger onClick={onDrain}/>
+                <IconButton label="shell" title="Not implemented yet" onClick={onShell} disabled/>
+                <IconButton label="drain" title="Not implemented yet" danger onClick={onDrain} disabled/>
             </div>
         </div>
     );

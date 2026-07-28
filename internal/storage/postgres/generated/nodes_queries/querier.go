@@ -9,8 +9,9 @@ import (
 )
 
 type Querier interface {
-	InitNode(ctx context.Context) (int32, error)
-	UpdateOnline(ctx context.Context) error
+	GetOwnRegion(ctx context.Context) (string, error)
+	InitNode(ctx context.Context, region string) error
+	UpdateOnline(ctx context.Context, arg UpdateOnlineParams) error
 }
 
 var _ Querier = (*Queries)(nil)

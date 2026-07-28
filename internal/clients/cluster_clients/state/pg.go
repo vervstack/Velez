@@ -7,6 +7,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/hardware"
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres"
@@ -42,7 +43,16 @@ func (s *pgState) doHeartbeat(ctx context.Context) {
 	for {
 		select {
 		case <-ticker.C:
-			err := s.Nodes().UpdateOnline(ctx)
+			cpuPercent, memPercent, err := hardware.New().GetUsage(ctx)
+			if err != nil {
+				log.Error().
+					Err(err).
+					Msg("error getting this node's cpu/mem usage")
+
+				continue
+			}
+
+			err = s.Nodes().UpdateOnline(ctx, cpuPercent, memPercent)
 			if err != nil {
 				log.Error().
 					Err(err).

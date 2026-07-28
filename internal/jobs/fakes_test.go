@@ -532,18 +532,21 @@ type fakeNodesStorage struct {
 	mu            sync.Mutex
 	initNodeErr   error
 	initNodeCalls int
+	lastRegion    string
 }
 
-func (f *fakeNodesStorage) InitNode(_ context.Context) error {
+func (f *fakeNodesStorage) InitNode(_ context.Context, region string) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
 	f.initNodeCalls++
 
+	f.lastRegion = region
+
 	return f.initNodeErr
 }
 
-func (f *fakeNodesStorage) UpdateOnline(_ context.Context) error { return nil }
+func (f *fakeNodesStorage) UpdateOnline(_ context.Context, _, _ float64) error { return nil }
 
 func (f *fakeNodesStorage) List(_ context.Context, _ domain.ListNodesReq) (domain.NodesList, error) {
 	return domain.NodesList{}, nil

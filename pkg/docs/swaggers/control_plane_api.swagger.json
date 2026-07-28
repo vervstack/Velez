@@ -344,6 +344,21 @@
         },
         "status": {
           "$ref": "#/definitions/velez_apiNodeStatus"
+        },
+        "cpuPercent": {
+          "type": "number",
+          "format": "double"
+        },
+        "memPercent": {
+          "type": "number",
+          "format": "double"
+        },
+        "servicesCount": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "region": {
+          "type": "string"
         }
       }
     },

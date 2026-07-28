@@ -76,6 +76,9 @@ environment:
     - name: memory_swap_mb
       type: int
       value: 50
+    - name: node_region
+      type: string
+      value: ""
     - name: ram_mb_default
       type: int
       value: 50

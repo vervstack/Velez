@@ -1,8 +1,19 @@
 package hardware
 
 import (
+	"context"
+	"time"
+
 	"github.com/jaypipes/ghw"
+	"github.com/shirou/gopsutil/v4/cpu"
+	"github.com/shirou/gopsutil/v4/mem"
+	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+)
+
+const (
+	usageSampleInterval = 200 * time.Millisecond
 )
 
 type Manager struct{}
@@ -40,4 +51,26 @@ func (h *Manager) GetHardware() (*velez_api.GetHardware_Response, error) {
 	}
 
 	return resp, nil
+}
+
+// GetUsage returns the current host-level CPU and memory utilization
+// percentages of the machine this process runs on.
+func (h *Manager) GetUsage(ctx context.Context) (cpuPercent, memPercent float64, err error) {
+	cpuPercents, err := cpu.PercentWithContext(ctx, usageSampleInterval, false)
+	if err != nil {
+		return 0, 0, rerrors.Wrap(err, "error getting cpu usage")
+	}
+
+	if len(cpuPercents) > 0 {
+		cpuPercent = cpuPercents[0]
+	}
+
+	virtualMemory, err := mem.VirtualMemoryWithContext(ctx)
+	if err != nil {
+		return 0, 0, rerrors.Wrap(err, "error getting memory usage")
+	}
+
+	memPercent = virtualMemory.UsedPercent
+
+	return cpuPercent, memPercent, nil
 }

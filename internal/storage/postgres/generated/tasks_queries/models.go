@@ -179,6 +179,9 @@ type VelezNode struct {
 	LastOnline time.Time
 	IsEnabled  bool
 	Addr       string
+	CpuPercent sql.NullFloat64
+	MemPercent sql.NullFloat64
+	Region     string
 }
 
 type VelezPlugin struct {

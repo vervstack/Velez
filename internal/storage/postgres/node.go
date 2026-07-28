@@ -2,8 +2,10 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
@@ -28,17 +30,34 @@ func newNodeStorage(db sqldb.DB) *nodeStorage {
 	}
 }
 
-func (n *nodeStorage) InitNode(ctx context.Context) error {
-	_, err := n.querier.InitNode(ctx)
+func (n *nodeStorage) InitNode(ctx context.Context, region string) error {
+	err := n.querier.InitNode(ctx, region)
 	if err != nil {
 		return rerrors.Wrap(err, "error initializing new node")
+	}
+
+	storedRegion, err := n.querier.GetOwnRegion(ctx)
+	if err != nil {
+		return rerrors.Wrap(err, "error reading back stored node region")
+	}
+
+	if region != "" && region != storedRegion {
+		log.Warn().
+			Str("config_region", region).
+			Str("stored_region", storedRegion).
+			Msg("node region in config differs from region already stored in postgres; keeping the stored value")
 	}
 
 	return nil
 }
 
-func (n *nodeStorage) UpdateOnline(ctx context.Context) error {
-	err := n.querier.UpdateOnline(ctx)
+func (n *nodeStorage) UpdateOnline(ctx context.Context, cpuPercent, memPercent float64) error {
+	params := pg_queries.UpdateOnlineParams{
+		CpuPercent: sql.NullFloat64{Float64: cpuPercent, Valid: true},
+		MemPercent: sql.NullFloat64{Float64: memPercent, Valid: true},
+	}
+
+	err := n.querier.UpdateOnline(ctx, params)
 	if err != nil {
 		return rerrors.Wrap(err, "error updating node's last online")
 	}
@@ -62,7 +81,15 @@ func (n *nodeStorage) List(ctx context.Context, req domain.ListNodesReq) (domain
 		"last_online",
 		"is_enabled",
 		"addr",
+		"cpu_percent",
+		"mem_percent",
+		"region",
 	)
+
+	servicesCountColumn := "(SELECT count(*) FROM velez.deployments d " +
+		"WHERE d.node_id = velez.nodes.id AND d.status = 'RUNNING') AS services_count"
+
+	builder = builder.Column(servicesCountColumn)
 
 	if req.Paging.Limit == 0 {
 		req.Paging.Limit = defaultNodeListLimit
@@ -130,16 +157,27 @@ func (n *nodeStorage) countTotal(ctx context.Context, builder sq.SelectBuilder) 
 func scanNode(scannable sqldb.Scannable) (domain.NodeBaseInfo, error) {
 	node := domain.NodeBaseInfo{}
 
+	var cpuPercent sql.NullFloat64
+
+	var memPercent sql.NullFloat64
+
 	err := scannable.Scan(
 		&node.Id,
 		&node.Name,
 		&node.LastOnline,
 		&node.IsEnabled,
 		&node.Addr,
+		&cpuPercent,
+		&memPercent,
+		&node.Region,
+		&node.ServicesCount,
 	)
 	if err != nil {
 		return node, rerrors.Wrap(err, "error scanning result for node base info")
 	}
+
+	node.CpuPercent = cpuPercent.Float64
+	node.MemPercent = memPercent.Float64
 
 	return node, nil
 }

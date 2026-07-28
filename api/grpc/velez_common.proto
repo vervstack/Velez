@@ -170,6 +170,10 @@ message NodeBaseInfo {
   string name = 2;
   string addr = 3;
   NodeStatus status = 4;
+  double cpu_percent = 5;
+  double mem_percent = 6;
+  uint64 services_count = 7;
+  string region = 8;
 }
 
 enum NodeStatus {

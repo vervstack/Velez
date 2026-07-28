@@ -1079,6 +1079,10 @@ type NodeBaseInfo struct {
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Addr          string                 `protobuf:"bytes,3,opt,name=addr,proto3" json:"addr,omitempty"`
 	Status        NodeStatus             `protobuf:"varint,4,opt,name=status,proto3,enum=velez_api.NodeStatus" json:"status,omitempty"`
+	CpuPercent    float64                `protobuf:"fixed64,5,opt,name=cpu_percent,json=cpuPercent,proto3" json:"cpu_percent,omitempty"`
+	MemPercent    float64                `protobuf:"fixed64,6,opt,name=mem_percent,json=memPercent,proto3" json:"mem_percent,omitempty"`
+	ServicesCount uint64                 `protobuf:"varint,7,opt,name=services_count,json=servicesCount,proto3" json:"services_count,omitempty"`
+	Region        string                 `protobuf:"bytes,8,opt,name=region,proto3" json:"region,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1139,6 +1143,34 @@ func (x *NodeBaseInfo) GetStatus() NodeStatus {
 		return x.Status
 	}
 	return NodeStatus_NodeStatus_Unknown
+}
+
+func (x *NodeBaseInfo) GetCpuPercent() float64 {
+	if x != nil {
+		return x.CpuPercent
+	}
+	return 0
+}
+
+func (x *NodeBaseInfo) GetMemPercent() float64 {
+	if x != nil {
+		return x.MemPercent
+	}
+	return 0
+}
+
+func (x *NodeBaseInfo) GetServicesCount() uint64 {
+	if x != nil {
+		return x.ServicesCount
+	}
+	return 0
+}
+
+func (x *NodeBaseInfo) GetRegion() string {
+	if x != nil {
+		return x.Region
+	}
+	return ""
 }
 
 type Container_Hardware struct {
@@ -1456,12 +1488,18 @@ const file_velez_common_proto_rawDesc = "" +
 	"\aaliases\x18\x03 \x03(\tR\aaliases\"6\n" +
 	"\x06Paging\x12\x14\n" +
 	"\x05limit\x18\x01 \x01(\x04R\x05limit\x12\x16\n" +
-	"\x06offset\x18\x02 \x01(\x04R\x06offset\"u\n" +
+	"\x06offset\x18\x02 \x01(\x04R\x06offset\"\xf6\x01\n" +
 	"\fNodeBaseInfo\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
 	"\x04addr\x18\x03 \x01(\tR\x04addr\x12-\n" +
-	"\x06status\x18\x04 \x01(\x0e2\x15.velez_api.NodeStatusR\x06status*K\n" +
+	"\x06status\x18\x04 \x01(\x0e2\x15.velez_api.NodeStatusR\x06status\x12\x1f\n" +
+	"\vcpu_percent\x18\x05 \x01(\x01R\n" +
+	"cpuPercent\x12\x1f\n" +
+	"\vmem_percent\x18\x06 \x01(\x01R\n" +
+	"memPercent\x12%\n" +
+	"\x0eservices_count\x18\a \x01(\x04R\rservicesCount\x12\x16\n" +
+	"\x06region\x18\b \x01(\tR\x06region*K\n" +
 	"\x11RestartPolicyType\x12\x12\n" +
 	"\x0eunless_stopped\x10\x00\x12\x06\n" +
 	"\x02no\x10\x01\x12\n" +

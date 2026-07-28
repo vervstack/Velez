@@ -20,19 +20,19 @@ export type Version = Record<string, never>;
 export type CreateSmerdRequest = {
   name?: string;
   imageName?: string;
-    hardware?: VelezApiVelezCommon.ContainerHardware;
-    settings?: VelezApiVelezCommon.ContainerSettings;
-    command?: string;
+  hardware?: VelezApiVelezCommon.ContainerHardware;
+  settings?: VelezApiVelezCommon.ContainerSettings;
+  command?: string;
   env?: Record<string, string>;
-    healthcheck?: VelezApiVelezCommon.ContainerHealthcheck;
+  healthcheck?: VelezApiVelezCommon.ContainerHealthcheck;
   labels?: Record<string, string>;
   ignoreConfig?: boolean;
   useImagePorts?: boolean;
   autoUpgrade?: boolean;
   restart?: VelezApiVelezCommon.RestartPolicy;
-    verv?: VelezApiVelezCommon.MatreshkaConfigSpec;
-    isDeclarativeDeploy?: boolean;
-    plain?: VelezApiVelezCommon.FileConfig[];
+  verv?: VelezApiVelezCommon.MatreshkaConfigSpec;
+  isDeclarativeDeploy?: boolean;
+  plain?: VelezApiVelezCommon.FileConfig[];
 };
 
 export type CreateSmerd = Record<string, never>;

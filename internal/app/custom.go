@@ -105,7 +105,7 @@ func (c *Custom) Init(a *App) (err error) {
 	registry.Register(jobs.NewConnectServiceToVpnHandler(
 		c.NodeClients, c.ClusterClients.Vpn(), c.ClusterClients.ServiceDiscovery()))
 	registry.Register(jobs.NewEnableStatefullHandler(
-		c.NodeClients, c.ClusterClients.StateManager(), c.Services.StorageContainer()))
+		c.NodeClients, c.ClusterClients.StateManager(), c.Services.StorageContainer(), a.Cfg))
 	registry.Register(jobs.NewUpgradeSmerdHandler(
 		c.NodeClients, c.Services.SmerdManager(), c.Services.ConfigurationService()))
 	registry.Register(jobs.NewDropSmerdHandler(c.NodeClients))
@@ -190,7 +190,7 @@ func (c *Custom) InitServiceLayer(a *App) error {
 
 	var err error
 
-	c.Services, err = service_manager.New(a.Ctx, c.NodeClients, c.ClusterClients, a.Cfg.Environment.Environments)
+	c.Services, err = service_manager.New(a.Ctx, c.NodeClients, c.ClusterClients, a.Cfg.Environment.Environments, a.Cfg)
 	if err != nil {
 		return rerrors.Wrap(err, "error initializing service manager")
 	}

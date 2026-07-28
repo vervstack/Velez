@@ -7,6 +7,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/service_manager/configurator"
 	"go.vervstack.ru/Velez/internal/service/service_manager/container_manager"
@@ -35,6 +36,7 @@ func New(
 	nodeClients node_clients.NodeClients,
 	clusterClients cluster_clients.ClusterClients,
 	envs []string,
+	cfg config.Config,
 ) (service.Services, error) {
 	configService, err := configurator.New(clusterClients)
 	if err != nil {
@@ -43,7 +45,7 @@ func New(
 
 	cm := container_manager.New(nodeClients)
 
-	storageContainer := storage.NewStorageContainer(local_storage.New(nodeClients.Docker()))
+	storageContainer := storage.NewStorageContainer(local_storage.New(nodeClients.Docker(), cfg))
 	svc := plugins.NewPluginService(storageContainer)
 
 	envStorageContainer := environments.NewContainer(environments.NewStatic(envs))

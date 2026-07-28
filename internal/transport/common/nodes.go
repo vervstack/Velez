@@ -18,10 +18,14 @@ func ToNodeList(info []domain.NodeBaseInfo) []*pb.NodeBaseInfo {
 
 func ToBasicNodeInfo(info domain.NodeBaseInfo) *pb.NodeBaseInfo {
 	return &pb.NodeBaseInfo{
-		Id:     info.Id,
-		Name:   info.Name,
-		Addr:   info.Addr,
-		Status: NodeStatusFromLastOnline(info),
+		Id:            info.Id,
+		Name:          info.Name,
+		Addr:          info.Addr,
+		Status:        NodeStatusFromLastOnline(info),
+		CpuPercent:    info.CpuPercent,
+		MemPercent:    info.MemPercent,
+		ServicesCount: info.ServicesCount,
+		Region:        info.Region,
 	}
 }
 

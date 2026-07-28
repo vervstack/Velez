@@ -49,8 +49,8 @@ type DeploymentsStorage interface {
 }
 
 type NodesStorage interface {
-	InitNode(ctx context.Context) error
-	UpdateOnline(ctx context.Context) error
+	InitNode(ctx context.Context, region string) error
+	UpdateOnline(ctx context.Context, cpuPercent, memPercent float64) error
 	List(ctx context.Context, req domain.ListNodesReq) (domain.NodesList, error)
 }
 

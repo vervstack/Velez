@@ -1,8 +1,11 @@
 package local_storage
 
 import (
+	"os"
+
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
+	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
@@ -17,9 +20,17 @@ type localStorage struct {
 	jobs             *jobs
 }
 
-func New(containerAPI node_clients.Docker) storage.Storage {
+func New(containerAPI node_clients.Docker, cfg config.Config) storage.Storage {
+	region := cfg.Environment.NodeRegion
+	if region == "" {
+		hostname, err := os.Hostname()
+		if err == nil {
+			region = hostname
+		}
+	}
+
 	return &localStorage{
-		nodes:            newNodesStorage(),
+		nodes:            newNodesStorage(containerAPI, region),
 		services:         newServicesStorage(containerAPI),
 		deployments:      newDeploymentsStorage(),
 		plugins:          newPluginsStorage(containerAPI),

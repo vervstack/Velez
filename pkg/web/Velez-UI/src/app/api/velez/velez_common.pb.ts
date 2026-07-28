@@ -116,8 +116,8 @@ export type PlainConfigSpec = {
 };
 
 export type FileConfig = {
-    path?: string;
-    content?: Uint8Array;
+  path?: string;
+  content?: Uint8Array;
 };
 
 export type MatreshkaConfigSpec = {
@@ -143,4 +143,8 @@ export type NodeBaseInfo = {
   name?: string;
   addr?: string;
   status?: NodeStatus;
+  cpuPercent?: number;
+  memPercent?: number;
+  servicesCount?: string;
+  region?: string;
 };

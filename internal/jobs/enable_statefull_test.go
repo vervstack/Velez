@@ -19,6 +19,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	"go.vervstack.ru/Velez/internal/cluster/env"
+	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
@@ -36,7 +37,7 @@ var (
 )
 
 func TestEnableStatefullHandler_Action(t *testing.T) {
-	h := NewEnableStatefullHandler(nil, nil, nil)
+	h := NewEnableStatefullHandler(nil, nil, nil, config.Config{})
 
 	if h.Action() != EnableStatefullAction {
 		t.Errorf("expected action %q, got %q", EnableStatefullAction, h.Action())
@@ -44,7 +45,7 @@ func TestEnableStatefullHandler_Action(t *testing.T) {
 }
 
 func TestEnableStatefullHandler_NewContext(t *testing.T) {
-	h := NewEnableStatefullHandler(nil, nil, nil)
+	h := NewEnableStatefullHandler(nil, nil, nil, config.Config{})
 
 	if _, ok := h.NewContext().(*velez_api.EnableStatefullTaskPayload); !ok {
 		t.Fatal("expected NewContext to return *velez_api.EnableStatefullTaskPayload")
@@ -63,7 +64,7 @@ func TestEnableStatefullHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 	clusterStateManager := state.NewContainer(clusterStorage)
 	storageContainer := storage.NewStorageContainer(clusterStorage)
 
-	h := NewEnableStatefullHandler(nodeClients, clusterStateManager, storageContainer)
+	h := NewEnableStatefullHandler(nodeClients, clusterStateManager, storageContainer, config.Config{})
 
 	namedJobs := h.BuildJobs(payload)
 
@@ -618,7 +619,7 @@ func TestInitNodeStorageJob_Success(t *testing.T) {
 	nodes := &fakeNodesStorage{}
 	clusterStateManager := state.NewContainer(&fakeClusterStorage{nodes: nodes})
 
-	j := &initNodeStorageJob{clusterStateManager: clusterStateManager}
+	j := &initNodeStorageJob{clusterStateManager: clusterStateManager, region: "eu-west"}
 
 	err := j.Do(context.Background())
 	if err != nil {
@@ -627,6 +628,10 @@ func TestInitNodeStorageJob_Success(t *testing.T) {
 
 	if nodes.initNodeCalls != 1 {
 		t.Errorf("expected InitNode called once, got %d", nodes.initNodeCalls)
+	}
+
+	if nodes.lastRegion != "eu-west" {
+		t.Errorf("expected region %q passed through to InitNode, got %q", "eu-west", nodes.lastRegion)
 	}
 }
 
@@ -712,7 +717,7 @@ func TestEnableStatefullHandler_FailurePath_UnreachablePostgres_RollsBack(t *tes
 	clusterStateManager := state.NewContainer(clusterStorage)
 	storageContainer := storage.NewStorageContainer(clusterStorage)
 
-	handler := NewEnableStatefullHandler(nodeClients, clusterStateManager, storageContainer)
+	handler := NewEnableStatefullHandler(nodeClients, clusterStateManager, storageContainer, config.Config{})
 
 	taskCtx := handler.NewContext()
 

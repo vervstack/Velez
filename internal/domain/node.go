@@ -18,4 +18,10 @@ type NodeBaseInfo struct {
 	LastOnline time.Time
 	Addr       string
 	IsEnabled  bool
+
+	CpuPercent    float64
+	MemPercent    float64
+	ServicesCount uint64
+
+	Region string
 }

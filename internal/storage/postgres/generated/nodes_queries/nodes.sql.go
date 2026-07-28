@@ -7,28 +7,42 @@ package nodes_queries
 
 import (
 	"context"
+	"database/sql"
 )
 
-const initNode = `-- name: InitNode :one
-INSERT INTO velez.nodes (name)
-VALUES (CURRENT_USER)
-RETURNING id
+const getOwnRegion = `-- name: GetOwnRegion :one
+SELECT region FROM velez.nodes WHERE name = CURRENT_USER
 `
 
-func (q *Queries) InitNode(ctx context.Context) (int32, error) {
-	row := q.db.QueryRowContext(ctx, initNode)
-	var id int32
-	err := row.Scan(&id)
-	return id, err
+func (q *Queries) GetOwnRegion(ctx context.Context) (string, error) {
+	row := q.db.QueryRowContext(ctx, getOwnRegion)
+	var region string
+	err := row.Scan(&region)
+	return region, err
+}
+
+const initNode = `-- name: InitNode :exec
+INSERT INTO velez.nodes (name, region) VALUES (CURRENT_USER, $1)
+ON CONFLICT (name) DO NOTHING
+`
+
+func (q *Queries) InitNode(ctx context.Context, region string) error {
+	_, err := q.db.ExecContext(ctx, initNode, region)
+	return err
 }
 
 const updateOnline = `-- name: UpdateOnline :exec
 UPDATE velez.nodes
-SET last_online = now()
+SET last_online = now(), cpu_percent = $1, mem_percent = $2
 WHERE name = CURRENT_USER
 `
 
-func (q *Queries) UpdateOnline(ctx context.Context) error {
-	_, err := q.db.ExecContext(ctx, updateOnline)
+type UpdateOnlineParams struct {
+	CpuPercent sql.NullFloat64
+	MemPercent sql.NullFloat64
+}
+
+func (q *Queries) UpdateOnline(ctx context.Context, arg UpdateOnlineParams) error {
+	_, err := q.db.ExecContext(ctx, updateOnline, arg.CpuPercent, arg.MemPercent)
 	return err
 }

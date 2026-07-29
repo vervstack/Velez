@@ -21,6 +21,10 @@ export default function PluginManageDialog({pluginType}: PluginManageDialogProps
 
     const plugin = pluginsQuery.data?.find(p => p.type == pluginType) || new VervPlugin(VervPluginType.unknown_service_type, "")
 
+    if (pluginType == VervPluginType.statefull_pg) {
+        return !pluginsQuery.isLoading ? <StatefullPgPluginForm {...plugin}/> : null;
+    }
+
     return (
         <div
             className={cls.ModalContainer}

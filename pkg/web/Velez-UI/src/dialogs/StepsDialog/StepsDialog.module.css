@@ -1,0 +1,20 @@
+.StepsDialogContainer {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    border: 0.0625rem solid var(--border);
+    border-radius: var(--radius);
+    width: 60vw;
+    height: 60vh;
+    overflow: hidden;
+}
+
+.StepsDialogWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.25rem;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}

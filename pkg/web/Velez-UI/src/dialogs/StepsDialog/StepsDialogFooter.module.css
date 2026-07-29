@@ -1,0 +1,12 @@
+.StepsDialogFooterContainer {
+    padding: 1.25rem;
+    border-top: 0.0625rem solid var(--border);
+    flex-shrink: 0;
+}
+
+.StepsDialogFooterWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}

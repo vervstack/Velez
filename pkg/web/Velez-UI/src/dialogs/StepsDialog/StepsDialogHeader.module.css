@@ -1,0 +1,78 @@
+.StepsDialogHeaderContainer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.875rem 1.25rem;
+    background: var(--bg2);
+    border-bottom: 0.0625rem solid var(--border);
+    flex-shrink: 0;
+}
+
+.IconChip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.125rem;
+    height: 2.125rem;
+    flex-shrink: 0;
+    border-radius: 0.5rem;
+    background: var(--cyan-dim);
+    border: 0.0625rem solid var(--border-m);
+    font-family: var(--font-mono);
+    font-size: 1.125rem;
+    color: var(--cyan);
+}
+
+.TitleWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+}
+
+.EyebrowRow {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-family: var(--font-mono);
+    font-size: var(--vs-fs-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: 0.0875rem;
+}
+
+.Eyebrow {
+    color: var(--cyan);
+}
+
+.EyebrowSeparator {
+    color: var(--fg-faint);
+}
+
+.EyebrowDetail {
+    color: var(--fg-dim);
+}
+
+.StepLine {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--fg);
+}
+
+.Spacer {
+    flex: 1;
+}
+
+.CloseButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    flex-shrink: 0;
+    border-radius: 0.4375rem;
+    background: transparent;
+    border: 0.0625rem solid var(--border-s);
+    color: var(--fg-dim);
+    cursor: pointer;
+}

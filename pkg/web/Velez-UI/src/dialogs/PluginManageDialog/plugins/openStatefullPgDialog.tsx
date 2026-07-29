@@ -1,9 +1,9 @@
 import {EnableStatefullCluster, VervPluginState} from '@/app/api/velez';
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
+import {queryClient} from "@/app/queryClient.ts";
 import {controlPlaneService} from "@/processes/api/control_plane.ts";
-import {FetchNodeHardware} from "@/processes/api/velez.ts";
-import {GetInitReq} from "@/processes/api/api.ts";
+import {hardwareQueryOptions} from "@/processes/queries/control_plane.ts";
 import {VervPlugin} from "@/model/services/VervPlugins.tsx";
 import {OpenWizardDialog} from "@/dialogs/StepsDialog/openWizardDialog.tsx";
 import {StatefullPgContext} from "@/dialogs/PluginManageDialog/plugins/StatefullPgContext.ts";
@@ -43,10 +43,11 @@ export function openStatefullPgDialog(plugin: VervPlugin): Promise<void> {
         initialContext: {exposePort: false, portNumber: '5432', isRunningInContainer: true},
         header,
         isLoading: true,
+        loadingHint: "Loading this node's hardware to configure cluster mode…",
         onFinish: handleEnable,
     });
 
-    return FetchNodeHardware(GetInitReq())
+    return queryClient.fetchQuery(hardwareQueryOptions())
         .then((res) => {
             const isRunningInContainer = !!res.isRunningInContainer;
             const exposePort = !isRunningInContainer;

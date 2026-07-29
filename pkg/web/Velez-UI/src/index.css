@@ -115,6 +115,7 @@ body {
     --vs-ease: 0.15s ease-out;
     --vs-ease-fast: 0.12s ease-out;
     --vs-ease-slow: 0.18s ease-out;
+    --vs-bg-rail-end: #0f0f15;
 }
 
 /* Scrollbar */

@@ -104,6 +104,39 @@ describe('StepsDialog', () => {
         expect(screen.getByText('Next')).toBeDisabled();
     });
 
+    it('jumps back to a completed step when its stepper row is clicked', () => {
+        render(
+            <StepsDialog<TestContext>
+                steps={[
+                    {name: 'first', label: 'First', component: FirstScreen},
+                    {name: 'second', label: 'Second', component: SecondScreen},
+                ]}
+                initialContext={{name: 'initial'}}
+            />
+        );
+
+        fireEvent.click(screen.getByText('Next'));
+        expect(screen.getByText('Second screen')).toBeInTheDocument();
+
+        fireEvent.click(screen.getByText('First').closest('button')!);
+        expect(screen.getByText('First screen')).toBeInTheDocument();
+    });
+
+    it('does not navigate when clicking the active step in the stepper', () => {
+        render(
+            <StepsDialog<TestContext>
+                steps={[
+                    {name: 'first', label: 'First', component: FirstScreen},
+                    {name: 'second', label: 'Second', component: SecondScreen},
+                ]}
+                initialContext={{name: 'initial'}}
+            />
+        );
+
+        fireEvent.click(screen.getByText('First').closest('button')!);
+        expect(screen.getByText('First screen')).toBeInTheDocument();
+    });
+
     it('calls onFinish with the final context and closes the dialog on Finish', () => {
         const onFinish = vi.fn();
         const closeSpy = vi.spyOn(useDialog.getState(), 'CloseDialog');

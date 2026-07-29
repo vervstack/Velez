@@ -1,5 +1,7 @@
 import {queryOptions, useQuery} from '@tanstack/react-query'
 import {controlPlaneService} from '@/processes/api/control_plane'
+import {FetchNodeHardware} from '@/processes/api/velez.ts'
+import {GetInitReq} from '@/processes/api/api.ts'
 import {VervPluginState, VervPluginType} from "@/app/api/velez";
 
 export function ListNodesQuery() {
@@ -28,6 +30,18 @@ export function ListEnvironmentsQuery() {
         queryKey: ["environments"],
         queryFn: () => controlPlaneService.listEnvironments(),
     })
+}
+
+export function hardwareQueryOptions() {
+    return queryOptions({
+        queryKey: ["hardware"] as const,
+        queryFn: () => FetchNodeHardware(GetInitReq()),
+        staleTime: 5 * 60 * 1000,
+    })
+}
+
+export function NodeHardwareQuery() {
+    return useQuery(hardwareQueryOptions())
 }
 
 export function IsStatefullModeEnabled(): boolean {

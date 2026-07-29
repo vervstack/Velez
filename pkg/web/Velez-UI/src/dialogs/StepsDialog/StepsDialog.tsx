@@ -3,6 +3,7 @@ import {useState} from 'react';
 import {useDialog} from '@/app/hooks/dialog/Dialog.tsx';
 import StepsDialogHeader, {StepsDialogHeaderContent} from '@/dialogs/StepsDialog/StepsDialogHeader.tsx';
 import StepsDialogFooter from '@/dialogs/StepsDialog/StepsDialogFooter.tsx';
+import StepsDialogStepper from '@/dialogs/StepsDialog/StepsDialogStepper.tsx';
 import ScreenSkeletonLoader from '@/dialogs/StepsDialog/ScreenSkeletonLoader.tsx';
 import {Step} from '@/dialogs/StepsDialog/Step.ts';
 import cls from '@/dialogs/StepsDialog/StepsDialog.module.css';
@@ -12,12 +13,13 @@ export interface StepsDialogProps<TContext> {
     initialContext: TContext;
     header?: StepsDialogHeaderContent;
     isLoading?: boolean;
+    loadingHint?: string;
     onFinish?(context: TContext): void;
     onCancel?(): void;
 }
 
 export default function StepsDialog<TContext extends object>(
-    {steps, initialContext, header, isLoading = false, onFinish, onCancel}: StepsDialogProps<TContext>) {
+    {steps, initialContext, header, isLoading = false, loadingHint, onFinish, onCancel}: StepsDialogProps<TContext>) {
     const {CloseDialog} = useDialog();
 
     const [stepIndex, setStepIndex] = useState(0);
@@ -60,6 +62,12 @@ export default function StepsDialog<TContext extends object>(
         setStepIndex(stepIndex - 1);
     }
 
+    function handleStepSelect(index: number) {
+        if (index < stepIndex && !isLoading) {
+            setStepIndex(index);
+        }
+    }
+
     return (
         <div className={cls.StepsDialogContainer}>
             <StepsDialogHeader
@@ -71,12 +79,21 @@ export default function StepsDialog<TContext extends object>(
                 onClose={handleCancel}
             />
 
-            <div className={cls.StepsDialogWrapper}>
-                {isLoading ? (
-                    <ScreenSkeletonLoader/>
-                ) : (
-                    <StepComponent {...context} updateContext={updateContext}/>
-                )}
+            <div className={cls.StepsDialogBody}>
+                <StepsDialogStepper
+                    steps={steps}
+                    currentIndex={stepIndex}
+                    isLoading={isLoading}
+                    onSelect={handleStepSelect}
+                />
+
+                <div className={cls.StepsDialogWrapper}>
+                    {isLoading ? (
+                        <ScreenSkeletonLoader hint={loadingHint}/>
+                    ) : (
+                        <StepComponent {...context} updateContext={updateContext}/>
+                    )}
+                </div>
             </div>
 
             <StepsDialogFooter

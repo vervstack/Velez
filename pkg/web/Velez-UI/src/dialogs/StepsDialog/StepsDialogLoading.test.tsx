@@ -35,6 +35,31 @@ describe('StepsDialog loading state', () => {
         expect(screen.getByTestId('screen-skeleton-loader')).toBeInTheDocument();
     });
 
+    it('renders the loading hint when loadingHint is passed', () => {
+        render(
+            <StepsDialog<TestContext>
+                steps={[{name: 'first', component: FirstScreen}]}
+                initialContext={{name: 'initial'}}
+                isLoading={true}
+                loadingHint="Loading this node's hardware to configure cluster mode…"
+            />
+        );
+
+        expect(screen.getByText("Loading this node's hardware to configure cluster mode…")).toBeInTheDocument();
+    });
+
+    it('does not render a loading hint when loadingHint is not passed', () => {
+        render(
+            <StepsDialog<TestContext>
+                steps={[{name: 'first', component: FirstScreen}]}
+                initialContext={{name: 'initial'}}
+                isLoading={true}
+            />
+        );
+
+        expect(screen.getByTestId('screen-skeleton-loader').querySelector('p')).not.toBeInTheDocument();
+    });
+
     it('renders the step content instead of the skeleton loader when isLoading is false', () => {
         render(
             <StepsDialog<TestContext>

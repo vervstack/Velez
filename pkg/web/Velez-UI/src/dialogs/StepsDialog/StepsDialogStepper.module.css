@@ -1,0 +1,130 @@
+.StepsDialogStepperContainer {
+    display: flex;
+    flex-direction: column;
+    width: 13.75rem;
+    flex-shrink: 0;
+    padding: 1.5rem 1.125rem 1.5rem 1.5rem;
+    background: linear-gradient(180deg, var(--bg2) 0%, var(--vs-bg-rail-end) 100%);
+    border-right: 0.0625rem solid var(--border);
+    overflow-y: auto;
+    transition: opacity var(--vs-ease);
+}
+
+.Disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.RailLabel {
+    font-family: var(--font-mono);
+    font-size: var(--vs-fs-mini);
+    color: var(--fg-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.09rem;
+    margin-bottom: var(--vs-space-5);
+}
+
+.StepRow {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.4375rem 0;
+    margin-bottom: 0.25rem;
+    background: transparent;
+    border: none;
+    cursor: not-allowed;
+    text-align: left;
+
+    &:not(:disabled) {
+        cursor: pointer;
+    }
+}
+
+.StepDot {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.6875rem;
+    height: 1.6875rem;
+    border-radius: 50%;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0.0625rem;
+        height: 1.125rem;
+        background: var(--fg-faint);
+    }
+}
+
+.StepDotDone::after {
+    background: linear-gradient(180deg, var(--cyan) 0%, transparent 100%);
+}
+
+.StepDotLast::after {
+    content: none;
+}
+
+.StepDotDone {
+    background: var(--cyan);
+    color: #000;
+}
+
+.StepDotCheck {
+    position: absolute;
+    top: -0.25rem;
+    right: -0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 0.875rem;
+    height: 0.875rem;
+    border-radius: 50%;
+    background: var(--bg2);
+    border: 0.0625rem solid var(--cyan);
+    color: var(--cyan);
+    font-size: 0.5625rem;
+    line-height: 1;
+}
+
+.StepDotActive {
+    background: var(--cyan-dim);
+    border: 0.09375rem solid var(--cyan);
+    color: var(--cyan);
+    box-shadow: 0 0 0 0.25rem var(--cyan-glow), 0 0 0.75rem rgb(10 183 238 / 20%);
+}
+
+.StepDotUpcoming {
+    background: var(--bg);
+    border: 0.09375rem solid var(--fg-faint);
+    color: var(--fg-faint);
+}
+
+.StepLabel {
+    font-family: var(--font-sans);
+    font-size: var(--vs-fs-label);
+}
+
+.StepLabelDone {
+    font-weight: 500;
+    color: var(--fg-mid);
+}
+
+.StepLabelActive {
+    font-weight: 700;
+    color: var(--fg);
+}
+
+.StepLabelUpcoming {
+    font-weight: 400;
+    color: var(--fg-dim);
+}

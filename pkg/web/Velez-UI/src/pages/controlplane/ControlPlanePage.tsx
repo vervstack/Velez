@@ -9,7 +9,7 @@ import NodeHealthList from '@/widgets/controlplane/NodeHealthList';
 import PluginMatrix from '@/widgets/controlplane/PluginMatrix';
 import SkeletonNodeCard from '@/components/node/SkeletonNodeCard';
 
-import {ListNodesQuery, ListPluginsQuery} from '@/processes/queries/control_plane';
+import {ListNodesQuery, ListPluginsQuery, NodeHardwareQuery} from '@/processes/queries/control_plane';
 import {VervPlugin} from '@/model/services/VervPlugins';
 
 export default function ControlPlanePage() {
@@ -17,6 +17,8 @@ export default function ControlPlanePage() {
     const nodesQuery = ListNodesQuery();
 
     const pluginsQuery = ListPluginsQuery();
+
+    NodeHardwareQuery();
 
     return (
         <div className={cls.ControlPlanePageContainer}>

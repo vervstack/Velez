@@ -9,6 +9,12 @@
     overflow: hidden;
 }
 
+.StepsDialogBody {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+}
+
 .StepsDialogWrapper {
     display: flex;
     flex-direction: column;

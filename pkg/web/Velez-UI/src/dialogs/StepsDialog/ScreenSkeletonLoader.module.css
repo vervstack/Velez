@@ -34,3 +34,8 @@
     background: var(--bg4);
     animation: pulse 1.5s ease-in-out infinite;
 }
+
+.Hint {
+    font-size: 0.875rem;
+    color: var(--fg-dim);
+}

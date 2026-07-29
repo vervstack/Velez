@@ -21,33 +21,41 @@ export function openStatefullPgDialog(plugin: VervPlugin): Promise<void> {
         return Promise.resolve();
     }
 
+    const steps = [
+        {name: 'overview', label: 'Overview', component: StatefullPgOverviewScreen},
+        {name: 'settings', label: 'Settings', component: StatefullPgSettingsScreen},
+        {name: 'review', label: 'Review', component: StatefullPgReviewScreen},
+    ];
+    const header = {icon: '⛁', eyebrow: 'Plugins', eyebrowDetail: 'statefull-pg'};
+
+    function handleEnable(context: StatefullPgContext) {
+        const payload: EnableStatefullCluster = {
+            isExposePort: context.exposePort,
+            exposeToPort: context.exposePort ? context.portNumber : undefined,
+        };
+
+        controlPlaneService.enableStatefullPgCluster(payload)
+            .catch(useToaster.getState().catchGrpc);
+    }
+
+    OpenWizardDialog<StatefullPgContext>({
+        steps,
+        initialContext: {exposePort: false, portNumber: '5432', isRunningInContainer: true},
+        header,
+        isLoading: true,
+        onFinish: handleEnable,
+    });
+
     return FetchNodeHardware(GetInitReq())
         .then((res) => {
             const isRunningInContainer = !!res.isRunningInContainer;
             const exposePort = !isRunningInContainer;
-            const portNumber = '5432';
-
-            function handleEnable(context: StatefullPgContext) {
-                const payload: EnableStatefullCluster = {
-                    isExposePort: context.exposePort,
-                    exposeToPort: context.exposePort ? context.portNumber : undefined,
-                };
-
-                controlPlaneService.enableStatefullPgCluster(payload)
-                    .catch(useToaster.getState().catchGrpc);
-            }
 
             OpenWizardDialog<StatefullPgContext>({
-                steps: [
-                    {name: 'overview', label: 'Overview', component: StatefullPgOverviewScreen},
-                    {name: 'settings', label: 'Settings', component: StatefullPgSettingsScreen},
-                    {name: 'review', label: 'Review', component: StatefullPgReviewScreen},
-                ],
-                initialContext: {exposePort, portNumber, isRunningInContainer},
+                steps,
+                initialContext: {exposePort, portNumber: '5432', isRunningInContainer},
+                header,
                 onFinish: handleEnable,
-                icon: '⛁',
-                eyebrow: 'Plugins',
-                eyebrowDetail: 'statefull-pg',
             });
         })
         .catch(useToaster.getState().catchGrpc);

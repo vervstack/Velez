@@ -23,6 +23,11 @@
     color: var(--cyan);
 }
 
+.Skeleton {
+    background: var(--bg4);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
 .TitleWrapper {
     display: flex;
     flex-direction: column;
@@ -34,6 +39,7 @@
     display: flex;
     align-items: center;
     gap: 0.375rem;
+    min-height: 0.75rem;
     font-family: var(--font-mono);
     font-size: var(--vs-fs-eyebrow);
     text-transform: uppercase;
@@ -50,6 +56,13 @@
 
 .EyebrowDetail {
     color: var(--fg-dim);
+}
+
+.EyebrowPill {
+    display: inline-block;
+    width: 2.75rem;
+    height: 0.65rem;
+    border-radius: 0.2rem;
 }
 
 .StepLine {

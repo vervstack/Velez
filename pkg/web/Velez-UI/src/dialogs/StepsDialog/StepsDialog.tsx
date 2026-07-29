@@ -1,23 +1,23 @@
 import {useState} from 'react';
 
 import {useDialog} from '@/app/hooks/dialog/Dialog.tsx';
-import StepsDialogHeader from '@/dialogs/StepsDialog/StepsDialogHeader.tsx';
+import StepsDialogHeader, {StepsDialogHeaderContent} from '@/dialogs/StepsDialog/StepsDialogHeader.tsx';
 import StepsDialogFooter from '@/dialogs/StepsDialog/StepsDialogFooter.tsx';
+import ScreenSkeletonLoader from '@/dialogs/StepsDialog/ScreenSkeletonLoader.tsx';
 import {Step} from '@/dialogs/StepsDialog/Step.ts';
 import cls from '@/dialogs/StepsDialog/StepsDialog.module.css';
 
 export interface StepsDialogProps<TContext> {
     steps: Step<TContext>[];
     initialContext: TContext;
-    icon?: string;
-    eyebrow?: string;
-    eyebrowDetail?: string;
+    header?: StepsDialogHeaderContent;
+    isLoading?: boolean;
     onFinish?(context: TContext): void;
     onCancel?(): void;
 }
 
 export default function StepsDialog<TContext extends object>(
-    {steps, initialContext, icon, eyebrow, eyebrowDetail, onFinish, onCancel}: StepsDialogProps<TContext>) {
+    {steps, initialContext, header, isLoading = false, onFinish, onCancel}: StepsDialogProps<TContext>) {
     const {CloseDialog} = useDialog();
 
     const [stepIndex, setStepIndex] = useState(0);
@@ -26,7 +26,7 @@ export default function StepsDialog<TContext extends object>(
     const currentStep = steps[stepIndex];
     const isFirstStep = stepIndex == 0;
     const isLastStep = stepIndex == steps.length - 1;
-    const canProceed = currentStep.canProceed?.(context) ?? true;
+    const canProceed = (currentStep.canProceed?.(context) ?? true) && !isLoading;
 
     const StepComponent = currentStep.component;
 
@@ -63,9 +63,8 @@ export default function StepsDialog<TContext extends object>(
     return (
         <div className={cls.StepsDialogContainer}>
             <StepsDialogHeader
-                icon={icon}
-                eyebrow={eyebrow}
-                eyebrowDetail={eyebrowDetail}
+                header={header}
+                isLoading={isLoading}
                 stepLabel={currentStep.label ?? currentStep.name}
                 stepIndex={stepIndex}
                 totalSteps={steps.length}
@@ -73,7 +72,11 @@ export default function StepsDialog<TContext extends object>(
             />
 
             <div className={cls.StepsDialogWrapper}>
-                <StepComponent {...context} updateContext={updateContext}/>
+                {isLoading ? (
+                    <ScreenSkeletonLoader/>
+                ) : (
+                    <StepComponent {...context} updateContext={updateContext}/>
+                )}
             </div>
 
             <StepsDialogFooter

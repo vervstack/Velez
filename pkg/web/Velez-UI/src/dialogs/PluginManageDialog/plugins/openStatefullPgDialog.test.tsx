@@ -43,4 +43,15 @@ describe('openStatefullPgDialog', () => {
 
         expect(useDialog.getState().children).not.toBeNull();
     });
+
+    it('opens the dialog synchronously in a loading state before the hardware fetch resolves', async () => {
+        const plugin = new VervPlugin(VervPluginType.statefull_pg, 'statefull-pg-service');
+        plugin.state = VervPluginState.disabled;
+
+        const resultPromise = openStatefullPgDialog(plugin);
+
+        expect(useDialog.getState().children).not.toBeNull();
+
+        await resultPromise;
+    });
 });

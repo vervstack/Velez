@@ -6,7 +6,7 @@ import StepsDialogFooter from '@/dialogs/StepsDialog/StepsDialogFooter.tsx';
 import {Step} from '@/dialogs/StepsDialog/Step.ts';
 import cls from '@/dialogs/StepsDialog/StepsDialog.module.css';
 
-interface StepsDialogProps<TContext> {
+export interface StepsDialogProps<TContext> {
     steps: Step<TContext>[];
     initialContext: TContext;
     icon?: string;

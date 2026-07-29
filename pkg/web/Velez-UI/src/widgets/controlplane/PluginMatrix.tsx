@@ -9,6 +9,7 @@ import SectionLabel from '@/components/base/SectionLabel';
 import StatusDot from '@/components/base/StatusDot';
 import IconButton from '@/components/base/IconButton';
 import PluginManageDialog from '@/dialogs/PluginManageDialog/PluginManageDialog';
+import {openStatefullPgDialog} from '@/dialogs/PluginManageDialog/plugins/openStatefullPgDialog.tsx';
 import {Routes} from '@/app/router/Routes';
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
 
@@ -76,6 +77,10 @@ function PluginContent(
     const isDisabled = plugin.state === VervPluginState.disabled;
 
     function handleManagePlugin(plugin: VervPlugin) {
+        if (plugin.type == VervPluginType.statefull_pg) {
+            openStatefullPgDialog(plugin);
+            return;
+        }
         OpenDialog(<PluginManageDialog pluginType={plugin.type}/>)
     }
 

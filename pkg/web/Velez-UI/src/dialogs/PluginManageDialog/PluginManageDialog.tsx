@@ -7,7 +7,6 @@ import StatusDot from '@/components/base/StatusDot';
 import {VervPluginState, VervPluginType} from '@/app/api/velez';
 
 import SimplePluginForm from '@/dialogs/PluginManageDialog/plugins/SimplePluginForm';
-import StatefullPgPluginForm from '@/dialogs/PluginManageDialog/plugins/StatefullPgPluginForm';
 import HeadscalePluginForm from '@/dialogs/PluginManageDialog/plugins/HeadscalePluginForm';
 import {ListPluginsQuery} from "@/processes/queries/control_plane.ts";
 import UnknownPlugin from "@/dialogs/PluginManageDialog/plugins/UnknownPlugin.tsx";
@@ -20,10 +19,6 @@ export default function PluginManageDialog({pluginType}: PluginManageDialogProps
     const pluginsQuery = ListPluginsQuery();
 
     const plugin = pluginsQuery.data?.find(p => p.type == pluginType) || new VervPlugin(VervPluginType.unknown_service_type, "")
-
-    if (pluginType == VervPluginType.statefull_pg) {
-        return !pluginsQuery.isLoading ? <StatefullPgPluginForm {...plugin}/> : null;
-    }
 
     return (
         <div
@@ -50,8 +45,6 @@ export default function PluginManageDialog({pluginType}: PluginManageDialogProps
 }
 
 const pluginForms: Partial<Record<VervPluginType, React.ComponentType<VervPlugin>>> = {
-    [VervPluginType.statefull_pg]: StatefullPgPluginForm,
-
     [VervPluginType.headscale]: HeadscalePluginForm,
 
     [VervPluginType.matreshka]: SimplePluginForm,

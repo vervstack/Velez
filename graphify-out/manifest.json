@@ -1705,9 +1705,9 @@
     "semantic_hash": "4ae9c02d27ae6f8310a45b99107357dd"
   },
   "pkg/web/Velez-UI/src/dialogs/PluginManageDialog/PluginManageDialog.tsx": {
-    "mtime": 1779009715.9869008,
-    "ast_hash": "c75af9886560f4a61f3b2e657a9bb4a4",
-    "semantic_hash": "c75af9886560f4a61f3b2e657a9bb4a4"
+    "mtime": 1785306966.2598422,
+    "ast_hash": "88cc2c1a6cb468203610390b81897f5b",
+    "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/dialogs/PluginManageDialog/plugins/HeadscalePluginForm.tsx": {
     "mtime": 1785072841.6781857,
@@ -1720,8 +1720,8 @@
     "semantic_hash": "0c9203a17ebd1ea4a61b69c6ed46f7d6"
   },
   "pkg/web/Velez-UI/src/dialogs/PluginManageDialog/plugins/StatefullPgPluginForm.tsx": {
-    "mtime": 1785306143.4347315,
-    "ast_hash": "4f8a5d66a809ffaf84a635e307217827",
+    "mtime": 1785306978.326566,
+    "ast_hash": "22cfb4f1cd9170974316105f1b8b9261",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/dialogs/PluginManageDialog/plugins/UnknownPlugin.tsx": {
@@ -3072,6 +3072,11 @@
   "pkg/web/Velez-UI/vitest.config.ts": {
     "mtime": 1785300098.9259274,
     "ast_hash": "07504cf3d79d3792e062e3451d87984b",
+    "semantic_hash": ""
+  },
+  "pkg/web/Velez-UI/src/dialogs/PluginManageDialog/plugins/screens/StatefullPgOverviewScreen.tsx": {
+    "mtime": 1785306981.7865002,
+    "ast_hash": "1a3598cc748540f4eb6a542c8f060d14",
     "semantic_hash": ""
   }
 }

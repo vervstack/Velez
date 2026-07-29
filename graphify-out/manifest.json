@@ -1990,8 +1990,8 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/widgets/topbar/TopBar.tsx": {
-    "mtime": 1785072045.079974,
-    "ast_hash": "b2162f3836dfb5af660cdb168fc6895c",
+    "mtime": 1785308483.3438025,
+    "ast_hash": "9ebd78503c55ca13207edbe3e3ed89d0",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/widgets/vcn/NetworkTopologyMap.tsx": {

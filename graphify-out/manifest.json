@@ -140,8 +140,8 @@
     "semantic_hash": "05ec538258de2b8a217e6668062b4f65"
   },
   "internal/app/custom.go": {
-    "mtime": 1785273289.7369869,
-    "ast_hash": "a3774adfa4ee415a307e2968a38e795c",
+    "mtime": 1785295067.4102592,
+    "ast_hash": "c9cd1dbc6ac84a35c1cbe5d408145e90",
     "semantic_hash": ""
   },
   "internal/app/server.go": {
@@ -300,8 +300,8 @@
     "semantic_hash": ""
   },
   "internal/clients/node_clients/hardware/hardware_manager.go": {
-    "mtime": 1785273879.3442178,
-    "ast_hash": "54831cb42788824d078ff0bf1ea72627",
+    "mtime": 1785296086.47118,
+    "ast_hash": "b7069bf96a77e1c1be14de2675205f38",
     "semantic_hash": ""
   },
   "internal/clients/node_clients/local_state/cluster_state.go": {
@@ -1315,8 +1315,8 @@
     "semantic_hash": ""
   },
   "internal/transport/velez_api_impl/impl.go": {
-    "mtime": 1785091527.9301777,
-    "ast_hash": "1d4f89eeeb719e852d91208c0e7ab488",
+    "mtime": 1785295062.030347,
+    "ast_hash": "6bab7764f4348f51c5acdfb26ab01b83",
     "semantic_hash": ""
   },
   "internal/transport/velez_api_impl/network.go": {
@@ -1460,8 +1460,8 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/package.json": {
-    "mtime": 1785173678.955771,
-    "ast_hash": "c19f17a8b5c157a28582b1bb564037c9",
+    "mtime": 1785295973.7566216,
+    "ast_hash": "0c071e9204f40339be5510d32f99c7ea",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/app/api/velez/control_plane_api.pb.ts": {
@@ -1560,9 +1560,9 @@
     "semantic_hash": "bc468256009fa557ce500731f5282e68"
   },
   "pkg/web/Velez-UI/src/components/base/Choice.tsx": {
-    "mtime": 1779008399.0468366,
-    "ast_hash": "abb5a44624335abf71e1a70288ee0a6b",
-    "semantic_hash": "abb5a44624335abf71e1a70288ee0a6b"
+    "mtime": 1785295377.2124245,
+    "ast_hash": "da6cf067f3166a023e86521a2554817b",
+    "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/components/base/IconButton.tsx": {
     "mtime": 1777748755.179964,
@@ -1720,8 +1720,8 @@
     "semantic_hash": "0c9203a17ebd1ea4a61b69c6ed46f7d6"
   },
   "pkg/web/Velez-UI/src/dialogs/PluginManageDialog/plugins/StatefullPgPluginForm.tsx": {
-    "mtime": 1785274416.1947696,
-    "ast_hash": "3ee944ed3d7f02f7752642a585bcb509",
+    "mtime": 1785296065.6604698,
+    "ast_hash": "e4b95c79faa3634bdb250e50abfa654d",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/dialogs/PluginManageDialog/plugins/UnknownPlugin.tsx": {
@@ -2060,8 +2060,8 @@
     "semantic_hash": ""
   },
   "tests/e2e/suite_api_deploy_test.go": {
-    "mtime": 1785273289.7224026,
-    "ast_hash": "35a9fcb45eb0ad2e886fdaa14fa06025",
+    "mtime": 1785275571.4549494,
+    "ast_hash": "7b6e8a1a9b5c0bcba815f8164b5b0458",
     "semantic_hash": ""
   },
   "tests/e2e/suite_assemble_config_test.go": {
@@ -3020,8 +3020,8 @@
     "semantic_hash": ""
   },
   "internal/clients/node_clients/hardware/hardware_manager_test.go": {
-    "mtime": 1785274291.526552,
-    "ast_hash": "4d9c95f002b97f3d2eb806e1a38d37fd",
+    "mtime": 1785296096.787304,
+    "ast_hash": "9b7e2ad97667d1dffe91fde872e4761e",
     "semantic_hash": ""
   }
 }

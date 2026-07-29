@@ -945,8 +945,13 @@ type GetHardware_Response struct {
 	Ram            *GetHardware_Response_Value `protobuf:"bytes,3,opt,name=ram,proto3" json:"ram,omitempty"`
 	PortsAvailable []uint32                    `protobuf:"varint,4,rep,packed,name=ports_available,json=portsAvailable,proto3" json:"ports_available,omitempty"`
 	PortsOccupied  []uint32                    `protobuf:"varint,5,rep,packed,name=ports_occupied,json=portsOccupied,proto3" json:"ports_occupied,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// is_running_in_container reports whether this node's velez instance is
+	// itself running inside a container, as opposed to a bare binary on the
+	// host. Binary-mode nodes must publish container ports to the host to
+	// reach them (see EnableStatefullCluster).
+	IsRunningInContainer bool `protobuf:"varint,6,opt,name=is_running_in_container,json=isRunningInContainer,proto3" json:"is_running_in_container,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *GetHardware_Response) Reset() {
@@ -1012,6 +1017,13 @@ func (x *GetHardware_Response) GetPortsOccupied() []uint32 {
 		return x.PortsOccupied
 	}
 	return nil
+}
+
+func (x *GetHardware_Response) GetIsRunningInContainer() bool {
+	if x != nil {
+		return x.IsRunningInContainer
+	}
+	return false
 }
 
 type GetHardware_Response_Value struct {
@@ -1581,15 +1593,16 @@ const file_velez_api_proto_rawDesc = "" +
 	"successful\x1a1\n" +
 	"\x05Error\x12\x12\n" +
 	"\x04uuid\x18\x01 \x01(\tR\x04uuid\x12\x14\n" +
-	"\x05cause\x18\x02 \x01(\tR\x05cause\"\xda\x02\n" +
+	"\x05cause\x18\x02 \x01(\tR\x05cause\"\x91\x03\n" +
 	"\vGetHardware\x1a\t\n" +
-	"\aRequest\x1a\xbf\x02\n" +
+	"\aRequest\x1a\xf6\x02\n" +
 	"\bResponse\x127\n" +
 	"\x03cpu\x18\x01 \x01(\v2%.velez_api.GetHardware.Response.ValueR\x03cpu\x12@\n" +
 	"\bdisk_mem\x18\x02 \x01(\v2%.velez_api.GetHardware.Response.ValueR\adiskMem\x127\n" +
 	"\x03ram\x18\x03 \x01(\v2%.velez_api.GetHardware.Response.ValueR\x03ram\x12'\n" +
 	"\x0fports_available\x18\x04 \x03(\rR\x0eportsAvailable\x12%\n" +
-	"\x0eports_occupied\x18\x05 \x03(\rR\rportsOccupied\x1a/\n" +
+	"\x0eports_occupied\x18\x05 \x03(\rR\rportsOccupied\x125\n" +
+	"\x17is_running_in_container\x18\x06 \x01(\bR\x14isRunningInContainer\x1a/\n" +
 	"\x05Value\x12\x14\n" +
 	"\x05value\x18\x01 \x01(\tR\x05value\x12\x10\n" +
 	"\x03err\x18\x02 \x01(\tR\x03err\"\x81\x01\n" +

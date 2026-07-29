@@ -151,7 +151,7 @@ func (c *Custom) Start(ctx context.Context) error {
 
 	err := g.Wait()
 	if err != nil {
-		return rerrors.Wrap(err, "waining on sub tasks failed in custom")
+		return rerrors.Wrap(err, "waiting on sub tasks failed in custom")
 	}
 
 	return nil
@@ -220,7 +220,7 @@ func (c *Custom) InitApiServer(a *App) error {
 		return rerrors.Wrap(err, "error initializing server manager")
 	}
 
-	c.ApiGrpcImpl = velez_api_impl.NewImpl(a.Cfg, c.Services, c.Pipeliner, c.JobsEngine)
+	c.ApiGrpcImpl = velez_api_impl.NewImpl(a.Cfg, c.Services, c.JobsEngine)
 	c.ControlPlaneApiImpl = control_plane_api_impl.New(c.Services, c.Pipeliner, c.JobsEngine)
 	c.VpnApiImpl = vcn_api_impl.New(c.ClusterClients, c.Pipeliner, c.JobsEngine)
 	c.ServiceApiImpl = service_api_impl.New(c.Pipeliner, c.Services, c.JobsEngine)

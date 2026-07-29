@@ -3,6 +3,8 @@ package jobs
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -25,6 +27,7 @@ import (
 	"go.vervstack.ru/Velez/internal/patterns/db_patterns/pg_pattern"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/cluster_steps"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -169,7 +172,6 @@ func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			Name: stepGetRootDsn,
 			Job: &getRootDsnJob{
 				dockerAPI: h.nodeClients.Docker().Client(),
-				req:       payload,
 				ctx:       payload,
 			},
 		},
@@ -263,6 +265,16 @@ func (j *generateCredentialsJob) Do(_ context.Context) error {
 // same-named container on create or clean up volume mounts on rollback -
 // simpler create+Remove, consistent with how this migration already treats
 // container create/rollback elsewhere.
+//
+// Two checks run here, before the container is ever created, rather than
+// after it's created/started/waited-on in getRootDsnJob: when Velez itself
+// runs as a bare binary (env.IsInContainer() false) it can only reach the
+// sidecar via a published host port, so the caller must have set
+// IsExposePort - checked upfront via user_errors.ErrPortMustBeExposedForBinary
+// instead of failing several jobs later. And when an explicit ExposeToPort
+// is requested, it's checked against Docker.ListOccupiedPorts first so a
+// conflicting port fails with a clear error instead of an opaque Docker bind
+// failure during ContainerCreate/ContainerStart.
 type createPgContainerJob struct {
 	nodeClients node_clients.NodeClients
 
@@ -274,16 +286,21 @@ type createPgContainerJob struct {
 func (j *createPgContainerJob) Do(ctx context.Context) error {
 	req := j.req.GetRequest()
 
+	if !req.GetIsExposePort() && !env.IsInContainer() {
+		return rerrors.Wrap(user_errors.ErrPortMustBeExposedForBinary)
+	}
+
 	var ops []pg_pattern.Opt
 
 	ops = append(ops, pg_pattern.WithInstanceName(state.PgName))
 
 	if req.GetIsExposePort() {
-		if req.GetExposeToPort() != 0 {
-			ops = append(ops, pg_pattern.WithPort(req.GetExposeToPort()))
-		} else {
-			ops = append(ops, pg_pattern.WithExposedPort())
+		exposeOps, err := j.exposePortOpts(ctx, req.GetExposeToPort())
+		if err != nil {
+			return err
 		}
+
+		ops = append(ops, exposeOps...)
 	}
 
 	ops = append(ops, pg_pattern.WithPassword(j.pwd.GetRootPwd()))
@@ -318,6 +335,28 @@ func (j *createPgContainerJob) Rollback(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+// exposePortOpts resolves the pg_pattern options for exposing the container's
+// port. When an explicit host port is requested, it's checked against
+// Docker.ListOccupiedPorts first so a conflicting port fails fast with a
+// clear error instead of an opaque Docker bind failure during
+// ContainerCreate/ContainerStart.
+func (j *createPgContainerJob) exposePortOpts(ctx context.Context, exposeToPort uint64) ([]pg_pattern.Opt, error) {
+	if exposeToPort == 0 {
+		return []pg_pattern.Opt{pg_pattern.WithExposedPort()}, nil
+	}
+
+	occupiedPorts, err := j.nodeClients.Docker().ListOccupiedPorts(ctx)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error listing occupied ports")
+	}
+
+	if slices.Contains(occupiedPorts, uint32(exposeToPort)) {
+		return nil, rerrors.New(fmt.Sprintf("requested port %d is already occupied on this node", exposeToPort))
+	}
+
+	return []pg_pattern.Opt{pg_pattern.WithPort(exposeToPort)}, nil
 }
 
 // startPgContainerJob mirrors smerd_steps.Start, reusing the containerIDAccessor
@@ -415,7 +454,6 @@ func (j *waitForPgReadyJob) Do(ctx context.Context) error {
 type getRootDsnJob struct {
 	dockerAPI containerInspectAPI
 
-	req statefullRequestAccessor
 	ctx interface {
 		containerIDAccessor
 		rootDsnAccessor
@@ -458,13 +496,7 @@ func (j *getRootDsnJob) Do(ctx context.Context) error {
 		}
 	}
 
-	isPortExposed := j.req.GetRequest().GetIsExposePort()
-
 	if !env.IsInContainer() {
-		if !isPortExposed {
-			return rerrors.New("when running velez as a binary - the created container ports must be exposed")
-		}
-
 		pgCfg.Host = "localhost"
 
 		pgCfg.Port, err = getExposedPgPort(cont)

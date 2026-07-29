@@ -342,6 +342,9 @@ type fakeDocker struct {
 	removeErr        error
 	removeCalledWith []string
 
+	listOccupiedPortsResp []uint32
+	listOccupiedPortsErr  error
+
 	execResp       []byte
 	execErr        error
 	execCalledWith []container.ExecOptions
@@ -383,7 +386,7 @@ func (f *fakeDocker) ListContainers(_ context.Context, _ *velez_api.ListSmerds_R
 }
 
 func (f *fakeDocker) ListOccupiedPorts(_ context.Context) ([]uint32, error) {
-	return nil, nil
+	return f.listOccupiedPortsResp, f.listOccupiedPortsErr
 }
 
 func (f *fakeDocker) Exec(_ context.Context, _ string, opts container.ExecOptions) ([]byte, error) {

@@ -11,9 +11,9 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/hardware"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/jobs"
-	"go.vervstack.ru/Velez/internal/pipelines"
 	"go.vervstack.ru/Velez/internal/service"
 )
 
@@ -30,12 +30,13 @@ type Impl struct {
 	dockerAPI client.APIClient
 }
 
-func NewImpl(cfg config.Config, srv service.Services, pipeliner pipelines.Pipeliner, jobsEngine jobs.Engine) *Impl {
+func NewImpl(cfg config.Config, srv service.Services, jobsEngine jobs.Engine) *Impl {
 	return &Impl{
-		version:      cfg.AppInfo.Version,
-		cfgService:   srv.ConfigurationService(),
-		smerdService: srv.SmerdManager(),
-		jobsEngine:   jobsEngine,
+		version:         cfg.AppInfo.Version,
+		cfgService:      srv.ConfigurationService(),
+		smerdService:    srv.SmerdManager(),
+		hardwareManager: hardware.New(),
+		jobsEngine:      jobsEngine,
 
 		dockerAPI: srv.Docker().Client(),
 	}

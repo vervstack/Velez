@@ -641,6 +641,10 @@
             "type": "integer",
             "format": "int64"
           }
+        },
+        "isRunningInContainer": {
+          "type": "boolean",
+          "description": "is_running_in_container reports whether this node's velez instance is\nitself running inside a container, as opposed to a bare binary on the\nhost. Binary-mode nodes must publish container ports to the host to\nreach them (see EnableStatefullCluster)."
         }
       }
     },

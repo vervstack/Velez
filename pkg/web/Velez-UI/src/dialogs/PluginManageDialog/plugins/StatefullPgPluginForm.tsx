@@ -1,10 +1,14 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
+
+import {LoadingWrapper} from "@vervstack/chures";
 
 import cls from '@/dialogs/PluginManageDialog/PluginManageDialog.module.css';
 
 import {EnableStatefullCluster, VervPluginState} from '@/app/api/velez';
 import {controlPlaneService} from "@/processes/api/control_plane.ts";
 import {serviceService} from "@/processes/api/service.ts";
+import {FetchNodeHardware} from "@/processes/api/velez.ts";
+import {GetInitReq} from "@/processes/api/api.ts";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import Button from "@/components/base/Button.tsx";
 import Choice from "@/components/base/Choice.tsx";
@@ -24,12 +28,25 @@ export default function StatefullPgPluginForm(pl: VervPlugin) {
         CloseDialog()
     }
 
+    const [isRunningInContainer, setIsRunningInContainer] = useState(true);
     const [exposePort, setExposePort] = useState(false);
     const [portNumber, setPortNumber] = useState('5432');
+    const [isLoadingHardware, setIsLoadingHardware] = useState(true);
+
+    useEffect(() => {
+        FetchNodeHardware(GetInitReq())
+            .then((res) => {
+                if (!res.isRunningInContainer) {
+                    setIsRunningInContainer(false);
+                    setExposePort(true);
+                }
+            })
+            .catch(toaster.catchGrpc)
+            .finally(() => setIsLoadingHardware(false))
+    }, []);
 
     function handlePortChange(e: React.ChangeEvent<HTMLInputElement>) {
         setPortNumber(e.target.value);
-        console.log(pl)
     }
 
     function handleEnable() {
@@ -47,8 +64,13 @@ export default function StatefullPgPluginForm(pl: VervPlugin) {
             .catch(toaster.catchGrpc)
     }
 
+    const portTooltip = isRunningInContainer
+        ? undefined
+        : "Running as a binary always exposes the port";
+
+    let content;
     if (pl.state == VervPluginState.dead) {
-        return (
+        content = (
             <div className={cls.ActionSection}>
                 <span>Service is down. Run it?</span>
                 <Button onClick={handleRestart}>
@@ -56,15 +78,40 @@ export default function StatefullPgPluginForm(pl: VervPlugin) {
                 </Button>
             </div>
         )
-    }
-
-    if (pl.state == VervPluginState.disabled) {
-        return (
+    } else {
+        content = (
             <div className={cls.ActionSection}>
-                <span>Service is disabled. Enable it?</span>
-                <Button
-                    onClick={handleEnable}
+                {pl.state == VervPluginState.disabled && (
+                    <span>Service is disabled. Enable it?</span>
+                )}
+
+                <label
+                    className={cls.CheckboxLabel}
+                    data-tooltip-id={portTooltip ? "root-tooltip" : undefined}
+                    data-tooltip-content={portTooltip}
+                    data-tooltip-place="top"
                 >
+                    <Choice title={'Expose port'}
+                            active={exposePort}
+                            disabled={!isRunningInContainer}
+                            onClick={() => setExposePort(!exposePort)}/>
+                </label>
+                {!isRunningInContainer && (
+                    <span>Velez is running as a binary on this node, so the port is always exposed.</span>
+                )}
+
+                {exposePort && (
+                    <div className={cls.InputGroup}>
+                        <label className={cls.InputLabel}>Port number:</label>
+                        <input
+                            type="text"
+                            className={cls.PortInput}
+                            value={portNumber}
+                            onChange={handlePortChange}
+                        />
+                    </div>
+                )}
+                <Button onClick={handleEnable}>
                     Enable
                 </Button>
             </div>
@@ -72,27 +119,8 @@ export default function StatefullPgPluginForm(pl: VervPlugin) {
     }
 
     return (
-        <div className={cls.ActionSection}>
-            <label className={cls.CheckboxLabel}>
-                <Choice title={'Expose port'}
-                        active={exposePort}
-                        onClick={() => setExposePort(!exposePort)}/>
-            </label>
-
-            {exposePort && (
-                <div className={cls.InputGroup}>
-                    <label className={cls.InputLabel}>Port number:</label>
-                    <input
-                        type="text"
-                        className={cls.PortInput}
-                        value={portNumber}
-                        onChange={handlePortChange}
-                    />
-                </div>
-            )}
-            <Button onClick={handleEnable}>
-                Enable
-            </Button>
-        </div>
+        <LoadingWrapper isLoading={isLoadingHardware}>
+            {content}
+        </LoadingWrapper>
     );
 }

@@ -37,9 +37,30 @@ func (m *ServersManager) Start() error {
 
 	errGroup, ctx := errgroup.WithContext(context.Background())
 
-	errGroup.Go(m.mux.Serve)
-	errGroup.Go(m.grpcServer.start)
-	errGroup.Go(m.httpServer.start)
+	errGroup.Go(func() error {
+		err := m.mux.Serve()
+		if err != nil {
+			return rerrors.Wrap(err, "mux faild to serve")
+		}
+
+		return nil
+	})
+	errGroup.Go(func() error {
+		err := m.grpcServer.start()
+		if err != nil {
+			return rerrors.Wrap(err, "failed to start grpc server")
+		}
+
+		return nil
+	})
+	errGroup.Go(func() error {
+		err := m.httpServer.start()
+		if err != nil {
+			return rerrors.Wrap(err, "failed to start http server")
+		}
+
+		return nil
+	})
 
 	errC := make(chan error, 1)
 
@@ -49,7 +70,7 @@ func (m *ServersManager) Start() error {
 	case errC <- errGroup.Wait():
 		err := <-errC
 
-		return rerrors.Wrap(err, "received error via channel")
+		return rerrors.Wrap(err, "received error via channel in server manager Start func")
 	}
 }
 

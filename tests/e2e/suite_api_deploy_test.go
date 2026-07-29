@@ -6,10 +6,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	rtb "go.redsock.ru/toolbox"
+	"google.golang.org/protobuf/proto"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/tests/config_mocks"
-	"google.golang.org/protobuf/proto"
 )
 
 type LifecycleSuite struct {
@@ -228,8 +229,7 @@ func (s *LifecycleSuite) Test_DropSmerd_ByUuid() {
 }
 
 func Test_Lifecycle(t *testing.T) {
-	t.Skip("flaky: intermittent server-manager startup race, see docs/plans/e2e_flaky_lifecycle_matreshka.md#3")
-
+	// t.Skip("flaky: intermittent server-manager startup race, see docs/plans/e2e_flaky_lifecycle_matreshka.md#3")
 	suite.Run(t, new(LifecycleSuite))
 }
 
@@ -254,7 +254,7 @@ func runLifecycle(
 
 	created := env.CreateSmerd(t, req)
 	require.Equal(t, name, created.GetName())
-	require.Equal(t, velez_api.Smerd_running, created.GetStatus())
+	require.Equal(t, velez_api.Smerd_running.String(), created.GetStatus().String())
 	require.NotEmpty(t, created.GetUuid())
 	require.NotNil(t, created.GetCreatedAt())
 

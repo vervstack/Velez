@@ -1,6 +1,7 @@
 import {
     VelezAPI,
     TasksApi,
+    GetHardwareResponse,
     ListSmerdsRequest,
     ListSmerdsResponse,
     SearchImagesResponse,
@@ -69,6 +70,11 @@ export async function GetSmerd(name: string, initReq: InitReq): Promise<Smerd> {
             } as Smerd
         }
     )
+}
+
+
+export async function FetchNodeHardware(initReq: InitReq): Promise<GetHardwareResponse> {
+    return VelezAPI.GetHardware({}, initReq)
 }
 
 

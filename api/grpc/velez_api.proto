@@ -184,6 +184,12 @@ message GetHardware {
 
     repeated uint32 ports_available = 4;
     repeated uint32 ports_occupied = 5;
+
+    // is_running_in_container reports whether this node's velez instance is
+    // itself running inside a container, as opposed to a bare binary on the
+    // host. Binary-mode nodes must publish container ports to the host to
+    // reach them (see EnableStatefullCluster).
+    bool is_running_in_container = 6;
   }
 }
 

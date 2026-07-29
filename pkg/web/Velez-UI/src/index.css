@@ -44,6 +44,9 @@ body {
     --cyan-dim: rgba(10, 183, 238, 0.10);
     --cyan-glow: rgba(10, 183, 238, 0.06);
 
+    /* @vervstack/chures theming - keep in sync with --cyan */
+    --chures-accent: var(--cyan);
+
     /* Red */
     --red: #ed2f32;
     --red-dim: rgba(237, 47, 50, 0.12);

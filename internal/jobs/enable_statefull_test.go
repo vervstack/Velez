@@ -170,8 +170,11 @@ func TestCreatePgContainerJob_Success(t *testing.T) {
 
 	nodeClients := newFakeNodeClients(docker)
 
+	// IsExposePort:true keeps this test's outcome independent of whether the
+	// test process itself happens to be running in a container - see the
+	// getRootDsnJob tests' comment on env.IsInContainer() for why.
 	payload := &velez_api.EnableStatefullTaskPayload{
-		Request: &velez_api.EnableStatefullCluster{},
+		Request: &velez_api.EnableStatefullCluster{IsExposePort: protoBool(true)},
 		RootPwd: proto("root-pwd"),
 	}
 
@@ -195,7 +198,7 @@ func TestCreatePgContainerJob_ContainerCreateError(t *testing.T) {
 	nodeClients := newFakeNodeClients(docker)
 
 	payload := &velez_api.EnableStatefullTaskPayload{
-		Request: &velez_api.EnableStatefullCluster{},
+		Request: &velez_api.EnableStatefullCluster{IsExposePort: protoBool(true)},
 		RootPwd: proto("root-pwd"),
 	}
 
@@ -208,6 +211,64 @@ func TestCreatePgContainerJob_ContainerCreateError(t *testing.T) {
 
 	if payload.GetContainerId() != "" {
 		t.Errorf("expected no container id set on failure, got %q", payload.GetContainerId())
+	}
+}
+
+func TestCreatePgContainerJob_BinaryModeWithoutExposePort_Error(t *testing.T) {
+	if env.IsInContainer() {
+		t.Skip("this failure branch only triggers when velez is not itself running inside a container")
+	}
+
+	docker := newFakeDocker()
+
+	docker.containerCreateResp = container.CreateResponse{ID: testPgContainerID}
+
+	nodeClients := newFakeNodeClients(docker)
+
+	payload := &velez_api.EnableStatefullTaskPayload{
+		Request: &velez_api.EnableStatefullCluster{IsExposePort: protoBool(false)},
+		RootPwd: proto("root-pwd"),
+	}
+
+	j := &createPgContainerJob{nodeClients: nodeClients, req: payload, pwd: payload, ctx: payload}
+
+	err := j.Do(context.Background())
+	if !errors.Is(err, user_errors.ErrPortMustBeExposedForBinary) {
+		t.Fatalf("expected ErrPortMustBeExposedForBinary, got: %v", err)
+	}
+
+	if payload.GetContainerId() != "" {
+		t.Errorf("expected no container to be created, got id %q", payload.GetContainerId())
+	}
+}
+
+func TestCreatePgContainerJob_ExposeToPortOccupied_Error(t *testing.T) {
+	const requestedPort = 15432
+
+	docker := newFakeDocker()
+
+	docker.containerCreateResp = container.CreateResponse{ID: testPgContainerID}
+	docker.listOccupiedPortsResp = []uint32{requestedPort}
+
+	nodeClients := newFakeNodeClients(docker)
+
+	payload := &velez_api.EnableStatefullTaskPayload{
+		Request: &velez_api.EnableStatefullCluster{
+			IsExposePort: protoBool(true),
+			ExposeToPort: protoUint64(requestedPort),
+		},
+		RootPwd: proto("root-pwd"),
+	}
+
+	j := &createPgContainerJob{nodeClients: nodeClients, req: payload, pwd: payload, ctx: payload}
+
+	err := j.Do(context.Background())
+	if err == nil {
+		t.Fatal("expected an error when the requested port is already occupied")
+	}
+
+	if payload.GetContainerId() != "" {
+		t.Errorf("expected no container to be created for an occupied port, got id %q", payload.GetContainerId())
 	}
 }
 
@@ -427,7 +488,7 @@ func TestGetRootDsnJob_Success_ParsesEnvVars(t *testing.T) {
 		ContainerId: proto(testPgContainerID),
 	}
 
-	j := &getRootDsnJob{dockerAPI: api, req: payload, ctx: payload}
+	j := &getRootDsnJob{dockerAPI: api, ctx: payload}
 
 	err := j.Do(context.Background())
 	if err != nil {
@@ -446,28 +507,6 @@ func TestGetRootDsnJob_Success_ParsesEnvVars(t *testing.T) {
 	}
 }
 
-func TestGetRootDsnJob_NotExposedAndNotInContainer_Error(t *testing.T) {
-	if env.IsInContainer() {
-		t.Skip("this failure branch only triggers when velez is not itself running inside a container")
-	}
-
-	api := newFakeContainerAPI()
-
-	api.inspectResp = container.InspectResponse{Config: &container.Config{}}
-
-	payload := &velez_api.EnableStatefullTaskPayload{
-		Request:     &velez_api.EnableStatefullCluster{IsExposePort: protoBool(false)},
-		ContainerId: proto(testPgContainerID),
-	}
-
-	j := &getRootDsnJob{dockerAPI: api, req: payload, ctx: payload}
-
-	err := j.Do(context.Background())
-	if err == nil {
-		t.Fatal("expected an error when running as a binary against an unexposed port")
-	}
-}
-
 func TestGetRootDsnJob_InspectError(t *testing.T) {
 	api := newFakeContainerAPI()
 
@@ -475,7 +514,7 @@ func TestGetRootDsnJob_InspectError(t *testing.T) {
 
 	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
 
-	j := &getRootDsnJob{dockerAPI: api, req: payload, ctx: payload}
+	j := &getRootDsnJob{dockerAPI: api, ctx: payload}
 
 	err := j.Do(context.Background())
 	if err == nil {
@@ -797,4 +836,8 @@ func TestEnableStatefullHandler_FailurePath_UnreachablePostgres_RollsBack(t *tes
 
 func protoBool(b bool) *bool {
 	return &b
+}
+
+func protoUint64(v uint64) *uint64 {
+	return &v
 }

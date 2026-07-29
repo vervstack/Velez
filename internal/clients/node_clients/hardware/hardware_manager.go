@@ -2,6 +2,7 @@ package hardware
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/jaypipes/ghw"
@@ -10,23 +11,41 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/cluster/env/containerinfo"
 )
 
 const (
 	usageSampleInterval = 200 * time.Millisecond
 )
 
-type Manager struct{}
+// hardwareCacheTTL bounds how often GetHardware() re-runs ghw's CPU/Memory/Block
+// discovery (sysfs + block device enumeration), which is too costly to do on every
+// call. It's a var, not a const, so tests can shrink it instead of sleeping 5s.
+var hardwareCacheTTL = 5 * time.Second
+
+type Manager struct {
+	mu       sync.Mutex
+	cached   *velez_api.GetHardware_Response
+	cachedAt time.Time
+}
 
 func New() *Manager {
 	return &Manager{}
 }
 
 func (h *Manager) GetHardware() (*velez_api.GetHardware_Response, error) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	if h.cached != nil && time.Since(h.cachedAt) < hardwareCacheTTL {
+		return h.cached, nil
+	}
+
 	resp := &velez_api.GetHardware_Response{
-		Cpu:     &velez_api.GetHardware_Response_Value{},
-		DiskMem: &velez_api.GetHardware_Response_Value{},
-		Ram:     &velez_api.GetHardware_Response_Value{},
+		Cpu:                  &velez_api.GetHardware_Response_Value{},
+		DiskMem:              &velez_api.GetHardware_Response_Value{},
+		Ram:                  &velez_api.GetHardware_Response_Value{},
+		IsRunningInContainer: containerinfo.IsInContainer(),
 	}
 
 	cpu, err := ghw.CPU()
@@ -50,7 +69,10 @@ func (h *Manager) GetHardware() (*velez_api.GetHardware_Response, error) {
 		resp.DiskMem.Value = block.String()
 	}
 
-	return resp, nil
+	h.cached = resp
+	h.cachedAt = time.Now()
+
+	return h.cached, nil
 }
 
 // GetUsage returns the current host-level CPU and memory utilization

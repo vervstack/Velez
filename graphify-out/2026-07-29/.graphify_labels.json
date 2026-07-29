@@ -688,6 +688,7 @@
   "686": "runner",
   "687": "tasks_setters.go",
   "688": "inspect.go",
+  "689": ".List",
   "690": "local.issues.md",
   "691": "local.issues.md — known code issues",
   "692": "smerds.ts mapping module (mapSmerdToServiceCard, mapSmerdToAppData, mapSmerdStatus, LOCAL_NODE)",

@@ -3100,8 +3100,8 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/dialogs/StepsDialog/ScreenSkeletonLoader.tsx": {
-    "mtime": 1785313836.6451762,
-    "ast_hash": "51a4dcf697af30d6ef04d7062dd37244",
+    "mtime": 1785314958.927231,
+    "ast_hash": "c565af8f34aecd5653ba50ea84f647d1",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/dialogs/StepsDialog/StepsDialogHeader.test.tsx": {
@@ -3120,8 +3120,8 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/dialogs/StepsDialog/StepsDialogStepper.tsx": {
-    "mtime": 1785311905.3049066,
-    "ast_hash": "185147fee2b392e9f52eb5810cc69209",
+    "mtime": 1785314430.9334476,
+    "ast_hash": "f3c60d00909faa5df7476424c8377bd2",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/app/queryClient.ts": {
@@ -3132,6 +3132,16 @@
   "pkg/web/Velez-UI/src/processes/queries/control_plane.test.ts": {
     "mtime": 1785313941.208128,
     "ast_hash": "b625c2688d34b53a4f279b8302fb9fcd",
+    "semantic_hash": ""
+  },
+  "pkg/web/Velez-UI/src/dialogs/StepsDialog/PipelineFlowLoader.test.tsx": {
+    "mtime": 1785314972.5112662,
+    "ast_hash": "dc10f1f87545037bb4523a89adbadced",
+    "semantic_hash": ""
+  },
+  "pkg/web/Velez-UI/src/dialogs/StepsDialog/PipelineFlowLoader.tsx": {
+    "mtime": 1785314927.93487,
+    "ast_hash": "1e3742bf7a2b58517d59e25f160bc309",
     "semantic_hash": ""
   }
 }

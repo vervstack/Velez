@@ -1,0 +1,453 @@
+.PipelineFlowLoaderContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 1rem 0;
+}
+
+.Svg {
+    width: 100%;
+    max-width: 15rem;
+    height: auto;
+}
+
+/* ── Servers ─────────────────────────────────────────────── */
+
+.ServerBottom, .ServerTopLeft, .ServerTopRight {
+    transform-box: fill-box;
+    transform-origin: bottom center;
+}
+
+.ServerBottom rect, .ServerTopLeft rect, .ServerTopRight rect {
+    fill: var(--bg4);
+    stroke: var(--cyan);
+    stroke-width: 1.5;
+}
+
+.ServerBottom line, .ServerTopLeft line, .ServerTopRight line {
+    stroke: var(--cyan);
+    stroke-width: 1;
+    stroke-linecap: round;
+}
+
+.ServerBottom {
+    animation: growServerBottom 6s ease-in-out infinite;
+}
+
+.ServerTopLeft {
+    animation: growServerTopLeft 6s ease-in-out infinite;
+}
+
+.ServerTopRight {
+    animation: growServerTopRight 6s ease-in-out infinite;
+}
+
+/* ── Database ────────────────────────────────────────────── */
+
+.DbBody {
+    fill: var(--bg4);
+    animation: dbBodyFade 6s ease-in-out infinite;
+}
+
+.DbTop {
+    fill: var(--bg4);
+    stroke-width: 1.5;
+    stroke-dasharray: 100;
+    animation: dbTopDraw 6s ease-in-out infinite;
+}
+
+.DbMiddle {
+    fill: none;
+    stroke-width: 1.5;
+    stroke-dasharray: 100;
+    animation: dbMiddleDraw 6s ease-in-out infinite;
+}
+
+.DbBottom {
+    fill: var(--bg4);
+    stroke-width: 1.5;
+    stroke-dasharray: 100;
+    animation: dbBottomDraw 6s ease-in-out infinite;
+}
+
+.DbSides {
+    stroke-width: 1.5;
+    stroke-dasharray: 100;
+    animation: dbSidesDraw 6s ease-in-out infinite;
+}
+
+/* ── Connectors ──────────────────────────────────────────── */
+
+.ConnectorS1Db, .ConnectorDbS2, .ConnectorDbS3 {
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-dasharray: 100;
+}
+
+.ConnectorS1Db {
+    animation: connectorS1DbDraw 6s ease-in-out infinite;
+}
+
+.ConnectorDbS2 {
+    animation: connectorDbS2Draw 6s ease-in-out infinite;
+}
+
+.ConnectorDbS3 {
+    animation: connectorDbS3Draw 6s ease-in-out infinite;
+}
+
+/* ── Keyframes: servers ──────────────────────────────────── */
+
+@keyframes growServerBottom {
+    0% {
+        opacity: 0;
+        transform: scaleY(0);
+    }
+
+    12% {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+
+    85% {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+
+    96% {
+        opacity: 0;
+        transform: scaleY(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scaleY(0);
+    }
+}
+
+@keyframes growServerTopLeft {
+    0%, 58% {
+        opacity: 0;
+        transform: scaleY(0);
+    }
+
+    70% {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+
+    85% {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+
+    96% {
+        opacity: 0;
+        transform: scaleY(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scaleY(0);
+    }
+}
+
+@keyframes growServerTopRight {
+    0%, 58% {
+        opacity: 0;
+        transform: scaleY(0);
+    }
+
+    70% {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+
+    85% {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+
+    96% {
+        opacity: 0;
+        transform: scaleY(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scaleY(0);
+    }
+}
+
+/* ── Keyframes: database rings (staggered: top, sides+middle, bottom) ── */
+
+@keyframes dbBodyFade {
+    0%, 12% {
+        opacity: 0;
+    }
+
+    18% {
+        opacity: 1;
+    }
+
+    85% {
+        opacity: 1;
+    }
+
+    96% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes dbTopDraw {
+    0%, 12% {
+        stroke-dashoffset: 100;
+        opacity: 0;
+        stroke: var(--border-m);
+    }
+
+    18% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+        stroke: var(--cyan);
+    }
+
+    85% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+        stroke: var(--cyan);
+    }
+
+    96% {
+        opacity: 0;
+    }
+
+    100% {
+        stroke-dashoffset: 100;
+        opacity: 0;
+        stroke: var(--border-m);
+    }
+}
+
+@keyframes dbSidesDraw {
+    0%, 18% {
+        stroke-dashoffset: 100;
+        opacity: 0;
+        stroke: var(--border-m);
+    }
+
+    25% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+        stroke: var(--cyan);
+    }
+
+    85% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+        stroke: var(--cyan);
+    }
+
+    96% {
+        opacity: 0;
+    }
+
+    100% {
+        stroke-dashoffset: 100;
+        opacity: 0;
+        stroke: var(--border-m);
+    }
+}
+
+@keyframes dbMiddleDraw {
+    0%, 19% {
+        stroke-dashoffset: 100;
+        opacity: 0;
+        stroke: var(--border-m);
+    }
+
+    26% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+        stroke: var(--cyan);
+    }
+
+    85% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+        stroke: var(--cyan);
+    }
+
+    96% {
+        opacity: 0;
+    }
+
+    100% {
+        stroke-dashoffset: 100;
+        opacity: 0;
+        stroke: var(--border-m);
+    }
+}
+
+@keyframes dbBottomDraw {
+    0%, 25% {
+        stroke-dashoffset: 100;
+        opacity: 0;
+        stroke: var(--border-m);
+    }
+
+    32% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+        stroke: var(--cyan);
+    }
+
+    85% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+        stroke: var(--cyan);
+    }
+
+    96% {
+        opacity: 0;
+    }
+
+    100% {
+        stroke-dashoffset: 100;
+        opacity: 0;
+        stroke: var(--border-m);
+    }
+}
+
+/* ── Keyframes: connectors ───────────────────────────────── */
+
+@keyframes connectorS1DbDraw {
+    0%, 32% {
+        stroke-dashoffset: 100;
+        stroke: var(--border-m);
+        opacity: 1;
+    }
+
+    48% {
+        stroke-dashoffset: 0;
+        stroke: var(--cyan);
+        opacity: 1;
+    }
+
+    85% {
+        stroke-dashoffset: 0;
+        stroke: var(--cyan);
+        opacity: 1;
+    }
+
+    96% {
+        stroke-dashoffset: 0;
+        stroke: var(--cyan);
+        opacity: 0;
+    }
+
+    100% {
+        stroke-dashoffset: 100;
+        stroke: var(--border-m);
+        opacity: 0;
+    }
+}
+
+@keyframes connectorDbS2Draw {
+    0%, 48% {
+        stroke-dashoffset: 100;
+        stroke: var(--border-m);
+        opacity: 1;
+    }
+
+    64% {
+        stroke-dashoffset: 0;
+        stroke: var(--cyan);
+        opacity: 1;
+    }
+
+    85% {
+        stroke-dashoffset: 0;
+        stroke: var(--cyan);
+        opacity: 1;
+    }
+
+    96% {
+        stroke-dashoffset: 0;
+        stroke: var(--cyan);
+        opacity: 0;
+    }
+
+    100% {
+        stroke-dashoffset: 100;
+        stroke: var(--border-m);
+        opacity: 0;
+    }
+}
+
+@keyframes connectorDbS3Draw {
+    0%, 48% {
+        stroke-dashoffset: 100;
+        stroke: var(--border-m);
+        opacity: 1;
+    }
+
+    64% {
+        stroke-dashoffset: 0;
+        stroke: var(--cyan);
+        opacity: 1;
+    }
+
+    85% {
+        stroke-dashoffset: 0;
+        stroke: var(--cyan);
+        opacity: 1;
+    }
+
+    96% {
+        stroke-dashoffset: 0;
+        stroke: var(--cyan);
+        opacity: 0;
+    }
+
+    100% {
+        stroke-dashoffset: 100;
+        stroke: var(--border-m);
+        opacity: 0;
+    }
+}
+
+/* ── Reduced motion: static, fully-formed end state ─────────── */
+
+@media (prefers-reduced-motion: reduce) {
+    .ServerBottom, .ServerTopLeft, .ServerTopRight {
+        animation: none;
+        opacity: 1;
+        transform: scaleY(1);
+    }
+
+    .DbBody {
+        animation: none;
+        opacity: 1;
+    }
+
+    .DbTop, .DbMiddle, .DbBottom, .DbSides {
+        animation: none;
+        opacity: 1;
+        stroke: var(--cyan);
+        stroke-dashoffset: 0;
+    }
+
+    .ConnectorS1Db, .ConnectorDbS2, .ConnectorDbS3 {
+        animation: none;
+        opacity: 1;
+        stroke: var(--cyan);
+        stroke-dashoffset: 0;
+    }
+}

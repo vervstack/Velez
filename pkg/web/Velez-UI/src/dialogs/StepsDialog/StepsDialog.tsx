@@ -4,7 +4,6 @@ import {useDialog} from '@/app/hooks/dialog/Dialog.tsx';
 import StepsDialogHeader, {StepsDialogHeaderContent} from '@/dialogs/StepsDialog/StepsDialogHeader.tsx';
 import StepsDialogFooter from '@/dialogs/StepsDialog/StepsDialogFooter.tsx';
 import StepsDialogStepper from '@/dialogs/StepsDialog/StepsDialogStepper.tsx';
-import ScreenSkeletonLoader from '@/dialogs/StepsDialog/ScreenSkeletonLoader.tsx';
 import {Step} from '@/dialogs/StepsDialog/Step.ts';
 import cls from '@/dialogs/StepsDialog/StepsDialog.module.css';
 
@@ -88,17 +87,15 @@ export default function StepsDialog<TContext extends object>(
                 />
 
                 <div className={cls.StepsDialogWrapper}>
-                    {isLoading ? (
-                        <ScreenSkeletonLoader hint={loadingHint}/>
-                    ) : (
-                        <StepComponent {...context} updateContext={updateContext}/>
-                    )}
+                    <StepComponent {...context} updateContext={updateContext}/>
                 </div>
             </div>
 
             <StepsDialogFooter
                 isLastStep={isLastStep}
                 canProceed={canProceed}
+                isLoading={isLoading}
+                loadingHint={loadingHint}
                 onBack={handleBack}
                 onNext={handleNext}
             />

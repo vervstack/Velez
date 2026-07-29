@@ -22,7 +22,7 @@ afterEach(() => {
 });
 
 describe('StepsDialog loading state', () => {
-    it('renders the screen skeleton loader instead of the step content when isLoading is true', () => {
+    it('keeps rendering the step content while isLoading is true', () => {
         render(
             <StepsDialog<TestContext>
                 steps={[{name: 'first', component: FirstScreen}]}
@@ -31,11 +31,34 @@ describe('StepsDialog loading state', () => {
             />
         );
 
-        expect(screen.queryByText(/First screen content/)).not.toBeInTheDocument();
-        expect(screen.getByTestId('screen-skeleton-loader')).toBeInTheDocument();
+        expect(screen.getByText(/First screen content/)).toBeInTheDocument();
     });
 
-    it('renders the loading hint when loadingHint is passed', () => {
+    it('disables Next while isLoading is true', () => {
+        render(
+            <StepsDialog<TestContext>
+                steps={[{name: 'first', component: FirstScreen}]}
+                initialContext={{name: 'initial'}}
+                isLoading={true}
+            />
+        );
+
+        expect(screen.getByText('Finish')).toBeDisabled();
+    });
+
+    it('enables Next once isLoading is false', () => {
+        render(
+            <StepsDialog<TestContext>
+                steps={[{name: 'first', component: FirstScreen}]}
+                initialContext={{name: 'initial'}}
+                isLoading={false}
+            />
+        );
+
+        expect(screen.getByText('Finish')).not.toBeDisabled();
+    });
+
+    it('shows the loading hint next to the Next button when isLoading is true', () => {
         render(
             <StepsDialog<TestContext>
                 steps={[{name: 'first', component: FirstScreen}]}
@@ -57,19 +80,19 @@ describe('StepsDialog loading state', () => {
             />
         );
 
-        expect(screen.getByTestId('screen-skeleton-loader').querySelector('p')).not.toBeInTheDocument();
+        expect(screen.queryByText(/Loading/)).not.toBeInTheDocument();
     });
 
-    it('renders the step content instead of the skeleton loader when isLoading is false', () => {
+    it('does not render the loading hint once isLoading is false', () => {
         render(
             <StepsDialog<TestContext>
                 steps={[{name: 'first', component: FirstScreen}]}
                 initialContext={{name: 'initial'}}
                 isLoading={false}
+                loadingHint="Loading this node's hardware to configure cluster mode…"
             />
         );
 
-        expect(screen.getByText(/First screen content/)).toBeInTheDocument();
-        expect(screen.queryByTestId('screen-skeleton-loader')).not.toBeInTheDocument();
+        expect(screen.queryByText(/Loading this node's hardware/)).not.toBeInTheDocument();
     });
 });

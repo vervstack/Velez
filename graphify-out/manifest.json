@@ -1725,9 +1725,9 @@
     "semantic_hash": "8c0dd2e0871089f0c110ba869885adc1"
   },
   "pkg/web/Velez-UI/src/main.tsx": {
-    "mtime": 1779439512.4078875,
-    "ast_hash": "8d95df1eaea1e0efdbc958fcb57c64bf",
-    "semantic_hash": "8d95df1eaea1e0efdbc958fcb57c64bf"
+    "mtime": 1785313859.7632532,
+    "ast_hash": "7c42d06a58beebd2ec4de76cfdca6bfb",
+    "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/model/service_page/ServicePageModel.ts": {
     "mtime": 1779435883.8422472,
@@ -1750,8 +1750,8 @@
     "semantic_hash": "cc2b724bb6692ebe6b1e50994d33ac43"
   },
   "pkg/web/Velez-UI/src/pages/controlplane/ControlPlanePage.tsx": {
-    "mtime": 1785174826.7932763,
-    "ast_hash": "4664aaa33677c7a91d3d41ffdf0b3dfc",
+    "mtime": 1785313866.6311965,
+    "ast_hash": "2171a51abc24382c9a4998d22037a6b7",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/pages/deploy/DeployPage.tsx": {
@@ -1855,9 +1855,9 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/processes/queries/control_plane.ts": {
-    "mtime": 1779432088.3826487,
-    "ast_hash": "0feae5ebf241fde790f0e5c51393679a",
-    "semantic_hash": "0feae5ebf241fde790f0e5c51393679a"
+    "mtime": 1785313864.185206,
+    "ast_hash": "f28a4f22bb89dad0479e67e7e8387586",
+    "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/processes/queries/services.ts": {
     "mtime": 1785072045.070829,
@@ -3045,8 +3045,8 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/dialogs/StepsDialog/StepsDialog.tsx": {
-    "mtime": 1785310508.2633042,
-    "ast_hash": "55ee83c9aec03ced9aa7c0264c9214d0",
+    "mtime": 1785313831.325281,
+    "ast_hash": "4fb6d104489339b5aedb8a6ce829d103",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/dialogs/StepsDialog/StepsDialogFooter.tsx": {
@@ -3080,13 +3080,13 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/dialogs/PluginManageDialog/plugins/openStatefullPgDialog.test.tsx": {
-    "mtime": 1785309609.097808,
-    "ast_hash": "91864de889fe750ba1444b52278b7d4f",
+    "mtime": 1785313921.9278617,
+    "ast_hash": "193e03add49e1fb72c961adbc4ce156b",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/dialogs/PluginManageDialog/plugins/openStatefullPgDialog.tsx": {
-    "mtime": 1785309587.7693992,
-    "ast_hash": "25e1725d0177ef1778cfd9fbab341230",
+    "mtime": 1785313853.426863,
+    "ast_hash": "2d488c94efdfb43d11ff4b35caca7a76",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/dialogs/StepsDialog/openWizardDialog.test.tsx": {
@@ -3100,8 +3100,8 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/dialogs/StepsDialog/ScreenSkeletonLoader.tsx": {
-    "mtime": 1785309552.7697532,
-    "ast_hash": "8d2e4a34c8df2fbd3af66441f1169da6",
+    "mtime": 1785313836.6451762,
+    "ast_hash": "51a4dcf697af30d6ef04d7062dd37244",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/dialogs/StepsDialog/StepsDialogHeader.test.tsx": {
@@ -3110,8 +3110,8 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/dialogs/StepsDialog/StepsDialogLoading.test.tsx": {
-    "mtime": 1785309602.449178,
-    "ast_hash": "7fe2e24781b2afbef77daaa5cc823bd9",
+    "mtime": 1785313877.7545884,
+    "ast_hash": "0eac495975ecb0bbfc694ef04bfaa227",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/dialogs/StepsDialog/StepsDialogStepper.test.tsx": {
@@ -3122,6 +3122,16 @@
   "pkg/web/Velez-UI/src/dialogs/StepsDialog/StepsDialogStepper.tsx": {
     "mtime": 1785311905.3049066,
     "ast_hash": "185147fee2b392e9f52eb5810cc69209",
+    "semantic_hash": ""
+  },
+  "pkg/web/Velez-UI/src/app/queryClient.ts": {
+    "mtime": 1785313856.9895153,
+    "ast_hash": "5e2eb537dcf6c7d8bb68616607edfb90",
+    "semantic_hash": ""
+  },
+  "pkg/web/Velez-UI/src/processes/queries/control_plane.test.ts": {
+    "mtime": 1785313941.208128,
+    "ast_hash": "b625c2688d34b53a4f279b8302fb9fcd",
     "semantic_hash": ""
   }
 }

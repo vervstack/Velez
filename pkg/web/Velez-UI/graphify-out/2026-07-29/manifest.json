@@ -369,6 +369,11 @@
     "ast_hash": "2cb5265382cbc113c9b590f833a6a3de",
     "semantic_hash": ""
   },
+  "src/dialogs/StepsDialog/ScreenSkeletonLoader.tsx": {
+    "mtime": 1785314958.927231,
+    "ast_hash": "c565af8f34aecd5653ba50ea84f647d1",
+    "semantic_hash": ""
+  },
   "src/dialogs/StepsDialog/Step.ts": {
     "mtime": 1785299418.9550323,
     "ast_hash": "c7f5c2cfb7490e99b8f580644c02fbd9",
@@ -380,13 +385,13 @@
     "semantic_hash": ""
   },
   "src/dialogs/StepsDialog/StepsDialog.tsx": {
-    "mtime": 1785316829.2467375,
-    "ast_hash": "aa18b1f3798441c9e26f38140830b32d",
+    "mtime": 1785313831.325281,
+    "ast_hash": "4fb6d104489339b5aedb8a6ce829d103",
     "semantic_hash": ""
   },
   "src/dialogs/StepsDialog/StepsDialogFooter.tsx": {
-    "mtime": 1785316836.58742,
-    "ast_hash": "098d83f8bba5ec22ab502b4d6a2822f3",
+    "mtime": 1785299961.8739324,
+    "ast_hash": "2818ce47ddb2e0d85c0867837ee0a84e",
     "semantic_hash": ""
   },
   "src/dialogs/StepsDialog/StepsDialogHeader.test.tsx": {
@@ -400,8 +405,8 @@
     "semantic_hash": ""
   },
   "src/dialogs/StepsDialog/StepsDialogLoading.test.tsx": {
-    "mtime": 1785316856.6038866,
-    "ast_hash": "d2bbdf2e3546dc4d6105d62b25177598",
+    "mtime": 1785313877.7545884,
+    "ast_hash": "0eac495975ecb0bbfc694ef04bfaa227",
     "semantic_hash": ""
   },
   "src/dialogs/StepsDialog/StepsDialogStepper.test.tsx": {

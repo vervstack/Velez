@@ -9,7 +9,7 @@ interface ChoiceProps {
     onClick: () => void;
 }
 
-export default function Choice({ title, sub, active, disabled, onClick }: ChoiceProps) {
+export default function Choice({title, sub, active, disabled, onClick}: ChoiceProps) {
     return (
         <button
             type="button"

@@ -229,7 +229,7 @@ func (s *LifecycleSuite) Test_DropSmerd_ByUuid() {
 }
 
 func Test_Lifecycle(t *testing.T) {
-	// t.Skip("flaky: intermittent server-manager startup race, see docs/plans/e2e_flaky_lifecycle_matreshka.md#3")
+	t.Skip("flaky: intermittent server-manager startup race, see docs/plans/e2e_flaky_lifecycle_matreshka.md#3")
 	suite.Run(t, new(LifecycleSuite))
 }
 

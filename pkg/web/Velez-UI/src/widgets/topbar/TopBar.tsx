@@ -9,8 +9,8 @@ import {useNavigate} from "react-router-dom";
 import {Routes} from "@/app/router/Routes.ts";
 import Button from "@/components/base/Button.tsx";
 import IconButton from "@/components/base/IconButton.tsx";
-import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
-import PluginManageDialog from "@/dialogs/PluginManageDialog/PluginManageDialog.tsx";
+import {VervPlugin} from "@/model/services/VervPlugins.tsx";
+import {openStatefullPgDialog} from "@/dialogs/PluginManageDialog/plugins/openStatefullPgDialog.tsx";
 
 type NavId = 'controlplane' | 'vcn' | 'deployments' | 'apps' | 'search';
 
@@ -121,12 +121,13 @@ function FetchingIndicator() {
 }
 
 function SingleNodeStub() {
-    const {OpenDialog} = useDialog();
+    const pluginsQuery = ListPluginsQuery();
 
     function onClick() {
-        OpenDialog(<PluginManageDialog
-            pluginType={VervPluginType.statefull_pg}
-        />)
+        const plugin = pluginsQuery.data?.find(p => p.type == VervPluginType.statefull_pg)
+            ?? new VervPlugin(VervPluginType.statefull_pg, "");
+
+        openStatefullPgDialog(plugin);
     }
 
     return (

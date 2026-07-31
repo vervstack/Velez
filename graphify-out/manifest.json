@@ -935,8 +935,8 @@
     "semantic_hash": ""
   },
   "internal/storage/postgres/deployments.go": {
-    "mtime": 1785338135.8343747,
-    "ast_hash": "304dd190a4587c0d9cab3b101d4ca5f2",
+    "mtime": 1785487809.903518,
+    "ast_hash": "8eb92f90c36e75f52d66244665160d32",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/deployments_queries/db.go": {
@@ -1460,7 +1460,7 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/package.json": {
-    "mtime": 1785299626.8478558,
+    "mtime": 1785488556.5554323,
     "ast_hash": "a3155c5c003fc6bc11eb948694da0f69",
     "semantic_hash": ""
   },
@@ -1810,9 +1810,9 @@
     "semantic_hash": "098b06409967fc6e791ca83f616b8192"
   },
   "pkg/web/Velez-UI/src/processes/ApiService.ts": {
-    "mtime": 1778910079.7615175,
-    "ast_hash": "95be76d7d2ba16a3b833cbeec15eda49",
-    "semantic_hash": "95be76d7d2ba16a3b833cbeec15eda49"
+    "mtime": 1785488493.199819,
+    "ast_hash": "bbf4ff70304fee3aa385c02d38b6d705",
+    "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/processes/api/api.ts": {
     "mtime": 1771855954.263346,
@@ -1823,11 +1823,6 @@
     "mtime": 1785072848.6303854,
     "ast_hash": "2f03aabb2cfef427431cf1c4a446a988",
     "semantic_hash": ""
-  },
-  "pkg/web/Velez-UI/src/processes/api/errors.ts": {
-    "mtime": 1778910064.494675,
-    "ast_hash": "782b6964063bf21677e6b035fd36a886",
-    "semantic_hash": "782b6964063bf21677e6b035fd36a886"
   },
   "pkg/web/Velez-UI/src/processes/api/service.ts": {
     "mtime": 1785072045.068604,
@@ -2820,13 +2815,13 @@
     "semantic_hash": ""
   },
   "internal/jobs/enable_statefull.go": {
-    "mtime": 1785336459.2872672,
-    "ast_hash": "e166df7c81433da2858148e5e0eb86be",
+    "mtime": 1785487697.4583995,
+    "ast_hash": "86860734470bbff7e847a80c1b826305",
     "semantic_hash": ""
   },
   "internal/jobs/enable_statefull_test.go": {
-    "mtime": 1785336511.3497014,
-    "ast_hash": "2f3bfaac4007d31e148db086bf8bb405",
+    "mtime": 1785487784.771027,
+    "ast_hash": "f6378dda52d725210b66ebcceed46808",
     "semantic_hash": ""
   },
   "docs/security/vpn_client_key_storage.md": {
@@ -3150,8 +3145,8 @@
     "semantic_hash": ""
   },
   "internal/service/service_manager/verv_services/deploy_test.go": {
-    "mtime": 1785339163.197074,
-    "ast_hash": "f3b813109d7b9ef3f111d0e34f5a9800",
+    "mtime": 1785487676.290454,
+    "ast_hash": "0fd1c10f607dfb6bcb3b3b5295e68525",
     "semantic_hash": ""
   },
   "internal/service/service_manager/verv_services/container_swap_test.go": {

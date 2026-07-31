@@ -3,6 +3,8 @@ package jobs
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"slices"
 	"strconv"
@@ -11,11 +13,15 @@ import (
 
 	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/volume"
+	"github.com/lib/pq"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/rs/zerolog/log"
+	"github.com/sqlc-dev/pqtype"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
+	"google.golang.org/grpc/codes"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
@@ -27,6 +33,8 @@ import (
 	"go.vervstack.ru/Velez/internal/patterns/db_patterns/pg_pattern"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/cluster_steps"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
+	"go.vervstack.ru/Velez/internal/storage/postgres/generated/plugins_queries"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
@@ -58,6 +66,16 @@ const (
 	// a genuinely wedged container hang the task indefinitely.
 	pgReadyPollInterval = 500 * time.Millisecond
 	pgReadyTimeout      = 30 * time.Second
+
+	// pgStaleVolumeThreshold bounds how far a named volume's CreatedAt may
+	// trail its container's Created before it's treated as evidence of a
+	// prior enable-statefull attempt rather than Docker's own
+	// auto-provisioning gap (see pgAuthDebugAPI's doc comment).
+	pgStaleVolumeThreshold = 30 * time.Second
+
+	// pgInvalidPasswordCode is Postgres's SQLSTATE for "password authentication
+	// failed" (see https://www.postgresql.org/docs/current/errcodes-appendix.html).
+	pgInvalidPasswordCode = pq.ErrorCode("28P01")
 )
 
 // Accessor interfaces the enable_statefull jobs need from their TaskContext.
@@ -91,6 +109,21 @@ type containerInspectAPI interface {
 	ContainerInspect(ctx context.Context, containerID string) (container.InspectResponse, error)
 }
 
+// pgAuthDebugAPI is the narrow docker slice createSchemaAndMigrateJob needs
+// to diagnose a postgres password-authentication failure: whether the named
+// volume it just mounted predates the container by more than
+// pgStaleVolumeThreshold, which would indicate a previous (failed or
+// torn-down) enable-statefull attempt left the volume's data — and its
+// baked-in password — behind for this attempt to collide with. Docker
+// auto-provisions the named volume as part of ContainerCreate, so on a
+// genuinely first-time run the volume's CreatedAt trails the container's
+// Created by at most a few hundred milliseconds; pgStaleVolumeThreshold must
+// be well above that gap or every fresh run would false-positive.
+type pgAuthDebugAPI interface {
+	containerInspectAPI
+	VolumeInspect(ctx context.Context, volumeID string) (volume.Volume, error)
+}
+
 type enableStatefullHandler struct {
 	nodeClients         node_clients.NodeClients
 	clusterStateManager cluster_clients.ClusterStateManagerContainer
@@ -120,8 +153,8 @@ func (h *enableStatefullHandler) NewContext() TaskContext {
 	return &velez_api.EnableStatefullTaskPayload{}
 }
 
-// BuildJobs mirrors do_enable_statefull.go's 7 pipeline steps, plus two extra
-// jobs. generate_credentials is promoted out of the pipeline's inline
+// BuildJobs mirrors do_enable_statefull.go's 7 pipeline steps, plus three
+// extra jobs. generate_credentials is promoted out of the pipeline's inline
 // "Pipeline Context" setup - see docs/jobs_migrations/questions.md for why
 // that setup can't stay inline BuildJobs code: it derives passwords by
 // checking whether they're already persisted in local/cluster state, which
@@ -130,7 +163,11 @@ func (h *enableStatefullHandler) NewContext() TaskContext {
 // ConnectServiceToVpnTaskPayload.client_key). wait_for_postgres_ready has no
 // pipeline-step equivalent at all: it was added after tests/e2e caught this
 // job chain racing a freshly started postgres container (see
-// waitForPgReadyJob's doc comment).
+// waitForPgReadyJob's doc comment). register_plugin also has no
+// pipeline-step equivalent: do_enable_statefull.go never registered the
+// postgres sidecar in velez.plugins/velez.services/velez.deployments at all,
+// which is why ListPlugins (and the frontend's cluster-mode header) never saw
+// it - see registerPluginJob's doc comment.
 func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 	payload, ok := taskCtx.(*velez_api.EnableStatefullTaskPayload)
 	if !ok {
@@ -178,7 +215,9 @@ func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: "create_schema_and_migrate",
 			Job: &createSchemaAndMigrateJob{
-				dsn: payload,
+				dockerAPI: h.nodeClients.Docker().Client(),
+				dsn:       payload,
+				ctx:       payload,
 			},
 		},
 		{
@@ -204,6 +243,12 @@ func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			Job: &initNodeStorageJob{
 				clusterStateManager: h.clusterStateManager,
 				region:              h.cfg.Environment.NodeRegion,
+			},
+		},
+		{
+			Name: "register_plugin",
+			Job: &registerPluginJob{
+				storageContainer: h.storageContainer,
 			},
 		},
 	}
@@ -544,7 +589,10 @@ func getExposedPgPort(cont container.InspectResponse) (uint64, error) {
 // changed to `CREATE SCHEMA IF NOT EXISTS velez;` to stop conflicting with
 // this pre-create (see that file's comment).
 type createSchemaAndMigrateJob struct {
+	dockerAPI pgAuthDebugAPI
+
 	dsn rootDsnAccessor
+	ctx containerIDAccessor
 }
 
 func (j *createSchemaAndMigrateJob) Do(ctx context.Context) error {
@@ -564,7 +612,7 @@ func (j *createSchemaAndMigrateJob) Do(ctx context.Context) error {
 
 	_, err = conn.ExecContext(ctx, `CREATE SCHEMA IF NOT EXISTS velez`)
 	if err != nil {
-		return rerrors.Wrap(err, "error creating postgres schema")
+		return j.wrapSchemaErr(ctx, err)
 	}
 
 	err = sqldb.RollMigration(rootDsn)
@@ -573,6 +621,42 @@ func (j *createSchemaAndMigrateJob) Do(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+// wrapSchemaErr turns a plain connection/exec error into a user-facing,
+// client-parseable error (codes.FailedPrecondition) when it detects a
+// postgres password mismatch, enriched with a stale-volume hint when the
+// evidence supports it. Any other error is wrapped exactly as before.
+func (j *createSchemaAndMigrateJob) wrapSchemaErr(ctx context.Context, execErr error) error {
+	var pqErr *pq.Error
+
+	if !errors.As(execErr, &pqErr) || pqErr.Code != pgInvalidPasswordCode {
+		return rerrors.Wrap(execErr, "error creating postgres schema")
+	}
+
+	msg := fmt.Sprintf("postgres password authentication failed (%s)", pqErr.Message)
+
+	containerID := j.ctx.GetContainerId()
+
+	cont, contErr := j.dockerAPI.ContainerInspect(ctx, containerID)
+	vol, volErr := j.dockerAPI.VolumeInspect(ctx, state.PgName)
+
+	if contErr == nil && volErr == nil {
+		containerCreated, cErr := time.Parse(time.RFC3339Nano, cont.Created)
+		volumeCreated, vErr := time.Parse(time.RFC3339Nano, vol.CreatedAt)
+
+		if cErr == nil && vErr == nil && containerCreated.Sub(volumeCreated) > pgStaleVolumeThreshold {
+			msg += fmt.Sprintf(
+				"; postgres volume '%s' was created at %s, before this container (created at %s) - "+
+					"maybe the postgres volume was used before. "+
+					"You might have to prune it (docker volume rm %s) in order to enable cluster mode",
+				state.PgName, vol.CreatedAt, cont.Created, state.PgName)
+		}
+	}
+
+	userErr := rerrors.NewUserError(msg, codes.FailedPrecondition)
+
+	return rerrors.Wrap(userErr, "error creating postgres schema")
 }
 
 // createPgUserJob wraps cluster_steps.CreatePgUserForNode the same way
@@ -661,6 +745,82 @@ func (j *initNodeStorageJob) Do(ctx context.Context) error {
 	err := j.clusterStateManager.Nodes().InitNode(ctx, j.region)
 	if err != nil {
 		return rerrors.Wrap(err, "error initializing node storage")
+	}
+
+	return nil
+}
+
+// registerPluginJob is the fix for the bug this migration otherwise
+// reproduces as-is: do_enable_statefull.go provisions the postgres sidecar
+// via raw Docker calls but never records it anywhere ListPlugins reads from
+// (velez.plugins/velez.services/velez.deployment_specifications/
+// velez.deployments), so the frontend header never learns cluster mode is
+// on. This job registers the sidecar the same way create_smerd's job chain
+// would for an ordinary service, after update_cluster_state has already
+// swapped storageContainer over to the Postgres-backed implementation. No
+// Rollback: like waitForPgReadyJob, this job only records what earlier jobs
+// already did, rather than owning something that needs undoing on failure.
+type registerPluginJob struct {
+	storageContainer *storage.Container
+}
+
+func (j *registerPluginJob) Do(ctx context.Context) error {
+	err := j.storageContainer.Services().UpsertService(ctx, state.PgName)
+	if err != nil {
+		return rerrors.Wrap(err, "error upserting postgres service")
+	}
+
+	svc, err := j.storageContainer.Services().GetByName(ctx, state.PgName)
+	if err != nil {
+		return rerrors.Wrap(err, "error getting postgres service")
+	}
+
+	// Name must equal state.PgName (the real container name): deploy_watcher.go's
+	// syncRunningBatch/deleteBatch unmarshal this payload back into a
+	// CreateSmerd_Request and call Docker().IsContainerRunning(ctx, smerdReq.GetName())
+	// to reconcile the deployment's status against the live container.
+	smerdReq := &velez_api.CreateSmerd_Request{Name: state.PgName}
+
+	vervPayloadBytes, err := json.Marshal(smerdReq)
+	if err != nil {
+		return rerrors.Wrap(err, "error marshaling postgres deployment spec payload")
+	}
+
+	vervPayload := pqtype.NullRawMessage{RawMessage: vervPayloadBytes, Valid: true}
+
+	specParams := deployments_queries.CreateSpecificationParams{
+		Name:        state.PgName,
+		ServiceID:   sql.NullInt64{Int64: svc.ID, Valid: true},
+		VervPayload: vervPayload,
+	}
+
+	specID, err := j.storageContainer.Deployments().CreateSpecification(ctx, specParams)
+	if err != nil {
+		return rerrors.Wrap(err, "error creating postgres deployment specification")
+	}
+
+	// NodeId is hardcoded to 1, mirroring deploy_watcher.go's own hardcoded
+	// "self" node id (see NewDeployWatcher), so the watcher's periodic
+	// reconciliation actually picks this deployment up.
+	deploymentParams := deployments_queries.CreateDeploymentParams{
+		NodeID: 1,
+		Status: deployments_queries.VelezDeploymentStatusRUNNING,
+		SpecID: specID,
+	}
+
+	_, err = j.storageContainer.Deployments().CreateDeployment(ctx, deploymentParams)
+	if err != nil {
+		return rerrors.Wrap(err, "error creating postgres deployment")
+	}
+
+	pluginParams := plugins_queries.UpsertPluginParams{
+		PluginType: velez_api.VervPluginType_statefull_pg.String(),
+		ServiceID:  sql.NullInt64{Int64: svc.ID, Valid: true},
+	}
+
+	err = j.storageContainer.Plugins().UpsertPlugin(ctx, pluginParams)
+	if err != nil {
+		return rerrors.Wrap(err, "error upserting statefull_pg plugin")
 	}
 
 	return nil

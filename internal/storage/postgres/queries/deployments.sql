@@ -1,6 +1,6 @@
 -- name: CreateSpecification :one
-INSERT INTO velez.deployment_specifications (name, verv_payload)
-VALUES ($1, $2)
+INSERT INTO velez.deployment_specifications (name, service_id, verv_payload)
+VALUES ($1, $2, $3)
 RETURNING id;
 
 -- name: CreateDeployment :one

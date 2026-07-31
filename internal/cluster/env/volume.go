@@ -13,8 +13,9 @@ import (
 )
 
 const (
-	// containerVervMountPoint = "/opt/velez/smerds".
-	containerVervMountPoint = "/Users/alexbukov/Desktop/verv"
+	containerVervMountPoint = "/opt/velez/smerds"
+
+	vervVolumeBaseName = "verv"
 )
 
 // volumeMu guards vervVolumeName and vervVolumePath: StartVolumes can be
@@ -23,7 +24,7 @@ const (
 // `go test -race`.
 var (
 	volumeMu       sync.RWMutex
-	vervVolumeName = "verv"
+	vervVolumeName = vervVolumeBaseName
 	vervVolumePath string
 )
 
@@ -42,6 +43,7 @@ func StartVolumes(dockerAPI client.APIClient) error {
 
 	isInContainer := IsInContainer()
 
+	vervVolumeName = vervVolumeBaseName
 	if !isInContainer {
 		vervVolumeName += "_host"
 	}

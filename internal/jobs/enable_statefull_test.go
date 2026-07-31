@@ -5,14 +5,19 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/errdefs"
 	"github.com/docker/go-connections/nat"
+	"github.com/lib/pq"
 	"github.com/sqlc-dev/pqtype"
 	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
@@ -21,6 +26,7 @@ import (
 	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 	"go.vervstack.ru/Velez/internal/user_errors"
@@ -28,12 +34,17 @@ import (
 
 const (
 	testPgContainerID = "pg123"
+
+	testPqAuthFailedMessage = `password authentication failed for user "postgres"`
 )
 
 var (
 	errDbUnreachable       = errors.New("db unreachable")
 	errConnectionRefused   = errors.New("connection refused")
 	errNoSpaceLeftOnDevice = errors.New("no space left on device")
+	errBoom                = errors.New("boom")
+	errContainerInspect    = errors.New("container inspect failed")
+	errVolumeInspect       = errors.New("volume inspect failed")
 )
 
 func TestEnableStatefullHandler_Action(t *testing.T) {
@@ -71,7 +82,7 @@ func TestEnableStatefullHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 	wantNames := []string{
 		stepGenerateCredentials, stepCreatePgContainer, stepStartSidecar, "wait_for_postgres_ready",
 		stepGetRootDsn, "create_schema_and_migrate", "create_pg_user", "update_cluster_state",
-		"init_node_storage",
+		"init_node_storage", "register_plugin",
 	}
 	if len(namedJobs) != len(wantNames) {
 		t.Fatalf("expected %d jobs, got %d", len(wantNames), len(namedJobs))
@@ -535,11 +546,163 @@ func TestCreateSchemaAndMigrateJob_ConnectionFailure(t *testing.T) {
 		RootDsn: proto("postgres://u:p@127.0.0.1:1/db?sslmode=disable"),
 	}
 
-	j := &createSchemaAndMigrateJob{dsn: payload}
+	j := &createSchemaAndMigrateJob{
+		dockerAPI: newFakeContainerAPI(),
+		dsn:       payload,
+		ctx:       payload,
+	}
 
 	err := j.Do(context.Background())
 	if err == nil {
 		t.Fatal("expected an error connecting to an unreachable postgres port")
+	}
+}
+
+// createSchemaAndMigrateJob.wrapSchemaErr
+
+func TestWrapSchemaErr_NonPqError_PassesThrough(t *testing.T) {
+	payload := &velez_api.EnableStatefullTaskPayload{
+		ContainerId: proto(testPgContainerID),
+	}
+
+	j := &createSchemaAndMigrateJob{
+		dockerAPI: newFakeContainerAPI(),
+		ctx:       payload,
+	}
+
+	err := j.wrapSchemaErr(context.Background(), errBoom)
+	if err == nil {
+		t.Fatal("expected a non-nil error")
+	}
+
+	if status.Code(err) == codes.FailedPrecondition {
+		t.Errorf("expected a plain wrapped error, got FailedPrecondition: %v", err)
+	}
+}
+
+func TestWrapSchemaErr_PqAuthError_FreshVolume_NoStaleHint(t *testing.T) {
+	payload := &velez_api.EnableStatefullTaskPayload{
+		ContainerId: proto(testPgContainerID),
+	}
+
+	containerJSONBase := &container.ContainerJSONBase{
+		Created: "2024-01-01T00:00:01.000000000Z",
+	}
+	inspectResp := container.InspectResponse{
+		ContainerJSONBase: containerJSONBase,
+	}
+
+	dockerAPI := newFakeContainerAPI()
+
+	dockerAPI.inspectResp = inspectResp
+	dockerAPI.volumeInspectResp = volume.Volume{
+		CreatedAt: "2024-01-01T00:00:00.000000000Z",
+	}
+
+	j := &createSchemaAndMigrateJob{
+		dockerAPI: dockerAPI,
+		ctx:       payload,
+	}
+
+	pqErr := &pq.Error{Code: pgInvalidPasswordCode, Message: testPqAuthFailedMessage}
+
+	err := j.wrapSchemaErr(context.Background(), pqErr)
+	if err == nil {
+		t.Fatal("expected a non-nil error")
+	}
+
+	if status.Code(err) != codes.FailedPrecondition {
+		t.Errorf("expected codes.FailedPrecondition, got %v", status.Code(err))
+	}
+
+	msg := err.Error()
+	if !strings.Contains(msg, "password authentication failed") {
+		t.Errorf("expected message to mention password auth failure, got %q", msg)
+	}
+
+	if strings.Contains(msg, "maybe the postgres volume was used before") {
+		t.Errorf("did not expect stale-volume hint for a fresh volume, got %q", msg)
+	}
+}
+
+func TestWrapSchemaErr_PqAuthError_StaleVolume_HasHint(t *testing.T) {
+	payload := &velez_api.EnableStatefullTaskPayload{
+		ContainerId: proto(testPgContainerID),
+	}
+
+	containerJSONBase := &container.ContainerJSONBase{
+		Created: "2024-01-01T01:00:00.000000000Z",
+	}
+	inspectResp := container.InspectResponse{
+		ContainerJSONBase: containerJSONBase,
+	}
+
+	dockerAPI := newFakeContainerAPI()
+
+	dockerAPI.inspectResp = inspectResp
+	dockerAPI.volumeInspectResp = volume.Volume{
+		CreatedAt: "2024-01-01T00:00:00.000000000Z",
+	}
+
+	j := &createSchemaAndMigrateJob{
+		dockerAPI: dockerAPI,
+		ctx:       payload,
+	}
+
+	pqErr := &pq.Error{Code: pgInvalidPasswordCode, Message: testPqAuthFailedMessage}
+
+	err := j.wrapSchemaErr(context.Background(), pqErr)
+	if err == nil {
+		t.Fatal("expected a non-nil error")
+	}
+
+	if status.Code(err) != codes.FailedPrecondition {
+		t.Errorf("expected codes.FailedPrecondition, got %v", status.Code(err))
+	}
+
+	msg := err.Error()
+	if !strings.Contains(msg, "maybe the postgres volume was used before") {
+		t.Errorf("expected stale-volume hint, got %q", msg)
+	}
+
+	if !strings.Contains(msg, "docker volume rm "+state.PgName) {
+		t.Errorf("expected prune suggestion mentioning volume name, got %q", msg)
+	}
+}
+
+func TestWrapSchemaErr_PqAuthError_InspectErrors_DegradesGracefully(t *testing.T) {
+	payload := &velez_api.EnableStatefullTaskPayload{
+		ContainerId: proto(testPgContainerID),
+	}
+
+	dockerAPI := newFakeContainerAPI()
+
+	dockerAPI.inspectErr = errContainerInspect
+	dockerAPI.volumeInspectErr = errVolumeInspect
+
+	j := &createSchemaAndMigrateJob{
+		dockerAPI: dockerAPI,
+		ctx:       payload,
+	}
+
+	pqErr := &pq.Error{Code: pgInvalidPasswordCode, Message: testPqAuthFailedMessage}
+
+	err := j.wrapSchemaErr(context.Background(), pqErr)
+	if err == nil {
+		t.Fatal("expected a non-nil error")
+	}
+
+	if status.Code(err) != codes.FailedPrecondition {
+		t.Errorf("expected codes.FailedPrecondition, got %v", status.Code(err))
+	}
+
+	msg := err.Error()
+	if !strings.Contains(msg, "password authentication failed") {
+		t.Errorf("expected message to mention password auth failure, got %q", msg)
+	}
+
+	if strings.Contains(msg, "maybe the postgres volume was used before") {
+		t.Errorf("did not expect stale-volume hint when inspect calls error, got %q", msg)
 	}
 }
 
@@ -683,6 +846,208 @@ func TestInitNodeStorageJob_Error(t *testing.T) {
 	err := j.Do(context.Background())
 	if err == nil {
 		t.Fatal("expected an error when InitNode fails")
+	}
+}
+
+// registerPluginJob
+
+func TestRegisterPluginJob_Success(t *testing.T) {
+	servicesStorage := newFakeServicesStorage()
+	deploymentsStorage := newFakeDeploymentsStorage()
+	pluginsStorage := newFakePluginsStorage()
+
+	deploymentsStorage.createSpecificationResp = 42
+
+	clusterStorage := &fakeClusterStorage{
+		services:    servicesStorage,
+		deployments: deploymentsStorage,
+		plugins:     pluginsStorage,
+	}
+	storageContainer := storage.NewStorageContainer(clusterStorage)
+
+	j := &registerPluginJob{storageContainer: storageContainer}
+
+	err := j.Do(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(servicesStorage.upserted) != 1 || servicesStorage.upserted[0] != state.PgName {
+		t.Errorf("expected UpsertService called with %q, got %v", state.PgName, servicesStorage.upserted)
+	}
+
+	wantSvcID := servicesStorage.ids[state.PgName]
+	if wantSvcID == 0 {
+		t.Fatal("expected the fake to have assigned a non-zero service id")
+	}
+
+	if len(deploymentsStorage.createSpecificationCalledWith) != 1 {
+		t.Fatalf(
+			"expected CreateSpecification called once, got %d", len(deploymentsStorage.createSpecificationCalledWith),
+		)
+	}
+
+	specArg := deploymentsStorage.createSpecificationCalledWith[0]
+	if specArg.Name != state.PgName {
+		t.Errorf("expected spec Name %q, got %q", state.PgName, specArg.Name)
+	}
+
+	if !specArg.ServiceID.Valid || specArg.ServiceID.Int64 != wantSvcID {
+		t.Errorf("expected spec ServiceID %d, got %+v", wantSvcID, specArg.ServiceID)
+	}
+
+	if !specArg.VervPayload.Valid {
+		t.Fatal("expected a valid verv_payload")
+	}
+
+	var smerdReq velez_api.CreateSmerd_Request
+
+	err = json.Unmarshal(specArg.VervPayload.RawMessage, &smerdReq)
+	if err != nil {
+		t.Fatalf("unexpected error unmarshaling verv_payload: %v", err)
+	}
+
+	if smerdReq.GetName() != state.PgName {
+		t.Errorf("expected verv_payload's CreateSmerd_Request.Name %q, got %q", state.PgName, smerdReq.GetName())
+	}
+
+	if len(deploymentsStorage.createDeploymentCalledWith) != 1 {
+		t.Fatalf(
+			"expected CreateDeployment called once, got %d", len(deploymentsStorage.createDeploymentCalledWith),
+		)
+	}
+
+	deployArg := deploymentsStorage.createDeploymentCalledWith[0]
+	if deployArg.NodeID != 1 {
+		t.Errorf("expected NodeID 1, got %d", deployArg.NodeID)
+	}
+
+	if deployArg.Status != deployments_queries.VelezDeploymentStatusRUNNING {
+		t.Errorf("expected Status RUNNING, got %v", deployArg.Status)
+	}
+
+	if deployArg.SpecID != deploymentsStorage.createSpecificationResp {
+		t.Errorf("expected SpecID %d, got %d", deploymentsStorage.createSpecificationResp, deployArg.SpecID)
+	}
+
+	if len(pluginsStorage.upsertPluginCalledWith) != 1 {
+		t.Fatalf("expected UpsertPlugin called once, got %d", len(pluginsStorage.upsertPluginCalledWith))
+	}
+
+	pluginArg := pluginsStorage.upsertPluginCalledWith[0]
+	if pluginArg.PluginType != velez_api.VervPluginType_statefull_pg.String() {
+		t.Errorf("expected PluginType %q, got %q", velez_api.VervPluginType_statefull_pg.String(), pluginArg.PluginType)
+	}
+
+	if !pluginArg.ServiceID.Valid || pluginArg.ServiceID.Int64 != wantSvcID {
+		t.Errorf("expected ServiceID %d, got %+v", wantSvcID, pluginArg.ServiceID)
+	}
+}
+
+func TestRegisterPluginJob_UpsertServiceError(t *testing.T) {
+	servicesStorage := newFakeServicesStorage()
+
+	servicesStorage.upsertErr = errDbUnreachable
+
+	deploymentsStorage := newFakeDeploymentsStorage()
+	pluginsStorage := newFakePluginsStorage()
+
+	clusterStorage := &fakeClusterStorage{
+		services:    servicesStorage,
+		deployments: deploymentsStorage,
+		plugins:     pluginsStorage,
+	}
+	storageContainer := storage.NewStorageContainer(clusterStorage)
+
+	j := &registerPluginJob{storageContainer: storageContainer}
+
+	err := j.Do(context.Background())
+	if err == nil {
+		t.Fatal("expected an error when UpsertService fails")
+	}
+
+	if len(deploymentsStorage.createSpecificationCalledWith) != 0 {
+		t.Error("expected CreateSpecification not to be called when UpsertService fails")
+	}
+}
+
+func TestRegisterPluginJob_CreateSpecificationError(t *testing.T) {
+	servicesStorage := newFakeServicesStorage()
+	deploymentsStorage := newFakeDeploymentsStorage()
+
+	deploymentsStorage.createSpecificationErr = errDbUnreachable
+
+	pluginsStorage := newFakePluginsStorage()
+
+	clusterStorage := &fakeClusterStorage{
+		services:    servicesStorage,
+		deployments: deploymentsStorage,
+		plugins:     pluginsStorage,
+	}
+	storageContainer := storage.NewStorageContainer(clusterStorage)
+
+	j := &registerPluginJob{storageContainer: storageContainer}
+
+	err := j.Do(context.Background())
+	if err == nil {
+		t.Fatal("expected an error when CreateSpecification fails")
+	}
+
+	if len(deploymentsStorage.createDeploymentCalledWith) != 0 {
+		t.Error("expected CreateDeployment not to be called when CreateSpecification fails")
+	}
+
+	if len(pluginsStorage.upsertPluginCalledWith) != 0 {
+		t.Error("expected UpsertPlugin not to be called when CreateSpecification fails")
+	}
+}
+
+func TestRegisterPluginJob_CreateDeploymentError(t *testing.T) {
+	servicesStorage := newFakeServicesStorage()
+	deploymentsStorage := newFakeDeploymentsStorage()
+
+	deploymentsStorage.createDeploymentErr = errDbUnreachable
+
+	pluginsStorage := newFakePluginsStorage()
+
+	clusterStorage := &fakeClusterStorage{
+		services:    servicesStorage,
+		deployments: deploymentsStorage,
+		plugins:     pluginsStorage,
+	}
+	storageContainer := storage.NewStorageContainer(clusterStorage)
+
+	j := &registerPluginJob{storageContainer: storageContainer}
+
+	err := j.Do(context.Background())
+	if err == nil {
+		t.Fatal("expected an error when CreateDeployment fails")
+	}
+
+	if len(pluginsStorage.upsertPluginCalledWith) != 0 {
+		t.Error("expected UpsertPlugin not to be called when CreateDeployment fails")
+	}
+}
+
+func TestRegisterPluginJob_UpsertPluginError(t *testing.T) {
+	servicesStorage := newFakeServicesStorage()
+	deploymentsStorage := newFakeDeploymentsStorage()
+	pluginsStorage := newFakePluginsStorage()
+
+	pluginsStorage.upsertPluginErr = errDbUnreachable
+
+	clusterStorage := &fakeClusterStorage{
+		services:    servicesStorage,
+		deployments: deploymentsStorage,
+		plugins:     pluginsStorage,
+	}
+	storageContainer := storage.NewStorageContainer(clusterStorage)
+
+	j := &registerPluginJob{storageContainer: storageContainer}
+
+	err := j.Do(context.Background())
+	if err == nil {
+		t.Fatal("expected an error when UpsertPlugin fails")
 	}
 }
 

@@ -7,6 +7,7 @@ package deployments_queries
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/sqlc-dev/pqtype"
@@ -34,18 +35,19 @@ func (q *Queries) CreateDeployment(ctx context.Context, arg CreateDeploymentPara
 }
 
 const createSpecification = `-- name: CreateSpecification :one
-INSERT INTO velez.deployment_specifications (name, verv_payload)
-VALUES ($1, $2)
+INSERT INTO velez.deployment_specifications (name, service_id, verv_payload)
+VALUES ($1, $2, $3)
 RETURNING id
 `
 
 type CreateSpecificationParams struct {
 	Name        string
+	ServiceID   sql.NullInt64
 	VervPayload pqtype.NullRawMessage
 }
 
 func (q *Queries) CreateSpecification(ctx context.Context, arg CreateSpecificationParams) (int64, error) {
-	row := q.db.QueryRowContext(ctx, createSpecification, arg.Name, arg.VervPayload)
+	row := q.db.QueryRowContext(ctx, createSpecification, arg.Name, arg.ServiceID, arg.VervPayload)
 	var id int64
 	err := row.Scan(&id)
 	return id, err

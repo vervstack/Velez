@@ -24,6 +24,8 @@ type AboutService struct {
 type Service struct {
 	ServiceBaseInfo
 
+	ID int64
+
 	CurrentDeploymentId *uint64
 	Status              velez_api.DeploymentStatus
 	About               AboutService

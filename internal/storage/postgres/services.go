@@ -45,6 +45,7 @@ func (s *servicesStorage) Delete(ctx context.Context, name string) error {
 
 func fromStorageToDomainService(row pg_queries.VelezService) domain.Service {
 	return domain.Service{
+		ID: row.ID,
 		ServiceBaseInfo: domain.ServiceBaseInfo{
 			Name: row.Name,
 		},

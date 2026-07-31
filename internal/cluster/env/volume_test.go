@@ -51,3 +51,32 @@ func Test_StartVolumes_Concurrent_NoRace(t *testing.T) {
 
 	wg.Wait()
 }
+
+// Test_StartVolumes_Repeated_NameDoesNotCompound guards against a regression
+// where vervVolumeName was mutated with `+=` on every call instead of being
+// recomputed from a stable base, causing repeated StartVolumes calls (e.g.
+// service restarts) to produce ever-growing names like
+// "verv_host_host_host..." and orphan a new Docker volume each time.
+func Test_StartVolumes_Repeated_NameDoesNotCompound(t *testing.T) {
+	dockerAPI := &fakeVolumeAPIClient{}
+
+	err := StartVolumes(dockerAPI)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	firstName := GetVervVolumeName()
+
+	for range 5 {
+		err = StartVolumes(dockerAPI)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	secondName := GetVervVolumeName()
+
+	if firstName != secondName {
+		t.Errorf("expected volume name to stay %q after repeated StartVolumes calls, got %q", firstName, secondName)
+	}
+}

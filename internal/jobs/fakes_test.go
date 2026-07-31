@@ -14,6 +14,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/network"
+	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"go.redsock.ru/evon"
@@ -29,7 +30,9 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
+	"go.vervstack.ru/Velez/internal/storage/postgres/generated/plugins_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
@@ -280,10 +283,19 @@ func (f *fakeJobsStorage) seedDone(taskID int64, jobName string) {
 type fakeServicesStorage struct {
 	mu       sync.Mutex
 	upserted []string
+
+	upsertErr error
+
+	// ids assigns each upserted name a stable, sequential id the first time
+	// it's upserted - mirrors a real ON CONFLICT DO UPDATE upsert keeping the
+	// same row id across repeated calls, which registerPluginJob's tests rely
+	// on (UpsertService then GetByName must observe the same id).
+	ids    map[string]int64
+	nextID int64
 }
 
 func newFakeServicesStorage() *fakeServicesStorage {
-	return &fakeServicesStorage{}
+	return &fakeServicesStorage{ids: make(map[string]int64)}
 }
 
 func (f *fakeServicesStorage) GetByName(_ context.Context, name string) (domain.Service, error) {
@@ -291,7 +303,12 @@ func (f *fakeServicesStorage) GetByName(_ context.Context, name string) (domain.
 	defer f.mu.Unlock()
 
 	if slices.Contains(f.upserted, name) {
-		return domain.Service{ServiceBaseInfo: domain.ServiceBaseInfo{Name: name}}, nil
+		svc := domain.Service{
+			ID:              f.ids[name],
+			ServiceBaseInfo: domain.ServiceBaseInfo{Name: name},
+		}
+
+		return svc, nil
 	}
 
 	return domain.Service{}, sql.ErrNoRows
@@ -301,7 +318,17 @@ func (f *fakeServicesStorage) UpsertService(_ context.Context, name string) erro
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
+	if f.upsertErr != nil {
+		return f.upsertErr
+	}
+
 	f.upserted = append(f.upserted, name)
+
+	if _, ok := f.ids[name]; !ok {
+		f.nextID++
+
+		f.ids[name] = f.nextID
+	}
 
 	return nil
 }
@@ -512,22 +539,123 @@ func (f *fakeStateManager) ValidateVelezPrivateKey(_ string) bool { return false
 
 // fakeClusterStorage is a minimal in-memory implementation of
 // storage.Storage (== cluster_clients.ClusterStateManager) for exercising
-// enable_statefull's update_cluster_state/init_node_storage jobs without a
-// real Postgres-backed cluster state. Only Nodes() is configurable; the
-// other accessors return nil since those jobs never call them.
+// enable_statefull's update_cluster_state/init_node_storage/register_plugin
+// jobs without a real Postgres-backed cluster state. Nodes/services/
+// deployments/plugins are the only configurable accessors; the rest return
+// nil since no job under test calls them.
 type fakeClusterStorage struct {
-	nodes storage.NodesStorage
+	nodes       storage.NodesStorage
+	services    storage.ServicesStorage
+	deployments storage.DeploymentsStorage
+	plugins     storage.PluginsStorage
 }
 
 func (f *fakeClusterStorage) Nodes() storage.NodesStorage                             { return f.nodes }
-func (f *fakeClusterStorage) Services() storage.ServicesStorage                       { return nil }
-func (f *fakeClusterStorage) Deployments() storage.DeploymentsStorage                 { return nil }
-func (f *fakeClusterStorage) Plugins() storage.PluginsStorage                         { return nil }
+func (f *fakeClusterStorage) Services() storage.ServicesStorage                       { return f.services }
+func (f *fakeClusterStorage) Deployments() storage.DeploymentsStorage                 { return f.deployments }
+func (f *fakeClusterStorage) Plugins() storage.PluginsStorage                         { return f.plugins }
 func (f *fakeClusterStorage) ServiceDependencies() storage.ServiceDependenciesStorage { return nil }
 func (f *fakeClusterStorage) ServiceResources() storage.ServiceResourcesStorage       { return nil }
 func (f *fakeClusterStorage) Tasks() storage.TasksStorage                             { return nil }
 func (f *fakeClusterStorage) Jobs() storage.JobsStorage                               { return nil }
 func (f *fakeClusterStorage) TxManager() *sqldb.TxManager                             { return nil }
+
+// fakeDeploymentsStorage is a minimal in-memory implementation of
+// storage.DeploymentsStorage for exercising registerPluginJob's
+// CreateSpecification/CreateDeployment calls without a database. Only the
+// methods registerPluginJob actually calls are configurable; the rest panic
+// if hit since the job under test never invokes them.
+type fakeDeploymentsStorage struct {
+	mu sync.Mutex
+
+	createSpecificationCalledWith []deployments_queries.CreateSpecificationParams
+	createSpecificationResp       int64
+	createSpecificationErr        error
+
+	createDeploymentCalledWith []deployments_queries.CreateDeploymentParams
+	createDeploymentErr        error
+}
+
+func newFakeDeploymentsStorage() *fakeDeploymentsStorage {
+	return &fakeDeploymentsStorage{}
+}
+
+func (f *fakeDeploymentsStorage) CreateSpecification(
+	_ context.Context, arg deployments_queries.CreateSpecificationParams,
+) (int64, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.createSpecificationCalledWith = append(f.createSpecificationCalledWith, arg)
+
+	return f.createSpecificationResp, f.createSpecificationErr
+}
+
+func (f *fakeDeploymentsStorage) CreateDeployment(
+	_ context.Context, arg deployments_queries.CreateDeploymentParams,
+) (any, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.createDeploymentCalledWith = append(f.createDeploymentCalledWith, arg)
+
+	return nil, f.createDeploymentErr
+}
+
+func (f *fakeDeploymentsStorage) GetSpecificationById(
+	_ context.Context, _ int64,
+) (deployments_queries.GetSpecificationByIdRow, error) {
+	return deployments_queries.GetSpecificationByIdRow{}, nil
+}
+
+func (f *fakeDeploymentsStorage) UpdateDeploymentStatus(
+	_ context.Context, _ deployments_queries.UpdateDeploymentStatusParams,
+) error {
+	return nil
+}
+
+func (f *fakeDeploymentsStorage) List(
+	_ context.Context, _ domain.ListDeploymentsReq,
+) ([]domain.Deployment, error) {
+	return nil, nil
+}
+
+func (f *fakeDeploymentsStorage) ListDeployments(
+	_ context.Context, _ domain.ListDeploymentsReq,
+) (domain.DeploymentList, error) {
+	return domain.DeploymentList{}, nil
+}
+
+func (f *fakeDeploymentsStorage) WithTx(_ *sql.Tx) *deployments_queries.Queries {
+	return nil
+}
+
+// fakePluginsStorage is a minimal in-memory implementation of
+// storage.PluginsStorage for exercising registerPluginJob's UpsertPlugin
+// call without a database.
+type fakePluginsStorage struct {
+	mu sync.Mutex
+
+	upsertPluginCalledWith []plugins_queries.UpsertPluginParams
+	upsertPluginErr        error
+}
+
+func newFakePluginsStorage() *fakePluginsStorage {
+	return &fakePluginsStorage{}
+}
+
+func (f *fakePluginsStorage) ListPlugins(_ context.Context) ([]domain.PluginBaseInfo, error) {
+	return nil, nil
+}
+
+func (f *fakePluginsStorage) UpsertPlugin(_ context.Context, arg plugins_queries.UpsertPluginParams) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.upsertPluginCalledWith = append(f.upsertPluginCalledWith, arg)
+
+	return f.upsertPluginErr
+}
 
 // fakeNodesStorage is a minimal in-memory implementation of
 // storage.NodesStorage for exercising init_node_storage's InitNode call.
@@ -586,6 +714,9 @@ type fakeContainerAPI struct {
 
 	inspectResp container.InspectResponse
 	inspectErr  error
+
+	volumeInspectResp volume.Volume
+	volumeInspectErr  error
 
 	pauseErr        error
 	pauseCalledWith []string
@@ -648,6 +779,13 @@ func (f *fakeContainerAPI) ContainerInspect(_ context.Context, _ string) (contai
 	defer f.mu.Unlock()
 
 	return f.inspectResp, f.inspectErr
+}
+
+func (f *fakeContainerAPI) VolumeInspect(_ context.Context, _ string) (volume.Volume, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	return f.volumeInspectResp, f.volumeInspectErr
 }
 
 func (f *fakeContainerAPI) CopyToContainer(

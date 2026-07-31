@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 
 import {useDialog} from '@/app/hooks/dialog/Dialog.tsx';
 import StepsDialogHeader, {StepsDialogHeaderContent} from '@/dialogs/StepsDialog/StepsDialogHeader.tsx';
@@ -13,21 +13,53 @@ export interface StepsDialogProps<TContext> {
     header?: StepsDialogHeaderContent;
     isLoading?: boolean;
     loadingHint?: string;
+    resolveContext?: Promise<Partial<TContext>>;
     onFinish?(context: TContext): void;
     onCancel?(): void;
 }
 
 export default function StepsDialog<TContext extends object>(
-    {steps, initialContext, header, isLoading = false, loadingHint, onFinish, onCancel}: StepsDialogProps<TContext>) {
+    {
+        steps, initialContext, header, isLoading = false, loadingHint, resolveContext,
+        onFinish, onCancel,
+    }: StepsDialogProps<TContext>) {
     const {CloseDialog} = useDialog();
 
     const [stepIndex, setStepIndex] = useState(0);
     const [context, setContext] = useState<TContext>(initialContext);
+    const [isResolvingContext, setIsResolvingContext] = useState(Boolean(resolveContext));
+
+    useEffect(() => {
+        if (!resolveContext) {
+            return;
+        }
+
+        let cancelled = false;
+
+        resolveContext
+            .then((patch) => {
+                if (cancelled) {
+                    return;
+                }
+                setContext((prev) => ({...prev, ...patch}));
+            })
+            .finally(() => {
+                if (!cancelled) {
+                    setIsResolvingContext(false);
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [resolveContext]);
+
+    const effectiveIsLoading = resolveContext ? isResolvingContext : isLoading;
 
     const currentStep = steps[stepIndex];
     const isFirstStep = stepIndex == 0;
     const isLastStep = stepIndex == steps.length - 1;
-    const canProceed = (currentStep.canProceed?.(context) ?? true) && !isLoading;
+    const canProceed = (currentStep.canProceed?.(context) ?? true) && !effectiveIsLoading;
 
     const StepComponent = currentStep.component;
 
@@ -62,7 +94,7 @@ export default function StepsDialog<TContext extends object>(
     }
 
     function handleStepSelect(index: number) {
-        if (index < stepIndex && !isLoading) {
+        if (index < stepIndex && !effectiveIsLoading) {
             setStepIndex(index);
         }
     }
@@ -71,7 +103,7 @@ export default function StepsDialog<TContext extends object>(
         <div className={cls.StepsDialogContainer}>
             <StepsDialogHeader
                 header={header}
-                isLoading={isLoading}
+                isLoading={effectiveIsLoading}
                 stepLabel={currentStep.label ?? currentStep.name}
                 stepIndex={stepIndex}
                 totalSteps={steps.length}
@@ -82,7 +114,7 @@ export default function StepsDialog<TContext extends object>(
                 <StepsDialogStepper
                     steps={steps}
                     currentIndex={stepIndex}
-                    isLoading={isLoading}
+                    isLoading={effectiveIsLoading}
                     onSelect={handleStepSelect}
                 />
 
@@ -94,7 +126,7 @@ export default function StepsDialog<TContext extends object>(
             <StepsDialogFooter
                 isLastStep={isLastStep}
                 canProceed={canProceed}
-                isLoading={isLoading}
+                isLoading={effectiveIsLoading}
                 loadingHint={loadingHint}
                 onBack={handleBack}
                 onNext={handleNext}

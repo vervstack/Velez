@@ -1,5 +1,5 @@
 import {describe, expect, it, vi} from 'vitest';
-import {render, screen} from '@testing-library/react';
+import {fireEvent, render, screen} from '@testing-library/react';
 
 import StatefullPgSettingsScreen from '@/dialogs/PluginManageDialog/plugins/screens/StatefullPgSettingsScreen.tsx';
 
@@ -37,7 +37,9 @@ describe('StatefullPgSettingsScreen', () => {
         const choice = screen.getByText('Expose port').closest('button');
         expect(choice).not.toBeDisabled();
 
-        choice?.click();
+        if (choice) {
+            fireEvent.click(choice);
+        }
 
         expect(updateContext).toHaveBeenCalledWith({exposePort: true});
     });

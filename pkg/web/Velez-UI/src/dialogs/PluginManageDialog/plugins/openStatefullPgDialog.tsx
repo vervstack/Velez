@@ -38,26 +38,22 @@ export function openStatefullPgDialog(plugin: VervPlugin): Promise<void> {
             .catch(useToaster.getState().catchGrpc);
     }
 
+    const resolveContext: Promise<Partial<StatefullPgContext>> = queryClient.fetchQuery(hardwareQueryOptions())
+        .then((res) => {
+            const isRunningInContainer = !!res.isRunningInContainer;
+            return {isRunningInContainer, exposePort: !isRunningInContainer};
+        });
+
+    resolveContext.catch(useToaster.getState().catchGrpc);
+
     OpenWizardDialog<StatefullPgContext>({
         steps,
         initialContext: {exposePort: false, portNumber: '5432', isRunningInContainer: true},
         header,
-        isLoading: true,
         loadingHint: "Loading this node's hardware to configure cluster mode…",
+        resolveContext,
         onFinish: handleEnable,
     });
 
-    return queryClient.fetchQuery(hardwareQueryOptions())
-        .then((res) => {
-            const isRunningInContainer = !!res.isRunningInContainer;
-            const exposePort = !isRunningInContainer;
-
-            OpenWizardDialog<StatefullPgContext>({
-                steps,
-                initialContext: {exposePort, portNumber: '5432', isRunningInContainer},
-                header,
-                onFinish: handleEnable,
-            });
-        })
-        .catch(useToaster.getState().catchGrpc);
+    return resolveContext.then(() => undefined, () => undefined);
 }

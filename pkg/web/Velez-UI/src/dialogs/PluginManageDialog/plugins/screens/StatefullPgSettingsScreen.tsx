@@ -18,26 +18,20 @@ export default function StatefullPgSettingsScreen(
         updateContext({exposePort: !exposePort});
     }
 
-    const portTooltip = isRunningInContainer
-        ? undefined
-        : "Running as a binary always exposes the port";
-
     return (
         <div className={cls.ActionSection}>
-            <label
-                className={cls.CheckboxLabel}
-                data-tooltip-id={portTooltip ? "root-tooltip" : undefined}
-                data-tooltip-content={portTooltip}
-                data-tooltip-place="top"
-            >
+            {!isRunningInContainer && (
+                <div className={cls.WarnHint}>
+                    <span className={cls.WarnHintIcon}>💡</span>
+                    <span>Velez is running as a binary on this node, so the port must stay exposed.</span>
+                </div>
+            )}
+            <label className={cls.CheckboxLabel}>
                 <Choice title={'Expose port'}
                         active={exposePort}
                         disabled={!isRunningInContainer}
                         onClick={handleToggleExposePort}/>
             </label>
-            {!isRunningInContainer && (
-                <span>Velez is running as a binary on this node, so the port is always exposed.</span>
-            )}
 
             {exposePort && (
                 <div className={cls.InputGroup}>

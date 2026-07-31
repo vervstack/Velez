@@ -63,6 +63,23 @@
     gap: 1rem;
 }
 
+.WarnHint {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.625rem 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--amber);
+    background: var(--amber-dim);
+    border: 1px solid var(--amber);
+    border-radius: var(--radius);
+}
+
+.WarnHintIcon {
+    flex-shrink: 0;
+    line-height: 1;
+}
+
 .CheckboxLabel {
     display: flex;
     align-items: center;

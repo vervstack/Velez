@@ -1,5 +1,4 @@
 import cn from 'classnames';
-import {useIsFetching} from "@tanstack/react-query";
 
 import cls from '@/widgets/topbar/TopBar.module.css';
 
@@ -90,7 +89,6 @@ function RightZone() {
 
     const pluginsQuery = ListPluginsQuery();
     const nodesQuery = ListNodesQuery();
-    const isFetching = useIsFetching() > 0;
 
     function handleDeploy() {
         navigate(Routes.Deploy);
@@ -102,20 +100,11 @@ function RightZone() {
 
     return (
         <div className={cls.RightZoneContainer}>
-            {isFetching && <FetchingIndicator/>}
             {!isLoading && (isStateFullMode ? <NodesHealthStatus/> : <SingleNodeStub/>)}
             <Button
                 variant={'primary'}
                 onClick={handleDeploy}
             >Deploy</Button>
-        </div>
-    )
-}
-
-function FetchingIndicator() {
-    return (
-        <div className={cls.FetchingIndicatorContainer} title="Loading data...">
-            <span className={cls.FetchingDot}/>
         </div>
     )
 }

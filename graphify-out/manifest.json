@@ -215,8 +215,8 @@
     "semantic_hash": "d2ffce4fa0d119791be95bdf4a62b552"
   },
   "internal/clients/cluster_clients/state/pg.go": {
-    "mtime": 1785505624.149704,
-    "ast_hash": "f24968eeab5e4d47873a43347d278e36",
+    "mtime": 1785510049.4003606,
+    "ast_hash": "10356f55c8e495bfb72ac98da4df53a6",
     "semantic_hash": ""
   },
   "internal/clients/cluster_clients/state/state.go": {
@@ -360,13 +360,13 @@
     "semantic_hash": ""
   },
   "internal/cluster/cluster.go": {
-    "mtime": 1785272365.141014,
-    "ast_hash": "5c89f222ea7eb342180af24e03377026",
+    "mtime": 1785510131.2530816,
+    "ast_hash": "44866167eb1af8de93c9afa9fea0a3d5",
     "semantic_hash": ""
   },
   "internal/cluster/cluster_state/master.go": {
-    "mtime": 1785086366.408881,
-    "ast_hash": "166c25ead20b235f2bf7b6b823707795",
+    "mtime": 1785510127.4280746,
+    "ast_hash": "6d39420c62709cbc6e160ea03eebf70a",
     "semantic_hash": ""
   },
   "internal/cluster/cluster_state/worker.go": {
@@ -610,8 +610,8 @@
     "semantic_hash": ""
   },
   "internal/pipelines/steps/cluster_steps/get_root_dsn.go": {
-    "mtime": 1785137094.627362,
-    "ast_hash": "9c43f660a7613f1b64651ee2bcd7a849",
+    "mtime": 1785510138.8474433,
+    "ast_hash": "bf22fccb33a64ad10e04ae3f0e2758f0",
     "semantic_hash": ""
   },
   "internal/pipelines/steps/config_steps/changes_sub.go": {
@@ -1135,8 +1135,8 @@
     "semantic_hash": "58c7c7bd0739be7f0f69e2f1bde0b012"
   },
   "internal/transport/control_plane_api_impl/enable_plugin.go": {
-    "mtime": 1785505624.1521182,
-    "ast_hash": "377cd2af5a9f6bcd36bacac5809aea63",
+    "mtime": 1785510146.893859,
+    "ast_hash": "73cea15807a81d1b6d715511f54aa051",
     "semantic_hash": ""
   },
   "internal/transport/control_plane_api_impl/impl.go": {
@@ -2815,13 +2815,13 @@
     "semantic_hash": ""
   },
   "internal/jobs/enable_statefull.go": {
-    "mtime": 1785487697.4583995,
-    "ast_hash": "86860734470bbff7e847a80c1b826305",
+    "mtime": 1785510110.4806063,
+    "ast_hash": "57d33e940e3fa00f3c173bd03418f351",
     "semantic_hash": ""
   },
   "internal/jobs/enable_statefull_test.go": {
-    "mtime": 1785487784.771027,
-    "ast_hash": "f6378dda52d725210b66ebcceed46808",
+    "mtime": 1785510438.907842,
+    "ast_hash": "c9eb0bf52068319d9417656fac7a1ea2",
     "semantic_hash": ""
   },
   "docs/security/vpn_client_key_storage.md": {
@@ -2845,8 +2845,8 @@
     "semantic_hash": ""
   },
   "tests/e2e/suite_enable_statefull_test.go": {
-    "mtime": 1785505624.1631973,
-    "ast_hash": "fe1eb1a5a7a7533a6ace808a61fc8d01",
+    "mtime": 1785510292.2550147,
+    "ast_hash": "3f004481c5d607cf5210b5c800bbe5fb",
     "semantic_hash": ""
   },
   "tests/e2e/suite_upgrade_smerd_test.go": {
@@ -3160,8 +3160,8 @@
     "semantic_hash": ""
   },
   "internal/transport/control_plane_api_impl/enable_plugin_test.go": {
-    "mtime": 1785505624.184725,
-    "ast_hash": "c4fcde79fff8521f848764db0fdde9ef",
+    "mtime": 1785510155.7385113,
+    "ast_hash": "758af23fbabc1f18812fa8540a2a82c4",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/processes/api/tasks.ts": {
@@ -3187,6 +3187,11 @@
   "pkg/web/Velez-UI/src/dialogs/PluginManageDialog/plugins/screens/ProgressStepChip.tsx": {
     "mtime": 1785506153.992956,
     "ast_hash": "04f950229431ce385929f3cf8f48f7de",
+    "semantic_hash": ""
+  },
+  "internal/clients/cluster_clients/state/pg_test.go": {
+    "mtime": 1785510418.5046804,
+    "ast_hash": "7a2736538fa5f710bd363655e811b382",
     "semantic_hash": ""
   }
 }

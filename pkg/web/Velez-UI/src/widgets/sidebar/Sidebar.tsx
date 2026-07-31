@@ -5,7 +5,7 @@ import SectionLabel from '@/components/base/SectionLabel';
 import VelezIcon from '@/assets/icons/services/velez.svg';
 import {NodeBaseInfo, NodeStatus} from "@/app/api/velez";
 import SkeletonNodeRow from '@/components/node/SkeletonNodeRow';
-import {ListNodesQuery} from "@/processes/queries/control_plane.ts";
+import {IsStatefullModeEnabled, ListNodesQuery} from "@/processes/queries/control_plane.ts";
 
 function mapNodeStatus(status?: NodeStatus): 'online' | 'offline' | 'degraded' | 'stopped' {
     switch (status) {
@@ -77,6 +77,7 @@ export default function Sidebar(
 
 
     const nodesQuery = ListNodesQuery();
+    const isStatefullMode = IsStatefullModeEnabled();
 
     return (
         <>
@@ -94,7 +95,7 @@ export default function Sidebar(
                     activeNav={activeNav}
                     onNavChange={onNavChange}/>
 
-                {collapsed && (
+                {collapsed && isStatefullMode && (
                     <div className={cls.nodesCollapsed}>
                         {nodesQuery.isLoading ? (
                             <>
@@ -108,7 +109,7 @@ export default function Sidebar(
                     </div>
                 )}
 
-                <div className={cls.divider}/>
+                {isStatefullMode && <div className={cls.divider}/>}
 
                 {/* Main nav */}
                 <nav className={cls.nav}>
@@ -191,7 +192,9 @@ function NodesList(
         onNodeSelect, activeNodeId,
     }: SidebarProps) {
 
-    if (collapsed) return null;
+    const isStatefullMode = IsStatefullModeEnabled();
+
+    if (collapsed || !isStatefullMode) return null;
 
 
     function renderNode(node: NodeBaseInfo) {

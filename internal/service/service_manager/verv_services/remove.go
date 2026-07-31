@@ -44,7 +44,7 @@ func (v *VervService) Remove(ctx context.Context, req domain.RemoveServiceReq) e
 		}
 	}
 
-	err = v.servicesStorage.Delete(ctx, req.Name)
+	err = v.dataStorage.Services().Delete(ctx, req.Name)
 	if err != nil {
 		return rerrors.Wrap(err, "error deleting service from storage")
 	}

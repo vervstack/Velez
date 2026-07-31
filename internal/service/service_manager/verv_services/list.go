@@ -11,7 +11,7 @@ import (
 )
 
 func (v *VervService) List(ctx context.Context, req domain.ListServicesReq) (domain.ServiceList, error) {
-	list, err := v.servicesStorage.List(ctx, req)
+	list, err := v.dataStorage.Services().List(ctx, req)
 	if err != nil {
 		return domain.ServiceList{}, rerrors.Wrap(err, "error listing services")
 	}

@@ -76,6 +76,56 @@ func (s *EnableStatefullSuite) Test_EnableStatefullMode_HappyPath() {
 	localState := env.Custom.NodeClients.LocalStateManager().Get()
 	require.NotEmpty(t, localState.ClusterState.PgRootDsn)
 	require.NotEmpty(t, localState.ClusterState.PgNodeDsn)
+
+	// registerPluginJob (internal/jobs/enable_statefull.go) is the fix for the
+	// bug where ListPlugins always reported statefull_pg as VervPlugin_unknown
+	// because deployment_specifications.service_id was never populated. Assert
+	// the full chain - CreateSpecification's new ServiceID column through to
+	// the ListPlugins join - actually reports the plugin as running now.
+	listPluginsResp, err := env.Custom.ControlPlaneApiImpl.ListPlugins(t.Context(), &velez_api.ListPlugins_Request{})
+	require.NoError(t, err)
+
+	var statefullPgPlugin *velez_api.Plugin
+
+	for _, plugin := range listPluginsResp.GetPlugins() {
+		if plugin.GetType() == velez_api.VervPluginType_statefull_pg {
+			statefullPgPlugin = plugin
+
+			break
+		}
+	}
+
+	require.NotNil(t, statefullPgPlugin, "expected statefull_pg plugin in ListPlugins response")
+	require.Equal(t, velez_api.VervPlugin_running, statefullPgPlugin.GetState())
+
+	// registerPluginJob also leaves behind a real velez.deployments row
+	// (spec_id -> deployment_specifications.service_id, never a service_id
+	// column on deployments itself). ListDeployments used to select
+	// "service_id" straight off velez.deployments, which errored with
+	// "column \"service_id\" does not exist" as soon as this path was hit
+	// against real Postgres - internal/storage/postgres/deployments.go now
+	// joins deployment_specifications to resolve it. Exercise the ServiceName
+	// filter here since that's the clause that touches the joined column.
+	//
+	// Goes through the real RPC (env.Custom.ServiceApiImpl.ListDeployments)
+	// rather than querying env.Custom.Services.StorageContainer() directly,
+	// as it used to: VervService (internal/service/service_manager/verv_services/service.go)
+	// used to resolve and cache storageContainer.Deployments() once at
+	// construction time, before this test's EnablePlugin call swaps the
+	// container over to the real Postgres backend, so the RPC path always
+	// saw zero rows against the stale pre-swap storage. VervService now holds
+	// the storage.Storage container itself and resolves Deployments() fresh
+	// on every call, so the RPC path reflects the swap correctly - this
+	// assertion going through it is what proves that fix.
+	listDeploymentsReq := &velez_api.ListDeployments_Request{
+		ServiceName: toolbox.ToPtr(state.PgName),
+	}
+
+	deploymentsResp, err := env.Custom.ServiceApiImpl.ListDeployments(t.Context(), listDeploymentsReq)
+	require.NoError(t, err)
+	require.EqualValues(t, 1, deploymentsResp.GetTotal())
+	require.Len(t, deploymentsResp.GetDeployments(), 1)
+	require.Equal(t, velez_api.DeploymentStatus_RUNNING, deploymentsResp.GetDeployments()[0].GetStatus())
 }
 
 func (s *EnableStatefullSuite) Test_EnableStatefullMode_UnsupportedPlugin_Fails() {

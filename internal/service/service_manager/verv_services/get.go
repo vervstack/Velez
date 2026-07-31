@@ -14,7 +14,7 @@ func (v *VervService) Get(ctx context.Context, r domain.GetServiceReq) (domain.S
 		return domain.Service{}, rerrors.New("name is required to find service")
 	}
 
-	service, err := v.servicesStorage.GetByName(ctx, r.Name)
+	service, err := v.dataStorage.Services().GetByName(ctx, r.Name)
 	if err != nil {
 		return domain.Service{}, rerrors.Wrap(err, "error getting service by name from storage")
 	}

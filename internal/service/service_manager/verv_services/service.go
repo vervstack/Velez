@@ -2,19 +2,12 @@ package verv_services
 
 import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
-	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
 type VervService struct {
-	servicesStorage    storage.ServicesStorage
-	deploymentsStorage storage.DeploymentsStorage
-
-	serviceDepsStorage      storage.ServiceDependenciesStorage
-	serviceResourcesStorage storage.ServiceResourcesStorage
-
-	txManager *sqldb.TxManager
+	dataStorage storage.Storage
 
 	containerService    service.ContainerService
 	docker              node_clients.Docker
@@ -28,13 +21,7 @@ func New(
 	environmentsStorage storage.EnvironmentsStorageContainer,
 ) *VervService {
 	return &VervService{
-		servicesStorage:    dataStorage.Services(),
-		deploymentsStorage: dataStorage.Deployments(),
-
-		serviceDepsStorage:      dataStorage.ServiceDependencies(),
-		serviceResourcesStorage: dataStorage.ServiceResources(),
-
-		txManager: dataStorage.TxManager(),
+		dataStorage: dataStorage,
 
 		containerService:    containerService,
 		docker:              docker,

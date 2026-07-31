@@ -15,12 +15,18 @@ import (
 )
 
 func (v *VervService) CreateNewDeploy(ctx context.Context, request domain.CreateDeployReq) error {
-	err := v.txManager.Execute(
+	svc, err := v.dataStorage.Services().GetByName(ctx, request.ServiceName)
+	if err != nil {
+		return rerrors.Wrap(err, "error getting service")
+	}
+
+	err = v.dataStorage.TxManager().Execute(
 		func(tx *sql.Tx) (err error) {
-			deploymentStorage := v.deploymentsStorage.WithTx(tx)
+			deploymentStorage := v.dataStorage.Deployments().WithTx(tx)
 
 			spec := deployments_queries.CreateSpecificationParams{
-				Name: uuid.New().String(),
+				Name:      uuid.New().String(),
+				ServiceID: sql.NullInt64{Int64: svc.ID, Valid: true},
 				VervPayload: pqtype.NullRawMessage{
 					RawMessage: nil,
 					Valid:      true,
@@ -61,7 +67,7 @@ func (v *VervService) ListDeployments(
 	ctx context.Context,
 	req domain.ListDeploymentsReq,
 ) (domain.DeploymentList, error) {
-	list, err := v.deploymentsStorage.ListDeployments(ctx, req)
+	list, err := v.dataStorage.Deployments().ListDeployments(ctx, req)
 	if err != nil {
 		return domain.DeploymentList{}, rerrors.Wrap(err, "error listing deployments")
 	}
@@ -74,7 +80,7 @@ func (v *VervService) UpgradeDeploy(ctx context.Context, request domain.UpgradeD
 		ServiceName: request.ServiceName,
 	}
 
-	deployments, err := v.deploymentsStorage.List(ctx, listReq)
+	deployments, err := v.dataStorage.Deployments().List(ctx, listReq)
 	if err != nil {
 		return rerrors.Wrap(err, "error listing deployments")
 	}
@@ -93,7 +99,7 @@ func (v *VervService) UpgradeDeploy(ctx context.Context, request domain.UpgradeD
 		return rerrors.New("no running deployment found for service")
 	}
 
-	currentSpec, err := v.deploymentsStorage.GetSpecificationById(ctx, runningDep.SpecId)
+	currentSpec, err := v.dataStorage.Deployments().GetSpecificationById(ctx, runningDep.SpecId)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting current spec")
 	}
@@ -114,11 +120,17 @@ func (v *VervService) UpgradeDeploy(ctx context.Context, request domain.UpgradeD
 		return rerrors.Wrap(err, "error marshaling updated spec")
 	}
 
-	err = v.txManager.Execute(func(tx *sql.Tx) error {
-		q := v.deploymentsStorage.WithTx(tx)
+	svc, err := v.dataStorage.Services().GetByName(ctx, request.ServiceName)
+	if err != nil {
+		return rerrors.Wrap(err, "error getting service")
+	}
+
+	err = v.dataStorage.TxManager().Execute(func(tx *sql.Tx) error {
+		q := v.dataStorage.Deployments().WithTx(tx)
 
 		createSpecsParams := deployments_queries.CreateSpecificationParams{
-			Name: uuid.New().String(),
+			Name:      uuid.New().String(),
+			ServiceID: sql.NullInt64{Int64: svc.ID, Valid: true},
 			VervPayload: pqtype.NullRawMessage{
 				RawMessage: payload,
 				Valid:      true,

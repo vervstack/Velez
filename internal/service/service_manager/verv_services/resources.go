@@ -9,7 +9,7 @@ import (
 )
 
 func (v *VervService) GetServiceResources(ctx context.Context, serviceName string) ([]domain.BoundResource, error) {
-	resources, err := v.serviceResourcesStorage.GetResources(ctx, serviceName)
+	resources, err := v.dataStorage.ServiceResources().GetResources(ctx, serviceName)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error getting service resources info")
 	}

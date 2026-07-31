@@ -193,6 +193,7 @@ function NodesList(
     }: SidebarProps) {
 
     const isStatefullMode = IsStatefullModeEnabled();
+    const nodesQuery = ListNodesQuery();
 
     if (collapsed || !isStatefullMode) return null;
 
@@ -232,8 +233,6 @@ function NodesList(
             </div>
         );
     }
-
-    const nodesQuery = ListNodesQuery();
 
     return (
         <div className={cls.NodesSection}>

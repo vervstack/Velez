@@ -31,8 +31,28 @@ function SecondScreen({name}: StepScreenProps<TestContext>) {
     );
 }
 
+function TestFinalStep({context, onClose}: {context: TestContext; onClose(): void}) {
+    return (
+        <div>
+            <span>Final screen</span>
+            <span data-testid="final-name-value">{context.name}</span>
+            <button onClick={onClose}>Close final</button>
+        </div>
+    );
+}
+
+// Captured once, before any test spies on it — zustand's setState merges by
+// creating a new state object each call, so a spy installed via
+// `vi.spyOn(useDialog.getState(), 'CloseDialog')` gets copied by reference
+// into every subsequent merged state. `vi.restoreAllMocks()` only restores
+// the property on the specific (now-stale) object it was originally taken
+// from, not the store's current object, so the mocked function otherwise
+// leaks into later tests. Forcing CloseDialog back to this pristine
+// reference before each test keeps every test's spy independent.
+const pristineCloseDialog = useDialog.getState().CloseDialog;
+
 beforeEach(() => {
-    useDialog.setState({children: null, IsClickOffClosesDialog: true});
+    useDialog.setState({children: null, IsClickOffClosesDialog: true, CloseDialog: pristineCloseDialog});
 });
 
 afterEach(() => {
@@ -157,6 +177,75 @@ describe('StepsDialog', () => {
         fireEvent.click(screen.getByText('Finish'));
 
         expect(onFinish).toHaveBeenCalledWith({name: 'updated-by-step-one'});
+        expect(closeSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('renders finalStep instead of closing when Finish is clicked and finalStep is provided', () => {
+        const onFinish = vi.fn();
+        const closeSpy = vi.spyOn(useDialog.getState(), 'CloseDialog');
+
+        render(
+            <StepsDialog<TestContext>
+                steps={[
+                    {name: 'first', label: 'First', component: FirstScreen},
+                    {name: 'second', label: 'Second', component: SecondScreen},
+                ]}
+                initialContext={{name: 'initial'}}
+                onFinish={onFinish}
+                finalStep={TestFinalStep}
+            />
+        );
+
+        fireEvent.click(screen.getByText('Set name'));
+        fireEvent.click(screen.getByText('Next'));
+        fireEvent.click(screen.getByText('Finish'));
+
+        expect(onFinish).not.toHaveBeenCalled();
+        expect(closeSpy).not.toHaveBeenCalled();
+
+        expect(screen.getByText('Final screen')).toBeInTheDocument();
+        expect(screen.getByTestId('final-name-value')).toHaveTextContent('updated-by-step-one');
+
+        expect(screen.queryByText('Second screen')).not.toBeInTheDocument();
+        expect(screen.queryByText('Back')).not.toBeInTheDocument();
+        expect(screen.queryByText('Finish')).not.toBeInTheDocument();
+    });
+
+    it('keeps the header visible while showing finalStep', () => {
+        render(
+            <StepsDialog<TestContext>
+                steps={[
+                    {name: 'first', label: 'First', component: FirstScreen},
+                ]}
+                initialContext={{name: 'initial'}}
+                header={{icon: '⛁', eyebrow: 'Plugins', eyebrowDetail: 'test'}}
+                finalStep={TestFinalStep}
+            />
+        );
+
+        fireEvent.click(screen.getByText('Finish'));
+
+        expect(screen.getByText('Plugins')).toBeInTheDocument();
+        expect(screen.getByText('test')).toBeInTheDocument();
+        expect(screen.getByText('Final screen')).toBeInTheDocument();
+    });
+
+    it('calls onClose (CloseDialog) when the finalStep close affordance is used', () => {
+        const closeSpy = vi.spyOn(useDialog.getState(), 'CloseDialog');
+
+        render(
+            <StepsDialog<TestContext>
+                steps={[
+                    {name: 'first', label: 'First', component: FirstScreen},
+                ]}
+                initialContext={{name: 'initial'}}
+                finalStep={TestFinalStep}
+            />
+        );
+
+        fireEvent.click(screen.getByText('Finish'));
+        fireEvent.click(screen.getByText('Close final'));
+
         expect(closeSpy).toHaveBeenCalledTimes(1);
     });
 });

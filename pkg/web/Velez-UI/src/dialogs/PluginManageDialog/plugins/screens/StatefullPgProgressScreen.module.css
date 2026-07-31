@@ -1,0 +1,132 @@
+.ProgressContainer {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    gap: 1.125rem;
+    padding: 1.5rem 1.75rem;
+}
+
+.HeaderWrapper {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto auto;
+    align-items: center;
+    column-gap: 0.875rem;
+    row-gap: 0.1875rem;
+}
+
+.Glyph {
+    grid-row: 1 / 3;
+    grid-column: 1;
+    align-self: center;
+}
+
+.Spinner {
+    width: 2.125rem;
+    height: 2.125rem;
+    border: 0.15rem solid var(--cyan-dim);
+    border-top-color: var(--cyan);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.SuccessMark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.125rem;
+    height: 2.125rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #000;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 1rem var(--green);
+}
+
+.FailureMark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.125rem;
+    height: 2.125rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--fg);
+    background: var(--red);
+    border-radius: 50%;
+    box-shadow: 0 0 1rem var(--red);
+}
+
+.Eyebrow {
+    grid-row: 1;
+    grid-column: 2;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--cyan);
+}
+
+.Eyebrow.done {
+    color: var(--green);
+}
+
+.Eyebrow.failed {
+    color: var(--red);
+}
+
+.Title {
+    grid-row: 2;
+    grid-column: 2;
+    font-family: var(--font-sans);
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--fg);
+}
+
+.MetaLine {
+    grid-row: 1;
+    grid-column: 3;
+    justify-self: end;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--fg-dim);
+}
+
+.MetaLineSecondary {
+    grid-row: 2;
+    color: var(--fg-faint);
+}
+
+.StepsWrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+}
+
+.ActionsWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: auto;
+}
+
+.ErrorText {
+    margin-right: auto;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--red);
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

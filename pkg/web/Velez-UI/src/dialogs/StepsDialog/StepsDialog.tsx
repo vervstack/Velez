@@ -1,10 +1,10 @@
-import {useEffect, useState} from 'react';
+import {ComponentType, useEffect, useState} from 'react';
 
 import {useDialog} from '@/app/hooks/dialog/Dialog.tsx';
 import StepsDialogHeader, {StepsDialogHeaderContent} from '@/dialogs/StepsDialog/StepsDialogHeader.tsx';
 import StepsDialogFooter from '@/dialogs/StepsDialog/StepsDialogFooter.tsx';
 import StepsDialogStepper from '@/dialogs/StepsDialog/StepsDialogStepper.tsx';
-import {Step} from '@/dialogs/StepsDialog/Step.ts';
+import {FinalStepProps, Step} from '@/dialogs/StepsDialog/Step.ts';
 import cls from '@/dialogs/StepsDialog/StepsDialog.module.css';
 
 export interface StepsDialogProps<TContext> {
@@ -16,18 +16,20 @@ export interface StepsDialogProps<TContext> {
     resolveContext?: Promise<Partial<TContext>>;
     onFinish?(context: TContext): void;
     onCancel?(): void;
+    finalStep?: ComponentType<FinalStepProps<TContext>>;
 }
 
 export default function StepsDialog<TContext extends object>(
     {
         steps, initialContext, header, isLoading = false, loadingHint, resolveContext,
-        onFinish, onCancel,
+        onFinish, onCancel, finalStep,
     }: StepsDialogProps<TContext>) {
     const {CloseDialog} = useDialog();
 
     const [stepIndex, setStepIndex] = useState(0);
     const [context, setContext] = useState<TContext>(initialContext);
     const [isResolvingContext, setIsResolvingContext] = useState(Boolean(resolveContext));
+    const [isFinished, setIsFinished] = useState(false);
 
     useEffect(() => {
         if (!resolveContext) {
@@ -68,6 +70,10 @@ export default function StepsDialog<TContext extends object>(
     }
 
     function handleFinish() {
+        if (finalStep) {
+            setIsFinished(true);
+            return;
+        }
         onFinish?.(context);
         CloseDialog();
     }
@@ -99,6 +105,9 @@ export default function StepsDialog<TContext extends object>(
         }
     }
 
+    const FinalStepComponent = finalStep;
+    const showFinalStep = isFinished && Boolean(FinalStepComponent);
+
     return (
         <div className={cls.StepsDialogContainer}>
             <StepsDialogHeader
@@ -110,27 +119,33 @@ export default function StepsDialog<TContext extends object>(
                 onClose={handleCancel}
             />
 
-            <div className={cls.StepsDialogBody}>
-                <StepsDialogStepper
-                    steps={steps}
-                    currentIndex={stepIndex}
-                    isLoading={effectiveIsLoading}
-                    onSelect={handleStepSelect}
-                />
+            {showFinalStep && FinalStepComponent ? (
+                <FinalStepComponent context={context} onClose={CloseDialog}/>
+            ) : (
+                <>
+                    <div className={cls.StepsDialogBody}>
+                        <StepsDialogStepper
+                            steps={steps}
+                            currentIndex={stepIndex}
+                            isLoading={effectiveIsLoading}
+                            onSelect={handleStepSelect}
+                        />
 
-                <div className={cls.StepsDialogWrapper}>
-                    <StepComponent {...context} updateContext={updateContext}/>
-                </div>
-            </div>
+                        <div className={cls.StepsDialogWrapper}>
+                            <StepComponent {...context} updateContext={updateContext}/>
+                        </div>
+                    </div>
 
-            <StepsDialogFooter
-                isLastStep={isLastStep}
-                canProceed={canProceed}
-                isLoading={effectiveIsLoading}
-                loadingHint={loadingHint}
-                onBack={handleBack}
-                onNext={handleNext}
-            />
+                    <StepsDialogFooter
+                        isLastStep={isLastStep}
+                        canProceed={canProceed}
+                        isLoading={effectiveIsLoading}
+                        loadingHint={loadingHint}
+                        onBack={handleBack}
+                        onNext={handleNext}
+                    />
+                </>
+            )}
         </div>
     );
 }

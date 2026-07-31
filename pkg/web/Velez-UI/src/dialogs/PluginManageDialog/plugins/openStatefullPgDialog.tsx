@@ -1,8 +1,7 @@
-import {EnableStatefullCluster, VervPluginState} from '@/app/api/velez';
+import {VervPluginState} from '@/app/api/velez';
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {queryClient} from "@/app/queryClient.ts";
-import {controlPlaneService} from "@/processes/api/control_plane.ts";
 import {hardwareQueryOptions} from "@/processes/queries/control_plane.ts";
 import {VervPlugin} from "@/model/services/VervPlugins.tsx";
 import {OpenWizardDialog} from "@/dialogs/StepsDialog/openWizardDialog.tsx";
@@ -14,6 +13,8 @@ import StatefullPgSettingsScreen
     from "@/dialogs/PluginManageDialog/plugins/screens/StatefullPgSettingsScreen.tsx";
 import StatefullPgReviewScreen
     from "@/dialogs/PluginManageDialog/plugins/screens/StatefullPgReviewScreen.tsx";
+import StatefullPgProgressScreen
+    from "@/dialogs/PluginManageDialog/plugins/screens/StatefullPgProgressScreen.tsx";
 
 export function openStatefullPgDialog(plugin: VervPlugin): Promise<void> {
     if (plugin.state == VervPluginState.dead) {
@@ -27,16 +28,6 @@ export function openStatefullPgDialog(plugin: VervPlugin): Promise<void> {
         {name: 'review', label: 'Review', component: StatefullPgReviewScreen},
     ];
     const header = {icon: '⛁', eyebrow: 'Plugins', eyebrowDetail: 'statefull-pg'};
-
-    function handleEnable(context: StatefullPgContext) {
-        const payload: EnableStatefullCluster = {
-            isExposePort: context.exposePort,
-            exposeToPort: context.exposePort ? context.portNumber : undefined,
-        };
-
-        controlPlaneService.enableStatefullPgCluster(payload)
-            .catch(useToaster.getState().catchGrpc);
-    }
 
     const resolveContext: Promise<Partial<StatefullPgContext>> = queryClient.fetchQuery(hardwareQueryOptions())
         .then((res) => {
@@ -52,7 +43,7 @@ export function openStatefullPgDialog(plugin: VervPlugin): Promise<void> {
         header,
         loadingHint: "Loading this node's hardware to configure cluster mode…",
         resolveContext,
-        onFinish: handleEnable,
+        finalStep: StatefullPgProgressScreen,
     });
 
     return resolveContext.then(() => undefined, () => undefined);

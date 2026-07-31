@@ -10,3 +10,8 @@ export interface Step<TContext> {
     component: ComponentType<StepScreenProps<TContext>>;
     canProceed?(context: TContext): boolean;
 }
+
+export interface FinalStepProps<TContext> {
+    context: TContext;
+    onClose(): void;
+}

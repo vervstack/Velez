@@ -15,7 +15,7 @@ vi.mock('@/processes/api/velez.ts', () => ({
 
 vi.mock('@/processes/api/control_plane.ts', () => ({
     controlPlaneService: {
-        enableStatefullPgCluster: vi.fn(() => Promise.resolve()),
+        enableStatefullPgCluster: vi.fn(() => Promise.resolve({entityId: 'entity-1', action: 'enable_statefull_pg'})),
     },
 }));
 

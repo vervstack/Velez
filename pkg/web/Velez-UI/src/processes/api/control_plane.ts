@@ -2,6 +2,7 @@ import {
     ControlPlaneAPI,
     ListPluginsRequest,
     EnablePluginRequest,
+    EnablePluginResponse,
     VervPluginType,
     EnableStatefullCluster,
     EnableHeadscaleServer,
@@ -36,13 +37,13 @@ class ControlPlaneService extends ApiService {
         return this.execute((req) => ControlPlaneAPI.ListEnvironments({}, req))
     }
 
-    async enableStatefullPgCluster(cluster: EnableStatefullCluster): Promise<void> {
+    async enableStatefullPgCluster(cluster: EnableStatefullCluster): Promise<EnablePluginResponse> {
         return this.mutate((req) => {
             const payload: EnablePluginRequest = {
                 plugin: VervPluginType.statefull_pg,
                 statefullCluster: cluster,
             }
-            return ControlPlaneAPI.EnablePlugin(payload, req).then()
+            return ControlPlaneAPI.EnablePlugin(payload, req)
         })
     }
 

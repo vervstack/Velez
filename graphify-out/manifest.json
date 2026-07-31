@@ -1980,8 +1980,8 @@
     "semantic_hash": "78b61ec985d84bb7d17c05fe48b7368e"
   },
   "pkg/web/Velez-UI/src/widgets/sidebar/Sidebar.tsx": {
-    "mtime": 1785491954.0974283,
-    "ast_hash": "0f9718d49f6ceb5a9ef41404ccfc92d6",
+    "mtime": 1785492180.17311,
+    "ast_hash": "bad07327c0950fc262a7636e7997bdd2",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/widgets/topbar/TopBar.tsx": {

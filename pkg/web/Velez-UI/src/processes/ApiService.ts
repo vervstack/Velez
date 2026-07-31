@@ -1,5 +1,5 @@
 import {useCredentialsStore} from '@/app/settings/creds.ts'
-import {parseGrpcError, ServiceError} from '@/processes/api/errors.ts'
+import {parseGrpcError, ServiceError} from '@vervstack/chures'
 import type {InitReq} from '@/app/settings/state.ts'
 
 export class ApiService {

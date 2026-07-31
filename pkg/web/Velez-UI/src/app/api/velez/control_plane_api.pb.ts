@@ -60,7 +60,10 @@ export type EnablePluginRequest = BaseEnablePluginRequest &
     headscaleServer: EnableHeadscaleServer;
   }>;
 
-export type EnablePluginResponse = Record<string, never>;
+export type EnablePluginResponse = {
+  entityId?: string;
+  action?: string;
+};
 
 export type EnablePlugin = Record<string, never>;
 

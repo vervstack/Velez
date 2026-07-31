@@ -27,10 +27,17 @@ export type WatchTaskRequest = {
 
 export type WatchTask = Record<string, never>;
 
+export type TaskStatusJobStatus = {
+  name?: string;
+  status?: TaskStatusStatus;
+};
+
 export type TaskStatus = {
   status?: TaskStatusStatus;
   error?: string;
   updatedAt?: GoogleProtobufTimestamp.Timestamp;
+  taskId?: string;
+  jobs?: TaskStatusJobStatus[];
 };
 
 export type CreateSmerdTaskPayload = {

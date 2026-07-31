@@ -35,7 +35,7 @@ func NewImpl(cfg config.Config, srv service.Services, jobsEngine jobs.Engine) *I
 		version:         cfg.AppInfo.Version,
 		cfgService:      srv.ConfigurationService(),
 		smerdService:    srv.SmerdManager(),
-		hardwareManager: hardware.New(),
+		hardwareManager: hardware.New(cfg.Environment.NodeRegion),
 		jobsEngine:      jobsEngine,
 
 		dockerAPI: srv.Docker().Client(),

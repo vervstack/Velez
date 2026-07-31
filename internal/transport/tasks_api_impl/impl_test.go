@@ -11,6 +11,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
+	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
@@ -37,6 +38,9 @@ type fakeJobsEngine struct {
 	watchCalls   []watchCall
 
 	watchSequence []tasks_queries.VelezTask
+
+	listJobsResp []jobs.JobStatus
+	listJobsErr  error
 }
 
 type enqueueCall struct {
@@ -54,6 +58,12 @@ func (f *fakeJobsEngine) Enqueue(_ context.Context, entityID, action string, _ a
 
 	return f.enqueueResp, f.enqueueErr
 }
+
+func (f *fakeJobsEngine) ListJobs(_ context.Context, _ tasks_queries.VelezTask) ([]jobs.JobStatus, error) {
+	return f.listJobsResp, f.listJobsErr
+}
+
+func (f *fakeJobsEngine) SetRegistry(_ *jobs.Registry) {}
 
 func (f *fakeJobsEngine) Watch(ctx context.Context, entityID, action string) <-chan tasks_queries.VelezTask {
 	f.watchCalls = append(f.watchCalls, watchCall{entityID: entityID, action: action})
@@ -162,6 +172,42 @@ func Test_CreateSmerdStream(t *testing.T) {
 	require.Equal(t, velez_api.TaskStatus_PENDING, stream.sent[0].GetStatus())
 	require.Equal(t, velez_api.TaskStatus_RUNNING, stream.sent[1].GetStatus())
 	require.Equal(t, velez_api.TaskStatus_DONE, stream.sent[2].GetStatus())
+}
+
+func Test_TaskToProto_SetsTaskIdAndJobs(t *testing.T) {
+	t.Parallel()
+
+	now := time.Now()
+
+	task := tasks_queries.VelezTask{
+		ID:        42,
+		EntityID:  entityId,
+		Action:    jobs.CreateSmerdAction,
+		Status:    tasks_queries.VelezTaskStatusRUNNING,
+		UpdatedAt: now,
+	}
+
+	jobStatuses := []jobs.JobStatus{
+		{Name: "first", Status: jobs_queries.VelezJobStatusDONE},
+		{Name: "second", Status: jobs_queries.VelezJobStatusRUNNING},
+		{Name: "third", Status: jobs_queries.VelezJobStatusFAILED},
+		{Name: "fourth"}, // zero-value status - not started yet
+	}
+
+	out := taskToProto(task, jobStatuses)
+
+	require.Equal(t, int64(42), out.GetTaskId())
+	require.Equal(t, velez_api.TaskStatus_RUNNING, out.GetStatus())
+
+	require.Len(t, out.GetJobs(), 4)
+	require.Equal(t, "first", out.GetJobs()[0].GetName())
+	require.Equal(t, velez_api.TaskStatus_DONE, out.GetJobs()[0].GetStatus())
+	require.Equal(t, "second", out.GetJobs()[1].GetName())
+	require.Equal(t, velez_api.TaskStatus_RUNNING, out.GetJobs()[1].GetStatus())
+	require.Equal(t, "third", out.GetJobs()[2].GetName())
+	require.Equal(t, velez_api.TaskStatus_FAILED, out.GetJobs()[2].GetStatus())
+	require.Equal(t, "fourth", out.GetJobs()[3].GetName())
+	require.Equal(t, velez_api.TaskStatus_PENDING, out.GetJobs()[3].GetStatus())
 }
 
 func Test_CreateSmerdStream_EnqueueError(t *testing.T) {

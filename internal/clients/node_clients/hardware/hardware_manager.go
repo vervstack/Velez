@@ -27,10 +27,12 @@ type Manager struct {
 	mu       sync.Mutex
 	cached   *velez_api.GetHardware_Response
 	cachedAt time.Time
+
+	region string
 }
 
-func New() *Manager {
-	return &Manager{}
+func New(region string) *Manager {
+	return &Manager{region: region}
 }
 
 func (h *Manager) GetHardware() (*velez_api.GetHardware_Response, error) {
@@ -46,6 +48,7 @@ func (h *Manager) GetHardware() (*velez_api.GetHardware_Response, error) {
 		DiskMem:              &velez_api.GetHardware_Response_Value{},
 		Ram:                  &velez_api.GetHardware_Response_Value{},
 		IsRunningInContainer: containerinfo.IsInContainer(),
+		NodeRegion:           h.region,
 	}
 
 	cpu, err := ghw.CPU()

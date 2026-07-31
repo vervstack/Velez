@@ -29,7 +29,7 @@ func (n *nodes) UpdateOnline(_ context.Context, _, _ float64) error {
 }
 
 func (n *nodes) List(ctx context.Context, _ domain.ListNodesReq) (domain.NodesList, error) {
-	cpuPercent, memPercent, err := hardware.New().GetUsage(ctx)
+	cpuPercent, memPercent, err := hardware.New("").GetUsage(ctx)
 	if err != nil {
 		return domain.NodesList{}, rerrors.Wrap(err, "error getting node usage")
 	}

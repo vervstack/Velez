@@ -55,6 +55,13 @@ message TaskStatus {
   Status status = 1;
   optional string error = 2;
   google.protobuf.Timestamp updated_at = 3;
+  int64 task_id = 4;
+  repeated JobStatus jobs = 5;
+
+  message JobStatus {
+    string name = 1;
+    TaskStatus.Status status = 2;
+  }
 }
 
 // CreateSmerdTaskPayload is the task context for the "create_smerd" action.

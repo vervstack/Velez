@@ -13,7 +13,7 @@ import (
 // an expectation - the same approach enable_statefull_test.go uses for the
 // equivalent env.IsInContainer()-dependent branches.
 func TestManager_GetHardware_IsRunningInContainer(t *testing.T) {
-	m := New()
+	m := New("")
 
 	resp, err := m.GetHardware()
 	if err != nil {
@@ -30,7 +30,7 @@ func TestManager_GetHardware_IsRunningInContainer(t *testing.T) {
 // is too costly to do on demand for every dialog render - it's cached and only
 // refreshed once hardwareCacheTTL has elapsed since the last computation.
 func TestManager_GetHardware_CachesWithinTTL(t *testing.T) {
-	m := New()
+	m := New("")
 
 	first, err := m.GetHardware()
 	if err != nil {
@@ -47,6 +47,26 @@ func TestManager_GetHardware_CachesWithinTTL(t *testing.T) {
 	}
 }
 
+// New's region argument is passed straight through into every GetHardware
+// response, so callers wiring the manager from config.Environment.NodeRegion
+// (see internal/clients/node_clients/node_clients.go and
+// internal/transport/velez_api_impl/impl.go) can rely on GetHardware
+// reporting the node's configured region.
+func TestManager_GetHardware_NodeRegionPassesThrough(t *testing.T) {
+	const region = "eu-west-1"
+
+	m := New(region)
+
+	resp, err := m.GetHardware()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if resp.GetNodeRegion() != region {
+		t.Errorf("expected NodeRegion to be %q, got %q", region, resp.GetNodeRegion())
+	}
+}
+
 func TestManager_GetHardware_RefreshesAfterTTL(t *testing.T) {
 	original := hardwareCacheTTL
 
@@ -54,7 +74,7 @@ func TestManager_GetHardware_RefreshesAfterTTL(t *testing.T) {
 
 	defer func() { hardwareCacheTTL = original }()
 
-	m := New()
+	m := New("")
 
 	first, err := m.GetHardware()
 	if err != nil {

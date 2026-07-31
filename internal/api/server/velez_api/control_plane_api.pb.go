@@ -817,6 +817,8 @@ func (*EnablePlugin_Request_HeadscaleServer) isEnablePlugin_Request_Payload() {}
 
 type EnablePlugin_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	EntityId      string                 `protobuf:"bytes,1,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
+	Action        string                 `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -849,6 +851,20 @@ func (x *EnablePlugin_Response) ProtoReflect() protoreflect.Message {
 // Deprecated: Use EnablePlugin_Response.ProtoReflect.Descriptor instead.
 func (*EnablePlugin_Response) Descriptor() ([]byte, []int) {
 	return file_control_plane_api_proto_rawDescGZIP(), []int{2, 1}
+}
+
+func (x *EnablePlugin_Response) GetEntityId() string {
+	if x != nil {
+		return x.EntityId
+	}
+	return ""
+}
+
+func (x *EnablePlugin_Response) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
 }
 
 type InitMaster_Request struct {
@@ -1378,15 +1394,16 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\awarning\x10\x02\x12\b\n" +
 	"\x04dead\x10\x03\x12\f\n" +
 	"\bdisabled\x10\x04B\a\n" +
-	"\x05_port\"\x85\x02\n" +
+	"\x05_port\"\xba\x02\n" +
 	"\fEnablePlugin\x1a\xe8\x01\n" +
 	"\aRequest\x121\n" +
 	"\x06plugin\x18\x01 \x01(\x0e2\x19.velez_api.VervPluginTypeR\x06plugin\x12P\n" +
 	"\x11statefull_cluster\x18\x02 \x01(\v2!.velez_api.EnableStatefullClusterH\x00R\x10statefullCluster\x12M\n" +
 	"\x10headscale_server\x18\x03 \x01(\v2 .velez_api.EnableHeadscaleServerH\x00R\x0fheadscaleServerB\t\n" +
-	"\apayload\x1a\n" +
-	"\n" +
-	"\bResponse\"#\n" +
+	"\apayload\x1a?\n" +
+	"\bResponse\x12\x1b\n" +
+	"\tentity_id\x18\x01 \x01(\tR\bentityId\x12\x16\n" +
+	"\x06action\x18\x02 \x01(\tR\x06action\"#\n" +
 	"\n" +
 	"InitMaster\x1a\t\n" +
 	"\aRequest\x1a\n" +

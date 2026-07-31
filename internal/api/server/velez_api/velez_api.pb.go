@@ -950,8 +950,10 @@ type GetHardware_Response struct {
 	// host. Binary-mode nodes must publish container ports to the host to
 	// reach them (see EnableStatefullCluster).
 	IsRunningInContainer bool `protobuf:"varint,6,opt,name=is_running_in_container,json=isRunningInContainer,proto3" json:"is_running_in_container,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// node_region is this node's configured region (config.Environment.NodeRegion).
+	NodeRegion    string `protobuf:"bytes,7,opt,name=node_region,json=nodeRegion,proto3" json:"node_region,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetHardware_Response) Reset() {
@@ -1024,6 +1026,13 @@ func (x *GetHardware_Response) GetIsRunningInContainer() bool {
 		return x.IsRunningInContainer
 	}
 	return false
+}
+
+func (x *GetHardware_Response) GetNodeRegion() string {
+	if x != nil {
+		return x.NodeRegion
+	}
+	return ""
 }
 
 type GetHardware_Response_Value struct {
@@ -1593,16 +1602,18 @@ const file_velez_api_proto_rawDesc = "" +
 	"successful\x1a1\n" +
 	"\x05Error\x12\x12\n" +
 	"\x04uuid\x18\x01 \x01(\tR\x04uuid\x12\x14\n" +
-	"\x05cause\x18\x02 \x01(\tR\x05cause\"\x91\x03\n" +
+	"\x05cause\x18\x02 \x01(\tR\x05cause\"\xb2\x03\n" +
 	"\vGetHardware\x1a\t\n" +
-	"\aRequest\x1a\xf6\x02\n" +
+	"\aRequest\x1a\x97\x03\n" +
 	"\bResponse\x127\n" +
 	"\x03cpu\x18\x01 \x01(\v2%.velez_api.GetHardware.Response.ValueR\x03cpu\x12@\n" +
 	"\bdisk_mem\x18\x02 \x01(\v2%.velez_api.GetHardware.Response.ValueR\adiskMem\x127\n" +
 	"\x03ram\x18\x03 \x01(\v2%.velez_api.GetHardware.Response.ValueR\x03ram\x12'\n" +
 	"\x0fports_available\x18\x04 \x03(\rR\x0eportsAvailable\x12%\n" +
 	"\x0eports_occupied\x18\x05 \x03(\rR\rportsOccupied\x125\n" +
-	"\x17is_running_in_container\x18\x06 \x01(\bR\x14isRunningInContainer\x1a/\n" +
+	"\x17is_running_in_container\x18\x06 \x01(\bR\x14isRunningInContainer\x12\x1f\n" +
+	"\vnode_region\x18\a \x01(\tR\n" +
+	"nodeRegion\x1a/\n" +
 	"\x05Value\x12\x14\n" +
 	"\x05value\x18\x01 \x01(\tR\x05value\x12\x10\n" +
 	"\x03err\x18\x02 \x01(\tR\x03err\"\x81\x01\n" +

@@ -179,6 +179,17 @@
       ],
       "default": "unknown"
     },
+    "TaskStatusJobStatus": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/velez_apiTaskStatusStatus"
+        }
+      }
+    },
     "googleRpcStatus": {
       "type": "object",
       "properties": {
@@ -379,6 +390,17 @@
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "taskId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "jobs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/TaskStatusJobStatus"
+          }
         }
       }
     },

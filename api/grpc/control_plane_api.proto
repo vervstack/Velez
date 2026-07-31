@@ -94,7 +94,10 @@ message EnablePlugin {
     }
   }
 
-  message Response {}
+  message Response {
+    string entity_id = 1;
+    string action = 2;
+  }
 }
 
 message InitMaster {

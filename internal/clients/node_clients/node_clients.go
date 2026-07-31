@@ -100,7 +100,7 @@ func NewNodeClients(ctx context.Context, cfg config.Config) (NodeClients, error)
 	{
 		log.Debug().Msg("Initializing hardware manager")
 
-		cls.hardwareManager = hardware.New()
+		cls.hardwareManager = hardware.New(cfg.Environment.NodeRegion)
 	}
 
 	return cls, nil

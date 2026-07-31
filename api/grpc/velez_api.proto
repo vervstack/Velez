@@ -190,6 +190,9 @@ message GetHardware {
     // host. Binary-mode nodes must publish container ports to the host to
     // reach them (see EnableStatefullCluster).
     bool is_running_in_container = 6;
+
+    // node_region is this node's configured region (config.Environment.NodeRegion).
+    string node_region = 7;
   }
 }
 

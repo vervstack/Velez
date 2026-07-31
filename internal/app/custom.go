@@ -84,19 +84,6 @@ func (c *Custom) Init(a *App) (err error) {
 		return rerrors.Wrap(err, "error during service initialization")
 	}
 
-	err = c.InitApiServer(a)
-	if err != nil {
-		return rerrors.Wrap(err, "error during server initialization")
-	}
-
-	c.autoupgrader = autoupgrade.New(c.NodeClients.Docker().Client(), autoUpgradeIntervalCheck, c.Pipeliner)
-
-	c.DeployWatcher = workers.NewDeployWatcher(c.Services, c.Pipeliner, c.ClusterClients, c.NodeClients,
-		deployWatcherInterval)
-	go c.DeployWatcher.Start(a.Ctx)
-
-	closer.Add(c.DeployWatcher.Stop)
-
 	registry := jobs.NewRegistry()
 	registry.Register(jobs.NewCreateSmerdHandler(c.NodeClients, c.Services.ConfigurationService()))
 	registry.Register(jobs.NewCreateServiceHandler(c.ClusterClients.StateManager().Services()))
@@ -109,6 +96,21 @@ func (c *Custom) Init(a *App) (err error) {
 	registry.Register(jobs.NewUpgradeSmerdHandler(
 		c.NodeClients, c.Services.SmerdManager(), c.Services.ConfigurationService()))
 	registry.Register(jobs.NewDropSmerdHandler(c.NodeClients))
+
+	c.JobsEngine.SetRegistry(registry)
+
+	err = c.InitApiServer(a)
+	if err != nil {
+		return rerrors.Wrap(err, "error during server initialization")
+	}
+
+	c.autoupgrader = autoupgrade.New(c.NodeClients.Docker().Client(), autoUpgradeIntervalCheck, c.Pipeliner)
+
+	c.DeployWatcher = workers.NewDeployWatcher(c.Services, c.Pipeliner, c.ClusterClients, c.NodeClients,
+		deployWatcherInterval)
+	go c.DeployWatcher.Start(a.Ctx)
+
+	closer.Add(c.DeployWatcher.Stop)
 
 	workerId, hostErr := os.Hostname()
 	if hostErr != nil || workerId == "" {
@@ -201,7 +203,7 @@ func (c *Custom) InitServiceLayer(a *App) error {
 	}
 
 	c.Pipeliner = pipelines.NewPipeliner(c.NodeClients, c.ClusterClients, c.Services, a.Cfg.Environment.ContainerSuffix)
-	c.JobsEngine = jobs.NewEngine(c.ClusterClients.StateManager().Tasks())
+	c.JobsEngine = jobs.NewEngine(c.ClusterClients.StateManager().Tasks(), c.ClusterClients.StateManager().Jobs())
 
 	log.Info().Bool("shutDownOnExit", a.Cfg.Environment.ShutDownOnExit).Msg("shut down on exit")
 

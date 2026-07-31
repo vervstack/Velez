@@ -80,7 +80,8 @@ export type GetHardwareResponse = {
   ram?: GetHardwareResponseValue;
   portsAvailable?: number[];
   portsOccupied?: number[];
-    isRunningInContainer?: boolean;
+  isRunningInContainer?: boolean;
+  nodeRegion?: string;
 };
 
 export type GetHardware = Record<string, never>;

@@ -12,6 +12,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
+	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
@@ -58,7 +59,12 @@ func (impl *Impl) WatchTask(
 	ctx := stream.Context()
 
 	for task := range impl.jobsEngine.Watch(ctx, req.GetEntityId(), req.GetAction()) {
-		err := stream.Send(taskToProto(task))
+		jobStatuses, err := impl.jobsEngine.ListJobs(ctx, task)
+		if err != nil {
+			return rerrors.Wrap(err, "error listing task jobs")
+		}
+
+		err = stream.Send(taskToProto(task, jobStatuses))
 		if err != nil {
 			return rerrors.Wrap(err, "error sending task to stream")
 		}
@@ -87,7 +93,14 @@ func (impl *Impl) CreateSmerdStream(
 	}
 
 	for task := range impl.jobsEngine.Watch(ctx, req.GetName(), jobs.CreateSmerdAction) {
-		err = stream.Send(taskToProto(task))
+		var jobStatuses []jobs.JobStatus
+
+		jobStatuses, err = impl.jobsEngine.ListJobs(ctx, task)
+		if err != nil {
+			return rerrors.Wrap(err, "error listing task jobs")
+		}
+
+		err = stream.Send(taskToProto(task, jobStatuses))
 		if err != nil {
 			return rerrors.Wrap(err, "error sending task to stream")
 		}
@@ -96,10 +109,12 @@ func (impl *Impl) CreateSmerdStream(
 	return nil
 }
 
-func taskToProto(task tasks_queries.VelezTask) *velez_api.TaskStatus {
+func taskToProto(task tasks_queries.VelezTask, jobStatuses []jobs.JobStatus) *velez_api.TaskStatus {
 	out := &velez_api.TaskStatus{
 		Status:    taskStatusToProto(task.Status),
 		UpdatedAt: timestamppb.New(task.UpdatedAt),
+		TaskId:    task.ID,
+		Jobs:      jobStatusesToProto(jobStatuses),
 	}
 
 	if task.Error.Valid {
@@ -107,6 +122,31 @@ func taskToProto(task tasks_queries.VelezTask) *velez_api.TaskStatus {
 	}
 
 	return out
+}
+
+func jobStatusesToProto(statuses []jobs.JobStatus) []*velez_api.TaskStatus_JobStatus {
+	out := make([]*velez_api.TaskStatus_JobStatus, len(statuses))
+	for i, s := range statuses {
+		out[i] = &velez_api.TaskStatus_JobStatus{
+			Name:   s.Name,
+			Status: jobStatusToProto(s.Status),
+		}
+	}
+
+	return out
+}
+
+func jobStatusToProto(status jobs_queries.VelezJobStatus) velez_api.TaskStatus_Status {
+	switch status {
+	case jobs_queries.VelezJobStatusRUNNING:
+		return velez_api.TaskStatus_RUNNING
+	case jobs_queries.VelezJobStatusDONE:
+		return velez_api.TaskStatus_DONE
+	case jobs_queries.VelezJobStatusFAILED:
+		return velez_api.TaskStatus_FAILED
+	default:
+		return velez_api.TaskStatus_PENDING // includes the zero value "" = not started yet
+	}
 }
 
 func taskStatusToProto(status tasks_queries.VelezTaskStatus) velez_api.TaskStatus_Status {

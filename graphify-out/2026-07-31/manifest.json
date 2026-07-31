@@ -1135,8 +1135,8 @@
     "semantic_hash": "58c7c7bd0739be7f0f69e2f1bde0b012"
   },
   "internal/transport/control_plane_api_impl/enable_plugin.go": {
-    "mtime": 1785500916.781547,
-    "ast_hash": "da4aca520edf4dbb322d74ca64276d9f",
+    "mtime": 1785500930.48088,
+    "ast_hash": "377cd2af5a9f6bcd36bacac5809aea63",
     "semantic_hash": ""
   },
   "internal/transport/control_plane_api_impl/impl.go": {
@@ -1820,8 +1820,8 @@
     "semantic_hash": "cbbb1802ac5d8efcc600fbd7c1acd941"
   },
   "pkg/web/Velez-UI/src/processes/api/control_plane.ts": {
-    "mtime": 1785072848.6303854,
-    "ast_hash": "2f03aabb2cfef427431cf1c4a446a988",
+    "mtime": 1785500988.622255,
+    "ast_hash": "a66e97a2b4163cb5f5a1e26585c5a142",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/processes/api/service.ts": {
@@ -2845,8 +2845,8 @@
     "semantic_hash": ""
   },
   "tests/e2e/suite_enable_statefull_test.go": {
-    "mtime": 1785339083.6695967,
-    "ast_hash": "0350b907de6a92f94978479fc6e1e183",
+    "mtime": 1785500973.0890982,
+    "ast_hash": "fe1eb1a5a7a7533a6ace808a61fc8d01",
     "semantic_hash": ""
   },
   "tests/e2e/suite_upgrade_smerd_test.go": {
@@ -3030,8 +3030,8 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/dialogs/StepsDialog/Step.ts": {
-    "mtime": 1785299418.9550323,
-    "ast_hash": "c7f5c2cfb7490e99b8f580644c02fbd9",
+    "mtime": 1785500994.3198874,
+    "ast_hash": "08ec8a4bbcad9652eee0be7d0e495feb",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/dialogs/StepsDialog/StepsDialog.test.tsx": {
@@ -3157,6 +3157,16 @@
   "pkg/web/Velez-UI/src/widgets/sidebar/Sidebar.test.tsx": {
     "mtime": 1785492543.4631271,
     "ast_hash": "cf2081255814e4d258718fa7a44f433c",
+    "semantic_hash": ""
+  },
+  "internal/transport/control_plane_api_impl/enable_plugin_test.go": {
+    "mtime": 1785500954.2063951,
+    "ast_hash": "e011a799f6d63b4603ee982d49bd9556",
+    "semantic_hash": ""
+  },
+  "pkg/web/Velez-UI/src/processes/api/tasks.ts": {
+    "mtime": 1785500977.1924934,
+    "ast_hash": "96f56dedfaa4f3669e7ccb8485f0ea4e",
     "semantic_hash": ""
   }
 }

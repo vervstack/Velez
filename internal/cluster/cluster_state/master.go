@@ -16,11 +16,10 @@ import (
 func SetupMasterPg(
 	ctx context.Context,
 	nodeClients node_clients.NodeClients,
+	containerSuffix string,
 ) error {
 	dockerClient := nodeClients.Docker().Client()
-	// TODO think about multi cluster on one node - must support multiple postgres instances on one physical node
-	// maybe get cont name from local state?
-	containerName := state.PgName
+	containerName := state.PgName(containerSuffix)
 
 	contInspect, err := dockerClient.ContainerInspect(ctx, containerName)
 	if err != nil {

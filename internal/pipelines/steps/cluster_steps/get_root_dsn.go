@@ -43,8 +43,12 @@ func GetRgRootDsn(
 }
 
 func (p *getPgDbDsn) Do(ctx context.Context) error {
+	// This step is dead code (superseded by enable_statefull.go's
+	// getRootDsnJob; grep -rn "GetRgRootDsn(" finds only its own definition),
+	// so it isn't threaded with suffix support - state.PgName("") preserves
+	// this call's previous (unsuffixed) behavior.
 	pgCfg := &resources.Postgres{
-		Host: state.PgName,
+		Host: state.PgName(""),
 		Port: pgDefaultPort,
 
 		User:    "postgres",

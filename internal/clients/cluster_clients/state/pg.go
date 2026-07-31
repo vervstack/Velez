@@ -18,9 +18,20 @@ type pgState struct {
 }
 
 const (
-	PgName               = "verv-cluster-state"
+	pgNameBase           = "verv-cluster-state"
 	heartbeatIntervalSec = 5
 )
+
+// PgName returns the cluster-state postgres container/volume/DSN-host name,
+// suffixed with containerSuffix so two Velez instances sharing one Docker
+// host don't collide. Pass "" for today's historical, unsuffixed name.
+func PgName(containerSuffix string) string {
+	if containerSuffix == "" {
+		return pgNameBase
+	}
+
+	return pgNameBase + "-" + containerSuffix
+}
 
 func NewPgStateManager(ctx context.Context, dsn string) (cluster_clients.ClusterStateManager, error) {
 	conn, err := sqldb.New(dsn)
@@ -43,7 +54,7 @@ func (s *pgState) doHeartbeat(ctx context.Context) {
 	for {
 		select {
 		case <-ticker.C:
-			cpuPercent, memPercent, err := hardware.New().GetUsage(ctx)
+			cpuPercent, memPercent, err := hardware.New("").GetUsage(ctx)
 			if err != nil {
 				log.Error().
 					Err(err).

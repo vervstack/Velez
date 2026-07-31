@@ -95,6 +95,56 @@ func TestEnableStatefullHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 	}
 }
 
+func TestEnableStatefullHandler_BuildJobs_UsesConfiguredContainerSuffix(t *testing.T) {
+	payload := &velez_api.EnableStatefullTaskPayload{Request: &velez_api.EnableStatefullCluster{}}
+
+	docker := newFakeDocker()
+	nodeClients := newFakeNodeClients(docker)
+
+	nodeClients.localState = newFakeStateManager(local_state.State{})
+
+	clusterStorage := &fakeClusterStorage{nodes: &fakeNodesStorage{}}
+	clusterStateManager := state.NewContainer(clusterStorage)
+	storageContainer := storage.NewStorageContainer(clusterStorage)
+
+	cfg := config.Config{}
+
+	cfg.Environment.ContainerSuffix = "mysuffix"
+
+	h := NewEnableStatefullHandler(nodeClients, clusterStateManager, storageContainer, cfg)
+
+	namedJobs := h.BuildJobs(payload)
+
+	wantPgName := state.PgName("mysuffix")
+
+	var gotPgNames []string
+
+	for _, nj := range namedJobs {
+		switch j := nj.Job.(type) {
+		case *createPgContainerJob:
+			gotPgNames = append(gotPgNames, j.pgName)
+		case *getRootDsnJob:
+			gotPgNames = append(gotPgNames, j.pgName)
+		case *createSchemaAndMigrateJob:
+			gotPgNames = append(gotPgNames, j.pgName)
+		case *registerPluginJob:
+			gotPgNames = append(gotPgNames, j.pgName)
+		}
+	}
+
+	const wantJobsWithPgName = 4
+
+	if len(gotPgNames) != wantJobsWithPgName {
+		t.Fatalf("expected %d jobs carrying pgName, found %d", wantJobsWithPgName, len(gotPgNames))
+	}
+
+	for _, got := range gotPgNames {
+		if got != wantPgName {
+			t.Errorf("expected pgName %q, got %q", wantPgName, got)
+		}
+	}
+}
+
 // generateCredentialsJob
 
 func TestGenerateCredentialsJob_NoExistingState_GeneratesRandomPasswords(t *testing.T) {
@@ -189,7 +239,9 @@ func TestCreatePgContainerJob_Success(t *testing.T) {
 		RootPwd: proto("root-pwd"),
 	}
 
-	j := &createPgContainerJob{nodeClients: nodeClients, req: payload, pwd: payload, ctx: payload}
+	j := &createPgContainerJob{
+		nodeClients: nodeClients, req: payload, pwd: payload, ctx: payload, pgName: state.PgName(""),
+	}
 
 	err := j.Do(context.Background())
 	if err != nil {
@@ -213,7 +265,9 @@ func TestCreatePgContainerJob_ContainerCreateError(t *testing.T) {
 		RootPwd: proto("root-pwd"),
 	}
 
-	j := &createPgContainerJob{nodeClients: nodeClients, req: payload, pwd: payload, ctx: payload}
+	j := &createPgContainerJob{
+		nodeClients: nodeClients, req: payload, pwd: payload, ctx: payload, pgName: state.PgName(""),
+	}
 
 	err := j.Do(context.Background())
 	if err == nil {
@@ -241,7 +295,9 @@ func TestCreatePgContainerJob_BinaryModeWithoutExposePort_Error(t *testing.T) {
 		RootPwd: proto("root-pwd"),
 	}
 
-	j := &createPgContainerJob{nodeClients: nodeClients, req: payload, pwd: payload, ctx: payload}
+	j := &createPgContainerJob{
+		nodeClients: nodeClients, req: payload, pwd: payload, ctx: payload, pgName: state.PgName(""),
+	}
 
 	err := j.Do(context.Background())
 	if !errors.Is(err, user_errors.ErrPortMustBeExposedForBinary) {
@@ -271,7 +327,9 @@ func TestCreatePgContainerJob_ExposeToPortOccupied_Error(t *testing.T) {
 		RootPwd: proto("root-pwd"),
 	}
 
-	j := &createPgContainerJob{nodeClients: nodeClients, req: payload, pwd: payload, ctx: payload}
+	j := &createPgContainerJob{
+		nodeClients: nodeClients, req: payload, pwd: payload, ctx: payload, pgName: state.PgName(""),
+	}
 
 	err := j.Do(context.Background())
 	if err == nil {
@@ -288,7 +346,7 @@ func TestCreatePgContainerJob_Rollback_NoContainerId_NoOp(t *testing.T) {
 	nodeClients := newFakeNodeClients(docker)
 	payload := &velez_api.EnableStatefullTaskPayload{}
 
-	j := &createPgContainerJob{nodeClients: nodeClients, ctx: payload}
+	j := &createPgContainerJob{nodeClients: nodeClients, ctx: payload, pgName: state.PgName("")}
 
 	err := j.Rollback(context.Background())
 	if err != nil {
@@ -305,7 +363,7 @@ func TestCreatePgContainerJob_Rollback_RemovesContainer(t *testing.T) {
 	nodeClients := newFakeNodeClients(docker)
 	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
 
-	j := &createPgContainerJob{nodeClients: nodeClients, ctx: payload}
+	j := &createPgContainerJob{nodeClients: nodeClients, ctx: payload, pgName: state.PgName("")}
 
 	err := j.Rollback(context.Background())
 	if err != nil {
@@ -325,7 +383,7 @@ func TestCreatePgContainerJob_Rollback_NotFoundIsSwallowed(t *testing.T) {
 	nodeClients := newFakeNodeClients(docker)
 	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
 
-	j := &createPgContainerJob{nodeClients: nodeClients, ctx: payload}
+	j := &createPgContainerJob{nodeClients: nodeClients, ctx: payload, pgName: state.PgName("")}
 
 	err := j.Rollback(context.Background())
 	if err != nil {
@@ -499,7 +557,7 @@ func TestGetRootDsnJob_Success_ParsesEnvVars(t *testing.T) {
 		ContainerId: proto(testPgContainerID),
 	}
 
-	j := &getRootDsnJob{dockerAPI: api, ctx: payload}
+	j := &getRootDsnJob{dockerAPI: api, ctx: payload, pgName: state.PgName("")}
 
 	err := j.Do(context.Background())
 	if err != nil {
@@ -525,7 +583,7 @@ func TestGetRootDsnJob_InspectError(t *testing.T) {
 
 	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
 
-	j := &getRootDsnJob{dockerAPI: api, ctx: payload}
+	j := &getRootDsnJob{dockerAPI: api, ctx: payload, pgName: state.PgName("")}
 
 	err := j.Do(context.Background())
 	if err == nil {
@@ -550,6 +608,7 @@ func TestCreateSchemaAndMigrateJob_ConnectionFailure(t *testing.T) {
 		dockerAPI: newFakeContainerAPI(),
 		dsn:       payload,
 		ctx:       payload,
+		pgName:    state.PgName(""),
 	}
 
 	err := j.Do(context.Background())
@@ -568,6 +627,7 @@ func TestWrapSchemaErr_NonPqError_PassesThrough(t *testing.T) {
 	j := &createSchemaAndMigrateJob{
 		dockerAPI: newFakeContainerAPI(),
 		ctx:       payload,
+		pgName:    state.PgName(""),
 	}
 
 	err := j.wrapSchemaErr(context.Background(), errBoom)
@@ -602,6 +662,7 @@ func TestWrapSchemaErr_PqAuthError_FreshVolume_NoStaleHint(t *testing.T) {
 	j := &createSchemaAndMigrateJob{
 		dockerAPI: dockerAPI,
 		ctx:       payload,
+		pgName:    state.PgName(""),
 	}
 
 	pqErr := &pq.Error{Code: pgInvalidPasswordCode, Message: testPqAuthFailedMessage}
@@ -647,6 +708,7 @@ func TestWrapSchemaErr_PqAuthError_StaleVolume_HasHint(t *testing.T) {
 	j := &createSchemaAndMigrateJob{
 		dockerAPI: dockerAPI,
 		ctx:       payload,
+		pgName:    state.PgName(""),
 	}
 
 	pqErr := &pq.Error{Code: pgInvalidPasswordCode, Message: testPqAuthFailedMessage}
@@ -665,7 +727,7 @@ func TestWrapSchemaErr_PqAuthError_StaleVolume_HasHint(t *testing.T) {
 		t.Errorf("expected stale-volume hint, got %q", msg)
 	}
 
-	if !strings.Contains(msg, "docker volume rm "+state.PgName) {
+	if !strings.Contains(msg, "docker volume rm "+state.PgName("")) {
 		t.Errorf("expected prune suggestion mentioning volume name, got %q", msg)
 	}
 }
@@ -683,6 +745,7 @@ func TestWrapSchemaErr_PqAuthError_InspectErrors_DegradesGracefully(t *testing.T
 	j := &createSchemaAndMigrateJob{
 		dockerAPI: dockerAPI,
 		ctx:       payload,
+		pgName:    state.PgName(""),
 	}
 
 	pqErr := &pq.Error{Code: pgInvalidPasswordCode, Message: testPqAuthFailedMessage}
@@ -865,18 +928,18 @@ func TestRegisterPluginJob_Success(t *testing.T) {
 	}
 	storageContainer := storage.NewStorageContainer(clusterStorage)
 
-	j := &registerPluginJob{storageContainer: storageContainer}
+	j := &registerPluginJob{storageContainer: storageContainer, pgName: state.PgName("")}
 
 	err := j.Do(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if len(servicesStorage.upserted) != 1 || servicesStorage.upserted[0] != state.PgName {
-		t.Errorf("expected UpsertService called with %q, got %v", state.PgName, servicesStorage.upserted)
+	if len(servicesStorage.upserted) != 1 || servicesStorage.upserted[0] != state.PgName("") {
+		t.Errorf("expected UpsertService called with %q, got %v", state.PgName(""), servicesStorage.upserted)
 	}
 
-	wantSvcID := servicesStorage.ids[state.PgName]
+	wantSvcID := servicesStorage.ids[state.PgName("")]
 	if wantSvcID == 0 {
 		t.Fatal("expected the fake to have assigned a non-zero service id")
 	}
@@ -888,8 +951,8 @@ func TestRegisterPluginJob_Success(t *testing.T) {
 	}
 
 	specArg := deploymentsStorage.createSpecificationCalledWith[0]
-	if specArg.Name != state.PgName {
-		t.Errorf("expected spec Name %q, got %q", state.PgName, specArg.Name)
+	if specArg.Name != state.PgName("") {
+		t.Errorf("expected spec Name %q, got %q", state.PgName(""), specArg.Name)
 	}
 
 	if !specArg.ServiceID.Valid || specArg.ServiceID.Int64 != wantSvcID {
@@ -907,8 +970,8 @@ func TestRegisterPluginJob_Success(t *testing.T) {
 		t.Fatalf("unexpected error unmarshaling verv_payload: %v", err)
 	}
 
-	if smerdReq.GetName() != state.PgName {
-		t.Errorf("expected verv_payload's CreateSmerd_Request.Name %q, got %q", state.PgName, smerdReq.GetName())
+	if smerdReq.GetName() != state.PgName("") {
+		t.Errorf("expected verv_payload's CreateSmerd_Request.Name %q, got %q", state.PgName(""), smerdReq.GetName())
 	}
 
 	if len(deploymentsStorage.createDeploymentCalledWith) != 1 {
@@ -959,7 +1022,7 @@ func TestRegisterPluginJob_UpsertServiceError(t *testing.T) {
 	}
 	storageContainer := storage.NewStorageContainer(clusterStorage)
 
-	j := &registerPluginJob{storageContainer: storageContainer}
+	j := &registerPluginJob{storageContainer: storageContainer, pgName: state.PgName("")}
 
 	err := j.Do(context.Background())
 	if err == nil {
@@ -986,7 +1049,7 @@ func TestRegisterPluginJob_CreateSpecificationError(t *testing.T) {
 	}
 	storageContainer := storage.NewStorageContainer(clusterStorage)
 
-	j := &registerPluginJob{storageContainer: storageContainer}
+	j := &registerPluginJob{storageContainer: storageContainer, pgName: state.PgName("")}
 
 	err := j.Do(context.Background())
 	if err == nil {
@@ -1017,7 +1080,7 @@ func TestRegisterPluginJob_CreateDeploymentError(t *testing.T) {
 	}
 	storageContainer := storage.NewStorageContainer(clusterStorage)
 
-	j := &registerPluginJob{storageContainer: storageContainer}
+	j := &registerPluginJob{storageContainer: storageContainer, pgName: state.PgName("")}
 
 	err := j.Do(context.Background())
 	if err == nil {
@@ -1043,7 +1106,7 @@ func TestRegisterPluginJob_UpsertPluginError(t *testing.T) {
 	}
 	storageContainer := storage.NewStorageContainer(clusterStorage)
 
-	j := &registerPluginJob{storageContainer: storageContainer}
+	j := &registerPluginJob{storageContainer: storageContainer, pgName: state.PgName("")}
 
 	err := j.Do(context.Background())
 	if err == nil {

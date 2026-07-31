@@ -12,22 +12,40 @@ import (
 	"go.redsock.ru/toolbox"
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
+	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+)
+
+// enableStatefullTestSuffix is this suite's ContainerSuffix, fixed and
+// distinct from production's default empty suffix. It guarantees, by
+// construction, that the container/volume name this suite creates
+// (state.PgName(enableStatefullTestSuffix)) can never collide with - or
+// destroy via this suite's unconditional t.Cleanup - a real, unsuffixed
+// state.PgName("") instance a developer already has running on the same
+// Docker host.
+const (
+	enableStatefullTestSuffix = "e2e-enable-statefull"
 )
 
 // EnableStatefullSuite exercises the "enable_statefull_mode" job through the
 // real EnablePlugin RPC (internal/transport/control_plane_api_impl/enable_plugin.go),
-// which enqueues onto the jobs engine and blocks on Watch. The job's own
-// 8-step orchestration already has unit-level coverage against fakes
-// (internal/jobs/enable_statefull_test.go), whose own comments call out that
-// the success path - create_schema_and_migrate/create_pg_user reaching a
-// real Postgres - has no coverage anywhere but tests/e2e. This suite is that
-// coverage.
+// which enqueues onto the jobs engine and returns immediately with the
+// task's (entityID, action) ref - it no longer blocks on Watch itself. The
+// job's own 8-step orchestration already has unit-level coverage against
+// fakes (internal/jobs/enable_statefull_test.go), whose own comments call
+// out that the success path - create_schema_and_migrate/create_pg_user
+// reaching a real Postgres - has no coverage anywhere but tests/e2e. This
+// suite is that coverage; it does its own waiting (via JobsEngine.Watch, the
+// same way a real client would through TasksApi.WatchTask) before asserting
+// on the job's effects.
 //
-// The postgres container/volume this job creates use the fixed name
-// state.PgName (no per-test suffix - that's existing production behavior,
-// not something this test controls), so only one instance of this suite can
-// run at a time on a given Docker host; the happy-path test isn't marked
-// t.Parallel() and cleans up its container/volume unconditionally.
+// The postgres container/volume this job creates are named with this
+// suite's own fixed enableStatefullTestSuffix (via WithContainerSuffix), not
+// the bare production name - so this suite can never collide with, or
+// force-remove, a real cluster-state postgres instance already running on
+// the same Docker host. Only one instance of this suite can still run at a
+// time on a given Docker host; the happy-path test isn't marked
+// t.Parallel() and cleans up its own suffixed container/volume
+// unconditionally.
 type EnableStatefullSuite struct {
 	suite.Suite
 }
@@ -35,15 +53,17 @@ type EnableStatefullSuite struct {
 func (s *EnableStatefullSuite) Test_EnableStatefullMode_HappyPath() {
 	t := s.T()
 
-	env := NewEnvironment(t)
+	env := NewEnvironment(t, WithContainerSuffix(enableStatefullTestSuffix))
 	dockerClient := env.Custom.NodeClients.Docker().Client()
+
+	pgName := state.PgName(enableStatefullTestSuffix)
 
 	t.Cleanup(func() {
 		ctx := context.Background()
 		removeOpts := container.RemoveOptions{Force: true}
 
-		_ = dockerClient.ContainerRemove(ctx, state.PgName, removeOpts)
-		_ = dockerClient.VolumeRemove(ctx, state.PgName, true)
+		_ = dockerClient.ContainerRemove(ctx, pgName, removeOpts)
+		_ = dockerClient.VolumeRemove(ctx, pgName, true)
 	})
 
 	// sqldb.RollMigration (called by the create_schema_and_migrate job) rolls
@@ -65,10 +85,18 @@ func (s *EnableStatefullSuite) Test_EnableStatefullMode_HappyPath() {
 		Payload: payload,
 	}
 
-	_, err := env.Custom.ControlPlaneApiImpl.EnablePlugin(t.Context(), req)
+	resp, err := env.Custom.ControlPlaneApiImpl.EnablePlugin(t.Context(), req)
 	require.NoError(t, err)
 
-	inspect, err := dockerClient.ContainerInspect(t.Context(), state.PgName)
+	var finalTask tasks_queries.VelezTask
+
+	for task := range env.Custom.JobsEngine.Watch(t.Context(), resp.GetEntityId(), resp.GetAction()) {
+		finalTask = task
+	}
+
+	require.Equal(t, tasks_queries.VelezTaskStatusDONE, finalTask.Status, "task error: %s", finalTask.Error.String)
+
+	inspect, err := dockerClient.ContainerInspect(t.Context(), pgName)
 	require.NoError(t, err)
 	require.NotNil(t, inspect.State)
 	require.True(t, inspect.State.Running)
@@ -118,7 +146,7 @@ func (s *EnableStatefullSuite) Test_EnableStatefullMode_HappyPath() {
 	// on every call, so the RPC path reflects the swap correctly - this
 	// assertion going through it is what proves that fix.
 	listDeploymentsReq := &velez_api.ListDeployments_Request{
-		ServiceName: toolbox.ToPtr(state.PgName),
+		ServiceName: toolbox.ToPtr(pgName),
 	}
 
 	deploymentsResp, err := env.Custom.ServiceApiImpl.ListDeployments(t.Context(), listDeploymentsReq)

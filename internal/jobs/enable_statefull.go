@@ -174,6 +174,8 @@ func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		panic("enable_statefull: BuildJobs called with mismatched TaskContext type")
 	}
 
+	pgName := state.PgName(h.cfg.Environment.ContainerSuffix)
+
 	return []NamedJob{
 		{
 			Name: stepGenerateCredentials,
@@ -189,6 +191,7 @@ func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 				req:         payload,
 				pwd:         payload,
 				ctx:         payload,
+				pgName:      pgName,
 			},
 		},
 		{
@@ -210,6 +213,7 @@ func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			Job: &getRootDsnJob{
 				dockerAPI: h.nodeClients.Docker().Client(),
 				ctx:       payload,
+				pgName:    pgName,
 			},
 		},
 		{
@@ -218,6 +222,7 @@ func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 				dockerAPI: h.nodeClients.Docker().Client(),
 				dsn:       payload,
 				ctx:       payload,
+				pgName:    pgName,
 			},
 		},
 		{
@@ -249,6 +254,7 @@ func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			Name: "register_plugin",
 			Job: &registerPluginJob{
 				storageContainer: h.storageContainer,
+				pgName:           pgName,
 			},
 		},
 	}
@@ -326,6 +332,8 @@ type createPgContainerJob struct {
 	req statefullRequestAccessor
 	pwd rootPwdAccessor
 	ctx containerIDAccessor
+
+	pgName string
 }
 
 func (j *createPgContainerJob) Do(ctx context.Context) error {
@@ -337,7 +345,7 @@ func (j *createPgContainerJob) Do(ctx context.Context) error {
 
 	var ops []pg_pattern.Opt
 
-	ops = append(ops, pg_pattern.WithInstanceName(state.PgName))
+	ops = append(ops, pg_pattern.WithInstanceName(j.pgName))
 
 	if req.GetIsExposePort() {
 		exposeOps, err := j.exposePortOpts(ctx, req.GetExposeToPort())
@@ -358,7 +366,7 @@ func (j *createPgContainerJob) Do(ctx context.Context) error {
 		launchContainer.Pattern.Config,
 		launchContainer.Pattern.HostConfig,
 		launchContainer.Pattern.NetworkingConfig,
-		&v1.Platform{}, state.PgName)
+		&v1.Platform{}, j.pgName)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating postgres container")
 	}
@@ -503,13 +511,15 @@ type getRootDsnJob struct {
 		containerIDAccessor
 		rootDsnAccessor
 	}
+
+	pgName string
 }
 
 func (j *getRootDsnJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 
 	pgCfg := &resources.Postgres{
-		Host: state.PgName,
+		Host: j.pgName,
 		Port: pgDefaultPort,
 
 		User:    pgDefaultUser,
@@ -593,6 +603,8 @@ type createSchemaAndMigrateJob struct {
 
 	dsn rootDsnAccessor
 	ctx containerIDAccessor
+
+	pgName string
 }
 
 func (j *createSchemaAndMigrateJob) Do(ctx context.Context) error {
@@ -639,7 +651,7 @@ func (j *createSchemaAndMigrateJob) wrapSchemaErr(ctx context.Context, execErr e
 	containerID := j.ctx.GetContainerId()
 
 	cont, contErr := j.dockerAPI.ContainerInspect(ctx, containerID)
-	vol, volErr := j.dockerAPI.VolumeInspect(ctx, state.PgName)
+	vol, volErr := j.dockerAPI.VolumeInspect(ctx, j.pgName)
 
 	if contErr == nil && volErr == nil {
 		containerCreated, cErr := time.Parse(time.RFC3339Nano, cont.Created)
@@ -650,7 +662,7 @@ func (j *createSchemaAndMigrateJob) wrapSchemaErr(ctx context.Context, execErr e
 				"; postgres volume '%s' was created at %s, before this container (created at %s) - "+
 					"maybe the postgres volume was used before. "+
 					"You might have to prune it (docker volume rm %s) in order to enable cluster mode",
-				state.PgName, vol.CreatedAt, cont.Created, state.PgName)
+				j.pgName, vol.CreatedAt, cont.Created, j.pgName)
 		}
 	}
 
@@ -762,24 +774,26 @@ func (j *initNodeStorageJob) Do(ctx context.Context) error {
 // already did, rather than owning something that needs undoing on failure.
 type registerPluginJob struct {
 	storageContainer *storage.Container
+
+	pgName string
 }
 
 func (j *registerPluginJob) Do(ctx context.Context) error {
-	err := j.storageContainer.Services().UpsertService(ctx, state.PgName)
+	err := j.storageContainer.Services().UpsertService(ctx, j.pgName)
 	if err != nil {
 		return rerrors.Wrap(err, "error upserting postgres service")
 	}
 
-	svc, err := j.storageContainer.Services().GetByName(ctx, state.PgName)
+	svc, err := j.storageContainer.Services().GetByName(ctx, j.pgName)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting postgres service")
 	}
 
-	// Name must equal state.PgName (the real container name): deploy_watcher.go's
+	// Name must equal j.pgName (the real container name): deploy_watcher.go's
 	// syncRunningBatch/deleteBatch unmarshal this payload back into a
 	// CreateSmerd_Request and call Docker().IsContainerRunning(ctx, smerdReq.GetName())
 	// to reconcile the deployment's status against the live container.
-	smerdReq := &velez_api.CreateSmerd_Request{Name: state.PgName}
+	smerdReq := &velez_api.CreateSmerd_Request{Name: j.pgName}
 
 	vervPayloadBytes, err := json.Marshal(smerdReq)
 	if err != nil {
@@ -789,7 +803,7 @@ func (j *registerPluginJob) Do(ctx context.Context) error {
 	vervPayload := pqtype.NullRawMessage{RawMessage: vervPayloadBytes, Valid: true}
 
 	specParams := deployments_queries.CreateSpecificationParams{
-		Name:        state.PgName,
+		Name:        j.pgName,
 		ServiceID:   sql.NullInt64{Int64: svc.ID, Valid: true},
 		VervPayload: vervPayload,
 	}

@@ -63,7 +63,7 @@ func Setup(
 	localState := nodeClients.LocalStateManager().Get()
 	if localState.ClusterState.PgRootDsn != "" {
 		// TODO make a flag for strict/not strict setup
-		err = cluster_state.SetupMasterPg(ctx, nodeClients)
+		err = cluster_state.SetupMasterPg(ctx, nodeClients, cfg.Environment.ContainerSuffix)
 		if err != nil {
 			return nil, rerrors.Wrap(err, "error setting up master postgres for cluster state")
 		}

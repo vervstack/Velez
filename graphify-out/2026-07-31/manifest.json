@@ -2820,8 +2820,8 @@
     "semantic_hash": ""
   },
   "internal/jobs/enable_statefull_test.go": {
-    "mtime": 1785510243.5454266,
-    "ast_hash": "3abec14d734573da77bf007b7b8fb01d",
+    "mtime": 1785510438.907842,
+    "ast_hash": "c9eb0bf52068319d9417656fac7a1ea2",
     "semantic_hash": ""
   },
   "docs/security/vpn_client_key_storage.md": {
@@ -2845,8 +2845,8 @@
     "semantic_hash": ""
   },
   "tests/e2e/suite_enable_statefull_test.go": {
-    "mtime": 1785505624.1631973,
-    "ast_hash": "fe1eb1a5a7a7533a6ace808a61fc8d01",
+    "mtime": 1785510292.2550147,
+    "ast_hash": "3f004481c5d607cf5210b5c800bbe5fb",
     "semantic_hash": ""
   },
   "tests/e2e/suite_upgrade_smerd_test.go": {
@@ -3190,8 +3190,8 @@
     "semantic_hash": ""
   },
   "internal/clients/cluster_clients/state/pg_test.go": {
-    "mtime": 1785510055.3846495,
-    "ast_hash": "8b340d5ee05d68375c4005ce86b10e24",
+    "mtime": 1785510418.5046804,
+    "ast_hash": "7a2736538fa5f710bd363655e811b382",
     "semantic_hash": ""
   }
 }

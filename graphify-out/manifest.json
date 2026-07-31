@@ -2845,8 +2845,8 @@
     "semantic_hash": ""
   },
   "tests/e2e/suite_enable_statefull_test.go": {
-    "mtime": 1785510292.2550147,
-    "ast_hash": "3f004481c5d607cf5210b5c800bbe5fb",
+    "mtime": 1785510820.6162136,
+    "ast_hash": "93c3f4895a1ceea49a5a5745c31d16be",
     "semantic_hash": ""
   },
   "tests/e2e/suite_upgrade_smerd_test.go": {

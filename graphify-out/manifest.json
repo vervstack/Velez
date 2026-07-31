@@ -1460,8 +1460,8 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/package.json": {
-    "mtime": 1785488556.5554323,
-    "ast_hash": "a3155c5c003fc6bc11eb948694da0f69",
+    "mtime": 1785489092.699443,
+    "ast_hash": "abf11a02371d327d52b31a3416b701ff",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/app/api/velez/control_plane_api.pb.ts": {

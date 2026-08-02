@@ -62,6 +62,7 @@ func (s *httpServer) stop() error {
 
 func (s *httpServer) buildHomePageHandler() http.Handler {
 	var err error
+
 	dummyHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte("Error during server creation " + err.Error()))
 	})
@@ -80,6 +81,7 @@ func (s *httpServer) buildHomePageHandler() http.Handler {
 </ul>
 </body>
 </html>`
+
 	tmpl, err := template.New("about").Parse(aboutHtml)
 	if err != nil {
 		return dummyHandler
@@ -88,14 +90,17 @@ func (s *httpServer) buildHomePageHandler() http.Handler {
 	type AboutPage struct {
 		Routes []string
 	}
+
 	ap := AboutPage{
 		Routes: make([]string, 0, len(s.registeredPaths)),
 	}
+
 	for p := range s.registeredPaths {
 		ap.Routes = append(ap.Routes, p)
 	}
 
 	buf := &bytes.Buffer{}
+
 	err = tmpl.Execute(buf, ap)
 	if err != nil {
 		return dummyHandler

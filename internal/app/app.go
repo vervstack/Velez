@@ -4,17 +4,21 @@ package app
 
 import (
 	"context"
+	"net"
+
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
 	"golang.org/x/sync/errgroup"
-	"net"
 
 	"go.vervstack.ru/Velez/internal/config"
 )
 
+// App is the application's top-level dependency container, wiring together
+// config, data sources and servers built during New and started by Start.
 type App struct {
+	//nolint:containedctx // app-lifetime context threaded through Start via errgroup.WithContext
 	Ctx  context.Context
 	Stop func()
 	Cfg  config.Config
@@ -24,6 +28,8 @@ type App struct {
 	Custom Custom
 }
 
+// New builds and returns a fully initialized App: it loads config, wires up
+// every configured data source and server, and runs Custom.Init.
 func New() (app App, err error) {
 	log.Info().Msg("starting app")
 
@@ -45,33 +51,36 @@ func New() (app App, err error) {
 	return app, nil
 }
 
+// Start runs every configured starter and the custom app logic concurrently,
+// blocking until either one of them fails, they all finish, or an interrupt
+// signal is received, then shuts everything down via closer.Close.
 func (a *App) Start() (err error) {
-	var eg *errgroup.Group
-	eg, a.Ctx = errgroup.WithContext(a.Ctx)
+	var errGroup *errgroup.Group
+	errGroup, a.Ctx = errgroup.WithContext(a.Ctx)
 
-	eg.Go(func() error {
+	errGroup.Go(func() error {
 		return a.Custom.Start(a.Ctx)
 	})
 	closer.Add(a.Custom.Stop)
 
-	interaptedC := func() chan struct{} {
-		c := make(chan struct{})
+	interruptedC := func() chan struct{} {
+		interruptSignal := make(chan struct{})
 		go func() {
 			toolbox.WaitForInterrupt()
-			close(c)
+			close(interruptSignal)
 		}()
 
-		return c
+		return interruptSignal
 	}()
 
 	errC := func() chan error {
-		c := make(chan error)
+		errResult := make(chan error)
 		go func() {
-			c <- eg.Wait()
-			close(c)
-			return
+			errResult <- errGroup.Wait()
+			close(errResult)
 		}()
-		return c
+
+		return errResult
 	}()
 
 	select {
@@ -81,7 +90,7 @@ func (a *App) Start() (err error) {
 		} else {
 			log.Info().Msg("All jobs are done")
 		}
-	case <-interaptedC:
+	case <-interruptedC:
 		log.Info().Msg("received interrupt signal")
 	}
 	log.Info().Msg("shutting down the app")

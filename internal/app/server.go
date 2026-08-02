@@ -3,10 +3,12 @@
 package app
 
 import (
-	"go.redsock.ru/rerrors"
 	"net"
+
+	"go.redsock.ru/rerrors"
 )
 
+// InitServers initializes this app's configured dependencies.
 func (a *App) InitServers() (err error) {
 	a.MASTER, err = net.Listen("tcp", ":"+a.Cfg.Servers.MASTER.Port)
 	if err != nil {

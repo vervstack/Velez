@@ -228,7 +228,8 @@ func (c *Custom) InitApiServer(a *App) error {
 	c.ServiceApiImpl = service_api_impl.New(c.Pipeliner, c.Services, c.JobsEngine)
 	c.TasksApiImpl = tasks_api_impl.New(c.JobsEngine)
 
-	c.serverManager.AddImplementation(c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl, c.ServiceApiImpl, c.TasksApiImpl)
+	c.serverManager.AddImplementation(a.Ctx,
+		c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl, c.ServiceApiImpl, c.TasksApiImpl)
 	c.serverManager.AddHttpHandler(docs.Swagger())
 	c.serverManager.AddHttpHandler("/", ui.NewServer())
 

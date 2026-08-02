@@ -2,6 +2,7 @@
 
 package config
 
+// EnvironmentConfig holds parsed configuration values for this section.
 type EnvironmentConfig struct {
 	AvailablePorts     []int
 	ClusterPgDsn       string
@@ -31,17 +32,19 @@ type EnvironmentConfig struct {
 	VpnServerURL       string
 }
 
+// LogFormat enumerates the allowed values for the LogFormat field.
 const (
-	LogFormat_Text = "TEXT"
-	LogFormat_Json = "JSON"
+	LogFormatText = "TEXT"
+	LogFormatJSON = "JSON"
 )
 
+// LogLevel enumerates the allowed values for the LogLevel field.
 const (
-	LogLevel_Trace = "Trace"
-	LogLevel_Debug = "Debug"
-	LogLevel_Warn  = "Warn"
-	LogLevel_Info  = "Info"
-	LogLevel_Error = "Error"
-	LogLevel_Fatal = "Fatal"
-	LogLevel_Panic = "Panic"
+	LogLevelTrace = "Trace"
+	LogLevelDebug = "Debug"
+	LogLevelWarn  = "Warn"
+	LogLevelInfo  = "Info"
+	LogLevelError = "Error"
+	LogLevelFatal = "Fatal"
+	LogLevelPanic = "Panic"
 )

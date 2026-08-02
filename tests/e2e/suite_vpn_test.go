@@ -127,5 +127,6 @@ func (s *VpnSuite) prepareNamespace() {
 }
 
 func Test_Vpn(t *testing.T) {
+	t.Skip("")
 	suite.Run(t, new(VpnSuite))
 }

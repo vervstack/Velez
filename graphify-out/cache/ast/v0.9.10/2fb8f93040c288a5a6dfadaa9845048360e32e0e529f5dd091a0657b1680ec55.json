@@ -1,0 +1,4101 @@
+{
+  "nodes": [
+    {
+      "id": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "label": "tasks.pb.go",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L1"
+    },
+    {
+      "id": "velez_api_taskstatus_status",
+      "label": "TaskStatus_Status",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L28"
+    },
+    {
+      "id": "velez_api_taskstatus_status_enum",
+      "label": ".Enum()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L56"
+    },
+    {
+      "id": "velez_api_taskstatus_status_string",
+      "label": ".String()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L62"
+    },
+    {
+      "id": "velez_api_taskstatus_status_descriptor",
+      "label": ".Descriptor()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L66"
+    },
+    {
+      "id": "enumdescriptor",
+      "label": "EnumDescriptor",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go"
+    },
+    {
+      "id": "velez_api_taskstatus_status_type",
+      "label": ".Type()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L70"
+    },
+    {
+      "id": "enumtype",
+      "label": "EnumType",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go"
+    },
+    {
+      "id": "velez_api_taskstatus_status_number",
+      "label": ".Number()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L74"
+    },
+    {
+      "id": "enumnumber",
+      "label": "EnumNumber",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go"
+    },
+    {
+      "id": "velez_api_taskstatus_status_enumdescriptor",
+      "label": ".EnumDescriptor()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L79"
+    },
+    {
+      "id": "velez_api_watchtask",
+      "label": "WatchTask",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L83"
+    },
+    {
+      "id": "messagestate",
+      "label": "MessageState",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go"
+    },
+    {
+      "id": "unknownfields",
+      "label": "UnknownFields",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go"
+    },
+    {
+      "id": "sizecache",
+      "label": "SizeCache",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go"
+    },
+    {
+      "id": "velez_api_watchtask_reset",
+      "label": ".Reset()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L89"
+    },
+    {
+      "id": "velez_api_watchtask_string",
+      "label": ".String()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L96"
+    },
+    {
+      "id": "velez_api_watchtask_protomessage",
+      "label": ".ProtoMessage()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L100"
+    },
+    {
+      "id": "velez_api_watchtask_protoreflect",
+      "label": ".ProtoReflect()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L102"
+    },
+    {
+      "id": "message",
+      "label": "Message",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go"
+    },
+    {
+      "id": "velez_api_watchtask_descriptor",
+      "label": ".Descriptor()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L115"
+    },
+    {
+      "id": "velez_api_taskstatus",
+      "label": "TaskStatus",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L119"
+    },
+    {
+      "id": "timestamp",
+      "label": "Timestamp",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go"
+    },
+    {
+      "id": "taskstatus_jobstatus",
+      "label": "TaskStatus_JobStatus",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go"
+    },
+    {
+      "id": "velez_api_taskstatus_reset",
+      "label": ".Reset()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L130"
+    },
+    {
+      "id": "velez_api_taskstatus_string",
+      "label": ".String()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L137"
+    },
+    {
+      "id": "velez_api_taskstatus_protomessage",
+      "label": ".ProtoMessage()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L141"
+    },
+    {
+      "id": "velez_api_taskstatus_protoreflect",
+      "label": ".ProtoReflect()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L143"
+    },
+    {
+      "id": "velez_api_taskstatus_descriptor",
+      "label": ".Descriptor()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L156"
+    },
+    {
+      "id": "velez_api_taskstatus_getstatus",
+      "label": ".GetStatus()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L160"
+    },
+    {
+      "id": "velez_api_taskstatus_geterror",
+      "label": ".GetError()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L167"
+    },
+    {
+      "id": "velez_api_taskstatus_getupdatedat",
+      "label": ".GetUpdatedAt()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L174"
+    },
+    {
+      "id": "velez_api_taskstatus_gettaskid",
+      "label": ".GetTaskId()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L181"
+    },
+    {
+      "id": "velez_api_taskstatus_getjobs",
+      "label": ".GetJobs()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L188"
+    },
+    {
+      "id": "velez_api_createsmerdtaskpayload",
+      "label": "CreateSmerdTaskPayload",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L198"
+    },
+    {
+      "id": "createsmerd_request",
+      "label": "CreateSmerd_Request",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go"
+    },
+    {
+      "id": "velez_api_createsmerdtaskpayload_reset",
+      "label": ".Reset()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L219"
+    },
+    {
+      "id": "velez_api_createsmerdtaskpayload_string",
+      "label": ".String()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L226"
+    },
+    {
+      "id": "velez_api_createsmerdtaskpayload_protomessage",
+      "label": ".ProtoMessage()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L230"
+    },
+    {
+      "id": "velez_api_createsmerdtaskpayload_protoreflect",
+      "label": ".ProtoReflect()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L232"
+    },
+    {
+      "id": "velez_api_createsmerdtaskpayload_descriptor",
+      "label": ".Descriptor()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L245"
+    },
+    {
+      "id": "velez_api_createsmerdtaskpayload_getrequest",
+      "label": ".GetRequest()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L249"
+    },
+    {
+      "id": "velez_api_createsmerdtaskpayload_getimageid",
+      "label": ".GetImageId()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L256"
+    },
+    {
+      "id": "velez_api_createsmerdtaskpayload_getcontainerid",
+      "label": ".GetContainerId()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L263"
+    },
+    {
+      "id": "velez_api_createsmerdtaskpayload_getimagelabels",
+      "label": ".GetImageLabels()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L270"
+    },
+    {
+      "id": "velez_api_createsmerdtaskpayload_getimagetags",
+      "label": ".GetImageTags()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L277"
+    },
+    {
+      "id": "velez_api_createsmerdtaskpayload_getimageexposedports",
+      "label": ".GetImageExposedPorts()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L284"
+    },
+    {
+      "id": "velez_api_createsmerdtaskpayload_getpathtofiles",
+      "label": ".GetPathToFiles()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L291"
+    },
+    {
+      "id": "velez_api_createservicetaskpayload",
+      "label": "CreateServiceTaskPayload",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L299"
+    },
+    {
+      "id": "velez_api_createservicetaskpayload_reset",
+      "label": ".Reset()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L306"
+    },
+    {
+      "id": "velez_api_createservicetaskpayload_string",
+      "label": ".String()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L313"
+    },
+    {
+      "id": "velez_api_createservicetaskpayload_protomessage",
+      "label": ".ProtoMessage()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L317"
+    },
+    {
+      "id": "velez_api_createservicetaskpayload_protoreflect",
+      "label": ".ProtoReflect()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L319"
+    },
+    {
+      "id": "velez_api_createservicetaskpayload_descriptor",
+      "label": ".Descriptor()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L332"
+    },
+    {
+      "id": "velez_api_createservicetaskpayload_getname",
+      "label": ".GetName()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L336"
+    },
+    {
+      "id": "velez_api_assembleconfigtaskpayload",
+      "label": "AssembleConfigTaskPayload",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L344"
+    },
+    {
+      "id": "configformat",
+      "label": "ConfigFormat",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go"
+    },
+    {
+      "id": "velez_api_assembleconfigtaskpayload_reset",
+      "label": ".Reset()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L369"
+    },
+    {
+      "id": "velez_api_assembleconfigtaskpayload_string",
+      "label": ".String()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L376"
+    },
+    {
+      "id": "velez_api_assembleconfigtaskpayload_protomessage",
+      "label": ".ProtoMessage()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L380"
+    },
+    {
+      "id": "velez_api_assembleconfigtaskpayload_protoreflect",
+      "label": ".ProtoReflect()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L382"
+    },
+    {
+      "id": "velez_api_assembleconfigtaskpayload_descriptor",
+      "label": ".Descriptor()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L395"
+    },
+    {
+      "id": "velez_api_assembleconfigtaskpayload_getservicename",
+      "label": ".GetServiceName()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L399"
+    },
+    {
+      "id": "velez_api_assembleconfigtaskpayload_getimagename",
+      "label": ".GetImageName()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L406"
+    },
+    {
+      "id": "velez_api_assembleconfigtaskpayload_getimagelabels",
+      "label": ".GetImageLabels()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L413"
+    },
+    {
+      "id": "velez_api_assembleconfigtaskpayload_getimagetags",
+      "label": ".GetImageTags()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L420"
+    },
+    {
+      "id": "velez_api_assembleconfigtaskpayload_getcontainerid",
+      "label": ".GetContainerId()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L427"
+    },
+    {
+      "id": "velez_api_assembleconfigtaskpayload_getconfigname",
+      "label": ".GetConfigName()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L434"
+    },
+    {
+      "id": "velez_api_assembleconfigtaskpayload_getconfigversion",
+      "label": ".GetConfigVersion()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L441"
+    },
+    {
+      "id": "velez_api_assembleconfigtaskpayload_getconftype",
+      "label": ".GetConfType()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L448"
+    },
+    {
+      "id": "velez_api_assembleconfigtaskpayload_getconfigformat",
+      "label": ".GetConfigFormat()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L455"
+    },
+    {
+      "id": "velez_api_assembleconfigtaskpayload_getcontentraw",
+      "label": ".GetContentRaw()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L462"
+    },
+    {
+      "id": "velez_api_assembleconfigtaskpayload_getcontent",
+      "label": ".GetContent()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L469"
+    },
+    {
+      "id": "velez_api_copytovolumetaskpayload",
+      "label": "CopyToVolumeTaskPayload",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L477"
+    },
+    {
+      "id": "velez_api_copytovolumetaskpayload_reset",
+      "label": ".Reset()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L490"
+    },
+    {
+      "id": "velez_api_copytovolumetaskpayload_string",
+      "label": ".String()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L497"
+    },
+    {
+      "id": "velez_api_copytovolumetaskpayload_protomessage",
+      "label": ".ProtoMessage()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L501"
+    },
+    {
+      "id": "velez_api_copytovolumetaskpayload_protoreflect",
+      "label": ".ProtoReflect()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L503"
+    },
+    {
+      "id": "velez_api_copytovolumetaskpayload_descriptor",
+      "label": ".Descriptor()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L516"
+    },
+    {
+      "id": "velez_api_copytovolumetaskpayload_getvolumename",
+      "label": ".GetVolumeName()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L520"
+    },
+    {
+      "id": "velez_api_copytovolumetaskpayload_getpathtofiles",
+      "label": ".GetPathToFiles()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L527"
+    },
+    {
+      "id": "velez_api_copytovolumetaskpayload_getcontainerid",
+      "label": ".GetContainerId()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L534"
+    },
+    {
+      "id": "velez_api_connectservicetovpntaskpayload",
+      "label": "ConnectServiceToVpnTaskPayload",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L543"
+    },
+    {
+      "id": "velez_api_connectservicetovpntaskpayload_reset",
+      "label": ".Reset()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L559"
+    },
+    {
+      "id": "velez_api_connectservicetovpntaskpayload_string",
+      "label": ".String()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L566"
+    },
+    {
+      "id": "velez_api_connectservicetovpntaskpayload_protomessage",
+      "label": ".ProtoMessage()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L570"
+    },
+    {
+      "id": "velez_api_connectservicetovpntaskpayload_protoreflect",
+      "label": ".ProtoReflect()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L572"
+    },
+    {
+      "id": "velez_api_connectservicetovpntaskpayload_descriptor",
+      "label": ".Descriptor()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L585"
+    },
+    {
+      "id": "velez_api_connectservicetovpntaskpayload_getservicename",
+      "label": ".GetServiceName()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L589"
+    },
+    {
+      "id": "velez_api_connectservicetovpntaskpayload_getnamespaceid",
+      "label": ".GetNamespaceId()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L596"
+    },
+    {
+      "id": "velez_api_connectservicetovpntaskpayload_getclientkey",
+      "label": ".GetClientKey()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L603"
+    },
+    {
+      "id": "velez_api_connectservicetovpntaskpayload_getloginserverurl",
+      "label": ".GetLoginServerUrl()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L610"
+    },
+    {
+      "id": "velez_api_connectservicetovpntaskpayload_getcontainerid",
+      "label": ".GetContainerId()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L617"
+    },
+    {
+      "id": "velez_api_enablestatefulltaskpayload",
+      "label": "EnableStatefullTaskPayload",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L626"
+    },
+    {
+      "id": "enablestatefullcluster",
+      "label": "EnableStatefullCluster",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go"
+    },
+    {
+      "id": "velez_api_enablestatefulltaskpayload_reset",
+      "label": ".Reset()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L645"
+    },
+    {
+      "id": "velez_api_enablestatefulltaskpayload_string",
+      "label": ".String()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L652"
+    },
+    {
+      "id": "velez_api_enablestatefulltaskpayload_protomessage",
+      "label": ".ProtoMessage()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L656"
+    },
+    {
+      "id": "velez_api_enablestatefulltaskpayload_protoreflect",
+      "label": ".ProtoReflect()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L658"
+    },
+    {
+      "id": "velez_api_enablestatefulltaskpayload_descriptor",
+      "label": ".Descriptor()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L671"
+    },
+    {
+      "id": "velez_api_enablestatefulltaskpayload_getrequest",
+      "label": ".GetRequest()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L675"
+    },
+    {
+      "id": "velez_api_enablestatefulltaskpayload_getrootpwd",
+      "label": ".GetRootPwd()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L682"
+    },
+    {
+      "id": "velez_api_enablestatefulltaskpayload_getuserpwd",
+      "label": ".GetUserPwd()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L689"
+    },
+    {
+      "id": "velez_api_enablestatefulltaskpayload_getcontainerid",
+      "label": ".GetContainerId()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L696"
+    },
+    {
+      "id": "velez_api_enablestatefulltaskpayload_getrootdsn",
+      "label": ".GetRootDsn()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L703"
+    },
+    {
+      "id": "velez_api_dropsmerdtaskpayload",
+      "label": "DropSmerdTaskPayload",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L716"
+    },
+    {
+      "id": "dropsmerd_request",
+      "label": "DropSmerd_Request",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go"
+    },
+    {
+      "id": "dropsmerd_response_error",
+      "label": "DropSmerd_Response_Error",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go"
+    },
+    {
+      "id": "velez_api_dropsmerdtaskpayload_reset",
+      "label": ".Reset()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L725"
+    },
+    {
+      "id": "velez_api_dropsmerdtaskpayload_string",
+      "label": ".String()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L732"
+    },
+    {
+      "id": "velez_api_dropsmerdtaskpayload_protomessage",
+      "label": ".ProtoMessage()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L736"
+    },
+    {
+      "id": "velez_api_dropsmerdtaskpayload_protoreflect",
+      "label": ".ProtoReflect()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L738"
+    },
+    {
+      "id": "velez_api_dropsmerdtaskpayload_descriptor",
+      "label": ".Descriptor()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L751"
+    },
+    {
+      "id": "velez_api_dropsmerdtaskpayload_getrequest",
+      "label": ".GetRequest()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L755"
+    },
+    {
+      "id": "velez_api_dropsmerdtaskpayload_getfailed",
+      "label": ".GetFailed()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L762"
+    },
+    {
+      "id": "velez_api_dropsmerdtaskpayload_getsuccessful",
+      "label": ".GetSuccessful()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L769"
+    },
+    {
+      "id": "velez_api_upgradesmerdtaskpayload",
+      "label": "UpgradeSmerdTaskPayload",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L777"
+    },
+    {
+      "id": "upgradesmerd_request",
+      "label": "UpgradeSmerd_Request",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "origin_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go"
+    },
+    {
+      "id": "velez_api_upgradesmerdtaskpayload_reset",
+      "label": ".Reset()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L798"
+    },
+    {
+      "id": "velez_api_upgradesmerdtaskpayload_string",
+      "label": ".String()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L805"
+    },
+    {
+      "id": "velez_api_upgradesmerdtaskpayload_protomessage",
+      "label": ".ProtoMessage()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L809"
+    },
+    {
+      "id": "velez_api_upgradesmerdtaskpayload_protoreflect",
+      "label": ".ProtoReflect()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L811"
+    },
+    {
+      "id": "velez_api_upgradesmerdtaskpayload_descriptor",
+      "label": ".Descriptor()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L824"
+    },
+    {
+      "id": "velez_api_upgradesmerdtaskpayload_getupgraderequest",
+      "label": ".GetUpgradeRequest()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L828"
+    },
+    {
+      "id": "velez_api_upgradesmerdtaskpayload_getrequest",
+      "label": ".GetRequest()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L835"
+    },
+    {
+      "id": "velez_api_upgradesmerdtaskpayload_getoldcontainerid",
+      "label": ".GetOldContainerId()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L842"
+    },
+    {
+      "id": "velez_api_upgradesmerdtaskpayload_getimagelabels",
+      "label": ".GetImageLabels()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L849"
+    },
+    {
+      "id": "velez_api_upgradesmerdtaskpayload_getimagetags",
+      "label": ".GetImageTags()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L856"
+    },
+    {
+      "id": "velez_api_upgradesmerdtaskpayload_getcontainerid",
+      "label": ".GetContainerId()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L863"
+    },
+    {
+      "id": "velez_api_watchtask_request",
+      "label": "WatchTask_Request",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L870"
+    },
+    {
+      "id": "velez_api_watchtask_request_reset",
+      "label": ".Reset()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L878"
+    },
+    {
+      "id": "velez_api_watchtask_request_string",
+      "label": ".String()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L885"
+    },
+    {
+      "id": "velez_api_watchtask_request_protomessage",
+      "label": ".ProtoMessage()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L889"
+    },
+    {
+      "id": "velez_api_watchtask_request_protoreflect",
+      "label": ".ProtoReflect()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L891"
+    },
+    {
+      "id": "velez_api_watchtask_request_descriptor",
+      "label": ".Descriptor()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L904"
+    },
+    {
+      "id": "velez_api_watchtask_request_getentityid",
+      "label": ".GetEntityId()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L908"
+    },
+    {
+      "id": "velez_api_watchtask_request_getaction",
+      "label": ".GetAction()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L915"
+    },
+    {
+      "id": "velez_api_taskstatus_jobstatus",
+      "label": "TaskStatus_JobStatus",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L922"
+    },
+    {
+      "id": "velez_api_taskstatus_jobstatus_reset",
+      "label": ".Reset()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L930"
+    },
+    {
+      "id": "velez_api_taskstatus_jobstatus_string",
+      "label": ".String()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L937"
+    },
+    {
+      "id": "velez_api_taskstatus_jobstatus_protomessage",
+      "label": ".ProtoMessage()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L941"
+    },
+    {
+      "id": "velez_api_taskstatus_jobstatus_protoreflect",
+      "label": ".ProtoReflect()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L943"
+    },
+    {
+      "id": "velez_api_taskstatus_jobstatus_descriptor",
+      "label": ".Descriptor()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L956"
+    },
+    {
+      "id": "velez_api_taskstatus_jobstatus_getname",
+      "label": ".GetName()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L960"
+    },
+    {
+      "id": "velez_api_taskstatus_jobstatus_getstatus",
+      "label": ".GetStatus()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L967"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_rawdescgzip",
+      "label": "file_tasks_proto_rawDescGZIP()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L1108"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_init",
+      "label": "init()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L1172"
+    },
+    {
+      "id": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_init",
+      "label": "file_tasks_proto_init()",
+      "file_type": "code",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L1173"
+    }
+  ],
+  "edges": [
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "go_pkg_reflect",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L10",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "go_pkg_sync",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L11",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "go_pkg_unsafe",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L12",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "go_pkg_go_redsock_ru_protoc_gen_npm_npmplugin",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L14",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "go_pkg_google_golang_org_genproto_googleapis_api_annotations",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L15",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "go_pkg_google_golang_org_protobuf_reflect_protoreflect",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L16",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "go_pkg_google_golang_org_protobuf_runtime_protoimpl",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L17",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "go_pkg_google_golang_org_protobuf_types_known_timestamppb",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L18",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "velez_api_taskstatus_status",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L28",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_status",
+      "target": "velez_api_taskstatus_status_enum",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L56",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_status_enum",
+      "target": "velez_api_taskstatus_status",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L56",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_taskstatus_status",
+      "target": "velez_api_taskstatus_status_string",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L62",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_status",
+      "target": "velez_api_taskstatus_status_descriptor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L66",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_status_descriptor",
+      "target": "enumdescriptor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L66",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_taskstatus_status",
+      "target": "velez_api_taskstatus_status_type",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L70",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_status_type",
+      "target": "enumtype",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L70",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_taskstatus_status",
+      "target": "velez_api_taskstatus_status_number",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L74",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_status_number",
+      "target": "enumnumber",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L74",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_taskstatus_status",
+      "target": "velez_api_taskstatus_status_enumdescriptor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L79",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "velez_api_watchtask",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L83",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_watchtask",
+      "target": "messagestate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L84",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_watchtask",
+      "target": "unknownfields",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L85",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_watchtask",
+      "target": "sizecache",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L86",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_watchtask",
+      "target": "velez_api_watchtask_reset",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L89",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_watchtask",
+      "target": "velez_api_watchtask_string",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L96",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_watchtask",
+      "target": "velez_api_watchtask_protomessage",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L100",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_watchtask",
+      "target": "velez_api_watchtask_protoreflect",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L102",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_watchtask_protoreflect",
+      "target": "message",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L102",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_watchtask",
+      "target": "velez_api_watchtask_descriptor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L115",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "velez_api_taskstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L119",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus",
+      "target": "messagestate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L120",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_taskstatus",
+      "target": "velez_api_taskstatus_status",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L121",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_taskstatus",
+      "target": "timestamp",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L123",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_taskstatus",
+      "target": "taskstatus_jobstatus",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L125",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_taskstatus",
+      "target": "unknownfields",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L126",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_taskstatus",
+      "target": "sizecache",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L127",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_taskstatus",
+      "target": "velez_api_taskstatus_reset",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L130",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus",
+      "target": "velez_api_taskstatus_string",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L137",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus",
+      "target": "velez_api_taskstatus_protomessage",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L141",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus",
+      "target": "velez_api_taskstatus_protoreflect",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L143",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_protoreflect",
+      "target": "message",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L143",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_taskstatus",
+      "target": "velez_api_taskstatus_descriptor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L156",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus",
+      "target": "velez_api_taskstatus_getstatus",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L160",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_getstatus",
+      "target": "velez_api_taskstatus_status",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L160",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_taskstatus",
+      "target": "velez_api_taskstatus_geterror",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L167",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus",
+      "target": "velez_api_taskstatus_getupdatedat",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L174",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_getupdatedat",
+      "target": "timestamp",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L174",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_taskstatus",
+      "target": "velez_api_taskstatus_gettaskid",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L181",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus",
+      "target": "velez_api_taskstatus_getjobs",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L188",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_getjobs",
+      "target": "taskstatus_jobstatus",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L188",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "velez_api_createsmerdtaskpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L198",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createsmerdtaskpayload",
+      "target": "messagestate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L199",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_createsmerdtaskpayload",
+      "target": "createsmerd_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L200",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_createsmerdtaskpayload",
+      "target": "unknownfields",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L215",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_createsmerdtaskpayload",
+      "target": "sizecache",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L216",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_createsmerdtaskpayload",
+      "target": "velez_api_createsmerdtaskpayload_reset",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L219",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createsmerdtaskpayload",
+      "target": "velez_api_createsmerdtaskpayload_string",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L226",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createsmerdtaskpayload",
+      "target": "velez_api_createsmerdtaskpayload_protomessage",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L230",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createsmerdtaskpayload",
+      "target": "velez_api_createsmerdtaskpayload_protoreflect",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L232",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createsmerdtaskpayload_protoreflect",
+      "target": "message",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L232",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_createsmerdtaskpayload",
+      "target": "velez_api_createsmerdtaskpayload_descriptor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L245",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createsmerdtaskpayload",
+      "target": "velez_api_createsmerdtaskpayload_getrequest",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L249",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createsmerdtaskpayload_getrequest",
+      "target": "createsmerd_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L249",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_createsmerdtaskpayload",
+      "target": "velez_api_createsmerdtaskpayload_getimageid",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L256",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createsmerdtaskpayload",
+      "target": "velez_api_createsmerdtaskpayload_getcontainerid",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L263",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createsmerdtaskpayload",
+      "target": "velez_api_createsmerdtaskpayload_getimagelabels",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L270",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createsmerdtaskpayload",
+      "target": "velez_api_createsmerdtaskpayload_getimagetags",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L277",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createsmerdtaskpayload",
+      "target": "velez_api_createsmerdtaskpayload_getimageexposedports",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L284",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createsmerdtaskpayload",
+      "target": "velez_api_createsmerdtaskpayload_getpathtofiles",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L291",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "velez_api_createservicetaskpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L299",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createservicetaskpayload",
+      "target": "messagestate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L300",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_createservicetaskpayload",
+      "target": "unknownfields",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L302",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_createservicetaskpayload",
+      "target": "sizecache",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L303",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_createservicetaskpayload",
+      "target": "velez_api_createservicetaskpayload_reset",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L306",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createservicetaskpayload",
+      "target": "velez_api_createservicetaskpayload_string",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L313",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createservicetaskpayload",
+      "target": "velez_api_createservicetaskpayload_protomessage",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L317",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createservicetaskpayload",
+      "target": "velez_api_createservicetaskpayload_protoreflect",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L319",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createservicetaskpayload_protoreflect",
+      "target": "message",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L319",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_createservicetaskpayload",
+      "target": "velez_api_createservicetaskpayload_descriptor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L332",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createservicetaskpayload",
+      "target": "velez_api_createservicetaskpayload_getname",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L336",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "velez_api_assembleconfigtaskpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L344",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload",
+      "target": "messagestate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L345",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload",
+      "target": "configformat",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L361",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload",
+      "target": "unknownfields",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L365",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload",
+      "target": "sizecache",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L366",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload",
+      "target": "velez_api_assembleconfigtaskpayload_reset",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L369",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload",
+      "target": "velez_api_assembleconfigtaskpayload_string",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L376",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload",
+      "target": "velez_api_assembleconfigtaskpayload_protomessage",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L380",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload",
+      "target": "velez_api_assembleconfigtaskpayload_protoreflect",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L382",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload_protoreflect",
+      "target": "message",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L382",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload",
+      "target": "velez_api_assembleconfigtaskpayload_descriptor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L395",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload",
+      "target": "velez_api_assembleconfigtaskpayload_getservicename",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L399",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload",
+      "target": "velez_api_assembleconfigtaskpayload_getimagename",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L406",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload",
+      "target": "velez_api_assembleconfigtaskpayload_getimagelabels",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L413",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload",
+      "target": "velez_api_assembleconfigtaskpayload_getimagetags",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L420",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload",
+      "target": "velez_api_assembleconfigtaskpayload_getcontainerid",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L427",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload",
+      "target": "velez_api_assembleconfigtaskpayload_getconfigname",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L434",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload",
+      "target": "velez_api_assembleconfigtaskpayload_getconfigversion",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L441",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload",
+      "target": "velez_api_assembleconfigtaskpayload_getconftype",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L448",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload",
+      "target": "velez_api_assembleconfigtaskpayload_getconfigformat",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L455",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload_getconfigformat",
+      "target": "configformat",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L455",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload",
+      "target": "velez_api_assembleconfigtaskpayload_getcontentraw",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L462",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload",
+      "target": "velez_api_assembleconfigtaskpayload_getcontent",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L469",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "velez_api_copytovolumetaskpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L477",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_copytovolumetaskpayload",
+      "target": "messagestate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L478",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_copytovolumetaskpayload",
+      "target": "unknownfields",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L486",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_copytovolumetaskpayload",
+      "target": "sizecache",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L487",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_copytovolumetaskpayload",
+      "target": "velez_api_copytovolumetaskpayload_reset",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L490",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_copytovolumetaskpayload",
+      "target": "velez_api_copytovolumetaskpayload_string",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L497",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_copytovolumetaskpayload",
+      "target": "velez_api_copytovolumetaskpayload_protomessage",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L501",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_copytovolumetaskpayload",
+      "target": "velez_api_copytovolumetaskpayload_protoreflect",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L503",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_copytovolumetaskpayload_protoreflect",
+      "target": "message",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L503",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_copytovolumetaskpayload",
+      "target": "velez_api_copytovolumetaskpayload_descriptor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L516",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_copytovolumetaskpayload",
+      "target": "velez_api_copytovolumetaskpayload_getvolumename",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L520",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_copytovolumetaskpayload",
+      "target": "velez_api_copytovolumetaskpayload_getpathtofiles",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L527",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_copytovolumetaskpayload",
+      "target": "velez_api_copytovolumetaskpayload_getcontainerid",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L534",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "velez_api_connectservicetovpntaskpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L543",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_connectservicetovpntaskpayload",
+      "target": "messagestate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L544",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_connectservicetovpntaskpayload",
+      "target": "unknownfields",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L555",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_connectservicetovpntaskpayload",
+      "target": "sizecache",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L556",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_connectservicetovpntaskpayload",
+      "target": "velez_api_connectservicetovpntaskpayload_reset",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L559",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_connectservicetovpntaskpayload",
+      "target": "velez_api_connectservicetovpntaskpayload_string",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L566",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_connectservicetovpntaskpayload",
+      "target": "velez_api_connectservicetovpntaskpayload_protomessage",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L570",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_connectservicetovpntaskpayload",
+      "target": "velez_api_connectservicetovpntaskpayload_protoreflect",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L572",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_connectservicetovpntaskpayload_protoreflect",
+      "target": "message",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L572",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_connectservicetovpntaskpayload",
+      "target": "velez_api_connectservicetovpntaskpayload_descriptor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L585",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_connectservicetovpntaskpayload",
+      "target": "velez_api_connectservicetovpntaskpayload_getservicename",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L589",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_connectservicetovpntaskpayload",
+      "target": "velez_api_connectservicetovpntaskpayload_getnamespaceid",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L596",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_connectservicetovpntaskpayload",
+      "target": "velez_api_connectservicetovpntaskpayload_getclientkey",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L603",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_connectservicetovpntaskpayload",
+      "target": "velez_api_connectservicetovpntaskpayload_getloginserverurl",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L610",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_connectservicetovpntaskpayload",
+      "target": "velez_api_connectservicetovpntaskpayload_getcontainerid",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L617",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "velez_api_enablestatefulltaskpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L626",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_enablestatefulltaskpayload",
+      "target": "messagestate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L627",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_enablestatefulltaskpayload",
+      "target": "enablestatefullcluster",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L628",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_enablestatefulltaskpayload",
+      "target": "unknownfields",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L641",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_enablestatefulltaskpayload",
+      "target": "sizecache",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L642",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_enablestatefulltaskpayload",
+      "target": "velez_api_enablestatefulltaskpayload_reset",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L645",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_enablestatefulltaskpayload",
+      "target": "velez_api_enablestatefulltaskpayload_string",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L652",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_enablestatefulltaskpayload",
+      "target": "velez_api_enablestatefulltaskpayload_protomessage",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L656",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_enablestatefulltaskpayload",
+      "target": "velez_api_enablestatefulltaskpayload_protoreflect",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L658",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_enablestatefulltaskpayload_protoreflect",
+      "target": "message",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L658",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_enablestatefulltaskpayload",
+      "target": "velez_api_enablestatefulltaskpayload_descriptor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L671",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_enablestatefulltaskpayload",
+      "target": "velez_api_enablestatefulltaskpayload_getrequest",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L675",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_enablestatefulltaskpayload_getrequest",
+      "target": "enablestatefullcluster",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L675",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_enablestatefulltaskpayload",
+      "target": "velez_api_enablestatefulltaskpayload_getrootpwd",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L682",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_enablestatefulltaskpayload",
+      "target": "velez_api_enablestatefulltaskpayload_getuserpwd",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L689",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_enablestatefulltaskpayload",
+      "target": "velez_api_enablestatefulltaskpayload_getcontainerid",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L696",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_enablestatefulltaskpayload",
+      "target": "velez_api_enablestatefulltaskpayload_getrootdsn",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L703",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "velez_api_dropsmerdtaskpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L716",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_dropsmerdtaskpayload",
+      "target": "messagestate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L717",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_dropsmerdtaskpayload",
+      "target": "dropsmerd_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L718",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_dropsmerdtaskpayload",
+      "target": "dropsmerd_response_error",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L719",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_dropsmerdtaskpayload",
+      "target": "unknownfields",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L721",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_dropsmerdtaskpayload",
+      "target": "sizecache",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L722",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_dropsmerdtaskpayload",
+      "target": "velez_api_dropsmerdtaskpayload_reset",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L725",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_dropsmerdtaskpayload",
+      "target": "velez_api_dropsmerdtaskpayload_string",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L732",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_dropsmerdtaskpayload",
+      "target": "velez_api_dropsmerdtaskpayload_protomessage",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L736",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_dropsmerdtaskpayload",
+      "target": "velez_api_dropsmerdtaskpayload_protoreflect",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L738",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_dropsmerdtaskpayload_protoreflect",
+      "target": "message",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L738",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_dropsmerdtaskpayload",
+      "target": "velez_api_dropsmerdtaskpayload_descriptor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L751",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_dropsmerdtaskpayload",
+      "target": "velez_api_dropsmerdtaskpayload_getrequest",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L755",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_dropsmerdtaskpayload_getrequest",
+      "target": "dropsmerd_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L755",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_dropsmerdtaskpayload",
+      "target": "velez_api_dropsmerdtaskpayload_getfailed",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L762",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_dropsmerdtaskpayload_getfailed",
+      "target": "dropsmerd_response_error",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L762",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_dropsmerdtaskpayload",
+      "target": "velez_api_dropsmerdtaskpayload_getsuccessful",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L769",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "velez_api_upgradesmerdtaskpayload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L777",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_upgradesmerdtaskpayload",
+      "target": "messagestate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L778",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_upgradesmerdtaskpayload",
+      "target": "upgradesmerd_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L779",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_upgradesmerdtaskpayload",
+      "target": "createsmerd_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L784",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_upgradesmerdtaskpayload",
+      "target": "unknownfields",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L794",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_upgradesmerdtaskpayload",
+      "target": "sizecache",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L795",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_upgradesmerdtaskpayload",
+      "target": "velez_api_upgradesmerdtaskpayload_reset",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L798",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_upgradesmerdtaskpayload",
+      "target": "velez_api_upgradesmerdtaskpayload_string",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L805",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_upgradesmerdtaskpayload",
+      "target": "velez_api_upgradesmerdtaskpayload_protomessage",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L809",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_upgradesmerdtaskpayload",
+      "target": "velez_api_upgradesmerdtaskpayload_protoreflect",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L811",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_upgradesmerdtaskpayload_protoreflect",
+      "target": "message",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L811",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_upgradesmerdtaskpayload",
+      "target": "velez_api_upgradesmerdtaskpayload_descriptor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L824",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_upgradesmerdtaskpayload",
+      "target": "velez_api_upgradesmerdtaskpayload_getupgraderequest",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L828",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_upgradesmerdtaskpayload_getupgraderequest",
+      "target": "upgradesmerd_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L828",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_upgradesmerdtaskpayload",
+      "target": "velez_api_upgradesmerdtaskpayload_getrequest",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L835",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_upgradesmerdtaskpayload_getrequest",
+      "target": "createsmerd_request",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L835",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_upgradesmerdtaskpayload",
+      "target": "velez_api_upgradesmerdtaskpayload_getoldcontainerid",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L842",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_upgradesmerdtaskpayload",
+      "target": "velez_api_upgradesmerdtaskpayload_getimagelabels",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L849",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_upgradesmerdtaskpayload",
+      "target": "velez_api_upgradesmerdtaskpayload_getimagetags",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L856",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_upgradesmerdtaskpayload",
+      "target": "velez_api_upgradesmerdtaskpayload_getcontainerid",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L863",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "velez_api_watchtask_request",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L870",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_watchtask_request",
+      "target": "messagestate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L871",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_watchtask_request",
+      "target": "unknownfields",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L874",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_watchtask_request",
+      "target": "sizecache",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L875",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_watchtask_request",
+      "target": "velez_api_watchtask_request_reset",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L878",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_watchtask_request",
+      "target": "velez_api_watchtask_request_string",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L885",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_watchtask_request",
+      "target": "velez_api_watchtask_request_protomessage",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L889",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_watchtask_request",
+      "target": "velez_api_watchtask_request_protoreflect",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L891",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_watchtask_request_protoreflect",
+      "target": "message",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L891",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_watchtask_request",
+      "target": "velez_api_watchtask_request_descriptor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L904",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_watchtask_request",
+      "target": "velez_api_watchtask_request_getentityid",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L908",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_watchtask_request",
+      "target": "velez_api_watchtask_request_getaction",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L915",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "velez_api_taskstatus_jobstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L922",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_jobstatus",
+      "target": "messagestate",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L923",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_taskstatus_jobstatus",
+      "target": "velez_api_taskstatus_status",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L925",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_taskstatus_jobstatus",
+      "target": "unknownfields",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L926",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_taskstatus_jobstatus",
+      "target": "sizecache",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L927",
+      "weight": 1.0,
+      "context": "field"
+    },
+    {
+      "source": "velez_api_taskstatus_jobstatus",
+      "target": "velez_api_taskstatus_jobstatus_reset",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L930",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_jobstatus",
+      "target": "velez_api_taskstatus_jobstatus_string",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L937",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_jobstatus",
+      "target": "velez_api_taskstatus_jobstatus_protomessage",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L941",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_jobstatus",
+      "target": "velez_api_taskstatus_jobstatus_protoreflect",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L943",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_jobstatus_protoreflect",
+      "target": "message",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L943",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "velez_api_taskstatus_jobstatus",
+      "target": "velez_api_taskstatus_jobstatus_descriptor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L956",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_jobstatus",
+      "target": "velez_api_taskstatus_jobstatus_getname",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L960",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_jobstatus",
+      "target": "velez_api_taskstatus_jobstatus_getstatus",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L967",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_jobstatus_getstatus",
+      "target": "velez_api_taskstatus_status",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L967",
+      "weight": 1.0,
+      "context": "return_type"
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_rawdescgzip",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L1108",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_init",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L1172",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_go",
+      "target": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_init",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L1173",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_status_string",
+      "target": "velez_api_taskstatus_jobstatus_descriptor",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_status_string",
+      "target": "enumnumber",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L63",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_status_descriptor",
+      "target": "velez_api_taskstatus_jobstatus_descriptor",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L67",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_status_number",
+      "target": "enumnumber",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_status_enumdescriptor",
+      "target": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_rawdescgzip",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L80",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_watchtask_descriptor",
+      "target": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_rawdescgzip",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L116",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_descriptor",
+      "target": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_rawdescgzip",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L157",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createsmerdtaskpayload_descriptor",
+      "target": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_rawdescgzip",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L246",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_createservicetaskpayload_descriptor",
+      "target": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_rawdescgzip",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L333",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_assembleconfigtaskpayload_descriptor",
+      "target": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_rawdescgzip",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L396",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_copytovolumetaskpayload_descriptor",
+      "target": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_rawdescgzip",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L517",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_connectservicetovpntaskpayload_descriptor",
+      "target": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_rawdescgzip",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L586",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_enablestatefulltaskpayload_descriptor",
+      "target": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_rawdescgzip",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L672",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_dropsmerdtaskpayload_descriptor",
+      "target": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_rawdescgzip",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L752",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_upgradesmerdtaskpayload_descriptor",
+      "target": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_rawdescgzip",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L825",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_watchtask_request_descriptor",
+      "target": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_rawdescgzip",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L905",
+      "weight": 1.0
+    },
+    {
+      "source": "velez_api_taskstatus_jobstatus_descriptor",
+      "target": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_rawdescgzip",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L957",
+      "weight": 1.0
+    },
+    {
+      "source": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_init",
+      "target": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_init",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L1172",
+      "weight": 1.0
+    }
+  ],
+  "raw_calls": [
+    {
+      "caller_nid": "velez_api_taskstatus_status_enum",
+      "callee": "new",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L57"
+    },
+    {
+      "caller_nid": "velez_api_taskstatus_status_string",
+      "callee": "EnumStringOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L63"
+    },
+    {
+      "caller_nid": "velez_api_watchtask_reset",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "velez_api_watchtask_reset",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L92"
+    },
+    {
+      "caller_nid": "velez_api_watchtask_reset",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L93"
+    },
+    {
+      "caller_nid": "velez_api_watchtask_string",
+      "callee": "MessageStringOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L97"
+    },
+    {
+      "caller_nid": "velez_api_watchtask_protoreflect",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L105"
+    },
+    {
+      "caller_nid": "velez_api_watchtask_protoreflect",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L105"
+    },
+    {
+      "caller_nid": "velez_api_watchtask_protoreflect",
+      "callee": "LoadMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L106"
+    },
+    {
+      "caller_nid": "velez_api_watchtask_protoreflect",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L107"
+    },
+    {
+      "caller_nid": "velez_api_watchtask_protoreflect",
+      "callee": "MessageOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L111"
+    },
+    {
+      "caller_nid": "velez_api_taskstatus_reset",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L133"
+    },
+    {
+      "caller_nid": "velez_api_taskstatus_reset",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L133"
+    },
+    {
+      "caller_nid": "velez_api_taskstatus_reset",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L134"
+    },
+    {
+      "caller_nid": "velez_api_taskstatus_string",
+      "callee": "MessageStringOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L138"
+    },
+    {
+      "caller_nid": "velez_api_taskstatus_protoreflect",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L146"
+    },
+    {
+      "caller_nid": "velez_api_taskstatus_protoreflect",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L146"
+    },
+    {
+      "caller_nid": "velez_api_taskstatus_protoreflect",
+      "callee": "LoadMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L147"
+    },
+    {
+      "caller_nid": "velez_api_taskstatus_protoreflect",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L148"
+    },
+    {
+      "caller_nid": "velez_api_taskstatus_protoreflect",
+      "callee": "MessageOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L152"
+    },
+    {
+      "caller_nid": "velez_api_createsmerdtaskpayload_reset",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L222"
+    },
+    {
+      "caller_nid": "velez_api_createsmerdtaskpayload_reset",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L222"
+    },
+    {
+      "caller_nid": "velez_api_createsmerdtaskpayload_reset",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L223"
+    },
+    {
+      "caller_nid": "velez_api_createsmerdtaskpayload_string",
+      "callee": "MessageStringOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L227"
+    },
+    {
+      "caller_nid": "velez_api_createsmerdtaskpayload_protoreflect",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "velez_api_createsmerdtaskpayload_protoreflect",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L235"
+    },
+    {
+      "caller_nid": "velez_api_createsmerdtaskpayload_protoreflect",
+      "callee": "LoadMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L236"
+    },
+    {
+      "caller_nid": "velez_api_createsmerdtaskpayload_protoreflect",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L237"
+    },
+    {
+      "caller_nid": "velez_api_createsmerdtaskpayload_protoreflect",
+      "callee": "MessageOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L241"
+    },
+    {
+      "caller_nid": "velez_api_createservicetaskpayload_reset",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L309"
+    },
+    {
+      "caller_nid": "velez_api_createservicetaskpayload_reset",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L309"
+    },
+    {
+      "caller_nid": "velez_api_createservicetaskpayload_reset",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L310"
+    },
+    {
+      "caller_nid": "velez_api_createservicetaskpayload_string",
+      "callee": "MessageStringOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L314"
+    },
+    {
+      "caller_nid": "velez_api_createservicetaskpayload_protoreflect",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L322"
+    },
+    {
+      "caller_nid": "velez_api_createservicetaskpayload_protoreflect",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L322"
+    },
+    {
+      "caller_nid": "velez_api_createservicetaskpayload_protoreflect",
+      "callee": "LoadMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L323"
+    },
+    {
+      "caller_nid": "velez_api_createservicetaskpayload_protoreflect",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L324"
+    },
+    {
+      "caller_nid": "velez_api_createservicetaskpayload_protoreflect",
+      "callee": "MessageOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L328"
+    },
+    {
+      "caller_nid": "velez_api_assembleconfigtaskpayload_reset",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L372"
+    },
+    {
+      "caller_nid": "velez_api_assembleconfigtaskpayload_reset",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L372"
+    },
+    {
+      "caller_nid": "velez_api_assembleconfigtaskpayload_reset",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L373"
+    },
+    {
+      "caller_nid": "velez_api_assembleconfigtaskpayload_string",
+      "callee": "MessageStringOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L377"
+    },
+    {
+      "caller_nid": "velez_api_assembleconfigtaskpayload_protoreflect",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L385"
+    },
+    {
+      "caller_nid": "velez_api_assembleconfigtaskpayload_protoreflect",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L385"
+    },
+    {
+      "caller_nid": "velez_api_assembleconfigtaskpayload_protoreflect",
+      "callee": "LoadMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L386"
+    },
+    {
+      "caller_nid": "velez_api_assembleconfigtaskpayload_protoreflect",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L387"
+    },
+    {
+      "caller_nid": "velez_api_assembleconfigtaskpayload_protoreflect",
+      "callee": "MessageOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L391"
+    },
+    {
+      "caller_nid": "velez_api_copytovolumetaskpayload_reset",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L493"
+    },
+    {
+      "caller_nid": "velez_api_copytovolumetaskpayload_reset",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L493"
+    },
+    {
+      "caller_nid": "velez_api_copytovolumetaskpayload_reset",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L494"
+    },
+    {
+      "caller_nid": "velez_api_copytovolumetaskpayload_string",
+      "callee": "MessageStringOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L498"
+    },
+    {
+      "caller_nid": "velez_api_copytovolumetaskpayload_protoreflect",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L506"
+    },
+    {
+      "caller_nid": "velez_api_copytovolumetaskpayload_protoreflect",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L506"
+    },
+    {
+      "caller_nid": "velez_api_copytovolumetaskpayload_protoreflect",
+      "callee": "LoadMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L507"
+    },
+    {
+      "caller_nid": "velez_api_copytovolumetaskpayload_protoreflect",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L508"
+    },
+    {
+      "caller_nid": "velez_api_copytovolumetaskpayload_protoreflect",
+      "callee": "MessageOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L512"
+    },
+    {
+      "caller_nid": "velez_api_connectservicetovpntaskpayload_reset",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L562"
+    },
+    {
+      "caller_nid": "velez_api_connectservicetovpntaskpayload_reset",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L562"
+    },
+    {
+      "caller_nid": "velez_api_connectservicetovpntaskpayload_reset",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L563"
+    },
+    {
+      "caller_nid": "velez_api_connectservicetovpntaskpayload_string",
+      "callee": "MessageStringOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L567"
+    },
+    {
+      "caller_nid": "velez_api_connectservicetovpntaskpayload_protoreflect",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L575"
+    },
+    {
+      "caller_nid": "velez_api_connectservicetovpntaskpayload_protoreflect",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L575"
+    },
+    {
+      "caller_nid": "velez_api_connectservicetovpntaskpayload_protoreflect",
+      "callee": "LoadMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L576"
+    },
+    {
+      "caller_nid": "velez_api_connectservicetovpntaskpayload_protoreflect",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L577"
+    },
+    {
+      "caller_nid": "velez_api_connectservicetovpntaskpayload_protoreflect",
+      "callee": "MessageOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L581"
+    },
+    {
+      "caller_nid": "velez_api_enablestatefulltaskpayload_reset",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L648"
+    },
+    {
+      "caller_nid": "velez_api_enablestatefulltaskpayload_reset",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L648"
+    },
+    {
+      "caller_nid": "velez_api_enablestatefulltaskpayload_reset",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L649"
+    },
+    {
+      "caller_nid": "velez_api_enablestatefulltaskpayload_string",
+      "callee": "MessageStringOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L653"
+    },
+    {
+      "caller_nid": "velez_api_enablestatefulltaskpayload_protoreflect",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L661"
+    },
+    {
+      "caller_nid": "velez_api_enablestatefulltaskpayload_protoreflect",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L661"
+    },
+    {
+      "caller_nid": "velez_api_enablestatefulltaskpayload_protoreflect",
+      "callee": "LoadMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L662"
+    },
+    {
+      "caller_nid": "velez_api_enablestatefulltaskpayload_protoreflect",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L663"
+    },
+    {
+      "caller_nid": "velez_api_enablestatefulltaskpayload_protoreflect",
+      "callee": "MessageOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L667"
+    },
+    {
+      "caller_nid": "velez_api_dropsmerdtaskpayload_reset",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L728"
+    },
+    {
+      "caller_nid": "velez_api_dropsmerdtaskpayload_reset",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L728"
+    },
+    {
+      "caller_nid": "velez_api_dropsmerdtaskpayload_reset",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L729"
+    },
+    {
+      "caller_nid": "velez_api_dropsmerdtaskpayload_string",
+      "callee": "MessageStringOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L733"
+    },
+    {
+      "caller_nid": "velez_api_dropsmerdtaskpayload_protoreflect",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L741"
+    },
+    {
+      "caller_nid": "velez_api_dropsmerdtaskpayload_protoreflect",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L741"
+    },
+    {
+      "caller_nid": "velez_api_dropsmerdtaskpayload_protoreflect",
+      "callee": "LoadMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L742"
+    },
+    {
+      "caller_nid": "velez_api_dropsmerdtaskpayload_protoreflect",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L743"
+    },
+    {
+      "caller_nid": "velez_api_dropsmerdtaskpayload_protoreflect",
+      "callee": "MessageOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L747"
+    },
+    {
+      "caller_nid": "velez_api_upgradesmerdtaskpayload_reset",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L801"
+    },
+    {
+      "caller_nid": "velez_api_upgradesmerdtaskpayload_reset",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L801"
+    },
+    {
+      "caller_nid": "velez_api_upgradesmerdtaskpayload_reset",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L802"
+    },
+    {
+      "caller_nid": "velez_api_upgradesmerdtaskpayload_string",
+      "callee": "MessageStringOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L806"
+    },
+    {
+      "caller_nid": "velez_api_upgradesmerdtaskpayload_protoreflect",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L814"
+    },
+    {
+      "caller_nid": "velez_api_upgradesmerdtaskpayload_protoreflect",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L814"
+    },
+    {
+      "caller_nid": "velez_api_upgradesmerdtaskpayload_protoreflect",
+      "callee": "LoadMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L815"
+    },
+    {
+      "caller_nid": "velez_api_upgradesmerdtaskpayload_protoreflect",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L816"
+    },
+    {
+      "caller_nid": "velez_api_upgradesmerdtaskpayload_protoreflect",
+      "callee": "MessageOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L820"
+    },
+    {
+      "caller_nid": "velez_api_watchtask_request_reset",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L881"
+    },
+    {
+      "caller_nid": "velez_api_watchtask_request_reset",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L881"
+    },
+    {
+      "caller_nid": "velez_api_watchtask_request_reset",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L882"
+    },
+    {
+      "caller_nid": "velez_api_watchtask_request_string",
+      "callee": "MessageStringOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L886"
+    },
+    {
+      "caller_nid": "velez_api_watchtask_request_protoreflect",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L894"
+    },
+    {
+      "caller_nid": "velez_api_watchtask_request_protoreflect",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L894"
+    },
+    {
+      "caller_nid": "velez_api_watchtask_request_protoreflect",
+      "callee": "LoadMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L895"
+    },
+    {
+      "caller_nid": "velez_api_watchtask_request_protoreflect",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L896"
+    },
+    {
+      "caller_nid": "velez_api_watchtask_request_protoreflect",
+      "callee": "MessageOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L900"
+    },
+    {
+      "caller_nid": "velez_api_taskstatus_jobstatus_reset",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L933"
+    },
+    {
+      "caller_nid": "velez_api_taskstatus_jobstatus_reset",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L933"
+    },
+    {
+      "caller_nid": "velez_api_taskstatus_jobstatus_reset",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L934"
+    },
+    {
+      "caller_nid": "velez_api_taskstatus_jobstatus_string",
+      "callee": "MessageStringOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L938"
+    },
+    {
+      "caller_nid": "velez_api_taskstatus_jobstatus_protoreflect",
+      "callee": "MessageStateOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L946"
+    },
+    {
+      "caller_nid": "velez_api_taskstatus_jobstatus_protoreflect",
+      "callee": "Pointer",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L946"
+    },
+    {
+      "caller_nid": "velez_api_taskstatus_jobstatus_protoreflect",
+      "callee": "LoadMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L947"
+    },
+    {
+      "caller_nid": "velez_api_taskstatus_jobstatus_protoreflect",
+      "callee": "StoreMessageInfo",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L948"
+    },
+    {
+      "caller_nid": "velez_api_taskstatus_jobstatus_protoreflect",
+      "callee": "MessageOf",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L952"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_rawdescgzip",
+      "callee": "Do",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L1109"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_rawdescgzip",
+      "callee": "CompressGZIP",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L1110"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_rawdescgzip",
+      "callee": "Slice",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L1110"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_rawdescgzip",
+      "callee": "StringData",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L1110"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_init",
+      "callee": "file_control_plane_api_proto_init",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L1177"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_init",
+      "callee": "file_velez_api_proto_init",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L1178"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_init",
+      "callee": "file_velez_common_proto_init",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L1179"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_init",
+      "callee": "Build",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L1188"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_init",
+      "callee": "PkgPath",
+      "is_member_call": true,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L1190"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_init",
+      "callee": "TypeOf",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L1190"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_init",
+      "callee": "Slice",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L1191"
+    },
+    {
+      "caller_nid": "users_alexbukov_verv_velez_internal_api_server_velez_api_tasks_pb_file_tasks_proto_init",
+      "callee": "StringData",
+      "is_member_call": false,
+      "source_file": "/Users/alexbukov/verv/Velez/internal/api/server/velez_api/tasks.pb.go",
+      "source_location": "L1191"
+    }
+  ]
+}

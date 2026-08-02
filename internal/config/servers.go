@@ -6,6 +6,7 @@ import (
 	"go.vervstack.ru/matreshka/pkg/matreshka/server"
 )
 
+// ServersConfig holds parsed configuration values for this section.
 type ServersConfig struct {
 	MASTER *server.Server
 }

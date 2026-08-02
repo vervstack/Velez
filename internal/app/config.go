@@ -11,9 +11,16 @@ import (
 	"go.vervstack.ru/Velez/internal/config"
 )
 
+// InitConfig sets up the app's cancellation context and loads its Cfg from
+// config.Init. It is called once by New before any other initializer.
 func (a *App) InitConfig() (err error) {
 	a.Ctx, a.Stop = context.WithCancel(context.Background())
-	closer.Add(func() error { a.Stop(); return nil })
+
+	closer.Add(func() error {
+		a.Stop()
+
+		return nil
+	})
 
 	a.Cfg, err = config.Init()
 	if err != nil {

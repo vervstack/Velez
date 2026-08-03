@@ -625,7 +625,7 @@
     "semantic_hash": ""
   },
   "internal/service/service_manager/container_manager/smerds_drop.go": {
-    "mtime": 1785782190.61151,
+    "mtime": 1785786010.4796698,
     "ast_hash": "b1e86a5b7038cff692d627a573fd94fd",
     "semantic_hash": ""
   },
@@ -1320,8 +1320,8 @@
     "semantic_hash": "22b008301469adb94e83d44ce46ac39c"
   },
   "pkg/web/Velez-UI/src/app/router/MainLayout.tsx": {
-    "mtime": 1785072045.0574863,
-    "ast_hash": "110962c395db1f241a22931fc1708281",
+    "mtime": 1785788647.110423,
+    "ast_hash": "02791eb3ce7afe39f6c3f8fa6dd486e2",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/app/router/Router.tsx": {
@@ -1790,13 +1790,13 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/widgets/sidebar/Sidebar.tsx": {
-    "mtime": 1785492561.7921767,
-    "ast_hash": "3da733332c61c0da9f7695b5f168cdf5",
+    "mtime": 1785788677.2700653,
+    "ast_hash": "23df2ae600b26f0b0c9a419950f2e35e",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/widgets/topbar/TopBar.tsx": {
-    "mtime": 1785697702.479297,
-    "ast_hash": "be87f282939340e4fef174507df1c68e",
+    "mtime": 1785788768.9311616,
+    "ast_hash": "16ca4483e97e1a30b4f0c2f87ed3b928",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/widgets/vcn/NetworkTopologyMap.tsx": {
@@ -2965,8 +2965,8 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/widgets/sidebar/Sidebar.test.tsx": {
-    "mtime": 1785492543.4631271,
-    "ast_hash": "cf2081255814e4d258718fa7a44f433c",
+    "mtime": 1785788723.9139938,
+    "ast_hash": "8bc96c93002801b969093a04670a306f",
     "semantic_hash": ""
   },
   "internal/transport/control_plane_api_impl/enable_plugin_test.go": {
@@ -3085,8 +3085,8 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/widgets/environment/EnvironmentSwitcher/EnvironmentSwitcher.tsx": {
-    "mtime": 1785697670.252129,
-    "ast_hash": "3a705fb0a16b9b88bb2f180a31f87351",
+    "mtime": 1785788940.9409256,
+    "ast_hash": "2d53d9e5d4587b954c22870b6bac982c",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/widgets/settings/EnvironmentsSettings/EnvironmentsSettings.test.tsx": {

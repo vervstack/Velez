@@ -3395,18 +3395,18 @@
     "semantic_hash": ""
   },
   "docs/container_runtimes/README.md": {
-    "mtime": 1785774159.9197886,
-    "ast_hash": "6efbb2337058b7ca37a61cda3c42cff1",
+    "mtime": 1785776180.9317377,
+    "ast_hash": "e2b0308c2b4df28e5dcd4ef3982bb332",
     "semantic_hash": ""
   },
   "docs/container_runtimes/interface_design.md": {
-    "mtime": 1785756132.2768824,
-    "ast_hash": "5f631e74ceb9f73b9e5806238740739c",
+    "mtime": 1785776205.2395513,
+    "ast_hash": "e5b05964bf8b5cbc961f1ae796bf7036",
     "semantic_hash": ""
   },
   "docs/container_runtimes/roadmap.md": {
-    "mtime": 1785757811.2619927,
-    "ast_hash": "db89a1a651811d64df93746274c48172",
+    "mtime": 1785776198.509977,
+    "ast_hash": "12ed76d73e7db907a6fcbbe097b54892",
     "semantic_hash": ""
   },
   "internal/service/service_manager/container_manager/inspect_test.go": {
@@ -3432,6 +3432,11 @@
   "tests/e2e/suite_service_scoping_test.go": {
     "mtime": 1785774160.0153468,
     "ast_hash": "e4cbeae80a5b4e875faa3cc657819e78",
+    "semantic_hash": ""
+  },
+  "docs/ports_management/roadmap.md": {
+    "mtime": 1785776168.5805707,
+    "ast_hash": "797a427f583e6eec00a11ae2b62a2060",
     "semantic_hash": ""
   }
 }

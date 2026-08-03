@@ -10,7 +10,8 @@ import (
 
 func (v *VervService) Remove(ctx context.Context, req domain.RemoveServiceReq) error {
 	listReq := &velez_api.ListSmerds_Request{
-		Name: &req.Name,
+		Name:        &req.Name,
+		Environment: req.Environment,
 	}
 
 	resp, err := v.containerService.ListSmerds(ctx, listReq)
@@ -29,7 +30,8 @@ func (v *VervService) Remove(ctx context.Context, req domain.RemoveServiceReq) e
 		}
 
 		dropReq := &velez_api.DropSmerd_Request{
-			Uuids: uuids,
+			Uuids:       uuids,
+			Environment: req.Environment,
 		}
 
 		var dropResp *velez_api.DropSmerd_Response

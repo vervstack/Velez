@@ -81,7 +81,7 @@ func (impl *Impl) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Re
 		containerID = *result.ContainerId
 	}
 
-	smerd, err := impl.smerdService.InspectSmerd(ctx, containerID)
+	smerd, err := impl.smerdService.InspectSmerd(ctx, req.GetEnvironment(), containerID)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error inspecting smerd")
 	}

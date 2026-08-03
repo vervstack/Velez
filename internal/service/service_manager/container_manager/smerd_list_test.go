@@ -34,6 +34,13 @@ type fakeRuntimeResolver struct {
 	resp []container.Summary
 	err  error
 
+	// inspectResp/inspectFound/inspectErr configure the canned
+	// fakeListContainerRuntime's Inspect response for inspect_test.go's
+	// InspectSmerd tests - unused (zero value) by ListSmerds's own tests.
+	inspectResp  container.InspectResponse
+	inspectFound bool
+	inspectErr   error
+
 	gotEnvironment string
 }
 
@@ -48,22 +55,37 @@ func (f *fakeRuntimeResolver) Runtime(
 		return nil, rerrors.Wrap(err, "error resolving environment")
 	}
 
-	return &fakeListContainerRuntime{resp: f.resp, err: f.err}, nil
+	rt := &fakeListContainerRuntime{
+		resp: f.resp, err: f.err,
+		inspectResp: f.inspectResp, inspectFound: f.inspectFound, inspectErr: f.inspectErr,
+	}
+
+	return rt, nil
 }
 
-// fakeListContainerRuntime implements only ListContainers - nothing under
-// test here calls ContainerCreate.
+// fakeListContainerRuntime implements only ListContainers and Inspect -
+// nothing under test in this package calls ContainerCreate.
 type fakeListContainerRuntime struct {
 	container_runtime.ContainerRuntime
 
 	resp []container.Summary
 	err  error
+
+	inspectResp  container.InspectResponse
+	inspectFound bool
+	inspectErr   error
 }
 
 func (f *fakeListContainerRuntime) ListContainers(
 	_ context.Context, _ *velez_api.ListSmerds_Request,
 ) ([]container.Summary, error) {
 	return f.resp, f.err
+}
+
+func (f *fakeListContainerRuntime) Inspect(
+	_ context.Context, _ string,
+) (container.InspectResponse, bool, error) {
+	return f.inspectResp, f.inspectFound, f.inspectErr
 }
 
 func newListManager(resolver *fakeRuntimeResolver) *ContainerManager {

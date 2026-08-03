@@ -8,37 +8,38 @@ import (
 
 	errors "go.redsock.ru/rerrors"
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
-	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
-	"go.vervstack.ru/Velez/internal/domain/labels"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (c *ContainerManager) InspectSmerd(ctx context.Context, contId string) (*velez_api.Smerd, error) {
-	contInfo, err := c.dockerAPI.ContainerInspect(ctx, contId)
+// InspectSmerd resolves the ContainerRuntime serving environment and asks it
+// to Inspect contID - same environment-scoped resolution/ownership semantics
+// as ListSmerds (a container belonging to a different environment, or not
+// found under either identifier form, is a real "not found" error here, not
+// silently mixed up with a container from another environment). The
+// returned InspectResponse's Name is already the virtual/logical name
+// (labelBasedRuntime.Inspect rewrites it), so no suffix-stripping is needed
+// here anymore.
+func (c *ContainerManager) InspectSmerd(ctx context.Context, environment, contId string) (*velez_api.Smerd, error) {
+	runtime, err := c.runtimes.Runtime(ctx, environment)
+	if err != nil {
+		return nil, errors.Wrap(err, "error resolving environment")
+	}
+
+	contInfo, found, err := runtime.Inspect(ctx, contId)
 	if err != nil {
 		return nil, errors.Wrap(err, "error inspecting container")
 	}
 
-	// contInfo.Name is the real Docker name, which carries the environment's
-	// suffix for a non-empty one (labelBasedRuntime.ContainerCreate). Strip it
-	// back to the virtual/logical name using the suffix this same container
-	// was stamped with at creation (labels.SuffixLabel) - InspectSmerd bypasses
-	// ContainerRuntime entirely (Inspect isn't part of that interface yet, see
-	// docs/container_runtimes/roadmap.md), so it can't ask a resolved runtime
-	// to do this; reading the suffix straight off the container's own label is
-	// equivalent and needs no environment parameter threaded in here.
-	var suffix string
-
-	if contInfo.Config != nil {
-		suffix = contInfo.Config.Labels[labels.SuffixLabel]
+	if !found {
+		return nil, errors.New("container %q not found in environment %q", contId, environment)
 	}
 
 	bareName := strings.Replace(contInfo.Name, "/", "", 1)
 
 	smerd := &velez_api.Smerd{
 		Uuid:    contInfo.ID,
-		Name:    container_runtime.StripEnvironmentSuffix(bareName, suffix),
+		Name:    bareName,
 		Ports:   parser.ToPortsMapping(contInfo.HostConfig.PortBindings),
 		Volumes: parser.ToVolume(contInfo.HostConfig.Mounts),
 		Env:     parser.ToDockerEnv(contInfo.Config.Env),

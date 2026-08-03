@@ -12,7 +12,7 @@ func (impl *Impl) StopService(
 	ctx context.Context,
 	req *velez_api.StopService_Request,
 ) (*velez_api.StopService_Response, error) {
-	err := impl.servicesService.StopService(ctx, req.GetName())
+	err := impl.servicesService.StopService(ctx, req.GetName(), req.GetEnvironment())
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error stopping service")
 	}

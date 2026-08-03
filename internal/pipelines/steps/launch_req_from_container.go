@@ -36,7 +36,11 @@ func FromContainerToRequest(
 }
 
 func (s *fromContainerToRequest) Do(ctx context.Context) error {
-	cont, err := s.containerService.InspectSmerd(ctx, s.containerName)
+	// internal/pipelines is the pre-jobs-engine, pre-multi-environment
+	// pipeliner (see docs/jobs_migration.md) - it has never threaded an
+	// environment through, so "" (the default/PROD environment) preserves its
+	// existing behavior exactly.
+	cont, err := s.containerService.InspectSmerd(ctx, "", s.containerName)
 	if err != nil {
 		return rerrors.Wrap(err, "error inspecting container")
 	}

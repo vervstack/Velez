@@ -9,9 +9,13 @@
 // invisible to callers.
 //
 // Design record: docs/container_runtimes/{README,interface_design,roadmap}.md.
-// Phase 1 (current) implements ContainerCreate, ListContainers and Remove;
-// every other container operation still goes through node_clients.Docker
-// directly.
+// Phase 1 (done) implements ContainerCreate, ListContainers, Remove, Rename,
+// IsContainerRunning, Inspect, Stop, Restart, Stats and Exec, and
+// create_smerd/drop_smerd/upgrade_smerd's rename/rollback jobs (plus
+// container_manager.InspectSmerd and copy_to_volume.go's copyFileJob) all
+// resolve through RuntimeResolver instead of calling node_clients.Docker
+// directly. ListOccupiedPorts, PullImage and network ops still go through
+// node_clients.Docker directly - see roadmap.md's "Explicitly deferred".
 package container_runtime
 
 import (
@@ -22,6 +26,7 @@ import (
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/domain"
 )
 
 // ContainerConfig, HostConfig and NetworkingConfig are thin pass-throughs over
@@ -60,14 +65,30 @@ type ContainerCreateRequest struct {
 	ContainerName string
 }
 
+// ConnectToNetworkRequest bundles what ConnectToNetwork needs. ContainerID is
+// the LOGICAL identifier (uuid or logical/Docker name) - resolved via the
+// runtime's ownership check, same as every other identifier-taking method on
+// this interface (Stop/Restart/Remove/Rename/...). NetworkName is the LOGICAL
+// network name - suffixed by the runtime the same way CreateNetwork suffixes
+// one, so callers only ever deal in logical names, never the real/suffixed
+// Docker network name.
+type ConnectToNetworkRequest struct {
+	ContainerID string
+	NetworkName string
+	Aliases     []string
+}
+
 // ContainerRuntime is what the service/jobs layers depend on instead of a
 // concrete Docker client.
 //
-// Phase 1 exposes ContainerCreate, ListContainers, Remove, Rename and
-// IsContainerRunning. The rest of the target shape (Stop, Restart, Exec,
-// Stats, ListOccupiedPorts, plus the backend-agnostic PullImage/network
-// operations) is in docs/container_runtimes/interface_design.md; those
-// methods stay on node_clients.Docker until their own phase.
+// Phase 1 exposes ContainerCreate, ListContainers, Remove, Rename,
+// IsContainerRunning, Inspect, Stop, Restart, Stats and Exec. The rest of the
+// target shape (ListOccupiedPorts, plus the backend-agnostic
+// PullImage/network operations) is in
+// docs/container_runtimes/interface_design.md; those methods stay on
+// node_clients.Docker until their own phase.
+//
+//nolint:interfacebloat
 type ContainerRuntime interface {
 	ContainerCreate(ctx context.Context, req ContainerCreateRequest) (container.CreateResponse, error)
 
@@ -106,6 +127,76 @@ type ContainerRuntime interface {
 	// identifier form and when a container exists but belongs to a different
 	// environment (same cross-environment protection as Remove/Rename).
 	IsContainerRunning(ctx context.Context, nameOrID string) (running, exists bool, err error)
+
+	// Inspect returns the container identified by uuid or logical/Docker name,
+	// scoped to the environment this runtime instance was resolved for - same
+	// resolution/ownership semantics as Remove/Rename/IsContainerRunning: a
+	// container belonging to a different environment, or not found under
+	// either identifier form, is reported as found=false (with no error), not
+	// as an error. The returned InspectResponse's Name is rewritten to the
+	// virtual/logical name, never the suffixed Docker name - see
+	// labelBasedRuntime.Inspect.
+	Inspect(ctx context.Context, identifier string) (container.InspectResponse, bool, error)
+
+	// Stop stops the container identified by uuid or logical/Docker name,
+	// scoped to the environment this runtime instance was resolved for - same
+	// resolution/ownership semantics as Remove/Rename: a container belonging
+	// to a different environment, or not found under either identifier form,
+	// is treated as "nothing to stop" and reported as success, not an error.
+	Stop(ctx context.Context, nameOrID string) error
+
+	// Restart restarts the container identified by uuid or logical/Docker
+	// name, scoped to the environment this runtime instance was resolved for
+	// - same resolution/ownership semantics as Stop/Remove/Rename: a
+	// container belonging to a different environment, or not found under
+	// either identifier form, is treated as "nothing to restart" and reported
+	// as success, not an error.
+	Restart(ctx context.Context, nameOrID string) error
+
+	// Stats returns the container identified by uuid or logical/Docker name's
+	// current resource usage, scoped to the environment this runtime instance
+	// was resolved for. Unlike Stop/Restart/Remove, there is no sensible
+	// zero-value "success" for a container that doesn't resolve under either
+	// identifier form or belongs to a different environment - that case
+	// returns a non-nil error instead of a zero domain.ContainerStats.
+	Stats(ctx context.Context, nameOrID string) (domain.ContainerStats, error)
+
+	// Exec runs cfg inside the container identified by uuid or logical/Docker
+	// name, scoped to the environment this runtime instance was resolved for
+	// - same resolution/ownership semantics as Stats: a container that
+	// doesn't resolve under either identifier form, or belongs to a
+	// different environment, is a real error here, not the idempotent
+	// success Stop/Restart/Remove/Rename report - there is no sensible
+	// zero-value "success" for exec output against a container that isn't
+	// there.
+	Exec(ctx context.Context, containerID string, cfg container.ExecOptions) ([]byte, error)
+
+	// CreateNetwork ensures a Docker bridge network exists for the LOGICAL
+	// name given, suffixed to the environment this runtime instance was
+	// resolved for - see labelBasedRuntime's networkName - so each
+	// environment gets its own dedicated network instead of every
+	// environment sharing one. Idempotent: does nothing if the (suffixed)
+	// network already exists.
+	CreateNetwork(ctx context.Context, name string) error
+
+	// ConnectToNetwork connects a container to a network, both scoped to the
+	// environment this runtime instance was resolved for: the container
+	// identifier is resolved via the same ownership check as
+	// Stop/Restart/Remove/Rename/Exec, and req.NetworkName is suffixed the
+	// same way CreateNetwork suffixes a network name. Unlike
+	// Stop/Restart/Remove/Rename - which treat a missing/foreign container as
+	// idempotent success - and like Exec/Stats, a container not found under
+	// either identifier form, or belonging to a different environment, is a
+	// real error here: there's no sensible "connected" outcome for a
+	// container that isn't there.
+	ConnectToNetwork(ctx context.Context, req ConnectToNetworkRequest) error
+
+	// DisconnectFromNetworks disconnects a container from each named network,
+	// both scoped to the environment this runtime instance was resolved for -
+	// same identifier resolution/ownership semantics as ConnectToNetwork, and
+	// the same networkName suffixing applied to every entry in networks
+	// before it's handed to the backend.
+	DisconnectFromNetworks(ctx context.Context, containerID string, networks []string) error
 }
 
 // RuntimeResolver hands out the ContainerRuntime serving a given environment.

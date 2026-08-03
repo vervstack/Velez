@@ -39,7 +39,7 @@ func (m *testContainerService) DropSmerds(
 	return nil, nil
 }
 
-func (m *testContainerService) InspectSmerd(ctx context.Context, contId string) (*velez_api.Smerd, error) {
+func (m *testContainerService) InspectSmerd(ctx context.Context, environment, contId string) (*velez_api.Smerd, error) {
 	return nil, nil
 }
 

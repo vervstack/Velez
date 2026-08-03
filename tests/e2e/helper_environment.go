@@ -286,6 +286,10 @@ func (e *TestEnvironment) VpnClient() velez_api.VcnApiClient {
 	return velez_api.NewVcnApiClient(e.grpcConn)
 }
 
+func (e *TestEnvironment) ServiceApiClient() velez_api.ServiceApiClient {
+	return velez_api.NewServiceApiClient(e.grpcConn)
+}
+
 func (e *TestEnvironment) clean() {
 	ctx := context.Background()
 	dockerClient := e.Custom.NodeClients.Docker().Client()

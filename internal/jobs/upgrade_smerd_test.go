@@ -18,12 +18,14 @@ import (
 	dockerspec "github.com/moby/docker-image-spec/specs-go/v1"
 	ocispec "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/sqlc-dev/pqtype"
+	"github.com/stretchr/testify/require"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
+	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
@@ -269,15 +271,19 @@ func TestCaptureOldContainerJob_SetsEnvironmentFromUpgradeRequest(t *testing.T) 
 	t.Parallel()
 
 	// Cheapest real fixture: one container, no ports/volumes/network, real
-	// ContainerCreate. environments.DefaultEnvironmentName's empty suffix
-	// means containerService.InspectSmerd(ctx, name) matches directly - the
-	// assertion under test (Environment copied onto the built request) is
-	// independent of which environment/suffix actually resolves.
-	containerService, runtimes, cli := newRealUpgradeFixture(t, environments.DefaultEnvironmentName)
+	// ContainerCreate - created through testUpgradeEnv's resolved runtime (so
+	// its real Docker name carries that environment's suffix), matching the
+	// payload's own Environment below. containerService.InspectSmerd is now
+	// environment-scoped (see container_manager.InspectSmerd), so the old
+	// container must actually live in the environment the request names for
+	// the direct, no-fallback lookup below to succeed (j.runtimes stays nil -
+	// this test isn't exercising the fallback path, see
+	// TestCaptureOldContainerJob_SuffixAwareLookup for that).
+	containerService, runtimes, cli := newRealUpgradeFixture(t, testUpgradeEnv)
 
 	test_helper.EnsurePulled(t, cli, test_helper.HelloWorldAppImage)
 
-	rt, err := runtimes.Runtime(context.Background(), environments.DefaultEnvironmentName)
+	rt, err := runtimes.Runtime(context.Background(), testUpgradeEnv)
 	if err != nil {
 		t.Fatalf("unexpected error resolving runtime: %v", err)
 	}
@@ -502,61 +508,130 @@ func TestPauseOldContainerJob_EmptyContainerId_Error(t *testing.T) {
 	}
 }
 
+// TestPauseOldContainerJob_Success is exercised against a real local Docker
+// daemon (newRealUpgradeFixture), not a hand-written fake, per this repo's
+// testing policy (CLAUDE.md's "Testing" section) - Do/Rollback are now
+// touching this test's own code (networkBindingsFor,
+// ContainerRuntime.DisconnectFromNetworks/ConnectToNetwork), so the fake this
+// test used to lean on (fakeContainerAPI's NetworkDisconnect/NetworkConnect)
+// is retired rather than kept alongside a parallel real-Docker path.
 func TestPauseOldContainerJob_Success(t *testing.T) {
-	containerAPI := newFakeContainerAPI()
+	// Not t.Parallel(): kept sequential relative to
+	// TestPrepareUpgradeVervConfigJob_Success (both create real networks on
+	// the shared daemon); dockerutils.CreateNetwork no longer hardcodes a
+	// subnet (see network.go), but there's no need to prove out parallel
+	// safety here when this test's actual subject is pause/rollback, not
+	// network-creation concurrency.
+	_, runtimes, cli := newRealUpgradeFixture(t, testUpgradeEnv)
 
-	networkSettings := &container.NetworkSettings{
-		Networks: map[string]*network.EndpointSettings{testNetworkName: {Aliases: []string{testNetworkAlias}}},
+	test_helper.EnsurePulled(t, cli, test_helper.HelloWorldAppImage)
+
+	name := test_helper.UniqueName(t, testUpgradeSvcName)
+
+	runtime, err := runtimes.Runtime(context.Background(), testUpgradeEnv)
+	require.NoError(t, err)
+
+	hostCfg := &container.HostConfig{
+		PortBindings: nat.PortMap{testUpgradePgPort: []nat.PortBinding{{HostPort: "40001"}}},
 	}
 
-	networkSettings.Ports = nat.PortMap{testUpgradePgPort: []nat.PortBinding{{HostPort: "40001"}}}
+	createReq := container_runtime.ContainerCreateRequest{
+		Config: &container_runtime.ContainerConfig{Config: &container.Config{
+			Image:        test_helper.HelloWorldAppImage,
+			ExposedPorts: nat.PortSet{testUpgradePgPort: struct{}{}},
+		}},
+		HostConfig:    &container_runtime.HostConfig{HostConfig: hostCfg},
+		ContainerName: name,
+	}
 
-	containerAPI.inspectResp = container.InspectResponse{
-		ContainerJSONBase: &container.ContainerJSONBase{
-			Name:  testUpgradeContName,
-			State: &container.State{Status: container.StateRunning},
+	created, err := runtime.ContainerCreate(context.Background(), createReq)
+	require.NoError(t, err)
+
+	err = cli.ContainerStart(context.Background(), created.ID, container.StartOptions{})
+	require.NoError(t, err)
+
+	err = runtime.CreateNetwork(context.Background(), env.VervNetwork)
+	require.NoError(t, err)
+
+	vervNetName := env.VervNetwork + "_" + testUpgradeEnv
+
+	// Registration order matters: t.Cleanup runs LIFO, and by the end of this
+	// test (after job.Rollback reconnects the container - see below) the
+	// container is attached to vervNetName again, so removing the network
+	// must happen AFTER the container is gone, not before (Docker refuses to
+	// remove a network with an active endpoint - silently, since NetworkRemove's
+	// error is ignored here - which would leak the network and collide with
+	// any other test's identically-subnetted network, exactly the flake
+	// TestCaptureOldContainerJob_Success is already known for).
+	t.Cleanup(func() {
+		_ = cli.NetworkRemove(context.Background(), vervNetName)
+	})
+
+	t.Cleanup(func() {
+		test_helper.RemoveContainer(t, cli, created.ID)
+	})
+
+	connReq := container_runtime.ConnectToNetworkRequest{
+		ContainerID: created.ID,
+		NetworkName: env.VervNetwork,
+		Aliases:     []string{name},
+	}
+
+	err = runtime.ConnectToNetwork(context.Background(), connReq)
+	require.NoError(t, err)
+
+	// Settings.Ports must be non-empty here to match the real container: it was
+	// created (above) with a host port binding, and networkBindingsFor only
+	// includes the default network when the request says it has one - same
+	// gating createContainerJob.connectNetworks applies at create time (see
+	// networkBindingsFor's doc comment).
+	payload := &velez_api.UpgradeSmerdTaskPayload{
+		OldContainerId: strPtr(created.ID),
+		Request: &velez_api.CreateSmerd_Request{
+			Name:        name,
+			Environment: testUpgradeEnv,
+			Settings: &velez_api.Container_Settings{
+				Ports: []*velez_api.Port{{ServicePortNumber: 5432}},
+			},
 		},
-		NetworkSettings: networkSettings,
 	}
 
-	payload := &velez_api.UpgradeSmerdTaskPayload{OldContainerId: strPtr(testOldContainerID)}
-
-	job := &pauseOldContainerJob{dockerAPI: containerAPI, portManager: realPortManager(t), ctx: payload}
-
-	err := job.Do(context.Background())
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+	job := &pauseOldContainerJob{
+		dockerAPI:   cli,
+		portManager: realPortManager(t),
+		runtimes:    runtimes,
+		req:         payload,
+		ctx:         payload,
 	}
 
-	if len(containerAPI.pauseCalledWith) != 1 || containerAPI.pauseCalledWith[0] != testOldContainerID {
-		t.Errorf("expected container paused, got %v", containerAPI.pauseCalledWith)
+	err = job.Do(context.Background())
+	require.NoError(t, err)
+
+	inspected, err := cli.ContainerInspect(context.Background(), created.ID)
+	require.NoError(t, err)
+	require.NotContains(t, inspected.NetworkSettings.Networks, vervNetName,
+		"expected the container to be disconnected from its network")
+
+	// Real Docker reports one binding per IP family for the same host port
+	// when no HostIP is pinned (IPv4 + IPv6), so portsOnHold can legitimately
+	// hold 40001 more than once - unlike the hand-crafted single-binding
+	// fixture this test used to use. What matters is that every entry is the
+	// port actually published, not the exact count.
+	require.NotEmpty(t, job.portsOnHold)
+
+	for _, p := range job.portsOnHold {
+		require.Equal(t, uint32(40001), p)
 	}
 
-	if len(containerAPI.networkDisconnectCalledWith) != 1 {
-		t.Errorf("expected 1 network disconnect call, got %v", containerAPI.networkDisconnectCalledWith)
-	}
-
-	if len(job.portsOnHold) != 1 || job.portsOnHold[0] != 40001 {
-		t.Errorf("expected port 40001 held, got %v", job.portsOnHold)
-	}
-
-	// Rollback: unpause, then reconnect any network connectToNetwork finds
-	// missing. containerAPI.inspectResp is a single static fixture (no
-	// per-call state), so ContainerInspect still reports testNetworkName present
-	// during Rollback exactly as it did during Do() - connectToNetwork's
-	// already-connected check (mirroring dockerutils.ConnectToNetwork's own
-	// optimization) therefore sees it as already connected and skips the
-	// NetworkConnect call. That's the fake's limitation, not the job's: this
-	// only asserts what the fixture can actually support (unpause + no
-	// error), not a full reconnect call.
 	err = job.Rollback(context.Background())
-	if err != nil {
-		t.Fatalf("unexpected rollback error: %v", err)
-	}
+	require.NoError(t, err)
 
-	if len(containerAPI.unpauseCalledWith) != 1 {
-		t.Errorf("expected container unpaused on rollback, got %v", containerAPI.unpauseCalledWith)
-	}
+	inspected, err = cli.ContainerInspect(context.Background(), created.ID)
+	require.NoError(t, err)
+	require.Contains(t, inspected.NetworkSettings.Networks, vervNetName,
+		"expected the container to be reconnected to its network on rollback")
+	require.Contains(t, inspected.NetworkSettings.Networks[vervNetName].Aliases, name,
+		"expected the reconnect to carry the same alias the container had before pause")
 }
 
 // renamingCreateContainerJob
@@ -687,19 +762,28 @@ func TestFetchUpgradeConfigJob_RestoresNameAndMergesEnv(t *testing.T) {
 
 // prepareUpgradeVervConfigJob
 
+// TestPrepareUpgradeVervConfigJob_Success is exercised against a real local
+// Docker daemon (newRealUpgradeFixture), not a hand-written fake, per this
+// repo's testing policy (CLAUDE.md's "Testing" section) - Do now creates the
+// request's extra networks through the resolved ContainerRuntime instead of
+// against a raw client.APIClient, so the fake this test used to lean on
+// (fakeContainerAPI's NetworkList/NetworkCreate) is retired.
 func TestPrepareUpgradeVervConfigJob_Success(t *testing.T) {
-	containerAPI := newFakeContainerAPI()
+	// Not t.Parallel(): kept sequential relative to
+	// TestPauseOldContainerJob_Success - see its identical note.
+	_, runtimes, cli := newRealUpgradeFixture(t, testUpgradeEnv)
 
-	containerAPI.networkListResp = nil // network not found -> gets created
+	networkName := test_helper.UniqueName(t, testNetworkName)
 
 	payload := &velez_api.UpgradeSmerdTaskPayload{
 		Request: &velez_api.CreateSmerd_Request{
-			Name:   testUpgradeSvcName,
-			Env:    map[string]string{},
-			Labels: map[string]string{},
+			Name:        testUpgradeSvcName,
+			Environment: testUpgradeEnv,
+			Env:         map[string]string{},
+			Labels:      map[string]string{},
 			Settings: &velez_api.Container_Settings{
 				Ports:   []*velez_api.Port{{ServicePortNumber: 8080}},
-				Network: []*velez_api.NetworkBind{{NetworkName: testNetworkName}},
+				Network: []*velez_api.NetworkBind{{NetworkName: networkName}},
 			},
 		},
 		ImageLabels: map[string]string{"custom": "label"},
@@ -707,33 +791,28 @@ func TestPrepareUpgradeVervConfigJob_Success(t *testing.T) {
 
 	pm := realPortManager(t)
 
-	j := &prepareUpgradeVervConfigJob{dockerAPI: containerAPI, portManager: pm, imageMeta: payload, req: payload}
+	j := &prepareUpgradeVervConfigJob{portManager: pm, runtimes: runtimes, imageMeta: payload, req: payload}
 
 	err := j.Do(context.Background())
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
+	require.NoError(t, err)
 
-	if payload.GetRequest().GetSettings().GetPorts()[0].GetExposedTo() == 0 {
-		t.Error("expected a host port to be locked")
-	}
+	require.NotZero(t, payload.GetRequest().GetSettings().GetPorts()[0].GetExposedTo(),
+		"expected a host port to be locked")
+	require.Equal(t, "label", payload.GetRequest().GetLabels()["custom"],
+		"expected image labels merged into request labels")
+	require.Equal(t, testUpgradeSvcName, payload.GetRequest().GetLabels()[labels.ComposeGroupLabel])
 
-	if payload.GetRequest().GetLabels()["custom"] != "label" {
-		t.Errorf("expected image labels merged into request labels, got %v", payload.GetRequest().GetLabels())
-	}
+	expectedNetName := networkName + "_" + testUpgradeEnv
 
-	if payload.GetRequest().GetLabels()[labels.ComposeGroupLabel] != testUpgradeSvcName {
-		t.Errorf("expected compose group label set, got %v", payload.GetRequest().GetLabels())
-	}
+	t.Cleanup(func() {
+		_ = cli.NetworkRemove(context.Background(), expectedNetName)
+	})
 
-	if len(containerAPI.networkCreateCalledWith) != 1 {
-		t.Errorf("expected network to be created, got %v", containerAPI.networkCreateCalledWith)
-	}
+	_, err = cli.NetworkInspect(context.Background(), expectedNetName, network.InspectOptions{})
+	require.NoError(t, err, "expected the extra network to be created, suffixed to the environment")
 
 	err = j.Rollback(context.Background())
-	if err != nil {
-		t.Fatalf("unexpected rollback error: %v", err)
-	}
+	require.NoError(t, err)
 }
 
 // renameContainerJob
@@ -1214,7 +1293,6 @@ func TestUpgradeSmerdHandler_FailurePath_NetworkCreateFails(t *testing.T) {
 		NetworkSettings: networkSettings,
 	}
 	containerAPI.copyFromResp = []byte("KEY=value")
-	containerAPI.networkCreateErr = errNetworkCreate
 
 	docker := newFakeDocker()
 
@@ -1240,8 +1318,12 @@ func TestUpgradeSmerdHandler_FailurePath_NetworkCreateFails(t *testing.T) {
 		Labels:   map[string]string{},
 	}
 
+	runtimes := newFakeRuntimes(docker, nil)
+
+	runtimes.createNetworkErr = errNetworkCreate
+
 	handler := NewUpgradeSmerdHandler(
-		nodeClients, containerService, newFakeConfigurationService(), newFakeRuntimes(docker, nil))
+		nodeClients, containerService, newFakeConfigurationService(), runtimes)
 
 	taskCtx := handler.NewContext()
 

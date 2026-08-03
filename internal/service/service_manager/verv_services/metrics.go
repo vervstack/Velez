@@ -11,9 +11,13 @@ import (
 	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
-func (v *VervService) GetServiceMetrics(ctx context.Context, serviceName string) (domain.ServiceMetrics, error) {
+func (v *VervService) GetServiceMetrics(
+	ctx context.Context,
+	serviceName, environment string,
+) (domain.ServiceMetrics, error) {
 	req := &velez_api.ListSmerds_Request{
-		Label: map[string]string{labels.VervServiceLabel: serviceName},
+		Label:       map[string]string{labels.VervServiceLabel: serviceName},
+		Environment: environment,
 	}
 
 	resp, err := v.containerService.ListSmerds(ctx, req)
@@ -23,12 +27,17 @@ func (v *VervService) GetServiceMetrics(ctx context.Context, serviceName string)
 
 	// single-mode fallback: find container by name when VERV_SERVICE label is absent
 	if len(resp.GetSmerds()) == 0 {
-		req = &velez_api.ListSmerds_Request{Name: &serviceName}
+		req = &velez_api.ListSmerds_Request{Name: &serviceName, Environment: environment}
 
 		resp, err = v.containerService.ListSmerds(ctx, req)
 		if err != nil {
 			return domain.ServiceMetrics{}, rerrors.Wrap(err, "error listing smerds")
 		}
+	}
+
+	runtime, err := v.runtimes.Runtime(ctx, environment)
+	if err != nil {
+		return domain.ServiceMetrics{}, rerrors.Wrap(err, "error resolving environment")
 	}
 
 	metrics := domain.ServiceMetrics{
@@ -52,7 +61,7 @@ func (v *VervService) GetServiceMetrics(ctx context.Context, serviceName string)
 			continue
 		}
 
-		stats, err := v.docker.Stats(ctx, smerd.GetName())
+		stats, err := runtime.Stats(ctx, smerd.GetName())
 		if err != nil {
 			continue
 		}

@@ -102,7 +102,7 @@ func (c *Custom) Init(a *App) (err error) {
 		c.NodeClients, c.Services.ConfigurationService(), runtimeResolver))
 	registry.Register(jobs.NewCreateServiceHandler(c.ClusterClients.StateManager().Services()))
 	registry.Register(jobs.NewAssembleConfigHandler(c.NodeClients))
-	registry.Register(jobs.NewCopyToVolumeHandler(c.NodeClients))
+	registry.Register(jobs.NewCopyToVolumeHandler(c.NodeClients, runtimeResolver))
 	registry.Register(jobs.NewConnectServiceToVpnHandler(
 		c.NodeClients, c.ClusterClients.Vpn(), c.ClusterClients.ServiceDiscovery()))
 	registry.Register(jobs.NewEnableStatefullHandler(

@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/containerd/errdefs"
 	dockernetwork "github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/stretchr/testify/assert"
@@ -258,7 +259,9 @@ func (s *HelloWorldClusterSuite) _prepareNetwork() {
 	s.networkName = GetServiceName(t) + "_net"
 
 	err := s.dockerClient.NetworkRemove(ctx, s.networkName)
-	require.NoError(t, err)
+	if err != nil && !errdefs.IsNotFound(err) {
+		require.NoError(t, err)
+	}
 
 	createNetOpts := dockernetwork.CreateOptions{
 		Driver: "bridge",
@@ -275,7 +278,9 @@ func (s *HelloWorldClusterSuite) TeardownTest() {
 	ctx := t.Context()
 
 	err := s.dockerClient.NetworkRemove(ctx, s.networkName)
-	assert.NoError(t, err)
+	if err != nil && !errdefs.IsNotFound(err) {
+		assert.NoError(t, err)
+	}
 }
 
 func (s *HelloWorldClusterSuite) _preparePgApp() {

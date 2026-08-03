@@ -18,6 +18,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
 )
 
@@ -67,11 +68,21 @@ type copyAPI interface {
 
 type copyToVolumeHandler struct {
 	nodeClients node_clients.NodeClients
+
+	// runtimes resolves the (unscoped/default) environment into the
+	// ContainerRuntime copyFileJob execs its "mkdir -p" into - see
+	// copyFileJob's doc comment for why that's always the empty environment,
+	// never a per-request one.
+	runtimes container_runtime.RuntimeResolver
 }
 
-func NewCopyToVolumeHandler(nodeClients node_clients.NodeClients) TaskHandler {
+func NewCopyToVolumeHandler(
+	nodeClients node_clients.NodeClients,
+	runtimes container_runtime.RuntimeResolver,
+) TaskHandler {
 	return &copyToVolumeHandler{
 		nodeClients: nodeClients,
+		runtimes:    runtimes,
 	}
 }
 
@@ -119,7 +130,7 @@ func (h *copyToVolumeHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 
 	for i, filePath := range sortedPaths {
 		copyJob := &copyFileJob{
-			docker:   h.nodeClients.Docker(),
+			runtimes: h.runtimes,
 			copyAPI:  h.nodeClients.Docker().Client(),
 			ctx:      payload,
 			filePath: filePath,
@@ -293,9 +304,17 @@ func (j *startLoaderContainerJob) Rollback(ctx context.Context) error {
 // re-running it on task resume costs nothing. It has no Rollback: the
 // pipeline never undid individual file writes either, only the container
 // itself (via drop_container).
+//
+// The mkdir step goes through a ContainerRuntime resolved via runtimes,
+// rather than a raw node_clients.Docker, per docs/container_runtimes -
+// resolved for the empty/default environment, since createLoaderContainerJob
+// creates the loader container unscoped (suffix ""), never tied to any
+// environment's suffix (see that job's doc comment). CopyToContainer has no
+// ContainerRuntime equivalent yet, so it stays on the narrow copyAPI
+// interface.
 type copyFileJob struct {
-	docker  node_clients.Docker
-	copyAPI copyAPI
+	runtimes container_runtime.RuntimeResolver
+	copyAPI  copyAPI
 
 	ctx containerIDAccessor
 
@@ -316,6 +335,11 @@ func (j *copyFileJob) Do(ctx context.Context) error {
 		return rerrors.New("no container id provided")
 	}
 
+	containerRuntime, err := j.runtimes.Runtime(ctx, "")
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving container runtime")
+	}
+
 	dir := path.Dir(j.filePath)
 
 	execOpts := container.ExecOptions{
@@ -326,7 +350,7 @@ func (j *copyFileJob) Do(ctx context.Context) error {
 	// smerd_steps.Exec ignores the command's exit code (ops result is
 	// discarded), so a failing mkdir surfaces only as a transport-level
 	// Docker error here too - inherited unchanged (see questions.md #5).
-	_, err := j.docker.Exec(ctx, containerID, execOpts)
+	_, err = containerRuntime.Exec(ctx, containerID, execOpts)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating directory in container")
 	}

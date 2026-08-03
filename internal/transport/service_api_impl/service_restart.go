@@ -12,7 +12,7 @@ func (impl *Impl) RestartService(
 	ctx context.Context,
 	req *velez_api.RestartService_Request,
 ) (*velez_api.RestartService_Response, error) {
-	err := impl.servicesService.RestartService(ctx, req.GetName())
+	err := impl.servicesService.RestartService(ctx, req.GetName(), req.GetEnvironment())
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error restarting service")
 	}

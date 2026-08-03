@@ -33,7 +33,11 @@ func CheckUpgradeIsAvailable(
 func (s *checkUpgradeIsAvailableStep) Do(ctx context.Context) error {
 	id := env.GetContainerId()
 	if id != nil {
-		smerd, err := s.smerdService.InspectSmerd(ctx, toolbox.FromPtr(s.smerdName))
+		// internal/pipelines is the pre-jobs-engine, pre-multi-environment
+		// pipeliner (see docs/jobs_migration.md) - it has never threaded an
+		// environment through, so "" (the default/PROD environment) preserves
+		// its existing behavior exactly.
+		smerd, err := s.smerdService.InspectSmerd(ctx, "", toolbox.FromPtr(s.smerdName))
 		if err != nil {
 			return rerrors.Wrap(err, "error inspecting smerd")
 		}

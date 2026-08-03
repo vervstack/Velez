@@ -16,6 +16,7 @@ func (impl *Impl) RemoveService(
 	removeReq := domain.RemoveServiceReq{
 		Name:                 req.GetName(),
 		DropRunningInstances: req.GetDropRunningInstances(),
+		Environment:          req.GetEnvironment(),
 	}
 
 	err := impl.servicesService.Remove(ctx, removeReq)

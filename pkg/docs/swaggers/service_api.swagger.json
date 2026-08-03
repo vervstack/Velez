@@ -814,6 +814,10 @@
       "properties": {
         "serviceName": {
           "type": "string"
+        },
+        "environment": {
+          "type": "string",
+          "description": "environment - the isolated namespace this operation targets. Required;\nvalidated in the service layer, not here (proto3 has no `required`\nkeyword)."
         }
       }
     },
@@ -1033,6 +1037,10 @@
         "dropRunningInstances": {
           "type": "boolean",
           "description": "If true, any smerd/container attached to this service is dropped\nfirst. If false and a smerd exists, the call fails instead."
+        },
+        "environment": {
+          "type": "string",
+          "description": "environment - the isolated namespace this operation targets. Required;\nvalidated in the service layer, not here (proto3 has no `required`\nkeyword)."
         }
       }
     },
@@ -1066,6 +1074,10 @@
       "properties": {
         "name": {
           "type": "string"
+        },
+        "environment": {
+          "type": "string",
+          "description": "environment - the isolated namespace this operation targets. Required;\nvalidated in the service layer, not here (proto3 has no `required`\nkeyword)."
         }
       }
     },
@@ -1144,6 +1156,10 @@
       "properties": {
         "name": {
           "type": "string"
+        },
+        "environment": {
+          "type": "string",
+          "description": "environment - the isolated namespace this operation targets. Required;\nvalidated in the service layer, not here (proto3 has no `required`\nkeyword)."
         }
       }
     },

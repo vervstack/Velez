@@ -2,6 +2,7 @@ package verv_services
 
 import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/storage"
 )
@@ -11,18 +12,27 @@ type VervService struct {
 
 	containerService service.ContainerService
 	docker           node_clients.Docker
+
+	// runtimes resolves the ContainerRuntime serving a given environment -
+	// see docs/container_runtimes. Stop/Restart/Remove/GetServiceMetrics
+	// route through it (instead of calling docker directly) so they resolve
+	// against the smerd's actual environment rather than always PROD - see
+	// docs/container_runtimes/roadmap.md's Stage 2.
+	runtimes container_runtime.RuntimeResolver
 }
 
 func New(
 	dataStorage storage.Storage,
 	containerService service.ContainerService,
 	docker node_clients.Docker,
+	runtimes container_runtime.RuntimeResolver,
 ) *VervService {
 	return &VervService{
 		dataStorage: dataStorage,
 
 		containerService: containerService,
 		docker:           docker,
+		runtimes:         runtimes,
 	}
 }
 

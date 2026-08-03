@@ -51,7 +51,7 @@ func New(
 	sm := &ServiceManager{
 		containerManager: cm,
 		configurator:     configService,
-		vervServices:     verv_services.New(clusterClients.StateManager(), cm, nodeClients.Docker()),
+		vervServices:     verv_services.New(clusterClients.StateManager(), cm, nodeClients.Docker(), runtimeResolver),
 
 		docker:      nodeClients.Docker(),
 		nodeService: nodes_service.NewService(clusterClients.StateManager()),

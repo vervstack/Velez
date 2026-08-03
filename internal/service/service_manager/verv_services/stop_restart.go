@@ -7,9 +7,10 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
-func (v *VervService) StopService(ctx context.Context, name string) error {
+func (v *VervService) StopService(ctx context.Context, name, environment string) error {
 	listReq := &velez_api.ListSmerds_Request{
-		Name: &name,
+		Name:        &name,
+		Environment: environment,
 	}
 
 	resp, err := v.containerService.ListSmerds(ctx, listReq)
@@ -17,8 +18,13 @@ func (v *VervService) StopService(ctx context.Context, name string) error {
 		return rerrors.Wrap(err, "error listing smerds for service")
 	}
 
+	runtime, err := v.runtimes.Runtime(ctx, environment)
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving environment")
+	}
+
 	for _, smerd := range resp.GetSmerds() {
-		err = v.docker.Stop(ctx, smerd.GetUuid())
+		err = runtime.Stop(ctx, smerd.GetUuid())
 		if err != nil {
 			return rerrors.Wrap(err, "error stopping smerd")
 		}
@@ -27,9 +33,10 @@ func (v *VervService) StopService(ctx context.Context, name string) error {
 	return nil
 }
 
-func (v *VervService) RestartService(ctx context.Context, name string) error {
+func (v *VervService) RestartService(ctx context.Context, name, environment string) error {
 	listReq := &velez_api.ListSmerds_Request{
-		Name: &name,
+		Name:        &name,
+		Environment: environment,
 	}
 
 	resp, err := v.containerService.ListSmerds(ctx, listReq)
@@ -37,8 +44,13 @@ func (v *VervService) RestartService(ctx context.Context, name string) error {
 		return rerrors.Wrap(err, "error listing smerds for service")
 	}
 
+	runtime, err := v.runtimes.Runtime(ctx, environment)
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving environment")
+	}
+
 	for _, smerd := range resp.GetSmerds() {
-		err = v.docker.Restart(ctx, smerd.GetUuid())
+		err = runtime.Restart(ctx, smerd.GetUuid())
 		if err != nil {
 			return rerrors.Wrap(err, "error restarting smerd")
 		}

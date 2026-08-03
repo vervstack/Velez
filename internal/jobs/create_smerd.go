@@ -150,8 +150,8 @@ func (h *createSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: stepPrepareVervConfig,
 			Job: &prepareSmerdVervConfigJob{
-				dockerAPI:         dockerAPI,
 				portManager:       h.nodeClients.PortManager(),
+				runtimes:          h.runtimes,
 				req:               payload,
 				imageMeta:         payload,
 				imageExposedPorts: payload,
@@ -413,8 +413,12 @@ func (j *fetchSmerdConfigJob) addMount(path string, content []byte) {
 
 // prepareSmerdVervConfigJob mirrors steps.prepareVervConfig.
 type prepareSmerdVervConfigJob struct {
-	dockerAPI   createNetworkAPI
 	portManager node_clients.PortManager
+	// runtimes resolves the request's environment into the ContainerRuntime
+	// that serves it, so ensureNetworks creates any of request's extra
+	// networks (Settings.Network) scoped/suffixed to that environment instead
+	// of against the raw Docker daemon - see docs/container_runtimes.
+	runtimes container_runtime.RuntimeResolver
 
 	req               smerdRequestAccessor
 	imageMeta         imageMetaAccessor
@@ -478,8 +482,17 @@ func (j *prepareSmerdVervConfigJob) applyLabels(request *velez_api.CreateSmerd_R
 }
 
 func (j *prepareSmerdVervConfigJob) ensureNetworks(ctx context.Context, request *velez_api.CreateSmerd_Request) error {
+	if len(request.GetSettings().GetNetwork()) == 0 {
+		return nil
+	}
+
+	containerRuntime, err := j.runtimes.Runtime(ctx, request.GetEnvironment())
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving container runtime")
+	}
+
 	for _, n := range request.GetSettings().GetNetwork() {
-		err := createNetworkIfMissing(ctx, j.dockerAPI, n.GetNetworkName())
+		err = containerRuntime.CreateNetwork(ctx, n.GetNetworkName())
 		if err != nil {
 			return rerrors.Wrap(err, "error creating network: %s", n.GetNetworkName())
 		}
@@ -642,9 +655,6 @@ func (j *createContainerJob) Do(ctx context.Context) error {
 	netCfg := &network.NetworkingConfig{}
 	if req.GetSettings() != nil && len(req.GetSettings().GetPorts()) != 0 {
 		netCfg.EndpointsConfig = make(map[string]*network.EndpointSettings)
-		netCfg.EndpointsConfig[env.VervNetwork] = &network.EndpointSettings{
-			Aliases: []string{req.GetName()},
-		}
 		// required in order to expose ports on some platforms (e.g. orbs)
 		netCfg.EndpointsConfig["bridge"] = &network.EndpointSettings{}
 	}
@@ -674,19 +684,9 @@ func (j *createContainerJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error inspecting container by id")
 	}
 
-	if req.GetSettings() != nil {
-		for _, n := range req.GetSettings().GetNetwork() {
-			connectReq := dockerutils.ConnectToNetworkRequest{
-				NetworkName: n.GetNetworkName(),
-				ContId:      created.ID,
-				Aliases:     n.GetAliases(),
-			}
-
-			err = dockerutils.ConnectToNetwork(ctx, dockerClient.Client(), connectReq)
-			if err != nil {
-				return rerrors.Wrap(err, "error connecting container to network")
-			}
-		}
+	err = j.connectNetworks(ctx, containerRuntime, req, created.ID)
+	if err != nil {
+		return err
 	}
 
 	j.ctx.SetContainerId(containerInfo.ID)
@@ -708,6 +708,61 @@ func (j *createContainerJob) Rollback(ctx context.Context) error {
 	err = containerRuntime.Remove(ctx, containerID)
 	if err != nil && !errdefs.IsNotFound(err) {
 		return rerrors.Wrapf(err, "error removing container '%s'", containerID)
+	}
+
+	return nil
+}
+
+// connectNetworks joins the newly-created container to the environment's own
+// default network (env.VervNetwork, created if missing and suffixed to this
+// runtime's environment - see ContainerRuntime.CreateNetwork/ConnectToNetwork)
+// plus any extra networks the request asked for (Settings.Network) -
+// preserving the exact historical gating of the "verv" join (only containers
+// with at least one port binding got it - see the netCfg construction above),
+// just as an explicit post-create connect instead of baked directly into
+// NetworkingConfig at create time. The latter assumed a single unsuffixed
+// "verv" network already existed on the daemon (created once at node boot by
+// env.StartNetwork); that assumption no longer holds once each environment
+// gets its own suffixed network, so the network must be ensured here instead.
+func (j *createContainerJob) connectNetworks(
+	ctx context.Context,
+	containerRuntime container_runtime.ContainerRuntime,
+	req *velez_api.CreateSmerd_Request,
+	containerID string,
+) error {
+	if req.GetSettings() != nil && len(req.GetSettings().GetPorts()) != 0 {
+		err := containerRuntime.CreateNetwork(ctx, env.VervNetwork)
+		if err != nil {
+			return rerrors.Wrap(err, "error creating environment network")
+		}
+
+		vervConnectReq := container_runtime.ConnectToNetworkRequest{
+			ContainerID: containerID,
+			NetworkName: env.VervNetwork,
+			Aliases:     []string{req.GetName()},
+		}
+
+		err = containerRuntime.ConnectToNetwork(ctx, vervConnectReq)
+		if err != nil {
+			return rerrors.Wrap(err, "error connecting container to environment network")
+		}
+	}
+
+	if req.GetSettings() == nil {
+		return nil
+	}
+
+	for _, n := range req.GetSettings().GetNetwork() {
+		connectReq := container_runtime.ConnectToNetworkRequest{
+			ContainerID: containerID,
+			NetworkName: n.GetNetworkName(),
+			Aliases:     n.GetAliases(),
+		}
+
+		err := containerRuntime.ConnectToNetwork(ctx, connectReq)
+		if err != nil {
+			return rerrors.Wrap(err, "error connecting container to network")
+		}
 	}
 
 	return nil

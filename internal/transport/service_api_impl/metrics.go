@@ -12,7 +12,7 @@ func (impl *Impl) GetServiceMetrics(
 	ctx context.Context,
 	pbReq *pb.GetServiceMetrics_Request,
 ) (*pb.GetServiceMetrics_Response, error) {
-	metrics, err := impl.servicesService.GetServiceMetrics(ctx, pbReq.GetServiceName())
+	metrics, err := impl.servicesService.GetServiceMetrics(ctx, pbReq.GetServiceName(), pbReq.GetEnvironment())
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error getting service metrics")
 	}

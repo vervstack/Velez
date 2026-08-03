@@ -1,9 +1,14 @@
 # Container Runtimes
 
-**Status: design agreed, Phase 1 (`ContainerCreate` only) not yet implemented.** This directory is the durable
-record of the design session that produced it, so implementation can start from here instead of re-deriving the
-shape from scratch. See [`interface_design.md`](interface_design.md) for the concrete Go types/interfaces and
-[`roadmap.md`](roadmap.md) for what's in/out of scope per phase and the known bugs that block later phases.
+**Status: Phase 1 implemented and cut over.** `ContainerCreate`, `ListContainers`, `Remove`, `Rename` and
+`IsContainerRunning` are all live on `labelBasedRuntime`, and `create_smerd`/`drop_smerd`/`upgrade_smerd`'s
+rename/rollback jobs all resolve and call through `RuntimeResolver` instead of touching `node_clients.Docker`
+directly. Remaining work is the rest of the `ContainerRuntime` interface (`Stop`/`Restart`/`Exec`/`Stats`/
+`ListOccupiedPorts`/`PullImage`/network ops — see `roadmap.md`'s "Explicitly deferred") and Phase 2 (dedicated
+Docker instance, still a stub). This directory is the durable record of the design session that produced this
+work, so future phases can continue from here instead of re-deriving the shape from scratch. See
+[`interface_design.md`](interface_design.md) for the concrete Go types/interfaces and [`roadmap.md`](roadmap.md)
+for what's in/out of scope per phase and the known bugs that block later phases.
 
 ## Motivation
 

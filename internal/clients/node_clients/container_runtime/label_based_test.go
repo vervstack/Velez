@@ -18,8 +18,9 @@ import (
 )
 
 const (
-	testSmerdName = "mysvc"
-	testSuffix    = "stage"
+	testSmerdName   = "mysvc"
+	testSuffix      = "stage"
+	testExecEchoCmd = "echo hello"
 )
 
 // fakeCreateAPI is a minimal hand-written fake for the single client.APIClient
@@ -642,4 +643,563 @@ func TestLabelBasedRuntime_IsContainerRunning_SuffixMismatch_TreatedAsNotFound(t
 	require.NoError(t, err)
 	require.False(t, exists)
 	require.False(t, running)
+}
+
+// Inspect is exercised against a real local Docker daemon, same as
+// Rename/IsContainerRunning above - see createRealContainer.
+
+// A container owned by this environment (suffix matches) is found, and its
+// Name is rewritten to the virtual/logical name, never the suffixed real
+// Docker name.
+func TestLabelBasedRuntime_Inspect_FoundAndOwned_NameRewrittenToVirtual(t *testing.T) {
+	t.Parallel()
+
+	api := test_helper.NewRealDockerAPI(t)
+	name := test_helper.UniqueName(t, testSmerdName)
+
+	id := createRealContainer(t, api, testSuffix, nil, name)
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	info, found, err := runtime.Inspect(context.Background(), name)
+	require.NoError(t, err)
+	require.True(t, found)
+	require.Equal(t, id, info.ID)
+	require.Equal(t, "/"+name, info.Name, "Name must be the virtual/logical name, not the suffixed Docker name")
+}
+
+// A container belonging to a different environment's suffix is treated
+// exactly like "doesn't exist" - (zero value, false, nil) - same
+// cross-environment protection as Remove/Rename/IsContainerRunning.
+func TestLabelBasedRuntime_Inspect_SuffixMismatch_TreatedAsNotFound(t *testing.T) {
+	t.Parallel()
+
+	api := test_helper.NewRealDockerAPI(t)
+
+	otherSuffix := test_helper.UniqueName(t, "othersfx")
+	name := test_helper.UniqueName(t, testSmerdName)
+
+	id := createRealContainer(t, api, otherSuffix, nil, name)
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	_, found, err := runtime.Inspect(context.Background(), id)
+	require.NoError(t, err)
+	require.False(t, found)
+}
+
+// A container that doesn't exist under either identifier form reports
+// (zero value, false, nil). No fixture needed at all.
+func TestLabelBasedRuntime_Inspect_NotFoundUnderEitherForm(t *testing.T) {
+	t.Parallel()
+
+	api := test_helper.NewRealDockerAPI(t)
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	name := test_helper.UniqueName(t, testSmerdName)
+
+	_, found, err := runtime.Inspect(context.Background(), name)
+	require.NoError(t, err)
+	require.False(t, found)
+}
+
+// Stop/Restart/Stats are exercised against a real local Docker daemon, same
+// as Rename/IsContainerRunning/Inspect above - see createRealContainer.
+
+// A running container owned by this environment is actually stopped.
+func TestLabelBasedRuntime_Stop_OwnedContainer_StopsIt(t *testing.T) {
+	t.Parallel()
+
+	api := test_helper.NewRealDockerAPI(t)
+	name := test_helper.UniqueName(t, testSmerdName)
+
+	id := createRealContainer(t, api, testSuffix, nil, name)
+
+	err := api.ContainerStart(context.Background(), id, container.StartOptions{})
+	require.NoError(t, err)
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	err = runtime.Stop(context.Background(), name)
+	require.NoError(t, err)
+
+	inspected, err := api.ContainerInspect(context.Background(), id)
+	require.NoError(t, err)
+	require.False(t, inspected.State.Running, "container must be stopped after Stop")
+}
+
+// A container belonging to a different environment's suffix is treated as
+// "nothing to stop" - idempotent success, not an error - and left untouched,
+// same cross-environment protection as Remove/Rename.
+func TestLabelBasedRuntime_Stop_SuffixMismatch_TreatedAsNotFound(t *testing.T) {
+	t.Parallel()
+
+	api := test_helper.NewRealDockerAPI(t)
+
+	otherSuffix := test_helper.UniqueName(t, "othersfx")
+	name := test_helper.UniqueName(t, testSmerdName)
+
+	id := createRealContainer(t, api, otherSuffix, nil, name)
+
+	err := api.ContainerStart(context.Background(), id, container.StartOptions{})
+	require.NoError(t, err)
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	err = runtime.Stop(context.Background(), id)
+	require.NoError(t, err, "a container belonging to a different environment must not be stopped")
+
+	inspected, err := api.ContainerInspect(context.Background(), id)
+	require.NoError(t, err)
+	require.True(t, inspected.State.Running, "the other environment's container must be left running")
+}
+
+// Not-found under either identifier form is idempotent success. No fixture
+// needed at all.
+func TestLabelBasedRuntime_Stop_NotFoundUnderEitherForm_IsIdempotentSuccess(t *testing.T) {
+	t.Parallel()
+
+	api := test_helper.NewRealDockerAPI(t)
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	name := test_helper.UniqueName(t, testSmerdName)
+
+	err := runtime.Stop(context.Background(), name)
+	require.NoError(t, err)
+}
+
+// A running container owned by this environment is restarted (still running
+// afterwards - ContainerRestart blocks until the container is back up).
+func TestLabelBasedRuntime_Restart_OwnedContainer_RestartsIt(t *testing.T) {
+	t.Parallel()
+
+	api := test_helper.NewRealDockerAPI(t)
+	name := test_helper.UniqueName(t, testSmerdName)
+
+	id := createRealContainer(t, api, testSuffix, nil, name)
+
+	err := api.ContainerStart(context.Background(), id, container.StartOptions{})
+	require.NoError(t, err)
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	err = runtime.Restart(context.Background(), name)
+	require.NoError(t, err)
+
+	inspected, err := api.ContainerInspect(context.Background(), id)
+	require.NoError(t, err)
+	require.True(t, inspected.State.Running, "container must be running again after Restart")
+}
+
+// A container belonging to a different environment's suffix is treated as
+// "nothing to restart" - idempotent success, not an error - same
+// cross-environment protection as Stop/Remove/Rename.
+func TestLabelBasedRuntime_Restart_SuffixMismatch_TreatedAsNotFound(t *testing.T) {
+	t.Parallel()
+
+	api := test_helper.NewRealDockerAPI(t)
+
+	otherSuffix := test_helper.UniqueName(t, "othersfx")
+	name := test_helper.UniqueName(t, testSmerdName)
+
+	id := createRealContainer(t, api, otherSuffix, nil, name)
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	err := runtime.Restart(context.Background(), id)
+	require.NoError(t, err, "a container belonging to a different environment must not be restarted")
+}
+
+// Not-found under either identifier form is idempotent success. No fixture
+// needed at all.
+func TestLabelBasedRuntime_Restart_NotFoundUnderEitherForm_IsIdempotentSuccess(t *testing.T) {
+	t.Parallel()
+
+	api := test_helper.NewRealDockerAPI(t)
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	name := test_helper.UniqueName(t, testSmerdName)
+
+	err := runtime.Restart(context.Background(), name)
+	require.NoError(t, err)
+}
+
+// A running container owned by this environment returns real stats.
+func TestLabelBasedRuntime_Stats_OwnedRunningContainer_ReturnsStats(t *testing.T) {
+	t.Parallel()
+
+	api := test_helper.NewRealDockerAPI(t)
+	name := test_helper.UniqueName(t, testSmerdName)
+
+	id := createRealContainer(t, api, testSuffix, nil, name)
+
+	err := api.ContainerStart(context.Background(), id, container.StartOptions{})
+	require.NoError(t, err)
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	stats, err := runtime.Stats(context.Background(), name)
+	require.NoError(t, err)
+	require.False(t, stats.StartedAt.IsZero(), "a running container must report a non-zero StartedAt")
+}
+
+// A container belonging to a different environment's suffix is a real error
+// here - unlike Stop/Restart/Remove, there's no sensible zero-value success
+// for "stats of a container that isn't mine."
+func TestLabelBasedRuntime_Stats_SuffixMismatch_ReturnsError(t *testing.T) {
+	t.Parallel()
+
+	api := test_helper.NewRealDockerAPI(t)
+
+	otherSuffix := test_helper.UniqueName(t, "othersfx")
+	name := test_helper.UniqueName(t, testSmerdName)
+
+	id := createRealContainer(t, api, otherSuffix, nil, name)
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	_, err := runtime.Stats(context.Background(), id)
+	require.Error(t, err)
+}
+
+// Not-found under either identifier form is a real error. No fixture needed
+// at all.
+func TestLabelBasedRuntime_Stats_NotFoundUnderEitherForm_ReturnsError(t *testing.T) {
+	t.Parallel()
+
+	api := test_helper.NewRealDockerAPI(t)
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	name := test_helper.UniqueName(t, testSmerdName)
+
+	_, err := runtime.Stats(context.Background(), name)
+	require.Error(t, err)
+}
+
+// Exec is exercised against a real local Docker daemon, same as
+// Stop/Restart/Stats above - see createRealContainer.
+// test_helper.HelloWorldAppImage is busybox-based (has /bin/sh), so a plain
+// "sh -c" command is enough to exercise Exec without a dedicated image.
+
+// A running container owned by this environment actually runs cfg and
+// returns its output.
+func TestLabelBasedRuntime_Exec_OwnedRunningContainer_ReturnsOutput(t *testing.T) {
+	t.Parallel()
+
+	api := test_helper.NewRealDockerAPI(t)
+	name := test_helper.UniqueName(t, testSmerdName)
+
+	id := createRealContainer(t, api, testSuffix, nil, name)
+
+	err := api.ContainerStart(context.Background(), id, container.StartOptions{})
+	require.NoError(t, err)
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	execCfg := container.ExecOptions{
+		Cmd:          []string{"sh", "-c", testExecEchoCmd},
+		AttachStdout: true,
+		AttachStderr: true,
+	}
+
+	out, err := runtime.Exec(context.Background(), name, execCfg)
+	require.NoError(t, err)
+	require.Contains(t, string(out), "hello")
+}
+
+// A container belonging to a different environment's suffix is a real error
+// here, unlike Stop/Restart/Remove - same rationale as Stats: there's no
+// sensible zero-value success for "exec output of a container that isn't
+// mine."
+func TestLabelBasedRuntime_Exec_SuffixMismatch_ReturnsError(t *testing.T) {
+	t.Parallel()
+
+	api := test_helper.NewRealDockerAPI(t)
+
+	otherSuffix := test_helper.UniqueName(t, "othersfx")
+	name := test_helper.UniqueName(t, testSmerdName)
+
+	id := createRealContainer(t, api, otherSuffix, nil, name)
+
+	err := api.ContainerStart(context.Background(), id, container.StartOptions{})
+	require.NoError(t, err)
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	execCfg := container.ExecOptions{
+		Cmd:          []string{"sh", "-c", testExecEchoCmd},
+		AttachStdout: true,
+	}
+
+	_, err = runtime.Exec(context.Background(), id, execCfg)
+	require.Error(t, err, "a container belonging to a different environment must not be exec'd into")
+}
+
+// Not-found under either identifier form is a real error. No fixture needed
+// at all.
+func TestLabelBasedRuntime_Exec_NotFoundUnderEitherForm_ReturnsError(t *testing.T) {
+	t.Parallel()
+
+	api := test_helper.NewRealDockerAPI(t)
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	name := test_helper.UniqueName(t, testSmerdName)
+
+	execCfg := container.ExecOptions{
+		Cmd:          []string{"sh", "-c", testExecEchoCmd},
+		AttachStdout: true,
+	}
+
+	_, err := runtime.Exec(context.Background(), name, execCfg)
+	require.Error(t, err)
+}
+
+// CreateNetwork/ConnectToNetwork/DisconnectFromNetworks are exercised against
+// a real local Docker daemon, same as Stop/Restart/Stats/Exec above. Each
+// test uses its own unique base network name (test_helper.UniqueName) rather
+// than the literal "verv" production constant (env.VervNetwork), to avoid
+// colliding with env.StartNetwork's real shared network - or other
+// tests/processes - on the same daemon: the suffixing rule under test
+// (networkName, byte-for-byte containerName's rule) is identical regardless
+// of which logical name gets suffixed.
+
+// An empty suffix leaves the network name byte-for-byte unchanged - the
+// pre-multi-environment default, mirroring
+// TestLabelBasedRuntime_EmptySuffixLeavesNameUntouched for containers.
+func TestLabelBasedRuntime_CreateNetwork_EmptySuffix_CreatesUnsuffixedName(t *testing.T) {
+	api := test_helper.NewRealDockerAPI(t)
+	base := test_helper.UniqueName(t, "vervnet")
+
+	runtime := newLabelRuntime(api, "", nil)
+
+	err := runtime.CreateNetwork(context.Background(), base)
+	require.NoError(t, err)
+
+	t.Cleanup(func() {
+		_ = api.NetworkRemove(context.Background(), base)
+	})
+
+	_, err = api.NetworkInspect(context.Background(), base, network.InspectOptions{})
+	require.NoError(t, err, "expected a network named %q on the daemon", base)
+}
+
+// A non-empty suffix creates "<name>_<suffix>" - each environment gets its
+// own dedicated network instead of every environment sharing one (the real
+// behavior change docs/container_runtimes/interface_design.md and the plan
+// call for).
+func TestLabelBasedRuntime_CreateNetwork_NonEmptySuffix_CreatesSuffixedName(t *testing.T) {
+	api := test_helper.NewRealDockerAPI(t)
+	base := test_helper.UniqueName(t, "vervnet")
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	err := runtime.CreateNetwork(context.Background(), base)
+	require.NoError(t, err)
+
+	expectedName := base + nameSuffixSeparator + testSuffix
+
+	t.Cleanup(func() {
+		_ = api.NetworkRemove(context.Background(), expectedName)
+	})
+
+	_, err = api.NetworkInspect(context.Background(), expectedName, network.InspectOptions{})
+	require.NoError(t, err, "expected a network named %q on the daemon", expectedName)
+
+	// The bare/unsuffixed name must NOT have been created - suffixing must
+	// actually happen, not just be a no-op passthrough.
+	_, err = api.NetworkInspect(context.Background(), base, network.InspectOptions{})
+	require.Error(t, err, "the bare/unsuffixed network name must not exist")
+}
+
+// CreateNetwork is idempotent: calling it twice for the same logical name
+// must not error.
+func TestLabelBasedRuntime_CreateNetwork_Idempotent(t *testing.T) {
+	api := test_helper.NewRealDockerAPI(t)
+	base := test_helper.UniqueName(t, "vervnet")
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	err := runtime.CreateNetwork(context.Background(), base)
+	require.NoError(t, err)
+
+	expectedName := base + nameSuffixSeparator + testSuffix
+
+	t.Cleanup(func() {
+		_ = api.NetworkRemove(context.Background(), expectedName)
+	})
+
+	err = runtime.CreateNetwork(context.Background(), base)
+	require.NoError(t, err, "creating an already-existing network must not error")
+}
+
+// A container owned by this environment gets connected to the (suffixed)
+// network, and Docker actually reports the connection.
+func TestLabelBasedRuntime_ConnectToNetwork_OwnedContainer_Connects(t *testing.T) {
+	api := test_helper.NewRealDockerAPI(t)
+	name := test_helper.UniqueName(t, testSmerdName)
+	base := test_helper.UniqueName(t, "vervnet")
+
+	id := createRealContainer(t, api, testSuffix, nil, name)
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	err := runtime.CreateNetwork(context.Background(), base)
+	require.NoError(t, err)
+
+	expectedNetName := base + nameSuffixSeparator + testSuffix
+
+	t.Cleanup(func() {
+		_ = api.NetworkRemove(context.Background(), expectedNetName)
+	})
+
+	connReq := ConnectToNetworkRequest{
+		ContainerID: name,
+		NetworkName: base,
+		Aliases:     []string{"myalias"},
+	}
+
+	err = runtime.ConnectToNetwork(context.Background(), connReq)
+	require.NoError(t, err)
+
+	inspected, err := api.ContainerInspect(context.Background(), id)
+	require.NoError(t, err)
+	require.Contains(t, inspected.NetworkSettings.Networks, expectedNetName,
+		"expected the container to be connected to the suffixed network")
+}
+
+// A container belonging to a different environment's suffix must not be
+// connected - same cross-environment protection as Stop/Restart/Remove -
+// except here it's a real error, not idempotent success (same reasoning as
+// Exec/Stats: there's no sensible "connected" outcome for a container that
+// isn't mine).
+func TestLabelBasedRuntime_ConnectToNetwork_SuffixMismatch_ReturnsError(t *testing.T) {
+	api := test_helper.NewRealDockerAPI(t)
+
+	otherSuffix := test_helper.UniqueName(t, "othersfx")
+	name := test_helper.UniqueName(t, testSmerdName)
+	base := test_helper.UniqueName(t, "vervnet")
+
+	id := createRealContainer(t, api, otherSuffix, nil, name)
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	err := runtime.CreateNetwork(context.Background(), base)
+	require.NoError(t, err)
+
+	expectedNetName := base + nameSuffixSeparator + testSuffix
+
+	t.Cleanup(func() {
+		_ = api.NetworkRemove(context.Background(), expectedNetName)
+	})
+
+	connReq := ConnectToNetworkRequest{
+		ContainerID: id,
+		NetworkName: base,
+	}
+
+	err = runtime.ConnectToNetwork(context.Background(), connReq)
+	require.Error(t, err, "a container belonging to a different environment must not be connected")
+}
+
+// Not-found under either identifier form is a real error. No fixture needed
+// at all.
+func TestLabelBasedRuntime_ConnectToNetwork_NotFoundUnderEitherForm_ReturnsError(t *testing.T) {
+	api := test_helper.NewRealDockerAPI(t)
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	name := test_helper.UniqueName(t, testSmerdName)
+	base := test_helper.UniqueName(t, "vervnet")
+
+	connReq := ConnectToNetworkRequest{
+		ContainerID: name,
+		NetworkName: base,
+	}
+
+	err := runtime.ConnectToNetwork(context.Background(), connReq)
+	require.Error(t, err)
+}
+
+// A container owned by this environment gets disconnected from the
+// (suffixed) network it was connected to.
+func TestLabelBasedRuntime_DisconnectFromNetworks_OwnedContainer_Disconnects(t *testing.T) {
+	api := test_helper.NewRealDockerAPI(t)
+	name := test_helper.UniqueName(t, testSmerdName)
+	base := test_helper.UniqueName(t, "vervnet")
+
+	id := createRealContainer(t, api, testSuffix, nil, name)
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	err := runtime.CreateNetwork(context.Background(), base)
+	require.NoError(t, err)
+
+	expectedNetName := base + nameSuffixSeparator + testSuffix
+
+	t.Cleanup(func() {
+		_ = api.NetworkRemove(context.Background(), expectedNetName)
+	})
+
+	connReq := ConnectToNetworkRequest{ContainerID: name, NetworkName: base}
+
+	err = runtime.ConnectToNetwork(context.Background(), connReq)
+	require.NoError(t, err)
+
+	err = runtime.DisconnectFromNetworks(context.Background(), name, []string{base})
+	require.NoError(t, err)
+
+	inspected, err := api.ContainerInspect(context.Background(), id)
+	require.NoError(t, err)
+	require.NotContains(t, inspected.NetworkSettings.Networks, expectedNetName,
+		"expected the container to be disconnected from the suffixed network")
+}
+
+// A container belonging to a different environment's suffix must not be
+// touched - real error, same reasoning as ConnectToNetwork.
+func TestLabelBasedRuntime_DisconnectFromNetworks_SuffixMismatch_ReturnsError(t *testing.T) {
+	api := test_helper.NewRealDockerAPI(t)
+
+	otherSuffix := test_helper.UniqueName(t, "othersfx")
+	name := test_helper.UniqueName(t, testSmerdName)
+	base := test_helper.UniqueName(t, "vervnet")
+
+	id := createRealContainer(t, api, otherSuffix, nil, name)
+
+	otherRuntime := newLabelRuntime(api, otherSuffix, nil)
+
+	err := otherRuntime.CreateNetwork(context.Background(), base)
+	require.NoError(t, err)
+
+	otherNetName := base + nameSuffixSeparator + otherSuffix
+
+	t.Cleanup(func() {
+		_ = api.NetworkRemove(context.Background(), otherNetName)
+	})
+
+	connReq := ConnectToNetworkRequest{ContainerID: id, NetworkName: base}
+
+	err = otherRuntime.ConnectToNetwork(context.Background(), connReq)
+	require.NoError(t, err)
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	err = runtime.DisconnectFromNetworks(context.Background(), id, []string{base})
+	require.Error(t, err, "a container belonging to a different environment must not be disconnected")
+
+	inspected, err := api.ContainerInspect(context.Background(), id)
+	require.NoError(t, err)
+	require.Contains(t, inspected.NetworkSettings.Networks, otherNetName,
+		"the other environment's container must remain connected")
+}
+
+// Not-found under either identifier form is a real error. No fixture needed
+// at all.
+func TestLabelBasedRuntime_DisconnectFromNetworks_NotFoundUnderEitherForm_ReturnsError(t *testing.T) {
+	api := test_helper.NewRealDockerAPI(t)
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	name := test_helper.UniqueName(t, testSmerdName)
+	base := test_helper.UniqueName(t, "vervnet")
+
+	err := runtime.DisconnectFromNetworks(context.Background(), name, []string{base})
+	require.Error(t, err)
 }

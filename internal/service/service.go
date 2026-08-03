@@ -27,7 +27,7 @@ type Services interface {
 type ContainerService interface {
 	ListSmerds(ctx context.Context, req *velez_api.ListSmerds_Request) (*velez_api.ListSmerds_Response, error)
 	DropSmerds(ctx context.Context, req *velez_api.DropSmerd_Request) (*velez_api.DropSmerd_Response, error)
-	InspectSmerd(ctx context.Context, contID string) (*velez_api.Smerd, error)
+	InspectSmerd(ctx context.Context, environment, contID string) (*velez_api.Smerd, error)
 
 	ConnectToNetwork(ctx context.Context, req domain.Connection) error
 	DisconnectFromNetwork(ctx context.Context, req domain.Connection) error
@@ -54,11 +54,11 @@ type VervServicesService interface {
 	UpgradeDeploy(ctx context.Context, request domain.UpgradeDeployReq) error
 	List(ctx context.Context, req domain.ListServicesReq) (domain.ServiceList, error)
 	ListDeployments(ctx context.Context, req domain.ListDeploymentsReq) (domain.DeploymentList, error)
-	StopService(ctx context.Context, name string) error
-	RestartService(ctx context.Context, name string) error
+	StopService(ctx context.Context, name, environment string) error
+	RestartService(ctx context.Context, name, environment string) error
 	Remove(ctx context.Context, req domain.RemoveServiceReq) error
 
-	GetServiceMetrics(ctx context.Context, serviceName string) (domain.ServiceMetrics, error)
+	GetServiceMetrics(ctx context.Context, serviceName, environment string) (domain.ServiceMetrics, error)
 	GetServiceResources(ctx context.Context, serviceName string) ([]domain.BoundResource, error)
 	GetServiceGraph(ctx context.Context, serviceName string) (domain.ServiceGraph, error)
 	GetServiceEnvironments(ctx context.Context, serviceName string) ([]domain.ServiceEnvironment, error)

@@ -1,7 +1,9 @@
 package container_runtime
 
 import (
+	"bytes"
 	"context"
+	"io"
 	"strings"
 
 	"github.com/containerd/errdefs"
@@ -12,6 +14,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
+	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
@@ -241,6 +244,258 @@ func (r *labelBasedRuntime) IsContainerRunning(ctx context.Context, identifier s
 	return info.State != nil && info.State.Running, true, nil
 }
 
+// Inspect returns the container identified by uuid or logical/Docker name,
+// using the same resolveOwnedContainerInfo resolution/ownership check as
+// Remove/Rename/IsContainerRunning: a container that doesn't exist under
+// either identifier form, or that belongs to a different environment's
+// suffix, is reported as (zero value, false, nil) - not an error. The
+// returned InspectResponse's Name is rewritten from the real Docker name back
+// to the virtual/logical name (see virtualName), mirroring how
+// ListContainers rewrites each container.Summary's Names - callers of
+// ContainerRuntime never see a suffixed name.
+func (r *labelBasedRuntime) Inspect(ctx context.Context, identifier string) (container.InspectResponse, bool, error) {
+	info, found, err := r.resolveOwnedContainerInfo(ctx, identifier)
+	if err != nil {
+		return container.InspectResponse{}, false, err
+	}
+
+	if !found {
+		return container.InspectResponse{}, false, nil
+	}
+
+	info.Name = r.virtualName(info.Name)
+
+	return info, true, nil
+}
+
+// Stop stops a container identified by uuid or logical/Docker name, using the
+// same resolveOwnedContainer resolution/ownership check as Remove/Rename: a
+// container that doesn't exist under either identifier form, or that belongs
+// to a different environment's suffix, is treated as "nothing to stop" -
+// idempotent success, not an error - the same convention Remove/Rename
+// established for this codebase.
+func (r *labelBasedRuntime) Stop(ctx context.Context, identifier string) error {
+	resolvedID, found, err := r.resolveOwnedContainer(ctx, identifier)
+	if err != nil {
+		return err
+	}
+
+	if !found {
+		return nil
+	}
+
+	stopOpts := container.StopOptions{}
+
+	err = r.cli.ContainerStop(ctx, resolvedID, stopOpts)
+	if err != nil {
+		if strings.Contains(err.Error(), docker.NoSuchContainerError) {
+			return nil
+		}
+
+		return rerrors.Wrap(err, "error stopping container")
+	}
+
+	return nil
+}
+
+// Restart restarts a container identified by uuid or logical/Docker name,
+// using the same resolveOwnedContainer resolution/ownership check as
+// Stop/Remove/Rename: a container that doesn't exist under either identifier
+// form, or that belongs to a different environment's suffix, is treated as
+// "nothing to restart" - idempotent success, not an error.
+func (r *labelBasedRuntime) Restart(ctx context.Context, identifier string) error {
+	resolvedID, found, err := r.resolveOwnedContainer(ctx, identifier)
+	if err != nil {
+		return err
+	}
+
+	if !found {
+		return nil
+	}
+
+	restartOpts := container.StopOptions{}
+
+	err = r.cli.ContainerRestart(ctx, resolvedID, restartOpts)
+	if err != nil {
+		if strings.Contains(err.Error(), docker.NoSuchContainerError) {
+			return nil
+		}
+
+		return rerrors.Wrap(err, "error restarting container")
+	}
+
+	return nil
+}
+
+// Stats returns resource-usage stats for a container identified by uuid or
+// logical/Docker name, using the same resolveOwnedContainerInfo
+// resolution/ownership check as Remove/Rename/IsContainerRunning/Inspect.
+// Unlike those, a container that doesn't exist under either identifier form,
+// or that belongs to a different environment's suffix, is a real error here
+// - there is no sensible zero-value "success" for stats of a container that
+// isn't there.
+func (r *labelBasedRuntime) Stats(ctx context.Context, identifier string) (domain.ContainerStats, error) {
+	info, found, err := r.resolveOwnedContainerInfo(ctx, identifier)
+	if err != nil {
+		return domain.ContainerStats{}, err
+	}
+
+	if !found {
+		return domain.ContainerStats{}, rerrors.New("container %q not found in this environment", identifier)
+	}
+
+	stats, err := dockerutils.Stats(ctx, r.cli, info.ID)
+	if err != nil {
+		return domain.ContainerStats{}, rerrors.Wrap(err, "error getting container stats")
+	}
+
+	return stats, nil
+}
+
+// Exec runs cfg inside the container identified by uuid or logical/Docker
+// name, using the same resolveOwnedContainer resolution/ownership check as
+// Stop/Restart/Remove/Rename. Unlike those - which treat a missing/foreign
+// container as idempotent success - and like Stats, there is no sensible
+// zero-value "success" for exec output against a container that isn't
+// there, so a container that doesn't exist under either identifier form, or
+// belongs to a different environment's suffix, is a real error here.
+//
+// Reimplements docker.Docker.Exec's ContainerExecCreate/ContainerExecAttach
+// sequence directly against r.cli, rather than delegating to docker.Docker -
+// the same choice Stop/Restart/Remove/Rename already made (they call r.cli
+// directly instead of going through docker.Docker's corresponding method).
+func (r *labelBasedRuntime) Exec(
+	ctx context.Context,
+	containerID string,
+	cfg container.ExecOptions,
+) ([]byte, error) {
+	resolvedID, found, err := r.resolveOwnedContainer(ctx, containerID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !found {
+		return nil, rerrors.New("container %q not found in this environment", containerID)
+	}
+
+	execResp, err := r.cli.ContainerExecCreate(ctx, resolvedID, cfg)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error calling exec create on container via docker api")
+	}
+
+	if !cfg.AttachStdout && !cfg.AttachStderr {
+		return nil, nil
+	}
+
+	attachResp, err := r.cli.ContainerExecAttach(ctx, execResp.ID, container.ExecAttachOptions{})
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error calling exec attach on container via docker api")
+	}
+	defer attachResp.Close()
+
+	dataOut := bytes.NewBuffer(nil)
+
+	_, err = io.Copy(dataOut, attachResp.Reader)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error during copying bytes from attached to container exec")
+	}
+
+	return asciiSymbolsOnly(dataOut.Bytes()), nil
+}
+
+// CreateNetwork ensures a bridge network exists for the LOGICAL name given,
+// suffixed to this runtime's environment (see networkName) - creating a
+// dedicated network per environment instead of the single "verv" network
+// every environment used to share (docs/container_runtimes/interface_design.md).
+// Idempotent: dockerutils.CreateNetwork itself no-ops if the (suffixed)
+// network already exists.
+func (r *labelBasedRuntime) CreateNetwork(ctx context.Context, name string) error {
+	err := dockerutils.CreateNetwork(ctx, r.cli, r.networkName(name))
+	if err != nil {
+		return rerrors.Wrap(err, "error creating network")
+	}
+
+	return nil
+}
+
+// ConnectToNetwork connects a container to a network, both scoped to this
+// runtime's environment: the container identifier is resolved via
+// resolveOwnedContainer (same ownership check as Stop/Restart/Remove/Rename),
+// and the network name is suffixed via networkName - mirroring CreateNetwork
+// - before either is handed to dockerutils. Unlike Stop/Restart/Remove/Rename
+// - which treat a missing/foreign container as idempotent success - and like
+// Exec/Stats, a container not found under either identifier form, or
+// belonging to a different environment, is a real error here: there's no
+// sensible "connected" outcome for a container that isn't there.
+func (r *labelBasedRuntime) ConnectToNetwork(ctx context.Context, req ConnectToNetworkRequest) error {
+	resolvedID, found, err := r.resolveOwnedContainer(ctx, req.ContainerID)
+	if err != nil {
+		return err
+	}
+
+	if !found {
+		return rerrors.New("container %q not found in this environment", req.ContainerID)
+	}
+
+	connectReq := dockerutils.ConnectToNetworkRequest{
+		NetworkName: r.networkName(req.NetworkName),
+		ContId:      resolvedID,
+		Aliases:     req.Aliases,
+	}
+
+	err = dockerutils.ConnectToNetwork(ctx, r.cli, connectReq)
+	if err != nil {
+		return rerrors.Wrap(err, "error connecting container to network")
+	}
+
+	return nil
+}
+
+// DisconnectFromNetworks disconnects a container from each named network,
+// both scoped to this runtime's environment - same resolution/ownership
+// check as ConnectToNetwork, and the same networkName suffixing applied to
+// every entry in networks. Same error-not-idempotent-success reasoning as
+// ConnectToNetwork for a container not found under either identifier form.
+func (r *labelBasedRuntime) DisconnectFromNetworks(ctx context.Context, containerID string, networks []string) error {
+	resolvedID, found, err := r.resolveOwnedContainer(ctx, containerID)
+	if err != nil {
+		return err
+	}
+
+	if !found {
+		return rerrors.New("container %q not found in this environment", containerID)
+	}
+
+	for _, n := range networks {
+		err = r.cli.NetworkDisconnect(ctx, r.networkName(n), resolvedID, false)
+		if err != nil {
+			if strings.Contains(err.Error(), docker.NoSuchContainerError) {
+				continue
+			}
+
+			return rerrors.Wrap(err, "error disconnecting container from network %q", n)
+		}
+	}
+
+	return nil
+}
+
+// asciiSymbolsOnly mirrors docker.Docker's private helper of the same name -
+// duplicated rather than exported/shared since Exec's whole implementation is
+// intentionally a local reimplementation, not a delegation (see Exec's doc
+// comment).
+func asciiSymbolsOnly(in []byte) []byte {
+	cleanBuff := bytes.NewBuffer(nil)
+
+	for _, b := range in {
+		if b >= 32 && b <= 127 || b == '\n' {
+			cleanBuff.WriteByte(b)
+		}
+	}
+
+	return cleanBuff.Bytes()
+}
+
 // resolveOwnedContainer inspects identifier - trying the suffixed logical
 // name first (r.containerName(identifier)), then identifier as given (covers
 // real Docker UUIDs, which must never be suffix-mangled, and any
@@ -323,13 +578,23 @@ func (r *labelBasedRuntime) containerName(name string) string {
 	return name + nameSuffixSeparator + r.suffix
 }
 
+// networkName resolves a logical network name into the actual Docker network
+// name for this environment - byte-for-byte the same suffixing rule
+// containerName applies to container names (see nameSuffixSeparator): the
+// bare name when the suffix is empty, "<name>_<suffix>" otherwise. Kept as
+// its own named method (rather than callers using containerName directly)
+// so a future divergence between container- and network-naming rules doesn't
+// require re-auditing every call site.
+func (r *labelBasedRuntime) networkName(name string) string {
+	return r.containerName(name)
+}
+
 // virtualName reverses containerName: strips this runtime's suffix from a
 // real Docker name, recovering the virtual/logical name ContainerCreate was
 // called with. Delegates to the package-level StripEnvironmentSuffix so the
-// "<name>_<suffix>" convention is defined in exactly one place, shared with
-// callers outside this package that need the same reversal from a suffix
-// read off a container's own label rather than from a resolved runtime (see
-// container_manager.InspectSmerd).
+// "<name>_<suffix>" convention is defined in exactly one place - see that
+// function's doc comment for why it's exported even though this is its only
+// caller today.
 func (r *labelBasedRuntime) virtualName(dockerName string) string {
 	return StripEnvironmentSuffix(dockerName, r.suffix)
 }
@@ -340,12 +605,15 @@ func (r *labelBasedRuntime) virtualName(dockerName string) string {
 // created with, it returns the virtual/logical name. An empty suffix or a
 // name that doesn't end in "_<suffix>" is returned unchanged.
 //
-// Exported because not every reader of a Docker container name goes through
-// a resolved ContainerRuntime yet - container_manager.InspectSmerd (Phase 1
-// scope, see docs/container_runtimes/roadmap.md) still calls
-// client.APIClient.ContainerInspect directly and recovers the suffix from
-// the container's own labels.SuffixLabel. Exporting this keeps the suffix
-// convention itself defined once, even though it's invoked from both places.
+// Exported (rather than folded into virtualName) because, historically, not
+// every reader of a Docker container name went through a resolved
+// ContainerRuntime - container_manager.InspectSmerd used to call
+// client.APIClient.ContainerInspect directly and recover the suffix from the
+// container's own labels.SuffixLabel. InspectSmerd itself has since been
+// rewired onto ContainerRuntime.Inspect (which calls this via virtualName),
+// so virtualName is this function's only caller today - kept exported since
+// other packages/tests may still reference it directly (see
+// docs/container_runtimes/roadmap.md).
 func StripEnvironmentSuffix(dockerName, suffix string) string {
 	if suffix == "" {
 		return dockerName

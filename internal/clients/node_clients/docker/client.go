@@ -3,10 +3,8 @@ package docker
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"io"
 	"strings"
-	"time"
 
 	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
@@ -21,11 +19,6 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
-)
-
-const (
-	percentageMultiplier = 100.0
-	bytesPerMB           = 1024 * 1024
 )
 
 // Docker is environment-agnostic on purpose: the container suffix that scopes
@@ -267,75 +260,14 @@ func (d *Docker) ContainerCreate(
 	return createResponse, nil
 }
 
+// Stats delegates to dockerutils.Stats, shared with
+// container_runtime.labelBasedRuntime.Stats so the CPU-percent/memory
+// computation is defined in exactly one place.
 func (d *Docker) Stats(ctx context.Context, nameOrId string) (domain.ContainerStats, error) {
-	resp, err := d.directApi.ContainerStats(ctx, nameOrId, false)
+	stats, err := dockerutils.Stats(ctx, d.directApi, nameOrId)
 	if err != nil {
 		return domain.ContainerStats{}, rerrors.Wrap(err, "error getting container stats")
 	}
 
-	defer func() { _ = resp.Body.Close() }()
-
-	var stats struct {
-		CPUStats struct {
-			CPUUsage struct {
-				TotalUsage  uint64   `json:"total_usage"`
-				PercpuUsage []uint64 `json:"percpu_usage"`
-			} `json:"cpu_usage"`
-			SystemUsage uint64 `json:"system_cpu_usage"`
-			OnlineCPUs  int64  `json:"online_cpus"`
-		} `json:"cpu_stats"`
-		PreCPUStats struct {
-			CPUUsage struct {
-				TotalUsage uint64 `json:"total_usage"`
-			} `json:"cpu_usage"`
-			SystemUsage uint64 `json:"system_cpu_usage"`
-		} `json:"precpu_stats"`
-		MemoryStats struct {
-			Usage uint64 `json:"usage"`
-			Limit uint64 `json:"limit"`
-		} `json:"memory_stats"`
-	}
-
-	err = json.NewDecoder(resp.Body).Decode(&stats)
-	if err != nil {
-		return domain.ContainerStats{}, rerrors.Wrap(err, "error decoding stats")
-	}
-
-	cpuPercent := 0.0
-	cpuDelta := float64(stats.CPUStats.CPUUsage.TotalUsage - stats.PreCPUStats.CPUUsage.TotalUsage)
-
-	systemDelta := float64(stats.CPUStats.SystemUsage - stats.PreCPUStats.SystemUsage)
-	if cpuDelta > 0 && systemDelta > 0 {
-		numCPU := stats.CPUStats.OnlineCPUs
-		if numCPU == 0 {
-			numCPU = int64(len(stats.CPUStats.CPUUsage.PercpuUsage))
-		}
-
-		cpuPercent = (cpuDelta / systemDelta) * float64(numCPU) * percentageMultiplier
-	}
-
-	memUsageMi := stats.MemoryStats.Usage / bytesPerMB
-	memLimitMi := stats.MemoryStats.Limit / bytesPerMB
-
-	inspectResp, err := d.directApi.ContainerInspect(ctx, nameOrId)
-	if err != nil {
-		return domain.ContainerStats{}, rerrors.Wrap(err, "error inspecting container")
-	}
-
-	var startedAt time.Time
-
-	startedAtStr := inspectResp.State.StartedAt
-	if startedAtStr != "" {
-		t, err := time.Parse(time.RFC3339, startedAtStr)
-		if err == nil {
-			startedAt = t
-		}
-	}
-
-	return domain.ContainerStats{
-		CPUPercent: cpuPercent,
-		MemUsageMi: memUsageMi,
-		MemLimitMi: memLimitMi,
-		StartedAt:  startedAt,
-	}, nil
+	return stats, nil
 }

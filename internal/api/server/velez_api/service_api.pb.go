@@ -1748,8 +1748,12 @@ func (x *ListServices_Response) GetServices() []*ServiceBaseInfo {
 }
 
 type StopService_Request struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// environment - the isolated namespace this operation targets. Required;
+	// validated in the service layer, not here (proto3 has no `required`
+	// keyword).
+	Environment   string `protobuf:"bytes,2,opt,name=environment,proto3" json:"environment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1791,6 +1795,13 @@ func (x *StopService_Request) GetName() string {
 	return ""
 }
 
+func (x *StopService_Request) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
+}
+
 type StopService_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -1828,8 +1839,12 @@ func (*StopService_Response) Descriptor() ([]byte, []int) {
 }
 
 type RestartService_Request struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// environment - the isolated namespace this operation targets. Required;
+	// validated in the service layer, not here (proto3 has no `required`
+	// keyword).
+	Environment   string `protobuf:"bytes,2,opt,name=environment,proto3" json:"environment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1867,6 +1882,13 @@ func (*RestartService_Request) Descriptor() ([]byte, []int) {
 func (x *RestartService_Request) GetName() string {
 	if x != nil {
 		return x.Name
+	}
+	return ""
+}
+
+func (x *RestartService_Request) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
 	}
 	return ""
 }
@@ -1913,8 +1935,12 @@ type RemoveService_Request struct {
 	// If true, any smerd/container attached to this service is dropped
 	// first. If false and a smerd exists, the call fails instead.
 	DropRunningInstances bool `protobuf:"varint,2,opt,name=drop_running_instances,json=dropRunningInstances,proto3" json:"drop_running_instances,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// environment - the isolated namespace this operation targets. Required;
+	// validated in the service layer, not here (proto3 has no `required`
+	// keyword).
+	Environment   string `protobuf:"bytes,3,opt,name=environment,proto3" json:"environment,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RemoveService_Request) Reset() {
@@ -1961,6 +1987,13 @@ func (x *RemoveService_Request) GetDropRunningInstances() bool {
 	return false
 }
 
+func (x *RemoveService_Request) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
+}
+
 type RemoveService_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -1998,8 +2031,12 @@ func (*RemoveService_Response) Descriptor() ([]byte, []int) {
 }
 
 type GetServiceMetrics_Request struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ServiceName   string                 `protobuf:"bytes,1,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	ServiceName string                 `protobuf:"bytes,1,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	// environment - the isolated namespace this operation targets. Required;
+	// validated in the service layer, not here (proto3 has no `required`
+	// keyword).
+	Environment   string `protobuf:"bytes,2,opt,name=environment,proto3" json:"environment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2037,6 +2074,13 @@ func (*GetServiceMetrics_Request) Descriptor() ([]byte, []int) {
 func (x *GetServiceMetrics_Request) GetServiceName() string {
 	if x != nil {
 		return x.ServiceName
+	}
+	return ""
+}
+
+func (x *GetServiceMetrics_Request) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
 	}
 	return ""
 }
@@ -2558,26 +2602,30 @@ const file_service_api_proto_rawDesc = "" +
 	"image_name\x18\x03 \x01(\tR\timageName\x12\x16\n" +
 	"\x06status\x18\x04 \x01(\tR\x06status\x12\x10\n" +
 	"\x03env\x18\x05 \x01(\tR\x03env\x12\x12\n" +
-	"\x04repo\x18\x06 \x01(\tR\x04repo\"8\n" +
-	"\vStopService\x1a\x1d\n" +
+	"\x04repo\x18\x06 \x01(\tR\x04repo\"Z\n" +
+	"\vStopService\x1a?\n" +
 	"\aRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x1a\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
+	"\venvironment\x18\x02 \x01(\tR\venvironment\x1a\n" +
 	"\n" +
-	"\bResponse\";\n" +
-	"\x0eRestartService\x1a\x1d\n" +
+	"\bResponse\"]\n" +
+	"\x0eRestartService\x1a?\n" +
 	"\aRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x1a\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
+	"\venvironment\x18\x02 \x01(\tR\venvironment\x1a\n" +
 	"\n" +
-	"\bResponse\"p\n" +
-	"\rRemoveService\x1aS\n" +
+	"\bResponse\"\x92\x01\n" +
+	"\rRemoveService\x1au\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x124\n" +
-	"\x16drop_running_instances\x18\x02 \x01(\bR\x14dropRunningInstances\x1a\n" +
+	"\x16drop_running_instances\x18\x02 \x01(\bR\x14dropRunningInstances\x12 \n" +
+	"\venvironment\x18\x03 \x01(\tR\venvironment\x1a\n" +
 	"\n" +
-	"\bResponse\"\xa1\x02\n" +
-	"\x11GetServiceMetrics\x1a,\n" +
+	"\bResponse\"\xc3\x02\n" +
+	"\x11GetServiceMetrics\x1aN\n" +
 	"\aRequest\x12!\n" +
-	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x1a\xdd\x01\n" +
+	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x12 \n" +
+	"\venvironment\x18\x02 \x01(\tR\venvironment\x1a\xdd\x01\n" +
 	"\bResponse\x12\x1f\n" +
 	"\vcpu_percent\x18\x01 \x01(\x01R\n" +
 	"cpuPercent\x12\x15\n" +

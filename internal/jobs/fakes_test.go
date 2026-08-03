@@ -496,6 +496,10 @@ type fakeRuntimeResolver struct {
 	// same instance - and therefore the same renameCalledWith recording -
 	// rather than a fresh, un-inspectable one each call.
 	runtimes map[string]*fakeContainerRuntime
+
+	// createNetworkErr is propagated to every fakeContainerRuntime this
+	// resolver hands out - see fakeContainerRuntime.createNetworkErr.
+	createNetworkErr error
 }
 
 // newFakeRuntimes builds a resolver over docker. envs may be nil, which
@@ -528,8 +532,9 @@ func (f *fakeRuntimeResolver) Runtime(
 	}
 
 	rt := &fakeContainerRuntime{
-		docker: f.docker,
-		suffix: env.Suffix,
+		docker:           f.docker,
+		suffix:           env.Suffix,
+		createNetworkErr: f.createNetworkErr,
 	}
 
 	if f.runtimes == nil {
@@ -548,6 +553,13 @@ type fakeContainerRuntime struct {
 	mu sync.Mutex
 
 	renameErr error
+
+	// createNetworkErr, when set, is what CreateNetwork returns - lets tests
+	// exercise a prepare_verv_config network-create failure (and the
+	// resulting rollback chain) without a real Docker daemon. See
+	// fakeRuntimeResolver.createNetworkErr, which propagates this to every
+	// fakeContainerRuntime it hands out.
+	createNetworkErr error
 }
 
 func (f *fakeContainerRuntime) ContainerCreate(
@@ -628,6 +640,78 @@ func (f *fakeContainerRuntime) Rename(_ context.Context, _, _ string) error {
 // comment above.
 func (f *fakeContainerRuntime) IsContainerRunning(_ context.Context, _ string) (bool, bool, error) {
 	return false, false, nil
+}
+
+// Inspect delegates straight to the backing node_clients.Docker's
+// ContainerInspect, deliberately NOT reimplementing
+// labelBasedRuntime.Inspect's suffix/ownership resolution - same rationale as
+// Remove above: the actual environment-scoping behavior is covered by
+// container_runtime's own real-Docker unit tests and tests/e2e, not this
+// fake.
+func (f *fakeContainerRuntime) Inspect(
+	ctx context.Context, identifier string,
+) (container.InspectResponse, bool, error) {
+	info, err := f.docker.Client().ContainerInspect(ctx, identifier)
+	if err != nil {
+		//nolint:nilerr // mirrors labelBasedRuntime.Inspect's contract: not-found is found=false, err=nil
+		return container.InspectResponse{}, false, nil
+	}
+
+	return info, true, nil
+}
+
+// Stop is not exercised by any job test today - see Rename's comment above.
+func (f *fakeContainerRuntime) Stop(_ context.Context, _ string) error {
+	return nil
+}
+
+// Restart is not exercised by any job test today - see Rename's comment above.
+func (f *fakeContainerRuntime) Restart(_ context.Context, _ string) error {
+	return nil
+}
+
+// Stats is not exercised by any job test today - see Rename's comment above.
+func (f *fakeContainerRuntime) Stats(_ context.Context, _ string) (domain.ContainerStats, error) {
+	return domain.ContainerStats{}, nil
+}
+
+// Exec delegates straight to the backing node_clients.Docker's Exec,
+// deliberately NOT reimplementing labelBasedRuntime.Exec's suffix/ownership
+// resolution - same rationale as Remove/Inspect above: copy_to_volume.go's
+// copyFileJob (this fake's actual consumer, unlike Rename/Stop/Restart/Stats)
+// always resolves the unscoped/default environment for a loader container
+// that was itself created unscoped, so there's no suffix mismatch for this
+// fake to get right; the real environment-scoping behavior is covered by
+// container_runtime's own real-Docker unit tests and tests/e2e.
+func (f *fakeContainerRuntime) Exec(
+	ctx context.Context, identifier string, cfg container.ExecOptions,
+) ([]byte, error) {
+	out, err := f.docker.Exec(ctx, identifier, cfg)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error executing in container")
+	}
+
+	return out, nil
+}
+
+// CreateNetwork returns createNetworkErr (nil by default) so
+// TestUpgradeSmerdHandler_FailurePath_NetworkCreateFails can inject a
+// prepare_verv_config failure without a real Docker daemon.
+// ConnectToNetwork/DisconnectFromNetworks are no-op stubs, not exercised by
+// any job test today - see Rename's comment above.
+// createContainerJob/pauseOldContainerJob/prepareUpgradeVervConfigJob's real
+// network-suffixing behavior is covered by container_runtime's own
+// real-Docker unit tests and tests/e2e, not this fake.
+func (f *fakeContainerRuntime) CreateNetwork(_ context.Context, _ string) error {
+	return f.createNetworkErr
+}
+
+func (f *fakeContainerRuntime) ConnectToNetwork(_ context.Context, _ container_runtime.ConnectToNetworkRequest) error {
+	return nil
+}
+
+func (f *fakeContainerRuntime) DisconnectFromNetworks(_ context.Context, _ string, _ []string) error {
+	return nil
 }
 
 // fakeNodeClients is a minimal node_clients.NodeClients wrapping a
@@ -908,18 +992,6 @@ type fakeContainerAPI struct {
 	unpauseErr        error
 	unpauseCalledWith []string
 
-	networkDisconnectErr        error
-	networkDisconnectCalledWith []string
-
-	networkConnectErr        error
-	networkConnectCalledWith []string
-
-	networkListResp []network.Summary
-	networkListErr  error
-
-	networkCreateErr        error
-	networkCreateCalledWith []string
-
 	copyFromResp []byte
 	copyFromErr  error
 }
@@ -1014,42 +1086,6 @@ func (f *fakeContainerAPI) ContainerUnpause(_ context.Context, containerID strin
 	f.unpauseCalledWith = append(f.unpauseCalledWith, containerID)
 
 	return f.unpauseErr
-}
-
-func (f *fakeContainerAPI) NetworkDisconnect(_ context.Context, networkID, _ string, _ bool) error {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-
-	f.networkDisconnectCalledWith = append(f.networkDisconnectCalledWith, networkID)
-
-	return f.networkDisconnectErr
-}
-
-func (f *fakeContainerAPI) NetworkConnect(_ context.Context, networkID, _ string, _ *network.EndpointSettings) error {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-
-	f.networkConnectCalledWith = append(f.networkConnectCalledWith, networkID)
-
-	return f.networkConnectErr
-}
-
-func (f *fakeContainerAPI) NetworkList(_ context.Context, _ network.ListOptions) ([]network.Summary, error) {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-
-	return f.networkListResp, f.networkListErr
-}
-
-func (f *fakeContainerAPI) NetworkCreate(
-	_ context.Context, name string, _ network.CreateOptions,
-) (network.CreateResponse, error) {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-
-	f.networkCreateCalledWith = append(f.networkCreateCalledWith, name)
-
-	return network.CreateResponse{}, f.networkCreateErr
 }
 
 // CopyFromContainer returns copyFromResp wrapped as a single-entry tar
@@ -1233,7 +1269,7 @@ func (f *fakeContainerService) DropSmerds(
 	return &velez_api.DropSmerd_Response{}, nil
 }
 
-func (f *fakeContainerService) InspectSmerd(_ context.Context, contID string) (*velez_api.Smerd, error) {
+func (f *fakeContainerService) InspectSmerd(_ context.Context, _, contID string) (*velez_api.Smerd, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 

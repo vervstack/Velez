@@ -11,8 +11,6 @@ import (
 
 	errdefs2 "github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/filters"
-	"github.com/docker/docker/api/types/network"
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/evon"
 	"go.redsock.ru/rerrors"
@@ -161,6 +159,8 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			Job: &pauseOldContainerJob{
 				dockerAPI:   dockerAPI,
 				portManager: h.nodeClients.PortManager(),
+				runtimes:    h.runtimes,
+				req:         payload,
 				ctx:         payload,
 			},
 		},
@@ -204,8 +204,8 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: stepPrepareVervConfig,
 			Job: &prepareUpgradeVervConfigJob{
-				dockerAPI:   dockerAPI,
 				portManager: h.nodeClients.PortManager(),
+				runtimes:    h.runtimes,
 				imageMeta:   payload,
 				req:         payload,
 			},
@@ -378,7 +378,7 @@ func resolveCurrentContainer(
 	containerService service.ContainerService,
 	environment, name string,
 ) (*velez_api.Smerd, error) {
-	cont, err := containerService.InspectSmerd(ctx, name)
+	cont, err := containerService.InspectSmerd(ctx, environment, name)
 	if err == nil {
 		return cont, nil
 	}
@@ -406,7 +406,7 @@ func resolveCurrentContainer(
 		return nil, rerrors.New(fmt.Sprintf("container %q not found in environment %q", name, environment))
 	}
 
-	cont, err = containerService.InspectSmerd(ctx, containers[0].ID)
+	cont, err = containerService.InspectSmerd(ctx, environment, containers[0].ID)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error inspecting container")
 	}
@@ -476,38 +476,78 @@ func (j *prepareUpgradeImageJob) Do(ctx context.Context) error {
 }
 
 // pauseAPI is the narrow slice of client.APIClient pauseOldContainerJob needs
-// to pause/stop the old container and disconnect/reconnect its networks on
-// rollback. Kept narrow (rather than depending on client.APIClient directly)
-// so it's hand-fakeable in unit tests, same rationale as copy_to_volume.go's
-// startAPI/copyAPI - client.APIClient's method set is a superset of
-// pauseAPI's, so the real client still satisfies it.
+// to pause/stop the old container. Kept narrow (rather than depending on
+// client.APIClient directly) so it's hand-fakeable in unit tests, same
+// rationale as copy_to_volume.go's startAPI/copyAPI - client.APIClient's
+// method set is a superset of pauseAPI's, so the real client still satisfies
+// it. Network disconnect/reconnect used to be duplicated here against raw
+// NetworkDisconnect/NetworkConnect calls (see docs/jobs_migrations/questions.md
+// #8); that's gone now that ContainerRuntime exposes
+// DisconnectFromNetworks/ConnectToNetwork directly - see networkBindingsFor.
 type pauseAPI interface {
 	ContainerInspect(ctx context.Context, containerID string) (container.InspectResponse, error)
 	ContainerPause(ctx context.Context, containerID string) error
 	ContainerUnpause(ctx context.Context, containerID string) error
 	ContainerStop(ctx context.Context, containerID string, options container.StopOptions) error
-	NetworkDisconnect(ctx context.Context, networkID, containerID string, force bool) error
-	NetworkConnect(ctx context.Context, networkID, containerID string, config *network.EndpointSettings) error
+}
+
+// networkBinding is a logical network name plus the aliases the container was
+// connected with - captured once (in pauseOldContainerJob.Do) so Rollback can
+// reconnect with the exact same aliases, mirroring what the disconnected
+// container actually had rather than whatever Docker happens to report by the
+// time Rollback runs.
+type networkBinding struct {
+	name    string
+	aliases []string
+}
+
+// networkBindingsFor returns the logical network names (and aliases) every
+// create_smerd/upgrade_smerd container is connected to: the environment's
+// default network (only when the request has at least one port binding -
+// mirroring createContainerJob.connectNetworks' exact gating, since that's
+// the only condition under which the container ever joined it in the first
+// place) plus any extra networks from Settings.Network. Deriving the set this
+// way (from the already-known/logical request settings) rather than by
+// inspecting the live Docker container is deliberate: NetworkSettings.Networks
+// map keys are the REAL, already-suffixed Docker network names, and handing
+// those back into ContainerRuntime.DisconnectFromNetworks/ConnectToNetwork -
+// which suffix whatever name they're given - would suffix them a second time.
+func networkBindingsFor(request *velez_api.CreateSmerd_Request) []networkBinding {
+	extraNetworks := request.GetSettings().GetNetwork()
+
+	bindings := make([]networkBinding, 0, 1+len(extraNetworks))
+
+	if request.GetSettings() != nil && len(request.GetSettings().GetPorts()) != 0 {
+		bindings = append(bindings, networkBinding{name: env.VervNetwork, aliases: []string{request.GetName()}})
+	}
+
+	for _, n := range extraNetworks {
+		bindings = append(bindings, networkBinding{name: n.GetNetworkName(), aliases: n.GetAliases()})
+	}
+
+	return bindings
 }
 
 type pauseOldContainerJob struct {
 	dockerAPI   pauseAPI
 	portManager node_clients.PortManager
+	// runtimes resolves the request's environment into the ContainerRuntime
+	// that serves it, so network disconnect/reconnect around the pause is
+	// scoped/suffixed to that environment instead of against the raw Docker
+	// daemon - see docs/container_runtimes.
+	runtimes container_runtime.RuntimeResolver
 
+	req smerdRequestAccessor
 	ctx oldContainerIDAccessor
 
 	stateBeforePause container.ContainerState
-	disconnectedNets map[string]*network.EndpointSettings
+	disconnectedNets []networkBinding
 	portsOnHold      []uint32
 }
 
 // Do mirrors smerd_steps.detachContainerFromVervStep.Do, reading the old
 // container id from the persisted context at Do()-time instead of a raw
-// pointer fixed at construction. dockerutils.DisconnectFromNetworks/
-// ConnectToNetwork can't be reused directly since they're parameterized on
-// the full client.APIClient rather than an interface a fake could satisfy -
-// same wall copy_to_volume.go hit (see docs/jobs_migrations/questions.md
-// #8) - so their logic is duplicated below against pauseAPI instead.
+// pointer fixed at construction.
 func (j *pauseOldContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetOldContainerId()
 	if containerID == "" {
@@ -526,7 +566,21 @@ func (j *pauseOldContainerJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error stopping container")
 	}
 
-	j.disconnectedNets, err = disconnectFromNetworks(ctx, j.dockerAPI, containerID)
+	request := j.req.GetRequest()
+
+	runtime, err := j.runtimes.Runtime(ctx, request.GetEnvironment())
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving container runtime")
+	}
+
+	j.disconnectedNets = networkBindingsFor(request)
+
+	networkNames := make([]string, 0, len(j.disconnectedNets))
+	for _, nb := range j.disconnectedNets {
+		networkNames = append(networkNames, nb.name)
+	}
+
+	err = runtime.DisconnectFromNetworks(ctx, containerID, networkNames)
 	if err != nil {
 		return rerrors.Wrap(err, "error disconnecting from network")
 	}
@@ -563,10 +617,21 @@ func (j *pauseOldContainerJob) Rollback(ctx context.Context) error {
 		return rerrors.Wrapf(err, "error unpausing container '%s'", containerID)
 	}
 
+	runtime, err := j.runtimes.Runtime(ctx, j.req.GetRequest().GetEnvironment())
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving container runtime")
+	}
+
 	var globErr error
 
-	for netName, net := range j.disconnectedNets {
-		err = connectToNetwork(ctx, j.dockerAPI, netName, containerID, net.Aliases)
+	for _, nb := range j.disconnectedNets {
+		connectReq := container_runtime.ConnectToNetworkRequest{
+			ContainerID: containerID,
+			NetworkName: nb.name,
+			Aliases:     nb.aliases,
+		}
+
+		err = runtime.ConnectToNetwork(ctx, connectReq)
 		if err != nil {
 			globErr = rerrors.Join(globErr, rerrors.Wrap(err, "error connecting to network on rollback"))
 		}
@@ -594,52 +659,6 @@ func (j *pauseOldContainerJob) stopContainer(
 		err := j.dockerAPI.ContainerStop(ctx, containerID, container.StopOptions{})
 		if err != nil {
 			return rerrors.Wrap(err, "error stopping container")
-		}
-	}
-
-	return nil
-}
-
-// disconnectFromNetworks duplicates dockerutils.DisconnectFromNetworks
-// against the narrow pauseAPI interface - see pauseOldContainerJob.Do's
-// comment for why the dockerutils helper itself can't be called here.
-func disconnectFromNetworks(
-	ctx context.Context, d pauseAPI, contID string,
-) (map[string]*network.EndpointSettings, error) {
-	cont, err := d.ContainerInspect(ctx, contID)
-	if err != nil {
-		return nil, rerrors.Wrap(err, "error getting container info")
-	}
-
-	disconnected := make(map[string]*network.EndpointSettings)
-
-	for netName, net := range cont.NetworkSettings.Networks {
-		err = d.NetworkDisconnect(ctx, netName, cont.Name, false)
-		if err != nil {
-			return nil, rerrors.Wrap(err, "error disconnecting from network")
-		}
-
-		disconnected[netName] = net
-	}
-
-	return disconnected, nil
-}
-
-// connectToNetwork duplicates dockerutils.ConnectToNetwork against the
-// narrow pauseAPI interface, for the same reason as disconnectFromNetworks.
-func connectToNetwork(ctx context.Context, d pauseAPI, networkName, contID string, aliases []string) error {
-	cont, err := d.ContainerInspect(ctx, contID)
-	if err != nil {
-		return rerrors.Wrap(err, "error getting container info")
-	}
-
-	isConnected := cont.NetworkSettings != nil && cont.NetworkSettings.Networks[networkName] != nil
-	if !isConnected {
-		conn := &network.EndpointSettings{Aliases: aliases}
-
-		err = d.NetworkConnect(ctx, networkName, cont.Name, conn)
-		if err != nil {
-			return rerrors.Wrap(err, "error connecting to network")
 		}
 	}
 
@@ -824,20 +843,13 @@ func toConfTypePrefix(s string) matreshka_api.ConfigTypePrefix {
 	}
 }
 
-// createNetworkAPI is the narrow slice of client.APIClient
-// prepareUpgradeVervConfigJob needs to ensure a service's networks exist.
-// dockerutils.CreateNetwork is parameterized on the full client.APIClient
-// rather than an interface, so its logic is duplicated below against
-// createNetworkAPI instead - same wall as pauseAPI (see
-// docs/jobs_migrations/questions.md #8).
-type createNetworkAPI interface {
-	NetworkList(ctx context.Context, options network.ListOptions) ([]network.Summary, error)
-	NetworkCreate(ctx context.Context, name string, options network.CreateOptions) (network.CreateResponse, error)
-}
-
 type prepareUpgradeVervConfigJob struct {
-	dockerAPI   createNetworkAPI
 	portManager node_clients.PortManager
+	// runtimes resolves the request's environment into the ContainerRuntime
+	// that serves it, so network creation is scoped/suffixed to that
+	// environment instead of against the raw Docker daemon - see
+	// docs/container_runtimes.
+	runtimes container_runtime.RuntimeResolver
 
 	imageMeta imageMetaAccessor
 	req       smerdRequestAccessor
@@ -865,49 +877,18 @@ func (j *prepareUpgradeVervConfigJob) Do(ctx context.Context) error {
 
 	request.Labels[labels.ComposeGroupLabel] = request.GetName()
 
-	for _, n := range request.GetSettings().GetNetwork() {
-		err = createNetworkIfMissing(ctx, j.dockerAPI, n.GetNetworkName())
+	if len(request.GetSettings().GetNetwork()) != 0 {
+		runtime, err := j.runtimes.Runtime(ctx, request.GetEnvironment())
 		if err != nil {
-			return rerrors.Wrap(err, "error creating network: %s", n.GetNetworkName())
+			return rerrors.Wrap(err, "error resolving container runtime")
 		}
-	}
 
-	return nil
-}
-
-// createNetworkIfMissing duplicates dockerutils.CreateNetwork against the
-// narrow createNetworkAPI interface.
-func createNetworkIfMissing(ctx context.Context, dockerAPI createNetworkAPI, networkName string) error {
-	f := filters.NewArgs()
-	f.Add("name", networkName)
-
-	nets, err := dockerAPI.NetworkList(ctx, network.ListOptions{Filters: f})
-	if err != nil {
-		return rerrors.Wrap(err, "error inspecting network")
-	}
-
-	for _, n := range nets {
-		if n.Name == networkName {
-			return nil
+		for _, n := range request.GetSettings().GetNetwork() {
+			err = runtime.CreateNetwork(ctx, n.GetNetworkName())
+			if err != nil {
+				return rerrors.Wrap(err, "error creating network: %s", n.GetNetworkName())
+			}
 		}
-	}
-
-	createOpts := network.CreateOptions{
-		Driver: "bridge",
-		IPAM: &network.IPAM{
-			Config: []network.IPAMConfig{
-				{
-					// TODO make it auto-configurable among cluster - matches
-					// dockerutils.CreateNetwork's own TODO.
-					Subnet: "10.0.1.0/24",
-				},
-			},
-		},
-	}
-
-	_, err = dockerAPI.NetworkCreate(ctx, networkName, createOpts)
-	if err != nil {
-		return rerrors.Wrap(err, "error creating network")
 	}
 
 	return nil

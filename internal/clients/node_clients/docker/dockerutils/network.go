@@ -30,14 +30,6 @@ func CreateNetwork(ctx context.Context, d client.APIClient, networkName string) 
 
 	createOps := network.CreateOptions{
 		Driver: "bridge",
-		IPAM: &network.IPAM{
-			Config: []network.IPAMConfig{
-				{
-					// TODO make it auto-configurable among cluster
-					Subnet: "10.0.1.0/24",
-				},
-			},
-		},
 	}
 
 	_, err = d.NetworkCreate(ctx, networkName, createOps)

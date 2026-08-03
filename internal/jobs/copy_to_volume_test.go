@@ -32,7 +32,7 @@ var (
 )
 
 func TestCopyToVolumeHandler_Action(t *testing.T) {
-	h := NewCopyToVolumeHandler(nil)
+	h := NewCopyToVolumeHandler(nil, nil)
 
 	if h.Action() != CopyToVolumeAction {
 		t.Errorf("expected action %q, got %q", CopyToVolumeAction, h.Action())
@@ -40,7 +40,7 @@ func TestCopyToVolumeHandler_Action(t *testing.T) {
 }
 
 func TestCopyToVolumeHandler_NewContext(t *testing.T) {
-	h := NewCopyToVolumeHandler(nil)
+	h := NewCopyToVolumeHandler(nil, nil)
 
 	if _, ok := h.NewContext().(*velez_api.CopyToVolumeTaskPayload); !ok {
 		t.Fatal("expected NewContext to return *velez_api.CopyToVolumeTaskPayload")
@@ -132,7 +132,7 @@ func TestCopyToVolumeHandler_BuildJobs_Deterministic(t *testing.T) {
 
 	docker := newFakeDocker()
 	nodeClients := newFakeNodeClients(docker)
-	h := NewCopyToVolumeHandler(nodeClients)
+	h := NewCopyToVolumeHandler(nodeClients, newFakeRuntimes(docker, nil))
 
 	runs := make([][]string, 0, 10)
 
@@ -177,7 +177,7 @@ func TestCopyToVolumeHandler_BuildJobs_NoFiles(t *testing.T) {
 
 	docker := newFakeDocker()
 	nodeClients := newFakeNodeClients(docker)
-	h := NewCopyToVolumeHandler(nodeClients)
+	h := NewCopyToVolumeHandler(nodeClients, newFakeRuntimes(docker, nil))
 
 	namedJobs := h.BuildJobs(payload)
 	if len(namedJobs) != 3 {
@@ -206,7 +206,7 @@ func TestCopyToVolumeHandler_BuildJobs_CopyFileNamesMapToSortedPaths(t *testing.
 
 	docker := newFakeDocker()
 	nodeClients := newFakeNodeClients(docker)
-	h := NewCopyToVolumeHandler(nodeClients)
+	h := NewCopyToVolumeHandler(nodeClients, newFakeRuntimes(docker, nil))
 
 	namedJobs := h.BuildJobs(payload)
 
@@ -424,9 +424,10 @@ func TestStartLoaderContainerJob_Rollback_NoContainerId_NoOp(t *testing.T) {
 	}
 }
 
-// copyFileJob combines mkdir (via node_clients.Docker.Exec) and the
-// tar-based write (via the narrow copyAPI interface) into one checkpointed
-// unit - see copy_to_volume.go's doc comment and questions.md #2.
+// copyFileJob combines mkdir (via a ContainerRuntime resolved through
+// runtimes, per docs/container_runtimes) and the tar-based write (via the
+// narrow copyAPI interface) into one checkpointed unit - see
+// copy_to_volume.go's doc comment and questions.md #2.
 
 func TestCopyFileJob_Success(t *testing.T) {
 	payload := &velez_api.CopyToVolumeTaskPayload{}
@@ -436,7 +437,7 @@ func TestCopyFileJob_Success(t *testing.T) {
 	containerAPI := newFakeContainerAPI()
 
 	j := &copyFileJob{
-		docker:   docker,
+		runtimes: newFakeRuntimes(docker, nil),
 		copyAPI:  containerAPI,
 		ctx:      payload,
 		filePath: testPathDataA,
@@ -483,7 +484,7 @@ func TestCopyFileJob_NilContent_Skipped(t *testing.T) {
 	containerAPI := newFakeContainerAPI()
 
 	j := &copyFileJob{
-		docker:   docker,
+		runtimes: newFakeRuntimes(docker, nil),
 		copyAPI:  containerAPI,
 		ctx:      payload,
 		filePath: testPathDataA,
@@ -512,7 +513,7 @@ func TestCopyFileJob_NoContainerId_Error(t *testing.T) {
 	containerAPI := newFakeContainerAPI()
 
 	j := &copyFileJob{
-		docker:   docker,
+		runtimes: newFakeRuntimes(docker, nil),
 		copyAPI:  containerAPI,
 		ctx:      payload,
 		filePath: testPathDataA,
@@ -538,7 +539,7 @@ func TestCopyFileJob_ExecError(t *testing.T) {
 	containerAPI := newFakeContainerAPI()
 
 	j := &copyFileJob{
-		docker:   docker,
+		runtimes: newFakeRuntimes(docker, nil),
 		copyAPI:  containerAPI,
 		ctx:      payload,
 		filePath: testPathDataA,
@@ -566,7 +567,7 @@ func TestCopyFileJob_CopyToContainerError(t *testing.T) {
 	containerAPI.copyErr = errNoSpaceLeftOnDevice
 
 	j := &copyFileJob{
-		docker:   docker,
+		runtimes: newFakeRuntimes(docker, nil),
 		copyAPI:  containerAPI,
 		ctx:      payload,
 		filePath: testPathDataA,
@@ -647,6 +648,9 @@ func TestDropLoaderContainerJob_RemoveErrorPropagates(t *testing.T) {
 // handler, then swap the two client.APIClient-typed fields for
 // fakeContainerAPI (both are same-package unexported fields, and this test
 // file is in package jobs) before handing the jobs to taskWorker.runJobs.
+// copyFileJob's mkdir step doesn't need this swap: it goes through
+// h.runtimes (a fakeRuntimeResolver wrapping the same fakeDocker), whose
+// fakeContainerRuntime.Exec delegates straight to fakeDocker.Exec.
 
 func copyToVolumeTask(
 	t *testing.T, tasksStorage *fakeTasksStorage, entityID string, payload *velez_api.CopyToVolumeTaskPayload,
@@ -705,7 +709,7 @@ func TestCopyToVolumeHandler_HappyPath_EndToEnd(t *testing.T) {
 
 	nodeClients := newFakeNodeClients(docker)
 
-	handler := NewCopyToVolumeHandler(nodeClients)
+	handler := NewCopyToVolumeHandler(nodeClients, newFakeRuntimes(docker, nil))
 
 	taskCtx := handler.NewContext()
 
@@ -789,7 +793,7 @@ func TestCopyToVolumeHandler_FailurePath_CreateContainerFails(t *testing.T) {
 	nodeClients := newFakeNodeClients(docker)
 
 	registry := NewRegistry()
-	registry.Register(NewCopyToVolumeHandler(nodeClients))
+	registry.Register(NewCopyToVolumeHandler(nodeClients, newFakeRuntimes(docker, nil)))
 
 	w, ok := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour).(*taskWorker)
 	if !ok {
@@ -838,7 +842,7 @@ func TestCopyToVolumeHandler_FailurePath_LaterFileFailsCascadesRollback(t *testi
 
 	nodeClients := newFakeNodeClients(docker)
 
-	handler := NewCopyToVolumeHandler(nodeClients)
+	handler := NewCopyToVolumeHandler(nodeClients, newFakeRuntimes(docker, nil))
 
 	taskCtx := handler.NewContext()
 

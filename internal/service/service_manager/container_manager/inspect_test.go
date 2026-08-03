@@ -8,8 +8,9 @@ import (
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 	"github.com/stretchr/testify/require"
+	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/storage/environments"
 )
 
 const (
@@ -18,23 +19,20 @@ const (
 	inspectTestImage  = "img:latest"
 )
 
-// fakeInspectAPI is a minimal client.APIClient fake for InspectSmerd - only
-// ContainerInspect and ImageInspect are exercised.
-type fakeInspectAPI struct {
+// fakeImageInspectAPI is a minimal client.APIClient fake for the one
+// client.APIClient method InspectSmerd still calls directly - ImageInspect.
+// Container inspection itself now goes through a resolved
+// container_runtime.ContainerRuntime (fakeListContainerRuntime in
+// smerd_list_test.go), not the raw dockerAPI - see InspectSmerd's doc
+// comment in inspect.go.
+type fakeImageInspectAPI struct {
 	client.APIClient
-
-	contResp container.InspectResponse
-	contErr  error
 
 	imgResp image.InspectResponse
 	imgErr  error
 }
 
-func (f *fakeInspectAPI) ContainerInspect(_ context.Context, _ string) (container.InspectResponse, error) {
-	return f.contResp, f.contErr
-}
-
-func (f *fakeInspectAPI) ImageInspect(
+func (f *fakeImageInspectAPI) ImageInspect(
 	_ context.Context, _ string, _ ...client.ImageInspectOption,
 ) (image.InspectResponse, error) {
 	return f.imgResp, f.imgErr
@@ -42,11 +40,15 @@ func (f *fakeInspectAPI) ImageInspect(
 
 // newInspectContainerResponse builds a minimal-but-valid container.InspectResponse:
 // enough non-nil fields for InspectSmerd to walk without a nil dereference.
-func newInspectContainerResponse(dockerName, suffix string) container.InspectResponse {
+// name is passed already in the virtual/logical form - the shape a real
+// labelBasedRuntime.Inspect would have returned (see label_based_test.go's
+// own TestLabelBasedRuntime_Inspect_FoundAndOwned_NameRewrittenToVirtual) -
+// since suffix-stripping is no longer InspectSmerd's job.
+func newInspectContainerResponse(virtualName string) container.InspectResponse {
 	return container.InspectResponse{
 		ContainerJSONBase: &container.ContainerJSONBase{
 			ID:      "container-id",
-			Name:    dockerName,
+			Name:    "/" + virtualName,
 			Image:   "sha256:abc",
 			Created: "2024-01-01T00:00:00Z",
 			State:   &container.State{Status: "running"},
@@ -57,59 +59,73 @@ func newInspectContainerResponse(dockerName, suffix string) container.InspectRes
 		},
 		Config: &container.Config{
 			Env:    nil,
-			Labels: map[string]string{labels.SuffixLabel: suffix},
+			Labels: map[string]string{},
 		},
 		NetworkSettings: &container.NetworkSettings{},
 	}
 }
 
-func newTestContainerManager(api *fakeInspectAPI) *ContainerManager {
+func newTestContainerManager(api client.APIClient, resolver *fakeRuntimeResolver) *ContainerManager {
 	return &ContainerManager{
 		dockerAPI: api,
+		runtimes:  resolver,
 	}
 }
 
-// InspectSmerd must surface the virtual/logical name, not the suffixed real
-// Docker name - the CreateSmerd response Name leak this test guards against
-// (see docs/container_runtimes/interface_design.md).
-func TestInspectSmerd_StripsSuffixFromName(t *testing.T) {
-	api := &fakeInspectAPI{
-		contResp: newInspectContainerResponse("/"+inspectTestName+"_"+inspectTestSuffix, inspectTestSuffix),
-		imgResp:  image.InspectResponse{RepoTags: []string{inspectTestImage}},
+// InspectSmerd must pass contInfo.Name straight through (minus the leading
+// "/") rather than re-deriving/re-stripping any suffix itself - that's the
+// resolved ContainerRuntime's job now (label_based.go's Inspect).
+func TestInspectSmerd_ReturnsRuntimeInspectResultAsSmerd(t *testing.T) {
+	resolver := &fakeRuntimeResolver{
+		envs:         environments.NewStatic([]string{inspectTestSuffix}, ""),
+		inspectResp:  newInspectContainerResponse(inspectTestName),
+		inspectFound: true,
 	}
+	api := &fakeImageInspectAPI{imgResp: image.InspectResponse{RepoTags: []string{inspectTestImage}}}
 
-	smerd, err := newTestContainerManager(api).InspectSmerd(context.Background(), "container-id")
+	smerd, err := newTestContainerManager(api, resolver).
+		InspectSmerd(context.Background(), inspectTestSuffix, "container-id")
 	require.NoError(t, err)
 	require.Equal(t, inspectTestName, smerd.GetName())
+	require.Equal(t, "container-id", smerd.GetUuid())
+	require.Equal(t, inspectTestSuffix, resolver.gotEnvironment,
+		"InspectSmerd must resolve the runtime for the given environment")
 }
 
-// An empty suffix (the pre-multi-environment default) leaves the name
-// untouched, byte for byte.
-func TestInspectSmerd_EmptySuffixLeavesNameUntouched(t *testing.T) {
-	api := &fakeInspectAPI{
-		contResp: newInspectContainerResponse("/"+inspectTestName, ""),
-		imgResp:  image.InspectResponse{RepoTags: []string{inspectTestImage}},
+// A container not found (or not owned) by the resolved runtime is a real,
+// surfaced error - not a nil Smerd.
+func TestInspectSmerd_NotFound_ReturnsError(t *testing.T) {
+	resolver := &fakeRuntimeResolver{
+		envs:         environments.NewStatic(nil, ""),
+		inspectFound: false,
 	}
+	api := &fakeImageInspectAPI{}
 
-	smerd, err := newTestContainerManager(api).InspectSmerd(context.Background(), "container-id")
-	require.NoError(t, err)
-	require.Equal(t, inspectTestName, smerd.GetName())
+	smerd, err := newTestContainerManager(api, resolver).InspectSmerd(context.Background(), "", "ghost")
+	require.Error(t, err)
+	require.Nil(t, smerd)
 }
 
-// A container with no SuffixLabel at all (containers predating the
-// multi-environment feature) must not have anything stripped - suffix
-// defaults to "" and StripEnvironmentSuffix is a no-op for that.
-func TestInspectSmerd_NoSuffixLabel_LeavesNameUntouched(t *testing.T) {
-	resp := newInspectContainerResponse("/"+inspectTestName, "")
+// A failure to resolve the environment (unknown environment, storage error,
+// etc.) propagates as an error.
+func TestInspectSmerd_UnknownEnvironmentRejected(t *testing.T) {
+	resolver := &fakeRuntimeResolver{envs: environments.NewStatic(nil, "")}
+	api := &fakeImageInspectAPI{}
 
-	resp.Config.Labels = map[string]string{}
+	smerd, err := newTestContainerManager(api, resolver).InspectSmerd(context.Background(), "ghost-env", "container-id")
+	require.Error(t, err)
+	require.Nil(t, smerd)
+}
 
-	api := &fakeInspectAPI{
-		contResp: resp,
-		imgResp:  image.InspectResponse{RepoTags: []string{inspectTestImage}},
+// An unexpected error from the resolved runtime's Inspect call propagates.
+func TestInspectSmerd_RuntimeInspectErrorPropagates(t *testing.T) {
+	resolver := &fakeRuntimeResolver{
+		envs:       environments.NewStatic(nil, ""),
+		inspectErr: rerrors.New("docker down"),
 	}
+	api := &fakeImageInspectAPI{}
 
-	smerd, err := newTestContainerManager(api).InspectSmerd(context.Background(), "container-id")
-	require.NoError(t, err)
-	require.Equal(t, inspectTestName, smerd.GetName())
+	smerd, err := newTestContainerManager(api, resolver).InspectSmerd(context.Background(), "", "container-id")
+	require.Error(t, err)
+	require.Nil(t, smerd)
 }

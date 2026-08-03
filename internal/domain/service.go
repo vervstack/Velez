@@ -47,6 +47,10 @@ type GetServiceReq struct {
 type RemoveServiceReq struct {
 	Name                 string
 	DropRunningInstances bool
+
+	// Environment - the isolated namespace this operation targets. Empty
+	// means the default/PROD environment (see storage/environments.Resolve).
+	Environment string
 }
 
 type CreateDeployReq struct {

@@ -49,7 +49,7 @@ var (
 )
 
 func TestEnableStatefullHandler_Action(t *testing.T) {
-	h := NewEnableStatefullHandler(nil, nil, nil, config.Config{})
+	h := NewEnableStatefullHandler(nil, nil, nil, config.Config{}, nil)
 
 	if h.Action() != EnableStatefullAction {
 		t.Errorf("expected action %q, got %q", EnableStatefullAction, h.Action())
@@ -57,7 +57,7 @@ func TestEnableStatefullHandler_Action(t *testing.T) {
 }
 
 func TestEnableStatefullHandler_NewContext(t *testing.T) {
-	h := NewEnableStatefullHandler(nil, nil, nil, config.Config{})
+	h := NewEnableStatefullHandler(nil, nil, nil, config.Config{}, nil)
 
 	if _, ok := h.NewContext().(*velez_api.EnableStatefullTaskPayload); !ok {
 		t.Fatal("expected NewContext to return *velez_api.EnableStatefullTaskPayload")
@@ -76,7 +76,8 @@ func TestEnableStatefullHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 	clusterStateManager := state.NewContainer(clusterStorage)
 	storageContainer := storage.NewStorageContainer(clusterStorage)
 
-	h := NewEnableStatefullHandler(nodeClients, clusterStateManager, storageContainer, config.Config{})
+	h := NewEnableStatefullHandler(
+		nodeClients, clusterStateManager, storageContainer, config.Config{}, newFakeRuntimes(docker, nil))
 
 	namedJobs := h.BuildJobs(payload)
 
@@ -114,7 +115,8 @@ func TestEnableStatefullHandler_BuildJobs_UsesDefaultEnvironmentSuffix(t *testin
 	clusterStateManager := state.NewContainer(clusterStorage)
 	storageContainer := storage.NewStorageContainer(clusterStorage)
 
-	h := NewEnableStatefullHandler(nodeClients, clusterStateManager, storageContainer, config.Config{})
+	h := NewEnableStatefullHandler(
+		nodeClients, clusterStateManager, storageContainer, config.Config{}, newFakeRuntimes(docker, nil))
 
 	namedJobs := h.BuildJobs(payload)
 
@@ -243,7 +245,8 @@ func TestCreatePgContainerJob_Success(t *testing.T) {
 	}
 
 	j := &createPgContainerJob{
-		nodeClients: nodeClients, req: payload, pwd: payload, ctx: payload, pgName: state.PgName(""),
+		nodeClients: nodeClients, runtimes: newFakeRuntimes(docker, nil),
+		req: payload, pwd: payload, ctx: payload, pgName: state.PgName(""),
 	}
 
 	err := j.Do(context.Background())
@@ -269,7 +272,8 @@ func TestCreatePgContainerJob_ContainerCreateError(t *testing.T) {
 	}
 
 	j := &createPgContainerJob{
-		nodeClients: nodeClients, req: payload, pwd: payload, ctx: payload, pgName: state.PgName(""),
+		nodeClients: nodeClients, runtimes: newFakeRuntimes(docker, nil),
+		req: payload, pwd: payload, ctx: payload, pgName: state.PgName(""),
 	}
 
 	err := j.Do(context.Background())
@@ -299,7 +303,8 @@ func TestCreatePgContainerJob_BinaryModeWithoutExposePort_Error(t *testing.T) {
 	}
 
 	j := &createPgContainerJob{
-		nodeClients: nodeClients, req: payload, pwd: payload, ctx: payload, pgName: state.PgName(""),
+		nodeClients: nodeClients, runtimes: newFakeRuntimes(docker, nil),
+		req: payload, pwd: payload, ctx: payload, pgName: state.PgName(""),
 	}
 
 	err := j.Do(context.Background())
@@ -331,7 +336,8 @@ func TestCreatePgContainerJob_ExposeToPortOccupied_Error(t *testing.T) {
 	}
 
 	j := &createPgContainerJob{
-		nodeClients: nodeClients, req: payload, pwd: payload, ctx: payload, pgName: state.PgName(""),
+		nodeClients: nodeClients, runtimes: newFakeRuntimes(docker, nil),
+		req: payload, pwd: payload, ctx: payload, pgName: state.PgName(""),
 	}
 
 	err := j.Do(context.Background())
@@ -1187,7 +1193,8 @@ func TestEnableStatefullHandler_FailurePath_UnreachablePostgres_RollsBack(t *tes
 	clusterStateManager := state.NewContainer(clusterStorage)
 	storageContainer := storage.NewStorageContainer(clusterStorage)
 
-	handler := NewEnableStatefullHandler(nodeClients, clusterStateManager, storageContainer, config.Config{})
+	handler := NewEnableStatefullHandler(
+		nodeClients, clusterStateManager, storageContainer, config.Config{}, newFakeRuntimes(docker, nil))
 
 	taskCtx := handler.NewContext()
 

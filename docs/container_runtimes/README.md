@@ -1,14 +1,16 @@
 # Container Runtimes
 
-**Status: Phase 1 implemented and cut over.** `ContainerCreate`, `ListContainers`, `Remove`, `Rename` and
-`IsContainerRunning` are all live on `labelBasedRuntime`, and `create_smerd`/`drop_smerd`/`upgrade_smerd`'s
-rename/rollback jobs all resolve and call through `RuntimeResolver` instead of touching `node_clients.Docker`
-directly. Remaining work is the rest of the `ContainerRuntime` interface (`Stop`/`Restart`/`Exec`/`Stats`/
-`ListOccupiedPorts`/`PullImage`/network ops — see `roadmap.md`'s "Explicitly deferred") and Phase 2 (dedicated
-Docker instance, still a stub). This directory is the durable record of the design session that produced this
-work, so future phases can continue from here instead of re-deriving the shape from scratch. See
-[`interface_design.md`](interface_design.md) for the concrete Go types/interfaces and [`roadmap.md`](roadmap.md)
-for what's in/out of scope per phase and the known bugs that block later phases.
+**Status: full `ContainerRuntime` interface implemented.** `ContainerCreate`, `ListContainers`, `Remove`, `Rename`,
+`IsContainerRunning`, `Inspect`, `Stop`, `Restart`, `Stats`, `Exec`, `CreateNetwork`, `ConnectToNetwork` and
+`DisconnectFromNetworks` are live on `labelBasedRuntime`; `PullImage` and `ListOccupiedPorts` are live on
+`commonRuntime` (node-wide, no suffix logic - embedded by every backend). Every job/service call site that used to
+go through `node_clients.Docker`/raw `client.APIClient` now resolves and calls through `RuntimeResolver` instead.
+Remaining work is deleting the old pre-jobs-engine `internal/pipelines` package entirely (its last two callers,
+`autoupgrade.go`/`deploy_watcher.go`, still need migrating) and Phase 2 (dedicated Docker instance, still a stub).
+This directory is the durable record of the design session that produced this work, so future phases can continue
+from here instead of re-deriving the shape from scratch. See [`interface_design.md`](interface_design.md) for the
+concrete Go types/interfaces and [`roadmap.md`](roadmap.md) for what's in/out of scope per phase and the known
+bugs that block later phases.
 
 ## Motivation
 

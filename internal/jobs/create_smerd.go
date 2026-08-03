@@ -133,9 +133,9 @@ func (h *createSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: stepPrepareCreateImage,
 			Job: &prepareImageJob{
-				docker: h.nodeClients.Docker(),
-				req:    payload,
-				ctx:    payload,
+				runtimes: h.runtimes,
+				req:      payload,
+				ctx:      payload,
 			},
 		},
 		{
@@ -237,14 +237,19 @@ func (j *prepareSmerdRequestJob) Do(_ context.Context) error {
 }
 
 type prepareImageJob struct {
-	docker node_clients.Docker
+	runtimes container_runtime.RuntimeResolver
 
 	req smerdRequestAccessor
 	ctx createSmerdImageAccessor
 }
 
 func (j *prepareImageJob) Do(ctx context.Context) error {
-	imageInfo, err := j.docker.PullImage(ctx, j.req.GetRequest().GetImageName())
+	runtime, err := j.runtimes.Runtime(ctx, j.req.GetRequest().GetEnvironment())
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving container runtime")
+	}
+
+	imageInfo, err := runtime.PullImage(ctx, j.req.GetRequest().GetImageName())
 	if err != nil {
 		return rerrors.Wrap(err, "error pulling image")
 	}

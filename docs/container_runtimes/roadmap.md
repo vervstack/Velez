@@ -21,20 +21,35 @@ exercises the whole shape without requiring the full interface.
   `NodeClients.Docker().ContainerCreate(...)` directly.
 - One RED→GREEN integration test (see "Test design" below).
 
-**Explicitly deferred**
-- Every other `ContainerRuntime` method (`Stop`/`Restart`/`Exec`/`Stats`/`PullImage`/network ops) — `Docker`
-  keeps serving those directly for now. (`ListContainers`, `Remove`, `Rename` and `IsContainerRunning` were
-  originally deferred here too, but follow-up passes in the same phase added all four — see "Names are always
-  virtual at the interface boundary" and "Suffix filtering has no 'unscoped' escape hatch" in
-  `interface_design.md`, and the bug-fix entries below. `Rename`/`IsContainerRunning` were added to unblock
-  `internal/jobs/upgrade_smerd.go`'s suffix-aware container lookup/rename steps — see the jobs-engine
-  suffixed-environment upgrade fix. **Done:** the rename/drop/rollback jobs themselves have since been cut
-  over to call them — `renameContainerJob` and the new `dropOwnedContainerJob` (replacing two
-  `dropScratchContainerJob` call sites) now resolve a `ContainerRuntime` for the request's environment instead
-  of touching `node_clients.Docker`/raw `client.APIClient` directly, and `createContainerJob.Rollback`/
-  `renamingCreateContainerJob.Rollback` do the same for container removal. `IsContainerRunning` is still
-  unused — `pauseOldContainerJob`/`healthcheckJob` migrations were explicitly deferred, see the
-  suffixed-environment upgrade fix plan's "Deferred" note.)
+**Explicitly deferred at the time of this phase (all since done — see the durable status note at the top of
+`README.md` and the stage-by-stage log below):**
+- `Inspect`/`Stop`/`Restart`/`Stats`/`Exec` — added on `labelBasedRuntime`, using the same
+  `resolveOwnedContainer`/`resolveOwnedContainerInfo` ownership check as `Remove`/`Rename`.
+  `container_manager.InspectSmerd`, `copy_to_volume.go`'s `copyFileJob`, `verv_services`'s
+  `stop_restart.go`/`metrics.go` all resolve and call through `RuntimeResolver` now.
+- `CreateNetwork`/`ConnectToNetwork`/`DisconnectFromNetworks` — added on `labelBasedRuntime`, suffixed exactly
+  like container names (each environment gets its own `verv_<suffix>` network instead of every environment
+  sharing one hardcoded `"verv"` network). `create_smerd.go`/`upgrade_smerd.go`'s network-join/pause/rollback
+  logic goes through them instead of a raw `client.APIClient`.
+- `PullImage`/`ListOccupiedPorts` — added on `commonRuntime` (node-wide, no suffix logic, embedded by every
+  backend). Every caller (`assemble_config.go`, `create_smerd.go`, `upgrade_smerd.go`,
+  `connect_service_to_vpn.go`, `enable_statefull.go`'s port-conflict check,
+  `internal/app/custom.go`'s boot-time port-manager seeding) now resolves through `RuntimeResolver` instead of
+  `node_clients.Docker` directly. See `docs/ports_management/roadmap.md` for why the boot-time seeding needed
+  reordering (`RuntimeResolver` doesn't exist until after `NodeClients` does) and for a proposed future
+  improvement (host-level `/proc/net/tcp`-based port watcher, to catch non-Docker port occupancy too).
+
+(`ListContainers`, `Remove`, `Rename` and `IsContainerRunning` were originally deferred here too, but follow-up
+passes in the same phase added all four — see "Names are always virtual at the interface boundary" and "Suffix
+filtering has no 'unscoped' escape hatch" in `interface_design.md`, and the bug-fix entries below. `Rename`/
+`IsContainerRunning` were added to unblock `internal/jobs/upgrade_smerd.go`'s suffix-aware container lookup/rename
+steps — see the jobs-engine suffixed-environment upgrade fix. **Done:** the rename/drop/rollback jobs themselves
+have since been cut over to call them — `renameContainerJob` and the new `dropOwnedContainerJob` (replacing two
+`dropScratchContainerJob` call sites) now resolve a `ContainerRuntime` for the request's environment instead of
+touching `node_clients.Docker`/raw `client.APIClient` directly, and `createContainerJob.Rollback`/
+`renamingCreateContainerJob.Rollback` do the same for container removal. `IsContainerRunning` is still unused —
+`pauseOldContainerJob`/`healthcheckJob` migrations were explicitly deferred, see the suffixed-environment upgrade
+fix plan's "Deferred" note.)
 - Dedicated-docker-instance real implementation — see Phase 2 below.
 - pg-state matrix cells — need the cluster/`WithMatreshka` e2e fixture.
 - A same-name-cross-environment test case — blocked on the task-dedup bug below.

@@ -9,19 +9,18 @@
 // invisible to callers.
 //
 // Design record: docs/container_runtimes/{README,interface_design,roadmap}.md.
-// Phase 1 (done) implements ContainerCreate, ListContainers, Remove, Rename,
-// IsContainerRunning, Inspect, Stop, Restart, Stats and Exec, and
-// create_smerd/drop_smerd/upgrade_smerd's rename/rollback jobs (plus
-// container_manager.InspectSmerd and copy_to_volume.go's copyFileJob) all
-// resolve through RuntimeResolver instead of calling node_clients.Docker
-// directly. ListOccupiedPorts, PullImage and network ops still go through
-// node_clients.Docker directly - see roadmap.md's "Explicitly deferred".
+// The full interface_design.md target shape is now implemented: ContainerCreate,
+// ListContainers, Remove, Rename, IsContainerRunning, Inspect, Stop, Restart,
+// Stats, Exec, CreateNetwork, ConnectToNetwork, DisconnectFromNetworks on
+// labelBasedRuntime, plus PullImage and ListOccupiedPorts on commonRuntime
+// (backend-agnostic, no suffix logic - see roadmap.md's Stage 5).
 package container_runtime
 
 import (
 	"context"
 
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/network"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 
@@ -197,6 +196,21 @@ type ContainerRuntime interface {
 	// the same networkName suffixing applied to every entry in networks
 	// before it's handed to the backend.
 	DisconnectFromNetworks(ctx context.Context, containerID string, networks []string) error
+
+	// PullImage pulls imageName if not already present locally and returns its
+	// inspect result. Node-wide, not environment-scoped: implemented once on
+	// commonRuntime and embedded by every concrete runtime, since which images
+	// are cached is a property of the daemon a runtime talks to, not of any one
+	// environment sharing that daemon.
+	PullImage(ctx context.Context, imageName string) (image.InspectResponse, error)
+
+	// ListOccupiedPorts reports every host port currently bound by any
+	// container on the daemon this runtime talks to - deliberately NOT scoped
+	// to this runtime's environment (see roadmap.md's Stage 5 design note):
+	// host ports are a resource shared by every label-based environment on one
+	// daemon, so every environment's resolved runtime must agree on the same
+	// occupancy. Implemented on commonRuntime for the same reason as PullImage.
+	ListOccupiedPorts(ctx context.Context) ([]uint32, error)
 }
 
 // RuntimeResolver hands out the ContainerRuntime serving a given environment.

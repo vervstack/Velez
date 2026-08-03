@@ -714,6 +714,30 @@ func (f *fakeContainerRuntime) DisconnectFromNetworks(_ context.Context, _ strin
 	return nil
 }
 
+// PullImage delegates straight to the backing node_clients.Docker's PullImage -
+// same rationale as Exec above: node-wide, no suffix/ownership resolution to
+// get right in the first place.
+func (f *fakeContainerRuntime) PullImage(ctx context.Context, imageName string) (image.InspectResponse, error) {
+	img, err := f.docker.PullImage(ctx, imageName)
+	if err != nil {
+		return image.InspectResponse{}, rerrors.Wrap(err, "error pulling image")
+	}
+
+	return img, nil
+}
+
+// ListOccupiedPorts delegates straight to the backing node_clients.Docker's
+// ListOccupiedPorts - same rationale as PullImage above, and lets tests keep
+// injecting occupancy via fakeDocker.listOccupiedPortsResp.
+func (f *fakeContainerRuntime) ListOccupiedPorts(ctx context.Context) ([]uint32, error) {
+	ports, err := f.docker.ListOccupiedPorts(ctx)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error listing occupied ports")
+	}
+
+	return ports, nil
+}
+
 // fakeNodeClients is a minimal node_clients.NodeClients wrapping a
 // fakeDocker, for jobs (like createScratchContainerJob) that depend on the
 // full NodeClients container but only ever call Docker() on it.

@@ -37,7 +37,7 @@ var (
 )
 
 func TestConnectServiceToVpnHandler_Action(t *testing.T) {
-	h := NewConnectServiceToVpnHandler(nil, nil, nil)
+	h := NewConnectServiceToVpnHandler(nil, nil, nil, nil)
 
 	if h.Action() != ConnectServiceToVpnAction {
 		t.Errorf("expected action %q, got %q", ConnectServiceToVpnAction, h.Action())
@@ -45,7 +45,7 @@ func TestConnectServiceToVpnHandler_Action(t *testing.T) {
 }
 
 func TestConnectServiceToVpnHandler_NewContext(t *testing.T) {
-	h := NewConnectServiceToVpnHandler(nil, nil, nil)
+	h := NewConnectServiceToVpnHandler(nil, nil, nil, nil)
 
 	if _, ok := h.NewContext().(*velez_api.ConnectServiceToVpnTaskPayload); !ok {
 		t.Fatal("expected NewContext to return *velez_api.ConnectServiceToVpnTaskPayload")
@@ -57,7 +57,7 @@ func TestConnectServiceToVpnHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 
 	docker := newFakeDocker()
 	nodeClients := newFakeNodeClients(docker)
-	h := NewConnectServiceToVpnHandler(nodeClients, newFakeVpnClient(), newFakeServiceDiscovery())
+	h := NewConnectServiceToVpnHandler(nodeClients, newFakeVpnClient(), newFakeServiceDiscovery(), nil)
 
 	namedJobs := h.BuildJobs(payload)
 
@@ -245,7 +245,7 @@ func TestPrepareSidecarImageJob_Success(t *testing.T) {
 	docker := newFakeDocker()
 	req := &container.CreateRequest{Config: &container.Config{Image: testTailscaleImg}}
 
-	j := &prepareSidecarImageJob{docker: docker, req: req}
+	j := &prepareSidecarImageJob{runtimes: newFakeRuntimes(docker, nil), req: req}
 
 	err := j.Do(context.Background())
 	if err != nil {
@@ -260,7 +260,7 @@ func TestPrepareSidecarImageJob_PullImageError(t *testing.T) {
 
 	req := &container.CreateRequest{Config: &container.Config{Image: testTailscaleImg}}
 
-	j := &prepareSidecarImageJob{docker: docker, req: req}
+	j := &prepareSidecarImageJob{runtimes: newFakeRuntimes(docker, nil), req: req}
 
 	err := j.Do(context.Background())
 	if err == nil {
@@ -557,7 +557,9 @@ func TestConnectServiceToVpnHandler_HappyPath_EndToEnd(t *testing.T) {
 
 	sd := newFakeServiceDiscovery()
 
-	handler := NewConnectServiceToVpnHandler(nodeClients, vpn, sd)
+	runtimes := newFakeRuntimes(docker, nil)
+
+	handler := NewConnectServiceToVpnHandler(nodeClients, vpn, sd, runtimes)
 
 	taskCtx := handler.NewContext()
 
@@ -648,8 +650,10 @@ func TestConnectServiceToVpnHandler_FailurePath_CreateContainerFails(t *testing.
 
 	sd := newFakeServiceDiscovery()
 
+	runtimes := newFakeRuntimes(docker, nil)
+
 	registry := NewRegistry()
-	registry.Register(NewConnectServiceToVpnHandler(nodeClients, vpn, sd))
+	registry.Register(NewConnectServiceToVpnHandler(nodeClients, vpn, sd, runtimes))
 
 	w, ok := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour).(*taskWorker)
 	if !ok {

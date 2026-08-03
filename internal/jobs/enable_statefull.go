@@ -27,6 +27,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/config"
@@ -137,6 +138,7 @@ type enableStatefullHandler struct {
 	clusterStateManager cluster_clients.ClusterStateManagerContainer
 	storageContainer    *storage.Container
 	cfg                 config.Config
+	runtimes            container_runtime.RuntimeResolver
 }
 
 func NewEnableStatefullHandler(
@@ -144,12 +146,14 @@ func NewEnableStatefullHandler(
 	clusterStateManager cluster_clients.ClusterStateManagerContainer,
 	storageContainer *storage.Container,
 	cfg config.Config,
+	runtimes container_runtime.RuntimeResolver,
 ) TaskHandler {
 	return &enableStatefullHandler{
 		nodeClients:         nodeClients,
 		clusterStateManager: clusterStateManager,
 		storageContainer:    storageContainer,
 		cfg:                 cfg,
+		runtimes:            runtimes,
 	}
 }
 
@@ -201,6 +205,7 @@ func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			Name: stepCreatePgContainer,
 			Job: &createPgContainerJob{
 				nodeClients: h.nodeClients,
+				runtimes:    h.runtimes,
 				req:         payload,
 				pwd:         payload,
 				ctx:         payload,
@@ -337,7 +342,7 @@ func (j *generateCredentialsJob) Do(_ context.Context) error {
 // sidecar via a published host port, so the caller must have set
 // IsExposePort - checked upfront via user_errors.ErrPortMustBeExposedForBinary
 // instead of failing several jobs later. And when an explicit ExposeToPort
-// is requested, it's checked against Docker.ListOccupiedPorts first so a
+// is requested, it's checked against ContainerRuntime.ListOccupiedPorts first so a
 // conflicting port fails with a clear error instead of an opaque Docker bind
 // failure during ContainerCreate/ContainerStart.
 // statefullSuffix resolves statefullEnvironment's Docker suffix. Any failure
@@ -364,6 +369,7 @@ func (h *enableStatefullHandler) statefullSuffix() string {
 
 type createPgContainerJob struct {
 	nodeClients node_clients.NodeClients
+	runtimes    container_runtime.RuntimeResolver
 
 	// suffix - resolved environment suffix stamped onto the pg sidecar.
 	suffix string
@@ -434,7 +440,7 @@ func (j *createPgContainerJob) Rollback(ctx context.Context) error {
 
 // exposePortOpts resolves the pg_pattern options for exposing the container's
 // port. When an explicit host port is requested, it's checked against
-// Docker.ListOccupiedPorts first so a conflicting port fails fast with a
+// ContainerRuntime.ListOccupiedPorts first so a conflicting port fails fast with a
 // clear error instead of an opaque Docker bind failure during
 // ContainerCreate/ContainerStart.
 func (j *createPgContainerJob) exposePortOpts(ctx context.Context, exposeToPort uint64) ([]pg_pattern.Opt, error) {
@@ -442,7 +448,12 @@ func (j *createPgContainerJob) exposePortOpts(ctx context.Context, exposeToPort 
 		return []pg_pattern.Opt{pg_pattern.WithExposedPort()}, nil
 	}
 
-	occupiedPorts, err := j.nodeClients.Docker().ListOccupiedPorts(ctx)
+	runtime, err := j.runtimes.Runtime(ctx, statefullEnvironment)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error resolving container runtime")
+	}
+
+	occupiedPorts, err := runtime.ListOccupiedPorts(ctx)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error listing occupied ports")
 	}

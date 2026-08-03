@@ -67,9 +67,12 @@ type ContainerRuntime interface {
 Note what's gone from today's signatures: no `suffix string` parameter, no `Client() client.APIClient` escape
 hatch. Both are folded into the implementations below instead of being caller-supplied plumbing.
 
-**Phase 1 implements `ContainerCreate`, `ListContainers`, `Remove`, `Rename` and `IsContainerRunning`** — see
-`roadmap.md`. The rest of the interface above is the target shape; other methods stay on the existing `Docker`
-struct directly until their own phase.
+**The full interface above is implemented** — see `roadmap.md`'s stage-by-stage log for how each method's phase
+went. `ListOccupiedPorts`/`PullImage`/`CreateNetwork`/`ConnectToNetwork`/`DisconnectFromNetworks` ended up on
+`commonRuntime`/`labelBasedRuntime` exactly as sketched below; the only deviation from the code sketch's shape is
+that `ConnectToNetwork`/`DisconnectFromNetworks` take this package's own `ConnectToNetworkRequest`/plain
+`[]string` rather than `dockerutils.ConnectToNetworkRequest` directly (kept the wrapper-type convention this doc's
+own "Wrapper types" section already established for `ContainerCreate`).
 
 ## Names are always virtual at the interface boundary
 

@@ -14,6 +14,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/headscale"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/patterns"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/network_steps"
@@ -59,17 +60,20 @@ type connectServiceToVpnHandler struct {
 	nodeClients      node_clients.NodeClients
 	vpnClient        cluster_clients.VervClosedNetworkClient
 	serviceDiscovery cluster_clients.ServiceDiscovery
+	runtimes         container_runtime.RuntimeResolver
 }
 
 func NewConnectServiceToVpnHandler(
 	nodeClients node_clients.NodeClients,
 	vpnClient cluster_clients.VervClosedNetworkClient,
 	serviceDiscovery cluster_clients.ServiceDiscovery,
+	runtimes container_runtime.RuntimeResolver,
 ) TaskHandler {
 	return &connectServiceToVpnHandler{
 		nodeClients:      nodeClients,
 		vpnClient:        vpnClient,
 		serviceDiscovery: serviceDiscovery,
+		runtimes:         runtimes,
 	}
 }
 
@@ -131,8 +135,8 @@ func (h *connectServiceToVpnHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: stepPrepareSidecarImage,
 			Job: &prepareSidecarImageJob{
-				docker: h.nodeClients.Docker(),
-				req:    &launchContainer,
+				runtimes: h.runtimes,
+				req:      &launchContainer,
 			},
 		},
 		{
@@ -255,14 +259,23 @@ func (j *getLoginServerURLJob) Do(_ context.Context) error {
 	return nil
 }
 
+// prepareSidecarImageJob pulls the VPN sidecar's image on the default/unscoped
+// environment's runtime: the sidecar itself is a node-level bootstrap
+// container, not tied to any one environment, and PullImage has no suffix
+// logic regardless (docs/container_runtimes/interface_design.md).
 type prepareSidecarImageJob struct {
-	docker node_clients.Docker
+	runtimes container_runtime.RuntimeResolver
 
 	req *container.CreateRequest
 }
 
 func (j *prepareSidecarImageJob) Do(ctx context.Context) error {
-	_, err := j.docker.PullImage(ctx, j.req.Image)
+	runtime, err := j.runtimes.Runtime(ctx, "")
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving container runtime")
+	}
+
+	_, err = runtime.PullImage(ctx, j.req.Image)
 	if err != nil {
 		return rerrors.Wrap(err, "error pulling image")
 	}

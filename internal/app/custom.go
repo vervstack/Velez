@@ -21,6 +21,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
 	"go.vervstack.ru/Velez/internal/cluster"
 	"go.vervstack.ru/Velez/internal/cluster/autoupgrade"
 	"go.vervstack.ru/Velez/internal/jobs"
@@ -92,6 +93,16 @@ func (c *Custom) Init(a *App) (err error) {
 		a.Cfg.Environment.CustomLabels,
 		c.ClusterClients.StateManager())
 
+	// NewNodeClients couldn't seed the port manager's occupied-port view itself
+	// (ListOccupiedPorts needs a resolved ContainerRuntime, and RuntimeResolver
+	// doesn't exist until the line above) - do it now that it does. Non-fatal,
+	// matching the old inline seeding's behavior: a failure here just means the
+	// port manager starts blind to already-occupied ports, same as before.
+	seedErr := seedOccupiedPorts(a.Ctx, c.NodeClients, runtimeResolver, a.Cfg.Environment.AvailablePorts)
+	if seedErr != nil {
+		log.Error().Err(seedErr).Msg("error seeding occupied ports")
+	}
+
 	err = c.InitServiceLayer(a, runtimeResolver)
 	if err != nil {
 		return rerrors.Wrap(err, "error during service initialization")
@@ -101,12 +112,12 @@ func (c *Custom) Init(a *App) (err error) {
 	registry.Register(jobs.NewCreateSmerdHandler(
 		c.NodeClients, c.Services.ConfigurationService(), runtimeResolver))
 	registry.Register(jobs.NewCreateServiceHandler(c.ClusterClients.StateManager().Services()))
-	registry.Register(jobs.NewAssembleConfigHandler(c.NodeClients))
+	registry.Register(jobs.NewAssembleConfigHandler(c.NodeClients, runtimeResolver))
 	registry.Register(jobs.NewCopyToVolumeHandler(c.NodeClients, runtimeResolver))
 	registry.Register(jobs.NewConnectServiceToVpnHandler(
-		c.NodeClients, c.ClusterClients.Vpn(), c.ClusterClients.ServiceDiscovery()))
+		c.NodeClients, c.ClusterClients.Vpn(), c.ClusterClients.ServiceDiscovery(), runtimeResolver))
 	registry.Register(jobs.NewEnableStatefullHandler(
-		c.NodeClients, c.ClusterClients.StateManager(), c.Services.StorageContainer(), a.Cfg))
+		c.NodeClients, c.ClusterClients.StateManager(), c.Services.StorageContainer(), a.Cfg, runtimeResolver))
 	registry.Register(jobs.NewUpgradeSmerdHandler(
 		c.NodeClients, c.Services.SmerdManager(), c.Services.ConfigurationService(),
 		runtimeResolver))
@@ -269,6 +280,33 @@ func (c *Custom) InitClients(a *App) (err error) {
 	if err != nil {
 		return rerrors.Wrap(err, "error setting up verv services")
 	}
+
+	return nil
+}
+
+// seedOccupiedPorts resolves the default/unscoped environment's ContainerRuntime
+// and reseeds nodeClients' port manager with its ListOccupiedPorts view -
+// ListOccupiedPorts is daemon-wide and unfiltered by design (see
+// docs/container_runtimes/interface_design.md), so any environment's resolved
+// runtime reports the same occupancy. See docs/ports_management for why this
+// can't happen inside node_clients.NewNodeClients itself.
+func seedOccupiedPorts(
+	ctx context.Context,
+	nodeClients node_clients.NodeClients,
+	runtimes container_runtime.RuntimeResolver,
+	availablePorts []int,
+) error {
+	runtime, err := runtimes.Runtime(ctx, "")
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving container runtime")
+	}
+
+	usedPorts, err := runtime.ListOccupiedPorts(ctx)
+	if err != nil {
+		return rerrors.Wrap(err, "error listing occupied ports")
+	}
+
+	nodeClients.PortManagerContainer().Set(ports.NewPortManager(availablePorts, usedPorts))
 
 	return nil
 }

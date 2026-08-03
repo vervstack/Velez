@@ -82,16 +82,15 @@ func NewNodeClients(ctx context.Context, cfg config.Config) (NodeClients, error)
 		}
 	}
 
-	// Port manager
+	// Port manager. Not seeded with occupied ports here: that needs
+	// ContainerRuntime.ListOccupiedPorts, which requires a RuntimeResolver that
+	// doesn't exist until after NewNodeClients returns (Custom.Init builds it
+	// from this very client) - see docs/ports_management. Custom.Init reseeds
+	// cls.portManager via PortManagerContainer().Set once the resolver exists.
 	{
 		log.Debug().Msg("Initializing port manager")
 
-		usedPorts, listErr := cls.docker.ListOccupiedPorts(ctx)
-		if listErr != nil {
-			log.Error().Err(listErr).Msg("error listing occupied ports")
-		}
-
-		portManager := ports.NewPortManager(cfg.Environment.AvailablePorts, usedPorts)
+		portManager := ports.NewPortManager(cfg.Environment.AvailablePorts, nil)
 
 		cls.portManager = ports.NewContainer(portManager)
 	}

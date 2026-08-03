@@ -16,6 +16,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 )
@@ -76,11 +77,16 @@ type configContentAccessor interface {
 
 type assembleConfigHandler struct {
 	nodeClients node_clients.NodeClients
+	runtimes    container_runtime.RuntimeResolver
 }
 
-func NewAssembleConfigHandler(nodeClients node_clients.NodeClients) TaskHandler {
+func NewAssembleConfigHandler(
+	nodeClients node_clients.NodeClients,
+	runtimes container_runtime.RuntimeResolver,
+) TaskHandler {
 	return &assembleConfigHandler{
 		nodeClients: nodeClients,
+		runtimes:    runtimes,
 	}
 }
 
@@ -102,9 +108,9 @@ func (h *assembleConfigHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: stepPrepareScratchImage,
 			Job: &prepareScratchImageJob{
-				docker: h.nodeClients.Docker(),
-				req:    payload,
-				ctx:    payload,
+				runtimes: h.runtimes,
+				req:      payload,
+				ctx:      payload,
 			},
 		},
 		{
@@ -143,15 +149,24 @@ func (h *assembleConfigHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 	}
 }
 
+// prepareScratchImageJob pulls the image on the default/unscoped environment's
+// runtime: the scratch container it pulls for is itself unscoped (see
+// createScratchContainerJob), and PullImage has no suffix logic regardless
+// (docs/container_runtimes/interface_design.md).
 type prepareScratchImageJob struct {
-	docker node_clients.Docker
+	runtimes container_runtime.RuntimeResolver
 
 	req assembleConfigRequestAccessor
 	ctx imageMetaAccessor
 }
 
 func (j *prepareScratchImageJob) Do(ctx context.Context) error {
-	imageInfo, err := j.docker.PullImage(ctx, j.req.GetImageName())
+	runtime, err := j.runtimes.Runtime(ctx, "")
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving container runtime")
+	}
+
+	imageInfo, err := runtime.PullImage(ctx, j.req.GetImageName())
 	if err != nil {
 		return rerrors.Wrap(err, "error pulling image")
 	}

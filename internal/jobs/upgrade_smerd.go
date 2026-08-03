@@ -149,7 +149,7 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: stepPrepareCreateImage,
 			Job: &prepareUpgradeImageJob{
-				docker:     h.nodeClients.Docker(),
+				runtimes:   h.runtimes,
 				upgradeReq: payload,
 				ctx:        payload,
 			},
@@ -451,14 +451,19 @@ func fromContainerNetwork(cont *velez_api.Smerd) []*velez_api.NetworkBind {
 }
 
 type prepareUpgradeImageJob struct {
-	docker node_clients.Docker
+	runtimes container_runtime.RuntimeResolver
 
 	upgradeReq upgradeRequestAccessor
 	ctx        imageMetaAccessor
 }
 
 func (j *prepareUpgradeImageJob) Do(ctx context.Context) error {
-	imageInfo, err := j.docker.PullImage(ctx, j.upgradeReq.GetUpgradeRequest().GetImage())
+	runtime, err := j.runtimes.Runtime(ctx, j.upgradeReq.GetUpgradeRequest().GetEnvironment())
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving container runtime")
+	}
+
+	imageInfo, err := runtime.PullImage(ctx, j.upgradeReq.GetUpgradeRequest().GetImage())
 	if err != nil {
 		return rerrors.Wrap(err, "error pulling image")
 	}

@@ -24,7 +24,7 @@ const (
 )
 
 func TestAssembleConfigHandler_Action(t *testing.T) {
-	h := NewAssembleConfigHandler(nil)
+	h := NewAssembleConfigHandler(nil, nil)
 
 	if h.Action() != AssembleConfigAction {
 		t.Errorf("expected action %q, got %q", AssembleConfigAction, h.Action())
@@ -32,7 +32,7 @@ func TestAssembleConfigHandler_Action(t *testing.T) {
 }
 
 func TestAssembleConfigHandler_NewContext(t *testing.T) {
-	h := NewAssembleConfigHandler(nil)
+	h := NewAssembleConfigHandler(nil, nil)
 
 	if _, ok := h.NewContext().(*velez_api.AssembleConfigTaskPayload); !ok {
 		t.Fatal("expected NewContext to return *velez_api.AssembleConfigTaskPayload")
@@ -184,7 +184,7 @@ func TestPrepareScratchImageJob_Success(t *testing.T) {
 		Config:   imageConfig,
 	}
 
-	j := &prepareScratchImageJob{docker: docker, req: payload, ctx: payload}
+	j := &prepareScratchImageJob{runtimes: newFakeRuntimes(docker, nil), req: payload, ctx: payload}
 
 	err := j.Do(context.Background())
 	if err != nil {
@@ -212,7 +212,7 @@ func TestPrepareScratchImageJob_PullImageError(t *testing.T) {
 
 	docker.pullImageErr = errRegistryUnreachable
 
-	j := &prepareScratchImageJob{docker: docker, req: payload, ctx: payload}
+	j := &prepareScratchImageJob{runtimes: newFakeRuntimes(docker, nil), req: payload, ctx: payload}
 
 	err := j.Do(context.Background())
 	if err == nil {

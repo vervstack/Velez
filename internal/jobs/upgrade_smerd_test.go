@@ -461,7 +461,7 @@ func TestPrepareUpgradeImageJob_PullError(t *testing.T) {
 		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Image: testUpgradeImage},
 	}
 
-	j := &prepareUpgradeImageJob{docker: docker, upgradeReq: payload, ctx: payload}
+	j := &prepareUpgradeImageJob{runtimes: newFakeRuntimes(docker, nil), upgradeReq: payload, ctx: payload}
 
 	err := j.Do(context.Background())
 	if err == nil {
@@ -483,7 +483,7 @@ func TestPrepareUpgradeImageJob_Success(t *testing.T) {
 		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Image: testUpgradeImage},
 	}
 
-	j := &prepareUpgradeImageJob{docker: docker, upgradeReq: payload, ctx: payload}
+	j := &prepareUpgradeImageJob{runtimes: newFakeRuntimes(docker, nil), upgradeReq: payload, ctx: payload}
 
 	err := j.Do(context.Background())
 	if err != nil {

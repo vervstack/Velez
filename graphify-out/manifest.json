@@ -3380,8 +3380,8 @@
     "semantic_hash": ""
   },
   "internal/clients/node_clients/container_runtime/runtime.go": {
-    "mtime": 1785755812.5934443,
-    "ast_hash": "b97dda71255aae30bc82d2156a0e4cff",
+    "mtime": 1785765827.7871416,
+    "ast_hash": "decd9b5daadfa923252eae847d43481e",
     "semantic_hash": ""
   },
   "internal/storage/environments/resolve.go": {
@@ -3395,8 +3395,8 @@
     "semantic_hash": ""
   },
   "docs/container_runtimes/README.md": {
-    "mtime": 1785741091.6429076,
-    "ast_hash": "852f5e258c3cf9a5f23e251710de0d02",
+    "mtime": 1785765819.598604,
+    "ast_hash": "6efbb2337058b7ca37a61cda3c42cff1",
     "semantic_hash": ""
   },
   "docs/container_runtimes/interface_design.md": {

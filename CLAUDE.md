@@ -209,6 +209,27 @@ per-pipeline migration status/checklist and `docs/plans/testing.md` for the live
   })
   ```
 
+## Testing
+
+- **No hand-written mocks/fakes — prefer real API calls.** This applies especially to container-runtime/Docker-facing
+  code (real Docker daemon, not a fake `client.APIClient`), and also to Postgres (a real, disposable Postgres
+  container — see `tests/e2e/suite_enable_statefull_test.go` for the existing pattern — not an in-memory storage
+  fake). This is a project-wide, gradual migration away from `internal/jobs/fakes_test.go`'s hand-written fakes, not
+  a one-shot rewrite: convert a fake's consumers to real API calls as you touch that code, don't leave new fakes
+  behind, and don't feel obligated to convert everything at once. Prior fake-based tests are not force-reverted;
+  they get replaced incrementally as their area of the code is worked on.
+  - Real production constructors are usually enough on their own — `container_runtime.NewResolver`,
+    `environments.NewStatic` (the real local_storage `EnvironmentsStorage` backend), and
+    `container_manager.New` (the real `service.ContainerService`) all just need a real Docker client
+    (`docker.NewClient`), no fake required.
+  - Not in scope for this rule: pure in-process control-flow test doubles with no external dependency at all
+    (e.g. a job-engine test double that just records call order), and anything that isn't really "calling an
+    API" to begin with (e.g. `local_state.Manager`'s on-disk JSON persistence).
+  - Expect these tests to run slower (real Docker/Postgres, not in-memory) and to need care around parallelism —
+    default to `t.Parallel()` with a unique name/suffix per test (mirror `tests/e2e`'s `GetServiceName`/container
+    suffix conventions) for every Docker-global-namespace resource a test touches; if a specific test flakes/
+    collides under parallel execution, drop `t.Parallel()` for just that test, not the whole file.
+
 ## Key Dependencies
 
 - **Docker**: `github.com/docker/docker`

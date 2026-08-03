@@ -230,8 +230,8 @@
     "semantic_hash": ""
   },
   "internal/clients/node_clients/docker/client.go": {
-    "mtime": 1785741650.3925343,
-    "ast_hash": "cac2cb55823ff88e9e2651b2b9bed75b",
+    "mtime": 1785763326.430396,
+    "ast_hash": "621501364ebe54cda1edb1500eed340e",
     "semantic_hash": ""
   },
   "internal/clients/node_clients/docker/dockerutils/images.go": {
@@ -2130,8 +2130,8 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1785079051.229442,
-    "ast_hash": "9d5ec1e5d2a44a48fd52c8b677329852",
+    "mtime": 1785759781.4640079,
+    "ast_hash": "d7678dfa8a96fe8206d3b4685c85f331",
     "semantic_hash": ""
   },
   "README.md": {
@@ -2635,8 +2635,8 @@
     "semantic_hash": ""
   },
   "internal/jobs/fakes_test.go": {
-    "mtime": 1785757956.587395,
-    "ast_hash": "3048a5cb3d6cfb4cae2e02c403359d50",
+    "mtime": 1785763427.9885302,
+    "ast_hash": "d8cb84463a4cd9ac5f1bd2b3eeb92497",
     "semantic_hash": ""
   },
   "internal/jobs/job.go": {
@@ -2820,13 +2820,13 @@
     "semantic_hash": ""
   },
   "internal/jobs/upgrade_smerd.go": {
-    "mtime": 1785757347.9712548,
-    "ast_hash": "41d0933301d2ab3051c33dd058bdeac9",
+    "mtime": 1785763528.5744567,
+    "ast_hash": "5552e5febb9c3961b0c4b08a4937258f",
     "semantic_hash": ""
   },
   "internal/jobs/upgrade_smerd_test.go": {
-    "mtime": 1785757393.9459624,
-    "ast_hash": "f809ecc9b86f2c6ecc619d2bd4fd58d4",
+    "mtime": 1785760423.1365511,
+    "ast_hash": "8527e06ff921abab59dfdd3d167c3602",
     "semantic_hash": ""
   },
   "docs/plans/testing.md": {
@@ -3365,8 +3365,8 @@
     "semantic_hash": ""
   },
   "internal/clients/node_clients/container_runtime/label_based_test.go": {
-    "mtime": 1785756633.306883,
-    "ast_hash": "5caf61dd2a9ed6af4a8e7bc755210b05",
+    "mtime": 1785760079.0997684,
+    "ast_hash": "d2876e5b2133a2cf7153f7dd97c59cf7",
     "semantic_hash": ""
   },
   "internal/clients/node_clients/container_runtime/resolver.go": {
@@ -3412,6 +3412,16 @@
   "internal/service/service_manager/container_manager/inspect_test.go": {
     "mtime": 1785752681.289868,
     "ast_hash": "ad7bf77ae201f4a56d7fa486876c78eb",
+    "semantic_hash": ""
+  },
+  "internal/jobs/real_infra_test.go": {
+    "mtime": 1785760110.556733,
+    "ast_hash": "7d2998a4a19d031db4dd87dfc0a79967",
+    "semantic_hash": ""
+  },
+  "tests/test_helper/docker_infra.go": {
+    "mtime": 1785763441.814333,
+    "ast_hash": "c748f811f470585e39434416a4bc02c7",
     "semantic_hash": ""
   }
 }

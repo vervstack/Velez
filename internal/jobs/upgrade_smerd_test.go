@@ -5,11 +5,13 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"strconv"
 	"testing"
 	"time"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/image"
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/errdefs"
 	"github.com/docker/go-connections/nat"
@@ -19,12 +21,15 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 	"go.vervstack.ru/Velez/internal/user_errors"
+	"go.vervstack.ru/Velez/tests/test_helper"
 )
 
 const (
@@ -95,37 +100,45 @@ func TestUpgradeSmerdHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 // checkSelfUpgradeJob
 
 func TestCheckSelfUpgradeJob_NotInsideContainer_NoOp(t *testing.T) {
+	t.Parallel()
+
 	// env.GetContainerId() returns nil unless running inside an actual
 	// container (cgroup/hostname probe) - true for `go test`, so this only
-	// exercises the "no self-upgrade check possible" branch. The
-	// self-upgrade-forbidden branch isn't reachable in this environment,
-	// same limitation upgrade_steps.CheckUpgradeIsAvailable already has.
-	containerService := newFakeContainerService()
+	// exercises the "no self-upgrade check possible" branch: Do returns
+	// before ever touching containerService/runtimes, so this mainly proves
+	// the real objects wire together. The self-upgrade-forbidden branch
+	// isn't reachable in this environment, same limitation
+	// upgrade_steps.CheckUpgradeIsAvailable already has.
+	containerService, runtimes, _ := newRealUpgradeFixture(t, testUpgradeEnv)
+
 	payload := &velez_api.UpgradeSmerdTaskPayload{
-		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Name: testUpgradeSvcName},
+		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Name: testUpgradeSvcName, Environment: testUpgradeEnv},
 	}
 
-	j := &checkSelfUpgradeJob{containerService: containerService, upgradeReq: payload}
+	j := &checkSelfUpgradeJob{containerService: containerService, upgradeReq: payload, runtimes: runtimes}
 
 	err := j.Do(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
-	}
-
-	if len(containerService.inspectCalledWith) != 0 {
-		t.Errorf("expected InspectSmerd not to be called, got %v", containerService.inspectCalledWith)
 	}
 }
 
 // captureOldContainerJob
 
 func TestCaptureOldContainerJob_InspectError(t *testing.T) {
-	containerService := newFakeContainerService()
+	t.Parallel()
 
-	containerService.inspectErr = user_errors.ErrNoSuchContainer
+	// runtimes stays nil (unchanged shape): no container is ever created
+	// under this name, so containerService.InspectSmerd gets a real 404 from
+	// the daemon, and with no fallback resolver that error propagates
+	// directly - same assertion as before, now against a real Docker 404
+	// instead of a hand-set fake error.
+	containerService, _, _ := newRealUpgradeFixture(t, testUpgradeEnv)
+
+	name := test_helper.UniqueName(t, testUpgradeSvcName)
 
 	payload := &velez_api.UpgradeSmerdTaskPayload{
-		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Name: testUpgradeSvcName, Image: testUpgradeImage},
+		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Name: name, Image: testUpgradeImage},
 	}
 
 	j := &captureOldContainerJob{containerService: containerService, upgradeReq: payload, ctx: payload}
@@ -137,51 +150,111 @@ func TestCaptureOldContainerJob_InspectError(t *testing.T) {
 }
 
 func TestCaptureOldContainerJob_Success(t *testing.T) {
-	containerService := newFakeContainerService()
+	t.Parallel()
 
-	containerService.inspectResp = &velez_api.Smerd{
-		Uuid:      testOldContainerID,
-		Name:      testUpgradeSvcName,
-		ImageName: "myimg:old",
-		Ports:     []*velez_api.Port{{ServicePortNumber: 8080}},
-		Volumes:   []*velez_api.Volume{{VolumeName: "data"}},
-		Networks: []*velez_api.NetworkBind{
-			{NetworkName: testNetworkName, Aliases: []string{testNetworkAlias, testOldContainerID}},
-		},
-		Env:    map[string]string{testEnvKeyFoo: testEnvFoo},
-		Labels: map[string]string{"team": "core"},
+	// environments.DefaultEnvironmentName seeded with an empty suffix means
+	// the container's real Docker name is the bare virtual name, so
+	// containerService.InspectSmerd(ctx, name) succeeds directly - no
+	// runtimes fallback needed for this test (see
+	// TestCaptureOldContainerJob_SuffixAwareLookup for that path).
+	containerService, runtimes, cli := newRealUpgradeFixture(t, environments.DefaultEnvironmentName)
+
+	test_helper.EnsurePulled(t, cli, test_helper.HelloWorldAppImage)
+
+	networkName := test_helper.UniqueName(t, testNetworkName)
+
+	err := dockerutils.CreateNetwork(context.Background(), cli, networkName)
+	if err != nil {
+		t.Fatalf("unexpected error creating network: %v", err)
+	}
+
+	pm := realPortManager(t)
+
+	hostPort, err := pm.GetPort()
+	if err != nil {
+		t.Fatalf("unexpected error getting a host port: %v", err)
+	}
+
+	rt, err := runtimes.Runtime(context.Background(), environments.DefaultEnvironmentName)
+	if err != nil {
+		t.Fatalf("unexpected error resolving runtime: %v", err)
+	}
+
+	name := test_helper.UniqueName(t, testUpgradeSvcName)
+	volumeName := test_helper.UniqueName(t, "vol")
+
+	createReq := container_runtime.ContainerCreateRequest{
+		Config: &container_runtime.ContainerConfig{Config: &container.Config{
+			Image:  test_helper.HelloWorldAppImage,
+			Env:    []string{testEnvKeyFoo + "=" + testEnvFoo},
+			Labels: map[string]string{"team": "core"},
+		}},
+		HostConfig: &container_runtime.HostConfig{HostConfig: &container.HostConfig{
+			PortBindings: nat.PortMap{
+				nat.Port(testUpgradePgPort): []nat.PortBinding{
+					{HostIP: "0.0.0.0", HostPort: strconv.FormatUint(uint64(hostPort), 10)},
+				},
+			},
+			Mounts: []mount.Mount{{Type: mount.TypeVolume, Source: volumeName, Target: "/data"}},
+		}},
+		ContainerName: name,
+	}
+
+	created, err := rt.ContainerCreate(context.Background(), createReq)
+	if err != nil {
+		t.Fatalf("unexpected error creating container: %v", err)
+	}
+
+	t.Cleanup(func() { test_helper.RemoveContainer(t, cli, created.ID) })
+
+	connReq := dockerutils.ConnectToNetworkRequest{
+		NetworkName: networkName,
+		ContId:      created.ID,
+		Aliases:     []string{testNetworkAlias},
+	}
+
+	err = dockerutils.ConnectToNetwork(context.Background(), cli, connReq)
+	if err != nil {
+		t.Fatalf("unexpected error connecting to network: %v", err)
 	}
 
 	payload := &velez_api.UpgradeSmerdTaskPayload{
-		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Name: testUpgradeSvcName, Image: testUpgradeImage},
+		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Name: name, Image: testUpgradeImage},
 	}
 
 	j := &captureOldContainerJob{containerService: containerService, upgradeReq: payload, ctx: payload}
 
-	err := j.Do(context.Background())
+	err = j.Do(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if payload.GetOldContainerId() != testOldContainerID {
-		t.Errorf("expected old container id 'old123', got %q", payload.GetOldContainerId())
+	if payload.GetOldContainerId() != created.ID {
+		t.Errorf("expected old container id %q, got %q", created.ID, payload.GetOldContainerId())
 	}
 
 	req := payload.GetRequest()
-	if req.GetName() != testUpgradeSvcName {
-		t.Errorf("expected request name 'mysvc', got %q", req.GetName())
+	if req.GetName() != name {
+		t.Errorf("expected request name %q, got %q", name, req.GetName())
 	}
 
 	if req.GetImageName() != testUpgradeImage {
-		t.Errorf("expected request image 'myimg:new' (the upgrade target, not the old image), got %q", req.GetImageName())
+		t.Errorf("expected request image %q (the upgrade target, not the old image), got %q",
+			testUpgradeImage, req.GetImageName())
 	}
 
 	if req.GetEnv()[testEnvKeyFoo] != testEnvFoo {
 		t.Errorf("expected env carried over from old container, got %v", req.GetEnv())
 	}
 
+	// Bonus real-Docker coverage vs. the old hand-simulated fake: Docker
+	// itself adds the container's own short ID as a network alias, so this
+	// now exercises fromContainerNetwork's self-uuid filtering against a
+	// genuine Docker-populated alias list rather than a fixture value that
+	// merely mimicked one.
 	if len(req.GetSettings().GetNetwork()) != 1 || len(req.GetSettings().GetNetwork()[0].GetAliases()) != 1 {
-		t.Errorf("expected the container's own uuid filtered out of network aliases, got %v", req.GetSettings().GetNetwork())
+		t.Errorf("expected the container's own id filtered out of network aliases, got %v",
+			req.GetSettings().GetNetwork())
 	}
 }
 
@@ -193,16 +266,39 @@ func TestCaptureOldContainerJob_Success(t *testing.T) {
 // suffixed-environment upgrade bug (see tests/e2e's
 // Test_UpgradeSmerd_InSuffixedEnvironment for the end-to-end repro).
 func TestCaptureOldContainerJob_SetsEnvironmentFromUpgradeRequest(t *testing.T) {
-	containerService := newFakeContainerService()
+	t.Parallel()
 
-	containerService.inspectResp = &velez_api.Smerd{
-		Uuid: testOldContainerID,
-		Name: testUpgradeSvcName,
+	// Cheapest real fixture: one container, no ports/volumes/network, real
+	// ContainerCreate. environments.DefaultEnvironmentName's empty suffix
+	// means containerService.InspectSmerd(ctx, name) matches directly - the
+	// assertion under test (Environment copied onto the built request) is
+	// independent of which environment/suffix actually resolves.
+	containerService, runtimes, cli := newRealUpgradeFixture(t, environments.DefaultEnvironmentName)
+
+	test_helper.EnsurePulled(t, cli, test_helper.HelloWorldAppImage)
+
+	rt, err := runtimes.Runtime(context.Background(), environments.DefaultEnvironmentName)
+	if err != nil {
+		t.Fatalf("unexpected error resolving runtime: %v", err)
 	}
+
+	name := test_helper.UniqueName(t, testUpgradeSvcName)
+
+	createReq := container_runtime.ContainerCreateRequest{
+		Config:        &container_runtime.ContainerConfig{Config: &container.Config{Image: test_helper.HelloWorldAppImage}},
+		ContainerName: name,
+	}
+
+	created, err := rt.ContainerCreate(context.Background(), createReq)
+	if err != nil {
+		t.Fatalf("unexpected error creating container: %v", err)
+	}
+
+	t.Cleanup(func() { test_helper.RemoveContainer(t, cli, created.ID) })
 
 	payload := &velez_api.UpgradeSmerdTaskPayload{
 		UpgradeRequest: &velez_api.UpgradeSmerd_Request{
-			Name:        testUpgradeSvcName,
+			Name:        name,
 			Image:       testUpgradeImage,
 			Environment: testUpgradeEnv,
 		},
@@ -210,7 +306,7 @@ func TestCaptureOldContainerJob_SetsEnvironmentFromUpgradeRequest(t *testing.T) 
 
 	j := &captureOldContainerJob{containerService: containerService, upgradeReq: payload, ctx: payload}
 
-	err := j.Do(context.Background())
+	err = j.Do(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -247,25 +343,46 @@ func TestCaptureOldContainerJob_SetsEnvironmentFromUpgradeRequest(t *testing.T) 
 // masked a real resolution error instead of surfacing it, this would fail for
 // a different reason than "not implemented yet", proving the fallback path
 // itself is what's under test, not just "doesn't error".
+// TestCaptureOldContainerJob_SuffixAwareLookup is the highest-value
+// conversion in this file: the fixture container is created THROUGH the
+// resolved runtime (so its real Docker name is genuinely suffixed,
+// "<name>_STAGE" - see environments.NewStatic's "named environment's suffix
+// defaults to its own name" rule), then Do is called with the bare virtual
+// name. containerService.InspectSmerd(ctx, bareName) gets a real 404 from
+// the daemon (the real container is named "<name>_STAGE", not "<name>"), so
+// this only passes if resolveCurrentContainer's real fallback - ListContainers
+// through the resolved runtime, then re-inspect by the resolved id - actually
+// runs, directly re-proving the bug class fixed in 6b5f97c2/7fcb6079 against
+// a real daemon instead of a hand-simulated one.
 func TestCaptureOldContainerJob_SuffixAwareLookup(t *testing.T) {
-	containerService := newFakeContainerService()
+	t.Parallel()
 
-	containerService.inspectErr = user_errors.ErrNoSuchContainer
-	containerService.inspectFailFor = testUpgradeSvcName
-	containerService.inspectResp = &velez_api.Smerd{
-		Uuid: testContFixtureID,
-		Name: testUpgradeSvcName,
+	containerService, runtimes, cli := newRealUpgradeFixture(t, testUpgradeEnv)
+
+	test_helper.EnsurePulled(t, cli, test_helper.HelloWorldAppImage)
+
+	name := test_helper.UniqueName(t, testUpgradeSvcName)
+
+	rt, err := runtimes.Runtime(context.Background(), testUpgradeEnv)
+	if err != nil {
+		t.Fatalf("unexpected error resolving runtime: %v", err)
 	}
 
-	docker := newFakeDocker()
+	createReq := container_runtime.ContainerCreateRequest{
+		Config:        &container_runtime.ContainerConfig{Config: &container.Config{Image: test_helper.HelloWorldAppImage}},
+		ContainerName: name,
+	}
 
-	docker.listContainersResp = []container.Summary{{ID: testContFixtureID}}
+	created, err := rt.ContainerCreate(context.Background(), createReq)
+	if err != nil {
+		t.Fatalf("unexpected error creating container: %v", err)
+	}
 
-	runtimes := newFakeRuntimes(docker, environments.NewStatic([]string{testUpgradeEnv}, ""))
+	t.Cleanup(func() { test_helper.RemoveContainer(t, cli, created.ID) })
 
 	payload := &velez_api.UpgradeSmerdTaskPayload{
 		UpgradeRequest: &velez_api.UpgradeSmerd_Request{
-			Name:        testUpgradeSvcName,
+			Name:        name,
 			Image:       testUpgradeImage,
 			Environment: testUpgradeEnv,
 		},
@@ -278,7 +395,7 @@ func TestCaptureOldContainerJob_SuffixAwareLookup(t *testing.T) {
 		runtimes:         runtimes,
 	}
 
-	err := j.Do(context.Background())
+	err = j.Do(context.Background())
 	if err != nil {
 		t.Fatalf(
 			"expected a suffix-aware lookup via runtimes to succeed despite a bare-name InspectSmerd 404, got: %v",
@@ -286,14 +403,14 @@ func TestCaptureOldContainerJob_SuffixAwareLookup(t *testing.T) {
 		)
 	}
 
-	if payload.GetRequest().GetName() != testUpgradeSvcName {
+	if payload.GetRequest().GetName() != name {
 		t.Errorf("expected the container found via the fallback to be captured, got name %q",
 			payload.GetRequest().GetName())
 	}
 
-	got := containerService.inspectCalledWith
-	if len(got) != 2 || got[0] != testUpgradeSvcName || got[1] != testContFixtureID {
-		t.Errorf("expected InspectSmerd called first with the bare name then the resolved id, got %v", got)
+	if payload.GetOldContainerId() != created.ID {
+		t.Errorf("expected old container id %q captured via the fallback, got %q",
+			created.ID, payload.GetOldContainerId())
 	}
 }
 
@@ -307,12 +424,12 @@ func TestCaptureOldContainerJob_SuffixAwareLookup(t *testing.T) {
 // always returns nil under `go test`), so it only documents/proves the
 // missing field via a compile failure - not a behavioral runtime assertion.
 func TestCheckSelfUpgradeJob_HasRuntimesFieldForSuffixAwareLookup(t *testing.T) {
-	containerService := newFakeContainerService()
-	docker := newFakeDocker()
-	runtimes := newFakeRuntimes(docker, nil)
+	t.Parallel()
+
+	containerService, runtimes, _ := newRealUpgradeFixture(t, testUpgradeEnv)
 
 	payload := &velez_api.UpgradeSmerdTaskPayload{
-		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Name: testUpgradeSvcName},
+		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Name: testUpgradeSvcName, Environment: testUpgradeEnv},
 	}
 
 	j := &checkSelfUpgradeJob{
@@ -649,84 +766,118 @@ func TestRenameContainerJob_EmptyContainerId_Error(t *testing.T) {
 // tests/e2e/suite_upgrade_smerd_test.go's Test_UpgradeSmerd_InSuffixedEnvironment
 // for the e2e proof (it inspects the real Docker daemon directly).
 func TestRenameContainerJob_Do_ResolvesRuntimeAndRenamesViaRuntime(t *testing.T) {
-	docker := newFakeDocker()
-	runtimes := newFakeRuntimes(docker, environments.NewStatic([]string{testUpgradeEnv}, ""))
+	t.Parallel()
+
+	_, runtimes, cli := newRealUpgradeFixture(t, testUpgradeEnv)
+
+	test_helper.EnsurePulled(t, cli, test_helper.HelloWorldAppImage)
+
+	name := test_helper.UniqueName(t, testUpgradeSvcName)
+	newName := test_helper.UniqueName(t, "newname")
+
+	rt, err := runtimes.Runtime(context.Background(), testUpgradeEnv)
+	if err != nil {
+		t.Fatalf("unexpected error resolving runtime: %v", err)
+	}
+
+	createReq := container_runtime.ContainerCreateRequest{
+		Config:        &container_runtime.ContainerConfig{Config: &container.Config{Image: test_helper.HelloWorldAppImage}},
+		ContainerName: name,
+	}
+
+	created, err := rt.ContainerCreate(context.Background(), createReq)
+	if err != nil {
+		t.Fatalf("unexpected error creating container: %v", err)
+	}
+
+	t.Cleanup(func() { test_helper.RemoveContainer(t, cli, created.ID) })
 
 	payload := &velez_api.UpgradeSmerdTaskPayload{
-		ContainerId:    strPtr(testCreatedID),
-		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Name: testUpgradeSvcName, Environment: testUpgradeEnv},
+		ContainerId:    strPtr(created.ID),
+		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Name: name, Environment: testUpgradeEnv},
 	}
 
 	j := &renameContainerJob{
 		runtimes: runtimes,
 		req:      payload,
 		ctx:      payload,
-		newName:  testUpgradeSvcName,
+		newName:  newName,
 	}
 
-	err := j.Do(context.Background())
+	err = j.Do(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
+	// A non-default named environment's suffix defaults to its own name
+	// (environments.NewStatic's seeding rule), so the renamed container's
+	// real Docker name is newName + "_" + testUpgradeEnv.
+	suffixedNewName := newName + "_" + testUpgradeEnv
+
+	inspected, err := cli.ContainerInspect(context.Background(), suffixedNewName)
+	if err != nil {
+		t.Fatalf("expected the renamed, suffixed container %q to exist on the daemon: %v", suffixedNewName, err)
+	}
+
+	if inspected.ID != created.ID {
+		t.Errorf("expected the renamed container's id to be unchanged, got %q want %q", inspected.ID, created.ID)
+	}
+}
+
+func TestRenameContainerJob_Rollback_RenamesBackToOldNameViaRuntime(t *testing.T) {
+	t.Parallel()
+
+	_, runtimes, cli := newRealUpgradeFixture(t, testUpgradeEnv)
+
+	test_helper.EnsurePulled(t, cli, test_helper.HelloWorldAppImage)
+
+	name := test_helper.UniqueName(t, testUpgradeSvcName)
+	oldName := test_helper.UniqueName(t, testUpgradeSvcName+oldContainerSuffix)
+
 	rt, err := runtimes.Runtime(context.Background(), testUpgradeEnv)
 	if err != nil {
 		t.Fatalf("unexpected error resolving runtime: %v", err)
 	}
 
-	fakeRt, ok := rt.(*fakeContainerRuntime)
-	if !ok {
-		t.Fatalf("expected *fakeContainerRuntime, got %T", rt)
+	createReq := container_runtime.ContainerCreateRequest{
+		Config:        &container_runtime.ContainerConfig{Config: &container.Config{Image: test_helper.HelloWorldAppImage}},
+		ContainerName: name,
 	}
 
-	if len(fakeRt.renameCalledWith) != 1 {
-		t.Fatalf("expected exactly one ContainerRuntime.Rename call, got %v", fakeRt.renameCalledWith)
+	created, err := rt.ContainerCreate(context.Background(), createReq)
+	if err != nil {
+		t.Fatalf("unexpected error creating container: %v", err)
 	}
 
-	got := fakeRt.renameCalledWith[0]
-	if got.identifier != testCreatedID || got.newName != testUpgradeSvcName {
-		t.Errorf("expected Rename(ctx, %q, %q) resolved via the environment %q runtime, got Rename(ctx, %q, %q)",
-			testCreatedID, testUpgradeSvcName, testUpgradeEnv, got.identifier, got.newName)
-	}
-}
-
-func TestRenameContainerJob_Rollback_RenamesBackToOldNameViaRuntime(t *testing.T) {
-	docker := newFakeDocker()
-	runtimes := newFakeRuntimes(docker, environments.NewStatic([]string{testUpgradeEnv}, ""))
+	t.Cleanup(func() { test_helper.RemoveContainer(t, cli, created.ID) })
 
 	payload := &velez_api.UpgradeSmerdTaskPayload{
-		ContainerId:    strPtr(testCreatedID),
-		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Name: testUpgradeSvcName, Environment: testUpgradeEnv},
+		ContainerId:    strPtr(created.ID),
+		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Name: name, Environment: testUpgradeEnv},
 	}
-
-	oldName := testUpgradeSvcName + oldContainerSuffix
 
 	j := &renameContainerJob{
 		runtimes: runtimes,
 		req:      payload,
 		ctx:      payload,
-		newName:  testUpgradeSvcName,
+		newName:  name,
 		oldName:  oldName,
 	}
 
-	err := j.Rollback(context.Background())
+	err = j.Rollback(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected rollback error: %v", err)
 	}
 
-	rt, err := runtimes.Runtime(context.Background(), testUpgradeEnv)
+	suffixedOldName := oldName + "_" + testUpgradeEnv
+
+	inspected, err := cli.ContainerInspect(context.Background(), suffixedOldName)
 	if err != nil {
-		t.Fatalf("unexpected error resolving runtime: %v", err)
+		t.Fatalf("expected the rolled-back, suffixed container %q to exist on the daemon: %v", suffixedOldName, err)
 	}
 
-	fakeRt, ok := rt.(*fakeContainerRuntime)
-	if !ok {
-		t.Fatalf("expected *fakeContainerRuntime, got %T", rt)
-	}
-
-	if len(fakeRt.renameCalledWith) != 1 || fakeRt.renameCalledWith[0].newName != oldName {
-		t.Errorf("expected rollback to call Rename(ctx, %q, %q) via the resolved runtime, got %v",
-			testCreatedID, oldName, fakeRt.renameCalledWith)
+	if inspected.ID != created.ID {
+		t.Errorf("expected the rolled-back container's id to be unchanged, got %q want %q", inspected.ID, created.ID)
 	}
 }
 
@@ -740,24 +891,52 @@ func TestRenameContainerJob_Rollback_RenamesBackToOldNameViaRuntime(t *testing.T
 // already fixed for DropSmerd. See that type's doc comment for the identical
 // rationale (idempotent removal, environment-scoped).
 func TestDropOwnedContainerJob_Do_ResolvesRuntimeAndRemoves(t *testing.T) {
-	docker := newFakeDocker()
-	runtimes := newFakeRuntimes(docker, environments.NewStatic([]string{testUpgradeEnv}, ""))
+	t.Parallel()
 
+	_, runtimes, cli := newRealUpgradeFixture(t, testUpgradeEnv)
+
+	test_helper.EnsurePulled(t, cli, test_helper.HelloWorldAppImage)
+
+	name := test_helper.UniqueName(t, testUpgradeSvcName)
+
+	rt, err := runtimes.Runtime(context.Background(), testUpgradeEnv)
+	if err != nil {
+		t.Fatalf("unexpected error resolving runtime: %v", err)
+	}
+
+	createReq := container_runtime.ContainerCreateRequest{
+		Config:        &container_runtime.ContainerConfig{Config: &container.Config{Image: test_helper.HelloWorldAppImage}},
+		ContainerName: name,
+	}
+
+	created, err := rt.ContainerCreate(context.Background(), createReq)
+	if err != nil {
+		t.Fatalf("unexpected error creating container: %v", err)
+	}
+
+	// Defensive removal regardless of Do's own outcome - belt-and-suspenders,
+	// mirrors tests/e2e's clean().
+	t.Cleanup(func() { test_helper.RemoveContainer(t, cli, created.ID) })
+
+	// dropOwnedContainerJob resolves its runtime off req.GetRequest() (a
+	// smerdRequestAccessor), not UpgradeRequest - Environment must be set
+	// here for the resolved runtime's suffix to match the one the fixture
+	// container was created under.
 	payload := &velez_api.UpgradeSmerdTaskPayload{
-		ContainerId:    strPtr(testCreatedID),
-		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Name: testUpgradeSvcName, Environment: testUpgradeEnv},
+		ContainerId: strPtr(created.ID),
+		Request:     &velez_api.CreateSmerd_Request{Name: name, Environment: testUpgradeEnv},
 	}
 
 	j := &dropOwnedContainerJob{runtimes: runtimes, req: payload, ctx: payload}
 
-	err := j.Do(context.Background())
+	err = j.Do(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if len(docker.removeCalledWith) != 1 || docker.removeCalledWith[0] != testCreatedID {
-		t.Errorf("expected container %q removed through the runtime resolved for environment %q, got %v",
-			testCreatedID, testUpgradeEnv, docker.removeCalledWith)
+	_, err = cli.ContainerInspect(context.Background(), created.ID)
+	if err == nil {
+		t.Fatalf("expected container %q to be removed, but ContainerInspect succeeded", created.ID)
 	}
 }
 

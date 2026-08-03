@@ -547,16 +547,7 @@ type fakeContainerRuntime struct {
 
 	mu sync.Mutex
 
-	renameErr        error
-	renameCalledWith []fakeRuntimeRenameCall
-}
-
-// fakeRuntimeRenameCall records a single ContainerRuntime.Rename call -
-// renameContainerJob now calls this instead of a raw client.APIClient
-// ContainerRename, so recording happens at this layer, not fakeContainerAPI.
-type fakeRuntimeRenameCall struct {
-	identifier string
-	newName    string
+	renameErr error
 }
 
 func (f *fakeContainerRuntime) ContainerCreate(
@@ -620,16 +611,15 @@ func (f *fakeContainerRuntime) Remove(ctx context.Context, identifier string) er
 	return nil
 }
 
-// Rename records the call and returns renameErr, so tests can assert
-// renameContainerJob resolves the runtime for its environment and calls
-// Rename with the virtual/logical newName (not a manually-suffixed string),
-// instead of the raw dockerAPI.ContainerRename it calls today - see
-// TestRenameContainerJob_Do_ResolvesRuntimeAndRenamesViaRuntime.
-func (f *fakeContainerRuntime) Rename(_ context.Context, identifier, newName string) error {
+// Rename is a no-op stub returning renameErr - renameContainerJob's tests
+// (TestRenameContainerJob_Do_ResolvesRuntimeAndRenamesViaRuntime and
+// friends) now exercise Rename against a real Docker daemon
+// (tests/test_helper), not this fake; it only needs to keep
+// fakeContainerRuntime satisfying container_runtime.ContainerRuntime for the
+// package's other, still-fake-backed tests.
+func (f *fakeContainerRuntime) Rename(_ context.Context, _, _ string) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-
-	f.renameCalledWith = append(f.renameCalledWith, fakeRuntimeRenameCall{identifier: identifier, newName: newName})
 
 	return f.renameErr
 }

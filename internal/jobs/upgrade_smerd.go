@@ -414,15 +414,32 @@ func resolveCurrentContainer(
 	return cont, nil
 }
 
+// fromContainerNetwork filters out the network aliases Docker adds
+// implicitly rather than ones a caller actually requested: the container's
+// own short-ID-prefix alias, and (confirmed against a real daemon - see
+// TestCaptureOldContainerJob_Success) its own Docker container name too,
+// which real Docker also auto-adds as an alias on connect. Without this, an
+// upgrade would carry the OLD container's own name forward into the NEW
+// container's alias list.
+//
+// Known gap: cont.GetName() is always the virtual/logical name (see
+// docs/container_runtimes/interface_design.md's "names are always virtual at
+// the interface boundary") - in a suffixed environment the real Docker name
+// Docker actually aliased is name_<suffix>, which this won't match. Closing
+// that needs the raw Docker name threaded through from InspectSmerd, which
+// deliberately doesn't expose it today; not fixed here since no test in this
+// pass exercises a suffixed captureOldContainerJob network-alias case.
 func fromContainerNetwork(cont *velez_api.Smerd) []*velez_api.NetworkBind {
 	out := make([]*velez_api.NetworkBind, 0, len(cont.GetNetworks()))
 
 	for _, n := range cont.GetNetworks() {
 		net := &velez_api.NetworkBind{NetworkName: n.GetNetworkName()}
 		for _, a := range n.GetAliases() {
-			if !strings.HasPrefix(cont.GetUuid(), a) {
-				net.Aliases = append(net.Aliases, a)
+			if strings.HasPrefix(cont.GetUuid(), a) || a == cont.GetName() {
+				continue
 			}
+
+			net.Aliases = append(net.Aliases, a)
 		}
 
 		if len(net.GetAliases()) != 0 {

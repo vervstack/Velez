@@ -39,7 +39,15 @@ type Docker struct {
 }
 
 func NewClient(bakedLabels []string) (*Docker, error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	return NewClientWithOpts(bakedLabels, client.FromEnv, client.WithAPIVersionNegotiation())
+}
+
+// NewClientWithOpts is NewClient's variant for callers that need control over
+// the underlying SDK client's construction - e.g. tests pointing at a
+// specific daemon/socket instead of the ambient DOCKER_HOST. NewClient itself
+// is unchanged and remains the production path.
+func NewClientWithOpts(bakedLabels []string, opts ...client.Opt) (*Docker, error) {
+	cli, err := client.NewClientWithOpts(opts...)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error getting docker client")
 	}

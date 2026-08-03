@@ -1470,8 +1470,8 @@
     "semantic_hash": "fd2b2509df322adcba5cc5d01fbdc238"
   },
   "pkg/web/Velez-UI/src/components/node/NodeCard.tsx": {
-    "mtime": 1785272365.1576436,
-    "ast_hash": "951081ac5e293f35194af348595e003a",
+    "mtime": 1785790045.320003,
+    "ast_hash": "910fbf200a80ee4b8a74b1b0fe033530",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/components/node/SkeletonNodeCard.tsx": {
@@ -1700,8 +1700,8 @@
     "semantic_hash": "110ab63a8589a1975fcb1c41417d5c7e"
   },
   "pkg/web/Velez-UI/src/widgets/controlplane/PluginMatrix.tsx": {
-    "mtime": 1785307986.5370297,
-    "ast_hash": "8f65e9c7a9bca37e140f2288bba03bf8",
+    "mtime": 1785790067.627859,
+    "ast_hash": "c5062d7c1b42527f703b1adecf5a0395",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/widgets/deploy/DeployWidget.tsx": {
@@ -1715,9 +1715,9 @@
     "semantic_hash": "2cf74507f3bc668efeaabf915fbe0571"
   },
   "pkg/web/Velez-UI/src/widgets/deployments/DeploymentFilters.tsx": {
-    "mtime": 1777748755.2051084,
-    "ast_hash": "8ac947c9ffec5f0fe5f7624cc94ce253",
-    "semantic_hash": "8ac947c9ffec5f0fe5f7624cc94ce253"
+    "mtime": 1785790082.4264548,
+    "ast_hash": "f970ffc486ffebf081136f3d6ed08a67",
+    "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/widgets/deployments/KanbanBoard.tsx": {
     "mtime": 1777748755.2058053,
@@ -1790,13 +1790,13 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/widgets/sidebar/Sidebar.tsx": {
-    "mtime": 1785788677.2700653,
-    "ast_hash": "23df2ae600b26f0b0c9a419950f2e35e",
+    "mtime": 1785790050.1697152,
+    "ast_hash": "a4b789eaa332ce339e741e851d899b01",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/widgets/topbar/TopBar.tsx": {
-    "mtime": 1785788768.9311616,
-    "ast_hash": "16ca4483e97e1a30b4f0c2f87ed3b928",
+    "mtime": 1785790040.3424847,
+    "ast_hash": "db2ecb9d3374bc5d76b3e96256f69bb3",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/widgets/vcn/NetworkTopologyMap.tsx": {
@@ -2275,9 +2275,9 @@
     "semantic_hash": "ec641d735fe76a130d86227ecff97b28"
   },
   "pkg/web/Velez-UI/CLAUDE.md": {
-    "mtime": 1779433300.3725429,
-    "ast_hash": "4a505ba14f9315b604f1cf0e0a8b8c3c",
-    "semantic_hash": "4a505ba14f9315b604f1cf0e0a8b8c3c"
+    "mtime": 1785790067.9558554,
+    "ast_hash": "bb1c0cbd72d8ff29ab92a64d6ffda679",
+    "semantic_hash": ""
   },
   "pkg/web/Velez-UI/README.md": {
     "mtime": 1761674626.2825096,
@@ -2965,8 +2965,8 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/widgets/sidebar/Sidebar.test.tsx": {
-    "mtime": 1785788723.9139938,
-    "ast_hash": "8bc96c93002801b969093a04670a306f",
+    "mtime": 1785790062.6732533,
+    "ast_hash": "51fed687a92daf30d1257d7e642fa1e4",
     "semantic_hash": ""
   },
   "internal/transport/control_plane_api_impl/enable_plugin_test.go": {
@@ -3082,11 +3082,6 @@
   "internal/jobs/environment.go": {
     "mtime": 1785741728.409145,
     "ast_hash": "06460595114bbb80588efe32c9900f02",
-    "semantic_hash": ""
-  },
-  "pkg/web/Velez-UI/src/widgets/environment/EnvironmentSwitcher/EnvironmentSwitcher.tsx": {
-    "mtime": 1785788940.9409256,
-    "ast_hash": "2d53d9e5d4587b954c22870b6bac982c",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/widgets/settings/EnvironmentsSettings/EnvironmentsSettings.test.tsx": {

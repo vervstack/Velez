@@ -136,6 +136,7 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			Job: &checkSelfUpgradeJob{
 				containerService: h.containerService,
 				upgradeReq:       payload,
+				runtimes:         h.runtimes,
 			},
 		},
 		{
@@ -144,6 +145,7 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 				containerService: h.containerService,
 				upgradeReq:       payload,
 				ctx:              payload,
+				runtimes:         h.runtimes,
 			},
 		},
 		{
@@ -264,6 +266,11 @@ type checkSelfUpgradeJob struct {
 	containerService service.ContainerService
 
 	upgradeReq upgradeRequestAccessor
+
+	// runtimes lets Do fall back to a suffix-aware container lookup when
+	// containerService.InspectSmerd's bare-name lookup 404s in a suffixed
+	// environment - see resolveCurrentContainer.
+	runtimes container_runtime.RuntimeResolver
 }
 
 // Do duplicates upgrade_steps.CheckUpgradeIsAvailable's self-upgrade guard.
@@ -277,7 +284,13 @@ func (j *checkSelfUpgradeJob) Do(ctx context.Context) error {
 		return nil
 	}
 
-	smerd, err := j.containerService.InspectSmerd(ctx, j.upgradeReq.GetUpgradeRequest().GetName())
+	smerd, err := resolveCurrentContainer(
+		ctx,
+		j.runtimes,
+		j.containerService,
+		j.upgradeReq.GetUpgradeRequest().GetEnvironment(),
+		j.upgradeReq.GetUpgradeRequest().GetName(),
+	)
 	if err != nil {
 		return rerrors.Wrap(err, "error during smerd inspection")
 	}
@@ -294,6 +307,11 @@ type captureOldContainerJob struct {
 
 	upgradeReq upgradeRequestAccessor
 	ctx        captureOldContainerCtx
+
+	// runtimes lets Do fall back to a suffix-aware container lookup when
+	// containerService.InspectSmerd's bare-name lookup 404s in a suffixed
+	// environment - see resolveCurrentContainer.
+	runtimes container_runtime.RuntimeResolver
 }
 
 // Do mirrors steps.fromContainerToRequest.Do, folding in the immediately
@@ -301,15 +319,17 @@ type captureOldContainerJob struct {
 // docs/jobs_migrations/questions.md for the fold precedent.
 func (j *captureOldContainerJob) Do(ctx context.Context) error {
 	name := j.upgradeReq.GetUpgradeRequest().GetName()
+	environment := j.upgradeReq.GetUpgradeRequest().GetEnvironment()
 
-	cont, err := j.containerService.InspectSmerd(ctx, name)
+	cont, err := resolveCurrentContainer(ctx, j.runtimes, j.containerService, environment, name)
 	if err != nil {
 		return rerrors.Wrap(err, "error inspecting container")
 	}
 
 	req := &velez_api.CreateSmerd_Request{
-		Name:      cont.GetName(),
-		ImageName: j.upgradeReq.GetUpgradeRequest().GetImage(),
+		Name:        cont.GetName(),
+		ImageName:   j.upgradeReq.GetUpgradeRequest().GetImage(),
+		Environment: environment,
 		Settings: &velez_api.Container_Settings{
 			Ports:   cont.GetPorts(),
 			Network: fromContainerNetwork(cont),
@@ -323,6 +343,69 @@ func (j *captureOldContainerJob) Do(ctx context.Context) error {
 	j.ctx.SetOldContainerId(cont.GetUuid())
 
 	return nil
+}
+
+// resolveCurrentContainer resolves "the current container" for name, falling
+// back to a suffix-aware lookup via runtimes when containerService's
+// bare-name InspectSmerd fails - see checkSelfUpgradeJob/captureOldContainerJob's
+// doc comments for why the bare-name lookup alone 404s in a suffixed
+// environment (the real Docker container is named "name_<suffix>",
+// container_runtime.labelBasedRuntime.containerName).
+//
+// The fallback reuses ContainerRuntime.ListContainers (which already applies
+// the resolved environment's suffix, see labelBasedRuntime.ListContainers)
+// rather than reconstructing the suffixed name here - suffix logic stays
+// defined exactly once, in label_based.go.
+//
+// A failure to resolve runtimes for environment (unknown environment, storage
+// error, etc.) is a real, surfaced error, not "no fallback available" -
+// resolveEnvironment already validated environment exists back at the RPC
+// boundary (smerd_upgrade.go), so a failure here means something is actually
+// wrong (a race, a storage outage) and must not be swallowed into silently
+// operating on a nil Smerd. A definitive "queried successfully, found
+// nothing" (runtimes resolved fine, but ListContainers came back empty) is
+// likewise a real, surfaced error - this is a read path, and callers like
+// Test_UpgradeSmerd_NonExistentContainer_Fails depend on that.
+func resolveCurrentContainer(
+	ctx context.Context,
+	runtimes container_runtime.RuntimeResolver,
+	containerService service.ContainerService,
+	environment, name string,
+) (*velez_api.Smerd, error) {
+	cont, err := containerService.InspectSmerd(ctx, name)
+	if err == nil {
+		return cont, nil
+	}
+
+	if runtimes == nil {
+		return nil, rerrors.Wrap(err, "error inspecting container")
+	}
+
+	runtime, runtimeErr := runtimes.Runtime(ctx, environment)
+	if runtimeErr != nil {
+		return nil, rerrors.Wrap(runtimeErr, "error resolving container runtime")
+	}
+
+	listName := name
+	listReq := &velez_api.ListSmerds_Request{
+		Name: &listName,
+	}
+
+	containers, err := runtime.ListContainers(ctx, listReq)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error listing containers")
+	}
+
+	if len(containers) == 0 {
+		return nil, rerrors.New(fmt.Sprintf("container %q not found in environment %q", name, environment))
+	}
+
+	cont, err = containerService.InspectSmerd(ctx, containers[0].ID)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error inspecting container")
+	}
+
+	return cont, nil
 }
 
 func fromContainerNetwork(cont *velez_api.Smerd) []*velez_api.NetworkBind {

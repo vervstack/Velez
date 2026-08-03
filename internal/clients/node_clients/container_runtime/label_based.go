@@ -189,6 +189,58 @@ func (r *labelBasedRuntime) Remove(ctx context.Context, identifier string) error
 	return nil
 }
 
+// Rename renames a container identified by uuid or logical/Docker name to
+// newName, using the same resolveOwnedContainer resolution/ownership check as
+// Remove: a bare logical name is resolved via the suffixed form first, and a
+// container found under a different environment's suffix (or not found at
+// all) is treated as "nothing to rename" - idempotent success, not an error.
+// newName is itself passed through containerName so the renamed container
+// keeps carrying this environment's suffix.
+func (r *labelBasedRuntime) Rename(ctx context.Context, identifier, newName string) error {
+	resolvedID, found, err := r.resolveOwnedContainer(ctx, identifier)
+	if err != nil {
+		return err
+	}
+
+	if !found {
+		return nil
+	}
+
+	err = r.cli.ContainerRename(ctx, resolvedID, r.containerName(newName))
+	if err != nil {
+		if strings.Contains(err.Error(), docker.NoSuchContainerError) {
+			return nil
+		}
+
+		return rerrors.Wrap(err, "error renaming container")
+	}
+
+	return nil
+}
+
+// IsContainerRunning reports whether the container identified by uuid or
+// logical/Docker name is running, using the same resolveOwnedContainer
+// resolution/ownership check as Remove/Rename: a container that doesn't
+// exist under either identifier form, or that belongs to a different
+// environment's suffix, is reported as (false, false, nil) - not an error.
+// Reuses the InspectResponse resolveOwnedContainer already fetched to
+// determine ownership, rather than inspecting a second time by ID - the fake
+// Docker API in unit tests (and potentially a real one) only knows the
+// identifier forms actually passed in, not necessarily the resolved ID as a
+// distinct lookup key.
+func (r *labelBasedRuntime) IsContainerRunning(ctx context.Context, identifier string) (bool, bool, error) {
+	info, found, err := r.resolveOwnedContainerInfo(ctx, identifier)
+	if err != nil {
+		return false, false, err
+	}
+
+	if !found {
+		return false, false, nil
+	}
+
+	return info.State != nil && info.State.Running, true, nil
+}
+
 // resolveOwnedContainer inspects identifier - trying the suffixed logical
 // name first (r.containerName(identifier)), then identifier as given (covers
 // real Docker UUIDs, which must never be suffix-mangled, and any
@@ -205,6 +257,22 @@ func (r *labelBasedRuntime) resolveOwnedContainer(
 	ctx context.Context,
 	identifier string,
 ) (id string, found bool, err error) {
+	info, found, err := r.resolveOwnedContainerInfo(ctx, identifier)
+	if err != nil || !found {
+		return "", found, err
+	}
+
+	return info.ID, true, nil
+}
+
+// resolveOwnedContainerInfo is resolveOwnedContainer's implementation,
+// additionally returning the full InspectResponse so callers that need more
+// than the ID (IsContainerRunning's State) don't have to inspect the
+// container a second time under a different identifier form.
+func (r *labelBasedRuntime) resolveOwnedContainerInfo(
+	ctx context.Context,
+	identifier string,
+) (container.InspectResponse, bool, error) {
 	for _, candidate := range r.candidateNames(identifier) {
 		info, inspectErr := r.cli.ContainerInspect(ctx, candidate)
 		if inspectErr != nil {
@@ -212,7 +280,7 @@ func (r *labelBasedRuntime) resolveOwnedContainer(
 				continue
 			}
 
-			return "", false, rerrors.Wrap(inspectErr, "error inspecting container")
+			return container.InspectResponse{}, false, rerrors.Wrap(inspectErr, "error inspecting container")
 		}
 
 		var suffix string
@@ -222,13 +290,13 @@ func (r *labelBasedRuntime) resolveOwnedContainer(
 		}
 
 		if suffix != r.suffix {
-			return "", false, nil
+			return container.InspectResponse{}, false, nil
 		}
 
-		return info.ID, true, nil
+		return info, true, nil
 	}
 
-	return "", false, nil
+	return container.InspectResponse{}, false, nil
 }
 
 // candidateNames returns the identifier forms resolveOwnedContainer should

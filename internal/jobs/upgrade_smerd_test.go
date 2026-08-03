@@ -21,6 +21,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 	"go.vervstack.ru/Velez/internal/user_errors"
@@ -38,6 +39,7 @@ const (
 	testUpgradeSvcName  = "mysvc"
 	testOldContainerID  = "old123"
 	testNetworkName     = "vervnet"
+	testUpgradeEnv      = "STAGE"
 )
 
 var (
@@ -180,6 +182,148 @@ func TestCaptureOldContainerJob_Success(t *testing.T) {
 
 	if len(req.GetSettings().GetNetwork()) != 1 || len(req.GetSettings().GetNetwork()[0].GetAliases()) != 1 {
 		t.Errorf("expected the container's own uuid filtered out of network aliases, got %v", req.GetSettings().GetNetwork())
+	}
+}
+
+// RED (runtime failure, compiles fine). captureOldContainerJob.Do builds a
+// CreateSmerd_Request without ever copying Environment onto it, even though
+// every downstream step in the upgrade pipeline (port locking via
+// prepareUpgradeVervConfigJob.lockPorts, network creation, etc.) reads
+// Environment off that same request. This is root cause #2 of the
+// suffixed-environment upgrade bug (see tests/e2e's
+// Test_UpgradeSmerd_InSuffixedEnvironment for the end-to-end repro).
+func TestCaptureOldContainerJob_SetsEnvironmentFromUpgradeRequest(t *testing.T) {
+	containerService := newFakeContainerService()
+
+	containerService.inspectResp = &velez_api.Smerd{
+		Uuid: testOldContainerID,
+		Name: testUpgradeSvcName,
+	}
+
+	payload := &velez_api.UpgradeSmerdTaskPayload{
+		UpgradeRequest: &velez_api.UpgradeSmerd_Request{
+			Name:        testUpgradeSvcName,
+			Image:       testUpgradeImage,
+			Environment: testUpgradeEnv,
+		},
+	}
+
+	j := &captureOldContainerJob{containerService: containerService, upgradeReq: payload, ctx: payload}
+
+	err := j.Do(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	req := payload.GetRequest()
+	if req.GetEnvironment() != testUpgradeEnv {
+		t.Errorf("expected request Environment %q (mirroring the upgrade request's), got %q",
+			testUpgradeEnv, req.GetEnvironment())
+	}
+}
+
+// RED (compile-time). captureOldContainerJob resolves "the current
+// container" via containerService.InspectSmerd(ctx, bareName) alone - a raw,
+// suffix-blind lookup. In a real suffixed environment the actual Docker
+// container is named "name_<suffix>"
+// (container_runtime.labelBasedRuntime.containerName), so a bare-name
+// InspectSmerd 404s before any upgrade logic runs - this is root cause #3 of
+// the suffixed-environment upgrade bug.
+//
+// The fix needs a `runtimes container_runtime.RuntimeResolver` field on
+// captureOldContainerJob so it can fall back to a suffix-aware resolution
+// (the same resolveOwnedContainer-style lookup labelBasedRuntime.Remove
+// already does) instead of trusting containerService.InspectSmerd to already
+// be suffix-aware.
+//
+// This test simulates today's real-world failure - containerService's
+// bare-name InspectSmerd 404s, exactly like the real Docker daemon does in a
+// suffixed environment - and asserts Do() must still succeed by falling back
+// to the runtimes resolver: resolving a real environments.NewStatic-backed
+// environment, listing containers through it (fakeContainerRuntime.ListContainers,
+// which is what the fallback actually calls), and re-inspecting by the
+// resolved id. inspectFailFor is set to the bare name only, so a call with any
+// other id (the resolved one) succeeds - if the fallback were skipped or
+// masked a real resolution error instead of surfacing it, this would fail for
+// a different reason than "not implemented yet", proving the fallback path
+// itself is what's under test, not just "doesn't error".
+func TestCaptureOldContainerJob_SuffixAwareLookup(t *testing.T) {
+	containerService := newFakeContainerService()
+
+	containerService.inspectErr = user_errors.ErrNoSuchContainer
+	containerService.inspectFailFor = testUpgradeSvcName
+	containerService.inspectResp = &velez_api.Smerd{
+		Uuid: testContFixtureID,
+		Name: testUpgradeSvcName,
+	}
+
+	docker := newFakeDocker()
+
+	docker.listContainersResp = []container.Summary{{ID: testContFixtureID}}
+
+	runtimes := newFakeRuntimes(docker, environments.NewStatic([]string{testUpgradeEnv}, ""))
+
+	payload := &velez_api.UpgradeSmerdTaskPayload{
+		UpgradeRequest: &velez_api.UpgradeSmerd_Request{
+			Name:        testUpgradeSvcName,
+			Image:       testUpgradeImage,
+			Environment: testUpgradeEnv,
+		},
+	}
+
+	j := &captureOldContainerJob{
+		containerService: containerService,
+		upgradeReq:       payload,
+		ctx:              payload,
+		runtimes:         runtimes,
+	}
+
+	err := j.Do(context.Background())
+	if err != nil {
+		t.Fatalf(
+			"expected a suffix-aware lookup via runtimes to succeed despite a bare-name InspectSmerd 404, got: %v",
+			err,
+		)
+	}
+
+	if payload.GetRequest().GetName() != testUpgradeSvcName {
+		t.Errorf("expected the container found via the fallback to be captured, got name %q",
+			payload.GetRequest().GetName())
+	}
+
+	got := containerService.inspectCalledWith
+	if len(got) != 2 || got[0] != testUpgradeSvcName || got[1] != testContFixtureID {
+		t.Errorf("expected InspectSmerd called first with the bare name then the resolved id, got %v", got)
+	}
+}
+
+// RED (compile-time). checkSelfUpgradeJob has the identical gap as
+// captureOldContainerJob above: it inspects "the current container" via a
+// bare-name, suffix-blind containerService.InspectSmerd call. It needs the
+// same `runtimes container_runtime.RuntimeResolver` field.
+//
+// Note this test cannot exercise the self-upgrade branch itself (see
+// TestCheckSelfUpgradeJob_NotInsideContainer_NoOp's comment: env.GetContainerId()
+// always returns nil under `go test`), so it only documents/proves the
+// missing field via a compile failure - not a behavioral runtime assertion.
+func TestCheckSelfUpgradeJob_HasRuntimesFieldForSuffixAwareLookup(t *testing.T) {
+	containerService := newFakeContainerService()
+	docker := newFakeDocker()
+	runtimes := newFakeRuntimes(docker, nil)
+
+	payload := &velez_api.UpgradeSmerdTaskPayload{
+		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Name: testUpgradeSvcName},
+	}
+
+	j := &checkSelfUpgradeJob{
+		containerService: containerService,
+		upgradeReq:       payload,
+		runtimes:         runtimes,
+	}
+
+	err := j.Do(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
 	}
 }
 

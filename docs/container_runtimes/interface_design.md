@@ -48,6 +48,7 @@ type ContainerRuntime interface {
     ContainerCreate(ctx context.Context, req ContainerCreateRequest) (container.CreateResponse, error)
     ListContainers(ctx context.Context, req *velez_api.ListSmerds_Request) ([]container.Summary, error)
     Remove(ctx context.Context, containerID string) error
+    Rename(ctx context.Context, identifier, newName string) error
     Stop(ctx context.Context, nameOrID string) error
     Restart(ctx context.Context, nameOrID string) error
     IsContainerRunning(ctx context.Context, nameOrID string) (running, exists bool, err error)
@@ -66,9 +67,9 @@ type ContainerRuntime interface {
 Note what's gone from today's signatures: no `suffix string` parameter, no `Client() client.APIClient` escape
 hatch. Both are folded into the implementations below instead of being caller-supplied plumbing.
 
-**Phase 1 implements `ContainerCreate`, `ListContainers` and `Remove`** — see `roadmap.md`. The rest of the
-interface above is the target shape; other methods stay on the existing `Docker` struct directly until their own
-phase.
+**Phase 1 implements `ContainerCreate`, `ListContainers`, `Remove`, `Rename` and `IsContainerRunning`** — see
+`roadmap.md`. The rest of the interface above is the target shape; other methods stay on the existing `Docker`
+struct directly until their own phase.
 
 ## Names are always virtual at the interface boundary
 
@@ -84,9 +85,12 @@ caller's concern:
   entry back to the virtual name (via `virtualName()`, `containerName()`'s inverse) before returning — so
   `ListSmerds` (`internal/service/service_manager/container_manager/smerd_list.go`) never has to know the
   convention exists.
-- `Remove` accepts a virtual name, a real (already-suffixed) Docker name, or a raw Docker UUID; it resolves
-  whichever form was given to the real container before removing it — see `label_based.go`'s doc comments for
-  the exact resolution/ownership-check order.
+- `Remove`, `Rename` and `IsContainerRunning` all accept a virtual name, a real (already-suffixed) Docker name, or
+  a raw Docker UUID; they resolve whichever form was given to the real container (via the shared
+  `resolveOwnedContainer`/`resolveOwnedContainerInfo` helpers) before acting on it — see `label_based.go`'s doc
+  comments for the exact resolution/ownership-check order. `Rename` additionally runs its `newName` argument
+  through `containerName()` before handing it to Docker, so the renamed container keeps carrying this
+  environment's suffix too.
 
 The one code path that still bypasses `ContainerRuntime` entirely — `container_manager.InspectSmerd`, called by
 `CreateSmerd`'s response-building path, since `Inspect` isn't part of the interface yet — recovers the virtual

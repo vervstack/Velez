@@ -436,3 +436,249 @@ func TestLabelBasedRuntime_Remove_ContainerRemoveNoSuchContainer_IsIdempotentSuc
 	err := runtime.Remove(context.Background(), testSmerdName)
 	require.NoError(t, err)
 }
+
+// RED (compile-time). Rename and IsContainerRunning don't exist on
+// ContainerRuntime/labelBasedRuntime yet - internal/jobs/upgrade_smerd.go's
+// rename/self-upgrade steps need them so upgrades work in suffixed
+// environments (see docs behind that job's doc comment and
+// upgrade_smerd_test.go). This whole file will not compile until the
+// implementation agent adds:
+//
+//	Rename(ctx context.Context, identifier, newName string) error
+//	IsContainerRunning(ctx context.Context, nameOrID string) (running, exists bool, err error)
+//
+// to the ContainerRuntime interface and labelBasedRuntime. That is the
+// intended red state - same convention as this package's Remove tests,
+// which likewise exercise a method added alongside the tests, just without
+// the compile step in between since Remove landed complete in one commit.
+
+// fakeRenameAPI is a minimal client.APIClient fake for Rename/
+// resolveOwnedContainer: ContainerInspect keyed by identifier (same
+// lookup convention as fakeRemoveAPI above), plus ContainerRename call
+// recording.
+type fakeRenameAPI struct {
+	client.APIClient
+
+	inspectResp map[string]container.InspectResponse
+	inspectErr  map[string]error
+	renameErr   map[string]error
+
+	inspectCalls []string
+	renameCalls  []renameCall
+}
+
+type renameCall struct {
+	id      string
+	newName string
+}
+
+func newFakeRenameAPI() *fakeRenameAPI {
+	return &fakeRenameAPI{
+		inspectResp: map[string]container.InspectResponse{},
+		inspectErr:  map[string]error{},
+		renameErr:   map[string]error{},
+	}
+}
+
+func (f *fakeRenameAPI) ContainerInspect(_ context.Context, id string) (container.InspectResponse, error) {
+	f.inspectCalls = append(f.inspectCalls, id)
+
+	if err, ok := f.inspectErr[id]; ok {
+		return container.InspectResponse{}, err
+	}
+
+	if resp, ok := f.inspectResp[id]; ok {
+		return resp, nil
+	}
+
+	notFoundMsg := "Error response from daemon: " + docker.NoSuchContainerError + ": " + id
+
+	return container.InspectResponse{}, rerrors.New(notFoundMsg)
+}
+
+func (f *fakeRenameAPI) ContainerRename(_ context.Context, id, newName string) error {
+	f.renameCalls = append(f.renameCalls, renameCall{id: id, newName: newName})
+
+	return f.renameErr[id]
+}
+
+// A bare logical name in a suffixed environment must resolve via the
+// suffixed Docker name (the exact resolution Remove already does), and the
+// requested new name must itself be run through containerName() before
+// being handed to Docker - the actual fix for today's separate bug where
+// upgrade_smerd.go's rename steps apply no suffix at all to the renamed
+// container.
+func TestLabelBasedRuntime_Rename_BareNameResolvesAndSuffixesNewName(t *testing.T) {
+	api := newFakeRenameAPI()
+
+	suffixedName := testSmerdName + "_" + testSuffix
+
+	api.inspectResp[suffixedName] = newInspectResponse("real-id", testSuffix)
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	err := runtime.Rename(context.Background(), testSmerdName, "newname")
+	require.NoError(t, err)
+
+	require.Equal(t, []string{suffixedName}, api.inspectCalls)
+	require.Len(t, api.renameCalls, 1)
+	require.Equal(t, "real-id", api.renameCalls[0].id)
+	require.Equal(t, "newname_"+testSuffix, api.renameCalls[0].newName)
+}
+
+// A raw Docker UUID never matches the suffixed form, so resolution must fall
+// back to the identifier exactly as given - same as Remove.
+func TestLabelBasedRuntime_Rename_UuidFallsBackToRawIdentifier(t *testing.T) {
+	api := newFakeRenameAPI()
+
+	const uuid = "container-uuid"
+
+	api.inspectResp[uuid] = newInspectResponse(uuid, testSuffix)
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	err := runtime.Rename(context.Background(), uuid, "newname")
+	require.NoError(t, err)
+
+	require.Equal(t, []string{uuid + "_" + testSuffix, uuid}, api.inspectCalls,
+		"suffixed form must be tried first, then the raw identifier")
+	require.Len(t, api.renameCalls, 1)
+	require.Equal(t, uuid, api.renameCalls[0].id)
+	require.Equal(t, "newname_"+testSuffix, api.renameCalls[0].newName)
+}
+
+// Suffix-mismatch (container exists but belongs to a different environment)
+// is treated as not-found / idempotent success - no rename call, no error -
+// same cross-environment protection as Remove.
+func TestLabelBasedRuntime_Rename_SuffixMismatch_TreatedAsNotFound(t *testing.T) {
+	api := newFakeRenameAPI()
+
+	const uuid = "other-env-uuid"
+
+	api.inspectResp[uuid] = newInspectResponse(uuid, "some-other-suffix")
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	err := runtime.Rename(context.Background(), uuid, "newname")
+	require.NoError(t, err)
+	require.Empty(t, api.renameCalls, "a container belonging to a different environment must not be renamed")
+}
+
+// Not-found under either identifier form is idempotent success, same as
+// Remove's identical case.
+func TestLabelBasedRuntime_Rename_NotFoundUnderEitherForm_IsIdempotentSuccess(t *testing.T) {
+	api := newFakeRenameAPI()
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	err := runtime.Rename(context.Background(), testSmerdName, "newname")
+	require.NoError(t, err)
+	require.Empty(t, api.renameCalls)
+}
+
+// fakeInspectOnlyAPI is a minimal client.APIClient fake for
+// IsContainerRunning: ContainerInspect keyed by identifier, same lookup
+// convention as fakeRemoveAPI/fakeRenameAPI above, with no mutating call to
+// record.
+type fakeInspectOnlyAPI struct {
+	client.APIClient
+
+	inspectResp map[string]container.InspectResponse
+	inspectErr  map[string]error
+
+	inspectCalls []string
+}
+
+func newFakeInspectOnlyAPI() *fakeInspectOnlyAPI {
+	return &fakeInspectOnlyAPI{
+		inspectResp: map[string]container.InspectResponse{},
+		inspectErr:  map[string]error{},
+	}
+}
+
+func (f *fakeInspectOnlyAPI) ContainerInspect(_ context.Context, id string) (container.InspectResponse, error) {
+	f.inspectCalls = append(f.inspectCalls, id)
+
+	if err, ok := f.inspectErr[id]; ok {
+		return container.InspectResponse{}, err
+	}
+
+	if resp, ok := f.inspectResp[id]; ok {
+		return resp, nil
+	}
+
+	notFoundMsg := "Error response from daemon: " + docker.NoSuchContainerError + ": " + id
+
+	return container.InspectResponse{}, rerrors.New(notFoundMsg)
+}
+
+func newInspectResponseWithState(id, suffix string, running bool) container.InspectResponse {
+	return container.InspectResponse{
+		ContainerJSONBase: &container.ContainerJSONBase{
+			ID:    id,
+			State: &container.State{Running: running},
+		},
+		Config: &container.Config{Labels: map[string]string{labels.SuffixLabel: suffix}},
+	}
+}
+
+// A running container owned by this environment reports (true, true, nil).
+func TestLabelBasedRuntime_IsContainerRunning_RunningOwnedContainer(t *testing.T) {
+	api := newFakeInspectOnlyAPI()
+
+	suffixedName := testSmerdName + "_" + testSuffix
+
+	api.inspectResp[suffixedName] = newInspectResponseWithState("real-id", testSuffix, true)
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	running, exists, err := runtime.IsContainerRunning(context.Background(), testSmerdName)
+	require.NoError(t, err)
+	require.True(t, exists)
+	require.True(t, running)
+}
+
+// A stopped container owned by this environment reports (false, true, nil).
+func TestLabelBasedRuntime_IsContainerRunning_StoppedOwnedContainer(t *testing.T) {
+	api := newFakeInspectOnlyAPI()
+
+	suffixedName := testSmerdName + "_" + testSuffix
+
+	api.inspectResp[suffixedName] = newInspectResponseWithState("real-id", testSuffix, false)
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	running, exists, err := runtime.IsContainerRunning(context.Background(), testSmerdName)
+	require.NoError(t, err)
+	require.True(t, exists)
+	require.False(t, running)
+}
+
+// A container that doesn't exist under either identifier form reports
+// (false, false, nil).
+func TestLabelBasedRuntime_IsContainerRunning_NotFound(t *testing.T) {
+	api := newFakeInspectOnlyAPI()
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	running, exists, err := runtime.IsContainerRunning(context.Background(), testSmerdName)
+	require.NoError(t, err)
+	require.False(t, exists)
+	require.False(t, running)
+}
+
+// A container belonging to a different environment's suffix is treated
+// exactly like "doesn't exist" - (false, false, nil) - same cross-environment
+// protection as Remove/Rename.
+func TestLabelBasedRuntime_IsContainerRunning_SuffixMismatch_TreatedAsNotFound(t *testing.T) {
+	api := newFakeInspectOnlyAPI()
+
+	const uuid = "other-env-uuid"
+
+	api.inspectResp[uuid] = newInspectResponseWithState(uuid, "some-other-suffix", true)
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	running, exists, err := runtime.IsContainerRunning(context.Background(), uuid)
+	require.NoError(t, err)
+	require.False(t, exists)
+	require.False(t, running)
+}

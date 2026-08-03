@@ -382,6 +382,12 @@ type fakeDocker struct {
 	execErr        error
 	execCalledWith []container.ExecOptions
 
+	// listContainersResp/listContainersErr back ListContainers - used by
+	// resolveCurrentContainer's (upgrade_smerd.go) suffix-aware fallback path
+	// via fakeContainerRuntime.ListContainers.
+	listContainersResp []container.Summary
+	listContainersErr  error
+
 	// clientAPI, if set via withClient, is returned by Client() instead of
 	// nil - lets tests that need the raw Docker engine client (e.g. jobs
 	// depending on a narrow client.APIClient slice like pauseAPI/renameAPI)
@@ -417,7 +423,7 @@ func (f *fakeDocker) Restart(_ context.Context, _ string) error {
 func (f *fakeDocker) ListContainers(
 	_ context.Context, _ *velez_api.ListSmerds_Request, _ string,
 ) ([]container.Summary, error) {
-	return nil, nil
+	return f.listContainersResp, f.listContainersErr
 }
 
 func (f *fakeDocker) ListOccupiedPorts(_ context.Context) ([]uint32, error) {
@@ -550,11 +556,8 @@ func (f *fakeContainerRuntime) ContainerCreate(
 	return resp, nil
 }
 
-// ListContainers is not exercised by any job test today (nothing under
-// internal/jobs calls ContainerRuntime.ListContainers - that's
-// container_manager.ListSmerds, see docs/container_runtimes/roadmap.md). It
-// only exists so fakeContainerRuntime keeps satisfying the
-// container_runtime.ContainerRuntime interface.
+// ListContainers also backs resolveCurrentContainer's (upgrade_smerd.go)
+// suffix-aware fallback lookup - see TestCaptureOldContainerJob_SuffixAwareLookup.
 func (f *fakeContainerRuntime) ListContainers(
 	ctx context.Context,
 	req *velez_api.ListSmerds_Request,
@@ -581,6 +584,20 @@ func (f *fakeContainerRuntime) Remove(ctx context.Context, identifier string) er
 	}
 
 	return nil
+}
+
+// Rename is not exercised by any job test today - Stage B (not this pass)
+// migrates the rename/self-upgrade jobs to actually call it. It only exists
+// so fakeContainerRuntime keeps satisfying container_runtime.ContainerRuntime,
+// same rationale as ListContainers above.
+func (f *fakeContainerRuntime) Rename(_ context.Context, _, _ string) error {
+	return nil
+}
+
+// IsContainerRunning is not exercised by any job test today - see Rename's
+// comment above.
+func (f *fakeContainerRuntime) IsContainerRunning(_ context.Context, _ string) (bool, bool, error) {
+	return false, false, nil
 }
 
 // fakeNodeClients is a minimal node_clients.NodeClients wrapping a
@@ -1176,6 +1193,13 @@ type fakeContainerService struct {
 	inspectResp *velez_api.Smerd
 	inspectErr  error
 
+	// inspectFailFor, if non-empty, makes InspectSmerd return inspectErr only
+	// when called with this exact contID - any other contID succeeds with
+	// inspectResp instead. Lets tests exercise resolveCurrentContainer's
+	// fallback path (a bare-name call fails, a resolved-id call succeeds)
+	// without inspectErr unconditionally failing every call.
+	inspectFailFor string
+
 	inspectCalledWith []string
 }
 
@@ -1201,7 +1225,11 @@ func (f *fakeContainerService) InspectSmerd(_ context.Context, contID string) (*
 
 	f.inspectCalledWith = append(f.inspectCalledWith, contID)
 
-	return f.inspectResp, f.inspectErr
+	if f.inspectFailFor == "" || contID == f.inspectFailFor {
+		return f.inspectResp, f.inspectErr
+	}
+
+	return f.inspectResp, nil
 }
 
 func (f *fakeContainerService) ConnectToNetwork(_ context.Context, _ domain.Connection) error {

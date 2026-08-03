@@ -23,9 +23,13 @@ exercises the whole shape without requiring the full interface.
 
 **Explicitly deferred**
 - Every other `ContainerRuntime` method (`Stop`/`Restart`/`Exec`/`Stats`/`PullImage`/network ops) — `Docker`
-  keeps serving those directly for now. (`ListContainers` and `Remove` were originally deferred here too, but a
-  follow-up pass in the same phase added both — see "Names are always virtual at the interface boundary" and
-  "Suffix filtering has no 'unscoped' escape hatch" in `interface_design.md`, and the bug-fix entries below.)
+  keeps serving those directly for now. (`ListContainers`, `Remove`, `Rename` and `IsContainerRunning` were
+  originally deferred here too, but follow-up passes in the same phase added all four — see "Names are always
+  virtual at the interface boundary" and "Suffix filtering has no 'unscoped' escape hatch" in
+  `interface_design.md`, and the bug-fix entries below. `Rename`/`IsContainerRunning` were added to unblock
+  `internal/jobs/upgrade_smerd.go`'s suffix-aware container lookup/rename steps — see the jobs-engine
+  suffixed-environment upgrade fix; the rename/self-upgrade jobs themselves haven't been cut over to call them
+  yet, that's a later pass.)
 - Dedicated-docker-instance real implementation — see Phase 2 below.
 - pg-state matrix cells — need the cluster/`WithMatreshka` e2e fixture.
 - A same-name-cross-environment test case — blocked on the task-dedup bug below.

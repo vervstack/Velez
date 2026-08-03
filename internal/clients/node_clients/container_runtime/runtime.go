@@ -63,11 +63,11 @@ type ContainerCreateRequest struct {
 // ContainerRuntime is what the service/jobs layers depend on instead of a
 // concrete Docker client.
 //
-// Phase 1 exposes ContainerCreate and ListContainers. The target shape
-// (Remove, Stop, Restart, IsContainerRunning, Exec, Stats, ListOccupiedPorts,
-// plus the backend-agnostic PullImage/network operations) is in
-// docs/container_runtimes/interface_design.md; those methods stay on
-// node_clients.Docker until their own phase.
+// Phase 1 exposes ContainerCreate, ListContainers, Remove, Rename and
+// IsContainerRunning. The rest of the target shape (Stop, Restart, Exec,
+// Stats, ListOccupiedPorts, plus the backend-agnostic PullImage/network
+// operations) is in docs/container_runtimes/interface_design.md; those
+// methods stay on node_clients.Docker until their own phase.
 type ContainerRuntime interface {
 	ContainerCreate(ctx context.Context, req ContainerCreateRequest) (container.CreateResponse, error)
 
@@ -88,6 +88,24 @@ type ContainerRuntime interface {
 	// labelBasedRuntime.Remove's doc comment for the resolution/ownership
 	// check this relies on.
 	Remove(ctx context.Context, identifier string) error
+
+	// Rename renames a container identified by uuid or logical/Docker name to
+	// newName, strictly scoped to the environment this runtime instance was
+	// resolved for - same ownership/resolution semantics as Remove (a
+	// container belonging to a different environment, or no container at all
+	// under either identifier form, is treated as "nothing to rename" and
+	// reported as success). newName is itself run through the environment's
+	// suffixing before being handed to the backend, so callers only ever deal
+	// in logical/virtual names.
+	Rename(ctx context.Context, identifier, newName string) error
+
+	// IsContainerRunning reports whether the container identified by uuid or
+	// logical/Docker name is currently running, scoped to the environment
+	// this runtime instance was resolved for. exists is false - with running
+	// also false and err nil - both when no container exists under either
+	// identifier form and when a container exists but belongs to a different
+	// environment (same cross-environment protection as Remove/Rename).
+	IsContainerRunning(ctx context.Context, nameOrID string) (running, exists bool, err error)
 }
 
 // RuntimeResolver hands out the ContainerRuntime serving a given environment.

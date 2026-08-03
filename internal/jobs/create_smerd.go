@@ -21,6 +21,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
 	"go.vervstack.ru/Velez/internal/cluster/env"
@@ -85,19 +86,24 @@ type pathToFilesAccessor interface {
 type createSmerdHandler struct {
 	nodeClients   node_clients.NodeClients
 	configService service.ConfigurationService
-	environments  EnvironmentsProvider
+	runtimes      container_runtime.RuntimeResolver
 }
 
 // NewCreateSmerdHandler builds the TaskHandler for the "create_smerd" action.
+//
+// runtimes resolves the request's environment into the ContainerRuntime that
+// serves it - see docs/container_runtimes. It replaces the EnvironmentsProvider
+// this handler used to take: the environment -> Docker-suffix resolution moved
+// behind the resolver along with the container creation it scopes.
 func NewCreateSmerdHandler(
 	nodeClients node_clients.NodeClients,
 	configService service.ConfigurationService,
-	environments EnvironmentsProvider,
+	runtimes container_runtime.RuntimeResolver,
 ) TaskHandler {
 	return &createSmerdHandler{
 		nodeClients:   nodeClients,
 		configService: configService,
-		environments:  environments,
+		runtimes:      runtimes,
 	}
 }
 
@@ -154,10 +160,10 @@ func (h *createSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: "create_container",
 			Job: &createContainerJob{
-				nodeClients:  h.nodeClients,
-				req:          payload,
-				ctx:          payload,
-				environments: h.environments,
+				nodeClients: h.nodeClients,
+				req:         payload,
+				ctx:         payload,
+				runtimes:    h.runtimes,
 			},
 		},
 		{
@@ -599,18 +605,20 @@ type createContainerJob struct {
 	req smerdRequestAccessor
 	ctx containerIDAccessor
 
-	// environments resolves the request's environment NAME into the Docker
-	// SUFFIX at run time. Nil is tolerated (yields an empty suffix) so the
-	// job stays usable for internally-built, environment-less requests.
-	environments EnvironmentsProvider
+	// runtimes resolves the request's environment NAME into the
+	// ContainerRuntime serving it, at run time. The resolved runtime owns the
+	// environment's Docker suffix - both the labels.SuffixLabel it stamps and
+	// the container name it derives - so this job never handles a suffix
+	// itself. See docs/container_runtimes.
+	runtimes container_runtime.RuntimeResolver
 }
 
 func (j *createContainerJob) Do(ctx context.Context) error {
 	req := j.req.GetRequest()
 
-	suffix, err := resolveEnvironmentSuffix(ctx, j.environments, req.GetEnvironment())
+	containerRuntime, err := j.runtimes.Runtime(ctx, req.GetEnvironment())
 	if err != nil {
-		return rerrors.Wrap(err, "error resolving environment")
+		return rerrors.Wrap(err, "error resolving container runtime")
 	}
 
 	cfg := &container.Config{
@@ -643,7 +651,20 @@ func (j *createContainerJob) Do(ctx context.Context) error {
 
 	dockerClient := j.nodeClients.Docker()
 
-	created, err := dockerClient.ContainerCreate(ctx, cfg, hostCfg, netCfg, &v1.Platform{}, req.GetName(), suffix)
+	configWrapper := &container_runtime.ContainerConfig{Config: cfg}
+	hostConfigWrapper := &container_runtime.HostConfig{HostConfig: hostCfg}
+	netConfigWrapper := &container_runtime.NetworkingConfig{NetworkingConfig: netCfg}
+	platform := &v1.Platform{}
+
+	createReq := container_runtime.ContainerCreateRequest{
+		Config:           configWrapper,
+		HostConfig:       hostConfigWrapper,
+		NetworkingConfig: netConfigWrapper,
+		Platform:         platform,
+		ContainerName:    req.GetName(),
+	}
+
+	created, err := containerRuntime.ContainerCreate(ctx, createReq)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating container")
 	}

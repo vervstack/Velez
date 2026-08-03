@@ -250,7 +250,7 @@ func (d *Docker) ContainerCreate(
 	createResponse, err := d.directApi.ContainerCreate(ctx, config, hostConfig, networkingConfig, platform, containerName)
 	if err != nil {
 		if errdefs.IsConflict(err) {
-			return container.CreateResponse{}, handleConflictMessage(err)
+			return container.CreateResponse{}, HandleConflictMessage(err)
 		}
 
 		return container.CreateResponse{}, rerrors.Wrap(err, "error during container creation via docker api")

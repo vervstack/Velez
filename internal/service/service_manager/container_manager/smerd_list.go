@@ -19,12 +19,12 @@ func (c *ContainerManager) ListSmerds(
 		*req.Name = strings.ToLower(req.GetName())
 	}
 
-	suffix, err := c.resolveSuffix(ctx, req.GetEnvironment())
+	runtime, err := c.runtimes.Runtime(ctx, req.GetEnvironment())
 	if err != nil {
 		return nil, errors.Wrap(err, "error resolving environment")
 	}
 
-	cl, err := c.dockerWrapper.ListContainers(ctx, req, suffix)
+	cl, err := runtime.ListContainers(ctx, req)
 	if err != nil {
 		return nil, errors.Wrap(err, "error listing containers")
 	}

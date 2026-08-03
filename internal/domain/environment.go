@@ -14,11 +14,21 @@ import (
 // NOTE: this is NOT ServiceEnvironment (internal/domain/graph.go) - that one is
 // a per-service dashboard status projection and an unrelated concept.
 type Environment struct {
-	ID        int64
-	Name      string
-	Suffix    string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID     int64
+	Name   string
+	Suffix string
+	// DockerHost - endpoint of the dedicated Docker daemon serving this
+	// environment. Empty (the only value produced today) means "the node's
+	// shared daemon", i.e. isolation via Suffix labels/names alone.
+	//
+	// Nothing populates it yet: the velez.environments column backing it, and
+	// the dedicatedRuntime that would consume it, both land with Phase 2 of
+	// docs/container_runtimes/roadmap.md. It exists now so the runtime
+	// resolver can branch on it and reject the not-yet-implemented tier
+	// explicitly instead of silently serving it from the shared daemon.
+	DockerHost string
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }
 
 // CreateEnvironmentReq - payload for creating a new environment.

@@ -25,11 +25,13 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/plugins_queries"
@@ -460,6 +462,94 @@ func (f *fakeDocker) Stats(_ context.Context, _ string) (domain.ContainerStats, 
 // comment. Defaults to nil (existing behavior for every other job's tests).
 func (f *fakeDocker) withClient(api client.APIClient) {
 	f.clientAPI = api
+}
+
+// fakeRuntimeResolver is a container_runtime.RuntimeResolver that routes
+// container creation back into a fakeDocker, so jobs built on
+// createContainerJob stay unit-testable without a Docker daemon.
+//
+// It resolves the environment for real (environments.Resolve, the same
+// function the production resolver uses) but deliberately does NOT reimplement
+// labelBasedRuntime's name suffixing or label stamping - a fake that reproduced
+// the logic under test would only assert itself. Those live in
+// container_runtime's own unit tests and in tests/e2e.
+type fakeRuntimeResolver struct {
+	docker    *fakeDocker
+	envs      storage.EnvironmentsStorage
+	runtimeEr error
+}
+
+// newFakeRuntimes builds a resolver over docker. envs may be nil, which
+// resolves every default/empty environment to the empty suffix.
+func newFakeRuntimes(docker *fakeDocker, envs storage.EnvironmentsStorage) *fakeRuntimeResolver {
+	return &fakeRuntimeResolver{
+		docker: docker,
+		envs:   envs,
+	}
+}
+
+func (f *fakeRuntimeResolver) Runtime(
+	ctx context.Context,
+	environment string,
+) (container_runtime.ContainerRuntime, error) {
+	if f.runtimeEr != nil {
+		return nil, f.runtimeEr
+	}
+
+	env, err := environments.Resolve(ctx, f.envs, environment)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error resolving environment")
+	}
+
+	rt := &fakeContainerRuntime{
+		docker: f.docker,
+		suffix: env.Suffix,
+	}
+
+	return rt, nil
+}
+
+type fakeContainerRuntime struct {
+	docker *fakeDocker
+	suffix string
+}
+
+func (f *fakeContainerRuntime) ContainerCreate(
+	ctx context.Context,
+	req container_runtime.ContainerCreateRequest,
+) (container.CreateResponse, error) {
+	var config *container.Config
+
+	if req.Config != nil {
+		config = req.Config.Config
+	}
+
+	var hostConfig *container.HostConfig
+
+	if req.HostConfig != nil {
+		hostConfig = req.HostConfig.HostConfig
+	}
+
+	var networkingConfig *network.NetworkingConfig
+
+	if req.NetworkingConfig != nil {
+		networkingConfig = req.NetworkingConfig.NetworkingConfig
+	}
+
+	return f.docker.ContainerCreate(
+		ctx, config, hostConfig, networkingConfig, req.Platform, req.ContainerName, f.suffix)
+}
+
+// ListContainers is not exercised by any job test today (nothing under
+// internal/jobs calls ContainerRuntime.ListContainers - that's
+// container_manager.ListSmerds, see docs/container_runtimes/roadmap.md). It
+// only exists so fakeContainerRuntime keeps satisfying the
+// container_runtime.ContainerRuntime interface.
+func (f *fakeContainerRuntime) ListContainers(
+	ctx context.Context,
+	req *velez_api.ListSmerds_Request,
+) ([]container.Summary, error) {
+	return f.docker.ListContainers(ctx, req, f.suffix)
 }
 
 // fakeNodeClients is a minimal node_clients.NodeClients wrapping a

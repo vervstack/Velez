@@ -7,6 +7,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/service_manager/configurator"
@@ -35,13 +36,14 @@ func New(
 	nodeClients node_clients.NodeClients,
 	clusterClients cluster_clients.ClusterClients,
 	cfg config.Config,
+	runtimeResolver container_runtime.RuntimeResolver,
 ) (service.Services, error) {
 	configService, err := configurator.New(clusterClients)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error initializing configurator")
 	}
 
-	cm := container_manager.New(nodeClients, clusterClients.StateManager())
+	cm := container_manager.New(nodeClients, runtimeResolver)
 
 	storageContainer := storage.NewStorageContainer(local_storage.New(nodeClients.Docker(), cfg))
 	svc := plugins.NewPluginService(storageContainer)

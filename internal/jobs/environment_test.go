@@ -29,7 +29,13 @@ func (p *envProvider) Environments() storage.EnvironmentsStorage {
 }
 
 func newEnvProvider(defaultSuffix string) *envProvider {
-	return &envProvider{storage: environments.NewStatic(nil, defaultSuffix)}
+	return &envProvider{storage: newEnvStorage(defaultSuffix)}
+}
+
+// newEnvStorage builds the in-memory environments storage both the provider
+// above and the fake runtime resolver (fakes_test.go) resolve against.
+func newEnvStorage(defaultSuffix string) storage.EnvironmentsStorage {
+	return environments.NewStatic(nil, defaultSuffix)
 }
 
 // --- TaskContext round-trip -------------------------------------------------
@@ -166,10 +172,10 @@ func TestCreateContainerJob_StampsResolvedEnvironmentSuffix(t *testing.T) {
 	})
 
 	job := &createContainerJob{
-		nodeClients:  nodeClients,
-		req:          payload,
-		ctx:          payload,
-		environments: newEnvProvider(testProdSuffix),
+		nodeClients: nodeClients,
+		req:         payload,
+		ctx:         payload,
+		runtimes:    newFakeRuntimes(docker, newEnvStorage(testProdSuffix)),
 	}
 
 	err := job.Do(context.Background())
@@ -191,10 +197,10 @@ func TestCreateContainerJob_EmptyEnvironmentStampsDefaultSuffix(t *testing.T) {
 	payload.SetRequest(&velez_api.CreateSmerd_Request{Name: testEnvSvcName})
 
 	job := &createContainerJob{
-		nodeClients:  nodeClients,
-		req:          payload,
-		ctx:          payload,
-		environments: newEnvProvider(testProdSuffix),
+		nodeClients: nodeClients,
+		req:         payload,
+		ctx:         payload,
+		runtimes:    newFakeRuntimes(docker, newEnvStorage(testProdSuffix)),
 	}
 
 	err := job.Do(context.Background())
@@ -211,7 +217,7 @@ func TestCreateContainerJob_SameNameInTwoEnvironmentsGetsDistinctSuffixes(t *tes
 	docker.containerCreateErr = rerrors.New("stop here")
 
 	nodeClients := newFakeNodeClients(docker)
-	provider := &envProvider{storage: environments.NewStatic([]string{testEnvStage}, testProdSuffix)}
+	runtimes := newFakeRuntimes(docker, environments.NewStatic([]string{testEnvStage}, testProdSuffix))
 
 	for _, environment := range []string{"", testEnvStage} {
 		payload := &velez_api.CreateSmerdTaskPayload{}
@@ -221,10 +227,10 @@ func TestCreateContainerJob_SameNameInTwoEnvironmentsGetsDistinctSuffixes(t *tes
 		})
 
 		job := &createContainerJob{
-			nodeClients:  nodeClients,
-			req:          payload,
-			ctx:          payload,
-			environments: provider,
+			nodeClients: nodeClients,
+			req:         payload,
+			ctx:         payload,
+			runtimes:    runtimes,
 		}
 
 		err := job.Do(context.Background())
@@ -242,10 +248,10 @@ func TestCreateContainerJob_UnknownEnvironmentFailsJob(t *testing.T) {
 	payload.SetRequest(&velez_api.CreateSmerd_Request{Name: testEnvSvcName, Environment: "ghost"})
 
 	job := &createContainerJob{
-		nodeClients:  nodeClients,
-		req:          payload,
-		ctx:          payload,
-		environments: newEnvProvider(testProdSuffix),
+		nodeClients: nodeClients,
+		req:         payload,
+		ctx:         payload,
+		runtimes:    newFakeRuntimes(docker, newEnvStorage(testProdSuffix)),
 	}
 
 	err := job.Do(context.Background())

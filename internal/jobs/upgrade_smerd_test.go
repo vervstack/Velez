@@ -322,6 +322,7 @@ func TestRenamingCreateContainerJob_Success(t *testing.T) {
 		nodeClients: nodeClients,
 		req:         payload,
 		ctx:         payload,
+		runtimes:    newFakeRuntimes(docker, nil),
 		newName:     func(current string) string { return current + configFetcherContainerSuffix },
 	}
 
@@ -602,7 +603,7 @@ func TestUpgradeSmerdHandler_HappyPath_EndToEnd(t *testing.T) {
 
 	configService := newFakeConfigurationService()
 
-	handler := NewUpgradeSmerdHandler(nodeClients, containerService, configService, nil)
+	handler := NewUpgradeSmerdHandler(nodeClients, containerService, configService, newFakeRuntimes(docker, nil))
 
 	taskCtx := handler.NewContext()
 
@@ -719,7 +720,8 @@ func TestUpgradeSmerdHandler_FailurePath_NetworkCreateFails(t *testing.T) {
 		Labels:   map[string]string{},
 	}
 
-	handler := NewUpgradeSmerdHandler(nodeClients, containerService, newFakeConfigurationService(), nil)
+	handler := NewUpgradeSmerdHandler(
+		nodeClients, containerService, newFakeConfigurationService(), newFakeRuntimes(docker, nil))
 
 	taskCtx := handler.NewContext()
 

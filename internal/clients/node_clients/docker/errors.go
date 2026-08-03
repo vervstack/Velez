@@ -17,7 +17,14 @@ const (
 
 var ErrNameIsTaken = rerrors.New("container name is taken", codes.AlreadyExists)
 
-func handleConflictMessage(err error) error {
+// HandleConflictMessage maps a Docker 409 into Velez's own ErrNameIsTaken when
+// the conflict is a container-name collision, and into a wrapped internal
+// error otherwise.
+//
+// Exported because container_runtime's implementations issue ContainerCreate
+// against the raw Docker API themselves and must surface the exact same error
+// as Docker.ContainerCreate always has.
+func HandleConflictMessage(err error) error {
 	msg := err.Error()
 
 	if containsAll(msg, subjectContainerName, problemInUseByOtherContainer) {

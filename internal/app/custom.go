@@ -20,6 +20,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/cluster"
 	"go.vervstack.ru/Velez/internal/cluster/autoupgrade"
 	"go.vervstack.ru/Velez/internal/jobs"
@@ -79,14 +80,26 @@ func (c *Custom) Init(a *App) (err error) {
 		return rerrors.Wrap(err, "error during client initialization")
 	}
 
-	err = c.InitServiceLayer(a)
+	// One shared Docker connection, resolved per environment into the runtime
+	// that serves it - see docs/container_runtimes. Built before the service
+	// layer so ContainerManager (ListSmerds) and the jobs registry below share
+	// the exact same resolver instance. create_smerd's container creation and
+	// (Phase 1, RED - see docs/container_runtimes/roadmap.md) ListSmerds route
+	// through it; every other container operation still goes through
+	// node_clients.Docker directly.
+	runtimeResolver := container_runtime.NewResolver(
+		c.NodeClients.Docker().Client(),
+		a.Cfg.Environment.CustomLabels,
+		c.ClusterClients.StateManager())
+
+	err = c.InitServiceLayer(a, runtimeResolver)
 	if err != nil {
 		return rerrors.Wrap(err, "error during service initialization")
 	}
 
 	registry := jobs.NewRegistry()
 	registry.Register(jobs.NewCreateSmerdHandler(
-		c.NodeClients, c.Services.ConfigurationService(), c.ClusterClients.StateManager()))
+		c.NodeClients, c.Services.ConfigurationService(), runtimeResolver))
 	registry.Register(jobs.NewCreateServiceHandler(c.ClusterClients.StateManager().Services()))
 	registry.Register(jobs.NewAssembleConfigHandler(c.NodeClients))
 	registry.Register(jobs.NewCopyToVolumeHandler(c.NodeClients))
@@ -96,7 +109,7 @@ func (c *Custom) Init(a *App) (err error) {
 		c.NodeClients, c.ClusterClients.StateManager(), c.Services.StorageContainer(), a.Cfg))
 	registry.Register(jobs.NewUpgradeSmerdHandler(
 		c.NodeClients, c.Services.SmerdManager(), c.Services.ConfigurationService(),
-		c.ClusterClients.StateManager()))
+		runtimeResolver))
 	registry.Register(jobs.NewDropSmerdHandler(c.NodeClients))
 
 	c.JobsEngine.SetRegistry(registry)
@@ -187,14 +200,14 @@ func (c *Custom) Stop() error {
 	return firstErr
 }
 
-func (c *Custom) InitServiceLayer(a *App) error {
+func (c *Custom) InitServiceLayer(a *App, runtimeResolver container_runtime.RuntimeResolver) error {
 	if c.NodeClients == nil || c.ClusterClients == nil {
 		return rerrors.New("clients not initialized")
 	}
 
 	var err error
 
-	c.Services, err = service_manager.New(a.Ctx, c.NodeClients, c.ClusterClients, a.Cfg)
+	c.Services, err = service_manager.New(a.Ctx, c.NodeClients, c.ClusterClients, a.Cfg, runtimeResolver)
 	if err != nil {
 		return rerrors.Wrap(err, "error initializing service manager")
 	}

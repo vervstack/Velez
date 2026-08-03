@@ -23,8 +23,11 @@ import (
 //
 // Two of the four tests are deliberately RED and skipped - see their
 // t.Skip reasons; they describe isolation the current implementation does not
-// provide yet (the environment suffix is only a container LABEL, never part of
-// the container NAME, and DropSmerd ignores its environment field entirely).
+// provide yet (the jobs engine dedups tasks without an environment component,
+// and DropSmerd ignores its environment field entirely). The suffix now reaches
+// the container NAME as well as the VELEZ_SUFFIX label - see
+// docs/container_runtimes - which is why the assertions below expect
+// "<name>_<suffix>" container names.
 type EnvironmentsSuite struct {
 	suite.Suite
 }
@@ -76,7 +79,10 @@ func (s *EnvironmentsSuite) Test_EmptyEnvironment_UsesDefaultSuffix() {
 
 	listed := env.ListSmerds(t, t.Context(), listReq)
 	require.Len(t, listed.GetSmerds(), 1)
-	require.Equal(t, serviceName, listed.GetSmerds()[0].GetName())
+	// The Docker container name carries the environment's suffix - see
+	// expectedContainerName in suite_container_runtime_test.go - and Smerd.Name
+	// is that container name verbatim.
+	require.Equal(t, expectedContainerName(serviceName, e2eDefaultSuffix), listed.GetSmerds()[0].GetName())
 
 	// ... and so must an environment-less list.
 	unscopedReq := &velez_api.ListSmerds_Request{
@@ -128,7 +134,7 @@ func (s *EnvironmentsSuite) Test_TwoEnvironments_AreListScoped() {
 
 	stageList := env.ListSmerds(t, t.Context(), stageListReq)
 	require.Len(t, stageList.GetSmerds(), 1)
-	require.Equal(t, e2eEnvStageName, stageList.GetSmerds()[0].GetName())
+	require.Equal(t, expectedContainerName(e2eEnvStageName, e2eStageEnv), stageList.GetSmerds()[0].GetName())
 
 	prodListReq := &velez_api.ListSmerds_Request{
 		Environment: environments.DefaultEnvironmentName,
@@ -137,35 +143,30 @@ func (s *EnvironmentsSuite) Test_TwoEnvironments_AreListScoped() {
 
 	prodList := env.ListSmerds(t, t.Context(), prodListReq)
 	require.Len(t, prodList.GetSmerds(), 1)
-	require.Equal(t, e2eEnvProdName, prodList.GetSmerds()[0].GetName())
+	require.Equal(t, expectedContainerName(e2eEnvProdName, e2eDefaultSuffix), prodList.GetSmerds()[0].GetName())
 }
 
 // RED. The headline multi-environment promise: the SAME logical service name
 // deployed into two environments must yield two distinct containers.
 //
-// It cannot pass today, for two stacked reasons - both verified by running this
-// test with the Skip removed (observed: the second CreateSmerd returns the very
-// same container UUID as the first):
+// It cannot pass today. It used to fail for two stacked reasons; the second is
+// now fixed and the first still blocks it:
 //
-//  1. Tasks are keyed by (entity_id, action) with no environment component
-//     (internal/transport/velez_api_impl/smerd_create.go enqueues on
+//  1. STILL BROKEN. Tasks are keyed by (entity_id, action) with no environment
+//     component (internal/transport/velez_api_impl/smerd_create.go enqueues on
 //     req.GetName()), so the second create dedups onto the first environment's
 //     already-DONE create_smerd task and never runs.
-//  2. Even without that, the resolved suffix is written only as the
-//     labels.SuffixLabel container LABEL
-//     (internal/clients/node_clients/docker/client.go ContainerCreate) - the
-//     Docker container NAME stays the bare req.GetName(), which is globally
-//     unique per daemon.
+//  2. FIXED (docs/container_runtimes Phase 1). The resolved suffix used to be
+//     written only as the labels.SuffixLabel container LABEL, leaving the
+//     Docker container NAME the bare req.GetName(). container_runtime's
+//     labelBasedRuntime now derives the container name from it too.
 func (s *EnvironmentsSuite) Test_SameNameInTwoEnvironments_AreDistinctContainers() {
 	t := s.T()
 
-	t.Skip("needs: (1) the environment folded into the jobs-engine entity id so " +
+	t.Skip("needs the environment folded into the jobs-engine entity id so " +
 		"two environments don't dedup onto one create_smerd task - see " +
-		"internal/transport/velez_api_impl/smerd_create.go Enqueue(req.GetName(), ...); " +
-		"and (2) the environment suffix applied to the Docker container NAME, not just " +
-		"the VELEZ_SUFFIX label - see internal/clients/node_clients/docker/client.go " +
-		"ContainerCreate. Observed today: the second create returns the first " +
-		"environment's container.")
+		"internal/transport/velez_api_impl/smerd_create.go Enqueue(req.GetName(), ...). " +
+		"Observed today: the second create returns the first environment's container.")
 
 	env := NewEnvironment(t,
 		WithContainerSuffix(e2eDefaultSuffix),

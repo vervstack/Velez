@@ -23,6 +23,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
@@ -90,23 +91,26 @@ type upgradeSmerdHandler struct {
 	nodeClients      node_clients.NodeClients
 	containerService service.ContainerService
 	configService    service.ConfigurationService
-	// environments resolves the request's environment name into the Docker
-	// suffix the recreated containers must carry - the value Docker used to
-	// bake in at client-construction time.
-	environments EnvironmentsProvider
+	// runtimes resolves the request's environment into the ContainerRuntime
+	// that serves it - and therefore into the Docker suffix the recreated
+	// containers must carry, the value Docker used to bake in at
+	// client-construction time. Upgrade reuses create_smerd's
+	// createContainerJob verbatim, so it necessarily shares its runtime
+	// plumbing too; see docs/container_runtimes.
+	runtimes container_runtime.RuntimeResolver
 }
 
 func NewUpgradeSmerdHandler(
 	nodeClients node_clients.NodeClients,
 	containerService service.ContainerService,
 	configService service.ConfigurationService,
-	environments EnvironmentsProvider,
+	runtimes container_runtime.RuntimeResolver,
 ) TaskHandler {
 	return &upgradeSmerdHandler{
 		nodeClients:      nodeClients,
 		containerService: containerService,
 		configService:    configService,
-		environments:     environments,
+		runtimes:         runtimes,
 	}
 }
 
@@ -161,10 +165,10 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: stepCreateConfigFetcherContainer,
 			Job: &renamingCreateContainerJob{
-				nodeClients:  h.nodeClients,
-				req:          payload,
-				ctx:          payload,
-				environments: h.environments,
+				nodeClients: h.nodeClients,
+				req:         payload,
+				ctx:         payload,
+				runtimes:    h.runtimes,
 				newName: func(current string) string {
 					return current + configFetcherContainerSuffix
 				},
@@ -206,10 +210,10 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: stepCreateFinalContainer,
 			Job: &renamingCreateContainerJob{
-				nodeClients:  h.nodeClients,
-				req:          payload,
-				ctx:          payload,
-				environments: h.environments,
+				nodeClients: h.nodeClients,
+				req:         payload,
+				ctx:         payload,
+				runtimes:    h.runtimes,
 				newName: func(current string) string {
 					return current + newContainerSuffix
 				},
@@ -546,7 +550,7 @@ type renamingCreateContainerJob struct {
 	req smerdRequestAccessor
 	ctx containerIDAccessor
 
-	environments EnvironmentsProvider
+	runtimes container_runtime.RuntimeResolver
 
 	newName func(current string) string
 }
@@ -557,10 +561,10 @@ func (j *renamingCreateContainerJob) Do(ctx context.Context) error {
 	request.Name = j.newName(request.GetName())
 
 	inner := &createContainerJob{
-		nodeClients:  j.nodeClients,
-		req:          j.req,
-		ctx:          j.ctx,
-		environments: j.environments,
+		nodeClients: j.nodeClients,
+		req:         j.req,
+		ctx:         j.ctx,
+		runtimes:    j.runtimes,
 	}
 
 	return inner.Do(ctx)

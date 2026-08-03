@@ -25,6 +25,7 @@ type Impl struct {
 	hardwareManager node_clients.HardwareManager
 	cfgService      service.ConfigurationService
 	smerdService    service.ContainerService
+	vervServices    service.VervServicesService
 	jobsEngine      jobs.Engine
 
 	dockerAPI client.APIClient
@@ -35,6 +36,7 @@ func NewImpl(cfg config.Config, srv service.Services, jobsEngine jobs.Engine) *I
 		version:         cfg.AppInfo.Version,
 		cfgService:      srv.ConfigurationService(),
 		smerdService:    srv.SmerdManager(),
+		vervServices:    srv.VervServices(),
 		hardwareManager: hardware.New(cfg.Environment.NodeRegion),
 		jobsEngine:      jobsEngine,
 

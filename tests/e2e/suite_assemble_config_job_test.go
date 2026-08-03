@@ -64,7 +64,7 @@ func (s *AssembleConfigJobSuite) Test_AssembleHelloWorld() {
 
 	scratchName := serviceName + "_config_scanning"
 	listReq := &velez_api.ListSmerds_Request{Name: toolbox.ToPtr(scratchName)}
-	cont, err := env.Custom.NodeClients.Docker().ListContainers(s.ctx, listReq)
+	cont, err := env.Custom.NodeClients.Docker().ListContainers(s.ctx, listReq, "")
 	require.NoError(t, err)
 	require.Empty(t, cont, "scratch container should have been dropped by the job")
 }

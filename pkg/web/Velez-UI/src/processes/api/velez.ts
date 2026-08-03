@@ -11,24 +11,30 @@ import {
 import {InitReq} from "@/app/settings/state.ts";
 import {CreateSmerdReq, Port, Smerd, toProto, Volume} from "@/model/smerds/Smerds.ts";
 import {GetInitReq} from "@/processes/api/api.ts";
+import {useEnvironmentStore} from "@/app/hooks/environment/Environment.ts";
 
 export async function ListSmerds(req: ListSmerdsRequest, initReq: InitReq) {
     req.limit = req.limit || 10
+    req.environment = req.environment || useEnvironmentStore.getState().selectedEnvironment
     return VelezAPI.ListSmerds(req, initReq)
 }
 
 export async function FetchSmerds(): Promise<ListSmerdsResponse> {
-    const req: ListSmerdsRequest = {limit: 50}
+    const req: ListSmerdsRequest = {limit: 50, environment: useEnvironmentStore.getState().selectedEnvironment}
     return VelezAPI.ListSmerds(req, GetInitReq())
 }
 
 export async function FetchSmerdsByServiceId(serviceName: string): Promise<ListSmerdsResponse> {
-    const req: ListSmerdsRequest = {name: serviceName, limit: 10}
+    const req: ListSmerdsRequest = {
+        name: serviceName,
+        limit: 10,
+        environment: useEnvironmentStore.getState().selectedEnvironment,
+    }
     return VelezAPI.ListSmerds(req, GetInitReq())
 }
 
 export async function FetchSmerd(name: string): Promise<ProtoSmerd> {
-    const req: ListSmerdsRequest = {name, limit: 1}
+    const req: ListSmerdsRequest = {name, limit: 1, environment: useEnvironmentStore.getState().selectedEnvironment}
     return VelezAPI.ListSmerds(req, GetInitReq()).then((res) => {
         if (!res.smerds || res.smerds.length === 0) {
             throw new Error("Smerd not found")
@@ -42,6 +48,7 @@ export async function GetSmerd(name: string, initReq: InitReq): Promise<Smerd> {
     const req = {
         name: name,
         limit: 1,
+        environment: useEnvironmentStore.getState().selectedEnvironment,
     } as ListSmerdsRequest
 
     return VelezAPI.ListSmerds(req, initReq).then(

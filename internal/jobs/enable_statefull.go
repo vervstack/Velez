@@ -33,6 +33,7 @@ import (
 	"go.vervstack.ru/Velez/internal/patterns/db_patterns/pg_pattern"
 	"go.vervstack.ru/Velez/internal/pipelines/steps/cluster_steps"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/plugins_queries"
 	"go.vervstack.ru/Velez/internal/user_errors"
@@ -40,6 +41,13 @@ import (
 
 const (
 	EnableStatefullAction = "enable_statefull_mode"
+
+	// statefullEnvironment is the environment whose suffix names the cluster's
+	// postgres sidecar. EnablePlugin carries no `environment` field on the wire
+	// (it's a node/cluster-level operation, not a per-environment one), so the
+	// default environment - the row migrations/20260802120000_environments.sql
+	// seeds with this node's configured ContainerSuffix - is what gets resolved.
+	statefullEnvironment = environments.DefaultEnvironmentName
 
 	pgMasterNodeDefaultName = "icy_raccoon"
 
@@ -174,7 +182,12 @@ func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		panic("enable_statefull: BuildJobs called with mismatched TaskContext type")
 	}
 
-	pgName := state.PgName(h.cfg.Environment.ContainerSuffix)
+	// Resolved here rather than at handler-construction time, and from the
+	// live environments storage rather than from static config: BuildJobs runs
+	// once per task run (internal/jobs/worker.go), so a suffix changed via
+	// UpdateEnvironment is picked up without restarting Velez.
+	suffix := h.statefullSuffix()
+	pgName := state.PgName(suffix)
 
 	return []NamedJob{
 		{
@@ -192,6 +205,7 @@ func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 				pwd:         payload,
 				ctx:         payload,
 				pgName:      pgName,
+				suffix:      suffix,
 			},
 		},
 		{
@@ -326,8 +340,33 @@ func (j *generateCredentialsJob) Do(_ context.Context) error {
 // is requested, it's checked against Docker.ListOccupiedPorts first so a
 // conflicting port fails with a clear error instead of an opaque Docker bind
 // failure during ContainerCreate/ContainerStart.
+// statefullSuffix resolves statefullEnvironment's Docker suffix. Any failure
+// (no environments storage yet, row missing) falls back to the empty suffix,
+// which is exactly what an unconfigured ContainerSuffix produced before - so a
+// node that never created environments keeps its previous container name.
+func (h *enableStatefullHandler) statefullSuffix() string {
+	if h.clusterStateManager == nil {
+		return ""
+	}
+
+	suffix, err := resolveEnvironmentSuffix(
+		context.Background(), h.clusterStateManager, statefullEnvironment)
+	if err != nil {
+		log.Warn().Err(err).
+			Str("environment", statefullEnvironment).
+			Msg("could not resolve environment suffix, falling back to unsuffixed container name")
+
+		return ""
+	}
+
+	return suffix
+}
+
 type createPgContainerJob struct {
 	nodeClients node_clients.NodeClients
+
+	// suffix - resolved environment suffix stamped onto the pg sidecar.
+	suffix string
 
 	req statefullRequestAccessor
 	pwd rootPwdAccessor
@@ -366,7 +405,10 @@ func (j *createPgContainerJob) Do(ctx context.Context) error {
 		launchContainer.Pattern.Config,
 		launchContainer.Pattern.HostConfig,
 		launchContainer.Pattern.NetworkingConfig,
-		&v1.Platform{}, j.pgName)
+		&v1.Platform{}, j.pgName,
+		// The pg sidecar belongs to the environment whose suffix named it -
+		// see statefullEnvironment.
+		j.suffix)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating postgres container")
 	}

@@ -24,11 +24,16 @@ func (impl *Impl) CreateService(
 	ctx context.Context,
 	apiReq *pb.CreateService_Request,
 ) (*pb.CreateService_Response, error) {
+	_, err := impl.resolveEnvironment(ctx, apiReq.GetEnvironment())
+	if err != nil {
+		return nil, err
+	}
+
 	initialContext := &pb.CreateServiceTaskPayload{
 		Name: apiReq.GetName(),
 	}
 
-	_, err := impl.jobsEngine.Enqueue(ctx, apiReq.GetName(), jobs.CreateServiceAction, initialContext)
+	_, err = impl.jobsEngine.Enqueue(ctx, apiReq.GetName(), jobs.CreateServiceAction, initialContext)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error enqueuing create_service task")
 	}

@@ -26,6 +26,7 @@ import (
 	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
@@ -95,7 +96,10 @@ func TestEnableStatefullHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 	}
 }
 
-func TestEnableStatefullHandler_BuildJobs_UsesConfiguredContainerSuffix(t *testing.T) {
+// The pg sidecar's name is derived from the DEFAULT ENVIRONMENT's suffix,
+// resolved from the live environments storage on every BuildJobs call - not
+// from a static config.Config captured when the handler was constructed.
+func TestEnableStatefullHandler_BuildJobs_UsesDefaultEnvironmentSuffix(t *testing.T) {
 	payload := &velez_api.EnableStatefullTaskPayload{Request: &velez_api.EnableStatefullCluster{}}
 
 	docker := newFakeDocker()
@@ -103,15 +107,14 @@ func TestEnableStatefullHandler_BuildJobs_UsesConfiguredContainerSuffix(t *testi
 
 	nodeClients.localState = newFakeStateManager(local_state.State{})
 
-	clusterStorage := &fakeClusterStorage{nodes: &fakeNodesStorage{}}
+	clusterStorage := &fakeClusterStorage{
+		nodes:        &fakeNodesStorage{},
+		environments: environments.NewStatic(nil, "mysuffix"),
+	}
 	clusterStateManager := state.NewContainer(clusterStorage)
 	storageContainer := storage.NewStorageContainer(clusterStorage)
 
-	cfg := config.Config{}
-
-	cfg.Environment.ContainerSuffix = "mysuffix"
-
-	h := NewEnableStatefullHandler(nodeClients, clusterStateManager, storageContainer, cfg)
+	h := NewEnableStatefullHandler(nodeClients, clusterStateManager, storageContainer, config.Config{})
 
 	namedJobs := h.BuildJobs(payload)
 

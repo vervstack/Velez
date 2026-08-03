@@ -24,6 +24,11 @@ func (impl *Impl) DropSmerd(
 	ctx context.Context,
 	req *velez_api.DropSmerd_Request,
 ) (*velez_api.DropSmerd_Response, error) {
+	_, err := impl.resolveEnvironment(ctx, req.GetEnvironment())
+	if err != nil {
+		return nil, err
+	}
+
 	initialContext := &velez_api.DropSmerdTaskPayload{}
 	initialContext.SetRequest(req)
 
@@ -34,7 +39,7 @@ func (impl *Impl) DropSmerd(
 	// idempotent.
 	entityID := uuid.New().String()
 
-	_, err := impl.jobsEngine.Enqueue(ctx, entityID, jobs.DropSmerdAction, initialContext)
+	_, err = impl.jobsEngine.Enqueue(ctx, entityID, jobs.DropSmerdAction, initialContext)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error enqueuing drop_smerd task")
 	}

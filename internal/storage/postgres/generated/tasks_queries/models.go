@@ -147,12 +147,13 @@ func (ns NullVelezTaskStatus) Value() (driver.Value, error) {
 }
 
 type VelezDeployment struct {
-	ID        int64
-	NodeID    int32
-	SpecID    int64
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Status    VelezDeploymentStatus
+	ID            int64
+	NodeID        int32
+	SpecID        int64
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	Status        VelezDeploymentStatus
+	EnvironmentID int64
 }
 
 type VelezDeploymentSpecification struct {
@@ -163,25 +164,35 @@ type VelezDeploymentSpecification struct {
 	CreatedAt   time.Time
 }
 
-type VelezJob struct {
+type VelezEnvironment struct {
 	ID        int64
-	TaskID    int64
-	JobName   string
-	Status    VelezJobStatus
-	Error     sql.NullString
+	Name      string
+	Suffix    string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
+type VelezJob struct {
+	ID            int64
+	TaskID        int64
+	JobName       string
+	Status        VelezJobStatus
+	Error         sql.NullString
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	EnvironmentID int64
+}
+
 type VelezNode struct {
-	ID         int32
-	Name       string
-	LastOnline time.Time
-	IsEnabled  bool
-	Addr       string
-	CpuPercent sql.NullFloat64
-	MemPercent sql.NullFloat64
-	Region     string
+	ID            int32
+	Name          string
+	LastOnline    time.Time
+	IsEnabled     bool
+	Addr          string
+	CpuPercent    sql.NullFloat64
+	MemPercent    sql.NullFloat64
+	Region        string
+	EnvironmentID int64
 }
 
 type VelezPlugin struct {
@@ -190,9 +201,10 @@ type VelezPlugin struct {
 }
 
 type VelezService struct {
-	ID        int64
-	Name      string
-	CreatedAt time.Time
+	ID            int64
+	Name          string
+	CreatedAt     time.Time
+	EnvironmentID int64
 }
 
 type VelezServiceDependency struct {
@@ -201,15 +213,17 @@ type VelezServiceDependency struct {
 	Proto         string
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
+	EnvironmentID int64
 }
 
 type VelezServiceResource struct {
-	ServiceName  string
-	ResourceName string
-	ResourceType string
-	Status       string
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	ServiceName   string
+	ResourceName  string
+	ResourceType  string
+	Status        string
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	EnvironmentID int64
 }
 
 type VelezSharedVolume struct {
@@ -224,14 +238,15 @@ type VelezSharedVolume struct {
 }
 
 type VelezTask struct {
-	ID        int64
-	EntityID  string
-	Action    string
-	Status    VelezTaskStatus
-	Context   pqtype.NullRawMessage
-	Error     sql.NullString
-	ClaimedAt sql.NullTime
-	ClaimedBy sql.NullString
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID            int64
+	EntityID      string
+	Action        string
+	Status        VelezTaskStatus
+	Context       pqtype.NullRawMessage
+	Error         sql.NullString
+	ClaimedAt     sql.NullTime
+	ClaimedBy     sql.NullString
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	EnvironmentID int64
 }

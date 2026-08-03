@@ -25,6 +25,11 @@ const (
 func (impl *Impl) UpgradeSmerd(ctx context.Context,
 	req *velez_api.UpgradeSmerd_Request,
 ) (*velez_api.UpgradeSmerd_Response, error) {
+	_, err := impl.resolveEnvironment(ctx, req.GetEnvironment())
+	if err != nil {
+		return nil, err
+	}
+
 	initialContext := &velez_api.UpgradeSmerdTaskPayload{
 		UpgradeRequest: &velez_api.UpgradeSmerd_Request{
 			Name:  req.GetName(),
@@ -32,7 +37,7 @@ func (impl *Impl) UpgradeSmerd(ctx context.Context,
 		},
 	}
 
-	_, err := impl.jobsEngine.Enqueue(ctx, req.GetName(), jobs.UpgradeSmerdAction, initialContext)
+	_, err = impl.jobsEngine.Enqueue(ctx, req.GetName(), jobs.UpgradeSmerdAction, initialContext)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error enqueuing upgrade_smerd task")
 	}

@@ -38,6 +38,7 @@ export enum NodeType {
 
 export type CreateServiceRequest = {
   name?: string;
+  environment?: string;
 };
 
 export type CreateServiceResponse = Record<string, never>;
@@ -81,6 +82,7 @@ export type CreateDeployRequestUpgrade = {
 
 type BaseCreateDeployRequest = {
   serviceName?: string;
+  environment?: string;
 };
 
 export type CreateDeployRequest = BaseCreateDeployRequest &

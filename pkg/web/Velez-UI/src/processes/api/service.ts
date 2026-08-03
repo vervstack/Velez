@@ -20,6 +20,7 @@ import {
 
 import {ApiService} from "@/processes/ApiService.ts"
 import type {ServiceAbout, ServiceMetrics, ServiceResource, ServiceGraphData, ServiceGraphNode, ServiceEnvironment, VervonomiconDocs} from "@/model/service_page/ServicePageModel"
+import {useEnvironmentStore} from "@/app/hooks/environment/Environment.ts"
 
 function formatDeployedAgo(ts?: { seconds?: string | number; nanos?: number }): string {
     if (!ts?.seconds) return ''
@@ -123,9 +124,15 @@ class ServiceService extends ApiService {
 
     async createNewDeployment(serviceName: string, newReq: CreateSmerdRequest): Promise<void> {
         return this.mutate((req) => {
+            const environment = useEnvironmentStore.getState().selectedEnvironment
+            const newReqWithEnvironment: CreateSmerdRequest = {
+                ...newReq,
+                environment: newReq.environment || environment,
+            }
             const payload: CreateDeployRequest = {
                 serviceName,
-                new: newReq,
+                environment,
+                new: newReqWithEnvironment,
             }
             //  TODO remove
             payload.new!.imageName = 'redsockruf/zpotify'

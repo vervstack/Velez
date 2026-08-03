@@ -133,6 +133,12 @@ message CreateSmerd {
 
     repeated FileConfig plain = 16;
 
+    // environment - the isolated namespace this operation targets (not to be
+    // confused with the env map above, which is container env vars).
+    // Required; validated in the service layer, not here (proto3 has no
+    // `required` keyword).
+    string environment = 17;
+
     // TODO add sidecar definition
     // TODO add resources definition
   }
@@ -144,6 +150,11 @@ message ListSmerds {
     optional string name = 2;
     optional string id = 3;
     map<string, string> label = 4;
+
+    // environment - the isolated namespace to scope this list to. Required;
+    // validated in the service layer, not here (proto3 has no `required`
+    // keyword).
+    string environment = 5;
   }
 
   message Response {
@@ -155,6 +166,11 @@ message DropSmerd {
   message Request {
     repeated string uuids = 1;
     repeated string name = 2;
+
+    // environment - the isolated namespace this operation targets. Required;
+    // validated in the service layer, not here (proto3 has no `required`
+    // keyword).
+    string environment = 3;
   }
 
   message Response {
@@ -210,6 +226,11 @@ message UpgradeSmerd {
   message Request {
     string name = 1;
     string image = 2;
+
+    // environment - the isolated namespace this operation targets. Required;
+    // validated in the service layer, not here (proto3 has no `required`
+    // keyword).
+    string environment = 3;
   }
   message Response {}
 }

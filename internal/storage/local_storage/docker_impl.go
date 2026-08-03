@@ -46,7 +46,7 @@ var pluginContainerNames = map[string]pb.VervPluginType{
 func (d *dockerPluginsStorage) ListPlugins(ctx context.Context) ([]domain.PluginBaseInfo, error) {
 	listReq := &pb.ListSmerds_Request{}
 
-	containers, err := d.docker.ListContainers(ctx, listReq)
+	containers, err := d.docker.ListContainers(ctx, listReq, allEnvironments)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error listing containers")
 	}

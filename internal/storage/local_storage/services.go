@@ -26,7 +26,7 @@ func (s *dockerServices) GetByName(ctx context.Context, name string) (domain.Ser
 		Name: &name,
 	}
 
-	containers, err := s.docker.ListContainers(ctx, listReq)
+	containers, err := s.docker.ListContainers(ctx, listReq, allEnvironments)
 	if err != nil {
 		return domain.Service{}, rerrors.Wrap(err, "error listing containers")
 	}
@@ -132,7 +132,7 @@ func (s *dockerServices) List(ctx context.Context, req domain.ListServicesReq) (
 func listDistinctServices(ctx context.Context, docker node_clients.Docker) ([]domain.ServiceBaseInfo, error) {
 	listReq := &pb.ListSmerds_Request{}
 
-	containers, err := docker.ListContainers(ctx, listReq)
+	containers, err := docker.ListContainers(ctx, listReq, allEnvironments)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error listing containers")
 	}

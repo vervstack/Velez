@@ -3,6 +3,7 @@ import {
     Volume as ProtoVolume,
     Port as ProtoPort,
 } from "@/app/api/velez";
+import {useEnvironmentStore} from "@/app/hooks/environment/Environment.ts";
 
 export interface Smerd {
     name: string
@@ -82,6 +83,8 @@ export function toProto(r: CreateSmerdReq): CreateSmerdRequest {
 
         env: r.env,
         labels: r.labels,
+
+        environment: useEnvironmentStore.getState().selectedEnvironment,
 
         hardware: undefined,
         settings: {

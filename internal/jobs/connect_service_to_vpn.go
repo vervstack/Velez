@@ -299,7 +299,8 @@ func (j *createSidecarContainerJob) Do(ctx context.Context) error {
 
 	created, err := dockerClient.ContainerCreate(ctx,
 		j.launchContainer.Config, j.launchContainer.HostConfig, j.launchContainer.NetworkingConfig,
-		&v1.Platform{}, j.containerName)
+		// VPN sidecar - node-level, not owned by any single environment.
+		&v1.Platform{}, j.containerName, "")
 	if err != nil {
 		return rerrors.Wrap(err, "error creating sidecar container")
 	}

@@ -30,6 +30,28 @@ func (c *Container) GetPort() (uint32, error) {
 	return port, nil
 }
 
+func (c *Container) GetPortForEnvironment(environment string) (uint32, error) {
+	port, err := (*c.impl.Load()).GetPortForEnvironment(environment)
+	if err != nil {
+		return 0, rerrors.Wrap(err, "error getting port for environment")
+	}
+
+	return port, nil
+}
+
+func (c *Container) LockPortForEnvironment(environment string, p ...uint32) error {
+	err := (*c.impl.Load()).LockPortForEnvironment(environment, p...)
+	if err != nil {
+		return rerrors.Wrap(err, "error locking port for environment")
+	}
+
+	return nil
+}
+
+func (c *Container) PortOwner(p uint32) (string, bool) {
+	return (*c.impl.Load()).PortOwner(p)
+}
+
 func (c *Container) LockPort(p ...uint32) error {
 	err := (*c.impl.Load()).LockPort(p...)
 	if err != nil {

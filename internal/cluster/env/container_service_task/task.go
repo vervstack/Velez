@@ -68,6 +68,9 @@ func (t *TaskV2) Start() error {
 		t.container.NetworkingConfig,
 		&v1.Platform{},
 		t.container.Hostname,
+		// Node-level sidecar (matreshka/makosh) - not owned by any single
+		// environment, so it carries no environment suffix.
+		"",
 	)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating container")

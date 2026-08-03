@@ -287,6 +287,10 @@
             "type": "object",
             "$ref": "#/definitions/velez_apiFileConfig"
           }
+        },
+        "environment": {
+          "type": "string",
+          "description": "environment - the isolated namespace this operation targets (not to be\nconfused with the env map above, which is container env vars).\nRequired; validated in the service layer, not here (proto3 has no\n`required` keyword)."
         }
       }
     },

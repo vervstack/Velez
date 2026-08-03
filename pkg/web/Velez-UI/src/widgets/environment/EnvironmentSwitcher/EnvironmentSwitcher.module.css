@@ -1,0 +1,22 @@
+.EnvironmentSwitcherContainer {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.Select {
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 0.1875rem 0.625rem;
+    border-radius: 99px;
+    cursor: pointer;
+    border: 1px solid var(--border-m);
+    background: var(--cyan-dim);
+    color: var(--cyan);
+    transition: all 0.15s;
+
+    &:hover {
+        border-color: var(--cyan-glow);
+    }
+}

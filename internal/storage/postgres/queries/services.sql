@@ -4,9 +4,7 @@ VALUES ($1)
 ON CONFLICT (name) DO NOTHING;
 
 -- name: GetByName :one
-SELECT id,
-       name,
-       created_at
+SELECT *
 FROM velez.services
 WHERE name = $1
     FETCH FIRST 1 ROWS ONLY;

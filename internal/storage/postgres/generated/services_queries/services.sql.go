@@ -20,9 +20,7 @@ func (q *Queries) DeleteByName(ctx context.Context, name string) error {
 }
 
 const getByName = `-- name: GetByName :one
-SELECT id,
-       name,
-       created_at
+SELECT id, name, created_at, environment_id
 FROM velez.services
 WHERE name = $1
     FETCH FIRST 1 ROWS ONLY
@@ -31,7 +29,12 @@ WHERE name = $1
 func (q *Queries) GetByName(ctx context.Context, name string) (VelezService, error) {
 	row := q.db.QueryRowContext(ctx, getByName, name)
 	var i VelezService
-	err := row.Scan(&i.ID, &i.Name, &i.CreatedAt)
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.CreatedAt,
+		&i.EnvironmentID,
+	)
 	return i, err
 }
 

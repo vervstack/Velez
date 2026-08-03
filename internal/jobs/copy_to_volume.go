@@ -224,7 +224,8 @@ func (j *createLoaderContainerJob) Do(ctx context.Context) error {
 
 	dockerClient := j.nodeClients.Docker()
 
-	created, err := dockerClient.ContainerCreate(ctx, cfg, hostCfg, netCfg, platform, name)
+	// Throwaway volume-loader container - not owned by any environment.
+	created, err := dockerClient.ContainerCreate(ctx, cfg, hostCfg, netCfg, platform, name, "")
 	if err != nil {
 		return rerrors.Wrap(err, "error creating loader container")
 	}

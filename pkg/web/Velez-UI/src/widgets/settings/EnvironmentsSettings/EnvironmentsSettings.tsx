@@ -1,32 +1,36 @@
 import cls from '@/widgets/settings/EnvironmentsSettings/EnvironmentsSettings.module.css';
-import EnvCard from '@/components/complex/EnvCard/EnvCard.tsx';
-import type {ServiceEnvironment} from '@/model/service_page/ServicePageModel';
+import type {Environment} from '@/app/api/velez';
 import {IsStatefullModeEnabled, ListEnvironmentsQuery} from "@/processes/queries/control_plane.ts";
 import Button from "@/components/base/Button.tsx";
+import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
+import EnvironmentCreateDialog from "@/dialogs/EnvironmentCreateDialog/EnvironmentCreateDialog.tsx";
+import EnvironmentManageDialog from "@/dialogs/EnvironmentManageDialog/EnvironmentManageDialog.tsx";
 
 export default function EnvironmentsSettings() {
     const envQuery = ListEnvironmentsQuery()
+    const {OpenDialog, CloseDialog} = useDialog();
 
-    function handleManage(env: ServiceEnvironment) {
-        // TODO
-        console.log(env)
+    function handleManage(env: Environment) {
+        OpenDialog(
+            <EnvironmentManageDialog
+                environment={env}
+                onCancel={CloseDialog}
+                onSaved={CloseDialog}
+                onDeleted={CloseDialog}
+            />
+        )
     }
 
     function handleAddEnvironment() {
-        // TODO
+        OpenDialog(
+            <EnvironmentCreateDialog
+                onCancel={CloseDialog}
+                onCreated={CloseDialog}
+            />
+        )
     }
 
-    const environments = envQuery.data?.environments?.map(e => {
-        return {
-            id: e,
-            label: e,
-            // TODO
-            status: 'running',
-            version: '',
-            deployedAgo: '',
-            health: 'healthy',
-        } as ServiceEnvironment
-    }) || []
+    const environments = envQuery.data?.environments || []
 
     const isSingleNodeMode = !IsStatefullModeEnabled()
 
@@ -36,7 +40,7 @@ export default function EnvironmentsSettings() {
             {!envQuery.isLoading && (
                 <div className={cls.CardsWrapper}>
                     {environments.map((e) =>
-                        <EnvRow env={e} handleManage={handleManage}/>)}
+                        <EnvRow key={e.id} env={e} handleManage={handleManage}/>)}
                     {environments.length === 0 && (
                         <div className={cls.EmptyState}>No environments configured</div>
                     )}
@@ -56,15 +60,18 @@ export default function EnvironmentsSettings() {
 }
 
 
-function EnvRow({env, handleManage}: { env: ServiceEnvironment, handleManage: (e: ServiceEnvironment) => void }) {
+function EnvRow({env, handleManage}: { env: Environment, handleManage: (e: Environment) => void }) {
     function onManage() {
         handleManage(env);
     }
 
     const isStateFullModeEnabled = IsStatefullModeEnabled()
     return (
-        <div key={env.id} className={cls.EnvRowWrapper}>
-            <EnvCard env={env}/>
+        <div className={cls.EnvRowWrapper}>
+            <div className={cls.EnvInfoWrapper}>
+                <span className={cls.EnvName}>{env.name}</span>
+                {env.suffix && <span className={cls.EnvSuffix}>{env.suffix}</span>}
+            </div>
             <div
                 data-tooltip-id={'root-tooltip'}
                 data-tooltip-content={'Not available in single node mode'}

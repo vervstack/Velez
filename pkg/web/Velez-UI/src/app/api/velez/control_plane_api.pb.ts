@@ -6,6 +6,7 @@
  */
 
 import * as fm from "./fetch.pb";
+import * as GoogleProtobufTimestamp from "./google/protobuf/timestamp.pb";
 import * as VelezApiVelezCommon from "./velez_common.pb";
 
 type Absent<T, K extends keyof T> = { [k in Exclude<keyof T, K>]?: undefined };
@@ -128,13 +129,53 @@ export type ListPluginsResponse = {
 
 export type ListPlugins = Record<string, never>;
 
+export type Environment = {
+  id?: string;
+  name?: string;
+  suffix?: string;
+  createdAt?: GoogleProtobufTimestamp.Timestamp;
+  updatedAt?: GoogleProtobufTimestamp.Timestamp;
+};
+
 export type ListEnvironmentsRequest = Record<string, never>;
 
 export type ListEnvironmentsResponse = {
-  environments?: string[];
+  environments?: Environment[];
 };
 
 export type ListEnvironments = Record<string, never>;
+
+export type CreateEnvironmentRequest = {
+  name?: string;
+  suffix?: string;
+};
+
+export type CreateEnvironmentResponse = {
+  environment?: Environment;
+};
+
+export type CreateEnvironment = Record<string, never>;
+
+export type UpdateEnvironmentRequest = {
+  id?: string;
+  name?: string;
+  suffix?: string;
+};
+
+export type UpdateEnvironmentResponse = {
+  environment?: Environment;
+};
+
+export type UpdateEnvironment = Record<string, never>;
+
+export type DeleteEnvironmentRequest = {
+  id?: string;
+  name?: string;
+};
+
+export type DeleteEnvironmentResponse = Record<string, never>;
+
+export type DeleteEnvironment = Record<string, never>;
 
 export class ControlPlaneAPI {
   static EnablePlugin(this:void, req: EnablePluginRequest, initReq?: fm.InitReq): Promise<EnablePluginResponse> {
@@ -151,5 +192,14 @@ export class ControlPlaneAPI {
   }
   static ListEnvironments(this:void, req: ListEnvironmentsRequest, initReq?: fm.InitReq): Promise<ListEnvironmentsResponse> {
     return fm.fetchRequest<ListEnvironmentsResponse>(`/api/control_plane/environments/list`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static CreateEnvironment(this:void, req: CreateEnvironmentRequest, initReq?: fm.InitReq): Promise<CreateEnvironmentResponse> {
+    return fm.fetchRequest<CreateEnvironmentResponse>(`/api/control_plane/environments/create`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static UpdateEnvironment(this:void, req: UpdateEnvironmentRequest, initReq?: fm.InitReq): Promise<UpdateEnvironmentResponse> {
+    return fm.fetchRequest<UpdateEnvironmentResponse>(`/api/control_plane/environments/update`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static DeleteEnvironment(this:void, req: DeleteEnvironmentRequest, initReq?: fm.InitReq): Promise<DeleteEnvironmentResponse> {
+    return fm.fetchRequest<DeleteEnvironmentResponse>(`/api/control_plane/environments/delete`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
 }

@@ -56,3 +56,7 @@ func (c *Container) Tasks() TasksStorage {
 func (c *Container) Jobs() JobsStorage {
 	return (*c.impl.Load()).Jobs()
 }
+
+func (c *Container) Environments() EnvironmentsStorage {
+	return (*c.impl.Load()).Environments()
+}

@@ -364,7 +364,11 @@ type fakeDocker struct {
 	pullImageErr  error
 
 	containerCreateResp container.CreateResponse
-	containerCreateErr  error
+	// containerCreateSuffixes records the environment suffix each
+	// ContainerCreate call was made with, so tests can assert environment
+	// threading.
+	containerCreateSuffixes []string
+	containerCreateErr      error
 
 	removeErr        error
 	removeCalledWith []string
@@ -408,7 +412,9 @@ func (f *fakeDocker) Restart(_ context.Context, _ string) error {
 	return nil
 }
 
-func (f *fakeDocker) ListContainers(_ context.Context, _ *velez_api.ListSmerds_Request) ([]container.Summary, error) {
+func (f *fakeDocker) ListContainers(
+	_ context.Context, _ *velez_api.ListSmerds_Request, _ string,
+) ([]container.Summary, error) {
 	return nil, nil
 }
 
@@ -434,8 +440,15 @@ func (f *fakeDocker) Client() client.APIClient {
 }
 
 func (f *fakeDocker) ContainerCreate(
-	_ context.Context, _ *container.Config, _ *container.HostConfig, _ *network.NetworkingConfig, _ *v1.Platform, _ string,
+	_ context.Context, _ *container.Config, _ *container.HostConfig, _ *network.NetworkingConfig,
+	_ *v1.Platform, _ string, suffix string,
 ) (container.CreateResponse, error) {
+	f.mu.Lock()
+
+	f.containerCreateSuffixes = append(f.containerCreateSuffixes, suffix)
+
+	f.mu.Unlock()
+
 	return f.containerCreateResp, f.containerCreateErr
 }
 
@@ -544,10 +557,11 @@ func (f *fakeStateManager) ValidateVelezPrivateKey(_ string) bool { return false
 // deployments/plugins are the only configurable accessors; the rest return
 // nil since no job under test calls them.
 type fakeClusterStorage struct {
-	nodes       storage.NodesStorage
-	services    storage.ServicesStorage
-	deployments storage.DeploymentsStorage
-	plugins     storage.PluginsStorage
+	nodes        storage.NodesStorage
+	services     storage.ServicesStorage
+	deployments  storage.DeploymentsStorage
+	plugins      storage.PluginsStorage
+	environments storage.EnvironmentsStorage
 }
 
 func (f *fakeClusterStorage) Nodes() storage.NodesStorage                             { return f.nodes }
@@ -559,6 +573,8 @@ func (f *fakeClusterStorage) ServiceResources() storage.ServiceResourcesStorage 
 func (f *fakeClusterStorage) Tasks() storage.TasksStorage                             { return nil }
 func (f *fakeClusterStorage) Jobs() storage.JobsStorage                               { return nil }
 func (f *fakeClusterStorage) TxManager() *sqldb.TxManager                             { return nil }
+
+func (f *fakeClusterStorage) Environments() storage.EnvironmentsStorage { return f.environments }
 
 // fakeDeploymentsStorage is a minimal in-memory implementation of
 // storage.DeploymentsStorage for exercising registerPluginJob's

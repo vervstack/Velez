@@ -27,7 +27,9 @@ func (s *checkSidecarExist) Do(ctx context.Context) error {
 		Name: &s.sideCarName,
 	}
 
-	conts, err := s.docker.ListContainers(ctx, r)
+	// Sidecars are node-level, not environment-scoped, so this lookup spans
+	// every environment (empty suffix).
+	conts, err := s.docker.ListContainers(ctx, r, "")
 	if err != nil {
 		return rerrors.Wrap(err, "error listing container")
 	}

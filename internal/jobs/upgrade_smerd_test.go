@@ -46,7 +46,7 @@ var (
 )
 
 func TestUpgradeSmerdHandler_Action(t *testing.T) {
-	h := NewUpgradeSmerdHandler(nil, nil, nil)
+	h := NewUpgradeSmerdHandler(nil, nil, nil, nil)
 
 	if h.Action() != UpgradeSmerdAction {
 		t.Errorf("expected action %q, got %q", UpgradeSmerdAction, h.Action())
@@ -54,7 +54,7 @@ func TestUpgradeSmerdHandler_Action(t *testing.T) {
 }
 
 func TestUpgradeSmerdHandler_NewContext(t *testing.T) {
-	h := NewUpgradeSmerdHandler(nil, nil, nil)
+	h := NewUpgradeSmerdHandler(nil, nil, nil, nil)
 
 	if _, ok := h.NewContext().(*velez_api.UpgradeSmerdTaskPayload); !ok {
 		t.Fatal("expected NewContext to return *velez_api.UpgradeSmerdTaskPayload")
@@ -69,7 +69,7 @@ func TestUpgradeSmerdHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 	docker := newFakeDocker()
 	nodeClients := newFakeNodeClients(docker)
 
-	h := NewUpgradeSmerdHandler(nodeClients, newFakeContainerService(), newFakeConfigurationService())
+	h := NewUpgradeSmerdHandler(nodeClients, newFakeContainerService(), newFakeConfigurationService(), nil)
 
 	namedJobs := h.BuildJobs(payload)
 
@@ -602,7 +602,7 @@ func TestUpgradeSmerdHandler_HappyPath_EndToEnd(t *testing.T) {
 
 	configService := newFakeConfigurationService()
 
-	handler := NewUpgradeSmerdHandler(nodeClients, containerService, configService)
+	handler := NewUpgradeSmerdHandler(nodeClients, containerService, configService, nil)
 
 	taskCtx := handler.NewContext()
 
@@ -719,7 +719,7 @@ func TestUpgradeSmerdHandler_FailurePath_NetworkCreateFails(t *testing.T) {
 		Labels:   map[string]string{},
 	}
 
-	handler := NewUpgradeSmerdHandler(nodeClients, containerService, newFakeConfigurationService())
+	handler := NewUpgradeSmerdHandler(nodeClients, containerService, newFakeConfigurationService(), nil)
 
 	taskCtx := handler.NewContext()
 

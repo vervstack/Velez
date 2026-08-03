@@ -30,7 +30,7 @@ func (d *dockerServiceResourcesStorage) GetResources(ctx context.Context,
 ) ([]domain.BoundResource, error) {
 	listReq := &pb.ListSmerds_Request{}
 
-	containers, err := d.docker.ListContainers(ctx, listReq)
+	containers, err := d.docker.ListContainers(ctx, listReq, allEnvironments)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error listing containers")
 	}

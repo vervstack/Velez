@@ -14,7 +14,7 @@ const createRunningJob = `-- name: CreateRunningJob :one
 INSERT INTO velez.jobs (task_id, job_name, status)
 VALUES ($1, $2, 'RUNNING')
 ON CONFLICT (task_id, job_name) DO NOTHING
-RETURNING id, task_id, job_name, status, error, created_at, updated_at
+RETURNING id, task_id, job_name, status, error, created_at, updated_at, environment_id
 `
 
 type CreateRunningJobParams struct {
@@ -33,6 +33,7 @@ func (q *Queries) CreateRunningJob(ctx context.Context, arg CreateRunningJobPara
 		&i.Error,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.EnvironmentID,
 	)
 	return i, err
 }
@@ -64,7 +65,7 @@ func (q *Queries) FinishJob(ctx context.Context, arg FinishJobParams) error {
 }
 
 const getJob = `-- name: GetJob :one
-SELECT id, task_id, job_name, status, error, created_at, updated_at
+SELECT id, task_id, job_name, status, error, created_at, updated_at, environment_id
 FROM velez.jobs
 WHERE task_id = $1
   AND job_name = $2
@@ -86,12 +87,13 @@ func (q *Queries) GetJob(ctx context.Context, arg GetJobParams) (VelezJob, error
 		&i.Error,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.EnvironmentID,
 	)
 	return i, err
 }
 
 const listJobsByTask = `-- name: ListJobsByTask :many
-SELECT id, task_id, job_name, status, error, created_at, updated_at
+SELECT id, task_id, job_name, status, error, created_at, updated_at, environment_id
 FROM velez.jobs
 WHERE task_id = $1
 ORDER BY created_at
@@ -114,6 +116,7 @@ func (q *Queries) ListJobsByTask(ctx context.Context, taskID int64) ([]VelezJob,
 			&i.Error,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.EnvironmentID,
 		); err != nil {
 			return nil, err
 		}

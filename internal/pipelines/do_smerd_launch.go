@@ -11,8 +11,10 @@ import (
 )
 
 func (p *pipeliner) LaunchSmerd(req domain.LaunchSmerd) Runner[domain.LaunchSmerdResult] {
-	if p.suffix != "" {
-		req.Name = req.GetName() + "_" + p.suffix
+	// Suffix is resolved per request from its environment name (see
+	// domain.LaunchSmerd.Suffix) instead of being baked into the pipeliner.
+	if req.Suffix != "" {
+		req.Name = req.GetName() + "_" + req.Suffix
 	}
 
 	imageResp := &image.InspectResponse{}

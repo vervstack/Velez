@@ -49,7 +49,7 @@ func NewNodeClients(ctx context.Context, cfg config.Config) (NodeClients, error)
 	{
 		log.Debug().Msg("Initializing docker client")
 
-		cls.docker, err = docker.NewClient(cfg.Environment.CustomLabels, cfg.Environment.ContainerSuffix)
+		cls.docker, err = docker.NewClient(cfg.Environment.CustomLabels)
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting docker api client")
 		}

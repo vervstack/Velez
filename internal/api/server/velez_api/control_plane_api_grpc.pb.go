@@ -8,7 +8,6 @@ package velez_api
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -20,11 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ControlPlaneAPI_EnablePlugin_FullMethodName     = "/velez_api.ControlPlaneAPI/EnablePlugin"
-	ControlPlaneAPI_ConnectSlave_FullMethodName     = "/velez_api.ControlPlaneAPI/ConnectSlave"
-	ControlPlaneAPI_ListNodes_FullMethodName        = "/velez_api.ControlPlaneAPI/ListNodes"
-	ControlPlaneAPI_ListPlugins_FullMethodName      = "/velez_api.ControlPlaneAPI/ListPlugins"
-	ControlPlaneAPI_ListEnvironments_FullMethodName = "/velez_api.ControlPlaneAPI/ListEnvironments"
+	ControlPlaneAPI_EnablePlugin_FullMethodName      = "/velez_api.ControlPlaneAPI/EnablePlugin"
+	ControlPlaneAPI_ConnectSlave_FullMethodName      = "/velez_api.ControlPlaneAPI/ConnectSlave"
+	ControlPlaneAPI_ListNodes_FullMethodName         = "/velez_api.ControlPlaneAPI/ListNodes"
+	ControlPlaneAPI_ListPlugins_FullMethodName       = "/velez_api.ControlPlaneAPI/ListPlugins"
+	ControlPlaneAPI_ListEnvironments_FullMethodName  = "/velez_api.ControlPlaneAPI/ListEnvironments"
+	ControlPlaneAPI_CreateEnvironment_FullMethodName = "/velez_api.ControlPlaneAPI/CreateEnvironment"
+	ControlPlaneAPI_UpdateEnvironment_FullMethodName = "/velez_api.ControlPlaneAPI/UpdateEnvironment"
+	ControlPlaneAPI_DeleteEnvironment_FullMethodName = "/velez_api.ControlPlaneAPI/DeleteEnvironment"
 )
 
 // ControlPlaneAPIClient is the client API for ControlPlaneAPI service.
@@ -37,6 +39,9 @@ type ControlPlaneAPIClient interface {
 	ListNodes(ctx context.Context, in *ListNodes_Request, opts ...grpc.CallOption) (*ListNodes_Response, error)
 	ListPlugins(ctx context.Context, in *ListPlugins_Request, opts ...grpc.CallOption) (*ListPlugins_Response, error)
 	ListEnvironments(ctx context.Context, in *ListEnvironments_Request, opts ...grpc.CallOption) (*ListEnvironments_Response, error)
+	CreateEnvironment(ctx context.Context, in *CreateEnvironment_Request, opts ...grpc.CallOption) (*CreateEnvironment_Response, error)
+	UpdateEnvironment(ctx context.Context, in *UpdateEnvironment_Request, opts ...grpc.CallOption) (*UpdateEnvironment_Response, error)
+	DeleteEnvironment(ctx context.Context, in *DeleteEnvironment_Request, opts ...grpc.CallOption) (*DeleteEnvironment_Response, error)
 }
 
 type controlPlaneAPIClient struct {
@@ -97,6 +102,36 @@ func (c *controlPlaneAPIClient) ListEnvironments(ctx context.Context, in *ListEn
 	return out, nil
 }
 
+func (c *controlPlaneAPIClient) CreateEnvironment(ctx context.Context, in *CreateEnvironment_Request, opts ...grpc.CallOption) (*CreateEnvironment_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateEnvironment_Response)
+	err := c.cc.Invoke(ctx, ControlPlaneAPI_CreateEnvironment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *controlPlaneAPIClient) UpdateEnvironment(ctx context.Context, in *UpdateEnvironment_Request, opts ...grpc.CallOption) (*UpdateEnvironment_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateEnvironment_Response)
+	err := c.cc.Invoke(ctx, ControlPlaneAPI_UpdateEnvironment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *controlPlaneAPIClient) DeleteEnvironment(ctx context.Context, in *DeleteEnvironment_Request, opts ...grpc.CallOption) (*DeleteEnvironment_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteEnvironment_Response)
+	err := c.cc.Invoke(ctx, ControlPlaneAPI_DeleteEnvironment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ControlPlaneAPIServer is the server API for ControlPlaneAPI service.
 // All implementations must embed UnimplementedControlPlaneAPIServer
 // for forward compatibility.
@@ -107,6 +142,9 @@ type ControlPlaneAPIServer interface {
 	ListNodes(context.Context, *ListNodes_Request) (*ListNodes_Response, error)
 	ListPlugins(context.Context, *ListPlugins_Request) (*ListPlugins_Response, error)
 	ListEnvironments(context.Context, *ListEnvironments_Request) (*ListEnvironments_Response, error)
+	CreateEnvironment(context.Context, *CreateEnvironment_Request) (*CreateEnvironment_Response, error)
+	UpdateEnvironment(context.Context, *UpdateEnvironment_Request) (*UpdateEnvironment_Response, error)
+	DeleteEnvironment(context.Context, *DeleteEnvironment_Request) (*DeleteEnvironment_Response, error)
 	mustEmbedUnimplementedControlPlaneAPIServer()
 }
 
@@ -131,6 +169,15 @@ func (UnimplementedControlPlaneAPIServer) ListPlugins(context.Context, *ListPlug
 }
 func (UnimplementedControlPlaneAPIServer) ListEnvironments(context.Context, *ListEnvironments_Request) (*ListEnvironments_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListEnvironments not implemented")
+}
+func (UnimplementedControlPlaneAPIServer) CreateEnvironment(context.Context, *CreateEnvironment_Request) (*CreateEnvironment_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateEnvironment not implemented")
+}
+func (UnimplementedControlPlaneAPIServer) UpdateEnvironment(context.Context, *UpdateEnvironment_Request) (*UpdateEnvironment_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateEnvironment not implemented")
+}
+func (UnimplementedControlPlaneAPIServer) DeleteEnvironment(context.Context, *DeleteEnvironment_Request) (*DeleteEnvironment_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteEnvironment not implemented")
 }
 func (UnimplementedControlPlaneAPIServer) mustEmbedUnimplementedControlPlaneAPIServer() {}
 func (UnimplementedControlPlaneAPIServer) testEmbeddedByValue()                         {}
@@ -243,6 +290,60 @@ func _ControlPlaneAPI_ListEnvironments_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ControlPlaneAPI_CreateEnvironment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateEnvironment_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControlPlaneAPIServer).CreateEnvironment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ControlPlaneAPI_CreateEnvironment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControlPlaneAPIServer).CreateEnvironment(ctx, req.(*CreateEnvironment_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ControlPlaneAPI_UpdateEnvironment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateEnvironment_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControlPlaneAPIServer).UpdateEnvironment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ControlPlaneAPI_UpdateEnvironment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControlPlaneAPIServer).UpdateEnvironment(ctx, req.(*UpdateEnvironment_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ControlPlaneAPI_DeleteEnvironment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteEnvironment_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControlPlaneAPIServer).DeleteEnvironment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ControlPlaneAPI_DeleteEnvironment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControlPlaneAPIServer).DeleteEnvironment(ctx, req.(*DeleteEnvironment_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ControlPlaneAPI_ServiceDesc is the grpc.ServiceDesc for ControlPlaneAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -269,6 +370,18 @@ var ControlPlaneAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListEnvironments",
 			Handler:    _ControlPlaneAPI_ListEnvironments_Handler,
+		},
+		{
+			MethodName: "CreateEnvironment",
+			Handler:    _ControlPlaneAPI_CreateEnvironment_Handler,
+		},
+		{
+			MethodName: "UpdateEnvironment",
+			Handler:    _ControlPlaneAPI_UpdateEnvironment_Handler,
+		},
+		{
+			MethodName: "DeleteEnvironment",
+			Handler:    _ControlPlaneAPI_DeleteEnvironment_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

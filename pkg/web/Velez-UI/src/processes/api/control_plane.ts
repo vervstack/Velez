@@ -8,6 +8,11 @@ import {
     EnableHeadscaleServer,
     ListNodesResponse,
     ListEnvironmentsResponse,
+    CreateEnvironmentRequest,
+    CreateEnvironmentResponse,
+    UpdateEnvironmentRequest,
+    UpdateEnvironmentResponse,
+    DeleteEnvironmentRequest,
 } from "@/app/api/velez";
 
 import {toServices} from "@/processes/mappings/services.ts";
@@ -35,6 +40,27 @@ class ControlPlaneService extends ApiService {
 
     async listEnvironments(): Promise<ListEnvironmentsResponse> {
         return this.execute((req) => ControlPlaneAPI.ListEnvironments({}, req))
+    }
+
+    async createEnvironment(name: string, suffix?: string): Promise<CreateEnvironmentResponse> {
+        return this.mutate((req) => {
+            const payload: CreateEnvironmentRequest = {name, suffix}
+            return ControlPlaneAPI.CreateEnvironment(payload, req)
+        })
+    }
+
+    async updateEnvironment(id: string, name: string, suffix?: string): Promise<UpdateEnvironmentResponse> {
+        return this.mutate((req) => {
+            const payload: UpdateEnvironmentRequest = {id, name, suffix}
+            return ControlPlaneAPI.UpdateEnvironment(payload, req)
+        })
+    }
+
+    async deleteEnvironment(id: string): Promise<void> {
+        return this.mutate((req) => {
+            const payload: DeleteEnvironmentRequest = {id}
+            return ControlPlaneAPI.DeleteEnvironment(payload, req).then()
+        })
     }
 
     async enableStatefullPgCluster(cluster: EnableStatefullCluster): Promise<EnablePluginResponse> {

@@ -15,7 +15,6 @@ import (
 	"go.vervstack.ru/Velez/internal/service/service_manager/plugins"
 	"go.vervstack.ru/Velez/internal/service/service_manager/verv_services"
 	"go.vervstack.ru/Velez/internal/storage"
-	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/storage/local_storage"
 )
 
@@ -35,7 +34,6 @@ func New(
 	ctx context.Context,
 	nodeClients node_clients.NodeClients,
 	clusterClients cluster_clients.ClusterClients,
-	envs []string,
 	cfg config.Config,
 ) (service.Services, error) {
 	configService, err := configurator.New(clusterClients)
@@ -43,17 +41,15 @@ func New(
 		return nil, rerrors.Wrap(err, "error initializing configurator")
 	}
 
-	cm := container_manager.New(nodeClients)
+	cm := container_manager.New(nodeClients, clusterClients.StateManager())
 
 	storageContainer := storage.NewStorageContainer(local_storage.New(nodeClients.Docker(), cfg))
 	svc := plugins.NewPluginService(storageContainer)
 
-	envStorageContainer := environments.NewContainer(environments.NewStatic(envs))
-
 	sm := &ServiceManager{
 		containerManager: cm,
 		configurator:     configService,
-		vervServices:     verv_services.New(clusterClients.StateManager(), cm, nodeClients.Docker(), envStorageContainer),
+		vervServices:     verv_services.New(clusterClients.StateManager(), cm, nodeClients.Docker()),
 
 		docker:      nodeClients.Docker(),
 		nodeService: nodes_service.NewService(clusterClients.StateManager()),

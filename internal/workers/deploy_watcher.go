@@ -17,13 +17,26 @@ import (
 	"go.vervstack.ru/Velez/internal/pipelines"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
 )
+
+// environmentsProvider yields the currently-live environments storage.
+// cluster_clients.ClusterStateManagerContainer satisfies it.
+type environmentsProvider interface {
+	Environments() storage.EnvironmentsStorage
+}
 
 type deployWatcher struct {
 	pipeliner          pipelines.Pipeliner
 	deploymentsStorage storage.DeploymentsStorage
-	nodeClients        node_clients.NodeClients
+	// environments resolves a stored specification's environment name into the
+	// Docker suffix. The pipeliner no longer carries a fixed suffix, so
+	// whoever builds a domain.LaunchSmerd must supply it - see
+	// domain.LaunchSmerd.Suffix. Held as the container (not a snapshot) so the
+	// single-node -> cluster storage swap is picked up.
+	environments environmentsProvider
+	nodeClients  node_clients.NodeClients
 
 	nodeId int64
 
@@ -44,6 +57,7 @@ func NewDeployWatcher(
 	return &deployWatcher{
 		pipeliner:          runner,
 		deploymentsStorage: clusterClients.StateManager().Deployments(),
+		environments:       clusterClients.StateManager(),
 		nodeClients:        nodeClients,
 
 		nodeId: 1,
@@ -158,6 +172,14 @@ func (d *deployWatcher) processScheduledBatch(ctx context.Context, scheduled []d
 			err = json.Unmarshal(spec.VervPayload.RawMessage, &r.CreateSmerd_Request)
 			if err != nil {
 				return rerrors.Wrap(err, "")
+			}
+
+			// Suffix isn't part of the persisted spec (only the embedded
+			// request is), so it's re-resolved from the request's environment
+			// name - the authoritative value that came in over the wire.
+			r.Suffix, err = d.resolveSuffix(ctx, r.GetEnvironment())
+			if err != nil {
+				return rerrors.Wrap(err, "error resolving deployment's environment")
 			}
 
 			updateStatusParams := deployments_queries.UpdateDeploymentStatusParams{
@@ -287,4 +309,45 @@ func (d *deployWatcher) deleteBatch(ctx context.Context, deletion []domain.Deplo
 	}
 
 	return nil
+}
+
+// resolveSuffix maps an environment name onto its Docker suffix. An empty name
+// - every deployment created before environments existed, plus any caller that
+// still doesn't set one - resolves to the default environment
+// (environments.DefaultEnvironmentName), whose suffix is this node's
+// pre-environments ContainerSuffix. Resolving the default is best-effort and
+// degrades to the empty suffix; an explicit unknown name stays an error.
+func (d *deployWatcher) resolveSuffix(ctx context.Context, name string) (string, error) {
+	isDefault := name == ""
+	if isDefault {
+		name = environments.DefaultEnvironmentName
+	}
+
+	if d.environments == nil {
+		if isDefault {
+			return "", nil
+		}
+
+		return "", rerrors.New("environments storage is not available")
+	}
+
+	envStorage := d.environments.Environments()
+	if envStorage == nil {
+		if isDefault {
+			return "", nil
+		}
+
+		return "", rerrors.New("environments storage is not available")
+	}
+
+	env, err := envStorage.GetEnvironmentByName(ctx, name)
+	if err != nil {
+		if isDefault {
+			return "", nil
+		}
+
+		return "", rerrors.Wrapf(err, "unknown environment '%s'", name)
+	}
+
+	return env.Suffix, nil
 }

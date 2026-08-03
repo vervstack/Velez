@@ -85,15 +85,19 @@ type pathToFilesAccessor interface {
 type createSmerdHandler struct {
 	nodeClients   node_clients.NodeClients
 	configService service.ConfigurationService
+	environments  EnvironmentsProvider
 }
 
 // NewCreateSmerdHandler builds the TaskHandler for the "create_smerd" action.
 func NewCreateSmerdHandler(
-	nodeClients node_clients.NodeClients, configService service.ConfigurationService,
+	nodeClients node_clients.NodeClients,
+	configService service.ConfigurationService,
+	environments EnvironmentsProvider,
 ) TaskHandler {
 	return &createSmerdHandler{
 		nodeClients:   nodeClients,
 		configService: configService,
+		environments:  environments,
 	}
 }
 
@@ -150,9 +154,10 @@ func (h *createSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: "create_container",
 			Job: &createContainerJob{
-				nodeClients: h.nodeClients,
-				req:         payload,
-				ctx:         payload,
+				nodeClients:  h.nodeClients,
+				req:          payload,
+				ctx:          payload,
+				environments: h.environments,
 			},
 		},
 		{
@@ -511,16 +516,22 @@ func (j *prepareSmerdVervConfigJob) getPortsFromImage(request *velez_api.CreateS
 func (j *prepareSmerdVervConfigJob) lockPorts(request *velez_api.CreateSmerd_Request) (err error) {
 	j.lockedPorts = make([]uint32, 0, len(request.GetSettings().GetPorts()))
 
+	// Ports come from one pool shared by every environment - there are no
+	// per-environment ranges. Tagging each allocation with its environment is
+	// what makes a cross-environment collision detectable (and its error
+	// message name the culprit).
+	environment := request.GetEnvironment()
+
 	for _, imagePort := range request.GetSettings().GetPorts() {
 		if imagePort.ExposedTo == nil {
 			var port uint32
 
-			port, err = j.portManager.GetPort()
+			port, err = j.portManager.GetPortForEnvironment(environment)
 			imagePort.ExposedTo = &port
 		} else {
 			ok := j.portManager.UnHoldPort(imagePort.GetExposedTo())
 			if !ok {
-				err = j.portManager.LockPort(imagePort.GetExposedTo())
+				err = j.portManager.LockPortForEnvironment(environment, imagePort.GetExposedTo())
 			}
 		}
 
@@ -587,10 +598,20 @@ type createContainerJob struct {
 
 	req smerdRequestAccessor
 	ctx containerIDAccessor
+
+	// environments resolves the request's environment NAME into the Docker
+	// SUFFIX at run time. Nil is tolerated (yields an empty suffix) so the
+	// job stays usable for internally-built, environment-less requests.
+	environments EnvironmentsProvider
 }
 
 func (j *createContainerJob) Do(ctx context.Context) error {
 	req := j.req.GetRequest()
+
+	suffix, err := resolveEnvironmentSuffix(ctx, j.environments, req.GetEnvironment())
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving environment")
+	}
 
 	cfg := &container.Config{
 		Image:       req.GetImageName(),
@@ -622,7 +643,7 @@ func (j *createContainerJob) Do(ctx context.Context) error {
 
 	dockerClient := j.nodeClients.Docker()
 
-	created, err := dockerClient.ContainerCreate(ctx, cfg, hostCfg, netCfg, &v1.Platform{}, req.GetName())
+	created, err := dockerClient.ContainerCreate(ctx, cfg, hostCfg, netCfg, &v1.Platform{}, req.GetName(), suffix)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating container")
 	}

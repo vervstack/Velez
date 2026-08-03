@@ -1,8 +1,10 @@
-import {queryOptions, useQuery} from '@tanstack/react-query'
+import {queryOptions, useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import {controlPlaneService} from '@/processes/api/control_plane'
 import {FetchNodeHardware} from '@/processes/api/velez.ts'
 import {GetInitReq} from '@/processes/api/api.ts'
 import {VervPluginState, VervPluginType} from "@/app/api/velez";
+
+const ENVIRONMENTS_QUERY_KEY = ["environments"];
 
 export function ListNodesQuery() {
     return useQuery({
@@ -27,8 +29,43 @@ export function ListPluginsQuery() {
 
 export function ListEnvironmentsQuery() {
     return useQuery({
-        queryKey: ["environments"],
+        queryKey: ENVIRONMENTS_QUERY_KEY,
         queryFn: () => controlPlaneService.listEnvironments(),
+    })
+}
+
+export function CreateEnvironmentMutation() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: ({name, suffix}: { name: string, suffix?: string }) =>
+            controlPlaneService.createEnvironment(name, suffix),
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: ENVIRONMENTS_QUERY_KEY})
+        },
+    })
+}
+
+export function UpdateEnvironmentMutation() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: ({id, name, suffix}: { id: string, name: string, suffix?: string }) =>
+            controlPlaneService.updateEnvironment(id, name, suffix),
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: ENVIRONMENTS_QUERY_KEY})
+        },
+    })
+}
+
+export function DeleteEnvironmentMutation() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (id: string) => controlPlaneService.deleteEnvironment(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: ENVIRONMENTS_QUERY_KEY})
+        },
     })
 }
 

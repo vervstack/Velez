@@ -7,15 +7,14 @@
 package velez_api
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "go.redsock.ru/protoc-gen-npm/npmplugin"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -1136,8 +1135,12 @@ func (*GetVervonomicon) Descriptor() ([]byte, []int) {
 }
 
 type CreateService_Request struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// environment - the isolated namespace this operation targets. Required;
+	// validated in the service layer, not here (proto3 has no `required`
+	// keyword).
+	Environment   string `protobuf:"bytes,2,opt,name=environment,proto3" json:"environment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1175,6 +1178,13 @@ func (*CreateService_Request) Descriptor() ([]byte, []int) {
 func (x *CreateService_Request) GetName() string {
 	if x != nil {
 		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateService_Request) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
 	}
 	return ""
 }
@@ -1341,6 +1351,10 @@ type CreateDeploy_Request struct {
 	//	*CreateDeploy_Request_Upgrade_
 	Specification isCreateDeploy_Request_Specification `protobuf_oneof:"specification"`
 	ServiceName   string                               `protobuf:"bytes,3,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	// environment - the isolated namespace this operation targets. Required;
+	// validated in the service layer, not here (proto3 has no `required`
+	// keyword).
+	Environment   string `protobuf:"bytes,4,opt,name=environment,proto3" json:"environment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1403,6 +1417,13 @@ func (x *CreateDeploy_Request) GetUpgrade() *CreateDeploy_Request_Upgrade {
 func (x *CreateDeploy_Request) GetServiceName() string {
 	if x != nil {
 		return x.ServiceName
+	}
+	return ""
+}
+
+func (x *CreateDeploy_Request) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
 	}
 	return ""
 }
@@ -2460,10 +2481,11 @@ var File_service_api_proto protoreflect.FileDescriptor
 
 const file_service_api_proto_rawDesc = "" +
 	"\n" +
-	"\x11service_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\x1a\x12velez_common.proto\x1a\x0fvelez_api.proto\":\n" +
-	"\rCreateService\x1a\x1d\n" +
+	"\x11service_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\x1a\x12velez_common.proto\x1a\x0fvelez_api.proto\"\\\n" +
+	"\rCreateService\x1a?\n" +
 	"\aRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x1a\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
+	"\venvironment\x18\x02 \x01(\tR\venvironment\x1a\n" +
 	"\n" +
 	"\bResponse\"\xc6\x01\n" +
 	"\fAboutService\x12 \n" +
@@ -2487,12 +2509,13 @@ const file_service_api_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x127\n" +
 	"\x15current_deployment_id\x18\x03 \x01(\x04H\x00R\x13currentDeploymentId\x88\x01\x01\x123\n" +
 	"\x06status\x18\x04 \x01(\x0e2\x1b.velez_api.DeploymentStatusR\x06statusB\x18\n" +
-	"\x16_current_deployment_id\"\xa8\x02\n" +
-	"\fCreateDeploy\x1a\x8b\x02\n" +
+	"\x16_current_deployment_id\"\xca\x02\n" +
+	"\fCreateDeploy\x1a\xad\x02\n" +
 	"\aRequest\x122\n" +
 	"\x03new\x18\x01 \x01(\v2\x1e.velez_api.CreateSmerd.RequestH\x00R\x03new\x12C\n" +
 	"\aupgrade\x18\x02 \x01(\v2'.velez_api.CreateDeploy.Request.UpgradeH\x00R\aupgrade\x12!\n" +
-	"\fservice_name\x18\x03 \x01(\tR\vserviceName\x1aS\n" +
+	"\fservice_name\x18\x03 \x01(\tR\vserviceName\x12 \n" +
+	"\venvironment\x18\x04 \x01(\tR\venvironment\x1aS\n" +
 	"\aUpgrade\x12#\n" +
 	"\rdeployment_id\x18\x01 \x01(\x04R\fdeploymentId\x12\x19\n" +
 	"\x05image\x18\x02 \x01(\tH\x00R\x05image\x88\x01\x01B\b\n" +

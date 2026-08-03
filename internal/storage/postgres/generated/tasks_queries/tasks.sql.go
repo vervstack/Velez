@@ -27,7 +27,7 @@ WHERE id = (
     FOR UPDATE SKIP LOCKED
     LIMIT 1
     )
-RETURNING id, entity_id, action, status, context, error, claimed_at, claimed_by, created_at, updated_at
+RETURNING id, entity_id, action, status, context, error, claimed_at, claimed_by, created_at, updated_at, environment_id
 `
 
 type ClaimTaskParams struct {
@@ -49,6 +49,7 @@ func (q *Queries) ClaimTask(ctx context.Context, arg ClaimTaskParams) (VelezTask
 		&i.ClaimedBy,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.EnvironmentID,
 	)
 	return i, err
 }
@@ -57,7 +58,7 @@ const createTask = `-- name: CreateTask :one
 INSERT INTO velez.tasks (entity_id, action, context)
 VALUES ($1, $2, $3)
 ON CONFLICT (entity_id, action) DO NOTHING
-RETURNING id, entity_id, action, status, context, error, claimed_at, claimed_by, created_at, updated_at
+RETURNING id, entity_id, action, status, context, error, claimed_at, claimed_by, created_at, updated_at, environment_id
 `
 
 type CreateTaskParams struct {
@@ -80,6 +81,7 @@ func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (VelezTa
 		&i.ClaimedBy,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.EnvironmentID,
 	)
 	return i, err
 }
@@ -104,7 +106,7 @@ func (q *Queries) FinishTask(ctx context.Context, arg FinishTaskParams) error {
 }
 
 const getTaskByEntityAction = `-- name: GetTaskByEntityAction :one
-SELECT id, entity_id, action, status, context, error, claimed_at, claimed_by, created_at, updated_at
+SELECT id, entity_id, action, status, context, error, claimed_at, claimed_by, created_at, updated_at, environment_id
 FROM velez.tasks
 WHERE entity_id = $1
   AND action = $2
@@ -129,12 +131,13 @@ func (q *Queries) GetTaskByEntityAction(ctx context.Context, arg GetTaskByEntity
 		&i.ClaimedBy,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.EnvironmentID,
 	)
 	return i, err
 }
 
 const getTaskById = `-- name: GetTaskById :one
-SELECT id, entity_id, action, status, context, error, claimed_at, claimed_by, created_at, updated_at
+SELECT id, entity_id, action, status, context, error, claimed_at, claimed_by, created_at, updated_at, environment_id
 FROM velez.tasks
 WHERE id = $1
 `
@@ -153,6 +156,7 @@ func (q *Queries) GetTaskById(ctx context.Context, id int64) (VelezTask, error) 
 		&i.ClaimedBy,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.EnvironmentID,
 	)
 	return i, err
 }

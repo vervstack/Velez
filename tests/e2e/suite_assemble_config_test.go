@@ -45,7 +45,7 @@ func (s *AssembleConfigSuite) Test_AssembleHelloWorld() {
 	listReq := &velez_api.ListSmerds_Request{
 		Name: toolbox.ToPtr(serviceName),
 	}
-	cont, err := env.Custom.NodeClients.Docker().ListContainers(s.ctx, listReq)
+	cont, err := env.Custom.NodeClients.Docker().ListContainers(s.ctx, listReq, "")
 	require.NoError(t, err)
 	require.Empty(t, cont)
 }

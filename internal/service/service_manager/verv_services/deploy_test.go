@@ -21,9 +21,10 @@ import (
 // of caching the result of each getter at construction time (see
 // service.go). Unused getters return nil since no test here exercises them.
 type testStorage struct {
-	services    storage.ServicesStorage
-	deployments storage.DeploymentsStorage
-	txManager   *sqldb.TxManager
+	services     storage.ServicesStorage
+	deployments  storage.DeploymentsStorage
+	environments storage.EnvironmentsStorage
+	txManager    *sqldb.TxManager
 }
 
 func (s *testStorage) Nodes() storage.NodesStorage       { return nil }
@@ -34,6 +35,8 @@ func (s *testStorage) Plugins() storage.PluginsStorage         { return nil }
 
 func (s *testStorage) ServiceDependencies() storage.ServiceDependenciesStorage { return nil }
 func (s *testStorage) ServiceResources() storage.ServiceResourcesStorage       { return nil }
+
+func (s *testStorage) Environments() storage.EnvironmentsStorage { return s.environments }
 
 func (s *testStorage) Tasks() storage.TasksStorage { return nil }
 func (s *testStorage) Jobs() storage.JobsStorage   { return nil }

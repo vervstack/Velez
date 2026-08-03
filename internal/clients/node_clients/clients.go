@@ -24,7 +24,12 @@ type Docker interface {
 	Remove(ctx context.Context, uuid string) error
 	Stop(ctx context.Context, nameOrId string) error
 	Restart(ctx context.Context, nameOrId string) error
-	ListContainers(ctx context.Context, req *velez_api.ListSmerds_Request) ([]container.Summary, error)
+	// ListContainers lists containers scoped to the environment identified by
+	// suffix (labels.SuffixLabel). An empty suffix lists across every
+	// environment on the node.
+	ListContainers(
+		ctx context.Context, req *velez_api.ListSmerds_Request, suffix string,
+	) ([]container.Summary, error)
 	ListOccupiedPorts(ctx context.Context) ([]uint32, error)
 
 	Exec(ctx context.Context, contId string, options container.ExecOptions) ([]byte, error)
@@ -43,6 +48,9 @@ type Docker interface {
 		networkingConfig *network.NetworkingConfig,
 		platform *ocispec.Platform,
 		containerName string,
+		// suffix - resolved environment suffix, stamped onto the container as
+		// labels.SuffixLabel.
+		suffix string,
 	) (container.CreateResponse, error)
 
 	Stats(ctx context.Context, nameOrId string) (domain.ContainerStats, error)

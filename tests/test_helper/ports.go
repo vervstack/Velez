@@ -19,7 +19,7 @@ func GetSharedPortManager(t *testing.T, portsToOccupy []int) ports.PortManager {
 	t.Helper()
 
 	initPortManagerOnce.Do(func() {
-		d, err := docker.NewClient(nil, "")
+		d, err := docker.NewClient(nil)
 		require.NoError(t, err)
 
 		usedPorts, err := d.ListOccupiedPorts(t.Context())

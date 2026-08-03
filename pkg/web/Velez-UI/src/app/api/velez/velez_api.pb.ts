@@ -33,6 +33,7 @@ export type CreateSmerdRequest = {
   verv?: VelezApiVelezCommon.MatreshkaConfigSpec;
   isDeclarativeDeploy?: boolean;
   plain?: VelezApiVelezCommon.FileConfig[];
+  environment?: string;
 };
 
 export type CreateSmerd = Record<string, never>;
@@ -42,6 +43,7 @@ export type ListSmerdsRequest = {
   name?: string;
   id?: string;
   label?: Record<string, string>;
+  environment?: string;
 };
 
 export type ListSmerdsResponse = {
@@ -53,6 +55,7 @@ export type ListSmerds = Record<string, never>;
 export type DropSmerdRequest = {
   uuids?: string[];
   name?: string[];
+  environment?: string;
 };
 
 export type DropSmerdResponseError = {
@@ -100,6 +103,7 @@ export type AssembleConfig = Record<string, never>;
 export type UpgradeSmerdRequest = {
   name?: string;
   image?: string;
+  environment?: string;
 };
 
 export type UpgradeSmerdResponse = Record<string, never>;

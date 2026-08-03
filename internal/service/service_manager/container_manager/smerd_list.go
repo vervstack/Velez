@@ -19,7 +19,12 @@ func (c *ContainerManager) ListSmerds(
 		*req.Name = strings.ToLower(req.GetName())
 	}
 
-	cl, err := c.dockerWrapper.ListContainers(ctx, req)
+	suffix, err := c.resolveSuffix(ctx, req.GetEnvironment())
+	if err != nil {
+		return nil, errors.Wrap(err, "error resolving environment")
+	}
+
+	cl, err := c.dockerWrapper.ListContainers(ctx, req, suffix)
 	if err != nil {
 		return nil, errors.Wrap(err, "error listing containers")
 	}
@@ -29,11 +34,11 @@ func (c *ContainerManager) ListSmerds(
 	}
 
 	for _, container := range cl {
-		if container.Labels[labels.CreatedWithVelezLabel] != "true" {
+		if container.Labels[labels.CreatedWithVelezLabel] != labelTrue {
 			continue
 		}
 
-		if container.Labels[labels.Sidecar] == "true" {
+		if container.Labels[labels.Sidecar] == labelTrue {
 			continue
 		}
 

@@ -62,7 +62,20 @@ type VervServicesService interface {
 	GetServiceResources(ctx context.Context, serviceName string) ([]domain.BoundResource, error)
 	GetServiceGraph(ctx context.Context, serviceName string) (domain.ServiceGraph, error)
 	GetServiceEnvironments(ctx context.Context, serviceName string) ([]domain.ServiceEnvironment, error)
-	ListEnvironments(ctx context.Context) ([]string, error)
+
+	// Environment management (velez.environments). NOTE: domain.Environment is
+	// a deployment environment - unrelated to domain.ServiceEnvironment above,
+	// which is a per-service dashboard status projection.
+	ListEnvironments(ctx context.Context) ([]domain.Environment, error)
+	GetEnvironment(ctx context.Context, name string) (domain.Environment, error)
+	CreateEnvironment(ctx context.Context, req domain.CreateEnvironmentReq) (domain.Environment, error)
+	UpdateEnvironment(ctx context.Context, req domain.UpdateEnvironmentReq) (domain.Environment, error)
+	DeleteEnvironment(ctx context.Context, req domain.DeleteEnvironmentReq) error
+
+	// ResolveEnvironmentSuffix maps an environment name (what callers pass on
+	// the wire) to the suffix used for Docker naming/labels. Also the
+	// validation entry point for the `environment` request field.
+	ResolveEnvironmentSuffix(ctx context.Context, name string) (string, error)
 }
 
 type NodeService interface {

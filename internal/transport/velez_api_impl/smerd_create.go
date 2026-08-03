@@ -23,10 +23,19 @@ const (
 )
 
 func (impl *Impl) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (*velez_api.Smerd, error) {
+	// Environment is required and must resolve to a real environment. The
+	// resolved suffix isn't needed here - create_smerd's createContainerJob
+	// re-resolves it from the persisted request at run time - but rejecting
+	// early keeps a bad request from ever becoming a task.
+	_, err := impl.resolveEnvironment(ctx, req.GetEnvironment())
+	if err != nil {
+		return nil, err
+	}
+
 	initialContext := &velez_api.CreateSmerdTaskPayload{}
 	initialContext.SetRequest(req)
 
-	_, err := impl.jobsEngine.Enqueue(ctx, req.GetName(), jobs.CreateSmerdAction, initialContext)
+	_, err = impl.jobsEngine.Enqueue(ctx, req.GetName(), jobs.CreateSmerdAction, initialContext)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error enqueuing create_smerd task")
 	}

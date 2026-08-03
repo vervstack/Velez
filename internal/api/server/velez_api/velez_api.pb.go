@@ -7,14 +7,13 @@
 package velez_api
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "go.redsock.ru/protoc-gen-npm/npmplugin"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -496,8 +495,13 @@ type CreateSmerd_Request struct {
 	// TODO maybe even support to upgrade to presented state will be implemented some day
 	IsDeclarativeDeploy bool          `protobuf:"varint,15,opt,name=is_declarative_deploy,json=isDeclarativeDeploy,proto3" json:"is_declarative_deploy,omitempty"`
 	Plain               []*FileConfig `protobuf:"bytes,16,rep,name=plain,proto3" json:"plain,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// environment - the isolated namespace this operation targets (not to be
+	// confused with the env map above, which is container env vars).
+	// Required; validated in the service layer, not here (proto3 has no
+	// `required` keyword).
+	Environment   string `protobuf:"bytes,17,opt,name=environment,proto3" json:"environment,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateSmerd_Request) Reset() {
@@ -635,12 +639,23 @@ func (x *CreateSmerd_Request) GetPlain() []*FileConfig {
 	return nil
 }
 
+func (x *CreateSmerd_Request) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
+}
+
 type ListSmerds_Request struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Limit         *uint32                `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
-	Name          *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
-	Id            *string                `protobuf:"bytes,3,opt,name=id,proto3,oneof" json:"id,omitempty"`
-	Label         map[string]string      `protobuf:"bytes,4,rep,name=label,proto3" json:"label,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Limit *uint32                `protobuf:"varint,1,opt,name=limit,proto3,oneof" json:"limit,omitempty"`
+	Name  *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
+	Id    *string                `protobuf:"bytes,3,opt,name=id,proto3,oneof" json:"id,omitempty"`
+	Label map[string]string      `protobuf:"bytes,4,rep,name=label,proto3" json:"label,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// environment - the isolated namespace to scope this list to. Required;
+	// validated in the service layer, not here (proto3 has no `required`
+	// keyword).
+	Environment   string `protobuf:"bytes,5,opt,name=environment,proto3" json:"environment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -703,6 +718,13 @@ func (x *ListSmerds_Request) GetLabel() map[string]string {
 	return nil
 }
 
+func (x *ListSmerds_Request) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
+}
+
 type ListSmerds_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Smerds        []*Smerd               `protobuf:"bytes,1,rep,name=smerds,proto3" json:"smerds,omitempty"`
@@ -748,9 +770,13 @@ func (x *ListSmerds_Response) GetSmerds() []*Smerd {
 }
 
 type DropSmerd_Request struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Uuids         []string               `protobuf:"bytes,1,rep,name=uuids,proto3" json:"uuids,omitempty"`
-	Name          []string               `protobuf:"bytes,2,rep,name=name,proto3" json:"name,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Uuids []string               `protobuf:"bytes,1,rep,name=uuids,proto3" json:"uuids,omitempty"`
+	Name  []string               `protobuf:"bytes,2,rep,name=name,proto3" json:"name,omitempty"`
+	// environment - the isolated namespace this operation targets. Required;
+	// validated in the service layer, not here (proto3 has no `required`
+	// keyword).
+	Environment   string `protobuf:"bytes,3,opt,name=environment,proto3" json:"environment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -797,6 +823,13 @@ func (x *DropSmerd_Request) GetName() []string {
 		return x.Name
 	}
 	return nil
+}
+
+func (x *DropSmerd_Request) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
 }
 
 type DropSmerd_Response struct {
@@ -1185,9 +1218,13 @@ func (x *AssembleConfig_Response) GetConfig() []byte {
 }
 
 type UpgradeSmerd_Request struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Image         string                 `protobuf:"bytes,2,opt,name=image,proto3" json:"image,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Image string                 `protobuf:"bytes,2,opt,name=image,proto3" json:"image,omitempty"`
+	// environment - the isolated namespace this operation targets. Required;
+	// validated in the service layer, not here (proto3 has no `required`
+	// keyword).
+	Environment   string `protobuf:"bytes,3,opt,name=environment,proto3" json:"environment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1232,6 +1269,13 @@ func (x *UpgradeSmerd_Request) GetName() string {
 func (x *UpgradeSmerd_Request) GetImage() string {
 	if x != nil {
 		return x.Image
+	}
+	return ""
+}
+
+func (x *UpgradeSmerd_Request) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
 	}
 	return ""
 }
@@ -1544,8 +1588,8 @@ const file_velez_api_proto_rawDesc = "" +
 	"\aVersion\x1a\t\n" +
 	"\aRequest\x1a$\n" +
 	"\bResponse\x12\x18\n" +
-	"\aversion\x18\x01 \x01(\tR\aversion\"\xa9\a\n" +
-	"\vCreateSmerd\x1a\x99\a\n" +
+	"\aversion\x18\x01 \x01(\tR\aversion\"\xcb\a\n" +
+	"\vCreateSmerd\x1a\xbb\a\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
@@ -1563,7 +1607,8 @@ const file_velez_api_proto_rawDesc = "" +
 	"\arestart\x18\f \x01(\v2\x18.velez_api.RestartPolicyR\arestart\x127\n" +
 	"\x04verv\x18\r \x01(\v2\x1e.velez_api.MatreshkaConfigSpecH\x04R\x04verv\x88\x01\x01\x122\n" +
 	"\x15is_declarative_deploy\x18\x0f \x01(\bR\x13isDeclarativeDeploy\x12+\n" +
-	"\x05plain\x18\x10 \x03(\v2\x15.velez_api.FileConfigR\x05plain\x1a6\n" +
+	"\x05plain\x18\x10 \x03(\v2\x15.velez_api.FileConfigR\x05plain\x12 \n" +
+	"\venvironment\x18\x11 \x01(\tR\venvironment\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a9\n" +
@@ -1575,14 +1620,15 @@ const file_velez_api_proto_rawDesc = "" +
 	"\n" +
 	"\b_commandB\x0e\n" +
 	"\f_healthcheckB\a\n" +
-	"\x05_vervJ\x04\b\x0e\x10\x0f\"\xab\x02\n" +
+	"\x05_vervJ\x04\b\x0e\x10\x0f\"\xcd\x02\n" +
 	"\n" +
-	"ListSmerds\x1a\xe6\x01\n" +
+	"ListSmerds\x1a\x88\x02\n" +
 	"\aRequest\x12\x19\n" +
 	"\x05limit\x18\x01 \x01(\rH\x00R\x05limit\x88\x01\x01\x12\x17\n" +
 	"\x04name\x18\x02 \x01(\tH\x01R\x04name\x88\x01\x01\x12\x13\n" +
 	"\x02id\x18\x03 \x01(\tH\x02R\x02id\x88\x01\x01\x12>\n" +
-	"\x05label\x18\x04 \x03(\v2(.velez_api.ListSmerds.Request.LabelEntryR\x05label\x1a8\n" +
+	"\x05label\x18\x04 \x03(\v2(.velez_api.ListSmerds.Request.LabelEntryR\x05label\x12 \n" +
+	"\venvironment\x18\x05 \x01(\tR\venvironment\x1a8\n" +
 	"\n" +
 	"LabelEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -1591,11 +1637,12 @@ const file_velez_api_proto_rawDesc = "" +
 	"\x05_nameB\x05\n" +
 	"\x03_id\x1a4\n" +
 	"\bResponse\x12(\n" +
-	"\x06smerds\x18\x01 \x03(\v2\x10.velez_api.SmerdR\x06smerds\"\xdd\x01\n" +
-	"\tDropSmerd\x1a3\n" +
+	"\x06smerds\x18\x01 \x03(\v2\x10.velez_api.SmerdR\x06smerds\"\xff\x01\n" +
+	"\tDropSmerd\x1aU\n" +
 	"\aRequest\x12\x14\n" +
 	"\x05uuids\x18\x01 \x03(\tR\x05uuids\x12\x12\n" +
-	"\x04name\x18\x02 \x03(\tR\x04name\x1a\x9a\x01\n" +
+	"\x04name\x18\x02 \x03(\tR\x04name\x12 \n" +
+	"\venvironment\x18\x03 \x01(\tR\venvironment\x1a\x9a\x01\n" +
 	"\bResponse\x12;\n" +
 	"\x06failed\x18\x01 \x03(\v2#.velez_api.DropSmerd.Response.ErrorR\x06failed\x12\x1e\n" +
 	"\n" +
@@ -1624,11 +1671,12 @@ const file_velez_api_proto_rawDesc = "" +
 	"image_name\x18\x01 \x01(\tR\timageName\x12!\n" +
 	"\fservice_name\x18\x02 \x01(\tR\vserviceName\x1a\"\n" +
 	"\bResponse\x12\x16\n" +
-	"\x06config\x18\x01 \x01(\fR\x06config\"O\n" +
-	"\fUpgradeSmerd\x1a3\n" +
+	"\x06config\x18\x01 \x01(\fR\x06config\"q\n" +
+	"\fUpgradeSmerd\x1aU\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05image\x18\x02 \x01(\tR\x05image\x1a\n" +
+	"\x05image\x18\x02 \x01(\tR\x05image\x12 \n" +
+	"\venvironment\x18\x03 \x01(\tR\venvironment\x1a\n" +
 	"\n" +
 	"\bResponse\"a\n" +
 	"\x0fMakeConnections\x1aB\n" +

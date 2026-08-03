@@ -116,6 +116,11 @@ service ServiceApi {
 message CreateService {
   message Request {
     string name = 1;
+
+    // environment - the isolated namespace this operation targets. Required;
+    // validated in the service layer, not here (proto3 has no `required`
+    // keyword).
+    string environment = 2;
   }
 
   message Response {}
@@ -163,6 +168,11 @@ message CreateDeploy {
     }
 
     string service_name = 3;
+
+    // environment - the isolated namespace this operation targets. Required;
+    // validated in the service layer, not here (proto3 has no `required`
+    // keyword).
+    string environment = 4;
 
     message Upgrade {
       // Id of deployment from which to perform upgrade from

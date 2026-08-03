@@ -22,6 +22,8 @@ type createContainerStep struct {
 
 	req  *container.CreateRequest
 	name *string
+	// suffix - resolved environment suffix stamped onto the created container.
+	suffix string
 
 	containerIdResp *string
 
@@ -34,6 +36,7 @@ func Create(
 	nc node_clients.NodeClients,
 	req *container.CreateRequest,
 	name *string,
+	suffix string,
 
 	containerIdResp *string,
 ) steps.Step {
@@ -42,6 +45,7 @@ func Create(
 		dockerAPI:       nc.Docker().Client(),
 		req:             req,
 		name:            name,
+		suffix:          suffix,
 		containerIdResp: containerIdResp,
 	}
 }
@@ -55,6 +59,7 @@ func (s *createContainerStep) Do(ctx context.Context) error {
 		s.req.NetworkingConfig,
 		pCfg,
 		toolbox.FromPtr(s.name),
+		s.suffix,
 	)
 	if createErr != nil {
 		if !rerrors.Is(createErr, docker.ErrNameIsTaken) {

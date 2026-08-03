@@ -28,13 +28,17 @@ const (
 	bytesPerMB           = 1024 * 1024
 )
 
+// Docker is environment-agnostic on purpose: the container suffix that scopes
+// containers to an environment used to be baked in here at construction time
+// (one Velez process = one environment). It's now passed explicitly per call
+// by whoever resolved the caller's environment - see ListContainers and
+// ContainerCreate.
 type Docker struct {
-	directApi       client.APIClient
-	bakedLabels     []string
-	containerSuffix string
+	directApi   client.APIClient
+	bakedLabels []string
 }
 
-func NewClient(bakedLabels []string, containerSuffix string) (*Docker, error) {
+func NewClient(bakedLabels []string) (*Docker, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error getting docker client")
@@ -43,9 +47,8 @@ func NewClient(bakedLabels []string, containerSuffix string) (*Docker, error) {
 	closer.Add(cli.Close)
 
 	return &Docker{
-		directApi:       cli,
-		bakedLabels:     bakedLabels,
-		containerSuffix: containerSuffix,
+		directApi:   cli,
+		bakedLabels: bakedLabels,
 	}, nil
 }
 
@@ -142,13 +145,22 @@ func (d *Docker) ListOccupiedPorts(ctx context.Context) ([]uint32, error) {
 	return usedPorts, nil
 }
 
-func (d *Docker) ListContainers(ctx context.Context, req *velez_api.ListSmerds_Request) ([]container.Summary, error) {
+// ListContainers lists containers, optionally scoped to a single environment.
+//
+// suffix is the environment's resolved labels.SuffixLabel value. An empty
+// suffix means "don't scope by environment" - which is what internal,
+// node-wide callers (local_storage's docker-backed views) want.
+func (d *Docker) ListContainers(
+	ctx context.Context,
+	req *velez_api.ListSmerds_Request,
+	suffix string,
+) ([]container.Summary, error) {
 	if req.Label == nil {
 		req.Label = map[string]string{}
 	}
 
-	if d.containerSuffix != "" {
-		req.Label[labels.SuffixLabel] = d.containerSuffix
+	if suffix != "" {
+		req.Label[labels.SuffixLabel] = suffix
 	}
 
 	list, err := dockerutils.ListContainers(ctx, d.directApi, req)
@@ -209,13 +221,17 @@ func (d *Docker) ContainerCreate(
 	networkingConfig *network.NetworkingConfig,
 	platform *v1.Platform,
 	containerName string,
+	suffix string,
 ) (container.CreateResponse, error) {
 	if config.Labels == nil {
 		config.Labels = map[string]string{}
 	}
 
 	config.Labels[labels.CreatedWithVelezLabel] = "true"
-	config.Labels[labels.SuffixLabel] = d.containerSuffix
+	// suffix is the resolved environment suffix, passed in by whoever knows
+	// which environment this container belongs to. Empty means "the node's
+	// unscoped/default environment", preserving pre-multi-environment behavior.
+	config.Labels[labels.SuffixLabel] = suffix
 
 	for _, label := range d.bakedLabels {
 		before, after, ok := strings.Cut(label, "=")

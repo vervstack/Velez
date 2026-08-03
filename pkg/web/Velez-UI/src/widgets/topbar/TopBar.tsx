@@ -10,6 +10,7 @@ import Button from "@/components/base/Button.tsx";
 import IconButton from "@/components/base/IconButton.tsx";
 import {VervPlugin} from "@/model/services/VervPlugins.tsx";
 import {openStatefullPgDialog} from "@/dialogs/PluginManageDialog/plugins/openStatefullPgDialog.tsx";
+import EnvironmentSwitcher from "@/widgets/environment/EnvironmentSwitcher/EnvironmentSwitcher.tsx";
 
 type NavId = 'controlplane' | 'vcn' | 'deployments' | 'apps' | 'search';
 
@@ -100,6 +101,7 @@ function RightZone() {
 
     return (
         <div className={cls.RightZoneContainer}>
+            <EnvironmentSwitcher/>
             {!isLoading && (isStateFullMode ? <NodesHealthStatus/> : <SingleNodeStub/>)}
             <Button
                 variant={'primary'}

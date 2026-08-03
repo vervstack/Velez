@@ -106,3 +106,12 @@ func (s *stateManager) Jobs() storage.JobsStorage {
 
 	return (*l).Jobs()
 }
+
+func (s *stateManager) Environments() storage.EnvironmentsStorage {
+	l := s.state.Load()
+	if l == nil {
+		return nil
+	}
+
+	return (*l).Environments()
+}

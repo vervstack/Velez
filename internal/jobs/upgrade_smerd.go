@@ -90,17 +90,23 @@ type upgradeSmerdHandler struct {
 	nodeClients      node_clients.NodeClients
 	containerService service.ContainerService
 	configService    service.ConfigurationService
+	// environments resolves the request's environment name into the Docker
+	// suffix the recreated containers must carry - the value Docker used to
+	// bake in at client-construction time.
+	environments EnvironmentsProvider
 }
 
 func NewUpgradeSmerdHandler(
 	nodeClients node_clients.NodeClients,
 	containerService service.ContainerService,
 	configService service.ConfigurationService,
+	environments EnvironmentsProvider,
 ) TaskHandler {
 	return &upgradeSmerdHandler{
 		nodeClients:      nodeClients,
 		containerService: containerService,
 		configService:    configService,
+		environments:     environments,
 	}
 }
 
@@ -155,9 +161,10 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: stepCreateConfigFetcherContainer,
 			Job: &renamingCreateContainerJob{
-				nodeClients: h.nodeClients,
-				req:         payload,
-				ctx:         payload,
+				nodeClients:  h.nodeClients,
+				req:          payload,
+				ctx:          payload,
+				environments: h.environments,
 				newName: func(current string) string {
 					return current + configFetcherContainerSuffix
 				},
@@ -199,9 +206,10 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: stepCreateFinalContainer,
 			Job: &renamingCreateContainerJob{
-				nodeClients: h.nodeClients,
-				req:         payload,
-				ctx:         payload,
+				nodeClients:  h.nodeClients,
+				req:          payload,
+				ctx:          payload,
+				environments: h.environments,
 				newName: func(current string) string {
 					return current + newContainerSuffix
 				},
@@ -538,6 +546,8 @@ type renamingCreateContainerJob struct {
 	req smerdRequestAccessor
 	ctx containerIDAccessor
 
+	environments EnvironmentsProvider
+
 	newName func(current string) string
 }
 
@@ -546,7 +556,12 @@ func (j *renamingCreateContainerJob) Do(ctx context.Context) error {
 
 	request.Name = j.newName(request.GetName())
 
-	inner := &createContainerJob{nodeClients: j.nodeClients, req: j.req, ctx: j.ctx}
+	inner := &createContainerJob{
+		nodeClients:  j.nodeClients,
+		req:          j.req,
+		ctx:          j.ctx,
+		environments: j.environments,
+	}
 
 	return inner.Do(ctx)
 }
@@ -801,16 +816,20 @@ func (j *prepareUpgradeVervConfigJob) Rollback(_ context.Context) error {
 func (j *prepareUpgradeVervConfigJob) lockPorts(request *velez_api.CreateSmerd_Request) (err error) {
 	j.lockedPorts = make([]uint32, 0, len(request.GetSettings().GetPorts()))
 
+	// See prepareSmerdVervConfigJob.lockPorts - same shared pool, same
+	// environment-tagged ownership.
+	environment := request.GetEnvironment()
+
 	for _, p := range request.GetSettings().GetPorts() {
 		if p.ExposedTo == nil {
 			var port uint32
 
-			port, err = j.portManager.GetPort()
+			port, err = j.portManager.GetPortForEnvironment(environment)
 			p.ExposedTo = &port
 		} else {
 			ok := j.portManager.UnHoldPort(p.GetExposedTo())
 			if !ok {
-				err = j.portManager.LockPort(p.GetExposedTo())
+				err = j.portManager.LockPortForEnvironment(environment, p.GetExposedTo())
 			}
 		}
 

@@ -7,6 +7,15 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/storage/environments"
+)
+
+// allEnvironments is the empty Docker.ListContainers suffix - these
+// docker-backed views are node-wide (every service/dependency/resource on this
+// node, regardless of which environment owns it), so they deliberately don't
+// scope by labels.SuffixLabel.
+const (
+	allEnvironments = ""
 )
 
 type localStorage struct {
@@ -18,6 +27,7 @@ type localStorage struct {
 	serviceResources *dockerServiceResourcesStorage
 	tasks            *tasks
 	jobs             *jobs
+	environments     storage.EnvironmentsStorage
 }
 
 func New(containerAPI node_clients.Docker, cfg config.Config) storage.Storage {
@@ -38,6 +48,10 @@ func New(containerAPI node_clients.Docker, cfg config.Config) storage.Storage {
 		serviceResources: newServiceResourcesStorage(containerAPI),
 		tasks:            newTasksStorage(),
 		jobs:             newJobsStorage(),
+		// Single-node/dev mode has no velez.environments table, so the
+		// in-memory storage is seeded from config to mirror what the
+		// migrations seed in cluster mode.
+		environments: environments.NewStatic(cfg.Environment.Environments, cfg.Environment.ContainerSuffix),
 	}
 }
 
@@ -71,6 +85,10 @@ func (l *localStorage) Tasks() storage.TasksStorage {
 
 func (l *localStorage) Jobs() storage.JobsStorage {
 	return l.jobs
+}
+
+func (l *localStorage) Environments() storage.EnvironmentsStorage {
+	return l.environments
 }
 
 func (l *localStorage) TxManager() *sqldb.TxManager {

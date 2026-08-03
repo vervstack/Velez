@@ -26,22 +26,24 @@ type Runner[T any] interface {
 	Result() (*T, error)
 }
 
+// pipeliner no longer carries a fixed container suffix. It used to (one Velez
+// process = one environment), but with multiple environments per node the
+// suffix is a property of the *request*, not of the pipeliner: see
+// domain.LaunchSmerd.Suffix, resolved from the request's environment name by
+// whoever builds the request.
 type pipeliner struct {
 	nodeClients    node_clients.NodeClients
 	clusterClients cluster_clients.ClusterClients
 	services       service.Services
-	suffix         string
 }
 
 func NewPipeliner(nodeClients node_clients.NodeClients,
 	clusterClients cluster_clients.ClusterClients,
 	services service.Services,
-	suffix string,
 ) Pipeliner {
 	return &pipeliner{
 		nodeClients:    nodeClients,
 		clusterClients: clusterClients,
 		services:       services,
-		suffix:         suffix,
 	}
 }

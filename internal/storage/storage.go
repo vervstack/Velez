@@ -28,6 +28,7 @@ type Storage interface {
 	ServiceResources() ServiceResourcesStorage
 	Tasks() TasksStorage
 	Jobs() JobsStorage
+	Environments() EnvironmentsStorage
 
 	TxManager() *sqldb.TxManager
 }
@@ -80,11 +81,16 @@ type JobsStorage interface {
 	WithTx(tx *sql.Tx) *jobs_queries.Queries
 }
 
+// EnvironmentsStorage - CRUD over velez.environments.
+//
+// Implementations: internal/storage/environments.NewPg (postgres/cluster mode)
+// and internal/storage/environments.NewStatic (in-memory, used by
+// local_storage in single-node/dev mode and as a test double).
 type EnvironmentsStorage interface {
-	ListEnvironments(ctx context.Context) ([]string, error)
-}
-
-type EnvironmentsStorageContainer interface {
-	Set(envStorage EnvironmentsStorage)
-	EnvironmentsStorage
+	ListEnvironments(ctx context.Context) ([]domain.Environment, error)
+	GetEnvironmentByID(ctx context.Context, id int64) (domain.Environment, error)
+	GetEnvironmentByName(ctx context.Context, name string) (domain.Environment, error)
+	CreateEnvironment(ctx context.Context, req domain.CreateEnvironmentReq) (domain.Environment, error)
+	UpdateEnvironment(ctx context.Context, req domain.UpdateEnvironmentReq) (domain.Environment, error)
+	DeleteEnvironment(ctx context.Context, id int64) error
 }

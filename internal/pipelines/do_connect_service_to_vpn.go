@@ -52,7 +52,8 @@ func ConnectServiceToVpn(req domain.ConnectServiceToVcn,
 			steps.PrepareImage(nc, launchContainer.Image, nil),
 			container_steps.Create(
 				nc, &launchContainer,
-				&containerName, &containerId),
+				// VPN sidecar - node-level, no environment suffix.
+				&containerName, "", &containerId),
 			smerd_steps.Start(nc, &containerId),
 			network_steps.AddMakoshRecord(sdClient, req.ServiceName, hostname),
 		},

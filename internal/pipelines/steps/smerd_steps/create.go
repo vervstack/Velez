@@ -45,7 +45,7 @@ func (s *createSmerdStep) Do(ctx context.Context) error {
 
 	contName := s.req.GetName()
 
-	createdContainer, err := s.dockerClient.ContainerCreate(ctx, cfg, hCfg, nCfg, pCfg, contName)
+	createdContainer, err := s.dockerClient.ContainerCreate(ctx, cfg, hCfg, nCfg, pCfg, contName, s.req.Suffix)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating container")
 	}

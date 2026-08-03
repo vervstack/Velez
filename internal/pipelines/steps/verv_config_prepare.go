@@ -132,23 +132,28 @@ func (p *prepareVervConfig) getPortsFromImage() error {
 func (p *prepareVervConfig) lockPorts() (err error) {
 	p.lockedPorts = make([]uint32, 0, len(p.req.Settings.GetPorts()))
 
+	// Same shared pool as the jobs engine's equivalent - allocations are
+	// tagged with the request's environment so a cross-environment collision
+	// is detectable.
+	environment := p.req.GetEnvironment()
+
 	for _, imagePort := range p.req.Settings.GetPorts() {
 		if imagePort.ExposedTo == nil {
 			var port uint32
 
-			port, err = p.portManager.GetPort()
+			port, err = p.portManager.GetPortForEnvironment(environment)
 			imagePort.ExposedTo = &port
 		} else {
 			ok := p.portManager.UnHoldPort(imagePort.GetExposedTo())
 			if !ok {
-				err = p.portManager.LockPort(imagePort.GetExposedTo())
+				err = p.portManager.LockPortForEnvironment(environment, imagePort.GetExposedTo())
 			}
 		}
 
 		if err != nil {
 			err = rerrors.Wrap(err, "error locking host port")
 
-			return
+			return err
 		}
 
 		p.lockedPorts = append(p.lockedPorts, imagePort.GetExposedTo())

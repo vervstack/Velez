@@ -3,6 +3,7 @@ syntax = "proto3";
 package velez_api;
 
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 import "npm.proto";
 
 import "velez_api.proto";
@@ -43,6 +44,27 @@ service ControlPlaneAPI {
   rpc ListEnvironments(ListEnvironments.Request) returns (ListEnvironments.Response) {
     option (google.api.http) = {
       post: "/api/control_plane/environments/list"
+      body: "*"
+    };
+  }
+
+  rpc CreateEnvironment(CreateEnvironment.Request) returns (CreateEnvironment.Response) {
+    option (google.api.http) = {
+      post: "/api/control_plane/environments/create"
+      body: "*"
+    };
+  }
+
+  rpc UpdateEnvironment(UpdateEnvironment.Request) returns (UpdateEnvironment.Response) {
+    option (google.api.http) = {
+      post: "/api/control_plane/environments/update"
+      body: "*"
+    };
+  }
+
+  rpc DeleteEnvironment(DeleteEnvironment.Request) returns (DeleteEnvironment.Response) {
+    option (google.api.http) = {
+      post: "/api/control_plane/environments/delete"
       body: "*"
     };
   }
@@ -161,9 +183,46 @@ message ListPlugins {
   }
 }
 
+message Environment {
+  int64 id = 1;
+  string name = 2;
+  string suffix = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+}
+
 message ListEnvironments {
   message Request {}
   message Response {
-    repeated string environments = 1;
+    repeated Environment environments = 1;
   }
+}
+
+message CreateEnvironment {
+  message Request {
+    string name = 1;
+    optional string suffix = 2;
+  }
+  message Response {
+    Environment environment = 1;
+  }
+}
+
+message UpdateEnvironment {
+  message Request {
+    int64 id = 1;
+    optional string name = 2;
+    optional string suffix = 3;
+  }
+  message Response {
+    Environment environment = 1;
+  }
+}
+
+message DeleteEnvironment {
+  message Request {
+    optional int64 id = 1;
+    optional string name = 2;
+  }
+  message Response {}
 }

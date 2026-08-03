@@ -21,8 +21,9 @@ func (p *pipeliner) SetupHeadscale(req domain.SetupHeadscaleRequest) Runner[doma
 
 	return &runner[domain.SetupHeadscaleResponse]{
 		Steps: []steps.Step{
+			// Headscale is node-level infrastructure - no environment suffix.
 			container_steps.Create(p.nodeClients, &contReq, toolbox.ToPtr(headscale.ServiceName),
-				&containerId),
+				"", &containerId),
 			container_steps.CopyToContainer(p.nodeClients, &containerId, &mountPoints),
 			config_steps.StoreConfig(p.clusterClients,
 				headscale.ServiceName, headscaleConfig,

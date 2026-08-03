@@ -184,7 +184,8 @@ func (j *createScratchContainerJob) Do(ctx context.Context) error {
 	}
 
 	created, err := j.nodeClients.Docker().ContainerCreate(
-		ctx, cfg, &container.HostConfig{}, &network.NetworkingConfig{}, &v1.Platform{}, name)
+		// Throwaway config-scanning container - not owned by any environment.
+		ctx, cfg, &container.HostConfig{}, &network.NetworkingConfig{}, &v1.Platform{}, name, "")
 	if err != nil {
 		return rerrors.Wrap(err, "error creating scratch container")
 	}

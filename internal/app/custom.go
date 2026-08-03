@@ -85,7 +85,8 @@ func (c *Custom) Init(a *App) (err error) {
 	}
 
 	registry := jobs.NewRegistry()
-	registry.Register(jobs.NewCreateSmerdHandler(c.NodeClients, c.Services.ConfigurationService()))
+	registry.Register(jobs.NewCreateSmerdHandler(
+		c.NodeClients, c.Services.ConfigurationService(), c.ClusterClients.StateManager()))
 	registry.Register(jobs.NewCreateServiceHandler(c.ClusterClients.StateManager().Services()))
 	registry.Register(jobs.NewAssembleConfigHandler(c.NodeClients))
 	registry.Register(jobs.NewCopyToVolumeHandler(c.NodeClients))
@@ -94,7 +95,8 @@ func (c *Custom) Init(a *App) (err error) {
 	registry.Register(jobs.NewEnableStatefullHandler(
 		c.NodeClients, c.ClusterClients.StateManager(), c.Services.StorageContainer(), a.Cfg))
 	registry.Register(jobs.NewUpgradeSmerdHandler(
-		c.NodeClients, c.Services.SmerdManager(), c.Services.ConfigurationService()))
+		c.NodeClients, c.Services.SmerdManager(), c.Services.ConfigurationService(),
+		c.ClusterClients.StateManager()))
 	registry.Register(jobs.NewDropSmerdHandler(c.NodeClients))
 
 	c.JobsEngine.SetRegistry(registry)
@@ -192,7 +194,7 @@ func (c *Custom) InitServiceLayer(a *App) error {
 
 	var err error
 
-	c.Services, err = service_manager.New(a.Ctx, c.NodeClients, c.ClusterClients, a.Cfg.Environment.Environments, a.Cfg)
+	c.Services, err = service_manager.New(a.Ctx, c.NodeClients, c.ClusterClients, a.Cfg)
 	if err != nil {
 		return rerrors.Wrap(err, "error initializing service manager")
 	}
@@ -202,7 +204,7 @@ func (c *Custom) InitServiceLayer(a *App) error {
 		c.Services.StorageContainer().Set(c.ClusterClients.StateManager())
 	}
 
-	c.Pipeliner = pipelines.NewPipeliner(c.NodeClients, c.ClusterClients, c.Services, a.Cfg.Environment.ContainerSuffix)
+	c.Pipeliner = pipelines.NewPipeliner(c.NodeClients, c.ClusterClients, c.Services)
 	c.JobsEngine = jobs.NewEngine(c.ClusterClients.StateManager().Tasks(), c.ClusterClients.StateManager().Jobs())
 
 	log.Info().Bool("shutDownOnExit", a.Cfg.Environment.ShutDownOnExit).Msg("shut down on exit")

@@ -1,16 +1,17 @@
 # Container Runtimes
 
-**Status: full `ContainerRuntime` interface implemented.** `ContainerCreate`, `ListContainers`, `Remove`, `Rename`,
-`IsContainerRunning`, `Inspect`, `Stop`, `Restart`, `Stats`, `Exec`, `CreateNetwork`, `ConnectToNetwork` and
-`DisconnectFromNetworks` are live on `labelBasedRuntime`; `PullImage` and `ListOccupiedPorts` are live on
-`commonRuntime` (node-wide, no suffix logic - embedded by every backend). Every job/service call site that used to
-go through `node_clients.Docker`/raw `client.APIClient` now resolves and calls through `RuntimeResolver` instead.
-Remaining work is deleting the old pre-jobs-engine `internal/pipelines` package entirely (its last two callers,
-`autoupgrade.go`/`deploy_watcher.go`, still need migrating) and Phase 2 (dedicated Docker instance, still a stub).
-This directory is the durable record of the design session that produced this work, so future phases can continue
-from here instead of re-deriving the shape from scratch. See [`interface_design.md`](interface_design.md) for the
-concrete Go types/interfaces and [`roadmap.md`](roadmap.md) for what's in/out of scope per phase and the known
-bugs that block later phases.
+**Status: full `ContainerRuntime` interface implemented, and the old `internal/pipelines` package it made
+redundant is deleted entirely.** `ContainerCreate`, `ListContainers`, `Remove`, `Rename`, `IsContainerRunning`,
+`Inspect`, `Stop`, `Restart`, `Stats`, `Exec`, `CreateNetwork`, `ConnectToNetwork` and `DisconnectFromNetworks` are
+live on `labelBasedRuntime`; `PullImage` and `ListOccupiedPorts` are live on `commonRuntime` (node-wide, no suffix
+logic - embedded by every backend). Every job/service call site that used to go through `node_clients.Docker`/raw
+`client.APIClient` now resolves and calls through `RuntimeResolver` instead - including `internal/pipelines`'s last
+two direct callers, `internal/cluster/autoupgrade/autoupgrade.go` and `internal/workers/deploy_watcher.go`, both
+now migrated onto the jobs engine (`internal/jobs`) - see `docs/jobs_migration.md` for that migration's history.
+Remaining work is Phase 2 only (dedicated Docker instance, still a stub). This directory is the durable record of
+the design session that produced this work, so future phases can continue from here instead of re-deriving the
+shape from scratch. See [`interface_design.md`](interface_design.md) for the concrete Go types/interfaces and
+[`roadmap.md`](roadmap.md) for what's in/out of scope per phase and the known bugs that block later phases.
 
 ## Motivation
 

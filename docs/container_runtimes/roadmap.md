@@ -133,7 +133,6 @@ cells that depend on them can go green:
 
 ## Phase 3 (future)
 
-- Remaining `ContainerRuntime` methods migrated off the raw `Docker` struct.
 - pg-state matrix cells (needs `WithMatreshka` cluster fixture).
 - Client-side UX: `EnvironmentCreateDialog` gets a "dedicated Docker instance" checkbox plus inline instructions
   (what to mount / that binary mode needs no setup) so users know what enabling the toggle actually requires.

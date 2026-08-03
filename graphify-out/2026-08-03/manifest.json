@@ -2575,8 +2575,8 @@
     "semantic_hash": ""
   },
   "docs/jobs_migration.md": {
-    "mtime": 1785055396.3319306,
-    "ast_hash": "ffafcbed3412470284f1f44688d45523",
+    "mtime": 1785777996.5075788,
+    "ast_hash": "68d728b4b3d6590cd84c37c6c7b5298a",
     "semantic_hash": ""
   },
   "internal/jobs/assemble_config.go": {
@@ -3215,8 +3215,8 @@
     "semantic_hash": ""
   },
   "docs/container_runtimes/README.md": {
-    "mtime": 1785776180.9317377,
-    "ast_hash": "e2b0308c2b4df28e5dcd4ef3982bb332",
+    "mtime": 1785778010.0812352,
+    "ast_hash": "6fb08a35d86e72c31ce202bb90246250",
     "semantic_hash": ""
   },
   "docs/container_runtimes/interface_design.md": {
@@ -3225,8 +3225,8 @@
     "semantic_hash": ""
   },
   "docs/container_runtimes/roadmap.md": {
-    "mtime": 1785776198.509977,
-    "ast_hash": "12ed76d73e7db907a6fcbbe097b54892",
+    "mtime": 1785778018.785707,
+    "ast_hash": "ca5f583c753e36a71a041a148fe340fb",
     "semantic_hash": ""
   },
   "internal/service/service_manager/container_manager/inspect_test.go": {

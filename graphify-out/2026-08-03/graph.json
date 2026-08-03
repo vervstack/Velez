@@ -7,7 +7,7 @@
         "id": "velez_config_schema",
         "label": "Velez Configuration Environment Variable Schema",
         "nodes": [
-          "config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_configyaml",
+          "config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_configyaml",
           "config_configtemplate",
           "docs_configuration"
         ],
@@ -1401,7 +1401,7 @@
       "source_location": "L526",
       "_origin": "ast",
       "id": "matreshka_api_listconfigs_response",
-      "community": 430,
+      "community": 105,
       "norm_label": "listconfigs_response"
     },
     {
@@ -1411,7 +1411,7 @@
       "source_location": "L534",
       "_origin": "ast",
       "id": "matreshka_api_listconfigs_response_reset",
-      "community": 430,
+      "community": 105,
       "norm_label": ".reset()"
     },
     {
@@ -1421,7 +1421,7 @@
       "source_location": "L541",
       "_origin": "ast",
       "id": "matreshka_api_listconfigs_response_string",
-      "community": 430,
+      "community": 105,
       "norm_label": ".string()"
     },
     {
@@ -1431,7 +1431,7 @@
       "source_location": "L545",
       "_origin": "ast",
       "id": "matreshka_api_listconfigs_response_protomessage",
-      "community": 430,
+      "community": 105,
       "norm_label": ".protomessage()"
     },
     {
@@ -1441,7 +1441,7 @@
       "source_location": "L547",
       "_origin": "ast",
       "id": "matreshka_api_listconfigs_response_protoreflect",
-      "community": 430,
+      "community": 105,
       "norm_label": ".protoreflect()"
     },
     {
@@ -1451,7 +1451,7 @@
       "source_location": "L560",
       "_origin": "ast",
       "id": "matreshka_api_listconfigs_response_descriptor",
-      "community": 430,
+      "community": 105,
       "norm_label": ".descriptor()"
     },
     {
@@ -1461,7 +1461,7 @@
       "source_location": "L564",
       "_origin": "ast",
       "id": "matreshka_api_listconfigs_response_getconfigs",
-      "community": 430,
+      "community": 105,
       "norm_label": ".getconfigs()"
     },
     {
@@ -1471,7 +1471,7 @@
       "source_location": "L571",
       "_origin": "ast",
       "id": "matreshka_api_listconfigs_response_gettotalrecords",
-      "community": 430,
+      "community": 105,
       "norm_label": ".gettotalrecords()"
     },
     {
@@ -1481,7 +1481,7 @@
       "source_location": "L578",
       "_origin": "ast",
       "id": "matreshka_api_createconfig_request",
-      "community": 109,
+      "community": 142,
       "norm_label": "createconfig_request"
     },
     {
@@ -1491,7 +1491,7 @@
       "source_location": "L586",
       "_origin": "ast",
       "id": "matreshka_api_createconfig_request_reset",
-      "community": 109,
+      "community": 142,
       "norm_label": ".reset()"
     },
     {
@@ -1501,7 +1501,7 @@
       "source_location": "L593",
       "_origin": "ast",
       "id": "matreshka_api_createconfig_request_string",
-      "community": 109,
+      "community": 142,
       "norm_label": ".string()"
     },
     {
@@ -1511,7 +1511,7 @@
       "source_location": "L597",
       "_origin": "ast",
       "id": "matreshka_api_createconfig_request_protomessage",
-      "community": 109,
+      "community": 142,
       "norm_label": ".protomessage()"
     },
     {
@@ -1521,7 +1521,7 @@
       "source_location": "L599",
       "_origin": "ast",
       "id": "matreshka_api_createconfig_request_protoreflect",
-      "community": 109,
+      "community": 142,
       "norm_label": ".protoreflect()"
     },
     {
@@ -1531,7 +1531,7 @@
       "source_location": "L612",
       "_origin": "ast",
       "id": "matreshka_api_createconfig_request_descriptor",
-      "community": 109,
+      "community": 142,
       "norm_label": ".descriptor()"
     },
     {
@@ -1541,7 +1541,7 @@
       "source_location": "L616",
       "_origin": "ast",
       "id": "matreshka_api_createconfig_request_getconfigname",
-      "community": 109,
+      "community": 142,
       "norm_label": ".getconfigname()"
     },
     {
@@ -1621,7 +1621,7 @@
       "source_location": "L666",
       "_origin": "ast",
       "id": "matreshka_api_getconfig_request",
-      "community": 249,
+      "community": 109,
       "norm_label": "getconfig_request"
     },
     {
@@ -1631,7 +1631,7 @@
       "source_location": "L675",
       "_origin": "ast",
       "id": "matreshka_api_getconfig_request_reset",
-      "community": 249,
+      "community": 109,
       "norm_label": ".reset()"
     },
     {
@@ -1641,7 +1641,7 @@
       "source_location": "L682",
       "_origin": "ast",
       "id": "matreshka_api_getconfig_request_string",
-      "community": 249,
+      "community": 109,
       "norm_label": ".string()"
     },
     {
@@ -1651,7 +1651,7 @@
       "source_location": "L686",
       "_origin": "ast",
       "id": "matreshka_api_getconfig_request_protomessage",
-      "community": 249,
+      "community": 109,
       "norm_label": ".protomessage()"
     },
     {
@@ -1661,7 +1661,7 @@
       "source_location": "L688",
       "_origin": "ast",
       "id": "matreshka_api_getconfig_request_protoreflect",
-      "community": 249,
+      "community": 109,
       "norm_label": ".protoreflect()"
     },
     {
@@ -1671,7 +1671,7 @@
       "source_location": "L701",
       "_origin": "ast",
       "id": "matreshka_api_getconfig_request_descriptor",
-      "community": 249,
+      "community": 109,
       "norm_label": ".descriptor()"
     },
     {
@@ -1681,7 +1681,7 @@
       "source_location": "L705",
       "_origin": "ast",
       "id": "matreshka_api_getconfig_request_getconfigname",
-      "community": 249,
+      "community": 109,
       "norm_label": ".getconfigname()"
     },
     {
@@ -1691,7 +1691,7 @@
       "source_location": "L712",
       "_origin": "ast",
       "id": "matreshka_api_getconfig_request_getversion",
-      "community": 249,
+      "community": 109,
       "norm_label": ".getversion()"
     },
     {
@@ -1701,7 +1701,7 @@
       "source_location": "L719",
       "_origin": "ast",
       "id": "matreshka_api_getconfig_request_getformat",
-      "community": 249,
+      "community": 109,
       "norm_label": ".getformat()"
     },
     {
@@ -1711,7 +1711,7 @@
       "source_location": "L726",
       "_origin": "ast",
       "id": "matreshka_api_getconfig_response",
-      "community": 432,
+      "community": 105,
       "norm_label": "getconfig_response"
     },
     {
@@ -1721,7 +1721,7 @@
       "source_location": "L734",
       "_origin": "ast",
       "id": "matreshka_api_getconfig_response_reset",
-      "community": 432,
+      "community": 105,
       "norm_label": ".reset()"
     },
     {
@@ -1731,7 +1731,7 @@
       "source_location": "L741",
       "_origin": "ast",
       "id": "matreshka_api_getconfig_response_string",
-      "community": 432,
+      "community": 105,
       "norm_label": ".string()"
     },
     {
@@ -1741,7 +1741,7 @@
       "source_location": "L745",
       "_origin": "ast",
       "id": "matreshka_api_getconfig_response_protomessage",
-      "community": 432,
+      "community": 105,
       "norm_label": ".protomessage()"
     },
     {
@@ -1751,7 +1751,7 @@
       "source_location": "L747",
       "_origin": "ast",
       "id": "matreshka_api_getconfig_response_protoreflect",
-      "community": 432,
+      "community": 105,
       "norm_label": ".protoreflect()"
     },
     {
@@ -1761,7 +1761,7 @@
       "source_location": "L760",
       "_origin": "ast",
       "id": "matreshka_api_getconfig_response_descriptor",
-      "community": 432,
+      "community": 105,
       "norm_label": ".descriptor()"
     },
     {
@@ -1771,7 +1771,7 @@
       "source_location": "L764",
       "_origin": "ast",
       "id": "matreshka_api_getconfig_response_getconfig",
-      "community": 432,
+      "community": 105,
       "norm_label": ".getconfig()"
     },
     {
@@ -1781,7 +1781,7 @@
       "source_location": "L771",
       "_origin": "ast",
       "id": "matreshka_api_getconfig_response_getinfo",
-      "community": 432,
+      "community": 105,
       "norm_label": ".getinfo()"
     },
     {
@@ -1941,7 +1941,7 @@
       "source_location": "L874",
       "_origin": "ast",
       "id": "matreshka_api_saveconfig_request",
-      "community": 249,
+      "community": 109,
       "norm_label": "saveconfig_request"
     },
     {
@@ -1951,7 +1951,7 @@
       "source_location": "L885",
       "_origin": "ast",
       "id": "matreshka_api_saveconfig_request_reset",
-      "community": 249,
+      "community": 109,
       "norm_label": ".reset()"
     },
     {
@@ -1961,7 +1961,7 @@
       "source_location": "L892",
       "_origin": "ast",
       "id": "matreshka_api_saveconfig_request_string",
-      "community": 249,
+      "community": 109,
       "norm_label": ".string()"
     },
     {
@@ -1971,7 +1971,7 @@
       "source_location": "L896",
       "_origin": "ast",
       "id": "matreshka_api_saveconfig_request_protomessage",
-      "community": 249,
+      "community": 109,
       "norm_label": ".protomessage()"
     },
     {
@@ -1981,7 +1981,7 @@
       "source_location": "L898",
       "_origin": "ast",
       "id": "matreshka_api_saveconfig_request_protoreflect",
-      "community": 249,
+      "community": 109,
       "norm_label": ".protoreflect()"
     },
     {
@@ -1991,7 +1991,7 @@
       "source_location": "L911",
       "_origin": "ast",
       "id": "matreshka_api_saveconfig_request_descriptor",
-      "community": 249,
+      "community": 109,
       "norm_label": ".descriptor()"
     },
     {
@@ -2001,7 +2001,7 @@
       "source_location": "L915",
       "_origin": "ast",
       "id": "matreshka_api_saveconfig_request_getformat",
-      "community": 249,
+      "community": 109,
       "norm_label": ".getformat()"
     },
     {
@@ -2011,7 +2011,7 @@
       "source_location": "L922",
       "_origin": "ast",
       "id": "matreshka_api_saveconfig_request_getconfigname",
-      "community": 249,
+      "community": 109,
       "norm_label": ".getconfigname()"
     },
     {
@@ -2021,7 +2021,7 @@
       "source_location": "L929",
       "_origin": "ast",
       "id": "matreshka_api_saveconfig_request_getversion",
-      "community": 249,
+      "community": 109,
       "norm_label": ".getversion()"
     },
     {
@@ -2031,7 +2031,7 @@
       "source_location": "L936",
       "_origin": "ast",
       "id": "matreshka_api_saveconfig_request_getconfig",
-      "community": 249,
+      "community": 109,
       "norm_label": ".getconfig()"
     },
     {
@@ -2581,7 +2581,7 @@
       "source_location": "L1291",
       "_origin": "ast",
       "id": "matreshka_api_deleteconfig_request",
-      "community": 144,
+      "community": 40,
       "norm_label": "deleteconfig_request"
     },
     {
@@ -2591,7 +2591,7 @@
       "source_location": "L1299",
       "_origin": "ast",
       "id": "matreshka_api_deleteconfig_request_reset",
-      "community": 144,
+      "community": 40,
       "norm_label": ".reset()"
     },
     {
@@ -2601,7 +2601,7 @@
       "source_location": "L1306",
       "_origin": "ast",
       "id": "matreshka_api_deleteconfig_request_string",
-      "community": 144,
+      "community": 40,
       "norm_label": ".string()"
     },
     {
@@ -2611,7 +2611,7 @@
       "source_location": "L1310",
       "_origin": "ast",
       "id": "matreshka_api_deleteconfig_request_protomessage",
-      "community": 144,
+      "community": 40,
       "norm_label": ".protomessage()"
     },
     {
@@ -2621,7 +2621,7 @@
       "source_location": "L1312",
       "_origin": "ast",
       "id": "matreshka_api_deleteconfig_request_protoreflect",
-      "community": 144,
+      "community": 40,
       "norm_label": ".protoreflect()"
     },
     {
@@ -2631,7 +2631,7 @@
       "source_location": "L1325",
       "_origin": "ast",
       "id": "matreshka_api_deleteconfig_request_descriptor",
-      "community": 144,
+      "community": 40,
       "norm_label": ".descriptor()"
     },
     {
@@ -2641,7 +2641,7 @@
       "source_location": "L1329",
       "_origin": "ast",
       "id": "matreshka_api_deleteconfig_request_getconfigname",
-      "community": 144,
+      "community": 40,
       "norm_label": ".getconfigname()"
     },
     {
@@ -2651,7 +2651,7 @@
       "source_location": "L1336",
       "_origin": "ast",
       "id": "matreshka_api_deleteconfig_request_getconfigversion",
-      "community": 144,
+      "community": 40,
       "norm_label": ".getconfigversion()"
     },
     {
@@ -3231,7 +3231,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_api_clients_matreshka_pkg_matreshka_api_matreshka_common_pb",
-      "community": 105,
+      "community": 109,
       "norm_label": "matreshka_common.pb.go"
     },
     {
@@ -3341,7 +3341,7 @@
       "source_location": "L92",
       "_origin": "ast",
       "id": "matreshka_api_format",
-      "community": 249,
+      "community": 109,
       "norm_label": "format"
     },
     {
@@ -3351,7 +3351,7 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "matreshka_api_format_enum",
-      "community": 249,
+      "community": 109,
       "norm_label": ".enum()"
     },
     {
@@ -3401,7 +3401,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "matreshka_api_format_enumdescriptor",
-      "community": 249,
+      "community": 109,
       "norm_label": ".enumdescriptor()"
     },
     {
@@ -3571,7 +3571,7 @@
       "source_location": "L221",
       "_origin": "ast",
       "id": "matreshka_api_paging_descriptor",
-      "community": 105,
+      "community": 109,
       "norm_label": ".descriptor()"
     },
     {
@@ -3651,7 +3651,7 @@
       "source_location": "L273",
       "_origin": "ast",
       "id": "matreshka_api_sort_descriptor",
-      "community": 105,
+      "community": 109,
       "norm_label": ".descriptor()"
     },
     {
@@ -3731,7 +3731,7 @@
       "source_location": "L326",
       "_origin": "ast",
       "id": "matreshka_api_node_descriptor",
-      "community": 105,
+      "community": 109,
       "norm_label": ".descriptor()"
     },
     {
@@ -3831,7 +3831,7 @@
       "source_location": "L388",
       "_origin": "ast",
       "id": "matreshka_api_configbase_descriptor",
-      "community": 105,
+      "community": 109,
       "norm_label": ".descriptor()"
     },
     {
@@ -3941,7 +3941,7 @@
       "source_location": "L461",
       "_origin": "ast",
       "id": "matreshka_api_configinfo_descriptor",
-      "community": 105,
+      "community": 109,
       "norm_label": ".descriptor()"
     },
     {
@@ -4091,7 +4091,7 @@
       "source_location": "L567",
       "_origin": "ast",
       "id": "matreshka_api_patch_rename",
-      "community": 105,
+      "community": 109,
       "norm_label": "patch_rename"
     },
     {
@@ -4101,7 +4101,7 @@
       "source_location": "L571",
       "_origin": "ast",
       "id": "matreshka_api_patch_updatevalue",
-      "community": 105,
+      "community": 109,
       "norm_label": "patch_updatevalue"
     },
     {
@@ -4111,7 +4111,7 @@
       "source_location": "L575",
       "_origin": "ast",
       "id": "matreshka_api_patch_delete",
-      "community": 105,
+      "community": 109,
       "norm_label": "patch_delete"
     },
     {
@@ -4121,7 +4121,7 @@
       "source_location": "L579",
       "_origin": "ast",
       "id": "matreshka_api_patch_rename_ispatch_patch",
-      "community": 105,
+      "community": 109,
       "norm_label": ".ispatch_patch()"
     },
     {
@@ -4131,7 +4131,7 @@
       "source_location": "L581",
       "_origin": "ast",
       "id": "matreshka_api_patch_updatevalue_ispatch_patch",
-      "community": 105,
+      "community": 109,
       "norm_label": ".ispatch_patch()"
     },
     {
@@ -4141,7 +4141,7 @@
       "source_location": "L583",
       "_origin": "ast",
       "id": "matreshka_api_patch_delete_ispatch_patch",
-      "community": 105,
+      "community": 109,
       "norm_label": ".ispatch_patch()"
     },
     {
@@ -4151,7 +4151,7 @@
       "source_location": "L645",
       "_origin": "ast",
       "id": "internal_api_clients_matreshka_pkg_matreshka_api_matreshka_common_pb_file_matreshka_common_proto_rawdescgzip",
-      "community": 105,
+      "community": 109,
       "norm_label": "file_matreshka_common_proto_rawdescgzip()"
     },
     {
@@ -4161,7 +4161,7 @@
       "source_location": "L680",
       "_origin": "ast",
       "id": "internal_api_clients_matreshka_pkg_matreshka_api_matreshka_common_pb_init",
-      "community": 105,
+      "community": 109,
       "norm_label": "init()"
     },
     {
@@ -4171,7 +4171,7 @@
       "source_location": "L681",
       "_origin": "ast",
       "id": "internal_api_clients_matreshka_pkg_matreshka_api_matreshka_common_pb_file_matreshka_common_proto_init",
-      "community": 105,
+      "community": 109,
       "norm_label": "file_matreshka_common_proto_init()"
     },
     {
@@ -4371,7 +4371,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_api_server_velez_api_control_plane_api_pb_go_messagestate",
-      "community": 159,
+      "community": 685,
       "norm_label": "messagestate"
     },
     {
@@ -4391,7 +4391,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_api_server_velez_api_control_plane_api_pb_go_sizecache",
-      "community": 159,
+      "community": 89,
       "norm_label": "sizecache"
     },
     {
@@ -4671,7 +4671,7 @@
       "source_location": "L311",
       "_origin": "ast",
       "id": "velez_api_connectslave",
-      "community": 741,
+      "community": 685,
       "norm_label": "connectslave"
     },
     {
@@ -4681,7 +4681,7 @@
       "source_location": "L317",
       "_origin": "ast",
       "id": "velez_api_connectslave_reset",
-      "community": 741,
+      "community": 685,
       "norm_label": ".reset()"
     },
     {
@@ -4691,7 +4691,7 @@
       "source_location": "L324",
       "_origin": "ast",
       "id": "velez_api_connectslave_string",
-      "community": 741,
+      "community": 685,
       "norm_label": ".string()"
     },
     {
@@ -4701,7 +4701,7 @@
       "source_location": "L328",
       "_origin": "ast",
       "id": "velez_api_connectslave_protomessage",
-      "community": 741,
+      "community": 685,
       "norm_label": ".protomessage()"
     },
     {
@@ -4721,7 +4721,7 @@
       "source_location": "L343",
       "_origin": "ast",
       "id": "velez_api_connectslave_descriptor",
-      "community": 741,
+      "community": 212,
       "norm_label": ".descriptor()"
     },
     {
@@ -5121,7 +5121,7 @@
       "source_location": "L577",
       "_origin": "ast",
       "id": "velez_api_listplugins",
-      "community": 212,
+      "community": 89,
       "norm_label": "listplugins"
     },
     {
@@ -5131,7 +5131,7 @@
       "source_location": "L583",
       "_origin": "ast",
       "id": "velez_api_listplugins_reset",
-      "community": 212,
+      "community": 89,
       "norm_label": ".reset()"
     },
     {
@@ -5141,7 +5141,7 @@
       "source_location": "L590",
       "_origin": "ast",
       "id": "velez_api_listplugins_string",
-      "community": 212,
+      "community": 89,
       "norm_label": ".string()"
     },
     {
@@ -5151,7 +5151,7 @@
       "source_location": "L594",
       "_origin": "ast",
       "id": "velez_api_listplugins_protomessage",
-      "community": 212,
+      "community": 89,
       "norm_label": ".protomessage()"
     },
     {
@@ -5161,7 +5161,7 @@
       "source_location": "L596",
       "_origin": "ast",
       "id": "velez_api_listplugins_protoreflect",
-      "community": 212,
+      "community": 89,
       "norm_label": ".protoreflect()"
     },
     {
@@ -5171,7 +5171,7 @@
       "source_location": "L609",
       "_origin": "ast",
       "id": "velez_api_listplugins_descriptor",
-      "community": 212,
+      "community": 89,
       "norm_label": ".descriptor()"
     },
     {
@@ -5361,7 +5361,7 @@
       "source_location": "L725",
       "_origin": "ast",
       "id": "velez_api_createenvironment",
-      "community": 159,
+      "community": 741,
       "norm_label": "createenvironment"
     },
     {
@@ -5371,7 +5371,7 @@
       "source_location": "L731",
       "_origin": "ast",
       "id": "velez_api_createenvironment_reset",
-      "community": 159,
+      "community": 741,
       "norm_label": ".reset()"
     },
     {
@@ -5381,7 +5381,7 @@
       "source_location": "L738",
       "_origin": "ast",
       "id": "velez_api_createenvironment_string",
-      "community": 159,
+      "community": 741,
       "norm_label": ".string()"
     },
     {
@@ -5391,7 +5391,7 @@
       "source_location": "L742",
       "_origin": "ast",
       "id": "velez_api_createenvironment_protomessage",
-      "community": 159,
+      "community": 741,
       "norm_label": ".protomessage()"
     },
     {
@@ -5401,7 +5401,7 @@
       "source_location": "L744",
       "_origin": "ast",
       "id": "velez_api_createenvironment_protoreflect",
-      "community": 159,
+      "community": 741,
       "norm_label": ".protoreflect()"
     },
     {
@@ -5411,7 +5411,7 @@
       "source_location": "L757",
       "_origin": "ast",
       "id": "velez_api_createenvironment_descriptor",
-      "community": 159,
+      "community": 741,
       "norm_label": ".descriptor()"
     },
     {
@@ -5421,7 +5421,7 @@
       "source_location": "L761",
       "_origin": "ast",
       "id": "velez_api_updateenvironment",
-      "community": 159,
+      "community": 89,
       "norm_label": "updateenvironment"
     },
     {
@@ -5431,7 +5431,7 @@
       "source_location": "L767",
       "_origin": "ast",
       "id": "velez_api_updateenvironment_reset",
-      "community": 159,
+      "community": 89,
       "norm_label": ".reset()"
     },
     {
@@ -5441,7 +5441,7 @@
       "source_location": "L774",
       "_origin": "ast",
       "id": "velez_api_updateenvironment_string",
-      "community": 159,
+      "community": 89,
       "norm_label": ".string()"
     },
     {
@@ -5451,7 +5451,7 @@
       "source_location": "L778",
       "_origin": "ast",
       "id": "velez_api_updateenvironment_protomessage",
-      "community": 159,
+      "community": 89,
       "norm_label": ".protomessage()"
     },
     {
@@ -5461,7 +5461,7 @@
       "source_location": "L780",
       "_origin": "ast",
       "id": "velez_api_updateenvironment_protoreflect",
-      "community": 159,
+      "community": 89,
       "norm_label": ".protoreflect()"
     },
     {
@@ -5471,7 +5471,7 @@
       "source_location": "L793",
       "_origin": "ast",
       "id": "velez_api_updateenvironment_descriptor",
-      "community": 159,
+      "community": 89,
       "norm_label": ".descriptor()"
     },
     {
@@ -5481,7 +5481,7 @@
       "source_location": "L797",
       "_origin": "ast",
       "id": "velez_api_deleteenvironment",
-      "community": 159,
+      "community": 685,
       "norm_label": "deleteenvironment"
     },
     {
@@ -5491,7 +5491,7 @@
       "source_location": "L803",
       "_origin": "ast",
       "id": "velez_api_deleteenvironment_reset",
-      "community": 159,
+      "community": 685,
       "norm_label": ".reset()"
     },
     {
@@ -5501,7 +5501,7 @@
       "source_location": "L810",
       "_origin": "ast",
       "id": "velez_api_deleteenvironment_string",
-      "community": 159,
+      "community": 685,
       "norm_label": ".string()"
     },
     {
@@ -5511,7 +5511,7 @@
       "source_location": "L814",
       "_origin": "ast",
       "id": "velez_api_deleteenvironment_protomessage",
-      "community": 159,
+      "community": 685,
       "norm_label": ".protomessage()"
     },
     {
@@ -5521,7 +5521,7 @@
       "source_location": "L816",
       "_origin": "ast",
       "id": "velez_api_deleteenvironment_protoreflect",
-      "community": 741,
+      "community": 685,
       "norm_label": ".protoreflect()"
     },
     {
@@ -5531,7 +5531,7 @@
       "source_location": "L829",
       "_origin": "ast",
       "id": "velez_api_deleteenvironment_descriptor",
-      "community": 212,
+      "community": 685,
       "norm_label": ".descriptor()"
     },
     {
@@ -6471,7 +6471,7 @@
       "source_location": "L1402",
       "_origin": "ast",
       "id": "velez_api_listplugins_request",
-      "community": 159,
+      "community": 144,
       "norm_label": "listplugins_request"
     },
     {
@@ -6481,7 +6481,7 @@
       "source_location": "L1408",
       "_origin": "ast",
       "id": "velez_api_listplugins_request_reset",
-      "community": 159,
+      "community": 144,
       "norm_label": ".reset()"
     },
     {
@@ -6491,7 +6491,7 @@
       "source_location": "L1415",
       "_origin": "ast",
       "id": "velez_api_listplugins_request_string",
-      "community": 159,
+      "community": 144,
       "norm_label": ".string()"
     },
     {
@@ -6501,7 +6501,7 @@
       "source_location": "L1419",
       "_origin": "ast",
       "id": "velez_api_listplugins_request_protomessage",
-      "community": 159,
+      "community": 144,
       "norm_label": ".protomessage()"
     },
     {
@@ -6511,7 +6511,7 @@
       "source_location": "L1421",
       "_origin": "ast",
       "id": "velez_api_listplugins_request_protoreflect",
-      "community": 159,
+      "community": 144,
       "norm_label": ".protoreflect()"
     },
     {
@@ -6521,7 +6521,7 @@
       "source_location": "L1434",
       "_origin": "ast",
       "id": "velez_api_listplugins_request_descriptor",
-      "community": 159,
+      "community": 144,
       "norm_label": ".descriptor()"
     },
     {
@@ -6731,7 +6731,7 @@
       "source_location": "L1562",
       "_origin": "ast",
       "id": "velez_api_createenvironment_request",
-      "community": 433,
+      "community": 212,
       "norm_label": "createenvironment_request"
     },
     {
@@ -6741,7 +6741,7 @@
       "source_location": "L1570",
       "_origin": "ast",
       "id": "velez_api_createenvironment_request_reset",
-      "community": 433,
+      "community": 212,
       "norm_label": ".reset()"
     },
     {
@@ -6751,7 +6751,7 @@
       "source_location": "L1577",
       "_origin": "ast",
       "id": "velez_api_createenvironment_request_string",
-      "community": 433,
+      "community": 212,
       "norm_label": ".string()"
     },
     {
@@ -6761,7 +6761,7 @@
       "source_location": "L1581",
       "_origin": "ast",
       "id": "velez_api_createenvironment_request_protomessage",
-      "community": 433,
+      "community": 212,
       "norm_label": ".protomessage()"
     },
     {
@@ -6771,7 +6771,7 @@
       "source_location": "L1583",
       "_origin": "ast",
       "id": "velez_api_createenvironment_request_protoreflect",
-      "community": 433,
+      "community": 212,
       "norm_label": ".protoreflect()"
     },
     {
@@ -6781,7 +6781,7 @@
       "source_location": "L1596",
       "_origin": "ast",
       "id": "velez_api_createenvironment_request_descriptor",
-      "community": 433,
+      "community": 212,
       "norm_label": ".descriptor()"
     },
     {
@@ -6791,7 +6791,7 @@
       "source_location": "L1600",
       "_origin": "ast",
       "id": "velez_api_createenvironment_request_getname",
-      "community": 433,
+      "community": 212,
       "norm_label": ".getname()"
     },
     {
@@ -6801,7 +6801,7 @@
       "source_location": "L1607",
       "_origin": "ast",
       "id": "velez_api_createenvironment_request_getsuffix",
-      "community": 433,
+      "community": 212,
       "norm_label": ".getsuffix()"
     },
     {
@@ -7121,7 +7121,7 @@
       "source_location": "L1814",
       "_origin": "ast",
       "id": "velez_api_deleteenvironment_response",
-      "community": 159,
+      "community": 89,
       "norm_label": "deleteenvironment_response"
     },
     {
@@ -7131,7 +7131,7 @@
       "source_location": "L1820",
       "_origin": "ast",
       "id": "velez_api_deleteenvironment_response_reset",
-      "community": 159,
+      "community": 89,
       "norm_label": ".reset()"
     },
     {
@@ -7141,7 +7141,7 @@
       "source_location": "L1827",
       "_origin": "ast",
       "id": "velez_api_deleteenvironment_response_string",
-      "community": 159,
+      "community": 89,
       "norm_label": ".string()"
     },
     {
@@ -7151,7 +7151,7 @@
       "source_location": "L1831",
       "_origin": "ast",
       "id": "velez_api_deleteenvironment_response_protomessage",
-      "community": 159,
+      "community": 89,
       "norm_label": ".protomessage()"
     },
     {
@@ -8311,7 +8311,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_api_server_velez_api_service_api_pb_go_sizecache",
-      "community": 749,
+      "community": 496,
       "norm_label": "sizecache"
     },
     {
@@ -8351,7 +8351,7 @@
       "source_location": "L156",
       "_origin": "ast",
       "id": "velez_api_createservice_protoreflect",
-      "community": 496,
+      "community": 498,
       "norm_label": ".protoreflect()"
     },
     {
@@ -8361,7 +8361,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_api_server_velez_api_service_api_pb_go_message",
-      "community": 496,
+      "community": 498,
       "norm_label": "message"
     },
     {
@@ -8511,7 +8511,7 @@
       "source_location": "L265",
       "_origin": "ast",
       "id": "velez_api_getservice",
-      "community": 142,
+      "community": 178,
       "norm_label": "getservice"
     },
     {
@@ -8521,7 +8521,7 @@
       "source_location": "L271",
       "_origin": "ast",
       "id": "velez_api_getservice_reset",
-      "community": 142,
+      "community": 178,
       "norm_label": ".reset()"
     },
     {
@@ -8531,7 +8531,7 @@
       "source_location": "L278",
       "_origin": "ast",
       "id": "velez_api_getservice_string",
-      "community": 142,
+      "community": 178,
       "norm_label": ".string()"
     },
     {
@@ -8541,7 +8541,7 @@
       "source_location": "L282",
       "_origin": "ast",
       "id": "velez_api_getservice_protomessage",
-      "community": 142,
+      "community": 178,
       "norm_label": ".protomessage()"
     },
     {
@@ -8551,7 +8551,7 @@
       "source_location": "L284",
       "_origin": "ast",
       "id": "velez_api_getservice_protoreflect",
-      "community": 142,
+      "community": 178,
       "norm_label": ".protoreflect()"
     },
     {
@@ -8561,7 +8561,7 @@
       "source_location": "L297",
       "_origin": "ast",
       "id": "velez_api_getservice_descriptor",
-      "community": 142,
+      "community": 178,
       "norm_label": ".descriptor()"
     },
     {
@@ -8921,7 +8921,7 @@
       "source_location": "L525",
       "_origin": "ast",
       "id": "velez_api_listservices",
-      "community": 749,
+      "community": 249,
       "norm_label": "listservices"
     },
     {
@@ -8931,7 +8931,7 @@
       "source_location": "L531",
       "_origin": "ast",
       "id": "velez_api_listservices_reset",
-      "community": 749,
+      "community": 249,
       "norm_label": ".reset()"
     },
     {
@@ -8941,7 +8941,7 @@
       "source_location": "L538",
       "_origin": "ast",
       "id": "velez_api_listservices_string",
-      "community": 749,
+      "community": 249,
       "norm_label": ".string()"
     },
     {
@@ -8951,7 +8951,7 @@
       "source_location": "L542",
       "_origin": "ast",
       "id": "velez_api_listservices_protomessage",
-      "community": 749,
+      "community": 249,
       "norm_label": ".protomessage()"
     },
     {
@@ -8961,7 +8961,7 @@
       "source_location": "L544",
       "_origin": "ast",
       "id": "velez_api_listservices_protoreflect",
-      "community": 749,
+      "community": 249,
       "norm_label": ".protoreflect()"
     },
     {
@@ -8971,7 +8971,7 @@
       "source_location": "L557",
       "_origin": "ast",
       "id": "velez_api_listservices_descriptor",
-      "community": 749,
+      "community": 249,
       "norm_label": ".descriptor()"
     },
     {
@@ -9141,7 +9141,7 @@
       "source_location": "L664",
       "_origin": "ast",
       "id": "velez_api_stopservice_protoreflect",
-      "community": 496,
+      "community": 498,
       "norm_label": ".protoreflect()"
     },
     {
@@ -9221,7 +9221,7 @@
       "source_location": "L717",
       "_origin": "ast",
       "id": "velez_api_removeservice",
-      "community": 93,
+      "community": 498,
       "norm_label": "removeservice"
     },
     {
@@ -9231,7 +9231,7 @@
       "source_location": "L723",
       "_origin": "ast",
       "id": "velez_api_removeservice_reset",
-      "community": 93,
+      "community": 498,
       "norm_label": ".reset()"
     },
     {
@@ -9241,7 +9241,7 @@
       "source_location": "L730",
       "_origin": "ast",
       "id": "velez_api_removeservice_string",
-      "community": 93,
+      "community": 498,
       "norm_label": ".string()"
     },
     {
@@ -9251,7 +9251,7 @@
       "source_location": "L734",
       "_origin": "ast",
       "id": "velez_api_removeservice_protomessage",
-      "community": 93,
+      "community": 498,
       "norm_label": ".protomessage()"
     },
     {
@@ -9261,7 +9261,7 @@
       "source_location": "L736",
       "_origin": "ast",
       "id": "velez_api_removeservice_protoreflect",
-      "community": 93,
+      "community": 498,
       "norm_label": ".protoreflect()"
     },
     {
@@ -9271,7 +9271,7 @@
       "source_location": "L749",
       "_origin": "ast",
       "id": "velez_api_removeservice_descriptor",
-      "community": 93,
+      "community": 498,
       "norm_label": ".descriptor()"
     },
     {
@@ -9431,7 +9431,7 @@
       "source_location": "L849",
       "_origin": "ast",
       "id": "velez_api_getserviceresources",
-      "community": 683,
+      "community": 498,
       "norm_label": "getserviceresources"
     },
     {
@@ -9441,7 +9441,7 @@
       "source_location": "L855",
       "_origin": "ast",
       "id": "velez_api_getserviceresources_reset",
-      "community": 683,
+      "community": 498,
       "norm_label": ".reset()"
     },
     {
@@ -9451,7 +9451,7 @@
       "source_location": "L862",
       "_origin": "ast",
       "id": "velez_api_getserviceresources_string",
-      "community": 683,
+      "community": 498,
       "norm_label": ".string()"
     },
     {
@@ -9461,7 +9461,7 @@
       "source_location": "L866",
       "_origin": "ast",
       "id": "velez_api_getserviceresources_protomessage",
-      "community": 683,
+      "community": 498,
       "norm_label": ".protomessage()"
     },
     {
@@ -9471,7 +9471,7 @@
       "source_location": "L868",
       "_origin": "ast",
       "id": "velez_api_getserviceresources_protoreflect",
-      "community": 683,
+      "community": 498,
       "norm_label": ".protoreflect()"
     },
     {
@@ -9481,7 +9481,7 @@
       "source_location": "L881",
       "_origin": "ast",
       "id": "velez_api_getserviceresources_descriptor",
-      "community": 683,
+      "community": 498,
       "norm_label": ".descriptor()"
     },
     {
@@ -9591,7 +9591,7 @@
       "source_location": "L953",
       "_origin": "ast",
       "id": "velez_api_getservicegraph",
-      "community": 496,
+      "community": 178,
       "norm_label": "getservicegraph"
     },
     {
@@ -9601,7 +9601,7 @@
       "source_location": "L959",
       "_origin": "ast",
       "id": "velez_api_getservicegraph_reset",
-      "community": 496,
+      "community": 178,
       "norm_label": ".reset()"
     },
     {
@@ -9611,7 +9611,7 @@
       "source_location": "L966",
       "_origin": "ast",
       "id": "velez_api_getservicegraph_string",
-      "community": 496,
+      "community": 178,
       "norm_label": ".string()"
     },
     {
@@ -9621,7 +9621,7 @@
       "source_location": "L970",
       "_origin": "ast",
       "id": "velez_api_getservicegraph_protomessage",
-      "community": 496,
+      "community": 178,
       "norm_label": ".protomessage()"
     },
     {
@@ -9631,7 +9631,7 @@
       "source_location": "L972",
       "_origin": "ast",
       "id": "velez_api_getservicegraph_protoreflect",
-      "community": 496,
+      "community": 178,
       "norm_label": ".protoreflect()"
     },
     {
@@ -9641,7 +9641,7 @@
       "source_location": "L985",
       "_origin": "ast",
       "id": "velez_api_getservicegraph_descriptor",
-      "community": 496,
+      "community": 178,
       "norm_label": ".descriptor()"
     },
     {
@@ -9821,7 +9821,7 @@
       "source_location": "L1101",
       "_origin": "ast",
       "id": "velez_api_getvervonomicon",
-      "community": 178,
+      "community": 496,
       "norm_label": "getvervonomicon"
     },
     {
@@ -9831,7 +9831,7 @@
       "source_location": "L1107",
       "_origin": "ast",
       "id": "velez_api_getvervonomicon_reset",
-      "community": 178,
+      "community": 496,
       "norm_label": ".reset()"
     },
     {
@@ -9841,7 +9841,7 @@
       "source_location": "L1114",
       "_origin": "ast",
       "id": "velez_api_getvervonomicon_string",
-      "community": 178,
+      "community": 496,
       "norm_label": ".string()"
     },
     {
@@ -9851,7 +9851,7 @@
       "source_location": "L1118",
       "_origin": "ast",
       "id": "velez_api_getvervonomicon_protomessage",
-      "community": 178,
+      "community": 496,
       "norm_label": ".protomessage()"
     },
     {
@@ -9861,7 +9861,7 @@
       "source_location": "L1120",
       "_origin": "ast",
       "id": "velez_api_getvervonomicon_protoreflect",
-      "community": 178,
+      "community": 496,
       "norm_label": ".protoreflect()"
     },
     {
@@ -9871,7 +9871,7 @@
       "source_location": "L1133",
       "_origin": "ast",
       "id": "velez_api_getvervonomicon_descriptor",
-      "community": 178,
+      "community": 496,
       "norm_label": ".descriptor()"
     },
     {
@@ -10391,7 +10391,7 @@
       "source_location": "L1450",
       "_origin": "ast",
       "id": "velez_api_createdeploy_response",
-      "community": 178,
+      "community": 93,
       "norm_label": "createdeploy_response"
     },
     {
@@ -10401,7 +10401,7 @@
       "source_location": "L1456",
       "_origin": "ast",
       "id": "velez_api_createdeploy_response_reset",
-      "community": 178,
+      "community": 93,
       "norm_label": ".reset()"
     },
     {
@@ -10411,7 +10411,7 @@
       "source_location": "L1463",
       "_origin": "ast",
       "id": "velez_api_createdeploy_response_string",
-      "community": 178,
+      "community": 93,
       "norm_label": ".string()"
     },
     {
@@ -10421,7 +10421,7 @@
       "source_location": "L1467",
       "_origin": "ast",
       "id": "velez_api_createdeploy_response_protomessage",
-      "community": 178,
+      "community": 93,
       "norm_label": ".protomessage()"
     },
     {
@@ -10431,7 +10431,7 @@
       "source_location": "L1469",
       "_origin": "ast",
       "id": "velez_api_createdeploy_response_protoreflect",
-      "community": 178,
+      "community": 93,
       "norm_label": ".protoreflect()"
     },
     {
@@ -10441,7 +10441,7 @@
       "source_location": "L1482",
       "_origin": "ast",
       "id": "velez_api_createdeploy_response_descriptor",
-      "community": 178,
+      "community": 93,
       "norm_label": ".descriptor()"
     },
     {
@@ -11981,7 +11981,7 @@
       "source_location": "L2488",
       "_origin": "ast",
       "id": "velez_api_getvervonomicon_response",
-      "community": 749,
+      "community": 496,
       "norm_label": "getvervonomicon_response"
     },
     {
@@ -11991,7 +11991,7 @@
       "source_location": "L2494",
       "_origin": "ast",
       "id": "velez_api_getvervonomicon_response_reset",
-      "community": 749,
+      "community": 496,
       "norm_label": ".reset()"
     },
     {
@@ -12001,7 +12001,7 @@
       "source_location": "L2501",
       "_origin": "ast",
       "id": "velez_api_getvervonomicon_response_string",
-      "community": 749,
+      "community": 496,
       "norm_label": ".string()"
     },
     {
@@ -12011,7 +12011,7 @@
       "source_location": "L2505",
       "_origin": "ast",
       "id": "velez_api_getvervonomicon_response_protomessage",
-      "community": 749,
+      "community": 496,
       "norm_label": ".protomessage()"
     },
     {
@@ -12021,7 +12021,7 @@
       "source_location": "L2507",
       "_origin": "ast",
       "id": "velez_api_getvervonomicon_response_protoreflect",
-      "community": 496,
+      "community": 498,
       "norm_label": ".protoreflect()"
     },
     {
@@ -15571,7 +15571,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_api_server_velez_api_velez_api_pb",
-      "community": 234,
+      "community": 99,
       "norm_label": "velez_api.pb.go"
     },
     {
@@ -15591,7 +15591,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_api_server_velez_api_velez_api_pb_go_messagestate",
-      "community": 99,
+      "community": 146,
       "norm_label": "messagestate"
     },
     {
@@ -15601,7 +15601,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_api_server_velez_api_velez_api_pb_go_unknownfields",
-      "community": 118,
+      "community": 258,
       "norm_label": "unknownfields"
     },
     {
@@ -15611,7 +15611,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_api_server_velez_api_velez_api_pb_go_sizecache",
-      "community": 146,
+      "community": 261,
       "norm_label": "sizecache"
     },
     {
@@ -15921,7 +15921,7 @@
       "source_location": "L206",
       "_origin": "ast",
       "id": "velez_api_assembleconfig",
-      "community": 118,
+      "community": 261,
       "norm_label": "assembleconfig"
     },
     {
@@ -15931,7 +15931,7 @@
       "source_location": "L212",
       "_origin": "ast",
       "id": "velez_api_assembleconfig_reset",
-      "community": 118,
+      "community": 261,
       "norm_label": ".reset()"
     },
     {
@@ -15941,7 +15941,7 @@
       "source_location": "L219",
       "_origin": "ast",
       "id": "velez_api_assembleconfig_string",
-      "community": 118,
+      "community": 261,
       "norm_label": ".string()"
     },
     {
@@ -15951,7 +15951,7 @@
       "source_location": "L223",
       "_origin": "ast",
       "id": "velez_api_assembleconfig_protomessage",
-      "community": 118,
+      "community": 261,
       "norm_label": ".protomessage()"
     },
     {
@@ -15971,7 +15971,7 @@
       "source_location": "L238",
       "_origin": "ast",
       "id": "velez_api_assembleconfig_descriptor",
-      "community": 126,
+      "community": 234,
       "norm_label": ".descriptor()"
     },
     {
@@ -16041,7 +16041,7 @@
       "source_location": "L278",
       "_origin": "ast",
       "id": "velez_api_makeconnections",
-      "community": 118,
+      "community": 258,
       "norm_label": "makeconnections"
     },
     {
@@ -16051,7 +16051,7 @@
       "source_location": "L284",
       "_origin": "ast",
       "id": "velez_api_makeconnections_reset",
-      "community": 118,
+      "community": 258,
       "norm_label": ".reset()"
     },
     {
@@ -16061,7 +16061,7 @@
       "source_location": "L291",
       "_origin": "ast",
       "id": "velez_api_makeconnections_string",
-      "community": 118,
+      "community": 258,
       "norm_label": ".string()"
     },
     {
@@ -16071,7 +16071,7 @@
       "source_location": "L295",
       "_origin": "ast",
       "id": "velez_api_makeconnections_protomessage",
-      "community": 118,
+      "community": 258,
       "norm_label": ".protomessage()"
     },
     {
@@ -16081,7 +16081,7 @@
       "source_location": "L297",
       "_origin": "ast",
       "id": "velez_api_makeconnections_protoreflect",
-      "community": 118,
+      "community": 436,
       "norm_label": ".protoreflect()"
     },
     {
@@ -16091,7 +16091,7 @@
       "source_location": "L310",
       "_origin": "ast",
       "id": "velez_api_makeconnections_descriptor",
-      "community": 118,
+      "community": 234,
       "norm_label": ".descriptor()"
     },
     {
@@ -16161,7 +16161,7 @@
       "source_location": "L350",
       "_origin": "ast",
       "id": "velez_api_searchimages",
-      "community": 99,
+      "community": 257,
       "norm_label": "searchimages"
     },
     {
@@ -16171,7 +16171,7 @@
       "source_location": "L356",
       "_origin": "ast",
       "id": "velez_api_searchimages_reset",
-      "community": 99,
+      "community": 257,
       "norm_label": ".reset()"
     },
     {
@@ -16181,7 +16181,7 @@
       "source_location": "L363",
       "_origin": "ast",
       "id": "velez_api_searchimages_string",
-      "community": 99,
+      "community": 257,
       "norm_label": ".string()"
     },
     {
@@ -16191,7 +16191,7 @@
       "source_location": "L367",
       "_origin": "ast",
       "id": "velez_api_searchimages_protomessage",
-      "community": 99,
+      "community": 257,
       "norm_label": ".protomessage()"
     },
     {
@@ -16201,7 +16201,7 @@
       "source_location": "L369",
       "_origin": "ast",
       "id": "velez_api_searchimages_protoreflect",
-      "community": 436,
+      "community": 257,
       "norm_label": ".protoreflect()"
     },
     {
@@ -16211,7 +16211,7 @@
       "source_location": "L382",
       "_origin": "ast",
       "id": "velez_api_searchimages_descriptor",
-      "community": 126,
+      "community": 257,
       "norm_label": ".descriptor()"
     },
     {
@@ -16461,7 +16461,7 @@
       "source_location": "L533",
       "_origin": "ast",
       "id": "velez_api_createsmerd_request_descriptor",
-      "community": 126,
+      "community": 234,
       "norm_label": ".descriptor()"
     },
     {
@@ -17921,7 +17921,7 @@
       "source_location": "L1475",
       "_origin": "ast",
       "id": "velez_api_breakconnections_response_descriptor",
-      "community": 126,
+      "community": 234,
       "norm_label": ".descriptor()"
     },
     {
@@ -18101,7 +18101,7 @@
       "source_location": "L1719",
       "_origin": "ast",
       "id": "internal_api_server_velez_api_velez_api_pb_file_velez_api_proto_rawdescgzip",
-      "community": 126,
+      "community": 234,
       "norm_label": "file_velez_api_proto_rawdescgzip()"
     },
     {
@@ -18111,7 +18111,7 @@
       "source_location": "L1817",
       "_origin": "ast",
       "id": "internal_api_server_velez_api_velez_api_pb_init",
-      "community": 234,
+      "community": 99,
       "norm_label": "init()"
     },
     {
@@ -18121,7 +18121,7 @@
       "source_location": "L1818",
       "_origin": "ast",
       "id": "internal_api_server_velez_api_velez_api_pb_file_velez_api_proto_init",
-      "community": 234,
+      "community": 99,
       "norm_label": "file_velez_api_proto_init()"
     },
     {
@@ -19091,7 +19091,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_api_server_velez_api_velez_common_pb",
-      "community": 89,
+      "community": 224,
       "norm_label": "velez_common.pb.go"
     },
     {
@@ -19101,7 +19101,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "velez_api_restartpolicytype",
-      "community": 89,
+      "community": 18,
       "norm_label": "restartpolicytype"
     },
     {
@@ -19111,7 +19111,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "velez_api_restartpolicytype_enum",
-      "community": 89,
+      "community": 18,
       "norm_label": ".enum()"
     },
     {
@@ -19121,7 +19121,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "velez_api_restartpolicytype_string",
-      "community": 89,
+      "community": 18,
       "norm_label": ".string()"
     },
     {
@@ -19191,7 +19191,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "velez_api_restartpolicytype_enumdescriptor",
-      "community": 89,
+      "community": 18,
       "norm_label": ".enumdescriptor()"
     },
     {
@@ -20011,7 +20011,7 @@
       "source_location": "L615",
       "_origin": "ast",
       "id": "velez_api_smerd_descriptor",
-      "community": 89,
+      "community": 394,
       "norm_label": ".descriptor()"
     },
     {
@@ -20171,7 +20171,7 @@
       "source_location": "L721",
       "_origin": "ast",
       "id": "velez_api_container_descriptor",
-      "community": 89,
+      "community": 394,
       "norm_label": ".descriptor()"
     },
     {
@@ -20181,7 +20181,7 @@
       "source_location": "L725",
       "_origin": "ast",
       "id": "velez_api_restartpolicy",
-      "community": 89,
+      "community": 132,
       "norm_label": "restartpolicy"
     },
     {
@@ -20191,7 +20191,7 @@
       "source_location": "L733",
       "_origin": "ast",
       "id": "velez_api_restartpolicy_reset",
-      "community": 89,
+      "community": 132,
       "norm_label": ".reset()"
     },
     {
@@ -20201,7 +20201,7 @@
       "source_location": "L740",
       "_origin": "ast",
       "id": "velez_api_restartpolicy_string",
-      "community": 89,
+      "community": 132,
       "norm_label": ".string()"
     },
     {
@@ -20211,7 +20211,7 @@
       "source_location": "L744",
       "_origin": "ast",
       "id": "velez_api_restartpolicy_protomessage",
-      "community": 89,
+      "community": 132,
       "norm_label": ".protomessage()"
     },
     {
@@ -20221,7 +20221,7 @@
       "source_location": "L746",
       "_origin": "ast",
       "id": "velez_api_restartpolicy_protoreflect",
-      "community": 89,
+      "community": 132,
       "norm_label": ".protoreflect()"
     },
     {
@@ -20231,7 +20231,7 @@
       "source_location": "L759",
       "_origin": "ast",
       "id": "velez_api_restartpolicy_descriptor",
-      "community": 89,
+      "community": 132,
       "norm_label": ".descriptor()"
     },
     {
@@ -20241,7 +20241,7 @@
       "source_location": "L763",
       "_origin": "ast",
       "id": "velez_api_restartpolicy_gettype",
-      "community": 89,
+      "community": 18,
       "norm_label": ".gettype()"
     },
     {
@@ -20251,7 +20251,7 @@
       "source_location": "L770",
       "_origin": "ast",
       "id": "velez_api_restartpolicy_getfailurecount",
-      "community": 89,
+      "community": 132,
       "norm_label": ".getfailurecount()"
     },
     {
@@ -20311,7 +20311,7 @@
       "source_location": "L814",
       "_origin": "ast",
       "id": "velez_api_plainconfigspec_descriptor",
-      "community": 89,
+      "community": 394,
       "norm_label": ".descriptor()"
     },
     {
@@ -20381,7 +20381,7 @@
       "source_location": "L861",
       "_origin": "ast",
       "id": "velez_api_fileconfig_descriptor",
-      "community": 89,
+      "community": 394,
       "norm_label": ".descriptor()"
     },
     {
@@ -20511,7 +20511,7 @@
       "source_location": "L964",
       "_origin": "ast",
       "id": "velez_api_connection",
-      "community": 132,
+      "community": 248,
       "norm_label": "connection"
     },
     {
@@ -20521,7 +20521,7 @@
       "source_location": "L973",
       "_origin": "ast",
       "id": "velez_api_connection_reset",
-      "community": 132,
+      "community": 248,
       "norm_label": ".reset()"
     },
     {
@@ -20531,7 +20531,7 @@
       "source_location": "L980",
       "_origin": "ast",
       "id": "velez_api_connection_string",
-      "community": 132,
+      "community": 248,
       "norm_label": ".string()"
     },
     {
@@ -20541,7 +20541,7 @@
       "source_location": "L984",
       "_origin": "ast",
       "id": "velez_api_connection_protomessage",
-      "community": 132,
+      "community": 248,
       "norm_label": ".protomessage()"
     },
     {
@@ -20551,7 +20551,7 @@
       "source_location": "L986",
       "_origin": "ast",
       "id": "velez_api_connection_protoreflect",
-      "community": 132,
+      "community": 248,
       "norm_label": ".protoreflect()"
     },
     {
@@ -20561,7 +20561,7 @@
       "source_location": "L999",
       "_origin": "ast",
       "id": "velez_api_connection_descriptor",
-      "community": 132,
+      "community": 248,
       "norm_label": ".descriptor()"
     },
     {
@@ -20571,7 +20571,7 @@
       "source_location": "L1003",
       "_origin": "ast",
       "id": "velez_api_connection_getservicename",
-      "community": 132,
+      "community": 248,
       "norm_label": ".getservicename()"
     },
     {
@@ -20581,7 +20581,7 @@
       "source_location": "L1010",
       "_origin": "ast",
       "id": "velez_api_connection_gettargetnetwork",
-      "community": 132,
+      "community": 248,
       "norm_label": ".gettargetnetwork()"
     },
     {
@@ -20591,7 +20591,7 @@
       "source_location": "L1017",
       "_origin": "ast",
       "id": "velez_api_connection_getaliases",
-      "community": 132,
+      "community": 248,
       "norm_label": ".getaliases()"
     },
     {
@@ -20601,7 +20601,7 @@
       "source_location": "L1024",
       "_origin": "ast",
       "id": "velez_api_paging",
-      "community": 248,
+      "community": 132,
       "norm_label": "paging"
     },
     {
@@ -20611,7 +20611,7 @@
       "source_location": "L1032",
       "_origin": "ast",
       "id": "velez_api_paging_reset",
-      "community": 248,
+      "community": 132,
       "norm_label": ".reset()"
     },
     {
@@ -20621,7 +20621,7 @@
       "source_location": "L1039",
       "_origin": "ast",
       "id": "velez_api_paging_string",
-      "community": 248,
+      "community": 132,
       "norm_label": ".string()"
     },
     {
@@ -20631,7 +20631,7 @@
       "source_location": "L1043",
       "_origin": "ast",
       "id": "velez_api_paging_protomessage",
-      "community": 248,
+      "community": 132,
       "norm_label": ".protomessage()"
     },
     {
@@ -20641,7 +20641,7 @@
       "source_location": "L1045",
       "_origin": "ast",
       "id": "velez_api_paging_protoreflect",
-      "community": 248,
+      "community": 132,
       "norm_label": ".protoreflect()"
     },
     {
@@ -20651,7 +20651,7 @@
       "source_location": "L1058",
       "_origin": "ast",
       "id": "velez_api_paging_descriptor",
-      "community": 248,
+      "community": 132,
       "norm_label": ".descriptor()"
     },
     {
@@ -20661,7 +20661,7 @@
       "source_location": "L1062",
       "_origin": "ast",
       "id": "velez_api_paging_getlimit",
-      "community": 248,
+      "community": 132,
       "norm_label": ".getlimit()"
     },
     {
@@ -20671,7 +20671,7 @@
       "source_location": "L1069",
       "_origin": "ast",
       "id": "velez_api_paging_getoffset",
-      "community": 248,
+      "community": 132,
       "norm_label": ".getoffset()"
     },
     {
@@ -21101,7 +21101,7 @@
       "source_location": "L1525",
       "_origin": "ast",
       "id": "internal_api_server_velez_api_velez_common_pb_file_velez_common_proto_rawdescgzip",
-      "community": 89,
+      "community": 394,
       "norm_label": "file_velez_common_proto_rawdescgzip()"
     },
     {
@@ -21111,7 +21111,7 @@
       "source_location": "L1587",
       "_origin": "ast",
       "id": "internal_api_server_velez_api_velez_common_pb_init",
-      "community": 89,
+      "community": 224,
       "norm_label": "init()"
     },
     {
@@ -21121,7 +21121,7 @@
       "source_location": "L1588",
       "_origin": "ast",
       "id": "internal_api_server_velez_api_velez_common_pb_file_velez_common_proto_init",
-      "community": 89,
+      "community": 224,
       "norm_label": "file_velez_common_proto_init()"
     },
     {
@@ -21411,7 +21411,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "velez_api_connectservice_descriptor",
-      "community": 149,
+      "community": 247,
       "norm_label": ".descriptor()"
     },
     {
@@ -21611,7 +21611,7 @@
       "source_location": "L297",
       "_origin": "ast",
       "id": "velez_api_vcnpeer_descriptor",
-      "community": 149,
+      "community": 247,
       "norm_label": ".descriptor()"
     },
     {
@@ -21741,7 +21741,7 @@
       "source_location": "L382",
       "_origin": "ast",
       "id": "velez_api_listpeers_descriptor",
-      "community": 149,
+      "community": 247,
       "norm_label": ".descriptor()"
     },
     {
@@ -22421,7 +22421,7 @@
       "source_location": "L807",
       "_origin": "ast",
       "id": "velez_api_connectuser_response_descriptor",
-      "community": 149,
+      "community": 247,
       "norm_label": ".descriptor()"
     },
     {
@@ -22571,7 +22571,7 @@
       "source_location": "L963",
       "_origin": "ast",
       "id": "internal_api_server_velez_api_verv_closed_network_pb_file_verv_closed_network_proto_rawdescgzip",
-      "community": 149,
+      "community": 247,
       "norm_label": "file_verv_closed_network_proto_rawdescgzip()"
     },
     {
@@ -30431,7 +30431,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "domain_deleteenvironmentreq",
-      "community": 81,
+      "community": 290,
       "norm_label": "deleteenvironmentreq"
     },
     {
@@ -34781,7 +34781,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_jobs_engine",
-      "community": 170,
+      "community": 118,
       "norm_label": "engine.go"
     },
     {
@@ -34801,7 +34801,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "jobs_jobstatus",
-      "community": 170,
+      "community": 118,
       "norm_label": "jobstatus"
     },
     {
@@ -34811,7 +34811,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_jobs_engine_go_velezjobstatus",
-      "community": 170,
+      "community": 118,
       "norm_label": "velezjobstatus"
     },
     {
@@ -40141,7 +40141,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "verv_services_testservicesstoragewithgetbyname",
-      "community": 257,
+      "community": 153,
       "norm_label": "testservicesstoragewithgetbyname"
     },
     {
@@ -40151,7 +40151,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_service_service_manager_verv_services_deploy_test_go_context",
-      "community": 257,
+      "community": 153,
       "norm_label": "context"
     },
     {
@@ -40161,7 +40161,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_service_service_manager_verv_services_deploy_test_go_service",
-      "community": 257,
+      "community": 153,
       "norm_label": "service"
     },
     {
@@ -40171,7 +40171,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "verv_services_testservicesstoragewithgetbyname_list",
-      "community": 257,
+      "community": 153,
       "norm_label": ".list()"
     },
     {
@@ -40181,7 +40181,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "verv_services_testservicesstoragewithgetbyname_getbyname",
-      "community": 257,
+      "community": 153,
       "norm_label": ".getbyname()"
     },
     {
@@ -40191,7 +40191,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "verv_services_testservicesstoragewithgetbyname_upsertservice",
-      "community": 257,
+      "community": 153,
       "norm_label": ".upsertservice()"
     },
     {
@@ -40201,7 +40201,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "verv_services_testservicesstoragewithgetbyname_delete",
-      "community": 257,
+      "community": 153,
       "norm_label": ".delete()"
     },
     {
@@ -40261,7 +40261,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "verv_services_testdeploymentsstorage_getspecificationbyid",
-      "community": 257,
+      "community": 153,
       "norm_label": ".getspecificationbyid()"
     },
     {
@@ -51771,7 +51771,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "internal_transport_tasks_api_impl_impl",
-      "community": 365,
+      "community": 118,
       "norm_label": "impl.go"
     },
     {
@@ -51911,7 +51911,7 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "internal_transport_tasks_api_impl_impl_tasktoproto",
-      "community": 365,
+      "community": 118,
       "norm_label": "tasktoproto()"
     },
     {
@@ -51921,7 +51921,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_transport_tasks_api_impl_impl_go_veleztask",
-      "community": 365,
+      "community": 118,
       "norm_label": "veleztask"
     },
     {
@@ -51931,7 +51931,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "internal_transport_tasks_api_impl_impl_jobstatusestoproto",
-      "community": 365,
+      "community": 118,
       "norm_label": "jobstatusestoproto()"
     },
     {
@@ -51941,7 +51941,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_transport_tasks_api_impl_impl_go_taskstatus_jobstatus",
-      "community": 365,
+      "community": 118,
       "norm_label": "taskstatus_jobstatus"
     },
     {
@@ -51951,7 +51951,7 @@
       "source_location": "L139",
       "_origin": "ast",
       "id": "internal_transport_tasks_api_impl_impl_jobstatustoproto",
-      "community": 365,
+      "community": 118,
       "norm_label": "jobstatustoproto()"
     },
     {
@@ -51961,7 +51961,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_transport_tasks_api_impl_impl_go_velezjobstatus",
-      "community": 365,
+      "community": 118,
       "norm_label": "velezjobstatus"
     },
     {
@@ -51971,7 +51971,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "taskstatus_status",
-      "community": 365,
+      "community": 118,
       "norm_label": "taskstatus_status"
     },
     {
@@ -51981,7 +51981,7 @@
       "source_location": "L152",
       "_origin": "ast",
       "id": "internal_transport_tasks_api_impl_impl_taskstatustoproto",
-      "community": 365,
+      "community": 118,
       "norm_label": "taskstatustoproto()"
     },
     {
@@ -51991,7 +51991,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "internal_transport_tasks_api_impl_impl_go_veleztaskstatus",
-      "community": 365,
+      "community": 118,
       "norm_label": "veleztaskstatus"
     },
     {
@@ -57721,7 +57721,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_app_queryclient",
-      "community": 116,
+      "community": 42,
       "norm_label": "queryclient.ts"
     },
     {
@@ -57731,7 +57731,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_app_queryclient_queryclient",
-      "community": 116,
+      "community": 42,
       "norm_label": "queryclient"
     },
     {
@@ -57741,7 +57741,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_app_router_mainlayout",
-      "community": 67,
+      "community": 72,
       "norm_label": "mainlayout.tsx"
     },
     {
@@ -57751,7 +57751,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_app_router_mainlayout_navid",
-      "community": 67,
+      "community": 72,
       "norm_label": "navid"
     },
     {
@@ -57761,7 +57761,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_app_router_mainlayout_toolid",
-      "community": 67,
+      "community": 72,
       "norm_label": "toolid"
     },
     {
@@ -57771,7 +57771,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_app_router_mainlayout_nav_to_route",
-      "community": 67,
+      "community": 72,
       "norm_label": "nav_to_route"
     },
     {
@@ -57781,7 +57781,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_app_router_mainlayout_route_to_nav",
-      "community": 67,
+      "community": 72,
       "norm_label": "route_to_nav"
     },
     {
@@ -57791,7 +57791,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_app_router_mainlayout_tool_to_route",
-      "community": 67,
+      "community": 72,
       "norm_label": "tool_to_route"
     },
     {
@@ -57801,7 +57801,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_app_router_mainlayout_mainlayout",
-      "community": 67,
+      "community": 72,
       "norm_label": "mainlayout()"
     },
     {
@@ -57811,7 +57811,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_app_router_router",
-      "community": 67,
+      "community": 72,
       "norm_label": "router.tsx"
     },
     {
@@ -57821,7 +57821,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_app_router_router_router",
-      "community": 67,
+      "community": 72,
       "norm_label": "router"
     },
     {
@@ -57831,7 +57831,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_app_router_routes",
-      "community": 67,
+      "community": 72,
       "norm_label": "routes.ts"
     },
     {
@@ -57841,7 +57841,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_app_router_routes_routes",
-      "community": 67,
+      "community": 72,
       "norm_label": "routes"
     },
     {
@@ -57851,7 +57851,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_app_router_routes_arguments",
-      "community": 67,
+      "community": 72,
       "norm_label": "arguments"
     },
     {
@@ -57961,7 +57961,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_app_settings_state_usesettings",
-      "community": 24,
+      "community": 31,
       "norm_label": "usesettings()"
     },
     {
@@ -57971,7 +57971,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_app_settings_state_storetolocalstorage",
-      "community": 24,
+      "community": 31,
       "norm_label": "storetolocalstorage()"
     },
     {
@@ -58081,7 +58081,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_components_base_button",
-      "community": 26,
+      "community": 67,
       "norm_label": "button.tsx"
     },
     {
@@ -58091,7 +58091,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_components_base_button_buttonprops",
-      "community": 26,
+      "community": 67,
       "norm_label": "buttonprops"
     },
     {
@@ -58101,7 +58101,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_components_base_button_button",
-      "community": 26,
+      "community": 67,
       "norm_label": "button()"
     },
     {
@@ -58721,7 +58721,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_components_complex_envcard_envcard",
-      "community": 72,
+      "community": 23,
       "norm_label": "envcard.tsx"
     },
     {
@@ -58731,7 +58731,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_components_complex_envcard_envcard_envcardprops",
-      "community": 72,
+      "community": 23,
       "norm_label": "envcardprops"
     },
     {
@@ -58741,7 +58741,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_components_complex_envcard_envcard_envcard",
-      "community": 72,
+      "community": 23,
       "norm_label": "envcard()"
     },
     {
@@ -59231,7 +59231,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_dialogs_environmentcreatedialog_environmentcreatedialog",
-      "community": 26,
+      "community": 67,
       "norm_label": "environmentcreatedialog.tsx"
     },
     {
@@ -59241,7 +59241,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_dialogs_environmentcreatedialog_environmentcreatedialog_environmentcreatedialogprops",
-      "community": 26,
+      "community": 67,
       "norm_label": "environmentcreatedialogprops"
     },
     {
@@ -59251,7 +59251,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_dialogs_environmentcreatedialog_environmentcreatedialog_environmentcreatedialog",
-      "community": 26,
+      "community": 67,
       "norm_label": "environmentcreatedialog()"
     },
     {
@@ -59261,7 +59261,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_dialogs_environmentdeletedialog_environmentdeletedialog",
-      "community": 26,
+      "community": 67,
       "norm_label": "environmentdeletedialog.tsx"
     },
     {
@@ -59271,7 +59271,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_dialogs_environmentdeletedialog_environmentdeletedialog_environmentdeletedialogprops",
-      "community": 26,
+      "community": 67,
       "norm_label": "environmentdeletedialogprops"
     },
     {
@@ -59281,7 +59281,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_dialogs_environmentdeletedialog_environmentdeletedialog_environmentdeletedialog",
-      "community": 26,
+      "community": 67,
       "norm_label": "environmentdeletedialog()"
     },
     {
@@ -59291,7 +59291,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_dialogs_environmentmanagedialog_environmentmanagedialog",
-      "community": 26,
+      "community": 67,
       "norm_label": "environmentmanagedialog.tsx"
     },
     {
@@ -59301,7 +59301,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_dialogs_environmentmanagedialog_environmentmanagedialog_environmentmanagedialogprops",
-      "community": 26,
+      "community": 67,
       "norm_label": "environmentmanagedialogprops"
     },
     {
@@ -59311,7 +59311,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_dialogs_environmentmanagedialog_environmentmanagedialog_environmentmanagedialog",
-      "community": 26,
+      "community": 67,
       "norm_label": "environmentmanagedialog()"
     },
     {
@@ -59401,7 +59401,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_dialogs_pluginmanagedialog_plugins_simplepluginform",
-      "community": 67,
+      "community": 72,
       "norm_label": "simplepluginform.tsx"
     },
     {
@@ -59491,7 +59491,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_dialogs_pluginmanagedialog_plugins_openstatefullpgdialog_test",
-      "community": 116,
+      "community": 42,
       "norm_label": "openstatefullpgdialog.test.tsx"
     },
     {
@@ -60071,7 +60071,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_dialogs_stepsdialog_stepsdialogfooter",
-      "community": 26,
+      "community": 67,
       "norm_label": "stepsdialogfooter.tsx"
     },
     {
@@ -60081,7 +60081,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_dialogs_stepsdialog_stepsdialogfooter_stepsdialogfooterprops",
-      "community": 26,
+      "community": 67,
       "norm_label": "stepsdialogfooterprops"
     },
     {
@@ -60091,7 +60091,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_dialogs_stepsdialog_stepsdialogfooter_stepsdialogfooterprops_onback",
-      "community": 26,
+      "community": 67,
       "norm_label": ".onback()"
     },
     {
@@ -60101,7 +60101,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_dialogs_stepsdialog_stepsdialogfooter_stepsdialogfooterprops_onnext",
-      "community": 26,
+      "community": 67,
       "norm_label": ".onnext()"
     },
     {
@@ -60111,7 +60111,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_dialogs_stepsdialog_stepsdialogfooter_stepsdialogfooter",
-      "community": 26,
+      "community": 67,
       "norm_label": "stepsdialogfooter()"
     },
     {
@@ -60371,7 +60371,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_main",
-      "community": 116,
+      "community": 42,
       "norm_label": "main.tsx"
     },
     {
@@ -60381,7 +60381,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_model_service_page_servicepagemodel",
-      "community": 72,
+      "community": 23,
       "norm_label": "servicepagemodel.ts"
     },
     {
@@ -60391,7 +60391,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_model_service_page_servicepagemodel_serviceenvironment",
-      "community": 72,
+      "community": 23,
       "norm_label": "serviceenvironment"
     },
     {
@@ -60421,7 +60421,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_model_service_page_servicepagemodel_serviceresource",
-      "community": 72,
+      "community": 23,
       "norm_label": "serviceresource"
     },
     {
@@ -60431,7 +60431,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_model_service_page_servicepagemodel_servicegraphnode",
-      "community": 72,
+      "community": 23,
       "norm_label": "servicegraphnode"
     },
     {
@@ -60451,7 +60451,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_model_service_page_servicepagemodel_vervonomicondocs",
-      "community": 72,
+      "community": 23,
       "norm_label": "vervonomicondocs"
     },
     {
@@ -60751,7 +60751,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_pages_deploy_deploypage",
-      "community": 67,
+      "community": 72,
       "norm_label": "deploypage.tsx"
     },
     {
@@ -60761,7 +60761,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_pages_deploy_deploypage_deploypage",
-      "community": 67,
+      "community": 72,
       "norm_label": "deploypage()"
     },
     {
@@ -60801,7 +60801,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_pages_error_errorpage",
-      "community": 67,
+      "community": 72,
       "norm_label": "errorpage.tsx"
     },
     {
@@ -60811,7 +60811,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_pages_error_errorpage_errorpage",
-      "community": 67,
+      "community": 72,
       "norm_label": "errorpage()"
     },
     {
@@ -61211,7 +61211,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_pages_settings_settingspage",
-      "community": 67,
+      "community": 72,
       "norm_label": "settingspage.tsx"
     },
     {
@@ -61221,7 +61221,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_pages_settings_settingspage_settingspage",
-      "community": 67,
+      "community": 72,
       "norm_label": "settingspage()"
     },
     {
@@ -61771,7 +61771,7 @@
       "source_location": "L196",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_processes_api_service_serviceservice_fetchserviceresources",
-      "community": 72,
+      "community": 23,
       "norm_label": ".fetchserviceresources()"
     },
     {
@@ -61801,7 +61801,7 @@
       "source_location": "L236",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_processes_api_service_serviceservice_fetchvervonomicon",
-      "community": 72,
+      "community": 23,
       "norm_label": ".fetchvervonomicon()"
     },
     {
@@ -62151,7 +62151,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_processes_queries_control_plane_createenvironmentmutation",
-      "community": 26,
+      "community": 67,
       "norm_label": "createenvironmentmutation()"
     },
     {
@@ -62161,7 +62161,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_processes_queries_control_plane_updateenvironmentmutation",
-      "community": 26,
+      "community": 67,
       "norm_label": "updateenvironmentmutation()"
     },
     {
@@ -62171,7 +62171,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_processes_queries_control_plane_deleteenvironmentmutation",
-      "community": 26,
+      "community": 67,
       "norm_label": "deleteenvironmentmutation()"
     },
     {
@@ -62211,7 +62211,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_processes_queries_services",
-      "community": 72,
+      "community": 26,
       "norm_label": "services.ts"
     },
     {
@@ -62221,7 +62221,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_processes_queries_services_list_req",
-      "community": 72,
+      "community": 26,
       "norm_label": "list_req"
     },
     {
@@ -62261,7 +62261,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_processes_queries_services_usegetserviceaboutquery",
-      "community": 72,
+      "community": 26,
       "norm_label": "usegetserviceaboutquery()"
     },
     {
@@ -62271,7 +62271,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_processes_queries_services_usegetservicemetricsquery",
-      "community": 72,
+      "community": 26,
       "norm_label": "usegetservicemetricsquery()"
     },
     {
@@ -62281,7 +62281,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_processes_queries_services_usegetserviceresourcesquery",
-      "community": 72,
+      "community": 23,
       "norm_label": "usegetserviceresourcesquery()"
     },
     {
@@ -62291,7 +62291,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_processes_queries_services_usegetservicegraphquery",
-      "community": 72,
+      "community": 26,
       "norm_label": "usegetservicegraphquery()"
     },
     {
@@ -62301,7 +62301,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_processes_queries_services_uselistserviceenvsquery",
-      "community": 72,
+      "community": 23,
       "norm_label": "uselistserviceenvsquery()"
     },
     {
@@ -62311,7 +62311,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_processes_queries_services_usegetvervonomiconquery",
-      "community": 72,
+      "community": 23,
       "norm_label": "usegetvervonomiconquery()"
     },
     {
@@ -62981,7 +62981,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_envswitcher_envswitcher",
-      "community": 72,
+      "community": 23,
       "norm_label": "envswitcher.tsx"
     },
     {
@@ -62991,7 +62991,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_envswitcher_envswitcher_envswitcherprops",
-      "community": 72,
+      "community": 23,
       "norm_label": "envswitcherprops"
     },
     {
@@ -63001,7 +63001,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_envswitcher_envswitcher_envswitcher",
-      "community": 72,
+      "community": 23,
       "norm_label": "envswitcher()"
     },
     {
@@ -63011,7 +63011,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_observabilitytools_observabilitytools",
-      "community": 26,
+      "community": 67,
       "norm_label": "observabilitytools.tsx"
     },
     {
@@ -63021,7 +63021,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_observabilitytools_observabilitytools_observabilitytoolsprops",
-      "community": 26,
+      "community": 67,
       "norm_label": "observabilitytoolsprops"
     },
     {
@@ -63031,7 +63031,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_observabilitytools_observabilitytools_tool",
-      "community": 26,
+      "community": 67,
       "norm_label": "tool"
     },
     {
@@ -63041,7 +63041,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_observabilitytools_observabilitytools_observabilitytools",
-      "community": 26,
+      "community": 67,
       "norm_label": "observabilitytools()"
     },
     {
@@ -63051,7 +63051,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_observabilitytools_observabilitytools_rationale_29",
-      "community": 26,
+      "community": 67,
       "norm_label": "todo: navigate to tool"
     },
     {
@@ -63061,7 +63061,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_observabilitytools_observabilitytools_rationale_33",
-      "community": 26,
+      "community": 67,
       "norm_label": "todo: add observability support in velez"
     },
     {
@@ -63071,7 +63071,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_resourcessection_resourcecard",
-      "community": 72,
+      "community": 23,
       "norm_label": "resourcecard.tsx"
     },
     {
@@ -63081,7 +63081,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_resourcessection_resourcecard_resourcecardprops",
-      "community": 72,
+      "community": 23,
       "norm_label": "resourcecardprops"
     },
     {
@@ -63091,7 +63091,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_resourcessection_resourcecard_resourcecard",
-      "community": 72,
+      "community": 23,
       "norm_label": "resourcecard()"
     },
     {
@@ -63101,7 +63101,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_resourcessection_resourcessection",
-      "community": 72,
+      "community": 23,
       "norm_label": "resourcessection.tsx"
     },
     {
@@ -63111,7 +63111,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_resourcessection_resourcessection_resourcessectionprops",
-      "community": 72,
+      "community": 23,
       "norm_label": "resourcessectionprops"
     },
     {
@@ -63121,7 +63121,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_resourcessection_resourcessection_resourcessection",
-      "community": 72,
+      "community": 23,
       "norm_label": "resourcessection()"
     },
     {
@@ -63131,7 +63131,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_resourcessection_resourcessection_resourcesheader",
-      "community": 72,
+      "community": 23,
       "norm_label": "resourcesheader()"
     },
     {
@@ -63141,7 +63141,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_resourcessection_resourcessection_emptystate",
-      "community": 72,
+      "community": 23,
       "norm_label": "emptystate()"
     },
     {
@@ -63151,7 +63151,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_resourcessection_resourcessection_resourcesrow",
-      "community": 72,
+      "community": 23,
       "norm_label": "resourcesrow()"
     },
     {
@@ -63161,7 +63161,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_servicegraph_servicegraph",
-      "community": 72,
+      "community": 26,
       "norm_label": "servicegraph.tsx"
     },
     {
@@ -63171,7 +63171,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_servicegraph_servicegraph_servicegraphprops",
-      "community": 72,
+      "community": 26,
       "norm_label": "servicegraphprops"
     },
     {
@@ -63181,7 +63181,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_servicegraph_servicegraph_labellines",
-      "community": 72,
+      "community": 26,
       "norm_label": "labellines()"
     },
     {
@@ -63191,7 +63191,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_servicegraph_servicegraph_spready",
-      "community": 72,
+      "community": 26,
       "norm_label": "spready()"
     },
     {
@@ -63201,7 +63201,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_servicegraph_servicegraph_nodeedgex",
-      "community": 72,
+      "community": 26,
       "norm_label": "nodeedgex()"
     },
     {
@@ -63211,7 +63211,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_servicegraph_servicegraph_rendernode",
-      "community": 72,
+      "community": 26,
       "norm_label": "rendernode()"
     },
     {
@@ -63221,7 +63221,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_servicegraph_servicegraph_servicegraph",
-      "community": 72,
+      "community": 26,
       "norm_label": "servicegraph()"
     },
     {
@@ -63231,7 +63231,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_servicehero_servicehero",
-      "community": 72,
+      "community": 26,
       "norm_label": "servicehero.tsx"
     },
     {
@@ -63241,7 +63241,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_servicehero_servicehero_serviceheroprops",
-      "community": 72,
+      "community": 26,
       "norm_label": "serviceheroprops"
     },
     {
@@ -63251,7 +63251,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_servicehero_servicehero_statusdotclass",
-      "community": 72,
+      "community": 26,
       "norm_label": "statusdotclass()"
     },
     {
@@ -63261,7 +63261,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_servicehero_servicehero_progressbarfillclass",
-      "community": 72,
+      "community": 26,
       "norm_label": "progressbarfillclass()"
     },
     {
@@ -63271,7 +63271,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_servicehero_servicehero_metrictileprops",
-      "community": 72,
+      "community": 26,
       "norm_label": "metrictileprops"
     },
     {
@@ -63281,7 +63281,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_servicehero_servicehero_metrictile",
-      "community": 72,
+      "community": 26,
       "norm_label": "metrictile()"
     },
     {
@@ -63291,7 +63291,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_servicehero_servicehero_servicehero",
-      "community": 72,
+      "community": 26,
       "norm_label": "servicehero()"
     },
     {
@@ -63301,7 +63301,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_vervonomicon_vervonomicon",
-      "community": 72,
+      "community": 23,
       "norm_label": "vervonomicon.tsx"
     },
     {
@@ -63311,7 +63311,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_vervonomicon_vervonomicon_tabkey",
-      "community": 72,
+      "community": 23,
       "norm_label": "tabkey"
     },
     {
@@ -63321,7 +63321,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_vervonomicon_vervonomicon_tabs",
-      "community": 72,
+      "community": 23,
       "norm_label": "tabs"
     },
     {
@@ -63331,7 +63331,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_vervonomicon_vervonomicon_vervonomiconprops",
-      "community": 72,
+      "community": 23,
       "norm_label": "vervonomiconprops"
     },
     {
@@ -63341,7 +63341,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_vervonomicon_vervonomicon_highlightlines",
-      "community": 72,
+      "community": 23,
       "norm_label": "highlightlines()"
     },
     {
@@ -63351,7 +63351,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_vervonomicon_vervonomicon_isallempty",
-      "community": 72,
+      "community": 23,
       "norm_label": "isallempty()"
     },
     {
@@ -63361,7 +63361,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_service_vervonomicon_vervonomicon_vervonomicon",
-      "community": 72,
+      "community": 23,
       "norm_label": "vervonomicon()"
     },
     {
@@ -63721,7 +63721,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "pkg_web_velez_ui_src_widgets_topbar_topbar_topbar",
-      "community": 67,
+      "community": 72,
       "norm_label": "topbar()"
     },
     {
@@ -66802,7 +66802,7 @@
       "label": "Motivation",
       "file_type": "document",
       "source_file": "docs/container_runtimes/README.md",
-      "source_location": "L15",
+      "source_location": "L16",
       "_origin": "ast",
       "id": "docs_container_runtimes_readme_motivation",
       "community": 48,
@@ -66812,7 +66812,7 @@
       "label": "Two independent axes",
       "file_type": "document",
       "source_file": "docs/container_runtimes/README.md",
-      "source_location": "L27",
+      "source_location": "L28",
       "_origin": "ast",
       "id": "docs_container_runtimes_readme_two_independent_axes",
       "community": 48,
@@ -66822,7 +66822,7 @@
       "label": "Current concrete Docker surface (reference, as of this design pass)",
       "file_type": "document",
       "source_file": "docs/container_runtimes/README.md",
-      "source_location": "L40",
+      "source_location": "L41",
       "_origin": "ast",
       "id": "docs_container_runtimes_readme_current_concrete_docker_surface_reference_as_of_this_design_pass",
       "community": 48,
@@ -67162,7 +67162,7 @@
       "label": "Status",
       "file_type": "document",
       "source_file": "docs/jobs_migration.md",
-      "source_location": "L16",
+      "source_location": "L27",
       "_origin": "ast",
       "id": "docs_jobs_migration_status",
       "community": 753,
@@ -67172,7 +67172,7 @@
       "label": "Suggested pick-up order (easiest first)",
       "file_type": "document",
       "source_file": "docs/jobs_migration.md",
-      "source_location": "L36",
+      "source_location": "L55",
       "_origin": "ast",
       "id": "docs_jobs_migration_suggested_pick_up_order_easiest_first",
       "community": 753,
@@ -67182,7 +67182,7 @@
       "label": "Migration checklist (repeat per pipeline)",
       "file_type": "document",
       "source_file": "docs/jobs_migration.md",
-      "source_location": "L101",
+      "source_location": "L120",
       "_origin": "ast",
       "id": "docs_jobs_migration_migration_checklist_repeat_per_pipeline",
       "community": 753,
@@ -72142,7 +72142,7 @@
       "contributor": null,
       "community": 524,
       "norm_label": "project factory agent context",
-      "id": "claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_agentcontext"
+      "id": "claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_factory_claude_agentcontext"
     },
     {
       "label": "Coding Factory pipeline README",
@@ -72324,7 +72324,7 @@
       "contributor": null,
       "community": 30,
       "norm_label": "config/config.yaml (production config)",
-      "id": "config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_configyaml"
+      "id": "config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_configyaml"
     },
     {
       "label": "config/config_template.yaml",
@@ -213962,7 +213962,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "docs/container_runtimes/README.md",
-      "source_location": "L11",
+      "source_location": "L13",
       "weight": 1.0,
       "source": "docs_container_runtimes_readme",
       "target": "docs_container_runtimes_interface_design",
@@ -213982,7 +213982,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "docs/container_runtimes/README.md",
-      "source_location": "L12",
+      "source_location": "L14",
       "weight": 1.0,
       "source": "docs_container_runtimes_readme",
       "target": "docs_container_runtimes_roadmap",
@@ -213992,7 +213992,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/container_runtimes/README.md",
-      "source_location": "L40",
+      "source_location": "L41",
       "weight": 1.0,
       "source": "docs_container_runtimes_readme_container_runtimes",
       "target": "docs_container_runtimes_readme_current_concrete_docker_surface_reference_as_of_this_design_pass",
@@ -214002,7 +214002,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/container_runtimes/README.md",
-      "source_location": "L15",
+      "source_location": "L16",
       "weight": 1.0,
       "source": "docs_container_runtimes_readme_container_runtimes",
       "target": "docs_container_runtimes_readme_motivation",
@@ -214012,7 +214012,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/container_runtimes/README.md",
-      "source_location": "L27",
+      "source_location": "L28",
       "weight": 1.0,
       "source": "docs_container_runtimes_readme_container_runtimes",
       "target": "docs_container_runtimes_readme_two_independent_axes",
@@ -214312,7 +214312,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "docs/jobs_migration.md",
-      "source_location": "L6",
+      "source_location": "L16",
       "weight": 1.0,
       "source": "docs_jobs_migration",
       "target": "docs_roadmap",
@@ -214322,7 +214322,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/jobs_migration.md",
-      "source_location": "L101",
+      "source_location": "L120",
       "weight": 1.0,
       "source": "docs_jobs_migration_pipelines_jobs_migration",
       "target": "docs_jobs_migration_migration_checklist_repeat_per_pipeline",
@@ -214332,7 +214332,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/jobs_migration.md",
-      "source_location": "L16",
+      "source_location": "L27",
       "weight": 1.0,
       "source": "docs_jobs_migration_pipelines_jobs_migration",
       "target": "docs_jobs_migration_status",
@@ -214342,7 +214342,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/jobs_migration.md",
-      "source_location": "L36",
+      "source_location": "L55",
       "weight": 1.0,
       "source": "docs_jobs_migration_pipelines_jobs_migration",
       "target": "docs_jobs_migration_suggested_pick_up_order_easiest_first",
@@ -218885,7 +218885,7 @@
       "source_file": "config/config.yaml",
       "source_location": null,
       "weight": 1.0,
-      "source": "config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_configyaml",
+      "source": "config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_configyaml",
       "target": "concept_makosh_headscale"
     },
     {
@@ -218895,7 +218895,7 @@
       "source_file": "config/config.yaml",
       "source_location": null,
       "weight": 1.0,
-      "source": "config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_configyaml",
+      "source": "config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_configyaml",
       "target": "concept_matreshka"
     },
     {
@@ -218905,7 +218905,7 @@
       "source_file": "config/config.yaml",
       "source_location": null,
       "weight": 1.0,
-      "source": "config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_configyaml",
+      "source": "config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_configyaml",
       "target": "concept_velez_local_state"
     },
     {
@@ -218915,7 +218915,7 @@
       "source_file": "config/config.yaml",
       "source_location": null,
       "weight": 1.0,
-      "source": "config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_configyaml",
+      "source": "config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_configyaml",
       "target": "config_configtemplate"
     },
     {
@@ -219344,7 +219344,7 @@
       "id": "velez_config_schema",
       "label": "Velez Configuration Environment Variable Schema",
       "nodes": [
-        "config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_configyaml",
+        "config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_config_configyaml",
         "config_configtemplate",
         "docs_configuration"
       ],
@@ -219367,5 +219367,5 @@
       "source_file": "tests/config_mocks/velez_default_config.yaml"
     }
   ],
-  "built_at_commit": "99275af347213079b84ee4734283a2cfad947cce"
+  "built_at_commit": "1b3e2e673ac10062b40f9be228f898ae6d02a0ce"
 }

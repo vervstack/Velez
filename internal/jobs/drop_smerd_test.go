@@ -67,10 +67,7 @@ func TestDropSmerdHandler_AllSucceed(t *testing.T) {
 	registry := NewRegistry()
 	registry.Register(NewDropSmerdHandler(newFakeRuntimes(docker, nil)))
 
-	w, ok := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour).(*taskWorker)
-	if !ok {
-		t.Fatal("expected NewTaskWorker to return *taskWorker")
-	}
+	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour)
 
 	err := w.run(context.Background(), task)
 	if err != nil {
@@ -134,10 +131,7 @@ func TestDropSmerdHandler_PartialFailureStillReachesDone(t *testing.T) {
 	registry := NewRegistry()
 	registry.Register(NewDropSmerdHandler(newFakeRuntimes(wrapped, nil)))
 
-	w, ok := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour).(*taskWorker)
-	if !ok {
-		t.Fatal("expected NewTaskWorker to return *taskWorker")
-	}
+	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour)
 
 	err := w.run(context.Background(), task)
 	if err != nil {
@@ -200,10 +194,7 @@ func TestDropSmerdHandler_ResumeSkipsAlreadyDoneJobs(t *testing.T) {
 	registry := NewRegistry()
 	registry.Register(NewDropSmerdHandler(newFakeRuntimes(docker, nil)))
 
-	w, ok := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour).(*taskWorker)
-	if !ok {
-		t.Fatal("expected NewTaskWorker to return *taskWorker")
-	}
+	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour)
 
 	err := w.run(context.Background(), task)
 	if err != nil {

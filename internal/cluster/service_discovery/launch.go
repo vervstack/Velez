@@ -18,11 +18,10 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/cluster/env/container_service_task"
+	"go.vervstack.ru/Velez/internal/cluster/vpnconnect"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
-	"go.vervstack.ru/Velez/internal/pipelines"
-	"go.vervstack.ru/Velez/internal/pipelines/steps"
 )
 
 const (
@@ -127,11 +126,11 @@ func SetupMakosh(
 		ServiceName: Name,
 	}
 
-	runner := pipelines.ConnectServiceToVpn(connToVpnReq, nodeClients, vcnClient, makoshSd)
+	runner := vpnconnect.ConnectServiceToVpn(connToVpnReq, nodeClients, vcnClient, makoshSd)
 
 	err = runner.Run(ctx)
 	if err != nil {
-		if rerrors.Is(err, steps.ErrAlreadyExists) {
+		if rerrors.Is(err, vpnconnect.ErrAlreadyExists) {
 			return makoshSd, nil
 		}
 

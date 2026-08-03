@@ -17,7 +17,6 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/patterns"
-	"go.vervstack.ru/Velez/internal/pipelines/steps/network_steps"
 )
 
 const (
@@ -30,6 +29,16 @@ const (
 	stepPrepareSidecarImage = "prepare_image"
 	stepStartSidecar        = "start_container"
 	stepAddMakoshRecord     = "add_makosh_record"
+)
+
+var (
+	// errSidecarAlreadyRunning replaces the deleted
+	// internal/pipelines/steps.ErrAlreadyExists for this action's own
+	// short-circuit. The node-bootstrap path that actually branches on that
+	// sentinel now lives in internal/cluster/vpnconnect and keeps its own
+	// exported copy; nothing inspects this one - the jobs engine persists a
+	// failed task's error as a string either way.
+	errSidecarAlreadyRunning = rerrors.New("sidecar container already running")
 )
 
 // Accessor interfaces the connect_service_to_vpn jobs need from their
@@ -103,12 +112,11 @@ func (h *connectServiceToVpnHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 
 	return []NamedJob{
 		{
-			// network_steps.CheckSidecarExist has no result to persist and no
-			// pipeline-only dependency, so it's reused as-is - steps.Step and
-			// jobs.Job are both just Do(ctx) error (see create_service.go's
-			// reuse of service_steps.ValidateServiceName).
 			Name: stepCheckSidecar,
-			Job:  network_steps.CheckSidecarExist(h.nodeClients, containerName),
+			Job: &checkSidecarExistJob{
+				docker:      h.nodeClients.Docker(),
+				sidecarName: containerName,
+			},
 		},
 		{
 			Name: stepPrepareNamespace,
@@ -167,6 +175,45 @@ func (h *connectServiceToVpnHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 	}
+}
+
+// checkSidecarExistJob carries over the deleted
+// internal/pipelines/steps/network_steps.CheckSidecarExist verbatim: it
+// short-circuits when the sidecar is already up and prunes a dead one
+// otherwise.
+type checkSidecarExistJob struct {
+	docker node_clients.Docker
+
+	sidecarName string
+}
+
+func (j *checkSidecarExistJob) Do(ctx context.Context) error {
+	// Check if there is a headscale to connect to
+	r := &velez_api.ListSmerds_Request{
+		Name: &j.sidecarName,
+	}
+
+	// Sidecars are node-level, not environment-scoped, so this lookup spans
+	// every environment (empty suffix).
+	conts, err := j.docker.ListContainers(ctx, r, "")
+	if err != nil {
+		return rerrors.Wrap(err, "error listing container")
+	}
+
+	if len(conts) == 0 {
+		return nil
+	}
+
+	if conts[0].State == dockerContainerStatusRunning {
+		return rerrors.Wrap(errSidecarAlreadyRunning)
+	}
+
+	err = j.docker.Remove(ctx, conts[0].ID)
+	if err != nil {
+		return rerrors.Wrap(err, "error removing dead container")
+	}
+
+	return nil
 }
 
 type prepareNamespaceJob struct {

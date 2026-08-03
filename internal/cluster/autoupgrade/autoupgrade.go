@@ -17,14 +17,26 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
-	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
-	"go.vervstack.ru/Velez/internal/pipelines"
+	"go.vervstack.ru/Velez/internal/jobs"
+	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
 const (
 	defaultCheckPeriod = time.Second * 30
+
+	// taskWatchTimeout bounds how long one auto-upgrade blocks waiting for its
+	// upgrade_smerd task to reach a terminal status - same safety-net role and
+	// same size as velez_api_impl's upgradeSmerdWatchTimeout.
+	taskWatchTimeout = time.Second * 120
 )
+
+// taskRunner is the slice of jobs.Engine this worker needs: enqueue a task
+// and follow it to a terminal status.
+type taskRunner interface {
+	Enqueue(ctx context.Context, entityID, action string, initialContext any) (tasks_queries.VelezTask, error)
+	Watch(ctx context.Context, entityID, action string) <-chan tasks_queries.VelezTask
+}
 
 type AutoUpgrade struct {
 	dockerAPI client.APIClient
@@ -36,16 +48,19 @@ type AutoUpgrade struct {
 
 	checkPeriod time.Duration
 
-	pipeliner pipelines.Pipeliner
+	// jobsEngine replaces the deleted internal/pipelines.Pipeliner: each
+	// upgrade is enqueued as a durable upgrade_smerd task and awaited
+	// synchronously, mirroring velez_api_impl/smerd_upgrade.go's facade.
+	jobsEngine taskRunner
 }
 
-func New(api client.APIClient, checkPeriod time.Duration, pipeliner pipelines.Pipeliner) *AutoUpgrade {
+func New(api client.APIClient, checkPeriod time.Duration, jobsEngine jobs.Engine) *AutoUpgrade {
 	return &AutoUpgrade{
 		dockerAPI: api,
 		stopC:     make(chan struct{}),
 
 		checkPeriod: max(checkPeriod, defaultCheckPeriod),
-		pipeliner:   pipeliner,
+		jobsEngine:  jobsEngine,
 	}
 }
 
@@ -109,17 +124,25 @@ func (au *AutoUpgrade) do(ctx context.Context) error {
 			continue
 		}
 
-		r := domain.UpgradeSmerd{
+		// Environment is deliberately left empty, which resolves to the
+		// default (PROD) environment.
+		//
+		// KNOWN LIMITATION, carried over unchanged from the pipeliner this
+		// replaced: auto-upgrade has never been environment-aware. The
+		// container.Summary rows it works from carry no environment name, so
+		// a smerd running in a non-default environment is looked up - and
+		// upgraded - as if it lived in the default one. Teaching this worker
+		// to reverse-resolve an environment from labels.SuffixLabel is a
+		// separate feature, out of scope for deleting internal/pipelines.
+		upgradeReq := &velez_api.UpgradeSmerd_Request{
 			Name:  smerd.Names[0][1:],
 			Image: *newImage,
 		}
 
 		eg.Go(func() error {
-			runner := au.pipeliner.UpgradeSmerd(r)
-
-			err = runner.Run(ctx)
-			if err != nil {
-				return rerrors.Wrapf(err, "error upgrading smerd %s", r.Name)
+			upgradeErr := au.upgrade(ctx, upgradeReq)
+			if upgradeErr != nil {
+				return rerrors.Wrapf(upgradeErr, "error upgrading smerd %s", upgradeReq.GetName())
 			}
 
 			return nil
@@ -129,6 +152,45 @@ func (au *AutoUpgrade) do(ctx context.Context) error {
 	err = eg.Wait()
 	if err != nil {
 		return rerrors.Wrap(err, "error returned from error group")
+	}
+
+	return nil
+}
+
+// upgrade enqueues an upgrade_smerd task and blocks until it reaches a
+// terminal status.
+func (au *AutoUpgrade) upgrade(ctx context.Context, req *velez_api.UpgradeSmerd_Request) error {
+	initialContext := &velez_api.UpgradeSmerdTaskPayload{
+		UpgradeRequest: req,
+	}
+
+	_, err := au.jobsEngine.Enqueue(ctx, req.GetName(), jobs.UpgradeSmerdAction, initialContext)
+	if err != nil {
+		return rerrors.Wrap(err, "error enqueuing upgrade_smerd task")
+	}
+
+	watchCtx, cancel := context.WithTimeout(ctx, taskWatchTimeout)
+	defer cancel()
+
+	var finalTask tasks_queries.VelezTask
+
+	for task := range au.jobsEngine.Watch(watchCtx, req.GetName(), jobs.UpgradeSmerdAction) {
+		finalTask = task
+	}
+
+	isDone := finalTask.Status == tasks_queries.VelezTaskStatusDONE
+	isFailed := finalTask.Status == tasks_queries.VelezTaskStatusFAILED
+
+	if !isDone && !isFailed && watchCtx.Err() != nil {
+		return rerrors.Wrapf(
+			watchCtx.Err(),
+			"timed out waiting for upgrade_smerd task, last status: %q",
+			finalTask.Status,
+		)
+	}
+
+	if isFailed {
+		return rerrors.New(finalTask.Error.String)
 	}
 
 	return nil

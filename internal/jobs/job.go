@@ -5,8 +5,9 @@ import (
 )
 
 // Job is a tiny, atomic, reusable unit of execution inside a Task.
-// Unlike internal/pipelines/steps.Step, a Job's completion is durably
-// checkpointed, so re-running the same Job for the same task is safe.
+// Unlike the deleted internal/pipelines/steps.Step it replaced, a Job's
+// completion is durably checkpointed, so re-running the same Job for the
+// same task is safe.
 type Job interface {
 	Do(ctx context.Context) error
 }

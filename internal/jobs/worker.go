@@ -13,7 +13,6 @@ import (
 
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
-	"go.vervstack.ru/Velez/internal/workers"
 )
 
 const (
@@ -24,6 +23,11 @@ const (
 // taskWorker generalizes internal/workers/deploy_watcher.go's ticker-driven
 // polling into a claim-any-registered-action loop backed by SELECT ... FOR
 // UPDATE SKIP LOCKED, with reclaim of tasks a worker died while holding.
+//
+// It satisfies internal/workers.Worker structurally, but NewTaskWorker
+// returns the concrete type rather than that interface: deploy_watcher.go now
+// enqueues jobs-engine tasks, so internal/workers imports internal/jobs and
+// the reverse edge would be an import cycle.
 type taskWorker struct {
 	tasksStorage storage.TasksStorage
 	jobsStorage  storage.JobsStorage
@@ -44,7 +48,7 @@ func NewTaskWorker(
 	registry *Registry,
 	workerID string,
 	interval time.Duration,
-) workers.Worker {
+) *taskWorker {
 	return &taskWorker{
 		tasksStorage: tasksStorage,
 		jobsStorage:  jobsStorage,

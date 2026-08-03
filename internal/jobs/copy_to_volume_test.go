@@ -726,10 +726,7 @@ func TestCopyToVolumeHandler_HappyPath_EndToEnd(t *testing.T) {
 	registry := NewRegistry()
 	registry.Register(handler)
 
-	w, ok := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour).(*taskWorker)
-	if !ok {
-		t.Fatal("expected NewTaskWorker to return *taskWorker")
-	}
+	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour)
 
 	runErr := w.runJobs(context.Background(), task.ID, taskCtx, namedJobs)
 	if runErr != nil {
@@ -795,10 +792,7 @@ func TestCopyToVolumeHandler_FailurePath_CreateContainerFails(t *testing.T) {
 	registry := NewRegistry()
 	registry.Register(NewCopyToVolumeHandler(nodeClients, newFakeRuntimes(docker, nil)))
 
-	w, ok := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour).(*taskWorker)
-	if !ok {
-		t.Fatal("expected NewTaskWorker to return *taskWorker")
-	}
+	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour)
 
 	err := w.run(context.Background(), task)
 	if err == nil {
@@ -862,10 +856,7 @@ func TestCopyToVolumeHandler_FailurePath_LaterFileFailsCascadesRollback(t *testi
 	registry := NewRegistry()
 	registry.Register(handler)
 
-	w, ok := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour).(*taskWorker)
-	if !ok {
-		t.Fatal("expected NewTaskWorker to return *taskWorker")
-	}
+	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour)
 
 	runErr := w.runJobs(context.Background(), task.ID, taskCtx, namedJobs)
 	if runErr == nil {

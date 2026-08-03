@@ -12,31 +12,44 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
-	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/internal/pipelines"
+	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/storage"
-	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
+	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
-// environmentsProvider yields the currently-live environments storage.
-// cluster_clients.ClusterStateManagerContainer satisfies it.
-type environmentsProvider interface {
-	Environments() storage.EnvironmentsStorage
+const (
+	// taskWatchTimeout bounds how long one scheduled deployment blocks waiting
+	// for its create_smerd/upgrade_smerd task to reach a terminal status. Same
+	// safety-net role as velez_api_impl's upgradeSmerdWatchTimeout, and sized
+	// to it: upgrade_smerd is the slower of the two actions this worker runs.
+	taskWatchTimeout = 120 * time.Second
+)
+
+// taskRunner is the slice of jobs.Engine this worker needs: enqueue a task
+// and follow it to a terminal status.
+type taskRunner interface {
+	Enqueue(ctx context.Context, entityID, action string, initialContext any) (tasks_queries.VelezTask, error)
+	Watch(ctx context.Context, entityID, action string) <-chan tasks_queries.VelezTask
 }
 
 type deployWatcher struct {
-	pipeliner          pipelines.Pipeliner
+	// jobsEngine replaces the deleted internal/pipelines.Pipeliner: scheduled
+	// deployments and upgrades are enqueued as durable tasks and awaited
+	// synchronously, mirroring velez_api_impl's CreateSmerd/UpgradeSmerd
+	// facades. The environment no longer has to be resolved into a Docker
+	// suffix here - create_smerd's own jobs re-resolve it from the persisted
+	// request at run time.
+	jobsEngine         taskRunner
 	deploymentsStorage storage.DeploymentsStorage
-	// environments resolves a stored specification's environment name into the
-	// Docker suffix. The pipeliner no longer carries a fixed suffix, so
-	// whoever builds a domain.LaunchSmerd must supply it - see
-	// domain.LaunchSmerd.Suffix. Held as the container (not a snapshot) so the
-	// single-node -> cluster storage swap is picked up.
-	environments environmentsProvider
-	nodeClients  node_clients.NodeClients
+	// runtimes resolves a deployment's environment name into the
+	// ContainerRuntime serving it, so the liveness check and the deletion
+	// below stay scoped to the right environment instead of hitting the
+	// daemon through an unsuffixed Docker client.
+	runtimes container_runtime.RuntimeResolver
 
 	nodeId int64
 
@@ -48,17 +61,16 @@ type deployWatcher struct {
 
 func NewDeployWatcher(
 	services service.Services,
-	runner pipelines.Pipeliner,
+	jobsEngine jobs.Engine,
 	clusterClients cluster_clients.ClusterClients,
-	nodeClients node_clients.NodeClients,
+	runtimes container_runtime.RuntimeResolver,
 
 	interval time.Duration,
 ) Worker {
 	return &deployWatcher{
-		pipeliner:          runner,
+		jobsEngine:         jobsEngine,
 		deploymentsStorage: clusterClients.StateManager().Deployments(),
-		environments:       clusterClients.StateManager(),
-		nodeClients:        nodeClients,
+		runtimes:           runtimes,
 
 		nodeId: 1,
 
@@ -160,80 +172,15 @@ func (d *deployWatcher) processScheduledBatch(ctx context.Context, scheduled []d
 		//nolint:exhaustive
 		switch dep.Status {
 		case deployments_queries.VelezDeploymentStatusSCHEDULEDDEPLOYMENT:
-			spec, err := d.deploymentsStorage.GetSpecificationById(ctx, dep.SpecId)
+			err := d.deploy(ctx, dep)
 			if err != nil {
-				return rerrors.Wrap(err, "")
-			}
-
-			r := domain.LaunchSmerd{
-				CreateSmerd_Request: &velez_api.CreateSmerd_Request{},
-			}
-
-			err = json.Unmarshal(spec.VervPayload.RawMessage, &r.CreateSmerd_Request)
-			if err != nil {
-				return rerrors.Wrap(err, "")
-			}
-
-			// Suffix isn't part of the persisted spec (only the embedded
-			// request is), so it's re-resolved from the request's environment
-			// name - the authoritative value that came in over the wire.
-			r.Suffix, err = d.resolveSuffix(ctx, r.GetEnvironment())
-			if err != nil {
-				return rerrors.Wrap(err, "error resolving deployment's environment")
-			}
-
-			updateStatusParams := deployments_queries.UpdateDeploymentStatusParams{
-				Status: deployments_queries.VelezDeploymentStatusRUNNING,
-				ID:     dep.Id,
-			}
-
-			runner := d.pipeliner.LaunchSmerd(r)
-
-			err = runner.Run(ctx)
-			if err != nil {
-				log.Error().Err(rerrors.Wrap(err, "")).Msg("error deploying smerd")
-
-				updateStatusParams.Status = deployments_queries.VelezDeploymentStatusFAILED
-			}
-
-			err = d.deploymentsStorage.UpdateDeploymentStatus(ctx, updateStatusParams)
-			if err != nil {
-				return rerrors.Wrap(err, "UpdateDeploymentStatus")
+				return rerrors.Wrap(err)
 			}
 		case deployments_queries.VelezDeploymentStatusSCHEDULEDDELETION:
 		case deployments_queries.VelezDeploymentStatusSCHEDULEDUPGRADE:
-			spec, err := d.deploymentsStorage.GetSpecificationById(ctx, dep.SpecId)
+			err := d.upgrade(ctx, dep)
 			if err != nil {
-				return rerrors.Wrap(err, "GetSpecificationById")
-			}
-
-			smerdReq := &velez_api.CreateSmerd_Request{}
-
-			err = json.Unmarshal(spec.VervPayload.RawMessage, smerdReq)
-			if err != nil {
-				return rerrors.Wrap(err, "")
-			}
-
-			updateStatusParams := deployments_queries.UpdateDeploymentStatusParams{
-				Status: deployments_queries.VelezDeploymentStatusRUNNING,
-				ID:     dep.Id,
-			}
-
-			upgradeRunner := d.pipeliner.UpgradeSmerd(domain.UpgradeSmerd{
-				Name:  smerdReq.GetName(),
-				Image: smerdReq.GetImageName(),
-			})
-
-			err = upgradeRunner.Run(ctx)
-			if err != nil {
-				log.Error().Err(rerrors.Wrap(err, "")).Msg("error upgrading smerd")
-
-				updateStatusParams.Status = deployments_queries.VelezDeploymentStatusFAILED
-			}
-
-			err = d.deploymentsStorage.UpdateDeploymentStatus(ctx, updateStatusParams)
-			if err != nil {
-				return rerrors.Wrap(err, "UpdateDeploymentStatus")
+				return rerrors.Wrap(err)
 			}
 		}
 	}
@@ -241,21 +188,96 @@ func (d *deployWatcher) processScheduledBatch(ctx context.Context, scheduled []d
 	return nil
 }
 
+// deploy launches a scheduled deployment through the create_smerd task.
+// Unlike the pipeliner it replaces, the environment name is not resolved into
+// a Docker suffix here: the persisted request carries the name, and
+// create_smerd's container-creation job resolves it against the live
+// environments storage when it runs.
+func (d *deployWatcher) deploy(ctx context.Context, dep domain.Deployment) error {
+	smerdReq, err := d.specRequest(ctx, dep)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	updateStatusParams := deployments_queries.UpdateDeploymentStatusParams{
+		Status: deployments_queries.VelezDeploymentStatusRUNNING,
+		ID:     dep.Id,
+	}
+
+	initialContext := &velez_api.CreateSmerdTaskPayload{}
+	initialContext.SetRequest(smerdReq)
+
+	err = d.runTask(ctx, smerdReq.GetName(), jobs.CreateSmerdAction, initialContext)
+	if err != nil {
+		log.Error().Err(rerrors.Wrap(err, "")).Msg("error deploying smerd")
+
+		updateStatusParams.Status = deployments_queries.VelezDeploymentStatusFAILED
+	}
+
+	err = d.deploymentsStorage.UpdateDeploymentStatus(ctx, updateStatusParams)
+	if err != nil {
+		return rerrors.Wrap(err, "UpdateDeploymentStatus")
+	}
+
+	return nil
+}
+
+// upgrade upgrades a running deployment through the upgrade_smerd task. The
+// stored specification's environment is now carried into the request - the
+// pipeliner path read it for deployments but silently dropped it for
+// upgrades, which made every upgrade implicitly target the default
+// environment.
+func (d *deployWatcher) upgrade(ctx context.Context, dep domain.Deployment) error {
+	smerdReq, err := d.specRequest(ctx, dep)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	updateStatusParams := deployments_queries.UpdateDeploymentStatusParams{
+		Status: deployments_queries.VelezDeploymentStatusRUNNING,
+		ID:     dep.Id,
+	}
+
+	upgradeReq := &velez_api.UpgradeSmerd_Request{
+		Name:        smerdReq.GetName(),
+		Image:       smerdReq.GetImageName(),
+		Environment: smerdReq.GetEnvironment(),
+	}
+
+	initialContext := &velez_api.UpgradeSmerdTaskPayload{
+		UpgradeRequest: upgradeReq,
+	}
+
+	err = d.runTask(ctx, upgradeReq.GetName(), jobs.UpgradeSmerdAction, initialContext)
+	if err != nil {
+		log.Error().Err(rerrors.Wrap(err, "")).Msg("error upgrading smerd")
+
+		updateStatusParams.Status = deployments_queries.VelezDeploymentStatusFAILED
+	}
+
+	err = d.deploymentsStorage.UpdateDeploymentStatus(ctx, updateStatusParams)
+	if err != nil {
+		return rerrors.Wrap(err, "UpdateDeploymentStatus")
+	}
+
+	return nil
+}
+
 func (d *deployWatcher) syncRunningBatch(ctx context.Context, active []domain.Deployment) error {
 	for _, dep := range active {
-		spec, err := d.deploymentsStorage.GetSpecificationById(ctx, dep.SpecId)
+		smerdReq, err := d.specRequest(ctx, dep)
 		if err != nil {
 			return rerrors.Wrap(err, "error getting spec for running deployment")
 		}
 
-		smerdReq := &velez_api.CreateSmerd_Request{}
-
-		err = json.Unmarshal(spec.VervPayload.RawMessage, smerdReq)
+		runtime, err := d.runtimes.Runtime(ctx, smerdReq.GetEnvironment())
 		if err != nil {
-			return rerrors.Wrap(err, "error unmarshaling spec")
+			log.Error().Err(err).Str("container", smerdReq.GetName()).Msg("error resolving container runtime")
+
+			continue
 		}
 
-		running, _, err := d.nodeClients.Docker().IsContainerRunning(ctx, smerdReq.GetName())
+		running, _, err := runtime.IsContainerRunning(ctx, smerdReq.GetName())
 		if err != nil {
 			log.Error().Err(err).Str("container", smerdReq.GetName()).Msg("error inspecting container")
 
@@ -266,10 +288,12 @@ func (d *deployWatcher) syncRunningBatch(ctx context.Context, active []domain.De
 			continue
 		}
 
-		err = d.deploymentsStorage.UpdateDeploymentStatus(ctx, deployments_queries.UpdateDeploymentStatusParams{
+		updateStatusParams := deployments_queries.UpdateDeploymentStatusParams{
 			Status: deployments_queries.VelezDeploymentStatusFAILED,
 			ID:     dep.Id,
-		})
+		}
+
+		err = d.deploymentsStorage.UpdateDeploymentStatus(ctx, updateStatusParams)
 		if err != nil {
 			return rerrors.Wrap(err, "error marking deployment as failed")
 		}
@@ -280,29 +304,31 @@ func (d *deployWatcher) syncRunningBatch(ctx context.Context, active []domain.De
 
 func (d *deployWatcher) deleteBatch(ctx context.Context, deletion []domain.Deployment) error {
 	for _, dep := range deletion {
-		spec, err := d.deploymentsStorage.GetSpecificationById(ctx, dep.SpecId)
+		smerdReq, err := d.specRequest(ctx, dep)
 		if err != nil {
 			return rerrors.Wrap(err, "error getting spec for deletion")
 		}
 
-		smerdReq := &velez_api.CreateSmerd_Request{}
-
-		err = json.Unmarshal(spec.VervPayload.RawMessage, smerdReq)
+		runtime, err := d.runtimes.Runtime(ctx, smerdReq.GetEnvironment())
 		if err != nil {
-			return rerrors.Wrap(err, "error unmarshaling spec")
+			log.Error().Err(err).Str("container", smerdReq.GetName()).Msg("error resolving container runtime")
+
+			continue
 		}
 
-		err = d.nodeClients.Docker().Remove(ctx, smerdReq.GetName())
+		err = runtime.Remove(ctx, smerdReq.GetName())
 		if err != nil {
 			log.Error().Err(err).Str("container", smerdReq.GetName()).Msg("error removing container")
 
 			continue
 		}
 
-		err = d.deploymentsStorage.UpdateDeploymentStatus(ctx, deployments_queries.UpdateDeploymentStatusParams{
+		updateStatusParams := deployments_queries.UpdateDeploymentStatusParams{
 			Status: deployments_queries.VelezDeploymentStatusDELETED,
 			ID:     dep.Id,
-		})
+		}
+
+		err = d.deploymentsStorage.UpdateDeploymentStatus(ctx, updateStatusParams)
 		if err != nil {
 			return rerrors.Wrap(err, "error marking deployment as deleted")
 		}
@@ -311,43 +337,61 @@ func (d *deployWatcher) deleteBatch(ctx context.Context, deletion []domain.Deplo
 	return nil
 }
 
-// resolveSuffix maps an environment name onto its Docker suffix. An empty name
-// - every deployment created before environments existed, plus any caller that
-// still doesn't set one - resolves to the default environment
-// (environments.DefaultEnvironmentName), whose suffix is this node's
-// pre-environments ContainerSuffix. Resolving the default is best-effort and
-// degrades to the empty suffix; an explicit unknown name stays an error.
-func (d *deployWatcher) resolveSuffix(ctx context.Context, name string) (string, error) {
-	isDefault := name == ""
-	if isDefault {
-		name = environments.DefaultEnvironmentName
-	}
-
-	if d.environments == nil {
-		if isDefault {
-			return "", nil
-		}
-
-		return "", rerrors.New("environments storage is not available")
-	}
-
-	envStorage := d.environments.Environments()
-	if envStorage == nil {
-		if isDefault {
-			return "", nil
-		}
-
-		return "", rerrors.New("environments storage is not available")
-	}
-
-	env, err := envStorage.GetEnvironmentByName(ctx, name)
+// specRequest loads a deployment's persisted specification and decodes the
+// CreateSmerd request embedded in it.
+func (d *deployWatcher) specRequest(
+	ctx context.Context, dep domain.Deployment,
+) (*velez_api.CreateSmerd_Request, error) {
+	spec, err := d.deploymentsStorage.GetSpecificationById(ctx, dep.SpecId)
 	if err != nil {
-		if isDefault {
-			return "", nil
-		}
-
-		return "", rerrors.Wrapf(err, "unknown environment '%s'", name)
+		return nil, rerrors.Wrap(err, "GetSpecificationById")
 	}
 
-	return env.Suffix, nil
+	smerdReq := &velez_api.CreateSmerd_Request{}
+
+	err = json.Unmarshal(spec.VervPayload.RawMessage, smerdReq)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error unmarshaling spec")
+	}
+
+	return smerdReq, nil
+}
+
+// runTask enqueues action for entityID and blocks until the task reaches a
+// terminal status - the synchronous facade over the jobs engine that
+// velez_api_impl's CreateSmerd/UpgradeSmerd RPCs also put in front of it,
+// keeping this worker's "run it and report success or failure" contract
+// unchanged from the pipeliner it replaced.
+func (d *deployWatcher) runTask(ctx context.Context, entityID, action string, initialContext any) error {
+	_, err := d.jobsEngine.Enqueue(ctx, entityID, action, initialContext)
+	if err != nil {
+		return rerrors.Wrapf(err, "error enqueuing %s task", action)
+	}
+
+	watchCtx, cancel := context.WithTimeout(ctx, taskWatchTimeout)
+	defer cancel()
+
+	var finalTask tasks_queries.VelezTask
+
+	for task := range d.jobsEngine.Watch(watchCtx, entityID, action) {
+		finalTask = task
+	}
+
+	isDone := finalTask.Status == tasks_queries.VelezTaskStatusDONE
+	isFailed := finalTask.Status == tasks_queries.VelezTaskStatusFAILED
+
+	if !isDone && !isFailed && watchCtx.Err() != nil {
+		return rerrors.Wrapf(
+			watchCtx.Err(),
+			"timed out waiting for %s task, last status: %q",
+			action,
+			finalTask.Status,
+		)
+	}
+
+	if isFailed {
+		return rerrors.New(finalTask.Error.String)
+	}
+
+	return nil
 }

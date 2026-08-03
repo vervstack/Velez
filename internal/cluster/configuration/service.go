@@ -19,11 +19,10 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/cluster/env/container_service_task"
+	"go.vervstack.ru/Velez/internal/cluster/vpnconnect"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
-	"go.vervstack.ru/Velez/internal/pipelines"
-	"go.vervstack.ru/Velez/internal/pipelines/steps"
 )
 
 // sharedInstanceCtxKey is an unexported context key used to hand an
@@ -221,11 +220,11 @@ func SetupMatreshka(
 		return mClient, nil
 	}
 
-	runner := pipelines.ConnectServiceToVpn(vcnReq, nc, vcnClient, sdClient)
+	runner := vpnconnect.ConnectServiceToVpn(vcnReq, nc, vcnClient, sdClient)
 
 	err = runner.Run(ctx)
 	if err != nil {
-		if rerrors.Is(err, steps.ErrAlreadyExists) {
+		if rerrors.Is(err, vpnconnect.ErrAlreadyExists) {
 			return mClient, nil
 		}
 

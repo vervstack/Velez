@@ -53,10 +53,7 @@ func TestCreateServiceHandler_ValidNameUpsertsService(t *testing.T) {
 	registry := NewRegistry()
 	registry.Register(NewCreateServiceHandler(servicesStorage))
 
-	w, ok := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour).(*taskWorker)
-	if !ok {
-		t.Fatal("expected NewTaskWorker to return *taskWorker")
-	}
+	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour)
 
 	err := w.run(context.Background(), task)
 	if err != nil {
@@ -84,10 +81,7 @@ func TestCreateServiceHandler_InvalidNameFailsWithoutUpsert(t *testing.T) {
 	registry := NewRegistry()
 	registry.Register(NewCreateServiceHandler(servicesStorage))
 
-	w, ok := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour).(*taskWorker)
-	if !ok {
-		t.Fatal("expected NewTaskWorker to return *taskWorker")
-	}
+	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour)
 
 	err := w.run(context.Background(), task)
 	if err == nil {

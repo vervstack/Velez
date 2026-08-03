@@ -26,7 +26,6 @@ import (
 	"go.vervstack.ru/Velez/internal/cluster/autoupgrade"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/middleware"
-	"go.vervstack.ru/Velez/internal/pipelines"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/service_manager"
 	"go.vervstack.ru/Velez/internal/transport"
@@ -54,8 +53,7 @@ type Custom struct {
 	ClusterClients cluster_clients.ClusterClients
 
 	// Services - contains business logic services
-	Services  service.Services
-	Pipeliner pipelines.Pipeliner
+	Services service.Services
 	// JobsEngine - durable, resumable task/job engine (see internal/jobs)
 	JobsEngine jobs.Engine
 	// Api implementation
@@ -130,9 +128,9 @@ func (c *Custom) Init(a *App) (err error) {
 		return rerrors.Wrap(err, "error during server initialization")
 	}
 
-	c.autoupgrader = autoupgrade.New(c.NodeClients.Docker().Client(), autoUpgradeIntervalCheck, c.Pipeliner)
+	c.autoupgrader = autoupgrade.New(c.NodeClients.Docker().Client(), autoUpgradeIntervalCheck, c.JobsEngine)
 
-	c.DeployWatcher = workers.NewDeployWatcher(c.Services, c.Pipeliner, c.ClusterClients, c.NodeClients,
+	c.DeployWatcher = workers.NewDeployWatcher(c.Services, c.JobsEngine, c.ClusterClients, runtimeResolver,
 		deployWatcherInterval)
 	go c.DeployWatcher.Start(a.Ctx)
 
@@ -228,7 +226,6 @@ func (c *Custom) InitServiceLayer(a *App, runtimeResolver container_runtime.Runt
 		c.Services.StorageContainer().Set(c.ClusterClients.StateManager())
 	}
 
-	c.Pipeliner = pipelines.NewPipeliner(c.NodeClients, c.ClusterClients, c.Services)
 	c.JobsEngine = jobs.NewEngine(c.ClusterClients.StateManager().Tasks(), c.ClusterClients.StateManager().Jobs())
 
 	log.Info().Bool("shutDownOnExit", a.Cfg.Environment.ShutDownOnExit).Msg("shut down on exit")
@@ -249,9 +246,9 @@ func (c *Custom) InitApiServer(a *App) error {
 	}
 
 	c.ApiGrpcImpl = velez_api_impl.NewImpl(a.Cfg, c.Services, c.JobsEngine)
-	c.ControlPlaneApiImpl = control_plane_api_impl.New(c.Services, c.Pipeliner, c.JobsEngine)
-	c.VpnApiImpl = vcn_api_impl.New(c.ClusterClients, c.Pipeliner, c.JobsEngine)
-	c.ServiceApiImpl = service_api_impl.New(c.Pipeliner, c.Services, c.JobsEngine)
+	c.ControlPlaneApiImpl = control_plane_api_impl.New(c.Services, c.JobsEngine)
+	c.VpnApiImpl = vcn_api_impl.New(c.ClusterClients, c.JobsEngine)
+	c.ServiceApiImpl = service_api_impl.New(c.Services, c.JobsEngine)
 	c.TasksApiImpl = tasks_api_impl.New(c.JobsEngine)
 
 	c.serverManager.AddImplementation(a.Ctx,

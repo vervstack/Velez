@@ -25,7 +25,6 @@ import (
 	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
-	"go.vervstack.ru/Velez/internal/pipelines/steps/upgrade_steps"
 	"go.vervstack.ru/Velez/internal/service"
 )
 
@@ -47,6 +46,13 @@ const (
 	stepRenameOldContainer           = "rename_old_container"
 	stepDropOldContainer             = "drop_old_container"
 	stepRenameNewContainer           = "rename_new_container"
+)
+
+var (
+	// ErrSelfUpgradeIsForbidden moved here from the deleted
+	// internal/pipelines/steps/upgrade_steps package, where it was the last
+	// symbol anything outside internal/pipelines still imported.
+	ErrSelfUpgradeIsForbidden = rerrors.NewUserError("Can't perform self upgrade", codes.FailedPrecondition)
 )
 
 // Accessor interfaces the upgrade_smerd jobs need from their TaskContext.
@@ -279,11 +285,11 @@ type checkSelfUpgradeJob struct {
 	runtimes container_runtime.RuntimeResolver
 }
 
-// Do duplicates upgrade_steps.CheckUpgradeIsAvailable's self-upgrade guard.
-// That function takes a full service.Services (only to call .SmerdManager()
-// internally), while this handler takes the narrower ContainerService
-// directly, so its few lines of logic are reproduced here rather than
-// widening the handler's dependency. The sentinel error is reused as-is.
+// Do carries over the self-upgrade guard of the deleted
+// upgrade_steps.CheckUpgradeIsAvailable. That function took a full
+// service.Services (only to call .SmerdManager() internally), while this
+// handler takes the narrower ContainerService directly, so its few lines of
+// logic live here instead.
 func (j *checkSelfUpgradeJob) Do(ctx context.Context) error {
 	id := env.GetContainerId()
 	if id == nil {
@@ -302,7 +308,7 @@ func (j *checkSelfUpgradeJob) Do(ctx context.Context) error {
 	}
 
 	if smerd.GetUuid() == *id {
-		return upgrade_steps.ErrSelfUpgradeIsForbidden
+		return rerrors.Wrap(ErrSelfUpgradeIsForbidden)
 	}
 
 	return nil

@@ -60,10 +60,7 @@ func TestTaskWorker_ClaimsAndRunsAllJobsInOrder(t *testing.T) {
 		},
 	})
 
-	w, ok := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour).(*taskWorker)
-	if !ok {
-		t.Fatal("expected NewTaskWorker to return *taskWorker")
-	}
+	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour)
 
 	w.processOne(context.Background())
 
@@ -115,10 +112,7 @@ func TestTaskWorker_ReclaimsStaleRunningTaskAndSkipsDoneJobs(t *testing.T) {
 		},
 	})
 
-	w, ok := NewTaskWorker(tasksStorage, jobsStorage, registry, "new-worker", time.Hour).(*taskWorker)
-	if !ok {
-		t.Fatal("expected NewTaskWorker to return *taskWorker")
-	}
+	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "new-worker", time.Hour)
 
 	w.processOne(context.Background())
 

@@ -10,7 +10,6 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
-	"go.vervstack.ru/Velez/internal/pipelines"
 	"go.vervstack.ru/Velez/internal/service"
 )
 
@@ -24,7 +23,7 @@ type Impl struct {
 	vervServices  service.VervServicesService
 }
 
-func New(srv service.Services, pipeliner pipelines.Pipeliner, jobsEngine jobs.Engine) *Impl {
+func New(srv service.Services, jobsEngine jobs.Engine) *Impl {
 	return &Impl{
 		UnimplementedControlPlaneAPIServer: velez_api.UnimplementedControlPlaneAPIServer{},
 		jobsEngine:                         jobsEngine,

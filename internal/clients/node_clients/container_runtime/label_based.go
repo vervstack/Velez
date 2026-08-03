@@ -23,7 +23,7 @@ const (
 
 	// nameSuffixSeparator joins a smerd's logical name and its environment
 	// suffix. It reproduces, byte for byte, the convention the pre-environments
-	// pipeliner used (internal/pipelines/do_smerd_launch.go's
+	// pipeliner used (the deleted internal/pipelines/do_smerd_launch.go's
 	// `req.Name = req.GetName() + "_" + p.suffix`).
 	nameSuffixSeparator = "_"
 )

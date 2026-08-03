@@ -32,7 +32,6 @@ import (
 	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/patterns/db_patterns/pg_pattern"
-	"go.vervstack.ru/Velez/internal/pipelines/steps/cluster_steps"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
@@ -724,9 +723,10 @@ func (j *createSchemaAndMigrateJob) wrapSchemaErr(ctx context.Context, execErr e
 	return rerrors.Wrap(userErr, "error creating postgres schema")
 }
 
-// createPgUserJob wraps cluster_steps.CreatePgUserForNode the same way
-// getRootDsnJob wraps GetRgRootDsn: the dsn/password it needs are only
-// available from the task's persisted context at Do()-time, not at
+// createPgUserJob carries over the deleted
+// internal/pipelines/steps/cluster_steps.CreatePgUserForNode verbatim (this
+// job was its only remaining caller). Like getRootDsnJob it reads the dsn and
+// password from the task's persisted context at Do()-time rather than at
 // BuildJobs-construction time.
 type createPgUserJob struct {
 	dsn rootDsnAccessor
@@ -734,14 +734,43 @@ type createPgUserJob struct {
 }
 
 func (j *createPgUserJob) Do(ctx context.Context) error {
-	rootDsn := j.dsn.GetRootDsn()
-
-	step := cluster_steps.CreatePgUserForNode(&rootDsn, pgMasterNodeDefaultName, j.pwd.GetUserPwd())
-
-	err := step.Do(ctx)
+	conn, err := sql.Open(sqldb.Dialect, j.dsn.GetRootDsn())
 	if err != nil {
-		return rerrors.Wrap(err, "error creating postgres user for node")
+		return rerrors.Wrap(err, "error opening connection to database")
 	}
+
+	defer func() {
+		closeErr := conn.Close()
+		if closeErr != nil {
+			log.Err(closeErr).
+				Msg("error closing database connection for root dsn when creating new user")
+		}
+	}()
+
+	_, err = conn.ExecContext(ctx,
+		fmt.Sprintf(`
+	DO
+	$$BEGIN
+	   IF NOT EXISTS (
+		  SELECT
+		  FROM   pg_catalog.pg_roles
+		  WHERE  rolname = '%[1]s'
+	   ) THEN
+			CREATE USER %[1]s WITH PASSWORD '%[2]s';
+
+			GRANT working_node TO %[1]s;
+		END IF;
+	END$$;
+`, pgMasterNodeDefaultName, j.pwd.GetUserPwd()))
+	if err != nil {
+		return rerrors.Wrap(err, "error creating database user")
+	}
+
+	// TODO Think about it really gud
+
+	log.Info().
+		Str("pwd", j.pwd.GetUserPwd()).
+		Msg("user created")
 
 	return nil
 }

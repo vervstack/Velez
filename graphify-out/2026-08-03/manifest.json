@@ -230,8 +230,8 @@
     "semantic_hash": ""
   },
   "internal/clients/node_clients/docker/client.go": {
-    "mtime": 1785741650.3925343,
-    "ast_hash": "cac2cb55823ff88e9e2651b2b9bed75b",
+    "mtime": 1785763326.430396,
+    "ast_hash": "621501364ebe54cda1edb1500eed340e",
     "semantic_hash": ""
   },
   "internal/clients/node_clients/docker/dockerutils/images.go": {
@@ -2635,8 +2635,8 @@
     "semantic_hash": ""
   },
   "internal/jobs/fakes_test.go": {
-    "mtime": 1785757956.587395,
-    "ast_hash": "3048a5cb3d6cfb4cae2e02c403359d50",
+    "mtime": 1785763427.9885302,
+    "ast_hash": "d8cb84463a4cd9ac5f1bd2b3eeb92497",
     "semantic_hash": ""
   },
   "internal/jobs/job.go": {
@@ -2820,8 +2820,8 @@
     "semantic_hash": ""
   },
   "internal/jobs/upgrade_smerd.go": {
-    "mtime": 1785757347.9712548,
-    "ast_hash": "41d0933301d2ab3051c33dd058bdeac9",
+    "mtime": 1785763528.5744567,
+    "ast_hash": "5552e5febb9c3961b0c4b08a4937258f",
     "semantic_hash": ""
   },
   "internal/jobs/upgrade_smerd_test.go": {
@@ -3420,8 +3420,8 @@
     "semantic_hash": ""
   },
   "tests/test_helper/docker_infra.go": {
-    "mtime": 1785760601.6875215,
-    "ast_hash": "e1291c2b576134963b65c0fec2c1ae27",
+    "mtime": 1785763441.814333,
+    "ast_hash": "c748f811f470585e39434416a4bc02c7",
     "semantic_hash": ""
   }
 }

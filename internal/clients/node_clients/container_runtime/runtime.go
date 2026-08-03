@@ -9,8 +9,9 @@
 // invisible to callers.
 //
 // Design record: docs/container_runtimes/{README,interface_design,roadmap}.md.
-// Phase 1 (current) implements ContainerCreate only; every other container
-// operation still goes through node_clients.Docker directly.
+// Phase 1 (current) implements ContainerCreate, ListContainers and Remove;
+// every other container operation still goes through node_clients.Docker
+// directly.
 package container_runtime
 
 import (
@@ -74,8 +75,19 @@ type ContainerRuntime interface {
 	// runtime instance was resolved for. Unlike node_clients.Docker's
 	// ListContainers, there is no suffix parameter - the resolved
 	// environment's suffix is baked into the runtime instance the resolver
-	// handed out, not re-supplied per call.
+	// handed out, not re-supplied per call. Every returned container.Summary's
+	// Names are virtual/logical names, never the suffixed Docker name - see
+	// labelBasedRuntime.ListContainers.
 	ListContainers(ctx context.Context, req *velez_api.ListSmerds_Request) ([]container.Summary, error)
+
+	// Remove deletes a single container identified by uuid or logical/Docker
+	// name, strictly scoped to the environment this runtime instance was
+	// resolved for: a container belonging to a different environment (or no
+	// container at all, under either identifier form) is treated as "nothing
+	// to remove" and reported as success, not an error - see
+	// labelBasedRuntime.Remove's doc comment for the resolution/ownership
+	// check this relies on.
+	Remove(ctx context.Context, identifier string) error
 }
 
 // RuntimeResolver hands out the ContainerRuntime serving a given environment.

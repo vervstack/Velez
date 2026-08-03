@@ -21,22 +21,25 @@ import (
 // ContainerSuffix plus one row per configured name (suffix = name). That's what
 // WithContainerSuffix + WithEnvironments below drive.
 //
-// Two of the four tests are deliberately RED and skipped - see their
-// t.Skip reasons; they describe isolation the current implementation does not
-// provide yet (the jobs engine dedups tasks without an environment component,
-// and DropSmerd ignores its environment field entirely). The suffix now reaches
-// the container NAME as well as the VELEZ_SUFFIX label - see
-// docs/container_runtimes - which is why the assertions below expect
-// "<name>_<suffix>" container names.
+// One of these tests (Test_SameNameInTwoEnvironments_AreDistinctContainers) is
+// t.Skip'd because it is blocked on a separate, out-of-scope bug (the jobs
+// engine dedups tasks without an environment component) - see its doc
+// comment. The two DropSmerd tests below used to be deliberately RED,
+// documenting bugs in internal/jobs/drop_smerd.go's ContainerRuntime.Remove
+// wiring (see docs/container_runtimes/roadmap.md); both are now GREEN -
+// labelBasedRuntime.Remove resolves bare/suffixed/UUID identifiers to a real
+// container and checks its labels.SuffixLabel against r.suffix before
+// removing, closing both the bare-name-no-op and the UUID-cross-environment
+// bugs.
 type EnvironmentsSuite struct {
 	suite.Suite
 }
 
 const (
-	// e2eDefaultSuffix is deliberately non-empty: with the default (empty)
-	// ContainerSuffix, "scoped to PROD" and "not scoped at all" produce the
-	// same Docker filter, and the assertions below couldn't tell the default
-	// fallback from no scoping at all.
+	// e2eDefaultSuffix is deliberately non-empty: with an empty
+	// ContainerSuffix, the suffixed and bare forms of a container name are
+	// the same string, and the assertions below couldn't tell whether
+	// suffix-handling is actually exercised.
 	e2eDefaultSuffix = "e2eprod"
 	e2eStageEnv      = "E2ESTAGE"
 
@@ -79,10 +82,12 @@ func (s *EnvironmentsSuite) Test_EmptyEnvironment_UsesDefaultSuffix() {
 
 	listed := env.ListSmerds(t, t.Context(), listReq)
 	require.Len(t, listed.GetSmerds(), 1)
-	// The Docker container name carries the environment's suffix - see
-	// expectedContainerName in suite_container_runtime_test.go - and Smerd.Name
-	// is that container name verbatim.
-	require.Equal(t, expectedContainerName(serviceName, e2eDefaultSuffix), listed.GetSmerds()[0].GetName())
+	// The Docker container name carries the environment's suffix (see
+	// expectedContainerName in suite_container_runtime_test.go), but Smerd.Name
+	// is always the virtual/logical name - ContainerRuntime.ListContainers
+	// strips the suffix back off before ListSmerds ever sees it (see
+	// docs/container_runtimes/interface_design.md).
+	require.Equal(t, serviceName, listed.GetSmerds()[0].GetName())
 
 	// ... and so must an environment-less list.
 	unscopedReq := &velez_api.ListSmerds_Request{
@@ -134,7 +139,7 @@ func (s *EnvironmentsSuite) Test_TwoEnvironments_AreListScoped() {
 
 	stageList := env.ListSmerds(t, t.Context(), stageListReq)
 	require.Len(t, stageList.GetSmerds(), 1)
-	require.Equal(t, expectedContainerName(e2eEnvStageName, e2eStageEnv), stageList.GetSmerds()[0].GetName())
+	require.Equal(t, e2eEnvStageName, stageList.GetSmerds()[0].GetName())
 
 	prodListReq := &velez_api.ListSmerds_Request{
 		Environment: environments.DefaultEnvironmentName,
@@ -143,7 +148,7 @@ func (s *EnvironmentsSuite) Test_TwoEnvironments_AreListScoped() {
 
 	prodList := env.ListSmerds(t, t.Context(), prodListReq)
 	require.Len(t, prodList.GetSmerds(), 1)
-	require.Equal(t, expectedContainerName(e2eEnvProdName, e2eDefaultSuffix), prodList.GetSmerds()[0].GetName())
+	require.Equal(t, e2eEnvProdName, prodList.GetSmerds()[0].GetName())
 }
 
 // RED. The headline multi-environment promise: the SAME logical service name
@@ -204,21 +209,85 @@ func (s *EnvironmentsSuite) Test_SameNameInTwoEnvironments_AreDistinctContainers
 	require.Equal(t, stageSmerd.GetUuid(), stageList.GetSmerds()[0].GetUuid())
 }
 
-// RED. A DropSmerd scoped to one environment must not touch another
-// environment's container.
+// GREEN. Removing a container by its bare logical NAME must actually remove
+// it, even in a non-default environment.
 //
-// It cannot pass today: DropSmerd's `environment` field is validated at the
-// transport layer and then dropped on the floor - internal/jobs/drop_smerd.go
-// builds its worklist from req.GetUuids()+req.GetName() and removes by
-// name/uuid, with no suffix/label filter anywhere. So dropping "X in PROD"
-// happily removes X even though X only exists in STAGE (verified by running
-// this test with the Skip removed: the STAGE container is gone afterwards).
-func (s *EnvironmentsSuite) Test_DropSmerd_ScopedToEnvironment_LeavesOtherEnvironmentAlone() {
+// This test replaces a previous version of this scenario
+// (Test_DropSmerd_ScopedToEnvironment_LeavesOtherEnvironmentAlone, dropped
+// "e2e_env_stage" scoped to PROD and asserted the STAGE container survived).
+// That scenario was retired because it no longer proves what it claims to:
+// since docs/container_runtimes Phase 1, the actual Docker container name for
+// a non-empty-suffix environment is "<name>_<suffix>"
+// (labelBasedRuntime.ContainerCreate), so a drop by the BARE name
+// "e2e_env_stage" never matches ANY real container, in ANY environment -
+// Docker's ContainerRemove returns "No such container", which
+// dropContainerJob's idempotent semantics treat as success. The old test
+// passed, but for the wrong reason: it observed a no-op, not correct
+// environment scoping. (Verified empirically: temporarily un-skipping and
+// running that old scenario alone now reports PASS with zero repro.)
+//
+// The REAL bug this test used to prove instead, now fixed: dropping by bare
+// name used to be a silent no-op EVEN WHEN SCOPED TO THE CONTAINER'S OWN
+// environment, because internal/jobs/drop_smerd.go's dropContainerJob never
+// asked the resolved ContainerRuntime to translate the logical name into its
+// suffixed Docker name before calling Remove. labelBasedRuntime.Remove now
+// does that resolution itself (see its doc comment), so the drop below
+// actually removes the container.
+func (s *EnvironmentsSuite) Test_DropSmerd_ByBareName_SilentlyNoOpsInSuffixedEnvironment() {
 	t := s.T()
 
-	t.Skip("needs: DropSmerd to filter its worklist by the resolved environment suffix - " +
-		"internal/jobs/drop_smerd.go currently removes purely by name/uuid and ignores " +
-		"DropSmerd_Request.environment entirely.")
+	env := NewEnvironment(t,
+		WithContainerSuffix(e2eDefaultSuffix),
+		WithEnvironments([]string{e2eStageEnv}))
+
+	stageReq := &velez_api.CreateSmerd_Request{
+		Name:         e2eEnvStageName,
+		ImageName:    HelloWorldAppImage,
+		IgnoreConfig: true,
+		Environment:  e2eStageEnv,
+	}
+
+	env.CreateSmerd(t, stageReq)
+
+	// Drop the STAGE container's bare logical name, correctly scoped to
+	// STAGE - the environment it actually lives in.
+	dropReq := &velez_api.DropSmerd_Request{
+		Name:        []string{e2eEnvStageName},
+		Environment: e2eStageEnv,
+	}
+
+	dropResp := env.DropSmerd(t.Context(), t, dropReq)
+	require.Empty(t, dropResp.GetFailed(),
+		"drop reports no failure - it thinks the removal succeeded")
+
+	stageListReq := &velez_api.ListSmerds_Request{
+		Environment: e2eStageEnv,
+		Label:       map[string]string{testCaseNameLabel: t.Name()},
+	}
+
+	stageList := env.ListSmerds(t, t.Context(), stageListReq)
+	require.Len(t, stageList.GetSmerds(), 0,
+		"a same-environment bare-name drop must actually remove the container, "+
+			"not silently no-op because the bare name never matched the suffixed Docker name")
+}
+
+// GREEN. Removing by UUID must still respect environment scoping: a drop
+// resolved for one environment's runtime must not delete another
+// environment's container, even though Docker's ContainerRemove matches
+// purely on ID and a UUID can't be suffix-mangled the way a name can.
+//
+// This used to be the genuine cross-environment collision
+// docs/container_runtimes warned about - unlike the bare-name scenario above
+// (which just no-ops post name-suffixing), UUID-based removal is
+// suffix-agnostic by construction: env.CreateSmerd's returned Uuid identifies
+// one specific container on the shared daemon regardless of which
+// environment's runtime resolves the Remove call. labelBasedRuntime.Remove
+// now closes this: before removing anything, it inspects whichever container
+// the identifier resolves to and compares its labels.SuffixLabel exactly
+// against r.suffix (see its doc comment) - a UUID belonging to a different
+// environment's suffix is treated as "not found here" and left untouched.
+func (s *EnvironmentsSuite) Test_DropSmerd_ByUuid_CrossEnvironmentCollision() {
+	t := s.T()
 
 	env := NewEnvironment(t,
 		WithContainerSuffix(e2eDefaultSuffix),
@@ -233,9 +302,10 @@ func (s *EnvironmentsSuite) Test_DropSmerd_ScopedToEnvironment_LeavesOtherEnviro
 
 	stageSmerd := env.CreateSmerd(t, stageReq)
 
-	// Drop the STAGE container's name, but scoped to PROD: nothing must happen.
+	// Drop the STAGE container's UUID, but scoped to PROD: nothing must
+	// happen to it - it belongs to STAGE, not PROD.
 	dropReq := &velez_api.DropSmerd_Request{
-		Name:        []string{e2eEnvStageName},
+		Uuids:       []string{stageSmerd.GetUuid()},
 		Environment: environments.DefaultEnvironmentName,
 	}
 
@@ -248,7 +318,7 @@ func (s *EnvironmentsSuite) Test_DropSmerd_ScopedToEnvironment_LeavesOtherEnviro
 
 	stageList := env.ListSmerds(t, t.Context(), stageListReq)
 	require.Len(t, stageList.GetSmerds(), 1,
-		"a PROD-scoped drop must not remove a STAGE container")
+		"a PROD-scoped drop must not remove a STAGE container, even by uuid")
 	require.Equal(t, stageSmerd.GetUuid(), stageList.GetSmerds()[0].GetUuid())
 }
 

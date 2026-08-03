@@ -66,8 +66,44 @@ type ContainerRuntime interface {
 Note what's gone from today's signatures: no `suffix string` parameter, no `Client() client.APIClient` escape
 hatch. Both are folded into the implementations below instead of being caller-supplied plumbing.
 
-**Phase 1 implements only `ContainerCreate`** — see `roadmap.md`. The rest of the interface above is the target
-shape; other methods stay on the existing `Docker` struct directly until their own phase.
+**Phase 1 implements `ContainerCreate`, `ListContainers` and `Remove`** — see `roadmap.md`. The rest of the
+interface above is the target shape; other methods stay on the existing `Docker` struct directly until their own
+phase.
+
+## Names are always virtual at the interface boundary
+
+**No name crossing the `ContainerRuntime` interface — in either direction — is ever the suffixed Docker name.**
+Callers (the service/jobs layers) pass and receive only the logical/virtual name a user typed when creating a
+smerd (e.g. `"foo"`). Translating that to and from the real on-daemon Docker name (`"foo_<suffix>"` for a
+non-empty suffix, unchanged for an empty one) is `labelBasedRuntime`'s private implementation detail, never a
+caller's concern:
+
+- `ContainerCreate` takes the virtual name (`ContainerCreateRequest.ContainerName`) and derives the real Docker
+  name via `containerName()` before ever talking to Docker.
+- `ListContainers` receives real Docker names back from Docker, but rewrites every `container.Summary.Names`
+  entry back to the virtual name (via `virtualName()`, `containerName()`'s inverse) before returning — so
+  `ListSmerds` (`internal/service/service_manager/container_manager/smerd_list.go`) never has to know the
+  convention exists.
+- `Remove` accepts a virtual name, a real (already-suffixed) Docker name, or a raw Docker UUID; it resolves
+  whichever form was given to the real container before removing it — see `label_based.go`'s doc comments for
+  the exact resolution/ownership-check order.
+
+The one code path that still bypasses `ContainerRuntime` entirely — `container_manager.InspectSmerd`, called by
+`CreateSmerd`'s response-building path, since `Inspect` isn't part of the interface yet — recovers the virtual
+name by reading the suffix straight off the container's own `labels.SuffixLabel` and reversing the same
+convention via the exported `container_runtime.StripEnvironmentSuffix` helper, rather than duplicating the
+`"<name>_<suffix>"` rule a second time.
+
+## Suffix filtering has no "unscoped" escape hatch
+
+`labelBasedRuntime.ListContainers` and `Remove` both filter/compare on `labels.SuffixLabel` **unconditionally**,
+including when the resolved environment's suffix is `""` (the default/PROD environment on a node with no
+`ContainerSuffix` configured). An empty suffix is a real value to match, not a wildcard meaning "see every
+environment's containers" — every container Velez creates, through this runtime or `docker.Docker` directly,
+always gets `labels.SuffixLabel` stamped (even to `""`), so this is a meaningful, always-applicable filter, not a
+conditional one. This applies only within `labelBasedRuntime`; `docker.Docker`'s own `ListContainers`/`Remove`
+(used by call sites that intentionally need to see across every environment, e.g. `ShutDownOnExit`) are
+unaffected and keep their existing behavior.
 
 ## Common vs. divergent implementation (embedding)
 

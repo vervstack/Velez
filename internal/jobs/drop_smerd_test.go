@@ -9,7 +9,6 @@ import (
 
 	"github.com/sqlc-dev/pqtype"
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
-	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
@@ -17,20 +16,6 @@ const (
 	testUUID1 = "uuid-1"
 	testUUID2 = "uuid-2"
 )
-
-// dockerOnlyNodeClients wraps an arbitrary node_clients.Docker (including
-// wrapper fakes like selectiveFailDocker below, which fakeNodeClients can't
-// hold since it's typed to a concrete *fakeDocker) into a full
-// node_clients.NodeClients, satisfying dropSmerdHandler's only dependency.
-type dockerOnlyNodeClients struct {
-	node_clients.NodeClients
-
-	docker node_clients.Docker
-}
-
-func (f *dockerOnlyNodeClients) Docker() node_clients.Docker {
-	return f.docker
-}
 
 func dropSmerdTask(
 	t *testing.T, tasksStorage *fakeTasksStorage, entityID string, req *velez_api.DropSmerd_Request,
@@ -61,7 +46,7 @@ func dropSmerdTask(
 }
 
 func TestDropSmerdHandler_Action(t *testing.T) {
-	h := NewDropSmerdHandler(&dockerOnlyNodeClients{docker: newFakeDocker()})
+	h := NewDropSmerdHandler(newFakeRuntimes(newFakeDocker(), nil))
 
 	if h.Action() != DropSmerdAction {
 		t.Errorf("expected action %q, got %q", DropSmerdAction, h.Action())
@@ -80,7 +65,7 @@ func TestDropSmerdHandler_AllSucceed(t *testing.T) {
 	task := dropSmerdTask(t, tasksStorage, "batch-1", req)
 
 	registry := NewRegistry()
-	registry.Register(NewDropSmerdHandler(&dockerOnlyNodeClients{docker: docker}))
+	registry.Register(NewDropSmerdHandler(newFakeRuntimes(docker, nil)))
 
 	w, ok := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour).(*taskWorker)
 	if !ok {
@@ -147,7 +132,7 @@ func TestDropSmerdHandler_PartialFailureStillReachesDone(t *testing.T) {
 	wrapped := &selectiveFailDocker{fakeDocker: docker, failOn: failingUUID}
 
 	registry := NewRegistry()
-	registry.Register(NewDropSmerdHandler(&dockerOnlyNodeClients{docker: wrapped}))
+	registry.Register(NewDropSmerdHandler(newFakeRuntimes(wrapped, nil)))
 
 	w, ok := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour).(*taskWorker)
 	if !ok {
@@ -213,7 +198,7 @@ func TestDropSmerdHandler_ResumeSkipsAlreadyDoneJobs(t *testing.T) {
 	jobsStorage.seedDone(task.ID, "drop_container_0")
 
 	registry := NewRegistry()
-	registry.Register(NewDropSmerdHandler(&dockerOnlyNodeClients{docker: docker}))
+	registry.Register(NewDropSmerdHandler(newFakeRuntimes(docker, nil)))
 
 	w, ok := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour).(*taskWorker)
 	if !ok {

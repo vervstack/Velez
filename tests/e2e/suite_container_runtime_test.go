@@ -97,8 +97,14 @@ func runContainerRuntimeCase(t *testing.T, tc containerRuntimeTestCase) {
 	created := env.CreateSmerd(t, createReq)
 	require.Equal(t, velez_api.Smerd_running, created.GetStatus())
 
+	// created.GetName() is the virtual/logical name - the ContainerRuntime
+	// interface never surfaces the suffixed Docker name to callers (see
+	// docs/container_runtimes/interface_design.md). expectedContainerName
+	// computes the suffixed name separately, used below only to check
+	// against the raw Docker daemon directly.
+	require.Equal(t, containerRuntimeSmerdName, created.GetName())
+
 	expectedName := expectedContainerName(containerRuntimeSmerdName, containerRuntimeSuffix)
-	require.Equal(t, expectedName, created.GetName())
 
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 
@@ -174,12 +180,11 @@ func Test_ContainerRuntime_ListContainers_ScopesToEnvironment(t *testing.T) {
 			"labelBasedRuntime.ListContainers is a deliberate unfiltered stub, see its doc comment")
 	require.Equal(t, stageSmerd.GetUuid(), stageList.GetSmerds()[0].GetUuid())
 
-	// Open design question (observe, don't fix - see the task this test was
-	// written for): Smerd.Name currently surfaces the raw, suffixed Docker
-	// container name rather than the logical name CreateSmerd was called
-	// with. container_manager/smerd_list.go does
-	// `smerd.Name = container.Names[0][1:]` verbatim.
-	require.Equal(t, expectedContainerName(listContainersStageName, listContainersStageEnv),
-		stageSmerd.GetName(),
-		"observation: Smerd.Name is the suffixed Docker name, not the bare logical name")
+	// Smerd.Name is always the virtual/logical name - never the suffixed
+	// Docker container name - both from CreateSmerd's response (stageSmerd,
+	// via InspectSmerd) and from ListSmerds (stageList, via
+	// ContainerRuntime.ListContainers). See
+	// docs/container_runtimes/interface_design.md.
+	require.Equal(t, listContainersStageName, stageSmerd.GetName())
+	require.Equal(t, listContainersStageName, stageList.GetSmerds()[0].GetName())
 }

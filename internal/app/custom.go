@@ -110,7 +110,7 @@ func (c *Custom) Init(a *App) (err error) {
 	registry.Register(jobs.NewUpgradeSmerdHandler(
 		c.NodeClients, c.Services.SmerdManager(), c.Services.ConfigurationService(),
 		runtimeResolver))
-	registry.Register(jobs.NewDropSmerdHandler(c.NodeClients))
+	registry.Register(jobs.NewDropSmerdHandler(runtimeResolver))
 
 	c.JobsEngine.SetRegistry(registry)
 

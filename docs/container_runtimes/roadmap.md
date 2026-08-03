@@ -22,9 +22,10 @@ exercises the whole shape without requiring the full interface.
 - One RED→GREEN integration test (see "Test design" below).
 
 **Explicitly deferred**
-- Every other `ContainerRuntime` method (`ListContainers`/`Remove`/`Stop`/`Restart`/`Exec`/`Stats`/`PullImage`/
-  network ops) — `Docker` keeps serving those directly for now; only `ContainerCreate` routes through the new
-  abstraction.
+- Every other `ContainerRuntime` method (`Stop`/`Restart`/`Exec`/`Stats`/`PullImage`/network ops) — `Docker`
+  keeps serving those directly for now. (`ListContainers` and `Remove` were originally deferred here too, but a
+  follow-up pass in the same phase added both — see "Names are always virtual at the interface boundary" and
+  "Suffix filtering has no 'unscoped' escape hatch" in `interface_design.md`, and the bug-fix entries below.)
 - Dedicated-docker-instance real implementation — see Phase 2 below.
 - pg-state matrix cells — need the cluster/`WithMatreshka` e2e fixture.
 - A same-name-cross-environment test case — blocked on the task-dedup bug below.
@@ -73,12 +74,15 @@ cells that depend on them can go green:
    `req.GetName()` + action alone (see `smerd_create.go`). Creating the same-named smerd in two different
    environments dedups onto the same already-`DONE` task and returns the *first* environment's container UUID —
    confirmed live against real Docker. Must become environment-aware before a same-name-across-environments test
-   case can be added to the matrix.
-2. **`DropSmerd` ignores environment scope entirely.** `internal/jobs/drop_smerd.go` builds its removal worklist
-   from `uuids`/`names` with no suffix filter — a drop issued against one environment can delete another
-   environment's same-named container. Confirmed live (removing a PROD-scoped smerd deleted a same-named STAGE
-   container). Must fix before delete-path isolation is trustworthy for any dedicated or label-based multi-env
-   deployment.
+   case can be added to the matrix. **Still open** (unrelated to the name-virtualization/`Remove`-scoping fix
+   below — `Test_SameNameInTwoEnvironments_AreDistinctContainers` stays `t.Skip`'d for this reason).
+2. ~~**`DropSmerd` ignores environment scope entirely.**~~ **Fixed.** `labelBasedRuntime.Remove` now resolves
+   the given identifier (bare name, already-suffixed name, or raw UUID) to a real container via
+   `ContainerInspect`, then compares that container's `labels.SuffixLabel` exactly against `r.suffix` before
+   removing — a mismatch (including a raw UUID that belongs to a different environment) is treated as "nothing to
+   remove here" and reported as idempotent success, never an error and never an actual deletion. Both
+   `tests/e2e/suite_environments_test.go`'s `Test_DropSmerd_ByBareName_SilentlyNoOpsInSuffixedEnvironment` and
+   `Test_DropSmerd_ByUuid_CrossEnvironmentCollision` are green.
 
 ## Phase 2 (future): dedicated Docker instance
 

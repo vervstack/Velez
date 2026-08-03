@@ -465,8 +465,13 @@ func (f *fakeDocker) withClient(api client.APIClient) {
 }
 
 // fakeRuntimeResolver is a container_runtime.RuntimeResolver that routes
-// container creation back into a fakeDocker, so jobs built on
-// createContainerJob stay unit-testable without a Docker daemon.
+// container creation/removal back into a node_clients.Docker, so jobs built
+// on createContainerJob/dropContainerJob stay unit-testable without a Docker
+// daemon.
+//
+// docker is typed as the node_clients.Docker interface rather than the
+// concrete *fakeDocker so wrappers like selectiveFailDocker (which embeds
+// *fakeDocker and overrides only Remove) can be plugged in too.
 //
 // It resolves the environment for real (environments.Resolve, the same
 // function the production resolver uses) but deliberately does NOT reimplement
@@ -474,14 +479,14 @@ func (f *fakeDocker) withClient(api client.APIClient) {
 // the logic under test would only assert itself. Those live in
 // container_runtime's own unit tests and in tests/e2e.
 type fakeRuntimeResolver struct {
-	docker    *fakeDocker
+	docker    node_clients.Docker
 	envs      storage.EnvironmentsStorage
 	runtimeEr error
 }
 
 // newFakeRuntimes builds a resolver over docker. envs may be nil, which
 // resolves every default/empty environment to the empty suffix.
-func newFakeRuntimes(docker *fakeDocker, envs storage.EnvironmentsStorage) *fakeRuntimeResolver {
+func newFakeRuntimes(docker node_clients.Docker, envs storage.EnvironmentsStorage) *fakeRuntimeResolver {
 	return &fakeRuntimeResolver{
 		docker: docker,
 		envs:   envs,
@@ -510,7 +515,7 @@ func (f *fakeRuntimeResolver) Runtime(
 }
 
 type fakeContainerRuntime struct {
-	docker *fakeDocker
+	docker node_clients.Docker
 	suffix string
 }
 
@@ -536,8 +541,13 @@ func (f *fakeContainerRuntime) ContainerCreate(
 		networkingConfig = req.NetworkingConfig.NetworkingConfig
 	}
 
-	return f.docker.ContainerCreate(
+	resp, err := f.docker.ContainerCreate(
 		ctx, config, hostConfig, networkingConfig, req.Platform, req.ContainerName, f.suffix)
+	if err != nil {
+		return resp, rerrors.Wrap(err, "error creating container")
+	}
+
+	return resp, nil
 }
 
 // ListContainers is not exercised by any job test today (nothing under
@@ -549,7 +559,28 @@ func (f *fakeContainerRuntime) ListContainers(
 	ctx context.Context,
 	req *velez_api.ListSmerds_Request,
 ) ([]container.Summary, error) {
-	return f.docker.ListContainers(ctx, req, f.suffix)
+	list, err := f.docker.ListContainers(ctx, req, f.suffix)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error listing containers")
+	}
+
+	return list, nil
+}
+
+// Remove delegates straight to the backing node_clients.Docker, deliberately
+// NOT reimplementing labelBasedRuntime.Remove's (stubbed, unfixed) name
+// resolution - see that method's doc comment and
+// docs/container_runtimes/roadmap.md. dropContainerJob's unit tests
+// (drop_smerd_test.go) only ever remove by uuid, so this delegation is
+// sufficient for them; the actual environment-scoping bug is covered by the
+// tests/e2e RED tests instead, against a real Docker daemon.
+func (f *fakeContainerRuntime) Remove(ctx context.Context, identifier string) error {
+	err := f.docker.Remove(ctx, identifier)
+	if err != nil {
+		return rerrors.Wrap(err, "error removing container")
+	}
+
+	return nil
 }
 
 // fakeNodeClients is a minimal node_clients.NodeClients wrapping a

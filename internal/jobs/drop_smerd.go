@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
-	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 )
 
 const (
@@ -20,15 +20,20 @@ type dropResultAccessor interface {
 	AppendSuccessful(msg string)
 }
 
-// dropSmerdHandler is the leanest dependency footprint of any handler in
-// this package - dropping containers only ever needs Docker access.
+// dropSmerdHandler resolves the request's environment into the
+// ContainerRuntime that serves it (see docs/container_runtimes) and removes
+// containers through it, rather than talking to node_clients.Docker
+// directly - this is what lets each removal be scoped to the environment the
+// DropSmerd request named, instead of ignoring it entirely (see
+// docs/container_runtimes/roadmap.md's "DropSmerd ignores environment scope
+// entirely" bug).
 type dropSmerdHandler struct {
-	nodeClients node_clients.NodeClients
+	runtimes container_runtime.RuntimeResolver
 }
 
-func NewDropSmerdHandler(nodeClients node_clients.NodeClients) TaskHandler {
+func NewDropSmerdHandler(runtimes container_runtime.RuntimeResolver) TaskHandler {
 	return &dropSmerdHandler{
-		nodeClients: nodeClients,
+		runtimes: runtimes,
 	}
 }
 
@@ -56,14 +61,16 @@ func (h *dropSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 
 	req := payload.GetRequest()
 	worklist := append(req.GetUuids(), req.GetName()...)
+	environment := req.GetEnvironment()
 
 	namedJobs := make([]NamedJob, 0, len(worklist))
 
 	for i, identifier := range worklist {
 		job := &dropContainerJob{
-			docker:     h.nodeClients.Docker(),
-			identifier: identifier,
-			ctx:        payload,
+			runtimes:    h.runtimes,
+			environment: environment,
+			identifier:  identifier,
+			ctx:         payload,
 		}
 
 		name := fmt.Sprintf("drop_container_%d", i)
@@ -74,27 +81,35 @@ func (h *dropSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 	return namedJobs
 }
 
-// dropContainerJob removes a single container by uuid or name. It mirrors
-// container_manager.DropSmerds' per-item behavior exactly: Docker.Remove is
-// already idempotent (treats "no such container" as success), and any other
-// error is recorded on the task context as a per-item failure rather than
+// dropContainerJob removes a single container by uuid or name, through the
+// ContainerRuntime resolved for environment. It mirrors
+// container_manager.DropSmerds' per-item behavior exactly: removal is
+// idempotent (labelBasedRuntime.Remove treats "no such container" as
+// success), and any other error - including a failure to resolve environment
+// itself - is recorded on the task context as a per-item failure rather than
 // propagated as a job error.
 type dropContainerJob struct {
-	docker     node_clients.Docker
-	identifier string
-	ctx        dropResultAccessor
+	runtimes container_runtime.RuntimeResolver
+
+	environment string
+	identifier  string
+	ctx         dropResultAccessor
 }
 
-// Do intentionally always returns nil, even when j.docker.Remove fails. This
-// is NOT a bug: the old container_manager.DropSmerds RPC always returned a
-// nil top-level error and reported every per-item failure only inside its
+// Do intentionally always returns nil, even when removal fails. This is NOT a
+// bug: the old container_manager.DropSmerds RPC always returned a nil
+// top-level error and reported every per-item failure only inside its
 // response body's Failed slice. Returning a real error here would make this
 // job (and therefore the drop_smerd task) reach FAILED on any single
 // container's removal error, which would change DropSmerd's response
 // contract for existing callers - a backward-compatibility break this
 // repo's CLAUDE.md forbids. Do not "fix" this into propagating errors.
 func (j *dropContainerJob) Do(ctx context.Context) error {
-	err := j.docker.Remove(ctx, j.identifier)
+	containerRuntime, err := j.runtimes.Runtime(ctx, j.environment)
+	if err == nil {
+		err = containerRuntime.Remove(ctx, j.identifier)
+	}
+
 	if err != nil {
 		failure := &velez_api.DropSmerd_Response_Error{
 			Uuid:  j.identifier,

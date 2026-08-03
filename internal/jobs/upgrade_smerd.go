@@ -186,9 +186,10 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		},
 		{
 			Name: stepDropConfigFetcherContainer,
-			Job: &dropScratchContainerJob{
-				docker: h.nodeClients.Docker(),
-				ctx:    payload,
+			Job: &dropOwnedContainerJob{
+				runtimes: h.runtimes,
+				req:      payload,
+				ctx:      payload,
 			},
 		},
 		{
@@ -239,24 +240,29 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: stepRenameOldContainer,
 			Job: &renameContainerJob{
-				dockerAPI: dockerAPI,
-				ctx:       oldContainerAsCurrent{payload},
-				newName:   payload.GetUpgradeRequest().GetName() + oldContainerSuffix,
+				runtimes: h.runtimes,
+				req:      payload,
+				ctx:      oldContainerAsCurrent{payload},
+				oldName:  payload.GetUpgradeRequest().GetName(),
+				newName:  payload.GetUpgradeRequest().GetName() + oldContainerSuffix,
 			},
 		},
 		{
 			Name: stepDropOldContainer,
-			Job: &dropScratchContainerJob{
-				docker: h.nodeClients.Docker(),
-				ctx:    oldContainerAsCurrent{payload},
+			Job: &dropOwnedContainerJob{
+				runtimes: h.runtimes,
+				req:      payload,
+				ctx:      oldContainerAsCurrent{payload},
 			},
 		},
 		{
 			Name: stepRenameNewContainer,
 			Job: &renameContainerJob{
-				dockerAPI: dockerAPI,
-				ctx:       payload,
-				newName:   payload.GetUpgradeRequest().GetName(),
+				runtimes: h.runtimes,
+				req:      payload,
+				ctx:      payload,
+				oldName:  payload.GetUpgradeRequest().GetName() + newContainerSuffix,
+				newName:  payload.GetUpgradeRequest().GetName(),
 			},
 		},
 	}
@@ -654,7 +660,7 @@ func (j *renamingCreateContainerJob) Do(ctx context.Context) error {
 }
 
 func (j *renamingCreateContainerJob) Rollback(ctx context.Context) error {
-	inner := &createContainerJob{nodeClients: j.nodeClients, ctx: j.ctx}
+	inner := &createContainerJob{nodeClients: j.nodeClients, req: j.req, ctx: j.ctx, runtimes: j.runtimes}
 
 	return inner.Rollback(ctx)
 }
@@ -930,22 +936,22 @@ func (j *prepareUpgradeVervConfigJob) lockPorts(request *velez_api.CreateSmerd_R
 	return nil
 }
 
-// renameAPI is the narrow slice of client.APIClient renameContainerJob
-// needs. smerd_steps.RenameContainer calls these two methods directly on a
-// client.APIClient field rather than through a dockerutils helper, so no
-// existing function is being bypassed here - this interface only exists to
-// make the job hand-fakeable in unit tests.
-type renameAPI interface {
-	ContainerInspect(ctx context.Context, containerID string) (container.InspectResponse, error)
-	ContainerRename(ctx context.Context, containerID, newContainerName string) error
-}
-
+// renameContainerJob renames a container to a virtual/logical name via the
+// ContainerRuntime resolved for the request's environment, so the real
+// Docker name it ends up with still carries that environment's suffix (see
+// container_runtime.ContainerRuntime.Rename). newName/oldName are precomputed
+// virtual names set at construction time (see upgradeSmerdHandler.BuildJobs) -
+// containerID is read from ctx at Do/Rollback time exactly as before, but the
+// "what was it named before this step" bookkeeping (oldName) is no longer
+// captured via a raw ContainerInspect, since it's statically known at
+// BuildJobs time.
 type renameContainerJob struct {
-	dockerAPI renameAPI
+	runtimes container_runtime.RuntimeResolver
 
-	ctx     containerIDAccessor
+	req upgradeRequestAccessor
+	ctx containerIDAccessor
+
 	newName string
-
 	oldName string
 }
 
@@ -955,14 +961,12 @@ func (j *renameContainerJob) Do(ctx context.Context) error {
 		return rerrors.New("container id is required")
 	}
 
-	cont, err := j.dockerAPI.ContainerInspect(ctx, containerID)
+	runtime, err := j.runtimes.Runtime(ctx, j.req.GetUpgradeRequest().GetEnvironment())
 	if err != nil {
-		return rerrors.Wrap(err, "error inspecting container")
+		return rerrors.Wrap(err, "error resolving container runtime")
 	}
 
-	j.oldName = cont.Name
-
-	err = j.dockerAPI.ContainerRename(ctx, containerID, j.newName)
+	err = runtime.Rename(ctx, containerID, j.newName)
 	if err != nil {
 		return rerrors.Wrap(err, "error renaming container")
 	}
@@ -976,9 +980,48 @@ func (j *renameContainerJob) Rollback(ctx context.Context) error {
 		return nil
 	}
 
-	err := j.dockerAPI.ContainerRename(ctx, containerID, j.oldName)
+	runtime, err := j.runtimes.Runtime(ctx, j.req.GetUpgradeRequest().GetEnvironment())
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving container runtime")
+	}
+
+	err = runtime.Rename(ctx, containerID, j.oldName)
 	if err != nil {
 		return rerrors.Wrap(err, "error renaming container on rollback")
+	}
+
+	return nil
+}
+
+// dropOwnedContainerJob removes a container owned by this task (the
+// config-fetcher scratch container, or the old container after rename)
+// through the ContainerRuntime resolved for req's environment, replacing the
+// two dropScratchContainerJob{docker: h.nodeClients.Docker()} call sites in
+// upgrade_smerd.go's BuildJobs that used to bypass any suffix-aware runtime
+// entirely - mirroring dropContainerJob's (drop_smerd.go) identical fix for
+// DropSmerd. assemble_config.go's own dropScratchContainerJob call site is
+// untouched: that scratch container is created with an explicitly
+// empty/unowned suffix, a different ownership story.
+type dropOwnedContainerJob struct {
+	runtimes container_runtime.RuntimeResolver
+	req      smerdRequestAccessor
+	ctx      containerIDAccessor
+}
+
+func (j *dropOwnedContainerJob) Do(ctx context.Context) error {
+	containerID := j.ctx.GetContainerId()
+	if containerID == "" {
+		return nil
+	}
+
+	runtime, err := j.runtimes.Runtime(ctx, j.req.GetRequest().GetEnvironment())
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving container runtime")
+	}
+
+	err = runtime.Remove(ctx, containerID)
+	if err != nil {
+		return rerrors.Wrap(err, "error dropping scratch container")
 	}
 
 	return nil

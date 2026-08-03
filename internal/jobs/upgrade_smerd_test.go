@@ -632,33 +632,230 @@ func TestRenameContainerJob_EmptyContainerId_Error(t *testing.T) {
 	}
 }
 
-func TestRenameContainerJob_SuccessAndRollback(t *testing.T) {
-	containerAPI := newFakeContainerAPI()
+// renameContainerJob - runtime-scoped rename
+//
+// TestRenameContainerJob_SuccessAndRollback previously exercised
+// renameContainerJob against a raw dockerAPI (ContainerInspect capturing
+// oldName at Do-time, then ContainerRename directly) - that shape is gone
+// now that renameContainerJob resolves a ContainerRuntime for the request's
+// environment and calls its Rename with a precomputed virtual oldName/newName
+// (see upgradeSmerdHandler.BuildJobs). The two tests below supersede it,
+// covering the same Do-then-Rollback round trip through the new shape.
+//
+// renameContainerJob.Do/Rollback used to call the raw dockerAPI.ContainerRename
+// directly with a bare, un-suffixed name - so in a suffixed environment the
+// container's REAL Docker name never carried the environment's suffix (e.g.
+// it ended up literally "mysvc_old" instead of "mysvc_old_STAGE"). See
+// tests/e2e/suite_upgrade_smerd_test.go's Test_UpgradeSmerd_InSuffixedEnvironment
+// for the e2e proof (it inspects the real Docker daemon directly).
+func TestRenameContainerJob_Do_ResolvesRuntimeAndRenamesViaRuntime(t *testing.T) {
+	docker := newFakeDocker()
+	runtimes := newFakeRuntimes(docker, environments.NewStatic([]string{testUpgradeEnv}, ""))
 
-	containerAPI.inspectResp = container.InspectResponse{
-		ContainerJSONBase: &container.ContainerJSONBase{Name: "/mysvc_new"},
+	payload := &velez_api.UpgradeSmerdTaskPayload{
+		ContainerId:    strPtr(testCreatedID),
+		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Name: testUpgradeSvcName, Environment: testUpgradeEnv},
 	}
 
-	payload := &velez_api.UpgradeSmerdTaskPayload{ContainerId: strPtr("new123")}
-
-	j := &renameContainerJob{dockerAPI: containerAPI, ctx: payload, newName: testUpgradeSvcName}
+	j := &renameContainerJob{
+		runtimes: runtimes,
+		req:      payload,
+		ctx:      payload,
+		newName:  testUpgradeSvcName,
+	}
 
 	err := j.Do(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if len(containerAPI.renameCalledWith) != 1 || containerAPI.renameCalledWith[0].newName != testUpgradeSvcName {
-		t.Errorf("expected rename to 'mysvc', got %v", containerAPI.renameCalledWith)
+	rt, err := runtimes.Runtime(context.Background(), testUpgradeEnv)
+	if err != nil {
+		t.Fatalf("unexpected error resolving runtime: %v", err)
 	}
 
-	err = j.Rollback(context.Background())
+	fakeRt, ok := rt.(*fakeContainerRuntime)
+	if !ok {
+		t.Fatalf("expected *fakeContainerRuntime, got %T", rt)
+	}
+
+	if len(fakeRt.renameCalledWith) != 1 {
+		t.Fatalf("expected exactly one ContainerRuntime.Rename call, got %v", fakeRt.renameCalledWith)
+	}
+
+	got := fakeRt.renameCalledWith[0]
+	if got.identifier != testCreatedID || got.newName != testUpgradeSvcName {
+		t.Errorf("expected Rename(ctx, %q, %q) resolved via the environment %q runtime, got Rename(ctx, %q, %q)",
+			testCreatedID, testUpgradeSvcName, testUpgradeEnv, got.identifier, got.newName)
+	}
+}
+
+func TestRenameContainerJob_Rollback_RenamesBackToOldNameViaRuntime(t *testing.T) {
+	docker := newFakeDocker()
+	runtimes := newFakeRuntimes(docker, environments.NewStatic([]string{testUpgradeEnv}, ""))
+
+	payload := &velez_api.UpgradeSmerdTaskPayload{
+		ContainerId:    strPtr(testCreatedID),
+		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Name: testUpgradeSvcName, Environment: testUpgradeEnv},
+	}
+
+	oldName := testUpgradeSvcName + oldContainerSuffix
+
+	j := &renameContainerJob{
+		runtimes: runtimes,
+		req:      payload,
+		ctx:      payload,
+		newName:  testUpgradeSvcName,
+		oldName:  oldName,
+	}
+
+	err := j.Rollback(context.Background())
 	if err != nil {
 		t.Fatalf("unexpected rollback error: %v", err)
 	}
 
-	if containerAPI.renameCalledWith[1].newName != "/mysvc_new" {
-		t.Errorf("expected rollback to rename back to '/mysvc_new', got %v", containerAPI.renameCalledWith)
+	rt, err := runtimes.Runtime(context.Background(), testUpgradeEnv)
+	if err != nil {
+		t.Fatalf("unexpected error resolving runtime: %v", err)
+	}
+
+	fakeRt, ok := rt.(*fakeContainerRuntime)
+	if !ok {
+		t.Fatalf("expected *fakeContainerRuntime, got %T", rt)
+	}
+
+	if len(fakeRt.renameCalledWith) != 1 || fakeRt.renameCalledWith[0].newName != oldName {
+		t.Errorf("expected rollback to call Rename(ctx, %q, %q) via the resolved runtime, got %v",
+			testCreatedID, oldName, fakeRt.renameCalledWith)
+	}
+}
+
+// dropOwnedContainerJob - Stage B (runtime-scoped drop)
+//
+// RED at COMPILE time. dropOwnedContainerJob does not exist yet. It replaces
+// dropScratchContainerJob at upgrade_smerd.go's two drop call sites
+// (stepDropConfigFetcherContainer, stepDropOldContainer) - both currently call
+// node_clients.Docker.Remove directly, bypassing the environment-scoped
+// ContainerRuntime entirely, same class of bug dropContainerJob (drop_smerd.go)
+// already fixed for DropSmerd. See that type's doc comment for the identical
+// rationale (idempotent removal, environment-scoped).
+func TestDropOwnedContainerJob_Do_ResolvesRuntimeAndRemoves(t *testing.T) {
+	docker := newFakeDocker()
+	runtimes := newFakeRuntimes(docker, environments.NewStatic([]string{testUpgradeEnv}, ""))
+
+	payload := &velez_api.UpgradeSmerdTaskPayload{
+		ContainerId:    strPtr(testCreatedID),
+		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Name: testUpgradeSvcName, Environment: testUpgradeEnv},
+	}
+
+	j := &dropOwnedContainerJob{runtimes: runtimes, req: payload, ctx: payload}
+
+	err := j.Do(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(docker.removeCalledWith) != 1 || docker.removeCalledWith[0] != testCreatedID {
+		t.Errorf("expected container %q removed through the runtime resolved for environment %q, got %v",
+			testCreatedID, testUpgradeEnv, docker.removeCalledWith)
+	}
+}
+
+func TestDropOwnedContainerJob_Do_EmptyContainerId_NoOp(t *testing.T) {
+	payload := &velez_api.UpgradeSmerdTaskPayload{
+		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Name: testUpgradeSvcName, Environment: testUpgradeEnv},
+	}
+
+	j := &dropOwnedContainerJob{req: payload, ctx: payload}
+
+	err := j.Do(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected error for an empty container id: %v", err)
+	}
+}
+
+// createContainerJob.Rollback / renamingCreateContainerJob.Rollback -
+// runtime-scoped removal (bonus coverage, per the jobs cutover plan)
+//
+// These two are RED at RUNTIME (not compile time - createContainerJob already
+// has req/runtimes fields, wired for Do but never read by Rollback today).
+// createContainerJob.Rollback removes the just-created container via
+// j.nodeClients.Docker().Remove directly, completely bypassing the
+// environment-scoped ContainerRuntime resolved via j.runtimes for j.req's
+// environment. Each test below wires TWO separate fake dockers - one behind
+// nodeClients (which Rollback must NOT use), one behind runtimes (which it
+// must use instead) - specifically so "which path got called" is
+// observable; a single shared fake docker behind both would make the two
+// paths indistinguishable.
+func TestCreateContainerJob_Rollback_RemovesViaResolvedRuntime(t *testing.T) {
+	directDocker := newFakeDocker()
+	scopedDocker := newFakeDocker()
+	runtimes := newFakeRuntimes(scopedDocker, environments.NewStatic([]string{testUpgradeEnv}, ""))
+
+	payload := &velez_api.UpgradeSmerdTaskPayload{
+		ContainerId: strPtr(testCreatedID),
+		Request:     &velez_api.CreateSmerd_Request{Name: testUpgradeSvcName, Environment: testUpgradeEnv},
+	}
+
+	j := &createContainerJob{
+		nodeClients: newFakeNodeClients(directDocker),
+		req:         payload,
+		ctx:         payload,
+		runtimes:    runtimes,
+	}
+
+	err := j.Rollback(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected rollback error: %v", err)
+	}
+
+	if len(directDocker.removeCalledWith) != 0 {
+		t.Errorf("expected Rollback NOT to call nodeClients.Docker().Remove directly, got %v",
+			directDocker.removeCalledWith)
+	}
+
+	if len(scopedDocker.removeCalledWith) != 1 || scopedDocker.removeCalledWith[0] != testCreatedID {
+		t.Errorf("expected Rollback to remove %q through the runtime resolved for environment %q, got %v",
+			testCreatedID, testUpgradeEnv, scopedDocker.removeCalledWith)
+	}
+}
+
+// renamingCreateContainerJob.Rollback constructs its inner createContainerJob
+// as `&createContainerJob{nodeClients: j.nodeClients, ctx: j.ctx}` today -
+// deliberately (if silently) omitting req/runtimes, harmless only because
+// Rollback never reads them yet. The moment createContainerJob.Rollback is
+// fixed to resolve via j.runtimes for j.req's environment (the test above),
+// this omission becomes a nil-deref waiting to happen. This test proves the
+// propagation gap directly: it must currently fail the same way the test
+// above does, for the same reason (the inner job never got req/runtimes, so
+// it falls back to nodeClients - here, the "wrong" docker).
+func TestRenamingCreateContainerJob_Rollback_PropagatesReqAndRuntimesToInnerJob(t *testing.T) {
+	directDocker := newFakeDocker()
+	scopedDocker := newFakeDocker()
+	runtimes := newFakeRuntimes(scopedDocker, environments.NewStatic([]string{testUpgradeEnv}, ""))
+
+	payload := &velez_api.UpgradeSmerdTaskPayload{
+		ContainerId: strPtr(testCreatedID),
+		Request:     &velez_api.CreateSmerd_Request{Name: testUpgradeSvcName, Environment: testUpgradeEnv},
+	}
+
+	j := &renamingCreateContainerJob{
+		nodeClients: newFakeNodeClients(directDocker),
+		req:         payload,
+		ctx:         payload,
+		runtimes:    runtimes,
+		newName:     func(current string) string { return current },
+	}
+
+	err := j.Rollback(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected rollback error: %v", err)
+	}
+
+	if len(scopedDocker.removeCalledWith) != 1 || scopedDocker.removeCalledWith[0] != testCreatedID {
+		t.Errorf("expected the inner createContainerJob to carry req/runtimes through to Rollback and remove "+
+			"%q via the resolved runtime, got scopedDocker=%v directDocker=%v",
+			testCreatedID, scopedDocker.removeCalledWith, directDocker.removeCalledWith)
 	}
 }
 

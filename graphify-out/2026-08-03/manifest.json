@@ -2620,8 +2620,8 @@
     "semantic_hash": ""
   },
   "internal/jobs/create_smerd.go": {
-    "mtime": 1785741714.8937373,
-    "ast_hash": "0a679b77be6baba60488ca95c221bb51",
+    "mtime": 1785757352.5390432,
+    "ast_hash": "c914482f3d6ee353b2122b21ba0dd15b",
     "semantic_hash": ""
   },
   "internal/jobs/engine.go": {
@@ -2635,8 +2635,8 @@
     "semantic_hash": ""
   },
   "internal/jobs/fakes_test.go": {
-    "mtime": 1785755848.1270614,
-    "ast_hash": "f07f3bd657df5438dff78b2c7c4042cf",
+    "mtime": 1785757116.2047665,
+    "ast_hash": "91453749c95c6bb95dd0fe481f22a8d4",
     "semantic_hash": ""
   },
   "internal/jobs/job.go": {
@@ -2820,13 +2820,13 @@
     "semantic_hash": ""
   },
   "internal/jobs/upgrade_smerd.go": {
-    "mtime": 1785755796.183067,
-    "ast_hash": "277e058cba6f0678ba3d63a5e440ad2a",
+    "mtime": 1785757347.9712548,
+    "ast_hash": "41d0933301d2ab3051c33dd058bdeac9",
     "semantic_hash": ""
   },
   "internal/jobs/upgrade_smerd_test.go": {
-    "mtime": 1785755325.9350455,
-    "ast_hash": "4e136d965897d99d076250f7c4d5a805",
+    "mtime": 1785757393.9459624,
+    "ast_hash": "f809ecc9b86f2c6ecc619d2bd4fd58d4",
     "semantic_hash": ""
   },
   "docs/plans/testing.md": {
@@ -2840,8 +2840,8 @@
     "semantic_hash": ""
   },
   "tests/e2e/suite_upgrade_smerd_test.go": {
-    "mtime": 1785755211.7002702,
-    "ast_hash": "e4bf68b158d12cff9a6f1d38abdabdcb",
+    "mtime": 1785757686.7293615,
+    "ast_hash": "866a0724400707b4d17356ab3a42a64f",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/app/api/velez/tasks.pb.ts": {
@@ -3365,8 +3365,8 @@
     "semantic_hash": ""
   },
   "internal/clients/node_clients/container_runtime/label_based_test.go": {
-    "mtime": 1785755266.7355626,
-    "ast_hash": "1782d2190933a8219c58dd1c69f21609",
+    "mtime": 1785756633.306883,
+    "ast_hash": "5caf61dd2a9ed6af4a8e7bc755210b05",
     "semantic_hash": ""
   },
   "internal/clients/node_clients/container_runtime/resolver.go": {
@@ -3400,13 +3400,13 @@
     "semantic_hash": ""
   },
   "docs/container_runtimes/interface_design.md": {
-    "mtime": 1785752352.0322156,
-    "ast_hash": "1b144813a130debf6c4caacc690e67ba",
+    "mtime": 1785756132.2768824,
+    "ast_hash": "5f631e74ceb9f73b9e5806238740739c",
     "semantic_hash": ""
   },
   "docs/container_runtimes/roadmap.md": {
-    "mtime": 1785752384.1467776,
-    "ast_hash": "701d80a395d24db4e327ae1b361e32a4",
+    "mtime": 1785757811.2619927,
+    "ast_hash": "db89a1a651811d64df93746274c48172",
     "semantic_hash": ""
   },
   "internal/service/service_manager/container_manager/inspect_test.go": {

@@ -51,17 +51,15 @@ func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_HappyPath() {
 }
 
 const (
-	// upgradeSuffixedEnvSuffix is deliberately non-empty (see
-	// e2eDefaultSuffix/containerRuntimeSuffix's identical rationale in
-	// suite_environments_test.go/suite_container_runtime_test.go): with an
-	// empty ContainerSuffix the suffixed and bare forms of a container name
-	// are the same string, and this test couldn't tell whether suffix
-	// handling is actually exercised.
-	upgradeSuffixedEnvSuffix = "e2eupgsfx"
-	upgradeSuffixedEnvName   = "e2e_upgrade_suffixed"
+	upgradeSuffixedEnvName = "e2e_upgrade_suffixed"
 
 	// A non-default environment - UpgradeSmerd today only works against the
-	// default (PROD, unsuffixed) environment.
+	// default (PROD, unsuffixed) environment. Named environments seeded via
+	// WithEnvironments (see environments.NewStatic) always get their own name
+	// as their Docker suffix - WithContainerSuffix only ever configures the
+	// DEFAULT/PROD environment's suffix, so it has no effect here and is
+	// deliberately not used: the real Docker name this test's container
+	// carries is "<name>_E2EUPGSTAGE", not some separately configured value.
 	upgradeSuffixedEnv = "E2EUPGSTAGE"
 )
 
@@ -92,9 +90,7 @@ const (
 func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_InSuffixedEnvironment() {
 	t := s.T()
 
-	env := NewEnvironment(t,
-		WithContainerSuffix(upgradeSuffixedEnvSuffix),
-		WithEnvironments([]string{upgradeSuffixedEnv}))
+	env := NewEnvironment(t, WithEnvironments([]string{upgradeSuffixedEnv}))
 
 	createReq := &velez_api.CreateSmerd_Request{
 		Name:         upgradeSuffixedEnvName,
@@ -131,6 +127,26 @@ func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_InSuffixedEnvironment() {
 	// suite_container_runtime_test.go's identical assertion.
 	require.Equal(t, upgradeSuffixedEnvName, upgraded.GetName(),
 		"Smerd.Name must stay the bare/virtual name - no suffix leaking")
+
+	// The checks above only go through ListSmerds/InspectSmerd, which filter
+	// by labels.SuffixLabel (untouched by renaming) and return the
+	// virtual/bare name via virtualName()'s strings.TrimSuffix - a harmless
+	// no-op on an already-unsuffixed real name. They would still pass even if
+	// renameContainerJob's raw dockerAPI.ContainerRename calls (see
+	// internal/jobs/upgrade_smerd.go) never carried the suffix through to the
+	// real Docker container name. So inspect the daemon directly, the same
+	// way Test_ContainerRuntime_Matrix does, to prove the *real* Docker name
+	// of the fully-upgraded container still carries the environment suffix.
+	dockerClient := env.Custom.NodeClients.Docker().Client()
+	expectedRealName := expectedContainerName(upgradeSuffixedEnvName, upgradeSuffixedEnv)
+
+	inspected, err := dockerClient.ContainerInspect(t.Context(), expectedRealName)
+	require.NoError(t, err,
+		"expected the upgraded container's real Docker name %q to carry the environment suffix - "+
+			"renameContainerJob.Do calls the raw dockerAPI.ContainerRename with a bare, un-suffixed "+
+			"name (see internal/jobs/upgrade_smerd.go), so the real container likely ended up named "+
+			"%q instead", expectedRealName, upgradeSuffixedEnvName)
+	require.Equal(t, "/"+expectedRealName, inspected.Name)
 }
 
 func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_NonExistentContainer_Fails() {

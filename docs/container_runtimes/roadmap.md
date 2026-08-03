@@ -28,8 +28,13 @@ exercises the whole shape without requiring the full interface.
   virtual at the interface boundary" and "Suffix filtering has no 'unscoped' escape hatch" in
   `interface_design.md`, and the bug-fix entries below. `Rename`/`IsContainerRunning` were added to unblock
   `internal/jobs/upgrade_smerd.go`'s suffix-aware container lookup/rename steps — see the jobs-engine
-  suffixed-environment upgrade fix; the rename/self-upgrade jobs themselves haven't been cut over to call them
-  yet, that's a later pass.)
+  suffixed-environment upgrade fix. **Done:** the rename/drop/rollback jobs themselves have since been cut
+  over to call them — `renameContainerJob` and the new `dropOwnedContainerJob` (replacing two
+  `dropScratchContainerJob` call sites) now resolve a `ContainerRuntime` for the request's environment instead
+  of touching `node_clients.Docker`/raw `client.APIClient` directly, and `createContainerJob.Rollback`/
+  `renamingCreateContainerJob.Rollback` do the same for container removal. `IsContainerRunning` is still
+  unused — `pauseOldContainerJob`/`healthcheckJob` migrations were explicitly deferred, see the
+  suffixed-environment upgrade fix plan's "Deferred" note.)
 - Dedicated-docker-instance real implementation — see Phase 2 below.
 - pg-state matrix cells — need the cluster/`WithMatreshka` e2e fixture.
 - A same-name-cross-environment test case — blocked on the task-dedup bug below.

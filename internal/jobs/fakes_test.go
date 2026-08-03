@@ -390,8 +390,8 @@ type fakeDocker struct {
 
 	// clientAPI, if set via withClient, is returned by Client() instead of
 	// nil - lets tests that need the raw Docker engine client (e.g. jobs
-	// depending on a narrow client.APIClient slice like pauseAPI/renameAPI)
-	// inject a fakeContainerAPI instead of hitting a nil dereference.
+	// depending on a narrow client.APIClient slice like pauseAPI) inject a
+	// fakeContainerAPI instead of hitting a nil dereference.
 	clientAPI client.APIClient
 }
 
@@ -488,6 +488,14 @@ type fakeRuntimeResolver struct {
 	docker    node_clients.Docker
 	envs      storage.EnvironmentsStorage
 	runtimeEr error
+
+	mu sync.Mutex
+	// runtimes memoizes the *fakeContainerRuntime handed out per environment,
+	// so a job that resolves the runtime more than once for the same
+	// environment (e.g. renameContainerJob's Do then Rollback) observes the
+	// same instance - and therefore the same renameCalledWith recording -
+	// rather than a fresh, un-inspectable one each call.
+	runtimes map[string]*fakeContainerRuntime
 }
 
 // newFakeRuntimes builds a resolver over docker. envs may be nil, which
@@ -507,6 +515,13 @@ func (f *fakeRuntimeResolver) Runtime(
 		return nil, f.runtimeEr
 	}
 
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	if rt, ok := f.runtimes[environment]; ok {
+		return rt, nil
+	}
+
 	env, err := environments.Resolve(ctx, f.envs, environment)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error resolving environment")
@@ -517,12 +532,31 @@ func (f *fakeRuntimeResolver) Runtime(
 		suffix: env.Suffix,
 	}
 
+	if f.runtimes == nil {
+		f.runtimes = make(map[string]*fakeContainerRuntime)
+	}
+
+	f.runtimes[environment] = rt
+
 	return rt, nil
 }
 
 type fakeContainerRuntime struct {
 	docker node_clients.Docker
 	suffix string
+
+	mu sync.Mutex
+
+	renameErr        error
+	renameCalledWith []fakeRuntimeRenameCall
+}
+
+// fakeRuntimeRenameCall records a single ContainerRuntime.Rename call -
+// renameContainerJob now calls this instead of a raw client.APIClient
+// ContainerRename, so recording happens at this layer, not fakeContainerAPI.
+type fakeRuntimeRenameCall struct {
+	identifier string
+	newName    string
 }
 
 func (f *fakeContainerRuntime) ContainerCreate(
@@ -586,12 +620,18 @@ func (f *fakeContainerRuntime) Remove(ctx context.Context, identifier string) er
 	return nil
 }
 
-// Rename is not exercised by any job test today - Stage B (not this pass)
-// migrates the rename/self-upgrade jobs to actually call it. It only exists
-// so fakeContainerRuntime keeps satisfying container_runtime.ContainerRuntime,
-// same rationale as ListContainers above.
-func (f *fakeContainerRuntime) Rename(_ context.Context, _, _ string) error {
-	return nil
+// Rename records the call and returns renameErr, so tests can assert
+// renameContainerJob resolves the runtime for its environment and calls
+// Rename with the virtual/logical newName (not a manually-suffixed string),
+// instead of the raw dockerAPI.ContainerRename it calls today - see
+// TestRenameContainerJob_Do_ResolvesRuntimeAndRenamesViaRuntime.
+func (f *fakeContainerRuntime) Rename(_ context.Context, identifier, newName string) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.renameCalledWith = append(f.renameCalledWith, fakeRuntimeRenameCall{identifier: identifier, newName: newName})
+
+	return f.renameErr
 }
 
 // IsContainerRunning is not exercised by any job test today - see Rename's
@@ -878,9 +918,6 @@ type fakeContainerAPI struct {
 	unpauseErr        error
 	unpauseCalledWith []string
 
-	renameErr        error
-	renameCalledWith []fakeRenameCall
-
 	networkDisconnectErr        error
 	networkDisconnectCalledWith []string
 
@@ -895,10 +932,6 @@ type fakeContainerAPI struct {
 
 	copyFromResp []byte
 	copyFromErr  error
-}
-
-type fakeRenameCall struct {
-	newName string
 }
 
 type fakeCopyCall struct {
@@ -991,15 +1024,6 @@ func (f *fakeContainerAPI) ContainerUnpause(_ context.Context, containerID strin
 	f.unpauseCalledWith = append(f.unpauseCalledWith, containerID)
 
 	return f.unpauseErr
-}
-
-func (f *fakeContainerAPI) ContainerRename(_ context.Context, _, newName string) error {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-
-	f.renameCalledWith = append(f.renameCalledWith, fakeRenameCall{newName: newName})
-
-	return f.renameErr
 }
 
 func (f *fakeContainerAPI) NetworkDisconnect(_ context.Context, networkID, _ string, _ bool) error {

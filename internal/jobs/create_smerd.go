@@ -700,7 +700,12 @@ func (j *createContainerJob) Rollback(ctx context.Context) error {
 		return nil
 	}
 
-	err := j.nodeClients.Docker().Remove(ctx, containerID)
+	containerRuntime, err := j.runtimes.Runtime(ctx, j.req.GetRequest().GetEnvironment())
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving container runtime")
+	}
+
+	err = containerRuntime.Remove(ctx, containerID)
 	if err != nil && !errdefs.IsNotFound(err) {
 		return rerrors.Wrapf(err, "error removing container '%s'", containerID)
 	}

@@ -153,6 +153,10 @@ message Connection {
   string service_name = 1;
   string target_network = 2;
   repeated string aliases = 3;
+  // environment - the isolated namespace this connection targets. Optional;
+  // empty resolves to the default environment (unchanged behavior for
+  // existing callers). Mirrors DropSmerd.Request.environment.
+  string environment = 4;
 }
 
 enum ConfigFormat {

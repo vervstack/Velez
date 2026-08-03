@@ -1,7 +1,8 @@
 package domain
 
 type Connection struct {
-	SmerdName string
-	Network   string
-	Aliases   []string
+	SmerdName   string
+	Network     string
+	Aliases     []string
+	Environment string
 }

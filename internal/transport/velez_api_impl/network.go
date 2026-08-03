@@ -36,8 +36,9 @@ func (impl *Impl) BreakConnections(ctx context.Context, req *api.BreakConnection
 
 func toConnection(in *api.Connection) domain.Connection {
 	return domain.Connection{
-		SmerdName: in.GetServiceName(),
-		Network:   in.GetTargetNetwork(),
-		Aliases:   in.GetAliases(),
+		SmerdName:   in.GetServiceName(),
+		Network:     in.GetTargetNetwork(),
+		Aliases:     in.GetAliases(),
+		Environment: in.GetEnvironment(),
 	}
 }

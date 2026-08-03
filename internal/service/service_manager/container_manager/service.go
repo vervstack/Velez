@@ -21,6 +21,13 @@ type EnvironmentsProvider interface {
 }
 
 type ContainerManager struct {
+	// dockerWrapper is now unused: DropSmerds (smerds_drop.go) was its last
+	// remaining caller and has since migrated to the resolved
+	// container_runtime.ContainerRuntime, same as ListSmerds/InspectSmerd
+	// before it. Kept on the struct rather than removed per this repo's
+	// backward-compatibility-first policy - flagged here rather than silently
+	// deleted so a maintainer can decide whether to drop it in a follow-up.
+	//nolint:unused // see comment above; intentionally kept, not deleted
 	dockerWrapper node_clients.Docker
 	dockerAPI     client.APIClient
 

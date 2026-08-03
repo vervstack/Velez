@@ -966,6 +966,10 @@ type Connection struct {
 	ServiceName   string                 `protobuf:"bytes,1,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
 	TargetNetwork string                 `protobuf:"bytes,2,opt,name=target_network,json=targetNetwork,proto3" json:"target_network,omitempty"`
 	Aliases       []string               `protobuf:"bytes,3,rep,name=aliases,proto3" json:"aliases,omitempty"`
+	// environment - the isolated namespace this connection targets. Optional;
+	// empty resolves to the default environment (unchanged behavior for
+	// existing callers). Mirrors DropSmerd.Request.environment.
+	Environment   string `protobuf:"bytes,4,opt,name=environment,proto3" json:"environment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1019,6 +1023,13 @@ func (x *Connection) GetAliases() []string {
 		return x.Aliases
 	}
 	return nil
+}
+
+func (x *Connection) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
 }
 
 type Paging struct {
@@ -1480,12 +1491,13 @@ const file_velez_common_proto_rawDesc = "" +
 	"\f_config_nameB\x11\n" +
 	"\x0f_config_versionB\x10\n" +
 	"\x0e_config_formatB\x0e\n" +
-	"\f_system_path\"p\n" +
+	"\f_system_path\"\x92\x01\n" +
 	"\n" +
 	"Connection\x12!\n" +
 	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x12%\n" +
 	"\x0etarget_network\x18\x02 \x01(\tR\rtargetNetwork\x12\x18\n" +
-	"\aaliases\x18\x03 \x03(\tR\aaliases\"6\n" +
+	"\aaliases\x18\x03 \x03(\tR\aaliases\x12 \n" +
+	"\venvironment\x18\x04 \x01(\tR\venvironment\"6\n" +
 	"\x06Paging\x12\x14\n" +
 	"\x05limit\x18\x01 \x01(\x04R\x05limit\x12\x16\n" +
 	"\x06offset\x18\x02 \x01(\x04R\x06offset\"\xf6\x01\n" +

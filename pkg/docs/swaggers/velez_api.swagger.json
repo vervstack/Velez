@@ -501,6 +501,10 @@
           "items": {
             "type": "string"
           }
+        },
+        "environment": {
+          "type": "string",
+          "description": "environment - the isolated namespace this connection targets. Optional;\nempty resolves to the default environment (unchanged behavior for\nexisting callers). Mirrors DropSmerd.Request.environment."
         }
       }
     },

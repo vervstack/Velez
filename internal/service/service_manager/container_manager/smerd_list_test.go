@@ -15,6 +15,16 @@ import (
 	"go.vervstack.ru/Velez/internal/storage/environments"
 )
 
+// testStageEnvironment/testNetworkName are shared string fixtures for this
+// package's tests (smerd_list_test.go, smerds_drop_test.go, network_test.go)
+// - factored out to satisfy goconst, which flags the same literal repeated
+// across this package's test files.
+const (
+	testStageEnvironment = "STAGE"
+	testNetworkName      = "net1"
+	testSmerdName        = "svc"
+)
+
 // fakeRuntimeResolver is a container_runtime.RuntimeResolver that resolves the
 // environment for real (environments.Resolve, the same function the
 // production resolver uses) and then hands back a canned
@@ -41,7 +51,30 @@ type fakeRuntimeResolver struct {
 	inspectFound bool
 	inspectErr   error
 
+	// resolveErr, when set, short-circuits Runtime() into returning
+	// (nil, resolveErr) before doing any of the normal environments.Resolve +
+	// fake-construction work below - used by tests that only care about
+	// simulating "environment resolution itself failed" (e.g. unknown
+	// environment), independent of environments.Resolve's own behavior.
+	resolveErr error
+
 	gotEnvironment string
+
+	// removeErrs/connectErr/disconnectErr configure the canned
+	// fakeListContainerRuntime's Remove/ConnectToNetwork/
+	// DisconnectFromNetworks behavior for smerds_drop_test.go and
+	// network_test.go - unused (zero value) by ListSmerds/InspectSmerd's own
+	// tests.
+	removeErrs map[string]error
+
+	connectErr    error
+	disconnectErr error
+
+	// runtime is the most recently constructed fakeListContainerRuntime,
+	// exposed so tests can inspect what was recorded on it (removedCalls,
+	// gotConnectReq, gotDisconnectContainerID, gotDisconnectNetworks, ...)
+	// after the call under test returns.
+	runtime *fakeListContainerRuntime
 }
 
 func (f *fakeRuntimeResolver) Runtime(
@@ -49,6 +82,10 @@ func (f *fakeRuntimeResolver) Runtime(
 	environment string,
 ) (container_runtime.ContainerRuntime, error) {
 	f.gotEnvironment = environment
+
+	if f.resolveErr != nil {
+		return nil, f.resolveErr
+	}
 
 	_, err := environments.Resolve(ctx, f.envs, environment)
 	if err != nil {
@@ -58,13 +95,21 @@ func (f *fakeRuntimeResolver) Runtime(
 	rt := &fakeListContainerRuntime{
 		resp: f.resp, err: f.err,
 		inspectResp: f.inspectResp, inspectFound: f.inspectFound, inspectErr: f.inspectErr,
+		removeErrs:    f.removeErrs,
+		connectErr:    f.connectErr,
+		disconnectErr: f.disconnectErr,
 	}
+
+	f.runtime = rt
 
 	return rt, nil
 }
 
-// fakeListContainerRuntime implements only ListContainers and Inspect -
-// nothing under test in this package calls ContainerCreate.
+// fakeListContainerRuntime implements ListContainers, Inspect, Remove,
+// ConnectToNetwork and DisconnectFromNetworks - the methods exercised by this
+// package's tests (ListSmerds/InspectSmerd/DropSmerds/ConnectToNetwork/
+// DisconnectFromNetwork). Nothing under test in this package calls
+// ContainerCreate.
 type fakeListContainerRuntime struct {
 	container_runtime.ContainerRuntime
 
@@ -74,6 +119,21 @@ type fakeListContainerRuntime struct {
 	inspectResp  container.InspectResponse
 	inspectFound bool
 	inspectErr   error
+
+	// removeErrs is keyed by the identifier passed to Remove; a missing key
+	// means Remove succeeds for that identifier.
+	removeErrs map[string]error
+	// removedCalls records every identifier Remove was called with, in call
+	// order.
+	removedCalls []string
+
+	connectErr    error
+	disconnectErr error
+
+	gotConnectReq container_runtime.ConnectToNetworkRequest
+
+	gotDisconnectContainerID string
+	gotDisconnectNetworks    []string
 }
 
 func (f *fakeListContainerRuntime) ListContainers(
@@ -88,6 +148,29 @@ func (f *fakeListContainerRuntime) Inspect(
 	return f.inspectResp, f.inspectFound, f.inspectErr
 }
 
+func (f *fakeListContainerRuntime) Remove(_ context.Context, identifier string) error {
+	f.removedCalls = append(f.removedCalls, identifier)
+
+	return f.removeErrs[identifier]
+}
+
+func (f *fakeListContainerRuntime) ConnectToNetwork(
+	_ context.Context, req container_runtime.ConnectToNetworkRequest,
+) error {
+	f.gotConnectReq = req
+
+	return f.connectErr
+}
+
+func (f *fakeListContainerRuntime) DisconnectFromNetworks(
+	_ context.Context, containerID string, networks []string,
+) error {
+	f.gotDisconnectContainerID = containerID
+	f.gotDisconnectNetworks = networks
+
+	return f.disconnectErr
+}
+
 func newListManager(resolver *fakeRuntimeResolver) *ContainerManager {
 	return &ContainerManager{
 		runtimes: resolver,
@@ -97,13 +180,13 @@ func newListManager(resolver *fakeRuntimeResolver) *ContainerManager {
 // ListSmerds must pass the request's environment through to the resolver
 // unchanged - it no longer resolves the suffix itself.
 func TestListSmerds_PassesEnvironmentToResolver(t *testing.T) {
-	resolver := &fakeRuntimeResolver{envs: environments.NewStatic([]string{"STAGE"}, "prod-suffix")}
+	resolver := &fakeRuntimeResolver{envs: environments.NewStatic([]string{testStageEnvironment}, "prod-suffix")}
 
-	req := &velez_api.ListSmerds_Request{Environment: "STAGE"}
+	req := &velez_api.ListSmerds_Request{Environment: testStageEnvironment}
 
 	_, err := newListManager(resolver).ListSmerds(context.Background(), req)
 	require.NoError(t, err)
-	require.Equal(t, "STAGE", resolver.gotEnvironment)
+	require.Equal(t, testStageEnvironment, resolver.gotEnvironment)
 }
 
 func TestListSmerds_UnknownEnvironmentRejected(t *testing.T) {

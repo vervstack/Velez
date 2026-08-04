@@ -3165,33 +3165,23 @@
     "semantic_hash": ""
   },
   "internal/clients/node_clients/container_runtime/common.go": {
-    "mtime": 1785775434.597227,
-    "ast_hash": "f99b62ed266f130b65676636ab83f364",
-    "semantic_hash": ""
-  },
-  "internal/clients/node_clients/container_runtime/label_based.go": {
-    "mtime": 1785777232.0773122,
-    "ast_hash": "29a17a7b1a495e13933ae88bc45fa771",
-    "semantic_hash": ""
-  },
-  "internal/clients/node_clients/container_runtime/label_based_test.go": {
-    "mtime": 1785774159.998627,
-    "ast_hash": "80ace4b3178895e7c967eb128d6ffc68",
+    "mtime": 1785838888.0350883,
+    "ast_hash": "1a365fd9f736b7a62834d8a9a1b93e76",
     "semantic_hash": ""
   },
   "internal/clients/node_clients/container_runtime/resolver.go": {
-    "mtime": 1785741866.5753822,
-    "ast_hash": "927f85616516334f40c93eafaa3044a7",
+    "mtime": 1785838865.1900651,
+    "ast_hash": "e6fb0ebeb8eb016fdc63283778b86152",
     "semantic_hash": ""
   },
   "internal/clients/node_clients/container_runtime/resolver_test.go": {
-    "mtime": 1785742000.3257203,
-    "ast_hash": "fc3a6bfd7141d011e1ce1ea7128ddb50",
+    "mtime": 1785838978.0357385,
+    "ast_hash": "0d62866b4b94dc4ae4344d9b5c50ffd3",
     "semantic_hash": ""
   },
   "internal/clients/node_clients/container_runtime/runtime.go": {
-    "mtime": 1785775422.0801237,
-    "ast_hash": "2b0ee0b977c3a6aa30d343b525fd9fce",
+    "mtime": 1785838877.1713445,
+    "ast_hash": "734904b79dba5618ead40d93417f26dd",
     "semantic_hash": ""
   },
   "internal/storage/environments/resolve.go": {
@@ -3332,6 +3322,41 @@
   "pkg/web/Velez-UI/src/widgets/controlplane/NodesPanel.tsx": {
     "mtime": 1785820528.3678095,
     "ast_hash": "6f2d676aa1fc054c20ea5ad9413c55d3",
+    "semantic_hash": ""
+  },
+  "internal/clients/node_clients/container_runtime/direct_resolver.go": {
+    "mtime": 1785838777.9822123,
+    "ast_hash": "96b64333bcbe0284a41b0236bd3e4f2b",
+    "semantic_hash": ""
+  },
+  "internal/clients/node_clients/container_runtime/direct_resolver_test.go": {
+    "mtime": 1785839309.820938,
+    "ast_hash": "2828fd4f9d509c312f27852a84c3af42",
+    "semantic_hash": ""
+  },
+  "internal/clients/node_clients/container_runtime/docker_runtime.go": {
+    "mtime": 1785839320.0606823,
+    "ast_hash": "f1834eadc4017db977301ff599a0dc86",
+    "semantic_hash": ""
+  },
+  "internal/clients/node_clients/container_runtime/docker_runtime_test.go": {
+    "mtime": 1785839334.5922377,
+    "ast_hash": "d0de6abedf0dd4128851c10aadfc46f8",
+    "semantic_hash": ""
+  },
+  "internal/clients/node_clients/container_runtime/label_suffix_resolver.go": {
+    "mtime": 1785839314.9574387,
+    "ast_hash": "15c0df4b0bd14f5b7bbadd6e976d8a84",
+    "semantic_hash": ""
+  },
+  "internal/clients/node_clients/container_runtime/label_suffix_resolver_test.go": {
+    "mtime": 1785839299.8751402,
+    "ast_hash": "e954251b468c3de9e9aea8d0aa777a57",
+    "semantic_hash": ""
+  },
+  "internal/clients/node_clients/container_runtime/name_resolver.go": {
+    "mtime": 1785838754.5605638,
+    "ast_hash": "74545422d928f69bf3ea957808ad2e27",
     "semantic_hash": ""
   }
 }

@@ -1470,8 +1470,8 @@
     "semantic_hash": "fd2b2509df322adcba5cc5d01fbdc238"
   },
   "pkg/web/Velez-UI/src/components/node/NodeCard.tsx": {
-    "mtime": 1785790426.5104032,
-    "ast_hash": "910fbf200a80ee4b8a74b1b0fe033530",
+    "mtime": 1785820638.2192335,
+    "ast_hash": "1b44d96adca57e34430dbe482ef8e762",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/components/node/SkeletonNodeCard.tsx": {
@@ -1555,8 +1555,8 @@
     "semantic_hash": "cc2b724bb6692ebe6b1e50994d33ac43"
   },
   "pkg/web/Velez-UI/src/pages/controlplane/ControlPlanePage.tsx": {
-    "mtime": 1785313866.6311965,
-    "ast_hash": "2171a51abc24382c9a4998d22037a6b7",
+    "mtime": 1785820542.2393448,
+    "ast_hash": "393dd703b4c27c951e41569ee8bb7d61",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/pages/deploy/DeployPage.tsx": {
@@ -1690,9 +1690,9 @@
     "semantic_hash": "900727bb8fe3a7a6494b4ed2c84483b2"
   },
   "pkg/web/Velez-UI/src/widgets/controlplane/NodeHealthList.tsx": {
-    "mtime": 1779009844.8774874,
-    "ast_hash": "110ab63a8589a1975fcb1c41417d5c7e",
-    "semantic_hash": "110ab63a8589a1975fcb1c41417d5c7e"
+    "mtime": 1785820638.2192333,
+    "ast_hash": "daccb076b2491baad98e0c1ba6c5e1db",
+    "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/widgets/controlplane/PluginMatrix.tsx": {
     "mtime": 1785790374.3434374,
@@ -3302,6 +3302,36 @@
   "internal/storage/postgres/plugins_test.go": {
     "mtime": 1785820185.7957256,
     "ast_hash": "e05c6440ddcf0904cef749177b0f038a",
+    "semantic_hash": ""
+  },
+  "pkg/web/Velez-UI/src/components/node/NodeCard.test.tsx": {
+    "mtime": 1785820539.8739178,
+    "ast_hash": "48f20f384b8e0e41995f971b201343c7",
+    "semantic_hash": ""
+  },
+  "pkg/web/Velez-UI/src/widgets/controlplane/NodeHealthList.test.tsx": {
+    "mtime": 1785820557.6648772,
+    "ast_hash": "6bb339b11f555da16179e31cea8d12b5",
+    "semantic_hash": ""
+  },
+  "pkg/web/Velez-UI/src/widgets/controlplane/NodeTopologyGraph.test.tsx": {
+    "mtime": 1785820577.9549565,
+    "ast_hash": "662006e69c3f93e19346bff74e2ffcad",
+    "semantic_hash": ""
+  },
+  "pkg/web/Velez-UI/src/widgets/controlplane/NodeTopologyGraph.tsx": {
+    "mtime": 1785820568.9991014,
+    "ast_hash": "c1673f6dba7e5d47eedac831ac90ad88",
+    "semantic_hash": ""
+  },
+  "pkg/web/Velez-UI/src/widgets/controlplane/NodesPanel.test.tsx": {
+    "mtime": 1785820589.4564333,
+    "ast_hash": "4a912cd404bdeb7c58ea8d320c244b73",
+    "semantic_hash": ""
+  },
+  "pkg/web/Velez-UI/src/widgets/controlplane/NodesPanel.tsx": {
+    "mtime": 1785820528.3678095,
+    "ast_hash": "6f2d676aa1fc054c20ea5ad9413c55d3",
     "semantic_hash": ""
   }
 }

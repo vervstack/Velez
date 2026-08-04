@@ -34,7 +34,7 @@
             align-items: center;
         }
 
-        .TableRow:not(:last-child) {
+        .RowWrapper:not(:last-child) .TableRow {
             border-bottom: 1px solid var(--border);
         }
     }

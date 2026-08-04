@@ -1,5 +1,3 @@
-import cn from 'classnames';
-
 import cls from '@/widgets/topbar/TopBar.module.css';
 
 import {NodeBaseInfo, NodeStatus, VervPluginType} from "@/app/api/velez";
@@ -10,7 +8,6 @@ import Button from "@/components/base/Button.tsx";
 import IconButton from "@/components/base/IconButton.tsx";
 import {VervPlugin} from "@/model/services/VervPlugins.tsx";
 import {openStatefullPgDialog} from "@/dialogs/PluginManageDialog/plugins/openStatefullPgDialog.tsx";
-import EnvironmentSwitcher from "@/widgets/environment/EnvironmentSwitcher/EnvironmentSwitcher.tsx";
 
 type NavId = 'controlplane' | 'vcn' | 'deployments' | 'apps' | 'search';
 
@@ -18,10 +15,6 @@ type NavId = 'controlplane' | 'vcn' | 'deployments' | 'apps' | 'search';
 interface LeftSideProps {
     collapsed: boolean;
     onCollapse: () => void;
-
-    showAllNodes: boolean;
-    activeNodeId?: string;
-    onToggleAllNodes: () => void;
 
     onToggleMobileNav: () => void;
 }
@@ -60,28 +53,6 @@ function LeftZone(props: LeftSideProps) {
             >
                 {props.collapsed ? '→' : '←'}
             </button>
-
-            <div className={cls.Breadcrumbs}>
-                <span className={cls.CrumbDim}>cluster</span>
-                <span className={cls.CrumbSep}>/</span>
-                {props.showAllNodes ? (
-                    <span className={cls.CrumbActive}>all nodes</span>
-                ) : (
-                    <>
-                        <span className={cls.CrumbNode}>{props.activeNodeId}</span>
-                        {/*TODO*/}
-                        {/*{activeNode?.status === NodeStatus.NodeStatus_Degraded && (*/}
-                        {/*    <span className={cls.DegradedBadge}>degraded</span>*/}
-                        {/*)}*/}
-                    </>
-                )}
-                <button
-                    className={cn(cls.AllNodesPill, {[cls.AllNodesActive]: props.showAllNodes})}
-                    onClick={props.onToggleAllNodes}
-                >
-                    all nodes
-                </button>
-            </div>
         </div>)
 }
 
@@ -101,7 +72,6 @@ function RightZone() {
 
     return (
         <div className={cls.RightZoneContainer}>
-            <EnvironmentSwitcher/>
             {!isLoading && (isStateFullMode ? <NodesHealthStatus/> : <SingleNodeStub/>)}
             <Button
                 variant={'primary'}

@@ -45,7 +45,7 @@ export default function NodeCard({node, onShell, onDrain}: NodeCardProps) {
             <div className={cls.identity}>
                 <div className={cls.nameRow}>
                     <StatusDot status={mapNodeStatus(node.status)} pulse/>
-                    <span className={cls.nodeId}>{node.id}</span>
+                    <span className={cls.nodeId}>{node.name}</span>
 
                     {node.status === NodeStatus.NodeStatus_Degraded && (
                         <Badge label="degraded" color="var(--amber)"/>

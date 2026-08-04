@@ -41,8 +41,6 @@ export default function MainLayout() {
     const location = useLocation();
 
     const [collapsed, setCollapsed] = useState(false);
-    const [activeNodeId, setActiveNodeId] = useState<string | undefined>();
-    const [showAllNodes, setShowAllNodes] = useState(false);
     const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
 
@@ -63,10 +61,6 @@ export default function MainLayout() {
         }
     }
 
-    function handleToggleAllNodes() {
-        setShowAllNodes(prev => !prev);
-    }
-
     function handleToggleMobileNav() {
         setMobileNavOpen(prev => !prev);
     }
@@ -81,9 +75,6 @@ export default function MainLayout() {
             <Sidebar
                 collapsed={collapsed}
 
-                activeNodeId={activeNodeId}
-                onNodeSelect={setActiveNodeId}
-
                 activeNav={activeNav}
                 onNavChange={handleNavChange}
                 onToolNav={handleToolNav}
@@ -95,9 +86,6 @@ export default function MainLayout() {
                 <TopBar
                     collapsed={collapsed}
                     onCollapse={handleCollapse}
-                    activeNodeId={activeNodeId}
-                    showAllNodes={showAllNodes}
-                    onToggleAllNodes={handleToggleAllNodes}
                     activeNav={activeNav}
                     onNavChange={handleNavChange}
                     onToggleMobileNav={handleToggleMobileNav}

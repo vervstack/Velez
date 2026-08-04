@@ -26,9 +26,6 @@ type ToolId = 'secrets' | 'config' | 'logs' | 'settings';
 interface SidebarProps {
     collapsed: boolean;
 
-    activeNodeId?: string;
-    onNodeSelect: (id?: string) => void;
-
     activeNav: NavId;
     onNavChange: (id: NavId) => void;
     onToolNav?: (id: ToolId) => void;
@@ -55,7 +52,6 @@ const TOOL_ITEMS = [
 export default function Sidebar(
     {
         collapsed,
-        activeNodeId, onNodeSelect,
         activeNav, onNavChange,
         onToolNav,
         mobileOpen, onCloseMobile
@@ -63,12 +59,8 @@ export default function Sidebar(
 
 
     function renderDot(node: NodeBaseInfo) {
-        function handleClick() {
-            onNodeSelect(node.id);
-        }
-
         return (
-            <div key={node.id} className={cls.dotRow} title={node.id} onClick={handleClick}>
+            <div key={node.id} className={cls.dotRow} title={node.id}>
                 <StatusDot
                     status={mapNodeStatus(node.status)}/>
             </div>
@@ -90,8 +82,6 @@ export default function Sidebar(
                 <Logo collapsed={collapsed}/>
                 <NodesList
                     collapsed={collapsed}
-                    onNodeSelect={onNodeSelect}
-                    activeNodeId={activeNodeId}
                     activeNav={activeNav}
                     onNavChange={onNavChange}/>
 
@@ -188,8 +178,7 @@ function Logo({collapsed}: { collapsed: boolean }) {
 
 function NodesList(
     {
-        collapsed,
-        onNodeSelect, activeNodeId,
+        collapsed, onNavChange,
     }: SidebarProps) {
 
     const isStatefullMode = IsStatefullModeEnabled();
@@ -200,26 +189,16 @@ function NodesList(
 
     function renderNode(node: NodeBaseInfo) {
         function handleClick() {
-            onNodeSelect(node.id);
+            onNavChange('controlplane');
         }
 
         return (
-            <div
-                key={node.id}
-                className={
-                    cn(cls.nodeRow, {
-                        [cls.nodeActive]: activeNodeId === node.id,
-                    })}
-                onClick={handleClick}
-            >
+            <div key={node.id} className={cls.nodeRow} onClick={handleClick}>
                 <StatusDot
                     status={mapNodeStatus(node.status)}/>
 
                 <div className={cls.NodeInfo}>
-                    <div className={cn(
-                        cls.nodeId, {
-                            [cls.nodeIdActive]: activeNodeId === node.id,
-                        })}>
+                    <div className={cls.nodeId}>
                         {node.name}
                     </div>
 

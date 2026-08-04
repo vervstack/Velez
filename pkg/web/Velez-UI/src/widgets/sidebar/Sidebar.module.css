@@ -69,20 +69,15 @@
     gap: 0.5rem;
     padding: 0.4375rem 0.5rem;
     border-radius: 0.4375rem;
-    cursor: pointer;
     background: transparent;
     border: 1px solid transparent;
     margin-bottom: 0.125rem;
+    cursor: pointer;
     transition: background 0.12s, border-color 0.12s;
 
     &:hover {
         background: var(--bg3);
     }
-}
-
-.nodeRow.nodeActive {
-    background: var(--bg3);
-    border-color: var(--border);
 }
 
 .NodeInfo {
@@ -98,10 +93,6 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-.nodeIdActive {
-    color: var(--fg);
 }
 
 .nodeHost {
@@ -125,7 +116,6 @@
 }
 
 .dotRow {
-    cursor: pointer;
     padding: 0.375rem;
 }
 

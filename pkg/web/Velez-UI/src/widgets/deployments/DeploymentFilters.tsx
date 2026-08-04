@@ -1,5 +1,6 @@
 import cls from '@/widgets/deployments/DeploymentFilters.module.css';
 import cn from 'classnames';
+import {useEffect, useState} from 'react';
 
 type ViewMode = 'kanban' | 'list';
 
@@ -40,9 +41,22 @@ export default function DeploymentFilters({
     totalCount,
 }: DeploymentFiltersProps) {
     const hasActiveFilters = statusFilters.size > 0 || envFilters.size > 0 || search !== '';
+    const [clearBtnRendered, setClearBtnRendered] = useState(hasActiveFilters);
+
+    useEffect(function syncClearBtnRendered() {
+        if (hasActiveFilters) {
+            setClearBtnRendered(true);
+        }
+    }, [hasActiveFilters]);
 
     function handleSearchChange(e: React.ChangeEvent<HTMLInputElement>) {
         onSearchChange(e.target.value);
+    }
+
+    function handleClearAnimationEnd() {
+        if (!hasActiveFilters) {
+            setClearBtnRendered(false);
+        }
     }
 
     return (
@@ -111,8 +125,12 @@ export default function DeploymentFilters({
             </div>
 
             {/* Clear */}
-            {hasActiveFilters && (
-                <button className={cls.clearBtn} onClick={onClearAll}>✕ clear</button>
+            {clearBtnRendered && (
+                <button
+                    className={cn(cls.clearBtn, { [cls.clearBtnExiting]: !hasActiveFilters })}
+                    onClick={onClearAll}
+                    onAnimationEnd={handleClearAnimationEnd}
+                >✕ clear</button>
             )}
 
             {/* View mode */}

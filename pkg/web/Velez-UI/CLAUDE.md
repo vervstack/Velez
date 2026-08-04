@@ -90,5 +90,6 @@ All API calls go through `src/processes/api/` which calls the generated stubs in
 - Do not use `!important` or `z-index`
 - Use `rem` units for font sizes and spacing; avoid hardcoded `px`/`em` in component CSS
 - Animations: CSS `transition`/`animation`/`@keyframes` first — use `framer-motion` only when CSS cannot achieve the effect
+- Every appearance, disappearance (mount/unmount), and movement/reorder of a component or element must be animated — never an abrupt snap. Prefer a CSS `transition`/`animation`/`@keyframes` implementation; only reach for `framer-motion` when CSS genuinely cannot express the effect (e.g. list-reorder FLIP animations can still be done with CSS `transition: transform` driven by JS-measured offsets — that still counts as CSS-based).
 - One component must have no more than three levels of enclosure: Root div, wrapper around content(s), content components. 
   Everything that doesn't fit - should be a separate component.

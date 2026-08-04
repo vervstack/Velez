@@ -1,3 +1,4 @@
+import {useLayoutEffect, useRef} from 'react';
 import {useNavigate} from 'react-router-dom';
 
 import {NodeBaseInfo, VervPluginState, VervPluginType} from "@/app/api/velez";
@@ -36,9 +37,67 @@ export default function PluginMatrix(props: PluginMatrixProps) {
 interface TableProps extends PluginMatrixProps {
 }
 
+function getStatusRank(state?: VervPluginState): number {
+    switch (state) {
+        case VervPluginState.running:
+            return 0;
+        case VervPluginState.warning:
+        case VervPluginState.dead:
+            return 1;
+        default:
+            return 2;
+    }
+}
+
+function sortPluginsByStatus(plugins: VervPlugin[]): VervPlugin[] {
+    return [...plugins].sort((a, b) => getStatusRank(a.state) - getStatusRank(b.state));
+}
+
 function Table({nodes, plugins}: TableProps) {
 
     const colTemplate = `180px repeat(${nodes.length}, 1fr) 80px`;
+    const sortedPlugins = sortPluginsByStatus(plugins);
+    const orderKey = sortedPlugins.map(v => v.type).join('|');
+
+    const rowNodes = useRef(new Map<string, HTMLDivElement>());
+    const prevRects = useRef(new Map<string, DOMRect>());
+
+    function setRowRef(key: string, node: HTMLDivElement | null) {
+        if (node) {
+            rowNodes.current.set(key, node);
+        } else {
+            rowNodes.current.delete(key);
+        }
+    }
+
+    useLayoutEffect(() => {
+        const nextRects = new Map<string, DOMRect>();
+
+        rowNodes.current.forEach((node, key) => {
+            const newRect = node.getBoundingClientRect();
+            nextRects.set(key, newRect);
+
+            const oldRect = prevRects.current.get(key);
+            if (!oldRect) {
+                return;
+            }
+
+            const deltaY = oldRect.top - newRect.top;
+            if (!deltaY) {
+                return;
+            }
+
+            node.style.transition = 'none';
+            node.style.transform = `translateY(${deltaY}px)`;
+
+            requestAnimationFrame(() => {
+                node.style.transition = 'transform 200ms ease';
+                node.style.transform = 'none';
+            });
+        });
+
+        prevRects.current = nextRects;
+    }, [orderKey]);
 
     return (
         <div className={cls.TableContainer}>
@@ -52,7 +111,11 @@ function Table({nodes, plugins}: TableProps) {
                 <span className={cls.HeaderCell}></span>
             </div>
 
-            {plugins.map(v => PluginContent(v, colTemplate))}
+            {sortedPlugins.map(v => (
+                <div key={v.type} className={cls.RowWrapper} ref={node => setRowRef(v.type, node)}>
+                    <PluginContent plugin={v} colTemplate={colTemplate}/>
+                </div>
+            ))}
         </div>
     )
 }
@@ -67,10 +130,12 @@ function NodeHeader(n: NodeBaseInfo) {
 }
 
 
-function PluginContent(
-    plugin: VervPlugin,
-    colTemplate: string,
-) {
+interface PluginContentProps {
+    plugin: VervPlugin;
+    colTemplate: string;
+}
+
+function PluginContent({plugin, colTemplate}: PluginContentProps) {
     const navigate = useNavigate();
     const {OpenDialog} = useDialog();
 
@@ -91,7 +156,6 @@ function PluginContent(
 
     return (
         <div
-            key={plugin.type}
             className={cls.TableRow}
             style={{
                 gridTemplateColumns: colTemplate,

@@ -635,8 +635,8 @@
     "semantic_hash": ""
   },
   "internal/service/service_manager/plugins/plugin_service.go": {
-    "mtime": 1785137500.0251482,
-    "ast_hash": "f13eaafa9f255c784a4fc571bfe33172",
+    "mtime": 1785820140.711335,
+    "ast_hash": "c54c91fc6a74a5a321cf544310f9b0d6",
     "semantic_hash": ""
   },
   "internal/service/service_manager/services.go": {
@@ -875,8 +875,8 @@
     "semantic_hash": ""
   },
   "internal/storage/postgres/plugins.go": {
-    "mtime": 1785086366.4504673,
-    "ast_hash": "170aa258a66fecb8a2ef6a442f81e402",
+    "mtime": 1785820136.8556738,
+    "ast_hash": "a8c71c7a6e22c431f1d1336cde0bdde0",
     "semantic_hash": ""
   },
   "internal/storage/postgres/queries/deployments.sql": {
@@ -1275,12 +1275,12 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/app/api/velez/control_plane_api.pb.ts": {
-    "mtime": 1785696691.921062,
-    "ast_hash": "10c718cbca7c47144db2945f0947017c",
+    "mtime": 1785820336.5287147,
+    "ast_hash": "191c993f0672ec82318c2ed57746abe4",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/app/api/velez/fetch.pb.ts": {
-    "mtime": 1785696691.9214618,
+    "mtime": 1785820336.5290203,
     "ast_hash": "611a00bd7dd14cbdfe7c5ea6170b6625",
     "semantic_hash": "611a00bd7dd14cbdfe7c5ea6170b6625"
   },
@@ -1290,22 +1290,22 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/app/api/velez/service_api.pb.ts": {
-    "mtime": 1785696691.921709,
-    "ast_hash": "1de78fb86e4c9f07f4546963c0da83a9",
+    "mtime": 1785820336.5297503,
+    "ast_hash": "bbf3f197190b992d3ebaa563e001c6e1",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/app/api/velez/velez_api.pb.ts": {
-    "mtime": 1785696691.9218786,
+    "mtime": 1785820336.5305738,
     "ast_hash": "1b4fa12d22fd6f1d41376dc83ba809cf",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/app/api/velez/velez_common.pb.ts": {
-    "mtime": 1785696691.9224944,
-    "ast_hash": "345ed71fa149aff8caa887935ef21bfc",
+    "mtime": 1785820336.5312176,
+    "ast_hash": "b14f9a9b274e905afb56ca20fc10f305",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/app/api/velez/verv_closed_network.pb.ts": {
-    "mtime": 1785696691.9225683,
+    "mtime": 1785820336.5313628,
     "ast_hash": "0a33d718ad53071dd0c91af2f30ccf15",
     "semantic_hash": "0a33d718ad53071dd0c91af2f30ccf15"
   },
@@ -1540,9 +1540,9 @@
     "semantic_hash": "e6989301ec6493adcb66cb0f48c85e2c"
   },
   "pkg/web/Velez-UI/src/model/services/VervPlugins.tsx": {
-    "mtime": 1779009526.6480167,
-    "ast_hash": "72343635fb1b659e0677f214ff766e2a",
-    "semantic_hash": "72343635fb1b659e0677f214ff766e2a"
+    "mtime": 1785820387.0534532,
+    "ast_hash": "7b3148d7d81eb5c2ce3681a241740d06",
+    "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/model/smerds/Smerds.ts": {
     "mtime": 1785697553.7685378,
@@ -1645,9 +1645,9 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/processes/mappings/services.ts": {
-    "mtime": 1779009547.0269337,
-    "ast_hash": "e07bafef6236e2e08157e38e00ca84af",
-    "semantic_hash": "e07bafef6236e2e08157e38e00ca84af"
+    "mtime": 1785820390.675599,
+    "ast_hash": "530742c9c6d091c08c2907856b933a94",
+    "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/processes/mappings/smerds.ts": {
     "mtime": 1785072045.0697398,
@@ -2660,7 +2660,7 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/app/api/velez/tasks.pb.ts": {
-    "mtime": 1785696691.9218104,
+    "mtime": 1785820336.5302105,
     "ast_hash": "ecbc59263213dc7bf6e5771ffcd8abd4",
     "semantic_hash": ""
   },
@@ -3297,6 +3297,11 @@
   "pkg/web/Velez-UI/src/widgets/deployments/DeploymentFilters.test.tsx": {
     "mtime": 1785790511.3247635,
     "ast_hash": "5f6a63b3218922406778c3b9fb4f9a6c",
+    "semantic_hash": ""
+  },
+  "internal/storage/postgres/plugins_test.go": {
+    "mtime": 1785820185.7957256,
+    "ast_hash": "e05c6440ddcf0904cef749177b0f038a",
     "semantic_hash": ""
   }
 }

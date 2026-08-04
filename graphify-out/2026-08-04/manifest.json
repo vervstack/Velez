@@ -50,82 +50,82 @@
     "semantic_hash": ""
   },
   "internal/api/clients/matreshka/pkg/matreshka_api/matreshka_api.pb.go": {
-    "mtime": 1785820033.6628916,
+    "mtime": 1785781743.0817745,
     "ast_hash": "0cfd48ca8ffffd3d469bc86947a02e99",
     "semantic_hash": ""
   },
   "internal/api/clients/matreshka/pkg/matreshka_api/matreshka_api_grpc.pb.go": {
-    "mtime": 1785820033.662997,
+    "mtime": 1785781743.0825655,
     "ast_hash": "4e49442bb0c15e8ef0d11adb19c3e9ad",
     "semantic_hash": ""
   },
   "internal/api/clients/matreshka/pkg/matreshka_api/matreshka_common.pb.go": {
-    "mtime": 1785820033.6631782,
+    "mtime": 1785781743.0826995,
     "ast_hash": "73b49c4a31cc1fb1841210a2d85942d4",
     "semantic_hash": ""
   },
   "internal/api/server/velez_api/control_plane_api.pb.go": {
-    "mtime": 1785820032.689156,
-    "ast_hash": "dba0e429c2609a4a626611c639e89616",
+    "mtime": 1785781742.0435169,
+    "ast_hash": "f2c4566e3f9ca8ba5c85f6e11ba47551",
     "semantic_hash": ""
   },
   "internal/api/server/velez_api/control_plane_api.pb.gw.go": {
-    "mtime": 1785820032.6892178,
+    "mtime": 1785781742.043822,
     "ast_hash": "5f061fdbe28cdf9c2f181ce079b3fb9f",
     "semantic_hash": ""
   },
   "internal/api/server/velez_api/control_plane_api_grpc.pb.go": {
-    "mtime": 1785820032.6892712,
+    "mtime": 1785781742.0439005,
     "ast_hash": "3269c2642d5353b61bb1d2b8bfeed804",
     "semantic_hash": ""
   },
   "internal/api/server/velez_api/service_api.pb.go": {
-    "mtime": 1785820032.6895633,
+    "mtime": 1785781742.044301,
     "ast_hash": "8b65f38f9a407b68d6a4f921f24e97b0",
     "semantic_hash": ""
   },
   "internal/api/server/velez_api/service_api.pb.gw.go": {
-    "mtime": 1785820032.6898432,
+    "mtime": 1785781742.0445628,
     "ast_hash": "3752671e0247654388fffabfb6e6e38b",
     "semantic_hash": ""
   },
   "internal/api/server/velez_api/service_api_grpc.pb.go": {
-    "mtime": 1785820032.6899152,
+    "mtime": 1785781742.0448363,
     "ast_hash": "8c72666b83334a13bd15839697d7155d",
     "semantic_hash": ""
   },
   "internal/api/server/velez_api/velez_api.pb.go": {
-    "mtime": 1785820032.6917043,
+    "mtime": 1785781742.0463247,
     "ast_hash": "d84e84a4335c33c0390e78ebc0733393",
     "semantic_hash": ""
   },
   "internal/api/server/velez_api/velez_api.pb.gw.go": {
-    "mtime": 1785820032.6917982,
+    "mtime": 1785781742.0465424,
     "ast_hash": "46be485f63cf5bc0dd8b6c0ee7226c22",
     "semantic_hash": "46be485f63cf5bc0dd8b6c0ee7226c22"
   },
   "internal/api/server/velez_api/velez_api_grpc.pb.go": {
-    "mtime": 1785820032.6918757,
+    "mtime": 1785781742.0465977,
     "ast_hash": "3eb6f28ee008ef1ec63c3dd17bccec22",
     "semantic_hash": ""
   },
   "internal/api/server/velez_api/velez_common.pb.go": {
-    "mtime": 1785820032.6925254,
+    "mtime": 1785781742.0468404,
     "ast_hash": "2ea5788457643ade71c09660d0e5c680",
     "semantic_hash": ""
   },
   "internal/api/server/velez_api/verv_closed_network.pb.go": {
-    "mtime": 1785820032.6927009,
+    "mtime": 1785781742.046917,
     "ast_hash": "dcd48b2914547fb55bcb72650c6567ee",
     "semantic_hash": ""
   },
   "internal/api/server/velez_api/verv_closed_network.pb.gw.go": {
-    "mtime": 1785820032.6927614,
+    "mtime": 1785781742.0469913,
     "ast_hash": "628c7ccabbf5f3dc59dfede319e5fe6d",
     "semantic_hash": "628c7ccabbf5f3dc59dfede319e5fe6d"
   },
   "internal/api/server/velez_api/verv_closed_network_grpc.pb.go": {
-    "mtime": 1785820032.6928148,
+    "mtime": 1785781742.0472903,
     "ast_hash": "549382ae3a69c559c8ae6f8beb734e67",
     "semantic_hash": ""
   },
@@ -500,9 +500,9 @@
     "semantic_hash": ""
   },
   "internal/domain/plugins.go": {
-    "mtime": 1785820103.4892201,
-    "ast_hash": "8f2677f43da9f6ac1bb67b7c3ab75e5a",
-    "semantic_hash": ""
+    "mtime": 1779008441.5898757,
+    "ast_hash": "f8375488afb68a200b7a3cf80e72accc",
+    "semantic_hash": "f8375488afb68a200b7a3cf80e72accc"
   },
   "internal/domain/service.go": {
     "mtime": 1785774160.0034976,
@@ -750,122 +750,122 @@
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/deployments_queries/db.go": {
-    "mtime": 1785820033.8483996,
+    "mtime": 1785781743.3097606,
     "ast_hash": "dfeee988cc7962956e5ad385da6d1f20",
     "semantic_hash": "dfeee988cc7962956e5ad385da6d1f20"
   },
   "internal/storage/postgres/generated/deployments_queries/deployments.sql.go": {
-    "mtime": 1785820033.8510203,
+    "mtime": 1785781743.307238,
     "ast_hash": "087ee75ed20fa9bd7fcd928a0605f80e",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/deployments_queries/models.go": {
-    "mtime": 1785820033.849614,
+    "mtime": 1785781743.3075607,
     "ast_hash": "70b93158df73c3ed7bad9735a1dc0f67",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/deployments_queries/querier.go": {
-    "mtime": 1785820033.8506286,
+    "mtime": 1785781743.3076916,
     "ast_hash": "6c56d05f15dee74b1625e504c497119b",
     "semantic_hash": "6c56d05f15dee74b1625e504c497119b"
   },
   "internal/storage/postgres/generated/nodes_queries/db.go": {
-    "mtime": 1785820033.8500059,
+    "mtime": 1785781743.308904,
     "ast_hash": "5328f8d461e6ab9be601aace0e245e99",
     "semantic_hash": "5328f8d461e6ab9be601aace0e245e99"
   },
   "internal/storage/postgres/generated/nodes_queries/models.go": {
-    "mtime": 1785820033.8488154,
+    "mtime": 1785781743.3095567,
     "ast_hash": "752c0cb63042c4e581805dfaa84caf44",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/nodes_queries/nodes.sql.go": {
-    "mtime": 1785820033.8503094,
+    "mtime": 1785781743.3070424,
     "ast_hash": "0ab6307848d665b450a44de5936f625a",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/nodes_queries/querier.go": {
-    "mtime": 1785820033.85158,
+    "mtime": 1785781743.3068428,
     "ast_hash": "26657c5656395858855364a0e1d12865",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/plugins_queries/db.go": {
-    "mtime": 1785820033.8516397,
+    "mtime": 1785781743.309392,
     "ast_hash": "1c00c49181d244e89369f1d035e03e3d",
     "semantic_hash": "1c00c49181d244e89369f1d035e03e3d"
   },
   "internal/storage/postgres/generated/plugins_queries/models.go": {
-    "mtime": 1785820033.8516943,
+    "mtime": 1785781743.3098168,
     "ast_hash": "74eb9c7480495b8f8f9232085f9aba68",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/plugins_queries/plugins.sql.go": {
-    "mtime": 1785820033.8482487,
-    "ast_hash": "8864da2b73446547b77e5e0314b35d53",
+    "mtime": 1785781743.3093307,
+    "ast_hash": "3d5607d21b562924c7d92d8079214762",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/plugins_queries/querier.go": {
-    "mtime": 1785820033.848336,
+    "mtime": 1785781743.3099747,
     "ast_hash": "dee819de9c950bd2efaf93529d5597e3",
     "semantic_hash": "dee819de9c950bd2efaf93529d5597e3"
   },
   "internal/storage/postgres/generated/service_dependencies_queries/db.go": {
-    "mtime": 1785820033.8499453,
+    "mtime": 1785781743.3094993,
     "ast_hash": "0e6de6575d6aa32a710079f96a44a0ba",
     "semantic_hash": "0e6de6575d6aa32a710079f96a44a0ba"
   },
   "internal/storage/postgres/generated/service_dependencies_queries/models.go": {
-    "mtime": 1785820033.8511434,
+    "mtime": 1785781743.3096583,
     "ast_hash": "da8639a7b11716a4975cf65bc2020a02",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/service_dependencies_queries/querier.go": {
-    "mtime": 1785820033.8510814,
+    "mtime": 1785781743.3071651,
     "ast_hash": "41492e01bac27ccebe7d5e5ab3936ea9",
     "semantic_hash": "41492e01bac27ccebe7d5e5ab3936ea9"
   },
   "internal/storage/postgres/generated/service_dependencies_queries/service_dependencies.sql.go": {
-    "mtime": 1785820033.8502476,
+    "mtime": 1785781743.3089643,
     "ast_hash": "942a3f0df5936238a4088a6765ed210e",
     "semantic_hash": "942a3f0df5936238a4088a6765ed210e"
   },
   "internal/storage/postgres/generated/service_resources_queries/db.go": {
-    "mtime": 1785820033.8508873,
+    "mtime": 1785781743.3091934,
     "ast_hash": "efad94b69a6990c012cbcffddb0768d0",
     "semantic_hash": "efad94b69a6990c012cbcffddb0768d0"
   },
   "internal/storage/postgres/generated/service_resources_queries/models.go": {
-    "mtime": 1785820033.8493242,
+    "mtime": 1785781743.3079941,
     "ast_hash": "a1b7b82cdb98914ea60000a7dfe53aba",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/service_resources_queries/querier.go": {
-    "mtime": 1785820033.8501875,
+    "mtime": 1785781743.3073015,
     "ast_hash": "5b8552c6f3aa3fb693cd9818792aa3bc",
     "semantic_hash": "5b8552c6f3aa3fb693cd9818792aa3bc"
   },
   "internal/storage/postgres/generated/service_resources_queries/service_resources.sql.go": {
-    "mtime": 1785820033.850515,
+    "mtime": 1785781743.3092628,
     "ast_hash": "788ca2f31820226ebea31f469ce67994",
     "semantic_hash": "788ca2f31820226ebea31f469ce67994"
   },
   "internal/storage/postgres/generated/services_queries/db.go": {
-    "mtime": 1785820033.8498693,
+    "mtime": 1785781743.310071,
     "ast_hash": "a9db7d8cba4711c9dfcdf45f8d51f7ae",
     "semantic_hash": "a9db7d8cba4711c9dfcdf45f8d51f7ae"
   },
   "internal/storage/postgres/generated/services_queries/models.go": {
-    "mtime": 1785820033.8494754,
+    "mtime": 1785781743.3086762,
     "ast_hash": "2d3dfb9687db8bf518ccaa81a3ae3ac2",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/services_queries/querier.go": {
-    "mtime": 1785820033.850576,
+    "mtime": 1785781743.3081694,
     "ast_hash": "8bbfa96c18439f35d01caa4636a9f5b5",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/services_queries/services.sql.go": {
-    "mtime": 1785820033.8509562,
+    "mtime": 1785781743.30823,
     "ast_hash": "05623d5d04b84b720bf55d8bc5f579c9",
     "semantic_hash": ""
   },
@@ -890,8 +890,8 @@
     "semantic_hash": ""
   },
   "internal/storage/postgres/queries/plugins.sql": {
-    "mtime": 1785820028.2870185,
-    "ast_hash": "1b292e5d28b3f2505668c05f4054478c",
+    "mtime": 1785327884.6146924,
+    "ast_hash": "e33b55324df2ca553edce77659730eae",
     "semantic_hash": ""
   },
   "internal/storage/postgres/queries/service_dependencies.sql": {
@@ -1225,22 +1225,22 @@
     "semantic_hash": "b5b288b719fb658367c750653d40480a"
   },
   "pkg/docs/swaggers/control_plane_api.swagger.json": {
-    "mtime": 1785820032.6877162,
-    "ast_hash": "f2122af8e16c3733da7c1538380fb089",
+    "mtime": 1785781742.04738,
+    "ast_hash": "0079918f8170159989dbeea9775a708a",
     "semantic_hash": ""
   },
   "pkg/docs/swaggers/service_api.swagger.json": {
-    "mtime": 1785820032.6880555,
+    "mtime": 1785781742.049625,
     "ast_hash": "32e69cb9ffa1891b0b38f072b12169c9",
     "semantic_hash": ""
   },
   "pkg/docs/swaggers/velez_api.swagger.json": {
-    "mtime": 1785820032.6884263,
+    "mtime": 1785781742.049795,
     "ast_hash": "bfd1a98c19b99e9fa48c4e8f65265d9b",
     "semantic_hash": ""
   },
   "pkg/docs/swaggers/velez_common.swagger.json": {
-    "mtime": 1785820032.6889164,
+    "mtime": 1785781742.0501328,
     "ast_hash": "1ef0b70bd892ee04f0716d398dc1adc5",
     "semantic_hash": "1ef0b70bd892ee04f0716d398dc1adc5"
   },
@@ -1250,7 +1250,7 @@
     "semantic_hash": "2592a65f73e05e1a126c726230b00b7d"
   },
   "pkg/docs/swaggers/verv_closed_network.swagger.json": {
-    "mtime": 1785820032.688975,
+    "mtime": 1785781742.0503259,
     "ast_hash": "5f2156cf119ce31a57cbd7da18189dbe",
     "semantic_hash": "5f2156cf119ce31a57cbd7da18189dbe"
   },
@@ -1478,6 +1478,11 @@
     "mtime": 1777915123.3385704,
     "ast_hash": "1c16e4bca0c517586511a35cfd294437",
     "semantic_hash": "1c16e4bca0c517586511a35cfd294437"
+  },
+  "pkg/web/Velez-UI/src/components/node/SkeletonNodeRow.tsx": {
+    "mtime": 1777916287.7941144,
+    "ast_hash": "a787f27e4e1e880343f4044a6dc8dfbb",
+    "semantic_hash": "a787f27e4e1e880343f4044a6dc8dfbb"
   },
   "pkg/web/Velez-UI/src/components/service/ServiceCard.tsx": {
     "mtime": 1777748755.1893106,
@@ -1785,8 +1790,8 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/widgets/sidebar/Sidebar.tsx": {
-    "mtime": 1785820000.7966564,
-    "ast_hash": "49b09c9c74168c74447195ea273b9fa5",
+    "mtime": 1785790426.5123637,
+    "ast_hash": "a4b789eaa332ce339e741e851d899b01",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/widgets/topbar/TopBar.tsx": {
@@ -2405,17 +2410,17 @@
     "semantic_hash": ""
   },
   "internal/api/server/velez_api/tasks.pb.go": {
-    "mtime": 1785820032.6901839,
+    "mtime": 1785781742.0451097,
     "ast_hash": "ad7759193ac71609ee2670d4af7abfd6",
     "semantic_hash": ""
   },
   "internal/api/server/velez_api/tasks.pb.gw.go": {
-    "mtime": 1785820032.6902435,
+    "mtime": 1785781742.045461,
     "ast_hash": "ab8d9dcb90c7d5a91faa5e2d41dc5335",
     "semantic_hash": ""
   },
   "internal/api/server/velez_api/tasks_grpc.pb.go": {
-    "mtime": 1785820032.6907427,
+    "mtime": 1785781742.045645,
     "ast_hash": "0cd4baa89f465b9036eb4bb3943300ed",
     "semantic_hash": ""
   },
@@ -2485,42 +2490,42 @@
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/jobs_queries/db.go": {
-    "mtime": 1785820033.850681,
+    "mtime": 1785781743.308544,
     "ast_hash": "5b6a5504f682875cbf7c25463037e99d",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/jobs_queries/jobs.sql.go": {
-    "mtime": 1785820033.8515215,
+    "mtime": 1785781743.3088362,
     "ast_hash": "e489b6c517339160560f9c287d506b38",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/jobs_queries/models.go": {
-    "mtime": 1785820033.85128,
+    "mtime": 1785781743.307877,
     "ast_hash": "f38ec2f36155d44ec15002a135a03277",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/jobs_queries/querier.go": {
-    "mtime": 1785820033.849778,
+    "mtime": 1785781743.3086016,
     "ast_hash": "6e8e0c1bfe38d9039f40268c1e5a4789",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/tasks_queries/db.go": {
-    "mtime": 1785820033.8501377,
+    "mtime": 1785781743.306616,
     "ast_hash": "449da9ac473191c570ee124257513328",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/tasks_queries/models.go": {
-    "mtime": 1785820033.850374,
+    "mtime": 1785781743.3083754,
     "ast_hash": "49f7ab44daf76be2856587b4b8aaf52a",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/tasks_queries/querier.go": {
-    "mtime": 1785820033.8500867,
+    "mtime": 1785781743.3084881,
     "ast_hash": "ba7d122247bf4cd6e85c14fb74e30e06",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/tasks_queries/tasks.sql.go": {
-    "mtime": 1785820033.8491755,
+    "mtime": 1785781743.30878,
     "ast_hash": "1a3f431e444ac4df8fb6dcc593038e02",
     "semantic_hash": ""
   },
@@ -2555,7 +2560,7 @@
     "semantic_hash": ""
   },
   "pkg/docs/swaggers/tasks.swagger.json": {
-    "mtime": 1785820032.688136,
+    "mtime": 1785781742.0497155,
     "ast_hash": "8b990e1c09d98014ac07cce56bc2484e",
     "semantic_hash": ""
   },
@@ -2960,8 +2965,8 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/widgets/sidebar/Sidebar.test.tsx": {
-    "mtime": 1785820019.2508543,
-    "ast_hash": "4ec9c35c23e4365508598f29e24d42f5",
+    "mtime": 1785790426.5115635,
+    "ast_hash": "51fed687a92daf30d1257d7e642fa1e4",
     "semantic_hash": ""
   },
   "internal/transport/control_plane_api_impl/enable_plugin_test.go": {
@@ -3000,22 +3005,22 @@
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/environments_queries/db.go": {
-    "mtime": 1785820033.8486483,
+    "mtime": 1785781743.3090189,
     "ast_hash": "9ac385f38d0af02a0d695b4516aef957",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/environments_queries/environments.sql.go": {
-    "mtime": 1785820033.8507364,
+    "mtime": 1785781743.3094447,
     "ast_hash": "c6e2285bad79e11affd509b250479556",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/environments_queries/models.go": {
-    "mtime": 1785820033.851832,
+    "mtime": 1785781743.309076,
     "ast_hash": "bcd55f59f809259149b1ab13403a096d",
     "semantic_hash": ""
   },
   "internal/storage/postgres/generated/environments_queries/querier.go": {
-    "mtime": 1785820033.851964,
+    "mtime": 1785781743.3081057,
     "ast_hash": "1908ce5cfd34aa642cfb3c06bf40e1e2",
     "semantic_hash": ""
   },

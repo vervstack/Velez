@@ -9,6 +9,7 @@ import (
 	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
+	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
@@ -20,40 +21,68 @@ import (
 
 const (
 	labelValueTrue = "true"
-
-	// nameSuffixSeparator joins a smerd's logical name and its environment
-	// suffix. It reproduces, byte for byte, the convention the pre-environments
-	// pipeliner used (the deleted internal/pipelines/do_smerd_launch.go's
-	// `req.Name = req.GetName() + "_" + p.suffix`).
-	nameSuffixSeparator = "_"
 )
 
-// labelBasedRuntime is tier 1, the default: every environment on the node
-// shares one Docker daemon and is kept apart by
-//
-//   - the labels.SuffixLabel stamped on each container (what ListSmerds and
-//     friends filter on), and
-//   - the actual Docker container NAME, which carries the same suffix so two
-//     environments deploying the same logical smerd name don't collide on the
-//     daemon's globally-unique container namespace.
-//
-// An empty suffix - today's default/PROD on a node that never configured
-// ContainerSuffix - means "unsuffixed", preserving pre-multi-environment
-// container naming exactly.
-type labelBasedRuntime struct {
+var _ ContainerRuntime = (*dockerRuntime)(nil)
+
+// dockerRuntime is the single shared implementation of every
+// environment-scoped ContainerRuntime method, generic and backend-agnostic
+// over HOW names/labels are scoped to an environment - that policy is
+// delegated to whichever nameResolver it holds. Today's only resolver,
+// labelSuffixResolver, implements tier 1 (every environment on the node
+// shares one Docker daemon, kept apart by suffixed names/labels); a future
+// tier 2 (a Docker daemon dedicated to one environment) plugs in via
+// directResolver without duplicating any of these 12 methods.
+type dockerRuntime struct {
 	commonRuntime
 
-	suffix string
+	resolver nameResolver
 	// bakedLabels are the node's configured CustomLabels, in "name=value" (or
 	// bare "name") form, stamped onto every container Velez creates - same as
 	// docker.Docker's own bakedLabels.
 	bakedLabels []string
 }
 
+// newLabelBasedRuntime builds a dockerRuntime backed by labelSuffixResolver -
+// tier 1, the default: one shared Docker daemon, environments kept apart by
+// suffix labels/names.
+func newLabelBasedRuntime(cli client.APIClient, suffix string, bakedLabels []string) *dockerRuntime {
+	common := commonRuntime{
+		cli: cli,
+	}
+
+	resolver := &labelSuffixResolver{
+		suffix: suffix,
+	}
+
+	return &dockerRuntime{
+		commonRuntime: common,
+		resolver:      resolver,
+		bakedLabels:   bakedLabels,
+	}
+}
+
+// newDirectRuntime builds a dockerRuntime backed by directResolver - tier 2,
+// a Docker daemon dedicated to a single environment, needing no name/label
+// scoping at all. Not yet wired into production (see resolver.go).
+func newDirectRuntime(cli client.APIClient, bakedLabels []string) *dockerRuntime {
+	common := commonRuntime{
+		cli: cli,
+	}
+
+	resolver := &directResolver{}
+
+	return &dockerRuntime{
+		commonRuntime: common,
+		resolver:      resolver,
+		bakedLabels:   bakedLabels,
+	}
+}
+
 // ContainerCreate reimplements docker.Docker.ContainerCreate's label stamping
 // and conflict handling, and adds the name-conflict resolution that stamping
 // alone never provided.
-func (r *labelBasedRuntime) ContainerCreate(
+func (r *dockerRuntime) ContainerCreate(
 	ctx context.Context,
 	req ContainerCreateRequest,
 ) (container.CreateResponse, error) {
@@ -68,10 +97,9 @@ func (r *labelBasedRuntime) ContainerCreate(
 	}
 
 	config.Labels[labels.CreatedWithVelezLabel] = labelValueTrue
-	// The suffix is the resolved environment's, decided when this runtime was
-	// handed out. Empty means "the node's unscoped/default environment",
-	// preserving pre-multi-environment behavior.
-	config.Labels[labels.SuffixLabel] = r.suffix
+	// The resolver's scoping is the resolved environment's, decided when this
+	// runtime was handed out.
+	r.resolver.StampLabels(config.Labels)
 
 	for _, label := range r.bakedLabels {
 		before, after, ok := strings.Cut(label, "=")
@@ -100,7 +128,7 @@ func (r *labelBasedRuntime) ContainerCreate(
 	}
 
 	createResponse, err := r.cli.ContainerCreate(
-		ctx, config, hostConfig, networkingConfig, req.Platform, r.containerName(req.ContainerName))
+		ctx, config, hostConfig, networkingConfig, req.Platform, r.resolver.ContainerName(req.ContainerName))
 	if err != nil {
 		if errdefs.IsConflict(err) {
 			return container.CreateResponse{}, rerrors.Wrap(docker.HandleConflictMessage(err))
@@ -112,18 +140,19 @@ func (r *labelBasedRuntime) ContainerCreate(
 	return createResponse, nil
 }
 
-// ListContainers scopes results to r.suffix - the environment this runtime
-// instance was resolved for. The label filter is now unconditional: every
-// container Velez creates (through this runtime or docker.Docker directly)
-// always gets labels.SuffixLabel stamped, even when the value is "" - so an
-// empty r.suffix is a real, meaningful filter value ("this environment's
-// containers, whose suffix happens to be empty"), not "skip filtering and
-// match everything." See docs/container_runtimes/interface_design.md.
+// ListContainers scopes results to this runtime's environment - the label
+// filter is now unconditional: every container Velez creates (through this
+// runtime or docker.Docker directly) always gets labels.SuffixLabel stamped,
+// even when the value is "" - so an empty suffix is a real, meaningful
+// filter value ("this environment's containers, whose suffix happens to be
+// empty"), not "skip filtering and match everything." See
+// docs/container_runtimes/interface_design.md.
 //
 // Names in each returned container.Summary are rewritten from the real
-// Docker name back to the virtual/logical name (see virtualName) before
-// returning - callers of ContainerRuntime never see a suffixed name.
-func (r *labelBasedRuntime) ListContainers(
+// Docker name back to the virtual/logical name (see
+// nameResolver.VirtualContainerName) before returning - callers of
+// ContainerRuntime never see a suffixed name.
+func (r *dockerRuntime) ListContainers(
 	ctx context.Context,
 	req *velez_api.ListSmerds_Request,
 ) ([]container.Summary, error) {
@@ -131,7 +160,7 @@ func (r *labelBasedRuntime) ListContainers(
 		req.Label = map[string]string{}
 	}
 
-	req.Label[labels.SuffixLabel] = r.suffix
+	r.resolver.ListFilterLabels(req.GetLabel())
 
 	list, err := dockerutils.ListContainers(ctx, r.cli, req)
 	if err != nil {
@@ -140,7 +169,7 @@ func (r *labelBasedRuntime) ListContainers(
 
 	for i := range list {
 		for j, name := range list[i].Names {
-			list[i].Names[j] = r.virtualName(name)
+			list[i].Names[j] = r.resolver.VirtualContainerName(name)
 		}
 	}
 
@@ -148,25 +177,24 @@ func (r *labelBasedRuntime) ListContainers(
 }
 
 // Remove deletes a single container identified by uuid or logical/Docker
-// name, strictly scoped to this runtime's environment (r.suffix).
+// name, strictly scoped to this runtime's environment.
 //
 // Both known bugs documented on ContainerRuntime.Remove are now fixed:
 //
 //  1. Bare-name resolution: identifier is resolved via resolveOwnedContainer,
-//     which tries the suffixed logical-name form (r.containerName(identifier))
-//     before falling back to identifier as given - so a bare name in a
-//     suffixed environment actually matches its real Docker container instead
-//     of silently no-op'ing.
+//     which tries the suffixed logical-name form
+//     (r.resolver.ContainerName(identifier)) before falling back to
+//     identifier as given - so a bare name in a suffixed environment
+//     actually matches its real Docker container instead of silently
+//     no-op'ing.
 //  2. Cross-environment collision: whichever identifier form resolves to a
-//     real container, its labels.SuffixLabel is compared EXACTLY against
-//     r.suffix before removal proceeds - including when r.suffix is "" (empty
-//     is a real value to match, not a wildcard, consistent with
-//     ListContainers above). A container found under a different suffix is
+//     real container, its ownership is checked via r.resolver.Owns before
+//     removal proceeds. A container found under a different environment is
 //     treated as "not found in this environment": Remove returns nil without
 //     touching it, the same idempotent-success semantics as a genuinely
 //     absent container (internal/jobs/drop_smerd.go's dropContainerJob relies
 //     on Remove never erroring for an already-gone container).
-func (r *labelBasedRuntime) Remove(ctx context.Context, identifier string) error {
+func (r *dockerRuntime) Remove(ctx context.Context, identifier string) error {
 	resolvedID, found, err := r.resolveOwnedContainer(ctx, identifier)
 	if err != nil {
 		return err
@@ -195,11 +223,11 @@ func (r *labelBasedRuntime) Remove(ctx context.Context, identifier string) error
 // Rename renames a container identified by uuid or logical/Docker name to
 // newName, using the same resolveOwnedContainer resolution/ownership check as
 // Remove: a bare logical name is resolved via the suffixed form first, and a
-// container found under a different environment's suffix (or not found at
-// all) is treated as "nothing to rename" - idempotent success, not an error.
-// newName is itself passed through containerName so the renamed container
-// keeps carrying this environment's suffix.
-func (r *labelBasedRuntime) Rename(ctx context.Context, identifier, newName string) error {
+// container found under a different environment is treated as "nothing to
+// rename" - idempotent success, not an error. newName is itself passed
+// through the resolver's ContainerName so the renamed container keeps
+// carrying this environment's scoping.
+func (r *dockerRuntime) Rename(ctx context.Context, identifier, newName string) error {
 	resolvedID, found, err := r.resolveOwnedContainer(ctx, identifier)
 	if err != nil {
 		return err
@@ -209,7 +237,7 @@ func (r *labelBasedRuntime) Rename(ctx context.Context, identifier, newName stri
 		return nil
 	}
 
-	err = r.cli.ContainerRename(ctx, resolvedID, r.containerName(newName))
+	err = r.cli.ContainerRename(ctx, resolvedID, r.resolver.ContainerName(newName))
 	if err != nil {
 		if strings.Contains(err.Error(), docker.NoSuchContainerError) {
 			return nil
@@ -222,16 +250,16 @@ func (r *labelBasedRuntime) Rename(ctx context.Context, identifier, newName stri
 }
 
 // IsContainerRunning reports whether the container identified by uuid or
-// logical/Docker name is running, using the same resolveOwnedContainer
+// logical/Docker name is running, using the same resolveOwnedContainerInfo
 // resolution/ownership check as Remove/Rename: a container that doesn't
 // exist under either identifier form, or that belongs to a different
-// environment's suffix, is reported as (false, false, nil) - not an error.
-// Reuses the InspectResponse resolveOwnedContainer already fetched to
-// determine ownership, rather than inspecting a second time by ID - the fake
-// Docker API in unit tests (and potentially a real one) only knows the
-// identifier forms actually passed in, not necessarily the resolved ID as a
-// distinct lookup key.
-func (r *labelBasedRuntime) IsContainerRunning(ctx context.Context, identifier string) (bool, bool, error) {
+// environment, is reported as (false, false, nil) - not an error. Reuses the
+// InspectResponse resolveOwnedContainerInfo already fetched to determine
+// ownership, rather than inspecting a second time by ID - the fake Docker API
+// in unit tests (and potentially a real one) only knows the identifier forms
+// actually passed in, not necessarily the resolved ID as a distinct lookup
+// key.
+func (r *dockerRuntime) IsContainerRunning(ctx context.Context, identifier string) (bool, bool, error) {
 	info, found, err := r.resolveOwnedContainerInfo(ctx, identifier)
 	if err != nil {
 		return false, false, err
@@ -247,13 +275,13 @@ func (r *labelBasedRuntime) IsContainerRunning(ctx context.Context, identifier s
 // Inspect returns the container identified by uuid or logical/Docker name,
 // using the same resolveOwnedContainerInfo resolution/ownership check as
 // Remove/Rename/IsContainerRunning: a container that doesn't exist under
-// either identifier form, or that belongs to a different environment's
-// suffix, is reported as (zero value, false, nil) - not an error. The
-// returned InspectResponse's Name is rewritten from the real Docker name back
-// to the virtual/logical name (see virtualName), mirroring how
+// either identifier form, or that belongs to a different environment, is
+// reported as (zero value, false, nil) - not an error. The returned
+// InspectResponse's Name is rewritten from the real Docker name back to the
+// virtual/logical name (see nameResolver.VirtualContainerName), mirroring how
 // ListContainers rewrites each container.Summary's Names - callers of
 // ContainerRuntime never see a suffixed name.
-func (r *labelBasedRuntime) Inspect(ctx context.Context, identifier string) (container.InspectResponse, bool, error) {
+func (r *dockerRuntime) Inspect(ctx context.Context, identifier string) (container.InspectResponse, bool, error) {
 	info, found, err := r.resolveOwnedContainerInfo(ctx, identifier)
 	if err != nil {
 		return container.InspectResponse{}, false, err
@@ -263,7 +291,7 @@ func (r *labelBasedRuntime) Inspect(ctx context.Context, identifier string) (con
 		return container.InspectResponse{}, false, nil
 	}
 
-	info.Name = r.virtualName(info.Name)
+	info.Name = r.resolver.VirtualContainerName(info.Name)
 
 	return info, true, nil
 }
@@ -271,10 +299,10 @@ func (r *labelBasedRuntime) Inspect(ctx context.Context, identifier string) (con
 // Stop stops a container identified by uuid or logical/Docker name, using the
 // same resolveOwnedContainer resolution/ownership check as Remove/Rename: a
 // container that doesn't exist under either identifier form, or that belongs
-// to a different environment's suffix, is treated as "nothing to stop" -
-// idempotent success, not an error - the same convention Remove/Rename
-// established for this codebase.
-func (r *labelBasedRuntime) Stop(ctx context.Context, identifier string) error {
+// to a different environment, is treated as "nothing to stop" - idempotent
+// success, not an error - the same convention Remove/Rename established for
+// this codebase.
+func (r *dockerRuntime) Stop(ctx context.Context, identifier string) error {
 	resolvedID, found, err := r.resolveOwnedContainer(ctx, identifier)
 	if err != nil {
 		return err
@@ -301,9 +329,9 @@ func (r *labelBasedRuntime) Stop(ctx context.Context, identifier string) error {
 // Restart restarts a container identified by uuid or logical/Docker name,
 // using the same resolveOwnedContainer resolution/ownership check as
 // Stop/Remove/Rename: a container that doesn't exist under either identifier
-// form, or that belongs to a different environment's suffix, is treated as
-// "nothing to restart" - idempotent success, not an error.
-func (r *labelBasedRuntime) Restart(ctx context.Context, identifier string) error {
+// form, or that belongs to a different environment, is treated as "nothing
+// to restart" - idempotent success, not an error.
+func (r *dockerRuntime) Restart(ctx context.Context, identifier string) error {
 	resolvedID, found, err := r.resolveOwnedContainer(ctx, identifier)
 	if err != nil {
 		return err
@@ -331,10 +359,10 @@ func (r *labelBasedRuntime) Restart(ctx context.Context, identifier string) erro
 // logical/Docker name, using the same resolveOwnedContainerInfo
 // resolution/ownership check as Remove/Rename/IsContainerRunning/Inspect.
 // Unlike those, a container that doesn't exist under either identifier form,
-// or that belongs to a different environment's suffix, is a real error here
-// - there is no sensible zero-value "success" for stats of a container that
-// isn't there.
-func (r *labelBasedRuntime) Stats(ctx context.Context, identifier string) (domain.ContainerStats, error) {
+// or that belongs to a different environment, is a real error here - there
+// is no sensible zero-value "success" for stats of a container that isn't
+// there.
+func (r *dockerRuntime) Stats(ctx context.Context, identifier string) (domain.ContainerStats, error) {
 	info, found, err := r.resolveOwnedContainerInfo(ctx, identifier)
 	if err != nil {
 		return domain.ContainerStats{}, err
@@ -358,13 +386,13 @@ func (r *labelBasedRuntime) Stats(ctx context.Context, identifier string) (domai
 // container as idempotent success - and like Stats, there is no sensible
 // zero-value "success" for exec output against a container that isn't
 // there, so a container that doesn't exist under either identifier form, or
-// belongs to a different environment's suffix, is a real error here.
+// belongs to a different environment, is a real error here.
 //
 // Reimplements docker.Docker.Exec's ContainerExecCreate/ContainerExecAttach
 // sequence directly against r.cli, rather than delegating to docker.Docker -
 // the same choice Stop/Restart/Remove/Rename already made (they call r.cli
 // directly instead of going through docker.Docker's corresponding method).
-func (r *labelBasedRuntime) Exec(
+func (r *dockerRuntime) Exec(
 	ctx context.Context,
 	containerID string,
 	cfg container.ExecOptions,
@@ -404,13 +432,14 @@ func (r *labelBasedRuntime) Exec(
 }
 
 // CreateNetwork ensures a bridge network exists for the LOGICAL name given,
-// suffixed to this runtime's environment (see networkName) - creating a
-// dedicated network per environment instead of the single "verv" network
-// every environment used to share (docs/container_runtimes/interface_design.md).
-// Idempotent: dockerutils.CreateNetwork itself no-ops if the (suffixed)
-// network already exists.
-func (r *labelBasedRuntime) CreateNetwork(ctx context.Context, name string) error {
-	err := dockerutils.CreateNetwork(ctx, r.cli, r.networkName(name))
+// scoped to this runtime's environment (see nameResolver.NetworkName) -
+// creating a dedicated network per environment instead of the single "verv"
+// network every environment used to share
+// (docs/container_runtimes/interface_design.md). Idempotent:
+// dockerutils.CreateNetwork itself no-ops if the (scoped) network already
+// exists.
+func (r *dockerRuntime) CreateNetwork(ctx context.Context, name string) error {
+	err := dockerutils.CreateNetwork(ctx, r.cli, r.resolver.NetworkName(name))
 	if err != nil {
 		return rerrors.Wrap(err, "error creating network")
 	}
@@ -421,13 +450,14 @@ func (r *labelBasedRuntime) CreateNetwork(ctx context.Context, name string) erro
 // ConnectToNetwork connects a container to a network, both scoped to this
 // runtime's environment: the container identifier is resolved via
 // resolveOwnedContainer (same ownership check as Stop/Restart/Remove/Rename),
-// and the network name is suffixed via networkName - mirroring CreateNetwork
-// - before either is handed to dockerutils. Unlike Stop/Restart/Remove/Rename
-// - which treat a missing/foreign container as idempotent success - and like
-// Exec/Stats, a container not found under either identifier form, or
-// belonging to a different environment, is a real error here: there's no
-// sensible "connected" outcome for a container that isn't there.
-func (r *labelBasedRuntime) ConnectToNetwork(ctx context.Context, req ConnectToNetworkRequest) error {
+// and the network name is scoped via r.resolver.NetworkName - mirroring
+// CreateNetwork - before either is handed to dockerutils. Unlike
+// Stop/Restart/Remove/Rename - which treat a missing/foreign container as
+// idempotent success - and like Exec/Stats, a container not found under
+// either identifier form, or belonging to a different environment, is a real
+// error here: there's no sensible "connected" outcome for a container that
+// isn't there.
+func (r *dockerRuntime) ConnectToNetwork(ctx context.Context, req ConnectToNetworkRequest) error {
 	resolvedID, found, err := r.resolveOwnedContainer(ctx, req.ContainerID)
 	if err != nil {
 		return err
@@ -438,7 +468,7 @@ func (r *labelBasedRuntime) ConnectToNetwork(ctx context.Context, req ConnectToN
 	}
 
 	connectReq := dockerutils.ConnectToNetworkRequest{
-		NetworkName: r.networkName(req.NetworkName),
+		NetworkName: r.resolver.NetworkName(req.NetworkName),
 		ContId:      resolvedID,
 		Aliases:     req.Aliases,
 	}
@@ -453,10 +483,11 @@ func (r *labelBasedRuntime) ConnectToNetwork(ctx context.Context, req ConnectToN
 
 // DisconnectFromNetworks disconnects a container from each named network,
 // both scoped to this runtime's environment - same resolution/ownership
-// check as ConnectToNetwork, and the same networkName suffixing applied to
-// every entry in networks. Same error-not-idempotent-success reasoning as
-// ConnectToNetwork for a container not found under either identifier form.
-func (r *labelBasedRuntime) DisconnectFromNetworks(ctx context.Context, containerID string, networks []string) error {
+// check as ConnectToNetwork, and the same r.resolver.NetworkName scoping
+// applied to every entry in networks. Same error-not-idempotent-success
+// reasoning as ConnectToNetwork for a container not found under either
+// identifier form.
+func (r *dockerRuntime) DisconnectFromNetworks(ctx context.Context, containerID string, networks []string) error {
 	resolvedID, found, err := r.resolveOwnedContainer(ctx, containerID)
 	if err != nil {
 		return err
@@ -467,7 +498,7 @@ func (r *labelBasedRuntime) DisconnectFromNetworks(ctx context.Context, containe
 	}
 
 	for _, n := range networks {
-		err = r.cli.NetworkDisconnect(ctx, r.networkName(n), resolvedID, false)
+		err = r.cli.NetworkDisconnect(ctx, r.resolver.NetworkName(n), resolvedID, false)
 		if err != nil {
 			if strings.Contains(err.Error(), docker.NoSuchContainerError) {
 				continue
@@ -496,19 +527,18 @@ func asciiSymbolsOnly(in []byte) []byte {
 	return cleanBuff.Bytes()
 }
 
-// resolveOwnedContainer inspects identifier - trying the suffixed logical
-// name first (r.containerName(identifier)), then identifier as given (covers
-// real Docker UUIDs, which must never be suffix-mangled, and any
-// already-correct raw name) - and returns the real container ID if and only
-// if a container was found AND its labels.SuffixLabel exactly equals
-// r.suffix.
+// resolveOwnedContainer inspects identifier - trying the resolver's scoped
+// logical name first (r.resolver.ContainerName(identifier)), then identifier
+// as given (covers real Docker UUIDs, which must never be name-mangled, and
+// any already-correct raw name) - and returns the real container ID if and
+// only if a container was found AND r.resolver.Owns its labels.
 //
 // found is false, with no error, in two cases that both mean "nothing for
 // Remove to do": no container exists under either identifier form, or a
 // container was found but belongs to a different environment (a real,
-// suffix-labeled container that just isn't r's to remove). Only an
-// unexpected inspect failure (Docker unreachable, etc.) is surfaced as err.
-func (r *labelBasedRuntime) resolveOwnedContainer(
+// labeled container that just isn't r's to remove). Only an unexpected
+// inspect failure (Docker unreachable, etc.) is surfaced as err.
+func (r *dockerRuntime) resolveOwnedContainer(
 	ctx context.Context,
 	identifier string,
 ) (id string, found bool, err error) {
@@ -524,11 +554,11 @@ func (r *labelBasedRuntime) resolveOwnedContainer(
 // additionally returning the full InspectResponse so callers that need more
 // than the ID (IsContainerRunning's State) don't have to inspect the
 // container a second time under a different identifier form.
-func (r *labelBasedRuntime) resolveOwnedContainerInfo(
+func (r *dockerRuntime) resolveOwnedContainerInfo(
 	ctx context.Context,
 	identifier string,
 ) (container.InspectResponse, bool, error) {
-	for _, candidate := range r.candidateNames(identifier) {
+	for _, candidate := range r.resolver.CandidateNames(identifier) {
 		info, inspectErr := r.cli.ContainerInspect(ctx, candidate)
 		if inspectErr != nil {
 			if strings.Contains(inspectErr.Error(), docker.NoSuchContainerError) {
@@ -538,13 +568,13 @@ func (r *labelBasedRuntime) resolveOwnedContainerInfo(
 			return container.InspectResponse{}, false, rerrors.Wrap(inspectErr, "error inspecting container")
 		}
 
-		var suffix string
+		var containerLabels map[string]string
 
 		if info.Config != nil {
-			suffix = info.Config.Labels[labels.SuffixLabel]
+			containerLabels = info.Config.Labels
 		}
 
-		if suffix != r.suffix {
+		if !r.resolver.Owns(containerLabels) {
 			return container.InspectResponse{}, false, nil
 		}
 
@@ -552,72 +582,4 @@ func (r *labelBasedRuntime) resolveOwnedContainerInfo(
 	}
 
 	return container.InspectResponse{}, false, nil
-}
-
-// candidateNames returns the identifier forms resolveOwnedContainer should
-// try, in order: the suffixed logical name first, then identifier itself.
-// When r.suffix is empty, containerName(identifier) already equals
-// identifier, so the second attempt would be redundant - it's omitted.
-func (r *labelBasedRuntime) candidateNames(identifier string) []string {
-	suffixed := r.containerName(identifier)
-	if suffixed == identifier {
-		return []string{identifier}
-	}
-
-	return []string{suffixed, identifier}
-}
-
-// containerName resolves the logical smerd name into the actual Docker
-// container name for this environment: the bare name when the suffix is empty,
-// "<name>_<suffix>" otherwise.
-func (r *labelBasedRuntime) containerName(name string) string {
-	if r.suffix == "" {
-		return name
-	}
-
-	return name + nameSuffixSeparator + r.suffix
-}
-
-// networkName resolves a logical network name into the actual Docker network
-// name for this environment - byte-for-byte the same suffixing rule
-// containerName applies to container names (see nameSuffixSeparator): the
-// bare name when the suffix is empty, "<name>_<suffix>" otherwise. Kept as
-// its own named method (rather than callers using containerName directly)
-// so a future divergence between container- and network-naming rules doesn't
-// require re-auditing every call site.
-func (r *labelBasedRuntime) networkName(name string) string {
-	return r.containerName(name)
-}
-
-// virtualName reverses containerName: strips this runtime's suffix from a
-// real Docker name, recovering the virtual/logical name ContainerCreate was
-// called with. Delegates to the package-level StripEnvironmentSuffix so the
-// "<name>_<suffix>" convention is defined in exactly one place - see that
-// function's doc comment for why it's exported even though this is its only
-// caller today.
-func (r *labelBasedRuntime) virtualName(dockerName string) string {
-	return StripEnvironmentSuffix(dockerName, r.suffix)
-}
-
-// StripEnvironmentSuffix reverses the "<name>_<suffix>" naming convention
-// labelBasedRuntime.containerName applies (byte for byte - see
-// nameSuffixSeparator): given a real Docker name and the suffix it was
-// created with, it returns the virtual/logical name. An empty suffix or a
-// name that doesn't end in "_<suffix>" is returned unchanged.
-//
-// Exported (rather than folded into virtualName) because, historically, not
-// every reader of a Docker container name went through a resolved
-// ContainerRuntime - container_manager.InspectSmerd used to call
-// client.APIClient.ContainerInspect directly and recover the suffix from the
-// container's own labels.SuffixLabel. InspectSmerd itself has since been
-// rewired onto ContainerRuntime.Inspect (which calls this via virtualName),
-// so virtualName is this function's only caller today - kept exported since
-// other packages/tests may still reference it directly (see
-// docs/container_runtimes/roadmap.md).
-func StripEnvironmentSuffix(dockerName, suffix string) string {
-	if suffix == "" {
-		return dockerName
-	}
-
-	return strings.TrimSuffix(dockerName, nameSuffixSeparator+suffix)
 }

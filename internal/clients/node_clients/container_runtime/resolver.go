@@ -69,15 +69,7 @@ func (r *resolver) Runtime(ctx context.Context, environment string) (ContainerRu
 			"environment '%s' is bound to docker host '%s'", env.Name, env.DockerHost)
 	}
 
-	common := commonRuntime{
-		cli: r.cli,
-	}
-
-	runtime := &labelBasedRuntime{
-		commonRuntime: common,
-		suffix:        env.Suffix,
-		bakedLabels:   r.bakedLabels,
-	}
+	runtime := newLabelBasedRuntime(r.cli, env.Suffix, r.bakedLabels)
 
 	return runtime, nil
 }

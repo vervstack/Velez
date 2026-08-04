@@ -18,8 +18,8 @@ import (
 //
 // CreateNetwork/ConnectToNetwork/DisconnectFromNetworks are NOT here despite
 // being backend-agnostic in principle: docs/container_runtimes/roadmap.md's
-// Stage 4 design tied them to labelBasedRuntime instead, since a network name
-// needs the same suffix translation container names get.
+// Stage 4 design tied them to dockerRuntime instead, since a network name
+// needs the same name-resolution translation container names get.
 type commonRuntime struct {
 	cli client.APIClient
 }

@@ -12,7 +12,8 @@
 // The full interface_design.md target shape is now implemented: ContainerCreate,
 // ListContainers, Remove, Rename, IsContainerRunning, Inspect, Stop, Restart,
 // Stats, Exec, CreateNetwork, ConnectToNetwork, DisconnectFromNetworks on
-// labelBasedRuntime, plus PullImage and ListOccupiedPorts on commonRuntime
+// dockerRuntime (delegating every name/label/ownership decision to a
+// nameResolver), plus PullImage and ListOccupiedPorts on commonRuntime
 // (backend-agnostic, no suffix logic - see roadmap.md's Stage 5).
 package container_runtime
 

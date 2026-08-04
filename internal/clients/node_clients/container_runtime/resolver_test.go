@@ -55,14 +55,20 @@ func TestResolver_ResolvesLabelBasedRuntimeWithEnvironmentSuffix(t *testing.T) {
 	stage, err := resolver.Runtime(context.Background(), testStageEnv)
 	require.NoError(t, err)
 
-	prodRuntime, ok := prod.(*labelBasedRuntime)
+	prodRuntime, ok := prod.(*dockerRuntime)
 	require.True(t, ok)
 
-	stageRuntime, ok := stage.(*labelBasedRuntime)
+	stageRuntime, ok := stage.(*dockerRuntime)
 	require.True(t, ok)
 
-	require.Equal(t, testProdSuffix, prodRuntime.suffix)
-	require.Equal(t, testStageEnv, stageRuntime.suffix)
+	prodResolver, ok := prodRuntime.resolver.(*labelSuffixResolver)
+	require.True(t, ok)
+
+	stageResolver, ok := stageRuntime.resolver.(*labelSuffixResolver)
+	require.True(t, ok)
+
+	require.Equal(t, testProdSuffix, prodResolver.suffix)
+	require.Equal(t, testStageEnv, stageResolver.suffix)
 }
 
 // An empty environment means the default one - the backward-compatibility path
@@ -75,9 +81,13 @@ func TestResolver_EmptyEnvironmentResolvesDefault(t *testing.T) {
 	resolved, err := NewResolver(nil, nil, provider).Runtime(context.Background(), "")
 	require.NoError(t, err)
 
-	runtime, ok := resolved.(*labelBasedRuntime)
+	runtime, ok := resolved.(*dockerRuntime)
 	require.True(t, ok)
-	require.Equal(t, testProdSuffix, runtime.suffix)
+
+	resolver, ok := runtime.resolver.(*labelSuffixResolver)
+	require.True(t, ok)
+
+	require.Equal(t, testProdSuffix, resolver.suffix)
 }
 
 // Best-effort default resolution: with no environments storage at all (boot
@@ -87,9 +97,13 @@ func TestResolver_NoProviderStillServesDefaultEnvironment(t *testing.T) {
 	resolved, err := NewResolver(nil, nil, nil).Runtime(context.Background(), "")
 	require.NoError(t, err)
 
-	runtime, ok := resolved.(*labelBasedRuntime)
+	runtime, ok := resolved.(*dockerRuntime)
 	require.True(t, ok)
-	require.Empty(t, runtime.suffix)
+
+	resolver, ok := runtime.resolver.(*labelSuffixResolver)
+	require.True(t, ok)
+
+	require.Empty(t, resolver.suffix)
 }
 
 // An explicitly named environment is strict: unknown never silently falls back
@@ -153,12 +167,18 @@ func TestResolver_RereadsStorageOnEveryCall(t *testing.T) {
 	after, err := resolver.Runtime(ctx, testStageEnv)
 	require.NoError(t, err)
 
-	beforeRuntime, ok := before.(*labelBasedRuntime)
+	beforeRuntime, ok := before.(*dockerRuntime)
 	require.True(t, ok)
 
-	afterRuntime, ok := after.(*labelBasedRuntime)
+	afterRuntime, ok := after.(*dockerRuntime)
 	require.True(t, ok)
 
-	require.Equal(t, testStageEnv, beforeRuntime.suffix)
-	require.Equal(t, newSuffix, afterRuntime.suffix)
+	beforeResolver, ok := beforeRuntime.resolver.(*labelSuffixResolver)
+	require.True(t, ok)
+
+	afterResolver, ok := afterRuntime.resolver.(*labelSuffixResolver)
+	require.True(t, ok)
+
+	require.Equal(t, testStageEnv, beforeResolver.suffix)
+	require.Equal(t, newSuffix, afterResolver.suffix)
 }

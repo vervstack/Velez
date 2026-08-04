@@ -18,9 +18,10 @@ import (
 )
 
 const (
-	testSmerdName   = "mysvc"
-	testSuffix      = "stage"
-	testExecEchoCmd = "echo hello"
+	testSmerdName          = "mysvc"
+	testSuffix             = "stage"
+	testExecEchoCmd        = "echo hello"
+	testBakedLabelTeamCore = "team=core"
 )
 
 // fakeCreateAPI is a minimal hand-written fake for the single client.APIClient
@@ -57,14 +58,18 @@ func (f *fakeCreateAPI) ContainerCreate(
 	return f.resp, f.err
 }
 
-func newLabelRuntime(api client.APIClient, suffix string, bakedLabels []string) *labelBasedRuntime {
+func newLabelRuntime(api client.APIClient, suffix string, bakedLabels []string) *dockerRuntime {
 	common := commonRuntime{
 		cli: api,
 	}
 
-	return &labelBasedRuntime{
+	resolver := &labelSuffixResolver{
+		suffix: suffix,
+	}
+
+	return &dockerRuntime{
 		commonRuntime: common,
-		suffix:        suffix,
+		resolver:      resolver,
 		bakedLabels:   bakedLabels,
 	}
 }
@@ -84,6 +89,33 @@ func newCreateRequest(name string) ContainerCreateRequest {
 		Platform:         platform,
 		ContainerName:    name,
 	}
+}
+
+// newLabelBasedRuntime must build a dockerRuntime backed by a
+// labelSuffixResolver carrying the given suffix - the production constructor
+// resolver.go's label-based branch calls.
+func TestNewLabelBasedRuntime_BuildsLabelSuffixResolverBackedRuntime(t *testing.T) {
+	api := &fakeCreateAPI{}
+
+	runtime := newLabelBasedRuntime(api, testSuffix, []string{testBakedLabelTeamCore})
+
+	resolver, ok := runtime.resolver.(*labelSuffixResolver)
+	require.True(t, ok)
+	require.Equal(t, testSuffix, resolver.suffix)
+	require.Equal(t, []string{testBakedLabelTeamCore}, runtime.bakedLabels)
+}
+
+// newDirectRuntime must build a dockerRuntime backed by a directResolver -
+// tier 2's constructor, not yet wired into production (resolver.go still
+// returns ErrDedicatedRuntimeNotImplemented for a dedicated environment).
+func TestNewDirectRuntime_BuildsDirectResolverBackedRuntime(t *testing.T) {
+	api := &fakeCreateAPI{}
+
+	runtime := newDirectRuntime(api, []string{testBakedLabelTeamCore})
+
+	_, ok := runtime.resolver.(*directResolver)
+	require.True(t, ok)
+	require.Equal(t, []string{testBakedLabelTeamCore}, runtime.bakedLabels)
 }
 
 // The pre-multi-environment default: an empty suffix leaves the Docker
@@ -118,7 +150,7 @@ func TestLabelBasedRuntime_NonEmptySuffixSuffixesName(t *testing.T) {
 // both "name=value" and bare "name" form.
 func TestLabelBasedRuntime_StampsVelezAndBakedLabels(t *testing.T) {
 	api := &fakeCreateAPI{}
-	runtime := newLabelRuntime(api, testSuffix, []string{"team=core", "bare"})
+	runtime := newLabelRuntime(api, testSuffix, []string{testBakedLabelTeamCore, "bare"})
 
 	req := newCreateRequest(testSmerdName)
 
@@ -446,7 +478,7 @@ func TestLabelBasedRuntime_Remove_ContainerRemoveNoSuchContainer_IsIdempotentSuc
 // untouched: they back the separate ContainerCreate/ListContainers/Remove
 // families, deferred to a later pass.
 
-// createRealContainer builds a labelBasedRuntime for suffix/bakedLabels and
+// createRealContainer builds a dockerRuntime for suffix/bakedLabels and
 // creates a real container through that runtime's own already-tested
 // ContainerCreate (reusing already-verified production code as the fixture
 // path, rather than a second hand-rolled create call), using
@@ -501,7 +533,7 @@ func TestLabelBasedRuntime_Rename_BareNameResolvesAndSuffixesNewName(t *testing.
 	err := runtime.Rename(context.Background(), name, newName)
 	require.NoError(t, err)
 
-	inspected, err := api.ContainerInspect(context.Background(), runtime.containerName(newName))
+	inspected, err := api.ContainerInspect(context.Background(), runtime.resolver.ContainerName(newName))
 	require.NoError(t, err, "expected the renamed, suffixed container to exist on the daemon")
 	require.Equal(t, testSuffix, inspected.Config.Labels[labels.SuffixLabel])
 }
@@ -523,7 +555,7 @@ func TestLabelBasedRuntime_Rename_UuidFallsBackToRawIdentifier(t *testing.T) {
 	err := runtime.Rename(context.Background(), id, newName)
 	require.NoError(t, err)
 
-	inspected, err := api.ContainerInspect(context.Background(), runtime.containerName(newName))
+	inspected, err := api.ContainerInspect(context.Background(), runtime.resolver.ContainerName(newName))
 	require.NoError(t, err)
 	require.Equal(t, id, inspected.ID)
 }
@@ -550,7 +582,7 @@ func TestLabelBasedRuntime_Rename_SuffixMismatch_TreatedAsNotFound(t *testing.T)
 
 	inspected, err := api.ContainerInspect(context.Background(), id)
 	require.NoError(t, err)
-	require.Equal(t, "/"+otherRuntime.containerName(name), inspected.Name,
+	require.Equal(t, "/"+otherRuntime.resolver.ContainerName(name), inspected.Name,
 		"the container's real Docker name must be unchanged")
 }
 

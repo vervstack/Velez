@@ -29,9 +29,11 @@ func (p *pluginService) ListPlugins(ctx context.Context) (*pb.ListPlugins_Respon
 
 	for _, row := range rows {
 		plugin := &pb.Plugin{
-			Type:        pb.VervPluginType(pb.VervPluginType_value[row.Name]),
-			State:       row.State,
-			ServiceName: row.ServiceName,
+			Type:         pb.VervPluginType(pb.VervPluginType_value[row.Name]),
+			State:        row.State,
+			ServiceName:  row.ServiceName,
+			NodeIds:      row.NodeIds,
+			MasterNodeId: row.MasterNodeId,
 		}
 
 		active = append(active, plugin)

@@ -5,7 +5,7 @@ import cls from '@/pages/controlplane/ControlPlanePage.module.css';
 import {ListNodesResponse, NodeStatus} from "@/app/api/velez";
 
 import StatCard, {Level} from '@/components/base/StatCard';
-import NodeHealthList from '@/widgets/controlplane/NodeHealthList';
+import NodesPanel from '@/widgets/controlplane/NodesPanel';
 import PluginMatrix from '@/widgets/controlplane/PluginMatrix';
 import SkeletonNodeCard from '@/components/node/SkeletonNodeCard';
 
@@ -27,6 +27,7 @@ export default function ControlPlanePage() {
 
             <NodeList
                 nodesQuery={nodesQuery}
+                pluginsQuery={pluginsQuery}
             />
 
             <PluginsList
@@ -76,9 +77,10 @@ function StatsGrid({nodesQuery}: StatsGridProps) {
 
 interface NodeListProps {
     nodesQuery: UseQueryResult<void | ListNodesResponse, Error>;
+    pluginsQuery: UseQueryResult<void | VervPlugin[], Error>;
 }
 
-function NodeList({nodesQuery}: NodeListProps) {
+function NodeList({nodesQuery, pluginsQuery}: NodeListProps) {
     function handleShell() {
         alert('shell is not available yet');
     }
@@ -98,8 +100,9 @@ function NodeList({nodesQuery}: NodeListProps) {
     }
 
     return (
-        <NodeHealthList
+        <NodesPanel
             nodes={nodesQuery.data?.nodes || []}
+            plugins={pluginsQuery.data || []}
             onShell={handleShell}
             onDrain={handleDrain}
         />

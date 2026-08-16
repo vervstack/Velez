@@ -519,6 +519,8 @@ type Plugin struct {
 	Type          VervPluginType         `protobuf:"varint,1,opt,name=type,proto3,enum=velez_api.VervPluginType" json:"type,omitempty"`
 	State         VervPlugin_State       `protobuf:"varint,2,opt,name=state,proto3,enum=velez_api.VervPlugin_State" json:"state,omitempty"`
 	ServiceName   string                 `protobuf:"bytes,3,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	NodeIds       []int64                `protobuf:"varint,4,rep,packed,name=node_ids,json=nodeIds,proto3" json:"node_ids,omitempty"`
+	MasterNodeId  *int64                 `protobuf:"varint,5,opt,name=master_node_id,json=masterNodeId,proto3,oneof" json:"master_node_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -572,6 +574,20 @@ func (x *Plugin) GetServiceName() string {
 		return x.ServiceName
 	}
 	return ""
+}
+
+func (x *Plugin) GetNodeIds() []int64 {
+	if x != nil {
+		return x.NodeIds
+	}
+	return nil
+}
+
+func (x *Plugin) GetMasterNodeId() int64 {
+	if x != nil && x.MasterNodeId != nil {
+		return *x.MasterNodeId
+	}
+	return 0
 }
 
 type ListPlugins struct {
@@ -1909,11 +1925,14 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x1aO\n" +
 	"\bResponse\x12-\n" +
 	"\x05nodes\x18\x01 \x03(\v2\x17.velez_api.NodeBaseInfoR\x05nodes\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x04R\x05total\"\x8d\x01\n" +
+	"\x05total\x18\x02 \x01(\x04R\x05total\"\xe6\x01\n" +
 	"\x06Plugin\x12-\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x19.velez_api.VervPluginTypeR\x04type\x121\n" +
 	"\x05state\x18\x02 \x01(\x0e2\x1b.velez_api.VervPlugin.StateR\x05state\x12!\n" +
-	"\fservice_name\x18\x03 \x01(\tR\vserviceName\"Q\n" +
+	"\fservice_name\x18\x03 \x01(\tR\vserviceName\x12\x19\n" +
+	"\bnode_ids\x18\x04 \x03(\x03R\anodeIds\x12)\n" +
+	"\x0emaster_node_id\x18\x05 \x01(\x03H\x00R\fmasterNodeId\x88\x01\x01B\x11\n" +
+	"\x0f_master_node_id\"Q\n" +
 	"\vListPlugins\x1a\t\n" +
 	"\aRequest\x1a7\n" +
 	"\bResponse\x12+\n" +
@@ -2086,6 +2105,7 @@ func file_control_plane_api_proto_init() {
 		(*EnableHeadscaleServer_DeployConfig)(nil),
 		(*EnableHeadscaleServer_ExternalConnect)(nil),
 	}
+	file_control_plane_api_proto_msgTypes[8].OneofWrappers = []any{}
 	file_control_plane_api_proto_msgTypes[17].OneofWrappers = []any{
 		(*EnablePlugin_Request_StatefullCluster)(nil),
 		(*EnablePlugin_Request_HeadscaleServer)(nil),

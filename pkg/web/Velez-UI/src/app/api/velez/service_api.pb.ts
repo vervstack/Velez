@@ -140,6 +140,7 @@ export type ServiceBaseInfo = {
 
 export type StopServiceRequest = {
   name?: string;
+  environment?: string;
 };
 
 export type StopServiceResponse = Record<string, never>;
@@ -148,6 +149,7 @@ export type StopService = Record<string, never>;
 
 export type RestartServiceRequest = {
   name?: string;
+  environment?: string;
 };
 
 export type RestartServiceResponse = Record<string, never>;
@@ -157,6 +159,7 @@ export type RestartService = Record<string, never>;
 export type RemoveServiceRequest = {
   name?: string;
   dropRunningInstances?: boolean;
+  environment?: string;
 };
 
 export type RemoveServiceResponse = Record<string, never>;
@@ -165,6 +168,7 @@ export type RemoveService = Record<string, never>;
 
 export type GetServiceMetricsRequest = {
   serviceName?: string;
+  environment?: string;
 };
 
 export type GetServiceMetricsResponse = {

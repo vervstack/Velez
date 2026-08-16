@@ -119,6 +119,8 @@ export type Plugin = {
   type?: VervPluginType;
   state?: VervPluginState;
   serviceName?: string;
+  nodeIds?: string[];
+  masterNodeId?: string;
 };
 
 export type ListPluginsRequest = Record<string, never>;

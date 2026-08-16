@@ -10,4 +10,6 @@ type PluginBaseInfo struct {
 	ServiceId      *int64
 	ServiceName    string
 	DeployStatuses []pb.DeploymentStatus
+	NodeIds        []int64
+	MasterNodeId   *int64
 }

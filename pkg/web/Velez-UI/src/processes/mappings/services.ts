@@ -14,6 +14,8 @@ export function toServices(services: ApiPlugin[]): VervPlugin[] {
     services.map(s => {
         const srv = new VervPlugin(s.type || VervPluginType.unknown_service_type, s.serviceName || "Unspecified")
         srv.state = s.state || VervPluginState.unknown
+        srv.nodeIds = s.nodeIds || []
+        srv.masterNodeId = s.masterNodeId
         out.push(srv)
     })
 

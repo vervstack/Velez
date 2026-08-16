@@ -131,6 +131,7 @@ export type Connection = {
   serviceName?: string;
   targetNetwork?: string;
   aliases?: string[];
+  environment?: string;
 };
 
 export type Paging = {

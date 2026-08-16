@@ -558,6 +558,17 @@
         },
         "serviceName": {
           "type": "string"
+        },
+        "nodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "int64"
+          }
+        },
+        "masterNodeId": {
+          "type": "string",
+          "format": "int64"
         }
       }
     },

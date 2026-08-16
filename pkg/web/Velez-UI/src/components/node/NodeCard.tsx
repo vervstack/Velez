@@ -1,13 +1,16 @@
-import cls from '@/components/node/NodeCard.module.css';
 import cn from 'classnames';
+
+import cls from '@/components/node/NodeCard.module.css';
 import StatusDot from '@/components/base/StatusDot';
 import Badge from '@/components/base/Badge';
 import MiniBar from '@/components/base/MiniBar';
 import IconButton from '@/components/base/IconButton';
 import {NodeBaseInfo, NodeStatus} from "@/app/api/velez";
+import {VervPlugin} from "@/model/services/VervPlugins";
 
 interface NodeCardProps {
     node: NodeBaseInfo;
+    plugins: VervPlugin[];
 
     onShell?: () => void;
     onDrain?: () => void;
@@ -30,7 +33,7 @@ function isMetricAmber(percent: number): boolean {
     return percent > 60 && percent <= 80;
 }
 
-export default function NodeCard({node, onShell, onDrain}: NodeCardProps) {
+export default function NodeCard({node, plugins, onShell, onDrain}: NodeCardProps) {
     const cpuPercent = node.cpuPercent ?? 0;
     const memPercent = node.memPercent ?? 0;
     const servicesCount = Number(node.servicesCount ?? 0);
@@ -86,6 +89,20 @@ export default function NodeCard({node, onShell, onDrain}: NodeCardProps) {
                 <span className={cls.servicesCount}>{servicesCount}</span>
                 <span className={cls.servicesLabel}>services</span>
             </div>
+
+            {plugins.length > 0 && (
+                <div className={cls.pluginsRow}>
+                    {plugins.map(plugin => (
+                        <img
+                            key={plugin.type}
+                            className={cls.pluginIcon}
+                            src={plugin.icon}
+                            title={plugin.title}
+                            alt={plugin.title}
+                        />
+                    ))}
+                </div>
+            )}
 
             <div className={cls.actions}>
                 <IconButton label="shell" title="Not implemented yet" onClick={onShell} disabled/>

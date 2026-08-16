@@ -2,7 +2,8 @@
 SELECT plugins.plugin_type,
        plugins.service_id,
        svc.name                        AS service_name,
-       array_remove(array_agg(depl.status), NULL)::text[] AS statuses
+       array_remove(array_agg(depl.status), NULL)::text[] AS statuses,
+       array_remove(array_agg(DISTINCT depl.node_id), NULL)::int[] AS node_ids
 FROM velez.plugins AS plugins
          LEFT JOIN velez.services AS svc
                    ON svc.id = plugins.service_id

@@ -19,6 +19,9 @@ export class VervPlugin {
 
     state: VervPluginState = VervPluginState.unknown
 
+    nodeIds: string[] = []
+    masterNodeId?: string
+
     constructor(type: VervPluginType, serviceName: string) {
         const serviceMeta = metaByType.get(type);
         this.type = type;

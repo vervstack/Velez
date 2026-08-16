@@ -1,27 +1,9 @@
-import {afterEach, describe, expect, it, vi} from 'vitest';
-import {fireEvent, render, screen, waitFor} from '@testing-library/react';
+import {describe, expect, it, vi} from 'vitest';
+import {render, screen} from '@testing-library/react';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {createElement, ReactNode} from 'react';
 
 import Sidebar from '@/widgets/sidebar/Sidebar';
-import {NodeStatus, VervPluginState, VervPluginType} from '@/app/api/velez';
-import {VervPlugin} from '@/model/services/VervPlugins.tsx';
-
-const statefullPlugin = new VervPlugin(VervPluginType.statefull_pg, 'pg');
-statefullPlugin.state = VervPluginState.running;
-
-vi.mock('@/processes/api/control_plane', () => ({
-    controlPlaneService: {
-        listPlugins: vi.fn(() => Promise.resolve([statefullPlugin])),
-        listNodes: vi.fn(() => Promise.resolve({
-            nodes: [{id: 'node-1', name: 'node-1', addr: '10.0.0.1', status: NodeStatus.NodeStatus_Online}],
-        })),
-    },
-}));
-
-afterEach(() => {
-    vi.restoreAllMocks();
-});
 
 function createWrapper() {
     const queryClient = new QueryClient({defaultOptions: {queries: {retry: false}}});
@@ -32,7 +14,7 @@ function createWrapper() {
 }
 
 describe('Sidebar', () => {
-    it('does not throw when the statefull-mode plugin query resolves after initial render', async () => {
+    it('renders navigation items', () => {
         const Wrapper = createWrapper();
 
         render(
@@ -43,26 +25,7 @@ describe('Sidebar', () => {
             })),
         );
 
-        await waitFor(() => expect(screen.getByText('Nodes')).toBeInTheDocument());
-        expect(screen.getByText('node-1')).toBeInTheDocument();
-    });
-
-    it('navigates to the control plane page when a node row is clicked', async () => {
-        const Wrapper = createWrapper();
-        const onNavChange = vi.fn();
-
-        render(
-            createElement(Wrapper, null, createElement(Sidebar, {
-                collapsed: false,
-                activeNav: 'controlplane',
-                onNavChange,
-            })),
-        );
-
-        await waitFor(() => expect(screen.getByText('node-1')).toBeInTheDocument());
-
-        fireEvent.click(screen.getByText('node-1'));
-
-        expect(onNavChange).toHaveBeenCalledWith('controlplane');
+        expect(screen.getByText('Control Plane')).toBeInTheDocument();
+        expect(screen.getByText('Deployments')).toBeInTheDocument();
     });
 });

@@ -42,6 +42,8 @@ func (p *pluginsStorage) ListPlugins(ctx context.Context) ([]domain.PluginBaseIn
 		}
 
 		plugin.State = calculatePluginState(pluginRow.Statuses)
+		plugin.NodeIds = convertNodeIds(pluginRow.NodeIds)
+		plugin.MasterNodeId = calculateMasterNodeId(pluginRow.PluginType, plugin.NodeIds)
 
 		result = append(result, plugin)
 	}
@@ -89,4 +91,39 @@ func calculatePluginState(statusesArr []string) pb.VervPlugin_State {
 	}
 
 	return pb.VervPlugin_unknown
+}
+
+// convertNodeIds converts the int32 node ids sqlc generates from the
+// Postgres int[] column into the int64 node ids used domain-wide.
+func convertNodeIds(nodeIds []int32) []int64 {
+	if len(nodeIds) == 0 {
+		return nil
+	}
+
+	result := make([]int64, len(nodeIds))
+	for i, nodeId := range nodeIds {
+		result[i] = int64(nodeId)
+	}
+
+	return result
+}
+
+// calculateMasterNodeId reports the primary node for a plugin's running
+// deployment. Only statefull_pg has a notion of a primary today - Postgres
+// has no replica support yet, so this just mirrors its one running
+// deployment's node id. Every other plugin type gets a nil master node id,
+// leaving room for a future real primary/replica mechanism to populate this
+// independently of node_ids.
+func calculateMasterNodeId(pluginType string, nodeIds []int64) *int64 {
+	if pluginType != pb.VervPluginType_name[int32(pb.VervPluginType_statefull_pg)] {
+		return nil
+	}
+
+	if len(nodeIds) == 0 {
+		return nil
+	}
+
+	masterNodeId := nodeIds[0]
+
+	return &masterNodeId
 }

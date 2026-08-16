@@ -1,24 +1,7 @@
 import cls from '@/widgets/sidebar/Sidebar.module.css';
 import cn from 'classnames';
-import StatusDot from '@/components/base/StatusDot';
 import SectionLabel from '@/components/base/SectionLabel';
 import VelezIcon from '@/assets/icons/services/velez.svg';
-import {NodeBaseInfo, NodeStatus} from "@/app/api/velez";
-import SkeletonNodeRow from '@/components/node/SkeletonNodeRow';
-import {IsStatefullModeEnabled, ListNodesQuery} from "@/processes/queries/control_plane.ts";
-
-function mapNodeStatus(status?: NodeStatus): 'online' | 'offline' | 'degraded' | 'stopped' {
-    switch (status) {
-        case NodeStatus.NodeStatus_Online:
-            return 'online';
-        case NodeStatus.NodeStatus_Degraded:
-            return 'degraded';
-        case NodeStatus.NodeStatus_Offline:
-            return 'offline';
-        default:
-            return 'stopped';
-    }
-}
 
 type NavId = 'controlplane' | 'vcn' | 'deployments' | 'apps' | 'search';
 type ToolId = 'secrets' | 'config' | 'logs' | 'settings';
@@ -57,20 +40,6 @@ export default function Sidebar(
         mobileOpen, onCloseMobile
     }: SidebarProps) {
 
-
-    function renderDot(node: NodeBaseInfo) {
-        return (
-            <div key={node.id} className={cls.dotRow} title={node.id}>
-                <StatusDot
-                    status={mapNodeStatus(node.status)}/>
-            </div>
-        );
-    }
-
-
-    const nodesQuery = ListNodesQuery();
-    const isStatefullMode = IsStatefullModeEnabled();
-
     return (
         <>
             <aside className={
@@ -80,26 +49,6 @@ export default function Sidebar(
                 })}>
 
                 <Logo collapsed={collapsed}/>
-                <NodesList
-                    collapsed={collapsed}
-                    activeNav={activeNav}
-                    onNavChange={onNavChange}/>
-
-                {collapsed && isStatefullMode && (
-                    <div className={cls.nodesCollapsed}>
-                        {nodesQuery.isLoading ? (
-                            <>
-                                <div className={cls.skeletonDot}/>
-                                <div className={cls.skeletonDot}/>
-                                <div className={cls.skeletonDot}/>
-                            </>
-                        ) : (
-                            (nodesQuery.data?.nodes || []).map(renderDot)
-                        )}
-                    </div>
-                )}
-
-                {isStatefullMode && <div className={cls.divider}/>}
 
                 {/* Main nav */}
                 <nav className={cls.nav}>
@@ -175,61 +124,6 @@ function Logo({collapsed}: { collapsed: boolean }) {
         </div>
     )
 }
-
-function NodesList(
-    {
-        collapsed, onNavChange,
-    }: SidebarProps) {
-
-    const isStatefullMode = IsStatefullModeEnabled();
-    const nodesQuery = ListNodesQuery();
-
-    if (collapsed || !isStatefullMode) return null;
-
-
-    function renderNode(node: NodeBaseInfo) {
-        function handleClick() {
-            onNavChange('controlplane');
-        }
-
-        return (
-            <div key={node.id} className={cls.nodeRow} onClick={handleClick}>
-                <StatusDot
-                    status={mapNodeStatus(node.status)}/>
-
-                <div className={cls.NodeInfo}>
-                    <div className={cls.nodeId}>
-                        {node.name}
-                    </div>
-
-                    <div className={cls.nodeHost}>{node.addr}</div>
-                </div>
-
-                {
-                    node.status === NodeStatus.NodeStatus_Degraded && (
-                        <span className={cls.degradedMark}>!</span>
-                    )}
-            </div>
-        );
-    }
-
-    return (
-        <div className={cls.NodesSection}>
-            <div className={cls.sectionHeader}>
-                <SectionLabel>Nodes</SectionLabel>
-            </div>
-
-            {!nodesQuery.isLoading ? (nodesQuery.data?.nodes || []).map(renderNode) :
-                <>
-                    <SkeletonNodeRow/>
-                    <SkeletonNodeRow/>
-                    <SkeletonNodeRow/>
-                </>
-            }
-        </div>
-    )
-}
-
 
 interface NavItemProps {
     id: NavId;

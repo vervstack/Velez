@@ -19,3 +19,12 @@ lint:
 
 client:
 	cd pkg/web/Velez-UI && vite
+
+# E2E suite. TestMain (tests/e2e/main_test.go) brings up a disposable
+# Docker-in-Docker daemon, points DOCKER_HOST at it for the run, and tears
+# it down afterwards. Needs a reachable bootstrap Docker daemon (the local
+# socket, or VELEZ_E2E_DOCKER_HOST=tcp://host:port) able to start a
+# privileged container.
+.PHONY: test-e2e
+test-e2e:
+	go test -count=1 -timeout 20m ./tests/e2e/...

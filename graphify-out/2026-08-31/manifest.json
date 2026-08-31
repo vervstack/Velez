@@ -1270,8 +1270,8 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/package.json": {
-    "mtime": 1785492480.0115125,
-    "ast_hash": "abf11a02371d327d52b31a3416b701ff",
+    "mtime": 1788032350.2651815,
+    "ast_hash": "2487935214c6ede2f33ce51c853a2ab8",
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/app/api/velez/control_plane_api.pb.ts": {
@@ -1325,14 +1325,14 @@
     "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/app/router/Router.tsx": {
-    "mtime": 1779003979.6490345,
-    "ast_hash": "a5fda4f46ef7e25e1e5e917f8d88dbf7",
-    "semantic_hash": "a5fda4f46ef7e25e1e5e917f8d88dbf7"
+    "mtime": 1788184117.1098397,
+    "ast_hash": "aaf90fb9207a43453f19828e74f07831",
+    "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/app/router/Routes.ts": {
-    "mtime": 1778131519.3437028,
-    "ast_hash": "8be02618908a34ebc0881821966d1145",
-    "semantic_hash": "8be02618908a34ebc0881821966d1145"
+    "mtime": 1788184108.749561,
+    "ast_hash": "f68550ab6cb07f062abdf7d5e1439928",
+    "semantic_hash": ""
   },
   "pkg/web/Velez-UI/src/app/settings/creds.ts": {
     "mtime": 1767474668.4257793,
@@ -3357,6 +3357,36 @@
   "internal/clients/node_clients/container_runtime/name_resolver.go": {
     "mtime": 1785838754.5605638,
     "ast_hash": "74545422d928f69bf3ea957808ad2e27",
+    "semantic_hash": ""
+  },
+  "pkg/web/Velez-UI/src/app/router/RequireAuth.tsx": {
+    "mtime": 1788184069.1484044,
+    "ast_hash": "630b7827fff0df5521c7e580f4b7e2ce",
+    "semantic_hash": ""
+  },
+  "pkg/web/Velez-UI/src/pages/auth/AuthPage.test.tsx": {
+    "mtime": 1788184236.3026683,
+    "ast_hash": "ccd41ecd34f116aee35fbe57da02ece3",
+    "semantic_hash": ""
+  },
+  "pkg/web/Velez-UI/src/pages/auth/AuthPage.tsx": {
+    "mtime": 1788184230.7589886,
+    "ast_hash": "ce0ac9668050bd452ab1e0f6a2cf7ef0",
+    "semantic_hash": ""
+  },
+  "pkg/web/Velez-UI/src/processes/api/auth.ts": {
+    "mtime": 1788183987.7134974,
+    "ast_hash": "b0430ed9cb9cda580bc36d464daa4ae9",
+    "semantic_hash": ""
+  },
+  "AGENTS.md": {
+    "mtime": 1787744179.2695236,
+    "ast_hash": "2a599babe7222d9883107bfe85e5c896",
+    "semantic_hash": ""
+  },
+  "pkg/web/Velez-UI/src/assets/icons/services/_IconSet.png": {
+    "mtime": 1786821261.662146,
+    "ast_hash": "465453cd903d5171120e6693a7899d34",
     "semantic_hash": ""
   }
 }

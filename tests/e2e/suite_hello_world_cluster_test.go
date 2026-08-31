@@ -350,11 +350,5 @@ func (s *HelloWorldClusterSuite) _prepareSqliteApp() {
 }
 
 func Test_HelloWorldCluster(t *testing.T) {
-	// TODO(dind-harness): _prepareNetwork() removes a not-yet-created docker
-	// network under require.NoError, which only passes when an earlier run
-	// left the network behind. Fails deterministically against the fresh
-	// DinD daemon. Re-enable once the pre-clean tolerates "not found".
-	t.Skip("pending DinD harness network pre-clean fix")
-
 	suite.Run(t, new(HelloWorldClusterSuite))
 }

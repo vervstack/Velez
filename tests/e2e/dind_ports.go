@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/tests/dind"
 )
 
@@ -35,6 +36,13 @@ var (
 	// pattern).
 	//nolint:gochecknoglobals // fixed suite input
 	dindSeedImages = []string{"postgres:18"}
+
+	// dindEnsureNetworks are docker networks the suite's smerds bind by name
+	// that a real node already has but a fresh DinD does not: the "verv"
+	// base network Velez no longer creates itself (env.StartNetwork is
+	// disabled), plus "redsockru" (Test_StatelessMode_Loki).
+	//nolint:gochecknoglobals // fixed suite input
+	dindEnsureNetworks = []string{env.VervNetwork, "redsockru"}
 )
 
 // dindPublishPorts is every container-side port the DinD daemon must

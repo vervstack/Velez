@@ -69,6 +69,13 @@ func runSuite(m *testing.M) int {
 		return 1
 	}
 
+	err = env.EnsureNetwork(ctx, dindEnsureNetworks...)
+	if err != nil {
+		log.Error().Err(err).Msg("error ensuring dind networks")
+
+		return 1
+	}
+
 	code := m.Run()
 
 	if sharedMatreshka != nil {

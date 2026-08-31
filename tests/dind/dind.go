@@ -23,6 +23,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/image"
+	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"go.redsock.ru/rerrors"
@@ -157,6 +158,34 @@ func (e *Env) Seed(ctx context.Context, refs ...string) error {
 		err = ensureImage(ctx, cli, ref)
 		if err != nil {
 			return rerrors.Wrap(err, "error seeding image "+ref)
+		}
+	}
+
+	return nil
+}
+
+// EnsureNetwork creates the named bridge networks in the DinD daemon if
+// they are absent. Velez attaches port-exposing containers to a fixed
+// "verv" network it no longer creates itself (env.StartNetwork is disabled)
+// - a real node already has it, a fresh DinD does not.
+func (e *Env) EnsureNetwork(ctx context.Context, names ...string) error {
+	cli, err := newDockerClient(e.DockerHost)
+	if err != nil {
+		return rerrors.Wrap(err, "error creating dind docker client")
+	}
+
+	defer func() {
+		_ = cli.Close()
+	}()
+
+	createOpts := network.CreateOptions{
+		Driver: "bridge",
+	}
+
+	for _, name := range names {
+		_, err = cli.NetworkCreate(ctx, name, createOpts)
+		if err != nil && !errdefs.IsConflict(err) {
+			return rerrors.Wrap(err, "error creating network "+name)
 		}
 	}
 

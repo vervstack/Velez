@@ -40,6 +40,11 @@ func getSharedMatreshka(t *testing.T) *configuration.SharedInstance {
 			return
 		}
 
+		// Bind matreshka's gRPC port to the fixed DinD-side port the
+		// harness publishes to the bootstrap host (see dind_ports.go /
+		// WithMatreshka), instead of the config default.
+		cfg.Environment.MatreshkaPort = dindMatreshkaPort
+
 		var nc node_clients.NodeClients
 
 		nc, errInitSharedMatreshka = node_clients.NewNodeClients(ctx, cfg)

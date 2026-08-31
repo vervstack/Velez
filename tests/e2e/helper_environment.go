@@ -17,8 +17,11 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/test/bufconn"
 
+	"go.vervstack.ru/matreshka/pkg/matreshka/service_discovery"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/app"
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients/matreshka"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	"go.vervstack.ru/Velez/internal/cluster/configuration"
@@ -81,6 +84,22 @@ func WithMatreshka() TestEnvOpt {
 	return func(a *TestEnvironment) {
 		a.Cfg.Environment.MatreshkaIsEnabled = true
 		a.Ctx = configuration.WithSharedInstance(a.Ctx, getSharedMatreshka(a.t))
+
+		// The shared matreshka container runs inside the DinD, so the
+		// "0.0.0.0:<port>" endpoint SetupMatreshka registers in makosh is
+		// not reachable from this (host) process. Pin verv://matreshka to
+		// the bootstrap-host address the DinD publishes its fixed gRPC bind
+		// on. This override is consumed by makosh.NewServiceDiscovery via
+		// cfg.Overrides.Overrides, so it must be set before Custom.Init.
+		addr, ok := sharedDind.Addr(dindMatreshkaPort)
+		require.True(a.t, ok, "dind did not publish the matreshka port")
+
+		override := &service_discovery.Override{
+			ServiceName: matreshka.ServiceName,
+			Urls:        service_discovery.Urls{addr},
+		}
+
+		a.Cfg.Overrides.Overrides = append(a.Cfg.Overrides.Overrides, override)
 	}
 }
 
@@ -144,6 +163,8 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 
 	initConfig(t, &env)
 
+	pinDindPorts(&env)
+
 	// Post-config pass: re-apply opts that modify loaded config fields (e.g. WithMatreshka, WithState).
 	for _, opt := range opts {
 		opt(&env)
@@ -192,6 +213,15 @@ func requireDindHarness(t *testing.T) {
 		t.Fatal("e2e suite must run under the DinD harness set up by TestMain " +
 			"(tests/e2e/main_test.go); " + dind.EnvActive + " is not set")
 	}
+}
+
+// pinDindPorts constrains Velez's exposable-port pool and matreshka's gRPC
+// bind to the band the DinD daemon publishes to the bootstrap host (see
+// dind_ports.go), so every port a container gets exposed on is reachable
+// from this process via sharedDind.Addr.
+func pinDindPorts(env *TestEnvironment) {
+	env.Cfg.Environment.AvailablePorts = dindAvailablePorts()
+	env.Cfg.Environment.MatreshkaPort = dindMatreshkaPort
 }
 
 func initConfig(t *testing.T, env *TestEnvironment) {

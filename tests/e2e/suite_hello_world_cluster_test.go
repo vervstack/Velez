@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/containerd/errdefs"
 	dockernetwork "github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/stretchr/testify/assert"
@@ -94,8 +95,8 @@ func (s *HelloWorldClusterSuite) _testAPIIsolation() {
 	require.NotEmpty(t, s.pgAppSmerd.GetPorts(), "pg app must have exposed ports")
 	require.NotEmpty(t, s.sqliteAppSmerd.GetPorts(), "sqlite app must have exposed ports")
 
-	pgBase := fmt.Sprintf("http://localhost:%d", s.pgAppSmerd.GetPorts()[0].GetExposedTo())
-	sqliteBase := fmt.Sprintf("http://localhost:%d", s.sqliteAppSmerd.GetPorts()[0].GetExposedTo())
+	pgBase := "http://" + dindHostAddr(t, s.pgAppSmerd.GetPorts()[0].GetExposedTo())
+	sqliteBase := "http://" + dindHostAddr(t, s.sqliteAppSmerd.GetPorts()[0].GetExposedTo())
 
 	s._waitForApp(ctx, t, pgBase)
 	s._waitForApp(ctx, t, sqliteBase)
@@ -258,7 +259,9 @@ func (s *HelloWorldClusterSuite) _prepareNetwork() {
 	s.networkName = GetServiceName(t) + "_net"
 
 	err := s.dockerClient.NetworkRemove(ctx, s.networkName)
-	require.NoError(t, err)
+	if err != nil && !errdefs.IsNotFound(err) {
+		require.NoError(t, err)
+	}
 
 	createNetOpts := dockernetwork.CreateOptions{
 		Driver: "bridge",
@@ -275,7 +278,9 @@ func (s *HelloWorldClusterSuite) TeardownTest() {
 	ctx := t.Context()
 
 	err := s.dockerClient.NetworkRemove(ctx, s.networkName)
-	assert.NoError(t, err)
+	if err != nil && !errdefs.IsNotFound(err) {
+		assert.NoError(t, err)
+	}
 }
 
 func (s *HelloWorldClusterSuite) _preparePgApp() {
@@ -345,11 +350,5 @@ func (s *HelloWorldClusterSuite) _prepareSqliteApp() {
 }
 
 func Test_HelloWorldCluster(t *testing.T) {
-	// TODO(dind-harness): _prepareNetwork() removes a not-yet-created docker
-	// network under require.NoError, which only passes when an earlier run
-	// left the network behind. Fails deterministically against the fresh
-	// DinD daemon. Re-enable once the pre-clean tolerates "not found".
-	t.Skip("pending DinD harness network pre-clean fix")
-
 	suite.Run(t, new(HelloWorldClusterSuite))
 }

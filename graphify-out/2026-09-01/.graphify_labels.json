@@ -749,7 +749,6 @@
   "747": ".EnablePlugin",
   "748": ".CreateNewDeploy",
   "749": "dockerServiceResourcesStorage",
-  "750": ".Version",
   "751": "Configurator",
   "752": "StopService_Response",
   "753": "Pipelines → Jobs Migration",
@@ -759,6 +758,9 @@
   "757": "VPN client key (Headscale auth key) storage in task context",
   "758": "Headscale",
   "759": "docker_infra.go",
+  "760": "selectiveFailDocker",
   "761": "GrpcIncomingInterceptor",
-  "762": "LogInterceptor"
+  "762": "LogInterceptor",
+  "763": "PanicInterceptor",
+  "764": ".WithTx"
 }

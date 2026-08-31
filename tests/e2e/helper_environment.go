@@ -24,6 +24,7 @@ import (
 	"go.vervstack.ru/Velez/internal/cluster/configuration"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/middleware"
+	"go.vervstack.ru/Velez/tests/dind"
 	"go.vervstack.ru/Velez/tests/test_helper"
 )
 
@@ -126,6 +127,8 @@ func WithEnvironments(envs []string) TestEnvOpt {
 func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 	t.Helper()
 
+	requireDindHarness(t)
+
 	var env TestEnvironment
 
 	env.t = t
@@ -177,6 +180,18 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 	t.Cleanup(env.clean)
 
 	return &env
+}
+
+// requireDindHarness fails the test unless it is running under the DinD
+// harness set up by TestMain (see tests/dind). It guards against pointing
+// the suite at a developer's real Docker daemon.
+func requireDindHarness(t *testing.T) {
+	t.Helper()
+
+	if os.Getenv(dind.EnvActive) == "" {
+		t.Fatal("e2e suite must run under the DinD harness set up by TestMain " +
+			"(tests/e2e/main_test.go); " + dind.EnvActive + " is not set")
+	}
 }
 
 func initConfig(t *testing.T, env *TestEnvironment) {

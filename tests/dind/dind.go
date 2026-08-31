@@ -139,6 +139,30 @@ func Setup(ctx context.Context, opts Options) (*Env, error) {
 	return env, nil
 }
 
+// Seed pulls the given image references into the DinD daemon unless they
+// are already present. The e2e suite calls this for images that some code
+// paths create a container from without pulling first (the cluster postgres
+// pattern, for one) - that only ever worked against a warm host daemon.
+func (e *Env) Seed(ctx context.Context, refs ...string) error {
+	cli, err := newDockerClient(e.DockerHost)
+	if err != nil {
+		return rerrors.Wrap(err, "error creating dind docker client")
+	}
+
+	defer func() {
+		_ = cli.Close()
+	}()
+
+	for _, ref := range refs {
+		err = ensureImage(ctx, cli, ref)
+		if err != nil {
+			return rerrors.Wrap(err, "error seeding image "+ref)
+		}
+	}
+
+	return nil
+}
+
 // Addr returns the bootstrap-host address (host:port) a published
 // container-side port is reachable at, and whether it was published.
 func (e *Env) Addr(containerPort int) (string, bool) {

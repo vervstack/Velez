@@ -15,7 +15,7 @@ const (
 	testLabelPrefix      = "test__"
 	integrationTestLabel = testLabelPrefix + "integration"
 	testCaseNameLabel    = testLabelPrefix + "name"
-	minPortToExposeTo    = uint32(18501)
+	minPortToExposeTo    = uint32(dindPortBandStart)
 	labelValueTrue       = "true"
 	labelValueFalse      = "false"
 	HelloWorldAppImage   = "godverv/hello_world:v0.0.14"

@@ -23,7 +23,9 @@ func TestMain(m *testing.M) {
 func runSuite(m *testing.M) int {
 	ctx := context.Background()
 
-	var opts dind.Options
+	opts := dind.Options{
+		Publish: dindPublishPorts(),
+	}
 
 	env, err := dind.Setup(ctx, opts)
 	if err != nil {
@@ -31,6 +33,8 @@ func runSuite(m *testing.M) int {
 
 		return 1
 	}
+
+	sharedDind = env
 
 	defer teardown(env)
 
@@ -54,6 +58,13 @@ func runSuite(m *testing.M) int {
 	err = os.Setenv(dind.EnvActive, "1")
 	if err != nil {
 		log.Error().Err(err).Msg("error setting dind marker env")
+
+		return 1
+	}
+
+	err = env.Seed(ctx, dindSeedImages...)
+	if err != nil {
+		log.Error().Err(err).Msg("error seeding dind images")
 
 		return 1
 	}

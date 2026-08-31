@@ -68,7 +68,7 @@ func (s *LifecycleSuite) Test_Stateless_Nginx() {
 	env := NewEnvironment(t)
 
 	req := &velez_api.CreateSmerd_Request{
-		ImageName:     "nginx:alpine",
+		ImageName:     NginxAlpineImage,
 		IgnoreConfig:  true,
 		UseImagePorts: true,
 	}
@@ -163,7 +163,7 @@ func (s *LifecycleSuite) Test_ClusterMode_PlainNginx() {
 	env := NewEnvironment(t, WithMatreshka())
 
 	req := &velez_api.CreateSmerd_Request{
-		ImageName:     "nginx:alpine",
+		ImageName:     NginxAlpineImage,
 		IgnoreConfig:  true,
 		UseImagePorts: true,
 	}
@@ -235,9 +235,156 @@ func (s *LifecycleSuite) Test_DropSmerd_ByUuid() {
 	}
 }
 
+// Test_Negative_NonExistentImage: an unresolvable image tag must end the
+// create task in error, not hang or leave a running container.
+func (s *LifecycleSuite) Test_Negative_NonExistentImage() {
+	t := s.T()
+
+	env := NewEnvironment(t)
+	ctx := t.Context()
+
+	req := &velez_api.CreateSmerd_Request{
+		Name:         GetServiceName(t),
+		ImageName:    "godverv/this-image-does-not-exist:v0.0.0",
+		IgnoreConfig: true,
+	}
+
+	smerd, err := env.Custom.ApiGrpcImpl.CreateSmerd(ctx, req)
+	require.Error(t, err)
+	require.Nil(t, smerd)
+
+	assertNoRunningSmerd(t, env, req.GetName())
+}
+
+// Test_Negative_PortCollision: a second smerd pinning a host port already
+// bound by a running smerd (same environment) must fail.
+func (s *LifecycleSuite) Test_Negative_PortCollision() {
+	t := s.T()
+
+	env := NewEnvironment(t)
+	ctx := t.Context()
+
+	firstReq := &velez_api.CreateSmerd_Request{
+		Name:          GetServiceName(t) + "_a",
+		ImageName:     NginxAlpineImage,
+		IgnoreConfig:  true,
+		UseImagePorts: true,
+	}
+
+	first := env.CreateSmerd(t, firstReq)
+	require.NotEmpty(t, first.GetPorts())
+
+	hostPort := first.GetPorts()[0].GetExposedTo()
+
+	secondReq := &velez_api.CreateSmerd_Request{
+		Name:         GetServiceName(t) + "_b",
+		ImageName:    NginxAlpineImage,
+		IgnoreConfig: true,
+		Settings: &velez_api.Container_Settings{
+			Ports: []*velez_api.Port{
+				{
+					ServicePortNumber: 80,
+					Protocol:          velez_api.Port_tcp,
+					ExposedTo:         rtb.ToPtr(hostPort),
+				},
+			},
+		},
+	}
+
+	second, err := env.Custom.ApiGrpcImpl.CreateSmerd(ctx, secondReq)
+	require.Error(t, err, "second smerd pinning an already-bound host port must fail")
+	require.Nil(t, second)
+
+	assertNoRunningSmerd(t, env, secondReq.GetName())
+}
+
+// Test_Negative_HealthcheckNeverHealthy: a container that never reaches
+// "running" must surface a FAILED task within a bounded wait.
+func (s *LifecycleSuite) Test_Negative_HealthcheckNeverHealthy() {
+	t := s.T()
+
+	env := NewEnvironment(t)
+	ctx := t.Context()
+
+	req := &velez_api.CreateSmerd_Request{
+		Name:         GetServiceName(t),
+		ImageName:    NginxAlpineImage,
+		IgnoreConfig: true,
+		// `false` exits non-zero immediately, so the container never reaches
+		// "running" and healthcheckJob exhausts its retries. NOTE(phase-1):
+		// healthcheckJob only inspects State.Status, it never runs
+		// Healthcheck.Command - a container that STAYS running with an
+		// always-failing command would pass. Reported as a product gap.
+		Command: rtb.ToPtr("false"),
+		Healthcheck: &velez_api.Container_Healthcheck{
+			IntervalSecond: 1,
+			Retries:        2,
+		},
+	}
+
+	smerd, err := env.Custom.ApiGrpcImpl.CreateSmerd(ctx, req)
+	require.Error(t, err)
+	require.Nil(t, smerd)
+
+	assertNoRunningSmerd(t, env, req.GetName())
+}
+
+// Test_Negative_DuplicateName: a second create with an explicit name already
+// in use must either fail or dedup to the existing smerd.
+func (s *LifecycleSuite) Test_Negative_DuplicateName() {
+	t := s.T()
+
+	env := NewEnvironment(t)
+	ctx := t.Context()
+
+	name := GetServiceName(t)
+
+	req := &velez_api.CreateSmerd_Request{
+		Name:         name,
+		ImageName:    HelloWorldAppImage,
+		IgnoreConfig: true,
+	}
+
+	first := env.CreateSmerd(t, req)
+	require.NotEmpty(t, first.GetUuid())
+
+	dupReq := &velez_api.CreateSmerd_Request{
+		Name:         name,
+		ImageName:    HelloWorldAppImage,
+		IgnoreConfig: true,
+	}
+
+	second, err := env.Custom.ApiGrpcImpl.CreateSmerd(ctx, dupReq)
+	if err == nil {
+		require.Equal(t, first.GetUuid(), second.GetUuid(),
+			"a duplicate-name create must either fail or dedup to the existing smerd")
+
+		return
+	}
+
+	require.Error(t, err)
+	require.Nil(t, second)
+}
+
 func Test_Lifecycle(t *testing.T) {
 	t.Parallel()
 	suite.Run(t, new(LifecycleSuite))
+}
+
+// assertNoRunningSmerd fails if any smerd with the given name is left running -
+// used by the negative create tests to prove a failed create didn't leak a
+// live container.
+func assertNoRunningSmerd(t *testing.T, env *TestEnvironment, name string) {
+	t.Helper()
+
+	listReq := &velez_api.ListSmerds_Request{Name: rtb.ToPtr(name)}
+
+	listed := env.ListSmerds(t, t.Context(), listReq)
+
+	for _, sm := range listed.GetSmerds() {
+		require.NotEqual(t, velez_api.Smerd_running.String(), sm.GetStatus().String(),
+			"no smerd named %q should be left running after a failed create", name)
+	}
 }
 
 func runLifecycle(

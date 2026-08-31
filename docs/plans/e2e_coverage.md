@@ -193,3 +193,14 @@ logtail:
   enabled: false
 randomize_client_port: false
 ```
+
+---
+
+## 5. Progress log
+
+Append-only. One line per landed phase so a fresh session can resume from here.
+
+| # | Commit | Result |
+|---|---|---|
+| 0 | `253c1603` `[E2E] perf: parallelize the e2e suite` | `t.Parallel()` on 8 testify suites + 2 plain container-runtime tests; `Test_ContainerRuntime_Matrix` left serial (shared fixed suffix), `Test_EnableStatefull`/`Test_Vpn` still skipped. `Makefile` `-parallel 4`. `tests/dind/dind.go`: persistent `<name>-cache` volume at `/var/lib/docker`, survives Teardown, corrupt-cache retry guard, `Setup` split into `bringUp()`/`ensureCacheVolume()`. Postgres healthcheck poll 2s→500ms. Wall clock ~255s → ~145s (~1.75x); green ×2 under `-parallel 4`. Pre-commit gate passed (golangci-lint clean, `go test ./...` green). Test-only + Makefile + dind harness; no product code. The one earlier cold FAIL was a SIGTERM from a concurrent e2e run in the same repo, not a flake. |
+| 1 | `[E2E] Tests: verv-stack config assertions + negative deploy paths` | New `tests/e2e/suite_verv_config_test.go` (`VervConfigSuite`, `t.Parallel()`): `Test_VervConfig_RenderedEnv` asserts verv classification (`MatreshkaConfigLabel=true`), `VERV_NAME` injection, and a `Plain` mount landing in the container; `Test_VervConfig_PlainFileMounted` asserts exact `Plain` bytes inside the running container; `Test_VervConfig_RestartPolicyApplied` asserts the container `HostConfig.RestartPolicy` (`always` currently maps to docker `on-failure`/retry 3 — asserted as-is, product gap). Real matreshka pre-seed did NOT land: `verv://matreshka` gRPC resolver "produces zero addresses" for both the raw configurator client and the `fetch_config` job under the e2e harness, so `!IgnoreConfig` + `Verv` + `WithMatreshka()` deploy fails at `fetch_config`. Fell back to reachable-only assertions with a `TODO(phase-1)` in the test. `tests/e2e/suite_api_deploy_test.go` `LifecycleSuite`: `Test_Negative_NonExistentImage`, `Test_Negative_PortCollision`, `Test_Negative_HealthcheckNeverHealthy`, `Test_Negative_DuplicateName` — each asserts `CreateSmerd` errors (or dedups) and leaves no running smerd; cleanup via `NewEnvironment`'s label-based `env.clean`. `tests/e2e/helper.go`: added `PostgresImage`/`NginxAlpineImage` consts (goconst). Product gaps surfaced, not fixed: (a) `always`→`on-failure` restart mapping in `parser.FromRestart`; (b) `healthcheckJob` never runs `Healthcheck.Command`, only checks `State.Status`; (c) `create_smerd` `copyToContainerJob` has no `mkdir -p` so a `Plain` path under a dir absent from the image fails the whole task. `make lint` clean; `make test-e2e` green (~79s). |

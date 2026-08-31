@@ -23,3 +23,5 @@ local_data
 proto_modules
 /docs/pr/
 /docs/.obsidian/
+
+graphify-out/

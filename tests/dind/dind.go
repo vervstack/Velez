@@ -5,18 +5,23 @@
 //
 // Every container the suite starts then lands inside that daemon, so
 // parallel git worktrees on one machine never share Docker state: the DinD
-// container name is unique per process and its published ports are assigned
-// by the bootstrap daemon, so nothing has to be coordinated between runs.
+// container is named after the checked-out branch (one per worktree, stable
+// across runs) and its published ports are assigned by the bootstrap
+// daemon, so nothing has to be coordinated between runs. Setup force-removes
+// a leftover instance of the same name first, so a run that died without
+// Teardown self-heals instead of leaking a container per crash.
 package dind
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net"
 	"net/url"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/containerd/errdefs"
@@ -38,6 +43,11 @@ const (
 	// EnvImage overrides the docker:dind image reference.
 	EnvImage = "VELEZ_E2E_DIND_IMAGE"
 
+	// EnvName overrides the DinD container name key (by default the current
+	// git branch). Set it when the branch is not a good per-worktree key -
+	// a CI job id, say.
+	EnvName = "VELEZ_E2E_DIND_NAME"
+
 	// EnvActive is exported by the harness (see e2e TestMain) once the
 	// daemon is up, so helpers can refuse to run the suite against anything
 	// but a disposable DinD.
@@ -46,6 +56,7 @@ const (
 	defaultImage  = "docker:28-dind"
 	daemonPort    = 2375
 	labelHarness  = "velez.e2e.dind"
+	namePrefix    = "velez-dind-"
 	readyTimeout  = 45 * time.Second
 	readyInterval = 500 * time.Millisecond
 )
@@ -60,6 +71,11 @@ type Options struct {
 	// Image is the docker:dind image reference. Empty falls back to
 	// EnvImage, then defaultImage.
 	Image string
+
+	// Name is the container name key. Empty falls back to EnvName, then the
+	// current git branch, then the working directory's base name. The
+	// resolved key is sanitized and prefixed with "velez-dind-".
+	Name string
 
 	// Publish lists container-side ports (besides the daemon port) to
 	// publish on the bootstrap host, so the test process can reach services
@@ -98,7 +114,12 @@ func Setup(ctx context.Context, opts Options) (*Env, error) {
 	}
 
 	dindHost := resolveDindHost(bootstrapHost)
-	name := fmt.Sprintf("velez-dind-%d-%d", os.Getpid(), time.Now().UnixNano())
+	name := resolveName(ctx, opts.Name)
+
+	err = removeStale(ctx, bootstrap, name)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error removing stale dind container")
+	}
 
 	containerId, err := runDind(ctx, bootstrap, img, name, dindHost, opts.Publish)
 	if err != nil {
@@ -441,4 +462,79 @@ func firstNonEmpty(values ...string) string {
 	}
 
 	return ""
+}
+
+// resolveName builds the DinD container name: a sanitized key (the explicit
+// option, else EnvName, else the git branch, else the working directory
+// name) behind the "velez-dind-" prefix. Stable for one worktree across
+// runs so Setup can force-remove the previous instance rather than pile up
+// one container per run.
+func resolveName(ctx context.Context, explicit string) string {
+	key := sanitizeName(firstNonEmpty(explicit, os.Getenv(EnvName), gitBranch(ctx), currentDirBase()))
+
+	if key == "" {
+		key = strconv.Itoa(os.Getpid())
+	}
+
+	return namePrefix + key
+}
+
+func gitBranch(ctx context.Context) string {
+	cmd := exec.CommandContext(ctx, "git", "rev-parse", "--abbrev-ref", "HEAD")
+
+	out, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+
+	branch := strings.TrimSpace(string(out))
+	if branch == "HEAD" {
+		return ""
+	}
+
+	return branch
+}
+
+func currentDirBase() string {
+	wd, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+
+	return filepath.Base(wd)
+}
+
+// sanitizeName lower-cases raw and maps every run of characters Docker
+// disallows in a container name to a single '-', trimming separators from
+// the ends.
+func sanitizeName(raw string) string {
+	var b strings.Builder
+
+	for _, r := range strings.ToLower(raw) {
+		switch {
+		case r >= 'a' && r <= 'z', r >= '0' && r <= '9', r == '-', r == '_', r == '.':
+			b.WriteRune(r)
+		default:
+			b.WriteRune('-')
+		}
+	}
+
+	return strings.Trim(b.String(), "-_.")
+}
+
+// removeStale force-removes a leftover DinD container of the same name (and
+// its anonymous volume) so a run that never reached Teardown does not block
+// the next one. A missing container is not an error.
+func removeStale(ctx context.Context, cli *client.Client, name string) error {
+	removeOpts := container.RemoveOptions{
+		Force:         true,
+		RemoveVolumes: true,
+	}
+
+	err := cli.ContainerRemove(ctx, name, removeOpts)
+	if err != nil && !errdefs.IsNotFound(err) {
+		return rerrors.Wrap(err, "error removing container "+name)
+	}
+
+	return nil
 }

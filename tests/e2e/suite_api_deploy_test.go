@@ -236,6 +236,7 @@ func (s *LifecycleSuite) Test_DropSmerd_ByUuid() {
 }
 
 func Test_Lifecycle(t *testing.T) {
+	t.Parallel()
 	suite.Run(t, new(LifecycleSuite))
 }
 

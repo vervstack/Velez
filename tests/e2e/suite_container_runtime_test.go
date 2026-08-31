@@ -65,6 +65,10 @@ const (
 	listContainersStageName = "e2e_ctr_runtime_list_stage"
 )
 
+// Left serial: every matrix row shares the fixed containerRuntimeSuffix /
+// containerRuntimeSmerdName, so parallel rows (or a parallel parent racing a
+// same-named container from another suite) would collide in Docker's global
+// namespace. Cheap enough as one sequential case for now.
 func Test_ContainerRuntime_Matrix(t *testing.T) {
 	for _, tc := range containerRuntimeMatrix {
 		t.Run(tc.name, func(t *testing.T) {
@@ -152,6 +156,8 @@ func expectedContainerName(name, suffix string) string {
 // scoped list returns BOTH environments' containers instead of just the one
 // requested.
 func Test_ContainerRuntime_ListContainers_ScopesToEnvironment(t *testing.T) {
+	t.Parallel()
+
 	env := NewEnvironment(t,
 		WithContainerSuffix(listContainersProdSuffix),
 		WithEnvironments([]string{listContainersStageEnv}))
@@ -219,6 +225,8 @@ func Test_ContainerRuntime_ListContainers_ScopesToEnvironment(t *testing.T) {
 // untouched by that change (CreateNetwork no-ops when a network with the
 // requested name already exists).
 func Test_ContainerRuntime_Network_PerEnvironmentIsolation(t *testing.T) {
+	t.Parallel()
+
 	env := NewEnvironment(t,
 		WithContainerSuffix(networkIsoProdSuffix),
 		WithEnvironments([]string{networkIsoStageEnv}))

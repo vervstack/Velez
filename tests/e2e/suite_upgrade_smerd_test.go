@@ -164,5 +164,6 @@ func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_NonExistentContainer_Fails() {
 }
 
 func Test_UpgradeSmerd(t *testing.T) {
+	t.Parallel()
 	suite.Run(t, new(UpgradeSmerdSuite))
 }

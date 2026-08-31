@@ -51,5 +51,6 @@ func (s *AssembleConfigSuite) Test_AssembleHelloWorld() {
 }
 
 func Test_AssembleConfig(t *testing.T) {
+	t.Parallel()
 	suite.Run(t, new(AssembleConfigSuite))
 }

@@ -323,5 +323,6 @@ func (s *EnvironmentsSuite) Test_DropSmerd_ByUuid_CrossEnvironmentCollision() {
 }
 
 func Test_Environments(t *testing.T) {
+	t.Parallel()
 	suite.Run(t, new(EnvironmentsSuite))
 }

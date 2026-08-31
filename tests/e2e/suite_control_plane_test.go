@@ -61,5 +61,6 @@ func environmentNames(envs []*pb.Environment) []string {
 }
 
 func Test_ControlPlane(t *testing.T) {
+	t.Parallel()
 	suite.Run(t, new(ControlPlaneSuite))
 }

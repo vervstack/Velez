@@ -244,7 +244,7 @@ func (s *HelloWorldClusterSuite) _preparePostgresContainer() {
 		}
 
 		return info.State.Health != nil && info.State.Health.Status == "healthy"
-	}, 30*time.Second, 2*time.Second, "postgres did not become healthy in time")
+	}, 30*time.Second, 500*time.Millisecond, "postgres did not become healthy in time")
 }
 
 func (s *HelloWorldClusterSuite) _prepareNetwork() {
@@ -350,5 +350,6 @@ func (s *HelloWorldClusterSuite) _prepareSqliteApp() {
 }
 
 func Test_HelloWorldCluster(t *testing.T) {
+	t.Parallel()
 	suite.Run(t, new(HelloWorldClusterSuite))
 }

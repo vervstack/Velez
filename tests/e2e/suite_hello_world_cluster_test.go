@@ -95,8 +95,8 @@ func (s *HelloWorldClusterSuite) _testAPIIsolation() {
 	require.NotEmpty(t, s.pgAppSmerd.GetPorts(), "pg app must have exposed ports")
 	require.NotEmpty(t, s.sqliteAppSmerd.GetPorts(), "sqlite app must have exposed ports")
 
-	pgBase := fmt.Sprintf("http://localhost:%d", s.pgAppSmerd.GetPorts()[0].GetExposedTo())
-	sqliteBase := fmt.Sprintf("http://localhost:%d", s.sqliteAppSmerd.GetPorts()[0].GetExposedTo())
+	pgBase := "http://" + dindHostAddr(t, s.pgAppSmerd.GetPorts()[0].GetExposedTo())
+	sqliteBase := "http://" + dindHostAddr(t, s.sqliteAppSmerd.GetPorts()[0].GetExposedTo())
 
 	s._waitForApp(ctx, t, pgBase)
 	s._waitForApp(ctx, t, sqliteBase)

@@ -46,8 +46,8 @@ export default function EnvironmentsSettings() {
                     )}
                 </div>)}
             <div
-                data-tooltip-id={'root-tooltip'}
-                data-tooltip-content={'Not available in single node mode'}
+                data-tooltip-id={isSingleNodeMode ? 'root-tooltip' : undefined}
+                data-tooltip-content={isSingleNodeMode ? 'Not available in single node mode' : undefined}
             >
                 <Button
                     disabled={isSingleNodeMode}
@@ -73,8 +73,8 @@ function EnvRow({env, handleManage}: { env: Environment, handleManage: (e: Envir
                 {env.suffix && <span className={cls.EnvSuffix}>{env.suffix}</span>}
             </div>
             <div
-                data-tooltip-id={'root-tooltip'}
-                data-tooltip-content={'Not available in single node mode'}
+                data-tooltip-id={isStateFullModeEnabled ? undefined : 'root-tooltip'}
+                data-tooltip-content={isStateFullModeEnabled ? undefined : 'Not available in single node mode'}
             >
                 <Button
                     disabled={!isStateFullModeEnabled}

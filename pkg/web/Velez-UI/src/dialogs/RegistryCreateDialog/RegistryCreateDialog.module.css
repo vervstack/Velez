@@ -1,0 +1,55 @@
+.ModalContainer {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 22rem;
+    max-width: 90vw;
+}
+
+.ModalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.ModalTitle {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--fg);
+    margin: 0;
+    flex: 1;
+}
+
+.ModalContent {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.FieldsWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+}
+
+.ChoiceRow {
+    display: flex;
+    flex-direction: row;
+    gap: 0.625rem;
+}
+
+.ConnectionFieldsWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+}
+
+.ActionsRow {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}

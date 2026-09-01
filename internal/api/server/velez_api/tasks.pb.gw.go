@@ -10,7 +10,6 @@ package velez_api
 
 import (
 	"context"
-	"errors"
 	"io"
 	"net/http"
 
@@ -25,32 +24,28 @@ import (
 )
 
 // Suppress "imported and not used" errors
+var _ codes.Code
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = metadata.Join
+
 var (
-	_ codes.Code
-	_ io.Reader
-	_ status.Status
-	_ = errors.New
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = metadata.Join
+	filter_TasksApi_WatchTask_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 )
 
-var filter_TasksApi_WatchTask_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
-
 func request_TasksApi_WatchTask_0(ctx context.Context, marshaler runtime.Marshaler, client TasksApiClient, req *http.Request, pathParams map[string]string) (TasksApi_WatchTaskClient, runtime.ServerMetadata, error) {
-	var (
-		protoReq WatchTask_Request
-		metadata runtime.ServerMetadata
-	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
+	var protoReq WatchTask_Request
+	var metadata runtime.ServerMetadata
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_TasksApi_WatchTask_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
+
 	stream, err := client.WatchTask(ctx, &protoReq)
 	if err != nil {
 		return nil, metadata, err
@@ -61,19 +56,17 @@ func request_TasksApi_WatchTask_0(ctx context.Context, marshaler runtime.Marshal
 	}
 	metadata.HeaderMD = header
 	return stream, metadata, nil
+
 }
 
 func request_TasksApi_CreateSmerdStream_0(ctx context.Context, marshaler runtime.Marshaler, client TasksApiClient, req *http.Request, pathParams map[string]string) (TasksApi_CreateSmerdStreamClient, runtime.ServerMetadata, error) {
-	var (
-		protoReq CreateSmerd_Request
-		metadata runtime.ServerMetadata
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
+	var protoReq CreateSmerd_Request
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
+
 	stream, err := client.CreateSmerdStream(ctx, &protoReq)
 	if err != nil {
 		return nil, metadata, err
@@ -84,22 +77,23 @@ func request_TasksApi_CreateSmerdStream_0(ctx context.Context, marshaler runtime
 	}
 	metadata.HeaderMD = header
 	return stream, metadata, nil
+
 }
 
 // RegisterTasksApiHandlerServer registers the http handlers for service TasksApi to "mux".
 // UnaryRPC     :call TasksApiServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterTasksApiHandlerFromEndpoint instead.
-// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterTasksApiHandlerServer(ctx context.Context, mux *runtime.ServeMux, server TasksApiServer) error {
-	mux.Handle(http.MethodGet, pattern_TasksApi_WatchTask_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_TasksApi_WatchTask_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
 		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 		return
 	})
 
-	mux.Handle(http.MethodPost, pattern_TasksApi_CreateSmerdStream_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_TasksApi_CreateSmerdStream_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
 		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -112,24 +106,25 @@ func RegisterTasksApiHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 // RegisterTasksApiHandlerFromEndpoint is same as RegisterTasksApiHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
 func RegisterTasksApiHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
-	conn, err := grpc.NewClient(endpoint, opts...)
+	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		if err != nil {
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 			return
 		}
 		go func() {
 			<-ctx.Done()
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 		}()
 	}()
+
 	return RegisterTasksApiHandler(ctx, mux, conn)
 }
 
@@ -143,13 +138,16 @@ func RegisterTasksApiHandler(ctx context.Context, mux *runtime.ServeMux, conn *g
 // to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "TasksApiClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "TasksApiClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "TasksApiClient" to call the correct interceptors. This client ignores the HTTP middlewares.
+// "TasksApiClient" to call the correct interceptors.
 func RegisterTasksApiHandlerClient(ctx context.Context, mux *runtime.ServeMux, client TasksApiClient) error {
-	mux.Handle(http.MethodGet, pattern_TasksApi_WatchTask_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("GET", pattern_TasksApi_WatchTask_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.TasksApi/WatchTask", runtime.WithHTTPPathPattern("/api/tasks/watch"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/velez_api.TasksApi/WatchTask", runtime.WithHTTPPathPattern("/api/tasks/watch"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -160,13 +158,18 @@ func RegisterTasksApiHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_TasksApi_WatchTask_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+
 	})
-	mux.Handle(http.MethodPost, pattern_TasksApi_CreateSmerdStream_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+
+	mux.Handle("POST", pattern_TasksApi_CreateSmerdStream_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.TasksApi/CreateSmerdStream", runtime.WithHTTPPathPattern("/api/smerd/create/stream"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/velez_api.TasksApi/CreateSmerdStream", runtime.WithHTTPPathPattern("/api/smerd/create/stream"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -177,17 +180,22 @@ func RegisterTasksApiHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
+
 		forward_TasksApi_CreateSmerdStream_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+
 	})
+
 	return nil
 }
 
 var (
-	pattern_TasksApi_WatchTask_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "tasks", "watch"}, ""))
+	pattern_TasksApi_WatchTask_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "tasks", "watch"}, ""))
+
 	pattern_TasksApi_CreateSmerdStream_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "smerd", "create", "stream"}, ""))
 )
 
 var (
-	forward_TasksApi_WatchTask_0         = runtime.ForwardResponseStream
+	forward_TasksApi_WatchTask_0 = runtime.ForwardResponseStream
+
 	forward_TasksApi_CreateSmerdStream_0 = runtime.ForwardResponseStream
 )

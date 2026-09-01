@@ -200,6 +200,18 @@ type VelezPlugin struct {
 	ServiceID  sql.NullInt64
 }
 
+type VelezRegistry struct {
+	ID        int64
+	Name      string
+	Type      string
+	Url       string
+	Username  string
+	Secret    string
+	IsDefault bool
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 type VelezService struct {
 	ID            int64
 	Name          string

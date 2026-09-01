@@ -23,6 +23,14 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.SmerdNameWrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     gap: 1rem;
 }
 

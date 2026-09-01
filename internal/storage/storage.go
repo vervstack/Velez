@@ -19,6 +19,7 @@ var (
 	ErrNotFound      = rerrors.New("not found")
 )
 
+//nolint:interfacebloat
 type Storage interface {
 	Nodes() NodesStorage
 	Services() ServicesStorage
@@ -29,6 +30,7 @@ type Storage interface {
 	Tasks() TasksStorage
 	Jobs() JobsStorage
 	Environments() EnvironmentsStorage
+	Registries() RegistriesStorage
 
 	TxManager() *sqldb.TxManager
 }
@@ -93,4 +95,27 @@ type EnvironmentsStorage interface {
 	CreateEnvironment(ctx context.Context, req domain.CreateEnvironmentReq) (domain.Environment, error)
 	UpdateEnvironment(ctx context.Context, req domain.UpdateEnvironmentReq) (domain.Environment, error)
 	DeleteEnvironment(ctx context.Context, id int64) error
+}
+
+// RegistriesStorage - CRUD over velez.registries.
+//
+// Implementations: internal/storage/registries.NewPg (postgres/cluster mode)
+// and internal/storage/registries.NewStatic (in-memory, used by local_storage
+// in single-node/dev mode).
+type RegistriesStorage interface {
+	ListRegistries(ctx context.Context) ([]domain.Registry, error)
+	GetRegistryByID(ctx context.Context, id int64) (domain.Registry, error)
+	CreateRegistry(ctx context.Context, req domain.CreateRegistryReq) (domain.Registry, error)
+	UpdateRegistry(ctx context.Context, req domain.UpdateRegistryReq) (domain.Registry, error)
+	DeleteRegistry(ctx context.Context, id int64) error
+
+	// ClearDefaultRegistry unsets is_default on every row. Called by the
+	// service layer, inside the same transaction as a Create/Update that sets
+	// is_default = true, to enforce the single-default invariant (at most one
+	// registry may be default). Not part of the spec draft interface - added
+	// because the service needs to reach it through this interface to run it
+	// tx-bound alongside Create/Update.
+	ClearDefaultRegistry(ctx context.Context) error
+
+	WithTx(tx *sql.Tx) RegistriesStorage
 }

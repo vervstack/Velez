@@ -6,7 +6,7 @@ import ReactJsonView from '@microlink/react-json-view'
 
 import Input from "@/components/base/Input.tsx";
 import Checkbox from "@/components/base/Checkbox.tsx";
-import Search from "@/components/base/Search.tsx";
+import RegistryImagePicker from "@/components/RegistryImagePicker/RegistryImagePicker.tsx";
 import PlainMap from "@/components/base/PlainMap.tsx";
 import PortsWidget from "@/widgets/PortsWidget.tsx";
 import VolumesWidget from "@/widgets/VolumesWidget.tsx";
@@ -101,7 +101,7 @@ export default function DeployWidget({createSmerdReq, afterDeploy}: DeployWidget
                         />
                     </div>
                     <div className={cls.InputWrapper}>
-                        <Search
+                        <RegistryImagePicker
                             label="Image"
                             value={req.imageName}
                             onChange={stringFieldUpdater("imageName")}

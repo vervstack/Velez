@@ -2,8 +2,6 @@ import cls from '@/widgets/topbar/TopBar.module.css';
 
 import {NodeBaseInfo, NodeStatus, VervPluginType} from "@/app/api/velez";
 import {IsStatefullModeEnabled, ListNodesQuery, ListPluginsQuery} from "@/processes/queries/control_plane.ts";
-import {useNavigate} from "react-router-dom";
-import {Routes} from "@/app/router/Routes.ts";
 import Button from "@/components/base/Button.tsx";
 import {VervPlugin} from "@/model/services/VervPlugins.tsx";
 import {openStatefullPgDialog} from "@/dialogs/PluginManageDialog/plugins/openStatefullPgDialog.tsx";
@@ -17,14 +15,8 @@ export default function TopBar() {
 }
 
 function RightZone() {
-    const navigate = useNavigate();
-
     const pluginsQuery = ListPluginsQuery();
     const nodesQuery = ListNodesQuery();
-
-    function handleDeploy() {
-        navigate(Routes.Deploy);
-    }
 
     const isLoading = pluginsQuery.isLoading && nodesQuery.isLoading
 
@@ -33,10 +25,6 @@ function RightZone() {
     return (
         <div className={cls.RightZoneContainer}>
             {!isLoading && (isStateFullMode ? <NodesHealthStatus/> : <SingleNodeStub/>)}
-            <Button
-                variant={'primary'}
-                onClick={handleDeploy}
-            >Deploy</Button>
         </div>
     )
 }

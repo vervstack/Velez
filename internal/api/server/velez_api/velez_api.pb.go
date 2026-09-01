@@ -1492,6 +1492,7 @@ type SearchImages_Request struct {
 	Name            string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	UseRegistry     *bool                  `protobuf:"varint,2,opt,name=use_registry,json=useRegistry,proto3,oneof" json:"use_registry,omitempty"`
 	UseOnlyOfficial *bool                  `protobuf:"varint,3,opt,name=use_only_official,json=useOnlyOfficial,proto3,oneof" json:"use_only_official,omitempty"`
+	RegistryId      *int64                 `protobuf:"varint,4,opt,name=registry_id,json=registryId,proto3,oneof" json:"registry_id,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -1545,6 +1546,13 @@ func (x *SearchImages_Request) GetUseOnlyOfficial() bool {
 		return *x.UseOnlyOfficial
 	}
 	return false
+}
+
+func (x *SearchImages_Request) GetRegistryId() int64 {
+	if x != nil && x.RegistryId != nil {
+		return *x.RegistryId
+	}
+	return 0
 }
 
 type SearchImages_Response struct {
@@ -1701,14 +1709,17 @@ const file_velez_api_proto_rawDesc = "" +
 	"\aRequest\x127\n" +
 	"\vconnections\x18\x01 \x03(\v2\x15.velez_api.ConnectionR\vconnections\x1a\n" +
 	"\n" +
-	"\bResponse\"\xee\x01\n" +
-	"\fSearchImages\x1a\x9d\x01\n" +
+	"\bResponse\"\xa4\x02\n" +
+	"\fSearchImages\x1a\xd3\x01\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12&\n" +
 	"\fuse_registry\x18\x02 \x01(\bH\x00R\vuseRegistry\x88\x01\x01\x12/\n" +
-	"\x11use_only_official\x18\x03 \x01(\bH\x01R\x0fuseOnlyOfficial\x88\x01\x01B\x0f\n" +
+	"\x11use_only_official\x18\x03 \x01(\bH\x01R\x0fuseOnlyOfficial\x88\x01\x01\x12$\n" +
+	"\vregistry_id\x18\x04 \x01(\x03H\x02R\n" +
+	"registryId\x88\x01\x01B\x0f\n" +
 	"\r_use_registryB\x14\n" +
-	"\x12_use_only_official\x1a>\n" +
+	"\x12_use_only_officialB\x0e\n" +
+	"\f_registry_id\x1a>\n" +
 	"\bResponse\x122\n" +
 	"\x06images\x18\x01 \x03(\v2\x1a.velez_api.SearchImageItemR\x06images2\xcc\b\n" +
 	"\bVelezAPI\x12X\n" +

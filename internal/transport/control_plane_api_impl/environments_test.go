@@ -37,6 +37,46 @@ type fakeVervServices struct {
 
 	deleteReq domain.DeleteEnvironmentReq
 	deleteErr error
+
+	regListResp []domain.Registry
+	regListErr  error
+
+	regCreateReq  domain.CreateRegistryReq
+	regCreateResp domain.Registry
+	regCreateErr  error
+
+	regUpdateReq  domain.UpdateRegistryReq
+	regUpdateResp domain.Registry
+	regUpdateErr  error
+
+	regDeleteReq domain.DeleteRegistryReq
+	regDeleteErr error
+}
+
+func (f *fakeVervServices) ListRegistries(_ context.Context) ([]domain.Registry, error) {
+	return f.regListResp, f.regListErr
+}
+
+func (f *fakeVervServices) CreateRegistry(
+	_ context.Context, req domain.CreateRegistryReq,
+) (domain.Registry, error) {
+	f.regCreateReq = req
+
+	return f.regCreateResp, f.regCreateErr
+}
+
+func (f *fakeVervServices) UpdateRegistry(
+	_ context.Context, req domain.UpdateRegistryReq,
+) (domain.Registry, error) {
+	f.regUpdateReq = req
+
+	return f.regUpdateResp, f.regUpdateErr
+}
+
+func (f *fakeVervServices) DeleteRegistry(_ context.Context, req domain.DeleteRegistryReq) error {
+	f.regDeleteReq = req
+
+	return f.regDeleteErr
 }
 
 func (f *fakeVervServices) ListEnvironments(_ context.Context) ([]domain.Environment, error) {

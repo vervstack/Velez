@@ -38,7 +38,11 @@ func ListImages(ctx context.Context, docker client.APIClient, req domain.ImageLi
 	return resp, nil
 }
 
-func SearchImages(ctx context.Context, docker client.APIClient, req domain.ImageSearchRequest) ([]any, error) {
+func SearchImages(
+	ctx context.Context,
+	docker client.APIClient,
+	req domain.ImageSearchRequest,
+) ([]*velez_api.SearchImageItem, error) {
 	listReq := registry.SearchOptions{
 		RegistryAuth:  "",
 		PrivilegeFunc: nil,
@@ -55,7 +59,14 @@ func SearchImages(ctx context.Context, docker client.APIClient, req domain.Image
 		return nil, errors.Wrap(err, "error searching images")
 	}
 
-	_ = images
+	// registry.SearchResult carries no tag information - Docker Hub's search
+	// API doesn't return one, so LatestTag is left empty for this branch.
+	out := make([]*velez_api.SearchImageItem, len(images))
+	for i := range images {
+		out[i] = &velez_api.SearchImageItem{
+			Name: images[i].Name,
+		}
+	}
 
-	return nil, nil
+	return out, nil
 }

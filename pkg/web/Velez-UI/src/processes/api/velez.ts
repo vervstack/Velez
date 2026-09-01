@@ -4,6 +4,7 @@ import {
     GetHardwareResponse,
     ListSmerdsRequest,
     ListSmerdsResponse,
+    SearchImagesRequest,
     SearchImagesResponse,
     Smerd as ProtoSmerd,
     TaskStatus,
@@ -95,10 +96,13 @@ export async function FetchNodeHardware(initReq: InitReq): Promise<GetHardwareRe
 }
 
 
-export async function ListImages(name: string, initReq: InitReq): Promise<SearchImagesResponse> {
-    const req = {
+export async function ListImages(
+    name: string, initReq: InitReq, registryId?: string
+): Promise<SearchImagesResponse> {
+    const req: SearchImagesRequest = {
         name: name,
-    } as ListSmerdsRequest
+        registryId: registryId,
+    }
 
     return VelezAPI.SearchImages(req, initReq)
 }

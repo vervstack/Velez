@@ -819,6 +819,10 @@
         },
         "useOnlyOfficial": {
           "type": "boolean"
+        },
+        "registryId": {
+          "type": "string",
+          "format": "int64"
         }
       }
     },

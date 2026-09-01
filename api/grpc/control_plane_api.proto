@@ -68,6 +68,34 @@ service ControlPlaneAPI {
       body: "*"
     };
   }
+
+  rpc ListRegistries(ListRegistries.Request) returns (ListRegistries.Response) {
+    option (google.api.http) = {
+      post: "/api/control_plane/registries/list"
+      body: "*"
+    };
+  }
+
+  rpc CreateRegistry(CreateRegistry.Request) returns (CreateRegistry.Response) {
+    option (google.api.http) = {
+      post: "/api/control_plane/registries/create"
+      body: "*"
+    };
+  }
+
+  rpc UpdateRegistry(UpdateRegistry.Request) returns (UpdateRegistry.Response) {
+    option (google.api.http) = {
+      post: "/api/control_plane/registries/update"
+      body: "*"
+    };
+  }
+
+  rpc DeleteRegistry(DeleteRegistry.Request) returns (DeleteRegistry.Response) {
+    option (google.api.http) = {
+      post: "/api/control_plane/registries/delete"
+      body: "*"
+    };
+  }
 }
 
 message ListVervPlugins {
@@ -105,6 +133,12 @@ enum VervPluginType {
   portainer = 5;
 
   statefull_pg = 6;
+}
+
+enum RegistryType {
+  REGISTRY_TYPE_UNSPECIFIED = 0;
+  REGISTRY_TYPE_DOCKERHUB = 1;
+  REGISTRY_TYPE_GENERIC_V2 = 2;
 }
 
 message EnablePlugin {
@@ -222,6 +256,61 @@ message UpdateEnvironment {
 }
 
 message DeleteEnvironment {
+  message Request {
+    optional int64 id = 1;
+    optional string name = 2;
+  }
+  message Response {}
+}
+
+message Registry {
+  int64 id = 1;
+  string name = 2;
+  RegistryType type = 3;
+  string url = 4;
+  string username = 5;
+  bool is_default = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+message ListRegistries {
+  message Request {}
+  message Response {
+    repeated Registry registries = 1;
+  }
+}
+
+message CreateRegistry {
+  message Request {
+    string name = 1;
+    RegistryType type = 2;
+    optional string url = 3;
+    optional string username = 4;
+    optional string secret = 5;
+    optional bool is_default = 6;
+  }
+  message Response {
+    Registry registry = 1;
+  }
+}
+
+message UpdateRegistry {
+  message Request {
+    int64 id = 1;
+    optional string name = 2;
+    optional RegistryType type = 3;
+    optional string url = 4;
+    optional string username = 5;
+    optional string secret = 6;
+    optional bool is_default = 7;
+  }
+  message Response {
+    Registry registry = 1;
+  }
+}
+
+message DeleteRegistry {
   message Request {
     optional int64 id = 1;
     optional string name = 2;

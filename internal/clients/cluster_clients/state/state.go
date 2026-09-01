@@ -115,3 +115,12 @@ func (s *stateManager) Environments() storage.EnvironmentsStorage {
 
 	return (*l).Environments()
 }
+
+func (s *stateManager) Registries() storage.RegistriesStorage {
+	l := s.state.Load()
+	if l == nil {
+		return nil
+	}
+
+	return (*l).Registries()
+}

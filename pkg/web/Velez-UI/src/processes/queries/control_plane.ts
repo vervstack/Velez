@@ -2,9 +2,10 @@ import {queryOptions, useMutation, useQuery, useQueryClient} from '@tanstack/rea
 import {controlPlaneService} from '@/processes/api/control_plane'
 import {FetchNodeHardware} from '@/processes/api/velez.ts'
 import {GetInitReq} from '@/processes/api/api.ts'
-import {VervPluginState, VervPluginType} from "@/app/api/velez";
+import {RegistryType, VervPluginState, VervPluginType} from "@/app/api/velez";
 
 const ENVIRONMENTS_QUERY_KEY = ["environments"];
+const REGISTRIES_QUERY_KEY = ["registries"];
 
 export function ListNodesQuery() {
     return useQuery({
@@ -65,6 +66,55 @@ export function DeleteEnvironmentMutation() {
         mutationFn: (id: string) => controlPlaneService.deleteEnvironment(id),
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey: ENVIRONMENTS_QUERY_KEY})
+        },
+    })
+}
+
+export function ListRegistriesQuery() {
+    return useQuery({
+        queryKey: REGISTRIES_QUERY_KEY,
+        queryFn: () => controlPlaneService.listRegistries(),
+    })
+}
+
+export function CreateRegistryMutation() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (
+            {name, type, url, username, secret, isDefault}:
+                {name: string, type: RegistryType, url?: string, username?: string, secret?: string, isDefault?: boolean}
+        ) => controlPlaneService.createRegistry(name, type, url, username, secret, isDefault),
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: REGISTRIES_QUERY_KEY})
+        },
+    })
+}
+
+export function UpdateRegistryMutation() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (
+            {id, name, type, url, username, secret, isDefault}:
+                {
+                    id: string, name: string, type?: RegistryType, url?: string, username?: string,
+                    secret?: string, isDefault?: boolean
+                }
+        ) => controlPlaneService.updateRegistry(id, name, type, url, username, secret, isDefault),
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: REGISTRIES_QUERY_KEY})
+        },
+    })
+}
+
+export function DeleteRegistryMutation() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (id: string) => controlPlaneService.deleteRegistry(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: REGISTRIES_QUERY_KEY})
         },
     })
 }

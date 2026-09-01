@@ -11,6 +11,8 @@ import {useGetSmerdQuery} from "@/processes/queries/smerds.ts";
 import SkeletonLoader from "@/components/base/SkeletonLoader.tsx";
 import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorState.tsx";
 import BreadcrumbsBar from "@/components/complex/BreadcrumbsBar/BreadcrumbsBar.tsx";
+import Button from "@/components/base/Button.tsx";
+import {Routes} from "@/app/router/Routes.ts";
 
 export default function SmerdPage() {
     const params = useParams<Record<string, string>>();
@@ -55,8 +57,11 @@ export default function SmerdPage() {
             ]}/>
 
             <div className={cls.Header}>
-                <div className={cls.SmerdName}>{smerd.name}</div>
-                <StatusBadge status={smerd.status}/>
+                <div className={cls.SmerdNameWrapper}>
+                    <div className={cls.SmerdName}>{smerd.name}</div>
+                    <StatusBadge status={smerd.status}/>
+                </div>
+                <Button variant={'primary'} onClick={() => navigate(Routes.Deploy)}>Deploy</Button>
             </div>
 
             <SmerdMetaSection smerd={smerd}/>

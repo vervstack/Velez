@@ -24,6 +24,7 @@ type testStorage struct {
 	services     storage.ServicesStorage
 	deployments  storage.DeploymentsStorage
 	environments storage.EnvironmentsStorage
+	registries   storage.RegistriesStorage
 	txManager    *sqldb.TxManager
 }
 
@@ -37,6 +38,7 @@ func (s *testStorage) ServiceDependencies() storage.ServiceDependenciesStorage {
 func (s *testStorage) ServiceResources() storage.ServiceResourcesStorage       { return nil }
 
 func (s *testStorage) Environments() storage.EnvironmentsStorage { return s.environments }
+func (s *testStorage) Registries() storage.RegistriesStorage     { return s.registries }
 
 func (s *testStorage) Tasks() storage.TasksStorage { return nil }
 func (s *testStorage) Jobs() storage.JobsStorage   { return nil }

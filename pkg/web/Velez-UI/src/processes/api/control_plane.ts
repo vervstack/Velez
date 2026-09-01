@@ -13,6 +13,13 @@ import {
     UpdateEnvironmentRequest,
     UpdateEnvironmentResponse,
     DeleteEnvironmentRequest,
+    ListRegistriesResponse,
+    CreateRegistryRequest,
+    CreateRegistryResponse,
+    UpdateRegistryRequest,
+    UpdateRegistryResponse,
+    DeleteRegistryRequest,
+    RegistryType,
 } from "@/app/api/velez";
 
 import {toServices} from "@/processes/mappings/services.ts";
@@ -60,6 +67,36 @@ class ControlPlaneService extends ApiService {
         return this.mutate((req) => {
             const payload: DeleteEnvironmentRequest = {id}
             return ControlPlaneAPI.DeleteEnvironment(payload, req).then()
+        })
+    }
+
+    async listRegistries(): Promise<ListRegistriesResponse> {
+        return this.execute((req) => ControlPlaneAPI.ListRegistries({}, req))
+    }
+
+    async createRegistry(
+        name: string, type: RegistryType, url?: string, username?: string, secret?: string, isDefault?: boolean
+    ): Promise<CreateRegistryResponse> {
+        return this.mutate((req) => {
+            const payload: CreateRegistryRequest = {name, type, url, username, secret, isDefault}
+            return ControlPlaneAPI.CreateRegistry(payload, req)
+        })
+    }
+
+    async updateRegistry(
+        id: string, name: string, type?: RegistryType, url?: string, username?: string, secret?: string,
+        isDefault?: boolean
+    ): Promise<UpdateRegistryResponse> {
+        return this.mutate((req) => {
+            const payload: UpdateRegistryRequest = {id, name, type, url, username, secret, isDefault}
+            return ControlPlaneAPI.UpdateRegistry(payload, req)
+        })
+    }
+
+    async deleteRegistry(id: string): Promise<void> {
+        return this.mutate((req) => {
+            const payload: DeleteRegistryRequest = {id}
+            return ControlPlaneAPI.DeleteRegistry(payload, req).then()
         })
     }
 

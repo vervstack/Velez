@@ -11,6 +11,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/services_queries"
+	"go.vervstack.ru/Velez/internal/storage/registries"
 )
 
 type Storage struct {
@@ -23,6 +24,7 @@ type Storage struct {
 	tasksStorage               *tasksStorage
 	jobsStorage                *jobsStorage
 	environmentsStorage        storage.EnvironmentsStorage
+	registriesStorage          storage.RegistriesStorage
 
 	txManager *sqldb.TxManager
 }
@@ -42,6 +44,7 @@ func New(db *sql.DB) storage.Storage {
 		tasksStorage:               newTasksStorage(db),
 		jobsStorage:                newJobsStorage(db),
 		environmentsStorage:        environments.NewPg(db),
+		registriesStorage:          registries.NewPg(db),
 		txManager:                  sqldb.NewTxManager(db),
 	}
 }
@@ -80,6 +83,10 @@ func (s *Storage) Jobs() storage.JobsStorage {
 
 func (s *Storage) Environments() storage.EnvironmentsStorage {
 	return s.environmentsStorage
+}
+
+func (s *Storage) Registries() storage.RegistriesStorage {
+	return s.registriesStorage
 }
 
 func (s *Storage) TxManager() *sqldb.TxManager {

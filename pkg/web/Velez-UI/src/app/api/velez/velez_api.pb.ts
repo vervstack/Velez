@@ -131,6 +131,7 @@ export type SearchImagesRequest = {
   name?: string;
   useRegistry?: boolean;
   useOnlyOfficial?: boolean;
+  registryId?: string;
 };
 
 export type SearchImagesResponse = {

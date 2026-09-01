@@ -29,6 +29,12 @@ export enum VervPluginType {
   statefull_pg = "statefull_pg",
 }
 
+export enum RegistryType {
+  REGISTRY_TYPE_UNSPECIFIED = "REGISTRY_TYPE_UNSPECIFIED",
+  REGISTRY_TYPE_DOCKERHUB = "REGISTRY_TYPE_DOCKERHUB",
+  REGISTRY_TYPE_GENERIC_V2 = "REGISTRY_TYPE_GENERIC_V2",
+}
+
 export enum VervPluginState {
   unknown = "unknown",
   running = "running",
@@ -179,6 +185,65 @@ export type DeleteEnvironmentResponse = Record<string, never>;
 
 export type DeleteEnvironment = Record<string, never>;
 
+export type Registry = {
+  id?: string;
+  name?: string;
+  type?: RegistryType;
+  url?: string;
+  username?: string;
+  isDefault?: boolean;
+  createdAt?: GoogleProtobufTimestamp.Timestamp;
+  updatedAt?: GoogleProtobufTimestamp.Timestamp;
+};
+
+export type ListRegistriesRequest = Record<string, never>;
+
+export type ListRegistriesResponse = {
+  registries?: Registry[];
+};
+
+export type ListRegistries = Record<string, never>;
+
+export type CreateRegistryRequest = {
+  name?: string;
+  type?: RegistryType;
+  url?: string;
+  username?: string;
+  secret?: string;
+  isDefault?: boolean;
+};
+
+export type CreateRegistryResponse = {
+  registry?: Registry;
+};
+
+export type CreateRegistry = Record<string, never>;
+
+export type UpdateRegistryRequest = {
+  id?: string;
+  name?: string;
+  type?: RegistryType;
+  url?: string;
+  username?: string;
+  secret?: string;
+  isDefault?: boolean;
+};
+
+export type UpdateRegistryResponse = {
+  registry?: Registry;
+};
+
+export type UpdateRegistry = Record<string, never>;
+
+export type DeleteRegistryRequest = {
+  id?: string;
+  name?: string;
+};
+
+export type DeleteRegistryResponse = Record<string, never>;
+
+export type DeleteRegistry = Record<string, never>;
+
 export class ControlPlaneAPI {
   static EnablePlugin(this:void, req: EnablePluginRequest, initReq?: fm.InitReq): Promise<EnablePluginResponse> {
     return fm.fetchRequest<EnablePluginResponse>(`/api/control_plane/plugin/enable`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
@@ -203,5 +268,17 @@ export class ControlPlaneAPI {
   }
   static DeleteEnvironment(this:void, req: DeleteEnvironmentRequest, initReq?: fm.InitReq): Promise<DeleteEnvironmentResponse> {
     return fm.fetchRequest<DeleteEnvironmentResponse>(`/api/control_plane/environments/delete`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static ListRegistries(this:void, req: ListRegistriesRequest, initReq?: fm.InitReq): Promise<ListRegistriesResponse> {
+    return fm.fetchRequest<ListRegistriesResponse>(`/api/control_plane/registries/list`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static CreateRegistry(this:void, req: CreateRegistryRequest, initReq?: fm.InitReq): Promise<CreateRegistryResponse> {
+    return fm.fetchRequest<CreateRegistryResponse>(`/api/control_plane/registries/create`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static UpdateRegistry(this:void, req: UpdateRegistryRequest, initReq?: fm.InitReq): Promise<UpdateRegistryResponse> {
+    return fm.fetchRequest<UpdateRegistryResponse>(`/api/control_plane/registries/update`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static DeleteRegistry(this:void, req: DeleteRegistryRequest, initReq?: fm.InitReq): Promise<DeleteRegistryResponse> {
+    return fm.fetchRequest<DeleteRegistryResponse>(`/api/control_plane/registries/delete`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
 }

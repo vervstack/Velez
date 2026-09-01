@@ -76,6 +76,14 @@ type VervServicesService interface {
 	// the wire) to the suffix used for Docker naming/labels. Also the
 	// validation entry point for the `environment` request field.
 	ResolveEnvironmentSuffix(ctx context.Context, name string) (string, error)
+
+	// Registry management (velez.registries) - container image registries
+	// (Docker Hub, generic v2) used by SearchImages.
+	ListRegistries(ctx context.Context) ([]domain.Registry, error)
+	GetRegistry(ctx context.Context, id int64) (domain.Registry, error)
+	CreateRegistry(ctx context.Context, req domain.CreateRegistryReq) (domain.Registry, error)
+	UpdateRegistry(ctx context.Context, req domain.UpdateRegistryReq) (domain.Registry, error)
+	DeleteRegistry(ctx context.Context, req domain.DeleteRegistryReq) error
 }
 
 type NodeService interface {

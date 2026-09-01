@@ -45,3 +45,9 @@ func New(
 func (v *VervService) environments() storage.EnvironmentsStorage {
 	return v.dataStorage.Environments()
 }
+
+// registries mirrors environments() - resolved per call so a runtime storage
+// swap is picked up immediately.
+func (v *VervService) registries() storage.RegistriesStorage {
+	return v.dataStorage.Registries()
+}

@@ -12,7 +12,7 @@ import {DeploySmerdStream} from '@/processes/api/velez.ts';
 import {CreateSmerdReq} from '@/model/smerds/Smerds.ts';
 import Button from '@/components/base/Button.tsx';
 import Input from '@/components/base/Input.tsx';
-import Search from '@/components/base/Search.tsx';
+import RegistryImagePicker from '@/components/RegistryImagePicker/RegistryImagePicker.tsx';
 import {deriveAppName} from '@/dialogs/CreateAppDialog/processes/deriveAppName.ts';
 
 export default function CreateAppDialog() {
@@ -94,7 +94,7 @@ export default function CreateAppDialog() {
                         disabled={creating}
                     />
                     <Input label="Name" inputValue={name} onChange={handleNameChange} disabled={creating}/>
-                    <Search label="Image" value={image} onChange={setImage}/>
+                    <RegistryImagePicker label="Image" value={image} onChange={setImage}/>
                 </div>
                 <div className={cls.ActionsRow}>
                     <Button variant="secondary" onClick={CloseDialog} disabled={creating}>

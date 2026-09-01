@@ -57,7 +57,7 @@ func (impl *Impl) Gateway(
 
 func (impl *Impl) WatchTask(
 	req *velez_api.WatchTask_Request,
-	stream grpc.ServerStreamingServer[velez_api.TaskStatus],
+	stream velez_api.TasksApi_WatchTaskServer,
 ) error {
 	ctx := stream.Context()
 
@@ -84,7 +84,7 @@ func (impl *Impl) WatchTask(
 // blocking until it completes. The unary CreateSmerd stays untouched.
 func (impl *Impl) CreateSmerdStream(
 	req *velez_api.CreateSmerd_Request,
-	stream grpc.ServerStreamingServer[velez_api.TaskStatus],
+	stream velez_api.TasksApi_CreateSmerdStreamServer,
 ) error {
 	ctx := stream.Context()
 

@@ -207,7 +207,17 @@ func (d *deployWatcher) deploy(ctx context.Context, dep domain.Deployment) error
 	initialContext := &velez_api.CreateSmerdTaskPayload{}
 	initialContext.SetRequest(smerdReq)
 
-	err = d.runTask(ctx, smerdReq.GetName(), jobs.CreateSmerdAction, initialContext)
+	// velez.tasks is UNIQUE (entity_id, action): scope the entity id by
+	// environment so the same service name deployed into two environments
+	// doesn't dedup onto one task. This worker deliberately never resolves the
+	// environment name into a Docker suffix (create_smerd's own jobs do that
+	// at run time), so the stored environment name is what scopes the key -
+	// stable per environment and empty for the default one, which keeps the
+	// historical bare-name id. TODO(#127): fold in the resolved suffix if this
+	// worker ever gains access to environments storage.
+	entityID := jobs.SmerdEntityID(smerdReq.GetEnvironment(), smerdReq.GetName())
+
+	err = d.runTask(ctx, entityID, jobs.CreateSmerdAction, initialContext)
 	if err != nil {
 		log.Error().Err(rerrors.Wrap(err, "")).Msg("error deploying smerd")
 
@@ -248,7 +258,10 @@ func (d *deployWatcher) upgrade(ctx context.Context, dep domain.Deployment) erro
 		UpgradeRequest: upgradeReq,
 	}
 
-	err = d.runTask(ctx, upgradeReq.GetName(), jobs.UpgradeSmerdAction, initialContext)
+	// Scope the entity id by environment - see the note in deploy(). TODO(#127).
+	entityID := jobs.SmerdEntityID(upgradeReq.GetEnvironment(), upgradeReq.GetName())
+
+	err = d.runTask(ctx, entityID, jobs.UpgradeSmerdAction, initialContext)
 	if err != nil {
 		log.Error().Err(rerrors.Wrap(err, "")).Msg("error upgrading smerd")
 

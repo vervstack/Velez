@@ -12,6 +12,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
+	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
@@ -19,12 +20,14 @@ import (
 type Impl struct {
 	velez_api.UnimplementedTasksApiServer
 
-	jobsEngine jobs.Engine
+	jobsEngine   jobs.Engine
+	vervServices service.VervServicesService
 }
 
-func New(jobsEngine jobs.Engine) *Impl {
+func New(jobsEngine jobs.Engine, vervServices service.VervServicesService) *Impl {
 	return &Impl{
-		jobsEngine: jobsEngine,
+		jobsEngine:   jobsEngine,
+		vervServices: vervServices,
 	}
 }
 
@@ -75,24 +78,32 @@ func (impl *Impl) WatchTask(
 
 // CreateSmerdStream is an additive streaming pilot alongside VelezAPI's
 // existing unary CreateSmerd: it enqueues the same create_smerd task
-// (dedup'd on the same (name, action) key the unary RPC uses) and forwards
-// TaskStatus updates as the task progresses, instead of blocking until it
-// completes. The unary CreateSmerd stays untouched.
+// (dedup'd on the same (entity_id, action) key the unary RPC uses - the
+// environment's suffix folded into the smerd name, see jobs.SmerdEntityID)
+// and forwards TaskStatus updates as the task progresses, instead of
+// blocking until it completes. The unary CreateSmerd stays untouched.
 func (impl *Impl) CreateSmerdStream(
 	req *velez_api.CreateSmerd_Request,
 	stream grpc.ServerStreamingServer[velez_api.TaskStatus],
 ) error {
 	ctx := stream.Context()
 
+	suffix, err := impl.vervServices.ResolveEnvironmentSuffix(ctx, req.GetEnvironment())
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving environment")
+	}
+
+	entityID := jobs.SmerdEntityID(suffix, req.GetName())
+
 	initialContext := &velez_api.CreateSmerdTaskPayload{}
 	initialContext.SetRequest(req)
 
-	_, err := impl.jobsEngine.Enqueue(ctx, req.GetName(), jobs.CreateSmerdAction, initialContext)
+	_, err = impl.jobsEngine.Enqueue(ctx, entityID, jobs.CreateSmerdAction, initialContext)
 	if err != nil {
 		return rerrors.Wrap(err, "error enqueuing create_smerd task")
 	}
 
-	for task := range impl.jobsEngine.Watch(ctx, req.GetName(), jobs.CreateSmerdAction) {
+	for task := range impl.jobsEngine.Watch(ctx, entityID, jobs.CreateSmerdAction) {
 		var jobStatuses []jobs.JobStatus
 
 		jobStatuses, err = impl.jobsEngine.ListJobs(ctx, task)

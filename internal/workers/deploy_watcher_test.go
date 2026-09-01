@@ -236,9 +236,10 @@ func scheduledDeployment(status deployments_queries.VelezDeploymentStatus) domai
 }
 
 // A scheduled deployment must become a create_smerd task keyed on the smerd's
-// name, carrying the stored request verbatim - including its environment,
-// which the deleted pipeliner used to pre-resolve into a Docker suffix here
-// and which create_smerd's own jobs now re-resolve at run time.
+// name scoped by its environment (jobs.SmerdEntityID), carrying the stored
+// request verbatim - including its environment, which the deleted pipeliner
+// used to pre-resolve into a Docker suffix here and which create_smerd's own
+// jobs now re-resolve at run time.
 func TestDeployWatcher_ScheduledDeploymentEnqueuesCreateSmerd(t *testing.T) {
 	t.Parallel()
 
@@ -256,7 +257,7 @@ func TestDeployWatcher_ScheduledDeploymentEnqueuesCreateSmerd(t *testing.T) {
 	calls := runner.calls()
 	require.Len(t, calls, 1)
 	require.Equal(t, jobs.CreateSmerdAction, calls[0].action)
-	require.Equal(t, testSmerdName, calls[0].entityID)
+	require.Equal(t, testEnvironment+"/"+testSmerdName, calls[0].entityID)
 
 	payload := &velez_api.CreateSmerdTaskPayload{}
 
@@ -294,7 +295,7 @@ func TestDeployWatcher_ScheduledUpgradeEnqueuesUpgradeSmerdWithEnvironment(t *te
 	calls := runner.calls()
 	require.Len(t, calls, 1)
 	require.Equal(t, jobs.UpgradeSmerdAction, calls[0].action)
-	require.Equal(t, testSmerdName, calls[0].entityID)
+	require.Equal(t, testEnvironment+"/"+testSmerdName, calls[0].entityID)
 
 	payload := &velez_api.UpgradeSmerdTaskPayload{}
 

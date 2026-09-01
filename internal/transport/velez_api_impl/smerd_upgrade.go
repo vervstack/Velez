@@ -25,16 +25,22 @@ const (
 func (impl *Impl) UpgradeSmerd(ctx context.Context,
 	req *velez_api.UpgradeSmerd_Request,
 ) (*velez_api.UpgradeSmerd_Response, error) {
-	_, err := impl.resolveEnvironment(ctx, req.GetEnvironment())
+	suffix, err := impl.resolveEnvironment(ctx, req.GetEnvironment())
 	if err != nil {
 		return nil, err
 	}
+
+	// velez.tasks is UNIQUE (entity_id, action): fold the environment's suffix
+	// into the entity id so the same service name upgraded in two environments
+	// gets two rows instead of the second deduping onto the first. An empty
+	// suffix (default single-environment node) leaves the id as the bare name.
+	entityID := jobs.SmerdEntityID(suffix, req.GetName())
 
 	initialContext := &velez_api.UpgradeSmerdTaskPayload{
 		UpgradeRequest: req,
 	}
 
-	_, err = impl.jobsEngine.Enqueue(ctx, req.GetName(), jobs.UpgradeSmerdAction, initialContext)
+	_, err = impl.jobsEngine.Enqueue(ctx, entityID, jobs.UpgradeSmerdAction, initialContext)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error enqueuing upgrade_smerd task")
 	}
@@ -44,7 +50,7 @@ func (impl *Impl) UpgradeSmerd(ctx context.Context,
 
 	var finalTask tasks_queries.VelezTask
 
-	for task := range impl.jobsEngine.Watch(watchCtx, req.GetName(), jobs.UpgradeSmerdAction) {
+	for task := range impl.jobsEngine.Watch(watchCtx, entityID, jobs.UpgradeSmerdAction) {
 		finalTask = task
 	}
 

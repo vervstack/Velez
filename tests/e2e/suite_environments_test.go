@@ -21,10 +21,12 @@ import (
 // ContainerSuffix plus one row per configured name (suffix = name). That's what
 // WithContainerSuffix + WithEnvironments below drive.
 //
-// One of these tests (Test_SameNameInTwoEnvironments_AreDistinctContainers) is
-// t.Skip'd because it is blocked on a separate, out-of-scope bug (the jobs
-// engine dedups tasks without an environment component) - see its doc
-// comment. The two DropSmerd tests below used to be deliberately RED,
+// Test_SameNameInTwoEnvironments_AreDistinctContainers used to be t.Skip'd on
+// the jobs-engine dedup bug (tasks keyed on the bare smerd name, so two
+// environments' same-named creates collided on velez.tasks' UNIQUE
+// (entity_id, action)); it is now GREEN - smerd_create.go folds the resolved
+// environment suffix into the entity id via jobs.SmerdEntityID. The two
+// DropSmerd tests below used to be deliberately RED,
 // documenting bugs in internal/jobs/drop_smerd.go's ContainerRuntime.Remove
 // wiring (see docs/container_runtimes/roadmap.md); both are now GREEN -
 // labelBasedRuntime.Remove resolves bare/suffixed/UUID identifiers to a real
@@ -151,27 +153,23 @@ func (s *EnvironmentsSuite) Test_TwoEnvironments_AreListScoped() {
 	require.Equal(t, e2eEnvProdName, prodList.GetSmerds()[0].GetName())
 }
 
-// RED. The headline multi-environment promise: the SAME logical service name
+// The headline multi-environment promise: the SAME logical service name
 // deployed into two environments must yield two distinct containers.
 //
-// It cannot pass today. It used to fail for two stacked reasons; the second is
-// now fixed and the first still blocks it:
+// It used to fail for two stacked reasons, both now fixed:
 //
-//  1. STILL BROKEN. Tasks are keyed by (entity_id, action) with no environment
-//     component (internal/transport/velez_api_impl/smerd_create.go enqueues on
-//     req.GetName()), so the second create dedups onto the first environment's
-//     already-DONE create_smerd task and never runs.
+//  1. FIXED (Phase 6, card #127). Tasks were keyed by (entity_id, action)
+//     with no environment component (smerd_create.go enqueued on
+//     req.GetName()), so the second create deduped onto the first
+//     environment's already-DONE create_smerd task and never ran.
+//     smerd_create.go now composes the entity id as jobs.SmerdEntityID(
+//     resolvedSuffix, name).
 //  2. FIXED (docs/container_runtimes Phase 1). The resolved suffix used to be
 //     written only as the labels.SuffixLabel container LABEL, leaving the
 //     Docker container NAME the bare req.GetName(). container_runtime's
 //     labelBasedRuntime now derives the container name from it too.
 func (s *EnvironmentsSuite) Test_SameNameInTwoEnvironments_AreDistinctContainers() {
 	t := s.T()
-
-	t.Skip("needs the environment folded into the jobs-engine entity id so " +
-		"two environments don't dedup onto one create_smerd task - see " +
-		"internal/transport/velez_api_impl/smerd_create.go Enqueue(req.GetName(), ...). " +
-		"Observed today: the second create returns the first environment's container.")
 
 	env := NewEnvironment(t,
 		WithContainerSuffix(e2eDefaultSuffix),

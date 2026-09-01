@@ -109,7 +109,7 @@ func (c *Custom) Init(a *App) (err error) {
 	registry := jobs.NewRegistry()
 	registry.Register(jobs.NewCreateSmerdHandler(
 		c.NodeClients, c.Services.ConfigurationService(), runtimeResolver))
-	registry.Register(jobs.NewCreateServiceHandler(c.ClusterClients.StateManager().Services()))
+	registry.Register(jobs.NewCreateServiceHandler(c.ClusterClients.StateManager()))
 	registry.Register(jobs.NewAssembleConfigHandler(c.NodeClients, runtimeResolver))
 	registry.Register(jobs.NewCopyToVolumeHandler(c.NodeClients, runtimeResolver))
 	registry.Register(jobs.NewConnectServiceToVpnHandler(

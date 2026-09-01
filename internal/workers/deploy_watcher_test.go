@@ -17,6 +17,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/jobs"
+	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 	"go.vervstack.ru/Velez/tests/test_helper"
@@ -214,16 +215,22 @@ func testCreateRequest() *velez_api.CreateSmerd_Request {
 	}
 }
 
+// stubStorageResolver re-serves the same deployments storage per call, standing
+// in for the swappable cluster state manager the real watcher now holds.
+type stubStorageResolver struct{ d storage.DeploymentsStorage }
+
+func (s stubStorageResolver) Deployments() storage.DeploymentsStorage { return s.d }
+
 func newTestWatcher(
 	runner *fakeTaskRunner, deployments *stubDeploymentsStorage, runtimes container_runtime.RuntimeResolver,
 ) *deployWatcher {
 	return &deployWatcher{
-		jobsEngine:         runner,
-		deploymentsStorage: deployments,
-		runtimes:           runtimes,
-		nodeId:             1,
-		ticker:             time.NewTicker(time.Hour),
-		done:               make(chan struct{}),
+		jobsEngine:  runner,
+		dataStorage: stubStorageResolver{d: deployments},
+		runtimes:    runtimes,
+		nodeId:      1,
+		ticker:      time.NewTicker(time.Hour),
+		done:        make(chan struct{}),
 	}
 }
 

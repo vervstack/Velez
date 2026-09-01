@@ -3,6 +3,8 @@ import HomePage from "@/pages/home/HomePage";
 import ErrorPage from "@/pages/error/ErrorPage";
 import ControlPlanePage from "@/pages/controlplane/ControlPlanePage.tsx";
 import MainLayout from "@/app/router/MainLayout.tsx";
+import AuthGate from "@/app/router/AuthGate.tsx";
+import LoginPage from "@/pages/login/LoginPage.tsx";
 import SmerdPage from "@/pages/smerd/SmerdPage.tsx";
 import DeployPage from "@/pages/deploy/DeployPage.tsx";
 import VervClosedNetworkPage from "@/pages/vcn/VervClosedNetworkPage.tsx";
@@ -20,14 +22,21 @@ export {Routes, Arguments};
 
 const router = createBrowserRouter([
     {
-        path: '/',
-        element: <MainLayout/>,
+        path: Routes.Login,
+        element: <LoginPage/>,
         errorElement: <ErrorPage/>,
-        children: [
-            {
-                index: true,
-                element: (<AppsPage/>),
-            },
+    },
+    {
+        path: '/',
+        element: <AuthGate/>,
+        errorElement: <ErrorPage/>,
+        children: [{
+            element: <MainLayout/>,
+            children: [
+                {
+                    index: true,
+                    element: (<AppsPage/>),
+                },
 
             {
                 path: Routes.Apps,
@@ -87,7 +96,8 @@ const router = createBrowserRouter([
                 path: '*',
                 element: <Navigate to="/" replace/>,
             },
-        ]
+            ]
+        }]
     },
 ]);
 

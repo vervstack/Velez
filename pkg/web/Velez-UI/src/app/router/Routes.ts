@@ -8,7 +8,8 @@ export enum Routes {
     Search = "/search",
     NewVervService = '/new_verv_service',
     Service = '/service',
-    Settings = '/settings'
+    Settings = '/settings',
+    Login = '/login'
 }
 
 export enum Arguments {

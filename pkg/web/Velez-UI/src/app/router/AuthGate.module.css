@@ -1,0 +1,21 @@
+.AuthGateContainer {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.Spinner {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 0.2rem solid var(--border);
+    border-top-color: var(--fg);
+    animation: AuthGateSpin 0.8s linear infinite;
+}
+
+@keyframes AuthGateSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}

@@ -1,6 +1,17 @@
 #!/bin/sh
 set -e
 
+# The e2e suite (go test ./tests/e2e/...) brings up a privileged DinD container
+# per worktree. A run killed mid-way leaves that container behind holding its
+# image-cache volume, which wedges the next bring-up ("volume is in use").
+# Drop any stale harness containers before the test run; the cache volumes are
+# labelled the same but left in place so pulled image layers are reused.
+echo "Cleaning stale e2e dind containers..."
+stale_dind=$(docker ps -aq --filter label=velez.e2e.dind=true 2>/dev/null || true)
+if [ -n "$stale_dind" ]; then
+	docker rm -f $stale_dind >/dev/null 2>&1 || true
+fi
+
 echo "Running golangci-lint..."
 golangci-lint run --fix ./...
 

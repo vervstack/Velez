@@ -7,12 +7,7 @@
     border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
-
-    &.collapsed {
-        width: 3.5rem;
-    }
 }
 
 /* Logo */
@@ -24,11 +19,6 @@
     border-bottom: 1px solid var(--border);
     gap: 0.625rem;
     flex-shrink: 0;
-
-    &.collapsed {
-        padding: 0 0.875rem;
-
-    }
 }
 
 .logoIcon {
@@ -97,11 +87,6 @@
     }
 }
 
-.navItem.navItemCollapsed {
-    padding: 0.625rem 0;
-    justify-content: center;
-}
-
 .navItem.navItemActive {
     background: var(--red-dim);
     border-color: rgba(237, 47, 50, 0.13);
@@ -139,11 +124,6 @@
         background: var(--bg3);
         color: var(--fg-mid);
     }
-}
-
-.toolItem.toolItemCollapsed {
-    padding: 0.5rem 0;
-    justify-content: center;
 }
 
 .toolIcon {
@@ -192,32 +172,6 @@
     .UserRole {
         font-size: 0.625rem;
         color: var(--fg-dim);
-    }
-}
-
-/* Responsive overlay (<=1280px) — desktop layout above this breakpoint is untouched */
-.MobileBackdrop {
-    display: none;
-}
-
-@media (max-width: 1280px) {
-    .SidebarContainer {
-        position: fixed;
-        top: 0;
-        left: 0;
-        transform: translateX(-100%);
-        transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1), transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-
-        &.mobileOpen {
-            transform: translateX(0);
-        }
-    }
-
-    .MobileBackdrop {
-        display: block;
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.45);
     }
 }
 

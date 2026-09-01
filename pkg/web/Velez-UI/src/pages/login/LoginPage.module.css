@@ -1,0 +1,33 @@
+.LoginPageContainer {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.LoginCardWrapper {
+    width: 100%;
+    max-width: 26rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.75rem;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+
+    .Title {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--fg);
+    }
+
+    .Hint {
+        margin: 0;
+        font-size: 0.8125rem;
+        opacity: 0.6;
+        color: var(--fg);
+    }
+}

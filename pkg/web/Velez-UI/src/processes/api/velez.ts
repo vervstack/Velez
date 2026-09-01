@@ -7,11 +7,21 @@ import {
     SearchImagesResponse,
     Smerd as ProtoSmerd,
     TaskStatus,
+    VersionResponse,
 } from "@/app/api/velez";
 import {InitReq} from "@/app/settings/state.ts";
 import {CreateSmerdReq, Port, Smerd, toProto, Volume} from "@/model/smerds/Smerds.ts";
+import {ApiService} from "@/processes/ApiService.ts";
 import {GetInitReq} from "@/processes/api/api.ts";
 import {useEnvironmentStore} from "@/app/hooks/environment/Environment.ts";
+
+class VelezService extends ApiService {
+    async ping(): Promise<VersionResponse> {
+        return this.mutate((req) => VelezAPI.Version({}, req))
+    }
+}
+
+export const velezService = new VelezService()
 
 export async function ListSmerds(req: ListSmerdsRequest, initReq: InitReq) {
     req.limit = req.limit || 10

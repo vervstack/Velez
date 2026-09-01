@@ -19,7 +19,7 @@ lint:
 
 serve:
 	@trap 'kill 0' EXIT; \
-	go run ./cmd/service & \
+	go run ./cmd/service --dev & \
 	cd pkg/web/Velez-UI && bun dev & \
 	wait
 

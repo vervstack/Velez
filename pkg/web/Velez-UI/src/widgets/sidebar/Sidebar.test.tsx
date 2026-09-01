@@ -19,7 +19,6 @@ describe('Sidebar', () => {
 
         render(
             createElement(Wrapper, null, createElement(Sidebar, {
-                collapsed: false,
                 activeNav: 'controlplane',
                 onNavChange: vi.fn(),
             })),

@@ -1,4 +1,3 @@
-import {useState} from 'react';
 import {Outlet, useNavigate, useLocation} from 'react-router-dom';
 
 import cls from '@/app/router/MainLayout.module.css';
@@ -40,15 +39,7 @@ export default function MainLayout() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const [collapsed, setCollapsed] = useState(false);
-    const [mobileNavOpen, setMobileNavOpen] = useState(false);
-
-
     const activeNav: NavId = ROUTE_TO_NAV[location.pathname] ?? 'apps';
-
-    function handleCollapse() {
-        setCollapsed(prev => !prev);
-    }
 
     function handleNavChange(id: NavId) {
         navigate(NAV_TO_ROUTE[id]);
@@ -61,35 +52,15 @@ export default function MainLayout() {
         }
     }
 
-    function handleToggleMobileNav() {
-        setMobileNavOpen(prev => !prev);
-    }
-
-    function handleCloseMobileNav() {
-        setMobileNavOpen(false);
-    }
-
-
     return (
         <div className={cls.MainLayoutContainer}>
             <Sidebar
-                collapsed={collapsed}
-
                 activeNav={activeNav}
                 onNavChange={handleNavChange}
                 onToolNav={handleToolNav}
-
-                mobileOpen={mobileNavOpen}
-                onCloseMobile={handleCloseMobileNav}
             />
             <div className={cls.ContentWithHeader}>
-                <TopBar
-                    collapsed={collapsed}
-                    onCollapse={handleCollapse}
-                    activeNav={activeNav}
-                    onNavChange={handleNavChange}
-                    onToggleMobileNav={handleToggleMobileNav}
-                />
+                <TopBar/>
 
                 <main className={cls.ContentWrapper}>
                     <Outlet/>

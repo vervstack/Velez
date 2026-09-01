@@ -5,55 +5,15 @@ import {IsStatefullModeEnabled, ListNodesQuery, ListPluginsQuery} from "@/proces
 import {useNavigate} from "react-router-dom";
 import {Routes} from "@/app/router/Routes.ts";
 import Button from "@/components/base/Button.tsx";
-import IconButton from "@/components/base/IconButton.tsx";
 import {VervPlugin} from "@/model/services/VervPlugins.tsx";
 import {openStatefullPgDialog} from "@/dialogs/PluginManageDialog/plugins/openStatefullPgDialog.tsx";
 
-type NavId = 'controlplane' | 'vcn' | 'deployments' | 'apps' | 'search';
-
-
-interface LeftSideProps {
-    collapsed: boolean;
-    onCollapse: () => void;
-
-    onToggleMobileNav: () => void;
-}
-
-interface TopBarProps extends LeftSideProps {
-    activeNav: NavId;
-    onNavChange: (id: NavId) => void;
-}
-
-export default function TopBar(props: TopBarProps) {
+export default function TopBar() {
     return (
         <div className={cls.TopBarContainer}>
-            <LeftZone
-                {...props}
-            />
             <RightZone/>
         </div>
     );
-}
-
-
-function LeftZone(props: LeftSideProps) {
-    return (
-        <div className={cls.LeftZoneContainer}>
-            <div className={cls.HamburgerWrapper}>
-                <IconButton
-                    label="☰"
-                    title="Toggle navigation"
-                    onClick={props.onToggleMobileNav}
-                />
-            </div>
-            <button
-                className={cls.CollapseBtn}
-                onClick={props.onCollapse}
-                title={props.collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            >
-                {props.collapsed ? '→' : '←'}
-            </button>
-        </div>)
 }
 
 function RightZone() {

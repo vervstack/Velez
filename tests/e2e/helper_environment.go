@@ -119,9 +119,16 @@ func WithState(t *testing.T, stateOps ...StateOpt) TestEnvOpt {
 	}
 }
 
-func WithStateVcnEnabled() StateOpt {
+// WithStateVcnEnabled points the app's verv-closed-network client at an
+// already-running headscale (serverURL + apiKey). Both non-empty makes
+// verv_closed_network.SetupVcn take the headscale.Connect(url, key) branch -
+// it connects to the given server and never launches its own headscale
+// container. Pass the shared fixture's address: getSharedHeadscale(t).apiURL
+// / .apiKey.
+func WithStateVcnEnabled(serverURL, apiKey string) StateOpt {
 	return func(a *local_state.State) {
-		a.Network.Headscale.ServerUrl = "http://localhost:8080"
+		a.Network.Headscale.ServerUrl = serverURL
+		a.Network.Headscale.Key = apiKey
 	}
 }
 

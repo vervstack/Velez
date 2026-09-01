@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"strings"
 	"testing"
 	"time"
 
@@ -27,31 +28,35 @@ const (
 
 	svcLifecycleWaitTimeout = 30 * time.Second
 	svcLifecyclePollEvery   = 2 * time.Second
+
+	// svcLifecycleRunningTimeout bounds the wait for the deploy watcher (5s
+	// tick) to enqueue a create_smerd/upgrade_smerd task and for that task to
+	// pull the image and bring the container up.
+	svcLifecycleRunningTimeout = 90 * time.Second
+
+	// svcLifecycleUpgradeImage is a different, real hello_world tag so the
+	// upgrade leg's effect is observable on the running container's image.
+	svcLifecycleUpgradeImage = helloWorldImageV0015
 )
 
-// ServiceLifecycleSuite drives the service/deployment RPCs against real
-// infrastructure once statefull_pg is enabled: it stands up the cluster
-// Postgres through the Phase C ClusterPgDsn host seam (enableStatefullPgUnderDind,
-// shared with EnableStatefullSuite), then exercises CreateService and
-// CreateDeploy(New) through the real ServiceApi handlers and asserts the
-// deployment + specification land in the cluster Postgres, reachable back
-// through ListDeployments' ServiceName join.
+// ServiceLifecycleSuite drives the full service/deployment lifecycle against
+// real infrastructure once statefull_pg is enabled:
 //
-// SCOPE NOTE / TODO(#125): the deploy-watcher-driven half of the lifecycle -
-// SCHEDULED_DEPLOYMENT -> RUNNING container, then CreateDeploy(Upgrade) ->
-// transition - is NOT covered here and cannot be from a single in-process
-// test. internal/app/custom.go constructs both the deploy watcher
-// (workers.NewDeployWatcher, via clusterClients.StateManager().Deployments())
-// and the create_service handler (jobs.NewCreateServiceHandler, via
-// StateManager().Services()) by resolving the storage backend ONCE at
-// startup - i.e. the pre-swap local_storage backend. enable_statefull swaps
-// the backend under the container atomic pointer, but those two already hold
-// the old concrete storage, so in a "enable statefull, then deploy, same
-// process" flow the watcher never observes the cluster-Postgres deployment.
-// In production the node restarts with cluster storage already active before
-// the watcher starts, so this only bites the single-process test. Making
-// those two resolve storage live (the fix VervService already carries) is a
-// product change outside the Phase C cluster-pg host seam.
+//	enableStatefullPgUnderDind (cluster Postgres via the ClusterPgDsn host
+//	  seam, shared with EnableStatefullSuite)
+//	-> CreateService              (validate_name + upsert_service jobs)
+//	-> CreateDeploy(New)          (SCHEDULED_DEPLOYMENT row + specification)
+//	-> deploy watcher drives it   (create_smerd task) -> RUNNING container
+//	-> CreateDeploy(Upgrade)      (SCHEDULED_UPGRADE row against a new image)
+//	-> deploy watcher drives it   (upgrade_smerd task) -> RUNNING new image
+//
+// The deploy-watcher-driven half is only observable in one process because the
+// storage-binding fix ([Jobs] Fix: resolve storage backend live ...): the
+// watcher and the create_service handler now hold the swappable cluster state
+// manager and re-resolve their storage per call, so an "enable statefull, then
+// deploy, same process" flow sees the cluster-Postgres deployment. Before that
+// fix they captured the pre-swap local_storage backend at startup and the
+// watcher never saw the row.
 //
 // Not t.Parallel(): enableStatefullPgUnderDind t.Chdir's to the repo root
 // (goose migrations resolve "./migrations" relative to cwd).
@@ -86,31 +91,154 @@ func (s *ServiceLifecycleSuite) Test_ServiceDeploymentLifecycle() {
 	// real ListDeployments RPC, filtered by ServiceName - the clause that
 	// exercises the deployment_specifications.service_id join against real
 	// Postgres.
-	var deployed *velez_api.DeploymentInfo
+	deployed := s.awaitDeployment(env, func(d *velez_api.DeploymentInfo) bool {
+		return d.GetSpecId() != 0
+	}, svcLifecycleWaitTimeout, "the new deployment must be listed for the service via the ServiceName filter")
+
+	require.NotZero(t, deployed.GetId())
+	require.NotZero(t, deployed.GetSpecId(), "the deployment must reference its persisted specification")
+	require.Contains(t,
+		[]velez_api.DeploymentStatus{
+			velez_api.DeploymentStatus_SCHEDULED_DEPLOYMENT,
+			velez_api.DeploymentStatus_RUNNING,
+		},
+		deployed.GetStatus(),
+		"a freshly created deployment is scheduled, or already being driven to RUNNING by the watcher")
+
+	newSpecId := deployed.GetSpecId()
+
+	// The deploy watcher (create_smerd task) must drive the deployment to
+	// RUNNING and leave a real, running container behind.
+	s.awaitDeploymentStatus(env, deployed.GetId(), velez_api.DeploymentStatus_RUNNING,
+		"the deploy watcher must drive the new deployment to RUNNING")
+
+	// The deployed container carries the bare service name: svcLifecycleSuffix
+	// isolates the cluster-state pg sidecar (state.PgName), not the smerd. A
+	// cluster-mode deploy through the default environment gets no per-node
+	// ContainerSuffix - the post-enable_statefull Postgres environments storage
+	// seeds the default environment with an empty suffix.
+	containerName := svcLifecycleServiceName
+
+	inspected, inspectErr := env.Custom.NodeClients.Docker().Client().ContainerInspect(ctx, containerName)
+	require.NoError(t, inspectErr, "the deployed container %q must exist", containerName)
+	require.NotNil(t, inspected.State)
+	require.True(t, inspected.State.Running, "the deployed container must be running")
+
+	// Upgrade leg: schedule an upgrade onto a different image and let the
+	// watcher (upgrade_smerd task) drive it.
+	upgradeSpec := &velez_api.CreateDeploy_Request_Upgrade{
+		DeploymentId: deployed.GetId(),
+		Image:        toolbox.ToPtr(svcLifecycleUpgradeImage),
+	}
+	upgradeReq := &velez_api.CreateDeploy_Request{
+		ServiceName:   svcLifecycleServiceName,
+		Environment:   environments.DefaultEnvironmentName,
+		Specification: &velez_api.CreateDeploy_Request_Upgrade_{Upgrade: upgradeSpec},
+	}
+
+	_, err = env.Custom.ServiceApiImpl.CreateDeploy(ctx, upgradeReq)
+	require.NoError(t, err, "CreateDeploy(Upgrade) must schedule an upgrade deployment")
+
+	upgradeDep := s.awaitDeployment(env, func(d *velez_api.DeploymentInfo) bool {
+		return d.GetSpecId() != 0 && d.GetSpecId() != newSpecId
+	}, svcLifecycleWaitTimeout, "the upgrade must add a deployment carrying a fresh specification")
+
+	require.Contains(t,
+		[]velez_api.DeploymentStatus{
+			velez_api.DeploymentStatus_SCHEDULED_UPGRADE,
+			velez_api.DeploymentStatus_RUNNING,
+		},
+		upgradeDep.GetStatus(),
+		"the upgrade deployment is scheduled, or already being driven to RUNNING by the watcher")
+
+	s.awaitDeploymentStatus(env, upgradeDep.GetId(), velez_api.DeploymentStatus_RUNNING,
+		"the deploy watcher must drive the upgrade deployment to RUNNING")
+
+	require.Eventually(t, func() bool {
+		afterUpgrade, err := env.Custom.NodeClients.Docker().Client().ContainerInspect(ctx, containerName)
+		if err != nil {
+			return false
+		}
+
+		if afterUpgrade.State == nil || !afterUpgrade.State.Running {
+			return false
+		}
+
+		return strings.Contains(afterUpgrade.Config.Image, "v0.0.15")
+	}, svcLifecycleRunningTimeout, svcLifecyclePollEvery,
+		"after the upgrade the container must still be running, now on the upgraded image")
+}
+
+// awaitDeployment polls the real ListDeployments RPC (ServiceName filter) until
+// one listed deployment satisfies match, and returns it.
+func (s *ServiceLifecycleSuite) awaitDeployment(
+	env *TestEnvironment,
+	match func(d *velez_api.DeploymentInfo) bool,
+	timeout time.Duration,
+	msg string,
+) *velez_api.DeploymentInfo {
+	t := s.T()
+	ctx := t.Context()
+
+	var found *velez_api.DeploymentInfo
 
 	require.Eventually(t, func() bool {
 		req := &velez_api.ListDeployments_Request{ServiceName: toolbox.ToPtr(svcLifecycleServiceName)}
 
 		resp, listErr := env.Custom.ServiceApiImpl.ListDeployments(ctx, req)
-		if listErr != nil || len(resp.GetDeployments()) == 0 {
+		if listErr != nil {
 			return false
 		}
 
-		deployed = resp.GetDeployments()[0]
+		for _, d := range resp.GetDeployments() {
+			if match(d) {
+				found = d
 
-		return true
-	}, svcLifecycleWaitTimeout, svcLifecyclePollEvery,
-		"the new deployment must be listed for the service via the ServiceName filter")
+				return true
+			}
+		}
 
-	require.NotZero(t, deployed.GetId())
-	require.NotZero(t, deployed.GetSpecId(), "the deployment must reference its persisted specification")
-	require.Equal(t, velez_api.DeploymentStatus_SCHEDULED_DEPLOYMENT, deployed.GetStatus(),
-		"a freshly created deployment is scheduled; see the suite SCOPE NOTE on why it is not driven to RUNNING here")
+		return false
+	}, timeout, svcLifecyclePollEvery, msg)
 
-	t.Log("TODO(#125): SCHEDULED_DEPLOYMENT -> RUNNING container and CreateDeploy(Upgrade) are not asserted - " +
-		"the deploy watcher and create_service handler bind their storage backend at startup, before the " +
-		"enable_statefull swap, so an in-process enable-then-deploy flow cannot observe the cluster-postgres " +
-		"deployment. See the suite doc comment.")
+	return found
+}
+
+// awaitDeploymentStatus polls the real ListDeployments RPC until the deployment
+// with id reaches want, failing if it lands on FAILED instead.
+func (s *ServiceLifecycleSuite) awaitDeploymentStatus(
+	env *TestEnvironment,
+	id uint64,
+	want velez_api.DeploymentStatus,
+	msg string,
+) {
+	t := s.T()
+	ctx := t.Context()
+
+	var last velez_api.DeploymentStatus
+
+	require.Eventually(t, func() bool {
+		req := &velez_api.ListDeployments_Request{ServiceName: toolbox.ToPtr(svcLifecycleServiceName)}
+
+		resp, listErr := env.Custom.ServiceApiImpl.ListDeployments(ctx, req)
+		if listErr != nil {
+			return false
+		}
+
+		for _, d := range resp.GetDeployments() {
+			if d.GetId() != id {
+				continue
+			}
+
+			last = d.GetStatus()
+
+			return last == want || last == velez_api.DeploymentStatus_FAILED
+		}
+
+		return false
+	}, svcLifecycleRunningTimeout, svcLifecyclePollEvery, msg)
+
+	require.Equal(t, want, last, msg)
 }
 
 func (s *ServiceLifecycleSuite) createService(env *TestEnvironment) {
@@ -124,14 +252,6 @@ func (s *ServiceLifecycleSuite) createService(env *TestEnvironment) {
 
 	_, err := env.Custom.ServiceApiImpl.CreateService(ctx, req)
 	require.NoError(t, err, "the CreateService RPC (validate_name + upsert_service jobs) must not error")
-
-	// The CreateService RPC above writes through the create_service handler,
-	// which internal/app/custom.go bound to the pre-swap local_storage backend
-	// at startup (see the suite SCOPE NOTE). Seed the service directly through
-	// the live storage container the deploy path reads so CreateDeploy can
-	// resolve it in the cluster postgres.
-	err = env.Custom.Services.StorageContainer().Services().UpsertService(ctx, svcLifecycleServiceName)
-	require.NoError(t, err, "seeding the service into the post-swap cluster storage must succeed")
 }
 
 func Test_ServiceLifecycle(t *testing.T) {

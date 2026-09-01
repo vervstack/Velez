@@ -571,17 +571,19 @@ func (x *Image) GetLabels() map[string]string {
 }
 
 type Smerd struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Uuid          string                 `protobuf:"bytes,1,opt,name=uuid,proto3" json:"uuid,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	ImageName     string                 `protobuf:"bytes,3,opt,name=image_name,json=imageName,proto3" json:"image_name,omitempty"`
-	Ports         []*Port                `protobuf:"bytes,4,rep,name=ports,proto3" json:"ports,omitempty"`
-	Volumes       []*Volume              `protobuf:"bytes,5,rep,name=volumes,proto3" json:"volumes,omitempty"`
-	Status        Smerd_Status           `protobuf:"varint,6,opt,name=status,proto3,enum=velez_api.Smerd_Status" json:"status,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	Networks      []*NetworkBind         `protobuf:"bytes,8,rep,name=networks,proto3" json:"networks,omitempty"`
-	Labels        map[string]string      `protobuf:"bytes,9,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Env           map[string]string      `protobuf:"bytes,10,rep,name=env,proto3" json:"env,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Uuid      string                 `protobuf:"bytes,1,opt,name=uuid,proto3" json:"uuid,omitempty"`
+	Name      string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	ImageName string                 `protobuf:"bytes,3,opt,name=image_name,json=imageName,proto3" json:"image_name,omitempty"`
+	Ports     []*Port                `protobuf:"bytes,4,rep,name=ports,proto3" json:"ports,omitempty"`
+	Volumes   []*Volume              `protobuf:"bytes,5,rep,name=volumes,proto3" json:"volumes,omitempty"`
+	Status    Smerd_Status           `protobuf:"varint,6,opt,name=status,proto3,enum=velez_api.Smerd_Status" json:"status,omitempty"`
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	Networks  []*NetworkBind         `protobuf:"bytes,8,rep,name=networks,proto3" json:"networks,omitempty"`
+	Labels    map[string]string      `protobuf:"bytes,9,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Env       map[string]string      `protobuf:"bytes,10,rep,name=env,proto3" json:"env,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// repo - value of the 'velez.repo' label if set, else empty.
+	Repo          *string `protobuf:"bytes,11,opt,name=repo,proto3,oneof" json:"repo,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -684,6 +686,13 @@ func (x *Smerd) GetEnv() map[string]string {
 		return x.Env
 	}
 	return nil
+}
+
+func (x *Smerd) GetRepo() string {
+	if x != nil && x.Repo != nil {
+		return *x.Repo
+	}
+	return ""
 }
 
 type Container struct {
@@ -1415,7 +1424,7 @@ const file_velez_common_proto_rawDesc = "" +
 	"\x06labels\x18\x03 \x03(\v2\x1c.velez_api.Image.LabelsEntryR\x06labels\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x89\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xab\x05\n" +
 	"\x05Smerd\x12\x12\n" +
 	"\x04uuid\x18\x01 \x01(\tR\x04uuid\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
@@ -1429,7 +1438,8 @@ const file_velez_common_proto_rawDesc = "" +
 	"\bnetworks\x18\b \x03(\v2\x16.velez_api.NetworkBindR\bnetworks\x124\n" +
 	"\x06labels\x18\t \x03(\v2\x1c.velez_api.Smerd.LabelsEntryR\x06labels\x12+\n" +
 	"\x03env\x18\n" +
-	" \x03(\v2\x19.velez_api.Smerd.EnvEntryR\x03env\x1a9\n" +
+	" \x03(\v2\x19.velez_api.Smerd.EnvEntryR\x03env\x12\x17\n" +
+	"\x04repo\x18\v \x01(\tH\x00R\x04repo\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a6\n" +
@@ -1447,7 +1457,8 @@ const file_velez_common_proto_rawDesc = "" +
 	"\x06paused\x10\x05\x12\n" +
 	"\n" +
 	"\x06exited\x10\x06\x12\b\n" +
-	"\x04dead\x10\a\"\xec\x03\n" +
+	"\x04dead\x10\aB\a\n" +
+	"\x05_repo\"\xec\x03\n" +
 	"\tContainer\x1a\x8e\x01\n" +
 	"\bHardware\x12\x15\n" +
 	"\x03cpu\x18\x01 \x01(\x02H\x00R\x03cpu\x88\x01\x01\x12\x1a\n" +
@@ -1603,6 +1614,7 @@ func file_velez_common_proto_init() {
 	}
 	file_velez_common_proto_msgTypes[0].OneofWrappers = []any{}
 	file_velez_common_proto_msgTypes[1].OneofWrappers = []any{}
+	file_velez_common_proto_msgTypes[5].OneofWrappers = []any{}
 	file_velez_common_proto_msgTypes[7].OneofWrappers = []any{}
 	file_velez_common_proto_msgTypes[10].OneofWrappers = []any{}
 	file_velez_common_proto_msgTypes[17].OneofWrappers = []any{}

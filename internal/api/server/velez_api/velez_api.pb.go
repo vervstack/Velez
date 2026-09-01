@@ -499,7 +499,11 @@ type CreateSmerd_Request struct {
 	// confused with the env map above, which is container env vars).
 	// Required; validated in the service layer, not here (proto3 has no
 	// `required` keyword).
-	Environment   string `protobuf:"bytes,17,opt,name=environment,proto3" json:"environment,omitempty"`
+	Environment string `protobuf:"bytes,17,opt,name=environment,proto3" json:"environment,omitempty"`
+	// repo - git repository URL this app's source lives in. Optional;
+	// purely reference metadata today, stamped onto the container as
+	// labels.RepoLabel - no build-from-git behavior yet.
+	Repo          *string `protobuf:"bytes,18,opt,name=repo,proto3,oneof" json:"repo,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -642,6 +646,13 @@ func (x *CreateSmerd_Request) GetPlain() []*FileConfig {
 func (x *CreateSmerd_Request) GetEnvironment() string {
 	if x != nil {
 		return x.Environment
+	}
+	return ""
+}
+
+func (x *CreateSmerd_Request) GetRepo() string {
+	if x != nil && x.Repo != nil {
+		return *x.Repo
 	}
 	return ""
 }
@@ -1588,8 +1599,8 @@ const file_velez_api_proto_rawDesc = "" +
 	"\aVersion\x1a\t\n" +
 	"\aRequest\x1a$\n" +
 	"\bResponse\x12\x18\n" +
-	"\aversion\x18\x01 \x01(\tR\aversion\"\xcb\a\n" +
-	"\vCreateSmerd\x1a\xbb\a\n" +
+	"\aversion\x18\x01 \x01(\tR\aversion\"\xed\a\n" +
+	"\vCreateSmerd\x1a\xdd\a\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
@@ -1608,7 +1619,8 @@ const file_velez_api_proto_rawDesc = "" +
 	"\x04verv\x18\r \x01(\v2\x1e.velez_api.MatreshkaConfigSpecH\x04R\x04verv\x88\x01\x01\x122\n" +
 	"\x15is_declarative_deploy\x18\x0f \x01(\bR\x13isDeclarativeDeploy\x12+\n" +
 	"\x05plain\x18\x10 \x03(\v2\x15.velez_api.FileConfigR\x05plain\x12 \n" +
-	"\venvironment\x18\x11 \x01(\tR\venvironment\x1a6\n" +
+	"\venvironment\x18\x11 \x01(\tR\venvironment\x12\x17\n" +
+	"\x04repo\x18\x12 \x01(\tH\x05R\x04repo\x88\x01\x01\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a9\n" +
@@ -1620,7 +1632,8 @@ const file_velez_api_proto_rawDesc = "" +
 	"\n" +
 	"\b_commandB\x0e\n" +
 	"\f_healthcheckB\a\n" +
-	"\x05_vervJ\x04\b\x0e\x10\x0f\"\xcd\x02\n" +
+	"\x05_vervB\a\n" +
+	"\x05_repoJ\x04\b\x0e\x10\x0f\"\xcd\x02\n" +
 	"\n" +
 	"ListSmerds\x1a\x88\x02\n" +
 	"\aRequest\x12\x19\n" +

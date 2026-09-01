@@ -484,6 +484,10 @@ func (j *prepareSmerdVervConfigJob) applyLabels(request *velez_api.CreateSmerd_R
 	if request.GetAutoUpgrade() {
 		request.Labels[labels.AutoUpgrade] = vervConfigLabelEnabled
 	}
+
+	if request.GetRepo() != "" {
+		request.Labels[labels.RepoLabel] = request.GetRepo()
+	}
 }
 
 func (j *prepareSmerdVervConfigJob) ensureNetworks(ctx context.Context, request *velez_api.CreateSmerd_Request) error {

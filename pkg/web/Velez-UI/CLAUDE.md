@@ -70,6 +70,19 @@ All API calls go through `src/processes/api/` which calls the generated stubs in
 
 `useToaster` (Zustand store) exposes `bake(toast)`, `dismiss(title)`, and `catchGrpc(error)`. Call `catchGrpc` in `.catch()` blocks on API calls to surface gRPC errors as toasts. Toasts auto-dismiss after 5 seconds.
 
+### Dialogs
+
+One global dialog primitive — the `useDialog` Zustand store in `src/app/hooks/dialog/Dialog.tsx`, plus a single `<Dialog/>` host mounted once in `MainLayout`. Do not build bespoke modal state per feature.
+
+- **Open:** `const { OpenDialog } = useDialog(); OpenDialog(<CreateAppDialog prop={x}/>)`. Trailing args stack as separate cards.
+- **Close:** `const { CloseDialog } = useDialog()` — call it after a successful action and from any Cancel button.
+- **Guard async work:** `LockClosing()` before an in-flight request, `UnlockClosing()` in `.finally()`. While locked, click-off and `CloseDialog()` are no-ops — call `UnlockClosing()` immediately before the success-path `CloseDialog()`.
+- **One dialog per folder:** `src/dialogs/<Name>/<Name>.tsx` + `<Name>.module.css`, default-exported named function, root class `<Name>Container`. Sequential steps go in `src/dialogs/<Name>/screens/`, local pieces in `components/`.
+- **Nested dialogs** (confirm, sub-steps) open via the same `OpenDialog` from inside a dialog — see `EnvironmentManageDialog` → `EnvironmentDeleteDialog`. A dialog never imports a page.
+- **Opening from anywhere:** any layer may import `dialogs/` solely to call `OpenDialog(<X/>)` — the one sanctioned upward import.
+- **Errors** inside a dialog route through `useToaster().catchGrpc`; never a native `alert`/`confirm`.
+- **Shape reference:** mirror `EnvironmentManageDialog` for header / content / actions-row structure.
+
 ### Proto regeneration
 
 `moti.yaml` configures the `moti` tool to pull proto files from the Velez git repo and generate TypeScript via `grpc-gateway-ts` and `npm` plugins. The `replace` block redirects the module to the local checkout. After generation, `gen-proto` script moves the top-level `index.ts` out of the nested `@vervstack` directory.

@@ -1,0 +1,55 @@
+@keyframes CreateAppDialogEnter {
+    from {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.CreateAppDialogContainer {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 0.25rem 0.75rem rgb(0 0 0 / 15%);
+    width: 26rem;
+    max-width: 90%;
+    animation: CreateAppDialogEnter 0.18s ease-out;
+
+    .Header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem;
+        border-bottom: 1px solid var(--border);
+
+        .Title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--fg);
+            margin: 0;
+        }
+    }
+
+    .Content {
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+
+        .FieldsWrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 0.875rem;
+        }
+
+        .ActionsRow {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+    }
+}

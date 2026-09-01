@@ -57,6 +57,9 @@ message Smerd {
   map<string, string> labels = 9;
   map<string, string> env = 10;
 
+  // repo - value of the 'velez.repo' label if set, else empty.
+  optional string repo = 11;
+
   enum Status {
     unknown = 0;
     created = 1;

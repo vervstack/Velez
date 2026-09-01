@@ -83,6 +83,7 @@ export type Smerd = {
   networks?: NetworkBind[];
   labels?: Record<string, string>;
   env?: Record<string, string>;
+  repo?: string;
 };
 
 export type ContainerHardware = {

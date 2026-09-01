@@ -139,6 +139,11 @@ message CreateSmerd {
     // `required` keyword).
     string environment = 17;
 
+    // repo - git repository URL this app's source lives in. Optional;
+    // purely reference metadata today, stamped onto the container as
+    // labels.RepoLabel - no build-from-git behavior yet.
+    optional string repo = 18;
+
     // TODO add sidecar definition
     // TODO add resources definition
   }

@@ -291,6 +291,10 @@
         "environment": {
           "type": "string",
           "description": "environment - the isolated namespace this operation targets (not to be\nconfused with the env map above, which is container env vars).\nRequired; validated in the service layer, not here (proto3 has no\n`required` keyword)."
+        },
+        "repo": {
+          "type": "string",
+          "description": "repo - git repository URL this app's source lives in. Optional;\npurely reference metadata today, stamped onto the container as\nlabels.RepoLabel - no build-from-git behavior yet."
         }
       }
     },

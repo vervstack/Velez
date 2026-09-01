@@ -32,6 +32,7 @@ export class CreateSmerdReq {
     name: string = ''
     imageName: string = ''
     command: string | null = null
+    gitRepoUrl: string = ''
 
     ignoreConfig: boolean = false
     autoUpgrade: boolean = false
@@ -57,6 +58,7 @@ export function fromProto(proto: CreateSmerdRequest | undefined): CreateSmerdReq
     smerdReq.name = proto.name || smerdReq.name
     smerdReq.imageName = proto.imageName || smerdReq.imageName
     smerdReq.command = proto.command || smerdReq.command
+    smerdReq.gitRepoUrl = proto.repo || smerdReq.gitRepoUrl
 
     smerdReq.ignoreConfig = proto.ignoreConfig || smerdReq.ignoreConfig
     smerdReq.autoUpgrade = proto.autoUpgrade || smerdReq.autoUpgrade
@@ -76,6 +78,7 @@ export function toProto(r: CreateSmerdReq): CreateSmerdRequest {
         name: r.name,
         imageName: r.imageName,
         command: r.command,
+        repo: r.gitRepoUrl,
 
         ignoreConfig: r.ignoreConfig,
         useImagePorts: r.useImagePorts,

@@ -42,6 +42,8 @@ func (c *ContainerManager) ListSmerds(
 			continue
 		}
 
+		repo := container.Labels[labels.RepoLabel]
+
 		smerd := &velez_api.Smerd{
 			Uuid:      container.ID,
 			ImageName: container.Image,
@@ -52,6 +54,7 @@ func (c *ContainerManager) ListSmerds(
 			},
 
 			Labels: container.Labels,
+			Repo:   &repo,
 
 			Ports: parser.ToPortsSlice(container.Ports),
 		}

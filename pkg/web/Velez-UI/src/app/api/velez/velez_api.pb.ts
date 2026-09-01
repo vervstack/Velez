@@ -34,6 +34,7 @@ export type CreateSmerdRequest = {
   isDeclarativeDeploy?: boolean;
   plain?: VelezApiVelezCommon.FileConfig[];
   environment?: string;
+  repo?: string;
 };
 
 export type CreateSmerd = Record<string, never>;

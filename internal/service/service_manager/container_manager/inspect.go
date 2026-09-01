@@ -9,6 +9,7 @@ import (
 	errors "go.redsock.ru/rerrors"
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
+	"go.vervstack.ru/Velez/internal/domain/labels"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -36,6 +37,7 @@ func (c *ContainerManager) InspectSmerd(ctx context.Context, environment, contId
 	}
 
 	bareName := strings.Replace(contInfo.Name, "/", "", 1)
+	repo := contInfo.Config.Labels[labels.RepoLabel]
 
 	smerd := &velez_api.Smerd{
 		Uuid:    contInfo.ID,
@@ -44,6 +46,7 @@ func (c *ContainerManager) InspectSmerd(ctx context.Context, environment, contId
 		Volumes: parser.ToVolume(contInfo.HostConfig.Mounts),
 		Env:     parser.ToDockerEnv(contInfo.Config.Env),
 		Labels:  contInfo.Config.Labels,
+		Repo:    &repo,
 	}
 
 	imageInfo, err := c.dockerAPI.ImageInspect(ctx, contInfo.Image)

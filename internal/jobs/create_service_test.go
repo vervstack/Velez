@@ -8,12 +8,20 @@ import (
 
 	"github.com/sqlc-dev/pqtype"
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
 const (
 	testCreateServiceName = "my_service"
 )
+
+// stubServicesResolver re-serves the same services storage per call, standing
+// in for the swappable cluster state manager the create_service handler now
+// holds.
+type stubServicesResolver struct{ s storage.ServicesStorage }
+
+func (r stubServicesResolver) Services() storage.ServicesStorage { return r.s }
 
 func createServiceTask(t *testing.T, tasksStorage *fakeTasksStorage, entityID, name string) tasks_queries.VelezTask {
 	t.Helper()
@@ -36,7 +44,7 @@ func createServiceTask(t *testing.T, tasksStorage *fakeTasksStorage, entityID, n
 }
 
 func TestCreateServiceHandler_Action(t *testing.T) {
-	h := NewCreateServiceHandler(newFakeServicesStorage())
+	h := NewCreateServiceHandler(stubServicesResolver{s: newFakeServicesStorage()})
 
 	if h.Action() != CreateServiceAction {
 		t.Errorf("expected action %q, got %q", CreateServiceAction, h.Action())
@@ -51,7 +59,7 @@ func TestCreateServiceHandler_ValidNameUpsertsService(t *testing.T) {
 	task := createServiceTask(t, tasksStorage, testCreateServiceName, testCreateServiceName)
 
 	registry := NewRegistry()
-	registry.Register(NewCreateServiceHandler(servicesStorage))
+	registry.Register(NewCreateServiceHandler(stubServicesResolver{s: servicesStorage}))
 
 	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour)
 
@@ -79,7 +87,7 @@ func TestCreateServiceHandler_InvalidNameFailsWithoutUpsert(t *testing.T) {
 	task := createServiceTask(t, tasksStorage, "bad", "bad")
 
 	registry := NewRegistry()
-	registry.Register(NewCreateServiceHandler(servicesStorage))
+	registry.Register(NewCreateServiceHandler(stubServicesResolver{s: servicesStorage}))
 
 	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour)
 

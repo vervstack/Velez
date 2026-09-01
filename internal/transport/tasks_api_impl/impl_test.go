@@ -11,6 +11,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
+	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
@@ -18,6 +19,20 @@ import (
 const (
 	entityId = "my-smerd"
 )
+
+// fakeVervServices is a pure in-process double: only ResolveEnvironmentSuffix
+// is exercised (CreateSmerdStream folds its result into the entity id via
+// jobs.SmerdEntityID). The embedded interface satisfies the rest of the
+// surface and panics if anything else is ever called.
+type fakeVervServices struct {
+	service.VervServicesService
+
+	suffix string
+}
+
+func (f fakeVervServices) ResolveEnvironmentSuffix(_ context.Context, _ string) (string, error) {
+	return f.suffix, nil
+}
 
 var (
 	errTest = errors.New("boom")
@@ -144,7 +159,7 @@ func Test_CreateSmerdStream(t *testing.T) {
 		},
 	}
 
-	impl := New(engine)
+	impl := New(engine, fakeVervServices{})
 
 	req := &velez_api.CreateSmerd_Request{}
 
@@ -217,7 +232,7 @@ func Test_CreateSmerdStream_EnqueueError(t *testing.T) {
 		enqueueErr: errTest,
 	}
 
-	impl := New(engine)
+	impl := New(engine, fakeVervServices{})
 
 	req := &velez_api.CreateSmerd_Request{}
 

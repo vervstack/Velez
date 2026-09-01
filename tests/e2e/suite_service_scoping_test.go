@@ -154,5 +154,6 @@ func (s *ServiceScopingSuite) Test_StopService_SameNameOtherEnvironment_DoesNotT
 }
 
 func Test_ServiceScoping(t *testing.T) {
+	t.Parallel()
 	suite.Run(t, new(ServiceScopingSuite))
 }

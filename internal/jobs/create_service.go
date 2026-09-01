@@ -34,13 +34,21 @@ type serviceNameAccessor interface {
 	GetName() string
 }
 
-type createServiceHandler struct {
-	servicesStorage storage.ServicesStorage
+// ServicesStorageResolver yields the services storage of whatever backend is
+// currently live, re-resolved per call so an enable_statefull swap
+// (cluster_clients.ClusterStateManagerContainer.Set) is observed without a
+// restart. Mirrors verv_services.VervService.environments().
+type ServicesStorageResolver interface {
+	Services() storage.ServicesStorage
 }
 
-func NewCreateServiceHandler(servicesStorage storage.ServicesStorage) TaskHandler {
+type createServiceHandler struct {
+	dataStorage ServicesStorageResolver
+}
+
+func NewCreateServiceHandler(sr ServicesStorageResolver) TaskHandler {
 	return &createServiceHandler{
-		servicesStorage: servicesStorage,
+		dataStorage: sr,
 	}
 }
 
@@ -66,8 +74,8 @@ func (h *createServiceHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: "upsert_service",
 			Job: &upsertServiceJob{
-				servicesStorage: h.servicesStorage,
-				req:             payload,
+				dataStorage: h.dataStorage,
+				req:         payload,
 			},
 		},
 	}
@@ -112,13 +120,13 @@ func (j *validateServiceNameJob) Do(_ context.Context) error {
 }
 
 type upsertServiceJob struct {
-	servicesStorage storage.ServicesStorage
+	dataStorage ServicesStorageResolver
 
 	req serviceNameAccessor
 }
 
 func (j *upsertServiceJob) Do(ctx context.Context) error {
-	err := j.servicesStorage.UpsertService(ctx, j.req.GetName())
+	err := j.dataStorage.Services().UpsertService(ctx, j.req.GetName())
 	if err != nil {
 		return rerrors.Wrap(err, "error upserting service")
 	}

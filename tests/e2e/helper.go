@@ -20,6 +20,7 @@ const (
 	labelValueFalse      = "false"
 	HelloWorldAppImage   = "godverv/hello_world:v0.0.14"
 	PostgresImage        = "postgres:16"
+	NginxAlpineImage     = "nginx:alpine"
 )
 
 func GetServiceName(t *testing.T) string {

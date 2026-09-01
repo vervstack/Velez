@@ -28,7 +28,9 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/image"
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/network"
+	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"go.redsock.ru/rerrors"
@@ -59,6 +61,11 @@ const (
 	namePrefix    = "velez-dind-"
 	readyTimeout  = 45 * time.Second
 	readyInterval = 500 * time.Millisecond
+
+	// cacheVolumeSuffix names the persistent /var/lib/docker volume for a
+	// given DinD container. It is deliberately NOT removed on Teardown so
+	// warm runs reuse pulled image layers instead of re-fetching them.
+	cacheVolumeSuffix = "-cache"
 )
 
 // Options is the knob set for Setup. The zero value is valid.
@@ -115,13 +122,50 @@ func Setup(ctx context.Context, opts Options) (*Env, error) {
 
 	dindHost := resolveDindHost(bootstrapHost)
 	name := resolveName(ctx, opts.Name)
+	cacheVolume := name + cacheVolumeSuffix
 
-	err = removeStale(ctx, bootstrap, name)
+	env, err := bringUp(ctx, bootstrap, img, name, dindHost, cacheVolume, opts.Publish)
+	if err == nil {
+		return env, nil
+	}
+
+	// A half-written image-cache volume (a run killed mid-pull) can wedge the
+	// daemon on start. Drop it once and retry from a clean cache.
+	firstErr := err
+
+	rmErr := bootstrap.VolumeRemove(context.Background(), cacheVolume, true)
+	if rmErr != nil {
+		return nil, rerrors.Wrap(firstErr, "dind bring-up failed; cache-volume cleanup also failed: "+rmErr.Error())
+	}
+
+	env, err = bringUp(ctx, bootstrap, img, name, dindHost, cacheVolume, opts.Publish)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error starting dind container after cache-volume reset")
+	}
+
+	return env, nil
+}
+
+// bringUp removes any stale container of the same name, ensures the
+// persistent image-cache volume exists, starts one privileged DinD instance
+// bound to it, and waits for the daemon to answer.
+func bringUp(
+	ctx context.Context,
+	bootstrap *client.Client,
+	img, name, dindHost, cacheVolume string,
+	publish []int,
+) (*Env, error) {
+	err := removeStale(ctx, bootstrap, name)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error removing stale dind container")
 	}
 
-	containerId, err := runDind(ctx, bootstrap, img, name, dindHost, opts.Publish)
+	err = ensureCacheVolume(ctx, bootstrap, cacheVolume)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error ensuring dind image-cache volume")
+	}
+
+	containerId, err := runDind(ctx, bootstrap, img, name, dindHost, cacheVolume, publish)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error starting dind container")
 	}
@@ -159,6 +203,25 @@ func Setup(ctx context.Context, opts Options) (*Env, error) {
 	}
 
 	return env, nil
+}
+
+// ensureCacheVolume creates the named /var/lib/docker volume for a DinD
+// container if it is absent. VolumeCreate returns the existing volume
+// unchanged when one already exists, so this is idempotent across runs.
+func ensureCacheVolume(ctx context.Context, cli *client.Client, name string) error {
+	createOpts := volume.CreateOptions{
+		Name: name,
+		Labels: map[string]string{
+			labelHarness: "true",
+		},
+	}
+
+	_, err := cli.VolumeCreate(ctx, createOpts)
+	if err != nil {
+		return rerrors.Wrap(err, "error creating volume "+name)
+	}
+
+	return nil
 }
 
 // Seed pulls the given image references into the DinD daemon unless they
@@ -224,9 +287,10 @@ func (e *Env) Addr(containerPort int) (string, bool) {
 	return net.JoinHostPort(e.dindHost, hostPort), true
 }
 
-// Teardown force-removes the DinD container (and its anonymous
-// /var/lib/docker volume) and closes the bootstrap client. Safe to call
-// more than once.
+// Teardown force-removes the DinD container and closes the bootstrap
+// client. The named image-cache volume ("<name>-cache") is deliberately
+// left in place so the next run reuses pulled image layers; RemoveVolumes
+// only drops anonymous volumes. Safe to call more than once.
 func (e *Env) Teardown() error {
 	if e.bootstrap == nil {
 		return nil
@@ -342,7 +406,7 @@ func ensureImage(ctx context.Context, cli *client.Client, ref string) error {
 func runDind(
 	ctx context.Context,
 	cli *client.Client,
-	img, name, dindHost string,
+	img, name, dindHost, cacheVolume string,
 	publish []int,
 ) (string, error) {
 	hostIp := ""
@@ -385,9 +449,16 @@ func runDind(
 		},
 	}
 
+	cacheMount := mount.Mount{
+		Type:   mount.TypeVolume,
+		Source: cacheVolume,
+		Target: "/var/lib/docker",
+	}
+
 	hostCfg := &container.HostConfig{
 		Privileged:   true,
 		PortBindings: bindings,
+		Mounts:       []mount.Mount{cacheMount},
 	}
 
 	created, err := cli.ContainerCreate(ctx, cfg, hostCfg, nil, nil, name)
@@ -522,9 +593,9 @@ func sanitizeName(raw string) string {
 	return strings.Trim(b.String(), "-_.")
 }
 
-// removeStale force-removes a leftover DinD container of the same name (and
-// its anonymous volume) so a run that never reached Teardown does not block
-// the next one. A missing container is not an error.
+// removeStale force-removes a leftover DinD container of the same name so a
+// run that never reached Teardown does not block the next one. The named
+// image-cache volume is left intact. A missing container is not an error.
 func removeStale(ctx context.Context, cli *client.Client, name string) error {
 	removeOpts := container.RemoveOptions{
 		Force:         true,

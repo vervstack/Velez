@@ -109,7 +109,7 @@ func (c *Custom) Init(a *App) (err error) {
 	registry := jobs.NewRegistry()
 	registry.Register(jobs.NewCreateSmerdHandler(
 		c.NodeClients, c.Services.ConfigurationService(), runtimeResolver))
-	registry.Register(jobs.NewCreateServiceHandler(c.ClusterClients.StateManager().Services()))
+	registry.Register(jobs.NewCreateServiceHandler(c.ClusterClients.StateManager()))
 	registry.Register(jobs.NewAssembleConfigHandler(c.NodeClients, runtimeResolver))
 	registry.Register(jobs.NewCopyToVolumeHandler(c.NodeClients, runtimeResolver))
 	registry.Register(jobs.NewConnectServiceToVpnHandler(
@@ -249,7 +249,7 @@ func (c *Custom) InitApiServer(a *App) error {
 	c.ControlPlaneApiImpl = control_plane_api_impl.New(c.Services, c.JobsEngine)
 	c.VpnApiImpl = vcn_api_impl.New(c.ClusterClients, c.JobsEngine)
 	c.ServiceApiImpl = service_api_impl.New(c.Services, c.JobsEngine)
-	c.TasksApiImpl = tasks_api_impl.New(c.JobsEngine)
+	c.TasksApiImpl = tasks_api_impl.New(c.JobsEngine, c.Services.VervServices())
 
 	c.serverManager.AddImplementation(a.Ctx,
 		c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl, c.ServiceApiImpl, c.TasksApiImpl)

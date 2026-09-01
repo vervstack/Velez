@@ -21,6 +21,22 @@ const (
 	dindMatreshkaPort = 30000
 	dindPortBandStart = 30001
 	dindPortBandEnd   = 30019
+
+	// dindClusterPgPort is carved out the same way dindMatreshkaPort is: the
+	// DinD daemon publishes it (so the host process can reach the cluster-pg
+	// sidecar), but it is deliberately kept OUT of the PortManager band
+	// (dindAvailablePorts) so PortManager never hands it to another test's
+	// smerd. The enable-statefull flow pins the sidecar's 5432 to this port
+	// inside the DinD via EnableStatefullCluster.ExposeToPort.
+	dindClusterPgPort = 30020
+
+	// dindHeadscalePort is carved out the same way: the DinD daemon
+	// publishes it so the in-process Velez app can reach the shared
+	// headscale fixture (see shared_headscale.go) via
+	// headscale.Connect(url, key). Kept OUT of the PortManager band so it
+	// is never handed to a test's smerd. The fixture pins headscale's 8080
+	// to this port inside the DinD.
+	dindHeadscalePort = 30021
 )
 
 var (
@@ -33,9 +49,15 @@ var (
 	// dindSeedImages are images some code paths create a container from
 	// without pulling first, so they must be pre-pulled into the fresh DinD
 	// daemon. postgres:18 is pg_pattern.postgresImage (the cluster postgres
-	// pattern).
+	// pattern); the headscale/tailscale images back the shared headscale
+	// fixture and the VPN sidecar it exercises (see shared_headscale.go /
+	// suite_vpn_test.go).
 	//nolint:gochecknoglobals // fixed suite input
-	dindSeedImages = []string{"postgres:18"}
+	dindSeedImages = []string{
+		"postgres:18",
+		"headscale/headscale:0.27.2-rc.1",
+		"tailscale/tailscale:v1.90.8",
+	}
 
 	// dindEnsureNetworks are docker networks the suite's smerds bind by name
 	// that a real node already has but a fresh DinD does not: the "verv"
@@ -46,13 +68,20 @@ var (
 )
 
 // dindPublishPorts is every container-side port the DinD daemon must
-// publish: the matreshka bind plus the whole PortManager band.
+// publish: the matreshka bind, the whole PortManager band, and the
+// carved-out cluster-pg and headscale ports (which are NOT in the band).
 func dindPublishPorts() []int {
-	ports := make([]int, 0, dindPortBandEnd-dindMatreshkaPort+1)
+	bandLen := dindPortBandEnd - dindMatreshkaPort + 1
+
+	carvedOut := []int{dindClusterPgPort, dindHeadscalePort}
+
+	ports := make([]int, 0, bandLen+len(carvedOut))
 
 	for p := dindMatreshkaPort; p <= dindPortBandEnd; p++ {
 		ports = append(ports, p)
 	}
+
+	ports = append(ports, carvedOut...)
 
 	return ports
 }

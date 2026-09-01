@@ -17,6 +17,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/jobs"
+	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 	"go.vervstack.ru/Velez/tests/test_helper"
@@ -214,16 +215,22 @@ func testCreateRequest() *velez_api.CreateSmerd_Request {
 	}
 }
 
+// stubStorageResolver re-serves the same deployments storage per call, standing
+// in for the swappable cluster state manager the real watcher now holds.
+type stubStorageResolver struct{ d storage.DeploymentsStorage }
+
+func (s stubStorageResolver) Deployments() storage.DeploymentsStorage { return s.d }
+
 func newTestWatcher(
 	runner *fakeTaskRunner, deployments *stubDeploymentsStorage, runtimes container_runtime.RuntimeResolver,
 ) *deployWatcher {
 	return &deployWatcher{
-		jobsEngine:         runner,
-		deploymentsStorage: deployments,
-		runtimes:           runtimes,
-		nodeId:             1,
-		ticker:             time.NewTicker(time.Hour),
-		done:               make(chan struct{}),
+		jobsEngine:  runner,
+		dataStorage: stubStorageResolver{d: deployments},
+		runtimes:    runtimes,
+		nodeId:      1,
+		ticker:      time.NewTicker(time.Hour),
+		done:        make(chan struct{}),
 	}
 }
 
@@ -236,9 +243,10 @@ func scheduledDeployment(status deployments_queries.VelezDeploymentStatus) domai
 }
 
 // A scheduled deployment must become a create_smerd task keyed on the smerd's
-// name, carrying the stored request verbatim - including its environment,
-// which the deleted pipeliner used to pre-resolve into a Docker suffix here
-// and which create_smerd's own jobs now re-resolve at run time.
+// name scoped by its environment (jobs.SmerdEntityID), carrying the stored
+// request verbatim - including its environment, which the deleted pipeliner
+// used to pre-resolve into a Docker suffix here and which create_smerd's own
+// jobs now re-resolve at run time.
 func TestDeployWatcher_ScheduledDeploymentEnqueuesCreateSmerd(t *testing.T) {
 	t.Parallel()
 
@@ -256,7 +264,7 @@ func TestDeployWatcher_ScheduledDeploymentEnqueuesCreateSmerd(t *testing.T) {
 	calls := runner.calls()
 	require.Len(t, calls, 1)
 	require.Equal(t, jobs.CreateSmerdAction, calls[0].action)
-	require.Equal(t, testSmerdName, calls[0].entityID)
+	require.Equal(t, testEnvironment+"/"+testSmerdName, calls[0].entityID)
 
 	payload := &velez_api.CreateSmerdTaskPayload{}
 
@@ -294,7 +302,7 @@ func TestDeployWatcher_ScheduledUpgradeEnqueuesUpgradeSmerdWithEnvironment(t *te
 	calls := runner.calls()
 	require.Len(t, calls, 1)
 	require.Equal(t, jobs.UpgradeSmerdAction, calls[0].action)
-	require.Equal(t, testSmerdName, calls[0].entityID)
+	require.Equal(t, testEnvironment+"/"+testSmerdName, calls[0].entityID)
 
 	payload := &velez_api.UpgradeSmerdTaskPayload{}
 

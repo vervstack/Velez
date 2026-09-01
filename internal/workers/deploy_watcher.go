@@ -36,6 +36,14 @@ type taskRunner interface {
 	Watch(ctx context.Context, entityID, action string) <-chan tasks_queries.VelezTask
 }
 
+// deploymentsStorageResolver yields the deployments storage of whatever
+// backend is currently live, re-resolved per call so an enable_statefull
+// swap is observed without a restart. Mirrors
+// verv_services.VervService.environments() and the taskRunner interface above.
+type deploymentsStorageResolver interface {
+	Deployments() storage.DeploymentsStorage
+}
+
 type deployWatcher struct {
 	// jobsEngine replaces the deleted internal/pipelines.Pipeliner: scheduled
 	// deployments and upgrades are enqueued as durable tasks and awaited
@@ -43,8 +51,8 @@ type deployWatcher struct {
 	// facades. The environment no longer has to be resolved into a Docker
 	// suffix here - create_smerd's own jobs re-resolve it from the persisted
 	// request at run time.
-	jobsEngine         taskRunner
-	deploymentsStorage storage.DeploymentsStorage
+	jobsEngine  taskRunner
+	dataStorage deploymentsStorageResolver
 	// runtimes resolves a deployment's environment name into the
 	// ContainerRuntime serving it, so the liveness check and the deletion
 	// below stay scoped to the right environment instead of hitting the
@@ -68,9 +76,9 @@ func NewDeployWatcher(
 	interval time.Duration,
 ) Worker {
 	return &deployWatcher{
-		jobsEngine:         jobsEngine,
-		deploymentsStorage: clusterClients.StateManager().Deployments(),
-		runtimes:           runtimes,
+		jobsEngine:  jobsEngine,
+		dataStorage: clusterClients.StateManager(),
+		runtimes:    runtimes,
 
 		nodeId: 1,
 
@@ -126,6 +134,13 @@ func (d *deployWatcher) Stop() error {
 	return nil
 }
 
+// deployments re-resolves the live deployments storage per call so an
+// enable_statefull swap of the cluster state manager is observed without a
+// restart. Mirrors verv_services.VervService.environments().
+func (d *deployWatcher) deployments() storage.DeploymentsStorage {
+	return d.dataStorage.Deployments()
+}
+
 type deploymentsList struct {
 	scheduled         []domain.Deployment
 	active            []domain.Deployment
@@ -141,7 +156,7 @@ func (d *deployWatcher) listDeployments(ctx context.Context) (deploymentsList, e
 		},
 	}
 
-	deployments, err := d.deploymentsStorage.List(ctx, listReq)
+	deployments, err := d.deployments().List(ctx, listReq)
 	if err != nil {
 		return deploymentsList{}, rerrors.Wrap(err, "error listing deployments")
 	}
@@ -207,14 +222,24 @@ func (d *deployWatcher) deploy(ctx context.Context, dep domain.Deployment) error
 	initialContext := &velez_api.CreateSmerdTaskPayload{}
 	initialContext.SetRequest(smerdReq)
 
-	err = d.runTask(ctx, smerdReq.GetName(), jobs.CreateSmerdAction, initialContext)
+	// velez.tasks is UNIQUE (entity_id, action): scope the entity id by
+	// environment so the same service name deployed into two environments
+	// doesn't dedup onto one task. This worker deliberately never resolves the
+	// environment name into a Docker suffix (create_smerd's own jobs do that
+	// at run time), so the stored environment name is what scopes the key -
+	// stable per environment and empty for the default one, which keeps the
+	// historical bare-name id. TODO(#127): fold in the resolved suffix if this
+	// worker ever gains access to environments storage.
+	entityID := jobs.SmerdEntityID(smerdReq.GetEnvironment(), smerdReq.GetName())
+
+	err = d.runTask(ctx, entityID, jobs.CreateSmerdAction, initialContext)
 	if err != nil {
 		log.Error().Err(rerrors.Wrap(err, "")).Msg("error deploying smerd")
 
 		updateStatusParams.Status = deployments_queries.VelezDeploymentStatusFAILED
 	}
 
-	err = d.deploymentsStorage.UpdateDeploymentStatus(ctx, updateStatusParams)
+	err = d.deployments().UpdateDeploymentStatus(ctx, updateStatusParams)
 	if err != nil {
 		return rerrors.Wrap(err, "UpdateDeploymentStatus")
 	}
@@ -248,14 +273,17 @@ func (d *deployWatcher) upgrade(ctx context.Context, dep domain.Deployment) erro
 		UpgradeRequest: upgradeReq,
 	}
 
-	err = d.runTask(ctx, upgradeReq.GetName(), jobs.UpgradeSmerdAction, initialContext)
+	// Scope the entity id by environment - see the note in deploy(). TODO(#127).
+	entityID := jobs.SmerdEntityID(upgradeReq.GetEnvironment(), upgradeReq.GetName())
+
+	err = d.runTask(ctx, entityID, jobs.UpgradeSmerdAction, initialContext)
 	if err != nil {
 		log.Error().Err(rerrors.Wrap(err, "")).Msg("error upgrading smerd")
 
 		updateStatusParams.Status = deployments_queries.VelezDeploymentStatusFAILED
 	}
 
-	err = d.deploymentsStorage.UpdateDeploymentStatus(ctx, updateStatusParams)
+	err = d.deployments().UpdateDeploymentStatus(ctx, updateStatusParams)
 	if err != nil {
 		return rerrors.Wrap(err, "UpdateDeploymentStatus")
 	}
@@ -293,7 +321,7 @@ func (d *deployWatcher) syncRunningBatch(ctx context.Context, active []domain.De
 			ID:     dep.Id,
 		}
 
-		err = d.deploymentsStorage.UpdateDeploymentStatus(ctx, updateStatusParams)
+		err = d.deployments().UpdateDeploymentStatus(ctx, updateStatusParams)
 		if err != nil {
 			return rerrors.Wrap(err, "error marking deployment as failed")
 		}
@@ -328,7 +356,7 @@ func (d *deployWatcher) deleteBatch(ctx context.Context, deletion []domain.Deplo
 			ID:     dep.Id,
 		}
 
-		err = d.deploymentsStorage.UpdateDeploymentStatus(ctx, updateStatusParams)
+		err = d.deployments().UpdateDeploymentStatus(ctx, updateStatusParams)
 		if err != nil {
 			return rerrors.Wrap(err, "error marking deployment as deleted")
 		}
@@ -342,7 +370,7 @@ func (d *deployWatcher) deleteBatch(ctx context.Context, deletion []domain.Deplo
 func (d *deployWatcher) specRequest(
 	ctx context.Context, dep domain.Deployment,
 ) (*velez_api.CreateSmerd_Request, error) {
-	spec, err := d.deploymentsStorage.GetSpecificationById(ctx, dep.SpecId)
+	spec, err := d.deployments().GetSpecificationById(ctx, dep.SpecId)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "GetSpecificationById")
 	}

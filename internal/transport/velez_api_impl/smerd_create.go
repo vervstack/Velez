@@ -23,19 +23,24 @@ const (
 )
 
 func (impl *Impl) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Request) (*velez_api.Smerd, error) {
-	// Environment is required and must resolve to a real environment. The
-	// resolved suffix isn't needed here - create_smerd's createContainerJob
-	// re-resolves it from the persisted request at run time - but rejecting
-	// early keeps a bad request from ever becoming a task.
-	_, err := impl.resolveEnvironment(ctx, req.GetEnvironment())
+	// Environment is required and must resolve to a real environment.
+	// create_smerd's createContainerJob re-resolves the suffix from the
+	// persisted request at run time, but the entity id below has to fold it
+	// in: velez.tasks is UNIQUE (entity_id, action), so keying on the bare
+	// name alone would dedup two environments' same-named creates onto one
+	// task. An empty suffix (the default single-environment node) leaves the
+	// id as the bare name - unchanged from before.
+	suffix, err := impl.resolveEnvironment(ctx, req.GetEnvironment())
 	if err != nil {
 		return nil, err
 	}
 
+	entityID := jobs.SmerdEntityID(suffix, req.GetName())
+
 	initialContext := &velez_api.CreateSmerdTaskPayload{}
 	initialContext.SetRequest(req)
 
-	_, err = impl.jobsEngine.Enqueue(ctx, req.GetName(), jobs.CreateSmerdAction, initialContext)
+	_, err = impl.jobsEngine.Enqueue(ctx, entityID, jobs.CreateSmerdAction, initialContext)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error enqueuing create_smerd task")
 	}
@@ -45,7 +50,7 @@ func (impl *Impl) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Re
 
 	var finalTask tasks_queries.VelezTask
 
-	for task := range impl.jobsEngine.Watch(watchCtx, req.GetName(), jobs.CreateSmerdAction) {
+	for task := range impl.jobsEngine.Watch(watchCtx, entityID, jobs.CreateSmerdAction) {
 		finalTask = task
 	}
 

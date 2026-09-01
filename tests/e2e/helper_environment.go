@@ -119,9 +119,16 @@ func WithState(t *testing.T, stateOps ...StateOpt) TestEnvOpt {
 	}
 }
 
-func WithStateVcnEnabled() StateOpt {
+// WithStateVcnEnabled points the app's verv-closed-network client at an
+// already-running headscale (serverURL + apiKey). Both non-empty makes
+// verv_closed_network.SetupVcn take the headscale.Connect(url, key) branch -
+// it connects to the given server and never launches its own headscale
+// container. Pass the shared fixture's address: getSharedHeadscale(t).apiURL
+// / .apiKey.
+func WithStateVcnEnabled(serverURL, apiKey string) StateOpt {
 	return func(a *local_state.State) {
-		a.Network.Headscale.ServerUrl = "http://localhost:8080"
+		a.Network.Headscale.ServerUrl = serverURL
+		a.Network.Headscale.Key = apiKey
 	}
 }
 
@@ -134,6 +141,18 @@ func WithConfigPath(path string) TestEnvOpt {
 func WithContainerSuffix(suffix string) TestEnvOpt {
 	return func(a *TestEnvironment) {
 		a.Cfg.Environment.ContainerSuffix = suffix
+	}
+}
+
+// WithClusterPgDsn injects the ClusterPgDsn advertise-address override
+// (internal/config EnvironmentConfig.ClusterPgDsn) into the loaded config.
+// The enable_statefull job's getRootDsnJob reads Host+Port back out of it so
+// the in-process host app can reach the cluster postgres sidecar running
+// inside the DinD. Applied in the post-config pass, mirroring
+// WithContainerSuffix.
+func WithClusterPgDsn(dsn string) TestEnvOpt {
+	return func(a *TestEnvironment) {
+		a.Cfg.Environment.ClusterPgDsn = dsn
 	}
 }
 

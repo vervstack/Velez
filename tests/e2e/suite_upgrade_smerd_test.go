@@ -63,24 +63,13 @@ const (
 	upgradeSuffixedEnv = "E2EUPGSTAGE"
 )
 
-// Test_UpgradeSmerd_InSuffixedEnvironment is a RED test proving UpgradeSmerd
-// is completely broken for any non-default (suffixed) environment. Root
-// causes (see internal/jobs/upgrade_smerd.go and
-// internal/transport/velez_api_impl/smerd_upgrade.go):
-//
-//  1. Impl.UpgradeSmerd validates req.GetEnvironment() but never copies it
-//     onto the initialContext.UpgradeRequest it builds - Environment is
-//     dropped before the request ever reaches the jobs engine.
-//  2. captureOldContainerJob.Do builds a CreateSmerd_Request without ever
-//     setting Environment on it, even though every downstream step
-//     (port locking, network creation, etc.) reads Environment off that
-//     request.
-//  3. checkSelfUpgradeJob/captureOldContainerJob look up "the current
-//     container" via containerService.InspectSmerd(ctx, bareName) - a raw,
-//     suffix-blind ContainerInspect. In a suffixed environment the real
-//     Docker container is named "name_<suffix>"
-//     (container_runtime.labelBasedRuntime.containerName), so this 404s
-//     immediately, before any upgrade logic runs.
+// Test_UpgradeSmerd_InSuffixedEnvironment proves UpgradeSmerd works end to end
+// for a non-default (suffixed) environment. It was RED while UpgradeSmerd
+// dropped the environment before the jobs engine and looked containers up
+// with a suffix-blind ContainerInspect; both were fixed by the
+// container_runtime UpgradeSmerd environment/suffix work, and Phase 6 (card
+// #127) additionally scopes the jobs-engine entity id by environment so a
+// suffixed upgrade can never dedup onto a default-environment task.
 //
 // It mirrors Test_UpgradeSmerd_HappyPath, but stands up a suffixed,
 // non-default environment first (same fixture shape as
@@ -164,5 +153,6 @@ func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_NonExistentContainer_Fails() {
 }
 
 func Test_UpgradeSmerd(t *testing.T) {
+	t.Parallel()
 	suite.Run(t, new(UpgradeSmerdSuite))
 }

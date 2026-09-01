@@ -97,14 +97,20 @@ Everything else is fakes-only unit tests (`internal/jobs/*_test.go`, `verv_servi
 One branch (`verv/e2e-coverage-push`) off `origin/master`, sequential, one commit per phase,
 single PR. Each phase verifies with `make test-e2e` unless noted.
 
+One branch, sequential, one commit per phase. Order revised 2026-09-01 (see below): the
+service/deployment lifecycle (old Phase 2) runs entirely through cluster Postgres
+(`verv_services.CreateNewDeploy`/`UpgradeDeploy` → `dataStorage.TxManager().Execute` with a real
+`*sql.Tx`; `local_storage.TxManager()` returns `nil`), so it is blocked on the same
+host→DinD cluster-Postgres seam as `Test_EnableStatefull` (old Phase 3). Old Phases 2 and 3
+are merged into one **Phase C**. Test-only, unblocked phases (5, 6) go first.
+
 | # | Commit | Notes |
 |---|---|---|
-| 0 | **Parallelize the e2e suite** | `t.Parallel()` on the top-level suites (the shared matreshka singleton + shared PortManager + per-test name suffixes + `-race` global fixes already make this safe), run with `-parallel N`, persistent docker image-cache volume across runs, tighten fixture healthcheck / `require.Eventually` poll intervals. Target: 2–4× wall-clock. Enables fast verification for every later phase. |
-| 1 | **Verv-stack config assertions + fixture gaps + negative paths** | New `suite_verv_config_test.go`: deploy a verv image via `WithMatreshka()` **without** `IgnoreConfig`, config pre-seeded in matreshka; assert the rendered config file is in the container and derived env vars are set. Add restart-policy + `Plain` file-config + env-var assertions on a stable image (retire the intent from the dead Loki subtest). Add negative deploy tests to `Test_Lifecycle`: non-existent image, port collision, healthcheck-never-healthy, duplicate name. |
-| 2 | **Service/deployment lifecycle e2e** | New `suite_service_lifecycle_test.go`: `CreateService` → `CreateDeploy` → deploy-watcher produces a running container → `ListDeployments` shows RUNNING → `UpgradeDeploy` → status transitions. Real Postgres (reuse the `suite_enable_statefull` disposable-PG pattern). |
-| 3 | **EnableStatefull DSN via matreshka SD** | `buildRootDsnJob` (`internal/jobs/enable_statefull.go`, `!env.IsInContainer` branch) resolves `verv://<pg>` through service discovery instead of composing `localhost:<raw-port>`. Un-skip `Test_EnableStatefull`. Also `go test ./internal/jobs/...`. Trello: [#125](https://trello.com/c/KtAoIAhf). |
-| 5 | **Thin RPC-gap checks** | `Version`, `SearchImages`, `GetHardware`, `GetServiceMetrics/Resources/Graph/Environments/Vervonomicon`. `MakeConnections`/`BreakConnections`: one round-trip test if live, else `reserved` them. |
+| 0 | **Parallelize the e2e suite** — DONE `253c1603` | `t.Parallel()` on the top-level suites, run with `-parallel N`, persistent docker image-cache volume across runs, tighter fixture poll intervals. Wall clock ~255s → ~145s. |
+| 1 | **Verv-stack config assertions + fixture gaps + negative paths** — DONE `699f98d0` | `suite_verv_config_test.go` + negative deploy tests on `Test_Lifecycle`. Surfaced product gaps G1/G2/G3 (§6). |
+| 5 | **Thin RPC-gap checks** *(next)* | New `suite_rpc_gaps_test.go`: `Version`, `SearchImages`, `GetHardware`, `GetServiceMetrics/Resources/Graph/Environments/Vervonomicon` — call each through the real impl, assert reachable shape (no cluster PG needed; service-read RPCs against a name with no deployment return empty, not error). `MakeConnections`/`BreakConnections`: one docker-network round-trip test if live, else document as `reserved`. |
 | 6 | **Environment in jobs entity id** | Compose `entity_id = "<container-suffix>/<name>"` at all 4 Enqueue/Watch sites (`smerd_create.go`, `smerd_upgrade.go`, `smerd_drop.go`, `deploy_watcher.go`). Empty suffix = bare name, so PROD keys and existing `velez.tasks` rows are unchanged. Un-skip the 3 RED/skipped scoping tests. Also `go test ./internal/jobs/... ./internal/transport/...`. Trello: [#127](https://trello.com/c/8u706zaW). |
+| C | **Cluster-PG-reachable-from-host seam + service/deployment lifecycle + EnableStatefull** *(merged old 2+3)* | Not via the `verv://` SD resolver (Phase 1 found it "produces zero addresses" from the in-process host app). Instead: expose the cluster Postgres on a host-reachable DinD port and inject a DSN override into the test app so `buildRootDsnJob`'s `!env.IsInContainer` branch dials a reachable address. Then: un-skip `Test_EnableStatefull`; new `suite_service_lifecycle_test.go` (`CreateService` → `CreateDeploy` → deploy-watcher → running container → `ListDeployments` RUNNING → `UpgradeDeploy` → status transitions). `go test ./internal/jobs/...`. Trello: [#125](https://trello.com/c/KtAoIAhf). |
 | 4 | **Real headscale fixture** *(last)* | Shared per-binary headscale singleton in the DinD harness, un-skip `Test_Vpn` + namespace CRUD + `ConnectService`. Deferred to the end. Trello: [#126](https://trello.com/c/B7RAnMJa) — carries the user-provided image + config. |
 
 ---
@@ -196,6 +202,28 @@ randomize_client_port: false
 
 ---
 
+## 6. Product gaps found mid-flight (need a decision — not fixed)
+
+Surfaced by Phase 1 tests. All test-only phases assert current behaviour as-is; these
+are candidates for Trello cards + product fixes, user's call.
+
+| # | Gap | Where | Impact |
+|---|---|---|---|
+| G1 | `RestartPolicyType_always` (and `unless_stopped`) both collapse to docker `on-failure` with a capped retry count — never `always`/`unless-stopped`. | `internal/clients/node_clients/docker/dockerutils/parser/restart.go` `FromRestart` | "always restart" silently becomes "restart on failure, max 3". |
+| G2 | `healthcheckJob` only inspects `State.Status == "running"`; it never executes `Healthcheck.Command`. | `internal/jobs/create_smerd.go` | A container that stays up with an always-failing healthcheck is reported healthy. `Healthcheck` config is close to inert. |
+| G3 | `copyToContainerJob` writes via `dockerutils.WriteToContainer` with no `mkdir -p` of the parent dir (unlike `copy_to_volume.go`'s `copyFileJob`). | `internal/jobs/create_smerd.go:580` | A `Plain` file-config whose path is under a dir absent from the image fails the entire `create_smerd` task at `copy_to_container`. |
+
+### Phase C approach (resolved 2026-09-01)
+
+The old Phase 3 ("resolve DSN via matreshka SD") leaned on the same `verv://` gRPC resolver
+that Phase 1 found "produces zero addresses" from the in-process host test app. Confirmed:
+do not fight the resolver. Phase C instead exposes cluster Postgres on a host-reachable DinD
+port and injects a DSN override into the test app so `buildRootDsnJob`'s `!env.IsInContainer`
+branch dials a reachable address directly. Old Phases 2 and 3 are done together as Phase C
+because the service/deployment lifecycle is blocked on the same seam.
+
+---
+
 ## 5. Progress log
 
 Append-only. One line per landed phase so a fresh session can resume from here.
@@ -204,3 +232,4 @@ Append-only. One line per landed phase so a fresh session can resume from here.
 |---|---|---|
 | 0 | `253c1603` `[E2E] perf: parallelize the e2e suite` | `t.Parallel()` on 8 testify suites + 2 plain container-runtime tests; `Test_ContainerRuntime_Matrix` left serial (shared fixed suffix), `Test_EnableStatefull`/`Test_Vpn` still skipped. `Makefile` `-parallel 4`. `tests/dind/dind.go`: persistent `<name>-cache` volume at `/var/lib/docker`, survives Teardown, corrupt-cache retry guard, `Setup` split into `bringUp()`/`ensureCacheVolume()`. Postgres healthcheck poll 2s→500ms. Wall clock ~255s → ~145s (~1.75x); green ×2 under `-parallel 4`. Pre-commit gate passed (golangci-lint clean, `go test ./...` green). Test-only + Makefile + dind harness; no product code. The one earlier cold FAIL was a SIGTERM from a concurrent e2e run in the same repo, not a flake. |
 | 1 | `[E2E] Tests: verv-stack config assertions + negative deploy paths` | New `tests/e2e/suite_verv_config_test.go` (`VervConfigSuite`, `t.Parallel()`): `Test_VervConfig_RenderedEnv` asserts verv classification (`MatreshkaConfigLabel=true`), `VERV_NAME` injection, and a `Plain` mount landing in the container; `Test_VervConfig_PlainFileMounted` asserts exact `Plain` bytes inside the running container; `Test_VervConfig_RestartPolicyApplied` asserts the container `HostConfig.RestartPolicy` (`always` currently maps to docker `on-failure`/retry 3 — asserted as-is, product gap). Real matreshka pre-seed did NOT land: `verv://matreshka` gRPC resolver "produces zero addresses" for both the raw configurator client and the `fetch_config` job under the e2e harness, so `!IgnoreConfig` + `Verv` + `WithMatreshka()` deploy fails at `fetch_config`. Fell back to reachable-only assertions with a `TODO(phase-1)` in the test. `tests/e2e/suite_api_deploy_test.go` `LifecycleSuite`: `Test_Negative_NonExistentImage`, `Test_Negative_PortCollision`, `Test_Negative_HealthcheckNeverHealthy`, `Test_Negative_DuplicateName` — each asserts `CreateSmerd` errors (or dedups) and leaves no running smerd; cleanup via `NewEnvironment`'s label-based `env.clean`. `tests/e2e/helper.go`: added `PostgresImage`/`NginxAlpineImage` consts (goconst). Product gaps surfaced, not fixed: (a) `always`→`on-failure` restart mapping in `parser.FromRestart`; (b) `healthcheckJob` never runs `Healthcheck.Command`, only checks `State.Status`; (c) `create_smerd` `copyToContainerJob` has no `mkdir -p` so a `Plain` path under a dir absent from the image fails the whole task. `make lint` clean; `make test-e2e` green (~79s). |
+| 5 | `[E2E] Tests: thin RPC-gap e2e checks` | New `tests/e2e/suite_rpc_gaps_test.go` (`RpcGapsSuite`, one `NewEnvironment(t)` per method, single-node/local_storage — no matreshka, no cluster PG). Subtests: `Test_Version` (asserts non-empty version string); `Test_SearchImages` (`Name:"nginx"` — `image_list.go` always returns an empty `Images` slice, so only an error would surface: `NoError` + non-nil); `Test_GetHardware` (`NoError`, non-nil `Cpu`/`Ram`/`DiskMem` sub-messages only — values are host-dependent); `Test_GetServiceMetrics`/`Resources`/`Graph`/`Environments` (random unique name via `GetServiceName(t)`, all return empty-shape without error for a never-deployed service — assert `NoError` + non-nil + empty result slices); `Test_GetVervonomicon` (unconditional `&Response{}` stub — reachability only, noted in a comment); `Test_MakeAndBreakConnections` — live docker-network round-trip through `ApiGrpcImpl`: `CreateSmerd` (hello_world, `IgnoreConfig:true`) + a raw `bridge` network via the docker client, `MakeConnections{ServiceName: smerd UUID, TargetNetwork: net}` → `ContainerInspect` asserts the net is attached → `BreakConnections` → inspect asserts it is gone; `t.Cleanup` best-effort disconnect + `NetworkRemove`. Nothing reserved/skipped — all 9 subtests pass. The suite entrypoint intentionally omits `t.Parallel()`: the container+network churn in `Test_MakeAndBreakConnections`, run concurrently with the parallel deploy suites, added enough docker-daemon load to intermittently trip the pre-existing Phase-1 `Test_Negative_HealthcheckNeverHealthy` race (product gap G2) — seen once in an early full run, then not again after making this suite serial. No product code touched, no new helper const. `make lint` clean; `make test-e2e` green ×2 back-to-back after the change (~84s, ~87s wall). |

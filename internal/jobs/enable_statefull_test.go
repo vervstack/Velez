@@ -544,22 +544,7 @@ func TestWaitForPgReadyJob_NilContainerState_DoesNotPanic_ContextCancelled(t *te
 func TestGetRootDsnJob_Success_ParsesEnvVars(t *testing.T) {
 	api := newFakeContainerAPI()
 
-	networkSettings := &container.NetworkSettings{}
-
-	networkSettings.Ports = nat.PortMap{
-		"5432/tcp": []nat.PortBinding{{HostPort: "15432"}},
-	}
-
-	api.inspectResp = container.InspectResponse{
-		Config: &container.Config{
-			Env: []string{
-				"POSTGRES_DB=postgres",
-				"POSTGRES_USER=postgres",
-				"POSTGRES_PASSWORD=root-pwd",
-			},
-		},
-		NetworkSettings: networkSettings,
-	}
+	api.inspectResp = newGetRootDsnInspectResp()
 
 	payload := &velez_api.EnableStatefullTaskPayload{
 		Request:     &velez_api.EnableStatefullCluster{IsExposePort: protoBool(true)},
@@ -597,6 +582,107 @@ func TestGetRootDsnJob_InspectError(t *testing.T) {
 	err := j.Do(context.Background())
 	if err == nil {
 		t.Fatal("expected an error when ContainerInspect fails")
+	}
+}
+
+func newGetRootDsnInspectResp() container.InspectResponse {
+	networkSettings := &container.NetworkSettings{}
+
+	networkSettings.Ports = nat.PortMap{
+		"5432/tcp": []nat.PortBinding{{HostPort: "15432"}},
+	}
+
+	return container.InspectResponse{
+		Config: &container.Config{
+			Env: []string{
+				"POSTGRES_DB=postgres",
+				"POSTGRES_USER=postgres",
+				"POSTGRES_PASSWORD=root-pwd",
+			},
+		},
+		NetworkSettings: networkSettings,
+	}
+}
+
+// With no advertiseDsn (production default), the bare-binary branch keeps
+// dialing localhost + the raw exposed host port - byte-identical to the
+// behaviour before the ClusterPgDsn seam existed.
+func TestGetRootDsnJob_NoAdvertiseDsn_UsesLocalhostAndExposedPort(t *testing.T) {
+	if env.IsInContainer() {
+		t.Skip("the localhost+exposed-port branch only runs when velez is not itself in a container")
+	}
+
+	api := newFakeContainerAPI()
+
+	api.inspectResp = newGetRootDsnInspectResp()
+
+	payload := &velez_api.EnableStatefullTaskPayload{
+		Request:     &velez_api.EnableStatefullCluster{IsExposePort: protoBool(true)},
+		ContainerId: proto(testPgContainerID),
+	}
+
+	j := &getRootDsnJob{dockerAPI: api, ctx: payload, pgName: state.PgName("")}
+
+	err := j.Do(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	var got resources.Postgres
+
+	err = got.ParseFromDsn(payload.GetRootDsn())
+	if err != nil {
+		t.Fatalf("expected a parseable dsn, got error: %v", err)
+	}
+
+	if got.Host != "localhost" || got.Port != 15432 {
+		t.Errorf("expected localhost:15432 (exposed port), got %s:%d", got.Host, got.Port)
+	}
+}
+
+// With advertiseDsn set, the bare-binary branch takes host+port from it and
+// still takes user/pwd/dbname from the container's own env vars.
+func TestGetRootDsnJob_AdvertiseDsn_OverridesHostPort(t *testing.T) {
+	if env.IsInContainer() {
+		t.Skip("the advertiseDsn override only applies on the bare-binary branch")
+	}
+
+	api := newFakeContainerAPI()
+
+	api.inspectResp = newGetRootDsnInspectResp()
+
+	advertisePg := resources.Postgres{Host: "10.1.2.3", Port: 54329, User: "ignored", SslMode: "disable"}
+
+	payload := &velez_api.EnableStatefullTaskPayload{
+		Request:     &velez_api.EnableStatefullCluster{IsExposePort: protoBool(true)},
+		ContainerId: proto(testPgContainerID),
+	}
+
+	j := &getRootDsnJob{
+		dockerAPI:    api,
+		ctx:          payload,
+		pgName:       state.PgName(""),
+		advertiseDsn: advertisePg.ConnectionString(),
+	}
+
+	err := j.Do(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	var got resources.Postgres
+
+	err = got.ParseFromDsn(payload.GetRootDsn())
+	if err != nil {
+		t.Fatalf("expected a parseable dsn, got error: %v", err)
+	}
+
+	if got.Host != "10.1.2.3" || got.Port != 54329 {
+		t.Errorf("expected host/port from advertiseDsn (10.1.2.3:54329), got %s:%d", got.Host, got.Port)
+	}
+
+	if got.User != pgDefaultUser || got.Pwd != "root-pwd" {
+		t.Errorf("expected user/pwd still from container env, got user=%q pwd=%q", got.User, got.Pwd)
 	}
 }
 

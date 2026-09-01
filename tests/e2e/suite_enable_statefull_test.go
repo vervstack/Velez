@@ -1,18 +1,14 @@
 package e2e
 
 import (
-	"context"
 	"path/filepath"
 	"runtime"
 	"testing"
 
-	"github.com/docker/docker/api/types/container"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"go.redsock.ru/toolbox"
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
-	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
 // enableStatefullTestSuffix is this suite's ContainerSuffix, fixed and
@@ -34,9 +30,15 @@ const (
 // fakes (internal/jobs/enable_statefull_test.go), whose own comments call
 // out that the success path - create_schema_and_migrate/create_pg_user
 // reaching a real Postgres - has no coverage anywhere but tests/e2e. This
-// suite is that coverage; it does its own waiting (via JobsEngine.Watch, the
-// same way a real client would through TasksApi.WatchTask) before asserting
-// on the job's effects.
+// suite is that coverage; enableStatefullPgUnderDind does the waiting (via
+// JobsEngine.Watch, the same way a real client would through
+// TasksApi.WatchTask) before this suite asserts on the job's effects.
+//
+// The in-process host app reaches the cluster postgres sidecar (which runs
+// inside the DinD daemon) through the ClusterPgDsn advertise-address seam:
+// enableStatefullPgUnderDind pins the sidecar's 5432 to dindClusterPgPort
+// (published by the DinD) and points ClusterPgDsn at the bootstrap-host
+// address for that port.
 //
 // The postgres container/volume this job creates are named with this
 // suite's own fixed enableStatefullTestSuffix (via WithContainerSuffix), not
@@ -53,48 +55,8 @@ type EnableStatefullSuite struct {
 func (s *EnableStatefullSuite) Test_EnableStatefullMode_HappyPath() {
 	t := s.T()
 
-	env := NewEnvironment(t, WithContainerSuffix(enableStatefullTestSuffix))
+	env, pgName := enableStatefullPgUnderDind(t, enableStatefullTestSuffix)
 	dockerClient := env.Custom.NodeClients.Docker().Client()
-
-	pgName := state.PgName(enableStatefullTestSuffix)
-
-	t.Cleanup(func() {
-		ctx := context.Background()
-		removeOpts := container.RemoveOptions{Force: true}
-
-		_ = dockerClient.ContainerRemove(ctx, pgName, removeOpts)
-		_ = dockerClient.VolumeRemove(ctx, pgName, true)
-	})
-
-	// sqldb.RollMigration (called by the create_schema_and_migrate job) rolls
-	// goose migrations from the hardcoded relative path "./migrations" - a
-	// pre-existing constraint of that function (see enable_statefull.go's
-	// createSchemaAndMigrateJob comment), not something this test controls.
-	// `go test` runs with cwd = the package directory, so it must be pointed
-	// at the repo root for the duration of this test.
-	t.Chdir(repoRoot(t))
-
-	statefullReq := &velez_api.EnableStatefullCluster{
-		IsExposePort: toolbox.ToPtr(true),
-	}
-	payload := &velez_api.EnablePlugin_Request_StatefullCluster{
-		StatefullCluster: statefullReq,
-	}
-	req := &velez_api.EnablePlugin_Request{
-		Plugin:  velez_api.VervPluginType_statefull_pg,
-		Payload: payload,
-	}
-
-	resp, err := env.Custom.ControlPlaneApiImpl.EnablePlugin(t.Context(), req)
-	require.NoError(t, err)
-
-	var finalTask tasks_queries.VelezTask
-
-	for task := range env.Custom.JobsEngine.Watch(t.Context(), resp.GetEntityId(), resp.GetAction()) {
-		finalTask = task
-	}
-
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, finalTask.Status, "task error: %s", finalTask.Error.String)
 
 	inspect, err := dockerClient.ContainerInspect(t.Context(), pgName)
 	require.NoError(t, err)
@@ -170,15 +132,6 @@ func (s *EnableStatefullSuite) Test_EnableStatefullMode_UnsupportedPlugin_Fails(
 }
 
 func Test_EnableStatefull(t *testing.T) {
-	// TODO(dind-harness): the happy path needs the in-process (host) app to
-	// open a SQL connection to the cluster postgres, which runs inside the
-	// DinD. buildRootDsnJob hardcodes pgCfg.Host = "localhost" and the raw
-	// exposed port (enable_statefull.go, !env.IsInContainer branch), so the
-	// app dials localhost:<dind-side-port> and gets connection refused.
-	// Needs a product seam to advertise the DinD host + republished port
-	// (approach A only wired the docker-port band + matreshka SD so far).
-	t.Skip("pending host->DinD cluster-postgres DSN seam")
-
 	suite.Run(t, new(EnableStatefullSuite))
 }
 

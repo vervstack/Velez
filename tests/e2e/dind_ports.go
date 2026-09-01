@@ -21,6 +21,14 @@ const (
 	dindMatreshkaPort = 30000
 	dindPortBandStart = 30001
 	dindPortBandEnd   = 30019
+
+	// dindClusterPgPort is carved out the same way dindMatreshkaPort is: the
+	// DinD daemon publishes it (so the host process can reach the cluster-pg
+	// sidecar), but it is deliberately kept OUT of the PortManager band
+	// (dindAvailablePorts) so PortManager never hands it to another test's
+	// smerd. The enable-statefull flow pins the sidecar's 5432 to this port
+	// inside the DinD via EnableStatefullCluster.ExposeToPort.
+	dindClusterPgPort = 30020
 )
 
 var (
@@ -46,13 +54,18 @@ var (
 )
 
 // dindPublishPorts is every container-side port the DinD daemon must
-// publish: the matreshka bind plus the whole PortManager band.
+// publish: the matreshka bind, the whole PortManager band, and the
+// carved-out cluster-pg port (which is NOT in the band).
 func dindPublishPorts() []int {
-	ports := make([]int, 0, dindPortBandEnd-dindMatreshkaPort+1)
+	bandLen := dindPortBandEnd - dindMatreshkaPort + 1
+
+	ports := make([]int, 0, bandLen+1)
 
 	for p := dindMatreshkaPort; p <= dindPortBandEnd; p++ {
 		ports = append(ports, p)
 	}
+
+	ports = append(ports, dindClusterPgPort)
 
 	return ports
 }

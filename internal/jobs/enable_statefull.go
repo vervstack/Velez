@@ -229,9 +229,10 @@ func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: stepGetRootDsn,
 			Job: &getRootDsnJob{
-				dockerAPI: h.nodeClients.Docker().Client(),
-				ctx:       payload,
-				pgName:    pgName,
+				dockerAPI:    h.nodeClients.Docker().Client(),
+				ctx:          payload,
+				pgName:       pgName,
+				advertiseDsn: h.cfg.Environment.ClusterPgDsn,
 			},
 		},
 		{
@@ -565,6 +566,14 @@ type getRootDsnJob struct {
 	}
 
 	pgName string
+
+	// advertiseDsn overrides the host:port the root DSN advertises when Velez
+	// runs as a bare binary (env.IsInContainer() false). Sourced from
+	// EnvironmentConfig.ClusterPgDsn; empty is production's default and keeps
+	// today's exact "localhost:<exposed port>" behaviour. Only Host and Port
+	// are read back out - user/pwd/dbname still come from the container's env
+	// vars parsed above. Ignored entirely when env.IsInContainer() is true.
+	advertiseDsn string
 }
 
 func (j *getRootDsnJob) Do(ctx context.Context) error {
@@ -604,15 +613,46 @@ func (j *getRootDsnJob) Do(ctx context.Context) error {
 	}
 
 	if !env.IsInContainer() {
-		pgCfg.Host = "localhost"
-
-		pgCfg.Port, err = getExposedPgPort(cont)
+		err = j.applyBareBinaryHostPort(pgCfg, cont)
 		if err != nil {
-			return rerrors.Wrap(err, "error getting exposed pg port")
+			return rerrors.Wrap(err)
 		}
 	}
 
 	j.ctx.SetRootDsn(pgCfg.ConnectionString() + "&application_name=RootSetup")
+
+	return nil
+}
+
+// applyBareBinaryHostPort rewrites pgCfg.Host/Port for the case where Velez
+// runs as a bare binary (env.IsInContainer() false) and so cannot reach the
+// postgres container on its in-namespace address. With advertiseDsn set (the
+// ClusterPgDsn seam) host+port come from it; otherwise from the container's
+// own exposed 5432 on localhost - today's default. User/pwd/dbname are left
+// untouched: they were already parsed from the container's env vars.
+func (j *getRootDsnJob) applyBareBinaryHostPort(pgCfg *resources.Postgres, cont container.InspectResponse) error {
+	if j.advertiseDsn != "" {
+		adv := &resources.Postgres{}
+
+		err := adv.ParseFromDsn(j.advertiseDsn)
+		if err != nil {
+			return rerrors.Wrap(err, "error parsing advertise dsn")
+		}
+
+		pgCfg.Host = adv.Host
+		pgCfg.Port = adv.Port
+
+		return nil
+	}
+
+	pgCfg.Host = "localhost"
+
+	exposedPort, err := getExposedPgPort(cont)
+	if err != nil {
+		return rerrors.Wrap(err, "error getting exposed pg port")
+	}
+
+	pgCfg.Port = exposedPort
 
 	return nil
 }

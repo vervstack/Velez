@@ -140,7 +140,7 @@
     "semantic_hash": ""
   },
   "internal/app/custom.go": {
-    "mtime": 1788240368.9641604,
+    "mtime": 1788240919.8030155,
     "ast_hash": "60fecf184c06083c52de3f9ff606eb51",
     "semantic_hash": ""
   },
@@ -1135,7 +1135,7 @@
     "semantic_hash": ""
   },
   "internal/transport/velez_api_impl/smerd_create.go": {
-    "mtime": 1788240368.965455,
+    "mtime": 1788240919.8131733,
     "ast_hash": "7179d99c3688d3acda9ca0e3b7906c98",
     "semantic_hash": ""
   },
@@ -1150,7 +1150,7 @@
     "semantic_hash": ""
   },
   "internal/transport/velez_api_impl/smerd_upgrade.go": {
-    "mtime": 1788240368.965888,
+    "mtime": 1788240919.8145604,
     "ast_hash": "792a0871e0793eec0ead078177607f75",
     "semantic_hash": ""
   },
@@ -1170,7 +1170,7 @@
     "semantic_hash": "e0653556d6acb1eef39503071037bfe9"
   },
   "internal/workers/deploy_watcher.go": {
-    "mtime": 1788240368.966461,
+    "mtime": 1788240919.8255153,
     "ast_hash": "586885e28cbeb76e72c67c9c39ed7264",
     "semantic_hash": ""
   },
@@ -1850,8 +1850,8 @@
     "semantic_hash": ""
   },
   "tests/e2e/helper_environment.go": {
-    "mtime": 1788204944.6690917,
-    "ast_hash": "f90e4055f18bf9a8c0fc103177768937",
+    "mtime": 1788242204.0299015,
+    "ast_hash": "9939559ad1d9529c060becd6028f5bfd",
     "semantic_hash": ""
   },
   "tests/e2e/suite_api_deploy_test.go": {
@@ -1880,7 +1880,7 @@
     "semantic_hash": ""
   },
   "tests/e2e/test_data/default-private-key.json": {
-    "mtime": 1788240661.5377514,
+    "mtime": 1788243565.4391496,
     "ast_hash": "cae2e59515c093157fa819ebb76bbc72",
     "semantic_hash": "cae2e59515c093157fa819ebb76bbc72"
   },
@@ -2545,7 +2545,7 @@
     "semantic_hash": ""
   },
   "internal/transport/tasks_api_impl/impl.go": {
-    "mtime": 1788240368.9645813,
+    "mtime": 1788240919.80924,
     "ast_hash": "9edf519ba080a6e761ffe21126addc7d",
     "semantic_hash": ""
   },
@@ -2620,13 +2620,13 @@
     "semantic_hash": ""
   },
   "internal/jobs/enable_statefull.go": {
-    "mtime": 1788204931.4454951,
-    "ast_hash": "382a4b5b6c26101c31ba066b80a401e2",
+    "mtime": 1788242813.171793,
+    "ast_hash": "df110abbbaca38f15111b70e156a0cd2",
     "semantic_hash": ""
   },
   "internal/jobs/enable_statefull_test.go": {
-    "mtime": 1788204931.4459236,
-    "ast_hash": "d48e3584e89c038ae9f92bccabbae3e3",
+    "mtime": 1788242778.8072622,
+    "ast_hash": "f76d2eb062fd9db67955c01db7bb36a3",
     "semantic_hash": ""
   },
   "docs/security/vpn_client_key_storage.md": {
@@ -2650,12 +2650,12 @@
     "semantic_hash": ""
   },
   "tests/e2e/suite_enable_statefull_test.go": {
-    "mtime": 1788204944.6704183,
-    "ast_hash": "e620284f1a96ae417e3b8c051954142f",
+    "mtime": 1788242465.6320832,
+    "ast_hash": "7030d59add8205dfc71744d71f625e42",
     "semantic_hash": ""
   },
   "tests/e2e/suite_upgrade_smerd_test.go": {
-    "mtime": 1788240406.7201726,
+    "mtime": 1788240919.8301542,
     "ast_hash": "6d7c03b5f45ae0fcd9e0e45442220f11",
     "semantic_hash": ""
   },
@@ -2695,7 +2695,7 @@
     "semantic_hash": ""
   },
   "internal/transport/tasks_api_impl/impl_test.go": {
-    "mtime": 1788240368.9650393,
+    "mtime": 1788240919.8110673,
     "ast_hash": "5fc07e41590ac95b4d085eda82658df0",
     "semantic_hash": ""
   },
@@ -3160,7 +3160,7 @@
     "semantic_hash": ""
   },
   "tests/e2e/suite_environments_test.go": {
-    "mtime": 1788240394.1603682,
+    "mtime": 1788240919.8292036,
     "ast_hash": "44dadd3892ab1c6e254fd39f046a751a",
     "semantic_hash": ""
   },
@@ -3260,7 +3260,7 @@
     "semantic_hash": ""
   },
   "internal/workers/deploy_watcher_test.go": {
-    "mtime": 1788240368.9668849,
+    "mtime": 1788240919.826876,
     "ast_hash": "b99337bc8690bdee5edb4eafa6393897",
     "semantic_hash": ""
   },
@@ -3370,22 +3370,22 @@
     "semantic_hash": ""
   },
   "tests/e2e/dind_ports.go": {
-    "mtime": 1788204944.6684618,
-    "ast_hash": "8564aa42fee92354b7da165f874ad60a",
+    "mtime": 1788242802.4736798,
+    "ast_hash": "eb142c14194bb4aacb7e820475422c6e",
     "semantic_hash": ""
   },
   "docs/plans/e2e_coverage.md": {
-    "mtime": 1788240633.2089713,
+    "mtime": 1788240919.7129664,
     "ast_hash": "1357d6f6aa60c127cc5564da4a6cdf92",
     "semantic_hash": ""
   },
   "internal/jobs/entity_id.go": {
-    "mtime": 1788240181.307624,
+    "mtime": 1788240919.8064516,
     "ast_hash": "fdcb68f9c4efb13587fbe233804c6aa1",
     "semantic_hash": ""
   },
   "internal/jobs/entity_id_test.go": {
-    "mtime": 1788240186.0009978,
+    "mtime": 1788240919.8071043,
     "ast_hash": "96db97857e1f2e717f667d4b49f590e0",
     "semantic_hash": ""
   },
@@ -3397,6 +3397,16 @@
   "tests/e2e/suite_verv_config_test.go": {
     "mtime": 1788212809.2059789,
     "ast_hash": "247785d88dad0d5da5a5d8ee4d6c0b73",
+    "semantic_hash": ""
+  },
+  "tests/e2e/helper_statefull_test.go": {
+    "mtime": 1788242222.0174472,
+    "ast_hash": "fc2cb7e63cea94a03609b602cb4f89a3",
+    "semantic_hash": ""
+  },
+  "tests/e2e/suite_service_lifecycle_test.go": {
+    "mtime": 1788243156.7517753,
+    "ast_hash": "fdac3c7ddafe2ee505799210032c384f",
     "semantic_hash": ""
   }
 }

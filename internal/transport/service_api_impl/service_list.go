@@ -27,7 +27,8 @@ func (impl *Impl) ListServices(
 
 func fromListServiceRequest(pbReq *velez_api.ListServices_Request) domain.ListServicesReq {
 	req := domain.ListServicesReq{
-		Paging: common.FromPaging(pbReq.GetPaging()),
+		Paging:          common.FromPaging(pbReq.GetPaging()),
+		IncludeInternal: pbReq.GetIncludeInternal(),
 	}
 
 	if pbReq.SearchPattern != nil {

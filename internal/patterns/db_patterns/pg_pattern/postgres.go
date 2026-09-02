@@ -14,8 +14,11 @@ import (
 )
 
 const (
-	postgresImage              = "postgres:18"
-	postgresInstanceName       = "postgres"
+	postgresImage        = "postgres:18"
+	postgresInstanceName = "postgres"
+	postgresDescription  = "Vervstack cluster-mode PostgreSQL sidecar. " +
+		"Backing store for this node's cluster state and per-service databases; " +
+		"provisioned automatically when statefull mode is enabled."
 	postgresDbName             = "postgres"
 	postgresUser               = "postgres"
 	postgresPort               = 5432
@@ -73,6 +76,7 @@ func Postgres(opts ...Opt) Pattern {
 			},
 			Labels: map[string]string{
 				labels.ComposeGroupLabel: ctor.InstanceName,
+				labels.DescriptionLabel:  postgresDescription,
 			},
 			Healthcheck: &container.HealthConfig{
 				Test: []string{

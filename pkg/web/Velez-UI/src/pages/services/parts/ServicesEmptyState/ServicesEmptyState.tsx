@@ -1,17 +1,18 @@
-import {useDialog} from '@/app/hooks/dialog/Dialog.tsx';
-import CreateAppDialog from '@/dialogs/CreateAppDialog/CreateAppDialog.tsx';
 import Button from '@/components/base/Button.tsx';
-import cls from '@/pages/apps/parts/AppsEmptyState/AppsEmptyState.module.css';
+import cls from '@/pages/services/parts/ServicesEmptyState/ServicesEmptyState.module.css';
 
-export default function AppsEmptyState() {
-    const {OpenDialog} = useDialog();
+interface ServicesEmptyStateProps {
+    includeInternal: boolean;
+    onCreate: () => void;
+}
 
-    function handleCreateFirst() {
-        OpenDialog(<CreateAppDialog/>);
-    }
+export default function ServicesEmptyState({includeInternal, onCreate}: ServicesEmptyStateProps) {
+    const message = includeInternal
+        ? 'No services on this node.'
+        : 'No application services on this node.';
 
     return (
-        <div className={cls.AppsEmptyStateContainer}>
+        <div className={cls.ServicesEmptyStateContainer}>
             <svg
                 className={cls.Icon}
                 viewBox="0 0 24 24"
@@ -29,9 +30,9 @@ export default function AppsEmptyState() {
                 <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
                 <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
             </svg>
-            <div className={cls.Message}>No apps on this node yet.</div>
-            <Button variant="primary" onClick={handleCreateFirst}>
-                Create your first App
+            <div className={cls.Message}>{message}</div>
+            <Button variant="primary" onClick={onCreate}>
+                Create your first service
             </Button>
         </div>
     );

@@ -13,6 +13,14 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
+// velezServiceName is the name of the node manager itself. In single-node
+// mode the Velez container may or may not carry a user-set VERV_SERVICE
+// label, so listDistinctServices injects a synthetic entry for it,
+// deduplicated by name.
+const (
+	velezServiceName = "velez"
+)
+
 type dockerServices struct {
 	docker node_clients.Docker
 }
@@ -32,6 +40,10 @@ func (s *dockerServices) GetByName(ctx context.Context, name string) (domain.Ser
 	}
 
 	if len(containers) == 0 {
+		if name == velezServiceName {
+			return s.syntheticVelezService(ctx)
+		}
+
 		return domain.Service{}, storage.ErrNotFound
 	}
 
@@ -105,6 +117,19 @@ func (s *dockerServices) List(ctx context.Context, req domain.ListServicesReq) (
 		all = filtered
 	}
 
+	if !req.IncludeInternal {
+		visible := all[:0]
+		for _, svc := range all {
+			if domain.IsInternalLabels(svc.Labels) {
+				continue
+			}
+
+			visible = append(visible, svc)
+		}
+
+		all = visible
+	}
+
 	total := uint64(len(all))
 
 	if req.Paging.Offset < total {
@@ -125,6 +150,37 @@ func (s *dockerServices) List(ctx context.Context, req domain.ListServicesReq) (
 	return out, nil
 }
 
+// syntheticVelezService mirrors the synthetic "velez" entry that
+// listDistinctServices injects into the service list: in single-node mode
+// Velez usually runs as a bare binary with no container of its own, so
+// GetByName finds nothing to back the detail page. Returning ErrNotFound
+// here would 500 a card the service list itself handed out. Reuses
+// listDistinctServices so the derived labels (including the bound-resource
+// scan) stay identical to the list entry.
+func (s *dockerServices) syntheticVelezService(ctx context.Context) (domain.Service, error) {
+	all, err := listDistinctServices(ctx, s.docker)
+	if err != nil {
+		return domain.Service{}, rerrors.Wrap(err, "error deriving synthetic velez service")
+	}
+
+	for _, info := range all {
+		if info.Name != velezServiceName {
+			continue
+		}
+
+		info.Status = containerStateRunning
+
+		svc := domain.Service{
+			ServiceBaseInfo: info,
+			Status:          pb.DeploymentStatus_RUNNING,
+		}
+
+		return svc, nil
+	}
+
+	return domain.Service{}, storage.ErrNotFound
+}
+
 // listDistinctServices derives the list of distinct Verv service names from
 // live Docker container labels. It is shared between dockerServices.List
 // (service listing) and nodes.List (running-services count for the Node
@@ -135,6 +191,16 @@ func listDistinctServices(ctx context.Context, docker node_clients.Docker) ([]do
 	containers, err := docker.ListContainers(ctx, listReq, allEnvironments)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error listing containers")
+	}
+
+	containerNames := make([]string, 0, len(containers))
+
+	for _, c := range containers {
+		if len(c.Names) == 0 {
+			continue
+		}
+
+		containerNames = append(containerNames, strings.TrimPrefix(c.Names[0], "/"))
 	}
 
 	seen := make(map[string]bool)
@@ -150,13 +216,44 @@ func listDistinctServices(ctx context.Context, docker node_clients.Docker) ([]do
 		seen[serviceName] = true
 
 		info := domain.ServiceBaseInfo{
-			Name: serviceName,
+			Name:   serviceName,
+			Labels: classifyDockerService(serviceName, containerNames),
 		}
 
 		all = append(all, info)
 	}
 
+	if !seen[velezServiceName] {
+		synthetic := domain.ServiceBaseInfo{
+			Name:   velezServiceName,
+			Labels: classifyDockerService(velezServiceName, containerNames),
+		}
+
+		all = append(all, synthetic)
+	}
+
 	return all, nil
+}
+
+// classifyDockerService derives a single-node service entry's labels. A
+// service owns a bound resource when a sibling container is named
+// "<serviceName>_<suffix>" (the same "<service>_<x>" prefix scan
+// dockerServiceResourcesStorage.GetResources uses); the suffix is the
+// resource type. Otherwise the entry is classified by name alone.
+func classifyDockerService(serviceName string, containerNames []string) []string {
+	prefix := serviceName + "_"
+
+	for _, name := range containerNames {
+		if !strings.HasPrefix(name, prefix) {
+			continue
+		}
+
+		resourceType := strings.TrimPrefix(name, prefix)
+
+		return domain.ClassifyService(serviceName, resourceType)
+	}
+
+	return domain.ClassifyService(serviceName, "")
 }
 
 // countRunningServices returns the number of distinct running Verv services

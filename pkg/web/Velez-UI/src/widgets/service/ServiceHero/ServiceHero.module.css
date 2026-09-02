@@ -125,10 +125,33 @@
     }
 }
 
+.MetricsGridWrapper {
+    position: relative;
+}
+
 .MetricsGrid {
     display: grid;
     grid-template-columns: repeat(4, minmax(6.875rem, 1fr));
     gap: 0.875rem;
+}
+
+.BinaryNoticeWrapper {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5625rem;
+    background: rgba(19, 19, 26, 0.72);
+    backdrop-filter: blur(1.5px);
+}
+
+.BinaryNoticeText {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: #b0b0c8;
+    text-align: center;
+    padding: 0 1rem;
 }
 
 .MetricTile {

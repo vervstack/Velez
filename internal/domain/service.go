@@ -38,6 +38,9 @@ type ServiceBaseInfo struct {
 	Status         string
 	Env            string
 	Repo           string
+	// Labels - derived, never stored. One of "service-core", "service-app",
+	// "resource-<type>". Populated by the storage layer via ClassifyService.
+	Labels []string
 }
 
 type GetServiceReq struct {
@@ -69,6 +72,10 @@ type UpgradeDeployReq struct {
 type ListServicesReq struct {
 	Paging      Paging
 	NamePattern rtb.Optional[string]
+
+	// IncludeInternal - when false, Verv-internal entries (core services and
+	// anything bound as a resource) are excluded from the result.
+	IncludeInternal bool
 }
 
 type ServiceList struct {

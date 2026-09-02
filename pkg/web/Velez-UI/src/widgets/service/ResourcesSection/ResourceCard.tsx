@@ -1,44 +1,40 @@
+import cn from 'classnames'
+
 import type {ServiceResource} from '@/model/service_page/ServicePageModel'
 
 import cls from './ResourceCard.module.css'
-import Button from "@/components/base/Button.tsx";
 
 interface ResourceCardProps {
     resource: ServiceResource
 }
 
 export default function ResourceCard({resource}: ResourceCardProps) {
-    const statusClass = resource.status === 'healthy'
-        ? cls.healthy
-        : resource.status === 'degraded'
-            ? cls.degraded
-            : cls.unhealthy
-
     return (
-        // TODO Implement Resources
-        <Button
-            borderless nopadding
-            disabled
-            tooltipContent={'Not implemented yet'}
+        <div
+            className={cls.ResourceCardContainer}
+            style={{'--resource-color': resource.color} as React.CSSProperties}
         >
-            <div
-                className={cls.ResourceCardContainer}
-                style={{'--resource-color': resource.color} as React.CSSProperties}
-            >
-                <div className={cls.HeaderWrapper}>
-                    <div className={cls.IconSquare}>{resource.icon}</div>
-                    <div className={cls.NameGroup}>
-                        <span className={cls.ResourceName}>{resource.id}</span>
-                        <span className={cls.KindDesc}>{resource.kind} · {resource.desc}</span>
-                    </div>
-                    <span className={`${cls.StatusDot} ${statusClass}`}/>
+            <div className={cls.HeaderWrapper}>
+                <div className={cls.IconSquare}>{resource.icon}</div>
+                <div className={cls.NameGroup}>
+                    <span className={cls.ResourceName}>{resource.name}</span>
+                    <span className={cls.KindDesc}>{resource.type}</span>
                 </div>
-                <p className={cls.HostLine}>{resource.host}</p>
-                <div className={cls.MetaRow}>
-                    <span className={cls.MetaItem}><span>use</span>{resource.use}</span>
-                    <span className={cls.MetaItem}><span>hits</span>{resource.hits}</span>
-                </div>
+                <span className={cn(cls.StatusDot, statusDotClass(resource.status))}/>
             </div>
-        </Button>
+        </div>
     )
+}
+
+function statusDotClass(status: ServiceResource['status']): string {
+    switch (status) {
+        case 'healthy':
+            return cls.healthy
+        case 'degraded':
+            return cls.degraded
+        case 'unhealthy':
+            return cls.unhealthy
+        default:
+            return cls.unknown
+    }
 }

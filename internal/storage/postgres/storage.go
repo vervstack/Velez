@@ -10,6 +10,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/environments"
+	service_resources_queries "go.vervstack.ru/Velez/internal/storage/postgres/generated/service_resources_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/services_queries"
 	"go.vervstack.ru/Velez/internal/storage/registries"
 )
@@ -33,8 +34,9 @@ func New(db *sql.DB) storage.Storage {
 	return &Storage{
 		nodeStorage: newNodeStorage(db),
 		servicesStorage: &servicesStorage{
-			conn:    db,
-			querier: services_queries.New(db),
+			conn:            db,
+			querier:         services_queries.New(db),
+			resourceQuerier: service_resources_queries.New(db),
 		},
 
 		deploymentsStorage:         newDeploymentsStorage(db),

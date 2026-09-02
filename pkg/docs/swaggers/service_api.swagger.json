@@ -940,6 +940,10 @@
         },
         "searchPattern": {
           "type": "string"
+        },
+        "includeInternal": {
+          "type": "boolean",
+          "description": "include_internal - when false (default) Verv-internal entries are hidden:\ncore services (velez, matreshka, ...) and anything bound as a resource."
         }
       }
     },
@@ -1113,6 +1117,13 @@
         "repo": {
           "type": "string",
           "title": "value of the 'repo' label if set, else empty"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "labels - derived server-side, never stored. One of:\n  \"service-core\" | \"service-app\" | \"resource-\u003ctype\u003e\""
         }
       }
     },
@@ -1182,6 +1193,13 @@
         },
         "status": {
           "$ref": "#/definitions/velez_apiDeploymentStatus"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "labels - derived server-side, never stored. Same vocabulary as\nServiceBaseInfo.labels: \"service-core\" | \"service-app\" | \"resource-\u003ctype\u003e\"."
         }
       }
     },

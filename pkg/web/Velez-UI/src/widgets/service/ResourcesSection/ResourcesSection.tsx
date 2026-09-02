@@ -46,7 +46,7 @@ function ResourcesRow({resources}: { resources: ServiceResource[] }) {
             {resources
                 .map((resource) =>
                     <ResourceCard
-                        key={resource.id}
+                        key={resource.name}
                         resource={resource}/>
                 )}
         </div>

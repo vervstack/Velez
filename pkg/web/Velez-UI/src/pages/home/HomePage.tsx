@@ -1,6 +1,7 @@
 import {useNavigate} from "react-router-dom";
 import {useState, useEffect, type MouseEvent} from "react";
 import cn from "classnames";
+import {Toggle} from "@vervstack/chures";
 
 import {ServiceBaseInfo, Smerd, SmerdStatus} from "@/app/api/velez";
 
@@ -10,6 +11,7 @@ import {Toast, useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
 import {Routes} from "@/app/router/Router.tsx";
 import Button from "@/components/base/Button.tsx";
+import ServiceLabelBadge from "@/components/service/ServiceLabelBadge.tsx";
 import SkeletonServiceCard from "@/components/service/SkeletonServiceCard.tsx";
 import SkeletonSmerdRow from "@/components/smerd/SkeletonSmerdRow.tsx";
 import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorState.tsx";
@@ -18,10 +20,35 @@ import {useListSmerdsQuery} from "@/processes/queries/smerds.ts";
 import {serviceService} from "@/processes/api/service.ts";
 import RemoveServiceDialog from "@/dialogs/RemoveServiceDialog/RemoveServiceDialog.tsx";
 
+const INCLUDE_INTERNAL_KEY = "services.includeInternal";
+
+function readIncludeInternal(): boolean {
+    try {
+        return localStorage.getItem(INCLUDE_INTERNAL_KEY) === "true";
+    } catch {
+        return false;
+    }
+}
+
+function writeIncludeInternal(value: boolean) {
+    try {
+        localStorage.setItem(INCLUDE_INTERNAL_KEY, String(value));
+    } catch {
+        // localStorage unavailable (private mode, blocked) — non-fatal.
+    }
+}
+
 export default function HomePage() {
     const toaster = useToaster();
 
-    const servicesQuery = useListServicesQuery();
+    const [includeInternal, setIncludeInternal] = useState(readIncludeInternal);
+
+    function handleIncludeInternalChange(value: boolean) {
+        setIncludeInternal(value);
+        writeIncludeInternal(value);
+    }
+
+    const servicesQuery = useListServicesQuery(includeInternal);
     useEffect(() => {
         if (servicesQuery.error) toaster.catchGrpc(servicesQuery.error);
     }, [servicesQuery.error]);
@@ -38,8 +65,6 @@ export default function HomePage() {
     const isServicesError = servicesQuery.isError;
     const isSmerdsError = smerdsQuery.isError;
 
-    const hasContent = services.length > 0 || smerds.length > 0;
-
     return (
         <div className={cls.HomeContainer}>
             {isLoadingServices || isLoadingSmerds ? (
@@ -47,13 +72,15 @@ export default function HomePage() {
                     {isLoadingServices && <ServicesSectionSkeleton />}
                     {isLoadingSmerds && <SmerdsSectionSkeleton />}
                 </div>
-            ) : hasContent || isServicesError || isSmerdsError ? (
+            ) : (
                 <div className={cls.DashboardWrapper}>
                     <ServicesSection
                         services={services}
                         smerds={smerds}
                         isError={isServicesError}
                         onRetry={servicesQuery.refetch}
+                        includeInternal={includeInternal}
+                        onIncludeInternalChange={handleIncludeInternalChange}
                     />
                     <SmerdsSection
                         smerds={smerds}
@@ -61,8 +88,6 @@ export default function HomePage() {
                         onRetry={smerdsQuery.refetch}
                     />
                 </div>
-            ) : (
-                <EmptyState/>
             )}
         </div>
     );
@@ -93,9 +118,13 @@ interface ServicesSectionProps {
     smerds: Smerd[];
     isError: boolean;
     onRetry: () => void;
+    includeInternal: boolean;
+    onIncludeInternalChange: (value: boolean) => void;
 }
 
-function ServicesSection({services, smerds, isError, onRetry}: ServicesSectionProps) {
+function ServicesSection(
+    {services, smerds, isError, onRetry, includeInternal, onIncludeInternalChange}: ServicesSectionProps
+) {
     const navigate = useNavigate();
     const {OpenDialog, CloseDialog} = useDialog();
     const [query, setQuery] = useState("");
@@ -109,15 +138,21 @@ function ServicesSection({services, smerds, isError, onRetry}: ServicesSectionPr
         );
     }
 
-    if (services.length === 0) {
-        return null;
-    }
-
     const filteredServices = services.filter(s => s.name?.toLowerCase().includes(query.toLowerCase()));
+    const noServices = services.length === 0;
+    const noMatches = !noServices && filteredServices.length === 0;
 
     return (
         <section className={cls.Section}>
             <h2 className={cls.SectionTitle}>Services</h2>
+            <div className={cls.FilterBar}>
+                <Toggle
+                    label="Show Verv internal"
+                    labelPosition="right"
+                    checked={includeInternal}
+                    onChange={onIncludeInternalChange}
+                />
+            </div>
             <input
                 type="text"
                 className={cls.SearchInput}
@@ -125,7 +160,19 @@ function ServicesSection({services, smerds, isError, onRetry}: ServicesSectionPr
                 value={query}
                 onChange={function onQueryChange(e) { setQuery(e.target.value); }}
             />
-            {filteredServices.length === 0 && services.length > 0 ? (
+            {noServices ? (
+                <div className={cls.EmptyFilter}>
+                    <span>
+                        {includeInternal
+                            ? "No services on this cluster."
+                            : "No application services on this cluster."}
+                    </span>
+                    <Button
+                        title="Create a service"
+                        onClick={function onCreateService() { navigate(Routes.NewVervService); }}
+                    />
+                </div>
+            ) : noMatches ? (
                 <div className={cls.EmptyFilter}>No services match your search.</div>
             ) : (
                 <div className={cls.CardGrid}>
@@ -162,6 +209,7 @@ function ServicesSection({services, smerds, isError, onRetry}: ServicesSectionPr
                                 onClick={onClick}
                             >
                                 <div className={cls.CardName}>{service.name}</div>
+                                <ServiceLabelBadge labels={service.labels}/>
                                 {imageLabel && (
                                     <div className={cls.CardImage}>{imageLabel}</div>
                                 )}
@@ -278,24 +326,6 @@ function SmerdsSection({smerds, isError, onRetry}: SmerdsSectionProps) {
                 </div>
             )}
         </section>
-    );
-}
-
-function EmptyState() {
-    const navigate = useNavigate();
-
-    function onCreateService() {
-        navigate(Routes.NewVervService);
-    }
-
-    return (
-        <div className={cls.EmptyStateContainer}>
-            <div className={cls.EmptyStateIcon}>◻</div>
-            <div className={cls.EmptyStateMessage}>No services or containers on this cluster yet.</div>
-            <div className={cls.EmptyStateAction}>
-                <Button title="Create a service" onClick={onCreateService}/>
-            </div>
-        </div>
     );
 }
 

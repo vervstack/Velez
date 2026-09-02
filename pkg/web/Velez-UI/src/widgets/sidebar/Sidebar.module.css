@@ -88,9 +88,9 @@
 }
 
 .navItem.navItemActive {
-    background: var(--red-dim);
-    border-color: rgba(237, 47, 50, 0.13);
-    color: var(--red);
+    background: var(--cyan-dim);
+    border-color: var(--border-m);
+    color: var(--cyan);
 }
 
 .navIcon {

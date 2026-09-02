@@ -80,9 +80,17 @@ export default function ServiceGraph({serviceName}: ServiceGraphProps) {
     const incoming: ServiceGraphNode[] = data?.incoming ?? []
     const outgoing: ServiceGraphNode[] = data?.outgoing ?? []
 
+    const header = (
+        <div className={cls.SectionHeader}>
+            <h3 className={cls.SectionTitle}>Dependencies graph</h3>
+            <span className={cls.SectionSubtitle}>Services and resources this service talks to</span>
+        </div>
+    )
+
     if (isLoading) {
         return (
             <div className={cls.ServiceGraphContainer}>
+                {header}
                 <p className={cls.Empty}>Loading graph…</p>
             </div>
         )
@@ -91,6 +99,7 @@ export default function ServiceGraph({serviceName}: ServiceGraphProps) {
     if (isError) {
         return (
             <div className={cls.ServiceGraphContainer}>
+                {header}
                 <p className={cls.Empty}>Failed to load graph</p>
             </div>
         )
@@ -99,6 +108,7 @@ export default function ServiceGraph({serviceName}: ServiceGraphProps) {
     if (incoming.length === 0 && outgoing.length === 0) {
         return (
             <div className={cls.ServiceGraphContainer}>
+                {header}
                 <p className={cls.Empty}>No graph data available</p>
             </div>
         )
@@ -106,10 +116,7 @@ export default function ServiceGraph({serviceName}: ServiceGraphProps) {
 
     return (
         <div className={cls.ServiceGraphContainer}>
-            <div className={cls.SectionHeader}>
-                <h2 className={cls.SectionTitle}>Service Graph</h2>
-                <span className={cls.SectionSubtitle}>incoming on left · outgoing on right · live edge animation reflects request rate</span>
-            </div>
+            {header}
             <div className={cls.SvgWrapper}>
                 <div className={cls.LaneLabelsRow}>
                     <span className={cls.LaneLabel}>← incoming · {incoming.length} callers</span>

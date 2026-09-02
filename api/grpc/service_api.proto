@@ -155,6 +155,10 @@ message VervAppService {
   string name = 2;
   optional uint64 current_deployment_id = 3;
   DeploymentStatus status = 4;
+
+  // labels - derived server-side, never stored. Same vocabulary as
+  // ServiceBaseInfo.labels: "service-core" | "service-app" | "resource-<type>".
+  repeated string labels = 5;
 }
 
 message CreateDeploy {
@@ -226,6 +230,10 @@ message ListServices {
     Paging paging = 1;
 
     optional string search_pattern = 2;
+
+    // include_internal - when false (default) Verv-internal entries are hidden:
+    // core services (velez, matreshka, ...) and anything bound as a resource.
+    bool include_internal = 3;
   };
   message Response {
     uint64 Total = 1;
@@ -240,6 +248,10 @@ message ServiceBaseInfo {
   string status = 4;      // running | degraded | stopped — derived from smerd status
   string env = 5;         // value of the 'env' label if set, else empty
   string repo = 6;        // value of the 'repo' label if set, else empty
+
+  // labels - derived server-side, never stored. One of:
+  //   "service-core" | "service-app" | "resource-<type>"
+  repeated string labels = 7;
 }
 
 message StopService {

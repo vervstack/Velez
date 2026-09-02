@@ -1,4 +1,4 @@
-.ServiceInfoPageContainer {
+.VervCoreServicePageContainer {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -29,13 +29,6 @@
     flex-direction: column;
     gap: 0.5rem;
     padding: 0.75rem 1.25rem;
-}
-
-.HeaderActionsRow {
-    display: flex;
-    flex-direction: row;
-    gap: 0.5rem;
-    align-items: center;
 }
 
 .HeaderRightWrapper {

@@ -31,8 +31,8 @@
 
 .Empty {
     padding: 2rem 1rem;
-    border: 1px dashed var(--border-radius, #2a2a3a);
-    border-radius: var(--border-radius, 0.5rem);
+    border: 1px dashed color-mix(in srgb, var(--info-color) 12%, transparent);
+    border-radius: 0.6875rem;
     text-align: center;
     font-size: 0.8125rem;
     color: var(--fg-dim, #888aaa);

@@ -10,6 +10,7 @@ import (
 
 type Querier interface {
 	GetServiceResources(ctx context.Context, serviceName string) ([]GetServiceResourcesRow, error)
+	ListDistinctResourceNames(ctx context.Context) ([]ListDistinctResourceNamesRow, error)
 	UpsertServiceResource(ctx context.Context, arg UpsertServiceResourceParams) error
 }
 

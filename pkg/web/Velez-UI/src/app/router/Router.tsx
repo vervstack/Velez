@@ -10,10 +10,10 @@ import DeployPage from "@/pages/deploy/DeployPage.tsx";
 import VervClosedNetworkPage from "@/pages/vcn/VervClosedNetworkPage.tsx";
 import DeploymentsPage from "@/pages/deployments/DeploymentsPage";
 import SearchPage from "@/pages/search/SearchPage";
-import AppsPage from "@/pages/apps/AppsPage";
+import ServicesPage from "@/pages/services/ServicesPage";
 
 import NewServicePage from "@/pages/service/NewServicePage.tsx";
-import ServiceInfoPage from "@/pages/service/ServiceInfoPage.tsx";
+import ServiceRouteDispatch from "@/pages/service/ServiceRouteDispatch.tsx";
 import SettingsPage from "@/pages/settings/SettingsPage.tsx";
 
 import {Routes, Arguments} from "@/app/router/Routes";
@@ -35,12 +35,17 @@ const router = createBrowserRouter([
             children: [
                 {
                     index: true,
-                    element: (<AppsPage/>),
+                    element: (<ServicesPage/>),
                 },
 
             {
-                path: Routes.Apps,
-                element: (<AppsPage/>),
+                path: Routes.Services,
+                element: (<ServicesPage/>),
+            },
+
+            {
+                path: "/apps",
+                element: <Navigate to={Routes.Services} replace/>,
             },
 
             {
@@ -55,7 +60,7 @@ const router = createBrowserRouter([
 
             {
                 path: Routes.Service + "/:" + Arguments.Key,
-                element: (<ServiceInfoPage/>),
+                element: (<ServiceRouteDispatch/>),
             },
             {
                 path: Routes.Deploy,

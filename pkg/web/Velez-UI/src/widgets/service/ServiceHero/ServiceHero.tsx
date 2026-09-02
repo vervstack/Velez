@@ -8,6 +8,19 @@ interface ServiceHeroProps {
     imageFromSmerd?: string
 }
 
+// Velez itself runs as a bare binary, not a container, so the container-stats
+// path behind GetServiceMetrics has nothing to read. Mirrors the backend
+// velezServiceName constant.
+const VELEZ_BINARY_SERVICE_NAME = 'velez'
+
+function BinaryMetricsNotice() {
+    return (
+        <div className={cls.BinaryNoticeWrapper}>
+            <span className={cls.BinaryNoticeText}>Running as a binary. Can't collect this data</span>
+        </div>
+    )
+}
+
 function statusDotClass(status?: string): string {
     if (!status || status === 'stopped' || status === 'failed') return cls.dotDisabled
     if (status === 'degraded') return cls.dotDegraded
@@ -59,6 +72,8 @@ export default function ServiceHero({
     const mem = metrics?.mem ?? 0
     const memMax = metrics?.memMax ?? 0
 
+    const isBinary = serviceName === VELEZ_BINARY_SERVICE_NAME
+
     const cpuLabel = cpu > 0 ? `${cpu.toFixed(1)}%` : '—'
     const memLabel = mem > 0 ? `${mem} MiB` : '—'
     const memSub = memMax > 0 ? `of ${memMax} MiB` : 'no limit'
@@ -95,11 +110,14 @@ export default function ServiceHero({
             </div>
 
             <div className={cls.RightWrapper}>
-                <div className={cls.MetricsGrid}>
-                    <MetricTile label="Replicas" value={replicas} sub="desired / running" />
-                    <MetricTile label="Uptime" value={uptime} sub="since last deploy" />
-                    <MetricTile label="CPU" value={cpuLabel} sub="avg across pods" barPct={cpuPct} />
-                    <MetricTile label="Memory" value={memLabel} sub={memSub} barPct={memPct} />
+                <div className={cls.MetricsGridWrapper}>
+                    <div className={cls.MetricsGrid}>
+                        <MetricTile label="Replicas" value={replicas} sub="desired / running" />
+                        <MetricTile label="Uptime" value={uptime} sub="since last deploy" />
+                        <MetricTile label="CPU" value={cpuLabel} sub="avg across pods" barPct={cpuPct} />
+                        <MetricTile label="Memory" value={memLabel} sub={memSub} barPct={memPct} />
+                    </div>
+                    {isBinary && <BinaryMetricsNotice />}
                 </div>
             </div>
         </div>

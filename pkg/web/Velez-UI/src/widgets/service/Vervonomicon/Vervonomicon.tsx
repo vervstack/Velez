@@ -58,6 +58,8 @@ export default function Vervonomicon({serviceName}: VervonomiconProps) {
 
     const {data: docs, isLoading} = useGetVervonomiconQuery(serviceName)
 
+    const allEmpty = !isLoading && !!docs && isAllEmpty(docs)
+
     const activeContent = docs
         ? (isAllEmpty(docs) ? STUB_PLACEHOLDER : (docs[activeTab] || STUB_PLACEHOLDER))
         : ''
@@ -72,38 +74,44 @@ export default function Vervonomicon({serviceName}: VervonomiconProps) {
 
     return (
         <div className={cls.VervonomiconContainer}>
-            <div className={cls.HeaderWrapper}>
-                <div className={cls.TitleGroup}>
-                    <span className={cls.Title}>Vervonomicon</span>
-                    <span className={cls.Subtitle}>{serviceName}</span>
+            <div className={cls.SectionHeader}>
+                <h3 className={cls.SectionTitle}>Vervonomicon</h3>
+                <span className={cls.SectionSubtitle}>
+                    Declarative config and deployment manifests for this service
+                </span>
+            </div>
+
+            {allEmpty ? (
+                <p className={cls.Empty}>this service doesn't use vervonomicon</p>
+            ) : (
+                <div className={cls.Panel}>
+                    <div className={cls.PanelHeader}>
+                        {TABS.map(function renderTab(tab) {
+                            return (
+                                <button
+                                    key={tab.key}
+                                    className={`${cls.TabBtn} ${activeTab === tab.key ? cls.active : ''}`}
+                                    onClick={handleTabClick(tab.key)}
+                                >
+                                    {tab.label}
+                                </button>
+                            )
+                        })}
+                    </div>
+
+                    <div className={cls.CodeWrapper}>
+                        {isLoading
+                            ? <div className={cls.LoadingText}>Loading…</div>
+                            : <pre className={cls.CodeBlock}>{highlightLines(activeContent)}</pre>
+                        }
+                    </div>
+
+                    <div className={cls.FooterWrapper}>
+                        <span className={cls.FooterMeta}>{lineCount} lines</span>
+                        <span className={cls.FooterReadOnly}>read-only</span>
+                    </div>
                 </div>
-
-                <div className={cls.TabsWrapper}>
-                    {TABS.map(function renderTab(tab) {
-                        return (
-                            <button
-                                key={tab.key}
-                                className={`${cls.TabBtn} ${activeTab === tab.key ? cls.active : ''}`}
-                                onClick={handleTabClick(tab.key)}
-                            >
-                                {tab.label}
-                            </button>
-                        )
-                    })}
-                </div>
-            </div>
-
-            <div className={cls.CodeWrapper}>
-                {isLoading
-                    ? <div className={cls.LoadingText}>Loading…</div>
-                    : <pre className={cls.CodeBlock}>{highlightLines(activeContent)}</pre>
-                }
-            </div>
-
-            <div className={cls.FooterWrapper}>
-                <span className={cls.FooterMeta}>{lineCount} lines</span>
-                <span className={cls.FooterReadOnly}>read-only</span>
-            </div>
+            )}
         </div>
     )
 }

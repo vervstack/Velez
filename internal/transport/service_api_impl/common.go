@@ -22,6 +22,7 @@ func toServiceBaseInfo(in domain.ServiceBaseInfo) *pb.ServiceBaseInfo {
 		Status:    in.Status,
 		Env:       in.Env,
 		Repo:      in.Repo,
+		Labels:    in.Labels,
 	}
 
 	if in.LastDeployedAt != nil {

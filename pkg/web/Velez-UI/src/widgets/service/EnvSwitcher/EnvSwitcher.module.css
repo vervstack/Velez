@@ -1,12 +1,13 @@
 .EnvSwitcherContainer {
     width: 100%;
+    align-self: flex-start;
 }
 
 .Empty {
+    margin: 0;
+    padding: 0.25rem 0;
     color: var(--fg-dim);
-    font-size: 0.875rem;
-    text-align: center;
-    padding: 1.5rem 0;
+    font-size: 0.8125rem;
 }
 
 .CardsWrapper {

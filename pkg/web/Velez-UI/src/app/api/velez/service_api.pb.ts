@@ -73,6 +73,7 @@ export type VervAppService = {
   name?: string;
   currentDeploymentId?: string;
   status?: DeploymentStatus;
+  labels?: string[];
 };
 
 export type CreateDeployRequestUpgrade = {
@@ -120,6 +121,7 @@ export type ListDeployments = Record<string, never>;
 export type ListServicesRequest = {
   paging?: VelezApiVelezCommon.Paging;
   searchPattern?: string;
+  includeInternal?: boolean;
 };
 
 export type ListServicesResponse = {
@@ -136,6 +138,7 @@ export type ServiceBaseInfo = {
   status?: string;
   env?: string;
   repo?: string;
+  labels?: string[];
 };
 
 export type StopServiceRequest = {

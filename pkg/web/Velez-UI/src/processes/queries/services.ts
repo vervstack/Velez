@@ -1,13 +1,14 @@
-import {useQuery} from '@tanstack/react-query'
+import {useQuery, keepPreviousData} from '@tanstack/react-query'
 import {serviceService} from '@/processes/api/service'
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 
 const LIST_REQ = {paging: {limit: '50', offset: '0'}}
 
-export function useListServicesQuery() {
+export function useListServicesQuery(includeInternal: boolean = false) {
     return useQuery({
-        queryKey: ['services'] as const,
-        queryFn: () => serviceService.listServices(LIST_REQ),
+        queryKey: ['services', {includeInternal}] as const,
+        queryFn: () => serviceService.listServices({...LIST_REQ, includeInternal}),
+        placeholderData: keepPreviousData,
     })
 }
 

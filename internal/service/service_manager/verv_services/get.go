@@ -19,6 +19,16 @@ func (v *VervService) Get(ctx context.Context, r domain.GetServiceReq) (domain.S
 		return domain.Service{}, rerrors.Wrap(err, "error getting service by name from storage")
 	}
 
+	// GetByName backends don't all populate Labels (only the single-node
+	// synthetic-velez path does). Derive the core/app classification here so
+	// the detail response carries the same labels the service list shows.
+	// Resource-type classification is intentionally not done here - it needs
+	// the resource-name lookup the list path has, and the detail page only
+	// branches on "service-core".
+	if len(service.Labels) == 0 {
+		service.Labels = domain.ClassifyService(service.Name, "")
+	}
+
 	err = v.enrichServiceAbout(ctx, &service)
 	if err != nil {
 		// best-effort; container may not exist yet

@@ -9,3 +9,7 @@ ON CONFLICT (service_name, resource_name)
 SELECT resource_name, resource_type, status
 FROM velez.service_resources
 WHERE service_name = $1;
+
+-- name: ListDistinctResourceNames :many
+SELECT DISTINCT resource_name, resource_type
+FROM velez.service_resources;

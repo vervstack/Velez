@@ -2,18 +2,25 @@ package postgres
 
 import (
 	"context"
+	"sort"
 
 	sq "github.com/Masterminds/squirrel"
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
+	service_resources_queries "go.vervstack.ru/Velez/internal/storage/postgres/generated/service_resources_queries"
 	pg_queries "go.vervstack.ru/Velez/internal/storage/postgres/generated/services_queries"
 )
 
+const (
+	serviceNameColumn = "s.name"
+)
+
 type servicesStorage struct {
-	conn    sqldb.DB
-	querier pg_queries.Querier
+	conn            sqldb.DB
+	querier         pg_queries.Querier
+	resourceQuerier service_resources_queries.Querier
 }
 
 func (s *servicesStorage) GetByName(ctx context.Context, name string) (domain.Service, error) {
@@ -55,7 +62,20 @@ func fromStorageToDomainService(row pg_queries.VelezService) domain.Service {
 var listServiceHelper = serviceBaseInfoHelper{}
 
 func (s *servicesStorage) List(ctx context.Context, req domain.ListServicesReq) (domain.ServiceList, error) {
-	baseQuery := listServiceHelper.buildListQuery(req)
+	resourceRows, err := s.resourceQuerier.ListDistinctResourceNames(ctx)
+	if err != nil {
+		return domain.ServiceList{}, wrapPgErr(err)
+	}
+
+	resourceTypeByName := make(map[string]string, len(resourceRows))
+	resourceNames := make([]string, 0, len(resourceRows))
+
+	for _, row := range resourceRows {
+		resourceTypeByName[row.ResourceName] = row.ResourceType
+		resourceNames = append(resourceNames, row.ResourceName)
+	}
+
+	baseQuery := listServiceHelper.buildListQuery(req, resourceNames)
 
 	totalRows, err := countTotal(ctx, s.conn, baseQuery)
 	if err != nil {
@@ -76,7 +96,7 @@ func (s *servicesStorage) List(ctx context.Context, req domain.ListServicesReq) 
 
 	defer closeRows(rows)
 
-	out := domain.ServiceList{}
+	out := domain.ServiceList{Total: totalRows}
 
 	for rows.Next() {
 		var serviceBaseInfo domain.ServiceBaseInfo
@@ -85,6 +105,8 @@ func (s *servicesStorage) List(ctx context.Context, req domain.ListServicesReq) 
 		if err != nil {
 			return domain.ServiceList{}, wrapPgErr(err)
 		}
+
+		serviceBaseInfo.Labels = domain.ClassifyService(serviceBaseInfo.Name, resourceTypeByName[serviceBaseInfo.Name])
 
 		out.Services = append(out.Services, serviceBaseInfo)
 	}
@@ -99,7 +121,12 @@ func (s *servicesStorage) List(ctx context.Context, req domain.ListServicesReq) 
 
 type serviceBaseInfoHelper struct{}
 
-func (s serviceBaseInfoHelper) buildListQuery(req domain.ListServicesReq) sq.SelectBuilder {
+// buildListQuery builds the dynamic service-list query. resourceNames is the
+// distinct set of velez.service_resources.resource_name values; when
+// req.IncludeInternal is false, rows whose name is a core service or a bound
+// resource are filtered out in SQL so countTotal stays consistent with the
+// returned page.
+func (s serviceBaseInfoHelper) buildListQuery(req domain.ListServicesReq, resourceNames []string) sq.SelectBuilder {
 	query := sq.Select().
 		From("velez.services s").
 		LeftJoin("(SELECT ds.service_id, MAX(d.created_at) AS last_deployed_at FROM velez.deployments d " +
@@ -109,15 +136,36 @@ func (s serviceBaseInfoHelper) buildListQuery(req domain.ListServicesReq) sq.Sel
 
 	if req.NamePattern.Valid {
 		query = query.Where(sq.ILike{
-			"s.name": req.NamePattern.Value,
+			serviceNameColumn: req.NamePattern.Value,
 		})
+	}
+
+	if !req.IncludeInternal {
+		query = query.Where(sq.NotEq{serviceNameColumn: coreServiceNamesList()})
+
+		if len(resourceNames) > 0 {
+			query = query.Where(sq.NotEq{serviceNameColumn: resourceNames})
+		}
 	}
 
 	return query
 }
 
+// coreServiceNamesList returns domain.CoreServiceNames as a sorted slice so the
+// generated SQL is deterministic.
+func coreServiceNamesList() []string {
+	names := make([]string, 0, len(domain.CoreServiceNames))
+	for name := range domain.CoreServiceNames {
+		names = append(names, name)
+	}
+
+	sort.Strings(names)
+
+	return names
+}
+
 func (s serviceBaseInfoHelper) columns() []string {
-	return []string{"s.name", "ld.last_deployed_at"}
+	return []string{serviceNameColumn, "ld.last_deployed_at"}
 }
 
 func (s serviceBaseInfoHelper) scanServiceBaseInfo(row sqldb.Scannable) (baseInfo domain.ServiceBaseInfo, err error) {

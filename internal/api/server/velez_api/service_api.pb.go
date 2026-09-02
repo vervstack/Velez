@@ -303,8 +303,11 @@ type VervAppService struct {
 	Name                string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	CurrentDeploymentId *uint64                `protobuf:"varint,3,opt,name=current_deployment_id,json=currentDeploymentId,proto3,oneof" json:"current_deployment_id,omitempty"`
 	Status              DeploymentStatus       `protobuf:"varint,4,opt,name=status,proto3,enum=velez_api.DeploymentStatus" json:"status,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// labels - derived server-side, never stored. Same vocabulary as
+	// ServiceBaseInfo.labels: "service-core" | "service-app" | "resource-<type>".
+	Labels        []string `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *VervAppService) Reset() {
@@ -356,6 +359,13 @@ func (x *VervAppService) GetStatus() DeploymentStatus {
 		return x.Status
 	}
 	return DeploymentStatus_DEPLOYMENT_STATUS_UNKNOWN
+}
+
+func (x *VervAppService) GetLabels() []string {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
 }
 
 type CreateDeploy struct {
@@ -566,8 +576,12 @@ type ServiceBaseInfo struct {
 	Status         string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`                        // running | degraded | stopped — derived from smerd status
 	Env            string                 `protobuf:"bytes,5,opt,name=env,proto3" json:"env,omitempty"`                              // value of the 'env' label if set, else empty
 	Repo           string                 `protobuf:"bytes,6,opt,name=repo,proto3" json:"repo,omitempty"`                            // value of the 'repo' label if set, else empty
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// labels - derived server-side, never stored. One of:
+	//
+	//	"service-core" | "service-app" | "resource-<type>"
+	Labels        []string `protobuf:"bytes,7,rep,name=labels,proto3" json:"labels,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ServiceBaseInfo) Reset() {
@@ -640,6 +654,13 @@ func (x *ServiceBaseInfo) GetRepo() string {
 		return x.Repo
 	}
 	return ""
+}
+
+func (x *ServiceBaseInfo) GetLabels() []string {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
 }
 
 type StopService struct {
@@ -1647,8 +1668,11 @@ type ListServices_Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Paging        *Paging                `protobuf:"bytes,1,opt,name=paging,proto3" json:"paging,omitempty"`
 	SearchPattern *string                `protobuf:"bytes,2,opt,name=search_pattern,json=searchPattern,proto3,oneof" json:"search_pattern,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// include_internal - when false (default) Verv-internal entries are hidden:
+	// core services (velez, matreshka, ...) and anything bound as a resource.
+	IncludeInternal bool `protobuf:"varint,3,opt,name=include_internal,json=includeInternal,proto3" json:"include_internal,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *ListServices_Request) Reset() {
@@ -1693,6 +1717,13 @@ func (x *ListServices_Request) GetSearchPattern() string {
 		return *x.SearchPattern
 	}
 	return ""
+}
+
+func (x *ListServices_Request) GetIncludeInternal() bool {
+	if x != nil {
+		return x.IncludeInternal
+	}
+	return false
 }
 
 type ListServices_Response struct {
@@ -2548,11 +2579,12 @@ const file_service_api_proto_rawDesc = "" +
 	"\fverv_service\x18\x01 \x01(\v2\x19.velez_api.VervAppServiceH\x00R\vvervService\x122\n" +
 	"\x05about\x18\x02 \x01(\v2\x17.velez_api.AboutServiceH\x01R\x05about\x88\x01\x01B\t\n" +
 	"\apayloadB\b\n" +
-	"\x06_about\"\xac\x01\n" +
+	"\x06_about\"\xc4\x01\n" +
 	"\x0eVervAppService\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x127\n" +
 	"\x15current_deployment_id\x18\x03 \x01(\x04H\x00R\x13currentDeploymentId\x88\x01\x01\x123\n" +
-	"\x06status\x18\x04 \x01(\x0e2\x1b.velez_api.DeploymentStatusR\x06statusB\x18\n" +
+	"\x06status\x18\x04 \x01(\x0e2\x1b.velez_api.DeploymentStatusR\x06status\x12\x16\n" +
+	"\x06labels\x18\x05 \x03(\tR\x06labelsB\x18\n" +
 	"\x16_current_deployment_id\"\xca\x02\n" +
 	"\fCreateDeploy\x1a\xad\x02\n" +
 	"\aRequest\x122\n" +
@@ -2586,15 +2618,16 @@ const file_service_api_proto_rawDesc = "" +
 	"\r_service_name\x1a]\n" +
 	"\bResponse\x12;\n" +
 	"\vdeployments\x18\x01 \x03(\v2\x19.velez_api.DeploymentInfoR\vdeployments\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x04R\x05total\"\xdd\x01\n" +
-	"\fListServices\x1as\n" +
+	"\x05total\x18\x02 \x01(\x04R\x05total\"\x89\x02\n" +
+	"\fListServices\x1a\x9e\x01\n" +
 	"\aRequest\x12)\n" +
 	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x12*\n" +
-	"\x0esearch_pattern\x18\x02 \x01(\tH\x00R\rsearchPattern\x88\x01\x01B\x11\n" +
+	"\x0esearch_pattern\x18\x02 \x01(\tH\x00R\rsearchPattern\x88\x01\x01\x12)\n" +
+	"\x10include_internal\x18\x03 \x01(\bR\x0fincludeInternalB\x11\n" +
 	"\x0f_search_pattern\x1aX\n" +
 	"\bResponse\x12\x14\n" +
 	"\x05Total\x18\x01 \x01(\x04R\x05Total\x126\n" +
-	"\bservices\x18\x02 \x03(\v2\x1a.velez_api.ServiceBaseInfoR\bservices\"\xc8\x01\n" +
+	"\bservices\x18\x02 \x03(\v2\x1a.velez_api.ServiceBaseInfoR\bservices\"\xe0\x01\n" +
 	"\x0fServiceBaseInfo\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12D\n" +
 	"\x10last_deployed_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x0elastDeployedAt\x12\x1d\n" +
@@ -2602,7 +2635,8 @@ const file_service_api_proto_rawDesc = "" +
 	"image_name\x18\x03 \x01(\tR\timageName\x12\x16\n" +
 	"\x06status\x18\x04 \x01(\tR\x06status\x12\x10\n" +
 	"\x03env\x18\x05 \x01(\tR\x03env\x12\x12\n" +
-	"\x04repo\x18\x06 \x01(\tR\x04repo\"Z\n" +
+	"\x04repo\x18\x06 \x01(\tR\x04repo\x12\x16\n" +
+	"\x06labels\x18\a \x03(\tR\x06labels\"Z\n" +
 	"\vStopService\x1a?\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +

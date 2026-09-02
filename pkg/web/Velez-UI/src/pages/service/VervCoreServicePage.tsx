@@ -1,12 +1,9 @@
 import {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
-import {Toast, useToaster} from "@/app/hooks/toaster/Toaster.ts";
-import {serviceService} from "@/processes/api/service.ts";
+import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {GetServiceByNameQuery, ListDeploymentsByServiceNameQuery} from "@/processes/queries/services.ts";
 import {ListSmerdsByServiceIdQuery} from "@/processes/queries/smerds.ts";
 import {getSmerdTags} from "@/processes/mappings/smerds.ts";
-
-import DeployMenu from "@/pages/service/parts/DeployMenu.tsx";
 
 import EnvSwitcher from "@/widgets/service/EnvSwitcher/EnvSwitcher.tsx";
 import ServiceHero from "@/widgets/service/ServiceHero/ServiceHero.tsx";
@@ -16,15 +13,16 @@ import ServiceGraph from "@/widgets/service/ServiceGraph/ServiceGraph.tsx";
 import DeploymentHistory from "@/widgets/service/DeploymentHistory/DeploymentHistory.tsx";
 import Vervonomicon from "@/widgets/service/Vervonomicon/Vervonomicon.tsx";
 
-import cls from "@/pages/service/ServiceInfoPage.module.css";
-import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
-import {DeploymentStatus} from "@/app/api/velez";
-import Button from "@/components/base/Button.tsx";
+import cls from "@/pages/service/VervCoreServicePage.module.css";
 import SkeletonLoader from "@/components/base/SkeletonLoader.tsx";
 import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorState.tsx";
 import BreadcrumbsBar from "@/components/complex/BreadcrumbsBar/BreadcrumbsBar.tsx";
 import TagChip from "@/components/base/chips/TagChip.tsx";
-import RemoveServiceDialog from "@/dialogs/RemoveServiceDialog/RemoveServiceDialog.tsx";
+
+// VervCoreServicePage is the read-only detail view for Verv-stack core services
+// (velez, matreshka, makosh, headscale, portainer, angie). Forked from
+// ServiceInfoPage with every lifecycle action (Stop / Restart / Deploy / Remove)
+// removed — these services aren't managed from this UI.
 
 type ServiceTab = 'overview' | 'metrics' | 'instances' | 'history' | 'access';
 
@@ -41,7 +39,7 @@ const TABS: { id: ServiceTab; label: string }[] = [
     {id: 'access', label: 'Access'},
 ];
 
-export default function ServiceInfoPage() {
+export default function VervCoreServicePage() {
     const params = useParams<Record<string, string>>();
     const navigate = useNavigate();
     const toaster = useToaster();
@@ -60,7 +58,7 @@ export default function ServiceInfoPage() {
 
     if (key === "") {
         return (
-            <div className={cls.ServiceInfoPageContainer}>
+            <div className={cls.VervCoreServicePageContainer}>
                 <div className={cls.StatusMessage}>No service key provided.</div>
             </div>
         );
@@ -72,7 +70,7 @@ export default function ServiceInfoPage() {
 
     if (serviceQuery.isError) {
         return (
-            <div className={cls.ServiceInfoPageContainer}>
+            <div className={cls.VervCoreServicePageContainer}>
                 <QueryErrorState message="Failed to load service." onRetry={serviceQuery.refetch}/>
             </div>
         );
@@ -80,7 +78,7 @@ export default function ServiceInfoPage() {
 
     if (!service || !service.name) {
         return (
-            <div className={cls.ServiceInfoPageContainer}>
+            <div className={cls.VervCoreServicePageContainer}>
                 <div className={cls.StatusMessage}>Service not found.</div>
             </div>
         );
@@ -90,7 +88,7 @@ export default function ServiceInfoPage() {
     const currentSmerd = smerdsQuery.data?.smerds?.[0];
 
     return (
-        <div className={cls.ServiceInfoPageContainer}>
+        <div className={cls.VervCoreServicePageContainer}>
             <BreadcrumbsBar crumbs={[
                 {label: "services", onClick: () => navigate("/")},
                 {label: key},
@@ -137,7 +135,7 @@ export default function ServiceInfoPage() {
 
 function ServicePageSkeleton() {
     return (
-        <div className={cls.ServiceInfoPageContainer}>
+        <div className={cls.VervCoreServicePageContainer}>
             <div className={cls.ServicePageContentWrapper}>
                 <SkeletonLoader shape="block" width="100%" height="6rem"/>
                 <SkeletonLoader shape="block" width="100%" height="8rem"/>
@@ -171,11 +169,6 @@ function ServicePageHeader({serviceName, activeTab, setActiveTab}: TabsProps) {
                                 setActiveTab={setActiveTab}
                                 isActive={activeTab === t.id} key={t.id}/>)}
                 </div>
-
-                <ActionsRow
-                    serviceName={service.name}
-                    serviceState={service.status || DeploymentStatus.DEPLOYMENT_STATUS_UNKNOWN}
-                />
             </div>
 
             <div className={cls.HeaderRightWrapper}>
@@ -184,92 +177,6 @@ function ServicePageHeader({serviceName, activeTab, setActiveTab}: TabsProps) {
             </div>
         </div>
     );
-}
-
-
-interface ActionsRowProps {
-    serviceName: string
-    serviceState: DeploymentStatus
-}
-
-function ActionsRow({serviceName, serviceState}: ActionsRowProps) {
-    const toaster = useToaster();
-    const navigate = useNavigate();
-    const {OpenDialog, CloseDialog} = useDialog();
-    const deploymentsQuery = ListDeploymentsByServiceNameQuery(serviceName);
-
-    function handleStop() {
-
-        serviceService.stopService(serviceName)
-            .then(() => toaster.bake({
-                title: "Service stopped",
-                description: serviceName,
-                level: "Info",
-            } as Toast))
-            .catch(toaster.catchGrpc)
-            .finally(() => window.location.reload());
-    }
-
-    function handleRestart() {
-        serviceService.restartService(serviceName)
-            .then(() => toaster.bake({
-                title: "Service restarted",
-                description: serviceName,
-                level: "Info",
-            } as Toast))
-            .catch(toaster.catchGrpc)
-            .finally(() => window.location.reload());
-    }
-
-    function openDeployMenu() {
-        OpenDialog(
-            <DeployMenu
-                serviceName={serviceName}
-                onDeploymentCreated={() => {
-                    CloseDialog();
-                    deploymentsQuery.refetch();
-                }}
-            />
-        );
-    }
-
-    function openRemoveDialog() {
-        OpenDialog(
-            <RemoveServiceDialog
-                serviceName={serviceName}
-                onCancel={CloseDialog}
-                onRemoved={() => {
-                    CloseDialog();
-                    navigate("/");
-                }}
-            />
-        );
-    }
-
-
-    return (
-        <div className={cls.HeaderActionsRow}>
-            <Button
-                onClick={handleStop}
-                disabled={serviceState != DeploymentStatus.RUNNING}
-            >
-                ■ Stop
-            </Button>
-
-            <Button
-                onClick={handleRestart}>
-                {serviceState == DeploymentStatus.RUNNING ? '↺ Restart' : '▶ Start'}
-            </Button>
-
-            <Button onClick={openDeployMenu}>
-                + Deploy
-            </Button>
-
-            <Button variant="danger" onClick={openRemoveDialog}>
-                ✕ Remove
-            </Button>
-        </div>
-    )
 }
 
 

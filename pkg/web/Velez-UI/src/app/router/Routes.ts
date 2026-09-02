@@ -2,7 +2,7 @@ export enum Routes {
     ControlPlane = "/cp",
     Deploy = "/deploy",
     Deployments = "/deployments",
-    Apps = "/apps",
+    Services = "/services",
     Smerd = "/smerd",
     VCN = "/vcn",
     Search = "/search",

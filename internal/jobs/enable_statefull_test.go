@@ -84,7 +84,7 @@ func TestEnableStatefullHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 	wantNames := []string{
 		stepGenerateCredentials, stepCreatePgContainer, stepStartSidecar, "wait_for_postgres_ready",
 		stepGetRootDsn, "create_schema_and_migrate", "create_pg_user", "update_cluster_state",
-		"init_node_storage", "register_plugin",
+		"init_node_storage", "register_plugin", stepBindPgResource,
 	}
 	if len(namedJobs) != len(wantNames) {
 		t.Fatalf("expected %d jobs, got %d", len(wantNames), len(namedJobs))

@@ -49,7 +49,7 @@
         }
 
         .DeployBtn {
-            background: var(--red);
+            background: var(--cyan);
             border: none;
             border-radius: var(--radius-sm);
             color: #fff;

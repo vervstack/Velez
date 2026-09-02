@@ -9,14 +9,14 @@ import {Routes} from '@/app/router/Routes';
 import Dialog from "@/app/hooks/dialog/Dialog.tsx";
 import {Tooltip} from "react-tooltip";
 
-type NavId = 'controlplane' | 'vcn' | 'deployments' | 'apps' | 'search';
+type NavId = 'controlplane' | 'vcn' | 'deployments' | 'services' | 'search';
 type ToolId = 'secrets' | 'config' | 'logs' | 'settings';
 
 const NAV_TO_ROUTE: Record<NavId, string> = {
     controlplane: Routes.ControlPlane,
     vcn: Routes.VCN,
     deployments: Routes.Deployments,
-    apps: Routes.Apps,
+    services: Routes.Services,
     search: Routes.Search,
 };
 
@@ -24,7 +24,7 @@ const ROUTE_TO_NAV: Record<string, NavId> = {
     [Routes.ControlPlane]: 'controlplane',
     [Routes.VCN]: 'vcn',
     [Routes.Deployments]: 'deployments',
-    [Routes.Apps]: 'apps',
+    [Routes.Services]: 'services',
     [Routes.Search]: 'search',
 };
 
@@ -39,7 +39,7 @@ export default function MainLayout() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const activeNav: NavId = ROUTE_TO_NAV[location.pathname] ?? 'apps';
+    const activeNav: NavId = ROUTE_TO_NAV[location.pathname] ?? 'services';
 
     function handleNavChange(id: NavId) {
         navigate(NAV_TO_ROUTE[id]);

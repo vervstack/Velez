@@ -44,6 +44,39 @@ func (q *Queries) GetServiceResources(ctx context.Context, serviceName string) (
 	return items, nil
 }
 
+const listDistinctResourceNames = `-- name: ListDistinctResourceNames :many
+SELECT DISTINCT resource_name, resource_type
+FROM velez.service_resources
+`
+
+type ListDistinctResourceNamesRow struct {
+	ResourceName string
+	ResourceType string
+}
+
+func (q *Queries) ListDistinctResourceNames(ctx context.Context) ([]ListDistinctResourceNamesRow, error) {
+	rows, err := q.db.QueryContext(ctx, listDistinctResourceNames)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListDistinctResourceNamesRow{}
+	for rows.Next() {
+		var i ListDistinctResourceNamesRow
+		if err := rows.Scan(&i.ResourceName, &i.ResourceType); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const upsertServiceResource = `-- name: UpsertServiceResource :exec
 INSERT INTO velez.service_resources (service_name, resource_name, resource_type)
 VALUES ($1, $2, $3)

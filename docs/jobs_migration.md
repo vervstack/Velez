@@ -77,6 +77,12 @@ bigger decision to make explicitly per pipeline, not a default next step.
    `ClusterStateManager`/`StorageContainer` singleton swap was carried over
    as a job side effect unchanged. See questions.md for the SQL-testability
    gap this migration left open.
+   - **Later additions (post-cutover):** `register_plugin` (records the
+     sidecar in `velez.plugins`/`velez.services`/`velez.deployments`), then
+     `bind_pg_resource` (service/resource-labels feature — upserts
+     `service_resources('velez','postgres','postgres')` so the service list
+     classifies postgres as a bound resource). BuildJobs now returns 11 named
+     jobs; the row above ("8 … 8-for-8") is cutover-time history, not current.
 5. ~~**`UpgradeSmerd`**~~ — done, last as planned, and cut over. 19 pipeline
    steps became 15 named jobs: 4 pure-rename SingleFunc steps were folded
    into whichever real job immediately follows them, same fold precedent as

@@ -55,6 +55,16 @@ const (
 	stepCreatePgContainer    = "create_container"
 	stepWaitForPostgresReady = "wait_for_postgres_ready"
 	stepGetRootDsn           = "get_root_dsn"
+	stepBindPgResource       = "bind_pg_resource"
+
+	// bindPgResource* name the velez.service_resources row bindPgResourceJob
+	// upserts: the cluster's postgres sidecar, bound as a resource of the
+	// "velez" service. Matches the ('velez'), ('postgres') rows
+	// migrations/20260902120000_seed_core_services.sql seeds into
+	// velez.services.
+	bindPgResourceServiceName  = "velez"
+	bindPgResourceResourceName = "postgres"
+	bindPgResourceResourceType = "postgres"
 
 	pgDefaultUser = "postgres"
 
@@ -164,8 +174,9 @@ func (h *enableStatefullHandler) NewContext() TaskContext {
 	return &velez_api.EnableStatefullTaskPayload{}
 }
 
-// BuildJobs mirrors do_enable_statefull.go's 7 pipeline steps, plus three
-// extra jobs. generate_credentials is promoted out of the pipeline's inline
+// BuildJobs mirrors do_enable_statefull.go's 7 pipeline steps, plus four
+// extra jobs (generate_credentials, wait_for_postgres_ready, register_plugin,
+// bind_pg_resource). generate_credentials is promoted out of the pipeline's inline
 // "Pipeline Context" setup - see docs/jobs_migrations/questions.md for why
 // that setup can't stay inline BuildJobs code: it derives passwords by
 // checking whether they're already persisted in local/cluster state, which
@@ -178,7 +189,10 @@ func (h *enableStatefullHandler) NewContext() TaskContext {
 // pipeline-step equivalent: do_enable_statefull.go never registered the
 // postgres sidecar in velez.plugins/velez.services/velez.deployments at all,
 // which is why ListPlugins (and the frontend's cluster-mode header) never saw
-// it - see registerPluginJob's doc comment.
+// it - see registerPluginJob's doc comment. bind_pg_resource likewise has no
+// pipeline-step equivalent: it records the postgres sidecar in
+// velez.service_resources so the service list can classify it as a bound
+// resource - see bindPgResourceJob's doc comment.
 func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 	payload, ok := taskCtx.(*velez_api.EnableStatefullTaskPayload)
 	if !ok {
@@ -276,7 +290,34 @@ func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 				pgName:           pgName,
 			},
 		},
+		{
+			Name: stepBindPgResource,
+			Job: &bindPgResourceJob{
+				storageContainer: h.storageContainer,
+			},
+		},
 	}
+}
+
+// bindPgResourceJob records the cluster's postgres sidecar in
+// velez.service_resources as a resource bound to the "velez" service, so the
+// service list classifies "postgres" as resource-postgres (internal, hidden
+// from the default app-only view) rather than as a plain app service. First
+// real caller of storage.ServiceResourcesStorage.UpsertResource. Idempotent
+// (INSERT ... ON CONFLICT DO UPDATE) and, like registerPluginJob, has no
+// Rollback: it only records state that earlier jobs already established.
+type bindPgResourceJob struct {
+	storageContainer *storage.Container
+}
+
+func (j *bindPgResourceJob) Do(ctx context.Context) error {
+	err := j.storageContainer.ServiceResources().UpsertResource(ctx,
+		bindPgResourceServiceName, bindPgResourceResourceName, bindPgResourceResourceType)
+	if err != nil {
+		return rerrors.Wrap(err, "error binding postgres resource to velez service")
+	}
+
+	return nil
 }
 
 // generateCredentialsJob derives the postgres root/node user passwords the

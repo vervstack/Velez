@@ -1,54 +1,57 @@
-import cls from '@/components/apps/AppCard.module.css';
+import cls from '@/components/services/ServiceCard.module.css';
 import serviceCls from '@/components/service/ServiceCard.module.css';
 import StatusDot from '@/components/base/StatusDot';
 import EnvChip from '@/components/base/chips/EnvChip';
 import IncidentChip from '@/components/base/chips/IncidentChip';
 import FreezeChip from '@/components/base/chips/FreezeChip';
-import { AppData } from '@/processes/mappings/smerds';
+import ServiceLabelBadge from '@/components/service/ServiceLabelBadge';
+import { ServiceListItem } from '@/processes/mappings/smerds';
 
-interface AppCardProps {
-    app: AppData;
+interface ServiceCardProps {
+    service: ServiceListItem;
     onOpen: (name: string) => void;
     onDeploy: (name: string) => void;
 }
 
-export default function AppCard({ app, onOpen, onDeploy }: AppCardProps) {
+export default function ServiceCard({ service, onOpen, onDeploy }: ServiceCardProps) {
     function handleCardClick() {
-        onOpen(app.name);
+        onOpen(service.name);
     }
 
     function handleOpenClick(e: React.MouseEvent) {
         e.stopPropagation();
-        onOpen(app.name);
+        onOpen(service.name);
     }
 
     function handleDeployClick(e: React.MouseEvent) {
         e.stopPropagation();
-        onDeploy(app.name);
+        onDeploy(service.name);
     }
 
     return (
         <div
-            className={cls.AppCardContainer}
+            className={cls.ServiceCardContainer}
             onClick={handleCardClick}
         >
             <div className={serviceCls.nameRow}>
-                <StatusDot status={app.status} pulse />
-                <span className={serviceCls.name}>{app.name}</span>
+                <StatusDot status={service.status} pulse />
+                <span className={serviceCls.name}>{service.name}</span>
             </div>
 
             <div className={serviceCls.chips}>
-                <EnvChip env={app.env} />
-                {app.incident && <IncidentChip />}
-                {app.releaseFrozen && <FreezeChip />}
+                <EnvChip env={service.env} />
+                {service.incident && <IncidentChip />}
+                {service.releaseFrozen && <FreezeChip />}
             </div>
 
-            <div className={serviceCls.image}>{app.image}</div>
+            <ServiceLabelBadge labels={service.labels} />
+
+            <div className={serviceCls.image}>{service.image}</div>
 
             <div className={serviceCls.node}>
-                <StatusDot status={app.node.status} />
-                <span className={serviceCls.nodeId}>{app.node.id}</span>
-                <span className={serviceCls.nodeHost}>{app.node.host}</span>
+                <StatusDot status={service.node.status} />
+                <span className={serviceCls.nodeId}>{service.node.id}</span>
+                <span className={serviceCls.nodeHost}>{service.node.host}</span>
             </div>
 
             <div className={cls.extra}>
@@ -56,19 +59,19 @@ export default function AppCard({ app, onOpen, onDeploy }: AppCardProps) {
                 <div className={cls.detailsGrid}>
                     <div className={cls.detailRow}>
                         <span className={cls.detailLabel}>deployments</span>
-                        <span className={cls.detailValue}>{app.deployments}</span>
+                        <span className={cls.detailValue}>{service.deployments}</span>
                     </div>
                     <div className={cls.detailRow}>
                         <span className={cls.detailLabel}>last deploy</span>
-                        <span className={cls.detailValue}>{app.lastDeployed}</span>
+                        <span className={cls.detailValue}>{service.lastDeployed}</span>
                     </div>
                     <div className={cls.detailRow}>
                         <span className={cls.detailLabel}>config</span>
-                        <span className={cls.detailValue}>{app.configSource}</span>
+                        <span className={cls.detailValue}>{service.configSource}</span>
                     </div>
                     <div className={cls.detailRow}>
                         <span className={cls.detailLabel}>version</span>
-                        <span className={cls.detailValue}>{app.version}</span>
+                        <span className={cls.detailValue}>{service.version}</span>
                     </div>
                 </div>
                 <div className={cls.actionButtons}>

@@ -16,6 +16,8 @@ import {
     RemoveServiceRequest,
     GetServiceEnvironmentsRequest,
     ServiceEnvironmentInfo,
+    GetServiceResourcesRequest,
+    BoundResource,
 } from "@/app/api/velez"
 
 import {ApiService} from "@/processes/ApiService.ts"
@@ -72,6 +74,45 @@ function toServiceEnvironment(info: ServiceEnvironmentInfo): ServiceEnvironment 
         version: info.deployedVersion ?? '',
         deployedAgo: formatDeployedAgo(info.deployedAt),
         health: mapEnvHealth(info.health),
+    }
+}
+
+// RESOURCE_META maps a backend resource_type to display-only chrome (icon glyph
+// + accent color). Missing types fall back to the first two letters of the type.
+const RESOURCE_META: Record<string, {icon: string; color: string}> = {
+    postgres: {icon: 'Pg', color: 'var(--info-color)'},
+    redis:    {icon: 'Rd', color: 'var(--red)'},
+    kafka:    {icon: 'Kf', color: 'var(--amber)'},
+    s3:       {icon: 'S3', color: 'var(--violet)'},
+    mysql:    {icon: 'My', color: 'var(--info-color)'},
+    mongo:    {icon: 'Mg', color: 'var(--green)'},
+}
+
+function mapResourceStatus(status?: string): ServiceResource['status'] {
+    switch ((status ?? '').toLowerCase()) {
+        case 'running':
+        case 'healthy':
+        case 'ok':
+            return 'healthy'
+        case 'degraded':
+            return 'degraded'
+        case '':
+            return 'unknown'
+        default:
+            return 'unhealthy'
+    }
+}
+
+function toServiceResource(r: BoundResource): ServiceResource {
+    const type = r.resourceType ?? ''
+    const meta = RESOURCE_META[type.toLowerCase()]
+        ?? {icon: (type.slice(0, 2) || '?').toUpperCase(), color: 'var(--fg-dim)'}
+    return {
+        name:   r.name ?? '',
+        type,
+        status: mapResourceStatus(r.status),
+        icon:   meta.icon,
+        color:  meta.color,
     }
 }
 
@@ -192,15 +233,12 @@ class ServiceService extends ApiService {
         })
     }
 
-    // TODO: implement — requires GetServiceResources RPC in api/grpc/service_api.proto
-    async fetchServiceResources(_serviceName: string): Promise<ServiceResource[]> {
-        return [
-            { id: 'redis-cache',    kind: 'redis',    icon: 'R', desc: 'cache + session',   host: 'redis.internal:6379',    status: 'healthy',  use: 'r/w',                  hits: '12.4k/s', color: '#ed2f32' },
-            { id: 'kafka-events',   kind: 'kafka',    icon: 'K', desc: 'event stream',      host: 'kafka-1.internal:9092',  status: 'healthy',  use: 'producer · 4 topics',  hits: '820/s',   color: '#f5a623' },
-            { id: 'postgres-main',  kind: 'postgres', icon: 'P', desc: 'primary store',     host: 'pg-main.internal:5432',  status: 'healthy',  use: 'r/w',                  hits: '2.1k qps',color: '#0ab7ee' },
-            { id: 's3-blobs',       kind: 's3',       icon: 'S', desc: 'blob storage',      host: 's3.internal/matreshka',  status: 'healthy',  use: 'r/w',                  hits: '180/s',   color: '#a78bfa' },
-            { id: 'elastic-search', kind: 'elastic',  icon: 'E', desc: 'search index',      host: 'es.internal:9200',       status: 'degraded', use: 'read',                 hits: '34/s',    color: '#28c840' },
-        ]
+    async fetchServiceResources(serviceName: string): Promise<ServiceResource[]> {
+        return this.execute(async (req) => {
+            const payload: GetServiceResourcesRequest = {serviceName}
+            const res = await ServiceApi.GetServiceResources(payload, req)
+            return (res.resources ?? []).map(toServiceResource)
+        })
     }
 
     async fetchServiceGraph(serviceName: string): Promise<ServiceGraphData> {

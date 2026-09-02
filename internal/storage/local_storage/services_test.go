@@ -1,0 +1,50 @@
+package local_storage
+
+import (
+	"context"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/tests/test_helper"
+)
+
+// GetByName("velez") must not 500 in single-node mode: the service list
+// hands out a synthetic "velez" card even when Velez runs as a bare binary
+// with no container, so the detail lookup needs the same fallback.
+func Test_dockerServices_GetByName_VelezResolvesWithoutContainer(t *testing.T) {
+	t.Parallel()
+
+	s := newServicesStorage(test_helper.NewRealDocker(t))
+
+	svc, err := s.GetByName(context.Background(), velezServiceName)
+	require.NoError(t, err)
+	require.Equal(t, velezServiceName, svc.Name)
+	require.NotEmpty(t, svc.Labels)
+}
+
+func Test_dockerServices_syntheticVelezService(t *testing.T) {
+	t.Parallel()
+
+	s := newServicesStorage(test_helper.NewRealDocker(t))
+
+	svc, err := s.syntheticVelezService(context.Background())
+	require.NoError(t, err)
+	require.Equal(t, velezServiceName, svc.Name)
+	require.Equal(t, pb.DeploymentStatus_RUNNING, svc.Status)
+	require.Equal(t, containerStateRunning, svc.ServiceBaseInfo.Status)
+	require.Len(t, svc.Labels, 1)
+}
+
+func Test_dockerServices_GetByName_UnknownNameNotFound(t *testing.T) {
+	t.Parallel()
+
+	s := newServicesStorage(test_helper.NewRealDocker(t))
+
+	name := test_helper.UniqueName(t, "no-such-service")
+
+	_, err := s.GetByName(context.Background(), name)
+	require.ErrorIs(t, err, storage.ErrNotFound)
+}

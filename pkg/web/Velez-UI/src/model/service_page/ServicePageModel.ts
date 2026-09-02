@@ -26,15 +26,11 @@ export interface ServiceMetrics {
 }
 
 export interface ServiceResource {
-    id: string
-    kind: string            // "redis" | "kafka" | "postgres" | "s3" | "elastic"
-    icon: string            // single letter abbreviation
-    desc: string
-    host: string
-    status: 'healthy' | 'degraded' | 'unhealthy'
-    use: string             // e.g. "r/w"
-    hits: string            // e.g. "12.4k/s"
-    color: string           // css color string
+    name: string                                              // resource_name from the backend
+    type: string                                             // resource_type, e.g. "postgres"
+    status: 'healthy' | 'degraded' | 'unhealthy' | 'unknown'
+    icon: string                                             // derived from type — display only
+    color: string                                            // derived from type — css color / token
 }
 
 export interface ServiceGraphNode {

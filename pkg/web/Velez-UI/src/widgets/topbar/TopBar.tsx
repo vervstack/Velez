@@ -5,11 +5,26 @@ import {IsStatefullModeEnabled, ListNodesQuery, ListPluginsQuery} from "@/proces
 import Button from "@/components/base/Button.tsx";
 import {VervPlugin} from "@/model/services/VervPlugins.tsx";
 import {openStatefullPgDialog} from "@/dialogs/PluginManageDialog/plugins/openStatefullPgDialog.tsx";
+import {useBreadcrumbs} from "@/app/hooks/breadcrumbs/Breadcrumbs.ts";
+import BreadcrumbsBar from "@/components/complex/BreadcrumbsBar/BreadcrumbsBar.tsx";
 
 export default function TopBar() {
     return (
         <div className={cls.TopBarContainer}>
+            <LeftZone/>
             <RightZone/>
+        </div>
+    );
+}
+
+function LeftZone() {
+    const crumbs = useBreadcrumbs((s) => s.crumbs);
+
+    if (crumbs.length === 0) return <div className={cls.LeftZoneContainer}/>;
+
+    return (
+        <div className={cls.LeftZoneContainer}>
+            <BreadcrumbsBar crumbs={crumbs}/>
         </div>
     );
 }

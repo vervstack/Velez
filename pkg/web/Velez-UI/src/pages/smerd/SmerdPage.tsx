@@ -7,10 +7,10 @@ import {Smerd, SmerdStatus} from "@/app/api/velez";
 import cls from "@/pages/smerd/SmerdPage.module.css";
 
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
+import {useBreadcrumbs} from "@/app/hooks/breadcrumbs/Breadcrumbs.ts";
 import {useGetSmerdQuery} from "@/processes/queries/smerds.ts";
 import SkeletonLoader from "@/components/base/SkeletonLoader.tsx";
 import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorState.tsx";
-import BreadcrumbsBar from "@/components/complex/BreadcrumbsBar/BreadcrumbsBar.tsx";
 import Button from "@/components/base/Button.tsx";
 import {Routes} from "@/app/router/Routes.ts";
 
@@ -24,6 +24,19 @@ export default function SmerdPage() {
     useEffect(() => {
         if (error) toaster.catchGrpc(error);
     }, [error]);
+
+    const setCrumbs = useBreadcrumbs((s) => s.setCrumbs);
+
+    useEffect(function publishBreadcrumbs() {
+        if (smerdName === "") return;
+        setCrumbs([
+            {label: "Home", onClick: () => navigate("/")},
+            {label: smerd?.name || smerdName},
+        ]);
+        return function clearBreadcrumbs() {
+            setCrumbs([]);
+        };
+    }, [smerdName, smerd?.name, setCrumbs, navigate]);
 
     if (!smerdName) {
         return <div className={cls.SmerdPageContainer}>
@@ -51,11 +64,6 @@ export default function SmerdPage() {
 
     return (
         <div className={cls.SmerdPageContainer}>
-            <BreadcrumbsBar crumbs={[
-                {label: "Home", onClick: () => navigate("/")},
-                {label: smerd.name || smerdName},
-            ]}/>
-
             <div className={cls.Header}>
                 <div className={cls.SmerdNameWrapper}>
                     <div className={cls.SmerdName}>{smerd.name}</div>

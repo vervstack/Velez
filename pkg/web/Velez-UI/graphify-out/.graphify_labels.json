@@ -68,6 +68,16 @@
   "66": "VolumesWidget.tsx",
   "67": ".GetService",
   "68": "state.ts",
+  "69": "CreateAppDialog.tsx",
+  "70": "ServiceLabelBadge.tsx",
   "71": "ObservabilityTools.tsx",
-  "74": ".createRegistry"
+  "72": "PortsWidget.tsx",
+  "73": "VCNPeerTable.tsx",
+  "74": ".createRegistry",
+  "75": "NewServicePage.tsx",
+  "76": "VolumesWidget.tsx",
+  "77": "NetworkTopologyMap.tsx",
+  "78": "DeploymentStatusBadge.tsx",
+  "79": "ValuesMapping.tsx",
+  "80": ".fetchServiceResources"
 }

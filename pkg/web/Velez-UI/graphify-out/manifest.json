@@ -20,12 +20,12 @@
     "semantic_hash": ""
   },
   "src/app/api/velez/control_plane_api.pb.ts": {
-    "mtime": 1788294202.9709013,
+    "mtime": 1788351579.8799112,
     "ast_hash": "161bb68d51c8d06b3c842232d9d9aa04",
     "semantic_hash": ""
   },
   "src/app/api/velez/fetch.pb.ts": {
-    "mtime": 1788292696.5372868,
+    "mtime": 1788351579.8801787,
     "ast_hash": "611a00bd7dd14cbdfe7c5ea6170b6625",
     "semantic_hash": ""
   },
@@ -35,27 +35,27 @@
     "semantic_hash": ""
   },
   "src/app/api/velez/service_api.pb.ts": {
-    "mtime": 1788292696.5373938,
-    "ast_hash": "bbf3f197190b992d3ebaa563e001c6e1",
+    "mtime": 1788354025.1030104,
+    "ast_hash": "54ff05ac8bc9547609218eb703e7aeb4",
     "semantic_hash": ""
   },
   "src/app/api/velez/tasks.pb.ts": {
-    "mtime": 1788292696.537789,
+    "mtime": 1788351579.88105,
     "ast_hash": "ecbc59263213dc7bf6e5771ffcd8abd4",
     "semantic_hash": ""
   },
   "src/app/api/velez/velez_api.pb.ts": {
-    "mtime": 1788294202.9711628,
+    "mtime": 1788351579.881308,
     "ast_hash": "026f4dbd08c543f56dcd9f17619fccaf",
     "semantic_hash": ""
   },
   "src/app/api/velez/velez_common.pb.ts": {
-    "mtime": 1788292696.5382483,
+    "mtime": 1788351579.8819299,
     "ast_hash": "1d20979af4c8627c42682ce9ba6ad110",
     "semantic_hash": ""
   },
   "src/app/api/velez/verv_closed_network.pb.ts": {
-    "mtime": 1788292696.5384805,
+    "mtime": 1788351579.8820531,
     "ast_hash": "0a33d718ad53071dd0c91af2f30ccf15",
     "semantic_hash": ""
   },
@@ -80,18 +80,18 @@
     "semantic_hash": ""
   },
   "src/app/router/MainLayout.tsx": {
-    "mtime": 1788265613.1099725,
-    "ast_hash": "04e6728cb0f8f7243ab2f77bbcf3f8c7",
+    "mtime": 1788354025.1032476,
+    "ast_hash": "9a123fe71212649922b8527003ac0e9f",
     "semantic_hash": ""
   },
   "src/app/router/Router.tsx": {
-    "mtime": 1788265613.1119802,
-    "ast_hash": "d6d13967f51f55bde8a9e87cc0396a10",
+    "mtime": 1788354025.103479,
+    "ast_hash": "044b1ead8b04876e21f941f1b3833359",
     "semantic_hash": ""
   },
   "src/app/router/Routes.ts": {
-    "mtime": 1788265613.114094,
-    "ast_hash": "2ca5136cd34ad7f0e7562d902502180c",
+    "mtime": 1788354025.1037004,
+    "ast_hash": "20f54bc0e4c819b1b190bcb72615f08b",
     "semantic_hash": ""
   },
   "src/app/settings/creds.ts": {
@@ -102,11 +102,6 @@
   "src/app/settings/state.ts": {
     "mtime": 1763290283.3432794,
     "ast_hash": "3474ea7e0d96a65007fd1bc08190ef61",
-    "semantic_hash": ""
-  },
-  "src/components/apps/AppCard.tsx": {
-    "mtime": 1777925616.410891,
-    "ast_hash": "19d01ff1ca5c7d4b973674905a4af9c6",
     "semantic_hash": ""
   },
   "src/components/base/ActionButton.tsx": {
@@ -425,8 +420,8 @@
     "semantic_hash": ""
   },
   "src/model/service_page/ServicePageModel.ts": {
-    "mtime": 1779435883.8422472,
-    "ast_hash": "e6989301ec6493adcb66cb0f48c85e2c",
+    "mtime": 1788354025.1052248,
+    "ast_hash": "73756b69fe47820081a3dcbbafcd8334",
     "semantic_hash": ""
   },
   "src/model/services/VervPlugins.tsx": {
@@ -437,11 +432,6 @@
   "src/model/smerds/Smerds.ts": {
     "mtime": 1788285556.4270911,
     "ast_hash": "c433263b8af85b725982eed16c360c97",
-    "semantic_hash": ""
-  },
-  "src/pages/apps/AppsPage.tsx": {
-    "mtime": 1788285556.42773,
-    "ast_hash": "e07ee7496f75f69134d336afeee2d150",
     "semantic_hash": ""
   },
   "src/pages/controlplane/ControlPlanePage.tsx": {
@@ -465,8 +455,8 @@
     "semantic_hash": ""
   },
   "src/pages/home/HomePage.tsx": {
-    "mtime": 1785072045.060379,
-    "ast_hash": "6cfa71753997a74d09bdf8d7105239d2",
+    "mtime": 1788354025.105722,
+    "ast_hash": "f0cc681145e945bb46ca72a87ce46e04",
     "semantic_hash": ""
   },
   "src/pages/search/SearchPage.tsx": {
@@ -480,13 +470,8 @@
     "semantic_hash": ""
   },
   "src/pages/service/ServiceInfoPage.tsx": {
-    "mtime": 1785072045.0622966,
-    "ast_hash": "d3469a6fc49d04884b1611af81b2d9cd",
-    "semantic_hash": ""
-  },
-  "src/pages/service/parts/DeployMenu.tsx": {
-    "mtime": 1785072045.063594,
-    "ast_hash": "9ed527705c141d9a8afa49b35ba6bb9d",
+    "mtime": 1788358456.414977,
+    "ast_hash": "d1acd1773738c24ae49d61097180ceab",
     "semantic_hash": ""
   },
   "src/pages/settings/SettingsPage.tsx": {
@@ -495,8 +480,8 @@
     "semantic_hash": ""
   },
   "src/pages/smerd/SmerdPage.tsx": {
-    "mtime": 1788294228.1064003,
-    "ast_hash": "b4e03e28d0d77404dec2a7fdfd73e052",
+    "mtime": 1788361181.0701578,
+    "ast_hash": "d03bddf837a836bddabee7fbb3bc7c7e",
     "semantic_hash": ""
   },
   "src/pages/vcn/VervClosedNetworkPage.tsx": {
@@ -520,8 +505,8 @@
     "semantic_hash": ""
   },
   "src/processes/api/service.ts": {
-    "mtime": 1788204931.5010219,
-    "ast_hash": "33f1f2161483108c1832b87811ff5964",
+    "mtime": 1788354025.1088672,
+    "ast_hash": "abeefa86bd48e4c2fb5f5694040d97d7",
     "semantic_hash": ""
   },
   "src/processes/api/velez.ts": {
@@ -540,8 +525,8 @@
     "semantic_hash": ""
   },
   "src/processes/mappings/smerds.ts": {
-    "mtime": 1785072045.0697398,
-    "ast_hash": "d7c998eade9c92f3f78edbbe78db00df",
+    "mtime": 1788354025.1093066,
+    "ast_hash": "e81aee8cdf7f4da3c800eb48336e64ca",
     "semantic_hash": ""
   },
   "src/processes/queries/control_plane.test.ts": {
@@ -555,8 +540,8 @@
     "semantic_hash": ""
   },
   "src/processes/queries/services.ts": {
-    "mtime": 1785072045.070829,
-    "ast_hash": "f3763ebb89e5d5a7e9655996a7efd62b",
+    "mtime": 1788354025.109575,
+    "ast_hash": "8d8885bbecc07e4628b56976a9fd7d9c",
     "semantic_hash": ""
   },
   "src/processes/queries/smerds.ts": {
@@ -650,28 +635,28 @@
     "semantic_hash": ""
   },
   "src/widgets/service/ResourcesSection/ResourceCard.tsx": {
-    "mtime": 1779441260.4300313,
-    "ast_hash": "f98ec0c59ffba1aed54d9bf7158d506d",
+    "mtime": 1788354025.1105669,
+    "ast_hash": "7dab4c653acd535dad05c03ddf985970",
     "semantic_hash": ""
   },
   "src/widgets/service/ResourcesSection/ResourcesSection.tsx": {
-    "mtime": 1779440096.685592,
-    "ast_hash": "30f74f84464417ebb3ea6b0988bc968d",
+    "mtime": 1788354025.1111503,
+    "ast_hash": "e77e12998eb35551805ad67bfd7c0b10",
     "semantic_hash": ""
   },
   "src/widgets/service/ServiceGraph/ServiceGraph.tsx": {
-    "mtime": 1784459596.7887173,
-    "ast_hash": "5298d3e6f48194245be03b25ab0ba05d",
+    "mtime": 1788354025.1117988,
+    "ast_hash": "fe41ff7af9cd9cca0bf2a288221ef638",
     "semantic_hash": ""
   },
   "src/widgets/service/ServiceHero/ServiceHero.tsx": {
-    "mtime": 1779435965.5493486,
-    "ast_hash": "07c7aef597d3e4a1d8d4ee94643177f1",
+    "mtime": 1788354025.1123016,
+    "ast_hash": "d44ae0b8cee5d3f942ad77c9b2e1d856",
     "semantic_hash": ""
   },
   "src/widgets/service/Vervonomicon/Vervonomicon.tsx": {
-    "mtime": 1779176621.0241592,
-    "ast_hash": "ff61d3b66a4b55537352b8e33484cad7",
+    "mtime": 1788354025.1127203,
+    "ast_hash": "f7a3d3f9adbc8c2e01bfccd06d8b1689",
     "semantic_hash": ""
   },
   "src/widgets/settings/ApiSettings/ApiSettings.tsx": {
@@ -685,13 +670,13 @@
     "semantic_hash": ""
   },
   "src/widgets/sidebar/Sidebar.tsx": {
-    "mtime": 1788265613.1268542,
-    "ast_hash": "edcc4446bc25f0b627afbe092431cd52",
+    "mtime": 1788354025.1136203,
+    "ast_hash": "39e545f74efee2a35aa971b83b4c1946",
     "semantic_hash": ""
   },
   "src/widgets/topbar/TopBar.tsx": {
-    "mtime": 1788294219.905542,
-    "ast_hash": "52fcab0270ff3d347508595d67f35da8",
+    "mtime": 1788361143.019228,
+    "ast_hash": "944c0dd8c0b28c66447f638301e9bae8",
     "semantic_hash": ""
   },
   "src/widgets/vcn/NetworkTopologyMap.tsx": {
@@ -944,11 +929,6 @@
     "ast_hash": "26b8dd962ccb14ed97ee0a5c731579b9",
     "semantic_hash": ""
   },
-  "src/pages/apps/parts/AppsEmptyState/AppsEmptyState.tsx": {
-    "mtime": 1788285556.4283936,
-    "ast_hash": "71ba30c1b87791730b674f7e8c26e10f",
-    "semantic_hash": ""
-  },
   "src/pages/login/LoginPage.tsx": {
     "mtime": 1788265613.1166637,
     "ast_hash": "05236a1801335ba1bb27177a8c878624",
@@ -1012,6 +992,91 @@
   "src/assets/icons/services/_IconSet.png": {
     "mtime": 1788204931.493339,
     "ast_hash": "465453cd903d5171120e6693a7899d34",
+    "semantic_hash": ""
+  },
+  "src/app/hooks/breadcrumbs/Breadcrumbs.ts": {
+    "mtime": 1788361135.2772753,
+    "ast_hash": "fb69b8b30910ea636b0056d4d361bdbf",
+    "semantic_hash": ""
+  },
+  "src/components/service/ServiceLabelBadge.tsx": {
+    "mtime": 1788354025.1041365,
+    "ast_hash": "59c183eca99b89cc2d54f573d3365a67",
+    "semantic_hash": ""
+  },
+  "src/components/services/ServiceCard.tsx": {
+    "mtime": 1788354025.1050026,
+    "ast_hash": "ec3a774a51a6fbf6b7135a2243f32204",
+    "semantic_hash": ""
+  },
+  "src/pages/service/ServiceRouteDispatch.tsx": {
+    "mtime": 1788358480.561076,
+    "ast_hash": "d41c174f38b768621ce0cf0622360703",
+    "semantic_hash": ""
+  },
+  "src/pages/service/VervCoreServicePage.tsx": {
+    "mtime": 1788358459.6412575,
+    "ast_hash": "c29c252f75e60b4a96dc9160848a043c",
+    "semantic_hash": ""
+  },
+  "src/pages/service/widgets/DeployMenu.tsx": {
+    "mtime": 1788357969.853632,
+    "ast_hash": "11f2e9e53def5b0656e1da1381643095",
+    "semantic_hash": ""
+  },
+  "src/pages/service/widgets/ServiceComingSoon.tsx": {
+    "mtime": 1788358235.5661225,
+    "ast_hash": "f1546f2393d14c94f3debf53447fdab9",
+    "semantic_hash": ""
+  },
+  "src/pages/service/widgets/ServiceDetailLayout.tsx": {
+    "mtime": 1788361934.1577923,
+    "ast_hash": "e946f1c4fe0fb3b0d340256f1eb0d0a2",
+    "semantic_hash": ""
+  },
+  "src/pages/service/widgets/ServiceLifecycleActions.tsx": {
+    "mtime": 1788358468.8579528,
+    "ast_hash": "10f18dc1f7e5d894cd849300c3c66f24",
+    "semantic_hash": ""
+  },
+  "src/pages/service/widgets/ServiceOverviewTab.tsx": {
+    "mtime": 1788358395.1470664,
+    "ast_hash": "42fcf435e5821e81fd0963a86e7b1a38",
+    "semantic_hash": ""
+  },
+  "src/pages/service/widgets/ServicePageSkeleton.tsx": {
+    "mtime": 1788358410.9744065,
+    "ast_hash": "197f56493a3d8fdeb7a1b0cf0fe0665f",
+    "semantic_hash": ""
+  },
+  "src/pages/service/widgets/ServiceTagsStrip.tsx": {
+    "mtime": 1788358407.3451295,
+    "ast_hash": "85016a71e8d39c508ea15076a77f3597",
+    "semantic_hash": ""
+  },
+  "src/pages/service/widgets/TabButton.tsx": {
+    "mtime": 1788358471.845303,
+    "ast_hash": "b06fd8b13b63da538aceecd81969dad9",
+    "semantic_hash": ""
+  },
+  "src/pages/service/widgets/TabStrip.tsx": {
+    "mtime": 1788358418.5324,
+    "ast_hash": "9284d4f500d70b44bdaf9cf953108ee9",
+    "semantic_hash": ""
+  },
+  "src/pages/service/widgets/tabs.ts": {
+    "mtime": 1788357971.3267043,
+    "ast_hash": "5c5fedf248b3bc5da534ba8e2d3ae7e5",
+    "semantic_hash": ""
+  },
+  "src/pages/services/ServicesPage.tsx": {
+    "mtime": 1788354025.107869,
+    "ast_hash": "30fdd11aa9b7af3c0de1be8c2ef925e1",
+    "semantic_hash": ""
+  },
+  "src/pages/services/parts/ServicesEmptyState/ServicesEmptyState.tsx": {
+    "mtime": 1788354025.1084151,
+    "ast_hash": "4bfe400822cb173b83e7c74aee0e9420",
     "semantic_hash": ""
   }
 }

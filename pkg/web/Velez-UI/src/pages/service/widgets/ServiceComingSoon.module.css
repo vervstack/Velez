@@ -1,0 +1,12 @@
+.ServiceComingSoonContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 30vh;
+}
+
+.ComingSoonText {
+    font-family: monospace;
+    font-size: 0.85rem;
+    opacity: 0.35;
+}

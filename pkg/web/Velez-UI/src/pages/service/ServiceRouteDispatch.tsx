@@ -2,7 +2,6 @@ import {useParams} from "react-router-dom";
 
 import {GetServiceByNameQuery} from "@/processes/queries/services.ts";
 import SkeletonLoader from "@/components/base/SkeletonLoader.tsx";
-
 import ServiceInfoPage from "@/pages/service/ServiceInfoPage.tsx";
 import VervCoreServicePage from "@/pages/service/VervCoreServicePage.tsx";
 

@@ -1,0 +1,7 @@
+.TabStripContainer {
+    display: flex;
+    gap: 0.15rem;
+    background: var(--bg);
+    padding: 0.2rem 0.2rem 0.2rem 0;
+    width: fit-content;
+}

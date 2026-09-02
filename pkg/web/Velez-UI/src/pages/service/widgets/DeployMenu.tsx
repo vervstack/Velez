@@ -1,7 +1,7 @@
 import {useEffect, useState, useCallback, useRef} from "react";
 import cn from "classnames";
 
-import cls from "@/pages/service/parts/DeployMenu.module.css";
+import cls from "@/pages/service/widgets/DeployMenu.module.css";
 
 import DeploymentWidget from "@/widgets/deploy/DeploymentWidget.tsx";
 import {serviceService} from "@/processes/api/service.ts";

@@ -68,12 +68,6 @@
   "66": "VolumesWidget.tsx",
   "67": ".GetService",
   "68": "state.ts",
-  "69": "ValuesMapping.tsx",
-  "70": "StepsDialogHeader.tsx",
   "71": "ObservabilityTools.tsx",
-  "72": "CreateSmerdRequest",
-  "73": "PortMapping.tsx",
-  "74": ".createRegistry",
-  "75": ".listPlugins",
-  "76": "UpdateEnvironmentResponse"
+  "74": ".createRegistry"
 }

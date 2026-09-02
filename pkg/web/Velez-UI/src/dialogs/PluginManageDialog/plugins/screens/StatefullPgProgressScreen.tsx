@@ -3,6 +3,7 @@ import cn from 'classnames';
 
 import {EnableStatefullCluster, TaskStatus, TaskStatusStatus, WatchTaskRequest} from '@/app/api/velez';
 import {useToaster} from '@/app/hooks/toaster/Toaster.ts';
+import {queryClient} from '@/app/queryClient.ts';
 import Button from '@/components/base/Button.tsx';
 import {StatefullPgContext} from '@/dialogs/PluginManageDialog/plugins/StatefullPgContext.ts';
 import ProgressStepChip from '@/dialogs/PluginManageDialog/plugins/screens/ProgressStepChip.tsx';
@@ -85,6 +86,8 @@ export default function StatefullPgProgressScreen({context, onClose}: StatefullP
                 if (finalStatus === TaskStatusStatus.FAILED) {
                     throw new Error(finalError || 'Enabling cluster mode failed');
                 }
+                queryClient.invalidateQueries({queryKey: ['plugins']});
+                queryClient.invalidateQueries({queryKey: ['nodes']});
                 setPhase('done');
             })
             .catch((err: Error) => {

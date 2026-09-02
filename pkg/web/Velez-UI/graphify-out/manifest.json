@@ -920,8 +920,8 @@
     "semantic_hash": ""
   },
   "src/dialogs/PluginManageDialog/plugins/screens/StatefullPgProgressScreen.tsx": {
-    "mtime": 1785506427.8825223,
-    "ast_hash": "10fde8992b11792d59985977d36823e1",
+    "mtime": 1788327236.0444608,
+    "ast_hash": "081c6e58a1444883ae48e0867b3981ab",
     "semantic_hash": ""
   },
   "src/dialogs/PluginManageDialog/plugins/screens/StatefullPgSettingsScreen.test.tsx": {

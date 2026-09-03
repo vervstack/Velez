@@ -509,6 +509,15 @@
       ],
       "default": "unknown"
     },
+    "RequestFromVervonomicon": {
+      "type": "object",
+      "properties": {
+        "image": {
+          "type": "string",
+          "description": "image - the image to deploy. The .verv/ descriptor baked into THIS\nimage is the one applied."
+        }
+      }
+    },
     "RequestUpgrade": {
       "type": "object",
       "properties": {
@@ -610,6 +619,10 @@
         "upgrade": {
           "$ref": "#/definitions/RequestUpgrade",
           "title": "Takes current version and upgrades\nonly certain part of it (image)"
+        },
+        "vervonomicon": {
+          "$ref": "#/definitions/RequestFromVervonomicon",
+          "description": "Deploys from the .verv/ descriptor baked into the given image."
         },
         "serviceName": {
           "type": "string"
@@ -751,6 +764,19 @@
         "STOPPED"
       ],
       "default": "DEPLOYMENT_STATUS_UNKNOWN"
+    },
+    "velez_apiDescriptorFile": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "title": "path - relative to .verv/, e.g. \"vervonomicon.yaml\" or \"prod/ingress.conf\""
+        },
+        "content": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
     },
     "velez_apiFileConfig": {
       "type": "object",
@@ -899,11 +925,43 @@
       "properties": {
         "serviceName": {
           "type": "string"
+        },
+        "environment": {
+          "type": "string",
+          "description": "environment - which overlay to resolve. Empty resolves the default environment."
         }
       }
     },
     "velez_apiGetVervonomiconResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "raw": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiDescriptorFile"
+          },
+          "description": "raw - every file found under .verv/, as found, before overlay merging."
+        },
+        "resolvedYaml": {
+          "type": "string",
+          "description": "resolved_yaml - the descriptor after overlay merge and box resolution."
+        },
+        "source": {
+          "$ref": "#/definitions/velez_apiVervonomiconSource"
+        },
+        "environment": {
+          "type": "string"
+        },
+        "resourceStatuses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiResourceReconciliation"
+          },
+          "description": "resource_statuses - one entry per resources.yaml resource, whether the\nservice already has a connection to it or still needs one provisioned."
+        }
+      }
     },
     "velez_apiListDeploymentsRequest": {
       "type": "object",
@@ -1055,6 +1113,30 @@
     "velez_apiRemoveServiceResponse": {
       "type": "object"
     },
+    "velez_apiResourceConnectionStatus": {
+      "type": "string",
+      "enum": [
+        "RESOURCE_CONNECTION_STATUS_UNSPECIFIED",
+        "RESOURCE_CONNECTION_STATUS_ALREADY_CONNECTED",
+        "RESOURCE_CONNECTION_STATUS_MUST_PROVISION"
+      ],
+      "default": "RESOURCE_CONNECTION_STATUS_UNSPECIFIED",
+      "description": "ResourceConnectionStatus - the reconciliation outcome for one resources.yaml\nentry, per docs/features/vervonomicon.md's \"Resource reconciliation\"."
+    },
+    "velez_apiResourceReconciliation": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "resourceType": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/velez_apiResourceConnectionStatus"
+        }
+      }
+    },
     "velez_apiRestartPolicy": {
       "type": "object",
       "properties": {
@@ -1202,6 +1284,16 @@
           "description": "labels - derived server-side, never stored. Same vocabulary as\nServiceBaseInfo.labels: \"service-core\" | \"service-app\" | \"resource-\u003ctype\u003e\"."
         }
       }
+    },
+    "velez_apiVervonomiconSource": {
+      "type": "string",
+      "enum": [
+        "VERVONOMICON_SOURCE_UNSPECIFIED",
+        "VERVONOMICON_SOURCE_IMAGE",
+        "VERVONOMICON_SOURCE_REPO",
+        "VERVONOMICON_SOURCE_PUSHED"
+      ],
+      "default": "VERVONOMICON_SOURCE_UNSPECIFIED"
     },
     "velez_apiVolume": {
       "type": "object",

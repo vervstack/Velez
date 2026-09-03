@@ -14,10 +14,14 @@ import (
 // RpcGapsSuite is thin "is it reachable and shaped right" coverage for RPCs
 // that had no e2e touch before: the pure getters on the velez_api impl
 // (Version, SearchImages, GetHardware), the service-read RPCs on the
-// service_api impl (GetServiceMetrics/Resources/Graph/Environments and the
-// GetVervonomicon stub), and a docker-network round-trip through
-// MakeConnections / BreakConnections. None of these need cluster Postgres or
-// matreshka, so every test runs a plain NewEnvironment(t).
+// service_api impl (GetServiceMetrics/Resources/Graph/Environments and
+// GetVervonomicon), and a docker-network round-trip through MakeConnections /
+// BreakConnections. None of these need cluster Postgres or matreshka, so
+// every test runs a plain NewEnvironment(t). GetVervonomicon's real behavior
+// (image-sourced descriptors, environment overlays, resource reconciliation,
+// error cases) is covered in suite_vervonomicon_test.go and
+// suite_vervonomicon_deploy_test.go - this suite only proves the unknown-
+// service shape (a clean empty response).
 type RpcGapsSuite struct {
 	suite.Suite
 
@@ -140,11 +144,11 @@ func (s *RpcGapsSuite) Test_GetServiceEnvironments() {
 	require.Empty(t, resp.GetEnvironments())
 }
 
-// Test_GetVervonomicon.
-//
-// NOTE: vervonomicon.go returns &pb.GetVervonomicon_Response{}
-// unconditionally - it is a stub with no backing logic. This only proves the
-// handler is registered and reachable.
+// Test_GetVervonomicon: a service name that was never deployed has no image
+// to read a descriptor from, so GetVervonomicon returns a clean empty
+// response, not an error - the same NoDescriptor path a real service with no
+// running instance takes. See suite_vervonomicon_test.go for descriptor
+// content, environment overlays, and resource reconciliation coverage.
 func (s *RpcGapsSuite) Test_GetVervonomicon() {
 	t := s.T()
 

@@ -33,6 +33,14 @@ type ContainerService interface {
 	DisconnectFromNetwork(ctx context.Context, req domain.Connection) error
 }
 
+// VervonomiconSource reads the raw .verv/ descriptor files out of a
+// service's image. Declared here where it's consumed (verv_services) rather
+// than next to its implementation -
+// internal/service/service_manager/vervonomicon.ImageSource.
+type VervonomiconSource interface {
+	Read(ctx context.Context, serviceName, imageName string) (map[string][]byte, error)
+}
+
 type ConfigurationService interface {
 	GetVervFromApi(ctx context.Context, meta domain.ConfigMeta) (matreshka.AppConfig, error)
 	GetEnvFromApi(ctx context.Context, meta domain.ConfigMeta) (*evon.Node, error)
@@ -84,6 +92,10 @@ type VervServicesService interface {
 	CreateRegistry(ctx context.Context, req domain.CreateRegistryReq) (domain.Registry, error)
 	UpdateRegistry(ctx context.Context, req domain.UpdateRegistryReq) (domain.Registry, error)
 	DeleteRegistry(ctx context.Context, req domain.DeleteRegistryReq) error
+
+	// Vervonomicon declarative deployment (docs/features/vervonomicon.md).
+	GetVervonomicon(ctx context.Context, req domain.GetVervonomiconReq) (domain.VervonomiconResult, error)
+	CreateDeployFromVervonomicon(ctx context.Context, req domain.CreateDeployFromVervonomiconReq) error
 }
 
 type NodeService interface {

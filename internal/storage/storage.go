@@ -8,6 +8,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
+	verv "go.vervstack.ru/Velez/internal/domain/vervonomicon"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/plugins_queries"
@@ -31,6 +32,7 @@ type Storage interface {
 	Jobs() JobsStorage
 	Environments() EnvironmentsStorage
 	Registries() RegistriesStorage
+	ResourceBoxes() ResourceBoxesStorage
 
 	TxManager() *sqldb.TxManager
 }
@@ -118,4 +120,20 @@ type RegistriesStorage interface {
 	ClearDefaultRegistry(ctx context.Context) error
 
 	WithTx(tx *sql.Tx) RegistriesStorage
+}
+
+// ResourceBoxesStorage - reads over velez.resource_boxes, the sizing tiers
+// docs/features/vervonomicon.md's "Boxes" section resolves app.box /
+// resources[].box against. Structurally the same shape as
+// internal/service/service_manager/vervonomicon.BoxLookup, declared
+// separately here (rather than storage importing the service package) to
+// keep storage -> service a one-way dependency.
+//
+// Implementations: internal/storage/postgres.Storage.ResourceBoxes()
+// (postgres/cluster mode) and internal/storage/resource_boxes.NewStatic
+// (in-memory, used by local_storage in single-node/dev mode, seeded with the
+// same three builtin tiers the postgres migration seeds).
+type ResourceBoxesStorage interface {
+	GetBox(ctx context.Context, name string) (verv.Box, error)
+	ListBoxes(ctx context.Context) ([]verv.Box, error)
 }

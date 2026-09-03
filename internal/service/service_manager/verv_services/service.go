@@ -19,6 +19,15 @@ type VervService struct {
 	// against the smerd's actual environment rather than always PROD - see
 	// docs/container_runtimes/roadmap.md's Stage 2.
 	runtimes container_runtime.RuntimeResolver
+
+	// vervSource reads .verv/ descriptor files out of a service's image, for
+	// GetVervonomicon and CreateDeployFromVervonomicon.
+	vervSource service.VervonomiconSource
+
+	// configService reads a service's live matreshka config, for resource
+	// reconciliation (GetVervonomicon and CreateDeployFromVervonomicon) - see
+	// docs/features/vervonomicon.md's "Resource reconciliation".
+	configService service.ConfigurationService
 }
 
 func New(
@@ -26,6 +35,8 @@ func New(
 	containerService service.ContainerService,
 	docker node_clients.Docker,
 	runtimes container_runtime.RuntimeResolver,
+	vervSource service.VervonomiconSource,
+	configService service.ConfigurationService,
 ) *VervService {
 	return &VervService{
 		dataStorage: dataStorage,
@@ -33,6 +44,8 @@ func New(
 		containerService: containerService,
 		docker:           docker,
 		runtimes:         runtimes,
+		vervSource:       vervSource,
+		configService:    configService,
 	}
 }
 
@@ -50,4 +63,10 @@ func (v *VervService) environments() storage.EnvironmentsStorage {
 // swap is picked up immediately.
 func (v *VervService) registries() storage.RegistriesStorage {
 	return v.dataStorage.Registries()
+}
+
+// boxes mirrors environments() - resolved per call so a runtime storage swap
+// is picked up immediately.
+func (v *VervService) boxes() storage.ResourceBoxesStorage {
+	return v.dataStorage.ResourceBoxes()
 }

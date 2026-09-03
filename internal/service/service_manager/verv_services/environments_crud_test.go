@@ -21,7 +21,7 @@ func newEnvService(t *testing.T, seedNames []string, defaultSuffix string) *Verv
 		environments: environments.NewStatic(seedNames, defaultSuffix),
 	}
 
-	return New(dataStorage, nil, nil, nil)
+	return New(dataStorage, nil, nil, nil, nil, nil)
 }
 
 func TestVervService_ListEnvironments(t *testing.T) {

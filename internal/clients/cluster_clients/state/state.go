@@ -124,3 +124,12 @@ func (s *stateManager) Registries() storage.RegistriesStorage {
 
 	return (*l).Registries()
 }
+
+func (s *stateManager) ResourceBoxes() storage.ResourceBoxesStorage {
+	l := s.state.Load()
+	if l == nil {
+		return nil
+	}
+
+	return (*l).ResourceBoxes()
+}

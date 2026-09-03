@@ -25,6 +25,8 @@ func (impl *Impl) CreateDeploy(ctx context.Context, apiReq *pb.CreateDeploy_Requ
 		return impl.handleNewDeployment(ctx, apiReq, payload)
 	case *pb.CreateDeploy_Request_Upgrade_:
 		return impl.handleUpgradeDeployment(ctx, apiReq, payload)
+	case *pb.CreateDeploy_Request_Vervonomicon:
+		return impl.handleVervonomiconDeployment(ctx, apiReq, payload)
 	}
 
 	return &pb.CreateDeploy_Response{}, nil
@@ -70,6 +72,25 @@ func (impl *Impl) handleUpgradeDeployment(ctx context.Context,
 	err := impl.servicesService.UpgradeDeploy(ctx, req)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error upgrading deployment")
+	}
+
+	return &pb.CreateDeploy_Response{}, nil
+}
+
+func (impl *Impl) handleVervonomiconDeployment(
+	ctx context.Context,
+	apiReq *pb.CreateDeploy_Request,
+	payload *pb.CreateDeploy_Request_Vervonomicon,
+) (*pb.CreateDeploy_Response, error) {
+	req := domain.CreateDeployFromVervonomiconReq{
+		ServiceName: apiReq.GetServiceName(),
+		Environment: apiReq.GetEnvironment(),
+		Image:       payload.Vervonomicon.GetImage(),
+	}
+
+	err := impl.servicesService.CreateDeployFromVervonomicon(ctx, req)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error creating vervonomicon deploy")
 	}
 
 	return &pb.CreateDeploy_Response{}, nil

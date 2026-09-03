@@ -169,6 +169,8 @@ message CreateDeploy {
       // Takes current version and upgrades
       // only certain part of it (image)
       Upgrade upgrade = 2;
+      // Deploys from the .verv/ descriptor baked into the given image.
+      FromVervonomicon vervonomicon = 5;
     }
 
     string service_name = 3;
@@ -186,6 +188,12 @@ message CreateDeploy {
       // If none is passed - simply creates new deployment
       // and restarts smerds
       optional string image = 2;
+    }
+
+    message FromVervonomicon {
+      // image - the image to deploy. The .verv/ descriptor baked into THIS
+      // image is the one applied.
+      string image = 1;
     }
   }
 
@@ -366,10 +374,50 @@ message GetServiceEnvironments {
   }
 }
 
+message DescriptorFile {
+  // path - relative to .verv/, e.g. "vervonomicon.yaml" or "prod/ingress.conf"
+  string path = 1;
+  bytes content = 2;
+}
+
+enum VervonomiconSource {
+  VERVONOMICON_SOURCE_UNSPECIFIED = 0;
+  VERVONOMICON_SOURCE_IMAGE = 1;
+  VERVONOMICON_SOURCE_REPO = 2;
+  VERVONOMICON_SOURCE_PUSHED = 3;
+}
+
+// ResourceConnectionStatus - the reconciliation outcome for one resources.yaml
+// entry, per docs/features/vervonomicon.md's "Resource reconciliation".
+enum ResourceConnectionStatus {
+  RESOURCE_CONNECTION_STATUS_UNSPECIFIED = 0;
+  RESOURCE_CONNECTION_STATUS_ALREADY_CONNECTED = 1;
+  RESOURCE_CONNECTION_STATUS_MUST_PROVISION = 2;
+}
+
+message ResourceReconciliation {
+  string name = 1;
+  string resource_type = 2;
+  ResourceConnectionStatus status = 3;
+}
+
 message GetVervonomicon {
   message Request {
     string service_name = 1;
+
+    // environment - which overlay to resolve. Empty resolves the default environment.
+    string environment = 2;
   }
-  message Response {}
+  message Response {
+    // raw - every file found under .verv/, as found, before overlay merging.
+    repeated DescriptorFile raw = 1;
+    // resolved_yaml - the descriptor after overlay merge and box resolution.
+    string resolved_yaml = 2;
+    VervonomiconSource source = 3;
+    string environment = 4;
+    // resource_statuses - one entry per resources.yaml resource, whether the
+    // service already has a connection to it or still needs one provisioned.
+    repeated ResourceReconciliation resource_statuses = 5;
+  }
 }
 

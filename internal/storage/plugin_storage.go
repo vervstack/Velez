@@ -64,3 +64,7 @@ func (c *Container) Environments() EnvironmentsStorage {
 func (c *Container) Registries() RegistriesStorage {
 	return (*c.impl.Load()).Registries()
 }
+
+func (c *Container) ResourceBoxes() ResourceBoxesStorage {
+	return (*c.impl.Load()).ResourceBoxes()
+}

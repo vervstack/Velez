@@ -5,6 +5,7 @@ import (
 
 	rtb "go.redsock.ru/toolbox"
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	verv "go.vervstack.ru/Velez/internal/domain/vervonomicon"
 )
 
 type CreateServiceReq struct {
@@ -60,6 +61,13 @@ type CreateDeployReq struct {
 	LaunchSmerd
 
 	ServiceName string
+
+	// VervDescriptor - set only for vervonomicon-driven deploys (see
+	// CreateDeployFromVervonomicon); persisted into
+	// deployment_specifications.verv_descriptor alongside the resolved
+	// CreateSmerd.Request, so the deployment stays reproducible and
+	// auditable.
+	VervDescriptor *verv.Descriptor
 }
 
 type UpgradeDeployReq struct {

@@ -26,6 +26,17 @@ const (
 	RepoLabel        = "velez.repo"
 	PortLabel        = "velez.port"
 	EnvLabel         = "env"
+
+	// TagLabelPrefix - per docs/features/vervonomicon.md's "Mapping onto
+	// CreateSmerd.Request" table, each vervonomicon service.tags entry
+	// becomes a label "verv.tag.<tag>", mirroring the dotted velez.*
+	// metadata labels above rather than the older SCREAMING_SNAKE ones.
+	TagLabelPrefix = "verv.tag."
+
+	// TagLabelValue is the value written for every verv.tag.<tag> label -
+	// the tag's presence is the signal, matching the boolean-label
+	// convention container_manager already uses ("true").
+	TagLabelValue = "true"
 )
 
 func IsMatreshkaImage(r *image.InspectResponse) bool {

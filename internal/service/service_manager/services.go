@@ -15,6 +15,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/service_manager/nodes_service"
 	"go.vervstack.ru/Velez/internal/service/service_manager/plugins"
 	"go.vervstack.ru/Velez/internal/service/service_manager/verv_services"
+	"go.vervstack.ru/Velez/internal/service/service_manager/vervonomicon"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/local_storage"
 )
@@ -51,7 +52,11 @@ func New(
 	sm := &ServiceManager{
 		containerManager: cm,
 		configurator:     configService,
-		vervServices:     verv_services.New(clusterClients.StateManager(), cm, nodeClients.Docker(), runtimeResolver),
+		vervServices: verv_services.New(
+			clusterClients.StateManager(), cm, nodeClients.Docker(), runtimeResolver,
+			vervonomicon.NewImageSource(nodeClients, runtimeResolver),
+			configService,
+		),
 
 		docker:      nodeClients.Docker(),
 		nodeService: nodes_service.NewService(clusterClients.StateManager()),

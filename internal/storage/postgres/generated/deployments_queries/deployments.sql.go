@@ -35,19 +35,25 @@ func (q *Queries) CreateDeployment(ctx context.Context, arg CreateDeploymentPara
 }
 
 const createSpecification = `-- name: CreateSpecification :one
-INSERT INTO velez.deployment_specifications (name, service_id, verv_payload)
-VALUES ($1, $2, $3)
+INSERT INTO velez.deployment_specifications (name, service_id, verv_payload, verv_descriptor)
+VALUES ($1, $2, $3, $4)
 RETURNING id
 `
 
 type CreateSpecificationParams struct {
-	Name        string
-	ServiceID   sql.NullInt64
-	VervPayload pqtype.NullRawMessage
+	Name           string
+	ServiceID      sql.NullInt64
+	VervPayload    pqtype.NullRawMessage
+	VervDescriptor pqtype.NullRawMessage
 }
 
 func (q *Queries) CreateSpecification(ctx context.Context, arg CreateSpecificationParams) (int64, error) {
-	row := q.db.QueryRowContext(ctx, createSpecification, arg.Name, arg.ServiceID, arg.VervPayload)
+	row := q.db.QueryRowContext(ctx, createSpecification,
+		arg.Name,
+		arg.ServiceID,
+		arg.VervPayload,
+		arg.VervDescriptor,
+	)
 	var id int64
 	err := row.Scan(&id)
 	return id, err
@@ -57,16 +63,18 @@ const getSpecificationById = `-- name: GetSpecificationById :one
 SELECT id,
        name,
        created_at,
-       verv_payload
+       verv_payload,
+       verv_descriptor
 FROM velez.deployment_specifications spec
 WHERE spec.id = $1
 `
 
 type GetSpecificationByIdRow struct {
-	ID          int64
-	Name        string
-	CreatedAt   time.Time
-	VervPayload pqtype.NullRawMessage
+	ID             int64
+	Name           string
+	CreatedAt      time.Time
+	VervPayload    pqtype.NullRawMessage
+	VervDescriptor pqtype.NullRawMessage
 }
 
 func (q *Queries) GetSpecificationById(ctx context.Context, id int64) (GetSpecificationByIdRow, error) {
@@ -77,6 +85,7 @@ func (q *Queries) GetSpecificationById(ctx context.Context, id int64) (GetSpecif
 		&i.Name,
 		&i.CreatedAt,
 		&i.VervPayload,
+		&i.VervDescriptor,
 	)
 	return i, err
 }

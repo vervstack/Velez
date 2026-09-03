@@ -38,6 +38,20 @@ func (v *VervService) CreateNewDeploy(ctx context.Context, request domain.Create
 				return rerrors.Wrap(err, "error marshaling specification")
 			}
 
+			if request.VervDescriptor != nil {
+				// internal/domain/vervonomicon.Descriptor carries only yaml
+				// tags (it's a DO-NOT-EDIT pure data package - see
+				// docs/features/vervonomicon.md) - encoding/json falls back
+				// to Go field names, which is fine here since this JSON is
+				// never read by anything outside this codebase.
+				spec.VervDescriptor.RawMessage, err = json.Marshal(request.VervDescriptor) //nolint:musttag
+				if err != nil {
+					return rerrors.Wrap(err, "error marshaling vervonomicon descriptor")
+				}
+
+				spec.VervDescriptor.Valid = true
+			}
+
 			specId, err := deploymentStorage.CreateSpecification(ctx, spec)
 			if err != nil {
 				return rerrors.Wrap(err, "error creating specification")

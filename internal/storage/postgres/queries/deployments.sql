@@ -1,6 +1,6 @@
 -- name: CreateSpecification :one
-INSERT INTO velez.deployment_specifications (name, service_id, verv_payload)
-VALUES ($1, $2, $3)
+INSERT INTO velez.deployment_specifications (name, service_id, verv_payload, verv_descriptor)
+VALUES ($1, $2, $3, $4)
 RETURNING id;
 
 -- name: CreateDeployment :one
@@ -14,7 +14,8 @@ RETURNING (id, node_id, created_at, updated_at, status, spec_id);
 SELECT id,
        name,
        created_at,
-       verv_payload
+       verv_payload,
+       verv_descriptor
 FROM velez.deployment_specifications spec
 WHERE spec.id = $1;
 

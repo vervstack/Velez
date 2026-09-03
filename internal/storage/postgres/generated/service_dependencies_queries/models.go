@@ -157,11 +157,12 @@ type VelezDeployment struct {
 }
 
 type VelezDeploymentSpecification struct {
-	ID          int64
-	Name        string
-	ServiceID   sql.NullInt64
-	VervPayload pqtype.NullRawMessage
-	CreatedAt   time.Time
+	ID             int64
+	Name           string
+	ServiceID      sql.NullInt64
+	VervPayload    pqtype.NullRawMessage
+	CreatedAt      time.Time
+	VervDescriptor pqtype.NullRawMessage
 }
 
 type VelezEnvironment struct {
@@ -208,6 +209,16 @@ type VelezRegistry struct {
 	Username  string
 	Secret    string
 	IsDefault bool
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type VelezResourceBox struct {
+	Name      string
+	Cpu       string
+	RamMb     int64
+	DiskMb    int64
+	IsBuiltin bool
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

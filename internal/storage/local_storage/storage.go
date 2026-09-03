@@ -9,6 +9,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/storage/registries"
+	"go.vervstack.ru/Velez/internal/storage/resource_boxes"
 )
 
 // allEnvironments is the empty Docker.ListContainers suffix - these
@@ -30,6 +31,7 @@ type localStorage struct {
 	jobs             *jobs
 	environments     storage.EnvironmentsStorage
 	registries       storage.RegistriesStorage
+	resourceBoxes    storage.ResourceBoxesStorage
 }
 
 func New(containerAPI node_clients.Docker, cfg config.Config) storage.Storage {
@@ -57,6 +59,9 @@ func New(containerAPI node_clients.Docker, cfg config.Config) storage.Storage {
 		// Single-node/dev mode has no velez.registries table either - see
 		// registries.NewStatic.
 		registries: registries.NewStatic(),
+		// Single-node/dev mode has no velez.resource_boxes table either -
+		// see resource_boxes.NewStatic.
+		resourceBoxes: resource_boxes.NewStatic(),
 	}
 }
 
@@ -98,6 +103,10 @@ func (l *localStorage) Environments() storage.EnvironmentsStorage {
 
 func (l *localStorage) Registries() storage.RegistriesStorage {
 	return l.registries
+}
+
+func (l *localStorage) ResourceBoxes() storage.ResourceBoxesStorage {
+	return l.resourceBoxes
 }
 
 func (l *localStorage) TxManager() *sqldb.TxManager {

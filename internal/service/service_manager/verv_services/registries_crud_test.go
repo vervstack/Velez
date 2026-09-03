@@ -17,7 +17,7 @@ func newRegistryService(t *testing.T) *VervService {
 		registries: registries.NewStatic(),
 	}
 
-	return New(dataStorage, nil, nil, nil)
+	return New(dataStorage, nil, nil, nil, nil, nil)
 }
 
 // CreateRegistry with IsDefault=false never touches the transaction manager -

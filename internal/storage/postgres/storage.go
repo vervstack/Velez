@@ -26,6 +26,7 @@ type Storage struct {
 	jobsStorage                *jobsStorage
 	environmentsStorage        storage.EnvironmentsStorage
 	registriesStorage          storage.RegistriesStorage
+	resourceBoxesStorage       *resourceBoxesStorage
 
 	txManager *sqldb.TxManager
 }
@@ -47,6 +48,7 @@ func New(db *sql.DB) storage.Storage {
 		jobsStorage:                newJobsStorage(db),
 		environmentsStorage:        environments.NewPg(db),
 		registriesStorage:          registries.NewPg(db),
+		resourceBoxesStorage:       newResourceBoxesStorage(db),
 		txManager:                  sqldb.NewTxManager(db),
 	}
 }
@@ -89,6 +91,12 @@ func (s *Storage) Environments() storage.EnvironmentsStorage {
 
 func (s *Storage) Registries() storage.RegistriesStorage {
 	return s.registriesStorage
+}
+
+// ResourceBoxes exposes velez.resource_boxes lookups for
+// internal/service/service_manager/vervonomicon.BoxResolver.
+func (s *Storage) ResourceBoxes() storage.ResourceBoxesStorage {
+	return s.resourceBoxesStorage
 }
 
 func (s *Storage) TxManager() *sqldb.TxManager {

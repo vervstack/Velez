@@ -52,8 +52,13 @@ func (d *dockerServiceResourcesStorage) GetResources(ctx context.Context,
 		resourceType := strings.TrimPrefix(name, prefix)
 		status := c.State
 
+		// Name must be the short binding key (resourceType), not the full
+		// container name: it's matched against resources.yaml's Resource.Name
+		// by vervonomicon.ReconcileResources (bound[res.Name]), and the
+		// postgres-backed serviceResourcesStorage.GetResources already returns
+		// the short ResourceName there - this backend disagreed with it.
 		resource := domain.BoundResource{
-			Name:         name,
+			Name:         resourceType,
 			ResourceType: resourceType,
 			Status:       status,
 		}

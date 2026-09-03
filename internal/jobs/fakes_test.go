@@ -850,8 +850,9 @@ func (f *fakeClusterStorage) Tasks() storage.TasksStorage                       
 func (f *fakeClusterStorage) Jobs() storage.JobsStorage                               { return nil }
 func (f *fakeClusterStorage) TxManager() *sqldb.TxManager                             { return nil }
 
-func (f *fakeClusterStorage) Environments() storage.EnvironmentsStorage { return f.environments }
-func (f *fakeClusterStorage) Registries() storage.RegistriesStorage     { return nil }
+func (f *fakeClusterStorage) Environments() storage.EnvironmentsStorage   { return f.environments }
+func (f *fakeClusterStorage) Registries() storage.RegistriesStorage       { return nil }
+func (f *fakeClusterStorage) ResourceBoxes() storage.ResourceBoxesStorage { return nil }
 
 // fakeDeploymentsStorage is a minimal in-memory implementation of
 // storage.DeploymentsStorage for exercising registerPluginJob's

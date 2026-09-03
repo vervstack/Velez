@@ -1,28 +1,29 @@
-import { useState } from 'react'
-import { useGetVervonomiconQuery } from '@/processes/queries/services'
-import type { VervonomiconDocs } from '@/model/service_page/ServicePageModel'
-import cls from '@/widgets/service/Vervonomicon/Vervonomicon.module.css'
+import {useState, useMemo} from "react"
+import cn from "classnames"
 
-type TabKey = 'vervonomicon' | 'deployment' | 'configuration' | 'secrets'
+import {useGetVervonomiconQuery} from "@/processes/queries/services"
+import {buildVervonomiconTabs, findDefaultTab, shouldHighlightYaml} from "@/processes/vervonomicon"
+import {useEnvironmentStore} from "@/app/hooks/environment/Environment"
+import cls from "@/widgets/service/Vervonomicon/Vervonomicon.module.css"
 
-const TABS: { key: TabKey; label: string }[] = [
-    { key: 'vervonomicon',   label: 'vervonomicon.yaml'  },
-    { key: 'deployment',     label: 'deployment.hcl'     },
-    { key: 'configuration',  label: 'configuration.yaml' },
-    { key: 'secrets',        label: 'secrets.yaml'       },
-]
-
-const STUB_PLACEHOLDER = '# No config available yet\n# TODO: implement GetVervonomicon RPC'
+interface Tab {
+    id: string
+    label: string
+    filePath: string
+    isResolved?: boolean
+}
 
 interface VervonomiconProps {
     serviceName: string
 }
 
-function highlightLines(src: string): React.ReactNode[] {
+function highlightLines(src: string, isYaml: boolean): React.ReactNode[] {
     return src.split('\n').map(function renderLine(line: string, idx: number) {
         let content: React.ReactNode
 
-        if (line.trimStart().startsWith('#')) {
+        if (!isYaml) {
+            content = line
+        } else if (line.trimStart().startsWith('#')) {
             content = <span className={cls.SyntaxComment}>{line}</span>
         } else {
             const colonIdx = line.indexOf(':')
@@ -49,27 +50,57 @@ function highlightLines(src: string): React.ReactNode[] {
     })
 }
 
-function isAllEmpty(docs: VervonomiconDocs): boolean {
-    return !docs.vervonomicon && !docs.deployment && !docs.configuration && !docs.secrets
-}
-
 export default function Vervonomicon({serviceName}: VervonomiconProps) {
-    const [activeTab, setActiveTab] = useState<TabKey>('vervonomicon')
+    const selectedEnvironment = useEnvironmentStore(state => state.selectedEnvironment)
+    const {data: docs, isLoading} = useGetVervonomiconQuery(serviceName, selectedEnvironment)
+    const [activeTabId, setActiveTabId] = useState<string>("")
 
-    const {data: docs, isLoading} = useGetVervonomiconQuery(serviceName)
+    const tabs: Tab[] = useMemo(() => {
+        if (!docs || docs.files.length === 0) return []
+        const fileTabs = buildVervonomiconTabs(docs.files.map(f => f.path))
+        const allTabs: Tab[] = [
+            ...fileTabs,
+            {id: "__resolved", label: "Resolved", filePath: "", isResolved: true},
+        ]
+        return allTabs
+    }, [docs])
 
-    const allEmpty = !isLoading && !!docs && isAllEmpty(docs)
+    const currentActiveTabId = useMemo(() => {
+        if (activeTabId && tabs.some(t => t.id === activeTabId)) return activeTabId
+        if (tabs.length === 0) return ""
+        const defaultId = findDefaultTab(tabs.filter(t => !t.isResolved))
+        return defaultId || (tabs[0]?.id ?? "")
+    }, [activeTabId, tabs])
 
-    const activeContent = docs
-        ? (isAllEmpty(docs) ? STUB_PLACEHOLDER : (docs[activeTab] || STUB_PLACEHOLDER))
-        : ''
+    const allEmpty = !isLoading && !!docs && docs.files.length === 0 && !docs.resolvedYaml
 
+    function handleTabClick(tabId: string) {
+        return function onClick() {
+            setActiveTabId(tabId)
+        }
+    }
+
+    function getActiveContent(): string {
+        if (!docs) return ""
+        if (currentActiveTabId === "__resolved") return docs.resolvedYaml
+        const file = docs.files.find(f => f.path === currentActiveTabId)
+        return file?.content ?? ""
+    }
+
+    function getActiveIsYaml(): boolean {
+        if (currentActiveTabId === "__resolved") return true
+        return shouldHighlightYaml(currentActiveTabId)
+    }
+
+    const activeContent = getActiveContent()
+    const activeIsYaml = getActiveIsYaml()
     const lineCount = activeContent ? activeContent.split('\n').length : 0
 
-    function handleTabClick(key: TabKey) {
-        return function onClick() {
-            setActiveTab(key)
-        }
+    function getSourceLabel(source: string): string {
+        if (source.includes("IMAGE")) return "image"
+        if (source.includes("REPO")) return "repo"
+        if (source.includes("PUSHED")) return "pushed"
+        return "unknown"
     }
 
     return (
@@ -82,27 +113,38 @@ export default function Vervonomicon({serviceName}: VervonomiconProps) {
             </div>
 
             {allEmpty ? (
-                <p className={cls.Empty}>this service doesn't use vervonomicon</p>
+                <p className={cls.Empty}>this service doesn't have a .verv/ descriptor</p>
             ) : (
                 <div className={cls.Panel}>
                     <div className={cls.PanelHeader}>
-                        {TABS.map(function renderTab(tab) {
+                        {tabs.map(function renderTab(tab) {
                             return (
                                 <button
-                                    key={tab.key}
-                                    className={`${cls.TabBtn} ${activeTab === tab.key ? cls.active : ''}`}
-                                    onClick={handleTabClick(tab.key)}
+                                    key={tab.id}
+                                    className={cn(cls.TabBtn, currentActiveTabId === tab.id && cls.active)}
+                                    onClick={handleTabClick(tab.id)}
+                                    type="button"
                                 >
                                     {tab.label}
                                 </button>
                             )
                         })}
+                        {docs && (docs.source || docs.environment) && (
+                            <div className={cls.TabBadge}>
+                                {docs.source && <span className={cls.BadgeLabel}>
+                                    {getSourceLabel(docs.source)}
+                                </span>}
+                                {docs.environment && <span className={cls.BadgeLabel}>
+                                    {docs.environment}
+                                </span>}
+                            </div>
+                        )}
                     </div>
 
                     <div className={cls.CodeWrapper}>
                         {isLoading
                             ? <div className={cls.LoadingText}>Loading…</div>
-                            : <pre className={cls.CodeBlock}>{highlightLines(activeContent)}</pre>
+                            : <pre className={cls.CodeBlock}>{highlightLines(activeContent, activeIsYaml)}</pre>
                         }
                     </div>
 

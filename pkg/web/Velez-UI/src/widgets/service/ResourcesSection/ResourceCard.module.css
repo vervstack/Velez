@@ -82,3 +82,34 @@
 .StatusDot.unknown {
     background: var(--fg-dim, #72728a);
 }
+
+@keyframes badgeFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-0.125rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ReconciliationBadge {
+    width: fit-content;
+    font-size: 0.625rem;
+    font-weight: 600;
+    padding: 0.0625rem 0.375rem;
+    border-radius: var(--border-radius);
+    animation: badgeFadeIn 0.2s ease;
+}
+
+.ReconciliationBadge.alreadyConnected {
+    color: var(--info-color);
+    background: color-mix(in srgb, var(--info-color) 16%, transparent);
+}
+
+.ReconciliationBadge.mustProvision {
+    color: var(--amber);
+    background: color-mix(in srgb, var(--amber) 16%, transparent);
+}

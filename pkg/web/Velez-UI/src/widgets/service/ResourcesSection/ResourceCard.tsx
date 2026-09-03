@@ -9,6 +9,9 @@ interface ResourceCardProps {
 }
 
 export default function ResourceCard({resource}: ResourceCardProps) {
+    const reconciliationLabel = reconciliationBadgeLabel(resource.reconciliation)
+    const reconciliationClass = reconciliationBadgeClass(resource.reconciliation)
+
     return (
         <div
             className={cls.ResourceCardContainer}
@@ -19,6 +22,11 @@ export default function ResourceCard({resource}: ResourceCardProps) {
                 <div className={cls.NameGroup}>
                     <span className={cls.ResourceName}>{resource.name}</span>
                     <span className={cls.KindDesc}>{resource.type}</span>
+                    {reconciliationLabel && (
+                        <span className={cn(cls.ReconciliationBadge, reconciliationClass)}>
+                            {reconciliationLabel}
+                        </span>
+                    )}
                 </div>
                 <span className={cn(cls.StatusDot, statusDotClass(resource.status))}/>
             </div>
@@ -36,5 +44,27 @@ function statusDotClass(status: ServiceResource['status']): string {
             return cls.unhealthy
         default:
             return cls.unknown
+    }
+}
+
+function reconciliationBadgeLabel(status: ServiceResource['reconciliation']): string {
+    switch (status) {
+        case 'already_connected':
+            return 'Existing connection'
+        case 'must_provision':
+            return 'Not yet created'
+        default:
+            return ''
+    }
+}
+
+function reconciliationBadgeClass(status: ServiceResource['reconciliation']): string {
+    switch (status) {
+        case 'already_connected':
+            return cls.alreadyConnected
+        case 'must_provision':
+            return cls.mustProvision
+        default:
+            return ''
     }
 }

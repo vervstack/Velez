@@ -70,9 +70,10 @@ export function useListServiceEnvsQuery(serviceName: string) {
     })
 }
 
-export function useGetVervonomiconQuery(serviceName: string) {
+export function useGetVervonomiconQuery(serviceName: string, environment?: string) {
     return useQuery({
-        queryKey: ['vervonomicon', serviceName] as const,
-        queryFn: () => serviceService.fetchVervonomicon(serviceName),
+        queryKey: ['vervonomicon', serviceName, environment] as const,
+        queryFn: () => serviceService.fetchVervonomicon(serviceName, environment),
+        enabled: !!serviceName,
     })
 }

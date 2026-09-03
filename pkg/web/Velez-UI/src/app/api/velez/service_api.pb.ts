@@ -36,6 +36,19 @@ export enum NodeType {
   NODE_TYPE_RESOURCE = "NODE_TYPE_RESOURCE",
 }
 
+export enum VervonomiconSource {
+  VERVONOMICON_SOURCE_UNSPECIFIED = "VERVONOMICON_SOURCE_UNSPECIFIED",
+  VERVONOMICON_SOURCE_IMAGE = "VERVONOMICON_SOURCE_IMAGE",
+  VERVONOMICON_SOURCE_REPO = "VERVONOMICON_SOURCE_REPO",
+  VERVONOMICON_SOURCE_PUSHED = "VERVONOMICON_SOURCE_PUSHED",
+}
+
+export enum ResourceConnectionStatus {
+  RESOURCE_CONNECTION_STATUS_UNSPECIFIED = "RESOURCE_CONNECTION_STATUS_UNSPECIFIED",
+  RESOURCE_CONNECTION_STATUS_ALREADY_CONNECTED = "RESOURCE_CONNECTION_STATUS_ALREADY_CONNECTED",
+  RESOURCE_CONNECTION_STATUS_MUST_PROVISION = "RESOURCE_CONNECTION_STATUS_MUST_PROVISION",
+}
+
 export type CreateServiceRequest = {
   name?: string;
   environment?: string;
@@ -81,6 +94,10 @@ export type CreateDeployRequestUpgrade = {
   image?: string;
 };
 
+export type CreateDeployRequestFromVervonomicon = {
+  image?: string;
+};
+
 type BaseCreateDeployRequest = {
   serviceName?: string;
   environment?: string;
@@ -90,6 +107,7 @@ export type CreateDeployRequest = BaseCreateDeployRequest &
   OneOf<{
     new: VelezApiVelezApi.CreateSmerdRequest;
     upgrade: CreateDeployRequestUpgrade;
+    vervonomicon: CreateDeployRequestFromVervonomicon;
   }>;
 
 export type CreateDeployResponse = Record<string, never>;
@@ -237,11 +255,29 @@ export type GetServiceEnvironmentsResponse = {
 
 export type GetServiceEnvironments = Record<string, never>;
 
-export type GetVervonomiconRequest = {
-  serviceName?: string;
+export type DescriptorFile = {
+  path?: string;
+  content?: Uint8Array;
 };
 
-export type GetVervonomiconResponse = Record<string, never>;
+export type ResourceReconciliation = {
+  name?: string;
+  resourceType?: string;
+  status?: ResourceConnectionStatus;
+};
+
+export type GetVervonomiconRequest = {
+  serviceName?: string;
+  environment?: string;
+};
+
+export type GetVervonomiconResponse = {
+  raw?: DescriptorFile[];
+  resolvedYaml?: string;
+  source?: VervonomiconSource;
+  environment?: string;
+  resourceStatuses?: ResourceReconciliation[];
+};
 
 export type GetVervonomicon = Record<string, never>;
 

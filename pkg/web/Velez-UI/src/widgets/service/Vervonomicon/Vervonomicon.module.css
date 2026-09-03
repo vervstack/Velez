@@ -157,3 +157,20 @@
     letter-spacing: 0.06em;
     opacity: 0.6;
 }
+
+.TabBadge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+    padding-left: 1rem;
+}
+
+.BadgeLabel {
+    font-size: 0.6875rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: calc(var(--border-radius) - 0.1rem);
+    background: color-mix(in srgb, var(--info-color) 15%, transparent);
+    color: var(--info-color);
+    font-family: monospace;
+}

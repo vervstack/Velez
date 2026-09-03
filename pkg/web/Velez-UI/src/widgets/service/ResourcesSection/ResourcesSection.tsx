@@ -1,24 +1,36 @@
+import {useMemo} from 'react'
+
 import type {ServiceResource} from '@/model/service_page/ServicePageModel'
-import {useGetServiceResourcesQuery} from '@/processes/queries/services'
+import {useGetServiceResourcesQuery, useGetVervonomiconQuery} from '@/processes/queries/services'
+import {mergeResourcesWithReconciliation} from '@/processes/vervonomicon.ts'
+import {getResourceMeta} from '@/processes/api/service.ts'
+import {useEnvironmentStore} from '@/app/hooks/environment/Environment.ts'
+import cls from '@/widgets/service/ResourcesSection/ResourcesSection.module.css'
 
 import ResourceCard from './ResourceCard'
-import cls from './ResourcesSection.module.css'
 
 interface ResourcesSectionProps {
     serviceName: string
 }
 
 export default function ResourcesSection({serviceName}: ResourcesSectionProps) {
+    const selectedEnvironment = useEnvironmentStore(state => state.selectedEnvironment)
     const {data: resources = []} = useGetServiceResourcesQuery(serviceName)
+    const {data: docs} = useGetVervonomiconQuery(serviceName, selectedEnvironment)
+
+    const mergedResources = useMemo(
+        () => mergeResourcesWithReconciliation(resources, docs?.resourceStatuses ?? [], getResourceMeta),
+        [resources, docs],
+    )
 
     return (
         <div className={cls.ResourcesSectionContainer}>
             <ResourcesHeader/>
             {
-                resources.length === 0 ?
+                mergedResources.length === 0 ?
                     <EmptyState/>
                     :
-                    <ResourcesRow resources={resources}/>
+                    <ResourcesRow resources={mergedResources}/>
             }
         </div>
     )

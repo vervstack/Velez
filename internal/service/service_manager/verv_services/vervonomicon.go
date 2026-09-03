@@ -70,6 +70,13 @@ func (v *VervService) GetVervonomicon(
 // internal/storage/local_storage/services.go). An empty return means the
 // service has no running instance in this environment.
 func (v *VervService) currentServiceImage(ctx context.Context, serviceName, environment string) (string, error) {
+	// docker's "name" filter is a substring match, so an empty name matches
+	// every container instead of none - guard before it picks up an unrelated
+	// service's image.
+	if serviceName == "" {
+		return "", nil
+	}
+
 	name := serviceName
 
 	req := &velez_api.ListSmerds_Request{

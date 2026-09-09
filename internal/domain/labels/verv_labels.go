@@ -27,6 +27,15 @@ const (
 	PortLabel        = "velez.port"
 	EnvLabel         = "env"
 
+	// PgaasInstanceLabel marks a container as a Postgres-as-a-Service instance
+	// provisioned by pgaas.CreatePgInstance. In single-node/dev mode (no
+	// velez.pg_instances / velez.secrets tables) the local_storage backend
+	// treats the labelled container as the system of record for the
+	// instance's db name, user, port and generated password - see
+	// internal/storage/local_storage/pg_instances.go and secrets.go. Always
+	// paired with VervServiceLabel set to the instance name.
+	PgaasInstanceLabel = "velez.pgaas"
+
 	// TagLabelPrefix - per docs/features/vervonomicon.md's "Mapping onto
 	// CreateSmerd.Request" table, each vervonomicon service.tags entry
 	// becomes a label "verv.tag.<tag>", mirroring the dotted velez.*

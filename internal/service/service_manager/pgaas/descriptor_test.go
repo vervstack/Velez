@@ -72,7 +72,7 @@ func TestBuildDeployRequest_ResolvesShapeAndOverlaysCredentialsOnlyOntoRequest(t
 
 	require.Len(t, settings.GetVolumes(), 1)
 	require.Equal(t, "my-pg-data", settings.GetVolumes()[0].GetVolumeName())
-	require.Equal(t, "/var/lib/postgresql/data", settings.GetVolumes()[0].GetContainerPath())
+	require.Equal(t, "/var/lib/postgresql", settings.GetVolumes()[0].GetContainerPath())
 
 	require.Equal(t, map[string]string{
 		"POSTGRES_DB":       "my_pg",

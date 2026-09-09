@@ -2,6 +2,7 @@ package local_storage
 
 import (
 	"context"
+	"hash/fnv"
 	"strings"
 	"sync"
 
@@ -80,10 +81,27 @@ func (s *dockerServices) GetByName(ctx context.Context, name string) (domain.Ser
 			ImageName: c.Image,
 			Status:    containerStateToString(c.State),
 		},
+		ID:     serviceIDFromName(name),
 		Status: containerStateToDeploymentStatus(c.State),
 	}
 
 	return svc, nil
+}
+
+// serviceIDFromName derives a stable, non-zero synthetic service id from a
+// service name. Single-node/dev mode has no velez.services table and thus no
+// real serial ids, but storage.PgInstancesStorage and pgaas's pg_instances
+// <-> service join are keyed by int64 service id (see
+// internal/service/service_manager/pgaas/list.go). A name-derived FNV-1a hash
+// gives every caller the same id for the same service across restarts with no
+// persisted counter. The single right shift keeps the result positive so it
+// never collides with the zero value that signalled "no id" before.
+func serviceIDFromName(name string) int64 {
+	h := fnv.New64a()
+
+	_, _ = h.Write([]byte(name))
+
+	return int64(h.Sum64() >> 1)
 }
 
 func containerStateToDeploymentStatus(state string) pb.DeploymentStatus {
@@ -199,6 +217,7 @@ func (s *dockerServices) pendingService(name string) domain.Service {
 			Name:   name,
 			Status: containerStateToString(""),
 		},
+		ID:     serviceIDFromName(name),
 		Status: pb.DeploymentStatus_SCHEDULED_DEPLOYMENT,
 	}
 }
@@ -225,6 +244,7 @@ func (s *dockerServices) syntheticVelezService(ctx context.Context) (domain.Serv
 
 		svc := domain.Service{
 			ServiceBaseInfo: info,
+			ID:              serviceIDFromName(velezServiceName),
 			Status:          pb.DeploymentStatus_RUNNING,
 		}
 

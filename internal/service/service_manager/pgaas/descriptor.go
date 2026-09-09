@@ -7,6 +7,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/domain/labels"
 	verv "go.vervstack.ru/Velez/internal/domain/vervonomicon"
 	"go.vervstack.ru/Velez/internal/service/service_manager/vervonomicon"
 	"go.vervstack.ru/Velez/internal/service/service_manager/vervonomicon/builtin"
@@ -74,6 +75,18 @@ func buildDeployRequest(
 		"POSTGRES_USER":     creds.username,
 		"POSTGRES_PASSWORD": creds.password,
 	}
+
+	if request.Labels == nil {
+		request.Labels = make(map[string]string)
+	}
+
+	// VervServiceLabel makes the instance a first-class entry in the node's
+	// service list (listDistinctServices keys on it); PgaasInstanceLabel lets
+	// the single-node local_storage backend recover the instance's facts from
+	// the running container - see internal/storage/local_storage/pg_instances.go.
+	// Both are inert in cluster mode, where velez.pg_instances is authoritative.
+	request.Labels[labels.VervServiceLabel] = req.Name
+	request.Labels[labels.PgaasInstanceLabel] = "true"
 
 	return descriptor, request, nil
 }

@@ -226,9 +226,6 @@ func (j *createLoaderContainerJob) Do(ctx context.Context) error {
 	hostCfg := &container.HostConfig{
 		Mounts: mounts,
 	}
-	if len(j.folders) != 0 {
-		hostCfg.VolumeDriver = j.folders[0].GetVolumeName()
-	}
 
 	netCfg := &network.NetworkingConfig{}
 	platform := &v1.Platform{}

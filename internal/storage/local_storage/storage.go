@@ -8,10 +8,8 @@ import (
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/environments"
-	"go.vervstack.ru/Velez/internal/storage/pg_instances"
 	"go.vervstack.ru/Velez/internal/storage/registries"
 	"go.vervstack.ru/Velez/internal/storage/resource_boxes"
-	"go.vervstack.ru/Velez/internal/storage/secrets"
 )
 
 // allEnvironments is the empty Docker.ListContainers suffix - these
@@ -66,12 +64,12 @@ func New(containerAPI node_clients.Docker, cfg config.Config) storage.Storage {
 		// Single-node/dev mode has no velez.resource_boxes table either -
 		// see resource_boxes.NewStatic.
 		resourceBoxes: resource_boxes.NewStatic(),
-		// Single-node/dev mode has no velez.secrets table either - see
-		// secrets.NewStatic.
-		secrets: secrets.NewStatic(),
-		// Single-node/dev mode has no velez.pg_instances table either - see
-		// pg_instances.NewStatic.
-		pgInstances: pg_instances.NewStatic(),
+		// Single-node/dev mode has no velez.secrets / velez.pg_instances
+		// tables: a pgaas instance's generated password and facts are read
+		// back from its labelled container instead - see secrets.go and
+		// pg_instances.go in this package.
+		secrets:     newSecretsStorage(containerAPI),
+		pgInstances: newPgInstancesStorage(containerAPI),
 	}
 }
 

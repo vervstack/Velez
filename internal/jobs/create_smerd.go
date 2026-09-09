@@ -657,9 +657,6 @@ func (j *createContainerJob) Do(ctx context.Context) error {
 		Mounts:        parser.FromVolume(req.GetSettings()),
 		RestartPolicy: parser.FromRestart(req.GetRestart()),
 	}
-	if req.GetSettings() != nil && len(req.GetSettings().GetVolumes()) != 0 {
-		hostCfg.VolumeDriver = req.GetSettings().GetVolumes()[0].GetVolumeName()
-	}
 
 	netCfg := &network.NetworkingConfig{}
 	if req.GetSettings() != nil && len(req.GetSettings().GetPorts()) != 0 {

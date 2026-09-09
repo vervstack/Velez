@@ -1,148 +1,41 @@
-import {useEffect, useState} from 'react';
-import cn from 'classnames';
+import {EnablePluginResponse, EnableStatefullCluster} from "@/app/api/velez"
+import {queryClient} from "@/app/queryClient.ts"
+import {StatefullPgContext} from "@/dialogs/PluginManageDialog/plugins/StatefullPgContext.ts"
+import TaskProgressScreen from "@/dialogs/PluginManageDialog/plugins/screens/TaskProgressScreen.tsx"
+import {controlPlaneService} from "@/processes/api/control_plane.ts"
+import {NodeHardwareQuery} from "@/processes/queries/control_plane.ts"
 
-import {EnableStatefullCluster, TaskStatus, TaskStatusStatus, WatchTaskRequest} from '@/app/api/velez';
-import {useToaster} from '@/app/hooks/toaster/Toaster.ts';
-import {queryClient} from '@/app/queryClient.ts';
-import Button from '@/components/base/Button.tsx';
-import {StatefullPgContext} from '@/dialogs/PluginManageDialog/plugins/StatefullPgContext.ts';
-import ProgressStepChip from '@/dialogs/PluginManageDialog/plugins/screens/ProgressStepChip.tsx';
-import cls from '@/dialogs/PluginManageDialog/plugins/screens/StatefullPgProgressScreen.module.css';
-import {controlPlaneService} from '@/processes/api/control_plane.ts';
-import {WatchTaskStream} from '@/processes/api/tasks.ts';
-import {NodeHardwareQuery} from '@/processes/queries/control_plane.ts';
+interface Props {
+    context: StatefullPgContext
 
-interface StatefullPgProgressScreenProps {
-    context: StatefullPgContext;
-    onClose(): void;
+    onClose(): void
 }
 
-type ProgressPhase = 'pending' | 'running' | 'done' | 'failed';
+export default function StatefullPgProgressScreen({context, onClose}: Props) {
+    const hardwareQuery = NodeHardwareQuery()
+    const nodeRegion = hardwareQuery.data?.nodeRegion
 
-function phaseEyebrow(phase: ProgressPhase): string {
-    if (phase === 'done') {
-        return 'success';
-    }
-    if (phase === 'failed') {
-        return 'failed';
-    }
-    return 'deploying';
-}
-
-function headerTitle(taskId: string | undefined): string {
-    return taskId ? `Enabling cluster mode · Task #${taskId}` : 'Enabling cluster mode…';
-}
-
-function eyebrowModifierClass(phase: ProgressPhase): string {
-    if (phase === 'done') {
-        return cls.done;
-    }
-    if (phase === 'failed') {
-        return cls.failed;
-    }
-    return '';
-}
-
-export default function StatefullPgProgressScreen({context, onClose}: StatefullPgProgressScreenProps) {
-    const [phase, setPhase] = useState<ProgressPhase>('pending');
-    const [error, setError] = useState<string | undefined>(undefined);
-    const [taskStatus, setTaskStatus] = useState<TaskStatus | undefined>(undefined);
-
-    const hardwareQuery = NodeHardwareQuery();
-    const nodeRegion = hardwareQuery.data?.nodeRegion;
-
-    useEffect(() => {
-        let cancelled = false;
-
-        let finalStatus: TaskStatusStatus | undefined;
-        let finalError: string | undefined;
-
-        function onStatus(status: TaskStatus) {
-            if (cancelled) {
-                return;
-            }
-            finalStatus = status.status;
-            finalError = status.error;
-            setTaskStatus(status);
-            if (status.status === TaskStatusStatus.RUNNING) {
-                setPhase('running');
-            }
-        }
-
+    function handleStart(): Promise<EnablePluginResponse> {
         const payload: EnableStatefullCluster = {
             isExposePort: context.exposePort,
             exposeToPort: context.exposePort ? context.portNumber : undefined,
-        };
+        }
+        return controlPlaneService.enableStatefullPgCluster(payload)
+    }
 
-        controlPlaneService.enableStatefullPgCluster(payload)
-            .then((res) => {
-                const watchReq: WatchTaskRequest = {entityId: res.entityId, action: res.action};
-                return WatchTaskStream(watchReq, onStatus);
-            })
-            .then(() => {
-                if (cancelled) {
-                    return;
-                }
-                if (finalStatus === TaskStatusStatus.FAILED) {
-                    throw new Error(finalError || 'Enabling cluster mode failed');
-                }
-                queryClient.invalidateQueries({queryKey: ['plugins']});
-                queryClient.invalidateQueries({queryKey: ['nodes']});
-                setPhase('done');
-            })
-            .catch((err: Error) => {
-                if (cancelled) {
-                    return;
-                }
-                setPhase('failed');
-                setError(err.message);
-                useToaster.getState().catchGrpc(err);
-            });
-
-        return () => {
-            cancelled = true;
-        };
-    }, []);
-
-    const jobs = taskStatus?.jobs;
-    const hasSteps = jobs !== undefined && jobs.length > 0;
+    function handleSuccess() {
+        queryClient.invalidateQueries({queryKey: ["plugins"]})
+        queryClient.invalidateQueries({queryKey: ["nodes"]})
+    }
 
     return (
-        <div className={cls.ProgressContainer}>
-            <div className={cls.HeaderWrapper}>
-                {(phase === 'pending' || phase === 'running') && (
-                    <span className={cn(cls.Glyph, cls.Spinner)}/>
-                )}
-                {phase === 'done' && <span className={cn(cls.Glyph, cls.SuccessMark)}>✓</span>}
-                {phase === 'failed' && <span className={cn(cls.Glyph, cls.FailureMark)}>!</span>}
-
-                <span className={cn(cls.Eyebrow, eyebrowModifierClass(phase))}>{phaseEyebrow(phase)}</span>
-                <span className={cls.Title}>{headerTitle(taskStatus?.taskId)}</span>
-
-                <span className={cls.MetaLine}>PostgreSQL cluster</span>
-                {nodeRegion && <span className={cn(cls.MetaLine, cls.MetaLineSecondary)}>{nodeRegion}</span>}
-            </div>
-
-            {hasSteps && (
-                <div className={cls.StepsWrapper}>
-                    {jobs.map((job, idx) => (
-                        <ProgressStepChip
-                            key={job.name ?? idx}
-                            index={idx + 1}
-                            name={job.name ?? ''}
-                            status={job.status}
-                        />
-                    ))}
-                </div>
-            )}
-
-            {(phase === 'done' || phase === 'failed') && (
-                <div className={cls.ActionsWrapper}>
-                    {phase === 'failed' && error && <span className={cls.ErrorText}>{error}</span>}
-                    {phase === 'done' && <Button variant="primary" onClick={onClose}>Done</Button>}
-                    {phase === 'failed' && <Button variant="secondary" onClick={onClose}>Close</Button>}
-                </div>
-            )}
-        </div>
-    );
+        <TaskProgressScreen
+            title="Enabling cluster mode"
+            metaLine="PostgreSQL cluster"
+            metaLineSecondary={nodeRegion}
+            start={handleStart}
+            onSuccess={handleSuccess}
+            onClose={onClose}
+        />
+    )
 }

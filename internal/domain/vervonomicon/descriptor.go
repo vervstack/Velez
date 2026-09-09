@@ -10,6 +10,13 @@ const (
 	SourceKindImage  SourceKind = "image"
 	SourceKindRepo   SourceKind = "repo"
 	SourceKindPushed SourceKind = "pushed"
+
+	// SourceKindBuiltin - a descriptor embedded into the Velez binary itself
+	// (internal/service/service_manager/vervonomicon/builtin), used to
+	// provision Velez's own containers (postgres, registry) through the same
+	// Parse -> MergeEnvironment -> BoxResolver.ResolveRequest path as a
+	// user's service. See docs/features/pgaas_and_registry_plugin.md.
+	SourceKindBuiltin SourceKind = "builtin"
 )
 
 // Index is the parsed content of vervonomicon.yaml — the required index and

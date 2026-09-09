@@ -133,3 +133,21 @@ func (s *stateManager) ResourceBoxes() storage.ResourceBoxesStorage {
 
 	return (*l).ResourceBoxes()
 }
+
+func (s *stateManager) Secrets() storage.SecretsStorage {
+	l := s.state.Load()
+	if l == nil {
+		return nil
+	}
+
+	return (*l).Secrets()
+}
+
+func (s *stateManager) PgInstances() storage.PgInstancesStorage {
+	l := s.state.Load()
+	if l == nil {
+		return nil
+	}
+
+	return (*l).PgInstances()
+}

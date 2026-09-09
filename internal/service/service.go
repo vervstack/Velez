@@ -9,6 +9,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/service/secrets"
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
@@ -22,6 +23,8 @@ type Services interface {
 	NodeService() NodeService
 	PluginService() PluginService
 	StorageContainer() *storage.Container
+	Secrets() secrets.Store
+	Postgres() PostgresService
 }
 
 type ContainerService interface {
@@ -104,4 +107,17 @@ type NodeService interface {
 
 type PluginService interface {
 	ListPlugins(ctx context.Context) (*velez_api.ListPlugins_Response, error)
+}
+
+// PostgresService provides Postgres-as-a-Service: a PG instance is a normal
+// Velez service, deployed through the ordinary VervServicesService
+// .CreateNewDeploy path from the builtin postgres vervonomicon descriptor -
+// see docs/features/pgaas_and_registry_plugin.md section 3.
+type PostgresService interface {
+	ListPgInstances(ctx context.Context, req domain.ListPgInstancesReq) (domain.PgInstanceList, error)
+	CreatePgInstance(ctx context.Context, req domain.CreatePgInstanceReq) (domain.PgInstanceView, error)
+	DropPgInstance(ctx context.Context, name string) error
+	// GetPgInstanceCredentials is the only PostgresService operation that
+	// resolves a secret_ref to its plaintext value.
+	GetPgInstanceCredentials(ctx context.Context, name string) (domain.PgInstanceCredentials, error)
 }

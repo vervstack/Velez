@@ -34,6 +34,7 @@ const (
 	VervPluginType_headscale            VervPluginType = 4
 	VervPluginType_portainer            VervPluginType = 5
 	VervPluginType_statefull_pg         VervPluginType = 6
+	VervPluginType_registry             VervPluginType = 7
 )
 
 // Enum value maps for VervPluginType.
@@ -46,6 +47,7 @@ var (
 		4: "headscale",
 		5: "portainer",
 		6: "statefull_pg",
+		7: "registry",
 	}
 	VervPluginType_value = map[string]int32{
 		"unknown_service_type": 0,
@@ -55,6 +57,7 @@ var (
 		"headscale":            4,
 		"portainer":            5,
 		"statefull_pg":         6,
+		"registry":             7,
 	}
 )
 
@@ -445,6 +448,58 @@ func (x *EnableStatefullCluster) GetExposeToPort() uint64 {
 	return 0
 }
 
+type EnableRegistry struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ExposeToPort  *uint32                `protobuf:"varint,1,opt,name=expose_to_port,json=exposeToPort,proto3,oneof" json:"expose_to_port,omitempty"`
+	Username      *string                `protobuf:"bytes,2,opt,name=username,proto3,oneof" json:"username,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EnableRegistry) Reset() {
+	*x = EnableRegistry{}
+	mi := &file_control_plane_api_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EnableRegistry) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EnableRegistry) ProtoMessage() {}
+
+func (x *EnableRegistry) ProtoReflect() protoreflect.Message {
+	mi := &file_control_plane_api_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EnableRegistry.ProtoReflect.Descriptor instead.
+func (*EnableRegistry) Descriptor() ([]byte, []int) {
+	return file_control_plane_api_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *EnableRegistry) GetExposeToPort() uint32 {
+	if x != nil && x.ExposeToPort != nil {
+		return *x.ExposeToPort
+	}
+	return 0
+}
+
+func (x *EnableRegistry) GetUsername() string {
+	if x != nil && x.Username != nil {
+		return *x.Username
+	}
+	return ""
+}
+
 type EnableHeadscaleServer struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Payload:
@@ -458,7 +513,7 @@ type EnableHeadscaleServer struct {
 
 func (x *EnableHeadscaleServer) Reset() {
 	*x = EnableHeadscaleServer{}
-	mi := &file_control_plane_api_proto_msgTypes[6]
+	mi := &file_control_plane_api_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -470,7 +525,7 @@ func (x *EnableHeadscaleServer) String() string {
 func (*EnableHeadscaleServer) ProtoMessage() {}
 
 func (x *EnableHeadscaleServer) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[6]
+	mi := &file_control_plane_api_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -483,7 +538,7 @@ func (x *EnableHeadscaleServer) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnableHeadscaleServer.ProtoReflect.Descriptor instead.
 func (*EnableHeadscaleServer) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{6}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *EnableHeadscaleServer) GetPayload() isEnableHeadscaleServer_Payload {
@@ -535,7 +590,7 @@ type ListNodes struct {
 
 func (x *ListNodes) Reset() {
 	*x = ListNodes{}
-	mi := &file_control_plane_api_proto_msgTypes[7]
+	mi := &file_control_plane_api_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -547,7 +602,7 @@ func (x *ListNodes) String() string {
 func (*ListNodes) ProtoMessage() {}
 
 func (x *ListNodes) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[7]
+	mi := &file_control_plane_api_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -560,7 +615,7 @@ func (x *ListNodes) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListNodes.ProtoReflect.Descriptor instead.
 func (*ListNodes) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{7}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{8}
 }
 
 type Plugin struct {
@@ -576,7 +631,7 @@ type Plugin struct {
 
 func (x *Plugin) Reset() {
 	*x = Plugin{}
-	mi := &file_control_plane_api_proto_msgTypes[8]
+	mi := &file_control_plane_api_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -588,7 +643,7 @@ func (x *Plugin) String() string {
 func (*Plugin) ProtoMessage() {}
 
 func (x *Plugin) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[8]
+	mi := &file_control_plane_api_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -601,7 +656,7 @@ func (x *Plugin) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Plugin.ProtoReflect.Descriptor instead.
 func (*Plugin) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{8}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *Plugin) GetType() VervPluginType {
@@ -647,7 +702,7 @@ type ListPlugins struct {
 
 func (x *ListPlugins) Reset() {
 	*x = ListPlugins{}
-	mi := &file_control_plane_api_proto_msgTypes[9]
+	mi := &file_control_plane_api_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -659,7 +714,7 @@ func (x *ListPlugins) String() string {
 func (*ListPlugins) ProtoMessage() {}
 
 func (x *ListPlugins) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[9]
+	mi := &file_control_plane_api_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -672,7 +727,7 @@ func (x *ListPlugins) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPlugins.ProtoReflect.Descriptor instead.
 func (*ListPlugins) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{9}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{10}
 }
 
 type Environment struct {
@@ -688,7 +743,7 @@ type Environment struct {
 
 func (x *Environment) Reset() {
 	*x = Environment{}
-	mi := &file_control_plane_api_proto_msgTypes[10]
+	mi := &file_control_plane_api_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -700,7 +755,7 @@ func (x *Environment) String() string {
 func (*Environment) ProtoMessage() {}
 
 func (x *Environment) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[10]
+	mi := &file_control_plane_api_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -713,7 +768,7 @@ func (x *Environment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Environment.ProtoReflect.Descriptor instead.
 func (*Environment) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{10}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *Environment) GetId() int64 {
@@ -759,7 +814,7 @@ type ListEnvironments struct {
 
 func (x *ListEnvironments) Reset() {
 	*x = ListEnvironments{}
-	mi := &file_control_plane_api_proto_msgTypes[11]
+	mi := &file_control_plane_api_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -771,7 +826,7 @@ func (x *ListEnvironments) String() string {
 func (*ListEnvironments) ProtoMessage() {}
 
 func (x *ListEnvironments) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[11]
+	mi := &file_control_plane_api_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -784,7 +839,7 @@ func (x *ListEnvironments) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListEnvironments.ProtoReflect.Descriptor instead.
 func (*ListEnvironments) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{11}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{12}
 }
 
 type CreateEnvironment struct {
@@ -795,7 +850,7 @@ type CreateEnvironment struct {
 
 func (x *CreateEnvironment) Reset() {
 	*x = CreateEnvironment{}
-	mi := &file_control_plane_api_proto_msgTypes[12]
+	mi := &file_control_plane_api_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -807,7 +862,7 @@ func (x *CreateEnvironment) String() string {
 func (*CreateEnvironment) ProtoMessage() {}
 
 func (x *CreateEnvironment) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[12]
+	mi := &file_control_plane_api_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -820,7 +875,7 @@ func (x *CreateEnvironment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateEnvironment.ProtoReflect.Descriptor instead.
 func (*CreateEnvironment) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{12}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{13}
 }
 
 type UpdateEnvironment struct {
@@ -831,7 +886,7 @@ type UpdateEnvironment struct {
 
 func (x *UpdateEnvironment) Reset() {
 	*x = UpdateEnvironment{}
-	mi := &file_control_plane_api_proto_msgTypes[13]
+	mi := &file_control_plane_api_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -843,7 +898,7 @@ func (x *UpdateEnvironment) String() string {
 func (*UpdateEnvironment) ProtoMessage() {}
 
 func (x *UpdateEnvironment) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[13]
+	mi := &file_control_plane_api_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -856,7 +911,7 @@ func (x *UpdateEnvironment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateEnvironment.ProtoReflect.Descriptor instead.
 func (*UpdateEnvironment) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{13}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{14}
 }
 
 type DeleteEnvironment struct {
@@ -867,7 +922,7 @@ type DeleteEnvironment struct {
 
 func (x *DeleteEnvironment) Reset() {
 	*x = DeleteEnvironment{}
-	mi := &file_control_plane_api_proto_msgTypes[14]
+	mi := &file_control_plane_api_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -879,7 +934,7 @@ func (x *DeleteEnvironment) String() string {
 func (*DeleteEnvironment) ProtoMessage() {}
 
 func (x *DeleteEnvironment) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[14]
+	mi := &file_control_plane_api_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -892,7 +947,7 @@ func (x *DeleteEnvironment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteEnvironment.ProtoReflect.Descriptor instead.
 func (*DeleteEnvironment) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{14}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{15}
 }
 
 type Registry struct {
@@ -911,7 +966,7 @@ type Registry struct {
 
 func (x *Registry) Reset() {
 	*x = Registry{}
-	mi := &file_control_plane_api_proto_msgTypes[15]
+	mi := &file_control_plane_api_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -923,7 +978,7 @@ func (x *Registry) String() string {
 func (*Registry) ProtoMessage() {}
 
 func (x *Registry) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[15]
+	mi := &file_control_plane_api_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -936,7 +991,7 @@ func (x *Registry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Registry.ProtoReflect.Descriptor instead.
 func (*Registry) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{15}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *Registry) GetId() int64 {
@@ -1003,7 +1058,7 @@ type ListRegistries struct {
 
 func (x *ListRegistries) Reset() {
 	*x = ListRegistries{}
-	mi := &file_control_plane_api_proto_msgTypes[16]
+	mi := &file_control_plane_api_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1015,7 +1070,7 @@ func (x *ListRegistries) String() string {
 func (*ListRegistries) ProtoMessage() {}
 
 func (x *ListRegistries) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[16]
+	mi := &file_control_plane_api_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1028,7 +1083,7 @@ func (x *ListRegistries) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRegistries.ProtoReflect.Descriptor instead.
 func (*ListRegistries) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{16}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{17}
 }
 
 type CreateRegistry struct {
@@ -1039,7 +1094,7 @@ type CreateRegistry struct {
 
 func (x *CreateRegistry) Reset() {
 	*x = CreateRegistry{}
-	mi := &file_control_plane_api_proto_msgTypes[17]
+	mi := &file_control_plane_api_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1051,7 +1106,7 @@ func (x *CreateRegistry) String() string {
 func (*CreateRegistry) ProtoMessage() {}
 
 func (x *CreateRegistry) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[17]
+	mi := &file_control_plane_api_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1064,7 +1119,7 @@ func (x *CreateRegistry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateRegistry.ProtoReflect.Descriptor instead.
 func (*CreateRegistry) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{17}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{18}
 }
 
 type UpdateRegistry struct {
@@ -1075,7 +1130,7 @@ type UpdateRegistry struct {
 
 func (x *UpdateRegistry) Reset() {
 	*x = UpdateRegistry{}
-	mi := &file_control_plane_api_proto_msgTypes[18]
+	mi := &file_control_plane_api_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1087,7 +1142,7 @@ func (x *UpdateRegistry) String() string {
 func (*UpdateRegistry) ProtoMessage() {}
 
 func (x *UpdateRegistry) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[18]
+	mi := &file_control_plane_api_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1100,7 +1155,7 @@ func (x *UpdateRegistry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateRegistry.ProtoReflect.Descriptor instead.
 func (*UpdateRegistry) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{18}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{19}
 }
 
 type DeleteRegistry struct {
@@ -1111,7 +1166,7 @@ type DeleteRegistry struct {
 
 func (x *DeleteRegistry) Reset() {
 	*x = DeleteRegistry{}
-	mi := &file_control_plane_api_proto_msgTypes[19]
+	mi := &file_control_plane_api_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1123,7 +1178,7 @@ func (x *DeleteRegistry) String() string {
 func (*DeleteRegistry) ProtoMessage() {}
 
 func (x *DeleteRegistry) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[19]
+	mi := &file_control_plane_api_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1136,7 +1191,7 @@ func (x *DeleteRegistry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRegistry.ProtoReflect.Descriptor instead.
 func (*DeleteRegistry) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{19}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{20}
 }
 
 type ListVervPlugins_Request struct {
@@ -1147,7 +1202,7 @@ type ListVervPlugins_Request struct {
 
 func (x *ListVervPlugins_Request) Reset() {
 	*x = ListVervPlugins_Request{}
-	mi := &file_control_plane_api_proto_msgTypes[20]
+	mi := &file_control_plane_api_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1159,7 +1214,7 @@ func (x *ListVervPlugins_Request) String() string {
 func (*ListVervPlugins_Request) ProtoMessage() {}
 
 func (x *ListVervPlugins_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[20]
+	mi := &file_control_plane_api_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1184,7 +1239,7 @@ type ListVervPlugins_Response struct {
 
 func (x *ListVervPlugins_Response) Reset() {
 	*x = ListVervPlugins_Response{}
-	mi := &file_control_plane_api_proto_msgTypes[21]
+	mi := &file_control_plane_api_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1196,7 +1251,7 @@ func (x *ListVervPlugins_Response) String() string {
 func (*ListVervPlugins_Response) ProtoMessage() {}
 
 func (x *ListVervPlugins_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[21]
+	mi := &file_control_plane_api_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1226,6 +1281,7 @@ type EnablePlugin_Request struct {
 	//
 	//	*EnablePlugin_Request_StatefullCluster
 	//	*EnablePlugin_Request_HeadscaleServer
+	//	*EnablePlugin_Request_Registry
 	Payload       isEnablePlugin_Request_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1233,7 +1289,7 @@ type EnablePlugin_Request struct {
 
 func (x *EnablePlugin_Request) Reset() {
 	*x = EnablePlugin_Request{}
-	mi := &file_control_plane_api_proto_msgTypes[22]
+	mi := &file_control_plane_api_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1245,7 +1301,7 @@ func (x *EnablePlugin_Request) String() string {
 func (*EnablePlugin_Request) ProtoMessage() {}
 
 func (x *EnablePlugin_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[22]
+	mi := &file_control_plane_api_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1293,6 +1349,15 @@ func (x *EnablePlugin_Request) GetHeadscaleServer() *EnableHeadscaleServer {
 	return nil
 }
 
+func (x *EnablePlugin_Request) GetRegistry() *EnableRegistry {
+	if x != nil {
+		if x, ok := x.Payload.(*EnablePlugin_Request_Registry); ok {
+			return x.Registry
+		}
+	}
+	return nil
+}
+
 type isEnablePlugin_Request_Payload interface {
 	isEnablePlugin_Request_Payload()
 }
@@ -1305,9 +1370,15 @@ type EnablePlugin_Request_HeadscaleServer struct {
 	HeadscaleServer *EnableHeadscaleServer `protobuf:"bytes,3,opt,name=headscale_server,json=headscaleServer,proto3,oneof"`
 }
 
+type EnablePlugin_Request_Registry struct {
+	Registry *EnableRegistry `protobuf:"bytes,4,opt,name=registry,proto3,oneof"`
+}
+
 func (*EnablePlugin_Request_StatefullCluster) isEnablePlugin_Request_Payload() {}
 
 func (*EnablePlugin_Request_HeadscaleServer) isEnablePlugin_Request_Payload() {}
+
+func (*EnablePlugin_Request_Registry) isEnablePlugin_Request_Payload() {}
 
 type EnablePlugin_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1319,7 +1390,7 @@ type EnablePlugin_Response struct {
 
 func (x *EnablePlugin_Response) Reset() {
 	*x = EnablePlugin_Response{}
-	mi := &file_control_plane_api_proto_msgTypes[23]
+	mi := &file_control_plane_api_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1331,7 +1402,7 @@ func (x *EnablePlugin_Response) String() string {
 func (*EnablePlugin_Response) ProtoMessage() {}
 
 func (x *EnablePlugin_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[23]
+	mi := &file_control_plane_api_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1369,7 +1440,7 @@ type InitMaster_Request struct {
 
 func (x *InitMaster_Request) Reset() {
 	*x = InitMaster_Request{}
-	mi := &file_control_plane_api_proto_msgTypes[24]
+	mi := &file_control_plane_api_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1381,7 +1452,7 @@ func (x *InitMaster_Request) String() string {
 func (*InitMaster_Request) ProtoMessage() {}
 
 func (x *InitMaster_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[24]
+	mi := &file_control_plane_api_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1405,7 +1476,7 @@ type InitMaster_Response struct {
 
 func (x *InitMaster_Response) Reset() {
 	*x = InitMaster_Response{}
-	mi := &file_control_plane_api_proto_msgTypes[25]
+	mi := &file_control_plane_api_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1417,7 +1488,7 @@ func (x *InitMaster_Response) String() string {
 func (*InitMaster_Response) ProtoMessage() {}
 
 func (x *InitMaster_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[25]
+	mi := &file_control_plane_api_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1441,7 +1512,7 @@ type ConnectSlave_Request struct {
 
 func (x *ConnectSlave_Request) Reset() {
 	*x = ConnectSlave_Request{}
-	mi := &file_control_plane_api_proto_msgTypes[26]
+	mi := &file_control_plane_api_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1453,7 +1524,7 @@ func (x *ConnectSlave_Request) String() string {
 func (*ConnectSlave_Request) ProtoMessage() {}
 
 func (x *ConnectSlave_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[26]
+	mi := &file_control_plane_api_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1477,7 +1548,7 @@ type ConnectSlave_Response struct {
 
 func (x *ConnectSlave_Response) Reset() {
 	*x = ConnectSlave_Response{}
-	mi := &file_control_plane_api_proto_msgTypes[27]
+	mi := &file_control_plane_api_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1489,7 +1560,7 @@ func (x *ConnectSlave_Response) String() string {
 func (*ConnectSlave_Response) ProtoMessage() {}
 
 func (x *ConnectSlave_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[27]
+	mi := &file_control_plane_api_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1515,7 +1586,7 @@ type EnableHeadscaleServer_ExternalHeadscaleConnection struct {
 
 func (x *EnableHeadscaleServer_ExternalHeadscaleConnection) Reset() {
 	*x = EnableHeadscaleServer_ExternalHeadscaleConnection{}
-	mi := &file_control_plane_api_proto_msgTypes[28]
+	mi := &file_control_plane_api_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1527,7 +1598,7 @@ func (x *EnableHeadscaleServer_ExternalHeadscaleConnection) String() string {
 func (*EnableHeadscaleServer_ExternalHeadscaleConnection) ProtoMessage() {}
 
 func (x *EnableHeadscaleServer_ExternalHeadscaleConnection) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[28]
+	mi := &file_control_plane_api_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1540,7 +1611,7 @@ func (x *EnableHeadscaleServer_ExternalHeadscaleConnection) ProtoReflect() proto
 
 // Deprecated: Use EnableHeadscaleServer_ExternalHeadscaleConnection.ProtoReflect.Descriptor instead.
 func (*EnableHeadscaleServer_ExternalHeadscaleConnection) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{6, 0}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{7, 0}
 }
 
 func (x *EnableHeadscaleServer_ExternalHeadscaleConnection) GetUrl() string {
@@ -1570,7 +1641,7 @@ type EnableHeadscaleServer_DeployHeadscaleConfig struct {
 
 func (x *EnableHeadscaleServer_DeployHeadscaleConfig) Reset() {
 	*x = EnableHeadscaleServer_DeployHeadscaleConfig{}
-	mi := &file_control_plane_api_proto_msgTypes[29]
+	mi := &file_control_plane_api_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1582,7 +1653,7 @@ func (x *EnableHeadscaleServer_DeployHeadscaleConfig) String() string {
 func (*EnableHeadscaleServer_DeployHeadscaleConfig) ProtoMessage() {}
 
 func (x *EnableHeadscaleServer_DeployHeadscaleConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[29]
+	mi := &file_control_plane_api_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1595,7 +1666,7 @@ func (x *EnableHeadscaleServer_DeployHeadscaleConfig) ProtoReflect() protoreflec
 
 // Deprecated: Use EnableHeadscaleServer_DeployHeadscaleConfig.ProtoReflect.Descriptor instead.
 func (*EnableHeadscaleServer_DeployHeadscaleConfig) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{6, 1}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{7, 1}
 }
 
 func (x *EnableHeadscaleServer_DeployHeadscaleConfig) GetCustomPort() uint32 {
@@ -1621,7 +1692,7 @@ type ListNodes_Request struct {
 
 func (x *ListNodes_Request) Reset() {
 	*x = ListNodes_Request{}
-	mi := &file_control_plane_api_proto_msgTypes[30]
+	mi := &file_control_plane_api_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1633,7 +1704,7 @@ func (x *ListNodes_Request) String() string {
 func (*ListNodes_Request) ProtoMessage() {}
 
 func (x *ListNodes_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[30]
+	mi := &file_control_plane_api_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1646,7 +1717,7 @@ func (x *ListNodes_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListNodes_Request.ProtoReflect.Descriptor instead.
 func (*ListNodes_Request) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{7, 0}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{8, 0}
 }
 
 func (x *ListNodes_Request) GetPaging() *Paging {
@@ -1666,7 +1737,7 @@ type ListNodes_Response struct {
 
 func (x *ListNodes_Response) Reset() {
 	*x = ListNodes_Response{}
-	mi := &file_control_plane_api_proto_msgTypes[31]
+	mi := &file_control_plane_api_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1678,7 +1749,7 @@ func (x *ListNodes_Response) String() string {
 func (*ListNodes_Response) ProtoMessage() {}
 
 func (x *ListNodes_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[31]
+	mi := &file_control_plane_api_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1691,7 +1762,7 @@ func (x *ListNodes_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListNodes_Response.ProtoReflect.Descriptor instead.
 func (*ListNodes_Response) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{7, 1}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{8, 1}
 }
 
 func (x *ListNodes_Response) GetNodes() []*NodeBaseInfo {
@@ -1716,7 +1787,7 @@ type ListPlugins_Request struct {
 
 func (x *ListPlugins_Request) Reset() {
 	*x = ListPlugins_Request{}
-	mi := &file_control_plane_api_proto_msgTypes[32]
+	mi := &file_control_plane_api_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1728,7 +1799,7 @@ func (x *ListPlugins_Request) String() string {
 func (*ListPlugins_Request) ProtoMessage() {}
 
 func (x *ListPlugins_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[32]
+	mi := &file_control_plane_api_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1741,7 +1812,7 @@ func (x *ListPlugins_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPlugins_Request.ProtoReflect.Descriptor instead.
 func (*ListPlugins_Request) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{9, 0}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{10, 0}
 }
 
 type ListPlugins_Response struct {
@@ -1753,7 +1824,7 @@ type ListPlugins_Response struct {
 
 func (x *ListPlugins_Response) Reset() {
 	*x = ListPlugins_Response{}
-	mi := &file_control_plane_api_proto_msgTypes[33]
+	mi := &file_control_plane_api_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1765,7 +1836,7 @@ func (x *ListPlugins_Response) String() string {
 func (*ListPlugins_Response) ProtoMessage() {}
 
 func (x *ListPlugins_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[33]
+	mi := &file_control_plane_api_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1778,7 +1849,7 @@ func (x *ListPlugins_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPlugins_Response.ProtoReflect.Descriptor instead.
 func (*ListPlugins_Response) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{9, 1}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{10, 1}
 }
 
 func (x *ListPlugins_Response) GetPlugins() []*Plugin {
@@ -1796,7 +1867,7 @@ type ListEnvironments_Request struct {
 
 func (x *ListEnvironments_Request) Reset() {
 	*x = ListEnvironments_Request{}
-	mi := &file_control_plane_api_proto_msgTypes[34]
+	mi := &file_control_plane_api_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1808,7 +1879,7 @@ func (x *ListEnvironments_Request) String() string {
 func (*ListEnvironments_Request) ProtoMessage() {}
 
 func (x *ListEnvironments_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[34]
+	mi := &file_control_plane_api_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1821,7 +1892,7 @@ func (x *ListEnvironments_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListEnvironments_Request.ProtoReflect.Descriptor instead.
 func (*ListEnvironments_Request) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{11, 0}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{12, 0}
 }
 
 type ListEnvironments_Response struct {
@@ -1833,7 +1904,7 @@ type ListEnvironments_Response struct {
 
 func (x *ListEnvironments_Response) Reset() {
 	*x = ListEnvironments_Response{}
-	mi := &file_control_plane_api_proto_msgTypes[35]
+	mi := &file_control_plane_api_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1845,7 +1916,7 @@ func (x *ListEnvironments_Response) String() string {
 func (*ListEnvironments_Response) ProtoMessage() {}
 
 func (x *ListEnvironments_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[35]
+	mi := &file_control_plane_api_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1858,7 +1929,7 @@ func (x *ListEnvironments_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListEnvironments_Response.ProtoReflect.Descriptor instead.
 func (*ListEnvironments_Response) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{11, 1}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{12, 1}
 }
 
 func (x *ListEnvironments_Response) GetEnvironments() []*Environment {
@@ -1878,7 +1949,7 @@ type CreateEnvironment_Request struct {
 
 func (x *CreateEnvironment_Request) Reset() {
 	*x = CreateEnvironment_Request{}
-	mi := &file_control_plane_api_proto_msgTypes[36]
+	mi := &file_control_plane_api_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1890,7 +1961,7 @@ func (x *CreateEnvironment_Request) String() string {
 func (*CreateEnvironment_Request) ProtoMessage() {}
 
 func (x *CreateEnvironment_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[36]
+	mi := &file_control_plane_api_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1903,7 +1974,7 @@ func (x *CreateEnvironment_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateEnvironment_Request.ProtoReflect.Descriptor instead.
 func (*CreateEnvironment_Request) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{12, 0}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{13, 0}
 }
 
 func (x *CreateEnvironment_Request) GetName() string {
@@ -1929,7 +2000,7 @@ type CreateEnvironment_Response struct {
 
 func (x *CreateEnvironment_Response) Reset() {
 	*x = CreateEnvironment_Response{}
-	mi := &file_control_plane_api_proto_msgTypes[37]
+	mi := &file_control_plane_api_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1941,7 +2012,7 @@ func (x *CreateEnvironment_Response) String() string {
 func (*CreateEnvironment_Response) ProtoMessage() {}
 
 func (x *CreateEnvironment_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[37]
+	mi := &file_control_plane_api_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1954,7 +2025,7 @@ func (x *CreateEnvironment_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateEnvironment_Response.ProtoReflect.Descriptor instead.
 func (*CreateEnvironment_Response) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{12, 1}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{13, 1}
 }
 
 func (x *CreateEnvironment_Response) GetEnvironment() *Environment {
@@ -1975,7 +2046,7 @@ type UpdateEnvironment_Request struct {
 
 func (x *UpdateEnvironment_Request) Reset() {
 	*x = UpdateEnvironment_Request{}
-	mi := &file_control_plane_api_proto_msgTypes[38]
+	mi := &file_control_plane_api_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1987,7 +2058,7 @@ func (x *UpdateEnvironment_Request) String() string {
 func (*UpdateEnvironment_Request) ProtoMessage() {}
 
 func (x *UpdateEnvironment_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[38]
+	mi := &file_control_plane_api_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2000,7 +2071,7 @@ func (x *UpdateEnvironment_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateEnvironment_Request.ProtoReflect.Descriptor instead.
 func (*UpdateEnvironment_Request) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{13, 0}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{14, 0}
 }
 
 func (x *UpdateEnvironment_Request) GetId() int64 {
@@ -2033,7 +2104,7 @@ type UpdateEnvironment_Response struct {
 
 func (x *UpdateEnvironment_Response) Reset() {
 	*x = UpdateEnvironment_Response{}
-	mi := &file_control_plane_api_proto_msgTypes[39]
+	mi := &file_control_plane_api_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2045,7 +2116,7 @@ func (x *UpdateEnvironment_Response) String() string {
 func (*UpdateEnvironment_Response) ProtoMessage() {}
 
 func (x *UpdateEnvironment_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[39]
+	mi := &file_control_plane_api_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2058,7 +2129,7 @@ func (x *UpdateEnvironment_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateEnvironment_Response.ProtoReflect.Descriptor instead.
 func (*UpdateEnvironment_Response) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{13, 1}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{14, 1}
 }
 
 func (x *UpdateEnvironment_Response) GetEnvironment() *Environment {
@@ -2078,7 +2149,7 @@ type DeleteEnvironment_Request struct {
 
 func (x *DeleteEnvironment_Request) Reset() {
 	*x = DeleteEnvironment_Request{}
-	mi := &file_control_plane_api_proto_msgTypes[40]
+	mi := &file_control_plane_api_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2090,7 +2161,7 @@ func (x *DeleteEnvironment_Request) String() string {
 func (*DeleteEnvironment_Request) ProtoMessage() {}
 
 func (x *DeleteEnvironment_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[40]
+	mi := &file_control_plane_api_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2103,7 +2174,7 @@ func (x *DeleteEnvironment_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteEnvironment_Request.ProtoReflect.Descriptor instead.
 func (*DeleteEnvironment_Request) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{14, 0}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{15, 0}
 }
 
 func (x *DeleteEnvironment_Request) GetId() int64 {
@@ -2128,7 +2199,7 @@ type DeleteEnvironment_Response struct {
 
 func (x *DeleteEnvironment_Response) Reset() {
 	*x = DeleteEnvironment_Response{}
-	mi := &file_control_plane_api_proto_msgTypes[41]
+	mi := &file_control_plane_api_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2140,7 +2211,7 @@ func (x *DeleteEnvironment_Response) String() string {
 func (*DeleteEnvironment_Response) ProtoMessage() {}
 
 func (x *DeleteEnvironment_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[41]
+	mi := &file_control_plane_api_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2153,7 +2224,7 @@ func (x *DeleteEnvironment_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteEnvironment_Response.ProtoReflect.Descriptor instead.
 func (*DeleteEnvironment_Response) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{14, 1}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{15, 1}
 }
 
 type ListRegistries_Request struct {
@@ -2164,7 +2235,7 @@ type ListRegistries_Request struct {
 
 func (x *ListRegistries_Request) Reset() {
 	*x = ListRegistries_Request{}
-	mi := &file_control_plane_api_proto_msgTypes[42]
+	mi := &file_control_plane_api_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2176,7 +2247,7 @@ func (x *ListRegistries_Request) String() string {
 func (*ListRegistries_Request) ProtoMessage() {}
 
 func (x *ListRegistries_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[42]
+	mi := &file_control_plane_api_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2189,7 +2260,7 @@ func (x *ListRegistries_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRegistries_Request.ProtoReflect.Descriptor instead.
 func (*ListRegistries_Request) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{16, 0}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{17, 0}
 }
 
 type ListRegistries_Response struct {
@@ -2201,7 +2272,7 @@ type ListRegistries_Response struct {
 
 func (x *ListRegistries_Response) Reset() {
 	*x = ListRegistries_Response{}
-	mi := &file_control_plane_api_proto_msgTypes[43]
+	mi := &file_control_plane_api_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2213,7 +2284,7 @@ func (x *ListRegistries_Response) String() string {
 func (*ListRegistries_Response) ProtoMessage() {}
 
 func (x *ListRegistries_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[43]
+	mi := &file_control_plane_api_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2226,7 +2297,7 @@ func (x *ListRegistries_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRegistries_Response.ProtoReflect.Descriptor instead.
 func (*ListRegistries_Response) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{16, 1}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{17, 1}
 }
 
 func (x *ListRegistries_Response) GetRegistries() []*Registry {
@@ -2250,7 +2321,7 @@ type CreateRegistry_Request struct {
 
 func (x *CreateRegistry_Request) Reset() {
 	*x = CreateRegistry_Request{}
-	mi := &file_control_plane_api_proto_msgTypes[44]
+	mi := &file_control_plane_api_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2262,7 +2333,7 @@ func (x *CreateRegistry_Request) String() string {
 func (*CreateRegistry_Request) ProtoMessage() {}
 
 func (x *CreateRegistry_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[44]
+	mi := &file_control_plane_api_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2275,7 +2346,7 @@ func (x *CreateRegistry_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateRegistry_Request.ProtoReflect.Descriptor instead.
 func (*CreateRegistry_Request) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{17, 0}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{18, 0}
 }
 
 func (x *CreateRegistry_Request) GetName() string {
@@ -2329,7 +2400,7 @@ type CreateRegistry_Response struct {
 
 func (x *CreateRegistry_Response) Reset() {
 	*x = CreateRegistry_Response{}
-	mi := &file_control_plane_api_proto_msgTypes[45]
+	mi := &file_control_plane_api_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2341,7 +2412,7 @@ func (x *CreateRegistry_Response) String() string {
 func (*CreateRegistry_Response) ProtoMessage() {}
 
 func (x *CreateRegistry_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[45]
+	mi := &file_control_plane_api_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2354,7 +2425,7 @@ func (x *CreateRegistry_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateRegistry_Response.ProtoReflect.Descriptor instead.
 func (*CreateRegistry_Response) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{17, 1}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{18, 1}
 }
 
 func (x *CreateRegistry_Response) GetRegistry() *Registry {
@@ -2379,7 +2450,7 @@ type UpdateRegistry_Request struct {
 
 func (x *UpdateRegistry_Request) Reset() {
 	*x = UpdateRegistry_Request{}
-	mi := &file_control_plane_api_proto_msgTypes[46]
+	mi := &file_control_plane_api_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2391,7 +2462,7 @@ func (x *UpdateRegistry_Request) String() string {
 func (*UpdateRegistry_Request) ProtoMessage() {}
 
 func (x *UpdateRegistry_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[46]
+	mi := &file_control_plane_api_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2404,7 +2475,7 @@ func (x *UpdateRegistry_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateRegistry_Request.ProtoReflect.Descriptor instead.
 func (*UpdateRegistry_Request) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{18, 0}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{19, 0}
 }
 
 func (x *UpdateRegistry_Request) GetId() int64 {
@@ -2465,7 +2536,7 @@ type UpdateRegistry_Response struct {
 
 func (x *UpdateRegistry_Response) Reset() {
 	*x = UpdateRegistry_Response{}
-	mi := &file_control_plane_api_proto_msgTypes[47]
+	mi := &file_control_plane_api_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2477,7 +2548,7 @@ func (x *UpdateRegistry_Response) String() string {
 func (*UpdateRegistry_Response) ProtoMessage() {}
 
 func (x *UpdateRegistry_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[47]
+	mi := &file_control_plane_api_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2490,7 +2561,7 @@ func (x *UpdateRegistry_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateRegistry_Response.ProtoReflect.Descriptor instead.
 func (*UpdateRegistry_Response) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{18, 1}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{19, 1}
 }
 
 func (x *UpdateRegistry_Response) GetRegistry() *Registry {
@@ -2510,7 +2581,7 @@ type DeleteRegistry_Request struct {
 
 func (x *DeleteRegistry_Request) Reset() {
 	*x = DeleteRegistry_Request{}
-	mi := &file_control_plane_api_proto_msgTypes[48]
+	mi := &file_control_plane_api_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2522,7 +2593,7 @@ func (x *DeleteRegistry_Request) String() string {
 func (*DeleteRegistry_Request) ProtoMessage() {}
 
 func (x *DeleteRegistry_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[48]
+	mi := &file_control_plane_api_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2535,7 +2606,7 @@ func (x *DeleteRegistry_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRegistry_Request.ProtoReflect.Descriptor instead.
 func (*DeleteRegistry_Request) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{19, 0}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{20, 0}
 }
 
 func (x *DeleteRegistry_Request) GetId() int64 {
@@ -2560,7 +2631,7 @@ type DeleteRegistry_Response struct {
 
 func (x *DeleteRegistry_Response) Reset() {
 	*x = DeleteRegistry_Response{}
-	mi := &file_control_plane_api_proto_msgTypes[49]
+	mi := &file_control_plane_api_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2572,7 +2643,7 @@ func (x *DeleteRegistry_Response) String() string {
 func (*DeleteRegistry_Response) ProtoMessage() {}
 
 func (x *DeleteRegistry_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_control_plane_api_proto_msgTypes[49]
+	mi := &file_control_plane_api_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2585,7 +2656,7 @@ func (x *DeleteRegistry_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRegistry_Response.ProtoReflect.Descriptor instead.
 func (*DeleteRegistry_Response) Descriptor() ([]byte, []int) {
-	return file_control_plane_api_proto_rawDescGZIP(), []int{19, 1}
+	return file_control_plane_api_proto_rawDescGZIP(), []int{20, 1}
 }
 
 var File_control_plane_api_proto protoreflect.FileDescriptor
@@ -2608,12 +2679,13 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\awarning\x10\x02\x12\b\n" +
 	"\x04dead\x10\x03\x12\f\n" +
 	"\bdisabled\x10\x04B\a\n" +
-	"\x05_port\"\xba\x02\n" +
-	"\fEnablePlugin\x1a\xe8\x01\n" +
+	"\x05_port\"\xf3\x02\n" +
+	"\fEnablePlugin\x1a\xa1\x02\n" +
 	"\aRequest\x121\n" +
 	"\x06plugin\x18\x01 \x01(\x0e2\x19.velez_api.VervPluginTypeR\x06plugin\x12P\n" +
 	"\x11statefull_cluster\x18\x02 \x01(\v2!.velez_api.EnableStatefullClusterH\x00R\x10statefullCluster\x12M\n" +
-	"\x10headscale_server\x18\x03 \x01(\v2 .velez_api.EnableHeadscaleServerH\x00R\x0fheadscaleServerB\t\n" +
+	"\x10headscale_server\x18\x03 \x01(\v2 .velez_api.EnableHeadscaleServerH\x00R\x0fheadscaleServer\x127\n" +
+	"\bregistry\x18\x04 \x01(\v2\x19.velez_api.EnableRegistryH\x00R\bregistryB\t\n" +
 	"\apayload\x1a?\n" +
 	"\bResponse\x12\x1b\n" +
 	"\tentity_id\x18\x01 \x01(\tR\bentityId\x12\x16\n" +
@@ -2631,7 +2703,12 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\x0eis_expose_port\x18\x01 \x01(\bH\x00R\fisExposePort\x88\x01\x01\x12)\n" +
 	"\x0eexpose_to_port\x18\x02 \x01(\x04H\x01R\fexposeToPort\x88\x01\x01B\x11\n" +
 	"\x0f_is_expose_portB\x11\n" +
-	"\x0f_expose_to_port\"\xbc\x03\n" +
+	"\x0f_expose_to_port\"|\n" +
+	"\x0eEnableRegistry\x12)\n" +
+	"\x0eexpose_to_port\x18\x01 \x01(\rH\x00R\fexposeToPort\x88\x01\x01\x12\x1f\n" +
+	"\busername\x18\x02 \x01(\tH\x01R\busername\x88\x01\x01B\x11\n" +
+	"\x0f_expose_to_portB\v\n" +
+	"\t_username\"\xbc\x03\n" +
 	"\x15EnableHeadscaleServer\x12]\n" +
 	"\rdeploy_config\x18\x01 \x01(\v26.velez_api.EnableHeadscaleServer.DeployHeadscaleConfigH\x00R\fdeployConfig\x12i\n" +
 	"\x10external_connect\x18\x02 \x01(\v2<.velez_api.EnableHeadscaleServer.ExternalHeadscaleConnectionH\x00R\x0fexternalConnect\x1aE\n" +
@@ -2756,7 +2833,7 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\x03_idB\a\n" +
 	"\x05_name\x1a\n" +
 	"\n" +
-	"\bResponse*\x84\x01\n" +
+	"\bResponse*\x92\x01\n" +
 	"\x0eVervPluginType\x12\x18\n" +
 	"\x14unknown_service_type\x10\x00\x12\r\n" +
 	"\tmatreshka\x10\x01\x12\n" +
@@ -2765,7 +2842,8 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\twebserver\x10\x03\x12\r\n" +
 	"\theadscale\x10\x04\x12\r\n" +
 	"\tportainer\x10\x05\x12\x10\n" +
-	"\fstatefull_pg\x10\x06*h\n" +
+	"\fstatefull_pg\x10\x06\x12\f\n" +
+	"\bregistry\x10\a*h\n" +
 	"\fRegistryType\x12\x1d\n" +
 	"\x19REGISTRY_TYPE_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17REGISTRY_TYPE_DOCKERHUB\x10\x01\x12\x1c\n" +
@@ -2797,7 +2875,7 @@ func file_control_plane_api_proto_rawDescGZIP() []byte {
 }
 
 var file_control_plane_api_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_control_plane_api_proto_msgTypes = make([]protoimpl.MessageInfo, 50)
+var file_control_plane_api_proto_msgTypes = make([]protoimpl.MessageInfo, 51)
 var file_control_plane_api_proto_goTypes = []any{
 	(VervPluginType)(0),              // 0: velez_api.VervPluginType
 	(RegistryType)(0),                // 1: velez_api.RegistryType
@@ -2808,110 +2886,112 @@ var file_control_plane_api_proto_goTypes = []any{
 	(*InitMaster)(nil),               // 6: velez_api.InitMaster
 	(*ConnectSlave)(nil),             // 7: velez_api.ConnectSlave
 	(*EnableStatefullCluster)(nil),   // 8: velez_api.EnableStatefullCluster
-	(*EnableHeadscaleServer)(nil),    // 9: velez_api.EnableHeadscaleServer
-	(*ListNodes)(nil),                // 10: velez_api.ListNodes
-	(*Plugin)(nil),                   // 11: velez_api.Plugin
-	(*ListPlugins)(nil),              // 12: velez_api.ListPlugins
-	(*Environment)(nil),              // 13: velez_api.Environment
-	(*ListEnvironments)(nil),         // 14: velez_api.ListEnvironments
-	(*CreateEnvironment)(nil),        // 15: velez_api.CreateEnvironment
-	(*UpdateEnvironment)(nil),        // 16: velez_api.UpdateEnvironment
-	(*DeleteEnvironment)(nil),        // 17: velez_api.DeleteEnvironment
-	(*Registry)(nil),                 // 18: velez_api.Registry
-	(*ListRegistries)(nil),           // 19: velez_api.ListRegistries
-	(*CreateRegistry)(nil),           // 20: velez_api.CreateRegistry
-	(*UpdateRegistry)(nil),           // 21: velez_api.UpdateRegistry
-	(*DeleteRegistry)(nil),           // 22: velez_api.DeleteRegistry
-	(*ListVervPlugins_Request)(nil),  // 23: velez_api.ListVervPlugins.Request
-	(*ListVervPlugins_Response)(nil), // 24: velez_api.ListVervPlugins.Response
-	(*EnablePlugin_Request)(nil),     // 25: velez_api.EnablePlugin.Request
-	(*EnablePlugin_Response)(nil),    // 26: velez_api.EnablePlugin.Response
-	(*InitMaster_Request)(nil),       // 27: velez_api.InitMaster.Request
-	(*InitMaster_Response)(nil),      // 28: velez_api.InitMaster.Response
-	(*ConnectSlave_Request)(nil),     // 29: velez_api.ConnectSlave.Request
-	(*ConnectSlave_Response)(nil),    // 30: velez_api.ConnectSlave.Response
-	(*EnableHeadscaleServer_ExternalHeadscaleConnection)(nil), // 31: velez_api.EnableHeadscaleServer.ExternalHeadscaleConnection
-	(*EnableHeadscaleServer_DeployHeadscaleConfig)(nil),       // 32: velez_api.EnableHeadscaleServer.DeployHeadscaleConfig
-	(*ListNodes_Request)(nil),                                 // 33: velez_api.ListNodes.Request
-	(*ListNodes_Response)(nil),                                // 34: velez_api.ListNodes.Response
-	(*ListPlugins_Request)(nil),                               // 35: velez_api.ListPlugins.Request
-	(*ListPlugins_Response)(nil),                              // 36: velez_api.ListPlugins.Response
-	(*ListEnvironments_Request)(nil),                          // 37: velez_api.ListEnvironments.Request
-	(*ListEnvironments_Response)(nil),                         // 38: velez_api.ListEnvironments.Response
-	(*CreateEnvironment_Request)(nil),                         // 39: velez_api.CreateEnvironment.Request
-	(*CreateEnvironment_Response)(nil),                        // 40: velez_api.CreateEnvironment.Response
-	(*UpdateEnvironment_Request)(nil),                         // 41: velez_api.UpdateEnvironment.Request
-	(*UpdateEnvironment_Response)(nil),                        // 42: velez_api.UpdateEnvironment.Response
-	(*DeleteEnvironment_Request)(nil),                         // 43: velez_api.DeleteEnvironment.Request
-	(*DeleteEnvironment_Response)(nil),                        // 44: velez_api.DeleteEnvironment.Response
-	(*ListRegistries_Request)(nil),                            // 45: velez_api.ListRegistries.Request
-	(*ListRegistries_Response)(nil),                           // 46: velez_api.ListRegistries.Response
-	(*CreateRegistry_Request)(nil),                            // 47: velez_api.CreateRegistry.Request
-	(*CreateRegistry_Response)(nil),                           // 48: velez_api.CreateRegistry.Response
-	(*UpdateRegistry_Request)(nil),                            // 49: velez_api.UpdateRegistry.Request
-	(*UpdateRegistry_Response)(nil),                           // 50: velez_api.UpdateRegistry.Response
-	(*DeleteRegistry_Request)(nil),                            // 51: velez_api.DeleteRegistry.Request
-	(*DeleteRegistry_Response)(nil),                           // 52: velez_api.DeleteRegistry.Response
-	(*timestamppb.Timestamp)(nil),                             // 53: google.protobuf.Timestamp
-	(*Paging)(nil),                                            // 54: velez_api.Paging
-	(*NodeBaseInfo)(nil),                                      // 55: velez_api.NodeBaseInfo
+	(*EnableRegistry)(nil),           // 9: velez_api.EnableRegistry
+	(*EnableHeadscaleServer)(nil),    // 10: velez_api.EnableHeadscaleServer
+	(*ListNodes)(nil),                // 11: velez_api.ListNodes
+	(*Plugin)(nil),                   // 12: velez_api.Plugin
+	(*ListPlugins)(nil),              // 13: velez_api.ListPlugins
+	(*Environment)(nil),              // 14: velez_api.Environment
+	(*ListEnvironments)(nil),         // 15: velez_api.ListEnvironments
+	(*CreateEnvironment)(nil),        // 16: velez_api.CreateEnvironment
+	(*UpdateEnvironment)(nil),        // 17: velez_api.UpdateEnvironment
+	(*DeleteEnvironment)(nil),        // 18: velez_api.DeleteEnvironment
+	(*Registry)(nil),                 // 19: velez_api.Registry
+	(*ListRegistries)(nil),           // 20: velez_api.ListRegistries
+	(*CreateRegistry)(nil),           // 21: velez_api.CreateRegistry
+	(*UpdateRegistry)(nil),           // 22: velez_api.UpdateRegistry
+	(*DeleteRegistry)(nil),           // 23: velez_api.DeleteRegistry
+	(*ListVervPlugins_Request)(nil),  // 24: velez_api.ListVervPlugins.Request
+	(*ListVervPlugins_Response)(nil), // 25: velez_api.ListVervPlugins.Response
+	(*EnablePlugin_Request)(nil),     // 26: velez_api.EnablePlugin.Request
+	(*EnablePlugin_Response)(nil),    // 27: velez_api.EnablePlugin.Response
+	(*InitMaster_Request)(nil),       // 28: velez_api.InitMaster.Request
+	(*InitMaster_Response)(nil),      // 29: velez_api.InitMaster.Response
+	(*ConnectSlave_Request)(nil),     // 30: velez_api.ConnectSlave.Request
+	(*ConnectSlave_Response)(nil),    // 31: velez_api.ConnectSlave.Response
+	(*EnableHeadscaleServer_ExternalHeadscaleConnection)(nil), // 32: velez_api.EnableHeadscaleServer.ExternalHeadscaleConnection
+	(*EnableHeadscaleServer_DeployHeadscaleConfig)(nil),       // 33: velez_api.EnableHeadscaleServer.DeployHeadscaleConfig
+	(*ListNodes_Request)(nil),                                 // 34: velez_api.ListNodes.Request
+	(*ListNodes_Response)(nil),                                // 35: velez_api.ListNodes.Response
+	(*ListPlugins_Request)(nil),                               // 36: velez_api.ListPlugins.Request
+	(*ListPlugins_Response)(nil),                              // 37: velez_api.ListPlugins.Response
+	(*ListEnvironments_Request)(nil),                          // 38: velez_api.ListEnvironments.Request
+	(*ListEnvironments_Response)(nil),                         // 39: velez_api.ListEnvironments.Response
+	(*CreateEnvironment_Request)(nil),                         // 40: velez_api.CreateEnvironment.Request
+	(*CreateEnvironment_Response)(nil),                        // 41: velez_api.CreateEnvironment.Response
+	(*UpdateEnvironment_Request)(nil),                         // 42: velez_api.UpdateEnvironment.Request
+	(*UpdateEnvironment_Response)(nil),                        // 43: velez_api.UpdateEnvironment.Response
+	(*DeleteEnvironment_Request)(nil),                         // 44: velez_api.DeleteEnvironment.Request
+	(*DeleteEnvironment_Response)(nil),                        // 45: velez_api.DeleteEnvironment.Response
+	(*ListRegistries_Request)(nil),                            // 46: velez_api.ListRegistries.Request
+	(*ListRegistries_Response)(nil),                           // 47: velez_api.ListRegistries.Response
+	(*CreateRegistry_Request)(nil),                            // 48: velez_api.CreateRegistry.Request
+	(*CreateRegistry_Response)(nil),                           // 49: velez_api.CreateRegistry.Response
+	(*UpdateRegistry_Request)(nil),                            // 50: velez_api.UpdateRegistry.Request
+	(*UpdateRegistry_Response)(nil),                           // 51: velez_api.UpdateRegistry.Response
+	(*DeleteRegistry_Request)(nil),                            // 52: velez_api.DeleteRegistry.Request
+	(*DeleteRegistry_Response)(nil),                           // 53: velez_api.DeleteRegistry.Response
+	(*timestamppb.Timestamp)(nil),                             // 54: google.protobuf.Timestamp
+	(*Paging)(nil),                                            // 55: velez_api.Paging
+	(*NodeBaseInfo)(nil),                                      // 56: velez_api.NodeBaseInfo
 }
 var file_control_plane_api_proto_depIdxs = []int32{
 	0,  // 0: velez_api.VervPlugin.type:type_name -> velez_api.VervPluginType
 	2,  // 1: velez_api.VervPlugin.state:type_name -> velez_api.VervPlugin.State
-	32, // 2: velez_api.EnableHeadscaleServer.deploy_config:type_name -> velez_api.EnableHeadscaleServer.DeployHeadscaleConfig
-	31, // 3: velez_api.EnableHeadscaleServer.external_connect:type_name -> velez_api.EnableHeadscaleServer.ExternalHeadscaleConnection
+	33, // 2: velez_api.EnableHeadscaleServer.deploy_config:type_name -> velez_api.EnableHeadscaleServer.DeployHeadscaleConfig
+	32, // 3: velez_api.EnableHeadscaleServer.external_connect:type_name -> velez_api.EnableHeadscaleServer.ExternalHeadscaleConnection
 	0,  // 4: velez_api.Plugin.type:type_name -> velez_api.VervPluginType
 	2,  // 5: velez_api.Plugin.state:type_name -> velez_api.VervPlugin.State
-	53, // 6: velez_api.Environment.created_at:type_name -> google.protobuf.Timestamp
-	53, // 7: velez_api.Environment.updated_at:type_name -> google.protobuf.Timestamp
+	54, // 6: velez_api.Environment.created_at:type_name -> google.protobuf.Timestamp
+	54, // 7: velez_api.Environment.updated_at:type_name -> google.protobuf.Timestamp
 	1,  // 8: velez_api.Registry.type:type_name -> velez_api.RegistryType
-	53, // 9: velez_api.Registry.created_at:type_name -> google.protobuf.Timestamp
-	53, // 10: velez_api.Registry.updated_at:type_name -> google.protobuf.Timestamp
+	54, // 9: velez_api.Registry.created_at:type_name -> google.protobuf.Timestamp
+	54, // 10: velez_api.Registry.updated_at:type_name -> google.protobuf.Timestamp
 	4,  // 11: velez_api.ListVervPlugins.Response.plugins:type_name -> velez_api.VervPlugin
 	0,  // 12: velez_api.EnablePlugin.Request.plugin:type_name -> velez_api.VervPluginType
 	8,  // 13: velez_api.EnablePlugin.Request.statefull_cluster:type_name -> velez_api.EnableStatefullCluster
-	9,  // 14: velez_api.EnablePlugin.Request.headscale_server:type_name -> velez_api.EnableHeadscaleServer
-	54, // 15: velez_api.ListNodes.Request.paging:type_name -> velez_api.Paging
-	55, // 16: velez_api.ListNodes.Response.nodes:type_name -> velez_api.NodeBaseInfo
-	11, // 17: velez_api.ListPlugins.Response.plugins:type_name -> velez_api.Plugin
-	13, // 18: velez_api.ListEnvironments.Response.environments:type_name -> velez_api.Environment
-	13, // 19: velez_api.CreateEnvironment.Response.environment:type_name -> velez_api.Environment
-	13, // 20: velez_api.UpdateEnvironment.Response.environment:type_name -> velez_api.Environment
-	18, // 21: velez_api.ListRegistries.Response.registries:type_name -> velez_api.Registry
-	1,  // 22: velez_api.CreateRegistry.Request.type:type_name -> velez_api.RegistryType
-	18, // 23: velez_api.CreateRegistry.Response.registry:type_name -> velez_api.Registry
-	1,  // 24: velez_api.UpdateRegistry.Request.type:type_name -> velez_api.RegistryType
-	18, // 25: velez_api.UpdateRegistry.Response.registry:type_name -> velez_api.Registry
-	25, // 26: velez_api.ControlPlaneAPI.EnablePlugin:input_type -> velez_api.EnablePlugin.Request
-	29, // 27: velez_api.ControlPlaneAPI.ConnectSlave:input_type -> velez_api.ConnectSlave.Request
-	33, // 28: velez_api.ControlPlaneAPI.ListNodes:input_type -> velez_api.ListNodes.Request
-	35, // 29: velez_api.ControlPlaneAPI.ListPlugins:input_type -> velez_api.ListPlugins.Request
-	37, // 30: velez_api.ControlPlaneAPI.ListEnvironments:input_type -> velez_api.ListEnvironments.Request
-	39, // 31: velez_api.ControlPlaneAPI.CreateEnvironment:input_type -> velez_api.CreateEnvironment.Request
-	41, // 32: velez_api.ControlPlaneAPI.UpdateEnvironment:input_type -> velez_api.UpdateEnvironment.Request
-	43, // 33: velez_api.ControlPlaneAPI.DeleteEnvironment:input_type -> velez_api.DeleteEnvironment.Request
-	45, // 34: velez_api.ControlPlaneAPI.ListRegistries:input_type -> velez_api.ListRegistries.Request
-	47, // 35: velez_api.ControlPlaneAPI.CreateRegistry:input_type -> velez_api.CreateRegistry.Request
-	49, // 36: velez_api.ControlPlaneAPI.UpdateRegistry:input_type -> velez_api.UpdateRegistry.Request
-	51, // 37: velez_api.ControlPlaneAPI.DeleteRegistry:input_type -> velez_api.DeleteRegistry.Request
-	26, // 38: velez_api.ControlPlaneAPI.EnablePlugin:output_type -> velez_api.EnablePlugin.Response
-	30, // 39: velez_api.ControlPlaneAPI.ConnectSlave:output_type -> velez_api.ConnectSlave.Response
-	34, // 40: velez_api.ControlPlaneAPI.ListNodes:output_type -> velez_api.ListNodes.Response
-	36, // 41: velez_api.ControlPlaneAPI.ListPlugins:output_type -> velez_api.ListPlugins.Response
-	38, // 42: velez_api.ControlPlaneAPI.ListEnvironments:output_type -> velez_api.ListEnvironments.Response
-	40, // 43: velez_api.ControlPlaneAPI.CreateEnvironment:output_type -> velez_api.CreateEnvironment.Response
-	42, // 44: velez_api.ControlPlaneAPI.UpdateEnvironment:output_type -> velez_api.UpdateEnvironment.Response
-	44, // 45: velez_api.ControlPlaneAPI.DeleteEnvironment:output_type -> velez_api.DeleteEnvironment.Response
-	46, // 46: velez_api.ControlPlaneAPI.ListRegistries:output_type -> velez_api.ListRegistries.Response
-	48, // 47: velez_api.ControlPlaneAPI.CreateRegistry:output_type -> velez_api.CreateRegistry.Response
-	50, // 48: velez_api.ControlPlaneAPI.UpdateRegistry:output_type -> velez_api.UpdateRegistry.Response
-	52, // 49: velez_api.ControlPlaneAPI.DeleteRegistry:output_type -> velez_api.DeleteRegistry.Response
-	38, // [38:50] is the sub-list for method output_type
-	26, // [26:38] is the sub-list for method input_type
-	26, // [26:26] is the sub-list for extension type_name
-	26, // [26:26] is the sub-list for extension extendee
-	0,  // [0:26] is the sub-list for field type_name
+	10, // 14: velez_api.EnablePlugin.Request.headscale_server:type_name -> velez_api.EnableHeadscaleServer
+	9,  // 15: velez_api.EnablePlugin.Request.registry:type_name -> velez_api.EnableRegistry
+	55, // 16: velez_api.ListNodes.Request.paging:type_name -> velez_api.Paging
+	56, // 17: velez_api.ListNodes.Response.nodes:type_name -> velez_api.NodeBaseInfo
+	12, // 18: velez_api.ListPlugins.Response.plugins:type_name -> velez_api.Plugin
+	14, // 19: velez_api.ListEnvironments.Response.environments:type_name -> velez_api.Environment
+	14, // 20: velez_api.CreateEnvironment.Response.environment:type_name -> velez_api.Environment
+	14, // 21: velez_api.UpdateEnvironment.Response.environment:type_name -> velez_api.Environment
+	19, // 22: velez_api.ListRegistries.Response.registries:type_name -> velez_api.Registry
+	1,  // 23: velez_api.CreateRegistry.Request.type:type_name -> velez_api.RegistryType
+	19, // 24: velez_api.CreateRegistry.Response.registry:type_name -> velez_api.Registry
+	1,  // 25: velez_api.UpdateRegistry.Request.type:type_name -> velez_api.RegistryType
+	19, // 26: velez_api.UpdateRegistry.Response.registry:type_name -> velez_api.Registry
+	26, // 27: velez_api.ControlPlaneAPI.EnablePlugin:input_type -> velez_api.EnablePlugin.Request
+	30, // 28: velez_api.ControlPlaneAPI.ConnectSlave:input_type -> velez_api.ConnectSlave.Request
+	34, // 29: velez_api.ControlPlaneAPI.ListNodes:input_type -> velez_api.ListNodes.Request
+	36, // 30: velez_api.ControlPlaneAPI.ListPlugins:input_type -> velez_api.ListPlugins.Request
+	38, // 31: velez_api.ControlPlaneAPI.ListEnvironments:input_type -> velez_api.ListEnvironments.Request
+	40, // 32: velez_api.ControlPlaneAPI.CreateEnvironment:input_type -> velez_api.CreateEnvironment.Request
+	42, // 33: velez_api.ControlPlaneAPI.UpdateEnvironment:input_type -> velez_api.UpdateEnvironment.Request
+	44, // 34: velez_api.ControlPlaneAPI.DeleteEnvironment:input_type -> velez_api.DeleteEnvironment.Request
+	46, // 35: velez_api.ControlPlaneAPI.ListRegistries:input_type -> velez_api.ListRegistries.Request
+	48, // 36: velez_api.ControlPlaneAPI.CreateRegistry:input_type -> velez_api.CreateRegistry.Request
+	50, // 37: velez_api.ControlPlaneAPI.UpdateRegistry:input_type -> velez_api.UpdateRegistry.Request
+	52, // 38: velez_api.ControlPlaneAPI.DeleteRegistry:input_type -> velez_api.DeleteRegistry.Request
+	27, // 39: velez_api.ControlPlaneAPI.EnablePlugin:output_type -> velez_api.EnablePlugin.Response
+	31, // 40: velez_api.ControlPlaneAPI.ConnectSlave:output_type -> velez_api.ConnectSlave.Response
+	35, // 41: velez_api.ControlPlaneAPI.ListNodes:output_type -> velez_api.ListNodes.Response
+	37, // 42: velez_api.ControlPlaneAPI.ListPlugins:output_type -> velez_api.ListPlugins.Response
+	39, // 43: velez_api.ControlPlaneAPI.ListEnvironments:output_type -> velez_api.ListEnvironments.Response
+	41, // 44: velez_api.ControlPlaneAPI.CreateEnvironment:output_type -> velez_api.CreateEnvironment.Response
+	43, // 45: velez_api.ControlPlaneAPI.UpdateEnvironment:output_type -> velez_api.UpdateEnvironment.Response
+	45, // 46: velez_api.ControlPlaneAPI.DeleteEnvironment:output_type -> velez_api.DeleteEnvironment.Response
+	47, // 47: velez_api.ControlPlaneAPI.ListRegistries:output_type -> velez_api.ListRegistries.Response
+	49, // 48: velez_api.ControlPlaneAPI.CreateRegistry:output_type -> velez_api.CreateRegistry.Response
+	51, // 49: velez_api.ControlPlaneAPI.UpdateRegistry:output_type -> velez_api.UpdateRegistry.Response
+	53, // 50: velez_api.ControlPlaneAPI.DeleteRegistry:output_type -> velez_api.DeleteRegistry.Response
+	39, // [39:51] is the sub-list for method output_type
+	27, // [27:39] is the sub-list for method input_type
+	27, // [27:27] is the sub-list for extension type_name
+	27, // [27:27] is the sub-list for extension extendee
+	0,  // [0:27] is the sub-list for field type_name
 }
 
 func init() { file_control_plane_api_proto_init() }
@@ -2923,29 +3003,31 @@ func file_control_plane_api_proto_init() {
 	file_velez_common_proto_init()
 	file_control_plane_api_proto_msgTypes[1].OneofWrappers = []any{}
 	file_control_plane_api_proto_msgTypes[5].OneofWrappers = []any{}
-	file_control_plane_api_proto_msgTypes[6].OneofWrappers = []any{
+	file_control_plane_api_proto_msgTypes[6].OneofWrappers = []any{}
+	file_control_plane_api_proto_msgTypes[7].OneofWrappers = []any{
 		(*EnableHeadscaleServer_DeployConfig)(nil),
 		(*EnableHeadscaleServer_ExternalConnect)(nil),
 	}
-	file_control_plane_api_proto_msgTypes[8].OneofWrappers = []any{}
-	file_control_plane_api_proto_msgTypes[22].OneofWrappers = []any{
+	file_control_plane_api_proto_msgTypes[9].OneofWrappers = []any{}
+	file_control_plane_api_proto_msgTypes[23].OneofWrappers = []any{
 		(*EnablePlugin_Request_StatefullCluster)(nil),
 		(*EnablePlugin_Request_HeadscaleServer)(nil),
+		(*EnablePlugin_Request_Registry)(nil),
 	}
-	file_control_plane_api_proto_msgTypes[29].OneofWrappers = []any{}
-	file_control_plane_api_proto_msgTypes[36].OneofWrappers = []any{}
-	file_control_plane_api_proto_msgTypes[38].OneofWrappers = []any{}
-	file_control_plane_api_proto_msgTypes[40].OneofWrappers = []any{}
-	file_control_plane_api_proto_msgTypes[44].OneofWrappers = []any{}
-	file_control_plane_api_proto_msgTypes[46].OneofWrappers = []any{}
-	file_control_plane_api_proto_msgTypes[48].OneofWrappers = []any{}
+	file_control_plane_api_proto_msgTypes[30].OneofWrappers = []any{}
+	file_control_plane_api_proto_msgTypes[37].OneofWrappers = []any{}
+	file_control_plane_api_proto_msgTypes[39].OneofWrappers = []any{}
+	file_control_plane_api_proto_msgTypes[41].OneofWrappers = []any{}
+	file_control_plane_api_proto_msgTypes[45].OneofWrappers = []any{}
+	file_control_plane_api_proto_msgTypes[47].OneofWrappers = []any{}
+	file_control_plane_api_proto_msgTypes[49].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_control_plane_api_proto_rawDesc), len(file_control_plane_api_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   50,
+			NumMessages:   51,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

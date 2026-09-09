@@ -27,6 +27,7 @@ export enum VervPluginType {
   headscale = "headscale",
   portainer = "portainer",
   statefull_pg = "statefull_pg",
+  registry = "registry",
 }
 
 export enum RegistryType {
@@ -65,6 +66,7 @@ export type EnablePluginRequest = BaseEnablePluginRequest &
   OneOf<{
     statefullCluster: EnableStatefullCluster;
     headscaleServer: EnableHeadscaleServer;
+    registry: EnableRegistry;
   }>;
 
 export type EnablePluginResponse = {
@@ -89,6 +91,11 @@ export type ConnectSlave = Record<string, never>;
 export type EnableStatefullCluster = {
   isExposePort?: boolean;
   exposeToPort?: string;
+};
+
+export type EnableRegistry = {
+  exposeToPort?: number;
+  username?: string;
 };
 
 export type EnableHeadscaleServerExternalHeadscaleConnection = {

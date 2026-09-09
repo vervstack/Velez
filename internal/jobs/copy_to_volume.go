@@ -119,7 +119,7 @@ func (h *copyToVolumeHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		ctx:         payload,
 	}
 
-	namedJobs = append(namedJobs, NamedJob{Name: stepCreatePgContainer, Job: createJob})
+	namedJobs = append(namedJobs, NamedJob{Name: stepCreateLoaderContainer, Job: createJob})
 
 	startJob := &startLoaderContainerJob{
 		dockerAPI: h.nodeClients.Docker().Client(),
@@ -282,6 +282,11 @@ func (j *startLoaderContainerJob) Do(ctx context.Context) error {
 	return nil
 }
 
+// Rollback tolerates errdefs.IsNotFound the same way
+// createLoaderContainerJob.Rollback does: a later step in the same task
+// (dropLoaderContainerJob) may have already removed this container before a
+// still-later step failed and triggered a reverse-order rollback of every
+// completed job, so "already gone" here is expected, not an error.
 func (j *startLoaderContainerJob) Rollback(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
@@ -291,7 +296,7 @@ func (j *startLoaderContainerJob) Rollback(ctx context.Context) error {
 	stopOpts := container.StopOptions{}
 
 	err := j.dockerAPI.ContainerStop(ctx, containerID, stopOpts)
-	if err != nil {
+	if err != nil && !errdefs.IsNotFound(err) {
 		return rerrors.Wrapf(err, "error stopping loader container '%s'", containerID)
 	}
 
@@ -340,8 +345,26 @@ func (j *copyFileJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error resolving container runtime")
 	}
 
-	dir := path.Dir(j.filePath)
+	err = mkdirInContainer(ctx, containerRuntime, containerID, path.Dir(j.filePath))
+	if err != nil {
+		return err
+	}
 
+	err = writeFileToContainer(ctx, j.copyAPI, containerID, j.filePath, j.content)
+	if err != nil {
+		return rerrors.Wrap(err, "error copying file to container")
+	}
+
+	return nil
+}
+
+// mkdirInContainer runs "mkdir -p dir" in containerID via the given
+// ContainerRuntime, shared by copyFileJob and enable_registry.go's
+// writeHtpasswdJob - both write one file into a loader container and need
+// its parent directory to exist first.
+func mkdirInContainer(
+	ctx context.Context, containerRuntime container_runtime.ContainerRuntime, containerID, dir string,
+) error {
 	execOpts := container.ExecOptions{
 		Cmd:    []string{"mkdir", "-p", dir},
 		Detach: false,
@@ -350,14 +373,9 @@ func (j *copyFileJob) Do(ctx context.Context) error {
 	// smerd_steps.Exec ignores the command's exit code (ops result is
 	// discarded), so a failing mkdir surfaces only as a transport-level
 	// Docker error here too - inherited unchanged (see questions.md #5).
-	_, err = containerRuntime.Exec(ctx, containerID, execOpts)
+	_, err := containerRuntime.Exec(ctx, containerID, execOpts)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating directory in container")
-	}
-
-	err = writeFileToContainer(ctx, j.copyAPI, containerID, j.filePath, j.content)
-	if err != nil {
-		return rerrors.Wrap(err, "error copying file to container")
 	}
 
 	return nil

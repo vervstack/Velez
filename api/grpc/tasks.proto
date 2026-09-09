@@ -203,3 +203,27 @@ message UpgradeSmerdTaskPayload {
   // pipeline's single newContId variable reuse; see questions.md.
   optional string container_id = 6;
 }
+
+// EnableRegistryTaskPayload is the task context for the "enable_registry"
+// action - see docs/features/pgaas_and_registry_plugin.md section 4.
+message EnableRegistryTaskPayload {
+  EnableRegistry request = 1;
+
+  // Generated once by generate_credentials and persisted so resuming a
+  // partially-completed task reuses the same username/password instead of
+  // regenerating ones that would mismatch the htpasswd entry already written
+  // into the registry-auth volume - same secret-persistence precedent as
+  // EnableStatefullTaskPayload.root_pwd/user_pwd.
+  optional string username = 2;
+  optional string password = 3;
+
+  // Set once the htpasswd loader container has been created.
+  optional string container_id = 4;
+
+  // Set once the registry's host port has been resolved (either the
+  // caller's requested expose_to_port, or one auto-assigned from the node's
+  // port pool) - persisted so register_registry can build the registry's
+  // url without re-deriving it, and so a crash-resumed task reuses the same
+  // port instead of picking a second one.
+  optional uint32 exposed_port = 5;
+}

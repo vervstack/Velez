@@ -51,12 +51,15 @@ var (
 	// daemon. postgres:18 is pg_pattern.postgresImage (the cluster postgres
 	// pattern); the headscale/tailscale images back the shared headscale
 	// fixture and the VPN sidecar it exercises (see shared_headscale.go /
-	// suite_vpn_test.go).
+	// suite_vpn_test.go); alpine is copy_to_volume.go's
+	// createLoaderContainerJob image, used by enable_registry's
+	// htpasswd-loader step (see suite_enable_registry_test.go).
 	//nolint:gochecknoglobals // fixed suite input
 	dindSeedImages = []string{
 		"postgres:18",
 		"headscale/headscale:0.27.2-rc.1",
 		"tailscale/tailscale:v1.90.8",
+		"alpine",
 	}
 
 	// dindEnsureNetworks are docker networks the suite's smerds bind by name

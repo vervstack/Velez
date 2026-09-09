@@ -68,3 +68,11 @@ func (c *Container) Registries() RegistriesStorage {
 func (c *Container) ResourceBoxes() ResourceBoxesStorage {
 	return (*c.impl.Load()).ResourceBoxes()
 }
+
+func (c *Container) Secrets() SecretsStorage {
+	return (*c.impl.Load()).Secrets()
+}
+
+func (c *Container) PgInstances() PgInstancesStorage {
+	return (*c.impl.Load()).PgInstances()
+}

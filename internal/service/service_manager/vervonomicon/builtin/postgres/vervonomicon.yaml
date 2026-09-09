@@ -1,0 +1,8 @@
+version: "1"
+
+service:
+  name: postgres
+  description: Builtin PostgreSQL instance, provisioned by Velez Postgres-as-a-Service.
+  tags: [database, builtin]
+
+box: small

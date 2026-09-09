@@ -8,6 +8,7 @@ import {VervPluginState, VervPluginType} from '@/app/api/velez';
 
 import SimplePluginForm from '@/dialogs/PluginManageDialog/plugins/SimplePluginForm';
 import HeadscalePluginForm from '@/dialogs/PluginManageDialog/plugins/HeadscalePluginForm';
+import RegistryPluginForm from '@/dialogs/PluginManageDialog/plugins/RegistryPluginForm';
 import {ListPluginsQuery} from "@/processes/queries/control_plane.ts";
 import UnknownPlugin from "@/dialogs/PluginManageDialog/plugins/UnknownPlugin.tsx";
 import {VervPlugin} from "@/model/services/VervPlugins.tsx";
@@ -46,6 +47,7 @@ export default function PluginManageDialog({pluginType}: PluginManageDialogProps
 
 const pluginForms: Partial<Record<VervPluginType, React.ComponentType<VervPlugin>>> = {
     [VervPluginType.headscale]: HeadscalePluginForm,
+    [VervPluginType.registry]: RegistryPluginForm,
 
     [VervPluginType.matreshka]: SimplePluginForm,
     [VervPluginType.makosh]: SimplePluginForm,

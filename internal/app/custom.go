@@ -30,6 +30,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/service_manager"
 	"go.vervstack.ru/Velez/internal/transport"
 	"go.vervstack.ru/Velez/internal/transport/control_plane_api_impl"
+	"go.vervstack.ru/Velez/internal/transport/pgaas_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/service_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/tasks_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/ui"
@@ -62,6 +63,7 @@ type Custom struct {
 	VpnApiImpl          *vcn_api_impl.Impl
 	ServiceApiImpl      *service_api_impl.Impl
 	TasksApiImpl        *tasks_api_impl.Impl
+	PgaasApiImpl        *pgaas_api_impl.Impl
 
 	serverManager *transport.ServersManager
 
@@ -120,6 +122,8 @@ func (c *Custom) Init(a *App) (err error) {
 		c.NodeClients, c.Services.SmerdManager(), c.Services.ConfigurationService(),
 		runtimeResolver))
 	registry.Register(jobs.NewDropSmerdHandler(runtimeResolver))
+	registry.Register(jobs.NewEnableRegistryHandler(
+		c.NodeClients, runtimeResolver, c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices()))
 
 	c.JobsEngine.SetRegistry(registry)
 
@@ -250,9 +254,10 @@ func (c *Custom) InitApiServer(a *App) error {
 	c.VpnApiImpl = vcn_api_impl.New(c.ClusterClients, c.JobsEngine)
 	c.ServiceApiImpl = service_api_impl.New(c.Services, c.JobsEngine)
 	c.TasksApiImpl = tasks_api_impl.New(c.JobsEngine, c.Services.VervServices())
+	c.PgaasApiImpl = pgaas_api_impl.New(c.Services)
 
 	c.serverManager.AddImplementation(a.Ctx,
-		c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl, c.ServiceApiImpl, c.TasksApiImpl)
+		c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl, c.ServiceApiImpl, c.TasksApiImpl, c.PgaasApiImpl)
 	c.serverManager.AddHttpHandler(docs.Swagger())
 	c.serverManager.AddHttpHandler("/", ui.NewServer())
 

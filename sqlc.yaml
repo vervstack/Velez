@@ -154,3 +154,31 @@ sql:
         emit_interface: true
         emit_exact_table_names: false
         emit_empty_slices: true
+  - engine: "postgresql"
+    queries:
+      - "internal/storage/postgres/queries/secrets*.sql"
+    schema:
+      - "migrations/*.sql"
+    gen:
+      go:
+        package: "secrets_queries"
+        out: "internal/storage/postgres/generated/secrets_queries"
+        sql_package: "database/sql"
+        emit_prepared_queries: false
+        emit_interface: true
+        emit_exact_table_names: false
+        emit_empty_slices: true
+  - engine: "postgresql"
+    queries:
+      - "internal/storage/postgres/queries/pg_instances*.sql"
+    schema:
+      - "migrations/*.sql"
+    gen:
+      go:
+        package: "pg_instances_queries"
+        out: "internal/storage/postgres/generated/pg_instances_queries"
+        sql_package: "database/sql"
+        emit_prepared_queries: false
+        emit_interface: true
+        emit_exact_table_names: false
+        emit_empty_slices: true

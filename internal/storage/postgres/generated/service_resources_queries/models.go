@@ -196,6 +196,16 @@ type VelezNode struct {
 	EnvironmentID int64
 }
 
+type VelezPgInstance struct {
+	ServiceID int64
+	DbName    string
+	Username  string
+	SecretRef string
+	Port      int32
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 type VelezPlugin struct {
 	PluginType string
 	ServiceID  sql.NullInt64
@@ -219,6 +229,17 @@ type VelezResourceBox struct {
 	RamMb     int64
 	DiskMb    int64
 	IsBuiltin bool
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type VelezSecret struct {
+	ID    int64
+	Scope string
+	Owner string
+	Key   string
+	// Plaintext. This table is the fallback secret store used when no Svarog instance is configured; encryption at rest is Svarog's job, not this table's. Reachable only through internal/service/secrets.Store.
+	Value     string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

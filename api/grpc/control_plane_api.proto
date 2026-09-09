@@ -133,6 +133,8 @@ enum VervPluginType {
   portainer = 5;
 
   statefull_pg = 6;
+
+  registry = 7;
 }
 
 enum RegistryType {
@@ -147,6 +149,7 @@ message EnablePlugin {
     oneof payload {
       EnableStatefullCluster statefull_cluster = 2;
       EnableHeadscaleServer headscale_server = 3;
+      EnableRegistry registry = 4;
     }
   }
 
@@ -172,6 +175,11 @@ message ConnectSlave {
 message EnableStatefullCluster {
   optional bool is_expose_port = 1;
   optional uint64 expose_to_port = 2;
+}
+
+message EnableRegistry {
+  optional uint32 expose_to_port = 1;
+  optional string username = 2;
 }
 
 message EnableHeadscaleServer {

@@ -1,0 +1,48 @@
+.PgInstanceDropDialogContainer {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 22rem;
+    max-width: 90vw;
+}
+
+.Header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.Title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--fg);
+    margin: 0;
+    flex: 1;
+}
+
+.Content {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.ConfirmText {
+    font-size: 0.8125rem;
+    color: var(--fg-mid);
+    margin: 0;
+
+    & strong {
+        color: var(--fg);
+        font-family: var(--font-mono);
+    }
+}
+
+.ActionsRow {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}

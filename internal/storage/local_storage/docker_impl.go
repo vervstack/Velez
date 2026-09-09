@@ -13,11 +13,15 @@ import (
 )
 
 const (
-	makoshContainerName      = "makosh"
-	matreshkaContainerName   = "matreshka"
-	portainerContainerName   = "portainer"
-	headscaleContainerName   = "headscale"
-	pgContainerName          = "verv-cluster-state"
+	makoshContainerName    = "makosh"
+	matreshkaContainerName = "matreshka"
+	portainerContainerName = "portainer"
+	headscaleContainerName = "headscale"
+	pgContainerName        = "verv-cluster-state"
+	// registryContainerName mirrors jobs.RegistryServiceName - duplicated
+	// here rather than imported, since internal/jobs already imports
+	// internal/storage.
+	registryContainerName    = "registry"
 	containerStateRunning    = "running"
 	containerStateRestarting = "restarting"
 	containerStateExited     = "exited"
@@ -41,6 +45,7 @@ var pluginContainerNames = map[string]pb.VervPluginType{
 	portainerContainerName: pb.VervPluginType_portainer,
 	headscaleContainerName: pb.VervPluginType_headscale,
 	pgContainerName:        pb.VervPluginType_statefull_pg,
+	registryContainerName:  pb.VervPluginType_registry,
 }
 
 func (d *dockerPluginsStorage) ListPlugins(ctx context.Context) ([]domain.PluginBaseInfo, error) {

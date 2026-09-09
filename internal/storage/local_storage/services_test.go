@@ -48,3 +48,40 @@ func Test_dockerServices_GetByName_UnknownNameNotFound(t *testing.T) {
 	_, err := s.GetByName(context.Background(), name)
 	require.ErrorIs(t, err, storage.ErrNotFound)
 }
+
+// A CreateNewDeploy-driven deploy (enable_registry's deployRegistryJob,
+// pgaas.CreatePgInstance) upserts the service and immediately looks it up
+// again, before the deploy watcher has created any container for it -
+// GetByName must resolve that name instead of reporting ErrNotFound.
+func Test_dockerServices_GetByName_ResolvesUpsertedServiceWithoutContainer(t *testing.T) {
+	t.Parallel()
+
+	s := newServicesStorage(test_helper.NewRealDocker(t))
+
+	name := test_helper.UniqueName(t, "pending-service")
+
+	err := s.UpsertService(context.Background(), name)
+	require.NoError(t, err)
+
+	svc, err := s.GetByName(context.Background(), name)
+	require.NoError(t, err)
+	require.Equal(t, name, svc.Name)
+	require.Equal(t, pb.DeploymentStatus_SCHEDULED_DEPLOYMENT, svc.Status)
+}
+
+func Test_dockerServices_GetByName_DeleteClearsUpsertedOverlay(t *testing.T) {
+	t.Parallel()
+
+	s := newServicesStorage(test_helper.NewRealDocker(t))
+
+	name := test_helper.UniqueName(t, "pending-service")
+
+	err := s.UpsertService(context.Background(), name)
+	require.NoError(t, err)
+
+	err = s.Delete(context.Background(), name)
+	require.NoError(t, err)
+
+	_, err = s.GetByName(context.Background(), name)
+	require.ErrorIs(t, err, storage.ErrNotFound)
+}

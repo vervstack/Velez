@@ -1,0 +1,27 @@
+app:
+  # image is set explicitly, unlike a normal service descriptor - this
+  # descriptor is embedded into the Velez binary itself
+  # (SourceKindBuiltin), not baked into an image, so there is nothing for
+  # Velez to inspect .verv/ out of.
+  image: postgres:18
+
+  ports:
+    - port: 5432
+      protocol: tcp
+
+  volumes:
+    - name: postgres-data
+      path: /var/lib/postgresql/data
+
+  # No env here - POSTGRES_DB/POSTGRES_USER/POSTGRES_PASSWORD are overlaid by
+  # the service layer at deploy time. No descriptor file ever contains a
+  # credential.
+  healthcheck:
+    command: pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" -h 127.0.0.1 -p 5432
+    interval_second: 5
+    timeout_second: 3
+    retries: 12
+
+  restart: unless_stopped
+
+  box: small

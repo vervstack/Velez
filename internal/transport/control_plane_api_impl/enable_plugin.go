@@ -47,6 +47,29 @@ func (impl *Impl) EnablePlugin(ctx context.Context, req *pb.EnablePlugin_Request
 		}
 
 		return resp, nil
+	case pb.VervPluginType_registry:
+		payload, ok := req.GetPayload().(*pb.EnablePlugin_Request_Registry)
+		if !ok {
+			return nil, rerrors.New("invalid payload", codes.InvalidArgument)
+		}
+
+		initialContext := &pb.EnableRegistryTaskPayload{
+			Request: payload.Registry,
+		}
+
+		entityID := jobs.RegistryServiceName
+
+		_, err := impl.jobsEngine.Enqueue(ctx, entityID, jobs.EnableRegistryAction, initialContext)
+		if err != nil {
+			return &pb.EnablePlugin_Response{}, rerrors.Wrap(err, "error during enabling plugin")
+		}
+
+		resp := &pb.EnablePlugin_Response{
+			EntityId: entityID,
+			Action:   jobs.EnableRegistryAction,
+		}
+
+		return resp, nil
 	default:
 		return nil, rerrors.Wrap(errUnsupportedService)
 	}

@@ -148,7 +148,7 @@ func (h *connectServiceToVpnHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: stepCreatePgContainer,
+			Name: stepCreateLoaderContainer,
 			Job: &createSidecarContainerJob{
 				nodeClients:     h.nodeClients,
 				launchContainer: &launchContainer,

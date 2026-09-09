@@ -565,6 +565,9 @@
         },
         "headscaleServer": {
           "$ref": "#/definitions/velez_apiEnableHeadscaleServer"
+        },
+        "registry": {
+          "$ref": "#/definitions/velez_apiEnableRegistry"
         }
       }
     },
@@ -575,6 +578,18 @@
           "type": "string"
         },
         "action": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiEnableRegistry": {
+      "type": "object",
+      "properties": {
+        "exposeToPort": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "username": {
           "type": "string"
         }
       }
@@ -869,7 +884,8 @@
         "webserver",
         "headscale",
         "portainer",
-        "statefull_pg"
+        "statefull_pg",
+        "registry"
       ],
       "default": "unknown_service_type"
     }

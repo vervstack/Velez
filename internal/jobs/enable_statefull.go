@@ -51,11 +51,11 @@ const (
 
 	pgMasterNodeDefaultName = "icy_raccoon"
 
-	stepGenerateCredentials  = "generate_credentials"
-	stepCreatePgContainer    = "create_container"
-	stepWaitForPostgresReady = "wait_for_postgres_ready"
-	stepGetRootDsn           = "get_root_dsn"
-	stepBindPgResource       = "bind_pg_resource"
+	stepGenerateCredentials   = "generate_credentials"
+	stepCreateLoaderContainer = "create_container"
+	stepWaitForPostgresReady  = "wait_for_postgres_ready"
+	stepGetRootDsn            = "get_root_dsn"
+	stepBindPgResource        = "bind_pg_resource"
 
 	// bindPgResource* name the velez.service_resources row bindPgResourceJob
 	// upserts: the cluster's postgres sidecar, bound as a resource of the
@@ -215,7 +215,7 @@ func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: stepCreatePgContainer,
+			Name: stepCreateLoaderContainer,
 			Job: &createPgContainerJob{
 				nodeClients: h.nodeClients,
 				runtimes:    h.runtimes,

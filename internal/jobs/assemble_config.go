@@ -114,7 +114,7 @@ func (h *assembleConfigHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
-			Name: stepCreatePgContainer,
+			Name: stepCreateLoaderContainer,
 			Job: &createScratchContainerJob{
 				nodeClients: h.nodeClients,
 				req:         payload,

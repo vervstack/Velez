@@ -63,7 +63,7 @@ func TestConnectServiceToVpnHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 
 	wantNames := []string{
 		stepCheckSidecar, stepPrepareNamespace, stepGetClientKey, stepGetLoginServerURL,
-		stepPrepareSidecarImage, stepCreatePgContainer, stepStartSidecar, stepAddMakoshRecord,
+		stepPrepareSidecarImage, stepCreateLoaderContainer, stepStartSidecar, stepAddMakoshRecord,
 	}
 	if len(namedJobs) != len(wantNames) {
 		t.Fatalf("expected %d jobs, got %d", len(wantNames), len(namedJobs))
@@ -610,7 +610,7 @@ func TestConnectServiceToVpnHandler_HappyPath_EndToEnd(t *testing.T) {
 
 	for _, name := range []string{
 		stepCheckSidecar, stepPrepareNamespace, stepGetClientKey, stepGetLoginServerURL,
-		stepPrepareSidecarImage, stepCreatePgContainer, stepStartSidecar, stepAddMakoshRecord,
+		stepPrepareSidecarImage, stepCreateLoaderContainer, stepStartSidecar, stepAddMakoshRecord,
 	} {
 		row, ok := jobsStorage.rows[jobKey(task.ID, name)]
 		if !ok {

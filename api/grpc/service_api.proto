@@ -385,6 +385,7 @@ enum VervonomiconSource {
   VERVONOMICON_SOURCE_IMAGE = 1;
   VERVONOMICON_SOURCE_REPO = 2;
   VERVONOMICON_SOURCE_PUSHED = 3;
+  VERVONOMICON_SOURCE_BUILTIN = 4;
 }
 
 // ResourceConnectionStatus - the reconciliation outcome for one resources.yaml

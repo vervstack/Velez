@@ -82,7 +82,7 @@ func TestEnableStatefullHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 	namedJobs := h.BuildJobs(payload)
 
 	wantNames := []string{
-		stepGenerateCredentials, stepCreatePgContainer, stepStartSidecar, "wait_for_postgres_ready",
+		stepGenerateCredentials, stepCreateLoaderContainer, stepStartSidecar, "wait_for_postgres_ready",
 		stepGetRootDsn, "create_schema_and_migrate", "create_pg_user", "update_cluster_state",
 		"init_node_storage", "register_plugin", stepBindPgResource,
 	}
@@ -1337,7 +1337,7 @@ func TestEnableStatefullHandler_FailurePath_UnreachablePostgres_RollsBack(t *tes
 	}
 
 	stepNames := []string{
-		stepGenerateCredentials, stepCreatePgContainer, stepStartSidecar, "wait_for_postgres_ready", stepGetRootDsn,
+		stepGenerateCredentials, stepCreateLoaderContainer, stepStartSidecar, "wait_for_postgres_ready", stepGetRootDsn,
 	}
 	for _, name := range stepNames {
 		row, ok := jobsStorage.rows[jobKey(task.ID, name)]

@@ -8,8 +8,10 @@ import (
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/environments"
+	"go.vervstack.ru/Velez/internal/storage/pg_instances"
 	"go.vervstack.ru/Velez/internal/storage/registries"
 	"go.vervstack.ru/Velez/internal/storage/resource_boxes"
+	"go.vervstack.ru/Velez/internal/storage/secrets"
 )
 
 // allEnvironments is the empty Docker.ListContainers suffix - these
@@ -32,6 +34,8 @@ type localStorage struct {
 	environments     storage.EnvironmentsStorage
 	registries       storage.RegistriesStorage
 	resourceBoxes    storage.ResourceBoxesStorage
+	secrets          storage.SecretsStorage
+	pgInstances      storage.PgInstancesStorage
 }
 
 func New(containerAPI node_clients.Docker, cfg config.Config) storage.Storage {
@@ -62,6 +66,12 @@ func New(containerAPI node_clients.Docker, cfg config.Config) storage.Storage {
 		// Single-node/dev mode has no velez.resource_boxes table either -
 		// see resource_boxes.NewStatic.
 		resourceBoxes: resource_boxes.NewStatic(),
+		// Single-node/dev mode has no velez.secrets table either - see
+		// secrets.NewStatic.
+		secrets: secrets.NewStatic(),
+		// Single-node/dev mode has no velez.pg_instances table either - see
+		// pg_instances.NewStatic.
+		pgInstances: pg_instances.NewStatic(),
 	}
 }
 
@@ -107,6 +117,14 @@ func (l *localStorage) Registries() storage.RegistriesStorage {
 
 func (l *localStorage) ResourceBoxes() storage.ResourceBoxesStorage {
 	return l.resourceBoxes
+}
+
+func (l *localStorage) Secrets() storage.SecretsStorage {
+	return l.secrets
+}
+
+func (l *localStorage) PgInstances() storage.PgInstancesStorage {
+	return l.pgInstances
 }
 
 func (l *localStorage) TxManager() *sqldb.TxManager {

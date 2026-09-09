@@ -135,3 +135,19 @@ func (x *DropSmerdTaskPayload) AppendFailed(v *DropSmerd_Response_Error) {
 func (x *DropSmerdTaskPayload) AppendSuccessful(v string) {
 	x.Successful = append(x.Successful, v)
 }
+
+func (x *EnableRegistryTaskPayload) SetUsername(v string) {
+	x.Username = &v
+}
+
+func (x *EnableRegistryTaskPayload) SetPassword(v string) {
+	x.Password = &v
+}
+
+func (x *EnableRegistryTaskPayload) SetContainerId(v string) {
+	x.ContainerId = &v
+}
+
+func (x *EnableRegistryTaskPayload) SetExposedPort(v uint32) {
+	x.ExposedPort = &v
+}

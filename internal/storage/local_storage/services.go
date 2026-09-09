@@ -3,6 +3,7 @@ package local_storage
 import (
 	"context"
 	"strings"
+	"sync"
 
 	"go.redsock.ru/rerrors"
 
@@ -23,10 +24,25 @@ const (
 
 type dockerServices struct {
 	docker node_clients.Docker
+
+	mu sync.Mutex
+	// upserted tracks names UpsertService has recorded that GetByName can't
+	// yet derive from a live container - a service is registered before its
+	// container exists (CreateNewDeploy.GetByName runs before the deploy
+	// watcher ever creates that container, see enable_registry.go's
+	// deployRegistryJob and pgaas.CreatePgInstance, which both do
+	// UpsertService then immediately CreateNewDeploy). This backend has no
+	// persisted services table to fall back on, so without this overlay
+	// GetByName reports ErrNotFound for a service that was just upserted,
+	// breaking every vervonomicon deploy under single-node/dev mode.
+	upserted map[string]struct{}
 }
 
 func newServicesStorage(docker node_clients.Docker) *dockerServices {
-	return &dockerServices{docker: docker}
+	return &dockerServices{
+		docker:   docker,
+		upserted: make(map[string]struct{}),
+	}
 }
 
 func (s *dockerServices) GetByName(ctx context.Context, name string) (domain.Service, error) {
@@ -42,6 +58,16 @@ func (s *dockerServices) GetByName(ctx context.Context, name string) (domain.Ser
 	if len(containers) == 0 {
 		if name == velezServiceName {
 			return s.syntheticVelezService(ctx)
+		}
+
+		s.mu.Lock()
+
+		_, ok := s.upserted[name]
+
+		s.mu.Unlock()
+
+		if ok {
+			return s.pendingService(name), nil
 		}
 
 		return domain.Service{}, storage.ErrNotFound
@@ -86,15 +112,28 @@ func containerStateToString(state string) string {
 	}
 }
 
-func (s *dockerServices) UpsertService(_ context.Context, _ string) error {
+// UpsertService records name so GetByName can resolve it before any
+// container backing it exists yet - see the upserted field's doc comment.
+func (s *dockerServices) UpsertService(_ context.Context, name string) error {
+	s.mu.Lock()
+
+	s.upserted[name] = struct{}{}
+
+	s.mu.Unlock()
+
 	return nil
 }
 
-// Delete is a no-op: this backend has no persisted service row, it derives
-// the service list from live Docker container labels (see List), so there
-// is nothing to delete here — dropping the containers is what makes a
-// service disappear.
-func (s *dockerServices) Delete(_ context.Context, _ string) error {
+// Delete drops name from the upserted overlay - the underlying service list
+// otherwise derives purely from live Docker container labels (see List), so
+// dropping the containers is what actually makes a service disappear; this
+// only prevents a deleted-and-never-redeployed name from resolving stale via
+// the overlay above.
+func (s *dockerServices) Delete(_ context.Context, name string) error {
+	s.mu.Lock()
+	delete(s.upserted, name)
+	s.mu.Unlock()
+
 	return nil
 }
 
@@ -148,6 +187,20 @@ func (s *dockerServices) List(ctx context.Context, req domain.ListServicesReq) (
 	}
 
 	return out, nil
+}
+
+// pendingService is what GetByName returns for a name UpsertService recorded
+// but that has no container yet - status SCHEDULED_DEPLOYMENT mirrors the
+// row postgres/services.go's UpsertService+GetByName pair would report for
+// the same not-yet-deployed window in cluster mode.
+func (s *dockerServices) pendingService(name string) domain.Service {
+	return domain.Service{
+		ServiceBaseInfo: domain.ServiceBaseInfo{
+			Name:   name,
+			Status: containerStateToString(""),
+		},
+		Status: pb.DeploymentStatus_SCHEDULED_DEPLOYMENT,
+	}
 }
 
 // syntheticVelezService mirrors the synthetic "velez" entry that

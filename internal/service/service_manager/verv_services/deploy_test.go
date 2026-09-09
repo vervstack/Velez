@@ -45,6 +45,8 @@ func (s *testStorage) ServiceResources() storage.ServiceResourcesStorage {
 func (s *testStorage) Environments() storage.EnvironmentsStorage   { return s.environments }
 func (s *testStorage) Registries() storage.RegistriesStorage       { return s.registries }
 func (s *testStorage) ResourceBoxes() storage.ResourceBoxesStorage { return s.resourceBoxes }
+func (s *testStorage) Secrets() storage.SecretsStorage             { return nil }
+func (s *testStorage) PgInstances() storage.PgInstancesStorage     { return nil }
 
 func (s *testStorage) Tasks() storage.TasksStorage { return nil }
 func (s *testStorage) Jobs() storage.JobsStorage   { return nil }
@@ -233,6 +235,40 @@ func TestUpgradeDeploy_GetByNameError(t *testing.T) {
 	if deploymentsStorage.createSpecificationCalls != 0 {
 		t.Errorf(
 			"expected CreateSpecification to never be called, got %d calls",
+			deploymentsStorage.createSpecificationCalls,
+		)
+	}
+}
+
+// TestCreateNewDeploy_NilTxManagerRunsWithoutTransaction reproduces
+// single-node/dev mode, where dataStorage.TxManager() is always nil (see
+// local_storage.localStorage.TxManager) because there is no real *sql.DB to
+// open a transaction on. Before executeDeployment existed, CreateNewDeploy
+// called TxManager().Execute(...) unconditionally, which panicked on this nil
+// receiver - this test proves CreateNewDeploy instead falls back to calling
+// deploymentsStorage directly, with no panic and no transaction involved.
+func TestCreateNewDeploy_NilTxManagerRunsWithoutTransaction(t *testing.T) {
+	servicesStorage := &testServicesStorageWithGetByName{}
+	deploymentsStorage := &testDeploymentsStorage{}
+
+	service := &VervService{
+		dataStorage: &testStorage{
+			services:    servicesStorage,
+			deployments: deploymentsStorage,
+			txManager:   nil,
+		},
+	}
+
+	req := domain.CreateDeployReq{ServiceName: testServiceName}
+
+	err := service.CreateNewDeploy(context.Background(), req)
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+
+	if deploymentsStorage.createSpecificationCalls != 1 {
+		t.Errorf(
+			"expected CreateSpecification to be called once, got %d calls",
 			deploymentsStorage.createSpecificationCalls,
 		)
 	}

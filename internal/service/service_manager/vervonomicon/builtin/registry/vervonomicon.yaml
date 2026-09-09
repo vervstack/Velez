@@ -1,0 +1,8 @@
+version: "1"
+
+service:
+  name: registry
+  description: Builtin container registry, provisioned by the registry plugin.
+  tags: [registry, builtin]
+
+box: small

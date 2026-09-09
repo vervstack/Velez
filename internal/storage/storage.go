@@ -33,6 +33,8 @@ type Storage interface {
 	Environments() EnvironmentsStorage
 	Registries() RegistriesStorage
 	ResourceBoxes() ResourceBoxesStorage
+	Secrets() SecretsStorage
+	PgInstances() PgInstancesStorage
 
 	TxManager() *sqldb.TxManager
 }
@@ -136,4 +138,34 @@ type RegistriesStorage interface {
 type ResourceBoxesStorage interface {
 	GetBox(ctx context.Context, name string) (verv.Box, error)
 	ListBoxes(ctx context.Context) ([]verv.Box, error)
+}
+
+// SecretsStorage - CRUD over velez.secrets, the deliberately poor fallback
+// secret store described in docs/features/pgaas_and_registry_plugin.md
+// section 1. Reachable only through internal/service/secrets.Store - nothing
+// else may touch it directly.
+//
+// Implementations: internal/storage/secrets.NewPg (postgres/cluster mode)
+// and internal/storage/secrets.NewStatic (in-memory, used by local_storage in
+// single-node/dev mode).
+type SecretsStorage interface {
+	PutSecret(ctx context.Context, ref domain.SecretRef, value string) error
+	GetSecret(ctx context.Context, ref domain.SecretRef) (string, error)
+	DeleteSecret(ctx context.Context, ref domain.SecretRef) error
+	// ListSecretRefs returns keys only - never values.
+	ListSecretRefs(ctx context.Context, scope, owner string) ([]domain.SecretRef, error)
+}
+
+// PgInstancesStorage - CRUD over velez.pg_instances, the pg-specific
+// satellite row for a Postgres-as-a-Service instance. See
+// docs/features/pgaas_and_registry_plugin.md section 3.
+//
+// Implementations: internal/storage/pg_instances.NewPg (postgres/cluster
+// mode) and internal/storage/pg_instances.NewStatic (in-memory, used by
+// local_storage in single-node/dev mode).
+type PgInstancesStorage interface {
+	UpsertPgInstance(ctx context.Context, req domain.UpsertPgInstanceReq) (domain.PgInstance, error)
+	GetPgInstanceByServiceID(ctx context.Context, serviceID int64) (domain.PgInstance, error)
+	ListPgInstances(ctx context.Context) ([]domain.PgInstance, error)
+	DeletePgInstance(ctx context.Context, serviceID int64) error
 }

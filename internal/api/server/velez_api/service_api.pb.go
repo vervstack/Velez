@@ -141,6 +141,7 @@ const (
 	VervonomiconSource_VERVONOMICON_SOURCE_IMAGE       VervonomiconSource = 1
 	VervonomiconSource_VERVONOMICON_SOURCE_REPO        VervonomiconSource = 2
 	VervonomiconSource_VERVONOMICON_SOURCE_PUSHED      VervonomiconSource = 3
+	VervonomiconSource_VERVONOMICON_SOURCE_BUILTIN     VervonomiconSource = 4
 )
 
 // Enum value maps for VervonomiconSource.
@@ -150,12 +151,14 @@ var (
 		1: "VERVONOMICON_SOURCE_IMAGE",
 		2: "VERVONOMICON_SOURCE_REPO",
 		3: "VERVONOMICON_SOURCE_PUSHED",
+		4: "VERVONOMICON_SOURCE_BUILTIN",
 	}
 	VervonomiconSource_value = map[string]int32{
 		"VERVONOMICON_SOURCE_UNSPECIFIED": 0,
 		"VERVONOMICON_SOURCE_IMAGE":       1,
 		"VERVONOMICON_SOURCE_REPO":        2,
 		"VERVONOMICON_SOURCE_PUSHED":      3,
+		"VERVONOMICON_SOURCE_BUILTIN":     4,
 	}
 )
 
@@ -3065,12 +3068,13 @@ const file_service_api_proto_rawDesc = "" +
 	"\aSTOPPED\x10\a*9\n" +
 	"\bNodeType\x12\x15\n" +
 	"\x11NODE_TYPE_SERVICE\x10\x00\x12\x16\n" +
-	"\x12NODE_TYPE_RESOURCE\x10\x01*\x96\x01\n" +
+	"\x12NODE_TYPE_RESOURCE\x10\x01*\xb7\x01\n" +
 	"\x12VervonomiconSource\x12#\n" +
 	"\x1fVERVONOMICON_SOURCE_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19VERVONOMICON_SOURCE_IMAGE\x10\x01\x12\x1c\n" +
 	"\x18VERVONOMICON_SOURCE_REPO\x10\x02\x12\x1e\n" +
-	"\x1aVERVONOMICON_SOURCE_PUSHED\x10\x03*\xa7\x01\n" +
+	"\x1aVERVONOMICON_SOURCE_PUSHED\x10\x03\x12\x1f\n" +
+	"\x1bVERVONOMICON_SOURCE_BUILTIN\x10\x04*\xa7\x01\n" +
 	"\x18ResourceConnectionStatus\x12*\n" +
 	"&RESOURCE_CONNECTION_STATUS_UNSPECIFIED\x10\x00\x120\n" +
 	",RESOURCE_CONNECTION_STATUS_ALREADY_CONNECTED\x10\x01\x12-\n" +

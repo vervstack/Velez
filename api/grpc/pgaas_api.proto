@@ -1,0 +1,120 @@
+syntax = "proto3";
+
+package velez_api;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "npm.proto";
+
+import "velez_common.proto";
+
+option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
+option (npm_package) = "@vervstack/velez";
+
+// PostgresAPI - Postgres-as-a-Service. A PG instance is a normal Velez
+// service (velez.services / deployment_specifications / deployments), with
+// only the pg-specific facts (db_name, username, secret_ref, port) held in
+// velez.pg_instances. See docs/features/pgaas_and_registry_plugin.md
+// section 3.
+service PostgresAPI {
+  rpc ListPgInstances(ListPgInstances.Request) returns (ListPgInstances.Response) {
+    option (google.api.http) = {
+      post: "/api/postgres/list"
+      body: "*"
+    };
+  }
+
+  rpc CreatePgInstance(CreatePgInstance.Request) returns (CreatePgInstance.Response) {
+    option (google.api.http) = {
+      post: "/api/postgres/create"
+      body: "*"
+    };
+  }
+
+  rpc DropPgInstance(DropPgInstance.Request) returns (DropPgInstance.Response) {
+    option (google.api.http) = {
+      post: "/api/postgres/drop"
+      body: "*"
+    };
+  }
+
+  // GetPgInstanceCredentials is the only RPC that resolves a secret_ref to
+  // its value.
+  rpc GetPgInstanceCredentials(GetPgInstanceCredentials.Request) returns (GetPgInstanceCredentials.Response) {
+    option (google.api.http) = {
+      get: "/api/postgres/{name}/credentials"
+    };
+  }
+}
+
+// PgInstanceIsolation - isolation mode for a PG instance. Only
+// PG_INSTANCE_ISOLATION_SEPARATE_INSTANCE is provisionable today -
+// PG_INSTANCE_ISOLATION_SHARED_POOL is surfaced disabled in the UI. See
+// docs/features/pgaas_and_registry_plugin.md section 3, "Isolation".
+enum PgInstanceIsolation {
+  PG_INSTANCE_ISOLATION_UNSPECIFIED = 0;
+  PG_INSTANCE_ISOLATION_SEPARATE_INSTANCE = 1;
+  PG_INSTANCE_ISOLATION_SHARED_POOL = 2;
+}
+
+// PgInstance never carries a password - status, environment, image,
+// container id and deploy history live on the underlying service/deployment
+// rows and are read via ListSmerds/VervServicesService, not duplicated here.
+message PgInstance {
+  string name = 1;
+  string db_name = 2;
+  string username = 3;
+  uint32 port = 4;
+  string environment = 5;
+  string status = 6;
+  optional string owner_service = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message ListPgInstances {
+  message Request {
+    Paging paging = 1;
+  }
+  message Response {
+    repeated PgInstance instances = 1;
+    uint64 total = 2;
+  }
+}
+
+message CreatePgInstance {
+  message Request {
+    string name = 1;
+    optional string environment = 2;
+    optional string box = 3;
+    optional uint32 expose_to_port = 4;
+    // owner_service - when set, a velez.service_resources binding is
+    // recorded (owner_service, name, "postgres") once the instance is
+    // created.
+    optional string owner_service = 5;
+  }
+  message Response {
+    PgInstance instance = 1;
+  }
+}
+
+message DropPgInstance {
+  message Request {
+    string name = 1;
+  }
+  message Response {}
+}
+
+// GetPgInstanceCredentials.Response is the only PostgresAPI message that
+// ever carries a password.
+message GetPgInstanceCredentials {
+  message Request {
+    string name = 1;
+  }
+  message Response {
+    string db_name = 1;
+    string username = 2;
+    string password = 3;
+    string dsn = 4;
+  }
+}

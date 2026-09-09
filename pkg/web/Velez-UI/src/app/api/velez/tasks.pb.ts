@@ -105,6 +105,14 @@ export type UpgradeSmerdTaskPayload = {
   containerId?: string;
 };
 
+export type EnableRegistryTaskPayload = {
+  request?: VelezApiControlPlaneApi.EnableRegistry;
+  username?: string;
+  password?: string;
+  containerId?: string;
+  exposedPort?: number;
+};
+
 export class TasksApi {
   static WatchTask(this:void, req: WatchTaskRequest, entityNotifier?: fm.NotifyStreamEntityArrival<TaskStatus>, initReq?: fm.InitReq): Promise<void> {
     return fm.fetchStreamingRequest<TaskStatus>(`/api/tasks/watch?${fm.renderURLSearchParams(req, [])}`, entityNotifier, {...initReq, method: "GET"});

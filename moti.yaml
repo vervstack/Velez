@@ -26,9 +26,12 @@ generate:
         out: pkg/docs/swaggers
 
       - name: docs
-        out: pkg
+        out: pkg/docs
         opts:
           paths: source_relative
+
+      - name: grpc-gateway-ts
+        out: pkg/web/Velez-UI/src/app/api/velez
 
   - inputs:
       - git_repo:

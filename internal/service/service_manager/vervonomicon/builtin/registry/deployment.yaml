@@ -1,0 +1,22 @@
+app:
+  # image is set explicitly, unlike a normal service descriptor - this
+  # descriptor is embedded into the Velez binary itself
+  # (SourceKindBuiltin), not baked into an image, so there is nothing for
+  # Velez to inspect .verv/ out of.
+  image: registry:2
+
+  ports:
+    - port: 5000
+      protocol: tcp
+
+  volumes:
+    - name: registry-data
+      path: /var/lib/registry
+    - name: registry-auth
+      path: /auth
+
+  # No env here - credentials are written as an htpasswd file into the
+  # registry-auth volume by the registry plugin's jobs handler, not as env.
+  restart: unless_stopped
+
+  box: small

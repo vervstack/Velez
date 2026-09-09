@@ -10,9 +10,11 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/environments"
+	"go.vervstack.ru/Velez/internal/storage/pg_instances"
 	service_resources_queries "go.vervstack.ru/Velez/internal/storage/postgres/generated/service_resources_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/services_queries"
 	"go.vervstack.ru/Velez/internal/storage/registries"
+	"go.vervstack.ru/Velez/internal/storage/secrets"
 )
 
 type Storage struct {
@@ -27,6 +29,8 @@ type Storage struct {
 	environmentsStorage        storage.EnvironmentsStorage
 	registriesStorage          storage.RegistriesStorage
 	resourceBoxesStorage       *resourceBoxesStorage
+	secretsStorage             storage.SecretsStorage
+	pgInstancesStorage         storage.PgInstancesStorage
 
 	txManager *sqldb.TxManager
 }
@@ -49,6 +53,8 @@ func New(db *sql.DB) storage.Storage {
 		environmentsStorage:        environments.NewPg(db),
 		registriesStorage:          registries.NewPg(db),
 		resourceBoxesStorage:       newResourceBoxesStorage(db),
+		secretsStorage:             secrets.NewPg(db),
+		pgInstancesStorage:         pg_instances.NewPg(db),
 		txManager:                  sqldb.NewTxManager(db),
 	}
 }
@@ -97,6 +103,14 @@ func (s *Storage) Registries() storage.RegistriesStorage {
 // internal/service/service_manager/vervonomicon.BoxResolver.
 func (s *Storage) ResourceBoxes() storage.ResourceBoxesStorage {
 	return s.resourceBoxesStorage
+}
+
+func (s *Storage) Secrets() storage.SecretsStorage {
+	return s.secretsStorage
+}
+
+func (s *Storage) PgInstances() storage.PgInstancesStorage {
+	return s.pgInstancesStorage
 }
 
 func (s *Storage) TxManager() *sqldb.TxManager {

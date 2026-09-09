@@ -8,7 +8,6 @@ import (
 	"github.com/sqlc-dev/pqtype"
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
@@ -27,7 +26,7 @@ type testStorage struct {
 	registries       storage.RegistriesStorage
 	resourceBoxes    storage.ResourceBoxesStorage
 	serviceResources storage.ServiceResourcesStorage
-	txManager        *sqldb.TxManager
+	txManager        storage.Transactor
 }
 
 func (s *testStorage) Nodes() storage.NodesStorage       { return nil }
@@ -51,7 +50,18 @@ func (s *testStorage) PgInstances() storage.PgInstancesStorage     { return nil 
 func (s *testStorage) Tasks() storage.TasksStorage { return nil }
 func (s *testStorage) Jobs() storage.JobsStorage   { return nil }
 
-func (s *testStorage) TxManager() *sqldb.TxManager { return s.txManager }
+func (s *testStorage) TxManager() storage.Transactor { return s.txManager }
+
+// fakeTransactor is a storage.Transactor that runs fn immediately with a nil
+// *sql.Tx and no locking - enough for tests that only need executeDeployment
+// to reach fn, mirroring what local_storage.deployments.Execute does modulo
+// the mutex. The mutex/atomicity behavior itself is covered directly in
+// internal/storage/local_storage against the real implementation.
+type fakeTransactor struct{}
+
+func (fakeTransactor) Execute(fn func(tx *sql.Tx) error) error {
+	return fn(nil)
+}
 
 // testServicesStorageWithGetByName is a fake storage.ServicesStorage with an
 // injectable GetByName, used to exercise the ServiceID-resolution error path
@@ -145,8 +155,8 @@ func (m *testDeploymentsStorage) UpdateDeploymentStatus(
 	return nil
 }
 
-func (m *testDeploymentsStorage) WithTx(_ *sql.Tx) *deployments_queries.Queries {
-	return nil
+func (m *testDeploymentsStorage) WithTx(_ *sql.Tx) deployments_queries.Querier {
+	return m
 }
 
 // TestCreateNewDeploy_GetByNameError proves that when the service lookup
@@ -240,14 +250,12 @@ func TestUpgradeDeploy_GetByNameError(t *testing.T) {
 	}
 }
 
-// TestCreateNewDeploy_NilTxManagerRunsWithoutTransaction reproduces
-// single-node/dev mode, where dataStorage.TxManager() is always nil (see
-// local_storage.localStorage.TxManager) because there is no real *sql.DB to
-// open a transaction on. Before executeDeployment existed, CreateNewDeploy
-// called TxManager().Execute(...) unconditionally, which panicked on this nil
-// receiver - this test proves CreateNewDeploy instead falls back to calling
-// deploymentsStorage directly, with no panic and no transaction involved.
-func TestCreateNewDeploy_NilTxManagerRunsWithoutTransaction(t *testing.T) {
+// TestCreateNewDeploy_RunsThroughTransactor proves CreateNewDeploy's
+// composite spec+deployment write always runs through
+// storage.Storage.TxManager().Execute(...) - both backends now hand back a
+// non-nil storage.Transactor (see storage.Transactor's doc comment), so
+// executeDeployment no longer special-cases a nil TxManager.
+func TestCreateNewDeploy_RunsThroughTransactor(t *testing.T) {
 	servicesStorage := &testServicesStorageWithGetByName{}
 	deploymentsStorage := &testDeploymentsStorage{}
 
@@ -255,7 +263,7 @@ func TestCreateNewDeploy_NilTxManagerRunsWithoutTransaction(t *testing.T) {
 		dataStorage: &testStorage{
 			services:    servicesStorage,
 			deployments: deploymentsStorage,
-			txManager:   nil,
+			txManager:   fakeTransactor{},
 		},
 	}
 

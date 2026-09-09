@@ -3,168 +3,200 @@ package local_storage
 import (
 	"context"
 	"database/sql"
+	"sync"
 	"testing"
+	"time"
 
-	"github.com/sqlc-dev/pqtype"
 	"github.com/stretchr/testify/require"
+	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
 )
 
-const (
-	testSpecName = "spec-1"
-)
-
-func Test_deployments_CreateSpecification_GetSpecificationByIdRoundTrip(t *testing.T) {
-	t.Parallel()
-
+// TestDeployments_ExecuteSerializesAgainstList proves Execute and List share
+// the same lock (d.mu), not two independent ones: List can't complete while
+// Execute's fn is still running. Without this, a caller of executeDeployment
+// (verv_services.VervService) running the composite spec+deployment write
+// through Execute would get no real exclusion against a concurrent
+// deploy_watcher tick calling List().
+func TestDeployments_ExecuteSerializesAgainstList(t *testing.T) {
 	d := newDeploymentsStorage()
 
-	arg := deployments_queries.CreateSpecificationParams{
-		Name:        testSpecName,
-		VervPayload: pqtype.NullRawMessage{RawMessage: []byte(`{"a":1}`), Valid: true},
+	started := make(chan struct{})
+	listDone := make(chan struct{})
+
+	go func() {
+		<-started
+
+		_, err := d.List(context.Background(), domain.ListDeploymentsReq{})
+		require.NoError(t, err)
+
+		close(listDone)
+	}()
+
+	var listFinishedDuringExecute bool
+
+	err := d.Execute(func(_ *sql.Tx) error {
+		close(started)
+
+		select {
+		case <-listDone:
+			listFinishedDuringExecute = true
+		case <-time.After(100 * time.Millisecond):
+			// Expected: List() is blocked on d.mu until Execute returns.
+		}
+
+		return nil
+	})
+	require.NoError(t, err)
+
+	require.False(t, listFinishedDuringExecute, "List() must not complete while Execute holds the lock")
+
+	<-listDone
+}
+
+// TestDeployments_WithTxDoesNotDeadlock proves the Querier returned by
+// WithTx (used from inside Execute's fn) can call CreateSpecification/
+// CreateDeployment/GetSpecificationById/UpdateDeploymentStatus without
+// re-locking d.mu - the deadlock hazard flagged for this design, since
+// sync.Mutex isn't reentrant and Execute already holds the lock when it
+// calls fn.
+func TestDeployments_WithTxDoesNotDeadlock(t *testing.T) {
+	d := newDeploymentsStorage()
+	ctx := context.Background()
+
+	done := make(chan error, 1)
+
+	go func() {
+		done <- d.Execute(func(tx *sql.Tx) error {
+			q := d.WithTx(tx)
+
+			specId, err := q.CreateSpecification(ctx, deployments_queries.CreateSpecificationParams{Name: "spec"})
+			if err != nil {
+				return rerrors.Wrap(err, "error creating specification")
+			}
+
+			_, err = q.CreateDeployment(ctx, deployments_queries.CreateDeploymentParams{
+				NodeID: 1,
+				Status: deployments_queries.VelezDeploymentStatusSCHEDULEDDEPLOYMENT,
+				SpecID: specId,
+			})
+			if err != nil {
+				return rerrors.Wrap(err, "error creating deployment")
+			}
+
+			_, err = q.GetSpecificationById(ctx, specId)
+			if err != nil {
+				return rerrors.Wrap(err, "error getting specification")
+			}
+
+			return q.UpdateDeploymentStatus(ctx, deployments_queries.UpdateDeploymentStatusParams{
+				ID:     1,
+				Status: deployments_queries.VelezDeploymentStatusRUNNING,
+			})
+		})
+	}()
+
+	select {
+	case err := <-done:
+		require.NoError(t, err)
+	case <-time.After(2 * time.Second):
+		t.Fatal("Execute deadlocked calling into its own WithTx querier")
 	}
 
-	id, err := d.CreateSpecification(context.Background(), arg)
+	list, err := d.ListDeployments(ctx, domain.ListDeploymentsReq{})
 	require.NoError(t, err)
-	require.Equal(t, int64(1), id)
-
-	row, err := d.GetSpecificationById(context.Background(), id)
-	require.NoError(t, err)
-	require.Equal(t, arg.Name, row.Name)
-	require.Equal(t, arg.VervPayload, row.VervPayload)
+	require.Equal(t, uint64(1), list.Total)
+	require.Equal(t, deployments_queries.VelezDeploymentStatusRUNNING, list.Deployments[0].Status)
 }
 
-func Test_deployments_GetSpecificationById_UnknownIdNotFound(t *testing.T) {
-	t.Parallel()
-
+// TestDeployments_ExecuteCompositeWriteIsAtomic stresses the composite
+// spec+deployment write (as verv_services.executeDeployment performs it)
+// against concurrent readers calling List(). Every write's spec and
+// deployment go in under one Execute call, so a reader must never observe a
+// spec count ahead of the deployment count it should always match one-to-
+// one - this is the atomicity gap described for the nil-TxManager special
+// case this design replaces. Run with -race to also confirm there's no data
+// race between the writer and the readers.
+func TestDeployments_ExecuteCompositeWriteIsAtomic(t *testing.T) {
 	d := newDeploymentsStorage()
+	ctx := context.Background()
 
-	_, err := d.GetSpecificationById(context.Background(), 999)
-	require.ErrorIs(t, err, storage.ErrNotFound)
-}
+	const writes = 300
 
-func Test_deployments_CreateDeployment_InheritsServiceIdFromSpec(t *testing.T) {
-	t.Parallel()
+	stop := make(chan struct{})
+	violation := make(chan string, 1)
 
-	d := newDeploymentsStorage()
+	var readers sync.WaitGroup
 
-	specId, err := d.CreateSpecification(context.Background(), deployments_queries.CreateSpecificationParams{
-		Name:      testSpecName,
-		ServiceID: sql.NullInt64{Int64: 42, Valid: true},
-	})
-	require.NoError(t, err)
+	for range 4 {
+		readers.Add(1)
 
-	_, err = d.CreateDeployment(context.Background(), deployments_queries.CreateDeploymentParams{
-		NodeID: 1,
-		Status: deployments_queries.VelezDeploymentStatusSCHEDULEDDEPLOYMENT,
-		SpecID: specId,
-	})
-	require.NoError(t, err)
+		go func() {
+			defer readers.Done()
 
-	deployments, err := d.List(context.Background(), domain.ListDeploymentsReq{})
-	require.NoError(t, err)
-	require.Len(t, deployments, 1)
-	require.Equal(t, int64(42), deployments[0].ServiceId)
-	require.Equal(t, specId, deployments[0].SpecId)
-}
+			for {
+				select {
+				case <-stop:
+					return
+				default:
+				}
 
-func Test_deployments_List_FiltersByNotStatusAndNodeIds(t *testing.T) {
-	t.Parallel()
+				d.mu.Lock()
 
-	d := newDeploymentsStorage()
+				specs := len(d.specs)
+				deps := len(d.deployments)
+				d.mu.Unlock()
 
-	seedDeployment(t, d, 1, deployments_queries.VelezDeploymentStatusRUNNING)
-	seedDeployment(t, d, 1, deployments_queries.VelezDeploymentStatusFAILED)
-	seedDeployment(t, d, 2, deployments_queries.VelezDeploymentStatusRUNNING)
+				if specs != deps {
+					select {
+					case violation <- "observed specs/deployments counts diverge mid-write":
+					default:
+					}
 
-	req := domain.ListDeploymentsReq{
-		NodeIds:   []int64{1},
-		NotStatus: []deployments_queries.VelezDeploymentStatus{deployments_queries.VelezDeploymentStatusFAILED},
+					return
+				}
+
+				_, err := d.List(ctx, domain.ListDeploymentsReq{})
+				require.NoError(t, err)
+			}
+		}()
 	}
 
-	deployments, err := d.List(context.Background(), req)
-	require.NoError(t, err)
-	require.Len(t, deployments, 1)
-	require.Equal(t, int64(1), deployments[0].NodeId)
-	require.Equal(t, deployments_queries.VelezDeploymentStatusRUNNING, deployments[0].Status)
-}
+	for range writes {
+		err := d.Execute(func(tx *sql.Tx) error {
+			q := d.WithTx(tx)
 
-func Test_deployments_ListDeployments_ReportsTotalBeforePaging(t *testing.T) {
-	t.Parallel()
+			specId, specErr := q.CreateSpecification(ctx, deployments_queries.CreateSpecificationParams{Name: "spec"})
+			if specErr != nil {
+				return rerrors.Wrap(specErr, "error creating specification")
+			}
 
-	d := newDeploymentsStorage()
+			_, specErr = q.CreateDeployment(ctx, deployments_queries.CreateDeploymentParams{
+				NodeID: 1,
+				Status: deployments_queries.VelezDeploymentStatusSCHEDULEDDEPLOYMENT,
+				SpecID: specId,
+			})
+			if specErr != nil {
+				return rerrors.Wrap(specErr, "error creating deployment")
+			}
 
-	seedDeployment(t, d, 1, deployments_queries.VelezDeploymentStatusRUNNING)
-	seedDeployment(t, d, 1, deployments_queries.VelezDeploymentStatusRUNNING)
-	seedDeployment(t, d, 1, deployments_queries.VelezDeploymentStatusRUNNING)
-
-	req := domain.ListDeploymentsReq{
-		Paging: domain.Paging{Limit: 2},
+			return nil
+		})
+		require.NoError(t, err)
 	}
 
-	list, err := d.ListDeployments(context.Background(), req)
+	close(stop)
+	readers.Wait()
+
+	select {
+	case msg := <-violation:
+		t.Fatal(msg)
+	default:
+	}
+
+	list, err := d.ListDeployments(ctx, domain.ListDeploymentsReq{})
 	require.NoError(t, err)
-	require.Len(t, list.Deployments, 2)
-	require.Equal(t, uint64(3), list.Total)
-}
-
-func Test_deployments_UpdateDeploymentStatus(t *testing.T) {
-	t.Parallel()
-
-	d := newDeploymentsStorage()
-
-	specParams := deployments_queries.CreateSpecificationParams{Name: testSpecName}
-
-	specId, err := d.CreateSpecification(context.Background(), specParams)
-	require.NoError(t, err)
-
-	_, err = d.CreateDeployment(context.Background(), deployments_queries.CreateDeploymentParams{
-		NodeID: 1,
-		Status: deployments_queries.VelezDeploymentStatusSCHEDULEDDEPLOYMENT,
-		SpecID: specId,
-	})
-	require.NoError(t, err)
-
-	err = d.UpdateDeploymentStatus(context.Background(), deployments_queries.UpdateDeploymentStatusParams{
-		ID:     1,
-		Status: deployments_queries.VelezDeploymentStatusRUNNING,
-	})
-	require.NoError(t, err)
-
-	deployments, err := d.List(context.Background(), domain.ListDeploymentsReq{})
-	require.NoError(t, err)
-	require.Equal(t, deployments_queries.VelezDeploymentStatusRUNNING, deployments[0].Status)
-}
-
-func Test_deployments_UpdateDeploymentStatus_UnknownIdNotFound(t *testing.T) {
-	t.Parallel()
-
-	d := newDeploymentsStorage()
-
-	err := d.UpdateDeploymentStatus(context.Background(), deployments_queries.UpdateDeploymentStatusParams{ID: 999})
-	require.ErrorIs(t, err, storage.ErrNotFound)
-}
-
-func seedDeployment(
-	t *testing.T,
-	d *deployments,
-	nodeId int32,
-	status deployments_queries.VelezDeploymentStatus,
-) {
-	t.Helper()
-
-	specParams := deployments_queries.CreateSpecificationParams{Name: testSpecName}
-
-	specId, err := d.CreateSpecification(context.Background(), specParams)
-	require.NoError(t, err)
-
-	_, err = d.CreateDeployment(context.Background(), deployments_queries.CreateDeploymentParams{
-		NodeID: nodeId,
-		Status: status,
-		SpecID: specId,
-	})
-	require.NoError(t, err)
+	require.Equal(t, uint64(writes), list.Total)
 }

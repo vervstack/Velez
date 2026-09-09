@@ -2,8 +2,6 @@ package storage
 
 import (
 	"sync/atomic"
-
-	"go.vervstack.ru/Velez/internal/clients/sqldb"
 )
 
 type Container struct {
@@ -37,7 +35,7 @@ func (c *Container) Plugins() PluginsStorage {
 	return (*c.impl.Load()).Plugins()
 }
 
-func (c *Container) TxManager() *sqldb.TxManager {
+func (c *Container) TxManager() Transactor {
 	return (*c.impl.Load()).TxManager()
 }
 

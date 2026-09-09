@@ -18,6 +18,11 @@ import (
 // the zero value for every container-derived service - ListDeploymentsReq's
 // ServiceName filter can't be resolved to that and is left unapplied here,
 // same as before this store existed.
+//
+// deployments also doubles as this backend's storage.Transactor (see
+// Execute below) - its mu is the one lock shared between plain reads/writes
+// and a composite write run through verv_services.executeDeployment, so the
+// two can never interleave.
 type deployments struct {
 	mu sync.Mutex
 
@@ -61,12 +66,75 @@ func (d *deployments) ListDeployments(
 }
 
 func (d *deployments) CreateSpecification(
-	_ context.Context,
+	ctx context.Context,
 	arg deployments_queries.CreateSpecificationParams,
 ) (int64, error) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
+	return d.createSpecificationLocked(ctx, arg)
+}
+
+func (d *deployments) GetSpecificationById(
+	ctx context.Context,
+	id int64,
+) (deployments_queries.GetSpecificationByIdRow, error) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	return d.getSpecificationByIdLocked(ctx, id)
+}
+
+func (d *deployments) CreateDeployment(
+	ctx context.Context,
+	arg deployments_queries.CreateDeploymentParams,
+) (any, error) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	return d.createDeploymentLocked(ctx, arg)
+}
+
+func (d *deployments) UpdateDeploymentStatus(
+	ctx context.Context,
+	arg deployments_queries.UpdateDeploymentStatusParams,
+) error {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	return d.updateDeploymentStatusLocked(ctx, arg)
+}
+
+// WithTx returns a Querier that operates directly on d's state without
+// taking d.mu, since it is only ever reached from inside Execute below -
+// which already holds d.mu for the call's whole duration. The concrete
+// generated *deployments_queries.Queries type postgres.deploymentsStorage
+// returns from WithTx has no in-memory equivalent (it needs a real *sql.DB),
+// which is why storage.DeploymentsStorage.WithTx is declared against the
+// deployments_queries.Querier interface instead.
+func (d *deployments) WithTx(_ *sql.Tx) deployments_queries.Querier {
+	return (*deploymentsLockedQuerier)(d)
+}
+
+// Execute implements storage.Transactor for this backend: it locks d.mu for
+// the duration of fn, then calls fn(nil) - there is no real *sql.Tx to hand
+// back. Locking here (rather than an independent mutex) is what makes a
+// composite write run through verv_services.executeDeployment genuinely
+// exclude List/ListDeployments - see the deployments doc comment. fn always
+// reaches d's state through WithTx's deploymentsLockedQuerier, whose methods
+// assume the lock is already held, so this never deadlocks against the
+// locking Create*/Update* methods above.
+func (d *deployments) Execute(fn func(tx *sql.Tx) error) error {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	return fn(nil)
+}
+
+func (d *deployments) createSpecificationLocked(
+	_ context.Context,
+	arg deployments_queries.CreateSpecificationParams,
+) (int64, error) {
 	d.nextSpecId++
 
 	d.specs[d.nextSpecId] = arg
@@ -74,13 +142,10 @@ func (d *deployments) CreateSpecification(
 	return d.nextSpecId, nil
 }
 
-func (d *deployments) GetSpecificationById(
+func (d *deployments) getSpecificationByIdLocked(
 	_ context.Context,
 	id int64,
 ) (deployments_queries.GetSpecificationByIdRow, error) {
-	d.mu.Lock()
-	defer d.mu.Unlock()
-
 	spec, ok := d.specs[id]
 	if !ok {
 		return deployments_queries.GetSpecificationByIdRow{}, storage.ErrNotFound
@@ -96,13 +161,10 @@ func (d *deployments) GetSpecificationById(
 	return row, nil
 }
 
-func (d *deployments) CreateDeployment(
+func (d *deployments) createDeploymentLocked(
 	_ context.Context,
 	arg deployments_queries.CreateDeploymentParams,
 ) (any, error) {
-	d.mu.Lock()
-	defer d.mu.Unlock()
-
 	d.nextDeploymentId++
 
 	now := time.Now()
@@ -126,13 +188,10 @@ func (d *deployments) CreateDeployment(
 	return d.nextDeploymentId, nil
 }
 
-func (d *deployments) UpdateDeploymentStatus(
+func (d *deployments) updateDeploymentStatusLocked(
 	_ context.Context,
 	arg deployments_queries.UpdateDeploymentStatusParams,
 ) error {
-	d.mu.Lock()
-	defer d.mu.Unlock()
-
 	for i := range d.deployments {
 		if d.deployments[i].Id != arg.ID {
 			continue
@@ -147,12 +206,38 @@ func (d *deployments) UpdateDeploymentStatus(
 	return storage.ErrNotFound
 }
 
-// WithTx has no meaningful local-storage equivalent: verv_services.deploy.go
-// only calls it once v.dataStorage.TxManager() has already returned non-nil,
-// which never happens for this backend (see TxManager below), so this is
-// unreachable in practice rather than silently wrong.
-func (d *deployments) WithTx(_ *sql.Tx) *deployments_queries.Queries {
-	return nil
+// deploymentsLockedQuerier adapts *deployments to deployments_queries.Querier
+// for use from inside Execute, where d.mu is already held - it calls the
+// *Locked variants directly instead of the public, self-locking methods
+// (sync.Mutex isn't reentrant, so calling those would deadlock).
+type deploymentsLockedQuerier deployments
+
+func (q *deploymentsLockedQuerier) CreateDeployment(
+	ctx context.Context,
+	arg deployments_queries.CreateDeploymentParams,
+) (any, error) {
+	return (*deployments)(q).createDeploymentLocked(ctx, arg)
+}
+
+func (q *deploymentsLockedQuerier) CreateSpecification(
+	ctx context.Context,
+	arg deployments_queries.CreateSpecificationParams,
+) (int64, error) {
+	return (*deployments)(q).createSpecificationLocked(ctx, arg)
+}
+
+func (q *deploymentsLockedQuerier) GetSpecificationById(
+	ctx context.Context,
+	id int64,
+) (deployments_queries.GetSpecificationByIdRow, error) {
+	return (*deployments)(q).getSpecificationByIdLocked(ctx, id)
+}
+
+func (q *deploymentsLockedQuerier) UpdateDeploymentStatus(
+	ctx context.Context,
+	arg deployments_queries.UpdateDeploymentStatusParams,
+) error {
+	return (*deployments)(q).updateDeploymentStatusLocked(ctx, arg)
 }
 
 func (d *deployments) filterLocked(req domain.ListDeploymentsReq) []domain.Deployment {

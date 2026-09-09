@@ -4,7 +4,6 @@ import (
 	"sync/atomic"
 
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
-	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
@@ -53,7 +52,7 @@ func (s *stateManager) Deployments() storage.DeploymentsStorage {
 	return (*l).Deployments()
 }
 
-func (s *stateManager) TxManager() *sqldb.TxManager {
+func (s *stateManager) TxManager() storage.Transactor {
 	l := s.state.Load()
 	if l == nil {
 		return nil

@@ -193,8 +193,8 @@ func (s *stubDeploymentsStorage) ListDeployments(
 	return domain.DeploymentList{}, nil
 }
 
-func (s *stubDeploymentsStorage) WithTx(_ *sql.Tx) *deployments_queries.Queries {
-	return nil
+func (s *stubDeploymentsStorage) WithTx(_ *sql.Tx) deployments_queries.Querier {
+	return s
 }
 
 func (s *stubDeploymentsStorage) recordedStatuses() []deployments_queries.UpdateDeploymentStatusParams {

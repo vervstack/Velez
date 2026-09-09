@@ -113,7 +113,7 @@ func (s *Storage) PgInstances() storage.PgInstancesStorage {
 	return s.pgInstancesStorage
 }
 
-func (s *Storage) TxManager() *sqldb.TxManager {
+func (s *Storage) TxManager() storage.Transactor {
 	return s.txManager
 }
 

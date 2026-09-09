@@ -85,18 +85,13 @@ func (v *VervService) CreateNewDeploy(ctx context.Context, request domain.Create
 	return nil
 }
 
-// executeDeployment runs fn against the Deployments store, wrapped in a real
-// transaction when the backend has one (postgres). local_storage's
-// TxManager() is always nil - it has no real *sql.DB to open a transaction
-// on - so fn there runs directly against the untransacted store instead of
-// panicking on a nil TxManager.
+// executeDeployment runs fn against the Deployments store, wrapped in one
+// atomic unit of work via storage.Transactor - a real SQL transaction for
+// postgres, a mutex critical section for local_storage (see
+// local_storage.deployments.Execute). Both backends always return a
+// non-nil Transactor, so this never needs to special-case one.
 func (v *VervService) executeDeployment(ctx context.Context, fn func(deployments_queries.Querier) error) error {
-	txManager := v.dataStorage.TxManager()
-	if txManager == nil {
-		return fn(v.dataStorage.Deployments())
-	}
-
-	err := txManager.Execute(func(tx *sql.Tx) error {
+	err := v.dataStorage.TxManager().Execute(func(tx *sql.Tx) error {
 		return fn(v.dataStorage.Deployments().WithTx(tx))
 	})
 	if err != nil {

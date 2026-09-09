@@ -28,7 +28,6 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
-	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/environments"
@@ -848,7 +847,7 @@ func (f *fakeClusterStorage) ServiceDependencies() storage.ServiceDependenciesSt
 func (f *fakeClusterStorage) ServiceResources() storage.ServiceResourcesStorage       { return nil }
 func (f *fakeClusterStorage) Tasks() storage.TasksStorage                             { return nil }
 func (f *fakeClusterStorage) Jobs() storage.JobsStorage                               { return nil }
-func (f *fakeClusterStorage) TxManager() *sqldb.TxManager                             { return nil }
+func (f *fakeClusterStorage) TxManager() storage.Transactor                           { return nil }
 
 func (f *fakeClusterStorage) Environments() storage.EnvironmentsStorage   { return f.environments }
 func (f *fakeClusterStorage) Registries() storage.RegistriesStorage       { return nil }
@@ -922,8 +921,8 @@ func (f *fakeDeploymentsStorage) ListDeployments(
 	return domain.DeploymentList{}, nil
 }
 
-func (f *fakeDeploymentsStorage) WithTx(_ *sql.Tx) *deployments_queries.Queries {
-	return nil
+func (f *fakeDeploymentsStorage) WithTx(_ *sql.Tx) deployments_queries.Querier {
+	return f
 }
 
 // fakePluginsStorage is a minimal in-memory implementation of

@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
 
 	sq "github.com/Masterminds/squirrel"
 	"go.redsock.ru/rerrors"
@@ -28,6 +29,16 @@ func newDeploymentsStorage(db sqldb.DB) *deploymentsStorage {
 		Queries: deployments_queries.New(db),
 		db:      db,
 	}
+}
+
+// WithTx shadows the embedded *deployments_queries.Queries.WithTx, which
+// returns the concrete generated *Queries type - local_storage's
+// DeploymentsStorage can't satisfy that concrete return type (it has no
+// *sql.DB to back a Queries with), so storage.DeploymentsStorage declares
+// WithTx against the deployments_queries.Querier interface instead. This
+// override just widens the return type; behavior is unchanged.
+func (d *deploymentsStorage) WithTx(tx *sql.Tx) deployments_queries.Querier {
+	return d.Queries.WithTx(tx)
 }
 
 func (d *deploymentsStorage) ListDeployments(ctx context.Context, req domain.ListDeploymentsReq) (

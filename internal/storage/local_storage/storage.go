@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
-	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/environments"
@@ -125,6 +124,12 @@ func (l *localStorage) PgInstances() storage.PgInstancesStorage {
 	return l.pgInstances
 }
 
-func (l *localStorage) TxManager() *sqldb.TxManager {
-	return nil
+// TxManager returns l.deployments itself as the Transactor: single-node/dev
+// mode has no real *sql.DB to open a transaction on, so the critical section
+// is a mutex instead - and it has to be deployments' own mutex (not an
+// independent one) so a composite write run through it genuinely excludes
+// deployments.List()/ListDeployments() for its duration. See deployments.go's
+// Execute for the lock-sharing mechanics.
+func (l *localStorage) TxManager() storage.Transactor {
+	return l.deployments
 }

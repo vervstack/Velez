@@ -6,7 +6,6 @@ import (
 
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain"
 	verv "go.vervstack.ru/Velez/internal/domain/vervonomicon"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
@@ -36,7 +35,16 @@ type Storage interface {
 	Secrets() SecretsStorage
 	PgInstances() PgInstancesStorage
 
-	TxManager() *sqldb.TxManager
+	TxManager() Transactor
+}
+
+// Transactor runs fn as one atomic unit of work: postgres.Storage backs it
+// with a real SQL transaction; local_storage.Storage backs it with a mutex
+// critical section (it has no *sql.DB to open a transaction on). Both
+// backends always return a non-nil Transactor, so callers never need to
+// special-case a nil TxManager().
+type Transactor interface {
+	Execute(fn func(tx *sql.Tx) error) error
 }
 
 type ServicesStorage interface {
@@ -52,7 +60,7 @@ type DeploymentsStorage interface {
 	ListDeployments(ctx context.Context, req domain.ListDeploymentsReq) (domain.DeploymentList, error)
 
 	deployments_queries.Querier
-	WithTx(tx *sql.Tx) *deployments_queries.Queries
+	WithTx(tx *sql.Tx) deployments_queries.Querier
 }
 
 type NodesStorage interface {

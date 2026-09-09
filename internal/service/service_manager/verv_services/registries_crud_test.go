@@ -6,8 +6,14 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/storage/local_storage"
 	"go.vervstack.ru/Velez/internal/storage/registries"
+)
+
+const (
+	testRegistryName = "docker-hub"
 )
 
 func newRegistryService(t *testing.T) *VervService {
@@ -27,13 +33,13 @@ func TestVervService_CreateRegistry_NonDefaultSkipsTransaction(t *testing.T) {
 	v := newRegistryService(t)
 
 	req := domain.CreateRegistryReq{
-		Name: "docker-hub",
+		Name: testRegistryName,
 		Type: domain.RegistryTypeDockerHub,
 	}
 
 	reg, err := v.CreateRegistry(context.Background(), req)
 	require.NoError(t, err)
-	require.Equal(t, "docker-hub", reg.Name)
+	require.Equal(t, testRegistryName, reg.Name)
 	require.False(t, reg.IsDefault)
 }
 
@@ -67,7 +73,7 @@ func TestVervService_UpdateRegistry_NonDefaultSkipsTransaction(t *testing.T) {
 	v := newRegistryService(t)
 
 	created, err := v.CreateRegistry(ctx, domain.CreateRegistryReq{
-		Name: "docker-hub",
+		Name: testRegistryName,
 		Type: domain.RegistryTypeDockerHub,
 	})
 	require.NoError(t, err)
@@ -103,4 +109,70 @@ func TestVervService_GetRegistry_UnknownIDRejected(t *testing.T) {
 
 	_, err := v.GetRegistry(context.Background(), 999)
 	require.ErrorIs(t, err, ErrRegistryNotFound)
+}
+
+// newLocalStorageRegistryService builds a VervService against a real
+// local_storage.New(...)-backed storage.Storage - single-node/dev mode,
+// exactly as internal/app/custom.go wires it when no Postgres is configured.
+// Unlike newRegistryService's hand-rolled testStorage fake, this exercises
+// the real localStorage.TxManager() / deployments.Execute path.
+func newLocalStorageRegistryService(t *testing.T) *VervService {
+	t.Helper()
+
+	dataStorage := local_storage.New(nil, config.Config{})
+
+	return New(dataStorage, nil, nil, nil, nil, nil)
+}
+
+// TestVervService_CreateRegistry_DefaultAgainstLocalStorage reproduces the
+// panic CreateRegistry(IsDefault: true) hit against local_storage before
+// localStorage.TxManager() returned a real Transactor instead of nil:
+// v.dataStorage.TxManager().Execute(...) dereferenced a nil *sqldb.TxManager.
+// With TxManager() always non-nil, this now runs cleanly.
+func TestVervService_CreateRegistry_DefaultAgainstLocalStorage(t *testing.T) {
+	v := newLocalStorageRegistryService(t)
+
+	req := domain.CreateRegistryReq{
+		Name:      testRegistryName,
+		Type:      domain.RegistryTypeDockerHub,
+		IsDefault: true,
+	}
+
+	reg, err := v.CreateRegistry(context.Background(), req)
+	require.NoError(t, err)
+	require.True(t, reg.IsDefault)
+}
+
+// TestVervService_UpdateRegistry_DefaultAgainstLocalStorage is
+// UpdateRegistry's counterpart to
+// TestVervService_CreateRegistry_DefaultAgainstLocalStorage - its IsDefault:
+// true path hits the same TxManager().Execute(...) call.
+func TestVervService_UpdateRegistry_DefaultAgainstLocalStorage(t *testing.T) {
+	ctx := context.Background()
+	v := newLocalStorageRegistryService(t)
+
+	first, err := v.CreateRegistry(ctx, domain.CreateRegistryReq{
+		Name: testRegistryName,
+		Type: domain.RegistryTypeDockerHub,
+	})
+	require.NoError(t, err)
+
+	second, err := v.CreateRegistry(ctx, domain.CreateRegistryReq{
+		Name: "generic",
+		Type: domain.RegistryTypeGenericV2,
+	})
+	require.NoError(t, err)
+
+	isDefault := true
+
+	updated, err := v.UpdateRegistry(ctx, domain.UpdateRegistryReq{
+		ID:        second.ID,
+		IsDefault: &isDefault,
+	})
+	require.NoError(t, err)
+	require.True(t, updated.IsDefault)
+
+	unchanged, err := v.GetRegistry(ctx, first.ID)
+	require.NoError(t, err)
+	require.False(t, unchanged.IsDefault)
 }

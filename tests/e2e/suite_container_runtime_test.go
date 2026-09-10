@@ -14,27 +14,28 @@ import (
 // (docs/container_runtimes) end to end: CreateSmerd through the real
 // gRPC/transport path, then assertions against the live Docker daemon.
 //
-// It is a 2x2 matrix - state backend (none/postgres) x runtime backend
-// (label-based/dedicated) - but only the no-state/label-based cell is wired in
-// Phase 1; see docs/container_runtimes/roadmap.md. The other three cells are
-// listed as commented-out placeholders instead of skipped subtests so the
-// matrix documents what is next without pretending to cover it.
+// It iterates the package-wide Plane matrix (matrix_test.go) - state backend
+// x runtime backend - but only the single-node/docker cell is wired in
+// Phase 1; see docs/container_runtimes/roadmap.md. Future cells (cluster/
+// docker, a second runtime backend) join Planes rather than living as a
+// suite-local matrix.
 //
 // Single-node (local_storage), no WithMatreshka(): Phase 1's only case needs
 // neither cluster nor postgres, so it follows suite_environments_test.go's
 // precedent rather than touching the shared matreshka fixture.
+//
+// containerRuntimeTestCase only carries what's specific to this suite's cases
+// (which Plane, which environment) - the state/backend axes live on Plane
+// itself.
 type containerRuntimeTestCase struct {
-	name           string
-	stateMode      string // "none" | "postgres"
-	runtimeBackend string // "label" | "dedicated"
-	environment    string
+	plane       Plane
+	environment string
 }
 
 var containerRuntimeMatrix = []containerRuntimeTestCase{
-	{name: "no-state/label-based (default)", stateMode: "none", runtimeBackend: "label", environment: "PROD"},
-	// {stateMode: "postgres", runtimeBackend: "label"}      — next
-	// {stateMode: "none",     runtimeBackend: "dedicated"}  — next
-	// {stateMode: "postgres", runtimeBackend: "dedicated"}  — next
+	{plane: Planes[0], environment: "PROD"},
+	// A cluster/docker case joins once Planes grows that cell - see
+	// matrix_test.go.
 }
 
 const (
@@ -55,9 +56,6 @@ const (
 	networkIsoProdName  = "e2e_ctr_net_prod"
 	networkIsoStageName = "e2e_ctr_net_stage"
 
-	containerRuntimeStateNone     = "none"
-	containerRuntimeBackendLabels = "label"
-
 	listContainersProdSuffix = "e2ecrtlist"
 	listContainersStageEnv   = "E2ECRTLISTSTAGE"
 
@@ -71,28 +69,20 @@ const (
 // namespace. Cheap enough as one sequential case for now.
 func Test_ContainerRuntime_Matrix(t *testing.T) {
 	for _, tc := range containerRuntimeMatrix {
-		t.Run(tc.name, func(t *testing.T) {
+		t.Run(tc.plane.Name, func(t *testing.T) {
 			runContainerRuntimeCase(t, tc)
 		})
 	}
 }
 
-// runContainerRuntimeCase stands up the fixture matching the case's
-// stateMode/runtimeBackend. Only none/label is wired - the others fail loudly
-// rather than silently skipping, so adding a matrix row without its fixture is
-// impossible to miss.
+// runContainerRuntimeCase stands up the fixture matching the case's Plane.
+// Only single-node/docker is wired - Plane.NewEnvironment fails loudly for
+// anything else rather than silently building the wrong fixture, so adding a
+// matrix row without its fixture is impossible to miss.
 func runContainerRuntimeCase(t *testing.T, tc containerRuntimeTestCase) {
 	t.Helper()
 
-	if tc.stateMode != containerRuntimeStateNone {
-		t.Fatalf("add fixture support for stateMode %q", tc.stateMode)
-	}
-
-	if tc.runtimeBackend != containerRuntimeBackendLabels {
-		t.Fatalf("add fixture support for runtimeBackend %q", tc.runtimeBackend)
-	}
-
-	env := NewEnvironment(t, WithContainerSuffix(containerRuntimeSuffix))
+	env := tc.plane.NewEnvironment(t, WithContainerSuffix(containerRuntimeSuffix))
 
 	createReq := &velez_api.CreateSmerd_Request{
 		Name:         containerRuntimeSmerdName,
@@ -236,12 +226,13 @@ func Test_ContainerRuntime_Network_PerEnvironmentIsolation(t *testing.T) {
 		ImageName:    HelloWorldAppImage,
 		IgnoreConfig: true,
 		Settings: &velez_api.Container_Settings{
-			Ports: []*velez_api.Port{{ServicePortNumber: 8080}},
+			Ports: []*velez_api.Port{{ServicePortNumber: 8080, Protocol: velez_api.Port_tcp}},
 		},
 	}
 
 	prodSmerd := env.CreateSmerd(t, prodReq)
 	require.Equal(t, velez_api.Smerd_running, prodSmerd.GetStatus())
+	checkPorts(t, prodSmerd.GetPorts(), prodReq.GetSettings().GetPorts())
 
 	stageReq := &velez_api.CreateSmerd_Request{
 		Name:         networkIsoStageName,
@@ -249,12 +240,13 @@ func Test_ContainerRuntime_Network_PerEnvironmentIsolation(t *testing.T) {
 		IgnoreConfig: true,
 		Environment:  networkIsoStageEnv,
 		Settings: &velez_api.Container_Settings{
-			Ports: []*velez_api.Port{{ServicePortNumber: 8080}},
+			Ports: []*velez_api.Port{{ServicePortNumber: 8080, Protocol: velez_api.Port_tcp}},
 		},
 	}
 
 	stageSmerd := env.CreateSmerd(t, stageReq)
 	require.Equal(t, velez_api.Smerd_running, stageSmerd.GetStatus())
+	checkPorts(t, stageSmerd.GetPorts(), stageReq.GetSettings().GetPorts())
 
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 

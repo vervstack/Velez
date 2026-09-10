@@ -15,7 +15,7 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-  build-and-test:
+  unit-test:
     runs-on: ${{ vars.UBUNTU_IMAGE }}
     steps:
       - name: Checkout
@@ -24,14 +24,17 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
 
-      - name: Install dependencies
-        run: docker build -t velez:${{ github.sha }} .
+      - name: Test
+        run: go test -tags github_wf $(go list ./... | grep -v /tests/e2e)
 
-      - name: Run container
-        run: |
-          docker run -d --name e2e-velez -p 53890:53890 -v /var/run/docker.sock:/var/run/docker.sock -e DISABLE_API_SECURITY=true velez:${{ github.sha }} 
-          sleep 2
-        continue-on-error: false
+  e2e-test:
+    runs-on: ${{ vars.UBUNTU_IMAGE }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
 
       - name: Test
-        run: go test -tags github_wf ./...
+        run: make test-e2e

@@ -167,6 +167,7 @@ linters:
       - node_modules
       - pkg/web/ZpotifyUI/node_modules
       - tests/mocks
+      - .claude/worktrees
 formatters:
   enable:
     - gofmt
@@ -176,3 +177,4 @@ formatters:
       - configs
       - node_modules
       - pkg/web/Velez-UI/node_modules
+      - .claude/worktrees

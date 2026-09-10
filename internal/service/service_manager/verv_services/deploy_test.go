@@ -29,6 +29,7 @@ type testStorage struct {
 	txManager        storage.Transactor
 }
 
+func (s *testStorage) IsStatefull() bool                 { return false }
 func (s *testStorage) Nodes() storage.NodesStorage       { return nil }
 func (s *testStorage) Services() storage.ServicesStorage { return s.services }
 

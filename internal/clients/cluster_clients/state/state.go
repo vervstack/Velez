@@ -25,6 +25,15 @@ func (s *stateManager) Set(manager cluster_clients.ClusterStateManager) {
 	s.state.Store(&manager)
 }
 
+func (s *stateManager) IsStatefull() bool {
+	l := s.state.Load()
+	if l == nil {
+		return false
+	}
+
+	return (*l).IsStatefull()
+}
+
 func (s *stateManager) Nodes() storage.NodesStorage {
 	l := s.state.Load()
 	if l == nil {

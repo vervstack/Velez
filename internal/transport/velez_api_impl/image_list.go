@@ -2,9 +2,11 @@ package velez_api_impl
 
 import (
 	"context"
+	"net/url"
 	"sort"
 	"strings"
 
+	"github.com/distribution/reference"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 
@@ -12,6 +14,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/clients/registryclients"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // maxGenericV2SearchResults caps how many repositories from a generic_v2
@@ -22,10 +25,19 @@ const (
 	maxGenericV2SearchResults = 10
 )
 
+// dockerHubDomains are the reference domains that mean "Docker Hub" - a name
+// carrying one of these is treated as domainless and falls through to the
+// id/default/dockerhub resolution.
+var dockerHubDomains = map[string]struct{}{
+	"docker.io":            {},
+	"index.docker.io":      {},
+	"registry-1.docker.io": {},
+}
+
 func (impl *Impl) SearchImages(ctx context.Context, req *velez_api.SearchImages_Request) (
 	*velez_api.SearchImages_Response, error,
 ) {
-	reg, err := impl.resolveSearchRegistry(ctx, req.GetRegistryId())
+	reg, term, err := impl.resolveSearchRegistry(ctx, req)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error resolving registry")
 	}
@@ -34,13 +46,13 @@ func (impl *Impl) SearchImages(ctx context.Context, req *velez_api.SearchImages_
 
 	switch reg.Type {
 	case domain.RegistryTypeGenericV2:
-		images, err = impl.searchGenericV2Images(ctx, reg, req)
+		images, err = impl.searchGenericV2Images(ctx, reg, term)
 		if err != nil {
 			return nil, rerrors.Wrap(err, "error searching generic_v2 registry")
 		}
 	default:
 		searchReq := domain.ImageSearchRequest{
-			Term:            req.GetName(),
+			Term:            term,
 			UseOfficialOnly: toolbox.FromPtr(req.UseOnlyOfficial),
 		}
 
@@ -55,40 +67,136 @@ func (impl *Impl) SearchImages(ctx context.Context, req *velez_api.SearchImages_
 	}, nil
 }
 
-// resolveSearchRegistry picks the registry SearchImages should search: the
-// one named by id, or - if no id was given - whichever registry is marked
-// default. If neither resolves, it falls back to today's behavior (dockerhub,
-// unauthenticated): a zero-value domain.Registry with Type
-// RegistryTypeDockerHub, which SearchImages's default branch handles the same
-// way as an explicit dockerhub registry (it never reads Url/Username/Secret).
-func (impl *Impl) resolveSearchRegistry(ctx context.Context, id int64) (domain.Registry, error) {
-	if id != 0 {
-		reg, err := impl.vervServices.GetRegistry(ctx, id)
-		if err != nil {
-			return domain.Registry{}, rerrors.Wrap(err, "error getting registry")
+// resolveSearchRegistry picks the registry SearchImages should search and the
+// catalog/search filter term to use against it. Precedence:
+//
+//  1. an explicit registry_id - statefull mode only, since single-node's
+//     registries list is just the fixed builtin entry;
+//  2. a registry domain parsed off the front of the search term (Docker's
+//     standard image-reference rule), matched against a configured registry
+//     or, failing that, searched ad hoc and unauthenticated;
+//  3. whichever registry is marked default;
+//  4. unauthenticated Docker Hub (a zero-value Registry with Type
+//     RegistryTypeDockerHub, handled the same as an explicit dockerhub row).
+//
+// The returned term equals req.GetName() everywhere except the domain-parsed
+// path, where the domain prefix is stripped so searchGenericV2Images's
+// substring match still lands.
+func (impl *Impl) resolveSearchRegistry(ctx context.Context, req *velez_api.SearchImages_Request) (
+	domain.Registry, string, error,
+) {
+	name := req.GetName()
+
+	if req.GetRegistryId() != 0 {
+		if !impl.vervServices.IsStatefull() {
+			return domain.Registry{}, "", rerrors.Wrap(user_errors.ErrRequiresStatefullMode)
 		}
 
-		return reg, nil
+		reg, err := impl.vervServices.GetRegistry(ctx, req.GetRegistryId())
+		if err != nil {
+			return domain.Registry{}, "", rerrors.Wrap(err, "error getting registry")
+		}
+
+		return reg, name, nil
 	}
 
+	regDomain, filterTerm := registryDomainFromRef(name)
+	if regDomain != "" {
+		reg, err := impl.resolveRegistryByDomain(ctx, regDomain)
+		if err != nil {
+			return domain.Registry{}, "", rerrors.Wrap(err, "error resolving registry by domain")
+		}
+
+		return reg, filterTerm, nil
+	}
+
+	registries, err := impl.vervServices.ListRegistries(ctx)
+	if err != nil {
+		return domain.Registry{}, "", rerrors.Wrap(err, "error listing registries")
+	}
+
+	for _, reg := range registries {
+		if reg.IsDefault {
+			return reg, name, nil
+		}
+	}
+
+	dockerHub := domain.Registry{Type: domain.RegistryTypeDockerHub}
+
+	return dockerHub, name, nil
+}
+
+// resolveRegistryByDomain matches regDomain against a configured registry's
+// Url host and returns that registry (so its credentials and type apply). If
+// nothing matches it returns an ad-hoc, unauthenticated generic_v2 registry
+// pointed straight at https://<regDomain> - a registry the user never
+// configured is still searchable, it just gets no auth.
+func (impl *Impl) resolveRegistryByDomain(ctx context.Context, regDomain string) (domain.Registry, error) {
 	registries, err := impl.vervServices.ListRegistries(ctx)
 	if err != nil {
 		return domain.Registry{}, rerrors.Wrap(err, "error listing registries")
 	}
 
 	for _, reg := range registries {
-		if reg.IsDefault {
+		host := registryUrlHost(reg.Url)
+		if host != "" && strings.EqualFold(host, regDomain) {
 			return reg, nil
 		}
 	}
 
-	return domain.Registry{Type: domain.RegistryTypeDockerHub}, nil
+	adHoc := domain.Registry{
+		Type: domain.RegistryTypeGenericV2,
+		Url:  "https://" + regDomain,
+	}
+
+	return adHoc, nil
+}
+
+// registryDomainFromRef parses name as a Docker image reference and returns
+// the registry domain to resolve against plus the reference path with that
+// domain stripped. It returns "", "" when name carries no domain or a Docker
+// Hub one - the standard rule being that the segment before the first "/" is
+// a domain only if it holds a "." or ":" or is exactly "localhost".
+func registryDomainFromRef(name string) (regDomain, path string) {
+	ref, err := reference.ParseNormalizedNamed(name)
+	if err != nil {
+		return "", ""
+	}
+
+	d := reference.Domain(ref)
+
+	_, isDockerHub := dockerHubDomains[d]
+	if isDockerHub {
+		return "", ""
+	}
+
+	return d, reference.Path(ref)
+}
+
+// registryUrlHost extracts the host[:port] from a stored registry Url,
+// tolerating a missing scheme (some rows store a bare "myreg.io:5000").
+func registryUrlHost(raw string) string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return ""
+	}
+
+	if !strings.Contains(raw, "://") {
+		raw = "//" + raw
+	}
+
+	u, err := url.Parse(raw)
+	if err != nil {
+		return ""
+	}
+
+	return u.Host
 }
 
 func (impl *Impl) searchGenericV2Images(
 	ctx context.Context,
 	reg domain.Registry,
-	req *velez_api.SearchImages_Request,
+	term string,
 ) ([]*velez_api.SearchImageItem, error) {
 	regClient := registryclients.New(reg)
 
@@ -97,7 +205,7 @@ func (impl *Impl) searchGenericV2Images(
 		return nil, rerrors.Wrap(err, "error listing catalog")
 	}
 
-	term := strings.ToLower(req.GetName())
+	term = strings.ToLower(term)
 
 	matched := make([]string, 0, len(repos))
 	for _, repo := range repos {

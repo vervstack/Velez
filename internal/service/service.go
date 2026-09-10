@@ -88,6 +88,12 @@ type VervServicesService interface {
 	// validation entry point for the `environment` request field.
 	ResolveEnvironmentSuffix(ctx context.Context, name string) (string, error)
 
+	// IsStatefull reports whether this node runs against a real Postgres
+	// backend (statefull/cluster mode) rather than the single-node/dev
+	// in-memory one. Transport gates statefull-only features - e.g. picking a
+	// registry by explicit id in SearchImages - on it.
+	IsStatefull() bool
+
 	// Registry management (velez.registries) - container image registries
 	// (Docker Hub, generic v2) used by SearchImages.
 	ListRegistries(ctx context.Context) ([]domain.Registry, error)

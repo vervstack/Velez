@@ -19,6 +19,10 @@ func (c *Container) Set(impl Storage) {
 	c.impl.Store(&impl)
 }
 
+func (c *Container) IsStatefull() bool {
+	return (*c.impl.Load()).IsStatefull()
+}
+
 func (c *Container) Nodes() NodesStorage {
 	return (*c.impl.Load()).Nodes()
 }

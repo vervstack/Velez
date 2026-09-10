@@ -59,6 +59,11 @@ func New(db *sql.DB) storage.Storage {
 	}
 }
 
+// IsStatefull is always true: this backend is Postgres.
+func (s *Storage) IsStatefull() bool {
+	return true
+}
+
 func (s *Storage) Nodes() storage.NodesStorage {
 	return s.nodeStorage
 }

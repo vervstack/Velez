@@ -36,6 +36,12 @@ type Storage interface {
 	PgInstances() PgInstancesStorage
 
 	TxManager() Transactor
+
+	// IsStatefull reports whether this backend is the real Postgres storage
+	// (statefull/cluster mode) rather than the single-node/dev in-memory one.
+	// Callers gate statefull-only features - e.g. picking a registry by
+	// explicit id in SearchImages - on it.
+	IsStatefull() bool
 }
 
 // Transactor runs fn as one atomic unit of work: postgres.Storage backs it

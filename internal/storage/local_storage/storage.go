@@ -72,6 +72,12 @@ func New(containerAPI node_clients.Docker, cfg config.Config) storage.Storage {
 	}
 }
 
+// IsStatefull is always false: local_storage is the single-node/dev
+// in-memory backend, not Postgres.
+func (l *localStorage) IsStatefull() bool {
+	return false
+}
+
 func (l *localStorage) Nodes() storage.NodesStorage {
 	return l.nodes
 }

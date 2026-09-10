@@ -49,6 +49,12 @@ func New(
 	}
 }
 
+// IsStatefull reports whether the live storage backend is Postgres. Resolved
+// per call so a runtime swap from local_storage is picked up immediately.
+func (v *VervService) IsStatefull() bool {
+	return v.dataStorage.IsStatefull()
+}
+
 // environments returns the environments storage of whatever storage backend is
 // currently live. It's resolved per call (rather than cached in a field) so a
 // runtime swap from local_storage to postgres - see

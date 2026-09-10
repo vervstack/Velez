@@ -839,6 +839,7 @@ type fakeClusterStorage struct {
 	environments storage.EnvironmentsStorage
 }
 
+func (f *fakeClusterStorage) IsStatefull() bool                                       { return true }
 func (f *fakeClusterStorage) Nodes() storage.NodesStorage                             { return f.nodes }
 func (f *fakeClusterStorage) Services() storage.ServicesStorage                       { return f.services }
 func (f *fakeClusterStorage) Deployments() storage.DeploymentsStorage                 { return f.deployments }

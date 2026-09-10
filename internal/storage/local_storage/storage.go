@@ -47,7 +47,7 @@ func New(containerAPI node_clients.Docker, cfg config.Config) storage.Storage {
 	return &localStorage{
 		nodes:            newNodesStorage(containerAPI, region),
 		services:         newServicesStorage(containerAPI),
-		deployments:      newDeploymentsStorage(),
+		deployments:      newDeploymentsStorage(containerAPI),
 		plugins:          newPluginsStorage(containerAPI),
 		serviceDeps:      newServiceDepsStorage(containerAPI),
 		serviceResources: newServiceResourcesStorage(containerAPI),

@@ -3,9 +3,17 @@ package local_storage
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"sync"
 	"time"
 
+	"github.com/docker/docker/api/types/container"
+	"github.com/sqlc-dev/pqtype"
+	"go.redsock.ru/rerrors"
+
+	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
@@ -24,6 +32,8 @@ import (
 // and a composite write run through verv_services.executeDeployment, so the
 // two can never interleave.
 type deployments struct {
+	docker node_clients.Docker
+
 	mu sync.Mutex
 
 	nextSpecId       int64
@@ -33,9 +43,10 @@ type deployments struct {
 	deployments []domain.Deployment
 }
 
-func newDeploymentsStorage() *deployments {
+func newDeploymentsStorage(docker node_clients.Docker) *deployments {
 	return &deployments{
-		specs: make(map[int64]deployments_queries.CreateSpecificationParams),
+		docker: docker,
+		specs:  make(map[int64]deployments_queries.CreateSpecificationParams),
 	}
 }
 
@@ -142,13 +153,33 @@ func (d *deployments) createSpecificationLocked(
 	return d.nextSpecId, nil
 }
 
+// getSpecificationByIdLocked prefers deriving the spec straight from the
+// service's live container over the specs map entry: the map only records
+// what was requested at deploy/upgrade time, which is what UpgradeDeploy
+// would otherwise diff its new spec against - the container is what
+// actually decides upgrade correctness, and it also has no relation to
+// what predates a Velez restart wiping this map. The map entry only
+// resolves the pre-container bridge window (name resolves but no
+// container exists yet).
 func (d *deployments) getSpecificationByIdLocked(
-	_ context.Context,
+	ctx context.Context,
 	id int64,
 ) (deployments_queries.GetSpecificationByIdRow, error) {
 	spec, ok := d.specs[id]
 	if !ok {
 		return deployments_queries.GetSpecificationByIdRow{}, storage.ErrNotFound
+	}
+
+	name := specServiceName(spec)
+	if name != "" {
+		row, found, err := d.resolveSpecFromContainer(ctx, name)
+		if err != nil {
+			return deployments_queries.GetSpecificationByIdRow{}, err
+		}
+
+		if found {
+			return row, nil
+		}
 	}
 
 	row := deployments_queries.GetSpecificationByIdRow{
@@ -159,6 +190,127 @@ func (d *deployments) getSpecificationByIdLocked(
 	}
 
 	return row, nil
+}
+
+// specServiceName extracts the service/container name embedded in a spec's
+// VervPayload - CreateNewDeploy and UpgradeDeploy always set the marshaled
+// CreateSmerd_Request's Name to the target service. "" means the payload is
+// absent or didn't decode, so the caller has no name to resolve a container
+// by and falls back to the map entry as-is.
+func specServiceName(spec deployments_queries.CreateSpecificationParams) string {
+	if !spec.VervPayload.Valid {
+		return ""
+	}
+
+	var partial struct {
+		Name string `json:"name"`
+	}
+
+	err := json.Unmarshal(spec.VervPayload.RawMessage, &partial)
+	if err != nil {
+		return ""
+	}
+
+	return partial.Name
+}
+
+// resolveSpecFromContainer finds name's live container and derives the spec
+// currently running from it directly via ContainerInspect, the same
+// container-is-system-of-record idiom as dockerServices.GetByName and
+// dockerPgInstances.listFromContainers. found is false when there's no live
+// container for name yet.
+func (d *deployments) resolveSpecFromContainer(
+	ctx context.Context, name string,
+) (deployments_queries.GetSpecificationByIdRow, bool, error) {
+	listReq := &pb.ListSmerds_Request{Name: &name}
+
+	containers, err := d.docker.ListContainers(ctx, listReq, allEnvironments)
+	if err != nil {
+		return deployments_queries.GetSpecificationByIdRow{}, false, rerrors.Wrap(err, "error listing containers")
+	}
+
+	if len(containers) == 0 {
+		return deployments_queries.GetSpecificationByIdRow{}, false, nil
+	}
+
+	info, err := d.docker.Client().ContainerInspect(ctx, containers[0].ID)
+	if err != nil {
+		return deployments_queries.GetSpecificationByIdRow{}, false, rerrors.Wrap(err, "error inspecting container")
+	}
+
+	smerdReq := &pb.CreateSmerd_Request{
+		Name:        name,
+		ImageName:   info.Config.Image,
+		Env:         parser.ToDockerEnv(info.Config.Env),
+		Healthcheck: healthcheckFromContainer(info.Config.Healthcheck),
+		Restart:     restartPolicyFromContainer(info.HostConfig.RestartPolicy),
+		Settings: &pb.Container_Settings{
+			Ports:   parser.ToPortsMapping(info.HostConfig.PortBindings),
+			Volumes: parser.ToVolume(info.HostConfig.Mounts),
+		},
+	}
+
+	payload, err := json.Marshal(smerdReq)
+	if err != nil {
+		return deployments_queries.GetSpecificationByIdRow{}, false, rerrors.Wrap(err, "error marshaling container spec")
+	}
+
+	row := deployments_queries.GetSpecificationByIdRow{
+		Name:        name,
+		CreatedAt:   time.Unix(containers[0].Created, 0),
+		VervPayload: pqtype.NullRawMessage{RawMessage: payload, Valid: true},
+	}
+
+	return row, true, nil
+}
+
+// healthcheckFromContainer reverses parser.FromHealthcheck's "CMD-SHELL,
+// command" Test shape. nil, or an empty/inherited Test, means the container
+// carries no healthcheck.
+func healthcheckFromContainer(hc *container.HealthConfig) *pb.Container_Healthcheck {
+	if hc == nil || len(hc.Test) == 0 {
+		return nil
+	}
+
+	command := hc.Test[len(hc.Test)-1]
+	timeoutSecond := uint32(hc.Timeout / time.Second)
+
+	return &pb.Container_Healthcheck{
+		Command:        &command,
+		IntervalSecond: uint32(hc.Interval / time.Second),
+		TimeoutSecond:  &timeoutSecond,
+		Retries:        uint32(hc.Retries),
+	}
+}
+
+// restartPolicyFromContainer reverses parser.FromRestart. always/on_failure/
+// unless_stopped all collapse into container.RestartPolicyOnFailure on the
+// way in, so that docker policy name can't be round-tripped back to which of
+// the three was originally requested - on_failure is reported for it, same
+// as picking either of the other two would be.
+func restartPolicyFromContainer(rp container.RestartPolicy) *pb.RestartPolicy {
+	policyType := pb.RestartPolicyType_unless_stopped
+
+	switch rp.Name {
+	case container.RestartPolicyDisabled, "":
+		policyType = pb.RestartPolicyType_no
+	case container.RestartPolicyOnFailure:
+		policyType = pb.RestartPolicyType_on_failure
+	case container.RestartPolicyAlways:
+		policyType = pb.RestartPolicyType_always
+	case container.RestartPolicyUnlessStopped:
+		policyType = pb.RestartPolicyType_unless_stopped
+	}
+
+	result := &pb.RestartPolicy{Type: policyType}
+
+	if rp.MaximumRetryCount > 0 {
+		count := uint32(rp.MaximumRetryCount)
+
+		result.FailureCount = &count
+	}
+
+	return result
 }
 
 func (d *deployments) createDeploymentLocked(

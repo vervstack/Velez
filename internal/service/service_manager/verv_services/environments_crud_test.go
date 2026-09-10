@@ -8,6 +8,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/environments"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -34,25 +35,15 @@ func TestVervService_ListEnvironments(t *testing.T) {
 	require.Equal(t, "prod", envs[0].Suffix)
 }
 
-// An omitted suffix defaults to the environment's own name.
-func TestVervService_CreateEnvironment_DefaultsSuffixToName(t *testing.T) {
+// Single-node/dev mode's environments storage is a fixed, baked-in set -
+// CreateEnvironment always fails there, an omitted suffix included.
+func TestVervService_CreateEnvironment_RequiresStatefullMode(t *testing.T) {
 	v := newEnvService(t, nil, "")
 
 	req := domain.CreateEnvironmentReq{Name: testEnvStage}
 
-	env, err := v.CreateEnvironment(context.Background(), req)
-	require.NoError(t, err)
-	require.Equal(t, testEnvStage, env.Suffix)
-}
-
-func TestVervService_CreateEnvironment_ExplicitSuffixKept(t *testing.T) {
-	v := newEnvService(t, nil, "")
-
-	req := domain.CreateEnvironmentReq{Name: testEnvStage, Suffix: "stg"}
-
-	env, err := v.CreateEnvironment(context.Background(), req)
-	require.NoError(t, err)
-	require.Equal(t, "stg", env.Suffix)
+	_, err := v.CreateEnvironment(context.Background(), req)
+	require.ErrorIs(t, err, user_errors.ErrRequiresStatefullMode)
 }
 
 func TestVervService_CreateEnvironment_EmptyNameRejected(t *testing.T) {
@@ -62,24 +53,19 @@ func TestVervService_CreateEnvironment_EmptyNameRejected(t *testing.T) {
 	require.ErrorIs(t, err, ErrEnvironmentRequired)
 }
 
-func TestVervService_UpdateEnvironment(t *testing.T) {
+func TestVervService_UpdateEnvironment_RequiresStatefullMode(t *testing.T) {
 	ctx := context.Background()
 	v := newEnvService(t, nil, "")
-
-	created, err := v.CreateEnvironment(ctx, domain.CreateEnvironmentReq{Name: testEnvStage})
-	require.NoError(t, err)
 
 	newName := "STAGING"
 	newSuffix := "stg"
 
-	updated, err := v.UpdateEnvironment(ctx, domain.UpdateEnvironmentReq{
-		ID:     created.ID,
+	_, err := v.UpdateEnvironment(ctx, domain.UpdateEnvironmentReq{
+		ID:     1,
 		Name:   &newName,
 		Suffix: &newSuffix,
 	})
-	require.NoError(t, err)
-	require.Equal(t, "STAGING", updated.Name)
-	require.Equal(t, "stg", updated.Suffix)
+	require.ErrorIs(t, err, user_errors.ErrRequiresStatefullMode)
 }
 
 func TestVervService_UpdateEnvironment_MissingIDRejected(t *testing.T) {

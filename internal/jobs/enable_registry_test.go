@@ -9,9 +9,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/domain"
 	verv "go.vervstack.ru/Velez/internal/domain/vervonomicon"
 	"go.vervstack.ru/Velez/internal/service/service_manager/vervonomicon"
 	"go.vervstack.ru/Velez/internal/service/service_manager/vervonomicon/builtin"
+	"go.vervstack.ru/Velez/internal/storage/registries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // TestEnableRegistryTaskPayload_JsonRoundTrip guards against
@@ -143,4 +146,73 @@ func TestRegistryUrl_InContainerUsesInternalName(t *testing.T) {
 	// applyBareBinaryHostPort.
 	got := registryUrl(15000) //nolint:mnd
 	require.Equal(t, "http://localhost:15000", got)
+}
+
+// TestRegisterRegistryRowJob_UpsertsBuiltinRowInSingleNodeMode guards the
+// registries.BuiltinRegistryUpserter escape hatch: the registry plugin's own
+// velez.registries row must still upsert successfully against single-node
+// mode's registries.NewStatic backend, even though that backend's public
+// storage.RegistriesStorage methods reject every ordinary write with
+// user_errors.ErrRequiresStatefullMode.
+func TestRegisterRegistryRowJob_UpsertsBuiltinRowInSingleNodeMode(t *testing.T) {
+	ctx := context.Background()
+	store := registries.NewStatic()
+
+	payload := &velez_api.EnableRegistryTaskPayload{}
+	payload.SetUsername(registryDefaultUsername)
+	payload.SetExposedPort(15000) //nolint:mnd
+
+	job := &registerRegistryRowJob{
+		registries: store,
+		ctx:        payload,
+	}
+
+	err := job.Do(ctx)
+	require.NoError(t, err)
+
+	all, err := store.ListRegistries(ctx)
+	require.NoError(t, err)
+
+	created := registryNamed(all, RegistryServiceName)
+	require.NotNil(t, created)
+	require.Equal(t, domain.RegistryTypeGenericV2, created.Type)
+	require.Equal(t, registryDefaultUsername, created.Username)
+
+	// Idempotent: a crash-resumed/retried task upserts the same row rather
+	// than creating a second one.
+	payload.SetUsername("verv2")
+
+	err = job.Do(ctx)
+	require.NoError(t, err)
+
+	all, err = store.ListRegistries(ctx)
+	require.NoError(t, err)
+	require.Len(t, all, 2, "one Docker Hub seed row plus the registry plugin's own row")
+
+	updated := registryNamed(all, RegistryServiceName)
+	require.NotNil(t, updated)
+	require.Equal(t, created.ID, updated.ID, "update must reuse the same row, not create a second one")
+	require.Equal(t, "verv2", updated.Username)
+
+	// The escape hatch is narrow: ordinary user-facing registry CRUD through
+	// the public storage.RegistriesStorage methods still requires statefull
+	// mode.
+	_, err = store.CreateRegistry(ctx, domain.CreateRegistryReq{Name: "some-other-registry"})
+	require.ErrorIs(t, err, user_errors.ErrRequiresStatefullMode)
+
+	err = store.DeleteRegistry(ctx, created.ID)
+	require.ErrorIs(t, err, user_errors.ErrRequiresStatefullMode)
+
+	err = store.ClearDefaultRegistry(ctx)
+	require.ErrorIs(t, err, user_errors.ErrRequiresStatefullMode)
+}
+
+func registryNamed(all []domain.Registry, name string) *domain.Registry {
+	for i := range all {
+		if all[i].Name == name {
+			return &all[i]
+		}
+	}
+
+	return nil
 }

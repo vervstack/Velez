@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 func TestStaticStorage_SeedsDefaultEnvironmentWithConfiguredSuffix(t *testing.T) {
@@ -33,41 +33,18 @@ func TestStaticStorage_SeedsConfiguredEnvironments(t *testing.T) {
 	require.Equal(t, "STAGE", stage.Suffix)
 }
 
-func TestStaticStorage_CRUDRoundTrip(t *testing.T) {
+func TestStaticStorage_WriteMethodsRequireStatefullMode(t *testing.T) {
 	ctx := context.Background()
 	s := NewStatic(nil, "")
 
-	created, err := s.CreateEnvironment(ctx, domain.CreateEnvironmentReq{Name: "QA", Suffix: "qa"})
-	require.NoError(t, err)
-	require.NotZero(t, created.ID)
-
-	byID, err := s.GetEnvironmentByID(ctx, created.ID)
-	require.NoError(t, err)
-	require.Equal(t, "QA", byID.Name)
+	_, err := s.CreateEnvironment(ctx, domain.CreateEnvironmentReq{Name: "QA", Suffix: "qa"})
+	require.True(t, errors.Is(err, user_errors.ErrRequiresStatefullMode))
 
 	newSuffix := "qa2"
 
-	updated, err := s.UpdateEnvironment(ctx, domain.UpdateEnvironmentReq{ID: created.ID, Suffix: &newSuffix})
-	require.NoError(t, err)
-	require.Equal(t, "qa2", updated.Suffix)
-	require.Equal(t, "QA", updated.Name, "omitted name must be preserved")
+	_, err = s.UpdateEnvironment(ctx, domain.UpdateEnvironmentReq{ID: 1, Suffix: &newSuffix})
+	require.True(t, errors.Is(err, user_errors.ErrRequiresStatefullMode))
 
-	err = s.DeleteEnvironment(ctx, created.ID)
-	require.NoError(t, err)
-
-	_, err = s.GetEnvironmentByID(ctx, created.ID)
-	require.True(t, errors.Is(err, storage.ErrNotFound))
-}
-
-func TestStaticStorage_CreateDuplicateNameRejected(t *testing.T) {
-	ctx := context.Background()
-	s := NewStatic(nil, "")
-
-	_, err := s.CreateEnvironment(ctx, domain.CreateEnvironmentReq{Name: DefaultEnvironmentName})
-	require.True(t, errors.Is(err, storage.ErrAlreadyExists))
-}
-
-func TestStaticStorage_DeleteMissingRejected(t *testing.T) {
-	err := NewStatic(nil, "").DeleteEnvironment(context.Background(), 999)
-	require.True(t, errors.Is(err, storage.ErrNotFound))
+	err = s.DeleteEnvironment(ctx, 1)
+	require.True(t, errors.Is(err, user_errors.ErrRequiresStatefullMode))
 }

@@ -3,7 +3,6 @@ package registries
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"sort"
 	"sync"
 	"time"
@@ -12,29 +11,56 @@ import (
 
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
-// staticStorage is a full in-memory implementation of
-// storage.RegistriesStorage.
+// dockerHubRegistryName is the single builtin registry seeded by
+// migrations/20260901120000_registries.sql - the in-memory storage seeds the
+// same row so single-node/dev mode behaves like a freshly migrated cluster.
+const (
+	dockerHubRegistryName = "Docker Hub"
+	dockerHubRegistryID   = int64(1)
+)
+
+// staticStorage is a read-only in-memory implementation of
+// storage.RegistriesStorage, seeded with the same builtin registry
+// migrations/20260901120000_registries.sql seeds in cluster mode. There is no
+// way to add a custom registry in single-node/dev mode - see NewStatic.
 //
 // It is NOT dead code: local_storage (single-node / dev mode, no postgres)
 // uses it as its Registries() backend, mirroring
 // internal/storage/environments.staticStorage.
 type staticStorage struct {
 	m      *sync.RWMutex
-	nextID *int64
+	nextID int64
 	byID   map[int64]domain.Registry
 }
 
-// NewStatic builds an empty in-memory registries storage. Unlike
-// environments there is no config-seeded default to carry over.
+// NewStatic builds an in-memory registries storage seeded with the builtin
+// Docker Hub registry. Every write method returns
+// user_errors.ErrRequiresStatefullMode instead of mutating - single-node/dev
+// mode offers this fixed set only, and points callers at statefull/postgres
+// mode for real registry management.
+//
+// The one exception is UpsertBuiltinRegistry (builtin.go) - a narrow,
+// non-interface escape hatch for the registry plugin's own system row, which
+// still needs to allocate an ID for a row this seed didn't create.
 func NewStatic() storage.RegistriesStorage {
-	var nextID int64 = 1
+	now := time.Now()
+
+	dockerHub := domain.Registry{
+		ID:        dockerHubRegistryID,
+		Name:      dockerHubRegistryName,
+		Type:      domain.RegistryTypeDockerHub,
+		IsDefault: true,
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
 
 	return &staticStorage{
 		m:      &sync.RWMutex{},
-		nextID: &nextID,
-		byID:   make(map[int64]domain.Registry),
+		nextID: dockerHubRegistryID + 1,
+		byID:   map[int64]domain.Registry{dockerHub.ID: dockerHub},
 	}
 }
 
@@ -66,109 +92,20 @@ func (s *staticStorage) GetRegistryByID(_ context.Context, id int64) (domain.Reg
 	return reg, nil
 }
 
-func (s *staticStorage) CreateRegistry(_ context.Context, req domain.CreateRegistryReq) (domain.Registry, error) {
-	s.m.Lock()
-	defer s.m.Unlock()
-
-	for _, reg := range s.byID {
-		if reg.Name == req.Name {
-			return domain.Registry{}, errors.Join(storage.ErrAlreadyExists,
-				rerrors.New("registry already exists: "+req.Name))
-		}
-	}
-
-	now := time.Now()
-
-	reg := domain.Registry{
-		ID:        *s.nextID,
-		Name:      req.Name,
-		Type:      req.Type,
-		Url:       req.Url,
-		Username:  req.Username,
-		Secret:    req.Secret,
-		IsDefault: req.IsDefault,
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
-
-	s.byID[reg.ID] = reg
-	*s.nextID++
-
-	return reg, nil
+func (s *staticStorage) CreateRegistry(_ context.Context, _ domain.CreateRegistryReq) (domain.Registry, error) {
+	return domain.Registry{}, rerrors.Wrap(user_errors.ErrRequiresStatefullMode)
 }
 
-func (s *staticStorage) UpdateRegistry(_ context.Context, req domain.UpdateRegistryReq) (domain.Registry, error) {
-	s.m.Lock()
-	defer s.m.Unlock()
-
-	reg, ok := s.byID[req.ID]
-	if !ok {
-		return domain.Registry{}, rerrors.Wrap(storage.ErrNotFound)
-	}
-
-	if req.Name != nil {
-		for id, other := range s.byID {
-			if id != req.ID && other.Name == *req.Name {
-				return domain.Registry{}, errors.Join(storage.ErrAlreadyExists,
-					rerrors.New("registry already exists: "+*req.Name))
-			}
-		}
-
-		reg.Name = *req.Name
-	}
-
-	if req.Type != nil {
-		reg.Type = *req.Type
-	}
-
-	if req.Url != nil {
-		reg.Url = *req.Url
-	}
-
-	if req.Username != nil {
-		reg.Username = *req.Username
-	}
-
-	if req.Secret != nil {
-		reg.Secret = *req.Secret
-	}
-
-	if req.IsDefault != nil {
-		reg.IsDefault = *req.IsDefault
-	}
-
-	reg.UpdatedAt = time.Now()
-	s.byID[reg.ID] = reg
-
-	return reg, nil
+func (s *staticStorage) UpdateRegistry(_ context.Context, _ domain.UpdateRegistryReq) (domain.Registry, error) {
+	return domain.Registry{}, rerrors.Wrap(user_errors.ErrRequiresStatefullMode)
 }
 
-func (s *staticStorage) DeleteRegistry(_ context.Context, id int64) error {
-	s.m.Lock()
-	defer s.m.Unlock()
-
-	_, ok := s.byID[id]
-	if !ok {
-		return rerrors.Wrap(storage.ErrNotFound)
-	}
-
-	delete(s.byID, id)
-
-	return nil
+func (s *staticStorage) DeleteRegistry(_ context.Context, _ int64) error {
+	return rerrors.Wrap(user_errors.ErrRequiresStatefullMode)
 }
 
 func (s *staticStorage) ClearDefaultRegistry(_ context.Context) error {
-	s.m.Lock()
-	defer s.m.Unlock()
-
-	for id, reg := range s.byID {
-		if reg.IsDefault {
-			reg.IsDefault = false
-			s.byID[id] = reg
-		}
-	}
-
-	return nil
+	return rerrors.Wrap(user_errors.ErrRequiresStatefullMode)
 }
 
 // WithTx is a no-op for the in-memory backend - single-node/dev mode has no

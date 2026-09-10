@@ -25,6 +25,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/plugins_queries"
+	"go.vervstack.ru/Velez/internal/storage/registries"
 )
 
 const (
@@ -546,16 +547,24 @@ func (j *registerRegistryPluginJob) Do(ctx context.Context) error {
 	return nil
 }
 
+// errRegistriesStorageMissingBuiltinUpsert signals a storage wiring bug, not
+// a user-facing condition - registries.NewStatic and registries.NewPg both
+// satisfy registries.BuiltinRegistryUpserter (builtin.go), so this only fires
+// if a third RegistriesStorage implementation is ever wired in without it.
+var errRegistriesStorageMissingBuiltinUpsert = rerrors.New("registries storage does not support builtin upsert")
+
 // registerRegistryRowJob upserts the velez.registries row that makes the
 // registry immediately usable for image pulls/pushes - secret is always the
 // secret ref string (plugin/registry/password), never the password value,
-// per docs/features/pgaas_and_registry_plugin.md section 1. There is no
-// RegistriesStorage upsert-by-name method, so this job finds the existing
-// row (if any) by name itself, exactly like registerPluginJob's
-// UpsertService+GetByName pattern - RegistryServiceName is globally unique
-// (single registry per node), and velez.registries.name is UNIQUE, so a
-// name-based lookup is sufficient for idempotency across a crash-resumed
-// task.
+// per docs/features/pgaas_and_registry_plugin.md section 1. RegistryServiceName
+// is globally unique (single registry per node), and velez.registries.name is
+// UNIQUE, so upserting by name is sufficient for idempotency across a
+// crash-resumed task. The upsert itself goes through
+// registries.BuiltinRegistryUpserter rather than storage.RegistriesStorage's
+// public Create/Update - single-node mode's in-memory backend otherwise
+// rejects every write (user_errors.ErrRequiresStatefullMode), but this row is
+// the registry plugin's own system bookkeeping, not user-facing registry
+// CRUD.
 type registerRegistryRowJob struct {
 	registries storage.RegistriesStorage
 
@@ -566,62 +575,25 @@ type registerRegistryRowJob struct {
 }
 
 func (j *registerRegistryRowJob) Do(ctx context.Context) error {
-	url := registryUrl(j.ctx.GetExposedPort())
-	secret := registryPasswordSecretRef().String()
-	username := j.ctx.GetUsername()
-	regType := domain.RegistryTypeGenericV2
+	upserter, ok := j.registries.(registries.BuiltinRegistryUpserter)
+	if !ok {
+		return rerrors.Wrap(errRegistriesStorageMissingBuiltinUpsert)
+	}
 
-	existing, err := j.findExisting(ctx)
+	req := domain.CreateRegistryReq{
+		Name:     RegistryServiceName,
+		Type:     domain.RegistryTypeGenericV2,
+		Url:      registryUrl(j.ctx.GetExposedPort()),
+		Username: j.ctx.GetUsername(),
+		Secret:   registryPasswordSecretRef().String(),
+	}
+
+	_, err := upserter.UpsertBuiltinRegistry(ctx, req)
 	if err != nil {
-		return err
-	}
-
-	if existing == nil {
-		createReq := domain.CreateRegistryReq{
-			Name:     RegistryServiceName,
-			Type:     regType,
-			Url:      url,
-			Username: username,
-			Secret:   secret,
-		}
-
-		_, err = j.registries.CreateRegistry(ctx, createReq)
-		if err != nil {
-			return rerrors.Wrap(err, "error creating registry row")
-		}
-
-		return nil
-	}
-
-	updateReq := domain.UpdateRegistryReq{
-		ID:       existing.ID,
-		Type:     &regType,
-		Url:      &url,
-		Username: &username,
-		Secret:   &secret,
-	}
-
-	_, err = j.registries.UpdateRegistry(ctx, updateReq)
-	if err != nil {
-		return rerrors.Wrap(err, "error updating registry row")
+		return rerrors.Wrap(err, "error upserting registry row")
 	}
 
 	return nil
-}
-
-func (j *registerRegistryRowJob) findExisting(ctx context.Context) (*domain.Registry, error) {
-	all, err := j.registries.ListRegistries(ctx)
-	if err != nil {
-		return nil, rerrors.Wrap(err, "error listing registries")
-	}
-
-	for i := range all {
-		if all[i].Name == RegistryServiceName {
-			return &all[i], nil
-		}
-	}
-
-	return nil, nil
 }
 
 // registryUrl mirrors getRootDsnJob's applyBareBinaryHostPort split

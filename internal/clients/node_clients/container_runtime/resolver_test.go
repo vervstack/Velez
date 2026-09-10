@@ -136,11 +136,39 @@ func TestResolver_DedicatedEnvironmentIsNotImplemented(t *testing.T) {
 	require.True(t, errors.Is(err, ErrDedicatedRuntimeNotImplemented))
 }
 
+// mutableEnvStorage is a hand-rolled, actually-mutable EnvironmentsStorage
+// double for TestResolver_RereadsStorageOnEveryCall - environments.NewStatic
+// (single-node/dev's production backend) rejects every write, so it can't
+// stand in for "storage the resolver observes a live mutation against."
+type mutableEnvStorage struct {
+	storage.EnvironmentsStorage
+
+	env domain.Environment
+}
+
+func (s *mutableEnvStorage) GetEnvironmentByName(_ context.Context, name string) (domain.Environment, error) {
+	if name != s.env.Name {
+		return domain.Environment{}, storage.ErrNotFound
+	}
+
+	return s.env, nil
+}
+
+func (s *mutableEnvStorage) UpdateEnvironment(
+	_ context.Context, req domain.UpdateEnvironmentReq,
+) (domain.Environment, error) {
+	if req.Suffix != nil {
+		s.env.Suffix = *req.Suffix
+	}
+
+	return s.env, nil
+}
+
 // The resolver re-reads storage on every call, so an environment's suffix
 // change takes effect on the next call without any explicit swap.
 func TestResolver_RereadsStorageOnEveryCall(t *testing.T) {
 	ctx := context.Background()
-	envStorage := environments.NewStatic([]string{testStageEnv}, testProdSuffix)
+	envStorage := &mutableEnvStorage{env: domain.Environment{ID: 1, Name: testStageEnv, Suffix: testStageEnv}}
 
 	provider := &staticProvider{
 		storage: envStorage,

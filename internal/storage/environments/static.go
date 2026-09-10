@@ -2,7 +2,6 @@ package environments
 
 import (
 	"context"
-	"errors"
 	"sort"
 	"sync"
 	"time"
@@ -11,6 +10,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // DefaultEnvironmentName is the name of the environment seeded by
@@ -21,12 +21,12 @@ const (
 	DefaultEnvironmentName = "PROD"
 )
 
-// staticStorage is a full in-memory implementation of
-// storage.EnvironmentsStorage.
+// staticStorage is a read-only in-memory implementation of
+// storage.EnvironmentsStorage - every write method returns
+// user_errors.ErrRequiresStatefullMode instead of mutating.
 //
 // It is NOT dead code: local_storage (single-node / dev mode, no postgres)
-// uses it as its Environments() backend, and it doubles as a test fixture for
-// anything that needs a real, mutable environments storage without a database.
+// uses it as its Environments() backend.
 type staticStorage struct {
 	m      sync.RWMutex
 	nextID int64
@@ -99,79 +99,20 @@ func (s *staticStorage) GetEnvironmentByName(_ context.Context, name string) (do
 
 func (s *staticStorage) CreateEnvironment(
 	_ context.Context,
-	req domain.CreateEnvironmentReq,
+	_ domain.CreateEnvironmentReq,
 ) (domain.Environment, error) {
-	s.m.Lock()
-	defer s.m.Unlock()
-
-	for _, env := range s.byID {
-		if env.Name == req.Name {
-			return domain.Environment{}, errors.Join(storage.ErrAlreadyExists,
-				rerrors.New("environment already exists: "+req.Name))
-		}
-	}
-
-	now := time.Now()
-
-	env := domain.Environment{
-		ID:        s.nextID,
-		Name:      req.Name,
-		Suffix:    req.Suffix,
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
-
-	s.byID[env.ID] = env
-	s.nextID++
-
-	return env, nil
+	return domain.Environment{}, rerrors.Wrap(user_errors.ErrRequiresStatefullMode)
 }
 
 func (s *staticStorage) UpdateEnvironment(
 	_ context.Context,
-	req domain.UpdateEnvironmentReq,
+	_ domain.UpdateEnvironmentReq,
 ) (domain.Environment, error) {
-	s.m.Lock()
-	defer s.m.Unlock()
-
-	env, ok := s.byID[req.ID]
-	if !ok {
-		return domain.Environment{}, rerrors.Wrap(storage.ErrNotFound)
-	}
-
-	if req.Name != nil {
-		for id, other := range s.byID {
-			if id != req.ID && other.Name == *req.Name {
-				return domain.Environment{}, errors.Join(storage.ErrAlreadyExists,
-					rerrors.New("environment already exists: "+*req.Name))
-			}
-		}
-
-		env.Name = *req.Name
-	}
-
-	if req.Suffix != nil {
-		env.Suffix = *req.Suffix
-	}
-
-	env.UpdatedAt = time.Now()
-	s.byID[env.ID] = env
-
-	return env, nil
+	return domain.Environment{}, rerrors.Wrap(user_errors.ErrRequiresStatefullMode)
 }
 
-func (s *staticStorage) DeleteEnvironment(_ context.Context, id int64) error {
-	s.m.Lock()
-	defer s.m.Unlock()
-
-	_, ok := s.byID[id]
-	if !ok {
-		return rerrors.Wrap(storage.ErrNotFound)
-	}
-
-	delete(s.byID, id)
-
-	return nil
+func (s *staticStorage) DeleteEnvironment(_ context.Context, _ int64) error {
+	return rerrors.Wrap(user_errors.ErrRequiresStatefullMode)
 }
 
 func (s *staticStorage) seed(name, suffix string) {

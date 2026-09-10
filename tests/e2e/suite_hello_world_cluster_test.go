@@ -24,6 +24,7 @@ import (
 const (
 	helloWorldImageV0015 = "vervstack/hello_world:v0.0.15"
 	postgresAlias        = "postgres"
+	serviceTypeWeb       = "web"
 )
 
 type HelloWorldClusterSuite struct {
@@ -67,21 +68,25 @@ func (s *HelloWorldClusterSuite) Test_ConnectedCluster() {
 	s._prepareSqliteApp()
 
 	// Assert obligatory labels on the PG hello_world
-	assert.Equal(t, s.pgAppName, s.pgAppSmerd.GetLabels()[labels.VervServiceLabel])
-	assert.Equal(t, postgresAlias, s.pgAppSmerd.GetLabels()[labels.DependsOnLabel])
-	assert.Equal(t, "web", s.pgAppSmerd.GetLabels()[labels.ServiceTypeLabel])
+	checkClientLabels(t, s.pgAppSmerd.GetLabels(), map[string]string{
+		labels.VervServiceLabel: s.pgAppName,
+		labels.DependsOnLabel:   postgresAlias,
+		labels.ServiceTypeLabel: serviceTypeWeb,
+	})
 
 	// Assert all labels on the SQLite hello_world
-	assert.Equal(t, s.sqliteAppName, s.sqliteAppSmerd.GetLabels()[labels.VervServiceLabel])
-	assert.Equal(t, labelValueFalse, s.sqliteAppSmerd.GetLabels()[labels.Sidecar])
-	assert.Equal(t, labelValueFalse, s.sqliteAppSmerd.GetLabels()[labels.AutoUpgrade])
-	assert.Equal(t, s.pgAppName, s.sqliteAppSmerd.GetLabels()[labels.DependsOnLabel])
-	assert.Equal(t, "Hello World SQLite instance", s.sqliteAppSmerd.GetLabels()[labels.DescriptionLabel])
-	assert.Equal(t, "web", s.sqliteAppSmerd.GetLabels()[labels.ServiceTypeLabel])
-	assert.Equal(t, "test-team", s.sqliteAppSmerd.GetLabels()[labels.TeamLabel])
-	assert.Equal(t, "github.com/godverv/hello_world", s.sqliteAppSmerd.GetLabels()[labels.RepoLabel])
-	assert.Equal(t, "80", s.sqliteAppSmerd.GetLabels()[labels.PortLabel])
-	assert.Equal(t, "test", s.sqliteAppSmerd.GetLabels()[labels.EnvLabel])
+	checkClientLabels(t, s.sqliteAppSmerd.GetLabels(), map[string]string{
+		labels.VervServiceLabel: s.sqliteAppName,
+		labels.Sidecar:          labelValueFalse,
+		labels.AutoUpgrade:      labelValueFalse,
+		labels.DependsOnLabel:   s.pgAppName,
+		labels.DescriptionLabel: "Hello World SQLite instance",
+		labels.ServiceTypeLabel: serviceTypeWeb,
+		labels.TeamLabel:        "test-team",
+		labels.RepoLabel:        "github.com/godverv/hello_world",
+		labels.PortLabel:        "80",
+		labels.EnvLabel:         "test",
+	})
 
 	s._testAPIIsolation()
 }
@@ -303,7 +308,7 @@ func (s *HelloWorldClusterSuite) _preparePgApp() {
 		Labels: map[string]string{
 			labels.VervServiceLabel: s.pgAppName,
 			labels.DependsOnLabel:   postgresAlias,
-			labels.ServiceTypeLabel: "web",
+			labels.ServiceTypeLabel: serviceTypeWeb,
 		},
 		IgnoreConfig:  true,
 		UseImagePorts: true,
@@ -336,7 +341,7 @@ func (s *HelloWorldClusterSuite) _prepareSqliteApp() {
 			labels.AutoUpgrade:           labelValueFalse,
 			labels.DependsOnLabel:        s.pgAppName,
 			labels.DescriptionLabel:      "Hello World SQLite instance",
-			labels.ServiceTypeLabel:      "web",
+			labels.ServiceTypeLabel:      serviceTypeWeb,
 			labels.TeamLabel:             "test-team",
 			labels.RepoLabel:             "github.com/godverv/hello_world",
 			labels.PortLabel:             "80",

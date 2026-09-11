@@ -5,7 +5,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
+	"go.vervstack.ru/Velez/internal/api/clients/matreshka/pkg/matreshka_api"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
@@ -34,8 +34,8 @@ func (v *VervService) reconcileResources(
 	}
 
 	meta := domain.ConfigMeta{
-		Name:     configutils.AppendPrefix(matreshka_api.ConfigTypePrefix_verv, serviceName),
-		ConfType: matreshka_api.ConfigTypePrefix_verv,
+		Name:     configutils.AppendPrefix(matreshka_api.ConfigType_verv, serviceName),
+		ConfType: matreshka_api.ConfigType_verv,
 		Format:   velez_api.ConfigFormat_env,
 	}
 

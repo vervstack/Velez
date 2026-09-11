@@ -27,7 +27,11 @@ func (s *LifecycleSuite) Test_Stateless_HelloWorld() {
 		IgnoreConfig: true,
 	}
 
-	runLifecycle(t, env, req, func(_ *testing.T, _ *velez_api.Smerd) {})
+	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {
+		t.Helper()
+
+		checkVervLabels(t, smerd.GetLabels(), GetExpectedLabels(t))
+	})
 }
 
 func (s *LifecycleSuite) Test_Stateless_HelloWorld_WithHealthcheck() {

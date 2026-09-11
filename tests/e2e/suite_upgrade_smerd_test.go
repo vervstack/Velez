@@ -5,147 +5,119 @@ import (
 
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-	"go.redsock.ru/toolbox"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
-// UpgradeSmerdSuite exercises the "upgrade_smerd" job through the real
-// UpgradeSmerd RPC (internal/transport/velez_api_impl/smerd_upgrade.go),
-// which enqueues onto the jobs engine and blocks on Watch - the same
-// Enqueue/Watch glue AssembleConfigSuite covers for assemble_config. The
-// job's own 15-step orchestration already has unit-level coverage with
-// fakes (internal/jobs/upgrade_smerd_test.go); this suite is what proves the
-// real RPC handler drives it correctly against real Docker.
+// UpgradeSmerdSuite drives the real UpgradeSmerd RPC - which enqueues the
+// upgrade_smerd job and blocks on Watch - against real Docker.
 type UpgradeSmerdSuite struct {
 	suite.Suite
 }
 
-func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_HappyPath() {
-	t := s.T()
-
-	serviceName := GetServiceName(t)
-	env := NewEnvironment(t)
-
-	createReq := &velez_api.CreateSmerd_Request{
-		Name:         serviceName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-	}
-	created := env.CreateSmerd(t, createReq)
-	require.Equal(t, velez_api.Smerd_running, created.GetStatus())
-
-	upgradeReq := &velez_api.UpgradeSmerd_Request{
-		Name:  serviceName,
-		Image: helloWorldImageV0015,
-	}
-	_, err := env.Custom.ApiGrpcImpl.UpgradeSmerd(t.Context(), upgradeReq)
-	require.NoError(t, err)
-
-	listReq := &velez_api.ListSmerds_Request{Name: toolbox.ToPtr(serviceName)}
-	resp := env.ListSmerds(t, t.Context(), listReq)
-	require.Len(t, resp.GetSmerds(), 1, "expected exactly one container named %q after upgrade", serviceName)
-
-	upgraded := resp.GetSmerds()[0]
-	require.Equal(t, helloWorldImageV0015, upgraded.GetImageName())
-	require.Equal(t, velez_api.Smerd_running, upgraded.GetStatus())
+type upgradeSmerdTestCase struct {
+	plane       Plane
+	environment string // "" => default/PROD environment
+	smerdName   string
 }
 
 const (
-	upgradeSuffixedEnvName = "e2e_upgrade_suffixed"
-
-	// A non-default environment - UpgradeSmerd today only works against the
-	// default (PROD, unsuffixed) environment. Named environments seeded via
-	// WithEnvironments (see environments.NewStatic) always get their own name
-	// as their Docker suffix - WithContainerSuffix only ever configures the
-	// DEFAULT/PROD environment's suffix, so it has no effect here and is
-	// deliberately not used: the real Docker name this test's container
-	// carries is "<name>_E2EUPGSTAGE", not some separately configured value.
-	upgradeSuffixedEnv = "E2EUPGSTAGE"
+	upgradeDefaultName  = "e2e_upgrade_default"
+	upgradeSuffixedName = "e2e_upgrade_suffixed"
+	upgradeSuffixedEnv  = "E2EUPGSTAGE"
 )
 
-// Test_UpgradeSmerd_InSuffixedEnvironment proves UpgradeSmerd works end to end
-// for a non-default (suffixed) environment. It was RED while UpgradeSmerd
-// dropped the environment before the jobs engine and looked containers up
-// with a suffix-blind ContainerInspect; both were fixed by the
-// container_runtime UpgradeSmerd environment/suffix work, and Phase 6 (card
-// #127) additionally scopes the jobs-engine entity id by environment so a
-// suffixed upgrade can never dedup onto a default-environment task.
-//
-// It mirrors Test_UpgradeSmerd_HappyPath, but stands up a suffixed,
-// non-default environment first (same fixture shape as
-// suite_environments_test.go's Test_TwoEnvironments_AreListScoped and
-// suite_container_runtime_test.go's
-// Test_ContainerRuntime_ListContainers_ScopesToEnvironment).
-func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_InSuffixedEnvironment() {
-	t := s.T()
+var upgradeSmerdMatrix = []upgradeSmerdTestCase{
+	{plane: Planes[0], environment: "", smerdName: upgradeDefaultName},
+	{plane: Planes[0], environment: upgradeSuffixedEnv, smerdName: upgradeSuffixedName},
+}
 
-	env := NewEnvironment(t, WithEnvironments([]string{upgradeSuffixedEnv}))
+// Serial: rows share fixed container names.
+func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_Matrix() {
+	for _, tc := range upgradeSmerdMatrix {
+		s.T().Run(tc.plane.Name+"/"+caseEnvName(tc.environment), func(t *testing.T) {
+			runUpgradeSmerdCase(t, tc)
+		})
+	}
+}
+
+func caseEnvName(environment string) string {
+	if environment == "" {
+		return "default"
+	}
+
+	return environment
+}
+
+func runUpgradeSmerdCase(t *testing.T, tc upgradeSmerdTestCase) {
+	t.Helper()
+
+	var opts []TestEnvOpt
+
+	if tc.environment != "" {
+		opts = append(opts, WithEnvironments([]string{tc.environment}))
+	}
+
+	env := tc.plane.NewEnvironment(t, opts...)
 
 	createReq := &velez_api.CreateSmerd_Request{
-		Name:         upgradeSuffixedEnvName,
+		Name:         tc.smerdName,
 		ImageName:    HelloWorldAppImage,
 		IgnoreConfig: true,
-		Environment:  upgradeSuffixedEnv,
+		Environment:  tc.environment,
 	}
 	created := env.CreateSmerd(t, createReq)
 	require.Equal(t, velez_api.Smerd_running, created.GetStatus())
 
 	upgradeReq := &velez_api.UpgradeSmerd_Request{
-		Name:        upgradeSuffixedEnvName,
+		Name:        tc.smerdName,
 		Image:       helloWorldImageV0015,
-		Environment: upgradeSuffixedEnv,
+		Environment: tc.environment,
 	}
 	_, err := env.Custom.ApiGrpcImpl.UpgradeSmerd(t.Context(), upgradeReq)
 	require.NoError(t, err)
 
 	listReq := &velez_api.ListSmerds_Request{
-		Environment: upgradeSuffixedEnv,
+		Environment: tc.environment,
 		Label:       map[string]string{testCaseNameLabel: t.Name()},
 	}
 	resp := env.ListSmerds(t, t.Context(), listReq)
-	require.Len(t, resp.GetSmerds(), 1,
-		"expected exactly one container named %q in environment %q after upgrade",
-		upgradeSuffixedEnvName, upgradeSuffixedEnv)
+	require.Len(t, resp.GetSmerds(), 1, "exactly one smerd after upgrade")
 
 	upgraded := resp.GetSmerds()[0]
 	require.Equal(t, helloWorldImageV0015, upgraded.GetImageName())
 	require.Equal(t, velez_api.Smerd_running, upgraded.GetStatus())
-	// Smerd.Name is always the virtual/logical name, never the suffixed
-	// Docker container name - see
-	// docs/container_runtimes/interface_design.md and
-	// suite_container_runtime_test.go's identical assertion.
-	require.Equal(t, upgradeSuffixedEnvName, upgraded.GetName(),
-		"Smerd.Name must stay the bare/virtual name - no suffix leaking")
+	require.Equal(t, tc.smerdName, upgraded.GetName())
 
-	// The checks above only go through ListSmerds/InspectSmerd, which filter
-	// by labels.SuffixLabel (untouched by renaming) and return the
-	// virtual/bare name via virtualName()'s strings.TrimSuffix - a harmless
-	// no-op on an already-unsuffixed real name. They would still pass even if
-	// renameContainerJob's raw dockerAPI.ContainerRename calls (see
-	// internal/jobs/upgrade_smerd.go) never carried the suffix through to the
-	// real Docker container name. So inspect the daemon directly, the same
-	// way Test_ContainerRuntime_Matrix does, to prove the *real* Docker name
-	// of the fully-upgraded container still carries the environment suffix.
+	// upgrade_smerd re-stamps MATRESHKA_CONFIG_ENABLED "true" regardless of
+	// the create's IgnoreConfig, so it is not asserted here.
+	wantLabels := map[string]string{labels.CreatedWithVelezLabel: labelValueTrue}
+
+	if tc.environment != "" {
+		wantLabels[labels.SuffixLabel] = tc.environment
+	}
+
+	checkVervLabels(t, upgraded.GetLabels(), wantLabels)
+
+	// ListSmerds/InspectSmerd return the virtual name; check the daemon
+	// directly that the real container name kept its environment suffix.
+	expectedRealName := expectedContainerName(tc.smerdName, tc.environment)
+
 	dockerClient := env.Custom.NodeClients.Docker().Client()
-	expectedRealName := expectedContainerName(upgradeSuffixedEnvName, upgradeSuffixedEnv)
 
 	inspected, err := dockerClient.ContainerInspect(t.Context(), expectedRealName)
-	require.NoError(t, err,
-		"expected the upgraded container's real Docker name %q to carry the environment suffix - "+
-			"renameContainerJob.Do calls the raw dockerAPI.ContainerRename with a bare, un-suffixed "+
-			"name (see internal/jobs/upgrade_smerd.go), so the real container likely ended up named "+
-			"%q instead", expectedRealName, upgradeSuffixedEnvName)
+	require.NoError(t, err)
 	require.Equal(t, "/"+expectedRealName, inspected.Name)
 }
 
 func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_NonExistentContainer_Fails() {
 	t := s.T()
 
-	serviceName := GetServiceName(t)
-	env := NewEnvironment(t)
+	env := Planes[0].NewEnvironment(t)
 
 	upgradeReq := &velez_api.UpgradeSmerd_Request{
-		Name:  serviceName,
+		Name:  GetServiceName(t),
 		Image: helloWorldImageV0015,
 	}
 	_, err := env.Custom.ApiGrpcImpl.UpgradeSmerd(t.Context(), upgradeReq)

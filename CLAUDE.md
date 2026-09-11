@@ -44,9 +44,6 @@ go build -o ./service ./cmd/service/main.go
 ### Frontend
 
 ```bash
-# TypeScript library
-cd pkg/web/@vervstack/velez && npm run build
-
 # React UI
 cd pkg/web/Velez-UI && bun install && bun run build
 ```
@@ -177,8 +174,8 @@ per-pipeline migration status/checklist and `docs/plans/testing.md` for the live
 
 ### Frontend (`pkg/web/`)
 
-- `@vervstack/velez/` — TypeScript client library (compiled to `dist/`)
-- `Velez-UI/` — React 18 + Vite application (Zustand state, React Query data fetching)
+- `Velez-UI/` — React 18 + Vite application (Zustand state, React Query data fetching); the
+  generated API client lives inside it, not as a separate published package.
 
 ## Code Style
 

@@ -109,7 +109,7 @@ message AssembleConfigTaskPayload {
   // from the container.
   optional string config_name = 6;
   optional string config_version = 7;
-  // matreshka_api.ConfigTypePrefix's enum name, e.g. "plain"/"verv"/"pg".
+  // matreshka_api.ConfigType's enum name, e.g. "plain"/"verv"/"pg".
   // Kept as a string rather than the typed enum to avoid a proto dependency
   // on the matreshka_api package (see moti.yaml deps for its pinned version).
   optional string conf_type = 8;

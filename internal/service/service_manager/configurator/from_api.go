@@ -4,9 +4,9 @@ import (
 	"context"
 
 	errors "go.redsock.ru/rerrors"
+	"go.vervstack.ru/Velez/internal/api/clients/matreshka/pkg/matreshka_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 func (c *Configurator) GetVervFromApi(ctx context.Context, meta domain.ConfigMeta) (matreshka.AppConfig, error) {

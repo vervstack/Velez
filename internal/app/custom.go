@@ -74,6 +74,8 @@ type Custom struct {
 }
 
 func (c *Custom) Init(a *App) (err error) {
+	rerrors.SetSeparator(':')
+
 	zerolog.SetGlobalLevel(parseLogLevel(a.Cfg.Environment.LogLevel))
 
 	err = c.InitClients(a)
@@ -244,7 +246,9 @@ func (c *Custom) InitServiceLayer(a *App, runtimeResolver container_runtime.Runt
 func (c *Custom) InitApiServer(a *App) error {
 	var err error
 
-	c.serverManager, err = transport.NewServerManager(a.Ctx, a.MASTER)
+	// TODO: no allowed-origins config exists yet for this project - hardcode the
+	// wildcard until one is added, matching the pre-CSRF behavior for now.
+	c.serverManager, err = transport.NewServerManager(a.Ctx, a.MASTER, transport.AllowAllOrigins)
 	if err != nil {
 		return rerrors.Wrap(err, "error initializing server manager")
 	}
@@ -320,7 +324,9 @@ func smerdsDropper(smerdService service.ContainerService) func() error {
 
 		ctx := context.Background()
 
-		smerds, err := smerdService.ListSmerds(ctx, &velez_api.ListSmerds_Request{})
+		listReq := &velez_api.ListSmerds_Request{}
+
+		smerds, err := smerdService.ListSmerds(ctx, listReq)
 		if err != nil {
 			return rerrors.Wrap(err, "error listing smerds before dropping")
 		}

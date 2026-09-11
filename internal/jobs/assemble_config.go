@@ -36,7 +36,7 @@ const (
 
 	stepPrepareScratchImage = "prepare_image"
 
-	// matreshka_api.ConfigTypePrefix's enum names. Kept as plain strings in the
+	// matreshka_api.ConfigType's enum names. Kept as plain strings in the
 	// TaskContext rather than the typed enum - see the conf_type field comment
 	// in api/grpc/tasks.proto for why.
 	confTypeVerv  = "verv"

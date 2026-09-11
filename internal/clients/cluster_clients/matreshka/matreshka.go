@@ -2,7 +2,7 @@ package matreshka
 
 import (
 	errors "go.redsock.ru/rerrors"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
+	"go.vervstack.ru/Velez/internal/api/clients/matreshka/pkg/matreshka_api"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -14,7 +14,7 @@ const (
 )
 
 type Client interface {
-	matreshka_api.MatreshkaBeAPIClient
+	matreshka_api.MatreshkaApiClient
 }
 
 func NewClient(opts ...grpc.DialOption) (Client, error) {
@@ -27,5 +27,5 @@ func NewClient(opts ...grpc.DialOption) (Client, error) {
 		return nil, errors.Wrap(err, "error dialing")
 	}
 
-	return matreshka_api.NewMatreshkaBeAPIClient(dial), nil
+	return matreshka_api.NewMatreshkaApiClient(dial), nil
 }

@@ -15,10 +15,10 @@ import (
 	"go.redsock.ru/evon"
 	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"go.vervstack.ru/Velez/internal/api/clients/matreshka/pkg/matreshka_api"
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
@@ -843,14 +843,14 @@ func (j *fetchUpgradeConfigJob) Do(ctx context.Context) error {
 	return nil
 }
 
-func toConfTypePrefix(s string) matreshka_api.ConfigTypePrefix {
+func toConfTypePrefix(s string) matreshka_api.ConfigType {
 	switch s {
 	case confTypeVerv:
-		return matreshka_api.ConfigTypePrefix_verv
+		return matreshka_api.ConfigType_verv
 	case confTypePg:
-		return matreshka_api.ConfigTypePrefix_pg
+		return matreshka_api.ConfigType_pg
 	default:
-		return matreshka_api.ConfigTypePrefix_plain
+		return matreshka_api.ConfigType_plain
 	}
 }
 

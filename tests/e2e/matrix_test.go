@@ -129,12 +129,17 @@ func (p Plane) NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment
 // iterating Planes itself. Plane.NewEnvironment's t.Skipf guards remain the
 // only skip mechanism - RunPlaneSuite adds none of its own, so an
 // unimplemented cell still reports as skipped rather than silently absent.
+//
+// It deliberately does NOT call t.Parallel() itself: a suite that documents
+// itself as not-parallel-safe (a fixed, unsuffixed Docker resource name -
+// see PgaasLifecycleSuite/EnableRegistrySuite) must stay that way after
+// adopting the matrix. Parallelism is whatever the calling Test_X already
+// decides by calling (or not calling) t.Parallel() itself, same as before.
 func RunPlaneSuite(t *testing.T, planes []Plane, newSuite func(Plane) suite.TestingSuite) {
 	t.Helper()
 
 	for _, plane := range planes {
 		t.Run(plane.Name(), func(t *testing.T) {
-			t.Parallel()
 			suite.Run(t, newSuite(plane))
 		})
 	}

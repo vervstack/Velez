@@ -21,7 +21,8 @@ import (
 type VervConfigSuite struct {
 	suite.Suite
 
-	ctx context.Context
+	plane Plane
+	ctx   context.Context
 }
 
 func (s *VervConfigSuite) SetupSuite() {
@@ -43,7 +44,7 @@ func (s *VervConfigSuite) SetupSuite() {
 func (s *VervConfigSuite) Test_VervConfig_RenderedEnv() {
 	t := s.T()
 
-	env := Planes[0].NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 
 	const plainPath = "/tmp/verv_rendered_test.yaml"
 
@@ -76,7 +77,7 @@ func (s *VervConfigSuite) Test_VervConfig_RenderedEnv() {
 func (s *VervConfigSuite) Test_VervConfig_PlainFileMounted() {
 	t := s.T()
 
-	env := Planes[0].NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 
 	// NOTE(phase-1): create_smerd's copyToContainerJob copies via
 	// dockerutils.WriteToContainer with no "mkdir -p" of the parent dir
@@ -114,7 +115,7 @@ func (s *VervConfigSuite) Test_VervConfig_PlainFileMounted() {
 func (s *VervConfigSuite) Test_VervConfig_RestartPolicyApplied() {
 	t := s.T()
 
-	env := Planes[0].NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 
 	req := &velez_api.CreateSmerd_Request{
 		Name:         GetServiceName(t),
@@ -145,5 +146,7 @@ func (s *VervConfigSuite) Test_VervConfig_RestartPolicyApplied() {
 
 func Test_VervConfig(t *testing.T) {
 	t.Parallel()
-	suite.Run(t, new(VervConfigSuite))
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
+		return &VervConfigSuite{plane: plane}
+	})
 }

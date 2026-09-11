@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -9,42 +10,46 @@ import (
 	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
-const (
-	// containerRuntimeSuffix is deliberately non-empty: the default
-	// environment's suffix IS the node's ContainerSuffix, and with an empty
-	// one "suffixed name" and "bare name" are the same string - the naming
-	// rule under test would be unobservable.
-	containerRuntimeSuffix = "e2ecrt"
+// StateMode is the Velez state backend a case runs the app against.
+type StateMode string
 
+const (
 	// containerRuntimeSmerdName is the shared base name every environment
 	// case creates its variant(s) under - shared on purpose, see
 	// Test_ContainerRuntime_Matrix's doc comment.
 	containerRuntimeSmerdName = "e2e_ctr_runtime"
 
-	containerRuntimeStageEnv = "E2ECRTSTAGE"
+	containerRuntimeEnvNameProd  = "PROD"
+	containerRuntimeEnvNameStage = "STAGE"
+
+	StateModeStateless StateMode = "stateless"
+
+	// StateModeStatefull: a real postgres plugin instance
+	// (enableStatefullPgUnderDind, tests/e2e/helper_statefull_test.go). NOT
+	// wired into this always-on, fully-parallel smoke matrix yet -
+	// enableStatefullPgUnderDind must t.Chdir to the repo root (goose
+	// migrations resolve "./migrations" relatively) and explicitly forbids
+	// t.Parallel(), both incompatible with this suite's shared, parallel
+	// per-Plane fixture today. See https://trello.com/c/otriSswo.
+	StateModeStatefull StateMode = "statefull"
 )
 
-// environmentCase is the outer table: one environment to exercise within a
-// Plane's fixture.
-//
-//   - environment is the velez_api.CreateSmerd_Request.Environment value -
-//     "" means the node's own/default environment.
-//   - suffix is what labelSuffixResolver actually stamps real Docker names
-//     with for it: the default environment's suffix is whatever
-//     ContainerSuffix the fixture was built with (containerRuntimeSuffix),
-//     every other registered environment's suffix is its own name (see
-//     internal/storage/environments/static.go's NewStatic).
+// environmentCase is one environment to exercise within a Plane's fixture.
+// environment is the velez_api.CreateSmerd_Request.Environment value - ""
+// means the node's own/default environment. It is intentionally not "just
+// name": PROD's wire value ("") and its display name ("PROD") are different
+// strings, so the two fields can't collapse into one - but there is no third
+// "suffix" field, see environmentSuffix.
 type environmentCase struct {
 	name        string
 	environment string
-	suffix      string
 }
 
-// containerVariant is the inner table: one container shape to create and
-// verify per environment. check runs after the common assertions
-// (runContainerRuntimeCase) already passed - nil means no extra assertions
-// beyond those, giving a future variant (wget nginx, `SELECT 1` over the
-// postgres driver, ...) a new table row instead of a new test function.
+// containerVariant is one container shape to create and verify. check runs
+// after the common assertions (runContainerRuntimeCase) already passed - nil
+// means no extra assertions beyond those, giving a future variant (wget
+// nginx, `SELECT 1` over the postgres driver, ...) a new table row instead of
+// a new test function.
 type containerVariant struct {
 	// name suffixes the smerd's logical name, so multiple variants in the
 	// same environment don't collide in Docker's global container namespace.
@@ -61,9 +66,13 @@ var (
 	containerRuntimePlanes = []Plane{Planes[0]}
 
 	containerRuntimeEnvironments = []environmentCase{
-		{name: "PROD", environment: "", suffix: containerRuntimeSuffix},
-		{name: "STAGE", environment: containerRuntimeStageEnv, suffix: containerRuntimeStageEnv},
+		{name: containerRuntimeEnvNameProd, environment: ""},
+		{name: containerRuntimeEnvNameStage, environment: containerRuntimeEnvNameStage},
 	}
+
+	// containerRuntimeStateModes: only StateModeStateless is wired today -
+	// see its doc comment.
+	containerRuntimeStateModes = []StateMode{StateModeStateless}
 
 	containerRuntimeVariants = []containerVariant{
 		{name: "hello-world", imageName: HelloWorldAppImage},
@@ -77,12 +86,14 @@ var (
 // local and CI - see suite_container_runtime_scoping_test.go for more
 // involved cases, gated behind the e2e_full build tag.
 //
-// It is a three-axis matrix - Plane x environment x container variant - built
-// as one function per axis (Test_ContainerRuntime_Matrix ->
-// runContainerRuntimePlane -> runContainerRuntimeEnvironmentCase ->
+// It is a matrix over Plane (matrix_test.go: single-node/cluster x
+// docker/... backend x env-separation-way x running-mode) x environment x
+// state-mode x container variant, built as one function per axis
+// (Test_ContainerRuntime_Matrix -> runContainerRuntimePlane ->
+// runContainerRuntimeEnvironmentCase -> runContainerRuntimeStateModeCase ->
 // runContainerRuntimeCase) so no single function juggles more than one loop,
 // while the t.Run tree still lets you target one cell directly
-// (-run Matrix/single-node.docker/PROD/hello-world).
+// (-run Matrix/single-node.docker/PROD/stateless/hello-world).
 //
 // Every environmentCase shares one smerdName on purpose: that is what proves
 // labelSuffixResolver's guarantee that Smerd.Name stays env-agnostic even
@@ -98,24 +109,35 @@ func Test_ContainerRuntime_Matrix(t *testing.T) {
 	}
 }
 
-// runContainerRuntimePlane builds the ONE fixture for plane - registering
-// every non-default environment the table needs, derived from
-// containerRuntimeEnvironments itself so a new row can't drift out of sync
-// with what the fixture actually registers - then iterates the environment
-// axis against it.
+// runContainerRuntimePlane builds the ONE fixture for plane. nodeSuffix is
+// this fixture's ContainerSuffix (the default/PROD environment's suffix,
+// see environmentSuffix) - derived from t.Name() rather than a hand-picked
+// constant, so it is unique per test run by construction instead of by every
+// suite in this package remembering to pick a distinct string. Every
+// non-default environment the environment axis needs is registered up
+// front, derived from containerRuntimeEnvironments itself so a new row can't
+// drift out of sync with what the fixture actually registers.
 func runContainerRuntimePlane(t *testing.T, plane Plane) {
 	t.Helper()
 	t.Parallel()
 
+	nodeSuffix := dockerSafeToken(t.Name())
+
 	env := plane.NewEnvironment(t,
-		WithContainerSuffix(containerRuntimeSuffix),
+		WithContainerSuffix(nodeSuffix),
 		WithEnvironments(containerRuntimeExtraEnvironments()))
 
 	for _, envCase := range containerRuntimeEnvironments {
 		t.Run(envCase.name, func(t *testing.T) {
-			runContainerRuntimeEnvironmentCase(t, env, envCase)
+			runContainerRuntimeEnvironmentCase(t, env, envCase, nodeSuffix)
 		})
 	}
+}
+
+// dockerSafeToken turns s (a t.Name(), which contains "/" between subtest
+// levels) into a string safe to append to a Docker container name.
+func dockerSafeToken(s string) string {
+	return strings.NewReplacer("/", "_", " ", "_").Replace(s)
 }
 
 // containerRuntimeExtraEnvironments collects every non-default environment
@@ -134,15 +156,33 @@ func containerRuntimeExtraEnvironments() []string {
 	return envs
 }
 
-// runContainerRuntimeEnvironmentCase iterates the container-variant axis for
-// one environment.
-func runContainerRuntimeEnvironmentCase(t *testing.T, env *TestEnvironment, envCase environmentCase) {
+// runContainerRuntimeEnvironmentCase iterates the state-mode axis for one
+// environment.
+func runContainerRuntimeEnvironmentCase(
+	t *testing.T, env *TestEnvironment, envCase environmentCase, nodeSuffix string,
+) {
+	t.Helper()
+	t.Parallel()
+
+	for _, stateMode := range containerRuntimeStateModes {
+		t.Run(string(stateMode), func(t *testing.T) {
+			runContainerRuntimeStateModeCase(t, env, envCase, nodeSuffix)
+		})
+	}
+}
+
+// runContainerRuntimeStateModeCase iterates the container-variant axis.
+// stateMode itself isn't threaded any further today - the only wired value
+// (StateModeStateless) needs no setup beyond what NewEnvironment already
+// does - it exists purely as a matrix/t.Run axis until StateModeStatefull
+// is wired (see its doc comment).
+func runContainerRuntimeStateModeCase(t *testing.T, env *TestEnvironment, envCase environmentCase, nodeSuffix string) {
 	t.Helper()
 	t.Parallel()
 
 	for _, variant := range containerRuntimeVariants {
 		t.Run(variant.name, func(t *testing.T) {
-			runContainerRuntimeCase(t, env, envCase, variant)
+			runContainerRuntimeCase(t, env, envCase, nodeSuffix, variant)
 		})
 	}
 }
@@ -151,7 +191,9 @@ func runContainerRuntimeEnvironmentCase(t *testing.T, env *TestEnvironment, envC
 // checks it: the assertions every variant needs (requireSmerdRunning,
 // requireLogicalName, requireRealContainer), then variant's own optional
 // check.
-func runContainerRuntimeCase(t *testing.T, env *TestEnvironment, envCase environmentCase, variant containerVariant) {
+func runContainerRuntimeCase(
+	t *testing.T, env *TestEnvironment, envCase environmentCase, nodeSuffix string, variant containerVariant,
+) {
 	t.Helper()
 	t.Parallel()
 
@@ -166,11 +208,23 @@ func runContainerRuntimeCase(t *testing.T, env *TestEnvironment, envCase environ
 
 	requireSmerdRunning(t, created)
 	requireLogicalName(t, created, smerdName)
-	requireRealContainer(t, env, created, smerdName, envCase.suffix)
+	requireRealContainer(t, env, created, smerdName, environmentSuffix(nodeSuffix, envCase.environment))
 
 	if variant.check != nil {
 		variant.check(t, env, created)
 	}
+}
+
+// environmentSuffix mirrors internal/storage/environments/static.go's
+// NewStatic: the default (PROD) environment's suffix is whatever
+// ContainerSuffix the fixture was built with (nodeSuffix), every other
+// registered environment's suffix is its own name.
+func environmentSuffix(nodeSuffix, environment string) string {
+	if environment == "" {
+		return nodeSuffix
+	}
+
+	return environment
 }
 
 // newContainerRuntimeCreateRequest builds a CreateSmerd_Request for one

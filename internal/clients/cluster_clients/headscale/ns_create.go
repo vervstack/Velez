@@ -19,6 +19,9 @@ type createNamespaceResponse struct {
 	User domain.VcnNamespace `json:"user"`
 }
 
+//nolint:forbidigo // package-private sentinel, not shared/user-facing
+var errNamespaceAlreadyExists = rerrors.NewUserError("namespace already exists", codes.AlreadyExists)
+
 func (s *Client) CreateNamespace(ctx context.Context, name string) (domain.VcnNamespace, error) {
 	r := createNamespaceRequest{Name: name}
 
@@ -50,9 +53,7 @@ func (s *Client) CreateNamespace(ctx context.Context, name string) (domain.VcnNa
 	}
 
 	if e.isUniqueError() {
-		userErr := rerrors.NewUserError("namespace already exists", codes.AlreadyExists)
-
-		return domain.VcnNamespace{}, rerrors.Wrap(userErr, "namespace creation failed")
+		return domain.VcnNamespace{}, rerrors.Wrap(errNamespaceAlreadyExists, "namespace creation failed")
 	}
 
 	return domain.VcnNamespace{}, rerrors.Wrap(e)

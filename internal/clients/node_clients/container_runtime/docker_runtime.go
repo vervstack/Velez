@@ -17,13 +17,19 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
 	labelValueTrue = "true"
 )
 
-var _ ContainerRuntime = (*dockerRuntime)(nil)
+var (
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
+	errContainerConfigRequired = rerrors.New("container config is required")
+
+	_ ContainerRuntime = (*dockerRuntime)(nil)
+)
 
 // dockerRuntime is the single shared implementation of every
 // environment-scoped ContainerRuntime method, generic and backend-agnostic
@@ -87,7 +93,7 @@ func (r *dockerRuntime) ContainerCreate(
 	req ContainerCreateRequest,
 ) (container.CreateResponse, error) {
 	if req.Config == nil || req.Config.Config == nil {
-		return container.CreateResponse{}, rerrors.New("container config is required")
+		return container.CreateResponse{}, errContainerConfigRequired
 	}
 
 	config := req.Config.Config
@@ -369,7 +375,7 @@ func (r *dockerRuntime) Stats(ctx context.Context, identifier string) (domain.Co
 	}
 
 	if !found {
-		return domain.ContainerStats{}, rerrors.New("container %q not found in this environment", identifier)
+		return domain.ContainerStats{}, user_errors.ErrNoSuchContainer
 	}
 
 	stats, err := dockerutils.Stats(ctx, r.cli, info.ID)
@@ -403,7 +409,7 @@ func (r *dockerRuntime) Exec(
 	}
 
 	if !found {
-		return nil, rerrors.New("container %q not found in this environment", containerID)
+		return nil, user_errors.ErrNoSuchContainer
 	}
 
 	execResp, err := r.cli.ContainerExecCreate(ctx, resolvedID, cfg)
@@ -464,7 +470,7 @@ func (r *dockerRuntime) ConnectToNetwork(ctx context.Context, req ConnectToNetwo
 	}
 
 	if !found {
-		return rerrors.New("container %q not found in this environment", req.ContainerID)
+		return user_errors.ErrNoSuchContainer
 	}
 
 	connectReq := dockerutils.ConnectToNetworkRequest{
@@ -494,7 +500,7 @@ func (r *dockerRuntime) DisconnectFromNetworks(ctx context.Context, containerID 
 	}
 
 	if !found {
-		return rerrors.New("container %q not found in this environment", containerID)
+		return user_errors.ErrNoSuchContainer
 	}
 
 	for _, n := range networks {

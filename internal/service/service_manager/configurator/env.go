@@ -7,8 +7,8 @@ import (
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 	"go.vervstack.ru/Velez/internal/api/clients/matreshka/pkg/matreshka_api"
-	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/user_errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -30,7 +30,7 @@ func (c *Configurator) getEnvFromApi(ctx context.Context, meta domain.ConfigMeta
 			return &evon.Node{}, nil
 		}
 
-		if rerrors.Is(err, cluster_clients.ErrServiceIsDisabled) {
+		if rerrors.Is(err, user_errors.ErrServiceIsDisabled) {
 			return &evon.Node{}, nil
 		}
 

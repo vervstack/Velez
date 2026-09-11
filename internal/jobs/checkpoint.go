@@ -12,6 +12,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // checkpointedJob gates a Job's execution behind a durable (task_id, job_name)
@@ -64,7 +65,7 @@ func (c *checkpointedJob) Do(ctx context.Context) error {
 				errMsg = existing.Error.String
 			}
 
-			return rerrors.New(errMsg)
+			return user_errors.New(errMsg)
 		case jobs_queries.VelezJobStatusRUNNING:
 			// RUNNING left over from a worker that crashed mid-job - re-run it.
 		}

@@ -12,6 +12,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/secrets"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // dockerSecrets is the single-node/dev storage.SecretsStorage. Secrets in the
@@ -81,7 +82,7 @@ func (d *dockerSecrets) GetSecret(ctx context.Context, ref domain.SecretRef) (st
 		return pending, nil
 	}
 
-	return "", rerrors.Wrap(storage.ErrNotFound)
+	return "", rerrors.Wrap(user_errors.ErrStorageNotFound)
 }
 
 func (d *dockerSecrets) DeleteSecret(ctx context.Context, ref domain.SecretRef) error {

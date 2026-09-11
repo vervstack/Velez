@@ -10,6 +10,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // staticStorage is a full in-memory implementation of
@@ -65,7 +66,7 @@ func (s *staticStorage) GetPgInstanceByServiceID(_ context.Context, serviceID in
 
 	instance, ok := s.byServiceID[serviceID]
 	if !ok {
-		return domain.PgInstance{}, rerrors.Wrap(storage.ErrNotFound)
+		return domain.PgInstance{}, rerrors.Wrap(user_errors.ErrStorageNotFound)
 	}
 
 	return instance, nil
@@ -93,7 +94,7 @@ func (s *staticStorage) DeletePgInstance(_ context.Context, serviceID int64) err
 
 	_, ok := s.byServiceID[serviceID]
 	if !ok {
-		return rerrors.Wrap(storage.ErrNotFound)
+		return rerrors.Wrap(user_errors.ErrStorageNotFound)
 	}
 
 	delete(s.byServiceID, serviceID)

@@ -8,6 +8,7 @@ import (
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // createServiceWatchTimeout bounds how long the synchronous CreateService RPC
@@ -59,7 +60,7 @@ func (impl *Impl) CreateService(
 	}
 
 	if finalTask.Status == tasks_queries.VelezTaskStatusFAILED {
-		return nil, rerrors.New(finalTask.Error.String)
+		return nil, user_errors.New(finalTask.Error.String)
 	}
 
 	return &pb.CreateService_Response{}, nil

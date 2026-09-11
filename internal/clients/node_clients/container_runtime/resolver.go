@@ -15,6 +15,8 @@ import (
 // that daemon - pkg/docker_setup, systemd units, connection pooling - is
 // Phase 2 of docs/container_runtimes/roadmap.md; failing loudly beats silently
 // serving such an environment off the shared daemon.
+//
+//nolint:forbidigo // package-private sentinel, not shared/user-facing
 var ErrDedicatedRuntimeNotImplemented = rerrors.New("dedicated container runtime is not implemented yet")
 
 // EnvironmentsProvider yields the currently-live environments storage.

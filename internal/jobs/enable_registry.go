@@ -81,6 +81,19 @@ const (
 	stepRegisterRegistry  = "register_registry"
 )
 
+var (
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
+	errRegistryContainerIDMissing = rerrors.New("no container id provided")
+
+	// errRegistriesStorageMissingBuiltinUpsert signals a storage wiring bug,
+	// not a user-facing condition - registries.NewStatic and registries.NewPg
+	// both satisfy registries.BuiltinRegistryUpserter (builtin.go), so this
+	// only fires if a third RegistriesStorage implementation is ever wired in
+	// without it.
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
+	errRegistriesStorageMissingBuiltinUpsert = rerrors.New("registries storage does not support builtin upsert")
+)
+
 // Accessor interfaces the enable_registry jobs need from their TaskContext.
 // *velez_api.EnableRegistryTaskPayload satisfies all of them.
 // containerIDAccessor is declared in create_smerd.go and reused here, exactly
@@ -356,7 +369,7 @@ type writeHtpasswdJob struct {
 func (j *writeHtpasswdJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return rerrors.New("no container id provided")
+		return errRegistryContainerIDMissing
 	}
 
 	line, err := htpasswdLine(j.ctx.GetUsername(), j.ctx.GetPassword())
@@ -546,12 +559,6 @@ func (j *registerRegistryPluginJob) Do(ctx context.Context) error {
 
 	return nil
 }
-
-// errRegistriesStorageMissingBuiltinUpsert signals a storage wiring bug, not
-// a user-facing condition - registries.NewStatic and registries.NewPg both
-// satisfy registries.BuiltinRegistryUpserter (builtin.go), so this only fires
-// if a third RegistriesStorage implementation is ever wired in without it.
-var errRegistriesStorageMissingBuiltinUpsert = rerrors.New("registries storage does not support builtin upsert")
 
 // registerRegistryRowJob upserts the velez.registries row that makes the
 // registry immediately usable for image pulls/pushes - secret is always the

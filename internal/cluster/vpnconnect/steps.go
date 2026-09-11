@@ -12,10 +12,9 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
-	"go.vervstack.ru/Velez/internal/clients/cluster_clients/headscale"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
-	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // singleFunc adapts a plain closure into a step - the deleted
@@ -34,8 +33,8 @@ func (s *singleFunc) Do(ctx context.Context) error {
 	return s.f(ctx)
 }
 
-// checkSidecarExist short-circuits the run with ErrAlreadyExists when the
-// sidecar is already running, and prunes a dead one otherwise.
+// checkSidecarExist short-circuits the run with user_errors.ErrVpnResultAlreadyExists
+// when the sidecar is already running, and prunes a dead one otherwise.
 type checkSidecarExist struct {
 	docker      node_clients.Docker
 	sideCarName string
@@ -66,7 +65,7 @@ func (s *checkSidecarExist) Do(ctx context.Context) error {
 	}
 
 	if conts[0].State == "running" {
-		return rerrors.Wrap(ErrAlreadyExists, "container already running")
+		return rerrors.Wrap(user_errors.ErrVpnResultAlreadyExists, "container already running")
 	}
 
 	err = s.docker.Remove(ctx, conts[0].ID)
@@ -154,7 +153,7 @@ func (h *getClientKeyStep) Do(ctx context.Context) error {
 
 	authKey, err := h.networkService.GetClientAuthKey(ctx, getAuthKeyReq)
 	if err != nil {
-		if !rerrors.Is(err, headscale.ErrNotFound) {
+		if !rerrors.Is(err, user_errors.ErrNotFound) {
 			return rerrors.Wrap(err, "error getting client auth key from network service")
 		}
 	}
@@ -266,7 +265,7 @@ func (s *createContainerStep) Do(ctx context.Context) error {
 		s.suffix,
 	)
 	if createErr != nil {
-		if !rerrors.Is(createErr, docker.ErrNameIsTaken) {
+		if !rerrors.Is(createErr, user_errors.ErrNameIsTaken) {
 			return rerrors.Wrap(createErr, "error creating container")
 		}
 
@@ -284,6 +283,9 @@ type startContainerStep struct {
 	containerID *string
 }
 
+//nolint:forbidigo // package-private sentinel, not shared/user-facing
+var errNoContainerIdProvided = rerrors.New("no container id provided")
+
 func newStartContainer(nc node_clients.NodeClients, containerID *string) step {
 	return &startContainerStep{
 		dockerAPI:   nc.Docker().Client(),
@@ -293,7 +295,7 @@ func newStartContainer(nc node_clients.NodeClients, containerID *string) step {
 
 func (s *startContainerStep) Do(ctx context.Context) error {
 	if s.containerID == nil {
-		return rerrors.New("no container id provided")
+		return errNoContainerIdProvided
 	}
 
 	err := s.dockerAPI.ContainerStart(ctx, *s.containerID, container.StartOptions{})

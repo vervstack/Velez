@@ -12,7 +12,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
-	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // velezServiceName is the name of the node manager itself. In single-node
@@ -71,7 +71,7 @@ func (s *dockerServices) GetByName(ctx context.Context, name string) (domain.Ser
 			return s.pendingService(name), nil
 		}
 
-		return domain.Service{}, storage.ErrNotFound
+		return domain.Service{}, user_errors.ErrStorageNotFound
 	}
 
 	c := containers[0]
@@ -251,7 +251,7 @@ func (s *dockerServices) syntheticVelezService(ctx context.Context) (domain.Serv
 		return svc, nil
 	}
 
-	return domain.Service{}, storage.ErrNotFound
+	return domain.Service{}, user_errors.ErrStorageNotFound
 }
 
 // listDistinctServices derives the list of distinct Verv service names from

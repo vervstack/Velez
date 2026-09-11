@@ -44,6 +44,9 @@ const (
 	confTypePlain = "plain"
 )
 
+//nolint:forbidigo // package-private sentinel, not shared/user-facing
+var errEmptyContainerID = rerrors.New("empty container id")
+
 // Accessor interfaces the assemble_config jobs need from their TaskContext.
 // *velez_api.AssembleConfigTaskPayload satisfies all of them. containerIDAccessor
 // is declared in create_smerd.go and reused here as-is.
@@ -241,7 +244,7 @@ type fetchConfigJob struct {
 func (j *fetchConfigJob) Do(ctx context.Context) error {
 	containerID := j.container.GetContainerId()
 	if containerID == "" {
-		return rerrors.New("empty container id")
+		return errEmptyContainerID
 	}
 
 	confType, format, systemPath := classifyImage(j.imageMeta.GetImageLabels(), j.imageMeta.GetImageTags())

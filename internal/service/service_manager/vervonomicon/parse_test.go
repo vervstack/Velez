@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	verv "go.vervstack.ru/Velez/internal/domain/vervonomicon"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 func TestParse_NoDescriptor(t *testing.T) {
@@ -16,7 +17,7 @@ func TestParse_NoDescriptor(t *testing.T) {
 
 	_, err := Parse(files)
 	require.Error(t, err)
-	require.True(t, errors.Is(err, ErrNoDescriptor))
+	require.True(t, errors.Is(err, user_errors.ErrVervonomiconDescriptorNotFound))
 }
 
 func TestParse_MinimalDescriptor(t *testing.T) {

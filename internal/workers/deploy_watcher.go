@@ -19,6 +19,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -97,7 +98,7 @@ func (d *deployWatcher) Start(ctx context.Context) {
 			case <-d.ticker.C:
 				list, err := d.listDeployments(ctx)
 				if err != nil {
-					if !rerrors.Is(err, cluster_clients.ErrServiceIsDisabled) {
+					if !rerrors.Is(err, user_errors.ErrServiceIsDisabled) {
 						log.Error().Err(err).Msg("error listing deployments in deploy watcher")
 
 						// TODO make it fail only when state is not available
@@ -418,7 +419,7 @@ func (d *deployWatcher) runTask(ctx context.Context, entityID, action string, in
 	}
 
 	if isFailed {
-		return rerrors.New(finalTask.Error.String)
+		return user_errors.New(finalTask.Error.String)
 	}
 
 	return nil

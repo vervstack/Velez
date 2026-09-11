@@ -13,6 +13,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	rtb "go.redsock.ru/toolbox"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
@@ -35,13 +36,20 @@ type TaskV2 struct {
 	containerState *container.InspectResponse
 }
 
+var (
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
+	errTaskV2ConfigNil = rerrors.New("config is nil")
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
+	errTaskV2HostnameEmpty = rerrors.New("hostname is empty")
+)
+
 func NewTaskV2(docker node_clients.Docker, ctr container.CreateRequest) (*TaskV2, error) {
 	if ctr.Config == nil {
-		return nil, rerrors.New("config is nil")
+		return nil, errTaskV2ConfigNil
 	}
 
 	if ctr.Hostname == "" {
-		return nil, rerrors.New("hostname is empty")
+		return nil, errTaskV2HostnameEmpty
 	}
 
 	ctr.HostConfig = rtb.Coalesce(ctr.HostConfig, &container.HostConfig{})

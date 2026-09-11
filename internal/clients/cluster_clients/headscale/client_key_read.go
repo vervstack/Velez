@@ -7,7 +7,9 @@ import (
 	"time"
 
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 func (s *Client) GetClientAuthKey(ctx context.Context, req domain.GetVcnAuthKeyReq) (
@@ -47,7 +49,7 @@ func (s *Client) GetClientAuthKey(ctx context.Context, req domain.GetVcnAuthKeyR
 		}
 
 		if len(r.PreAuthKeys) == 0 {
-			return domain.VcnAuthKey{}, rerrors.Wrap(ErrNotFound, "no preAuthKeys found")
+			return domain.VcnAuthKey{}, rerrors.Wrap(user_errors.ErrNotFound, "no preAuthKeys found")
 		}
 
 		for _, key := range r.PreAuthKeys {
@@ -58,7 +60,7 @@ func (s *Client) GetClientAuthKey(ctx context.Context, req domain.GetVcnAuthKeyR
 			}
 		}
 
-		return domain.VcnAuthKey{}, rerrors.Wrap(ErrNotFound, "preAuthKey not found")
+		return domain.VcnAuthKey{}, rerrors.Wrap(user_errors.ErrNotFound, "preAuthKey not found")
 	}
 
 	return domain.VcnAuthKey{}, s.handleError(resp)

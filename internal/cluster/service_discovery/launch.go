@@ -22,6 +22,7 @@ import (
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -130,11 +131,11 @@ func SetupMakosh(
 
 	err = runner.Run(ctx)
 	if err != nil {
-		if rerrors.Is(err, vpnconnect.ErrAlreadyExists) {
+		if rerrors.Is(err, user_errors.ErrVpnResultAlreadyExists) {
 			return makoshSd, nil
 		}
 
-		if rerrors.Is(err, cluster_clients.ErrServiceIsDisabled) {
+		if rerrors.Is(err, user_errors.ErrServiceIsDisabled) {
 			return makoshSd, nil
 		}
 

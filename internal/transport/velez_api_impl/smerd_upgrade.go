@@ -8,6 +8,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // upgradeSmerdWatchTimeout bounds how long the synchronous UpgradeSmerd RPC
@@ -66,7 +67,7 @@ func (impl *Impl) UpgradeSmerd(ctx context.Context,
 	}
 
 	if finalTask.Status == tasks_queries.VelezTaskStatusFAILED {
-		return nil, rerrors.New(finalTask.Error.String)
+		return nil, user_errors.New(finalTask.Error.String)
 	}
 
 	return &velez_api.UpgradeSmerd_Response{}, nil

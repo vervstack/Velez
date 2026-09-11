@@ -10,6 +10,7 @@ import (
 
 	verv "go.vervstack.ru/Velez/internal/domain/vervonomicon"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -55,7 +56,7 @@ func NewStatic() storage.ResourceBoxesStorage {
 func (s *staticStorage) GetBox(_ context.Context, name string) (verv.Box, error) {
 	box, ok := s.boxes[name]
 	if !ok {
-		return verv.Box{}, rerrors.Wrap(storage.ErrNotFound)
+		return verv.Box{}, rerrors.Wrap(user_errors.ErrStorageNotFound)
 	}
 
 	return box, nil

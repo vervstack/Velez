@@ -28,6 +28,10 @@ import (
 // host - exactly what an unconfigured ContainerSuffix produced before. An
 // EXPLICIT name is still strict: an unknown environment is an error, never a
 // silent fallback onto another environment's containers.
+//
+//nolint:forbidigo // package-private sentinel, not shared/user-facing
+var errEnvironmentsStorageUnavailable = rerrors.New("environments storage is not available")
+
 func Resolve(ctx context.Context, envStorage storage.EnvironmentsStorage, name string) (domain.Environment, error) {
 	isDefault := name == ""
 	if isDefault {
@@ -39,7 +43,7 @@ func Resolve(ctx context.Context, envStorage storage.EnvironmentsStorage, name s
 			return domain.Environment{}, nil
 		}
 
-		return domain.Environment{}, rerrors.New("environments storage is not available")
+		return domain.Environment{}, errEnvironmentsStorageUnavailable
 	}
 
 	env, err := envStorage.GetEnvironmentByName(ctx, name)

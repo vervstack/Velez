@@ -86,7 +86,7 @@ func (s *staticStorage) GetRegistryByID(_ context.Context, id int64) (domain.Reg
 
 	reg, ok := s.byID[id]
 	if !ok {
-		return domain.Registry{}, rerrors.Wrap(storage.ErrNotFound)
+		return domain.Registry{}, rerrors.Wrap(user_errors.ErrStorageNotFound)
 	}
 
 	return reg, nil

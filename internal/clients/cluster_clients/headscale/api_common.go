@@ -13,6 +13,9 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+//nolint:forbidigo // package-private sentinel, not shared/user-facing
+var ErrUnexpectedStatus = rerrors.New("unexpected status")
+
 const (
 	authHeader = "Authorization"
 
@@ -23,8 +26,6 @@ const (
 	nodeURI       = apiBase + "/node"
 	preAuthKeyURI = apiBase + "/preauthkey"
 )
-
-var ErrNotFound = rerrors.New("not found")
 
 func (s *Client) doAPIRequest(ctx context.Context, method string, uri string, req any) (*http.Response, error) {
 	reqEncoded, err := json.Marshal(req)

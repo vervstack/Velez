@@ -2,10 +2,19 @@ package verv_services
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/user_errors"
+)
+
+//nolint:forbidigo // package-private sentinel, not shared/user-facing
+var errServiceHasRunningInstances = rerrors.New(
+	"service has running instances, stop/drop them first or set drop_running_instances",
 )
 
 func (v *VervService) Remove(ctx context.Context, req domain.RemoveServiceReq) error {
@@ -21,7 +30,7 @@ func (v *VervService) Remove(ctx context.Context, req domain.RemoveServiceReq) e
 
 	if len(resp.GetSmerds()) > 0 {
 		if !req.DropRunningInstances {
-			return rerrors.New("service has running instances, stop/drop them first or set drop_running_instances")
+			return errServiceHasRunningInstances
 		}
 
 		uuids := make([]string, 0, len(resp.GetSmerds()))
@@ -42,7 +51,7 @@ func (v *VervService) Remove(ctx context.Context, req domain.RemoveServiceReq) e
 		}
 
 		if len(dropResp.GetFailed()) > 0 {
-			return rerrors.New("failed to drop some instances of the service", dropResp.GetFailed())
+			return user_errors.New("failed to drop some instances of the service: " + formatFailedDrops(dropResp.GetFailed()))
 		}
 	}
 
@@ -52,4 +61,19 @@ func (v *VervService) Remove(ctx context.Context, req domain.RemoveServiceReq) e
 	}
 
 	return nil
+}
+
+// formatFailedDrops renders each failed drop's uuid and cause into a single
+// message string - DropSmerd_Response_Error carries information that used to
+// be silently discarded: rerrors.New's variadic args are metadata only (a
+// bare string is appended to the message, a codes.Code sets the grpc code),
+// so passing a []*DropSmerd_Response_Error there did nothing.
+func formatFailedDrops(failed []*velez_api.DropSmerd_Response_Error) string {
+	parts := make([]string, 0, len(failed))
+
+	for _, f := range failed {
+		parts = append(parts, fmt.Sprintf("%s: %s", f.GetUuid(), f.GetCause()))
+	}
+
+	return strings.Join(parts, "; ")
 }

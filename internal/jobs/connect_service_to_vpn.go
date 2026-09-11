@@ -12,11 +12,11 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
-	"go.vervstack.ru/Velez/internal/clients/cluster_clients/headscale"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/patterns"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -38,7 +38,11 @@ var (
 	// sentinel now lives in internal/cluster/vpnconnect and keeps its own
 	// exported copy; nothing inspects this one - the jobs engine persists a
 	// failed task's error as a string either way.
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
 	errSidecarAlreadyRunning = rerrors.New("sidecar container already running")
+
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
+	errSidecarContainerIDMissing = rerrors.New("no container id provided")
 )
 
 // Accessor interfaces the connect_service_to_vpn jobs need from their
@@ -268,7 +272,7 @@ func (j *getClientKeyJob) Do(ctx context.Context) error {
 
 	authKey, err := j.vpnClient.GetClientAuthKey(ctx, getAuthKeyReq)
 	if err != nil {
-		if !rerrors.Is(err, headscale.ErrNotFound) {
+		if !rerrors.Is(err, user_errors.ErrNotFound) {
 			return rerrors.Wrap(err, "error getting client auth key from vpn client")
 		}
 	}
@@ -332,7 +336,7 @@ func (j *prepareSidecarImageJob) Do(ctx context.Context) error {
 
 // createSidecarContainerJob mirrors container_steps.Create restricted to
 // what the tailscale sidecar needs. Unlike container_steps.Create, it doesn't
-// tolerate an existing container of the same name (docker.ErrNameIsTaken) or
+// tolerate an existing container of the same name (user_errors.ErrNameIsTaken) or
 // clean up volume mounts on rollback - it follows create_smerd.go's/
 // copy_to_volume.go's simpler create+Remove pattern instead, consistent with
 // how this migration already treats container create/rollback elsewhere.
@@ -396,7 +400,7 @@ type startSidecarContainerJob struct {
 func (j *startSidecarContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return rerrors.New("no container id provided")
+		return errSidecarContainerIDMissing
 	}
 
 	err := j.dockerAPI.ContainerStart(ctx, containerID, container.StartOptions{})

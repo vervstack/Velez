@@ -23,7 +23,9 @@ const (
 )
 
 var (
-	ErrInvalidServiceName  = rerrors.New("service name contains invalid characters", codes.InvalidArgument)
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
+	ErrInvalidServiceName = rerrors.New("service name contains invalid characters", codes.InvalidArgument)
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
 	ErrTooShortServiceName = rerrors.New("service name is too short", codes.InvalidArgument)
 )
 

@@ -10,6 +10,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // dropSmerdWatchTimeout bounds how long the synchronous DropSmerd RPC blocks
@@ -70,7 +71,7 @@ func (impl *Impl) DropSmerd(
 	// (e.g. an enqueue-adjacent bug), handled defensively exactly like
 	// smerd_create.go does.
 	if finalTask.Status == tasks_queries.VelezTaskStatusFAILED {
-		return nil, rerrors.New(finalTask.Error.String)
+		return nil, user_errors.New(finalTask.Error.String)
 	}
 
 	// Unmarshal only failed/successful rather than the full

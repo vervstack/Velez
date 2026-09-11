@@ -26,6 +26,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/service"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -52,7 +53,13 @@ var (
 	// ErrSelfUpgradeIsForbidden moved here from the deleted
 	// internal/pipelines/steps/upgrade_steps package, where it was the last
 	// symbol anything outside internal/pipelines still imported.
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
 	ErrSelfUpgradeIsForbidden = rerrors.NewUserError("Can't perform self upgrade", codes.FailedPrecondition)
+
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
+	errUpgradeContainerIDMissing = rerrors.New("container id is required")
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
+	errUpgradeConfigContainerIDMissing = rerrors.New("empty container id")
 )
 
 // Accessor interfaces the upgrade_smerd jobs need from their TaskContext.
@@ -409,7 +416,7 @@ func resolveCurrentContainer(
 	}
 
 	if len(containers) == 0 {
-		return nil, rerrors.New(fmt.Sprintf("container %q not found in environment %q", name, environment))
+		return nil, user_errors.New(fmt.Sprintf("container %q not found in environment %q", name, environment))
 	}
 
 	cont, err = containerService.InspectSmerd(ctx, environment, containers[0].ID)
@@ -562,7 +569,7 @@ type pauseOldContainerJob struct {
 func (j *pauseOldContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetOldContainerId()
 	if containerID == "" {
-		return rerrors.New("container id is required")
+		return errUpgradeContainerIDMissing
 	}
 
 	cont, err := j.dockerAPI.ContainerInspect(ctx, containerID)
@@ -741,7 +748,7 @@ type getConfigFromScratchContainerJob struct {
 func (j *getConfigFromScratchContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return rerrors.New("empty container id")
+		return errUpgradeConfigContainerIDMissing
 	}
 
 	_, _, systemPath := classifyImage(j.imageMeta.GetImageLabels(), j.imageMeta.GetImageTags())
@@ -967,7 +974,7 @@ type renameContainerJob struct {
 func (j *renameContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return rerrors.New("container id is required")
+		return errUpgradeContainerIDMissing
 	}
 
 	runtime, err := j.runtimes.Runtime(ctx, j.req.GetUpgradeRequest().GetEnvironment())

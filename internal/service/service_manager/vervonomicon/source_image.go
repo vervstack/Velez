@@ -13,6 +13,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -48,8 +49,9 @@ func NewImageSource(nodeClients node_clients.NodeClients, runtimes container_run
 
 // Read ensures imageName is pulled, creates a scratch container from it,
 // reads .verv/ out of it, and removes the container on every path, including
-// error. An image with no /verv directory returns ErrNoDescriptor, not an
-// error - the caller can tell "no descriptor" apart from "read failed".
+// error. An image with no /verv directory returns
+// user_errors.ErrVervonomiconDescriptorNotFound, not an error - the caller
+// can tell "no descriptor" apart from "read failed".
 func (s *ImageSource) Read(ctx context.Context, serviceName, imageName string) (map[string][]byte, error) {
 	runtime, err := s.runtimes.Runtime(ctx, "")
 	if err != nil {
@@ -84,7 +86,7 @@ func (s *ImageSource) Read(ctx context.Context, serviceName, imageName string) (
 	files, err := dockerutils.ReadDirFromContainer(ctx, s.nodeClients.Docker().Client(), created.ID, vervDirPath)
 	if err != nil {
 		if errdefs.IsNotFound(err) {
-			return nil, ErrNoDescriptor
+			return nil, user_errors.ErrVervonomiconDescriptorNotFound
 		}
 
 		return nil, rerrors.Wrap(err, "error reading .verv from image")

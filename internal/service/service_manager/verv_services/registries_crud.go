@@ -13,15 +13,24 @@ import (
 var (
 	// ErrRegistryNameRequired is returned when CreateRegistry/UpdateRegistry
 	// carries an empty name.
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
 	ErrRegistryNameRequired = rerrors.New("registry name is required", codes.InvalidArgument)
 
 	// ErrRegistryNotFound is returned when a registry id/name a caller passed
 	// doesn't resolve to a row in velez.registries.
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
 	ErrRegistryNotFound = rerrors.New("registry not found", codes.NotFound)
 
 	// ErrInvalidRegistryType is returned when Type isn't one of
 	// domain.RegistryTypeDockerHub / domain.RegistryTypeGenericV2.
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
 	ErrInvalidRegistryType = rerrors.New("invalid registry type", codes.InvalidArgument)
+
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
+	errRegistryIdRequired = rerrors.New("registry id is required", codes.InvalidArgument)
+
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
+	errRegistryIdOrNameRequired = rerrors.New("registry id or name is required", codes.InvalidArgument)
 )
 
 func (v *VervService) ListRegistries(ctx context.Context) ([]domain.Registry, error) {
@@ -94,7 +103,7 @@ func (v *VervService) CreateRegistry(ctx context.Context, req domain.CreateRegis
 // first.
 func (v *VervService) UpdateRegistry(ctx context.Context, req domain.UpdateRegistryReq) (domain.Registry, error) {
 	if req.ID == 0 {
-		return domain.Registry{}, rerrors.New("registry id is required", codes.InvalidArgument)
+		return domain.Registry{}, errRegistryIdRequired
 	}
 
 	if req.Type != nil && !isValidRegistryType(*req.Type) {
@@ -179,7 +188,7 @@ func (v *VervService) resolveRegistryDeleteTarget(
 
 		return domain.Registry{}, rerrors.Wrapf(ErrRegistryNotFound, "unknown registry %q", *req.Name)
 	default:
-		return domain.Registry{}, rerrors.New("registry id or name is required", codes.InvalidArgument)
+		return domain.Registry{}, errRegistryIdOrNameRequired
 	}
 }
 

@@ -24,6 +24,9 @@ const (
 	maxDirReadBytes = 32 * 1024 * 1024
 )
 
+//nolint:forbidigo // package-private sentinel, not shared/user-facing
+var errDirReadSizeExceeded = rerrors.New("directory contents exceed the maximum allowed read size")
+
 func ReadFromContainer(ctx context.Context, dockerAPI client.APIClient, contId string, path string) ([]byte, error) {
 	rc, _, err := dockerAPI.CopyFromContainer(ctx, contId, path)
 	if err != nil {
@@ -130,7 +133,7 @@ func ReadDirFromContainer(
 
 		totalBytes += hdr.Size
 		if totalBytes > maxDirReadBytes {
-			return nil, rerrors.New("directory contents exceed the maximum allowed read size")
+			return nil, errDirReadSizeExceeded
 		}
 
 		var content []byte

@@ -14,6 +14,8 @@ import (
 
 // ErrAlreadyLoaded is returned by Init when the process-wide default config
 // has already been loaded by an earlier call.
+//
+//nolint:forbidigo // package-private sentinel, not shared/user-facing
 var ErrAlreadyLoaded = rerrors.New("config already loaded")
 
 // Config is the application's fully parsed runtime configuration.

@@ -11,6 +11,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/environments_queries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 type pgStorage struct {
@@ -134,14 +135,14 @@ func wrapEnvPgErr(err error) error {
 	}
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return rerrors.Wrap(storage.ErrNotFound)
+		return rerrors.Wrap(user_errors.ErrStorageNotFound)
 	}
 
 	var pgErr *pq.Error
 
 	if errors.As(err, &pgErr) {
 		if pgErr.Code == "23505" { // unique_violation
-			return errors.Join(storage.ErrAlreadyExists, err)
+			return errors.Join(user_errors.ErrStorageAlreadyExists, err)
 		}
 	}
 

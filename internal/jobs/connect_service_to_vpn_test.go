@@ -12,7 +12,6 @@ import (
 	"github.com/sqlc-dev/pqtype"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
-	"go.vervstack.ru/Velez/internal/clients/cluster_clients/headscale"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
@@ -174,7 +173,7 @@ func TestGetClientKeyJob_ExistingKeyFound(t *testing.T) {
 func TestGetClientKeyJob_NotFoundIssuesNewKey(t *testing.T) {
 	vpn := newFakeVpnClient()
 
-	vpn.authKeyErr = headscale.ErrNotFound
+	vpn.authKeyErr = user_errors.ErrNotFound
 	vpn.issuedKey = "brand-new-key"
 
 	payload := &velez_api.ConnectServiceToVpnTaskPayload{NamespaceId: proto("ns-1")}
@@ -211,7 +210,7 @@ func TestGetClientKeyJob_UnexpectedGetAuthKeyErrorPropagates(t *testing.T) {
 func TestGetClientKeyJob_IssueClientKeyError(t *testing.T) {
 	vpn := newFakeVpnClient()
 
-	vpn.authKeyErr = headscale.ErrNotFound
+	vpn.authKeyErr = user_errors.ErrNotFound
 	vpn.issueKeyErr = errHeadscaleRejectedRequest
 
 	payload := &velez_api.ConnectServiceToVpnTaskPayload{NamespaceId: proto("ns-1")}

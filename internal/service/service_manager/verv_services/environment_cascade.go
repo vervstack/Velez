@@ -13,6 +13,11 @@ import (
 	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
+//nolint:forbidigo // package-private sentinel, not shared/user-facing
+var errEmptyEnvironmentSuffix = rerrors.New(
+	"refusing to cascade-delete resources for an environment with an empty suffix",
+)
+
 // environmentContainerAPI is the narrow docker slice the cascade needs to find
 // and remove an environment's containers. node_clients.Docker satisfies it.
 //
@@ -53,7 +58,7 @@ func cascadeRemoveEnvironmentResources(
 	suffix string,
 ) error {
 	if suffix == "" {
-		return rerrors.New("refusing to cascade-delete resources for an environment with an empty suffix")
+		return errEmptyEnvironmentSuffix
 	}
 
 	err := removeEnvironmentContainers(ctx, containers, suffix)

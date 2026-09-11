@@ -14,6 +14,9 @@ import (
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
 )
 
+//nolint:forbidigo // package-private sentinel, not shared/user-facing
+var errNoRunningDeployment = rerrors.New("no running deployment found for service")
+
 // CreateNewDeploy upserts request.ServiceName before looking it up so a
 // service with no container yet (nothing else has created it) still
 // resolves - both enable_registry.go's deployRegistryJob and
@@ -134,7 +137,7 @@ func (v *VervService) UpgradeDeploy(ctx context.Context, request domain.UpgradeD
 	}
 
 	if runningDep == nil {
-		return rerrors.New("no running deployment found for service")
+		return errNoRunningDeployment
 	}
 
 	currentSpec, err := v.dataStorage.Deployments().GetSpecificationById(ctx, runningDep.SpecId)

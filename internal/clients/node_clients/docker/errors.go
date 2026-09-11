@@ -5,6 +5,8 @@ import (
 
 	"go.redsock.ru/rerrors"
 	"google.golang.org/grpc/codes"
+
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -15,11 +17,9 @@ const (
 	problemInUseByOtherContainer = "is already in use by container"
 )
 
-var ErrNameIsTaken = rerrors.New("container name is taken", codes.AlreadyExists)
-
-// HandleConflictMessage maps a Docker 409 into Velez's own ErrNameIsTaken when
-// the conflict is a container-name collision, and into a wrapped internal
-// error otherwise.
+// HandleConflictMessage maps a Docker 409 into Velez's own
+// user_errors.ErrNameIsTaken when the conflict is a container-name
+// collision, and into a wrapped internal error otherwise.
 //
 // Exported because container_runtime's implementations issue ContainerCreate
 // against the raw Docker API themselves and must surface the exact same error
@@ -28,7 +28,7 @@ func HandleConflictMessage(err error) error {
 	msg := err.Error()
 
 	if containsAll(msg, subjectContainerName, problemInUseByOtherContainer) {
-		return ErrNameIsTaken
+		return user_errors.ErrNameIsTaken
 	}
 
 	return rerrors.Wrap(err, "unhandled error", codes.Internal)

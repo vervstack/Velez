@@ -9,10 +9,10 @@ import (
 	"go.vervstack.ru/Velez/internal/api/clients/matreshka/pkg/matreshka_api"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
-	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // assembleConfigWatchTimeout bounds how long the synchronous AssembleConfig
@@ -55,7 +55,7 @@ func (impl *Impl) AssembleConfig(ctx context.Context, req *velez_api.AssembleCon
 	}
 
 	if finalTask.Status == tasks_queries.VelezTaskStatusFAILED {
-		return nil, rerrors.New(finalTask.Error.String)
+		return nil, user_errors.New(finalTask.Error.String)
 	}
 
 	payload := &velez_api.AssembleConfigTaskPayload{}
@@ -79,7 +79,7 @@ func (impl *Impl) AssembleConfig(ctx context.Context, req *velez_api.AssembleCon
 
 	err = impl.cfgService.UpdateConfig(ctx, appConfig)
 	if err != nil {
-		if !rerrors.Is(err, cluster_clients.ErrServiceIsDisabled) {
+		if !rerrors.Is(err, user_errors.ErrServiceIsDisabled) {
 			return nil, rerrors.Wrap(err, "error updating config")
 		}
 	}

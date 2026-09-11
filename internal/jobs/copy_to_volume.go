@@ -36,6 +36,9 @@ const (
 	loaderContainerSuffix = "_loader"
 )
 
+//nolint:forbidigo // package-private sentinel, not shared/user-facing
+var errCopyContainerIDMissing = rerrors.New("no container id provided")
+
 // Accessor interfaces the copy_to_volume jobs need from their TaskContext.
 // *velez_api.CopyToVolumeTaskPayload satisfies all of them. containerIDAccessor
 // is declared in create_smerd.go and reused here as-is.
@@ -266,7 +269,7 @@ type startLoaderContainerJob struct {
 func (j *startLoaderContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return rerrors.New("no container id provided")
+		return errCopyContainerIDMissing
 	}
 
 	startOpts := container.StartOptions{}
@@ -334,7 +337,7 @@ func (j *copyFileJob) Do(ctx context.Context) error {
 
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return rerrors.New("no container id provided")
+		return errCopyContainerIDMissing
 	}
 
 	containerRuntime, err := j.runtimes.Runtime(ctx, "")

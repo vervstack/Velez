@@ -47,6 +47,15 @@ const (
 	dockerContainerStatusRunning = "running"
 )
 
+var (
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
+	errSmerdContainerIDMissing = rerrors.New("no container id provided")
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
+	errSmerdContainerNotCreated = rerrors.New("container was not created")
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
+	errHealthcheckRetriesExhausted = rerrors.New("healthcheck retries exhausted")
+)
+
 // Accessor interfaces the create_smerd jobs need from their TaskContext.
 // *velez_api.CreateSmerdTaskPayload satisfies all of them, but any other
 // task payload with the same fields could reuse these jobs too.
@@ -590,7 +599,7 @@ func (j *copyToContainerJob) Do(ctx context.Context) error {
 		}
 
 		if containerID == "" {
-			return rerrors.New("no container id provided")
+			return errSmerdContainerIDMissing
 		}
 
 		err := dockerutils.WriteToContainer(ctx, j.dockerAPI, containerID, path, content)
@@ -783,7 +792,7 @@ type startContainerJob struct {
 func (j *startContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return rerrors.New("no container id provided")
+		return errSmerdContainerIDMissing
 	}
 
 	err := j.dockerAPI.ContainerStart(ctx, containerID, container.StartOptions{})
@@ -823,7 +832,7 @@ func (j *healthcheckJob) Do(ctx context.Context) error {
 
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return rerrors.New("container was not created")
+		return errSmerdContainerNotCreated
 	}
 
 	for range healthcheck.GetRetries() {
@@ -843,5 +852,5 @@ func (j *healthcheckJob) Do(ctx context.Context) error {
 		}
 	}
 
-	return rerrors.New("healthcheck retries exhausted")
+	return errHealthcheckRetriesExhausted
 }

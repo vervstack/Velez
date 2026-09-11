@@ -14,11 +14,19 @@ var (
 	// ErrEnvironmentRequired is returned when a request that must be scoped to
 	// an environment carries an empty environment name. proto3 has no
 	// `required` keyword, so this is where "required" actually gets enforced.
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
 	ErrEnvironmentRequired = rerrors.New("environment is required", codes.InvalidArgument)
 
 	// ErrEnvironmentNotFound is returned when the environment name a caller
 	// passed doesn't resolve to a row in velez.environments.
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
 	ErrEnvironmentNotFound = rerrors.New("environment not found", codes.NotFound)
+
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
+	errEnvironmentIdRequired = rerrors.New("environment id is required", codes.InvalidArgument)
+
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
+	errEnvironmentIdOrNameRequired = rerrors.New("environment id or name is required", codes.InvalidArgument)
 )
 
 func (v *VervService) ListEnvironments(ctx context.Context) ([]domain.Environment, error) {
@@ -99,7 +107,7 @@ func (v *VervService) UpdateEnvironment(
 	req domain.UpdateEnvironmentReq,
 ) (domain.Environment, error) {
 	if req.ID == 0 {
-		return domain.Environment{}, rerrors.New("environment id is required", codes.InvalidArgument)
+		return domain.Environment{}, errEnvironmentIdRequired
 	}
 
 	env, err := v.environments().UpdateEnvironment(ctx, req)
@@ -147,6 +155,6 @@ func (v *VervService) resolveDeleteTarget(
 	case req.Name != nil && *req.Name != "":
 		return v.GetEnvironment(ctx, *req.Name)
 	default:
-		return domain.Environment{}, rerrors.New("environment id or name is required", codes.InvalidArgument)
+		return domain.Environment{}, errEnvironmentIdOrNameRequired
 	}
 }

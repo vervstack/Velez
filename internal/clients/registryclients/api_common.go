@@ -8,6 +8,7 @@ import (
 	"go.redsock.ru/rerrors"
 )
 
+//nolint:forbidigo // package-private sentinel, not shared/user-facing
 var ErrUnexpectedStatus = rerrors.New("unexpected status")
 
 func (c *Client) doAPIRequest(ctx context.Context, method, uri string) (*http.Response, error) {

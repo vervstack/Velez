@@ -10,6 +10,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/environments"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -36,7 +37,7 @@ type dedicatedStorage struct {
 
 func (s *dedicatedStorage) GetEnvironmentByName(_ context.Context, name string) (domain.Environment, error) {
 	if name != s.env.Name {
-		return domain.Environment{}, storage.ErrNotFound
+		return domain.Environment{}, user_errors.ErrStorageNotFound
 	}
 
 	return s.env, nil
@@ -148,7 +149,7 @@ type mutableEnvStorage struct {
 
 func (s *mutableEnvStorage) GetEnvironmentByName(_ context.Context, name string) (domain.Environment, error) {
 	if name != s.env.Name {
-		return domain.Environment{}, storage.ErrNotFound
+		return domain.Environment{}, user_errors.ErrStorageNotFound
 	}
 
 	return s.env, nil

@@ -9,6 +9,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // createSmerdWatchTimeout bounds how long the synchronous CreateSmerd RPC
@@ -66,7 +67,7 @@ func (impl *Impl) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Re
 	}
 
 	if finalTask.Status == tasks_queries.VelezTaskStatusFAILED {
-		return nil, rerrors.New(finalTask.Error.String)
+		return nil, user_errors.New(finalTask.Error.String)
 	}
 
 	// Unmarshal only container_id rather than the full CreateSmerdTaskPayload -

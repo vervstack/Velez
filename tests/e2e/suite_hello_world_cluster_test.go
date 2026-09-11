@@ -1,3 +1,5 @@
+//go:build e2e_full
+
 package e2e
 
 import (
@@ -357,4 +359,15 @@ func (s *HelloWorldClusterSuite) _prepareSqliteApp() {
 func Test_HelloWorldCluster(t *testing.T) {
 	t.Parallel()
 	suite.Run(t, new(HelloWorldClusterSuite))
+}
+
+// dindHostAddr translates a DinD-side port Velez exposed a container on
+// into the bootstrap-host address this process can dial it at.
+func dindHostAddr(t *testing.T, exposedTo uint32) string {
+	t.Helper()
+
+	addr, ok := sharedDind.Addr(int(exposedTo))
+	require.True(t, ok, "dind did not publish container port %d (outside the pinned band?)", exposedTo)
+
+	return addr
 }

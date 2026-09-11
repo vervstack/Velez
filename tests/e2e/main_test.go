@@ -85,7 +85,7 @@ func runSuite(m *testing.M) int {
 		}
 	}
 
-	sharedHeadscale.stop()
+	stopSharedHeadscale()
 
 	return code
 }

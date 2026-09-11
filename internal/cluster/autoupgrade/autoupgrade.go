@@ -191,7 +191,7 @@ func (au *AutoUpgrade) upgrade(ctx context.Context, req *velez_api.UpgradeSmerd_
 	}
 
 	if isFailed {
-		return user_errors.New(finalTask.Error.String)
+		return rerrors.Wrap(user_errors.ErrTaskFailed, finalTask.Error.String)
 	}
 
 	return nil

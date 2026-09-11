@@ -3,6 +3,7 @@ package headscale
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -57,7 +58,7 @@ func (s *Client) IssueClientKey(ctx context.Context, req domain.IssueClientKey) 
 		return resp.PreAuthKey.Key, nil
 	}
 
-	bd, err := io.ReadAll(apiResp.Body)
+	_, err = io.ReadAll(apiResp.Body)
 
 	_ = apiResp.Body.Close()
 
@@ -65,5 +66,8 @@ func (s *Client) IssueClientKey(ctx context.Context, req domain.IssueClientKey) 
 		return "", rerrors.Wrap(err, "error reading response body")
 	}
 
-	return "", rerrors.Wrap(user_errors.ErrHeadscaleUnexpectedStatus, string(bd), apiResp.StatusCode)
+	return "", rerrors.Wrap(
+		user_errors.ErrHeadscaleUnexpectedStatus,
+		fmt.Sprintf("error issuing key, got unexpected status: %d", apiResp.StatusCode),
+	)
 }

@@ -71,7 +71,7 @@ func (impl *Impl) DropSmerd(
 	// (e.g. an enqueue-adjacent bug), handled defensively exactly like
 	// smerd_create.go does.
 	if finalTask.Status == tasks_queries.VelezTaskStatusFAILED {
-		return nil, user_errors.New(finalTask.Error.String)
+		return nil, rerrors.Wrap(user_errors.ErrTaskFailed, finalTask.Error.String)
 	}
 
 	// Unmarshal only failed/successful rather than the full

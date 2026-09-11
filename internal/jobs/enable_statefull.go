@@ -500,7 +500,7 @@ func (j *createPgContainerJob) exposePortOpts(ctx context.Context, exposeToPort 
 	}
 
 	if slices.Contains(occupiedPorts, uint32(exposeToPort)) {
-		return nil, user_errors.New(fmt.Sprintf("requested port %d is already occupied on this node", exposeToPort))
+		return nil, rerrors.Wrap(user_errors.ErrPortAlreadyOccupied, fmt.Sprintf("port: %d", exposeToPort))
 	}
 
 	return []pg_pattern.Opt{pg_pattern.WithPort(exposeToPort)}, nil

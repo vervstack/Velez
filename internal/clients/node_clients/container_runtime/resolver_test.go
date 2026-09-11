@@ -2,7 +2,6 @@ package container_runtime
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -134,7 +133,7 @@ func TestResolver_DedicatedEnvironmentIsNotImplemented(t *testing.T) {
 
 	_, err := NewResolver(nil, nil, provider).Runtime(context.Background(), testStageEnv)
 	require.Error(t, err)
-	require.True(t, errors.Is(err, user_errors.ErrDedicatedRuntimeNotImplemented))
+	require.ErrorIs(t, err, user_errors.ErrDedicatedRuntimeNotImplemented)
 }
 
 // mutableEnvStorage is a hand-rolled, actually-mutable EnvironmentsStorage

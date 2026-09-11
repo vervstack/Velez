@@ -33,10 +33,10 @@ func (c *Client) execAPIRequest(r *http.Request) (*http.Response, error) {
 }
 
 func (c *Client) handleError(resp *http.Response) error {
-	body, err := io.ReadAll(resp.Body)
+	_, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return rerrors.Wrap(err, "error reading response body")
 	}
 
-	return rerrors.Wrap(user_errors.ErrRegistryUnexpectedStatus, resp.Status, string(body))
+	return rerrors.Wrap(user_errors.ErrRegistryUnexpectedStatus, "status: "+resp.Status)
 }

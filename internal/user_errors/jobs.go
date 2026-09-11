@@ -78,4 +78,30 @@ var (
 	// internal/cluster/env/container_service_task when constructing a
 	// TaskV2 whose config carries an empty hostname.
 	ErrTaskHostnameEmpty = rerrors.New("hostname is empty")
+
+	// ErrJobFailedToExecute is returned by internal/jobs' checkpointedJob
+	// when a job's checkpoint row was already left FAILED by a previous run
+	// - the stored failure message is attached via rerrors.Wrap at the call
+	// site, never rebuilt as an ad-hoc error.
+	ErrJobFailedToExecute = rerrors.New("job previously failed")
+
+	// ErrTaskFailed is returned across transport/worker call sites once a
+	// task's FinishTask status settles on FAILED - the stored
+	// finalTask.Error.String is attached via rerrors.Wrap, never rebuilt as
+	// an ad-hoc error.
+	ErrTaskFailed = rerrors.New("task failed")
+
+	// ErrNoHandlerRegisteredForAction is returned by taskWorker.run when a
+	// claimed task's Action has no TaskHandler registered for it.
+	ErrNoHandlerRegisteredForAction = rerrors.New("no handler registered for action")
+
+	// ErrContainerNotFoundInEnvironment is returned by internal/jobs'
+	// upgrade_smerd steps when a lookup by name finds no container in the
+	// target environment.
+	ErrContainerNotFoundInEnvironment = rerrors.New("container not found in environment")
+
+	// ErrPortAlreadyOccupied is returned by internal/jobs' enable_statefull
+	// steps when the requested Postgres host port is already bound on this
+	// node.
+	ErrPortAlreadyOccupied = rerrors.New("requested port is already occupied on this node")
 )

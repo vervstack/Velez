@@ -65,7 +65,7 @@ func (c *checkpointedJob) Do(ctx context.Context) error {
 				errMsg = existing.Error.String
 			}
 
-			return user_errors.New(errMsg)
+			return rerrors.Wrap(user_errors.ErrJobFailedToExecute, errMsg)
 		case jobs_queries.VelezJobStatusRUNNING:
 			// RUNNING left over from a worker that crashed mid-job - re-run it.
 		}

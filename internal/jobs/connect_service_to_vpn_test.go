@@ -10,6 +10,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/errdefs"
 	"github.com/sqlc-dev/pqtype"
+	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
@@ -173,7 +174,7 @@ func TestGetClientKeyJob_ExistingKeyFound(t *testing.T) {
 func TestGetClientKeyJob_NotFoundIssuesNewKey(t *testing.T) {
 	vpn := newFakeVpnClient()
 
-	vpn.authKeyErr = user_errors.ErrNotFound
+	vpn.authKeyErr = rerrors.Wrap(user_errors.ErrNotFound)
 	vpn.issuedKey = "brand-new-key"
 
 	payload := &velez_api.ConnectServiceToVpnTaskPayload{NamespaceId: proto("ns-1")}
@@ -210,7 +211,7 @@ func TestGetClientKeyJob_UnexpectedGetAuthKeyErrorPropagates(t *testing.T) {
 func TestGetClientKeyJob_IssueClientKeyError(t *testing.T) {
 	vpn := newFakeVpnClient()
 
-	vpn.authKeyErr = user_errors.ErrNotFound
+	vpn.authKeyErr = rerrors.Wrap(user_errors.ErrNotFound)
 	vpn.issueKeyErr = errHeadscaleRejectedRequest
 
 	payload := &velez_api.ConnectServiceToVpnTaskPayload{NamespaceId: proto("ns-1")}

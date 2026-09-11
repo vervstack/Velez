@@ -67,7 +67,7 @@ func (impl *Impl) UpgradeSmerd(ctx context.Context,
 	}
 
 	if finalTask.Status == tasks_queries.VelezTaskStatusFAILED {
-		return nil, user_errors.New(finalTask.Error.String)
+		return nil, rerrors.Wrap(user_errors.ErrTaskFailed, finalTask.Error.String)
 	}
 
 	return &velez_api.UpgradeSmerd_Response{}, nil

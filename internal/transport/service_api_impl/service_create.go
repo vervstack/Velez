@@ -60,7 +60,7 @@ func (impl *Impl) CreateService(
 	}
 
 	if finalTask.Status == tasks_queries.VelezTaskStatusFAILED {
-		return nil, user_errors.New(finalTask.Error.String)
+		return nil, rerrors.Wrap(user_errors.ErrTaskFailed, finalTask.Error.String)
 	}
 
 	return &pb.CreateService_Response{}, nil

@@ -52,12 +52,12 @@ func (s *Client) execAPIRequest(r *http.Request) (*http.Response, error) {
 }
 
 func (s *Client) handleError(resp *http.Response) error {
-	body, err := io.ReadAll(resp.Body)
+	_, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return rerrors.Wrap(err, "error reading response body")
 	}
 
-	return rerrors.Wrap(user_errors.ErrHeadscaleUnexpectedStatus, resp.Status, string(body))
+	return rerrors.Wrap(user_errors.ErrHeadscaleUnexpectedStatus, "status: "+resp.Status)
 }
 
 type RespError struct {

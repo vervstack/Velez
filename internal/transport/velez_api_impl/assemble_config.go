@@ -55,7 +55,7 @@ func (impl *Impl) AssembleConfig(ctx context.Context, req *velez_api.AssembleCon
 	}
 
 	if finalTask.Status == tasks_queries.VelezTaskStatusFAILED {
-		return nil, user_errors.New(finalTask.Error.String)
+		return nil, rerrors.Wrap(user_errors.ErrTaskFailed, finalTask.Error.String)
 	}
 
 	payload := &velez_api.AssembleConfigTaskPayload{}

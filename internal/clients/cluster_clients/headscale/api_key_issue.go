@@ -59,7 +59,7 @@ func (s *keyIssuer) issueNewKey(ctx context.Context) (string, error) {
 	}
 
 	if len(res) == 0 {
-		return "", user_errors.ErrHeadscaleCantParseOutput
+		return "", rerrors.Wrap(user_errors.ErrHeadscaleCantParseOutput)
 	}
 
 	return string(res[1 : len(res)-1]), nil

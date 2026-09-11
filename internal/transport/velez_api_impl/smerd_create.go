@@ -67,7 +67,7 @@ func (impl *Impl) CreateSmerd(ctx context.Context, req *velez_api.CreateSmerd_Re
 	}
 
 	if finalTask.Status == tasks_queries.VelezTaskStatusFAILED {
-		return nil, user_errors.New(finalTask.Error.String)
+		return nil, rerrors.Wrap(user_errors.ErrTaskFailed, finalTask.Error.String)
 	}
 
 	// Unmarshal only container_id rather than the full CreateSmerdTaskPayload -

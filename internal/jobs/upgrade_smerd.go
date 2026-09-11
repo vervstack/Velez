@@ -403,7 +403,10 @@ func resolveCurrentContainer(
 	}
 
 	if len(containers) == 0 {
-		return nil, user_errors.New(fmt.Sprintf("container %q not found in environment %q", name, environment))
+		return nil, rerrors.Wrap(
+			user_errors.ErrContainerNotFoundInEnvironment,
+			fmt.Sprintf("name: %q, environment: %q", name, environment),
+		)
 	}
 
 	cont, err = containerService.InspectSmerd(ctx, environment, containers[0].ID)

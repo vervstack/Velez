@@ -3,6 +3,7 @@ package headscale
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"go.redsock.ru/rerrors"
@@ -34,5 +35,8 @@ func (s *Client) ListNamespaces(ctx context.Context) ([]domain.VcnNamespace, err
 		return nameSpaces.Users, nil
 	}
 
-	return nil, rerrors.Wrap(user_errors.ErrHeadscaleUnexpectedStatus, "listing namespaces")
+	return nil, rerrors.Wrap(
+		user_errors.ErrHeadscaleUnexpectedStatus,
+		fmt.Sprintf("listing namespaces, got status: %d", resp.StatusCode),
+	)
 }

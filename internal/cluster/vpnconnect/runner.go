@@ -77,7 +77,7 @@ func (p *runner[T]) Result() (res *T, err error) {
 		return p.getResult()
 	}
 
-	return nil, errNoGetResultFunction
+	return nil, rerrors.Wrap(errNoGetResultFunction)
 }
 
 func (p *runner[T]) run(ctx context.Context) error {

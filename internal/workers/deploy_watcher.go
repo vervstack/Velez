@@ -419,7 +419,7 @@ func (d *deployWatcher) runTask(ctx context.Context, entityID, action string, in
 	}
 
 	if isFailed {
-		return user_errors.New(finalTask.Error.String)
+		return rerrors.Wrap(user_errors.ErrTaskFailed, finalTask.Error.String)
 	}
 
 	return nil

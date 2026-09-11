@@ -9,7 +9,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/service"
-	"go.vervstack.ru/Velez/internal/service/service_manager/verv_services"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -87,44 +87,44 @@ func TestListSmerds_EmptyEnvironmentReachesService(t *testing.T) {
 }
 
 func TestCreateSmerd_UnknownEnvironmentRejected(t *testing.T) {
-	resolver := &fakeEnvResolver{err: rerrors.Wrap(verv_services.ErrEnvironmentNotFound)}
+	resolver := &fakeEnvResolver{err: rerrors.Wrap(user_errors.ErrEnvironmentNotFound)}
 	impl := &Impl{vervServices: resolver}
 
 	req := &velez_api.CreateSmerd_Request{Name: testSvcName, Environment: testGhostEnv}
 
 	_, err := impl.CreateSmerd(context.Background(), req)
-	require.ErrorIs(t, err, verv_services.ErrEnvironmentNotFound)
+	require.ErrorIs(t, err, user_errors.ErrEnvironmentNotFound)
 	require.Equal(t, testGhostEnv, resolver.gotName)
 }
 
 func TestListSmerds_UnknownEnvironmentRejected(t *testing.T) {
-	resolver := &fakeEnvResolver{err: rerrors.Wrap(verv_services.ErrEnvironmentNotFound)}
+	resolver := &fakeEnvResolver{err: rerrors.Wrap(user_errors.ErrEnvironmentNotFound)}
 	impl := &Impl{vervServices: resolver, smerdService: &panickingSmerdService{}}
 
 	req := &velez_api.ListSmerds_Request{Environment: testGhostEnv}
 
 	_, err := impl.ListSmerds(context.Background(), req)
-	require.ErrorIs(t, err, verv_services.ErrEnvironmentNotFound)
+	require.ErrorIs(t, err, user_errors.ErrEnvironmentNotFound)
 }
 
 func TestDropSmerd_UnknownEnvironmentRejected(t *testing.T) {
-	resolver := &fakeEnvResolver{err: rerrors.Wrap(verv_services.ErrEnvironmentNotFound)}
+	resolver := &fakeEnvResolver{err: rerrors.Wrap(user_errors.ErrEnvironmentNotFound)}
 	impl := &Impl{vervServices: resolver}
 
 	req := &velez_api.DropSmerd_Request{Name: []string{testSvcName}, Environment: testGhostEnv}
 
 	_, err := impl.DropSmerd(context.Background(), req)
-	require.ErrorIs(t, err, verv_services.ErrEnvironmentNotFound)
+	require.ErrorIs(t, err, user_errors.ErrEnvironmentNotFound)
 }
 
 func TestUpgradeSmerd_UnknownEnvironmentRejected(t *testing.T) {
-	resolver := &fakeEnvResolver{err: rerrors.Wrap(verv_services.ErrEnvironmentNotFound)}
+	resolver := &fakeEnvResolver{err: rerrors.Wrap(user_errors.ErrEnvironmentNotFound)}
 	impl := &Impl{vervServices: resolver}
 
 	req := &velez_api.UpgradeSmerd_Request{Name: testSvcName, Environment: testGhostEnv}
 
 	_, err := impl.UpgradeSmerd(context.Background(), req)
-	require.ErrorIs(t, err, verv_services.ErrEnvironmentNotFound)
+	require.ErrorIs(t, err, user_errors.ErrEnvironmentNotFound)
 }
 
 // A valid environment must pass validation through to the resolver unchanged.

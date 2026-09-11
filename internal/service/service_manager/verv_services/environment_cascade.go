@@ -11,11 +11,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/list_request"
 	"go.vervstack.ru/Velez/internal/domain/labels"
-)
-
-//nolint:forbidigo // package-private sentinel, not shared/user-facing
-var errEmptyEnvironmentSuffix = rerrors.New(
-	"refusing to cascade-delete resources for an environment with an empty suffix",
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // environmentContainerAPI is the narrow docker slice the cascade needs to find
@@ -58,7 +54,7 @@ func cascadeRemoveEnvironmentResources(
 	suffix string,
 ) error {
 	if suffix == "" {
-		return errEmptyEnvironmentSuffix
+		return user_errors.ErrEmptyEnvironmentSuffix
 	}
 
 	err := removeEnvironmentContainers(ctx, containers, suffix)

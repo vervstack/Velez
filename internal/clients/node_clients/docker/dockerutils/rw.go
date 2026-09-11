@@ -13,6 +13,8 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
+
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -23,9 +25,6 @@ const (
 	// stream claiming an unbounded amount of data.
 	maxDirReadBytes = 32 * 1024 * 1024
 )
-
-//nolint:forbidigo // package-private sentinel, not shared/user-facing
-var errDirReadSizeExceeded = rerrors.New("directory contents exceed the maximum allowed read size")
 
 func ReadFromContainer(ctx context.Context, dockerAPI client.APIClient, contId string, path string) ([]byte, error) {
 	rc, _, err := dockerAPI.CopyFromContainer(ctx, contId, path)
@@ -133,7 +132,7 @@ func ReadDirFromContainer(
 
 		totalBytes += hdr.Size
 		if totalBytes > maxDirReadBytes {
-			return nil, errDirReadSizeExceeded
+			return nil, user_errors.ErrDirReadSizeExceeded
 		}
 
 		var content []byte

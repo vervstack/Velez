@@ -8,6 +8,7 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 type listNamespacesResponse struct {
@@ -33,5 +34,5 @@ func (s *Client) ListNamespaces(ctx context.Context) ([]domain.VcnNamespace, err
 		return nameSpaces.Users, nil
 	}
 
-	return nil, rerrors.Wrap(ErrUnexpectedStatus, "listing namespaces")
+	return nil, rerrors.Wrap(user_errors.ErrHeadscaleUnexpectedStatus, "listing namespaces")
 }

@@ -8,17 +8,13 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
-var (
-	envs = []string{
-		"HEADSCALE_LOG_FORMAT=text",
-		"NO_COLOR=1",
-	}
-
-	//nolint:forbidigo // package-private sentinel, not shared/user-facing
-	errCantParseOutput = rerrors.New("can't parse output")
-)
+var envs = []string{
+	"HEADSCALE_LOG_FORMAT=text",
+	"NO_COLOR=1",
+}
 
 const (
 	listAPIKeys  = "headscale apikey list"
@@ -63,7 +59,7 @@ func (s *keyIssuer) issueNewKey(ctx context.Context) (string, error) {
 	}
 
 	if len(res) == 0 {
-		return "", errCantParseOutput
+		return "", user_errors.ErrHeadscaleCantParseOutput
 	}
 
 	return string(res[1 : len(res)-1]), nil

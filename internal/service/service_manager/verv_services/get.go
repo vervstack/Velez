@@ -8,14 +8,12 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
-
-//nolint:forbidigo // package-private sentinel, not shared/user-facing
-var errServiceNameRequiredToFind = rerrors.New("name is required to find service")
 
 func (v *VervService) Get(ctx context.Context, r domain.GetServiceReq) (domain.Service, error) {
 	if r.Name == "" {
-		return domain.Service{}, errServiceNameRequiredToFind
+		return domain.Service{}, user_errors.ErrServiceNameRequiredToFind
 	}
 
 	service, err := v.dataStorage.Services().GetByName(ctx, r.Name)

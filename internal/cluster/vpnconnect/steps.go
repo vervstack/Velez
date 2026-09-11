@@ -283,9 +283,6 @@ type startContainerStep struct {
 	containerID *string
 }
 
-//nolint:forbidigo // package-private sentinel, not shared/user-facing
-var errNoContainerIdProvided = rerrors.New("no container id provided")
-
 func newStartContainer(nc node_clients.NodeClients, containerID *string) step {
 	return &startContainerStep{
 		dockerAPI:   nc.Docker().Client(),
@@ -295,7 +292,7 @@ func newStartContainer(nc node_clients.NodeClients, containerID *string) step {
 
 func (s *startContainerStep) Do(ctx context.Context) error {
 	if s.containerID == nil {
-		return errNoContainerIdProvided
+		return user_errors.ErrContainerIdMissing
 	}
 
 	err := s.dockerAPI.ContainerStart(ctx, *s.containerID, container.StartOptions{})

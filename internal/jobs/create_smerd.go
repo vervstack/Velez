@@ -28,6 +28,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/service"
+	"go.vervstack.ru/Velez/internal/user_errors"
 	"go.vervstack.ru/Velez/internal/utils/configutils"
 )
 
@@ -45,15 +46,6 @@ const (
 	vervConfigLabelDisabled = "false"
 
 	dockerContainerStatusRunning = "running"
-)
-
-var (
-	//nolint:forbidigo // package-private sentinel, not shared/user-facing
-	errSmerdContainerIDMissing = rerrors.New("no container id provided")
-	//nolint:forbidigo // package-private sentinel, not shared/user-facing
-	errSmerdContainerNotCreated = rerrors.New("container was not created")
-	//nolint:forbidigo // package-private sentinel, not shared/user-facing
-	errHealthcheckRetriesExhausted = rerrors.New("healthcheck retries exhausted")
 )
 
 // Accessor interfaces the create_smerd jobs need from their TaskContext.
@@ -599,7 +591,7 @@ func (j *copyToContainerJob) Do(ctx context.Context) error {
 		}
 
 		if containerID == "" {
-			return errSmerdContainerIDMissing
+			return user_errors.ErrContainerIdMissing
 		}
 
 		err := dockerutils.WriteToContainer(ctx, j.dockerAPI, containerID, path, content)
@@ -792,7 +784,7 @@ type startContainerJob struct {
 func (j *startContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return errSmerdContainerIDMissing
+		return user_errors.ErrContainerIdMissing
 	}
 
 	err := j.dockerAPI.ContainerStart(ctx, containerID, container.StartOptions{})
@@ -832,7 +824,7 @@ func (j *healthcheckJob) Do(ctx context.Context) error {
 
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return errSmerdContainerNotCreated
+		return user_errors.ErrContainerNotCreated
 	}
 
 	for range healthcheck.GetRetries() {
@@ -852,5 +844,5 @@ func (j *healthcheckJob) Do(ctx context.Context) error {
 		}
 	}
 
-	return errHealthcheckRetriesExhausted
+	return user_errors.ErrHealthcheckRetriesExhausted
 }

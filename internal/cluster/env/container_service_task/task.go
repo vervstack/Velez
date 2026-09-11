@@ -19,6 +19,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/cluster/env"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 type TaskV2 struct {
@@ -36,20 +37,13 @@ type TaskV2 struct {
 	containerState *container.InspectResponse
 }
 
-var (
-	//nolint:forbidigo // package-private sentinel, not shared/user-facing
-	errTaskV2ConfigNil = rerrors.New("config is nil")
-	//nolint:forbidigo // package-private sentinel, not shared/user-facing
-	errTaskV2HostnameEmpty = rerrors.New("hostname is empty")
-)
-
 func NewTaskV2(docker node_clients.Docker, ctr container.CreateRequest) (*TaskV2, error) {
 	if ctr.Config == nil {
-		return nil, errTaskV2ConfigNil
+		return nil, user_errors.ErrTaskConfigNil
 	}
 
 	if ctr.Hostname == "" {
-		return nil, errTaskV2HostnameEmpty
+		return nil, user_errors.ErrTaskHostnameEmpty
 	}
 
 	ctr.HostConfig = rtb.Coalesce(ctr.HostConfig, &container.HostConfig{})

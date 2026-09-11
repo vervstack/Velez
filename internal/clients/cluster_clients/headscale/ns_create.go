@@ -6,9 +6,9 @@ import (
 	"net/http"
 
 	"go.redsock.ru/rerrors"
-	"google.golang.org/grpc/codes"
 
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/user_errors"
 	"go.vervstack.ru/Velez/internal/utils/common"
 )
 
@@ -18,9 +18,6 @@ type createNamespaceRequest struct {
 type createNamespaceResponse struct {
 	User domain.VcnNamespace `json:"user"`
 }
-
-//nolint:forbidigo // package-private sentinel, not shared/user-facing
-var errNamespaceAlreadyExists = rerrors.NewUserError("namespace already exists", codes.AlreadyExists)
 
 func (s *Client) CreateNamespace(ctx context.Context, name string) (domain.VcnNamespace, error) {
 	r := createNamespaceRequest{Name: name}
@@ -53,7 +50,10 @@ func (s *Client) CreateNamespace(ctx context.Context, name string) (domain.VcnNa
 	}
 
 	if e.isUniqueError() {
-		return domain.VcnNamespace{}, rerrors.Wrap(errNamespaceAlreadyExists, "namespace creation failed")
+		return domain.VcnNamespace{}, rerrors.Wrap(
+			user_errors.ErrHeadscaleNamespaceAlreadyExists,
+			"namespace creation failed",
+		)
 	}
 
 	return domain.VcnNamespace{}, rerrors.Wrap(e)

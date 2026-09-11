@@ -8,16 +8,8 @@ import (
 
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/environments"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
-
-// ErrDedicatedRuntimeNotImplemented is returned for an environment that asks
-// for a Docker daemon of its own (domain.Environment.DockerHost set). Building
-// that daemon - pkg/docker_setup, systemd units, connection pooling - is
-// Phase 2 of docs/container_runtimes/roadmap.md; failing loudly beats silently
-// serving such an environment off the shared daemon.
-//
-//nolint:forbidigo // package-private sentinel, not shared/user-facing
-var ErrDedicatedRuntimeNotImplemented = rerrors.New("dedicated container runtime is not implemented yet")
 
 // EnvironmentsProvider yields the currently-live environments storage.
 //
@@ -67,7 +59,7 @@ func (r *resolver) Runtime(ctx context.Context, environment string) (ContainerRu
 	}
 
 	if env.DockerHost != "" {
-		return nil, rerrors.Wrapf(ErrDedicatedRuntimeNotImplemented,
+		return nil, rerrors.Wrapf(user_errors.ErrDedicatedRuntimeNotImplemented,
 			"environment '%s' is bound to docker host '%s'", env.Name, env.DockerHost)
 	}
 

@@ -49,19 +49,6 @@ const (
 	stepRenameNewContainer           = "rename_new_container"
 )
 
-var (
-	// ErrSelfUpgradeIsForbidden moved here from the deleted
-	// internal/pipelines/steps/upgrade_steps package, where it was the last
-	// symbol anything outside internal/pipelines still imported.
-	//nolint:forbidigo // package-private sentinel, not shared/user-facing
-	ErrSelfUpgradeIsForbidden = rerrors.NewUserError("Can't perform self upgrade", codes.FailedPrecondition)
-
-	//nolint:forbidigo // package-private sentinel, not shared/user-facing
-	errUpgradeContainerIDMissing = rerrors.New("container id is required")
-	//nolint:forbidigo // package-private sentinel, not shared/user-facing
-	errUpgradeConfigContainerIDMissing = rerrors.New("empty container id")
-)
-
 // Accessor interfaces the upgrade_smerd jobs need from their TaskContext.
 // *velez_api.UpgradeSmerdTaskPayload satisfies all of them.
 // smerdRequestAccessor, containerIDAccessor and imageMetaAccessor are
@@ -315,7 +302,7 @@ func (j *checkSelfUpgradeJob) Do(ctx context.Context) error {
 	}
 
 	if smerd.GetUuid() == *id {
-		return rerrors.Wrap(ErrSelfUpgradeIsForbidden)
+		return rerrors.Wrap(user_errors.ErrSelfUpgradeIsForbidden)
 	}
 
 	return nil
@@ -569,7 +556,7 @@ type pauseOldContainerJob struct {
 func (j *pauseOldContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetOldContainerId()
 	if containerID == "" {
-		return errUpgradeContainerIDMissing
+		return user_errors.ErrContainerIdRequired
 	}
 
 	cont, err := j.dockerAPI.ContainerInspect(ctx, containerID)
@@ -748,7 +735,7 @@ type getConfigFromScratchContainerJob struct {
 func (j *getConfigFromScratchContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return errUpgradeConfigContainerIDMissing
+		return user_errors.ErrContainerIdEmpty
 	}
 
 	_, _, systemPath := classifyImage(j.imageMeta.GetImageLabels(), j.imageMeta.GetImageTags())
@@ -974,7 +961,7 @@ type renameContainerJob struct {
 func (j *renameContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return errUpgradeContainerIDMissing
+		return user_errors.ErrContainerIdRequired
 	}
 
 	runtime, err := j.runtimes.Runtime(ctx, j.req.GetUpgradeRequest().GetEnvironment())

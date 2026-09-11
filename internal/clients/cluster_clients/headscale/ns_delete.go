@@ -6,6 +6,8 @@ import (
 	"net/http"
 
 	"go.redsock.ru/rerrors"
+
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 func (s *Client) DeleteNamespace(ctx context.Context, id string) error {
@@ -22,5 +24,5 @@ func (s *Client) DeleteNamespace(ctx context.Context, id string) error {
 		return nil
 	}
 
-	return rerrors.Wrap(ErrUnexpectedStatus, "deleting namespace")
+	return rerrors.Wrap(user_errors.ErrHeadscaleUnexpectedStatus, "deleting namespace")
 }

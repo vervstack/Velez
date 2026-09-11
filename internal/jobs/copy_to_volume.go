@@ -20,6 +20,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -35,9 +36,6 @@ const (
 	// container name.
 	loaderContainerSuffix = "_loader"
 )
-
-//nolint:forbidigo // package-private sentinel, not shared/user-facing
-var errCopyContainerIDMissing = rerrors.New("no container id provided")
 
 // Accessor interfaces the copy_to_volume jobs need from their TaskContext.
 // *velez_api.CopyToVolumeTaskPayload satisfies all of them. containerIDAccessor
@@ -269,7 +267,7 @@ type startLoaderContainerJob struct {
 func (j *startLoaderContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return errCopyContainerIDMissing
+		return user_errors.ErrContainerIdMissing
 	}
 
 	startOpts := container.StartOptions{}
@@ -337,7 +335,7 @@ func (j *copyFileJob) Do(ctx context.Context) error {
 
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return errCopyContainerIDMissing
+		return user_errors.ErrContainerIdMissing
 	}
 
 	containerRuntime, err := j.runtimes.Runtime(ctx, "")

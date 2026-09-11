@@ -19,6 +19,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -43,9 +44,6 @@ const (
 	confTypePg    = "pg"
 	confTypePlain = "plain"
 )
-
-//nolint:forbidigo // package-private sentinel, not shared/user-facing
-var errEmptyContainerID = rerrors.New("empty container id")
 
 // Accessor interfaces the assemble_config jobs need from their TaskContext.
 // *velez_api.AssembleConfigTaskPayload satisfies all of them. containerIDAccessor
@@ -244,7 +242,7 @@ type fetchConfigJob struct {
 func (j *fetchConfigJob) Do(ctx context.Context) error {
 	containerID := j.container.GetContainerId()
 	if containerID == "" {
-		return errEmptyContainerID
+		return user_errors.ErrContainerIdEmpty
 	}
 
 	confType, format, systemPath := classifyImage(j.imageMeta.GetImageLabels(), j.imageMeta.GetImageTags())

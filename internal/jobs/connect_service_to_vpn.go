@@ -31,20 +31,6 @@ const (
 	stepAddMakoshRecord     = "add_makosh_record"
 )
 
-var (
-	// errSidecarAlreadyRunning replaces the deleted
-	// internal/pipelines/steps.ErrAlreadyExists for this action's own
-	// short-circuit. The node-bootstrap path that actually branches on that
-	// sentinel now lives in internal/cluster/vpnconnect and keeps its own
-	// exported copy; nothing inspects this one - the jobs engine persists a
-	// failed task's error as a string either way.
-	//nolint:forbidigo // package-private sentinel, not shared/user-facing
-	errSidecarAlreadyRunning = rerrors.New("sidecar container already running")
-
-	//nolint:forbidigo // package-private sentinel, not shared/user-facing
-	errSidecarContainerIDMissing = rerrors.New("no container id provided")
-)
-
 // Accessor interfaces the connect_service_to_vpn jobs need from their
 // TaskContext. *velez_api.ConnectServiceToVpnTaskPayload satisfies all of
 // them. containerIDAccessor is declared in create_smerd.go and reused here
@@ -209,7 +195,7 @@ func (j *checkSidecarExistJob) Do(ctx context.Context) error {
 	}
 
 	if conts[0].State == dockerContainerStatusRunning {
-		return rerrors.Wrap(errSidecarAlreadyRunning)
+		return rerrors.Wrap(user_errors.ErrSidecarAlreadyRunning)
 	}
 
 	err = j.docker.Remove(ctx, conts[0].ID)
@@ -400,7 +386,7 @@ type startSidecarContainerJob struct {
 func (j *startSidecarContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return errSidecarContainerIDMissing
+		return user_errors.ErrContainerIdMissing
 	}
 
 	err := j.dockerAPI.ContainerStart(ctx, containerID, container.StartOptions{})

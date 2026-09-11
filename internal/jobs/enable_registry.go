@@ -26,6 +26,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/plugins_queries"
 	"go.vervstack.ru/Velez/internal/storage/registries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -79,19 +80,6 @@ const (
 	stepDeployRegistry    = "deploy_registry"
 	stepRegisterPlugin    = "register_plugin"
 	stepRegisterRegistry  = "register_registry"
-)
-
-var (
-	//nolint:forbidigo // package-private sentinel, not shared/user-facing
-	errRegistryContainerIDMissing = rerrors.New("no container id provided")
-
-	// errRegistriesStorageMissingBuiltinUpsert signals a storage wiring bug,
-	// not a user-facing condition - registries.NewStatic and registries.NewPg
-	// both satisfy registries.BuiltinRegistryUpserter (builtin.go), so this
-	// only fires if a third RegistriesStorage implementation is ever wired in
-	// without it.
-	//nolint:forbidigo // package-private sentinel, not shared/user-facing
-	errRegistriesStorageMissingBuiltinUpsert = rerrors.New("registries storage does not support builtin upsert")
 )
 
 // Accessor interfaces the enable_registry jobs need from their TaskContext.
@@ -369,7 +357,7 @@ type writeHtpasswdJob struct {
 func (j *writeHtpasswdJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return errRegistryContainerIDMissing
+		return user_errors.ErrContainerIdMissing
 	}
 
 	line, err := htpasswdLine(j.ctx.GetUsername(), j.ctx.GetPassword())
@@ -584,7 +572,7 @@ type registerRegistryRowJob struct {
 func (j *registerRegistryRowJob) Do(ctx context.Context) error {
 	upserter, ok := j.registries.(registries.BuiltinRegistryUpserter)
 	if !ok {
-		return rerrors.Wrap(errRegistriesStorageMissingBuiltinUpsert)
+		return rerrors.Wrap(user_errors.ErrRegistriesStorageMissingBuiltinUpsert)
 	}
 
 	req := domain.CreateRegistryReq{

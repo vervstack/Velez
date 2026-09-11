@@ -12,10 +12,8 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
-
-//nolint:forbidigo // package-private sentinel, not shared/user-facing
-var errNoRunningDeployment = rerrors.New("no running deployment found for service")
 
 // CreateNewDeploy upserts request.ServiceName before looking it up so a
 // service with no container yet (nothing else has created it) still
@@ -137,7 +135,7 @@ func (v *VervService) UpgradeDeploy(ctx context.Context, request domain.UpgradeD
 	}
 
 	if runningDep == nil {
-		return errNoRunningDeployment
+		return user_errors.ErrNoRunningDeployment
 	}
 
 	currentSpec, err := v.dataStorage.Deployments().GetSpecificationById(ctx, runningDep.SpecId)

@@ -11,10 +11,9 @@ import (
 	"go.redsock.ru/rerrors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-)
 
-//nolint:forbidigo // package-private sentinel, not shared/user-facing
-var ErrUnexpectedStatus = rerrors.New("unexpected status")
+	"go.vervstack.ru/Velez/internal/user_errors"
+)
 
 const (
 	authHeader = "Authorization"
@@ -58,7 +57,7 @@ func (s *Client) handleError(resp *http.Response) error {
 		return rerrors.Wrap(err, "error reading response body")
 	}
 
-	return rerrors.Wrap(ErrUnexpectedStatus, resp.Status, string(body))
+	return rerrors.Wrap(user_errors.ErrHeadscaleUnexpectedStatus, resp.Status, string(body))
 }
 
 type RespError struct {

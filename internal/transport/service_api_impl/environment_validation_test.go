@@ -10,7 +10,7 @@ import (
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/service"
-	"go.vervstack.ru/Velez/internal/service/service_manager/verv_services"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -65,24 +65,24 @@ func TestCreateDeploy_EmptyEnvironmentReachesService(t *testing.T) {
 }
 
 func TestCreateService_UnknownEnvironmentRejected(t *testing.T) {
-	resolver := &fakeEnvResolver{err: rerrors.Wrap(verv_services.ErrEnvironmentNotFound)}
+	resolver := &fakeEnvResolver{err: rerrors.Wrap(user_errors.ErrEnvironmentNotFound)}
 	impl := &Impl{servicesService: resolver}
 
 	req := &pb.CreateService_Request{Name: testSvcName, Environment: "ghost"}
 
 	_, err := impl.CreateService(context.Background(), req)
-	require.ErrorIs(t, err, verv_services.ErrEnvironmentNotFound)
+	require.ErrorIs(t, err, user_errors.ErrEnvironmentNotFound)
 	require.Equal(t, "ghost", resolver.gotName)
 }
 
 func TestCreateDeploy_UnknownEnvironmentRejected(t *testing.T) {
-	resolver := &fakeEnvResolver{err: rerrors.Wrap(verv_services.ErrEnvironmentNotFound)}
+	resolver := &fakeEnvResolver{err: rerrors.Wrap(user_errors.ErrEnvironmentNotFound)}
 	impl := &Impl{servicesService: resolver}
 
 	req := &pb.CreateDeploy_Request{ServiceName: testSvcName, Environment: "ghost"}
 
 	_, err := impl.CreateDeploy(context.Background(), req)
-	require.ErrorIs(t, err, verv_services.ErrEnvironmentNotFound)
+	require.ErrorIs(t, err, user_errors.ErrEnvironmentNotFound)
 }
 
 // The deploy's environment has to end up on the persisted CreateSmerd spec -

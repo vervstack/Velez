@@ -12,11 +12,6 @@ import (
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
-//nolint:forbidigo // package-private sentinel, not shared/user-facing
-var errServiceHasRunningInstances = rerrors.New(
-	"service has running instances, stop/drop them first or set drop_running_instances",
-)
-
 func (v *VervService) Remove(ctx context.Context, req domain.RemoveServiceReq) error {
 	listReq := &velez_api.ListSmerds_Request{
 		Name:        &req.Name,
@@ -30,7 +25,7 @@ func (v *VervService) Remove(ctx context.Context, req domain.RemoveServiceReq) e
 
 	if len(resp.GetSmerds()) > 0 {
 		if !req.DropRunningInstances {
-			return errServiceHasRunningInstances
+			return user_errors.ErrServiceHasRunningInstances
 		}
 
 		uuids := make([]string, 0, len(resp.GetSmerds()))

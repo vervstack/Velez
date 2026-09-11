@@ -24,12 +24,7 @@ const (
 	labelValueTrue = "true"
 )
 
-var (
-	//nolint:forbidigo // package-private sentinel, not shared/user-facing
-	errContainerConfigRequired = rerrors.New("container config is required")
-
-	_ ContainerRuntime = (*dockerRuntime)(nil)
-)
+var _ ContainerRuntime = (*dockerRuntime)(nil)
 
 // dockerRuntime is the single shared implementation of every
 // environment-scoped ContainerRuntime method, generic and backend-agnostic
@@ -92,10 +87,6 @@ func (r *dockerRuntime) ContainerCreate(
 	ctx context.Context,
 	req ContainerCreateRequest,
 ) (container.CreateResponse, error) {
-	if req.Config == nil || req.Config.Config == nil {
-		return container.CreateResponse{}, errContainerConfigRequired
-	}
-
 	config := req.Config.Config
 
 	if config.Labels == nil {

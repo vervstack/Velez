@@ -96,17 +96,6 @@ const (
 	pgInvalidPasswordCode = pq.ErrorCode("28P01")
 )
 
-var (
-	//nolint:forbidigo // package-private sentinel, not shared/user-facing
-	errPgContainerIDMissing = rerrors.New("no container id provided")
-	//nolint:forbidigo // package-private sentinel, not shared/user-facing
-	errPgContainerNotHealthy = rerrors.New("timed out waiting for postgres container to become healthy")
-	//nolint:forbidigo // package-private sentinel, not shared/user-facing
-	errNoNetworkSettings = rerrors.New("no network settings found in container")
-	//nolint:forbidigo // package-private sentinel, not shared/user-facing
-	errNoPgPortExposure = rerrors.New("no exposure for 5432 found")
-)
-
 // Accessor interfaces the enable_statefull jobs need from their TaskContext.
 // *velez_api.EnableStatefullTaskPayload satisfies all of them.
 // containerIDAccessor is declared in create_smerd.go and reused here as-is.
@@ -529,7 +518,7 @@ type startPgContainerJob struct {
 func (j *startPgContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return errPgContainerIDMissing
+		return user_errors.ErrContainerIdMissing
 	}
 
 	err := j.dockerAPI.ContainerStart(ctx, containerID, container.StartOptions{})
@@ -571,7 +560,7 @@ type waitForPgReadyJob struct {
 func (j *waitForPgReadyJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return errPgContainerIDMissing
+		return user_errors.ErrContainerIdMissing
 	}
 
 	deadline := time.Now().Add(pgReadyTimeout)
@@ -589,7 +578,7 @@ func (j *waitForPgReadyJob) Do(ctx context.Context) error {
 		}
 
 		if time.Now().After(deadline) {
-			return errPgContainerNotHealthy
+			return user_errors.ErrPgContainerNotHealthy
 		}
 
 		select {
@@ -711,12 +700,12 @@ func (j *getRootDsnJob) applyBareBinaryHostPort(pgCfg *resources.Postgres, cont 
 
 func getExposedPgPort(cont container.InspectResponse) (uint64, error) {
 	if cont.NetworkSettings == nil {
-		return 0, errNoNetworkSettings
+		return 0, user_errors.ErrNoNetworkSettings
 	}
 
 	ports := cont.NetworkSettings.Ports[pg_pattern.TCPPort]
 	if len(ports) == 0 {
-		return 0, errNoPgPortExposure
+		return 0, user_errors.ErrNoPgPortExposure
 	}
 
 	hostPort := ports[0].HostPort

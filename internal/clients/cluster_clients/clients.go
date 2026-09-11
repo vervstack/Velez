@@ -4,10 +4,10 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+	"go.vervstack.ru/Velez/internal/api/clients/matreshka/pkg/matreshka_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
 	makosh "go.vervstack.ru/makosh/pkg/makosh_be"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 	"google.golang.org/grpc/codes"
 )
 
@@ -21,7 +21,7 @@ type ClusterClients interface {
 }
 
 type Configurator interface {
-	matreshka_api.MatreshkaBeAPIClient
+	matreshka_api.MatreshkaApiClient
 }
 
 type ServiceDiscovery interface {

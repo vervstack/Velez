@@ -22,12 +22,13 @@ type createNamespaceResponse struct {
 func (s *Client) CreateNamespace(ctx context.Context, name string) (domain.VcnNamespace, error) {
 	r := createNamespaceRequest{Name: name}
 
+	//nolint:bodyclose // closed via common.CloseWithLog below
 	apiResp, err := s.doAPIRequest(ctx, http.MethodPost, userURI, r)
 	if err != nil {
 		return domain.VcnNamespace{}, rerrors.Wrap(err, "error creating namespace")
 	}
 
-	defer common.CloseWithLog(apiResp.Body.Close, "close response body for create namespace request")
+	defer common.CloseWithLog(apiResp.Body.Close, "create namespace response body")
 
 	if apiResp.StatusCode == http.StatusOK {
 		var ns createNamespaceResponse
@@ -43,8 +44,6 @@ func (s *Client) CreateNamespace(ctx context.Context, name string) (domain.VcnNa
 	var e RespError
 
 	err = json.NewDecoder(apiResp.Body).Decode(&e)
-	_ = apiResp.Body.Close()
-
 	if err != nil {
 		return domain.VcnNamespace{}, rerrors.Wrap(err, "error decoding error response")
 	}

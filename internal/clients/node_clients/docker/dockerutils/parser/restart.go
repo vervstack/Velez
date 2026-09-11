@@ -24,8 +24,6 @@ func FromRestart(r *velez_api.RestartPolicy) container.RestartPolicy {
 
 	switch r.GetType() {
 	case velez_api.RestartPolicyType_no:
-		rp.Name = container.RestartPolicyDisabled
-
 		return container.RestartPolicy{}
 
 	case velez_api.RestartPolicyType_always,

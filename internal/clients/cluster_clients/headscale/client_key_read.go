@@ -63,16 +63,3 @@ func (s *Client) GetClientAuthKey(ctx context.Context, req domain.GetVcnAuthKeyR
 
 	return domain.VcnAuthKey{}, s.handleError(resp)
 }
-
-type T struct {
-	PreAuthKeys []struct {
-		Id         string    `json:"id"`
-		Key        string    `json:"key"`
-		Reusable   bool      `json:"reusable"`
-		Ephemeral  bool      `json:"ephemeral"`
-		Used       bool      `json:"used"`
-		Expiration time.Time `json:"expiration"`
-		CreatedAt  time.Time `json:"createdAt"`
-		AclTags    []any     `json:"aclTags"`
-	} `json:"preAuthKeys"`
-}

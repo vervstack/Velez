@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
 	"go.vervstack.ru/Velez/internal/cluster/env/containerinfo"
 )
 
@@ -16,14 +18,10 @@ func TestManager_GetHardware_IsRunningInContainer(t *testing.T) {
 	m := New("")
 
 	resp, err := m.GetHardware()
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
+	require.NoError(t, err)
 
 	want := containerinfo.IsInContainer()
-	if resp.GetIsRunningInContainer() != want {
-		t.Errorf("expected IsRunningInContainer to be %v, got %v", want, resp.GetIsRunningInContainer())
-	}
+	require.Equal(t, want, resp.GetIsRunningInContainer())
 }
 
 // GetHardware re-runs ghw's CPU/Memory/Block discovery on every uncached call, which
@@ -33,18 +31,12 @@ func TestManager_GetHardware_CachesWithinTTL(t *testing.T) {
 	m := New("")
 
 	first, err := m.GetHardware()
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
+	require.NoError(t, err)
 
 	second, err := m.GetHardware()
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
+	require.NoError(t, err)
 
-	if first != second {
-		t.Errorf("expected GetHardware to return the cached response within the TTL, got distinct instances")
-	}
+	require.Same(t, first, second)
 }
 
 // New's region argument is passed straight through into every GetHardware
@@ -58,13 +50,9 @@ func TestManager_GetHardware_NodeRegionPassesThrough(t *testing.T) {
 	m := New(region)
 
 	resp, err := m.GetHardware()
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
+	require.NoError(t, err)
 
-	if resp.GetNodeRegion() != region {
-		t.Errorf("expected NodeRegion to be %q, got %q", region, resp.GetNodeRegion())
-	}
+	require.Equal(t, region, resp.GetNodeRegion())
 }
 
 func TestManager_GetHardware_RefreshesAfterTTL(t *testing.T) {
@@ -77,18 +65,12 @@ func TestManager_GetHardware_RefreshesAfterTTL(t *testing.T) {
 	m := New("")
 
 	first, err := m.GetHardware()
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
+	require.NoError(t, err)
 
 	time.Sleep(2 * time.Millisecond)
 
 	second, err := m.GetHardware()
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
+	require.NoError(t, err)
 
-	if first == second {
-		t.Errorf("expected GetHardware to refresh after the TTL elapsed, got the same cached instance")
-	}
+	require.NotSame(t, first, second)
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
-	"github.com/pkg/errors"
+	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
@@ -28,7 +28,7 @@ func PullImage(
 	if !force {
 		imageList, err = docker.ImageList(ctx, dockerReq)
 		if err != nil {
-			return nil, errors.Wrap(err, "error listing images after pulling")
+			return nil, rerrors.Wrap(err, "error listing images after pulling")
 		}
 	}
 
@@ -37,31 +37,31 @@ func PullImage(
 
 		rdr, err = docker.ImagePull(ctx, name, image.PullOptions{})
 		if err != nil {
-			return nil, errors.Wrap(err, "error pulling image")
+			return nil, rerrors.Wrap(err, "error pulling image")
 		}
 
 		_, err = io.ReadAll(rdr)
 		if err != nil {
-			return nil, errors.Wrap(err, "error reading pull log")
+			return nil, rerrors.Wrap(err, "error reading pull log")
 		}
 
 		err = rdr.Close()
 		if err != nil {
-			return nil, errors.Wrap(err, "error closing image pull reader")
+			return nil, rerrors.Wrap(err, "error closing image pull reader")
 		}
 
 		imageList, err = docker.ImageList(ctx, dockerReq)
 		if err != nil {
-			return nil, errors.Wrap(err, "error listing images after pulling")
+			return nil, rerrors.Wrap(err, "error listing images after pulling")
 		}
 	}
 
 	if len(imageList) == 0 {
-		return nil, errors.New("image list is empty")
+		return nil, rerrors.New("image list is empty")
 	}
 
 	if len(imageList[0].RepoTags) == 0 {
-		return nil, errors.New("image has no tags")
+		return nil, rerrors.New("image has no tags")
 	}
 
 	return &velez_api.Image{

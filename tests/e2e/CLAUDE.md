@@ -44,6 +44,44 @@ When a new axis value becomes real (e.g. `SeparationDedicatedEngine` gets implem
 once in `Plane.NewEnvironment` and every adopting suite picks it up — that's the entire point of
 routing through `Plane` instead of each suite hand-rolling its own fixture setup.
 
+## Adopting the matrix in a `testify/suite` suite
+
+Every suite in this package (bar `suite_container_runtime_test.go`, which predates this and hand-
+rolls its own function-per-axis tree) already uses `testify/suite`. The matrix-aware shape for one
+of these is: give the suite a `plane Plane` field, build its fixture through `s.plane.NewEnvironment`
+(wherever the suite already builds it — `SetupSuite`, `SetupTest`, or inline per test method) instead
+of `Planes[0].NewEnvironment`/`NewEnvironment`, and drive it with `RunPlaneSuite` instead of a bare
+`suite.Run`:
+
+```go
+type ControlPlaneSuite struct {
+	suite.Suite
+
+	plane Plane
+}
+
+func (s *ControlPlaneSuite) Test_ListEnvironments_WithLocalStateConfig() {
+	env := s.plane.NewEnvironment(s.T(), ...)
+	...
+}
+
+func Test_ControlPlane(t *testing.T) {
+	t.Parallel()
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
+		return &ControlPlaneSuite{plane: plane}
+	})
+}
+```
+
+`RunPlaneSuite` (`matrix_test.go`) runs `newSuite` once per `Plane` in the slice passed to it, each
+as its own `t.Run(plane.Name(), ...)` subtest. It adds no skip logic of its own — `Plane.NewEnvironment`
+is still the only place that decides a cell isn't wired yet, so passing the full `Planes` (not just
+`Planes[0]`) costs nothing today and means the suite needs no further changes when a new cell lights
+up. A suite whose test methods are genuinely cluster/matreshka-shaped (`suite_api_deploy_test.go`'s
+`Test_ClusterMode_*`, `suite_hello_world_cluster_test.go`) stays on `Planes[0]` directly rather than
+the full matrix — looping `Planes` there is a correct no-op today but adds nothing until a cluster
+cell exists to actually exercise.
+
 ## Environment axis: name IS the wire value
 
 `velez_api.CreateSmerd_Request.Environment` (and `ListSmerds_Request.Environment`, etc.) *is* the

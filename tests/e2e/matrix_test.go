@@ -3,6 +3,8 @@ package e2e
 import (
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/suite"
 )
 
 // PlaneMode is the state backend a Plane's fixture runs with.
@@ -118,4 +120,22 @@ func (p Plane) NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment
 	}
 
 	return NewEnvironment(t, opts...)
+}
+
+// RunPlaneSuite runs newSuite once per plane in planes, each as its own
+// t.Run(plane.Name(), ...) subtest. It is how a testify suite adopts the
+// Plane matrix: build the suite's fixture through s.plane.NewEnvironment
+// (inside SetupTest/SetupSuite or a test method) instead of the suite
+// iterating Planes itself. Plane.NewEnvironment's t.Skipf guards remain the
+// only skip mechanism - RunPlaneSuite adds none of its own, so an
+// unimplemented cell still reports as skipped rather than silently absent.
+func RunPlaneSuite(t *testing.T, planes []Plane, newSuite func(Plane) suite.TestingSuite) {
+	t.Helper()
+
+	for _, plane := range planes {
+		t.Run(plane.Name(), func(t *testing.T) {
+			t.Parallel()
+			suite.Run(t, newSuite(plane))
+		})
+	}
 }

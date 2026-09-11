@@ -2,7 +2,7 @@ package configurator
 
 import (
 	"go.redsock.ru/rerrors"
-	api "go.vervstack.ru/matreshka/pkg/matreshka_api"
+	api "go.vervstack.ru/Velez/internal/api/clients/matreshka/pkg/matreshka_api"
 
 	"go.vervstack.ru/Velez/internal/domain"
 )

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"go.redsock.ru/rerrors"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
+	"go.vervstack.ru/Velez/internal/api/clients/matreshka/pkg/matreshka_api"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
@@ -65,7 +65,7 @@ func (impl *Impl) AssembleConfig(ctx context.Context, req *velez_api.AssembleCon
 		return nil, rerrors.Wrap(err, "error unmarshaling task context")
 	}
 
-	confType := matreshka_api.ConfigTypePrefix(matreshka_api.ConfigTypePrefix_value[payload.GetConfType()])
+	confType := matreshka_api.ConfigType(matreshka_api.ConfigType_value[payload.GetConfType()])
 
 	appConfig := domain.AppConfig{
 		Meta: domain.ConfigMeta{

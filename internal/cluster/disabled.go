@@ -3,19 +3,19 @@ package cluster
 import (
 	"context"
 
+	"go.vervstack.ru/Velez/internal/api/clients/matreshka/pkg/matreshka_api"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/makosh/pkg/makosh_be"
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
 	"google.golang.org/grpc"
 )
 
 type disabledConfigurator struct{}
 
-func (d disabledConfigurator) ApiVersion(
+func (d disabledConfigurator) Version(
 	_ context.Context,
-	_ *matreshka_api.ApiVersion_Request,
+	_ *matreshka_api.Version_Request,
 	_ ...grpc.CallOption,
-) (*matreshka_api.ApiVersion_Response, error) {
+) (*matreshka_api.Version_Response, error) {
 	return nil, cluster_clients.ErrServiceIsDisabled
 }
 
@@ -59,11 +59,11 @@ func (d disabledConfigurator) PatchConfig(
 	return nil, cluster_clients.ErrServiceIsDisabled
 }
 
-func (d disabledConfigurator) StoreConfig(
+func (d disabledConfigurator) SaveConfig(
 	_ context.Context,
-	_ *matreshka_api.StoreConfig_Request,
+	_ *matreshka_api.SaveConfig_Request,
 	_ ...grpc.CallOption,
-) (*matreshka_api.StoreConfig_Response, error) {
+) (*matreshka_api.SaveConfig_Response, error) {
 	return nil, cluster_clients.ErrServiceIsDisabled
 }
 
@@ -86,10 +86,7 @@ func (d disabledConfigurator) DeleteConfig(
 func (d disabledConfigurator) SubscribeOnChanges(
 	_ context.Context,
 	_ ...grpc.CallOption,
-) (
-	grpc.BidiStreamingClient[matreshka_api.SubscribeOnChanges_Request, matreshka_api.SubscribeOnChanges_Response],
-	error,
-) {
+) (matreshka_api.MatreshkaApi_SubscribeOnChangesClient, error) {
 	return nil, cluster_clients.ErrServiceIsDisabled
 }
 

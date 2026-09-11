@@ -6,9 +6,10 @@ import (
 
 	"go.redsock.ru/evon"
 	errors "go.redsock.ru/rerrors"
+
+	matrapi "go.vervstack.ru/Velez/internal/api/clients/matreshka/pkg/matreshka_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/utils/configutils"
-	matrapi "go.vervstack.ru/matreshka/pkg/matreshka_api"
 )
 
 func (c *Configurator) UpdateConfig(ctx context.Context, cfg domain.AppConfig) (err error) {
@@ -25,7 +26,7 @@ func (c *Configurator) UpdateConfig(ctx context.Context, cfg domain.AppConfig) (
 
 	diff := evon.Diff(oldCfg, cfg.Content)
 
-	patchRequest.Patches = make([]*matrapi.PatchConfig_Patch, 0, len(diff.NewNodes)+len(diff.RemovedNodes))
+	patchRequest.Patches = make([]*matrapi.Patch, 0, len(diff.NewNodes)+len(diff.RemovedNodes))
 
 	for _, d := range diff.NewNodes {
 		if d.Value == nil {
@@ -33,9 +34,9 @@ func (c *Configurator) UpdateConfig(ctx context.Context, cfg domain.AppConfig) (
 		}
 
 		patchRequest.Patches = append(patchRequest.Patches,
-			&matrapi.PatchConfig_Patch{
+			&matrapi.Patch{
 				FieldName: d.Name,
-				Patch: &matrapi.PatchConfig_Patch_UpdateValue{
+				Patch: &matrapi.Patch_UpdateValue{
 					UpdateValue: fmt.Sprint(d.Value),
 				},
 			},
@@ -44,9 +45,9 @@ func (c *Configurator) UpdateConfig(ctx context.Context, cfg domain.AppConfig) (
 
 	for _, d := range diff.RemovedNodes {
 		patchRequest.Patches = append(patchRequest.Patches,
-			&matrapi.PatchConfig_Patch{
+			&matrapi.Patch{
 				FieldName: d.Name,
-				Patch: &matrapi.PatchConfig_Patch_Delete{
+				Patch: &matrapi.Patch_Delete{
 					Delete: true,
 				},
 			},

@@ -20,10 +20,10 @@ type httpServer struct {
 	registeredPaths map[string]struct{}
 }
 
-func newHttpServer(listener net.Listener, httpMux *http.ServeMux) httpServer {
+func newHttpServer(listener net.Listener, httpMux *http.ServeMux, allowedOrigins []string) httpServer {
 	return httpServer{
 		server: &http.Server{
-			Handler: setUpCors().Handler(httpMux),
+			Handler: setUpCors(allowedOrigins).Handler(httpMux),
 		},
 		registeredPaths: make(map[string]struct{}),
 		listener:        listener,
@@ -111,15 +111,25 @@ func (s *httpServer) buildHomePageHandler() http.Handler {
 	})
 }
 
-func setUpCors() *cors.Cors {
+// AllowAllOrigins is an explicit opt-in escape hatch for the old permissive CORS
+// behavior (e.g. quick local dev) — pass it to setUpCors instead of retyping a wildcard.
+// Never the generated default: AllowCredentials: true (required for cookie-based auth)
+// is only valid alongside an explicit origin allowlist per the CORS spec, never "*".
+var AllowAllOrigins = []string{"*"}
+
+func setUpCors(allowedOrigins []string) *cors.Cors {
 	return cors.New(
 		cors.Options{
-			AllowedOrigins: []string{"*"},
+			AllowedOrigins: allowedOrigins,
 			AllowedMethods: []string{
 				http.MethodPost,
 				http.MethodGet,
 			},
-			AllowedHeaders:   []string{"*"},
-			AllowCredentials: false,
+			AllowedHeaders: []string{
+				"Content-Type",
+				"Grpc-Metadata-Authorization",
+				"Grpc-Metadata-X-Csrf-Token",
+			},
+			AllowCredentials: true,
 		})
 }

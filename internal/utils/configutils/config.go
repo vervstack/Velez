@@ -3,11 +3,11 @@ package configutils
 import (
 	"strings"
 
-	"go.vervstack.ru/matreshka/pkg/matreshka_api"
+	"go.vervstack.ru/Velez/internal/api/clients/matreshka/pkg/matreshka_api"
 )
 
-func AppendPrefix(prefix matreshka_api.ConfigTypePrefix, name string) string {
-	if prefix == matreshka_api.ConfigTypePrefix_plain {
+func AppendPrefix(prefix matreshka_api.ConfigType, name string) string {
+	if prefix == matreshka_api.ConfigType_plain {
 		return name
 	}
 

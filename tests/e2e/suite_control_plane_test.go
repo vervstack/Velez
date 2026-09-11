@@ -13,6 +13,8 @@ import (
 
 type ControlPlaneSuite struct {
 	suite.Suite
+
+	plane Plane
 }
 
 // ListEnvironments returns rows now, not names, and the configured
@@ -22,7 +24,7 @@ func (s *ControlPlaneSuite) Test_ListEnvironments_WithLocalStateConfig() {
 	t := s.T()
 
 	configuredEnvs := []string{"dev", "staging", "prod"}
-	env := Planes[0].NewEnvironment(t, WithEnvironments(configuredEnvs))
+	env := s.plane.NewEnvironment(t, WithEnvironments(configuredEnvs))
 
 	req := &pb.ListEnvironments_Request{}
 	resp, err := env.Custom.ControlPlaneApiImpl.ListEnvironments(t.Context(), req)
@@ -48,7 +50,7 @@ func (s *ControlPlaneSuite) Test_ListEnvironments_EmptyLocalStateConfig() {
 	// earlier test rather than this test's own logic. Needs isolation fix.
 	t.Skip("flaky: see TODO above")
 
-	env := Planes[0].NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 
 	req := &pb.ListEnvironments_Request{}
 	resp, err := env.Custom.ControlPlaneApiImpl.ListEnvironments(t.Context(), req)
@@ -71,5 +73,7 @@ func environmentNames(envs []*pb.Environment) []string {
 
 func Test_ControlPlane(t *testing.T) {
 	t.Parallel()
-	suite.Run(t, new(ControlPlaneSuite))
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
+		return &ControlPlaneSuite{plane: plane}
+	})
 }

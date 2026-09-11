@@ -1,3 +1,5 @@
+//go:build e2e_full
+
 package e2e
 
 import (
@@ -292,6 +294,12 @@ func (i *sharedHeadscaleInstance) stop() {
 	if err != nil {
 		log.Error().Err(err).Msg("error removing shared headscale container")
 	}
+}
+
+// stopSharedHeadscale is main_test.go's teardown hook into this file - see
+// shared_headscale_stub.go for the no-op used when this file is tagged out.
+func stopSharedHeadscale() {
+	sharedHeadscale.stop()
 }
 
 // headscaleConfigTar builds a tar rooted at /etc (the CopyToContainer dst):

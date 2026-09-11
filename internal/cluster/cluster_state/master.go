@@ -11,6 +11,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 func SetupMasterPg(
@@ -36,7 +37,7 @@ func SetupMasterPg(
 	}
 
 	if contInspect.State == nil {
-		return rerrors.New("postgres container for cluster state exists but has no state")
+		return user_errors.ErrClusterStatePgHasNoState
 	}
 
 	if contInspect.State.Status != container.StateRunning {

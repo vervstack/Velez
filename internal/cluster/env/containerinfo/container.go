@@ -12,7 +12,13 @@ import (
 	"go.redsock.ru/toolbox"
 )
 
-var instanceContainerID *string
+// dockerEnvPath and hostnamePath are vars, not consts, so tests can point
+// them at a temp dir instead of the real root filesystem.
+var (
+	dockerEnvPath       = "/.dockerenv"
+	hostnamePath        = "/etc/hostname"
+	instanceContainerID *string
+)
 
 // IsInContainer - function to determine weather
 // this instance ran inside a container or as a standalone app
@@ -36,8 +42,18 @@ func GetContainerId() *string {
 	return instanceContainerID
 }
 
+// getContainerID trusts /etc/hostname as the container id only once
+// dockerEnvPath confirms we're actually inside a Docker container.
+// /etc/hostname exists on every Linux host, containerized or not, so
+// checking it alone reports "in container" on any bare Linux host or CI
+// runner.
 func getContainerID() *string {
-	hm, err := os.ReadFile("/etc/hostname")
+	_, err := os.Stat(dockerEnvPath)
+	if err != nil {
+		return nil
+	}
+
+	hm, err := os.ReadFile(hostnamePath)
 	if err != nil {
 		return nil
 	}

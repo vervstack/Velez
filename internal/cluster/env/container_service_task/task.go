@@ -150,8 +150,16 @@ func (t *TaskV2) GetPortBinding(port string) (addr string, mappedPort string) {
 	}
 
 	if env.IsInContainer() {
+		if t.containerState.NetworkSettings == nil {
+			return "", port
+		}
+
 		vervNet, ok := t.containerState.NetworkSettings.Networks[env.VervNetwork]
 		if !ok {
+			return "", port
+		}
+
+		if len(vervNet.DNSNames) == 0 {
 			return "", port
 		}
 

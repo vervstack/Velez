@@ -1,16 +1,12 @@
-FROM --platform=$BUILDPLATFORM node:23-alpine3.20 AS webclient
+FROM --platform=$BUILDPLATFORM oven/bun:1 AS webclient
 
 WORKDIR /web
 
-RUN --mount=type=bind,target=/web,rw \
-# Step 1: Build the API lib
-    cd /web/pkg/web/@vervstack/velez && \
-    yarn && \
-    yarn build && \
-# Step 2: Install and build Vue app (now that web is built)
-    cd /web/pkg/web/Velez-UI && \
-    yarn && \
-    yarn build && \
+COPY pkg/web/Velez-UI/package.json pkg/web/Velez-UI/bun.lock ./
+RUN bun install --frozen-lockfile
+
+COPY pkg/web/Velez-UI/ ./
+RUN bun run build && \
     mv dist /dist
 
 FROM --platform=$BUILDPLATFORM golang:1.24.2 AS builder

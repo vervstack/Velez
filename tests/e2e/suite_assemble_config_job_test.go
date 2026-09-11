@@ -34,7 +34,7 @@ func (s *AssembleConfigJobSuite) Test_AssembleHelloWorld() {
 	t := s.T()
 
 	serviceName := GetServiceName(t)
-	env := NewEnvironment(t)
+	env := Planes[0].NewEnvironment(t)
 
 	initialContext := &velez_api.AssembleConfigTaskPayload{
 		ServiceName: serviceName,

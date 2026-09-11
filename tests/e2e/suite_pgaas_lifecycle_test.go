@@ -43,7 +43,7 @@ func (s *PgaasLifecycleSuite) Test_PgaasLifecycle_HappyPath() {
 	t := s.T()
 	ctx := t.Context()
 
-	env := NewEnvironment(t)
+	env := Planes[0].NewEnvironment(t)
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 
 	removePgaasInstance(dockerClient)

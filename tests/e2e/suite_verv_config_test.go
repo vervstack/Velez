@@ -43,7 +43,7 @@ func (s *VervConfigSuite) SetupSuite() {
 func (s *VervConfigSuite) Test_VervConfig_RenderedEnv() {
 	t := s.T()
 
-	env := NewEnvironment(t)
+	env := Planes[0].NewEnvironment(t)
 
 	const plainPath = "/tmp/verv_rendered_test.yaml"
 
@@ -76,7 +76,7 @@ func (s *VervConfigSuite) Test_VervConfig_RenderedEnv() {
 func (s *VervConfigSuite) Test_VervConfig_PlainFileMounted() {
 	t := s.T()
 
-	env := NewEnvironment(t)
+	env := Planes[0].NewEnvironment(t)
 
 	// NOTE(phase-1): create_smerd's copyToContainerJob copies via
 	// dockerutils.WriteToContainer with no "mkdir -p" of the parent dir
@@ -114,7 +114,7 @@ func (s *VervConfigSuite) Test_VervConfig_PlainFileMounted() {
 func (s *VervConfigSuite) Test_VervConfig_RestartPolicyApplied() {
 	t := s.T()
 
-	env := NewEnvironment(t)
+	env := Planes[0].NewEnvironment(t)
 
 	req := &velez_api.CreateSmerd_Request{
 		Name:         GetServiceName(t),

@@ -19,6 +19,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -241,7 +242,7 @@ type fetchConfigJob struct {
 func (j *fetchConfigJob) Do(ctx context.Context) error {
 	containerID := j.container.GetContainerId()
 	if containerID == "" {
-		return rerrors.New("empty container id")
+		return user_errors.ErrContainerIdEmpty
 	}
 
 	confType, format, systemPath := classifyImage(j.imageMeta.GetImageLabels(), j.imageMeta.GetImageTags())

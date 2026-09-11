@@ -4,21 +4,10 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
-	"google.golang.org/grpc/codes"
 
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/environments"
-)
-
-var (
-	// ErrEnvironmentRequired is returned when a request that must be scoped to
-	// an environment carries an empty environment name. proto3 has no
-	// `required` keyword, so this is where "required" actually gets enforced.
-	ErrEnvironmentRequired = rerrors.New("environment is required", codes.InvalidArgument)
-
-	// ErrEnvironmentNotFound is returned when the environment name a caller
-	// passed doesn't resolve to a row in velez.environments.
-	ErrEnvironmentNotFound = rerrors.New("environment not found", codes.NotFound)
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 func (v *VervService) ListEnvironments(ctx context.Context) ([]domain.Environment, error) {
@@ -32,12 +21,12 @@ func (v *VervService) ListEnvironments(ctx context.Context) ([]domain.Environmen
 
 func (v *VervService) GetEnvironment(ctx context.Context, name string) (domain.Environment, error) {
 	if name == "" {
-		return domain.Environment{}, rerrors.Wrap(ErrEnvironmentRequired)
+		return domain.Environment{}, rerrors.Wrap(user_errors.ErrEnvironmentRequired)
 	}
 
 	env, err := v.environments().GetEnvironmentByName(ctx, name)
 	if err != nil {
-		return domain.Environment{}, rerrors.Wrapf(ErrEnvironmentNotFound, "unknown environment %q", name)
+		return domain.Environment{}, rerrors.Wrapf(user_errors.ErrEnvironmentNotFound, "unknown environment %q", name)
 	}
 
 	return env, nil
@@ -79,7 +68,7 @@ func (v *VervService) CreateEnvironment(
 	req domain.CreateEnvironmentReq,
 ) (domain.Environment, error) {
 	if req.Name == "" {
-		return domain.Environment{}, rerrors.Wrap(ErrEnvironmentRequired)
+		return domain.Environment{}, rerrors.Wrap(user_errors.ErrEnvironmentRequired)
 	}
 
 	if req.Suffix == "" {
@@ -99,7 +88,7 @@ func (v *VervService) UpdateEnvironment(
 	req domain.UpdateEnvironmentReq,
 ) (domain.Environment, error) {
 	if req.ID == 0 {
-		return domain.Environment{}, rerrors.New("environment id is required", codes.InvalidArgument)
+		return domain.Environment{}, user_errors.ErrEnvironmentIdRequired
 	}
 
 	env, err := v.environments().UpdateEnvironment(ctx, req)
@@ -140,13 +129,13 @@ func (v *VervService) resolveDeleteTarget(
 	case req.ID != nil && *req.ID != 0:
 		env, err := v.environments().GetEnvironmentByID(ctx, *req.ID)
 		if err != nil {
-			return domain.Environment{}, rerrors.Wrap(ErrEnvironmentNotFound, "unknown environment id")
+			return domain.Environment{}, rerrors.Wrap(user_errors.ErrEnvironmentNotFound, "unknown environment id")
 		}
 
 		return env, nil
 	case req.Name != nil && *req.Name != "":
 		return v.GetEnvironment(ctx, *req.Name)
 	default:
-		return domain.Environment{}, rerrors.New("environment id or name is required", codes.InvalidArgument)
+		return domain.Environment{}, user_errors.ErrEnvironmentIdOrNameRequired
 	}
 }

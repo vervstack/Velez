@@ -20,6 +20,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -266,7 +267,7 @@ type startLoaderContainerJob struct {
 func (j *startLoaderContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return rerrors.New("no container id provided")
+		return user_errors.ErrContainerIdMissing
 	}
 
 	startOpts := container.StartOptions{}
@@ -334,7 +335,7 @@ func (j *copyFileJob) Do(ctx context.Context) error {
 
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return rerrors.New("no container id provided")
+		return user_errors.ErrContainerIdMissing
 	}
 
 	containerRuntime, err := j.runtimes.Runtime(ctx, "")

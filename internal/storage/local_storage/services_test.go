@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
-	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/user_errors"
 	"go.vervstack.ru/Velez/tests/test_helper"
 )
 
@@ -46,7 +46,7 @@ func Test_dockerServices_GetByName_UnknownNameNotFound(t *testing.T) {
 	name := test_helper.UniqueName(t, "no-such-service")
 
 	_, err := s.GetByName(context.Background(), name)
-	require.ErrorIs(t, err, storage.ErrNotFound)
+	require.ErrorIs(t, err, user_errors.ErrStorageNotFound)
 }
 
 // A CreateNewDeploy-driven deploy (enable_registry's deployRegistryJob,
@@ -83,5 +83,5 @@ func Test_dockerServices_GetByName_DeleteClearsUpsertedOverlay(t *testing.T) {
 	require.NoError(t, err)
 
 	_, err = s.GetByName(context.Background(), name)
-	require.ErrorIs(t, err, storage.ErrNotFound)
+	require.ErrorIs(t, err, user_errors.ErrStorageNotFound)
 }

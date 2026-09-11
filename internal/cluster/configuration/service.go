@@ -23,6 +23,7 @@ import (
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // sharedInstanceCtxKey is an unexported context key used to hand an
@@ -224,11 +225,11 @@ func SetupMatreshka(
 
 	err = runner.Run(ctx)
 	if err != nil {
-		if rerrors.Is(err, vpnconnect.ErrAlreadyExists) {
+		if rerrors.Is(err, user_errors.ErrVpnResultAlreadyExists) {
 			return mClient, nil
 		}
 
-		if rerrors.Is(err, cluster_clients.ErrServiceIsDisabled) {
+		if rerrors.Is(err, user_errors.ErrServiceIsDisabled) {
 			return mClient, nil
 		}
 

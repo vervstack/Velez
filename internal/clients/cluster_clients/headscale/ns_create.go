@@ -6,9 +6,9 @@ import (
 	"net/http"
 
 	"go.redsock.ru/rerrors"
-	"google.golang.org/grpc/codes"
 
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/user_errors"
 	"go.vervstack.ru/Velez/internal/utils/common"
 )
 
@@ -50,9 +50,10 @@ func (s *Client) CreateNamespace(ctx context.Context, name string) (domain.VcnNa
 	}
 
 	if e.isUniqueError() {
-		userErr := rerrors.NewUserError("namespace already exists", codes.AlreadyExists)
-
-		return domain.VcnNamespace{}, rerrors.Wrap(userErr, "namespace creation failed")
+		return domain.VcnNamespace{}, rerrors.Wrap(
+			user_errors.ErrHeadscaleNamespaceAlreadyExists,
+			"namespace creation failed",
+		)
 	}
 
 	return domain.VcnNamespace{}, rerrors.Wrap(e)

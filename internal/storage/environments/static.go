@@ -78,7 +78,7 @@ func (s *staticStorage) GetEnvironmentByID(_ context.Context, id int64) (domain.
 
 	env, ok := s.byID[id]
 	if !ok {
-		return domain.Environment{}, rerrors.Wrap(storage.ErrNotFound)
+		return domain.Environment{}, rerrors.Wrap(user_errors.ErrStorageNotFound)
 	}
 
 	return env, nil
@@ -94,7 +94,7 @@ func (s *staticStorage) GetEnvironmentByName(_ context.Context, name string) (do
 		}
 	}
 
-	return domain.Environment{}, rerrors.Wrap(storage.ErrNotFound)
+	return domain.Environment{}, rerrors.Wrap(user_errors.ErrStorageNotFound)
 }
 
 func (s *staticStorage) CreateEnvironment(

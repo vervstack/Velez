@@ -20,6 +20,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -190,7 +191,7 @@ func (au *AutoUpgrade) upgrade(ctx context.Context, req *velez_api.UpgradeSmerd_
 	}
 
 	if isFailed {
-		return rerrors.New(finalTask.Error.String)
+		return rerrors.Wrap(user_errors.ErrTaskFailed, finalTask.Error.String)
 	}
 
 	return nil

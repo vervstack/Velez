@@ -26,6 +26,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/service"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -46,13 +47,6 @@ const (
 	stepRenameOldContainer           = "rename_old_container"
 	stepDropOldContainer             = "drop_old_container"
 	stepRenameNewContainer           = "rename_new_container"
-)
-
-var (
-	// ErrSelfUpgradeIsForbidden moved here from the deleted
-	// internal/pipelines/steps/upgrade_steps package, where it was the last
-	// symbol anything outside internal/pipelines still imported.
-	ErrSelfUpgradeIsForbidden = rerrors.NewUserError("Can't perform self upgrade", codes.FailedPrecondition)
 )
 
 // Accessor interfaces the upgrade_smerd jobs need from their TaskContext.
@@ -308,7 +302,7 @@ func (j *checkSelfUpgradeJob) Do(ctx context.Context) error {
 	}
 
 	if smerd.GetUuid() == *id {
-		return rerrors.Wrap(ErrSelfUpgradeIsForbidden)
+		return rerrors.Wrap(user_errors.ErrSelfUpgradeIsForbidden)
 	}
 
 	return nil
@@ -409,7 +403,10 @@ func resolveCurrentContainer(
 	}
 
 	if len(containers) == 0 {
-		return nil, rerrors.New(fmt.Sprintf("container %q not found in environment %q", name, environment))
+		return nil, rerrors.Wrap(
+			user_errors.ErrContainerNotFoundInEnvironment,
+			fmt.Sprintf("name: %q, environment: %q", name, environment),
+		)
 	}
 
 	cont, err = containerService.InspectSmerd(ctx, environment, containers[0].ID)
@@ -562,7 +559,7 @@ type pauseOldContainerJob struct {
 func (j *pauseOldContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetOldContainerId()
 	if containerID == "" {
-		return rerrors.New("container id is required")
+		return user_errors.ErrContainerIdRequired
 	}
 
 	cont, err := j.dockerAPI.ContainerInspect(ctx, containerID)
@@ -741,7 +738,7 @@ type getConfigFromScratchContainerJob struct {
 func (j *getConfigFromScratchContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return rerrors.New("empty container id")
+		return user_errors.ErrContainerIdEmpty
 	}
 
 	_, _, systemPath := classifyImage(j.imageMeta.GetImageLabels(), j.imageMeta.GetImageTags())
@@ -967,7 +964,7 @@ type renameContainerJob struct {
 func (j *renameContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return rerrors.New("container id is required")
+		return user_errors.ErrContainerIdRequired
 	}
 
 	runtime, err := j.runtimes.Runtime(ctx, j.req.GetUpgradeRequest().GetEnvironment())

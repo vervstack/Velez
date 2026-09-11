@@ -13,6 +13,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // environmentColumns mirrors velez.environments' column order, which every
@@ -74,7 +75,7 @@ func TestPgStorage_GetEnvironmentByName(t *testing.T) {
 	require.NoError(t, mock.ExpectationsWereMet())
 }
 
-// A missing row must surface as storage.ErrNotFound, not a raw sql.ErrNoRows -
+// A missing row must surface as user_errors.ErrStorageNotFound, not a raw sql.ErrNoRows -
 // the suffix-resolution path relies on that to reject unknown environments.
 func TestPgStorage_GetEnvironmentByName_NotFound(t *testing.T) {
 	_, mock, s := newPgTest(t)
@@ -85,7 +86,7 @@ func TestPgStorage_GetEnvironmentByName_NotFound(t *testing.T) {
 
 	_, err := s.GetEnvironmentByName(context.Background(), "ghost")
 	require.Error(t, err)
-	require.True(t, errors.Is(err, storage.ErrNotFound))
+	require.True(t, errors.Is(err, user_errors.ErrStorageNotFound))
 }
 
 func TestPgStorage_GetEnvironmentByID(t *testing.T) {

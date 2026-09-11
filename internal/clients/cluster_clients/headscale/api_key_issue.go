@@ -8,6 +8,7 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 var envs = []string{
@@ -58,7 +59,7 @@ func (s *keyIssuer) issueNewKey(ctx context.Context) (string, error) {
 	}
 
 	if len(res) == 0 {
-		return "", rerrors.New("can't parse output")
+		return "", rerrors.Wrap(user_errors.ErrHeadscaleCantParseOutput)
 	}
 
 	return string(res[1 : len(res)-1]), nil

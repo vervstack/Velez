@@ -2,7 +2,6 @@ package container_runtime
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -10,6 +9,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/environments"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -36,7 +36,7 @@ type dedicatedStorage struct {
 
 func (s *dedicatedStorage) GetEnvironmentByName(_ context.Context, name string) (domain.Environment, error) {
 	if name != s.env.Name {
-		return domain.Environment{}, storage.ErrNotFound
+		return domain.Environment{}, user_errors.ErrStorageNotFound
 	}
 
 	return s.env, nil
@@ -133,7 +133,7 @@ func TestResolver_DedicatedEnvironmentIsNotImplemented(t *testing.T) {
 
 	_, err := NewResolver(nil, nil, provider).Runtime(context.Background(), testStageEnv)
 	require.Error(t, err)
-	require.True(t, errors.Is(err, ErrDedicatedRuntimeNotImplemented))
+	require.ErrorIs(t, err, user_errors.ErrDedicatedRuntimeNotImplemented)
 }
 
 // mutableEnvStorage is a hand-rolled, actually-mutable EnvironmentsStorage
@@ -148,7 +148,7 @@ type mutableEnvStorage struct {
 
 func (s *mutableEnvStorage) GetEnvironmentByName(_ context.Context, name string) (domain.Environment, error) {
 	if name != s.env.Name {
-		return domain.Environment{}, storage.ErrNotFound
+		return domain.Environment{}, user_errors.ErrStorageNotFound
 	}
 
 	return s.env, nil

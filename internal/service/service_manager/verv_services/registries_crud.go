@@ -5,23 +5,9 @@ import (
 	"database/sql"
 
 	"go.redsock.ru/rerrors"
-	"google.golang.org/grpc/codes"
 
 	"go.vervstack.ru/Velez/internal/domain"
-)
-
-var (
-	// ErrRegistryNameRequired is returned when CreateRegistry/UpdateRegistry
-	// carries an empty name.
-	ErrRegistryNameRequired = rerrors.New("registry name is required", codes.InvalidArgument)
-
-	// ErrRegistryNotFound is returned when a registry id/name a caller passed
-	// doesn't resolve to a row in velez.registries.
-	ErrRegistryNotFound = rerrors.New("registry not found", codes.NotFound)
-
-	// ErrInvalidRegistryType is returned when Type isn't one of
-	// domain.RegistryTypeDockerHub / domain.RegistryTypeGenericV2.
-	ErrInvalidRegistryType = rerrors.New("invalid registry type", codes.InvalidArgument)
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 func (v *VervService) ListRegistries(ctx context.Context) ([]domain.Registry, error) {
@@ -36,7 +22,7 @@ func (v *VervService) ListRegistries(ctx context.Context) ([]domain.Registry, er
 func (v *VervService) GetRegistry(ctx context.Context, id int64) (domain.Registry, error) {
 	reg, err := v.registries().GetRegistryByID(ctx, id)
 	if err != nil {
-		return domain.Registry{}, rerrors.Wrapf(ErrRegistryNotFound, "unknown registry id %d", id)
+		return domain.Registry{}, rerrors.Wrapf(user_errors.ErrRegistryNotFound, "unknown registry id %d", id)
 	}
 
 	return reg, nil
@@ -47,11 +33,11 @@ func (v *VervService) GetRegistry(ctx context.Context, id int64) (domain.Registr
 // most one registry is ever the default.
 func (v *VervService) CreateRegistry(ctx context.Context, req domain.CreateRegistryReq) (domain.Registry, error) {
 	if req.Name == "" {
-		return domain.Registry{}, rerrors.Wrap(ErrRegistryNameRequired)
+		return domain.Registry{}, rerrors.Wrap(user_errors.ErrRegistryNameRequired)
 	}
 
 	if !isValidRegistryType(req.Type) {
-		return domain.Registry{}, rerrors.Wrap(ErrInvalidRegistryType)
+		return domain.Registry{}, rerrors.Wrap(user_errors.ErrInvalidRegistryType)
 	}
 
 	if !req.IsDefault {
@@ -94,11 +80,11 @@ func (v *VervService) CreateRegistry(ctx context.Context, req domain.CreateRegis
 // first.
 func (v *VervService) UpdateRegistry(ctx context.Context, req domain.UpdateRegistryReq) (domain.Registry, error) {
 	if req.ID == 0 {
-		return domain.Registry{}, rerrors.New("registry id is required", codes.InvalidArgument)
+		return domain.Registry{}, user_errors.ErrRegistryIdRequired
 	}
 
 	if req.Type != nil && !isValidRegistryType(*req.Type) {
-		return domain.Registry{}, rerrors.Wrap(ErrInvalidRegistryType)
+		return domain.Registry{}, rerrors.Wrap(user_errors.ErrInvalidRegistryType)
 	}
 
 	if req.IsDefault == nil || !*req.IsDefault {
@@ -161,7 +147,7 @@ func (v *VervService) resolveRegistryDeleteTarget(
 	case req.ID != nil && *req.ID != 0:
 		reg, err := v.registries().GetRegistryByID(ctx, *req.ID)
 		if err != nil {
-			return domain.Registry{}, rerrors.Wrap(ErrRegistryNotFound, "unknown registry id")
+			return domain.Registry{}, rerrors.Wrap(user_errors.ErrRegistryNotFound, "unknown registry id")
 		}
 
 		return reg, nil
@@ -177,9 +163,9 @@ func (v *VervService) resolveRegistryDeleteTarget(
 			}
 		}
 
-		return domain.Registry{}, rerrors.Wrapf(ErrRegistryNotFound, "unknown registry %q", *req.Name)
+		return domain.Registry{}, rerrors.Wrapf(user_errors.ErrRegistryNotFound, "unknown registry %q", *req.Name)
 	default:
-		return domain.Registry{}, rerrors.New("registry id or name is required", codes.InvalidArgument)
+		return domain.Registry{}, user_errors.ErrRegistryIdOrNameRequired
 	}
 }
 

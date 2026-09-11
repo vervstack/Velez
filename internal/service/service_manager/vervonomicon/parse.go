@@ -11,6 +11,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	verv "go.vervstack.ru/Velez/internal/domain/vervonomicon"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -27,19 +28,13 @@ const (
 	recognisedMajorVersion = "1"
 )
 
-// ErrNoDescriptor reports that a service simply has no vervonomicon
-// descriptor. Per docs/features/vervonomicon.md: "Absence of a descriptor is
-// never an error - the service simply deploys the way it does today." Callers
-// must be able to tell this apart from a descriptor that exists but is
-// broken - check with errors.Is.
-var ErrNoDescriptor = rerrors.New("no vervonomicon descriptor found")
-
 // Parse turns the flat file map read out of .verv/ - keyed by path relative
 // to .verv/, exactly what dockerutils.ReadDirFromContainer returns - into a
 // Descriptor.
 //
-// vervonomicon.yaml is required; its absence is reported as ErrNoDescriptor,
-// not a hard error. The four path-override fields (deployment/resources/
+// vervonomicon.yaml is required; its absence is reported as
+// user_errors.ErrVervonomiconDescriptorNotFound, not a hard error. The four
+// path-override fields (deployment/resources/
 // ingress/auth) resolve against their conventional defaults; a referenced
 // file that is missing is simply absent, but one that is present and
 // malformed is an error. Parse never partially applies an unrecognised
@@ -47,7 +42,7 @@ var ErrNoDescriptor = rerrors.New("no vervonomicon descriptor found")
 func Parse(files map[string][]byte) (verv.Descriptor, error) {
 	indexRaw, ok := files[indexFileName]
 	if !ok {
-		return verv.Descriptor{}, ErrNoDescriptor
+		return verv.Descriptor{}, user_errors.ErrVervonomiconDescriptorNotFound
 	}
 
 	var index verv.Index
@@ -101,7 +96,7 @@ func checkVersion(version string) error {
 	major, _, _ := strings.Cut(version, ".")
 
 	if major != recognisedMajorVersion {
-		return rerrors.New("unrecognised vervonomicon version '" + version + "', only major version " +
+		return user_errors.New("unrecognised vervonomicon version '" + version + "', only major version " +
 			recognisedMajorVersion + " is supported")
 	}
 

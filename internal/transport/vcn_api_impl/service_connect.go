@@ -8,6 +8,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // connectServiceWatchTimeout bounds how long the synchronous ConnectService
@@ -52,7 +53,7 @@ func (impl *Impl) ConnectService(ctx context.Context, req *velez_api.ConnectServ
 	}
 
 	if finalTask.Status == tasks_queries.VelezTaskStatusFAILED {
-		return nil, rerrors.New(finalTask.Error.String)
+		return nil, rerrors.Wrap(user_errors.ErrTaskFailed, finalTask.Error.String)
 	}
 
 	return &velez_api.ConnectService_Response{}, nil

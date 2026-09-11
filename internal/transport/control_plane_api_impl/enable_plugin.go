@@ -11,7 +11,13 @@ import (
 	"go.vervstack.ru/Velez/internal/jobs"
 )
 
-var errUnsupportedService = rerrors.New("unsupported service", codes.InvalidArgument)
+var (
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
+	errUnsupportedService = rerrors.New("unsupported service", codes.InvalidArgument)
+
+	//nolint:forbidigo // package-private sentinel, not shared/user-facing
+	errInvalidPayload = rerrors.New("invalid payload", codes.InvalidArgument)
+)
 
 func (impl *Impl) EnablePlugin(ctx context.Context, req *pb.EnablePlugin_Request) (
 	*pb.EnablePlugin_Response, error,
@@ -20,7 +26,7 @@ func (impl *Impl) EnablePlugin(ctx context.Context, req *pb.EnablePlugin_Request
 	case pb.VervPluginType_statefull_pg:
 		payload, ok := req.GetPayload().(*pb.EnablePlugin_Request_StatefullCluster)
 		if !ok {
-			return nil, rerrors.New("invalid payload", codes.InvalidArgument)
+			return nil, rerrors.Wrap(errInvalidPayload)
 		}
 
 		// state.PgName("") is this jobs-engine task's entityID (a key into
@@ -50,7 +56,7 @@ func (impl *Impl) EnablePlugin(ctx context.Context, req *pb.EnablePlugin_Request
 	case pb.VervPluginType_registry:
 		payload, ok := req.GetPayload().(*pb.EnablePlugin_Request_Registry)
 		if !ok {
-			return nil, rerrors.New("invalid payload", codes.InvalidArgument)
+			return nil, rerrors.Wrap(errInvalidPayload)
 		}
 
 		initialContext := &pb.EnableRegistryTaskPayload{

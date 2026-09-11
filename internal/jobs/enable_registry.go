@@ -26,6 +26,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/plugins_queries"
 	"go.vervstack.ru/Velez/internal/storage/registries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -356,7 +357,7 @@ type writeHtpasswdJob struct {
 func (j *writeHtpasswdJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return rerrors.New("no container id provided")
+		return user_errors.ErrContainerIdMissing
 	}
 
 	line, err := htpasswdLine(j.ctx.GetUsername(), j.ctx.GetPassword())
@@ -547,12 +548,6 @@ func (j *registerRegistryPluginJob) Do(ctx context.Context) error {
 	return nil
 }
 
-// errRegistriesStorageMissingBuiltinUpsert signals a storage wiring bug, not
-// a user-facing condition - registries.NewStatic and registries.NewPg both
-// satisfy registries.BuiltinRegistryUpserter (builtin.go), so this only fires
-// if a third RegistriesStorage implementation is ever wired in without it.
-var errRegistriesStorageMissingBuiltinUpsert = rerrors.New("registries storage does not support builtin upsert")
-
 // registerRegistryRowJob upserts the velez.registries row that makes the
 // registry immediately usable for image pulls/pushes - secret is always the
 // secret ref string (plugin/registry/password), never the password value,
@@ -577,7 +572,7 @@ type registerRegistryRowJob struct {
 func (j *registerRegistryRowJob) Do(ctx context.Context) error {
 	upserter, ok := j.registries.(registries.BuiltinRegistryUpserter)
 	if !ok {
-		return rerrors.Wrap(errRegistriesStorageMissingBuiltinUpsert)
+		return rerrors.Wrap(user_errors.ErrRegistriesStorageMissingBuiltinUpsert)
 	}
 
 	req := domain.CreateRegistryReq{

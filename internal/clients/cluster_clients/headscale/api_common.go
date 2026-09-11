@@ -11,6 +11,8 @@ import (
 	"go.redsock.ru/rerrors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -23,8 +25,6 @@ const (
 	nodeURI       = apiBase + "/node"
 	preAuthKeyURI = apiBase + "/preauthkey"
 )
-
-var ErrNotFound = rerrors.New("not found")
 
 func (s *Client) doAPIRequest(ctx context.Context, method string, uri string, req any) (*http.Response, error) {
 	reqEncoded, err := json.Marshal(req)
@@ -52,12 +52,12 @@ func (s *Client) execAPIRequest(r *http.Request) (*http.Response, error) {
 }
 
 func (s *Client) handleError(resp *http.Response) error {
-	body, err := io.ReadAll(resp.Body)
+	_, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return rerrors.Wrap(err, "error reading response body")
 	}
 
-	return rerrors.Wrap(ErrUnexpectedStatus, resp.Status, string(body))
+	return rerrors.Wrap(user_errors.ErrHeadscaleUnexpectedStatus, "status: "+resp.Status)
 }
 
 type RespError struct {

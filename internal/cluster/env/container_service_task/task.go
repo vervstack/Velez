@@ -13,11 +13,13 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	rtb "go.redsock.ru/toolbox"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/cluster/env"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 type TaskV2 struct {
@@ -37,11 +39,11 @@ type TaskV2 struct {
 
 func NewTaskV2(docker node_clients.Docker, ctr container.CreateRequest) (*TaskV2, error) {
 	if ctr.Config == nil {
-		return nil, rerrors.New("config is nil")
+		return nil, user_errors.ErrTaskConfigNil
 	}
 
 	if ctr.Hostname == "" {
-		return nil, rerrors.New("hostname is empty")
+		return nil, user_errors.ErrTaskHostnameEmpty
 	}
 
 	ctr.HostConfig = rtb.Coalesce(ctr.HostConfig, &container.HostConfig{})

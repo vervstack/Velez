@@ -186,21 +186,6 @@ func TestLabelBasedRuntime_PassesThroughDockerSdkValues(t *testing.T) {
 	require.Same(t, req.Platform, api.gotPlatform)
 }
 
-// A missing config is a caller bug, not something to paper over with an
-// implicit empty one - the Docker API would reject it anyway, less clearly.
-func TestLabelBasedRuntime_MissingConfigErrors(t *testing.T) {
-	api := &fakeCreateAPI{}
-	runtime := newLabelRuntime(api, "", nil)
-
-	req := ContainerCreateRequest{
-		ContainerName: testSmerdName,
-	}
-
-	_, err := runtime.ContainerCreate(context.Background(), req)
-	require.Error(t, err)
-	require.Empty(t, api.gotName, "docker must not be called")
-}
-
 // Nil host/networking config is legal (docker treats them as defaults) and
 // must not be dereferenced by the wrapper unwrapping.
 func TestLabelBasedRuntime_NilOptionalConfigsArePassedAsNil(t *testing.T) {

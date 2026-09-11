@@ -68,6 +68,13 @@ const (
 	cacheVolumeSuffix = "-cache"
 )
 
+var (
+	//nolint:forbidigo // package-private test-infra sentinel, not shared/user-facing
+	errDindDaemonPortNotPublished = rerrors.New("dind daemon port was not published")
+	//nolint:forbidigo // package-private test-infra sentinel, not shared/user-facing
+	errContainerNoNetworkSettings = rerrors.New("container has no network settings")
+)
+
 // Options is the knob set for Setup. The zero value is valid.
 type Options struct {
 	// BootstrapHost is the docker host the DinD container is created on.
@@ -190,7 +197,7 @@ func bringUp(
 	if !ok {
 		_ = env.Teardown()
 
-		return nil, rerrors.New("dind daemon port was not published")
+		return nil, errDindDaemonPortNotPublished
 	}
 
 	env.DockerHost = "tcp://" + net.JoinHostPort(dindHost, daemonHostPort)
@@ -483,7 +490,7 @@ func readPublishedPorts(ctx context.Context, cli *client.Client, containerId str
 	}
 
 	if inspected.NetworkSettings == nil {
-		return nil, rerrors.New("container has no network settings")
+		return nil, errContainerNoNetworkSettings
 	}
 
 	result := make(map[int]string, len(inspected.NetworkSettings.Ports))

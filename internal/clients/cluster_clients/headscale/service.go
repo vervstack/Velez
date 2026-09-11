@@ -6,9 +6,8 @@ import (
 	"go.redsock.ru/rerrors"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/cluster/env"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
-
-var ErrUnexpectedStatus = rerrors.New("unexpected status")
 
 type Client struct {
 	apiKey          string
@@ -86,11 +85,11 @@ func getAPIAddress(
 
 	vervNet, isExists := cont.NetworkSettings.Networks[env.VervNetwork]
 	if !isExists {
-		return "", rerrors.New("headscale container isn't connected to vervnet")
+		return "", user_errors.ErrHeadscaleNotConnectedToVervnet
 	}
 
 	if len(vervNet.Aliases) == 0 {
-		return "", rerrors.New("headscale container doesn't have any aliases")
+		return "", user_errors.ErrHeadscaleNoAliases
 	}
 
 	return "http://" + vervNet.Aliases[0] + ":" + contPort, nil

@@ -9,6 +9,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // staticStorage is a full in-memory implementation of
@@ -45,7 +46,7 @@ func (s *staticStorage) GetSecret(_ context.Context, ref domain.SecretRef) (stri
 
 	value, ok := s.byRef[ref]
 	if !ok {
-		return "", rerrors.Wrap(storage.ErrNotFound)
+		return "", rerrors.Wrap(user_errors.ErrStorageNotFound)
 	}
 
 	return value, nil
@@ -57,7 +58,7 @@ func (s *staticStorage) DeleteSecret(_ context.Context, ref domain.SecretRef) er
 
 	_, ok := s.byRef[ref]
 	if !ok {
-		return rerrors.Wrap(storage.ErrNotFound)
+		return rerrors.Wrap(user_errors.ErrStorageNotFound)
 	}
 
 	delete(s.byRef, ref)

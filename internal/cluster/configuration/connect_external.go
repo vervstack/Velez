@@ -14,7 +14,7 @@ func newClient(nodeClients node_clients.NodeClients) (matreshka.Client, error) {
 			matreshka_client.WithHeader(
 				matreshka_client.Pass, nodeClients.LocalStateManager().Get().MatreshkaKey)))
 	if err != nil {
-		return nil, rerrors.Wrap(err, "error initializing matreshka client ")
+		return nil, rerrors.Wrap(err, "error initializing matreshka client")
 	}
 
 	return matreshkaClient, nil

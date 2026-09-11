@@ -897,7 +897,7 @@ func (j *prepareUpgradeVervConfigJob) Do(ctx context.Context) error {
 		for _, n := range request.GetSettings().GetNetwork() {
 			err = runtime.CreateNetwork(ctx, n.GetNetworkName())
 			if err != nil {
-				return rerrors.Wrap(err, "error creating network: %s", n.GetNetworkName())
+				return rerrors.Wrapf(err, "error creating network: %s", n.GetNetworkName())
 			}
 		}
 	}

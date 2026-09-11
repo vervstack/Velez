@@ -57,7 +57,7 @@ func getKeyFromMatreshkaContainerEnv(ctx context.Context, docker client.APIClien
 	cont, err := docker.ContainerInspect(ctx, Name)
 	if err != nil {
 		if !cerrdefs.IsNotFound(err) {
-			return "", rerrors.Wrap(err, "")
+			return "", rerrors.Wrap(err, "error inspecting matreshka container")
 		}
 
 		return "", nil

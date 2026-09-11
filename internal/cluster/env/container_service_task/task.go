@@ -101,7 +101,10 @@ func (t *TaskV2) IsAlive() bool {
 			return false
 		}
 
-		log.Error().Err(rerrors.Wrap(err, "error getting container of dependency: "+t.container.Hostname)).Send()
+		log.Error().
+			Err(err).
+			Str("hostname", t.container.Hostname).
+			Msg("error getting container of dependency")
 
 		return false
 	}

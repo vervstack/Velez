@@ -77,8 +77,6 @@ func SetupMakosh(
 			port = ""
 		}
 
-		strconv.Itoa(cfg.Environment.MakoshPort)
-
 		containerReq.ExposedPorts[grpcPort] = struct{}{}
 		containerReq.HostConfig.PortBindings = nat.PortMap{
 			grpcPort: []nat.PortBinding{
@@ -119,7 +117,7 @@ func SetupMakosh(
 
 	makoshSd, err = makosh.NewServiceDiscovery(cfg)
 	if err != nil {
-		return nil, rerrors.Wrap(err, "error initializing service discovery ")
+		return nil, rerrors.Wrap(err, "error initializing service discovery")
 	}
 
 	connToVpnReq := domain.ConnectServiceToVcn{

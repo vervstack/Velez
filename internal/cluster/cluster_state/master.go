@@ -36,7 +36,7 @@ func SetupMasterPg(
 	}
 
 	if contInspect.State == nil {
-		return rerrors.New("Postgres container for Cluster state exists but don't have a state")
+		return rerrors.New("postgres container for cluster state exists but has no state")
 	}
 
 	if contInspect.State.Status != container.StateRunning {
@@ -49,7 +49,7 @@ func SetupMasterPg(
 
 		err = dockerClient.ContainerStart(ctx, contInspect.ID, startOps)
 		if err != nil {
-			return rerrors.Wrap(err, "Failed to start Postgres container for Cluster state. Fallback to noImpl")
+			return rerrors.Wrap(err, "error starting postgres container for cluster state, falling back to noImpl")
 		}
 
 		contInspect, err = dockerClient.ContainerInspect(ctx, containerName)
@@ -76,7 +76,7 @@ func SetupMasterPg(
 	}
 
 	if contInspect.State.Health.Status != container.Healthy {
-		return rerrors.Wrap(err, "Postgres container for cluster state isn't healthy. Falling back to noImpl")
+		return rerrors.Wrap(err, "postgres container for cluster state isn't healthy, falling back to noImpl")
 	}
 
 	localState := nodeClients.LocalStateManager().Get().ClusterState.PgRootDsn

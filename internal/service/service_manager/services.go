@@ -51,7 +51,7 @@ func New(
 	cm := container_manager.New(nodeClients, runtimeResolver)
 
 	storageContainer := storage.NewStorageContainer(local_storage.New(nodeClients.Docker(), cfg))
-	svc := plugins.NewPluginService(storageContainer)
+	svc := plugins.New(storageContainer)
 	secretsStore := secrets.New(storageContainer)
 
 	vervServices := verv_services.New(
@@ -66,7 +66,7 @@ func New(
 		vervServices:     vervServices,
 
 		docker:      nodeClients.Docker(),
-		nodeService: nodes_service.NewService(clusterClients.StateManager()),
+		nodeService: nodes_service.New(clusterClients.StateManager()),
 
 		pluginService:    svc,
 		storageContainer: storageContainer,

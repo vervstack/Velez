@@ -101,7 +101,7 @@ func (n *nodeStorage) List(ctx context.Context, req domain.ListNodesReq) (domain
 
 	query, args, err := builder.ToSql()
 	if err != nil {
-		return domain.NodesList{}, rerrors.Wrap(err, "erorr building list query")
+		return domain.NodesList{}, rerrors.Wrap(err, "error building list query")
 	}
 
 	rows, err := n.db.QueryContext(ctx, query, args...)

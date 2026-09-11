@@ -15,7 +15,7 @@ type pluginService struct {
 	storage storage.Storage
 }
 
-func NewPluginService(stg storage.Storage) service.PluginService {
+func New(stg storage.Storage) service.PluginService {
 	return &pluginService{storage: stg}
 }
 

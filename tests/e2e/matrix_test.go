@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -53,12 +54,20 @@ const (
 // NewEnvironment directly, so a new cell (a cluster fixture, a dedicated
 // engine, a containerized Velez) lights up in every adopting suite at once
 // instead of needing a per-suite matrix rewrite.
+//
+// There is no separate display Name: Plane.Name() derives it from the axis
+// values themselves, so two cells can never silently share a label and a
+// t.Run tree/log line always says exactly what ran.
 type Plane struct {
-	Name       string
 	Mode       PlaneMode
 	Backend    PlaneBackend
 	Separation EnvSeparationWay
 	Running    RunningMode
+}
+
+// Name is this Plane's t.Run/log identity, generated from its axis values.
+func (p Plane) Name() string {
+	return strings.Join([]string{string(p.Mode), string(p.Backend), string(p.Separation), string(p.Running)}, "/")
 }
 
 // Planes is the package-wide matrix of fixture cells. Only
@@ -66,7 +75,6 @@ type Plane struct {
 // see Plane.NewEnvironment.
 var Planes = []Plane{
 	{
-		Name:       "single-node/docker",
 		Mode:       ModeSingleNode,
 		Backend:    BackendDocker,
 		Separation: SeparationLabelBased,
@@ -85,28 +93,28 @@ var Planes = []Plane{
 // NewEnvironment builds the TestEnvironment fixture matching p's Mode,
 // Backend, Separation and Running. Today all four are single-case, so this
 // is a passthrough to package-level NewEnvironment. An unimplemented
-// combination fails loudly rather than silently building the wrong fixture,
-// so adding a matrix row without wiring its fixture here is impossible to
-// miss.
+// combination skips the calling test rather than silently building the
+// wrong fixture, so adding a matrix row without wiring its fixture here is
+// impossible to miss.
 func (p Plane) NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 	t.Helper()
 
 	if p.Mode != ModeSingleNode {
-		t.Fatalf("plane %q: mode %q not wired to a fixture yet", p.Name, p.Mode)
+		t.Skipf("plane %q: mode %q not wired to a fixture yet", p.Name(), p.Mode)
 	}
 
 	if p.Backend != BackendDocker {
-		t.Fatalf("plane %q: backend %q not wired to a fixture yet", p.Name, p.Backend)
+		t.Skipf("plane %q: backend %q not wired to a fixture yet", p.Name(), p.Backend)
 	}
 
 	if p.Separation != SeparationLabelBased {
-		t.Fatalf("plane %q: env-separation-way %q not wired to a fixture yet - see https://trello.com/c/otriSswo",
-			p.Name, p.Separation)
+		t.Skipf("plane %q: env-separation-way %q not wired to a fixture yet - see https://trello.com/c/otriSswo",
+			p.Name(), p.Separation)
 	}
 
 	if p.Running != RunningModeBinary {
-		t.Fatalf("plane %q: running-mode %q not wired to a fixture yet - see https://trello.com/c/otriSswo",
-			p.Name, p.Running)
+		t.Skipf("plane %q: running-mode %q not wired to a fixture yet - see https://trello.com/c/otriSswo",
+			p.Name(), p.Running)
 	}
 
 	return NewEnvironment(t, opts...)

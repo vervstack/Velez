@@ -38,7 +38,7 @@ var upgradeSmerdMatrix = []upgradeSmerdTestCase{
 // Serial: rows share fixed container names.
 func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_Matrix() {
 	for _, tc := range upgradeSmerdMatrix {
-		s.T().Run(tc.plane.Name+"/"+caseEnvName(tc.environment), func(t *testing.T) {
+		s.T().Run(tc.plane.Name()+"/"+caseEnvName(tc.environment), func(t *testing.T) {
 			runUpgradeSmerdCase(t, tc)
 		})
 	}

@@ -8,6 +8,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/storage/environments"
 )
 
 // StateMode is the Velez state backend a case runs the app against.
@@ -19,8 +20,7 @@ const (
 	// Test_ContainerRuntime_Matrix's doc comment.
 	containerRuntimeSmerdName = "e2e_ctr_runtime"
 
-	containerRuntimeEnvNameProd  = "PROD"
-	containerRuntimeEnvNameStage = "STAGE"
+	containerRuntimeStageEnvName = "STAGE"
 
 	StateModeStateless StateMode = "stateless"
 
@@ -33,17 +33,6 @@ const (
 	// per-Plane fixture today. See https://trello.com/c/otriSswo.
 	StateModeStatefull StateMode = "statefull"
 )
-
-// environmentCase is one environment to exercise within a Plane's fixture.
-// environment is the velez_api.CreateSmerd_Request.Environment value - ""
-// means the node's own/default environment. It is intentionally not "just
-// name": PROD's wire value ("") and its display name ("PROD") are different
-// strings, so the two fields can't collapse into one - but there is no third
-// "suffix" field, see environmentSuffix.
-type environmentCase struct {
-	name        string
-	environment string
-}
 
 // containerVariant is one container shape to create and verify. check runs
 // after the common assertions (runContainerRuntimeCase) already passed - nil
@@ -65,9 +54,19 @@ var (
 	// supports it - see matrix_test.go.
 	containerRuntimePlanes = []Plane{Planes[0]}
 
-	containerRuntimeEnvironments = []environmentCase{
-		{name: containerRuntimeEnvNameProd, environment: ""},
-		{name: containerRuntimeEnvNameStage, environment: containerRuntimeEnvNameStage},
+	// containerRuntimeEnvironments is both the velez_api.CreateSmerd_Request
+	// Environment value AND this environment's t.Run/display name - the two
+	// were never independent data (an environment's name IS what identifies
+	// it on the wire), so there is only one field. environments.
+	// DefaultEnvironmentName ("PROD") is the real production sentinel for
+	// the node's own/default environment - internal/storage/environments/
+	// static.go always seeds a row under exactly that name, so sending it
+	// explicitly resolves identically to sending "" (see environments.
+	// Resolve's doc comment); using it here instead of "" is what lets this
+	// table avoid a second field.
+	containerRuntimeEnvironments = []string{
+		environments.DefaultEnvironmentName,
+		containerRuntimeStageEnvName,
 	}
 
 	// containerRuntimeStateModes: only StateModeStateless is wired today -
@@ -93,17 +92,17 @@ var (
 // runContainerRuntimeEnvironmentCase -> runContainerRuntimeStateModeCase ->
 // runContainerRuntimeCase) so no single function juggles more than one loop,
 // while the t.Run tree still lets you target one cell directly
-// (-run Matrix/single-node.docker/PROD/stateless/hello-world).
+// (-run Matrix/single-node.docker.../PROD/stateless/hello-world).
 //
-// Every environmentCase shares one smerdName on purpose: that is what proves
-// labelSuffixResolver's guarantee that Smerd.Name stays env-agnostic even
-// though the real Docker container name differs per environment (see
+// Every environment case shares one smerdName on purpose: that is what
+// proves labelSuffixResolver's guarantee that Smerd.Name stays env-agnostic
+// even though the real Docker container name differs per environment (see
 // runContainerRuntimeCase).
 func Test_ContainerRuntime_Matrix(t *testing.T) {
 	t.Parallel()
 
 	for _, plane := range containerRuntimePlanes {
-		t.Run(plane.Name, func(t *testing.T) {
+		t.Run(plane.Name(), func(t *testing.T) {
 			runContainerRuntimePlane(t, plane)
 		})
 	}
@@ -127,9 +126,9 @@ func runContainerRuntimePlane(t *testing.T, plane Plane) {
 		WithContainerSuffix(nodeSuffix),
 		WithEnvironments(containerRuntimeExtraEnvironments()))
 
-	for _, envCase := range containerRuntimeEnvironments {
-		t.Run(envCase.name, func(t *testing.T) {
-			runContainerRuntimeEnvironmentCase(t, env, envCase, nodeSuffix)
+	for _, environment := range containerRuntimeEnvironments {
+		t.Run(environment, func(t *testing.T) {
+			runContainerRuntimeEnvironmentCase(t, env, environment, nodeSuffix)
 		})
 	}
 }
@@ -143,13 +142,15 @@ func dockerSafeToken(s string) string {
 // containerRuntimeExtraEnvironments collects every non-default environment
 // name out of containerRuntimeEnvironments, in the shape WithEnvironments
 // wants - so adding a table row is the only edit needed to also register it
-// on the fixture.
+// on the fixture. environments.DefaultEnvironmentName is excluded: it's
+// already seeded by NewStatic regardless, and re-listing it is a no-op there
+// (see static.go's NewStatic).
 func containerRuntimeExtraEnvironments() []string {
 	var envs []string
 
-	for _, envCase := range containerRuntimeEnvironments {
-		if envCase.environment != "" {
-			envs = append(envs, envCase.environment)
+	for _, environment := range containerRuntimeEnvironments {
+		if environment != environments.DefaultEnvironmentName {
+			envs = append(envs, environment)
 		}
 	}
 
@@ -158,15 +159,13 @@ func containerRuntimeExtraEnvironments() []string {
 
 // runContainerRuntimeEnvironmentCase iterates the state-mode axis for one
 // environment.
-func runContainerRuntimeEnvironmentCase(
-	t *testing.T, env *TestEnvironment, envCase environmentCase, nodeSuffix string,
-) {
+func runContainerRuntimeEnvironmentCase(t *testing.T, env *TestEnvironment, environment, nodeSuffix string) {
 	t.Helper()
 	t.Parallel()
 
 	for _, stateMode := range containerRuntimeStateModes {
 		t.Run(string(stateMode), func(t *testing.T) {
-			runContainerRuntimeStateModeCase(t, env, envCase, nodeSuffix)
+			runContainerRuntimeStateModeCase(t, env, environment, nodeSuffix)
 		})
 	}
 }
@@ -176,29 +175,28 @@ func runContainerRuntimeEnvironmentCase(
 // (StateModeStateless) needs no setup beyond what NewEnvironment already
 // does - it exists purely as a matrix/t.Run axis until StateModeStatefull
 // is wired (see its doc comment).
-func runContainerRuntimeStateModeCase(t *testing.T, env *TestEnvironment, envCase environmentCase, nodeSuffix string) {
+func runContainerRuntimeStateModeCase(t *testing.T, env *TestEnvironment, environment, nodeSuffix string) {
 	t.Helper()
 	t.Parallel()
 
 	for _, variant := range containerRuntimeVariants {
 		t.Run(variant.name, func(t *testing.T) {
-			runContainerRuntimeCase(t, env, envCase, nodeSuffix, variant)
+			runContainerRuntimeCase(t, env, environment, nodeSuffix, variant)
 		})
 	}
 }
 
-// runContainerRuntimeCase creates variant in envCase's environment and
-// checks it: the assertions every variant needs (requireSmerdRunning,
-// requireLogicalName, requireRealContainer), then variant's own optional
-// check.
+// runContainerRuntimeCase creates variant in environment and checks it: the
+// assertions every variant needs (requireSmerdRunning, requireLogicalName,
+// requireRealContainer), then variant's own optional check.
 func runContainerRuntimeCase(
-	t *testing.T, env *TestEnvironment, envCase environmentCase, nodeSuffix string, variant containerVariant,
+	t *testing.T, env *TestEnvironment, environment, nodeSuffix string, variant containerVariant,
 ) {
 	t.Helper()
 	t.Parallel()
 
 	smerdName := containerRuntimeSmerdName + "_" + variant.name
-	createReq := newContainerRuntimeCreateRequest(smerdName, envCase.environment, variant.imageName, variant.settings)
+	createReq := newContainerRuntimeCreateRequest(smerdName, environment, variant.imageName, variant.settings)
 
 	// CreateSmerd is the task-watch path: the RPC enqueues the create_smerd
 	// task and blocks until it reaches DONE/FAILED
@@ -208,7 +206,7 @@ func runContainerRuntimeCase(
 
 	requireSmerdRunning(t, created)
 	requireLogicalName(t, created, smerdName)
-	requireRealContainer(t, env, created, smerdName, environmentSuffix(nodeSuffix, envCase.environment))
+	requireRealContainer(t, env, created, smerdName, environmentSuffix(nodeSuffix, environment))
 
 	if variant.check != nil {
 		variant.check(t, env, created)
@@ -220,7 +218,7 @@ func runContainerRuntimeCase(
 // ContainerSuffix the fixture was built with (nodeSuffix), every other
 // registered environment's suffix is its own name.
 func environmentSuffix(nodeSuffix, environment string) string {
-	if environment == "" {
+	if environment == environments.DefaultEnvironmentName {
 		return nodeSuffix
 	}
 

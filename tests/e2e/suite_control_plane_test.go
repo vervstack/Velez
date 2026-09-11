@@ -22,7 +22,7 @@ func (s *ControlPlaneSuite) Test_ListEnvironments_WithLocalStateConfig() {
 	t := s.T()
 
 	configuredEnvs := []string{"dev", "staging", "prod"}
-	env := NewEnvironment(t, WithEnvironments(configuredEnvs))
+	env := Planes[0].NewEnvironment(t, WithEnvironments(configuredEnvs))
 
 	req := &pb.ListEnvironments_Request{}
 	resp, err := env.Custom.ControlPlaneApiImpl.ListEnvironments(t.Context(), req)
@@ -48,7 +48,7 @@ func (s *ControlPlaneSuite) Test_ListEnvironments_EmptyLocalStateConfig() {
 	// earlier test rather than this test's own logic. Needs isolation fix.
 	t.Skip("flaky: see TODO above")
 
-	env := NewEnvironment(t)
+	env := Planes[0].NewEnvironment(t)
 
 	req := &pb.ListEnvironments_Request{}
 	resp, err := env.Custom.ControlPlaneApiImpl.ListEnvironments(t.Context(), req)

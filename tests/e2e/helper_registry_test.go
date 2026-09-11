@@ -50,7 +50,7 @@ const (
 func enableRegistryUnderDind(t *testing.T) *TestEnvironment {
 	t.Helper()
 
-	env := NewEnvironment(t)
+	env := Planes[0].NewEnvironment(t)
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 
 	removeRegistrySidecar(dockerClient)

@@ -64,7 +64,7 @@ func (s *EnvironmentsSuite) Test_EmptyEnvironment_UsesDefaultSuffix() {
 	t := s.T()
 
 	serviceName := e2eEnvDefaultName
-	env := NewEnvironment(t, WithContainerSuffix(e2eDefaultSuffix))
+	env := Planes[0].NewEnvironment(t, WithContainerSuffix(e2eDefaultSuffix))
 
 	createReq := &velez_api.CreateSmerd_Request{
 		Name:         serviceName,
@@ -108,7 +108,7 @@ func (s *EnvironmentsSuite) Test_EmptyEnvironment_UsesDefaultSuffix() {
 func (s *EnvironmentsSuite) Test_TwoEnvironments_AreListScoped() {
 	t := s.T()
 
-	env := NewEnvironment(t,
+	env := Planes[0].NewEnvironment(t,
 		WithContainerSuffix(e2eDefaultSuffix),
 		WithEnvironments([]string{e2eStageEnv}))
 
@@ -173,7 +173,7 @@ func (s *EnvironmentsSuite) Test_TwoEnvironments_AreListScoped() {
 func (s *EnvironmentsSuite) Test_SameNameInTwoEnvironments_AreDistinctContainers() {
 	t := s.T()
 
-	env := NewEnvironment(t,
+	env := Planes[0].NewEnvironment(t,
 		WithContainerSuffix(e2eDefaultSuffix),
 		WithEnvironments([]string{e2eStageEnv}))
 
@@ -236,7 +236,7 @@ func (s *EnvironmentsSuite) Test_SameNameInTwoEnvironments_AreDistinctContainers
 func (s *EnvironmentsSuite) Test_DropSmerd_ByBareName_SilentlyNoOpsInSuffixedEnvironment() {
 	t := s.T()
 
-	env := NewEnvironment(t,
+	env := Planes[0].NewEnvironment(t,
 		WithContainerSuffix(e2eDefaultSuffix),
 		WithEnvironments([]string{e2eStageEnv}))
 
@@ -289,7 +289,7 @@ func (s *EnvironmentsSuite) Test_DropSmerd_ByBareName_SilentlyNoOpsInSuffixedEnv
 func (s *EnvironmentsSuite) Test_DropSmerd_ByUuid_CrossEnvironmentCollision() {
 	t := s.T()
 
-	env := NewEnvironment(t,
+	env := Planes[0].NewEnvironment(t,
 		WithContainerSuffix(e2eDefaultSuffix),
 		WithEnvironments([]string{e2eStageEnv}))
 

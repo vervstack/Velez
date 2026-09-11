@@ -55,7 +55,7 @@ func (s *ServiceScopingSuite) containerRunning(env *TestEnvironment, id string) 
 func (s *ServiceScopingSuite) Test_StopService_ScopedToEnvironment_StopsOwnContainer() {
 	t := s.T()
 
-	env := NewEnvironment(t,
+	env := Planes[0].NewEnvironment(t,
 		WithContainerSuffix(serviceScopingSuffix),
 		WithEnvironments([]string{serviceScopingStage}))
 
@@ -87,7 +87,7 @@ func (s *ServiceScopingSuite) Test_StopService_ScopedToEnvironment_StopsOwnConta
 func (s *ServiceScopingSuite) Test_RestartService_ScopedToEnvironment_RestartsOwnContainer() {
 	t := s.T()
 
-	env := NewEnvironment(t,
+	env := Planes[0].NewEnvironment(t,
 		WithContainerSuffix(serviceScopingSuffix),
 		WithEnvironments([]string{serviceScopingStage}))
 
@@ -130,7 +130,7 @@ func (s *ServiceScopingSuite) Test_RestartService_ScopedToEnvironment_RestartsOw
 func (s *ServiceScopingSuite) Test_StopService_SameNameOtherEnvironment_DoesNotTouchIt() {
 	t := s.T()
 
-	env := NewEnvironment(t,
+	env := Planes[0].NewEnvironment(t,
 		WithContainerSuffix(serviceScopingSuffix),
 		WithEnvironments([]string{serviceScopingStage}))
 

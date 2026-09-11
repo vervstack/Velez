@@ -28,7 +28,7 @@ func (s *AssembleConfigSuite) Test_AssembleHelloWorld() {
 
 	serviceName := GetServiceName(t)
 
-	env := NewEnvironment(t)
+	env := Planes[0].NewEnvironment(t)
 
 	req := &velez_api.AssembleConfig_Request{
 		ImageName:   HelloWorldAppImage,

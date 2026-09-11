@@ -45,7 +45,7 @@ const (
 func Test_ContainerRuntime_ListContainers_ScopesToEnvironment(t *testing.T) {
 	t.Parallel()
 
-	env := NewEnvironment(t,
+	env := Planes[0].NewEnvironment(t,
 		WithContainerSuffix(listContainersProdSuffix),
 		WithEnvironments([]string{listContainersStageEnv}))
 
@@ -114,7 +114,7 @@ func Test_ContainerRuntime_ListContainers_ScopesToEnvironment(t *testing.T) {
 func Test_ContainerRuntime_Network_PerEnvironmentIsolation(t *testing.T) {
 	t.Parallel()
 
-	env := NewEnvironment(t,
+	env := Planes[0].NewEnvironment(t,
 		WithContainerSuffix(networkIsoProdSuffix),
 		WithEnvironments([]string{networkIsoStageEnv}))
 

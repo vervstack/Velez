@@ -95,6 +95,7 @@ func (c *Custom) Init(a *App) (err error) {
 	// node_clients.Docker directly.
 	runtimeResolver := container_runtime.NewResolver(
 		c.NodeClients.Docker().Client(),
+		c.NodeClients.Docker().Host(),
 		a.Cfg.Environment.CustomLabels,
 		c.ClusterClients.StateManager())
 

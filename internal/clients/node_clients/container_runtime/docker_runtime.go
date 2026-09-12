@@ -65,7 +65,7 @@ func newLabelBasedRuntime(cli client.APIClient, suffix string, bakedLabels []str
 
 // newDirectRuntime builds a dockerRuntime backed by directResolver - tier 2,
 // a Docker daemon dedicated to a single environment, needing no name/label
-// scoping at all. Not yet wired into production (see resolver.go).
+// scoping at all. Wired into production by resolver.go's dedicated branch.
 func newDirectRuntime(cli client.APIClient, bakedLabels []string) *dockerRuntime {
 	common := commonRuntime{
 		cli: cli,

@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/user_errors"
@@ -22,7 +23,10 @@ func newEnvService(t *testing.T, seedNames []string, defaultSuffix string) *Verv
 		environments: environments.NewStatic(seedNames, defaultSuffix),
 	}
 
-	return New(dataStorage, nil, nil, nil, nil, nil)
+	dockerClient, err := docker.NewClient(nil)
+	require.NoError(t, err)
+
+	return New(dataStorage, nil, dockerClient, nil, nil, nil)
 }
 
 func TestVervService_ListEnvironments(t *testing.T) {

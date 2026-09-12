@@ -106,8 +106,8 @@ func TestNewLabelBasedRuntime_BuildsLabelSuffixResolverBackedRuntime(t *testing.
 }
 
 // newDirectRuntime must build a dockerRuntime backed by a directResolver -
-// tier 2's constructor, not yet wired into production (resolver.go still
-// returns ErrDedicatedRuntimeNotImplemented for a dedicated environment).
+// tier 2's constructor, wired into production by resolver.go's dedicated
+// branch for an environment whose DockerHost differs from the node's own.
 func TestNewDirectRuntime_BuildsDirectResolverBackedRuntime(t *testing.T) {
 	api := &fakeCreateAPI{}
 

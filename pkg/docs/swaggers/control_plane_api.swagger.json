@@ -471,6 +471,9 @@
         },
         "suffix": {
           "type": "string"
+        },
+        "dockerHost": {
+          "type": "string"
         }
       }
     },
@@ -626,6 +629,9 @@
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "dockerHost": {
+          "type": "string"
         }
       }
     },
@@ -828,6 +834,9 @@
           "type": "string"
         },
         "suffix": {
+          "type": "string"
+        },
+        "dockerHost": {
           "type": "string"
         }
       }

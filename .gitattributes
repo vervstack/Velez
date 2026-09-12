@@ -1,0 +1,11 @@
+# Generated code — collapsed by GitHub in PR diffs (github.com/github/linguist).
+# Source of truth stays the .proto/.sql files; never hand-edit these.
+
+internal/api/server/**/*.pb.go linguist-generated=true
+internal/storage/postgres/generated/**/*.go linguist-generated=true
+pkg/docs/swaggers/*.json linguist-generated=true
+pkg/docs/docs.swagger_ui.go linguist-generated=true
+pkg/web/Velez-UI/src/app/api/**/*.pb.ts linguist-generated=true
+internal/config/environment.go linguist-generated=true
+internal/app/app.go linguist-generated=true
+moti.lock linguist-generated=true

@@ -63,8 +63,9 @@ func (p *pgStorage) CreateEnvironment(
 	req domain.CreateEnvironmentReq,
 ) (domain.Environment, error) {
 	params := environments_queries.CreateEnvironmentParams{
-		Name:   req.Name,
-		Suffix: req.Suffix,
+		Name:       req.Name,
+		Suffix:     req.Suffix,
+		DockerHost: req.DockerHost,
 	}
 
 	row, err := p.querier.CreateEnvironment(ctx, params)
@@ -85,9 +86,10 @@ func (p *pgStorage) UpdateEnvironment(
 	}
 
 	params := environments_queries.UpdateEnvironmentParams{
-		ID:     req.ID,
-		Name:   current.Name,
-		Suffix: current.Suffix,
+		ID:         req.ID,
+		Name:       current.Name,
+		Suffix:     current.Suffix,
+		DockerHost: current.DockerHost,
 	}
 
 	if req.Name != nil {
@@ -96,6 +98,10 @@ func (p *pgStorage) UpdateEnvironment(
 
 	if req.Suffix != nil {
 		params.Suffix = *req.Suffix
+	}
+
+	if req.DockerHost != nil {
+		params.DockerHost = *req.DockerHost
 	}
 
 	row, err := p.querier.UpdateEnvironment(ctx, params)
@@ -117,11 +123,12 @@ func (p *pgStorage) DeleteEnvironment(ctx context.Context, id int64) error {
 
 func environmentFromRow(row environments_queries.VelezEnvironment) domain.Environment {
 	return domain.Environment{
-		ID:        row.ID,
-		Name:      row.Name,
-		Suffix:    row.Suffix,
-		CreatedAt: row.CreatedAt,
-		UpdatedAt: row.UpdatedAt,
+		ID:         row.ID,
+		Name:       row.Name,
+		Suffix:     row.Suffix,
+		DockerHost: row.DockerHost,
+		CreatedAt:  row.CreatedAt,
+		UpdatedAt:  row.UpdatedAt,
 	}
 }
 

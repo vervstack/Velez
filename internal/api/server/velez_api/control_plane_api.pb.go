@@ -7,15 +7,14 @@
 package velez_api
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "go.redsock.ru/protoc-gen-npm/npmplugin"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -738,6 +737,7 @@ type Environment struct {
 	Suffix        string                 `protobuf:"bytes,3,opt,name=suffix,proto3" json:"suffix,omitempty"`
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	DockerHost    string                 `protobuf:"bytes,6,opt,name=docker_host,json=dockerHost,proto3" json:"docker_host,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -805,6 +805,13 @@ func (x *Environment) GetUpdatedAt() *timestamppb.Timestamp {
 		return x.UpdatedAt
 	}
 	return nil
+}
+
+func (x *Environment) GetDockerHost() string {
+	if x != nil {
+		return x.DockerHost
+	}
+	return ""
 }
 
 type ListEnvironments struct {
@@ -1944,6 +1951,7 @@ type CreateEnvironment_Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Suffix        *string                `protobuf:"bytes,2,opt,name=suffix,proto3,oneof" json:"suffix,omitempty"`
+	DockerHost    *string                `protobuf:"bytes,3,opt,name=docker_host,json=dockerHost,proto3,oneof" json:"docker_host,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1988,6 +1996,13 @@ func (x *CreateEnvironment_Request) GetName() string {
 func (x *CreateEnvironment_Request) GetSuffix() string {
 	if x != nil && x.Suffix != nil {
 		return *x.Suffix
+	}
+	return ""
+}
+
+func (x *CreateEnvironment_Request) GetDockerHost() string {
+	if x != nil && x.DockerHost != nil {
+		return *x.DockerHost
 	}
 	return ""
 }
@@ -2041,6 +2056,7 @@ type UpdateEnvironment_Request struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name          *string                `protobuf:"bytes,2,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	Suffix        *string                `protobuf:"bytes,3,opt,name=suffix,proto3,oneof" json:"suffix,omitempty"`
+	DockerHost    *string                `protobuf:"bytes,4,opt,name=docker_host,json=dockerHost,proto3,oneof" json:"docker_host,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2092,6 +2108,13 @@ func (x *UpdateEnvironment_Request) GetName() string {
 func (x *UpdateEnvironment_Request) GetSuffix() string {
 	if x != nil && x.Suffix != nil {
 		return *x.Suffix
+	}
+	return ""
+}
+
+func (x *UpdateEnvironment_Request) GetDockerHost() string {
+	if x != nil && x.DockerHost != nil {
+		return *x.DockerHost
 	}
 	return ""
 }
@@ -2739,7 +2762,7 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\vListPlugins\x1a\t\n" +
 	"\aRequest\x1a7\n" +
 	"\bResponse\x12+\n" +
-	"\aplugins\x18\x01 \x03(\v2\x11.velez_api.PluginR\aplugins\"\xbf\x01\n" +
+	"\aplugins\x18\x01 \x03(\v2\x11.velez_api.PluginR\aplugins\"\xe0\x01\n" +
 	"\vEnvironment\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
@@ -2747,25 +2770,33 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"e\n" +
+	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x1f\n" +
+	"\vdocker_host\x18\x06 \x01(\tR\n" +
+	"dockerHost\"e\n" +
 	"\x10ListEnvironments\x1a\t\n" +
 	"\aRequest\x1aF\n" +
 	"\bResponse\x12:\n" +
-	"\fenvironments\x18\x01 \x03(\v2\x16.velez_api.EnvironmentR\fenvironments\"\xa0\x01\n" +
-	"\x11CreateEnvironment\x1aE\n" +
+	"\fenvironments\x18\x01 \x03(\v2\x16.velez_api.EnvironmentR\fenvironments\"\xd6\x01\n" +
+	"\x11CreateEnvironment\x1a{\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1b\n" +
-	"\x06suffix\x18\x02 \x01(\tH\x00R\x06suffix\x88\x01\x01B\t\n" +
-	"\a_suffix\x1aD\n" +
+	"\x06suffix\x18\x02 \x01(\tH\x00R\x06suffix\x88\x01\x01\x12$\n" +
+	"\vdocker_host\x18\x03 \x01(\tH\x01R\n" +
+	"dockerHost\x88\x01\x01B\t\n" +
+	"\a_suffixB\x0e\n" +
+	"\f_docker_host\x1aD\n" +
 	"\bResponse\x128\n" +
-	"\venvironment\x18\x01 \x01(\v2\x16.velez_api.EnvironmentR\venvironment\"\xbe\x01\n" +
-	"\x11UpdateEnvironment\x1ac\n" +
+	"\venvironment\x18\x01 \x01(\v2\x16.velez_api.EnvironmentR\venvironment\"\xf5\x01\n" +
+	"\x11UpdateEnvironment\x1a\x99\x01\n" +
 	"\aRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
 	"\x04name\x18\x02 \x01(\tH\x00R\x04name\x88\x01\x01\x12\x1b\n" +
-	"\x06suffix\x18\x03 \x01(\tH\x01R\x06suffix\x88\x01\x01B\a\n" +
+	"\x06suffix\x18\x03 \x01(\tH\x01R\x06suffix\x88\x01\x01\x12$\n" +
+	"\vdocker_host\x18\x04 \x01(\tH\x02R\n" +
+	"dockerHost\x88\x01\x01B\a\n" +
 	"\x05_nameB\t\n" +
-	"\a_suffix\x1aD\n" +
+	"\a_suffixB\x0e\n" +
+	"\f_docker_host\x1aD\n" +
 	"\bResponse\x128\n" +
 	"\venvironment\x18\x01 \x01(\v2\x16.velez_api.EnvironmentR\venvironment\"h\n" +
 	"\x11DeleteEnvironment\x1aG\n" +

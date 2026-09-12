@@ -10,15 +10,17 @@ import (
 )
 
 // CreateEnvironment persists a new deployment environment. An omitted suffix
-// defaults to the environment's name (applied in the service layer, so every
+// defaults to the environment's name, and an omitted docker_host to this
+// node's own Docker connection (both applied in the service layer, so every
 // caller - not just this RPC - gets the same rule).
 func (impl *Impl) CreateEnvironment(
 	ctx context.Context,
 	req *pb.CreateEnvironment_Request,
 ) (*pb.CreateEnvironment_Response, error) {
 	serviceReq := domain.CreateEnvironmentReq{
-		Name:   req.GetName(),
-		Suffix: req.GetSuffix(),
+		Name:       req.GetName(),
+		Suffix:     req.GetSuffix(),
+		DockerHost: req.GetDockerHost(),
 	}
 
 	env, err := impl.vervServices.CreateEnvironment(ctx, serviceReq)

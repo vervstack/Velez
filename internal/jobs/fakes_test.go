@@ -446,6 +446,10 @@ func (f *fakeDocker) Client() client.APIClient {
 	return f.clientAPI
 }
 
+func (f *fakeDocker) Host() string {
+	return ""
+}
+
 func (f *fakeDocker) ContainerCreate(
 	_ context.Context, _ *container.Config, _ *container.HostConfig, _ *network.NetworkingConfig,
 	_ *v1.Platform, _ string, suffix string,

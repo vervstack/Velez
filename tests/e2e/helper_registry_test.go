@@ -47,10 +47,10 @@ const (
 // jobs.SmerdEntityID(environments.DefaultEnvironmentName, jobs.RegistryServiceName),
 // per deployRegistryJob's registryEnvironment - before returning, so the
 // caller can rely on the registry container actually existing.
-func enableRegistryUnderDind(t *testing.T) *TestEnvironment {
+func enableRegistryUnderDind(t *testing.T, plane Plane) *TestEnvironment {
 	t.Helper()
 
-	env := Planes[0].NewEnvironment(t)
+	env := plane.NewEnvironment(t)
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 
 	removeRegistrySidecar(dockerClient)

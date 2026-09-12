@@ -33,6 +33,7 @@ import (
 type VpnSuite struct {
 	suite.Suite
 
+	plane  Plane
 	env    *TestEnvironment
 	vpnAPI velez_api.VcnApiClient
 }
@@ -42,7 +43,7 @@ func (s *VpnSuite) SetupSuite() {
 
 	hs := getSharedHeadscale(t)
 
-	s.env = NewEnvironment(t,
+	s.env = s.plane.NewEnvironment(t,
 		WithState(t, WithStateVcnEnabled(hs.apiURL, hs.apiKey)))
 
 	s.vpnAPI = s.env.VpnClient()
@@ -142,5 +143,7 @@ func (s *VpnSuite) findNamespaceID(ctx context.Context, name string) string {
 }
 
 func Test_Vpn(t *testing.T) {
-	suite.Run(t, new(VpnSuite))
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
+		return &VpnSuite{plane: plane}
+	})
 }

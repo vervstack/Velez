@@ -16,10 +16,12 @@ import (
 // upgrade_smerd job and blocks on Watch - against real Docker.
 type UpgradeSmerdSuite struct {
 	suite.Suite
+
+	plane Plane
+	env   *TestEnvironment
 }
 
 type upgradeSmerdTestCase struct {
-	plane       Plane
 	environment string // "" => default/PROD environment
 	smerdName   string
 }
@@ -30,16 +32,40 @@ const (
 	upgradeSuffixedEnv  = "E2EUPGSTAGE"
 )
 
-var upgradeSmerdMatrix = []upgradeSmerdTestCase{
-	{plane: Planes[0], environment: "", smerdName: upgradeDefaultName},
-	{plane: Planes[0], environment: upgradeSuffixedEnv, smerdName: upgradeSuffixedName},
+// SetupTest builds the plain, no-options environment used by
+// Test_UpgradeSmerd_NonExistentContainer_Fails. Test_UpgradeSmerd_Matrix needs
+// a differently-configured environment per row (a suffixed environment for
+// one of its two cases), so it builds its own instead of using s.env.
+func (s *UpgradeSmerdSuite) SetupTest() {
+	s.env = s.plane.NewEnvironment(s.T())
 }
 
 // Serial: rows share fixed container names.
 func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_Matrix() {
-	for _, tc := range upgradeSmerdMatrix {
-		s.T().Run(tc.plane.Name()+"/"+caseEnvName(tc.environment), func(t *testing.T) {
-			runUpgradeSmerdCase(t, tc)
+	cases := []upgradeSmerdTestCase{
+		{environment: "", smerdName: upgradeDefaultName},
+		{environment: upgradeSuffixedEnv, smerdName: upgradeSuffixedName},
+	}
+
+	for _, tc := range cases {
+		s.T().Run(caseEnvName(tc.environment), func(t *testing.T) {
+			var opts []TestEnvOpt
+
+			if tc.environment != "" {
+				opts = append(opts, WithEnvironments([]string{tc.environment}))
+			}
+
+			env := s.plane.NewEnvironment(t, opts...)
+
+			created := env.CreateSmerd(t, newCreateSmerdRequest(tc))
+			require.Equal(t, velez_api.Smerd_running, created.GetStatus())
+
+			_, err := env.Custom.ApiGrpcImpl.UpgradeSmerd(t.Context(), newUpgradeSmerdRequest(tc))
+			require.NoError(t, err)
+
+			upgraded := s.awaitUpgraded(t, env, tc)
+
+			s.assertUpgraded(t, env, tc, upgraded)
 		})
 	}
 }
@@ -52,46 +78,56 @@ func caseEnvName(environment string) string {
 	return environment
 }
 
-func newUpgradeSmerdCreateRequest(smerdName, environment string) *velez_api.CreateSmerd_Request {
+func newCreateSmerdRequest(tc upgradeSmerdTestCase) *velez_api.CreateSmerd_Request {
 	return &velez_api.CreateSmerd_Request{
-		Name:         smerdName,
+		Name:         tc.smerdName,
 		ImageName:    HelloWorldAppImage,
 		IgnoreConfig: true,
-		Environment:  environment,
+		Environment:  tc.environment,
 	}
 }
 
-func runUpgradeSmerdCase(t *testing.T, tc upgradeSmerdTestCase) {
-	t.Helper()
-
-	var opts []TestEnvOpt
-
-	if tc.environment != "" {
-		opts = append(opts, WithEnvironments([]string{tc.environment}))
-	}
-
-	env := tc.plane.NewEnvironment(t, opts...)
-
-	createReq := newUpgradeSmerdCreateRequest(tc.smerdName, tc.environment)
-	created := env.CreateSmerd(t, createReq)
-	require.Equal(t, velez_api.Smerd_running, created.GetStatus())
-
-	upgradeReq := &velez_api.UpgradeSmerd_Request{
+func newUpgradeSmerdRequest(tc upgradeSmerdTestCase) *velez_api.UpgradeSmerd_Request {
+	return &velez_api.UpgradeSmerd_Request{
 		Name:        tc.smerdName,
 		Image:       helloWorldImageV0015,
 		Environment: tc.environment,
 	}
-	_, err := env.Custom.ApiGrpcImpl.UpgradeSmerd(t.Context(), upgradeReq)
-	require.NoError(t, err)
+}
 
-	listReq := &velez_api.ListSmerds_Request{
+func newUpgradedListRequest(t *testing.T, tc upgradeSmerdTestCase) *velez_api.ListSmerds_Request {
+	t.Helper()
+
+	return &velez_api.ListSmerds_Request{
 		Environment: tc.environment,
 		Label:       map[string]string{testCaseNameLabel: t.Name()},
 	}
-	resp := env.ListSmerds(t, t.Context(), listReq)
+}
+
+func (s *UpgradeSmerdSuite) awaitUpgraded(
+	t *testing.T,
+	env *TestEnvironment,
+	tc upgradeSmerdTestCase,
+) *velez_api.Smerd {
+	t.Helper()
+
+	resp := env.ListSmerds(t, t.Context(), newUpgradedListRequest(t, tc))
 	require.Len(t, resp.GetSmerds(), 1, "exactly one smerd after upgrade")
 
-	upgraded := resp.GetSmerds()[0]
+	return resp.GetSmerds()[0]
+}
+
+// assertUpgraded validates the RPC-visible smerd (image, status, name,
+// labels) and, separately, that the real Docker container behind it kept its
+// environment-suffixed name.
+func (s *UpgradeSmerdSuite) assertUpgraded(
+	t *testing.T,
+	env *TestEnvironment,
+	tc upgradeSmerdTestCase,
+	upgraded *velez_api.Smerd,
+) {
+	t.Helper()
+
 	require.Equal(t, helloWorldImageV0015, upgraded.GetImageName())
 	require.Equal(t, velez_api.Smerd_running, upgraded.GetStatus())
 	require.Equal(t, tc.smerdName, upgraded.GetName())
@@ -120,17 +156,18 @@ func runUpgradeSmerdCase(t *testing.T, tc upgradeSmerdTestCase) {
 func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_NonExistentContainer_Fails() {
 	t := s.T()
 
-	env := Planes[0].NewEnvironment(t)
-
 	upgradeReq := &velez_api.UpgradeSmerd_Request{
 		Name:  GetServiceName(t),
 		Image: helloWorldImageV0015,
 	}
-	_, err := env.Custom.ApiGrpcImpl.UpgradeSmerd(t.Context(), upgradeReq)
+
+	_, err := s.env.Custom.ApiGrpcImpl.UpgradeSmerd(t.Context(), upgradeReq)
 	require.Error(t, err)
 }
 
 func Test_UpgradeSmerd(t *testing.T) {
 	t.Parallel()
-	suite.Run(t, new(UpgradeSmerdSuite))
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
+		return &UpgradeSmerdSuite{plane: plane}
+	})
 }

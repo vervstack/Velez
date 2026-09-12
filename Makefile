@@ -33,9 +33,9 @@ client:
 # privileged container.
 #
 # test-e2e is the always-green smoke deploy (Test_ContainerRuntime_Matrix
-# only) that also runs in CI - every other suite carries a //go:build
-# e2e_full tag so it doesn't compile into this binary. test-e2e-full is the
-# same run with every suite included, for local use while working on e2e.
+# only) - every other suite carries a //go:build e2e_full tag so it doesn't
+# compile into this binary. test-e2e-full is the same run with every suite
+# included; CI (branch-push.yaml's e2e-test job) runs this one.
 .PHONY: test-e2e
 test-e2e:
 	go test -count=1 -timeout 20m -parallel 8 ./tests/e2e/...

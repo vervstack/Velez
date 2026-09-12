@@ -136,7 +136,7 @@ func (s *EnableStatefullSuite) Test_EnableStatefullMode_UnsupportedPlugin_Fails(
 }
 
 func Test_EnableStatefull(t *testing.T) {
-	RunPlaneSuite(t, ClusterPlanes, func(plane Plane) suite.TestingSuite {
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
 		return &EnableStatefullSuite{plane: plane}
 	})
 }

@@ -368,7 +368,7 @@ func (s *HelloWorldClusterSuite) _prepareSqliteApp() {
 
 func Test_HelloWorldCluster(t *testing.T) {
 	t.Parallel()
-	RunPlaneSuite(t, ClusterPlanes, func(plane Plane) suite.TestingSuite {
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
 		return &HelloWorldClusterSuite{plane: plane}
 	})
 }

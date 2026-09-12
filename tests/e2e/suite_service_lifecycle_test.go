@@ -259,7 +259,7 @@ func (s *ServiceLifecycleSuite) createService(env *TestEnvironment) {
 }
 
 func Test_ServiceLifecycle(t *testing.T) {
-	RunPlaneSuite(t, ClusterPlanes, func(plane Plane) suite.TestingSuite {
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
 		return &ServiceLifecycleSuite{plane: plane}
 	})
 }

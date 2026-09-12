@@ -72,45 +72,35 @@ func (p Plane) Name() string {
 	return strings.Join([]string{string(p.Mode), string(p.Backend), string(p.Separation), string(p.Running)}, "/")
 }
 
-var (
-	// Planes is the package-wide matrix of fixture cells. Only
-	// single-node/docker/label-based/binary is wired to a real fixture today
-	// - see Plane.NewEnvironment.
-	Planes = []Plane{
-		{
-			Mode:       ModeSingleNode,
-			Backend:    BackendDocker,
-			Separation: SeparationLabelBased,
-			Running:    RunningModeBinary,
-		},
+// Planes is the package-wide matrix of fixture cells every suite iterates
+// through RunPlaneSuite. Mode doesn't change what NewEnvironment builds - it
+// is purely a label axis today - so single-node and cluster currently run
+// the identical fixture under two different subtest names; a suite that
+// needs cluster-flavored opts (WithMatreshka, WithClusterPgDsn, ...) passes
+// them itself regardless of which cell is running.
+var Planes = []Plane{
+	{
+		Mode:       ModeSingleNode,
+		Backend:    BackendDocker,
+		Separation: SeparationLabelBased,
+		Running:    RunningModeBinary,
+	},
+	{
+		Mode:       ModeCluster,
+		Backend:    BackendDocker,
+		Separation: SeparationLabelBased,
+		Running:    RunningModeBinary,
+	},
 
-		// single-node/docker cells with Separation: SeparationDedicatedEngine
-		// or Running: RunningModeContainer: both need real product/infra work
-		// first - see https://trello.com/c/otriSswo. Not wired yet,
-		// deliberately.
-	}
+	// single-node/docker cells with Separation: SeparationDedicatedEngine or
+	// Running: RunningModeContainer: both need real product/infra work first
+	// - see https://trello.com/c/otriSswo. Not wired yet, deliberately.
+}
 
-	// ClusterPlanes holds the cluster/docker/label-based/binary cell, kept out
-	// of Planes so single-node suites adopting Planes via RunPlaneSuite don't
-	// pay for a DinD cluster fixture they never asked for. A cluster-shaped
-	// suite drives itself with RunPlaneSuite(t, ClusterPlanes, ...) instead of
-	// Planes - same shape, different list. Plane.NewEnvironment does not
-	// inject WithMatreshka() or any other cluster-flavored opt for this cell;
-	// each suite still passes the opts it needs.
-	ClusterPlanes = []Plane{
-		{
-			Mode:       ModeCluster,
-			Backend:    BackendDocker,
-			Separation: SeparationLabelBased,
-			Running:    RunningModeBinary,
-		},
-	}
-)
-
-// NewEnvironment builds the TestEnvironment fixture matching p's Mode,
-// Backend, Separation and Running. An unimplemented combination skips the
-// calling test rather than silently building the wrong fixture, so adding a
-// matrix row without wiring its fixture here is impossible to miss.
+// NewEnvironment builds the TestEnvironment fixture matching p's Backend,
+// Separation and Running. An unimplemented combination skips the calling
+// test rather than silently building the wrong fixture, so adding a matrix
+// row without wiring its fixture here is impossible to miss.
 func (p Plane) NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 	t.Helper()
 
@@ -128,14 +118,7 @@ func (p Plane) NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment
 			p.Name(), p.Running)
 	}
 
-	switch p.Mode {
-	case ModeSingleNode, ModeCluster:
-		return NewEnvironment(t, opts...)
-	}
-
-	t.Skipf("plane %q: mode %q not wired to a fixture yet", p.Name(), p.Mode)
-
-	return nil
+	return NewEnvironment(t, opts...)
 }
 
 // RunPlaneSuite runs newSuite once per plane in planes, each as its own

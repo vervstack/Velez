@@ -26,6 +26,46 @@ const (
 	listContainersStageName = "e2e_ctr_runtime_list_stage"
 )
 
+func newListContainersProdRequest() *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:         listContainersProdName,
+		ImageName:    HelloWorldAppImage,
+		IgnoreConfig: true,
+	}
+}
+
+func newListContainersStageRequest() *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:         listContainersStageName,
+		ImageName:    HelloWorldAppImage,
+		IgnoreConfig: true,
+		Environment:  listContainersStageEnv,
+	}
+}
+
+func newNetworkIsoProdRequest() *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:         networkIsoProdName,
+		ImageName:    HelloWorldAppImage,
+		IgnoreConfig: true,
+		Settings: &velez_api.Container_Settings{
+			Ports: []*velez_api.Port{{ServicePortNumber: 8080, Protocol: velez_api.Port_tcp}},
+		},
+	}
+}
+
+func newNetworkIsoStageRequest() *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:         networkIsoStageName,
+		ImageName:    HelloWorldAppImage,
+		IgnoreConfig: true,
+		Environment:  networkIsoStageEnv,
+		Settings: &velez_api.Container_Settings{
+			Ports: []*velez_api.Port{{ServicePortNumber: 8080, Protocol: velez_api.Port_tcp}},
+		},
+	}
+}
+
 // ContainerRuntimeScopingSuite covers the ContainerRuntime.ListContainers
 // environment scoping (docs/container_runtimes/roadmap.md Phase 1) and the
 // per-environment Docker network isolation (Stage 4).
@@ -48,21 +88,12 @@ func (s *ContainerRuntimeScopingSuite) Test_ListContainers_ScopesToEnvironment()
 		WithContainerSuffix(listContainersProdSuffix),
 		WithEnvironments([]string{listContainersStageEnv}))
 
-	prodReq := &velez_api.CreateSmerd_Request{
-		Name:         listContainersProdName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-	}
+	prodReq := newListContainersProdRequest()
 
 	prodSmerd := env.CreateSmerd(t, prodReq)
 	require.Equal(t, velez_api.Smerd_running, prodSmerd.GetStatus())
 
-	stageReq := &velez_api.CreateSmerd_Request{
-		Name:         listContainersStageName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-		Environment:  listContainersStageEnv,
-	}
+	stageReq := newListContainersStageRequest()
 
 	stageSmerd := env.CreateSmerd(t, stageReq)
 	require.Equal(t, velez_api.Smerd_running, stageSmerd.GetStatus())
@@ -95,28 +126,13 @@ func (s *ContainerRuntimeScopingSuite) Test_Network_PerEnvironmentIsolation() {
 		WithContainerSuffix(networkIsoProdSuffix),
 		WithEnvironments([]string{networkIsoStageEnv}))
 
-	prodReq := &velez_api.CreateSmerd_Request{
-		Name:         networkIsoProdName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-		Settings: &velez_api.Container_Settings{
-			Ports: []*velez_api.Port{{ServicePortNumber: 8080, Protocol: velez_api.Port_tcp}},
-		},
-	}
+	prodReq := newNetworkIsoProdRequest()
 
 	prodSmerd := env.CreateSmerd(t, prodReq)
 	require.Equal(t, velez_api.Smerd_running, prodSmerd.GetStatus())
 	checkPorts(t, prodSmerd.GetPorts(), prodReq.GetSettings().GetPorts())
 
-	stageReq := &velez_api.CreateSmerd_Request{
-		Name:         networkIsoStageName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-		Environment:  networkIsoStageEnv,
-		Settings: &velez_api.Container_Settings{
-			Ports: []*velez_api.Port{{ServicePortNumber: 8080, Protocol: velez_api.Port_tcp}},
-		},
-	}
+	stageReq := newNetworkIsoStageRequest()
 
 	stageSmerd := env.CreateSmerd(t, stageReq)
 	require.Equal(t, velez_api.Smerd_running, stageSmerd.GetStatus())

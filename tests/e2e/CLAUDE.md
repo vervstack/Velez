@@ -23,14 +23,16 @@ ask before adding a second always-on test.
 
 | Axis | Type | Wired today | Not wired (tracked: https://trello.com/c/otriSswo) |
 | --- | --- | --- | --- |
-| State backend | `PlaneMode` | `ModeSingleNode` | `ModeCluster` |
+| State backend | `PlaneMode` | `ModeSingleNode`, `ModeCluster` | — |
 | Container-runtime backend | `PlaneBackend` | `BackendDocker` | — |
 | Environment separation | `EnvSeparationWay` | `SeparationLabelBased` (one Docker engine, envs kept apart by name/label/suffix) | `SeparationDedicatedEngine` (one Docker daemon per environment) |
 | App execution | `RunningMode` | `RunningModeBinary` (in-process, bufconn) | `RunningModeContainer` (real Velez container over the network) |
 
-`Planes` is the package-wide list of cells; `Planes[0]` is the only one wired to a real fixture
-today. `Plane.Name()` is *generated* from the four axis values (`strings.Join(..., "/")`) — never
-add a separate hand-set display-name field, it can silently drift from what the cell actually is.
+`Planes` is the package-wide list of cells, both wired to a real fixture today (`Mode` is
+currently a pure label axis — `Plane.NewEnvironment` builds the identical fixture for
+`ModeSingleNode` and `ModeCluster`; it doesn't yet branch on `Mode` at all). `Plane.Name()` is
+*generated* from the four axis values (`strings.Join(..., "/")`) — never add a separate hand-set
+display-name field, it can silently drift from what the cell actually is.
 
 **Adopting the matrix in a suite**: iterate `Planes` (or a suite-local subset) and build the
 fixture through `plane.NewEnvironment(t, opts...)`, never `NewEnvironment(t, opts...)` directly.
@@ -77,10 +79,12 @@ func Test_ControlPlane(t *testing.T) {
 as its own `t.Run(plane.Name(), ...)` subtest. It adds no skip logic of its own — `Plane.NewEnvironment`
 is still the only place that decides a cell isn't wired yet, so passing the full `Planes` (not just
 `Planes[0]`) costs nothing today and means the suite needs no further changes when a new cell lights
-up. A suite whose test methods are genuinely cluster/matreshka-shaped (`suite_api_deploy_test.go`'s
-`Test_ClusterMode_*`, `suite_hello_world_cluster_test.go`) stays on `Planes[0]` directly rather than
-the full matrix — looping `Planes` there is a correct no-op today but adds nothing until a cluster
-cell exists to actually exercise.
+up. Every suite — including ones whose test methods are genuinely cluster-shaped
+(`ClusterLifecycleSuite`, `HelloWorldClusterSuite`, `EnableStatefullSuite`, `ServiceLifecycleSuite`,
+`VervonomiconDeploySuite`) — drives itself with `RunPlaneSuite(t, Planes, ...)`: there is one
+package-level matrix, not a separate cluster-only list. A `Plane` cell does not enable matreshka on
+its own — it's a routing point, not a bundle of options — so a suite that needs `WithMatreshka()`
+still passes it explicitly.
 
 ## Environment axis: name IS the wire value
 

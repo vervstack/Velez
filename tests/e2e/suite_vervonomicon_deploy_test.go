@@ -59,6 +59,13 @@ const (
 // proving anything about the mapping, which resolve_test.go already covers.
 type VervonomiconDeploySuite struct {
 	suite.Suite
+
+	plane Plane
+	env   *TestEnvironment
+}
+
+func (s *VervonomiconDeploySuite) SetupTest() {
+	s.env, _ = enableStatefullPgUnderDind(s.T(), s.plane, vervDeploySuffix)
 }
 
 func (s *VervonomiconDeploySuite) createService(env *TestEnvironment, name string) {
@@ -123,8 +130,7 @@ func (s *VervonomiconDeploySuite) Test_BoxResolutionAndFidelity() {
 	t := s.T()
 	ctx := t.Context()
 
-	env, _ := enableStatefullPgUnderDind(t, vervDeploySuffix)
-	dockerAPI := env.Custom.NodeClients.Docker().Client()
+	dockerAPI := s.env.Custom.NodeClients.Docker().Client()
 
 	svcName := vervDeployFidelitySvc
 	tag := svcName + ":verv"
@@ -161,7 +167,7 @@ func (s *VervonomiconDeploySuite) Test_BoxResolutionAndFidelity() {
 
 	buildVervImage(t, dockerAPI, tag, files)
 
-	s.createService(env, svcName)
+	s.createService(s.env, svcName)
 
 	deployReq := &velez_api.CreateDeploy_Request{
 		ServiceName: svcName,
@@ -171,10 +177,10 @@ func (s *VervonomiconDeploySuite) Test_BoxResolutionAndFidelity() {
 		},
 	}
 
-	_, err := env.Custom.ServiceApiImpl.CreateDeploy(ctx, deployReq)
+	_, err := s.env.Custom.ServiceApiImpl.CreateDeploy(ctx, deployReq)
 	require.NoError(t, err, "CreateDeploy(Vervonomicon) must resolve box: small against the real boxes table")
 
-	s.awaitRunning(env, svcName)
+	s.awaitRunning(s.env, svcName)
 
 	inspected, err := dockerAPI.ContainerInspect(ctx, svcName)
 	require.NoError(t, err, "the resolved container %q must exist", svcName)
@@ -231,7 +237,7 @@ func (s *VervonomiconDeploySuite) Test_BoxResolutionAndFidelity() {
 	// still uncovered.
 	vervReq := &velez_api.GetVervonomicon_Request{ServiceName: svcName}
 
-	vervResp, err := env.Custom.ServiceApiImpl.GetVervonomicon(ctx, vervReq)
+	vervResp, err := s.env.Custom.ServiceApiImpl.GetVervonomicon(ctx, vervReq)
 	require.NoError(t, err)
 	require.Contains(t, vervResp.GetResolvedYaml(), "box: small")
 	require.Contains(t, vervResp.GetResolvedYaml(), "GREETING: hi")
@@ -244,8 +250,7 @@ func (s *VervonomiconDeploySuite) Test_UnknownBox_ReturnsError() {
 	t := s.T()
 	ctx := t.Context()
 
-	env, _ := enableStatefullPgUnderDind(t, vervDeploySuffix)
-	dockerAPI := env.Custom.NodeClients.Docker().Client()
+	dockerAPI := s.env.Custom.NodeClients.Docker().Client()
 
 	svcName := vervDeployBoxErrSvc
 	tag := svcName + ":verv"
@@ -260,7 +265,7 @@ func (s *VervonomiconDeploySuite) Test_UnknownBox_ReturnsError() {
 
 	buildVervImage(t, dockerAPI, tag, files)
 
-	s.createService(env, svcName)
+	s.createService(s.env, svcName)
 
 	deployReq := &velez_api.CreateDeploy_Request{
 		ServiceName: svcName,
@@ -270,7 +275,7 @@ func (s *VervonomiconDeploySuite) Test_UnknownBox_ReturnsError() {
 		},
 	}
 
-	_, err := env.Custom.ServiceApiImpl.CreateDeploy(ctx, deployReq)
+	_, err := s.env.Custom.ServiceApiImpl.CreateDeploy(ctx, deployReq)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "unknown box '"+vervUnknownBoxName+"'")
 	require.Contains(t, err.Error(), "small")
@@ -287,8 +292,7 @@ func (s *VervonomiconDeploySuite) Test_DeployRequestImage_BeatsAppImage() {
 	t := s.T()
 	ctx := t.Context()
 
-	env, _ := enableStatefullPgUnderDind(t, vervDeploySuffix)
-	dockerAPI := env.Custom.NodeClients.Docker().Client()
+	dockerAPI := s.env.Custom.NodeClients.Docker().Client()
 
 	svcName := vervDeployImagePrecSvc
 	tag := svcName + ":verv"
@@ -303,7 +307,7 @@ func (s *VervonomiconDeploySuite) Test_DeployRequestImage_BeatsAppImage() {
 
 	buildVervImage(t, dockerAPI, tag, files)
 
-	s.createService(env, svcName)
+	s.createService(s.env, svcName)
 
 	deployReq := &velez_api.CreateDeploy_Request{
 		ServiceName: svcName,
@@ -313,10 +317,10 @@ func (s *VervonomiconDeploySuite) Test_DeployRequestImage_BeatsAppImage() {
 		},
 	}
 
-	_, err := env.Custom.ServiceApiImpl.CreateDeploy(ctx, deployReq)
+	_, err := s.env.Custom.ServiceApiImpl.CreateDeploy(ctx, deployReq)
 	require.NoError(t, err)
 
-	s.awaitRunning(env, svcName)
+	s.awaitRunning(s.env, svcName)
 
 	inspected, err := dockerAPI.ContainerInspect(ctx, svcName)
 	require.NoError(t, err)
@@ -326,5 +330,7 @@ func (s *VervonomiconDeploySuite) Test_DeployRequestImage_BeatsAppImage() {
 }
 
 func Test_VervonomiconDeploy(t *testing.T) {
-	suite.Run(t, new(VervonomiconDeploySuite))
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
+		return &VervonomiconDeploySuite{plane: plane}
+	})
 }

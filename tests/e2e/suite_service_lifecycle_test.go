@@ -64,22 +64,30 @@ const (
 // (goose migrations resolve "./migrations" relative to cwd).
 type ServiceLifecycleSuite struct {
 	suite.Suite
+
+	plane Plane
+}
+
+func newServiceLifecycleDeploySpec(t *testing.T) *velez_api.CreateSmerd_Request {
+	t.Helper()
+
+	return &velez_api.CreateSmerd_Request{
+		Name:         svcLifecycleServiceName,
+		ImageName:    HelloWorldAppImage,
+		IgnoreConfig: true,
+		Labels:       map[string]string{testCaseNameLabel: t.Name()},
+	}
 }
 
 func (s *ServiceLifecycleSuite) Test_ServiceDeploymentLifecycle() {
 	t := s.T()
 	ctx := t.Context()
 
-	env, _ := enableStatefullPgUnderDind(t, svcLifecycleSuffix)
+	env, _ := enableStatefullPgUnderDind(t, s.plane, svcLifecycleSuffix)
 
 	s.createService(env)
 
-	newSpec := &velez_api.CreateSmerd_Request{
-		Name:         svcLifecycleServiceName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-		Labels:       map[string]string{testCaseNameLabel: t.Name()},
-	}
+	newSpec := newServiceLifecycleDeploySpec(t)
 	deployReq := &velez_api.CreateDeploy_Request{
 		ServiceName:   svcLifecycleServiceName,
 		Environment:   environments.DefaultEnvironmentName,
@@ -257,5 +265,7 @@ func (s *ServiceLifecycleSuite) createService(env *TestEnvironment) {
 }
 
 func Test_ServiceLifecycle(t *testing.T) {
-	suite.Run(t, new(ServiceLifecycleSuite))
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
+		return &ServiceLifecycleSuite{plane: plane}
+	})
 }

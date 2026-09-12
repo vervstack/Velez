@@ -30,7 +30,7 @@ import (
 // create_schema_and_migrate job) rolls goose migrations from the hardcoded
 // relative "./migrations", so this helper t.Chdir's to the repo root for the
 // duration of the test.
-func enableStatefullPgUnderDind(t *testing.T, containerSuffix string) (*TestEnvironment, string) {
+func enableStatefullPgUnderDind(t *testing.T, plane Plane, containerSuffix string) (*TestEnvironment, string) {
 	t.Helper()
 
 	hostAddr, ok := sharedDind.Addr(dindClusterPgPort)
@@ -54,7 +54,7 @@ func enableStatefullPgUnderDind(t *testing.T, containerSuffix string) (*TestEnvi
 
 	t.Chdir(repoRoot(t))
 
-	env := NewEnvironment(t,
+	env := plane.NewEnvironment(t,
 		WithContainerSuffix(containerSuffix),
 		WithClusterPgDsn(advertisePg.ConnectionString()))
 

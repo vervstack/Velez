@@ -3,7 +3,10 @@
 package e2e
 
 import (
+	"io"
+	"net/http"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -11,6 +14,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/tests/config_mocks"
 )
@@ -19,15 +23,132 @@ type LifecycleSuite struct {
 	suite.Suite
 }
 
+// newHelloWorldRequest, newHelloWorldHealthcheckRequest, ... are named
+// constructors rather than inline struct literals in each test method, so a
+// test body stays a sequence of step calls.
+func newHelloWorldRequest(name string) *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:         name,
+		ImageName:    HelloWorldAppImage,
+		IgnoreConfig: true,
+	}
+}
+
+func newHelloWorldHealthcheckRequest(name string) *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:      name,
+		ImageName: HelloWorldAppImage,
+		Healthcheck: &velez_api.Container_Healthcheck{
+			IntervalSecond: 1,
+			Retries:        3,
+		},
+		IgnoreConfig: true,
+	}
+}
+
+func newHelloWorldDefaultConfigRequest(name string) *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:      name,
+		ImageName: HelloWorldAppImage,
+	}
+}
+
+func newNginxRequest(name string) *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:          name,
+		ImageName:     NginxAlpineImage,
+		IgnoreConfig:  true,
+		UseImagePorts: true,
+	}
+}
+
+func newPostgresRequest(name string) *velez_api.CreateSmerd_Request {
+	timeoutSec := uint32(5)
+
+	return &velez_api.CreateSmerd_Request{
+		Name:      name,
+		ImageName: PostgresImage,
+		Env:       map[string]string{"POSTGRES_HOST_AUTH_METHOD": "trust"},
+		Healthcheck: &velez_api.Container_Healthcheck{
+			Command:        rtb.ToPtr("pg_isready -U postgres"),
+			IntervalSecond: 2,
+			TimeoutSecond:  &timeoutSec,
+			Retries:        5,
+		},
+		IgnoreConfig:  true,
+		UseImagePorts: true,
+	}
+}
+
+func newLokiRequest(name string) *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:      name,
+		ImageName: "grafana/loki:main-bc418c4",
+		Settings: &velez_api.Container_Settings{
+			Network: []*velez_api.NetworkBind{
+				{NetworkName: "redsockru"},
+			},
+		},
+		Restart: &velez_api.RestartPolicy{
+			Type: velez_api.RestartPolicyType_always,
+		},
+		Plain: []*velez_api.FileConfig{
+			{
+				Path:    "/etc/loki/local-config.yaml",
+				Content: config_mocks.Loki,
+			},
+		},
+	}
+}
+
+func newNonExistentImageRequest(name string) *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:         name,
+		ImageName:    "godverv/this-image-does-not-exist:v0.0.0",
+		IgnoreConfig: true,
+	}
+}
+
+func newPortCollisionSecondRequest(name string, hostPort uint32) *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:         name,
+		ImageName:    NginxAlpineImage,
+		IgnoreConfig: true,
+		Settings: &velez_api.Container_Settings{
+			Ports: []*velez_api.Port{
+				{
+					ServicePortNumber: 80,
+					Protocol:          velez_api.Port_tcp,
+					ExposedTo:         rtb.ToPtr(hostPort),
+				},
+			},
+		},
+	}
+}
+
+func newNeverHealthyRequest(name string) *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:         name,
+		ImageName:    NginxAlpineImage,
+		IgnoreConfig: true,
+		// `false` exits non-zero immediately, so the container never reaches
+		// "running" and healthcheckJob exhausts its retries. NOTE(phase-1):
+		// healthcheckJob only inspects State.Status, it never runs
+		// Healthcheck.Command - a container that STAYS running with an
+		// always-failing command would pass. Reported as a product gap.
+		Command: rtb.ToPtr("false"),
+		Healthcheck: &velez_api.Container_Healthcheck{
+			IntervalSecond: 1,
+			Retries:        2,
+		},
+	}
+}
+
 func (s *LifecycleSuite) Test_Stateless_HelloWorld() {
 	t := s.T()
 
 	env := NewEnvironment(t)
-
-	req := &velez_api.CreateSmerd_Request{
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-	}
+	req := newHelloWorldRequest(GetServiceName(t))
 
 	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {
 		t.Helper()
@@ -40,15 +161,8 @@ func (s *LifecycleSuite) Test_Stateless_HelloWorld_WithHealthcheck() {
 	t := s.T()
 
 	env := NewEnvironment(t)
+	req := newHelloWorldHealthcheckRequest(GetServiceName(t))
 
-	req := &velez_api.CreateSmerd_Request{
-		ImageName: HelloWorldAppImage,
-		Healthcheck: &velez_api.Container_Healthcheck{
-			IntervalSecond: 1,
-			Retries:        3,
-		},
-		IgnoreConfig: true,
-	}
 	runLifecycle(t, env, req, func(_ *testing.T, _ *velez_api.Smerd) {})
 }
 
@@ -56,10 +170,8 @@ func (s *LifecycleSuite) Test_Stateless_HelloWorld_DefaultConfig() {
 	t := s.T()
 
 	env := NewEnvironment(t)
+	req := newHelloWorldDefaultConfigRequest(GetServiceName(t))
 
-	req := &velez_api.CreateSmerd_Request{
-		ImageName: HelloWorldAppImage,
-	}
 	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {
 		t.Helper()
 
@@ -72,12 +184,8 @@ func (s *LifecycleSuite) Test_Stateless_Nginx() {
 	t := s.T()
 
 	env := NewEnvironment(t)
+	req := newNginxRequest(GetServiceName(t))
 
-	req := &velez_api.CreateSmerd_Request{
-		ImageName:     NginxAlpineImage,
-		IgnoreConfig:  true,
-		UseImagePorts: true,
-	}
 	runLifecycle(t, env, req,
 		func(t *testing.T, smerd *velez_api.Smerd) {
 			t.Helper()
@@ -87,24 +195,11 @@ func (s *LifecycleSuite) Test_Stateless_Nginx() {
 }
 
 func (s *LifecycleSuite) Test_Stateless_Postgres() {
-	timeoutSec := uint32(5)
-
 	t := s.T()
 
 	env := NewEnvironment(t)
+	req := newPostgresRequest(GetServiceName(t))
 
-	req := &velez_api.CreateSmerd_Request{
-		ImageName: PostgresImage,
-		Env:       map[string]string{"POSTGRES_HOST_AUTH_METHOD": "trust"},
-		Healthcheck: &velez_api.Container_Healthcheck{
-			Command:        rtb.ToPtr("pg_isready -U postgres"),
-			IntervalSecond: 2,
-			TimeoutSecond:  &timeoutSec,
-			Retries:        5,
-		},
-		IgnoreConfig:  true,
-		UseImagePorts: true,
-	}
 	runLifecycle(t, env, req,
 		func(t *testing.T, smerd *velez_api.Smerd) {
 			t.Helper()
@@ -125,88 +220,9 @@ func (s *LifecycleSuite) Test_StatelessMode_Loki() {
 	t.Skip("flaky loki container, stale config + moving image tag")
 
 	env := NewEnvironment(t)
-
-	req := &velez_api.CreateSmerd_Request{
-		ImageName: "grafana/loki:main-bc418c4",
-		Settings: &velez_api.Container_Settings{
-			Network: []*velez_api.NetworkBind{
-				{NetworkName: "redsockru"},
-			},
-		},
-		Restart: &velez_api.RestartPolicy{
-			Type: velez_api.RestartPolicyType_always,
-		},
-		Plain: []*velez_api.FileConfig{
-			{
-				Path:    "/etc/loki/local-config.yaml",
-				Content: config_mocks.Loki,
-			},
-		},
-	}
+	req := newLokiRequest(GetServiceName(t))
 
 	runLifecycle(t, env, req, func(_ *testing.T, _ *velez_api.Smerd) {})
-}
-
-// Test_ClusterMode_* subtests below run in parallel against one shared
-// matreshka container fixture (see WithMatreshka / main_test.go). This only
-// works because they live in this package/test binary — don't move these
-// to another package without reading main_test.go first.
-func (s *LifecycleSuite) Test_ClusterMode_HelloWorld() {
-	t := s.T()
-
-	env := NewEnvironment(t, WithMatreshka())
-
-	req := &velez_api.CreateSmerd_Request{
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-	}
-	runLifecycle(t, env, req, func(_ *testing.T, _ *velez_api.Smerd) {})
-}
-
-func (s *LifecycleSuite) Test_ClusterMode_PlainNginx() {
-	t := s.T()
-
-	env := NewEnvironment(t, WithMatreshka())
-
-	req := &velez_api.CreateSmerd_Request{
-		ImageName:     NginxAlpineImage,
-		IgnoreConfig:  true,
-		UseImagePorts: true,
-	}
-	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {
-		t.Helper()
-
-		require.NotEmpty(t, smerd.GetPorts())
-	})
-}
-
-func (s *LifecycleSuite) Test_ClusterMode_Postgres() {
-	t := s.T()
-
-	env := NewEnvironment(t, WithMatreshka())
-
-	timeoutSec := uint32(5)
-
-	req := &velez_api.CreateSmerd_Request{
-		ImageName: PostgresImage,
-		Env:       map[string]string{"POSTGRES_HOST_AUTH_METHOD": "trust"},
-		Healthcheck: &velez_api.Container_Healthcheck{
-			Command:        rtb.ToPtr("pg_isready -U postgres"),
-			IntervalSecond: 2,
-			TimeoutSecond:  &timeoutSec,
-			Retries:        5,
-		},
-		IgnoreConfig:  true,
-		UseImagePorts: true,
-	}
-
-	runLifecycle(t, env, req,
-		func(t *testing.T, smerd *velez_api.Smerd) {
-			t.Helper()
-
-			require.Len(t, smerd.GetPorts(), 1)
-			require.EqualValues(t, 5432, smerd.GetPorts()[0].GetServicePortNumber())
-		})
 }
 
 func (s *LifecycleSuite) Test_DropSmerd_ByUuid() {
@@ -215,12 +231,7 @@ func (s *LifecycleSuite) Test_DropSmerd_ByUuid() {
 	env := NewEnvironment(t)
 	ctx := t.Context()
 	name := GetServiceName(t)
-
-	req := &velez_api.CreateSmerd_Request{
-		Name:         name,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-	}
+	req := newHelloWorldRequest(name)
 
 	created := env.CreateSmerd(t, req)
 	require.NotEmpty(t, created.GetUuid())
@@ -241,6 +252,39 @@ func (s *LifecycleSuite) Test_DropSmerd_ByUuid() {
 	}
 }
 
+// Test_Stateless_HelloWorld_NoName: an empty req.Name is a real, supported
+// CreateSmerd input (Docker assigns its own random container name) - unlike
+// every other case in this suite, which needs a stable, unique name and goes
+// through runLifecycle's explicit-Name requirement instead.
+func (s *LifecycleSuite) Test_Stateless_HelloWorld_NoName() {
+	t := s.T()
+
+	env := NewEnvironment(t)
+	ctx := t.Context()
+
+	req := &velez_api.CreateSmerd_Request{
+		ImageName:    HelloWorldAppImage,
+		IgnoreConfig: true,
+	}
+
+	created := env.CreateSmerd(t, req)
+	require.NotEmpty(t, created.GetName(), "Docker must assign a name when the request leaves it empty")
+	require.Equal(t, velez_api.Smerd_running.String(), created.GetStatus().String())
+
+	listReq := &velez_api.ListSmerds_Request{Name: rtb.ToPtr(created.GetName())}
+
+	listed := env.ListSmerds(t, ctx, listReq)
+	found := false
+
+	for _, smerd := range listed.GetSmerds() {
+		if smerd.GetUuid() == created.GetUuid() {
+			found = true
+		}
+	}
+
+	require.True(t, found, "the Docker-assigned name must resolve back to the created smerd via ListSmerds")
+}
+
 // Test_Negative_NonExistentImage: an unresolvable image tag must end the
 // create task in error, not hang or leave a running container.
 func (s *LifecycleSuite) Test_Negative_NonExistentImage() {
@@ -248,12 +292,7 @@ func (s *LifecycleSuite) Test_Negative_NonExistentImage() {
 
 	env := NewEnvironment(t)
 	ctx := t.Context()
-
-	req := &velez_api.CreateSmerd_Request{
-		Name:         GetServiceName(t),
-		ImageName:    "godverv/this-image-does-not-exist:v0.0.0",
-		IgnoreConfig: true,
-	}
+	req := newNonExistentImageRequest(GetServiceName(t))
 
 	smerd, err := env.Custom.ApiGrpcImpl.CreateSmerd(ctx, req)
 	require.Error(t, err)
@@ -270,32 +309,14 @@ func (s *LifecycleSuite) Test_Negative_PortCollision() {
 	env := NewEnvironment(t)
 	ctx := t.Context()
 
-	firstReq := &velez_api.CreateSmerd_Request{
-		Name:          GetServiceName(t) + "_a",
-		ImageName:     NginxAlpineImage,
-		IgnoreConfig:  true,
-		UseImagePorts: true,
-	}
+	firstReq := newNginxRequest(GetServiceName(t) + "_a")
 
 	first := env.CreateSmerd(t, firstReq)
 	require.NotEmpty(t, first.GetPorts())
 
 	hostPort := first.GetPorts()[0].GetExposedTo()
 
-	secondReq := &velez_api.CreateSmerd_Request{
-		Name:         GetServiceName(t) + "_b",
-		ImageName:    NginxAlpineImage,
-		IgnoreConfig: true,
-		Settings: &velez_api.Container_Settings{
-			Ports: []*velez_api.Port{
-				{
-					ServicePortNumber: 80,
-					Protocol:          velez_api.Port_tcp,
-					ExposedTo:         rtb.ToPtr(hostPort),
-				},
-			},
-		},
-	}
+	secondReq := newPortCollisionSecondRequest(GetServiceName(t)+"_b", hostPort)
 
 	second, err := env.Custom.ApiGrpcImpl.CreateSmerd(ctx, secondReq)
 	require.Error(t, err, "second smerd pinning an already-bound host port must fail")
@@ -319,22 +340,7 @@ func (s *LifecycleSuite) Test_Negative_HealthcheckNeverHealthy() {
 
 	env := NewEnvironment(t)
 	ctx := t.Context()
-
-	req := &velez_api.CreateSmerd_Request{
-		Name:         GetServiceName(t),
-		ImageName:    NginxAlpineImage,
-		IgnoreConfig: true,
-		// `false` exits non-zero immediately, so the container never reaches
-		// "running" and healthcheckJob exhausts its retries. NOTE(phase-1):
-		// healthcheckJob only inspects State.Status, it never runs
-		// Healthcheck.Command - a container that STAYS running with an
-		// always-failing command would pass. Reported as a product gap.
-		Command: rtb.ToPtr("false"),
-		Healthcheck: &velez_api.Container_Healthcheck{
-			IntervalSecond: 1,
-			Retries:        2,
-		},
-	}
+	req := newNeverHealthyRequest(GetServiceName(t))
 
 	smerd, err := env.Custom.ApiGrpcImpl.CreateSmerd(ctx, req)
 	require.Error(t, err)
@@ -352,21 +358,12 @@ func (s *LifecycleSuite) Test_Negative_DuplicateName() {
 	ctx := t.Context()
 
 	name := GetServiceName(t)
-
-	req := &velez_api.CreateSmerd_Request{
-		Name:         name,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-	}
+	req := newHelloWorldRequest(name)
 
 	first := env.CreateSmerd(t, req)
 	require.NotEmpty(t, first.GetUuid())
 
-	dupReq := &velez_api.CreateSmerd_Request{
-		Name:         name,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-	}
+	dupReq := newHelloWorldRequest(name)
 
 	second, err := env.Custom.ApiGrpcImpl.CreateSmerd(ctx, dupReq)
 	if err == nil {
@@ -383,6 +380,170 @@ func (s *LifecycleSuite) Test_Negative_DuplicateName() {
 func Test_Lifecycle(t *testing.T) {
 	t.Parallel()
 	suite.Run(t, new(LifecycleSuite))
+}
+
+// ClusterLifecycleSuite runs against a real matreshka-serving fixture (see
+// WithMatreshka / main_test.go) - don't move these tests to another package
+// without reading main_test.go first.
+//
+// Container names double as Docker hostnames, capped at 64 characters -
+// GetServiceName(t) on a RunPlaneSuite subtest blows past that, so these
+// tests set their own short, suite-unique names instead.
+type ClusterLifecycleSuite struct {
+	suite.Suite
+
+	plane Plane
+}
+
+const (
+	clusterLifecycleHelloWorldName = "e2e_clusterlifecycle_helloworld"
+	clusterLifecycleNginxName      = "e2e_clusterlifecycle_nginx"
+	clusterLifecyclePostgresName   = "e2e_clusterlifecycle_postgres"
+
+	clusterLifecycleWaitTimeout = 15 * time.Second
+	clusterLifecyclePollEvery   = 500 * time.Millisecond
+)
+
+// newClusterLifecycleHelloWorldRequest, newClusterLifecycleNginxRequest and
+// newClusterLifecyclePostgresRequest are named constructors rather than
+// inline struct literals in each test method, so a test body stays a
+// sequence of step calls.
+func newClusterLifecycleHelloWorldRequest() *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:         clusterLifecycleHelloWorldName,
+		ImageName:    HelloWorldAppImage,
+		IgnoreConfig: true,
+	}
+}
+
+func newClusterLifecycleNginxRequest() *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:          clusterLifecycleNginxName,
+		ImageName:     NginxAlpineImage,
+		IgnoreConfig:  true,
+		UseImagePorts: true,
+	}
+}
+
+func newClusterLifecyclePostgresRequest() *velez_api.CreateSmerd_Request {
+	timeoutSec := uint32(5)
+
+	return &velez_api.CreateSmerd_Request{
+		Name:      clusterLifecyclePostgresName,
+		ImageName: PostgresImage,
+		Env:       map[string]string{"POSTGRES_HOST_AUTH_METHOD": "trust"},
+		Healthcheck: &velez_api.Container_Healthcheck{
+			Command:        rtb.ToPtr("pg_isready -U postgres"),
+			IntervalSecond: 2,
+			TimeoutSecond:  &timeoutSec,
+			Retries:        5,
+		},
+		IgnoreConfig:  true,
+		UseImagePorts: true,
+	}
+}
+
+func (s *ClusterLifecycleSuite) Test_HelloWorld() {
+	t := s.T()
+
+	env := s.plane.NewEnvironment(t, WithMatreshka())
+	req := newClusterLifecycleHelloWorldRequest()
+
+	runLifecycle(t, env, req, func(_ *testing.T, _ *velez_api.Smerd) {})
+}
+
+func (s *ClusterLifecycleSuite) Test_PlainNginx() {
+	t := s.T()
+
+	env := s.plane.NewEnvironment(t, WithMatreshka())
+	req := newClusterLifecycleNginxRequest()
+
+	runLifecycle(t, env, req, verifyNginxServesDefaultPage)
+}
+
+func (s *ClusterLifecycleSuite) Test_Postgres() {
+	t := s.T()
+
+	env := s.plane.NewEnvironment(t, WithMatreshka())
+	req := newClusterLifecyclePostgresRequest()
+
+	runLifecycle(t, env, req, verifyPostgresIsAlive)
+}
+
+// verifyNginxServesDefaultPage proves the container isn't just "running" but
+// actually serving nginx's welcome page on its exposed port.
+func verifyNginxServesDefaultPage(t *testing.T, smerd *velez_api.Smerd) {
+	t.Helper()
+
+	require.NotEmpty(t, smerd.GetPorts())
+
+	addr := dindHostAddr(t, smerd.GetPorts()[0].GetExposedTo())
+	ctx := t.Context()
+
+	var body []byte
+
+	require.Eventually(t, func() bool {
+		httpReq, reqErr := http.NewRequestWithContext(ctx, http.MethodGet, "http://"+addr+"/", nil)
+		if reqErr != nil {
+			return false
+		}
+
+		resp, doErr := http.DefaultClient.Do(httpReq)
+		if doErr != nil {
+			return false
+		}
+
+		defer func() { _ = resp.Body.Close() }()
+
+		if resp.StatusCode != http.StatusOK {
+			return false
+		}
+
+		var readErr error
+
+		body, readErr = io.ReadAll(resp.Body)
+
+		return readErr == nil
+	}, clusterLifecycleWaitTimeout, clusterLifecyclePollEvery, "nginx at %s did not become ready", addr)
+
+	require.Contains(t, string(body), "Welcome to nginx")
+}
+
+// verifyPostgresIsAlive proves the container isn't just "running" but
+// actually answering queries on its exposed Postgres port.
+func verifyPostgresIsAlive(t *testing.T, smerd *velez_api.Smerd) {
+	t.Helper()
+
+	require.Len(t, smerd.GetPorts(), 1)
+	require.EqualValues(t, 5432, smerd.GetPorts()[0].GetServicePortNumber())
+
+	addr := dindHostAddr(t, smerd.GetPorts()[0].GetExposedTo())
+	dsn := "postgres://postgres@" + addr + "/postgres?sslmode=disable"
+
+	db, err := sqldb.New(dsn)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = db.Close() })
+
+	ctx := t.Context()
+
+	require.Eventually(t, func() bool {
+		return db.PingContext(ctx) == nil
+	}, clusterLifecycleWaitTimeout, clusterLifecyclePollEvery, "postgres at %s did not become reachable", addr)
+
+	var one int
+
+	row := db.QueryRowContext(ctx, "SELECT 1")
+
+	err = row.Scan(&one)
+	require.NoError(t, err)
+	require.Equal(t, 1, one)
+}
+
+func Test_ClusterLifecycle(t *testing.T) {
+	t.Parallel()
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
+		return &ClusterLifecycleSuite{plane: plane}
+	})
 }
 
 // assertNoRunningSmerd fails if any smerd with the given name is left running -
@@ -410,13 +571,14 @@ func runLifecycle(
 	t.Helper()
 
 	ctx := t.Context()
-	name := GetServiceName(t)
+	name := req.GetName()
+
+	require.NotEmpty(t, name, "runLifecycle requires the caller to set req.Name explicitly")
 
 	clonedReq, ok := proto.Clone(req).(*velez_api.CreateSmerd_Request)
 	require.True(t, ok, "proto.Clone must preserve the concrete CreateSmerd_Request type")
 
 	req = clonedReq
-	req.Name = name
 
 	t.Logf(`Creating smerd. Req: %v`, req)
 

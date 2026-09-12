@@ -182,11 +182,7 @@ func (s *RpcGapsSuite) Test_MakeAndBreakConnections() {
 
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 
-	smerdReq := &velez_api.CreateSmerd_Request{
-		Name:         GetServiceName(t),
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-	}
+	smerdReq := newHelloWorldRequest(GetServiceName(t))
 
 	smerd := env.CreateSmerd(t, smerdReq)
 	require.NotEmpty(t, smerd.GetUuid())

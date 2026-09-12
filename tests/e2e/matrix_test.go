@@ -72,9 +72,12 @@ func (p Plane) Name() string {
 	return strings.Join([]string{string(p.Mode), string(p.Backend), string(p.Separation), string(p.Running)}, "/")
 }
 
-// Planes is the package-wide matrix of fixture cells. Only
-// single-node/docker/label-based/binary is wired to a real fixture today -
-// see Plane.NewEnvironment.
+// Planes is the package-wide matrix of fixture cells every suite iterates
+// through RunPlaneSuite. Mode doesn't change what NewEnvironment builds - it
+// is purely a label axis today - so single-node and cluster currently run
+// the identical fixture under two different subtest names; a suite that
+// needs cluster-flavored opts (WithMatreshka, WithClusterPgDsn, ...) passes
+// them itself regardless of which cell is running.
 var Planes = []Plane{
 	{
 		Mode:       ModeSingleNode,
@@ -82,28 +85,24 @@ var Planes = []Plane{
 		Separation: SeparationLabelBased,
 		Running:    RunningModeBinary,
 	},
-
-	// cluster/docker: needs WithMatreshka()+WithClusterPgDsn threaded through
-	// per-suite before it can be a live cell here - see
-	// docs/container_runtimes/roadmap.md. Not wired yet, deliberately.
+	{
+		Mode:       ModeCluster,
+		Backend:    BackendDocker,
+		Separation: SeparationLabelBased,
+		Running:    RunningModeBinary,
+	},
 
 	// single-node/docker cells with Separation: SeparationDedicatedEngine or
 	// Running: RunningModeContainer: both need real product/infra work first
 	// - see https://trello.com/c/otriSswo. Not wired yet, deliberately.
 }
 
-// NewEnvironment builds the TestEnvironment fixture matching p's Mode,
-// Backend, Separation and Running. Today all four are single-case, so this
-// is a passthrough to package-level NewEnvironment. An unimplemented
-// combination skips the calling test rather than silently building the
-// wrong fixture, so adding a matrix row without wiring its fixture here is
-// impossible to miss.
+// NewEnvironment builds the TestEnvironment fixture matching p's Backend,
+// Separation and Running. An unimplemented combination skips the calling
+// test rather than silently building the wrong fixture, so adding a matrix
+// row without wiring its fixture here is impossible to miss.
 func (p Plane) NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 	t.Helper()
-
-	if p.Mode != ModeSingleNode {
-		t.Skipf("plane %q: mode %q not wired to a fixture yet", p.Name(), p.Mode)
-	}
 
 	if p.Backend != BackendDocker {
 		t.Skipf("plane %q: backend %q not wired to a fixture yet", p.Name(), p.Backend)

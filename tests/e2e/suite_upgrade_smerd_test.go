@@ -16,10 +16,11 @@ import (
 // upgrade_smerd job and blocks on Watch - against real Docker.
 type UpgradeSmerdSuite struct {
 	suite.Suite
+
+	plane Plane
 }
 
 type upgradeSmerdTestCase struct {
-	plane       Plane
 	environment string // "" => default/PROD environment
 	smerdName   string
 }
@@ -31,15 +32,15 @@ const (
 )
 
 var upgradeSmerdMatrix = []upgradeSmerdTestCase{
-	{plane: Planes[0], environment: "", smerdName: upgradeDefaultName},
-	{plane: Planes[0], environment: upgradeSuffixedEnv, smerdName: upgradeSuffixedName},
+	{environment: "", smerdName: upgradeDefaultName},
+	{environment: upgradeSuffixedEnv, smerdName: upgradeSuffixedName},
 }
 
 // Serial: rows share fixed container names.
 func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_Matrix() {
 	for _, tc := range upgradeSmerdMatrix {
-		s.T().Run(tc.plane.Name()+"/"+caseEnvName(tc.environment), func(t *testing.T) {
-			runUpgradeSmerdCase(t, tc)
+		s.T().Run(caseEnvName(tc.environment), func(t *testing.T) {
+			runUpgradeSmerdCase(t, s.plane, tc)
 		})
 	}
 }
@@ -52,7 +53,7 @@ func caseEnvName(environment string) string {
 	return environment
 }
 
-func runUpgradeSmerdCase(t *testing.T, tc upgradeSmerdTestCase) {
+func runUpgradeSmerdCase(t *testing.T, plane Plane, tc upgradeSmerdTestCase) {
 	t.Helper()
 
 	var opts []TestEnvOpt
@@ -61,7 +62,7 @@ func runUpgradeSmerdCase(t *testing.T, tc upgradeSmerdTestCase) {
 		opts = append(opts, WithEnvironments([]string{tc.environment}))
 	}
 
-	env := tc.plane.NewEnvironment(t, opts...)
+	env := plane.NewEnvironment(t, opts...)
 
 	createReq := &velez_api.CreateSmerd_Request{
 		Name:         tc.smerdName,
@@ -116,7 +117,7 @@ func runUpgradeSmerdCase(t *testing.T, tc upgradeSmerdTestCase) {
 func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_NonExistentContainer_Fails() {
 	t := s.T()
 
-	env := Planes[0].NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 
 	upgradeReq := &velez_api.UpgradeSmerd_Request{
 		Name:  GetServiceName(t),
@@ -128,5 +129,7 @@ func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_NonExistentContainer_Fails() {
 
 func Test_UpgradeSmerd(t *testing.T) {
 	t.Parallel()
-	suite.Run(t, new(UpgradeSmerdSuite))
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
+		return &UpgradeSmerdSuite{plane: plane}
+	})
 }

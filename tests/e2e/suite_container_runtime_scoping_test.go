@@ -43,9 +43,18 @@ const (
 // scoped list returns BOTH environments' containers instead of just the one
 // requested.
 func Test_ContainerRuntime_ListContainers_ScopesToEnvironment(t *testing.T) {
-	t.Parallel()
+	for _, plane := range Planes {
+		t.Run(plane.Name(), func(t *testing.T) {
+			t.Parallel()
+			runContainerRuntimeListContainersScopingCase(t, plane)
+		})
+	}
+}
 
-	env := Planes[0].NewEnvironment(t,
+func runContainerRuntimeListContainersScopingCase(t *testing.T, plane Plane) {
+	t.Helper()
+
+	env := plane.NewEnvironment(t,
 		WithContainerSuffix(listContainersProdSuffix),
 		WithEnvironments([]string{listContainersStageEnv}))
 
@@ -112,9 +121,18 @@ func Test_ContainerRuntime_ListContainers_ScopesToEnvironment(t *testing.T) {
 // untouched by that change (CreateNetwork no-ops when a network with the
 // requested name already exists).
 func Test_ContainerRuntime_Network_PerEnvironmentIsolation(t *testing.T) {
-	t.Parallel()
+	for _, plane := range Planes {
+		t.Run(plane.Name(), func(t *testing.T) {
+			t.Parallel()
+			runContainerRuntimeNetworkIsolationCase(t, plane)
+		})
+	}
+}
 
-	env := Planes[0].NewEnvironment(t,
+func runContainerRuntimeNetworkIsolationCase(t *testing.T, plane Plane) {
+	t.Helper()
+
+	env := plane.NewEnvironment(t,
 		WithContainerSuffix(networkIsoProdSuffix),
 		WithEnvironments([]string{networkIsoStageEnv}))
 

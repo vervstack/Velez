@@ -6,29 +6,15 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
-	testEnvStage       = "STAGE"
-	testNodeDockerHost = "unix:///var/run/docker.sock"
+	testEnvStage = "STAGE"
 )
-
-// fakeDocker stubs only Host() - the one method CreateEnvironment's
-// DockerHost-defaulting calls - and embeds node_clients.Docker so every other
-// method panics loudly if a test ever reaches it instead.
-type fakeDocker struct {
-	node_clients.Docker
-
-	host string
-}
-
-func (f *fakeDocker) Host() string {
-	return f.host
-}
 
 func newEnvService(t *testing.T, seedNames []string, defaultSuffix string) *VervService {
 	t.Helper()
@@ -37,9 +23,10 @@ func newEnvService(t *testing.T, seedNames []string, defaultSuffix string) *Verv
 		environments: environments.NewStatic(seedNames, defaultSuffix),
 	}
 
-	docker := &fakeDocker{host: testNodeDockerHost}
+	dockerClient, err := docker.NewClient(nil)
+	require.NoError(t, err)
 
-	return New(dataStorage, nil, docker, nil, nil, nil)
+	return New(dataStorage, nil, dockerClient, nil, nil, nil)
 }
 
 func TestVervService_ListEnvironments(t *testing.T) {

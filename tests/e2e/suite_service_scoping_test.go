@@ -42,6 +42,17 @@ const (
 	serviceScopingSameName  = "e2e_svc_same"
 )
 
+// newServiceScopingStageRequest is this suite's one recurring request shape:
+// a hello-world container created in the STAGE environment.
+func newServiceScopingStageRequest(name string) *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:         name,
+		ImageName:    HelloWorldAppImage,
+		IgnoreConfig: true,
+		Environment:  serviceScopingStage,
+	}
+}
+
 func (s *ServiceScopingSuite) containerRunning(env *TestEnvironment, id string) bool {
 	t := s.T()
 	t.Helper()
@@ -61,12 +72,7 @@ func (s *ServiceScopingSuite) Test_StopService_ScopedToEnvironment_StopsOwnConta
 		WithContainerSuffix(serviceScopingSuffix),
 		WithEnvironments([]string{serviceScopingStage}))
 
-	createReq := &velez_api.CreateSmerd_Request{
-		Name:         serviceScopingStageName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-		Environment:  serviceScopingStage,
-	}
+	createReq := newServiceScopingStageRequest(serviceScopingStageName)
 
 	created := env.CreateSmerd(t, createReq)
 	require.Equal(t, velez_api.Smerd_running, created.GetStatus())
@@ -93,12 +99,7 @@ func (s *ServiceScopingSuite) Test_RestartService_ScopedToEnvironment_RestartsOw
 		WithContainerSuffix(serviceScopingSuffix),
 		WithEnvironments([]string{serviceScopingStage}))
 
-	createReq := &velez_api.CreateSmerd_Request{
-		Name:         serviceScopingStageName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-		Environment:  serviceScopingStage,
-	}
+	createReq := newServiceScopingStageRequest(serviceScopingStageName)
 
 	created := env.CreateSmerd(t, createReq)
 	require.Equal(t, velez_api.Smerd_running, created.GetStatus())
@@ -136,12 +137,7 @@ func (s *ServiceScopingSuite) Test_StopService_SameNameOtherEnvironment_DoesNotT
 		WithContainerSuffix(serviceScopingSuffix),
 		WithEnvironments([]string{serviceScopingStage}))
 
-	stageReq := &velez_api.CreateSmerd_Request{
-		Name:         serviceScopingSameName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-		Environment:  serviceScopingStage,
-	}
+	stageReq := newServiceScopingStageRequest(serviceScopingSameName)
 	stageSmerd := env.CreateSmerd(t, stageReq)
 	require.Equal(t, velez_api.Smerd_running, stageSmerd.GetStatus())
 

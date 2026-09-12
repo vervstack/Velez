@@ -90,11 +90,7 @@ func (s *VpnSuite) Test_ConnectService_LaunchesSidecar() {
 
 	serviceName := GetServiceName(t)
 
-	smerd := &velez_api.CreateSmerd_Request{
-		Name:         serviceName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-	}
+	smerd := newHelloWorldRequest(serviceName)
 	s.env.CreateSmerd(t, smerd)
 
 	t.Cleanup(func() {

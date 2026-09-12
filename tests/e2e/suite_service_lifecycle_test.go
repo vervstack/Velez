@@ -68,6 +68,17 @@ type ServiceLifecycleSuite struct {
 	plane Plane
 }
 
+func newServiceLifecycleDeploySpec(t *testing.T) *velez_api.CreateSmerd_Request {
+	t.Helper()
+
+	return &velez_api.CreateSmerd_Request{
+		Name:         svcLifecycleServiceName,
+		ImageName:    HelloWorldAppImage,
+		IgnoreConfig: true,
+		Labels:       map[string]string{testCaseNameLabel: t.Name()},
+	}
+}
+
 func (s *ServiceLifecycleSuite) Test_ServiceDeploymentLifecycle() {
 	t := s.T()
 	ctx := t.Context()
@@ -76,12 +87,7 @@ func (s *ServiceLifecycleSuite) Test_ServiceDeploymentLifecycle() {
 
 	s.createService(env)
 
-	newSpec := &velez_api.CreateSmerd_Request{
-		Name:         svcLifecycleServiceName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-		Labels:       map[string]string{testCaseNameLabel: t.Name()},
-	}
+	newSpec := newServiceLifecycleDeploySpec(t)
 	deployReq := &velez_api.CreateDeploy_Request{
 		ServiceName:   svcLifecycleServiceName,
 		Environment:   environments.DefaultEnvironmentName,

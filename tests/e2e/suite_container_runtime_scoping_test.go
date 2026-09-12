@@ -42,6 +42,23 @@ const (
 // doc comment) - the next agent's job is to make it correct. Until then this
 // scoped list returns BOTH environments' containers instead of just the one
 // requested.
+func newListContainersProdRequest() *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:         listContainersProdName,
+		ImageName:    HelloWorldAppImage,
+		IgnoreConfig: true,
+	}
+}
+
+func newListContainersStageRequest() *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:         listContainersStageName,
+		ImageName:    HelloWorldAppImage,
+		IgnoreConfig: true,
+		Environment:  listContainersStageEnv,
+	}
+}
+
 func Test_ContainerRuntime_ListContainers_ScopesToEnvironment(t *testing.T) {
 	t.Parallel()
 
@@ -49,21 +66,12 @@ func Test_ContainerRuntime_ListContainers_ScopesToEnvironment(t *testing.T) {
 		WithContainerSuffix(listContainersProdSuffix),
 		WithEnvironments([]string{listContainersStageEnv}))
 
-	prodReq := &velez_api.CreateSmerd_Request{
-		Name:         listContainersProdName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-	}
+	prodReq := newListContainersProdRequest()
 
 	prodSmerd := env.CreateSmerd(t, prodReq)
 	require.Equal(t, velez_api.Smerd_running, prodSmerd.GetStatus())
 
-	stageReq := &velez_api.CreateSmerd_Request{
-		Name:         listContainersStageName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-		Environment:  listContainersStageEnv,
-	}
+	stageReq := newListContainersStageRequest()
 
 	stageSmerd := env.CreateSmerd(t, stageReq)
 	require.Equal(t, velez_api.Smerd_running, stageSmerd.GetStatus())
@@ -111,14 +119,8 @@ func Test_ContainerRuntime_ListContainers_ScopesToEnvironment(t *testing.T) {
 // subnet per network - env.StartNetwork's existing "verv" network is
 // untouched by that change (CreateNetwork no-ops when a network with the
 // requested name already exists).
-func Test_ContainerRuntime_Network_PerEnvironmentIsolation(t *testing.T) {
-	t.Parallel()
-
-	env := Planes[0].NewEnvironment(t,
-		WithContainerSuffix(networkIsoProdSuffix),
-		WithEnvironments([]string{networkIsoStageEnv}))
-
-	prodReq := &velez_api.CreateSmerd_Request{
+func newNetworkIsoProdRequest() *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
 		Name:         networkIsoProdName,
 		ImageName:    HelloWorldAppImage,
 		IgnoreConfig: true,
@@ -126,12 +128,10 @@ func Test_ContainerRuntime_Network_PerEnvironmentIsolation(t *testing.T) {
 			Ports: []*velez_api.Port{{ServicePortNumber: 8080, Protocol: velez_api.Port_tcp}},
 		},
 	}
+}
 
-	prodSmerd := env.CreateSmerd(t, prodReq)
-	require.Equal(t, velez_api.Smerd_running, prodSmerd.GetStatus())
-	checkPorts(t, prodSmerd.GetPorts(), prodReq.GetSettings().GetPorts())
-
-	stageReq := &velez_api.CreateSmerd_Request{
+func newNetworkIsoStageRequest() *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
 		Name:         networkIsoStageName,
 		ImageName:    HelloWorldAppImage,
 		IgnoreConfig: true,
@@ -140,6 +140,22 @@ func Test_ContainerRuntime_Network_PerEnvironmentIsolation(t *testing.T) {
 			Ports: []*velez_api.Port{{ServicePortNumber: 8080, Protocol: velez_api.Port_tcp}},
 		},
 	}
+}
+
+func Test_ContainerRuntime_Network_PerEnvironmentIsolation(t *testing.T) {
+	t.Parallel()
+
+	env := Planes[0].NewEnvironment(t,
+		WithContainerSuffix(networkIsoProdSuffix),
+		WithEnvironments([]string{networkIsoStageEnv}))
+
+	prodReq := newNetworkIsoProdRequest()
+
+	prodSmerd := env.CreateSmerd(t, prodReq)
+	require.Equal(t, velez_api.Smerd_running, prodSmerd.GetStatus())
+	checkPorts(t, prodSmerd.GetPorts(), prodReq.GetSettings().GetPorts())
+
+	stageReq := newNetworkIsoStageRequest()
 
 	stageSmerd := env.CreateSmerd(t, stageReq)
 	require.Equal(t, velez_api.Smerd_running, stageSmerd.GetStatus())

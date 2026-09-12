@@ -52,6 +52,15 @@ func caseEnvName(environment string) string {
 	return environment
 }
 
+func newUpgradeSmerdCreateRequest(smerdName, environment string) *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:         smerdName,
+		ImageName:    HelloWorldAppImage,
+		IgnoreConfig: true,
+		Environment:  environment,
+	}
+}
+
 func runUpgradeSmerdCase(t *testing.T, tc upgradeSmerdTestCase) {
 	t.Helper()
 
@@ -63,12 +72,7 @@ func runUpgradeSmerdCase(t *testing.T, tc upgradeSmerdTestCase) {
 
 	env := tc.plane.NewEnvironment(t, opts...)
 
-	createReq := &velez_api.CreateSmerd_Request{
-		Name:         tc.smerdName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-		Environment:  tc.environment,
-	}
+	createReq := newUpgradeSmerdCreateRequest(tc.smerdName, tc.environment)
 	created := env.CreateSmerd(t, createReq)
 	require.Equal(t, velez_api.Smerd_running, created.GetStatus())
 

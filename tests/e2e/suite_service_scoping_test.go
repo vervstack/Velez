@@ -38,8 +38,13 @@ const (
 
 	// Container names double as Docker hostnames (64-char cap), so these stay
 	// short and suite-unique - same constraint EnvironmentsSuite documents.
-	serviceScopingStageName = "e2e_svc_stage"
-	serviceScopingSameName  = "e2e_svc_same"
+	// Each test method that creates a smerd gets its own name here - reusing
+	// one across methods made two of them race to create the identically-named
+	// container once both ran with t.Parallel() (see the git history of this
+	// file for the collision it caused).
+	serviceScopingStageName   = "e2e_svc_stage"
+	serviceScopingRestartName = "e2e_svc_restart"
+	serviceScopingSameName    = "e2e_svc_same"
 )
 
 // newServiceScopingStageRequest is this suite's one recurring request shape:
@@ -53,8 +58,12 @@ func newServiceScopingStageRequest(name string) *velez_api.CreateSmerd_Request {
 	}
 }
 
-func (s *ServiceScopingSuite) containerRunning(env *TestEnvironment, id string) bool {
-	t := s.T()
+// containerRunning takes t explicitly rather than calling s.T() internally:
+// this suite's methods run in parallel and share one suite receiver, so a
+// helper reading s.T() after t.Parallel() resumes can race and pick up a
+// different, already-finished sibling's *testing.T (surfacing as a spurious
+// "context canceled" from that sibling's cancelled context).
+func (s *ServiceScopingSuite) containerRunning(t *testing.T, env *TestEnvironment, id string) bool {
 	t.Helper()
 
 	inspected, err := env.Custom.NodeClients.Docker().Client().ContainerInspect(t.Context(), id)
@@ -67,6 +76,7 @@ func (s *ServiceScopingSuite) containerRunning(env *TestEnvironment, id string) 
 // environment's own container.
 func (s *ServiceScopingSuite) Test_StopService_ScopedToEnvironment_StopsOwnContainer() {
 	t := s.T()
+	t.Parallel()
 
 	env := s.plane.NewEnvironment(t,
 		WithContainerSuffix(serviceScopingSuffix),
@@ -85,7 +95,7 @@ func (s *ServiceScopingSuite) Test_StopService_ScopedToEnvironment_StopsOwnConta
 	_, err := env.ServiceApiClient().StopService(t.Context(), stopReq)
 	require.NoError(t, err)
 
-	require.False(t, s.containerRunning(env, created.GetUuid()),
+	require.False(t, s.containerRunning(t, env, created.GetUuid()),
 		"StopService scoped to STAGE must stop the STAGE container")
 }
 
@@ -94,25 +104,26 @@ func (s *ServiceScopingSuite) Test_StopService_ScopedToEnvironment_StopsOwnConta
 // blocks until the container is back up).
 func (s *ServiceScopingSuite) Test_RestartService_ScopedToEnvironment_RestartsOwnContainer() {
 	t := s.T()
+	t.Parallel()
 
 	env := s.plane.NewEnvironment(t,
 		WithContainerSuffix(serviceScopingSuffix),
 		WithEnvironments([]string{serviceScopingStage}))
 
-	createReq := newServiceScopingStageRequest(serviceScopingStageName)
+	createReq := newServiceScopingStageRequest(serviceScopingRestartName)
 
 	created := env.CreateSmerd(t, createReq)
 	require.Equal(t, velez_api.Smerd_running, created.GetStatus())
 
 	restartReq := &velez_api.RestartService_Request{
-		Name:        serviceScopingStageName,
+		Name:        serviceScopingRestartName,
 		Environment: serviceScopingStage,
 	}
 
 	_, err := env.ServiceApiClient().RestartService(t.Context(), restartReq)
 	require.NoError(t, err)
 
-	require.True(t, s.containerRunning(env, created.GetUuid()),
+	require.True(t, s.containerRunning(t, env, created.GetUuid()),
 		"RestartService scoped to STAGE must leave the STAGE container running")
 }
 
@@ -132,6 +143,7 @@ func (s *ServiceScopingSuite) Test_RestartService_ScopedToEnvironment_RestartsOw
 // STAGE container is left running throughout.
 func (s *ServiceScopingSuite) Test_StopService_SameNameOtherEnvironment_DoesNotTouchIt() {
 	t := s.T()
+	t.Parallel()
 
 	env := s.plane.NewEnvironment(t,
 		WithContainerSuffix(serviceScopingSuffix),
@@ -149,7 +161,7 @@ func (s *ServiceScopingSuite) Test_StopService_SameNameOtherEnvironment_DoesNotT
 	_, err := env.ServiceApiClient().StopService(t.Context(), stopReq)
 	require.NoError(t, err, "nothing to stop in PROD must still be a successful no-op")
 
-	require.True(t, s.containerRunning(env, stageSmerd.GetUuid()),
+	require.True(t, s.containerRunning(t, env, stageSmerd.GetUuid()),
 		"a PROD-scoped StopService must NOT touch the same-named STAGE container")
 }
 

@@ -51,11 +51,17 @@ const (
 
 	// Container names double as Docker hostnames, which are capped at 64
 	// characters - GetServiceName(t) on a suite subtest blows past that, so
-	// these tests use their own short, suite-unique names.
-	e2eEnvDefaultName = "e2e_env_default"
-	e2eEnvProdName    = "e2e_env_prod"
-	e2eEnvStageName   = "e2e_env_stage"
-	e2eEnvSharedName  = "e2e_env_shared"
+	// these tests use their own short, suite-unique names. Each test method
+	// that creates a STAGE-environment smerd gets its own name here - reusing
+	// e2eEnvStageName across three methods made them race to create the
+	// identically-named container once all three ran with t.Parallel() (see
+	// this file's git history for the collision it caused).
+	e2eEnvDefaultName       = "e2e_env_default"
+	e2eEnvProdName          = "e2e_env_prod"
+	e2eEnvStageName         = "e2e_env_stage"
+	e2eEnvStageDropBareName = "e2e_env_stage_dropbare"
+	e2eEnvStageDropUuidName = "e2e_env_stage_dropuuid"
+	e2eEnvSharedName        = "e2e_env_shared"
 )
 
 // newEnvironmentsRequest is the one recurring CreateSmerd_Request shape this
@@ -76,6 +82,7 @@ func newEnvironmentsRequest(name, environment string) *velez_api.CreateSmerd_Req
 // suffix, not with an empty one.
 func (s *EnvironmentsSuite) Test_EmptyEnvironment_UsesDefaultSuffix() {
 	t := s.T()
+	t.Parallel()
 
 	serviceName := e2eEnvDefaultName
 	env := s.plane.NewEnvironment(t, WithContainerSuffix(e2eDefaultSuffix))
@@ -117,6 +124,7 @@ func (s *EnvironmentsSuite) Test_EmptyEnvironment_UsesDefaultSuffix() {
 // other's container.
 func (s *EnvironmentsSuite) Test_TwoEnvironments_AreListScoped() {
 	t := s.T()
+	t.Parallel()
 
 	env := s.plane.NewEnvironment(t,
 		WithContainerSuffix(e2eDefaultSuffix),
@@ -173,6 +181,7 @@ func (s *EnvironmentsSuite) Test_TwoEnvironments_AreListScoped() {
 //     labelBasedRuntime now derives the container name from it too.
 func (s *EnvironmentsSuite) Test_SameNameInTwoEnvironments_AreDistinctContainers() {
 	t := s.T()
+	t.Parallel()
 
 	env := s.plane.NewEnvironment(t,
 		WithContainerSuffix(e2eDefaultSuffix),
@@ -227,19 +236,20 @@ func (s *EnvironmentsSuite) Test_SameNameInTwoEnvironments_AreDistinctContainers
 // actually removes the container.
 func (s *EnvironmentsSuite) Test_DropSmerd_ByBareName_SilentlyNoOpsInSuffixedEnvironment() {
 	t := s.T()
+	t.Parallel()
 
 	env := s.plane.NewEnvironment(t,
 		WithContainerSuffix(e2eDefaultSuffix),
 		WithEnvironments([]string{e2eStageEnv}))
 
-	stageReq := newEnvironmentsRequest(e2eEnvStageName, e2eStageEnv)
+	stageReq := newEnvironmentsRequest(e2eEnvStageDropBareName, e2eStageEnv)
 
 	env.CreateSmerd(t, stageReq)
 
 	// Drop the STAGE container's bare logical name, correctly scoped to
 	// STAGE - the environment it actually lives in.
 	dropReq := &velez_api.DropSmerd_Request{
-		Name:        []string{e2eEnvStageName},
+		Name:        []string{e2eEnvStageDropBareName},
 		Environment: e2eStageEnv,
 	}
 
@@ -275,12 +285,13 @@ func (s *EnvironmentsSuite) Test_DropSmerd_ByBareName_SilentlyNoOpsInSuffixedEnv
 // environment's suffix is treated as "not found here" and left untouched.
 func (s *EnvironmentsSuite) Test_DropSmerd_ByUuid_CrossEnvironmentCollision() {
 	t := s.T()
+	t.Parallel()
 
 	env := s.plane.NewEnvironment(t,
 		WithContainerSuffix(e2eDefaultSuffix),
 		WithEnvironments([]string{e2eStageEnv}))
 
-	stageReq := newEnvironmentsRequest(e2eEnvStageName, e2eStageEnv)
+	stageReq := newEnvironmentsRequest(e2eEnvStageDropUuidName, e2eStageEnv)
 
 	stageSmerd := env.CreateSmerd(t, stageReq)
 

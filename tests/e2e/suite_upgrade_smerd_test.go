@@ -18,7 +18,6 @@ type UpgradeSmerdSuite struct {
 	suite.Suite
 
 	plane Plane
-	env   *TestEnvironment
 }
 
 type upgradeSmerdTestCase struct {
@@ -31,14 +30,6 @@ const (
 	upgradeSuffixedName = "e2e_upgrade_suffixed"
 	upgradeSuffixedEnv  = "E2EUPGSTAGE"
 )
-
-// SetupTest builds the plain, no-options environment used by
-// Test_UpgradeSmerd_NonExistentContainer_Fails. Test_UpgradeSmerd_Matrix needs
-// a differently-configured environment per row (a suffixed environment for
-// one of its two cases), so it builds its own instead of using s.env.
-func (s *UpgradeSmerdSuite) SetupTest() {
-	s.env = s.plane.NewEnvironment(s.T())
-}
 
 // Serial: rows share fixed container names.
 func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_Matrix() {
@@ -155,13 +146,16 @@ func (s *UpgradeSmerdSuite) assertUpgraded(
 
 func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_NonExistentContainer_Fails() {
 	t := s.T()
+	t.Parallel()
+
+	env := s.plane.NewEnvironment(t)
 
 	upgradeReq := &velez_api.UpgradeSmerd_Request{
 		Name:  GetServiceName(t),
 		Image: helloWorldImageV0015,
 	}
 
-	_, err := s.env.Custom.ApiGrpcImpl.UpgradeSmerd(t.Context(), upgradeReq)
+	_, err := env.Custom.ApiGrpcImpl.UpgradeSmerd(t.Context(), upgradeReq)
 	require.Error(t, err)
 }
 

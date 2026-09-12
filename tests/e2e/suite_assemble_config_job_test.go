@@ -33,6 +33,7 @@ func (s *AssembleConfigJobSuite) SetupSuite() {
 
 func (s *AssembleConfigJobSuite) Test_AssembleHelloWorld() {
 	t := s.T()
+	t.Parallel()
 
 	serviceName := GetServiceName(t)
 	env := s.plane.NewEnvironment(t)

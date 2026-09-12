@@ -124,6 +124,7 @@ func (s *EnableStatefullSuite) Test_EnableStatefullMode_HappyPath() {
 
 func (s *EnableStatefullSuite) Test_EnableStatefullMode_UnsupportedPlugin_Fails() {
 	t := s.T()
+	t.Parallel()
 
 	env := s.plane.NewEnvironment(t)
 

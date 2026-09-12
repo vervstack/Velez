@@ -30,6 +30,15 @@ import (
 //
 // Not t.Parallel(): the suite shares one headscale container and asserts on
 // its global namespace listing.
+// vpnConnectServiceName names the smerd Test_ConnectService_LaunchesSidecar
+// deploys. It doubles as the container's Docker hostname, capped at 64
+// characters - GetServiceName(t) on a RunPlaneSuite subtest blows past that
+// (see ClusterLifecycleSuite's doc comment in suite_api_deploy_test.go), so
+// this test uses its own short, suite-unique name instead. Test_Vpn isn't
+// parallel and RunPlaneSuite runs planes sequentially, so reusing the same
+// constant across planes is safe.
+const vpnConnectServiceName = "e2e_vpn_connectservice"
+
 type VpnSuite struct {
 	suite.Suite
 
@@ -89,7 +98,7 @@ func (s *VpnSuite) Test_ConnectService_LaunchesSidecar() {
 	t := s.T()
 	ctx := t.Context()
 
-	serviceName := GetServiceName(t)
+	serviceName := vpnConnectServiceName
 
 	smerd := newHelloWorldRequest(serviceName)
 	s.env.CreateSmerd(t, smerd)

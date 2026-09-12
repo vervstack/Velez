@@ -18,12 +18,23 @@ import (
 // deploy that injects VERV_NAME, a Plain file-config mounted verbatim, and the
 // restart policy landing on the container HostConfig. It lives in package e2e
 // alongside the shared DinD / matreshka fixtures.
+//
+// Container names double as Docker hostnames, capped at 64 characters -
+// GetServiceName(t) on a RunPlaneSuite subtest blows past that (see
+// ClusterLifecycleSuite's doc comment in suite_api_deploy_test.go), so these
+// tests use their own short, suite-unique names instead.
 type VervConfigSuite struct {
 	suite.Suite
 
 	plane Plane
 	ctx   context.Context
 }
+
+const (
+	vervConfigRenderedEnvName   = "e2e_vervconfig_renderedenv"
+	vervConfigPlainFileName     = "e2e_vervconfig_plainfile"
+	vervConfigRestartPolicyName = "e2e_vervconfig_restartpolicy"
+)
 
 func (s *VervConfigSuite) SetupSuite() {
 	s.ctx = context.Background()
@@ -76,6 +87,7 @@ func newVervConfigRestartAlwaysRequest(name string) *velez_api.CreateSmerd_Reque
 // the shared matreshka cannot be exercised here yet.
 func (s *VervConfigSuite) Test_VervConfig_RenderedEnv() {
 	t := s.T()
+	t.Parallel()
 
 	env := s.plane.NewEnvironment(t)
 
@@ -83,7 +95,7 @@ func (s *VervConfigSuite) Test_VervConfig_RenderedEnv() {
 
 	plainContent := []byte("seeded: true\n")
 
-	req := newVervConfigRenderedEnvRequest(GetServiceName(t), plainPath, plainContent)
+	req := newVervConfigRenderedEnvRequest(vervConfigRenderedEnvName, plainPath, plainContent)
 
 	smerd := env.CreateSmerd(t, req)
 
@@ -102,6 +114,7 @@ func (s *VervConfigSuite) Test_VervConfig_RenderedEnv() {
 // the file is present inside the running container with the exact bytes given.
 func (s *VervConfigSuite) Test_VervConfig_PlainFileMounted() {
 	t := s.T()
+	t.Parallel()
 
 	env := s.plane.NewEnvironment(t)
 
@@ -115,7 +128,7 @@ func (s *VervConfigSuite) Test_VervConfig_PlainFileMounted() {
 
 	wantContent := []byte("key: value\n")
 
-	req := newVervConfigPlainFileRequest(GetServiceName(t), filePath, wantContent)
+	req := newVervConfigPlainFileRequest(vervConfigPlainFileName, filePath, wantContent)
 
 	smerd := env.CreateSmerd(t, req)
 
@@ -133,10 +146,11 @@ func (s *VervConfigSuite) Test_VervConfig_PlainFileMounted() {
 // assert a policy actually reached the container HostConfig.
 func (s *VervConfigSuite) Test_VervConfig_RestartPolicyApplied() {
 	t := s.T()
+	t.Parallel()
 
 	env := s.plane.NewEnvironment(t)
 
-	req := newVervConfigRestartAlwaysRequest(GetServiceName(t))
+	req := newVervConfigRestartAlwaysRequest(vervConfigRestartPolicyName)
 
 	smerd := env.CreateSmerd(t, req)
 

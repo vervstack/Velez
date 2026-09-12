@@ -7,6 +7,7 @@ import (
 
 	"github.com/docker/docker/api/types/network"
 	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
@@ -25,36 +26,25 @@ const (
 	listContainersStageName = "e2e_ctr_runtime_list_stage"
 )
 
-// Test_ContainerRuntime_ListContainers_ScopesToEnvironment is a RED test for
-// the ContainerRuntime.ListContainers method that backs the ListSmerds RPC
-// (see docs/container_runtimes/roadmap.md's Phase 1 and
-// internal/clients/node_clients/container_runtime/label_based.go's
-// ListContainers doc comment).
-//
-// It creates one smerd in the default (PROD) environment and a differently
-// named one in a second environment, then asserts that a ListSmerds scoped to
-// the second environment sees exactly its own container and none of PROD's.
-//
-// It is EXPECTED TO FAIL today: ContainerManager.ListSmerds now routes through
-// RuntimeResolver.Runtime(...).ListContainers instead of calling
-// node_clients.Docker.ListContainers directly, and labelBasedRuntime's
-// ListContainers is a deliberate stub that does not filter by suffix (see its
-// doc comment) - the next agent's job is to make it correct. Until then this
-// scoped list returns BOTH environments' containers instead of just the one
-// requested.
-func Test_ContainerRuntime_ListContainers_ScopesToEnvironment(t *testing.T) {
-	for _, plane := range Planes {
-		t.Run(plane.Name(), func(t *testing.T) {
-			t.Parallel()
-			runContainerRuntimeListContainersScopingCase(t, plane)
-		})
-	}
+// ContainerRuntimeScopingSuite covers the ContainerRuntime.ListContainers
+// environment scoping (docs/container_runtimes/roadmap.md Phase 1) and the
+// per-environment Docker network isolation (Stage 4).
+type ContainerRuntimeScopingSuite struct {
+	suite.Suite
+
+	plane Plane
 }
 
-func runContainerRuntimeListContainersScopingCase(t *testing.T, plane Plane) {
-	t.Helper()
+// Test_ListContainers_ScopesToEnvironment is a RED test for
+// ContainerManager.ListSmerds, which now routes through
+// RuntimeResolver.Runtime(...).ListContainers instead of calling
+// node_clients.Docker.ListContainers directly: labelBasedRuntime.ListContainers
+// is a deliberate unfiltered stub (see its doc comment), so a STAGE-scoped
+// ListSmerds today also returns PROD's container until that stub is fixed.
+func (s *ContainerRuntimeScopingSuite) Test_ListContainers_ScopesToEnvironment() {
+	t := s.T()
 
-	env := plane.NewEnvironment(t,
+	env := s.plane.NewEnvironment(t,
 		WithContainerSuffix(listContainersProdSuffix),
 		WithEnvironments([]string{listContainersStageEnv}))
 
@@ -85,54 +75,23 @@ func runContainerRuntimeListContainersScopingCase(t *testing.T, plane Plane) {
 	stageList := env.ListSmerds(t, t.Context(), stageListReq)
 
 	require.Len(t, stageList.GetSmerds(), 1,
-		"a STAGE-scoped ListSmerds must not also return PROD's container - "+
-			"labelBasedRuntime.ListContainers is a deliberate unfiltered stub, see its doc comment")
+		"a STAGE-scoped ListSmerds must not also return PROD's container")
 	require.Equal(t, stageSmerd.GetUuid(), stageList.GetSmerds()[0].GetUuid())
 
-	// Smerd.Name is always the virtual/logical name - never the suffixed
-	// Docker container name - both from CreateSmerd's response (stageSmerd,
-	// via InspectSmerd) and from ListSmerds (stageList, via
-	// ContainerRuntime.ListContainers). See
-	// docs/container_runtimes/interface_design.md.
+	// Smerd.Name is always the virtual/logical name, never the suffixed
+	// Docker container name - see docs/container_runtimes/interface_design.md.
 	require.Equal(t, listContainersStageName, stageSmerd.GetName())
 	require.Equal(t, listContainersStageName, stageList.GetSmerds()[0].GetName())
 }
 
-// Test_ContainerRuntime_Network_PerEnvironmentIsolation covers Stage 4
-// (docs/container_runtimes): each environment must get its OWN Docker bridge
+// Test_Network_PerEnvironmentIsolation covers Stage 4
+// (docs/container_runtimes): each environment must get its own Docker bridge
 // network ("verv_<suffix>") instead of every environment sharing the single
-// hardcoded "verv" network env.StartNetwork creates once at node boot. It
-// creates one smerd in PROD and one differently-named smerd in a second
-// environment - both with a port binding, so createContainerJob's
-// default-network connect actually runs (see label_based.go's
-// CreateNetwork/ConnectToNetwork) - then asserts against the real Docker
-// daemon that each container ends up on its own suffixed network and that
-// neither network contains the other environment's container.
-//
-// This used to be RED for a structural reason beyond "the methods don't
-// exist yet": dockerutils.CreateNetwork hardcoded the exact same IPAM subnet
-// (10.0.1.0/24) for every network it created, regardless of name, which was
-// fine when only one such network (the single shared "verv") ever existed on
-// a node but made a second environment's own "verv_<suffix>" network collide
-// with it ("Pool overlaps with other one on this address space"). Fixed by
-// dropping the explicit Subnet from dockerutils.CreateNetwork's IPAM config
-// and letting Docker's default IPAM driver auto-allocate a non-overlapping
-// subnet per network - env.StartNetwork's existing "verv" network is
-// untouched by that change (CreateNetwork no-ops when a network with the
-// requested name already exists).
-func Test_ContainerRuntime_Network_PerEnvironmentIsolation(t *testing.T) {
-	for _, plane := range Planes {
-		t.Run(plane.Name(), func(t *testing.T) {
-			t.Parallel()
-			runContainerRuntimeNetworkIsolationCase(t, plane)
-		})
-	}
-}
+// hardcoded "verv" network env.StartNetwork creates once at node boot.
+func (s *ContainerRuntimeScopingSuite) Test_Network_PerEnvironmentIsolation() {
+	t := s.T()
 
-func runContainerRuntimeNetworkIsolationCase(t *testing.T, plane Plane) {
-	t.Helper()
-
-	env := plane.NewEnvironment(t,
+	env := s.plane.NewEnvironment(t,
 		WithContainerSuffix(networkIsoProdSuffix),
 		WithEnvironments([]string{networkIsoStageEnv}))
 
@@ -187,4 +146,11 @@ func runContainerRuntimeNetworkIsolationCase(t *testing.T, plane Plane) {
 
 	_, prodInStageNet := stageNet.Containers[prodSmerd.GetUuid()]
 	require.False(t, prodInStageNet, "PROD's container must not be connected to STAGE's network")
+}
+
+func Test_ContainerRuntimeScoping(t *testing.T) {
+	t.Parallel()
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
+		return &ContainerRuntimeScopingSuite{plane: plane}
+	})
 }

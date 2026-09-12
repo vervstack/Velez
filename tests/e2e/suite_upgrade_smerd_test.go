@@ -31,14 +31,17 @@ const (
 	upgradeSuffixedEnv  = "E2EUPGSTAGE"
 )
 
-var upgradeSmerdMatrix = []upgradeSmerdTestCase{
-	{environment: "", smerdName: upgradeDefaultName},
-	{environment: upgradeSuffixedEnv, smerdName: upgradeSuffixedName},
-}
-
-// Serial: rows share fixed container names.
+// Test_UpgradeSmerd_Matrix upgrades a smerd's image in both the default (PROD)
+// environment and a suffixed one, asserting the new image, labels, and real
+// container name land correctly in each. Serial: rows share fixed container
+// names, so they can't run in parallel with each other.
 func (s *UpgradeSmerdSuite) Test_UpgradeSmerd_Matrix() {
-	for _, tc := range upgradeSmerdMatrix {
+	cases := []upgradeSmerdTestCase{
+		{environment: "", smerdName: upgradeDefaultName},
+		{environment: upgradeSuffixedEnv, smerdName: upgradeSuffixedName},
+	}
+
+	for _, tc := range cases {
 		s.T().Run(caseEnvName(tc.environment), func(t *testing.T) {
 			runUpgradeSmerdCase(t, s.plane, tc)
 		})

@@ -235,7 +235,7 @@ func (d *deployWatcher) deploy(ctx context.Context, dep domain.Deployment) error
 
 	err = d.runTask(ctx, entityID, jobs.CreateSmerdAction, initialContext)
 	if err != nil {
-		log.Error().Err(rerrors.Wrap(err, "")).Msg("error deploying smerd")
+		log.Error().Err(err).Msg("error deploying smerd")
 
 		updateStatusParams.Status = deployments_queries.VelezDeploymentStatusFAILED
 	}
@@ -279,7 +279,7 @@ func (d *deployWatcher) upgrade(ctx context.Context, dep domain.Deployment) erro
 
 	err = d.runTask(ctx, entityID, jobs.UpgradeSmerdAction, initialContext)
 	if err != nil {
-		log.Error().Err(rerrors.Wrap(err, "")).Msg("error upgrading smerd")
+		log.Error().Err(err).Msg("error upgrading smerd")
 
 		updateStatusParams.Status = deployments_queries.VelezDeploymentStatusFAILED
 	}

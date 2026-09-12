@@ -10,6 +10,6 @@ func CloseWithLog(closable closer.Closable, target string) {
 	if e != nil {
 		log.Err(e).
 			Str("target", target).
-			Msg("error closing closable")
+			Msg("error closing " + target + " resource")
 	}
 }

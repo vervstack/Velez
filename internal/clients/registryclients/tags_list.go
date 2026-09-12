@@ -19,11 +19,12 @@ type tagsListResponse struct {
 // returns them - the API gives no ordering guarantee (e.g. not necessarily
 // newest-first).
 func (c *Client) TagsList(ctx context.Context, repo string) ([]string, error) {
+	//nolint:bodyclose // closed via common.CloseWithLog below
 	resp, err := c.doAPIRequest(ctx, http.MethodGet, "/v2/"+repo+"/tags/list")
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error requesting tags list")
 	}
-	defer common.CloseWithLog(resp.Body.Close, "close registry tags list response body")
+	defer common.CloseWithLog(resp.Body.Close, "registry tags list response body")
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, c.handleError(resp)

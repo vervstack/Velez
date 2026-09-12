@@ -13,7 +13,7 @@ func (impl *Impl) DeleteNamespace(
 ) (*api.DeleteVcnNamespace_Response, error) {
 	err := impl.vpnService.DeleteNamespace(ctx, req.GetId())
 	if err != nil {
-		return nil, rerrors.Wrap(err, "")
+		return nil, rerrors.Wrap(err, "error deleting namespace")
 	}
 
 	return &api.DeleteVcnNamespace_Response{}, nil

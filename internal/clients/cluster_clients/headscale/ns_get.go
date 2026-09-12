@@ -16,12 +16,13 @@ type getNamespaceResponse struct {
 }
 
 func (s *Client) GetNamespace(ctx context.Context, name string) (domain.VcnNamespace, error) {
+	//nolint:bodyclose // closed via common.CloseWithLog below
 	resp, err := s.doAPIRequest(ctx, http.MethodGet, userURI+"?name="+name, nil)
 	if err != nil {
 		return domain.VcnNamespace{}, rerrors.Wrap(err, "error executing request")
 	}
 
-	defer common.CloseWithLog(resp.Body.Close, "Failed to decode response for GetNamespace")
+	defer common.CloseWithLog(resp.Body.Close, "get namespace response body")
 
 	if resp.StatusCode == http.StatusOK {
 		var r getNamespaceResponse

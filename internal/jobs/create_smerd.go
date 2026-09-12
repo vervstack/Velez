@@ -504,7 +504,7 @@ func (j *prepareSmerdVervConfigJob) ensureNetworks(ctx context.Context, request 
 	for _, n := range request.GetSettings().GetNetwork() {
 		err = containerRuntime.CreateNetwork(ctx, n.GetNetworkName())
 		if err != nil {
-			return rerrors.Wrap(err, "error creating network: %s", n.GetNetworkName())
+			return rerrors.Wrapf(err, "error creating network: %s", n.GetNetworkName())
 		}
 	}
 

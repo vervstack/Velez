@@ -23,16 +23,18 @@ func ListImages(ctx context.Context, docker client.APIClient, req domain.ImageLi
 		return nil, errors.Wrap(err, "error listing images")
 	}
 
-	resp := make([]*velez_api.Image, len(images))
+	resp := make([]*velez_api.Image, 0, len(images))
 	for i := range images {
-		if images[i].RepoTags[0] == "" {
+		if len(images[i].RepoTags) == 0 || images[i].RepoTags[0] == "" {
 			continue
 		}
 
-		resp[i] = &velez_api.Image{
+		img := &velez_api.Image{
 			Name: images[i].RepoTags[0],
 			Tags: images[i].RepoTags,
 		}
+
+		resp = append(resp, img)
 	}
 
 	return resp, nil

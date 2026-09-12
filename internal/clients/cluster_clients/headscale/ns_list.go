@@ -10,6 +10,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/user_errors"
+	"go.vervstack.ru/Velez/internal/utils/common"
 )
 
 type listNamespacesResponse struct {
@@ -17,17 +18,18 @@ type listNamespacesResponse struct {
 }
 
 func (s *Client) ListNamespaces(ctx context.Context) ([]domain.VcnNamespace, error) {
+	//nolint:bodyclose // closed via common.CloseWithLog below
 	resp, err := s.doAPIRequest(ctx, http.MethodGet, userURI, nil)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error executing request")
 	}
 
+	defer common.CloseWithLog(resp.Body.Close, "list namespaces response body")
+
 	if resp.StatusCode == http.StatusOK {
 		nameSpaces := listNamespacesResponse{}
 
 		err = json.NewDecoder(resp.Body).Decode(&nameSpaces)
-		_ = resp.Body.Close()
-
 		if err != nil {
 			return nil, rerrors.Wrap(err, "error decoding response")
 		}

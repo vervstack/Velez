@@ -5,5 +5,5 @@ func Less[T int | uint | uint32](a, b T) T {
 		return b
 	}
 
-	return b
+	return a
 }

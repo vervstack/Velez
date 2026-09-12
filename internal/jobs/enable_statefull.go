@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"slices"
 	"strconv"
@@ -775,7 +774,7 @@ func (j *createSchemaAndMigrateJob) Do(ctx context.Context) error {
 func (j *createSchemaAndMigrateJob) wrapSchemaErr(ctx context.Context, execErr error) error {
 	var pqErr *pq.Error
 
-	if !errors.As(execErr, &pqErr) || pqErr.Code != pgInvalidPasswordCode {
+	if !rerrors.As(execErr, &pqErr) || pqErr.Code != pgInvalidPasswordCode {
 		return rerrors.Wrap(execErr, "error creating postgres schema")
 	}
 
@@ -847,10 +846,8 @@ func (j *createPgUserJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error creating database user")
 	}
 
-	// TODO Think about it really gud
-
 	log.Info().
-		Str("pwd", j.pwd.GetUserPwd()).
+		Str("username", pgMasterNodeDefaultName).
 		Msg("user created")
 
 	return nil

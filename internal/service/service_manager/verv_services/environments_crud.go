@@ -62,7 +62,10 @@ func (v *VervService) ResolveEnvironmentSuffix(ctx context.Context, name string)
 }
 
 // CreateEnvironment persists a new environment. An omitted/empty suffix
-// defaults to the environment's own name.
+// defaults to the environment's own name; an omitted/empty DockerHost
+// defaults to this node's own configured Docker connection
+// (container_runtime.resolver.Runtime treats that as "shared daemon", not
+// "dedicated").
 func (v *VervService) CreateEnvironment(
 	ctx context.Context,
 	req domain.CreateEnvironmentReq,
@@ -73,6 +76,10 @@ func (v *VervService) CreateEnvironment(
 
 	if req.Suffix == "" {
 		req.Suffix = req.Name
+	}
+
+	if req.DockerHost == "" {
+		req.DockerHost = v.docker.Host()
 	}
 
 	env, err := v.environments().CreateEnvironment(ctx, req)

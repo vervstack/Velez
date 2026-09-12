@@ -21,13 +21,4 @@ var (
 	// when a container's directory contents exceed the maximum allowed
 	// in-memory read size.
 	ErrDirReadSizeExceeded = rerrors.New("directory contents exceed the maximum allowed read size")
-
-	// ErrDedicatedRuntimeNotImplemented is returned for an environment that
-	// asks for a Docker daemon of its own (domain.Environment.DockerHost
-	// set). Building that daemon - pkg/docker_setup, systemd units,
-	// connection pooling - is Phase 2 of
-	// docs/container_runtimes/roadmap.md; failing loudly beats silently
-	// serving such an environment off the shared daemon. Checked with
-	// rerrors.Is by container_runtime.resolver_test.go.
-	ErrDedicatedRuntimeNotImplemented = rerrors.New("dedicated container runtime is not implemented yet")
 )

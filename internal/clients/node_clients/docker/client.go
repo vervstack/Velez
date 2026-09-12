@@ -29,6 +29,9 @@ import (
 type Docker struct {
 	directApi   client.APIClient
 	bakedLabels []string
+	// host is cli.DaemonHost() at construction time - the resolved address
+	// this connection actually talks to. See Host().
+	host string
 }
 
 func NewClient(bakedLabels []string) (*Docker, error) {
@@ -50,7 +53,14 @@ func NewClientWithOpts(bakedLabels []string, opts ...client.Opt) (*Docker, error
 	return &Docker{
 		directApi:   cli,
 		bakedLabels: bakedLabels,
+		host:        cli.DaemonHost(),
 	}, nil
+}
+
+// Host returns the Docker daemon address this connection resolved to - see
+// the Docker interface's Host doc comment.
+func (d *Docker) Host() string {
+	return d.host
 }
 
 func (d *Docker) PullImage(ctx context.Context, imageName string) (image.InspectResponse, error) {

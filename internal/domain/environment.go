@@ -17,33 +17,44 @@ type Environment struct {
 	ID     int64
 	Name   string
 	Suffix string
-	// DockerHost - endpoint of the dedicated Docker daemon serving this
-	// environment. Empty (the only value produced today) means "the node's
-	// shared daemon", i.e. isolation via Suffix labels/names alone.
+	// DockerHost - endpoint of the Docker daemon serving this environment.
+	// Equal to the node's own configured Docker connection
+	// (node_clients.Docker.Host()) means "the node's shared daemon" -
+	// isolation via Suffix labels/names alone (container_runtime.resolver's
+	// label-based tier). Any other value means a Docker daemon dedicated to
+	// this environment (container_runtime.resolver's direct tier) - see
+	// docs/container_runtimes/roadmap.md.
 	//
-	// Nothing populates it yet: the velez.environments column backing it, and
-	// the dedicatedRuntime that would consume it, both land with Phase 2 of
-	// docs/container_runtimes/roadmap.md. It exists now so the runtime
-	// resolver can branch on it and reject the not-yet-implemented tier
-	// explicitly instead of silently serving it from the shared daemon.
+	// NOT NULL: an environment with no explicit override defaults to the
+	// node's own Docker host (verv_services.CreateEnvironment), never to an
+	// empty string - there's no "unset" state, only "same as the node" or
+	// "somewhere else".
+	//
+	// Only ever non-default under statefull mode - static (single-node/dev)
+	// environments storage rejects every write
+	// (user_errors.ErrRequiresStatefullMode), so this can only diverge from
+	// the node's own host for an environment actually persisted in postgres.
 	DockerHost string
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 }
 
 // CreateEnvironmentReq - payload for creating a new environment.
-// An empty Suffix defaults to Name (see verv_services.CreateEnvironment).
+// An empty Suffix defaults to Name, an empty DockerHost defaults to the
+// node's own Docker host (see verv_services.CreateEnvironment).
 type CreateEnvironmentReq struct {
-	Name   string
-	Suffix string
+	Name       string
+	Suffix     string
+	DockerHost string
 }
 
 // UpdateEnvironmentReq - payload for updating an existing environment.
 // Nil fields are left untouched.
 type UpdateEnvironmentReq struct {
-	ID     int64
-	Name   *string
-	Suffix *string
+	ID         int64
+	Name       *string
+	Suffix     *string
+	DockerHost *string
 }
 
 // DeleteEnvironmentReq - identifies the environment to delete either by ID or

@@ -76,7 +76,7 @@ func newRealUpgradeFixture(
 	envs := environments.NewStatic([]string{envName}, "")
 	provider := staticEnvironmentsProvider{envs: envs}
 
-	runtimes := container_runtime.NewResolver(cli, nil, provider)
+	runtimes := container_runtime.NewResolver(cli, realDocker.Host(), nil, provider)
 
 	nodeClients := dockerOnlyNodeClients{docker: realDocker}
 

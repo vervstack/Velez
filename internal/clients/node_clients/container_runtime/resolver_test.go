@@ -13,8 +13,9 @@ import (
 )
 
 const (
-	testProdSuffix = "prod"
-	testStageEnv   = "STAGE"
+	testProdSuffix    = "prod"
+	testStageEnv      = "STAGE"
+	testDedicatedHost = "tcp://dedicated-stage:2375"
 )
 
 type staticProvider struct {
@@ -25,9 +26,10 @@ func (p *staticProvider) Environments() storage.EnvironmentsStorage {
 	return p.storage
 }
 
-// dedicatedStorage yields a single environment bound to a dedicated Docker
-// host. Nothing writes domain.Environment.DockerHost yet (Phase 2), so the
-// resolver's dedicated branch needs a storage that can produce one.
+// dedicatedStorage yields a single environment bound to a Docker host other
+// than the node's own - only postgres-backed storage can actually persist
+// this (static rejects every write), so the resolver's dedicated branch is
+// tested against a hand-rolled double rather than environments.NewStatic.
 type dedicatedStorage struct {
 	storage.EnvironmentsStorage
 
@@ -47,7 +49,7 @@ func TestResolver_ResolvesLabelBasedRuntimeWithEnvironmentSuffix(t *testing.T) {
 		storage: environments.NewStatic([]string{testStageEnv}, testProdSuffix),
 	}
 
-	resolver := NewResolver(nil, nil, provider)
+	resolver := NewResolver(nil, "", nil, provider)
 
 	prod, err := resolver.Runtime(context.Background(), environments.DefaultEnvironmentName)
 	require.NoError(t, err)
@@ -78,7 +80,7 @@ func TestResolver_EmptyEnvironmentResolvesDefault(t *testing.T) {
 		storage: environments.NewStatic(nil, testProdSuffix),
 	}
 
-	resolved, err := NewResolver(nil, nil, provider).Runtime(context.Background(), "")
+	resolved, err := NewResolver(nil, "", nil, provider).Runtime(context.Background(), "")
 	require.NoError(t, err)
 
 	runtime, ok := resolved.(*dockerRuntime)
@@ -94,7 +96,7 @@ func TestResolver_EmptyEnvironmentResolvesDefault(t *testing.T) {
 // time, single-node before the storage swap) the default degrades to the
 // unsuffixed runtime rather than failing.
 func TestResolver_NoProviderStillServesDefaultEnvironment(t *testing.T) {
-	resolved, err := NewResolver(nil, nil, nil).Runtime(context.Background(), "")
+	resolved, err := NewResolver(nil, "", nil, nil).Runtime(context.Background(), "")
 	require.NoError(t, err)
 
 	runtime, ok := resolved.(*dockerRuntime)
@@ -113,27 +115,90 @@ func TestResolver_UnknownEnvironmentErrors(t *testing.T) {
 		storage: environments.NewStatic(nil, testProdSuffix),
 	}
 
-	_, err := NewResolver(nil, nil, provider).Runtime(context.Background(), "ghost")
+	_, err := NewResolver(nil, "", nil, provider).Runtime(context.Background(), "ghost")
 	require.Error(t, err)
 }
 
-// Phase 2's tier: recognised, explicitly refused, never silently served off
-// the shared daemon.
-func TestResolver_DedicatedEnvironmentIsNotImplemented(t *testing.T) {
+// An environment whose DockerHost differs from the node's own gets a
+// dedicated connection instead of the shared cli - see resolver.dedicatedClient.
+func TestResolver_ResolvesDedicatedRuntimeForDifferentDockerHost(t *testing.T) {
 	env := domain.Environment{
 		ID:         1,
 		Name:       testStageEnv,
 		Suffix:     testStageEnv,
-		DockerHost: "unix:///var/run/docker-stage.sock",
+		DockerHost: testDedicatedHost,
 	}
 
 	provider := &staticProvider{
 		storage: &dedicatedStorage{env: env},
 	}
 
-	_, err := NewResolver(nil, nil, provider).Runtime(context.Background(), testStageEnv)
-	require.Error(t, err)
-	require.ErrorIs(t, err, user_errors.ErrDedicatedRuntimeNotImplemented)
+	resolved, err := NewResolver(nil, "", nil, provider).Runtime(context.Background(), testStageEnv)
+	require.NoError(t, err)
+
+	runtime, ok := resolved.(*dockerRuntime)
+	require.True(t, ok)
+
+	_, ok = runtime.resolver.(*directResolver)
+	require.True(t, ok)
+}
+
+// DockerHost equal to the node's own resolved host means "this environment
+// shares the node's daemon" - the default every newly created environment
+// gets (verv_services.CreateEnvironment) - not "dedicated to a copy of the
+// same address".
+func TestResolver_TreatsDockerHostEqualToNodeHostAsShared(t *testing.T) {
+	env := domain.Environment{
+		ID:         1,
+		Name:       testStageEnv,
+		Suffix:     testStageEnv,
+		DockerHost: testDedicatedHost,
+	}
+
+	provider := &staticProvider{
+		storage: &dedicatedStorage{env: env},
+	}
+
+	resolved, err := NewResolver(nil, testDedicatedHost, nil, provider).Runtime(context.Background(), testStageEnv)
+	require.NoError(t, err)
+
+	runtime, ok := resolved.(*dockerRuntime)
+	require.True(t, ok)
+
+	_, ok = runtime.resolver.(*labelSuffixResolver)
+	require.True(t, ok)
+}
+
+// A dedicated Docker host is a real connection, unlike the shared cli the
+// resolver is handed already built - it must be built once and reused, not
+// reconnected on every Runtime call.
+func TestResolver_CachesDedicatedClientPerHost(t *testing.T) {
+	env := domain.Environment{
+		ID:         1,
+		Name:       testStageEnv,
+		Suffix:     testStageEnv,
+		DockerHost: testDedicatedHost,
+	}
+
+	provider := &staticProvider{
+		storage: &dedicatedStorage{env: env},
+	}
+
+	res := NewResolver(nil, "", nil, provider)
+
+	first, err := res.Runtime(context.Background(), testStageEnv)
+	require.NoError(t, err)
+
+	second, err := res.Runtime(context.Background(), testStageEnv)
+	require.NoError(t, err)
+
+	firstRuntime, ok := first.(*dockerRuntime)
+	require.True(t, ok)
+
+	secondRuntime, ok := second.(*dockerRuntime)
+	require.True(t, ok)
+
+	require.Same(t, firstRuntime.cli, secondRuntime.cli)
 }
 
 // mutableEnvStorage is a hand-rolled, actually-mutable EnvironmentsStorage
@@ -174,7 +239,7 @@ func TestResolver_RereadsStorageOnEveryCall(t *testing.T) {
 		storage: envStorage,
 	}
 
-	resolver := NewResolver(nil, nil, provider)
+	resolver := NewResolver(nil, "", nil, provider)
 
 	before, err := resolver.Runtime(ctx, testStageEnv)
 	require.NoError(t, err)

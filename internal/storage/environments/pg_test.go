@@ -19,7 +19,7 @@ import (
 // environmentColumns mirrors velez.environments' column order, which every
 // generated query in environments_queries selects with `SELECT *`.
 func environmentColumns() []string {
-	return []string{"id", "name", "suffix", "created_at", "updated_at"}
+	return []string{"id", "name", "suffix", "created_at", "updated_at", "docker_host"}
 }
 
 func newPgTest(t *testing.T) (*sql.DB, sqlmock.Sqlmock, storage.EnvironmentsStorage) {
@@ -41,8 +41,8 @@ func TestPgStorage_ListEnvironments(t *testing.T) {
 	now := time.Now()
 
 	rows := sqlmock.NewRows(environmentColumns()).
-		AddRow(int64(1), "PROD", "", now, now).
-		AddRow(int64(2), "STAGE", "stage", now, now)
+		AddRow(int64(1), "PROD", "", now, now, "").
+		AddRow(int64(2), "STAGE", "stage", now, now, "")
 
 	mock.ExpectQuery(regexp.QuoteMeta("SELECT id, name, suffix, created_at, updated_at")).
 		WillReturnRows(rows)
@@ -62,7 +62,7 @@ func TestPgStorage_GetEnvironmentByName(t *testing.T) {
 	now := time.Now()
 
 	rows := sqlmock.NewRows(environmentColumns()).
-		AddRow(int64(7), "STAGE", "stage", now, now)
+		AddRow(int64(7), "STAGE", "stage", now, now, "")
 
 	mock.ExpectQuery(regexp.QuoteMeta("WHERE name = $1")).
 		WithArgs("STAGE").
@@ -95,7 +95,7 @@ func TestPgStorage_GetEnvironmentByID(t *testing.T) {
 	now := time.Now()
 
 	rows := sqlmock.NewRows(environmentColumns()).
-		AddRow(int64(3), "DEV", "dev", now, now)
+		AddRow(int64(3), "DEV", "dev", now, now, "")
 
 	mock.ExpectQuery(regexp.QuoteMeta("WHERE id = $1")).
 		WithArgs(int64(3)).
@@ -113,13 +113,13 @@ func TestPgStorage_CreateEnvironment(t *testing.T) {
 	now := time.Now()
 
 	rows := sqlmock.NewRows(environmentColumns()).
-		AddRow(int64(9), "QA", "qa", now, now)
+		AddRow(int64(9), "QA", "qa", now, now, "unix:///var/run/docker.sock")
 
 	mock.ExpectQuery(regexp.QuoteMeta("INSERT INTO velez.environments")).
-		WithArgs("QA", "qa").
+		WithArgs("QA", "qa", "unix:///var/run/docker.sock").
 		WillReturnRows(rows)
 
-	req := domain.CreateEnvironmentReq{Name: "QA", Suffix: "qa"}
+	req := domain.CreateEnvironmentReq{Name: "QA", Suffix: "qa", DockerHost: "unix:///var/run/docker.sock"}
 
 	got, err := s.CreateEnvironment(context.Background(), req)
 	require.NoError(t, err)
@@ -136,17 +136,17 @@ func TestPgStorage_UpdateEnvironment_OmittedFieldsKeepCurrentValues(t *testing.T
 	now := time.Now()
 
 	current := sqlmock.NewRows(environmentColumns()).
-		AddRow(int64(4), "STAGE", "stage", now, now)
+		AddRow(int64(4), "STAGE", "stage", now, now, "unix:///var/run/docker.sock")
 
 	mock.ExpectQuery(regexp.QuoteMeta("WHERE id = $1")).
 		WithArgs(int64(4)).
 		WillReturnRows(current)
 
 	updated := sqlmock.NewRows(environmentColumns()).
-		AddRow(int64(4), "STAGE", "stg", now, now)
+		AddRow(int64(4), "STAGE", "stg", now, now, "unix:///var/run/docker.sock")
 
 	mock.ExpectQuery(regexp.QuoteMeta("UPDATE velez.environments")).
-		WithArgs(int64(4), "STAGE", "stg").
+		WithArgs(int64(4), "STAGE", "stg", "unix:///var/run/docker.sock").
 		WillReturnRows(updated)
 
 	newSuffix := "stg"

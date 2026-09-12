@@ -150,6 +150,7 @@ export type Environment = {
   suffix?: string;
   createdAt?: GoogleProtobufTimestamp.Timestamp;
   updatedAt?: GoogleProtobufTimestamp.Timestamp;
+  dockerHost?: string;
 };
 
 export type ListEnvironmentsRequest = Record<string, never>;
@@ -163,6 +164,7 @@ export type ListEnvironments = Record<string, never>;
 export type CreateEnvironmentRequest = {
   name?: string;
   suffix?: string;
+  dockerHost?: string;
 };
 
 export type CreateEnvironmentResponse = {
@@ -175,6 +177,7 @@ export type UpdateEnvironmentRequest = {
   id?: string;
   name?: string;
   suffix?: string;
+  dockerHost?: string;
 };
 
 export type UpdateEnvironmentResponse = {

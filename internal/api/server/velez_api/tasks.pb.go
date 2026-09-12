@@ -7,15 +7,14 @@
 package velez_api
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "go.redsock.ru/protoc-gen-npm/npmplugin"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -354,7 +353,7 @@ type AssembleConfigTaskPayload struct {
 	// from the container.
 	ConfigName    *string `protobuf:"bytes,6,opt,name=config_name,json=configName,proto3,oneof" json:"config_name,omitempty"`
 	ConfigVersion *string `protobuf:"bytes,7,opt,name=config_version,json=configVersion,proto3,oneof" json:"config_version,omitempty"`
-	// matreshka_api.ConfigTypePrefix's enum name, e.g. "plain"/"verv"/"pg".
+	// matreshka_api.ConfigType's enum name, e.g. "plain"/"verv"/"pg".
 	// Kept as a string rather than the typed enum to avoid a proto dependency
 	// on the matreshka_api package (see moti.yaml deps for its pinned version).
 	ConfType     *string       `protobuf:"bytes,8,opt,name=conf_type,json=confType,proto3,oneof" json:"conf_type,omitempty"`

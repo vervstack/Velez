@@ -22,6 +22,7 @@ type ControlPlaneSuite struct {
 // never environment-less.
 func (s *ControlPlaneSuite) Test_ListEnvironments_WithLocalStateConfig() {
 	t := s.T()
+	t.Parallel()
 
 	configuredEnvs := []string{"dev", "staging", "prod"}
 	env := s.plane.NewEnvironment(t, WithEnvironments(configuredEnvs))

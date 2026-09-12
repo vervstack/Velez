@@ -83,6 +83,7 @@ type ContainerRuntimeScopingSuite struct {
 // ListSmerds today also returns PROD's container until that stub is fixed.
 func (s *ContainerRuntimeScopingSuite) Test_ListContainers_ScopesToEnvironment() {
 	t := s.T()
+	t.Parallel()
 
 	env := s.plane.NewEnvironment(t,
 		WithContainerSuffix(listContainersProdSuffix),
@@ -121,6 +122,7 @@ func (s *ContainerRuntimeScopingSuite) Test_ListContainers_ScopesToEnvironment()
 // hardcoded "verv" network env.StartNetwork creates once at node boot.
 func (s *ContainerRuntimeScopingSuite) Test_Network_PerEnvironmentIsolation() {
 	t := s.T()
+	t.Parallel()
 
 	env := s.plane.NewEnvironment(t,
 		WithContainerSuffix(networkIsoProdSuffix),

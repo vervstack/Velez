@@ -146,6 +146,7 @@ func newNeverHealthyRequest(name string) *velez_api.CreateSmerd_Request {
 
 func (s *LifecycleSuite) Test_Stateless_HelloWorld() {
 	t := s.T()
+	t.Parallel()
 
 	env := NewEnvironment(t)
 	req := newHelloWorldRequest(GetServiceName(t))
@@ -159,6 +160,7 @@ func (s *LifecycleSuite) Test_Stateless_HelloWorld() {
 
 func (s *LifecycleSuite) Test_Stateless_HelloWorld_WithHealthcheck() {
 	t := s.T()
+	t.Parallel()
 
 	env := NewEnvironment(t)
 	req := newHelloWorldHealthcheckRequest(GetServiceName(t))
@@ -168,6 +170,7 @@ func (s *LifecycleSuite) Test_Stateless_HelloWorld_WithHealthcheck() {
 
 func (s *LifecycleSuite) Test_Stateless_HelloWorld_DefaultConfig() {
 	t := s.T()
+	t.Parallel()
 
 	env := NewEnvironment(t)
 	req := newHelloWorldDefaultConfigRequest(GetServiceName(t))
@@ -182,6 +185,7 @@ func (s *LifecycleSuite) Test_Stateless_HelloWorld_DefaultConfig() {
 
 func (s *LifecycleSuite) Test_Stateless_Nginx() {
 	t := s.T()
+	t.Parallel()
 
 	env := NewEnvironment(t)
 	req := newNginxRequest(GetServiceName(t))
@@ -196,6 +200,7 @@ func (s *LifecycleSuite) Test_Stateless_Nginx() {
 
 func (s *LifecycleSuite) Test_Stateless_Postgres() {
 	t := s.T()
+	t.Parallel()
 
 	env := NewEnvironment(t)
 	req := newPostgresRequest(GetServiceName(t))
@@ -227,6 +232,7 @@ func (s *LifecycleSuite) Test_StatelessMode_Loki() {
 
 func (s *LifecycleSuite) Test_DropSmerd_ByUuid() {
 	t := s.T()
+	t.Parallel()
 
 	env := NewEnvironment(t)
 	ctx := t.Context()
@@ -258,6 +264,7 @@ func (s *LifecycleSuite) Test_DropSmerd_ByUuid() {
 // through runLifecycle's explicit-Name requirement instead.
 func (s *LifecycleSuite) Test_Stateless_HelloWorld_NoName() {
 	t := s.T()
+	t.Parallel()
 
 	env := NewEnvironment(t)
 	ctx := t.Context()
@@ -289,6 +296,7 @@ func (s *LifecycleSuite) Test_Stateless_HelloWorld_NoName() {
 // create task in error, not hang or leave a running container.
 func (s *LifecycleSuite) Test_Negative_NonExistentImage() {
 	t := s.T()
+	t.Parallel()
 
 	env := NewEnvironment(t)
 	ctx := t.Context()
@@ -305,6 +313,7 @@ func (s *LifecycleSuite) Test_Negative_NonExistentImage() {
 // bound by a running smerd (same environment) must fail.
 func (s *LifecycleSuite) Test_Negative_PortCollision() {
 	t := s.T()
+	t.Parallel()
 
 	env := NewEnvironment(t)
 	ctx := t.Context()
@@ -353,6 +362,7 @@ func (s *LifecycleSuite) Test_Negative_HealthcheckNeverHealthy() {
 // in use must either fail or dedup to the existing smerd.
 func (s *LifecycleSuite) Test_Negative_DuplicateName() {
 	t := s.T()
+	t.Parallel()
 
 	env := NewEnvironment(t)
 	ctx := t.Context()
@@ -445,6 +455,7 @@ func newClusterLifecyclePostgresRequest() *velez_api.CreateSmerd_Request {
 
 func (s *ClusterLifecycleSuite) Test_HelloWorld() {
 	t := s.T()
+	t.Parallel()
 
 	env := s.plane.NewEnvironment(t, WithMatreshka())
 	req := newClusterLifecycleHelloWorldRequest()
@@ -454,6 +465,7 @@ func (s *ClusterLifecycleSuite) Test_HelloWorld() {
 
 func (s *ClusterLifecycleSuite) Test_PlainNginx() {
 	t := s.T()
+	t.Parallel()
 
 	env := s.plane.NewEnvironment(t, WithMatreshka())
 	req := newClusterLifecycleNginxRequest()
@@ -463,6 +475,7 @@ func (s *ClusterLifecycleSuite) Test_PlainNginx() {
 
 func (s *ClusterLifecycleSuite) Test_Postgres() {
 	t := s.T()
+	t.Parallel()
 
 	env := s.plane.NewEnvironment(t, WithMatreshka())
 	req := newClusterLifecyclePostgresRequest()

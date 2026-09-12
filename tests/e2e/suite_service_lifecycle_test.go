@@ -64,13 +64,15 @@ const (
 // (goose migrations resolve "./migrations" relative to cwd).
 type ServiceLifecycleSuite struct {
 	suite.Suite
+
+	plane Plane
 }
 
 func (s *ServiceLifecycleSuite) Test_ServiceDeploymentLifecycle() {
 	t := s.T()
 	ctx := t.Context()
 
-	env, _ := enableStatefullPgUnderDind(t, svcLifecycleSuffix)
+	env, _ := enableStatefullPgUnderDind(t, s.plane, svcLifecycleSuffix)
 
 	s.createService(env)
 
@@ -257,5 +259,7 @@ func (s *ServiceLifecycleSuite) createService(env *TestEnvironment) {
 }
 
 func Test_ServiceLifecycle(t *testing.T) {
-	suite.Run(t, new(ServiceLifecycleSuite))
+	RunPlaneSuite(t, ClusterPlanes, func(plane Plane) suite.TestingSuite {
+		return &ServiceLifecycleSuite{plane: plane}
+	})
 }

@@ -59,6 +59,8 @@ const (
 // proving anything about the mapping, which resolve_test.go already covers.
 type VervonomiconDeploySuite struct {
 	suite.Suite
+
+	plane Plane
 }
 
 func (s *VervonomiconDeploySuite) createService(env *TestEnvironment, name string) {
@@ -123,7 +125,7 @@ func (s *VervonomiconDeploySuite) Test_BoxResolutionAndFidelity() {
 	t := s.T()
 	ctx := t.Context()
 
-	env, _ := enableStatefullPgUnderDind(t, vervDeploySuffix)
+	env, _ := enableStatefullPgUnderDind(t, s.plane, vervDeploySuffix)
 	dockerAPI := env.Custom.NodeClients.Docker().Client()
 
 	svcName := vervDeployFidelitySvc
@@ -244,7 +246,7 @@ func (s *VervonomiconDeploySuite) Test_UnknownBox_ReturnsError() {
 	t := s.T()
 	ctx := t.Context()
 
-	env, _ := enableStatefullPgUnderDind(t, vervDeploySuffix)
+	env, _ := enableStatefullPgUnderDind(t, s.plane, vervDeploySuffix)
 	dockerAPI := env.Custom.NodeClients.Docker().Client()
 
 	svcName := vervDeployBoxErrSvc
@@ -287,7 +289,7 @@ func (s *VervonomiconDeploySuite) Test_DeployRequestImage_BeatsAppImage() {
 	t := s.T()
 	ctx := t.Context()
 
-	env, _ := enableStatefullPgUnderDind(t, vervDeploySuffix)
+	env, _ := enableStatefullPgUnderDind(t, s.plane, vervDeploySuffix)
 	dockerAPI := env.Custom.NodeClients.Docker().Client()
 
 	svcName := vervDeployImagePrecSvc
@@ -326,5 +328,7 @@ func (s *VervonomiconDeploySuite) Test_DeployRequestImage_BeatsAppImage() {
 }
 
 func Test_VervonomiconDeploy(t *testing.T) {
-	suite.Run(t, new(VervonomiconDeploySuite))
+	RunPlaneSuite(t, ClusterPlanes, func(plane Plane) suite.TestingSuite {
+		return &VervonomiconDeploySuite{plane: plane}
+	})
 }

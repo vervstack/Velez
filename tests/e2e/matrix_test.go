@@ -90,30 +90,13 @@ var (
 		// deliberately.
 	}
 
-	// ClusterPlanes holds the cluster/docker/label-based/binary cell. Kept out
-	// of the package-wide Planes list deliberately: every suite that adopts
-	// Planes via RunPlaneSuite would otherwise pick up this cell too, and pay
-	// for a real DinD cluster fixture it never asked for. A suite that is
-	// genuinely cluster-shaped indexes ClusterPlanes[0] directly instead of
-	// looping it through RunPlaneSuite - see this package's CLAUDE.md
-	// ("Adopting the matrix").
-	//
-	// Mode == ModeCluster is a routing point, not an auto-enabled bundle of
-	// options: Plane.NewEnvironment does not inject WithMatreshka() (or any
-	// other cluster-flavored opt) on this cell's behalf - it passes opts
-	// through unchanged, same as ModeSingleNode. Each opt is still threaded
-	// through per-suite/per-helper, exactly as before this cell existed
-	// (enableStatefullPgUnderDind passes WithClusterPgDsn; suite_api_deploy_
-	// test.go's Test_ClusterMode_* pass WithMatreshka). A real e2e run found
-	// out why the alternative doesn't work: force-enabling WithMatreshka for
-	// every ClusterPlanes[0] caller broke ServiceLifecycleSuite and
-	// VervonomiconDeploySuite - their create_smerd/upgrade_smerd jobs run a
-	// fetch_config step that hard-fails once MatreshkaIsEnabled is true and
-	// this in-process harness's matreshka resolver can't actually be reached
-	// for that flow, whereas Test_ClusterMode_*'s own tests are written to
-	// expect a matreshka-serving fixture. There's no single set of options
-	// every genuinely-cluster suite wants; ClusterPlanes[0] only removes the
-	// t.Skipf that used to guard Mode == ModeCluster.
+	// ClusterPlanes holds the cluster/docker/label-based/binary cell, kept out
+	// of Planes so single-node suites adopting Planes via RunPlaneSuite don't
+	// pay for a DinD cluster fixture they never asked for. A cluster-shaped
+	// suite drives itself with RunPlaneSuite(t, ClusterPlanes, ...) instead of
+	// Planes - same shape, different list. Plane.NewEnvironment does not
+	// inject WithMatreshka() or any other cluster-flavored opt for this cell;
+	// each suite still passes the opts it needs.
 	ClusterPlanes = []Plane{
 		{
 			Mode:       ModeCluster,

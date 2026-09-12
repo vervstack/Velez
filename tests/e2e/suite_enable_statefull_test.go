@@ -52,12 +52,14 @@ const (
 // unconditionally.
 type EnableStatefullSuite struct {
 	suite.Suite
+
+	plane Plane
 }
 
 func (s *EnableStatefullSuite) Test_EnableStatefullMode_HappyPath() {
 	t := s.T()
 
-	env, pgName := enableStatefullPgUnderDind(t, enableStatefullTestSuffix)
+	env, pgName := enableStatefullPgUnderDind(t, s.plane, enableStatefullTestSuffix)
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 
 	inspect, err := dockerClient.ContainerInspect(t.Context(), pgName)
@@ -123,7 +125,7 @@ func (s *EnableStatefullSuite) Test_EnableStatefullMode_HappyPath() {
 func (s *EnableStatefullSuite) Test_EnableStatefullMode_UnsupportedPlugin_Fails() {
 	t := s.T()
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 
 	req := &velez_api.EnablePlugin_Request{
 		Plugin: velez_api.VervPluginType_headscale,
@@ -134,7 +136,9 @@ func (s *EnableStatefullSuite) Test_EnableStatefullMode_UnsupportedPlugin_Fails(
 }
 
 func Test_EnableStatefull(t *testing.T) {
-	suite.Run(t, new(EnableStatefullSuite))
+	RunPlaneSuite(t, ClusterPlanes, func(plane Plane) suite.TestingSuite {
+		return &EnableStatefullSuite{plane: plane}
+	})
 }
 
 // repoRoot resolves the repository root (the directory containing

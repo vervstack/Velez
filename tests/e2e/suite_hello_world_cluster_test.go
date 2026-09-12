@@ -27,10 +27,20 @@ const (
 	helloWorldImageV0015 = "vervstack/hello_world:v0.0.15"
 	postgresAlias        = "postgres"
 	serviceTypeWeb       = "web"
+
+	// Container names double as Docker hostnames, capped at 64 characters -
+	// GetServiceName(t) on a RunPlaneSuite subtest blows past that, so this
+	// suite uses its own short, suite-unique names instead.
+	hwClusterNetworkName   = "e2e_hwcluster_net"
+	hwClusterPgName        = "e2e_hwcluster_pg"
+	hwClusterPgAppName     = "e2e_hwcluster_pg_app"
+	hwClusterSqliteAppName = "e2e_hwcluster_sqlite_app"
 )
 
 type HelloWorldClusterSuite struct {
 	suite.Suite
+
+	plane Plane
 
 	env          *TestEnvironment
 	dockerClient client.APIClient
@@ -47,21 +57,16 @@ type HelloWorldClusterSuite struct {
 	sqliteAppSmerd *velez_api.Smerd
 }
 
-// SetupTest builds the fixture through ClusterPlanes[0] rather than the
-// package-level NewEnvironment directly, purely for routing consistency with
-// the matrix - ClusterPlanes[0] does not auto-enable matreshka (see its doc
-// comment in matrix_test.go), so this is functionally identical to the
-// suite's pre-matrix fixture.
 func (s *HelloWorldClusterSuite) SetupTest() {
 	t := s.T()
 
-	s.env = ClusterPlanes[0].NewEnvironment(t)
+	s.env = s.plane.NewEnvironment(t)
 	s.dockerClient = s.env.Custom.NodeClients.Docker().Client()
 
-	s.pgName = GetServiceName(t) + "_db"
+	s.pgName = hwClusterPgName
 
-	s.pgAppName = GetServiceName(t) + "_app_pg"
-	s.sqliteAppName = GetServiceName(t) + "_hw_sqlite"
+	s.pgAppName = hwClusterPgAppName
+	s.sqliteAppName = hwClusterSqliteAppName
 }
 
 func (s *HelloWorldClusterSuite) Test_ConnectedCluster() {
@@ -268,7 +273,7 @@ func (s *HelloWorldClusterSuite) _prepareNetwork() {
 	// Uses docker network for now. Won't later
 	// TODO
 
-	s.networkName = GetServiceName(t) + "_net"
+	s.networkName = hwClusterNetworkName
 
 	err := s.dockerClient.NetworkRemove(ctx, s.networkName)
 	if err != nil && !errdefs.IsNotFound(err) {
@@ -363,7 +368,9 @@ func (s *HelloWorldClusterSuite) _prepareSqliteApp() {
 
 func Test_HelloWorldCluster(t *testing.T) {
 	t.Parallel()
-	suite.Run(t, new(HelloWorldClusterSuite))
+	RunPlaneSuite(t, ClusterPlanes, func(plane Plane) suite.TestingSuite {
+		return &HelloWorldClusterSuite{plane: plane}
+	})
 }
 
 // dindHostAddr translates a DinD-side port Velez exposed a container on

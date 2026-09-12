@@ -19,9 +19,30 @@ import (
 	"go.vervstack.ru/Velez/tests/config_mocks"
 )
 
+// LifecycleSuite's container names double as Docker hostnames, capped at 64
+// characters - GetServiceName(t) on a RunPlaneSuite subtest blows past that
+// (see ClusterLifecycleSuite's doc comment below), so these tests use their
+// own short, suite-unique names instead.
 type LifecycleSuite struct {
 	suite.Suite
+
+	plane Plane
 }
+
+const (
+	lifecycleHelloWorldName              = "e2e_lifecycle_helloworld"
+	lifecycleHelloWorldHealthcheckName   = "e2e_lifecycle_helloworld_hc"
+	lifecycleHelloWorldDefaultConfigName = "e2e_lifecycle_helloworld_defconfig"
+	lifecycleNginxName                   = "e2e_lifecycle_nginx"
+	lifecyclePostgresName                = "e2e_lifecycle_postgres"
+	lifecycleLokiName                    = "e2e_lifecycle_loki"
+	lifecycleDropByUuidName              = "e2e_lifecycle_dropbyuuid"
+	lifecycleNonExistentImageName        = "e2e_lifecycle_nonexistent_image"
+	lifecyclePortCollisionNameA          = "e2e_lifecycle_portcollision_a"
+	lifecyclePortCollisionNameB          = "e2e_lifecycle_portcollision_b"
+	lifecycleNeverHealthyName            = "e2e_lifecycle_neverhealthy"
+	lifecycleDuplicateName               = "e2e_lifecycle_duplicate"
+)
 
 // newHelloWorldRequest, newHelloWorldHealthcheckRequest, ... are named
 // constructors rather than inline struct literals in each test method, so a
@@ -148,13 +169,19 @@ func (s *LifecycleSuite) Test_Stateless_HelloWorld() {
 	t := s.T()
 	t.Parallel()
 
-	env := NewEnvironment(t)
-	req := newHelloWorldRequest(GetServiceName(t))
+	env := s.plane.NewEnvironment(t)
+	req := newHelloWorldRequest(lifecycleHelloWorldName)
 
 	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {
 		t.Helper()
 
-		checkVervLabels(t, smerd.GetLabels(), GetExpectedLabels(t))
+		wantLabels := map[string]string{
+			labels.CreatedWithVelezLabel: labelValueTrue,
+			labels.MatreshkaConfigLabel:  labelValueFalse,
+			labels.ComposeGroupLabel:     lifecycleHelloWorldName,
+		}
+
+		checkVervLabels(t, smerd.GetLabels(), wantLabels)
 	})
 }
 
@@ -162,8 +189,8 @@ func (s *LifecycleSuite) Test_Stateless_HelloWorld_WithHealthcheck() {
 	t := s.T()
 	t.Parallel()
 
-	env := NewEnvironment(t)
-	req := newHelloWorldHealthcheckRequest(GetServiceName(t))
+	env := s.plane.NewEnvironment(t)
+	req := newHelloWorldHealthcheckRequest(lifecycleHelloWorldHealthcheckName)
 
 	runLifecycle(t, env, req, func(_ *testing.T, _ *velez_api.Smerd) {})
 }
@@ -172,8 +199,8 @@ func (s *LifecycleSuite) Test_Stateless_HelloWorld_DefaultConfig() {
 	t := s.T()
 	t.Parallel()
 
-	env := NewEnvironment(t)
-	req := newHelloWorldDefaultConfigRequest(GetServiceName(t))
+	env := s.plane.NewEnvironment(t)
+	req := newHelloWorldDefaultConfigRequest(lifecycleHelloWorldDefaultConfigName)
 
 	runLifecycle(t, env, req, func(t *testing.T, smerd *velez_api.Smerd) {
 		t.Helper()
@@ -187,8 +214,8 @@ func (s *LifecycleSuite) Test_Stateless_Nginx() {
 	t := s.T()
 	t.Parallel()
 
-	env := NewEnvironment(t)
-	req := newNginxRequest(GetServiceName(t))
+	env := s.plane.NewEnvironment(t)
+	req := newNginxRequest(lifecycleNginxName)
 
 	runLifecycle(t, env, req,
 		func(t *testing.T, smerd *velez_api.Smerd) {
@@ -202,8 +229,8 @@ func (s *LifecycleSuite) Test_Stateless_Postgres() {
 	t := s.T()
 	t.Parallel()
 
-	env := NewEnvironment(t)
-	req := newPostgresRequest(GetServiceName(t))
+	env := s.plane.NewEnvironment(t)
+	req := newPostgresRequest(lifecyclePostgresName)
 
 	runLifecycle(t, env, req,
 		func(t *testing.T, smerd *velez_api.Smerd) {
@@ -224,8 +251,8 @@ func (s *LifecycleSuite) Test_StatelessMode_Loki() {
 	// suite-level skip; the rest of LifecycleSuite is stable on the DinD.
 	t.Skip("flaky loki container, stale config + moving image tag")
 
-	env := NewEnvironment(t)
-	req := newLokiRequest(GetServiceName(t))
+	env := s.plane.NewEnvironment(t)
+	req := newLokiRequest(lifecycleLokiName)
 
 	runLifecycle(t, env, req, func(_ *testing.T, _ *velez_api.Smerd) {})
 }
@@ -234,9 +261,9 @@ func (s *LifecycleSuite) Test_DropSmerd_ByUuid() {
 	t := s.T()
 	t.Parallel()
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 	ctx := t.Context()
-	name := GetServiceName(t)
+	name := lifecycleDropByUuidName
 	req := newHelloWorldRequest(name)
 
 	created := env.CreateSmerd(t, req)
@@ -266,7 +293,7 @@ func (s *LifecycleSuite) Test_Stateless_HelloWorld_NoName() {
 	t := s.T()
 	t.Parallel()
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 	ctx := t.Context()
 
 	req := &velez_api.CreateSmerd_Request{
@@ -298,9 +325,9 @@ func (s *LifecycleSuite) Test_Negative_NonExistentImage() {
 	t := s.T()
 	t.Parallel()
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 	ctx := t.Context()
-	req := newNonExistentImageRequest(GetServiceName(t))
+	req := newNonExistentImageRequest(lifecycleNonExistentImageName)
 
 	smerd, err := env.Custom.ApiGrpcImpl.CreateSmerd(ctx, req)
 	require.Error(t, err)
@@ -315,17 +342,17 @@ func (s *LifecycleSuite) Test_Negative_PortCollision() {
 	t := s.T()
 	t.Parallel()
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 	ctx := t.Context()
 
-	firstReq := newNginxRequest(GetServiceName(t) + "_a")
+	firstReq := newNginxRequest(lifecyclePortCollisionNameA)
 
 	first := env.CreateSmerd(t, firstReq)
 	require.NotEmpty(t, first.GetPorts())
 
 	hostPort := first.GetPorts()[0].GetExposedTo()
 
-	secondReq := newPortCollisionSecondRequest(GetServiceName(t)+"_b", hostPort)
+	secondReq := newPortCollisionSecondRequest(lifecyclePortCollisionNameB, hostPort)
 
 	second, err := env.Custom.ApiGrpcImpl.CreateSmerd(ctx, secondReq)
 	require.Error(t, err, "second smerd pinning an already-bound host port must fail")
@@ -347,9 +374,9 @@ func (s *LifecycleSuite) Test_Negative_HealthcheckNeverHealthy() {
 	// CLAUDE.md's jobs-engine rule 4. Needs isolation fix.
 	t.Skip("flaky: see TODO above")
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 	ctx := t.Context()
-	req := newNeverHealthyRequest(GetServiceName(t))
+	req := newNeverHealthyRequest(lifecycleNeverHealthyName)
 
 	smerd, err := env.Custom.ApiGrpcImpl.CreateSmerd(ctx, req)
 	require.Error(t, err)
@@ -364,10 +391,10 @@ func (s *LifecycleSuite) Test_Negative_DuplicateName() {
 	t := s.T()
 	t.Parallel()
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 	ctx := t.Context()
 
-	name := GetServiceName(t)
+	name := lifecycleDuplicateName
 	req := newHelloWorldRequest(name)
 
 	first := env.CreateSmerd(t, req)
@@ -389,7 +416,9 @@ func (s *LifecycleSuite) Test_Negative_DuplicateName() {
 
 func Test_Lifecycle(t *testing.T) {
 	t.Parallel()
-	suite.Run(t, new(LifecycleSuite))
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
+		return &LifecycleSuite{plane: plane}
+	})
 }
 
 // ClusterLifecycleSuite runs against a real matreshka-serving fixture (see

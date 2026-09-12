@@ -37,13 +37,15 @@ const (
 // the instance.
 type PgaasLifecycleSuite struct {
 	suite.Suite
+
+	plane Plane
 }
 
 func (s *PgaasLifecycleSuite) Test_PgaasLifecycle_HappyPath() {
 	t := s.T()
 	ctx := t.Context()
 
-	env := Planes[0].NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 
 	removePgaasInstance(dockerClient)
@@ -98,7 +100,9 @@ func (s *PgaasLifecycleSuite) Test_PgaasLifecycle_HappyPath() {
 }
 
 func Test_PgaasLifecycle(t *testing.T) {
-	suite.Run(t, new(PgaasLifecycleSuite))
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
+		return &PgaasLifecycleSuite{plane: plane}
+	})
 }
 
 // findPgInstance returns the listed pg instance with the given name, or nil.

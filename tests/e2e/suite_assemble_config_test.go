@@ -26,6 +26,7 @@ func (s *AssembleConfigSuite) SetupSuite() {
 
 func (s *AssembleConfigSuite) Test_AssembleHelloWorld() {
 	t := s.T()
+	t.Parallel()
 
 	serviceName := GetServiceName(t)
 

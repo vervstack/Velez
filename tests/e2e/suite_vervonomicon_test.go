@@ -52,6 +52,7 @@ type VervonomiconSuite struct {
 // wires a real ImageSource in production.
 func (s *VervonomiconSuite) Test_ImageSourcedDescriptor() {
 	t := s.T()
+	t.Parallel()
 
 	env := s.plane.NewEnvironment(t)
 	ctx := t.Context()
@@ -104,6 +105,7 @@ func (s *VervonomiconSuite) Test_ImageSourcedDescriptor() {
 // raw-output one.
 func (s *VervonomiconSuite) Test_EnvironmentOverlay() {
 	t := s.T()
+	t.Parallel()
 
 	env := s.plane.NewEnvironment(t, WithEnvironments([]string{vervStagingEnv}))
 	ctx := t.Context()
@@ -181,6 +183,7 @@ func (s *VervonomiconSuite) Test_EnvironmentOverlay() {
 // even to establish "no live connection exists" for one with no binding.
 func (s *VervonomiconSuite) Test_ResourceReconciliation() {
 	t := s.T()
+	t.Parallel()
 
 	// WithMatreshka()'s verv://matreshka gRPC resolver still produces zero
 	// addresses for in-process clients in this e2e harness (see
@@ -237,6 +240,7 @@ func (s *VervonomiconSuite) Test_ResourceReconciliation() {
 // GetVervonomicon returns a clean, empty response.
 func (s *VervonomiconSuite) Test_NoDescriptorIsNotAnError() {
 	t := s.T()
+	t.Parallel()
 
 	env := s.plane.NewEnvironment(t)
 	ctx := t.Context()
@@ -260,6 +264,7 @@ func (s *VervonomiconSuite) Test_NoDescriptorIsNotAnError() {
 // IS an error, distinct from ErrNoDescriptor.
 func (s *VervonomiconSuite) Test_MalformedDescriptorIsAnError() {
 	t := s.T()
+	t.Parallel()
 
 	env := s.plane.NewEnvironment(t)
 	ctx := t.Context()

@@ -72,38 +72,64 @@ func (p Plane) Name() string {
 	return strings.Join([]string{string(p.Mode), string(p.Backend), string(p.Separation), string(p.Running)}, "/")
 }
 
-// Planes is the package-wide matrix of fixture cells. Only
-// single-node/docker/label-based/binary is wired to a real fixture today -
-// see Plane.NewEnvironment.
-var Planes = []Plane{
-	{
-		Mode:       ModeSingleNode,
-		Backend:    BackendDocker,
-		Separation: SeparationLabelBased,
-		Running:    RunningModeBinary,
-	},
+var (
+	// Planes is the package-wide matrix of fixture cells. Only
+	// single-node/docker/label-based/binary is wired to a real fixture today
+	// - see Plane.NewEnvironment.
+	Planes = []Plane{
+		{
+			Mode:       ModeSingleNode,
+			Backend:    BackendDocker,
+			Separation: SeparationLabelBased,
+			Running:    RunningModeBinary,
+		},
 
-	// cluster/docker: needs WithMatreshka()+WithClusterPgDsn threaded through
-	// per-suite before it can be a live cell here - see
-	// docs/container_runtimes/roadmap.md. Not wired yet, deliberately.
+		// single-node/docker cells with Separation: SeparationDedicatedEngine
+		// or Running: RunningModeContainer: both need real product/infra work
+		// first - see https://trello.com/c/otriSswo. Not wired yet,
+		// deliberately.
+	}
 
-	// single-node/docker cells with Separation: SeparationDedicatedEngine or
-	// Running: RunningModeContainer: both need real product/infra work first
-	// - see https://trello.com/c/otriSswo. Not wired yet, deliberately.
-}
+	// ClusterPlanes holds the cluster/docker/label-based/binary cell. Kept out
+	// of the package-wide Planes list deliberately: every suite that adopts
+	// Planes via RunPlaneSuite would otherwise pick up this cell too, and pay
+	// for a real DinD cluster fixture it never asked for. A suite that is
+	// genuinely cluster-shaped indexes ClusterPlanes[0] directly instead of
+	// looping it through RunPlaneSuite - see this package's CLAUDE.md
+	// ("Adopting the matrix").
+	//
+	// Mode == ModeCluster is a routing point, not an auto-enabled bundle of
+	// options: Plane.NewEnvironment does not inject WithMatreshka() (or any
+	// other cluster-flavored opt) on this cell's behalf - it passes opts
+	// through unchanged, same as ModeSingleNode. Each opt is still threaded
+	// through per-suite/per-helper, exactly as before this cell existed
+	// (enableStatefullPgUnderDind passes WithClusterPgDsn; suite_api_deploy_
+	// test.go's Test_ClusterMode_* pass WithMatreshka). A real e2e run found
+	// out why the alternative doesn't work: force-enabling WithMatreshka for
+	// every ClusterPlanes[0] caller broke ServiceLifecycleSuite and
+	// VervonomiconDeploySuite - their create_smerd/upgrade_smerd jobs run a
+	// fetch_config step that hard-fails once MatreshkaIsEnabled is true and
+	// this in-process harness's matreshka resolver can't actually be reached
+	// for that flow, whereas Test_ClusterMode_*'s own tests are written to
+	// expect a matreshka-serving fixture. There's no single set of options
+	// every genuinely-cluster suite wants; ClusterPlanes[0] only removes the
+	// t.Skipf that used to guard Mode == ModeCluster.
+	ClusterPlanes = []Plane{
+		{
+			Mode:       ModeCluster,
+			Backend:    BackendDocker,
+			Separation: SeparationLabelBased,
+			Running:    RunningModeBinary,
+		},
+	}
+)
 
 // NewEnvironment builds the TestEnvironment fixture matching p's Mode,
-// Backend, Separation and Running. Today all four are single-case, so this
-// is a passthrough to package-level NewEnvironment. An unimplemented
-// combination skips the calling test rather than silently building the
-// wrong fixture, so adding a matrix row without wiring its fixture here is
-// impossible to miss.
+// Backend, Separation and Running. An unimplemented combination skips the
+// calling test rather than silently building the wrong fixture, so adding a
+// matrix row without wiring its fixture here is impossible to miss.
 func (p Plane) NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 	t.Helper()
-
-	if p.Mode != ModeSingleNode {
-		t.Skipf("plane %q: mode %q not wired to a fixture yet", p.Name(), p.Mode)
-	}
 
 	if p.Backend != BackendDocker {
 		t.Skipf("plane %q: backend %q not wired to a fixture yet", p.Name(), p.Backend)
@@ -119,7 +145,14 @@ func (p Plane) NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment
 			p.Name(), p.Running)
 	}
 
-	return NewEnvironment(t, opts...)
+	switch p.Mode {
+	case ModeSingleNode, ModeCluster:
+		return NewEnvironment(t, opts...)
+	}
+
+	t.Skipf("plane %q: mode %q not wired to a fixture yet", p.Name(), p.Mode)
+
+	return nil
 }
 
 // RunPlaneSuite runs newSuite once per plane in planes, each as its own

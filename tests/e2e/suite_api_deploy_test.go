@@ -148,13 +148,14 @@ func (s *LifecycleSuite) Test_StatelessMode_Loki() {
 }
 
 // Test_ClusterMode_* subtests below run in parallel against one shared
-// matreshka container fixture (see WithMatreshka / main_test.go). This only
-// works because they live in this package/test binary — don't move these
-// to another package without reading main_test.go first.
+// matreshka container fixture, routed through ClusterPlanes[0] (see
+// WithMatreshka / main_test.go). This only works because they live in this
+// package/test binary — don't move these to another package without reading
+// main_test.go first.
 func (s *LifecycleSuite) Test_ClusterMode_HelloWorld() {
 	t := s.T()
 
-	env := NewEnvironment(t, WithMatreshka())
+	env := ClusterPlanes[0].NewEnvironment(t, WithMatreshka())
 
 	req := &velez_api.CreateSmerd_Request{
 		ImageName:    HelloWorldAppImage,
@@ -166,7 +167,7 @@ func (s *LifecycleSuite) Test_ClusterMode_HelloWorld() {
 func (s *LifecycleSuite) Test_ClusterMode_PlainNginx() {
 	t := s.T()
 
-	env := NewEnvironment(t, WithMatreshka())
+	env := ClusterPlanes[0].NewEnvironment(t, WithMatreshka())
 
 	req := &velez_api.CreateSmerd_Request{
 		ImageName:     NginxAlpineImage,
@@ -183,7 +184,7 @@ func (s *LifecycleSuite) Test_ClusterMode_PlainNginx() {
 func (s *LifecycleSuite) Test_ClusterMode_Postgres() {
 	t := s.T()
 
-	env := NewEnvironment(t, WithMatreshka())
+	env := ClusterPlanes[0].NewEnvironment(t, WithMatreshka())
 
 	timeoutSec := uint32(5)
 

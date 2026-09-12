@@ -24,7 +24,10 @@ import (
 // (dindClusterPgPort) and whose ClusterPgDsn seam points the in-process
 // host app's root DSN at that address, then runs EnablePlugin(statefull_pg)
 // to completion. It returns the ready environment and the sidecar's
-// container/volume name, and registers unconditional cleanup of both.
+// container/volume name, and registers unconditional cleanup of both. The
+// environment is built through ClusterPlanes[0] (not WithMatreshka - see
+// that var's doc comment in matrix_test.go for why this cell doesn't
+// auto-enable matreshka for every caller).
 //
 // The caller MUST NOT be a t.Parallel() test: sqldb.RollMigration (the
 // create_schema_and_migrate job) rolls goose migrations from the hardcoded
@@ -54,7 +57,7 @@ func enableStatefullPgUnderDind(t *testing.T, containerSuffix string) (*TestEnvi
 
 	t.Chdir(repoRoot(t))
 
-	env := NewEnvironment(t,
+	env := ClusterPlanes[0].NewEnvironment(t,
 		WithContainerSuffix(containerSuffix),
 		WithClusterPgDsn(advertisePg.ConnectionString()))
 

@@ -47,10 +47,15 @@ type HelloWorldClusterSuite struct {
 	sqliteAppSmerd *velez_api.Smerd
 }
 
+// SetupTest builds the fixture through ClusterPlanes[0] rather than the
+// package-level NewEnvironment directly, purely for routing consistency with
+// the matrix - ClusterPlanes[0] does not auto-enable matreshka (see its doc
+// comment in matrix_test.go), so this is functionally identical to the
+// suite's pre-matrix fixture.
 func (s *HelloWorldClusterSuite) SetupTest() {
 	t := s.T()
 
-	s.env = NewEnvironment(t)
+	s.env = ClusterPlanes[0].NewEnvironment(t)
 	s.dockerClient = s.env.Custom.NodeClients.Docker().Client()
 
 	s.pgName = GetServiceName(t) + "_db"

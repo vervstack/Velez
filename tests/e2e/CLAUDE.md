@@ -23,7 +23,7 @@ ask before adding a second always-on test.
 
 | Axis | Type | Wired today | Not wired (tracked: https://trello.com/c/otriSswo) |
 | --- | --- | --- | --- |
-| State backend | `PlaneMode` | `ModeSingleNode` | `ModeCluster` |
+| State backend | `PlaneMode` | `ModeSingleNode`; `ModeCluster` wired, via `ClusterPlanes` (see below) | — |
 | Container-runtime backend | `PlaneBackend` | `BackendDocker` | — |
 | Environment separation | `EnvSeparationWay` | `SeparationLabelBased` (one Docker engine, envs kept apart by name/label/suffix) | `SeparationDedicatedEngine` (one Docker daemon per environment) |
 | App execution | `RunningMode` | `RunningModeBinary` (in-process, bufconn) | `RunningModeContainer` (real Velez container over the network) |
@@ -78,9 +78,14 @@ as its own `t.Run(plane.Name(), ...)` subtest. It adds no skip logic of its own 
 is still the only place that decides a cell isn't wired yet, so passing the full `Planes` (not just
 `Planes[0]`) costs nothing today and means the suite needs no further changes when a new cell lights
 up. A suite whose test methods are genuinely cluster/matreshka-shaped (`suite_api_deploy_test.go`'s
-`Test_ClusterMode_*`, `suite_hello_world_cluster_test.go`) stays on `Planes[0]` directly rather than
-the full matrix — looping `Planes` there is a correct no-op today but adds nothing until a cluster
-cell exists to actually exercise.
+`Test_ClusterMode_*`, `suite_hello_world_cluster_test.go`, `enableStatefullPgUnderDind`) stays on
+`ClusterPlanes[0]` directly rather than looping through `RunPlaneSuite`. `ClusterPlanes` is a
+separate package-level var from `Planes`, deliberately: if its cell lived in `Planes` instead,
+every other suite adopting `Planes` via `RunPlaneSuite` would pick it up too and pay for a real
+DinD cluster fixture it has no cluster-shaped test logic to exercise. `ClusterPlanes[0]` itself
+does not enable matreshka - it's a routing point, not a bundle of options - so a suite that needs
+`WithMatreshka()` still passes it explicitly. See the doc comment on `ClusterPlanes` in
+`matrix_test.go` for the full reasoning.
 
 ## Environment axis: name IS the wire value
 

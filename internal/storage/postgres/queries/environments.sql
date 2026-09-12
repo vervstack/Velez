@@ -1,6 +1,6 @@
 -- name: CreateEnvironment :one
-INSERT INTO velez.environments (name, suffix)
-VALUES ($1, $2)
+INSERT INTO velez.environments (name, suffix, docker_host)
+VALUES ($1, $2, $3)
 RETURNING *;
 
 -- name: GetEnvironmentByID :one
@@ -20,9 +20,10 @@ ORDER BY id;
 
 -- name: UpdateEnvironment :one
 UPDATE velez.environments
-SET name       = $2,
-    suffix     = $3,
-    updated_at = now()
+SET name        = $2,
+    suffix      = $3,
+    docker_host = $4,
+    updated_at  = now()
 WHERE id = $1
 RETURNING *;
 

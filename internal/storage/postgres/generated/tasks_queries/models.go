@@ -166,11 +166,12 @@ type VelezDeploymentSpecification struct {
 }
 
 type VelezEnvironment struct {
-	ID        int64
-	Name      string
-	Suffix    string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID         int64
+	Name       string
+	Suffix     string
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	DockerHost string
 }
 
 type VelezJob struct {

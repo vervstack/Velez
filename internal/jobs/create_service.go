@@ -5,10 +5,10 @@ import (
 	"strings"
 
 	"go.redsock.ru/rerrors"
-	"google.golang.org/grpc/codes"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -20,11 +20,6 @@ const (
 	// internal/pipelines/steps/service_steps.ValidateServiceName accepted
 	// (its literal listed 0-9 twice; as a set that is the same thing).
 	allowedServiceNameSymbols = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_abcdefghijklmnopqrstuvwxyz"
-)
-
-var (
-	ErrInvalidServiceName  = rerrors.New("service name contains invalid characters", codes.InvalidArgument)
-	ErrTooShortServiceName = rerrors.New("service name is too short", codes.InvalidArgument)
 )
 
 // Accessor interface the create_service jobs need from their TaskContext.
@@ -91,7 +86,7 @@ type validateServiceNameJob struct {
 
 func (j *validateServiceNameJob) Do(_ context.Context) error {
 	if len(j.name) < minServiceNameLen {
-		return rerrors.Wrap(ErrTooShortServiceName)
+		return rerrors.Wrap(user_errors.ErrTooShortServiceName)
 	}
 
 	invalidCharsMap := map[rune]struct{}{}
@@ -116,7 +111,7 @@ func (j *validateServiceNameJob) Do(_ context.Context) error {
 		return nil
 	}
 
-	return rerrors.Wrap(ErrInvalidServiceName, string(invalidChars))
+	return rerrors.Wrap(user_errors.ErrInvalidServiceName, string(invalidChars))
 }
 
 type upsertServiceJob struct {

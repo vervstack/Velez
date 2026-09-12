@@ -1,3 +1,5 @@
+//go:build e2e_full
+
 package e2e
 
 import (
@@ -22,6 +24,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/internal/cluster/env"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // sharedHeadscale is the single, process-wide real headscale container used
@@ -46,6 +49,9 @@ var (
 	// headscaleAPIKeyPattern matches a headscale API key (prefix.secret)
 	// inside the noisy multiplexed `docker exec` output.
 	headscaleAPIKeyPattern = regexp.MustCompile(`[A-Za-z0-9]{6,}\.[A-Za-z0-9]{20,}`)
+
+	//nolint:forbidigo // package-private test-infra sentinel, not shared/user-facing
+	errHeadscalePortNotPublished = rerrors.New("dind did not publish the headscale port")
 )
 
 const (
@@ -145,7 +151,7 @@ func startSharedHeadscale(ctx context.Context) (*sharedHeadscaleInstance, error)
 
 	hostPort, ok := sharedDind.Addr(dindHeadscalePort)
 	if !ok {
-		return nil, rerrors.New("dind did not publish the headscale port")
+		return nil, errHeadscalePortNotPublished
 	}
 
 	cfg := &container.Config{
@@ -230,7 +236,7 @@ func (i *sharedHeadscaleInstance) awaitAPIKey(ctx context.Context) (string, erro
 			return key, nil
 		}
 
-		lastErr = rerrors.New("headscale apikey output had no key: " + strings.TrimSpace(string(out)))
+		lastErr = user_errors.New("headscale apikey output had no key: " + strings.TrimSpace(string(out)))
 
 		time.Sleep(headscalePollInterval)
 	}
@@ -269,7 +275,7 @@ func (i *sharedHeadscaleInstance) awaitAPIReady(ctx context.Context) error {
 			return nil
 		}
 
-		lastErr = rerrors.New("headscale /api/v1/user returned " + resp.Status)
+		lastErr = user_errors.New("headscale /api/v1/user returned " + resp.Status)
 
 		time.Sleep(headscalePollInterval)
 	}
@@ -288,6 +294,12 @@ func (i *sharedHeadscaleInstance) stop() {
 	if err != nil {
 		log.Error().Err(err).Msg("error removing shared headscale container")
 	}
+}
+
+// stopSharedHeadscale is main_test.go's teardown hook into this file - see
+// shared_headscale_stub.go for the no-op used when this file is tagged out.
+func stopSharedHeadscale() {
+	sharedHeadscale.stop()
 }
 
 // headscaleConfigTar builds a tar rooted at /etc (the CopyToContainer dst):

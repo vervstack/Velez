@@ -34,6 +34,11 @@ linters:
               desc: "use go.redsock.ru/rerrors instead"
     exhaustive:
       default-signifies-exhaustive: true
+    forbidigo:
+      forbid:
+        - pattern: '^rerrors\.(New|NewUserError)\('
+          msg: "construct errors only in internal/user_errors - see docs/go-style or 30-go.md"
+      analyze-types: true
     govet:
       enable-all: true
       disable:
@@ -80,6 +85,7 @@ linters:
     - errcheck
     - errchkjson
     - errname
+    - errorlint
     - exhaustive
     - exptostd
     - forbidigo
@@ -162,6 +168,12 @@ linters:
       - linters:
           - forbidigo
         path: internal/io/std_printer.go
+      - linters:
+          - forbidigo
+        path: internal/user_errors/
+      - linters:
+          - wrapcheck
+        path: internal/user_errors/dynamic.go
       - linters:
           - funlen
         text: "Test_"

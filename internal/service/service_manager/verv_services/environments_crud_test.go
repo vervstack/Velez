@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/user_errors"
@@ -22,7 +23,10 @@ func newEnvService(t *testing.T, seedNames []string, defaultSuffix string) *Verv
 		environments: environments.NewStatic(seedNames, defaultSuffix),
 	}
 
-	return New(dataStorage, nil, nil, nil, nil, nil)
+	dockerClient, err := docker.NewClient(nil)
+	require.NoError(t, err)
+
+	return New(dataStorage, nil, dockerClient, nil, nil, nil)
 }
 
 func TestVervService_ListEnvironments(t *testing.T) {
@@ -50,7 +54,7 @@ func TestVervService_CreateEnvironment_EmptyNameRejected(t *testing.T) {
 	v := newEnvService(t, nil, "")
 
 	_, err := v.CreateEnvironment(context.Background(), domain.CreateEnvironmentReq{})
-	require.ErrorIs(t, err, ErrEnvironmentRequired)
+	require.ErrorIs(t, err, user_errors.ErrEnvironmentRequired)
 }
 
 func TestVervService_UpdateEnvironment_RequiresStatefullMode(t *testing.T) {
@@ -132,14 +136,14 @@ func TestVervService_GetEnvironment_EmptyStillRejected(t *testing.T) {
 	v := newEnvService(t, nil, "prod")
 
 	_, err := v.GetEnvironment(context.Background(), "")
-	require.ErrorIs(t, err, ErrEnvironmentRequired)
+	require.ErrorIs(t, err, user_errors.ErrEnvironmentRequired)
 }
 
 func TestVervService_ResolveEnvironmentSuffix_UnknownRejected(t *testing.T) {
 	v := newEnvService(t, nil, "prod")
 
 	_, err := v.ResolveEnvironmentSuffix(context.Background(), "does-not-exist")
-	require.ErrorIs(t, err, ErrEnvironmentNotFound)
+	require.ErrorIs(t, err, user_errors.ErrEnvironmentNotFound)
 }
 
 func TestVervService_DeleteEnvironment_RequiresIDOrName(t *testing.T) {
@@ -155,5 +159,5 @@ func TestVervService_DeleteEnvironment_UnknownNameRejected(t *testing.T) {
 	name := "ghost"
 
 	err := v.DeleteEnvironment(context.Background(), domain.DeleteEnvironmentReq{Name: &name})
-	require.ErrorIs(t, err, ErrEnvironmentNotFound)
+	require.ErrorIs(t, err, user_errors.ErrEnvironmentNotFound)
 }

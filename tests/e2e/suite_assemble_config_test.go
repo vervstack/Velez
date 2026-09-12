@@ -1,3 +1,5 @@
+//go:build e2e_full
+
 package e2e
 
 import (
@@ -14,7 +16,8 @@ import (
 type AssembleConfigSuite struct {
 	suite.Suite
 
-	ctx context.Context
+	plane Plane
+	ctx   context.Context
 }
 
 func (s *AssembleConfigSuite) SetupSuite() {
@@ -26,7 +29,7 @@ func (s *AssembleConfigSuite) Test_AssembleHelloWorld() {
 
 	serviceName := GetServiceName(t)
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 
 	req := &velez_api.AssembleConfig_Request{
 		ImageName:   HelloWorldAppImage,
@@ -52,5 +55,7 @@ func (s *AssembleConfigSuite) Test_AssembleHelloWorld() {
 
 func Test_AssembleConfig(t *testing.T) {
 	t.Parallel()
-	suite.Run(t, new(AssembleConfigSuite))
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
+		return &AssembleConfigSuite{plane: plane}
+	})
 }

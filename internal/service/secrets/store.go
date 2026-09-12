@@ -51,7 +51,7 @@ func (d *dbStore) Put(ctx context.Context, ref domain.SecretRef, value string) e
 func (d *dbStore) Get(ctx context.Context, ref domain.SecretRef) (string, error) {
 	value, err := d.storage.Secrets().GetSecret(ctx, ref)
 	if err != nil {
-		if errors.Is(err, storage.ErrNotFound) {
+		if errors.Is(err, user_errors.ErrStorageNotFound) {
 			return "", rerrors.Wrap(user_errors.ErrSecretNotFound)
 		}
 
@@ -64,7 +64,7 @@ func (d *dbStore) Get(ctx context.Context, ref domain.SecretRef) (string, error)
 func (d *dbStore) Delete(ctx context.Context, ref domain.SecretRef) error {
 	err := d.storage.Secrets().DeleteSecret(ctx, ref)
 	if err != nil {
-		if errors.Is(err, storage.ErrNotFound) {
+		if errors.Is(err, user_errors.ErrStorageNotFound) {
 			return rerrors.Wrap(user_errors.ErrSecretNotFound)
 		}
 

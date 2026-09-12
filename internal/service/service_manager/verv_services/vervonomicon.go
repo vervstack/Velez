@@ -10,6 +10,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	verv "go.vervstack.ru/Velez/internal/domain/vervonomicon"
 	"go.vervstack.ru/Velez/internal/service/service_manager/vervonomicon"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // GetVervonomicon resolves the .verv/ descriptor a service currently
@@ -31,7 +32,7 @@ func (v *VervService) GetVervonomicon(
 
 	descriptor, files, err := v.readVervonomicon(ctx, req.ServiceName, image, req.Environment)
 	if err != nil {
-		if errors.Is(err, vervonomicon.ErrNoDescriptor) {
+		if errors.Is(err, user_errors.ErrVervonomiconDescriptorNotFound) {
 			return domain.VervonomiconResult{NoDescriptor: true}, nil
 		}
 
@@ -98,8 +99,9 @@ func (v *VervService) currentServiceImage(ctx context.Context, serviceName, envi
 }
 
 // readVervonomicon reads .verv/ out of image and merges the <environment>/
-// overlay. ErrNoDescriptor propagates unwrapped so callers can tell it apart
-// from a descriptor that exists but is malformed, via errors.Is.
+// overlay. user_errors.ErrVervonomiconDescriptorNotFound propagates unwrapped
+// so callers can tell it apart from a descriptor that exists but is
+// malformed, via errors.Is.
 func (v *VervService) readVervonomicon(
 	ctx context.Context, serviceName, image, environment string,
 ) (verv.Descriptor, map[string][]byte, error) {

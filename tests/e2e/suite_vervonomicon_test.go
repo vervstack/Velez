@@ -1,3 +1,5 @@
+//go:build e2e_full
+
 package e2e
 
 import (
@@ -22,6 +24,18 @@ const (
 	vervNoDescSvcName = "e2v_verv_nodesc"
 	vervBadSvcName    = "e2v_verv_bad"
 )
+
+// newVervonomiconRequest is this file's one recurring request shape across
+// every Test_Vervonomicon_* case: a smerd deployed off a built verv image (or
+// HelloWorldAppImage), optionally into a non-default environment.
+func newVervonomiconRequest(name, imageName, environment string) *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:         name,
+		ImageName:    imageName,
+		IgnoreConfig: true,
+		Environment:  environment,
+	}
+}
 
 // Test_Vervonomicon_ImageSourcedDescriptor covers docs/features/
 // vervonomicon.md's baseline: a descriptor baked into the deployed image is
@@ -48,11 +62,7 @@ func Test_Vervonomicon_ImageSourcedDescriptor(t *testing.T) {
 
 	buildVervImage(t, dockerAPI, tag, files)
 
-	createReq := &velez_api.CreateSmerd_Request{
-		Name:         vervImgSvcName,
-		ImageName:    tag,
-		IgnoreConfig: true,
-	}
+	createReq := newVervonomiconRequest(vervImgSvcName, tag, "")
 
 	env.CreateSmerd(t, createReq)
 
@@ -108,20 +118,11 @@ func Test_Vervonomicon_EnvironmentOverlay(t *testing.T) {
 
 	buildVervImage(t, dockerAPI, tag, files)
 
-	baseReq := &velez_api.CreateSmerd_Request{
-		Name:         vervEnvSvcName,
-		ImageName:    tag,
-		IgnoreConfig: true,
-	}
+	baseReq := newVervonomiconRequest(vervEnvSvcName, tag, "")
 
 	env.CreateSmerd(t, baseReq)
 
-	stagingReq := &velez_api.CreateSmerd_Request{
-		Name:         vervEnvSvcName,
-		ImageName:    tag,
-		IgnoreConfig: true,
-		Environment:  vervStagingEnv,
-	}
+	stagingReq := newVervonomiconRequest(vervEnvSvcName, tag, vervStagingEnv)
 
 	env.CreateSmerd(t, stagingReq)
 
@@ -204,11 +205,7 @@ func Test_Vervonomicon_ResourceReconciliation(t *testing.T) {
 
 	createBoundResourceContainer(t, dockerAPI, vervResSvcName, "pg")
 
-	createReq := &velez_api.CreateSmerd_Request{
-		Name:         vervResSvcName,
-		ImageName:    tag,
-		IgnoreConfig: true,
-	}
+	createReq := newVervonomiconRequest(vervResSvcName, tag, "")
 
 	env.CreateSmerd(t, createReq)
 
@@ -237,11 +234,7 @@ func Test_Vervonomicon_NoDescriptorIsNotAnError(t *testing.T) {
 	env := NewEnvironment(t)
 	ctx := t.Context()
 
-	createReq := &velez_api.CreateSmerd_Request{
-		Name:         vervNoDescSvcName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-	}
+	createReq := newVervonomiconRequest(vervNoDescSvcName, HelloWorldAppImage, "")
 
 	env.CreateSmerd(t, createReq)
 
@@ -273,11 +266,7 @@ func Test_Vervonomicon_MalformedDescriptorIsAnError(t *testing.T) {
 
 	buildVervImage(t, dockerAPI, tag, files)
 
-	createReq := &velez_api.CreateSmerd_Request{
-		Name:         vervBadSvcName,
-		ImageName:    tag,
-		IgnoreConfig: true,
-	}
+	createReq := newVervonomiconRequest(vervBadSvcName, tag, "")
 
 	env.CreateSmerd(t, createReq)
 

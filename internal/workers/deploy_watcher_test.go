@@ -403,7 +403,7 @@ func TestDeployWatcher_DeleteBatchRemovesContainerThroughRuntime(t *testing.T) {
 
 	runner := newFakeTaskRunner()
 	deployments := newStubDeploymentsStorage(t, req)
-	runtimes := container_runtime.NewResolver(api, nil, nil)
+	runtimes := container_runtime.NewResolver(api, "", nil, nil)
 	watcher := newTestWatcher(runner, deployments, runtimes)
 
 	batch := []domain.Deployment{

@@ -1,10 +1,6 @@
 package e2e
 
 import (
-	"testing"
-
-	"github.com/stretchr/testify/require"
-
 	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/tests/dind"
 )
@@ -99,15 +95,4 @@ func dindAvailablePorts() []int {
 	}
 
 	return ports
-}
-
-// dindHostAddr translates a DinD-side port Velez exposed a container on
-// into the bootstrap-host address this process can dial it at.
-func dindHostAddr(t *testing.T, exposedTo uint32) string {
-	t.Helper()
-
-	addr, ok := sharedDind.Addr(int(exposedTo))
-	require.True(t, ok, "dind did not publish container port %d (outside the pinned band?)", exposedTo)
-
-	return addr
 }

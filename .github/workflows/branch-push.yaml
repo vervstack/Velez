@@ -7,14 +7,6 @@ on:
       - "!master"
 
 jobs:
-  create-pr:
-    runs-on: ${{ vars.UBUNTU_IMAGE }}
-    steps:
-      - name: Create PR
-        uses: RedSockActions/create_pr@v0.0.10
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
   unit-test:
     runs-on: ${{ vars.UBUNTU_IMAGE }}
     steps:

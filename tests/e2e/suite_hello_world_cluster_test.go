@@ -1,3 +1,5 @@
+//go:build e2e_full
+
 package e2e
 
 import (
@@ -25,10 +27,20 @@ const (
 	helloWorldImageV0015 = "vervstack/hello_world:v0.0.15"
 	postgresAlias        = "postgres"
 	serviceTypeWeb       = "web"
+
+	// Container names double as Docker hostnames, capped at 64 characters -
+	// GetServiceName(t) on a RunPlaneSuite subtest blows past that, so this
+	// suite uses its own short, suite-unique names instead.
+	hwClusterNetworkName   = "e2e_hwcluster_net"
+	hwClusterPgName        = "e2e_hwcluster_pg"
+	hwClusterPgAppName     = "e2e_hwcluster_pg_app"
+	hwClusterSqliteAppName = "e2e_hwcluster_sqlite_app"
 )
 
 type HelloWorldClusterSuite struct {
 	suite.Suite
+
+	plane Plane
 
 	env          *TestEnvironment
 	dockerClient client.APIClient
@@ -48,13 +60,13 @@ type HelloWorldClusterSuite struct {
 func (s *HelloWorldClusterSuite) SetupTest() {
 	t := s.T()
 
-	s.env = NewEnvironment(t)
+	s.env = s.plane.NewEnvironment(t)
 	s.dockerClient = s.env.Custom.NodeClients.Docker().Client()
 
-	s.pgName = GetServiceName(t) + "_db"
+	s.pgName = hwClusterPgName
 
-	s.pgAppName = GetServiceName(t) + "_app_pg"
-	s.sqliteAppName = GetServiceName(t) + "_hw_sqlite"
+	s.pgAppName = hwClusterPgAppName
+	s.sqliteAppName = hwClusterSqliteAppName
 }
 
 func (s *HelloWorldClusterSuite) Test_ConnectedCluster() {
@@ -200,16 +212,14 @@ func (s *HelloWorldClusterSuite) _assertGetKey(
 	require.Equal(t, expectedValue, result.Value)
 }
 
-func (s *HelloWorldClusterSuite) _preparePostgresContainer() {
-	s.T().Helper()
-
-	t := s.T()
-	ctx := t.Context()
-
+// newHelloWorldClusterPostgresRequest builds the resource Postgres container
+// _preparePostgresContainer starts, networked so pgAppName's app can reach it
+// via postgresAlias.
+func newHelloWorldClusterPostgresRequest(pgName, networkName, pgAppName string) *velez_api.CreateSmerd_Request {
 	timeoutSec := uint32(5)
 
 	testCaseNetwork := &velez_api.NetworkBind{
-		NetworkName: s.networkName,
+		NetworkName: networkName,
 		Aliases:     []string{postgresAlias},
 	}
 	pgSettings := &velez_api.Container_Settings{
@@ -221,8 +231,9 @@ func (s *HelloWorldClusterSuite) _preparePostgresContainer() {
 		TimeoutSecond:  &timeoutSec,
 		Retries:        5,
 	}
-	pgReq := &velez_api.CreateSmerd_Request{
-		Name:      s.pgName,
+
+	return &velez_api.CreateSmerd_Request{
+		Name:      pgName,
 		ImageName: PostgresImage,
 		Env: map[string]string{
 			"POSTGRES_DB":       "hello_world",
@@ -234,10 +245,19 @@ func (s *HelloWorldClusterSuite) _preparePostgresContainer() {
 		Labels: map[string]string{
 			labels.VervServiceLabel: postgresAlias,
 			labels.ServiceTypeLabel: "resource.database",
-			"VERV_SERVICE_OWNER":    s.pgAppName,
+			"VERV_SERVICE_OWNER":    pgAppName,
 		},
 		IgnoreConfig: true,
 	}
+}
+
+func (s *HelloWorldClusterSuite) _preparePostgresContainer() {
+	s.T().Helper()
+
+	t := s.T()
+	ctx := t.Context()
+
+	pgReq := newHelloWorldClusterPostgresRequest(s.pgName, s.networkName, s.pgAppName)
 
 	s.pgSmerd = s.env.CreateSmerd(t, pgReq)
 	require.Equal(t, velez_api.Smerd_running, s.pgSmerd.GetStatus())
@@ -261,7 +281,7 @@ func (s *HelloWorldClusterSuite) _prepareNetwork() {
 	// Uses docker network for now. Won't later
 	// TODO
 
-	s.networkName = GetServiceName(t) + "_net"
+	s.networkName = hwClusterNetworkName
 
 	err := s.dockerClient.NetworkRemove(ctx, s.networkName)
 	if err != nil && !errdefs.IsNotFound(err) {
@@ -288,46 +308,54 @@ func (s *HelloWorldClusterSuite) TeardownTest() {
 	}
 }
 
-func (s *HelloWorldClusterSuite) _preparePgApp() {
-	t := s.T()
-
+// newHelloWorldClusterPgAppRequest builds the app container _preparePgApp
+// starts, which depends on the postgresAlias resource started separately.
+func newHelloWorldClusterPgAppRequest(pgAppName, networkName string) *velez_api.CreateSmerd_Request {
 	pgHWNetBind := &velez_api.NetworkBind{
-		NetworkName: s.networkName,
+		NetworkName: networkName,
 		Aliases:     []string{"hello_world_pg"},
 	}
 	pgHWSettings := &velez_api.Container_Settings{
 		Network: []*velez_api.NetworkBind{pgHWNetBind},
 	}
-	pgHWReq := &velez_api.CreateSmerd_Request{
-		Name:      s.pgAppName,
+
+	return &velez_api.CreateSmerd_Request{
+		Name:      pgAppName,
 		ImageName: helloWorldImageV0015,
 		Env: map[string]string{
 			"STATEFULL_PG_URL": "postgres://hello:world@postgres:5432/hello_world?sslmode=disable",
 		},
 		Settings: pgHWSettings,
 		Labels: map[string]string{
-			labels.VervServiceLabel: s.pgAppName,
+			labels.VervServiceLabel: pgAppName,
 			labels.DependsOnLabel:   postgresAlias,
 			labels.ServiceTypeLabel: serviceTypeWeb,
 		},
 		IgnoreConfig:  true,
 		UseImagePorts: true,
 	}
+}
+
+func (s *HelloWorldClusterSuite) _preparePgApp() {
+	t := s.T()
+
+	pgHWReq := newHelloWorldClusterPgAppRequest(s.pgAppName, s.networkName)
 
 	s.pgAppSmerd = s.env.CreateSmerd(t, pgHWReq)
 }
 
-func (s *HelloWorldClusterSuite) _prepareSqliteApp() {
-	t := s.T()
-
+// newHelloWorldClusterSqliteRequest builds the app container
+// _prepareSqliteApp starts, which depends on pgAppName's app.
+func newHelloWorldClusterSqliteRequest(sqliteAppName, networkName, pgAppName string) *velez_api.CreateSmerd_Request {
 	sqliteNetBind := &velez_api.NetworkBind{
-		NetworkName: s.networkName,
+		NetworkName: networkName,
 	}
 	sqliteSettings := &velez_api.Container_Settings{
 		Network: []*velez_api.NetworkBind{sqliteNetBind},
 	}
-	sqliteReq := &velez_api.CreateSmerd_Request{
-		Name:      s.sqliteAppName,
+
+	return &velez_api.CreateSmerd_Request{
+		Name:      sqliteAppName,
 		ImageName: helloWorldImageV0015,
 		Env: map[string]string{
 			"PEER_GRPC_URL": "hello_world_pg:80",
@@ -336,10 +364,10 @@ func (s *HelloWorldClusterSuite) _prepareSqliteApp() {
 		Labels: map[string]string{
 			labels.CreatedWithVelezLabel: labelValueTrue,
 			labels.Sidecar:               labelValueFalse,
-			labels.VervServiceLabel:      s.sqliteAppName,
+			labels.VervServiceLabel:      sqliteAppName,
 			labels.MatreshkaConfigLabel:  labelValueFalse,
 			labels.AutoUpgrade:           labelValueFalse,
-			labels.DependsOnLabel:        s.pgAppName,
+			labels.DependsOnLabel:        pgAppName,
 			labels.DescriptionLabel:      "Hello World SQLite instance",
 			labels.ServiceTypeLabel:      serviceTypeWeb,
 			labels.TeamLabel:             "test-team",
@@ -350,11 +378,30 @@ func (s *HelloWorldClusterSuite) _prepareSqliteApp() {
 		IgnoreConfig:  true,
 		UseImagePorts: true,
 	}
+}
+
+func (s *HelloWorldClusterSuite) _prepareSqliteApp() {
+	t := s.T()
+
+	sqliteReq := newHelloWorldClusterSqliteRequest(s.sqliteAppName, s.networkName, s.pgAppName)
 
 	s.sqliteAppSmerd = s.env.CreateSmerd(t, sqliteReq)
 }
 
 func Test_HelloWorldCluster(t *testing.T) {
 	t.Parallel()
-	suite.Run(t, new(HelloWorldClusterSuite))
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
+		return &HelloWorldClusterSuite{plane: plane}
+	})
+}
+
+// dindHostAddr translates a DinD-side port Velez exposed a container on
+// into the bootstrap-host address this process can dial it at.
+func dindHostAddr(t *testing.T, exposedTo uint32) string {
+	t.Helper()
+
+	addr, ok := sharedDind.Addr(int(exposedTo))
+	require.True(t, ok, "dind did not publish container port %d (outside the pinned band?)", exposedTo)
+
+	return addr
 }

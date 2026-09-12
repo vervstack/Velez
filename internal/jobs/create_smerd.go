@@ -28,6 +28,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/service"
+	"go.vervstack.ru/Velez/internal/user_errors"
 	"go.vervstack.ru/Velez/internal/utils/configutils"
 )
 
@@ -590,7 +591,7 @@ func (j *copyToContainerJob) Do(ctx context.Context) error {
 		}
 
 		if containerID == "" {
-			return rerrors.New("no container id provided")
+			return user_errors.ErrContainerIdMissing
 		}
 
 		err := dockerutils.WriteToContainer(ctx, j.dockerAPI, containerID, path, content)
@@ -783,7 +784,7 @@ type startContainerJob struct {
 func (j *startContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return rerrors.New("no container id provided")
+		return user_errors.ErrContainerIdMissing
 	}
 
 	err := j.dockerAPI.ContainerStart(ctx, containerID, container.StartOptions{})
@@ -823,7 +824,7 @@ func (j *healthcheckJob) Do(ctx context.Context) error {
 
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return rerrors.New("container was not created")
+		return user_errors.ErrContainerNotCreated
 	}
 
 	for range healthcheck.GetRetries() {
@@ -843,5 +844,5 @@ func (j *healthcheckJob) Do(ctx context.Context) error {
 		}
 	}
 
-	return rerrors.New("healthcheck retries exhausted")
+	return user_errors.ErrHealthcheckRetriesExhausted
 }

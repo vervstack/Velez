@@ -8,11 +8,14 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
-	"go.vervstack.ru/Velez/internal/user_errors"
 )
+
+//nolint:forbidigo // package-private sentinel, not shared/user-facing
+var errClusterStatePgHasNoState = rerrors.New("Postgres container for Cluster state exists but don't have a state")
 
 func SetupMasterPg(
 	ctx context.Context,
@@ -37,7 +40,7 @@ func SetupMasterPg(
 	}
 
 	if contInspect.State == nil {
-		return user_errors.ErrClusterStatePgHasNoState
+		return errClusterStatePgHasNoState
 	}
 
 	if contInspect.State.Status != container.StateRunning {

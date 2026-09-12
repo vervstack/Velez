@@ -7,6 +7,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // Resolve maps an environment NAME (as carried on the wire by
@@ -39,7 +40,7 @@ func Resolve(ctx context.Context, envStorage storage.EnvironmentsStorage, name s
 			return domain.Environment{}, nil
 		}
 
-		return domain.Environment{}, rerrors.New("environments storage is not available")
+		return domain.Environment{}, user_errors.ErrEnvironmentsStorageUnavailable
 	}
 
 	env, err := envStorage.GetEnvironmentByName(ctx, name)

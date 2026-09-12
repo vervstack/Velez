@@ -1,3 +1,5 @@
+//go:build e2e_full
+
 package e2e
 
 import (
@@ -17,7 +19,7 @@ import (
 // service_api impl (GetServiceMetrics/Resources/Graph/Environments and
 // GetVervonomicon), and a docker-network round-trip through MakeConnections /
 // BreakConnections. None of these need cluster Postgres or matreshka, so
-// every test runs a plain NewEnvironment(t). GetVervonomicon's real behavior
+// every test runs a plain s.plane.NewEnvironment(t). GetVervonomicon's real behavior
 // (image-sourced descriptors, environment overlays, resource reconciliation,
 // error cases) is covered in suite_vervonomicon_test.go and
 // suite_vervonomicon_deploy_test.go - this suite only proves the unknown-
@@ -25,7 +27,8 @@ import (
 type RpcGapsSuite struct {
 	suite.Suite
 
-	ctx context.Context
+	plane Plane
+	ctx   context.Context
 }
 
 func (s *RpcGapsSuite) SetupSuite() {
@@ -37,7 +40,7 @@ func (s *RpcGapsSuite) SetupSuite() {
 func (s *RpcGapsSuite) Test_Version() {
 	t := s.T()
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 
 	resp, err := env.Custom.ApiGrpcImpl.Version(s.ctx, &velez_api.Version_Request{})
 	require.NoError(t, err)
@@ -55,7 +58,7 @@ func (s *RpcGapsSuite) Test_Version() {
 func (s *RpcGapsSuite) Test_SearchImages() {
 	t := s.T()
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 
 	req := &velez_api.SearchImages_Request{Name: "nginx"}
 
@@ -72,7 +75,7 @@ func (s *RpcGapsSuite) Test_SearchImages() {
 func (s *RpcGapsSuite) Test_GetHardware() {
 	t := s.T()
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 
 	resp, err := env.Custom.ApiGrpcImpl.GetHardware(s.ctx, &velez_api.GetHardware_Request{})
 	require.NoError(t, err)
@@ -88,7 +91,7 @@ func (s *RpcGapsSuite) Test_GetHardware() {
 func (s *RpcGapsSuite) Test_GetServiceMetrics() {
 	t := s.T()
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 
 	req := &velez_api.GetServiceMetrics_Request{ServiceName: GetServiceName(t)}
 
@@ -103,7 +106,7 @@ func (s *RpcGapsSuite) Test_GetServiceMetrics() {
 func (s *RpcGapsSuite) Test_GetServiceResources() {
 	t := s.T()
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 
 	req := &velez_api.GetServiceResources_Request{ServiceName: GetServiceName(t)}
 
@@ -118,7 +121,7 @@ func (s *RpcGapsSuite) Test_GetServiceResources() {
 func (s *RpcGapsSuite) Test_GetServiceGraph() {
 	t := s.T()
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 
 	req := &velez_api.GetServiceGraph_Request{ServiceName: GetServiceName(t)}
 
@@ -134,7 +137,7 @@ func (s *RpcGapsSuite) Test_GetServiceGraph() {
 func (s *RpcGapsSuite) Test_GetServiceEnvironments() {
 	t := s.T()
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 
 	req := &velez_api.GetServiceEnvironments_Request{ServiceName: GetServiceName(t)}
 
@@ -152,7 +155,7 @@ func (s *RpcGapsSuite) Test_GetServiceEnvironments() {
 func (s *RpcGapsSuite) Test_GetVervonomicon() {
 	t := s.T()
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 
 	resp, err := env.Custom.ServiceApiImpl.GetVervonomicon(s.ctx, &velez_api.GetVervonomicon_Request{})
 	require.NoError(t, err)
@@ -174,16 +177,12 @@ func (s *RpcGapsSuite) Test_GetVervonomicon() {
 func (s *RpcGapsSuite) Test_MakeAndBreakConnections() {
 	t := s.T()
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 	ctx := t.Context()
 
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 
-	smerdReq := &velez_api.CreateSmerd_Request{
-		Name:         GetServiceName(t),
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-	}
+	smerdReq := newHelloWorldRequest(GetServiceName(t))
 
 	smerd := env.CreateSmerd(t, smerdReq)
 	require.NotEmpty(t, smerd.GetUuid())
@@ -240,5 +239,7 @@ func (s *RpcGapsSuite) Test_MakeAndBreakConnections() {
 // gap G2). Running this suite serially keeps that suite stable at no
 // meaningful wall-clock cost (~7s).
 func Test_RpcGaps(t *testing.T) {
-	suite.Run(t, new(RpcGapsSuite))
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
+		return &RpcGapsSuite{plane: plane}
+	})
 }

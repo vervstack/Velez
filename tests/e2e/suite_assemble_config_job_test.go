@@ -1,3 +1,5 @@
+//go:build e2e_full
+
 package e2e
 
 import (
@@ -21,7 +23,8 @@ import (
 type AssembleConfigJobSuite struct {
 	suite.Suite
 
-	ctx context.Context
+	plane Plane
+	ctx   context.Context
 }
 
 func (s *AssembleConfigJobSuite) SetupSuite() {
@@ -32,7 +35,7 @@ func (s *AssembleConfigJobSuite) Test_AssembleHelloWorld() {
 	t := s.T()
 
 	serviceName := GetServiceName(t)
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 
 	initialContext := &velez_api.AssembleConfigTaskPayload{
 		ServiceName: serviceName,
@@ -71,5 +74,7 @@ func (s *AssembleConfigJobSuite) Test_AssembleHelloWorld() {
 
 func Test_AssembleConfigJob(t *testing.T) {
 	t.Parallel()
-	suite.Run(t, new(AssembleConfigJobSuite))
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
+		return &AssembleConfigJobSuite{plane: plane}
+	})
 }

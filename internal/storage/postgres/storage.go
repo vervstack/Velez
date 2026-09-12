@@ -7,6 +7,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/environments"
@@ -15,6 +16,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/services_queries"
 	"go.vervstack.ru/Velez/internal/storage/registries"
 	"go.vervstack.ru/Velez/internal/storage/secrets"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 type Storage struct {
@@ -128,14 +130,14 @@ func wrapPgErr(err error) error {
 	}
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return rerrors.Wrap(storage.ErrNotFound)
+		return rerrors.Wrap(user_errors.ErrStorageNotFound)
 	}
 
 	var pgErr *pq.Error
 
 	if errors.As(err, &pgErr) {
 		if pgErr.Code == "23505" { // unique_violation
-			return errors.Join(storage.ErrAlreadyExists, err)
+			return errors.Join(user_errors.ErrStorageAlreadyExists, err)
 		}
 	}
 

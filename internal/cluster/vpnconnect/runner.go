@@ -4,7 +4,7 @@
 // It is the one survivor of internal/pipelines. docs/jobs_migration.md
 // deliberately keeps this flow off the jobs engine: both call sites
 // (internal/cluster/configuration, internal/cluster/service_discovery) branch
-// on typed sentinel errors - ErrAlreadyExists here and
+// on typed sentinel errors - user_errors.ErrVpnResultAlreadyExists here and
 // cluster_clients.ErrServiceIsDisabled - which Engine.Enqueue/Watch would
 // flatten into an opaque error string. The pipeline runner and the steps this
 // one flow needs were moved here verbatim when internal/pipelines was deleted;
@@ -25,13 +25,8 @@ const (
 	defaultRollbackTimeout = 30 * time.Second
 )
 
-var (
-	// ErrAlreadyExists - the sidecar this run would have created is already
-	// up. Callers treat it as success; see both call sites.
-	ErrAlreadyExists = rerrors.New("pipeline result already exists")
-
-	errNoGetResultFunction = rerrors.New("no get result function")
-)
+//nolint:forbidigo // package-private sentinel, not shared/user-facing
+var errNoGetResultFunction = rerrors.New("no get result function")
 
 // Runner executes an ordered list of steps, rolling back the ones that
 // support it when a later step fails.
@@ -82,7 +77,7 @@ func (p *runner[T]) Result() (res *T, err error) {
 		return p.getResult()
 	}
 
-	return nil, errNoGetResultFunction
+	return nil, rerrors.Wrap(errNoGetResultFunction)
 }
 
 func (p *runner[T]) run(ctx context.Context) error {

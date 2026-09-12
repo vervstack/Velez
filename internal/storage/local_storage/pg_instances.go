@@ -13,7 +13,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
-	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -112,7 +112,7 @@ func (d *dockerPgInstances) GetPgInstanceByServiceID(
 		return pending, nil
 	}
 
-	return domain.PgInstance{}, rerrors.Wrap(storage.ErrNotFound)
+	return domain.PgInstance{}, rerrors.Wrap(user_errors.ErrStorageNotFound)
 }
 
 func (d *dockerPgInstances) ListPgInstances(ctx context.Context) ([]domain.PgInstance, error) {

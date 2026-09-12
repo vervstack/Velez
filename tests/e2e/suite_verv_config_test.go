@@ -1,3 +1,5 @@
+//go:build e2e_full
+
 package e2e
 
 import (
@@ -19,11 +21,45 @@ import (
 type VervConfigSuite struct {
 	suite.Suite
 
-	ctx context.Context
+	plane Plane
+	ctx   context.Context
 }
 
 func (s *VervConfigSuite) SetupSuite() {
 	s.ctx = context.Background()
+}
+
+func newVervConfigRenderedEnvRequest(name, plainPath string, plainContent []byte) *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:      name,
+		ImageName: HelloWorldAppImage,
+		Verv:      &velez_api.MatreshkaConfigSpec{},
+		Plain: []*velez_api.FileConfig{
+			{Path: plainPath, Content: plainContent},
+		},
+	}
+}
+
+func newVervConfigPlainFileRequest(name, filePath string, wantContent []byte) *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:         name,
+		ImageName:    HelloWorldAppImage,
+		IgnoreConfig: true,
+		Plain: []*velez_api.FileConfig{
+			{Path: filePath, Content: wantContent},
+		},
+	}
+}
+
+func newVervConfigRestartAlwaysRequest(name string) *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:         name,
+		ImageName:    HelloWorldAppImage,
+		IgnoreConfig: true,
+		Restart: &velez_api.RestartPolicy{
+			Type: velez_api.RestartPolicyType_always,
+		},
+	}
 }
 
 // Test_VervConfig_RenderedEnv deploys hello_world with Verv set and
@@ -41,20 +77,13 @@ func (s *VervConfigSuite) SetupSuite() {
 func (s *VervConfigSuite) Test_VervConfig_RenderedEnv() {
 	t := s.T()
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 
 	const plainPath = "/tmp/verv_rendered_test.yaml"
 
 	plainContent := []byte("seeded: true\n")
 
-	req := &velez_api.CreateSmerd_Request{
-		Name:      GetServiceName(t),
-		ImageName: HelloWorldAppImage,
-		Verv:      &velez_api.MatreshkaConfigSpec{},
-		Plain: []*velez_api.FileConfig{
-			{Path: plainPath, Content: plainContent},
-		},
-	}
+	req := newVervConfigRenderedEnvRequest(GetServiceName(t), plainPath, plainContent)
 
 	smerd := env.CreateSmerd(t, req)
 
@@ -74,7 +103,7 @@ func (s *VervConfigSuite) Test_VervConfig_RenderedEnv() {
 func (s *VervConfigSuite) Test_VervConfig_PlainFileMounted() {
 	t := s.T()
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 
 	// NOTE(phase-1): create_smerd's copyToContainerJob copies via
 	// dockerutils.WriteToContainer with no "mkdir -p" of the parent dir
@@ -86,14 +115,7 @@ func (s *VervConfigSuite) Test_VervConfig_PlainFileMounted() {
 
 	wantContent := []byte("key: value\n")
 
-	req := &velez_api.CreateSmerd_Request{
-		Name:         GetServiceName(t),
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-		Plain: []*velez_api.FileConfig{
-			{Path: filePath, Content: wantContent},
-		},
-	}
+	req := newVervConfigPlainFileRequest(GetServiceName(t), filePath, wantContent)
 
 	smerd := env.CreateSmerd(t, req)
 
@@ -112,16 +134,9 @@ func (s *VervConfigSuite) Test_VervConfig_PlainFileMounted() {
 func (s *VervConfigSuite) Test_VervConfig_RestartPolicyApplied() {
 	t := s.T()
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 
-	req := &velez_api.CreateSmerd_Request{
-		Name:         GetServiceName(t),
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-		Restart: &velez_api.RestartPolicy{
-			Type: velez_api.RestartPolicyType_always,
-		},
-	}
+	req := newVervConfigRestartAlwaysRequest(GetServiceName(t))
 
 	smerd := env.CreateSmerd(t, req)
 
@@ -143,5 +158,7 @@ func (s *VervConfigSuite) Test_VervConfig_RestartPolicyApplied() {
 
 func Test_VervConfig(t *testing.T) {
 	t.Parallel()
-	suite.Run(t, new(VervConfigSuite))
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
+		return &VervConfigSuite{plane: plane}
+	})
 }

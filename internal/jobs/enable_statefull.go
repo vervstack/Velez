@@ -499,7 +499,7 @@ func (j *createPgContainerJob) exposePortOpts(ctx context.Context, exposeToPort 
 	}
 
 	if slices.Contains(occupiedPorts, uint32(exposeToPort)) {
-		return nil, rerrors.New(fmt.Sprintf("requested port %d is already occupied on this node", exposeToPort))
+		return nil, rerrors.Wrap(user_errors.ErrPortAlreadyOccupied, fmt.Sprintf("port: %d", exposeToPort))
 	}
 
 	return []pg_pattern.Opt{pg_pattern.WithPort(exposeToPort)}, nil
@@ -517,7 +517,7 @@ type startPgContainerJob struct {
 func (j *startPgContainerJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return rerrors.New("no container id provided")
+		return user_errors.ErrContainerIdMissing
 	}
 
 	err := j.dockerAPI.ContainerStart(ctx, containerID, container.StartOptions{})
@@ -559,7 +559,7 @@ type waitForPgReadyJob struct {
 func (j *waitForPgReadyJob) Do(ctx context.Context) error {
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return rerrors.New("no container id provided")
+		return user_errors.ErrContainerIdMissing
 	}
 
 	deadline := time.Now().Add(pgReadyTimeout)
@@ -577,7 +577,7 @@ func (j *waitForPgReadyJob) Do(ctx context.Context) error {
 		}
 
 		if time.Now().After(deadline) {
-			return rerrors.New("timed out waiting for postgres container to become healthy")
+			return user_errors.ErrPgContainerNotHealthy
 		}
 
 		select {
@@ -699,12 +699,12 @@ func (j *getRootDsnJob) applyBareBinaryHostPort(pgCfg *resources.Postgres, cont 
 
 func getExposedPgPort(cont container.InspectResponse) (uint64, error) {
 	if cont.NetworkSettings == nil {
-		return 0, rerrors.New("no network settings found in container")
+		return 0, user_errors.ErrNoNetworkSettings
 	}
 
 	ports := cont.NetworkSettings.Ports[pg_pattern.TCPPort]
 	if len(ports) == 0 {
-		return 0, rerrors.New("no exposure for 5432 found")
+		return 0, user_errors.ErrNoPgPortExposure
 	}
 
 	hostPort := ports[0].HostPort
@@ -798,7 +798,7 @@ func (j *createSchemaAndMigrateJob) wrapSchemaErr(ctx context.Context, execErr e
 		}
 	}
 
-	userErr := rerrors.NewUserError(msg, codes.FailedPrecondition)
+	userErr := user_errors.NewUserError(msg, codes.FailedPrecondition)
 
 	return rerrors.Wrap(userErr, "error creating postgres schema")
 }

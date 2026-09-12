@@ -46,6 +46,9 @@ const (
 	deployWatcherInterval    = time.Second * 5
 )
 
+//nolint:forbidigo // package-private sentinel, not shared/user-facing
+var errClientsNotInitialized = rerrors.New("clients not initialized")
+
 type Custom struct {
 	// NodeClients - hardware scanner, docker, and wrappers
 	NodeClients node_clients.NodeClients
@@ -92,6 +95,7 @@ func (c *Custom) Init(a *App) (err error) {
 	// node_clients.Docker directly.
 	runtimeResolver := container_runtime.NewResolver(
 		c.NodeClients.Docker().Client(),
+		c.NodeClients.Docker().Host(),
 		a.Cfg.Environment.CustomLabels,
 		c.ClusterClients.StateManager())
 
@@ -217,7 +221,7 @@ func (c *Custom) Stop() error {
 
 func (c *Custom) InitServiceLayer(a *App, runtimeResolver container_runtime.RuntimeResolver) error {
 	if c.NodeClients == nil || c.ClusterClients == nil {
-		return rerrors.New("clients not initialized")
+		return errClientsNotInitialized
 	}
 
 	var err error

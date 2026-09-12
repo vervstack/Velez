@@ -13,6 +13,8 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
+
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -130,7 +132,7 @@ func ReadDirFromContainer(
 
 		totalBytes += hdr.Size
 		if totalBytes > maxDirReadBytes {
-			return nil, rerrors.New("directory contents exceed the maximum allowed read size")
+			return nil, user_errors.ErrDirReadSizeExceeded
 		}
 
 		var content []byte

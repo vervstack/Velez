@@ -4,19 +4,12 @@ import (
 	"context"
 	"database/sql"
 
-	"go.redsock.ru/rerrors"
-
 	"go.vervstack.ru/Velez/internal/domain"
 	verv "go.vervstack.ru/Velez/internal/domain/vervonomicon"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/plugins_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
-)
-
-var (
-	ErrAlreadyExists = rerrors.New("already exists")
-	ErrNotFound      = rerrors.New("not found")
 )
 
 //nolint:interfacebloat

@@ -4,14 +4,16 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 func (v *VervService) Get(ctx context.Context, r domain.GetServiceReq) (domain.Service, error) {
 	if r.Name == "" {
-		return domain.Service{}, rerrors.New("name is required to find service")
+		return domain.Service{}, user_errors.ErrServiceNameRequiredToFind
 	}
 
 	service, err := v.dataStorage.Services().GetByName(ctx, r.Name)

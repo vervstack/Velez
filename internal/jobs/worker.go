@@ -13,6 +13,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -110,7 +111,7 @@ func (w *taskWorker) processOne(ctx context.Context) {
 func (w *taskWorker) run(ctx context.Context, task tasks_queries.VelezTask) error {
 	handler, ok := w.registry.Get(task.Action)
 	if !ok {
-		return w.failTask(ctx, task.ID, rerrors.New("no handler registered for action "+task.Action))
+		return w.failTask(ctx, task.ID, rerrors.Wrap(user_errors.ErrNoHandlerRegisteredForAction, task.Action))
 	}
 
 	taskCtx := handler.NewContext()

@@ -1,3 +1,5 @@
+//go:build e2e_full
+
 package e2e
 
 import (
@@ -31,6 +33,7 @@ import (
 type VpnSuite struct {
 	suite.Suite
 
+	plane  Plane
 	env    *TestEnvironment
 	vpnAPI velez_api.VcnApiClient
 }
@@ -40,7 +43,7 @@ func (s *VpnSuite) SetupSuite() {
 
 	hs := getSharedHeadscale(t)
 
-	s.env = NewEnvironment(t,
+	s.env = s.plane.NewEnvironment(t,
 		WithState(t, WithStateVcnEnabled(hs.apiURL, hs.apiKey)))
 
 	s.vpnAPI = s.env.VpnClient()
@@ -88,11 +91,7 @@ func (s *VpnSuite) Test_ConnectService_LaunchesSidecar() {
 
 	serviceName := GetServiceName(t)
 
-	smerd := &velez_api.CreateSmerd_Request{
-		Name:         serviceName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-	}
+	smerd := newHelloWorldRequest(serviceName)
 	s.env.CreateSmerd(t, smerd)
 
 	t.Cleanup(func() {
@@ -144,5 +143,7 @@ func (s *VpnSuite) findNamespaceID(ctx context.Context, name string) string {
 }
 
 func Test_Vpn(t *testing.T) {
-	suite.Run(t, new(VpnSuite))
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
+		return &VpnSuite{plane: plane}
+	})
 }

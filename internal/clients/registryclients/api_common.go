@@ -6,9 +6,9 @@ import (
 	"net/http"
 
 	"go.redsock.ru/rerrors"
-)
 
-var ErrUnexpectedStatus = rerrors.New("unexpected status")
+	"go.vervstack.ru/Velez/internal/user_errors"
+)
 
 func (c *Client) doAPIRequest(ctx context.Context, method, uri string) (*http.Response, error) {
 	r, err := http.NewRequestWithContext(ctx, method, c.baseURL+uri, nil)
@@ -33,10 +33,10 @@ func (c *Client) execAPIRequest(r *http.Request) (*http.Response, error) {
 }
 
 func (c *Client) handleError(resp *http.Response) error {
-	body, err := io.ReadAll(resp.Body)
+	_, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return rerrors.Wrap(err, "error reading response body")
 	}
 
-	return rerrors.Wrap(ErrUnexpectedStatus, resp.Status, string(body))
+	return rerrors.Wrap(user_errors.ErrRegistryUnexpectedStatus, "status: "+resp.Status)
 }

@@ -10,18 +10,19 @@ import (
 )
 
 const createEnvironment = `-- name: CreateEnvironment :one
-INSERT INTO velez.environments (name, suffix)
-VALUES ($1, $2)
-RETURNING id, name, suffix, created_at, updated_at
+INSERT INTO velez.environments (name, suffix, docker_host)
+VALUES ($1, $2, $3)
+RETURNING id, name, suffix, created_at, updated_at, docker_host
 `
 
 type CreateEnvironmentParams struct {
-	Name   string
-	Suffix string
+	Name       string
+	Suffix     string
+	DockerHost string
 }
 
 func (q *Queries) CreateEnvironment(ctx context.Context, arg CreateEnvironmentParams) (VelezEnvironment, error) {
-	row := q.db.QueryRowContext(ctx, createEnvironment, arg.Name, arg.Suffix)
+	row := q.db.QueryRowContext(ctx, createEnvironment, arg.Name, arg.Suffix, arg.DockerHost)
 	var i VelezEnvironment
 	err := row.Scan(
 		&i.ID,
@@ -29,6 +30,7 @@ func (q *Queries) CreateEnvironment(ctx context.Context, arg CreateEnvironmentPa
 		&i.Suffix,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DockerHost,
 	)
 	return i, err
 }
@@ -44,7 +46,7 @@ func (q *Queries) DeleteEnvironment(ctx context.Context, id int64) error {
 }
 
 const getEnvironmentByID = `-- name: GetEnvironmentByID :one
-SELECT id, name, suffix, created_at, updated_at
+SELECT id, name, suffix, created_at, updated_at, docker_host
 FROM velez.environments
 WHERE id = $1
 `
@@ -58,12 +60,13 @@ func (q *Queries) GetEnvironmentByID(ctx context.Context, id int64) (VelezEnviro
 		&i.Suffix,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DockerHost,
 	)
 	return i, err
 }
 
 const getEnvironmentByName = `-- name: GetEnvironmentByName :one
-SELECT id, name, suffix, created_at, updated_at
+SELECT id, name, suffix, created_at, updated_at, docker_host
 FROM velez.environments
 WHERE name = $1
 `
@@ -77,12 +80,13 @@ func (q *Queries) GetEnvironmentByName(ctx context.Context, name string) (VelezE
 		&i.Suffix,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DockerHost,
 	)
 	return i, err
 }
 
 const listEnvironments = `-- name: ListEnvironments :many
-SELECT id, name, suffix, created_at, updated_at
+SELECT id, name, suffix, created_at, updated_at, docker_host
 FROM velez.environments
 ORDER BY id
 `
@@ -102,6 +106,7 @@ func (q *Queries) ListEnvironments(ctx context.Context) ([]VelezEnvironment, err
 			&i.Suffix,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.DockerHost,
 		); err != nil {
 			return nil, err
 		}
@@ -118,21 +123,28 @@ func (q *Queries) ListEnvironments(ctx context.Context) ([]VelezEnvironment, err
 
 const updateEnvironment = `-- name: UpdateEnvironment :one
 UPDATE velez.environments
-SET name       = $2,
-    suffix     = $3,
-    updated_at = now()
+SET name        = $2,
+    suffix      = $3,
+    docker_host = $4,
+    updated_at  = now()
 WHERE id = $1
-RETURNING id, name, suffix, created_at, updated_at
+RETURNING id, name, suffix, created_at, updated_at, docker_host
 `
 
 type UpdateEnvironmentParams struct {
-	ID     int64
-	Name   string
-	Suffix string
+	ID         int64
+	Name       string
+	Suffix     string
+	DockerHost string
 }
 
 func (q *Queries) UpdateEnvironment(ctx context.Context, arg UpdateEnvironmentParams) (VelezEnvironment, error) {
-	row := q.db.QueryRowContext(ctx, updateEnvironment, arg.ID, arg.Name, arg.Suffix)
+	row := q.db.QueryRowContext(ctx, updateEnvironment,
+		arg.ID,
+		arg.Name,
+		arg.Suffix,
+		arg.DockerHost,
+	)
 	var i VelezEnvironment
 	err := row.Scan(
 		&i.ID,
@@ -140,6 +152,7 @@ func (q *Queries) UpdateEnvironment(ctx context.Context, arg UpdateEnvironmentPa
 		&i.Suffix,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DockerHost,
 	)
 	return i, err
 }

@@ -1,3 +1,5 @@
+//go:build e2e_full
+
 package e2e
 
 import (
@@ -41,13 +43,15 @@ func registryPasswordSecretRef() domain.SecretRef {
 // unconditionally via enableRegistryUnderDind.
 type EnableRegistrySuite struct {
 	suite.Suite
+
+	plane Plane
 }
 
 func (s *EnableRegistrySuite) Test_EnableRegistry_HappyPath() {
 	t := s.T()
 	ctx := t.Context()
 
-	env := enableRegistryUnderDind(t)
+	env := enableRegistryUnderDind(t, s.plane)
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 
 	inspect, err := dockerClient.ContainerInspect(ctx, jobs.RegistryServiceName)
@@ -162,7 +166,9 @@ func (s *EnableRegistrySuite) Test_EnableRegistry_HappyPath() {
 }
 
 func Test_EnableRegistry(t *testing.T) {
-	suite.Run(t, new(EnableRegistrySuite))
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
+		return &EnableRegistrySuite{plane: plane}
+	})
 }
 
 // dockerStreamMessage captures only the error shape of a Docker API

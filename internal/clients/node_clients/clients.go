@@ -41,6 +41,13 @@ type Docker interface {
 
 	Client() client.APIClient
 
+	// Host is the resolved address of the Docker daemon this connection talks
+	// to (github.com/docker/docker/client.Client.DaemonHost - DOCKER_HOST when
+	// set, else the SDK's platform default socket). It's the default
+	// domain.Environment.DockerHost an environment gets when none is given
+	// explicitly - see verv_services.CreateEnvironment.
+	Host() string
+
 	ContainerCreate(
 		ctx context.Context,
 		config *container.Config,

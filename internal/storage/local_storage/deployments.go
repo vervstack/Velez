@@ -15,8 +15,8 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
 	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // deployments is a real in-memory Deployments store, backing single-node/dev
@@ -167,7 +167,7 @@ func (d *deployments) getSpecificationByIdLocked(
 ) (deployments_queries.GetSpecificationByIdRow, error) {
 	spec, ok := d.specs[id]
 	if !ok {
-		return deployments_queries.GetSpecificationByIdRow{}, storage.ErrNotFound
+		return deployments_queries.GetSpecificationByIdRow{}, user_errors.ErrStorageNotFound
 	}
 
 	name := specServiceName(spec)
@@ -355,7 +355,7 @@ func (d *deployments) updateDeploymentStatusLocked(
 		return nil
 	}
 
-	return storage.ErrNotFound
+	return user_errors.ErrStorageNotFound
 }
 
 // deploymentsLockedQuerier adapts *deployments to deployments_queries.Querier

@@ -30,7 +30,7 @@ func (v *VervService) CreateDeployFromVervonomicon(
 ) error {
 	descriptor, _, err := v.readVervonomicon(ctx, req.ServiceName, req.Image, req.Environment)
 	if err != nil {
-		if errors.Is(err, vervonomicon.ErrNoDescriptor) {
+		if errors.Is(err, user_errors.ErrVervonomiconDescriptorNotFound) {
 			return rerrors.Wrap(user_errors.ErrNoVervonomiconDescriptor)
 		}
 

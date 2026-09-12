@@ -1,3 +1,5 @@
+//go:build e2e_full
+
 package e2e
 
 import (
@@ -35,6 +37,8 @@ import (
 // bugs.
 type EnvironmentsSuite struct {
 	suite.Suite
+
+	plane Plane
 }
 
 const (
@@ -54,6 +58,18 @@ const (
 	e2eEnvSharedName  = "e2e_env_shared"
 )
 
+// newEnvironmentsRequest is the one recurring CreateSmerd_Request shape this
+// suite needs - a hello-world container, optionally routed to a non-default
+// environment - built by a named constructor rather than inline per test.
+func newEnvironmentsRequest(name, environment string) *velez_api.CreateSmerd_Request {
+	return &velez_api.CreateSmerd_Request{
+		Name:         name,
+		ImageName:    HelloWorldAppImage,
+		IgnoreConfig: true,
+		Environment:  environment,
+	}
+}
+
 // Backward compatibility: a request that carries NO environment at all - every
 // caller that predates the feature, including the rest of this e2e suite - must
 // silently land in the default environment (PROD) and be stamped with its
@@ -62,13 +78,9 @@ func (s *EnvironmentsSuite) Test_EmptyEnvironment_UsesDefaultSuffix() {
 	t := s.T()
 
 	serviceName := e2eEnvDefaultName
-	env := NewEnvironment(t, WithContainerSuffix(e2eDefaultSuffix))
+	env := s.plane.NewEnvironment(t, WithContainerSuffix(e2eDefaultSuffix))
 
-	createReq := &velez_api.CreateSmerd_Request{
-		Name:         serviceName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-	}
+	createReq := newEnvironmentsRequest(serviceName, "")
 
 	created := env.CreateSmerd(t, createReq)
 	require.Equal(t, velez_api.Smerd_running, created.GetStatus())
@@ -106,25 +118,16 @@ func (s *EnvironmentsSuite) Test_EmptyEnvironment_UsesDefaultSuffix() {
 func (s *EnvironmentsSuite) Test_TwoEnvironments_AreListScoped() {
 	t := s.T()
 
-	env := NewEnvironment(t,
+	env := s.plane.NewEnvironment(t,
 		WithContainerSuffix(e2eDefaultSuffix),
 		WithEnvironments([]string{e2eStageEnv}))
 
-	prodReq := &velez_api.CreateSmerd_Request{
-		Name:         e2eEnvProdName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-	}
+	prodReq := newEnvironmentsRequest(e2eEnvProdName, "")
 
 	prodSmerd := env.CreateSmerd(t, prodReq)
 	require.Equal(t, e2eDefaultSuffix, prodSmerd.GetLabels()[labels.SuffixLabel])
 
-	stageReq := &velez_api.CreateSmerd_Request{
-		Name:         e2eEnvStageName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-		Environment:  e2eStageEnv,
-	}
+	stageReq := newEnvironmentsRequest(e2eEnvStageName, e2eStageEnv)
 
 	stageSmerd := env.CreateSmerd(t, stageReq)
 	require.Equal(t, e2eStageEnv, stageSmerd.GetLabels()[labels.SuffixLabel])
@@ -171,24 +174,15 @@ func (s *EnvironmentsSuite) Test_TwoEnvironments_AreListScoped() {
 func (s *EnvironmentsSuite) Test_SameNameInTwoEnvironments_AreDistinctContainers() {
 	t := s.T()
 
-	env := NewEnvironment(t,
+	env := s.plane.NewEnvironment(t,
 		WithContainerSuffix(e2eDefaultSuffix),
 		WithEnvironments([]string{e2eStageEnv}))
 
-	prodReq := &velez_api.CreateSmerd_Request{
-		Name:         e2eEnvSharedName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-	}
+	prodReq := newEnvironmentsRequest(e2eEnvSharedName, "")
 
 	prodSmerd := env.CreateSmerd(t, prodReq)
 
-	stageReq := &velez_api.CreateSmerd_Request{
-		Name:         e2eEnvSharedName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-		Environment:  e2eStageEnv,
-	}
+	stageReq := newEnvironmentsRequest(e2eEnvSharedName, e2eStageEnv)
 
 	stageSmerd := env.CreateSmerd(t, stageReq)
 
@@ -234,16 +228,11 @@ func (s *EnvironmentsSuite) Test_SameNameInTwoEnvironments_AreDistinctContainers
 func (s *EnvironmentsSuite) Test_DropSmerd_ByBareName_SilentlyNoOpsInSuffixedEnvironment() {
 	t := s.T()
 
-	env := NewEnvironment(t,
+	env := s.plane.NewEnvironment(t,
 		WithContainerSuffix(e2eDefaultSuffix),
 		WithEnvironments([]string{e2eStageEnv}))
 
-	stageReq := &velez_api.CreateSmerd_Request{
-		Name:         e2eEnvStageName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-		Environment:  e2eStageEnv,
-	}
+	stageReq := newEnvironmentsRequest(e2eEnvStageName, e2eStageEnv)
 
 	env.CreateSmerd(t, stageReq)
 
@@ -287,16 +276,11 @@ func (s *EnvironmentsSuite) Test_DropSmerd_ByBareName_SilentlyNoOpsInSuffixedEnv
 func (s *EnvironmentsSuite) Test_DropSmerd_ByUuid_CrossEnvironmentCollision() {
 	t := s.T()
 
-	env := NewEnvironment(t,
+	env := s.plane.NewEnvironment(t,
 		WithContainerSuffix(e2eDefaultSuffix),
 		WithEnvironments([]string{e2eStageEnv}))
 
-	stageReq := &velez_api.CreateSmerd_Request{
-		Name:         e2eEnvStageName,
-		ImageName:    HelloWorldAppImage,
-		IgnoreConfig: true,
-		Environment:  e2eStageEnv,
-	}
+	stageReq := newEnvironmentsRequest(e2eEnvStageName, e2eStageEnv)
 
 	stageSmerd := env.CreateSmerd(t, stageReq)
 
@@ -322,5 +306,7 @@ func (s *EnvironmentsSuite) Test_DropSmerd_ByUuid_CrossEnvironmentCollision() {
 
 func Test_Environments(t *testing.T) {
 	t.Parallel()
-	suite.Run(t, new(EnvironmentsSuite))
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
+		return &EnvironmentsSuite{plane: plane}
+	})
 }

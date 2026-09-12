@@ -46,7 +46,7 @@ func TestVervService_CreateRegistry_EmptyNameRejected(t *testing.T) {
 	v := newRegistryService(t)
 
 	_, err := v.CreateRegistry(context.Background(), domain.CreateRegistryReq{Type: domain.RegistryTypeDockerHub})
-	require.ErrorIs(t, err, ErrRegistryNameRequired)
+	require.ErrorIs(t, err, user_errors.ErrRegistryNameRequired)
 }
 
 func TestVervService_CreateRegistry_InvalidTypeRejected(t *testing.T) {
@@ -55,7 +55,7 @@ func TestVervService_CreateRegistry_InvalidTypeRejected(t *testing.T) {
 	req := domain.CreateRegistryReq{Name: "bad", Type: domain.RegistryType("bogus")}
 
 	_, err := v.CreateRegistry(context.Background(), req)
-	require.ErrorIs(t, err, ErrInvalidRegistryType)
+	require.ErrorIs(t, err, user_errors.ErrInvalidRegistryType)
 }
 
 func TestVervService_UpdateRegistry_MissingIDRejected(t *testing.T) {
@@ -93,14 +93,14 @@ func TestVervService_DeleteRegistry_UnknownNameRejected(t *testing.T) {
 	name := "ghost"
 
 	err := v.DeleteRegistry(context.Background(), domain.DeleteRegistryReq{Name: &name})
-	require.ErrorIs(t, err, ErrRegistryNotFound)
+	require.ErrorIs(t, err, user_errors.ErrRegistryNotFound)
 }
 
 func TestVervService_GetRegistry_UnknownIDRejected(t *testing.T) {
 	v := newRegistryService(t)
 
 	_, err := v.GetRegistry(context.Background(), 999)
-	require.ErrorIs(t, err, ErrRegistryNotFound)
+	require.ErrorIs(t, err, user_errors.ErrRegistryNotFound)
 }
 
 // newLocalStorageRegistryService builds a VervService against a real

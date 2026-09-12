@@ -8,9 +8,8 @@ import (
 	"google.golang.org/grpc"
 )
 
-var (
-	ErrPanicCough = rerrors.New("panic cough")
-)
+//nolint:forbidigo // package-private sentinel, not shared/user-facing
+var ErrPanicCough = rerrors.New("panic cough")
 
 func PanicInterceptor() grpc.ServerOption {
 	return grpc.ChainUnaryInterceptor(

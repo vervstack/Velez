@@ -1,3 +1,5 @@
+//go:build e2e_full
+
 package e2e
 
 import (
@@ -45,10 +47,10 @@ const (
 // jobs.SmerdEntityID(environments.DefaultEnvironmentName, jobs.RegistryServiceName),
 // per deployRegistryJob's registryEnvironment - before returning, so the
 // caller can rely on the registry container actually existing.
-func enableRegistryUnderDind(t *testing.T) *TestEnvironment {
+func enableRegistryUnderDind(t *testing.T, plane Plane) *TestEnvironment {
 	t.Helper()
 
-	env := NewEnvironment(t)
+	env := plane.NewEnvironment(t)
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 
 	removeRegistrySidecar(dockerClient)

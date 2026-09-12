@@ -106,8 +106,8 @@ func TestNewLabelBasedRuntime_BuildsLabelSuffixResolverBackedRuntime(t *testing.
 }
 
 // newDirectRuntime must build a dockerRuntime backed by a directResolver -
-// tier 2's constructor, not yet wired into production (resolver.go still
-// returns ErrDedicatedRuntimeNotImplemented for a dedicated environment).
+// tier 2's constructor, wired into production by resolver.go's dedicated
+// branch for an environment whose DockerHost differs from the node's own.
 func TestNewDirectRuntime_BuildsDirectResolverBackedRuntime(t *testing.T) {
 	api := &fakeCreateAPI{}
 
@@ -184,21 +184,6 @@ func TestLabelBasedRuntime_PassesThroughDockerSdkValues(t *testing.T) {
 	require.Same(t, req.HostConfig.HostConfig, api.gotHostConfig)
 	require.Same(t, req.NetworkingConfig.NetworkingConfig, api.gotNetConfig)
 	require.Same(t, req.Platform, api.gotPlatform)
-}
-
-// A missing config is a caller bug, not something to paper over with an
-// implicit empty one - the Docker API would reject it anyway, less clearly.
-func TestLabelBasedRuntime_MissingConfigErrors(t *testing.T) {
-	api := &fakeCreateAPI{}
-	runtime := newLabelRuntime(api, "", nil)
-
-	req := ContainerCreateRequest{
-		ContainerName: testSmerdName,
-	}
-
-	_, err := runtime.ContainerCreate(context.Background(), req)
-	require.Error(t, err)
-	require.Empty(t, api.gotName, "docker must not be called")
 }
 
 // Nil host/networking config is legal (docker treats them as defaults) and

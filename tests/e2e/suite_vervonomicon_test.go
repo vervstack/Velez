@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
@@ -26,7 +27,7 @@ const (
 )
 
 // newVervonomiconRequest is this file's one recurring request shape across
-// every Test_Vervonomicon_* case: a smerd deployed off a built verv image (or
+// every Test_* case: a smerd deployed off a built verv image (or
 // HelloWorldAppImage), optionally into a non-default environment.
 func newVervonomiconRequest(name, imageName, environment string) *velez_api.CreateSmerd_Request {
 	return &velez_api.CreateSmerd_Request{
@@ -37,16 +38,22 @@ func newVervonomiconRequest(name, imageName, environment string) *velez_api.Crea
 	}
 }
 
-// Test_Vervonomicon_ImageSourcedDescriptor covers docs/features/
-// vervonomicon.md's baseline: a descriptor baked into the deployed image is
-// read back byte-for-byte in Raw, resolved into resolved_yaml, and reported
-// with Source == IMAGE. This also exercises ImageSource.Read
-// (source_image.go) end to end - it has no dedicated test file otherwise,
-// and services.go wires a real ImageSource in production.
-func Test_Vervonomicon_ImageSourcedDescriptor(t *testing.T) {
-	t.Parallel()
+type VervonomiconSuite struct {
+	suite.Suite
 
-	env := NewEnvironment(t)
+	plane Plane
+}
+
+// Test_ImageSourcedDescriptor covers docs/features/vervonomicon.md's
+// baseline: a descriptor baked into the deployed image is read back
+// byte-for-byte in Raw, resolved into resolved_yaml, and reported with
+// Source == IMAGE. This also exercises ImageSource.Read (source_image.go)
+// end to end - it has no dedicated test file otherwise, and services.go
+// wires a real ImageSource in production.
+func (s *VervonomiconSuite) Test_ImageSourcedDescriptor() {
+	t := s.T()
+
+	env := s.plane.NewEnvironment(t)
 	ctx := t.Context()
 	dockerAPI := env.Custom.NodeClients.Docker().Client()
 
@@ -84,10 +91,10 @@ func Test_Vervonomicon_ImageSourcedDescriptor(t *testing.T) {
 	require.Contains(t, resp.GetResolvedYaml(), "name: "+vervImgSvcName)
 }
 
-// Test_Vervonomicon_EnvironmentOverlay covers the "Environment overlays"
-// section: the SAME logical service is deployed into two Velez environments
-// (default and "staging") from the same image, whose descriptor carries a
-// base deployment.yaml, a "staging/" overlay, and an unrelated "otherenv/"
+// Test_EnvironmentOverlay covers the "Environment overlays" section: the
+// SAME logical service is deployed into two Velez environments (default and
+// "staging") from the same image, whose descriptor carries a base
+// deployment.yaml, a "staging/" overlay, and an unrelated "otherenv/"
 // directory that must never affect either resolved result.
 //
 // Raw is asserted to still contain every environment's files (it is the
@@ -95,10 +102,10 @@ func Test_Vervonomicon_ImageSourcedDescriptor(t *testing.T) {
 // resolved output only ever reflects the base plus the queried environment's
 // overlay - proving "ignored entirely" is a merged-output property, not a
 // raw-output one.
-func Test_Vervonomicon_EnvironmentOverlay(t *testing.T) {
-	t.Parallel()
+func (s *VervonomiconSuite) Test_EnvironmentOverlay() {
+	t := s.T()
 
-	env := NewEnvironment(t, WithEnvironments([]string{vervStagingEnv}))
+	env := s.plane.NewEnvironment(t, WithEnvironments([]string{vervStagingEnv}))
 	ctx := t.Context()
 	dockerAPI := env.Custom.NodeClients.Docker().Client()
 
@@ -158,9 +165,9 @@ func Test_Vervonomicon_EnvironmentOverlay(t *testing.T) {
 		"a non-matching environment directory must never leak into any resolved result")
 }
 
-// Test_Vervonomicon_ResourceReconciliation covers "Resource reconciliation":
-// a resources.yaml entry backed by an existing velez.service_resources
-// binding (simulated here by a plain "<service>_pg" container - see
+// Test_ResourceReconciliation covers "Resource reconciliation": a
+// resources.yaml entry backed by an existing velez.service_resources binding
+// (simulated here by a plain "<service>_pg" container - see
 // createBoundResourceContainer) reports ALREADY_CONNECTED, and one with no
 // binding and no live matreshka connection reports MUST_PROVISION.
 //
@@ -172,8 +179,8 @@ func Test_Vervonomicon_EnvironmentOverlay(t *testing.T) {
 // Needs WithMatreshka(): reconcileResources always calls
 // Configurator.GetVervFromApi once a descriptor has any resources[] entry,
 // even to establish "no live connection exists" for one with no binding.
-func Test_Vervonomicon_ResourceReconciliation(t *testing.T) {
-	t.Parallel()
+func (s *VervonomiconSuite) Test_ResourceReconciliation() {
+	t := s.T()
 
 	// WithMatreshka()'s verv://matreshka gRPC resolver still produces zero
 	// addresses for in-process clients in this e2e harness (see
@@ -181,7 +188,7 @@ func Test_Vervonomicon_ResourceReconciliation(t *testing.T) {
 	// here - but reconcileResources treats that as "no live connection known"
 	// rather than a hard failure (see its own doc comment), so this test still
 	// exercises the real decision logic end to end.
-	env := NewEnvironment(t, WithMatreshka())
+	env := s.plane.NewEnvironment(t, WithMatreshka())
 	ctx := t.Context()
 	dockerAPI := env.Custom.NodeClients.Docker().Client()
 
@@ -225,13 +232,13 @@ func Test_Vervonomicon_ResourceReconciliation(t *testing.T) {
 		statuses["cache"], "a resource with no binding and no live matreshka connection must need provisioning")
 }
 
-// Test_Vervonomicon_NoDescriptorIsNotAnError covers the spec's explicit
-// guarantee: a deployed image that simply has no /verv directory is not an
-// error - GetVervonomicon returns a clean, empty response.
-func Test_Vervonomicon_NoDescriptorIsNotAnError(t *testing.T) {
-	t.Parallel()
+// Test_NoDescriptorIsNotAnError covers the spec's explicit guarantee: a
+// deployed image that simply has no /verv directory is not an error -
+// GetVervonomicon returns a clean, empty response.
+func (s *VervonomiconSuite) Test_NoDescriptorIsNotAnError() {
+	t := s.T()
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 	ctx := t.Context()
 
 	createReq := newVervonomiconRequest(vervNoDescSvcName, HelloWorldAppImage, "")
@@ -248,13 +255,13 @@ func Test_Vervonomicon_NoDescriptorIsNotAnError(t *testing.T) {
 	require.Empty(t, resp.GetResourceStatuses())
 }
 
-// Test_Vervonomicon_MalformedDescriptorIsAnError covers the flip side: a
-// present vervonomicon.yaml this Velez cannot parse (an unrecognised major
-// version) IS an error, distinct from ErrNoDescriptor.
-func Test_Vervonomicon_MalformedDescriptorIsAnError(t *testing.T) {
-	t.Parallel()
+// Test_MalformedDescriptorIsAnError covers the flip side: a present
+// vervonomicon.yaml this Velez cannot parse (an unrecognised major version)
+// IS an error, distinct from ErrNoDescriptor.
+func (s *VervonomiconSuite) Test_MalformedDescriptorIsAnError() {
+	t := s.T()
 
-	env := NewEnvironment(t)
+	env := s.plane.NewEnvironment(t)
 	ctx := t.Context()
 	dockerAPI := env.Custom.NodeClients.Docker().Client()
 
@@ -275,4 +282,11 @@ func Test_Vervonomicon_MalformedDescriptorIsAnError(t *testing.T) {
 	_, err := env.Custom.ServiceApiImpl.GetVervonomicon(ctx, req)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "unrecognised vervonomicon version")
+}
+
+func Test_Vervonomicon(t *testing.T) {
+	t.Parallel()
+	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
+		return &VervonomiconSuite{plane: plane}
+	})
 }

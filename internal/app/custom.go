@@ -31,6 +31,7 @@ import (
 	"go.vervstack.ru/Velez/internal/transport"
 	"go.vervstack.ru/Velez/internal/transport/control_plane_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/pgaas_api_impl"
+	"go.vervstack.ru/Velez/internal/transport/runners_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/service_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/tasks_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/ui"
@@ -67,6 +68,7 @@ type Custom struct {
 	ServiceApiImpl      *service_api_impl.Impl
 	TasksApiImpl        *tasks_api_impl.Impl
 	PgaasApiImpl        *pgaas_api_impl.Impl
+	RunnersApiImpl      *runners_api_impl.Impl
 
 	serverManager *transport.ServersManager
 
@@ -263,9 +265,11 @@ func (c *Custom) InitApiServer(a *App) error {
 	c.ServiceApiImpl = service_api_impl.New(c.Services, c.JobsEngine)
 	c.TasksApiImpl = tasks_api_impl.New(c.JobsEngine, c.Services.VervServices())
 	c.PgaasApiImpl = pgaas_api_impl.New(c.Services)
+	c.RunnersApiImpl = runners_api_impl.New(c.Services)
 
 	c.serverManager.AddImplementation(a.Ctx,
-		c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl, c.ServiceApiImpl, c.TasksApiImpl, c.PgaasApiImpl)
+		c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl, c.ServiceApiImpl, c.TasksApiImpl, c.PgaasApiImpl,
+		c.RunnersApiImpl)
 	c.serverManager.AddHttpHandler(docs.Swagger())
 	c.serverManager.AddHttpHandler("/", ui.NewServer())
 

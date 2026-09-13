@@ -210,9 +210,16 @@ type CreateSmerdTaskPayload struct {
 	// Config file content to copy into the container before it starts,
 	// resolved by fetch_config. Same shape/purpose as
 	// CopyToVolumeTaskPayload.path_to_files.
-	PathToFiles   map[string][]byte `protobuf:"bytes,7,rep,name=path_to_files,json=pathToFiles,proto3" json:"path_to_files,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	PathToFiles map[string][]byte `protobuf:"bytes,7,rep,name=path_to_files,json=pathToFiles,proto3" json:"path_to_files,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Velez-internal only: gates the host Docker socket bind-mount in
+	// create_smerd's create_container job. Never settable by the public
+	// CreateSmerd/CreateDeploy API surface - only internal/workers/deploy_watcher.go
+	// may set this, after checking internal/service/secrets for a
+	// server-written marker. A client-supplied CreateSmerdTaskPayload can never
+	// reach this field.
+	AllowDockerSocket bool `protobuf:"varint,8,opt,name=allow_docker_socket,json=allowDockerSocket,proto3" json:"allow_docker_socket,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *CreateSmerdTaskPayload) Reset() {
@@ -292,6 +299,13 @@ func (x *CreateSmerdTaskPayload) GetPathToFiles() map[string][]byte {
 		return x.PathToFiles
 	}
 	return nil
+}
+
+func (x *CreateSmerdTaskPayload) GetAllowDockerSocket() bool {
+	if x != nil {
+		return x.AllowDockerSocket
+	}
+	return false
 }
 
 // CreateServiceTaskPayload is the task context for the "create_service" action.
@@ -789,9 +803,15 @@ type UpgradeSmerdTaskPayload struct {
 	// Reused across both container-create stages (scratch config-fetcher
 	// container, then the final "_new" container) - mirrors the original
 	// pipeline's single newContId variable reuse; see questions.md.
-	ContainerId   *string `protobuf:"bytes,6,opt,name=container_id,json=containerId,proto3,oneof" json:"container_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ContainerId *string `protobuf:"bytes,6,opt,name=container_id,json=containerId,proto3,oneof" json:"container_id,omitempty"`
+	// allow_docker_socket mirrors CreateSmerdTaskPayload.allow_docker_socket -
+	// set by internal/workers/deploy_watcher.go's upgrade() from the same
+	// docker-socket grant secret deploy() checks, so a github_runner (or any
+	// future grantee) upgrade keeps its host Docker-socket bind-mount instead
+	// of silently losing it on the next blue-green swap.
+	AllowDockerSocket bool `protobuf:"varint,7,opt,name=allow_docker_socket,json=allowDockerSocket,proto3" json:"allow_docker_socket,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *UpgradeSmerdTaskPayload) Reset() {
@@ -864,6 +884,13 @@ func (x *UpgradeSmerdTaskPayload) GetContainerId() string {
 		return *x.ContainerId
 	}
 	return ""
+}
+
+func (x *UpgradeSmerdTaskPayload) GetAllowDockerSocket() bool {
+	if x != nil {
+		return x.AllowDockerSocket
+	}
+	return false
 }
 
 // EnableRegistryTaskPayload is the task context for the "enable_registry"
@@ -1063,7 +1090,7 @@ var File_tasks_proto protoreflect.FileDescriptor
 
 const file_tasks_proto_rawDesc = "" +
 	"\n" +
-	"\vtasks.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\x1a\x17control_plane_api.proto\x1a\x0fvelez_api.proto\x1a\x12velez_common.proto\"K\n" +
+	"\vtasks.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\x1a\x17control_plane_api.proto\x1a\x11service_api.proto\x1a\x0fvelez_api.proto\x1a\x12velez_common.proto\"K\n" +
 	"\tWatchTask\x1a>\n" +
 	"\aRequest\x12\x1b\n" +
 	"\tentity_id\x18\x01 \x01(\tR\bentityId\x12\x16\n" +
@@ -1086,7 +1113,7 @@ const file_tasks_proto_rawDesc = "" +
 	"\x04DONE\x10\x03\x12\n" +
 	"\n" +
 	"\x06FAILED\x10\x04B\b\n" +
-	"\x06_error\"\xb6\x04\n" +
+	"\x06_error\"\xe6\x04\n" +
 	"\x16CreateSmerdTaskPayload\x128\n" +
 	"\arequest\x18\x01 \x01(\v2\x1e.velez_api.CreateSmerd.RequestR\arequest\x12\x1e\n" +
 	"\bimage_id\x18\x02 \x01(\tH\x00R\aimageId\x88\x01\x01\x12&\n" +
@@ -1095,7 +1122,8 @@ const file_tasks_proto_rawDesc = "" +
 	"\n" +
 	"image_tags\x18\x05 \x03(\tR\timageTags\x12.\n" +
 	"\x13image_exposed_ports\x18\x06 \x03(\tR\x11imageExposedPorts\x12V\n" +
-	"\rpath_to_files\x18\a \x03(\v22.velez_api.CreateSmerdTaskPayload.PathToFilesEntryR\vpathToFiles\x1a>\n" +
+	"\rpath_to_files\x18\a \x03(\v22.velez_api.CreateSmerdTaskPayload.PathToFilesEntryR\vpathToFiles\x12.\n" +
+	"\x13allow_docker_socket\x18\b \x01(\bR\x11allowDockerSocket\x1a>\n" +
 	"\x10ImageLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +
@@ -1170,7 +1198,7 @@ const file_tasks_proto_rawDesc = "" +
 	"\x06failed\x18\x02 \x03(\v2#.velez_api.DropSmerd.Response.ErrorR\x06failed\x12\x1e\n" +
 	"\n" +
 	"successful\x18\x03 \x03(\tR\n" +
-	"successful\"\xd1\x03\n" +
+	"successful\"\x81\x04\n" +
 	"\x17UpgradeSmerdTaskPayload\x12H\n" +
 	"\x0fupgrade_request\x18\x01 \x01(\v2\x1f.velez_api.UpgradeSmerd.RequestR\x0eupgradeRequest\x128\n" +
 	"\arequest\x18\x02 \x01(\v2\x1e.velez_api.CreateSmerd.RequestR\arequest\x12-\n" +
@@ -1178,7 +1206,8 @@ const file_tasks_proto_rawDesc = "" +
 	"\fimage_labels\x18\x04 \x03(\v23.velez_api.UpgradeSmerdTaskPayload.ImageLabelsEntryR\vimageLabels\x12\x1d\n" +
 	"\n" +
 	"image_tags\x18\x05 \x03(\tR\timageTags\x12&\n" +
-	"\fcontainer_id\x18\x06 \x01(\tH\x01R\vcontainerId\x88\x01\x01\x1a>\n" +
+	"\fcontainer_id\x18\x06 \x01(\tH\x01R\vcontainerId\x88\x01\x01\x12.\n" +
+	"\x13allow_docker_socket\x18\a \x01(\bR\x11allowDockerSocket\x1a>\n" +
 	"\x10ImageLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x13\n" +
@@ -1276,6 +1305,7 @@ func file_tasks_proto_init() {
 		return
 	}
 	file_control_plane_api_proto_init()
+	file_service_api_proto_init()
 	file_velez_api_proto_init()
 	file_velez_common_proto_init()
 	file_tasks_proto_msgTypes[1].OneofWrappers = []any{}

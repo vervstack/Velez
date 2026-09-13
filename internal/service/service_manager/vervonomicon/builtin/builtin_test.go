@@ -41,6 +41,23 @@ func TestRead_RoundTripsThroughParse(t *testing.T) {
 	}
 }
 
+func TestRead_GithubRunnerRoundTripsThroughParse(t *testing.T) {
+	files, err := builtin.Read("github_runner")
+	require.NoError(t, err)
+	require.Contains(t, files, "vervonomicon.yaml")
+	require.Contains(t, files, "deployment.yaml")
+
+	descriptor, err := vervonomicon.Parse(files)
+	require.NoError(t, err)
+
+	require.Equal(t, "github_runner", descriptor.Index.Service.Name)
+	require.Equal(t, "ghcr.io/actions/actions-runner:latest", descriptor.Deployment.App.Image)
+	require.Empty(t, descriptor.Deployment.App.Ports)
+	require.Len(t, descriptor.Deployment.App.Volumes, 1)
+	require.Equal(t, "github-runner-data", descriptor.Deployment.App.Volumes[0].Name)
+	require.Equal(t, "/home/runner", descriptor.Deployment.App.Volumes[0].Path)
+}
+
 func TestRead_UnknownNameErrors(t *testing.T) {
 	_, err := builtin.Read("does-not-exist")
 	require.Error(t, err)

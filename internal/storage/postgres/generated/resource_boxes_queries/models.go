@@ -234,6 +234,17 @@ type VelezResourceBox struct {
 	UpdatedAt time.Time
 }
 
+type VelezRunner struct {
+	ServiceID int64
+	Provider  string
+	Scope     string
+	Target    string
+	Labels    []string
+	SecretRef string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 type VelezSecret struct {
 	ID    int64
 	Scope string

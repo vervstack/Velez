@@ -16,6 +16,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/service"
+	"go.vervstack.ru/Velez/internal/service/secrets"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
@@ -59,6 +60,10 @@ type deployWatcher struct {
 	// below stay scoped to the right environment instead of hitting the
 	// daemon through an unsuffixed Docker client.
 	runtimes container_runtime.RuntimeResolver
+	// secretsStore is read (never written) by deploy() to look up the
+	// docker-socket grant a github_runner enable flow may have left for this
+	// exact deploy - see jobs.DockerSocketGrantSecretRef.
+	secretsStore secrets.Store
 
 	nodeId int64
 
@@ -77,9 +82,10 @@ func NewDeployWatcher(
 	interval time.Duration,
 ) Worker {
 	return &deployWatcher{
-		jobsEngine:  jobsEngine,
-		dataStorage: clusterClients.StateManager(),
-		runtimes:    runtimes,
+		jobsEngine:   jobsEngine,
+		dataStorage:  clusterClients.StateManager(),
+		runtimes:     runtimes,
+		secretsStore: services.Secrets(),
 
 		nodeId: 1,
 
@@ -223,6 +229,8 @@ func (d *deployWatcher) deploy(ctx context.Context, dep domain.Deployment) error
 	initialContext := &velez_api.CreateSmerdTaskPayload{}
 	initialContext.SetRequest(smerdReq)
 
+	initialContext.AllowDockerSocket = d.allowDockerSocket(ctx, smerdReq.GetName())
+
 	// velez.tasks is UNIQUE (entity_id, action): scope the entity id by
 	// environment so the same service name deployed into two environments
 	// doesn't dedup onto one task. This worker deliberately never resolves the
@@ -246,6 +254,26 @@ func (d *deployWatcher) deploy(ctx context.Context, dep domain.Deployment) error
 	}
 
 	return nil
+}
+
+// allowDockerSocket reports whether serviceName carries a docker-socket
+// grant - the Velez-internal secret runneraas.CreateRunner writes before
+// scheduling a runner deploy, and the sole thing create_smerd.go's
+// dockerSocketAccessor gate checks. A missing grant (the overwhelmingly
+// common, non-runner case) is not an error, and any other lookup failure
+// also resolves to false rather than block or fail an unrelated deploy over
+// a secrets-store hiccup.
+func (d *deployWatcher) allowDockerSocket(ctx context.Context, serviceName string) bool {
+	_, err := d.secretsStore.Get(ctx, domain.DockerSocketGrantSecretRef(serviceName))
+	if err != nil {
+		if !rerrors.Is(err, user_errors.ErrSecretNotFound) {
+			log.Error().Err(err).Str("service_name", serviceName).Msg("error checking docker socket grant")
+		}
+
+		return false
+	}
+
+	return true
 }
 
 // upgrade upgrades a running deployment through the upgrade_smerd task. The
@@ -273,6 +301,8 @@ func (d *deployWatcher) upgrade(ctx context.Context, dep domain.Deployment) erro
 	initialContext := &velez_api.UpgradeSmerdTaskPayload{
 		UpgradeRequest: upgradeReq,
 	}
+
+	initialContext.AllowDockerSocket = d.allowDockerSocket(ctx, upgradeReq.GetName())
 
 	// Scope the entity id by environment - see the note in deploy(). TODO(#127).
 	entityID := jobs.SmerdEntityID(upgradeReq.GetEnvironment(), upgradeReq.GetName())

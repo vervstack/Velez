@@ -1,0 +1,34 @@
+app:
+  # image is set explicitly, unlike a normal service descriptor - this
+  # descriptor is embedded into the Velez binary itself
+  # (SourceKindBuiltin), not baked into an image, so there is nothing for
+  # Velez to inspect .verv/ out of.
+  image: ghcr.io/actions/actions-runner:latest
+
+  # A self-hosted runner is outbound-only - it polls GitHub, it never listens
+  # on a port - so there is no `ports:` entry here, unlike postgres/registry.
+
+  # Registration values (repo/org URL, registration token, runner name,
+  # comma-separated labels) are written into these env vars by the
+  # github-runner plugin's jobs handler (a later PR), not baked in here - no
+  # descriptor file ever contains a credential. This descriptor only fixes
+  # the env var names the handler must populate; names are not final.
+  env:
+    RUNNER_REPO_URL: ""
+    RUNNER_ORG_URL: ""
+    RUNNER_TOKEN: ""
+    RUNNER_NAME: ""
+    RUNNER_LABELS: ""
+
+  # github-runner-data is a placeholder name - the github-runner plugin's
+  # jobs handler overlays it to a per-target volume name after resolving
+  # this descriptor (see overlayGithubRunnerVolume in
+  # internal/jobs/enable_github_runner.go), since one node can run more than
+  # one runner (one per target) unlike postgres/registry.
+  volumes:
+    - name: github-runner-data
+      path: /home/runner
+
+  restart: unless_stopped
+
+  box: small

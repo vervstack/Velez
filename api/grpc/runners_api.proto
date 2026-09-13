@@ -1,0 +1,130 @@
+syntax = "proto3";
+
+package velez_api;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "npm.proto";
+
+import "velez_common.proto";
+
+option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
+option (npm_package) = "@vervstack/velez";
+
+// RunnersAPI - Runners-as-a-Service. A runner is a normal Velez service
+// (velez.services / deployment_specifications / deployments), with only the
+// runner-specific facts (provider, scope, target, labels, secret_ref) held in
+// velez.runners. Git-agnostic by design: GitHub Actions is the first
+// RunnerProvider, GitLab and others are additional providers under this same
+// contract, not separate contracts. Structured after PostgresAPI.
+service RunnersAPI {
+  rpc ListRunners(ListRunners.Request) returns (ListRunners.Response) {
+    option (google.api.http) = {
+      post: "/api/runners/list"
+      body: "*"
+    };
+  }
+
+  rpc CreateRunner(CreateRunner.Request) returns (CreateRunner.Response) {
+    option (google.api.http) = {
+      post: "/api/runners/create"
+      body: "*"
+    };
+  }
+
+  rpc DropRunner(DropRunner.Request) returns (DropRunner.Response) {
+    option (google.api.http) = {
+      post: "/api/runners/drop"
+      body: "*"
+    };
+  }
+}
+
+// RunnerProvider - which CI system a runner registers against. Deliberately
+// left room to grow: GITHUB is the only provisionable provider today, GITLAB
+// and others are added here as new values later, never as new contracts.
+enum RunnerProvider {
+  RUNNER_PROVIDER_UNSPECIFIED = 0;
+  GITHUB = 1;
+}
+
+// RunnerScope - the scope a self-hosted runner registers under: a single
+// repository, or an entire organization/group. Generalizes across providers
+// (GitHub repo/org, GitLab project/group).
+enum RunnerScope {
+  RUNNER_SCOPE_UNSPECIFIED = 0;
+  REPO = 1;
+  ORG = 2;
+}
+
+// Runner never carries its access token - status and environment live on the
+// underlying service/deployment rows and are read via ListSmerds/
+// VervServicesService, not duplicated here.
+message Runner {
+  string name = 1;
+  RunnerProvider provider = 2;
+  RunnerScope scope = 3;
+
+  // target - the repo ("owner/repo") or org ("owner") the runner registers
+  // against, per scope.
+  string target = 4;
+
+  repeated string labels = 5;
+  string environment = 6;
+  string status = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message ListRunners {
+  message Request {
+    Paging paging = 1;
+  }
+  message Response {
+    repeated Runner runners = 1;
+    uint64 total = 2;
+  }
+}
+
+message CreateRunner {
+  message Request {
+    string name = 1;
+    RunnerScope scope = 2;
+    string target = 3;
+    repeated string labels = 4;
+    optional string environment = 5;
+
+    // docker_socket_address - tcp:// address of a Docker daemon this runner
+    // should talk to (set as DOCKER_HOST env) instead of the default host
+    // socket. unix:// and bare paths are rejected: no caller-supplied value
+    // may ever become a bind-mount source, so it can never be pointed at
+    // Velez's own host socket. Empty means Velez grants the host socket via
+    // its existing internal-only bind-mount gate - full root access, the
+    // current default behavior.
+    optional string docker_socket_address = 6;
+
+    oneof provider_config {
+      GithubConfig github = 7;
+    }
+  }
+  message Response {
+    Runner runner = 1;
+  }
+}
+
+// GithubConfig - GitHub Actions-specific CreateRunner body. A future
+// GitlabConfig (base_url + token) is a new message + new provider_config
+// case, never a change to this one.
+message GithubConfig {
+  // access_token - a GitHub PAT with permission to mint a runner
+  // registration token for target. Never stored as given; see
+  // internal/service/secrets.
+  string access_token = 1;
+}
+
+message DropRunner {
+  message Request {
+    string name = 1;
+  }
+  message Response {}
+}

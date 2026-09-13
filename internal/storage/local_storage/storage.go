@@ -11,12 +11,18 @@ import (
 	"go.vervstack.ru/Velez/internal/storage/resource_boxes"
 )
 
-// allEnvironments is the empty Docker.ListContainers suffix - these
-// docker-backed views are node-wide (every service/dependency/resource on this
-// node, regardless of which environment owns it), so they deliberately don't
-// scope by labels.SuffixLabel.
 const (
+	// allEnvironments is the empty Docker.ListContainers suffix - these
+	// docker-backed views are node-wide (every service/dependency/resource on this
+	// node, regardless of which environment owns it), so they deliberately don't
+	// scope by labels.SuffixLabel.
 	allEnvironments = ""
+
+	// boolLabelValue is the presence-marker value shared by every boolean
+	// Docker label this package queries by (PgaasInstanceLabel,
+	// RunnerInstanceLabel) - the label's presence is the signal, its value
+	// is never otherwise inspected.
+	boolLabelValue = "true"
 )
 
 type localStorage struct {
@@ -33,6 +39,7 @@ type localStorage struct {
 	resourceBoxes    storage.ResourceBoxesStorage
 	secrets          storage.SecretsStorage
 	pgInstances      storage.PgInstancesStorage
+	runners          storage.RunnersStorage
 }
 
 func New(containerAPI node_clients.Docker, cfg config.Config) storage.Storage {
@@ -69,6 +76,10 @@ func New(containerAPI node_clients.Docker, cfg config.Config) storage.Storage {
 		// pg_instances.go in this package.
 		secrets:     newSecretsStorage(containerAPI),
 		pgInstances: newPgInstancesStorage(containerAPI),
+		// Single-node/dev mode has no velez.runners table either - a running
+		// container labelled labels.RunnerInstanceLabel is the system of
+		// record instead, mirroring pgInstances above - see runners.go.
+		runners: newRunnersStorage(containerAPI),
 	}
 }
 
@@ -128,6 +139,10 @@ func (l *localStorage) Secrets() storage.SecretsStorage {
 
 func (l *localStorage) PgInstances() storage.PgInstancesStorage {
 	return l.pgInstances
+}
+
+func (l *localStorage) Runners() storage.RunnersStorage {
+	return l.runners
 }
 
 // TxManager returns l.deployments itself as the Transactor: single-node/dev

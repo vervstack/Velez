@@ -1,0 +1,92 @@
+package domain
+
+import (
+	"time"
+
+	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+)
+
+// Runner is the runner-specific satellite row for a Runners-as-a-Service
+// instance (velez.runners). Status and environment live on the underlying
+// velez.services / deployment_specifications / deployments rows and are read
+// through VervServicesService and ListSmerds - never duplicated here. Mirrors
+// PgInstance / PostgresAPI's division of responsibility, generalized to be
+// git-provider-agnostic.
+type Runner struct {
+	ServiceID int64
+	Provider  string
+	Scope     string
+	Target    string
+	Labels    []string
+	// SecretRef - the canonical "scope/owner/key" string form of the
+	// domain.SecretRef the access token is stored under (see
+	// SecretRef.String). Never the value itself - resolved only through
+	// internal/service/secrets.Store.
+	SecretRef string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+// UpsertRunnerReq creates or replaces the velez.runners row for a service.
+type UpsertRunnerReq struct {
+	ServiceID int64
+	Provider  string
+	Scope     string
+	Target    string
+	Labels    []string
+	SecretRef string
+}
+
+// CreateRunnerReq is the input to RunnersService.CreateRunner. See
+// runners_api.proto's CreateRunner.Request. Provider and AccessToken are
+// resolved by the transport layer from the request's provider_config oneof
+// before this struct is built.
+type CreateRunnerReq struct {
+	Name     string
+	Provider velez_api.RunnerProvider
+	Scope    velez_api.RunnerScope
+	Target   string
+	Labels   []string
+
+	// AccessToken - a token with permission to create a runner registration
+	// token for Target (a GitHub PAT today; a GitLab token later). Never
+	// stored as given; see internal/service/secrets.
+	AccessToken string
+
+	// Environment - the isolated namespace this runner deploys into. Empty
+	// means the default/PROD environment (see storage/environments.Resolve).
+	Environment string
+
+	// DockerSocketAddress - tcp:// address of a Docker daemon this runner
+	// should talk to instead of the default host socket. Empty means Velez
+	// grants the host socket via its existing internal-only bind-mount gate.
+	// See runners_api.proto's CreateRunner.Request.docker_socket_address.
+	DockerSocketAddress string
+}
+
+// RunnerView is one resolved Runners-as-a-Service instance: runner-specific
+// facts (Runner) merged with live service/deployment state read through
+// VervServicesService - status and environment are never persisted alongside
+// the runner-specific facts.
+type RunnerView struct {
+	Name        string
+	Provider    velez_api.RunnerProvider
+	Scope       velez_api.RunnerScope
+	Target      string
+	Labels      []string
+	Environment string
+	Status      string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
+// ListRunnersReq pages through every Runners-as-a-Service instance.
+type ListRunnersReq struct {
+	Paging Paging
+}
+
+// RunnerList is the paged result of RunnersService.ListRunners.
+type RunnerList struct {
+	Total   uint64
+	Runners []RunnerView
+}

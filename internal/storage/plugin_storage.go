@@ -78,3 +78,7 @@ func (c *Container) Secrets() SecretsStorage {
 func (c *Container) PgInstances() PgInstancesStorage {
 	return (*c.impl.Load()).PgInstances()
 }
+
+func (c *Container) Runners() RunnersStorage {
+	return (*c.impl.Load()).Runners()
+}

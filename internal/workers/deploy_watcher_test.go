@@ -20,6 +20,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 	"go.vervstack.ru/Velez/tests/test_helper"
 )
 
@@ -221,16 +222,71 @@ type stubStorageResolver struct{ d storage.DeploymentsStorage }
 
 func (s stubStorageResolver) Deployments() storage.DeploymentsStorage { return s.d }
 
+// fakeSecretsStore is a pure in-process double for secrets.Store - see
+// fakeTaskRunner's doc comment above for why a hand-written record-only
+// double is in scope here rather than a real secrets store. None of the
+// tests in this file arrange a docker-socket grant, so Get always misses.
+type fakeSecretsStore struct {
+	mu     sync.Mutex
+	values map[string]string
+}
+
+func newFakeSecretsStore() *fakeSecretsStore {
+	return &fakeSecretsStore{values: make(map[string]string)}
+}
+
+func (f *fakeSecretsStore) Put(_ context.Context, ref domain.SecretRef, value string) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.values[ref.String()] = value
+
+	return nil
+}
+
+func (f *fakeSecretsStore) Get(_ context.Context, ref domain.SecretRef) (string, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	value, ok := f.values[ref.String()]
+	if !ok {
+		return "", rerrors.Wrap(user_errors.ErrSecretNotFound)
+	}
+
+	return value, nil
+}
+
+func (f *fakeSecretsStore) Delete(_ context.Context, ref domain.SecretRef) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	delete(f.values, ref.String())
+
+	return nil
+}
+
+func (f *fakeSecretsStore) ListRefs(_ context.Context, _, _ string) ([]domain.SecretRef, error) {
+	return nil, nil
+}
+
 func newTestWatcher(
 	runner *fakeTaskRunner, deployments *stubDeploymentsStorage, runtimes container_runtime.RuntimeResolver,
 ) *deployWatcher {
+	return newTestWatcherWithSecrets(runner, deployments, runtimes, newFakeSecretsStore())
+}
+
+func newTestWatcherWithSecrets(
+	runner *fakeTaskRunner, deployments *stubDeploymentsStorage, runtimes container_runtime.RuntimeResolver,
+	secretsStore *fakeSecretsStore,
+) *deployWatcher {
 	return &deployWatcher{
-		jobsEngine:  runner,
-		dataStorage: stubStorageResolver{d: deployments},
-		runtimes:    runtimes,
-		nodeId:      1,
-		ticker:      time.NewTicker(time.Hour),
-		done:        make(chan struct{}),
+		jobsEngine:   runner,
+		dataStorage:  stubStorageResolver{d: deployments},
+		runtimes:     runtimes,
+		secretsStore: secretsStore,
+		nodeId:       1,
+		ticker:       time.NewTicker(time.Hour),
+		done:         make(chan struct{}),
 	}
 }
 
@@ -419,4 +475,103 @@ func TestDeployWatcher_DeleteBatchRemovesContainerThroughRuntime(t *testing.T) {
 	statuses := deployments.recordedStatuses()
 	require.Len(t, statuses, 1)
 	require.Equal(t, deployments_queries.VelezDeploymentStatusDELETED, statuses[0].Status)
+}
+
+// A scheduled deployment or upgrade must carry the docker-socket grant
+// through to its task's AllowDockerSocket field whenever
+// domain.DockerSocketGrantSecretRef(serviceName) is present in the secrets
+// store - deploy() already threaded this; upgrade() used to build its
+// UpgradeSmerdTaskPayload with no equivalent field at all, silently dropping
+// the grant on every blue-green swap.
+func TestDeployWatcher_ThreadsDockerSocketGrantOntoTask(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name         string
+		status       deployments_queries.VelezDeploymentStatus
+		grantPresent bool
+		wantAction   string
+	}{
+		{
+			name:         "deploy with grant",
+			status:       deployments_queries.VelezDeploymentStatusSCHEDULEDDEPLOYMENT,
+			grantPresent: true,
+			wantAction:   jobs.CreateSmerdAction,
+		},
+		{
+			name:         "deploy without grant",
+			status:       deployments_queries.VelezDeploymentStatusSCHEDULEDDEPLOYMENT,
+			grantPresent: false,
+			wantAction:   jobs.CreateSmerdAction,
+		},
+		{
+			name:         "upgrade with grant",
+			status:       deployments_queries.VelezDeploymentStatusSCHEDULEDUPGRADE,
+			grantPresent: true,
+			wantAction:   jobs.UpgradeSmerdAction,
+		},
+		{
+			name:         "upgrade without grant",
+			status:       deployments_queries.VelezDeploymentStatusSCHEDULEDUPGRADE,
+			grantPresent: false,
+			wantAction:   jobs.UpgradeSmerdAction,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			runner := newFakeTaskRunner()
+			deployments := newStubDeploymentsStorage(t, testCreateRequest())
+			secretsStore := newFakeSecretsStore()
+
+			if tc.grantPresent {
+				putErr := secretsStore.Put(t.Context(), domain.DockerSocketGrantSecretRef(testSmerdName), "true")
+				require.NoError(t, putErr)
+			}
+
+			watcher := newTestWatcherWithSecrets(runner, deployments, nil, secretsStore)
+
+			batch := []domain.Deployment{scheduledDeployment(tc.status)}
+
+			err := watcher.processScheduledBatch(t.Context(), batch)
+			require.NoError(t, err)
+
+			calls := runner.calls()
+			require.Len(t, calls, 1)
+			require.Equal(t, tc.wantAction, calls[0].action)
+
+			allowDockerSocket := unmarshalAllowDockerSocket(t, tc.wantAction, calls[0].contextJSON)
+			require.Equal(t, tc.grantPresent, allowDockerSocket)
+		})
+	}
+}
+
+// unmarshalAllowDockerSocket decodes the persisted task context for action
+// and returns its AllowDockerSocket field - the two task payload types don't
+// share an interface for it, so the caller picks the concrete type by action.
+func unmarshalAllowDockerSocket(t *testing.T, action string, contextJSON []byte) bool {
+	t.Helper()
+
+	switch action {
+	case jobs.CreateSmerdAction:
+		payload := &velez_api.CreateSmerdTaskPayload{}
+
+		err := json.Unmarshal(contextJSON, payload)
+		require.NoError(t, err)
+
+		return payload.GetAllowDockerSocket()
+	case jobs.UpgradeSmerdAction:
+		payload := &velez_api.UpgradeSmerdTaskPayload{}
+
+		err := json.Unmarshal(contextJSON, payload)
+		require.NoError(t, err)
+
+		return payload.GetAllowDockerSocket()
+	default:
+		t.Fatalf("unmarshalAllowDockerSocket: unhandled action %q", action)
+
+		return false
+	}
 }

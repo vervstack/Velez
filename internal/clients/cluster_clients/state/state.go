@@ -159,3 +159,12 @@ func (s *stateManager) PgInstances() storage.PgInstancesStorage {
 
 	return (*l).PgInstances()
 }
+
+func (s *stateManager) Runners() storage.RunnersStorage {
+	l := s.state.Load()
+	if l == nil {
+		return nil
+	}
+
+	return (*l).Runners()
+}

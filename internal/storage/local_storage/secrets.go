@@ -132,7 +132,7 @@ func (d *dockerSecrets) passwordFromContainer(ctx context.Context, name string) 
 
 	listReq := &pb.ListSmerds_Request{
 		Name:  &name,
-		Label: map[string]string{labels.PgaasInstanceLabel: "true"},
+		Label: map[string]string{labels.PgaasInstanceLabel: boolLabelValue},
 	}
 
 	containers, err := d.docker.ListContainers(ctx, listReq, allEnvironments)

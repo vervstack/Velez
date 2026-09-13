@@ -25,6 +25,7 @@ type Services interface {
 	StorageContainer() *storage.Container
 	Secrets() secrets.Store
 	Postgres() PostgresService
+	Runners() RunnersService
 }
 
 type ContainerService interface {
@@ -126,4 +127,14 @@ type PostgresService interface {
 	// GetPgInstanceCredentials is the only PostgresService operation that
 	// resolves a secret_ref to its plaintext value.
 	GetPgInstanceCredentials(ctx context.Context, name string) (domain.PgInstanceCredentials, error)
+}
+
+// RunnersService provides Runners-as-a-Service: git-agnostic self-hosted CI
+// runner provisioning - see runners_api.proto's RunnersAPI. GitHub Actions is
+// the first provider; others are added as new runneraas.Provider
+// implementations, never as contract changes.
+type RunnersService interface {
+	ListRunners(ctx context.Context, req domain.ListRunnersReq) (domain.RunnerList, error)
+	CreateRunner(ctx context.Context, req domain.CreateRunnerReq) (domain.RunnerView, error)
+	DropRunner(ctx context.Context, name string) error
 }

@@ -9,6 +9,7 @@ import (
 
 	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
@@ -46,6 +47,11 @@ const (
 	vervConfigLabelDisabled = "false"
 
 	dockerContainerStatusRunning = "running"
+
+	// dockerSocketPath is bind-mounted into a container only when
+	// dockerSocketAccessor.GetAllowDockerSocket() is true - see
+	// createContainerJob.Do.
+	dockerSocketPath = "/var/run/docker.sock"
 )
 
 // Accessor interfaces the create_smerd jobs need from their TaskContext.
@@ -64,6 +70,16 @@ type imageIDAccessor interface {
 type containerIDAccessor interface {
 	GetContainerId() string
 	SetContainerId(cId string)
+}
+
+// dockerSocketAccessor is the sole gate for bind-mounting the host's Docker
+// socket into a container - see createContainerJob.Do. Its only writer
+// anywhere in the codebase is internal/workers/deploy_watcher.go's deploy(),
+// which sets it on the CreateSmerdTaskPayload it builds from a persisted
+// deployment specification, never from anything a client of the public
+// CreateSmerd/CreateDeploy API can influence directly.
+type dockerSocketAccessor interface {
+	GetAllowDockerSocket() bool
 }
 
 // createSmerdImageAccessor is what prepare_image needs to persist after
@@ -653,9 +669,25 @@ func (j *createContainerJob) Do(ctx context.Context) error {
 		Labels:      req.GetLabels(),
 	}
 
+	mounts := parser.FromVolume(req.GetSettings())
+
+	// Internal-only seam: AllowDockerSocket lives on CreateSmerdTaskPayload
+	// (and, identically, on UpgradeSmerdTaskPayload), never on this public
+	// CreateSmerd.Request, and is set only by
+	// internal/workers/deploy_watcher.go after it finds a server-written
+	// secrets.Store marker for this exact deploy - see dockerSocketAccessor.
+	// No public API (CreateSmerd, CreateDeploy, vervonomicon) can set this
+	// for an arbitrary image. This job is also reused, via
+	// renamingCreateContainerJob, by upgrade_smerd.go's blue-green swap, so a
+	// github_runner (or any future grantee) upgrade keeps its docker-socket
+	// bind-mount too - both payload types satisfy dockerSocketAccessor.
+	if withSocketGrant, ok := j.ctx.(dockerSocketAccessor); ok && withSocketGrant.GetAllowDockerSocket() {
+		mounts = append(mounts, dockerSocketMount())
+	}
+
 	hostCfg := &container.HostConfig{
 		PortBindings:  parser.FromPorts(req.GetSettings()),
-		Mounts:        parser.FromVolume(req.GetSettings()),
+		Mounts:        mounts,
 		RestartPolicy: parser.FromRestart(req.GetRestart()),
 	}
 
@@ -718,6 +750,17 @@ func (j *createContainerJob) Rollback(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+// dockerSocketMount bind-mounts the host's Docker socket into a
+// github_runner container - see createContainerJob.Do's dockerSocketAccessor
+// gate for why this is the one case that gets it.
+func dockerSocketMount() mount.Mount {
+	return mount.Mount{
+		Type:   mount.TypeBind,
+		Source: dockerSocketPath,
+		Target: dockerSocketPath,
+	}
 }
 
 // connectNetworks joins the newly-created container to the environment's own

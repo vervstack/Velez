@@ -7,6 +7,7 @@ import "google/protobuf/timestamp.proto";
 
 import "npm.proto";
 import "control_plane_api.proto";
+import "service_api.proto";
 import "velez_api.proto";
 import "velez_common.proto";
 
@@ -86,6 +87,14 @@ message CreateSmerdTaskPayload {
   // resolved by fetch_config. Same shape/purpose as
   // CopyToVolumeTaskPayload.path_to_files.
   map<string, bytes> path_to_files = 7;
+
+  // Velez-internal only: gates the host Docker socket bind-mount in
+  // create_smerd's create_container job. Never settable by the public
+  // CreateSmerd/CreateDeploy API surface - only internal/workers/deploy_watcher.go
+  // may set this, after checking internal/service/secrets for a
+  // server-written marker. A client-supplied CreateSmerdTaskPayload can never
+  // reach this field.
+  bool allow_docker_socket = 8;
 }
 
 // CreateServiceTaskPayload is the task context for the "create_service" action.
@@ -202,6 +211,13 @@ message UpgradeSmerdTaskPayload {
   // container, then the final "_new" container) - mirrors the original
   // pipeline's single newContId variable reuse; see questions.md.
   optional string container_id = 6;
+
+  // allow_docker_socket mirrors CreateSmerdTaskPayload.allow_docker_socket -
+  // set by internal/workers/deploy_watcher.go's upgrade() from the same
+  // docker-socket grant secret deploy() checks, so a github_runner (or any
+  // future grantee) upgrade keeps its host Docker-socket bind-mount instead
+  // of silently losing it on the next blue-green swap.
+  bool allow_docker_socket = 7;
 }
 
 // EnableRegistryTaskPayload is the task context for the "enable_registry"
@@ -227,3 +243,4 @@ message EnableRegistryTaskPayload {
   // port instead of picking a second one.
   optional uint32 exposed_port = 5;
 }
+

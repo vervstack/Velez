@@ -16,6 +16,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/service_manager/nodes_service"
 	"go.vervstack.ru/Velez/internal/service/service_manager/pgaas"
 	"go.vervstack.ru/Velez/internal/service/service_manager/plugins"
+	"go.vervstack.ru/Velez/internal/service/service_manager/runneraas"
 	"go.vervstack.ru/Velez/internal/service/service_manager/verv_services"
 	"go.vervstack.ru/Velez/internal/service/service_manager/vervonomicon"
 	"go.vervstack.ru/Velez/internal/storage"
@@ -34,6 +35,7 @@ type ServiceManager struct {
 	storageContainer *storage.Container
 	secretsStore     secrets.Store
 	postgresService  service.PostgresService
+	runnersService   service.RunnersService
 }
 
 func New(
@@ -79,6 +81,9 @@ func New(
 		// own Services()/GetByName calls have to agree with CreateNewDeploy
 		// from the start, not just after convergence.
 		postgresService: pgaas.New(clusterClients.StateManager(), vervServices, secretsStore),
+		// runneraas.New takes clusterClients.StateManager(), for the same
+		// reason pgaas.New does just above - see that comment.
+		runnersService: runneraas.New(clusterClients.StateManager(), vervServices, secretsStore),
 	}
 
 	// TODO VERV-128
@@ -121,4 +126,8 @@ func (s *ServiceManager) Secrets() secrets.Store {
 
 func (s *ServiceManager) Postgres() service.PostgresService {
 	return s.postgresService
+}
+
+func (s *ServiceManager) Runners() service.RunnersService {
+	return s.runnersService
 }

@@ -48,6 +48,7 @@ export type CreateSmerdTaskPayload = {
   imageTags?: string[];
   imageExposedPorts?: string[];
   pathToFiles?: Record<string, Uint8Array>;
+  allowDockerSocket?: boolean;
 };
 
 export type CreateServiceTaskPayload = {
@@ -103,6 +104,7 @@ export type UpgradeSmerdTaskPayload = {
   imageLabels?: Record<string, string>;
   imageTags?: string[];
   containerId?: string;
+  allowDockerSocket?: boolean;
 };
 
 export type EnableRegistryTaskPayload = {

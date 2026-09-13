@@ -1,7 +1,7 @@
 // Package builtin embeds the .verv/ descriptors Velez ships for the
-// containers it provisions on the user's behalf (postgres, registry) - see
-// docs/features/pgaas_and_registry_plugin.md section 2. Read returns the same
-// flat map keyed by path-relative-to-.verv/ that
+// containers it provisions on the user's behalf (postgres, registry,
+// github_runner) - see docs/features/pgaas_and_registry_plugin.md section 2.
+// Read returns the same flat map keyed by path-relative-to-.verv/ that
 // vervonomicon.ImageSource.Read returns, so
 // internal/service/service_manager/vervonomicon.Parse and MergeEnvironment
 // consume it unchanged.
@@ -15,12 +15,12 @@ import (
 	"go.redsock.ru/rerrors"
 )
 
-//go:embed postgres registry
+//go:embed postgres registry github_runner
 var descriptors embed.FS
 
-// Read returns the builtin descriptor files for name ("postgres" or
-// "registry"), as a flat map keyed by path relative to .verv/ - e.g.
-// "vervonomicon.yaml", "deployment.yaml".
+// Read returns the builtin descriptor files for name ("postgres",
+// "registry" or "github_runner"), as a flat map keyed by path relative to
+// .verv/ - e.g. "vervonomicon.yaml", "deployment.yaml".
 func Read(name string) (map[string][]byte, error) {
 	out := make(map[string][]byte)
 

@@ -1,0 +1,8 @@
+version: "1"
+
+service:
+  name: github_runner
+  description: Builtin GitHub Actions self-hosted runner, provisioned by the github-runner plugin.
+  tags: [ci, builtin]
+
+box: small

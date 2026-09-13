@@ -30,7 +30,7 @@ func NewPg(db *sql.DB) storage.PgInstancesStorage {
 
 func (p *pgStorage) UpsertPgInstance(ctx context.Context, req domain.UpsertPgInstanceReq) (domain.PgInstance, error) {
 	params := pg_instances_queries.UpsertPgInstanceParams{
-		ServiceID: req.ServiceID,
+		ServiceID: req.ServiceId,
 		DbName:    req.DbName,
 		Username:  req.Username,
 		SecretRef: req.SecretRef,
@@ -79,7 +79,7 @@ func (p *pgStorage) DeletePgInstance(ctx context.Context, serviceID int64) error
 
 func pgInstanceFromRow(row pg_instances_queries.VelezPgInstance) domain.PgInstance {
 	return domain.PgInstance{
-		ServiceID: row.ServiceID,
+		ServiceId: row.ServiceID,
 		DbName:    row.DbName,
 		Username:  row.Username,
 		SecretRef: row.SecretRef,

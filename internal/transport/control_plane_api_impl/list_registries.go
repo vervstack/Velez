@@ -36,7 +36,7 @@ func (impl *Impl) ListRegistries(
 // deliberately has none, so the plaintext secret can't leak into a response.
 func registryToPb(reg domain.Registry) *pb.Registry {
 	out := &pb.Registry{
-		Id:        reg.ID,
+		Id:        reg.Id,
 		Name:      reg.Name,
 		Type:      registryTypeToPb(reg.Type),
 		Url:       reg.Url,

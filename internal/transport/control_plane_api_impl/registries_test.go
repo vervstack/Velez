@@ -14,7 +14,7 @@ import (
 func Test_ListRegistries_NeverExposesSecret(t *testing.T) {
 	svc := &fakeVervServices{
 		regListResp: []domain.Registry{
-			{ID: 1, Name: "hub", Type: domain.RegistryTypeDockerHub, Secret: "super-secret"},
+			{Id: 1, Name: "hub", Type: domain.RegistryTypeDockerHub, Secret: "super-secret"},
 		},
 	}
 	impl := &Impl{vervServices: svc}
@@ -35,7 +35,7 @@ func Test_ListRegistries_Error(t *testing.T) {
 
 func Test_CreateRegistry_ForwardsFields(t *testing.T) {
 	svc := &fakeVervServices{
-		regCreateResp: domain.Registry{ID: 2, Name: "generic", Type: domain.RegistryTypeGenericV2},
+		regCreateResp: domain.Registry{Id: 2, Name: "generic", Type: domain.RegistryTypeGenericV2},
 	}
 	impl := &Impl{vervServices: svc}
 
@@ -77,7 +77,7 @@ func Test_CreateRegistry_Error(t *testing.T) {
 // zeroed pointer - that's what makes "leave secret blank to keep it
 // unchanged" work.
 func Test_UpdateRegistry_OmittedFieldsStayNil(t *testing.T) {
-	svc := &fakeVervServices{regUpdateResp: domain.Registry{ID: 5, Name: "renamed"}}
+	svc := &fakeVervServices{regUpdateResp: domain.Registry{Id: 5, Name: "renamed"}}
 	impl := &Impl{vervServices: svc}
 
 	name := "renamed"
@@ -85,7 +85,7 @@ func Test_UpdateRegistry_OmittedFieldsStayNil(t *testing.T) {
 
 	resp, err := impl.UpdateRegistry(context.Background(), req)
 	require.NoError(t, err)
-	require.Equal(t, int64(5), svc.regUpdateReq.ID)
+	require.Equal(t, int64(5), svc.regUpdateReq.Id)
 	require.NotNil(t, svc.regUpdateReq.Name)
 	require.Equal(t, "renamed", *svc.regUpdateReq.Name)
 	require.Nil(t, svc.regUpdateReq.Secret, "omitted secret must stay nil, not be blanked out")
@@ -122,7 +122,7 @@ func Test_DeleteRegistry_ByName(t *testing.T) {
 
 	_, err := impl.DeleteRegistry(context.Background(), req)
 	require.NoError(t, err)
-	require.Nil(t, svc.regDeleteReq.ID)
+	require.Nil(t, svc.regDeleteReq.Id)
 	require.NotNil(t, svc.regDeleteReq.Name)
 	require.Equal(t, "hub", *svc.regDeleteReq.Name)
 }
@@ -136,8 +136,8 @@ func Test_DeleteRegistry_ById(t *testing.T) {
 
 	_, err := impl.DeleteRegistry(context.Background(), req)
 	require.NoError(t, err)
-	require.NotNil(t, svc.regDeleteReq.ID)
-	require.Equal(t, int64(9), *svc.regDeleteReq.ID)
+	require.NotNil(t, svc.regDeleteReq.Id)
+	require.Equal(t, int64(9), *svc.regDeleteReq.Id)
 }
 
 func Test_DeleteRegistry_Error(t *testing.T) {

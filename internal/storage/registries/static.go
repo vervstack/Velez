@@ -49,7 +49,7 @@ func NewStatic() storage.RegistriesStorage {
 	now := time.Now()
 
 	dockerHub := domain.Registry{
-		ID:        dockerHubRegistryID,
+		Id:        dockerHubRegistryID,
 		Name:      dockerHubRegistryName,
 		Type:      domain.RegistryTypeDockerHub,
 		IsDefault: true,
@@ -60,7 +60,7 @@ func NewStatic() storage.RegistriesStorage {
 	return &staticStorage{
 		m:      &sync.RWMutex{},
 		nextID: dockerHubRegistryID + 1,
-		byID:   map[int64]domain.Registry{dockerHub.ID: dockerHub},
+		byID:   map[int64]domain.Registry{dockerHub.Id: dockerHub},
 	}
 }
 
@@ -74,7 +74,7 @@ func (s *staticStorage) ListRegistries(_ context.Context) ([]domain.Registry, er
 	}
 
 	sort.Slice(out, func(i, j int) bool {
-		return out[i].ID < out[j].ID
+		return out[i].Id < out[j].Id
 	})
 
 	return out, nil

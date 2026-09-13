@@ -13,7 +13,7 @@ import (
 // through VervServicesService and ListSmerds - never duplicated here. See
 // docs/features/pgaas_and_registry_plugin.md section 3.
 type PgInstance struct {
-	ServiceID int64
+	ServiceId int64
 	DbName    string
 	Username  string
 	// SecretRef - the canonical "scope/owner/key" string form of the
@@ -29,7 +29,7 @@ type PgInstance struct {
 // UpsertPgInstanceReq creates or replaces the velez.pg_instances row for a
 // service.
 type UpsertPgInstanceReq struct {
-	ServiceID int64
+	ServiceId int64
 	DbName    string
 	Username  string
 	SecretRef string

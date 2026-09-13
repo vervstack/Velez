@@ -77,6 +77,21 @@ A single TCP port is multiplexed into gRPC and HTTP (grpc-gateway) using `cmux`.
 | Storage   | `internal/storage/postgres/` | PostgreSQL via sqlc-generated queries               |
 | Domain    | `internal/domain/`           | Core data types (Service, Deployment, Volume, etc.) |
 
+### Domain layer override
+
+`internal/domain/` does **not** follow the global dev-profile's strict domain-purity rule
+(`31-go-layering.md`: domain imports only stdlib + primitive-type libraries). Velez domain
+structs may reference generated proto (`velez_api`, `matreshka_api`) and sqlc-generated
+types directly — e.g. `PgInstance.Isolation velez_api.PgInstanceIsolation`,
+`ListDeploymentsReq.NotStatus []deployments_queries.VelezDeploymentStatus`,
+`LaunchSmerd` embedding `*velez_api.CreateSmerd_Request`. Recorded 2026-09-13 from the
+dev-profile-coverage audit (`docs/dev-profile-coverage.md` item L): the pattern is
+pervasive enough across the package that peeling every offender into a dedicated domain
+type plus a mapping layer wasn't judged worth it for the current codebase size. The
+`internal/domain/vervonomicon/` subpackage stays fully pure by its own choice (zero
+imports beyond stdlib) and should be kept that way — this override doesn't invite new
+generated-type imports there.
+
 ### API (Proto definitions in `api/grpc/`)
 
 - `velez_api.proto` — Container CRUD (CreateSmerd, ListSmerds, DropSmerd)

@@ -1,14 +1,15 @@
 package domain
 
 import (
-	"errors"
 	"slices"
 	"strings"
+
+	"go.redsock.ru/rerrors"
 )
 
 // ErrInvalidSecretRef reports a string that does not parse into a SecretRef -
 // see ParseSecretRef.
-var ErrInvalidSecretRef = errors.New("invalid secret ref")
+var ErrInvalidSecretRef = rerrors.New("invalid secret ref")
 
 const (
 	// secretRefSegments is the number of "/"-separated segments in a

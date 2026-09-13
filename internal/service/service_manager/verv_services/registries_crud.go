@@ -79,7 +79,7 @@ func (v *VervService) CreateRegistry(ctx context.Context, req domain.CreateRegis
 // is_default = true runs inside a transaction that clears every other row
 // first.
 func (v *VervService) UpdateRegistry(ctx context.Context, req domain.UpdateRegistryReq) (domain.Registry, error) {
-	if req.ID == 0 {
+	if req.Id == 0 {
 		return domain.Registry{}, user_errors.ErrRegistryIdRequired
 	}
 
@@ -131,7 +131,7 @@ func (v *VervService) DeleteRegistry(ctx context.Context, req domain.DeleteRegis
 		return err
 	}
 
-	err = v.registries().DeleteRegistry(ctx, target.ID)
+	err = v.registries().DeleteRegistry(ctx, target.Id)
 	if err != nil {
 		return rerrors.Wrap(err, "error deleting registry")
 	}
@@ -144,8 +144,8 @@ func (v *VervService) resolveRegistryDeleteTarget(
 	req domain.DeleteRegistryReq,
 ) (domain.Registry, error) {
 	switch {
-	case req.ID != nil && *req.ID != 0:
-		reg, err := v.registries().GetRegistryByID(ctx, *req.ID)
+	case req.Id != nil && *req.Id != 0:
+		reg, err := v.registries().GetRegistryByID(ctx, *req.Id)
 		if err != nil {
 			return domain.Registry{}, rerrors.Wrap(user_errors.ErrRegistryNotFound, "unknown registry id")
 		}

@@ -18,7 +18,7 @@ func (impl *Impl) GetServiceMetrics(
 	}
 
 	resp := &pb.GetServiceMetrics_Response{
-		CpuPercent:      metrics.CPUPercent,
+		CpuPercent:      metrics.CpuPercent,
 		MemMi:           metrics.MemMi,
 		MemMaxMi:        metrics.MemMaxMi,
 		ReplicasRunning: metrics.ReplicasRunning,

@@ -50,7 +50,7 @@ func TestPgStorage_ListEnvironments(t *testing.T) {
 	got, err := s.ListEnvironments(context.Background())
 	require.NoError(t, err)
 	require.Len(t, got, 2)
-	require.Equal(t, int64(1), got[0].ID)
+	require.Equal(t, int64(1), got[0].Id)
 	require.Equal(t, "PROD", got[0].Name)
 	require.Equal(t, "stage", got[1].Suffix)
 	require.NoError(t, mock.ExpectationsWereMet())
@@ -70,7 +70,7 @@ func TestPgStorage_GetEnvironmentByName(t *testing.T) {
 
 	got, err := s.GetEnvironmentByName(context.Background(), "STAGE")
 	require.NoError(t, err)
-	require.Equal(t, int64(7), got.ID)
+	require.Equal(t, int64(7), got.Id)
 	require.Equal(t, "stage", got.Suffix)
 	require.NoError(t, mock.ExpectationsWereMet())
 }
@@ -123,7 +123,7 @@ func TestPgStorage_CreateEnvironment(t *testing.T) {
 
 	got, err := s.CreateEnvironment(context.Background(), req)
 	require.NoError(t, err)
-	require.Equal(t, int64(9), got.ID)
+	require.Equal(t, int64(9), got.Id)
 	require.Equal(t, "qa", got.Suffix)
 	require.NoError(t, mock.ExpectationsWereMet())
 }
@@ -150,7 +150,7 @@ func TestPgStorage_UpdateEnvironment_OmittedFieldsKeepCurrentValues(t *testing.T
 		WillReturnRows(updated)
 
 	newSuffix := "stg"
-	req := domain.UpdateEnvironmentReq{ID: 4, Suffix: &newSuffix}
+	req := domain.UpdateEnvironmentReq{Id: 4, Suffix: &newSuffix}
 
 	got, err := s.UpdateEnvironment(context.Background(), req)
 	require.NoError(t, err)

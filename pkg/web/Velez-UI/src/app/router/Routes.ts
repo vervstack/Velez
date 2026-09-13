@@ -9,6 +9,7 @@ export enum Routes {
     NewVervService = '/new_verv_service',
     Service = '/service',
     Postgres = '/postgres',
+    Runners = '/runners',
     Settings = '/settings',
     Login = '/login'
 }

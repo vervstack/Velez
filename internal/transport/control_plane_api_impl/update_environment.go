@@ -17,7 +17,7 @@ func (impl *Impl) UpdateEnvironment(
 	req *pb.UpdateEnvironment_Request,
 ) (*pb.UpdateEnvironment_Response, error) {
 	serviceReq := domain.UpdateEnvironmentReq{
-		ID:         req.GetId(),
+		Id:         req.GetId(),
 		Name:       req.Name,
 		Suffix:     req.Suffix,
 		DockerHost: req.DockerHost,

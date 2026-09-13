@@ -68,13 +68,13 @@ func (p *pgStorage) CreateRegistry(ctx context.Context, req domain.CreateRegistr
 }
 
 func (p *pgStorage) UpdateRegistry(ctx context.Context, req domain.UpdateRegistryReq) (domain.Registry, error) {
-	current, err := p.querier.GetRegistryByID(ctx, req.ID)
+	current, err := p.querier.GetRegistryByID(ctx, req.Id)
 	if err != nil {
 		return domain.Registry{}, rerrors.Wrap(wrapRegistryPgErr(err), "error getting registry before update")
 	}
 
 	params := registries_queries.UpdateRegistryParams{
-		ID:        req.ID,
+		ID:        req.Id,
 		Name:      current.Name,
 		Type:      current.Type,
 		Url:       current.Url,
@@ -141,7 +141,7 @@ func (p *pgStorage) WithTx(tx *sql.Tx) storage.RegistriesStorage {
 
 func registryFromRow(row registries_queries.VelezRegistry) domain.Registry {
 	return domain.Registry{
-		ID:        row.ID,
+		Id:        row.ID,
 		Name:      row.Name,
 		Type:      domain.RegistryType(row.Type),
 		Url:       row.Url,

@@ -66,7 +66,7 @@ func (d *dockerPgInstances) UpsertPgInstance(
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
-	existing, ok := d.pending[req.ServiceID]
+	existing, ok := d.pending[req.ServiceId]
 
 	createdAt := now
 	if ok {
@@ -74,7 +74,7 @@ func (d *dockerPgInstances) UpsertPgInstance(
 	}
 
 	instance := domain.PgInstance{
-		ServiceID: req.ServiceID,
+		ServiceId: req.ServiceId,
 		DbName:    req.DbName,
 		Username:  req.Username,
 		SecretRef: req.SecretRef,
@@ -83,7 +83,7 @@ func (d *dockerPgInstances) UpsertPgInstance(
 		UpdatedAt: now,
 	}
 
-	d.pending[req.ServiceID] = instance
+	d.pending[req.ServiceId] = instance
 
 	return instance, nil
 }
@@ -97,7 +97,7 @@ func (d *dockerPgInstances) GetPgInstanceByServiceID(
 	}
 
 	for _, instance := range instances {
-		if instance.ServiceID == serviceID {
+		if instance.ServiceId == serviceID {
 			return instance, nil
 		}
 	}
@@ -123,7 +123,7 @@ func (d *dockerPgInstances) ListPgInstances(ctx context.Context) ([]domain.PgIns
 
 	live := make(map[int64]struct{}, len(instances))
 	for _, instance := range instances {
-		live[instance.ServiceID] = struct{}{}
+		live[instance.ServiceId] = struct{}{}
 	}
 
 	d.mu.Lock()
@@ -139,7 +139,7 @@ func (d *dockerPgInstances) ListPgInstances(ctx context.Context) ([]domain.PgIns
 	d.mu.Unlock()
 
 	sort.Slice(instances, func(i, j int) bool {
-		return instances[i].ServiceID < instances[j].ServiceID
+		return instances[i].ServiceId < instances[j].ServiceId
 	})
 
 	return instances, nil
@@ -192,7 +192,7 @@ func (d *dockerPgInstances) listFromContainers(ctx context.Context) ([]domain.Pg
 		secretRef := domain.SecretRef{Scope: pgaasSecretScope, Owner: name, Key: pgaasSecretKey}
 
 		instance := domain.PgInstance{
-			ServiceID: serviceIDFromName(name),
+			ServiceId: serviceIDFromName(name),
 			DbName:    envValue(info.Config.Env, pgaasEnvDbName),
 			Username:  envValue(info.Config.Env, pgaasEnvUsername),
 			SecretRef: secretRef.String(),

@@ -94,7 +94,7 @@ func (v *VervService) UpdateEnvironment(
 	ctx context.Context,
 	req domain.UpdateEnvironmentReq,
 ) (domain.Environment, error) {
-	if req.ID == 0 {
+	if req.Id == 0 {
 		return domain.Environment{}, user_errors.ErrEnvironmentIdRequired
 	}
 
@@ -120,7 +120,7 @@ func (v *VervService) DeleteEnvironment(ctx context.Context, req domain.DeleteEn
 		return rerrors.Wrap(err, "error removing environment's docker resources")
 	}
 
-	err = v.environments().DeleteEnvironment(ctx, env.ID)
+	err = v.environments().DeleteEnvironment(ctx, env.Id)
 	if err != nil {
 		return rerrors.Wrap(err, "error deleting environment")
 	}
@@ -133,8 +133,8 @@ func (v *VervService) resolveDeleteTarget(
 	req domain.DeleteEnvironmentReq,
 ) (domain.Environment, error) {
 	switch {
-	case req.ID != nil && *req.ID != 0:
-		env, err := v.environments().GetEnvironmentByID(ctx, *req.ID)
+	case req.Id != nil && *req.Id != 0:
+		env, err := v.environments().GetEnvironmentByID(ctx, *req.Id)
 		if err != nil {
 			return domain.Environment{}, rerrors.Wrap(user_errors.ErrEnvironmentNotFound, "unknown environment id")
 		}

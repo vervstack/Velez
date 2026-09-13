@@ -38,7 +38,7 @@ func (s *staticStorage) UpsertPgInstance(_ context.Context, req domain.UpsertPgI
 
 	now := time.Now()
 
-	existing, ok := s.byServiceID[req.ServiceID]
+	existing, ok := s.byServiceID[req.ServiceId]
 
 	createdAt := now
 	if ok {
@@ -46,7 +46,7 @@ func (s *staticStorage) UpsertPgInstance(_ context.Context, req domain.UpsertPgI
 	}
 
 	instance := domain.PgInstance{
-		ServiceID: req.ServiceID,
+		ServiceId: req.ServiceId,
 		DbName:    req.DbName,
 		Username:  req.Username,
 		SecretRef: req.SecretRef,
@@ -55,7 +55,7 @@ func (s *staticStorage) UpsertPgInstance(_ context.Context, req domain.UpsertPgI
 		UpdatedAt: now,
 	}
 
-	s.byServiceID[req.ServiceID] = instance
+	s.byServiceID[req.ServiceId] = instance
 
 	return instance, nil
 }
@@ -82,7 +82,7 @@ func (s *staticStorage) ListPgInstances(_ context.Context) ([]domain.PgInstance,
 	}
 
 	sort.Slice(out, func(i, j int) bool {
-		return out[i].ServiceID < out[j].ServiceID
+		return out[i].ServiceId < out[j].ServiceId
 	})
 
 	return out, nil

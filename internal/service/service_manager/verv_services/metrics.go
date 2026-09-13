@@ -66,7 +66,7 @@ func (v *VervService) GetServiceMetrics(
 			continue
 		}
 
-		totalCPU += stats.CPUPercent
+		totalCPU += stats.CpuPercent
 		if stats.MemUsageMi > maxMemUsage {
 			maxMemUsage = stats.MemUsageMi
 		}
@@ -82,7 +82,7 @@ func (v *VervService) GetServiceMetrics(
 		}
 	}
 
-	metrics.CPUPercent = totalCPU
+	metrics.CpuPercent = totalCPU
 	metrics.MemMi = maxMemUsage
 	metrics.MemMaxMi = maxMemLimit
 	metrics.ReplicasRunning = replicasRunning

@@ -107,7 +107,7 @@ func TestResolveSearchRegistry_RegistryIdRequiresStatefullMode(t *testing.T) {
 }
 
 func TestResolveSearchRegistry_RegistryIdInStatefullMode(t *testing.T) {
-	want := domain.Registry{ID: 7, Type: domain.RegistryTypeGenericV2, Url: testRegistryUrl}
+	want := domain.Registry{Id: 7, Type: domain.RegistryTypeGenericV2, Url: testRegistryUrl}
 	svc := &fakeRegistrySvc{statefull: true, byId: map[int64]domain.Registry{7: want}}
 	impl := &Impl{vervServices: svc}
 
@@ -118,7 +118,7 @@ func TestResolveSearchRegistry_RegistryIdInStatefullMode(t *testing.T) {
 }
 
 func TestResolveSearchRegistry_DomainMatchesConfiguredRegistry(t *testing.T) {
-	configured := domain.Registry{ID: 3, Type: domain.RegistryTypeGenericV2, Url: testRegistryUrl, Username: "u"}
+	configured := domain.Registry{Id: 3, Type: domain.RegistryTypeGenericV2, Url: testRegistryUrl, Username: "u"}
 	svc := &fakeRegistrySvc{registries: []domain.Registry{configured}}
 	impl := &Impl{vervServices: svc}
 
@@ -151,8 +151,8 @@ func TestResolveSearchRegistry_DomainPathWorksInSingleNodeMode(t *testing.T) {
 }
 
 func TestResolveSearchRegistry_DefaultRow(t *testing.T) {
-	def := domain.Registry{ID: 1, Type: domain.RegistryTypeGenericV2, Url: "https://default.io", IsDefault: true}
-	svc := &fakeRegistrySvc{registries: []domain.Registry{{ID: 2}, def}}
+	def := domain.Registry{Id: 1, Type: domain.RegistryTypeGenericV2, Url: "https://default.io", IsDefault: true}
+	svc := &fakeRegistrySvc{registries: []domain.Registry{{Id: 2}, def}}
 	impl := &Impl{vervServices: svc}
 
 	reg, term, err := impl.resolveSearchRegistry(context.Background(), searchReq("postgres", 0))

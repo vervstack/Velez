@@ -74,7 +74,7 @@ func TestVervService_UpdateRegistry_NonDefaultSkipsTransaction(t *testing.T) {
 	newName := "docker-hub-renamed"
 
 	_, err := v.UpdateRegistry(ctx, domain.UpdateRegistryReq{
-		ID:   1,
+		Id:   1,
 		Name: &newName,
 	})
 	require.ErrorIs(t, err, user_errors.ErrRequiresStatefullMode)
@@ -147,7 +147,7 @@ func TestVervService_UpdateRegistry_DefaultAgainstLocalStorage(t *testing.T) {
 	isDefault := true
 
 	_, err := v.UpdateRegistry(ctx, domain.UpdateRegistryReq{
-		ID:        1,
+		Id:        1,
 		IsDefault: &isDefault,
 	})
 	require.ErrorIs(t, err, user_errors.ErrRequiresStatefullMode)

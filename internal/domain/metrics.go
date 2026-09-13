@@ -5,14 +5,14 @@ import (
 )
 
 type ContainerStats struct {
-	CPUPercent float64
+	CpuPercent float64
 	MemUsageMi uint64
 	MemLimitMi uint64
 	StartedAt  time.Time
 }
 
 type ServiceMetrics struct {
-	CPUPercent      float64
+	CpuPercent      float64
 	MemMi           uint64
 	MemMaxMi        uint64
 	ReplicasRunning uint32

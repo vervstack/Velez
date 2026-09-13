@@ -31,7 +31,7 @@ func TestStaticStorage_WriteMethodsRequireStatefullMode(t *testing.T) {
 
 	newUrl := "https://example.com"
 
-	_, err = s.UpdateRegistry(ctx, domain.UpdateRegistryReq{ID: 1, Url: &newUrl})
+	_, err = s.UpdateRegistry(ctx, domain.UpdateRegistryReq{Id: 1, Url: &newUrl})
 	require.True(t, errors.Is(err, user_errors.ErrRequiresStatefullMode))
 
 	err = s.DeleteRegistry(ctx, 1)

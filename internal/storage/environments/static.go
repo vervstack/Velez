@@ -66,7 +66,7 @@ func (s *staticStorage) ListEnvironments(_ context.Context) ([]domain.Environmen
 	}
 
 	sort.Slice(out, func(i, j int) bool {
-		return out[i].ID < out[j].ID
+		return out[i].Id < out[j].Id
 	})
 
 	return out, nil
@@ -119,13 +119,13 @@ func (s *staticStorage) seed(name, suffix string) {
 	now := time.Now()
 
 	env := domain.Environment{
-		ID:        s.nextID,
+		Id:        s.nextID,
 		Name:      name,
 		Suffix:    suffix,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
 
-	s.byID[env.ID] = env
+	s.byID[env.Id] = env
 	s.nextID++
 }

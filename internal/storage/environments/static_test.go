@@ -42,7 +42,7 @@ func TestStaticStorage_WriteMethodsRequireStatefullMode(t *testing.T) {
 
 	newSuffix := "qa2"
 
-	_, err = s.UpdateEnvironment(ctx, domain.UpdateEnvironmentReq{ID: 1, Suffix: &newSuffix})
+	_, err = s.UpdateEnvironment(ctx, domain.UpdateEnvironmentReq{Id: 1, Suffix: &newSuffix})
 	require.True(t, errors.Is(err, user_errors.ErrRequiresStatefullMode))
 
 	err = s.DeleteEnvironment(ctx, 1)

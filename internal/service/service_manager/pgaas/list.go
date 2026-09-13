@@ -38,7 +38,7 @@ func (s *PgaasService) ListPgInstances(
 	instances := make([]domain.PgInstanceView, 0, len(rows))
 
 	for _, row := range rows {
-		base, ok := stateByID[row.ServiceID]
+		base, ok := stateByID[row.ServiceId]
 		if !ok {
 			// A satellite row whose owning service can't be resolved back to
 			// live state - deleted out from under it, or (single-node/dev

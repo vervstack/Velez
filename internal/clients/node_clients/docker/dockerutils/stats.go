@@ -87,7 +87,7 @@ func Stats(ctx context.Context, cli client.APIClient, nameOrID string) (domain.C
 	}
 
 	return domain.ContainerStats{
-		CPUPercent: cpuPercent,
+		CpuPercent: cpuPercent,
 		MemUsageMi: memUsageMi,
 		MemLimitMi: memLimitMi,
 		StartedAt:  startedAt,

@@ -80,13 +80,13 @@ func (p *pgStorage) UpdateEnvironment(
 	ctx context.Context,
 	req domain.UpdateEnvironmentReq,
 ) (domain.Environment, error) {
-	current, err := p.querier.GetEnvironmentByID(ctx, req.ID)
+	current, err := p.querier.GetEnvironmentByID(ctx, req.Id)
 	if err != nil {
 		return domain.Environment{}, rerrors.Wrap(wrapEnvPgErr(err), "error getting environment before update")
 	}
 
 	params := environments_queries.UpdateEnvironmentParams{
-		ID:         req.ID,
+		ID:         req.Id,
 		Name:       current.Name,
 		Suffix:     current.Suffix,
 		DockerHost: current.DockerHost,
@@ -123,7 +123,7 @@ func (p *pgStorage) DeleteEnvironment(ctx context.Context, id int64) error {
 
 func environmentFromRow(row environments_queries.VelezEnvironment) domain.Environment {
 	return domain.Environment{
-		ID:         row.ID,
+		Id:         row.ID,
 		Name:       row.Name,
 		Suffix:     row.Suffix,
 		DockerHost: row.DockerHost,

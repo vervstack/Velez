@@ -68,7 +68,7 @@ func (s *staticStorage) UpsertBuiltinRegistry(
 	now := time.Now()
 
 	reg := domain.Registry{
-		ID:        s.nextID,
+		Id:        s.nextID,
 		Name:      req.Name,
 		Type:      req.Type,
 		Url:       req.Url,
@@ -79,7 +79,7 @@ func (s *staticStorage) UpsertBuiltinRegistry(
 		UpdatedAt: now,
 	}
 
-	s.byID[reg.ID] = reg
+	s.byID[reg.Id] = reg
 	s.nextID++
 
 	return reg, nil
@@ -105,7 +105,7 @@ func (p *pgStorage) UpsertBuiltinRegistry(
 	}
 
 	updateReq := domain.UpdateRegistryReq{
-		ID:       existing.ID,
+		Id:       existing.Id,
 		Type:     &req.Type,
 		Url:      &req.Url,
 		Username: &req.Username,

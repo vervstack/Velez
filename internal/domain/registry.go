@@ -12,7 +12,7 @@ const (
 )
 
 type Registry struct {
-	ID        int64
+	Id        int64
 	Name      string
 	Type      RegistryType
 	Url       string
@@ -33,7 +33,7 @@ type CreateRegistryReq struct {
 }
 
 type UpdateRegistryReq struct {
-	ID        int64
+	Id        int64
 	Name      *string
 	Type      *RegistryType
 	Url       *string
@@ -43,6 +43,6 @@ type UpdateRegistryReq struct {
 }
 
 type DeleteRegistryReq struct {
-	ID   *int64
+	Id   *int64
 	Name *string
 }

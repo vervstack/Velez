@@ -65,7 +65,7 @@ func TestVervService_UpdateEnvironment_RequiresStatefullMode(t *testing.T) {
 	newSuffix := "stg"
 
 	_, err := v.UpdateEnvironment(ctx, domain.UpdateEnvironmentReq{
-		ID:     1,
+		Id:     1,
 		Name:   &newName,
 		Suffix: &newSuffix,
 	})

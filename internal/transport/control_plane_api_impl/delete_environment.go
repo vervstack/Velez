@@ -20,7 +20,7 @@ func (impl *Impl) DeleteEnvironment(
 	req *pb.DeleteEnvironment_Request,
 ) (*pb.DeleteEnvironment_Response, error) {
 	serviceReq := domain.DeleteEnvironmentReq{
-		ID:   req.Id,
+		Id:   req.Id,
 		Name: req.Name,
 	}
 

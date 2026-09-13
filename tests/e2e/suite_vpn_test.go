@@ -28,8 +28,10 @@ import (
 //     https://vcn.redsock.ru, so a hermetic join is not testable until that
 //     URL is configurable (Trello #126 follow-up).
 //
-// Not t.Parallel(): the suite shares one headscale container and asserts on
-// its global namespace listing.
+// The suite's two methods use disjoint names (GetServiceName(t) vs. the
+// fixed vpnConnectServiceName), so they're marked t.Parallel() despite
+// sharing one headscale container - each method's ListNamespaces-based
+// assertions filter by its own name and don't care what else is listed.
 // vpnConnectServiceName names the smerd Test_ConnectService_LaunchesSidecar
 // deploys. It doubles as the container's Docker hostname, capped at 64
 // characters - GetServiceName(t) on a RunPlaneSuite subtest blows past that
@@ -60,6 +62,8 @@ func (s *VpnSuite) SetupSuite() {
 
 func (s *VpnSuite) Test_NamespaceCrud() {
 	t := s.T()
+	t.Parallel()
+
 	ctx := t.Context()
 
 	name := GetServiceName(t)
@@ -96,6 +100,8 @@ func (s *VpnSuite) Test_NamespaceCrud() {
 
 func (s *VpnSuite) Test_ConnectService_LaunchesSidecar() {
 	t := s.T()
+	t.Parallel()
+
 	ctx := t.Context()
 
 	serviceName := vpnConnectServiceName
@@ -152,6 +158,7 @@ func (s *VpnSuite) findNamespaceID(ctx context.Context, name string) string {
 }
 
 func Test_Vpn(t *testing.T) {
+	t.Parallel()
 	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
 		return &VpnSuite{plane: plane}
 	})

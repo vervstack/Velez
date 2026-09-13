@@ -5,6 +5,7 @@ package e2e
 import (
 	"context"
 	"net"
+	"path/filepath"
 	"strconv"
 	"testing"
 
@@ -26,10 +27,20 @@ import (
 // to completion. It returns the ready environment and the sidecar's
 // container/volume name, and registers unconditional cleanup of both.
 //
-// The caller MUST NOT be a t.Parallel() test: sqldb.RollMigration (the
-// create_schema_and_migrate job) rolls goose migrations from the hardcoded
-// relative "./migrations", so this helper t.Chdir's to the repo root for the
-// duration of the test.
+// No longer needs t.Chdir: sqldb.RollMigration (the create_schema_and_migrate
+// job) resolves goose migrations relative to the process's working directory
+// by default, so this helper points it at the repo's migrations/ directory
+// via WithMigrationsDir instead (t.Chdir refuses to run under a parallel test
+// or a parallel ancestor, which is what blocked t.Parallel() on this
+// helper's callers before).
+//
+// Still NOT safe to call concurrently from two different callers: the
+// sidecar is always published on the single fixed dindClusterPgPort
+// (dind_ports.go), so two callers racing collide on that host port
+// ("requested port is already occupied", confirmed against real Docker).
+// EnableStatefullSuite, ServiceLifecycleSuite and VervonomiconDeploySuite -
+// the three callers - all stay non-t.Parallel() at their top-level Test_X
+// function for exactly this reason.
 func enableStatefullPgUnderDind(t *testing.T, plane Plane, containerSuffix string) (*TestEnvironment, string) {
 	t.Helper()
 
@@ -52,11 +63,12 @@ func enableStatefullPgUnderDind(t *testing.T, plane Plane, containerSuffix strin
 		SslMode: "disable",
 	}
 
-	t.Chdir(repoRoot(t))
+	migrationsDir := filepath.Join(repoRoot(t), "migrations")
 
 	env := plane.NewEnvironment(t,
 		WithContainerSuffix(containerSuffix),
-		WithClusterPgDsn(advertisePg.ConnectionString()))
+		WithClusterPgDsn(advertisePg.ConnectionString()),
+		WithMigrationsDir(migrationsDir))
 
 	pgName := state.PgName(containerSuffix)
 	dockerClient := env.Custom.NodeClients.Docker().Client()

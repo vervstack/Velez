@@ -62,8 +62,13 @@ const (
 	headscaleConfigMode      = 0o644
 	headscaleConfigDirMode   = 0o755
 	headscaleAPIKeyTimeout   = 60 * time.Second
-	headscaleAPIReadyTimeout = 30 * time.Second
+	headscaleAPIReadyTimeout = 60 * time.Second
 	headscalePollInterval    = time.Second
+
+	// headscaleReadyBodyLogCap bounds how much of a non-200 /api/v1/user
+	// response body gets logged on timeout - enough to see a real error
+	// message, not so much a pathological response floods the log.
+	headscaleReadyBodyLogCap = 4 << 10
 
 	// headscaleFixtureConfig is a minimal, self-contained headscale server
 	// config: sqlite in an anonymous volume, the embedded DERP server
@@ -245,11 +250,19 @@ func (i *sharedHeadscaleInstance) awaitAPIKey(ctx context.Context) (string, erro
 }
 
 // awaitAPIReady confirms the HTTP API is reachable from this process at the
-// bootstrap-host address the Velez app will use.
+// bootstrap-host address the Velez app will use. On timeout it logs the last
+// non-200 response's status and body: this poll flaked once in CI (a
+// persistent 401 for the whole window, gone on an immediate rerun) without
+// enough information to root-cause it, so the next occurrence needs a body
+// to look at instead of just a status code.
 func (i *sharedHeadscaleInstance) awaitAPIReady(ctx context.Context) error {
 	deadline := time.Now().Add(headscaleAPIReadyTimeout)
 
-	var lastErr error
+	var (
+		lastErr    error
+		lastStatus string
+		lastBody   string
+	)
 
 	for time.Now().Before(deadline) {
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, i.apiURL+"/api/v1/user", nil)
@@ -268,6 +281,8 @@ func (i *sharedHeadscaleInstance) awaitAPIReady(ctx context.Context) error {
 			continue
 		}
 
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, headscaleReadyBodyLogCap))
+
 		_, _ = io.Copy(io.Discard, resp.Body)
 		_ = resp.Body.Close()
 
@@ -275,9 +290,19 @@ func (i *sharedHeadscaleInstance) awaitAPIReady(ctx context.Context) error {
 			return nil
 		}
 
+		lastStatus = resp.Status
+		lastBody = string(body)
 		lastErr = user_errors.New("headscale /api/v1/user returned " + resp.Status)
 
 		time.Sleep(headscalePollInterval)
+	}
+
+	if lastStatus != "" {
+		log.Error().
+			Str("status", lastStatus).
+			Str("body", lastBody).
+			Dur("timeout", headscaleAPIReadyTimeout).
+			Msg("headscale readiness check timed out")
 	}
 
 	return lastErr

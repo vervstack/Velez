@@ -24,6 +24,15 @@ import (
 // error cases) is covered in suite_vervonomicon_test.go and
 // suite_vervonomicon_deploy_test.go - this suite only proves the unknown-
 // service shape (a clean empty response).
+// rpcGapsMakeConnectionsName names the smerd Test_MakeAndBreakConnections
+// deploys. It doubles as the container's Docker hostname, capped at 64
+// characters - GetServiceName(t) on a RunPlaneSuite subtest blows past that
+// (see ClusterLifecycleSuite's doc comment in suite_api_deploy_test.go), so
+// this test uses its own short, suite-unique name instead. Test_RpcGaps
+// isn't parallel and RunPlaneSuite runs planes sequentially, so reusing the
+// same constant across planes is safe.
+const rpcGapsMakeConnectionsName = "e2e_rpcgaps_makeconn"
+
 type RpcGapsSuite struct {
 	suite.Suite
 
@@ -182,12 +191,12 @@ func (s *RpcGapsSuite) Test_MakeAndBreakConnections() {
 
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 
-	smerdReq := newHelloWorldRequest(GetServiceName(t))
+	smerdReq := newHelloWorldRequest(rpcGapsMakeConnectionsName)
 
 	smerd := env.CreateSmerd(t, smerdReq)
 	require.NotEmpty(t, smerd.GetUuid())
 
-	netName := GetServiceName(t) + "_net"
+	netName := rpcGapsMakeConnectionsName + "_net"
 
 	createNetOpts := dockernetwork.CreateOptions{Driver: "bridge"}
 

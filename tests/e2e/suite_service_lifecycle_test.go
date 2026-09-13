@@ -59,9 +59,6 @@ const (
 // deploy, same process" flow sees the cluster-Postgres deployment. Before that
 // fix they captured the pre-swap local_storage backend at startup and the
 // watcher never saw the row.
-//
-// Not t.Parallel(): enableStatefullPgUnderDind t.Chdir's to the repo root
-// (goose migrations resolve "./migrations" relative to cwd).
 type ServiceLifecycleSuite struct {
 	suite.Suite
 
@@ -81,6 +78,8 @@ func newServiceLifecycleDeploySpec(t *testing.T) *velez_api.CreateSmerd_Request 
 
 func (s *ServiceLifecycleSuite) Test_ServiceDeploymentLifecycle() {
 	t := s.T()
+	t.Parallel()
+
 	ctx := t.Context()
 
 	env, _ := enableStatefullPgUnderDind(t, s.plane, svcLifecycleSuffix)
@@ -264,6 +263,13 @@ func (s *ServiceLifecycleSuite) createService(env *TestEnvironment) {
 	require.NoError(t, err, "the CreateService RPC (validate_name + upsert_service jobs) must not error")
 }
 
+// Test_ServiceLifecycle is NOT t.Parallel(): enableStatefullPgUnderDind
+// exposes the cluster-pg sidecar on the fixed dindClusterPgPort (30020, see
+// dind_ports.go), the same port Test_EnableStatefull and
+// Test_VervonomiconDeploy expose theirs on - running this concurrently with
+// those races them for that single port and fails with "requested port is
+// already occupied" (confirmed against real Docker for the other two; not
+// worth re-proving here since the port is shared by construction).
 func Test_ServiceLifecycle(t *testing.T) {
 	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
 		return &ServiceLifecycleSuite{plane: plane}

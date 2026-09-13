@@ -26,6 +26,7 @@ type EnvironmentConfig struct {
 	MatreshkaKey       string
 	MatreshkaPort      int
 	MemorySwapMb       int
+	MigrationsDir      string
 	NodeRegion         string
 	RAMMbDefault       int
 	ShutDownOnExit     bool

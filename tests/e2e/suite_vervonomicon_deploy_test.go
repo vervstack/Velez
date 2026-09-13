@@ -44,9 +44,15 @@ const (
 //     actually persisted, and a subsequent GetVervonomicon independently
 //     re-derives equivalent content from the same image
 //
-// Not t.Parallel(): enableStatefullPgUnderDind t.Chdir's to the repo root
-// (goose migrations resolve "./migrations" relative to cwd) - see
-// ServiceLifecycleSuite's identical constraint.
+// The suite's three test methods are NOT individually t.Parallel(): each
+// SetupTest call re-enables statefull_pg under the same fixed
+// vervDeploySuffix, so its cluster-pg sidecar container name would collide
+// if two methods ran concurrently. Test_VervonomiconDeploy itself is also NOT
+// t.Parallel(): enableStatefullPgUnderDind exposes the sidecar on the fixed
+// dindClusterPgPort (30020, see dind_ports.go), the same port
+// Test_EnableStatefull and Test_ServiceLifecycle expose theirs on - running
+// this concurrently with those raced them for that single port and failed
+// with "requested port is already occupied" (confirmed against real Docker).
 //
 // Out of scope, and NOT covered here (see the final report for the full
 // reasoning): the box's resolved numeric cpu/ram is never wired onto the real

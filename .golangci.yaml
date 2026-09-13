@@ -66,7 +66,6 @@ linters:
     wsl_v5:
       default: all
   enable:
-    - govet
     - asasalint
     - asciicheck
     - bidichk
@@ -75,7 +74,6 @@ linters:
     - copyloopvar
     #    - cyclop
     - decorder
-    - dupword
     - dogsled
     - dupl
     - dupword

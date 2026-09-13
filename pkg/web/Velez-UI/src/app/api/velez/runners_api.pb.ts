@@ -9,6 +9,15 @@ import * as fm from "./fetch.pb";
 import * as GoogleProtobufTimestamp from "./google/protobuf/timestamp.pb";
 import * as VelezApiVelezCommon from "./velez_common.pb";
 
+type Absent<T, K extends keyof T> = { [k in Exclude<keyof T, K>]?: undefined };
+
+type OneOf<T> =
+  | { [k in keyof T]?: undefined }
+  | (keyof T extends infer K
+      ? K extends string & keyof T
+        ? { [k in K]: T[K] } & Absent<T, K>
+        : never
+      : never);
 
 export enum RunnerProvider {
   RUNNER_PROVIDER_UNSPECIFIED = "RUNNER_PROVIDER_UNSPECIFIED",
@@ -44,21 +53,27 @@ export type ListRunnersResponse = {
 
 export type ListRunners = Record<string, never>;
 
-export type CreateRunnerRequest = {
+type BaseCreateRunnerRequest = {
   name?: string;
-  provider?: RunnerProvider;
   scope?: RunnerScope;
   target?: string;
-  labels?: string[];
-  accessToken?: string;
-  environment?: string;
+  labels?: string[];environment?: string;dockerSocketAddress?: string;
 };
+
+export type CreateRunnerRequest = BaseCreateRunnerRequest &
+  OneOf<{
+    github: GithubConfig;
+  }>;
 
 export type CreateRunnerResponse = {
   runner?: Runner;
 };
 
 export type CreateRunner = Record<string, never>;
+
+export type GithubConfig = {
+  accessToken?: string;
+};
 
 export type DropRunnerRequest = {
   name?: string;

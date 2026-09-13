@@ -17,10 +17,16 @@ import (
 const (
 	runnerSecretScope = "runneraas"
 	runnerSecretKey   = "access_token"
+	dockerHostEnvVar  = "DOCKER_HOST"
 )
 
 func (s *RunneraasService) CreateRunner(ctx context.Context, req domain.CreateRunnerReq) (domain.RunnerView, error) {
 	err := validateRunnerTarget(req.Scope, req.Target)
+	if err != nil {
+		return domain.RunnerView{}, rerrors.Wrap(err)
+	}
+
+	err = validateDockerSocketAddress(req.DockerSocketAddress)
 	if err != nil {
 		return domain.RunnerView{}, rerrors.Wrap(err)
 	}
@@ -47,16 +53,25 @@ func (s *RunneraasService) CreateRunner(ctx context.Context, req domain.CreateRu
 		return domain.RunnerView{}, rerrors.Wrap(err, "error building runner deploy request")
 	}
 
-	// Docker-socket grant MUST be written before CreateNewDeploy schedules the
-	// deploy - deploy_watcher.go reads it, by the same DockerSocketGrantSecretRef
-	// derivation, right before it enqueues the create_smerd task that actually
-	// creates the container. This is the only writer of this secret in the
-	// codebase (besides jobs/enable_github_runner.go's now-superseded path) -
-	// see create_smerd.go's dockerSocketAccessor gate. Never derived from, or
-	// settable via, any field on CreateRunner.Request.
-	err = s.secrets.Put(ctx, domain.DockerSocketGrantSecretRef(req.Name), "true")
-	if err != nil {
-		return domain.RunnerView{}, rerrors.Wrap(err, "error putting docker socket grant secret")
+	// A caller-supplied docker_socket_address means the runner talks to its
+	// own daemon over the network - set as DOCKER_HOST, the same mechanism
+	// buildDeployRequest already uses for registration env vars, and it
+	// never gets the host bind-mount grant too. Otherwise, this is exactly
+	// today's behavior: the docker-socket grant MUST be written before
+	// CreateNewDeploy schedules the deploy - deploy_watcher.go reads it, by
+	// the same DockerSocketGrantSecretRef derivation, right before it
+	// enqueues the create_smerd task that actually creates the container.
+	// This is the only writer of this secret in the codebase (besides
+	// jobs/enable_github_runner.go's now-superseded path) - see
+	// create_smerd.go's dockerSocketAccessor gate. Never derived from, or
+	// settable via, any other field on CreateRunner.Request.
+	if req.DockerSocketAddress != "" {
+		smerdRequest.Env[dockerHostEnvVar] = req.DockerSocketAddress
+	} else {
+		err = s.secrets.Put(ctx, domain.DockerSocketGrantSecretRef(req.Name), "true")
+		if err != nil {
+			return domain.RunnerView{}, rerrors.Wrap(err, "error putting docker socket grant secret")
+		}
 	}
 
 	deployReq := domain.CreateDeployReq{

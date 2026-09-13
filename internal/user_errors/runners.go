@@ -37,4 +37,10 @@ var (
 	// ErrRunnerProviderUnsupported is returned by the runneraas package for
 	// an unrecognized or unspecified RunnerProvider.
 	ErrRunnerProviderUnsupported = rerrors.New("runner provider is not supported", codes.InvalidArgument)
+
+	// ErrRunnerDockerSocketAddressInvalid is returned by the runneraas
+	// package when a request's docker_socket_address is non-empty but not a
+	// tcp:// address.
+	ErrRunnerDockerSocketAddressInvalid = rerrors.New(
+		"runner docker socket address must be a tcp:// address", codes.InvalidArgument)
 )

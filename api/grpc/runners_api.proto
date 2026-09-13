@@ -89,21 +89,37 @@ message ListRunners {
 message CreateRunner {
   message Request {
     string name = 1;
-    RunnerProvider provider = 2;
-    RunnerScope scope = 3;
-    string target = 4;
-    repeated string labels = 5;
+    RunnerScope scope = 2;
+    string target = 3;
+    repeated string labels = 4;
+    optional string environment = 5;
 
-    // access_token - a token with permission to create a runner registration
-    // token for target (a GitHub PAT today; a GitLab token later). Never
-    // stored as given; see internal/service/secrets.
-    string access_token = 6;
+    // docker_socket_address - tcp:// address of a Docker daemon this runner
+    // should talk to (set as DOCKER_HOST env) instead of the default host
+    // socket. unix:// and bare paths are rejected: no caller-supplied value
+    // may ever become a bind-mount source, so it can never be pointed at
+    // Velez's own host socket. Empty means Velez grants the host socket via
+    // its existing internal-only bind-mount gate - full root access, the
+    // current default behavior.
+    optional string docker_socket_address = 6;
 
-    optional string environment = 7;
+    oneof provider_config {
+      GithubConfig github = 7;
+    }
   }
   message Response {
     Runner runner = 1;
   }
+}
+
+// GithubConfig - GitHub Actions-specific CreateRunner body. A future
+// GitlabConfig (base_url + token) is a new message + new provider_config
+// case, never a change to this one.
+message GithubConfig {
+  // access_token - a GitHub PAT with permission to mint a runner
+  // registration token for target. Never stored as given; see
+  // internal/service/secrets.
+  string access_token = 1;
 }
 
 message DropRunner {

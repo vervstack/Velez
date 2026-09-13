@@ -148,9 +148,6 @@
         "name": {
           "type": "string"
         },
-        "provider": {
-          "$ref": "#/definitions/velez_apiRunnerProvider"
-        },
         "scope": {
           "$ref": "#/definitions/velez_apiRunnerScope"
         },
@@ -163,12 +160,15 @@
             "type": "string"
           }
         },
-        "accessToken": {
-          "type": "string",
-          "description": "access_token - a token with permission to create a runner registration\ntoken for target (a GitHub PAT today; a GitLab token later). Never\nstored as given; see internal/service/secrets."
-        },
         "environment": {
           "type": "string"
+        },
+        "dockerSocketAddress": {
+          "type": "string",
+          "description": "docker_socket_address - tcp:// address of a Docker daemon this runner\nshould talk to (set as DOCKER_HOST env) instead of the default host\nsocket. unix:// and bare paths are rejected: no caller-supplied value\nmay ever become a bind-mount source, so it can never be pointed at\nVelez's own host socket. Empty means Velez grants the host socket via\nits existing internal-only bind-mount gate - full root access, the\ncurrent default behavior."
+        },
+        "github": {
+          "$ref": "#/definitions/velez_apiGithubConfig"
         }
       }
     },
@@ -190,6 +190,16 @@
     },
     "velez_apiDropRunnerResponse": {
       "type": "object"
+    },
+    "velez_apiGithubConfig": {
+      "type": "object",
+      "properties": {
+        "accessToken": {
+          "type": "string",
+          "description": "access_token - a GitHub PAT with permission to mint a runner\nregistration token for target. Never stored as given; see\ninternal/service/secrets."
+        }
+      },
+      "description": "GithubConfig - GitHub Actions-specific CreateRunner body. A future\nGitlabConfig (base_url + token) is a new message + new provider_config\ncase, never a change to this one."
     },
     "velez_apiListRunnersRequest": {
       "type": "object",

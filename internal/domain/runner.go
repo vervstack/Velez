@@ -38,7 +38,9 @@ type UpsertRunnerReq struct {
 }
 
 // CreateRunnerReq is the input to RunnersService.CreateRunner. See
-// runners_api.proto's CreateRunner.Request.
+// runners_api.proto's CreateRunner.Request. Provider and AccessToken are
+// resolved by the transport layer from the request's provider_config oneof
+// before this struct is built.
 type CreateRunnerReq struct {
 	Name     string
 	Provider velez_api.RunnerProvider
@@ -54,6 +56,12 @@ type CreateRunnerReq struct {
 	// Environment - the isolated namespace this runner deploys into. Empty
 	// means the default/PROD environment (see storage/environments.Resolve).
 	Environment string
+
+	// DockerSocketAddress - tcp:// address of a Docker daemon this runner
+	// should talk to instead of the default host socket. Empty means Velez
+	// grants the host socket via its existing internal-only bind-mount gate.
+	// See runners_api.proto's CreateRunner.Request.docker_socket_address.
+	DockerSocketAddress string
 }
 
 // RunnerView is one resolved Runners-as-a-Service instance: runner-specific

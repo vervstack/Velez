@@ -51,3 +51,30 @@ func Test_ValidateRunnerTarget_Scenarios(t *testing.T) {
 		})
 	}
 }
+
+func Test_ValidateDockerSocketAddress_Scenarios(t *testing.T) {
+	cases := []struct {
+		name    string
+		addr    string
+		wantErr error
+	}{
+		{"empty falls back to host socket", "", nil},
+		{"valid tcp address", "tcp://host:2375", nil},
+		{"unix socket rejected", "unix:///var/run/docker.sock", user_errors.ErrRunnerDockerSocketAddressInvalid},
+		{"bare path rejected", "/var/run/docker.sock", user_errors.ErrRunnerDockerSocketAddressInvalid},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := validateDockerSocketAddress(tc.addr)
+
+			if tc.wantErr == nil {
+				require.NoError(t, err)
+
+				return
+			}
+
+			require.ErrorIs(t, err, tc.wantErr)
+		})
+	}
+}

@@ -36,3 +36,20 @@ func validateRunnerTarget(scope velez_api.RunnerScope, target string) error {
 		return user_errors.ErrRunnerScopeUnspecified
 	}
 }
+
+// validateDockerSocketAddress checks a request's docker_socket_address.
+// Empty is fine - it means fallback to the default host socket grant. A
+// non-empty value must be tcp:// - unix:// and bare filesystem paths are
+// rejected so a caller can never hand Velez a bind-mount source that could
+// be pointed at Velez's own host socket.
+func validateDockerSocketAddress(addr string) error {
+	if addr == "" {
+		return nil
+	}
+
+	if !strings.HasPrefix(addr, "tcp://") {
+		return user_errors.ErrRunnerDockerSocketAddressInvalid
+	}
+
+	return nil
+}

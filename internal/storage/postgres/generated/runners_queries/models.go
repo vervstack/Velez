@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.30.0
 
-package resource_boxes_queries
+package runners_queries
 
 import (
 	"database/sql"

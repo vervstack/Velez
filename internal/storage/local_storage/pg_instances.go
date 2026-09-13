@@ -162,7 +162,7 @@ func (d *dockerPgInstances) DeletePgInstance(_ context.Context, serviceID int64)
 // deploy time - container.Summary carries labels but not env.
 func (d *dockerPgInstances) listFromContainers(ctx context.Context) ([]domain.PgInstance, error) {
 	listReq := &pb.ListSmerds_Request{
-		Label: map[string]string{labels.PgaasInstanceLabel: "true"},
+		Label: map[string]string{labels.PgaasInstanceLabel: boolLabelValue},
 	}
 
 	containers, err := d.docker.ListContainers(ctx, listReq, allEnvironments)

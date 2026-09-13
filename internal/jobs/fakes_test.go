@@ -859,6 +859,7 @@ func (f *fakeClusterStorage) Registries() storage.RegistriesStorage       { retu
 func (f *fakeClusterStorage) ResourceBoxes() storage.ResourceBoxesStorage { return nil }
 func (f *fakeClusterStorage) Secrets() storage.SecretsStorage             { return nil }
 func (f *fakeClusterStorage) PgInstances() storage.PgInstancesStorage     { return nil }
+func (f *fakeClusterStorage) Runners() storage.RunnersStorage             { return nil }
 
 // fakeDeploymentsStorage is a minimal in-memory implementation of
 // storage.DeploymentsStorage for exercising registerPluginJob's

@@ -27,6 +27,7 @@ type Storage interface {
 	ResourceBoxes() ResourceBoxesStorage
 	Secrets() SecretsStorage
 	PgInstances() PgInstancesStorage
+	Runners() RunnersStorage
 
 	TxManager() Transactor
 
@@ -175,4 +176,20 @@ type PgInstancesStorage interface {
 	GetPgInstanceByServiceID(ctx context.Context, serviceID int64) (domain.PgInstance, error)
 	ListPgInstances(ctx context.Context) ([]domain.PgInstance, error)
 	DeletePgInstance(ctx context.Context, serviceID int64) error
+}
+
+// RunnersStorage - CRUD over velez.runners, the runner-specific satellite row
+// for a Runners-as-a-Service instance. Git-agnostic by design, mirroring
+// PgInstancesStorage's division of responsibility.
+//
+// Implementations: internal/storage/runners.NewPg (postgres/cluster mode).
+// The in-memory/single-node backend (mirroring
+// internal/storage/local_storage's container-derived PgInstances()) is not
+// yet implemented - next PR, once the service layer's env var naming for a
+// runner container is decided.
+type RunnersStorage interface {
+	UpsertRunner(ctx context.Context, req domain.UpsertRunnerReq) (domain.Runner, error)
+	GetRunnerByServiceID(ctx context.Context, serviceID int64) (domain.Runner, error)
+	ListRunners(ctx context.Context) ([]domain.Runner, error)
+	DeleteRunner(ctx context.Context, serviceID int64) error
 }

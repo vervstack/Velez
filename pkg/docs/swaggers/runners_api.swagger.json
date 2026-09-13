@@ -1,0 +1,290 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "runners_api.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "RunnersAPI"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/runners/create": {
+      "post": {
+        "operationId": "RunnersAPI_CreateRunner",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateRunnerResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateRunnerRequest"
+            }
+          }
+        ],
+        "tags": [
+          "RunnersAPI"
+        ]
+      }
+    },
+    "/api/runners/drop": {
+      "post": {
+        "operationId": "RunnersAPI_DropRunner",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiDropRunnerResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiDropRunnerRequest"
+            }
+          }
+        ],
+        "tags": [
+          "RunnersAPI"
+        ]
+      }
+    },
+    "/api/runners/list": {
+      "post": {
+        "operationId": "RunnersAPI_ListRunners",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListRunnersResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiListRunnersRequest"
+            }
+          }
+        ],
+        "tags": [
+          "RunnersAPI"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "googleRpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "velez_apiCreateRunnerRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "provider": {
+          "$ref": "#/definitions/velez_apiRunnerProvider"
+        },
+        "scope": {
+          "$ref": "#/definitions/velez_apiRunnerScope"
+        },
+        "target": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "accessToken": {
+          "type": "string",
+          "description": "access_token - a token with permission to create a runner registration\ntoken for target (a GitHub PAT today; a GitLab token later). Never\nstored as given; see internal/service/secrets."
+        },
+        "environment": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiCreateRunnerResponse": {
+      "type": "object",
+      "properties": {
+        "runner": {
+          "$ref": "#/definitions/velez_apiRunner"
+        }
+      }
+    },
+    "velez_apiDropRunnerRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiDropRunnerResponse": {
+      "type": "object"
+    },
+    "velez_apiListRunnersRequest": {
+      "type": "object",
+      "properties": {
+        "paging": {
+          "$ref": "#/definitions/velez_apiPaging"
+        }
+      }
+    },
+    "velez_apiListRunnersResponse": {
+      "type": "object",
+      "properties": {
+        "runners": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiRunner"
+          }
+        },
+        "total": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "velez_apiPaging": {
+      "type": "object",
+      "properties": {
+        "limit": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "offset": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "velez_apiRunner": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "provider": {
+          "$ref": "#/definitions/velez_apiRunnerProvider"
+        },
+        "scope": {
+          "$ref": "#/definitions/velez_apiRunnerScope"
+        },
+        "target": {
+          "type": "string",
+          "description": "target - the repo (\"owner/repo\") or org (\"owner\") the runner registers\nagainst, per scope."
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "environment": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "Runner never carries its access token - status and environment live on the\nunderlying service/deployment rows and are read via ListSmerds/\nVervServicesService, not duplicated here."
+    },
+    "velez_apiRunnerProvider": {
+      "type": "string",
+      "enum": [
+        "RUNNER_PROVIDER_UNSPECIFIED",
+        "GITHUB"
+      ],
+      "default": "RUNNER_PROVIDER_UNSPECIFIED",
+      "description": "RunnerProvider - which CI system a runner registers against. Deliberately\nleft room to grow: GITHUB is the only provisionable provider today, GITLAB\nand others are added here as new values later, never as new contracts."
+    },
+    "velez_apiRunnerScope": {
+      "type": "string",
+      "enum": [
+        "RUNNER_SCOPE_UNSPECIFIED",
+        "REPO",
+        "ORG"
+      ],
+      "default": "RUNNER_SCOPE_UNSPECIFIED",
+      "description": "RunnerScope - the scope a self-hosted runner registers under: a single\nrepository, or an entire organization/group. Generalizes across providers\n(GitHub repo/org, GitLab project/group)."
+    }
+  }
+}

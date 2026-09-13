@@ -36,6 +36,22 @@ const (
 	// paired with VervServiceLabel set to the instance name.
 	PgaasInstanceLabel = "velez.pgaas"
 
+	// RunnerInstanceLabel marks a container as a Runners-as-a-Service instance
+	// provisioned by runneraas.CreateRunner. RunnerProviderLabel/
+	// RunnerScopeLabel/RunnerTargetLabel/RunnerLabelsLabel carry the runner's
+	// facts directly as container labels rather than provider-specific env
+	// vars - the single-node/dev local_storage backend reads them straight off
+	// the container (see internal/storage/local_storage/runners.go), which is
+	// what keeps that backend provider-agnostic instead of having to parse
+	// each Provider's own env var vocabulary. Always paired with
+	// VervServiceLabel set to the instance name. Always inert in cluster mode,
+	// where velez.runners is authoritative.
+	RunnerInstanceLabel = "velez.runner"
+	RunnerProviderLabel = "velez.runner.provider"
+	RunnerScopeLabel    = "velez.runner.scope"
+	RunnerTargetLabel   = "velez.runner.target"
+	RunnerLabelsLabel   = "velez.runner.labels"
+
 	// TagLabelPrefix - per docs/features/vervonomicon.md's "Mapping onto
 	// CreateSmerd.Request" table, each vervonomicon service.tags entry
 	// becomes a label "verv.tag.<tag>", mirroring the dotted velez.*

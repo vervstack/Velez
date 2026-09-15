@@ -123,7 +123,7 @@ func TestResolver_UnknownEnvironmentErrors(t *testing.T) {
 // dedicated connection instead of the shared cli - see resolver.dedicatedClient.
 func TestResolver_ResolvesDedicatedRuntimeForDifferentDockerHost(t *testing.T) {
 	env := domain.Environment{
-		ID:         1,
+		Id:         1,
 		Name:       testStageEnv,
 		Suffix:     testStageEnv,
 		DockerHost: testDedicatedHost,
@@ -149,7 +149,7 @@ func TestResolver_ResolvesDedicatedRuntimeForDifferentDockerHost(t *testing.T) {
 // same address".
 func TestResolver_TreatsDockerHostEqualToNodeHostAsShared(t *testing.T) {
 	env := domain.Environment{
-		ID:         1,
+		Id:         1,
 		Name:       testStageEnv,
 		Suffix:     testStageEnv,
 		DockerHost: testDedicatedHost,
@@ -174,7 +174,7 @@ func TestResolver_TreatsDockerHostEqualToNodeHostAsShared(t *testing.T) {
 // reconnected on every Runtime call.
 func TestResolver_CachesDedicatedClientPerHost(t *testing.T) {
 	env := domain.Environment{
-		ID:         1,
+		Id:         1,
 		Name:       testStageEnv,
 		Suffix:     testStageEnv,
 		DockerHost: testDedicatedHost,
@@ -233,7 +233,7 @@ func (s *mutableEnvStorage) UpdateEnvironment(
 // change takes effect on the next call without any explicit swap.
 func TestResolver_RereadsStorageOnEveryCall(t *testing.T) {
 	ctx := context.Background()
-	envStorage := &mutableEnvStorage{env: domain.Environment{ID: 1, Name: testStageEnv, Suffix: testStageEnv}}
+	envStorage := &mutableEnvStorage{env: domain.Environment{Id: 1, Name: testStageEnv, Suffix: testStageEnv}}
 
 	provider := &staticProvider{
 		storage: envStorage,
@@ -250,7 +250,7 @@ func TestResolver_RereadsStorageOnEveryCall(t *testing.T) {
 	newSuffix := "moved"
 
 	updateReq := domain.UpdateEnvironmentReq{
-		ID:     env.ID,
+		Id:     env.Id,
 		Suffix: &newSuffix,
 	}
 

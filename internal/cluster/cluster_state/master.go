@@ -85,7 +85,7 @@ func SetupMasterPg(
 
 	localState := nodeClients.LocalStateManager().Get().ClusterState.PgRootDsn
 
-	err = sqldb.RollMigration(localState)
+	err = sqldb.RollMigration(localState, "")
 	if err != nil {
 		return rerrors.Wrap(err, "Failed to roll Postgres migration")
 	}

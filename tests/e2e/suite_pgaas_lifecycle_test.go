@@ -17,10 +17,12 @@ import (
 )
 
 const (
-	// pgaasLifecycleInstanceName is a fixed, unsuffixed name: this suite is
-	// not t.Parallel() and force-removes its own container/volume before and
-	// after, the same trade-off enableRegistryUnderDind makes for
-	// jobs.RegistryServiceName.
+	// pgaasLifecycleInstanceName is a fixed, suite-unique name. Unlike
+	// jobs.RegistryServiceName (a node runs only one registry), pgaas has no
+	// such singleton constraint - an instance name is caller-chosen and this
+	// one doesn't collide with any other suite's fixed names, so this suite
+	// is safe to run t.Parallel() against its siblings; it force-removes its
+	// own container/volume before and after regardless.
 	pgaasLifecycleInstanceName = "e2e-pgaas-lifecycle"
 )
 
@@ -43,6 +45,8 @@ type PgaasLifecycleSuite struct {
 
 func (s *PgaasLifecycleSuite) Test_PgaasLifecycle_HappyPath() {
 	t := s.T()
+	t.Parallel()
+
 	ctx := t.Context()
 
 	env := s.plane.NewEnvironment(t)
@@ -100,6 +104,7 @@ func (s *PgaasLifecycleSuite) Test_PgaasLifecycle_HappyPath() {
 }
 
 func Test_PgaasLifecycle(t *testing.T) {
+	t.Parallel()
 	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
 		return &PgaasLifecycleSuite{plane: plane}
 	})

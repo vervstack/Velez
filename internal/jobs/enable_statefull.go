@@ -251,10 +251,11 @@ func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: "create_schema_and_migrate",
 			Job: &createSchemaAndMigrateJob{
-				dockerAPI: h.nodeClients.Docker().Client(),
-				dsn:       payload,
-				ctx:       payload,
-				pgName:    pgName,
+				dockerAPI:     h.nodeClients.Docker().Client(),
+				dsn:           payload,
+				ctx:           payload,
+				pgName:        pgName,
+				migrationsDir: h.cfg.Environment.MigrationsDir,
 			},
 		},
 		{
@@ -737,6 +738,11 @@ type createSchemaAndMigrateJob struct {
 	ctx containerIDAccessor
 
 	pgName string
+
+	// migrationsDir overrides sqldb.RollMigration's default "./migrations" -
+	// empty in production, set to an absolute path only by tests/e2e (which
+	// doesn't run from the repo root).
+	migrationsDir string
 }
 
 func (j *createSchemaAndMigrateJob) Do(ctx context.Context) error {
@@ -759,7 +765,7 @@ func (j *createSchemaAndMigrateJob) Do(ctx context.Context) error {
 		return j.wrapSchemaErr(ctx, err)
 	}
 
-	err = sqldb.RollMigration(rootDsn)
+	err = sqldb.RollMigration(rootDsn, j.migrationsDir)
 	if err != nil {
 		return rerrors.Wrap(err, "error rolling migration")
 	}

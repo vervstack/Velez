@@ -62,7 +62,7 @@ func (s *PgaasService) CreatePgInstance(
 	}
 
 	upsertReq := domain.UpsertPgInstanceReq{
-		ServiceID: svc.ID,
+		ServiceId: svc.ID,
 		DbName:    creds.dbName,
 		Username:  creds.username,
 		SecretRef: secretRef.String(),

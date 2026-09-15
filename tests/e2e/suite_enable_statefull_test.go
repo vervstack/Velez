@@ -46,10 +46,8 @@ const (
 // suite's own fixed enableStatefullTestSuffix (via WithContainerSuffix), not
 // the bare production name - so this suite can never collide with, or
 // force-remove, a real cluster-state postgres instance already running on
-// the same Docker host. Only one instance of this suite can still run at a
-// time on a given Docker host; the happy-path test isn't marked
-// t.Parallel() and cleans up its own suffixed container/volume
-// unconditionally.
+// the same Docker host. The happy-path test cleans up its own suffixed
+// container/volume unconditionally.
 type EnableStatefullSuite struct {
 	suite.Suite
 
@@ -58,6 +56,7 @@ type EnableStatefullSuite struct {
 
 func (s *EnableStatefullSuite) Test_EnableStatefullMode_HappyPath() {
 	t := s.T()
+	t.Parallel()
 
 	env, pgName := enableStatefullPgUnderDind(t, s.plane, enableStatefullTestSuffix)
 	dockerClient := env.Custom.NodeClients.Docker().Client()
@@ -136,6 +135,14 @@ func (s *EnableStatefullSuite) Test_EnableStatefullMode_UnsupportedPlugin_Fails(
 	require.Error(t, err)
 }
 
+// Test_EnableStatefull itself is NOT t.Parallel(): its HappyPath method
+// enables statefull_pg, whose cluster-pg sidecar is exposed on the fixed
+// dindClusterPgPort (30020, see dind_ports.go) - the same port
+// Test_ServiceLifecycle and Test_VervonomiconDeploy expose theirs on. Marking
+// this function parallel let it race those suites for that single port and
+// fail with "requested port is already occupied" (confirmed against real
+// Docker). The HappyPath/UnsupportedPlugin_Fails methods still run parallel
+// to each other within this suite.
 func Test_EnableStatefull(t *testing.T) {
 	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
 		return &EnableStatefullSuite{plane: plane}

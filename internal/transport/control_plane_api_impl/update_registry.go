@@ -18,7 +18,7 @@ func (impl *Impl) UpdateRegistry(
 	req *pb.UpdateRegistry_Request,
 ) (*pb.UpdateRegistry_Response, error) {
 	serviceReq := domain.UpdateRegistryReq{
-		ID:        req.GetId(),
+		Id:        req.GetId(),
 		Name:      req.Name,
 		Url:       req.Url,
 		Username:  req.Username,

@@ -35,7 +35,7 @@ func (impl *Impl) ListEnvironments(
 // environment RPC in this package.
 func environmentToPb(env domain.Environment) *pb.Environment {
 	out := &pb.Environment{
-		Id:         env.ID,
+		Id:         env.Id,
 		Name:       env.Name,
 		Suffix:     env.Suffix,
 		DockerHost: env.DockerHost,

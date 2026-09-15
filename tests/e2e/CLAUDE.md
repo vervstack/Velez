@@ -124,9 +124,13 @@ directly (`-run Matrix/single-node.../PROD/stateless/hello-world`).
 
 ## Fixture gotchas
 
-- `enableStatefullPgUnderDind` (`helper_statefull_test.go`, `e2e_full`) is **not parallel-safe** —
-  it `t.Chdir`s to the repo root because `sqldb.RollMigration` resolves `"./migrations"`
-  relatively. Never call it from a `t.Parallel()` test.
+- `enableStatefullPgUnderDind` (`helper_statefull_test.go`, `e2e_full`) publishes its cluster-pg
+  sidecar on the single fixed `dindClusterPgPort` (`dind_ports.go`) — two callers running
+  concurrently collide on that host port ("requested port is already occupied", confirmed against
+  real Docker). Its three callers (`EnableStatefullSuite`, `ServiceLifecycleSuite`,
+  `VervonomiconDeploySuite`) each stay non-`t.Parallel()` at their top-level `Test_X` function for
+  this reason; a future caller needs either the same restraint or a real fix (an allocated port
+  per caller instead of one fixed constant).
 - `WithMatreshka()` is a single-process singleton shared via `main_test.go`'s `TestMain` — any
   test using it must live in package `tests/e2e`, never a new package (a different package is a
   different OS process and can't see the singleton, reintroducing the container-name collision

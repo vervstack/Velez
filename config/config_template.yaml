@@ -74,6 +74,9 @@ environment:
     - name: memory_swap_mb
       type: int
       value: 50
+    - name: migrations_dir
+      type: string
+      value: ""
     - name: node_region
       type: string
       value: ""

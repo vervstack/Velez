@@ -156,6 +156,18 @@ func WithClusterPgDsn(dsn string) TestEnvOpt {
 	}
 }
 
+// WithMigrationsDir injects the MigrationsDir override (internal/config
+// EnvironmentConfig.MigrationsDir) into the loaded config, so
+// sqldb.RollMigration resolves goose migrations from an absolute path
+// instead of "./migrations" relative to the process's working directory -
+// e2e tests don't run from the repo root. Applied in the post-config pass,
+// mirroring WithContainerSuffix/WithClusterPgDsn.
+func WithMigrationsDir(dir string) TestEnvOpt {
+	return func(a *TestEnvironment) {
+		a.Cfg.Environment.MigrationsDir = dir
+	}
+}
+
 func WithEnvironments(envs []string) TestEnvOpt {
 	return func(a *TestEnvironment) {
 		a.Cfg.Environment.Environments = envs

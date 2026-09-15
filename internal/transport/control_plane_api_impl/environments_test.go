@@ -114,8 +114,8 @@ func Test_ListEnvironments_ReturnsFullEnvironments(t *testing.T) {
 
 	svc := &fakeVervServices{
 		listResp: []domain.Environment{
-			{ID: 1, Name: "PROD", Suffix: "", CreatedAt: created, UpdatedAt: updated},
-			{ID: 2, Name: testEnvStage, Suffix: testEnvSuffixStg, CreatedAt: created, UpdatedAt: updated},
+			{Id: 1, Name: "PROD", Suffix: "", CreatedAt: created, UpdatedAt: updated},
+			{Id: 2, Name: testEnvStage, Suffix: testEnvSuffixStg, CreatedAt: created, UpdatedAt: updated},
 		},
 	}
 
@@ -143,7 +143,7 @@ func Test_ListEnvironments_Error(t *testing.T) {
 
 func Test_CreateEnvironment_PassesSuffixThrough(t *testing.T) {
 	svc := &fakeVervServices{
-		createResp: domain.Environment{ID: 3, Name: testEnvStage, Suffix: testEnvSuffixStg},
+		createResp: domain.Environment{Id: 3, Name: testEnvStage, Suffix: testEnvSuffixStg},
 	}
 	impl := &Impl{vervServices: svc}
 
@@ -160,7 +160,7 @@ func Test_CreateEnvironment_PassesSuffixThrough(t *testing.T) {
 // An omitted suffix reaches the service as "" - the service layer is what
 // defaults it to the name, so every caller gets the same rule.
 func Test_CreateEnvironment_OmittedSuffixIsEmptyAtTransport(t *testing.T) {
-	svc := &fakeVervServices{createResp: domain.Environment{ID: 4, Name: testEnvStage, Suffix: testEnvStage}}
+	svc := &fakeVervServices{createResp: domain.Environment{Id: 4, Name: testEnvStage, Suffix: testEnvStage}}
 	impl := &Impl{vervServices: svc}
 
 	req := &pb.CreateEnvironment_Request{Name: testEnvStage}
@@ -179,7 +179,7 @@ func Test_CreateEnvironment_Error(t *testing.T) {
 }
 
 func Test_UpdateEnvironment_ForwardsOptionalFields(t *testing.T) {
-	svc := &fakeVervServices{updateResp: domain.Environment{ID: 5, Name: "STAGING", Suffix: testEnvSuffixStg}}
+	svc := &fakeVervServices{updateResp: domain.Environment{Id: 5, Name: "STAGING", Suffix: testEnvSuffixStg}}
 	impl := &Impl{vervServices: svc}
 
 	name := "STAGING"
@@ -187,7 +187,7 @@ func Test_UpdateEnvironment_ForwardsOptionalFields(t *testing.T) {
 
 	resp, err := impl.UpdateEnvironment(context.Background(), req)
 	require.NoError(t, err)
-	require.Equal(t, int64(5), svc.updateReq.ID)
+	require.Equal(t, int64(5), svc.updateReq.Id)
 	require.NotNil(t, svc.updateReq.Name)
 	require.Equal(t, "STAGING", *svc.updateReq.Name)
 	require.Nil(t, svc.updateReq.Suffix, "omitted suffix must stay nil, not be blanked out")
@@ -210,7 +210,7 @@ func Test_DeleteEnvironment_ByName(t *testing.T) {
 
 	_, err := impl.DeleteEnvironment(context.Background(), req)
 	require.NoError(t, err)
-	require.Nil(t, svc.deleteReq.ID)
+	require.Nil(t, svc.deleteReq.Id)
 	require.NotNil(t, svc.deleteReq.Name)
 	require.Equal(t, testEnvStage, *svc.deleteReq.Name)
 }
@@ -224,8 +224,8 @@ func Test_DeleteEnvironment_ById(t *testing.T) {
 
 	_, err := impl.DeleteEnvironment(context.Background(), req)
 	require.NoError(t, err)
-	require.NotNil(t, svc.deleteReq.ID)
-	require.Equal(t, int64(7), *svc.deleteReq.ID)
+	require.NotNil(t, svc.deleteReq.Id)
+	require.Equal(t, int64(7), *svc.deleteReq.Id)
 }
 
 // A failed cascade must fail the RPC - the DB row is only dropped once every

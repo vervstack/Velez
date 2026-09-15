@@ -27,7 +27,11 @@ func New(connectionString string) (*sql.DB, error) {
 	return conn, nil
 }
 
-func RollMigration(rootDsn string) (err error) {
+// RollMigration applies the goose migrations under migrationsDir. Pass ""
+// for the production default ("./migrations", relative to the process's
+// working directory) - callers only need a non-default value in e2e tests,
+// which run from a directory other than the repo root.
+func RollMigration(rootDsn string, migrationsDir string) (err error) {
 	conn, err := sql.Open(Dialect, rootDsn)
 	if err != nil {
 		return rerrors.Wrap(err, "error checking connection to postgres")
@@ -49,7 +53,11 @@ func RollMigration(rootDsn string) (err error) {
 
 	goose.SetTableName("velez.__migrations")
 
-	err = goose.Up(conn, "./migrations")
+	if migrationsDir == "" {
+		migrationsDir = "./migrations"
+	}
+
+	err = goose.Up(conn, migrationsDir)
 	if err != nil {
 		return rerrors.Wrap(err, "error performing up")
 	}

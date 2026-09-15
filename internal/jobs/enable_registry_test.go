@@ -191,7 +191,7 @@ func TestRegisterRegistryRowJob_UpsertsBuiltinRowInSingleNodeMode(t *testing.T) 
 
 	updated := registryNamed(all, RegistryServiceName)
 	require.NotNil(t, updated)
-	require.Equal(t, created.ID, updated.ID, "update must reuse the same row, not create a second one")
+	require.Equal(t, created.Id, updated.Id, "update must reuse the same row, not create a second one")
 	require.Equal(t, "verv2", updated.Username)
 
 	// The escape hatch is narrow: ordinary user-facing registry CRUD through
@@ -200,7 +200,7 @@ func TestRegisterRegistryRowJob_UpsertsBuiltinRowInSingleNodeMode(t *testing.T) 
 	_, err = store.CreateRegistry(ctx, domain.CreateRegistryReq{Name: "some-other-registry"})
 	require.ErrorIs(t, err, user_errors.ErrRequiresStatefullMode)
 
-	err = store.DeleteRegistry(ctx, created.ID)
+	err = store.DeleteRegistry(ctx, created.Id)
 	require.ErrorIs(t, err, user_errors.ErrRequiresStatefullMode)
 
 	err = store.ClearDefaultRegistry(ctx)

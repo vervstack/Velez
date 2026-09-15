@@ -17,7 +17,7 @@ func (impl *Impl) DeleteRegistry(
 	req *pb.DeleteRegistry_Request,
 ) (*pb.DeleteRegistry_Response, error) {
 	serviceReq := domain.DeleteRegistryReq{
-		ID:   req.Id,
+		Id:   req.Id,
 		Name: req.Name,
 	}
 

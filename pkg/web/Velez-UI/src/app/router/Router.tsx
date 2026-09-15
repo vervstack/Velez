@@ -16,6 +16,7 @@ import NewServicePage from "@/pages/service/NewServicePage.tsx";
 import ServiceRouteDispatch from "@/pages/service/ServiceRouteDispatch.tsx";
 import SettingsPage from "@/pages/settings/SettingsPage.tsx";
 import PostgresPage from "@/pages/postgres/PostgresPage.tsx";
+import ContainerRegistryPage from "@/pages/container-registry/ContainerRegistryPage.tsx";
 
 import {Routes, Arguments} from "@/app/router/Routes";
 
@@ -80,6 +81,11 @@ const router = createBrowserRouter([
             {
                 path: Routes.Postgres,
                 element: (<PostgresPage/>),
+            },
+
+            {
+                path: Routes.ContainerRegistry,
+                element: (<ContainerRegistryPage/>),
             },
 
 

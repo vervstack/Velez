@@ -9,6 +9,7 @@ export enum Routes {
     NewVervService = '/new_verv_service',
     Service = '/service',
     Postgres = '/postgres',
+    ContainerRegistry = '/container-registries',
     Settings = '/settings',
     Login = '/login'
 }

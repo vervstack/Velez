@@ -15,6 +15,7 @@ import (
 	service_resources_queries "go.vervstack.ru/Velez/internal/storage/postgres/generated/service_resources_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/services_queries"
 	"go.vervstack.ru/Velez/internal/storage/registries"
+	"go.vervstack.ru/Velez/internal/storage/registry_instances"
 	"go.vervstack.ru/Velez/internal/storage/runners"
 	"go.vervstack.ru/Velez/internal/storage/secrets"
 	"go.vervstack.ru/Velez/internal/user_errors"
@@ -35,6 +36,7 @@ type Storage struct {
 	secretsStorage             storage.SecretsStorage
 	pgInstancesStorage         storage.PgInstancesStorage
 	runnersStorage             storage.RunnersStorage
+	registryInstancesStorage   storage.RegistryInstancesStorage
 
 	txManager *sqldb.TxManager
 }
@@ -60,6 +62,7 @@ func New(db *sql.DB) storage.Storage {
 		secretsStorage:             secrets.NewPg(db),
 		pgInstancesStorage:         pg_instances.NewPg(db),
 		runnersStorage:             runners.NewPg(db),
+		registryInstancesStorage:   registry_instances.NewPg(db),
 		txManager:                  sqldb.NewTxManager(db),
 	}
 }
@@ -125,6 +128,10 @@ func (s *Storage) PgInstances() storage.PgInstancesStorage {
 
 func (s *Storage) Runners() storage.RunnersStorage {
 	return s.runnersStorage
+}
+
+func (s *Storage) RegistryInstances() storage.RegistryInstancesStorage {
+	return s.registryInstancesStorage
 }
 
 func (s *Storage) TxManager() storage.Transactor {

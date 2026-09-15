@@ -28,6 +28,7 @@ type Storage interface {
 	Secrets() SecretsStorage
 	PgInstances() PgInstancesStorage
 	Runners() RunnersStorage
+	RegistryInstances() RegistryInstancesStorage
 
 	TxManager() Transactor
 
@@ -192,4 +193,20 @@ type RunnersStorage interface {
 	GetRunnerByServiceID(ctx context.Context, serviceID int64) (domain.Runner, error)
 	ListRunners(ctx context.Context) ([]domain.Runner, error)
 	DeleteRunner(ctx context.Context, serviceID int64) error
+}
+
+// RegistryInstancesStorage - CRUD over velez.registry_instances, the
+// registry-specific satellite row for a Container-Registry-as-a-Service
+// instance. Mirrors PgInstancesStorage's division of responsibility: status,
+// environment and image live on the underlying velez.services /
+// deployment_specifications / deployments rows, never duplicated here.
+//
+// Implementations: internal/storage/registry_instances.NewPg (postgres/
+// cluster mode) and internal/storage/local_storage's label-derived backend
+// (single-node/dev mode).
+type RegistryInstancesStorage interface {
+	UpsertRegistryInstance(ctx context.Context, req domain.UpsertRegistryInstanceReq) (domain.RegistryInstance, error)
+	GetRegistryInstanceByServiceID(ctx context.Context, serviceID int64) (domain.RegistryInstance, error)
+	ListRegistryInstances(ctx context.Context) ([]domain.RegistryInstance, error)
+	DeleteRegistryInstance(ctx context.Context, serviceID int64) error
 }

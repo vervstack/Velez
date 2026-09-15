@@ -52,6 +52,20 @@ const (
 	RunnerTargetLabel   = "velez.runner.target"
 	RunnerLabelsLabel   = "velez.runner.labels"
 
+	// RegistryaasInstanceLabel marks a container as a
+	// Container-Registry-as-a-Service instance provisioned by
+	// registryaas.CreateRegistryInstance. Credentials live in an htpasswd
+	// file inside the registry-auth volume, not container env vars, so -
+	// unlike PgaasInstanceLabel - username and ui_port are carried directly
+	// as labels for the single-node/dev local_storage backend to read back
+	// (see internal/storage/local_storage/registry_instances.go), the same
+	// label-derived approach RunnerInstanceLabel uses. Always paired with
+	// VervServiceLabel set to the instance name. Always inert in cluster
+	// mode, where velez.registry_instances is authoritative.
+	RegistryaasInstanceLabel = "velez.registryaas"
+	RegistryaasUsernameLabel = "velez.registryaas.username"
+	RegistryaasUiPortLabel   = "velez.registryaas.ui_port"
+
 	// TagLabelPrefix - per docs/features/vervonomicon.md's "Mapping onto
 	// CreateSmerd.Request" table, each vervonomicon service.tags entry
 	// becomes a label "verv.tag.<tag>", mirroring the dotted velez.*

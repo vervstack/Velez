@@ -836,11 +836,13 @@ func (f *fakeStateManager) ValidateVelezPrivateKey(_ string) bool { return false
 // deployments/plugins are the only configurable accessors; the rest return
 // nil since no job under test calls them.
 type fakeClusterStorage struct {
-	nodes        storage.NodesStorage
-	services     storage.ServicesStorage
-	deployments  storage.DeploymentsStorage
-	plugins      storage.PluginsStorage
-	environments storage.EnvironmentsStorage
+	nodes             storage.NodesStorage
+	services          storage.ServicesStorage
+	deployments       storage.DeploymentsStorage
+	plugins           storage.PluginsStorage
+	environments      storage.EnvironmentsStorage
+	registries        storage.RegistriesStorage
+	registryInstances storage.RegistryInstancesStorage
 }
 
 func (f *fakeClusterStorage) IsStatefull() bool                                       { return true }
@@ -855,11 +857,14 @@ func (f *fakeClusterStorage) Jobs() storage.JobsStorage                         
 func (f *fakeClusterStorage) TxManager() storage.Transactor                           { return nil }
 
 func (f *fakeClusterStorage) Environments() storage.EnvironmentsStorage   { return f.environments }
-func (f *fakeClusterStorage) Registries() storage.RegistriesStorage       { return nil }
+func (f *fakeClusterStorage) Registries() storage.RegistriesStorage       { return f.registries }
 func (f *fakeClusterStorage) ResourceBoxes() storage.ResourceBoxesStorage { return nil }
 func (f *fakeClusterStorage) Secrets() storage.SecretsStorage             { return nil }
 func (f *fakeClusterStorage) PgInstances() storage.PgInstancesStorage     { return nil }
 func (f *fakeClusterStorage) Runners() storage.RunnersStorage             { return nil }
+func (f *fakeClusterStorage) RegistryInstances() storage.RegistryInstancesStorage {
+	return f.registryInstances
+}
 
 // fakeDeploymentsStorage is a minimal in-memory implementation of
 // storage.DeploymentsStorage for exercising registerPluginJob's

@@ -26,20 +26,21 @@ const (
 )
 
 type localStorage struct {
-	nodes            *nodes
-	services         *dockerServices
-	deployments      *deployments
-	plugins          *dockerPluginsStorage
-	serviceDeps      *dockerServiceDepsStorage
-	serviceResources *dockerServiceResourcesStorage
-	tasks            *tasks
-	jobs             *jobs
-	environments     storage.EnvironmentsStorage
-	registries       storage.RegistriesStorage
-	resourceBoxes    storage.ResourceBoxesStorage
-	secrets          storage.SecretsStorage
-	pgInstances      storage.PgInstancesStorage
-	runners          storage.RunnersStorage
+	nodes             *nodes
+	services          *dockerServices
+	deployments       *deployments
+	plugins           *dockerPluginsStorage
+	serviceDeps       *dockerServiceDepsStorage
+	serviceResources  *dockerServiceResourcesStorage
+	tasks             *tasks
+	jobs              *jobs
+	environments      storage.EnvironmentsStorage
+	registries        storage.RegistriesStorage
+	resourceBoxes     storage.ResourceBoxesStorage
+	secrets           storage.SecretsStorage
+	pgInstances       storage.PgInstancesStorage
+	runners           storage.RunnersStorage
+	registryInstances storage.RegistryInstancesStorage
 }
 
 func New(containerAPI node_clients.Docker, cfg config.Config) storage.Storage {
@@ -80,6 +81,11 @@ func New(containerAPI node_clients.Docker, cfg config.Config) storage.Storage {
 		// container labelled labels.RunnerInstanceLabel is the system of
 		// record instead, mirroring pgInstances above - see runners.go.
 		runners: newRunnersStorage(containerAPI),
+		// Single-node/dev mode has no velez.registry_instances table either -
+		// a running container labelled labels.RegistryaasInstanceLabel is the
+		// system of record instead, mirroring runners above - see
+		// registry_instances.go.
+		registryInstances: newRegistryInstancesStorage(containerAPI),
 	}
 }
 
@@ -143,6 +149,10 @@ func (l *localStorage) PgInstances() storage.PgInstancesStorage {
 
 func (l *localStorage) Runners() storage.RunnersStorage {
 	return l.runners
+}
+
+func (l *localStorage) RegistryInstances() storage.RegistryInstancesStorage {
+	return l.registryInstances
 }
 
 // TxManager returns l.deployments itself as the Transactor: single-node/dev

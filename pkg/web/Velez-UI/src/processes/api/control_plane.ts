@@ -6,7 +6,6 @@ import {
     VervPluginType,
     EnableStatefullCluster,
     EnableHeadscaleServer,
-    EnableRegistry,
     ListNodesResponse,
     ListEnvironmentsResponse,
     CreateEnvironmentRequest,
@@ -118,16 +117,6 @@ class ControlPlaneService extends ApiService {
                 headscaleServer: config,
             }
             return ControlPlaneAPI.EnablePlugin(payload, req).then()
-        })
-    }
-
-    async enableRegistry(config: EnableRegistry): Promise<EnablePluginResponse> {
-        return this.mutate((req) => {
-            const payload: EnablePluginRequest = {
-                plugin: VervPluginType.registry,
-                registry: config,
-            }
-            return ControlPlaneAPI.EnablePlugin(payload, req)
         })
     }
 }

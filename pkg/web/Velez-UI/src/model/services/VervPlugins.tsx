@@ -84,13 +84,8 @@ metaByType.set(VervPluginType.statefull_pg, {
     The Verv API remains operational even if the state is unavailable, avoiding a single point of failure.`
 });
 
-metaByType.set(VervPluginType.registry, {
-    title: "Registry",
-    icon: PortainerIcon,
-    description: `
-    A local container registry bootstrapped by Velez.
-    Images pushed to it are immediately usable for deploys, with no external registry required.`
-});
+// VervPluginType.registry is superseded by the dedicated Container Registry page
+// (src/pages/container-registry/) — intentionally no metaByType entry here.
 
 export function getLinkToPort(port: number): string {
     const {protocol, hostname} = window.location;

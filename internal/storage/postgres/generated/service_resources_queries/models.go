@@ -224,6 +224,16 @@ type VelezRegistry struct {
 	UpdatedAt time.Time
 }
 
+type VelezRegistryInstance struct {
+	ServiceID int64
+	Port      int32
+	UiPort    int32
+	Username  string
+	SecretRef string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 type VelezResourceBox struct {
 	Name      string
 	Cpu       string

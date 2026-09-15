@@ -136,18 +136,26 @@ func (x *DropSmerdTaskPayload) AppendSuccessful(v string) {
 	x.Successful = append(x.Successful, v)
 }
 
-func (x *EnableRegistryTaskPayload) SetUsername(v string) {
+func (x *CreateRegistryInstanceTaskPayload) SetRequest(v *CreateRegistryInstance_Request) {
+	x.Request = v
+}
+
+func (x *CreateRegistryInstanceTaskPayload) SetUsername(v string) {
 	x.Username = &v
 }
 
-func (x *EnableRegistryTaskPayload) SetPassword(v string) {
+func (x *CreateRegistryInstanceTaskPayload) SetPassword(v string) {
 	x.Password = &v
 }
 
-func (x *EnableRegistryTaskPayload) SetContainerId(v string) {
+func (x *CreateRegistryInstanceTaskPayload) SetContainerId(v string) {
 	x.ContainerId = &v
 }
 
-func (x *EnableRegistryTaskPayload) SetExposedPort(v uint32) {
+func (x *CreateRegistryInstanceTaskPayload) SetExposedPort(v uint32) {
 	x.ExposedPort = &v
+}
+
+func (x *CreateRegistryInstanceTaskPayload) SetUiExposedPort(v uint32) {
+	x.UiExposedPort = &v
 }

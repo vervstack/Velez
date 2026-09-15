@@ -49,6 +49,12 @@ var (
 	// without it.
 	ErrRegistriesStorageMissingBuiltinUpsert = rerrors.New("registries storage does not support builtin upsert")
 
+	// ErrRegistriesStorageMissingBuiltinDelete mirrors
+	// ErrRegistriesStorageMissingBuiltinUpsert - signals the same storage
+	// wiring bug for registryaas.RegistryaasService.DropRegistryInstance's
+	// symmetric delete path.
+	ErrRegistriesStorageMissingBuiltinDelete = rerrors.New("registries storage does not support builtin delete")
+
 	// ErrPgContainerNotHealthy is returned by internal/jobs' enable_statefull
 	// steps when the postgres container never becomes healthy within the
 	// wait budget.

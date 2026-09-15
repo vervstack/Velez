@@ -497,7 +497,10 @@ func (j *prepareSmerdVervConfigJob) applyLabels(request *velez_api.CreateSmerd_R
 		request.Labels[name] = val
 	}
 
-	request.Labels[labels.ComposeGroupLabel] = request.GetName()
+	if request.GetLabels()[labels.ComposeGroupLabel] == "" {
+		request.Labels[labels.ComposeGroupLabel] = request.GetName()
+	}
+
 	if request.GetAutoUpgrade() {
 		request.Labels[labels.AutoUpgrade] = vervConfigLabelEnabled
 	}

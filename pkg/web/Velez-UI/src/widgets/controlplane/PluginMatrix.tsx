@@ -53,10 +53,17 @@ function sortPluginsByStatus(plugins: VervPlugin[]): VervPlugin[] {
     return [...plugins].sort((a, b) => getStatusRank(a.state) - getStatusRank(b.state));
 }
 
+// registry is superseded by the dedicated Container Registry page — the backend may still
+// report it in ListPlugins until its plugin call sites are removed, but it has no metaByType
+// entry any more, so it must not render as a row here.
+function excludeRetiredPlugins(plugins: VervPlugin[]): VervPlugin[] {
+    return plugins.filter((p) => p.type !== VervPluginType.registry);
+}
+
 function Table({nodes, plugins}: TableProps) {
 
     const colTemplate = `180px repeat(${nodes.length}, 1fr) 80px`;
-    const sortedPlugins = sortPluginsByStatus(plugins);
+    const sortedPlugins = sortPluginsByStatus(excludeRetiredPlugins(plugins));
     const orderKey = sortedPlugins.map(v => v.type).join('|');
 
     const rowNodes = useRef(new Map<string, HTMLDivElement>());

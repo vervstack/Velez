@@ -1,0 +1,8 @@
+version: "1"
+
+service:
+  name: registry_ui
+  description: Builtin docker-registry-ui sidecar, provisioned alongside a Container-Registry-as-a-Service instance.
+  tags: [registry, builtin]
+
+box: small

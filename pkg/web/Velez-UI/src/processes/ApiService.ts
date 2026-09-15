@@ -21,10 +21,16 @@ export class ApiService {
     }
 }
 
+const RETRY_DELAY_MS = 5000
+
 function withRetries<T>(fn: () => Promise<T>, retries: number): Promise<T> {
     return fn().catch((err) => {
         if (err instanceof ServiceError && !err.isRetryable) throw err
-        if (retries > 0) return withRetries(fn, retries - 1)
+        if (retries > 0) return delay(RETRY_DELAY_MS).then(() => withRetries(fn, retries - 1))
         throw err
     })
+}
+
+function delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms))
 }

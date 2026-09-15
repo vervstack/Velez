@@ -13,6 +13,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
+//nolint:interfacebloat
 type Services interface {
 	SmerdManager() ContainerService
 	ConfigurationService() ConfigurationService
@@ -26,6 +27,7 @@ type Services interface {
 	Secrets() secrets.Store
 	Postgres() PostgresService
 	Runners() RunnersService
+	ContainerRegistry() ContainerRegistryService
 }
 
 type ContainerService interface {
@@ -137,4 +139,25 @@ type RunnersService interface {
 	ListRunners(ctx context.Context, req domain.ListRunnersReq) (domain.RunnerList, error)
 	CreateRunner(ctx context.Context, req domain.CreateRunnerReq) (domain.RunnerView, error)
 	DropRunner(ctx context.Context, name string) error
+}
+
+// ContainerRegistryService provides Container-Registry-as-a-Service: a
+// registry instance is a normal Velez service (plus an optional UI sidecar
+// service), deployed through the ordinary VervServicesService.CreateNewDeploy
+// path from the builtin registry/registry_ui vervonomicon descriptors - see
+// docs/features/pgaas_and_registry_plugin.md section 4. Unlike PostgresService,
+// CreateRegistryInstance is multi-step and runs through the jobs engine
+// rather than calling CreateNewDeploy directly - it only enqueues the task
+// and returns, it never waits for a terminal status; callers watch progress
+// through TasksApi.WatchTask(name, jobs.CreateRegistryInstanceAction) and
+// refetch ListRegistryInstances once it reaches DONE.
+type ContainerRegistryService interface {
+	ListRegistryInstances(
+		ctx context.Context, req domain.ListRegistryInstancesReq,
+	) (domain.RegistryInstanceList, error)
+	CreateRegistryInstance(ctx context.Context, req domain.CreateRegistryInstanceReq) error
+	DropRegistryInstance(ctx context.Context, name string) error
+	// GetRegistryInstanceCredentials is the only ContainerRegistryService
+	// operation that resolves a secret_ref to its plaintext value.
+	GetRegistryInstanceCredentials(ctx context.Context, name string) (domain.RegistryInstanceCredentials, error)
 }

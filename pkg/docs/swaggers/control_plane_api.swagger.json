@@ -570,7 +570,8 @@
           "$ref": "#/definitions/velez_apiEnableHeadscaleServer"
         },
         "registry": {
-          "$ref": "#/definitions/velez_apiEnableRegistry"
+          "$ref": "#/definitions/velez_apiEnableRegistry",
+          "description": "registry - RETIRED, see VervPluginType.registry."
         }
       }
     },
@@ -595,7 +596,8 @@
         "username": {
           "type": "string"
         }
-      }
+      },
+      "description": "EnableRegistry - RETIRED, see VervPluginType.registry."
     },
     "velez_apiEnableStatefullCluster": {
       "type": "object",
@@ -896,7 +898,8 @@
         "statefull_pg",
         "registry"
       ],
-      "default": "unknown_service_type"
+      "default": "unknown_service_type",
+      "description": " - registry: registry - RETIRED. The registry plugin is replaced by\nContainerRegistryAPI (api/grpc/container_registry_api.proto), which\nsupports multiple named instances instead of one node-wide singleton.\nNever reuse or renumber this value - see 21-api-contracts.md. Not\nmarked with proto's own `[deprecated = true]`: staticcheck's SA1019\nthen flags every existing internal/jobs/enable_registry.go and\ninternal/transport/control_plane_api_impl/enable_plugin.go call site,\nwhich are intentionally left for a follow-up to remove, not this\ncontract-only slice."
     }
   }
 }

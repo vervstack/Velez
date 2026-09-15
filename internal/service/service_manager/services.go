@@ -9,6 +9,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/config"
+	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/secrets"
 	"go.vervstack.ru/Velez/internal/service/service_manager/configurator"
@@ -16,6 +17,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/service_manager/nodes_service"
 	"go.vervstack.ru/Velez/internal/service/service_manager/pgaas"
 	"go.vervstack.ru/Velez/internal/service/service_manager/plugins"
+	"go.vervstack.ru/Velez/internal/service/service_manager/registryaas"
 	"go.vervstack.ru/Velez/internal/service/service_manager/runneraas"
 	"go.vervstack.ru/Velez/internal/service/service_manager/verv_services"
 	"go.vervstack.ru/Velez/internal/service/service_manager/vervonomicon"
@@ -31,11 +33,12 @@ type ServiceManager struct {
 	docker      node_clients.Docker
 	nodeService *nodes_service.Service
 
-	pluginService    service.PluginService
-	storageContainer *storage.Container
-	secretsStore     secrets.Store
-	postgresService  service.PostgresService
-	runnersService   service.RunnersService
+	pluginService            service.PluginService
+	storageContainer         *storage.Container
+	secretsStore             secrets.Store
+	postgresService          service.PostgresService
+	runnersService           service.RunnersService
+	containerRegistryService service.ContainerRegistryService
 }
 
 func New(
@@ -44,6 +47,7 @@ func New(
 	clusterClients cluster_clients.ClusterClients,
 	cfg config.Config,
 	runtimeResolver container_runtime.RuntimeResolver,
+	jobsEngine jobs.Engine,
 ) (service.Services, error) {
 	configService, err := configurator.New(clusterClients)
 	if err != nil {
@@ -84,6 +88,9 @@ func New(
 		// runneraas.New takes clusterClients.StateManager(), for the same
 		// reason pgaas.New does just above - see that comment.
 		runnersService: runneraas.New(clusterClients.StateManager(), vervServices, secretsStore),
+		// registryaas.New takes clusterClients.StateManager(), for the same
+		// reason pgaas.New does just above - see that comment.
+		containerRegistryService: registryaas.New(clusterClients.StateManager(), vervServices, secretsStore, jobsEngine),
 	}
 
 	// TODO VERV-128
@@ -130,4 +137,8 @@ func (s *ServiceManager) Postgres() service.PostgresService {
 
 func (s *ServiceManager) Runners() service.RunnersService {
 	return s.runnersService
+}
+
+func (s *ServiceManager) ContainerRegistry() service.ContainerRegistryService {
+	return s.containerRegistryService
 }

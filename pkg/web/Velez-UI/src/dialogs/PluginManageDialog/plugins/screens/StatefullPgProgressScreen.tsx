@@ -1,7 +1,7 @@
 import {EnablePluginResponse, EnableStatefullCluster} from "@/app/api/velez"
 import {queryClient} from "@/app/queryClient.ts"
 import {StatefullPgContext} from "@/dialogs/PluginManageDialog/plugins/StatefullPgContext.ts"
-import TaskProgressScreen from "@/dialogs/PluginManageDialog/plugins/screens/TaskProgressScreen.tsx"
+import TaskProgressScreen from "@/widgets/TaskProgressScreen/TaskProgressScreen.tsx"
 import {controlPlaneService} from "@/processes/api/control_plane.ts"
 import {NodeHardwareQuery} from "@/processes/queries/control_plane.ts"
 

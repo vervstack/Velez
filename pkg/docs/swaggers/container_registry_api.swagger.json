@@ -1,0 +1,318 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "container_registry_api.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "ContainerRegistryAPI"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/container-registry/create": {
+      "post": {
+        "operationId": "ContainerRegistryAPI_CreateRegistryInstance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateRegistryInstanceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateRegistryInstanceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ContainerRegistryAPI"
+        ]
+      }
+    },
+    "/api/container-registry/drop": {
+      "post": {
+        "operationId": "ContainerRegistryAPI_DropRegistryInstance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiDropRegistryInstanceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiDropRegistryInstanceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ContainerRegistryAPI"
+        ]
+      }
+    },
+    "/api/container-registry/list": {
+      "post": {
+        "operationId": "ContainerRegistryAPI_ListRegistryInstances",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListRegistryInstancesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiListRegistryInstancesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ContainerRegistryAPI"
+        ]
+      }
+    },
+    "/api/container-registry/{name}/credentials": {
+      "get": {
+        "summary": "GetRegistryInstanceCredentials is the only RPC that resolves a\nsecret_ref to its value.",
+        "operationId": "ContainerRegistryAPI_GetRegistryInstanceCredentials",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetRegistryInstanceCredentialsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ContainerRegistryAPI"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "googleRpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "velez_apiCreateRegistryInstanceRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "environment": {
+          "type": "string"
+        },
+        "box": {
+          "type": "string"
+        },
+        "exposeToPort": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "ownerService": {
+          "type": "string",
+          "description": "owner_service - when set, a velez.service_resources binding is\nrecorded (owner_service, name, \"container_registry\") once the\ninstance is created."
+        },
+        "enableUi": {
+          "type": "boolean",
+          "description": "enable_ui - when set, deploys the joxit/docker-registry-ui sidecar\nalongside the registry itself. Disabled by default: most registries\nare pulled from by CI/CD and never browsed by a human."
+        }
+      }
+    },
+    "velez_apiCreateRegistryInstanceResponse": {
+      "type": "object",
+      "properties": {
+        "instance": {
+          "$ref": "#/definitions/velez_apiRegistryInstance",
+          "description": "instance is never populated - the RPC enqueues the\ncreate_registry_instance task and returns before it completes.\nCallers watch entity_id/action via TasksApi.WatchTask and refetch\nListRegistryInstances once the task reaches DONE."
+        },
+        "entityId": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiDropRegistryInstanceRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiDropRegistryInstanceResponse": {
+      "type": "object"
+    },
+    "velez_apiGetRegistryInstanceCredentialsResponse": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "registryUrl": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiListRegistryInstancesRequest": {
+      "type": "object",
+      "properties": {
+        "paging": {
+          "$ref": "#/definitions/velez_apiPaging"
+        }
+      }
+    },
+    "velez_apiListRegistryInstancesResponse": {
+      "type": "object",
+      "properties": {
+        "instances": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiRegistryInstance"
+          }
+        },
+        "total": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "velez_apiPaging": {
+      "type": "object",
+      "properties": {
+        "limit": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "offset": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "velez_apiRegistryInstance": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "uiPort": {
+          "type": "integer",
+          "format": "int64",
+          "description": "ui_port - the joxit/docker-registry-ui sidecar's own exposed port."
+        },
+        "username": {
+          "type": "string"
+        },
+        "environment": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "ownerService": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "RegistryInstance never carries a password - status, environment, image,\ncontainer id and deploy history live on the underlying service/deployment\nrows and are read via ListSmerds/VervServicesService, not duplicated here."
+    }
+  }
+}

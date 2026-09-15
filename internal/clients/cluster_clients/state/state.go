@@ -168,3 +168,12 @@ func (s *stateManager) Runners() storage.RunnersStorage {
 
 	return (*l).Runners()
 }
+
+func (s *stateManager) RegistryInstances() storage.RegistryInstancesStorage {
+	l := s.state.Load()
+	if l == nil {
+		return nil
+	}
+
+	return (*l).RegistryInstances()
+}

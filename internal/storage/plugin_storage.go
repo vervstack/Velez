@@ -82,3 +82,7 @@ func (c *Container) PgInstances() PgInstancesStorage {
 func (c *Container) Runners() RunnersStorage {
 	return (*c.impl.Load()).Runners()
 }
+
+func (c *Container) RegistryInstances() RegistryInstancesStorage {
+	return (*c.impl.Load()).RegistryInstances()
+}

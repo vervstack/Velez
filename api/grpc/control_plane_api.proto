@@ -134,6 +134,15 @@ enum VervPluginType {
 
   statefull_pg = 6;
 
+  // registry - RETIRED. The registry plugin is replaced by
+  // ContainerRegistryAPI (api/grpc/container_registry_api.proto), which
+  // supports multiple named instances instead of one node-wide singleton.
+  // Never reuse or renumber this value - see 21-api-contracts.md. Not
+  // marked with proto's own `[deprecated = true]`: staticcheck's SA1019
+  // then flags every existing internal/jobs/enable_registry.go and
+  // internal/transport/control_plane_api_impl/enable_plugin.go call site,
+  // which are intentionally left for a follow-up to remove, not this
+  // contract-only slice.
   registry = 7;
 }
 
@@ -149,6 +158,7 @@ message EnablePlugin {
     oneof payload {
       EnableStatefullCluster statefull_cluster = 2;
       EnableHeadscaleServer headscale_server = 3;
+      // registry - RETIRED, see VervPluginType.registry.
       EnableRegistry registry = 4;
     }
   }
@@ -177,6 +187,7 @@ message EnableStatefullCluster {
   optional uint64 expose_to_port = 2;
 }
 
+// EnableRegistry - RETIRED, see VervPluginType.registry.
 message EnableRegistry {
   optional uint32 expose_to_port = 1;
   optional string username = 2;

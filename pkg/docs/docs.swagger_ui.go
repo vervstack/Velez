@@ -31,6 +31,10 @@ func Swagger() (p string, handler http.HandlerFunc) {
 					URL:  path.Join(swaggerPath, "velez_common.swagger.json"),
 				},
 				{
+					Name: "ContainerRegistryApi",
+					URL:  path.Join(swaggerPath, "container_registry_api.swagger.json"),
+				},
+				{
 					Name: "VelezApi",
 					URL:  path.Join(swaggerPath, "velez_api.swagger.json"),
 				},

@@ -26,9 +26,23 @@ type BuiltinRegistryUpserter interface {
 	UpsertBuiltinRegistry(ctx context.Context, req domain.CreateRegistryReq) (domain.Registry, error)
 }
 
+// BuiltinRegistryDeleter is UpsertBuiltinRegistry's symmetric counterpart -
+// internal/jobs.dropRegistryInstance (Container-Registry-as-a-Service's drop
+// path) needs to remove the velez.registries row a
+// registerRegistryRowJob-equivalent step created, the same way it needed to
+// create it: bypassing single-node/dev mode's blanket
+// user_errors.ErrRequiresStatefullMode rejection on the public
+// storage.RegistriesStorage.DeleteRegistry path.
+type BuiltinRegistryDeleter interface {
+	DeleteBuiltinRegistry(ctx context.Context, name string) error
+}
+
 var (
 	_ BuiltinRegistryUpserter = (*staticStorage)(nil)
 	_ BuiltinRegistryUpserter = (*pgStorage)(nil)
+
+	_ BuiltinRegistryDeleter = (*staticStorage)(nil)
+	_ BuiltinRegistryDeleter = (*pgStorage)(nil)
 )
 
 // findRegistryByName is shared by both UpsertBuiltinRegistry implementations.
@@ -83,6 +97,42 @@ func (s *staticStorage) UpsertBuiltinRegistry(
 	s.nextID++
 
 	return reg, nil
+}
+
+func (s *staticStorage) DeleteBuiltinRegistry(_ context.Context, name string) error {
+	s.m.Lock()
+	defer s.m.Unlock()
+
+	for id, existing := range s.byID {
+		if existing.Name != name {
+			continue
+		}
+
+		delete(s.byID, id)
+
+		return nil
+	}
+
+	return nil
+}
+
+func (p *pgStorage) DeleteBuiltinRegistry(ctx context.Context, name string) error {
+	all, err := p.ListRegistries(ctx)
+	if err != nil {
+		return rerrors.Wrap(err, "error listing registries")
+	}
+
+	existing := findRegistryByName(all, name)
+	if existing == nil {
+		return nil
+	}
+
+	err = p.DeleteRegistry(ctx, existing.Id)
+	if err != nil {
+		return rerrors.Wrap(err, "error deleting registry")
+	}
+
+	return nil
 }
 
 func (p *pgStorage) UpsertBuiltinRegistry(

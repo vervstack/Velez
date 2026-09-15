@@ -3,7 +3,7 @@ import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query"
 import {registryaasService} from "@/processes/api/registryaas"
 import {CreateRegistryInstanceRequest} from "@/app/api/velez"
 
-const REGISTRY_INSTANCES_QUERY_KEY = ["registry-instances"]
+export const REGISTRY_INSTANCES_QUERY_KEY = ["registry-instances"]
 const LIST_REQ = {paging: {limit: "50", offset: "0"}}
 
 export function useListRegistryInstancesQuery() {

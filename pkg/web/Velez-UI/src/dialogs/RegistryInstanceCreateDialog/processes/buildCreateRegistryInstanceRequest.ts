@@ -7,6 +7,7 @@ interface CreateRegistryInstanceFormState {
     exposePort: boolean
     port: string
     ownerService: string
+    enableUi: boolean
 }
 
 export function buildCreateRegistryInstanceRequest(
@@ -21,5 +22,6 @@ export function buildCreateRegistryInstanceRequest(
         box: form.box,
         exposeToPort: form.exposePort && form.port.trim() ? Number(form.port.trim()) : undefined,
         ownerService: form.ownerService || undefined,
+        enableUi: form.enableUi,
     }
 }

@@ -1,5 +1,5 @@
 import {afterEach, describe, expect, it, vi} from "vitest"
-import {fireEvent, render, screen, waitFor} from "@testing-library/react"
+import {act, fireEvent, render, screen, waitFor} from "@testing-library/react"
 
 import {TaskStatus, TaskStatusStatus} from "@/app/api/velez"
 import RegistryDeployProgressScreen from "@/dialogs/RegistryInstanceCreateDialog/screens/RegistryDeployProgressScreen.tsx"
@@ -39,18 +39,32 @@ describe("RegistryDeployProgressScreen", () => {
     it("shows the currently running step, then success once the task completes", async () => {
         const onSuccess = vi.fn()
 
-        vi.mocked(WatchTaskStream).mockImplementation(async (_req, onStatus) => {
-            onStatus({
-                status: TaskStatusStatus.RUNNING,
-                jobs: [{name: "deploy_registry", status: TaskStatusStatus.RUNNING}],
-            } as TaskStatus)
-            onStatus({status: TaskStatusStatus.DONE, jobs: []} as TaskStatus)
+        let capturedOnStatus: ((status: TaskStatus) => void) | undefined
+        let resolveWatch: (() => void) | undefined
+        vi.mocked(WatchTaskStream).mockImplementation((_req, onStatus) => {
+            capturedOnStatus = onStatus
+            return new Promise((resolve) => {
+                resolveWatch = resolve
+            })
         })
 
         renderScreen({onSuccess})
 
         await waitFor(() => {
-            expect(screen.getByText("Deploy registry…")).toBeInTheDocument()
+            expect(capturedOnStatus).toBeDefined()
+        })
+
+        act(() => {
+            capturedOnStatus!({
+                status: TaskStatusStatus.RUNNING,
+                jobs: [{name: "deploy_registry", status: TaskStatusStatus.RUNNING}],
+            } as TaskStatus)
+        })
+        expect(screen.getByText("Deploy Registry…")).toBeInTheDocument()
+
+        act(() => {
+            capturedOnStatus!({status: TaskStatusStatus.DONE, jobs: []} as TaskStatus)
+            resolveWatch!()
         })
 
         await waitFor(() => {

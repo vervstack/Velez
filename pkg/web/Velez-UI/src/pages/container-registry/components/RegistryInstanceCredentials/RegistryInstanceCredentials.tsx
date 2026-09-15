@@ -30,6 +30,14 @@ export default function RegistryInstanceCredentials({name, username}: Props) {
         return `docker login ${registryUrl} -u ${username} -p ${password}`
     }
 
+    function handleCredentialsUnavailable() {
+        toaster.bake({
+            title: "Password unavailable",
+            description: `${name}'s credentials were lost, likely after a server restart. Recreate the instance to get a new password.`,
+            level: "Error",
+        })
+    }
+
     function handleToggleReveal() {
         if (revealed) {
             setRevealed(false)
@@ -37,7 +45,7 @@ export default function RegistryInstanceCredentials({name, username}: Props) {
         }
         setRevealed(true)
         if (!credentialsQuery.data) {
-            credentialsQuery.refetch().catch(toaster.catchGrpc)
+            credentialsQuery.refetch().catch(handleCredentialsUnavailable)
         }
     }
 
@@ -53,7 +61,7 @@ export default function RegistryInstanceCredentials({name, username}: Props) {
                     copyToClipboard(buildDockerLoginCommand(result.data.registryUrl, result.data.password))
                 }
             })
-            .catch(toaster.catchGrpc)
+            .catch(handleCredentialsUnavailable)
     }
 
     const passwordValue = revealed && credentialsQuery.data?.password

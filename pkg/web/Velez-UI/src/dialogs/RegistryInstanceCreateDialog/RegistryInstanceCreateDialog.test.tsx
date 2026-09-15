@@ -10,7 +10,13 @@ import {CreateRegistryInstanceMutation} from "@/processes/queries/registry_insta
 vi.mock("@/app/hooks/dialog/Dialog.tsx", () => ({useDialog: vi.fn()}))
 vi.mock("@/processes/queries/control_plane.ts", () => ({ListEnvironmentsQuery: vi.fn()}))
 vi.mock("@/processes/queries/services.ts", () => ({useListServicesQuery: vi.fn()}))
-vi.mock("@/processes/queries/registry_instances.ts", () => ({CreateRegistryInstanceMutation: vi.fn()}))
+vi.mock("@/processes/queries/registry_instances.ts", () => ({
+    CreateRegistryInstanceMutation: vi.fn(),
+    REGISTRY_INSTANCES_QUERY_KEY: ["registry-instances"],
+}))
+vi.mock("@/dialogs/RegistryInstanceCreateDialog/screens/RegistryDeployProgressScreen.tsx", () => ({
+    default: vi.fn(() => <div>progress screen</div>),
+}))
 
 function renderDialog() {
     const CloseDialog = vi.fn()
@@ -25,14 +31,14 @@ function renderDialog() {
         {data: {services: []}} as Partial<ReturnType<typeof useListServicesQuery>> as
             ReturnType<typeof useListServicesQuery>
     )
-    const mutate = vi.fn()
+    const mutateAsync = vi.fn()
     vi.mocked(CreateRegistryInstanceMutation).mockReturnValue(
-        {mutate, isPending: false} as Partial<ReturnType<typeof CreateRegistryInstanceMutation>> as
+        {mutateAsync, isPending: false} as Partial<ReturnType<typeof CreateRegistryInstanceMutation>> as
             ReturnType<typeof CreateRegistryInstanceMutation>
     )
 
     render(<RegistryInstanceCreateDialog/>)
-    return {mutate, CloseDialog}
+    return {mutateAsync, CloseDialog}
 }
 
 afterEach(() => {
@@ -50,15 +56,22 @@ describe("RegistryInstanceCreateDialog", () => {
         expect(screen.getByText("Create")).not.toBeDisabled()
     })
 
-    it("submits a create request built from the form fields", () => {
-        const {mutate} = renderDialog()
+    it("does not enable the UI sidecar by default", () => {
+        renderDialog()
+
+        const enableUiLabel = screen.getByText("Enable UI")
+        const enableUiCheckbox = enableUiLabel.parentElement?.querySelector("input[type='checkbox']")
+
+        expect(enableUiCheckbox).not.toBeChecked()
+    })
+
+    it("swaps to the progress screen and starts the create request when Create is clicked", () => {
+        renderDialog()
 
         fireEvent.change(screen.getByRole("textbox"), {target: {value: "my-registry"}})
         fireEvent.click(screen.getByText("Create"))
 
-        expect(mutate).toHaveBeenCalledWith(
-            expect.objectContaining({name: "my-registry", box: "small"}),
-            expect.anything()
-        )
+        expect(screen.getByText("progress screen")).toBeInTheDocument()
+        expect(screen.queryByText("Create")).not.toBeInTheDocument()
     })
 })

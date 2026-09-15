@@ -5,6 +5,7 @@
  * This file is a generated Typescript file for GRPC Gateway, DO NOT MODIFY
  */
 
+import * as VelezApiContainerRegistryApi from "./container_registry_api.pb";
 import * as VelezApiControlPlaneApi from "./control_plane_api.pb";
 import * as fm from "./fetch.pb";
 import * as GoogleProtobufTimestamp from "./google/protobuf/timestamp.pb";
@@ -107,12 +108,13 @@ export type UpgradeSmerdTaskPayload = {
   allowDockerSocket?: boolean;
 };
 
-export type EnableRegistryTaskPayload = {
-  request?: VelezApiControlPlaneApi.EnableRegistry;
+export type CreateRegistryInstanceTaskPayload = {
+  request?: VelezApiContainerRegistryApi.CreateRegistryInstanceRequest;
   username?: string;
   password?: string;
   containerId?: string;
   exposedPort?: number;
+  uiExposedPort?: number;
 };
 
 export class TasksApi {

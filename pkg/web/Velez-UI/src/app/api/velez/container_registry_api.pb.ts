@@ -39,10 +39,13 @@ export type CreateRegistryInstanceRequest = {
   box?: string;
   exposeToPort?: number;
   ownerService?: string;
+  enableUi?: boolean;
 };
 
 export type CreateRegistryInstanceResponse = {
   instance?: RegistryInstance;
+  entityId?: string;
+  action?: string;
 };
 
 export type CreateRegistryInstance = Record<string, never>;

@@ -3,8 +3,9 @@
     border: 1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    min-width: 24rem;
+    width: 22rem;
     max-width: 90vw;
+    min-height: 32rem;
     max-height: 90vh;
     overflow-y: auto;
 }

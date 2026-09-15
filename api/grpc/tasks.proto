@@ -6,6 +6,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
 import "npm.proto";
+import "container_registry_api.proto";
 import "control_plane_api.proto";
 import "service_api.proto";
 import "velez_api.proto";
@@ -220,10 +221,12 @@ message UpgradeSmerdTaskPayload {
   bool allow_docker_socket = 7;
 }
 
-// EnableRegistryTaskPayload is the task context for the "enable_registry"
-// action - see docs/features/pgaas_and_registry_plugin.md section 4.
-message EnableRegistryTaskPayload {
-  EnableRegistry request = 1;
+// CreateRegistryInstanceTaskPayload is the task context for the
+// "create_registry_instance" action - see
+// docs/features/pgaas_and_registry_plugin.md section 4. Supersedes the
+// retired EnableRegistryTaskPayload/EnableRegistry plugin path.
+message CreateRegistryInstanceTaskPayload {
+  CreateRegistryInstance.Request request = 1;
 
   // Generated once by generate_credentials and persisted so resuming a
   // partially-completed task reuses the same username/password instead of
@@ -236,11 +239,15 @@ message EnableRegistryTaskPayload {
   // Set once the htpasswd loader container has been created.
   optional string container_id = 4;
 
-  // Set once the registry's host port has been resolved (either the
-  // caller's requested expose_to_port, or one auto-assigned from the node's
-  // port pool) - persisted so register_registry can build the registry's
-  // url without re-deriving it, and so a crash-resumed task reuses the same
-  // port instead of picking a second one.
+  // Set once both the registry's and the UI sidecar's host ports have been
+  // resolved by resolve_ports (either the caller's requested
+  // expose_to_port for the registry, or auto-assigned from the node's port
+  // pool for both) - persisted so later jobs build urls/labels without
+  // re-deriving them, and so a crash-resumed task reuses the same ports
+  // instead of picking new ones. The registry's own container labels must
+  // carry ui_exposed_port at create time (Docker labels are immutable after
+  // creation), so both ports are resolved before either container deploys.
   optional uint32 exposed_port = 5;
+  optional uint32 ui_exposed_port = 6;
 }
 

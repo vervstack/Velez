@@ -893,11 +893,13 @@ func (x *UpgradeSmerdTaskPayload) GetAllowDockerSocket() bool {
 	return false
 }
 
-// EnableRegistryTaskPayload is the task context for the "enable_registry"
-// action - see docs/features/pgaas_and_registry_plugin.md section 4.
-type EnableRegistryTaskPayload struct {
-	state   protoimpl.MessageState `protogen:"open.v1"`
-	Request *EnableRegistry        `protobuf:"bytes,1,opt,name=request,proto3" json:"request,omitempty"`
+// CreateRegistryInstanceTaskPayload is the task context for the
+// "create_registry_instance" action - see
+// docs/features/pgaas_and_registry_plugin.md section 4. Supersedes the
+// retired EnableRegistryTaskPayload/EnableRegistry plugin path.
+type CreateRegistryInstanceTaskPayload struct {
+	state   protoimpl.MessageState          `protogen:"open.v1"`
+	Request *CreateRegistryInstance_Request `protobuf:"bytes,1,opt,name=request,proto3" json:"request,omitempty"`
 	// Generated once by generate_credentials and persisted so resuming a
 	// partially-completed task reuses the same username/password instead of
 	// regenerating ones that would mismatch the htpasswd entry already written
@@ -907,30 +909,34 @@ type EnableRegistryTaskPayload struct {
 	Password *string `protobuf:"bytes,3,opt,name=password,proto3,oneof" json:"password,omitempty"`
 	// Set once the htpasswd loader container has been created.
 	ContainerId *string `protobuf:"bytes,4,opt,name=container_id,json=containerId,proto3,oneof" json:"container_id,omitempty"`
-	// Set once the registry's host port has been resolved (either the
-	// caller's requested expose_to_port, or one auto-assigned from the node's
-	// port pool) - persisted so register_registry can build the registry's
-	// url without re-deriving it, and so a crash-resumed task reuses the same
-	// port instead of picking a second one.
+	// Set once both the registry's and the UI sidecar's host ports have been
+	// resolved by resolve_ports (either the caller's requested
+	// expose_to_port for the registry, or auto-assigned from the node's port
+	// pool for both) - persisted so later jobs build urls/labels without
+	// re-deriving them, and so a crash-resumed task reuses the same ports
+	// instead of picking new ones. The registry's own container labels must
+	// carry ui_exposed_port at create time (Docker labels are immutable after
+	// creation), so both ports are resolved before either container deploys.
 	ExposedPort   *uint32 `protobuf:"varint,5,opt,name=exposed_port,json=exposedPort,proto3,oneof" json:"exposed_port,omitempty"`
+	UiExposedPort *uint32 `protobuf:"varint,6,opt,name=ui_exposed_port,json=uiExposedPort,proto3,oneof" json:"ui_exposed_port,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *EnableRegistryTaskPayload) Reset() {
-	*x = EnableRegistryTaskPayload{}
+func (x *CreateRegistryInstanceTaskPayload) Reset() {
+	*x = CreateRegistryInstanceTaskPayload{}
 	mi := &file_tasks_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *EnableRegistryTaskPayload) String() string {
+func (x *CreateRegistryInstanceTaskPayload) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*EnableRegistryTaskPayload) ProtoMessage() {}
+func (*CreateRegistryInstanceTaskPayload) ProtoMessage() {}
 
-func (x *EnableRegistryTaskPayload) ProtoReflect() protoreflect.Message {
+func (x *CreateRegistryInstanceTaskPayload) ProtoReflect() protoreflect.Message {
 	mi := &file_tasks_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -942,42 +948,49 @@ func (x *EnableRegistryTaskPayload) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use EnableRegistryTaskPayload.ProtoReflect.Descriptor instead.
-func (*EnableRegistryTaskPayload) Descriptor() ([]byte, []int) {
+// Deprecated: Use CreateRegistryInstanceTaskPayload.ProtoReflect.Descriptor instead.
+func (*CreateRegistryInstanceTaskPayload) Descriptor() ([]byte, []int) {
 	return file_tasks_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *EnableRegistryTaskPayload) GetRequest() *EnableRegistry {
+func (x *CreateRegistryInstanceTaskPayload) GetRequest() *CreateRegistryInstance_Request {
 	if x != nil {
 		return x.Request
 	}
 	return nil
 }
 
-func (x *EnableRegistryTaskPayload) GetUsername() string {
+func (x *CreateRegistryInstanceTaskPayload) GetUsername() string {
 	if x != nil && x.Username != nil {
 		return *x.Username
 	}
 	return ""
 }
 
-func (x *EnableRegistryTaskPayload) GetPassword() string {
+func (x *CreateRegistryInstanceTaskPayload) GetPassword() string {
 	if x != nil && x.Password != nil {
 		return *x.Password
 	}
 	return ""
 }
 
-func (x *EnableRegistryTaskPayload) GetContainerId() string {
+func (x *CreateRegistryInstanceTaskPayload) GetContainerId() string {
 	if x != nil && x.ContainerId != nil {
 		return *x.ContainerId
 	}
 	return ""
 }
 
-func (x *EnableRegistryTaskPayload) GetExposedPort() uint32 {
+func (x *CreateRegistryInstanceTaskPayload) GetExposedPort() uint32 {
 	if x != nil && x.ExposedPort != nil {
 		return *x.ExposedPort
+	}
+	return 0
+}
+
+func (x *CreateRegistryInstanceTaskPayload) GetUiExposedPort() uint32 {
+	if x != nil && x.UiExposedPort != nil {
+		return *x.UiExposedPort
 	}
 	return 0
 }
@@ -1090,7 +1103,7 @@ var File_tasks_proto protoreflect.FileDescriptor
 
 const file_tasks_proto_rawDesc = "" +
 	"\n" +
-	"\vtasks.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\x1a\x17control_plane_api.proto\x1a\x11service_api.proto\x1a\x0fvelez_api.proto\x1a\x12velez_common.proto\"K\n" +
+	"\vtasks.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\x1a\x1ccontainer_registry_api.proto\x1a\x17control_plane_api.proto\x1a\x11service_api.proto\x1a\x0fvelez_api.proto\x1a\x12velez_common.proto\"K\n" +
 	"\tWatchTask\x1a>\n" +
 	"\aRequest\x12\x1b\n" +
 	"\tentity_id\x18\x01 \x01(\tR\bentityId\x12\x16\n" +
@@ -1212,17 +1225,19 @@ const file_tasks_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x13\n" +
 	"\x11_old_container_idB\x0f\n" +
-	"\r_container_id\"\x9e\x02\n" +
-	"\x19EnableRegistryTaskPayload\x123\n" +
-	"\arequest\x18\x01 \x01(\v2\x19.velez_api.EnableRegistryR\arequest\x12\x1f\n" +
+	"\r_container_id\"\xf7\x02\n" +
+	"!CreateRegistryInstanceTaskPayload\x12C\n" +
+	"\arequest\x18\x01 \x01(\v2).velez_api.CreateRegistryInstance.RequestR\arequest\x12\x1f\n" +
 	"\busername\x18\x02 \x01(\tH\x00R\busername\x88\x01\x01\x12\x1f\n" +
 	"\bpassword\x18\x03 \x01(\tH\x01R\bpassword\x88\x01\x01\x12&\n" +
 	"\fcontainer_id\x18\x04 \x01(\tH\x02R\vcontainerId\x88\x01\x01\x12&\n" +
-	"\fexposed_port\x18\x05 \x01(\rH\x03R\vexposedPort\x88\x01\x01B\v\n" +
+	"\fexposed_port\x18\x05 \x01(\rH\x03R\vexposedPort\x88\x01\x01\x12+\n" +
+	"\x0fui_exposed_port\x18\x06 \x01(\rH\x04R\ruiExposedPort\x88\x01\x01B\v\n" +
 	"\t_usernameB\v\n" +
 	"\t_passwordB\x0f\n" +
 	"\r_container_idB\x0f\n" +
-	"\r_exposed_port2\xdb\x01\n" +
+	"\r_exposed_portB\x12\n" +
+	"\x10_ui_exposed_port2\xdb\x01\n" +
 	"\bTasksApi\x12\\\n" +
 	"\tWatchTask\x12\x1c.velez_api.WatchTask.Request\x1a\x15.velez_api.TaskStatus\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/api/tasks/watch0\x01\x12q\n" +
 	"\x11CreateSmerdStream\x12\x1e.velez_api.CreateSmerd.Request\x1a\x15.velez_api.TaskStatus\"#\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/api/smerd/create/stream0\x01BC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
@@ -1242,33 +1257,33 @@ func file_tasks_proto_rawDescGZIP() []byte {
 var file_tasks_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_tasks_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_tasks_proto_goTypes = []any{
-	(TaskStatus_Status)(0),                 // 0: velez_api.TaskStatus.Status
-	(*WatchTask)(nil),                      // 1: velez_api.WatchTask
-	(*TaskStatus)(nil),                     // 2: velez_api.TaskStatus
-	(*CreateSmerdTaskPayload)(nil),         // 3: velez_api.CreateSmerdTaskPayload
-	(*CreateServiceTaskPayload)(nil),       // 4: velez_api.CreateServiceTaskPayload
-	(*AssembleConfigTaskPayload)(nil),      // 5: velez_api.AssembleConfigTaskPayload
-	(*CopyToVolumeTaskPayload)(nil),        // 6: velez_api.CopyToVolumeTaskPayload
-	(*ConnectServiceToVpnTaskPayload)(nil), // 7: velez_api.ConnectServiceToVpnTaskPayload
-	(*EnableStatefullTaskPayload)(nil),     // 8: velez_api.EnableStatefullTaskPayload
-	(*DropSmerdTaskPayload)(nil),           // 9: velez_api.DropSmerdTaskPayload
-	(*UpgradeSmerdTaskPayload)(nil),        // 10: velez_api.UpgradeSmerdTaskPayload
-	(*EnableRegistryTaskPayload)(nil),      // 11: velez_api.EnableRegistryTaskPayload
-	(*WatchTask_Request)(nil),              // 12: velez_api.WatchTask.Request
-	(*TaskStatus_JobStatus)(nil),           // 13: velez_api.TaskStatus.JobStatus
-	nil,                                    // 14: velez_api.CreateSmerdTaskPayload.ImageLabelsEntry
-	nil,                                    // 15: velez_api.CreateSmerdTaskPayload.PathToFilesEntry
-	nil,                                    // 16: velez_api.AssembleConfigTaskPayload.ImageLabelsEntry
-	nil,                                    // 17: velez_api.CopyToVolumeTaskPayload.PathToFilesEntry
-	nil,                                    // 18: velez_api.UpgradeSmerdTaskPayload.ImageLabelsEntry
-	(*timestamppb.Timestamp)(nil),          // 19: google.protobuf.Timestamp
-	(*CreateSmerd_Request)(nil),            // 20: velez_api.CreateSmerd.Request
-	(ConfigFormat)(0),                      // 21: velez_api.ConfigFormat
-	(*EnableStatefullCluster)(nil),         // 22: velez_api.EnableStatefullCluster
-	(*DropSmerd_Request)(nil),              // 23: velez_api.DropSmerd.Request
-	(*DropSmerd_Response_Error)(nil),       // 24: velez_api.DropSmerd.Response.Error
-	(*UpgradeSmerd_Request)(nil),           // 25: velez_api.UpgradeSmerd.Request
-	(*EnableRegistry)(nil),                 // 26: velez_api.EnableRegistry
+	(TaskStatus_Status)(0),                    // 0: velez_api.TaskStatus.Status
+	(*WatchTask)(nil),                         // 1: velez_api.WatchTask
+	(*TaskStatus)(nil),                        // 2: velez_api.TaskStatus
+	(*CreateSmerdTaskPayload)(nil),            // 3: velez_api.CreateSmerdTaskPayload
+	(*CreateServiceTaskPayload)(nil),          // 4: velez_api.CreateServiceTaskPayload
+	(*AssembleConfigTaskPayload)(nil),         // 5: velez_api.AssembleConfigTaskPayload
+	(*CopyToVolumeTaskPayload)(nil),           // 6: velez_api.CopyToVolumeTaskPayload
+	(*ConnectServiceToVpnTaskPayload)(nil),    // 7: velez_api.ConnectServiceToVpnTaskPayload
+	(*EnableStatefullTaskPayload)(nil),        // 8: velez_api.EnableStatefullTaskPayload
+	(*DropSmerdTaskPayload)(nil),              // 9: velez_api.DropSmerdTaskPayload
+	(*UpgradeSmerdTaskPayload)(nil),           // 10: velez_api.UpgradeSmerdTaskPayload
+	(*CreateRegistryInstanceTaskPayload)(nil), // 11: velez_api.CreateRegistryInstanceTaskPayload
+	(*WatchTask_Request)(nil),                 // 12: velez_api.WatchTask.Request
+	(*TaskStatus_JobStatus)(nil),              // 13: velez_api.TaskStatus.JobStatus
+	nil,                                       // 14: velez_api.CreateSmerdTaskPayload.ImageLabelsEntry
+	nil,                                       // 15: velez_api.CreateSmerdTaskPayload.PathToFilesEntry
+	nil,                                       // 16: velez_api.AssembleConfigTaskPayload.ImageLabelsEntry
+	nil,                                       // 17: velez_api.CopyToVolumeTaskPayload.PathToFilesEntry
+	nil,                                       // 18: velez_api.UpgradeSmerdTaskPayload.ImageLabelsEntry
+	(*timestamppb.Timestamp)(nil),             // 19: google.protobuf.Timestamp
+	(*CreateSmerd_Request)(nil),               // 20: velez_api.CreateSmerd.Request
+	(ConfigFormat)(0),                         // 21: velez_api.ConfigFormat
+	(*EnableStatefullCluster)(nil),            // 22: velez_api.EnableStatefullCluster
+	(*DropSmerd_Request)(nil),                 // 23: velez_api.DropSmerd.Request
+	(*DropSmerd_Response_Error)(nil),          // 24: velez_api.DropSmerd.Response.Error
+	(*UpgradeSmerd_Request)(nil),              // 25: velez_api.UpgradeSmerd.Request
+	(*CreateRegistryInstance_Request)(nil),    // 26: velez_api.CreateRegistryInstance.Request
 }
 var file_tasks_proto_depIdxs = []int32{
 	0,  // 0: velez_api.TaskStatus.status:type_name -> velez_api.TaskStatus.Status
@@ -1286,7 +1301,7 @@ var file_tasks_proto_depIdxs = []int32{
 	25, // 12: velez_api.UpgradeSmerdTaskPayload.upgrade_request:type_name -> velez_api.UpgradeSmerd.Request
 	20, // 13: velez_api.UpgradeSmerdTaskPayload.request:type_name -> velez_api.CreateSmerd.Request
 	18, // 14: velez_api.UpgradeSmerdTaskPayload.image_labels:type_name -> velez_api.UpgradeSmerdTaskPayload.ImageLabelsEntry
-	26, // 15: velez_api.EnableRegistryTaskPayload.request:type_name -> velez_api.EnableRegistry
+	26, // 15: velez_api.CreateRegistryInstanceTaskPayload.request:type_name -> velez_api.CreateRegistryInstance.Request
 	0,  // 16: velez_api.TaskStatus.JobStatus.status:type_name -> velez_api.TaskStatus.Status
 	12, // 17: velez_api.TasksApi.WatchTask:input_type -> velez_api.WatchTask.Request
 	20, // 18: velez_api.TasksApi.CreateSmerdStream:input_type -> velez_api.CreateSmerd.Request
@@ -1304,6 +1319,7 @@ func file_tasks_proto_init() {
 	if File_tasks_proto != nil {
 		return
 	}
+	file_container_registry_api_proto_init()
 	file_control_plane_api_proto_init()
 	file_service_api_proto_init()
 	file_velez_api_proto_init()

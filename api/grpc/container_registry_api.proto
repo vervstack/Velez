@@ -1,0 +1,113 @@
+syntax = "proto3";
+
+package velez_api;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "npm.proto";
+
+import "velez_common.proto";
+
+option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
+option (npm_package) = "@vervstack/velez";
+
+// ContainerRegistryAPI - Container-Registry-as-a-Service. A registry
+// instance is a normal Velez service (velez.services /
+// deployment_specifications / deployments), with only the registry-specific
+// facts (port, ui_port, username, secret_ref) held in
+// velez.registry_instances - mirrors PostgresAPI exactly. See
+// docs/features/pgaas_and_registry_plugin.md section 3 for the shape this
+// follows, and internal/jobs/enable_registry.go for the plugin this
+// replaces.
+service ContainerRegistryAPI {
+  rpc ListRegistryInstances(ListRegistryInstances.Request) returns (ListRegistryInstances.Response) {
+    option (google.api.http) = {
+      post: "/api/container-registry/list"
+      body: "*"
+    };
+  }
+
+  rpc CreateRegistryInstance(CreateRegistryInstance.Request) returns (CreateRegistryInstance.Response) {
+    option (google.api.http) = {
+      post: "/api/container-registry/create"
+      body: "*"
+    };
+  }
+
+  rpc DropRegistryInstance(DropRegistryInstance.Request) returns (DropRegistryInstance.Response) {
+    option (google.api.http) = {
+      post: "/api/container-registry/drop"
+      body: "*"
+    };
+  }
+
+  // GetRegistryInstanceCredentials is the only RPC that resolves a
+  // secret_ref to its value.
+  rpc GetRegistryInstanceCredentials(GetRegistryInstanceCredentials.Request) returns (GetRegistryInstanceCredentials.Response) {
+    option (google.api.http) = {
+      get: "/api/container-registry/{name}/credentials"
+    };
+  }
+}
+
+// RegistryInstance never carries a password - status, environment, image,
+// container id and deploy history live on the underlying service/deployment
+// rows and are read via ListSmerds/VervServicesService, not duplicated here.
+message RegistryInstance {
+  string name = 1;
+  uint32 port = 2;
+  // ui_port - the joxit/docker-registry-ui sidecar's own exposed port.
+  uint32 ui_port = 3;
+  string username = 4;
+  string environment = 5;
+  string status = 6;
+  optional string owner_service = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+message ListRegistryInstances {
+  message Request {
+    Paging paging = 1;
+  }
+  message Response {
+    repeated RegistryInstance instances = 1;
+    uint64 total = 2;
+  }
+}
+
+message CreateRegistryInstance {
+  message Request {
+    string name = 1;
+    optional string environment = 2;
+    optional string box = 3;
+    optional uint32 expose_to_port = 4;
+    // owner_service - when set, a velez.service_resources binding is
+    // recorded (owner_service, name, "container_registry") once the
+    // instance is created.
+    optional string owner_service = 5;
+  }
+  message Response {
+    RegistryInstance instance = 1;
+  }
+}
+
+message DropRegistryInstance {
+  message Request {
+    string name = 1;
+  }
+  message Response {}
+}
+
+// GetRegistryInstanceCredentials.Response is the only
+// ContainerRegistryAPI message that ever carries a password.
+message GetRegistryInstanceCredentials {
+  message Request {
+    string name = 1;
+  }
+  message Response {
+    string username = 1;
+    string password = 2;
+    string registry_url = 3;
+  }
+}

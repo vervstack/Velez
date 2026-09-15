@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.30.0
 
-package registries_queries
+package registry_instances_queries
 
 import (
 	"database/sql"

@@ -1,0 +1,29 @@
+app:
+  # image is set explicitly, unlike a normal service descriptor - this
+  # descriptor is embedded into the Velez binary itself
+  # (SourceKindBuiltin), not baked into an image, so there is nothing for
+  # Velez to inspect .verv/ out of.
+  image: joxit/docker-registry-ui:latest
+
+  ports:
+    - port: 80
+      protocol: tcp
+
+  # No persistent state of its own - it only proxies/reads the sibling
+  # registry container's API, so there is no volumes: entry here, unlike
+  # registry/deployment.yaml.
+
+  # NGINX_PROXY_PASS_URL must point at the sibling registry container's own
+  # internal URL (http://<registry service name>:5000) and REGISTRY_TITLE at
+  # the instance name - both are instance-specific, so the registry
+  # instance's provisioning code overlays them at deploy time, same as
+  # postgres/deployment.yaml's credentials. SINGLE_REGISTRY=true is fixed:
+  # this sidecar always fronts exactly one registry instance, never a list.
+  env:
+    NGINX_PROXY_PASS_URL: ""
+    REGISTRY_TITLE: ""
+    SINGLE_REGISTRY: "true"
+
+  restart: unless_stopped
+
+  box: small

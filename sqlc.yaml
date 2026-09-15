@@ -184,6 +184,20 @@ sql:
         emit_empty_slices: true
   - engine: "postgresql"
     queries:
+      - "internal/storage/postgres/queries/registry_instances*.sql"
+    schema:
+      - "migrations/*.sql"
+    gen:
+      go:
+        package: "registry_instances_queries"
+        out: "internal/storage/postgres/generated/registry_instances_queries"
+        sql_package: "database/sql"
+        emit_prepared_queries: false
+        emit_interface: true
+        emit_exact_table_names: false
+        emit_empty_slices: true
+  - engine: "postgresql"
+    queries:
       - "internal/storage/postgres/queries/runners*.sql"
     schema:
       - "migrations/*.sql"

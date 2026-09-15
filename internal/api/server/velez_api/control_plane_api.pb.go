@@ -34,7 +34,16 @@ const (
 	VervPluginType_headscale            VervPluginType = 4
 	VervPluginType_portainer            VervPluginType = 5
 	VervPluginType_statefull_pg         VervPluginType = 6
-	VervPluginType_registry             VervPluginType = 7
+	// registry - RETIRED. The registry plugin is replaced by
+	// ContainerRegistryAPI (api/grpc/container_registry_api.proto), which
+	// supports multiple named instances instead of one node-wide singleton.
+	// Never reuse or renumber this value - see 21-api-contracts.md. Not
+	// marked with proto's own `[deprecated = true]`: staticcheck's SA1019
+	// then flags every existing internal/jobs/enable_registry.go and
+	// internal/transport/control_plane_api_impl/enable_plugin.go call site,
+	// which are intentionally left for a follow-up to remove, not this
+	// contract-only slice.
+	VervPluginType_registry VervPluginType = 7
 )
 
 // Enum value maps for VervPluginType.
@@ -448,6 +457,7 @@ func (x *EnableStatefullCluster) GetExposeToPort() uint64 {
 	return 0
 }
 
+// EnableRegistry - RETIRED, see VervPluginType.registry.
 type EnableRegistry struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ExposeToPort  *uint32                `protobuf:"varint,1,opt,name=expose_to_port,json=exposeToPort,proto3,oneof" json:"expose_to_port,omitempty"`
@@ -1379,6 +1389,7 @@ type EnablePlugin_Request_HeadscaleServer struct {
 }
 
 type EnablePlugin_Request_Registry struct {
+	// registry - RETIRED, see VervPluginType.registry.
 	Registry *EnableRegistry `protobuf:"bytes,4,opt,name=registry,proto3,oneof"`
 }
 

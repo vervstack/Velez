@@ -131,7 +131,7 @@ func (p Plane) NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment
 //
 // It deliberately does NOT call t.Parallel() itself: a suite that documents
 // itself as not-parallel-safe (a fixed, unsuffixed Docker resource name -
-// see PgaasLifecycleSuite/EnableRegistrySuite) must stay that way after
+// see PgaasLifecycleSuite/ContainerRegistryLifecycleSuite) must stay that way after
 // adopting the matrix. Parallelism is whatever the calling Test_X already
 // decides by calling (or not calling) t.Parallel() itself, same as before.
 func RunPlaneSuite(t *testing.T, planes []Plane, newSuite func(Plane) suite.TestingSuite) {

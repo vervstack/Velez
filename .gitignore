@@ -25,3 +25,5 @@ proto_modules
 /docs/.obsidian/
 
 graphify-out/
+
+.claude/hooks/serve.log

@@ -29,6 +29,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/service_manager"
 	"go.vervstack.ru/Velez/internal/transport"
+	"go.vervstack.ru/Velez/internal/transport/container_registry_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/control_plane_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/pgaas_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/runners_api_impl"
@@ -62,13 +63,14 @@ type Custom struct {
 	// JobsEngine - durable, resumable task/job engine (see internal/jobs)
 	JobsEngine jobs.Engine
 	// Api implementation
-	ApiGrpcImpl         *velez_api_impl.Impl
-	ControlPlaneApiImpl *control_plane_api_impl.Impl
-	VpnApiImpl          *vcn_api_impl.Impl
-	ServiceApiImpl      *service_api_impl.Impl
-	TasksApiImpl        *tasks_api_impl.Impl
-	PgaasApiImpl        *pgaas_api_impl.Impl
-	RunnersApiImpl      *runners_api_impl.Impl
+	ApiGrpcImpl              *velez_api_impl.Impl
+	ControlPlaneApiImpl      *control_plane_api_impl.Impl
+	VpnApiImpl               *vcn_api_impl.Impl
+	ServiceApiImpl           *service_api_impl.Impl
+	TasksApiImpl             *tasks_api_impl.Impl
+	PgaasApiImpl             *pgaas_api_impl.Impl
+	RunnersApiImpl           *runners_api_impl.Impl
+	ContainerRegistryApiImpl *container_registry_api_impl.Impl
 
 	serverManager *transport.ServersManager
 
@@ -130,7 +132,7 @@ func (c *Custom) Init(a *App) (err error) {
 		c.NodeClients, c.Services.SmerdManager(), c.Services.ConfigurationService(),
 		runtimeResolver))
 	registry.Register(jobs.NewDropSmerdHandler(runtimeResolver))
-	registry.Register(jobs.NewEnableRegistryHandler(
+	registry.Register(jobs.NewCreateRegistryInstanceHandler(
 		c.NodeClients, runtimeResolver, c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices()))
 
 	c.JobsEngine.SetRegistry(registry)
@@ -228,7 +230,15 @@ func (c *Custom) InitServiceLayer(a *App, runtimeResolver container_runtime.Runt
 
 	var err error
 
-	c.Services, err = service_manager.New(a.Ctx, c.NodeClients, c.ClusterClients, a.Cfg, runtimeResolver)
+	// Built before service_manager.New: registryaas.New (constructed inside
+	// it) needs a jobs.Engine to enqueue its multi-step create_registry_instance
+	// task - see docs/features/pgaas_and_registry_plugin.md section 4 and
+	// internal/service/service_manager/registryaas. SetRegistry is still
+	// called later in Init, once the job registry itself is built - Enqueue/
+	// Watch don't need it.
+	c.JobsEngine = jobs.NewEngine(c.ClusterClients.StateManager().Tasks(), c.ClusterClients.StateManager().Jobs())
+
+	c.Services, err = service_manager.New(a.Ctx, c.NodeClients, c.ClusterClients, a.Cfg, runtimeResolver, c.JobsEngine)
 	if err != nil {
 		return rerrors.Wrap(err, "error initializing service manager")
 	}
@@ -237,8 +247,6 @@ func (c *Custom) InitServiceLayer(a *App, runtimeResolver container_runtime.Runt
 	if localState.ClusterState.PgNodeDsn != "" {
 		c.Services.StorageContainer().Set(c.ClusterClients.StateManager())
 	}
-
-	c.JobsEngine = jobs.NewEngine(c.ClusterClients.StateManager().Tasks(), c.ClusterClients.StateManager().Jobs())
 
 	log.Info().Bool("shutDownOnExit", a.Cfg.Environment.ShutDownOnExit).Msg("shut down on exit")
 
@@ -266,10 +274,11 @@ func (c *Custom) InitApiServer(a *App) error {
 	c.TasksApiImpl = tasks_api_impl.New(c.JobsEngine, c.Services.VervServices())
 	c.PgaasApiImpl = pgaas_api_impl.New(c.Services)
 	c.RunnersApiImpl = runners_api_impl.New(c.Services)
+	c.ContainerRegistryApiImpl = container_registry_api_impl.New(c.Services)
 
 	c.serverManager.AddImplementation(a.Ctx,
 		c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl, c.ServiceApiImpl, c.TasksApiImpl, c.PgaasApiImpl,
-		c.RunnersApiImpl)
+		c.RunnersApiImpl, c.ContainerRegistryApiImpl)
 	c.serverManager.AddHttpHandler(docs.Swagger())
 	c.serverManager.AddHttpHandler("/", ui.NewServer())
 

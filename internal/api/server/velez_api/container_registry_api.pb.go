@@ -387,7 +387,11 @@ type CreateRegistryInstance_Request struct {
 	// owner_service - when set, a velez.service_resources binding is
 	// recorded (owner_service, name, "container_registry") once the
 	// instance is created.
-	OwnerService  *string `protobuf:"bytes,5,opt,name=owner_service,json=ownerService,proto3,oneof" json:"owner_service,omitempty"`
+	OwnerService *string `protobuf:"bytes,5,opt,name=owner_service,json=ownerService,proto3,oneof" json:"owner_service,omitempty"`
+	// enable_ui - when set, deploys the joxit/docker-registry-ui sidecar
+	// alongside the registry itself. Disabled by default: most registries
+	// are pulled from by CI/CD and never browsed by a human.
+	EnableUi      bool `protobuf:"varint,6,opt,name=enable_ui,json=enableUi,proto3" json:"enable_ui,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -457,9 +461,22 @@ func (x *CreateRegistryInstance_Request) GetOwnerService() string {
 	return ""
 }
 
+func (x *CreateRegistryInstance_Request) GetEnableUi() bool {
+	if x != nil {
+		return x.EnableUi
+	}
+	return false
+}
+
 type CreateRegistryInstance_Response struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Instance      *RegistryInstance      `protobuf:"bytes,1,opt,name=instance,proto3" json:"instance,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// instance is never populated - the RPC enqueues the
+	// create_registry_instance task and returns before it completes.
+	// Callers watch entity_id/action via TasksApi.WatchTask and refetch
+	// ListRegistryInstances once the task reaches DONE.
+	Instance      *RegistryInstance `protobuf:"bytes,1,opt,name=instance,proto3" json:"instance,omitempty"`
+	EntityId      string            `protobuf:"bytes,2,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
+	Action        string            `protobuf:"bytes,3,opt,name=action,proto3" json:"action,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -499,6 +516,20 @@ func (x *CreateRegistryInstance_Response) GetInstance() *RegistryInstance {
 		return x.Instance
 	}
 	return nil
+}
+
+func (x *CreateRegistryInstance_Response) GetEntityId() string {
+	if x != nil {
+		return x.EntityId
+	}
+	return ""
+}
+
+func (x *CreateRegistryInstance_Response) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
 }
 
 type DropRegistryInstance_Request struct {
@@ -708,20 +739,23 @@ const file_container_registry_api_proto_rawDesc = "" +
 	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x1a[\n" +
 	"\bResponse\x129\n" +
 	"\tinstances\x18\x01 \x03(\v2\x1b.velez_api.RegistryInstanceR\tinstances\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x04R\x05total\"\xcd\x02\n" +
-	"\x16CreateRegistryInstance\x1a\xed\x01\n" +
+	"\x05total\x18\x02 \x01(\x04R\x05total\"\x9f\x03\n" +
+	"\x16CreateRegistryInstance\x1a\x8a\x02\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12%\n" +
 	"\venvironment\x18\x02 \x01(\tH\x00R\venvironment\x88\x01\x01\x12\x15\n" +
 	"\x03box\x18\x03 \x01(\tH\x01R\x03box\x88\x01\x01\x12)\n" +
 	"\x0eexpose_to_port\x18\x04 \x01(\rH\x02R\fexposeToPort\x88\x01\x01\x12(\n" +
-	"\rowner_service\x18\x05 \x01(\tH\x03R\fownerService\x88\x01\x01B\x0e\n" +
+	"\rowner_service\x18\x05 \x01(\tH\x03R\fownerService\x88\x01\x01\x12\x1b\n" +
+	"\tenable_ui\x18\x06 \x01(\bR\benableUiB\x0e\n" +
 	"\f_environmentB\x06\n" +
 	"\x04_boxB\x11\n" +
 	"\x0f_expose_to_portB\x10\n" +
-	"\x0e_owner_service\x1aC\n" +
+	"\x0e_owner_service\x1ax\n" +
 	"\bResponse\x127\n" +
-	"\binstance\x18\x01 \x01(\v2\x1b.velez_api.RegistryInstanceR\binstance\"A\n" +
+	"\binstance\x18\x01 \x01(\v2\x1b.velez_api.RegistryInstanceR\binstance\x12\x1b\n" +
+	"\tentity_id\x18\x02 \x01(\tR\bentityId\x12\x16\n" +
+	"\x06action\x18\x03 \x01(\tR\x06action\"A\n" +
 	"\x14DropRegistryInstance\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x1a\n" +

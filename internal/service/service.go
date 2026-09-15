@@ -142,19 +142,20 @@ type RunnersService interface {
 }
 
 // ContainerRegistryService provides Container-Registry-as-a-Service: a
-// registry instance is a normal Velez service (plus a UI sidecar service),
-// deployed through the ordinary VervServicesService.CreateNewDeploy path from
-// the builtin registry/registry_ui vervonomicon descriptors - see
+// registry instance is a normal Velez service (plus an optional UI sidecar
+// service), deployed through the ordinary VervServicesService.CreateNewDeploy
+// path from the builtin registry/registry_ui vervonomicon descriptors - see
 // docs/features/pgaas_and_registry_plugin.md section 4. Unlike PostgresService,
 // CreateRegistryInstance is multi-step and runs through the jobs engine
-// rather than calling CreateNewDeploy directly.
+// rather than calling CreateNewDeploy directly - it only enqueues the task
+// and returns, it never waits for a terminal status; callers watch progress
+// through TasksApi.WatchTask(name, jobs.CreateRegistryInstanceAction) and
+// refetch ListRegistryInstances once it reaches DONE.
 type ContainerRegistryService interface {
 	ListRegistryInstances(
 		ctx context.Context, req domain.ListRegistryInstancesReq,
 	) (domain.RegistryInstanceList, error)
-	CreateRegistryInstance(
-		ctx context.Context, req domain.CreateRegistryInstanceReq,
-	) (domain.RegistryInstanceView, error)
+	CreateRegistryInstance(ctx context.Context, req domain.CreateRegistryInstanceReq) error
 	DropRegistryInstance(ctx context.Context, name string) error
 	// GetRegistryInstanceCredentials is the only ContainerRegistryService
 	// operation that resolves a secret_ref to its plaintext value.

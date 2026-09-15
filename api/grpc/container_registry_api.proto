@@ -86,9 +86,19 @@ message CreateRegistryInstance {
     // recorded (owner_service, name, "container_registry") once the
     // instance is created.
     optional string owner_service = 5;
+    // enable_ui - when set, deploys the joxit/docker-registry-ui sidecar
+    // alongside the registry itself. Disabled by default: most registries
+    // are pulled from by CI/CD and never browsed by a human.
+    bool enable_ui = 6;
   }
   message Response {
+    // instance is never populated - the RPC enqueues the
+    // create_registry_instance task and returns before it completes.
+    // Callers watch entity_id/action via TasksApi.WatchTask and refetch
+    // ListRegistryInstances once the task reaches DONE.
     RegistryInstance instance = 1;
+    string entity_id = 2;
+    string action = 3;
   }
 }
 

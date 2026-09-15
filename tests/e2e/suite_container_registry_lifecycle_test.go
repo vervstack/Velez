@@ -34,15 +34,17 @@ const (
 // ContainerRegistryLifecycleSuite exercises Container-Registry-as-a-Service
 // end to end in plain single-node/local_storage mode (no WithMatreshka) -
 // mirrors PgaasLifecycleSuite, the sibling *aas feature this one was built
-// from. RegistryaasService.CreateRegistryInstance itself blocks on the
-// create_registry_instance task (see
-// internal/service/service_manager/registryaas/create.go), but that task
+// from. RegistryaasService.CreateRegistryInstance only enqueues the
+// create_registry_instance task and returns (see
+// internal/service/service_manager/registryaas/create.go); that task itself
 // only gets as far as writing SCHEDULED_DEPLOYMENT rows for the registry and
-// its UI sidecar (deployRegistryInstanceJob/deployRegistryUiJob hand off to
-// CreateNewDeploy - see its doc comment); the deploy watcher
+// its optional UI sidecar (deployRegistryInstanceJob/deployRegistryUiJob hand
+// off to CreateNewDeploy - see its doc comment). The deploy watcher
 // (internal/workers/deploy_watcher.go) is what actually dispatches and runs
-// create_smerd for each. So this suite additionally watches both create_smerd
-// tasks before asserting the instance is up.
+// create_smerd for each. So this suite watches the create_registry_instance
+// task itself (proves the instance/registry_instances rows are written) and
+// then the create_smerd task(s) the deploy watcher dispatches (proves the
+// container(s) are actually up) before asserting anything.
 type ContainerRegistryLifecycleSuite struct {
 	suite.Suite
 
@@ -61,19 +63,19 @@ func (s *ContainerRegistryLifecycleSuite) Test_ContainerRegistryLifecycle_HappyP
 	removeContainerRegistryInstance(dockerClient, containerRegistryLifecycleInstanceName)
 	t.Cleanup(func() { removeContainerRegistryInstance(dockerClient, containerRegistryLifecycleInstanceName) })
 
-	createReq := &velez_api.CreateRegistryInstance_Request{Name: containerRegistryLifecycleInstanceName}
+	createReq := newCreateRegistryInstanceRequest(containerRegistryLifecycleInstanceName, false)
 
 	_, err := env.Custom.ContainerRegistryApiImpl.CreateRegistryInstance(ctx, createReq)
 	require.NoError(t, err)
 
-	waitForRegistryInstanceDeploy(t, env, containerRegistryLifecycleInstanceName)
+	waitForRegistryInstanceDeploy(t, env, containerRegistryLifecycleInstanceName, false)
 
 	instance := findRegistryInstance(t, env, containerRegistryLifecycleInstanceName)
 	require.NotNil(t, instance, "expected registry instance %q in ListRegistryInstances",
 		containerRegistryLifecycleInstanceName)
 	require.Equal(t, containerRegistryLifecycleInstanceName, instance.GetName())
 	require.NotZero(t, instance.GetPort())
-	require.NotZero(t, instance.GetUiPort())
+	require.Zero(t, instance.GetUiPort(), "ui sidecar should not be provisioned when enable_ui is unset")
 	require.NotEmpty(t, instance.GetUsername())
 
 	credsReq := &velez_api.GetRegistryInstanceCredentials_Request{Name: containerRegistryLifecycleInstanceName}
@@ -126,7 +128,7 @@ func (s *ContainerRegistryLifecycleSuite) Test_ContainerRegistryLifecycle_TwoIns
 		go func(i int, name string) {
 			defer wg.Done()
 
-			createReq := &velez_api.CreateRegistryInstance_Request{Name: name}
+			createReq := newCreateRegistryInstanceRequest(name, true)
 			_, createErr := env.Custom.ContainerRegistryApiImpl.CreateRegistryInstance(ctx, createReq)
 
 			errs[i] = createErr
@@ -140,7 +142,7 @@ func (s *ContainerRegistryLifecycleSuite) Test_ContainerRegistryLifecycle_TwoIns
 	}
 
 	for _, name := range names {
-		waitForRegistryInstanceDeploy(t, env, name)
+		waitForRegistryInstanceDeploy(t, env, name, true)
 	}
 
 	instanceA := findRegistryInstance(t, env, containerRegistryCollisionInstanceNameA)
@@ -175,6 +177,13 @@ func Test_ContainerRegistryLifecycle(t *testing.T) {
 	})
 }
 
+// newCreateRegistryInstanceRequest builds a CreateRegistryInstance.Request
+// for the given instance name, opting into the UI sidecar only when
+// enableUi is true (it defaults to off - see CreateRegistryInstance.Request.enable_ui).
+func newCreateRegistryInstanceRequest(name string, enableUi bool) *velez_api.CreateRegistryInstance_Request {
+	return &velez_api.CreateRegistryInstance_Request{Name: name, EnableUi: enableUi}
+}
+
 // findRegistryInstance returns the listed registry instance with the given
 // name, or nil.
 func findRegistryInstance(t *testing.T, env *TestEnvironment, name string) *velez_api.RegistryInstance {
@@ -194,14 +203,26 @@ func findRegistryInstance(t *testing.T, env *TestEnvironment, name string) *vele
 	return nil
 }
 
-// waitForRegistryInstanceDeploy watches the create_smerd tasks the deploy
-// watcher dispatches for a registry instance and its UI sidecar - see
-// ContainerRegistryLifecycleSuite's doc comment on why CreateRegistryInstance
-// returning isn't itself proof either container exists yet.
-func waitForRegistryInstanceDeploy(t *testing.T, env *TestEnvironment, instanceName string) {
+// waitForRegistryInstanceDeploy first watches the create_registry_instance
+// task itself (CreateRegistryInstance only enqueues it and returns - see
+// ContainerRegistryLifecycleSuite's doc comment - so this is what proves the
+// registry_instances/registries rows are actually written), then the
+// create_smerd task(s) the deploy watcher dispatches for the registry
+// instance and, when enableUi is true, its UI sidecar - proof either
+// container actually exists, which the parent task alone doesn't give.
+func waitForRegistryInstanceDeploy(t *testing.T, env *TestEnvironment, instanceName string, enableUi bool) {
 	t.Helper()
 
 	ctx := t.Context()
+
+	var instanceTask tasks_queries.VelezTask
+
+	for task := range env.Custom.JobsEngine.Watch(ctx, instanceName, jobs.CreateRegistryInstanceAction) {
+		instanceTask = task
+	}
+
+	require.Equal(t, tasks_queries.VelezTaskStatusDONE, instanceTask.Status,
+		"create_registry_instance task for instance %q error: %s", instanceName, instanceTask.Error.String)
 
 	registryEntityID := jobs.SmerdEntityID("", instanceName)
 
@@ -213,6 +234,10 @@ func waitForRegistryInstanceDeploy(t *testing.T, env *TestEnvironment, instanceN
 
 	require.Equal(t, tasks_queries.VelezTaskStatusDONE, registryTask.Status,
 		"create_smerd task for registry instance %q error: %s", instanceName, registryTask.Error.String)
+
+	if !enableUi {
+		return
+	}
 
 	uiEntityID := jobs.SmerdEntityID("", instanceName+"-ui")
 

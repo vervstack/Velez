@@ -192,6 +192,10 @@
         "ownerService": {
           "type": "string",
           "description": "owner_service - when set, a velez.service_resources binding is\nrecorded (owner_service, name, \"container_registry\") once the\ninstance is created."
+        },
+        "enableUi": {
+          "type": "boolean",
+          "description": "enable_ui - when set, deploys the joxit/docker-registry-ui sidecar\nalongside the registry itself. Disabled by default: most registries\nare pulled from by CI/CD and never browsed by a human."
         }
       }
     },
@@ -199,7 +203,14 @@
       "type": "object",
       "properties": {
         "instance": {
-          "$ref": "#/definitions/velez_apiRegistryInstance"
+          "$ref": "#/definitions/velez_apiRegistryInstance",
+          "description": "instance is never populated - the RPC enqueues the\ncreate_registry_instance task and returns before it completes.\nCallers watch entity_id/action via TasksApi.WatchTask and refetch\nListRegistryInstances once the task reaches DONE."
+        },
+        "entityId": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
         }
       }
     },

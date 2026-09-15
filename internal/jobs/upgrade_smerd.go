@@ -883,7 +883,9 @@ func (j *prepareUpgradeVervConfigJob) Do(ctx context.Context) error {
 
 	maps.Copy(request.GetLabels(), j.imageMeta.GetImageLabels())
 
-	request.Labels[labels.ComposeGroupLabel] = request.GetName()
+	if request.GetLabels()[labels.ComposeGroupLabel] == "" {
+		request.Labels[labels.ComposeGroupLabel] = request.GetName()
+	}
 
 	if len(request.GetSettings().GetNetwork()) != 0 {
 		runtime, err := j.runtimes.Runtime(ctx, request.GetEnvironment())

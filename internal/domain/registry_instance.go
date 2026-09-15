@@ -61,6 +61,10 @@ type CreateRegistryInstanceReq struct {
 	// (OwnerService, Name, "container_registry") once the instance is
 	// created.
 	OwnerService string
+
+	// EnableUi - when set, deploys the joxit/docker-registry-ui sidecar
+	// alongside the registry itself. Disabled by default.
+	EnableUi bool
 }
 
 // RegistryInstanceView is one resolved Container-Registry-as-a-Service

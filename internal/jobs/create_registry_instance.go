@@ -56,6 +56,11 @@ const (
 	registryaasDataVolumeSuffix = "-data"
 	registryaasAuthVolumeSuffix = "-auth"
 
+	// registryaasNetworkSuffix derives the per-instance Docker network shared
+	// by a registry instance and its UI sidecar - see registryaasNetworkName's
+	// doc comment.
+	registryaasNetworkSuffix = "-net"
+
 	registryaasHtpasswdPath = "/auth/htpasswd"
 
 	// registryaasContainerPort / registryaasUiContainerPort are the two
@@ -268,16 +273,21 @@ func (h *createRegistryInstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJo
 				ctx:          payload,
 			},
 		},
-		{
-			Name: stepDeployRegistryUi,
-			Job: &deployRegistryUiJob{
-				boxes:        h.storageContainer.ResourceBoxes(),
-				vervServices: h.vervServices,
-				req:          payload,
-				ctx:          payload,
-			},
-		},
-		{
+	}
+
+	if payload.GetRequest().GetEnableUi() {
+		uiJob := &deployRegistryUiJob{
+			boxes:        h.storageContainer.ResourceBoxes(),
+			vervServices: h.vervServices,
+			req:          payload,
+			ctx:          payload,
+		}
+
+		namedJobs = append(namedJobs, NamedJob{Name: stepDeployRegistryUi, Job: uiJob})
+	}
+
+	namedJobs = append(namedJobs,
+		NamedJob{
 			Name: stepRegisterRegistryInstance,
 			Job: &registerRegistryInstanceRowJob{
 				services:          h.storageContainer.Services(),
@@ -286,7 +296,7 @@ func (h *createRegistryInstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJo
 				ctx:               payload,
 			},
 		},
-		{
+		NamedJob{
 			Name: stepRegisterRegistryRow,
 			Job: &registerRegistryRowJob{
 				registries:   h.storageContainer.Registries(),
@@ -294,7 +304,7 @@ func (h *createRegistryInstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJo
 				ctx:          payload,
 			},
 		},
-	}
+	)
 
 	if payload.GetRequest().GetOwnerService() != "" {
 		bindJob := &bindRegistryOwnerResourceJob{
@@ -317,6 +327,30 @@ func registryaasDataVolumeName(instanceName string) string {
 
 func registryaasAuthVolumeName(instanceName string) string {
 	return instanceName + registryaasAuthVolumeSuffix
+}
+
+// registryaasNetworkName derives the per-instance Docker network both
+// deployRegistryInstanceJob and deployRegistryUiJob join, so the UI sidecar
+// keeps reaching the registry container by name (registryInternalUrl)
+// regardless of which shared environment network(s) either container also
+// carries.
+func registryaasNetworkName(instanceName string) string {
+	return instanceName + registryaasNetworkSuffix
+}
+
+// attachRegistryaasNetwork joins request to the instance's shared network -
+// see registryaasNetworkName's doc comment. Both deployRegistryInstanceJob
+// and deployRegistryUiJob call this so the two containers can always reach
+// each other by name, independent of whichever environment network(s) they
+// also carry.
+func attachRegistryaasNetwork(request *velez_api.CreateSmerd_Request, instanceName string) {
+	if request.GetSettings() == nil {
+		request.Settings = &velez_api.Container_Settings{}
+	}
+
+	networkBind := &velez_api.NetworkBind{NetworkName: registryaasNetworkName(instanceName)}
+
+	request.Settings.Network = append(request.Settings.Network, networkBind)
 }
 
 // registryaasUiServiceName derives the UI sidecar's own service/container
@@ -436,7 +470,7 @@ func (j *resolveRegistryPortsJob) Do(_ context.Context) error {
 		j.ctx.SetExposedPort(port)
 	}
 
-	if j.ctx.GetUiExposedPort() == 0 {
+	if j.req.GetRequest().GetEnableUi() && j.ctx.GetUiExposedPort() == 0 {
 		environment := j.req.GetRequest().GetEnvironment()
 
 		port, err := j.portManager.GetPortForEnvironment(environment)
@@ -568,6 +602,10 @@ func (j *deployRegistryInstanceJob) Do(ctx context.Context) error {
 	smerdRequest.Labels[labels.RegistryaasUsernameLabel] = j.ctx.GetUsername()
 	smerdRequest.Labels[labels.RegistryaasPortLabel] = strconv.Itoa(int(j.ctx.GetExposedPort()))
 	smerdRequest.Labels[labels.RegistryaasUiPortLabel] = strconv.Itoa(int(j.ctx.GetUiExposedPort()))
+
+	if request.GetEnableUi() {
+		attachRegistryaasNetwork(smerdRequest, instanceName)
+	}
 
 	deployReq := domain.CreateDeployReq{
 		ServiceName:    instanceName,
@@ -704,6 +742,9 @@ func (j *deployRegistryUiJob) Do(ctx context.Context) error {
 	}
 
 	smerdRequest.Labels[labels.VervServiceLabel] = uiServiceName
+	smerdRequest.Labels[labels.ComposeGroupLabel] = instanceName
+
+	attachRegistryaasNetwork(smerdRequest, instanceName)
 
 	deployReq := domain.CreateDeployReq{
 		ServiceName:    uiServiceName,

@@ -32,7 +32,7 @@ func TestCreateRegistryInstanceHandler_NewContext(t *testing.T) {
 
 func TestCreateRegistryInstanceHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 	payload := &velez_api.CreateRegistryInstanceTaskPayload{
-		Request: &velez_api.CreateRegistryInstance_Request{Name: testRegistryInstanceName},
+		Request: &velez_api.CreateRegistryInstance_Request{Name: testRegistryInstanceName, EnableUi: true},
 	}
 
 	docker := newFakeDocker()
@@ -48,6 +48,39 @@ func TestCreateRegistryInstanceHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 	wantNames := []string{
 		stepGenerateCredentials, stepPutSecret, stepResolvePorts, stepCreateLoaderContainer, stepStartSidecar,
 		stepWriteHtpasswd, stepDropContainer, stepDeployRegistry, stepDeployRegistryUi,
+		stepRegisterRegistryInstance, stepRegisterRegistryRow,
+	}
+	if len(namedJobs) != len(wantNames) {
+		t.Fatalf("expected %d jobs, got %d", len(wantNames), len(namedJobs))
+	}
+
+	for i, name := range wantNames {
+		if namedJobs[i].Name != name {
+			t.Errorf("expected job %d named %q, got %q", i, name, namedJobs[i].Name)
+		}
+	}
+}
+
+// stepDeployRegistryUi is only appended when the request opts into the UI
+// sidecar - it defaults to off (CreateRegistryInstance.Request.enable_ui).
+func TestCreateRegistryInstanceHandler_BuildJobs_UiDisabledByDefault_SkipsUiStep(t *testing.T) {
+	payload := &velez_api.CreateRegistryInstanceTaskPayload{
+		Request: &velez_api.CreateRegistryInstance_Request{Name: testRegistryInstanceName},
+	}
+
+	docker := newFakeDocker()
+	nodeClients := newFakeNodeClients(docker)
+
+	clusterStorage := &fakeClusterStorage{}
+	storageContainer := storage.NewStorageContainer(clusterStorage)
+
+	h := NewCreateRegistryInstanceHandler(nodeClients, newFakeRuntimes(docker, nil), storageContainer, nil, nil)
+
+	namedJobs := h.BuildJobs(payload)
+
+	wantNames := []string{
+		stepGenerateCredentials, stepPutSecret, stepResolvePorts, stepCreateLoaderContainer, stepStartSidecar,
+		stepWriteHtpasswd, stepDropContainer, stepDeployRegistry,
 		stepRegisterRegistryInstance, stepRegisterRegistryRow,
 	}
 	if len(namedJobs) != len(wantNames) {

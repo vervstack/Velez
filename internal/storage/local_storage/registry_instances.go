@@ -27,9 +27,10 @@ const (
 	registryaasSecretScope = "registryaas"
 	registryaasSecretKey   = "password"
 
-	// registryaasDefaultPort mirrors registryaas.registryDefaultPort - fixed
-	// by the builtin registry descriptor, the container-internal port the
-	// instance's registry container listens on.
+	// registryaasDefaultPort is the fallback used only when a container
+	// predates labels.RegistryaasPortLabel (upgrade from an older Velez) -
+	// the builtin registry descriptor's container-internal port, not a
+	// usable host port, but the best guess available without it.
 	registryaasDefaultPort = 5000
 )
 
@@ -191,7 +192,7 @@ func (d *dockerRegistryInstances) listFromContainers(ctx context.Context) ([]dom
 
 		instance := domain.RegistryInstance{
 			ServiceId: serviceIDFromName(name),
-			Port:      registryaasDefaultPort,
+			Port:      portFromLabel(c.Labels[labels.RegistryaasPortLabel]),
 			UiPort:    uiPortFromLabel(c.Labels[labels.RegistryaasUiPortLabel]),
 			Username:  c.Labels[labels.RegistryaasUsernameLabel],
 			SecretRef: secretRef.String(),
@@ -212,6 +213,20 @@ func uiPortFromLabel(value string) int32 {
 	port, err := strconv.ParseUint(value, 10, 32)
 	if err != nil {
 		return 0
+	}
+
+	return int32(port) //nolint:gosec
+}
+
+// portFromLabel parses labels.RegistryaasPortLabel's value - the instance's
+// resolved host-exposed port, set on the registry container at deploy time
+// (deployRegistryInstanceJob). Falls back to registryaasDefaultPort (the
+// container-internal port, not a real host port) only for a container
+// created before this label existed.
+func portFromLabel(value string) int32 {
+	port, err := strconv.ParseUint(value, 10, 32)
+	if err != nil {
+		return registryaasDefaultPort
 	}
 
 	return int32(port) //nolint:gosec

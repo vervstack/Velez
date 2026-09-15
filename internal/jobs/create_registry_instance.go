@@ -566,6 +566,7 @@ func (j *deployRegistryInstanceJob) Do(ctx context.Context) error {
 	smerdRequest.Labels[labels.VervServiceLabel] = instanceName
 	smerdRequest.Labels[labels.RegistryaasInstanceLabel] = "true"
 	smerdRequest.Labels[labels.RegistryaasUsernameLabel] = j.ctx.GetUsername()
+	smerdRequest.Labels[labels.RegistryaasPortLabel] = strconv.Itoa(int(j.ctx.GetExposedPort()))
 	smerdRequest.Labels[labels.RegistryaasUiPortLabel] = strconv.Itoa(int(j.ctx.GetUiExposedPort()))
 
 	deployReq := domain.CreateDeployReq{
@@ -739,6 +740,7 @@ type registerRegistryInstanceRowJob struct {
 
 	ctx interface {
 		registryUsernameAccessor
+		registryExposedPortAccessor
 		registryUiExposedPortAccessor
 	}
 }
@@ -753,7 +755,7 @@ func (j *registerRegistryInstanceRowJob) Do(ctx context.Context) error {
 
 	upsertReq := domain.UpsertRegistryInstanceReq{
 		ServiceId: svc.ID,
-		Port:      registryaasContainerPort,
+		Port:      int32(j.ctx.GetExposedPort()),   //nolint:gosec
 		UiPort:    int32(j.ctx.GetUiExposedPort()), //nolint:gosec
 		Username:  j.ctx.GetUsername(),
 		SecretRef: secretRef.String(),

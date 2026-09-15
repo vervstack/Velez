@@ -9,7 +9,7 @@ import {Routes} from '@/app/router/Routes';
 import Dialog from "@/app/hooks/dialog/Dialog.tsx";
 import {Tooltip} from "react-tooltip";
 
-type NavId = 'controlplane' | 'vcn' | 'deployments' | 'services' | 'postgres' | 'search';
+type NavId = 'controlplane' | 'vcn' | 'deployments' | 'services' | 'postgres' | 'runners' | 'search';
 type ToolId = 'secrets' | 'config' | 'logs' | 'settings';
 
 const NAV_TO_ROUTE: Record<NavId, string> = {
@@ -18,6 +18,7 @@ const NAV_TO_ROUTE: Record<NavId, string> = {
     deployments: Routes.Deployments,
     services: Routes.Services,
     postgres: Routes.Postgres,
+    runners: Routes.Runners,
     search: Routes.Search,
 };
 
@@ -27,6 +28,7 @@ const ROUTE_TO_NAV: Record<string, NavId> = {
     [Routes.Deployments]: 'deployments',
     [Routes.Services]: 'services',
     [Routes.Postgres]: 'postgres',
+    [Routes.Runners]: 'runners',
     [Routes.Search]: 'search',
 };
 

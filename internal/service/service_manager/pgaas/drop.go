@@ -2,10 +2,12 @@ package pgaas
 
 import (
 	"context"
+	"errors"
 
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 func (s *PgaasService) DropPgInstance(ctx context.Context, name string) error {
@@ -37,7 +39,7 @@ func (s *PgaasService) DropPgInstance(ctx context.Context, name string) error {
 	}
 
 	err = s.secrets.Delete(ctx, secretRef)
-	if err != nil {
+	if err != nil && !errors.Is(err, user_errors.ErrSecretNotFound) {
 		return rerrors.Wrap(err, "error deleting pg instance secret")
 	}
 

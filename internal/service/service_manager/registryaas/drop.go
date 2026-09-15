@@ -2,6 +2,7 @@ package registryaas
 
 import (
 	"context"
+	"errors"
 
 	"go.redsock.ru/rerrors"
 
@@ -65,7 +66,7 @@ func (s *RegistryaasService) DropRegistryInstance(ctx context.Context, name stri
 	}
 
 	err = s.secrets.Delete(ctx, secretRef)
-	if err != nil {
+	if err != nil && !errors.Is(err, user_errors.ErrSecretNotFound) {
 		return rerrors.Wrap(err, "error deleting registry instance secret")
 	}
 

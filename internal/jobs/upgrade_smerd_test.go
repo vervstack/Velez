@@ -1216,7 +1216,7 @@ func TestUpgradeSmerdHandler_HappyPath_EndToEnd(t *testing.T) {
 	registry := NewRegistry()
 	registry.Register(handler)
 
-	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour)
+	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour, 1)
 
 	runErr := w.runJobs(context.Background(), task.ID, taskCtx, namedJobs)
 	if runErr != nil {
@@ -1334,7 +1334,7 @@ func TestUpgradeSmerdHandler_FailurePath_NetworkCreateFails(t *testing.T) {
 	registry := NewRegistry()
 	registry.Register(handler)
 
-	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour)
+	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour, 1)
 
 	runErr := w.runJobs(context.Background(), task.ID, taskCtx, namedJobs)
 	if runErr == nil {

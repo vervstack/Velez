@@ -1311,7 +1311,7 @@ func TestEnableStatefullHandler_FailurePath_UnreachablePostgres_RollsBack(t *tes
 	registry := NewRegistry()
 	registry.Register(handler)
 
-	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour)
+	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour, 1)
 
 	// w.run rebuilds its own namedJobs internally via handler.BuildJobs, which
 	// would discard the docker-field patch above - so this drives runJobs

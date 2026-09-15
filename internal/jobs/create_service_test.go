@@ -61,7 +61,7 @@ func TestCreateServiceHandler_ValidNameUpsertsService(t *testing.T) {
 	registry := NewRegistry()
 	registry.Register(NewCreateServiceHandler(stubServicesResolver{s: servicesStorage}))
 
-	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour)
+	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour, 1)
 
 	err := w.run(context.Background(), task)
 	if err != nil {
@@ -89,7 +89,7 @@ func TestCreateServiceHandler_InvalidNameFailsWithoutUpsert(t *testing.T) {
 	registry := NewRegistry()
 	registry.Register(NewCreateServiceHandler(stubServicesResolver{s: servicesStorage}))
 
-	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour)
+	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour, 1)
 
 	err := w.run(context.Background(), task)
 	if err == nil {

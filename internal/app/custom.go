@@ -43,9 +43,10 @@ import (
 )
 
 const (
-	defaultTaskWorkerTimeout = time.Second * 2
-	autoUpgradeIntervalCheck = time.Second * 30
-	deployWatcherInterval    = time.Second * 5
+	defaultTaskWorkerTimeout     = time.Second * 2
+	defaultTaskWorkerConcurrency = 4
+	autoUpgradeIntervalCheck     = time.Second * 30
+	deployWatcherInterval        = time.Second * 5
 )
 
 //nolint:forbidigo // package-private sentinel, not shared/user-facing
@@ -133,7 +134,8 @@ func (c *Custom) Init(a *App) (err error) {
 		runtimeResolver))
 	registry.Register(jobs.NewDropSmerdHandler(runtimeResolver))
 	registry.Register(jobs.NewCreateRegistryInstanceHandler(
-		c.NodeClients, runtimeResolver, c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices()))
+		c.NodeClients, runtimeResolver, c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(),
+		c.JobsEngine))
 
 	c.JobsEngine.SetRegistry(registry)
 
@@ -161,6 +163,7 @@ func (c *Custom) Init(a *App) (err error) {
 		registry,
 		workerId,
 		defaultTaskWorkerTimeout,
+		defaultTaskWorkerConcurrency,
 	)
 	go c.TaskWorker.Start(a.Ctx)
 

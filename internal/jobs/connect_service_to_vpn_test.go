@@ -576,7 +576,7 @@ func TestConnectServiceToVpnHandler_HappyPath_EndToEnd(t *testing.T) {
 	registry := NewRegistry()
 	registry.Register(handler)
 
-	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour)
+	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour, 1)
 
 	runErr := w.runJobs(context.Background(), task.ID, taskCtx, namedJobs)
 	if runErr != nil {
@@ -652,7 +652,7 @@ func TestConnectServiceToVpnHandler_FailurePath_CreateContainerFails(t *testing.
 	registry := NewRegistry()
 	registry.Register(NewConnectServiceToVpnHandler(nodeClients, vpn, sd, runtimes))
 
-	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour)
+	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour, 1)
 
 	err := w.run(context.Background(), task)
 	if err == nil {

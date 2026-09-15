@@ -6,6 +6,7 @@ import (
 	"net"
 	"path"
 	"strconv"
+	"time"
 
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
@@ -23,6 +24,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/service_manager/vervonomicon"
 	"go.vervstack.ru/Velez/internal/service/service_manager/vervonomicon/builtin"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 	"go.vervstack.ru/Velez/internal/storage/registries"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
@@ -93,6 +95,7 @@ const (
 	stepResolvePorts             = "resolve_ports"
 	stepWriteHtpasswd            = "write_htpasswd"
 	stepDeployRegistry           = "deploy_registry"
+	stepWaitForRegistryDeploy    = "wait_for_registry_deploy"
 	stepDeployRegistryUi         = "deploy_registry_ui"
 	stepRegisterRegistryInstance = "register_registry_instance_row"
 	stepRegisterRegistryRow      = "register_registry_row"
@@ -103,6 +106,15 @@ const (
 	// records when the request names an owner service - mirrors pgaas's
 	// pgResourceType.
 	registryaasResourceType = "container_registry"
+
+	// registryDeployWaitTimeout bounds how long create_registry_instance's
+	// task blocks inside waitForRegistryDeployJob, waiting for the deploy
+	// watcher (internal/workers/deploy_watcher.go, 5s ticker) to run and
+	// finish the create_smerd task it schedules for the registry container.
+	// Sized like workers.taskWatchTimeout but with headroom for an image
+	// pull plus create_smerd's own healthcheck job, once
+	// builtin/registry/deployment.yaml declares one.
+	registryDeployWaitTimeout = 180 * time.Second
 )
 
 // Accessor interfaces the create_registry_instance jobs need from their
@@ -154,6 +166,9 @@ type createRegistryInstanceHandler struct {
 	storageContainer storage.Storage
 	secretsStore     secrets.Store
 	vervServices     service.VervServicesService
+	// jobsEngine lets waitForRegistryDeployJob watch the create_smerd task
+	// the deploy watcher runs for this instance - see that job's doc comment.
+	jobsEngine Engine
 }
 
 func NewCreateRegistryInstanceHandler(
@@ -162,6 +177,7 @@ func NewCreateRegistryInstanceHandler(
 	storageContainer storage.Storage,
 	secretsStore secrets.Store,
 	vervServices service.VervServicesService,
+	jobsEngine Engine,
 ) TaskHandler {
 	return &createRegistryInstanceHandler{
 		nodeClients:      nodeClients,
@@ -169,6 +185,7 @@ func NewCreateRegistryInstanceHandler(
 		storageContainer: storageContainer,
 		secretsStore:     secretsStore,
 		vervServices:     vervServices,
+		jobsEngine:       jobsEngine,
 	}
 }
 
@@ -271,6 +288,14 @@ func (h *createRegistryInstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJo
 				vervServices: h.vervServices,
 				req:          payload,
 				ctx:          payload,
+			},
+		},
+		{
+			Name: stepWaitForRegistryDeploy,
+			Job: &waitForRegistryDeployJob{
+				jobsEngine:   h.jobsEngine,
+				req:          payload,
+				instanceName: instanceName,
 			},
 		},
 	}
@@ -616,6 +641,56 @@ func (j *deployRegistryInstanceJob) Do(ctx context.Context) error {
 	err = j.vervServices.CreateNewDeploy(ctx, deployReq)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating registry instance deploy")
+	}
+
+	return nil
+}
+
+// taskWatcher is the narrow jobs.Engine slice waitForRegistryDeployJob needs.
+type taskWatcher interface {
+	Watch(ctx context.Context, entityID, action string) <-chan tasks_queries.VelezTask
+}
+
+// waitForRegistryDeployJob blocks until the create_smerd task that the
+// deploy watcher (internal/workers/deploy_watcher.go) runs for this
+// instance's primary registry container reaches a terminal status - the
+// exact same task and entity id deployWatcher.deploy's runTask awaits.
+// deployRegistryInstanceJob only schedules a velez.deployments row; without
+// this job create_registry_instance's own task reaches DONE the moment that
+// row is written, well before the container actually exists, let alone
+// passes builtin/registry/deployment.yaml's healthcheck.
+type waitForRegistryDeployJob struct {
+	jobsEngine taskWatcher
+
+	req          createRegistryInstanceRequestAccessor
+	instanceName string
+}
+
+func (j *waitForRegistryDeployJob) Do(ctx context.Context) error {
+	entityID := SmerdEntityID(j.req.GetRequest().GetEnvironment(), j.instanceName)
+
+	watchCtx, cancel := context.WithTimeout(ctx, registryDeployWaitTimeout)
+	defer cancel()
+
+	var finalTask tasks_queries.VelezTask
+
+	for task := range j.jobsEngine.Watch(watchCtx, entityID, CreateSmerdAction) {
+		finalTask = task
+	}
+
+	isDone := finalTask.Status == tasks_queries.VelezTaskStatusDONE
+	isFailed := finalTask.Status == tasks_queries.VelezTaskStatusFAILED
+
+	if !isDone && !isFailed && watchCtx.Err() != nil {
+		return rerrors.Wrapf(
+			watchCtx.Err(),
+			"timed out waiting for registry container to deploy, last status: %q",
+			finalTask.Status,
+		)
+	}
+
+	if isFailed {
+		return rerrors.Wrap(user_errors.ErrTaskFailed, finalTask.Error.String)
 	}
 
 	return nil

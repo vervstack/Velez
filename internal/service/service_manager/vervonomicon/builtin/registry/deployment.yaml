@@ -19,4 +19,13 @@ app:
   # registry-auth volume by the registry plugin's jobs handler, not as env.
   restart: unless_stopped
 
+  # Empty command: create_smerd's healthcheckJob just polls the container
+  # until it reaches Running, up to retries*interval_second (here 60s) -
+  # bounds create_registry_instance's wait_for_registry_deploy job to a real
+  # "the container is up" signal instead of returning as soon as the deploy
+  # was merely scheduled.
+  healthcheck:
+    interval_second: 2
+    retries: 30
+
   box: small

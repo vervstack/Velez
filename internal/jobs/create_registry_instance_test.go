@@ -1,13 +1,20 @@
 package jobs
 
 import (
+	"context"
+	"database/sql"
 	"encoding/json"
 	"testing"
+	"time"
+
+	"github.com/stretchr/testify/require"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -15,7 +22,7 @@ const (
 )
 
 func TestCreateRegistryInstanceHandler_Action(t *testing.T) {
-	h := NewCreateRegistryInstanceHandler(nil, nil, nil, nil, nil)
+	h := NewCreateRegistryInstanceHandler(nil, nil, nil, nil, nil, nil)
 
 	if h.Action() != CreateRegistryInstanceAction {
 		t.Errorf("expected action %q, got %q", CreateRegistryInstanceAction, h.Action())
@@ -23,7 +30,7 @@ func TestCreateRegistryInstanceHandler_Action(t *testing.T) {
 }
 
 func TestCreateRegistryInstanceHandler_NewContext(t *testing.T) {
-	h := NewCreateRegistryInstanceHandler(nil, nil, nil, nil, nil)
+	h := NewCreateRegistryInstanceHandler(nil, nil, nil, nil, nil, nil)
 
 	if _, ok := h.NewContext().(*velez_api.CreateRegistryInstanceTaskPayload); !ok {
 		t.Fatal("expected NewContext to return *velez_api.CreateRegistryInstanceTaskPayload")
@@ -41,13 +48,13 @@ func TestCreateRegistryInstanceHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 	clusterStorage := &fakeClusterStorage{}
 	storageContainer := storage.NewStorageContainer(clusterStorage)
 
-	h := NewCreateRegistryInstanceHandler(nodeClients, newFakeRuntimes(docker, nil), storageContainer, nil, nil)
+	h := NewCreateRegistryInstanceHandler(nodeClients, newFakeRuntimes(docker, nil), storageContainer, nil, nil, nil)
 
 	namedJobs := h.BuildJobs(payload)
 
 	wantNames := []string{
 		stepGenerateCredentials, stepPutSecret, stepResolvePorts, stepCreateLoaderContainer, stepStartSidecar,
-		stepWriteHtpasswd, stepDropContainer, stepDeployRegistry, stepDeployRegistryUi,
+		stepWriteHtpasswd, stepDropContainer, stepDeployRegistry, stepWaitForRegistryDeploy, stepDeployRegistryUi,
 		stepRegisterRegistryInstance, stepRegisterRegistryRow,
 	}
 	if len(namedJobs) != len(wantNames) {
@@ -74,13 +81,13 @@ func TestCreateRegistryInstanceHandler_BuildJobs_UiDisabledByDefault_SkipsUiStep
 	clusterStorage := &fakeClusterStorage{}
 	storageContainer := storage.NewStorageContainer(clusterStorage)
 
-	h := NewCreateRegistryInstanceHandler(nodeClients, newFakeRuntimes(docker, nil), storageContainer, nil, nil)
+	h := NewCreateRegistryInstanceHandler(nodeClients, newFakeRuntimes(docker, nil), storageContainer, nil, nil, nil)
 
 	namedJobs := h.BuildJobs(payload)
 
 	wantNames := []string{
 		stepGenerateCredentials, stepPutSecret, stepResolvePorts, stepCreateLoaderContainer, stepStartSidecar,
-		stepWriteHtpasswd, stepDropContainer, stepDeployRegistry,
+		stepWriteHtpasswd, stepDropContainer, stepDeployRegistry, stepWaitForRegistryDeploy,
 		stepRegisterRegistryInstance, stepRegisterRegistryRow,
 	}
 	if len(namedJobs) != len(wantNames) {
@@ -108,7 +115,7 @@ func TestCreateRegistryInstanceHandler_BuildJobs_OwnerService_AppendsBindStep(t 
 	clusterStorage := &fakeClusterStorage{}
 	storageContainer := storage.NewStorageContainer(clusterStorage)
 
-	h := NewCreateRegistryInstanceHandler(nodeClients, newFakeRuntimes(docker, nil), storageContainer, nil, nil)
+	h := NewCreateRegistryInstanceHandler(nodeClients, newFakeRuntimes(docker, nil), storageContainer, nil, nil, nil)
 
 	namedJobs := h.BuildJobs(payload)
 
@@ -267,6 +274,87 @@ func TestRegistryInstanceUrl_NotInContainer_UsesLocalhostAndExposedPort(t *testi
 	if got != want {
 		t.Errorf("expected %q, got %q", want, got)
 	}
+}
+
+// fakeTaskWatcher is waitForRegistryDeployJob's only dependency - a
+// hand-written stand-in for the real engine.Watch, which streams tasks then
+// closes, or (block: true) never sends and only closes once ctx is done,
+// exactly like the real one does on context cancellation.
+type fakeTaskWatcher struct {
+	tasks []tasks_queries.VelezTask
+	block bool
+}
+
+func (f *fakeTaskWatcher) Watch(ctx context.Context, _, _ string) <-chan tasks_queries.VelezTask {
+	ch := make(chan tasks_queries.VelezTask)
+
+	go func() {
+		defer close(ch)
+
+		if f.block {
+			<-ctx.Done()
+
+			return
+		}
+
+		for _, task := range f.tasks {
+			select {
+			case ch <- task:
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+
+	return ch
+}
+
+func newWaitForRegistryDeployJob(watcher taskWatcher) *waitForRegistryDeployJob {
+	payload := &velez_api.CreateRegistryInstanceTaskPayload{
+		Request: &velez_api.CreateRegistryInstance_Request{Name: testRegistryInstanceName},
+	}
+
+	return &waitForRegistryDeployJob{
+		jobsEngine:   watcher,
+		req:          payload,
+		instanceName: testRegistryInstanceName,
+	}
+}
+
+func TestWaitForRegistryDeployJob_Do_ReturnsNilOnceTaskReachesDone(t *testing.T) {
+	watcher := &fakeTaskWatcher{
+		tasks: []tasks_queries.VelezTask{
+			{Status: tasks_queries.VelezTaskStatusRUNNING},
+			{Status: tasks_queries.VelezTaskStatusDONE},
+		},
+	}
+	job := newWaitForRegistryDeployJob(watcher)
+
+	err := job.Do(context.Background())
+	require.NoError(t, err)
+}
+
+func TestWaitForRegistryDeployJob_Do_WrapsErrTaskFailedOnceTaskReachesFailed(t *testing.T) {
+	watcher := &fakeTaskWatcher{
+		tasks: []tasks_queries.VelezTask{
+			{Status: tasks_queries.VelezTaskStatusFAILED, Error: sql.NullString{String: "image pull failed", Valid: true}},
+		},
+	}
+	job := newWaitForRegistryDeployJob(watcher)
+
+	err := job.Do(context.Background())
+	require.ErrorIs(t, err, user_errors.ErrTaskFailed)
+}
+
+func TestWaitForRegistryDeployJob_Do_TimesOutWhenTaskNeverReachesTerminalStatus(t *testing.T) {
+	watcher := &fakeTaskWatcher{block: true}
+	job := newWaitForRegistryDeployJob(watcher)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	defer cancel()
+
+	err := job.Do(ctx)
+	require.ErrorIs(t, err, context.DeadlineExceeded)
 }
 
 func TestHtpasswdLine(t *testing.T) {

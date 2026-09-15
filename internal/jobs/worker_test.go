@@ -60,7 +60,7 @@ func TestTaskWorker_ClaimsAndRunsAllJobsInOrder(t *testing.T) {
 		},
 	})
 
-	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour)
+	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour, 1)
 
 	w.processOne(context.Background())
 
@@ -112,7 +112,7 @@ func TestTaskWorker_ReclaimsStaleRunningTaskAndSkipsDoneJobs(t *testing.T) {
 		},
 	})
 
-	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "new-worker", time.Hour)
+	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "new-worker", time.Hour, 1)
 
 	w.processOne(context.Background())
 

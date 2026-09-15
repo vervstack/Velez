@@ -34,8 +34,9 @@ type taskWorker struct {
 	jobsStorage  storage.JobsStorage
 	registry     *Registry
 
-	workerID string
-	lease    time.Duration
+	workerID    string
+	lease       time.Duration
+	concurrency int
 
 	starter  sync.Once
 	stopOnce sync.Once
@@ -43,20 +44,30 @@ type taskWorker struct {
 	done     chan struct{}
 }
 
+// NewTaskWorker's concurrency is how many goroutines independently poll and
+// claim tasks. ClaimTask is safe for concurrent callers by design (SELECT
+// ... FOR UPDATE SKIP LOCKED in Postgres, a mutex-guarded atomic claim in
+// local_storage - see tasks.go's doc comment), and a single-goroutine worker
+// self-deadlocks the moment any job blocks waiting on another task to reach
+// a terminal status (e.g. jobs.waitForRegistryDeployJob watching the
+// create_smerd task deploy_watcher.go dispatches): that other task can never
+// be claimed because the only worker is busy waiting for it.
 func NewTaskWorker(
 	tasksStorage storage.TasksStorage,
 	jobsStorage storage.JobsStorage,
 	registry *Registry,
 	workerID string,
 	interval time.Duration,
+	concurrency int,
 ) *taskWorker {
 	return &taskWorker{
 		tasksStorage: tasksStorage,
 		jobsStorage:  jobsStorage,
 		registry:     registry,
 
-		workerID: workerID,
-		lease:    defaultClaimLease,
+		workerID:    workerID,
+		lease:       defaultClaimLease,
+		concurrency: concurrency,
 
 		ticker: time.NewTicker(interval),
 		done:   make(chan struct{}),
@@ -65,14 +76,19 @@ func NewTaskWorker(
 
 func (w *taskWorker) Start(ctx context.Context) {
 	w.starter.Do(func() {
-		for {
-			select {
-			case <-w.done:
-				return
-			case <-w.ticker.C:
-				w.processOne(ctx)
-			}
+		var wg sync.WaitGroup
+
+		for range w.concurrency {
+			wg.Add(1)
+
+			go func() {
+				defer wg.Done()
+
+				w.pollLoop(ctx)
+			}()
 		}
+
+		wg.Wait()
 	})
 }
 
@@ -83,6 +99,17 @@ func (w *taskWorker) Stop() error {
 	})
 
 	return nil
+}
+
+func (w *taskWorker) pollLoop(ctx context.Context) {
+	for {
+		select {
+		case <-w.done:
+			return
+		case <-w.ticker.C:
+			w.processOne(ctx)
+		}
+	}
 }
 
 func (w *taskWorker) processOne(ctx context.Context) {

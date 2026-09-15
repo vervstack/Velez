@@ -3,8 +3,10 @@ import {useEffect, useState} from "react"
 import cls from "@/dialogs/RegistryInstanceCreateDialog/screens/RegistryDeployProgressScreen.module.css"
 import {TaskStatus, TaskStatusStatus, WatchTaskRequest} from "@/app/api/velez"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
+import {queryClient} from "@/app/queryClient.ts"
 import Button from "@/components/base/Button.tsx"
 import {WatchTaskStream} from "@/processes/api/tasks.ts"
+import {REGISTRY_INSTANCES_QUERY_KEY} from "@/processes/queries/registry_instances.ts"
 
 interface WatchableTaskStart {
     entityId?: string
@@ -57,18 +59,23 @@ export default function RegistryDeployProgressScreen({name, start, onSuccess, on
     useEffect(() => {
         let cancelled = false
 
-        let finalStatus: TaskStatusStatus | undefined
-        let finalError: string | undefined
-
         function onStatus(status: TaskStatus) {
             if (cancelled) {
                 return
             }
-            finalStatus = status.status
-            finalError = status.error
             setTaskStatus(status)
+
             if (status.status === TaskStatusStatus.RUNNING) {
                 setPhase("running")
+            }
+            if (status.status === TaskStatusStatus.DONE) {
+                queryClient.invalidateQueries({queryKey: REGISTRY_INSTANCES_QUERY_KEY})
+                onSuccess?.()
+                setPhase("done")
+            }
+            if (status.status === TaskStatusStatus.FAILED) {
+                setPhase("failed")
+                setError(status.error || "Task failed")
             }
         }
 
@@ -76,16 +83,6 @@ export default function RegistryDeployProgressScreen({name, start, onSuccess, on
             .then((res) => {
                 const watchReq: WatchTaskRequest = {entityId: res.entityId, action: res.action}
                 return WatchTaskStream(watchReq, onStatus)
-            })
-            .then(() => {
-                if (cancelled) {
-                    return
-                }
-                if (finalStatus === TaskStatusStatus.FAILED) {
-                    throw new Error(finalError || "Task failed")
-                }
-                onSuccess?.()
-                setPhase("done")
             })
             .catch((err: Error) => {
                 if (cancelled) {

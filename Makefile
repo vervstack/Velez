@@ -17,11 +17,8 @@ build-ui:
 lint:
 	golangci-lint run ./...
 
-serve:
-	@trap 'kill 0' EXIT; \
-	go run ./cmd/service --dev & \
-	cd pkg/web/Velez-UI && bun dev & \
-	wait
+serve: build-ui
+	go run ./cmd/service --dev
 
 client:
 	cd pkg/web/Velez-UI && vite

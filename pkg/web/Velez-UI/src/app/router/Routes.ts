@@ -10,6 +10,7 @@ export enum Routes {
     Service = '/service',
     Postgres = '/postgres',
     ContainerRegistry = '/container-registries',
+    Runners = '/runners',
     Settings = '/settings',
     Login = '/login'
 }

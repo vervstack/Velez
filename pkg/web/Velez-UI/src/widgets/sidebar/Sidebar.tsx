@@ -3,7 +3,7 @@ import cn from 'classnames';
 import SectionLabel from '@/components/base/SectionLabel';
 import VelezIcon from '@/assets/icons/services/velez.svg';
 
-type NavId = 'controlplane' | 'vcn' | 'deployments' | 'services' | 'postgres' | 'registries' | 'search';
+type NavId = 'controlplane' | 'vcn' | 'deployments' | 'services' | 'postgres' | 'registries' | 'runners' | 'search';
 type ToolId = 'secrets' | 'config' | 'logs' | 'settings';
 
 interface SidebarProps {
@@ -19,6 +19,7 @@ const NAV_ITEMS: Array<{ id: NavId; label: string; icon: string }> = [
     {id: 'services', label: 'Services', icon: '⬡'},
     {id: 'postgres', label: 'Postgres', icon: '⛁'},
     {id: 'registries', label: 'Registries', icon: '▣'},
+    {id: 'runners', label: 'Runners', icon: '⚙'},
     {id: 'search', label: 'Search', icon: '⌕'},
 ];
 

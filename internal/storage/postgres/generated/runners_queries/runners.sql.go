@@ -22,7 +22,7 @@ func (q *Queries) DeleteRunner(ctx context.Context, serviceID int64) error {
 }
 
 const getRunnerByServiceID = `-- name: GetRunnerByServiceID :one
-SELECT service_id, provider, scope, target, labels, secret_ref, created_at, updated_at
+SELECT service_id, provider, scope, target, labels, secret_ref, created_at, updated_at, base_url
 FROM velez.runners
 WHERE service_id = $1
 `
@@ -39,12 +39,13 @@ func (q *Queries) GetRunnerByServiceID(ctx context.Context, serviceID int64) (Ve
 		&i.SecretRef,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.BaseUrl,
 	)
 	return i, err
 }
 
 const listRunners = `-- name: ListRunners :many
-SELECT service_id, provider, scope, target, labels, secret_ref, created_at, updated_at
+SELECT service_id, provider, scope, target, labels, secret_ref, created_at, updated_at, base_url
 FROM velez.runners
 ORDER BY service_id
 `
@@ -67,6 +68,7 @@ func (q *Queries) ListRunners(ctx context.Context) ([]VelezRunner, error) {
 			&i.SecretRef,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.BaseUrl,
 		); err != nil {
 			return nil, err
 		}
@@ -82,16 +84,17 @@ func (q *Queries) ListRunners(ctx context.Context) ([]VelezRunner, error) {
 }
 
 const upsertRunner = `-- name: UpsertRunner :one
-INSERT INTO velez.runners (service_id, provider, scope, target, labels, secret_ref)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO velez.runners (service_id, provider, scope, target, labels, secret_ref, base_url)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 ON CONFLICT (service_id) DO UPDATE
     SET provider   = EXCLUDED.provider,
         scope      = EXCLUDED.scope,
         target     = EXCLUDED.target,
         labels     = EXCLUDED.labels,
         secret_ref = EXCLUDED.secret_ref,
+        base_url   = EXCLUDED.base_url,
         updated_at = NOW()
-RETURNING service_id, provider, scope, target, labels, secret_ref, created_at, updated_at
+RETURNING service_id, provider, scope, target, labels, secret_ref, created_at, updated_at, base_url
 `
 
 type UpsertRunnerParams struct {
@@ -101,6 +104,7 @@ type UpsertRunnerParams struct {
 	Target    string
 	Labels    []string
 	SecretRef string
+	BaseUrl   string
 }
 
 func (q *Queries) UpsertRunner(ctx context.Context, arg UpsertRunnerParams) (VelezRunner, error) {
@@ -111,6 +115,7 @@ func (q *Queries) UpsertRunner(ctx context.Context, arg UpsertRunnerParams) (Vel
 		arg.Target,
 		pq.Array(arg.Labels),
 		arg.SecretRef,
+		arg.BaseUrl,
 	)
 	var i VelezRunner
 	err := row.Scan(
@@ -122,6 +127,7 @@ func (q *Queries) UpsertRunner(ctx context.Context, arg UpsertRunnerParams) (Vel
 		&i.SecretRef,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.BaseUrl,
 	)
 	return i, err
 }

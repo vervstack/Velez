@@ -8,6 +8,7 @@ import "google/protobuf/timestamp.proto";
 import "npm.proto";
 import "container_registry_api.proto";
 import "control_plane_api.proto";
+import "runners_api.proto";
 import "service_api.proto";
 import "velez_api.proto";
 import "velez_common.proto";
@@ -249,5 +250,15 @@ message CreateRegistryInstanceTaskPayload {
   // creation), so both ports are resolved before either container deploys.
   optional uint32 exposed_port = 5;
   optional uint32 ui_exposed_port = 6;
+}
+
+// CreateRunnerTaskPayload is the task context for the "create_runner"
+// action. Mirrors CreateRegistryInstanceTaskPayload's shape: the minted
+// registration_token is persisted once so a crash-resumed task reuses it
+// instead of re-minting a token that would mismatch the one already written
+// into the runner container's env/secret store.
+message CreateRunnerTaskPayload {
+  CreateRunner.Request request = 1;
+  optional string registration_token = 2;
 }
 

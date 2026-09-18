@@ -19,9 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	RunnersAPI_ListRunners_FullMethodName  = "/velez_api.RunnersAPI/ListRunners"
-	RunnersAPI_CreateRunner_FullMethodName = "/velez_api.RunnersAPI/CreateRunner"
-	RunnersAPI_DropRunner_FullMethodName   = "/velez_api.RunnersAPI/DropRunner"
+	RunnersAPI_ListRunners_FullMethodName          = "/velez_api.RunnersAPI/ListRunners"
+	RunnersAPI_CreateRunner_FullMethodName         = "/velez_api.RunnersAPI/CreateRunner"
+	RunnersAPI_DropRunner_FullMethodName           = "/velez_api.RunnersAPI/DropRunner"
+	RunnersAPI_GetRunnerCredentials_FullMethodName = "/velez_api.RunnersAPI/GetRunnerCredentials"
 )
 
 // RunnersAPIClient is the client API for RunnersAPI service.
@@ -31,6 +32,12 @@ type RunnersAPIClient interface {
 	ListRunners(ctx context.Context, in *ListRunners_Request, opts ...grpc.CallOption) (*ListRunners_Response, error)
 	CreateRunner(ctx context.Context, in *CreateRunner_Request, opts ...grpc.CallOption) (*CreateRunner_Response, error)
 	DropRunner(ctx context.Context, in *DropRunner_Request, opts ...grpc.CallOption) (*DropRunner_Response, error)
+	// GetRunnerCredentials is the only RPC that resolves a secret_ref to its
+	// value. GitLab runners register manually in v1 (the official
+	// gitlab/gitlab-runner image doesn't self-register from env vars alone),
+	// so the response also carries the exact `gitlab-runner register` command
+	// the caller runs by hand.
+	GetRunnerCredentials(ctx context.Context, in *GetRunnerCredentials_Request, opts ...grpc.CallOption) (*GetRunnerCredentials_Response, error)
 }
 
 type runnersAPIClient struct {
@@ -68,6 +75,15 @@ func (c *runnersAPIClient) DropRunner(ctx context.Context, in *DropRunner_Reques
 	return out, nil
 }
 
+func (c *runnersAPIClient) GetRunnerCredentials(ctx context.Context, in *GetRunnerCredentials_Request, opts ...grpc.CallOption) (*GetRunnerCredentials_Response, error) {
+	out := new(GetRunnerCredentials_Response)
+	err := c.cc.Invoke(ctx, RunnersAPI_GetRunnerCredentials_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RunnersAPIServer is the server API for RunnersAPI service.
 // All implementations must embed UnimplementedRunnersAPIServer
 // for forward compatibility
@@ -75,6 +91,12 @@ type RunnersAPIServer interface {
 	ListRunners(context.Context, *ListRunners_Request) (*ListRunners_Response, error)
 	CreateRunner(context.Context, *CreateRunner_Request) (*CreateRunner_Response, error)
 	DropRunner(context.Context, *DropRunner_Request) (*DropRunner_Response, error)
+	// GetRunnerCredentials is the only RPC that resolves a secret_ref to its
+	// value. GitLab runners register manually in v1 (the official
+	// gitlab/gitlab-runner image doesn't self-register from env vars alone),
+	// so the response also carries the exact `gitlab-runner register` command
+	// the caller runs by hand.
+	GetRunnerCredentials(context.Context, *GetRunnerCredentials_Request) (*GetRunnerCredentials_Response, error)
 	mustEmbedUnimplementedRunnersAPIServer()
 }
 
@@ -90,6 +112,9 @@ func (UnimplementedRunnersAPIServer) CreateRunner(context.Context, *CreateRunner
 }
 func (UnimplementedRunnersAPIServer) DropRunner(context.Context, *DropRunner_Request) (*DropRunner_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DropRunner not implemented")
+}
+func (UnimplementedRunnersAPIServer) GetRunnerCredentials(context.Context, *GetRunnerCredentials_Request) (*GetRunnerCredentials_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRunnerCredentials not implemented")
 }
 func (UnimplementedRunnersAPIServer) mustEmbedUnimplementedRunnersAPIServer() {}
 
@@ -158,6 +183,24 @@ func _RunnersAPI_DropRunner_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RunnersAPI_GetRunnerCredentials_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRunnerCredentials_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RunnersAPIServer).GetRunnerCredentials(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RunnersAPI_GetRunnerCredentials_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RunnersAPIServer).GetRunnerCredentials(ctx, req.(*GetRunnerCredentials_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RunnersAPI_ServiceDesc is the grpc.ServiceDesc for RunnersAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -176,6 +219,10 @@ var RunnersAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DropRunner",
 			Handler:    _RunnersAPI_DropRunner_Handler,
+		},
+		{
+			MethodName: "GetRunnerCredentials",
+			Handler:    _RunnersAPI_GetRunnerCredentials_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

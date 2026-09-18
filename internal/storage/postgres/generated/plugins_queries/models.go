@@ -253,6 +253,7 @@ type VelezRunner struct {
 	SecretRef string
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	BaseUrl   string
 }
 
 type VelezSecret struct {

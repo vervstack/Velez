@@ -9,6 +9,7 @@ import * as VelezApiContainerRegistryApi from "./container_registry_api.pb";
 import * as VelezApiControlPlaneApi from "./control_plane_api.pb";
 import * as fm from "./fetch.pb";
 import * as GoogleProtobufTimestamp from "./google/protobuf/timestamp.pb";
+import * as VelezApiRunnersApi from "./runners_api.pb";
 import * as VelezApiVelezApi from "./velez_api.pb";
 import * as VelezApiVelezCommon from "./velez_common.pb";
 
@@ -115,6 +116,11 @@ export type CreateRegistryInstanceTaskPayload = {
   containerId?: string;
   exposedPort?: number;
   uiExposedPort?: number;
+};
+
+export type CreateRunnerTaskPayload = {
+  request?: VelezApiRunnersApi.CreateRunnerRequest;
+  registrationToken?: string;
 };
 
 export class TasksApi {

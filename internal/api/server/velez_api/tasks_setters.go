@@ -159,3 +159,11 @@ func (x *CreateRegistryInstanceTaskPayload) SetExposedPort(v uint32) {
 func (x *CreateRegistryInstanceTaskPayload) SetUiExposedPort(v uint32) {
 	x.UiExposedPort = &v
 }
+
+func (x *CreateRunnerTaskPayload) SetRequest(v *CreateRunner_Request) {
+	x.Request = v
+}
+
+func (x *CreateRunnerTaskPayload) SetRegistrationToken(v string) {
+	x.RegistrationToken = &v
+}

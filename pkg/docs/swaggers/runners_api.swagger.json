@@ -111,6 +111,37 @@
           "RunnersAPI"
         ]
       }
+    },
+    "/api/runners/{name}/credentials": {
+      "get": {
+        "summary": "GetRunnerCredentials is the only RPC that resolves a secret_ref to its\nvalue. GitLab runners register manually in v1 (the official\ngitlab/gitlab-runner image doesn't self-register from env vars alone),\nso the response also carries the exact `gitlab-runner register` command\nthe caller runs by hand.",
+        "operationId": "RunnersAPI_GetRunnerCredentials",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetRunnerCredentialsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "RunnersAPI"
+        ]
+      }
     }
   },
   "definitions": {
@@ -169,6 +200,9 @@
         },
         "github": {
           "$ref": "#/definitions/velez_apiGithubConfig"
+        },
+        "gitlab": {
+          "$ref": "#/definitions/velez_apiGitlabConfig"
         }
       }
     },
@@ -176,7 +210,14 @@
       "type": "object",
       "properties": {
         "runner": {
-          "$ref": "#/definitions/velez_apiRunner"
+          "$ref": "#/definitions/velez_apiRunner",
+          "description": "runner is never populated - the RPC enqueues the create_runner task\nand returns before it completes. Callers watch entity_id/action via\nTasksApi.WatchTask and refetch ListRunners once the task reaches DONE."
+        },
+        "entityId": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
         }
       }
     },
@@ -191,6 +232,26 @@
     "velez_apiDropRunnerResponse": {
       "type": "object"
     },
+    "velez_apiGetRunnerCredentialsResponse": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string",
+          "description": "token - the provider registration token stored at CreateRunner time\n(GitHub: minted from the caller's PAT; GitLab: the caller's access\ntoken, trusted as-is in v1). Not re-mintable through this RPC; it\nreflects the token stored then."
+        },
+        "target": {
+          "type": "string",
+          "description": "target - the repo/org (or project/group) the token registers against."
+        },
+        "provider": {
+          "$ref": "#/definitions/velez_apiRunnerProvider"
+        },
+        "registerCommand": {
+          "type": "string",
+          "description": "register_command - populated only for providers with no automated\nregistration step (GitLab in v1); empty for a self-registering\nprovider like GitHub."
+        }
+      }
+    },
     "velez_apiGithubConfig": {
       "type": "object",
       "properties": {
@@ -199,7 +260,21 @@
           "description": "access_token - a GitHub PAT with permission to mint a runner\nregistration token for target. Never stored as given; see\ninternal/service/secrets."
         }
       },
-      "description": "GithubConfig - GitHub Actions-specific CreateRunner body. A future\nGitlabConfig (base_url + token) is a new message + new provider_config\ncase, never a change to this one."
+      "description": "GithubConfig - GitHub Actions-specific CreateRunner body."
+    },
+    "velez_apiGitlabConfig": {
+      "type": "object",
+      "properties": {
+        "accessToken": {
+          "type": "string",
+          "description": "access_token - a GitLab runner registration token for target (project or\ngroup), created by the caller ahead of time. Never stored as given; see\ninternal/service/secrets."
+        },
+        "baseUrl": {
+          "type": "string",
+          "description": "base_url - the GitLab instance's base URL, e.g. \"https://gitlab.com\" or\na self-managed instance's URL. Empty defaults to \"https://gitlab.com\"."
+        }
+      },
+      "description": "GitlabConfig - GitLab-specific CreateRunner body. v1 provisions a bare\nofficial gitlab/gitlab-runner container and stops there - there is no\nautomated `gitlab-runner register` step, so access_token is trusted as an\nalready-valid registration token and surfaced back via\nGetRunnerCredentials, not used to call any GitLab API."
     },
     "velez_apiListRunnersRequest": {
       "type": "object",
@@ -281,10 +356,11 @@
       "type": "string",
       "enum": [
         "RUNNER_PROVIDER_UNSPECIFIED",
-        "GITHUB"
+        "GITHUB",
+        "GITLAB"
       ],
       "default": "RUNNER_PROVIDER_UNSPECIFIED",
-      "description": "RunnerProvider - which CI system a runner registers against. Deliberately\nleft room to grow: GITHUB is the only provisionable provider today, GITLAB\nand others are added here as new values later, never as new contracts."
+      "description": "RunnerProvider - which CI system a runner registers against. GITHUB\nself-registers fully from env vars; GITLAB is provisioned as a bare\nofficial-image container and registers manually in v1 (see\nGetRunnerCredentials). Others are added here as new values later, never as\nnew contracts."
     },
     "velez_apiRunnerScope": {
       "type": "string",

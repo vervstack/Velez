@@ -24,14 +24,17 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// RunnerProvider - which CI system a runner registers against. Deliberately
-// left room to grow: GITHUB is the only provisionable provider today, GITLAB
-// and others are added here as new values later, never as new contracts.
+// RunnerProvider - which CI system a runner registers against. GITHUB
+// self-registers fully from env vars; GITLAB is provisioned as a bare
+// official-image container and registers manually in v1 (see
+// GetRunnerCredentials). Others are added here as new values later, never as
+// new contracts.
 type RunnerProvider int32
 
 const (
 	RunnerProvider_RUNNER_PROVIDER_UNSPECIFIED RunnerProvider = 0
 	RunnerProvider_GITHUB                      RunnerProvider = 1
+	RunnerProvider_GITLAB                      RunnerProvider = 2
 )
 
 // Enum value maps for RunnerProvider.
@@ -39,10 +42,12 @@ var (
 	RunnerProvider_name = map[int32]string{
 		0: "RUNNER_PROVIDER_UNSPECIFIED",
 		1: "GITHUB",
+		2: "GITLAB",
 	}
 	RunnerProvider_value = map[string]int32{
 		"RUNNER_PROVIDER_UNSPECIFIED": 0,
 		"GITHUB":                      1,
+		"GITLAB":                      2,
 	}
 )
 
@@ -310,9 +315,7 @@ func (*CreateRunner) Descriptor() ([]byte, []int) {
 	return file_runners_api_proto_rawDescGZIP(), []int{2}
 }
 
-// GithubConfig - GitHub Actions-specific CreateRunner body. A future
-// GitlabConfig (base_url + token) is a new message + new provider_config
-// case, never a change to this one.
+// GithubConfig - GitHub Actions-specific CreateRunner body.
 type GithubConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// access_token - a GitHub PAT with permission to mint a runner
@@ -360,6 +363,68 @@ func (x *GithubConfig) GetAccessToken() string {
 	return ""
 }
 
+// GitlabConfig - GitLab-specific CreateRunner body. v1 provisions a bare
+// official gitlab/gitlab-runner container and stops there - there is no
+// automated `gitlab-runner register` step, so access_token is trusted as an
+// already-valid registration token and surfaced back via
+// GetRunnerCredentials, not used to call any GitLab API.
+type GitlabConfig struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// access_token - a GitLab runner registration token for target (project or
+	// group), created by the caller ahead of time. Never stored as given; see
+	// internal/service/secrets.
+	AccessToken string `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
+	// base_url - the GitLab instance's base URL, e.g. "https://gitlab.com" or
+	// a self-managed instance's URL. Empty defaults to "https://gitlab.com".
+	BaseUrl       *string `protobuf:"bytes,2,opt,name=base_url,json=baseUrl,proto3,oneof" json:"base_url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GitlabConfig) Reset() {
+	*x = GitlabConfig{}
+	mi := &file_runners_api_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GitlabConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GitlabConfig) ProtoMessage() {}
+
+func (x *GitlabConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_runners_api_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GitlabConfig.ProtoReflect.Descriptor instead.
+func (*GitlabConfig) Descriptor() ([]byte, []int) {
+	return file_runners_api_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GitlabConfig) GetAccessToken() string {
+	if x != nil {
+		return x.AccessToken
+	}
+	return ""
+}
+
+func (x *GitlabConfig) GetBaseUrl() string {
+	if x != nil && x.BaseUrl != nil {
+		return *x.BaseUrl
+	}
+	return ""
+}
+
 type DropRunner struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -368,7 +433,7 @@ type DropRunner struct {
 
 func (x *DropRunner) Reset() {
 	*x = DropRunner{}
-	mi := &file_runners_api_proto_msgTypes[4]
+	mi := &file_runners_api_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -380,7 +445,7 @@ func (x *DropRunner) String() string {
 func (*DropRunner) ProtoMessage() {}
 
 func (x *DropRunner) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[4]
+	mi := &file_runners_api_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -393,7 +458,47 @@ func (x *DropRunner) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DropRunner.ProtoReflect.Descriptor instead.
 func (*DropRunner) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{4}
+	return file_runners_api_proto_rawDescGZIP(), []int{5}
+}
+
+// GetRunnerCredentials.Response is the only RunnersAPI message that ever
+// carries a token. GitLab runners aren't auto-registered in v1, so the
+// response also hands back the exact command to run against the running
+// container to finish registration by hand.
+type GetRunnerCredentials struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetRunnerCredentials) Reset() {
+	*x = GetRunnerCredentials{}
+	mi := &file_runners_api_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetRunnerCredentials) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetRunnerCredentials) ProtoMessage() {}
+
+func (x *GetRunnerCredentials) ProtoReflect() protoreflect.Message {
+	mi := &file_runners_api_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetRunnerCredentials.ProtoReflect.Descriptor instead.
+func (*GetRunnerCredentials) Descriptor() ([]byte, []int) {
+	return file_runners_api_proto_rawDescGZIP(), []int{6}
 }
 
 type ListRunners_Request struct {
@@ -405,7 +510,7 @@ type ListRunners_Request struct {
 
 func (x *ListRunners_Request) Reset() {
 	*x = ListRunners_Request{}
-	mi := &file_runners_api_proto_msgTypes[5]
+	mi := &file_runners_api_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -417,7 +522,7 @@ func (x *ListRunners_Request) String() string {
 func (*ListRunners_Request) ProtoMessage() {}
 
 func (x *ListRunners_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[5]
+	mi := &file_runners_api_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -450,7 +555,7 @@ type ListRunners_Response struct {
 
 func (x *ListRunners_Response) Reset() {
 	*x = ListRunners_Response{}
-	mi := &file_runners_api_proto_msgTypes[6]
+	mi := &file_runners_api_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -462,7 +567,7 @@ func (x *ListRunners_Response) String() string {
 func (*ListRunners_Response) ProtoMessage() {}
 
 func (x *ListRunners_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[6]
+	mi := &file_runners_api_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -510,6 +615,7 @@ type CreateRunner_Request struct {
 	// Types that are valid to be assigned to ProviderConfig:
 	//
 	//	*CreateRunner_Request_Github
+	//	*CreateRunner_Request_Gitlab
 	ProviderConfig isCreateRunner_Request_ProviderConfig `protobuf_oneof:"provider_config"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
@@ -517,7 +623,7 @@ type CreateRunner_Request struct {
 
 func (x *CreateRunner_Request) Reset() {
 	*x = CreateRunner_Request{}
-	mi := &file_runners_api_proto_msgTypes[7]
+	mi := &file_runners_api_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -529,7 +635,7 @@ func (x *CreateRunner_Request) String() string {
 func (*CreateRunner_Request) ProtoMessage() {}
 
 func (x *CreateRunner_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[7]
+	mi := &file_runners_api_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -603,6 +709,15 @@ func (x *CreateRunner_Request) GetGithub() *GithubConfig {
 	return nil
 }
 
+func (x *CreateRunner_Request) GetGitlab() *GitlabConfig {
+	if x != nil {
+		if x, ok := x.ProviderConfig.(*CreateRunner_Request_Gitlab); ok {
+			return x.Gitlab
+		}
+	}
+	return nil
+}
+
 type isCreateRunner_Request_ProviderConfig interface {
 	isCreateRunner_Request_ProviderConfig()
 }
@@ -611,18 +726,29 @@ type CreateRunner_Request_Github struct {
 	Github *GithubConfig `protobuf:"bytes,7,opt,name=github,proto3,oneof"`
 }
 
+type CreateRunner_Request_Gitlab struct {
+	Gitlab *GitlabConfig `protobuf:"bytes,8,opt,name=gitlab,proto3,oneof"`
+}
+
 func (*CreateRunner_Request_Github) isCreateRunner_Request_ProviderConfig() {}
 
+func (*CreateRunner_Request_Gitlab) isCreateRunner_Request_ProviderConfig() {}
+
 type CreateRunner_Response struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Runner        *Runner                `protobuf:"bytes,1,opt,name=runner,proto3" json:"runner,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// runner is never populated - the RPC enqueues the create_runner task
+	// and returns before it completes. Callers watch entity_id/action via
+	// TasksApi.WatchTask and refetch ListRunners once the task reaches DONE.
+	Runner        *Runner `protobuf:"bytes,1,opt,name=runner,proto3" json:"runner,omitempty"`
+	EntityId      string  `protobuf:"bytes,2,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
+	Action        string  `protobuf:"bytes,3,opt,name=action,proto3" json:"action,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateRunner_Response) Reset() {
 	*x = CreateRunner_Response{}
-	mi := &file_runners_api_proto_msgTypes[8]
+	mi := &file_runners_api_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -634,7 +760,7 @@ func (x *CreateRunner_Response) String() string {
 func (*CreateRunner_Response) ProtoMessage() {}
 
 func (x *CreateRunner_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[8]
+	mi := &file_runners_api_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -657,6 +783,20 @@ func (x *CreateRunner_Response) GetRunner() *Runner {
 	return nil
 }
 
+func (x *CreateRunner_Response) GetEntityId() string {
+	if x != nil {
+		return x.EntityId
+	}
+	return ""
+}
+
+func (x *CreateRunner_Response) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
+}
+
 type DropRunner_Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -666,7 +806,7 @@ type DropRunner_Request struct {
 
 func (x *DropRunner_Request) Reset() {
 	*x = DropRunner_Request{}
-	mi := &file_runners_api_proto_msgTypes[9]
+	mi := &file_runners_api_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -678,7 +818,7 @@ func (x *DropRunner_Request) String() string {
 func (*DropRunner_Request) ProtoMessage() {}
 
 func (x *DropRunner_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[9]
+	mi := &file_runners_api_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -691,7 +831,7 @@ func (x *DropRunner_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DropRunner_Request.ProtoReflect.Descriptor instead.
 func (*DropRunner_Request) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{4, 0}
+	return file_runners_api_proto_rawDescGZIP(), []int{5, 0}
 }
 
 func (x *DropRunner_Request) GetName() string {
@@ -709,7 +849,7 @@ type DropRunner_Response struct {
 
 func (x *DropRunner_Response) Reset() {
 	*x = DropRunner_Response{}
-	mi := &file_runners_api_proto_msgTypes[10]
+	mi := &file_runners_api_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -721,7 +861,7 @@ func (x *DropRunner_Response) String() string {
 func (*DropRunner_Response) ProtoMessage() {}
 
 func (x *DropRunner_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[10]
+	mi := &file_runners_api_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -734,7 +874,127 @@ func (x *DropRunner_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DropRunner_Response.ProtoReflect.Descriptor instead.
 func (*DropRunner_Response) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{4, 1}
+	return file_runners_api_proto_rawDescGZIP(), []int{5, 1}
+}
+
+type GetRunnerCredentials_Request struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetRunnerCredentials_Request) Reset() {
+	*x = GetRunnerCredentials_Request{}
+	mi := &file_runners_api_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetRunnerCredentials_Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetRunnerCredentials_Request) ProtoMessage() {}
+
+func (x *GetRunnerCredentials_Request) ProtoReflect() protoreflect.Message {
+	mi := &file_runners_api_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetRunnerCredentials_Request.ProtoReflect.Descriptor instead.
+func (*GetRunnerCredentials_Request) Descriptor() ([]byte, []int) {
+	return file_runners_api_proto_rawDescGZIP(), []int{6, 0}
+}
+
+func (x *GetRunnerCredentials_Request) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type GetRunnerCredentials_Response struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// token - the provider registration token stored at CreateRunner time
+	// (GitHub: minted from the caller's PAT; GitLab: the caller's access
+	// token, trusted as-is in v1). Not re-mintable through this RPC; it
+	// reflects the token stored then.
+	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	// target - the repo/org (or project/group) the token registers against.
+	Target   string         `protobuf:"bytes,2,opt,name=target,proto3" json:"target,omitempty"`
+	Provider RunnerProvider `protobuf:"varint,3,opt,name=provider,proto3,enum=velez_api.RunnerProvider" json:"provider,omitempty"`
+	// register_command - populated only for providers with no automated
+	// registration step (GitLab in v1); empty for a self-registering
+	// provider like GitHub.
+	RegisterCommand string `protobuf:"bytes,4,opt,name=register_command,json=registerCommand,proto3" json:"register_command,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *GetRunnerCredentials_Response) Reset() {
+	*x = GetRunnerCredentials_Response{}
+	mi := &file_runners_api_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetRunnerCredentials_Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetRunnerCredentials_Response) ProtoMessage() {}
+
+func (x *GetRunnerCredentials_Response) ProtoReflect() protoreflect.Message {
+	mi := &file_runners_api_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetRunnerCredentials_Response.ProtoReflect.Descriptor instead.
+func (*GetRunnerCredentials_Response) Descriptor() ([]byte, []int) {
+	return file_runners_api_proto_rawDescGZIP(), []int{6, 1}
+}
+
+func (x *GetRunnerCredentials_Response) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
+func (x *GetRunnerCredentials_Response) GetTarget() string {
+	if x != nil {
+		return x.Target
+	}
+	return ""
+}
+
+func (x *GetRunnerCredentials_Response) GetProvider() RunnerProvider {
+	if x != nil {
+		return x.Provider
+	}
+	return RunnerProvider_RUNNER_PROVIDER_UNSPECIFIED
+}
+
+func (x *GetRunnerCredentials_Response) GetRegisterCommand() string {
+	if x != nil {
+		return x.RegisterCommand
+	}
+	return ""
 }
 
 var File_runners_api_proto protoreflect.FileDescriptor
@@ -759,8 +1019,8 @@ const file_runners_api_proto_rawDesc = "" +
 	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x1aM\n" +
 	"\bResponse\x12+\n" +
 	"\arunners\x18\x01 \x03(\v2\x11.velez_api.RunnerR\arunners\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x04R\x05total\"\x93\x03\n" +
-	"\fCreateRunner\x1a\xcb\x02\n" +
+	"\x05total\x18\x02 \x01(\x04R\x05total\"\xfb\x03\n" +
+	"\fCreateRunner\x1a\xfe\x02\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12,\n" +
 	"\x05scope\x18\x02 \x01(\x0e2\x16.velez_api.RunnerScopeR\x05scope\x12\x16\n" +
@@ -768,34 +1028,52 @@ const file_runners_api_proto_rawDesc = "" +
 	"\x06labels\x18\x04 \x03(\tR\x06labels\x12%\n" +
 	"\venvironment\x18\x05 \x01(\tH\x01R\venvironment\x88\x01\x01\x127\n" +
 	"\x15docker_socket_address\x18\x06 \x01(\tH\x02R\x13dockerSocketAddress\x88\x01\x01\x121\n" +
-	"\x06github\x18\a \x01(\v2\x17.velez_api.GithubConfigH\x00R\x06githubB\x11\n" +
+	"\x06github\x18\a \x01(\v2\x17.velez_api.GithubConfigH\x00R\x06github\x121\n" +
+	"\x06gitlab\x18\b \x01(\v2\x17.velez_api.GitlabConfigH\x00R\x06gitlabB\x11\n" +
 	"\x0fprovider_configB\x0e\n" +
 	"\f_environmentB\x18\n" +
-	"\x16_docker_socket_address\x1a5\n" +
+	"\x16_docker_socket_address\x1aj\n" +
 	"\bResponse\x12)\n" +
-	"\x06runner\x18\x01 \x01(\v2\x11.velez_api.RunnerR\x06runner\"1\n" +
+	"\x06runner\x18\x01 \x01(\v2\x11.velez_api.RunnerR\x06runner\x12\x1b\n" +
+	"\tentity_id\x18\x02 \x01(\tR\bentityId\x12\x16\n" +
+	"\x06action\x18\x03 \x01(\tR\x06action\"1\n" +
 	"\fGithubConfig\x12!\n" +
-	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"7\n" +
+	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"^\n" +
+	"\fGitlabConfig\x12!\n" +
+	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12\x1e\n" +
+	"\bbase_url\x18\x02 \x01(\tH\x00R\abaseUrl\x88\x01\x01B\v\n" +
+	"\t_base_url\"7\n" +
 	"\n" +
 	"DropRunner\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x1a\n" +
 	"\n" +
-	"\bResponse*=\n" +
+	"\bResponse\"\xd2\x01\n" +
+	"\x14GetRunnerCredentials\x1a\x1d\n" +
+	"\aRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x1a\x9a\x01\n" +
+	"\bResponse\x12\x14\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\x12\x16\n" +
+	"\x06target\x18\x02 \x01(\tR\x06target\x125\n" +
+	"\bprovider\x18\x03 \x01(\x0e2\x19.velez_api.RunnerProviderR\bprovider\x12)\n" +
+	"\x10register_command\x18\x04 \x01(\tR\x0fregisterCommand*I\n" +
 	"\x0eRunnerProvider\x12\x1f\n" +
 	"\x1bRUNNER_PROVIDER_UNSPECIFIED\x10\x00\x12\n" +
 	"\n" +
-	"\x06GITHUB\x10\x01*>\n" +
+	"\x06GITHUB\x10\x01\x12\n" +
+	"\n" +
+	"\x06GITLAB\x10\x02*>\n" +
 	"\vRunnerScope\x12\x1c\n" +
 	"\x18RUNNER_SCOPE_UNSPECIFIED\x10\x00\x12\b\n" +
 	"\x04REPO\x10\x01\x12\a\n" +
-	"\x03ORG\x10\x022\xd8\x02\n" +
+	"\x03ORG\x10\x022\xed\x03\n" +
 	"\n" +
 	"RunnersAPI\x12l\n" +
 	"\vListRunners\x12\x1e.velez_api.ListRunners.Request\x1a\x1f.velez_api.ListRunners.Response\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/runners/list\x12q\n" +
 	"\fCreateRunner\x12\x1f.velez_api.CreateRunner.Request\x1a .velez_api.CreateRunner.Response\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/runners/create\x12i\n" +
 	"\n" +
-	"DropRunner\x12\x1d.velez_api.DropRunner.Request\x1a\x1e.velez_api.DropRunner.Response\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/runners/dropBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
+	"DropRunner\x12\x1d.velez_api.DropRunner.Request\x1a\x1e.velez_api.DropRunner.Response\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/runners/drop\x12\x92\x01\n" +
+	"\x14GetRunnerCredentials\x12'.velez_api.GetRunnerCredentials.Request\x1a(.velez_api.GetRunnerCredentials.Response\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/runners/{name}/credentialsBC\x92\x82\x19\x10@vervstack/velezZ-go.vervstack.ru/velez/pkg/velez_api;velez_apib\x06proto3"
 
 var (
 	file_runners_api_proto_rawDescOnce sync.Once
@@ -810,45 +1088,53 @@ func file_runners_api_proto_rawDescGZIP() []byte {
 }
 
 var file_runners_api_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_runners_api_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_runners_api_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_runners_api_proto_goTypes = []any{
-	(RunnerProvider)(0),           // 0: velez_api.RunnerProvider
-	(RunnerScope)(0),              // 1: velez_api.RunnerScope
-	(*Runner)(nil),                // 2: velez_api.Runner
-	(*ListRunners)(nil),           // 3: velez_api.ListRunners
-	(*CreateRunner)(nil),          // 4: velez_api.CreateRunner
-	(*GithubConfig)(nil),          // 5: velez_api.GithubConfig
-	(*DropRunner)(nil),            // 6: velez_api.DropRunner
-	(*ListRunners_Request)(nil),   // 7: velez_api.ListRunners.Request
-	(*ListRunners_Response)(nil),  // 8: velez_api.ListRunners.Response
-	(*CreateRunner_Request)(nil),  // 9: velez_api.CreateRunner.Request
-	(*CreateRunner_Response)(nil), // 10: velez_api.CreateRunner.Response
-	(*DropRunner_Request)(nil),    // 11: velez_api.DropRunner.Request
-	(*DropRunner_Response)(nil),   // 12: velez_api.DropRunner.Response
-	(*timestamppb.Timestamp)(nil), // 13: google.protobuf.Timestamp
-	(*Paging)(nil),                // 14: velez_api.Paging
+	(RunnerProvider)(0),                   // 0: velez_api.RunnerProvider
+	(RunnerScope)(0),                      // 1: velez_api.RunnerScope
+	(*Runner)(nil),                        // 2: velez_api.Runner
+	(*ListRunners)(nil),                   // 3: velez_api.ListRunners
+	(*CreateRunner)(nil),                  // 4: velez_api.CreateRunner
+	(*GithubConfig)(nil),                  // 5: velez_api.GithubConfig
+	(*GitlabConfig)(nil),                  // 6: velez_api.GitlabConfig
+	(*DropRunner)(nil),                    // 7: velez_api.DropRunner
+	(*GetRunnerCredentials)(nil),          // 8: velez_api.GetRunnerCredentials
+	(*ListRunners_Request)(nil),           // 9: velez_api.ListRunners.Request
+	(*ListRunners_Response)(nil),          // 10: velez_api.ListRunners.Response
+	(*CreateRunner_Request)(nil),          // 11: velez_api.CreateRunner.Request
+	(*CreateRunner_Response)(nil),         // 12: velez_api.CreateRunner.Response
+	(*DropRunner_Request)(nil),            // 13: velez_api.DropRunner.Request
+	(*DropRunner_Response)(nil),           // 14: velez_api.DropRunner.Response
+	(*GetRunnerCredentials_Request)(nil),  // 15: velez_api.GetRunnerCredentials.Request
+	(*GetRunnerCredentials_Response)(nil), // 16: velez_api.GetRunnerCredentials.Response
+	(*timestamppb.Timestamp)(nil),         // 17: google.protobuf.Timestamp
+	(*Paging)(nil),                        // 18: velez_api.Paging
 }
 var file_runners_api_proto_depIdxs = []int32{
 	0,  // 0: velez_api.Runner.provider:type_name -> velez_api.RunnerProvider
 	1,  // 1: velez_api.Runner.scope:type_name -> velez_api.RunnerScope
-	13, // 2: velez_api.Runner.created_at:type_name -> google.protobuf.Timestamp
-	13, // 3: velez_api.Runner.updated_at:type_name -> google.protobuf.Timestamp
-	14, // 4: velez_api.ListRunners.Request.paging:type_name -> velez_api.Paging
+	17, // 2: velez_api.Runner.created_at:type_name -> google.protobuf.Timestamp
+	17, // 3: velez_api.Runner.updated_at:type_name -> google.protobuf.Timestamp
+	18, // 4: velez_api.ListRunners.Request.paging:type_name -> velez_api.Paging
 	2,  // 5: velez_api.ListRunners.Response.runners:type_name -> velez_api.Runner
 	1,  // 6: velez_api.CreateRunner.Request.scope:type_name -> velez_api.RunnerScope
 	5,  // 7: velez_api.CreateRunner.Request.github:type_name -> velez_api.GithubConfig
-	2,  // 8: velez_api.CreateRunner.Response.runner:type_name -> velez_api.Runner
-	7,  // 9: velez_api.RunnersAPI.ListRunners:input_type -> velez_api.ListRunners.Request
-	9,  // 10: velez_api.RunnersAPI.CreateRunner:input_type -> velez_api.CreateRunner.Request
-	11, // 11: velez_api.RunnersAPI.DropRunner:input_type -> velez_api.DropRunner.Request
-	8,  // 12: velez_api.RunnersAPI.ListRunners:output_type -> velez_api.ListRunners.Response
-	10, // 13: velez_api.RunnersAPI.CreateRunner:output_type -> velez_api.CreateRunner.Response
-	12, // 14: velez_api.RunnersAPI.DropRunner:output_type -> velez_api.DropRunner.Response
-	12, // [12:15] is the sub-list for method output_type
-	9,  // [9:12] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	6,  // 8: velez_api.CreateRunner.Request.gitlab:type_name -> velez_api.GitlabConfig
+	2,  // 9: velez_api.CreateRunner.Response.runner:type_name -> velez_api.Runner
+	0,  // 10: velez_api.GetRunnerCredentials.Response.provider:type_name -> velez_api.RunnerProvider
+	9,  // 11: velez_api.RunnersAPI.ListRunners:input_type -> velez_api.ListRunners.Request
+	11, // 12: velez_api.RunnersAPI.CreateRunner:input_type -> velez_api.CreateRunner.Request
+	13, // 13: velez_api.RunnersAPI.DropRunner:input_type -> velez_api.DropRunner.Request
+	15, // 14: velez_api.RunnersAPI.GetRunnerCredentials:input_type -> velez_api.GetRunnerCredentials.Request
+	10, // 15: velez_api.RunnersAPI.ListRunners:output_type -> velez_api.ListRunners.Response
+	12, // 16: velez_api.RunnersAPI.CreateRunner:output_type -> velez_api.CreateRunner.Response
+	14, // 17: velez_api.RunnersAPI.DropRunner:output_type -> velez_api.DropRunner.Response
+	16, // 18: velez_api.RunnersAPI.GetRunnerCredentials:output_type -> velez_api.GetRunnerCredentials.Response
+	15, // [15:19] is the sub-list for method output_type
+	11, // [11:15] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_runners_api_proto_init() }
@@ -857,8 +1143,10 @@ func file_runners_api_proto_init() {
 		return
 	}
 	file_velez_common_proto_init()
-	file_runners_api_proto_msgTypes[7].OneofWrappers = []any{
+	file_runners_api_proto_msgTypes[4].OneofWrappers = []any{}
+	file_runners_api_proto_msgTypes[9].OneofWrappers = []any{
 		(*CreateRunner_Request_Github)(nil),
+		(*CreateRunner_Request_Gitlab)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -866,7 +1154,7 @@ func file_runners_api_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_runners_api_proto_rawDesc), len(file_runners_api_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   11,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

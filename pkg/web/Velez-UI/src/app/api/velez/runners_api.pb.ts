@@ -22,6 +22,7 @@ type OneOf<T> =
 export enum RunnerProvider {
   RUNNER_PROVIDER_UNSPECIFIED = "RUNNER_PROVIDER_UNSPECIFIED",
   GITHUB = "GITHUB",
+  GITLAB = "GITLAB",
 }
 
 export enum RunnerScope {
@@ -63,16 +64,24 @@ type BaseCreateRunnerRequest = {
 export type CreateRunnerRequest = BaseCreateRunnerRequest &
   OneOf<{
     github: GithubConfig;
+    gitlab: GitlabConfig;
   }>;
 
 export type CreateRunnerResponse = {
   runner?: Runner;
+  entityId?: string;
+  action?: string;
 };
 
 export type CreateRunner = Record<string, never>;
 
 export type GithubConfig = {
   accessToken?: string;
+};
+
+export type GitlabConfig = {
+  accessToken?: string;
+  baseUrl?: string;
 };
 
 export type DropRunnerRequest = {
@@ -83,6 +92,19 @@ export type DropRunnerResponse = Record<string, never>;
 
 export type DropRunner = Record<string, never>;
 
+export type GetRunnerCredentialsRequest = {
+  name?: string;
+};
+
+export type GetRunnerCredentialsResponse = {
+  token?: string;
+  target?: string;
+  provider?: RunnerProvider;
+  registerCommand?: string;
+};
+
+export type GetRunnerCredentials = Record<string, never>;
+
 export class RunnersAPI {
   static ListRunners(this:void, req: ListRunnersRequest, initReq?: fm.InitReq): Promise<ListRunnersResponse> {
     return fm.fetchRequest<ListRunnersResponse>(`/api/runners/list`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
@@ -92,5 +114,8 @@ export class RunnersAPI {
   }
   static DropRunner(this:void, req: DropRunnerRequest, initReq?: fm.InitReq): Promise<DropRunnerResponse> {
     return fm.fetchRequest<DropRunnerResponse>(`/api/runners/drop`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static GetRunnerCredentials(this:void, req: GetRunnerCredentialsRequest, initReq?: fm.InitReq): Promise<GetRunnerCredentialsResponse> {
+    return fm.fetchRequest<GetRunnerCredentialsResponse>(`/api/runners/${req.name}/credentials?${fm.renderURLSearchParams(req, ["name"])}`, {...initReq, method: "GET"});
   }
 }

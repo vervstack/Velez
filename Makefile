@@ -17,11 +17,21 @@ build-ui:
 lint:
 	golangci-lint run ./...
 
-serve: build-ui
+serve:
+	@echo --- Starting Go backend + Vite dev server ---
+	$(MAKE) -j2 serve-go client
+
+serve-go:
 	go run ./cmd/service --dev
 
 client:
 	cd pkg/web/Velez-UI && vite
+
+build-n-serve: build-ui
+	@echo --- Serving via Go (embedded UI) ---
+	go run ./cmd/service --dev
+
+bns: build-n-serve
 
 # E2E suite. TestMain (tests/e2e/main_test.go) brings up a disposable
 # Docker-in-Docker daemon, points DOCKER_HOST at it for the run, and tears

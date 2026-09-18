@@ -5,6 +5,8 @@ import {
     CreateRunnerRequest,
     CreateRunnerResponse,
     DropRunnerRequest,
+    GetRunnerCredentialsRequest,
+    GetRunnerCredentialsResponse,
 } from "@/app/api/velez"
 import {ApiService} from "@/processes/ApiService.ts"
 
@@ -21,6 +23,13 @@ class RunnersService extends ApiService {
         return this.mutate((initReq) => {
             const payload: DropRunnerRequest = {name}
             return RunnersAPI.DropRunner(payload, initReq).then()
+        })
+    }
+
+    async getRunnerCredentials(name: string): Promise<GetRunnerCredentialsResponse> {
+        return this.execute((initReq) => {
+            const payload: GetRunnerCredentialsRequest = {name}
+            return RunnersAPI.GetRunnerCredentials(payload, initReq)
         })
     }
 }

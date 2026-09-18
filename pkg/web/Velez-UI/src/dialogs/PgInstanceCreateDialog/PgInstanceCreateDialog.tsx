@@ -1,4 +1,5 @@
 import {useState} from "react"
+import {Dropdown, DropdownOption, parseGrpcError} from "@vervstack/chures"
 
 import cls from "@/dialogs/PgInstanceCreateDialog/PgInstanceCreateDialog.module.css"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
@@ -10,7 +11,6 @@ import Button from "@/components/base/Button.tsx"
 import Input from "@/components/base/Input.tsx"
 import Choice from "@/components/base/Choice.tsx"
 import Checkbox from "@/components/base/Checkbox.tsx"
-import LabeledSelect from "@/dialogs/PgInstanceCreateDialog/components/LabeledSelect/LabeledSelect.tsx"
 import {buildCreatePgInstanceRequest} from "@/dialogs/PgInstanceCreateDialog/processes/buildCreatePgInstanceRequest.ts"
 
 const BOX_OPTIONS = ["small", "medium", "large"] as const
@@ -53,14 +53,26 @@ export default function PgInstanceCreateDialog() {
     const servicesQuery = useListServicesQuery()
     const createPgInstance = CreatePgInstanceMutation()
 
-    const environmentOptions = (environmentsQuery.data?.environments ?? []).map((env) => ({
-        value: env.name ?? "",
-        label: env.name ?? "",
+    const environmentOptions: DropdownOption[] = (environmentsQuery.data?.environments ?? []).map((env) => ({
+        id: env.name ?? "",
+        name: env.name ?? "",
     }))
-    const serviceOptions = (servicesQuery.data?.services ?? []).map((s) => ({
-        value: s.name ?? "",
-        label: s.name ?? "",
+    const serviceOptions: DropdownOption[] = (servicesQuery.data?.services ?? []).map((s) => ({
+        id: s.name ?? "",
+        name: s.name ?? "",
     }))
+
+    function handleError(err: unknown) {
+        toaster.catchGrpc(parseGrpcError(err))
+    }
+
+    function handleEnvironmentChange(ids: string[]) {
+        setEnvironment(ids[0] ?? "")
+    }
+
+    function handleOwnerServiceChange(ids: string[]) {
+        setOwnerService(ids[0] ?? "")
+    }
 
     function renderBoxChoice(option: Box) {
         function handleClick() {
@@ -102,13 +114,15 @@ export default function PgInstanceCreateDialog() {
                         disabled={createPgInstance.isPending}
                     />
 
-                    <LabeledSelect
+                    <Dropdown
                         label="Environment"
-                        value={environment}
                         placeholder="Default"
                         options={environmentOptions}
-                        onChange={setEnvironment}
-                        disabled={createPgInstance.isPending}
+                        value={environment ? [environment] : []}
+                        onChange={handleEnvironmentChange}
+                        isLoading={environmentsQuery.isLoading}
+                        onError={handleError}
+                        portal
                     />
 
                     <span className={cls.FieldLabel}>Box</span>
@@ -127,13 +141,15 @@ export default function PgInstanceCreateDialog() {
                         <Input label="Port" inputValue={port} onChange={setPort}/>
                     )}
 
-                    <LabeledSelect
+                    <Dropdown
                         label="Owner service (optional)"
-                        value={ownerService}
                         placeholder="None"
                         options={serviceOptions}
-                        onChange={setOwnerService}
-                        disabled={createPgInstance.isPending}
+                        value={ownerService ? [ownerService] : []}
+                        onChange={handleOwnerServiceChange}
+                        isLoading={servicesQuery.isLoading}
+                        onError={handleError}
+                        portal
                     />
                 </div>
 

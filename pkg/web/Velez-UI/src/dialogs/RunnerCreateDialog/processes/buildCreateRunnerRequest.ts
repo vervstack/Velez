@@ -1,12 +1,14 @@
-import type {CreateRunnerRequest, RunnerScope} from "@/app/api/velez"
+import {RunnerProvider, type CreateRunnerRequest, type RunnerScope} from "@/app/api/velez"
 
 interface CreateRunnerFormState {
     name: string
+    provider: RunnerProvider
     scope: RunnerScope
     target: string
     labels: string
     environment: string
     accessToken: string
+    baseUrl: string
     dockerSocketAddress: string
 }
 
@@ -25,15 +27,24 @@ export function buildCreateRunnerRequest(form: CreateRunnerFormState): CreateRun
         .map(l => l.trim())
         .filter(l => l.length > 0)
 
-    return {
+    const base = {
         name: trimmedName,
         scope: form.scope,
         target: trimmedTarget,
         labels: parsedLabels,
         environment: form.environment || undefined,
         dockerSocketAddress: form.dockerSocketAddress || undefined,
-        github: {
-            accessToken: trimmedAccessToken,
-        },
+    }
+
+    if (form.provider === RunnerProvider.GITLAB) {
+        return {
+            ...base,
+            gitlab: {accessToken: trimmedAccessToken, baseUrl: form.baseUrl.trim() || undefined},
+        }
+    }
+
+    return {
+        ...base,
+        github: {accessToken: trimmedAccessToken},
     }
 }

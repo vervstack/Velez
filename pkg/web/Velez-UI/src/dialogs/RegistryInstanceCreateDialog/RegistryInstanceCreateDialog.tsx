@@ -1,4 +1,5 @@
 import {useState} from "react"
+import {Dropdown, DropdownOption, parseGrpcError} from "@vervstack/chures"
 
 import cls from "@/dialogs/RegistryInstanceCreateDialog/RegistryInstanceCreateDialog.module.css"
 import {CreateRegistryInstanceRequest, CreateRegistryInstanceResponse} from "@/app/api/velez"
@@ -15,7 +16,6 @@ import Button from "@/components/base/Button.tsx"
 import Input from "@/components/base/Input.tsx"
 import Choice from "@/components/base/Choice.tsx"
 import Checkbox from "@/components/base/Checkbox.tsx"
-import LabeledSelect from "@/dialogs/RegistryInstanceCreateDialog/components/LabeledSelect/LabeledSelect.tsx"
 import {
     buildCreateRegistryInstanceRequest,
 } from "@/dialogs/RegistryInstanceCreateDialog/processes/buildCreateRegistryInstanceRequest.ts"
@@ -42,14 +42,26 @@ export default function RegistryInstanceCreateDialog() {
     const servicesQuery = useListServicesQuery()
     const createRegistryInstance = CreateRegistryInstanceMutation()
 
-    const environmentOptions = (environmentsQuery.data?.environments ?? []).map((env) => ({
-        value: env.name ?? "",
-        label: env.name ?? "",
+    const environmentOptions: DropdownOption[] = (environmentsQuery.data?.environments ?? []).map((env) => ({
+        id: env.name ?? "",
+        name: env.name ?? "",
     }))
-    const serviceOptions = (servicesQuery.data?.services ?? []).map((s) => ({
-        value: s.name ?? "",
-        label: s.name ?? "",
+    const serviceOptions: DropdownOption[] = (servicesQuery.data?.services ?? []).map((s) => ({
+        id: s.name ?? "",
+        name: s.name ?? "",
     }))
+
+    function handleError(err: unknown) {
+        toaster.catchGrpc(parseGrpcError(err))
+    }
+
+    function handleEnvironmentChange(ids: string[]) {
+        setEnvironment(ids[0] ?? "")
+    }
+
+    function handleOwnerServiceChange(ids: string[]) {
+        setOwnerService(ids[0] ?? "")
+    }
 
     function renderBoxChoice(option: Box) {
         function handleClick() {
@@ -116,13 +128,15 @@ export default function RegistryInstanceCreateDialog() {
                         disabled={createRegistryInstance.isPending}
                     />
 
-                    <LabeledSelect
+                    <Dropdown
                         label="Environment"
-                        value={environment}
                         placeholder="Default"
                         options={environmentOptions}
-                        onChange={setEnvironment}
-                        disabled={createRegistryInstance.isPending}
+                        value={environment ? [environment] : []}
+                        onChange={handleEnvironmentChange}
+                        isLoading={environmentsQuery.isLoading}
+                        onError={handleError}
+                        portal
                     />
 
                     <span className={cls.FieldLabel}>Box</span>
@@ -138,13 +152,15 @@ export default function RegistryInstanceCreateDialog() {
 
                     <Checkbox label="Enable UI" checked={enableUi} onChange={handleToggleEnableUi}/>
 
-                    <LabeledSelect
+                    <Dropdown
                         label="Owner service (optional)"
-                        value={ownerService}
                         placeholder="None"
                         options={serviceOptions}
-                        onChange={setOwnerService}
-                        disabled={createRegistryInstance.isPending}
+                        value={ownerService ? [ownerService] : []}
+                        onChange={handleOwnerServiceChange}
+                        isLoading={servicesQuery.isLoading}
+                        onError={handleError}
+                        portal
                     />
                 </div>
 

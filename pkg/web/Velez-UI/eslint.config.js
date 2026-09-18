@@ -142,6 +142,10 @@ export default tseslint.config([
                     message: 'Never use a raw <input> — use Input/TextInput/Search/Checkbox/Choice from components/base.',
                 },
                 {
+                    selector: 'JSXOpeningElement[name.name="select"]',
+                    message: 'Never use a raw <select> — use Dropdown from @vervstack/chures.',
+                },
+                {
                     selector: 'CallExpression[callee.object.name="window"][callee.property.name=/^(alert|confirm)$/]',
                     message: 'Never use window.alert/window.confirm — use useToaster() (see pkg/web/Velez-UI/CLAUDE.md).',
                 },

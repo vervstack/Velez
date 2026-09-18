@@ -1,62 +1,111 @@
 import {useState} from "react"
+import {Dropdown, DropdownOption} from "@vervstack/chures"
+import cn from "classnames"
 
 import cls from "@/dialogs/RunnerCreateDialog/RunnerCreateDialog.module.css"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
-import {RunnerScope} from "@/app/api/velez"
-import {CreateRunnerMutation} from "@/processes/queries/runners.ts"
+import {CreateRunnerRequest, CreateRunnerResponse, RunnerProvider, RunnerScope} from "@/app/api/velez"
+import {queryClient} from "@/app/queryClient.ts"
+import {CreateRunnerMutation, RUNNERS_QUERY_KEY} from "@/processes/queries/runners.ts"
 import Button from "@/components/base/Button.tsx"
 import Input from "@/components/base/Input.tsx"
-import LabeledSelect from "@/dialogs/RunnerCreateDialog/components/LabeledSelect/LabeledSelect.tsx"
+import TaskProgressScreen from "@/widgets/TaskProgressScreen/TaskProgressScreen.tsx"
 import {buildCreateRunnerRequest} from "@/dialogs/RunnerCreateDialog/processes/buildCreateRunnerRequest.ts"
 
-const SCOPE_OPTIONS: Array<{value: RunnerScope, label: string}> = [
-    {value: RunnerScope.REPO, label: "Repository"},
-    {value: RunnerScope.ORG, label: "Organization"},
+const PROVIDER_OPTIONS: DropdownOption[] = [
+    {id: RunnerProvider.GITHUB, name: "GitHub"},
+    {id: RunnerProvider.GITLAB, name: "GitLab"},
+]
+
+const SCOPE_OPTIONS: DropdownOption[] = [
+    {id: RunnerScope.REPO, name: "Repository"},
+    {id: RunnerScope.ORG, name: "Organization"},
 ]
 
 export default function RunnerCreateDialog() {
     const [name, setName] = useState("")
+    const [provider, setProvider] = useState<RunnerProvider>(RunnerProvider.GITHUB)
     const [scope, setScope] = useState<RunnerScope>(RunnerScope.REPO)
     const [target, setTarget] = useState("")
     const [labels, setLabels] = useState("")
     const [environment, setEnvironment] = useState("")
     const [accessToken, setAccessToken] = useState("")
+    const [baseUrl, setBaseUrl] = useState("")
     const [dockerSocketAddress, setDockerSocketAddress] = useState("")
     const [showAdvanced, setShowAdvanced] = useState(false)
+    const [targetTouched, setTargetTouched] = useState(false)
+    const [submittedReq, setSubmittedReq] = useState<CreateRunnerRequest | null>(null)
 
     const toaster = useToaster()
     const {CloseDialog} = useDialog()
 
     const createRunner = CreateRunnerMutation()
 
-    const scopeOptions = SCOPE_OPTIONS.map(opt => ({
-        value: opt.value,
-        label: opt.label,
-    }))
+    const isGitlab = provider === RunnerProvider.GITLAB
+
+    function handleProviderChange(ids: string[]) {
+        setProvider((ids[0] as RunnerProvider) ?? RunnerProvider.GITHUB)
+    }
+
+    function handleScopeChange(ids: string[]) {
+        setScope((ids[0] as RunnerScope) ?? RunnerScope.REPO)
+    }
+
+    function handleTargetChange(v: string) {
+        setTargetTouched(true)
+        setTarget(v)
+    }
+
+    function handleToggleAdvanced() {
+        setShowAdvanced(!showAdvanced)
+    }
 
     function handleCreate() {
         const req = buildCreateRunnerRequest({
             name,
+            provider,
             scope,
             target,
             labels,
             environment,
             accessToken,
+            baseUrl,
             dockerSocketAddress,
         })
         if (!req) return
 
-        createRunner.mutate(req, {
-            onSuccess: () => {
-                toaster.bake({title: "Runner created", description: name.trim(), level: "Info"})
-                CloseDialog()
-            },
-            onError: toaster.catchGrpc,
-        })
+        setSubmittedReq(req)
+    }
+
+    function handleStart(): Promise<CreateRunnerResponse> {
+        if (!submittedReq) {
+            return Promise.reject(new Error("no pending create request"))
+        }
+        return createRunner.mutateAsync(submittedReq)
+    }
+
+    function handleSuccess() {
+        queryClient.invalidateQueries({queryKey: RUNNERS_QUERY_KEY})
+        toaster.bake({title: "Runner created", description: name.trim(), level: "Info"})
     }
 
     const isFormValid = name.trim() && scope && target.trim() && accessToken.trim()
+    const showTargetError = targetTouched && !target.trim()
+
+    if (submittedReq) {
+        return (
+            <div className={cls.RunnerCreateDialogContainer}>
+                <TaskProgressScreen
+                    title="Creating runner"
+                    metaLine={name.trim()}
+                    start={handleStart}
+                    onSuccess={handleSuccess}
+                    onClose={CloseDialog}
+                />
+            </div>
+        )
+    }
 
     return (
         <div className={cls.RunnerCreateDialogContainer}>
@@ -66,6 +115,8 @@ export default function RunnerCreateDialog() {
 
             <div className={cls.Content}>
                 <div className={cls.FieldsWrapper}>
+                    <span className={cls.FieldLabel}>Required</span>
+
                     <Input
                         label="Name"
                         inputValue={name}
@@ -73,58 +124,86 @@ export default function RunnerCreateDialog() {
                         disabled={createRunner.isPending}
                     />
 
-                    <LabeledSelect
+                    <Dropdown
+                        label="Provider"
+                        placeholder="Select provider"
+                        options={PROVIDER_OPTIONS}
+                        value={[provider]}
+                        onChange={handleProviderChange}
+                        portal
+                    />
+
+                    <Dropdown
                         label="Scope"
-                        value={scope}
                         placeholder="Select scope"
-                        options={scopeOptions}
-                        onChange={(val) => setScope(val as RunnerScope)}
-                        disabled={createRunner.isPending}
+                        options={SCOPE_OPTIONS}
+                        value={[scope]}
+                        onChange={handleScopeChange}
+                        portal
                     />
 
-                    <Input
-                        label="Target"
-                        inputValue={target}
-                        onChange={setTarget}
-                        disabled={createRunner.isPending}
-                    />
+                    <div className={cls.TargetFieldWrapper}>
+                        <Input
+                            label="Target"
+                            inputValue={target}
+                            onChange={handleTargetChange}
+                            disabled={createRunner.isPending}
+                        />
+                        {showTargetError && (
+                            <span className={cls.FieldError}>Target is required</span>
+                        )}
+                    </div>
 
                     <Input
-                        label="Labels (comma-separated)"
-                        inputValue={labels}
-                        onChange={setLabels}
-                        disabled={createRunner.isPending}
-                    />
-
-                    <Input
-                        label="Environment (optional)"
-                        inputValue={environment}
-                        onChange={setEnvironment}
-                        disabled={createRunner.isPending}
-                    />
-
-                    <Input
-                        label="GitHub Access Token"
+                        label={isGitlab ? "GitLab Runner Token" : "GitHub Access Token"}
                         inputValue={accessToken}
                         onChange={setAccessToken}
                         disabled={createRunner.isPending}
                     />
 
+                    {isGitlab && (
+                        <Input
+                            label="GitLab Base URL (optional, defaults to gitlab.com)"
+                            inputValue={baseUrl}
+                            onChange={setBaseUrl}
+                            disabled={createRunner.isPending}
+                        />
+                    )}
+
                     <div
                         className={cls.AdvancedToggle}
-                        onClick={() => setShowAdvanced(!showAdvanced)}
+                        onClick={handleToggleAdvanced}
                     >
-                        {showAdvanced ? "▼" : "▶"} Advanced
+                        {showAdvanced ? "▼" : "▶"} Optional
                     </div>
 
-                    {showAdvanced && (
+                    <div className={cn(cls.AdvancedSection, showAdvanced && cls.AdvancedSectionOpen)}>
                         <Input
                             label="Docker Socket Address (optional)"
                             inputValue={dockerSocketAddress}
                             onChange={setDockerSocketAddress}
                             disabled={createRunner.isPending}
                         />
-                    )}
+
+                        <div className={cls.RiskNotice}>
+                            Empty uses the default host Docker socket — full root access to the host.
+                            Only override this if you understand the risk.
+                        </div>
+
+                        <Input
+                            label="Labels (comma-separated)"
+                            inputValue={labels}
+                            onChange={setLabels}
+                            disabled={createRunner.isPending}
+                        />
+
+                        <Input
+                            label="Environment (optional)"
+                            inputValue={environment}
+                            onChange={setEnvironment}
+                            disabled={createRunner.isPending}
+                        />
+                    </div>
                 </div>
 
                 <div className={cls.ActionsRow}>

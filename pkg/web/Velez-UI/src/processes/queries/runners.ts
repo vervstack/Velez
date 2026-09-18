@@ -3,7 +3,7 @@ import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query"
 import {runnersService} from "@/processes/api/runners"
 import {CreateRunnerRequest} from "@/app/api/velez"
 
-const RUNNERS_QUERY_KEY = ["runners"]
+export const RUNNERS_QUERY_KEY = ["runners"]
 const LIST_REQ = {paging: {limit: "50", offset: "0"}}
 
 export function useListRunnersQuery() {
@@ -32,5 +32,16 @@ export function DropRunnerMutation() {
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey: RUNNERS_QUERY_KEY})
         },
+    })
+}
+
+// GetRunnerCredentialsQuery is disabled by default — it must only run when
+// the caller explicitly triggers refetch() (the "Reveal" / "Copy" actions),
+// never on mount alongside the runner list.
+export function GetRunnerCredentialsQuery(name: string) {
+    return useQuery({
+        queryKey: ["runner-credentials", name],
+        queryFn: () => runnersService.getRunnerCredentials(name),
+        enabled: false,
     })
 }

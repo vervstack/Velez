@@ -87,7 +87,7 @@ func New(
 		postgresService: pgaas.New(clusterClients.StateManager(), vervServices, secretsStore),
 		// runneraas.New takes clusterClients.StateManager(), for the same
 		// reason pgaas.New does just above - see that comment.
-		runnersService: runneraas.New(clusterClients.StateManager(), vervServices, secretsStore),
+		runnersService: runneraas.New(clusterClients.StateManager(), vervServices, secretsStore, jobsEngine),
 		// registryaas.New takes clusterClients.StateManager(), for the same
 		// reason pgaas.New does just above - see that comment.
 		containerRegistryService: registryaas.New(clusterClients.StateManager(), vervServices, secretsStore, jobsEngine),

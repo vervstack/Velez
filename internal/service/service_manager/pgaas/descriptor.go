@@ -54,8 +54,10 @@ func buildDeployRequest(
 		descriptor.Deployment.App.Box = req.Box
 	}
 
+	instanceName := labels.PgaasNamePrefix + req.Name
+
 	if len(descriptor.Deployment.App.Volumes) > 0 {
-		descriptor.Deployment.App.Volumes[0].Name = pgVolumeName(req.Name)
+		descriptor.Deployment.App.Volumes[0].Name = pgVolumeName(instanceName)
 	}
 
 	if req.ExposeToPort != 0 && len(descriptor.Deployment.App.Ports) > 0 {
@@ -69,7 +71,7 @@ func buildDeployRequest(
 		return verv.Descriptor{}, nil, rerrors.Wrap(err, "error resolving pg instance deploy request")
 	}
 
-	request.Name = req.Name
+	request.Name = instanceName
 	request.Env = map[string]string{
 		"POSTGRES_DB":       creds.dbName,
 		"POSTGRES_USER":     creds.username,
@@ -85,7 +87,7 @@ func buildDeployRequest(
 	// the single-node local_storage backend recover the instance's facts from
 	// the running container - see internal/storage/local_storage/pg_instances.go.
 	// Both are inert in cluster mode, where velez.pg_instances is authoritative.
-	request.Labels[labels.VervServiceLabel] = req.Name
+	request.Labels[labels.VervServiceLabel] = instanceName
 	request.Labels[labels.PgaasInstanceLabel] = "true"
 
 	return descriptor, request, nil

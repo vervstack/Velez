@@ -222,7 +222,7 @@ func (h *createRegistryInstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJo
 		panic("create_registry_instance: BuildJobs called with mismatched TaskContext type")
 	}
 
-	instanceName := payload.GetRequest().GetName()
+	instanceName := labels.RegistryaasNamePrefix + payload.GetRequest().GetName()
 
 	folders := mountedFolders(registryaasAuthVolumeName(instanceName), []string{registryaasHtpasswdPath})
 
@@ -288,6 +288,7 @@ func (h *createRegistryInstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJo
 				vervServices: h.vervServices,
 				req:          payload,
 				ctx:          payload,
+				instanceName: instanceName,
 			},
 		},
 		{
@@ -306,6 +307,7 @@ func (h *createRegistryInstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJo
 			vervServices: h.vervServices,
 			req:          payload,
 			ctx:          payload,
+			instanceName: instanceName,
 		}
 
 		namedJobs = append(namedJobs, NamedJob{Name: stepDeployRegistryUi, Job: uiJob})
@@ -605,13 +607,16 @@ type deployRegistryInstanceJob struct {
 		registryExposedPortAccessor
 		registryUiExposedPortAccessor
 	}
+	instanceName string
 }
 
 func (j *deployRegistryInstanceJob) Do(ctx context.Context) error {
 	request := j.req.GetRequest()
-	instanceName := request.GetName()
+	instanceName := j.instanceName
 
-	descriptor, smerdRequest, err := buildRegistryDeployRequest(ctx, j.boxes, request, j.ctx.GetExposedPort())
+	descriptor, smerdRequest, err := buildRegistryDeployRequest(
+		ctx, j.boxes, request, j.ctx.GetExposedPort(), instanceName,
+	)
 	if err != nil {
 		return rerrors.Wrap(err, "error building registry instance deploy request")
 	}
@@ -705,6 +710,7 @@ func buildRegistryDeployRequest(
 	boxes vervonomicon.BoxLookup,
 	request *velez_api.CreateRegistryInstance_Request,
 	exposedPort uint32,
+	instanceName string,
 ) (verv.Descriptor, *velez_api.CreateSmerd_Request, error) {
 	files, err := builtin.Read(registryaasDescriptorName)
 	if err != nil {
@@ -721,8 +727,6 @@ func buildRegistryDeployRequest(
 	if request.GetBox() != "" {
 		descriptor.Deployment.App.Box = request.GetBox()
 	}
-
-	instanceName := request.GetName()
 
 	for i := range descriptor.Deployment.App.Volumes {
 		switch descriptor.Deployment.App.Volumes[i].Name {
@@ -771,13 +775,14 @@ type deployRegistryUiJob struct {
 	boxes        vervonomicon.BoxLookup
 	vervServices service.VervServicesService
 
-	req createRegistryInstanceRequestAccessor
-	ctx registryUiExposedPortAccessor
+	req          createRegistryInstanceRequestAccessor
+	ctx          registryUiExposedPortAccessor
+	instanceName string
 }
 
 func (j *deployRegistryUiJob) Do(ctx context.Context) error {
 	request := j.req.GetRequest()
-	instanceName := request.GetName()
+	instanceName := j.instanceName
 	uiServiceName := registryaasUiServiceName(instanceName)
 
 	files, err := builtin.Read(registryaasUiDescriptorName)

@@ -28,7 +28,7 @@ const (
 	// for its create_smerd/upgrade_smerd task to reach a terminal status. Same
 	// safety-net role as velez_api_impl's upgradeSmerdWatchTimeout, and sized
 	// to it: upgrade_smerd is the slower of the two actions this worker runs.
-	taskWatchTimeout = 120 * time.Second
+	taskWatchTimeout = 600 * time.Second
 )
 
 // taskRunner is the slice of jobs.Engine this worker needs: enqueue a task

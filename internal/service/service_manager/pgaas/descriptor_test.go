@@ -60,7 +60,7 @@ func TestBuildDeployRequest_ResolvesShapeAndOverlaysCredentialsOnlyOntoRequest(t
 	require.NoError(t, err)
 
 	require.Equal(t, "postgres:18", request.GetImageName())
-	require.Equal(t, "my-pg", request.GetName())
+	require.Equal(t, "pgaas_my-pg", request.GetName())
 	require.Equal(t, "prod", request.GetEnvironment())
 
 	settings := request.GetSettings()
@@ -71,7 +71,7 @@ func TestBuildDeployRequest_ResolvesShapeAndOverlaysCredentialsOnlyOntoRequest(t
 	require.EqualValues(t, 15432, settings.GetPorts()[0].GetExposedTo())
 
 	require.Len(t, settings.GetVolumes(), 1)
-	require.Equal(t, "my-pg-data", settings.GetVolumes()[0].GetVolumeName())
+	require.Equal(t, "pgaas_my-pg-data", settings.GetVolumes()[0].GetVolumeName())
 	require.Equal(t, "/var/lib/postgresql", settings.GetVolumes()[0].GetContainerPath())
 
 	require.Equal(t, map[string]string{

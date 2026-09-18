@@ -51,6 +51,10 @@ const (
 	RunnerScopeLabel    = "velez.runner.scope"
 	RunnerTargetLabel   = "velez.runner.target"
 	RunnerLabelsLabel   = "velez.runner.labels"
+	// RunnerBaseUrlLabel carries a runner's git provider base URL (e.g. a
+	// self-managed GitLab instance's URL). Empty for a provider with a
+	// single fixed API host (GitHub).
+	RunnerBaseUrlLabel = "velez.runner.base_url"
 
 	// RegistryaasInstanceLabel marks a container as a
 	// Container-Registry-as-a-Service instance provisioned by
@@ -66,6 +70,20 @@ const (
 	RegistryaasUsernameLabel = "velez.registryaas.username"
 	RegistryaasPortLabel     = "velez.registryaas.port"
 	RegistryaasUiPortLabel   = "velez.registryaas.ui_port"
+
+	// PgaasNamePrefix, RegistryaasNamePrefix, GitlabRunnerNamePrefix and
+	// GithubRunnerNamePrefix are prepended to the instance name at the point
+	// each service type first derives it from the request - see
+	// pgaas.buildPgDescriptor, create_registry_instance.go's BuildJobs and
+	// create_runner.go's BuildJobs. Applying the prefix there, rather than at
+	// the shared create_smerd container-create chokepoint, keeps the
+	// container name the same string used everywhere else to look the
+	// instance back up (volume name, hostname, VervServiceLabel, DB/list join
+	// key).
+	PgaasNamePrefix        = "pgaas_"
+	RegistryaasNamePrefix  = "cr_"
+	GitlabRunnerNamePrefix = "gitlab_runner_"
+	GithubRunnerNamePrefix = "github_runner_"
 
 	// TagLabelPrefix - per docs/features/vervonomicon.md's "Mapping onto
 	// CreateSmerd.Request" table, each vervonomicon service.tags entry

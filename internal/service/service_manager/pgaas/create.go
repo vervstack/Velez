@@ -8,6 +8,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
@@ -38,25 +39,27 @@ func (s *PgaasService) CreatePgInstance(
 		return domain.PgInstanceView{}, rerrors.Wrap(err, "error storing pg instance password")
 	}
 
+	instanceName := labels.PgaasNamePrefix + req.Name
+
 	descriptor, smerdRequest, err := buildDeployRequest(ctx, s.boxes(), req, creds)
 	if err != nil {
 		return domain.PgInstanceView{}, rerrors.Wrap(err, "error building pg instance deploy request")
 	}
 
 	deployReq := domain.CreateDeployReq{
-		ServiceName:    req.Name,
+		ServiceName:    instanceName,
 		VervDescriptor: &descriptor,
 		LaunchSmerd:    domain.LaunchSmerd{CreateSmerd_Request: smerdRequest},
 	}
 
-	// CreateNewDeploy upserts req.Name before looking it up, so no separate
-	// UpsertService call is needed here (see verv_services/deploy.go).
+	// CreateNewDeploy upserts instanceName before looking it up, so no
+	// separate UpsertService call is needed here (see verv_services/deploy.go).
 	err = s.vervServices.CreateNewDeploy(ctx, deployReq)
 	if err != nil {
 		return domain.PgInstanceView{}, rerrors.Wrap(err, "error creating pg instance deploy")
 	}
 
-	svc, err := s.dataStorage.Services().GetByName(ctx, req.Name)
+	svc, err := s.dataStorage.Services().GetByName(ctx, instanceName)
 	if err != nil {
 		return domain.PgInstanceView{}, rerrors.Wrap(err, "error getting pg instance service")
 	}
@@ -75,14 +78,14 @@ func (s *PgaasService) CreatePgInstance(
 	}
 
 	if req.OwnerService != "" {
-		err = s.dataStorage.ServiceResources().UpsertResource(ctx, req.OwnerService, req.Name, pgResourceType)
+		err = s.dataStorage.ServiceResources().UpsertResource(ctx, req.OwnerService, instanceName, pgResourceType)
 		if err != nil {
 			return domain.PgInstanceView{}, rerrors.Wrap(err, "error binding pg instance to owner service")
 		}
 	}
 
 	view := domain.PgInstanceView{
-		Name:         req.Name,
+		Name:         instanceName,
 		DbName:       instance.DbName,
 		Username:     instance.Username,
 		Port:         instance.Port,

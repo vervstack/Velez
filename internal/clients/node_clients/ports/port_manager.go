@@ -154,15 +154,10 @@ func (p *portManagerImpl) LockPortForEnvironment(environment string, ports ...ui
 		}
 
 		if isLocked {
-			owner, owned := p.portOwners[port]
-			if owned && owner != environment {
-				err = errors.Wrapf(ErrPortAlreadyLocked,
-					"port %d is held by environment '%s'", port, owner)
+			owner := p.portOwners[port]
 
-				return err
-			}
-
-			err = errors.Wrap(ErrPortAlreadyLocked)
+			err = errors.Wrapf(ErrPortAlreadyLocked,
+				"port %d is held by environment '%s'", port, owner)
 
 			return err
 		}

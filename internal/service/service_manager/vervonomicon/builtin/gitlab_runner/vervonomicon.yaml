@@ -1,0 +1,8 @@
+version: "1"
+
+service:
+  name: gitlab_runner
+  description: Builtin GitLab self-hosted runner, provisioned by the runneraas gitlab provider.
+  tags: [ci, builtin]
+
+box: small

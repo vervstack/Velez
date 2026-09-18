@@ -55,8 +55,11 @@ func (p *Provider) DataPath() string {
 // MintRegistrationToken calls GitHub's REST API for a short-lived runner
 // registration token, per
 // https://docs.github.com/en/rest/actions/self-hosted-runners.
+// MintRegistrationToken ignores baseUrl - GitHub has a single fixed API
+// host (githubApiBaseUrl); the parameter only exists to satisfy
+// runneraas.Provider for providers like GitLab that don't.
 func (p *Provider) MintRegistrationToken(
-	ctx context.Context, scope velez_api.RunnerScope, target, accessToken string,
+	ctx context.Context, scope velez_api.RunnerScope, target, _, accessToken string,
 ) (string, error) {
 	endpoint, err := registrationTokenEndpoint(scope, target)
 	if err != nil {
@@ -100,9 +103,10 @@ func (p *Provider) MintRegistrationToken(
 // RegistrationEnv sets the actions-runner image's registration env vars -
 // builtin/github_runner/deployment.yaml deliberately carries them all empty
 // (no descriptor file ever contains a credential), so the caller overlays
-// them at deploy time instead.
+// them at deploy time instead. baseUrl is ignored for the same reason as
+// MintRegistrationToken.
 func (p *Provider) RegistrationEnv(
-	scope velez_api.RunnerScope, target, runnerName, registrationToken string, labels []string,
+	scope velez_api.RunnerScope, target, _, runnerName, registrationToken string, labels []string,
 ) map[string]string {
 	env := make(map[string]string, 5) //nolint:mnd
 
@@ -120,6 +124,12 @@ func (p *Provider) RegistrationEnv(
 	env[envRunnerLabels] = strings.Join(labels, ",")
 
 	return env
+}
+
+// RegisterCommand always returns "" - actions-runner self-registers from
+// RegistrationEnv's env vars at container boot, there is no manual step.
+func (p *Provider) RegisterCommand(_, _ string) string {
+	return ""
 }
 
 // registrationTokenEndpoint builds the GitHub REST endpoint that mints a

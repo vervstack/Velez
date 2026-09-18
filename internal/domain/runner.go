@@ -23,8 +23,41 @@ type Runner struct {
 	// SecretRef.String). Never the value itself - resolved only through
 	// internal/service/secrets.Store.
 	SecretRef string
+	// BaseUrl - the git provider instance's base URL (e.g. a self-managed
+	// GitLab's URL). Empty for a provider with a single fixed API host
+	// (GitHub).
+	BaseUrl   string
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
+
+const (
+	runnerSecretScope = "runneraas"
+	runnerSecretKey   = "access_token"
+	// runnerTokenSecretKey stores the short-lived registration token minted
+	// at CreateRunner time - GetRunnerCredentials resolves it back out for a
+	// provider whose registration step isn't automated (GitLab in v1). A
+	// self-registering provider (GitHub) never reads it back; it's stored
+	// for every provider regardless, so GetRunnerCredentials stays
+	// provider-agnostic rather than branching on whether it exists.
+	runnerTokenSecretKey = "registration_token"
+)
+
+// RunnerAccessTokenSecretRef is the secret ref a runner's caller-supplied
+// access token is stored under. Shared between runneraas (CreateRunner's
+// caller-facing validation) and internal/jobs/create_runner.go (which does
+// the actual Put) - both import domain, avoiding an import cycle between
+// them. Mirrors DockerSocketGrantSecretRef's role as the one place a
+// well-known secret ref is derived.
+func RunnerAccessTokenSecretRef(name string) SecretRef {
+	return SecretRef{Scope: runnerSecretScope, Owner: name, Key: runnerSecretKey}
+}
+
+// RunnerRegistrationTokenSecretRef is the secret ref a runner's minted/
+// pass-through registration token is stored under. See
+// RunnerAccessTokenSecretRef's doc comment.
+func RunnerRegistrationTokenSecretRef(name string) SecretRef {
+	return SecretRef{Scope: runnerSecretScope, Owner: name, Key: runnerTokenSecretKey}
 }
 
 // UpsertRunnerReq creates or replaces the velez.runners row for a service.
@@ -35,6 +68,7 @@ type UpsertRunnerReq struct {
 	Target    string
 	Labels    []string
 	SecretRef string
+	BaseUrl   string
 }
 
 // CreateRunnerReq is the input to RunnersService.CreateRunner. See
@@ -49,9 +83,13 @@ type CreateRunnerReq struct {
 	Labels   []string
 
 	// AccessToken - a token with permission to create a runner registration
-	// token for Target (a GitHub PAT today; a GitLab token later). Never
-	// stored as given; see internal/service/secrets.
+	// token for Target (a GitHub PAT or a GitLab PAT, depending on Provider).
+	// Never stored as given; see internal/service/secrets.
 	AccessToken string
+
+	// BaseUrl - the git provider instance's base URL. Only meaningful for a
+	// provider with more than one possible host (GitLab); empty for GitHub.
+	BaseUrl string
 
 	// Environment - the isolated namespace this runner deploys into. Empty
 	// means the default/PROD environment (see storage/environments.Resolve).
@@ -74,6 +112,7 @@ type RunnerView struct {
 	Scope       velez_api.RunnerScope
 	Target      string
 	Labels      []string
+	BaseUrl     string
 	Environment string
 	Status      string
 	CreatedAt   time.Time
@@ -89,4 +128,16 @@ type ListRunnersReq struct {
 type RunnerList struct {
 	Total   uint64
 	Runners []RunnerView
+}
+
+// RunnerCredentials is the result of RunnersService.GetRunnerCredentials -
+// the only RunnersService operation that resolves a secret_ref to its
+// plaintext value. RegisterCommand is only populated for a provider with no
+// automated registration step (GitLab in v1); empty for a self-registering
+// provider like GitHub.
+type RunnerCredentials struct {
+	Token           string
+	Target          string
+	Provider        velez_api.RunnerProvider
+	RegisterCommand string
 }

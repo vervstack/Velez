@@ -53,6 +53,7 @@ func (s *RunneraasService) ListRunners(ctx context.Context, req domain.ListRunne
 			Scope:       velez_api.RunnerScope(velez_api.RunnerScope_value[row.Scope]),
 			Target:      row.Target,
 			Labels:      row.Labels,
+			BaseUrl:     row.BaseUrl,
 			Environment: base.Env,
 			Status:      base.Status,
 			CreatedAt:   row.CreatedAt,

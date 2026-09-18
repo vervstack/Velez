@@ -121,7 +121,7 @@ func Test_RegistrationEnv_Scenarios(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			env := provider.RegistrationEnv(tc.scope, tc.target, "runner-1", "token-1", []string{"self-hosted"})
+			env := provider.RegistrationEnv(tc.scope, tc.target, "", "runner-1", "token-1", []string{"self-hosted"})
 
 			for key, want := range tc.want {
 				require.Equal(t, want, env[key])

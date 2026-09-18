@@ -7,6 +7,7 @@ import (
 
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
@@ -27,17 +28,22 @@ func (impl *Impl) CreateRunner(
 	case *pb.CreateRunner_Request_Github:
 		serviceReq.Provider = pb.RunnerProvider_GITHUB
 		serviceReq.AccessToken = cfg.Github.GetAccessToken()
+	case *pb.CreateRunner_Request_Gitlab:
+		serviceReq.Provider = pb.RunnerProvider_GITLAB
+		serviceReq.AccessToken = cfg.Gitlab.GetAccessToken()
+		serviceReq.BaseUrl = cfg.Gitlab.GetBaseUrl()
 	default:
 		return nil, rerrors.Wrap(user_errors.ErrRunnerProviderUnsupported)
 	}
 
-	view, err := impl.runnersService.CreateRunner(ctx, serviceReq)
+	err := impl.runnersService.CreateRunner(ctx, serviceReq)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error creating runner")
 	}
 
 	resp := &pb.CreateRunner_Response{
-		Runner: runnerToPb(view),
+		EntityId: req.GetName(),
+		Action:   jobs.CreateRunnerAction,
 	}
 
 	return resp, nil

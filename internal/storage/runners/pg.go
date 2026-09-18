@@ -36,6 +36,7 @@ func (p *pgStorage) UpsertRunner(ctx context.Context, req domain.UpsertRunnerReq
 		Target:    req.Target,
 		Labels:    req.Labels,
 		SecretRef: req.SecretRef,
+		BaseUrl:   req.BaseUrl,
 	}
 
 	row, err := p.querier.UpsertRunner(ctx, params)
@@ -86,6 +87,7 @@ func runnerFromRow(row runners_queries.VelezRunner) domain.Runner {
 		Target:    row.Target,
 		Labels:    row.Labels,
 		SecretRef: row.SecretRef,
+		BaseUrl:   row.BaseUrl,
 		CreatedAt: row.CreatedAt,
 		UpdatedAt: row.UpdatedAt,
 	}

@@ -73,6 +73,7 @@ func (d *dockerRunners) UpsertRunner(_ context.Context, req domain.UpsertRunnerR
 		Target:    req.Target,
 		Labels:    req.Labels,
 		SecretRef: req.SecretRef,
+		BaseUrl:   req.BaseUrl,
 		CreatedAt: createdAt,
 		UpdatedAt: now,
 	}
@@ -186,6 +187,7 @@ func (d *dockerRunners) listFromContainers(ctx context.Context) ([]domain.Runner
 			Target:    c.Labels[labels.RunnerTargetLabel],
 			Labels:    splitRunnerLabels(c.Labels[labels.RunnerLabelsLabel]),
 			SecretRef: secretRef.String(),
+			BaseUrl:   c.Labels[labels.RunnerBaseUrlLabel],
 			CreatedAt: created,
 			UpdatedAt: created,
 		}

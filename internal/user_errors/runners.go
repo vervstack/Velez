@@ -43,4 +43,11 @@ var (
 	// tcp:// address.
 	ErrRunnerDockerSocketAddressInvalid = rerrors.New(
 		"runner docker socket address must be a tcp:// address", codes.InvalidArgument)
+
+	// ErrGitlabAccessTokenEmpty is returned by the runneraas package's
+	// gitlab provider when a request carries an empty access token. v1
+	// trusts the caller's access token as an already-valid registration
+	// token (see the gitlab package doc comment), so this is the only
+	// validation MintRegistrationToken performs.
+	ErrGitlabAccessTokenEmpty = rerrors.New("gitlab access token is empty", codes.InvalidArgument)
 )

@@ -33,7 +33,7 @@ func Test_ValidateRunnerTarget_Scenarios(t *testing.T) {
 		{"repo missing slash", velez_api.RunnerScope_REPO, testRunnerOrgTarget, user_errors.ErrRunnerTargetInvalidRepoFormat},
 		{"repo empty owner", velez_api.RunnerScope_REPO, "/repo", user_errors.ErrRunnerTargetInvalidRepoFormat},
 		{"repo empty name", velez_api.RunnerScope_REPO, "owner/", user_errors.ErrRunnerTargetInvalidRepoFormat},
-		{"repo extra slash", velez_api.RunnerScope_REPO, "owner/repo/extra", user_errors.ErrRunnerTargetInvalidRepoFormat},
+		{"repo nested path valid (gitlab group/subgroup/project)", velez_api.RunnerScope_REPO, "owner/repo/extra", nil},
 		{"org contains slash", velez_api.RunnerScope_ORG, testRunnerRepoTarget, user_errors.ErrRunnerTargetInvalidOrgFormat},
 	}
 

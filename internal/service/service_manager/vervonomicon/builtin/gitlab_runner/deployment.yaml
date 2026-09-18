@@ -1,0 +1,25 @@
+app:
+  # image is set explicitly, unlike a normal service descriptor - this
+  # descriptor is embedded into the Velez binary itself
+  # (SourceKindBuiltin), not baked into an image, so there is nothing for
+  # Velez to inspect .verv/ out of. The official image is used unmodified -
+  # no custom entrypoint/wrapper image - per the deliberate v1 decision to
+  # start with a bare container and grow automation later.
+  image: gitlab/gitlab-runner:latest
+
+  # v1 has no automated `gitlab-runner register` step - the official image
+  # doesn't self-register from env vars alone, unlike actions-runner. No
+  # env vars are set here (runneraas.gitlab.Provider.RegistrationEnv
+  # deliberately returns none): the caller finishes registration by hand
+  # against the running container, using the command
+  # RunnersAPI.GetRunnerCredentials hands back. This is the only Runners-
+  # as-a-service builtin descriptor with no `ports:` and no `env:` for that
+  # reason - a future iteration can automate registration without changing
+  # this shape.
+  volumes:
+    - name: gitlab-runner-data
+      path: /etc/gitlab-runner
+
+  restart: unless_stopped
+
+  box: small

@@ -137,8 +137,11 @@ type PostgresService interface {
 // implementations, never as contract changes.
 type RunnersService interface {
 	ListRunners(ctx context.Context, req domain.ListRunnersReq) (domain.RunnerList, error)
-	CreateRunner(ctx context.Context, req domain.CreateRunnerReq) (domain.RunnerView, error)
+	CreateRunner(ctx context.Context, req domain.CreateRunnerReq) error
 	DropRunner(ctx context.Context, name string) error
+	// GetRunnerCredentials is the only RunnersService operation that
+	// resolves a secret_ref to its plaintext value.
+	GetRunnerCredentials(ctx context.Context, name string) (domain.RunnerCredentials, error)
 }
 
 // ContainerRegistryService provides Container-Registry-as-a-Service: a

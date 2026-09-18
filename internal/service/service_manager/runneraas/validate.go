@@ -8,9 +8,11 @@ import (
 )
 
 // validateRunnerTarget is a pure, table-tested check of the RunnerScope/
-// target combination the request carries - REPO requires "owner/repo",
-// ORG requires a bare "owner" with no slash. Provider-agnostic: every
-// provider under this contract shares the same repo/org target shape.
+// target combination the request carries - REPO requires at least one "/"
+// with a non-empty segment on both sides ("owner/repo" for GitHub, and a
+// GitLab nested "group/subgroup/project" path is equally valid), ORG
+// requires a bare name with no slash. ORG doesn't allow a nested path today
+// (a GitLab nested group as an ORG target) - out of scope for now.
 func validateRunnerTarget(scope velez_api.RunnerScope, target string) error {
 	if target == "" {
 		return user_errors.ErrRunnerTargetEmpty
@@ -19,7 +21,7 @@ func validateRunnerTarget(scope velez_api.RunnerScope, target string) error {
 	switch scope {
 	case velez_api.RunnerScope_REPO:
 		owner, repo, found := strings.Cut(target, "/")
-		if !found || owner == "" || repo == "" || strings.Contains(repo, "/") {
+		if !found || owner == "" || repo == "" {
 			return user_errors.ErrRunnerTargetInvalidRepoFormat
 		}
 

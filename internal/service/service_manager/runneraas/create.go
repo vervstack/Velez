@@ -2,187 +2,85 @@ package runneraas
 
 import (
 	"context"
-	"strings"
 
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/internal/domain/labels"
-	verv "go.vervstack.ru/Velez/internal/domain/vervonomicon"
-	"go.vervstack.ru/Velez/internal/service/service_manager/vervonomicon"
-	"go.vervstack.ru/Velez/internal/service/service_manager/vervonomicon/builtin"
+	"go.vervstack.ru/Velez/internal/jobs"
 )
 
-const (
-	runnerSecretScope = "runneraas"
-	runnerSecretKey   = "access_token"
-	dockerHostEnvVar  = "DOCKER_HOST"
-)
-
-func (s *RunneraasService) CreateRunner(ctx context.Context, req domain.CreateRunnerReq) (domain.RunnerView, error) {
+// CreateRunner validates the request, then enqueues the multi-step
+// create_runner task (mint/store the registration token, deploy the runner
+// container, wait for it, register the velez.runners row -
+// internal/jobs/create_runner.go) and returns immediately - mirrors
+// registryaas.CreateRegistryInstance: creating a runner means deploying a
+// container through the ordinary (asynchronous) CreateNewDeploy/deploy
+// watcher path, not something a single service-layer call can do by itself.
+// Callers watch progress through TasksApi.WatchTask(req.Name,
+// jobs.CreateRunnerAction) and refetch ListRunners once the task reaches
+// DONE.
+func (s *RunneraasService) CreateRunner(ctx context.Context, req domain.CreateRunnerReq) error {
 	err := validateRunnerTarget(req.Scope, req.Target)
 	if err != nil {
-		return domain.RunnerView{}, rerrors.Wrap(err)
+		return rerrors.Wrap(err)
 	}
 
 	err = validateDockerSocketAddress(req.DockerSocketAddress)
 	if err != nil {
-		return domain.RunnerView{}, rerrors.Wrap(err)
+		return rerrors.Wrap(err)
 	}
 
-	provider, err := s.provider(req.Provider)
+	initialContext := &velez_api.CreateRunnerTaskPayload{
+		Request: runnerRequestToPb(req),
+	}
+
+	_, err = s.jobsEngine.Enqueue(ctx, req.Name, jobs.CreateRunnerAction, initialContext)
 	if err != nil {
-		return domain.RunnerView{}, rerrors.Wrap(err)
+		return rerrors.Wrap(err, "error enqueuing create runner task")
 	}
 
-	secretRef := domain.SecretRef{Scope: runnerSecretScope, Owner: req.Name, Key: runnerSecretKey}
-
-	err = s.secrets.Put(ctx, secretRef, req.AccessToken)
-	if err != nil {
-		return domain.RunnerView{}, rerrors.Wrap(err, "error storing runner access token")
-	}
-
-	token, err := provider.MintRegistrationToken(ctx, req.Scope, req.Target, req.AccessToken)
-	if err != nil {
-		return domain.RunnerView{}, rerrors.Wrap(err, "error minting runner registration token")
-	}
-
-	descriptor, smerdRequest, err := s.buildDeployRequest(ctx, provider, req, token)
-	if err != nil {
-		return domain.RunnerView{}, rerrors.Wrap(err, "error building runner deploy request")
-	}
-
-	// A caller-supplied docker_socket_address means the runner talks to its
-	// own daemon over the network - set as DOCKER_HOST, the same mechanism
-	// buildDeployRequest already uses for registration env vars, and it
-	// never gets the host bind-mount grant too. Otherwise, this is exactly
-	// today's behavior: the docker-socket grant MUST be written before
-	// CreateNewDeploy schedules the deploy - deploy_watcher.go reads it, by
-	// the same DockerSocketGrantSecretRef derivation, right before it
-	// enqueues the create_smerd task that actually creates the container.
-	// This is the only writer of this secret in the codebase (besides
-	// jobs/enable_github_runner.go's now-superseded path) - see
-	// create_smerd.go's dockerSocketAccessor gate. Never derived from, or
-	// settable via, any other field on CreateRunner.Request.
-	if req.DockerSocketAddress != "" {
-		smerdRequest.Env[dockerHostEnvVar] = req.DockerSocketAddress
-	} else {
-		err = s.secrets.Put(ctx, domain.DockerSocketGrantSecretRef(req.Name), "true")
-		if err != nil {
-			return domain.RunnerView{}, rerrors.Wrap(err, "error putting docker socket grant secret")
-		}
-	}
-
-	deployReq := domain.CreateDeployReq{
-		ServiceName:    req.Name,
-		VervDescriptor: &descriptor,
-		LaunchSmerd:    domain.LaunchSmerd{CreateSmerd_Request: smerdRequest},
-	}
-
-	// CreateNewDeploy upserts req.Name before looking it up, so no separate
-	// UpsertService call is needed here (see verv_services/deploy.go).
-	err = s.vervServices.CreateNewDeploy(ctx, deployReq)
-	if err != nil {
-		return domain.RunnerView{}, rerrors.Wrap(err, "error creating runner deploy")
-	}
-
-	svc, err := s.dataStorage.Services().GetByName(ctx, req.Name)
-	if err != nil {
-		return domain.RunnerView{}, rerrors.Wrap(err, "error getting runner service")
-	}
-
-	upsertReq := domain.UpsertRunnerReq{
-		ServiceID: svc.ID,
-		Provider:  req.Provider.String(),
-		Scope:     req.Scope.String(),
-		Target:    req.Target,
-		Labels:    req.Labels,
-		SecretRef: secretRef.String(),
-	}
-
-	instance, err := s.dataStorage.Runners().UpsertRunner(ctx, upsertReq)
-	if err != nil {
-		return domain.RunnerView{}, rerrors.Wrap(err, "error upserting runner row")
-	}
-
-	view := domain.RunnerView{
-		Name:        req.Name,
-		Provider:    req.Provider,
-		Scope:       req.Scope,
-		Target:      instance.Target,
-		Labels:      instance.Labels,
-		Environment: req.Environment,
-		CreatedAt:   instance.CreatedAt,
-		UpdatedAt:   instance.UpdatedAt,
-	}
-
-	return view, nil
+	return nil
 }
 
-// buildDeployRequest reads the builtin descriptor named by provider, overlays
-// the instance's shape (unique volume name, registration env), resolves it
-// into a CreateSmerd.Request via the box resolver, then overlays the
-// instance's generated name onto the *resolved request* - never onto the
-// descriptor. Mirrors pgaas.buildDeployRequest's "no descriptor file ever
-// contains a credential" discipline.
-//
-// The returned descriptor is what CreateDeployReq.VervDescriptor persists;
-// the returned request is what actually launches the container.
-func (s *RunneraasService) buildDeployRequest(
-	ctx context.Context, provider Provider, req domain.CreateRunnerReq, registrationToken string,
-) (verv.Descriptor, *velez_api.CreateSmerd_Request, error) {
-	files, err := builtin.Read(provider.DescriptorName())
-	if err != nil {
-		return verv.Descriptor{}, nil, rerrors.Wrap(err, "error reading builtin runner descriptor")
+// runnerRequestToPb converts the domain request into the wire request the
+// create_runner task persists as its own context -
+// internal/jobs/create_runner.go reads request fields straight off
+// *velez_api.CreateRunner_Request, so the task payload carries the proto
+// message rather than a second, parallel domain-shaped copy. The
+// provider_config oneof is rebuilt from req.Provider/AccessToken/BaseUrl,
+// which the transport layer already resolved out of the wire oneof once.
+func runnerRequestToPb(req domain.CreateRunnerReq) *velez_api.CreateRunner_Request {
+	pbReq := &velez_api.CreateRunner_Request{
+		Name:   req.Name,
+		Scope:  req.Scope,
+		Target: req.Target,
+		Labels: req.Labels,
 	}
 
-	descriptor, err := vervonomicon.MergeEnvironment(files, req.Environment)
-	if err != nil {
-		return verv.Descriptor{}, nil, rerrors.Wrap(err, "error merging builtin runner descriptor environment")
+	if req.Environment != "" {
+		pbReq.Environment = &req.Environment
 	}
 
-	descriptor.Source = verv.SourceKindBuiltin
+	if req.DockerSocketAddress != "" {
+		pbReq.DockerSocketAddress = &req.DockerSocketAddress
+	}
 
-	for i := range descriptor.Deployment.App.Volumes {
-		if descriptor.Deployment.App.Volumes[i].Path != provider.DataPath() {
-			continue
+	switch req.Provider {
+	case velez_api.RunnerProvider_GITLAB:
+		pbReq.ProviderConfig = &velez_api.CreateRunner_Request_Gitlab{
+			Gitlab: &velez_api.GitlabConfig{
+				AccessToken: req.AccessToken,
+				BaseUrl:     &req.BaseUrl,
+			},
 		}
-
-		descriptor.Deployment.App.Volumes[i].Name = runnerVolumeName(req.Name)
+	default:
+		pbReq.ProviderConfig = &velez_api.CreateRunner_Request_Github{
+			Github: &velez_api.GithubConfig{
+				AccessToken: req.AccessToken,
+			},
+		}
 	}
 
-	resolver := vervonomicon.NewBoxResolver(s.boxes())
-
-	request, err := resolver.ResolveRequest(ctx, descriptor, req.Environment, "")
-	if err != nil {
-		return verv.Descriptor{}, nil, rerrors.Wrap(err, "error resolving runner deploy request")
-	}
-
-	request.Name = req.Name
-
-	runnerName := deriveRunnerName(req.Target)
-
-	request.Env = provider.RegistrationEnv(req.Scope, req.Target, runnerName, registrationToken, req.Labels)
-
-	if request.Labels == nil {
-		request.Labels = make(map[string]string)
-	}
-
-	// VervServiceLabel makes the instance a first-class entry in the node's
-	// service list (listDistinctServices keys on it); the Runner*Label set
-	// lets the single-node local_storage backend recover the instance's
-	// facts from the running container directly, without parsing any
-	// provider-specific env var - see
-	// internal/storage/local_storage/runners.go and
-	// internal/domain/labels.RunnerInstanceLabel's doc comment. All inert in
-	// cluster mode, where velez.runners is authoritative.
-	request.Labels[labels.VervServiceLabel] = req.Name
-	request.Labels[labels.RunnerInstanceLabel] = "true"
-	request.Labels[labels.RunnerProviderLabel] = req.Provider.String()
-	request.Labels[labels.RunnerScopeLabel] = req.Scope.String()
-	request.Labels[labels.RunnerTargetLabel] = req.Target
-	request.Labels[labels.RunnerLabelsLabel] = strings.Join(req.Labels, ",")
-
-	return descriptor, request, nil
+	return pbReq
 }

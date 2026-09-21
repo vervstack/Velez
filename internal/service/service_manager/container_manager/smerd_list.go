@@ -16,7 +16,20 @@ func (c *ContainerManager) ListSmerds(
 	req *velez_api.ListSmerds_Request,
 ) (*velez_api.ListSmerds_Response, error) {
 	if req.GetName() != "" {
-		*req.Name = strings.ToLower(req.GetName())
+		lowered := strings.ToLower(req.GetName())
+
+		// Copies into a fresh request rather than lowercasing *req.Name in
+		// place - callers (verv_services.List/Get) pass a pointer straight
+		// into their own domain.Service.Name field, and mutating through it
+		// silently rewrote the caller's service name to lowercase, breaking
+		// every later GetByName lookup keyed on that name.
+		req = &velez_api.ListSmerds_Request{
+			Limit:       req.Limit,
+			Name:        &lowered,
+			Id:          req.Id,
+			Label:       req.GetLabel(),
+			Environment: req.GetEnvironment(),
+		}
 	}
 
 	runtime, err := c.runtimes.Runtime(ctx, req.GetEnvironment())

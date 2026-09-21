@@ -4,9 +4,11 @@ import (
 	"context"
 	"testing"
 
+	"github.com/docker/docker/api/types/container"
 	"github.com/stretchr/testify/require"
 
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/user_errors"
 	"go.vervstack.ru/Velez/tests/test_helper"
 )
@@ -67,6 +69,43 @@ func Test_dockerServices_GetByName_ResolvesUpsertedServiceWithoutContainer(t *te
 	require.NoError(t, err)
 	require.Equal(t, name, svc.Name)
 	require.Equal(t, pb.DeploymentStatus_SCHEDULED_DEPLOYMENT, svc.Status)
+}
+
+// Test_dockerServices_GetByName_MatchesSuffixedContainerByLabel proves
+// GetByName resolves a service whose real Docker container name carries a
+// ContainerSuffix ("<name>_<suffix>", labelSuffixResolver.ContainerName)
+// while its VervServiceLabel stays the bare virtual name - the exact
+// mismatch that made a service show up in List (label-scanned) but 404 on
+// GetByName (used to be a Docker container-Name filter), which broke
+// registerRunnerRowJob and every other GetByName-right-after-deploy flow.
+func Test_dockerServices_GetByName_MatchesSuffixedContainerByLabel(t *testing.T) {
+	t.Parallel()
+
+	cli := test_helper.NewRealDockerAPI(t)
+	test_helper.EnsurePulled(t, cli, test_helper.HelloWorldAppImage)
+
+	virtualName := test_helper.UniqueName(t, "suffixed-service")
+	realDockerName := virtualName + "_dev"
+
+	cfg := &container.Config{
+		Image: test_helper.HelloWorldAppImage,
+		Labels: map[string]string{
+			labels.VervServiceLabel: virtualName,
+		},
+	}
+
+	created, err := cli.ContainerCreate(context.Background(), cfg, nil, nil, nil, realDockerName)
+	require.NoError(t, err)
+
+	t.Cleanup(func() {
+		test_helper.RemoveContainer(t, cli, created.ID)
+	})
+
+	s := newServicesStorage(test_helper.NewRealDocker(t))
+
+	svc, err := s.GetByName(context.Background(), virtualName)
+	require.NoError(t, err)
+	require.Equal(t, virtualName, svc.Name)
 }
 
 func Test_dockerServices_GetByName_DeleteClearsUpsertedOverlay(t *testing.T) {

@@ -47,8 +47,18 @@ func newServicesStorage(docker node_clients.Docker) *dockerServices {
 }
 
 func (s *dockerServices) GetByName(ctx context.Context, name string) (domain.Service, error) {
+	// Matched by the VervServiceLabel, not the Docker container Name filter:
+	// under a non-empty node.ContainerSuffix the real Docker container name is
+	// "<name>_<suffix>" (labelSuffixResolver.ContainerName) while the label
+	// stays the bare virtual name - see internal/domain/labels.VervServiceLabel's
+	// doc comment and listDistinctServices below, which already resolves the
+	// service list the same way. A Name-filtered lookup here used to disagree
+	// with that list (a service could show up in List but 404 on GetByName),
+	// which broke every runner/registry/pg-instance create flow that calls
+	// GetByName right after its container exists (e.g.
+	// internal/jobs/create_runner.go's registerRunnerRowJob).
 	listReq := &pb.ListSmerds_Request{
-		Name: &name,
+		Label: map[string]string{labels.VervServiceLabel: name},
 	}
 
 	containers, err := s.docker.ListContainers(ctx, listReq, allEnvironments)

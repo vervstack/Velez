@@ -42,18 +42,6 @@ jobs:
           REGISTRY_PWD: ${{ secrets.REGISTRY_PWD }}
           TAG_LATEST: "false"
 
-  npm-registry-release:
-    if: ${{ needs.tag-release.outputs.tag != '' }}
-    runs-on: ${{ vars.UBUNTU_IMAGE }}
-    needs:
-      - tag-release
-    steps:
-      - name: Release image
-        uses: RedSockActions/release_npm_package@v0.0.4
-        with:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          VERSION: ${{ needs.tag-release.outputs.tag }}
-          WORKING_DIRECTORY: pkg/web/@vervstack/velez
   init-script-release:
     if: ${{ needs.tag-release.outputs.tag != '' }}
     runs-on: ${{ vars.UBUNTU_IMAGE }}
@@ -69,7 +57,7 @@ jobs:
           cp scripts/prod_init.sh.pattern scripts/init_node.sh
           sed -i "s/{{ .Version }}/${VERSION}/g" scripts/init_node.sh
       - name: Upload to s3
-        uses: marverlous811/minio-upload@v1.2.0
+        uses: marverlous811/minio-upload@v1.4.1
         with:
           endpoint: ${{ secrets.MINIO_ENDPOINT }}
           access_key: ${{ secrets.MINIO_ACCESS_KEY }}

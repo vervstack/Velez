@@ -40,10 +40,7 @@ service RunnersAPI {
   }
 
   // GetRunnerCredentials is the only RPC that resolves a secret_ref to its
-  // value. GitLab runners register manually in v1 (the official
-  // gitlab/gitlab-runner image doesn't self-register from env vars alone),
-  // so the response also carries the exact `gitlab-runner register` command
-  // the caller runs by hand.
+  // value.
   rpc GetRunnerCredentials(GetRunnerCredentials.Request) returns (GetRunnerCredentials.Response) {
     option (google.api.http) = {
       get: "/api/runners/{name}/credentials"
@@ -52,10 +49,9 @@ service RunnersAPI {
 }
 
 // RunnerProvider - which CI system a runner registers against. GITHUB
-// self-registers fully from env vars; GITLAB is provisioned as a bare
-// official-image container and registers manually in v1 (see
-// GetRunnerCredentials). Others are added here as new values later, never as
-// new contracts.
+// self-registers fully from env vars; GITLAB registers via an automated
+// `gitlab-runner register` exec against the deployed container. Others are
+// added here as new values later, never as new contracts.
 enum RunnerProvider {
   RUNNER_PROVIDER_UNSPECIFIED = 0;
   GITHUB = 1;
@@ -140,11 +136,11 @@ message GithubConfig {
   string access_token = 1;
 }
 
-// GitlabConfig - GitLab-specific CreateRunner body. v1 provisions a bare
-// official gitlab/gitlab-runner container and stops there - there is no
-// automated `gitlab-runner register` step, so access_token is trusted as an
-// already-valid registration token and surfaced back via
-// GetRunnerCredentials, not used to call any GitLab API.
+// GitlabConfig - GitLab-specific CreateRunner body. access_token is trusted
+// as an already-valid registration token (GitLab's own minting API is
+// deprecated/disabled on modern instances, see runneraas/providers/gitlab),
+// then handed to `gitlab-runner register`, run automatically against the
+// deployed container.
 message GitlabConfig {
   // access_token - a GitLab runner registration token for target (project or
   // group), created by the caller ahead of time. Never stored as given; see
@@ -154,6 +150,11 @@ message GitlabConfig {
   // base_url - the GitLab instance's base URL, e.g. "https://gitlab.com" or
   // a self-managed instance's URL. Empty defaults to "https://gitlab.com".
   optional string base_url = 2;
+
+  // docker_image - the image `gitlab-runner register`'s docker executor uses
+  // for job containers (--docker-image). Empty defaults to "alpine:latest".
+  // The executor itself is always "docker" - not caller-configurable.
+  optional string docker_image = 3;
 }
 
 message DropRunner {
@@ -164,9 +165,7 @@ message DropRunner {
 }
 
 // GetRunnerCredentials.Response is the only RunnersAPI message that ever
-// carries a token. GitLab runners aren't auto-registered in v1, so the
-// response also hands back the exact command to run against the running
-// container to finish registration by hand.
+// carries a token.
 message GetRunnerCredentials {
   message Request {
     string name = 1;
@@ -174,15 +173,13 @@ message GetRunnerCredentials {
   message Response {
     // token - the provider registration token stored at CreateRunner time
     // (GitHub: minted from the caller's PAT; GitLab: the caller's access
-    // token, trusted as-is in v1). Not re-mintable through this RPC; it
-    // reflects the token stored then.
+    // token, trusted as-is). Not re-mintable through this RPC; it reflects
+    // the token stored then.
     string token = 1;
     // target - the repo/org (or project/group) the token registers against.
     string target = 2;
     RunnerProvider provider = 3;
-    // register_command - populated only for providers with no automated
-    // registration step (GitLab in v1); empty for a self-registering
-    // provider like GitHub.
-    string register_command = 4;
+    reserved 4;
+    reserved "register_command";
   }
 }

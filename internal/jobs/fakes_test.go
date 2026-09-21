@@ -688,13 +688,13 @@ func (f *fakeContainerRuntime) Stats(_ context.Context, _ string) (domain.Contai
 // container_runtime's own real-Docker unit tests and tests/e2e.
 func (f *fakeContainerRuntime) Exec(
 	ctx context.Context, identifier string, cfg container.ExecOptions,
-) ([]byte, error) {
+) ([]byte, int, error) {
 	out, err := f.docker.Exec(ctx, identifier, cfg)
 	if err != nil {
-		return nil, rerrors.Wrap(err, "error executing in container")
+		return nil, 0, rerrors.Wrap(err, "error executing in container")
 	}
 
-	return out, nil
+	return out, 0, nil
 }
 
 // CreateNetwork returns createNetworkErr (nil by default) so

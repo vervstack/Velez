@@ -168,8 +168,10 @@ type ContainerRuntime interface {
 	// different environment, is a real error here, not the idempotent
 	// success Stop/Restart/Remove/Rename report - there is no sensible
 	// zero-value "success" for exec output against a container that isn't
-	// there.
-	Exec(ctx context.Context, containerID string, cfg container.ExecOptions) ([]byte, error)
+	// there. The returned exitCode is the executed command's own exit code,
+	// not a Docker-API-call error - callers that care whether cfg succeeded
+	// (as opposed to merely ran) must check it themselves.
+	Exec(ctx context.Context, containerID string, cfg container.ExecOptions) (output []byte, exitCode int, err error)
 
 	// CreateNetwork ensures a Docker bridge network exists for the LOGICAL
 	// name given, suffixed to the environment this runtime instance was

@@ -15,6 +15,7 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/user_errors"
 	"go.vervstack.ru/Velez/internal/utils/common"
 )
@@ -126,10 +127,12 @@ func (p *Provider) RegistrationEnv(
 	return env
 }
 
-// RegisterCommand always returns "" - actions-runner self-registers from
-// RegistrationEnv's env vars at container boot, there is no manual step.
-func (p *Provider) RegisterCommand(_, _ string) string {
-	return ""
+// Register is a no-op - actions-runner self-registers from RegistrationEnv's
+// env vars at container boot, there is no separate registration step.
+func (p *Provider) Register(
+	_ context.Context, _ container_runtime.ContainerRuntime, _, _, _, _, _ string,
+) error {
+	return nil
 }
 
 // registrationTokenEndpoint builds the GitHub REST endpoint that mints a

@@ -9,6 +9,7 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	verv "go.vervstack.ru/Velez/internal/domain/vervonomicon"
@@ -28,6 +29,7 @@ const (
 	stepMintRunnerToken     = "mint_runner_token"
 	stepDeployRunner        = "deploy_runner"
 	stepWaitForRunnerDeploy = "wait_for_runner_deploy"
+	stepRegisterRunner      = "register_runner"
 	stepRegisterRunnerRow   = "register_runner_row"
 
 	// runnerDeployWaitTimeout mirrors registryDeployWaitTimeout - bounds how
@@ -72,6 +74,9 @@ type createRunnerHandler struct {
 	// jobsEngine lets waitForRunnerDeployJob watch the create_smerd task the
 	// deploy watcher runs for this runner's container.
 	jobsEngine Engine
+	// runtimes resolves the ContainerRuntime registerRunnerJob execs
+	// `gitlab-runner register` through.
+	runtimes container_runtime.RuntimeResolver
 }
 
 func NewCreateRunnerHandler(
@@ -79,12 +84,14 @@ func NewCreateRunnerHandler(
 	secretsStore secrets.Store,
 	vervServices service.VervServicesService,
 	jobsEngine Engine,
+	runtimes container_runtime.RuntimeResolver,
 ) TaskHandler {
 	return &createRunnerHandler{
 		dataStorage:  dataStorage,
 		secretsStore: secretsStore,
 		vervServices: vervServices,
 		jobsEngine:   jobsEngine,
+		runtimes:     runtimes,
 	}
 }
 
@@ -98,11 +105,13 @@ func (h *createRunnerHandler) NewContext() TaskContext {
 
 // BuildJobs mirrors create_registry_instance.go's shape, simplified: a
 // runner has no ports/htpasswd/UI sidecar to resolve, so mint_runner_token/
-// deploy_runner/wait_for_runner_deploy/register_runner_row is the full
-// chain. deploy_runner and register_runner_row split apart (never done
-// inline in one job, unlike the retired synchronous runneraas.CreateRunner)
-// because register_runner_row must not run until wait_for_runner_deploy
-// confirms the container actually exists - see that job's doc comment.
+// deploy_runner/wait_for_runner_deploy/register_runner/register_runner_row
+// is the full chain. deploy_runner, register_runner, and register_runner_row
+// split apart (never done inline in one job, unlike the retired synchronous
+// runneraas.CreateRunner) because register_runner must not run until
+// wait_for_runner_deploy confirms the container actually exists, and
+// register_runner_row must not run until register_runner succeeds - see
+// each job's doc comment.
 func (h *createRunnerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 	payload, ok := taskCtx.(*velez_api.CreateRunnerTaskPayload)
 	if !ok {
@@ -138,6 +147,15 @@ func (h *createRunnerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			Job: &waitForRunnerDeployJob{
 				jobsEngine:   h.jobsEngine,
 				req:          payload,
+				instanceName: instanceName,
+			},
+		},
+		{
+			Name: stepRegisterRunner,
+			Job: &registerRunnerJob{
+				runtimes:     h.runtimes,
+				req:          payload,
+				ctx:          payload,
 				instanceName: instanceName,
 			},
 		},
@@ -434,6 +452,50 @@ func (j *waitForRunnerDeployJob) Do(ctx context.Context) error {
 
 	if isFailed {
 		return rerrors.Wrap(user_errors.ErrTaskFailed, finalTask.Error.String)
+	}
+
+	return nil
+}
+
+// registerRunnerJob finishes registering the deployed runner container - a
+// no-op for a self-registering provider (GitHub), or an exec'd
+// `gitlab-runner register` for one that isn't (GitLab; see the gitlab
+// package's Register doc comment). Runs after waitForRunnerDeployJob
+// confirms the container exists, and before registerRunnerRowJob - see that
+// job's doc comment on why the row write must not happen any earlier.
+// instanceName doubles as the registration's runner name/description, the
+// same convention buildRunnerDeployRequest uses for every other per-instance
+// label - deriveRunnerName is not reused here because its random suffix
+// would pick a different name on every retry of a resumed task.
+type registerRunnerJob struct {
+	runtimes container_runtime.RuntimeResolver
+
+	req          createRunnerRequestAccessor
+	ctx          runnerRegistrationTokenAccessor
+	instanceName string
+}
+
+func (j *registerRunnerJob) Do(ctx context.Context) error {
+	request := j.req.GetRequest()
+
+	provider, _, baseUrl := runnerProviderConfig(request)
+
+	runnerProvider, err := providers.For(provider)
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving runner provider")
+	}
+
+	containerRuntime, err := j.runtimes.Runtime(ctx, request.GetEnvironment())
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving container runtime")
+	}
+
+	err = runnerProvider.Register(
+		ctx, containerRuntime, j.instanceName, baseUrl, j.ctx.GetRegistrationToken(),
+		request.GetGitlab().GetDockerImage(), j.instanceName,
+	)
+	if err != nil {
+		return rerrors.Wrap(err, "error registering runner")
 	}
 
 	return nil

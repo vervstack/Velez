@@ -18,10 +18,9 @@ func (impl *Impl) GetRunnerCredentials(
 	}
 
 	resp := &pb.GetRunnerCredentials_Response{
-		Token:           creds.Token,
-		Target:          creds.Target,
-		Provider:        creds.Provider,
-		RegisterCommand: creds.RegisterCommand,
+		Token:    creds.Token,
+		Target:   creds.Target,
+		Provider: creds.Provider,
 	}
 
 	return resp, nil

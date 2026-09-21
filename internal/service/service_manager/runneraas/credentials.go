@@ -12,8 +12,7 @@ import (
 
 // GetRunnerCredentials resolves a runner's stored registration token - the
 // only RunnersService operation that resolves a secret_ref to its plaintext
-// value. RegisterCommand is populated only for a provider with no automated
-// registration step (GitLab in v1) - see runneraas.Provider.RegisterCommand.
+// value.
 func (s *RunneraasService) GetRunnerCredentials(ctx context.Context, name string) (domain.RunnerCredentials, error) {
 	svc, err := s.dataStorage.Services().GetByName(ctx, name)
 	if err != nil {
@@ -34,16 +33,15 @@ func (s *RunneraasService) GetRunnerCredentials(ctx context.Context, name string
 
 	providerEnum := velez_api.RunnerProvider(velez_api.RunnerProvider_value[runner.Provider])
 
-	provider, err := providers.For(providerEnum)
+	_, err = providers.For(providerEnum)
 	if err != nil {
 		return domain.RunnerCredentials{}, rerrors.Wrap(err, "error resolving runner provider")
 	}
 
 	credentials := domain.RunnerCredentials{
-		Token:           token,
-		Target:          runner.Target,
-		Provider:        providerEnum,
-		RegisterCommand: provider.RegisterCommand(runner.BaseUrl, token),
+		Token:    token,
+		Target:   runner.Target,
+		Provider: providerEnum,
 	}
 
 	return credentials, nil

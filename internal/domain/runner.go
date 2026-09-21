@@ -132,12 +132,9 @@ type RunnerList struct {
 
 // RunnerCredentials is the result of RunnersService.GetRunnerCredentials -
 // the only RunnersService operation that resolves a secret_ref to its
-// plaintext value. RegisterCommand is only populated for a provider with no
-// automated registration step (GitLab in v1); empty for a self-registering
-// provider like GitHub.
+// plaintext value.
 type RunnerCredentials struct {
-	Token           string
-	Target          string
-	Provider        velez_api.RunnerProvider
-	RegisterCommand string
+	Token    string
+	Target   string
+	Provider velez_api.RunnerProvider
 }

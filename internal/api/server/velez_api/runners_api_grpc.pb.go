@@ -33,10 +33,7 @@ type RunnersAPIClient interface {
 	CreateRunner(ctx context.Context, in *CreateRunner_Request, opts ...grpc.CallOption) (*CreateRunner_Response, error)
 	DropRunner(ctx context.Context, in *DropRunner_Request, opts ...grpc.CallOption) (*DropRunner_Response, error)
 	// GetRunnerCredentials is the only RPC that resolves a secret_ref to its
-	// value. GitLab runners register manually in v1 (the official
-	// gitlab/gitlab-runner image doesn't self-register from env vars alone),
-	// so the response also carries the exact `gitlab-runner register` command
-	// the caller runs by hand.
+	// value.
 	GetRunnerCredentials(ctx context.Context, in *GetRunnerCredentials_Request, opts ...grpc.CallOption) (*GetRunnerCredentials_Response, error)
 }
 
@@ -92,10 +89,7 @@ type RunnersAPIServer interface {
 	CreateRunner(context.Context, *CreateRunner_Request) (*CreateRunner_Response, error)
 	DropRunner(context.Context, *DropRunner_Request) (*DropRunner_Response, error)
 	// GetRunnerCredentials is the only RPC that resolves a secret_ref to its
-	// value. GitLab runners register manually in v1 (the official
-	// gitlab/gitlab-runner image doesn't self-register from env vars alone),
-	// so the response also carries the exact `gitlab-runner register` command
-	// the caller runs by hand.
+	// value.
 	GetRunnerCredentials(context.Context, *GetRunnerCredentials_Request) (*GetRunnerCredentials_Response, error)
 	mustEmbedUnimplementedRunnersAPIServer()
 }

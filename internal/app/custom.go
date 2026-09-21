@@ -137,7 +137,8 @@ func (c *Custom) Init(a *App) (err error) {
 		c.NodeClients, runtimeResolver, c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(),
 		c.JobsEngine))
 	registry.Register(jobs.NewCreateRunnerHandler(
-		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(), c.JobsEngine))
+		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(), c.JobsEngine,
+		runtimeResolver))
 
 	c.JobsEngine.SetRegistry(registry)
 

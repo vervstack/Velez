@@ -919,9 +919,36 @@ func TestLabelBasedRuntime_Exec_OwnedRunningContainer_ReturnsOutput(t *testing.T
 		AttachStderr: true,
 	}
 
-	out, err := runtime.Exec(context.Background(), name, execCfg)
+	out, exitCode, err := runtime.Exec(context.Background(), name, execCfg)
 	require.NoError(t, err)
+	require.Equal(t, 0, exitCode)
 	require.Contains(t, string(out), "hello")
+}
+
+// cfg's own non-zero exit code is reported via exitCode, not err - Exec never
+// treats "ran and failed" as a Docker-API-call error.
+func TestLabelBasedRuntime_Exec_NonZeroExit_ReturnsExitCode(t *testing.T) {
+	t.Parallel()
+
+	api := test_helper.NewRealDockerAPI(t)
+	name := test_helper.UniqueName(t, testSmerdName)
+
+	id := createRealContainer(t, api, testSuffix, nil, name)
+
+	err := api.ContainerStart(context.Background(), id, container.StartOptions{})
+	require.NoError(t, err)
+
+	runtime := newLabelRuntime(api, testSuffix, nil)
+
+	execCfg := container.ExecOptions{
+		Cmd:          []string{"sh", "-c", "exit 1"},
+		AttachStdout: true,
+		AttachStderr: true,
+	}
+
+	_, exitCode, err := runtime.Exec(context.Background(), name, execCfg)
+	require.NoError(t, err)
+	require.Equal(t, 1, exitCode)
 }
 
 // A container belonging to a different environment's suffix is a real error
@@ -948,7 +975,7 @@ func TestLabelBasedRuntime_Exec_SuffixMismatch_ReturnsError(t *testing.T) {
 		AttachStdout: true,
 	}
 
-	_, err = runtime.Exec(context.Background(), id, execCfg)
+	_, _, err = runtime.Exec(context.Background(), id, execCfg)
 	require.Error(t, err, "a container belonging to a different environment must not be exec'd into")
 }
 
@@ -967,7 +994,7 @@ func TestLabelBasedRuntime_Exec_NotFoundUnderEitherForm_ReturnsError(t *testing.
 		AttachStdout: true,
 	}
 
-	_, err := runtime.Exec(context.Background(), name, execCfg)
+	_, _, err := runtime.Exec(context.Background(), name, execCfg)
 	require.Error(t, err)
 }
 

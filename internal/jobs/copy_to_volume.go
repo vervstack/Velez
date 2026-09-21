@@ -371,7 +371,7 @@ func mkdirInContainer(
 	// smerd_steps.Exec ignores the command's exit code (ops result is
 	// discarded), so a failing mkdir surfaces only as a transport-level
 	// Docker error here too - inherited unchanged (see questions.md #5).
-	_, err := containerRuntime.Exec(ctx, containerID, execOpts)
+	_, _, err := containerRuntime.Exec(ctx, containerID, execOpts)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating directory in container")
 	}

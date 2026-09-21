@@ -1,33 +1,42 @@
-// Package gitlab implements runneraas.Provider for GitLab. v1 deliberately
-// stops short of GitHub Actions parity: the official gitlab/gitlab-runner
-// image doesn't self-register from env vars alone (it needs
-// `gitlab-runner register` run once to write config.toml before
+// Package gitlab implements runneraas.Provider for GitLab. The official
+// gitlab/gitlab-runner image doesn't self-register from env vars alone (it
+// needs `gitlab-runner register` run once to write config.toml before
 // `gitlab-runner run` serves jobs), so this provider deploys a bare
 // container and trusts the caller's supplied access token as an
-// already-valid registration token - registration itself is a manual step
-// the caller runs, using the command surfaced by
-// runneraas.RunneraasService.GetRunnerCredentials. GitLab's own API for
-// minting a registration token (the legacy shared-token reset endpoint) is
-// deprecated since 16.0 and disabled by default on 17.0+/gitlab.com, so v1
-// does not call it.
+// already-valid registration token, then execs the register command inside
+// the container itself once it's deployed (see Register). GitLab's own API
+// for minting a registration token (the legacy shared-token reset endpoint)
+// is deprecated since 16.0 and disabled by default on 17.0+/gitlab.com, so
+// this provider does not call it.
 package gitlab
 
 import (
 	"context"
-	"fmt"
+
+	"github.com/docker/docker/api/types/container"
+	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
 	defaultBaseUrl = "https://gitlab.com"
 
+	// defaultDockerImage is the docker executor's job image when the
+	// request's GitlabConfig.docker_image is empty.
+	defaultDockerImage = "alpine:latest"
+
+	// registerExecutor is always "docker" - not caller-configurable, see
+	// GitlabConfig.docker_image's doc comment.
+	registerExecutor = "docker"
+
 	descriptorName = "gitlab_runner"
 
 	// dataPath must match builtin/gitlab_runner/deployment.yaml's volume
-	// mount - gitlab-runner's config/registration directory, so a manually
-	// run `gitlab-runner register` survives a container restart.
+	// mount - gitlab-runner's config/registration directory, so a
+	// registration written by Register survives a container restart.
 	dataPath = "/etc/gitlab-runner"
 )
 
@@ -71,20 +80,48 @@ func (p *Provider) RegistrationEnv(
 	return map[string]string{}
 }
 
-// RegisterCommand returns the `gitlab-runner register` invocation a caller
-// runs by hand against the deployed container - the step this v1 provider
-// never automates (see the package doc comment). --executor and everything
-// after it are left as placeholders for the operator to fill in for their
-// own setup.
-func (p *Provider) RegisterCommand(baseUrl, registrationToken string) string {
+// Register execs `gitlab-runner register --non-interactive` inside
+// containerID via runtime, finishing what the package doc comment describes
+// - config.toml doesn't exist until this runs once. Fails on a non-zero
+// exit code; the register command's own output is never folded into the
+// returned error, since it can carry the caller's GitLab server's response
+// text (untrusted external content).
+func (p *Provider) Register(
+	ctx context.Context, runtime container_runtime.ContainerRuntime,
+	containerID, baseUrl, registrationToken, dockerImage, runnerName string,
+) error {
 	base := baseUrl
 	if base == "" {
 		base = defaultBaseUrl
 	}
 
-	return fmt.Sprintf(
-		"gitlab-runner register --non-interactive --url %s --registration-token %s "+
-			"--executor docker --docker-image alpine:latest",
-		base, registrationToken,
-	)
+	image := dockerImage
+	if image == "" {
+		image = defaultDockerImage
+	}
+
+	execOpts := container.ExecOptions{
+		Cmd: []string{
+			"gitlab-runner", "register",
+			"--non-interactive",
+			"--url", base,
+			"--registration-token", registrationToken,
+			"--executor", registerExecutor,
+			"--docker-image", image,
+			"--description", runnerName,
+		},
+		AttachStdout: true,
+		AttachStderr: true,
+	}
+
+	_, exitCode, err := runtime.Exec(ctx, containerID, execOpts)
+	if err != nil {
+		return rerrors.Wrap(err, "error executing gitlab-runner register")
+	}
+
+	if exitCode != 0 {
+		return rerrors.Wrap(user_errors.ErrGitlabRunnerRegisterFailed)
+	}
+
+	return nil
 }

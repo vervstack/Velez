@@ -114,7 +114,7 @@
     },
     "/api/runners/{name}/credentials": {
       "get": {
-        "summary": "GetRunnerCredentials is the only RPC that resolves a secret_ref to its\nvalue. GitLab runners register manually in v1 (the official\ngitlab/gitlab-runner image doesn't self-register from env vars alone),\nso the response also carries the exact `gitlab-runner register` command\nthe caller runs by hand.",
+        "summary": "GetRunnerCredentials is the only RPC that resolves a secret_ref to its\nvalue.",
         "operationId": "RunnersAPI_GetRunnerCredentials",
         "responses": {
           "200": {
@@ -237,7 +237,7 @@
       "properties": {
         "token": {
           "type": "string",
-          "description": "token - the provider registration token stored at CreateRunner time\n(GitHub: minted from the caller's PAT; GitLab: the caller's access\ntoken, trusted as-is in v1). Not re-mintable through this RPC; it\nreflects the token stored then."
+          "description": "token - the provider registration token stored at CreateRunner time\n(GitHub: minted from the caller's PAT; GitLab: the caller's access\ntoken, trusted as-is). Not re-mintable through this RPC; it reflects\nthe token stored then."
         },
         "target": {
           "type": "string",
@@ -245,10 +245,6 @@
         },
         "provider": {
           "$ref": "#/definitions/velez_apiRunnerProvider"
-        },
-        "registerCommand": {
-          "type": "string",
-          "description": "register_command - populated only for providers with no automated\nregistration step (GitLab in v1); empty for a self-registering\nprovider like GitHub."
         }
       }
     },
@@ -272,9 +268,13 @@
         "baseUrl": {
           "type": "string",
           "description": "base_url - the GitLab instance's base URL, e.g. \"https://gitlab.com\" or\na self-managed instance's URL. Empty defaults to \"https://gitlab.com\"."
+        },
+        "dockerImage": {
+          "type": "string",
+          "title": "docker_image - the image `gitlab-runner register`'s docker executor uses\nfor job containers"
         }
       },
-      "description": "GitlabConfig - GitLab-specific CreateRunner body. v1 provisions a bare\nofficial gitlab/gitlab-runner container and stops there - there is no\nautomated `gitlab-runner register` step, so access_token is trusted as an\nalready-valid registration token and surfaced back via\nGetRunnerCredentials, not used to call any GitLab API."
+      "description": "GitlabConfig - GitLab-specific CreateRunner body. access_token is trusted\nas an already-valid registration token (GitLab's own minting API is\ndeprecated/disabled on modern instances, see runneraas/providers/gitlab),\nthen handed to `gitlab-runner register`, run automatically against the\ndeployed container."
     },
     "velez_apiListRunnersRequest": {
       "type": "object",
@@ -360,7 +360,7 @@
         "GITLAB"
       ],
       "default": "RUNNER_PROVIDER_UNSPECIFIED",
-      "description": "RunnerProvider - which CI system a runner registers against. GITHUB\nself-registers fully from env vars; GITLAB is provisioned as a bare\nofficial-image container and registers manually in v1 (see\nGetRunnerCredentials). Others are added here as new values later, never as\nnew contracts."
+      "description": "RunnerProvider - which CI system a runner registers against. GITHUB\nself-registers fully from env vars; GITLAB registers via an automated\n`gitlab-runner register` exec against the deployed container. Others are\nadded here as new values later, never as new contracts."
     },
     "velez_apiRunnerScope": {
       "type": "string",

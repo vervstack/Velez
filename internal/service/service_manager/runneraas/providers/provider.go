@@ -13,6 +13,7 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/service/service_manager/runneraas/providers/github"
 	"go.vervstack.ru/Velez/internal/service/service_manager/runneraas/providers/gitlab"
 	"go.vervstack.ru/Velez/internal/user_errors"
@@ -30,11 +31,16 @@ type Provider interface {
 	RegistrationEnv(
 		scope velez_api.RunnerScope, target, baseUrl, runnerName, registrationToken string, labels []string,
 	) map[string]string
-	// RegisterCommand returns the exact command a caller runs by hand to
-	// finish registering a deployed-but-unregistered runner container.
-	// Empty for a provider that already self-registers from RegistrationEnv
-	// (GitHub); populated for one that doesn't (GitLab in v1).
-	RegisterCommand(baseUrl, registrationToken string) string
+	// Register finishes registering a deployed runner container, run once
+	// waitForRunnerDeployJob confirms it exists. A no-op for a provider that
+	// already self-registers from RegistrationEnv (GitHub); for one that
+	// doesn't (GitLab), execs its registration command inside containerID via
+	// runtime and fails on a non-zero exit code. dockerImage is provider-
+	// specific and ignored by a provider that doesn't use it.
+	Register(
+		ctx context.Context, runtime container_runtime.ContainerRuntime,
+		containerID, baseUrl, registrationToken, dockerImage, runnerName string,
+	) error
 	DescriptorName() string
 	DataPath() string
 }

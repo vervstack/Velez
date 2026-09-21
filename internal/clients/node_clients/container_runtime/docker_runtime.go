@@ -389,32 +389,36 @@ func (r *dockerRuntime) Stats(ctx context.Context, identifier string) (domain.Co
 // sequence directly against r.cli, rather than delegating to docker.Docker -
 // the same choice Stop/Restart/Remove/Rename already made (they call r.cli
 // directly instead of going through docker.Docker's corresponding method).
+// exitCode is only meaningful once the exec has actually run, which only
+// happens on the attached path below - the unattached early return reports
+// exitCode 0 unconditionally, since ContainerExecCreate alone never starts
+// the process.
 func (r *dockerRuntime) Exec(
 	ctx context.Context,
 	containerID string,
 	cfg container.ExecOptions,
-) ([]byte, error) {
+) ([]byte, int, error) {
 	resolvedID, found, err := r.resolveOwnedContainer(ctx, containerID)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	if !found {
-		return nil, user_errors.ErrNoSuchContainer
+		return nil, 0, user_errors.ErrNoSuchContainer
 	}
 
 	execResp, err := r.cli.ContainerExecCreate(ctx, resolvedID, cfg)
 	if err != nil {
-		return nil, rerrors.Wrap(err, "error calling exec create on container via docker api")
+		return nil, 0, rerrors.Wrap(err, "error calling exec create on container via docker api")
 	}
 
 	if !cfg.AttachStdout && !cfg.AttachStderr {
-		return nil, nil
+		return nil, 0, nil
 	}
 
 	attachResp, err := r.cli.ContainerExecAttach(ctx, execResp.ID, container.ExecAttachOptions{})
 	if err != nil {
-		return nil, rerrors.Wrap(err, "error calling exec attach on container via docker api")
+		return nil, 0, rerrors.Wrap(err, "error calling exec attach on container via docker api")
 	}
 	defer attachResp.Close()
 
@@ -422,10 +426,15 @@ func (r *dockerRuntime) Exec(
 
 	_, err = io.Copy(dataOut, attachResp.Reader)
 	if err != nil {
-		return nil, rerrors.Wrap(err, "error during copying bytes from attached to container exec")
+		return nil, 0, rerrors.Wrap(err, "error during copying bytes from attached to container exec")
 	}
 
-	return asciiSymbolsOnly(dataOut.Bytes()), nil
+	inspectResp, err := r.cli.ContainerExecInspect(ctx, execResp.ID)
+	if err != nil {
+		return nil, 0, rerrors.Wrap(err, "error inspecting container exec result")
+	}
+
+	return asciiSymbolsOnly(dataOut.Bytes()), inspectResp.ExitCode, nil
 }
 
 // CreateNetwork ensures a bridge network exists for the LOGICAL name given,

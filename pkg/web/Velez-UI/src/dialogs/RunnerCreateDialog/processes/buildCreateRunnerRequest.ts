@@ -9,6 +9,7 @@ interface CreateRunnerFormState {
     environment: string
     accessToken: string
     baseUrl: string
+    dockerImage: string
     dockerSocketAddress: string
 }
 
@@ -39,7 +40,11 @@ export function buildCreateRunnerRequest(form: CreateRunnerFormState): CreateRun
     if (form.provider === RunnerProvider.GITLAB) {
         return {
             ...base,
-            gitlab: {accessToken: trimmedAccessToken, baseUrl: form.baseUrl.trim() || undefined},
+            gitlab: {
+                accessToken: trimmedAccessToken,
+                baseUrl: form.baseUrl.trim() || undefined,
+                dockerImage: form.dockerImage.trim() || undefined,
+            },
         }
     }
 

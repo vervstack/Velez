@@ -50,4 +50,9 @@ var (
 	// token (see the gitlab package doc comment), so this is the only
 	// validation MintRegistrationToken performs.
 	ErrGitlabAccessTokenEmpty = rerrors.New("gitlab access token is empty", codes.InvalidArgument)
+
+	// ErrGitlabRunnerRegisterFailed is returned by the runneraas package's
+	// gitlab provider when `gitlab-runner register` exits non-zero inside
+	// the deployed container.
+	ErrGitlabRunnerRegisterFailed = rerrors.New("gitlab-runner register exited non-zero")
 )

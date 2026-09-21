@@ -32,6 +32,7 @@ export default function RunnerCreateDialog() {
     const [environment, setEnvironment] = useState("")
     const [accessToken, setAccessToken] = useState("")
     const [baseUrl, setBaseUrl] = useState("")
+    const [dockerImage, setDockerImage] = useState("")
     const [dockerSocketAddress, setDockerSocketAddress] = useState("")
     const [showAdvanced, setShowAdvanced] = useState(false)
     const [targetTouched, setTargetTouched] = useState(false)
@@ -71,6 +72,7 @@ export default function RunnerCreateDialog() {
             environment,
             accessToken,
             baseUrl,
+            dockerImage,
             dockerSocketAddress,
         })
         if (!req) return
@@ -168,6 +170,19 @@ export default function RunnerCreateDialog() {
                             onChange={setBaseUrl}
                             disabled={createRunner.isPending}
                         />
+                    )}
+
+                    {isGitlab && (
+                        <Input
+                            label="Docker Image (optional, defaults to alpine:latest)"
+                            inputValue={dockerImage}
+                            onChange={setDockerImage}
+                            disabled={createRunner.isPending}
+                        />
+                    )}
+
+                    {isGitlab && (
+                        <Input label="Executor" inputValue="docker"/>
                     )}
 
                     <div

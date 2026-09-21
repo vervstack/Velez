@@ -25,10 +25,9 @@ const (
 )
 
 // RunnerProvider - which CI system a runner registers against. GITHUB
-// self-registers fully from env vars; GITLAB is provisioned as a bare
-// official-image container and registers manually in v1 (see
-// GetRunnerCredentials). Others are added here as new values later, never as
-// new contracts.
+// self-registers fully from env vars; GITLAB registers via an automated
+// `gitlab-runner register` exec against the deployed container. Others are
+// added here as new values later, never as new contracts.
 type RunnerProvider int32
 
 const (
@@ -363,11 +362,11 @@ func (x *GithubConfig) GetAccessToken() string {
 	return ""
 }
 
-// GitlabConfig - GitLab-specific CreateRunner body. v1 provisions a bare
-// official gitlab/gitlab-runner container and stops there - there is no
-// automated `gitlab-runner register` step, so access_token is trusted as an
-// already-valid registration token and surfaced back via
-// GetRunnerCredentials, not used to call any GitLab API.
+// GitlabConfig - GitLab-specific CreateRunner body. access_token is trusted
+// as an already-valid registration token (GitLab's own minting API is
+// deprecated/disabled on modern instances, see runneraas/providers/gitlab),
+// then handed to `gitlab-runner register`, run automatically against the
+// deployed container.
 type GitlabConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// access_token - a GitLab runner registration token for target (project or
@@ -376,7 +375,11 @@ type GitlabConfig struct {
 	AccessToken string `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
 	// base_url - the GitLab instance's base URL, e.g. "https://gitlab.com" or
 	// a self-managed instance's URL. Empty defaults to "https://gitlab.com".
-	BaseUrl       *string `protobuf:"bytes,2,opt,name=base_url,json=baseUrl,proto3,oneof" json:"base_url,omitempty"`
+	BaseUrl *string `protobuf:"bytes,2,opt,name=base_url,json=baseUrl,proto3,oneof" json:"base_url,omitempty"`
+	// docker_image - the image `gitlab-runner register`'s docker executor uses
+	// for job containers (--docker-image). Empty defaults to "alpine:latest".
+	// The executor itself is always "docker" - not caller-configurable.
+	DockerImage   *string `protobuf:"bytes,3,opt,name=docker_image,json=dockerImage,proto3,oneof" json:"docker_image,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -425,6 +428,13 @@ func (x *GitlabConfig) GetBaseUrl() string {
 	return ""
 }
 
+func (x *GitlabConfig) GetDockerImage() string {
+	if x != nil && x.DockerImage != nil {
+		return *x.DockerImage
+	}
+	return ""
+}
+
 type DropRunner struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -462,9 +472,7 @@ func (*DropRunner) Descriptor() ([]byte, []int) {
 }
 
 // GetRunnerCredentials.Response is the only RunnersAPI message that ever
-// carries a token. GitLab runners aren't auto-registered in v1, so the
-// response also hands back the exact command to run against the running
-// container to finish registration by hand.
+// carries a token.
 type GetRunnerCredentials struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -925,18 +933,14 @@ type GetRunnerCredentials_Response struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// token - the provider registration token stored at CreateRunner time
 	// (GitHub: minted from the caller's PAT; GitLab: the caller's access
-	// token, trusted as-is in v1). Not re-mintable through this RPC; it
-	// reflects the token stored then.
+	// token, trusted as-is). Not re-mintable through this RPC; it reflects
+	// the token stored then.
 	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
 	// target - the repo/org (or project/group) the token registers against.
-	Target   string         `protobuf:"bytes,2,opt,name=target,proto3" json:"target,omitempty"`
-	Provider RunnerProvider `protobuf:"varint,3,opt,name=provider,proto3,enum=velez_api.RunnerProvider" json:"provider,omitempty"`
-	// register_command - populated only for providers with no automated
-	// registration step (GitLab in v1); empty for a self-registering
-	// provider like GitHub.
-	RegisterCommand string `protobuf:"bytes,4,opt,name=register_command,json=registerCommand,proto3" json:"register_command,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	Target        string         `protobuf:"bytes,2,opt,name=target,proto3" json:"target,omitempty"`
+	Provider      RunnerProvider `protobuf:"varint,3,opt,name=provider,proto3,enum=velez_api.RunnerProvider" json:"provider,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetRunnerCredentials_Response) Reset() {
@@ -990,13 +994,6 @@ func (x *GetRunnerCredentials_Response) GetProvider() RunnerProvider {
 	return RunnerProvider_RUNNER_PROVIDER_UNSPECIFIED
 }
 
-func (x *GetRunnerCredentials_Response) GetRegisterCommand() string {
-	if x != nil {
-		return x.RegisterCommand
-	}
-	return ""
-}
-
 var File_runners_api_proto protoreflect.FileDescriptor
 
 const file_runners_api_proto_rawDesc = "" +
@@ -1038,25 +1035,26 @@ const file_runners_api_proto_rawDesc = "" +
 	"\tentity_id\x18\x02 \x01(\tR\bentityId\x12\x16\n" +
 	"\x06action\x18\x03 \x01(\tR\x06action\"1\n" +
 	"\fGithubConfig\x12!\n" +
-	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"^\n" +
+	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"\x97\x01\n" +
 	"\fGitlabConfig\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12\x1e\n" +
-	"\bbase_url\x18\x02 \x01(\tH\x00R\abaseUrl\x88\x01\x01B\v\n" +
-	"\t_base_url\"7\n" +
+	"\bbase_url\x18\x02 \x01(\tH\x00R\abaseUrl\x88\x01\x01\x12&\n" +
+	"\fdocker_image\x18\x03 \x01(\tH\x01R\vdockerImage\x88\x01\x01B\v\n" +
+	"\t_base_urlB\x0f\n" +
+	"\r_docker_image\"7\n" +
 	"\n" +
 	"DropRunner\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x1a\n" +
 	"\n" +
-	"\bResponse\"\xd2\x01\n" +
+	"\bResponse\"\xbf\x01\n" +
 	"\x14GetRunnerCredentials\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x1a\x9a\x01\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x1a\x87\x01\n" +
 	"\bResponse\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\x12\x16\n" +
 	"\x06target\x18\x02 \x01(\tR\x06target\x125\n" +
-	"\bprovider\x18\x03 \x01(\x0e2\x19.velez_api.RunnerProviderR\bprovider\x12)\n" +
-	"\x10register_command\x18\x04 \x01(\tR\x0fregisterCommand*I\n" +
+	"\bprovider\x18\x03 \x01(\x0e2\x19.velez_api.RunnerProviderR\bproviderJ\x04\b\x04\x10\x05R\x10register_command*I\n" +
 	"\x0eRunnerProvider\x12\x1f\n" +
 	"\x1bRUNNER_PROVIDER_UNSPECIFIED\x10\x00\x12\n" +
 	"\n" +

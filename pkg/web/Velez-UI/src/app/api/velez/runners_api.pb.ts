@@ -82,6 +82,7 @@ export type GithubConfig = {
 export type GitlabConfig = {
   accessToken?: string;
   baseUrl?: string;
+  dockerImage?: string;
 };
 
 export type DropRunnerRequest = {
@@ -100,7 +101,6 @@ export type GetRunnerCredentialsResponse = {
   token?: string;
   target?: string;
   provider?: RunnerProvider;
-  registerCommand?: string;
 };
 
 export type GetRunnerCredentials = Record<string, never>;

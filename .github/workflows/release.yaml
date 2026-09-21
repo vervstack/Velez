@@ -40,7 +40,6 @@ jobs:
         with:
           REGISTRY_USER: ${{ vars.REGISTRY_USER }}
           REGISTRY_PWD: ${{ secrets.REGISTRY_PWD }}
-          TAG_LATEST: "false"
 
   init-script-release:
     if: ${{ needs.tag-release.outputs.tag != '' }}

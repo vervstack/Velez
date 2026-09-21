@@ -11,6 +11,9 @@ RUN bun run build && \
 
 FROM --platform=$BUILDPLATFORM golang:1.24.2 AS builder
 
+ARG TARGETOS
+ARG TARGETARCH
+
 WORKDIR /app
 
 COPY --from=webclient /dist internal/transport/ui/dist

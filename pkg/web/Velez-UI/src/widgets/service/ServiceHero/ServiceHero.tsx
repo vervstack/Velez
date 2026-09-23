@@ -1,6 +1,7 @@
 import cls from '@/widgets/service/ServiceHero/ServiceHero.module.css'
 
 import { useGetServiceAboutQuery, useGetServiceMetricsQuery } from '@/processes/queries/services'
+import EnvSwitcher from '@/widgets/service/EnvSwitcher/EnvSwitcher.tsx'
 
 interface ServiceHeroProps {
     serviceName: string
@@ -116,6 +117,9 @@ export default function ServiceHero({
                         <MetricTile label="Uptime" value={uptime} sub="since last deploy" />
                         <MetricTile label="CPU" value={cpuLabel} sub="avg across pods" barPct={cpuPct} />
                         <MetricTile label="Memory" value={memLabel} sub={memSub} barPct={memPct} />
+                        <div className={cls.EnvTileWrapper}>
+                            <EnvSwitcher serviceName={serviceName}/>
+                        </div>
                     </div>
                     {isBinary && <BinaryMetricsNotice />}
                 </div>

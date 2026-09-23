@@ -9,7 +9,6 @@ import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorStat
 import {ServiceTab} from "@/pages/service/widgets/tabs.ts";
 import TabStrip from "@/pages/service/widgets/TabStrip.tsx";
 import ServiceTagsStrip from "@/pages/service/widgets/ServiceTagsStrip.tsx";
-import EnvSwitcher from "@/widgets/service/EnvSwitcher/EnvSwitcher.tsx";
 import ServiceOverviewTab from "@/pages/service/widgets/ServiceOverviewTab.tsx";
 import ServicePageSkeleton from "@/pages/service/widgets/ServicePageSkeleton.tsx";
 import ServiceComingSoon from "@/pages/service/widgets/ServiceComingSoon.tsx";
@@ -84,7 +83,6 @@ export default function ServiceDetailLayout({serviceName, headerActions}: Props)
 
                 <div className={cls.TabsRow}>
                     <TabStrip activeTab={activeTab} setActiveTab={setActiveTab}/>
-                    <EnvSwitcher serviceName={serviceName}/>
                 </div>
 
                 {activeTab === 'overview'

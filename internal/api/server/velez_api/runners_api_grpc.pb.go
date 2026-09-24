@@ -22,6 +22,7 @@ const (
 	RunnersAPI_ListRunners_FullMethodName          = "/velez_api.RunnersAPI/ListRunners"
 	RunnersAPI_CreateRunner_FullMethodName         = "/velez_api.RunnersAPI/CreateRunner"
 	RunnersAPI_DropRunner_FullMethodName           = "/velez_api.RunnersAPI/DropRunner"
+	RunnersAPI_ReregisterRunner_FullMethodName     = "/velez_api.RunnersAPI/ReregisterRunner"
 	RunnersAPI_GetRunnerCredentials_FullMethodName = "/velez_api.RunnersAPI/GetRunnerCredentials"
 )
 
@@ -32,6 +33,11 @@ type RunnersAPIClient interface {
 	ListRunners(ctx context.Context, in *ListRunners_Request, opts ...grpc.CallOption) (*ListRunners_Response, error)
 	CreateRunner(ctx context.Context, in *CreateRunner_Request, opts ...grpc.CallOption) (*CreateRunner_Response, error)
 	DropRunner(ctx context.Context, in *DropRunner_Request, opts ...grpc.CallOption) (*DropRunner_Response, error)
+	// ReregisterRunner unregisters and re-registers the runner's existing
+	// container in place, reusing its already-stored registration token - no
+	// new token minted, no new container deployed. A no-op unregister/register
+	// for a self-registering provider (GitHub).
+	ReregisterRunner(ctx context.Context, in *ReregisterRunner_Request, opts ...grpc.CallOption) (*ReregisterRunner_Response, error)
 	// GetRunnerCredentials is the only RPC that resolves a secret_ref to its
 	// value.
 	GetRunnerCredentials(ctx context.Context, in *GetRunnerCredentials_Request, opts ...grpc.CallOption) (*GetRunnerCredentials_Response, error)
@@ -72,6 +78,15 @@ func (c *runnersAPIClient) DropRunner(ctx context.Context, in *DropRunner_Reques
 	return out, nil
 }
 
+func (c *runnersAPIClient) ReregisterRunner(ctx context.Context, in *ReregisterRunner_Request, opts ...grpc.CallOption) (*ReregisterRunner_Response, error) {
+	out := new(ReregisterRunner_Response)
+	err := c.cc.Invoke(ctx, RunnersAPI_ReregisterRunner_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *runnersAPIClient) GetRunnerCredentials(ctx context.Context, in *GetRunnerCredentials_Request, opts ...grpc.CallOption) (*GetRunnerCredentials_Response, error) {
 	out := new(GetRunnerCredentials_Response)
 	err := c.cc.Invoke(ctx, RunnersAPI_GetRunnerCredentials_FullMethodName, in, out, opts...)
@@ -88,6 +103,11 @@ type RunnersAPIServer interface {
 	ListRunners(context.Context, *ListRunners_Request) (*ListRunners_Response, error)
 	CreateRunner(context.Context, *CreateRunner_Request) (*CreateRunner_Response, error)
 	DropRunner(context.Context, *DropRunner_Request) (*DropRunner_Response, error)
+	// ReregisterRunner unregisters and re-registers the runner's existing
+	// container in place, reusing its already-stored registration token - no
+	// new token minted, no new container deployed. A no-op unregister/register
+	// for a self-registering provider (GitHub).
+	ReregisterRunner(context.Context, *ReregisterRunner_Request) (*ReregisterRunner_Response, error)
 	// GetRunnerCredentials is the only RPC that resolves a secret_ref to its
 	// value.
 	GetRunnerCredentials(context.Context, *GetRunnerCredentials_Request) (*GetRunnerCredentials_Response, error)
@@ -106,6 +126,9 @@ func (UnimplementedRunnersAPIServer) CreateRunner(context.Context, *CreateRunner
 }
 func (UnimplementedRunnersAPIServer) DropRunner(context.Context, *DropRunner_Request) (*DropRunner_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DropRunner not implemented")
+}
+func (UnimplementedRunnersAPIServer) ReregisterRunner(context.Context, *ReregisterRunner_Request) (*ReregisterRunner_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReregisterRunner not implemented")
 }
 func (UnimplementedRunnersAPIServer) GetRunnerCredentials(context.Context, *GetRunnerCredentials_Request) (*GetRunnerCredentials_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRunnerCredentials not implemented")
@@ -177,6 +200,24 @@ func _RunnersAPI_DropRunner_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RunnersAPI_ReregisterRunner_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReregisterRunner_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RunnersAPIServer).ReregisterRunner(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RunnersAPI_ReregisterRunner_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RunnersAPIServer).ReregisterRunner(ctx, req.(*ReregisterRunner_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _RunnersAPI_GetRunnerCredentials_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetRunnerCredentials_Request)
 	if err := dec(in); err != nil {
@@ -213,6 +254,10 @@ var RunnersAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DropRunner",
 			Handler:    _RunnersAPI_DropRunner_Handler,
+		},
+		{
+			MethodName: "ReregisterRunner",
+			Handler:    _RunnersAPI_ReregisterRunner_Handler,
 		},
 		{
 			MethodName: "GetRunnerCredentials",

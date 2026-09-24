@@ -93,6 +93,17 @@ export type DropRunnerResponse = Record<string, never>;
 
 export type DropRunner = Record<string, never>;
 
+export type ReregisterRunnerRequest = {
+  name?: string;
+};
+
+export type ReregisterRunnerResponse = {
+  entityId?: string;
+  action?: string;
+};
+
+export type ReregisterRunner = Record<string, never>;
+
 export type GetRunnerCredentialsRequest = {
   name?: string;
 };
@@ -114,6 +125,9 @@ export class RunnersAPI {
   }
   static DropRunner(this:void, req: DropRunnerRequest, initReq?: fm.InitReq): Promise<DropRunnerResponse> {
     return fm.fetchRequest<DropRunnerResponse>(`/api/runners/drop`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static ReregisterRunner(this:void, req: ReregisterRunnerRequest, initReq?: fm.InitReq): Promise<ReregisterRunnerResponse> {
+    return fm.fetchRequest<ReregisterRunnerResponse>(`/api/runners/reregister`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
   static GetRunnerCredentials(this:void, req: GetRunnerCredentialsRequest, initReq?: fm.InitReq): Promise<GetRunnerCredentialsResponse> {
     return fm.fetchRequest<GetRunnerCredentialsResponse>(`/api/runners/${req.name}/credentials?${fm.renderURLSearchParams(req, ["name"])}`, {...initReq, method: "GET"});

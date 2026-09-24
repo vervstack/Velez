@@ -32,6 +32,10 @@ const (
 	// GitlabConfig.docker_image's doc comment.
 	registerExecutor = "docker"
 
+	// gitlabRunnerBin is the official image's CLI binary, execed for both
+	// Register and Unregister.
+	gitlabRunnerBin = "gitlab-runner"
+
 	descriptorName = "gitlab_runner"
 
 	// dataPath must match builtin/gitlab_runner/deployment.yaml's volume
@@ -102,12 +106,13 @@ func (p *Provider) Register(
 
 	execOpts := container.ExecOptions{
 		Cmd: []string{
-			"gitlab-runner", "register",
+			gitlabRunnerBin, "register",
 			"--non-interactive",
 			"--url", base,
 			"--registration-token", registrationToken,
 			"--executor", registerExecutor,
 			"--docker-image", image,
+			"--docker-privileged",
 			"--description", runnerName,
 		},
 		AttachStdout: true,
@@ -121,6 +126,32 @@ func (p *Provider) Register(
 
 	if exitCode != 0 {
 		return rerrors.Wrap(user_errors.ErrGitlabRunnerRegisterFailed)
+	}
+
+	return nil
+}
+
+// Unregister execs `gitlab-runner unregister --all-runners` inside
+// containerID, clearing every [[runners]] entry config.toml currently holds
+// so a following Register doesn't append a duplicate local entry (which
+// would double-run every CI job the container picks up). Fails on a
+// non-zero exit code, same discipline as Register.
+func (p *Provider) Unregister(
+	ctx context.Context, runtime container_runtime.ContainerRuntime, containerID string,
+) error {
+	execOpts := container.ExecOptions{
+		Cmd:          []string{gitlabRunnerBin, "unregister", "--all-runners"},
+		AttachStdout: true,
+		AttachStderr: true,
+	}
+
+	_, exitCode, err := runtime.Exec(ctx, containerID, execOpts)
+	if err != nil {
+		return rerrors.Wrap(err, "error executing gitlab-runner unregister")
+	}
+
+	if exitCode != 0 {
+		return rerrors.Wrap(user_errors.ErrGitlabRunnerUnregisterFailed)
 	}
 
 	return nil

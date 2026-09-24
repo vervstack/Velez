@@ -39,6 +39,17 @@ service RunnersAPI {
     };
   }
 
+  // ReregisterRunner unregisters and re-registers the runner's existing
+  // container in place, reusing its already-stored registration token - no
+  // new token minted, no new container deployed. A no-op unregister/register
+  // for a self-registering provider (GitHub).
+  rpc ReregisterRunner(ReregisterRunner.Request) returns (ReregisterRunner.Response) {
+    option (google.api.http) = {
+      post: "/api/runners/reregister"
+      body: "*"
+    };
+  }
+
   // GetRunnerCredentials is the only RPC that resolves a secret_ref to its
   // value.
   rpc GetRunnerCredentials(GetRunnerCredentials.Request) returns (GetRunnerCredentials.Response) {
@@ -162,6 +173,16 @@ message DropRunner {
     string name = 1;
   }
   message Response {}
+}
+
+message ReregisterRunner {
+  message Request {
+    string name = 1;
+  }
+  message Response {
+    string entity_id = 1;
+    string action = 2;
+  }
 }
 
 // GetRunnerCredentials.Response is the only RunnersAPI message that ever

@@ -135,6 +135,12 @@ func (p *Provider) Register(
 	return nil
 }
 
+// Unregister is a no-op - actions-runner has no separate registration step
+// to undo (see Register).
+func (p *Provider) Unregister(_ context.Context, _ container_runtime.ContainerRuntime, _ string) error {
+	return nil
+}
+
 // registrationTokenEndpoint builds the GitHub REST endpoint that mints a
 // short-lived runner registration token.
 func registrationTokenEndpoint(scope velez_api.RunnerScope, target string) (string, error) {

@@ -55,4 +55,9 @@ var (
 	// gitlab provider when `gitlab-runner register` exits non-zero inside
 	// the deployed container.
 	ErrGitlabRunnerRegisterFailed = rerrors.New("gitlab-runner register exited non-zero")
+
+	// ErrGitlabRunnerUnregisterFailed is returned by the runneraas package's
+	// gitlab provider when `gitlab-runner unregister --all-runners` exits
+	// non-zero inside the deployed container.
+	ErrGitlabRunnerUnregisterFailed = rerrors.New("gitlab-runner unregister exited non-zero")
 )

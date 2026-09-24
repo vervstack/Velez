@@ -171,6 +171,7 @@ func Test_Register_Scenarios(t *testing.T) {
 				"--registration-token", "token-1",
 				"--executor", "docker",
 				"--docker-image", tc.wantImage,
+				"--docker-privileged",
 				"--description", "runner-1",
 			}, runtime.execCalledWith.Cmd)
 			require.True(t, runtime.execCalledWith.AttachStdout)

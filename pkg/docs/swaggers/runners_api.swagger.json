@@ -112,6 +112,39 @@
         ]
       }
     },
+    "/api/runners/reregister": {
+      "post": {
+        "summary": "ReregisterRunner unregisters and re-registers the runner's existing\ncontainer in place, reusing its already-stored registration token - no\nnew token minted, no new container deployed. A no-op unregister/register\nfor a self-registering provider (GitHub).",
+        "operationId": "RunnersAPI_ReregisterRunner",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiReregisterRunnerResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiReregisterRunnerRequest"
+            }
+          }
+        ],
+        "tags": [
+          "RunnersAPI"
+        ]
+      }
+    },
     "/api/runners/{name}/credentials": {
       "get": {
         "summary": "GetRunnerCredentials is the only RPC that resolves a secret_ref to its\nvalue.",
@@ -310,6 +343,25 @@
         "offset": {
           "type": "string",
           "format": "uint64"
+        }
+      }
+    },
+    "velez_apiReregisterRunnerRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiReregisterRunnerResponse": {
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
         }
       }
     },

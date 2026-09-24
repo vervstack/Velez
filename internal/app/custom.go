@@ -139,6 +139,8 @@ func (c *Custom) Init(a *App) (err error) {
 	registry.Register(jobs.NewCreateRunnerHandler(
 		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(), c.JobsEngine,
 		runtimeResolver))
+	registry.Register(jobs.NewReregisterRunnerHandler(
+		c.ClusterClients.StateManager(), c.Services.Secrets(), runtimeResolver))
 
 	c.JobsEngine.SetRegistry(registry)
 

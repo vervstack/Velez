@@ -262,3 +262,11 @@ message CreateRunnerTaskPayload {
   optional string registration_token = 2;
 }
 
+// ReregisterRunnerTaskPayload is the task context for the
+// "reregister_runner" action. No registration_token field - unlike
+// create_runner, reregister always reuses the token already in the secret
+// store, never mints/passes one through the task context.
+message ReregisterRunnerTaskPayload {
+  ReregisterRunner.Request request = 1;
+}
+

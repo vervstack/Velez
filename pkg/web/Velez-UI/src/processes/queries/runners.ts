@@ -35,6 +35,17 @@ export function DropRunnerMutation() {
     })
 }
 
+export function ReregisterRunnerMutation() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (name: string) => runnersService.reregisterRunner(name),
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: RUNNERS_QUERY_KEY})
+        },
+    })
+}
+
 // GetRunnerCredentialsQuery is disabled by default — it must only run when
 // the caller explicitly triggers refetch() (the "Reveal" / "Copy" actions),
 // never on mount alongside the runner list.

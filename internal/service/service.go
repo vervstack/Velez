@@ -139,6 +139,9 @@ type RunnersService interface {
 	ListRunners(ctx context.Context, req domain.ListRunnersReq) (domain.RunnerList, error)
 	CreateRunner(ctx context.Context, req domain.CreateRunnerReq) error
 	DropRunner(ctx context.Context, name string) error
+	// ReregisterRunner re-runs registration against the runner's existing
+	// container without minting a new token or deploying a new container.
+	ReregisterRunner(ctx context.Context, name string) error
 	// GetRunnerCredentials is the only RunnersService operation that
 	// resolves a secret_ref to its plaintext value.
 	GetRunnerCredentials(ctx context.Context, name string) (domain.RunnerCredentials, error)

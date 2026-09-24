@@ -41,6 +41,11 @@ type Provider interface {
 		ctx context.Context, runtime container_runtime.ContainerRuntime,
 		containerID, baseUrl, registrationToken, dockerImage, runnerName string,
 	) error
+	// Unregister undoes a prior Register - execs the provider's unregister
+	// command inside containerID so a subsequent Register doesn't append a
+	// duplicate local runner entry to the container's config. A no-op for a
+	// provider that self-registers (GitHub).
+	Unregister(ctx context.Context, runtime container_runtime.ContainerRuntime, containerID string) error
 	DescriptorName() string
 	DataPath() string
 }

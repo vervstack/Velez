@@ -9,7 +9,7 @@ import RunnerCreateDialog from "@/dialogs/RunnerCreateDialog/RunnerCreateDialog.
 import RunnerRow from "@/pages/runners/components/RunnerRow/RunnerRow.tsx"
 import RunnersEmptyState from "@/pages/runners/components/RunnersEmptyState/RunnersEmptyState.tsx"
 
-const COLUMNS = ["", "Name", "Provider", "Scope", "Target", "Status", "Created", ""]
+const COLUMNS = ["", "", "Name", "Provider", "Scope", "Target", "Status", "Created", ""]
 
 export default function RunnersPage() {
     const {OpenDialog} = useDialog()

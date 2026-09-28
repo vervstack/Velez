@@ -1,43 +1,31 @@
-import {useState} from "react"
+import {useNavigate} from "react-router-dom"
 
 import cls from "@/pages/runners/components/RunnerRow/RunnerRow.module.css"
 import type {Runner} from "@/app/api/velez"
 import StatusDot from "@/components/base/StatusDot.tsx"
 import Button from "@/components/base/Button.tsx"
+import GitlabIcon from "@/components/base/icons/GitlabIcon.tsx"
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
-import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
-import {ReregisterRunnerMutation} from "@/processes/queries/runners.ts"
+import {deriveRunnerDisplayName, isGitlabRunnerName} from "@/processes/mappings/runnerDisplay.ts"
 import RunnerDropDialog from "@/dialogs/RunnerDropDialog/RunnerDropDialog.tsx"
-import RunnerCredentials from "@/pages/runners/components/RunnerCredentials/RunnerCredentials.tsx"
+import {Routes} from "@/app/router/Routes.ts"
 
 interface Props {
     runner: Runner
 }
 
 export default function RunnerRow({runner}: Props) {
-    const [expanded, setExpanded] = useState(false)
     const {OpenDialog} = useDialog()
-    const toaster = useToaster()
-
-    const reregisterRunner = ReregisterRunnerMutation()
+    const navigate = useNavigate()
 
     const name = runner.name ?? ""
 
-    function handleToggleExpand() {
-        setExpanded(!expanded)
+    function handleOpenService() {
+        navigate(Routes.Service + "/" + name)
     }
 
     function handleDrop() {
         OpenDialog(<RunnerDropDialog name={name}/>)
-    }
-
-    function handleReregister() {
-        reregisterRunner.mutate(name, {
-            onSuccess: () => {
-                toaster.bake({title: "Runner reregistration started", description: name, level: "Info"})
-            },
-            onError: toaster.catchGrpc,
-        })
     }
 
     function mapRunnerStatus(status?: string): "running" | "stopped" | "pending" | "error" {
@@ -51,7 +39,8 @@ export default function RunnerRow({runner}: Props) {
         <div className={cls.RunnerRowContainer}>
             <div className={cls.row}>
                 <StatusDot status={mapRunnerStatus(runner.status)} pulse/>
-                <span className={cls.name}>{name}</span>
+                {isGitlabRunnerName(name) && <GitlabIcon className={cls.icon}/>}
+                <span className={cls.name} onClick={handleOpenService}>{deriveRunnerDisplayName(name)}</span>
                 <span className={cls.cell}>{runner.provider || "-"}</span>
                 <span className={cls.cell}>{runner.scope || "-"}</span>
                 <span className={cls.cell}>{runner.target || "-"}</span>
@@ -60,18 +49,11 @@ export default function RunnerRow({runner}: Props) {
                     {runner.createdAt ? new Date(runner.createdAt as never).toLocaleDateString() : "-"}
                 </span>
                 <div className={cls.actions}>
-                    <Button sm onClick={handleToggleExpand}>
-                        {expanded ? "Hide" : "Credentials"}
-                    </Button>
-                    <Button sm onClick={handleReregister} disabled={reregisterRunner.isPending}>
-                        {reregisterRunner.isPending ? "Reregistering…" : "Rerun registration"}
-                    </Button>
                     <Button sm variant="danger" onClick={handleDrop}>
                         Drop
                     </Button>
                 </div>
             </div>
-            {expanded && <RunnerCredentials name={name}/>}
         </div>
     )
 }

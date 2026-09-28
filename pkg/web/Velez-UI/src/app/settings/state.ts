@@ -17,6 +17,7 @@ export interface InitReq {
     headers: {
         'Grpc-Metadata-Authorization': string
     }
+    signal?: AbortSignal
 }
 
 const settings = getFromLocalStorage("settings");

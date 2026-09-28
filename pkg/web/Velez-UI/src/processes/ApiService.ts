@@ -2,6 +2,8 @@ import {useCredentialsStore} from '@/app/settings/creds.ts'
 import {parseGrpcError, ServiceError} from '@vervstack/chures'
 import type {InitReq} from '@/app/settings/state.ts'
 
+const REQUEST_TIMEOUT_MS = 15000
+
 export class ApiService {
     protected async execute<T>(fn: (req: InitReq) => Promise<T>): Promise<T> {
         return withRetries(() => this.call(fn), 2)
@@ -13,8 +15,9 @@ export class ApiService {
 
     private async call<T>(fn: (req: InitReq) => Promise<T>): Promise<T> {
         const initReq = useCredentialsStore.getState().getInitReq()
+        const req: InitReq = {...initReq, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)}
         try {
-            return await fn(initReq)
+            return await fn(req)
         } catch (e) {
             throw parseGrpcError(e)
         }

@@ -56,5 +56,11 @@
 }
 
 .icon {
+    width: 0.75rem;
+    height: 0.75rem;
     flex-shrink: 0;
+}
+
+.clickable {
+    cursor: pointer;
 }

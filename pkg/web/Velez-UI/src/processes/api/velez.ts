@@ -4,6 +4,11 @@ import {
     GetHardwareResponse,
     ListSmerdsRequest,
     ListSmerdsResponse,
+    ListContainersRequest,
+    ListContainersResponse,
+    ContainerFilter,
+    GetContainerRequest,
+    DockerContainer,
     SearchImagesRequest,
     SearchImagesResponse,
     Smerd as ProtoSmerd,
@@ -88,6 +93,20 @@ export async function GetSmerd(name: string, initReq: InitReq): Promise<Smerd> {
             } as Smerd
         }
     )
+}
+
+
+export async function FetchContainers(filters?: ContainerFilter[]): Promise<ListContainersResponse> {
+    const req: ListContainersRequest = {
+        environment: useEnvironmentStore.getState().selectedEnvironment,
+        filters,
+    }
+    return VelezAPI.ListContainers(req, GetInitReq())
+}
+
+export async function FetchContainer(id: string): Promise<DockerContainer> {
+    const req: GetContainerRequest = {id, environment: useEnvironmentStore.getState().selectedEnvironment}
+    return VelezAPI.GetContainer(req, GetInitReq())
 }
 
 

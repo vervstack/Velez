@@ -1,13 +1,17 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Toggle } from '@vervstack/chures';
+import { Checkbox, Toggle } from '@vervstack/chures';
 
 import ServiceCard from '@/components/services/ServiceCard';
+import ContainerCard from '@/pages/services/parts/ContainerCard/ContainerCard.tsx';
 import SkeletonServiceCard from '@/components/service/SkeletonServiceCard';
 import ServicesEmptyState from '@/pages/services/parts/ServicesEmptyState/ServicesEmptyState';
 import { Routes } from '@/app/router/Routes';
 import { useListServicesQuery } from '@/processes/queries/services';
 import { useListSmerdsQuery } from '@/processes/queries/smerds';
+import { useListContainersQuery } from '@/processes/queries/containers';
+import { parseContainerSearch } from '@/processes/queries/parseContainerSearch';
+import { ContainerFilter, ContainerFilterField } from '@/app/api/velez';
 import { mapServiceToListItem, ServiceListItem } from '@/processes/mappings/smerds';
 import { useToaster } from '@/app/hooks/toaster/Toaster';
 import { useDialog } from '@/app/hooks/dialog/Dialog.tsx';
@@ -16,6 +20,7 @@ import Button from '@/components/base/Button.tsx';
 import cls from '@/pages/services/ServicesPage.module.css';
 
 const INCLUDE_INTERNAL_KEY = 'services.includeInternal';
+const SHOW_ALL_CONTAINERS_KEY = 'services.showAllContainers';
 
 function readIncludeInternal(): boolean {
     try {
@@ -33,6 +38,22 @@ function writeIncludeInternal(value: boolean) {
     }
 }
 
+function readShowAllContainers(): boolean {
+    try {
+        return localStorage.getItem(SHOW_ALL_CONTAINERS_KEY) === 'true';
+    } catch {
+        return false;
+    }
+}
+
+function writeShowAllContainers(value: boolean) {
+    try {
+        localStorage.setItem(SHOW_ALL_CONTAINERS_KEY, String(value));
+    } catch {
+        // localStorage unavailable (private mode, blocked) — non-fatal.
+    }
+}
+
 export default function ServicesPage() {
     const navigate = useNavigate();
     const toaster = useToaster();
@@ -40,6 +61,7 @@ export default function ServicesPage() {
 
     const [search, setSearch] = useState('');
     const [includeInternal, setIncludeInternal] = useState(readIncludeInternal);
+    const [showAllContainers, setShowAllContainers] = useState(readShowAllContainers);
 
     const servicesQuery = useListServicesQuery(includeInternal);
     useEffect(() => {
@@ -50,6 +72,20 @@ export default function ServicesPage() {
     useEffect(() => {
         if (smerdsQuery.error) toaster.catchGrpc(smerdsQuery.error);
     }, [smerdsQuery.error]);
+
+    const containerQuery = useMemo(function computeContainerQuery() {
+        return parseContainerSearch(search);
+    }, [search]);
+
+    const containerFilters: ContainerFilter[] | undefined = useMemo(function computeContainerFilters() {
+        if (containerQuery.mode !== 'service' || containerQuery.value === '') return undefined;
+        return [{field: ContainerFilterField.service, value: containerQuery.value}];
+    }, [containerQuery]);
+
+    const containersQuery = useListContainersQuery(containerFilters);
+    useEffect(() => {
+        if (containersQuery.error) toaster.catchGrpc(containersQuery.error);
+    }, [containersQuery.error]);
 
     const services: ServiceListItem[] = useMemo(function computeServices() {
         const smerds = smerdsQuery.data?.smerds ?? [];
@@ -62,13 +98,30 @@ export default function ServicesPage() {
         const q = search.trim().toLowerCase();
         if (!q) return services;
         return services.filter(
-            (s) => s.name.toLowerCase().includes(q) || s.image.toLowerCase().includes(q)
+            (s) => s.name.toLowerCase().includes(q)
+                || s.displayName.toLowerCase().includes(q)
+                || s.image.toLowerCase().includes(q)
         );
     }, [search, services]);
+
+    const filteredContainers = useMemo(function computeFilteredContainers() {
+        const containers = containersQuery.data?.containers ?? [];
+        if (containerQuery.mode === 'service') return containers;
+        const q = containerQuery.value.toLowerCase();
+        if (!q) return containers;
+        return containers.filter(
+            (c) => (c.name ?? '').toLowerCase().includes(q) || (c.imageName ?? '').toLowerCase().includes(q)
+        );
+    }, [containerQuery, containersQuery.data]);
 
     function handleIncludeInternalChange(value: boolean) {
         setIncludeInternal(value);
         writeIncludeInternal(value);
+    }
+
+    function handleShowAllContainersChange(value: boolean) {
+        setShowAllContainers(value);
+        writeShowAllContainers(value);
     }
 
     function handleOpen(name: string) {
@@ -87,30 +140,66 @@ export default function ServicesPage() {
         OpenDialog(<CreateAppDialog/>);
     }
 
+    function handleOpenContainer(id: string) {
+        navigate(Routes.Container + '/' + id);
+    }
+
+    function handleFilterByService(serviceName: string) {
+        setSearch(`service: ${serviceName}`);
+    }
+
     let gridContent: React.ReactNode;
-    if (servicesQuery.isLoading) {
-        gridContent = (
-            <>
-                <SkeletonServiceCard/>
-                <SkeletonServiceCard/>
-                <SkeletonServiceCard/>
-            </>
-        );
-    } else if (services.length === 0) {
-        gridContent = (
-            <ServicesEmptyState includeInternal={includeInternal} onCreate={handleCreate}/>
-        );
-    } else {
-        gridContent = filtered.map(function renderCard(service) {
-            return (
-                <ServiceCard
-                    key={service.name}
-                    service={service}
-                    onOpen={handleOpen}
-                    onDeploy={handleDeploy}
-                />
+    let countLabel: string;
+    if (showAllContainers) {
+        countLabel = `${filteredContainers.length} containers`;
+        if (containersQuery.isLoading) {
+            gridContent = (
+                <>
+                    <SkeletonServiceCard/>
+                    <SkeletonServiceCard/>
+                    <SkeletonServiceCard/>
+                </>
             );
-        });
+        } else if (filteredContainers.length === 0) {
+            gridContent = <div className={cls.containersEmpty}>No containers on this node.</div>;
+        } else {
+            gridContent = filteredContainers.map(function renderContainerCard(container) {
+                return (
+                    <ContainerCard
+                        key={container.id}
+                        container={container}
+                        onOpen={handleOpenContainer}
+                        onFilterByService={handleFilterByService}
+                    />
+                );
+            });
+        }
+    } else {
+        countLabel = `${filtered.length} services`;
+        if (servicesQuery.isLoading) {
+            gridContent = (
+                <>
+                    <SkeletonServiceCard/>
+                    <SkeletonServiceCard/>
+                    <SkeletonServiceCard/>
+                </>
+            );
+        } else if (services.length === 0) {
+            gridContent = (
+                <ServicesEmptyState includeInternal={includeInternal} onCreate={handleCreate}/>
+            );
+        } else {
+            gridContent = filtered.map(function renderCard(service) {
+                return (
+                    <ServiceCard
+                        key={service.name}
+                        service={service}
+                        onOpen={handleOpen}
+                        onDeploy={handleDeploy}
+                    />
+                );
+            });
+        }
     }
 
     return (
@@ -122,13 +211,17 @@ export default function ServicesPage() {
                     value={search}
                     onChange={handleSearchChange}
                 />
-                <span className={cls.count}>{filtered.length} services</span>
+                <span className={cls.count}>{countLabel}</span>
                 <div className={cls.toolbarRight}>
-                    <Toggle
-                        label="Show Verv internal"
-                        labelPosition="right"
+                    <Checkbox
+                        label="Show VervStack Services"
                         checked={includeInternal}
                         onChange={handleIncludeInternalChange}
+                    />
+                    <Toggle
+                        label="Show all containers"
+                        checked={showAllContainers}
+                        onChange={handleShowAllContainersChange}
                     />
                     <Button variant="primary" onClick={handleCreate}>
                         Create service

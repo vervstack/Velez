@@ -6,6 +6,7 @@ import MainLayout from "@/app/router/MainLayout.tsx";
 import AuthGate from "@/app/router/AuthGate.tsx";
 import LoginPage from "@/pages/login/LoginPage.tsx";
 import SmerdPage from "@/pages/smerd/SmerdPage.tsx";
+import ContainerPage from "@/pages/container/ContainerPage.tsx";
 import DeployPage from "@/pages/deploy/DeployPage.tsx";
 import VervClosedNetworkPage from "@/pages/vcn/VervClosedNetworkPage.tsx";
 import DeploymentsPage from "@/pages/deployments/DeploymentsPage";
@@ -112,6 +113,11 @@ const router = createBrowserRouter([
             {
                 path: Routes.Smerd + "/:" + Arguments.Name,
                 element: (<SmerdPage/>),
+            },
+
+            {
+                path: Routes.Container + "/:" + Arguments.Id,
+                element: (<ContainerPage/>),
             },
 
             {

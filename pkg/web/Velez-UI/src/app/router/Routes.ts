@@ -4,6 +4,7 @@ export enum Routes {
     Deployments = "/deployments",
     Services = "/services",
     Smerd = "/smerd",
+    Container = "/container",
     VCN = "/vcn",
     Search = "/search",
     NewVervService = '/new_verv_service',
@@ -17,5 +18,6 @@ export enum Routes {
 
 export enum Arguments {
     Name = "name",
-    Key = "key"
+    Key = "key",
+    Id = "id"
 }

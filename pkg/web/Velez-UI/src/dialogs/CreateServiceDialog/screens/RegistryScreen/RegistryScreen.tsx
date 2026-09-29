@@ -1,7 +1,7 @@
-import {useState} from "react"
+import {useEffect, useState} from "react"
 import {Dropdown, DropdownOption, parseGrpcError} from "@vervstack/chures"
 
-import cls from "@/dialogs/RegistryInstanceCreateDialog/RegistryInstanceCreateDialog.module.css"
+import cls from "@/dialogs/CreateServiceDialog/screens/RegistryScreen/RegistryScreen.module.css"
 import {CreateRegistryInstanceRequest, CreateRegistryInstanceResponse} from "@/app/api/velez"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
@@ -18,14 +18,18 @@ import Choice from "@/components/base/Choice.tsx"
 import Checkbox from "@/components/base/Checkbox.tsx"
 import {
     buildCreateRegistryInstanceRequest,
-} from "@/dialogs/RegistryInstanceCreateDialog/processes/buildCreateRegistryInstanceRequest.ts"
-import RegistryDeployProgressScreen from "@/dialogs/RegistryInstanceCreateDialog/screens/RegistryDeployProgressScreen.tsx"
+} from "@/dialogs/CreateServiceDialog/screens/RegistryScreen/processes/buildCreateRegistryInstanceRequest.ts"
+import RegistryDeployProgressScreen from "@/dialogs/CreateServiceDialog/screens/RegistryScreen/components/RegistryDeployProgressScreen/RegistryDeployProgressScreen.tsx"
 
 const BOX_OPTIONS = ["small", "medium", "large"] as const
 
 type Box = typeof BOX_OPTIONS[number]
 
-export default function RegistryInstanceCreateDialog() {
+interface Props {
+    onBusyChange(isBusy: boolean): void
+}
+
+export default function RegistryScreen({onBusyChange}: Props) {
     const [name, setName] = useState("")
     const [environment, setEnvironment] = useState("")
     const [box, setBox] = useState<Box>("small")
@@ -41,6 +45,10 @@ export default function RegistryInstanceCreateDialog() {
     const environmentsQuery = ListEnvironmentsQuery()
     const servicesQuery = useListServicesQuery()
     const createRegistryInstance = CreateRegistryInstanceMutation()
+
+    useEffect(() => {
+        onBusyChange(submittedReq !== null || createRegistryInstance.isPending)
+    }, [submittedReq, createRegistryInstance.isPending])
 
     const environmentOptions: DropdownOption[] = (environmentsQuery.data?.environments ?? []).map((env) => ({
         id: env.name ?? "",
@@ -102,80 +110,72 @@ export default function RegistryInstanceCreateDialog() {
 
     if (submittedReq) {
         return (
-            <div className={cls.RegistryInstanceCreateDialogContainer}>
-                <RegistryDeployProgressScreen
-                    name={submittedReq.name ?? ""}
-                    start={handleStart}
-                    onSuccess={handleSuccess}
-                    onClose={CloseDialog}
-                />
-            </div>
+            <RegistryDeployProgressScreen
+                name={submittedReq.name ?? ""}
+                start={handleStart}
+                onSuccess={handleSuccess}
+                onClose={CloseDialog}
+            />
         )
     }
 
     return (
-        <div className={cls.RegistryInstanceCreateDialogContainer}>
-            <div className={cls.Header}>
-                <h2 className={cls.Title}>Create registry</h2>
+        <div className={cls.RegistryScreenContainer}>
+            <div className={cls.FieldsWrapper}>
+                <Input
+                    label="Name"
+                    inputValue={name}
+                    onChange={setName}
+                    disabled={createRegistryInstance.isPending}
+                />
+
+                <Dropdown
+                    label="Environment"
+                    placeholder="Default"
+                    options={environmentOptions}
+                    value={environment ? [environment] : []}
+                    onChange={handleEnvironmentChange}
+                    isLoading={environmentsQuery.isLoading}
+                    onError={handleError}
+                    portal
+                />
+
+                <span className={cls.FieldLabel}>Box</span>
+                <div className={cls.ChoiceRow}>
+                    {BOX_OPTIONS.map(renderBoxChoice)}
+                </div>
+
+                <Checkbox label="Expose port" checked={exposePort} onChange={handleToggleExposePort}/>
+
+                {exposePort && (
+                    <Input label="Port" inputValue={port} onChange={setPort}/>
+                )}
+
+                <Checkbox label="Enable UI" checked={enableUi} onChange={handleToggleEnableUi}/>
+
+                <Dropdown
+                    label="Owner service (optional)"
+                    placeholder="None"
+                    options={serviceOptions}
+                    value={ownerService ? [ownerService] : []}
+                    onChange={handleOwnerServiceChange}
+                    isLoading={servicesQuery.isLoading}
+                    onError={handleError}
+                    portal
+                />
             </div>
 
-            <div className={cls.Content}>
-                <div className={cls.FieldsWrapper}>
-                    <Input
-                        label="Name"
-                        inputValue={name}
-                        onChange={setName}
-                        disabled={createRegistryInstance.isPending}
-                    />
-
-                    <Dropdown
-                        label="Environment"
-                        placeholder="Default"
-                        options={environmentOptions}
-                        value={environment ? [environment] : []}
-                        onChange={handleEnvironmentChange}
-                        isLoading={environmentsQuery.isLoading}
-                        onError={handleError}
-                        portal
-                    />
-
-                    <span className={cls.FieldLabel}>Box</span>
-                    <div className={cls.ChoiceRow}>
-                        {BOX_OPTIONS.map(renderBoxChoice)}
-                    </div>
-
-                    <Checkbox label="Expose port" checked={exposePort} onChange={handleToggleExposePort}/>
-
-                    {exposePort && (
-                        <Input label="Port" inputValue={port} onChange={setPort}/>
-                    )}
-
-                    <Checkbox label="Enable UI" checked={enableUi} onChange={handleToggleEnableUi}/>
-
-                    <Dropdown
-                        label="Owner service (optional)"
-                        placeholder="None"
-                        options={serviceOptions}
-                        value={ownerService ? [ownerService] : []}
-                        onChange={handleOwnerServiceChange}
-                        isLoading={servicesQuery.isLoading}
-                        onError={handleError}
-                        portal
-                    />
-                </div>
-
-                <div className={cls.ActionsRow}>
-                    <Button variant="secondary" onClick={CloseDialog} disabled={createRegistryInstance.isPending}>
-                        Cancel
-                    </Button>
-                    <Button
-                        variant="primary"
-                        onClick={handleCreate}
-                        disabled={createRegistryInstance.isPending || !name.trim()}
-                    >
-                        Create
-                    </Button>
-                </div>
+            <div className={cls.ActionsRow}>
+                <Button variant="secondary" onClick={CloseDialog} disabled={createRegistryInstance.isPending}>
+                    Cancel
+                </Button>
+                <Button
+                    variant="primary"
+                    onClick={handleCreate}
+                    disabled={createRegistryInstance.isPending || !name.trim()}
+                >
+                    Create
+                </Button>
             </div>
         </div>
     )

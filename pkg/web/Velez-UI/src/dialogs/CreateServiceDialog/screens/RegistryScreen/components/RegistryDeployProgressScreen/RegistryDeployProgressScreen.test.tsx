@@ -2,7 +2,8 @@ import {afterEach, describe, expect, it, vi} from "vitest"
 import {act, fireEvent, render, screen, waitFor} from "@testing-library/react"
 
 import {TaskStatus, TaskStatusStatus} from "@/app/api/velez"
-import RegistryDeployProgressScreen from "@/dialogs/RegistryInstanceCreateDialog/screens/RegistryDeployProgressScreen.tsx"
+import RegistryDeployProgressScreen from
+    "@/dialogs/CreateServiceDialog/screens/RegistryScreen/components/RegistryDeployProgressScreen/RegistryDeployProgressScreen.tsx"
 import {WatchTaskStream} from "@/processes/api/tasks.ts"
 
 vi.mock("@/processes/api/tasks.ts", () => ({

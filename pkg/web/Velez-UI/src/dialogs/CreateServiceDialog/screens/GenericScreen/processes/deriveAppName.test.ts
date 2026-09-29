@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
-import {deriveAppName} from '@/dialogs/CreateAppDialog/processes/deriveAppName.ts';
+import {deriveAppName} from '@/dialogs/CreateServiceDialog/screens/GenericScreen/processes/deriveAppName.ts';
 
 describe('deriveAppName', () => {
     it('derives the name from an https URL with a .git suffix', () => {

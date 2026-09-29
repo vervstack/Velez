@@ -15,7 +15,7 @@ import { ContainerFilter, ContainerFilterField } from '@/app/api/velez';
 import { mapServiceToListItem, ServiceListItem } from '@/processes/mappings/smerds';
 import { useToaster } from '@/app/hooks/toaster/Toaster';
 import { useDialog } from '@/app/hooks/dialog/Dialog.tsx';
-import CreateAppDialog from '@/dialogs/CreateAppDialog/CreateAppDialog.tsx';
+import CreateServiceDialog from '@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx';
 import Button from '@/components/base/Button.tsx';
 import cls from '@/pages/services/ServicesPage.module.css';
 
@@ -137,7 +137,7 @@ export default function ServicesPage() {
     }
 
     function handleCreate() {
-        OpenDialog(<CreateAppDialog/>);
+        OpenDialog(<CreateServiceDialog/>);
     }
 
     function handleOpenContainer(id: string) {

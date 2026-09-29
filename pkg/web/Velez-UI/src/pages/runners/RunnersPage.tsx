@@ -5,7 +5,7 @@ import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import {useListRunnersQuery} from "@/processes/queries/runners.ts"
 import Button from "@/components/base/Button.tsx"
-import RunnerCreateDialog from "@/dialogs/RunnerCreateDialog/RunnerCreateDialog.tsx"
+import CreateServiceDialog from "@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx"
 import RunnerRow from "@/pages/runners/components/RunnerRow/RunnerRow.tsx"
 import RunnersEmptyState from "@/pages/runners/components/RunnersEmptyState/RunnersEmptyState.tsx"
 
@@ -26,7 +26,7 @@ export default function RunnersPage() {
     )
 
     function handleCreate() {
-        OpenDialog(<RunnerCreateDialog/>)
+        OpenDialog(<CreateServiceDialog initialScreen="githubRunner"/>)
     }
 
     function renderColumnHeader(label: string, i: number) {

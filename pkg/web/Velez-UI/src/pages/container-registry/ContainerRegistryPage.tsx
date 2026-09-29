@@ -6,7 +6,7 @@ import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import {useListRegistryInstancesQuery} from "@/processes/queries/registry_instances.ts"
 import {sortRegistryInstancesByName} from "@/processes/mappings/registry_instances.ts"
 import Button from "@/components/base/Button.tsx"
-import RegistryInstanceCreateDialog from "@/dialogs/RegistryInstanceCreateDialog/RegistryInstanceCreateDialog.tsx"
+import CreateServiceDialog from "@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx"
 import RegistryInstanceRow from "@/pages/container-registry/components/RegistryInstanceRow/RegistryInstanceRow.tsx"
 import ContainerRegistryEmptyState
     from "@/pages/container-registry/components/ContainerRegistryEmptyState/ContainerRegistryEmptyState.tsx"
@@ -28,7 +28,7 @@ export default function ContainerRegistryPage() {
     )
 
     function handleCreate() {
-        OpenDialog(<RegistryInstanceCreateDialog/>)
+        OpenDialog(<CreateServiceDialog initialScreen="registry"/>)
     }
 
     function renderColumnHeader(label: string, i: number) {

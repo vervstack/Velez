@@ -1,0 +1,12 @@
+.PickerScreenContainer {
+    padding: 1.25rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.625rem;
+
+    & .CardWrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+}

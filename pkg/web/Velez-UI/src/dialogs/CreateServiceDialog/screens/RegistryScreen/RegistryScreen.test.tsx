@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from "vitest"
 import {fireEvent, render, screen} from "@testing-library/react"
 
-import RegistryInstanceCreateDialog from "@/dialogs/RegistryInstanceCreateDialog/RegistryInstanceCreateDialog.tsx"
+import RegistryScreen from "@/dialogs/CreateServiceDialog/screens/RegistryScreen/RegistryScreen.tsx"
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {ListEnvironmentsQuery} from "@/processes/queries/control_plane.ts"
 import {useListServicesQuery} from "@/processes/queries/services.ts"
@@ -14,11 +14,12 @@ vi.mock("@/processes/queries/registry_instances.ts", () => ({
     CreateRegistryInstanceMutation: vi.fn(),
     REGISTRY_INSTANCES_QUERY_KEY: ["registry-instances"],
 }))
-vi.mock("@/dialogs/RegistryInstanceCreateDialog/screens/RegistryDeployProgressScreen.tsx", () => ({
-    default: vi.fn(() => <div>progress screen</div>),
-}))
+vi.mock(
+    "@/dialogs/CreateServiceDialog/screens/RegistryScreen/components/RegistryDeployProgressScreen/RegistryDeployProgressScreen.tsx",
+    () => ({default: vi.fn(() => <span>progress screen</span>)}),
+)
 
-function renderDialog() {
+function renderScreen() {
     const CloseDialog = vi.fn()
     vi.mocked(useDialog).mockReturnValue(
         {CloseDialog} as Partial<ReturnType<typeof useDialog>> as ReturnType<typeof useDialog>
@@ -37,17 +38,18 @@ function renderDialog() {
             ReturnType<typeof CreateRegistryInstanceMutation>
     )
 
-    render(<RegistryInstanceCreateDialog/>)
-    return {mutateAsync, CloseDialog}
+    const onBusyChange = vi.fn()
+    render(<RegistryScreen onBusyChange={onBusyChange}/>)
+    return {mutateAsync, CloseDialog, onBusyChange}
 }
 
 afterEach(() => {
     vi.clearAllMocks()
 })
 
-describe("RegistryInstanceCreateDialog", () => {
+describe("RegistryScreen", () => {
     it("disables Create until a name is entered", () => {
-        renderDialog()
+        renderScreen()
 
         expect(screen.getByText("Create")).toBeDisabled()
 
@@ -57,7 +59,7 @@ describe("RegistryInstanceCreateDialog", () => {
     })
 
     it("does not enable the UI sidecar by default", () => {
-        renderDialog()
+        renderScreen()
 
         const enableUiLabel = screen.getByText("Enable UI")
         const enableUiCheckbox = enableUiLabel.parentElement?.querySelector("input[type='checkbox']")
@@ -66,7 +68,7 @@ describe("RegistryInstanceCreateDialog", () => {
     })
 
     it("swaps to the progress screen and starts the create request when Create is clicked", () => {
-        renderDialog()
+        renderScreen()
 
         fireEvent.change(screen.getByRole("textbox"), {target: {value: "my-registry"}})
         fireEvent.click(screen.getByText("Create"))

@@ -1,7 +1,7 @@
-import {useState} from "react"
+import {useEffect, useState} from "react"
 import {Dropdown, DropdownOption, parseGrpcError} from "@vervstack/chures"
 
-import cls from "@/dialogs/PgInstanceCreateDialog/PgInstanceCreateDialog.module.css"
+import cls from "@/dialogs/CreateServiceDialog/screens/PostgresScreen/PostgresScreen.module.css"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {ListEnvironmentsQuery} from "@/processes/queries/control_plane.ts"
@@ -11,7 +11,9 @@ import Button from "@/components/base/Button.tsx"
 import Input from "@/components/base/Input.tsx"
 import Choice from "@/components/base/Choice.tsx"
 import Checkbox from "@/components/base/Checkbox.tsx"
-import {buildCreatePgInstanceRequest} from "@/dialogs/PgInstanceCreateDialog/processes/buildCreatePgInstanceRequest.ts"
+import {
+    buildCreatePgInstanceRequest,
+} from "@/dialogs/CreateServiceDialog/screens/PostgresScreen/processes/buildCreatePgInstanceRequest.ts"
 
 const BOX_OPTIONS = ["small", "medium", "large"] as const
 
@@ -38,7 +40,11 @@ function renderIsolationChoice(opt: typeof ISOLATION_OPTIONS[number]) {
     )
 }
 
-export default function PgInstanceCreateDialog() {
+interface Props {
+    onBusyChange(isBusy: boolean): void
+}
+
+export default function PostgresScreen({onBusyChange}: Props) {
     const [name, setName] = useState("")
     const [environment, setEnvironment] = useState("")
     const [box, setBox] = useState<Box>("small")
@@ -52,6 +58,10 @@ export default function PgInstanceCreateDialog() {
     const environmentsQuery = ListEnvironmentsQuery()
     const servicesQuery = useListServicesQuery()
     const createPgInstance = CreatePgInstanceMutation()
+
+    useEffect(() => {
+        onBusyChange(createPgInstance.isPending)
+    }, [createPgInstance.isPending])
 
     const environmentOptions: DropdownOption[] = (environmentsQuery.data?.environments ?? []).map((env) => ({
         id: env.name ?? "",
@@ -100,71 +110,65 @@ export default function PgInstanceCreateDialog() {
     }
 
     return (
-        <div className={cls.PgInstanceCreateDialogContainer}>
-            <div className={cls.Header}>
-                <h2 className={cls.Title}>Create database</h2>
+        <div className={cls.PostgresScreenContainer}>
+            <div className={cls.FieldsWrapper}>
+                <Input
+                    label="Name"
+                    inputValue={name}
+                    onChange={setName}
+                    disabled={createPgInstance.isPending}
+                />
+
+                <Dropdown
+                    label="Environment"
+                    placeholder="Default"
+                    options={environmentOptions}
+                    value={environment ? [environment] : []}
+                    onChange={handleEnvironmentChange}
+                    isLoading={environmentsQuery.isLoading}
+                    onError={handleError}
+                    portal
+                />
+
+                <span className={cls.FieldLabel}>Box</span>
+                <div className={cls.ChoiceRow}>
+                    {BOX_OPTIONS.map(renderBoxChoice)}
+                </div>
+
+                <span className={cls.FieldLabel}>Isolation</span>
+                <div className={cls.ChoiceRow}>
+                    {ISOLATION_OPTIONS.map(renderIsolationChoice)}
+                </div>
+
+                <Checkbox label="Expose port" checked={exposePort} onChange={handleToggleExposePort}/>
+
+                {exposePort && (
+                    <Input label="Port" inputValue={port} onChange={setPort}/>
+                )}
+
+                <Dropdown
+                    label="Owner service (optional)"
+                    placeholder="None"
+                    options={serviceOptions}
+                    value={ownerService ? [ownerService] : []}
+                    onChange={handleOwnerServiceChange}
+                    isLoading={servicesQuery.isLoading}
+                    onError={handleError}
+                    portal
+                />
             </div>
 
-            <div className={cls.Content}>
-                <div className={cls.FieldsWrapper}>
-                    <Input
-                        label="Name"
-                        inputValue={name}
-                        onChange={setName}
-                        disabled={createPgInstance.isPending}
-                    />
-
-                    <Dropdown
-                        label="Environment"
-                        placeholder="Default"
-                        options={environmentOptions}
-                        value={environment ? [environment] : []}
-                        onChange={handleEnvironmentChange}
-                        isLoading={environmentsQuery.isLoading}
-                        onError={handleError}
-                        portal
-                    />
-
-                    <span className={cls.FieldLabel}>Box</span>
-                    <div className={cls.ChoiceRow}>
-                        {BOX_OPTIONS.map(renderBoxChoice)}
-                    </div>
-
-                    <span className={cls.FieldLabel}>Isolation</span>
-                    <div className={cls.ChoiceRow}>
-                        {ISOLATION_OPTIONS.map(renderIsolationChoice)}
-                    </div>
-
-                    <Checkbox label="Expose port" checked={exposePort} onChange={handleToggleExposePort}/>
-
-                    {exposePort && (
-                        <Input label="Port" inputValue={port} onChange={setPort}/>
-                    )}
-
-                    <Dropdown
-                        label="Owner service (optional)"
-                        placeholder="None"
-                        options={serviceOptions}
-                        value={ownerService ? [ownerService] : []}
-                        onChange={handleOwnerServiceChange}
-                        isLoading={servicesQuery.isLoading}
-                        onError={handleError}
-                        portal
-                    />
-                </div>
-
-                <div className={cls.ActionsRow}>
-                    <Button variant="secondary" onClick={CloseDialog} disabled={createPgInstance.isPending}>
-                        Cancel
-                    </Button>
-                    <Button
-                        variant="primary"
-                        onClick={handleCreate}
-                        disabled={createPgInstance.isPending || !name.trim()}
-                    >
-                        {createPgInstance.isPending ? "Creating…" : "Create"}
-                    </Button>
-                </div>
+            <div className={cls.ActionsRow}>
+                <Button variant="secondary" onClick={CloseDialog} disabled={createPgInstance.isPending}>
+                    Cancel
+                </Button>
+                <Button
+                    variant="primary"
+                    onClick={handleCreate}
+                    disabled={createPgInstance.isPending || !name.trim()}
+                >
+                    {createPgInstance.isPending ? "Creating…" : "Create"}
+                </Button>
             </div>
         </div>
     )

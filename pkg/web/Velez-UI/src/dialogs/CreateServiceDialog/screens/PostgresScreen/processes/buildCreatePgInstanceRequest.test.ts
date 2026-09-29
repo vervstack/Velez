@@ -1,6 +1,8 @@
 import {describe, expect, it} from "vitest"
 
-import {buildCreatePgInstanceRequest} from "@/dialogs/PgInstanceCreateDialog/processes/buildCreatePgInstanceRequest.ts"
+import {
+    buildCreatePgInstanceRequest,
+} from "@/dialogs/CreateServiceDialog/screens/PostgresScreen/processes/buildCreatePgInstanceRequest.ts"
 
 describe("buildCreatePgInstanceRequest", () => {
     it("returns null when the name is blank", () => {

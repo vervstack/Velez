@@ -1,0 +1,75 @@
+.RunnerScreenContainer {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+
+    & .FieldsWrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.875rem;
+
+        & .FieldLabel {
+            font-family: var(--font-mono);
+            font-size: 0.6875rem;
+            color: var(--fg-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.0275rem;
+            margin-top: -0.375rem;
+        }
+
+        & .TargetFieldWrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+
+            & .FieldError {
+                font-size: 0.75rem;
+                color: var(--red);
+            }
+        }
+
+        & .AdvancedToggle {
+            font-size: 0.75rem;
+            color: var(--fg-mid);
+            cursor: pointer;
+            user-select: none;
+
+            &:hover {
+                color: var(--fg);
+            }
+        }
+
+        & .AdvancedSection {
+            display: flex;
+            flex-direction: column;
+            gap: 0.875rem;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease, opacity 0.2s ease;
+
+            &.AdvancedSectionOpen {
+                max-height: 20rem;
+                opacity: 1;
+            }
+
+            & .RiskNotice {
+                font-size: 0.75rem;
+                line-height: 1.4;
+                color: var(--amber);
+                background: var(--amber-dim);
+                border: 0.0625rem solid var(--amber);
+                border-radius: var(--radius);
+                padding: 0.625rem 0.75rem;
+                margin-top: -0.5rem;
+            }
+        }
+    }
+
+    & .ActionsRow {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+}

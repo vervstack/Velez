@@ -6,7 +6,7 @@ import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import {useListPgInstancesQuery} from "@/processes/queries/pg_instances.ts"
 import {sortPgInstancesByName} from "@/processes/mappings/pg_instances.ts"
 import Button from "@/components/base/Button.tsx"
-import PgInstanceCreateDialog from "@/dialogs/PgInstanceCreateDialog/PgInstanceCreateDialog.tsx"
+import CreateServiceDialog from "@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx"
 import PgInstanceRow from "@/pages/postgres/components/PgInstanceRow/PgInstanceRow.tsx"
 import PostgresEmptyState from "@/pages/postgres/components/PostgresEmptyState/PostgresEmptyState.tsx"
 
@@ -27,7 +27,7 @@ export default function PostgresPage() {
     )
 
     function handleCreate() {
-        OpenDialog(<PgInstanceCreateDialog/>)
+        OpenDialog(<CreateServiceDialog initialScreen="postgres"/>)
     }
 
     function renderColumnHeader(label: string, i: number) {

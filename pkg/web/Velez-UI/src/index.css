@@ -86,6 +86,8 @@ body {
 
     /*    Sidebar */
     --sidebar-width: 13.75rem;
+    --dialog-max-width: 90vw;
+    --dialog-max-height: 90vh;
 
     /* ── Supplemental VS tokens (from design handoff) ─────────── */
     --vs-bg-5: #2a2a3a;

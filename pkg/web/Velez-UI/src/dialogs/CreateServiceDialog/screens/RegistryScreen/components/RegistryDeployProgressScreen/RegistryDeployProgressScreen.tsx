@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react"
 
-import cls from "@/dialogs/RegistryInstanceCreateDialog/screens/RegistryDeployProgressScreen.module.css"
+import cls from "@/dialogs/CreateServiceDialog/screens/RegistryScreen/components/RegistryDeployProgressScreen/RegistryDeployProgressScreen.module.css"
 import {TaskStatus, TaskStatusStatus, WatchTaskRequest} from "@/app/api/velez"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import {queryClient} from "@/app/queryClient.ts"

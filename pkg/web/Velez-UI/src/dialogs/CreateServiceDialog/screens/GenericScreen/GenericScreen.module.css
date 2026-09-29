@@ -1,0 +1,18 @@
+.GenericScreenContainer {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+
+    & .FieldsWrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.875rem;
+    }
+
+    & .ActionsRow {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+}

@@ -17,6 +17,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/service/secrets"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
@@ -39,11 +40,13 @@ type registerRequestAccessor interface {
 	GetEnvironment() string
 	GetServiceName() string
 	GetBindMountLinks() []*bindMountLink
+	GetPattern() velez_api.ServicePattern
 }
 
 type registerRecreateAccessor interface {
 	registerRequestAccessor
 	registerUpgradeAccessor
+	registerPgLoginAccessor
 }
 
 type registeredContainerAccessor interface {
@@ -65,17 +68,20 @@ type registerContainerHandler struct {
 	dataStorage storage.Storage
 	jobsEngine  Engine
 	runtimes    container_runtime.RuntimeResolver
+	secrets     secrets.Store
 }
 
 func NewRegisterContainerHandler(
 	dataStorage storage.Storage,
 	jobsEngine Engine,
 	runtimes container_runtime.RuntimeResolver,
+	secretsStore secrets.Store,
 ) TaskHandler {
 	return &registerContainerHandler{
 		dataStorage: dataStorage,
 		jobsEngine:  jobsEngine,
 		runtimes:    runtimes,
+		secrets:     secretsStore,
 	}
 }
 
@@ -93,6 +99,8 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		panic("register_container: BuildJobs called with mismatched TaskContext type")
 	}
 
+	isPg := payload.GetPattern() == velez_api.ServicePattern_SERVICE_PATTERN_POSTGRES
+
 	jobs := []NamedJob{
 		{
 			Name: stepInspectContainer,
@@ -103,22 +111,53 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 				ctx:         payload,
 			},
 		},
-		{
-			Name: stepLinkBindMounts,
-			Job: &linkBindMountsJob{
+	}
+
+	if isPg {
+		verifyJob := NamedJob{
+			Name: stepVerifyPgLogin,
+			Job: &verifyPgLoginJob{
 				runtimes: h.runtimes,
+				secrets:  h.secrets,
 				req:      payload,
+				pg:       payload,
+				ctx:      payload,
 			},
-		},
-		{
-			Name: stepUpsertService,
-			Job: &upsertRegisteredServiceJob{
-				dataStorage: h.dataStorage,
-				req:         payload,
-				ctx:         payload,
+		}
+
+		secretJob := NamedJob{
+			Name: stepStorePgSecret,
+			Job: &storePgSecretJob{
+				runtimes: h.runtimes,
+				secrets:  h.secrets,
+				req:      payload,
+				pg:       payload,
 			},
+		}
+
+		jobs = append(jobs, verifyJob, secretJob)
+	}
+
+	linkJob := NamedJob{
+		Name: stepLinkBindMounts,
+		Job: &linkBindMountsJob{
+			runtimes: h.runtimes,
+			req:      payload,
 		},
 	}
+
+	jobs = append(jobs, linkJob)
+
+	upsertJob := NamedJob{
+		Name: stepUpsertService,
+		Job: &upsertRegisteredServiceJob{
+			dataStorage: h.dataStorage,
+			req:         payload,
+			ctx:         payload,
+		},
+	}
+
+	jobs = append(jobs, upsertJob)
 
 	if h.dataStorage.IsStatefull() {
 		bindJob := NamedJob{
@@ -132,7 +171,25 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		}
 
-		return append(jobs, bindJob)
+		jobs = append(jobs, bindJob)
+
+		if isPg {
+			pgInstanceJob := NamedJob{
+				Name: stepUpsertPgInstance,
+				Job: &upsertPgInstanceJob{
+					dataStorage: h.dataStorage,
+					runtimes:    h.runtimes,
+					secrets:     h.secrets,
+					req:         payload,
+					pg:          payload,
+					service:     payload,
+				},
+			}
+
+			jobs = append(jobs, pgInstanceJob)
+		}
+
+		return jobs
 	}
 
 	recreateJob := NamedJob{
@@ -140,6 +197,7 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		Job: &recreateWithLabelsJob{
 			jobsEngine: h.jobsEngine,
 			runtimes:   h.runtimes,
+			secrets:    h.secrets,
 			req:        payload,
 			container:  payload,
 		},
@@ -330,6 +388,8 @@ func (j *bindExistingContainerJob) Do(ctx context.Context) error {
 
 	spec.Settings.Volumes = registerVolumes(info, linked)
 
+	maps.Copy(spec.GetLabels(), registeredPatternLabels(j.req.GetPattern()))
+
 	specPayload, err := json.Marshal(spec)
 	if err != nil {
 		return rerrors.Wrap(err, "error marshaling deployment spec payload")
@@ -389,6 +449,7 @@ func (j *bindExistingContainerJob) Do(ctx context.Context) error {
 type recreateWithLabelsJob struct {
 	jobsEngine Engine
 	runtimes   container_runtime.RuntimeResolver
+	secrets    secrets.Store
 
 	req       registerRecreateAccessor
 	container registeredContainerAccessor
@@ -407,7 +468,7 @@ func (j *recreateWithLabelsJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error inspecting container")
 	}
 
-	if !found {
+	if !found || info.Config == nil {
 		return rerrors.Wrap(user_errors.ErrRegisterContainerNotFound)
 	}
 
@@ -419,7 +480,18 @@ func (j *recreateWithLabelsJob) Do(ctx context.Context) error {
 
 	payload := &velez_api.UpgradeSmerdTaskPayload{
 		UpgradeRequest: upgradeReq,
-		ExtraLabels:    registeredServiceLabels(j.req.GetServiceName()),
+		ExtraLabels:    registeredLabels(j.req.GetServiceName(), j.req.GetPattern()),
+	}
+
+	if j.req.GetPattern() == velez_api.ServicePattern_SERVICE_PATTERN_POSTGRES {
+		containerEnv := parser.ToDockerEnv(info.Config.Env)
+
+		login, loginErr := loadPgLogin(ctx, j.secrets, containerEnv, j.req, j.req, true)
+		if loginErr != nil {
+			return rerrors.Wrap(loginErr)
+		}
+
+		payload.ExtraEnv = pgMissingEnv(containerEnv, login)
 	}
 
 	err = applyRegisterOverrides(payload, info, j.req)

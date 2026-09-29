@@ -119,6 +119,7 @@ export type UpgradeSmerdTaskPayload = {
   stopOldFirst?: boolean;
   portsOverride?: UpgradeSmerdTaskPayloadPortsOverride;
   volumesOverride?: UpgradeSmerdTaskPayloadVolumesOverride;
+  extraEnv?: Record<string, string>;
 };
 
 export type RegisterContainerTaskPayload = {
@@ -131,6 +132,9 @@ export type RegisterContainerTaskPayload = {
   bindMountLinks?: VelezApiVelezApi.RegisterContainerRequestBindMountLink[];
   keepPortMapping?: boolean;
   ports?: VelezApiVelezCommon.Port[];
+  pattern?: VelezApiVelezCommon.ServicePattern;
+  pgSuperuser?: string;
+  pgPendingSecretOwner?: string;
 };
 
 export type CreateRegistryInstanceTaskPayload = {

@@ -179,3 +179,7 @@ func (x *RegisterContainerTaskPayload) SetImageName(v string) {
 func (x *RegisterContainerTaskPayload) SetServiceId(v int64) {
 	x.ServiceId = v
 }
+
+func (x *RegisterContainerTaskPayload) SetPgSuperuser(v string) {
+	x.PgSuperuser = v
+}

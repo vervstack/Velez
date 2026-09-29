@@ -42,6 +42,8 @@ func (c *ContainerManager) GetContainer(
 		Env:          parser.ToDockerEnv(contInfo.Config.Env),
 		Mounts:       toMounts(contInfo.Mounts),
 		IsRegistered: contInfo.Config.Labels[labels.CreatedWithVelezLabel] == labelTrue,
+
+		SuggestedPattern: suggestedPattern(contInfo.Config.Image),
 	}
 
 	if contInfo.NetworkSettings != nil {

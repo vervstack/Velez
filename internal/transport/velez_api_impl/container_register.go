@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
@@ -33,7 +34,9 @@ func (impl *Impl) RegisterContainer(
 	}
 
 	isGeneric := req.GetPattern() == nil || req.GetGeneric() != nil
-	if !isGeneric {
+	isPg := req.GetPg() != nil
+
+	if !isGeneric && !isPg {
 		return nil, rerrors.Wrap(errPatternNotImplemented)
 	}
 
@@ -47,10 +50,29 @@ func (impl *Impl) RegisterContainer(
 		Ports:           req.GetPorts(),
 	}
 
+	if isPg {
+		payload.Pattern = velez_api.ServicePattern_SERVICE_PATTERN_POSTGRES
+		payload.PgSuperuser = req.GetPg().GetSuperuser()
+	}
+
 	entityId := req.GetServiceName() + "/" + uuid.NewString()
+
+	pgPassword := req.GetPg().GetPassword()
+	if isPg && pgPassword != "" {
+		ref := jobs.RegisteredPgPendingSecretRef(entityId)
+
+		err = impl.secrets.Put(ctx, ref, pgPassword)
+		if err != nil {
+			return nil, rerrors.Wrap(err, "error storing pending pg password")
+		}
+
+		payload.PgPendingSecretOwner = entityId
+	}
 
 	_, err = impl.jobsEngine.Enqueue(ctx, entityId, jobs.RegisterContainerAction, payload)
 	if err != nil {
+		impl.dropPendingPgSecret(ctx, entityId)
+
 		return nil, rerrors.Wrap(err, "error enqueuing register_container task")
 	}
 
@@ -60,4 +82,11 @@ func (impl *Impl) RegisterContainer(
 	}
 
 	return resp, nil
+}
+
+func (impl *Impl) dropPendingPgSecret(ctx context.Context, owner string) {
+	err := impl.secrets.Delete(ctx, jobs.RegisteredPgPendingSecretRef(owner))
+	if err != nil && !rerrors.Is(err, user_errors.ErrSecretNotFound) {
+		log.Ctx(ctx).Error().Err(err).Msg("error deleting pending pg secret after failed enqueue")
+	}
 }

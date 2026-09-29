@@ -236,6 +236,12 @@ message UpgradeSmerdTaskPayload {
   optional PortsOverride ports_override = 10;
   optional VolumesOverride volumes_override = 11;
 
+  // extra_env is merged over the env captured from the old container when the
+  // new container's request is built, so it always wins. Used by
+  // register_container to stamp the Postgres admin login into a container
+  // whose env lacked it.
+  map<string, string> extra_env = 12;
+
   message PortsOverride {
     repeated Port ports = 1;
   }
@@ -262,6 +268,22 @@ message RegisterContainerTaskPayload {
   repeated RegisterContainer.Request.BindMountLink bind_mount_links = 7;
   bool keep_port_mapping = 8;
   repeated Port ports = 9;
+
+  // pattern is the registration pattern; UNSPECIFIED is the generic one.
+  ServicePattern pattern = 10;
+
+  // pg_superuser is the Postgres admin user: the RPC sets what the request
+  // carried; verify_pg_login overwrites it with the effective one (container
+  // env first). Not secret.
+  string pg_superuser = 11;
+
+  reserved 12;
+  reserved "pg_password";
+
+  // pg_pending_secret_owner is the owner of the pending secret ("pgaas-pending"
+  // scope) holding the request-supplied Postgres password - never the value.
+  // Empty when the request carried no password.
+  string pg_pending_secret_owner = 13;
 }
 
 // CreateRegistryInstanceTaskPayload is the task context for the

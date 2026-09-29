@@ -65,6 +65,7 @@ type oldContainerIDAccessor interface {
 
 type captureOldContainerCtx interface {
 	GetExtraLabels() map[string]string
+	GetExtraEnv() map[string]string
 	GetPortsOverride() *velez_api.UpgradeSmerdTaskPayload_PortsOverride
 	GetVolumesOverride() *velez_api.UpgradeSmerdTaskPayload_VolumesOverride
 	SetRequest(createReq *velez_api.CreateSmerd_Request)
@@ -357,6 +358,16 @@ func (j *captureOldContainerJob) Do(ctx context.Context) error {
 		}
 
 		maps.Copy(reqLabels, j.ctx.GetExtraLabels())
+	}
+
+	if len(j.ctx.GetExtraEnv()) != 0 {
+		reqEnv := req.GetEnv()
+		if reqEnv == nil {
+			reqEnv = make(map[string]string)
+			req.Env = reqEnv
+		}
+
+		maps.Copy(reqEnv, j.ctx.GetExtraEnv())
 	}
 
 	applyUpgradeOverrides(req, j.ctx)

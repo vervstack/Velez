@@ -50,4 +50,15 @@ var (
 	// ErrVolumeOptionsConflict is returned when a volume to create already
 	// exists with a different driver or options.
 	ErrVolumeOptionsConflict = rerrors.New("volume already exists with different options", codes.AlreadyExists)
+
+	// ErrPgCredentialsRequired is returned by register_container's
+	// verify_pg_login when neither the container env nor the request carries
+	// the Postgres superuser and password.
+	ErrPgCredentialsRequired = rerrors.New(
+		"postgres superuser and password are required: the container env has none", codes.InvalidArgument)
+
+	// ErrPgLoginFailed is returned by register_container's verify_pg_login
+	// when a real login with the resolved credentials fails. It wraps the
+	// driver error.
+	ErrPgLoginFailed = rerrors.New("postgres login with the given credentials failed", codes.FailedPrecondition)
 )

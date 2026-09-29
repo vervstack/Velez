@@ -49,6 +49,8 @@ func (c *ContainerManager) ListContainers(
 			Ports:        parser.ToPortsSlice(cont.Ports),
 			Mounts:       toMounts(cont.Mounts),
 			IsRegistered: cont.Labels[labels.CreatedWithVelezLabel] == labelTrue,
+
+			SuggestedPattern: suggestedPattern(cont.Image),
 		}
 
 		if len(cont.Names) != 0 {

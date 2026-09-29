@@ -15,6 +15,7 @@ import (
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/service"
+	"go.vervstack.ru/Velez/internal/service/secrets"
 )
 
 type Impl struct {
@@ -27,6 +28,7 @@ type Impl struct {
 	smerdService    service.ContainerService
 	vervServices    service.VervServicesService
 	jobsEngine      jobs.Engine
+	secrets         secrets.Store
 
 	dockerAPI client.APIClient
 }
@@ -39,6 +41,7 @@ func NewImpl(cfg config.Config, srv service.Services, jobsEngine jobs.Engine) *I
 		vervServices:    srv.VervServices(),
 		hardwareManager: hardware.New(cfg.Environment.NodeRegion),
 		jobsEngine:      jobsEngine,
+		secrets:         srv.Secrets(),
 
 		dockerAPI: srv.Docker().Client(),
 	}

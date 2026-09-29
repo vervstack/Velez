@@ -822,8 +822,13 @@ type UpgradeSmerdTaskPayload struct {
 	// present-but-empty override means "none".
 	PortsOverride   *UpgradeSmerdTaskPayload_PortsOverride   `protobuf:"bytes,10,opt,name=ports_override,json=portsOverride,proto3,oneof" json:"ports_override,omitempty"`
 	VolumesOverride *UpgradeSmerdTaskPayload_VolumesOverride `protobuf:"bytes,11,opt,name=volumes_override,json=volumesOverride,proto3,oneof" json:"volumes_override,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// extra_env is merged over the env captured from the old container when the
+	// new container's request is built, so it always wins. Used by
+	// register_container to stamp the Postgres admin login into a container
+	// whose env lacked it.
+	ExtraEnv      map[string]string `protobuf:"bytes,12,rep,name=extra_env,json=extraEnv,proto3" json:"extra_env,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpgradeSmerdTaskPayload) Reset() {
@@ -933,6 +938,13 @@ func (x *UpgradeSmerdTaskPayload) GetVolumesOverride() *UpgradeSmerdTaskPayload_
 	return nil
 }
 
+func (x *UpgradeSmerdTaskPayload) GetExtraEnv() map[string]string {
+	if x != nil {
+		return x.ExtraEnv
+	}
+	return nil
+}
+
 // RegisterContainerTaskPayload is the task context for the
 // "register_container" action. Flat fields only - the RegisterContainer
 // request carries a oneof, which encoding/json can't round-trip.
@@ -949,8 +961,18 @@ type RegisterContainerTaskPayload struct {
 	BindMountLinks  []*RegisterContainer_Request_BindMountLink `protobuf:"bytes,7,rep,name=bind_mount_links,json=bindMountLinks,proto3" json:"bind_mount_links,omitempty"`
 	KeepPortMapping bool                                       `protobuf:"varint,8,opt,name=keep_port_mapping,json=keepPortMapping,proto3" json:"keep_port_mapping,omitempty"`
 	Ports           []*Port                                    `protobuf:"bytes,9,rep,name=ports,proto3" json:"ports,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// pattern is the registration pattern; UNSPECIFIED is the generic one.
+	Pattern ServicePattern `protobuf:"varint,10,opt,name=pattern,proto3,enum=velez_api.ServicePattern" json:"pattern,omitempty"`
+	// pg_superuser is the Postgres admin user: the RPC sets what the request
+	// carried; verify_pg_login overwrites it with the effective one (container
+	// env first). Not secret.
+	PgSuperuser string `protobuf:"bytes,11,opt,name=pg_superuser,json=pgSuperuser,proto3" json:"pg_superuser,omitempty"`
+	// pg_pending_secret_owner is the owner of the pending secret ("pgaas-pending"
+	// scope) holding the request-supplied Postgres password - never the value.
+	// Empty when the request carried no password.
+	PgPendingSecretOwner string `protobuf:"bytes,13,opt,name=pg_pending_secret_owner,json=pgPendingSecretOwner,proto3" json:"pg_pending_secret_owner,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *RegisterContainerTaskPayload) Reset() {
@@ -1044,6 +1066,27 @@ func (x *RegisterContainerTaskPayload) GetPorts() []*Port {
 		return x.Ports
 	}
 	return nil
+}
+
+func (x *RegisterContainerTaskPayload) GetPattern() ServicePattern {
+	if x != nil {
+		return x.Pattern
+	}
+	return ServicePattern_SERVICE_PATTERN_UNSPECIFIED
+}
+
+func (x *RegisterContainerTaskPayload) GetPgSuperuser() string {
+	if x != nil {
+		return x.PgSuperuser
+	}
+	return ""
+}
+
+func (x *RegisterContainerTaskPayload) GetPgPendingSecretOwner() string {
+	if x != nil {
+		return x.PgPendingSecretOwner
+	}
+	return ""
 }
 
 // CreateRegistryInstanceTaskPayload is the task context for the
@@ -1366,7 +1409,7 @@ type UpgradeSmerdTaskPayload_PortsOverride struct {
 
 func (x *UpgradeSmerdTaskPayload_PortsOverride) Reset() {
 	*x = UpgradeSmerdTaskPayload_PortsOverride{}
-	mi := &file_tasks_proto_msgTypes[22]
+	mi := &file_tasks_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1378,7 +1421,7 @@ func (x *UpgradeSmerdTaskPayload_PortsOverride) String() string {
 func (*UpgradeSmerdTaskPayload_PortsOverride) ProtoMessage() {}
 
 func (x *UpgradeSmerdTaskPayload_PortsOverride) ProtoReflect() protoreflect.Message {
-	mi := &file_tasks_proto_msgTypes[22]
+	mi := &file_tasks_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1391,7 +1434,7 @@ func (x *UpgradeSmerdTaskPayload_PortsOverride) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use UpgradeSmerdTaskPayload_PortsOverride.ProtoReflect.Descriptor instead.
 func (*UpgradeSmerdTaskPayload_PortsOverride) Descriptor() ([]byte, []int) {
-	return file_tasks_proto_rawDescGZIP(), []int{9, 2}
+	return file_tasks_proto_rawDescGZIP(), []int{9, 3}
 }
 
 func (x *UpgradeSmerdTaskPayload_PortsOverride) GetPorts() []*Port {
@@ -1410,7 +1453,7 @@ type UpgradeSmerdTaskPayload_VolumesOverride struct {
 
 func (x *UpgradeSmerdTaskPayload_VolumesOverride) Reset() {
 	*x = UpgradeSmerdTaskPayload_VolumesOverride{}
-	mi := &file_tasks_proto_msgTypes[23]
+	mi := &file_tasks_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1422,7 +1465,7 @@ func (x *UpgradeSmerdTaskPayload_VolumesOverride) String() string {
 func (*UpgradeSmerdTaskPayload_VolumesOverride) ProtoMessage() {}
 
 func (x *UpgradeSmerdTaskPayload_VolumesOverride) ProtoReflect() protoreflect.Message {
-	mi := &file_tasks_proto_msgTypes[23]
+	mi := &file_tasks_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1435,7 +1478,7 @@ func (x *UpgradeSmerdTaskPayload_VolumesOverride) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use UpgradeSmerdTaskPayload_VolumesOverride.ProtoReflect.Descriptor instead.
 func (*UpgradeSmerdTaskPayload_VolumesOverride) Descriptor() ([]byte, []int) {
-	return file_tasks_proto_rawDescGZIP(), []int{9, 3}
+	return file_tasks_proto_rawDescGZIP(), []int{9, 4}
 }
 
 func (x *UpgradeSmerdTaskPayload_VolumesOverride) GetVolumes() []*Volume {
@@ -1557,7 +1600,7 @@ const file_tasks_proto_rawDesc = "" +
 	"\x06failed\x18\x02 \x03(\v2#.velez_api.DropSmerd.Response.ErrorR\x06failed\x12\x1e\n" +
 	"\n" +
 	"successful\x18\x03 \x03(\tR\n" +
-	"successful\"\xa1\b\n" +
+	"successful\"\xad\t\n" +
 	"\x17UpgradeSmerdTaskPayload\x12H\n" +
 	"\x0fupgrade_request\x18\x01 \x01(\v2\x1f.velez_api.UpgradeSmerd.RequestR\x0eupgradeRequest\x128\n" +
 	"\arequest\x18\x02 \x01(\v2\x1e.velez_api.CreateSmerd.RequestR\arequest\x12-\n" +
@@ -1571,11 +1614,15 @@ const file_tasks_proto_rawDesc = "" +
 	"\x0estop_old_first\x18\t \x01(\bR\fstopOldFirst\x12\\\n" +
 	"\x0eports_override\x18\n" +
 	" \x01(\v20.velez_api.UpgradeSmerdTaskPayload.PortsOverrideH\x02R\rportsOverride\x88\x01\x01\x12b\n" +
-	"\x10volumes_override\x18\v \x01(\v22.velez_api.UpgradeSmerdTaskPayload.VolumesOverrideH\x03R\x0fvolumesOverride\x88\x01\x01\x1a>\n" +
+	"\x10volumes_override\x18\v \x01(\v22.velez_api.UpgradeSmerdTaskPayload.VolumesOverrideH\x03R\x0fvolumesOverride\x88\x01\x01\x12M\n" +
+	"\textra_env\x18\f \x03(\v20.velez_api.UpgradeSmerdTaskPayload.ExtraEnvEntryR\bextraEnv\x1a>\n" +
 	"\x10ImageLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +
 	"\x10ExtraLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a;\n" +
+	"\rExtraEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a6\n" +
 	"\rPortsOverride\x12%\n" +
@@ -1585,7 +1632,7 @@ const file_tasks_proto_rawDesc = "" +
 	"\x11_old_container_idB\x0f\n" +
 	"\r_container_idB\x11\n" +
 	"\x0f_ports_overrideB\x13\n" +
-	"\x11_volumes_override\"\x9c\x03\n" +
+	"\x11_volumes_override\"\xbe\x04\n" +
 	"\x1cRegisterContainerTaskPayload\x12!\n" +
 	"\fcontainer_id\x18\x01 \x01(\tR\vcontainerId\x12 \n" +
 	"\venvironment\x18\x02 \x01(\tR\venvironment\x12!\n" +
@@ -1597,7 +1644,11 @@ const file_tasks_proto_rawDesc = "" +
 	"service_id\x18\x06 \x01(\x03R\tserviceId\x12\\\n" +
 	"\x10bind_mount_links\x18\a \x03(\v22.velez_api.RegisterContainer.Request.BindMountLinkR\x0ebindMountLinks\x12*\n" +
 	"\x11keep_port_mapping\x18\b \x01(\bR\x0fkeepPortMapping\x12%\n" +
-	"\x05ports\x18\t \x03(\v2\x0f.velez_api.PortR\x05ports\"\xf7\x02\n" +
+	"\x05ports\x18\t \x03(\v2\x0f.velez_api.PortR\x05ports\x123\n" +
+	"\apattern\x18\n" +
+	" \x01(\x0e2\x19.velez_api.ServicePatternR\apattern\x12!\n" +
+	"\fpg_superuser\x18\v \x01(\tR\vpgSuperuser\x125\n" +
+	"\x17pg_pending_secret_owner\x18\r \x01(\tR\x14pgPendingSecretOwnerJ\x04\b\f\x10\rR\vpg_password\"\xf7\x02\n" +
 	"!CreateRegistryInstanceTaskPayload\x12C\n" +
 	"\arequest\x18\x01 \x01(\v2).velez_api.CreateRegistryInstance.RequestR\arequest\x12\x1f\n" +
 	"\busername\x18\x02 \x01(\tH\x00R\busername\x88\x01\x01\x12\x1f\n" +
@@ -1633,7 +1684,7 @@ func file_tasks_proto_rawDescGZIP() []byte {
 }
 
 var file_tasks_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_tasks_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
+var file_tasks_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
 var file_tasks_proto_goTypes = []any{
 	(TaskStatus_Status)(0),                    // 0: velez_api.TaskStatus.Status
 	(*WatchTask)(nil),                         // 1: velez_api.WatchTask
@@ -1658,58 +1709,62 @@ var file_tasks_proto_goTypes = []any{
 	nil,                                       // 20: velez_api.CopyToVolumeTaskPayload.PathToFilesEntry
 	nil,                                       // 21: velez_api.UpgradeSmerdTaskPayload.ImageLabelsEntry
 	nil,                                       // 22: velez_api.UpgradeSmerdTaskPayload.ExtraLabelsEntry
-	(*UpgradeSmerdTaskPayload_PortsOverride)(nil),   // 23: velez_api.UpgradeSmerdTaskPayload.PortsOverride
-	(*UpgradeSmerdTaskPayload_VolumesOverride)(nil), // 24: velez_api.UpgradeSmerdTaskPayload.VolumesOverride
-	(*timestamppb.Timestamp)(nil),                   // 25: google.protobuf.Timestamp
-	(*CreateSmerd_Request)(nil),                     // 26: velez_api.CreateSmerd.Request
-	(ConfigFormat)(0),                               // 27: velez_api.ConfigFormat
-	(*EnableStatefullCluster)(nil),                  // 28: velez_api.EnableStatefullCluster
-	(*DropSmerd_Request)(nil),                       // 29: velez_api.DropSmerd.Request
-	(*DropSmerd_Response_Error)(nil),                // 30: velez_api.DropSmerd.Response.Error
-	(*UpgradeSmerd_Request)(nil),                    // 31: velez_api.UpgradeSmerd.Request
-	(*RegisterContainer_Request_BindMountLink)(nil), // 32: velez_api.RegisterContainer.Request.BindMountLink
-	(*Port)(nil),                           // 33: velez_api.Port
-	(*CreateRegistryInstance_Request)(nil), // 34: velez_api.CreateRegistryInstance.Request
-	(*CreateRunner_Request)(nil),           // 35: velez_api.CreateRunner.Request
-	(*ReregisterRunner_Request)(nil),       // 36: velez_api.ReregisterRunner.Request
-	(*Volume)(nil),                         // 37: velez_api.Volume
+	nil,                                       // 23: velez_api.UpgradeSmerdTaskPayload.ExtraEnvEntry
+	(*UpgradeSmerdTaskPayload_PortsOverride)(nil),   // 24: velez_api.UpgradeSmerdTaskPayload.PortsOverride
+	(*UpgradeSmerdTaskPayload_VolumesOverride)(nil), // 25: velez_api.UpgradeSmerdTaskPayload.VolumesOverride
+	(*timestamppb.Timestamp)(nil),                   // 26: google.protobuf.Timestamp
+	(*CreateSmerd_Request)(nil),                     // 27: velez_api.CreateSmerd.Request
+	(ConfigFormat)(0),                               // 28: velez_api.ConfigFormat
+	(*EnableStatefullCluster)(nil),                  // 29: velez_api.EnableStatefullCluster
+	(*DropSmerd_Request)(nil),                       // 30: velez_api.DropSmerd.Request
+	(*DropSmerd_Response_Error)(nil),                // 31: velez_api.DropSmerd.Response.Error
+	(*UpgradeSmerd_Request)(nil),                    // 32: velez_api.UpgradeSmerd.Request
+	(*RegisterContainer_Request_BindMountLink)(nil), // 33: velez_api.RegisterContainer.Request.BindMountLink
+	(*Port)(nil),                           // 34: velez_api.Port
+	(ServicePattern)(0),                    // 35: velez_api.ServicePattern
+	(*CreateRegistryInstance_Request)(nil), // 36: velez_api.CreateRegistryInstance.Request
+	(*CreateRunner_Request)(nil),           // 37: velez_api.CreateRunner.Request
+	(*ReregisterRunner_Request)(nil),       // 38: velez_api.ReregisterRunner.Request
+	(*Volume)(nil),                         // 39: velez_api.Volume
 }
 var file_tasks_proto_depIdxs = []int32{
 	0,  // 0: velez_api.TaskStatus.status:type_name -> velez_api.TaskStatus.Status
-	25, // 1: velez_api.TaskStatus.updated_at:type_name -> google.protobuf.Timestamp
+	26, // 1: velez_api.TaskStatus.updated_at:type_name -> google.protobuf.Timestamp
 	16, // 2: velez_api.TaskStatus.jobs:type_name -> velez_api.TaskStatus.JobStatus
-	26, // 3: velez_api.CreateSmerdTaskPayload.request:type_name -> velez_api.CreateSmerd.Request
+	27, // 3: velez_api.CreateSmerdTaskPayload.request:type_name -> velez_api.CreateSmerd.Request
 	17, // 4: velez_api.CreateSmerdTaskPayload.image_labels:type_name -> velez_api.CreateSmerdTaskPayload.ImageLabelsEntry
 	18, // 5: velez_api.CreateSmerdTaskPayload.path_to_files:type_name -> velez_api.CreateSmerdTaskPayload.PathToFilesEntry
 	19, // 6: velez_api.AssembleConfigTaskPayload.image_labels:type_name -> velez_api.AssembleConfigTaskPayload.ImageLabelsEntry
-	27, // 7: velez_api.AssembleConfigTaskPayload.config_format:type_name -> velez_api.ConfigFormat
+	28, // 7: velez_api.AssembleConfigTaskPayload.config_format:type_name -> velez_api.ConfigFormat
 	20, // 8: velez_api.CopyToVolumeTaskPayload.path_to_files:type_name -> velez_api.CopyToVolumeTaskPayload.PathToFilesEntry
-	28, // 9: velez_api.EnableStatefullTaskPayload.request:type_name -> velez_api.EnableStatefullCluster
-	29, // 10: velez_api.DropSmerdTaskPayload.request:type_name -> velez_api.DropSmerd.Request
-	30, // 11: velez_api.DropSmerdTaskPayload.failed:type_name -> velez_api.DropSmerd.Response.Error
-	31, // 12: velez_api.UpgradeSmerdTaskPayload.upgrade_request:type_name -> velez_api.UpgradeSmerd.Request
-	26, // 13: velez_api.UpgradeSmerdTaskPayload.request:type_name -> velez_api.CreateSmerd.Request
+	29, // 9: velez_api.EnableStatefullTaskPayload.request:type_name -> velez_api.EnableStatefullCluster
+	30, // 10: velez_api.DropSmerdTaskPayload.request:type_name -> velez_api.DropSmerd.Request
+	31, // 11: velez_api.DropSmerdTaskPayload.failed:type_name -> velez_api.DropSmerd.Response.Error
+	32, // 12: velez_api.UpgradeSmerdTaskPayload.upgrade_request:type_name -> velez_api.UpgradeSmerd.Request
+	27, // 13: velez_api.UpgradeSmerdTaskPayload.request:type_name -> velez_api.CreateSmerd.Request
 	21, // 14: velez_api.UpgradeSmerdTaskPayload.image_labels:type_name -> velez_api.UpgradeSmerdTaskPayload.ImageLabelsEntry
 	22, // 15: velez_api.UpgradeSmerdTaskPayload.extra_labels:type_name -> velez_api.UpgradeSmerdTaskPayload.ExtraLabelsEntry
-	23, // 16: velez_api.UpgradeSmerdTaskPayload.ports_override:type_name -> velez_api.UpgradeSmerdTaskPayload.PortsOverride
-	24, // 17: velez_api.UpgradeSmerdTaskPayload.volumes_override:type_name -> velez_api.UpgradeSmerdTaskPayload.VolumesOverride
-	32, // 18: velez_api.RegisterContainerTaskPayload.bind_mount_links:type_name -> velez_api.RegisterContainer.Request.BindMountLink
-	33, // 19: velez_api.RegisterContainerTaskPayload.ports:type_name -> velez_api.Port
-	34, // 20: velez_api.CreateRegistryInstanceTaskPayload.request:type_name -> velez_api.CreateRegistryInstance.Request
-	35, // 21: velez_api.CreateRunnerTaskPayload.request:type_name -> velez_api.CreateRunner.Request
-	36, // 22: velez_api.ReregisterRunnerTaskPayload.request:type_name -> velez_api.ReregisterRunner.Request
-	0,  // 23: velez_api.TaskStatus.JobStatus.status:type_name -> velez_api.TaskStatus.Status
-	33, // 24: velez_api.UpgradeSmerdTaskPayload.PortsOverride.ports:type_name -> velez_api.Port
-	37, // 25: velez_api.UpgradeSmerdTaskPayload.VolumesOverride.volumes:type_name -> velez_api.Volume
-	15, // 26: velez_api.TasksApi.WatchTask:input_type -> velez_api.WatchTask.Request
-	26, // 27: velez_api.TasksApi.CreateSmerdStream:input_type -> velez_api.CreateSmerd.Request
-	2,  // 28: velez_api.TasksApi.WatchTask:output_type -> velez_api.TaskStatus
-	2,  // 29: velez_api.TasksApi.CreateSmerdStream:output_type -> velez_api.TaskStatus
-	28, // [28:30] is the sub-list for method output_type
-	26, // [26:28] is the sub-list for method input_type
-	26, // [26:26] is the sub-list for extension type_name
-	26, // [26:26] is the sub-list for extension extendee
-	0,  // [0:26] is the sub-list for field type_name
+	24, // 16: velez_api.UpgradeSmerdTaskPayload.ports_override:type_name -> velez_api.UpgradeSmerdTaskPayload.PortsOverride
+	25, // 17: velez_api.UpgradeSmerdTaskPayload.volumes_override:type_name -> velez_api.UpgradeSmerdTaskPayload.VolumesOverride
+	23, // 18: velez_api.UpgradeSmerdTaskPayload.extra_env:type_name -> velez_api.UpgradeSmerdTaskPayload.ExtraEnvEntry
+	33, // 19: velez_api.RegisterContainerTaskPayload.bind_mount_links:type_name -> velez_api.RegisterContainer.Request.BindMountLink
+	34, // 20: velez_api.RegisterContainerTaskPayload.ports:type_name -> velez_api.Port
+	35, // 21: velez_api.RegisterContainerTaskPayload.pattern:type_name -> velez_api.ServicePattern
+	36, // 22: velez_api.CreateRegistryInstanceTaskPayload.request:type_name -> velez_api.CreateRegistryInstance.Request
+	37, // 23: velez_api.CreateRunnerTaskPayload.request:type_name -> velez_api.CreateRunner.Request
+	38, // 24: velez_api.ReregisterRunnerTaskPayload.request:type_name -> velez_api.ReregisterRunner.Request
+	0,  // 25: velez_api.TaskStatus.JobStatus.status:type_name -> velez_api.TaskStatus.Status
+	34, // 26: velez_api.UpgradeSmerdTaskPayload.PortsOverride.ports:type_name -> velez_api.Port
+	39, // 27: velez_api.UpgradeSmerdTaskPayload.VolumesOverride.volumes:type_name -> velez_api.Volume
+	15, // 28: velez_api.TasksApi.WatchTask:input_type -> velez_api.WatchTask.Request
+	27, // 29: velez_api.TasksApi.CreateSmerdStream:input_type -> velez_api.CreateSmerd.Request
+	2,  // 30: velez_api.TasksApi.WatchTask:output_type -> velez_api.TaskStatus
+	2,  // 31: velez_api.TasksApi.CreateSmerdStream:output_type -> velez_api.TaskStatus
+	30, // [30:32] is the sub-list for method output_type
+	28, // [28:30] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_tasks_proto_init() }
@@ -1738,7 +1793,7 @@ func file_tasks_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_tasks_proto_rawDesc), len(file_tasks_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   24,
+			NumMessages:   25,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

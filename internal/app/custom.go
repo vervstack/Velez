@@ -47,6 +47,15 @@ const (
 	defaultTaskWorkerConcurrency = 4
 	autoUpgradeIntervalCheck     = time.Second * 30
 	deployWatcherInterval        = time.Second * 5
+
+	// shutdownForceExitTimeout bounds the whole closer.Close chain app.go's
+	// generated Start runs on interrupt. Every registered Stop here returns
+	// fast on its own, but a Stop can still be held up by an in-flight job
+	// step (Docker call, DB query) that doesn't return promptly on ctx
+	// cancellation - see internal/jobs/worker.go's active-task tracking for
+	// what that step was. This is the backstop that keeps shutdown fast
+	// regardless: past the timeout, exit is forced.
+	shutdownForceExitTimeout = 10 * time.Second
 )
 
 //nolint:forbidigo // package-private sentinel, not shared/user-facing
@@ -85,6 +94,21 @@ func (c *Custom) Init(a *App) (err error) {
 	rerrors.SetSeparator(':')
 
 	zerolog.SetGlobalLevel(parseLogLevel(a.Cfg.Environment.LogLevel))
+
+	// Armed first so it bounds every other registered Stop below it in the
+	// closer chain, including app.go's own Custom.Stop. It only starts a
+	// timer and returns - a clean shutdown finishing under the timeout exits
+	// normally and this goroutine never fires.
+	closer.Add(func() error {
+		time.AfterFunc(shutdownForceExitTimeout, func() {
+			log.Warn().
+				Dur("timeout", shutdownForceExitTimeout).
+				Msg("graceful shutdown exceeded timeout, forcing exit")
+			os.Exit(1)
+		})
+
+		return nil
+	})
 
 	err = c.InitClients(a)
 	if err != nil {

@@ -157,6 +157,8 @@ func (c *Custom) Init(a *App) (err error) {
 		c.NodeClients, c.Services.SmerdManager(), c.Services.ConfigurationService(),
 		runtimeResolver))
 	registry.Register(jobs.NewDropSmerdHandler(runtimeResolver))
+	registry.Register(jobs.NewRegisterContainerHandler(
+		c.ClusterClients.StateManager(), c.JobsEngine, runtimeResolver))
 	registry.Register(jobs.NewCreateRegistryInstanceHandler(
 		c.NodeClients, runtimeResolver, c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(),
 		c.JobsEngine))

@@ -21,6 +21,12 @@ func NewPg(db *sql.DB) storage.ContainerBindingsStorage {
 	}
 }
 
+func (p *pgStorage) WithTx(tx *sql.Tx) storage.ContainerBindingsStorage {
+	return &pgStorage{
+		querier: p.querier.WithTx(tx),
+	}
+}
+
 func (p *pgStorage) Upsert(ctx context.Context, binding domain.ContainerBinding) error {
 	params := container_bindings_queries.UpsertContainerBindingParams{
 		ServiceID:     binding.ServiceId,

@@ -605,7 +605,9 @@ func (r *dockerRuntime) DisconnectFromNetworks(ctx context.Context, containerID 
 	for _, n := range networks {
 		err = r.cli.NetworkDisconnect(ctx, r.resolver.NetworkName(n), resolvedID, false)
 		if err != nil {
-			if strings.Contains(err.Error(), docker.NoSuchContainerError) {
+			isAbsent := strings.Contains(err.Error(), docker.NoSuchContainerError) ||
+				strings.Contains(err.Error(), docker.NotConnectedToNetworkError)
+			if isAbsent {
 				continue
 			}
 

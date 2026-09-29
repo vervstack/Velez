@@ -6,7 +6,7 @@
 -- ContainerRegistryAPI replaces it - see internal/jobs/enable_registry.go
 -- and docs/features/pgaas_and_registry_plugin.md section 4 for the flow
 -- that originally created these rows. goose runs this migration inside a
--- transaction by default (no "-- +goose NO TRANSACTION" directive), so the
+-- transaction by default (no NO TRANSACTION directive), so the
 -- insert and the plugins delete below are atomic.
 --
 -- Column-by-column provenance:

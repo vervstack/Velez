@@ -2,10 +2,12 @@ package local_storage
 
 import (
 	"context"
+	"database/sql"
 
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/storage"
 )
 
 type containerBindings struct{}
@@ -20,4 +22,8 @@ func (c *containerBindings) Upsert(_ context.Context, _ domain.ContainerBinding)
 
 func (c *containerBindings) ListByNode(_ context.Context, _ int32, _ string) ([]domain.ContainerBinding, error) {
 	return []domain.ContainerBinding{}, nil
+}
+
+func (c *containerBindings) WithTx(_ *sql.Tx) storage.ContainerBindingsStorage {
+	return c
 }

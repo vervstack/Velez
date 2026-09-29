@@ -48,8 +48,22 @@ func (c *ContainerManager) GetContainer(
 		dc.Networks = toNetworkBinds(contInfo.ID, contInfo.NetworkSettings.Networks)
 	}
 
-	if svc, ok := contInfo.Config.Labels[labels.VervServiceLabel]; ok {
+	svc, isLabelled := contInfo.Config.Labels[labels.VervServiceLabel]
+	if isLabelled {
 		dc.LinkedServiceName = &svc
+	}
+
+	if !isLabelled {
+		boundServices, bindErr := c.boundServiceNames(ctx, req.GetEnvironment())
+		if bindErr != nil {
+			return nil, errors.Wrap(bindErr, "error resolving container bindings")
+		}
+
+		boundSvc, isBound := boundServices[dc.GetName()]
+		if isBound {
+			dc.LinkedServiceName = &boundSvc
+			dc.IsRegistered = true
+		}
 	}
 
 	imageInfo, err := c.dockerAPI.ImageInspect(ctx, contInfo.Image)

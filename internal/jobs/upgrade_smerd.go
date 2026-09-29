@@ -64,6 +64,7 @@ type oldContainerIDAccessor interface {
 }
 
 type captureOldContainerCtx interface {
+	GetExtraLabels() map[string]string
 	SetRequest(createReq *velez_api.CreateSmerd_Request)
 	oldContainerIDAccessor
 }
@@ -343,6 +344,16 @@ func (j *captureOldContainerJob) Do(ctx context.Context) error {
 		},
 		Env:    cont.GetEnv(),
 		Labels: cont.GetLabels(),
+	}
+
+	if len(j.ctx.GetExtraLabels()) != 0 {
+		reqLabels := req.GetLabels()
+		if reqLabels == nil {
+			reqLabels = make(map[string]string)
+			req.Labels = reqLabels
+		}
+
+		maps.Copy(reqLabels, j.ctx.GetExtraLabels())
 	}
 
 	j.ctx.SetRequest(req)

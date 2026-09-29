@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
@@ -27,18 +28,25 @@ func FromVolume(settings *velez_api.Container_Settings) []mount.Mount {
 	return out
 }
 
-func ToVolume(volumes []mount.Mount) []*velez_api.Volume {
-	if len(volumes) == 0 {
-		return nil
+// ToVolume reads the daemon's resolved mounts rather than HostConfig.Mounts,
+// which stays empty for containers created with binds (`docker run -v`).
+// Only volume-type mounts are representable; bind mounts are skipped.
+func ToVolume(mounts []container.MountPoint) []*velez_api.Volume {
+	out := make([]*velez_api.Volume, 0, len(mounts))
+
+	for _, item := range mounts {
+		if item.Type != mount.TypeVolume {
+			continue
+		}
+
+		out = append(out, &velez_api.Volume{
+			VolumeName:    item.Name,
+			ContainerPath: item.Destination,
+		})
 	}
 
-	out := make([]*velez_api.Volume, len(volumes))
-
-	for i, item := range volumes {
-		out[i] = &velez_api.Volume{
-			VolumeName:    item.Source,
-			ContainerPath: item.Target,
-		}
+	if len(out) == 0 {
+		return nil
 	}
 
 	return out

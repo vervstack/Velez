@@ -30,6 +30,11 @@ func (c *ContainerManager) ListContainers(
 		return nil, errors.Wrap(err, "error listing containers")
 	}
 
+	boundServices, err := c.boundServiceNames(ctx, req.GetEnvironment())
+	if err != nil {
+		return nil, errors.Wrap(err, "error resolving container bindings")
+	}
+
 	resp := &velez_api.ListContainers_Response{
 		Containers: make([]*velez_api.DockerContainer, 0, len(cl)),
 	}
@@ -54,8 +59,15 @@ func (c *ContainerManager) ListContainers(
 			dc.Networks = toNetworkBinds(cont.ID, cont.NetworkSettings.Networks)
 		}
 
-		if svc, ok := cont.Labels[labels.VervServiceLabel]; ok {
+		svc, isLabelled := cont.Labels[labels.VervServiceLabel]
+		if isLabelled {
 			dc.LinkedServiceName = &svc
+		}
+
+		boundSvc, isBound := boundServices[dc.GetName()]
+		if !isLabelled && isBound {
+			dc.LinkedServiceName = &boundSvc
+			dc.IsRegistered = true
 		}
 
 		if !matchesContainerFilters(dc, req.GetFilters()) {

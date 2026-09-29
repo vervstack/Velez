@@ -12,6 +12,8 @@ import (
 const (
 	NoSuchContainerError = "No such container"
 
+	NotConnectedToNetworkError = "is not connected to network"
+
 	subjectContainerName = "The container name"
 
 	problemInUseByOtherContainer = "is already in use by container"

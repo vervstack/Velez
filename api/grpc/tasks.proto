@@ -220,6 +220,27 @@ message UpgradeSmerdTaskPayload {
   // future grantee) upgrade keeps its host Docker-socket bind-mount instead
   // of silently losing it on the next blue-green swap.
   bool allow_docker_socket = 7;
+
+  // extra_labels are merged over the labels captured from the old container
+  // when the new container's request is built, so they always win. Used by
+  // register_container to stamp service labels through a blue-green recreate.
+  map<string, string> extra_labels = 8;
+}
+
+// RegisterContainerTaskPayload is the task context for the
+// "register_container" action. Flat fields only - the RegisterContainer
+// request carries a oneof, which encoding/json can't round-trip.
+message RegisterContainerTaskPayload {
+  string container_id = 1;
+  string environment = 2;
+  string service_name = 3;
+
+  // Set by inspect_container.
+  string container_name = 4;
+  string image_name = 5;
+
+  // Set by upsert_service.
+  int64 service_id = 6;
 }
 
 // CreateRegistryInstanceTaskPayload is the task context for the

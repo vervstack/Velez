@@ -7,7 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/docker/docker/api/types/container"
 	"github.com/sqlc-dev/pqtype"
 	"go.redsock.ru/rerrors"
 
@@ -238,17 +237,7 @@ func (d *deployments) resolveSpecFromContainer(
 		return deployments_queries.GetSpecificationByIdRow{}, false, rerrors.Wrap(err, "error inspecting container")
 	}
 
-	smerdReq := &pb.CreateSmerd_Request{
-		Name:        name,
-		ImageName:   info.Config.Image,
-		Env:         parser.ToDockerEnv(info.Config.Env),
-		Healthcheck: healthcheckFromContainer(info.Config.Healthcheck),
-		Restart:     restartPolicyFromContainer(info.HostConfig.RestartPolicy),
-		Settings: &pb.Container_Settings{
-			Ports:   parser.ToPortsMapping(info.HostConfig.PortBindings),
-			Volumes: parser.ToVolume(info.HostConfig.Mounts),
-		},
-	}
+	smerdReq := parser.ToCreateRequest(name, info)
 
 	payload, err := json.Marshal(smerdReq)
 	if err != nil {
@@ -262,55 +251,6 @@ func (d *deployments) resolveSpecFromContainer(
 	}
 
 	return row, true, nil
-}
-
-// healthcheckFromContainer reverses parser.FromHealthcheck's "CMD-SHELL,
-// command" Test shape. nil, or an empty/inherited Test, means the container
-// carries no healthcheck.
-func healthcheckFromContainer(hc *container.HealthConfig) *pb.Container_Healthcheck {
-	if hc == nil || len(hc.Test) == 0 {
-		return nil
-	}
-
-	command := hc.Test[len(hc.Test)-1]
-	timeoutSecond := uint32(hc.Timeout / time.Second)
-
-	return &pb.Container_Healthcheck{
-		Command:        &command,
-		IntervalSecond: uint32(hc.Interval / time.Second),
-		TimeoutSecond:  &timeoutSecond,
-		Retries:        uint32(hc.Retries),
-	}
-}
-
-// restartPolicyFromContainer reverses parser.FromRestart. always/on_failure/
-// unless_stopped all collapse into container.RestartPolicyOnFailure on the
-// way in, so that docker policy name can't be round-tripped back to which of
-// the three was originally requested - on_failure is reported for it, same
-// as picking either of the other two would be.
-func restartPolicyFromContainer(rp container.RestartPolicy) *pb.RestartPolicy {
-	policyType := pb.RestartPolicyType_unless_stopped
-
-	switch rp.Name {
-	case container.RestartPolicyDisabled, "":
-		policyType = pb.RestartPolicyType_no
-	case container.RestartPolicyOnFailure:
-		policyType = pb.RestartPolicyType_on_failure
-	case container.RestartPolicyAlways:
-		policyType = pb.RestartPolicyType_always
-	case container.RestartPolicyUnlessStopped:
-		policyType = pb.RestartPolicyType_unless_stopped
-	}
-
-	result := &pb.RestartPolicy{Type: policyType}
-
-	if rp.MaximumRetryCount > 0 {
-		count := uint32(rp.MaximumRetryCount)
-
-		result.FailureCount = &count
-	}
-
-	return result
 }
 
 func (d *deployments) createDeploymentLocked(

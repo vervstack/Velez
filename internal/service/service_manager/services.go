@@ -54,7 +54,7 @@ func New(
 		return nil, rerrors.Wrap(err, "error initializing configurator")
 	}
 
-	cm := container_manager.New(nodeClients, runtimeResolver)
+	cm := container_manager.New(nodeClients, runtimeResolver, clusterClients.StateManager())
 
 	storageContainer := storage.NewStorageContainer(local_storage.New(nodeClients.Docker(), cfg))
 	svc := plugins.New(storageContainer)

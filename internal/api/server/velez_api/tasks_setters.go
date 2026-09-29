@@ -167,3 +167,15 @@ func (x *CreateRunnerTaskPayload) SetRequest(v *CreateRunner_Request) {
 func (x *CreateRunnerTaskPayload) SetRegistrationToken(v string) {
 	x.RegistrationToken = &v
 }
+
+func (x *RegisterContainerTaskPayload) SetContainerName(v string) {
+	x.ContainerName = v
+}
+
+func (x *RegisterContainerTaskPayload) SetImageName(v string) {
+	x.ImageName = v
+}
+
+func (x *RegisterContainerTaskPayload) SetServiceId(v int64) {
+	x.ServiceId = v
+}

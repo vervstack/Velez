@@ -107,6 +107,16 @@ export type UpgradeSmerdTaskPayload = {
   imageTags?: string[];
   containerId?: string;
   allowDockerSocket?: boolean;
+  extraLabels?: Record<string, string>;
+};
+
+export type RegisterContainerTaskPayload = {
+  containerId?: string;
+  environment?: string;
+  serviceName?: string;
+  containerName?: string;
+  imageName?: string;
+  serviceId?: string;
 };
 
 export type CreateRegistryInstanceTaskPayload = {

@@ -215,4 +215,6 @@ type RegistryInstancesStorage interface {
 type ContainerBindingsStorage interface {
 	Upsert(ctx context.Context, binding domain.ContainerBinding) error
 	ListByNode(ctx context.Context, nodeId int32, environment string) ([]domain.ContainerBinding, error)
+
+	WithTx(tx *sql.Tx) ContainerBindingsStorage
 }

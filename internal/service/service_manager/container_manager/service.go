@@ -20,6 +20,13 @@ type EnvironmentsProvider interface {
 	Environments() storage.EnvironmentsStorage
 }
 
+// BindingsProvider yields the currently-live container bindings storage,
+// re-resolved per call so a swap from local_storage to postgres is observed.
+// The returned storage is nil while no backend with bindings is loaded.
+type BindingsProvider interface {
+	ContainerBindings() storage.ContainerBindingsStorage
+}
+
 type ContainerManager struct {
 	// dockerWrapper is now unused: DropSmerds (smerds_drop.go) was its last
 	// remaining caller and has since migrated to the resolved
@@ -37,16 +44,21 @@ type ContainerManager struct {
 	// resolution now lives in environments.Resolve, shared with
 	// runtimes.Runtime, rather than being duplicated here).
 	runtimes container_runtime.RuntimeResolver
+
+	// bindings links containers to services in cluster mode; may be nil.
+	bindings BindingsProvider
 }
 
 func New(
 	internalClients node_clients.NodeClients,
 	runtimes container_runtime.RuntimeResolver,
+	bindings BindingsProvider,
 ) *ContainerManager {
 	return &ContainerManager{
 		dockerAPI: internalClients.Docker().Client(),
 
 		dockerWrapper: internalClients.Docker(),
 		runtimes:      runtimes,
+		bindings:      bindings,
 	}
 }

@@ -43,7 +43,7 @@ func (c *ContainerManager) InspectSmerd(ctx context.Context, environment, contId
 		Uuid:    contInfo.ID,
 		Name:    bareName,
 		Ports:   parser.ToPortsMapping(contInfo.HostConfig.PortBindings),
-		Volumes: parser.ToVolume(contInfo.HostConfig.Mounts),
+		Volumes: parser.ToVolume(contInfo.Mounts),
 		Env:     parser.ToDockerEnv(contInfo.Config.Env),
 		Labels:  contInfo.Config.Labels,
 		Repo:    &repo,

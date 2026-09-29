@@ -9,6 +9,12 @@ import {
     ReregisterRunnerResponse,
     GetRunnerCredentialsRequest,
     GetRunnerCredentialsResponse,
+    GetRunnerConfigRequest,
+    GetRunnerConfigResponse,
+    UpdateRunnerConfigRequest,
+    UpdateRunnerConfigResponse,
+    RedeployRunnerRequest,
+    RedeployRunnerResponse,
 } from "@/app/api/velez"
 import {ApiService} from "@/processes/ApiService.ts"
 
@@ -39,6 +45,24 @@ class RunnersService extends ApiService {
         return this.execute((initReq) => {
             const payload: GetRunnerCredentialsRequest = {name}
             return RunnersAPI.GetRunnerCredentials(payload, initReq)
+        })
+    }
+
+    async getRunnerConfig(name: string): Promise<GetRunnerConfigResponse> {
+        return this.execute((initReq) => {
+            const payload: GetRunnerConfigRequest = {name}
+            return RunnersAPI.GetRunnerConfig(payload, initReq)
+        })
+    }
+
+    async updateRunnerConfig(req: UpdateRunnerConfigRequest): Promise<UpdateRunnerConfigResponse> {
+        return this.mutate((initReq) => RunnersAPI.UpdateRunnerConfig(req, initReq))
+    }
+
+    async redeployRunner(name: string): Promise<RedeployRunnerResponse> {
+        return this.mutate((initReq) => {
+            const payload: RedeployRunnerRequest = {name}
+            return RunnersAPI.RedeployRunner(payload, initReq)
         })
     }
 }

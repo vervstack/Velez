@@ -4,6 +4,7 @@ import {useNavigate} from "react-router-dom";
 import cls from "@/pages/service/widgets/ServiceDetailLayout.module.css";
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {useBreadcrumbs} from "@/app/hooks/breadcrumbs/Breadcrumbs.ts";
+import {deriveRunnerDisplayName} from "@/processes/mappings/runnerDisplay.ts";
 import {GetServiceByNameQuery} from "@/processes/queries/services.ts";
 import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorState.tsx";
 import {ServiceTab} from "@/pages/service/widgets/tabs.ts";
@@ -16,9 +17,10 @@ import ServiceComingSoon from "@/pages/service/widgets/ServiceComingSoon.tsx";
 interface Props {
     serviceName: string;
     headerActions?: ReactNode;
+    extraContent?: ReactNode;
 }
 
-export default function ServiceDetailLayout({serviceName, headerActions}: Props) {
+export default function ServiceDetailLayout({serviceName, headerActions, extraContent}: Props) {
     const navigate = useNavigate();
     const toaster = useToaster();
     const setCrumbs = useBreadcrumbs((s) => s.setCrumbs);
@@ -34,7 +36,7 @@ export default function ServiceDetailLayout({serviceName, headerActions}: Props)
         if (serviceName === "") return;
         setCrumbs([
             {label: "services", onClick: goToServices},
-            {label: serviceName},
+            {label: deriveRunnerDisplayName(serviceName)},
         ]);
         return function clearBreadcrumbs() {
             setCrumbs([]);
@@ -88,6 +90,8 @@ export default function ServiceDetailLayout({serviceName, headerActions}: Props)
                 {activeTab === 'overview'
                     ? <ServiceOverviewTab serviceName={service.name}/>
                     : <ServiceComingSoon label={activeTab}/>}
+
+                {extraContent}
             </div>
         </div>
     );

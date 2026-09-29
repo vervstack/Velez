@@ -57,6 +57,41 @@ service RunnersAPI {
       get: "/api/runners/{name}/credentials"
     };
   }
+
+  // GetRunnerConfig reads the runner's currently stored provider config
+  // (base_url, docker_image, docker_socket_address) - the values the next
+  // ReregisterRunner/RedeployRunner call will apply, not necessarily what
+  // the running container was deployed with.
+  rpc GetRunnerConfig(GetRunnerConfig.Request) returns (GetRunnerConfig.Response) {
+    option (google.api.http) = {
+      get: "/api/runners/{name}/config"
+    };
+  }
+
+  // UpdateRunnerConfig persists new provider config values. It never applies
+  // them to the running container - the response tells the caller which
+  // follow-up action does: requires_reregister (base_url/docker_image, via
+  // ReregisterRunner) and/or requires_redeploy (docker_socket_address, via
+  // RedeployRunner).
+  rpc UpdateRunnerConfig(UpdateRunnerConfig.Request) returns (UpdateRunnerConfig.Response) {
+    option (google.api.http) = {
+      post: "/api/runners/update_config"
+      body: "*"
+    };
+  }
+
+  // RedeployRunner recreates the runner's container from its current stored
+  // deployment spec, overlaying docker_socket_address as DOCKER_HOST (or
+  // clearing it back to unset) - the only way a docker_socket_address change
+  // ever reaches the container, since it's a deploy-time env var, not
+  // something a running container can pick up. Mirrors ReregisterRunner's
+  // fire-and-forget shape.
+  rpc RedeployRunner(RedeployRunner.Request) returns (RedeployRunner.Response) {
+    option (google.api.http) = {
+      post: "/api/runners/redeploy"
+      body: "*"
+    };
+  }
 }
 
 // RunnerProvider - which CI system a runner registers against. GITHUB
@@ -166,6 +201,52 @@ message GitlabConfig {
   // for job containers (--docker-image). Empty defaults to "alpine:latest".
   // The executor itself is always "docker" - not caller-configurable.
   optional string docker_image = 3;
+}
+
+// GetRunnerConfig.Response never carries a token - see GetRunnerCredentials.
+message GetRunnerConfig {
+  message Request {
+    string name = 1;
+  }
+  message Response {
+    string base_url = 1;
+    string docker_image = 2;
+    string docker_socket_address = 3;
+  }
+}
+
+message UpdateRunnerConfig {
+  message Request {
+    string name = 1;
+
+    // Only a field the caller actually sets is persisted; each also decides
+    // one bit of the response - see GetRunnerConfig.Response's doc comment
+    // for what each value means.
+    optional string base_url = 2;
+    optional string docker_image = 3;
+    // docker_socket_address - same tcp://-only validation as
+    // CreateRunner.Request.docker_socket_address. Setting it to "" clears it
+    // back to the default host socket grant.
+    optional string docker_socket_address = 4;
+  }
+  message Response {
+    // requires_reregister - true when base_url and/or docker_image was set;
+    // apply by calling ReregisterRunner.
+    bool requires_reregister = 1;
+    // requires_redeploy - true when docker_socket_address was set; apply by
+    // calling RedeployRunner.
+    bool requires_redeploy = 2;
+  }
+}
+
+message RedeployRunner {
+  message Request {
+    string name = 1;
+  }
+  message Response {
+    string entity_id = 1;
+    string action = 2;
+  }
 }
 
 message DropRunner {

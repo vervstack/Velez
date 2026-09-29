@@ -158,6 +158,7 @@ export type ServiceBaseInfo = {
   env?: string;
   repo?: string;
   labels?: string[];
+  displayName?: string;
 };
 
 export type StopServiceRequest = {

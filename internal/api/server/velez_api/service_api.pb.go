@@ -685,7 +685,11 @@ type ServiceBaseInfo struct {
 	// labels - derived server-side, never stored. One of:
 	//
 	//	"service-core" | "service-app" | "resource-<type>"
-	Labels        []string `protobuf:"bytes,7,rep,name=labels,proto3" json:"labels,omitempty"`
+	Labels []string `protobuf:"bytes,7,rep,name=labels,proto3" json:"labels,omitempty"`
+	// display_name - the human-facing service name, distinct from name when
+	// name carries a storage-layer prefix (e.g. a runner/pgaas/registryaas
+	// instance). Falls back to name when no clean name was recorded.
+	DisplayName   string `protobuf:"bytes,8,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -767,6 +771,13 @@ func (x *ServiceBaseInfo) GetLabels() []string {
 		return x.Labels
 	}
 	return nil
+}
+
+func (x *ServiceBaseInfo) GetDisplayName() string {
+	if x != nil {
+		return x.DisplayName
+	}
+	return ""
 }
 
 type StopService struct {
@@ -2965,7 +2976,7 @@ const file_service_api_proto_rawDesc = "" +
 	"\x0f_search_pattern\x1aX\n" +
 	"\bResponse\x12\x14\n" +
 	"\x05Total\x18\x01 \x01(\x04R\x05Total\x126\n" +
-	"\bservices\x18\x02 \x03(\v2\x1a.velez_api.ServiceBaseInfoR\bservices\"\xe0\x01\n" +
+	"\bservices\x18\x02 \x03(\v2\x1a.velez_api.ServiceBaseInfoR\bservices\"\x83\x02\n" +
 	"\x0fServiceBaseInfo\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12D\n" +
 	"\x10last_deployed_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x0elastDeployedAt\x12\x1d\n" +
@@ -2974,7 +2985,8 @@ const file_service_api_proto_rawDesc = "" +
 	"\x06status\x18\x04 \x01(\tR\x06status\x12\x10\n" +
 	"\x03env\x18\x05 \x01(\tR\x03env\x12\x12\n" +
 	"\x04repo\x18\x06 \x01(\tR\x04repo\x12\x16\n" +
-	"\x06labels\x18\a \x03(\tR\x06labels\"Z\n" +
+	"\x06labels\x18\a \x03(\tR\x06labels\x12!\n" +
+	"\fdisplay_name\x18\b \x01(\tR\vdisplayName\"Z\n" +
 	"\vStopService\x1a?\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +

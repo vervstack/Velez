@@ -85,6 +85,43 @@ export type GitlabConfig = {
   dockerImage?: string;
 };
 
+export type GetRunnerConfigRequest = {
+  name?: string;
+};
+
+export type GetRunnerConfigResponse = {
+  baseUrl?: string;
+  dockerImage?: string;
+  dockerSocketAddress?: string;
+};
+
+export type GetRunnerConfig = Record<string, never>;
+
+export type UpdateRunnerConfigRequest = {
+  name?: string;
+  baseUrl?: string;
+  dockerImage?: string;
+  dockerSocketAddress?: string;
+};
+
+export type UpdateRunnerConfigResponse = {
+  requiresReregister?: boolean;
+  requiresRedeploy?: boolean;
+};
+
+export type UpdateRunnerConfig = Record<string, never>;
+
+export type RedeployRunnerRequest = {
+  name?: string;
+};
+
+export type RedeployRunnerResponse = {
+  entityId?: string;
+  action?: string;
+};
+
+export type RedeployRunner = Record<string, never>;
+
 export type DropRunnerRequest = {
   name?: string;
 };
@@ -131,5 +168,14 @@ export class RunnersAPI {
   }
   static GetRunnerCredentials(this:void, req: GetRunnerCredentialsRequest, initReq?: fm.InitReq): Promise<GetRunnerCredentialsResponse> {
     return fm.fetchRequest<GetRunnerCredentialsResponse>(`/api/runners/${req.name}/credentials?${fm.renderURLSearchParams(req, ["name"])}`, {...initReq, method: "GET"});
+  }
+  static GetRunnerConfig(this:void, req: GetRunnerConfigRequest, initReq?: fm.InitReq): Promise<GetRunnerConfigResponse> {
+    return fm.fetchRequest<GetRunnerConfigResponse>(`/api/runners/${req.name}/config?${fm.renderURLSearchParams(req, ["name"])}`, {...initReq, method: "GET"});
+  }
+  static UpdateRunnerConfig(this:void, req: UpdateRunnerConfigRequest, initReq?: fm.InitReq): Promise<UpdateRunnerConfigResponse> {
+    return fm.fetchRequest<UpdateRunnerConfigResponse>(`/api/runners/update_config`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static RedeployRunner(this:void, req: RedeployRunnerRequest, initReq?: fm.InitReq): Promise<RedeployRunnerResponse> {
+    return fm.fetchRequest<RedeployRunnerResponse>(`/api/runners/redeploy`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
 }

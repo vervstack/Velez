@@ -24,6 +24,9 @@ const (
 	RunnersAPI_DropRunner_FullMethodName           = "/velez_api.RunnersAPI/DropRunner"
 	RunnersAPI_ReregisterRunner_FullMethodName     = "/velez_api.RunnersAPI/ReregisterRunner"
 	RunnersAPI_GetRunnerCredentials_FullMethodName = "/velez_api.RunnersAPI/GetRunnerCredentials"
+	RunnersAPI_GetRunnerConfig_FullMethodName      = "/velez_api.RunnersAPI/GetRunnerConfig"
+	RunnersAPI_UpdateRunnerConfig_FullMethodName   = "/velez_api.RunnersAPI/UpdateRunnerConfig"
+	RunnersAPI_RedeployRunner_FullMethodName       = "/velez_api.RunnersAPI/RedeployRunner"
 )
 
 // RunnersAPIClient is the client API for RunnersAPI service.
@@ -41,6 +44,24 @@ type RunnersAPIClient interface {
 	// GetRunnerCredentials is the only RPC that resolves a secret_ref to its
 	// value.
 	GetRunnerCredentials(ctx context.Context, in *GetRunnerCredentials_Request, opts ...grpc.CallOption) (*GetRunnerCredentials_Response, error)
+	// GetRunnerConfig reads the runner's currently stored provider config
+	// (base_url, docker_image, docker_socket_address) - the values the next
+	// ReregisterRunner/RedeployRunner call will apply, not necessarily what
+	// the running container was deployed with.
+	GetRunnerConfig(ctx context.Context, in *GetRunnerConfig_Request, opts ...grpc.CallOption) (*GetRunnerConfig_Response, error)
+	// UpdateRunnerConfig persists new provider config values. It never applies
+	// them to the running container - the response tells the caller which
+	// follow-up action does: requires_reregister (base_url/docker_image, via
+	// ReregisterRunner) and/or requires_redeploy (docker_socket_address, via
+	// RedeployRunner).
+	UpdateRunnerConfig(ctx context.Context, in *UpdateRunnerConfig_Request, opts ...grpc.CallOption) (*UpdateRunnerConfig_Response, error)
+	// RedeployRunner recreates the runner's container from its current stored
+	// deployment spec, overlaying docker_socket_address as DOCKER_HOST (or
+	// clearing it back to unset) - the only way a docker_socket_address change
+	// ever reaches the container, since it's a deploy-time env var, not
+	// something a running container can pick up. Mirrors ReregisterRunner's
+	// fire-and-forget shape.
+	RedeployRunner(ctx context.Context, in *RedeployRunner_Request, opts ...grpc.CallOption) (*RedeployRunner_Response, error)
 }
 
 type runnersAPIClient struct {
@@ -96,6 +117,33 @@ func (c *runnersAPIClient) GetRunnerCredentials(ctx context.Context, in *GetRunn
 	return out, nil
 }
 
+func (c *runnersAPIClient) GetRunnerConfig(ctx context.Context, in *GetRunnerConfig_Request, opts ...grpc.CallOption) (*GetRunnerConfig_Response, error) {
+	out := new(GetRunnerConfig_Response)
+	err := c.cc.Invoke(ctx, RunnersAPI_GetRunnerConfig_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *runnersAPIClient) UpdateRunnerConfig(ctx context.Context, in *UpdateRunnerConfig_Request, opts ...grpc.CallOption) (*UpdateRunnerConfig_Response, error) {
+	out := new(UpdateRunnerConfig_Response)
+	err := c.cc.Invoke(ctx, RunnersAPI_UpdateRunnerConfig_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *runnersAPIClient) RedeployRunner(ctx context.Context, in *RedeployRunner_Request, opts ...grpc.CallOption) (*RedeployRunner_Response, error) {
+	out := new(RedeployRunner_Response)
+	err := c.cc.Invoke(ctx, RunnersAPI_RedeployRunner_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RunnersAPIServer is the server API for RunnersAPI service.
 // All implementations must embed UnimplementedRunnersAPIServer
 // for forward compatibility
@@ -111,6 +159,24 @@ type RunnersAPIServer interface {
 	// GetRunnerCredentials is the only RPC that resolves a secret_ref to its
 	// value.
 	GetRunnerCredentials(context.Context, *GetRunnerCredentials_Request) (*GetRunnerCredentials_Response, error)
+	// GetRunnerConfig reads the runner's currently stored provider config
+	// (base_url, docker_image, docker_socket_address) - the values the next
+	// ReregisterRunner/RedeployRunner call will apply, not necessarily what
+	// the running container was deployed with.
+	GetRunnerConfig(context.Context, *GetRunnerConfig_Request) (*GetRunnerConfig_Response, error)
+	// UpdateRunnerConfig persists new provider config values. It never applies
+	// them to the running container - the response tells the caller which
+	// follow-up action does: requires_reregister (base_url/docker_image, via
+	// ReregisterRunner) and/or requires_redeploy (docker_socket_address, via
+	// RedeployRunner).
+	UpdateRunnerConfig(context.Context, *UpdateRunnerConfig_Request) (*UpdateRunnerConfig_Response, error)
+	// RedeployRunner recreates the runner's container from its current stored
+	// deployment spec, overlaying docker_socket_address as DOCKER_HOST (or
+	// clearing it back to unset) - the only way a docker_socket_address change
+	// ever reaches the container, since it's a deploy-time env var, not
+	// something a running container can pick up. Mirrors ReregisterRunner's
+	// fire-and-forget shape.
+	RedeployRunner(context.Context, *RedeployRunner_Request) (*RedeployRunner_Response, error)
 	mustEmbedUnimplementedRunnersAPIServer()
 }
 
@@ -132,6 +198,15 @@ func (UnimplementedRunnersAPIServer) ReregisterRunner(context.Context, *Reregist
 }
 func (UnimplementedRunnersAPIServer) GetRunnerCredentials(context.Context, *GetRunnerCredentials_Request) (*GetRunnerCredentials_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRunnerCredentials not implemented")
+}
+func (UnimplementedRunnersAPIServer) GetRunnerConfig(context.Context, *GetRunnerConfig_Request) (*GetRunnerConfig_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRunnerConfig not implemented")
+}
+func (UnimplementedRunnersAPIServer) UpdateRunnerConfig(context.Context, *UpdateRunnerConfig_Request) (*UpdateRunnerConfig_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateRunnerConfig not implemented")
+}
+func (UnimplementedRunnersAPIServer) RedeployRunner(context.Context, *RedeployRunner_Request) (*RedeployRunner_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RedeployRunner not implemented")
 }
 func (UnimplementedRunnersAPIServer) mustEmbedUnimplementedRunnersAPIServer() {}
 
@@ -236,6 +311,60 @@ func _RunnersAPI_GetRunnerCredentials_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RunnersAPI_GetRunnerConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRunnerConfig_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RunnersAPIServer).GetRunnerConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RunnersAPI_GetRunnerConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RunnersAPIServer).GetRunnerConfig(ctx, req.(*GetRunnerConfig_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RunnersAPI_UpdateRunnerConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateRunnerConfig_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RunnersAPIServer).UpdateRunnerConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RunnersAPI_UpdateRunnerConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RunnersAPIServer).UpdateRunnerConfig(ctx, req.(*UpdateRunnerConfig_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RunnersAPI_RedeployRunner_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RedeployRunner_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RunnersAPIServer).RedeployRunner(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RunnersAPI_RedeployRunner_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RunnersAPIServer).RedeployRunner(ctx, req.(*RedeployRunner_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RunnersAPI_ServiceDesc is the grpc.ServiceDesc for RunnersAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -262,6 +391,18 @@ var RunnersAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetRunnerCredentials",
 			Handler:    _RunnersAPI_GetRunnerCredentials_Handler,
+		},
+		{
+			MethodName: "GetRunnerConfig",
+			Handler:    _RunnersAPI_GetRunnerConfig_Handler,
+		},
+		{
+			MethodName: "UpdateRunnerConfig",
+			Handler:    _RunnersAPI_UpdateRunnerConfig_Handler,
+		},
+		{
+			MethodName: "RedeployRunner",
+			Handler:    _RunnersAPI_RedeployRunner_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

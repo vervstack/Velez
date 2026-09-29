@@ -3,7 +3,6 @@ package local_storage
 import (
 	"context"
 	"sort"
-	"strings"
 	"sync"
 	"time"
 
@@ -16,31 +15,8 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/gitlab_runner_config"
+	"go.vervstack.ru/Velez/internal/storage/container_derived"
 	"go.vervstack.ru/Velez/internal/user_errors"
-)
-
-const (
-	// runnerSecretScope / runnerSecretKey mirror runneraas.runnerSecretScope /
-	// runneraas.runnerSecretKey - the scope+key half of the domain.SecretRef
-	// the runneraas service stores a caller's access token under. Owner is
-	// the instance name. Duplicated rather than shared: the runneraas
-	// service package sits a layer above storage and must not be imported
-	// here.
-	runnerSecretScope = "runneraas"
-	runnerSecretKey   = "access_token"
-
-	// runnerRegistrationTokenSecretKey mirrors domain.runnerTokenSecretKey -
-	// the key half of the domain.SecretRef GetRunnerCredentials/reregister
-	// resolve the minted registration token back out of. See
-	// domain.RunnerRegistrationTokenSecretRef.
-	runnerRegistrationTokenSecretKey = "registration_token"
-
-	// runnerRegistrationTokenEnvVar mirrors internal/jobs/create_runner.go's
-	// const of the same name - the Velez-internal env var carrying the
-	// token into the runner container, read back by
-	// dockerSecrets.registrationTokenFromContainer (secrets.go) after a
-	// restart wipes the in-memory copy.
-	runnerRegistrationTokenEnvVar = "VELEZ_RUNNER_REGISTRATION_TOKEN"
 )
 
 // dockerRunners is the single-node/dev storage.RunnersStorage: there is no
@@ -186,32 +162,16 @@ func (d *dockerRunners) listFromContainers(ctx context.Context) ([]domain.Runner
 	out := make([]domain.Runner, 0, len(containers))
 
 	for _, c := range containers {
-		name := c.Labels[labels.VervServiceLabel]
-		if name == "" && len(c.Names) != 0 {
-			name = strings.TrimPrefix(c.Names[0], "/")
-		}
-
+		name := container_derived.ServiceName(c.Labels, c.Names)
 		if name == "" {
 			continue
 		}
 
-		created := time.Unix(c.Created, 0)
+		runner := container_derived.Runner(name, time.Unix(c.Created, 0), c.Labels)
 
-		secretRef := domain.SecretRef{Scope: runnerSecretScope, Owner: name, Key: runnerSecretKey}
+		runner.ServiceID = serviceIDFromName(name)
 
-		runner := domain.Runner{
-			ServiceID: serviceIDFromName(name),
-			Provider:  c.Labels[labels.RunnerProviderLabel],
-			Scope:     c.Labels[labels.RunnerScopeLabel],
-			Target:    c.Labels[labels.RunnerTargetLabel],
-			Labels:    splitRunnerLabels(c.Labels[labels.RunnerLabelsLabel]),
-			SecretRef: secretRef.String(),
-			BaseUrl:   c.Labels[labels.RunnerBaseUrlLabel],
-			CreatedAt: created,
-			UpdatedAt: created,
-		}
-
-		if runner.Provider == pb.RunnerProvider_GITLAB.String() {
+		if container_derived.IsGitlabRunner(runner) {
 			runner.Concurrent = d.readGitlabConcurrent(ctx, c.ID, name)
 		}
 
@@ -239,14 +199,4 @@ func (d *dockerRunners) readGitlabConcurrent(ctx context.Context, containerID, n
 	concurrent, _ := gitlab_runner_config.Concurrent(config)
 
 	return concurrent
-}
-
-// splitRunnerLabels is the inverse of strings.Join(labels, ",") - an empty
-// value means no labels were set, not one empty-string label.
-func splitRunnerLabels(value string) []string {
-	if value == "" {
-		return nil
-	}
-
-	return strings.Split(value, ",")
 }

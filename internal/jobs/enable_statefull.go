@@ -31,6 +31,7 @@ import (
 	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/patterns/db_patterns/pg_pattern"
+	"go.vervstack.ru/Velez/internal/service/secrets"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
@@ -147,6 +148,7 @@ type enableStatefullHandler struct {
 	storageContainer    *storage.Container
 	cfg                 config.Config
 	runtimes            container_runtime.RuntimeResolver
+	secrets             secrets.Store
 }
 
 func NewEnableStatefullHandler(
@@ -155,6 +157,7 @@ func NewEnableStatefullHandler(
 	storageContainer *storage.Container,
 	cfg config.Config,
 	runtimes container_runtime.RuntimeResolver,
+	secretsStore secrets.Store,
 ) TaskHandler {
 	return &enableStatefullHandler{
 		nodeClients:         nodeClients,
@@ -162,6 +165,7 @@ func NewEnableStatefullHandler(
 		storageContainer:    storageContainer,
 		cfg:                 cfg,
 		runtimes:            runtimes,
+		secrets:             secretsStore,
 	}
 }
 
@@ -173,9 +177,10 @@ func (h *enableStatefullHandler) NewContext() TaskContext {
 	return &velez_api.EnableStatefullTaskPayload{}
 }
 
-// BuildJobs mirrors do_enable_statefull.go's 7 pipeline steps, plus four
+// BuildJobs mirrors do_enable_statefull.go's 7 pipeline steps, plus five
 // extra jobs (generate_credentials, wait_for_postgres_ready, register_plugin,
-// bind_pg_resource). generate_credentials is promoted out of the pipeline's inline
+// bind_pg_resource, backfill_labeled_services). generate_credentials is
+// promoted out of the pipeline's inline
 // "Pipeline Context" setup - see docs/jobs_migrations/questions.md for why
 // that setup can't stay inline BuildJobs code: it derives passwords by
 // checking whether they're already persisted in local/cluster state, which
@@ -294,6 +299,15 @@ func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			Name: stepBindPgResource,
 			Job: &bindPgResourceJob{
 				storageContainer: h.storageContainer,
+			},
+		},
+		{
+			Name: stepBackfillLabeledServices,
+			Job: &backfillLabeledServicesJob{
+				storageContainer: h.storageContainer,
+				runtimes:         h.runtimes,
+				secrets:          h.secrets,
+				dockerAPI:        h.nodeClients.Docker().Client(),
 			},
 		},
 	}

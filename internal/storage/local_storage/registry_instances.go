@@ -3,8 +3,6 @@ package local_storage
 import (
 	"context"
 	"sort"
-	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -14,24 +12,8 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/storage/container_derived"
 	"go.vervstack.ru/Velez/internal/user_errors"
-)
-
-const (
-	// registryaasSecretScope / registryaasSecretKey mirror
-	// registryaas.registrySecretScope / registryaas.registrySecretKey - the
-	// scope+key half of the domain.SecretRef the registryaas service stores
-	// a generated password under. Owner is the instance name. Duplicated
-	// rather than shared: the registryaas service package sits a layer above
-	// storage and must not be imported here.
-	registryaasSecretScope = "registryaas"
-	registryaasSecretKey   = "password"
-
-	// registryaasDefaultPort is the fallback used only when a container
-	// predates labels.RegistryaasPortLabel (upgrade from an older Velez) -
-	// the builtin registry descriptor's container-internal port, not a
-	// usable host port, but the best guess available without it.
-	registryaasDefaultPort = 5000
 )
 
 // dockerRegistryInstances is the single-node/dev storage.
@@ -177,57 +159,17 @@ func (d *dockerRegistryInstances) listFromContainers(ctx context.Context) ([]dom
 	out := make([]domain.RegistryInstance, 0, len(containers))
 
 	for _, c := range containers {
-		name := c.Labels[labels.VervServiceLabel]
-		if name == "" && len(c.Names) != 0 {
-			name = strings.TrimPrefix(c.Names[0], "/")
-		}
-
+		name := container_derived.ServiceName(c.Labels, c.Names)
 		if name == "" {
 			continue
 		}
 
-		created := time.Unix(c.Created, 0)
+		instance := container_derived.RegistryInstance(name, time.Unix(c.Created, 0), c.Labels)
 
-		secretRef := domain.SecretRef{Scope: registryaasSecretScope, Owner: name, Key: registryaasSecretKey}
-
-		instance := domain.RegistryInstance{
-			ServiceId: serviceIDFromName(name),
-			Port:      portFromLabel(c.Labels[labels.RegistryaasPortLabel]),
-			UiPort:    uiPortFromLabel(c.Labels[labels.RegistryaasUiPortLabel]),
-			Username:  c.Labels[labels.RegistryaasUsernameLabel],
-			SecretRef: secretRef.String(),
-			CreatedAt: created,
-			UpdatedAt: created,
-		}
+		instance.ServiceId = serviceIDFromName(name)
 
 		out = append(out, instance)
 	}
 
 	return out, nil
-}
-
-// uiPortFromLabel parses labels.RegistryaasUiPortLabel's value, falling back
-// to the 0 "not provisioned yet" sentinel (mirrors the backfill migration's
-// ui_port = 0 convention) on an empty or malformed label.
-func uiPortFromLabel(value string) int32 {
-	port, err := strconv.ParseUint(value, 10, 32)
-	if err != nil {
-		return 0
-	}
-
-	return int32(port) //nolint:gosec
-}
-
-// portFromLabel parses labels.RegistryaasPortLabel's value - the instance's
-// resolved host-exposed port, set on the registry container at deploy time
-// (deployRegistryInstanceJob). Falls back to registryaasDefaultPort (the
-// container-internal port, not a real host port) only for a container
-// created before this label existed.
-func portFromLabel(value string) int32 {
-	port, err := strconv.ParseUint(value, 10, 32)
-	if err != nil {
-		return registryaasDefaultPort
-	}
-
-	return int32(port) //nolint:gosec
 }

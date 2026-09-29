@@ -219,13 +219,21 @@ func registeredServiceLabels(serviceName string) map[string]string {
 func registeredContainerSpec(
 	name, environment, serviceName string, info container.InspectResponse,
 ) *velez_api.CreateSmerd_Request {
+	return inspectedContainerSpec(name, environment, registeredServiceLabels(serviceName), info)
+}
+
+// inspectedContainerSpec derives the CreateSmerd request that describes the
+// running container, its labels overlaid with overlayLabels.
+func inspectedContainerSpec(
+	name, environment string, overlayLabels map[string]string, info container.InspectResponse,
+) *velez_api.CreateSmerd_Request {
 	merged := make(map[string]string)
 
 	if info.Config != nil {
 		maps.Copy(merged, info.Config.Labels)
 	}
 
-	maps.Copy(merged, registeredServiceLabels(serviceName))
+	maps.Copy(merged, overlayLabels)
 
 	spec := parser.ToCreateRequest(name, info)
 

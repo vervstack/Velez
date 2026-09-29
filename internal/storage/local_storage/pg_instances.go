@@ -3,7 +3,6 @@ package local_storage
 import (
 	"context"
 	"sort"
-	"strings"
 	"sync"
 	"time"
 
@@ -13,28 +12,8 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/storage/container_derived"
 	"go.vervstack.ru/Velez/internal/user_errors"
-)
-
-const (
-	// pgaasSecretScope / pgaasSecretKey mirror pgaas.pgSecretScope /
-	// pgaas.pgSecretKey - the scope+key half of the domain.SecretRef the
-	// pgaas service stores a generated password under. Owner is the instance
-	// name. Duplicated rather than shared: the pgaas service package sits a
-	// layer above storage and must not be imported here.
-	pgaasSecretScope = "pgaas"
-	pgaasSecretKey   = "password"
-
-	// pgaasEnvDbName / pgaasEnvUsername / pgaasEnvPassword are the container
-	// env vars pgaas.buildDeployRequest writes the instance's facts into. In
-	// single-node mode the running container is the only record of them.
-	pgaasEnvDbName   = "POSTGRES_DB"
-	pgaasEnvUsername = "POSTGRES_USER"
-	pgaasEnvPassword = "POSTGRES_PASSWORD"
-
-	// pgaasDefaultPort mirrors pgaas.pgDefaultPort - fixed by the builtin
-	// postgres descriptor, the port the instance's container listens on.
-	pgaasDefaultPort = 5432
 )
 
 // dockerPgInstances is the single-node/dev storage.PgInstancesStorage: there
@@ -173,11 +152,7 @@ func (d *dockerPgInstances) listFromContainers(ctx context.Context) ([]domain.Pg
 	out := make([]domain.PgInstance, 0, len(containers))
 
 	for _, c := range containers {
-		name := c.Labels[labels.VervServiceLabel]
-		if name == "" && len(c.Names) != 0 {
-			name = strings.TrimPrefix(c.Names[0], "/")
-		}
-
+		name := container_derived.ServiceName(c.Labels, c.Names)
 		if name == "" {
 			continue
 		}
@@ -187,36 +162,12 @@ func (d *dockerPgInstances) listFromContainers(ctx context.Context) ([]domain.Pg
 			return nil, rerrors.Wrap(inspectErr, "error inspecting pgaas container")
 		}
 
-		created := time.Unix(c.Created, 0)
+		instance := container_derived.PgInstance(name, time.Unix(c.Created, 0), info.Config.Env)
 
-		secretRef := domain.SecretRef{Scope: pgaasSecretScope, Owner: name, Key: pgaasSecretKey}
-
-		instance := domain.PgInstance{
-			ServiceId: serviceIDFromName(name),
-			DbName:    envValue(info.Config.Env, pgaasEnvDbName),
-			Username:  envValue(info.Config.Env, pgaasEnvUsername),
-			SecretRef: secretRef.String(),
-			Port:      pgaasDefaultPort,
-			CreatedAt: created,
-			UpdatedAt: created,
-		}
+		instance.ServiceId = serviceIDFromName(name)
 
 		out = append(out, instance)
 	}
 
 	return out, nil
-}
-
-// envValue returns the value of key in a Docker "KEY=VALUE" env slice, or "".
-func envValue(env []string, key string) string {
-	prefix := key + "="
-
-	for _, entry := range env {
-		value, ok := strings.CutPrefix(entry, prefix)
-		if ok {
-			return value
-		}
-	}
-
-	return ""
 }

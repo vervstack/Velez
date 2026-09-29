@@ -49,7 +49,7 @@ var (
 )
 
 func TestEnableStatefullHandler_Action(t *testing.T) {
-	h := NewEnableStatefullHandler(nil, nil, nil, config.Config{}, nil)
+	h := NewEnableStatefullHandler(nil, nil, nil, config.Config{}, nil, nil)
 
 	if h.Action() != EnableStatefullAction {
 		t.Errorf("expected action %q, got %q", EnableStatefullAction, h.Action())
@@ -57,7 +57,7 @@ func TestEnableStatefullHandler_Action(t *testing.T) {
 }
 
 func TestEnableStatefullHandler_NewContext(t *testing.T) {
-	h := NewEnableStatefullHandler(nil, nil, nil, config.Config{}, nil)
+	h := NewEnableStatefullHandler(nil, nil, nil, config.Config{}, nil, nil)
 
 	if _, ok := h.NewContext().(*velez_api.EnableStatefullTaskPayload); !ok {
 		t.Fatal("expected NewContext to return *velez_api.EnableStatefullTaskPayload")
@@ -77,14 +77,14 @@ func TestEnableStatefullHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 	storageContainer := storage.NewStorageContainer(clusterStorage)
 
 	h := NewEnableStatefullHandler(
-		nodeClients, clusterStateManager, storageContainer, config.Config{}, newFakeRuntimes(docker, nil))
+		nodeClients, clusterStateManager, storageContainer, config.Config{}, newFakeRuntimes(docker, nil), nil)
 
 	namedJobs := h.BuildJobs(payload)
 
 	wantNames := []string{
 		stepGenerateCredentials, stepCreateLoaderContainer, stepStartSidecar, "wait_for_postgres_ready",
 		stepGetRootDsn, "create_schema_and_migrate", "create_pg_user", "update_cluster_state",
-		"init_node_storage", "register_plugin", stepBindPgResource,
+		"init_node_storage", "register_plugin", stepBindPgResource, stepBackfillLabeledServices,
 	}
 	if len(namedJobs) != len(wantNames) {
 		t.Fatalf("expected %d jobs, got %d", len(wantNames), len(namedJobs))
@@ -116,7 +116,7 @@ func TestEnableStatefullHandler_BuildJobs_UsesDefaultEnvironmentSuffix(t *testin
 	storageContainer := storage.NewStorageContainer(clusterStorage)
 
 	h := NewEnableStatefullHandler(
-		nodeClients, clusterStateManager, storageContainer, config.Config{}, newFakeRuntimes(docker, nil))
+		nodeClients, clusterStateManager, storageContainer, config.Config{}, newFakeRuntimes(docker, nil), nil)
 
 	namedJobs := h.BuildJobs(payload)
 
@@ -1280,7 +1280,7 @@ func TestEnableStatefullHandler_FailurePath_UnreachablePostgres_RollsBack(t *tes
 	storageContainer := storage.NewStorageContainer(clusterStorage)
 
 	handler := NewEnableStatefullHandler(
-		nodeClients, clusterStateManager, storageContainer, config.Config{}, newFakeRuntimes(docker, nil))
+		nodeClients, clusterStateManager, storageContainer, config.Config{}, newFakeRuntimes(docker, nil), nil)
 
 	taskCtx := handler.NewContext()
 

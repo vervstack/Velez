@@ -44,6 +44,19 @@ import (
 func enableStatefullPgUnderDind(t *testing.T, plane Plane, containerSuffix string) (*TestEnvironment, string) {
 	t.Helper()
 
+	env, pgName := newStatefullEnvironment(t, plane, containerSuffix)
+
+	enableStatefullPg(t, env)
+
+	return env, pgName
+}
+
+// newStatefullEnvironment builds the environment enableStatefullPgUnderDind
+// enables statefull on, without enabling it, so a test can create resources
+// in single mode first. It also registers the sidecar cleanup.
+func newStatefullEnvironment(t *testing.T, plane Plane, containerSuffix string) (*TestEnvironment, string) {
+	t.Helper()
+
 	hostAddr, ok := sharedDind.Addr(dindClusterPgPort)
 	require.True(t, ok, "dind did not publish the cluster-pg port %d", dindClusterPgPort)
 
@@ -82,6 +95,13 @@ func enableStatefullPgUnderDind(t *testing.T, plane Plane, containerSuffix strin
 	removeStatefullSidecar(dockerClient, pgName)
 	t.Cleanup(func() { removeStatefullSidecar(dockerClient, pgName) })
 
+	return env, pgName
+}
+
+// enableStatefullPg runs EnablePlugin(statefull_pg) on env to completion.
+func enableStatefullPg(t *testing.T, env *TestEnvironment) {
+	t.Helper()
+
 	statefullReq := &velez_api.EnableStatefullCluster{
 		IsExposePort: toolbox.ToPtr(true),
 		ExposeToPort: toolbox.ToPtr(uint64(dindClusterPgPort)),
@@ -105,8 +125,6 @@ func enableStatefullPgUnderDind(t *testing.T, plane Plane, containerSuffix strin
 
 	require.Equal(t, tasks_queries.VelezTaskStatusDONE, finalTask.Status,
 		"enable statefull task error: %s", finalTask.Error.String)
-
-	return env, pgName
 }
 
 // removeStatefullSidecar force-removes the cluster-state postgres container

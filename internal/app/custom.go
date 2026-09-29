@@ -152,7 +152,8 @@ func (c *Custom) Init(a *App) (err error) {
 	registry.Register(jobs.NewConnectServiceToVpnHandler(
 		c.NodeClients, c.ClusterClients.Vpn(), c.ClusterClients.ServiceDiscovery(), runtimeResolver))
 	registry.Register(jobs.NewEnableStatefullHandler(
-		c.NodeClients, c.ClusterClients.StateManager(), c.Services.StorageContainer(), a.Cfg, runtimeResolver))
+		c.NodeClients, c.ClusterClients.StateManager(), c.Services.StorageContainer(), a.Cfg, runtimeResolver,
+		c.Services.Secrets()))
 	registry.Register(jobs.NewUpgradeSmerdHandler(
 		c.NodeClients, c.Services.SmerdManager(), c.Services.ConfigurationService(),
 		runtimeResolver))

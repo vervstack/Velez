@@ -1,4 +1,4 @@
-package gitlab
+package gitlab_runner_config
 
 import (
 	"testing"
@@ -47,9 +47,32 @@ func Test_SetConcurrent_Scenarios(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := setConcurrent([]byte(tc.config), 4)
+			got := SetConcurrent([]byte(tc.config), 4)
 
 			require.Equal(t, tc.want, string(got))
+		})
+	}
+}
+
+func Test_Concurrent_Scenarios(t *testing.T) {
+	cases := []struct {
+		name   string
+		config string
+		want   int32
+		isSet  bool
+	}{
+		{"reads the top-level key", "concurrent = 4\n\n[[runners]]\n  name = \"x\"\n", 4, true},
+		{"reads an indented key on the last line", "check_interval = 0\n  concurrent   =   7", 7, true},
+		{"ignores a key inside a runners table", "[[runners]]\n  concurrent = 9\n", 0, false},
+		{"reports absent for empty input", "", 0, false},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, isSet := Concurrent([]byte(tc.config))
+
+			require.Equal(t, tc.isSet, isSet)
+			require.Equal(t, tc.want, got)
 		})
 	}
 }

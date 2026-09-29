@@ -7,12 +7,15 @@ import (
 	"sync"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/gitlab_runner_config"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
@@ -208,10 +211,34 @@ func (d *dockerRunners) listFromContainers(ctx context.Context) ([]domain.Runner
 			UpdatedAt: created,
 		}
 
+		if runner.Provider == pb.RunnerProvider_GITLAB.String() {
+			runner.Concurrent = d.readGitlabConcurrent(ctx, c.ID, name)
+		}
+
 		out = append(out, runner)
 	}
 
 	return out, nil
+}
+
+// readGitlabConcurrent returns the `concurrent` value the container's own
+// config.toml currently holds - a running container is the system of record
+// here, and Docker labels can't be edited after create. 0 (treated as 1) when
+// the file is unreadable or the key is absent, e.g. before Register has run.
+func (d *dockerRunners) readGitlabConcurrent(ctx context.Context, containerID, name string) int32 {
+	config, err := dockerutils.ReadFromContainer(ctx, d.docker.Client(), containerID, gitlab_runner_config.ConfigPath)
+	if err != nil {
+		log.Ctx(ctx).Warn().
+			Str("runner", name).
+			Err(err).
+			Msg("error reading gitlab-runner config.toml")
+
+		return 0
+	}
+
+	concurrent, _ := gitlab_runner_config.Concurrent(config)
+
+	return concurrent
 }
 
 // splitRunnerLabels is the inverse of strings.Join(labels, ",") - an empty

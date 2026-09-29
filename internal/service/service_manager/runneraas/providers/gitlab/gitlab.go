@@ -18,6 +18,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
+	"go.vervstack.ru/Velez/internal/gitlab_runner_config"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
@@ -38,12 +39,11 @@ const (
 
 	descriptorName = "gitlab_runner"
 
-	// dataPath must match builtin/gitlab_runner/deployment.yaml's volume
-	// mount - gitlab-runner's config/registration directory, so a
+	// dataPath is gitlab-runner's config/registration directory, so a
 	// registration written by Register survives a container restart.
-	dataPath = "/etc/gitlab-runner"
+	dataPath = gitlab_runner_config.DataPath
 
-	configPath = dataPath + "/config.toml"
+	configPath = gitlab_runner_config.ConfigPath
 
 	configFileMode = 0o600
 )
@@ -151,7 +151,7 @@ func (p *Provider) ApplyConcurrent(
 		return rerrors.Wrap(err, "error reading gitlab-runner config.toml")
 	}
 
-	updated := setConcurrent(config, concurrent)
+	updated := gitlab_runner_config.SetConcurrent(config, concurrent)
 
 	err = runtime.CopyToContainer(ctx, containerID, configPath, updated, configFileMode)
 	if err != nil {

@@ -20,7 +20,12 @@ import (
 // resolves - both enable_registry.go's deployRegistryJob and
 // pgaas.CreatePgInstance rely on this instead of upserting themselves.
 func (v *VervService) CreateNewDeploy(ctx context.Context, request domain.CreateDeployReq) error {
-	err := v.dataStorage.Services().UpsertService(ctx, request.ServiceName)
+	displayName := request.DisplayName
+	if displayName == "" {
+		displayName = request.ServiceName
+	}
+
+	err := v.dataStorage.Services().UpsertService(ctx, request.ServiceName, displayName)
 	if err != nil {
 		return rerrors.Wrap(err, "error upserting service")
 	}
@@ -154,6 +159,8 @@ func (v *VervService) UpgradeDeploy(ctx context.Context, request domain.UpgradeD
 		smerdReq.ImageName = *request.NewImage
 	}
 
+	applyEnvOverrides(smerdReq, request.EnvOverrides)
+
 	payload, err := json.Marshal(smerdReq)
 	if err != nil {
 		return rerrors.Wrap(err, "error marshaling updated spec")
@@ -199,4 +206,27 @@ func (v *VervService) UpgradeDeploy(ctx context.Context, request domain.UpgradeD
 	}
 
 	return nil
+}
+
+// applyEnvOverrides overlays overrides onto smerdReq.Env in place - see
+// domain.UpgradeDeployReq.EnvOverrides's doc comment for the "" -> delete
+// convention.
+func applyEnvOverrides(smerdReq *velez_api.CreateSmerd_Request, overrides map[string]string) {
+	if len(overrides) == 0 {
+		return
+	}
+
+	if smerdReq.Env == nil {
+		smerdReq.Env = make(map[string]string)
+	}
+
+	for key, value := range overrides {
+		if value == "" {
+			delete(smerdReq.GetEnv(), key)
+
+			continue
+		}
+
+		smerdReq.Env[key] = value
+	}
 }

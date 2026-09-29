@@ -5,7 +5,12 @@ import EnvChip from '@/components/base/chips/EnvChip';
 import IncidentChip from '@/components/base/chips/IncidentChip';
 import FreezeChip from '@/components/base/chips/FreezeChip';
 import ServiceLabelBadge from '@/components/service/ServiceLabelBadge';
+import GitlabIcon from '@/components/base/icons/GitlabIcon';
 import { ServiceListItem } from '@/processes/mappings/smerds';
+
+const SERVICE_ICONS: Record<NonNullable<ServiceListItem['icon']>, React.ComponentType<{ className?: string }>> = {
+    gitlab: GitlabIcon,
+};
 
 interface ServiceCardProps {
     service: ServiceListItem;
@@ -14,6 +19,8 @@ interface ServiceCardProps {
 }
 
 export default function ServiceCard({ service, onOpen, onDeploy }: ServiceCardProps) {
+    const Icon = service.icon ? SERVICE_ICONS[service.icon] : null;
+
     function handleCardClick() {
         onOpen(service.name);
     }
@@ -35,7 +42,13 @@ export default function ServiceCard({ service, onOpen, onDeploy }: ServiceCardPr
         >
             <div className={serviceCls.nameRow}>
                 <StatusDot status={service.status} pulse />
-                <span className={serviceCls.name}>{service.name}</span>
+                {Icon && <Icon className={cls.icon}/>}
+                <div className={cls.titleGroup}>
+                    <span className={serviceCls.name}>{service.displayName}</span>
+                    {service.subtitle && (
+                        <span className={cls.subtitle}>{service.subtitle}</span>
+                    )}
+                </div>
             </div>
 
             <div className={serviceCls.chips}>

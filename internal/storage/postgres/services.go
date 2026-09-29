@@ -14,7 +14,8 @@ import (
 )
 
 const (
-	serviceNameColumn = "s.name"
+	serviceNameColumn        = "s.name"
+	serviceDisplayNameColumn = "s.display_name"
 )
 
 type servicesStorage struct {
@@ -32,8 +33,13 @@ func (s *servicesStorage) GetByName(ctx context.Context, name string) (domain.Se
 	return fromStorageToDomainService(row), nil
 }
 
-func (s *servicesStorage) UpsertService(ctx context.Context, name string) error {
-	err := s.querier.UpsertService(ctx, name)
+func (s *servicesStorage) UpsertService(ctx context.Context, name string, displayName string) error {
+	params := pg_queries.UpsertServiceParams{
+		Name:        name,
+		DisplayName: displayName,
+	}
+
+	err := s.querier.UpsertService(ctx, params)
 	if err != nil {
 		return wrapPgErr(err)
 	}
@@ -54,7 +60,8 @@ func fromStorageToDomainService(row pg_queries.VelezService) domain.Service {
 	return domain.Service{
 		ID: row.ID,
 		ServiceBaseInfo: domain.ServiceBaseInfo{
-			Name: row.Name,
+			Name:        row.Name,
+			DisplayName: row.DisplayName,
 		},
 	}
 }
@@ -165,12 +172,13 @@ func coreServiceNamesList() []string {
 }
 
 func (s serviceBaseInfoHelper) columns() []string {
-	return []string{serviceNameColumn, "ld.last_deployed_at"}
+	return []string{serviceNameColumn, serviceDisplayNameColumn, "ld.last_deployed_at"}
 }
 
 func (s serviceBaseInfoHelper) scanServiceBaseInfo(row sqldb.Scannable) (baseInfo domain.ServiceBaseInfo, err error) {
 	err = row.Scan(
 		&baseInfo.Name,
+		&baseInfo.DisplayName,
 		&baseInfo.LastDeployedAt,
 	)
 	if err != nil {

@@ -20,7 +20,7 @@ func (q *Queries) DeleteByName(ctx context.Context, name string) error {
 }
 
 const getByName = `-- name: GetByName :one
-SELECT id, name, created_at, environment_id
+SELECT id, name, created_at, environment_id, display_name
 FROM velez.services
 WHERE name = $1
     FETCH FIRST 1 ROWS ONLY
@@ -34,17 +34,24 @@ func (q *Queries) GetByName(ctx context.Context, name string) (VelezService, err
 		&i.Name,
 		&i.CreatedAt,
 		&i.EnvironmentID,
+		&i.DisplayName,
 	)
 	return i, err
 }
 
 const upsertService = `-- name: UpsertService :exec
-INSERT INTO velez.services (name)
-VALUES ($1)
-ON CONFLICT (name) DO NOTHING
+INSERT INTO velez.services (name, display_name)
+VALUES ($1, $2)
+ON CONFLICT (name) DO UPDATE
+    SET display_name = EXCLUDED.display_name
 `
 
-func (q *Queries) UpsertService(ctx context.Context, name string) error {
-	_, err := q.db.ExecContext(ctx, upsertService, name)
+type UpsertServiceParams struct {
+	Name        string
+	DisplayName string
+}
+
+func (q *Queries) UpsertService(ctx context.Context, arg UpsertServiceParams) error {
+	_, err := q.db.ExecContext(ctx, upsertService, arg.Name, arg.DisplayName)
 	return err
 }

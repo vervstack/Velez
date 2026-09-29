@@ -63,6 +63,7 @@ export default function DeploymentsPage() {
         if (search.trim()) {
             const q = search.trim().toLowerCase();
             result = result.filter(s =>
+                s.displayName.toLowerCase().includes(q) ||
                 s.name.toLowerCase().includes(q) ||
                 s.image.toLowerCase().includes(q)
             );

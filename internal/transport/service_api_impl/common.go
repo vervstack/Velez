@@ -16,13 +16,19 @@ func toServiceBaseInfoList(in []domain.ServiceBaseInfo) []*pb.ServiceBaseInfo {
 }
 
 func toServiceBaseInfo(in domain.ServiceBaseInfo) *pb.ServiceBaseInfo {
+	displayName := in.DisplayName
+	if displayName == "" {
+		displayName = in.Name
+	}
+
 	info := &pb.ServiceBaseInfo{
-		Name:      in.Name,
-		ImageName: in.ImageName,
-		Status:    in.Status,
-		Env:       in.Env,
-		Repo:      in.Repo,
-		Labels:    in.Labels,
+		Name:        in.Name,
+		DisplayName: displayName,
+		ImageName:   in.ImageName,
+		Status:      in.Status,
+		Env:         in.Env,
+		Repo:        in.Repo,
+		Labels:      in.Labels,
 	}
 
 	if in.LastDeployedAt != nil {

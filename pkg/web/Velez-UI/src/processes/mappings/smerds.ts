@@ -17,6 +17,9 @@ export interface AppData {
 
 export interface ServiceListItem {
     name: string;
+    displayName: string;
+    subtitle?: string;
+    icon?: 'gitlab';
     image: string;
     status: 'running' | 'degraded' | 'stopped';
     labels: string[];
@@ -32,9 +35,20 @@ export interface ServiceListItem {
 
 export const LOCAL_NODE = { id: 'local', host: 'localhost', status: 'online' as const };
 
+// Label keys written by Velez on the Docker container — see
+// internal/domain/labels/verv_labels.go, the single source of truth these
+// strings must match.
+const DISPLAY_NAME_LABEL = 'velez.display_name';
+const VERV_SERVICE_LABEL = 'VERV_SERVICE';
+
+export function deriveServiceDisplayName(s: Smerd): string {
+    return s.labels?.[DISPLAY_NAME_LABEL] || s.labels?.[VERV_SERVICE_LABEL] || s.name || '';
+}
+
 export function mapSmerdToServiceCard(s: Smerd): ServiceCardData {
     return {
         name: s.name ?? '',
+        displayName: deriveServiceDisplayName(s),
         image: s.imageName ?? '',
         status: mapSmerdStatus(s.status),
         cpu: 0,
@@ -81,8 +95,21 @@ function formatDeployedAt(ts?: { seconds?: string | number }): string {
     return new Date(seconds * 1000).toLocaleDateString();
 }
 
+// Derived label the API attaches to GetService/ListServices.labels — see
+// internal/domain/service_labels.go's ClassifyService, the single source of
+// truth this string must match.
+const RUNNER_GITLAB_LABEL = 'service-runner-gitlab';
+
+function deriveServicePresentation(labels: string[]): { subtitle?: string; icon?: 'gitlab' } {
+    if (labels.includes(RUNNER_GITLAB_LABEL)) {
+        return {subtitle: 'Gitlab Runner', icon: 'gitlab'};
+    }
+    return {};
+}
+
 export function mapServiceToListItem(service: ServiceBaseInfo, smerds: Smerd[]): ServiceListItem {
     const name = service.name ?? '';
+    const displayName = service.displayName || name;
     const relatedSmerd = smerds.find(
         (s) => s.name === name || (!!s.name && !!name && s.name.startsWith(name + '-'))
     );
@@ -90,9 +117,14 @@ export function mapServiceToListItem(service: ServiceBaseInfo, smerds: Smerd[]):
     const status = relatedSmerd
         ? mapSmerdStatus(relatedSmerd.status)
         : mapServiceStatus(service.status);
+    const labels = service.labels ?? [];
+    const {subtitle, icon} = deriveServicePresentation(labels);
 
     return {
         name,
+        displayName,
+        subtitle,
+        icon,
         image,
         status,
         labels: service.labels ?? [],

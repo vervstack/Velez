@@ -1,6 +1,8 @@
 import cls from '@/widgets/service/ServiceHero/ServiceHero.module.css'
 
 import { useGetServiceAboutQuery, useGetServiceMetricsQuery } from '@/processes/queries/services'
+import { deriveRunnerDisplayName, isGitlabRunnerName } from '@/processes/mappings/runnerDisplay.ts'
+import GitlabIcon from '@/components/base/icons/GitlabIcon.tsx'
 import EnvSwitcher from '@/widgets/service/EnvSwitcher/EnvSwitcher.tsx'
 
 interface ServiceHeroProps {
@@ -81,7 +83,7 @@ export default function ServiceHero({
     const cpuPct = cpu
     const memPct = memMax > 0 ? (mem / memMax) * 100 : 0
 
-    const displayName = about?.originalName || serviceName
+    const displayName = about?.originalName || deriveRunnerDisplayName(serviceName)
     const description = about?.description || 'No description available.'
     const serviceType = about?.type || '—'
     const team = about?.team || '—'
@@ -95,6 +97,7 @@ export default function ServiceHero({
             <div className={cls.LeftWrapper}>
                 <div className={cls.NameRow}>
                     <span className={`${cls.StatusDot} ${statusDotClass(serviceStatus)}`} />
+                    {isGitlabRunnerName(serviceName) && <GitlabIcon className={cls.HeroIcon} />}
                     <h1 className={cls.ServiceName}>{displayName}</h1>
                     <span className={cls.TagCyan}>{serviceType}</span>
                     <span className={cls.Tag}>team · {team}</span>

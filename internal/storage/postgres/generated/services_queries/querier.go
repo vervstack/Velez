@@ -11,7 +11,7 @@ import (
 type Querier interface {
 	DeleteByName(ctx context.Context, name string) error
 	GetByName(ctx context.Context, name string) (VelezService, error)
-	UpsertService(ctx context.Context, name string) error
+	UpsertService(ctx context.Context, arg UpsertServiceParams) error
 }
 
 var _ Querier = (*Queries)(nil)

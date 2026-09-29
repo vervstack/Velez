@@ -1,7 +1,8 @@
 -- name: UpsertService :exec
-INSERT INTO velez.services (name)
-VALUES ($1)
-ON CONFLICT (name) DO NOTHING;
+INSERT INTO velez.services (name, display_name)
+VALUES ($1, $2)
+ON CONFLICT (name) DO UPDATE
+    SET display_name = EXCLUDED.display_name;
 
 -- name: GetByName :one
 SELECT *

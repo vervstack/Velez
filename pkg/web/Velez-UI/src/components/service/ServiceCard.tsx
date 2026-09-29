@@ -10,6 +10,7 @@ import ThreeDotMenu from '@/components/complex/ThreeDotMenu/ThreeDotMenu';
 
 export interface ServiceCardData {
     name: string;
+    displayName: string;
     image: string;
     status: 'running' | 'degraded' | 'stopped';
     cpu: number;
@@ -46,7 +47,7 @@ export default function ServiceCard({ service, menuActions }: ServiceCardProps) 
             <div className={cls.header}>
                 <div className={cls.nameRow}>
                     <StatusDot status={service.status} pulse />
-                    <span className={cls.name}>{service.name}</span>
+                    <span className={cls.name}>{service.displayName}</span>
                     {service.restarts > 0 && (
                         <span className={cls.restartsBadge} title={`${service.restarts} restarts`}>
                             ↺{service.restarts}

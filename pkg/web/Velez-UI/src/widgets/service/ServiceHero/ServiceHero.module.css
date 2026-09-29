@@ -30,6 +30,12 @@
     flex-wrap: wrap;
 }
 
+.HeroIcon {
+    width: 1.125rem;
+    height: 1.125rem;
+    flex-shrink: 0;
+}
+
 .StatusDot {
     width: 0.5625rem;
     height: 0.5625rem;

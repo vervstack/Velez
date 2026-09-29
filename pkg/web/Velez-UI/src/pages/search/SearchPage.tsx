@@ -37,6 +37,7 @@ export default function SearchPage() {
         if (!q) return { matchedServices: [], matchedNodes: [] };
 
         const matchedServices = services.filter(s =>
+            s.displayName.toLowerCase().includes(q) ||
             s.name.toLowerCase().includes(q) ||
             s.image.toLowerCase().includes(q) ||
             s.node.id.toLowerCase().includes(q)
@@ -79,7 +80,7 @@ export default function SearchPage() {
                         return (
                             <div key={svc.name} className={cls.resultRow}>
                                 <StatusDot status={svc.status} />
-                                <span className={cls.resultName}>{svc.name}</span>
+                                <span className={cls.resultName}>{svc.displayName}</span>
                                 <div className={cls.resultChips}>
                                     <EnvChip env={svc.env} />
                                     {svc.incident && <IncidentChip />}

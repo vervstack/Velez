@@ -62,12 +62,13 @@ func Test_dockerServices_GetByName_ResolvesUpsertedServiceWithoutContainer(t *te
 
 	name := test_helper.UniqueName(t, "pending-service")
 
-	err := s.UpsertService(context.Background(), name)
+	err := s.UpsertService(context.Background(), name, name)
 	require.NoError(t, err)
 
 	svc, err := s.GetByName(context.Background(), name)
 	require.NoError(t, err)
 	require.Equal(t, name, svc.Name)
+	require.Equal(t, name, svc.DisplayName)
 	require.Equal(t, pb.DeploymentStatus_SCHEDULED_DEPLOYMENT, svc.Status)
 }
 
@@ -115,7 +116,7 @@ func Test_dockerServices_GetByName_DeleteClearsUpsertedOverlay(t *testing.T) {
 
 	name := test_helper.UniqueName(t, "pending-service")
 
-	err := s.UpsertService(context.Background(), name)
+	err := s.UpsertService(context.Background(), name, name)
 	require.NoError(t, err)
 
 	err = s.Delete(context.Background(), name)

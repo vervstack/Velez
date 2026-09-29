@@ -34,7 +34,7 @@ export default function ServiceListRow({ service, menuActions }: ServiceListRowP
 
             <div className={cls.nameCell}>
                 <div className={cls.nameRow}>
-                    <span className={cls.name}>{service.name}</span>
+                    <span className={cls.name}>{service.displayName}</span>
                     {service.restarts > 0 && (
                         <span className={cls.restarts}>↺{service.restarts}</span>
                     )}

@@ -87,7 +87,7 @@ func (m *testServicesStorageWithGetByName) GetByName(ctx context.Context, name s
 	return domain.Service{}, nil
 }
 
-func (m *testServicesStorageWithGetByName) UpsertService(_ context.Context, _ string) error {
+func (m *testServicesStorageWithGetByName) UpsertService(_ context.Context, _ string, _ string) error {
 	return nil
 }
 

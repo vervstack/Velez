@@ -27,6 +27,15 @@ const (
 	PortLabel        = "velez.port"
 	EnvLabel         = "env"
 
+	// DisplayNameLabel carries the human-facing service name, distinct from
+	// VervServiceLabel when the latter carries a storage-layer prefix (see
+	// PgaasNamePrefix et al. below) - e.g. a runner instance named
+	// "gitlab_runner_Artel" displays as "Artel". Written alongside
+	// VervServiceLabel wherever a prefix is applied. Absent on containers
+	// created before this label existed - callers fall back to the
+	// (possibly prefixed) name.
+	DisplayNameLabel = "velez.display_name"
+
 	// PgaasInstanceLabel marks a container as a Postgres-as-a-Service instance
 	// provisioned by pgaas.CreatePgInstance. In single-node/dev mode (no
 	// velez.pg_instances / velez.secrets tables) the local_storage backend

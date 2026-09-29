@@ -35,14 +35,16 @@ type dockerServices struct {
 	// UpsertService then immediately CreateNewDeploy). This backend has no
 	// persisted services table to fall back on, so without this overlay
 	// GetByName reports ErrNotFound for a service that was just upserted,
-	// breaking every vervonomicon deploy under single-node/dev mode.
-	upserted map[string]struct{}
+	// breaking every vervonomicon deploy under single-node/dev mode. The
+	// value is the display name UpsertService was called with (may be
+	// empty - pendingService falls back to name).
+	upserted map[string]string
 }
 
 func newServicesStorage(docker node_clients.Docker) *dockerServices {
 	return &dockerServices{
 		docker:   docker,
-		upserted: make(map[string]struct{}),
+		upserted: make(map[string]string),
 	}
 }
 
@@ -73,12 +75,12 @@ func (s *dockerServices) GetByName(ctx context.Context, name string) (domain.Ser
 
 		s.mu.Lock()
 
-		_, ok := s.upserted[name]
+		displayName, ok := s.upserted[name]
 
 		s.mu.Unlock()
 
 		if ok {
-			return s.pendingService(name), nil
+			return s.pendingService(name, displayName), nil
 		}
 
 		return domain.Service{}, user_errors.ErrStorageNotFound
@@ -87,9 +89,10 @@ func (s *dockerServices) GetByName(ctx context.Context, name string) (domain.Ser
 	c := containers[0]
 	svc := domain.Service{
 		ServiceBaseInfo: domain.ServiceBaseInfo{
-			Name:      name,
-			ImageName: c.Image,
-			Status:    containerStateToString(c.State),
+			Name:        name,
+			DisplayName: displayNameOrFallback(c.Labels, name),
+			ImageName:   c.Image,
+			Status:      containerStateToString(c.State),
 		},
 		ID:     serviceIDFromName(name),
 		Status: containerStateToDeploymentStatus(c.State),
@@ -142,14 +145,26 @@ func containerStateToString(state string) string {
 
 // UpsertService records name so GetByName can resolve it before any
 // container backing it exists yet - see the upserted field's doc comment.
-func (s *dockerServices) UpsertService(_ context.Context, name string) error {
+func (s *dockerServices) UpsertService(_ context.Context, name string, displayName string) error {
 	s.mu.Lock()
 
-	s.upserted[name] = struct{}{}
+	s.upserted[name] = displayName
 
 	s.mu.Unlock()
 
 	return nil
+}
+
+// displayNameOrFallback reads labels.DisplayNameLabel off a container's
+// labels, falling back to name for a container created before that label
+// existed.
+func displayNameOrFallback(containerLabels map[string]string, name string) string {
+	displayName := containerLabels[labels.DisplayNameLabel]
+	if displayName == "" {
+		return name
+	}
+
+	return displayName
 }
 
 // Delete drops name from the upserted overlay - the underlying service list
@@ -221,11 +236,16 @@ func (s *dockerServices) List(ctx context.Context, req domain.ListServicesReq) (
 // but that has no container yet - status SCHEDULED_DEPLOYMENT mirrors the
 // row postgres/services.go's UpsertService+GetByName pair would report for
 // the same not-yet-deployed window in cluster mode.
-func (s *dockerServices) pendingService(name string) domain.Service {
+func (s *dockerServices) pendingService(name string, displayName string) domain.Service {
+	if displayName == "" {
+		displayName = name
+	}
+
 	return domain.Service{
 		ServiceBaseInfo: domain.ServiceBaseInfo{
-			Name:   name,
-			Status: containerStateToString(""),
+			Name:        name,
+			DisplayName: displayName,
+			Status:      containerStateToString(""),
 		},
 		ID:     serviceIDFromName(name),
 		Status: pb.DeploymentStatus_SCHEDULED_DEPLOYMENT,
@@ -299,8 +319,9 @@ func listDistinctServices(ctx context.Context, docker node_clients.Docker) ([]do
 		seen[serviceName] = true
 
 		info := domain.ServiceBaseInfo{
-			Name:   serviceName,
-			Labels: classifyDockerService(serviceName, containerNames),
+			Name:        serviceName,
+			DisplayName: displayNameOrFallback(c.Labels, serviceName),
+			Labels:      classifyDockerService(serviceName, containerNames),
 		}
 
 		all = append(all, info)
@@ -308,8 +329,9 @@ func listDistinctServices(ctx context.Context, docker node_clients.Docker) ([]do
 
 	if !seen[velezServiceName] {
 		synthetic := domain.ServiceBaseInfo{
-			Name:   velezServiceName,
-			Labels: classifyDockerService(velezServiceName, containerNames),
+			Name:        velezServiceName,
+			DisplayName: velezServiceName,
+			Labels:      classifyDockerService(velezServiceName, containerNames),
 		}
 
 		all = append(all, synthetic)

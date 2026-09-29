@@ -245,15 +245,17 @@ type VelezResourceBox struct {
 }
 
 type VelezRunner struct {
-	ServiceID int64
-	Provider  string
-	Scope     string
-	Target    string
-	Labels    []string
-	SecretRef string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	BaseUrl   string
+	ServiceID           int64
+	Provider            string
+	Scope               string
+	Target              string
+	Labels              []string
+	SecretRef           string
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+	BaseUrl             string
+	DockerImage         string
+	DockerSocketAddress string
 }
 
 type VelezSecret struct {
@@ -272,6 +274,7 @@ type VelezService struct {
 	Name          string
 	CreatedAt     time.Time
 	EnvironmentID int64
+	DisplayName   string
 }
 
 type VelezServiceDependency struct {

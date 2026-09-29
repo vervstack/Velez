@@ -59,7 +59,7 @@ func (v *VervService) enrichServiceAbout(ctx context.Context, svc *domain.Servic
 	}
 
 	svc.About = domain.AboutService{
-		OriginalName: lbl[labels.VervServiceLabel],
+		OriginalName: lbl[labels.DisplayNameLabel],
 		Description:  lbl[labels.DescriptionLabel],
 		Env:          lbl[labels.EnvLabel],
 		ServiceType:  lbl[labels.ServiceTypeLabel],

@@ -36,6 +36,12 @@ service VelezAPI {
       body: "*"
     };
   }
+  rpc RegisterContainer(RegisterContainer.Request) returns (RegisterContainer.Response) {
+    option (google.api.http) = {
+      post: "/api/container/register"
+      body: "*"
+    };
+  }
   rpc GetContainer(GetContainer.Request) returns (DockerContainer) {
     option (google.api.http) = {
       get: "/api/container/{id}"
@@ -190,6 +196,34 @@ message ListContainers {
 
   message Response {
     repeated DockerContainer containers = 1;
+  }
+}
+
+message RegisterContainer {
+  message Request {
+    string container_id = 1;
+    string environment = 2;
+    string service_name = 3;
+    oneof pattern {
+      GenericPattern generic = 4;
+      PgPattern pg = 5;
+      RegistryPattern registry = 6;
+      RunnerPattern runner = 7;
+    }
+
+    message GenericPattern {}
+    message PgPattern {
+      // superuser/password are required when the container env carries no admin login.
+      optional string superuser = 1;
+      optional string password = 2;
+    }
+    message RegistryPattern {}
+    message RunnerPattern {}
+  }
+  message Response {
+    // entity_id/action identify the register_container task; callers watch it via TasksApi.WatchTask.
+    string entity_id = 1;
+    string action = 2;
   }
 }
 

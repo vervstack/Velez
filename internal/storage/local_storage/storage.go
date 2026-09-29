@@ -41,6 +41,7 @@ type localStorage struct {
 	pgInstances       storage.PgInstancesStorage
 	runners           storage.RunnersStorage
 	registryInstances storage.RegistryInstancesStorage
+	containerBindings storage.ContainerBindingsStorage
 }
 
 func New(containerAPI node_clients.Docker, cfg config.Config) storage.Storage {
@@ -86,6 +87,9 @@ func New(containerAPI node_clients.Docker, cfg config.Config) storage.Storage {
 		// system of record instead, mirroring runners above - see
 		// registry_instances.go.
 		registryInstances: newRegistryInstancesStorage(containerAPI),
+		// Labels are the system of record in single-node/dev mode - see
+		// container_bindings.go.
+		containerBindings: newContainerBindingsStorage(),
 	}
 }
 
@@ -153,6 +157,10 @@ func (l *localStorage) Runners() storage.RunnersStorage {
 
 func (l *localStorage) RegistryInstances() storage.RegistryInstancesStorage {
 	return l.registryInstances
+}
+
+func (l *localStorage) ContainerBindings() storage.ContainerBindingsStorage {
+	return l.containerBindings
 }
 
 // TxManager returns l.deployments itself as the Transactor: single-node/dev

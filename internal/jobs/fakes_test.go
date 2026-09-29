@@ -883,6 +883,8 @@ func (f *fakeClusterStorage) RegistryInstances() storage.RegistryInstancesStorag
 	return f.registryInstances
 }
 
+func (f *fakeClusterStorage) ContainerBindings() storage.ContainerBindingsStorage { return nil }
+
 // fakeDeploymentsStorage is a minimal in-memory implementation of
 // storage.DeploymentsStorage for exercising registerPluginJob's
 // CreateSpecification/CreateDeployment calls without a database. Only the

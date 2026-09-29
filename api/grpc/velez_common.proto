@@ -93,6 +93,15 @@ message DockerContainer {
   repeated Mount mounts = 10;
   bool is_registered = 11;
   optional string linked_service_name = 12;
+  ServicePattern suggested_pattern = 13;
+}
+
+enum ServicePattern {
+  SERVICE_PATTERN_UNSPECIFIED = 0;
+  SERVICE_PATTERN_POSTGRES = 1;
+  SERVICE_PATTERN_REGISTRY = 2;
+  SERVICE_PATTERN_GITHUB_RUNNER = 3;
+  SERVICE_PATTERN_GITLAB_RUNNER = 4;
 }
 
 // ContainerFilterField names which field of a ContainerFilter to match on.

@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.30.0
 
-package runners_queries
+package container_bindings_queries
 
 import (
 	"database/sql"

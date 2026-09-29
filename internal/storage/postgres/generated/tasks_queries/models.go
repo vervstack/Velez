@@ -146,6 +146,15 @@ func (ns NullVelezTaskStatus) Value() (driver.Value, error) {
 	return string(ns.VelezTaskStatus), nil
 }
 
+type VelezContainerBinding struct {
+	ID            int64
+	ServiceID     int64
+	NodeID        int32
+	Environment   string
+	ContainerName string
+	CreatedAt     time.Time
+}
+
 type VelezDeployment struct {
 	ID            int64
 	NodeID        int32

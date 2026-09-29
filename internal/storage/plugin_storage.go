@@ -86,3 +86,7 @@ func (c *Container) Runners() RunnersStorage {
 func (c *Container) RegistryInstances() RegistryInstancesStorage {
 	return (*c.impl.Load()).RegistryInstances()
 }
+
+func (c *Container) ContainerBindings() ContainerBindingsStorage {
+	return (*c.impl.Load()).ContainerBindings()
+}

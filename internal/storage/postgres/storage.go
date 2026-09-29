@@ -10,6 +10,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/storage/container_bindings"
 	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/storage/pg_instances"
 	service_resources_queries "go.vervstack.ru/Velez/internal/storage/postgres/generated/service_resources_queries"
@@ -37,6 +38,7 @@ type Storage struct {
 	pgInstancesStorage         storage.PgInstancesStorage
 	runnersStorage             storage.RunnersStorage
 	registryInstancesStorage   storage.RegistryInstancesStorage
+	containerBindingsStorage   storage.ContainerBindingsStorage
 
 	txManager *sqldb.TxManager
 }
@@ -63,6 +65,7 @@ func New(db *sql.DB) storage.Storage {
 		pgInstancesStorage:         pg_instances.NewPg(db),
 		runnersStorage:             runners.NewPg(db),
 		registryInstancesStorage:   registry_instances.NewPg(db),
+		containerBindingsStorage:   container_bindings.NewPg(db),
 		txManager:                  sqldb.NewTxManager(db),
 	}
 }
@@ -132,6 +135,10 @@ func (s *Storage) Runners() storage.RunnersStorage {
 
 func (s *Storage) RegistryInstances() storage.RegistryInstancesStorage {
 	return s.registryInstancesStorage
+}
+
+func (s *Storage) ContainerBindings() storage.ContainerBindingsStorage {
+	return s.containerBindingsStorage
 }
 
 func (s *Storage) TxManager() storage.Transactor {

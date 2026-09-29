@@ -49,6 +49,7 @@ func (s *testStorage) Secrets() storage.SecretsStorage                     { ret
 func (s *testStorage) PgInstances() storage.PgInstancesStorage             { return nil }
 func (s *testStorage) Runners() storage.RunnersStorage                     { return nil }
 func (s *testStorage) RegistryInstances() storage.RegistryInstancesStorage { return nil }
+func (s *testStorage) ContainerBindings() storage.ContainerBindingsStorage { return nil }
 
 func (s *testStorage) Tasks() storage.TasksStorage { return nil }
 func (s *testStorage) Jobs() storage.JobsStorage   { return nil }

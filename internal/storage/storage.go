@@ -29,6 +29,7 @@ type Storage interface {
 	PgInstances() PgInstancesStorage
 	Runners() RunnersStorage
 	RegistryInstances() RegistryInstancesStorage
+	ContainerBindings() ContainerBindingsStorage
 
 	TxManager() Transactor
 
@@ -209,4 +210,9 @@ type RegistryInstancesStorage interface {
 	GetRegistryInstanceByServiceID(ctx context.Context, serviceID int64) (domain.RegistryInstance, error)
 	ListRegistryInstances(ctx context.Context) ([]domain.RegistryInstance, error)
 	DeleteRegistryInstance(ctx context.Context, serviceID int64) error
+}
+
+type ContainerBindingsStorage interface {
+	Upsert(ctx context.Context, binding domain.ContainerBinding) error
+	ListByNode(ctx context.Context, nodeId int32, environment string) ([]domain.ContainerBinding, error)
 }

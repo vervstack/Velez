@@ -81,6 +81,38 @@
         ]
       }
     },
+    "/api/container/register": {
+      "post": {
+        "operationId": "VelezAPI_RegisterContainer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiRegisterContainerResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiRegisterContainerRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VelezAPI"
+        ]
+      }
+    },
     "/api/container/{id}": {
       "get": {
         "operationId": "VelezAPI_GetContainer",
@@ -461,6 +493,27 @@
       ],
       "default": "unknown"
     },
+    "RequestGenericPattern": {
+      "type": "object"
+    },
+    "RequestPgPattern": {
+      "type": "object",
+      "properties": {
+        "superuser": {
+          "type": "string",
+          "description": "superuser/password are required when the container env carries no admin login."
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "RequestRegistryPattern": {
+      "type": "object"
+    },
+    "RequestRunnerPattern": {
+      "type": "object"
+    },
     "ResponseError": {
       "type": "object",
       "properties": {
@@ -724,6 +777,9 @@
         },
         "linkedServiceName": {
           "type": "string"
+        },
+        "suggestedPattern": {
+          "$ref": "#/definitions/velez_apiServicePattern"
         }
       }
     },
@@ -972,6 +1028,44 @@
         }
       }
     },
+    "velez_apiRegisterContainerRequest": {
+      "type": "object",
+      "properties": {
+        "containerId": {
+          "type": "string"
+        },
+        "environment": {
+          "type": "string"
+        },
+        "serviceName": {
+          "type": "string"
+        },
+        "generic": {
+          "$ref": "#/definitions/RequestGenericPattern"
+        },
+        "pg": {
+          "$ref": "#/definitions/RequestPgPattern"
+        },
+        "registry": {
+          "$ref": "#/definitions/RequestRegistryPattern"
+        },
+        "runner": {
+          "$ref": "#/definitions/RequestRunnerPattern"
+        }
+      }
+    },
+    "velez_apiRegisterContainerResponse": {
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "type": "string",
+          "description": "entity_id/action identify the register_container task; callers watch it via TasksApi.WatchTask."
+        },
+        "action": {
+          "type": "string"
+        }
+      }
+    },
     "velez_apiRestartPolicy": {
       "type": "object",
       "properties": {
@@ -1037,6 +1131,17 @@
           }
         }
       }
+    },
+    "velez_apiServicePattern": {
+      "type": "string",
+      "enum": [
+        "SERVICE_PATTERN_UNSPECIFIED",
+        "SERVICE_PATTERN_POSTGRES",
+        "SERVICE_PATTERN_REGISTRY",
+        "SERVICE_PATTERN_GITHUB_RUNNER",
+        "SERVICE_PATTERN_GITLAB_RUNNER"
+      ],
+      "default": "SERVICE_PATTERN_UNSPECIFIED"
     },
     "velez_apiSmerd": {
       "type": "object",

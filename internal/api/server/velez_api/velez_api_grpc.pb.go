@@ -19,18 +19,19 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	VelezAPI_Version_FullMethodName          = "/velez_api.VelezAPI/Version"
-	VelezAPI_CreateSmerd_FullMethodName      = "/velez_api.VelezAPI/CreateSmerd"
-	VelezAPI_ListSmerds_FullMethodName       = "/velez_api.VelezAPI/ListSmerds"
-	VelezAPI_ListContainers_FullMethodName   = "/velez_api.VelezAPI/ListContainers"
-	VelezAPI_GetContainer_FullMethodName     = "/velez_api.VelezAPI/GetContainer"
-	VelezAPI_DropSmerd_FullMethodName        = "/velez_api.VelezAPI/DropSmerd"
-	VelezAPI_GetHardware_FullMethodName      = "/velez_api.VelezAPI/GetHardware"
-	VelezAPI_UpgradeSmerd_FullMethodName     = "/velez_api.VelezAPI/UpgradeSmerd"
-	VelezAPI_AssembleConfig_FullMethodName   = "/velez_api.VelezAPI/AssembleConfig"
-	VelezAPI_MakeConnections_FullMethodName  = "/velez_api.VelezAPI/MakeConnections"
-	VelezAPI_BreakConnections_FullMethodName = "/velez_api.VelezAPI/BreakConnections"
-	VelezAPI_SearchImages_FullMethodName     = "/velez_api.VelezAPI/SearchImages"
+	VelezAPI_Version_FullMethodName           = "/velez_api.VelezAPI/Version"
+	VelezAPI_CreateSmerd_FullMethodName       = "/velez_api.VelezAPI/CreateSmerd"
+	VelezAPI_ListSmerds_FullMethodName        = "/velez_api.VelezAPI/ListSmerds"
+	VelezAPI_ListContainers_FullMethodName    = "/velez_api.VelezAPI/ListContainers"
+	VelezAPI_RegisterContainer_FullMethodName = "/velez_api.VelezAPI/RegisterContainer"
+	VelezAPI_GetContainer_FullMethodName      = "/velez_api.VelezAPI/GetContainer"
+	VelezAPI_DropSmerd_FullMethodName         = "/velez_api.VelezAPI/DropSmerd"
+	VelezAPI_GetHardware_FullMethodName       = "/velez_api.VelezAPI/GetHardware"
+	VelezAPI_UpgradeSmerd_FullMethodName      = "/velez_api.VelezAPI/UpgradeSmerd"
+	VelezAPI_AssembleConfig_FullMethodName    = "/velez_api.VelezAPI/AssembleConfig"
+	VelezAPI_MakeConnections_FullMethodName   = "/velez_api.VelezAPI/MakeConnections"
+	VelezAPI_BreakConnections_FullMethodName  = "/velez_api.VelezAPI/BreakConnections"
+	VelezAPI_SearchImages_FullMethodName      = "/velez_api.VelezAPI/SearchImages"
 )
 
 // VelezAPIClient is the client API for VelezAPI service.
@@ -41,6 +42,7 @@ type VelezAPIClient interface {
 	CreateSmerd(ctx context.Context, in *CreateSmerd_Request, opts ...grpc.CallOption) (*Smerd, error)
 	ListSmerds(ctx context.Context, in *ListSmerds_Request, opts ...grpc.CallOption) (*ListSmerds_Response, error)
 	ListContainers(ctx context.Context, in *ListContainers_Request, opts ...grpc.CallOption) (*ListContainers_Response, error)
+	RegisterContainer(ctx context.Context, in *RegisterContainer_Request, opts ...grpc.CallOption) (*RegisterContainer_Response, error)
 	GetContainer(ctx context.Context, in *GetContainer_Request, opts ...grpc.CallOption) (*DockerContainer, error)
 	DropSmerd(ctx context.Context, in *DropSmerd_Request, opts ...grpc.CallOption) (*DropSmerd_Response, error)
 	GetHardware(ctx context.Context, in *GetHardware_Request, opts ...grpc.CallOption) (*GetHardware_Response, error)
@@ -93,6 +95,15 @@ func (c *velezAPIClient) ListSmerds(ctx context.Context, in *ListSmerds_Request,
 func (c *velezAPIClient) ListContainers(ctx context.Context, in *ListContainers_Request, opts ...grpc.CallOption) (*ListContainers_Response, error) {
 	out := new(ListContainers_Response)
 	err := c.cc.Invoke(ctx, VelezAPI_ListContainers_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *velezAPIClient) RegisterContainer(ctx context.Context, in *RegisterContainer_Request, opts ...grpc.CallOption) (*RegisterContainer_Response, error) {
+	out := new(RegisterContainer_Response)
+	err := c.cc.Invoke(ctx, VelezAPI_RegisterContainer_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -179,6 +190,7 @@ type VelezAPIServer interface {
 	CreateSmerd(context.Context, *CreateSmerd_Request) (*Smerd, error)
 	ListSmerds(context.Context, *ListSmerds_Request) (*ListSmerds_Response, error)
 	ListContainers(context.Context, *ListContainers_Request) (*ListContainers_Response, error)
+	RegisterContainer(context.Context, *RegisterContainer_Request) (*RegisterContainer_Response, error)
 	GetContainer(context.Context, *GetContainer_Request) (*DockerContainer, error)
 	DropSmerd(context.Context, *DropSmerd_Request) (*DropSmerd_Response, error)
 	GetHardware(context.Context, *GetHardware_Request) (*GetHardware_Response, error)
@@ -209,6 +221,9 @@ func (UnimplementedVelezAPIServer) ListSmerds(context.Context, *ListSmerds_Reque
 }
 func (UnimplementedVelezAPIServer) ListContainers(context.Context, *ListContainers_Request) (*ListContainers_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListContainers not implemented")
+}
+func (UnimplementedVelezAPIServer) RegisterContainer(context.Context, *RegisterContainer_Request) (*RegisterContainer_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterContainer not implemented")
 }
 func (UnimplementedVelezAPIServer) GetContainer(context.Context, *GetContainer_Request) (*DockerContainer, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetContainer not implemented")
@@ -315,6 +330,24 @@ func _VelezAPI_ListContainers_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(VelezAPIServer).ListContainers(ctx, req.(*ListContainers_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VelezAPI_RegisterContainer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisterContainer_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VelezAPIServer).RegisterContainer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VelezAPI_RegisterContainer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VelezAPIServer).RegisterContainer(ctx, req.(*RegisterContainer_Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -485,6 +518,10 @@ var VelezAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListContainers",
 			Handler:    _VelezAPI_ListContainers_Handler,
+		},
+		{
+			MethodName: "RegisterContainer",
+			Handler:    _VelezAPI_RegisterContainer_Handler,
 		},
 		{
 			MethodName: "GetContainer",

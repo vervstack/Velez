@@ -177,3 +177,12 @@ func (s *stateManager) RegistryInstances() storage.RegistryInstancesStorage {
 
 	return (*l).RegistryInstances()
 }
+
+func (s *stateManager) ContainerBindings() storage.ContainerBindingsStorage {
+	l := s.state.Load()
+	if l == nil {
+		return nil
+	}
+
+	return (*l).ContainerBindings()
+}

@@ -8,6 +8,15 @@
 import * as fm from "./fetch.pb";
 import * as VelezApiVelezCommon from "./velez_common.pb";
 
+type Absent<T, K extends keyof T> = { [k in Exclude<keyof T, K>]?: undefined };
+
+type OneOf<T> =
+  | { [k in keyof T]?: undefined }
+  | (keyof T extends infer K
+      ? K extends string & keyof T
+        ? { [k in K]: T[K] } & Absent<T, K>
+        : never
+      : never);
 
 export type VersionRequest = Record<string, never>;
 
@@ -64,6 +73,38 @@ export type ListContainersResponse = {
 };
 
 export type ListContainers = Record<string, never>;
+
+export type RegisterContainerRequestGenericPattern = Record<string, never>;
+
+export type RegisterContainerRequestPgPattern = {
+  superuser?: string;
+  password?: string;
+};
+
+export type RegisterContainerRequestRegistryPattern = Record<string, never>;
+
+export type RegisterContainerRequestRunnerPattern = Record<string, never>;
+
+type BaseRegisterContainerRequest = {
+  containerId?: string;
+  environment?: string;
+  serviceName?: string;
+};
+
+export type RegisterContainerRequest = BaseRegisterContainerRequest &
+  OneOf<{
+    generic: RegisterContainerRequestGenericPattern;
+    pg: RegisterContainerRequestPgPattern;
+    registry: RegisterContainerRequestRegistryPattern;
+    runner: RegisterContainerRequestRunnerPattern;
+  }>;
+
+export type RegisterContainerResponse = {
+  entityId?: string;
+  action?: string;
+};
+
+export type RegisterContainer = Record<string, never>;
 
 export type GetContainerRequest = {
   id?: string;
@@ -171,6 +212,9 @@ export class VelezAPI {
   }
   static ListContainers(this:void, req: ListContainersRequest, initReq?: fm.InitReq): Promise<ListContainersResponse> {
     return fm.fetchRequest<ListContainersResponse>(`/api/container/list`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static RegisterContainer(this:void, req: RegisterContainerRequest, initReq?: fm.InitReq): Promise<RegisterContainerResponse> {
+    return fm.fetchRequest<RegisterContainerResponse>(`/api/container/register`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
   static GetContainer(this:void, req: GetContainerRequest, initReq?: fm.InitReq): Promise<VelezApiVelezCommon.DockerContainer> {
     return fm.fetchRequest<VelezApiVelezCommon.DockerContainer>(`/api/container/${req.id}?${fm.renderURLSearchParams(req, ["id"])}`, {...initReq, method: "GET"});

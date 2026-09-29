@@ -8,6 +8,14 @@
 import * as GoogleProtobufTimestamp from "./google/protobuf/timestamp.pb";
 
 
+export enum ServicePattern {
+  SERVICE_PATTERN_UNSPECIFIED = "SERVICE_PATTERN_UNSPECIFIED",
+  SERVICE_PATTERN_POSTGRES = "SERVICE_PATTERN_POSTGRES",
+  SERVICE_PATTERN_REGISTRY = "SERVICE_PATTERN_REGISTRY",
+  SERVICE_PATTERN_GITHUB_RUNNER = "SERVICE_PATTERN_GITHUB_RUNNER",
+  SERVICE_PATTERN_GITLAB_RUNNER = "SERVICE_PATTERN_GITLAB_RUNNER",
+}
+
 export enum ContainerFilterField {
   unspecified = "unspecified",
   service = "service",
@@ -112,6 +120,7 @@ export type DockerContainer = {
   mounts?: Mount[];
   isRegistered?: boolean;
   linkedServiceName?: string;
+  suggestedPattern?: ServicePattern;
 };
 
 export type ContainerFilter = {

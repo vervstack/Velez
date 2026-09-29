@@ -130,8 +130,14 @@ func (p *Provider) RegistrationEnv(
 // Register is a no-op - actions-runner self-registers from RegistrationEnv's
 // env vars at container boot, there is no separate registration step.
 func (p *Provider) Register(
-	_ context.Context, _ container_runtime.ContainerRuntime, _, _, _, _, _ string,
+	_ context.Context, _ container_runtime.ContainerRuntime, _, _, _, _, _ string, _ int32,
 ) error {
+	return nil
+}
+
+// ApplyConcurrent is a no-op - actions-runner has no global job-concurrency
+// setting.
+func (p *Provider) ApplyConcurrent(_ context.Context, _ container_runtime.ContainerRuntime, _ string, _ int32) error {
 	return nil
 }
 

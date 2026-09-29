@@ -42,6 +42,10 @@ const (
 	// mount - gitlab-runner's config/registration directory, so a
 	// registration written by Register survives a container restart.
 	dataPath = "/etc/gitlab-runner"
+
+	configPath = dataPath + "/config.toml"
+
+	configFileMode = 0o600
 )
 
 // Provider implements runneraas.Provider for GitLab.
@@ -92,7 +96,7 @@ func (p *Provider) RegistrationEnv(
 // text (untrusted external content).
 func (p *Provider) Register(
 	ctx context.Context, runtime container_runtime.ContainerRuntime,
-	containerID, baseUrl, registrationToken, dockerImage, runnerName string,
+	containerID, baseUrl, registrationToken, dockerImage, runnerName string, concurrent int32,
 ) error {
 	base := baseUrl
 	if base == "" {
@@ -126,6 +130,32 @@ func (p *Provider) Register(
 
 	if exitCode != 0 {
 		return rerrors.Wrap(user_errors.ErrGitlabRunnerRegisterFailed)
+	}
+
+	err = p.ApplyConcurrent(ctx, runtime, containerID, concurrent)
+	if err != nil {
+		return rerrors.Wrap(err, "error applying concurrent after gitlab-runner register")
+	}
+
+	return nil
+}
+
+// ApplyConcurrent rewrites config.toml's global `concurrent` key inside
+// containerID. gitlab-runner has no register/run flag for it, and hot-reloads
+// config.toml on change.
+func (p *Provider) ApplyConcurrent(
+	ctx context.Context, runtime container_runtime.ContainerRuntime, containerID string, concurrent int32,
+) error {
+	config, err := runtime.CopyFromContainer(ctx, containerID, configPath)
+	if err != nil {
+		return rerrors.Wrap(err, "error reading gitlab-runner config.toml")
+	}
+
+	updated := setConcurrent(config, concurrent)
+
+	err = runtime.CopyToContainer(ctx, containerID, configPath, updated, configFileMode)
+	if err != nil {
+		return rerrors.Wrap(err, "error writing gitlab-runner config.toml")
 	}
 
 	return nil

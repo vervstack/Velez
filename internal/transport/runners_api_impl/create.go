@@ -32,6 +32,7 @@ func (impl *Impl) CreateRunner(
 		serviceReq.Provider = pb.RunnerProvider_GITLAB
 		serviceReq.AccessToken = cfg.Gitlab.GetAccessToken()
 		serviceReq.BaseUrl = cfg.Gitlab.GetBaseUrl()
+		serviceReq.Concurrent = cfg.Gitlab.GetConcurrent()
 	default:
 		return nil, rerrors.Wrap(user_errors.ErrRunnerProviderUnsupported)
 	}

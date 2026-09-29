@@ -48,7 +48,7 @@ func (s *RunneraasService) CreateRunner(ctx context.Context, req domain.CreateRu
 // internal/jobs/create_runner.go reads request fields straight off
 // *velez_api.CreateRunner_Request, so the task payload carries the proto
 // message rather than a second, parallel domain-shaped copy. The
-// provider_config oneof is rebuilt from req.Provider/AccessToken/BaseUrl,
+// provider_config oneof is rebuilt from req.Provider/AccessToken/BaseUrl/Concurrent,
 // which the transport layer already resolved out of the wire oneof once.
 func runnerRequestToPb(req domain.CreateRunnerReq) *velez_api.CreateRunner_Request {
 	pbReq := &velez_api.CreateRunner_Request{
@@ -72,6 +72,7 @@ func runnerRequestToPb(req domain.CreateRunnerReq) *velez_api.CreateRunner_Reque
 			Gitlab: &velez_api.GitlabConfig{
 				AccessToken: req.AccessToken,
 				BaseUrl:     &req.BaseUrl,
+				Concurrent:  &req.Concurrent,
 			},
 		}
 	default:

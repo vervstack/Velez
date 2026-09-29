@@ -119,7 +119,10 @@ func (j *reregisterRunnerJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error unregistering runner")
 	}
 
-	err = runnerProvider.Register(ctx, containerRuntime, name, runner.BaseUrl, token, runner.DockerImage, name)
+	err = runnerProvider.Register(
+		ctx, containerRuntime, name, runner.BaseUrl, token, runner.DockerImage, name,
+		effectiveConcurrent(runner.Concurrent),
+	)
 	if err != nil {
 		return rerrors.Wrap(err, "error registering runner")
 	}

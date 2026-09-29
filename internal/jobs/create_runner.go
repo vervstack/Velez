@@ -507,6 +507,7 @@ func (j *registerRunnerJob) Do(ctx context.Context) error {
 	err = runnerProvider.Register(
 		ctx, containerRuntime, j.instanceName, baseUrl, j.ctx.GetRegistrationToken(),
 		request.GetGitlab().GetDockerImage(), j.instanceName,
+		effectiveConcurrent(request.GetGitlab().GetConcurrent()),
 	)
 	if err != nil {
 		return rerrors.Wrap(err, "error registering runner")
@@ -545,6 +546,7 @@ func (j *registerRunnerRowJob) Do(ctx context.Context) error {
 		BaseUrl:             baseUrl,
 		DockerImage:         request.GetGitlab().GetDockerImage(),
 		DockerSocketAddress: request.GetDockerSocketAddress(),
+		Concurrent:          effectiveConcurrent(request.GetGitlab().GetConcurrent()),
 	}
 
 	_, err = j.runners.UpsertRunner(ctx, upsertReq)
@@ -553,4 +555,14 @@ func (j *registerRunnerRowJob) Do(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+// effectiveConcurrent maps an unset (0) concurrent to gitlab-runner's own
+// default of 1.
+func effectiveConcurrent(concurrent int32) int32 {
+	if concurrent < 1 {
+		return 1
+	}
+
+	return concurrent
 }

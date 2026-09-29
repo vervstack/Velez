@@ -5,7 +5,10 @@ import (
 
 	"go.redsock.ru/rerrors"
 
+	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/service/service_manager/runneraas/providers"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // GetRunnerConfig reads the runner's currently stored provider config - see
@@ -26,15 +29,17 @@ func (s *RunneraasService) GetRunnerConfig(ctx context.Context, name string) (do
 		BaseUrl:             runner.BaseUrl,
 		DockerImage:         runner.DockerImage,
 		DockerSocketAddress: runner.DockerSocketAddress,
+		Concurrent:          runner.Concurrent,
 	}
 
 	return config, nil
 }
 
 // UpdateRunnerConfig persists only the Valid fields of req onto the runner's
-// row - see domain.UpdateRunnerConfigReq's doc comment. Never applies them
-// to the running container; the returned domain.UpdateRunnerConfigResult
-// tells the caller which follow-up action does.
+// row - see domain.UpdateRunnerConfigReq's doc comment. Concurrent is the one
+// field applied to the running container immediately; for every other one the
+// returned domain.UpdateRunnerConfigResult tells the caller which follow-up
+// action does.
 func (s *RunneraasService) UpdateRunnerConfig(
 	ctx context.Context, req domain.UpdateRunnerConfigReq,
 ) (domain.UpdateRunnerConfigResult, error) {
@@ -43,6 +48,10 @@ func (s *RunneraasService) UpdateRunnerConfig(
 		if err != nil {
 			return domain.UpdateRunnerConfigResult{}, rerrors.Wrap(err, "error validating docker socket address")
 		}
+	}
+
+	if req.Concurrent.Valid && req.Concurrent.Value < 1 {
+		return domain.UpdateRunnerConfigResult{}, rerrors.Wrap(user_errors.ErrRunnerConcurrentInvalid)
 	}
 
 	svc, err := s.dataStorage.Services().GetByName(ctx, req.Name)
@@ -65,6 +74,7 @@ func (s *RunneraasService) UpdateRunnerConfig(
 		BaseUrl:             runner.BaseUrl,
 		DockerImage:         runner.DockerImage,
 		DockerSocketAddress: runner.DockerSocketAddress,
+		Concurrent:          runner.Concurrent,
 	}
 
 	var result domain.UpdateRunnerConfigResult
@@ -84,10 +94,42 @@ func (s *RunneraasService) UpdateRunnerConfig(
 		result.RequiresRedeploy = true
 	}
 
+	if req.Concurrent.Valid {
+		err = s.applyConcurrent(ctx, svc.Env, runner.Provider, req.Name, req.Concurrent.Value)
+		if err != nil {
+			return domain.UpdateRunnerConfigResult{}, rerrors.Wrap(err, "error applying concurrent")
+		}
+
+		upsertReq.Concurrent = req.Concurrent.Value
+	}
+
 	_, err = s.dataStorage.Runners().UpsertRunner(ctx, upsertReq)
 	if err != nil {
 		return domain.UpdateRunnerConfigResult{}, rerrors.Wrap(err, "error upserting runner config")
 	}
 
 	return result, nil
+}
+
+func (s *RunneraasService) applyConcurrent(
+	ctx context.Context, environment, provider, name string, concurrent int32,
+) error {
+	providerEnum := velez_api.RunnerProvider(velez_api.RunnerProvider_value[provider])
+
+	runnerProvider, err := providers.For(providerEnum)
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving runner provider")
+	}
+
+	containerRuntime, err := s.runtimes.Runtime(ctx, environment)
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving container runtime")
+	}
+
+	err = runnerProvider.ApplyConcurrent(ctx, containerRuntime, name, concurrent)
+	if err != nil {
+		return rerrors.Wrap(err, "error applying provider concurrent")
+	}
+
+	return nil
 }

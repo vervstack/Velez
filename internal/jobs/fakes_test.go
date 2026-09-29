@@ -6,6 +6,7 @@ import (
 	"context"
 	"database/sql"
 	"io"
+	"io/fs"
 	"slices"
 	"strconv"
 	"sync"
@@ -695,6 +696,14 @@ func (f *fakeContainerRuntime) Exec(
 	}
 
 	return out, 0, nil
+}
+
+func (f *fakeContainerRuntime) CopyFromContainer(context.Context, string, string) ([]byte, error) {
+	return nil, nil
+}
+
+func (f *fakeContainerRuntime) CopyToContainer(context.Context, string, string, []byte, fs.FileMode) error {
+	return nil
 }
 
 // CreateNetwork returns createNetworkErr (nil by default) so

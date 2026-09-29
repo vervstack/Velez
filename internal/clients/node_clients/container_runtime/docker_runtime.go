@@ -1,9 +1,13 @@
 package container_runtime
 
 import (
+	"archive/tar"
 	"bytes"
 	"context"
+	"errors"
 	"io"
+	"io/fs"
+	"path"
 	"strings"
 
 	"github.com/containerd/errdefs"
@@ -18,6 +22,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/user_errors"
+	"go.vervstack.ru/Velez/internal/utils/common"
 )
 
 const (
@@ -435,6 +440,100 @@ func (r *dockerRuntime) Exec(
 	}
 
 	return asciiSymbolsOnly(dataOut.Bytes()), inspectResp.ExitCode, nil
+}
+
+// CopyFromContainer reads the single file at filePath out of the tar stream
+// the Docker API returns for it.
+func (r *dockerRuntime) CopyFromContainer(ctx context.Context, containerID, filePath string) ([]byte, error) {
+	resolvedID, found, err := r.resolveOwnedContainer(ctx, containerID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !found {
+		return nil, user_errors.ErrNoSuchContainer
+	}
+
+	archive, _, err := r.cli.CopyFromContainer(ctx, resolvedID, filePath)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error copying file from container via docker api")
+	}
+	defer common.CloseWithLog(archive.Close, "container file archive")
+
+	reader := tar.NewReader(archive)
+
+	for {
+		header, nextErr := reader.Next()
+		if errors.Is(nextErr, io.EOF) {
+			return nil, rerrors.Wrap(user_errors.ErrContainerFileNotFound)
+		}
+
+		if nextErr != nil {
+			return nil, rerrors.Wrap(nextErr, "error reading tar stream from container")
+		}
+
+		if header.Typeflag != tar.TypeReg {
+			continue
+		}
+
+		content, readErr := io.ReadAll(reader)
+		if readErr != nil {
+			return nil, rerrors.Wrap(readErr, "error reading file content from container tar stream")
+		}
+
+		return content, nil
+	}
+}
+
+// CopyToContainer wraps content into a one-entry tar and extracts it into
+// filePath's directory, because the Docker API only accepts a directory
+// destination plus a tar stream.
+func (r *dockerRuntime) CopyToContainer(
+	ctx context.Context,
+	containerID, filePath string,
+	content []byte,
+	mode fs.FileMode,
+) error {
+	resolvedID, found, err := r.resolveOwnedContainer(ctx, containerID)
+	if err != nil {
+		return err
+	}
+
+	if !found {
+		return user_errors.ErrNoSuchContainer
+	}
+
+	archive := bytes.NewBuffer(nil)
+	writer := tar.NewWriter(archive)
+
+	header := &tar.Header{
+		Name:     path.Base(filePath),
+		Typeflag: tar.TypeReg,
+		Mode:     int64(mode.Perm()),
+		Size:     int64(len(content)),
+	}
+
+	err = writer.WriteHeader(header)
+	if err != nil {
+		return rerrors.Wrap(err, "error writing tar header")
+	}
+
+	_, err = writer.Write(content)
+	if err != nil {
+		return rerrors.Wrap(err, "error writing tar content")
+	}
+
+	err = writer.Close()
+	if err != nil {
+		return rerrors.Wrap(err, "error closing tar writer")
+	}
+
+	err = r.cli.CopyToContainer(ctx, resolvedID, path.Dir(filePath), archive, container.CopyToContainerOptions{})
+	if err != nil {
+		return rerrors.Wrap(err, "error copying file to container via docker api")
+	}
+
+	return nil
 }
 
 // CreateNetwork ensures a bridge network exists for the LOGICAL name given,

@@ -60,4 +60,8 @@ var (
 	// gitlab provider when `gitlab-runner unregister --all-runners` exits
 	// non-zero inside the deployed container.
 	ErrGitlabRunnerUnregisterFailed = rerrors.New("gitlab-runner unregister exited non-zero")
+
+	// ErrRunnerConcurrentInvalid is returned by the runneraas package when a
+	// concurrent value below 1 is requested.
+	ErrRunnerConcurrentInvalid = rerrors.NewUserError("concurrent must be at least 1")
 )

@@ -10,6 +10,7 @@
 package runneraas
 
 import (
+	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/secrets"
@@ -33,20 +34,22 @@ type RunneraasService struct {
 	vervServices service.VervServicesService
 	secrets      secrets.Store
 	jobsEngine   jobs.Engine
+	runtimes     container_runtime.RuntimeResolver
 }
 
 // New builds a RunneraasService. dataStorage, vervServices, secretsStore and
-// jobsEngine are interfaces, never concrete types - dataStorage is resolved
+// jobsEngine and runtimes are interfaces, never concrete types - dataStorage is resolved
 // per call (mirroring pgaas.PgaasService) so a runtime storage backend swap
 // is picked up immediately.
 func New(
 	dataStorage storage.Storage, vervServices service.VervServicesService, secretsStore secrets.Store,
-	jobsEngine jobs.Engine,
+	jobsEngine jobs.Engine, runtimes container_runtime.RuntimeResolver,
 ) *RunneraasService {
 	return &RunneraasService{
 		dataStorage:  dataStorage,
 		vervServices: vervServices,
 		secrets:      secretsStore,
 		jobsEngine:   jobsEngine,
+		runtimes:     runtimes,
 	}
 }

@@ -36,10 +36,17 @@ type Provider interface {
 	// already self-registers from RegistrationEnv (GitHub); for one that
 	// doesn't (GitLab), execs its registration command inside containerID via
 	// runtime and fails on a non-zero exit code. dockerImage is provider-
-	// specific and ignored by a provider that doesn't use it.
+	// specific and ignored by a provider that doesn't use it. concurrent is
+	// applied through ApplyConcurrent once registration succeeds.
 	Register(
 		ctx context.Context, runtime container_runtime.ContainerRuntime,
-		containerID, baseUrl, registrationToken, dockerImage, runnerName string,
+		containerID, baseUrl, registrationToken, dockerImage, runnerName string, concurrent int32,
+	) error
+	// ApplyConcurrent writes the provider's global job-concurrency setting
+	// into the running container's config; no-op for a provider without one
+	// (GitHub).
+	ApplyConcurrent(
+		ctx context.Context, runtime container_runtime.ContainerRuntime, containerID string, concurrent int32,
 	) error
 	// Unregister undoes a prior Register - execs the provider's unregister
 	// command inside containerID so a subsequent Register doesn't append a

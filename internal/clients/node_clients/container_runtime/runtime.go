@@ -19,6 +19,7 @@ package container_runtime
 
 import (
 	"context"
+	"io/fs"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/image"
@@ -172,6 +173,18 @@ type ContainerRuntime interface {
 	// not a Docker-API-call error - callers that care whether cfg succeeded
 	// (as opposed to merely ran) must check it themselves.
 	Exec(ctx context.Context, containerID string, cfg container.ExecOptions) (output []byte, exitCode int, err error)
+
+	// CopyFromContainer returns the content of the single file at path inside
+	// the container - same identifier resolution/ownership semantics as Exec:
+	// a container not found under either identifier form, or belonging to a
+	// different environment, is a real error.
+	CopyFromContainer(ctx context.Context, containerID, path string) ([]byte, error)
+
+	// CopyToContainer writes content as the single file at path inside the
+	// container with the given mode, replacing any existing file - same
+	// identifier resolution/ownership semantics as Exec. The parent directory
+	// of path must already exist.
+	CopyToContainer(ctx context.Context, containerID, path string, content []byte, mode fs.FileMode) error
 
 	// CreateNetwork ensures a Docker bridge network exists for the LOGICAL
 	// name given, suffixed to the environment this runtime instance was

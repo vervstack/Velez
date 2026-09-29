@@ -2,6 +2,7 @@ package gitlab
 
 import (
 	"context"
+	"io/fs"
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
@@ -20,8 +21,9 @@ const (
 
 // fakeContainerRuntime implements container_runtime.ContainerRuntime,
 // recording the exec call Register makes and returning the exit
-// code/error a test case configures. Every method beyond Exec is unused by
-// Register and panics if ever called.
+// code/error a test case configures, and serving/recording config.toml through
+// CopyFromContainer/CopyToContainer. Every other method is unused by Register
+// and panics if ever called.
 type fakeContainerRuntime struct {
 	execCalledWith container.ExecOptions
 	execCalledID   string
@@ -29,6 +31,25 @@ type fakeContainerRuntime struct {
 	execOutput   []byte
 	execExitCode int
 	execErr      error
+
+	configContent []byte
+	writtenPath   string
+	writtenConfig []byte
+	writtenMode   fs.FileMode
+}
+
+func (f *fakeContainerRuntime) CopyFromContainer(context.Context, string, string) ([]byte, error) {
+	return f.configContent, nil
+}
+
+func (f *fakeContainerRuntime) CopyToContainer(
+	_ context.Context, _, path string, content []byte, mode fs.FileMode,
+) error {
+	f.writtenPath = path
+	f.writtenConfig = content
+	f.writtenMode = mode
+
+	return nil
 }
 
 func (f *fakeContainerRuntime) Exec(
@@ -207,10 +228,24 @@ func Test_Register_ExecError_IsWrapped(t *testing.T) {
 	require.ErrorIs(t, err, execErr)
 }
 
+func Test_Register_AppliesConcurrent(t *testing.T) {
+	provider := New()
+	runtime := &fakeContainerRuntime{configContent: []byte("concurrent = 1\n\n[[runners]]\n  name = \"runner-1\"\n")}
+
+	err := provider.Register(
+		context.Background(), runtime, "runner-container", "", "token-1", "", "runner-1", 4)
+	require.NoError(t, err)
+
+	require.Equal(t, configPath, runtime.writtenPath)
+	require.Equal(t, fs.FileMode(configFileMode), runtime.writtenMode)
+	require.Contains(t, string(runtime.writtenConfig), "concurrent = 4\n")
+	require.Contains(t, string(runtime.writtenConfig), "name = \"runner-1\"")
+}
+
 // execRegister calls Register with fixed token/runner-name/container-id
 // arguments, varying only baseUrl/dockerImage - shared by every Test_Register
 // case above.
 func execRegister(provider *Provider, runtime *fakeContainerRuntime, baseUrl, dockerImage string) error {
 	return provider.Register(
-		context.Background(), runtime, "runner-container", baseUrl, "token-1", dockerImage, "runner-1")
+		context.Background(), runtime, "runner-container", baseUrl, "token-1", dockerImage, "runner-1", 1)
 }

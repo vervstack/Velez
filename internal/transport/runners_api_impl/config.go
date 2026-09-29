@@ -23,6 +23,7 @@ func (impl *Impl) GetRunnerConfig(
 		BaseUrl:             config.BaseUrl,
 		DockerImage:         config.DockerImage,
 		DockerSocketAddress: config.DockerSocketAddress,
+		Concurrent:          config.Concurrent,
 	}
 
 	return resp, nil
@@ -46,6 +47,10 @@ func (impl *Impl) UpdateRunnerConfig(
 
 	if req.DockerSocketAddress != nil {
 		updateReq.DockerSocketAddress = rtb.NewOptional(req.GetDockerSocketAddress())
+	}
+
+	if req.Concurrent != nil {
+		updateReq.Concurrent = rtb.NewOptional(req.GetConcurrent())
 	}
 
 	result, err := impl.runnersService.UpdateRunnerConfig(ctx, updateReq)

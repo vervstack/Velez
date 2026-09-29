@@ -374,9 +374,6 @@ func Test_RegisterContainer_RejectsBadRequests(t *testing.T) {
 }
 
 func newUnimplementedPatternRequests() map[string]*velez_api.RegisterContainer_Request {
-	pg := newRegisterContainerRequest("some-id", "e2e_reg_bad")
-	pg.Pattern = &velez_api.RegisterContainer_Request_Pg{Pg: &velez_api.RegisterContainer_Request_PgPattern{}}
-
 	registry := newRegisterContainerRequest("some-id", "e2e_reg_bad")
 	registry.Pattern = &velez_api.RegisterContainer_Request_Registry{
 		Registry: &velez_api.RegisterContainer_Request_RegistryPattern{},
@@ -387,7 +384,7 @@ func newUnimplementedPatternRequests() map[string]*velez_api.RegisterContainer_R
 		Runner: &velez_api.RegisterContainer_Request_RunnerPattern{},
 	}
 
-	return map[string]*velez_api.RegisterContainer_Request{"pg": pg, "registry": registry, "runner": runner}
+	return map[string]*velez_api.RegisterContainer_Request{"registry": registry, "runner": runner}
 }
 
 func Test_RegisterContainer_EachCallStartsFreshTask(t *testing.T) {

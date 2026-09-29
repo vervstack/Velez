@@ -43,6 +43,20 @@ func (m *testContainerService) InspectSmerd(ctx context.Context, environment, co
 	return nil, nil
 }
 
+func (m *testContainerService) ListContainers(
+	ctx context.Context,
+	req *velez_api.ListContainers_Request,
+) (*velez_api.ListContainers_Response, error) {
+	return nil, nil
+}
+
+func (m *testContainerService) GetContainer(
+	ctx context.Context,
+	req *velez_api.GetContainer_Request,
+) (*velez_api.DockerContainer, error) {
+	return nil, nil
+}
+
 func (m *testContainerService) ConnectToNetwork(ctx context.Context, req domain.Connection) error {
 	return nil
 }

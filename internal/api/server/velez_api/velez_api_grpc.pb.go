@@ -22,6 +22,8 @@ const (
 	VelezAPI_Version_FullMethodName          = "/velez_api.VelezAPI/Version"
 	VelezAPI_CreateSmerd_FullMethodName      = "/velez_api.VelezAPI/CreateSmerd"
 	VelezAPI_ListSmerds_FullMethodName       = "/velez_api.VelezAPI/ListSmerds"
+	VelezAPI_ListContainers_FullMethodName   = "/velez_api.VelezAPI/ListContainers"
+	VelezAPI_GetContainer_FullMethodName     = "/velez_api.VelezAPI/GetContainer"
 	VelezAPI_DropSmerd_FullMethodName        = "/velez_api.VelezAPI/DropSmerd"
 	VelezAPI_GetHardware_FullMethodName      = "/velez_api.VelezAPI/GetHardware"
 	VelezAPI_UpgradeSmerd_FullMethodName     = "/velez_api.VelezAPI/UpgradeSmerd"
@@ -38,6 +40,8 @@ type VelezAPIClient interface {
 	Version(ctx context.Context, in *Version_Request, opts ...grpc.CallOption) (*Version_Response, error)
 	CreateSmerd(ctx context.Context, in *CreateSmerd_Request, opts ...grpc.CallOption) (*Smerd, error)
 	ListSmerds(ctx context.Context, in *ListSmerds_Request, opts ...grpc.CallOption) (*ListSmerds_Response, error)
+	ListContainers(ctx context.Context, in *ListContainers_Request, opts ...grpc.CallOption) (*ListContainers_Response, error)
+	GetContainer(ctx context.Context, in *GetContainer_Request, opts ...grpc.CallOption) (*DockerContainer, error)
 	DropSmerd(ctx context.Context, in *DropSmerd_Request, opts ...grpc.CallOption) (*DropSmerd_Response, error)
 	GetHardware(ctx context.Context, in *GetHardware_Request, opts ...grpc.CallOption) (*GetHardware_Response, error)
 	UpgradeSmerd(ctx context.Context, in *UpgradeSmerd_Request, opts ...grpc.CallOption) (*UpgradeSmerd_Response, error)
@@ -80,6 +84,24 @@ func (c *velezAPIClient) CreateSmerd(ctx context.Context, in *CreateSmerd_Reques
 func (c *velezAPIClient) ListSmerds(ctx context.Context, in *ListSmerds_Request, opts ...grpc.CallOption) (*ListSmerds_Response, error) {
 	out := new(ListSmerds_Response)
 	err := c.cc.Invoke(ctx, VelezAPI_ListSmerds_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *velezAPIClient) ListContainers(ctx context.Context, in *ListContainers_Request, opts ...grpc.CallOption) (*ListContainers_Response, error) {
+	out := new(ListContainers_Response)
+	err := c.cc.Invoke(ctx, VelezAPI_ListContainers_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *velezAPIClient) GetContainer(ctx context.Context, in *GetContainer_Request, opts ...grpc.CallOption) (*DockerContainer, error) {
+	out := new(DockerContainer)
+	err := c.cc.Invoke(ctx, VelezAPI_GetContainer_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -156,6 +178,8 @@ type VelezAPIServer interface {
 	Version(context.Context, *Version_Request) (*Version_Response, error)
 	CreateSmerd(context.Context, *CreateSmerd_Request) (*Smerd, error)
 	ListSmerds(context.Context, *ListSmerds_Request) (*ListSmerds_Response, error)
+	ListContainers(context.Context, *ListContainers_Request) (*ListContainers_Response, error)
+	GetContainer(context.Context, *GetContainer_Request) (*DockerContainer, error)
 	DropSmerd(context.Context, *DropSmerd_Request) (*DropSmerd_Response, error)
 	GetHardware(context.Context, *GetHardware_Request) (*GetHardware_Response, error)
 	UpgradeSmerd(context.Context, *UpgradeSmerd_Request) (*UpgradeSmerd_Response, error)
@@ -182,6 +206,12 @@ func (UnimplementedVelezAPIServer) CreateSmerd(context.Context, *CreateSmerd_Req
 }
 func (UnimplementedVelezAPIServer) ListSmerds(context.Context, *ListSmerds_Request) (*ListSmerds_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListSmerds not implemented")
+}
+func (UnimplementedVelezAPIServer) ListContainers(context.Context, *ListContainers_Request) (*ListContainers_Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListContainers not implemented")
+}
+func (UnimplementedVelezAPIServer) GetContainer(context.Context, *GetContainer_Request) (*DockerContainer, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetContainer not implemented")
 }
 func (UnimplementedVelezAPIServer) DropSmerd(context.Context, *DropSmerd_Request) (*DropSmerd_Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DropSmerd not implemented")
@@ -267,6 +297,42 @@ func _VelezAPI_ListSmerds_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(VelezAPIServer).ListSmerds(ctx, req.(*ListSmerds_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VelezAPI_ListContainers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListContainers_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VelezAPIServer).ListContainers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VelezAPI_ListContainers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VelezAPIServer).ListContainers(ctx, req.(*ListContainers_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _VelezAPI_GetContainer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetContainer_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(VelezAPIServer).GetContainer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: VelezAPI_GetContainer_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(VelezAPIServer).GetContainer(ctx, req.(*GetContainer_Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -415,6 +481,14 @@ var VelezAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListSmerds",
 			Handler:    _VelezAPI_ListSmerds_Handler,
+		},
+		{
+			MethodName: "ListContainers",
+			Handler:    _VelezAPI_ListContainers_Handler,
+		},
+		{
+			MethodName: "GetContainer",
+			Handler:    _VelezAPI_GetContainer_Handler,
 		},
 		{
 			MethodName: "DropSmerd",

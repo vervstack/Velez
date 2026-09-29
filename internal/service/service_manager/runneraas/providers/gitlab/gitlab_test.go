@@ -100,6 +100,14 @@ func (f *fakeContainerRuntime) ListOccupiedPorts(context.Context) ([]uint32, err
 	panic("not implemented")
 }
 
+func (f *fakeContainerRuntime) ListAllContainers(context.Context, uint32) ([]container.Summary, error) {
+	panic("not implemented")
+}
+
+func (f *fakeContainerRuntime) InspectAny(context.Context, string) (container.InspectResponse, bool, error) {
+	panic("not implemented")
+}
+
 func Test_MintRegistrationToken_Scenarios(t *testing.T) {
 	cases := []struct {
 		name        string

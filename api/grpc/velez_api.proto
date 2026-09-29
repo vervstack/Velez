@@ -30,6 +30,17 @@ service VelezAPI {
       body: "*"
     };
   }
+  rpc ListContainers(ListContainers.Request) returns (ListContainers.Response) {
+    option (google.api.http) = {
+      post: "/api/container/list"
+      body: "*"
+    };
+  }
+  rpc GetContainer(GetContainer.Request) returns (DockerContainer) {
+    option (google.api.http) = {
+      get: "/api/container/{id}"
+    };
+  }
   rpc DropSmerd(DropSmerd.Request) returns (DropSmerd.Response) {
     option (google.api.http) = {
       post: "/api/smerd/drop"
@@ -164,6 +175,28 @@ message ListSmerds {
 
   message Response {
     repeated Smerd smerds = 1;
+  }
+}
+
+message ListContainers {
+  message Request {
+    // environment - the isolated namespace whose daemon to list. Required;
+    // validated in the service layer, not here (proto3 has no `required`
+    // keyword).
+    string environment = 1;
+    optional uint32 limit = 2;
+    repeated ContainerFilter filters = 3;
+  }
+
+  message Response {
+    repeated DockerContainer containers = 1;
+  }
+}
+
+message GetContainer {
+  message Request {
+    string id = 1;
+    string environment = 2;
   }
 }
 

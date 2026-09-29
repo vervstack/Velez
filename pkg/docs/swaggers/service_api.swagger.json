@@ -1054,6 +1054,9 @@
           "items": {
             "type": "string"
           }
+        },
+        "ipAddress": {
+          "type": "string"
         }
       }
     },

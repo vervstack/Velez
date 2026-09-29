@@ -214,6 +214,26 @@ type ContainerRuntime interface {
 	// daemon, so every environment's resolved runtime must agree on the same
 	// occupancy. Implemented on commonRuntime for the same reason as PullImage.
 	ListOccupiedPorts(ctx context.Context) ([]uint32, error)
+
+	// ListAllContainers lists every container on the daemon this runtime
+	// talks to - deliberately NOT scoped to this runtime's environment and
+	// NOT filtered to containers Velez owns, unlike ListContainers: this
+	// exists specifically to surface containers foreign to Velez (a
+	// docker-compose stack, a manually run container) for the "show all
+	// containers on this node" UI, same daemon-wide rationale as
+	// ListOccupiedPorts above. Implemented on commonRuntime for the same
+	// reason.
+	ListAllContainers(ctx context.Context, limit uint32) ([]container.Summary, error)
+
+	// InspectAny inspects any container on the daemon this runtime talks to
+	// by literal Docker container id, with no environment-suffix or
+	// ownership check - unlike Inspect, a container belonging to a different
+	// environment (or with no Velez ownership at all) is still returned.
+	// found is false only when no container exists with that id at all.
+	// Unlike Inspect, the returned InspectResponse.Name is NOT rewritten to a
+	// virtual/logical name - there is no such name for a container Velez
+	// doesn't manage.
+	InspectAny(ctx context.Context, id string) (container.InspectResponse, bool, error)
 }
 
 // RuntimeResolver hands out the ContainerRuntime serving a given environment.

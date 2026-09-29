@@ -8,6 +8,11 @@
 import * as GoogleProtobufTimestamp from "./google/protobuf/timestamp.pb";
 
 
+export enum ContainerFilterField {
+  unspecified = "unspecified",
+  service = "service",
+}
+
 export enum RestartPolicyType {
   unless_stopped = "unless_stopped",
   no = "no",
@@ -64,6 +69,7 @@ export type Volume = {
 export type NetworkBind = {
   networkName?: string;
   aliases?: string[];
+  ipAddress?: string;
 };
 
 export type Image = {
@@ -84,6 +90,33 @@ export type Smerd = {
   labels?: Record<string, string>;
   env?: Record<string, string>;
   repo?: string;
+};
+
+export type Mount = {
+  source?: string;
+  destination?: string;
+  type?: string;
+  readWrite?: boolean;
+};
+
+export type DockerContainer = {
+  id?: string;
+  name?: string;
+  imageName?: string;
+  status?: SmerdStatus;
+  createdAt?: GoogleProtobufTimestamp.Timestamp;
+  labels?: Record<string, string>;
+  env?: Record<string, string>;
+  ports?: Port[];
+  networks?: NetworkBind[];
+  mounts?: Mount[];
+  isRegistered?: boolean;
+  linkedServiceName?: string;
+};
+
+export type ContainerFilter = {
+  field?: ContainerFilterField;
+  value?: string;
 };
 
 export type ContainerHardware = {

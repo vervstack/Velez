@@ -53,6 +53,25 @@ export type ListSmerdsResponse = {
 
 export type ListSmerds = Record<string, never>;
 
+export type ListContainersRequest = {
+  environment?: string;
+  limit?: number;
+  filters?: VelezApiVelezCommon.ContainerFilter[];
+};
+
+export type ListContainersResponse = {
+  containers?: VelezApiVelezCommon.DockerContainer[];
+};
+
+export type ListContainers = Record<string, never>;
+
+export type GetContainerRequest = {
+  id?: string;
+  environment?: string;
+};
+
+export type GetContainer = Record<string, never>;
+
 export type DropSmerdRequest = {
   uuids?: string[];
   name?: string[];
@@ -149,6 +168,12 @@ export class VelezAPI {
   }
   static ListSmerds(this:void, req: ListSmerdsRequest, initReq?: fm.InitReq): Promise<ListSmerdsResponse> {
     return fm.fetchRequest<ListSmerdsResponse>(`/api/smerd/list`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static ListContainers(this:void, req: ListContainersRequest, initReq?: fm.InitReq): Promise<ListContainersResponse> {
+    return fm.fetchRequest<ListContainersResponse>(`/api/container/list`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static GetContainer(this:void, req: GetContainerRequest, initReq?: fm.InitReq): Promise<VelezApiVelezCommon.DockerContainer> {
+    return fm.fetchRequest<VelezApiVelezCommon.DockerContainer>(`/api/container/${req.id}?${fm.renderURLSearchParams(req, ["id"])}`, {...initReq, method: "GET"});
   }
   static DropSmerd(this:void, req: DropSmerdRequest, initReq?: fm.InitReq): Promise<DropSmerdResponse> {
     return fm.fetchRequest<DropSmerdResponse>(`/api/smerd/drop`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});

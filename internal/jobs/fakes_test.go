@@ -741,6 +741,14 @@ func (f *fakeContainerRuntime) ListOccupiedPorts(ctx context.Context) ([]uint32,
 	return ports, nil
 }
 
+func (f *fakeContainerRuntime) ListAllContainers(context.Context, uint32) ([]container.Summary, error) {
+	return nil, nil
+}
+
+func (f *fakeContainerRuntime) InspectAny(context.Context, string) (container.InspectResponse, bool, error) {
+	return container.InspectResponse{}, false, nil
+}
+
 // fakeNodeClients is a minimal node_clients.NodeClients wrapping a
 // fakeDocker, for jobs (like createScratchContainerJob) that depend on the
 // full NodeClients container but only ever call Docker() on it.
@@ -1305,6 +1313,18 @@ func (f *fakeContainerService) DropSmerds(
 	_ context.Context, _ *velez_api.DropSmerd_Request,
 ) (*velez_api.DropSmerd_Response, error) {
 	return &velez_api.DropSmerd_Response{}, nil
+}
+
+func (f *fakeContainerService) ListContainers(
+	_ context.Context, _ *velez_api.ListContainers_Request,
+) (*velez_api.ListContainers_Response, error) {
+	return &velez_api.ListContainers_Response{}, nil
+}
+
+func (f *fakeContainerService) GetContainer(
+	_ context.Context, _ *velez_api.GetContainer_Request,
+) (*velez_api.DockerContainer, error) {
+	return nil, nil
 }
 
 func (f *fakeContainerService) InspectSmerd(_ context.Context, _, contID string) (*velez_api.Smerd, error) {

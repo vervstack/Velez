@@ -49,6 +49,74 @@
         ]
       }
     },
+    "/api/container/list": {
+      "post": {
+        "operationId": "VelezAPI_ListContainers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListContainersResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiListContainersRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VelezAPI"
+        ]
+      }
+    },
+    "/api/container/{id}": {
+      "get": {
+        "operationId": "VelezAPI_GetContainer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiDockerContainer"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "environment",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "VelezAPI"
+        ]
+      }
+    },
     "/api/hardware": {
       "get": {
         "operationId": "VelezAPI_GetHardware",
@@ -508,6 +576,26 @@
         }
       }
     },
+    "velez_apiContainerFilter": {
+      "type": "object",
+      "properties": {
+        "field": {
+          "$ref": "#/definitions/velez_apiContainerFilterField"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiContainerFilterField": {
+      "type": "string",
+      "enum": [
+        "unspecified",
+        "service"
+      ],
+      "default": "unspecified",
+      "description": "ContainerFilterField names which field of a ContainerFilter to match on.\nAdding a new field later just adds a new enum value here - an older\nserver ignores a filter field it doesn't recognize instead of erroring,\nsee container_manager.matchesContainerFilter's default case.\n\n - service: service - matches ContainerFilter.value as a case-insensitive substring\nof the container's resolved display name."
+    },
     "velez_apiCreateSmerdRequest": {
       "type": "object",
       "properties": {
@@ -576,6 +664,66 @@
         "repo": {
           "type": "string",
           "description": "repo - git repository URL this app's source lives in. Optional;\npurely reference metadata today, stamped onto the container as\nlabels.RepoLabel - no build-from-git behavior yet."
+        }
+      }
+    },
+    "velez_apiDockerContainer": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "imageName": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/velez_apiSmerdStatus"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "env": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "ports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiPort"
+          }
+        },
+        "networks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiNetworkBind"
+          }
+        },
+        "mounts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiMount"
+          }
+        },
+        "isRegistered": {
+          "type": "boolean"
+        },
+        "linkedServiceName": {
+          "type": "string"
         }
       }
     },
@@ -668,6 +816,38 @@
         }
       }
     },
+    "velez_apiListContainersRequest": {
+      "type": "object",
+      "properties": {
+        "environment": {
+          "type": "string",
+          "description": "environment - the isolated namespace whose daemon to list. Required;\nvalidated in the service layer, not here (proto3 has no `required`\nkeyword)."
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "filters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiContainerFilter"
+          }
+        }
+      }
+    },
+    "velez_apiListContainersResponse": {
+      "type": "object",
+      "properties": {
+        "containers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiDockerContainer"
+          }
+        }
+      }
+    },
     "velez_apiListSmerdsRequest": {
       "type": "object",
       "properties": {
@@ -742,6 +922,23 @@
         }
       }
     },
+    "velez_apiMount": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "destination": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "readWrite": {
+          "type": "boolean"
+        }
+      }
+    },
     "velez_apiNetworkBind": {
       "type": "object",
       "properties": {
@@ -753,6 +950,9 @@
           "items": {
             "type": "string"
           }
+        },
+        "ipAddress": {
+          "type": "string"
         }
       }
     },

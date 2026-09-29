@@ -2,12 +2,14 @@ package container_runtime
 
 import (
 	"context"
+	"strings"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
 
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 )
 
@@ -62,4 +64,32 @@ func (c *commonRuntime) ListOccupiedPorts(ctx context.Context) ([]uint32, error)
 	}
 
 	return usedPorts, nil
+}
+
+// ListAllContainers lists every container on the daemon, unfiltered - see
+// this method's doc comment on the ContainerRuntime interface for why that's
+// correct here specifically.
+func (c *commonRuntime) ListAllContainers(ctx context.Context, limit uint32) ([]container.Summary, error) {
+	list, err := c.cli.ContainerList(ctx, container.ListOptions{All: true, Limit: int(limit)})
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error listing containers")
+	}
+
+	return list, nil
+}
+
+// InspectAny inspects a single container by literal Docker id, unfiltered -
+// see this method's doc comment on the ContainerRuntime interface for why
+// that's correct here specifically.
+func (c *commonRuntime) InspectAny(ctx context.Context, id string) (container.InspectResponse, bool, error) {
+	info, err := c.cli.ContainerInspect(ctx, id)
+	if err != nil {
+		if strings.Contains(err.Error(), docker.NoSuchContainerError) {
+			return container.InspectResponse{}, false, nil
+		}
+
+		return container.InspectResponse{}, false, rerrors.Wrap(err, "error inspecting container")
+	}
+
+	return info, true, nil
 }

@@ -2,7 +2,6 @@ package container_manager
 
 import (
 	"context"
-	"strings"
 
 	errors "go.redsock.ru/rerrors"
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
@@ -11,27 +10,19 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+// ListSmerds filters on req.GetName() exactly as given - the real Docker
+// container name (and VervServiceLabel) preserves the case a service was
+// created with, and Docker's name filter is case-sensitive. Lowercasing the
+// filter here used to break every lookup for a name with an uppercase
+// letter, including List's enrichment and Drop's smerd lookup, which
+// silently no-oped (0 smerds found) instead of dropping the container. See
+// CLAUDE.md's "Known pitfalls" entry - matching by the case-preserving
+// VervServiceLabel, not this Docker Name filter, avoided the same trap in
+// services.go's GetByName.
 func (c *ContainerManager) ListSmerds(
 	ctx context.Context,
 	req *velez_api.ListSmerds_Request,
 ) (*velez_api.ListSmerds_Response, error) {
-	if req.GetName() != "" {
-		lowered := strings.ToLower(req.GetName())
-
-		// Copies into a fresh request rather than lowercasing *req.Name in
-		// place - callers (verv_services.List/Get) pass a pointer straight
-		// into their own domain.Service.Name field, and mutating through it
-		// silently rewrote the caller's service name to lowercase, breaking
-		// every later GetByName lookup keyed on that name.
-		req = &velez_api.ListSmerds_Request{
-			Limit:       req.Limit,
-			Name:        &lowered,
-			Id:          req.Id,
-			Label:       req.GetLabel(),
-			Environment: req.GetEnvironment(),
-		}
-	}
-
 	runtime, err := c.runtimes.Runtime(ctx, req.GetEnvironment())
 	if err != nil {
 		return nil, errors.Wrap(err, "error resolving environment")

@@ -33,7 +33,10 @@ type Service struct {
 }
 
 type ServiceBaseInfo struct {
-	Name           string
+	Name string
+	// DisplayName - the human-facing service name. Falls back to Name when no
+	// clean name was recorded (see labels.DisplayNameLabel).
+	DisplayName    string
 	LastDeployedAt *time.Time
 	ImageName      string
 	Status         string
@@ -62,6 +65,10 @@ type CreateDeployReq struct {
 
 	ServiceName string
 
+	// DisplayName - the human-facing service name to persist alongside
+	// ServiceName. Empty means the storage layer falls back to ServiceName.
+	DisplayName string
+
 	// VervDescriptor - set only for vervonomicon-driven deploys (see
 	// CreateDeployFromVervonomicon); persisted into
 	// deployment_specifications.verv_descriptor alongside the resolved
@@ -75,6 +82,12 @@ type UpgradeDeployReq struct {
 	DeploymentId uint64
 
 	NewImage *string
+
+	// EnvOverrides overlays onto the current spec's env before the upgrade -
+	// a value of "" deletes that key instead of setting it to empty, since
+	// no env var this pipeline manages is ever meaningfully "set to empty"
+	// (e.g. DOCKER_HOST). Nil/absent keys are left untouched.
+	EnvOverrides map[string]string
 }
 
 type ListServicesReq struct {

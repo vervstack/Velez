@@ -20,8 +20,13 @@ import (
 // container env (pgaas writes POSTGRES_PASSWORD there at deploy time), so they
 // survive a Velez restart the same way the container does; Put/Delete for
 // that scope are no-ops with a small overlay that only bridges the window
-// before the container exists. Every other scope keeps the plain in-memory
-// behaviour of secrets.NewStatic.
+// before the container exists. The runner registration-token ref
+// (runnerSecretScope + runnerRegistrationTokenSecretKey) gets the same
+// restart-recovery treatment on Get only - see registrationTokenFromContainer
+// - because create_runner.go writes it into the runner container's own env
+// (runnerRegistrationTokenEnvVar) regardless of provider. Put/Delete for it,
+// and every other scope/key, keep the plain in-memory behaviour of
+// secrets.NewStatic.
 type dockerSecrets struct {
 	docker   node_clients.Docker
 	fallback storage.SecretsStorage
@@ -59,6 +64,13 @@ func (d *dockerSecrets) PutSecret(ctx context.Context, ref domain.SecretRef, val
 
 func (d *dockerSecrets) GetSecret(ctx context.Context, ref domain.SecretRef) (string, error) {
 	if ref.Scope != pgaasSecretScope {
+		if ref.Scope == runnerSecretScope && ref.Key == runnerRegistrationTokenSecretKey {
+			token := d.registrationTokenFromContainer(ctx, ref.Owner)
+			if token != "" {
+				return token, nil
+			}
+		}
+
 		value, err := d.fallback.GetSecret(ctx, ref)
 		if err != nil {
 			return "", rerrors.Wrap(err, "error getting secret")
@@ -146,4 +158,32 @@ func (d *dockerSecrets) passwordFromContainer(ctx context.Context, name string) 
 	}
 
 	return envValue(info.Config.Env, pgaasEnvPassword)
+}
+
+// registrationTokenFromContainer returns the runner container's
+// runnerRegistrationTokenEnvVar value, or "" if there is no such container
+// yet or it carries no such env. Mirrors passwordFromContainer's pattern for
+// pgaas - see runnerRegistrationTokenEnvVar's doc comment (runners.go) for
+// why the token is written there regardless of provider.
+func (d *dockerSecrets) registrationTokenFromContainer(ctx context.Context, name string) string {
+	if name == "" {
+		return ""
+	}
+
+	listReq := &pb.ListSmerds_Request{
+		Name:  &name,
+		Label: map[string]string{labels.RunnerInstanceLabel: boolLabelValue},
+	}
+
+	containers, err := d.docker.ListContainers(ctx, listReq, allEnvironments)
+	if err != nil || len(containers) == 0 {
+		return ""
+	}
+
+	info, err := d.docker.Client().ContainerInspect(ctx, containers[0].ID)
+	if err != nil {
+		return ""
+	}
+
+	return envValue(info.Config.Env, runnerRegistrationTokenEnvVar)
 }

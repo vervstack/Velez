@@ -315,7 +315,7 @@ func (f *fakeServicesStorage) GetByName(_ context.Context, name string) (domain.
 	return domain.Service{}, sql.ErrNoRows
 }
 
-func (f *fakeServicesStorage) UpsertService(_ context.Context, name string) error {
+func (f *fakeServicesStorage) UpsertService(_ context.Context, name string, _ string) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 

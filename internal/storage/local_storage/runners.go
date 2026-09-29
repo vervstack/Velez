@@ -25,6 +25,19 @@ const (
 	// here.
 	runnerSecretScope = "runneraas"
 	runnerSecretKey   = "access_token"
+
+	// runnerRegistrationTokenSecretKey mirrors domain.runnerTokenSecretKey -
+	// the key half of the domain.SecretRef GetRunnerCredentials/reregister
+	// resolve the minted registration token back out of. See
+	// domain.RunnerRegistrationTokenSecretRef.
+	runnerRegistrationTokenSecretKey = "registration_token"
+
+	// runnerRegistrationTokenEnvVar mirrors internal/jobs/create_runner.go's
+	// const of the same name - the Velez-internal env var carrying the
+	// token into the runner container, read back by
+	// dockerSecrets.registrationTokenFromContainer (secrets.go) after a
+	// restart wipes the in-memory copy.
+	runnerRegistrationTokenEnvVar = "VELEZ_RUNNER_REGISTRATION_TOKEN"
 )
 
 // dockerRunners is the single-node/dev storage.RunnersStorage: there is no

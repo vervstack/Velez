@@ -42,6 +42,17 @@ type taskWorker struct {
 	stopOnce sync.Once
 	ticker   *time.Ticker
 	done     chan struct{}
+
+	activeMu sync.Mutex
+	active   map[int64]*activeTask
+}
+
+// activeTask tracks what a taskWorker goroutine is doing right now, so Stop
+// can report exactly what shutdown is not waiting for instead of silently
+// abandoning it.
+type activeTask struct {
+	action  string
+	jobName string
 }
 
 // NewTaskWorker's concurrency is how many goroutines independently poll and
@@ -71,6 +82,7 @@ func NewTaskWorker(
 
 		ticker: time.NewTicker(interval),
 		done:   make(chan struct{}),
+		active: make(map[int64]*activeTask),
 	}
 }
 
@@ -96,9 +108,53 @@ func (w *taskWorker) Stop() error {
 	w.stopOnce.Do(func() {
 		w.ticker.Stop()
 		close(w.done)
+		w.logActiveTasks()
 	})
 
 	return nil
+}
+
+// logActiveTasks reports every task this worker was mid-execution on at the
+// moment Stop was called. Stop only halts new claims - it never waits for or
+// cancels a task already running - so this is the only visibility into what
+// shutdown is abandoning.
+func (w *taskWorker) logActiveTasks() {
+	w.activeMu.Lock()
+	defer w.activeMu.Unlock()
+
+	for taskID, at := range w.active {
+		log.Warn().
+			Int64("task_id", taskID).
+			Str("action", at.action).
+			Str("job", at.jobName).
+			Msg("task still running at shutdown, not waited for")
+	}
+}
+
+func (w *taskWorker) setActiveTask(taskID int64, action string) {
+	w.activeMu.Lock()
+	defer w.activeMu.Unlock()
+
+	w.active[taskID] = &activeTask{action: action}
+}
+
+func (w *taskWorker) setActiveJob(taskID int64, jobName string) {
+	w.activeMu.Lock()
+	defer w.activeMu.Unlock()
+
+	at, ok := w.active[taskID]
+	if !ok {
+		return
+	}
+
+	at.jobName = jobName
+}
+
+func (w *taskWorker) clearActiveTask(taskID int64) {
+	w.activeMu.Lock()
+	defer w.activeMu.Unlock()
+
+	delete(w.active, taskID)
 }
 
 func (w *taskWorker) pollLoop(ctx context.Context) {
@@ -136,6 +192,9 @@ func (w *taskWorker) processOne(ctx context.Context) {
 }
 
 func (w *taskWorker) run(ctx context.Context, task tasks_queries.VelezTask) error {
+	w.setActiveTask(task.ID, task.Action)
+	defer w.clearActiveTask(task.ID)
+
 	handler, ok := w.registry.Get(task.Action)
 	if !ok {
 		return w.failTask(ctx, task.ID, rerrors.Wrap(user_errors.ErrNoHandlerRegisteredForAction, task.Action))
@@ -194,6 +253,8 @@ func (w *taskWorker) runJobs(ctx context.Context, taskID int64, taskCtx TaskCont
 	var runErr error
 
 	for i, nj := range namedJobs {
+		w.setActiveJob(taskID, nj.Name)
+
 		checkpointed := Checkpoint(w.jobsStorage, w.tasksStorage, taskID, nj.Name, taskCtx, nj.Job)
 
 		runErr = checkpointed.Do(ctx)

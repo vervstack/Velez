@@ -2,13 +2,17 @@ package domain
 
 import (
 	"strings"
+
+	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
 // Service classification labels. Derived, never persisted — the storage layer
 // attaches them to ServiceBaseInfo.Labels and the transport layer forwards them.
 const (
-	LabelServiceCore = "service-core"
-	LabelServiceApp  = "service-app"
+	LabelServiceCore         = "service-core"
+	LabelServiceApp          = "service-app"
+	LabelServiceRunnerGitlab = "service-runner-gitlab"
+	LabelServiceRunnerGithub = "service-runner-github"
 
 	labelResourcePrefix = "resource-"
 )
@@ -46,6 +50,14 @@ func IsResourceLabel(label string) bool {
 func ClassifyService(name string, resourceType string) []string {
 	if resourceType != "" {
 		return []string{ResourceLabel(resourceType)}
+	}
+
+	if strings.HasPrefix(name, labels.GitlabRunnerNamePrefix) {
+		return []string{LabelServiceRunnerGitlab}
+	}
+
+	if strings.HasPrefix(name, labels.GithubRunnerNamePrefix) {
+		return []string{LabelServiceRunnerGithub}
 	}
 
 	if IsCoreServiceName(name) {

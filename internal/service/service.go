@@ -145,6 +145,14 @@ type RunnersService interface {
 	// GetRunnerCredentials is the only RunnersService operation that
 	// resolves a secret_ref to its plaintext value.
 	GetRunnerCredentials(ctx context.Context, name string) (domain.RunnerCredentials, error)
+	// GetRunnerConfig reads the runner's currently stored provider config.
+	GetRunnerConfig(ctx context.Context, name string) (domain.RunnerConfig, error)
+	// UpdateRunnerConfig persists new provider config values without
+	// applying them - see domain.UpdateRunnerConfigResult's doc comment.
+	UpdateRunnerConfig(ctx context.Context, req domain.UpdateRunnerConfigReq) (domain.UpdateRunnerConfigResult, error)
+	// RedeployRunner recreates the runner's container, overlaying its
+	// currently stored docker_socket_address as DOCKER_HOST.
+	RedeployRunner(ctx context.Context, name string) error
 }
 
 // ContainerRegistryService provides Container-Registry-as-a-Service: a

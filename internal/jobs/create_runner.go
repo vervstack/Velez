@@ -43,6 +43,17 @@ const (
 	// custom docker_socket_address, instead of granting the host bind-mount.
 	runnerDockerHostEnvVar = "DOCKER_HOST"
 
+	// runnerRegistrationTokenEnvVar carries the registration token into the
+	// runner container's own env, written regardless of provider - GitLab's
+	// Provider.RegistrationEnv returns none, since v1 has no automated
+	// registration step for it (see providers/gitlab's package doc comment).
+	// Velez-internal, never read by the runner process itself: the
+	// single-node/dev secrets backend reads it back on GetRunnerCredentials/
+	// reregister after a process restart wipes its in-memory copy of the
+	// token, mirroring the precedent already established for pgaas's
+	// password. See internal/storage/local_storage/secrets.go.
+	runnerRegistrationTokenEnvVar = "VELEZ_RUNNER_REGISTRATION_TOKEN"
+
 	// runnerNameSuffixLen is the number of hex characters of a fresh
 	// uuid.NewString() used to disambiguate the runner name a fresh
 	// registration derives - a repeated CreateRunner call for the same
@@ -303,6 +314,7 @@ func (j *deployRunnerJob) Do(ctx context.Context) error {
 
 	deployReq := domain.CreateDeployReq{
 		ServiceName:    name,
+		DisplayName:    request.GetName(),
 		VervDescriptor: &descriptor,
 		LaunchSmerd:    domain.LaunchSmerd{CreateSmerd_Request: smerdRequest},
 	}
@@ -364,6 +376,7 @@ func buildRunnerDeployRequest(
 
 	smerdRequest.Env = provider.RegistrationEnv(
 		request.GetScope(), request.GetTarget(), baseUrl, runnerName, registrationToken, request.GetLabels())
+	smerdRequest.Env[runnerRegistrationTokenEnvVar] = registrationToken
 
 	if smerdRequest.Labels == nil {
 		smerdRequest.Labels = make(map[string]string)
@@ -378,6 +391,7 @@ func buildRunnerDeployRequest(
 	// internal/domain/labels.RunnerInstanceLabel's doc comment. All inert in
 	// cluster mode, where velez.runners is authoritative.
 	smerdRequest.Labels[labels.VervServiceLabel] = name
+	smerdRequest.Labels[labels.DisplayNameLabel] = request.GetName()
 	smerdRequest.Labels[labels.RunnerInstanceLabel] = "true"
 	smerdRequest.Labels[labels.RunnerProviderLabel] = provEnum.String()
 	smerdRequest.Labels[labels.RunnerScopeLabel] = request.GetScope().String()
@@ -522,13 +536,15 @@ func (j *registerRunnerRowJob) Do(ctx context.Context) error {
 	provider, _, baseUrl := runnerProviderConfig(request)
 
 	upsertReq := domain.UpsertRunnerReq{
-		ServiceID: svc.ID,
-		Provider:  provider.String(),
-		Scope:     request.GetScope().String(),
-		Target:    request.GetTarget(),
-		Labels:    request.GetLabels(),
-		SecretRef: domain.RunnerAccessTokenSecretRef(j.instanceName).String(),
-		BaseUrl:   baseUrl,
+		ServiceID:           svc.ID,
+		Provider:            provider.String(),
+		Scope:               request.GetScope().String(),
+		Target:              request.GetTarget(),
+		Labels:              request.GetLabels(),
+		SecretRef:           domain.RunnerAccessTokenSecretRef(j.instanceName).String(),
+		BaseUrl:             baseUrl,
+		DockerImage:         request.GetGitlab().GetDockerImage(),
+		DockerSocketAddress: request.GetDockerSocketAddress(),
 	}
 
 	_, err = j.runners.UpsertRunner(ctx, upsertReq)

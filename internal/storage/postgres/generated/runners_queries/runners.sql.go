@@ -22,7 +22,8 @@ func (q *Queries) DeleteRunner(ctx context.Context, serviceID int64) error {
 }
 
 const getRunnerByServiceID = `-- name: GetRunnerByServiceID :one
-SELECT service_id, provider, scope, target, labels, secret_ref, created_at, updated_at, base_url
+SELECT service_id, provider, scope, target, labels, secret_ref, created_at, updated_at, base_url,
+       docker_image, docker_socket_address
 FROM velez.runners
 WHERE service_id = $1
 `
@@ -40,12 +41,15 @@ func (q *Queries) GetRunnerByServiceID(ctx context.Context, serviceID int64) (Ve
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.BaseUrl,
+		&i.DockerImage,
+		&i.DockerSocketAddress,
 	)
 	return i, err
 }
 
 const listRunners = `-- name: ListRunners :many
-SELECT service_id, provider, scope, target, labels, secret_ref, created_at, updated_at, base_url
+SELECT service_id, provider, scope, target, labels, secret_ref, created_at, updated_at, base_url,
+       docker_image, docker_socket_address
 FROM velez.runners
 ORDER BY service_id
 `
@@ -69,6 +73,8 @@ func (q *Queries) ListRunners(ctx context.Context) ([]VelezRunner, error) {
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.BaseUrl,
+			&i.DockerImage,
+			&i.DockerSocketAddress,
 		); err != nil {
 			return nil, err
 		}
@@ -84,27 +90,33 @@ func (q *Queries) ListRunners(ctx context.Context) ([]VelezRunner, error) {
 }
 
 const upsertRunner = `-- name: UpsertRunner :one
-INSERT INTO velez.runners (service_id, provider, scope, target, labels, secret_ref, base_url)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+INSERT INTO velez.runners (service_id, provider, scope, target, labels, secret_ref, base_url,
+                           docker_image, docker_socket_address)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 ON CONFLICT (service_id) DO UPDATE
-    SET provider   = EXCLUDED.provider,
-        scope      = EXCLUDED.scope,
-        target     = EXCLUDED.target,
-        labels     = EXCLUDED.labels,
-        secret_ref = EXCLUDED.secret_ref,
-        base_url   = EXCLUDED.base_url,
-        updated_at = NOW()
-RETURNING service_id, provider, scope, target, labels, secret_ref, created_at, updated_at, base_url
+    SET provider              = EXCLUDED.provider,
+        scope                 = EXCLUDED.scope,
+        target                = EXCLUDED.target,
+        labels                = EXCLUDED.labels,
+        secret_ref            = EXCLUDED.secret_ref,
+        base_url              = EXCLUDED.base_url,
+        docker_image          = EXCLUDED.docker_image,
+        docker_socket_address = EXCLUDED.docker_socket_address,
+        updated_at            = NOW()
+RETURNING service_id, provider, scope, target, labels, secret_ref, created_at, updated_at, base_url,
+    docker_image, docker_socket_address
 `
 
 type UpsertRunnerParams struct {
-	ServiceID int64
-	Provider  string
-	Scope     string
-	Target    string
-	Labels    []string
-	SecretRef string
-	BaseUrl   string
+	ServiceID           int64
+	Provider            string
+	Scope               string
+	Target              string
+	Labels              []string
+	SecretRef           string
+	BaseUrl             string
+	DockerImage         string
+	DockerSocketAddress string
 }
 
 func (q *Queries) UpsertRunner(ctx context.Context, arg UpsertRunnerParams) (VelezRunner, error) {
@@ -116,6 +128,8 @@ func (q *Queries) UpsertRunner(ctx context.Context, arg UpsertRunnerParams) (Vel
 		pq.Array(arg.Labels),
 		arg.SecretRef,
 		arg.BaseUrl,
+		arg.DockerImage,
+		arg.DockerSocketAddress,
 	)
 	var i VelezRunner
 	err := row.Scan(
@@ -128,6 +142,8 @@ func (q *Queries) UpsertRunner(ctx context.Context, arg UpsertRunnerParams) (Vel
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.BaseUrl,
+		&i.DockerImage,
+		&i.DockerSocketAddress,
 	)
 	return i, err
 }

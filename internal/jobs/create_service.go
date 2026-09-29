@@ -121,7 +121,7 @@ type upsertServiceJob struct {
 }
 
 func (j *upsertServiceJob) Do(ctx context.Context) error {
-	err := j.dataStorage.Services().UpsertService(ctx, j.req.GetName())
+	err := j.dataStorage.Services().UpsertService(ctx, j.req.GetName(), j.req.GetName())
 	if err != nil {
 		return rerrors.Wrap(err, "error upserting service")
 	}

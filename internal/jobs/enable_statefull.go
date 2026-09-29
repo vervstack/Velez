@@ -945,7 +945,7 @@ type registerPluginJob struct {
 }
 
 func (j *registerPluginJob) Do(ctx context.Context) error {
-	err := j.storageContainer.Services().UpsertService(ctx, j.pgName)
+	err := j.storageContainer.Services().UpsertService(ctx, j.pgName, j.pgName)
 	if err != nil {
 		return rerrors.Wrap(err, "error upserting postgres service")
 	}

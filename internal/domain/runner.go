@@ -3,6 +3,8 @@ package domain
 import (
 	"time"
 
+	rtb "go.redsock.ru/toolbox"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
@@ -26,9 +28,17 @@ type Runner struct {
 	// BaseUrl - the git provider instance's base URL (e.g. a self-managed
 	// GitLab's URL). Empty for a provider with a single fixed API host
 	// (GitHub).
-	BaseUrl   string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	BaseUrl string
+	// DockerImage - the docker executor's job image (GitLab only). Empty
+	// means the provider's own default (see gitlab.defaultDockerImage).
+	DockerImage string
+	// DockerSocketAddress - tcp:// address of a Docker daemon this runner's
+	// container talks to instead of the default host socket. Empty means the
+	// default host-socket bind-mount grant. See CreateRunner.Request's field
+	// of the same name.
+	DockerSocketAddress string
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
 }
 
 const (
@@ -62,13 +72,15 @@ func RunnerRegistrationTokenSecretRef(name string) SecretRef {
 
 // UpsertRunnerReq creates or replaces the velez.runners row for a service.
 type UpsertRunnerReq struct {
-	ServiceID int64
-	Provider  string
-	Scope     string
-	Target    string
-	Labels    []string
-	SecretRef string
-	BaseUrl   string
+	ServiceID           int64
+	Provider            string
+	Scope               string
+	Target              string
+	Labels              []string
+	SecretRef           string
+	BaseUrl             string
+	DockerImage         string
+	DockerSocketAddress string
 }
 
 // CreateRunnerReq is the input to RunnersService.CreateRunner. See
@@ -128,6 +140,33 @@ type ListRunnersReq struct {
 type RunnerList struct {
 	Total   uint64
 	Runners []RunnerView
+}
+
+// RunnerConfig is the result of RunnersService.GetRunnerConfig - the
+// currently stored provider config, not necessarily what the running
+// container was deployed/registered with. See UpdateRunnerConfigReq.
+type RunnerConfig struct {
+	BaseUrl             string
+	DockerImage         string
+	DockerSocketAddress string
+}
+
+// UpdateRunnerConfigReq is the input to RunnersService.UpdateRunnerConfig.
+// Only a Valid field is persisted - see runners_api.proto's
+// UpdateRunnerConfig.Request doc comment for what each one requires to take
+// effect.
+type UpdateRunnerConfigReq struct {
+	Name                string
+	BaseUrl             rtb.Optional[string]
+	DockerImage         rtb.Optional[string]
+	DockerSocketAddress rtb.Optional[string]
+}
+
+// UpdateRunnerConfigResult tells the caller which follow-up action applies
+// the values UpdateRunnerConfigReq just persisted.
+type UpdateRunnerConfigResult struct {
+	RequiresReregister bool
+	RequiresRedeploy   bool
 }
 
 // RunnerCredentials is the result of RunnersService.GetRunnerCredentials -

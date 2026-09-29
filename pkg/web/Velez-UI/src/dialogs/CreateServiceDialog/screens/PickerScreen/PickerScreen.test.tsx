@@ -2,11 +2,11 @@ import {describe, expect, it, vi} from "vitest"
 import {fireEvent, render, screen} from "@testing-library/react"
 
 import PickerScreen from "@/dialogs/CreateServiceDialog/screens/PickerScreen/PickerScreen.tsx"
-import {ServiceScreen} from "@/dialogs/CreateServiceDialog/processes/serviceScreen.ts"
+import {ProductScreen, ServiceScreen} from "@/dialogs/CreateServiceDialog/processes/serviceScreen.ts"
 
-function renderPicker(suggestedScreen?: ServiceScreen) {
+function renderPicker(suggestedScreen?: ServiceScreen, enabledScreens?: ProductScreen[]) {
     const onSelect = vi.fn()
-    render(<PickerScreen suggestedScreen={suggestedScreen} onSelect={onSelect}/>)
+    render(<PickerScreen suggestedScreen={suggestedScreen} enabledScreens={enabledScreens} onSelect={onSelect}/>)
     return {onSelect}
 }
 
@@ -41,5 +41,23 @@ describe("PickerScreen", () => {
         renderPicker()
 
         expect(screen.queryByText("Suggested")).not.toBeInTheDocument()
+    })
+
+    it("disables every card outside enabledScreens with a note", () => {
+        const {onSelect} = renderPicker(undefined, ["generic", "postgres"])
+
+        expect(screen.getAllByText("Not available for existing containers yet")).toHaveLength(3)
+
+        fireEvent.click(screen.getByText("Container registry"))
+        expect(onSelect).not.toHaveBeenCalled()
+
+        fireEvent.click(screen.getByText("PostgreSQL"))
+        expect(onSelect).toHaveBeenCalledWith("postgres")
+    })
+
+    it("enables every card and shows no note when enabledScreens is omitted", () => {
+        renderPicker()
+
+        expect(screen.queryByText("Not available for existing containers yet")).not.toBeInTheDocument()
     })
 })

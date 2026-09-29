@@ -1,4 +1,4 @@
-import {RunnerProvider} from "@/app/api/velez"
+import {RunnerProvider, ServicePattern} from "@/app/api/velez"
 
 export type ServiceScreen = "picker" | "generic" | "postgres" | "registry" | "githubRunner" | "gitlabRunner"
 
@@ -35,4 +35,22 @@ export function runnerProviderOf(screen: ServiceScreen): RunnerProvider | undefi
     if (screen === "githubRunner") return RunnerProvider.GITHUB
     if (screen === "gitlabRunner") return RunnerProvider.GITLAB
     return undefined
+}
+
+export const ADOPTABLE_SCREENS: ProductScreen[] = ["generic", "postgres"]
+
+const SUGGESTED_SCREEN_BY_PATTERN: Partial<Record<ServicePattern, ServiceScreen>> = {
+    [ServicePattern.SERVICE_PATTERN_POSTGRES]: "postgres",
+    [ServicePattern.SERVICE_PATTERN_REGISTRY]: "registry",
+    [ServicePattern.SERVICE_PATTERN_GITHUB_RUNNER]: "githubRunner",
+    [ServicePattern.SERVICE_PATTERN_GITLAB_RUNNER]: "gitlabRunner",
+}
+
+export function suggestedScreenOf(pattern?: ServicePattern): ServiceScreen | undefined {
+    if (!pattern) return undefined
+    return SUGGESTED_SCREEN_BY_PATTERN[pattern]
+}
+
+export function adoptTitle(containerName?: string): string {
+    return `Register container ${containerName ?? ""}`.trim()
 }

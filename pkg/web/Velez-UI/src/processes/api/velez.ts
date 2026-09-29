@@ -14,6 +14,8 @@ import {
     Smerd as ProtoSmerd,
     TaskStatus,
     VersionResponse,
+    RegisterContainerRequest,
+    RegisterContainerResponse,
 } from "@/app/api/velez";
 import {InitReq} from "@/app/settings/state.ts";
 import {CreateSmerdReq, Port, Smerd, toProto, Volume} from "@/model/smerds/Smerds.ts";
@@ -24,6 +26,10 @@ import {useEnvironmentStore} from "@/app/hooks/environment/Environment.ts";
 class VelezService extends ApiService {
     async ping(): Promise<VersionResponse> {
         return this.mutate((req) => VelezAPI.Version({}, req))
+    }
+
+    async registerContainer(body: RegisterContainerRequest): Promise<RegisterContainerResponse> {
+        return this.mutate((req) => VelezAPI.RegisterContainer(body, req))
     }
 }
 

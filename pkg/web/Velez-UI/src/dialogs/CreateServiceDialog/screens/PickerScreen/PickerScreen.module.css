@@ -8,5 +8,10 @@
         display: flex;
         flex-direction: column;
         gap: 0.25rem;
+
+        & .DisabledNote {
+            font-size: 0.6875rem;
+            color: var(--fg-dim);
+        }
     }
 }

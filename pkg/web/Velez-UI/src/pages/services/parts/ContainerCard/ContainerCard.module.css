@@ -56,6 +56,19 @@
     gap: 0.5rem;
 }
 
+.ActionsRow {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.Hint {
+    flex: 1;
+    font-size: 0.6875rem;
+    color: var(--fg-dim);
+}
+
 @keyframes fadeUp {
     from {
         opacity: 0;

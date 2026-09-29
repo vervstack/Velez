@@ -1,0 +1,12 @@
+.AdoptFormContainer {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+
+    & .FieldsWrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.875rem;
+    }
+}

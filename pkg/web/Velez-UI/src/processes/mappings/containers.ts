@@ -1,4 +1,4 @@
-import { DockerContainer, SmerdStatus } from '@/app/api/velez';
+import { DockerContainer, ServicePattern, SmerdStatus } from '@/app/api/velez';
 import { DotStatus } from '@/components/base/StatusDot';
 
 // Label keys written by Velez on the Docker container — see
@@ -48,4 +48,16 @@ export function mapContainerStatusToDot(status?: SmerdStatus): DotStatus {
 
 export function containerStatusLabel(status?: SmerdStatus): string {
     return status ?? 'unknown';
+}
+
+const SUGGESTED_PATTERN_LABELS: Partial<Record<ServicePattern, string>> = {
+    [ServicePattern.SERVICE_PATTERN_POSTGRES]: 'PostgreSQL',
+    [ServicePattern.SERVICE_PATTERN_REGISTRY]: 'a container registry',
+    [ServicePattern.SERVICE_PATTERN_GITHUB_RUNNER]: 'a GitHub runner',
+    [ServicePattern.SERVICE_PATTERN_GITLAB_RUNNER]: 'a GitLab runner',
+};
+
+export function suggestedPatternHint(pattern?: ServicePattern): string | undefined {
+    const label = pattern ? SUGGESTED_PATTERN_LABELS[pattern] : undefined;
+    return label ? `Looks like ${label}` : undefined;
 }

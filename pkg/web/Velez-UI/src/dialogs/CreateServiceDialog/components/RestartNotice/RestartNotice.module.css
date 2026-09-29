@@ -1,0 +1,19 @@
+.RestartNoticeContainer {
+    font-size: 0.75rem;
+    line-height: 1.4;
+    border: 0.0625rem solid;
+    border-radius: var(--radius);
+    padding: 0.625rem 0.75rem;
+
+    &.Danger {
+        color: var(--red);
+        background: var(--red-dim);
+        border-color: var(--red);
+    }
+
+    &.Info {
+        color: var(--cyan);
+        background: var(--cyan-dim);
+        border-color: var(--border-h);
+    }
+}

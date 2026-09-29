@@ -80,15 +80,18 @@ func (d *dockerRunners) UpsertRunner(_ context.Context, req domain.UpsertRunnerR
 	}
 
 	runner := domain.Runner{
-		ServiceID: req.ServiceID,
-		Provider:  req.Provider,
-		Scope:     req.Scope,
-		Target:    req.Target,
-		Labels:    req.Labels,
-		SecretRef: req.SecretRef,
-		BaseUrl:   req.BaseUrl,
-		CreatedAt: createdAt,
-		UpdatedAt: now,
+		ServiceID:           req.ServiceID,
+		Provider:            req.Provider,
+		Scope:               req.Scope,
+		Target:              req.Target,
+		Labels:              req.Labels,
+		SecretRef:           req.SecretRef,
+		BaseUrl:             req.BaseUrl,
+		DockerImage:         req.DockerImage,
+		DockerSocketAddress: req.DockerSocketAddress,
+		Concurrent:          req.Concurrent,
+		CreatedAt:           createdAt,
+		UpdatedAt:           now,
 	}
 
 	d.pending[req.ServiceID] = runner

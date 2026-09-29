@@ -379,7 +379,10 @@ type GitlabConfig struct {
 	// docker_image - the image `gitlab-runner register`'s docker executor uses
 	// for job containers (--docker-image). Empty defaults to "alpine:latest".
 	// The executor itself is always "docker" - not caller-configurable.
-	DockerImage   *string `protobuf:"bytes,3,opt,name=docker_image,json=dockerImage,proto3,oneof" json:"docker_image,omitempty"`
+	DockerImage *string `protobuf:"bytes,3,opt,name=docker_image,json=dockerImage,proto3,oneof" json:"docker_image,omitempty"`
+	// concurrent - the global gitlab-runner `concurrent` setting: how many jobs
+	// the runner runs at once. Unset defaults to 1.
+	Concurrent    *int32 `protobuf:"varint,4,opt,name=concurrent,proto3,oneof" json:"concurrent,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -433,6 +436,13 @@ func (x *GitlabConfig) GetDockerImage() string {
 		return *x.DockerImage
 	}
 	return ""
+}
+
+func (x *GitlabConfig) GetConcurrent() int32 {
+	if x != nil && x.Concurrent != nil {
+		return *x.Concurrent
+	}
+	return 0
 }
 
 // GetRunnerConfig.Response never carries a token - see GetRunnerCredentials.
@@ -999,6 +1009,7 @@ type GetRunnerConfig_Response struct {
 	BaseUrl             string                 `protobuf:"bytes,1,opt,name=base_url,json=baseUrl,proto3" json:"base_url,omitempty"`
 	DockerImage         string                 `protobuf:"bytes,2,opt,name=docker_image,json=dockerImage,proto3" json:"docker_image,omitempty"`
 	DockerSocketAddress string                 `protobuf:"bytes,3,opt,name=docker_socket_address,json=dockerSocketAddress,proto3" json:"docker_socket_address,omitempty"`
+	Concurrent          int32                  `protobuf:"varint,4,opt,name=concurrent,proto3" json:"concurrent,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -1054,6 +1065,13 @@ func (x *GetRunnerConfig_Response) GetDockerSocketAddress() string {
 	return ""
 }
 
+func (x *GetRunnerConfig_Response) GetConcurrent() int32 {
+	if x != nil {
+		return x.Concurrent
+	}
+	return 0
+}
+
 type UpdateRunnerConfig_Request struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -1066,8 +1084,11 @@ type UpdateRunnerConfig_Request struct {
 	// CreateRunner.Request.docker_socket_address. Setting it to "" clears it
 	// back to the default host socket grant.
 	DockerSocketAddress *string `protobuf:"bytes,4,opt,name=docker_socket_address,json=dockerSocketAddress,proto3,oneof" json:"docker_socket_address,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// concurrent - must be at least 1. Unlike the other fields it is applied
+	// to the running container immediately.
+	Concurrent    *int32 `protobuf:"varint,5,opt,name=concurrent,proto3,oneof" json:"concurrent,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateRunnerConfig_Request) Reset() {
@@ -1126,6 +1147,13 @@ func (x *UpdateRunnerConfig_Request) GetDockerSocketAddress() string {
 		return *x.DockerSocketAddress
 	}
 	return ""
+}
+
+func (x *UpdateRunnerConfig_Request) GetConcurrent() int32 {
+	if x != nil && x.Concurrent != nil {
+		return *x.Concurrent
+	}
+	return 0
 }
 
 type UpdateRunnerConfig_Response struct {
@@ -1606,29 +1634,40 @@ const file_runners_api_proto_rawDesc = "" +
 	"\tentity_id\x18\x02 \x01(\tR\bentityId\x12\x16\n" +
 	"\x06action\x18\x03 \x01(\tR\x06action\"1\n" +
 	"\fGithubConfig\x12!\n" +
-	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"\x97\x01\n" +
+	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"\xcb\x01\n" +
 	"\fGitlabConfig\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12\x1e\n" +
 	"\bbase_url\x18\x02 \x01(\tH\x00R\abaseUrl\x88\x01\x01\x12&\n" +
-	"\fdocker_image\x18\x03 \x01(\tH\x01R\vdockerImage\x88\x01\x01B\v\n" +
+	"\fdocker_image\x18\x03 \x01(\tH\x01R\vdockerImage\x88\x01\x01\x12#\n" +
+	"\n" +
+	"concurrent\x18\x04 \x01(\x05H\x02R\n" +
+	"concurrent\x88\x01\x01B\v\n" +
 	"\t_base_urlB\x0f\n" +
-	"\r_docker_image\"\xae\x01\n" +
+	"\r_docker_imageB\r\n" +
+	"\v_concurrent\"\xcf\x01\n" +
 	"\x0fGetRunnerConfig\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x1a|\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x1a\x9c\x01\n" +
 	"\bResponse\x12\x19\n" +
 	"\bbase_url\x18\x01 \x01(\tR\abaseUrl\x12!\n" +
 	"\fdocker_image\x18\x02 \x01(\tR\vdockerImage\x122\n" +
-	"\x15docker_socket_address\x18\x03 \x01(\tR\x13dockerSocketAddress\"\xd7\x02\n" +
-	"\x12UpdateRunnerConfig\x1a\xd6\x01\n" +
+	"\x15docker_socket_address\x18\x03 \x01(\tR\x13dockerSocketAddress\x12\x1e\n" +
+	"\n" +
+	"concurrent\x18\x04 \x01(\x05R\n" +
+	"concurrent\"\x8b\x03\n" +
+	"\x12UpdateRunnerConfig\x1a\x8a\x02\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1e\n" +
 	"\bbase_url\x18\x02 \x01(\tH\x00R\abaseUrl\x88\x01\x01\x12&\n" +
 	"\fdocker_image\x18\x03 \x01(\tH\x01R\vdockerImage\x88\x01\x01\x127\n" +
-	"\x15docker_socket_address\x18\x04 \x01(\tH\x02R\x13dockerSocketAddress\x88\x01\x01B\v\n" +
+	"\x15docker_socket_address\x18\x04 \x01(\tH\x02R\x13dockerSocketAddress\x88\x01\x01\x12#\n" +
+	"\n" +
+	"concurrent\x18\x05 \x01(\x05H\x03R\n" +
+	"concurrent\x88\x01\x01B\v\n" +
 	"\t_base_urlB\x0f\n" +
 	"\r_docker_imageB\x18\n" +
-	"\x16_docker_socket_address\x1ah\n" +
+	"\x16_docker_socket_addressB\r\n" +
+	"\v_concurrent\x1ah\n" +
 	"\bResponse\x12/\n" +
 	"\x13requires_reregister\x18\x01 \x01(\bR\x12requiresReregister\x12+\n" +
 	"\x11requires_redeploy\x18\x02 \x01(\bR\x10requiresRedeploy\"p\n" +

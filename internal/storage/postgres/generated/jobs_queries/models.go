@@ -256,6 +256,7 @@ type VelezRunner struct {
 	BaseUrl             string
 	DockerImage         string
 	DockerSocketAddress string
+	Concurrent          int32
 }
 
 type VelezSecret struct {

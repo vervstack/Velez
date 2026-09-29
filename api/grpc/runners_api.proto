@@ -201,6 +201,10 @@ message GitlabConfig {
   // for job containers (--docker-image). Empty defaults to "alpine:latest".
   // The executor itself is always "docker" - not caller-configurable.
   optional string docker_image = 3;
+
+  // concurrent - the global gitlab-runner `concurrent` setting: how many jobs
+  // the runner runs at once. Unset defaults to 1.
+  optional int32 concurrent = 4;
 }
 
 // GetRunnerConfig.Response never carries a token - see GetRunnerCredentials.
@@ -212,6 +216,7 @@ message GetRunnerConfig {
     string base_url = 1;
     string docker_image = 2;
     string docker_socket_address = 3;
+    int32 concurrent = 4;
   }
 }
 
@@ -228,6 +233,9 @@ message UpdateRunnerConfig {
     // CreateRunner.Request.docker_socket_address. Setting it to "" clears it
     // back to the default host socket grant.
     optional string docker_socket_address = 4;
+    // concurrent - must be at least 1. Unlike the other fields it is applied
+    // to the running container immediately.
+    optional int32 concurrent = 5;
   }
   message Response {
     // requires_reregister - true when base_url and/or docker_image was set;

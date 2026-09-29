@@ -373,6 +373,10 @@
         },
         "dockerSocketAddress": {
           "type": "string"
+        },
+        "concurrent": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     },
@@ -416,6 +420,11 @@
         "dockerImage": {
           "type": "string",
           "title": "docker_image - the image `gitlab-runner register`'s docker executor uses\nfor job containers"
+        },
+        "concurrent": {
+          "type": "integer",
+          "format": "int32",
+          "description": "concurrent - the global gitlab-runner `concurrent` setting: how many jobs\nthe runner runs at once. Unset defaults to 1."
         }
       },
       "description": "GitlabConfig - GitLab-specific CreateRunner body. access_token is trusted\nas an already-valid registration token (GitLab's own minting API is\ndeprecated/disabled on modern instances, see runneraas/providers/gitlab),\nthen handed to `gitlab-runner register`, run automatically against the\ndeployed container."
@@ -570,6 +579,11 @@
         "dockerSocketAddress": {
           "type": "string",
           "description": "docker_socket_address - same tcp://-only validation as\nCreateRunner.Request.docker_socket_address. Setting it to \"\" clears it\nback to the default host socket grant."
+        },
+        "concurrent": {
+          "type": "integer",
+          "format": "int32",
+          "description": "concurrent - must be at least 1. Unlike the other fields it is applied\nto the running container immediately."
         }
       }
     },

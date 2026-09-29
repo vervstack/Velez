@@ -30,13 +30,16 @@ func NewPg(db *sql.DB) storage.RunnersStorage {
 
 func (p *pgStorage) UpsertRunner(ctx context.Context, req domain.UpsertRunnerReq) (domain.Runner, error) {
 	params := runners_queries.UpsertRunnerParams{
-		ServiceID: req.ServiceID,
-		Provider:  req.Provider,
-		Scope:     req.Scope,
-		Target:    req.Target,
-		Labels:    req.Labels,
-		SecretRef: req.SecretRef,
-		BaseUrl:   req.BaseUrl,
+		ServiceID:           req.ServiceID,
+		Provider:            req.Provider,
+		Scope:               req.Scope,
+		Target:              req.Target,
+		Labels:              req.Labels,
+		SecretRef:           req.SecretRef,
+		BaseUrl:             req.BaseUrl,
+		DockerImage:         req.DockerImage,
+		DockerSocketAddress: req.DockerSocketAddress,
+		Concurrent:          req.Concurrent,
 	}
 
 	row, err := p.querier.UpsertRunner(ctx, params)
@@ -81,15 +84,18 @@ func (p *pgStorage) DeleteRunner(ctx context.Context, serviceID int64) error {
 
 func runnerFromRow(row runners_queries.VelezRunner) domain.Runner {
 	return domain.Runner{
-		ServiceID: row.ServiceID,
-		Provider:  row.Provider,
-		Scope:     row.Scope,
-		Target:    row.Target,
-		Labels:    row.Labels,
-		SecretRef: row.SecretRef,
-		BaseUrl:   row.BaseUrl,
-		CreatedAt: row.CreatedAt,
-		UpdatedAt: row.UpdatedAt,
+		ServiceID:           row.ServiceID,
+		Provider:            row.Provider,
+		Scope:               row.Scope,
+		Target:              row.Target,
+		Labels:              row.Labels,
+		SecretRef:           row.SecretRef,
+		BaseUrl:             row.BaseUrl,
+		DockerImage:         row.DockerImage,
+		DockerSocketAddress: row.DockerSocketAddress,
+		Concurrent:          row.Concurrent,
+		CreatedAt:           row.CreatedAt,
+		UpdatedAt:           row.UpdatedAt,
 	}
 }
 

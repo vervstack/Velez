@@ -37,8 +37,11 @@ type Runner struct {
 	// default host-socket bind-mount grant. See CreateRunner.Request's field
 	// of the same name.
 	DockerSocketAddress string
-	CreatedAt           time.Time
-	UpdatedAt           time.Time
+	// Concurrent - the gitlab-runner global `concurrent` setting (jobs run at
+	// once). Ignored by a provider without one.
+	Concurrent int32
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }
 
 const (
@@ -81,6 +84,7 @@ type UpsertRunnerReq struct {
 	BaseUrl             string
 	DockerImage         string
 	DockerSocketAddress string
+	Concurrent          int32
 }
 
 // CreateRunnerReq is the input to RunnersService.CreateRunner. See
@@ -112,6 +116,10 @@ type CreateRunnerReq struct {
 	// grants the host socket via its existing internal-only bind-mount gate.
 	// See runners_api.proto's CreateRunner.Request.docker_socket_address.
 	DockerSocketAddress string
+
+	// Concurrent - the gitlab-runner global `concurrent` setting. 0 means
+	// unset and is treated as 1.
+	Concurrent int32
 }
 
 // RunnerView is one resolved Runners-as-a-Service instance: runner-specific
@@ -149,6 +157,7 @@ type RunnerConfig struct {
 	BaseUrl             string
 	DockerImage         string
 	DockerSocketAddress string
+	Concurrent          int32
 }
 
 // UpdateRunnerConfigReq is the input to RunnersService.UpdateRunnerConfig.
@@ -160,6 +169,7 @@ type UpdateRunnerConfigReq struct {
 	BaseUrl             rtb.Optional[string]
 	DockerImage         rtb.Optional[string]
 	DockerSocketAddress rtb.Optional[string]
+	Concurrent          rtb.Optional[int32]
 }
 
 // UpdateRunnerConfigResult tells the caller which follow-up action applies

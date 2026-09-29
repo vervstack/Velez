@@ -83,6 +83,7 @@ export type GitlabConfig = {
   accessToken?: string;
   baseUrl?: string;
   dockerImage?: string;
+  concurrent?: number;
 };
 
 export type GetRunnerConfigRequest = {
@@ -93,6 +94,7 @@ export type GetRunnerConfigResponse = {
   baseUrl?: string;
   dockerImage?: string;
   dockerSocketAddress?: string;
+  concurrent?: number;
 };
 
 export type GetRunnerConfig = Record<string, never>;
@@ -102,6 +104,7 @@ export type UpdateRunnerConfigRequest = {
   baseUrl?: string;
   dockerImage?: string;
   dockerSocketAddress?: string;
+  concurrent?: number;
 };
 
 export type UpdateRunnerConfigResponse = {

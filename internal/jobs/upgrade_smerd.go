@@ -65,6 +65,8 @@ type oldContainerIDAccessor interface {
 
 type captureOldContainerCtx interface {
 	GetExtraLabels() map[string]string
+	GetPortsOverride() *velez_api.UpgradeSmerdTaskPayload_PortsOverride
+	GetVolumesOverride() *velez_api.UpgradeSmerdTaskPayload_VolumesOverride
 	SetRequest(createReq *velez_api.CreateSmerd_Request)
 	oldContainerIDAccessor
 }
@@ -158,11 +160,12 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: stepPauseOldContainer,
 			Job: &pauseOldContainerJob{
-				dockerAPI:   dockerAPI,
-				portManager: h.nodeClients.PortManager(),
-				runtimes:    h.runtimes,
-				req:         payload,
-				ctx:         payload,
+				dockerAPI:    dockerAPI,
+				portManager:  h.nodeClients.PortManager(),
+				runtimes:     h.runtimes,
+				stopOldFirst: payload.GetStopOldFirst(),
+				req:          payload,
+				ctx:          payload,
 			},
 		},
 		{
@@ -356,10 +359,27 @@ func (j *captureOldContainerJob) Do(ctx context.Context) error {
 		maps.Copy(reqLabels, j.ctx.GetExtraLabels())
 	}
 
+	applyUpgradeOverrides(req, j.ctx)
+
 	j.ctx.SetRequest(req)
 	j.ctx.SetOldContainerId(cont.GetUuid())
 
 	return nil
+}
+
+// applyUpgradeOverrides replaces the ports/volumes captured from the old
+// container with the payload's overrides. A present override with no entries
+// means "none".
+func applyUpgradeOverrides(req *velez_api.CreateSmerd_Request, overrides captureOldContainerCtx) {
+	portsOverride := overrides.GetPortsOverride()
+	if portsOverride != nil {
+		req.Settings.Ports = portsOverride.GetPorts()
+	}
+
+	volumesOverride := overrides.GetVolumesOverride()
+	if volumesOverride != nil {
+		req.Settings.Volumes = volumesOverride.GetVolumes()
+	}
 }
 
 // resolveCurrentContainer resolves "the current container" for name, falling
@@ -508,6 +528,7 @@ type pauseAPI interface {
 	ContainerPause(ctx context.Context, containerID string) error
 	ContainerUnpause(ctx context.Context, containerID string) error
 	ContainerStop(ctx context.Context, containerID string, options container.StopOptions) error
+	ContainerStart(ctx context.Context, containerID string, options container.StartOptions) error
 }
 
 // networkBinding is a logical network name plus the aliases the container was
@@ -555,6 +576,10 @@ type pauseOldContainerJob struct {
 	// scoped/suffixed to that environment instead of against the raw Docker
 	// daemon - see docs/container_runtimes.
 	runtimes container_runtime.RuntimeResolver
+
+	// stopOldFirst stops the old container instead of pausing it, freeing its
+	// host ports for the replacement.
+	stopOldFirst bool
 
 	req smerdRequestAccessor
 	ctx oldContainerIDAccessor
@@ -631,9 +656,9 @@ func (j *pauseOldContainerJob) Rollback(ctx context.Context) error {
 		j.portManager.UnHoldPort(p)
 	}
 
-	err := j.dockerAPI.ContainerUnpause(ctx, containerID)
+	err := j.resume(ctx, containerID)
 	if err != nil {
-		return rerrors.Wrapf(err, "error unpausing container '%s'", containerID)
+		return rerrors.Wrapf(err, "error resuming container '%s'", containerID)
 	}
 
 	runtime, err := j.runtimes.Runtime(ctx, j.req.GetRequest().GetEnvironment())
@@ -663,11 +688,38 @@ func (j *pauseOldContainerJob) Rollback(ctx context.Context) error {
 	return nil
 }
 
+func (j *pauseOldContainerJob) resume(ctx context.Context, containerID string) error {
+	if j.stopOldFirst {
+		err := j.dockerAPI.ContainerStart(ctx, containerID, container.StartOptions{})
+		if err != nil {
+			return rerrors.Wrap(err, "error starting container")
+		}
+
+		return nil
+	}
+
+	err := j.dockerAPI.ContainerUnpause(ctx, containerID)
+	if err != nil {
+		return rerrors.Wrap(err, "error unpausing container")
+	}
+
+	return nil
+}
+
 func (j *pauseOldContainerJob) stopContainer(
 	ctx context.Context, containerID string, cont container.InspectResponse,
 ) error {
 	switch cont.State.Status {
 	case container.StateRunning:
+		if j.stopOldFirst {
+			err := j.dockerAPI.ContainerStop(ctx, containerID, container.StopOptions{})
+			if err != nil {
+				return rerrors.Wrap(err, "error stopping container")
+			}
+
+			return nil
+		}
+
 		err := j.dockerAPI.ContainerPause(ctx, containerID)
 		if err != nil {
 			if !errdefs2.IsConflict(err) {

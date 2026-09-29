@@ -30,4 +30,24 @@ var (
 	// ErrRegisterServiceNameRequired is returned by RegisterContainer for an
 	// empty service name.
 	ErrRegisterServiceNameRequired = rerrors.New("service name is required", codes.InvalidArgument)
+
+	// ErrBindMountNotLinked is returned by register_container's
+	// inspect_container when the container has a bind mount that is not
+	// listed in the request's bind mount links. The wrap message lists the
+	// offending source -> target pairs.
+	ErrBindMountNotLinked = rerrors.New("bind mounts are not linked", codes.FailedPrecondition)
+
+	// ErrBindMountLinkUnknown is returned by register_container's
+	// inspect_container for a bind mount link whose source is not a bind
+	// mount of the container.
+	ErrBindMountLinkUnknown = rerrors.New("bind mount link matches no bind mount of the container", codes.InvalidArgument)
+
+	// ErrRegisterPortsWithKeepMapping is returned by RegisterContainer when
+	// ports are given together with keep_port_mapping.
+	ErrRegisterPortsWithKeepMapping = rerrors.New(
+		"ports can't be set together with keep_port_mapping", codes.InvalidArgument)
+
+	// ErrVolumeOptionsConflict is returned when a volume to create already
+	// exists with a different driver or options.
+	ErrVolumeOptionsConflict = rerrors.New("volume already exists with different options", codes.AlreadyExists)
 )

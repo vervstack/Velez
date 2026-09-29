@@ -99,6 +99,14 @@ export type DropSmerdTaskPayload = {
   successful?: string[];
 };
 
+export type UpgradeSmerdTaskPayloadPortsOverride = {
+  ports?: VelezApiVelezCommon.Port[];
+};
+
+export type UpgradeSmerdTaskPayloadVolumesOverride = {
+  volumes?: VelezApiVelezCommon.Volume[];
+};
+
 export type UpgradeSmerdTaskPayload = {
   upgradeRequest?: VelezApiVelezApi.UpgradeSmerdRequest;
   request?: VelezApiVelezApi.CreateSmerdRequest;
@@ -108,6 +116,9 @@ export type UpgradeSmerdTaskPayload = {
   containerId?: string;
   allowDockerSocket?: boolean;
   extraLabels?: Record<string, string>;
+  stopOldFirst?: boolean;
+  portsOverride?: UpgradeSmerdTaskPayloadPortsOverride;
+  volumesOverride?: UpgradeSmerdTaskPayloadVolumesOverride;
 };
 
 export type RegisterContainerTaskPayload = {
@@ -117,6 +128,9 @@ export type RegisterContainerTaskPayload = {
   containerName?: string;
   imageName?: string;
   serviceId?: string;
+  bindMountLinks?: VelezApiVelezApi.RegisterContainerRequestBindMountLink[];
+  keepPortMapping?: boolean;
+  ports?: VelezApiVelezCommon.Port[];
 };
 
 export type CreateRegistryInstanceTaskPayload = {

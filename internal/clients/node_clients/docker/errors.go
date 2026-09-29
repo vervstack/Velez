@@ -12,7 +12,7 @@ import (
 const (
 	NoSuchContainerError = "No such container"
 
-	NotConnectedToNetworkError = "is not connected to network"
+	NotConnectedToNetworkError = "is not connected to"
 
 	subjectContainerName = "The container name"
 

@@ -38,6 +38,12 @@ type registerRequestAccessor interface {
 	GetContainerId() string
 	GetEnvironment() string
 	GetServiceName() string
+	GetBindMountLinks() []*bindMountLink
+}
+
+type registerRecreateAccessor interface {
+	registerRequestAccessor
+	registerUpgradeAccessor
 }
 
 type registeredContainerAccessor interface {
@@ -98,6 +104,13 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
+			Name: stepLinkBindMounts,
+			Job: &linkBindMountsJob{
+				runtimes: h.runtimes,
+				req:      payload,
+			},
+		},
+		{
 			Name: stepUpsertService,
 			Job: &upsertRegisteredServiceJob{
 				dataStorage: h.dataStorage,
@@ -126,6 +139,7 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		Name: stepRecreateWithLabels,
 		Job: &recreateWithLabelsJob{
 			jobsEngine: h.jobsEngine,
+			runtimes:   h.runtimes,
 			req:        payload,
 			container:  payload,
 		},
@@ -228,6 +242,11 @@ func (j *inspectContainerToRegisterJob) Do(ctx context.Context) error {
 		}
 	}
 
+	_, err = resolveBindMountLinks(j.req.GetServiceName(), info.Mounts, j.req.GetBindMountLinks())
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
 	j.ctx.SetContainerName(name)
 	j.ctx.SetImageName(info.Config.Image)
 
@@ -302,7 +321,14 @@ func (j *bindExistingContainerJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(user_errors.ErrRegisterContainerNotFound)
 	}
 
+	linked, err := resolveBindMountLinks(j.req.GetServiceName(), info.Mounts, j.req.GetBindMountLinks())
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
 	spec := registeredContainerSpec(containerName, j.req.GetEnvironment(), j.req.GetServiceName(), info)
+
+	spec.Settings.Volumes = registerVolumes(info, linked)
 
 	specPayload, err := json.Marshal(spec)
 	if err != nil {
@@ -362,13 +388,28 @@ func (j *bindExistingContainerJob) Do(ctx context.Context) error {
 // recreate the container with the service labels.
 type recreateWithLabelsJob struct {
 	jobsEngine Engine
+	runtimes   container_runtime.RuntimeResolver
 
-	req       registerRequestAccessor
+	req       registerRecreateAccessor
 	container registeredContainerAccessor
 }
 
 func (j *recreateWithLabelsJob) Do(ctx context.Context) error {
 	containerName := j.container.GetContainerName()
+
+	runtime, err := j.runtimes.Runtime(ctx, j.req.GetEnvironment())
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving container runtime")
+	}
+
+	info, found, err := runtime.InspectAny(ctx, j.req.GetContainerId())
+	if err != nil {
+		return rerrors.Wrap(err, "error inspecting container")
+	}
+
+	if !found {
+		return rerrors.Wrap(user_errors.ErrRegisterContainerNotFound)
+	}
 
 	upgradeReq := &velez_api.UpgradeSmerd_Request{
 		Name:        containerName,
@@ -381,11 +422,16 @@ func (j *recreateWithLabelsJob) Do(ctx context.Context) error {
 		ExtraLabels:    registeredServiceLabels(j.req.GetServiceName()),
 	}
 
+	err = applyRegisterOverrides(payload, info, j.req)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
 	// A dedicated entity id: velez.tasks is UNIQUE (entity_id, action), so the
 	// container's plain upgrade id would dedupe onto an earlier upgrade task.
 	entityId := SmerdEntityID(j.req.GetEnvironment(), containerName) + "/" + RegisterContainerAction
 
-	_, err := j.jobsEngine.Enqueue(ctx, entityId, UpgradeSmerdAction, payload)
+	_, err = j.jobsEngine.Enqueue(ctx, entityId, UpgradeSmerdAction, payload)
 	if err != nil {
 		return rerrors.Wrap(err, "error enqueuing upgrade_smerd task")
 	}

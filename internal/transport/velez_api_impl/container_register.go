@@ -23,6 +23,10 @@ func (impl *Impl) RegisterContainer(
 		return nil, rerrors.Wrap(user_errors.ErrRegisterServiceNameRequired)
 	}
 
+	if req.GetKeepPortMapping() && len(req.GetPorts()) != 0 {
+		return nil, rerrors.Wrap(user_errors.ErrRegisterPortsWithKeepMapping)
+	}
+
 	_, err := impl.resolveEnvironment(ctx, req.GetEnvironment())
 	if err != nil {
 		return nil, err
@@ -37,6 +41,10 @@ func (impl *Impl) RegisterContainer(
 		ContainerId: req.GetContainerId(),
 		Environment: req.GetEnvironment(),
 		ServiceName: req.GetServiceName(),
+
+		BindMountLinks:  req.GetBindMountLinks(),
+		KeepPortMapping: req.GetKeepPortMapping(),
+		Ports:           req.GetPorts(),
 	}
 
 	entityId := req.GetServiceName() + "/" + uuid.NewString()

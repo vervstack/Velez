@@ -758,6 +758,10 @@ func (f *fakeContainerRuntime) InspectAny(context.Context, string) (container.In
 	return container.InspectResponse{}, false, nil
 }
 
+func (f *fakeContainerRuntime) EnsureVolume(context.Context, container_runtime.EnsureVolumeRequest) error {
+	return nil
+}
+
 // fakeNodeClients is a minimal node_clients.NodeClients wrapping a
 // fakeDocker, for jobs (like createScratchContainerJob) that depend on the
 // full NodeClients container but only ever call Docker() on it.

@@ -129,6 +129,10 @@ func (f *fakeContainerRuntime) InspectAny(context.Context, string) (container.In
 	panic("not implemented")
 }
 
+func (f *fakeContainerRuntime) EnsureVolume(context.Context, container_runtime.EnsureVolumeRequest) error {
+	panic("not implemented")
+}
+
 func Test_MintRegistrationToken_Scenarios(t *testing.T) {
 	cases := []struct {
 		name        string

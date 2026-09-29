@@ -611,7 +611,7 @@ func (r *dockerRuntime) DisconnectFromNetworks(ctx context.Context, containerID 
 				continue
 			}
 
-			return rerrors.Wrap(err, "error disconnecting container from network %q", n)
+			return rerrors.Wrapf(err, "error disconnecting container from network %q", n)
 		}
 	}
 

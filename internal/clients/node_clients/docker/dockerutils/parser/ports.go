@@ -40,22 +40,28 @@ func FromPorts(settings *velez_api.Container_Settings) map[nat.Port][]nat.PortBi
 	return out
 }
 
-func ToPortsMapping(ports map[nat.Port][]nat.PortBinding) []*velez_api.Port {
-	if len(ports) == 0 {
+// ToPortsMapping reads the configured HostConfig.PortBindings. A binding with
+// an empty HostPort (`docker run -p 80`) asks the daemon for a random host
+// port, so its real one is taken from the running container's actual
+// NetworkSettings.Ports; when that is unknown too (container not running) the
+// port is left unassigned.
+func ToPortsMapping(configured, actual map[nat.Port][]nat.PortBinding) []*velez_api.Port {
+	if len(configured) == 0 {
 		return nil
 	}
 
-	out := make([]*velez_api.Port, 0, len(ports))
+	out := make([]*velez_api.Port, 0, len(configured))
 
-	for contPort, hostPorts := range ports {
-		for _, hostPort := range hostPorts {
-			port, _ := strconv.ParseUint(hostPort.HostPort, 10, 64)
-			port32 := uint32(port)
-
+	for contPort, hostPorts := range configured {
+		for idx, hostPort := range hostPorts {
 			binding := &velez_api.Port{
-				ExposedTo:         &port32,
 				ServicePortNumber: uint32(contPort.Int()),
 				Protocol:          velez_api.Port_Protocol(velez_api.Port_Protocol_value[contPort.Proto()]),
+			}
+
+			exposedTo := resolveHostPort(hostPort, actual[contPort], idx)
+			if exposedTo != 0 {
+				binding.ExposedTo = &exposedTo
 			}
 
 			out = append(out, binding)
@@ -63,6 +69,21 @@ func ToPortsMapping(ports map[nat.Port][]nat.PortBinding) []*velez_api.Port {
 	}
 
 	return out
+}
+
+func resolveHostPort(configured nat.PortBinding, actual []nat.PortBinding, idx int) uint32 {
+	hostPort := configured.HostPort
+
+	if hostPort == "" && idx < len(actual) {
+		hostPort = actual[idx].HostPort
+	}
+
+	port, err := strconv.ParseUint(hostPort, 10, 32)
+	if err != nil {
+		return 0
+	}
+
+	return uint32(port)
 }
 
 func ToPortsSlice(ports []container.Port) []*velez_api.Port {

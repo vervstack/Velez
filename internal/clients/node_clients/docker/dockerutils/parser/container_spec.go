@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/go-connections/nat"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
@@ -17,7 +18,7 @@ func ToCreateRequest(name string, info container.InspectResponse) *velez_api.Cre
 	req := &velez_api.CreateSmerd_Request{
 		Name: name,
 		Settings: &velez_api.Container_Settings{
-			Ports:   ToPortsMapping(info.HostConfig.PortBindings),
+			Ports:   ToPortsFromInspect(info),
 			Volumes: ToVolume(info.Mounts),
 		},
 		Restart: ToRestartPolicy(info.HostConfig.RestartPolicy),
@@ -30,6 +31,18 @@ func ToCreateRequest(name string, info container.InspectResponse) *velez_api.Cre
 	}
 
 	return req
+}
+
+// ToPortsFromInspect maps the inspected container's published ports, see
+// ToPortsMapping.
+func ToPortsFromInspect(info container.InspectResponse) []*velez_api.Port {
+	var actual map[nat.Port][]nat.PortBinding
+
+	if info.NetworkSettings != nil {
+		actual = info.NetworkSettings.Ports
+	}
+
+	return ToPortsMapping(info.HostConfig.PortBindings, actual)
 }
 
 // ToHealthcheck reverses FromHealthcheck's "CMD-SHELL, command" Test shape.

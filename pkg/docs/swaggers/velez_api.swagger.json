@@ -493,6 +493,19 @@
       ],
       "default": "unknown"
     },
+    "RequestBindMountLink": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "title": "host path of the bind mount being linked"
+        },
+        "volumeName": {
+          "type": "string",
+          "title": "default: derived from service name + container target path"
+        }
+      }
+    },
     "RequestGenericPattern": {
       "type": "object"
     },
@@ -1051,6 +1064,26 @@
         },
         "runner": {
           "$ref": "#/definitions/RequestRunnerPattern"
+        },
+        "bindMountLinks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/RequestBindMountLink"
+          },
+          "description": "bind_mount_links lists every bind mount of the container to keep. Each is linked, not copied:\na Docker named volume backed by the same host directory replaces the bind mount. A container\nwith a bind mount that is not listed here is refused."
+        },
+        "keepPortMapping": {
+          "type": "boolean",
+          "description": "keep_port_mapping reuses the container's existing host ports. Requires stopping the old container\nbefore creating the new one (downtime). Default false. Single mode only."
+        },
+        "ports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiPort"
+          },
+          "description": "ports are the port mappings the recreated container publishes when keep_port_mapping is false.\nEmpty = the container is recreated with no published ports. Single mode only."
         }
       }
     },

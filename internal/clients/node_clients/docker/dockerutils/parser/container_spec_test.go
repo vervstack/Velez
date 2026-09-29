@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/go-connections/nat"
 	"github.com/stretchr/testify/require"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
@@ -73,4 +74,55 @@ func Test_ToRestartPolicy_Cases(t *testing.T) {
 			require.Equal(t, tc.want, ToRestartPolicy(tc.in).GetType())
 		})
 	}
+}
+
+func Test_ToPortsFromInspect_RandomHostPortReadsActualBinding(t *testing.T) {
+	t.Parallel()
+
+	httpPort := nat.Port("80/tcp")
+	httpsPort := nat.Port("443/tcp")
+
+	settings := &container.NetworkSettings{}
+
+	settings.Ports = nat.PortMap{
+		httpPort:  {{HostPort: "32768"}},
+		httpsPort: {{HostPort: "8443"}},
+	}
+
+	info := container.InspectResponse{
+		ContainerJSONBase: &container.ContainerJSONBase{
+			HostConfig: &container.HostConfig{
+				PortBindings: nat.PortMap{
+					httpPort:  {{HostPort: ""}},
+					httpsPort: {{HostPort: "8443"}},
+				},
+			},
+		},
+		NetworkSettings: settings,
+	}
+
+	exposedByService := map[uint32]uint32{}
+	for _, port := range ToPortsFromInspect(info) {
+		exposedByService[port.GetServicePortNumber()] = port.GetExposedTo()
+	}
+
+	require.Equal(t, map[uint32]uint32{80: 32768, 443: 8443}, exposedByService)
+}
+
+func Test_ToPortsFromInspect_RandomHostPortOfStoppedContainerStaysUnassigned(t *testing.T) {
+	t.Parallel()
+
+	info := container.InspectResponse{
+		ContainerJSONBase: &container.ContainerJSONBase{
+			HostConfig: &container.HostConfig{
+				PortBindings: nat.PortMap{nat.Port("80/tcp"): {{HostPort: ""}}},
+			},
+		},
+	}
+
+	ports := ToPortsFromInspect(info)
+
+	require.Len(t, ports, 1)
+	require.Nil(t, ports[0].ExposedTo)
+	require.Equal(t, uint32(80), ports[0].GetServicePortNumber())
 }

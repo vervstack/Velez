@@ -74,6 +74,11 @@ export type ListContainersResponse = {
 
 export type ListContainers = Record<string, never>;
 
+export type RegisterContainerRequestBindMountLink = {
+  source?: string;
+  volumeName?: string;
+};
+
 export type RegisterContainerRequestGenericPattern = Record<string, never>;
 
 export type RegisterContainerRequestPgPattern = {
@@ -89,6 +94,9 @@ type BaseRegisterContainerRequest = {
   containerId?: string;
   environment?: string;
   serviceName?: string;
+  bindMountLinks?: RegisterContainerRequestBindMountLink[];
+  keepPortMapping?: boolean;
+  ports?: VelezApiVelezCommon.Port[];
 };
 
 export type RegisterContainerRequest = BaseRegisterContainerRequest &

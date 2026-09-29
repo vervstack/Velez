@@ -42,7 +42,7 @@ func (c *ContainerManager) InspectSmerd(ctx context.Context, environment, contId
 	smerd := &velez_api.Smerd{
 		Uuid:    contInfo.ID,
 		Name:    bareName,
-		Ports:   parser.ToPortsMapping(contInfo.HostConfig.PortBindings),
+		Ports:   parser.ToPortsFromInspect(contInfo),
 		Volumes: parser.ToVolume(contInfo.Mounts),
 		Env:     parser.ToDockerEnv(contInfo.Config.Env),
 		Labels:  contInfo.Config.Labels,

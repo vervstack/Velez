@@ -211,6 +211,22 @@ message RegisterContainer {
       RunnerPattern runner = 7;
     }
 
+    // bind_mount_links lists every bind mount of the container to keep. Each is linked, not copied:
+    // a Docker named volume backed by the same host directory replaces the bind mount. A container
+    // with a bind mount that is not listed here is refused.
+    repeated BindMountLink bind_mount_links = 8;
+    // keep_port_mapping reuses the container's existing host ports. Requires stopping the old container
+    // before creating the new one (downtime). Default false. Single mode only.
+    bool keep_port_mapping = 9;
+    // ports are the port mappings the recreated container publishes when keep_port_mapping is false.
+    // Empty = the container is recreated with no published ports. Single mode only.
+    repeated Port ports = 10;
+
+    message BindMountLink {
+      string source = 1; // host path of the bind mount being linked
+      optional string volume_name = 2; // default: derived from service name + container target path
+    }
+
     message GenericPattern {}
     message PgPattern {
       // superuser/password are required when the container env carries no admin login.

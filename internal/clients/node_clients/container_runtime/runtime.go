@@ -79,6 +79,15 @@ type ConnectToNetworkRequest struct {
 	Aliases     []string
 }
 
+// EnsureVolumeRequest describes a Docker named volume. DriverOpts of a local
+// volume backed by a host directory look like
+// {"type": "none", "o": "bind", "device": "/host/dir"}.
+type EnsureVolumeRequest struct {
+	Name       string
+	Driver     string
+	DriverOpts map[string]string
+}
+
 // ContainerRuntime is what the service/jobs layers depend on instead of a
 // concrete Docker client.
 //
@@ -247,6 +256,13 @@ type ContainerRuntime interface {
 	// virtual/logical name - there is no such name for a container Velez
 	// doesn't manage.
 	InspectAny(ctx context.Context, id string) (container.InspectResponse, bool, error)
+
+	// EnsureVolume creates the named volume. Idempotent: an existing volume
+	// with the same driver and options is left as is; one with different
+	// options fails with user_errors.ErrVolumeOptionsConflict. Node-wide, not
+	// environment-scoped: volume names are not suffixed, same as the volume
+	// names container specs already carry. Implemented on commonRuntime.
+	EnsureVolume(ctx context.Context, req EnsureVolumeRequest) error
 }
 
 // RuntimeResolver hands out the ContainerRuntime serving a given environment.

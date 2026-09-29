@@ -2,15 +2,19 @@ package container_runtime
 
 import (
 	"context"
+	"maps"
 	"strings"
 
+	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/image"
+	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // commonRuntime backs operations that don't differ by backend. It only needs a
@@ -92,4 +96,45 @@ func (c *commonRuntime) InspectAny(ctx context.Context, id string) (container.In
 	}
 
 	return info, true, nil
+}
+
+// EnsureVolume creates the volume unless one with the same driver and options
+// already exists - see this method's doc comment on the ContainerRuntime
+// interface.
+func (c *commonRuntime) EnsureVolume(ctx context.Context, req EnsureVolumeRequest) error {
+	existing, err := c.cli.VolumeInspect(ctx, req.Name)
+	if err == nil {
+		return volumeMatches(existing, req)
+	}
+
+	if !errdefs.IsNotFound(err) {
+		return rerrors.Wrap(err, "error inspecting volume")
+	}
+
+	createOptions := volume.CreateOptions{
+		Name:       req.Name,
+		Driver:     req.Driver,
+		DriverOpts: req.DriverOpts,
+	}
+
+	_, err = c.cli.VolumeCreate(ctx, createOptions)
+	if err != nil {
+		return rerrors.Wrap(err, "error creating volume")
+	}
+
+	return nil
+}
+
+func volumeMatches(existing volume.Volume, req EnsureVolumeRequest) error {
+	driver := req.Driver
+	if driver == "" {
+		driver = "local"
+	}
+
+	isSame := existing.Driver == driver && maps.Equal(existing.Options, req.DriverOpts)
+	if isSame {
+		return nil
+	}
+
+	return rerrors.Wrap(user_errors.ErrVolumeOptionsConflict, req.Name)
 }

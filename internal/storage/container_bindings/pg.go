@@ -8,6 +8,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/container_bindings_queries"
 )
 
@@ -31,7 +32,7 @@ func (p *pgStorage) Upsert(ctx context.Context, binding domain.ContainerBinding)
 	params := container_bindings_queries.UpsertContainerBindingParams{
 		ServiceID:     binding.ServiceId,
 		NodeID:        binding.NodeId,
-		Environment:   binding.Environment,
+		Environment:   environmentKey(binding.Environment),
 		ContainerName: binding.ContainerName,
 	}
 
@@ -48,7 +49,7 @@ func (p *pgStorage) ListByNode(
 ) ([]domain.ContainerBinding, error) {
 	params := container_bindings_queries.ListContainerBindingsByNodeParams{
 		NodeID:      nodeId,
-		Environment: environment,
+		Environment: environmentKey(environment),
 	}
 
 	rows, err := p.querier.ListContainerBindingsByNode(ctx, params)
@@ -71,4 +72,14 @@ func (p *pgStorage) ListByNode(
 	}
 
 	return out, nil
+}
+
+// environmentKey stores and matches bindings by environment name; an empty
+// name is the default environment, as everywhere else on the wire.
+func environmentKey(environment string) string {
+	if environment == "" {
+		return environments.DefaultEnvironmentName
+	}
+
+	return environment
 }

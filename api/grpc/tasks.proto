@@ -225,6 +225,23 @@ message UpgradeSmerdTaskPayload {
   // when the new container's request is built, so they always win. Used by
   // register_container to stamp service labels through a blue-green recreate.
   map<string, string> extra_labels = 8;
+
+  // stop_old_first stops the old container instead of pausing it, freeing
+  // its host ports for the new one. Unset keeps the pause-based swap.
+  bool stop_old_first = 9;
+
+  // ports_override / volumes_override replace the ports / volumes captured
+  // from the old container when the new container's request is built. A
+  // present-but-empty override means "none".
+  optional PortsOverride ports_override = 10;
+  optional VolumesOverride volumes_override = 11;
+
+  message PortsOverride {
+    repeated Port ports = 1;
+  }
+  message VolumesOverride {
+    repeated Volume volumes = 1;
+  }
 }
 
 // RegisterContainerTaskPayload is the task context for the
@@ -241,6 +258,10 @@ message RegisterContainerTaskPayload {
 
   // Set by upsert_service.
   int64 service_id = 6;
+
+  repeated RegisterContainer.Request.BindMountLink bind_mount_links = 7;
+  bool keep_port_mapping = 8;
+  repeated Port ports = 9;
 }
 
 // CreateRegistryInstanceTaskPayload is the task context for the

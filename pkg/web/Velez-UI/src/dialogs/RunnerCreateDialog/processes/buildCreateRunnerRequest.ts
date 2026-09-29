@@ -1,4 +1,5 @@
-import {RunnerProvider, type CreateRunnerRequest, type RunnerScope} from "@/app/api/velez"
+import {RunnerProvider, type CreateRunnerRequest, type GitlabConfig, type RunnerScope} from "@/app/api/velez"
+import {parseConcurrent} from "@/processes/parseConcurrent.ts"
 
 interface CreateRunnerFormState {
     name: string
@@ -11,6 +12,7 @@ interface CreateRunnerFormState {
     baseUrl: string
     dockerImage: string
     dockerSocketAddress: string
+    concurrent: string
 }
 
 export function buildCreateRunnerRequest(form: CreateRunnerFormState): CreateRunnerRequest | null {
@@ -38,13 +40,16 @@ export function buildCreateRunnerRequest(form: CreateRunnerFormState): CreateRun
     }
 
     if (form.provider === RunnerProvider.GITLAB) {
+        const gitlabConfig: GitlabConfig = {
+            accessToken: trimmedAccessToken,
+            baseUrl: form.baseUrl.trim() || undefined,
+            dockerImage: form.dockerImage.trim() || undefined,
+            concurrent: parseConcurrent(form.concurrent),
+        }
+
         return {
             ...base,
-            gitlab: {
-                accessToken: trimmedAccessToken,
-                baseUrl: form.baseUrl.trim() || undefined,
-                dockerImage: form.dockerImage.trim() || undefined,
-            },
+            gitlab: gitlabConfig,
         }
     }
 

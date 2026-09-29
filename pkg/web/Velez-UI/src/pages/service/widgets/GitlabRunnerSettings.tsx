@@ -13,6 +13,7 @@ import {
     UpdateRunnerConfigMutation,
 } from "@/processes/queries/runners.ts"
 import {UpdateRunnerConfigRequest} from "@/app/api/velez"
+import {parseConcurrent} from "@/processes/parseConcurrent.ts"
 
 interface Props {
     serviceName: string
@@ -22,10 +23,16 @@ interface ConfigValues {
     baseUrl: string
     dockerImage: string
     dockerSocketAddress: string
+    concurrent: string
 }
 
 const MASKED_TOKEN = "••••••••••••"
-const EMPTY_CONFIG: ConfigValues = {baseUrl: "", dockerImage: "", dockerSocketAddress: ""}
+const EMPTY_CONFIG: ConfigValues = {
+    baseUrl: "",
+    dockerImage: "",
+    dockerSocketAddress: "",
+    concurrent: "1",
+}
 
 interface SettingsFieldProps {
     label: string
@@ -92,6 +99,7 @@ export default function GitlabRunnerSettings({serviceName}: Props) {
             baseUrl: configQuery.data.baseUrl ?? "",
             dockerImage: configQuery.data.dockerImage ?? "",
             dockerSocketAddress: configQuery.data.dockerSocketAddress ?? "",
+            concurrent: String(configQuery.data.concurrent || 1),
         }
 
         setValues(loaded)
@@ -110,8 +118,15 @@ export default function GitlabRunnerSettings({serviceName}: Props) {
         setValues((prev) => ({...prev, dockerSocketAddress: value}))
     }
 
+    function handleConcurrentChange(value: string) {
+        setValues((prev) => ({...prev, concurrent: value}))
+    }
+
     function handleSave() {
         if (!savedValues) return
+
+        const parsedConcurrent = parseConcurrent(values.concurrent)
+        if (parsedConcurrent === undefined) return
 
         const req: UpdateRunnerConfigRequest = {name: serviceName}
         let changed = false
@@ -126,6 +141,10 @@ export default function GitlabRunnerSettings({serviceName}: Props) {
         }
         if (values.dockerSocketAddress !== savedValues.dockerSocketAddress) {
             req.dockerSocketAddress = values.dockerSocketAddress
+            changed = true
+        }
+        if (values.concurrent !== savedValues.concurrent) {
+            req.concurrent = parsedConcurrent
             changed = true
         }
 
@@ -228,11 +247,14 @@ export default function GitlabRunnerSettings({serviceName}: Props) {
     const tokenValue = revealed && credentialsQuery.data?.token
         ? credentialsQuery.data.token
         : MASKED_TOKEN
+    const concurrentParsed = parseConcurrent(values.concurrent)
     const isDirty = savedValues !== null && (
         values.baseUrl !== savedValues.baseUrl
         || values.dockerImage !== savedValues.dockerImage
         || values.dockerSocketAddress !== savedValues.dockerSocketAddress
+        || values.concurrent !== savedValues.concurrent
     )
+    const isConcurrentInvalid = concurrentParsed === undefined
 
     return (
         <div className={cls.GitlabRunnerSettingsContainer}>
@@ -279,6 +301,12 @@ export default function GitlabRunnerSettings({serviceName}: Props) {
                     placeholder="tcp://host:2375 (default: host socket)"
                     onChange={handleDockerSocketAddressChange}
                 />
+                <SettingsField
+                    label="Concurrent jobs"
+                    value={values.concurrent}
+                    placeholder="1"
+                    onChange={handleConcurrentChange}
+                />
 
                 <div className={cls.TokenRow}>
                     <label className={cls.FieldLabel}>Token</label>
@@ -295,7 +323,10 @@ export default function GitlabRunnerSettings({serviceName}: Props) {
             </div>
 
             <div className={cls.ActionsRow}>
-                <Button onClick={handleSave} disabled={!isDirty || updateConfig.isPending}>
+                <Button
+                    onClick={handleSave}
+                    disabled={!isDirty || isConcurrentInvalid || updateConfig.isPending}
+                >
                     {updateConfig.isPending ? "Saving…" : "Save"}
                 </Button>
             </div>

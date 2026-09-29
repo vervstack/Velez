@@ -12,6 +12,7 @@ import Button from "@/components/base/Button.tsx"
 import Input from "@/components/base/Input.tsx"
 import TaskProgressScreen from "@/widgets/TaskProgressScreen/TaskProgressScreen.tsx"
 import {buildCreateRunnerRequest} from "@/dialogs/RunnerCreateDialog/processes/buildCreateRunnerRequest.ts"
+import {parseConcurrent} from "@/processes/parseConcurrent.ts"
 
 const PROVIDER_OPTIONS: DropdownOption[] = [
     {id: RunnerProvider.GITHUB, name: "GitHub"},
@@ -34,6 +35,7 @@ export default function RunnerCreateDialog() {
     const [baseUrl, setBaseUrl] = useState("")
     const [dockerImage, setDockerImage] = useState("")
     const [dockerSocketAddress, setDockerSocketAddress] = useState("")
+    const [concurrent, setConcurrent] = useState("")
     const [showAdvanced, setShowAdvanced] = useState(false)
     const [targetTouched, setTargetTouched] = useState(false)
     const [submittedReq, setSubmittedReq] = useState<CreateRunnerRequest | null>(null)
@@ -44,6 +46,8 @@ export default function RunnerCreateDialog() {
     const createRunner = CreateRunnerMutation()
 
     const isGitlab = provider === RunnerProvider.GITLAB
+    const concurrentParsed = concurrent ? parseConcurrent(concurrent) : undefined
+    const isConcurrentInvalid = concurrent !== "" && concurrentParsed === undefined
 
     function handleProviderChange(ids: string[]) {
         setProvider((ids[0] as RunnerProvider) ?? RunnerProvider.GITHUB)
@@ -74,6 +78,7 @@ export default function RunnerCreateDialog() {
             baseUrl,
             dockerImage,
             dockerSocketAddress,
+            concurrent,
         })
         if (!req) return
 
@@ -92,7 +97,7 @@ export default function RunnerCreateDialog() {
         toaster.bake({title: "Runner created", description: name.trim(), level: "Info"})
     }
 
-    const isFormValid = name.trim() && scope && target.trim() && accessToken.trim()
+    const isFormValid = name.trim() && scope && target.trim() && accessToken.trim() && !isConcurrentInvalid
     const showTargetError = targetTouched && !target.trim()
 
     if (submittedReq) {
@@ -183,6 +188,15 @@ export default function RunnerCreateDialog() {
 
                     {isGitlab && (
                         <Input label="Executor" inputValue="docker"/>
+                    )}
+
+                    {isGitlab && (
+                        <Input
+                            label="Concurrent jobs (optional, defaults to 1)"
+                            inputValue={concurrent}
+                            onChange={setConcurrent}
+                            disabled={createRunner.isPending}
+                        />
                     )}
 
                     <div

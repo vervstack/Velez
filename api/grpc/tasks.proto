@@ -308,6 +308,9 @@ message RegisterContainerTaskPayload {
 
   // Filled by inspect_container: names of containers sharing the root's network namespace, adopted together with the root.
   repeated string sidecar_container_names = 24;
+
+  // Filled by inspect_container: the root is already registered (service label or binding), only its unregistered sidecars are adopted.
+  bool is_root_registered = 25;
 }
 
 // CreateRegistryInstanceTaskPayload is the task context for the

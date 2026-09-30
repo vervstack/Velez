@@ -146,6 +146,7 @@ export type RegisterContainerTaskPayload = {
   registryUsername?: string;
   registryPendingSecretOwner?: string;
   sidecarContainerNames?: string[];
+  isRootRegistered?: boolean;
 };
 
 export type CreateRegistryInstanceTaskPayload = {

@@ -990,8 +990,10 @@ type RegisterContainerTaskPayload struct {
 	RegistryPendingSecretOwner string `protobuf:"bytes,23,opt,name=registry_pending_secret_owner,json=registryPendingSecretOwner,proto3" json:"registry_pending_secret_owner,omitempty"`
 	// Filled by inspect_container: names of containers sharing the root's network namespace, adopted together with the root.
 	SidecarContainerNames []string `protobuf:"bytes,24,rep,name=sidecar_container_names,json=sidecarContainerNames,proto3" json:"sidecar_container_names,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+	// Filled by inspect_container: the root is already registered (service label or binding), only its unregistered sidecars are adopted.
+	IsRootRegistered bool `protobuf:"varint,25,opt,name=is_root_registered,json=isRootRegistered,proto3" json:"is_root_registered,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *RegisterContainerTaskPayload) Reset() {
@@ -1183,6 +1185,13 @@ func (x *RegisterContainerTaskPayload) GetSidecarContainerNames() []string {
 		return x.SidecarContainerNames
 	}
 	return nil
+}
+
+func (x *RegisterContainerTaskPayload) GetIsRootRegistered() bool {
+	if x != nil {
+		return x.IsRootRegistered
+	}
+	return false
 }
 
 // CreateRegistryInstanceTaskPayload is the task context for the
@@ -1728,7 +1737,7 @@ const file_tasks_proto_rawDesc = "" +
 	"\x11_old_container_idB\x0f\n" +
 	"\r_container_idB\x11\n" +
 	"\x0f_ports_overrideB\x13\n" +
-	"\x11_volumes_override\"\xf3\b\n" +
+	"\x11_volumes_override\"\xa1\t\n" +
 	"\x1cRegisterContainerTaskPayload\x12!\n" +
 	"\fcontainer_id\x18\x01 \x01(\tR\vcontainerId\x12 \n" +
 	"\venvironment\x18\x02 \x01(\tR\venvironment\x12!\n" +
@@ -1755,7 +1764,8 @@ const file_tasks_proto_rawDesc = "" +
 	"\x1brunner_pending_secret_owner\x18\x15 \x01(\tR\x18runnerPendingSecretOwner\x12+\n" +
 	"\x11registry_username\x18\x16 \x01(\tR\x10registryUsername\x12A\n" +
 	"\x1dregistry_pending_secret_owner\x18\x17 \x01(\tR\x1aregistryPendingSecretOwner\x126\n" +
-	"\x17sidecar_container_names\x18\x18 \x03(\tR\x15sidecarContainerNamesJ\x04\b\f\x10\rR\vpg_password\"\xf7\x02\n" +
+	"\x17sidecar_container_names\x18\x18 \x03(\tR\x15sidecarContainerNames\x12,\n" +
+	"\x12is_root_registered\x18\x19 \x01(\bR\x10isRootRegisteredJ\x04\b\f\x10\rR\vpg_password\"\xf7\x02\n" +
 	"!CreateRegistryInstanceTaskPayload\x12C\n" +
 	"\arequest\x18\x01 \x01(\v2).velez_api.CreateRegistryInstance.RequestR\arequest\x12\x1f\n" +
 	"\busername\x18\x02 \x01(\tH\x00R\busername\x88\x01\x01\x12\x1f\n" +

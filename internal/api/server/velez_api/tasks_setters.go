@@ -187,3 +187,15 @@ func (x *RegisterContainerTaskPayload) SetPgSuperuser(v string) {
 func (x *RegisterContainerTaskPayload) SetRegistryUsername(v string) {
 	x.RegistryUsername = v
 }
+
+func (x *RegisterContainerTaskPayload) SetServiceName(v string) {
+	x.ServiceName = v
+}
+
+func (x *RegisterContainerTaskPayload) SetSidecarContainerNames(v []string) {
+	x.SidecarContainerNames = v
+}
+
+func (x *RegisterContainerTaskPayload) SetIsRootRegistered(v bool) {
+	x.IsRootRegistered = v
+}

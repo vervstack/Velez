@@ -19,6 +19,17 @@ var (
 	// inspect_container for a Velez sidecar container.
 	ErrContainerIsSidecar = rerrors.New("sidecar containers can't be registered", codes.FailedPrecondition)
 
+	// ErrContainerSharesNetwork is returned by RegisterContainer for a
+	// container that runs in another container's network namespace.
+	ErrContainerSharesNetwork = rerrors.New(
+		"container shares another container's network, register the network root instead",
+		codes.FailedPrecondition,
+	)
+
+	// ErrSidecarLeftoverExists is returned by recreate_sidecars when a
+	// previous attempt left a "<name>_old" container next to a live sidecar.
+	ErrSidecarLeftoverExists = rerrors.New("sidecar backup container already exists", codes.FailedPrecondition)
+
 	// ErrContainerBindingsUnavailable is returned by register_container when
 	// the live storage backend exposes no container bindings.
 	ErrContainerBindingsUnavailable = rerrors.New("container bindings storage is unavailable", codes.FailedPrecondition)

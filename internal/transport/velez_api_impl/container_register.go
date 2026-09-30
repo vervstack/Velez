@@ -2,6 +2,7 @@ package velez_api_impl
 
 import (
 	"context"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
@@ -30,6 +31,11 @@ func (impl *Impl) RegisterContainer(
 	}
 
 	_, err := impl.resolveEnvironment(ctx, req.GetEnvironment())
+	if err != nil {
+		return nil, err
+	}
+
+	err = impl.rejectNetworkSharer(ctx, req.GetEnvironment(), req.GetContainerId())
 	if err != nil {
 		return nil, err
 	}
@@ -125,6 +131,24 @@ func (impl *Impl) RegisterContainer(
 	}
 
 	return resp, nil
+}
+
+func (impl *Impl) rejectNetworkSharer(ctx context.Context, environment, containerId string) error {
+	listReq := &velez_api.ListContainers_Request{Environment: environment}
+
+	list, err := impl.smerdService.ListContainers(ctx, listReq)
+	if err != nil {
+		return rerrors.Wrap(err, "error listing containers")
+	}
+
+	for _, cont := range list.GetContainers() {
+		isRequested := strings.HasPrefix(cont.GetId(), containerId)
+		if isRequested && cont.NetworkOwnerContainerId != nil {
+			return rerrors.Wrap(user_errors.ErrContainerSharesNetwork)
+		}
+	}
+
+	return nil
 }
 
 func (impl *Impl) dropPendingPgSecret(ctx context.Context, owner string) {

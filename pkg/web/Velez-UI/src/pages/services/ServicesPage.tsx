@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Checkbox, Toggle } from '@vervstack/chures';
 
 import ServiceCard from '@/components/services/ServiceCard';
-import ContainerCard from '@/pages/services/parts/ContainerCard/ContainerCard.tsx';
+import ComposeGroup from '@/pages/services/parts/ComposeGroup/ComposeGroup.tsx';
+import ContainerItem from '@/pages/services/parts/ContainerItem/ContainerItem.tsx';
+import {groupContainers} from '@/pages/services/processes/groupContainers.ts';
 import SkeletonServiceCard from '@/components/service/SkeletonServiceCard';
 import ServicesEmptyState from '@/pages/services/parts/ServicesEmptyState/ServicesEmptyState';
 import { Routes } from '@/app/router/Routes';
@@ -114,6 +116,10 @@ export default function ServicesPage() {
         );
     }, [containerQuery, containersQuery.data]);
 
+    const containerLayout = useMemo(function computeContainerLayout() {
+        return groupContainers(filteredContainers);
+    }, [filteredContainers]);
+
     function handleIncludeInternalChange(value: boolean) {
         setIncludeInternal(value);
         writeIncludeInternal(value);
@@ -163,11 +169,23 @@ export default function ServicesPage() {
         } else if (filteredContainers.length === 0) {
             gridContent = <div className={cls.containersEmpty}>No containers on this node.</div>;
         } else {
-            gridContent = filteredContainers.map(function renderContainerCard(container) {
+            gridContent = containerLayout.map(function renderContainerEntry(entry) {
+                if (entry.kind === 'compose') {
+                    return (
+                        <ComposeGroup
+                            key={'compose:' + entry.project}
+                            project={entry.project}
+                            items={entry.items}
+                            onOpen={handleOpenContainer}
+                            onFilterByService={handleFilterByService}
+                        />
+                    );
+                }
+                const key = entry.kind === 'network' ? entry.root.id : entry.container.id;
                 return (
-                    <ContainerCard
-                        key={container.id}
-                        container={container}
+                    <ContainerItem
+                        key={key}
+                        item={entry}
                         onOpen={handleOpenContainer}
                         onFilterByService={handleFilterByService}
                     />

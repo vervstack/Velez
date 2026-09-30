@@ -18,9 +18,10 @@ interface Props {
     container: DockerContainer;
     onOpen: (id: string) => void;
     onFilterByService: (serviceName: string) => void;
+    isRegisterHidden?: boolean;
 }
 
-export default function ContainerCard({container, onOpen, onFilterByService}: Props) {
+export default function ContainerCard({container, onOpen, onFilterByService, isRegisterHidden = false}: Props) {
     const {OpenDialog} = useDialog();
 
     function handleClick() {
@@ -60,7 +61,7 @@ export default function ContainerCard({container, onOpen, onFilterByService}: Pr
                     />
                 )}
             </div>
-            {!container.linkedServiceName && (
+            {!container.linkedServiceName && !isRegisterHidden && (
                 <div className={cls.ActionsRow} onClick={handleActionsClick}>
                     {hint && <span className={cls.Hint}>{hint}</span>}
                     <Button variant="secondary" sm onClick={handleRegister}>Register</Button>

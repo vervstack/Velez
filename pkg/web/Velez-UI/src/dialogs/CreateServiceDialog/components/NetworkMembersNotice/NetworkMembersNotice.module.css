@@ -1,0 +1,22 @@
+.NetworkMembersNoticeContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    border: 0.0625rem solid var(--blue);
+    border-radius: var(--radius);
+    background: var(--blue-dim);
+    padding: 0.625rem 0.75rem;
+
+    & .Title {
+        color: var(--fg-dim);
+    }
+
+    & .List {
+        margin: 0;
+        padding-left: 1rem;
+        font-family: var(--font-mono);
+        color: var(--fg);
+    }
+}

@@ -3,6 +3,8 @@ import {useState} from "react"
 import cls from "@/dialogs/CreateServiceDialog/CreateServiceDialog.module.css"
 import {DockerContainer} from "@/app/api/velez"
 import Button from "@/components/base/Button.tsx"
+import NetworkMembersNotice
+    from "@/dialogs/CreateServiceDialog/components/NetworkMembersNotice/NetworkMembersNotice.tsx"
 import {
     ADOPTABLE_SCREENS,
     adoptTitle,
@@ -25,9 +27,15 @@ interface Props {
     initialScreen?: ServiceScreen
     suggestedScreen?: ServiceScreen
     container?: DockerContainer
+    networkMembers?: DockerContainer[]
 }
 
-export default function CreateServiceDialog({initialScreen = "picker", suggestedScreen, container}: Props) {
+export default function CreateServiceDialog({
+    initialScreen = "picker",
+    suggestedScreen,
+    container,
+    networkMembers = [],
+}: Props) {
     const [screen, setScreen] = useState<ServiceScreen>(initialScreen)
     const [isBusy, setIsBusy] = useState(false)
 
@@ -76,6 +84,7 @@ export default function CreateServiceDialog({initialScreen = "picker", suggested
                 <h2 className={cls.Title}>{container ? adoptTitle(container.name) : screenTitle(screen)}</h2>
                 {canGoBack && <Button variant="ghost" sm onClick={handleBack}>Back</Button>}
             </div>
+            {container && networkMembers.length > 0 && <NetworkMembersNotice members={networkMembers}/>}
             {renderScreen()}
         </div>
     )

@@ -51,6 +51,16 @@ func registerContainerNames(prefix string) (containerName, serviceName string) {
 func startForeignContainer(t *testing.T, env *TestEnvironment, name string, isPublishingPort bool) foreignContainer {
 	t.Helper()
 
+	foreignEnv := []string{registerForeignEnvKey + "=" + registerForeignEnvValue}
+
+	return startForeignContainerWithEnv(t, env, name, isPublishingPort, foreignEnv)
+}
+
+func startForeignContainerWithEnv(
+	t *testing.T, env *TestEnvironment, name string, isPublishingPort bool, foreignEnv []string,
+) foreignContainer {
+	t.Helper()
+
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 
 	ctx := t.Context()
@@ -69,7 +79,7 @@ func startForeignContainer(t *testing.T, env *TestEnvironment, name string, isPu
 
 	cfg := &container.Config{
 		Image:  NginxAlpineImage,
-		Env:    []string{registerForeignEnvKey + "=" + registerForeignEnvValue},
+		Env:    foreignEnv,
 		Labels: map[string]string{testCaseNameLabel: t.Name()},
 	}
 
@@ -375,16 +385,12 @@ func Test_RegisterContainer_RejectsBadRequests(t *testing.T) {
 
 func newUnimplementedPatternRequests() map[string]*velez_api.RegisterContainer_Request {
 	registry := newRegisterContainerRequest("some-id", "e2e_reg_bad")
+
 	registry.Pattern = &velez_api.RegisterContainer_Request_Registry{
 		Registry: &velez_api.RegisterContainer_Request_RegistryPattern{},
 	}
 
-	runner := newRegisterContainerRequest("some-id", "e2e_reg_bad")
-	runner.Pattern = &velez_api.RegisterContainer_Request_Runner{
-		Runner: &velez_api.RegisterContainer_Request_RunnerPattern{},
-	}
-
-	return map[string]*velez_api.RegisterContainer_Request{"registry": registry, "runner": runner}
+	return map[string]*velez_api.RegisterContainer_Request{"registry": registry}
 }
 
 func Test_RegisterContainer_EachCallStartsFreshTask(t *testing.T) {

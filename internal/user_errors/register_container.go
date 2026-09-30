@@ -61,4 +61,8 @@ var (
 	// when a real login with the resolved credentials fails. It wraps the
 	// driver error.
 	ErrPgLoginFailed = rerrors.New("postgres login with the given credentials failed", codes.FailedPrecondition)
+
+	// ErrRunnerTargetRequired is returned by RegisterContainer for a runner
+	// pattern without a target.
+	ErrRunnerTargetRequired = rerrors.New("runner target is required", codes.InvalidArgument)
 )

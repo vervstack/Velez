@@ -100,6 +100,13 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 	}
 
 	isPg := payload.GetPattern() == velez_api.ServicePattern_SERVICE_PATTERN_POSTGRES
+	isRunner := payload.GetRunnerTarget() != ""
+
+	var runner registerRunnerAccessor
+
+	if isRunner {
+		runner = payload
+	}
 
 	jobs := []NamedJob{
 		{
@@ -138,6 +145,20 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		jobs = append(jobs, verifyJob, secretJob)
 	}
 
+	if isRunner {
+		secretsJob := NamedJob{
+			Name: stepStoreRunnerSecrets,
+			Job: &storeRunnerSecretsJob{
+				runtimes: h.runtimes,
+				secrets:  h.secrets,
+				req:      payload,
+				runner:   payload,
+			},
+		}
+
+		jobs = append(jobs, secretsJob)
+	}
+
 	linkJob := NamedJob{
 		Name: stepLinkBindMounts,
 		Job: &linkBindMountsJob{
@@ -168,10 +189,25 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 				req:         payload,
 				container:   payload,
 				service:     payload,
+				runner:      runner,
 			},
 		}
 
 		jobs = append(jobs, bindJob)
+
+		if isRunner {
+			runnerRowJob := NamedJob{
+				Name: stepUpsertRunnerRow,
+				Job: &upsertRunnerRowJob{
+					dataStorage: h.dataStorage,
+					req:         payload,
+					runner:      payload,
+					service:     payload,
+				},
+			}
+
+			jobs = append(jobs, runnerRowJob)
+		}
 
 		if isPg {
 			pgInstanceJob := NamedJob{
@@ -200,6 +236,7 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			secrets:    h.secrets,
 			req:        payload,
 			container:  payload,
+			runner:     runner,
 		},
 	}
 
@@ -354,6 +391,7 @@ type bindExistingContainerJob struct {
 	req       registerRequestAccessor
 	container registeredContainerAccessor
 	service   registeredServiceAccessor
+	runner    registerRunnerAccessor
 }
 
 func (j *bindExistingContainerJob) Do(ctx context.Context) error {
@@ -397,6 +435,10 @@ func (j *bindExistingContainerJob) Do(ctx context.Context) error {
 	spec.Settings.Volumes = registerVolumes(info, linked)
 
 	maps.Copy(spec.GetLabels(), registeredPatternLabels(j.req.GetPattern()))
+
+	if j.runner != nil {
+		maps.Copy(spec.GetLabels(), registeredRunnerLabels(j.runner))
+	}
 
 	specPayload, err := json.Marshal(spec)
 	if err != nil {
@@ -461,6 +503,7 @@ type recreateWithLabelsJob struct {
 
 	req       registerRecreateAccessor
 	container registeredContainerAccessor
+	runner    registerRunnerAccessor
 }
 
 func (j *recreateWithLabelsJob) Do(ctx context.Context) error {
@@ -500,6 +543,13 @@ func (j *recreateWithLabelsJob) Do(ctx context.Context) error {
 		}
 
 		payload.ExtraEnv = pgMissingEnv(containerEnv, login)
+	}
+
+	if j.runner != nil {
+		err = j.applyRunnerOverlay(ctx, payload, info.Config.Env)
+		if err != nil {
+			return rerrors.Wrap(err)
+		}
 	}
 
 	err = applyRegisterOverrides(payload, info, j.req)

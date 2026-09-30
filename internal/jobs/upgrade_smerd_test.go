@@ -83,10 +83,12 @@ func TestUpgradeSmerdHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 	namedJobs := h.BuildJobs(payload)
 
 	wantNames := []string{
-		stepCheckSelfUpgrade, stepCaptureOldContainer, stepPrepareCreateImage, stepPauseOldContainer,
+		stepCheckSelfUpgrade, stepCaptureOldContainer, stepDiscoverSidecars, stepPrepareCreateImage,
+		stepPauseOldContainer,
 		stepCreateConfigFetcherContainer, stepGetConfigFromContainer, stepDropConfigFetcherContainer,
 		stepFetchConfig, stepPrepareVervConfig, stepCreateFinalContainer, stepStartFinalContainer,
 		stepHealthcheck, stepRenameOldContainer, stepDropOldContainer, stepRenameNewContainer,
+		stepRecreateSidecars,
 	}
 	if len(namedJobs) != len(wantNames) {
 		t.Fatalf("expected %d jobs, got %d", len(wantNames), len(namedJobs))

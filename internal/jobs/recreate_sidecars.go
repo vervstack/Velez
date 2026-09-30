@@ -49,7 +49,11 @@ func newRecreateSidecarsJob(
 // sidecarLabels are the labels a recreated sidecar carries: the service link
 // plus the sidecar marker, which keeps it off the service pages.
 func sidecarLabels(serviceName string) map[string]string {
-	merged := registeredLabels(serviceName, velez_api.ServicePattern_SERVICE_PATTERN_UNSPECIFIED)
+	merged := make(map[string]string)
+
+	if serviceName != "" {
+		merged = registeredLabels(serviceName, velez_api.ServicePattern_SERVICE_PATTERN_UNSPECIFIED)
+	}
 
 	merged[labels.Sidecar] = labelTrueValue
 

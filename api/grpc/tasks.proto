@@ -242,6 +242,15 @@ message UpgradeSmerdTaskPayload {
   // whose env lacked it.
   map<string, string> extra_env = 12;
 
+  // sidecar_container_names are the containers sharing the old container's
+  // network namespace, set by discover_sidecars and recreated by
+  // recreate_sidecars once the new container has replaced the old one.
+  repeated string sidecar_container_names = 13;
+
+  // is_sidecars_skipped leaves sidecars to the caller. Set by
+  // register_container, which recreates its own sidecar group.
+  bool is_sidecars_skipped = 14;
+
   message PortsOverride {
     repeated Port ports = 1;
   }

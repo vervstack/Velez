@@ -826,9 +826,16 @@ type UpgradeSmerdTaskPayload struct {
 	// new container's request is built, so it always wins. Used by
 	// register_container to stamp the Postgres admin login into a container
 	// whose env lacked it.
-	ExtraEnv      map[string]string `protobuf:"bytes,12,rep,name=extra_env,json=extraEnv,proto3" json:"extra_env,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ExtraEnv map[string]string `protobuf:"bytes,12,rep,name=extra_env,json=extraEnv,proto3" json:"extra_env,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// sidecar_container_names are the containers sharing the old container's
+	// network namespace, set by discover_sidecars and recreated by
+	// recreate_sidecars once the new container has replaced the old one.
+	SidecarContainerNames []string `protobuf:"bytes,13,rep,name=sidecar_container_names,json=sidecarContainerNames,proto3" json:"sidecar_container_names,omitempty"`
+	// is_sidecars_skipped leaves sidecars to the caller. Set by
+	// register_container, which recreates its own sidecar group.
+	IsSidecarsSkipped bool `protobuf:"varint,14,opt,name=is_sidecars_skipped,json=isSidecarsSkipped,proto3" json:"is_sidecars_skipped,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *UpgradeSmerdTaskPayload) Reset() {
@@ -943,6 +950,20 @@ func (x *UpgradeSmerdTaskPayload) GetExtraEnv() map[string]string {
 		return x.ExtraEnv
 	}
 	return nil
+}
+
+func (x *UpgradeSmerdTaskPayload) GetSidecarContainerNames() []string {
+	if x != nil {
+		return x.SidecarContainerNames
+	}
+	return nil
+}
+
+func (x *UpgradeSmerdTaskPayload) GetIsSidecarsSkipped() bool {
+	if x != nil {
+		return x.IsSidecarsSkipped
+	}
+	return false
 }
 
 // RegisterContainerTaskPayload is the task context for the
@@ -1705,7 +1726,8 @@ const file_tasks_proto_rawDesc = "" +
 	"\x06failed\x18\x02 \x03(\v2#.velez_api.DropSmerd.Response.ErrorR\x06failed\x12\x1e\n" +
 	"\n" +
 	"successful\x18\x03 \x03(\tR\n" +
-	"successful\"\xad\t\n" +
+	"successful\"\x95\n" +
+	"\n" +
 	"\x17UpgradeSmerdTaskPayload\x12H\n" +
 	"\x0fupgrade_request\x18\x01 \x01(\v2\x1f.velez_api.UpgradeSmerd.RequestR\x0eupgradeRequest\x128\n" +
 	"\arequest\x18\x02 \x01(\v2\x1e.velez_api.CreateSmerd.RequestR\arequest\x12-\n" +
@@ -1720,7 +1742,9 @@ const file_tasks_proto_rawDesc = "" +
 	"\x0eports_override\x18\n" +
 	" \x01(\v20.velez_api.UpgradeSmerdTaskPayload.PortsOverrideH\x02R\rportsOverride\x88\x01\x01\x12b\n" +
 	"\x10volumes_override\x18\v \x01(\v22.velez_api.UpgradeSmerdTaskPayload.VolumesOverrideH\x03R\x0fvolumesOverride\x88\x01\x01\x12M\n" +
-	"\textra_env\x18\f \x03(\v20.velez_api.UpgradeSmerdTaskPayload.ExtraEnvEntryR\bextraEnv\x1a>\n" +
+	"\textra_env\x18\f \x03(\v20.velez_api.UpgradeSmerdTaskPayload.ExtraEnvEntryR\bextraEnv\x126\n" +
+	"\x17sidecar_container_names\x18\r \x03(\tR\x15sidecarContainerNames\x12.\n" +
+	"\x13is_sidecars_skipped\x18\x0e \x01(\bR\x11isSidecarsSkipped\x1a>\n" +
 	"\x10ImageLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +

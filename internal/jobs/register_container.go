@@ -643,6 +643,8 @@ func (j *recreateWithLabelsJob) Do(ctx context.Context) error {
 	payload := &velez_api.UpgradeSmerdTaskPayload{
 		UpgradeRequest: upgradeReq,
 		ExtraLabels:    registeredLabels(j.req.GetServiceName(), j.req.GetPattern()),
+
+		IsSidecarsSkipped: true,
 	}
 
 	if j.req.GetPattern() == velez_api.ServicePattern_SERVICE_PATTERN_POSTGRES {

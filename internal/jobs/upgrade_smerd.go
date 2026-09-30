@@ -151,6 +151,15 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
+			Name: stepDiscoverSidecars,
+			Job: &discoverSidecarsJob{
+				runtimes:   h.runtimes,
+				upgradeReq: payload,
+				old:        payload,
+				ctx:        payload,
+			},
+		},
+		{
 			Name: stepPrepareCreateImage,
 			Job: &prepareUpgradeImageJob{
 				runtimes:   h.runtimes,
@@ -269,6 +278,10 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 				oldName:  payload.GetUpgradeRequest().GetName() + newContainerSuffix,
 				newName:  payload.GetUpgradeRequest().GetName(),
 			},
+		},
+		{
+			Name: stepRecreateSidecars,
+			Job:  newRecreateSidecarsJob(h.runtimes, upgradeSidecarGroup{payload: payload}),
 		},
 	}
 }

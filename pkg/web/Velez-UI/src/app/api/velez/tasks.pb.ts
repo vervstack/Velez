@@ -120,6 +120,8 @@ export type UpgradeSmerdTaskPayload = {
   portsOverride?: UpgradeSmerdTaskPayloadPortsOverride;
   volumesOverride?: UpgradeSmerdTaskPayloadVolumesOverride;
   extraEnv?: Record<string, string>;
+  sidecarContainerNames?: string[];
+  isSidecarsSkipped?: boolean;
 };
 
 export type RegisterContainerTaskPayload = {

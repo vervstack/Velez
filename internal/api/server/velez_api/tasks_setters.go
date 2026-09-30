@@ -124,6 +124,10 @@ func (x *UpgradeSmerdTaskPayload) SetContainerId(v string) {
 	x.ContainerId = &v
 }
 
+func (x *UpgradeSmerdTaskPayload) SetSidecarContainerNames(v []string) {
+	x.SidecarContainerNames = v
+}
+
 func (x *DropSmerdTaskPayload) SetRequest(v *DropSmerd_Request) {
 	x.Request = v
 }

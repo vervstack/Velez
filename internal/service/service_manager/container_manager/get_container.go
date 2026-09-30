@@ -5,8 +5,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/docker/docker/api/types/container"
+
 	errors "go.redsock.ru/rerrors"
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -52,6 +55,15 @@ func (c *ContainerManager) GetContainer(
 		dc.Networks = toNetworkBinds(contInfo.ID, contInfo.NetworkSettings.Networks)
 	}
 
+	ownerId, isShared, err := resolveNetworkOwnerId(ctx, runtime, contInfo)
+	if err != nil {
+		return nil, errors.Wrap(err, "error resolving network owner")
+	}
+
+	if isShared {
+		dc.NetworkOwnerContainerId = &ownerId
+	}
+
 	svc, isLabelled := contInfo.Config.Labels[labels.VervServiceLabel]
 	if isLabelled {
 		dc.LinkedServiceName = &svc
@@ -91,4 +103,43 @@ func (c *ContainerManager) GetContainer(
 	dc.CreatedAt = timestamppb.New(createdAt)
 
 	return dc, nil
+}
+
+const (
+	containerNetworkModePrefix = "container:"
+	maxNetworkOwnerHops        = 5
+)
+
+func resolveNetworkOwnerId(
+	ctx context.Context,
+	runtime container_runtime.ContainerRuntime,
+	contInfo container.InspectResponse,
+) (string, bool, error) {
+	current := contInfo
+	isShared := false
+
+	for range maxNetworkOwnerHops {
+		if current.HostConfig == nil {
+			break
+		}
+
+		target, hasOwner := strings.CutPrefix(string(current.HostConfig.NetworkMode), containerNetworkModePrefix)
+		if !hasOwner {
+			break
+		}
+
+		owner, found, err := runtime.InspectAny(ctx, target)
+		if err != nil {
+			return "", false, errors.Wrap(err, "error inspecting network owner")
+		}
+
+		if !found {
+			break
+		}
+
+		current = owner
+		isShared = true
+	}
+
+	return current.ID, isShared, nil
 }

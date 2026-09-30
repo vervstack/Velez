@@ -5,6 +5,7 @@ import (
 
 	errors "go.redsock.ru/rerrors"
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/network_owner"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -39,6 +40,8 @@ func (c *ContainerManager) ListContainers(
 		Containers: make([]*velez_api.DockerContainer, 0, len(cl)),
 	}
 
+	owners := network_owner.OwnerIds(cl)
+
 	for _, cont := range cl {
 		dc := &velez_api.DockerContainer{
 			Id:           cont.ID,
@@ -59,6 +62,11 @@ func (c *ContainerManager) ListContainers(
 
 		if cont.NetworkSettings != nil {
 			dc.Networks = toNetworkBinds(cont.ID, cont.NetworkSettings.Networks)
+		}
+
+		ownerId, isShared := owners[cont.ID]
+		if isShared {
+			dc.NetworkOwnerContainerId = &ownerId
 		}
 
 		svc, isLabelled := cont.Labels[labels.VervServiceLabel]

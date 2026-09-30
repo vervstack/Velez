@@ -49,6 +49,12 @@ type registerRecreateAccessor interface {
 	registerPgLoginAccessor
 }
 
+type registerPendingSecretsAccessor interface {
+	GetPgPendingSecretOwner() string
+	GetRunnerPendingSecretOwner() string
+	GetRegistryPendingSecretOwner() string
+}
+
 type registeredContainerAccessor interface {
 	GetContainerName() string
 	GetImageName() string
@@ -101,11 +107,18 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 
 	isPg := payload.GetPattern() == velez_api.ServicePattern_SERVICE_PATTERN_POSTGRES
 	isRunner := payload.GetRunnerTarget() != ""
+	isRegistry := payload.GetPattern() == velez_api.ServicePattern_SERVICE_PATTERN_REGISTRY
 
 	var runner registerRunnerAccessor
 
 	if isRunner {
 		runner = payload
+	}
+
+	var registry registerRegistryAccessor
+
+	if isRegistry {
+		registry = payload
 	}
 
 	jobs := []NamedJob{
@@ -114,7 +127,9 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			Job: &inspectContainerToRegisterJob{
 				dataStorage: h.dataStorage,
 				runtimes:    h.runtimes,
+				secrets:     h.secrets,
 				req:         payload,
+				pending:     payload,
 				ctx:         payload,
 			},
 		},
@@ -159,6 +174,30 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		jobs = append(jobs, secretsJob)
 	}
 
+	if isRegistry {
+		verifyJob := NamedJob{
+			Name: stepVerifyRegistryLogin,
+			Job: &verifyRegistryLoginJob{
+				runtimes: h.runtimes,
+				secrets:  h.secrets,
+				req:      payload,
+				registry: payload,
+				ctx:      payload,
+			},
+		}
+
+		secretJob := NamedJob{
+			Name: stepStoreRegistrySecret,
+			Job: &storeRegistrySecretJob{
+				secrets:  h.secrets,
+				req:      payload,
+				registry: payload,
+			},
+		}
+
+		jobs = append(jobs, verifyJob, secretJob)
+	}
+
 	linkJob := NamedJob{
 		Name: stepLinkBindMounts,
 		Job: &linkBindMountsJob{
@@ -190,6 +229,7 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 				container:   payload,
 				service:     payload,
 				runner:      runner,
+				registry:    registry,
 			},
 		}
 
@@ -207,6 +247,21 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			}
 
 			jobs = append(jobs, runnerRowJob)
+		}
+
+		if isRegistry {
+			registryRowJob := NamedJob{
+				Name: stepUpsertRegistryRow,
+				Job: &upsertRegistryRowJob{
+					dataStorage: h.dataStorage,
+					runtimes:    h.runtimes,
+					req:         payload,
+					registry:    payload,
+					service:     payload,
+				},
+			}
+
+			jobs = append(jobs, registryRowJob)
 		}
 
 		if isPg {
@@ -237,6 +292,7 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			req:        payload,
 			container:  payload,
 			runner:     runner,
+			registry:   registry,
 		},
 	}
 
@@ -299,12 +355,30 @@ func containerBindingExists(
 	return false, nil
 }
 
+// inspectContainerToRegisterJob is the first job of every register_container
+// task, so its Rollback runs on any later failure: it drops the pending
+// secrets the request left behind.
 type inspectContainerToRegisterJob struct {
 	dataStorage storage.Storage
 	runtimes    container_runtime.RuntimeResolver
+	secrets     secrets.Store
 
-	req registerRequestAccessor
-	ctx registeredContainerSetter
+	req     registerRequestAccessor
+	pending registerPendingSecretsAccessor
+	ctx     registeredContainerSetter
+}
+
+func (j *inspectContainerToRegisterJob) Rollback(ctx context.Context) error {
+	pgErr := deletePendingPgSecret(ctx, j.secrets, j.pending.GetPgPendingSecretOwner())
+	runnerErr := deletePendingRunnerSecrets(ctx, j.secrets, j.pending.GetRunnerPendingSecretOwner())
+	registryErr := deletePendingRegistrySecret(ctx, j.secrets, j.pending.GetRegistryPendingSecretOwner())
+
+	err := rerrors.Join(pgErr, runnerErr, registryErr)
+	if err != nil {
+		return rerrors.Wrap(err, "error deleting pending register secrets")
+	}
+
+	return nil
 }
 
 func (j *inspectContainerToRegisterJob) Do(ctx context.Context) error {
@@ -392,6 +466,7 @@ type bindExistingContainerJob struct {
 	container registeredContainerAccessor
 	service   registeredServiceAccessor
 	runner    registerRunnerAccessor
+	registry  registerRegistryAccessor
 }
 
 func (j *bindExistingContainerJob) Do(ctx context.Context) error {
@@ -438,6 +513,12 @@ func (j *bindExistingContainerJob) Do(ctx context.Context) error {
 
 	if j.runner != nil {
 		maps.Copy(spec.GetLabels(), registeredRunnerLabels(j.runner))
+	}
+
+	if j.registry != nil {
+		registryLabels := registeredRegistryLabels(j.registry.GetRegistryUsername(), registryInspectedPort(info))
+
+		maps.Copy(spec.GetLabels(), registryLabels)
 	}
 
 	specPayload, err := json.Marshal(spec)
@@ -504,6 +585,7 @@ type recreateWithLabelsJob struct {
 	req       registerRecreateAccessor
 	container registeredContainerAccessor
 	runner    registerRunnerAccessor
+	registry  registerRegistryAccessor
 }
 
 func (j *recreateWithLabelsJob) Do(ctx context.Context) error {
@@ -555,6 +637,10 @@ func (j *recreateWithLabelsJob) Do(ctx context.Context) error {
 	err = applyRegisterOverrides(payload, info, j.req)
 	if err != nil {
 		return rerrors.Wrap(err)
+	}
+
+	if j.registry != nil {
+		j.applyRegistryOverlay(payload, info)
 	}
 
 	// A dedicated entity id: velez.tasks is UNIQUE (entity_id, action), so the

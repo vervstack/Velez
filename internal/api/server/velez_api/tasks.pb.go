@@ -981,8 +981,15 @@ type RegisterContainerTaskPayload struct {
 	// runner_pending_secret_owner is the owner of the pending secrets ("runneraas-pending" scope)
 	// holding the request-supplied runner access and registration tokens - never the values.
 	RunnerPendingSecretOwner string `protobuf:"bytes,21,opt,name=runner_pending_secret_owner,json=runnerPendingSecretOwner,proto3" json:"runner_pending_secret_owner,omitempty"`
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
+	// registry_username is the registry's htpasswd user: the RPC sets what the request carried;
+	// verify_registry_login overwrites it with the effective one (empty when the container has no auth).
+	// Not secret.
+	RegistryUsername string `protobuf:"bytes,22,opt,name=registry_username,json=registryUsername,proto3" json:"registry_username,omitempty"`
+	// registry_pending_secret_owner is the owner of the pending secret ("registryaas-pending" scope)
+	// holding the request-supplied registry password - never the value.
+	RegistryPendingSecretOwner string `protobuf:"bytes,23,opt,name=registry_pending_secret_owner,json=registryPendingSecretOwner,proto3" json:"registry_pending_secret_owner,omitempty"`
+	unknownFields              protoimpl.UnknownFields
+	sizeCache                  protoimpl.SizeCache
 }
 
 func (x *RegisterContainerTaskPayload) Reset() {
@@ -1151,6 +1158,20 @@ func (x *RegisterContainerTaskPayload) GetRunnerConcurrent() int32 {
 func (x *RegisterContainerTaskPayload) GetRunnerPendingSecretOwner() string {
 	if x != nil {
 		return x.RunnerPendingSecretOwner
+	}
+	return ""
+}
+
+func (x *RegisterContainerTaskPayload) GetRegistryUsername() string {
+	if x != nil {
+		return x.RegistryUsername
+	}
+	return ""
+}
+
+func (x *RegisterContainerTaskPayload) GetRegistryPendingSecretOwner() string {
+	if x != nil {
+		return x.RegistryPendingSecretOwner
 	}
 	return ""
 }
@@ -1698,7 +1719,7 @@ const file_tasks_proto_rawDesc = "" +
 	"\x11_old_container_idB\x0f\n" +
 	"\r_container_idB\x11\n" +
 	"\x0f_ports_overrideB\x13\n" +
-	"\x11_volumes_override\"\xcb\a\n" +
+	"\x11_volumes_override\"\xbb\b\n" +
 	"\x1cRegisterContainerTaskPayload\x12!\n" +
 	"\fcontainer_id\x18\x01 \x01(\tR\vcontainerId\x12 \n" +
 	"\venvironment\x18\x02 \x01(\tR\venvironment\x12!\n" +
@@ -1722,7 +1743,9 @@ const file_tasks_proto_rawDesc = "" +
 	"\rrunner_labels\x18\x12 \x03(\tR\frunnerLabels\x12.\n" +
 	"\x13runner_docker_image\x18\x13 \x01(\tR\x11runnerDockerImage\x12+\n" +
 	"\x11runner_concurrent\x18\x14 \x01(\x05R\x10runnerConcurrent\x12=\n" +
-	"\x1brunner_pending_secret_owner\x18\x15 \x01(\tR\x18runnerPendingSecretOwnerJ\x04\b\f\x10\rR\vpg_password\"\xf7\x02\n" +
+	"\x1brunner_pending_secret_owner\x18\x15 \x01(\tR\x18runnerPendingSecretOwner\x12+\n" +
+	"\x11registry_username\x18\x16 \x01(\tR\x10registryUsername\x12A\n" +
+	"\x1dregistry_pending_secret_owner\x18\x17 \x01(\tR\x1aregistryPendingSecretOwnerJ\x04\b\f\x10\rR\vpg_password\"\xf7\x02\n" +
 	"!CreateRegistryInstanceTaskPayload\x12C\n" +
 	"\arequest\x18\x01 \x01(\v2).velez_api.CreateRegistryInstance.RequestR\arequest\x12\x1f\n" +
 	"\busername\x18\x02 \x01(\tH\x00R\busername\x88\x01\x01\x12\x1f\n" +

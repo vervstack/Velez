@@ -522,7 +522,16 @@
       }
     },
     "RequestRegistryPattern": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "description": "username/password are the registry's existing htpasswd login, required when the container is\nconfigured with htpasswd auth. Velez tests a real login before changing anything."
+        },
+        "password": {
+          "type": "string"
+        }
+      }
     },
     "RequestRunnerPattern": {
       "type": "object",

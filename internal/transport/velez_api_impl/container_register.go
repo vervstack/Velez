@@ -34,16 +34,19 @@ func (impl *Impl) RegisterContainer(
 		return nil, err
 	}
 
-	isGeneric := req.GetPattern() == nil || req.GetGeneric() != nil
 	isPg := req.GetPg() != nil
 	isRunner := req.GetRunner() != nil
-
-	if !isGeneric && !isPg && !isRunner {
-		return nil, rerrors.Wrap(errPatternNotImplemented)
-	}
+	isRegistry := req.GetRegistry() != nil
 
 	if isRunner {
 		err = validateRunnerPattern(req.GetRunner())
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if isRegistry {
+		err = validateRegistryPattern(req.GetRegistry())
 		if err != nil {
 			return nil, err
 		}
@@ -66,6 +69,11 @@ func (impl *Impl) RegisterContainer(
 
 	if isRunner {
 		fillRunnerPayload(payload, req.GetRunner())
+	}
+
+	if isRegistry {
+		payload.Pattern = velez_api.ServicePattern_SERVICE_PATTERN_REGISTRY
+		payload.RegistryUsername = req.GetRegistry().GetUsername()
 	}
 
 	entityId := req.GetServiceName() + "/" + uuid.NewString()
@@ -91,10 +99,22 @@ func (impl *Impl) RegisterContainer(
 		payload.RunnerPendingSecretOwner = entityId
 	}
 
+	if isRegistry && req.GetRegistry().GetPassword() != "" {
+		ref := jobs.RegisteredRegistryPendingSecretRef(entityId)
+
+		err = impl.secrets.Put(ctx, ref, req.GetRegistry().GetPassword())
+		if err != nil {
+			return nil, rerrors.Wrap(err, "error storing pending registry password")
+		}
+
+		payload.RegistryPendingSecretOwner = entityId
+	}
+
 	_, err = impl.jobsEngine.Enqueue(ctx, entityId, jobs.RegisterContainerAction, payload)
 	if err != nil {
 		impl.dropPendingPgSecret(ctx, entityId)
 		impl.dropPendingRunnerSecrets(ctx, entityId)
+		impl.dropPendingRegistrySecret(ctx, entityId)
 
 		return nil, rerrors.Wrap(err, "error enqueuing register_container task")
 	}
@@ -112,6 +132,24 @@ func (impl *Impl) dropPendingPgSecret(ctx context.Context, owner string) {
 	if err != nil && !rerrors.Is(err, user_errors.ErrSecretNotFound) {
 		log.Ctx(ctx).Error().Err(err).Msg("error deleting pending pg secret after failed enqueue")
 	}
+}
+
+func (impl *Impl) dropPendingRegistrySecret(ctx context.Context, owner string) {
+	err := impl.secrets.Delete(ctx, jobs.RegisteredRegistryPendingSecretRef(owner))
+	if err != nil && !rerrors.Is(err, user_errors.ErrSecretNotFound) {
+		log.Ctx(ctx).Error().Err(err).Msg("error deleting pending registry secret after failed enqueue")
+	}
+}
+
+func validateRegistryPattern(registry *velez_api.RegisterContainer_Request_RegistryPattern) error {
+	hasUsername := registry.GetUsername() != ""
+	hasPassword := registry.GetPassword() != ""
+
+	if hasUsername != hasPassword {
+		return rerrors.Wrap(user_errors.ErrRegistryCredentialsRequired)
+	}
+
+	return nil
 }
 
 func validateRunnerPattern(runner *velez_api.RegisterContainer_Request_RunnerPattern) error {

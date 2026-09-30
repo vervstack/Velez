@@ -87,7 +87,10 @@ export type RegisterContainerRequestPgPattern = {
   password?: string;
 };
 
-export type RegisterContainerRequestRegistryPattern = Record<string, never>;
+export type RegisterContainerRequestRegistryPattern = {
+  username?: string;
+  password?: string;
+};
 
 export type RegisterContainerRequestRunnerPattern = {
   provider?: VelezApiRunnersApi.RunnerProvider;

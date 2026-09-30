@@ -1359,7 +1359,11 @@ func (x *RegisterContainer_Request_PgPattern) GetPassword() string {
 }
 
 type RegisterContainer_Request_RegistryPattern struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// username/password are the registry's existing htpasswd login, required when the container is
+	// configured with htpasswd auth. Velez tests a real login before changing anything.
+	Username      *string `protobuf:"bytes,1,opt,name=username,proto3,oneof" json:"username,omitempty"`
+	Password      *string `protobuf:"bytes,2,opt,name=password,proto3,oneof" json:"password,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1392,6 +1396,20 @@ func (x *RegisterContainer_Request_RegistryPattern) ProtoReflect() protoreflect.
 // Deprecated: Use RegisterContainer_Request_RegistryPattern.ProtoReflect.Descriptor instead.
 func (*RegisterContainer_Request_RegistryPattern) Descriptor() ([]byte, []int) {
 	return file_velez_api_proto_rawDescGZIP(), []int{4, 0, 3}
+}
+
+func (x *RegisterContainer_Request_RegistryPattern) GetUsername() string {
+	if x != nil && x.Username != nil {
+		return *x.Username
+	}
+	return ""
+}
+
+func (x *RegisterContainer_Request_RegistryPattern) GetPassword() string {
+	if x != nil && x.Password != nil {
+		return *x.Password
+	}
+	return ""
 }
 
 type RegisterContainer_Request_RunnerPattern struct {
@@ -2446,9 +2464,9 @@ const file_velez_api_proto_rawDesc = "" +
 	"\bResponse\x12:\n" +
 	"\n" +
 	"containers\x18\x01 \x03(\v2\x1a.velez_api.DockerContainerR\n" +
-	"containers\"\xb2\n" +
+	"containers\"\x8e\v\n" +
+	"\x11RegisterContainer\x1a\xb7\n" +
 	"\n" +
-	"\x11RegisterContainer\x1a\xdb\t\n" +
 	"\aRequest\x12!\n" +
 	"\fcontainer_id\x18\x01 \x01(\tR\vcontainerId\x12 \n" +
 	"\venvironment\x18\x02 \x01(\tR\venvironment\x12!\n" +
@@ -2472,8 +2490,12 @@ const file_velez_api_proto_rawDesc = "" +
 	"\bpassword\x18\x02 \x01(\tH\x01R\bpassword\x88\x01\x01B\f\n" +
 	"\n" +
 	"_superuserB\v\n" +
-	"\t_password\x1a\x11\n" +
-	"\x0fRegistryPattern\x1a\x86\x03\n" +
+	"\t_password\x1am\n" +
+	"\x0fRegistryPattern\x12\x1f\n" +
+	"\busername\x18\x01 \x01(\tH\x00R\busername\x88\x01\x01\x12\x1f\n" +
+	"\bpassword\x18\x02 \x01(\tH\x01R\bpassword\x88\x01\x01B\v\n" +
+	"\t_usernameB\v\n" +
+	"\t_password\x1a\x86\x03\n" +
 	"\rRunnerPattern\x125\n" +
 	"\bprovider\x18\x01 \x01(\x0e2\x19.velez_api.RunnerProviderR\bprovider\x12,\n" +
 	"\x05scope\x18\x02 \x01(\x0e2\x16.velez_api.RunnerScopeR\x05scope\x12\x16\n" +
@@ -2730,6 +2752,7 @@ func file_velez_api_proto_init() {
 	}
 	file_velez_api_proto_msgTypes[25].OneofWrappers = []any{}
 	file_velez_api_proto_msgTypes[27].OneofWrappers = []any{}
+	file_velez_api_proto_msgTypes[28].OneofWrappers = []any{}
 	file_velez_api_proto_msgTypes[29].OneofWrappers = []any{}
 	file_velez_api_proto_msgTypes[45].OneofWrappers = []any{}
 	type x struct{}

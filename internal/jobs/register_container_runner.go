@@ -5,7 +5,6 @@ import (
 	"maps"
 	"strings"
 
-	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
@@ -72,7 +71,7 @@ func readOptionalSecret(ctx context.Context, store secrets.Store, ref domain.Sec
 	}
 
 	if err != nil {
-		return "", rerrors.Wrap(err, "error reading runner secret")
+		return "", rerrors.Wrap(err, "error reading secret")
 	}
 
 	return value, nil
@@ -155,20 +154,6 @@ type storeRunnerSecretsJob struct {
 }
 
 func (j *storeRunnerSecretsJob) Do(ctx context.Context) error {
-	err := j.store(ctx)
-	if err == nil {
-		return nil
-	}
-
-	deleteErr := deletePendingRunnerSecrets(ctx, j.secrets, j.runner.GetRunnerPendingSecretOwner())
-	if deleteErr != nil {
-		log.Error().Err(deleteErr).Msg("error deleting pending runner secrets after failed store")
-	}
-
-	return rerrors.Wrap(err)
-}
-
-func (j *storeRunnerSecretsJob) store(ctx context.Context) error {
 	info, err := inspectRegisteredContainer(ctx, j.runtimes, j.req)
 	if err != nil {
 		return rerrors.Wrap(err)

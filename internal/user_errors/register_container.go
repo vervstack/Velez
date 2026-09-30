@@ -65,4 +65,23 @@ var (
 	// ErrRunnerTargetRequired is returned by RegisterContainer for a runner
 	// pattern without a target.
 	ErrRunnerTargetRequired = rerrors.New("runner target is required", codes.InvalidArgument)
+
+	// ErrRegistryCredentialsRequired is returned by RegisterContainer for a
+	// registry pattern carrying only one of username and password, and by
+	// register_container's verify_registry_login when the container is
+	// configured with htpasswd auth but the request carries no login.
+	ErrRegistryCredentialsRequired = rerrors.New(
+		"registry username and password are required: the container is configured with htpasswd auth",
+		codes.InvalidArgument)
+
+	// ErrRegistryLoginFailed is returned by register_container's
+	// verify_registry_login when a real login against the registry with the
+	// given credentials does not succeed.
+	ErrRegistryLoginFailed = rerrors.New("registry login with the given credentials failed", codes.FailedPrecondition)
+
+	// ErrNoRegistryPortExposure is returned by register_container's
+	// verify_registry_login when Velez runs outside a container and the
+	// registry container publishes no host port to log in through.
+	ErrNoRegistryPortExposure = rerrors.New(
+		"registry container publishes no host port to verify the login through", codes.FailedPrecondition)
 )

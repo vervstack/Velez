@@ -374,23 +374,6 @@ func Test_RegisterContainer_RejectsBadRequests(t *testing.T) {
 		_, err := velezClient.RegisterContainer(t.Context(), req)
 		require.Equal(t, codes.InvalidArgument, status.Code(err))
 	})
-
-	for name, req := range newUnimplementedPatternRequests() {
-		t.Run(name+" pattern is unimplemented", func(t *testing.T) {
-			_, err := velezClient.RegisterContainer(t.Context(), req)
-			require.Equal(t, codes.Unimplemented, status.Code(err))
-		})
-	}
-}
-
-func newUnimplementedPatternRequests() map[string]*velez_api.RegisterContainer_Request {
-	registry := newRegisterContainerRequest("some-id", "e2e_reg_bad")
-
-	registry.Pattern = &velez_api.RegisterContainer_Request_Registry{
-		Registry: &velez_api.RegisterContainer_Request_RegistryPattern{},
-	}
-
-	return map[string]*velez_api.RegisterContainer_Request{"registry": registry}
 }
 
 func Test_RegisterContainer_EachCallStartsFreshTask(t *testing.T) {

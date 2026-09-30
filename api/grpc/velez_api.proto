@@ -234,7 +234,12 @@ message RegisterContainer {
       optional string superuser = 1;
       optional string password = 2;
     }
-    message RegistryPattern {}
+    message RegistryPattern {
+      // username/password are the registry's existing htpasswd login, required when the container is
+      // configured with htpasswd auth. Velez tests a real login before changing anything.
+      optional string username = 1;
+      optional string password = 2;
+    }
     message RunnerPattern {
       // target is required: "owner/repo" (REPO scope), an org name (ORG scope) or a GitLab target.
       // Everything else is prefilled by the client from DockerContainer.suggested_runner_defaults.

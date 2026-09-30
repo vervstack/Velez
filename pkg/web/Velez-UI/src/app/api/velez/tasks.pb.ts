@@ -143,6 +143,8 @@ export type RegisterContainerTaskPayload = {
   runnerDockerImage?: string;
   runnerConcurrent?: number;
   runnerPendingSecretOwner?: string;
+  registryUsername?: string;
+  registryPendingSecretOwner?: string;
 };
 
 export type CreateRegistryInstanceTaskPayload = {

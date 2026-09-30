@@ -277,7 +277,7 @@ func pingPgLogin(ctx context.Context, dsn string) error {
 
 // verifyPgLoginJob opens a real connection with the resolved login before
 // anything is written or restarted. The password is never put into the
-// payload; on failure the pending secret is dropped.
+// payload.
 type verifyPgLoginJob struct {
 	runtimes container_runtime.RuntimeResolver
 	secrets  secrets.Store
@@ -288,20 +288,6 @@ type verifyPgLoginJob struct {
 }
 
 func (j *verifyPgLoginJob) Do(ctx context.Context) error {
-	err := j.verify(ctx)
-	if err == nil {
-		return nil
-	}
-
-	deleteErr := deletePendingPgSecret(ctx, j.secrets, j.pg.GetPgPendingSecretOwner())
-	if deleteErr != nil {
-		log.Error().Err(deleteErr).Msg("error deleting pending pg secret after failed login verification")
-	}
-
-	return rerrors.Wrap(err)
-}
-
-func (j *verifyPgLoginJob) verify(ctx context.Context) error {
 	info, err := inspectRegisteredContainer(ctx, j.runtimes, j.req)
 	if err != nil {
 		return rerrors.Wrap(err)

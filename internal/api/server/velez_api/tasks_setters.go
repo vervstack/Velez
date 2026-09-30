@@ -183,3 +183,7 @@ func (x *RegisterContainerTaskPayload) SetServiceId(v int64) {
 func (x *RegisterContainerTaskPayload) SetPgSuperuser(v string) {
 	x.PgSuperuser = v
 }
+
+func (x *RegisterContainerTaskPayload) SetRegistryUsername(v string) {
+	x.RegistryUsername = v
+}

@@ -200,9 +200,12 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 
 	linkJob := NamedJob{
 		Name: stepLinkBindMounts,
-		Job: &linkBindMountsJob{
-			runtimes: h.runtimes,
-			req:      payload,
+		Job: &unlessRootRegistered{
+			group: payload,
+			inner: &linkBindMountsJob{
+				runtimes: h.runtimes,
+				req:      payload,
+			},
 		},
 	}
 
@@ -210,10 +213,13 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 
 	upsertJob := NamedJob{
 		Name: stepUpsertService,
-		Job: &upsertRegisteredServiceJob{
-			dataStorage: h.dataStorage,
-			req:         payload,
-			ctx:         payload,
+		Job: &unlessRootRegistered{
+			group: payload,
+			inner: &upsertRegisteredServiceJob{
+				dataStorage: h.dataStorage,
+				req:         payload,
+				ctx:         payload,
+			},
 		},
 	}
 
@@ -222,18 +228,31 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 	if h.dataStorage.IsStatefull() {
 		bindJob := NamedJob{
 			Name: stepBindExistingContainer,
-			Job: &bindExistingContainerJob{
-				dataStorage: h.dataStorage,
-				runtimes:    h.runtimes,
-				req:         payload,
-				container:   payload,
-				service:     payload,
-				runner:      runner,
-				registry:    registry,
+			Job: &unlessRootRegistered{
+				group: payload,
+				inner: &bindExistingContainerJob{
+					dataStorage: h.dataStorage,
+					runtimes:    h.runtimes,
+					req:         payload,
+					container:   payload,
+					service:     payload,
+					runner:      runner,
+					registry:    registry,
+				},
 			},
 		}
 
-		jobs = append(jobs, bindJob)
+		bindSidecarsJob := NamedJob{
+			Name: stepBindSidecars,
+			Job: &bindSidecarsJob{
+				dataStorage: h.dataStorage,
+				req:         payload,
+				service:     payload,
+				sidecars:    payload,
+			},
+		}
+
+		jobs = append(jobs, bindJob, bindSidecarsJob)
 
 		if isRunner {
 			runnerRowJob := NamedJob{
@@ -285,18 +304,26 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 
 	recreateJob := NamedJob{
 		Name: stepRecreateWithLabels,
-		Job: &recreateWithLabelsJob{
-			jobsEngine: h.jobsEngine,
-			runtimes:   h.runtimes,
-			secrets:    h.secrets,
-			req:        payload,
-			container:  payload,
-			runner:     runner,
-			registry:   registry,
+		Job: &unlessRootRegistered{
+			group: payload,
+			inner: &recreateWithLabelsJob{
+				jobsEngine: h.jobsEngine,
+				runtimes:   h.runtimes,
+				secrets:    h.secrets,
+				req:        payload,
+				container:  payload,
+				runner:     runner,
+				registry:   registry,
+			},
 		},
 	}
 
-	return append(jobs, recreateJob)
+	sidecarsJob := NamedJob{
+		Name: stepRecreateSidecars,
+		Job:  newRecreateSidecarsJob(h.runtimes, payload),
+	}
+
+	return append(jobs, recreateJob, sidecarsJob)
 }
 
 // registeredServiceLabels are the labels that link a container to its service.
@@ -366,6 +393,7 @@ type inspectContainerToRegisterJob struct {
 	req     registerRequestAccessor
 	pending registerPendingSecretsAccessor
 	ctx     registeredContainerSetter
+	group   registeredGroupSetter
 }
 
 func (j *inspectContainerToRegisterJob) Rollback(ctx context.Context) error {
@@ -396,10 +424,6 @@ func (j *inspectContainerToRegisterJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(user_errors.ErrRegisterContainerNotFound)
 	}
 
-	if info.Config.Labels[labels.VervServiceLabel] != "" {
-		return rerrors.Wrap(user_errors.ErrContainerAlreadyLinked)
-	}
-
 	_, isSidecar := info.Config.Labels[labels.Sidecar]
 	if isSidecar {
 		return rerrors.Wrap(user_errors.ErrContainerIsSidecar)
@@ -407,21 +431,26 @@ func (j *inspectContainerToRegisterJob) Do(ctx context.Context) error {
 
 	name := strings.TrimPrefix(info.Name, "/")
 
-	bindings := j.dataStorage.ContainerBindings()
-	if bindings != nil {
-		isBound, bindErr := containerBindingExists(ctx, bindings, j.req.GetEnvironment(), name)
-		if bindErr != nil {
-			return rerrors.Wrap(bindErr, "error checking container binding")
-		}
-
-		if isBound {
-			return rerrors.Wrap(user_errors.ErrContainerAlreadyLinked)
-		}
+	boundServices, err := boundServiceNames(ctx, j.dataStorage.ContainerBindings(), j.req.GetEnvironment())
+	if err != nil {
+		return rerrors.Wrap(err, "error checking container binding")
 	}
 
-	_, err = resolveBindMountLinks(j.req.GetServiceName(), info.Mounts, j.req.GetBindMountLinks())
+	plan, err := planRegisterGroup(ctx, runtime, info, boundServices)
+	if err != nil {
+		return rerrors.Wrap(err, "error planning network group")
+	}
+
+	err = applyGroupPlan(ctx, j.dataStorage, plan, j.group)
 	if err != nil {
 		return rerrors.Wrap(err)
+	}
+
+	if !plan.IsRootRegistered {
+		_, err = resolveBindMountLinks(j.req.GetServiceName(), info.Mounts, j.req.GetBindMountLinks())
+		if err != nil {
+			return rerrors.Wrap(err)
+		}
 	}
 
 	j.ctx.SetContainerName(name)

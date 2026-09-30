@@ -970,9 +970,19 @@ type RegisterContainerTaskPayload struct {
 	// pg_pending_secret_owner is the owner of the pending secret ("pgaas-pending"
 	// scope) holding the request-supplied Postgres password - never the value.
 	// Empty when the request carried no password.
-	PgPendingSecretOwner string `protobuf:"bytes,13,opt,name=pg_pending_secret_owner,json=pgPendingSecretOwner,proto3" json:"pg_pending_secret_owner,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	PgPendingSecretOwner string         `protobuf:"bytes,13,opt,name=pg_pending_secret_owner,json=pgPendingSecretOwner,proto3" json:"pg_pending_secret_owner,omitempty"`
+	RunnerProvider       RunnerProvider `protobuf:"varint,14,opt,name=runner_provider,json=runnerProvider,proto3,enum=velez_api.RunnerProvider" json:"runner_provider,omitempty"`
+	RunnerScope          RunnerScope    `protobuf:"varint,15,opt,name=runner_scope,json=runnerScope,proto3,enum=velez_api.RunnerScope" json:"runner_scope,omitempty"`
+	RunnerTarget         string         `protobuf:"bytes,16,opt,name=runner_target,json=runnerTarget,proto3" json:"runner_target,omitempty"`
+	RunnerBaseUrl        string         `protobuf:"bytes,17,opt,name=runner_base_url,json=runnerBaseUrl,proto3" json:"runner_base_url,omitempty"`
+	RunnerLabels         []string       `protobuf:"bytes,18,rep,name=runner_labels,json=runnerLabels,proto3" json:"runner_labels,omitempty"`
+	RunnerDockerImage    string         `protobuf:"bytes,19,opt,name=runner_docker_image,json=runnerDockerImage,proto3" json:"runner_docker_image,omitempty"`
+	RunnerConcurrent     int32          `protobuf:"varint,20,opt,name=runner_concurrent,json=runnerConcurrent,proto3" json:"runner_concurrent,omitempty"`
+	// runner_pending_secret_owner is the owner of the pending secrets ("runneraas-pending" scope)
+	// holding the request-supplied runner access and registration tokens - never the values.
+	RunnerPendingSecretOwner string `protobuf:"bytes,21,opt,name=runner_pending_secret_owner,json=runnerPendingSecretOwner,proto3" json:"runner_pending_secret_owner,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *RegisterContainerTaskPayload) Reset() {
@@ -1085,6 +1095,62 @@ func (x *RegisterContainerTaskPayload) GetPgSuperuser() string {
 func (x *RegisterContainerTaskPayload) GetPgPendingSecretOwner() string {
 	if x != nil {
 		return x.PgPendingSecretOwner
+	}
+	return ""
+}
+
+func (x *RegisterContainerTaskPayload) GetRunnerProvider() RunnerProvider {
+	if x != nil {
+		return x.RunnerProvider
+	}
+	return RunnerProvider_RUNNER_PROVIDER_UNSPECIFIED
+}
+
+func (x *RegisterContainerTaskPayload) GetRunnerScope() RunnerScope {
+	if x != nil {
+		return x.RunnerScope
+	}
+	return RunnerScope_RUNNER_SCOPE_UNSPECIFIED
+}
+
+func (x *RegisterContainerTaskPayload) GetRunnerTarget() string {
+	if x != nil {
+		return x.RunnerTarget
+	}
+	return ""
+}
+
+func (x *RegisterContainerTaskPayload) GetRunnerBaseUrl() string {
+	if x != nil {
+		return x.RunnerBaseUrl
+	}
+	return ""
+}
+
+func (x *RegisterContainerTaskPayload) GetRunnerLabels() []string {
+	if x != nil {
+		return x.RunnerLabels
+	}
+	return nil
+}
+
+func (x *RegisterContainerTaskPayload) GetRunnerDockerImage() string {
+	if x != nil {
+		return x.RunnerDockerImage
+	}
+	return ""
+}
+
+func (x *RegisterContainerTaskPayload) GetRunnerConcurrent() int32 {
+	if x != nil {
+		return x.RunnerConcurrent
+	}
+	return 0
+}
+
+func (x *RegisterContainerTaskPayload) GetRunnerPendingSecretOwner() string {
+	if x != nil {
+		return x.RunnerPendingSecretOwner
 	}
 	return ""
 }
@@ -1632,7 +1698,7 @@ const file_tasks_proto_rawDesc = "" +
 	"\x11_old_container_idB\x0f\n" +
 	"\r_container_idB\x11\n" +
 	"\x0f_ports_overrideB\x13\n" +
-	"\x11_volumes_override\"\xbe\x04\n" +
+	"\x11_volumes_override\"\xcb\a\n" +
 	"\x1cRegisterContainerTaskPayload\x12!\n" +
 	"\fcontainer_id\x18\x01 \x01(\tR\vcontainerId\x12 \n" +
 	"\venvironment\x18\x02 \x01(\tR\venvironment\x12!\n" +
@@ -1648,7 +1714,15 @@ const file_tasks_proto_rawDesc = "" +
 	"\apattern\x18\n" +
 	" \x01(\x0e2\x19.velez_api.ServicePatternR\apattern\x12!\n" +
 	"\fpg_superuser\x18\v \x01(\tR\vpgSuperuser\x125\n" +
-	"\x17pg_pending_secret_owner\x18\r \x01(\tR\x14pgPendingSecretOwnerJ\x04\b\f\x10\rR\vpg_password\"\xf7\x02\n" +
+	"\x17pg_pending_secret_owner\x18\r \x01(\tR\x14pgPendingSecretOwner\x12B\n" +
+	"\x0frunner_provider\x18\x0e \x01(\x0e2\x19.velez_api.RunnerProviderR\x0erunnerProvider\x129\n" +
+	"\frunner_scope\x18\x0f \x01(\x0e2\x16.velez_api.RunnerScopeR\vrunnerScope\x12#\n" +
+	"\rrunner_target\x18\x10 \x01(\tR\frunnerTarget\x12&\n" +
+	"\x0frunner_base_url\x18\x11 \x01(\tR\rrunnerBaseUrl\x12#\n" +
+	"\rrunner_labels\x18\x12 \x03(\tR\frunnerLabels\x12.\n" +
+	"\x13runner_docker_image\x18\x13 \x01(\tR\x11runnerDockerImage\x12+\n" +
+	"\x11runner_concurrent\x18\x14 \x01(\x05R\x10runnerConcurrent\x12=\n" +
+	"\x1brunner_pending_secret_owner\x18\x15 \x01(\tR\x18runnerPendingSecretOwnerJ\x04\b\f\x10\rR\vpg_password\"\xf7\x02\n" +
 	"!CreateRegistryInstanceTaskPayload\x12C\n" +
 	"\arequest\x18\x01 \x01(\v2).velez_api.CreateRegistryInstance.RequestR\arequest\x12\x1f\n" +
 	"\busername\x18\x02 \x01(\tH\x00R\busername\x88\x01\x01\x12\x1f\n" +
@@ -1722,10 +1796,12 @@ var file_tasks_proto_goTypes = []any{
 	(*RegisterContainer_Request_BindMountLink)(nil), // 33: velez_api.RegisterContainer.Request.BindMountLink
 	(*Port)(nil),                           // 34: velez_api.Port
 	(ServicePattern)(0),                    // 35: velez_api.ServicePattern
-	(*CreateRegistryInstance_Request)(nil), // 36: velez_api.CreateRegistryInstance.Request
-	(*CreateRunner_Request)(nil),           // 37: velez_api.CreateRunner.Request
-	(*ReregisterRunner_Request)(nil),       // 38: velez_api.ReregisterRunner.Request
-	(*Volume)(nil),                         // 39: velez_api.Volume
+	(RunnerProvider)(0),                    // 36: velez_api.RunnerProvider
+	(RunnerScope)(0),                       // 37: velez_api.RunnerScope
+	(*CreateRegistryInstance_Request)(nil), // 38: velez_api.CreateRegistryInstance.Request
+	(*CreateRunner_Request)(nil),           // 39: velez_api.CreateRunner.Request
+	(*ReregisterRunner_Request)(nil),       // 40: velez_api.ReregisterRunner.Request
+	(*Volume)(nil),                         // 41: velez_api.Volume
 }
 var file_tasks_proto_depIdxs = []int32{
 	0,  // 0: velez_api.TaskStatus.status:type_name -> velez_api.TaskStatus.Status
@@ -1750,21 +1826,23 @@ var file_tasks_proto_depIdxs = []int32{
 	33, // 19: velez_api.RegisterContainerTaskPayload.bind_mount_links:type_name -> velez_api.RegisterContainer.Request.BindMountLink
 	34, // 20: velez_api.RegisterContainerTaskPayload.ports:type_name -> velez_api.Port
 	35, // 21: velez_api.RegisterContainerTaskPayload.pattern:type_name -> velez_api.ServicePattern
-	36, // 22: velez_api.CreateRegistryInstanceTaskPayload.request:type_name -> velez_api.CreateRegistryInstance.Request
-	37, // 23: velez_api.CreateRunnerTaskPayload.request:type_name -> velez_api.CreateRunner.Request
-	38, // 24: velez_api.ReregisterRunnerTaskPayload.request:type_name -> velez_api.ReregisterRunner.Request
-	0,  // 25: velez_api.TaskStatus.JobStatus.status:type_name -> velez_api.TaskStatus.Status
-	34, // 26: velez_api.UpgradeSmerdTaskPayload.PortsOverride.ports:type_name -> velez_api.Port
-	39, // 27: velez_api.UpgradeSmerdTaskPayload.VolumesOverride.volumes:type_name -> velez_api.Volume
-	15, // 28: velez_api.TasksApi.WatchTask:input_type -> velez_api.WatchTask.Request
-	27, // 29: velez_api.TasksApi.CreateSmerdStream:input_type -> velez_api.CreateSmerd.Request
-	2,  // 30: velez_api.TasksApi.WatchTask:output_type -> velez_api.TaskStatus
-	2,  // 31: velez_api.TasksApi.CreateSmerdStream:output_type -> velez_api.TaskStatus
-	30, // [30:32] is the sub-list for method output_type
-	28, // [28:30] is the sub-list for method input_type
-	28, // [28:28] is the sub-list for extension type_name
-	28, // [28:28] is the sub-list for extension extendee
-	0,  // [0:28] is the sub-list for field type_name
+	36, // 22: velez_api.RegisterContainerTaskPayload.runner_provider:type_name -> velez_api.RunnerProvider
+	37, // 23: velez_api.RegisterContainerTaskPayload.runner_scope:type_name -> velez_api.RunnerScope
+	38, // 24: velez_api.CreateRegistryInstanceTaskPayload.request:type_name -> velez_api.CreateRegistryInstance.Request
+	39, // 25: velez_api.CreateRunnerTaskPayload.request:type_name -> velez_api.CreateRunner.Request
+	40, // 26: velez_api.ReregisterRunnerTaskPayload.request:type_name -> velez_api.ReregisterRunner.Request
+	0,  // 27: velez_api.TaskStatus.JobStatus.status:type_name -> velez_api.TaskStatus.Status
+	34, // 28: velez_api.UpgradeSmerdTaskPayload.PortsOverride.ports:type_name -> velez_api.Port
+	41, // 29: velez_api.UpgradeSmerdTaskPayload.VolumesOverride.volumes:type_name -> velez_api.Volume
+	15, // 30: velez_api.TasksApi.WatchTask:input_type -> velez_api.WatchTask.Request
+	27, // 31: velez_api.TasksApi.CreateSmerdStream:input_type -> velez_api.CreateSmerd.Request
+	2,  // 32: velez_api.TasksApi.WatchTask:output_type -> velez_api.TaskStatus
+	2,  // 33: velez_api.TasksApi.CreateSmerdStream:output_type -> velez_api.TaskStatus
+	32, // [32:34] is the sub-list for method output_type
+	30, // [30:32] is the sub-list for method input_type
+	30, // [30:30] is the sub-list for extension type_name
+	30, // [30:30] is the sub-list for extension extendee
+	0,  // [0:30] is the sub-list for field type_name
 }
 
 func init() { file_tasks_proto_init() }

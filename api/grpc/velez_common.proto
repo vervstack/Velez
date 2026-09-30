@@ -94,6 +94,19 @@ message DockerContainer {
   bool is_registered = 11;
   optional string linked_service_name = 12;
   ServicePattern suggested_pattern = 13;
+  SuggestedRunnerDefaults suggested_runner_defaults = 14;
+}
+
+// SuggestedRunnerDefaults are runner register values derived from a container's labels and env.
+// provider and scope carry RunnerProvider / RunnerScope enum names: velez_common.proto cannot
+// import runners_api.proto (it imports this file).
+message SuggestedRunnerDefaults {
+  string provider = 1;
+  string scope = 2;
+  string target = 3;
+  string base_url = 4;
+  repeated string labels = 5;
+  bool is_registration_token_found = 6;
 }
 
 enum ServicePattern {

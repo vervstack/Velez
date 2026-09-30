@@ -135,6 +135,14 @@ export type RegisterContainerTaskPayload = {
   pattern?: VelezApiVelezCommon.ServicePattern;
   pgSuperuser?: string;
   pgPendingSecretOwner?: string;
+  runnerProvider?: VelezApiRunnersApi.RunnerProvider;
+  runnerScope?: VelezApiRunnersApi.RunnerScope;
+  runnerTarget?: string;
+  runnerBaseUrl?: string;
+  runnerLabels?: string[];
+  runnerDockerImage?: string;
+  runnerConcurrent?: number;
+  runnerPendingSecretOwner?: string;
 };
 
 export type CreateRegistryInstanceTaskPayload = {

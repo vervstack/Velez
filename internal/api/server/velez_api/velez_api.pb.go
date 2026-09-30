@@ -1395,9 +1395,22 @@ func (*RegisterContainer_Request_RegistryPattern) Descriptor() ([]byte, []int) {
 }
 
 type RegisterContainer_Request_RunnerPattern struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// target is required: "owner/repo" (REPO scope), an org name (ORG scope) or a GitLab target.
+	// Everything else is prefilled by the client from DockerContainer.suggested_runner_defaults.
+	Provider    RunnerProvider `protobuf:"varint,1,opt,name=provider,proto3,enum=velez_api.RunnerProvider" json:"provider,omitempty"`
+	Scope       RunnerScope    `protobuf:"varint,2,opt,name=scope,proto3,enum=velez_api.RunnerScope" json:"scope,omitempty"`
+	Target      string         `protobuf:"bytes,3,opt,name=target,proto3" json:"target,omitempty"`
+	BaseUrl     string         `protobuf:"bytes,4,opt,name=base_url,json=baseUrl,proto3" json:"base_url,omitempty"`
+	Labels      []string       `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty"`
+	DockerImage string         `protobuf:"bytes,6,opt,name=docker_image,json=dockerImage,proto3" json:"docker_image,omitempty"`
+	Concurrent  int32          `protobuf:"varint,7,opt,name=concurrent,proto3" json:"concurrent,omitempty"`
+	// access_token is only needed to deregister or mint tokens later.
+	AccessToken *string `protobuf:"bytes,8,opt,name=access_token,json=accessToken,proto3,oneof" json:"access_token,omitempty"`
+	// registration_token is taken from the container env when omitted.
+	RegistrationToken *string `protobuf:"bytes,9,opt,name=registration_token,json=registrationToken,proto3,oneof" json:"registration_token,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *RegisterContainer_Request_RunnerPattern) Reset() {
@@ -1428,6 +1441,69 @@ func (x *RegisterContainer_Request_RunnerPattern) ProtoReflect() protoreflect.Me
 // Deprecated: Use RegisterContainer_Request_RunnerPattern.ProtoReflect.Descriptor instead.
 func (*RegisterContainer_Request_RunnerPattern) Descriptor() ([]byte, []int) {
 	return file_velez_api_proto_rawDescGZIP(), []int{4, 0, 4}
+}
+
+func (x *RegisterContainer_Request_RunnerPattern) GetProvider() RunnerProvider {
+	if x != nil {
+		return x.Provider
+	}
+	return RunnerProvider_RUNNER_PROVIDER_UNSPECIFIED
+}
+
+func (x *RegisterContainer_Request_RunnerPattern) GetScope() RunnerScope {
+	if x != nil {
+		return x.Scope
+	}
+	return RunnerScope_RUNNER_SCOPE_UNSPECIFIED
+}
+
+func (x *RegisterContainer_Request_RunnerPattern) GetTarget() string {
+	if x != nil {
+		return x.Target
+	}
+	return ""
+}
+
+func (x *RegisterContainer_Request_RunnerPattern) GetBaseUrl() string {
+	if x != nil {
+		return x.BaseUrl
+	}
+	return ""
+}
+
+func (x *RegisterContainer_Request_RunnerPattern) GetLabels() []string {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
+func (x *RegisterContainer_Request_RunnerPattern) GetDockerImage() string {
+	if x != nil {
+		return x.DockerImage
+	}
+	return ""
+}
+
+func (x *RegisterContainer_Request_RunnerPattern) GetConcurrent() int32 {
+	if x != nil {
+		return x.Concurrent
+	}
+	return 0
+}
+
+func (x *RegisterContainer_Request_RunnerPattern) GetAccessToken() string {
+	if x != nil && x.AccessToken != nil {
+		return *x.AccessToken
+	}
+	return ""
+}
+
+func (x *RegisterContainer_Request_RunnerPattern) GetRegistrationToken() string {
+	if x != nil && x.RegistrationToken != nil {
+		return *x.RegistrationToken
+	}
+	return ""
 }
 
 type GetContainer_Request struct {
@@ -2305,7 +2381,7 @@ var File_velez_api_proto protoreflect.FileDescriptor
 
 const file_velez_api_proto_rawDesc = "" +
 	"\n" +
-	"\x0fvelez_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\tnpm.proto\x1a\x12velez_common.proto\":\n" +
+	"\x0fvelez_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\tnpm.proto\x1a\x11runners_api.proto\x1a\x12velez_common.proto\":\n" +
 	"\aVersion\x1a\t\n" +
 	"\aRequest\x1a$\n" +
 	"\bResponse\x12\x18\n" +
@@ -2370,8 +2446,9 @@ const file_velez_api_proto_rawDesc = "" +
 	"\bResponse\x12:\n" +
 	"\n" +
 	"containers\x18\x01 \x03(\v2\x1a.velez_api.DockerContainerR\n" +
-	"containers\"\xba\a\n" +
-	"\x11RegisterContainer\x1a\xe3\x06\n" +
+	"containers\"\xb2\n" +
+	"\n" +
+	"\x11RegisterContainer\x1a\xdb\t\n" +
 	"\aRequest\x12!\n" +
 	"\fcontainer_id\x18\x01 \x01(\tR\vcontainerId\x12 \n" +
 	"\venvironment\x18\x02 \x01(\tR\venvironment\x12!\n" +
@@ -2396,8 +2473,21 @@ const file_velez_api_proto_rawDesc = "" +
 	"\n" +
 	"_superuserB\v\n" +
 	"\t_password\x1a\x11\n" +
-	"\x0fRegistryPattern\x1a\x0f\n" +
-	"\rRunnerPatternB\t\n" +
+	"\x0fRegistryPattern\x1a\x86\x03\n" +
+	"\rRunnerPattern\x125\n" +
+	"\bprovider\x18\x01 \x01(\x0e2\x19.velez_api.RunnerProviderR\bprovider\x12,\n" +
+	"\x05scope\x18\x02 \x01(\x0e2\x16.velez_api.RunnerScopeR\x05scope\x12\x16\n" +
+	"\x06target\x18\x03 \x01(\tR\x06target\x12\x19\n" +
+	"\bbase_url\x18\x04 \x01(\tR\abaseUrl\x12\x16\n" +
+	"\x06labels\x18\x05 \x03(\tR\x06labels\x12!\n" +
+	"\fdocker_image\x18\x06 \x01(\tR\vdockerImage\x12\x1e\n" +
+	"\n" +
+	"concurrent\x18\a \x01(\x05R\n" +
+	"concurrent\x12&\n" +
+	"\faccess_token\x18\b \x01(\tH\x00R\vaccessToken\x88\x01\x01\x122\n" +
+	"\x12registration_token\x18\t \x01(\tH\x01R\x11registrationToken\x88\x01\x01B\x0f\n" +
+	"\r_access_tokenB\x15\n" +
+	"\x13_registration_tokenB\t\n" +
 	"\apattern\x1a?\n" +
 	"\bResponse\x12\x1b\n" +
 	"\tentity_id\x18\x01 \x01(\tR\bentityId\x12\x16\n" +
@@ -2556,8 +2646,10 @@ var file_velez_api_proto_goTypes = []any{
 	(*ContainerFilter)(nil),                           // 54: velez_api.ContainerFilter
 	(*DockerContainer)(nil),                           // 55: velez_api.DockerContainer
 	(*Port)(nil),                                      // 56: velez_api.Port
-	(*Connection)(nil),                                // 57: velez_api.Connection
-	(*SearchImageItem)(nil),                           // 58: velez_api.SearchImageItem
+	(RunnerProvider)(0),                               // 57: velez_api.RunnerProvider
+	(RunnerScope)(0),                                  // 58: velez_api.RunnerScope
+	(*Connection)(nil),                                // 59: velez_api.Connection
+	(*SearchImageItem)(nil),                           // 60: velez_api.SearchImageItem
 }
 var file_velez_api_proto_depIdxs = []int32{
 	47, // 0: velez_api.CreateSmerd.Request.hardware:type_name -> velez_api.Container.Hardware
@@ -2578,44 +2670,46 @@ var file_velez_api_proto_depIdxs = []int32{
 	29, // 15: velez_api.RegisterContainer.Request.runner:type_name -> velez_api.RegisterContainer.Request.RunnerPattern
 	25, // 16: velez_api.RegisterContainer.Request.bind_mount_links:type_name -> velez_api.RegisterContainer.Request.BindMountLink
 	56, // 17: velez_api.RegisterContainer.Request.ports:type_name -> velez_api.Port
-	33, // 18: velez_api.DropSmerd.Response.failed:type_name -> velez_api.DropSmerd.Response.Error
-	36, // 19: velez_api.GetHardware.Response.cpu:type_name -> velez_api.GetHardware.Response.Value
-	36, // 20: velez_api.GetHardware.Response.disk_mem:type_name -> velez_api.GetHardware.Response.Value
-	36, // 21: velez_api.GetHardware.Response.ram:type_name -> velez_api.GetHardware.Response.Value
-	57, // 22: velez_api.MakeConnections.Request.connections:type_name -> velez_api.Connection
-	57, // 23: velez_api.BreakConnections.Request.connections:type_name -> velez_api.Connection
-	58, // 24: velez_api.SearchImages.Response.images:type_name -> velez_api.SearchImageItem
-	13, // 25: velez_api.VelezAPI.Version:input_type -> velez_api.Version.Request
-	15, // 26: velez_api.VelezAPI.CreateSmerd:input_type -> velez_api.CreateSmerd.Request
-	18, // 27: velez_api.VelezAPI.ListSmerds:input_type -> velez_api.ListSmerds.Request
-	21, // 28: velez_api.VelezAPI.ListContainers:input_type -> velez_api.ListContainers.Request
-	23, // 29: velez_api.VelezAPI.RegisterContainer:input_type -> velez_api.RegisterContainer.Request
-	30, // 30: velez_api.VelezAPI.GetContainer:input_type -> velez_api.GetContainer.Request
-	31, // 31: velez_api.VelezAPI.DropSmerd:input_type -> velez_api.DropSmerd.Request
-	34, // 32: velez_api.VelezAPI.GetHardware:input_type -> velez_api.GetHardware.Request
-	39, // 33: velez_api.VelezAPI.UpgradeSmerd:input_type -> velez_api.UpgradeSmerd.Request
-	37, // 34: velez_api.VelezAPI.AssembleConfig:input_type -> velez_api.AssembleConfig.Request
-	41, // 35: velez_api.VelezAPI.MakeConnections:input_type -> velez_api.MakeConnections.Request
-	43, // 36: velez_api.VelezAPI.BreakConnections:input_type -> velez_api.BreakConnections.Request
-	45, // 37: velez_api.VelezAPI.SearchImages:input_type -> velez_api.SearchImages.Request
-	14, // 38: velez_api.VelezAPI.Version:output_type -> velez_api.Version.Response
-	53, // 39: velez_api.VelezAPI.CreateSmerd:output_type -> velez_api.Smerd
-	19, // 40: velez_api.VelezAPI.ListSmerds:output_type -> velez_api.ListSmerds.Response
-	22, // 41: velez_api.VelezAPI.ListContainers:output_type -> velez_api.ListContainers.Response
-	24, // 42: velez_api.VelezAPI.RegisterContainer:output_type -> velez_api.RegisterContainer.Response
-	55, // 43: velez_api.VelezAPI.GetContainer:output_type -> velez_api.DockerContainer
-	32, // 44: velez_api.VelezAPI.DropSmerd:output_type -> velez_api.DropSmerd.Response
-	35, // 45: velez_api.VelezAPI.GetHardware:output_type -> velez_api.GetHardware.Response
-	40, // 46: velez_api.VelezAPI.UpgradeSmerd:output_type -> velez_api.UpgradeSmerd.Response
-	38, // 47: velez_api.VelezAPI.AssembleConfig:output_type -> velez_api.AssembleConfig.Response
-	42, // 48: velez_api.VelezAPI.MakeConnections:output_type -> velez_api.MakeConnections.Response
-	44, // 49: velez_api.VelezAPI.BreakConnections:output_type -> velez_api.BreakConnections.Response
-	46, // 50: velez_api.VelezAPI.SearchImages:output_type -> velez_api.SearchImages.Response
-	38, // [38:51] is the sub-list for method output_type
-	25, // [25:38] is the sub-list for method input_type
-	25, // [25:25] is the sub-list for extension type_name
-	25, // [25:25] is the sub-list for extension extendee
-	0,  // [0:25] is the sub-list for field type_name
+	57, // 18: velez_api.RegisterContainer.Request.RunnerPattern.provider:type_name -> velez_api.RunnerProvider
+	58, // 19: velez_api.RegisterContainer.Request.RunnerPattern.scope:type_name -> velez_api.RunnerScope
+	33, // 20: velez_api.DropSmerd.Response.failed:type_name -> velez_api.DropSmerd.Response.Error
+	36, // 21: velez_api.GetHardware.Response.cpu:type_name -> velez_api.GetHardware.Response.Value
+	36, // 22: velez_api.GetHardware.Response.disk_mem:type_name -> velez_api.GetHardware.Response.Value
+	36, // 23: velez_api.GetHardware.Response.ram:type_name -> velez_api.GetHardware.Response.Value
+	59, // 24: velez_api.MakeConnections.Request.connections:type_name -> velez_api.Connection
+	59, // 25: velez_api.BreakConnections.Request.connections:type_name -> velez_api.Connection
+	60, // 26: velez_api.SearchImages.Response.images:type_name -> velez_api.SearchImageItem
+	13, // 27: velez_api.VelezAPI.Version:input_type -> velez_api.Version.Request
+	15, // 28: velez_api.VelezAPI.CreateSmerd:input_type -> velez_api.CreateSmerd.Request
+	18, // 29: velez_api.VelezAPI.ListSmerds:input_type -> velez_api.ListSmerds.Request
+	21, // 30: velez_api.VelezAPI.ListContainers:input_type -> velez_api.ListContainers.Request
+	23, // 31: velez_api.VelezAPI.RegisterContainer:input_type -> velez_api.RegisterContainer.Request
+	30, // 32: velez_api.VelezAPI.GetContainer:input_type -> velez_api.GetContainer.Request
+	31, // 33: velez_api.VelezAPI.DropSmerd:input_type -> velez_api.DropSmerd.Request
+	34, // 34: velez_api.VelezAPI.GetHardware:input_type -> velez_api.GetHardware.Request
+	39, // 35: velez_api.VelezAPI.UpgradeSmerd:input_type -> velez_api.UpgradeSmerd.Request
+	37, // 36: velez_api.VelezAPI.AssembleConfig:input_type -> velez_api.AssembleConfig.Request
+	41, // 37: velez_api.VelezAPI.MakeConnections:input_type -> velez_api.MakeConnections.Request
+	43, // 38: velez_api.VelezAPI.BreakConnections:input_type -> velez_api.BreakConnections.Request
+	45, // 39: velez_api.VelezAPI.SearchImages:input_type -> velez_api.SearchImages.Request
+	14, // 40: velez_api.VelezAPI.Version:output_type -> velez_api.Version.Response
+	53, // 41: velez_api.VelezAPI.CreateSmerd:output_type -> velez_api.Smerd
+	19, // 42: velez_api.VelezAPI.ListSmerds:output_type -> velez_api.ListSmerds.Response
+	22, // 43: velez_api.VelezAPI.ListContainers:output_type -> velez_api.ListContainers.Response
+	24, // 44: velez_api.VelezAPI.RegisterContainer:output_type -> velez_api.RegisterContainer.Response
+	55, // 45: velez_api.VelezAPI.GetContainer:output_type -> velez_api.DockerContainer
+	32, // 46: velez_api.VelezAPI.DropSmerd:output_type -> velez_api.DropSmerd.Response
+	35, // 47: velez_api.VelezAPI.GetHardware:output_type -> velez_api.GetHardware.Response
+	40, // 48: velez_api.VelezAPI.UpgradeSmerd:output_type -> velez_api.UpgradeSmerd.Response
+	38, // 49: velez_api.VelezAPI.AssembleConfig:output_type -> velez_api.AssembleConfig.Response
+	42, // 50: velez_api.VelezAPI.MakeConnections:output_type -> velez_api.MakeConnections.Response
+	44, // 51: velez_api.VelezAPI.BreakConnections:output_type -> velez_api.BreakConnections.Response
+	46, // 52: velez_api.VelezAPI.SearchImages:output_type -> velez_api.SearchImages.Response
+	40, // [40:53] is the sub-list for method output_type
+	27, // [27:40] is the sub-list for method input_type
+	27, // [27:27] is the sub-list for extension type_name
+	27, // [27:27] is the sub-list for extension extendee
+	0,  // [0:27] is the sub-list for field type_name
 }
 
 func init() { file_velez_api_proto_init() }
@@ -2623,6 +2717,7 @@ func file_velez_api_proto_init() {
 	if File_velez_api_proto != nil {
 		return
 	}
+	file_runners_api_proto_init()
 	file_velez_common_proto_init()
 	file_velez_api_proto_msgTypes[15].OneofWrappers = []any{}
 	file_velez_api_proto_msgTypes[18].OneofWrappers = []any{}
@@ -2635,6 +2730,7 @@ func file_velez_api_proto_init() {
 	}
 	file_velez_api_proto_msgTypes[25].OneofWrappers = []any{}
 	file_velez_api_proto_msgTypes[27].OneofWrappers = []any{}
+	file_velez_api_proto_msgTypes[29].OneofWrappers = []any{}
 	file_velez_api_proto_msgTypes[45].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

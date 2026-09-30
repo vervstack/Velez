@@ -46,6 +46,8 @@ func (c *ContainerManager) GetContainer(
 		SuggestedPattern: suggestedPattern(contInfo.Config.Image),
 	}
 
+	dc.SuggestedRunnerDefaults = suggestedRunnerDefaults(contInfo.Config.Image, dc.GetLabels(), dc.GetEnv())
+
 	if contInfo.NetworkSettings != nil {
 		dc.Networks = toNetworkBinds(contInfo.ID, contInfo.NetworkSettings.Networks)
 	}

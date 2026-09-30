@@ -121,6 +121,16 @@ export type DockerContainer = {
   isRegistered?: boolean;
   linkedServiceName?: string;
   suggestedPattern?: ServicePattern;
+  suggestedRunnerDefaults?: SuggestedRunnerDefaults;
+};
+
+export type SuggestedRunnerDefaults = {
+  provider?: string;
+  scope?: string;
+  target?: string;
+  baseUrl?: string;
+  labels?: string[];
+  isRegistrationTokenFound?: boolean;
 };
 
 export type ContainerFilter = {

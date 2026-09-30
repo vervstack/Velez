@@ -525,7 +525,43 @@
       "type": "object"
     },
     "RequestRunnerPattern": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "provider": {
+          "$ref": "#/definitions/velez_apiRunnerProvider",
+          "description": "target is required: \"owner/repo\" (REPO scope), an org name (ORG scope) or a GitLab target.\nEverything else is prefilled by the client from DockerContainer.suggested_runner_defaults."
+        },
+        "scope": {
+          "$ref": "#/definitions/velez_apiRunnerScope"
+        },
+        "target": {
+          "type": "string"
+        },
+        "baseUrl": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dockerImage": {
+          "type": "string"
+        },
+        "concurrent": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "accessToken": {
+          "type": "string",
+          "description": "access_token is only needed to deregister or mint tokens later."
+        },
+        "registrationToken": {
+          "type": "string",
+          "description": "registration_token is taken from the container env when omitted."
+        }
+      }
     },
     "ResponseError": {
       "type": "object",
@@ -793,6 +829,9 @@
         },
         "suggestedPattern": {
           "$ref": "#/definitions/velez_apiServicePattern"
+        },
+        "suggestedRunnerDefaults": {
+          "$ref": "#/definitions/velez_apiSuggestedRunnerDefaults"
         }
       }
     },
@@ -1121,6 +1160,26 @@
       ],
       "default": "unless_stopped"
     },
+    "velez_apiRunnerProvider": {
+      "type": "string",
+      "enum": [
+        "RUNNER_PROVIDER_UNSPECIFIED",
+        "GITHUB",
+        "GITLAB"
+      ],
+      "default": "RUNNER_PROVIDER_UNSPECIFIED",
+      "description": "RunnerProvider - which CI system a runner registers against. GITHUB\nself-registers fully from env vars; GITLAB registers via an automated\n`gitlab-runner register` exec against the deployed container. Others are\nadded here as new values later, never as new contracts."
+    },
+    "velez_apiRunnerScope": {
+      "type": "string",
+      "enum": [
+        "RUNNER_SCOPE_UNSPECIFIED",
+        "REPO",
+        "ORG"
+      ],
+      "default": "RUNNER_SCOPE_UNSPECIFIED",
+      "description": "RunnerScope - the scope a self-hosted runner registers under: a single\nrepository, or an entire organization/group. Generalizes across providers\n(GitHub repo/org, GitLab project/group)."
+    },
     "velez_apiSearchImageItem": {
       "type": "object",
       "properties": {
@@ -1247,6 +1306,33 @@
         "dead"
       ],
       "default": "unknown"
+    },
+    "velez_apiSuggestedRunnerDefaults": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "baseUrl": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "isRegistrationTokenFound": {
+          "type": "boolean"
+        }
+      },
+      "description": "SuggestedRunnerDefaults are runner register values derived from a container's labels and env.\nprovider and scope carry RunnerProvider / RunnerScope enum names: velez_common.proto cannot\nimport runners_api.proto (it imports this file)."
     },
     "velez_apiUpgradeSmerdRequest": {
       "type": "object",

@@ -5,6 +5,7 @@ package velez_api;
 import "google/api/annotations.proto";
 
 import "npm.proto";
+import "runners_api.proto";
 import "velez_common.proto";
 
 option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
@@ -234,7 +235,21 @@ message RegisterContainer {
       optional string password = 2;
     }
     message RegistryPattern {}
-    message RunnerPattern {}
+    message RunnerPattern {
+      // target is required: "owner/repo" (REPO scope), an org name (ORG scope) or a GitLab target.
+      // Everything else is prefilled by the client from DockerContainer.suggested_runner_defaults.
+      RunnerProvider provider = 1;
+      RunnerScope scope = 2;
+      string target = 3;
+      string base_url = 4;
+      repeated string labels = 5;
+      string docker_image = 6;
+      int32 concurrent = 7;
+      // access_token is only needed to deregister or mint tokens later.
+      optional string access_token = 8;
+      // registration_token is taken from the container env when omitted.
+      optional string registration_token = 9;
+    }
   }
   message Response {
     // entity_id/action identify the register_container task; callers watch it via TasksApi.WatchTask.

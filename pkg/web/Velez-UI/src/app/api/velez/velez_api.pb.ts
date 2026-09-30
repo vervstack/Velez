@@ -6,6 +6,7 @@
  */
 
 import * as fm from "./fetch.pb";
+import * as VelezApiRunnersApi from "./runners_api.pb";
 import * as VelezApiVelezCommon from "./velez_common.pb";
 
 type Absent<T, K extends keyof T> = { [k in Exclude<keyof T, K>]?: undefined };
@@ -88,7 +89,17 @@ export type RegisterContainerRequestPgPattern = {
 
 export type RegisterContainerRequestRegistryPattern = Record<string, never>;
 
-export type RegisterContainerRequestRunnerPattern = Record<string, never>;
+export type RegisterContainerRequestRunnerPattern = {
+  provider?: VelezApiRunnersApi.RunnerProvider;
+  scope?: VelezApiRunnersApi.RunnerScope;
+  target?: string;
+  baseUrl?: string;
+  labels?: string[];
+  dockerImage?: string;
+  concurrent?: number;
+  accessToken?: string;
+  registrationToken?: string;
+};
 
 type BaseRegisterContainerRequest = {
   containerId?: string;

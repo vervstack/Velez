@@ -284,6 +284,18 @@ message RegisterContainerTaskPayload {
   // scope) holding the request-supplied Postgres password - never the value.
   // Empty when the request carried no password.
   string pg_pending_secret_owner = 13;
+
+  RunnerProvider runner_provider = 14;
+  RunnerScope runner_scope = 15;
+  string runner_target = 16;
+  string runner_base_url = 17;
+  repeated string runner_labels = 18;
+  string runner_docker_image = 19;
+  int32 runner_concurrent = 20;
+
+  // runner_pending_secret_owner is the owner of the pending secrets ("runneraas-pending" scope)
+  // holding the request-supplied runner access and registration tokens - never the values.
+  string runner_pending_secret_owner = 21;
 }
 
 // CreateRegistryInstanceTaskPayload is the task context for the

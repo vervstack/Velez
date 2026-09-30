@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
@@ -24,6 +25,11 @@ const (
 	// is safe to run t.Parallel() against its siblings; it force-removes its
 	// own container/volume before and after regardless.
 	pgaasLifecycleInstanceName = "e2e-pgaas-lifecycle"
+
+	// pgaasLifecycleServiceName is the name pgaas gives the service, container,
+	// volume prefix and create_smerd task entity: the caller's name behind
+	// labels.PgaasNamePrefix.
+	pgaasLifecycleServiceName = labels.PgaasNamePrefix + pgaasLifecycleInstanceName
 )
 
 // PgaasLifecycleSuite exercises Postgres-as-a-Service end to end in plain
@@ -65,8 +71,8 @@ func (s *PgaasLifecycleSuite) Test_PgaasLifecycle_HappyPath() {
 	// CreatePgInstance only writes a SCHEDULED_DEPLOYMENT row; the deploy
 	// watcher dispatches the create_smerd task that actually launches the
 	// container (see enableRegistryUnderDind's doc comment). Environment is
-	// empty (the create dialog's default), so SmerdEntityID is the bare name.
-	entityID := jobs.SmerdEntityID("", pgaasLifecycleInstanceName)
+	// empty (the create dialog's default), so SmerdEntityID is the prefixed name.
+	entityID := jobs.SmerdEntityID("", pgaasLifecycleServiceName)
 
 	var deployTask tasks_queries.VelezTask
 
@@ -77,15 +83,15 @@ func (s *PgaasLifecycleSuite) Test_PgaasLifecycle_HappyPath() {
 	require.Equal(t, tasks_queries.VelezTaskStatusDONE, deployTask.Status,
 		"create_smerd task for pg instance error: %s", deployTask.Error.String)
 
-	instance := findPgInstance(t, env, pgaasLifecycleInstanceName)
-	require.NotNil(t, instance, "expected pg instance %q in ListPgInstances", pgaasLifecycleInstanceName)
-	require.Equal(t, pgaasLifecycleInstanceName, instance.GetName())
+	instance := findPgInstance(t, env, pgaasLifecycleServiceName)
+	require.NotNil(t, instance, "expected pg instance %q in ListPgInstances", pgaasLifecycleServiceName)
+	require.Equal(t, pgaasLifecycleServiceName, instance.GetName())
 	require.NotEqual(t, "velez", instance.GetName())
 	require.Equal(t, "running", instance.GetStatus())
 
 	// Credentials resolve through the container-env read-through path - there
 	// is no velez.secrets table in single-node mode.
-	credsReq := &velez_api.GetPgInstanceCredentials_Request{Name: pgaasLifecycleInstanceName}
+	credsReq := &velez_api.GetPgInstanceCredentials_Request{Name: pgaasLifecycleServiceName}
 
 	credsResp, err := env.Custom.PgaasApiImpl.GetPgInstanceCredentials(ctx, credsReq)
 	require.NoError(t, err)
@@ -94,12 +100,12 @@ func (s *PgaasLifecycleSuite) Test_PgaasLifecycle_HappyPath() {
 	require.Equal(t, instance.GetDbName(), credsResp.GetDbName())
 	require.Equal(t, instance.GetUsername(), credsResp.GetUsername())
 
-	dropReq := &velez_api.DropPgInstance_Request{Name: pgaasLifecycleInstanceName}
+	dropReq := &velez_api.DropPgInstance_Request{Name: pgaasLifecycleServiceName}
 
 	_, err = env.Custom.PgaasApiImpl.DropPgInstance(ctx, dropReq)
 	require.NoError(t, err)
 
-	dropped := findPgInstance(t, env, pgaasLifecycleInstanceName)
+	dropped := findPgInstance(t, env, pgaasLifecycleServiceName)
 	require.Nil(t, dropped, "pg instance still listed after drop")
 }
 
@@ -129,12 +135,12 @@ func findPgInstance(t *testing.T, env *TestEnvironment, name string) *velez_api.
 }
 
 // removePgaasInstance force-removes the fixed-name pg instance container and
-// its per-instance data volume (pgaas.pgVolumeName is "<name>-data"),
+// its per-instance data volume (pgaas.pgVolumeName is "<service name>-data"),
 // ignoring "no such container/volume".
 func removePgaasInstance(dockerClient client.APIClient) {
 	ctx := context.Background()
 	removeOpts := container.RemoveOptions{Force: true}
 
-	_ = dockerClient.ContainerRemove(ctx, pgaasLifecycleInstanceName, removeOpts)
-	_ = dockerClient.VolumeRemove(ctx, pgaasLifecycleInstanceName+"-data", true)
+	_ = dockerClient.ContainerRemove(ctx, pgaasLifecycleServiceName, removeOpts)
+	_ = dockerClient.VolumeRemove(ctx, pgaasLifecycleServiceName+"-data", true)
 }

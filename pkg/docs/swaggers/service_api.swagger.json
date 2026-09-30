@@ -917,6 +917,13 @@
         },
         "about": {
           "$ref": "#/definitions/velez_apiAboutService"
+        },
+        "sidecars": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiServiceSidecar"
+          }
         }
       }
     },
@@ -1254,6 +1261,37 @@
           "type": "string"
         }
       }
+    },
+    "velez_apiServiceSidecar": {
+      "type": "object",
+      "properties": {
+        "containerId": {
+          "type": "string"
+        },
+        "containerName": {
+          "type": "string"
+        },
+        "imageName": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/velez_apiSmerdStatus"
+        }
+      }
+    },
+    "velez_apiSmerdStatus": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "created",
+        "restarting",
+        "running",
+        "removing",
+        "paused",
+        "exited",
+        "dead"
+      ],
+      "default": "unknown"
     },
     "velez_apiStopServiceRequest": {
       "type": "object",

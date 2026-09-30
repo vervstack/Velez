@@ -95,6 +95,8 @@ message DockerContainer {
   optional string linked_service_name = 12;
   ServicePattern suggested_pattern = 13;
   SuggestedRunnerDefaults suggested_runner_defaults = 14;
+  // Id of the root container whose network namespace this container shares (resolved through chains). Unset for a root or standalone container.
+  optional string network_owner_container_id = 15;
 }
 
 // SuggestedRunnerDefaults are runner register values derived from a container's labels and env.

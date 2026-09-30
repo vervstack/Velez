@@ -34,6 +34,7 @@ func (p *pgStorage) Upsert(ctx context.Context, binding domain.ContainerBinding)
 		NodeID:        binding.NodeId,
 		Environment:   environmentKey(binding.Environment),
 		ContainerName: binding.ContainerName,
+		IsSidecar:     binding.IsSidecar,
 	}
 
 	err := p.querier.UpsertContainerBinding(ctx, params)
@@ -66,6 +67,7 @@ func (p *pgStorage) ListByNode(
 			NodeId:        row.NodeID,
 			Environment:   row.Environment,
 			ContainerName: row.ContainerName,
+			IsSidecar:     row.IsSidecar,
 		}
 
 		out = append(out, binding)

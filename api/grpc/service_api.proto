@@ -148,7 +148,15 @@ message GetService {
       // in future there might be other service types that needs to be managed
     }
     optional AboutService about = 2;
+    repeated ServiceSidecar sidecars = 3;
   }
+}
+
+message ServiceSidecar {
+  string container_id = 1;
+  string container_name = 2;
+  string image_name = 3;
+  Smerd.Status status = 4;
 }
 
 message VervAppService {

@@ -15,7 +15,8 @@ SELECT b.id,
        s.name AS service_name,
        b.node_id,
        b.environment,
-       b.container_name
+       b.container_name,
+       b.is_sidecar
 FROM velez.container_bindings b
          JOIN velez.services s ON s.id = b.service_id
 WHERE b.node_id = $1
@@ -34,6 +35,7 @@ type ListContainerBindingsByNodeRow struct {
 	NodeID        int32
 	Environment   string
 	ContainerName string
+	IsSidecar     bool
 }
 
 func (q *Queries) ListContainerBindingsByNode(ctx context.Context, arg ListContainerBindingsByNodeParams) ([]ListContainerBindingsByNodeRow, error) {
@@ -52,6 +54,7 @@ func (q *Queries) ListContainerBindingsByNode(ctx context.Context, arg ListConta
 			&i.NodeID,
 			&i.Environment,
 			&i.ContainerName,
+			&i.IsSidecar,
 		); err != nil {
 			return nil, err
 		}
@@ -67,10 +70,11 @@ func (q *Queries) ListContainerBindingsByNode(ctx context.Context, arg ListConta
 }
 
 const upsertContainerBinding = `-- name: UpsertContainerBinding :exec
-INSERT INTO velez.container_bindings (service_id, node_id, environment, container_name)
-VALUES ($1, $2, $3, $4)
+INSERT INTO velez.container_bindings (service_id, node_id, environment, container_name, is_sidecar)
+VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT (node_id, environment, container_name)
-    DO UPDATE SET service_id = EXCLUDED.service_id
+    DO UPDATE SET service_id = EXCLUDED.service_id,
+                  is_sidecar = EXCLUDED.is_sidecar
 `
 
 type UpsertContainerBindingParams struct {
@@ -78,6 +82,7 @@ type UpsertContainerBindingParams struct {
 	NodeID        int32
 	Environment   string
 	ContainerName string
+	IsSidecar     bool
 }
 
 func (q *Queries) UpsertContainerBinding(ctx context.Context, arg UpsertContainerBindingParams) error {
@@ -86,6 +91,7 @@ func (q *Queries) UpsertContainerBinding(ctx context.Context, arg UpsertContaine
 		arg.NodeID,
 		arg.Environment,
 		arg.ContainerName,
+		arg.IsSidecar,
 	)
 	return err
 }

@@ -145,6 +145,7 @@ export type RegisterContainerTaskPayload = {
   runnerPendingSecretOwner?: string;
   registryUsername?: string;
   registryPendingSecretOwner?: string;
+  sidecarContainerNames?: string[];
 };
 
 export type CreateRegistryInstanceTaskPayload = {

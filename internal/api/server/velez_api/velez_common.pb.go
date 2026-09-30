@@ -894,6 +894,8 @@ type DockerContainer struct {
 	LinkedServiceName       *string                  `protobuf:"bytes,12,opt,name=linked_service_name,json=linkedServiceName,proto3,oneof" json:"linked_service_name,omitempty"`
 	SuggestedPattern        ServicePattern           `protobuf:"varint,13,opt,name=suggested_pattern,json=suggestedPattern,proto3,enum=velez_api.ServicePattern" json:"suggested_pattern,omitempty"`
 	SuggestedRunnerDefaults *SuggestedRunnerDefaults `protobuf:"bytes,14,opt,name=suggested_runner_defaults,json=suggestedRunnerDefaults,proto3" json:"suggested_runner_defaults,omitempty"`
+	// Id of the root container whose network namespace this container shares (resolved through chains). Unset for a root or standalone container.
+	NetworkOwnerContainerId *string `protobuf:"bytes,15,opt,name=network_owner_container_id,json=networkOwnerContainerId,proto3,oneof" json:"network_owner_container_id,omitempty"`
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
 }
@@ -1024,6 +1026,13 @@ func (x *DockerContainer) GetSuggestedRunnerDefaults() *SuggestedRunnerDefaults 
 		return x.SuggestedRunnerDefaults
 	}
 	return nil
+}
+
+func (x *DockerContainer) GetNetworkOwnerContainerId() string {
+	if x != nil && x.NetworkOwnerContainerId != nil {
+		return *x.NetworkOwnerContainerId
+	}
+	return ""
 }
 
 // SuggestedRunnerDefaults are runner register values derived from a container's labels and env.
@@ -1937,7 +1946,7 @@ const file_velez_common_proto_rawDesc = "" +
 	"\vdestination\x18\x02 \x01(\tR\vdestination\x12\x12\n" +
 	"\x04type\x18\x03 \x01(\tR\x04type\x12\x1d\n" +
 	"\n" +
-	"read_write\x18\x04 \x01(\bR\treadWrite\"\xc9\x06\n" +
+	"read_write\x18\x04 \x01(\bR\treadWrite\"\xaa\a\n" +
 	"\x0fDockerContainer\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
@@ -1955,14 +1964,16 @@ const file_velez_common_proto_rawDesc = "" +
 	"\ris_registered\x18\v \x01(\bR\fisRegistered\x123\n" +
 	"\x13linked_service_name\x18\f \x01(\tH\x00R\x11linkedServiceName\x88\x01\x01\x12F\n" +
 	"\x11suggested_pattern\x18\r \x01(\x0e2\x19.velez_api.ServicePatternR\x10suggestedPattern\x12^\n" +
-	"\x19suggested_runner_defaults\x18\x0e \x01(\v2\".velez_api.SuggestedRunnerDefaultsR\x17suggestedRunnerDefaults\x1a9\n" +
+	"\x19suggested_runner_defaults\x18\x0e \x01(\v2\".velez_api.SuggestedRunnerDefaultsR\x17suggestedRunnerDefaults\x12@\n" +
+	"\x1anetwork_owner_container_id\x18\x0f \x01(\tH\x01R\x17networkOwnerContainerId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x16\n" +
-	"\x14_linked_service_name\"\xd5\x01\n" +
+	"\x14_linked_service_nameB\x1d\n" +
+	"\x1b_network_owner_container_id\"\xd5\x01\n" +
 	"\x17SuggestedRunnerDefaults\x12\x1a\n" +
 	"\bprovider\x18\x01 \x01(\tR\bprovider\x12\x14\n" +
 	"\x05scope\x18\x02 \x01(\tR\x05scope\x12\x16\n" +

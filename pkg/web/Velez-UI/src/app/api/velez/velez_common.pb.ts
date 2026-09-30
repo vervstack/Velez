@@ -122,6 +122,7 @@ export type DockerContainer = {
   linkedServiceName?: string;
   suggestedPattern?: ServicePattern;
   suggestedRunnerDefaults?: SuggestedRunnerDefaults;
+  networkOwnerContainerId?: string;
 };
 
 export type SuggestedRunnerDefaults = {

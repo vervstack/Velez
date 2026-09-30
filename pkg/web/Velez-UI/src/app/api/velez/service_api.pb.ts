@@ -73,7 +73,8 @@ export type GetServiceRequest = {
   name?: string;
 };
 
-type BaseGetServiceResponse = {about?: AboutService;
+type BaseGetServiceResponse = {
+  sidecars?: ServiceSidecar[];about?: AboutService;
 };
 
 export type GetServiceResponse = BaseGetServiceResponse &
@@ -82,6 +83,13 @@ export type GetServiceResponse = BaseGetServiceResponse &
   }>;
 
 export type GetService = Record<string, never>;
+
+export type ServiceSidecar = {
+  containerId?: string;
+  containerName?: string;
+  imageName?: string;
+  status?: VelezApiVelezCommon.SmerdStatus;
+};
 
 export type VervAppService = {
   name?: string;

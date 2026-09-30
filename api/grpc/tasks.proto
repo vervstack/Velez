@@ -305,6 +305,9 @@ message RegisterContainerTaskPayload {
   // registry_pending_secret_owner is the owner of the pending secret ("registryaas-pending" scope)
   // holding the request-supplied registry password - never the value.
   string registry_pending_secret_owner = 23;
+
+  // Filled by inspect_container: names of containers sharing the root's network namespace, adopted together with the root.
+  repeated string sidecar_container_names = 24;
 }
 
 // CreateRegistryInstanceTaskPayload is the task context for the

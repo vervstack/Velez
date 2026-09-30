@@ -13,4 +13,5 @@ type ContainerBinding struct {
 	NodeId        int32
 	Environment   string
 	ContainerName string
+	IsSidecar     bool
 }

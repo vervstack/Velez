@@ -841,6 +841,10 @@
         },
         "suggestedRunnerDefaults": {
           "$ref": "#/definitions/velez_apiSuggestedRunnerDefaults"
+        },
+        "networkOwnerContainerId": {
+          "type": "string",
+          "description": "Id of the root container whose network namespace this container shares (resolved through chains). Unset for a root or standalone container."
         }
       }
     },

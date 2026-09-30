@@ -153,6 +153,7 @@ type VelezContainerBinding struct {
 	Environment   string
 	ContainerName string
 	CreatedAt     time.Time
+	IsSidecar     bool
 }
 
 type VelezDeployment struct {

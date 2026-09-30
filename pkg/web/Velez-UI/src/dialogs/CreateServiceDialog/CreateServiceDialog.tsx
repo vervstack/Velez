@@ -16,6 +16,7 @@ import GenericScreen from "@/dialogs/CreateServiceDialog/screens/GenericScreen/G
 import PickerScreen from "@/dialogs/CreateServiceDialog/screens/PickerScreen/PickerScreen.tsx"
 import PostgresAdoptScreen from "@/dialogs/CreateServiceDialog/screens/PostgresAdoptScreen/PostgresAdoptScreen.tsx"
 import PostgresScreen from "@/dialogs/CreateServiceDialog/screens/PostgresScreen/PostgresScreen.tsx"
+import RegistryAdoptScreen from "@/dialogs/CreateServiceDialog/screens/RegistryAdoptScreen/RegistryAdoptScreen.tsx"
 import RegistryScreen from "@/dialogs/CreateServiceDialog/screens/RegistryScreen/RegistryScreen.tsx"
 import RunnerScreen from "@/dialogs/CreateServiceDialog/screens/RunnerScreen/RunnerScreen.tsx"
 
@@ -38,6 +39,7 @@ export default function CreateServiceDialog({initialScreen = "picker", suggested
     function renderAdoptScreen(adopted: DockerContainer) {
         if (screen === "generic") return <GenericAdoptScreen container={adopted} onBusyChange={setIsBusy}/>
         if (screen === "postgres") return <PostgresAdoptScreen container={adopted} onBusyChange={setIsBusy}/>
+        if (screen === "registry") return <RegistryAdoptScreen container={adopted} onBusyChange={setIsBusy}/>
         return (
             <PickerScreen
                 suggestedScreen={suggestedScreenOf(adopted.suggestedPattern)}

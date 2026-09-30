@@ -11,6 +11,7 @@ import BindMountLinks from "@/dialogs/CreateServiceDialog/components/BindMountLi
 import PgLoginFields from "@/dialogs/CreateServiceDialog/components/PgLoginFields/PgLoginFields.tsx"
 import PortOptions from "@/dialogs/CreateServiceDialog/components/PortOptions/PortOptions.tsx"
 import RegisterProgress from "@/dialogs/CreateServiceDialog/components/RegisterProgress/RegisterProgress.tsx"
+import RegistryLoginFields from "@/dialogs/CreateServiceDialog/components/RegistryLoginFields/RegistryLoginFields.tsx"
 import RestartConfirm from "@/dialogs/CreateServiceDialog/components/RestartConfirm/RestartConfirm.tsx"
 import RestartNotice from "@/dialogs/CreateServiceDialog/components/RestartNotice/RestartNotice.tsx"
 import {bindMountsOf, resolveLinks} from "@/dialogs/CreateServiceDialog/processes/bindMounts.ts"
@@ -24,16 +25,25 @@ interface Props {
     container: DockerContainer
     pattern: RegisterPattern
     isPgLoginRequired?: boolean
+    isRegistryLoginRequired?: boolean
     onBusyChange(isBusy: boolean): void
 }
 
-export default function AdoptForm({container, pattern, isPgLoginRequired = false, onBusyChange}: Props) {
+export default function AdoptForm({
+    container,
+    pattern,
+    isPgLoginRequired = false,
+    isRegistryLoginRequired = false,
+    onBusyChange,
+}: Props) {
     const [serviceName, setServiceName] = useState(container.name ?? "")
     const [linkOverrides, setLinkOverrides] = useState<Record<string, string>>({})
     const [isKeepingPorts, setIsKeepingPorts] = useState(false)
     const [portRows, setPortRows] = useState<PortRow[]>([])
     const [superuser, setSuperuser] = useState("")
     const [password, setPassword] = useState("")
+    const [registryUsername, setRegistryUsername] = useState("")
+    const [registryPassword, setRegistryPassword] = useState("")
     const [isConfirming, setIsConfirming] = useState(false)
     const [submittedReq, setSubmittedReq] = useState<RegisterContainerRequest | null>(null)
 
@@ -65,13 +75,16 @@ export default function AdoptForm({container, pattern, isPgLoginRequired = false
             serviceName,
             pattern,
             pgLogin: isPgLoginRequired ? {superuser, password} : undefined,
+            registryLogin: isRegistryLoginRequired
+                ? {username: registryUsername, password: registryPassword}
+                : undefined,
             links,
             isClusterMode,
             isKeepingPorts: isKeepingEditablePorts,
             ports: isPortsEditable ? (parsedPorts ?? []) : [],
         })
     }, [container.id, environment, serviceName, pattern, isPgLoginRequired, superuser, password,
-        links, isClusterMode, isKeepingEditablePorts, isPortsEditable, parsedPorts, isRowsInvalid])
+        isRegistryLoginRequired, registryUsername, registryPassword, links, isClusterMode, isKeepingEditablePorts, isPortsEditable, parsedPorts, isRowsInvalid])
 
     function handleVolumeNameChange(destination: string, volumeName: string) {
         setLinkOverrides({...linkOverrides, [destination]: volumeName})
@@ -116,6 +129,14 @@ export default function AdoptForm({container, pattern, isPgLoginRequired = false
                         password={password}
                         onSuperuserChange={setSuperuser}
                         onPasswordChange={setPassword}
+                    />
+                )}
+                {isRegistryLoginRequired && (
+                    <RegistryLoginFields
+                        username={registryUsername}
+                        password={registryPassword}
+                        onUsernameChange={setRegistryUsername}
+                        onPasswordChange={setRegistryPassword}
                     />
                 )}
                 {links.length > 0 && <BindMountLinks links={links} onVolumeNameChange={handleVolumeNameChange}/>}

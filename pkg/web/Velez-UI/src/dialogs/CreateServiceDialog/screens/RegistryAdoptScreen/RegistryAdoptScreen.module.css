@@ -1,0 +1,6 @@
+.RegistryAdoptScreenContainer {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+}

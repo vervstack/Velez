@@ -62,6 +62,33 @@ describe("buildRegisterContainerRequest", () => {
         expect(req).toBeNull()
     })
 
+    it("builds an empty registry pattern when the container has no auth", () => {
+        const req = buildRegisterContainerRequest(newForm({pattern: "registry"}))
+
+        expect(req?.registry).toEqual({})
+        expect(req?.generic).toBeUndefined()
+    })
+
+    it("carries the asked login in the registry pattern", () => {
+        const req = buildRegisterContainerRequest(newForm({
+            pattern: "registry",
+            registryLogin: {username: " ci ", password: "secret"},
+        }))
+
+        expect(req?.registry).toEqual({username: "ci", password: "secret"})
+    })
+
+    it("refuses a registry request whose asked login is incomplete", () => {
+        expect(buildRegisterContainerRequest(newForm({
+            pattern: "registry",
+            registryLogin: {username: "ci", password: ""},
+        }))).toBeNull()
+        expect(buildRegisterContainerRequest(newForm({
+            pattern: "registry",
+            registryLogin: {username: " ", password: "secret"},
+        }))).toBeNull()
+    })
+
     it("sends the listed ports when the mapping is not kept", () => {
         const req = buildRegisterContainerRequest(newForm({ports: [PORT]}))
 

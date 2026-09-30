@@ -4,11 +4,13 @@ import { useGetServiceAboutQuery, useGetServiceMetricsQuery } from '@/processes/
 import { deriveRunnerDisplayName, isGitlabRunnerName } from '@/processes/mappings/runnerDisplay.ts'
 import GitlabIcon from '@/components/base/icons/GitlabIcon.tsx'
 import EnvSwitcher from '@/widgets/service/EnvSwitcher/EnvSwitcher.tsx'
+import ServiceHeroImages from '@/widgets/service/ServiceHeroImages/ServiceHeroImages.tsx'
 
 interface ServiceHeroProps {
     serviceName: string
     serviceStatus?: string
     imageFromSmerd?: string
+    containerId?: string
 }
 
 // Velez itself runs as a bare binary, not a container, so the container-stats
@@ -65,6 +67,7 @@ export default function ServiceHero({
     serviceName,
     serviceStatus,
     imageFromSmerd,
+    containerId,
 }: ServiceHeroProps) {
     const {data: about} = useGetServiceAboutQuery(serviceName)
     const {data: metrics} = useGetServiceMetricsQuery(serviceName)
@@ -94,6 +97,12 @@ export default function ServiceHero({
 
     return (
         <div className={cls.ServiceHeroContainer}>
+            <ServiceHeroImages
+                serviceName={serviceName}
+                imageName={imageFromSmerd}
+                containerId={containerId}
+                sidecars={about?.sidecars ?? []}
+            />
             <div className={cls.LeftWrapper}>
                 <div className={cls.NameRow}>
                     <span className={`${cls.StatusDot} ${statusDotClass(serviceStatus)}`} />

@@ -1,3 +1,5 @@
+import type {SmerdStatus} from "@/app/api/velez"
+
 export interface ServiceEnvironment {
     id: string
     label: string
@@ -15,6 +17,14 @@ export interface ServiceAbout {
     team: string
     repo: string
     port: string
+    sidecars: ServiceSidecarView[]
+}
+
+export interface ServiceSidecarView {
+    containerId: string
+    name: string
+    imageName: string
+    status?: SmerdStatus
 }
 
 export interface ServiceMetrics {

@@ -27,6 +27,7 @@ export default function ServiceOverviewTab({serviceName}: Props) {
                 serviceName={serviceName}
                 serviceStatus={service?.status as string | undefined}
                 imageFromSmerd={currentSmerd?.imageName}
+                containerId={currentSmerd?.uuid}
             />
 
             <div className={cls.ObservabilityWrapper}>

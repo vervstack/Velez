@@ -27,6 +27,7 @@ import {ApiService} from "@/processes/ApiService.ts"
 import type {ServiceAbout, ServiceMetrics, ServiceResource, ServiceGraphData, ServiceGraphNode, ServiceEnvironment, VervonomiconDocs, ResourceReconciliationStatus} from "@/model/service_page/ServicePageModel"
 import {useEnvironmentStore} from "@/app/hooks/environment/Environment.ts"
 import {mapResourceConnectionStatus} from "@/processes/vervonomicon.ts"
+import {toServiceSidecars} from "@/processes/mappings/serviceSidecars"
 
 function formatDeployedAgo(ts?: { seconds?: string | number; nanos?: number }): string {
     if (!ts?.seconds) return ''
@@ -232,6 +233,7 @@ class ServiceService extends ApiService {
                 team:         a?.team         ?? '',
                 repo:         a?.repo         ?? '',
                 port:         a?.port         ?? '',
+                sidecars:     toServiceSidecars(res.sidecars),
             }
         })
     }

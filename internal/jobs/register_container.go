@@ -131,6 +131,7 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 				req:         payload,
 				pending:     payload,
 				ctx:         payload,
+				group:       payload,
 			},
 		},
 	}

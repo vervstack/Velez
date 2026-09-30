@@ -182,7 +182,8 @@ func (j *recreateSidecarsJob) recreate(
 		return rerrors.Wrap(err, "error inspecting sidecar")
 	}
 
-	if hasCurrent && current.HostConfig.NetworkMode == networkMode {
+	isJoined := hasCurrent && current.HostConfig.NetworkMode == networkMode
+	if isJoined && isRegisteredSidecar(current.Config.Labels, j.group.GetServiceName()) {
 		return nil
 	}
 

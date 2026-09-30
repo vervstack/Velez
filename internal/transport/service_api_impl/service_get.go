@@ -29,6 +29,16 @@ func (impl *Impl) GetService(ctx context.Context, pbReq *pb.GetService_Request) 
 		Port:         s.About.Port,
 	}
 
+	sidecars := make([]*pb.ServiceSidecar, 0, len(s.Sidecars))
+	for _, sidecar := range s.Sidecars {
+		sidecars = append(sidecars, &pb.ServiceSidecar{
+			ContainerId:   sidecar.ContainerId,
+			ContainerName: sidecar.ContainerName,
+			ImageName:     sidecar.ImageName,
+			Status:        sidecar.Status,
+		})
+	}
+
 	return &pb.GetService_Response{
 		Payload: &pb.GetService_Response_VervService{
 			VervService: &pb.VervAppService{
@@ -38,6 +48,7 @@ func (impl *Impl) GetService(ctx context.Context, pbReq *pb.GetService_Request) 
 				Labels:              s.Labels,
 			},
 		},
-		About: about,
+		About:    about,
+		Sidecars: sidecars,
 	}, nil
 }

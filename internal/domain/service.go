@@ -30,6 +30,15 @@ type Service struct {
 	CurrentDeploymentId *uint64
 	Status              velez_api.DeploymentStatus
 	About               AboutService
+
+	Sidecars []ServiceSidecar
+}
+
+type ServiceSidecar struct {
+	ContainerId   string
+	ContainerName string
+	ImageName     string
+	Status        velez_api.Smerd_Status
 }
 
 type ServiceBaseInfo struct {

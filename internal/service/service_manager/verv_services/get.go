@@ -3,6 +3,7 @@ package verv_services
 import (
 	"context"
 
+	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
@@ -35,6 +36,16 @@ func (v *VervService) Get(ctx context.Context, r domain.GetServiceReq) (domain.S
 	if err != nil {
 		// best-effort; container may not exist yet
 	}
+
+	sidecars, err := v.listSidecars(ctx, service.Name)
+	if err != nil {
+		log.Ctx(ctx).Warn().
+			Str("service", service.Name).
+			Err(err).
+			Msg("error listing service sidecars")
+	}
+
+	service.Sidecars = sidecars
 
 	return service, nil
 }

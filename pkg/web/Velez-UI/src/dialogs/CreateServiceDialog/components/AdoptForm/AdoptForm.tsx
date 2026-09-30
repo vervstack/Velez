@@ -14,10 +14,12 @@ import RegisterProgress from "@/dialogs/CreateServiceDialog/components/RegisterP
 import RegistryLoginFields from "@/dialogs/CreateServiceDialog/components/RegistryLoginFields/RegistryLoginFields.tsx"
 import RestartConfirm from "@/dialogs/CreateServiceDialog/components/RestartConfirm/RestartConfirm.tsx"
 import RestartNotice from "@/dialogs/CreateServiceDialog/components/RestartNotice/RestartNotice.tsx"
+import RunnerFields from "@/dialogs/CreateServiceDialog/components/RunnerFields/RunnerFields.tsx"
 import {bindMountsOf, resolveLinks} from "@/dialogs/CreateServiceDialog/processes/bindMounts.ts"
 import {
     buildRegisterContainerRequest,
     RegisterPattern,
+    RunnerForm,
 } from "@/dialogs/CreateServiceDialog/processes/buildRegisterContainerRequest.ts"
 import {parsePortRows, PortRow, publishedPortsOf} from "@/dialogs/CreateServiceDialog/processes/portRows.ts"
 
@@ -26,6 +28,8 @@ interface Props {
     pattern: RegisterPattern
     isPgLoginRequired?: boolean
     isRegistryLoginRequired?: boolean
+    initialRunner?: RunnerForm
+    isRegistrationTokenFound?: boolean
     onBusyChange(isBusy: boolean): void
 }
 
@@ -34,6 +38,8 @@ export default function AdoptForm({
     pattern,
     isPgLoginRequired = false,
     isRegistryLoginRequired = false,
+    initialRunner,
+    isRegistrationTokenFound = false,
     onBusyChange,
 }: Props) {
     const [serviceName, setServiceName] = useState(container.name ?? "")
@@ -44,6 +50,7 @@ export default function AdoptForm({
     const [password, setPassword] = useState("")
     const [registryUsername, setRegistryUsername] = useState("")
     const [registryPassword, setRegistryPassword] = useState("")
+    const [runner, setRunner] = useState<RunnerForm | undefined>(initialRunner)
     const [isConfirming, setIsConfirming] = useState(false)
     const [submittedReq, setSubmittedReq] = useState<RegisterContainerRequest | null>(null)
 
@@ -78,13 +85,15 @@ export default function AdoptForm({
             registryLogin: isRegistryLoginRequired
                 ? {username: registryUsername, password: registryPassword}
                 : undefined,
+            runner,
             links,
             isClusterMode,
             isKeepingPorts: isKeepingEditablePorts,
             ports: isPortsEditable ? (parsedPorts ?? []) : [],
         })
     }, [container.id, environment, serviceName, pattern, isPgLoginRequired, superuser, password,
-        isRegistryLoginRequired, registryUsername, registryPassword, links, isClusterMode, isKeepingEditablePorts, isPortsEditable, parsedPorts, isRowsInvalid])
+        isRegistryLoginRequired, registryUsername, registryPassword, runner, links, isClusterMode,
+        isKeepingEditablePorts, isPortsEditable, parsedPorts, isRowsInvalid])
 
     function handleVolumeNameChange(destination: string, volumeName: string) {
         setLinkOverrides({...linkOverrides, [destination]: volumeName})
@@ -137,6 +146,13 @@ export default function AdoptForm({
                         password={registryPassword}
                         onUsernameChange={setRegistryUsername}
                         onPasswordChange={setRegistryPassword}
+                    />
+                )}
+                {runner && (
+                    <RunnerFields
+                        form={runner}
+                        isRegistrationTokenFound={isRegistrationTokenFound}
+                        onChange={setRunner}
                     />
                 )}
                 {links.length > 0 && <BindMountLinks links={links} onVolumeNameChange={handleVolumeNameChange}/>}

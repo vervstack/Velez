@@ -18,6 +18,7 @@ import PostgresAdoptScreen from "@/dialogs/CreateServiceDialog/screens/PostgresA
 import PostgresScreen from "@/dialogs/CreateServiceDialog/screens/PostgresScreen/PostgresScreen.tsx"
 import RegistryAdoptScreen from "@/dialogs/CreateServiceDialog/screens/RegistryAdoptScreen/RegistryAdoptScreen.tsx"
 import RegistryScreen from "@/dialogs/CreateServiceDialog/screens/RegistryScreen/RegistryScreen.tsx"
+import RunnerAdoptScreen from "@/dialogs/CreateServiceDialog/screens/RunnerAdoptScreen/RunnerAdoptScreen.tsx"
 import RunnerScreen from "@/dialogs/CreateServiceDialog/screens/RunnerScreen/RunnerScreen.tsx"
 
 interface Props {
@@ -40,6 +41,15 @@ export default function CreateServiceDialog({initialScreen = "picker", suggested
         if (screen === "generic") return <GenericAdoptScreen container={adopted} onBusyChange={setIsBusy}/>
         if (screen === "postgres") return <PostgresAdoptScreen container={adopted} onBusyChange={setIsBusy}/>
         if (screen === "registry") return <RegistryAdoptScreen container={adopted} onBusyChange={setIsBusy}/>
+        if (screen === "githubRunner" || screen === "gitlabRunner") {
+            return (
+                <RunnerAdoptScreen
+                    container={adopted}
+                    initialProvider={runnerProviderOf(screen)}
+                    onBusyChange={setIsBusy}
+                />
+            )
+        }
         return (
             <PickerScreen
                 suggestedScreen={suggestedScreenOf(adopted.suggestedPattern)}

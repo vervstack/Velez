@@ -1,9 +1,10 @@
 import {describe, expect, it} from "vitest"
 
-import {PortProtocol} from "@/app/api/velez"
+import {PortProtocol, RunnerProvider, RunnerScope} from "@/app/api/velez"
 import {
     buildRegisterContainerRequest,
     RegisterContainerForm,
+    RunnerForm,
 } from "@/dialogs/CreateServiceDialog/processes/buildRegisterContainerRequest.ts"
 
 const PORT = {servicePortNumber: 5432, exposedTo: 15432, protocol: PortProtocol.tcp}
@@ -121,5 +122,67 @@ describe("buildRegisterContainerRequest", () => {
         expect(buildRegisterContainerRequest(newForm({
             links: [{source: "/srv/a", destination: "/data", volumeName: " "}],
         }))).toBeNull()
+    })
+})
+
+describe("buildRegisterContainerRequest runner pattern", () => {
+    const githubRunner: RunnerForm = {
+        provider: RunnerProvider.GITHUB,
+        scope: RunnerScope.REPO,
+        target: " acme/app ",
+        baseUrl: "https://ignored.example",
+        labels: " a, ,b ",
+        dockerImage: "ignored",
+        concurrent: "nope",
+        accessToken: " ",
+        registrationToken: "",
+    }
+
+    it("builds a github runner pattern omitting blank optionals and gitlab-only fields", () => {
+        const req = buildRegisterContainerRequest(newForm({pattern: "runner", runner: githubRunner}))
+
+        expect(req?.runner).toEqual({
+            provider: RunnerProvider.GITHUB,
+            scope: RunnerScope.REPO,
+            target: "acme/app",
+            labels: ["a", "b"],
+            baseUrl: undefined,
+            dockerImage: undefined,
+            concurrent: undefined,
+            accessToken: undefined,
+            registrationToken: undefined,
+        })
+    })
+
+    it("builds a gitlab runner pattern with its own fields and tokens", () => {
+        const req = buildRegisterContainerRequest(newForm({
+            pattern: "runner",
+            runner: {
+                ...githubRunner,
+                provider: RunnerProvider.GITLAB,
+                baseUrl: " https://gitlab.example ",
+                dockerImage: " alpine ",
+                concurrent: " 3 ",
+                accessToken: " pat ",
+                registrationToken: " glrt ",
+            },
+        }))
+
+        expect(req?.runner).toMatchObject({
+            baseUrl: "https://gitlab.example",
+            dockerImage: "alpine",
+            concurrent: 3,
+            accessToken: "pat",
+            registrationToken: "glrt",
+        })
+    })
+
+    it("refuses a runner without target, provider or a valid gitlab concurrency", () => {
+        const build = (runner: RunnerForm) => buildRegisterContainerRequest(newForm({pattern: "runner", runner}))
+
+        expect(build({...githubRunner, target: " "})).toBeNull()
+        expect(build({...githubRunner, provider: undefined})).toBeNull()
+        expect(build({...githubRunner, provider: RunnerProvider.GITLAB, concurrent: "0"})).toBeNull()
+        expect(buildRegisterContainerRequest(newForm({pattern: "runner"}))).toBeNull()
     })
 })

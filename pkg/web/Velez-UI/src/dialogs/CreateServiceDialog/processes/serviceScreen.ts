@@ -37,7 +37,7 @@ export function runnerProviderOf(screen: ServiceScreen): RunnerProvider | undefi
     return undefined
 }
 
-export const ADOPTABLE_SCREENS: ProductScreen[] = ["generic", "postgres", "registry"]
+export const ADOPTABLE_SCREENS: ProductScreen[] = ["generic", "postgres", "registry", "githubRunner", "gitlabRunner"]
 
 const SUGGESTED_SCREEN_BY_PATTERN: Partial<Record<ServicePattern, ServiceScreen>> = {
     [ServicePattern.SERVICE_PATTERN_POSTGRES]: "postgres",

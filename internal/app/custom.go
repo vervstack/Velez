@@ -38,6 +38,7 @@ import (
 	"go.vervstack.ru/Velez/internal/transport/ui"
 	"go.vervstack.ru/Velez/internal/transport/vcn_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/velez_api_impl"
+	"go.vervstack.ru/Velez/internal/version"
 	"go.vervstack.ru/Velez/internal/workers"
 	"go.vervstack.ru/Velez/pkg/docs"
 )
@@ -92,6 +93,8 @@ type Custom struct {
 
 func (c *Custom) Init(a *App) (err error) {
 	rerrors.SetSeparator(':')
+
+	a.Cfg.AppInfo.Version = version.Get()
 
 	zerolog.SetGlobalLevel(parseLogLevel(a.Cfg.Environment.LogLevel))
 

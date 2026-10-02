@@ -13,6 +13,7 @@ FROM --platform=$BUILDPLATFORM golang:1.24.2 AS builder
 
 ARG TARGETOS
 ARG TARGETARCH
+ARG VERSION=""
 
 WORKDIR /app
 
@@ -22,7 +23,8 @@ COPY . .
 RUN --mount=type=cache,target=/root/.cache/go-build \
         --mount=type=cache,target=/go/pkg \
         GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 \
-    go build -o /deploy/server/service ./cmd/service/main.go && \
+    go build -ldflags "-X go.vervstack.ru/Velez/internal/version.version=${VERSION}" \
+        -o /deploy/server/service ./cmd/service/main.go && \
     cp -r config /deploy/server/config
 
 FROM alpine

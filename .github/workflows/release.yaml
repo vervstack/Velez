@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - "master"
+    # A hand-pushed vX.Y.Z tag is how a minor/major release is cut; master pushes only ever bump patch.
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+concurrency:
+  group: release
 
 jobs:
   image-build:
@@ -20,14 +26,40 @@ jobs:
     runs-on: ${{ vars.UBUNTU_IMAGE }}
     needs:
       - image-build
-    steps:
-      - name: Release tag
-        id: release
-        uses: RedSockActions/release_tag@v1.1.6
-        with:
-          token: ${{ github.token }}
+    permissions:
+      contents: write
     outputs:
-      tag: ${{ steps.release.outputs.tag }}
+      tag: ${{ steps.next-tag.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # The version lives in git tags only. A tag push releases that tag; a master push releases the
+      # next patch after the latest tag, unless HEAD is already tagged (nothing new to release).
+      - name: Resolve tag to release
+        id: next-tag
+        run: |
+          git fetch --tags --force
+          TAG=""
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            TAG="$GITHUB_REF_NAME"
+          elif ! git tag --points-at HEAD | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            LAST=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -1)
+            LAST=${LAST:-v0.0.0}
+            IFS=. read -r MAJOR MINOR PATCH <<<"${LAST#v}"
+            TAG="v${MAJOR}.${MINOR}.$((PATCH + 1))"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Create release and tag
+        if: ${{ steps.next-tag.outputs.tag != '' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.next-tag.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          generate_release_notes: true
 
   registry_release:
     runs-on: ${{ vars.UBUNTU_IMAGE }}
@@ -36,10 +68,11 @@ jobs:
     steps:
       - name: Release image
         if: ${{ needs.tag-release.outputs.tag != '' }}
-        uses: RedSockActions/release_image@v1.0.29
+        uses: RedSockActions/release_image@v1.0.44
         with:
           REGISTRY_USER: ${{ vars.REGISTRY_USER }}
           REGISTRY_PWD: ${{ secrets.REGISTRY_PWD }}
+          BUILD_ARGS: VERSION=${{ needs.tag-release.outputs.tag }}
 
   init-script-release:
     if: ${{ needs.tag-release.outputs.tag != '' }}

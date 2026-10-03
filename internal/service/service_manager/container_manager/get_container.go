@@ -69,6 +69,16 @@ func (c *ContainerManager) GetContainer(
 		dc.NetworkOwnerContainerId = &ownerId
 	}
 
+	list, err := runtime.ListAllContainers(ctx, 0)
+	if err != nil {
+		return nil, errors.Wrap(err, "error listing containers")
+	}
+
+	replacedBy, isReplaced := replacedContainerIds(list)[contInfo.ID]
+	if isReplaced {
+		dc.ReplacedByContainerId = &replacedBy
+	}
+
 	svc, isLabelled := contInfo.Config.Labels[labels.VervServiceLabel]
 	if isLabelled {
 		dc.LinkedServiceName = &svc

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"maps"
+	"strconv"
 	"strings"
 	"time"
 
@@ -41,6 +42,9 @@ type registerRequestAccessor interface {
 	GetServiceName() string
 	GetBindMountLinks() []*bindMountLink
 	GetPattern() velez_api.ServicePattern
+	GetImageTag() string
+	GetPorts() []*velez_api.Port
+	GetKeepPortMapping() bool
 }
 
 type registerRecreateAccessor interface {
@@ -454,8 +458,32 @@ func (j *inspectContainerToRegisterJob) Do(ctx context.Context) error {
 		}
 	}
 
+	isPortCheckRequired := !j.dataStorage.IsStatefull() && !plan.IsRootRegistered && !j.req.GetKeepPortMapping()
+	if isPortCheckRequired {
+		err = j.checkRequestedPortsFree(ctx, runtime, info)
+		if err != nil {
+			return rerrors.Wrap(err)
+		}
+	}
+
 	j.ctx.SetContainerName(name)
 	j.ctx.SetImageName(info.Config.Image)
+
+	return nil
+}
+
+func (j *inspectContainerToRegisterJob) checkRequestedPortsFree(
+	ctx context.Context, runtime container_runtime.ContainerRuntime, info container.InspectResponse,
+) error {
+	occupied, err := runtime.ListOccupiedPorts(ctx)
+	if err != nil {
+		return rerrors.Wrap(err, "error listing occupied ports")
+	}
+
+	port, isOccupied := findForeignOccupiedPort(j.req.GetPorts(), occupied, currentHostPorts(info))
+	if isOccupied {
+		return rerrors.Wrap(user_errors.ErrPortOccupied, strconv.FormatUint(uint64(port), 10))
+	}
 
 	return nil
 }
@@ -536,6 +564,13 @@ func (j *bindExistingContainerJob) Do(ctx context.Context) error {
 	}
 
 	spec := registeredContainerSpec(containerName, j.req.GetEnvironment(), j.req.GetServiceName(), info)
+
+	if j.req.GetImageTag() != "" {
+		spec.ImageName, err = imageWithTag(spec.GetImageName(), j.req.GetImageTag())
+		if err != nil {
+			return rerrors.Wrap(err)
+		}
+	}
 
 	spec.Settings.Volumes = registerVolumes(info, linked)
 
@@ -635,17 +670,31 @@ func (j *recreateWithLabelsJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(user_errors.ErrRegisterContainerNotFound)
 	}
 
+	image := j.container.GetImageName()
+
+	if j.req.GetImageTag() != "" {
+		image, err = imageWithTag(image, j.req.GetImageTag())
+		if err != nil {
+			return rerrors.Wrap(err)
+		}
+	}
+
 	upgradeReq := &velez_api.UpgradeSmerd_Request{
 		Name:        containerName,
-		Image:       j.container.GetImageName(),
+		Image:       image,
 		Environment: j.req.GetEnvironment(),
 	}
 
+	extraLabels := registeredLabels(j.req.GetServiceName(), j.req.GetPattern())
+
+	extraLabels[labels.OnboardedFromLabel] = info.ID
+
 	payload := &velez_api.UpgradeSmerdTaskPayload{
 		UpgradeRequest: upgradeReq,
-		ExtraLabels:    registeredLabels(j.req.GetServiceName(), j.req.GetPattern()),
+		ExtraLabels:    extraLabels,
 
-		IsSidecarsSkipped: true,
+		IsSidecarsSkipped:  true,
+		IsOldContainerKept: true,
 	}
 
 	if j.req.GetPattern() == velez_api.ServicePattern_SERVICE_PATTERN_POSTGRES {

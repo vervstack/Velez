@@ -149,12 +149,12 @@ type registerUpgradeAccessor interface {
 func applyRegisterOverrides(
 	payload *velez_api.UpgradeSmerdTaskPayload, info container.InspectResponse, req registerUpgradeAccessor,
 ) error {
-	payload.StopOldFirst = req.GetKeepPortMapping()
-
 	ports := req.GetPorts()
 	if req.GetKeepPortMapping() {
 		ports = parser.ToPortsFromInspect(info)
 	}
+
+	payload.StopOldFirst = isStopOldFirstRequired(info, ports, req.GetKeepPortMapping())
 
 	payload.PortsOverride = &velez_api.UpgradeSmerdTaskPayload_PortsOverride{Ports: ports}
 

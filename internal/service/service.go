@@ -28,6 +28,7 @@ type Services interface {
 	Postgres() PostgresService
 	Runners() RunnersService
 	ContainerRegistry() ContainerRegistryService
+	ImageVersions() ImageVersionsService
 }
 
 type ContainerService interface {
@@ -36,9 +37,18 @@ type ContainerService interface {
 	InspectSmerd(ctx context.Context, environment, contID string) (*velez_api.Smerd, error)
 	ListContainers(ctx context.Context, req *velez_api.ListContainers_Request) (*velez_api.ListContainers_Response, error)
 	GetContainer(ctx context.Context, req *velez_api.GetContainer_Request) (*velez_api.DockerContainer, error)
+	FinishOnboarding(
+		ctx context.Context, req *velez_api.FinishOnboarding_Request,
+	) (*velez_api.FinishOnboarding_Response, error)
 
 	ConnectToNetwork(ctx context.Context, req domain.Connection) error
 	DisconnectFromNetwork(ctx context.Context, req domain.Connection) error
+}
+
+type ImageVersionsService interface {
+	ListContainerImageVersions(
+		ctx context.Context, req *velez_api.ListContainerImageVersions_Request,
+	) (*velez_api.ListContainerImageVersions_Response, error)
 }
 
 // VervonomiconSource reads the raw .verv/ descriptor files out of a

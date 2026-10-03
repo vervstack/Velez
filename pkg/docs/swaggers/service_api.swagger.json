@@ -607,7 +607,7 @@
         "env"
       ],
       "default": "yaml",
-      "title": "- yaml: Default"
+      "description": "- yaml: Default"
     },
     "velez_apiCreateDeployRequest": {
       "type": "object",

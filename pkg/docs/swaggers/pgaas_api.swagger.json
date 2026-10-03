@@ -6,7 +6,8 @@
   },
   "tags": [
     {
-      "name": "PostgresAPI"
+      "name": "PostgresAPI",
+      "description": "PostgresAPI - Postgres-as-a-Service. A PG instance is a normal Velez\nservice (velez.services / deployment_specifications / deployments), with\nonly the pg-specific facts (db_name, username, secret_ref, port) held in\nvelez.pg_instances. See docs/features/pgaas_and_registry_plugin.md\nsection 3."
     }
   ],
   "consumes": [

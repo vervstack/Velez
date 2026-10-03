@@ -123,6 +123,7 @@ export type DockerContainer = {
   suggestedPattern?: ServicePattern;
   suggestedRunnerDefaults?: SuggestedRunnerDefaults;
   networkOwnerContainerId?: string;
+  replacedByContainerId?: string;
 };
 
 export type SuggestedRunnerDefaults = {

@@ -52,5 +52,5 @@ export function suggestedScreenOf(pattern?: ServicePattern): ServiceScreen | und
 }
 
 export function adoptTitle(containerName?: string): string {
-    return `Register container ${containerName ?? ""}`.trim()
+    return `Onboard container ${containerName ?? ""}`.trim()
 }

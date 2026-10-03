@@ -68,6 +68,8 @@ func (impl *Impl) RegisterContainer(
 		Ports:           req.GetPorts(),
 	}
 
+	payload.ImageTag = req.ImageTag
+
 	if isPg {
 		payload.Pattern = velez_api.ServicePattern_SERVICE_PATTERN_POSTGRES
 		payload.PgSuperuser = req.GetPg().GetSuperuser()
@@ -149,6 +151,10 @@ func (impl *Impl) rejectUnregistrable(ctx context.Context, environment, containe
 
 		if domain.IsVelezImage(cont.GetImageName()) {
 			return rerrors.Wrap(user_errors.ErrContainerIsVelez)
+		}
+
+		if cont.ReplacedByContainerId != nil {
+			return rerrors.Wrap(user_errors.ErrContainerIsOnboardingLeftover)
 		}
 
 		if cont.NetworkOwnerContainerId != nil {

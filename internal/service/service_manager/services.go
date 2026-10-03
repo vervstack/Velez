@@ -14,6 +14,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/secrets"
 	"go.vervstack.ru/Velez/internal/service/service_manager/configurator"
 	"go.vervstack.ru/Velez/internal/service/service_manager/container_manager"
+	"go.vervstack.ru/Velez/internal/service/service_manager/image_versions"
 	"go.vervstack.ru/Velez/internal/service/service_manager/nodes_service"
 	"go.vervstack.ru/Velez/internal/service/service_manager/pgaas"
 	"go.vervstack.ru/Velez/internal/service/service_manager/plugins"
@@ -39,6 +40,7 @@ type ServiceManager struct {
 	postgresService          service.PostgresService
 	runnersService           service.RunnersService
 	containerRegistryService service.ContainerRegistryService
+	imageVersions            service.ImageVersionsService
 }
 
 func New(
@@ -93,6 +95,7 @@ func New(
 		// registryaas.New takes clusterClients.StateManager(), for the same
 		// reason pgaas.New does just above - see that comment.
 		containerRegistryService: registryaas.New(clusterClients.StateManager(), vervServices, secretsStore, jobsEngine),
+		imageVersions:            image_versions.New(runtimeResolver, nodeClients.Docker().Client()),
 	}
 
 	// TODO VERV-128
@@ -143,4 +146,8 @@ func (s *ServiceManager) Runners() service.RunnersService {
 
 func (s *ServiceManager) ContainerRegistry() service.ContainerRegistryService {
 	return s.containerRegistryService
+}
+
+func (s *ServiceManager) ImageVersions() service.ImageVersionsService {
+	return s.imageVersions
 }

@@ -8,20 +8,28 @@ import {IsStatefullModeEnabled} from "@/processes/queries/control_plane.ts"
 import Input from "@/components/base/Input.tsx"
 import AdoptActions from "@/dialogs/CreateServiceDialog/components/AdoptActions/AdoptActions.tsx"
 import BindMountLinks from "@/dialogs/CreateServiceDialog/components/BindMountLinks/BindMountLinks.tsx"
+import ImageVersionPicker from "@/dialogs/CreateServiceDialog/components/ImageVersionPicker/ImageVersionPicker.tsx"
+import NoPortsNotice from "@/dialogs/CreateServiceDialog/components/NoPortsNotice/NoPortsNotice.tsx"
 import PgLoginFields from "@/dialogs/CreateServiceDialog/components/PgLoginFields/PgLoginFields.tsx"
-import PortOptions from "@/dialogs/CreateServiceDialog/components/PortOptions/PortOptions.tsx"
+import PortMappingTable from "@/dialogs/CreateServiceDialog/components/PortMappingTable/PortMappingTable.tsx"
 import RegisterProgress from "@/dialogs/CreateServiceDialog/components/RegisterProgress/RegisterProgress.tsx"
 import RegistryLoginFields from "@/dialogs/CreateServiceDialog/components/RegistryLoginFields/RegistryLoginFields.tsx"
 import RestartConfirm from "@/dialogs/CreateServiceDialog/components/RestartConfirm/RestartConfirm.tsx"
 import RestartNotice from "@/dialogs/CreateServiceDialog/components/RestartNotice/RestartNotice.tsx"
 import RunnerFields from "@/dialogs/CreateServiceDialog/components/RunnerFields/RunnerFields.tsx"
+import {currentTagOf, imageTagToSend} from "@/dialogs/CreateServiceDialog/processes/imageVersion.ts"
 import {bindMountsOf, resolveLinks} from "@/dialogs/CreateServiceDialog/processes/bindMounts.ts"
 import {
     buildRegisterContainerRequest,
     RegisterPattern,
     RunnerForm,
 } from "@/dialogs/CreateServiceDialog/processes/buildRegisterContainerRequest.ts"
-import {parsePortRows, PortRow, publishedPortsOf} from "@/dialogs/CreateServiceDialog/processes/portRows.ts"
+import {
+    hasVolumes,
+    parsePortMappingRows,
+    PortMappingRow,
+    portMappingRowsOf,
+} from "@/dialogs/CreateServiceDialog/processes/portMapping.ts"
 
 interface Props {
     container: DockerContainer
@@ -44,13 +52,13 @@ export default function AdoptForm({
 }: Props) {
     const [serviceName, setServiceName] = useState(container.name ?? "")
     const [linkOverrides, setLinkOverrides] = useState<Record<string, string>>({})
-    const [isKeepingPorts, setIsKeepingPorts] = useState(false)
-    const [portRows, setPortRows] = useState<PortRow[]>([])
+    const [portRows, setPortRows] = useState<PortMappingRow[]>(() => portMappingRowsOf(container))
     const [superuser, setSuperuser] = useState("")
     const [password, setPassword] = useState("")
     const [registryUsername, setRegistryUsername] = useState("")
     const [registryPassword, setRegistryPassword] = useState("")
     const [runner, setRunner] = useState<RunnerForm | undefined>(initialRunner)
+    const [selectedTag, setSelectedTag] = useState<string | undefined>(undefined)
     const [isConfirming, setIsConfirming] = useState(false)
     const [submittedReq, setSubmittedReq] = useState<RegisterContainerRequest | null>(null)
 
@@ -62,16 +70,15 @@ export default function AdoptForm({
         onBusyChange(submittedReq !== null)
     }, [submittedReq])
 
-    const publishedPorts = useMemo(() => publishedPortsOf(container), [container])
     const links = useMemo(
         () => resolveLinks(bindMountsOf(container), serviceName, linkOverrides),
         [container, serviceName, linkOverrides],
     )
-    const parsedPorts = useMemo(() => parsePortRows(portRows), [portRows])
+    const parsedPorts = useMemo(() => parsePortMappingRows(portRows), [portRows])
 
-    const isPortsEditable = !isClusterMode && publishedPorts.length > 0
-    const isKeepingEditablePorts = isPortsEditable && isKeepingPorts
-    const isRowsInvalid = isPortsEditable && !isKeepingPorts && parsedPorts === null
+    const hasPublishedPorts = portRows.length > 0
+    const isPortsEditable = !isClusterMode && hasPublishedPorts
+    const isRowsInvalid = isPortsEditable && parsedPorts === null
 
     const request = useMemo(() => {
         if (isRowsInvalid) return null
@@ -88,12 +95,13 @@ export default function AdoptForm({
             runner,
             links,
             isClusterMode,
-            isKeepingPorts: isKeepingEditablePorts,
+            isKeepingPorts: false,
             ports: isPortsEditable ? (parsedPorts ?? []) : [],
+            imageTag: selectedTag && imageTagToSend(selectedTag, currentTagOf(container.imageName ?? "")),
         })
     }, [container.id, environment, serviceName, pattern, isPgLoginRequired, superuser, password,
         isRegistryLoginRequired, registryUsername, registryPassword, runner, links, isClusterMode,
-        isKeepingEditablePorts, isPortsEditable, parsedPorts, isRowsInvalid])
+        isPortsEditable, parsedPorts, isRowsInvalid, selectedTag, container.imageName])
 
     function handleVolumeNameChange(destination: string, volumeName: string) {
         setLinkOverrides({...linkOverrides, [destination]: volumeName})
@@ -120,7 +128,7 @@ export default function AdoptForm({
         return (
             <RestartConfirm
                 containerName={container.name}
-                isKeepingPorts={isKeepingEditablePorts}
+                hasPublishedPorts={hasPublishedPorts}
                 onConfirm={handleConfirm}
                 onCancel={handleCancelConfirm}
             />
@@ -130,7 +138,12 @@ export default function AdoptForm({
     return (
         <div className={cls.AdoptFormContainer}>
             <div className={cls.FieldsWrapper}>
-                <Input label="Image" inputValue={container.imageName ?? ""}/>
+                <ImageVersionPicker
+                    containerId={container.id ?? ""}
+                    image={container.imageName ?? ""}
+                    value={selectedTag}
+                    onChange={setSelectedTag}
+                />
                 <Input label="Service name" inputValue={serviceName} onChange={setServiceName}/>
                 {isPgLoginRequired && (
                     <PgLoginFields
@@ -157,15 +170,14 @@ export default function AdoptForm({
                 )}
                 {links.length > 0 && <BindMountLinks links={links} onVolumeNameChange={handleVolumeNameChange}/>}
                 {isPortsEditable && (
-                    <PortOptions
-                        publishedPorts={publishedPorts}
-                        isKeepingPorts={isKeepingPorts}
+                    <PortMappingTable
                         rows={portRows}
-                        isRowsInvalid={isRowsInvalid}
-                        onKeepChange={setIsKeepingPorts}
+                        hasVolumes={hasVolumes(container)}
+                        isInvalid={isRowsInvalid}
                         onRowsChange={setPortRows}
                     />
                 )}
+                {!hasPublishedPorts && <NoPortsNotice/>}
                 <RestartNotice isClusterMode={isClusterMode}/>
             </div>
             <AdoptActions

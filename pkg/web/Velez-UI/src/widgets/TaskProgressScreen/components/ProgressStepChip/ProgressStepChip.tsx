@@ -29,6 +29,21 @@ const JOB_LABELS: Record<string, string> = {
     register_registry_instance_row: 'Registering instance',
     register_registry_row: 'Registering registry',
     bind_owner_resource: 'Binding owner service',
+    inspect_container: 'Inspecting container',
+    verify_pg_login: 'Verifying Postgres login',
+    store_pg_secret: 'Storing Postgres password',
+    store_runner_secrets: 'Storing runner secrets',
+    verify_registry_login: 'Verifying registry login',
+    store_registry_secret: 'Storing registry password',
+    link_bind_mounts: 'Linking bind mounts',
+    upsert_service: 'Registering service',
+    bind_existing_container: 'Binding container',
+    bind_sidecars: 'Binding sidecars',
+    upsert_runner_row: 'Registering runner',
+    upsert_registry_row: 'Registering registry',
+    upsert_pg_instance: 'Registering Postgres instance',
+    recreate_with_labels: 'Recreating container',
+    recreate_sidecars: 'Recreating sidecars',
 };
 
 function humanizeJobName(name: string): string {

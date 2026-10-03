@@ -1342,6 +1342,12 @@ func (f *fakeContainerService) GetContainer(
 	return nil, nil
 }
 
+func (f *fakeContainerService) FinishOnboarding(
+	_ context.Context, _ *velez_api.FinishOnboarding_Request,
+) (*velez_api.FinishOnboarding_Response, error) {
+	return &velez_api.FinishOnboarding_Response{}, nil
+}
+
 func (f *fakeContainerService) InspectSmerd(_ context.Context, _, contID string) (*velez_api.Smerd, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()

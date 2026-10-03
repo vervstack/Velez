@@ -1,0 +1,42 @@
+.PortMappingTableContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+
+    & .Grid {
+        display: grid;
+        grid-template-columns: auto auto 1fr;
+        align-items: center;
+        gap: 0.5rem 1.25rem;
+    }
+
+    & .Title {
+        font-family: var(--font-mono);
+        font-size: 1rem;
+        color: var(--fg-dim);
+        text-transform: uppercase;
+        letter-spacing: 0.0275rem;
+    }
+
+    & .Cell {
+        font-family: var(--font-mono);
+        font-size: 1rem;
+        color: var(--fg-mid);
+    }
+
+    & .NotesWrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+    }
+
+    & .Note {
+        font-size: 1.0875rem;
+        line-height: 1.4;
+        color: var(--fg-mid);
+    }
+
+    & .Danger {
+        color: var(--red);
+    }
+}

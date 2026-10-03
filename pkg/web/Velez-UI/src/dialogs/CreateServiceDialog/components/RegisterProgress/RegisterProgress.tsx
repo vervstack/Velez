@@ -33,7 +33,7 @@ export default function RegisterProgress({request, containerName}: Props) {
         queryClient.invalidateQueries({queryKey: CONTAINERS_QUERY_KEY})
         queryClient.invalidateQueries({queryKey: CONTAINER_QUERY_KEY})
         queryClient.invalidateQueries({queryKey: SERVICES_QUERY_KEY})
-        toaster.bake({title: "Container registered", description: serviceName, level: "Info"})
+        toaster.bake({title: "Container onboarded", description: serviceName, level: "Info"})
     }
 
     function handleClose() {
@@ -43,7 +43,7 @@ export default function RegisterProgress({request, containerName}: Props) {
 
     return (
         <TaskProgressScreen
-            title="Registering container"
+            title="Onboarding container"
             metaLine={serviceName}
             metaLineSecondary={containerName}
             start={handleStart}

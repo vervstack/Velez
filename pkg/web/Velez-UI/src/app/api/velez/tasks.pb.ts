@@ -122,6 +122,7 @@ export type UpgradeSmerdTaskPayload = {
   extraEnv?: Record<string, string>;
   sidecarContainerNames?: string[];
   isSidecarsSkipped?: boolean;
+  isOldContainerKept?: boolean;
 };
 
 export type RegisterContainerTaskPayload = {
@@ -149,6 +150,7 @@ export type RegisterContainerTaskPayload = {
   registryPendingSecretOwner?: string;
   sidecarContainerNames?: string[];
   isRootRegistered?: boolean;
+  imageTag?: string;
 };
 
 export type CreateRegistryInstanceTaskPayload = {

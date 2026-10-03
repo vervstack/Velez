@@ -131,7 +131,7 @@ export default function ServicesPage() {
     }, [containerLayout, registrationFilter]);
 
     const visibleContainerCount = useMemo(function computeVisibleContainerCount() {
-        return [...containerSections.registered, ...containerSections.unregistered]
+        return [...containerSections.registered, ...containerSections.unregistered, ...containerSections.awaitingEnd]
             .reduce((total, entry) => total + containersOfEntry(entry).length, 0);
     }, [containerSections]);
 
@@ -186,6 +186,14 @@ export default function ServicesPage() {
         } else {
             gridContent = (
                 <>
+                    {containerSections.awaitingEnd.length > 0 && (
+                        <ContainerSection
+                            title="Awaiting onboarding end"
+                            entries={containerSections.awaitingEnd}
+                            onOpen={handleOpenContainer}
+                            onFilterByService={handleFilterByService}
+                        />
+                    )}
                     {containerSections.registered.length > 0 && (
                         <ContainerSection
                             title="Registered"
@@ -196,7 +204,7 @@ export default function ServicesPage() {
                     )}
                     {containerSections.unregistered.length > 0 && (
                         <ContainerSection
-                            title="Unregistered"
+                            title="Not onboarded"
                             entries={containerSections.unregistered}
                             onOpen={handleOpenContainer}
                             onFilterByService={handleFilterByService}

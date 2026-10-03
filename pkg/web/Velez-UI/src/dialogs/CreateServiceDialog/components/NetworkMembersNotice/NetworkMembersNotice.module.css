@@ -8,6 +8,7 @@
     border-radius: var(--radius);
     background: var(--blue-dim);
     padding: 0.625rem 0.75rem;
+    margin: 1.25rem 1.25rem 0;
 
     & .Title {
         color: var(--fg-dim);

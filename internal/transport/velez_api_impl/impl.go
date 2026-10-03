@@ -26,6 +26,7 @@ type Impl struct {
 	hardwareManager node_clients.HardwareManager
 	cfgService      service.ConfigurationService
 	smerdService    service.ContainerService
+	imageVersions   service.ImageVersionsService
 	vervServices    service.VervServicesService
 	jobsEngine      jobs.Engine
 	secrets         secrets.Store
@@ -38,6 +39,7 @@ func NewImpl(cfg config.Config, srv service.Services, jobsEngine jobs.Engine) *I
 		version:         cfg.AppInfo.Version,
 		cfgService:      srv.ConfigurationService(),
 		smerdService:    srv.SmerdManager(),
+		imageVersions:   srv.ImageVersions(),
 		vervServices:    srv.VervServices(),
 		hardwareManager: hardware.New(cfg.Environment.NodeRegion),
 		jobsEngine:      jobsEngine,

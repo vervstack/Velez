@@ -5,19 +5,19 @@ import {restartMessage} from "@/dialogs/CreateServiceDialog/processes/restartMes
 
 interface Props {
     containerName?: string
-    isKeepingPorts: boolean
+    hasPublishedPorts: boolean
     onConfirm(): void
     onCancel(): void
 }
 
-export default function RestartConfirm({containerName, isKeepingPorts, onConfirm, onCancel}: Props) {
+export default function RestartConfirm({containerName, hasPublishedPorts, onConfirm, onCancel}: Props) {
     return (
         <div className={cls.RestartConfirmContainer}>
             <ConfirmDialog
                 danger
                 title="Restart container?"
-                message={restartMessage(containerName, isKeepingPorts)}
-                confirmLabel="Register and restart"
+                message={restartMessage(containerName, hasPublishedPorts)}
+                confirmLabel="Onboard and restart"
                 onConfirm={onConfirm}
                 onClose={onCancel}
             />

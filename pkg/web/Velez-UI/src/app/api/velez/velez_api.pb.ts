@@ -75,6 +75,26 @@ export type ListContainersResponse = {
 
 export type ListContainers = Record<string, never>;
 
+export type ListContainerImageVersionsRequest = {
+  containerId?: string;
+  environment?: string;
+};
+
+export type ListContainerImageVersionsResponse = {
+  tags?: string[];
+};
+
+export type ListContainerImageVersions = Record<string, never>;
+
+export type FinishOnboardingRequest = {
+  containerId?: string;
+  environment?: string;
+};
+
+export type FinishOnboardingResponse = Record<string, never>;
+
+export type FinishOnboarding = Record<string, never>;
+
 export type RegisterContainerRequestBindMountLink = {
   source?: string;
   volumeName?: string;
@@ -110,7 +130,7 @@ type BaseRegisterContainerRequest = {
   serviceName?: string;
   bindMountLinks?: RegisterContainerRequestBindMountLink[];
   keepPortMapping?: boolean;
-  ports?: VelezApiVelezCommon.Port[];
+  ports?: VelezApiVelezCommon.Port[];imageTag?: string;
 };
 
 export type RegisterContainerRequest = BaseRegisterContainerRequest &
@@ -240,6 +260,12 @@ export class VelezAPI {
   }
   static GetContainer(this:void, req: GetContainerRequest, initReq?: fm.InitReq): Promise<VelezApiVelezCommon.DockerContainer> {
     return fm.fetchRequest<VelezApiVelezCommon.DockerContainer>(`/api/container/${req.id}?${fm.renderURLSearchParams(req, ["id"])}`, {...initReq, method: "GET"});
+  }
+  static ListContainerImageVersions(this:void, req: ListContainerImageVersionsRequest, initReq?: fm.InitReq): Promise<ListContainerImageVersionsResponse> {
+    return fm.fetchRequest<ListContainerImageVersionsResponse>(`/api/container/${req.containerId}/image_versions?${fm.renderURLSearchParams(req, ["containerId"])}`, {...initReq, method: "GET"});
+  }
+  static FinishOnboarding(this:void, req: FinishOnboardingRequest, initReq?: fm.InitReq): Promise<FinishOnboardingResponse> {
+    return fm.fetchRequest<FinishOnboardingResponse>(`/api/container/finish_onboarding`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
   static DropSmerd(this:void, req: DropSmerdRequest, initReq?: fm.InitReq): Promise<DropSmerdResponse> {
     return fm.fetchRequest<DropSmerdResponse>(`/api/smerd/drop`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});

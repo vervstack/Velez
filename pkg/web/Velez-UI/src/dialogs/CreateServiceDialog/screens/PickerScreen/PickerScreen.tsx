@@ -31,7 +31,8 @@ export default function PickerScreen({suggestedScreen, enabledScreens, onSelect}
                 <Choice
                     title={card.title}
                     sub={card.description}
-                    active={isSuggested}
+                    active={false}
+                    isSuggested={isSuggested}
                     disabled={isDisabled}
                     onClick={handleClick}
                 />

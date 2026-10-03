@@ -5,15 +5,16 @@ interface ChoiceProps {
     title: string;
     sub?: string;
     active: boolean;
+    isSuggested?: boolean;
     disabled?: boolean;
     onClick: () => void;
 }
 
-export default function Choice({title, sub, active, disabled, onClick}: ChoiceProps) {
+export default function Choice({title, sub, active, isSuggested, disabled, onClick}: ChoiceProps) {
     return (
         <button
             type="button"
-            className={cn(cls.ChoiceContainer, { [cls.active]: active })}
+            className={cn(cls.ChoiceContainer, { [cls.active]: active, [cls.suggested]: isSuggested })}
             disabled={disabled}
             onClick={onClick}
         >

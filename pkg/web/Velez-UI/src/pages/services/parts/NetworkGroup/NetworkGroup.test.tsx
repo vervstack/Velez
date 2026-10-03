@@ -44,13 +44,13 @@ describe("NetworkGroup", () => {
             {id: "s2", name: "worker", isRegistered: true},
         ])
 
-        expect(screen.getAllByRole("button", {name: "Register"})).toHaveLength(1)
+        expect(screen.getAllByRole("button", {name: "Onboard"})).toHaveLength(1)
     })
 
     it("offers no Register when every container is registered", () => {
         renderGroup({id: "root", name: "vpn", isRegistered: true}, [{id: "s1", name: "app", isRegistered: true}])
 
-        expect(screen.queryByRole("button", {name: "Register"})).not.toBeInTheDocument()
+        expect(screen.queryByRole("button", {name: "Onboard"})).not.toBeInTheDocument()
     })
 
     it("opens the dialog for the root with the sidecars when Register is clicked", () => {
@@ -58,7 +58,7 @@ describe("NetworkGroup", () => {
         const members = [{id: "s1", name: "app"}]
         const {OpenDialog} = renderGroup(root, members)
 
-        fireEvent.click(screen.getByRole("button", {name: "Register"}))
+        fireEvent.click(screen.getByRole("button", {name: "Onboard"}))
 
         expect(OpenDialog).toHaveBeenCalledTimes(1)
         expect(OpenDialog.mock.calls[0][0].props.container).toBe(root)

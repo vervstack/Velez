@@ -17,6 +17,8 @@ export default function NetworkGroup({root, members, onOpen, onFilterByService}:
 
     const isRegisterVisible = [root, ...members].some(function isUnregistered(container) {
         return !container.isRegistered
+    }) && ![root, ...members].some(function isLeftover(container) {
+        return Boolean(container.replacedByContainerId)
     })
 
     const networkNames = (root.networks ?? [])
@@ -36,7 +38,11 @@ export default function NetworkGroup({root, members, onOpen, onFilterByService}:
                 <span className={cls.Caption}>
                     Shared network{networkNames && `: ${networkNames}`}
                 </span>
-                {isRegisterVisible && <Button variant="secondary" sm onClick={handleRegister}>Register</Button>}
+                {isRegisterVisible && (
+                    <Button variant="secondary" sm onClick={handleRegister} tooltipContent="Onboard to Verv">
+                        Onboard
+                    </Button>
+                )}
             </div>
             <div className={cls.Cards}>
                 <ContainerCard container={root} onOpen={onOpen} onFilterByService={onFilterByService} isRegisterHidden/>

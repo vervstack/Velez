@@ -6,7 +6,8 @@
   },
   "tags": [
     {
-      "name": "ContainerRegistryAPI"
+      "name": "ContainerRegistryAPI",
+      "description": "ContainerRegistryAPI - Container-Registry-as-a-Service. A registry\ninstance is a normal Velez service (velez.services /\ndeployment_specifications / deployments), with only the registry-specific\nfacts (port, ui_port, username, secret_ref) held in\nvelez.registry_instances - mirrors PostgresAPI exactly. See\ndocs/features/pgaas_and_registry_plugin.md section 3 for the shape this\nfollows, and internal/jobs/enable_registry.go for the plugin this\nreplaces."
     }
   ],
   "consumes": [

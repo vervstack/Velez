@@ -27,6 +27,10 @@ const (
 	PortLabel        = "velez.port"
 	EnvLabel         = "env"
 
+	// OnboardedFromLabel is stamped on a container created by register_container's recreate; its value is the id of
+	// the container it replaced. While that container still exists it waits for FinishOnboarding.
+	OnboardedFromLabel = "velez.onboarded_from"
+
 	// DisplayNameLabel carries the human-facing service name, distinct from
 	// VervServiceLabel when the latter carries a storage-layer prefix (see
 	// PgaasNamePrefix et al. below) - e.g. a runner instance named

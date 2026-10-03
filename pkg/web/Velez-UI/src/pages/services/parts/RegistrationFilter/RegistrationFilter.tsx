@@ -6,7 +6,7 @@ import type {RegistrationFilter as Filter} from "@/pages/services/processes/part
 const OPTIONS: DropdownOption[] = [
     {id: "all", name: "All"},
     {id: "registered", name: "Registered only"},
-    {id: "unregistered", name: "Unregistered only"},
+    {id: "unregistered", name: "Not onboarded only"},
 ]
 
 interface Props {

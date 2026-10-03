@@ -16,6 +16,10 @@ import {
     VersionResponse,
     RegisterContainerRequest,
     RegisterContainerResponse,
+    FinishOnboardingRequest,
+    FinishOnboardingResponse,
+    ListContainerImageVersionsRequest,
+    ListContainerImageVersionsResponse,
 } from "@/app/api/velez";
 import {InitReq} from "@/app/settings/state.ts";
 import {CreateSmerdReq, Port, Smerd, toProto, Volume} from "@/model/smerds/Smerds.ts";
@@ -30,6 +34,10 @@ class VelezService extends ApiService {
 
     async registerContainer(body: RegisterContainerRequest): Promise<RegisterContainerResponse> {
         return this.mutate((req) => VelezAPI.RegisterContainer(body, req))
+    }
+
+    async finishOnboarding(body: FinishOnboardingRequest): Promise<FinishOnboardingResponse> {
+        return this.mutate((req) => VelezAPI.FinishOnboarding(body, req))
     }
 }
 
@@ -113,6 +121,14 @@ export async function FetchContainers(filters?: ContainerFilter[]): Promise<List
 export async function FetchContainer(id: string): Promise<DockerContainer> {
     const req: GetContainerRequest = {id, environment: useEnvironmentStore.getState().selectedEnvironment}
     return VelezAPI.GetContainer(req, GetInitReq())
+}
+
+export async function FetchImageVersions(containerId: string): Promise<ListContainerImageVersionsResponse> {
+    const req: ListContainerImageVersionsRequest = {
+        containerId,
+        environment: useEnvironmentStore.getState().selectedEnvironment,
+    }
+    return VelezAPI.ListContainerImageVersions(req, GetInitReq())
 }
 
 

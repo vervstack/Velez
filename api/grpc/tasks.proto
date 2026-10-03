@@ -251,6 +251,9 @@ message UpgradeSmerdTaskPayload {
   // register_container, which recreates its own sidecar group.
   bool is_sidecars_skipped = 14;
 
+  // is_old_container_kept keeps the old container (renamed "<name>_old", paused or stopped) instead of dropping it after the swap; set by register_container.
+  bool is_old_container_kept = 15;
+
   message PortsOverride {
     repeated Port ports = 1;
   }
@@ -320,6 +323,9 @@ message RegisterContainerTaskPayload {
 
   // Filled by inspect_container: the root is already registered (service label or binding), only its unregistered sidecars are adopted.
   bool is_root_registered = 25;
+
+  // image_tag is the tag the registered container is pinned to; unset keeps its current image reference.
+  optional string image_tag = 26;
 }
 
 // CreateRegistryInstanceTaskPayload is the task context for the

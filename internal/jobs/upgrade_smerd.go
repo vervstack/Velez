@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"maps"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -132,7 +133,7 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 
 	dockerAPI := h.nodeClients.Docker().Client()
 
-	return []NamedJob{
+	namedJobs := []NamedJob{
 		{
 			Name: stepCheckSelfUpgrade,
 			Job: &checkSelfUpgradeJob{
@@ -284,6 +285,14 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			Job:  newRecreateSidecarsJob(h.runtimes, upgradeSidecarGroup{payload: payload}),
 		},
 	}
+
+	if payload.GetIsOldContainerKept() {
+		namedJobs = slices.DeleteFunc(namedJobs, func(j NamedJob) bool {
+			return j.Name == stepDropOldContainer
+		})
+	}
+
+	return namedJobs
 }
 
 type checkSelfUpgradeJob struct {
@@ -363,6 +372,11 @@ func (j *captureOldContainerJob) Do(ctx context.Context) error {
 		Labels: cont.GetLabels(),
 	}
 
+	err = j.dropStaleOnboardedMarker(ctx, req, environment)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
 	if len(j.ctx.GetExtraLabels()) != 0 {
 		reqLabels := req.GetLabels()
 		if reqLabels == nil {
@@ -387,6 +401,33 @@ func (j *captureOldContainerJob) Do(ctx context.Context) error {
 
 	j.ctx.SetRequest(req)
 	j.ctx.SetOldContainerId(cont.GetUuid())
+
+	return nil
+}
+
+// dropStaleOnboardedMarker erases the onboarded-from marker once the container it points at is gone,
+// so the marker survives upgrades only while the replaced container still exists.
+func (j *captureOldContainerJob) dropStaleOnboardedMarker(
+	ctx context.Context, req *velez_api.CreateSmerd_Request, environment string,
+) error {
+	oldId := req.GetLabels()[labels.OnboardedFromLabel]
+	if oldId == "" {
+		return nil
+	}
+
+	runtime, err := j.runtimes.Runtime(ctx, environment)
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving container runtime")
+	}
+
+	_, found, err := runtime.InspectAny(ctx, oldId)
+	if err != nil {
+		return rerrors.Wrap(err, "error inspecting onboarded-from container")
+	}
+
+	if !found {
+		delete(req.GetLabels(), labels.OnboardedFromLabel)
+	}
 
 	return nil
 }

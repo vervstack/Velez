@@ -12,8 +12,14 @@
     text-align: left;
     transition: border-color var(--vs-ease), background var(--vs-ease);
 
-    &:hover:not(.active) {
-        border-color: var(--border);
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    &:hover:not(.active, :disabled) {
+        background: var(--bg3);
+        border-color: var(--border-h);
     }
 
     &.active {
@@ -21,13 +27,9 @@
         border-color: var(--border-h);
     }
 
-    &:disabled {
-        cursor: not-allowed;
-        opacity: 0.7;
-
-        &:hover {
-            border-color: var(--border-s);
-        }
+    &.suggested {
+        border-color: var(--cyan);
+        box-shadow: 0 0 0 0.0625rem var(--cyan);
     }
 }
 

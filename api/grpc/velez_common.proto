@@ -97,6 +97,8 @@ message DockerContainer {
   SuggestedRunnerDefaults suggested_runner_defaults = 14;
   // Id of the root container whose network namespace this container shares (resolved through chains). Unset for a root or standalone container.
   optional string network_owner_container_id = 15;
+  // Id of the container that replaced this one when it was onboarded. Set on the old container while it waits for FinishOnboarding.
+  optional string replaced_by_container_id = 16;
 }
 
 // SuggestedRunnerDefaults are runner register values derived from a container's labels and env.

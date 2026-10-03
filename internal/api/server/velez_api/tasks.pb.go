@@ -834,8 +834,10 @@ type UpgradeSmerdTaskPayload struct {
 	// is_sidecars_skipped leaves sidecars to the caller. Set by
 	// register_container, which recreates its own sidecar group.
 	IsSidecarsSkipped bool `protobuf:"varint,14,opt,name=is_sidecars_skipped,json=isSidecarsSkipped,proto3" json:"is_sidecars_skipped,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// is_old_container_kept keeps the old container (renamed "<name>_old", paused or stopped) instead of dropping it after the swap; set by register_container.
+	IsOldContainerKept bool `protobuf:"varint,15,opt,name=is_old_container_kept,json=isOldContainerKept,proto3" json:"is_old_container_kept,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *UpgradeSmerdTaskPayload) Reset() {
@@ -966,6 +968,13 @@ func (x *UpgradeSmerdTaskPayload) GetIsSidecarsSkipped() bool {
 	return false
 }
 
+func (x *UpgradeSmerdTaskPayload) GetIsOldContainerKept() bool {
+	if x != nil {
+		return x.IsOldContainerKept
+	}
+	return false
+}
+
 // RegisterContainerTaskPayload is the task context for the
 // "register_container" action. Flat fields only - the RegisterContainer
 // request carries a oneof, which encoding/json can't round-trip.
@@ -1013,8 +1022,10 @@ type RegisterContainerTaskPayload struct {
 	SidecarContainerNames []string `protobuf:"bytes,24,rep,name=sidecar_container_names,json=sidecarContainerNames,proto3" json:"sidecar_container_names,omitempty"`
 	// Filled by inspect_container: the root is already registered (service label or binding), only its unregistered sidecars are adopted.
 	IsRootRegistered bool `protobuf:"varint,25,opt,name=is_root_registered,json=isRootRegistered,proto3" json:"is_root_registered,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// image_tag is the tag the registered container is pinned to; unset keeps its current image reference.
+	ImageTag      *string `protobuf:"bytes,26,opt,name=image_tag,json=imageTag,proto3,oneof" json:"image_tag,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RegisterContainerTaskPayload) Reset() {
@@ -1213,6 +1224,13 @@ func (x *RegisterContainerTaskPayload) GetIsRootRegistered() bool {
 		return x.IsRootRegistered
 	}
 	return false
+}
+
+func (x *RegisterContainerTaskPayload) GetImageTag() string {
+	if x != nil && x.ImageTag != nil {
+		return *x.ImageTag
+	}
+	return ""
 }
 
 // CreateRegistryInstanceTaskPayload is the task context for the
@@ -1726,7 +1744,7 @@ const file_tasks_proto_rawDesc = "" +
 	"\x06failed\x18\x02 \x03(\v2#.velez_api.DropSmerd.Response.ErrorR\x06failed\x12\x1e\n" +
 	"\n" +
 	"successful\x18\x03 \x03(\tR\n" +
-	"successful\"\x95\n" +
+	"successful\"\xc8\n" +
 	"\n" +
 	"\x17UpgradeSmerdTaskPayload\x12H\n" +
 	"\x0fupgrade_request\x18\x01 \x01(\v2\x1f.velez_api.UpgradeSmerd.RequestR\x0eupgradeRequest\x128\n" +
@@ -1744,7 +1762,8 @@ const file_tasks_proto_rawDesc = "" +
 	"\x10volumes_override\x18\v \x01(\v22.velez_api.UpgradeSmerdTaskPayload.VolumesOverrideH\x03R\x0fvolumesOverride\x88\x01\x01\x12M\n" +
 	"\textra_env\x18\f \x03(\v20.velez_api.UpgradeSmerdTaskPayload.ExtraEnvEntryR\bextraEnv\x126\n" +
 	"\x17sidecar_container_names\x18\r \x03(\tR\x15sidecarContainerNames\x12.\n" +
-	"\x13is_sidecars_skipped\x18\x0e \x01(\bR\x11isSidecarsSkipped\x1a>\n" +
+	"\x13is_sidecars_skipped\x18\x0e \x01(\bR\x11isSidecarsSkipped\x121\n" +
+	"\x15is_old_container_kept\x18\x0f \x01(\bR\x12isOldContainerKept\x1a>\n" +
 	"\x10ImageLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +
@@ -1761,7 +1780,7 @@ const file_tasks_proto_rawDesc = "" +
 	"\x11_old_container_idB\x0f\n" +
 	"\r_container_idB\x11\n" +
 	"\x0f_ports_overrideB\x13\n" +
-	"\x11_volumes_override\"\xa1\t\n" +
+	"\x11_volumes_override\"\xd1\t\n" +
 	"\x1cRegisterContainerTaskPayload\x12!\n" +
 	"\fcontainer_id\x18\x01 \x01(\tR\vcontainerId\x12 \n" +
 	"\venvironment\x18\x02 \x01(\tR\venvironment\x12!\n" +
@@ -1789,7 +1808,10 @@ const file_tasks_proto_rawDesc = "" +
 	"\x11registry_username\x18\x16 \x01(\tR\x10registryUsername\x12A\n" +
 	"\x1dregistry_pending_secret_owner\x18\x17 \x01(\tR\x1aregistryPendingSecretOwner\x126\n" +
 	"\x17sidecar_container_names\x18\x18 \x03(\tR\x15sidecarContainerNames\x12,\n" +
-	"\x12is_root_registered\x18\x19 \x01(\bR\x10isRootRegisteredJ\x04\b\f\x10\rR\vpg_password\"\xf7\x02\n" +
+	"\x12is_root_registered\x18\x19 \x01(\bR\x10isRootRegistered\x12 \n" +
+	"\timage_tag\x18\x1a \x01(\tH\x00R\bimageTag\x88\x01\x01B\f\n" +
+	"\n" +
+	"_image_tagJ\x04\b\f\x10\rR\vpg_password\"\xf7\x02\n" +
 	"!CreateRegistryInstanceTaskPayload\x12C\n" +
 	"\arequest\x18\x01 \x01(\v2).velez_api.CreateRegistryInstance.RequestR\arequest\x12\x1f\n" +
 	"\busername\x18\x02 \x01(\tH\x00R\busername\x88\x01\x01\x12\x1f\n" +
@@ -1930,6 +1952,7 @@ func file_tasks_proto_init() {
 	file_tasks_proto_msgTypes[6].OneofWrappers = []any{}
 	file_tasks_proto_msgTypes[7].OneofWrappers = []any{}
 	file_tasks_proto_msgTypes[9].OneofWrappers = []any{}
+	file_tasks_proto_msgTypes[10].OneofWrappers = []any{}
 	file_tasks_proto_msgTypes[11].OneofWrappers = []any{}
 	file_tasks_proto_msgTypes[12].OneofWrappers = []any{}
 	type x struct{}

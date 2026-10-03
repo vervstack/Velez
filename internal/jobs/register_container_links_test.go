@@ -174,7 +174,7 @@ func Test_ApplyRegisterOverrides_RequestPortsReplaceInspectedOnes(t *testing.T) 
 	err := applyRegisterOverrides(payload, newPublishedContainerInfo(), req)
 
 	require.NoError(t, err)
-	require.False(t, payload.GetStopOldFirst())
+	require.True(t, payload.GetStopOldFirst(), "the inspected container has mounts the replacement shares")
 	require.Equal(t, requested, payload.GetPortsOverride().GetPorts())
 }
 

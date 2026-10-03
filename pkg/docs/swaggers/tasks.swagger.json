@@ -6,7 +6,8 @@
   },
   "tags": [
     {
-      "name": "TasksApi"
+      "name": "TasksApi",
+      "description": "TasksApi exposes progress/status for durable, resumable tasks\nexecuted by the internal task/job engine."
     }
   ],
   "consumes": [
@@ -225,7 +226,7 @@
         "env"
       ],
       "default": "yaml",
-      "title": "- yaml: Default"
+      "description": "- yaml: Default"
     },
     "velez_apiCreateSmerdRequest": {
       "type": "object",

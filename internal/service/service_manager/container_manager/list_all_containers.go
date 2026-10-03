@@ -42,6 +42,7 @@ func (c *ContainerManager) ListContainers(
 	}
 
 	owners := network_owner.OwnerIds(cl)
+	replaced := replacedContainerIds(cl)
 
 	for _, cont := range cl {
 		dc := &velez_api.DockerContainer{
@@ -72,6 +73,11 @@ func (c *ContainerManager) ListContainers(
 		ownerId, isShared := owners[cont.ID]
 		if isShared {
 			dc.NetworkOwnerContainerId = &ownerId
+		}
+
+		replacedBy, isReplaced := replaced[cont.ID]
+		if isReplaced {
+			dc.ReplacedByContainerId = &replacedBy
 		}
 
 		svc, isLabelled := cont.Labels[labels.VervServiceLabel]

@@ -6,7 +6,8 @@
   },
   "tags": [
     {
-      "name": "VelezAPI"
+      "name": "VelezAPI",
+      "description": "VelezAPI direct API for work with containers."
     }
   ],
   "consumes": [
@@ -41,6 +42,38 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/velez_apiAssembleConfigRequest"
+            }
+          }
+        ],
+        "tags": [
+          "VelezAPI"
+        ]
+      }
+    },
+    "/api/container/finish_onboarding": {
+      "post": {
+        "operationId": "VelezAPI_FinishOnboarding",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiFinishOnboardingResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiFinishOnboardingRequest"
             }
           }
         ],
@@ -106,6 +139,42 @@
             "schema": {
               "$ref": "#/definitions/velez_apiRegisterContainerRequest"
             }
+          }
+        ],
+        "tags": [
+          "VelezAPI"
+        ]
+      }
+    },
+    "/api/container/{containerId}/image_versions": {
+      "get": {
+        "operationId": "VelezAPI_ListContainerImageVersions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListContainerImageVersionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "containerId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "environment",
+            "in": "query",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [
@@ -664,7 +733,7 @@
         "env"
       ],
       "default": "yaml",
-      "title": "- yaml: Default"
+      "description": "- yaml: Default"
     },
     "velez_apiConnection": {
       "type": "object",
@@ -845,6 +914,10 @@
         "networkOwnerContainerId": {
           "type": "string",
           "description": "Id of the root container whose network namespace this container shares (resolved through chains). Unset for a root or standalone container."
+        },
+        "replacedByContainerId": {
+          "type": "string",
+          "description": "Id of the container that replaced this one when it was onboarded. Set on the old container while it waits for FinishOnboarding."
         }
       }
     },
@@ -901,6 +974,21 @@
         }
       }
     },
+    "velez_apiFinishOnboardingRequest": {
+      "type": "object",
+      "properties": {
+        "containerId": {
+          "type": "string",
+          "description": "Id of the replaced (old) container that waits for its onboarded replacement to be confirmed."
+        },
+        "environment": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiFinishOnboardingResponse": {
+      "type": "object"
+    },
     "velez_apiGetHardwareResponse": {
       "type": "object",
       "properties": {
@@ -934,6 +1022,18 @@
         "nodeRegion": {
           "type": "string",
           "description": "node_region is this node's configured region (config.Environment.NodeRegion)."
+        }
+      }
+    },
+    "velez_apiListContainerImageVersionsResponse": {
+      "type": "object",
+      "properties": {
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Every tag of the image repository whose manifest digest equals the running image's digest.\nEmpty when the image cannot be resolved (locally built, digest gone from the registry, registry unreachable)."
         }
       }
     },
@@ -1127,7 +1227,7 @@
         },
         "keepPortMapping": {
           "type": "boolean",
-          "description": "keep_port_mapping reuses the container's existing host ports. Requires stopping the old container\nbefore creating the new one (downtime). Default false. Single mode only."
+          "description": "keep_port_mapping is kept for backward compatibility: the server now decides on its own whether\nthe old container must be stopped first."
         },
         "ports": {
           "type": "array",
@@ -1135,7 +1235,11 @@
             "type": "object",
             "$ref": "#/definitions/velez_apiPort"
           },
-          "description": "ports are the port mappings the recreated container publishes when keep_port_mapping is false.\nEmpty = the container is recreated with no published ports. Single mode only."
+          "description": "ports are the per-container-port host mappings the recreated container publishes.\nEmpty = the container is recreated with no published ports. Single mode only."
+        },
+        "imageTag": {
+          "type": "string",
+          "description": "image_tag pins the registered container to this tag of its current image repository.\nUnset keeps the image reference the container runs with."
         }
       }
     },

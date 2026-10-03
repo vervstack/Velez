@@ -41,6 +41,16 @@
     color: var(--fg-dim);
 }
 
+.WaitingBadge {
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: 0.59375rem;
+    padding: 0.125rem 0.4rem;
+    border-radius: calc(var(--radius) - 1px);
+    background: var(--bg1);
+    color: var(--fg-dim);
+}
+
 .Image {
     font-family: var(--font-mono);
     font-size: 0.6875rem;

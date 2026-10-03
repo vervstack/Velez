@@ -6,7 +6,8 @@
   },
   "tags": [
     {
-      "name": "RunnersAPI"
+      "name": "RunnersAPI",
+      "description": "RunnersAPI - Runners-as-a-Service. A runner is a normal Velez service\n(velez.services / deployment_specifications / deployments), with only the\nrunner-specific facts (provider, scope, target, labels, secret_ref) held in\nvelez.runners. Git-agnostic by design: GitHub Actions is the first\nRunnerProvider, GitLab and others are additional providers under this same\ncontract, not separate contracts. Structured after PostgresAPI."
     }
   ],
   "consumes": [

@@ -896,8 +896,10 @@ type DockerContainer struct {
 	SuggestedRunnerDefaults *SuggestedRunnerDefaults `protobuf:"bytes,14,opt,name=suggested_runner_defaults,json=suggestedRunnerDefaults,proto3" json:"suggested_runner_defaults,omitempty"`
 	// Id of the root container whose network namespace this container shares (resolved through chains). Unset for a root or standalone container.
 	NetworkOwnerContainerId *string `protobuf:"bytes,15,opt,name=network_owner_container_id,json=networkOwnerContainerId,proto3,oneof" json:"network_owner_container_id,omitempty"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	// Id of the container that replaced this one when it was onboarded. Set on the old container while it waits for FinishOnboarding.
+	ReplacedByContainerId *string `protobuf:"bytes,16,opt,name=replaced_by_container_id,json=replacedByContainerId,proto3,oneof" json:"replaced_by_container_id,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *DockerContainer) Reset() {
@@ -1031,6 +1033,13 @@ func (x *DockerContainer) GetSuggestedRunnerDefaults() *SuggestedRunnerDefaults 
 func (x *DockerContainer) GetNetworkOwnerContainerId() string {
 	if x != nil && x.NetworkOwnerContainerId != nil {
 		return *x.NetworkOwnerContainerId
+	}
+	return ""
+}
+
+func (x *DockerContainer) GetReplacedByContainerId() string {
+	if x != nil && x.ReplacedByContainerId != nil {
+		return *x.ReplacedByContainerId
 	}
 	return ""
 }
@@ -1946,7 +1955,7 @@ const file_velez_common_proto_rawDesc = "" +
 	"\vdestination\x18\x02 \x01(\tR\vdestination\x12\x12\n" +
 	"\x04type\x18\x03 \x01(\tR\x04type\x12\x1d\n" +
 	"\n" +
-	"read_write\x18\x04 \x01(\bR\treadWrite\"\xaa\a\n" +
+	"read_write\x18\x04 \x01(\bR\treadWrite\"\x85\b\n" +
 	"\x0fDockerContainer\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
@@ -1965,7 +1974,8 @@ const file_velez_common_proto_rawDesc = "" +
 	"\x13linked_service_name\x18\f \x01(\tH\x00R\x11linkedServiceName\x88\x01\x01\x12F\n" +
 	"\x11suggested_pattern\x18\r \x01(\x0e2\x19.velez_api.ServicePatternR\x10suggestedPattern\x12^\n" +
 	"\x19suggested_runner_defaults\x18\x0e \x01(\v2\".velez_api.SuggestedRunnerDefaultsR\x17suggestedRunnerDefaults\x12@\n" +
-	"\x1anetwork_owner_container_id\x18\x0f \x01(\tH\x01R\x17networkOwnerContainerId\x88\x01\x01\x1a9\n" +
+	"\x1anetwork_owner_container_id\x18\x0f \x01(\tH\x01R\x17networkOwnerContainerId\x88\x01\x01\x12<\n" +
+	"\x18replaced_by_container_id\x18\x10 \x01(\tH\x02R\x15replacedByContainerId\x88\x01\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a6\n" +
@@ -1973,7 +1983,8 @@ const file_velez_common_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\x16\n" +
 	"\x14_linked_service_nameB\x1d\n" +
-	"\x1b_network_owner_container_id\"\xd5\x01\n" +
+	"\x1b_network_owner_container_idB\x1b\n" +
+	"\x19_replaced_by_container_id\"\xd5\x01\n" +
 	"\x17SuggestedRunnerDefaults\x12\x1a\n" +
 	"\bprovider\x18\x01 \x01(\tR\bprovider\x12\x14\n" +
 	"\x05scope\x18\x02 \x01(\tR\x05scope\x12\x16\n" +

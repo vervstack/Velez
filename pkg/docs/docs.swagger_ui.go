@@ -24,23 +24,11 @@ func Swagger() (p string, handler http.HandlerFunc) {
 	mux.Handle(BasePath, swaggerui.NewHandler(
 		swaggerui.WithBasePath(BasePath),
 		swaggerui.WithHTMLTitle("Swagger"),
-		swaggerui.WithSpecURLs("VelezCommon",
+		swaggerui.WithSpecURLs("ContainerRegistryApi",
 			[]swaggerui.SpecURL{
-				{
-					Name: "VelezCommon",
-					URL:  path.Join(swaggerPath, "velez_common.swagger.json"),
-				},
 				{
 					Name: "ContainerRegistryApi",
 					URL:  path.Join(swaggerPath, "container_registry_api.swagger.json"),
-				},
-				{
-					Name: "RunnersApi",
-					URL:  path.Join(swaggerPath, "runners_api.swagger.json"),
-				},
-				{
-					Name: "VelezApi",
-					URL:  path.Join(swaggerPath, "velez_api.swagger.json"),
 				},
 				{
 					Name: "ControlPlaneApi",
@@ -51,12 +39,24 @@ func Swagger() (p string, handler http.HandlerFunc) {
 					URL:  path.Join(swaggerPath, "pgaas_api.swagger.json"),
 				},
 				{
+					Name: "RunnersApi",
+					URL:  path.Join(swaggerPath, "runners_api.swagger.json"),
+				},
+				{
 					Name: "ServiceApi",
 					URL:  path.Join(swaggerPath, "service_api.swagger.json"),
 				},
 				{
 					Name: "Tasks",
 					URL:  path.Join(swaggerPath, "tasks.swagger.json"),
+				},
+				{
+					Name: "VelezApi",
+					URL:  path.Join(swaggerPath, "velez_api.swagger.json"),
+				},
+				{
+					Name: "VelezCommon",
+					URL:  path.Join(swaggerPath, "velez_common.swagger.json"),
 				},
 				{
 					Name: "VervClosedNetwork",

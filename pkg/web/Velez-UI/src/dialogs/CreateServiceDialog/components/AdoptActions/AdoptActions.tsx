@@ -13,7 +13,7 @@ export default function AdoptActions({isClusterMode, isRegisterDisabled, onCance
         <div className={cls.AdoptActionsContainer}>
             <Button variant="secondary" onClick={onCancel}>Cancel</Button>
             <Button variant={isClusterMode ? "primary" : "danger"} onClick={onRegister} disabled={isRegisterDisabled}>
-                Register
+                Onboard
             </Button>
         </div>
     )

@@ -35,7 +35,7 @@ describe("serviceScreen", () => {
     })
 
     it("titles the adopt dialog with the container name", () => {
-        expect(adoptTitle("db-1")).toBe("Register container db-1")
-        expect(adoptTitle()).toBe("Register container")
+        expect(adoptTitle("db-1")).toBe("Onboard container db-1")
+        expect(adoptTitle()).toBe("Onboard container")
     })
 })

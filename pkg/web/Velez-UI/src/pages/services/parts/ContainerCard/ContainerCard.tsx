@@ -13,6 +13,7 @@ import Button from "@/components/base/Button.tsx";
 import StatusDot from "@/components/base/StatusDot";
 import ServiceChip from "@/components/base/chips/ServiceChip";
 import CreateServiceDialog from "@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx";
+import FinishOnboardingButton from "@/pages/services/parts/FinishOnboardingButton/FinishOnboardingButton.tsx";
 
 interface Props {
     container: DockerContainer;
@@ -36,7 +37,9 @@ export default function ContainerCard({container, onOpen, onFilterByService, isR
         OpenDialog(<CreateServiceDialog container={container}/>);
     }
 
+    const isLeftover = Boolean(container.replacedByContainerId)
     const isRegisterOffered = !container.isRegistered && !container.linkedServiceName && !isRegisterHidden
+        && !isLeftover
 
     const presentation = container.linkedServiceName
         ? deriveContainerServicePresentation(container)
@@ -47,7 +50,8 @@ export default function ContainerCard({container, onOpen, onFilterByService, isR
         <div className={cls.ContainerCardContainer} onClick={handleClick}>
             <div className={cls.NameRow}>
                 <span className={cls.Name}>{container.name || container.id}</span>
-                {!container.isRegistered && <span className={cls.UnregisteredBadge}>unregistered</span>}
+                {!container.isRegistered && !isLeftover && <span className={cls.UnregisteredBadge}>not onboarded</span>}
+                {isLeftover && <span className={cls.WaitingBadge}>waiting</span>}
             </div>
             <div className={cls.Image}>{container.imageName}</div>
             <div className={cls.StatusRow}>
@@ -63,10 +67,17 @@ export default function ContainerCard({container, onOpen, onFilterByService, isR
                     />
                 )}
             </div>
+            {isLeftover && (
+                <div className={cls.ActionsRow} onClick={handleActionsClick}>
+                    <FinishOnboardingButton container={container}/>
+                </div>
+            )}
             {isRegisterOffered && (
                 <div className={cls.ActionsRow} onClick={handleActionsClick}>
                     {hint && <span className={cls.Hint}>{hint}</span>}
-                    <Button variant="secondary" sm onClick={handleRegister}>Register</Button>
+                    <Button variant="secondary" sm onClick={handleRegister} tooltipContent="Onboard to Verv">
+                        Onboard
+                    </Button>
                 </div>
             )}
         </div>

@@ -44,6 +44,7 @@ export interface RegisterContainerForm {
     isClusterMode: boolean
     isKeepingPorts: boolean
     ports: Port[]
+    imageTag?: string
 }
 
 function isPgLoginIncomplete(form: RegisterContainerForm): boolean {
@@ -99,6 +100,7 @@ export function buildRegisterContainerRequest(form: RegisterContainerForm): Regi
         containerId: form.containerId,
         environment: form.environment || undefined,
         serviceName: form.serviceName.trim(),
+        ...(form.imageTag === undefined ? {} : {imageTag: form.imageTag}),
         bindMountLinks: form.links.map((link) => ({source: link.source, volumeName: link.volumeName.trim()})),
         ...(form.isClusterMode ? {} : {
             keepPortMapping: form.isKeepingPorts,

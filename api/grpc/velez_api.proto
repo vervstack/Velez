@@ -48,6 +48,19 @@ service VelezAPI {
       get: "/api/container/{id}"
     };
   }
+
+  rpc ListContainerImageVersions(ListContainerImageVersions.Request) returns (ListContainerImageVersions.Response) {
+    option (google.api.http) = {
+      get: "/api/container/{container_id}/image_versions"
+    };
+  }
+
+  rpc FinishOnboarding(FinishOnboarding.Request) returns (FinishOnboarding.Response) {
+    option (google.api.http) = {
+      post: "/api/container/finish_onboarding"
+      body: "*"
+    };
+  }
   rpc DropSmerd(DropSmerd.Request) returns (DropSmerd.Response) {
     option (google.api.http) = {
       post: "/api/smerd/drop"
@@ -200,6 +213,27 @@ message ListContainers {
   }
 }
 
+message ListContainerImageVersions {
+  message Request {
+    string container_id = 1;
+    string environment = 2;
+  }
+  message Response {
+    // Every tag of the image repository whose manifest digest equals the running image's digest.
+    // Empty when the image cannot be resolved (locally built, digest gone from the registry, registry unreachable).
+    repeated string tags = 1;
+  }
+}
+
+message FinishOnboarding {
+  message Request {
+    // Id of the replaced (old) container that waits for its onboarded replacement to be confirmed.
+    string container_id = 1;
+    string environment = 2;
+  }
+  message Response {}
+}
+
 message RegisterContainer {
   message Request {
     string container_id = 1;
@@ -216,12 +250,15 @@ message RegisterContainer {
     // a Docker named volume backed by the same host directory replaces the bind mount. A container
     // with a bind mount that is not listed here is refused.
     repeated BindMountLink bind_mount_links = 8;
-    // keep_port_mapping reuses the container's existing host ports. Requires stopping the old container
-    // before creating the new one (downtime). Default false. Single mode only.
+    // keep_port_mapping is kept for backward compatibility: the server now decides on its own whether
+    // the old container must be stopped first.
     bool keep_port_mapping = 9;
-    // ports are the port mappings the recreated container publishes when keep_port_mapping is false.
+    // ports are the per-container-port host mappings the recreated container publishes.
     // Empty = the container is recreated with no published ports. Single mode only.
     repeated Port ports = 10;
+    // image_tag pins the registered container to this tag of its current image repository.
+    // Unset keeps the image reference the container runs with.
+    optional string image_tag = 11;
 
     message BindMountLink {
       string source = 1; // host path of the bind mount being linked

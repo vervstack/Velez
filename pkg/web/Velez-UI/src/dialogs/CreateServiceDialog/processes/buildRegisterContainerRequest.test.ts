@@ -24,6 +24,11 @@ function newForm(overrides: Partial<RegisterContainerForm> = {}): RegisterContai
 }
 
 describe("buildRegisterContainerRequest", () => {
+    it("carries the image tag only when one is given", () => {
+        expect(buildRegisterContainerRequest(newForm({imageTag: "1.27.2"}))?.imageTag).toBe("1.27.2")
+        expect(buildRegisterContainerRequest(newForm())).not.toHaveProperty("imageTag")
+    })
+
     it("builds a generic request with trimmed names and links", () => {
         const req = buildRegisterContainerRequest(newForm())
 

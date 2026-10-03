@@ -6,7 +6,8 @@
   },
   "tags": [
     {
-      "name": "VcnApi"
+      "name": "VcnApi",
+      "description": "Verv Closed Network"
     }
   ],
   "consumes": [

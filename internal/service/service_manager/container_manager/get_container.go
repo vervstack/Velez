@@ -11,7 +11,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
-	"go.vervstack.ru/Velez/internal/cluster/env/containerinfo"
+	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -50,7 +50,7 @@ func (c *ContainerManager) GetContainer(
 		SuggestedPattern: suggestedPattern(contInfo.Config.Image),
 	}
 
-	if containerinfo.IsSelf(contInfo.ID) {
+	if domain.IsVelezImage(contInfo.Config.Image) {
 		dc.IsRegistered = true
 	}
 

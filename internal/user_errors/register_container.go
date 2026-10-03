@@ -19,9 +19,9 @@ var (
 	// inspect_container for a Velez sidecar container.
 	ErrContainerIsSidecar = rerrors.New("sidecar containers can't be registered", codes.FailedPrecondition)
 
-	// ErrContainerIsSelf is returned by RegisterContainer for the container
-	// Velez itself runs in.
-	ErrContainerIsSelf = rerrors.New("the Velez container can't be registered", codes.FailedPrecondition)
+	// ErrContainerIsVelez is returned by RegisterContainer for a container
+	// running a Velez image.
+	ErrContainerIsVelez = rerrors.New("Velez containers can't be registered", codes.FailedPrecondition)
 
 	// ErrContainerSharesNetwork is returned by RegisterContainer for a
 	// container that runs in another container's network namespace.

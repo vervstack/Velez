@@ -9,7 +9,6 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
-	"go.vervstack.ru/Velez/internal/cluster/env/containerinfo"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/user_errors"
@@ -36,11 +35,7 @@ func (impl *Impl) RegisterContainer(
 		return nil, err
 	}
 
-	if containerinfo.IsSelf(req.GetContainerId()) {
-		return nil, rerrors.Wrap(user_errors.ErrContainerIsSelf)
-	}
-
-	err = impl.rejectNetworkSharer(ctx, req.GetEnvironment(), req.GetContainerId())
+	err = impl.rejectUnregistrable(ctx, req.GetEnvironment(), req.GetContainerId())
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +133,7 @@ func (impl *Impl) RegisterContainer(
 	return resp, nil
 }
 
-func (impl *Impl) rejectNetworkSharer(ctx context.Context, environment, containerId string) error {
+func (impl *Impl) rejectUnregistrable(ctx context.Context, environment, containerId string) error {
 	listReq := &velez_api.ListContainers_Request{Environment: environment}
 
 	list, err := impl.smerdService.ListContainers(ctx, listReq)
@@ -148,7 +143,15 @@ func (impl *Impl) rejectNetworkSharer(ctx context.Context, environment, containe
 
 	for _, cont := range list.GetContainers() {
 		isRequested := strings.HasPrefix(cont.GetId(), containerId)
-		if isRequested && cont.NetworkOwnerContainerId != nil {
+		if !isRequested {
+			continue
+		}
+
+		if domain.IsVelezImage(cont.GetImageName()) {
+			return rerrors.Wrap(user_errors.ErrContainerIsVelez)
+		}
+
+		if cont.NetworkOwnerContainerId != nil {
 			return rerrors.Wrap(user_errors.ErrContainerSharesNetwork)
 		}
 	}

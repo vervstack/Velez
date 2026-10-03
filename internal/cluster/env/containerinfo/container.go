@@ -42,18 +42,6 @@ func GetContainerId() *string {
 	return instanceContainerID
 }
 
-// IsSelf reports whether containerId (a full id or a prefix of one) is the
-// container this process runs in. /etc/hostname holds the short id, so a
-// full id from the Docker API matches by prefix.
-func IsSelf(containerId string) bool {
-	self := GetContainerId()
-	if self == nil || containerId == "" {
-		return false
-	}
-
-	return strings.HasPrefix(containerId, *self) || strings.HasPrefix(*self, containerId)
-}
-
 // getContainerID trusts /etc/hostname as the container id only once
 // dockerEnvPath confirms we're actually inside a Docker container.
 // /etc/hostname exists on every Linux host, containerized or not, so

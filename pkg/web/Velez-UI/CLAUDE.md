@@ -19,7 +19,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Environment
 
-`VITE_VELEZ_BACKEND_URL` — backend URL (grpc-gateway HTTP endpoint, default `http://0.0.0.0:53891`).  
+`VITE_VELEZ_BACKEND_URL` — backend URL (grpc-gateway HTTP endpoint, default: the origin the UI is served from).  
 `VITE_VELEZ_AUTH_HEADER` — optional auth header value.
 
 Both can be overridden in `.env.local`. At runtime the user can also change the backend URL and auth header via the Settings widget; values are persisted to `localStorage` under the key `"settings"`.

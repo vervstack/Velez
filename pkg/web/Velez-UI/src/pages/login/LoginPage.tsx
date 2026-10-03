@@ -5,17 +5,16 @@ import {useQueryClient} from "@tanstack/react-query"
 import cls from "@/pages/login/LoginPage.module.css"
 import {AUTH_GATE_QUERY_KEY} from "@/app/hooks/health/useAuthGate.ts"
 import {useCredentialsStore} from "@/app/settings/creds.ts"
+import {defaultBackendUrl} from "@/app/settings/defaults.ts"
 import Button from "@/components/base/Button.tsx"
 import Input from "@/components/base/Input.tsx"
-
-const DEFAULT_URL = import.meta.env.VITE_VELEZ_BACKEND_URL || "http://0.0.0.0:53891"
 
 export default function LoginPage() {
     const navigate = useNavigate()
     const queryClient = useQueryClient()
     const credStore = useCredentialsStore()
 
-    const [url, setUrl] = useState(credStore.url || DEFAULT_URL)
+    const [url, setUrl] = useState(credStore.url || defaultBackendUrl())
     const [token, setToken] = useState(credStore.token || "")
 
     function handleConnect() {

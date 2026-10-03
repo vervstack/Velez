@@ -4,10 +4,10 @@ import cls from '@/widgets/settings/ApiSettings/ApiSettings.module.css';
 import Input from '@/components/base/Input.tsx';
 import StatusDot from '@/components/base/StatusDot.tsx';
 import { useCredentialsStore } from '@/app/settings/creds.ts';
+import { defaultBackendUrl } from '@/app/settings/defaults.ts';
 import { useToaster } from '@/app/hooks/toaster/Toaster.ts';
 import { useConnectionHealth } from '@/app/hooks/health/useConnectionHealth.ts';
 
-const DEFAULT_URL = import.meta.env.VITE_VELEZ_BACKEND_URL || 'http://0.0.0.0:53891';
 const DEFAULT_AUTH = import.meta.env.VITE_VELEZ_AUTH_HEADER || '';
 
 function isValidUrl(v: string): boolean {
@@ -30,12 +30,12 @@ export default function ApiSettings() {
     const credStore = useCredentialsStore();
     const health = useConnectionHealth();
 
-    const [url, setUrl] = useState(credStore.url || DEFAULT_URL);
+    const [url, setUrl] = useState(credStore.url || defaultBackendUrl());
     const [token, setToken] = useState(credStore.token || DEFAULT_AUTH);
     const [tokenVisible, setTokenVisible] = useState(false);
 
     useEffect(() => {
-        setUrl(credStore.url || DEFAULT_URL);
+        setUrl(credStore.url || defaultBackendUrl());
         setToken(credStore.token || DEFAULT_AUTH);
     }, [credStore]);
 
@@ -64,7 +64,7 @@ export default function ApiSettings() {
     }
 
     function handleReset() {
-        setUrl(DEFAULT_URL);
+        setUrl(defaultBackendUrl());
         setToken(DEFAULT_AUTH);
     }
 

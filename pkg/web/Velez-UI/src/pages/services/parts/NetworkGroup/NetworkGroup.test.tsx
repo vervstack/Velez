@@ -29,6 +29,15 @@ describe("NetworkGroup", () => {
         expect(screen.getByText("Shared network")).toBeInTheDocument()
     })
 
+    it("shows the root network names in the caption", () => {
+        renderGroup(
+            {id: "root", name: "vpn", networks: [{networkName: "bridge"}, {networkName: "backend"}]},
+            [{id: "s1", name: "app"}],
+        )
+
+        expect(screen.getByText("Shared network: bridge, backend")).toBeInTheDocument()
+    })
+
     it("offers a single Register when a member is not registered", () => {
         renderGroup({id: "root", name: "vpn", isRegistered: true}, [
             {id: "s1", name: "app", isRegistered: false},

@@ -19,6 +19,13 @@ export default function NetworkGroup({root, members, onOpen, onFilterByService}:
         return !container.isRegistered
     })
 
+    const networkNames = (root.networks ?? [])
+        .map(function toName(bind) {
+            return bind.networkName ?? ""
+        })
+        .filter(Boolean)
+        .join(", ")
+
     function handleRegister() {
         OpenDialog(<CreateServiceDialog container={root} networkMembers={members}/>)
     }
@@ -26,7 +33,9 @@ export default function NetworkGroup({root, members, onOpen, onFilterByService}:
     return (
         <div className={cls.NetworkGroupContainer}>
             <div className={cls.Header}>
-                <span className={cls.Caption}>Shared network</span>
+                <span className={cls.Caption}>
+                    Shared network{networkNames && `: ${networkNames}`}
+                </span>
                 {isRegisterVisible && <Button variant="secondary" sm onClick={handleRegister}>Register</Button>}
             </div>
             <div className={cls.Cards}>

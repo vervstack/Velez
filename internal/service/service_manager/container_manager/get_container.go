@@ -11,6 +11,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
+	"go.vervstack.ru/Velez/internal/cluster/env/containerinfo"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -47,6 +48,10 @@ func (c *ContainerManager) GetContainer(
 		IsRegistered: contInfo.Config.Labels[labels.CreatedWithVelezLabel] == labelTrue,
 
 		SuggestedPattern: suggestedPattern(contInfo.Config.Image),
+	}
+
+	if containerinfo.IsSelf(contInfo.ID) {
+		dc.IsRegistered = true
 	}
 
 	dc.SuggestedRunnerDefaults = suggestedRunnerDefaults(contInfo.Config.Image, dc.GetLabels(), dc.GetEnv())

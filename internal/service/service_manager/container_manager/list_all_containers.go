@@ -7,6 +7,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/network_owner"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
+	"go.vervstack.ru/Velez/internal/cluster/env/containerinfo"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -54,6 +55,10 @@ func (c *ContainerManager) ListContainers(
 			IsRegistered: cont.Labels[labels.CreatedWithVelezLabel] == labelTrue,
 
 			SuggestedPattern: suggestedPattern(cont.Image),
+		}
+
+		if containerinfo.IsSelf(cont.ID) {
+			dc.IsRegistered = true
 		}
 
 		if len(cont.Names) != 0 {

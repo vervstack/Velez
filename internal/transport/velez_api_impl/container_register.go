@@ -9,6 +9,7 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/cluster/env/containerinfo"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/user_errors"
@@ -33,6 +34,10 @@ func (impl *Impl) RegisterContainer(
 	_, err := impl.resolveEnvironment(ctx, req.GetEnvironment())
 	if err != nil {
 		return nil, err
+	}
+
+	if containerinfo.IsSelf(req.GetContainerId()) {
+		return nil, rerrors.Wrap(user_errors.ErrContainerIsSelf)
 	}
 
 	err = impl.rejectNetworkSharer(ctx, req.GetEnvironment(), req.GetContainerId())

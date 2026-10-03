@@ -3,9 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Checkbox, Toggle } from '@vervstack/chures';
 
 import ServiceCard from '@/components/services/ServiceCard';
-import ComposeGroup from '@/pages/services/parts/ComposeGroup/ComposeGroup.tsx';
-import ContainerItem from '@/pages/services/parts/ContainerItem/ContainerItem.tsx';
+import ContainerSection from '@/pages/services/parts/ContainerSection/ContainerSection.tsx';
+import RegistrationFilterSelect from '@/pages/services/parts/RegistrationFilter/RegistrationFilter.tsx';
 import {groupContainers} from '@/pages/services/processes/groupContainers.ts';
+import {
+    containersOfEntry,
+    partitionByRegistration,
+    RegistrationFilter,
+} from '@/pages/services/processes/partitionByRegistration.ts';
 import SkeletonServiceCard from '@/components/service/SkeletonServiceCard';
 import ServicesEmptyState from '@/pages/services/parts/ServicesEmptyState/ServicesEmptyState';
 import { Routes } from '@/app/router/Routes';
@@ -64,6 +69,7 @@ export default function ServicesPage() {
     const [search, setSearch] = useState('');
     const [includeInternal, setIncludeInternal] = useState(readIncludeInternal);
     const [showAllContainers, setShowAllContainers] = useState(readShowAllContainers);
+    const [registrationFilter, setRegistrationFilter] = useState<RegistrationFilter>('all');
 
     const servicesQuery = useListServicesQuery(includeInternal);
     useEffect(() => {
@@ -120,6 +126,15 @@ export default function ServicesPage() {
         return groupContainers(filteredContainers);
     }, [filteredContainers]);
 
+    const containerSections = useMemo(function computeContainerSections() {
+        return partitionByRegistration(containerLayout, registrationFilter);
+    }, [containerLayout, registrationFilter]);
+
+    const visibleContainerCount = useMemo(function computeVisibleContainerCount() {
+        return [...containerSections.registered, ...containerSections.unregistered]
+            .reduce((total, entry) => total + containersOfEntry(entry).length, 0);
+    }, [containerSections]);
+
     function handleIncludeInternalChange(value: boolean) {
         setIncludeInternal(value);
         writeIncludeInternal(value);
@@ -157,7 +172,7 @@ export default function ServicesPage() {
     let gridContent: React.ReactNode;
     let countLabel: string;
     if (showAllContainers) {
-        countLabel = `${filteredContainers.length} containers`;
+        countLabel = `${visibleContainerCount} containers`;
         if (containersQuery.isLoading) {
             gridContent = (
                 <>
@@ -166,31 +181,29 @@ export default function ServicesPage() {
                     <SkeletonServiceCard/>
                 </>
             );
-        } else if (filteredContainers.length === 0) {
+        } else if (visibleContainerCount === 0) {
             gridContent = <div className={cls.containersEmpty}>No containers on this node.</div>;
         } else {
-            gridContent = containerLayout.map(function renderContainerEntry(entry) {
-                if (entry.kind === 'compose') {
-                    return (
-                        <ComposeGroup
-                            key={'compose:' + entry.project}
-                            project={entry.project}
-                            items={entry.items}
+            gridContent = (
+                <>
+                    {containerSections.registered.length > 0 && (
+                        <ContainerSection
+                            title="Registered"
+                            entries={containerSections.registered}
                             onOpen={handleOpenContainer}
                             onFilterByService={handleFilterByService}
                         />
-                    );
-                }
-                const key = entry.kind === 'network' ? entry.root.id : entry.container.id;
-                return (
-                    <ContainerItem
-                        key={key}
-                        item={entry}
-                        onOpen={handleOpenContainer}
-                        onFilterByService={handleFilterByService}
-                    />
-                );
-            });
+                    )}
+                    {containerSections.unregistered.length > 0 && (
+                        <ContainerSection
+                            title="Unregistered"
+                            entries={containerSections.unregistered}
+                            onOpen={handleOpenContainer}
+                            onFilterByService={handleFilterByService}
+                        />
+                    )}
+                </>
+            );
         }
     } else {
         countLabel = `${filtered.length} services`;
@@ -236,6 +249,9 @@ export default function ServicesPage() {
                         checked={includeInternal}
                         onChange={handleIncludeInternalChange}
                     />
+                    {showAllContainers && (
+                        <RegistrationFilterSelect value={registrationFilter} onChange={setRegistrationFilter}/>
+                    )}
                     <Toggle
                         label="Show all containers"
                         checked={showAllContainers}

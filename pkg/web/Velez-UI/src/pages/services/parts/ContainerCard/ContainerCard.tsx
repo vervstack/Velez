@@ -36,6 +36,8 @@ export default function ContainerCard({container, onOpen, onFilterByService, isR
         OpenDialog(<CreateServiceDialog container={container}/>);
     }
 
+    const isRegisterOffered = !container.isRegistered && !container.linkedServiceName && !isRegisterHidden
+
     const presentation = container.linkedServiceName
         ? deriveContainerServicePresentation(container)
         : null;
@@ -61,7 +63,7 @@ export default function ContainerCard({container, onOpen, onFilterByService, isR
                     />
                 )}
             </div>
-            {!container.linkedServiceName && !isRegisterHidden && (
+            {isRegisterOffered && (
                 <div className={cls.ActionsRow} onClick={handleActionsClick}>
                     {hint && <span className={cls.Hint}>{hint}</span>}
                     <Button variant="secondary" sm onClick={handleRegister}>Register</Button>

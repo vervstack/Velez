@@ -37,6 +37,12 @@ describe("ContainerCard", () => {
         expect(screen.queryByRole("button", {name: "Register"})).not.toBeInTheDocument()
     })
 
+    it("offers no Register for a registered container that has no linked service", () => {
+        renderCard({id: "c1", name: "velez", isRegistered: true})
+
+        expect(screen.queryByRole("button", {name: "Register"})).not.toBeInTheDocument()
+    })
+
     it("offers no Register when the register action is hidden", () => {
         const OpenDialog = vi.fn()
         vi.mocked(useDialog).mockReturnValue(

@@ -47,8 +47,10 @@ var (
 	errInitSharedHeadscale  error
 
 	// headscaleAPIKeyPattern matches a headscale API key (prefix.secret)
-	// inside the noisy multiplexed `docker exec` output.
-	headscaleAPIKeyPattern = regexp.MustCompile(`[A-Za-z0-9]{6,}\.[A-Za-z0-9]{20,}`)
+	// inside the noisy multiplexed `docker exec` output. Both halves are
+	// base64url, so '-' and '_' belong to the key: without them a key
+	// containing one is truncated and the API answers 401.
+	headscaleAPIKeyPattern = regexp.MustCompile(`[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{20,}`)
 
 	//nolint:forbidigo // package-private test-infra sentinel, not shared/user-facing
 	errHeadscalePortNotPublished = rerrors.New("dind did not publish the headscale port")

@@ -6,6 +6,7 @@ import (
 	"context"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
@@ -13,6 +14,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
@@ -29,6 +31,11 @@ const (
 
 	containerRegistryCollisionInstanceNameA = "e2e-container-registry-collision-a"
 	containerRegistryCollisionInstanceNameB = "e2e-container-registry-collision-b"
+
+	// containerRegistryTaskTimeout bounds each task watch: a cold pull of
+	// registry:2 and the UI image must fit, but a task that never reaches a
+	// terminal state fails the test instead of hanging it.
+	containerRegistryTaskTimeout = 5 * time.Minute
 )
 
 // ContainerRegistryLifecycleSuite exercises Container-Registry-as-a-Service
@@ -51,6 +58,13 @@ type ContainerRegistryLifecycleSuite struct {
 	plane Plane
 }
 
+// registryServiceName is the name registryaas gives the service, containers,
+// volumes and create_smerd task entities: the caller's name behind
+// labels.RegistryaasNamePrefix.
+func registryServiceName(instanceName string) string {
+	return labels.RegistryaasNamePrefix + instanceName
+}
+
 func (s *ContainerRegistryLifecycleSuite) Test_ContainerRegistryLifecycle_HappyPath() {
 	t := s.T()
 	t.Parallel()
@@ -70,15 +84,15 @@ func (s *ContainerRegistryLifecycleSuite) Test_ContainerRegistryLifecycle_HappyP
 
 	waitForRegistryInstanceDeploy(t, env, containerRegistryLifecycleInstanceName, false)
 
-	instance := findRegistryInstance(t, env, containerRegistryLifecycleInstanceName)
+	instance := findRegistryInstance(t, env, registryServiceName(containerRegistryLifecycleInstanceName))
 	require.NotNil(t, instance, "expected registry instance %q in ListRegistryInstances",
 		containerRegistryLifecycleInstanceName)
-	require.Equal(t, containerRegistryLifecycleInstanceName, instance.GetName())
+	require.Equal(t, registryServiceName(containerRegistryLifecycleInstanceName), instance.GetName())
 	require.NotZero(t, instance.GetPort())
 	require.Zero(t, instance.GetUiPort(), "ui sidecar should not be provisioned when enable_ui is unset")
 	require.NotEmpty(t, instance.GetUsername())
 
-	credsReq := &velez_api.GetRegistryInstanceCredentials_Request{Name: containerRegistryLifecycleInstanceName}
+	credsReq := &velez_api.GetRegistryInstanceCredentials_Request{Name: registryServiceName(containerRegistryLifecycleInstanceName)}
 
 	credsResp, err := env.Custom.ContainerRegistryApiImpl.GetRegistryInstanceCredentials(ctx, credsReq)
 	require.NoError(t, err)
@@ -86,12 +100,14 @@ func (s *ContainerRegistryLifecycleSuite) Test_ContainerRegistryLifecycle_HappyP
 	require.NotEmpty(t, credsResp.GetPassword())
 	require.NotEmpty(t, credsResp.GetRegistryUrl())
 
-	dropReq := &velez_api.DropRegistryInstance_Request{Name: containerRegistryLifecycleInstanceName}
+	dropReq := &velez_api.DropRegistryInstance_Request{
+		Name: registryServiceName(containerRegistryLifecycleInstanceName),
+	}
 
 	_, err = env.Custom.ContainerRegistryApiImpl.DropRegistryInstance(ctx, dropReq)
 	require.NoError(t, err)
 
-	dropped := findRegistryInstance(t, env, containerRegistryLifecycleInstanceName)
+	dropped := findRegistryInstance(t, env, registryServiceName(containerRegistryLifecycleInstanceName))
 	require.Nil(t, dropped, "registry instance still listed after drop")
 }
 
@@ -145,27 +161,27 @@ func (s *ContainerRegistryLifecycleSuite) Test_ContainerRegistryLifecycle_TwoIns
 		waitForRegistryInstanceDeploy(t, env, name, true)
 	}
 
-	instanceA := findRegistryInstance(t, env, containerRegistryCollisionInstanceNameA)
-	instanceB := findRegistryInstance(t, env, containerRegistryCollisionInstanceNameB)
+	instanceA := findRegistryInstance(t, env, registryServiceName(containerRegistryCollisionInstanceNameA))
+	instanceB := findRegistryInstance(t, env, registryServiceName(containerRegistryCollisionInstanceNameB))
 	require.NotNil(t, instanceA)
 	require.NotNil(t, instanceB)
 
 	require.NotEqual(t, instanceA.GetPort(), instanceB.GetPort(), "registry instances share a container port")
 	require.NotEqual(t, instanceA.GetUiPort(), instanceB.GetUiPort(), "registry instances share a ui port")
 
-	inspectA, err := dockerClient.ContainerInspect(ctx, containerRegistryCollisionInstanceNameA)
+	inspectA, err := dockerClient.ContainerInspect(ctx, registryServiceName(containerRegistryCollisionInstanceNameA))
 	require.NoError(t, err)
 	require.True(t, inspectA.State.Running)
 
-	inspectB, err := dockerClient.ContainerInspect(ctx, containerRegistryCollisionInstanceNameB)
+	inspectB, err := dockerClient.ContainerInspect(ctx, registryServiceName(containerRegistryCollisionInstanceNameB))
 	require.NoError(t, err)
 	require.True(t, inspectB.State.Running)
 
-	inspectUiA, err := dockerClient.ContainerInspect(ctx, containerRegistryCollisionInstanceNameA+"-ui")
+	inspectUiA, err := dockerClient.ContainerInspect(ctx, registryServiceName(containerRegistryCollisionInstanceNameA)+"-ui")
 	require.NoError(t, err)
 	require.True(t, inspectUiA.State.Running)
 
-	inspectUiB, err := dockerClient.ContainerInspect(ctx, containerRegistryCollisionInstanceNameB+"-ui")
+	inspectUiB, err := dockerClient.ContainerInspect(ctx, registryServiceName(containerRegistryCollisionInstanceNameB)+"-ui")
 	require.NoError(t, err)
 	require.True(t, inspectUiB.State.Running)
 }
@@ -184,8 +200,8 @@ func newCreateRegistryInstanceRequest(name string, enableUi bool) *velez_api.Cre
 	return &velez_api.CreateRegistryInstance_Request{Name: name, EnableUi: enableUi}
 }
 
-// findRegistryInstance returns the listed registry instance with the given
-// name, or nil.
+// findRegistryInstance returns the listed registry instance with exactly the
+// given service name (registryServiceName for instances created by registryaas), or nil.
 func findRegistryInstance(t *testing.T, env *TestEnvironment, name string) *velez_api.RegistryInstance {
 	t.Helper()
 
@@ -213,7 +229,10 @@ func findRegistryInstance(t *testing.T, env *TestEnvironment, name string) *vele
 func waitForRegistryInstanceDeploy(t *testing.T, env *TestEnvironment, instanceName string, enableUi bool) {
 	t.Helper()
 
-	ctx := t.Context()
+	ctx, cancel := context.WithTimeout(t.Context(), containerRegistryTaskTimeout)
+	defer cancel()
+
+	serviceName := registryServiceName(instanceName)
 
 	var instanceTask tasks_queries.VelezTask
 
@@ -224,7 +243,7 @@ func waitForRegistryInstanceDeploy(t *testing.T, env *TestEnvironment, instanceN
 	require.Equal(t, tasks_queries.VelezTaskStatusDONE, instanceTask.Status,
 		"create_registry_instance task for instance %q error: %s", instanceName, instanceTask.Error.String)
 
-	registryEntityID := jobs.SmerdEntityID("", instanceName)
+	registryEntityID := jobs.SmerdEntityID("", serviceName)
 
 	var registryTask tasks_queries.VelezTask
 
@@ -233,13 +252,13 @@ func waitForRegistryInstanceDeploy(t *testing.T, env *TestEnvironment, instanceN
 	}
 
 	require.Equal(t, tasks_queries.VelezTaskStatusDONE, registryTask.Status,
-		"create_smerd task for registry instance %q error: %s", instanceName, registryTask.Error.String)
+		"create_smerd task for registry instance %q error: %s", serviceName, registryTask.Error.String)
 
 	if !enableUi {
 		return
 	}
 
-	uiEntityID := jobs.SmerdEntityID("", instanceName+"-ui")
+	uiEntityID := jobs.SmerdEntityID("", serviceName+"-ui")
 
 	var uiTask tasks_queries.VelezTask
 
@@ -248,19 +267,22 @@ func waitForRegistryInstanceDeploy(t *testing.T, env *TestEnvironment, instanceN
 	}
 
 	require.Equal(t, tasks_queries.VelezTaskStatusDONE, uiTask.Status,
-		"create_smerd task for registry ui sidecar %q error: %s", instanceName+"-ui", uiTask.Error.String)
+		"create_smerd task for registry ui sidecar %q error: %s", serviceName+"-ui", uiTask.Error.String)
 }
 
-// removeContainerRegistryInstance force-removes an instance's registry
-// container, its UI sidecar container, and its per-instance data/auth
-// volumes (registryaas.pgVolumeName-style "<name>-data"/"<name>-auth"),
-// ignoring "no such container/volume" - mirrors removePgaasInstance.
+// removeContainerRegistryInstance force-removes the registry container, its UI
+// sidecar container, and the per-instance data/auth volumes and network of the
+// instance created under the caller-chosen name (all named behind
+// labels.RegistryaasNamePrefix), ignoring "no such container/volume/network" -
+// mirrors removePgaasInstance.
 func removeContainerRegistryInstance(dockerClient client.APIClient, name string) {
 	ctx := context.Background()
 	removeOpts := container.RemoveOptions{Force: true}
+	serviceName := registryServiceName(name)
 
-	_ = dockerClient.ContainerRemove(ctx, name, removeOpts)
-	_ = dockerClient.ContainerRemove(ctx, name+"-ui", removeOpts)
-	_ = dockerClient.VolumeRemove(ctx, name+"-data", true)
-	_ = dockerClient.VolumeRemove(ctx, name+"-auth", true)
+	_ = dockerClient.ContainerRemove(ctx, serviceName, removeOpts)
+	_ = dockerClient.ContainerRemove(ctx, serviceName+"-ui", removeOpts)
+	_ = dockerClient.VolumeRemove(ctx, serviceName+"-data", true)
+	_ = dockerClient.VolumeRemove(ctx, serviceName+"-auth", true)
+	_ = dockerClient.NetworkRemove(ctx, serviceName+"-net")
 }

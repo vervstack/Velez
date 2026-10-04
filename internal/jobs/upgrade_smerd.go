@@ -36,6 +36,7 @@ const (
 	configFetcherContainerSuffix = "_configuration_fetcher"
 	newContainerSuffix           = "_new"
 	oldContainerSuffix           = "_old"
+	replacedContainerSuffix      = "_replaced"
 
 	stepCheckSelfUpgrade             = "check_self_upgrade"
 	stepCaptureOldContainer          = "capture_old_container"
@@ -260,7 +261,7 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 				req:      payload,
 				ctx:      oldContainerAsCurrent{payload},
 				oldName:  payload.GetUpgradeRequest().GetName(),
-				newName:  payload.GetUpgradeRequest().GetName() + oldContainerSuffix,
+				newName:  payload.GetUpgradeRequest().GetName() + replacedContainerSuffixOf(payload),
 			},
 		},
 		{
@@ -294,6 +295,17 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 	}
 
 	return namedJobs
+}
+
+// replacedContainerSuffixOf names the replaced container's slot. A kept container
+// takes "_old" for good; a transient one gets its own suffix so it never collides
+// with the "_old" container an earlier onboarding is still keeping.
+func replacedContainerSuffixOf(payload *velez_api.UpgradeSmerdTaskPayload) string {
+	if payload.GetIsOldContainerKept() {
+		return oldContainerSuffix
+	}
+
+	return replacedContainerSuffix
 }
 
 type checkSelfUpgradeJob struct {

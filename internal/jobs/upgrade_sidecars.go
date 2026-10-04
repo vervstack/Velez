@@ -17,7 +17,12 @@ const (
 	stepDiscoverSidecars = "discover_sidecars"
 )
 
-var upgradeLeftoverSuffixes = []string{oldContainerSuffix, newContainerSuffix, configFetcherContainerSuffix}
+var upgradeLeftoverSuffixes = []string{
+	oldContainerSuffix,
+	replacedContainerSuffix,
+	newContainerSuffix,
+	configFetcherContainerSuffix,
+}
 
 type sidecarNamesAccessor interface {
 	GetIsSidecarsSkipped() bool

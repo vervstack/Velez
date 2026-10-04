@@ -50,8 +50,8 @@ const (
 
 	registryRegPortSingleFailures = dindPortBandEnd - 1
 	registryRegPortSingle         = dindPortBandEnd
-	registryRegPortClusterFail    = dindPortBandStart + 9
-	registryRegPortCluster        = dindPortBandStart + 10
+	registryRegPortClusterFail    = dindPortBandEnd - 8
+	registryRegPortCluster        = dindPortBandEnd - 9
 )
 
 func registryRegNames(prefix string) (containerName, serviceName string) {

@@ -137,7 +137,7 @@ func (s *EnableStatefullSuite) Test_EnableStatefullMode_UnsupportedPlugin_Fails(
 
 // Test_EnableStatefull itself is NOT t.Parallel(): its HappyPath method
 // enables statefull_pg, whose cluster-pg sidecar is exposed on the fixed
-// dindClusterPgPort (30020, see dind_ports.go) - the same port
+// dindClusterPgPort (see dind_ports.go) - the same port
 // Test_ServiceLifecycle and Test_VervonomiconDeploy expose theirs on. Marking
 // this function parallel let it race those suites for that single port and
 // fail with "requested port is already occupied" (confirmed against real

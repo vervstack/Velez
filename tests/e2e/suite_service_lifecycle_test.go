@@ -264,7 +264,7 @@ func (s *ServiceLifecycleSuite) createService(env *TestEnvironment) {
 }
 
 // Test_ServiceLifecycle is NOT t.Parallel(): enableStatefullPgUnderDind
-// exposes the cluster-pg sidecar on the fixed dindClusterPgPort (30020, see
+// exposes the cluster-pg sidecar on the fixed dindClusterPgPort (see
 // dind_ports.go), the same port Test_EnableStatefull and
 // Test_VervonomiconDeploy expose theirs on - running this concurrently with
 // those races them for that single port and fails with "requested port is

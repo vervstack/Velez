@@ -37,9 +37,7 @@ const (
 
 	httpPortKey = nat.Port("80/tcp")
 
-	// Ports outside the Velez pool (dind band) are refused, so a new explicit
-	// host port must come from the band.
-	swapTargetHostPort = dindPortBandEnd - 2
+	replacedContainerSuffix = "_old"
 )
 
 func linkBindDir(prefix string) string {
@@ -231,11 +229,40 @@ func requireSingleContainerNamed(t *testing.T, dockerClient client.APIClient, na
 	require.Len(t, listed, 1, "no leftover containers may share the name: %+v", listed)
 }
 
-func requireContainerGone(t *testing.T, dockerClient client.APIClient, id string) {
+// requireReplacedContainerKept checks the container a register replaced is
+// parked as "<name>_old", not serving, and referenced from its replacement
+// until onboarding is finished.
+func requireReplacedContainerKept(
+	t *testing.T, dockerClient client.APIClient, foreign foreignContainer, replacement container.InspectResponse,
+) {
 	t.Helper()
 
-	_, err := dockerClient.ContainerInspect(t.Context(), id)
-	require.True(t, client.IsErrNotFound(err), "container %s must be gone, got err: %v", id, err)
+	t.Cleanup(func() {
+		_ = dockerClient.ContainerRemove(context.Background(), foreign.id, container.RemoveOptions{Force: true})
+	})
+
+	replaced, err := dockerClient.ContainerInspect(t.Context(), foreign.id)
+	require.NoError(t, err)
+	require.Equal(t, "/"+foreign.name+replacedContainerSuffix, replaced.Name)
+	require.False(t, replaced.State.Running && !replaced.State.Paused, "the replaced container must not be serving")
+	require.Equal(t, foreign.id, replacement.Config.Labels[labels.OnboardedFromLabel])
+}
+
+// reservePoolHostPort takes a host port from Velez's own pool and keeps it
+// locked for the test, so no parallel test is handed the same port.
+func reservePoolHostPort(t *testing.T, env *TestEnvironment) uint32 {
+	t.Helper()
+
+	portManager := env.Custom.NodeClients.PortManager()
+
+	port, err := portManager.GetPort()
+	require.NoError(t, err)
+
+	t.Cleanup(func() {
+		portManager.UnlockPorts([]uint32{port})
+	})
+
+	return port
 }
 
 func requirePublishedHostPorts(t *testing.T, inspected container.InspectResponse, want ...string) {
@@ -558,7 +585,7 @@ func Test_RegisterContainer_SingleMode_Ports(t *testing.T) {
 		require.Equal(t, serviceName, inspected.Config.Labels[labels.VervServiceLabel])
 
 		requirePublishedHostPorts(t, inspected, "31101")
-		requireContainerGone(t, dockerClient, foreign.id)
+		requireReplacedContainerKept(t, dockerClient, foreign, inspected)
 		requireSingleContainerNamed(t, dockerClient, containerName)
 	})
 
@@ -571,14 +598,18 @@ func Test_RegisterContainer_SingleMode_Ports(t *testing.T) {
 
 		foreign := startPortPublishingContainer(t, dockerClient, containerName, "31102")
 
-		requireRegisterDone(t, env, newPortRegisterRequest(foreign.id, serviceName, false, swapTargetHostPort))
+		targetHostPort := reservePoolHostPort(t, env)
+		isHeld := env.Custom.NodeClients.PortManager().HoldPort(targetHostPort)
+		require.True(t, isHeld)
+
+		requireRegisterDone(t, env, newPortRegisterRequest(foreign.id, serviceName, false, targetHostPort))
 
 		inspected, err := dockerClient.ContainerInspect(t.Context(), containerName)
 		require.NoError(t, err)
 		require.True(t, inspected.State.Running)
 
-		requirePublishedHostPorts(t, inspected, strconv.Itoa(swapTargetHostPort))
-		requireContainerGone(t, dockerClient, foreign.id)
+		requirePublishedHostPorts(t, inspected, strconv.FormatUint(uint64(targetHostPort), 10))
+		requireReplacedContainerKept(t, dockerClient, foreign, inspected)
 		requireSingleContainerNamed(t, dockerClient, containerName)
 	})
 
@@ -598,7 +629,7 @@ func Test_RegisterContainer_SingleMode_Ports(t *testing.T) {
 		require.True(t, inspected.State.Running)
 
 		requirePublishedHostPorts(t, inspected)
-		requireContainerGone(t, dockerClient, foreign.id)
+		requireReplacedContainerKept(t, dockerClient, foreign, inspected)
 		requireSingleContainerNamed(t, dockerClient, containerName)
 	})
 
@@ -611,7 +642,9 @@ func Test_RegisterContainer_SingleMode_Ports(t *testing.T) {
 
 		foreign := startPortPublishingContainer(t, dockerClient, containerName, "31105")
 
-		requireRegisterFailed(t, env, newPortRegisterRequest(foreign.id, serviceName, false, 31105))
+		lockedHostPort := reservePoolHostPort(t, env)
+
+		requireRegisterFailed(t, env, newPortRegisterRequest(foreign.id, serviceName, false, lockedHostPort))
 
 		inspected, err := dockerClient.ContainerInspect(t.Context(), containerName)
 		require.NoError(t, err)

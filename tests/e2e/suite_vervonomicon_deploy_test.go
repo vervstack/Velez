@@ -49,7 +49,7 @@ const (
 // vervDeploySuffix, so its cluster-pg sidecar container name would collide
 // if two methods ran concurrently. Test_VervonomiconDeploy itself is also NOT
 // t.Parallel(): enableStatefullPgUnderDind exposes the sidecar on the fixed
-// dindClusterPgPort (30020, see dind_ports.go), the same port
+// dindClusterPgPort (see dind_ports.go), the same port
 // Test_EnableStatefull and Test_ServiceLifecycle expose theirs on - running
 // this concurrently with those raced them for that single port and failed
 // with "requested port is already occupied" (confirmed against real Docker).
@@ -204,7 +204,7 @@ func (s *VervonomiconDeploySuite) Test_BoxResolutionAndFidelity() {
 	//
 	// The expose_to-names-a-host-port branch is deliberately NOT exercised
 	// here: this suite runs under DinD, whose PortManager is pinned to the
-	// 30000-30021 band (dind_ports.go), so any port a descriptor names
+	// published band (dind_ports.go), so any port a descriptor names
 	// outright either falls outside the band and fails the deploy, or
 	// collides with a parallel test's auto-assigned port. That mapping is
 	// covered as a unit instead - see vervonomicon.TestResolveRequest's

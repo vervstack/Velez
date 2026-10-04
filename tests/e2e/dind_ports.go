@@ -9,30 +9,51 @@ import (
 //
 // The DinD daemon (see main_test.go) publishes this whole container-side
 // range to ephemeral bootstrap-host ports. Velez's PortManager is pinned to
-// the band (see pinDindPorts) so every port Velez picks to expose a
-// container lands on something the test process can reach through
-// sharedDind.Addr. dindMatreshkaPort is carved out of the band for the
-// shared matreshka fixture's fixed gRPC bind.
+// the allocator range (see pinDindPorts) so every port Velez picks to expose
+// a container lands on something the test process can reach through
+// sharedDind.Addr.
+//
+// The band is laid out as:
+//
+//	dindMatreshkaPort                     shared matreshka fixture's gRPC bind
+//	dindPortBandStart..dindAllocatorEnd   PortManager allocator range
+//	dindReservedStart..dindPortBandEnd    ports tests bind themselves
+//	dindClusterPgPort, dindHeadscalePort  fixture ports, past the band
+//
+// Velez never releases a port it handed out to a smerd while the process
+// lives, so the allocator range must cover every allocation of one full
+// parallel run, not just the peak of concurrently running tests - an
+// exhausted pool makes the PortManager re-hand a port still bound inside the
+// DinD ("port is already allocated").
+//
+// A test that binds a host port itself (foreign containers registered into
+// Velez) must take it from the reserved block as dindPortBandEnd-N
+// (N < dindReservedPortCount), never from the allocator range, or the
+// PortManager may hand the same port to a parallel test.
 const (
 	dindMatreshkaPort = 30000
 	dindPortBandStart = 30001
-	dindPortBandEnd   = 30019
+	dindPortBandEnd   = 30200
+
+	dindReservedPortCount = 10
+	dindFixturePortCount  = 2
+	dindAllocatorEnd      = dindPortBandEnd - dindReservedPortCount
 
 	// dindClusterPgPort is carved out the same way dindMatreshkaPort is: the
 	// DinD daemon publishes it (so the host process can reach the cluster-pg
-	// sidecar), but it is deliberately kept OUT of the PortManager band
+	// sidecar), but it is deliberately kept OUT of the PortManager range
 	// (dindAvailablePorts) so PortManager never hands it to another test's
 	// smerd. The enable-statefull flow pins the sidecar's 5432 to this port
 	// inside the DinD via EnableStatefullCluster.ExposeToPort.
-	dindClusterPgPort = 30020
+	dindClusterPgPort = dindPortBandEnd + 1
 
 	// dindHeadscalePort is carved out the same way: the DinD daemon
 	// publishes it so the in-process Velez app can reach the shared
 	// headscale fixture (see shared_headscale.go) via
-	// headscale.Connect(url, key). Kept OUT of the PortManager band so it
+	// headscale.Connect(url, key). Kept OUT of the PortManager range so it
 	// is never handed to a test's smerd. The fixture pins headscale's 8080
 	// to this port inside the DinD.
-	dindHeadscalePort = 30021
+	dindHeadscalePort = dindPortBandEnd + 2
 )
 
 var (
@@ -67,30 +88,27 @@ var (
 )
 
 // dindPublishPorts is every container-side port the DinD daemon must
-// publish: the matreshka bind, the whole PortManager band, and the
-// carved-out cluster-pg and headscale ports (which are NOT in the band).
+// publish: the matreshka bind, the whole band (allocator range plus the
+// reserved test block), and the fixture ports past the band.
 func dindPublishPorts() []int {
-	bandLen := dindPortBandEnd - dindMatreshkaPort + 1
-
-	carvedOut := []int{dindClusterPgPort, dindHeadscalePort}
-
-	ports := make([]int, 0, bandLen+len(carvedOut))
+	ports := make([]int, 0, dindPortBandEnd-dindMatreshkaPort+1+dindFixturePortCount)
 
 	for p := dindMatreshkaPort; p <= dindPortBandEnd; p++ {
 		ports = append(ports, p)
 	}
 
-	ports = append(ports, carvedOut...)
+	ports = append(ports, dindClusterPgPort, dindHeadscalePort)
 
 	return ports
 }
 
-// dindAvailablePorts is the PortManager band handed to Velez as
-// Environment.AvailablePorts.
+// dindAvailablePorts is the PortManager range handed to Velez as
+// Environment.AvailablePorts: the band minus the matreshka port and the
+// reserved block tests bind themselves.
 func dindAvailablePorts() []int {
-	ports := make([]int, 0, dindPortBandEnd-dindPortBandStart+1)
+	ports := make([]int, 0, dindAllocatorEnd-dindPortBandStart+1)
 
-	for p := dindPortBandStart; p <= dindPortBandEnd; p++ {
+	for p := dindPortBandStart; p <= dindAllocatorEnd; p++ {
 		ports = append(ports, p)
 	}
 

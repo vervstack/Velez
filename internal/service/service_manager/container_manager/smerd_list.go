@@ -2,13 +2,30 @@ package container_manager
 
 import (
 	"context"
+	"maps"
 
 	errors "go.redsock.ru/rerrors"
+	"go.redsock.ru/toolbox"
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
 	"go.vervstack.ru/Velez/internal/domain/labels"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
+
+const (
+	maxListSmerds = 10
+)
+
+// apiListLimit is the public ListSmerds page size: maxListSmerds by default,
+// and never more than maxListSmerds for an explicit limit.
+func apiListLimit(req *velez_api.ListSmerds_Request) uint32 {
+	if req.Limit == nil || req.GetLimit() > maxListSmerds {
+		return maxListSmerds
+	}
+
+	return req.GetLimit()
+}
 
 // ListSmerds filters on req.GetName() exactly as given - the real Docker
 // container name (and VervServiceLabel) preserves the case a service was
@@ -28,7 +45,15 @@ func (c *ContainerManager) ListSmerds(
 		return nil, errors.Wrap(err, "error resolving environment")
 	}
 
-	cl, err := runtime.ListContainers(ctx, req)
+	runtimeReq := &velez_api.ListSmerds_Request{
+		Limit:       toolbox.ToPtr(apiListLimit(req)),
+		Name:        req.Name,
+		Id:          req.Id,
+		Label:       maps.Clone(req.GetLabel()),
+		Environment: req.GetEnvironment(),
+	}
+
+	cl, err := runtime.ListContainers(ctx, runtimeReq)
 	if err != nil {
 		return nil, errors.Wrap(err, "error listing containers")
 	}

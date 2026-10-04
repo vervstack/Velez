@@ -263,14 +263,11 @@ func (s *ServiceLifecycleSuite) createService(env *TestEnvironment) {
 	require.NoError(t, err, "the CreateService RPC (validate_name + upsert_service jobs) must not error")
 }
 
-// Test_ServiceLifecycle is NOT t.Parallel(): enableStatefullPgUnderDind
-// exposes the cluster-pg sidecar on the fixed dindClusterPgPort (see
-// dind_ports.go), the same port Test_EnableStatefull and
-// Test_VervonomiconDeploy expose theirs on - running this concurrently with
-// those races them for that single port and fails with "requested port is
-// already occupied" (confirmed against real Docker for the other two; not
-// worth re-proving here since the port is shared by construction).
+// Test_ServiceLifecycle runs parallel to the other statefull suites:
+// enableStatefullPgUnderDind leases its own cluster-pg port from the pool.
 func Test_ServiceLifecycle(t *testing.T) {
+	t.Parallel()
+
 	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
 		return &ServiceLifecycleSuite{plane: plane}
 	})

@@ -13,6 +13,7 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
@@ -225,9 +226,17 @@ func TestGetClientKeyJob_IssueClientKeyError(t *testing.T) {
 
 // getLoginServerURLJob
 
-func TestGetLoginServerUrlJob_SetsConstant(t *testing.T) {
+type stubLocalState struct {
+	state local_state.State
+}
+
+func (s *stubLocalState) Get() local_state.State {
+	return s.state
+}
+
+func TestGetLoginServerUrlJob_DefaultsToPublicVcn(t *testing.T) {
 	payload := &velez_api.ConnectServiceToVpnTaskPayload{}
-	j := &getLoginServerURLJob{ctx: payload}
+	j := &getLoginServerURLJob{state: &stubLocalState{}, ctx: payload}
 
 	err := j.Do(context.Background())
 	if err != nil {
@@ -235,7 +244,25 @@ func TestGetLoginServerUrlJob_SetsConstant(t *testing.T) {
 	}
 
 	if payload.GetLoginServerUrl() != "https://vcn.redsock.ru" {
-		t.Errorf("expected login server url constant, got %q", payload.GetLoginServerUrl())
+		t.Errorf("expected default login server url, got %q", payload.GetLoginServerUrl())
+	}
+}
+
+func TestGetLoginServerUrlJob_UsesConfiguredLoginServer(t *testing.T) {
+	payload := &velez_api.ConnectServiceToVpnTaskPayload{}
+	configured := &stubLocalState{}
+
+	configured.state.Network.Headscale.LoginServerUrl = "http://headscale.local:8080"
+
+	j := &getLoginServerURLJob{state: configured, ctx: payload}
+
+	err := j.Do(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if payload.GetLoginServerUrl() != "http://headscale.local:8080" {
+		t.Errorf("expected configured login server url, got %q", payload.GetLoginServerUrl())
 	}
 }
 

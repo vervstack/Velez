@@ -59,6 +59,10 @@ type TestEnvironment struct {
 	configPath string
 
 	grpcConn *grpc.ClientConn
+
+	// clusterPgPort is the leased host port the cluster-pg sidecar is pinned
+	// to; set by newStatefullEnvironment, zero for an environment without one.
+	clusterPgPort uint64 //nolint:unused // read only by the e2e_full statefull helpers
 }
 
 type (
@@ -124,11 +128,13 @@ func WithState(t *testing.T, stateOps ...StateOpt) TestEnvOpt {
 // verv_closed_network.SetupVcn take the headscale.Connect(url, key) branch -
 // it connects to the given server and never launches its own headscale
 // container. Pass the shared fixture's address: getSharedHeadscale(t).apiURL
-// / .apiKey.
-func WithStateVcnEnabled(serverURL, apiKey string) StateOpt {
+// / .apiKey. loginServerURL is the address tailnet sidecars dial from inside
+// the DinD (getSharedHeadscale(t).loginURL).
+func WithStateVcnEnabled(serverURL, apiKey, loginServerURL string) StateOpt {
 	return func(a *local_state.State) {
 		a.Network.Headscale.ServerUrl = serverURL
 		a.Network.Headscale.Key = apiKey
+		a.Network.Headscale.LoginServerUrl = loginServerURL
 	}
 }
 

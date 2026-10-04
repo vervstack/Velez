@@ -21,9 +21,9 @@ import (
 )
 
 // enableStatefullPgUnderDind brings up a TestEnvironment whose cluster
-// postgres sidecar is published on a host-reachable DinD port
-// (dindClusterPgPort) and whose ClusterPgDsn seam points the in-process
-// host app's root DSN at that address, then runs EnablePlugin(statefull_pg)
+// postgres sidecar is published on a host-reachable DinD port leased from the
+// cluster-pg pool and whose ClusterPgDsn seam points the in-process host app's
+// root DSN at that address, then runs EnablePlugin(statefull_pg)
 // to completion. It returns the ready environment and the sidecar's
 // container/volume name, and registers unconditional cleanup of both.
 //
@@ -34,13 +34,9 @@ import (
 // or a parallel ancestor, which is what blocked t.Parallel() on this
 // helper's callers before).
 //
-// Still NOT safe to call concurrently from two different callers: the
-// sidecar is always published on the single fixed dindClusterPgPort
-// (dind_ports.go), so two callers racing collide on that host port
-// ("requested port is already occupied", confirmed against real Docker).
-// EnableStatefullSuite, ServiceLifecycleSuite and VervonomiconDeploySuite -
-// the three callers - all stay non-t.Parallel() at their top-level Test_X
-// function for exactly this reason.
+// Safe to call from parallel tests: each caller leases its own cluster-pg host
+// port (acquireClusterPgPort) and holds its container suffix exclusively
+// (lockContainerSuffix), so only two callers sharing one suffix are serialized.
 func enableStatefullPgUnderDind(t *testing.T, plane Plane, containerSuffix string) (*TestEnvironment, string) {
 	t.Helper()
 
@@ -57,8 +53,12 @@ func enableStatefullPgUnderDind(t *testing.T, plane Plane, containerSuffix strin
 func newStatefullEnvironment(t *testing.T, plane Plane, containerSuffix string) (*TestEnvironment, string) {
 	t.Helper()
 
-	hostAddr, ok := sharedDind.Addr(dindClusterPgPort)
-	require.True(t, ok, "dind did not publish the cluster-pg port %d", dindClusterPgPort)
+	lockContainerSuffix(t, containerSuffix)
+
+	pgPort := acquireClusterPgPort(t)
+
+	hostAddr, ok := sharedDind.Addr(pgPort)
+	require.True(t, ok, "dind did not publish the cluster-pg port %d", pgPort)
 
 	host, portStr, err := net.SplitHostPort(hostAddr)
 	require.NoError(t, err)
@@ -95,6 +95,8 @@ func newStatefullEnvironment(t *testing.T, plane Plane, containerSuffix string) 
 	removeStatefullSidecar(dockerClient, pgName)
 	t.Cleanup(func() { removeStatefullSidecar(dockerClient, pgName) })
 
+	env.clusterPgPort = uint64(pgPort)
+
 	return env, pgName
 }
 
@@ -104,7 +106,7 @@ func enableStatefullPg(t *testing.T, env *TestEnvironment) {
 
 	statefullReq := &velez_api.EnableStatefullCluster{
 		IsExposePort: toolbox.ToPtr(true),
-		ExposeToPort: toolbox.ToPtr(uint64(dindClusterPgPort)),
+		ExposeToPort: toolbox.ToPtr(env.clusterPgPort),
 	}
 	payload := &velez_api.EnablePlugin_Request_StatefullCluster{
 		StatefullCluster: statefullReq,

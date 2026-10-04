@@ -18,7 +18,8 @@ import (
 //	dindMatreshkaPort                     shared matreshka fixture's gRPC bind
 //	dindPortBandStart..dindAllocatorEnd   PortManager allocator range
 //	dindReservedStart..dindPortBandEnd    ports tests bind themselves
-//	dindClusterPgPort, dindHeadscalePort  fixture ports, past the band
+//	dindHeadscalePort                     fixture port, past the band
+//	dindClusterPgPoolStart..+PoolSize-1   cluster-pg sidecar ports, one leased per test
 //
 // Velez never releases a port it handed out to a smerd while the process
 // lives, so the allocator range must cover every allocation of one full
@@ -36,16 +37,18 @@ const (
 	dindPortBandEnd   = 30200
 
 	dindReservedPortCount = 10
-	dindFixturePortCount  = 2
 	dindAllocatorEnd      = dindPortBandEnd - dindReservedPortCount
 
-	// dindClusterPgPort is carved out the same way dindMatreshkaPort is: the
-	// DinD daemon publishes it (so the host process can reach the cluster-pg
-	// sidecar), but it is deliberately kept OUT of the PortManager range
-	// (dindAvailablePorts) so PortManager never hands it to another test's
-	// smerd. The enable-statefull flow pins the sidecar's 5432 to this port
-	// inside the DinD via EnableStatefullCluster.ExposeToPort.
-	dindClusterPgPort = dindPortBandEnd + 1
+	// dindClusterPgPoolStart..dindClusterPgPoolStart+dindClusterPgPoolSize-1
+	// are carved out the same way dindMatreshkaPort is: the DinD daemon
+	// publishes them (so the host process can reach a cluster-pg sidecar), but
+	// they are deliberately kept OUT of the PortManager range
+	// (dindAvailablePorts) so PortManager never hands one to another test's
+	// smerd. Each cluster-mode test leases one (acquireClusterPgPort) and the
+	// enable-statefull flow pins the sidecar's 5432 to it inside the DinD via
+	// EnableStatefullCluster.ExposeToPort.
+	dindClusterPgPoolStart = dindPortBandEnd + 3
+	dindClusterPgPoolSize  = 12
 
 	// dindHeadscalePort is carved out the same way: the DinD daemon
 	// publishes it so the in-process Velez app can reach the shared
@@ -91,13 +94,17 @@ var (
 // publish: the matreshka bind, the whole band (allocator range plus the
 // reserved test block), and the fixture ports past the band.
 func dindPublishPorts() []int {
-	ports := make([]int, 0, dindPortBandEnd-dindMatreshkaPort+1+dindFixturePortCount)
+	ports := make([]int, 0, dindPortBandEnd-dindMatreshkaPort+1+1+dindClusterPgPoolSize)
 
 	for p := dindMatreshkaPort; p <= dindPortBandEnd; p++ {
 		ports = append(ports, p)
 	}
 
-	ports = append(ports, dindClusterPgPort, dindHeadscalePort)
+	ports = append(ports, dindHeadscalePort)
+
+	for i := range dindClusterPgPoolSize {
+		ports = append(ports, dindClusterPgPoolStart+i)
+	}
 
 	return ports
 }

@@ -230,6 +230,8 @@ func Test_NetworkGroup_RegisterSingleMode(t *testing.T) {
 }
 
 func Test_NetworkGroup_RegisterClusterMode(t *testing.T) {
+	t.Parallel()
+
 	rootName, sidecarName, serviceName := networkGroupNames("cluster")
 
 	env, _ := enableStatefullPgUnderDind(t, Planes[1], networkGroupClusterSuffix)

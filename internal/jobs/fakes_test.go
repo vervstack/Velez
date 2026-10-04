@@ -775,7 +775,7 @@ type fakeNodeClients struct {
 }
 
 func newFakeNodeClients(docker *fakeDocker) *fakeNodeClients {
-	return &fakeNodeClients{docker: docker}
+	return &fakeNodeClients{docker: docker, localState: newFakeStateManager(local_state.State{})}
 }
 
 func (f *fakeNodeClients) Docker() node_clients.Docker {

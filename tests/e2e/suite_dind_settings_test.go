@@ -784,11 +784,9 @@ func runRunnerOnDind(t *testing.T, env *TestEnvironment, _ Plane) {
 	require.Nil(t, findDind(t, env, fixture.dindName))
 }
 
-// Serial: run next to the other unsuffixed-environment tests it intermittently
-// fails resolving its dind from the single-node service list ("dind not
-// found"); root cause not yet found, so it keeps the isolation it had before
-// the cluster-pg pool.
 func Test_Runner_RedeployOnDind_KeepsDockerHostAndDindNetwork(t *testing.T) {
+	t.Parallel()
+
 	runOnEveryPlane(t, runRunnerRedeployOnDind)
 }
 

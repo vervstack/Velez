@@ -19,6 +19,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/runtime_policy"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/user_errors"
@@ -47,6 +48,8 @@ type dockerRuntime struct {
 	// bare "name") form, stamped onto every container Velez creates - same as
 	// docker.Docker's own bakedLabels.
 	bakedLabels []string
+	// settings is nil when node-wide settings are disabled.
+	settings SettingsProvider
 }
 
 // newLabelBasedRuntime builds a dockerRuntime backed by labelSuffixResolver -
@@ -127,6 +130,11 @@ func (r *dockerRuntime) ContainerCreate(
 
 	if req.NetworkingConfig != nil {
 		networkingConfig = req.NetworkingConfig.NetworkingConfig
+	}
+
+	err := runtime_policy.Resolve(ctx, r.settings, hostConfig, config.Image)
+	if err != nil {
+		return container.CreateResponse{}, rerrors.Wrap(err, "error resolving runtime policy")
 	}
 
 	createResponse, err := r.cli.ContainerCreate(

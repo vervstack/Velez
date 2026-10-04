@@ -33,3 +33,25 @@ func Test_CreateRunnerRequestJson_GitlabConfigSurvivesRoundTrip(t *testing.T) {
 	require.Equal(t, int32(4), restored.GetGitlab().GetConcurrent())
 	require.Equal(t, dockerImage, restored.GetGitlab().GetDockerImage())
 }
+
+func Test_CreateRunnerRequestJson_DockerSourceSurvivesRoundTrip(t *testing.T) {
+	dindName := "ci-dind"
+	socketAddress := "tcp://dind:2375"
+
+	original := &CreateRunner_Request{
+		Name:                "runner",
+		DindName:            &dindName,
+		DockerSocketAddress: &socketAddress,
+	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	restored := &CreateRunner_Request{}
+
+	err = json.Unmarshal(data, restored)
+	require.NoError(t, err)
+
+	require.Equal(t, dindName, restored.GetDindName())
+	require.Equal(t, socketAddress, restored.GetDockerSocketAddress())
+}

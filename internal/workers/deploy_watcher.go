@@ -230,6 +230,7 @@ func (d *deployWatcher) deploy(ctx context.Context, dep domain.Deployment) error
 	initialContext.SetRequest(smerdReq)
 
 	initialContext.AllowDockerSocket = d.allowDockerSocket(ctx, smerdReq.GetName())
+	initialContext.Isolation = d.containerIsolation(ctx, smerdReq.GetName())
 
 	// velez.tasks is UNIQUE (entity_id, action): scope the entity id by
 	// environment so the same service name deployed into two environments
@@ -276,6 +277,30 @@ func (d *deployWatcher) allowDockerSocket(ctx context.Context, serviceName strin
 	return true
 }
 
+// containerIsolation reads the Velez-internal isolation secret DindAPI writes
+// before scheduling a dind deploy. A missing secret (every non-dind deploy) is
+// not an error, and any other lookup failure resolves to UNSPECIFIED, same as
+// allowDockerSocket.
+func (d *deployWatcher) containerIsolation(ctx context.Context, serviceName string) velez_api.ContainerIsolation {
+	value, err := d.secretsStore.Get(ctx, domain.ContainerIsolationSecretRef(serviceName))
+	if err != nil {
+		if !rerrors.Is(err, user_errors.ErrSecretNotFound) {
+			log.Error().Err(err).Str("service_name", serviceName).Msg("error checking container isolation")
+		}
+
+		return velez_api.ContainerIsolation_CONTAINER_ISOLATION_UNSPECIFIED
+	}
+
+	switch value {
+	case jobs.IsolationSecretSysbox:
+		return velez_api.ContainerIsolation_CONTAINER_ISOLATION_SYSBOX
+	case jobs.IsolationSecretPrivileged:
+		return velez_api.ContainerIsolation_CONTAINER_ISOLATION_PRIVILEGED
+	default:
+		return velez_api.ContainerIsolation_CONTAINER_ISOLATION_UNSPECIFIED
+	}
+}
+
 // upgrade upgrades a running deployment through the upgrade_smerd task. The
 // stored specification's environment is now carried into the request - the
 // pipeliner path read it for deployments but silently dropped it for
@@ -300,9 +325,12 @@ func (d *deployWatcher) upgrade(ctx context.Context, dep domain.Deployment) erro
 
 	initialContext := &velez_api.UpgradeSmerdTaskPayload{
 		UpgradeRequest: upgradeReq,
+		ExtraEnv:       smerdReq.GetEnv(),
+		ExtraNetworks:  smerdReq.GetSettings().GetNetwork(),
 	}
 
 	initialContext.AllowDockerSocket = d.allowDockerSocket(ctx, upgradeReq.GetName())
+	initialContext.Isolation = d.containerIsolation(ctx, upgradeReq.GetName())
 
 	// Scope the entity id by environment - see the note in deploy(). TODO(#127).
 	entityID := jobs.SmerdEntityID(upgradeReq.GetEnvironment(), upgradeReq.GetName())

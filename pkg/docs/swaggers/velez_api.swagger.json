@@ -527,32 +527,6 @@
         }
       }
     },
-    "ContainerSettings": {
-      "type": "object",
-      "properties": {
-        "ports": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/velez_apiPort"
-          }
-        },
-        "network": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/velez_apiNetworkBind"
-          }
-        },
-        "volumes": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/velez_apiVolume"
-          }
-        }
-      }
-    },
     "PortProtocol": {
       "type": "string",
       "enum": [
@@ -776,6 +750,32 @@
       "default": "unspecified",
       "description": "ContainerFilterField names which field of a ContainerFilter to match on.\nAdding a new field later just adds a new enum value here - an older\nserver ignores a filter field it doesn't recognize instead of erroring,\nsee container_manager.matchesContainerFilter's default case.\n\n - service: service - matches ContainerFilter.value as a case-insensitive substring\nof the container's resolved display name."
     },
+    "velez_apiContainerSettings": {
+      "type": "object",
+      "properties": {
+        "ports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiPort"
+          }
+        },
+        "network": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiNetworkBind"
+          }
+        },
+        "volumes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiVolume"
+          }
+        }
+      }
+    },
     "velez_apiCreateSmerdRequest": {
       "type": "object",
       "properties": {
@@ -789,7 +789,7 @@
           "$ref": "#/definitions/ContainerHardware"
         },
         "settings": {
-          "$ref": "#/definitions/ContainerSettings"
+          "$ref": "#/definitions/velez_apiContainerSettings"
         },
         "command": {
           "type": "string"

@@ -11,7 +11,11 @@ import {CreateRunnerMutation, RUNNERS_QUERY_KEY} from "@/processes/queries/runne
 import {parseConcurrent} from "@/processes/parseConcurrent.ts"
 import Button from "@/components/base/Button.tsx"
 import Input from "@/components/base/Input.tsx"
+import CreateDindForm from "@/widgets/CreateDindForm/CreateDindForm.tsx"
 import TaskProgressScreen from "@/widgets/TaskProgressScreen/TaskProgressScreen.tsx"
+import DockerDaemonPicker
+    from "@/dialogs/CreateServiceDialog/screens/RunnerScreen/components/DockerDaemonPicker/DockerDaemonPicker.tsx"
+import {resolveDockerTarget} from "@/dialogs/CreateServiceDialog/screens/RunnerScreen/processes/dockerTarget.ts"
 import {
     buildCreateRunnerRequest,
 } from "@/dialogs/CreateServiceDialog/screens/RunnerScreen/processes/buildCreateRunnerRequest.ts"
@@ -41,7 +45,9 @@ export default function RunnerScreen({initialProvider = RunnerProvider.GITHUB, o
     const [accessToken, setAccessToken] = useState("")
     const [baseUrl, setBaseUrl] = useState("")
     const [dockerImage, setDockerImage] = useState("")
-    const [dockerSocketAddress, setDockerSocketAddress] = useState("")
+    const [dockerChoice, setDockerChoice] = useState("")
+    const [externalDockerAddress, setExternalDockerAddress] = useState("")
+    const [isCreatingDind, setIsCreatingDind] = useState(false)
     const [concurrent, setConcurrent] = useState("")
     const [showAdvanced, setShowAdvanced] = useState(false)
     const [targetTouched, setTargetTouched] = useState(false)
@@ -59,6 +65,8 @@ export default function RunnerScreen({initialProvider = RunnerProvider.GITHUB, o
     const isGitlab = provider === RunnerProvider.GITLAB
     const concurrentParsed = concurrent ? parseConcurrent(concurrent) : undefined
     const isConcurrentInvalid = concurrent !== "" && concurrentParsed === undefined
+    const dockerTarget = resolveDockerTarget(dockerChoice, externalDockerAddress)
+    const isDockerTargetChosen = Boolean(dockerTarget.dindName || dockerTarget.dockerSocketAddress)
 
     function handleProviderChange(ids: string[]) {
         setProvider((ids[0] as RunnerProvider) ?? RunnerProvider.GITHUB)
@@ -73,12 +81,26 @@ export default function RunnerScreen({initialProvider = RunnerProvider.GITHUB, o
         setTarget(v)
     }
 
+    function handleStartCreatingDind() {
+        setIsCreatingDind(true)
+    }
+
+    function handleCancelCreatingDind() {
+        setIsCreatingDind(false)
+    }
+
+    function handleDindCreated(dindName: string) {
+        setDockerChoice(dindName)
+        setIsCreatingDind(false)
+    }
+
     function handleToggleAdvanced() {
         setShowAdvanced(!showAdvanced)
     }
 
     function handleCreate() {
         const req = buildCreateRunnerRequest({
+            ...dockerTarget,
             name,
             provider,
             scope,
@@ -88,7 +110,6 @@ export default function RunnerScreen({initialProvider = RunnerProvider.GITHUB, o
             accessToken,
             baseUrl,
             dockerImage,
-            dockerSocketAddress,
             concurrent,
         })
         if (!req) return
@@ -108,7 +129,7 @@ export default function RunnerScreen({initialProvider = RunnerProvider.GITHUB, o
         toaster.bake({title: "Runner created", description: name.trim(), level: "Info"})
     }
 
-    const isFormValid = name.trim() && scope && target.trim() && accessToken.trim() && !isConcurrentInvalid
+    const isFormValid = name.trim() && scope && target.trim() && accessToken.trim() && isDockerTargetChosen && !isConcurrentInvalid
     const showTargetError = targetTouched && !target.trim()
 
     if (submittedReq) {
@@ -121,6 +142,10 @@ export default function RunnerScreen({initialProvider = RunnerProvider.GITHUB, o
                 onClose={CloseDialog}
             />
         )
+    }
+
+    if (isCreatingDind) {
+        return <CreateDindForm onCreated={handleDindCreated} onCancel={handleCancelCreatingDind}/>
     }
 
     return (
@@ -203,6 +228,15 @@ export default function RunnerScreen({initialProvider = RunnerProvider.GITHUB, o
                     />
                 )}
 
+                <DockerDaemonPicker
+                    choice={dockerChoice}
+                    externalAddress={externalDockerAddress}
+                    isDisabled={createRunner.isPending}
+                    onChoiceChange={setDockerChoice}
+                    onExternalAddressChange={setExternalDockerAddress}
+                    onCreateNew={handleStartCreatingDind}
+                />
+
                 <div
                     className={cls.AdvancedToggle}
                     onClick={handleToggleAdvanced}
@@ -211,18 +245,6 @@ export default function RunnerScreen({initialProvider = RunnerProvider.GITHUB, o
                 </div>
 
                 <div className={cn(cls.AdvancedSection, showAdvanced && cls.AdvancedSectionOpen)}>
-                    <Input
-                        label="Docker Socket Address (optional)"
-                        inputValue={dockerSocketAddress}
-                        onChange={setDockerSocketAddress}
-                        disabled={createRunner.isPending}
-                    />
-
-                    <div className={cls.RiskNotice}>
-                        Empty uses the default host Docker socket — full root access to the host.
-                        Only override this if you understand the risk.
-                    </div>
-
                     <Input
                         label="Labels (comma-separated)"
                         inputValue={labels}

@@ -97,6 +97,10 @@ type UpgradeDeployReq struct {
 	// no env var this pipeline manages is ever meaningfully "set to empty"
 	// (e.g. DOCKER_HOST). Nil/absent keys are left untouched.
 	EnvOverrides map[string]string
+
+	// ExtraNetworks are added to the current spec's networks before the
+	// upgrade; a network already in the spec (by name) is left untouched.
+	ExtraNetworks []*velez_api.NetworkBind
 }
 
 type ListServicesReq struct {

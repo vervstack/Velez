@@ -175,6 +175,13 @@ type VelezDeploymentSpecification struct {
 	VervDescriptor pqtype.NullRawMessage
 }
 
+type VelezDindInstance struct {
+	ServiceID       int64
+	IsSysboxEnabled bool
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+}
+
 type VelezEnvironment struct {
 	ID         int64
 	Name       string
@@ -267,6 +274,8 @@ type VelezRunner struct {
 	DockerImage         string
 	DockerSocketAddress string
 	Concurrent          int32
+	// NULL = legacy runner on the host docker socket
+	DindServiceID sql.NullInt64
 }
 
 type VelezSecret struct {
@@ -305,6 +314,13 @@ type VelezServiceResource struct {
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	EnvironmentID int64
+}
+
+type VelezSetting struct {
+	IsSingleton              bool
+	IsSysboxEnabled          bool
+	IsSysboxWhitelistIgnored bool
+	UpdatedAt                time.Time
 }
 
 type VelezSharedVolume struct {

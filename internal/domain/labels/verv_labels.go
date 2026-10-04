@@ -68,6 +68,9 @@ const (
 	// self-managed GitLab instance's URL). Empty for a provider with a
 	// single fixed API host (GitHub).
 	RunnerBaseUrlLabel = "velez.runner.base_url"
+	// RunnerDindLabel carries the name of the DinD service a runner talks to.
+	// Absent when the runner uses a docker_socket_address or the host socket.
+	RunnerDindLabel = "velez.runner.dind"
 
 	// RegistryaasInstanceLabel marks a container as a
 	// Container-Registry-as-a-Service instance provisioned by
@@ -83,6 +86,14 @@ const (
 	RegistryaasUsernameLabel = "velez.registryaas.username"
 	RegistryaasPortLabel     = "velez.registryaas.port"
 	RegistryaasUiPortLabel   = "velez.registryaas.ui_port"
+
+	// DindInstanceLabel marks a container as a Docker-in-Docker service
+	// provisioned by dinds.CreateDind. DindSysboxLabel carries whether the
+	// daemon runs in the Sysbox runtime. Always paired with VervServiceLabel
+	// set to the instance name. Always inert in cluster mode, where
+	// velez.dind_instances is authoritative.
+	DindInstanceLabel = "velez.dind"
+	DindSysboxLabel   = "velez.dind.is_sysbox_enabled"
 
 	// PgaasNamePrefix, RegistryaasNamePrefix, GitlabRunnerNamePrefix and
 	// GithubRunnerNamePrefix are prepended to the instance name at the point

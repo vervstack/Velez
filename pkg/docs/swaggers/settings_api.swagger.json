@@ -1,0 +1,242 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "settings_api.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "SettingsAPI",
+      "description": "SettingsAPI - node-wide Velez settings."
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/settings/get": {
+      "get": {
+        "operationId": "SettingsAPI_GetSettings",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetSettingsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "SettingsAPI"
+        ]
+      }
+    },
+    "/api/settings/sysbox_smoke_test": {
+      "post": {
+        "operationId": "SettingsAPI_RunSysboxSmokeTest",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiRunSysboxSmokeTestResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiRunSysboxSmokeTestRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SettingsAPI"
+        ]
+      }
+    },
+    "/api/settings/sysbox_status": {
+      "get": {
+        "operationId": "SettingsAPI_GetSysboxStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetSysboxStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "SettingsAPI"
+        ]
+      }
+    },
+    "/api/settings/update": {
+      "post": {
+        "operationId": "SettingsAPI_UpdateSettings",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiUpdateSettingsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiUpdateSettingsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SettingsAPI"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "googleRpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "velez_apiGetSettingsResponse": {
+      "type": "object",
+      "properties": {
+        "settings": {
+          "$ref": "#/definitions/velez_apiSettings"
+        }
+      }
+    },
+    "velez_apiGetSysboxStatusResponse": {
+      "type": "object",
+      "properties": {
+        "osType": {
+          "type": "string"
+        },
+        "kernelVersion": {
+          "type": "string"
+        },
+        "dockerVersion": {
+          "type": "string"
+        },
+        "isRootless": {
+          "type": "boolean"
+        },
+        "isSnap": {
+          "type": "boolean"
+        },
+        "isRuntimeRegistered": {
+          "type": "boolean"
+        },
+        "containersTotal": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "containersOnSysbox": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "velez_apiRunSysboxSmokeTestRequest": {
+      "type": "object"
+    },
+    "velez_apiRunSysboxSmokeTestResponse": {
+      "type": "object",
+      "properties": {
+        "isPassed": {
+          "type": "boolean"
+        },
+        "failure": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiSettings": {
+      "type": "object",
+      "properties": {
+        "isSysboxEnabled": {
+          "type": "boolean"
+        },
+        "isSysboxWhitelistIgnored": {
+          "type": "boolean"
+        }
+      }
+    },
+    "velez_apiUpdateSettingsRequest": {
+      "type": "object",
+      "properties": {
+        "isSysboxEnabled": {
+          "type": "boolean"
+        },
+        "isSysboxWhitelistIgnored": {
+          "type": "boolean"
+        }
+      }
+    },
+    "velez_apiUpdateSettingsResponse": {
+      "type": "object",
+      "properties": {
+        "settings": {
+          "$ref": "#/definitions/velez_apiSettings"
+        }
+      }
+    }
+  }
+}

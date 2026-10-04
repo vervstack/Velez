@@ -14,12 +14,14 @@ import (
 	"go.vervstack.ru/Velez/internal/service/secrets"
 	"go.vervstack.ru/Velez/internal/service/service_manager/configurator"
 	"go.vervstack.ru/Velez/internal/service/service_manager/container_manager"
+	"go.vervstack.ru/Velez/internal/service/service_manager/dinds"
 	"go.vervstack.ru/Velez/internal/service/service_manager/image_versions"
 	"go.vervstack.ru/Velez/internal/service/service_manager/nodes_service"
 	"go.vervstack.ru/Velez/internal/service/service_manager/pgaas"
 	"go.vervstack.ru/Velez/internal/service/service_manager/plugins"
 	"go.vervstack.ru/Velez/internal/service/service_manager/registryaas"
 	"go.vervstack.ru/Velez/internal/service/service_manager/runneraas"
+	"go.vervstack.ru/Velez/internal/service/service_manager/settings"
 	"go.vervstack.ru/Velez/internal/service/service_manager/verv_services"
 	"go.vervstack.ru/Velez/internal/service/service_manager/vervonomicon"
 	"go.vervstack.ru/Velez/internal/storage"
@@ -41,6 +43,8 @@ type ServiceManager struct {
 	runnersService           service.RunnersService
 	containerRegistryService service.ContainerRegistryService
 	imageVersions            service.ImageVersionsService
+	settingsService          service.SettingsService
+	dindService              service.DindService
 }
 
 func New(
@@ -58,7 +62,9 @@ func New(
 
 	cm := container_manager.New(nodeClients, runtimeResolver, clusterClients.StateManager())
 
-	storageContainer := storage.NewStorageContainer(local_storage.New(nodeClients.Docker(), cfg))
+	storageContainer := storage.NewStorageContainer(
+		local_storage.New(nodeClients.Docker(), nodeClients.LocalStateManager(), cfg),
+	)
 	svc := plugins.New(storageContainer)
 	secretsStore := secrets.New(storageContainer)
 
@@ -96,6 +102,10 @@ func New(
 		// reason pgaas.New does just above - see that comment.
 		containerRegistryService: registryaas.New(clusterClients.StateManager(), vervServices, secretsStore, jobsEngine),
 		imageVersions:            image_versions.New(runtimeResolver, nodeClients.Docker().Client()),
+		settingsService:          settings.New(clusterClients.StateManager(), nodeClients.Docker()),
+		dindService: dinds.New(
+			clusterClients.StateManager(), vervServices, jobsEngine, nodeClients.Docker(),
+		),
 	}
 
 	// TODO VERV-128
@@ -150,4 +160,12 @@ func (s *ServiceManager) ContainerRegistry() service.ContainerRegistryService {
 
 func (s *ServiceManager) ImageVersions() service.ImageVersionsService {
 	return s.imageVersions
+}
+
+func (s *ServiceManager) Settings() service.SettingsService {
+	return s.settingsService
+}
+
+func (s *ServiceManager) Dinds() service.DindService {
+	return s.dindService
 }

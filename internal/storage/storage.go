@@ -30,6 +30,8 @@ type Storage interface {
 	Runners() RunnersStorage
 	RegistryInstances() RegistryInstancesStorage
 	ContainerBindings() ContainerBindingsStorage
+	Settings() SettingsStorage
+	DindInstances() DindInstancesStorage
 
 	TxManager() Transactor
 
@@ -217,4 +219,27 @@ type ContainerBindingsStorage interface {
 	ListByNode(ctx context.Context, nodeId int32, environment string) ([]domain.ContainerBinding, error)
 
 	WithTx(tx *sql.Tx) ContainerBindingsStorage
+}
+
+// SettingsStorage - the node-wide singleton velez.settings row.
+//
+// Implementations: internal/storage/settings.NewPg (postgres/cluster mode)
+// and internal/storage/local_storage's local-state-backed storage
+// (single-node/dev mode).
+type SettingsStorage interface {
+	GetSettings(ctx context.Context) (domain.Settings, error)
+	UpdateSettings(ctx context.Context, settings domain.Settings) (domain.Settings, error)
+}
+
+// DindInstancesStorage - CRUD over velez.dind_instances, the dind-specific
+// satellite row for a Docker-in-Docker service.
+//
+// Implementations: internal/storage/dind_instances.NewPg (postgres/cluster
+// mode) and internal/storage/local_storage's label-derived backend
+// (single-node/dev mode).
+type DindInstancesStorage interface {
+	UpsertDindInstance(ctx context.Context, req domain.UpsertDindInstanceReq) (domain.DindInstance, error)
+	GetDindInstanceByServiceId(ctx context.Context, serviceId int64) (domain.DindInstance, error)
+	ListDindInstances(ctx context.Context) ([]domain.DindInstance, error)
+	DeleteDindInstance(ctx context.Context, serviceId int64) error
 }

@@ -50,6 +50,8 @@ func (s *testStorage) PgInstances() storage.PgInstancesStorage             { ret
 func (s *testStorage) Runners() storage.RunnersStorage                     { return nil }
 func (s *testStorage) RegistryInstances() storage.RegistryInstancesStorage { return nil }
 func (s *testStorage) ContainerBindings() storage.ContainerBindingsStorage { return nil }
+func (s *testStorage) Settings() storage.SettingsStorage                   { return nil }
+func (s *testStorage) DindInstances() storage.DindInstancesStorage         { return nil }
 
 func (s *testStorage) Tasks() storage.TasksStorage { return nil }
 func (s *testStorage) Jobs() storage.JobsStorage   { return nil }

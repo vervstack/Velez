@@ -55,3 +55,20 @@ func validateDockerSocketAddress(addr string) error {
 
 	return nil
 }
+
+// validateDockerSource enforces that exactly one of dindName and
+// dockerSocketAddress is set.
+func validateDockerSource(dindName, dockerSocketAddress string) error {
+	isDindSet := dindName != ""
+	isSocketSet := dockerSocketAddress != ""
+
+	if isDindSet && isSocketSet {
+		return user_errors.ErrRunnerDockerSourceAmbiguous
+	}
+
+	if !isDindSet && !isSocketSet {
+		return user_errors.ErrRunnerDockerSourceRequired
+	}
+
+	return nil
+}

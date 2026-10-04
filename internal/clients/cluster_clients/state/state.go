@@ -186,3 +186,21 @@ func (s *stateManager) ContainerBindings() storage.ContainerBindingsStorage {
 
 	return (*l).ContainerBindings()
 }
+
+func (s *stateManager) Settings() storage.SettingsStorage {
+	l := s.state.Load()
+	if l == nil {
+		return nil
+	}
+
+	return (*l).Settings()
+}
+
+func (s *stateManager) DindInstances() storage.DindInstancesStorage {
+	l := s.state.Load()
+	if l == nil {
+		return nil
+	}
+
+	return (*l).DindInstances()
+}

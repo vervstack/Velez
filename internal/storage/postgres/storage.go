@@ -11,6 +11,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/container_bindings"
+	"go.vervstack.ru/Velez/internal/storage/dind_instances"
 	"go.vervstack.ru/Velez/internal/storage/environments"
 	"go.vervstack.ru/Velez/internal/storage/pg_instances"
 	service_resources_queries "go.vervstack.ru/Velez/internal/storage/postgres/generated/service_resources_queries"
@@ -19,6 +20,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage/registry_instances"
 	"go.vervstack.ru/Velez/internal/storage/runners"
 	"go.vervstack.ru/Velez/internal/storage/secrets"
+	"go.vervstack.ru/Velez/internal/storage/settings"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
@@ -39,6 +41,8 @@ type Storage struct {
 	runnersStorage             storage.RunnersStorage
 	registryInstancesStorage   storage.RegistryInstancesStorage
 	containerBindingsStorage   storage.ContainerBindingsStorage
+	settingsStorage            storage.SettingsStorage
+	dindInstancesStorage       storage.DindInstancesStorage
 
 	txManager *sqldb.TxManager
 }
@@ -66,6 +70,8 @@ func New(db *sql.DB) storage.Storage {
 		runnersStorage:             runners.NewPg(db),
 		registryInstancesStorage:   registry_instances.NewPg(db),
 		containerBindingsStorage:   container_bindings.NewPg(db),
+		settingsStorage:            settings.NewPg(db),
+		dindInstancesStorage:       dind_instances.NewPg(db),
 		txManager:                  sqldb.NewTxManager(db),
 	}
 }
@@ -139,6 +145,14 @@ func (s *Storage) RegistryInstances() storage.RegistryInstancesStorage {
 
 func (s *Storage) ContainerBindings() storage.ContainerBindingsStorage {
 	return s.containerBindingsStorage
+}
+
+func (s *Storage) Settings() storage.SettingsStorage {
+	return s.settingsStorage
+}
+
+func (s *Storage) DindInstances() storage.DindInstancesStorage {
+	return s.dindInstancesStorage
 }
 
 func (s *Storage) TxManager() storage.Transactor {

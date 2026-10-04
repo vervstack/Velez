@@ -8,6 +8,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/jobs"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // CreateRunner validates the request, then enqueues the multi-step
@@ -26,9 +27,21 @@ func (s *RunneraasService) CreateRunner(ctx context.Context, req domain.CreateRu
 		return rerrors.Wrap(err)
 	}
 
+	err = validateDockerSource(req.DindName, req.DockerSocketAddress)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
 	err = validateDockerSocketAddress(req.DockerSocketAddress)
 	if err != nil {
 		return rerrors.Wrap(err)
+	}
+
+	if req.DindName != "" {
+		err = s.ensureDindExists(ctx, req.DindName)
+		if err != nil {
+			return rerrors.Wrap(err)
+		}
 	}
 
 	initialContext := &velez_api.CreateRunnerTaskPayload{
@@ -38,6 +51,28 @@ func (s *RunneraasService) CreateRunner(ctx context.Context, req domain.CreateRu
 	_, err = s.jobsEngine.Enqueue(ctx, req.Name, jobs.CreateRunnerAction, initialContext)
 	if err != nil {
 		return rerrors.Wrap(err, "error enqueuing create runner task")
+	}
+
+	return nil
+}
+
+func (s *RunneraasService) ensureDindExists(ctx context.Context, dindName string) error {
+	svc, err := s.dataStorage.Services().GetByName(ctx, dindName)
+	if err != nil {
+		if rerrors.Is(err, user_errors.ErrStorageNotFound) {
+			return rerrors.Wrap(user_errors.ErrDindNotFound)
+		}
+
+		return rerrors.Wrap(err, "error getting dind service")
+	}
+
+	_, err = s.dataStorage.DindInstances().GetDindInstanceByServiceId(ctx, svc.ID)
+	if err != nil {
+		if rerrors.Is(err, user_errors.ErrStorageNotFound) {
+			return rerrors.Wrap(user_errors.ErrDindNotFound)
+		}
+
+		return rerrors.Wrap(err, "error getting dind instance")
 	}
 
 	return nil
@@ -64,6 +99,10 @@ func runnerRequestToPb(req domain.CreateRunnerReq) *velez_api.CreateRunner_Reque
 
 	if req.DockerSocketAddress != "" {
 		pbReq.DockerSocketAddress = &req.DockerSocketAddress
+	}
+
+	if req.DindName != "" {
+		pbReq.DindName = &req.DindName
 	}
 
 	switch req.Provider {

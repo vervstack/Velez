@@ -163,6 +163,9 @@ message CreateRunner {
       GithubConfig github = 7;
       GitlabConfig gitlab = 8;
     }
+
+    // dind_name - name of a DinD service (DindAPI) the runner uses as its Docker daemon. New runners must set exactly one of dind_name or docker_socket_address; neither is rejected.
+    optional string dind_name = 9;
   }
   message Response {
     // runner is never populated - the RPC enqueues the create_runner task

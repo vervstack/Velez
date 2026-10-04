@@ -40,8 +40,11 @@ type Runner struct {
 	// Concurrent - the gitlab-runner global `concurrent` setting (jobs run at
 	// once). Ignored by a provider without one.
 	Concurrent int32
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	// DindServiceId - the DinD service (velez.dind_instances) this runner
+	// uses as its Docker daemon. 0 means a legacy runner on the host socket.
+	DindServiceId int64
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 const (
@@ -85,6 +88,7 @@ type UpsertRunnerReq struct {
 	DockerImage         string
 	DockerSocketAddress string
 	Concurrent          int32
+	DindServiceId       int64
 }
 
 // CreateRunnerReq is the input to RunnersService.CreateRunner. See
@@ -116,6 +120,10 @@ type CreateRunnerReq struct {
 	// grants the host socket via its existing internal-only bind-mount gate.
 	// See runners_api.proto's CreateRunner.Request.docker_socket_address.
 	DockerSocketAddress string
+
+	// DindName - name of a DinD service (DindAPI) the runner uses as its
+	// Docker daemon.
+	DindName string
 
 	// Concurrent - the gitlab-runner global `concurrent` setting. 0 means
 	// unset and is treated as 1.

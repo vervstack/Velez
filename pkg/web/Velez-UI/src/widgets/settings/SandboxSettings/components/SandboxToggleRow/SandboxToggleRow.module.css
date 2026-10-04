@@ -1,0 +1,12 @@
+.SandboxToggleRowContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+
+    & .Description {
+        margin: 0;
+        font-size: 0.75rem;
+        line-height: 1.4;
+        color: var(--fg-dim);
+    }
+}

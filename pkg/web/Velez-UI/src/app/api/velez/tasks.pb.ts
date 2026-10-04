@@ -7,12 +7,19 @@
 
 import * as VelezApiContainerRegistryApi from "./container_registry_api.pb";
 import * as VelezApiControlPlaneApi from "./control_plane_api.pb";
+import * as VelezApiDindApi from "./dind_api.pb";
 import * as fm from "./fetch.pb";
 import * as GoogleProtobufTimestamp from "./google/protobuf/timestamp.pb";
 import * as VelezApiRunnersApi from "./runners_api.pb";
 import * as VelezApiVelezApi from "./velez_api.pb";
 import * as VelezApiVelezCommon from "./velez_common.pb";
 
+
+export enum ContainerIsolation {
+  CONTAINER_ISOLATION_UNSPECIFIED = "CONTAINER_ISOLATION_UNSPECIFIED",
+  CONTAINER_ISOLATION_SYSBOX = "CONTAINER_ISOLATION_SYSBOX",
+  CONTAINER_ISOLATION_PRIVILEGED = "CONTAINER_ISOLATION_PRIVILEGED",
+}
 
 export enum TaskStatusStatus {
   UNKNOWN = "UNKNOWN",
@@ -51,6 +58,7 @@ export type CreateSmerdTaskPayload = {
   imageExposedPorts?: string[];
   pathToFiles?: Record<string, Uint8Array>;
   allowDockerSocket?: boolean;
+  isolation?: ContainerIsolation;
 };
 
 export type CreateServiceTaskPayload = {
@@ -123,6 +131,8 @@ export type UpgradeSmerdTaskPayload = {
   sidecarContainerNames?: string[];
   isSidecarsSkipped?: boolean;
   isOldContainerKept?: boolean;
+  isolation?: ContainerIsolation;
+  extraNetworks?: VelezApiVelezCommon.NetworkBind[];
 };
 
 export type RegisterContainerTaskPayload = {
@@ -160,6 +170,12 @@ export type CreateRegistryInstanceTaskPayload = {
   containerId?: string;
   exposedPort?: number;
   uiExposedPort?: number;
+};
+
+export type CreateDindTaskPayload = {
+  request?: VelezApiDindApi.CreateDindRequest;
+  networkName?: string;
+  address?: string;
 };
 
 export type CreateRunnerTaskPayload = {

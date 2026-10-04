@@ -160,6 +160,7 @@ func (v *VervService) UpgradeDeploy(ctx context.Context, request domain.UpgradeD
 	}
 
 	applyEnvOverrides(smerdReq, request.EnvOverrides)
+	applyNetworkOverrides(smerdReq, request.ExtraNetworks)
 
 	payload, err := json.Marshal(smerdReq)
 	if err != nil {
@@ -229,4 +230,16 @@ func applyEnvOverrides(smerdReq *velez_api.CreateSmerd_Request, overrides map[st
 
 		smerdReq.Env[key] = value
 	}
+}
+
+func applyNetworkOverrides(smerdReq *velez_api.CreateSmerd_Request, extraNetworks []*velez_api.NetworkBind) {
+	if len(extraNetworks) == 0 {
+		return
+	}
+
+	if smerdReq.GetSettings() == nil {
+		smerdReq.Settings = &velez_api.Container_Settings{}
+	}
+
+	smerdReq.Settings.Network = domain.MergeNetworkBinds(smerdReq.GetSettings().GetNetwork(), extraNetworks)
 }

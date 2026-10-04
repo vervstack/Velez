@@ -474,32 +474,6 @@
         }
       }
     },
-    "ContainerSettings": {
-      "type": "object",
-      "properties": {
-        "ports": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/velez_apiPort"
-          }
-        },
-        "network": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/velez_apiNetworkBind"
-          }
-        },
-        "volumes": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/velez_apiVolume"
-          }
-        }
-      }
-    },
     "PortProtocol": {
       "type": "string",
       "enum": [
@@ -609,6 +583,32 @@
       "default": "yaml",
       "description": "- yaml: Default"
     },
+    "velez_apiContainerSettings": {
+      "type": "object",
+      "properties": {
+        "ports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiPort"
+          }
+        },
+        "network": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiNetworkBind"
+          }
+        },
+        "volumes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiVolume"
+          }
+        }
+      }
+    },
     "velez_apiCreateDeployRequest": {
       "type": "object",
       "properties": {
@@ -664,7 +664,7 @@
           "$ref": "#/definitions/ContainerHardware"
         },
         "settings": {
-          "$ref": "#/definitions/ContainerSettings"
+          "$ref": "#/definitions/velez_apiContainerSettings"
         },
         "command": {
           "type": "string"

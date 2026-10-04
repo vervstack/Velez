@@ -173,10 +173,11 @@ func (h *createRunnerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: stepRegisterRunnerRow,
 			Job: &registerRunnerRowJob{
-				services:     h.dataStorage.Services(),
-				runners:      h.dataStorage.Runners(),
-				instanceName: instanceName,
-				req:          payload,
+				services:      h.dataStorage.Services(),
+				runners:       h.dataStorage.Runners(),
+				dindInstances: h.dataStorage.DindInstances(),
+				instanceName:  instanceName,
+				req:           payload,
 			},
 		},
 	}
@@ -303,9 +304,13 @@ func (j *deployRunnerJob) Do(ctx context.Context) error {
 	// create_smerd task that actually creates the container. See
 	// create_smerd.go's dockerSocketAccessor gate. Never derived from, or
 	// settable via, any other field on CreateRunner.Request.
-	if request.GetDockerSocketAddress() != "" {
+	switch {
+	case request.GetDindName() != "":
+		smerdRequest.Env[runnerDockerHostEnvVar] = domain.DindAddress(request.GetDindName())
+		attachDindNetwork(smerdRequest, request.GetDindName())
+	case request.GetDockerSocketAddress() != "":
 		smerdRequest.Env[runnerDockerHostEnvVar] = request.GetDockerSocketAddress()
-	} else {
+	default:
 		err = j.secrets.Put(ctx, domain.DockerSocketGrantSecretRef(name), "true")
 		if err != nil {
 			return rerrors.Wrap(err, "error putting docker socket grant secret")
@@ -325,6 +330,16 @@ func (j *deployRunnerJob) Do(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func attachDindNetwork(request *velez_api.CreateSmerd_Request, dindName string) {
+	if request.GetSettings() == nil {
+		request.Settings = &velez_api.Container_Settings{}
+	}
+
+	networkBind := &velez_api.NetworkBind{NetworkName: domain.DindNetworkName(dindName)}
+
+	request.Settings.Network = append(request.Settings.Network, networkBind)
 }
 
 // buildRunnerDeployRequest reads the builtin descriptor named by provider,
@@ -398,6 +413,10 @@ func buildRunnerDeployRequest(
 	smerdRequest.Labels[labels.RunnerTargetLabel] = request.GetTarget()
 	smerdRequest.Labels[labels.RunnerLabelsLabel] = strings.Join(request.GetLabels(), ",")
 	smerdRequest.Labels[labels.RunnerBaseUrlLabel] = baseUrl
+
+	if request.GetDindName() != "" {
+		smerdRequest.Labels[labels.RunnerDindLabel] = request.GetDindName()
+	}
 
 	return descriptor, smerdRequest, nil
 }
@@ -520,8 +539,9 @@ func (j *registerRunnerJob) Do(ctx context.Context) error {
 // confirmed deployed - see waitForRunnerDeployJob's doc comment on why this
 // must not run any earlier.
 type registerRunnerRowJob struct {
-	services storage.ServicesStorage
-	runners  storage.RunnersStorage
+	services      storage.ServicesStorage
+	runners       storage.RunnersStorage
+	dindInstances storage.DindInstancesStorage
 
 	instanceName string
 	req          createRunnerRequestAccessor
@@ -536,8 +556,14 @@ func (j *registerRunnerRowJob) Do(ctx context.Context) error {
 	request := j.req.GetRequest()
 	provider, _, baseUrl := runnerProviderConfig(request)
 
+	dindServiceId, err := j.resolveDindServiceId(ctx, request.GetDindName())
+	if err != nil {
+		return err
+	}
+
 	upsertReq := domain.UpsertRunnerReq{
 		ServiceID:           svc.ID,
+		DindServiceId:       dindServiceId,
 		Provider:            provider.String(),
 		Scope:               request.GetScope().String(),
 		Target:              request.GetTarget(),
@@ -555,6 +581,24 @@ func (j *registerRunnerRowJob) Do(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (j *registerRunnerRowJob) resolveDindServiceId(ctx context.Context, dindName string) (int64, error) {
+	if dindName == "" {
+		return 0, nil
+	}
+
+	dindSvc, err := j.services.GetByName(ctx, dindName)
+	if err != nil {
+		return 0, rerrors.Wrap(err, "error getting dind service")
+	}
+
+	_, err = j.dindInstances.GetDindInstanceByServiceId(ctx, dindSvc.ID)
+	if err != nil {
+		return 0, rerrors.Wrap(err, "error getting dind instance")
+	}
+
+	return dindSvc.ID, nil
 }
 
 // effectiveConcurrent maps an unset (0) concurrent to gitlab-runner's own

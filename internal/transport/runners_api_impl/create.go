@@ -22,6 +22,7 @@ func (impl *Impl) CreateRunner(
 		Labels:              req.GetLabels(),
 		Environment:         req.GetEnvironment(),
 		DockerSocketAddress: req.GetDockerSocketAddress(),
+		DindName:            req.GetDindName(),
 	}
 
 	switch cfg := req.GetProviderConfig().(type) {

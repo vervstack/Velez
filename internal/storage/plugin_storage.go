@@ -90,3 +90,11 @@ func (c *Container) RegistryInstances() RegistryInstancesStorage {
 func (c *Container) ContainerBindings() ContainerBindingsStorage {
 	return (*c.impl.Load()).ContainerBindings()
 }
+
+func (c *Container) Settings() SettingsStorage {
+	return (*c.impl.Load()).Settings()
+}
+
+func (c *Container) DindInstances() DindInstancesStorage {
+	return (*c.impl.Load()).DindInstances()
+}

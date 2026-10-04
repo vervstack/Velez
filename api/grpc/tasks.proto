@@ -8,6 +8,7 @@ import "google/protobuf/timestamp.proto";
 import "npm.proto";
 import "container_registry_api.proto";
 import "control_plane_api.proto";
+import "dind_api.proto";
 import "runners_api.proto";
 import "service_api.proto";
 import "velez_api.proto";
@@ -97,6 +98,10 @@ message CreateSmerdTaskPayload {
   // server-written marker. A client-supplied CreateSmerdTaskPayload can never
   // reach this field.
   bool allow_docker_socket = 8;
+
+  // Velez-internal only, same trust model as allow_docker_socket: set from a
+  // Velez-internal secret grant, never from a client request.
+  ContainerIsolation isolation = 9;
 }
 
 // CreateServiceTaskPayload is the task context for the "create_service" action.
@@ -254,6 +259,15 @@ message UpgradeSmerdTaskPayload {
   // is_old_container_kept keeps the old container (renamed "<name>_old", paused or stopped) instead of dropping it after the swap; set by register_container.
   bool is_old_container_kept = 15;
 
+  // Same trust model as CreateSmerdTaskPayload.isolation.
+  ContainerIsolation isolation = 16;
+
+  // extra_networks are attached to the new container in addition to the
+  // networks captured from the old one; a network already captured (by name)
+  // is left untouched. Used by upgrade_deploy to carry spec-declared networks
+  // that carry no aliases and so are invisible to the capture.
+  repeated NetworkBind extra_networks = 17;
+
   message PortsOverride {
     repeated Port ports = 1;
   }
@@ -356,6 +370,19 @@ message CreateRegistryInstanceTaskPayload {
   // creation), so both ports are resolved before either container deploys.
   optional uint32 exposed_port = 5;
   optional uint32 ui_exposed_port = 6;
+}
+
+enum ContainerIsolation {
+  CONTAINER_ISOLATION_UNSPECIFIED = 0;
+  CONTAINER_ISOLATION_SYSBOX = 1;
+  CONTAINER_ISOLATION_PRIVILEGED = 2;
+}
+
+// CreateDindTaskPayload is the task context for the "create_dind" action.
+message CreateDindTaskPayload {
+  CreateDind.Request request = 1;
+  string network_name = 2;
+  string address = 3;
 }
 
 // CreateRunnerTaskPayload is the task context for the "create_runner"

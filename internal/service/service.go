@@ -29,6 +29,8 @@ type Services interface {
 	Runners() RunnersService
 	ContainerRegistry() ContainerRegistryService
 	ImageVersions() ImageVersionsService
+	Settings() SettingsService
+	Dinds() DindService
 }
 
 type ContainerService interface {
@@ -186,4 +188,17 @@ type ContainerRegistryService interface {
 	// GetRegistryInstanceCredentials is the only ContainerRegistryService
 	// operation that resolves a secret_ref to its plaintext value.
 	GetRegistryInstanceCredentials(ctx context.Context, name string) (domain.RegistryInstanceCredentials, error)
+}
+
+type SettingsService interface {
+	GetSettings(ctx context.Context) (domain.Settings, error)
+	UpdateSettings(ctx context.Context, req domain.UpdateSettingsReq) (domain.Settings, error)
+	GetSysboxStatus(ctx context.Context) (domain.SysboxStatus, error)
+	RunSysboxSmokeTest(ctx context.Context) (domain.SysboxSmokeTestResult, error)
+}
+
+type DindService interface {
+	CreateDind(ctx context.Context, req domain.CreateDindReq) error
+	ListDinds(ctx context.Context) ([]domain.DindView, error)
+	DropDind(ctx context.Context, name string) error
 }

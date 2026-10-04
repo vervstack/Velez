@@ -10,5 +10,9 @@
   "ClusterState": {
     "PgRootDsn": "",
     "PgNodeDsn": ""
+  },
+  "Settings": {
+    "IsSysboxEnabled": false,
+    "IsSysboxWhitelistIgnored": false
   }
 }

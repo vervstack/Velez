@@ -1,0 +1,85 @@
+.ChecklistStepContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    & .Header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    & .Indicator {
+        flex-shrink: 0;
+        width: 1rem;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        text-align: center;
+        color: var(--fg-dim);
+    }
+
+    & .Title {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--fg);
+    }
+
+    & .Hint {
+        margin: 0;
+        font-size: 0.75rem;
+        line-height: 1.4;
+        color: var(--fg-mid);
+    }
+
+    & .Detail {
+        margin: 0;
+        font-size: 0.75rem;
+        line-height: 1.4;
+        color: var(--fg-dim);
+    }
+
+    & .Collapsed {
+        font-size: 0.75rem;
+        color: var(--fg-dim);
+    }
+
+    & .DetailToggle {
+        cursor: pointer;
+        color: var(--fg-dim);
+    }
+
+    & .Code {
+        margin: 0;
+        padding: 0.5rem 0.625rem;
+        background: var(--bg3);
+        border-radius: var(--radius-sm);
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        color: var(--fg-mid);
+        white-space: pre-wrap;
+        overflow-x: auto;
+    }
+
+    & .InlineCode {
+        font-family: var(--font-mono);
+        color: var(--fg-mid);
+    }
+
+    &.pass .Indicator {
+        color: var(--green);
+    }
+
+    &.fail {
+        padding: 0.5rem 0.625rem;
+        background: var(--red-dim);
+        border-radius: var(--radius-sm);
+
+        & .Indicator {
+            color: var(--red);
+        }
+
+        & .Detail {
+            color: var(--fg);
+        }
+    }
+}

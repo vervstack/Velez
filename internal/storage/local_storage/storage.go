@@ -42,9 +42,11 @@ type localStorage struct {
 	runners           storage.RunnersStorage
 	registryInstances storage.RegistryInstancesStorage
 	containerBindings storage.ContainerBindingsStorage
+	settings          storage.SettingsStorage
+	dindInstances     storage.DindInstancesStorage
 }
 
-func New(containerAPI node_clients.Docker, cfg config.Config) storage.Storage {
+func New(containerAPI node_clients.Docker, stateManager node_clients.StateManager, cfg config.Config) storage.Storage {
 	region := cfg.Environment.NodeRegion
 	if region == "" {
 		hostname, err := os.Hostname()
@@ -90,6 +92,13 @@ func New(containerAPI node_clients.Docker, cfg config.Config) storage.Storage {
 		// Labels are the system of record in single-node/dev mode - see
 		// container_bindings.go.
 		containerBindings: newContainerBindingsStorage(),
+		// Single-node/dev mode has no velez.settings table - the toggles are
+		// persisted in the local state file, see settings.go.
+		settings: newSettingsStorage(stateManager),
+		// Single-node/dev mode has no velez.dind_instances table either - a
+		// running container labelled labels.DindInstanceLabel is the system
+		// of record instead - see dind_instances.go.
+		dindInstances: newDindInstancesStorage(containerAPI),
 	}
 }
 
@@ -161,6 +170,14 @@ func (l *localStorage) RegistryInstances() storage.RegistryInstancesStorage {
 
 func (l *localStorage) ContainerBindings() storage.ContainerBindingsStorage {
 	return l.containerBindings
+}
+
+func (l *localStorage) Settings() storage.SettingsStorage {
+	return l.settings
+}
+
+func (l *localStorage) DindInstances() storage.DindInstancesStorage {
+	return l.dindInstances
 }
 
 // TxManager returns l.deployments itself as the Transactor: single-node/dev

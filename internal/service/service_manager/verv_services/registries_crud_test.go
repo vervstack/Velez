@@ -111,7 +111,7 @@ func TestVervService_GetRegistry_UnknownIDRejected(t *testing.T) {
 func newLocalStorageRegistryService(t *testing.T) *VervService {
 	t.Helper()
 
-	dataStorage := local_storage.New(nil, config.Config{})
+	dataStorage := local_storage.New(nil, nil, config.Config{})
 
 	return New(dataStorage, nil, nil, nil, nil, nil)
 }

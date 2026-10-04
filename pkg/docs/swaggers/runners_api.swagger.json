@@ -334,6 +334,10 @@
         },
         "gitlab": {
           "$ref": "#/definitions/velez_apiGitlabConfig"
+        },
+        "dindName": {
+          "type": "string",
+          "description": "dind_name - name of a DinD service (DindAPI) the runner uses as its Docker daemon. New runners must set exactly one of dind_name or docker_socket_address; neither is rejected."
         }
       }
     },

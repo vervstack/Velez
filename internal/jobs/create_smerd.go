@@ -52,6 +52,8 @@ const (
 	// dockerSocketAccessor.GetAllowDockerSocket() is true - see
 	// createContainerJob.Do.
 	dockerSocketPath = "/var/run/docker.sock"
+
+	sysboxRuntimeName = "sysbox-runc"
 )
 
 // Accessor interfaces the create_smerd jobs need from their TaskContext.
@@ -80,6 +82,13 @@ type containerIDAccessor interface {
 // CreateSmerd/CreateDeploy API can influence directly.
 type dockerSocketAccessor interface {
 	GetAllowDockerSocket() bool
+}
+
+// isolationAccessor selects the runtime isolation of the container - set only
+// by deploy_watcher.go from a Velez-internal secret, same trust model as
+// dockerSocketAccessor.
+type isolationAccessor interface {
+	GetIsolation() velez_api.ContainerIsolation
 }
 
 // createSmerdImageAccessor is what prepare_image needs to persist after
@@ -692,6 +701,17 @@ func (j *createContainerJob) Do(ctx context.Context) error {
 		PortBindings:  parser.FromPorts(req.GetSettings()),
 		Mounts:        mounts,
 		RestartPolicy: parser.FromRestart(req.GetRestart()),
+	}
+
+	withIsolation, isIsolated := j.ctx.(isolationAccessor)
+	if isIsolated {
+		switch withIsolation.GetIsolation() {
+		case velez_api.ContainerIsolation_CONTAINER_ISOLATION_SYSBOX:
+			hostCfg.Runtime = sysboxRuntimeName
+		case velez_api.ContainerIsolation_CONTAINER_ISOLATION_PRIVILEGED:
+			hostCfg.Privileged = true
+		case velez_api.ContainerIsolation_CONTAINER_ISOLATION_UNSPECIFIED:
+		}
 	}
 
 	netCfg := &network.NetworkingConfig{}

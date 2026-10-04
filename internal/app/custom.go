@@ -31,9 +31,11 @@ import (
 	"go.vervstack.ru/Velez/internal/transport"
 	"go.vervstack.ru/Velez/internal/transport/container_registry_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/control_plane_api_impl"
+	"go.vervstack.ru/Velez/internal/transport/dind_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/pgaas_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/runners_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/service_api_impl"
+	"go.vervstack.ru/Velez/internal/transport/settings_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/tasks_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/ui"
 	"go.vervstack.ru/Velez/internal/transport/vcn_api_impl"
@@ -81,6 +83,8 @@ type Custom struct {
 	TasksApiImpl             *tasks_api_impl.Impl
 	PgaasApiImpl             *pgaas_api_impl.Impl
 	RunnersApiImpl           *runners_api_impl.Impl
+	SettingsApiImpl          *settings_api_impl.Impl
+	DindApiImpl              *dind_api_impl.Impl
 	ContainerRegistryApiImpl *container_registry_api_impl.Impl
 
 	serverManager *transport.ServersManager
@@ -125,11 +129,15 @@ func (c *Custom) Init(a *App) (err error) {
 	// (Phase 1, RED - see docs/container_runtimes/roadmap.md) ListSmerds route
 	// through it; every other container operation still goes through
 	// node_clients.Docker directly.
+	settingsProvider := container_runtime.NewSettingsProvider(c.ClusterClients.StateManager())
+	c.NodeClients.Docker().SetSettingsProvider(settingsProvider)
+
 	runtimeResolver := container_runtime.NewResolver(
 		c.NodeClients.Docker().Client(),
 		c.NodeClients.Docker().Host(),
 		a.Cfg.Environment.CustomLabels,
-		c.ClusterClients.StateManager())
+		c.ClusterClients.StateManager(),
+		container_runtime.WithSettings(settingsProvider))
 
 	// NewNodeClients couldn't seed the port manager's occupied-port view itself
 	// (ListOccupiedPorts needs a resolved ContainerRuntime, and RuntimeResolver
@@ -167,6 +175,9 @@ func (c *Custom) Init(a *App) (err error) {
 		c.NodeClients, runtimeResolver, c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(),
 		c.JobsEngine))
 	registry.Register(jobs.NewCreateRunnerHandler(
+		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(), c.JobsEngine,
+		runtimeResolver))
+	registry.Register(jobs.NewCreateDindHandler(
 		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(), c.JobsEngine,
 		runtimeResolver))
 	registry.Register(jobs.NewReregisterRunnerHandler(
@@ -312,11 +323,13 @@ func (c *Custom) InitApiServer(a *App) error {
 	c.TasksApiImpl = tasks_api_impl.New(c.JobsEngine, c.Services.VervServices())
 	c.PgaasApiImpl = pgaas_api_impl.New(c.Services)
 	c.RunnersApiImpl = runners_api_impl.New(c.Services)
+	c.SettingsApiImpl = settings_api_impl.New(c.Services)
+	c.DindApiImpl = dind_api_impl.New(c.Services)
 	c.ContainerRegistryApiImpl = container_registry_api_impl.New(c.Services)
 
 	c.serverManager.AddImplementation(a.Ctx,
 		c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl, c.ServiceApiImpl, c.TasksApiImpl, c.PgaasApiImpl,
-		c.RunnersApiImpl, c.ContainerRegistryApiImpl)
+		c.RunnersApiImpl, c.ContainerRegistryApiImpl, c.SettingsApiImpl, c.DindApiImpl)
 	c.serverManager.AddHttpHandler(docs.Swagger())
 	c.serverManager.AddHttpHandler("/", ui.NewServer())
 

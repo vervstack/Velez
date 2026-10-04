@@ -4,9 +4,11 @@ package e2e
 
 import (
 	"context"
+	"io"
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/image"
 	"github.com/stretchr/testify/require"
 	"go.redsock.ru/rerrors"
 
@@ -21,12 +23,35 @@ import (
 const (
 	networkGroupClusterSuffix = registerClusterSuffix + "-netgroup"
 	networkGroupNetworkPrefix = "container:"
+
+	// A sidecar joining the root's network namespace is an elevated request, so
+	// the runtime policy only lets a whitelisted image (the tailscale sidecar
+	// in production) do it; nginx is tagged under that name as a stand-in.
+	networkGroupSidecarImage = "tailscale/tailscale:e2e"
 )
 
 var networkGroupSidecarCommand = []string{"sleep", "3600"}
 
 func networkGroupNames(prefix string) (rootName, sidecarName, serviceName string) {
 	return "e2e_ng_" + prefix + "_root", "e2e_ng_" + prefix + "_side", "e2e_ng_" + prefix + "_svc"
+}
+
+func tagNginxAsSidecarImage(t *testing.T, env *TestEnvironment) {
+	t.Helper()
+
+	dockerClient := env.Custom.NodeClients.Docker().Client()
+
+	pullReader, err := dockerClient.ImagePull(t.Context(), NginxAlpineImage, image.PullOptions{})
+	require.NoError(t, err)
+
+	_, err = io.Copy(io.Discard, pullReader)
+	require.NoError(t, err)
+
+	err = pullReader.Close()
+	require.NoError(t, err)
+
+	err = dockerClient.ImageTag(t.Context(), NginxAlpineImage, networkGroupSidecarImage)
+	require.NoError(t, err)
 }
 
 func startNetworkSidecar(
@@ -36,8 +61,10 @@ func startNetworkSidecar(
 
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 
+	tagNginxAsSidecarImage(t, env)
+
 	cfg := &container.Config{
-		Image:  NginxAlpineImage,
+		Image:  networkGroupSidecarImage,
 		Cmd:    networkGroupSidecarCommand,
 		Labels: map[string]string{testCaseNameLabel: t.Name()},
 	}

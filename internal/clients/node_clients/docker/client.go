@@ -5,6 +5,7 @@ import (
 	"context"
 	"io"
 	"strings"
+	"sync/atomic"
 
 	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
@@ -17,6 +18,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/runtime_policy"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 )
@@ -32,6 +34,8 @@ type Docker struct {
 	// host is cli.DaemonHost() at construction time - the resolved address
 	// this connection actually talks to. See Host().
 	host string
+	// settings is bound late: settings storage is created after this client.
+	settings atomic.Pointer[runtime_policy.SettingsProvider]
 }
 
 func NewClient(bakedLabels []string) (*Docker, error) {
@@ -61,6 +65,16 @@ func NewClientWithOpts(bakedLabels []string, opts ...client.Opt) (*Docker, error
 // the Docker interface's Host doc comment.
 func (d *Docker) Host() string {
 	return d.host
+}
+
+func (d *Docker) SetSettingsProvider(provider runtime_policy.SettingsProvider) {
+	if provider == nil {
+		d.settings.Store(nil)
+
+		return
+	}
+
+	d.settings.Store(&provider)
 }
 
 func (d *Docker) PullImage(ctx context.Context, imageName string) (image.InspectResponse, error) {
@@ -258,6 +272,11 @@ func (d *Docker) ContainerCreate(
 		config.Labels[name] = val
 	}
 
+	err := runtime_policy.Resolve(ctx, d.settingsProvider(), hostConfig, config.Image)
+	if err != nil {
+		return container.CreateResponse{}, rerrors.Wrap(err, "error resolving runtime policy")
+	}
+
 	createResponse, err := d.directApi.ContainerCreate(ctx, config, hostConfig, networkingConfig, platform, containerName)
 	if err != nil {
 		if errdefs.IsConflict(err) {
@@ -280,4 +299,13 @@ func (d *Docker) Stats(ctx context.Context, nameOrId string) (domain.ContainerSt
 	}
 
 	return stats, nil
+}
+
+func (d *Docker) settingsProvider() runtime_policy.SettingsProvider {
+	provider := d.settings.Load()
+	if provider == nil {
+		return nil
+	}
+
+	return *provider
 }

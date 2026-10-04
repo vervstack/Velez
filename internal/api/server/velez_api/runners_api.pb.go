@@ -780,8 +780,10 @@ type CreateRunner_Request struct {
 	//	*CreateRunner_Request_Github
 	//	*CreateRunner_Request_Gitlab
 	ProviderConfig isCreateRunner_Request_ProviderConfig `protobuf_oneof:"provider_config"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// dind_name - name of a DinD service (DindAPI) the runner uses as its Docker daemon. New runners must set exactly one of dind_name or docker_socket_address; neither is rejected.
+	DindName      *string `protobuf:"bytes,9,opt,name=dind_name,json=dindName,proto3,oneof" json:"dind_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateRunner_Request) Reset() {
@@ -879,6 +881,13 @@ func (x *CreateRunner_Request) GetGitlab() *GitlabConfig {
 		}
 	}
 	return nil
+}
+
+func (x *CreateRunner_Request) GetDindName() string {
+	if x != nil && x.DindName != nil {
+		return *x.DindName
+	}
+	return ""
 }
 
 type isCreateRunner_Request_ProviderConfig interface {
@@ -1615,8 +1624,8 @@ const file_runners_api_proto_rawDesc = "" +
 	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x1aM\n" +
 	"\bResponse\x12+\n" +
 	"\arunners\x18\x01 \x03(\v2\x11.velez_api.RunnerR\arunners\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x04R\x05total\"\xfb\x03\n" +
-	"\fCreateRunner\x1a\xfe\x02\n" +
+	"\x05total\x18\x02 \x01(\x04R\x05total\"\xab\x04\n" +
+	"\fCreateRunner\x1a\xae\x03\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12,\n" +
 	"\x05scope\x18\x02 \x01(\x0e2\x16.velez_api.RunnerScopeR\x05scope\x12\x16\n" +
@@ -1625,10 +1634,13 @@ const file_runners_api_proto_rawDesc = "" +
 	"\venvironment\x18\x05 \x01(\tH\x01R\venvironment\x88\x01\x01\x127\n" +
 	"\x15docker_socket_address\x18\x06 \x01(\tH\x02R\x13dockerSocketAddress\x88\x01\x01\x121\n" +
 	"\x06github\x18\a \x01(\v2\x17.velez_api.GithubConfigH\x00R\x06github\x121\n" +
-	"\x06gitlab\x18\b \x01(\v2\x17.velez_api.GitlabConfigH\x00R\x06gitlabB\x11\n" +
+	"\x06gitlab\x18\b \x01(\v2\x17.velez_api.GitlabConfigH\x00R\x06gitlab\x12 \n" +
+	"\tdind_name\x18\t \x01(\tH\x03R\bdindName\x88\x01\x01B\x11\n" +
 	"\x0fprovider_configB\x0e\n" +
 	"\f_environmentB\x18\n" +
-	"\x16_docker_socket_address\x1aj\n" +
+	"\x16_docker_socket_addressB\f\n" +
+	"\n" +
+	"_dind_name\x1aj\n" +
 	"\bResponse\x12)\n" +
 	"\x06runner\x18\x01 \x01(\v2\x11.velez_api.RunnerR\x06runner\x12\x1b\n" +
 	"\tentity_id\x18\x02 \x01(\tR\bentityId\x12\x16\n" +

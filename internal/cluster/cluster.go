@@ -58,7 +58,9 @@ func Setup(
 		}
 	}
 
-	clusterStateManagerContainer := state.NewContainer(local_storage.New(nodeClients.Docker(), cfg))
+	clusterStateManagerContainer := state.NewContainer(
+		local_storage.New(nodeClients.Docker(), nodeClients.LocalStateManager(), cfg),
+	)
 
 	localState := nodeClients.LocalStateManager().Get()
 	if localState.ClusterState.PgRootDsn != "" {

@@ -12,6 +12,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/runtime_policy"
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
@@ -40,6 +41,10 @@ type Docker interface {
 	IsContainerRunning(ctx context.Context, nameOrId string) (running bool, exists bool, err error)
 
 	Client() client.APIClient
+
+	// SetSettingsProvider late-binds the node-wide settings consulted by
+	// ContainerCreate's runtime policy. Nil means default settings.
+	SetSettingsProvider(provider runtime_policy.SettingsProvider)
 
 	// Host is the resolved address of the Docker daemon this connection talks
 	// to (github.com/docker/docker/client.Client.DaemonHost - DOCKER_HOST when

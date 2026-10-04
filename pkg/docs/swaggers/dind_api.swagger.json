@@ -1,0 +1,210 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "dind_api.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "DindAPI",
+      "description": "DindAPI - Docker-in-Docker daemons. A DinD is a normal Velez service, with\nonly the DinD-specific facts held in velez.dind_instances. Runners point at a\nDinD (CreateRunner.dind_name) instead of the host Docker socket."
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/dind/create": {
+      "post": {
+        "operationId": "DindAPI_CreateDind",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateDindResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateDindRequest"
+            }
+          }
+        ],
+        "tags": [
+          "DindAPI"
+        ]
+      }
+    },
+    "/api/dind/drop": {
+      "post": {
+        "operationId": "DindAPI_DropDind",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiDropDindResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiDropDindRequest"
+            }
+          }
+        ],
+        "tags": [
+          "DindAPI"
+        ]
+      }
+    },
+    "/api/dind/list": {
+      "post": {
+        "operationId": "DindAPI_ListDinds",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListDindsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiListDindsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "DindAPI"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "googleRpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "velez_apiCreateDindRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "environment": {
+          "type": "string"
+        },
+        "isSysboxEnabled": {
+          "type": "boolean",
+          "description": "Isolates the daemon in a Sysbox runtime (no --privileged). Recommended\nfor public repositories. Absent means true. When false the DinD\ncontainer runs privileged."
+        }
+      }
+    },
+    "velez_apiCreateDindResponse": {
+      "type": "object"
+    },
+    "velez_apiDindInfo": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string",
+          "title": "tcp://\u003cname\u003e:2375, reachable only on the dind's private network"
+        },
+        "isSysboxEnabled": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "velez_apiDropDindRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiDropDindResponse": {
+      "type": "object"
+    },
+    "velez_apiListDindsRequest": {
+      "type": "object"
+    },
+    "velez_apiListDindsResponse": {
+      "type": "object",
+      "properties": {
+        "dinds": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiDindInfo"
+          }
+        }
+      }
+    }
+  }
+}

@@ -150,3 +150,18 @@ func portFromLabel(value string) int32 {
 
 	return int32(port) //nolint:gosec
 }
+
+// DindInstance derives the row from the dind container's labels. ServiceId is
+// left for the caller.
+func DindInstance(name string, created time.Time, containerLabels map[string]string) domain.DindInstance {
+	isSysboxEnabled, err := strconv.ParseBool(containerLabels[labels.DindSysboxLabel])
+	if err != nil {
+		isSysboxEnabled = true
+	}
+
+	return domain.DindInstance{
+		IsSysboxEnabled: isSysboxEnabled,
+		CreatedAt:       created,
+		UpdatedAt:       created,
+	}
+}

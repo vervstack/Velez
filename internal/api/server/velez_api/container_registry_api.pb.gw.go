@@ -10,6 +10,7 @@ package velez_api
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
@@ -24,158 +25,149 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = errors.New
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_ContainerRegistryAPI_ListRegistryInstances_0(ctx context.Context, marshaler runtime.Marshaler, client ContainerRegistryAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListRegistryInstances_Request
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq ListRegistryInstances_Request
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.ListRegistryInstances(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ContainerRegistryAPI_ListRegistryInstances_0(ctx context.Context, marshaler runtime.Marshaler, server ContainerRegistryAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListRegistryInstances_Request
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq ListRegistryInstances_Request
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.ListRegistryInstances(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ContainerRegistryAPI_CreateRegistryInstance_0(ctx context.Context, marshaler runtime.Marshaler, client ContainerRegistryAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateRegistryInstance_Request
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateRegistryInstance_Request
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.CreateRegistryInstance(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ContainerRegistryAPI_CreateRegistryInstance_0(ctx context.Context, marshaler runtime.Marshaler, server ContainerRegistryAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateRegistryInstance_Request
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq CreateRegistryInstance_Request
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.CreateRegistryInstance(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ContainerRegistryAPI_DropRegistryInstance_0(ctx context.Context, marshaler runtime.Marshaler, client ContainerRegistryAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DropRegistryInstance_Request
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq DropRegistryInstance_Request
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.DropRegistryInstance(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ContainerRegistryAPI_DropRegistryInstance_0(ctx context.Context, marshaler runtime.Marshaler, server ContainerRegistryAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DropRegistryInstance_Request
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	var (
+		protoReq DropRegistryInstance_Request
+		metadata runtime.ServerMetadata
+	)
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
 	msg, err := server.DropRegistryInstance(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_ContainerRegistryAPI_GetRegistryInstanceCredentials_0(ctx context.Context, marshaler runtime.Marshaler, client ContainerRegistryAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetRegistryInstanceCredentials_Request
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetRegistryInstanceCredentials_Request
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["name"]
+	val, ok := pathParams["name"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
 	}
-
 	protoReq.Name, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
 	}
-
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
 	msg, err := client.GetRegistryInstanceCredentials(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_ContainerRegistryAPI_GetRegistryInstanceCredentials_0(ctx context.Context, marshaler runtime.Marshaler, server ContainerRegistryAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetRegistryInstanceCredentials_Request
-	var metadata runtime.ServerMetadata
-
 	var (
-		val string
-		ok  bool
-		err error
-		_   = err
+		protoReq GetRegistryInstanceCredentials_Request
+		metadata runtime.ServerMetadata
+		err      error
 	)
-
-	val, ok = pathParams["name"]
+	val, ok := pathParams["name"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
 	}
-
 	protoReq.Name, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
 	}
-
 	msg, err := server.GetRegistryInstanceCredentials(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterContainerRegistryAPIHandlerServer registers the http handlers for service ContainerRegistryAPI to "mux".
 // UnaryRPC     :call ContainerRegistryAPIServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterContainerRegistryAPIHandlerFromEndpoint instead.
+// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterContainerRegistryAPIHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ContainerRegistryAPIServer) error {
-
-	mux.Handle("POST", pattern_ContainerRegistryAPI_ListRegistryInstances_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ContainerRegistryAPI_ListRegistryInstances_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.ContainerRegistryAPI/ListRegistryInstances", runtime.WithHTTPPathPattern("/api/container-registry/list"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.ContainerRegistryAPI/ListRegistryInstances", runtime.WithHTTPPathPattern("/api/container-registry/list"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -187,20 +179,15 @@ func RegisterContainerRegistryAPIHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ContainerRegistryAPI_ListRegistryInstances_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_ContainerRegistryAPI_CreateRegistryInstance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ContainerRegistryAPI_CreateRegistryInstance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.ContainerRegistryAPI/CreateRegistryInstance", runtime.WithHTTPPathPattern("/api/container-registry/create"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.ContainerRegistryAPI/CreateRegistryInstance", runtime.WithHTTPPathPattern("/api/container-registry/create"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -212,20 +199,15 @@ func RegisterContainerRegistryAPIHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ContainerRegistryAPI_CreateRegistryInstance_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_ContainerRegistryAPI_DropRegistryInstance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ContainerRegistryAPI_DropRegistryInstance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.ContainerRegistryAPI/DropRegistryInstance", runtime.WithHTTPPathPattern("/api/container-registry/drop"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.ContainerRegistryAPI/DropRegistryInstance", runtime.WithHTTPPathPattern("/api/container-registry/drop"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -237,20 +219,15 @@ func RegisterContainerRegistryAPIHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ContainerRegistryAPI_DropRegistryInstance_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_ContainerRegistryAPI_GetRegistryInstanceCredentials_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ContainerRegistryAPI_GetRegistryInstanceCredentials_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.ContainerRegistryAPI/GetRegistryInstanceCredentials", runtime.WithHTTPPathPattern("/api/container-registry/{name}/credentials"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/velez_api.ContainerRegistryAPI/GetRegistryInstanceCredentials", runtime.WithHTTPPathPattern("/api/container-registry/{name}/credentials"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -262,9 +239,7 @@ func RegisterContainerRegistryAPIHandlerServer(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ContainerRegistryAPI_GetRegistryInstanceCredentials_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -273,25 +248,24 @@ func RegisterContainerRegistryAPIHandlerServer(ctx context.Context, mux *runtime
 // RegisterContainerRegistryAPIHandlerFromEndpoint is same as RegisterContainerRegistryAPIHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
 func RegisterContainerRegistryAPIHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
-	conn, err := grpc.DialContext(ctx, endpoint, opts...)
+	conn, err := grpc.NewClient(endpoint, opts...)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		if err != nil {
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 			return
 		}
 		go func() {
 			<-ctx.Done()
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 		}()
 	}()
-
 	return RegisterContainerRegistryAPIHandler(ctx, mux, conn)
 }
 
@@ -305,16 +279,13 @@ func RegisterContainerRegistryAPIHandler(ctx context.Context, mux *runtime.Serve
 // to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ContainerRegistryAPIClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ContainerRegistryAPIClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "ContainerRegistryAPIClient" to call the correct interceptors.
+// "ContainerRegistryAPIClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterContainerRegistryAPIHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ContainerRegistryAPIClient) error {
-
-	mux.Handle("POST", pattern_ContainerRegistryAPI_ListRegistryInstances_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ContainerRegistryAPI_ListRegistryInstances_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/velez_api.ContainerRegistryAPI/ListRegistryInstances", runtime.WithHTTPPathPattern("/api/container-registry/list"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.ContainerRegistryAPI/ListRegistryInstances", runtime.WithHTTPPathPattern("/api/container-registry/list"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -325,18 +296,13 @@ func RegisterContainerRegistryAPIHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ContainerRegistryAPI_ListRegistryInstances_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_ContainerRegistryAPI_CreateRegistryInstance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ContainerRegistryAPI_CreateRegistryInstance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/velez_api.ContainerRegistryAPI/CreateRegistryInstance", runtime.WithHTTPPathPattern("/api/container-registry/create"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.ContainerRegistryAPI/CreateRegistryInstance", runtime.WithHTTPPathPattern("/api/container-registry/create"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -347,18 +313,13 @@ func RegisterContainerRegistryAPIHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ContainerRegistryAPI_CreateRegistryInstance_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("POST", pattern_ContainerRegistryAPI_DropRegistryInstance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_ContainerRegistryAPI_DropRegistryInstance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/velez_api.ContainerRegistryAPI/DropRegistryInstance", runtime.WithHTTPPathPattern("/api/container-registry/drop"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.ContainerRegistryAPI/DropRegistryInstance", runtime.WithHTTPPathPattern("/api/container-registry/drop"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -369,18 +330,13 @@ func RegisterContainerRegistryAPIHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ContainerRegistryAPI_DropRegistryInstance_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
-	mux.Handle("GET", pattern_ContainerRegistryAPI_GetRegistryInstanceCredentials_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_ContainerRegistryAPI_GetRegistryInstanceCredentials_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/velez_api.ContainerRegistryAPI/GetRegistryInstanceCredentials", runtime.WithHTTPPathPattern("/api/container-registry/{name}/credentials"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.ContainerRegistryAPI/GetRegistryInstanceCredentials", runtime.WithHTTPPathPattern("/api/container-registry/{name}/credentials"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -391,30 +347,21 @@ func RegisterContainerRegistryAPIHandlerClient(ctx context.Context, mux *runtime
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-
 		forward_ContainerRegistryAPI_GetRegistryInstanceCredentials_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
-
 	return nil
 }
 
 var (
-	pattern_ContainerRegistryAPI_ListRegistryInstances_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "container-registry", "list"}, ""))
-
-	pattern_ContainerRegistryAPI_CreateRegistryInstance_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "container-registry", "create"}, ""))
-
-	pattern_ContainerRegistryAPI_DropRegistryInstance_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "container-registry", "drop"}, ""))
-
+	pattern_ContainerRegistryAPI_ListRegistryInstances_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "container-registry", "list"}, ""))
+	pattern_ContainerRegistryAPI_CreateRegistryInstance_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "container-registry", "create"}, ""))
+	pattern_ContainerRegistryAPI_DropRegistryInstance_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "container-registry", "drop"}, ""))
 	pattern_ContainerRegistryAPI_GetRegistryInstanceCredentials_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"api", "container-registry", "name", "credentials"}, ""))
 )
 
 var (
-	forward_ContainerRegistryAPI_ListRegistryInstances_0 = runtime.ForwardResponseMessage
-
-	forward_ContainerRegistryAPI_CreateRegistryInstance_0 = runtime.ForwardResponseMessage
-
-	forward_ContainerRegistryAPI_DropRegistryInstance_0 = runtime.ForwardResponseMessage
-
+	forward_ContainerRegistryAPI_ListRegistryInstances_0          = runtime.ForwardResponseMessage
+	forward_ContainerRegistryAPI_CreateRegistryInstance_0         = runtime.ForwardResponseMessage
+	forward_ContainerRegistryAPI_DropRegistryInstance_0           = runtime.ForwardResponseMessage
 	forward_ContainerRegistryAPI_GetRegistryInstanceCredentials_0 = runtime.ForwardResponseMessage
 )

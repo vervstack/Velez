@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"maps"
 	"sync"
 	"time"
 
@@ -23,8 +24,8 @@ import (
 // persisted services table in this backend (see dockerServices), so a spec's
 // ServiceID is always whatever dockerServices.GetByName handed back, which is
 // the zero value for every container-derived service - ListDeploymentsReq's
-// ServiceName filter can't be resolved to that and is left unapplied here,
-// same as before this store existed.
+// ServiceName filter is therefore matched against the service name embedded
+// in the deployment's spec payload instead.
 //
 // deployments also doubles as this backend's storage.Transactor (see
 // Execute below) - its mu is the one lock shared between plain reads/writes
@@ -177,7 +178,7 @@ func (d *deployments) getSpecificationByIdLocked(
 		}
 
 		if found {
-			return row, nil
+			return overlayRequestedSpec(row, spec)
 		}
 	}
 
@@ -189,6 +190,57 @@ func (d *deployments) getSpecificationByIdLocked(
 	}
 
 	return row, nil
+}
+
+// overlayRequestedSpec merges the env and extra networks the stored spec
+// requested over the container-derived row: the container is what is running,
+// but a network without aliases never shows up in a request derived from it,
+// and an upgrade overlay (UpgradeDeployReq.EnvOverrides/ExtraNetworks) lives
+// only in the stored spec.
+func overlayRequestedSpec(
+	derived deployments_queries.GetSpecificationByIdRow,
+	requested deployments_queries.CreateSpecificationParams,
+) (deployments_queries.GetSpecificationByIdRow, error) {
+	if !requested.VervPayload.Valid {
+		return derived, nil
+	}
+
+	requestedReq := &pb.CreateSmerd_Request{}
+
+	err := json.Unmarshal(requested.VervPayload.RawMessage, requestedReq)
+	if err != nil {
+		return derived, rerrors.Wrap(err, "error unmarshaling stored spec")
+	}
+
+	derivedReq := &pb.CreateSmerd_Request{}
+
+	err = json.Unmarshal(derived.VervPayload.RawMessage, derivedReq)
+	if err != nil {
+		return derived, rerrors.Wrap(err, "error unmarshaling container spec")
+	}
+
+	mergedEnv := make(map[string]string, len(derivedReq.GetEnv())+len(requestedReq.GetEnv()))
+	maps.Copy(mergedEnv, derivedReq.GetEnv())
+	maps.Copy(mergedEnv, requestedReq.GetEnv())
+
+	derivedReq.Env = mergedEnv
+
+	if derivedReq.GetSettings() == nil {
+		derivedReq.Settings = &pb.Container_Settings{}
+	}
+
+	derivedReq.Settings.Network = domain.MergeNetworkBinds(
+		derivedReq.GetSettings().GetNetwork(), requestedReq.GetSettings().GetNetwork(),
+	)
+
+	payload, err := json.Marshal(derivedReq)
+	if err != nil {
+		return derived, rerrors.Wrap(err, "error marshaling merged spec")
+	}
+
+	derived.VervPayload = pqtype.NullRawMessage{RawMessage: payload, Valid: true}
+
+	return derived, nil
 }
 
 // specServiceName extracts the service/container name embedded in a spec's
@@ -348,6 +400,11 @@ func (d *deployments) filterLocked(req domain.ListDeploymentsReq) []domain.Deplo
 	for _, dep := range d.deployments {
 		_, excluded := notStatus[dep.Status]
 		if excluded {
+			continue
+		}
+
+		isOtherService := req.ServiceName != "" && specServiceName(d.specs[dep.SpecId]) != req.ServiceName
+		if isOtherService {
 			continue
 		}
 

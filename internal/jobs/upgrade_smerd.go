@@ -67,6 +67,7 @@ type oldContainerIDAccessor interface {
 type captureOldContainerCtx interface {
 	GetExtraLabels() map[string]string
 	GetExtraEnv() map[string]string
+	GetExtraNetworks() []*velez_api.NetworkBind
 	GetPortsOverride() *velez_api.UpgradeSmerdTaskPayload_PortsOverride
 	GetVolumesOverride() *velez_api.UpgradeSmerdTaskPayload_VolumesOverride
 	SetRequest(createReq *velez_api.CreateSmerd_Request)
@@ -396,6 +397,8 @@ func (j *captureOldContainerJob) Do(ctx context.Context) error {
 
 		maps.Copy(reqEnv, j.ctx.GetExtraEnv())
 	}
+
+	req.Settings.Network = domain.MergeNetworkBinds(req.GetSettings().GetNetwork(), j.ctx.GetExtraNetworks())
 
 	applyUpgradeOverrides(req, j.ctx)
 

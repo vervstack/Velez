@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package velez_api;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "npm.proto";
+
+option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
+option (npm_package) = "@vervstack/velez";
+
+// DindAPI - Docker-in-Docker daemons. A DinD is a normal Velez service, with
+// only the DinD-specific facts held in velez.dind_instances. Runners point at a
+// DinD (CreateRunner.dind_name) instead of the host Docker socket.
+service DindAPI {
+  rpc CreateDind(CreateDind.Request) returns (CreateDind.Response) {
+    option (google.api.http) = {
+      post: "/api/dind/create"
+      body: "*"
+    };
+  }
+
+  rpc ListDinds(ListDinds.Request) returns (ListDinds.Response) {
+    option (google.api.http) = {
+      post: "/api/dind/list"
+      body: "*"
+    };
+  }
+
+  rpc DropDind(DropDind.Request) returns (DropDind.Response) {
+    option (google.api.http) = {
+      post: "/api/dind/drop"
+      body: "*"
+    };
+  }
+}
+
+message DindInfo {
+  string name = 1;
+  // tcp://<name>:2375, reachable only on the dind's private network
+  string address = 2;
+  bool is_sysbox_enabled = 3;
+  google.protobuf.Timestamp created_at = 4;
+}
+
+message CreateDind {
+  message Request {
+    string name = 1;
+    optional string environment = 2;
+    // Isolates the daemon in a Sysbox runtime (no --privileged). Recommended
+    // for public repositories. Absent means true. When false the DinD
+    // container runs privileged.
+    optional bool is_sysbox_enabled = 3;
+  }
+  message Response {}
+}
+
+message ListDinds {
+  message Request {}
+  message Response {
+    repeated DindInfo dinds = 1;
+  }
+}
+
+message DropDind {
+  message Request {
+    string name = 1;
+  }
+  message Response {}
+}

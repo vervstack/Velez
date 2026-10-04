@@ -9,13 +9,13 @@ export class ApiService {
         return withRetries(() => this.call(fn), 2)
     }
 
-    protected async mutate<T>(fn: (req: InitReq) => Promise<T>): Promise<T> {
-        return this.call(fn)
+    protected async mutate<T>(fn: (req: InitReq) => Promise<T>, timeoutMs = REQUEST_TIMEOUT_MS): Promise<T> {
+        return this.call(fn, timeoutMs)
     }
 
-    private async call<T>(fn: (req: InitReq) => Promise<T>): Promise<T> {
+    private async call<T>(fn: (req: InitReq) => Promise<T>, timeoutMs = REQUEST_TIMEOUT_MS): Promise<T> {
         const initReq = useCredentialsStore.getState().getInitReq()
-        const req: InitReq = {...initReq, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)}
+        const req: InitReq = {...initReq, signal: AbortSignal.timeout(timeoutMs)}
         try {
             return await fn(req)
         } catch (e) {

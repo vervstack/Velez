@@ -12,6 +12,7 @@ import (
 const (
 	testRunnerRepoTarget = "owner/repo"
 	testRunnerOrgTarget  = "owner"
+	testDockerSocketAddr = "tcp://host:2375"
 )
 
 func Test_ValidateRunnerTarget_Scenarios(t *testing.T) {
@@ -59,7 +60,7 @@ func Test_ValidateDockerSocketAddress_Scenarios(t *testing.T) {
 		wantErr error
 	}{
 		{"empty falls back to host socket", "", nil},
-		{"valid tcp address", "tcp://host:2375", nil},
+		{"valid tcp address", testDockerSocketAddr, nil},
 		{"unix socket rejected", "unix:///var/run/docker.sock", user_errors.ErrRunnerDockerSocketAddressInvalid},
 		{"bare path rejected", "/var/run/docker.sock", user_errors.ErrRunnerDockerSocketAddressInvalid},
 	}
@@ -67,6 +68,34 @@ func Test_ValidateDockerSocketAddress_Scenarios(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			err := validateDockerSocketAddress(tc.addr)
+
+			if tc.wantErr == nil {
+				require.NoError(t, err)
+
+				return
+			}
+
+			require.ErrorIs(t, err, tc.wantErr)
+		})
+	}
+}
+
+func Test_ValidateDockerSource_Scenarios(t *testing.T) {
+	cases := []struct {
+		name    string
+		dind    string
+		socket  string
+		wantErr error
+	}{
+		{"dind only", "dind", "", nil},
+		{"socket only", "", "tcp://host:2375", nil},
+		{"neither", "", "", user_errors.ErrRunnerDockerSourceRequired},
+		{"both", "dind", "tcp://host:2375", user_errors.ErrRunnerDockerSourceAmbiguous},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := validateDockerSource(tc.dind, tc.socket)
 
 			if tc.wantErr == nil {
 				require.NoError(t, err)

@@ -1,0 +1,15 @@
+.DindsTableSkeletonContainer {
+    background: var(--bg2);
+    border: 0.0625rem solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+
+    & .Row {
+        padding: 0.875rem 1.25rem;
+        border-bottom: 0.0625rem solid var(--border);
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+}

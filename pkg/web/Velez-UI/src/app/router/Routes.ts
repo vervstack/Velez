@@ -12,6 +12,7 @@ export enum Routes {
     Postgres = '/postgres',
     ContainerRegistry = '/container-registries',
     Runners = '/runners',
+    Dinds = '/dinds',
     Settings = '/settings',
     Login = '/login'
 }

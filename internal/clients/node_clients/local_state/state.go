@@ -35,6 +35,8 @@ type State struct {
 	Network Network `json:"Network"`
 
 	ClusterState ClusterState `json:"ClusterState"`
+
+	Settings Settings `json:"Settings"`
 }
 
 func NewSecurityManager(cfg config.Config) *Manager {

@@ -11,6 +11,7 @@ interface CreateRunnerFormState {
     accessToken: string
     baseUrl: string
     dockerImage: string
+    dindName: string
     dockerSocketAddress: string
     concurrent: string
 }
@@ -25,6 +26,8 @@ export function buildCreateRunnerRequest(form: CreateRunnerFormState): CreateRun
     const trimmedAccessToken = form.accessToken.trim()
     if (!trimmedAccessToken) return null
 
+    if (!form.dindName === !form.dockerSocketAddress) return null
+
     const parsedLabels = form.labels
         .split(",")
         .map(l => l.trim())
@@ -36,6 +39,7 @@ export function buildCreateRunnerRequest(form: CreateRunnerFormState): CreateRun
         target: trimmedTarget,
         labels: parsedLabels,
         environment: form.environment || undefined,
+        dindName: form.dindName || undefined,
         dockerSocketAddress: form.dockerSocketAddress || undefined,
     }
 

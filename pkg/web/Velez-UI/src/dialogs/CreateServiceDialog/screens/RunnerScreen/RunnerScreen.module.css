@@ -53,17 +53,6 @@
                 max-height: 20rem;
                 opacity: 1;
             }
-
-            & .RiskNotice {
-                font-size: 0.75rem;
-                line-height: 1.4;
-                color: var(--amber);
-                background: var(--amber-dim);
-                border: 0.0625rem solid var(--amber);
-                border-radius: var(--radius);
-                padding: 0.625rem 0.75rem;
-                margin-top: -0.5rem;
-            }
         }
     }
 

@@ -8,6 +8,8 @@ import (
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox/closer"
 
+	"go.vervstack.ru/Velez/internal/clients/node_clients/runtime_policy"
+	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/environments"
 )
@@ -23,6 +25,43 @@ type EnvironmentsProvider interface {
 	Environments() storage.EnvironmentsStorage
 }
 
+// SettingsProvider yields the node-wide settings. Nil means disabled.
+type SettingsProvider = runtime_policy.SettingsProvider
+
+// SettingsStorageProvider yields the currently-live settings storage, for the
+// same swap-awareness reason as EnvironmentsProvider.
+type SettingsStorageProvider interface {
+	Settings() storage.SettingsStorage
+}
+
+type liveSettingsProvider struct {
+	provider SettingsStorageProvider
+}
+
+// NewSettingsProvider adapts a storage container to a SettingsProvider that
+// re-resolves the live settings storage on every call.
+func NewSettingsProvider(provider SettingsStorageProvider) SettingsProvider {
+	return &liveSettingsProvider{provider: provider}
+}
+
+func (l *liveSettingsProvider) GetSettings(ctx context.Context) (domain.Settings, error) {
+	settings, err := l.provider.Settings().GetSettings(ctx)
+	if err != nil {
+		return domain.Settings{}, rerrors.Wrap(err, "error getting settings")
+	}
+
+	return settings, nil
+}
+
+// ResolverOption customizes NewResolver.
+type ResolverOption func(*resolver)
+
+func WithSettings(provider SettingsProvider) ResolverOption {
+	return func(r *resolver) {
+		r.settings = provider
+	}
+}
+
 // resolver is the default RuntimeResolver: one shared Docker connection, one
 // label-based runtime per environment suffix - except for an environment
 // bound to a Docker host other than the node's own, which gets its own
@@ -32,6 +71,7 @@ type resolver struct {
 	nodeHost    string
 	bakedLabels []string
 	envProvider EnvironmentsProvider
+	settings    SettingsProvider
 
 	dedicatedMu  sync.Mutex
 	dedicatedCli map[string]client.APIClient
@@ -47,14 +87,21 @@ func NewResolver(
 	nodeHost string,
 	bakedLabels []string,
 	envProvider EnvironmentsProvider,
+	opts ...ResolverOption,
 ) RuntimeResolver {
-	return &resolver{
+	r := &resolver{
 		cli:          cli,
 		nodeHost:     nodeHost,
 		bakedLabels:  bakedLabels,
 		envProvider:  envProvider,
 		dedicatedCli: make(map[string]client.APIClient),
 	}
+
+	for _, opt := range opts {
+		opt(r)
+	}
+
+	return r
 }
 
 // Runtime re-reads the environment's row on every call - see RuntimeResolver.
@@ -77,10 +124,16 @@ func (r *resolver) Runtime(ctx context.Context, environment string) (ContainerRu
 				"error connecting to dedicated docker host '%s' for environment '%s'", env.DockerHost, env.Name)
 		}
 
-		return newDirectRuntime(dedicatedCli, r.bakedLabels), nil
+		directRuntime := newDirectRuntime(dedicatedCli, r.bakedLabels)
+
+		directRuntime.settings = r.settings
+
+		return directRuntime, nil
 	}
 
 	runtime := newLabelBasedRuntime(r.cli, env.Suffix, r.bakedLabels)
+
+	runtime.settings = r.settings
 
 	return runtime, nil
 }

@@ -16,3 +16,15 @@ func DockerSocketGrantSecretRef(serviceName string) SecretRef {
 		Key:   serviceName,
 	}
 }
+
+// ContainerIsolationSecretRef derives the Velez-internal secrets.Store key
+// that selects the isolation runtime of one deploy - keyed by the deploy's
+// exact service name, never by any client-supplied value, so no public API
+// surface can influence it. The value is "sysbox" or "privileged".
+func ContainerIsolationSecretRef(serviceName string) SecretRef {
+	return SecretRef{
+		Scope: "plugin",
+		Owner: "container_isolation",
+		Key:   serviceName,
+	}
+}

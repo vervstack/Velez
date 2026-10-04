@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package velez_api;
+
+import "google/api/annotations.proto";
+import "npm.proto";
+
+option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
+option (npm_package) = "@vervstack/velez";
+
+// SettingsAPI - node-wide Velez settings.
+service SettingsAPI {
+  rpc GetSettings(GetSettings.Request) returns (GetSettings.Response) {
+    option (google.api.http) = {
+      get: "/api/settings/get"
+    };
+  }
+
+  rpc UpdateSettings(UpdateSettings.Request) returns (UpdateSettings.Response) {
+    option (google.api.http) = {
+      post: "/api/settings/update"
+      body: "*"
+    };
+  }
+
+  rpc GetSysboxStatus(GetSysboxStatus.Request) returns (GetSysboxStatus.Response) {
+    option (google.api.http) = {
+      get: "/api/settings/sysbox_status"
+    };
+  }
+
+  rpc RunSysboxSmokeTest(RunSysboxSmokeTest.Request) returns (RunSysboxSmokeTest.Response) {
+    option (google.api.http) = {
+      post: "/api/settings/sysbox_smoke_test"
+      body: "*"
+    };
+  }
+}
+
+message Settings {
+  bool is_sysbox_enabled = 1;
+  bool is_sysbox_whitelist_ignored = 2;
+}
+
+message GetSettings {
+  message Request {}
+  message Response {
+    Settings settings = 1;
+  }
+}
+
+message UpdateSettings {
+  message Request {
+    optional bool is_sysbox_enabled = 1;
+    optional bool is_sysbox_whitelist_ignored = 2;
+  }
+  message Response {
+    Settings settings = 1;
+  }
+}
+
+message GetSysboxStatus {
+  message Request {}
+  message Response {
+    string os_type = 1;
+    string kernel_version = 2;
+    string docker_version = 3;
+    bool is_rootless = 4;
+    bool is_snap = 5;
+    bool is_runtime_registered = 6;
+    int32 containers_total = 7;
+    int32 containers_on_sysbox = 8;
+  }
+}
+
+message RunSysboxSmokeTest {
+  message Request {}
+  message Response {
+    bool is_passed = 1;
+    optional string failure = 2;
+  }
+}

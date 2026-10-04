@@ -58,7 +58,7 @@ type BaseCreateRunnerRequest = {
   name?: string;
   scope?: RunnerScope;
   target?: string;
-  labels?: string[];environment?: string;dockerSocketAddress?: string;
+  labels?: string[];environment?: string;dockerSocketAddress?: string;dindName?: string;
 };
 
 export type CreateRunnerRequest = BaseCreateRunnerRequest &

@@ -69,6 +69,7 @@ func (d *dockerRunners) UpsertRunner(_ context.Context, req domain.UpsertRunnerR
 		DockerImage:         req.DockerImage,
 		DockerSocketAddress: req.DockerSocketAddress,
 		Concurrent:          req.Concurrent,
+		DindServiceId:       req.DindServiceId,
 		CreatedAt:           createdAt,
 		UpdatedAt:           now,
 	}
@@ -170,6 +171,11 @@ func (d *dockerRunners) listFromContainers(ctx context.Context) ([]domain.Runner
 		runner := container_derived.Runner(name, time.Unix(c.Created, 0), c.Labels)
 
 		runner.ServiceID = serviceIDFromName(name)
+
+		dindName := c.Labels[labels.RunnerDindLabel]
+		if dindName != "" {
+			runner.DindServiceId = serviceIDFromName(dindName)
+		}
 
 		if container_derived.IsGitlabRunner(runner) {
 			runner.Concurrent = d.readGitlabConcurrent(ctx, c.ID, name)

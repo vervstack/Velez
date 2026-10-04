@@ -22,6 +22,7 @@ type createRunnerRequestJSON struct {
 	Labels              []string      `json:"labels,omitempty"`
 	Environment         *string       `json:"environment,omitempty"`
 	DockerSocketAddress *string       `json:"docker_socket_address,omitempty"`
+	DindName            *string       `json:"dind_name,omitempty"`
 	Github              *GithubConfig `json:"github,omitempty"`
 	Gitlab              *GitlabConfig `json:"gitlab,omitempty"`
 }
@@ -34,6 +35,7 @@ func (x *CreateRunner_Request) MarshalJSON() ([]byte, error) {
 		Labels:              x.GetLabels(),
 		Environment:         x.Environment,
 		DockerSocketAddress: x.DockerSocketAddress,
+		DindName:            x.DindName,
 	}
 
 	switch cfg := x.GetProviderConfig().(type) {
@@ -66,6 +68,7 @@ func (x *CreateRunner_Request) UnmarshalJSON(data []byte) error {
 		Labels:              shadow.Labels,
 		Environment:         shadow.Environment,
 		DockerSocketAddress: shadow.DockerSocketAddress,
+		DindName:            shadow.DindName,
 	}
 
 	switch {

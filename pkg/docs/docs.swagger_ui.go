@@ -35,6 +35,10 @@ func Swagger() (p string, handler http.HandlerFunc) {
 					URL:  path.Join(swaggerPath, "control_plane_api.swagger.json"),
 				},
 				{
+					Name: "DindApi",
+					URL:  path.Join(swaggerPath, "dind_api.swagger.json"),
+				},
+				{
 					Name: "PgaasApi",
 					URL:  path.Join(swaggerPath, "pgaas_api.swagger.json"),
 				},
@@ -45,6 +49,10 @@ func Swagger() (p string, handler http.HandlerFunc) {
 				{
 					Name: "ServiceApi",
 					URL:  path.Join(swaggerPath, "service_api.swagger.json"),
+				},
+				{
+					Name: "SettingsApi",
+					URL:  path.Join(swaggerPath, "settings_api.swagger.json"),
 				},
 				{
 					Name: "Tasks",

@@ -29,17 +29,23 @@ func NewPg(db *sql.DB) storage.RunnersStorage {
 }
 
 func (p *pgStorage) UpsertRunner(ctx context.Context, req domain.UpsertRunnerReq) (domain.Runner, error) {
+	runnerLabels := req.Labels
+	if runnerLabels == nil {
+		runnerLabels = []string{}
+	}
+
 	params := runners_queries.UpsertRunnerParams{
 		ServiceID:           req.ServiceID,
 		Provider:            req.Provider,
 		Scope:               req.Scope,
 		Target:              req.Target,
-		Labels:              req.Labels,
+		Labels:              runnerLabels,
 		SecretRef:           req.SecretRef,
 		BaseUrl:             req.BaseUrl,
 		DockerImage:         req.DockerImage,
 		DockerSocketAddress: req.DockerSocketAddress,
 		Concurrent:          req.Concurrent,
+		DindServiceID:       sql.NullInt64{Int64: req.DindServiceId, Valid: req.DindServiceId > 0},
 	}
 
 	row, err := p.querier.UpsertRunner(ctx, params)
@@ -94,6 +100,7 @@ func runnerFromRow(row runners_queries.VelezRunner) domain.Runner {
 		DockerImage:         row.DockerImage,
 		DockerSocketAddress: row.DockerSocketAddress,
 		Concurrent:          row.Concurrent,
+		DindServiceId:       row.DindServiceID.Int64,
 		CreatedAt:           row.CreatedAt,
 		UpdatedAt:           row.UpdatedAt,
 	}

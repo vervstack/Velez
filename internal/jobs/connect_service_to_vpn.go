@@ -14,6 +14,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/patterns"
 	"go.vervstack.ru/Velez/internal/user_errors"
@@ -21,6 +22,8 @@ import (
 
 const (
 	ConnectServiceToVpnAction = "connect_service_to_vpn"
+
+	defaultLoginServerUrl = "https://vcn.redsock.ru"
 
 	stepCheckSidecar        = "check_sidecar"
 	stepPrepareNamespace    = "prepare_namespace"
@@ -127,7 +130,8 @@ func (h *connectServiceToVpnHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: stepGetLoginServerURL,
 			Job: &getLoginServerURLJob{
-				ctx: payload,
+				state: h.nodeClients.LocalStateManager(),
+				ctx:   payload,
 			},
 		},
 		{
@@ -284,14 +288,24 @@ func (j *getClientKeyJob) Do(ctx context.Context) error {
 	return nil
 }
 
+type localStateReader interface {
+	Get() local_state.State
+}
+
 type getLoginServerURLJob struct {
+	state localStateReader
+
 	ctx loginServerURLAccessor
 }
 
 func (j *getLoginServerURLJob) Do(_ context.Context) error {
-	// TODO For multiple nodes implement different urls - mirrors
-	// network_steps.GetLoginServerUrl's hardcoded constant.
-	j.ctx.SetLoginServerUrl("https://vcn.redsock.ru")
+	// TODO For multiple nodes implement different urls.
+	loginServerUrl := j.state.Get().Network.Headscale.LoginServerUrl
+	if loginServerUrl == "" {
+		loginServerUrl = defaultLoginServerUrl
+	}
+
+	j.ctx.SetLoginServerUrl(loginServerUrl)
 
 	return nil
 }

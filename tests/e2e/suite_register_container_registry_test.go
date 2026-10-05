@@ -354,6 +354,8 @@ func Test_RegisterContainer_Registry_SingleMode_NoAuthNeedsNoCredentials(t *test
 }
 
 func Test_RegisterContainer_Registry_ClusterMode(t *testing.T) {
+	t.Parallel()
+
 	env, _ := enableStatefullPgUnderDind(t, Planes[1], registerClusterSuffix+"-registry")
 
 	t.Run("wrong password changes nothing", func(t *testing.T) {

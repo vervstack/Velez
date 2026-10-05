@@ -35,12 +35,9 @@ import (
 // the app's own LaunchHeadscale path. Torn down by TestMain (main_test.go)
 // after every test finishes.
 //
-// Scope of what this fixture proves: real namespace CRUD and pre-auth-key
-// issuance through the VcnApi RPCs against a real headscale + real sqlite.
-// It deliberately does NOT verify a tailnet join - the tailscale sidecar
-// dials getLoginServerURLJob's hardcoded https://vcn.redsock.ru regardless
-// of which headscale is actually running, so a hermetic join is not
-// testable until that URL becomes configurable (Trello #126 follow-up).
+// Scope of what this fixture proves: real namespace CRUD, pre-auth-key
+// issuance through the VcnApi RPCs and a real tailnet join of the tailscale
+// sidecar, which dials this headscale through the configured login server URL.
 var (
 	sharedHeadscale         *sharedHeadscaleInstance
 	initSharedHeadscaleOnce sync.Once
@@ -53,13 +50,17 @@ var (
 	headscaleAPIKeyPattern = regexp.MustCompile(`[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{20,}`)
 
 	//nolint:forbidigo // package-private test-infra sentinel, not shared/user-facing
+	errHeadscaleNoBridgeAddress = rerrors.New("headscale has no address on the default bridge")
+
 	errHeadscalePortNotPublished = rerrors.New("dind did not publish the headscale port")
 )
 
 const (
 	sharedHeadscaleContainerName = "e2e-shared-headscale"
 	sharedHeadscaleImage         = "headscale/headscale:0.27.2-rc.1"
-	sharedHeadscaleContainerPort = "8080/tcp"
+	defaultBridgeNetwork         = "bridge"
+	sharedHeadscaleAPIPort       = "8080"
+	sharedHeadscaleContainerPort = sharedHeadscaleAPIPort + "/tcp"
 
 	headscaleConfigMode      = 0o644
 	headscaleConfigDirMode   = 0o755
@@ -75,8 +76,8 @@ const (
 	// headscaleFixtureConfig is a minimal, self-contained headscale server
 	// config: sqlite in an anonymous volume, the embedded DERP server
 	// enabled (headscale refuses to start with an empty DERPMap), and no
-	// external dependencies. server_url is a placeholder - the API surface
-	// this fixture exercises (users/preauthkey) does not depend on it.
+	// external dependencies. server_url is a placeholder - tailscale sidecars
+	// dial the login URL they are handed, not this one.
 	headscaleFixtureConfig = `---
 server_url: http://headscale.e2e:8080
 listen_addr: 0.0.0.0:8080
@@ -124,6 +125,12 @@ type sharedHeadscaleInstance struct {
 	// (sharedDind.Addr-translated), NOT a DinD-internal address.
 	apiURL string
 	apiKey string
+
+	// loginURL is the address a tailscale sidecar dials as its login server:
+	// the fixture's IP on the DinD default bridge, where an environment's
+	// service containers live (they have no name resolution for the verv
+	// network the fixture is attached to).
+	loginURL string
 }
 
 // getSharedHeadscale lazily creates the one headscale container shared by
@@ -190,6 +197,11 @@ func startSharedHeadscale(ctx context.Context) (*sharedHeadscaleInstance, error)
 		return nil, rerrors.Wrap(err, "error copying headscale config into container")
 	}
 
+	err = api.NetworkConnect(ctx, defaultBridgeNetwork, created.ID, nil)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error connecting headscale container to the default bridge")
+	}
+
 	err = api.ContainerStart(ctx, created.ID, container.StartOptions{})
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error starting headscale container")
@@ -199,6 +211,11 @@ func startSharedHeadscale(ctx context.Context) (*sharedHeadscaleInstance, error)
 		docker:      dockerClient,
 		containerID: created.ID,
 		apiURL:      "http://" + hostPort,
+	}
+
+	instance.loginURL, err = instance.bridgeLoginURL(ctx)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error resolving headscale login url")
 	}
 
 	instance.apiKey, err = instance.awaitAPIKey(ctx)
@@ -212,6 +229,20 @@ func startSharedHeadscale(ctx context.Context) (*sharedHeadscaleInstance, error)
 	}
 
 	return instance, nil
+}
+
+func (i *sharedHeadscaleInstance) bridgeLoginURL(ctx context.Context) (string, error) {
+	inspected, err := i.docker.Client().ContainerInspect(ctx, i.containerID)
+	if err != nil {
+		return "", rerrors.Wrap(err, "error inspecting headscale container")
+	}
+
+	bridge, ok := inspected.NetworkSettings.Networks[defaultBridgeNetwork]
+	if !ok || bridge.IPAddress == "" {
+		return "", errHeadscaleNoBridgeAddress
+	}
+
+	return "http://" + bridge.IPAddress + ":" + sharedHeadscaleAPIPort, nil
 }
 
 // awaitAPIKey polls `headscale apikey create` until headscale has finished
@@ -308,6 +339,23 @@ func (i *sharedHeadscaleInstance) awaitAPIReady(ctx context.Context) error {
 	}
 
 	return lastErr
+}
+
+// nodeRegistered reports whether a node with the given hostname has joined
+// the fixture headscale.
+func (i *sharedHeadscaleInstance) nodeRegistered(ctx context.Context, hostname string) bool {
+	execCfg := container.ExecOptions{
+		Cmd:          []string{"headscale", "nodes", "list"},
+		Env:          []string{"HEADSCALE_LOG_FORMAT=text", "NO_COLOR=1"},
+		AttachStdout: true,
+	}
+
+	out, err := i.docker.Exec(ctx, i.containerID, execCfg)
+	if err != nil {
+		return false
+	}
+
+	return strings.Contains(string(out), hostname)
 }
 
 func (i *sharedHeadscaleInstance) stop() {

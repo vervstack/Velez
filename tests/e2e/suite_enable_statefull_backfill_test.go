@@ -39,6 +39,8 @@ type backfillContainer struct {
 }
 
 func Test_EnableStatefull_BackfillsLabeledContainers(t *testing.T) {
+	t.Parallel()
+
 	env, _ := newStatefullEnvironment(t, Planes[1], backfillSuffix)
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 

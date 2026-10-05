@@ -457,6 +457,8 @@ func Test_RegisterContainer_Pg_LoginFailuresChangeNothing(t *testing.T) {
 }
 
 func Test_RegisterContainer_Pg_ClusterMode(t *testing.T) {
+	t.Parallel()
+
 	env, _ := enableStatefullPgUnderDind(t, Planes[1], registerClusterSuffix+"-pg")
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 

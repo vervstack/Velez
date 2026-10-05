@@ -254,6 +254,8 @@ func Test_RegisterContainer_SingleMode_RecreatesWithServiceLabels(t *testing.T) 
 }
 
 func Test_RegisterContainer_ClusterMode_BindsWithoutRestart(t *testing.T) {
+	t.Parallel()
+
 	containerName, serviceName := registerContainerNames("cluster")
 
 	env, _ := enableStatefullPgUnderDind(t, Planes[1], registerClusterSuffix)

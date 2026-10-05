@@ -361,10 +361,10 @@ func Test_RuntimePolicy_WhitelistIgnored_ElevatedWhitelistedImageRequestsSysboxR
 	}
 }
 
-func newEnableStatefullRequest() *velez_api.EnablePlugin_Request {
+func newEnableStatefullRequest(env *TestEnvironment) *velez_api.EnablePlugin_Request {
 	statefullReq := &velez_api.EnableStatefullCluster{
 		IsExposePort: toolbox.ToPtr(true),
-		ExposeToPort: toolbox.ToPtr(uint64(dindClusterPgPort)),
+		ExposeToPort: toolbox.ToPtr(env.clusterPgPort),
 	}
 	payload := &velez_api.EnablePlugin_Request_StatefullCluster{
 		StatefullCluster: statefullReq,
@@ -376,13 +376,13 @@ func newEnableStatefullRequest() *velez_api.EnablePlugin_Request {
 	}
 }
 
-// Not parallel: the cluster-pg sidecar is published on the fixed
-// dindClusterPgPort shared with every other statefull suite.
 func Test_RuntimePolicy_SysboxOn_StatefullPgJob_UsesSysboxRuntime(t *testing.T) {
+	t.Parallel()
+
 	env, pgName := newStatefullEnvironment(t, Planes[1], policyStatefullSuffix)
 	setNodeSettings(t, env, domain.Settings{IsSysboxEnabled: true})
 
-	resp, err := env.Custom.ControlPlaneApiImpl.EnablePlugin(t.Context(), newEnableStatefullRequest())
+	resp, err := env.Custom.ControlPlaneApiImpl.EnablePlugin(t.Context(), newEnableStatefullRequest(env))
 	require.NoError(t, err)
 
 	finalTask := awaitJobTask(t, env, resp.GetEntityId(), resp.GetAction())

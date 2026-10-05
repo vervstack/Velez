@@ -168,8 +168,8 @@ func restoreSettingsOnCleanup(t *testing.T, env *TestEnvironment) {
 // newPlaneEnvironment builds env for plane. A cluster plane additionally
 // enables the statefull plugin, so settings, dind_instances and runners are
 // served by the Postgres-backed storages instead of the local state/labels.
-// Not safe to call from parallel tests: the cluster-pg sidecar uses the fixed
-// dindClusterPgPort.
+// Safe from parallel tests: the cluster-pg port is leased per call, and the
+// unsuffixed sidecar name is held exclusively until the test ends.
 func newPlaneEnvironment(t *testing.T, plane Plane) *TestEnvironment {
 	t.Helper()
 
@@ -214,6 +214,8 @@ func requireSysboxRuntimeOrSkip(t *testing.T, env *TestEnvironment) {
 }
 
 func Test_Settings_RoundTrip(t *testing.T) {
+	t.Parallel()
+
 	runOnEveryPlane(t, func(t *testing.T, env *TestEnvironment, _ Plane) {
 		restoreSettingsOnCleanup(t, env)
 
@@ -228,6 +230,8 @@ func Test_Settings_RoundTrip(t *testing.T) {
 }
 
 func Test_Settings_PartialUpdate_LeavesOtherFieldUntouched(t *testing.T) {
+	t.Parallel()
+
 	runOnEveryPlane(t, func(t *testing.T, env *TestEnvironment, _ Plane) {
 		restoreSettingsOnCleanup(t, env)
 
@@ -389,6 +393,8 @@ func requireDindNetworkGone(t *testing.T, dockerClient client.APIClient, name st
 }
 
 func Test_Dind_Privileged_Lifecycle(t *testing.T) {
+	t.Parallel()
+
 	runOnEveryPlane(t, runDindPrivilegedLifecycle)
 }
 
@@ -522,6 +528,8 @@ func Test_Settings_SysboxEnabled_PlainContainerGetsSysboxRuntime(t *testing.T) {
 }
 
 func Test_Runner_Create_RejectsBadDockerSource(t *testing.T) {
+	t.Parallel()
+
 	runOnEveryPlane(t, runRunnerRejectsBadDockerSource)
 }
 
@@ -709,6 +717,8 @@ func redeployRunnerAndAwaitNewContainer(
 }
 
 func Test_Runner_OnDind_WiresDockerHostAndBlocksDindDrop(t *testing.T) {
+	t.Parallel()
+
 	runOnEveryPlane(t, runRunnerOnDind)
 }
 
@@ -775,6 +785,8 @@ func runRunnerOnDind(t *testing.T, env *TestEnvironment, _ Plane) {
 }
 
 func Test_Runner_RedeployOnDind_KeepsDockerHostAndDindNetwork(t *testing.T) {
+	t.Parallel()
+
 	runOnEveryPlane(t, runRunnerRedeployOnDind)
 }
 
@@ -825,6 +837,8 @@ func requireRunnerRowWithoutDindLink(
 }
 
 func Test_Runner_WithTcpDockerSocketAddress_KeepsDockerHostWithoutSocketMountOrDindLink(t *testing.T) {
+	t.Parallel()
+
 	runOnEveryPlane(t, runRunnerWithTcpSocketAddress)
 }
 

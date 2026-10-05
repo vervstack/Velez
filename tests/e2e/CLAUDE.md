@@ -124,13 +124,13 @@ directly (`-run Matrix/single-node.../PROD/stateless/hello-world`).
 
 ## Fixture gotchas
 
-- `enableStatefullPgUnderDind` (`helper_statefull_test.go`, `e2e_full`) publishes its cluster-pg
-  sidecar on the single fixed `dindClusterPgPort` (`dind_ports.go`) — two callers running
-  concurrently collide on that host port ("requested port is already occupied", confirmed against
-  real Docker). Its three callers (`EnableStatefullSuite`, `ServiceLifecycleSuite`,
-  `VervonomiconDeploySuite`) each stay non-`t.Parallel()` at their top-level `Test_X` function for
-  this reason; a future caller needs either the same restraint or a real fix (an allocated port
-  per caller instead of one fixed constant).
+- `enableStatefullPgUnderDind` (`helper_statefull_test.go`, `e2e_full`) leases one of
+  `dindClusterPgPoolSize` cluster-pg host ports (`acquireClusterPgPort`,
+  `helper_cluster_pg_pool_test.go`; ports in `dind_ports.go`) and holds its container suffix
+  exclusively (`lockContainerSuffix`), so cluster-mode tests may be `t.Parallel()`. Two callers
+  with the same suffix (the unsuffixed `""`) serialize on the suffix lock; give a new caller its
+  own suffix. `VELEZ_E2E_CLUSTER_PG_PARALLEL=<n>` (default 4, max `dindClusterPgPoolSize`) caps concurrent
+  cluster sidecars - 12 made the shared DinD time out intermittently.
 - `WithMatreshka()` is a single-process singleton shared via `main_test.go`'s `TestMain` — any
   test using it must live in package `tests/e2e`, never a new package (a different package is a
   different OS process and can't see the singleton, reintroducing the container-name collision

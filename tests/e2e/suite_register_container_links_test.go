@@ -426,6 +426,8 @@ func Test_RegisterContainer_SingleMode_LinkedBindMountKeepsExplicitVolumeName(t 
 }
 
 func Test_RegisterContainer_ClusterMode_LinksAndBindings(t *testing.T) {
+	t.Parallel()
+
 	env, _ := enableStatefullPgUnderDind(t, Planes[1], "e2e-register-links")
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 

@@ -143,6 +143,8 @@ func Test_RegisterContainer_Runner_SingleMode(t *testing.T) {
 }
 
 func Test_RegisterContainer_Runner_ClusterMode(t *testing.T) {
+	t.Parallel()
+
 	containerName, serviceName := runnerRegNames("cluster")
 
 	env, _ := enableStatefullPgUnderDind(t, Planes[1], registerClusterSuffix+runnerRegClusterSufix)

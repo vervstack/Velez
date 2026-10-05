@@ -38,8 +38,8 @@ const (
 //
 // The in-process host app reaches the cluster postgres sidecar (which runs
 // inside the DinD daemon) through the ClusterPgDsn advertise-address seam:
-// enableStatefullPgUnderDind pins the sidecar's 5432 to dindClusterPgPort
-// (published by the DinD) and points ClusterPgDsn at the bootstrap-host
+// enableStatefullPgUnderDind pins the sidecar's 5432 to a leased cluster-pg pool
+// port (published by the DinD) and points ClusterPgDsn at the bootstrap-host
 // address for that port.
 //
 // The postgres container/volume this job creates are named with this
@@ -135,15 +135,13 @@ func (s *EnableStatefullSuite) Test_EnableStatefullMode_UnsupportedPlugin_Fails(
 	require.Error(t, err)
 }
 
-// Test_EnableStatefull itself is NOT t.Parallel(): its HappyPath method
-// enables statefull_pg, whose cluster-pg sidecar is exposed on the fixed
-// dindClusterPgPort (see dind_ports.go) - the same port
-// Test_ServiceLifecycle and Test_VervonomiconDeploy expose theirs on. Marking
-// this function parallel let it race those suites for that single port and
-// fail with "requested port is already occupied" (confirmed against real
-// Docker). The HappyPath/UnsupportedPlugin_Fails methods still run parallel
-// to each other within this suite.
+// Test_EnableStatefull is parallel against the other statefull suites: the
+// HappyPath sidecar port is leased from the cluster-pg pool (see
+// helper_cluster_pg_pool_test.go). The HappyPath/UnsupportedPlugin_Fails
+// methods also run parallel to each other within this suite.
 func Test_EnableStatefull(t *testing.T) {
+	t.Parallel()
+
 	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
 		return &EnableStatefullSuite{plane: plane}
 	})

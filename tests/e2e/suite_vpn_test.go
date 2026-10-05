@@ -4,6 +4,7 @@ package e2e
 
 import (
 	"context"
+	"strings"
 	"testing"
 	"time"
 
@@ -23,10 +24,8 @@ import (
 //     through transport -> verv_closed_network client -> headscale HTTP API.
 //   - ConnectService  -> the connect_service_to_vpn task really creates a
 //     namespace and issues a pre-auth key on the fixture headscale, then
-//     really creates and starts a tailscale sidecar container. The sidecar's
-//     tailnet join is NOT asserted: getLoginServerURLJob hardcodes
-//     https://vcn.redsock.ru, so a hermetic join is not testable until that
-//     URL is configurable (Trello #126 follow-up).
+//     really creates and starts a tailscale sidecar container, which joins
+//     the fixture headscale through the configured login server URL.
 //
 // The suite's two methods use disjoint names (GetServiceName(t) vs. the
 // fixed vpnConnectServiceName), so they're marked t.Parallel() despite
@@ -39,7 +38,11 @@ import (
 // this test uses its own short, suite-unique name instead. Test_Vpn isn't
 // parallel and RunPlaneSuite runs planes sequentially, so reusing the same
 // constant across planes is safe.
-const vpnConnectServiceName = "e2e_vpn_connectservice"
+const (
+	vpnConnectServiceName = "e2e_vpn_connectservice"
+
+	vpnSidecarJoinTimeout = 60 * time.Second
+)
 
 type VpnSuite struct {
 	suite.Suite
@@ -55,7 +58,7 @@ func (s *VpnSuite) SetupSuite() {
 	hs := getSharedHeadscale(t)
 
 	s.env = s.plane.NewEnvironment(t,
-		WithState(t, WithStateVcnEnabled(hs.apiURL, hs.apiKey)))
+		WithState(t, WithStateVcnEnabled(hs.apiURL, hs.apiKey, hs.loginURL)))
 
 	s.vpnAPI = s.env.VpnClient()
 }
@@ -129,8 +132,14 @@ func (s *VpnSuite) Test_ConnectService_LaunchesSidecar() {
 	require.True(t, s.namespacePresent(ctx, serviceName),
 		"ConnectService must have created the service's namespace on headscale")
 
-	// And the sidecar container is really up (tailnet join not asserted).
 	sidecarName := serviceName + "-" + patterns.TailscaleSidecarSuffix
+	sidecarHostname := strings.ReplaceAll(sidecarName, "_", "-")
+
+	hs := getSharedHeadscale(t)
+
+	require.Eventually(t, func() bool {
+		return hs.nodeRegistered(ctx, sidecarHostname)
+	}, vpnSidecarJoinTimeout, time.Second, "the sidecar must join the tailnet of the fixture headscale")
 
 	inspected, err := s.env.Custom.NodeClients.Docker().Client().ContainerInspect(ctx, sidecarName)
 	require.NoError(t, err, "the tailscale sidecar container %q must exist", sidecarName)

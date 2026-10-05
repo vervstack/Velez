@@ -11,7 +11,7 @@ import RegistryInstanceRow from "@/pages/container-registry/components/RegistryI
 import ContainerRegistryEmptyState
     from "@/pages/container-registry/components/ContainerRegistryEmptyState/ContainerRegistryEmptyState.tsx"
 
-const COLUMNS = ["", "Name", "Environment", "Port", "Username", "Created", ""]
+const COLUMNS = ["", "Name", "Environment", "Port", "Username", "Storage", "Created", ""]
 
 export default function ContainerRegistryPage() {
     const {OpenDialog} = useDialog()

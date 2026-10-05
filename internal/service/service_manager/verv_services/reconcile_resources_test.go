@@ -41,6 +41,10 @@ func (f *fakeServiceResourcesStorage) UpsertResource(_ context.Context, _, _, _ 
 	return nil
 }
 
+func (f *fakeServiceResourcesStorage) DeleteResource(_ context.Context, _, _ string) error {
+	return nil
+}
+
 // fakeConfigurationService is a hand-written fake service.ConfigurationService
 // with an injectable GetVervFromApi - the only method reconcileResources uses.
 type fakeConfigurationService struct {

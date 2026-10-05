@@ -64,6 +64,18 @@ message RegistryInstance {
   optional string owner_service = 7;
   google.protobuf.Timestamp created_at = 8;
   google.protobuf.Timestamp updated_at = 9;
+  // Set when the registry stores blobs in a bucket of a Velez S3 instance
+  // instead of a local volume. Read from the registry's own config.
+  optional string s3_instance = 10;
+  optional string s3_bucket = 11;
+}
+
+// RegistryS3Storage - store registry blobs in a bucket of a Velez S3
+// instance. Velez creates the bucket and a read/write key for the registry.
+message RegistryS3Storage {
+  string instance_name = 1;
+  // Absent means the registry instance name.
+  optional string bucket_name = 2;
 }
 
 message ListRegistryInstances {
@@ -90,6 +102,8 @@ message CreateRegistryInstance {
     // alongside the registry itself. Disabled by default: most registries
     // are pulled from by CI/CD and never browsed by a human.
     bool enable_ui = 6;
+    // When set, blobs go to an S3 instance bucket instead of a local volume.
+    optional RegistryS3Storage s3_storage = 7;
   }
   message Response {
     // instance is never populated - the RPC enqueues the

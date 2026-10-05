@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	DeleteServiceDependenciesBySource(ctx context.Context, sourceService string) error
 	GetServiceCallers(ctx context.Context, targetService string) ([]GetServiceCallersRow, error)
 	GetServiceDependencies(ctx context.Context, sourceService string) ([]GetServiceDependenciesRow, error)
 	UpsertServiceDependency(ctx context.Context, arg UpsertServiceDependencyParams) error

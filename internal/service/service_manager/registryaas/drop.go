@@ -27,6 +27,11 @@ func (s *RegistryaasService) DropRegistryInstance(ctx context.Context, name stri
 		return rerrors.Wrap(err, "error getting registry instance row")
 	}
 
+	s3Binding, isS3, err := s.readS3Binding(ctx, name, svc.Env)
+	if err != nil {
+		return err
+	}
+
 	removeReq := domain.RemoveServiceReq{Name: name, DropRunningInstances: true, Environment: svc.Env}
 
 	err = s.vervServices.Remove(ctx, removeReq)
@@ -43,6 +48,13 @@ func (s *RegistryaasService) DropRegistryInstance(ctx context.Context, name stri
 	err = s.vervServices.Remove(ctx, removeUiReq)
 	if err != nil {
 		return rerrors.Wrap(err, "error removing registry instance ui service")
+	}
+
+	if isS3 {
+		err = s.deleteS3Access(ctx, name, svc.Env, s3Binding)
+		if err != nil {
+			return err
+		}
 	}
 
 	err = s.dataStorage.RegistryInstances().DeleteRegistryInstance(ctx, svc.ID)

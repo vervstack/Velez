@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	DeleteServiceResource(ctx context.Context, arg DeleteServiceResourceParams) error
 	GetServiceResources(ctx context.Context, serviceName string) ([]GetServiceResourcesRow, error)
 	ListDistinctResourceNames(ctx context.Context) ([]ListDistinctResourceNamesRow, error)
 	UpsertServiceResource(ctx context.Context, arg UpsertServiceResourceParams) error

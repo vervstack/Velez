@@ -169,6 +169,8 @@ type createRegistryInstanceHandler struct {
 	// jobsEngine lets waitForRegistryDeployJob watch the create_smerd task
 	// the deploy watcher runs for this instance - see that job's doc comment.
 	jobsEngine Engine
+	// configResolver carries the s3 storage env of an s3-backed registry.
+	configResolver service.ServiceConfigResolver
 }
 
 func NewCreateRegistryInstanceHandler(
@@ -178,6 +180,7 @@ func NewCreateRegistryInstanceHandler(
 	secretsStore secrets.Store,
 	vervServices service.VervServicesService,
 	jobsEngine Engine,
+	configResolver service.ServiceConfigResolver,
 ) TaskHandler {
 	return &createRegistryInstanceHandler{
 		nodeClients:      nodeClients,
@@ -186,6 +189,7 @@ func NewCreateRegistryInstanceHandler(
 		secretsStore:     secretsStore,
 		vervServices:     vervServices,
 		jobsEngine:       jobsEngine,
+		configResolver:   configResolver,
 	}
 }
 
@@ -281,25 +285,35 @@ func (h *createRegistryInstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJo
 				ctx:    payload,
 			},
 		},
-		{
-			Name: stepDeployRegistry,
-			Job: &deployRegistryInstanceJob{
-				boxes:        h.storageContainer.ResourceBoxes(),
-				vervServices: h.vervServices,
-				req:          payload,
-				ctx:          payload,
-				instanceName: instanceName,
-			},
-		},
-		{
-			Name: stepWaitForRegistryDeploy,
-			Job: &waitForRegistryDeployJob{
-				jobsEngine:   h.jobsEngine,
-				req:          payload,
-				instanceName: instanceName,
-			},
-		},
 	}
+
+	if payload.GetRequest().GetS3Storage() != nil {
+		ensureS3Job := &ensureS3StorageJob{runtimes: h.runtimes, secrets: h.secretsStore, payload: payload}
+
+		namedJobs = append(namedJobs, NamedJob{Name: stepEnsureS3Storage, Job: ensureS3Job})
+	}
+
+	deployJob := &deployRegistryInstanceJob{
+		boxes:          h.storageContainer.ResourceBoxes(),
+		vervServices:   h.vervServices,
+		configResolver: h.configResolver,
+		secrets:        h.secretsStore,
+		s3:             payload,
+		req:            payload,
+		ctx:            payload,
+		instanceName:   instanceName,
+	}
+
+	waitJob := &waitForRegistryDeployJob{
+		jobsEngine:   h.jobsEngine,
+		req:          payload,
+		instanceName: instanceName,
+	}
+
+	namedJobs = append(namedJobs,
+		NamedJob{Name: stepDeployRegistry, Job: deployJob},
+		NamedJob{Name: stepWaitForRegistryDeploy, Job: waitJob},
+	)
 
 	if payload.GetRequest().GetEnableUi() {
 		uiJob := &deployRegistryUiJob{
@@ -341,6 +355,16 @@ func (h *createRegistryInstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJo
 		}
 
 		namedJobs = append(namedJobs, NamedJob{Name: stepBindOwnerResource, Job: bindJob})
+	}
+
+	if payload.GetRequest().GetS3Storage() != nil {
+		dependencyJob := &registerRegistryS3DependencyJob{
+			dependencies: h.storageContainer.ServiceDependencies(),
+			source:       instanceName,
+			target:       domain.S3ServiceName(payload.GetRequest().GetS3Storage().GetInstanceName()),
+		}
+
+		namedJobs = append(namedJobs, NamedJob{Name: stepRegisterS3Dependency, Job: dependencyJob})
 	}
 
 	return namedJobs
@@ -598,8 +622,11 @@ func htpasswdLine(username, password string) (string, error) {
 // deploys through - the deploy watcher creates and starts the actual
 // container from there. This job never creates a container itself.
 type deployRegistryInstanceJob struct {
-	boxes        vervonomicon.BoxLookup
-	vervServices service.VervServicesService
+	boxes          vervonomicon.BoxLookup
+	vervServices   service.VervServicesService
+	configResolver service.ServiceConfigResolver
+	secrets        secrets.Store
+	s3             registryS3Accessor
 
 	req createRegistryInstanceRequestAccessor
 	ctx interface {
@@ -635,6 +662,13 @@ func (j *deployRegistryInstanceJob) Do(ctx context.Context) error {
 
 	if request.GetEnableUi() {
 		attachRegistryaasNetwork(smerdRequest, instanceName)
+	}
+
+	if request.GetS3Storage() != nil {
+		err = j.overlayS3Storage(ctx, smerdRequest)
+		if err != nil {
+			return err
+		}
 	}
 
 	deployReq := domain.CreateDeployReq{
@@ -728,14 +762,24 @@ func buildRegistryDeployRequest(
 		descriptor.Deployment.App.Box = request.GetBox()
 	}
 
-	for i := range descriptor.Deployment.App.Volumes {
-		switch descriptor.Deployment.App.Volumes[i].Name {
+	volumes := make([]verv.VolumeMount, 0, len(descriptor.Deployment.App.Volumes))
+
+	for _, volume := range descriptor.Deployment.App.Volumes {
+		switch volume.Name {
 		case "registry-data":
-			descriptor.Deployment.App.Volumes[i].Name = registryaasDataVolumeName(instanceName)
+			if request.GetS3Storage() != nil {
+				continue
+			}
+
+			volume.Name = registryaasDataVolumeName(instanceName)
 		case "registry-auth":
-			descriptor.Deployment.App.Volumes[i].Name = registryaasAuthVolumeName(instanceName)
+			volume.Name = registryaasAuthVolumeName(instanceName)
 		}
+
+		volumes = append(volumes, volume)
 	}
+
+	descriptor.Deployment.App.Volumes = volumes
 
 	if len(descriptor.Deployment.App.Ports) > 0 {
 		descriptor.Deployment.App.Ports[0].ExposeTo = int(exposedPort)

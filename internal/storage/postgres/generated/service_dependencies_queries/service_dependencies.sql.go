@@ -9,6 +9,17 @@ import (
 	"context"
 )
 
+const deleteServiceDependenciesBySource = `-- name: DeleteServiceDependenciesBySource :exec
+DELETE
+FROM velez.service_dependencies
+WHERE source_service = $1
+`
+
+func (q *Queries) DeleteServiceDependenciesBySource(ctx context.Context, sourceService string) error {
+	_, err := q.db.ExecContext(ctx, deleteServiceDependenciesBySource, sourceService)
+	return err
+}
+
 const getServiceCallers = `-- name: GetServiceCallers :many
 SELECT source_service, proto
 FROM velez.service_dependencies

@@ -1,0 +1,283 @@
+syntax = "proto3";
+
+package velez_api;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "npm.proto";
+
+import "velez_common.proto";
+
+option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
+option (npm_package) = "@vervstack/velez";
+
+// S3API - S3-as-a-Service backed by Garage. An S3 instance is a normal Velez
+// service identified by the velez.s3 container label. Velez keeps no
+// per-instance table: ports are read from the container, Garage settings from
+// the service config (matreshka, or the container itself when matreshka is
+// off), buckets and keys live from the Garage admin API.
+service S3API {
+  rpc CreateS3Instance(CreateS3Instance.Request) returns (CreateS3Instance.Response) {
+    option (google.api.http) = {
+      post: "/api/s3/create"
+      body: "*"
+    };
+  }
+
+  rpc ListS3Instances(ListS3Instances.Request) returns (ListS3Instances.Response) {
+    option (google.api.http) = {
+      post: "/api/s3/list"
+      body: "*"
+    };
+  }
+
+  rpc DropS3Instance(DropS3Instance.Request) returns (DropS3Instance.Response) {
+    option (google.api.http) = {
+      post: "/api/s3/drop"
+      body: "*"
+    };
+  }
+
+  // GetS3InstanceCredentials is the only RPC that resolves the instance's
+  // admin token and web UI password.
+  rpc GetS3InstanceCredentials(GetS3InstanceCredentials.Request) returns (GetS3InstanceCredentials.Response) {
+    option (google.api.http) = {
+      get: "/api/s3/{name}/credentials"
+    };
+  }
+
+  rpc ListS3Buckets(ListS3Buckets.Request) returns (ListS3Buckets.Response) {
+    option (google.api.http) = {
+      post: "/api/s3/bucket/list"
+      body: "*"
+    };
+  }
+
+  rpc CreateS3Bucket(CreateS3Bucket.Request) returns (CreateS3Bucket.Response) {
+    option (google.api.http) = {
+      post: "/api/s3/bucket/create"
+      body: "*"
+    };
+  }
+
+  rpc DeleteS3Bucket(DeleteS3Bucket.Request) returns (DeleteS3Bucket.Response) {
+    option (google.api.http) = {
+      post: "/api/s3/bucket/delete"
+      body: "*"
+    };
+  }
+
+  rpc SetS3BucketAccess(SetS3BucketAccess.Request) returns (SetS3BucketAccess.Response) {
+    option (google.api.http) = {
+      post: "/api/s3/bucket/access"
+      body: "*"
+    };
+  }
+
+  rpc ListS3Keys(ListS3Keys.Request) returns (ListS3Keys.Response) {
+    option (google.api.http) = {
+      post: "/api/s3/key/list"
+      body: "*"
+    };
+  }
+
+  rpc CreateS3Key(CreateS3Key.Request) returns (CreateS3Key.Response) {
+    option (google.api.http) = {
+      post: "/api/s3/key/create"
+      body: "*"
+    };
+  }
+
+  rpc DeleteS3Key(DeleteS3Key.Request) returns (DeleteS3Key.Response) {
+    option (google.api.http) = {
+      post: "/api/s3/key/delete"
+      body: "*"
+    };
+  }
+
+  // GetS3KeyCredentials is the only RPC that resolves an access key's secret.
+  rpc GetS3KeyCredentials(GetS3KeyCredentials.Request) returns (GetS3KeyCredentials.Response) {
+    option (google.api.http) = {
+      get: "/api/s3/{instance_name}/key/{access_key_id}/credentials"
+    };
+  }
+}
+
+message S3Instance {
+  string name = 1;
+  // Host port the S3 API is exposed on.
+  uint32 s3_port = 2;
+  // Host port of the garage-webui sidecar. Absent when the sidecar is off.
+  optional uint32 web_ui_port = 3;
+  uint32 replication_factor = 4;
+  string region = 5;
+  string environment = 6;
+  string status = 7;
+  google.protobuf.Timestamp created_at = 8;
+}
+
+message S3BucketAccess {
+  string bucket_name = 1;
+  string access_key_id = 2;
+  string key_name = 3;
+  bool is_read = 4;
+  bool is_write = 5;
+  bool is_owner = 6;
+}
+
+message S3Bucket {
+  string id = 1;
+  string name = 2;
+  repeated S3BucketAccess access = 3;
+  uint64 object_count = 4;
+  uint64 bytes = 5;
+  optional string owner_service = 6;
+  google.protobuf.Timestamp created_at = 7;
+}
+
+message S3Key {
+  string access_key_id = 1;
+  string name = 2;
+  repeated S3BucketAccess access = 3;
+  optional string owner_service = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+message CreateS3Instance {
+  message Request {
+    string name = 1;
+    optional string environment = 2;
+    optional string box = 3;
+    optional uint32 expose_to_port = 4;
+    // Absent means 1. Only 1 is accepted until multi-node Garage lands.
+    optional uint32 replication_factor = 5;
+    // Absent means "garage".
+    optional string region = 6;
+    // Deploys the garage-webui sidecar next to the instance.
+    bool enable_web_ui = 7;
+  }
+  message Response {
+    // The RPC enqueues the create_s3_instance task and returns before it
+    // completes. Callers watch entity_id/action via TasksApi.WatchTask.
+    string entity_id = 1;
+    string action = 2;
+  }
+}
+
+message ListS3Instances {
+  message Request {
+    Paging paging = 1;
+  }
+  message Response {
+    repeated S3Instance instances = 1;
+    uint64 total = 2;
+  }
+}
+
+message DropS3Instance {
+  message Request {
+    string name = 1;
+  }
+  message Response {}
+}
+
+message GetS3InstanceCredentials {
+  message Request {
+    string name = 1;
+  }
+  message Response {
+    string admin_token = 1;
+    // Velez's own view of the S3 API, from outside the instance network.
+    string s3_endpoint = 2;
+    // The S3 API on the instance's private network, for services joined to it.
+    string internal_s3_endpoint = 3;
+    string region = 4;
+    optional string web_ui_url = 5;
+    optional string web_ui_username = 6;
+    optional string web_ui_password = 7;
+  }
+}
+
+message ListS3Buckets {
+  message Request {
+    string instance_name = 1;
+  }
+  message Response {
+    repeated S3Bucket buckets = 1;
+  }
+}
+
+message CreateS3Bucket {
+  message Request {
+    string instance_name = 1;
+    string bucket_name = 2;
+    // When set, a read/write key named "<owner_service>:<bucket_name>" is
+    // issued. The key name is where owner_service is read back from.
+    optional string owner_service = 3;
+  }
+  message Response {
+    S3Bucket bucket = 1;
+  }
+}
+
+message DeleteS3Bucket {
+  message Request {
+    string instance_name = 1;
+    string bucket_name = 2;
+  }
+  message Response {}
+}
+
+message SetS3BucketAccess {
+  message Request {
+    string instance_name = 1;
+    // Sets the key's permissions on the bucket to exactly these flags.
+    S3BucketAccess access = 2;
+  }
+  message Response {
+    S3Bucket bucket = 1;
+  }
+}
+
+message ListS3Keys {
+  message Request {
+    string instance_name = 1;
+  }
+  message Response {
+    repeated S3Key keys = 1;
+  }
+}
+
+message CreateS3Key {
+  message Request {
+    string instance_name = 1;
+    string key_name = 2;
+    repeated S3BucketAccess access = 3;
+  }
+  message Response {
+    string access_key_id = 1;
+    string secret_access_key = 2;
+  }
+}
+
+message DeleteS3Key {
+  message Request {
+    string instance_name = 1;
+    string access_key_id = 2;
+  }
+  message Response {}
+}
+
+message GetS3KeyCredentials {
+  message Request {
+    string instance_name = 1;
+    string access_key_id = 2;
+  }
+  message Response {
+    string access_key_id = 1;
+    string secret_access_key = 2;
+    string s3_endpoint = 3;
+    string internal_s3_endpoint = 4;
+    string region = 5;
+  }
+}

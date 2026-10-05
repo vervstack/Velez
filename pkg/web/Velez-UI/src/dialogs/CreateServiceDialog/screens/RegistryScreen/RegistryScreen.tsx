@@ -19,7 +19,14 @@ import Checkbox from "@/components/base/Checkbox.tsx"
 import {
     buildCreateRegistryInstanceRequest,
 } from "@/dialogs/CreateServiceDialog/screens/RegistryScreen/processes/buildCreateRegistryInstanceRequest.ts"
+import {
+    DEFAULT_REGISTRY_STORAGE,
+    isRegistryStorageValid,
+    RegistryStorageState,
+} from "@/dialogs/CreateServiceDialog/screens/RegistryScreen/processes/registryStorage.ts"
 import RegistryDeployProgressScreen from "@/dialogs/CreateServiceDialog/screens/RegistryScreen/components/RegistryDeployProgressScreen/RegistryDeployProgressScreen.tsx"
+import RegistryStorageFields
+    from "@/dialogs/CreateServiceDialog/screens/RegistryScreen/components/RegistryStorageFields/RegistryStorageFields.tsx"
 
 const BOX_OPTIONS = ["small", "medium", "large"] as const
 
@@ -37,6 +44,7 @@ export default function RegistryScreen({onBusyChange}: Props) {
     const [port, setPort] = useState("")
     const [ownerService, setOwnerService] = useState("")
     const [enableUi, setEnableUi] = useState(false)
+    const [storage, setStorage] = useState<RegistryStorageState>(DEFAULT_REGISTRY_STORAGE)
     const [submittedReq, setSubmittedReq] = useState<CreateRegistryInstanceRequest | null>(null)
 
     const toaster = useToaster()
@@ -89,7 +97,7 @@ export default function RegistryScreen({onBusyChange}: Props) {
 
     function handleCreate() {
         const req = buildCreateRegistryInstanceRequest({
-            name, environment, box, exposePort, port, ownerService, enableUi,
+            name, environment, box, exposePort, port, ownerService, enableUi, storage,
         })
         if (!req) return
 
@@ -153,6 +161,8 @@ export default function RegistryScreen({onBusyChange}: Props) {
 
                 <Checkbox label="Enable UI" checked={enableUi} onChange={handleToggleEnableUi}/>
 
+                <RegistryStorageFields value={storage} bucketPlaceholder={name.trim()} onChange={setStorage}/>
+
                 <Dropdown
                     label="Owner service (optional)"
                     placeholder="None"
@@ -172,7 +182,7 @@ export default function RegistryScreen({onBusyChange}: Props) {
                 <Button
                     variant="primary"
                     onClick={handleCreate}
-                    disabled={createRegistryInstance.isPending || !name.trim()}
+                    disabled={createRegistryInstance.isPending || !name.trim() || !isRegistryStorageValid(storage)}
                 >
                     Create
                 </Button>

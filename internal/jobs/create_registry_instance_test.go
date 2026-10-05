@@ -22,7 +22,7 @@ const (
 )
 
 func TestCreateRegistryInstanceHandler_Action(t *testing.T) {
-	h := NewCreateRegistryInstanceHandler(nil, nil, nil, nil, nil, nil)
+	h := NewCreateRegistryInstanceHandler(nil, nil, nil, nil, nil, nil, nil)
 
 	if h.Action() != CreateRegistryInstanceAction {
 		t.Errorf("expected action %q, got %q", CreateRegistryInstanceAction, h.Action())
@@ -30,7 +30,7 @@ func TestCreateRegistryInstanceHandler_Action(t *testing.T) {
 }
 
 func TestCreateRegistryInstanceHandler_NewContext(t *testing.T) {
-	h := NewCreateRegistryInstanceHandler(nil, nil, nil, nil, nil, nil)
+	h := NewCreateRegistryInstanceHandler(nil, nil, nil, nil, nil, nil, nil)
 
 	if _, ok := h.NewContext().(*velez_api.CreateRegistryInstanceTaskPayload); !ok {
 		t.Fatal("expected NewContext to return *velez_api.CreateRegistryInstanceTaskPayload")
@@ -48,7 +48,7 @@ func TestCreateRegistryInstanceHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 	clusterStorage := &fakeClusterStorage{}
 	storageContainer := storage.NewStorageContainer(clusterStorage)
 
-	h := NewCreateRegistryInstanceHandler(nodeClients, newFakeRuntimes(docker, nil), storageContainer, nil, nil, nil)
+	h := NewCreateRegistryInstanceHandler(nodeClients, newFakeRuntimes(docker, nil), storageContainer, nil, nil, nil, nil)
 
 	namedJobs := h.BuildJobs(payload)
 
@@ -81,7 +81,7 @@ func TestCreateRegistryInstanceHandler_BuildJobs_UiDisabledByDefault_SkipsUiStep
 	clusterStorage := &fakeClusterStorage{}
 	storageContainer := storage.NewStorageContainer(clusterStorage)
 
-	h := NewCreateRegistryInstanceHandler(nodeClients, newFakeRuntimes(docker, nil), storageContainer, nil, nil, nil)
+	h := NewCreateRegistryInstanceHandler(nodeClients, newFakeRuntimes(docker, nil), storageContainer, nil, nil, nil, nil)
 
 	namedJobs := h.BuildJobs(payload)
 
@@ -115,7 +115,7 @@ func TestCreateRegistryInstanceHandler_BuildJobs_OwnerService_AppendsBindStep(t 
 	clusterStorage := &fakeClusterStorage{}
 	storageContainer := storage.NewStorageContainer(clusterStorage)
 
-	h := NewCreateRegistryInstanceHandler(nodeClients, newFakeRuntimes(docker, nil), storageContainer, nil, nil, nil)
+	h := NewCreateRegistryInstanceHandler(nodeClients, newFakeRuntimes(docker, nil), storageContainer, nil, nil, nil, nil)
 
 	namedJobs := h.BuildJobs(payload)
 

@@ -65,6 +65,10 @@ type CreateRegistryInstanceReq struct {
 	// EnableUi - when set, deploys the joxit/docker-registry-ui sidecar
 	// alongside the registry itself. Disabled by default.
 	EnableUi bool
+
+	// S3Storage - when set, blobs go to an S3 instance bucket instead of a
+	// local volume.
+	S3Storage *RegistryS3Storage
 }
 
 // RegistryInstanceView is one resolved Container-Registry-as-a-Service
@@ -89,6 +93,10 @@ type RegistryInstanceView struct {
 	// resource Y"). Populated at creation time in the immediate
 	// CreateRegistryInstance response.
 	OwnerService string
+
+	// S3Instance / S3Bucket - empty for a volume-backed registry.
+	S3Instance string
+	S3Bucket   string
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

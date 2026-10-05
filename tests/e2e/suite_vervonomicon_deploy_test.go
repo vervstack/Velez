@@ -200,7 +200,7 @@ func (s *VervonomiconDeploySuite) Test_BoxResolutionAndFidelity() {
 		"a service.tags entry must map onto a verv.tag.<tag> label")
 
 	// Per docs/features/vervonomicon.md, expose_to is "optional host port;
-	// omit to keep it internal" - so 8080 must NOT gain a host binding.
+	// omit for an auto-assigned one" - so 8080 must gain a host binding.
 	//
 	// The expose_to-names-a-host-port branch is deliberately NOT exercised
 	// here: this suite runs under DinD, whose PortManager is pinned to the
@@ -209,8 +209,8 @@ func (s *VervonomiconDeploySuite) Test_BoxResolutionAndFidelity() {
 	// collides with a parallel test's auto-assigned port. That mapping is
 	// covered as a unit instead - see vervonomicon.TestResolveRequest's
 	// ExposedTo assertions in resolve_test.go.
-	require.Empty(t, inspected.NetworkSettings.Ports["8080/tcp"],
-		"a port with no expose_to must stay internal - no host binding")
+	require.NotEmpty(t, inspected.NetworkSettings.Ports["8080/tcp"],
+		"a port with no expose_to must be published on an auto-assigned host port")
 
 	foundVolume := false
 

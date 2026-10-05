@@ -8,11 +8,14 @@ import (
 	"google.golang.org/grpc"
 )
 
-func newClient(nodeClients node_clients.NodeClients) (matreshka.Client, error) {
-	matreshkaClient, err := matreshka.NewClient(
-		grpc.WithUnaryInterceptor(
-			matreshka_client.WithHeader(
-				matreshka_client.Pass, nodeClients.LocalStateManager().Get().MatreshkaKey)))
+func newClient(nodeClients node_clients.NodeClients, dialOpts []grpc.DialOption) (matreshka.Client, error) {
+	authOpt := grpc.WithUnaryInterceptor(
+		matreshka_client.WithHeader(
+			matreshka_client.Pass, nodeClients.LocalStateManager().Get().MatreshkaKey))
+
+	opts := append([]grpc.DialOption{authOpt}, dialOpts...)
+
+	matreshkaClient, err := matreshka.NewClient(opts...)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error initializing matreshka client")
 	}

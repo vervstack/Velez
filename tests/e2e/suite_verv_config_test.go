@@ -9,9 +9,11 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
+	"go.vervstack.ru/Velez/internal/api/clients/matreshka/pkg/matreshka_api"
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/utils/configutils"
 )
 
 // VervConfigSuite covers config delivery into a running smerd: a verv-classified
@@ -31,6 +33,11 @@ type VervConfigSuite struct {
 }
 
 const (
+	vervConfigSeededKey   = "E2E_VERV_SEEDED"
+	vervConfigSeededValue = "from-matreshka"
+	vervConfigSecondKey   = "E2E_VERV_SECOND"
+	vervConfigSecondValue = "also-from-matreshka"
+
 	vervConfigRenderedEnvName   = "e2e_vervconfig_renderedenv"
 	vervConfigPlainFileName     = "e2e_vervconfig_plainfile"
 	vervConfigRestartPolicyName = "e2e_vervconfig_restartpolicy"
@@ -49,6 +56,63 @@ func newVervConfigRenderedEnvRequest(name, plainPath string, plainContent []byte
 			{Path: plainPath, Content: plainContent},
 		},
 	}
+}
+
+func newVervConfigSeededEnv() map[string]string {
+	return map[string]string{
+		vervConfigSeededKey: vervConfigSeededValue,
+		vervConfigSecondKey: vervConfigSecondValue,
+	}
+}
+
+// seedMatreshkaEnv writes env into the shared matreshka as a kv config the
+// same way configresolver does: SaveConfig can only fill an empty config from
+// a value with no '=' in it, so one key is seeded and all of them patched.
+func seedMatreshkaEnv(t *testing.T, env *TestEnvironment, configName string, values map[string]string) {
+	t.Helper()
+
+	ctx := t.Context()
+	configurator := env.Custom.ClusterClients.Configurator()
+
+	createReq := &matreshka_api.CreateConfig_Request{
+		ConfigName: configName,
+		ConfigType: matreshka_api.ConfigType_kv,
+	}
+
+	_, err := configurator.CreateConfig(ctx, createReq)
+	require.NoError(t, err)
+
+	t.Cleanup(func() {
+		deleteReq := &matreshka_api.DeleteConfig_Request{ConfigName: configName}
+
+		_, _ = configurator.DeleteConfig(context.Background(), deleteReq)
+	})
+
+	patches := make([]*matreshka_api.Patch, 0, len(values))
+
+	var seedKey string
+
+	for key, value := range values {
+		seedKey = key
+
+		update := &matreshka_api.Patch_UpdateValue{UpdateValue: value}
+
+		patches = append(patches, &matreshka_api.Patch{FieldName: key, Patch: update})
+	}
+
+	saveReq := &matreshka_api.SaveConfig_Request{
+		Format:     matreshka_api.Format_env,
+		ConfigName: configName,
+		Config:     []byte(seedKey + "=seed\n"),
+	}
+
+	_, err = configurator.SaveConfig(ctx, saveReq)
+	require.NoError(t, err)
+
+	patchReq := &matreshka_api.PatchConfig_Request{ConfigName: configName, Patches: patches}
+
+	_, err = configurator.PatchConfig(ctx, patchReq)
+	require.NoError(t, err)
 }
 
 func newVervConfigPlainFileRequest(name, filePath string, wantContent []byte) *velez_api.CreateSmerd_Request {
@@ -73,25 +137,22 @@ func newVervConfigRestartAlwaysRequest(name string) *velez_api.CreateSmerd_Reque
 	}
 }
 
-// Test_VervConfig_RenderedEnv deploys hello_world with Verv set and
-// IgnoreConfig unset so fetchSmerdConfigJob.doVerv -> setEnv runs, and asserts
-// the reachable verv-config invariants: the image is classified as verv
-// (MatreshkaConfigLabel true) and VERV_NAME is injected. A Plain mount is
-// attached alongside and asserted to land in the container.
-//
-// TODO(phase-1): assert real rendered matreshka config values once the
-// verv://matreshka gRPC resolver can be made to resolve inside the e2e
-// harness. WithMatreshka() turns that resolver path on, but it currently
-// "produces zero addresses" for both the raw configurator client and the
-// fetch_config job, so a real config pre-seed + !IgnoreConfig deploy against
-// the shared matreshka cannot be exercised here yet.
+// Test_VervConfig_RenderedEnv pre-seeds a real matreshka config, deploys
+// hello_world with Verv set and IgnoreConfig unset so fetchSmerdConfigJob.doVerv
+// -> setEnv pulls it, and asserts the image is classified as verv
+// (MatreshkaConfigLabel true), VERV_NAME is injected and the seeded values
+// reach the running container. A Plain mount is attached alongside and
+// asserted to land in the container.
 func (s *VervConfigSuite) Test_VervConfig_RenderedEnv() {
 	t := s.T()
 	t.Parallel()
 
-	env := s.plane.NewEnvironment(t)
+	env := s.plane.NewEnvironment(t, WithMatreshka())
 
 	const plainPath = "/tmp/verv_rendered_test.yaml"
+
+	configName := configutils.AppendPrefix(matreshka_api.ConfigType_verv, vervConfigRenderedEnvName)
+	seedMatreshkaEnv(t, env, configName, newVervConfigSeededEnv())
 
 	plainContent := []byte("seeded: true\n")
 
@@ -102,6 +163,8 @@ func (s *VervConfigSuite) Test_VervConfig_RenderedEnv() {
 	require.Equal(t, velez_api.Smerd_running.String(), smerd.GetStatus().String())
 	require.Equal(t, labelValueTrue, smerd.GetLabels()[labels.MatreshkaConfigLabel])
 	require.Equal(t, smerd.GetName(), smerd.GetEnv()["VERV_NAME"])
+	require.Equal(t, vervConfigSeededValue, smerd.GetEnv()[vervConfigSeededKey])
+	require.Equal(t, vervConfigSecondValue, smerd.GetEnv()[vervConfigSecondKey])
 
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 

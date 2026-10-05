@@ -94,7 +94,7 @@ app:
   ports:
     - port: 80
       protocol: tcp           # tcp | udp
-      expose_to: 8080         # optional host port; omit to keep it internal
+      expose_to: 8080         # optional host port; omit for an auto-assigned one
 
   volumes:
     - name: zpotify-data

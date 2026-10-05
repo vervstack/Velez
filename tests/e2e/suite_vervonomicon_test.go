@@ -185,12 +185,6 @@ func (s *VervonomiconSuite) Test_ResourceReconciliation() {
 	t := s.T()
 	t.Parallel()
 
-	// WithMatreshka()'s verv://matreshka gRPC resolver still produces zero
-	// addresses for in-process clients in this e2e harness (see
-	// suite_verv_config_test.go's TODO), so Configurator.GetVervFromApi fails
-	// here - but reconcileResources treats that as "no live connection known"
-	// rather than a hard failure (see its own doc comment), so this test still
-	// exercises the real decision logic end to end.
 	env := s.plane.NewEnvironment(t, WithMatreshka())
 	ctx := t.Context()
 	dockerAPI := env.Custom.NodeClients.Docker().Client()

@@ -85,12 +85,18 @@ func WithMatreshka() TestEnvOpt {
 		a.Cfg.Environment.MatreshkaIsEnabled = true
 		a.Ctx = configuration.WithSharedInstance(a.Ctx, getSharedMatreshka(a.t))
 
+		image, err := matreshkaImage()
+		require.NoError(a.t, err)
+
+		a.Cfg.Environment.MatreshkaImage = image
+
 		// The shared matreshka container runs inside the DinD, so the
 		// "0.0.0.0:<port>" endpoint SetupMatreshka registers in makosh is
 		// not reachable from this (host) process. Pin verv://matreshka to
 		// the bootstrap-host address the DinD publishes its fixed gRPC bind
-		// on. This override is consumed by makosh.NewServiceDiscovery via
-		// cfg.Overrides.Overrides, so it must be set before Custom.Init.
+		// on. cluster.Setup hands cfg.Overrides.Overrides to the verv
+		// resolver of this app's matreshka client, so it must be set before
+		// Custom.Init.
 		addr, ok := sharedDind.Addr(dindMatreshkaPort)
 		require.True(a.t, ok, "dind did not publish the matreshka port")
 

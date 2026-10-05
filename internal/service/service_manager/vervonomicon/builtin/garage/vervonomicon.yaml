@@ -1,0 +1,6 @@
+version: "1"
+service:
+  name: garage
+  description: Builtin Garage S3 server, provisioned by the S3 plugin.
+  tags: [s3, builtin]
+box: small

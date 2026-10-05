@@ -31,6 +31,8 @@ type Services interface {
 	ImageVersions() ImageVersionsService
 	Settings() SettingsService
 	Dinds() DindService
+	S3() S3Service
+	ConfigResolver() ServiceConfigResolver
 }
 
 type ContainerService interface {
@@ -201,4 +203,37 @@ type DindService interface {
 	CreateDind(ctx context.Context, req domain.CreateDindReq) error
 	ListDinds(ctx context.Context) ([]domain.DindView, error)
 	DropDind(ctx context.Context, name string) error
+}
+
+// S3Service - Garage-backed S3 instances, their buckets and keys.
+//
+//nolint:interfacebloat
+type S3Service interface {
+	// CreateInstance enqueues the create_s3_instance task; the caller watches
+	// it by the instance name.
+	CreateInstance(ctx context.Context, req *velez_api.CreateS3Instance_Request) error
+	ListInstances(ctx context.Context, paging domain.Paging) ([]domain.S3Instance, uint64, error)
+	DropInstance(ctx context.Context, name string) error
+	GetInstanceCredentials(ctx context.Context, name string) (domain.S3InstanceCredentials, error)
+	ListBuckets(ctx context.Context, instanceName string) ([]domain.S3Bucket, error)
+	CreateBucket(ctx context.Context, instanceName, bucketName, ownerService string) (domain.S3Bucket, error)
+	DeleteBucket(ctx context.Context, instanceName, bucketName string) error
+	SetBucketAccess(ctx context.Context, instanceName string, access domain.S3BucketAccess) (domain.S3Bucket, error)
+	ListKeys(ctx context.Context, instanceName string) ([]domain.S3Key, error)
+	CreateKey(
+		ctx context.Context, instanceName, keyName string, access []domain.S3BucketAccess,
+	) (domain.S3KeyCredentials, error)
+	DeleteKey(ctx context.Context, instanceName, accessKeyId string) error
+	GetKeyCredentials(ctx context.Context, instanceName, accessKeyId string) (domain.S3KeyCredentials, error)
+}
+
+// ServiceConfigResolver - one config per service. Writes go to matreshka
+// when it is enabled, else straight onto the CreateSmerd request; reads come
+// from matreshka, else from the running container.
+type ServiceConfigResolver interface {
+	WriteEnv(ctx context.Context, request *velez_api.CreateSmerd_Request, env map[string]string) error
+	WriteFile(ctx context.Context, request *velez_api.CreateSmerd_Request, path string, content []byte) error
+	ReadEnv(ctx context.Context, serviceName, environment string) (map[string]string, error)
+	ReadFile(ctx context.Context, serviceName, environment, path string) ([]byte, error)
+	Delete(ctx context.Context, serviceName string) error
 }

@@ -32,13 +32,17 @@ type RegistryInstance struct {
 	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Port  uint32                 `protobuf:"varint,2,opt,name=port,proto3" json:"port,omitempty"`
 	// ui_port - the joxit/docker-registry-ui sidecar's own exposed port.
-	UiPort        uint32                 `protobuf:"varint,3,opt,name=ui_port,json=uiPort,proto3" json:"ui_port,omitempty"`
-	Username      string                 `protobuf:"bytes,4,opt,name=username,proto3" json:"username,omitempty"`
-	Environment   string                 `protobuf:"bytes,5,opt,name=environment,proto3" json:"environment,omitempty"`
-	Status        string                 `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
-	OwnerService  *string                `protobuf:"bytes,7,opt,name=owner_service,json=ownerService,proto3,oneof" json:"owner_service,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	UiPort       uint32                 `protobuf:"varint,3,opt,name=ui_port,json=uiPort,proto3" json:"ui_port,omitempty"`
+	Username     string                 `protobuf:"bytes,4,opt,name=username,proto3" json:"username,omitempty"`
+	Environment  string                 `protobuf:"bytes,5,opt,name=environment,proto3" json:"environment,omitempty"`
+	Status       string                 `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
+	OwnerService *string                `protobuf:"bytes,7,opt,name=owner_service,json=ownerService,proto3,oneof" json:"owner_service,omitempty"`
+	CreatedAt    *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt    *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	// Set when the registry stores blobs in a bucket of a Velez S3 instance
+	// instead of a local volume. Read from the registry's own config.
+	S3Instance    *string `protobuf:"bytes,10,opt,name=s3_instance,json=s3Instance,proto3,oneof" json:"s3_instance,omitempty"`
+	S3Bucket      *string `protobuf:"bytes,11,opt,name=s3_bucket,json=s3Bucket,proto3,oneof" json:"s3_bucket,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -136,6 +140,75 @@ func (x *RegistryInstance) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *RegistryInstance) GetS3Instance() string {
+	if x != nil && x.S3Instance != nil {
+		return *x.S3Instance
+	}
+	return ""
+}
+
+func (x *RegistryInstance) GetS3Bucket() string {
+	if x != nil && x.S3Bucket != nil {
+		return *x.S3Bucket
+	}
+	return ""
+}
+
+// RegistryS3Storage - store registry blobs in a bucket of a Velez S3
+// instance. Velez creates the bucket and a read/write key for the registry.
+type RegistryS3Storage struct {
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	InstanceName string                 `protobuf:"bytes,1,opt,name=instance_name,json=instanceName,proto3" json:"instance_name,omitempty"`
+	// Absent means the registry instance name.
+	BucketName    *string `protobuf:"bytes,2,opt,name=bucket_name,json=bucketName,proto3,oneof" json:"bucket_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RegistryS3Storage) Reset() {
+	*x = RegistryS3Storage{}
+	mi := &file_container_registry_api_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegistryS3Storage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegistryS3Storage) ProtoMessage() {}
+
+func (x *RegistryS3Storage) ProtoReflect() protoreflect.Message {
+	mi := &file_container_registry_api_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegistryS3Storage.ProtoReflect.Descriptor instead.
+func (*RegistryS3Storage) Descriptor() ([]byte, []int) {
+	return file_container_registry_api_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *RegistryS3Storage) GetInstanceName() string {
+	if x != nil {
+		return x.InstanceName
+	}
+	return ""
+}
+
+func (x *RegistryS3Storage) GetBucketName() string {
+	if x != nil && x.BucketName != nil {
+		return *x.BucketName
+	}
+	return ""
+}
+
 type ListRegistryInstances struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -144,7 +217,7 @@ type ListRegistryInstances struct {
 
 func (x *ListRegistryInstances) Reset() {
 	*x = ListRegistryInstances{}
-	mi := &file_container_registry_api_proto_msgTypes[1]
+	mi := &file_container_registry_api_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -156,7 +229,7 @@ func (x *ListRegistryInstances) String() string {
 func (*ListRegistryInstances) ProtoMessage() {}
 
 func (x *ListRegistryInstances) ProtoReflect() protoreflect.Message {
-	mi := &file_container_registry_api_proto_msgTypes[1]
+	mi := &file_container_registry_api_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -169,7 +242,7 @@ func (x *ListRegistryInstances) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRegistryInstances.ProtoReflect.Descriptor instead.
 func (*ListRegistryInstances) Descriptor() ([]byte, []int) {
-	return file_container_registry_api_proto_rawDescGZIP(), []int{1}
+	return file_container_registry_api_proto_rawDescGZIP(), []int{2}
 }
 
 type CreateRegistryInstance struct {
@@ -180,7 +253,7 @@ type CreateRegistryInstance struct {
 
 func (x *CreateRegistryInstance) Reset() {
 	*x = CreateRegistryInstance{}
-	mi := &file_container_registry_api_proto_msgTypes[2]
+	mi := &file_container_registry_api_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -192,7 +265,7 @@ func (x *CreateRegistryInstance) String() string {
 func (*CreateRegistryInstance) ProtoMessage() {}
 
 func (x *CreateRegistryInstance) ProtoReflect() protoreflect.Message {
-	mi := &file_container_registry_api_proto_msgTypes[2]
+	mi := &file_container_registry_api_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -205,7 +278,7 @@ func (x *CreateRegistryInstance) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateRegistryInstance.ProtoReflect.Descriptor instead.
 func (*CreateRegistryInstance) Descriptor() ([]byte, []int) {
-	return file_container_registry_api_proto_rawDescGZIP(), []int{2}
+	return file_container_registry_api_proto_rawDescGZIP(), []int{3}
 }
 
 type DropRegistryInstance struct {
@@ -216,7 +289,7 @@ type DropRegistryInstance struct {
 
 func (x *DropRegistryInstance) Reset() {
 	*x = DropRegistryInstance{}
-	mi := &file_container_registry_api_proto_msgTypes[3]
+	mi := &file_container_registry_api_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -228,7 +301,7 @@ func (x *DropRegistryInstance) String() string {
 func (*DropRegistryInstance) ProtoMessage() {}
 
 func (x *DropRegistryInstance) ProtoReflect() protoreflect.Message {
-	mi := &file_container_registry_api_proto_msgTypes[3]
+	mi := &file_container_registry_api_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -241,7 +314,7 @@ func (x *DropRegistryInstance) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DropRegistryInstance.ProtoReflect.Descriptor instead.
 func (*DropRegistryInstance) Descriptor() ([]byte, []int) {
-	return file_container_registry_api_proto_rawDescGZIP(), []int{3}
+	return file_container_registry_api_proto_rawDescGZIP(), []int{4}
 }
 
 // GetRegistryInstanceCredentials.Response is the only
@@ -254,7 +327,7 @@ type GetRegistryInstanceCredentials struct {
 
 func (x *GetRegistryInstanceCredentials) Reset() {
 	*x = GetRegistryInstanceCredentials{}
-	mi := &file_container_registry_api_proto_msgTypes[4]
+	mi := &file_container_registry_api_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -266,7 +339,7 @@ func (x *GetRegistryInstanceCredentials) String() string {
 func (*GetRegistryInstanceCredentials) ProtoMessage() {}
 
 func (x *GetRegistryInstanceCredentials) ProtoReflect() protoreflect.Message {
-	mi := &file_container_registry_api_proto_msgTypes[4]
+	mi := &file_container_registry_api_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -279,7 +352,7 @@ func (x *GetRegistryInstanceCredentials) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRegistryInstanceCredentials.ProtoReflect.Descriptor instead.
 func (*GetRegistryInstanceCredentials) Descriptor() ([]byte, []int) {
-	return file_container_registry_api_proto_rawDescGZIP(), []int{4}
+	return file_container_registry_api_proto_rawDescGZIP(), []int{5}
 }
 
 type ListRegistryInstances_Request struct {
@@ -291,7 +364,7 @@ type ListRegistryInstances_Request struct {
 
 func (x *ListRegistryInstances_Request) Reset() {
 	*x = ListRegistryInstances_Request{}
-	mi := &file_container_registry_api_proto_msgTypes[5]
+	mi := &file_container_registry_api_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -303,7 +376,7 @@ func (x *ListRegistryInstances_Request) String() string {
 func (*ListRegistryInstances_Request) ProtoMessage() {}
 
 func (x *ListRegistryInstances_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_container_registry_api_proto_msgTypes[5]
+	mi := &file_container_registry_api_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -316,7 +389,7 @@ func (x *ListRegistryInstances_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRegistryInstances_Request.ProtoReflect.Descriptor instead.
 func (*ListRegistryInstances_Request) Descriptor() ([]byte, []int) {
-	return file_container_registry_api_proto_rawDescGZIP(), []int{1, 0}
+	return file_container_registry_api_proto_rawDescGZIP(), []int{2, 0}
 }
 
 func (x *ListRegistryInstances_Request) GetPaging() *Paging {
@@ -336,7 +409,7 @@ type ListRegistryInstances_Response struct {
 
 func (x *ListRegistryInstances_Response) Reset() {
 	*x = ListRegistryInstances_Response{}
-	mi := &file_container_registry_api_proto_msgTypes[6]
+	mi := &file_container_registry_api_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -348,7 +421,7 @@ func (x *ListRegistryInstances_Response) String() string {
 func (*ListRegistryInstances_Response) ProtoMessage() {}
 
 func (x *ListRegistryInstances_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_container_registry_api_proto_msgTypes[6]
+	mi := &file_container_registry_api_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -361,7 +434,7 @@ func (x *ListRegistryInstances_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRegistryInstances_Response.ProtoReflect.Descriptor instead.
 func (*ListRegistryInstances_Response) Descriptor() ([]byte, []int) {
-	return file_container_registry_api_proto_rawDescGZIP(), []int{1, 1}
+	return file_container_registry_api_proto_rawDescGZIP(), []int{2, 1}
 }
 
 func (x *ListRegistryInstances_Response) GetInstances() []*RegistryInstance {
@@ -391,14 +464,16 @@ type CreateRegistryInstance_Request struct {
 	// enable_ui - when set, deploys the joxit/docker-registry-ui sidecar
 	// alongside the registry itself. Disabled by default: most registries
 	// are pulled from by CI/CD and never browsed by a human.
-	EnableUi      bool `protobuf:"varint,6,opt,name=enable_ui,json=enableUi,proto3" json:"enable_ui,omitempty"`
+	EnableUi bool `protobuf:"varint,6,opt,name=enable_ui,json=enableUi,proto3" json:"enable_ui,omitempty"`
+	// When set, blobs go to an S3 instance bucket instead of a local volume.
+	S3Storage     *RegistryS3Storage `protobuf:"bytes,7,opt,name=s3_storage,json=s3Storage,proto3,oneof" json:"s3_storage,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateRegistryInstance_Request) Reset() {
 	*x = CreateRegistryInstance_Request{}
-	mi := &file_container_registry_api_proto_msgTypes[7]
+	mi := &file_container_registry_api_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -410,7 +485,7 @@ func (x *CreateRegistryInstance_Request) String() string {
 func (*CreateRegistryInstance_Request) ProtoMessage() {}
 
 func (x *CreateRegistryInstance_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_container_registry_api_proto_msgTypes[7]
+	mi := &file_container_registry_api_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -423,7 +498,7 @@ func (x *CreateRegistryInstance_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateRegistryInstance_Request.ProtoReflect.Descriptor instead.
 func (*CreateRegistryInstance_Request) Descriptor() ([]byte, []int) {
-	return file_container_registry_api_proto_rawDescGZIP(), []int{2, 0}
+	return file_container_registry_api_proto_rawDescGZIP(), []int{3, 0}
 }
 
 func (x *CreateRegistryInstance_Request) GetName() string {
@@ -468,6 +543,13 @@ func (x *CreateRegistryInstance_Request) GetEnableUi() bool {
 	return false
 }
 
+func (x *CreateRegistryInstance_Request) GetS3Storage() *RegistryS3Storage {
+	if x != nil {
+		return x.S3Storage
+	}
+	return nil
+}
+
 type CreateRegistryInstance_Response struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// instance is never populated - the RPC enqueues the
@@ -483,7 +565,7 @@ type CreateRegistryInstance_Response struct {
 
 func (x *CreateRegistryInstance_Response) Reset() {
 	*x = CreateRegistryInstance_Response{}
-	mi := &file_container_registry_api_proto_msgTypes[8]
+	mi := &file_container_registry_api_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -495,7 +577,7 @@ func (x *CreateRegistryInstance_Response) String() string {
 func (*CreateRegistryInstance_Response) ProtoMessage() {}
 
 func (x *CreateRegistryInstance_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_container_registry_api_proto_msgTypes[8]
+	mi := &file_container_registry_api_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -508,7 +590,7 @@ func (x *CreateRegistryInstance_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateRegistryInstance_Response.ProtoReflect.Descriptor instead.
 func (*CreateRegistryInstance_Response) Descriptor() ([]byte, []int) {
-	return file_container_registry_api_proto_rawDescGZIP(), []int{2, 1}
+	return file_container_registry_api_proto_rawDescGZIP(), []int{3, 1}
 }
 
 func (x *CreateRegistryInstance_Response) GetInstance() *RegistryInstance {
@@ -541,7 +623,7 @@ type DropRegistryInstance_Request struct {
 
 func (x *DropRegistryInstance_Request) Reset() {
 	*x = DropRegistryInstance_Request{}
-	mi := &file_container_registry_api_proto_msgTypes[9]
+	mi := &file_container_registry_api_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -553,7 +635,7 @@ func (x *DropRegistryInstance_Request) String() string {
 func (*DropRegistryInstance_Request) ProtoMessage() {}
 
 func (x *DropRegistryInstance_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_container_registry_api_proto_msgTypes[9]
+	mi := &file_container_registry_api_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -566,7 +648,7 @@ func (x *DropRegistryInstance_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DropRegistryInstance_Request.ProtoReflect.Descriptor instead.
 func (*DropRegistryInstance_Request) Descriptor() ([]byte, []int) {
-	return file_container_registry_api_proto_rawDescGZIP(), []int{3, 0}
+	return file_container_registry_api_proto_rawDescGZIP(), []int{4, 0}
 }
 
 func (x *DropRegistryInstance_Request) GetName() string {
@@ -584,7 +666,7 @@ type DropRegistryInstance_Response struct {
 
 func (x *DropRegistryInstance_Response) Reset() {
 	*x = DropRegistryInstance_Response{}
-	mi := &file_container_registry_api_proto_msgTypes[10]
+	mi := &file_container_registry_api_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -596,7 +678,7 @@ func (x *DropRegistryInstance_Response) String() string {
 func (*DropRegistryInstance_Response) ProtoMessage() {}
 
 func (x *DropRegistryInstance_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_container_registry_api_proto_msgTypes[10]
+	mi := &file_container_registry_api_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -609,7 +691,7 @@ func (x *DropRegistryInstance_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DropRegistryInstance_Response.ProtoReflect.Descriptor instead.
 func (*DropRegistryInstance_Response) Descriptor() ([]byte, []int) {
-	return file_container_registry_api_proto_rawDescGZIP(), []int{3, 1}
+	return file_container_registry_api_proto_rawDescGZIP(), []int{4, 1}
 }
 
 type GetRegistryInstanceCredentials_Request struct {
@@ -621,7 +703,7 @@ type GetRegistryInstanceCredentials_Request struct {
 
 func (x *GetRegistryInstanceCredentials_Request) Reset() {
 	*x = GetRegistryInstanceCredentials_Request{}
-	mi := &file_container_registry_api_proto_msgTypes[11]
+	mi := &file_container_registry_api_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -633,7 +715,7 @@ func (x *GetRegistryInstanceCredentials_Request) String() string {
 func (*GetRegistryInstanceCredentials_Request) ProtoMessage() {}
 
 func (x *GetRegistryInstanceCredentials_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_container_registry_api_proto_msgTypes[11]
+	mi := &file_container_registry_api_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -646,7 +728,7 @@ func (x *GetRegistryInstanceCredentials_Request) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use GetRegistryInstanceCredentials_Request.ProtoReflect.Descriptor instead.
 func (*GetRegistryInstanceCredentials_Request) Descriptor() ([]byte, []int) {
-	return file_container_registry_api_proto_rawDescGZIP(), []int{4, 0}
+	return file_container_registry_api_proto_rawDescGZIP(), []int{5, 0}
 }
 
 func (x *GetRegistryInstanceCredentials_Request) GetName() string {
@@ -667,7 +749,7 @@ type GetRegistryInstanceCredentials_Response struct {
 
 func (x *GetRegistryInstanceCredentials_Response) Reset() {
 	*x = GetRegistryInstanceCredentials_Response{}
-	mi := &file_container_registry_api_proto_msgTypes[12]
+	mi := &file_container_registry_api_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -679,7 +761,7 @@ func (x *GetRegistryInstanceCredentials_Response) String() string {
 func (*GetRegistryInstanceCredentials_Response) ProtoMessage() {}
 
 func (x *GetRegistryInstanceCredentials_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_container_registry_api_proto_msgTypes[12]
+	mi := &file_container_registry_api_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -692,7 +774,7 @@ func (x *GetRegistryInstanceCredentials_Response) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use GetRegistryInstanceCredentials_Response.ProtoReflect.Descriptor instead.
 func (*GetRegistryInstanceCredentials_Response) Descriptor() ([]byte, []int) {
-	return file_container_registry_api_proto_rawDescGZIP(), []int{4, 1}
+	return file_container_registry_api_proto_rawDescGZIP(), []int{5, 1}
 }
 
 func (x *GetRegistryInstanceCredentials_Response) GetUsername() string {
@@ -720,7 +802,7 @@ var File_container_registry_api_proto protoreflect.FileDescriptor
 
 const file_container_registry_api_proto_rawDesc = "" +
 	"\n" +
-	"\x1ccontainer_registry_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\x1a\x12velez_common.proto\"\xdb\x02\n" +
+	"\x1ccontainer_registry_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\x1a\x12velez_common.proto\"\xc1\x03\n" +
 	"\x10RegistryInstance\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04port\x18\x02 \x01(\rR\x04port\x12\x17\n" +
@@ -732,26 +814,41 @@ const file_container_registry_api_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB\x10\n" +
-	"\x0e_owner_service\"\xaa\x01\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12$\n" +
+	"\vs3_instance\x18\n" +
+	" \x01(\tH\x01R\n" +
+	"s3Instance\x88\x01\x01\x12 \n" +
+	"\ts3_bucket\x18\v \x01(\tH\x02R\bs3Bucket\x88\x01\x01B\x10\n" +
+	"\x0e_owner_serviceB\x0e\n" +
+	"\f_s3_instanceB\f\n" +
+	"\n" +
+	"_s3_bucket\"n\n" +
+	"\x11RegistryS3Storage\x12#\n" +
+	"\rinstance_name\x18\x01 \x01(\tR\finstanceName\x12$\n" +
+	"\vbucket_name\x18\x02 \x01(\tH\x00R\n" +
+	"bucketName\x88\x01\x01B\x0e\n" +
+	"\f_bucket_name\"\xaa\x01\n" +
 	"\x15ListRegistryInstances\x1a4\n" +
 	"\aRequest\x12)\n" +
 	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x1a[\n" +
 	"\bResponse\x129\n" +
 	"\tinstances\x18\x01 \x03(\v2\x1b.velez_api.RegistryInstanceR\tinstances\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x04R\x05total\"\x9f\x03\n" +
-	"\x16CreateRegistryInstance\x1a\x8a\x02\n" +
+	"\x05total\x18\x02 \x01(\x04R\x05total\"\xf0\x03\n" +
+	"\x16CreateRegistryInstance\x1a\xdb\x02\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12%\n" +
 	"\venvironment\x18\x02 \x01(\tH\x00R\venvironment\x88\x01\x01\x12\x15\n" +
 	"\x03box\x18\x03 \x01(\tH\x01R\x03box\x88\x01\x01\x12)\n" +
 	"\x0eexpose_to_port\x18\x04 \x01(\rH\x02R\fexposeToPort\x88\x01\x01\x12(\n" +
 	"\rowner_service\x18\x05 \x01(\tH\x03R\fownerService\x88\x01\x01\x12\x1b\n" +
-	"\tenable_ui\x18\x06 \x01(\bR\benableUiB\x0e\n" +
+	"\tenable_ui\x18\x06 \x01(\bR\benableUi\x12@\n" +
+	"\n" +
+	"s3_storage\x18\a \x01(\v2\x1c.velez_api.RegistryS3StorageH\x04R\ts3Storage\x88\x01\x01B\x0e\n" +
 	"\f_environmentB\x06\n" +
 	"\x04_boxB\x11\n" +
 	"\x0f_expose_to_portB\x10\n" +
-	"\x0e_owner_service\x1ax\n" +
+	"\x0e_owner_serviceB\r\n" +
+	"\v_s3_storage\x1ax\n" +
 	"\bResponse\x127\n" +
 	"\binstance\x18\x01 \x01(\v2\x1b.velez_api.RegistryInstanceR\binstance\x12\x1b\n" +
 	"\tentity_id\x18\x02 \x01(\tR\bentityId\x12\x16\n" +
@@ -786,43 +883,45 @@ func file_container_registry_api_proto_rawDescGZIP() []byte {
 	return file_container_registry_api_proto_rawDescData
 }
 
-var file_container_registry_api_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_container_registry_api_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_container_registry_api_proto_goTypes = []any{
 	(*RegistryInstance)(nil),                        // 0: velez_api.RegistryInstance
-	(*ListRegistryInstances)(nil),                   // 1: velez_api.ListRegistryInstances
-	(*CreateRegistryInstance)(nil),                  // 2: velez_api.CreateRegistryInstance
-	(*DropRegistryInstance)(nil),                    // 3: velez_api.DropRegistryInstance
-	(*GetRegistryInstanceCredentials)(nil),          // 4: velez_api.GetRegistryInstanceCredentials
-	(*ListRegistryInstances_Request)(nil),           // 5: velez_api.ListRegistryInstances.Request
-	(*ListRegistryInstances_Response)(nil),          // 6: velez_api.ListRegistryInstances.Response
-	(*CreateRegistryInstance_Request)(nil),          // 7: velez_api.CreateRegistryInstance.Request
-	(*CreateRegistryInstance_Response)(nil),         // 8: velez_api.CreateRegistryInstance.Response
-	(*DropRegistryInstance_Request)(nil),            // 9: velez_api.DropRegistryInstance.Request
-	(*DropRegistryInstance_Response)(nil),           // 10: velez_api.DropRegistryInstance.Response
-	(*GetRegistryInstanceCredentials_Request)(nil),  // 11: velez_api.GetRegistryInstanceCredentials.Request
-	(*GetRegistryInstanceCredentials_Response)(nil), // 12: velez_api.GetRegistryInstanceCredentials.Response
-	(*timestamppb.Timestamp)(nil),                   // 13: google.protobuf.Timestamp
-	(*Paging)(nil),                                  // 14: velez_api.Paging
+	(*RegistryS3Storage)(nil),                       // 1: velez_api.RegistryS3Storage
+	(*ListRegistryInstances)(nil),                   // 2: velez_api.ListRegistryInstances
+	(*CreateRegistryInstance)(nil),                  // 3: velez_api.CreateRegistryInstance
+	(*DropRegistryInstance)(nil),                    // 4: velez_api.DropRegistryInstance
+	(*GetRegistryInstanceCredentials)(nil),          // 5: velez_api.GetRegistryInstanceCredentials
+	(*ListRegistryInstances_Request)(nil),           // 6: velez_api.ListRegistryInstances.Request
+	(*ListRegistryInstances_Response)(nil),          // 7: velez_api.ListRegistryInstances.Response
+	(*CreateRegistryInstance_Request)(nil),          // 8: velez_api.CreateRegistryInstance.Request
+	(*CreateRegistryInstance_Response)(nil),         // 9: velez_api.CreateRegistryInstance.Response
+	(*DropRegistryInstance_Request)(nil),            // 10: velez_api.DropRegistryInstance.Request
+	(*DropRegistryInstance_Response)(nil),           // 11: velez_api.DropRegistryInstance.Response
+	(*GetRegistryInstanceCredentials_Request)(nil),  // 12: velez_api.GetRegistryInstanceCredentials.Request
+	(*GetRegistryInstanceCredentials_Response)(nil), // 13: velez_api.GetRegistryInstanceCredentials.Response
+	(*timestamppb.Timestamp)(nil),                   // 14: google.protobuf.Timestamp
+	(*Paging)(nil),                                  // 15: velez_api.Paging
 }
 var file_container_registry_api_proto_depIdxs = []int32{
-	13, // 0: velez_api.RegistryInstance.created_at:type_name -> google.protobuf.Timestamp
-	13, // 1: velez_api.RegistryInstance.updated_at:type_name -> google.protobuf.Timestamp
-	14, // 2: velez_api.ListRegistryInstances.Request.paging:type_name -> velez_api.Paging
+	14, // 0: velez_api.RegistryInstance.created_at:type_name -> google.protobuf.Timestamp
+	14, // 1: velez_api.RegistryInstance.updated_at:type_name -> google.protobuf.Timestamp
+	15, // 2: velez_api.ListRegistryInstances.Request.paging:type_name -> velez_api.Paging
 	0,  // 3: velez_api.ListRegistryInstances.Response.instances:type_name -> velez_api.RegistryInstance
-	0,  // 4: velez_api.CreateRegistryInstance.Response.instance:type_name -> velez_api.RegistryInstance
-	5,  // 5: velez_api.ContainerRegistryAPI.ListRegistryInstances:input_type -> velez_api.ListRegistryInstances.Request
-	7,  // 6: velez_api.ContainerRegistryAPI.CreateRegistryInstance:input_type -> velez_api.CreateRegistryInstance.Request
-	9,  // 7: velez_api.ContainerRegistryAPI.DropRegistryInstance:input_type -> velez_api.DropRegistryInstance.Request
-	11, // 8: velez_api.ContainerRegistryAPI.GetRegistryInstanceCredentials:input_type -> velez_api.GetRegistryInstanceCredentials.Request
-	6,  // 9: velez_api.ContainerRegistryAPI.ListRegistryInstances:output_type -> velez_api.ListRegistryInstances.Response
-	8,  // 10: velez_api.ContainerRegistryAPI.CreateRegistryInstance:output_type -> velez_api.CreateRegistryInstance.Response
-	10, // 11: velez_api.ContainerRegistryAPI.DropRegistryInstance:output_type -> velez_api.DropRegistryInstance.Response
-	12, // 12: velez_api.ContainerRegistryAPI.GetRegistryInstanceCredentials:output_type -> velez_api.GetRegistryInstanceCredentials.Response
-	9,  // [9:13] is the sub-list for method output_type
-	5,  // [5:9] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	1,  // 4: velez_api.CreateRegistryInstance.Request.s3_storage:type_name -> velez_api.RegistryS3Storage
+	0,  // 5: velez_api.CreateRegistryInstance.Response.instance:type_name -> velez_api.RegistryInstance
+	6,  // 6: velez_api.ContainerRegistryAPI.ListRegistryInstances:input_type -> velez_api.ListRegistryInstances.Request
+	8,  // 7: velez_api.ContainerRegistryAPI.CreateRegistryInstance:input_type -> velez_api.CreateRegistryInstance.Request
+	10, // 8: velez_api.ContainerRegistryAPI.DropRegistryInstance:input_type -> velez_api.DropRegistryInstance.Request
+	12, // 9: velez_api.ContainerRegistryAPI.GetRegistryInstanceCredentials:input_type -> velez_api.GetRegistryInstanceCredentials.Request
+	7,  // 10: velez_api.ContainerRegistryAPI.ListRegistryInstances:output_type -> velez_api.ListRegistryInstances.Response
+	9,  // 11: velez_api.ContainerRegistryAPI.CreateRegistryInstance:output_type -> velez_api.CreateRegistryInstance.Response
+	11, // 12: velez_api.ContainerRegistryAPI.DropRegistryInstance:output_type -> velez_api.DropRegistryInstance.Response
+	13, // 13: velez_api.ContainerRegistryAPI.GetRegistryInstanceCredentials:output_type -> velez_api.GetRegistryInstanceCredentials.Response
+	10, // [10:14] is the sub-list for method output_type
+	6,  // [6:10] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_container_registry_api_proto_init() }
@@ -832,14 +931,15 @@ func file_container_registry_api_proto_init() {
 	}
 	file_velez_common_proto_init()
 	file_container_registry_api_proto_msgTypes[0].OneofWrappers = []any{}
-	file_container_registry_api_proto_msgTypes[7].OneofWrappers = []any{}
+	file_container_registry_api_proto_msgTypes[1].OneofWrappers = []any{}
+	file_container_registry_api_proto_msgTypes[8].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_container_registry_api_proto_rawDesc), len(file_container_registry_api_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   13,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

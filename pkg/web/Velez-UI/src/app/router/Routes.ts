@@ -13,6 +13,7 @@ export enum Routes {
     ContainerRegistry = '/container-registries',
     Runners = '/runners',
     Dinds = '/dinds',
+    S3 = '/s3',
     Settings = '/settings',
     Login = '/login'
 }

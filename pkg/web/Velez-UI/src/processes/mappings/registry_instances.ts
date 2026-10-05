@@ -18,3 +18,8 @@ export function formatRegistryInstanceCreatedAt(ts?: { seconds?: string | number
 export function sortRegistryInstancesByName(instances: RegistryInstance[]): RegistryInstance[] {
     return [...instances].sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""))
 }
+
+export function formatRegistryInstanceStorage(instance: RegistryInstance): string {
+    if (!instance.s3Instance) return "Local volume"
+    return `S3: ${instance.s3Instance}/${instance.s3Bucket || "-"}`
+}

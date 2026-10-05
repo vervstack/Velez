@@ -13,6 +13,7 @@ import (
 	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/toolbox/keep_alive"
 	"go.vervstack.ru/makosh/pkg/makosh_be"
+	"google.golang.org/grpc"
 
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/matreshka"
@@ -169,6 +170,7 @@ func SetupMatreshka(
 	nc node_clients.NodeClients,
 	sdClient cluster_clients.ServiceDiscovery,
 	vcnClient cluster_clients.VervClosedNetworkClient,
+	dialOpts []grpc.DialOption,
 ) (matreshka.Client, error) {
 	key, err := initKey(ctx, nc)
 	if err != nil {
@@ -193,7 +195,7 @@ func SetupMatreshka(
 		}
 	}
 
-	mClient, err := newClient(nc)
+	mClient, err := newClient(nc, dialOpts)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error creating matreshka client")
 	}

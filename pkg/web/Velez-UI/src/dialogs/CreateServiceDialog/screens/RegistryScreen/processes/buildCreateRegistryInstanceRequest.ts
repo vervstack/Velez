@@ -1,4 +1,8 @@
 import type {CreateRegistryInstanceRequest} from "@/app/api/velez"
+import {
+    buildRegistryS3Storage,
+    RegistryStorageState,
+} from "@/dialogs/CreateServiceDialog/screens/RegistryScreen/processes/registryStorage.ts"
 
 interface CreateRegistryInstanceFormState {
     name: string
@@ -8,6 +12,7 @@ interface CreateRegistryInstanceFormState {
     port: string
     ownerService: string
     enableUi: boolean
+    storage: RegistryStorageState
 }
 
 export function buildCreateRegistryInstanceRequest(
@@ -23,5 +28,6 @@ export function buildCreateRegistryInstanceRequest(
         exposeToPort: form.exposePort && form.port.trim() ? Number(form.port.trim()) : undefined,
         ownerService: form.ownerService || undefined,
         enableUi: form.enableUi,
+        s3Storage: buildRegistryS3Storage(form.storage),
     }
 }

@@ -1,0 +1,6 @@
+version: "1"
+service:
+  name: garage-webui
+  description: Builtin garage-webui sidecar, provisioned alongside an S3 instance.
+  tags: [s3, builtin]
+box: small

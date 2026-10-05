@@ -1,0 +1,52 @@
+.S3InstanceRowContainer {
+    border-bottom: 0.0625rem solid var(--border);
+    transition: background 0.2s ease;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &.Selected {
+        background: var(--bg3);
+    }
+
+    & .Row {
+        display: grid;
+        grid-template-columns: 1.25rem 1fr 7rem 5rem 6rem 6rem 11rem;
+        gap: 0.75rem;
+        align-items: center;
+        padding: 0.625rem 1.25rem;
+
+        & .Name {
+            font-family: var(--font-mono);
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--fg);
+            text-decoration: none;
+
+            &:hover {
+                color: var(--cyan);
+            }
+        }
+
+        & .Cell {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--fg-mid);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            & .Link {
+                color: var(--cyan);
+                text-decoration: none;
+            }
+        }
+
+        & .Actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+    }
+}

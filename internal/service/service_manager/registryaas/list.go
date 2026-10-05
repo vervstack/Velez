@@ -3,6 +3,7 @@ package registryaas
 import (
 	"context"
 
+	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/domain"
@@ -47,6 +48,14 @@ func (s *RegistryaasService) ListRegistryInstances(
 			continue
 		}
 
+		s3Binding, _, err := s.readS3Binding(ctx, base.Name, base.Env)
+		if err != nil {
+			log.Ctx(ctx).Warn().
+				Str("registry", base.Name).
+				Err(err).
+				Msg("error reading registry s3 storage, listing it without")
+		}
+
 		instances = append(instances, domain.RegistryInstanceView{
 			Name:        base.Name,
 			Port:        row.Port,
@@ -55,6 +64,8 @@ func (s *RegistryaasService) ListRegistryInstances(
 			Environment: base.Env,
 			Status:      base.Status,
 			ImageName:   base.ImageName,
+			S3Instance:  s3Binding.InstanceName,
+			S3Bucket:    s3Binding.BucketName,
 			CreatedAt:   row.CreatedAt,
 			UpdatedAt:   row.UpdatedAt,
 		})

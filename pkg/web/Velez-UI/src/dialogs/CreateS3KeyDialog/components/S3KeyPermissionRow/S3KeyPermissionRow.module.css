@@ -1,0 +1,14 @@
+.S3KeyPermissionRowContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border: 0.0625rem solid var(--border);
+    border-radius: var(--radius);
+
+    & .FlagsWrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+}

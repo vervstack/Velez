@@ -68,3 +68,7 @@ func (d *dockerServiceResourcesStorage) GetResources(ctx context.Context,
 
 	return result, nil
 }
+
+func (d *dockerServiceResourcesStorage) DeleteResource(_ context.Context, _, _ string) error {
+	return nil
+}

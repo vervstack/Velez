@@ -82,11 +82,13 @@ type ServiceDependenciesStorage interface {
 	UpsertDependency(ctx context.Context, source, target, proto string) error
 	GetDependencies(ctx context.Context, serviceName string) ([]domain.ServiceDependency, error)
 	GetCallers(ctx context.Context, serviceName string) ([]domain.ServiceDependency, error)
+	DeleteDependenciesOf(ctx context.Context, source string) error
 }
 
 type ServiceResourcesStorage interface {
 	GetResources(ctx context.Context, serviceName string) ([]domain.BoundResource, error)
 	UpsertResource(ctx context.Context, serviceName, resourceName, resourceType string) error
+	DeleteResource(ctx context.Context, serviceName, resourceName string) error
 }
 
 type TasksStorage interface {

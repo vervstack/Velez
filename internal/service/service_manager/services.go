@@ -12,6 +12,7 @@ import (
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/secrets"
+	"go.vervstack.ru/Velez/internal/service/service_manager/configresolver"
 	"go.vervstack.ru/Velez/internal/service/service_manager/configurator"
 	"go.vervstack.ru/Velez/internal/service/service_manager/container_manager"
 	"go.vervstack.ru/Velez/internal/service/service_manager/dinds"
@@ -21,6 +22,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/service_manager/plugins"
 	"go.vervstack.ru/Velez/internal/service/service_manager/registryaas"
 	"go.vervstack.ru/Velez/internal/service/service_manager/runneraas"
+	"go.vervstack.ru/Velez/internal/service/service_manager/s3aas"
 	"go.vervstack.ru/Velez/internal/service/service_manager/settings"
 	"go.vervstack.ru/Velez/internal/service/service_manager/verv_services"
 	"go.vervstack.ru/Velez/internal/service/service_manager/vervonomicon"
@@ -45,6 +47,8 @@ type ServiceManager struct {
 	imageVersions            service.ImageVersionsService
 	settingsService          service.SettingsService
 	dindService              service.DindService
+	s3Service                service.S3Service
+	configResolver           service.ServiceConfigResolver
 }
 
 func New(
@@ -74,6 +78,8 @@ func New(
 		configService,
 	)
 
+	configResolver := configresolver.New(configService, clusterClients, runtimeResolver)
+
 	sm := &ServiceManager{
 		containerManager: cm,
 		configurator:     configService,
@@ -100,12 +106,19 @@ func New(
 		),
 		// registryaas.New takes clusterClients.StateManager(), for the same
 		// reason pgaas.New does just above - see that comment.
-		containerRegistryService: registryaas.New(clusterClients.StateManager(), vervServices, secretsStore, jobsEngine),
-		imageVersions:            image_versions.New(runtimeResolver, nodeClients.Docker().Client()),
-		settingsService:          settings.New(clusterClients.StateManager(), nodeClients.Docker()),
+		containerRegistryService: registryaas.New(
+			clusterClients.StateManager(), vervServices, secretsStore, jobsEngine, configResolver, runtimeResolver,
+		),
+		imageVersions:   image_versions.New(runtimeResolver, nodeClients.Docker().Client()),
+		settingsService: settings.New(clusterClients.StateManager(), nodeClients.Docker()),
 		dindService: dinds.New(
 			clusterClients.StateManager(), vervServices, jobsEngine, nodeClients.Docker(),
 		),
+		s3Service: s3aas.New(
+			clusterClients.StateManager(), vervServices, secretsStore, configResolver, jobsEngine, runtimeResolver,
+			nodeClients.Docker(),
+		),
+		configResolver: configResolver,
 	}
 
 	// TODO VERV-128
@@ -168,4 +181,12 @@ func (s *ServiceManager) Settings() service.SettingsService {
 
 func (s *ServiceManager) Dinds() service.DindService {
 	return s.dindService
+}
+
+func (s *ServiceManager) S3() service.S3Service {
+	return s.s3Service
+}
+
+func (s *ServiceManager) ConfigResolver() service.ServiceConfigResolver {
+	return s.configResolver
 }

@@ -11,6 +11,7 @@ import * as VelezApiDindApi from "./dind_api.pb";
 import * as fm from "./fetch.pb";
 import * as GoogleProtobufTimestamp from "./google/protobuf/timestamp.pb";
 import * as VelezApiRunnersApi from "./runners_api.pb";
+import * as VelezApiS3Api from "./s3_api.pb";
 import * as VelezApiVelezApi from "./velez_api.pb";
 import * as VelezApiVelezCommon from "./velez_common.pb";
 
@@ -170,12 +171,22 @@ export type CreateRegistryInstanceTaskPayload = {
   containerId?: string;
   exposedPort?: number;
   uiExposedPort?: number;
+  s3BucketId?: string;
+  s3AccessKeyId?: string;
 };
 
 export type CreateDindTaskPayload = {
   request?: VelezApiDindApi.CreateDindRequest;
   networkName?: string;
   address?: string;
+};
+
+export type CreateS3InstanceTaskPayload = {
+  request?: VelezApiS3Api.CreateS3InstanceRequest;
+  exposedPort?: number;
+  adminExposedPort?: number;
+  webUiExposedPort?: number;
+  nodeId?: string;
 };
 
 export type CreateRunnerTaskPayload = {

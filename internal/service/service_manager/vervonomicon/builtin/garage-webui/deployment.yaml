@@ -1,0 +1,7 @@
+app:
+  image: khairul169/garage-webui:1.1.0
+  ports:
+    - port: 3909
+      protocol: tcp
+  restart: unless_stopped
+  box: small

@@ -6,6 +6,7 @@ import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {ListEnvironmentsQuery} from "@/processes/queries/control_plane.ts"
 import {useListServicesQuery} from "@/processes/queries/services.ts"
 import {CreateRegistryInstanceMutation} from "@/processes/queries/registry_instances.ts"
+import {useListS3InstancesQuery} from "@/processes/queries/s3.ts"
 
 vi.mock("@/app/hooks/dialog/Dialog.tsx", () => ({useDialog: vi.fn()}))
 vi.mock("@/processes/queries/control_plane.ts", () => ({ListEnvironmentsQuery: vi.fn()}))
@@ -14,6 +15,7 @@ vi.mock("@/processes/queries/registry_instances.ts", () => ({
     CreateRegistryInstanceMutation: vi.fn(),
     REGISTRY_INSTANCES_QUERY_KEY: ["registry-instances"],
 }))
+vi.mock("@/processes/queries/s3.ts", () => ({useListS3InstancesQuery: vi.fn()}))
 vi.mock(
     "@/dialogs/CreateServiceDialog/screens/RegistryScreen/components/RegistryDeployProgressScreen/RegistryDeployProgressScreen.tsx",
     () => ({default: vi.fn(() => <span>progress screen</span>)}),
@@ -31,6 +33,10 @@ function renderScreen() {
     vi.mocked(useListServicesQuery).mockReturnValue(
         {data: {services: []}} as Partial<ReturnType<typeof useListServicesQuery>> as
             ReturnType<typeof useListServicesQuery>
+    )
+    vi.mocked(useListS3InstancesQuery).mockReturnValue(
+        {data: {instances: [{name: "s3-main"}]}} as Partial<ReturnType<typeof useListS3InstancesQuery>> as
+            ReturnType<typeof useListS3InstancesQuery>
     )
     const mutateAsync = vi.fn()
     vi.mocked(CreateRegistryInstanceMutation).mockReturnValue(
@@ -75,5 +81,32 @@ describe("RegistryScreen", () => {
 
         expect(screen.getByText("progress screen")).toBeInTheDocument()
         expect(screen.queryByText("Create")).not.toBeInTheDocument()
+    })
+
+    it("defaults to local volume storage and hides the S3 fields", () => {
+        renderScreen()
+
+        expect(screen.getByText("Local volume").parentElement).toHaveTextContent("✓")
+        expect(screen.queryByText("Bucket (optional)")).not.toBeInTheDocument()
+    })
+
+    it("shows the S3 instance picker and bucket field when S3 instance is chosen", () => {
+        renderScreen()
+
+        fireEvent.click(screen.getByText("S3 instance"))
+
+        expect(screen.getAllByText("S3 instance")).toHaveLength(2)
+        expect(screen.getByText("Bucket (optional)")).toBeInTheDocument()
+    })
+
+    it("keeps Create disabled until an S3 instance is picked when S3 storage is chosen", () => {
+        renderScreen()
+
+        fireEvent.change(screen.getAllByRole("textbox")[0], {target: {value: "my-registry"}})
+        expect(screen.getByRole("button", {name: "Create"})).toBeEnabled()
+
+        fireEvent.click(screen.getByText("S3 instance"))
+
+        expect(screen.getByRole("button", {name: "Create"})).toBeDisabled()
     })
 })

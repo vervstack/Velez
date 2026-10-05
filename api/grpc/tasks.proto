@@ -10,6 +10,7 @@ import "container_registry_api.proto";
 import "control_plane_api.proto";
 import "dind_api.proto";
 import "runners_api.proto";
+import "s3_api.proto";
 import "service_api.proto";
 import "velez_api.proto";
 import "velez_common.proto";
@@ -370,6 +371,12 @@ message CreateRegistryInstanceTaskPayload {
   // creation), so both ports are resolved before either container deploys.
   optional uint32 exposed_port = 5;
   optional uint32 ui_exposed_port = 6;
+
+  // Set once ensure_s3_storage has created the bucket and the registry's
+  // key on the S3 instance named in request.s3_storage, so a resumed task
+  // reuses them instead of issuing a second key.
+  optional string s3_bucket_id = 7;
+  optional string s3_access_key_id = 8;
 }
 
 enum ContainerIsolation {
@@ -383,6 +390,20 @@ message CreateDindTaskPayload {
   CreateDind.Request request = 1;
   string network_name = 2;
   string address = 3;
+}
+
+// CreateS3InstanceTaskPayload is the task context for the
+// "create_s3_instance" action. Generated secrets live in secrets.Store, never
+// here. Ports are persisted once resolved so a resumed task reuses them.
+message CreateS3InstanceTaskPayload {
+  CreateS3Instance.Request request = 1;
+  optional uint32 exposed_port = 2;
+  // Admin API host port. Set only when Velez runs outside a container and
+  // needs a host port to reach the admin API.
+  optional uint32 admin_exposed_port = 3;
+  optional uint32 web_ui_exposed_port = 4;
+  // Garage node id, read from GetClusterStatus before the layout is applied.
+  optional string node_id = 5;
 }
 
 // CreateRunnerTaskPayload is the task context for the "create_runner"

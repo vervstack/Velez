@@ -21,9 +21,11 @@ export interface InputProps {
     disabled?: boolean
 
     hint?: string
+
+    placeholder?: string
 }
 
-export default function Input({label, onChange, inputValue, style, onLeave, disabled, hint}: InputProps) {
+export default function Input({label, onChange, inputValue, style, onLeave, disabled, hint, placeholder}: InputProps) {
     const [isFocused, setIsFocused] = useState(false);
 
     const hasValue = inputValue !== undefined && inputValue !== null && inputValue.toString().length > 0;
@@ -60,6 +62,7 @@ export default function Input({label, onChange, inputValue, style, onLeave, disa
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 value={inputValue || ''}
+                placeholder={isFocused ? placeholder : undefined}
             />
             {label && (
                 <label className={`${cls.Label} ${showFloatingLabel ? cls.Floating : ''}`}>

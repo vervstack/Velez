@@ -11,6 +11,7 @@ import {getLinkToPort} from "@/model/services/VervPlugins.tsx"
 import {
     mapRegistryInstanceStatus,
     formatRegistryInstanceCreatedAt,
+    formatRegistryInstanceStorage,
 } from "@/processes/mappings/registry_instances.ts"
 import RegistryInstanceCredentials
     from "@/pages/container-registry/components/RegistryInstanceCredentials/RegistryInstanceCredentials.tsx"
@@ -49,6 +50,7 @@ export default function RegistryInstanceRow({instance}: Props) {
                 <span className={cls.cell}>{instance.environment || "-"}</span>
                 <span className={cls.cell}>{instance.port}</span>
                 <span className={cls.cell}>{instance.username}</span>
+                <span className={cls.cell}>{formatRegistryInstanceStorage(instance)}</span>
                 <span className={cls.cell}>{formatRegistryInstanceCreatedAt(instance.createdAt)}</span>
                 <div className={cls.actions}>
                     {hasImageBrowser && (

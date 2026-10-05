@@ -1,0 +1,27 @@
+.S3BucketAccessListContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    & .EmptyText {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        color: var(--fg-dim);
+    }
+
+    & .Entry {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+
+        & .EntryText {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--fg-mid);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+}

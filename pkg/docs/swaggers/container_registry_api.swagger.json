@@ -197,6 +197,10 @@
         "enableUi": {
           "type": "boolean",
           "description": "enable_ui - when set, deploys the joxit/docker-registry-ui sidecar\nalongside the registry itself. Disabled by default: most registries\nare pulled from by CI/CD and never browsed by a human."
+        },
+        "s3Storage": {
+          "$ref": "#/definitions/velez_apiRegistryS3Storage",
+          "description": "When set, blobs go to an S3 instance bucket instead of a local volume."
         }
       }
     },
@@ -311,9 +315,29 @@
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "s3Instance": {
+          "type": "string",
+          "description": "Set when the registry stores blobs in a bucket of a Velez S3 instance\ninstead of a local volume. Read from the registry's own config."
+        },
+        "s3Bucket": {
+          "type": "string"
         }
       },
       "description": "RegistryInstance never carries a password - status, environment, image,\ncontainer id and deploy history live on the underlying service/deployment\nrows and are read via ListSmerds/VervServicesService, not duplicated here."
+    },
+    "velez_apiRegistryS3Storage": {
+      "type": "object",
+      "properties": {
+        "instanceName": {
+          "type": "string"
+        },
+        "bucketName": {
+          "type": "string",
+          "description": "Absent means the registry instance name."
+        }
+      },
+      "description": "RegistryS3Storage - store registry blobs in a bucket of a Velez S3\ninstance. Velez creates the bucket and a read/write key for the registry."
     }
   }
 }

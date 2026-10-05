@@ -40,6 +40,24 @@ func FromPorts(settings *velez_api.Container_Settings) map[nat.Port][]nat.PortBi
 	return out
 }
 
+// ToExposedPorts is the set of container ports a binding set publishes. The
+// daemon only publishes a binding whose port is also in Config.ExposedPorts;
+// an image that carries no EXPOSE for it would otherwise leave the binding
+// configured but never mapped.
+func ToExposedPorts(bindings map[nat.Port][]nat.PortBinding) nat.PortSet {
+	if len(bindings) == 0 {
+		return nil
+	}
+
+	out := make(nat.PortSet, len(bindings))
+
+	for containerPort := range bindings {
+		out[containerPort] = struct{}{}
+	}
+
+	return out
+}
+
 // ToPortsMapping reads the configured HostConfig.PortBindings. A binding with
 // an empty HostPort (`docker run -p 80`) asks the daemon for a random host
 // port, so its real one is taken from the running container's actual

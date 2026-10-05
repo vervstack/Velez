@@ -55,6 +55,14 @@ func registryInstanceToPb(view domain.RegistryInstanceView) *pb.RegistryInstance
 		out.OwnerService = &view.OwnerService
 	}
 
+	if view.S3Instance != "" {
+		out.S3Instance = &view.S3Instance
+	}
+
+	if view.S3Bucket != "" {
+		out.S3Bucket = &view.S3Bucket
+	}
+
 	if !view.CreatedAt.IsZero() {
 		out.CreatedAt = timestamppb.New(view.CreatedAt)
 	}

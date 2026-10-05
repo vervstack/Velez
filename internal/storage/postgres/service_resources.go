@@ -54,3 +54,17 @@ func (s *serviceResourcesStorage) UpsertResource(ctx context.Context, serviceNam
 
 	return nil
 }
+
+func (s *serviceResourcesStorage) DeleteResource(ctx context.Context, serviceName, resourceName string) error {
+	params := service_resources_queries.DeleteServiceResourceParams{
+		ServiceName:  serviceName,
+		ResourceName: resourceName,
+	}
+
+	err := s.DeleteServiceResource(ctx, params)
+	if err != nil {
+		return wrapPgErr(err)
+	}
+
+	return nil
+}

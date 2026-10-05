@@ -8,6 +8,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/jobs"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 // CreateRegistryInstance enqueues the multi-step create_registry_instance
@@ -21,6 +22,10 @@ import (
 // TasksApi.WatchTask(req.Name, jobs.CreateRegistryInstanceAction) and refetch
 // ListRegistryInstances once the task reaches DONE.
 func (s *RegistryaasService) CreateRegistryInstance(ctx context.Context, req domain.CreateRegistryInstanceReq) error {
+	if req.S3Storage != nil && req.S3Storage.InstanceName == "" {
+		return rerrors.Wrap(user_errors.ErrRegistryS3InstanceNameRequired)
+	}
+
 	initialContext := &velez_api.CreateRegistryInstanceTaskPayload{
 		Request: registryInstanceRequestToPb(req),
 	}
@@ -60,5 +65,19 @@ func registryInstanceRequestToPb(req domain.CreateRegistryInstanceReq) *velez_ap
 		pbReq.OwnerService = &req.OwnerService
 	}
 
+	if req.S3Storage != nil {
+		pbReq.S3Storage = registryS3StorageToPb(req.S3Storage)
+	}
+
 	return pbReq
+}
+
+func registryS3StorageToPb(s3Storage *domain.RegistryS3Storage) *velez_api.RegistryS3Storage {
+	pbStorage := &velez_api.RegistryS3Storage{InstanceName: s3Storage.InstanceName}
+
+	if s3Storage.BucketName != "" {
+		pbStorage.BucketName = &s3Storage.BucketName
+	}
+
+	return pbStorage
 }

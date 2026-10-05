@@ -141,3 +141,7 @@ func (d *dockerServiceDepsStorage) GetCallers(ctx context.Context,
 
 	return result, nil
 }
+
+func (d *dockerServiceDepsStorage) DeleteDependenciesOf(_ context.Context, _ string) error {
+	return nil
+}

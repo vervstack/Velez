@@ -1,6 +1,7 @@
 package configuration
 
 import (
+	"context"
 	"strings"
 
 	cerrdefs "github.com/containerd/errdefs"
@@ -8,15 +9,14 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 	version "go.vervstack.ru/matreshka/config"
-	"golang.org/x/net/context"
 
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 )
 
 const (
-	Name         = "matreshka"
-	defaultImage = "vervstack/matreshka"
-	grpcPort     = "50049"
+	Name      = "matreshka"
+	ImageRepo = "vervstack/matreshka"
+	grpcPort  = "50049"
 
 	passEnv = "pass"
 
@@ -27,7 +27,7 @@ var image string
 
 //nolint:gochecknoinits
 func init() {
-	image = defaultImage + ":" + version.GetVersion()
+	image = ImageRepo + ":" + version.GetVersion()
 }
 
 func initKey(ctx context.Context, nodeClients node_clients.NodeClients) (string, error) {

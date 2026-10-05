@@ -1,0 +1,25 @@
+.S3InstanceDetailContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    flex-shrink: 0;
+
+    & .Header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        & .Title {
+            margin: 0;
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--fg);
+        }
+
+        & .Tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+    }
+}

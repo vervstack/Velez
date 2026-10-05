@@ -1,0 +1,834 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "s3_api.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "S3API",
+      "description": "S3API - S3-as-a-Service backed by Garage. An S3 instance is a normal Velez\nservice identified by the velez.s3 container label. Velez keeps no\nper-instance table: ports are read from the container, Garage settings from\nthe service config (matreshka, or the container itself when matreshka is\noff), buckets and keys live from the Garage admin API."
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/s3/bucket/access": {
+      "post": {
+        "operationId": "S3API_SetS3BucketAccess",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiSetS3BucketAccessResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiSetS3BucketAccessRequest"
+            }
+          }
+        ],
+        "tags": [
+          "S3API"
+        ]
+      }
+    },
+    "/api/s3/bucket/create": {
+      "post": {
+        "operationId": "S3API_CreateS3Bucket",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateS3BucketResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateS3BucketRequest"
+            }
+          }
+        ],
+        "tags": [
+          "S3API"
+        ]
+      }
+    },
+    "/api/s3/bucket/delete": {
+      "post": {
+        "operationId": "S3API_DeleteS3Bucket",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiDeleteS3BucketResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiDeleteS3BucketRequest"
+            }
+          }
+        ],
+        "tags": [
+          "S3API"
+        ]
+      }
+    },
+    "/api/s3/bucket/list": {
+      "post": {
+        "operationId": "S3API_ListS3Buckets",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListS3BucketsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiListS3BucketsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "S3API"
+        ]
+      }
+    },
+    "/api/s3/create": {
+      "post": {
+        "operationId": "S3API_CreateS3Instance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateS3InstanceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateS3InstanceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "S3API"
+        ]
+      }
+    },
+    "/api/s3/drop": {
+      "post": {
+        "operationId": "S3API_DropS3Instance",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiDropS3InstanceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiDropS3InstanceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "S3API"
+        ]
+      }
+    },
+    "/api/s3/key/create": {
+      "post": {
+        "operationId": "S3API_CreateS3Key",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateS3KeyResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateS3KeyRequest"
+            }
+          }
+        ],
+        "tags": [
+          "S3API"
+        ]
+      }
+    },
+    "/api/s3/key/delete": {
+      "post": {
+        "operationId": "S3API_DeleteS3Key",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiDeleteS3KeyResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiDeleteS3KeyRequest"
+            }
+          }
+        ],
+        "tags": [
+          "S3API"
+        ]
+      }
+    },
+    "/api/s3/key/list": {
+      "post": {
+        "operationId": "S3API_ListS3Keys",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListS3KeysResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiListS3KeysRequest"
+            }
+          }
+        ],
+        "tags": [
+          "S3API"
+        ]
+      }
+    },
+    "/api/s3/list": {
+      "post": {
+        "operationId": "S3API_ListS3Instances",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListS3InstancesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiListS3InstancesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "S3API"
+        ]
+      }
+    },
+    "/api/s3/{instanceName}/key/{accessKeyId}/credentials": {
+      "get": {
+        "summary": "GetS3KeyCredentials is the only RPC that resolves an access key's secret.",
+        "operationId": "S3API_GetS3KeyCredentials",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetS3KeyCredentialsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "instanceName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "accessKeyId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "S3API"
+        ]
+      }
+    },
+    "/api/s3/{name}/credentials": {
+      "get": {
+        "summary": "GetS3InstanceCredentials is the only RPC that resolves the instance's\nadmin token and web UI password.",
+        "operationId": "S3API_GetS3InstanceCredentials",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetS3InstanceCredentialsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "S3API"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "googleRpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "velez_apiCreateS3BucketRequest": {
+      "type": "object",
+      "properties": {
+        "instanceName": {
+          "type": "string"
+        },
+        "bucketName": {
+          "type": "string"
+        },
+        "ownerService": {
+          "type": "string",
+          "description": "When set, a read/write key named \"\u003cowner_service\u003e:\u003cbucket_name\u003e\" is\nissued. The key name is where owner_service is read back from."
+        }
+      }
+    },
+    "velez_apiCreateS3BucketResponse": {
+      "type": "object",
+      "properties": {
+        "bucket": {
+          "$ref": "#/definitions/velez_apiS3Bucket"
+        }
+      }
+    },
+    "velez_apiCreateS3InstanceRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "environment": {
+          "type": "string"
+        },
+        "box": {
+          "type": "string"
+        },
+        "exposeToPort": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "replicationFactor": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Absent means 1. Only 1 is accepted until multi-node Garage lands."
+        },
+        "region": {
+          "type": "string",
+          "description": "Absent means \"garage\"."
+        },
+        "enableWebUi": {
+          "type": "boolean",
+          "description": "Deploys the garage-webui sidecar next to the instance."
+        }
+      }
+    },
+    "velez_apiCreateS3InstanceResponse": {
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "type": "string",
+          "description": "The RPC enqueues the create_s3_instance task and returns before it\ncompletes. Callers watch entity_id/action via TasksApi.WatchTask."
+        },
+        "action": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiCreateS3KeyRequest": {
+      "type": "object",
+      "properties": {
+        "instanceName": {
+          "type": "string"
+        },
+        "keyName": {
+          "type": "string"
+        },
+        "access": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiS3BucketAccess"
+          }
+        }
+      }
+    },
+    "velez_apiCreateS3KeyResponse": {
+      "type": "object",
+      "properties": {
+        "accessKeyId": {
+          "type": "string"
+        },
+        "secretAccessKey": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiDeleteS3BucketRequest": {
+      "type": "object",
+      "properties": {
+        "instanceName": {
+          "type": "string"
+        },
+        "bucketName": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiDeleteS3BucketResponse": {
+      "type": "object"
+    },
+    "velez_apiDeleteS3KeyRequest": {
+      "type": "object",
+      "properties": {
+        "instanceName": {
+          "type": "string"
+        },
+        "accessKeyId": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiDeleteS3KeyResponse": {
+      "type": "object"
+    },
+    "velez_apiDropS3InstanceRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiDropS3InstanceResponse": {
+      "type": "object"
+    },
+    "velez_apiGetS3InstanceCredentialsResponse": {
+      "type": "object",
+      "properties": {
+        "adminToken": {
+          "type": "string"
+        },
+        "s3Endpoint": {
+          "type": "string",
+          "description": "Velez's own view of the S3 API, from outside the instance network."
+        },
+        "internalS3Endpoint": {
+          "type": "string",
+          "description": "The S3 API on the instance's private network, for services joined to it."
+        },
+        "region": {
+          "type": "string"
+        },
+        "webUiUrl": {
+          "type": "string"
+        },
+        "webUiUsername": {
+          "type": "string"
+        },
+        "webUiPassword": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiGetS3KeyCredentialsResponse": {
+      "type": "object",
+      "properties": {
+        "accessKeyId": {
+          "type": "string"
+        },
+        "secretAccessKey": {
+          "type": "string"
+        },
+        "s3Endpoint": {
+          "type": "string"
+        },
+        "internalS3Endpoint": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiListS3BucketsRequest": {
+      "type": "object",
+      "properties": {
+        "instanceName": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiListS3BucketsResponse": {
+      "type": "object",
+      "properties": {
+        "buckets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiS3Bucket"
+          }
+        }
+      }
+    },
+    "velez_apiListS3InstancesRequest": {
+      "type": "object",
+      "properties": {
+        "paging": {
+          "$ref": "#/definitions/velez_apiPaging"
+        }
+      }
+    },
+    "velez_apiListS3InstancesResponse": {
+      "type": "object",
+      "properties": {
+        "instances": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiS3Instance"
+          }
+        },
+        "total": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "velez_apiListS3KeysRequest": {
+      "type": "object",
+      "properties": {
+        "instanceName": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiListS3KeysResponse": {
+      "type": "object",
+      "properties": {
+        "keys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiS3Key"
+          }
+        }
+      }
+    },
+    "velez_apiPaging": {
+      "type": "object",
+      "properties": {
+        "limit": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "offset": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "velez_apiS3Bucket": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "access": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiS3BucketAccess"
+          }
+        },
+        "objectCount": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "bytes": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "ownerService": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "velez_apiS3BucketAccess": {
+      "type": "object",
+      "properties": {
+        "bucketName": {
+          "type": "string"
+        },
+        "accessKeyId": {
+          "type": "string"
+        },
+        "keyName": {
+          "type": "string"
+        },
+        "isRead": {
+          "type": "boolean"
+        },
+        "isWrite": {
+          "type": "boolean"
+        },
+        "isOwner": {
+          "type": "boolean"
+        }
+      }
+    },
+    "velez_apiS3Instance": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "s3Port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Host port the S3 API is exposed on."
+        },
+        "webUiPort": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Host port of the garage-webui sidecar. Absent when the sidecar is off."
+        },
+        "replicationFactor": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "region": {
+          "type": "string"
+        },
+        "environment": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "velez_apiS3Key": {
+      "type": "object",
+      "properties": {
+        "accessKeyId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "access": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiS3BucketAccess"
+          }
+        },
+        "ownerService": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "velez_apiSetS3BucketAccessRequest": {
+      "type": "object",
+      "properties": {
+        "instanceName": {
+          "type": "string"
+        },
+        "access": {
+          "$ref": "#/definitions/velez_apiS3BucketAccess",
+          "description": "Sets the key's permissions on the bucket to exactly these flags."
+        }
+      }
+    },
+    "velez_apiSetS3BucketAccessResponse": {
+      "type": "object",
+      "properties": {
+        "bucket": {
+          "$ref": "#/definitions/velez_apiS3Bucket"
+        }
+      }
+    }
+  }
+}

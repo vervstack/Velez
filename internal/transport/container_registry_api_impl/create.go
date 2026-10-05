@@ -26,6 +26,7 @@ func (impl *Impl) CreateRegistryInstance(
 		ExposeToPort: req.GetExposeToPort(),
 		OwnerService: req.GetOwnerService(),
 		EnableUi:     req.GetEnableUi(),
+		S3Storage:    registryS3StorageFromPb(req.GetS3Storage()),
 	}
 
 	err := impl.containerRegistryService.CreateRegistryInstance(ctx, serviceReq)
@@ -39,4 +40,15 @@ func (impl *Impl) CreateRegistryInstance(
 	}
 
 	return resp, nil
+}
+
+func registryS3StorageFromPb(s3Storage *pb.RegistryS3Storage) *domain.RegistryS3Storage {
+	if s3Storage == nil {
+		return nil
+	}
+
+	return &domain.RegistryS3Storage{
+		InstanceName: s3Storage.GetInstanceName(),
+		BucketName:   s3Storage.GetBucketName(),
+	}
 }

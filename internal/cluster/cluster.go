@@ -5,6 +5,8 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
+	"google.golang.org/grpc"
+
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/matreshka"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
@@ -52,7 +54,15 @@ func Setup(
 	var cfgClient matreshka.Client
 
 	if cfg.Environment.MatreshkaIsEnabled {
-		cfgClient, err = configuration.SetupMatreshka(ctx, cfg, nodeClients, sdClient, vcnClient)
+		var dialOpts []grpc.DialOption
+
+		if !cfg.Environment.MakoshIsEnabled {
+			vervResolver := service_discovery.NewVervResolverBuilder(cfg.Overrides.Overrides, sdClient)
+
+			dialOpts = append(dialOpts, grpc.WithResolvers(vervResolver))
+		}
+
+		cfgClient, err = configuration.SetupMatreshka(ctx, cfg, nodeClients, sdClient, vcnClient, dialOpts)
 		if err != nil {
 			return nil, rerrors.Wrap(err, "error during matreshka setup")
 		}

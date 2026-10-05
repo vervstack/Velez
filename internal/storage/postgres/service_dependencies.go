@@ -72,3 +72,12 @@ func (s *serviceDependenciesStorage) GetCallers(ctx context.Context,
 
 	return result, nil
 }
+
+func (s *serviceDependenciesStorage) DeleteDependenciesOf(ctx context.Context, source string) error {
+	err := s.DeleteServiceDependenciesBySource(ctx, source)
+	if err != nil {
+		return wrapPgErr(err)
+	}
+
+	return nil
+}

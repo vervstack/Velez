@@ -672,13 +672,16 @@ func (j *createContainerJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error resolving container runtime")
 	}
 
+	portBindings := parser.FromPorts(req.GetSettings())
+
 	cfg := &container.Config{
-		Image:       req.GetImageName(),
-		Hostname:    req.GetName(),
-		Cmd:         parser.FromCommand(req.Command),
-		Healthcheck: parser.FromHealthcheck(req.GetHealthcheck()),
-		Env:         parser.FromDockerEnv(req.GetEnv()),
-		Labels:      req.GetLabels(),
+		Image:        req.GetImageName(),
+		Hostname:     req.GetName(),
+		Cmd:          parser.FromCommand(req.Command),
+		Healthcheck:  parser.FromHealthcheck(req.GetHealthcheck()),
+		Env:          parser.FromDockerEnv(req.GetEnv()),
+		Labels:       req.GetLabels(),
+		ExposedPorts: parser.ToExposedPorts(portBindings),
 	}
 
 	mounts := parser.FromVolume(req.GetSettings())
@@ -698,7 +701,7 @@ func (j *createContainerJob) Do(ctx context.Context) error {
 	}
 
 	hostCfg := &container.HostConfig{
-		PortBindings:  parser.FromPorts(req.GetSettings()),
+		PortBindings:  portBindings,
 		Mounts:        mounts,
 		RestartPolicy: parser.FromRestart(req.GetRestart()),
 	}

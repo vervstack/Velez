@@ -34,6 +34,7 @@ import (
 	"go.vervstack.ru/Velez/internal/transport/dind_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/pgaas_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/runners_api_impl"
+	"go.vervstack.ru/Velez/internal/transport/s3_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/service_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/settings_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/tasks_api_impl"
@@ -85,6 +86,7 @@ type Custom struct {
 	RunnersApiImpl           *runners_api_impl.Impl
 	SettingsApiImpl          *settings_api_impl.Impl
 	DindApiImpl              *dind_api_impl.Impl
+	S3ApiImpl                *s3_api_impl.Impl
 	ContainerRegistryApiImpl *container_registry_api_impl.Impl
 
 	serverManager *transport.ServersManager
@@ -173,13 +175,16 @@ func (c *Custom) Init(a *App) (err error) {
 		c.ClusterClients.StateManager(), c.JobsEngine, runtimeResolver, c.Services.Secrets()))
 	registry.Register(jobs.NewCreateRegistryInstanceHandler(
 		c.NodeClients, runtimeResolver, c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(),
-		c.JobsEngine))
+		c.JobsEngine, c.Services.ConfigResolver()))
 	registry.Register(jobs.NewCreateRunnerHandler(
 		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(), c.JobsEngine,
 		runtimeResolver))
 	registry.Register(jobs.NewCreateDindHandler(
 		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(), c.JobsEngine,
 		runtimeResolver))
+	registry.Register(jobs.NewCreateS3InstanceHandler(
+		c.NodeClients, c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(),
+		c.Services.ConfigResolver(), c.JobsEngine, runtimeResolver))
 	registry.Register(jobs.NewReregisterRunnerHandler(
 		c.ClusterClients.StateManager(), c.Services.Secrets(), runtimeResolver))
 
@@ -325,11 +330,13 @@ func (c *Custom) InitApiServer(a *App) error {
 	c.RunnersApiImpl = runners_api_impl.New(c.Services)
 	c.SettingsApiImpl = settings_api_impl.New(c.Services)
 	c.DindApiImpl = dind_api_impl.New(c.Services)
+	c.S3ApiImpl = s3_api_impl.New(c.Services)
 	c.ContainerRegistryApiImpl = container_registry_api_impl.New(c.Services)
 
 	c.serverManager.AddImplementation(a.Ctx,
 		c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl, c.ServiceApiImpl, c.TasksApiImpl, c.PgaasApiImpl,
-		c.RunnersApiImpl, c.ContainerRegistryApiImpl, c.SettingsApiImpl, c.DindApiImpl)
+		c.RunnersApiImpl, c.ContainerRegistryApiImpl, c.SettingsApiImpl, c.DindApiImpl,
+		c.S3ApiImpl)
 	c.serverManager.AddHttpHandler(docs.Swagger())
 	c.serverManager.AddHttpHandler("/", ui.NewServer())
 

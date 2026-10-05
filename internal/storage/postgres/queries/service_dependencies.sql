@@ -14,3 +14,8 @@ WHERE source_service = $1;
 SELECT source_service, proto
 FROM velez.service_dependencies
 WHERE target_service = $1;
+
+-- name: DeleteServiceDependenciesBySource :exec
+DELETE
+FROM velez.service_dependencies
+WHERE source_service = $1;

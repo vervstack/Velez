@@ -9,6 +9,23 @@ import (
 	"context"
 )
 
+const deleteServiceResource = `-- name: DeleteServiceResource :exec
+DELETE
+FROM velez.service_resources
+WHERE service_name = $1
+  AND resource_name = $2
+`
+
+type DeleteServiceResourceParams struct {
+	ServiceName  string
+	ResourceName string
+}
+
+func (q *Queries) DeleteServiceResource(ctx context.Context, arg DeleteServiceResourceParams) error {
+	_, err := q.db.ExecContext(ctx, deleteServiceResource, arg.ServiceName, arg.ResourceName)
+	return err
+}
+
 const getServiceResources = `-- name: GetServiceResources :many
 SELECT resource_name, resource_type, status
 FROM velez.service_resources

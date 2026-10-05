@@ -1,0 +1,40 @@
+.CreateS3InstanceFormContainer {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+
+    & .FieldsWrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.875rem;
+
+        & .FieldLabel {
+            font-family: var(--font-mono);
+            font-size: 0.6875rem;
+            color: var(--fg-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.0275rem;
+            margin-top: -0.375rem;
+        }
+
+        & .ChoiceRow {
+            display: flex;
+            flex-direction: row;
+            gap: 0.625rem;
+        }
+
+        & .Description {
+            margin: 0;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            color: var(--fg-dim);
+        }
+    }
+
+    & .ActionsRow {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+}

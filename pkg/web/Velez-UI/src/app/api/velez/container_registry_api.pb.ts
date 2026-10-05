@@ -20,6 +20,13 @@ export type RegistryInstance = {
   ownerService?: string;
   createdAt?: GoogleProtobufTimestamp.Timestamp;
   updatedAt?: GoogleProtobufTimestamp.Timestamp;
+  s3Instance?: string;
+  s3Bucket?: string;
+};
+
+export type RegistryS3Storage = {
+  instanceName?: string;
+  bucketName?: string;
 };
 
 export type ListRegistryInstancesRequest = {
@@ -40,6 +47,7 @@ export type CreateRegistryInstanceRequest = {
   exposeToPort?: number;
   ownerService?: string;
   enableUi?: boolean;
+  s3Storage?: RegistryS3Storage;
 };
 
 export type CreateRegistryInstanceResponse = {

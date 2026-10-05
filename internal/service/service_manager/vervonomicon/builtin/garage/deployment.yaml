@@ -1,0 +1,14 @@
+app:
+  image: dxflrs/garage:v2.4.0
+  ports:
+    - port: 3900
+      protocol: tcp
+    - port: 3903
+      protocol: tcp
+  volumes:
+    - name: garage-meta
+      path: /var/lib/garage/meta
+    - name: garage-data
+      path: /var/lib/garage/data
+  restart: unless_stopped
+  box: small

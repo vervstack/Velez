@@ -95,9 +95,16 @@ const (
 	DindInstanceLabel = "velez.dind"
 	DindSysboxLabel   = "velez.dind.is_sysbox_enabled"
 
-	// PgaasNamePrefix, RegistryaasNamePrefix, GitlabRunnerNamePrefix and
-	// GithubRunnerNamePrefix are prepended to the instance name at the point
-	// each service type first derives it from the request - see
+	// S3InstanceLabel marks the Garage container of an S3 instance (value:
+	// the instance name); S3WebUiLabel marks its garage-webui sidecar (value:
+	// the instance name). Velez keeps no per-instance table - the labels and
+	// the container's port bindings are the source of truth.
+	S3InstanceLabel = "velez.s3"
+	S3WebUiLabel    = "velez.s3.web_ui"
+
+	// PgaasNamePrefix, RegistryaasNamePrefix, S3NamePrefix,
+	// GitlabRunnerNamePrefix and GithubRunnerNamePrefix are prepended to the
+	// instance name at the point each service type first derives it from the request - see
 	// pgaas.buildPgDescriptor, create_registry_instance.go's BuildJobs and
 	// create_runner.go's BuildJobs. Applying the prefix there, rather than at
 	// the shared create_smerd container-create chokepoint, keeps the
@@ -106,6 +113,7 @@ const (
 	// key).
 	PgaasNamePrefix        = "pgaas_"
 	RegistryaasNamePrefix  = "cr_"
+	S3NamePrefix           = "s3_"
 	GitlabRunnerNamePrefix = "gitlab_runner_"
 	GithubRunnerNamePrefix = "github_runner_"
 

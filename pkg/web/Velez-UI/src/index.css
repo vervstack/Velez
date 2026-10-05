@@ -88,6 +88,8 @@ body {
     --sidebar-width: 13.75rem;
     --dialog-max-width: 90vw;
     --dialog-max-height: 90vh;
+    --dialog-shadow: 0 0.25rem 0.75rem rgb(0 0 0 / 15%);
+    --dialog-padding: 1.25rem;
 
     /* ── Supplemental VS tokens (from design handoff) ─────────── */
     --vs-bg-5: #2a2a3a;

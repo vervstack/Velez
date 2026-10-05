@@ -81,7 +81,20 @@ One global dialog primitive — the `useDialog` Zustand store in `src/app/hooks/
 - **Nested dialogs** (confirm, sub-steps) open via the same `OpenDialog` from inside a dialog — see `EnvironmentManageDialog` → `EnvironmentDeleteDialog`. A dialog never imports a page.
 - **Opening from anywhere:** any layer may import `dialogs/` solely to call `OpenDialog(<X/>)` — the one sanctioned upward import.
 - **Errors** inside a dialog route through `useToaster().catchGrpc`; never a native `alert`/`confirm`.
-- **Shape reference:** mirror `EnvironmentManageDialog` for header / content / actions-row structure.
+- **Chrome comes from `DialogShell`** (`src/components/DialogShell/`), never hand-rolled: the dialog root is
+  `<div className={cls.<Name>Container}><DialogShell title=… onClose={CloseDialog}>…</DialogShell></div>`. The
+  `<Name>Container` class sets width only (`width` + `max-width: var(--dialog-max-width)`) — no background,
+  border, shadow, header or padding of its own.
+- **Header is pinned, body scrolls.** The shell caps itself at `--dialog-max-height` and scrolls only its body,
+  so the title and close button never scroll away. Never put `overflow-y: auto` on the dialog root.
+- **Close button is always in the header** (`onClose`) — the shell renders the project's standard
+  `<Button variant="ghost" sm>✕</Button>`. Omit it only while closing is deliberately blocked (an in-flight task
+  screen).
+- **Form controls come from `@vervstack/chures`** (`Checkbox`, `Toggle`, `Dropdown`) — not
+  `@/components/base/Checkbox`.
+- **Body padding and spacing belong to the shell** (`--dialog-padding`, flex column with gap). Children are the
+  fields wrapper and the actions row directly — no extra `Content` div, no outer padding of their own. A screen
+  that pads itself (`TaskProgressScreen`) renders with `isFlush`.
 
 ### Proto regeneration
 

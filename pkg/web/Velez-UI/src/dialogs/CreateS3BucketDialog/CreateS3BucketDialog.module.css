@@ -1,48 +1,23 @@
 .CreateS3BucketDialogContainer {
-    background: var(--bg);
-    border: 0.0625rem solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: 0 0.25rem 0.75rem rgb(0 0 0 / 15%);
     width: 26rem;
     max-width: var(--dialog-max-width);
-    max-height: var(--dialog-max-height);
-    overflow-y: auto;
 
-    & .Header {
-        padding: 1.25rem;
-        border-bottom: 0.0625rem solid var(--border);
+    & .FieldsWrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.875rem;
 
-        & .Title {
-            font-size: 1rem;
-            font-weight: 500;
-            color: var(--fg);
+        & .Description {
             margin: 0;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            color: var(--fg-dim);
         }
     }
 
-    & .Content {
-        padding: 1.25rem;
+    & .ActionsRow {
         display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-
-        & .FieldsWrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 0.875rem;
-
-            & .Description {
-                margin: 0;
-                font-size: 0.75rem;
-                line-height: 1.4;
-                color: var(--fg-dim);
-            }
-        }
-
-        & .ActionsRow {
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.5rem;
-        }
+        justify-content: flex-end;
+        gap: 0.5rem;
     }
 }

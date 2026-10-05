@@ -6,7 +6,7 @@ import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import {queryClient} from "@/app/queryClient.ts"
 import {CreateS3InstanceMutation, S3_INSTANCES_QUERY_KEY} from "@/processes/queries/s3.ts"
-import Button from "@/components/base/Button.tsx"
+import DialogShell from "@/components/DialogShell/DialogShell.tsx"
 import CreateS3InstanceForm
     from "@/dialogs/CreateS3InstanceDialog/components/CreateS3InstanceForm/CreateS3InstanceForm.tsx"
 import TaskProgressScreen from "@/widgets/TaskProgressScreen/TaskProgressScreen.tsx"
@@ -48,11 +48,13 @@ export default function CreateS3InstanceDialog() {
 
     return (
         <div className={cls.CreateS3InstanceDialogContainer}>
-            <div className={cls.Header}>
-                <h2 className={cls.Title}>Create S3 instance</h2>
-                {!submittedReq && <Button variant="ghost" sm onClick={CloseDialog}>✕</Button>}
-            </div>
-            {renderBody()}
+            <DialogShell
+                title="Create S3 instance"
+                onClose={submittedReq ? undefined : CloseDialog}
+                isFlush={submittedReq !== null}
+            >
+                {renderBody()}
+            </DialogShell>
         </div>
     )
 }

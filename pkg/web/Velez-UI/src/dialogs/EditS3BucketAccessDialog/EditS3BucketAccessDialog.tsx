@@ -1,4 +1,5 @@
 import {useState} from "react"
+import {Checkbox} from "@vervstack/chures"
 
 import cls from "@/dialogs/EditS3BucketAccessDialog/EditS3BucketAccessDialog.module.css"
 import type {S3BucketAccess, SetS3BucketAccessRequest} from "@/app/api/velez/s3_api.pb"
@@ -6,7 +7,7 @@ import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import {SetS3BucketAccessMutation} from "@/processes/queries/s3.ts"
 import Button from "@/components/base/Button.tsx"
-import Checkbox from "@/components/base/Checkbox.tsx"
+import DialogShell from "@/components/DialogShell/DialogShell.tsx"
 
 interface Props {
     instanceName: string
@@ -41,10 +42,7 @@ export default function EditS3BucketAccessDialog({instanceName, access}: Props) 
 
     return (
         <div className={cls.EditS3BucketAccessDialogContainer}>
-            <div className={cls.Header}>
-                <h2 className={cls.Title}>Access of {keyLabel} to {access.bucketName}</h2>
-            </div>
-            <div className={cls.Content}>
+            <DialogShell title={`Access of ${keyLabel} to ${access.bucketName}`} onClose={CloseDialog}>
                 <div className={cls.FieldsWrapper}>
                     <Checkbox label="Read" checked={isRead} onChange={setIsRead}/>
                     <Checkbox label="Write" checked={isWrite} onChange={setIsWrite}/>
@@ -58,7 +56,7 @@ export default function EditS3BucketAccessDialog({instanceName, access}: Props) 
                         {setAccess.isPending ? "Saving…" : "Save"}
                     </Button>
                 </div>
-            </div>
+            </DialogShell>
         </div>
     )
 }

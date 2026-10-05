@@ -1,12 +1,11 @@
 import {useState} from "react"
-import {Dropdown, DropdownOption, parseGrpcError, Toggle} from "@vervstack/chures"
+import {Checkbox, Dropdown, DropdownOption, parseGrpcError, Toggle} from "@vervstack/chures"
 
 import cls from "@/dialogs/CreateS3InstanceDialog/components/CreateS3InstanceForm/CreateS3InstanceForm.module.css"
 import type {CreateS3InstanceRequest} from "@/app/api/velez/s3_api.pb"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import {ListEnvironmentsQuery} from "@/processes/queries/control_plane.ts"
 import Button from "@/components/base/Button.tsx"
-import Checkbox from "@/components/base/Checkbox.tsx"
 import Choice from "@/components/base/Choice.tsx"
 import Input from "@/components/base/Input.tsx"
 import {
@@ -50,10 +49,6 @@ export default function CreateS3InstanceForm({onSubmit, onCancel}: Props) {
         setEnvironment(ids[0] ?? "")
     }
 
-    function handleToggleExposePort() {
-        setIsPortExposed(!isPortExposed)
-    }
-
     function handleSubmit() {
         if (req) onSubmit(req)
     }
@@ -87,7 +82,7 @@ export default function CreateS3InstanceForm({onSubmit, onCancel}: Props) {
                     {BOX_OPTIONS.map(renderBoxChoice)}
                 </div>
 
-                <Checkbox label="Expose port" checked={isPortExposed} onChange={handleToggleExposePort}/>
+                <Checkbox label="Expose port" checked={isPortExposed} onChange={setIsPortExposed}/>
                 {isPortExposed && <Input label="Port" inputValue={port} onChange={setPort}/>}
 
                 <Input label="Region" inputValue={region} onChange={setRegion} placeholder="garage"/>
@@ -96,7 +91,6 @@ export default function CreateS3InstanceForm({onSubmit, onCancel}: Props) {
                     label="Replication factor"
                     inputValue={String(LOCKED_REPLICATION_FACTOR)}
                     disabled
-                    hint={REPLICATION_HINT}
                 />
                 <p className={cls.Description}>{REPLICATION_HINT}</p>
 

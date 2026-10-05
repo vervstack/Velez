@@ -1,0 +1,44 @@
+.DialogShellContainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-height: var(--dialog-max-height);
+    overflow: hidden;
+    box-sizing: border-box;
+    background: var(--bg);
+    border: 0.0625rem solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--dialog-shadow);
+
+    & .Header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        flex-shrink: 0;
+        padding: var(--dialog-padding);
+        border-bottom: 0.0625rem solid var(--border);
+
+        & .Title {
+            flex: 1;
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--fg);
+        }
+    }
+
+    & .Body {
+        display: flex;
+        flex-direction: column;
+        gap: var(--dialog-padding);
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding: var(--dialog-padding);
+
+        &.Flush {
+            padding: 0;
+        }
+    }
+}

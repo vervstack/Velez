@@ -7,6 +7,7 @@ import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import {CreateS3BucketMutation} from "@/processes/queries/s3.ts"
 import {useListServicesQuery} from "@/processes/queries/services.ts"
 import Button from "@/components/base/Button.tsx"
+import DialogShell from "@/components/DialogShell/DialogShell.tsx"
 import Input from "@/components/base/Input.tsx"
 import {buildCreateS3BucketRequest} from "@/dialogs/CreateS3BucketDialog/processes/buildCreateS3BucketRequest.ts"
 
@@ -51,10 +52,7 @@ export default function CreateS3BucketDialog({instanceName}: Props) {
 
     return (
         <div className={cls.CreateS3BucketDialogContainer}>
-            <div className={cls.Header}>
-                <h2 className={cls.Title}>Create bucket in {instanceName}</h2>
-            </div>
-            <div className={cls.Content}>
+            <DialogShell title={`Create bucket in ${instanceName}`} onClose={CloseDialog}>
                 <div className={cls.FieldsWrapper}>
                     <Input label="Bucket name" inputValue={bucketName} onChange={setBucketName}/>
                     <Dropdown
@@ -79,7 +77,7 @@ export default function CreateS3BucketDialog({instanceName}: Props) {
                         {createBucket.isPending ? "Creating…" : "Create"}
                     </Button>
                 </div>
-            </div>
+            </DialogShell>
         </div>
     )
 }

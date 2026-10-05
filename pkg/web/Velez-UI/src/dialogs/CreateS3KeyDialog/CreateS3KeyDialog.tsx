@@ -6,6 +6,7 @@ import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import {CreateS3KeyMutation, useListS3BucketsQuery} from "@/processes/queries/s3.ts"
 import Button from "@/components/base/Button.tsx"
+import DialogShell from "@/components/DialogShell/DialogShell.tsx"
 import Input from "@/components/base/Input.tsx"
 import S3KeyPermissionRow from "@/dialogs/CreateS3KeyDialog/components/S3KeyPermissionRow/S3KeyPermissionRow.tsx"
 import {
@@ -74,10 +75,7 @@ export default function CreateS3KeyDialog({instanceName}: Props) {
 
     return (
         <div className={cls.CreateS3KeyDialogContainer}>
-            <div className={cls.Header}>
-                <h2 className={cls.Title}>Create key in {instanceName}</h2>
-            </div>
-            <div className={cls.Content}>
+            <DialogShell title={`Create key in ${instanceName}`} onClose={CloseDialog}>
                 <div className={cls.FieldsWrapper}>
                     <Input label="Key name" inputValue={keyName} onChange={setKeyName}/>
                     {rows.map(renderRow)}
@@ -91,7 +89,7 @@ export default function CreateS3KeyDialog({instanceName}: Props) {
                         {createKey.isPending ? "Creating…" : "Create"}
                     </Button>
                 </div>
-            </div>
+            </DialogShell>
         </div>
     )
 }

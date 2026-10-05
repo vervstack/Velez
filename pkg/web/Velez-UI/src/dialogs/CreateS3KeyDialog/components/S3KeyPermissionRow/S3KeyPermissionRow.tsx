@@ -1,8 +1,7 @@
-import {Dropdown, DropdownOption} from "@vervstack/chures"
+import {Checkbox, Dropdown, DropdownOption} from "@vervstack/chures"
 
 import cls from "@/dialogs/CreateS3KeyDialog/components/S3KeyPermissionRow/S3KeyPermissionRow.module.css"
 import Button from "@/components/base/Button.tsx"
-import Checkbox from "@/components/base/Checkbox.tsx"
 import type {KeyPermissionRow} from "@/dialogs/CreateS3KeyDialog/processes/buildCreateS3KeyRequest.ts"
 
 interface Props {

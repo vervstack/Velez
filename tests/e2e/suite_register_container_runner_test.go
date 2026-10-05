@@ -24,7 +24,7 @@ import (
 
 const (
 	runnerRegTarget       = "acme/app"
-	runnerRegEnvToken     = "abc"
+	runnerRegEnvToken     = "e2e-env-registration-token"
 	runnerRegAccessToken  = "e2e-access-token"
 	runnerRegListLimit    = 100
 	runnerRegClusterSufix = "-runner"

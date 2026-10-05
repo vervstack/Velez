@@ -2,6 +2,7 @@ package node_clients
 
 import (
 	"context"
+	"runtime"
 
 	"github.com/docker/docker/api/types"
 	"github.com/rs/zerolog/log"
@@ -11,12 +12,8 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/hardware"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
+	"go.vervstack.ru/Velez/internal/cluster/env/containerinfo"
 	"go.vervstack.ru/Velez/internal/config"
-)
-
-const (
-	dockerSocketHint = "Can't ping docker api. If you are running Velez inside a container " +
-		"please provide docker socket via volume flag: -v /var/run/docker.sock:/var/run/docker.sock"
 )
 
 // NodeClients - container for node level clients.
@@ -58,7 +55,9 @@ func NewNodeClients(ctx context.Context, cfg config.Config) (NodeClients, error)
 
 		pong, err = cls.docker.Client().Ping(ctx)
 		if err != nil {
-			return nil, errors.Wrap(err, dockerSocketHint)
+			hint := dockerPingHint(runtime.GOOS, cls.docker.Host(), containerinfo.IsInContainer())
+
+			return nil, errors.Wrap(err, hint)
 		}
 
 		_ = pong

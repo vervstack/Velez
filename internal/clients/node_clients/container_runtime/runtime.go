@@ -229,6 +229,13 @@ type ContainerRuntime interface {
 	// environment sharing that daemon.
 	PullImage(ctx context.Context, imageName string) (image.InspectResponse, error)
 
+	// ContainerAddress returns the host:port Velez dials to reach
+	// containerPort of the inspected container: its IP on a Docker network
+	// Velez shares with it when there is one, otherwise the daemon host plus
+	// the published host port. Implemented on commonRuntime since it depends on
+	// the daemon connection, not on the environment.
+	ContainerAddress(info container.InspectResponse, containerPort int) (string, error)
+
 	// ListOccupiedPorts reports every host port currently bound by any
 	// container on the daemon this runtime talks to - deliberately NOT scoped
 	// to this runtime's environment (see roadmap.md's Stage 5 design note):

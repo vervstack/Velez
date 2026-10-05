@@ -157,6 +157,7 @@ export type ContainerHealthcheck = {
   intervalSecond?: number;
   timeoutSecond?: number;
   retries?: number;
+  exec?: string[];
 };
 
 export type Container = Record<string, never>;

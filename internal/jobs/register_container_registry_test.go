@@ -6,9 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/network"
-	"github.com/docker/go-connections/nat"
 	"github.com/stretchr/testify/require"
 	"go.redsock.ru/toolbox"
 
@@ -83,28 +80,11 @@ func Test_RegisteredRegistryLabels_RoundTripThroughContainerDerived(t *testing.T
 	require.EqualValues(t, 0, instance.UiPort)
 }
 
-func Test_RegistryLoginUrl_AddressesInNetworkOrPublishedPort(t *testing.T) {
+func Test_RegistryLoginUrl_UsesRuntimeAddress(t *testing.T) {
 	t.Parallel()
 
-	info := container.InspectResponse{
-		ContainerJSONBase: &container.ContainerJSONBase{Name: "/reg"},
-		NetworkSettings: &container.NetworkSettings{
-			Networks: map[string]*network.EndpointSettings{"bridge": {IPAddress: "172.17.0.7"}},
-		},
-	}
-
-	inContainerUrl, err := registryLoginUrl(info, map[string]string{}, true)
-	require.NoError(t, err)
-	require.Equal(t, "http://172.17.0.7:5000/v2/", inContainerUrl)
-
-	_, err = registryLoginUrl(info, map[string]string{}, false)
-	require.ErrorIs(t, err, user_errors.ErrNoRegistryPortExposure)
-
-	info.NetworkSettings.Ports = nat.PortMap{"5000/tcp": []nat.PortBinding{{HostPort: "30019"}}}
-
-	hostUrl, err := registryLoginUrl(info, map[string]string{}, false)
-	require.NoError(t, err)
-	require.Equal(t, "http://localhost:30019/v2/", hostUrl)
+	require.Equal(t, "http://172.17.0.7:5000/v2/", registryLoginUrl("172.17.0.7:5000"))
+	require.Equal(t, "http://sc:30019/v2/", registryLoginUrl("sc:30019"))
 }
 
 func Test_PingRegistryLogin_AcceptsOnlyAuthorizedLogin(t *testing.T) {

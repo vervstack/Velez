@@ -24,6 +24,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
 	"go.vervstack.ru/Velez/internal/cluster"
 	"go.vervstack.ru/Velez/internal/cluster/autoupgrade"
+	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/middleware"
 	"go.vervstack.ru/Velez/internal/service"
@@ -134,12 +135,25 @@ func (c *Custom) Init(a *App) (err error) {
 	settingsProvider := container_runtime.NewSettingsProvider(c.ClusterClients.StateManager())
 	c.NodeClients.Docker().SetSettingsProvider(settingsProvider)
 
+	var ownContainerId *string
+
+	if env.IsInContainer() {
+		ownContainerId = env.GetContainerId()
+	}
+
+	addressing := container_runtime.DetectAddressing(
+		a.Ctx,
+		c.NodeClients.Docker().Client(),
+		c.NodeClients.Docker().Host(),
+		ownContainerId)
+
 	runtimeResolver := container_runtime.NewResolver(
 		c.NodeClients.Docker().Client(),
 		c.NodeClients.Docker().Host(),
 		a.Cfg.Environment.CustomLabels,
 		c.ClusterClients.StateManager(),
-		container_runtime.WithSettings(settingsProvider))
+		container_runtime.WithSettings(settingsProvider),
+		container_runtime.WithAddressing(addressing))
 
 	// NewNodeClients couldn't seed the port manager's occupied-port view itself
 	// (ListOccupiedPorts needs a resolved ContainerRuntime, and RuntimeResolver

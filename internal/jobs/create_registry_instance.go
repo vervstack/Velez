@@ -15,7 +15,6 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
-	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	verv "go.vervstack.ru/Velez/internal/domain/vervonomicon"
@@ -341,6 +340,7 @@ func (h *createRegistryInstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJo
 			Name: stepRegisterRegistryRow,
 			Job: &registerRegistryRowJob{
 				registries:   h.storageContainer.Registries(),
+				runtimes:     h.runtimes,
 				instanceName: instanceName,
 				ctx:          payload,
 			},
@@ -945,11 +945,12 @@ func (j *registerRegistryInstanceRowJob) Do(ctx context.Context) error {
 // enable_registry.go's registerRegistryRowJob.
 type registerRegistryRowJob struct {
 	registries   storage.RegistriesStorage
+	runtimes     container_runtime.RuntimeResolver
 	instanceName string
 
 	ctx interface {
+		createRegistryInstanceRequestAccessor
 		registryUsernameAccessor
-		registryExposedPortAccessor
 	}
 }
 
@@ -959,17 +960,22 @@ func (j *registerRegistryRowJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(user_errors.ErrRegistriesStorageMissingBuiltinUpsert)
 	}
 
+	registryUrl, err := j.registryUrl(ctx)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
 	secretRef := registryInstanceSecretRef(j.instanceName)
 
 	req := domain.CreateRegistryReq{
 		Name:     j.instanceName,
 		Type:     domain.RegistryTypeGenericV2,
-		Url:      registryInstanceUrl(j.instanceName, j.ctx.GetExposedPort()),
+		Url:      registryUrl,
 		Username: j.ctx.GetUsername(),
 		Secret:   secretRef.String(),
 	}
 
-	_, err := upserter.UpsertBuiltinRegistry(ctx, req)
+	_, err = upserter.UpsertBuiltinRegistry(ctx, req)
 	if err != nil {
 		return rerrors.Wrap(err, "error upserting registry row")
 	}
@@ -977,19 +983,29 @@ func (j *registerRegistryRowJob) Do(ctx context.Context) error {
 	return nil
 }
 
-// registryInstanceUrl mirrors the retired enable_registry.go's registryUrl,
-// parameterized on the instance name: a Velez running inside a container
-// reaches the instance over the Docker network by its container/service name
-// on its own internal listening port; a Velez running as a bare binary can
-// only reach it via the host-published port.
-func registryInstanceUrl(instanceName string, exposedPort uint32) string {
-	if env.IsInContainer() {
-		return registryInternalUrl(instanceName)
+// registryUrl is the address Velez itself reaches the registry instance on,
+// as the runtime resolves it for the instance's container.
+func (j *registerRegistryRowJob) registryUrl(ctx context.Context) (string, error) {
+	runtime, err := j.runtimes.Runtime(ctx, j.ctx.GetRequest().GetEnvironment())
+	if err != nil {
+		return "", rerrors.Wrap(err, "error resolving container runtime")
 	}
 
-	hostPort := net.JoinHostPort("localhost", strconv.Itoa(int(exposedPort)))
+	info, isFound, err := runtime.Inspect(ctx, j.instanceName)
+	if err != nil {
+		return "", rerrors.Wrap(err, "error inspecting registry container")
+	}
 
-	return "http://" + hostPort
+	if !isFound {
+		return "", rerrors.Wrap(user_errors.ErrContainerNotFoundInEnvironment)
+	}
+
+	address, err := runtime.ContainerAddress(info, registryaasContainerPort)
+	if err != nil {
+		return "", rerrors.Wrap(err, "error resolving registry address")
+	}
+
+	return "http://" + address, nil
 }
 
 // bindRegistryOwnerResourceJob records the velez.service_resources binding

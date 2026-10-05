@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"maps"
-	"slices"
-	"strings"
+	"net"
+	"strconv"
 	"time"
 
 	"github.com/docker/docker/api/types/container"
@@ -17,7 +17,6 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
 	"go.vervstack.ru/Velez/internal/clients/sqldb"
-	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/patterns/db_patterns/pg_pattern"
@@ -38,7 +37,6 @@ const (
 	pgaasPendingSecretScope = "pgaas-pending"
 
 	pgSslModeDisable = "disable"
-	pgLocalhost      = "localhost"
 
 	registeredPgDefaultDbName = "postgres"
 	registeredPgLoginTimeout  = 10 * time.Second
@@ -203,49 +201,26 @@ func loadPgLogin(
 	return login, nil
 }
 
-// pgContainerHost is the address Velez reaches the container on from inside a
-// container: the first network's IP, falling back to the container name.
-func pgContainerHost(info container.InspectResponse) string {
-	if info.NetworkSettings != nil {
-		names := make([]string, 0, len(info.NetworkSettings.Networks))
-		for name := range info.NetworkSettings.Networks {
-			names = append(names, name)
-		}
-
-		slices.Sort(names)
-
-		for _, name := range names {
-			endpoint := info.NetworkSettings.Networks[name]
-			if endpoint != nil && endpoint.IPAddress != "" {
-				return endpoint.IPAddress
-			}
-		}
+// pgLoginDsn addresses the container's Postgres the way the runtime says Velez
+// reaches it: over a shared Docker network or through the published port.
+func pgLoginDsn(address string, login pgLogin) (string, error) {
+	host, portText, err := net.SplitHostPort(address)
+	if err != nil {
+		return "", rerrors.Wrap(err, "error splitting pg address")
 	}
 
-	return strings.TrimPrefix(info.Name, "/")
-}
+	port, err := strconv.ParseUint(portText, 10, 64)
+	if err != nil {
+		return "", rerrors.Wrap(err, "error parsing pg port")
+	}
 
-// pgLoginDsn addresses the container's Postgres the way getRootDsnJob does:
-// in-network address when Velez itself runs in a container, the published
-// host port otherwise.
-func pgLoginDsn(info container.InspectResponse, login pgLogin, isInContainer bool) (string, error) {
 	cfg := &resources.Postgres{
-		Host:    pgContainerHost(info),
-		Port:    pgDefaultPort,
+		Host:    host,
+		Port:    port,
 		User:    login.superuser,
 		Pwd:     login.password,
 		DbName:  login.dbName,
 		SslMode: pgSslModeDisable,
-	}
-
-	if !isInContainer {
-		port, err := getExposedPgPort(info)
-		if err != nil {
-			return "", rerrors.Wrap(err, "error getting exposed pg port")
-		}
-
-		cfg.Host = pgLocalhost
-		cfg.Port = port
 	}
 
 	return cfg.ConnectionString() + "&application_name=RegisterContainer", nil
@@ -298,7 +273,12 @@ func (j *verifyPgLoginJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err)
 	}
 
-	dsn, err := pgLoginDsn(info, login, env.IsInContainer())
+	address, err := registeredContainerAddress(ctx, j.runtimes, j.req, info, pgDefaultPort)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	dsn, err := pgLoginDsn(address, login)
 	if err != nil {
 		return rerrors.Wrap(err)
 	}
@@ -311,6 +291,26 @@ func (j *verifyPgLoginJob) Do(ctx context.Context) error {
 	j.ctx.SetPgSuperuser(login.superuser)
 
 	return nil
+}
+
+func registeredContainerAddress(
+	ctx context.Context,
+	runtimes container_runtime.RuntimeResolver,
+	req registerRequestAccessor,
+	info container.InspectResponse,
+	containerPort int,
+) (string, error) {
+	runtime, err := runtimes.Runtime(ctx, req.GetEnvironment())
+	if err != nil {
+		return "", rerrors.Wrap(err, "error resolving container runtime")
+	}
+
+	address, err := runtime.ContainerAddress(info, containerPort)
+	if err != nil {
+		return "", rerrors.Wrap(err, "error resolving container address")
+	}
+
+	return address, nil
 }
 
 func inspectRegisteredContainer(

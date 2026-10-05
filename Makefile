@@ -31,20 +31,16 @@ build-n-serve: build-ui
 
 bns: build-n-serve
 
-# tunnel-sc opens (if not already open) an SSH tunnel forwarding local port
-# 12375 to sc's Docker socket, so serve-sc can point DOCKER_HOST at sc's
-# Docker daemon instead of the local one.
-tunnel-sc:
-	@lsof -i :12375 >/dev/null 2>&1 || \
-		(ssh -f -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -o ServerAliveCountMax=3 \
-			-L 127.0.0.1:12375:/var/run/docker.sock sc && \
-		 echo "--- Tunnel to sc's Docker opened on :12375 ---")
+# serve-sc talks to sc's Docker daemon directly over TCP; published container
+# ports are dialed on the same host. dockerd on sc listens on 192.168.1.44:2375
+# (daemon.json "hosts", LAN only - unauthenticated).
+SC_DOCKER_HOST ?= tcp://192.168.1.44:2375
 
-serve-sc: tunnel-sc
-	@echo "--- Serving via Go backend (DOCKER_HOST -> sc via tunnel) + Vite dev server ---"
+serve-sc:
+	@echo "--- Serving via Go backend (DOCKER_HOST -> $(SC_DOCKER_HOST)) + Vite dev server ---"
 	@trap 'kill 0' EXIT INT TERM; \
 	(cd pkg/web/Velez-UI && vite) & \
-	(go build -o bin/velez-dev ./cmd/service && DOCKER_HOST=tcp://127.0.0.1:12375 ./bin/velez-dev --dev) & \
+	(go build -o bin/velez-dev ./cmd/service && DOCKER_HOST=$(SC_DOCKER_HOST) ./bin/velez-dev --dev) & \
 	wait
 
 kill-port:

@@ -93,10 +93,4 @@ var (
 	// verify_registry_login when a real login against the registry with the
 	// given credentials does not succeed.
 	ErrRegistryLoginFailed = rerrors.New("registry login with the given credentials failed", codes.FailedPrecondition)
-
-	// ErrNoRegistryPortExposure is returned by register_container's
-	// verify_registry_login when Velez runs outside a container and the
-	// registry container publishes no host port to log in through.
-	ErrNoRegistryPortExposure = rerrors.New(
-		"registry container publishes no host port to verify the login through", codes.FailedPrecondition)
 )

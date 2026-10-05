@@ -1807,16 +1807,19 @@ func (x *Container_Settings) GetVolumes() []*Volume {
 
 type Container_Healthcheck struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// if command is not presented,
-	// velez will simply
-	// wait "retires" times for "interval_second" seconds each time,
+	// if command or exec is presented,
+	// velez waits "retires" times for "interval_second" seconds each time,
+	// until docker reports the container healthy.
+	// if neither is presented, velez waits the same way
 	// until container get status Running
 	Command        *string `protobuf:"bytes,1,opt,name=command,proto3,oneof" json:"command,omitempty"`
 	IntervalSecond uint32  `protobuf:"varint,2,opt,name=interval_second,json=intervalSecond,proto3" json:"interval_second,omitempty"`
 	TimeoutSecond  *uint32 `protobuf:"varint,3,opt,name=timeout_second,json=timeoutSecond,proto3,oneof" json:"timeout_second,omitempty"`
 	Retries        uint32  `protobuf:"varint,4,opt,name=retries,proto3" json:"retries,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// exec form: run without a shell (for images with no shell). Wins over command
+	Exec          []string `protobuf:"bytes,5,rep,name=exec,proto3" json:"exec,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Container_Healthcheck) Reset() {
@@ -1875,6 +1878,13 @@ func (x *Container_Healthcheck) GetRetries() uint32 {
 		return x.Retries
 	}
 	return 0
+}
+
+func (x *Container_Healthcheck) GetExec() []string {
+	if x != nil {
+		return x.Exec
+	}
+	return nil
 }
 
 var File_velez_common_proto protoreflect.FileDescriptor
@@ -1994,7 +2004,7 @@ const file_velez_common_proto_rawDesc = "" +
 	"\x1bis_registration_token_found\x18\x06 \x01(\bR\x18isRegistrationTokenFound\"^\n" +
 	"\x0fContainerFilter\x125\n" +
 	"\x05field\x18\x01 \x01(\x0e2\x1f.velez_api.ContainerFilterFieldR\x05field\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value\"\xec\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value\"\x80\x04\n" +
 	"\tContainer\x1a\x8e\x01\n" +
 	"\bHardware\x12\x15\n" +
 	"\x03cpu\x18\x01 \x01(\x02H\x00R\x03cpu\x88\x01\x01\x12\x1a\n" +
@@ -2006,12 +2016,13 @@ const file_velez_common_proto_rawDesc = "" +
 	"\bSettings\x12%\n" +
 	"\x05ports\x18\x01 \x03(\v2\x0f.velez_api.PortR\x05ports\x120\n" +
 	"\anetwork\x18\x02 \x03(\v2\x16.velez_api.NetworkBindR\anetwork\x12+\n" +
-	"\avolumes\x18\x03 \x03(\v2\x11.velez_api.VolumeR\avolumes\x1a\xba\x01\n" +
+	"\avolumes\x18\x03 \x03(\v2\x11.velez_api.VolumeR\avolumes\x1a\xce\x01\n" +
 	"\vHealthcheck\x12\x1d\n" +
 	"\acommand\x18\x01 \x01(\tH\x00R\acommand\x88\x01\x01\x12'\n" +
 	"\x0finterval_second\x18\x02 \x01(\rR\x0eintervalSecond\x12*\n" +
 	"\x0etimeout_second\x18\x03 \x01(\rH\x01R\rtimeoutSecond\x88\x01\x01\x12\x18\n" +
-	"\aretries\x18\x04 \x01(\rR\aretriesB\n" +
+	"\aretries\x18\x04 \x01(\rR\aretries\x12\x12\n" +
+	"\x04exec\x18\x05 \x03(\tR\x04execB\n" +
 	"\n" +
 	"\b_commandB\x11\n" +
 	"\x0f_timeout_second\"{\n" +

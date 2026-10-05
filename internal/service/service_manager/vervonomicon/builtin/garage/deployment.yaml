@@ -10,5 +10,10 @@ app:
       path: /var/lib/garage/meta
     - name: garage-data
       path: /var/lib/garage/data
+  healthcheck:
+    exec: ["/garage", "status"]
+    interval_second: 2
+    timeout_second: 5
+    retries: 30
   restart: unless_stopped
   box: small

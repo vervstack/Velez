@@ -117,6 +117,10 @@ func (f *fakeContainerRuntime) PullImage(context.Context, string) (image.Inspect
 	panic("not implemented")
 }
 
+func (f *fakeContainerRuntime) ContainerAddress(container.InspectResponse, int) (string, error) {
+	panic("not implemented")
+}
+
 func (f *fakeContainerRuntime) ListOccupiedPorts(context.Context) ([]uint32, error) {
 	panic("not implemented")
 }

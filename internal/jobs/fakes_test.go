@@ -757,6 +757,18 @@ func (f *fakeContainerRuntime) ListAllContainers(context.Context, uint32) ([]con
 	return nil, nil
 }
 
+// ContainerAddress uses the real addressing a bare binary on a local daemon gets.
+func (f *fakeContainerRuntime) ContainerAddress(info container.InspectResponse, containerPort int) (string, error) {
+	addressing := container_runtime.NewAddressing("unix:///var/run/docker.sock")
+
+	address, err := addressing.Address(info, containerPort)
+	if err != nil {
+		return "", rerrors.Wrap(err)
+	}
+
+	return address, nil
+}
+
 func (f *fakeContainerRuntime) InspectAny(context.Context, string) (container.InspectResponse, bool, error) {
 	return container.InspectResponse{}, false, nil
 }

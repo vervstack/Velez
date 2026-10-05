@@ -153,8 +153,6 @@ func (h *createS3InstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			Name: stepWaitGarage,
 			Job: &waitGarageJob{
 				jobsEngine: h.jobsEngine,
-				runtimes:   h.runtimes,
-				secrets:    h.secretsStore,
 				payload:    payload,
 			},
 		},
@@ -578,12 +576,7 @@ func newGarageClient(
 }
 
 // Garage answers /health with 503 until a layout assigns the node a role, so
-// readiness before the layout is the authenticated admin API answering, and
 // /health is only waited on after the layout is applied.
-func waitGarageAdminApi(ctx context.Context, client *garage.Client) error {
-	return pollGarage(ctx, client.CheckAdminApi, "timed out waiting for garage admin api")
-}
-
 func waitGarageHealthy(ctx context.Context, client *garage.Client) error {
 	return pollGarage(ctx, client.Health, "timed out waiting for garage to become healthy")
 }
@@ -611,8 +604,6 @@ func pollGarage(ctx context.Context, probe func(context.Context) error, timeoutM
 
 type waitGarageJob struct {
 	jobsEngine taskWatcher
-	runtimes   container_runtime.RuntimeResolver
-	secrets    secrets.Store
 	payload    *velez_api.CreateS3InstanceTaskPayload
 }
 
@@ -623,15 +614,10 @@ func (j *waitGarageJob) Do(ctx context.Context) error {
 		ctx, j.jobsEngine, request.GetEnvironment(), domain.S3ServiceName(request.GetName()),
 	)
 	if err != nil {
-		return err
+		return rerrors.Wrap(err, "error waiting for garage deploy")
 	}
 
-	client, err := newGarageClient(ctx, j.runtimes, j.secrets, request.GetEnvironment(), request.GetName())
-	if err != nil {
-		return err
-	}
-
-	return waitGarageAdminApi(ctx, client)
+	return nil
 }
 
 type applyGarageLayoutJob struct {

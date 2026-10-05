@@ -69,11 +69,13 @@ type VolumeMount struct {
 }
 
 type Healthcheck struct {
-	// Command - empty means just wait for the container to reach Running.
-	Command        string `yaml:"command,omitempty"`
-	IntervalSecond int    `yaml:"interval_second,omitempty"`
-	TimeoutSecond  int    `yaml:"timeout_second,omitempty"`
-	Retries        int    `yaml:"retries,omitempty"`
+	// Command - empty Command and Exec mean just wait for the container to reach Running.
+	Command string `yaml:"command,omitempty"`
+	// Exec - exec form, runs without a shell; wins over Command.
+	Exec           []string `yaml:"exec,omitempty"`
+	IntervalSecond int      `yaml:"interval_second,omitempty"`
+	TimeoutSecond  int      `yaml:"timeout_second,omitempty"`
+	Retries        int      `yaml:"retries,omitempty"`
 }
 
 // Sizing is an exact resource allocation. It wins over any box when both are

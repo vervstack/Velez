@@ -45,22 +45,32 @@ func ToPortsFromInspect(info container.InspectResponse) []*velez_api.Port {
 	return ToPortsMapping(info.HostConfig.PortBindings, actual)
 }
 
-// ToHealthcheck reverses FromHealthcheck's "CMD-SHELL, command" Test shape.
+// ToHealthcheck reverses FromHealthcheck's "CMD-SHELL, command" and "CMD, exec..." Test shapes.
 // nil, or an empty/inherited Test, means the container carries no healthcheck.
 func ToHealthcheck(hc *container.HealthConfig) *velez_api.Container_Healthcheck {
 	if hc == nil || len(hc.Test) == 0 {
 		return nil
 	}
 
-	command := hc.Test[len(hc.Test)-1]
 	timeoutSecond := uint32(hc.Timeout / time.Second)
 
-	return &velez_api.Container_Healthcheck{
-		Command:        &command,
+	out := &velez_api.Container_Healthcheck{
 		IntervalSecond: uint32(hc.Interval / time.Second),
 		TimeoutSecond:  &timeoutSecond,
 		Retries:        uint32(hc.Retries),
 	}
+
+	if hc.Test[0] == healthcheckTestExec {
+		out.Exec = hc.Test[1:]
+
+		return out
+	}
+
+	command := hc.Test[len(hc.Test)-1]
+
+	out.Command = &command
+
+	return out
 }
 
 // ToRestartPolicy reverses FromRestart. always/on_failure/unless_stopped all

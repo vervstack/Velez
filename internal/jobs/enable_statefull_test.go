@@ -551,7 +551,9 @@ func TestGetRootDsnJob_Success_ParsesEnvVars(t *testing.T) {
 		ContainerId: proto(testPgContainerID),
 	}
 
-	j := &getRootDsnJob{dockerAPI: api, ctx: payload, pgName: state.PgName("")}
+	j := &getRootDsnJob{
+		dockerAPI: api, runtimes: newFakeRuntimes(newFakeDocker(), newEnvStorage("")), ctx: payload, pgName: state.PgName(""),
+	}
 
 	err := j.Do(context.Background())
 	if err != nil {
@@ -577,7 +579,9 @@ func TestGetRootDsnJob_InspectError(t *testing.T) {
 
 	payload := &velez_api.EnableStatefullTaskPayload{ContainerId: proto(testPgContainerID)}
 
-	j := &getRootDsnJob{dockerAPI: api, ctx: payload, pgName: state.PgName("")}
+	j := &getRootDsnJob{
+		dockerAPI: api, runtimes: newFakeRuntimes(newFakeDocker(), newEnvStorage("")), ctx: payload, pgName: state.PgName(""),
+	}
 
 	err := j.Do(context.Background())
 	if err == nil {
@@ -604,14 +608,9 @@ func newGetRootDsnInspectResp() container.InspectResponse {
 	}
 }
 
-// With no advertiseDsn (production default), the bare-binary branch keeps
-// dialing localhost + the raw exposed host port - byte-identical to the
-// behaviour before the ClusterPgDsn seam existed.
-func TestGetRootDsnJob_NoAdvertiseDsn_UsesLocalhostAndExposedPort(t *testing.T) {
-	if env.IsInContainer() {
-		t.Skip("the localhost+exposed-port branch only runs when velez is not itself in a container")
-	}
-
+// With no advertiseDsn (production default), the address comes from the
+// runtime: the fake runtime dials the local daemon's published host port.
+func TestGetRootDsnJob_NoAdvertiseDsn_UsesRuntimeAddress(t *testing.T) {
 	api := newFakeContainerAPI()
 
 	api.inspectResp = newGetRootDsnInspectResp()
@@ -621,7 +620,9 @@ func TestGetRootDsnJob_NoAdvertiseDsn_UsesLocalhostAndExposedPort(t *testing.T) 
 		ContainerId: proto(testPgContainerID),
 	}
 
-	j := &getRootDsnJob{dockerAPI: api, ctx: payload, pgName: state.PgName("")}
+	j := &getRootDsnJob{
+		dockerAPI: api, runtimes: newFakeRuntimes(newFakeDocker(), newEnvStorage("")), ctx: payload, pgName: state.PgName(""),
+	}
 
 	err := j.Do(context.Background())
 	if err != nil {
@@ -660,6 +661,7 @@ func TestGetRootDsnJob_AdvertiseDsn_OverridesHostPort(t *testing.T) {
 
 	j := &getRootDsnJob{
 		dockerAPI:    api,
+		runtimes:     newFakeRuntimes(newFakeDocker(), newEnvStorage("")),
 		ctx:          payload,
 		pgName:       state.PgName(""),
 		advertiseDsn: advertisePg.ConnectionString(),
@@ -1280,7 +1282,7 @@ func TestEnableStatefullHandler_FailurePath_UnreachablePostgres_RollsBack(t *tes
 	storageContainer := storage.NewStorageContainer(clusterStorage)
 
 	handler := NewEnableStatefullHandler(
-		nodeClients, clusterStateManager, storageContainer, config.Config{}, newFakeRuntimes(docker, nil), nil)
+		nodeClients, clusterStateManager, storageContainer, config.Config{}, newFakeRuntimes(docker, newEnvStorage("")), nil)
 
 	taskCtx := handler.NewContext()
 

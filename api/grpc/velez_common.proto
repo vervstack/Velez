@@ -155,14 +155,17 @@ message Container {
   }
 
   message Healthcheck {
-    // if command is not presented,
-    // velez will simply
-    // wait "retires" times for "interval_second" seconds each time,
+    // if command or exec is presented,
+    // velez waits "retires" times for "interval_second" seconds each time,
+    // until docker reports the container healthy.
+    // if neither is presented, velez waits the same way
     // until container get status Running
     optional string command = 1;
     uint32 interval_second = 2;
     optional uint32 timeout_second = 3;
     uint32 retries = 4;
+    // exec form: run without a shell (for images with no shell). Wins over command
+    repeated string exec = 5;
   }
 }
 

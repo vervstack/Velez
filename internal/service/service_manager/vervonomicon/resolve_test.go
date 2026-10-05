@@ -109,6 +109,33 @@ func TestBoxResolver_ResolveRequest_FullFieldMapping(t *testing.T) {
 	require.Equal(t, uint32(512), hardware.GetRamMb())
 }
 
+func TestBoxResolver_ResolveRequest_HealthcheckExec(t *testing.T) {
+	resolver := NewBoxResolver(newFakeBoxLookup())
+
+	descriptor := verv.Descriptor{
+		Index: verv.Index{Service: verv.Service{Name: testSvcName}},
+		Deployment: verv.Deployment{
+			App: verv.App{
+				Healthcheck: verv.Healthcheck{
+					Exec:           []string{"/garage", "status"},
+					IntervalSecond: 2,
+					Retries:        30,
+				},
+			},
+		},
+	}
+
+	got, err := resolver.ResolveRequest(context.Background(), descriptor, "dev", "")
+	require.NoError(t, err)
+
+	hc := got.GetHealthcheck()
+	require.NotNil(t, hc)
+	require.Equal(t, []string{"/garage", "status"}, hc.GetExec())
+	require.Nil(t, hc.Command)
+	require.Equal(t, uint32(2), hc.GetIntervalSecond())
+	require.Equal(t, uint32(30), hc.GetRetries())
+}
+
 func TestBoxResolver_ResolveRequest_DeployRequestImageAlwaysWins(t *testing.T) {
 	resolver := NewBoxResolver(newFakeBoxLookup())
 

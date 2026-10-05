@@ -11,14 +11,12 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/go-connections/nat"
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
-	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/service/secrets"
@@ -36,7 +34,6 @@ const (
 	registryAuthHtpasswd      = "htpasswd"
 	registryHttpAddrEnvVar    = "REGISTRY_HTTP_ADDR"
 	registryApiPath           = "/v2/"
-	registryLocalhost         = "localhost"
 	registeredRegistryTimeout = 10 * time.Second
 )
 
@@ -131,50 +128,16 @@ func registeredRegistryLabels(username string, port int32) map[string]string {
 	}
 }
 
-// registryLoginUrl addresses the registry API the way pgLoginDsn addresses
-// Postgres: in-network address when Velez itself runs in a container, the
-// published host port otherwise.
-func registryLoginUrl(
-	info container.InspectResponse, containerEnv map[string]string, isInContainer bool,
-) (string, error) {
-	port := registryContainerPort(containerEnv)
-	host := pgContainerHost(info)
-
-	if !isInContainer {
-		published, err := registryPublishedHostPort(info, port)
-		if err != nil {
-			return "", rerrors.Wrap(err)
-		}
-
-		host = registryLocalhost
-		port = published
-	}
-
+// registryLoginUrl addresses the registry API the way the runtime says Velez
+// reaches it: over a shared Docker network or through the published port.
+func registryLoginUrl(address string) string {
 	loginUrl := url.URL{
 		Scheme: "http",
-		Host:   net.JoinHostPort(host, strconv.Itoa(int(port))),
+		Host:   address,
 		Path:   registryApiPath,
 	}
 
-	return loginUrl.String(), nil
-}
-
-func registryPublishedHostPort(info container.InspectResponse, containerPort int32) (int32, error) {
-	if info.NetworkSettings == nil {
-		return 0, rerrors.Wrap(user_errors.ErrNoNetworkSettings)
-	}
-
-	bindings := info.NetworkSettings.Ports[nat.Port(fmt.Sprintf("%d/tcp", containerPort))]
-	if len(bindings) == 0 {
-		return 0, rerrors.Wrap(user_errors.ErrNoRegistryPortExposure)
-	}
-
-	port, err := strconv.ParseUint(bindings[0].HostPort, 10, 32)
-	if err != nil {
-		return 0, rerrors.Wrap(err, "error parsing exposed registry port")
-	}
-
-	return int32(port), nil //nolint:gosec
+	return loginUrl.String()
 }
 
 func pingRegistryLogin(ctx context.Context, loginUrl string, login registryLogin) error {
@@ -263,10 +226,14 @@ func (j *verifyRegistryLoginJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err)
 	}
 
-	loginUrl, err := registryLoginUrl(info, containerEnv, env.IsInContainer())
+	containerPort := int(registryContainerPort(containerEnv))
+
+	address, err := registeredContainerAddress(ctx, j.runtimes, j.req, info, containerPort)
 	if err != nil {
 		return rerrors.Wrap(err)
 	}
+
+	loginUrl := registryLoginUrl(address)
 
 	err = pingRegistryLogin(ctx, loginUrl, login)
 	if err != nil {

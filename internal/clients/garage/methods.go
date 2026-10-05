@@ -27,17 +27,6 @@ func (c *Client) Health(ctx context.Context) error {
 	return nil
 }
 
-// CheckAdminApi succeeds once the authenticated admin API answers. Unlike
-// Health it does not need a layout.
-func (c *Client) CheckAdminApi(ctx context.Context) error {
-	_, err := c.GetClusterStatus(ctx)
-	if err != nil {
-		return rerrors.Wrap(err)
-	}
-
-	return nil
-}
-
 func (c *Client) GetClusterStatus(ctx context.Context) (ClusterStatus, error) {
 	var out ClusterStatus
 

@@ -129,7 +129,7 @@
       "properties": {
         "command": {
           "type": "string",
-          "title": "if command is not presented,\nvelez will simply\nwait \"retires\" times for \"interval_second\" seconds each time,\nuntil container get status Running"
+          "title": "if command or exec is presented,\nvelez waits \"retires\" times for \"interval_second\" seconds each time,\nuntil docker reports the container healthy.\nif neither is presented, velez waits the same way\nuntil container get status Running"
         },
         "intervalSecond": {
           "type": "integer",
@@ -142,6 +142,13 @@
         "retries": {
           "type": "integer",
           "format": "int64"
+        },
+        "exec": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "exec form: run without a shell (for images with no shell). Wins over command"
         }
       }
     },

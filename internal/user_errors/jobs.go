@@ -60,13 +60,11 @@ var (
 	// wait budget.
 	ErrPgContainerNotHealthy = rerrors.New("timed out waiting for postgres container to become healthy")
 
-	// ErrNoNetworkSettings is returned by internal/jobs' enable_statefull
-	// steps when a container's inspect result carries no network settings.
-	ErrNoNetworkSettings = rerrors.New("no network settings found in container")
-
-	// ErrNoPgPortExposure is returned by internal/jobs' enable_statefull
-	// steps when a postgres container exposes no mapping for port 5432.
-	ErrNoPgPortExposure = rerrors.New("no exposure for 5432 found")
+	// ErrContainerPortNotPublished is returned when Velez shares no Docker
+	// network with a container and the port it has to reach is not published
+	// on the daemon's host.
+	ErrContainerPortNotPublished = rerrors.New(
+		"container port is not published to the docker host", codes.FailedPrecondition)
 
 	// ErrSelfUpgradeIsForbidden is returned by internal/jobs' upgrade_smerd
 	// steps when a request would upgrade Velez's own container - moved here

@@ -893,8 +893,10 @@ func (j *healthcheckJob) Do(ctx context.Context) error {
 
 	containerID := j.ctx.GetContainerId()
 	if containerID == "" {
-		return user_errors.ErrContainerNotCreated
+		return rerrors.Wrap(user_errors.ErrContainerNotCreated)
 	}
+
+	waitsForHealthy := len(healthcheck.GetExec()) > 0 || healthcheck.GetCommand() != ""
 
 	for range healthcheck.GetRetries() {
 		select {
@@ -908,10 +910,22 @@ func (j *healthcheckJob) Do(ctx context.Context) error {
 			return rerrors.Wrap(err, "error during healthcheck")
 		}
 
-		if cont.State.Status == dockerContainerStatusRunning {
+		if isContainerReady(cont.State, waitsForHealthy) {
 			return nil
 		}
 	}
 
-	return user_errors.ErrHealthcheckRetriesExhausted
+	return rerrors.Wrap(user_errors.ErrHealthcheckRetriesExhausted)
+}
+
+func isContainerReady(state *container.State, waitsForHealthy bool) bool {
+	if state == nil {
+		return false
+	}
+
+	if waitsForHealthy {
+		return state.Health != nil && state.Health.Status == container.Healthy
+	}
+
+	return state.Status == dockerContainerStatusRunning
 }

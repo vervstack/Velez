@@ -220,8 +220,8 @@ func (s *VervonomiconDeploySuite) Test_BoxResolutionAndFidelity() {
 
 	require.True(t, foundVolume, "the descriptor's volume must be mounted at /data")
 
-	require.NotNil(t, inspected.Config.Healthcheck)
-	require.Equal(t, 3, inspected.Config.Healthcheck.Retries)
+	require.Nil(t, inspected.Config.Healthcheck,
+		"a healthcheck with neither command nor exec only waits for Running, it sets no Docker healthcheck")
 
 	// Docker's own RestartPolicy vocabulary is coarser than vervonomicon's -
 	// dockerutils/parser.FromRestart collapses always/on_failure/

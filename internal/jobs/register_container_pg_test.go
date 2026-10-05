@@ -3,8 +3,6 @@ package jobs
 import (
 	"testing"
 
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/network"
 	"github.com/stretchr/testify/require"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
@@ -129,26 +127,23 @@ func Test_RegisteredLabels_PgPatternStampsPgaasLabel(t *testing.T) {
 	require.Equal(t, registeredServiceLabels(testRegisterServiceName), genericLabels)
 }
 
-func Test_PgLoginDsn_AddressesInNetworkOrPublishedPort(t *testing.T) {
+func Test_PgLoginDsn_UsesRuntimeAddress(t *testing.T) {
 	t.Parallel()
-
-	info := container.InspectResponse{
-		ContainerJSONBase: &container.ContainerJSONBase{Name: "/db"},
-		NetworkSettings: &container.NetworkSettings{
-			Networks: map[string]*network.EndpointSettings{
-				"bridge": {IPAddress: "172.17.0.5"},
-			},
-		},
-	}
 
 	login := pgLogin{superuser: testPgUser, password: testPgPassword, dbName: testPgDbName}
 
-	inContainerDsn, err := pgLoginDsn(info, login, true)
+	dsn, err := pgLoginDsn("172.17.0.5:5432", login)
 	require.NoError(t, err)
-	require.Contains(t, inContainerDsn, "172.17.0.5")
+	require.Contains(t, dsn, "172.17.0.5")
+	require.Contains(t, dsn, "5432")
 
-	_, err = pgLoginDsn(info, login, false)
-	require.ErrorIs(t, err, user_errors.ErrNoPgPortExposure)
+	publishedDsn, err := pgLoginDsn("sc:30019", login)
+	require.NoError(t, err)
+	require.Contains(t, publishedDsn, "sc")
+	require.Contains(t, publishedDsn, "30019")
+
+	_, err = pgLoginDsn("no-port", login)
+	require.Error(t, err)
 }
 
 func Test_ResolvePgLogin_PasswordPrecedenceEnvThenPendingThenStored(t *testing.T) {

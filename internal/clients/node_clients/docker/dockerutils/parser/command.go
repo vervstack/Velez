@@ -9,6 +9,11 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 )
 
+const (
+	healthcheckTestExec  = "CMD"
+	healthcheckTestShell = "CMD-SHELL"
+)
+
 func FromCommand(command *string) strslice.StrSlice {
 	if command == nil {
 		return nil
@@ -22,11 +27,19 @@ func FromHealthcheck(healthcheck *velez_api.Container_Healthcheck) *container.He
 		return nil
 	}
 
+	var test []string
+
+	switch {
+	case len(healthcheck.GetExec()) > 0:
+		test = append([]string{healthcheckTestExec}, healthcheck.GetExec()...)
+	case healthcheck.GetCommand() != "":
+		test = []string{healthcheckTestShell, healthcheck.GetCommand()}
+	default:
+		return nil
+	}
+
 	return &container.HealthConfig{
-		Test: []string{
-			"CMD-SHELL",
-			healthcheck.GetCommand(),
-		},
+		Test:     test,
 		Interval: time.Second * time.Duration(healthcheck.GetIntervalSecond()),
 		Timeout:  time.Second * time.Duration(healthcheck.GetTimeoutSecond()),
 		Retries:  int(healthcheck.GetRetries()),

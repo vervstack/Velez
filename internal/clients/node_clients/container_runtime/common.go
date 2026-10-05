@@ -27,7 +27,19 @@ import (
 // Stage 4 design tied them to dockerRuntime instead, since a network name
 // needs the same name-resolution translation container names get.
 type commonRuntime struct {
-	cli client.APIClient
+	cli        client.APIClient
+	addressing Addressing
+}
+
+// ContainerAddress reports the host:port Velez dials to reach containerPort
+// of the inspected container.
+func (c *commonRuntime) ContainerAddress(info container.InspectResponse, containerPort int) (string, error) {
+	address, err := c.addressing.Address(info, containerPort)
+	if err != nil {
+		return "", rerrors.Wrap(err)
+	}
+
+	return address, nil
 }
 
 // PullImage mirrors docker.Docker.PullImage exactly (same dockerutils.PullImage

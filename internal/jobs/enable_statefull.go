@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"net"
 	"slices"
 	"strconv"
 	"strings"
@@ -248,6 +249,7 @@ func (h *enableStatefullHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			Name: stepGetRootDsn,
 			Job: &getRootDsnJob{
 				dockerAPI:    h.nodeClients.Docker().Client(),
+				runtimes:     h.runtimes,
 				ctx:          payload,
 				pgName:       pgName,
 				advertiseDsn: h.cfg.Environment.ClusterPgDsn,
@@ -614,6 +616,7 @@ func (j *waitForPgReadyJob) Do(ctx context.Context) error {
 // testability.
 type getRootDsnJob struct {
 	dockerAPI containerInspectAPI
+	runtimes  container_runtime.RuntimeResolver
 
 	ctx interface {
 		containerIDAccessor
@@ -624,8 +627,8 @@ type getRootDsnJob struct {
 
 	// advertiseDsn overrides the host:port the root DSN advertises when Velez
 	// runs as a bare binary (env.IsInContainer() false). Sourced from
-	// EnvironmentConfig.ClusterPgDsn; empty is production's default and keeps
-	// today's exact "localhost:<exposed port>" behaviour. Only Host and Port
+	// EnvironmentConfig.ClusterPgDsn; empty is production's default and takes
+	// the address from the runtime's ContainerAddress. Only Host and Port
 	// are read back out - user/pwd/dbname still come from the container's env
 	// vars parsed above. Ignored entirely when env.IsInContainer() is true.
 	advertiseDsn string
@@ -667,11 +670,9 @@ func (j *getRootDsnJob) Do(ctx context.Context) error {
 		}
 	}
 
-	if !env.IsInContainer() {
-		err = j.applyBareBinaryHostPort(pgCfg, cont)
-		if err != nil {
-			return rerrors.Wrap(err)
-		}
+	err = j.applyHostPort(ctx, pgCfg, cont)
+	if err != nil {
+		return rerrors.Wrap(err)
 	}
 
 	j.ctx.SetRootDsn(pgCfg.ConnectionString() + "&application_name=RootSetup")
@@ -679,14 +680,15 @@ func (j *getRootDsnJob) Do(ctx context.Context) error {
 	return nil
 }
 
-// applyBareBinaryHostPort rewrites pgCfg.Host/Port for the case where Velez
-// runs as a bare binary (env.IsInContainer() false) and so cannot reach the
-// postgres container on its in-namespace address. With advertiseDsn set (the
-// ClusterPgDsn seam) host+port come from it; otherwise from the container's
-// own exposed 5432 on localhost - today's default. User/pwd/dbname are left
-// untouched: they were already parsed from the container's env vars.
-func (j *getRootDsnJob) applyBareBinaryHostPort(pgCfg *resources.Postgres, cont container.InspectResponse) error {
-	if j.advertiseDsn != "" {
+// applyHostPort rewrites pgCfg.Host/Port to the address Velez reaches the
+// postgres container on. With advertiseDsn set (the ClusterPgDsn seam) and
+// Velez running as a bare binary, host+port come from it; otherwise from the
+// runtime's ContainerAddress. User/pwd/dbname are left untouched: they were
+// already parsed from the container's env vars.
+func (j *getRootDsnJob) applyHostPort(
+	ctx context.Context, pgCfg *resources.Postgres, cont container.InspectResponse,
+) error {
+	if j.advertiseDsn != "" && !env.IsInContainer() {
 		adv := &resources.Postgres{}
 
 		err := adv.ParseFromDsn(j.advertiseDsn)
@@ -700,36 +702,30 @@ func (j *getRootDsnJob) applyBareBinaryHostPort(pgCfg *resources.Postgres, cont 
 		return nil
 	}
 
-	pgCfg.Host = "localhost"
-
-	exposedPort, err := getExposedPgPort(cont)
+	runtime, err := j.runtimes.Runtime(ctx, statefullEnvironment)
 	if err != nil {
-		return rerrors.Wrap(err, "error getting exposed pg port")
+		return rerrors.Wrap(err, "error resolving container runtime")
 	}
 
-	pgCfg.Port = exposedPort
+	address, err := runtime.ContainerAddress(cont, pgDefaultPort)
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving postgres address")
+	}
+
+	host, portText, err := net.SplitHostPort(address)
+	if err != nil {
+		return rerrors.Wrap(err, "error splitting postgres address")
+	}
+
+	port, err := strconv.ParseUint(portText, 10, 64)
+	if err != nil {
+		return rerrors.Wrap(err, "error parsing postgres port")
+	}
+
+	pgCfg.Host = host
+	pgCfg.Port = port
 
 	return nil
-}
-
-func getExposedPgPort(cont container.InspectResponse) (uint64, error) {
-	if cont.NetworkSettings == nil {
-		return 0, user_errors.ErrNoNetworkSettings
-	}
-
-	ports := cont.NetworkSettings.Ports[pg_pattern.TCPPort]
-	if len(ports) == 0 {
-		return 0, user_errors.ErrNoPgPortExposure
-	}
-
-	hostPort := ports[0].HostPort
-
-	port, err := strconv.ParseUint(hostPort, 10, 64)
-	if err != nil {
-		return 0, rerrors.Wrap(err, "error parsing exposed port for container to uint64")
-	}
-
-	return port, nil
 }
 
 // createSchemaAndMigrateJob mirrors do_enable_statefull.go's inline

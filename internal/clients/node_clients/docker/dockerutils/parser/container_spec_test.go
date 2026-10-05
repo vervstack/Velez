@@ -19,7 +19,7 @@ func Test_ToCreateRequest_MapsInspectedContainer(t *testing.T) {
 			Image: "nginx:1.27",
 			Env:   []string{"FOO=bar"},
 			Healthcheck: &container.HealthConfig{
-				Test:     []string{"CMD-SHELL", "curl -f localhost"},
+				Test:     []string{healthcheckTestShell, "curl -f localhost"},
 				Interval: 5 * time.Second,
 				Timeout:  2 * time.Second,
 				Retries:  3,

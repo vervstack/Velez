@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
-	"go.vervstack.ru/Velez/internal/cluster/env"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
@@ -254,22 +253,6 @@ func TestRegistryInstanceSecretRef(t *testing.T) {
 func TestRegistryInternalUrl(t *testing.T) {
 	got := registryInternalUrl(testRegistryInstanceName)
 	want := "http://my-registry:5000"
-
-	if got != want {
-		t.Errorf("expected %q, got %q", want, got)
-	}
-}
-
-// registryInstanceUrl's localhost branch only runs when velez itself is not
-// in a container - mirrors enable_statefull_test.go's getRootDsnJob tests'
-// use of env.IsInContainer() to skip the branch that can't apply here.
-func TestRegistryInstanceUrl_NotInContainer_UsesLocalhostAndExposedPort(t *testing.T) {
-	if env.IsInContainer() {
-		t.Skip("the localhost+exposed-port branch only runs when velez is not itself in a container")
-	}
-
-	got := registryInstanceUrl(testRegistryInstanceName, 15001)
-	want := "http://localhost:15001"
 
 	if got != want {
 		t.Errorf("expected %q, got %q", want, got)

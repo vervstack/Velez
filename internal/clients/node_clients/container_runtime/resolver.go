@@ -62,6 +62,13 @@ func WithSettings(provider SettingsProvider) ResolverOption {
 	}
 }
 
+// WithAddressing sets how containers on the node's own daemon are dialed.
+func WithAddressing(addressing Addressing) ResolverOption {
+	return func(r *resolver) {
+		r.addressing = addressing
+	}
+}
+
 // resolver is the default RuntimeResolver: one shared Docker connection, one
 // label-based runtime per environment suffix - except for an environment
 // bound to a Docker host other than the node's own, which gets its own
@@ -72,6 +79,7 @@ type resolver struct {
 	bakedLabels []string
 	envProvider EnvironmentsProvider
 	settings    SettingsProvider
+	addressing  Addressing
 
 	dedicatedMu  sync.Mutex
 	dedicatedCli map[string]client.APIClient
@@ -95,6 +103,7 @@ func NewResolver(
 		bakedLabels:  bakedLabels,
 		envProvider:  envProvider,
 		dedicatedCli: make(map[string]client.APIClient),
+		addressing:   NewAddressing(nodeHost),
 	}
 
 	for _, opt := range opts {
@@ -127,6 +136,7 @@ func (r *resolver) Runtime(ctx context.Context, environment string) (ContainerRu
 		directRuntime := newDirectRuntime(dedicatedCli, r.bakedLabels)
 
 		directRuntime.settings = r.settings
+		directRuntime.addressing = r.addressing.forDaemonHost(env.DockerHost)
 
 		return directRuntime, nil
 	}
@@ -134,6 +144,7 @@ func (r *resolver) Runtime(ctx context.Context, environment string) (ContainerRu
 	runtime := newLabelBasedRuntime(r.cli, env.Suffix, r.bakedLabels)
 
 	runtime.settings = r.settings
+	runtime.addressing = r.addressing
 
 	return runtime, nil
 }

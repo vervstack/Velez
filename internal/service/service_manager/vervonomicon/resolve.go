@@ -158,12 +158,18 @@ func resolveVolumes(volumes []verv.VolumeMount) []*velez_api.Volume {
 }
 
 func resolveHealthcheck(hc verv.Healthcheck) *velez_api.Container_Healthcheck {
-	if hc == (verv.Healthcheck{}) {
+	isEmpty := hc.Command == "" &&
+		len(hc.Exec) == 0 &&
+		hc.IntervalSecond == 0 &&
+		hc.TimeoutSecond == 0 &&
+		hc.Retries == 0
+	if isEmpty {
 		return nil
 	}
 
 	out := &velez_api.Container_Healthcheck{
 		Command:        optionalString(hc.Command),
+		Exec:           hc.Exec,
 		IntervalSecond: uint32(hc.IntervalSecond),
 		Retries:        uint32(hc.Retries),
 	}

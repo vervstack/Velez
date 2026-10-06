@@ -90,8 +90,6 @@ One global dialog primitive — the `useDialog` Zustand store in `src/app/hooks/
 - **Close button is always in the header** (`onClose`) — the shell renders the project's standard
   `<Button variant="ghost" sm>✕</Button>`. Omit it only while closing is deliberately blocked (an in-flight task
   screen).
-- **Form controls come from `@vervstack/chures`** (`Checkbox`, `Toggle`, `Dropdown`) — not
-  `@/components/base/Checkbox`.
 - **Body padding and spacing belong to the shell** (`--dialog-padding`, flex column with gap). Children are the
   fields wrapper and the actions row directly — no extra `Content` div, no outer padding of their own. A screen
   that pads itself (`TaskProgressScreen`) renders with `isFlush`.
@@ -102,6 +100,8 @@ One global dialog primitive — the `useDialog` Zustand store in `src/app/hooks/
 
 ## Coding Rules
 
+- **Form controls come from `@vervstack/chures`** (`Checkbox`, `Toggle`, `Dropdown`) everywhere, not only in
+  dialogs. Before reaching for any `@/components/base/*` atom, check the kit's exports first.
 - Components must be named function declarations — not `const Arrow = () => {}`
 - All functions inside components (handlers, helpers) must also be named function declarations — never `const fn = () => {}`
 - One file — one component

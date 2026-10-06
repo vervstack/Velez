@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import {Checkbox} from '@vervstack/chures';
 
 import cls from '@/dialogs/RegistryCreateDialog/RegistryCreateDialog.module.css';
 
@@ -8,7 +9,6 @@ import {RegistryType} from '@/app/api/velez';
 import Button from '@/components/base/Button.tsx';
 import Input from '@/components/base/Input.tsx';
 import Choice from '@/components/base/Choice.tsx';
-import Checkbox from '@/components/base/Checkbox.tsx';
 
 interface RegistryCreateDialogProps {
     onCancel: () => void;

@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react"
-import {Dropdown, DropdownOption, parseGrpcError} from "@vervstack/chures"
+import {Checkbox, Dropdown, DropdownOption, parseGrpcError} from "@vervstack/chures"
 
 import cls from "@/dialogs/CreateServiceDialog/screens/PostgresScreen/PostgresScreen.module.css"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
@@ -10,7 +10,6 @@ import {CreatePgInstanceMutation} from "@/processes/queries/pg_instances.ts"
 import Button from "@/components/base/Button.tsx"
 import Input from "@/components/base/Input.tsx"
 import Choice from "@/components/base/Choice.tsx"
-import Checkbox from "@/components/base/Checkbox.tsx"
 import {
     buildCreatePgInstanceRequest,
 } from "@/dialogs/CreateServiceDialog/screens/PostgresScreen/processes/buildCreatePgInstanceRequest.ts"

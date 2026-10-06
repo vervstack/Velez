@@ -3,9 +3,9 @@ import InfoMark from "@/components/base/InfoMark.tsx";
 
 import {useState} from "react";
 import ReactJsonView from '@microlink/react-json-view'
+import {Checkbox} from "@vervstack/chures";
 
 import Input from "@/components/base/Input.tsx";
-import Checkbox from "@/components/base/Checkbox.tsx";
 import RegistryImagePicker from "@/components/RegistryImagePicker/RegistryImagePicker.tsx";
 import PlainMap from "@/components/base/PlainMap.tsx";
 import PortsWidget from "@/widgets/PortsWidget.tsx";

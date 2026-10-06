@@ -31,6 +31,27 @@ export enum RunnerScope {
   ORG = "ORG",
 }
 
+export enum RunnerPullPolicy {
+  RUNNER_PULL_POLICY_UNSPECIFIED = "RUNNER_PULL_POLICY_UNSPECIFIED",
+  RUNNER_PULL_POLICY_ALWAYS = "RUNNER_PULL_POLICY_ALWAYS",
+  RUNNER_PULL_POLICY_IF_NOT_PRESENT = "RUNNER_PULL_POLICY_IF_NOT_PRESENT",
+  RUNNER_PULL_POLICY_NEVER = "RUNNER_PULL_POLICY_NEVER",
+}
+
+export enum RunnerLogLevel {
+  RUNNER_LOG_LEVEL_UNSPECIFIED = "RUNNER_LOG_LEVEL_UNSPECIFIED",
+  RUNNER_LOG_LEVEL_DEBUG = "RUNNER_LOG_LEVEL_DEBUG",
+  RUNNER_LOG_LEVEL_INFO = "RUNNER_LOG_LEVEL_INFO",
+  RUNNER_LOG_LEVEL_WARN = "RUNNER_LOG_LEVEL_WARN",
+  RUNNER_LOG_LEVEL_ERROR = "RUNNER_LOG_LEVEL_ERROR",
+  RUNNER_LOG_LEVEL_FATAL = "RUNNER_LOG_LEVEL_FATAL",
+  RUNNER_LOG_LEVEL_PANIC = "RUNNER_LOG_LEVEL_PANIC",
+}
+
+export type RunnerPullPolicies = {
+  values?: RunnerPullPolicy[];
+};
+
 export type Runner = {
   name?: string;
   provider?: RunnerProvider;
@@ -95,6 +116,11 @@ export type GetRunnerConfigResponse = {
   dockerImage?: string;
   dockerSocketAddress?: string;
   concurrent?: number;
+  pullPolicy?: RunnerPullPolicy[];
+  allowedPullPolicies?: RunnerPullPolicy[];
+  checkInterval?: number;
+  logLevel?: RunnerLogLevel;
+  shutdownTimeout?: number;
 };
 
 export type GetRunnerConfig = Record<string, never>;
@@ -105,6 +131,11 @@ export type UpdateRunnerConfigRequest = {
   dockerImage?: string;
   dockerSocketAddress?: string;
   concurrent?: number;
+  pullPolicy?: RunnerPullPolicies;
+  allowedPullPolicies?: RunnerPullPolicies;
+  checkInterval?: number;
+  logLevel?: RunnerLogLevel;
+  shutdownTimeout?: number;
 };
 
 export type UpdateRunnerConfigResponse = {

@@ -18,6 +18,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
+	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/gitlab_runner_config"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
@@ -152,6 +153,48 @@ func (p *Provider) ApplyConcurrent(
 	}
 
 	updated := gitlab_runner_config.SetConcurrent(config, concurrent)
+
+	err = runtime.CopyToContainer(ctx, containerID, configPath, updated, configFileMode)
+	if err != nil {
+		return rerrors.Wrap(err, "error writing gitlab-runner config.toml")
+	}
+
+	return nil
+}
+
+// ReadSettings parses the pull-policy, check-interval, log-level and
+// shutdown-timeout keys out of containerID's config.toml.
+func (p *Provider) ReadSettings(
+	ctx context.Context, runtime container_runtime.ContainerRuntime, containerID string,
+) (domain.GitlabRunnerSettings, error) {
+	config, err := runtime.CopyFromContainer(ctx, containerID, configPath)
+	if err != nil {
+		return domain.GitlabRunnerSettings{}, rerrors.Wrap(err, "error reading gitlab-runner config.toml")
+	}
+
+	settings, err := gitlab_runner_config.ReadSettings(config)
+	if err != nil {
+		return domain.GitlabRunnerSettings{}, rerrors.Wrap(err, "error parsing gitlab-runner config.toml")
+	}
+
+	return settings, nil
+}
+
+// ApplySettings replaces every setting ReadSettings reports in containerID's
+// config.toml; gitlab-runner hot-reloads the file on change.
+func (p *Provider) ApplySettings(
+	ctx context.Context, runtime container_runtime.ContainerRuntime, containerID string,
+	settings domain.GitlabRunnerSettings,
+) error {
+	config, err := runtime.CopyFromContainer(ctx, containerID, configPath)
+	if err != nil {
+		return rerrors.Wrap(err, "error reading gitlab-runner config.toml")
+	}
+
+	updated, err := gitlab_runner_config.ApplySettings(config, settings)
+	if err != nil {
+		return rerrors.Wrap(err, "error applying gitlab-runner settings")
+	}
 
 	err = runtime.CopyToContainer(ctx, containerID, configPath, updated, configFileMode)
 	if err != nil {

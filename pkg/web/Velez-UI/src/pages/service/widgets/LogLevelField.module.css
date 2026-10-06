@@ -1,0 +1,19 @@
+.LogLevelFieldContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+
+    & .FieldLabel {
+        font-family: var(--font-mono);
+        font-size: 0.6875rem;
+        color: var(--fg-dim);
+        width: 6rem;
+        flex-shrink: 0;
+    }
+
+    & .DropdownWrapper {
+        flex: 1;
+        min-width: 0;
+    }
+}

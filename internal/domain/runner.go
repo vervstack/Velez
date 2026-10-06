@@ -166,6 +166,7 @@ type RunnerConfig struct {
 	DockerImage         string
 	DockerSocketAddress string
 	Concurrent          int32
+	Settings            GitlabRunnerSettings
 }
 
 // UpdateRunnerConfigReq is the input to RunnersService.UpdateRunnerConfig.
@@ -178,6 +179,22 @@ type UpdateRunnerConfigReq struct {
 	DockerImage         rtb.Optional[string]
 	DockerSocketAddress rtb.Optional[string]
 	Concurrent          rtb.Optional[int32]
+	PullPolicy          rtb.Optional[[]string]
+	AllowedPullPolicies rtb.Optional[[]string]
+	CheckInterval       rtb.Optional[int32]
+	LogLevel            rtb.Optional[string]
+	ShutdownTimeout     rtb.Optional[int32]
+}
+
+// GitlabRunnerSettings mirrors the keys of a gitlab-runner config.toml this service manages;
+// the file is the only source of truth, nothing here is persisted in the DB.
+// Empty slice / 0 / "" means the key is unset.
+type GitlabRunnerSettings struct {
+	PullPolicy          []string
+	AllowedPullPolicies []string
+	CheckInterval       int32
+	LogLevel            string
+	ShutdownTimeout     int32
 }
 
 // UpdateRunnerConfigResult tells the caller which follow-up action applies

@@ -129,6 +129,166 @@ func (RunnerScope) EnumDescriptor() ([]byte, []int) {
 	return file_runners_api_proto_rawDescGZIP(), []int{1}
 }
 
+// RunnerPullPolicy - gitlab-runner docker executor pull_policy value.
+type RunnerPullPolicy int32
+
+const (
+	RunnerPullPolicy_RUNNER_PULL_POLICY_UNSPECIFIED    RunnerPullPolicy = 0
+	RunnerPullPolicy_RUNNER_PULL_POLICY_ALWAYS         RunnerPullPolicy = 1
+	RunnerPullPolicy_RUNNER_PULL_POLICY_IF_NOT_PRESENT RunnerPullPolicy = 2
+	RunnerPullPolicy_RUNNER_PULL_POLICY_NEVER          RunnerPullPolicy = 3
+)
+
+// Enum value maps for RunnerPullPolicy.
+var (
+	RunnerPullPolicy_name = map[int32]string{
+		0: "RUNNER_PULL_POLICY_UNSPECIFIED",
+		1: "RUNNER_PULL_POLICY_ALWAYS",
+		2: "RUNNER_PULL_POLICY_IF_NOT_PRESENT",
+		3: "RUNNER_PULL_POLICY_NEVER",
+	}
+	RunnerPullPolicy_value = map[string]int32{
+		"RUNNER_PULL_POLICY_UNSPECIFIED":    0,
+		"RUNNER_PULL_POLICY_ALWAYS":         1,
+		"RUNNER_PULL_POLICY_IF_NOT_PRESENT": 2,
+		"RUNNER_PULL_POLICY_NEVER":          3,
+	}
+)
+
+func (x RunnerPullPolicy) Enum() *RunnerPullPolicy {
+	p := new(RunnerPullPolicy)
+	*p = x
+	return p
+}
+
+func (x RunnerPullPolicy) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RunnerPullPolicy) Descriptor() protoreflect.EnumDescriptor {
+	return file_runners_api_proto_enumTypes[2].Descriptor()
+}
+
+func (RunnerPullPolicy) Type() protoreflect.EnumType {
+	return &file_runners_api_proto_enumTypes[2]
+}
+
+func (x RunnerPullPolicy) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RunnerPullPolicy.Descriptor instead.
+func (RunnerPullPolicy) EnumDescriptor() ([]byte, []int) {
+	return file_runners_api_proto_rawDescGZIP(), []int{2}
+}
+
+// RunnerLogLevel - gitlab-runner global log_level value.
+type RunnerLogLevel int32
+
+const (
+	RunnerLogLevel_RUNNER_LOG_LEVEL_UNSPECIFIED RunnerLogLevel = 0
+	RunnerLogLevel_RUNNER_LOG_LEVEL_DEBUG       RunnerLogLevel = 1
+	RunnerLogLevel_RUNNER_LOG_LEVEL_INFO        RunnerLogLevel = 2
+	RunnerLogLevel_RUNNER_LOG_LEVEL_WARN        RunnerLogLevel = 3
+	RunnerLogLevel_RUNNER_LOG_LEVEL_ERROR       RunnerLogLevel = 4
+	RunnerLogLevel_RUNNER_LOG_LEVEL_FATAL       RunnerLogLevel = 5
+	RunnerLogLevel_RUNNER_LOG_LEVEL_PANIC       RunnerLogLevel = 6
+)
+
+// Enum value maps for RunnerLogLevel.
+var (
+	RunnerLogLevel_name = map[int32]string{
+		0: "RUNNER_LOG_LEVEL_UNSPECIFIED",
+		1: "RUNNER_LOG_LEVEL_DEBUG",
+		2: "RUNNER_LOG_LEVEL_INFO",
+		3: "RUNNER_LOG_LEVEL_WARN",
+		4: "RUNNER_LOG_LEVEL_ERROR",
+		5: "RUNNER_LOG_LEVEL_FATAL",
+		6: "RUNNER_LOG_LEVEL_PANIC",
+	}
+	RunnerLogLevel_value = map[string]int32{
+		"RUNNER_LOG_LEVEL_UNSPECIFIED": 0,
+		"RUNNER_LOG_LEVEL_DEBUG":       1,
+		"RUNNER_LOG_LEVEL_INFO":        2,
+		"RUNNER_LOG_LEVEL_WARN":        3,
+		"RUNNER_LOG_LEVEL_ERROR":       4,
+		"RUNNER_LOG_LEVEL_FATAL":       5,
+		"RUNNER_LOG_LEVEL_PANIC":       6,
+	}
+)
+
+func (x RunnerLogLevel) Enum() *RunnerLogLevel {
+	p := new(RunnerLogLevel)
+	*p = x
+	return p
+}
+
+func (x RunnerLogLevel) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RunnerLogLevel) Descriptor() protoreflect.EnumDescriptor {
+	return file_runners_api_proto_enumTypes[3].Descriptor()
+}
+
+func (RunnerLogLevel) Type() protoreflect.EnumType {
+	return &file_runners_api_proto_enumTypes[3]
+}
+
+func (x RunnerLogLevel) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RunnerLogLevel.Descriptor instead.
+func (RunnerLogLevel) EnumDescriptor() ([]byte, []int) {
+	return file_runners_api_proto_rawDescGZIP(), []int{3}
+}
+
+// RunnerPullPolicies wraps a repeated field so UpdateRunnerConfig can tell "unset" from "clear".
+type RunnerPullPolicies struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Values        []RunnerPullPolicy     `protobuf:"varint,1,rep,packed,name=values,proto3,enum=velez_api.RunnerPullPolicy" json:"values,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RunnerPullPolicies) Reset() {
+	*x = RunnerPullPolicies{}
+	mi := &file_runners_api_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RunnerPullPolicies) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RunnerPullPolicies) ProtoMessage() {}
+
+func (x *RunnerPullPolicies) ProtoReflect() protoreflect.Message {
+	mi := &file_runners_api_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RunnerPullPolicies.ProtoReflect.Descriptor instead.
+func (*RunnerPullPolicies) Descriptor() ([]byte, []int) {
+	return file_runners_api_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *RunnerPullPolicies) GetValues() []RunnerPullPolicy {
+	if x != nil {
+		return x.Values
+	}
+	return nil
+}
+
 // Runner never carries its access token - status and environment live on the
 // underlying service/deployment rows and are read via ListSmerds/
 // VervServicesService, not duplicated here.
@@ -151,7 +311,7 @@ type Runner struct {
 
 func (x *Runner) Reset() {
 	*x = Runner{}
-	mi := &file_runners_api_proto_msgTypes[0]
+	mi := &file_runners_api_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -163,7 +323,7 @@ func (x *Runner) String() string {
 func (*Runner) ProtoMessage() {}
 
 func (x *Runner) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[0]
+	mi := &file_runners_api_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -176,7 +336,7 @@ func (x *Runner) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Runner.ProtoReflect.Descriptor instead.
 func (*Runner) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{0}
+	return file_runners_api_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Runner) GetName() string {
@@ -250,7 +410,7 @@ type ListRunners struct {
 
 func (x *ListRunners) Reset() {
 	*x = ListRunners{}
-	mi := &file_runners_api_proto_msgTypes[1]
+	mi := &file_runners_api_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -262,7 +422,7 @@ func (x *ListRunners) String() string {
 func (*ListRunners) ProtoMessage() {}
 
 func (x *ListRunners) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[1]
+	mi := &file_runners_api_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -275,7 +435,7 @@ func (x *ListRunners) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRunners.ProtoReflect.Descriptor instead.
 func (*ListRunners) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{1}
+	return file_runners_api_proto_rawDescGZIP(), []int{2}
 }
 
 type CreateRunner struct {
@@ -286,7 +446,7 @@ type CreateRunner struct {
 
 func (x *CreateRunner) Reset() {
 	*x = CreateRunner{}
-	mi := &file_runners_api_proto_msgTypes[2]
+	mi := &file_runners_api_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -298,7 +458,7 @@ func (x *CreateRunner) String() string {
 func (*CreateRunner) ProtoMessage() {}
 
 func (x *CreateRunner) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[2]
+	mi := &file_runners_api_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -311,7 +471,7 @@ func (x *CreateRunner) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateRunner.ProtoReflect.Descriptor instead.
 func (*CreateRunner) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{2}
+	return file_runners_api_proto_rawDescGZIP(), []int{3}
 }
 
 // GithubConfig - GitHub Actions-specific CreateRunner body.
@@ -327,7 +487,7 @@ type GithubConfig struct {
 
 func (x *GithubConfig) Reset() {
 	*x = GithubConfig{}
-	mi := &file_runners_api_proto_msgTypes[3]
+	mi := &file_runners_api_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -339,7 +499,7 @@ func (x *GithubConfig) String() string {
 func (*GithubConfig) ProtoMessage() {}
 
 func (x *GithubConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[3]
+	mi := &file_runners_api_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -352,7 +512,7 @@ func (x *GithubConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GithubConfig.ProtoReflect.Descriptor instead.
 func (*GithubConfig) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{3}
+	return file_runners_api_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GithubConfig) GetAccessToken() string {
@@ -389,7 +549,7 @@ type GitlabConfig struct {
 
 func (x *GitlabConfig) Reset() {
 	*x = GitlabConfig{}
-	mi := &file_runners_api_proto_msgTypes[4]
+	mi := &file_runners_api_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -401,7 +561,7 @@ func (x *GitlabConfig) String() string {
 func (*GitlabConfig) ProtoMessage() {}
 
 func (x *GitlabConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[4]
+	mi := &file_runners_api_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -414,7 +574,7 @@ func (x *GitlabConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GitlabConfig.ProtoReflect.Descriptor instead.
 func (*GitlabConfig) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{4}
+	return file_runners_api_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GitlabConfig) GetAccessToken() string {
@@ -454,7 +614,7 @@ type GetRunnerConfig struct {
 
 func (x *GetRunnerConfig) Reset() {
 	*x = GetRunnerConfig{}
-	mi := &file_runners_api_proto_msgTypes[5]
+	mi := &file_runners_api_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -466,7 +626,7 @@ func (x *GetRunnerConfig) String() string {
 func (*GetRunnerConfig) ProtoMessage() {}
 
 func (x *GetRunnerConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[5]
+	mi := &file_runners_api_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -479,7 +639,7 @@ func (x *GetRunnerConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRunnerConfig.ProtoReflect.Descriptor instead.
 func (*GetRunnerConfig) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{5}
+	return file_runners_api_proto_rawDescGZIP(), []int{6}
 }
 
 type UpdateRunnerConfig struct {
@@ -490,7 +650,7 @@ type UpdateRunnerConfig struct {
 
 func (x *UpdateRunnerConfig) Reset() {
 	*x = UpdateRunnerConfig{}
-	mi := &file_runners_api_proto_msgTypes[6]
+	mi := &file_runners_api_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -502,7 +662,7 @@ func (x *UpdateRunnerConfig) String() string {
 func (*UpdateRunnerConfig) ProtoMessage() {}
 
 func (x *UpdateRunnerConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[6]
+	mi := &file_runners_api_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -515,7 +675,7 @@ func (x *UpdateRunnerConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateRunnerConfig.ProtoReflect.Descriptor instead.
 func (*UpdateRunnerConfig) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{6}
+	return file_runners_api_proto_rawDescGZIP(), []int{7}
 }
 
 type RedeployRunner struct {
@@ -526,7 +686,7 @@ type RedeployRunner struct {
 
 func (x *RedeployRunner) Reset() {
 	*x = RedeployRunner{}
-	mi := &file_runners_api_proto_msgTypes[7]
+	mi := &file_runners_api_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -538,7 +698,7 @@ func (x *RedeployRunner) String() string {
 func (*RedeployRunner) ProtoMessage() {}
 
 func (x *RedeployRunner) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[7]
+	mi := &file_runners_api_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -551,7 +711,7 @@ func (x *RedeployRunner) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RedeployRunner.ProtoReflect.Descriptor instead.
 func (*RedeployRunner) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{7}
+	return file_runners_api_proto_rawDescGZIP(), []int{8}
 }
 
 type DropRunner struct {
@@ -562,7 +722,7 @@ type DropRunner struct {
 
 func (x *DropRunner) Reset() {
 	*x = DropRunner{}
-	mi := &file_runners_api_proto_msgTypes[8]
+	mi := &file_runners_api_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -574,7 +734,7 @@ func (x *DropRunner) String() string {
 func (*DropRunner) ProtoMessage() {}
 
 func (x *DropRunner) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[8]
+	mi := &file_runners_api_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -587,7 +747,7 @@ func (x *DropRunner) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DropRunner.ProtoReflect.Descriptor instead.
 func (*DropRunner) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{8}
+	return file_runners_api_proto_rawDescGZIP(), []int{9}
 }
 
 type ReregisterRunner struct {
@@ -598,7 +758,7 @@ type ReregisterRunner struct {
 
 func (x *ReregisterRunner) Reset() {
 	*x = ReregisterRunner{}
-	mi := &file_runners_api_proto_msgTypes[9]
+	mi := &file_runners_api_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -610,7 +770,7 @@ func (x *ReregisterRunner) String() string {
 func (*ReregisterRunner) ProtoMessage() {}
 
 func (x *ReregisterRunner) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[9]
+	mi := &file_runners_api_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -623,7 +783,7 @@ func (x *ReregisterRunner) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReregisterRunner.ProtoReflect.Descriptor instead.
 func (*ReregisterRunner) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{9}
+	return file_runners_api_proto_rawDescGZIP(), []int{10}
 }
 
 // GetRunnerCredentials.Response is the only RunnersAPI message that ever
@@ -636,7 +796,7 @@ type GetRunnerCredentials struct {
 
 func (x *GetRunnerCredentials) Reset() {
 	*x = GetRunnerCredentials{}
-	mi := &file_runners_api_proto_msgTypes[10]
+	mi := &file_runners_api_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -648,7 +808,7 @@ func (x *GetRunnerCredentials) String() string {
 func (*GetRunnerCredentials) ProtoMessage() {}
 
 func (x *GetRunnerCredentials) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[10]
+	mi := &file_runners_api_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -661,7 +821,7 @@ func (x *GetRunnerCredentials) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRunnerCredentials.ProtoReflect.Descriptor instead.
 func (*GetRunnerCredentials) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{10}
+	return file_runners_api_proto_rawDescGZIP(), []int{11}
 }
 
 type ListRunners_Request struct {
@@ -673,7 +833,7 @@ type ListRunners_Request struct {
 
 func (x *ListRunners_Request) Reset() {
 	*x = ListRunners_Request{}
-	mi := &file_runners_api_proto_msgTypes[11]
+	mi := &file_runners_api_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -685,7 +845,7 @@ func (x *ListRunners_Request) String() string {
 func (*ListRunners_Request) ProtoMessage() {}
 
 func (x *ListRunners_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[11]
+	mi := &file_runners_api_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -698,7 +858,7 @@ func (x *ListRunners_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRunners_Request.ProtoReflect.Descriptor instead.
 func (*ListRunners_Request) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{1, 0}
+	return file_runners_api_proto_rawDescGZIP(), []int{2, 0}
 }
 
 func (x *ListRunners_Request) GetPaging() *Paging {
@@ -718,7 +878,7 @@ type ListRunners_Response struct {
 
 func (x *ListRunners_Response) Reset() {
 	*x = ListRunners_Response{}
-	mi := &file_runners_api_proto_msgTypes[12]
+	mi := &file_runners_api_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -730,7 +890,7 @@ func (x *ListRunners_Response) String() string {
 func (*ListRunners_Response) ProtoMessage() {}
 
 func (x *ListRunners_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[12]
+	mi := &file_runners_api_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -743,7 +903,7 @@ func (x *ListRunners_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRunners_Response.ProtoReflect.Descriptor instead.
 func (*ListRunners_Response) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{1, 1}
+	return file_runners_api_proto_rawDescGZIP(), []int{2, 1}
 }
 
 func (x *ListRunners_Response) GetRunners() []*Runner {
@@ -788,7 +948,7 @@ type CreateRunner_Request struct {
 
 func (x *CreateRunner_Request) Reset() {
 	*x = CreateRunner_Request{}
-	mi := &file_runners_api_proto_msgTypes[13]
+	mi := &file_runners_api_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -800,7 +960,7 @@ func (x *CreateRunner_Request) String() string {
 func (*CreateRunner_Request) ProtoMessage() {}
 
 func (x *CreateRunner_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[13]
+	mi := &file_runners_api_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -813,7 +973,7 @@ func (x *CreateRunner_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateRunner_Request.ProtoReflect.Descriptor instead.
 func (*CreateRunner_Request) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{2, 0}
+	return file_runners_api_proto_rawDescGZIP(), []int{3, 0}
 }
 
 func (x *CreateRunner_Request) GetName() string {
@@ -920,7 +1080,7 @@ type CreateRunner_Response struct {
 
 func (x *CreateRunner_Response) Reset() {
 	*x = CreateRunner_Response{}
-	mi := &file_runners_api_proto_msgTypes[14]
+	mi := &file_runners_api_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -932,7 +1092,7 @@ func (x *CreateRunner_Response) String() string {
 func (*CreateRunner_Response) ProtoMessage() {}
 
 func (x *CreateRunner_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[14]
+	mi := &file_runners_api_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -945,7 +1105,7 @@ func (x *CreateRunner_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateRunner_Response.ProtoReflect.Descriptor instead.
 func (*CreateRunner_Response) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{2, 1}
+	return file_runners_api_proto_rawDescGZIP(), []int{3, 1}
 }
 
 func (x *CreateRunner_Response) GetRunner() *Runner {
@@ -978,7 +1138,7 @@ type GetRunnerConfig_Request struct {
 
 func (x *GetRunnerConfig_Request) Reset() {
 	*x = GetRunnerConfig_Request{}
-	mi := &file_runners_api_proto_msgTypes[15]
+	mi := &file_runners_api_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -990,7 +1150,7 @@ func (x *GetRunnerConfig_Request) String() string {
 func (*GetRunnerConfig_Request) ProtoMessage() {}
 
 func (x *GetRunnerConfig_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[15]
+	mi := &file_runners_api_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1003,7 +1163,7 @@ func (x *GetRunnerConfig_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRunnerConfig_Request.ProtoReflect.Descriptor instead.
 func (*GetRunnerConfig_Request) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{5, 0}
+	return file_runners_api_proto_rawDescGZIP(), []int{6, 0}
 }
 
 func (x *GetRunnerConfig_Request) GetName() string {
@@ -1019,13 +1179,21 @@ type GetRunnerConfig_Response struct {
 	DockerImage         string                 `protobuf:"bytes,2,opt,name=docker_image,json=dockerImage,proto3" json:"docker_image,omitempty"`
 	DockerSocketAddress string                 `protobuf:"bytes,3,opt,name=docker_socket_address,json=dockerSocketAddress,proto3" json:"docker_socket_address,omitempty"`
 	Concurrent          int32                  `protobuf:"varint,4,opt,name=concurrent,proto3" json:"concurrent,omitempty"`
+	// The fields below are read live from the runner's config.toml;
+	// empty / 0 / UNSPECIFIED means the key is unset.
+	// pull_policy - ordered fallback chain.
+	PullPolicy          []RunnerPullPolicy `protobuf:"varint,5,rep,packed,name=pull_policy,json=pullPolicy,proto3,enum=velez_api.RunnerPullPolicy" json:"pull_policy,omitempty"`
+	AllowedPullPolicies []RunnerPullPolicy `protobuf:"varint,6,rep,packed,name=allowed_pull_policies,json=allowedPullPolicies,proto3,enum=velez_api.RunnerPullPolicy" json:"allowed_pull_policies,omitempty"`
+	CheckInterval       int32              `protobuf:"varint,7,opt,name=check_interval,json=checkInterval,proto3" json:"check_interval,omitempty"`
+	LogLevel            RunnerLogLevel     `protobuf:"varint,8,opt,name=log_level,json=logLevel,proto3,enum=velez_api.RunnerLogLevel" json:"log_level,omitempty"`
+	ShutdownTimeout     int32              `protobuf:"varint,9,opt,name=shutdown_timeout,json=shutdownTimeout,proto3" json:"shutdown_timeout,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
 
 func (x *GetRunnerConfig_Response) Reset() {
 	*x = GetRunnerConfig_Response{}
-	mi := &file_runners_api_proto_msgTypes[16]
+	mi := &file_runners_api_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1037,7 +1205,7 @@ func (x *GetRunnerConfig_Response) String() string {
 func (*GetRunnerConfig_Response) ProtoMessage() {}
 
 func (x *GetRunnerConfig_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[16]
+	mi := &file_runners_api_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1050,7 +1218,7 @@ func (x *GetRunnerConfig_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRunnerConfig_Response.ProtoReflect.Descriptor instead.
 func (*GetRunnerConfig_Response) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{5, 1}
+	return file_runners_api_proto_rawDescGZIP(), []int{6, 1}
 }
 
 func (x *GetRunnerConfig_Response) GetBaseUrl() string {
@@ -1081,6 +1249,41 @@ func (x *GetRunnerConfig_Response) GetConcurrent() int32 {
 	return 0
 }
 
+func (x *GetRunnerConfig_Response) GetPullPolicy() []RunnerPullPolicy {
+	if x != nil {
+		return x.PullPolicy
+	}
+	return nil
+}
+
+func (x *GetRunnerConfig_Response) GetAllowedPullPolicies() []RunnerPullPolicy {
+	if x != nil {
+		return x.AllowedPullPolicies
+	}
+	return nil
+}
+
+func (x *GetRunnerConfig_Response) GetCheckInterval() int32 {
+	if x != nil {
+		return x.CheckInterval
+	}
+	return 0
+}
+
+func (x *GetRunnerConfig_Response) GetLogLevel() RunnerLogLevel {
+	if x != nil {
+		return x.LogLevel
+	}
+	return RunnerLogLevel_RUNNER_LOG_LEVEL_UNSPECIFIED
+}
+
+func (x *GetRunnerConfig_Response) GetShutdownTimeout() int32 {
+	if x != nil {
+		return x.ShutdownTimeout
+	}
+	return 0
+}
+
 type UpdateRunnerConfig_Request struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Name  string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -1095,14 +1298,21 @@ type UpdateRunnerConfig_Request struct {
 	DockerSocketAddress *string `protobuf:"bytes,4,opt,name=docker_socket_address,json=dockerSocketAddress,proto3,oneof" json:"docker_socket_address,omitempty"`
 	// concurrent - must be at least 1. Unlike the other fields it is applied
 	// to the running container immediately.
-	Concurrent    *int32 `protobuf:"varint,5,opt,name=concurrent,proto3,oneof" json:"concurrent,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Concurrent *int32 `protobuf:"varint,5,opt,name=concurrent,proto3,oneof" json:"concurrent,omitempty"`
+	// The fields below are applied live to config.toml and never stored in
+	// the DB. A set field with an empty list / 0 / UNSPECIFIED clears the key.
+	PullPolicy          *RunnerPullPolicies `protobuf:"bytes,6,opt,name=pull_policy,json=pullPolicy,proto3,oneof" json:"pull_policy,omitempty"`
+	AllowedPullPolicies *RunnerPullPolicies `protobuf:"bytes,7,opt,name=allowed_pull_policies,json=allowedPullPolicies,proto3,oneof" json:"allowed_pull_policies,omitempty"`
+	CheckInterval       *int32              `protobuf:"varint,8,opt,name=check_interval,json=checkInterval,proto3,oneof" json:"check_interval,omitempty"`
+	LogLevel            *RunnerLogLevel     `protobuf:"varint,9,opt,name=log_level,json=logLevel,proto3,enum=velez_api.RunnerLogLevel,oneof" json:"log_level,omitempty"`
+	ShutdownTimeout     *int32              `protobuf:"varint,10,opt,name=shutdown_timeout,json=shutdownTimeout,proto3,oneof" json:"shutdown_timeout,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *UpdateRunnerConfig_Request) Reset() {
 	*x = UpdateRunnerConfig_Request{}
-	mi := &file_runners_api_proto_msgTypes[17]
+	mi := &file_runners_api_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1114,7 +1324,7 @@ func (x *UpdateRunnerConfig_Request) String() string {
 func (*UpdateRunnerConfig_Request) ProtoMessage() {}
 
 func (x *UpdateRunnerConfig_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[17]
+	mi := &file_runners_api_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1127,7 +1337,7 @@ func (x *UpdateRunnerConfig_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateRunnerConfig_Request.ProtoReflect.Descriptor instead.
 func (*UpdateRunnerConfig_Request) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{6, 0}
+	return file_runners_api_proto_rawDescGZIP(), []int{7, 0}
 }
 
 func (x *UpdateRunnerConfig_Request) GetName() string {
@@ -1165,6 +1375,41 @@ func (x *UpdateRunnerConfig_Request) GetConcurrent() int32 {
 	return 0
 }
 
+func (x *UpdateRunnerConfig_Request) GetPullPolicy() *RunnerPullPolicies {
+	if x != nil {
+		return x.PullPolicy
+	}
+	return nil
+}
+
+func (x *UpdateRunnerConfig_Request) GetAllowedPullPolicies() *RunnerPullPolicies {
+	if x != nil {
+		return x.AllowedPullPolicies
+	}
+	return nil
+}
+
+func (x *UpdateRunnerConfig_Request) GetCheckInterval() int32 {
+	if x != nil && x.CheckInterval != nil {
+		return *x.CheckInterval
+	}
+	return 0
+}
+
+func (x *UpdateRunnerConfig_Request) GetLogLevel() RunnerLogLevel {
+	if x != nil && x.LogLevel != nil {
+		return *x.LogLevel
+	}
+	return RunnerLogLevel_RUNNER_LOG_LEVEL_UNSPECIFIED
+}
+
+func (x *UpdateRunnerConfig_Request) GetShutdownTimeout() int32 {
+	if x != nil && x.ShutdownTimeout != nil {
+		return *x.ShutdownTimeout
+	}
+	return 0
+}
+
 type UpdateRunnerConfig_Response struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// requires_reregister - true when base_url and/or docker_image was set;
@@ -1179,7 +1424,7 @@ type UpdateRunnerConfig_Response struct {
 
 func (x *UpdateRunnerConfig_Response) Reset() {
 	*x = UpdateRunnerConfig_Response{}
-	mi := &file_runners_api_proto_msgTypes[18]
+	mi := &file_runners_api_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1191,7 +1436,7 @@ func (x *UpdateRunnerConfig_Response) String() string {
 func (*UpdateRunnerConfig_Response) ProtoMessage() {}
 
 func (x *UpdateRunnerConfig_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[18]
+	mi := &file_runners_api_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1204,7 +1449,7 @@ func (x *UpdateRunnerConfig_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateRunnerConfig_Response.ProtoReflect.Descriptor instead.
 func (*UpdateRunnerConfig_Response) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{6, 1}
+	return file_runners_api_proto_rawDescGZIP(), []int{7, 1}
 }
 
 func (x *UpdateRunnerConfig_Response) GetRequiresReregister() bool {
@@ -1230,7 +1475,7 @@ type RedeployRunner_Request struct {
 
 func (x *RedeployRunner_Request) Reset() {
 	*x = RedeployRunner_Request{}
-	mi := &file_runners_api_proto_msgTypes[19]
+	mi := &file_runners_api_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1242,7 +1487,7 @@ func (x *RedeployRunner_Request) String() string {
 func (*RedeployRunner_Request) ProtoMessage() {}
 
 func (x *RedeployRunner_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[19]
+	mi := &file_runners_api_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1255,7 +1500,7 @@ func (x *RedeployRunner_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RedeployRunner_Request.ProtoReflect.Descriptor instead.
 func (*RedeployRunner_Request) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{7, 0}
+	return file_runners_api_proto_rawDescGZIP(), []int{8, 0}
 }
 
 func (x *RedeployRunner_Request) GetName() string {
@@ -1275,7 +1520,7 @@ type RedeployRunner_Response struct {
 
 func (x *RedeployRunner_Response) Reset() {
 	*x = RedeployRunner_Response{}
-	mi := &file_runners_api_proto_msgTypes[20]
+	mi := &file_runners_api_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1287,7 +1532,7 @@ func (x *RedeployRunner_Response) String() string {
 func (*RedeployRunner_Response) ProtoMessage() {}
 
 func (x *RedeployRunner_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[20]
+	mi := &file_runners_api_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1300,7 +1545,7 @@ func (x *RedeployRunner_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RedeployRunner_Response.ProtoReflect.Descriptor instead.
 func (*RedeployRunner_Response) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{7, 1}
+	return file_runners_api_proto_rawDescGZIP(), []int{8, 1}
 }
 
 func (x *RedeployRunner_Response) GetEntityId() string {
@@ -1326,7 +1571,7 @@ type DropRunner_Request struct {
 
 func (x *DropRunner_Request) Reset() {
 	*x = DropRunner_Request{}
-	mi := &file_runners_api_proto_msgTypes[21]
+	mi := &file_runners_api_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1338,7 +1583,7 @@ func (x *DropRunner_Request) String() string {
 func (*DropRunner_Request) ProtoMessage() {}
 
 func (x *DropRunner_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[21]
+	mi := &file_runners_api_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1351,7 +1596,7 @@ func (x *DropRunner_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DropRunner_Request.ProtoReflect.Descriptor instead.
 func (*DropRunner_Request) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{8, 0}
+	return file_runners_api_proto_rawDescGZIP(), []int{9, 0}
 }
 
 func (x *DropRunner_Request) GetName() string {
@@ -1369,7 +1614,7 @@ type DropRunner_Response struct {
 
 func (x *DropRunner_Response) Reset() {
 	*x = DropRunner_Response{}
-	mi := &file_runners_api_proto_msgTypes[22]
+	mi := &file_runners_api_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1381,7 +1626,7 @@ func (x *DropRunner_Response) String() string {
 func (*DropRunner_Response) ProtoMessage() {}
 
 func (x *DropRunner_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[22]
+	mi := &file_runners_api_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1394,7 +1639,7 @@ func (x *DropRunner_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DropRunner_Response.ProtoReflect.Descriptor instead.
 func (*DropRunner_Response) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{8, 1}
+	return file_runners_api_proto_rawDescGZIP(), []int{9, 1}
 }
 
 type ReregisterRunner_Request struct {
@@ -1406,7 +1651,7 @@ type ReregisterRunner_Request struct {
 
 func (x *ReregisterRunner_Request) Reset() {
 	*x = ReregisterRunner_Request{}
-	mi := &file_runners_api_proto_msgTypes[23]
+	mi := &file_runners_api_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1418,7 +1663,7 @@ func (x *ReregisterRunner_Request) String() string {
 func (*ReregisterRunner_Request) ProtoMessage() {}
 
 func (x *ReregisterRunner_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[23]
+	mi := &file_runners_api_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1431,7 +1676,7 @@ func (x *ReregisterRunner_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReregisterRunner_Request.ProtoReflect.Descriptor instead.
 func (*ReregisterRunner_Request) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{9, 0}
+	return file_runners_api_proto_rawDescGZIP(), []int{10, 0}
 }
 
 func (x *ReregisterRunner_Request) GetName() string {
@@ -1451,7 +1696,7 @@ type ReregisterRunner_Response struct {
 
 func (x *ReregisterRunner_Response) Reset() {
 	*x = ReregisterRunner_Response{}
-	mi := &file_runners_api_proto_msgTypes[24]
+	mi := &file_runners_api_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1463,7 +1708,7 @@ func (x *ReregisterRunner_Response) String() string {
 func (*ReregisterRunner_Response) ProtoMessage() {}
 
 func (x *ReregisterRunner_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[24]
+	mi := &file_runners_api_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1476,7 +1721,7 @@ func (x *ReregisterRunner_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReregisterRunner_Response.ProtoReflect.Descriptor instead.
 func (*ReregisterRunner_Response) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{9, 1}
+	return file_runners_api_proto_rawDescGZIP(), []int{10, 1}
 }
 
 func (x *ReregisterRunner_Response) GetEntityId() string {
@@ -1502,7 +1747,7 @@ type GetRunnerCredentials_Request struct {
 
 func (x *GetRunnerCredentials_Request) Reset() {
 	*x = GetRunnerCredentials_Request{}
-	mi := &file_runners_api_proto_msgTypes[25]
+	mi := &file_runners_api_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1514,7 +1759,7 @@ func (x *GetRunnerCredentials_Request) String() string {
 func (*GetRunnerCredentials_Request) ProtoMessage() {}
 
 func (x *GetRunnerCredentials_Request) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[25]
+	mi := &file_runners_api_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1527,7 +1772,7 @@ func (x *GetRunnerCredentials_Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRunnerCredentials_Request.ProtoReflect.Descriptor instead.
 func (*GetRunnerCredentials_Request) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{10, 0}
+	return file_runners_api_proto_rawDescGZIP(), []int{11, 0}
 }
 
 func (x *GetRunnerCredentials_Request) GetName() string {
@@ -1553,7 +1798,7 @@ type GetRunnerCredentials_Response struct {
 
 func (x *GetRunnerCredentials_Response) Reset() {
 	*x = GetRunnerCredentials_Response{}
-	mi := &file_runners_api_proto_msgTypes[26]
+	mi := &file_runners_api_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1565,7 +1810,7 @@ func (x *GetRunnerCredentials_Response) String() string {
 func (*GetRunnerCredentials_Response) ProtoMessage() {}
 
 func (x *GetRunnerCredentials_Response) ProtoReflect() protoreflect.Message {
-	mi := &file_runners_api_proto_msgTypes[26]
+	mi := &file_runners_api_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1578,7 +1823,7 @@ func (x *GetRunnerCredentials_Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRunnerCredentials_Response.ProtoReflect.Descriptor instead.
 func (*GetRunnerCredentials_Response) Descriptor() ([]byte, []int) {
-	return file_runners_api_proto_rawDescGZIP(), []int{10, 1}
+	return file_runners_api_proto_rawDescGZIP(), []int{11, 1}
 }
 
 func (x *GetRunnerCredentials_Response) GetToken() string {
@@ -1606,7 +1851,9 @@ var File_runners_api_proto protoreflect.FileDescriptor
 
 const file_runners_api_proto_rawDesc = "" +
 	"\n" +
-	"\x11runners_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\x1a\x12velez_common.proto\"\xe1\x02\n" +
+	"\x11runners_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\x1a\x12velez_common.proto\"I\n" +
+	"\x12RunnerPullPolicies\x123\n" +
+	"\x06values\x18\x01 \x03(\x0e2\x1b.velez_api.RunnerPullPolicyR\x06values\"\xe1\x02\n" +
 	"\x06Runner\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x125\n" +
 	"\bprovider\x18\x02 \x01(\x0e2\x19.velez_api.RunnerProviderR\bprovider\x12,\n" +
@@ -1656,18 +1903,24 @@ const file_runners_api_proto_rawDesc = "" +
 	"concurrent\x88\x01\x01B\v\n" +
 	"\t_base_urlB\x0f\n" +
 	"\r_docker_imageB\r\n" +
-	"\v_concurrent\"\xcf\x01\n" +
+	"\v_concurrent\"\xe8\x03\n" +
 	"\x0fGetRunnerConfig\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x1a\x9c\x01\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x1a\xb5\x03\n" +
 	"\bResponse\x12\x19\n" +
 	"\bbase_url\x18\x01 \x01(\tR\abaseUrl\x12!\n" +
 	"\fdocker_image\x18\x02 \x01(\tR\vdockerImage\x122\n" +
 	"\x15docker_socket_address\x18\x03 \x01(\tR\x13dockerSocketAddress\x12\x1e\n" +
 	"\n" +
 	"concurrent\x18\x04 \x01(\x05R\n" +
-	"concurrent\"\x8b\x03\n" +
-	"\x12UpdateRunnerConfig\x1a\x8a\x02\n" +
+	"concurrent\x12<\n" +
+	"\vpull_policy\x18\x05 \x03(\x0e2\x1b.velez_api.RunnerPullPolicyR\n" +
+	"pullPolicy\x12O\n" +
+	"\x15allowed_pull_policies\x18\x06 \x03(\x0e2\x1b.velez_api.RunnerPullPolicyR\x13allowedPullPolicies\x12%\n" +
+	"\x0echeck_interval\x18\a \x01(\x05R\rcheckInterval\x126\n" +
+	"\tlog_level\x18\b \x01(\x0e2\x19.velez_api.RunnerLogLevelR\blogLevel\x12)\n" +
+	"\x10shutdown_timeout\x18\t \x01(\x05R\x0fshutdownTimeout\"\xa1\x06\n" +
+	"\x12UpdateRunnerConfig\x1a\xa0\x05\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1e\n" +
 	"\bbase_url\x18\x02 \x01(\tH\x00R\abaseUrl\x88\x01\x01\x12&\n" +
@@ -1675,11 +1928,24 @@ const file_runners_api_proto_rawDesc = "" +
 	"\x15docker_socket_address\x18\x04 \x01(\tH\x02R\x13dockerSocketAddress\x88\x01\x01\x12#\n" +
 	"\n" +
 	"concurrent\x18\x05 \x01(\x05H\x03R\n" +
-	"concurrent\x88\x01\x01B\v\n" +
+	"concurrent\x88\x01\x01\x12C\n" +
+	"\vpull_policy\x18\x06 \x01(\v2\x1d.velez_api.RunnerPullPoliciesH\x04R\n" +
+	"pullPolicy\x88\x01\x01\x12V\n" +
+	"\x15allowed_pull_policies\x18\a \x01(\v2\x1d.velez_api.RunnerPullPoliciesH\x05R\x13allowedPullPolicies\x88\x01\x01\x12*\n" +
+	"\x0echeck_interval\x18\b \x01(\x05H\x06R\rcheckInterval\x88\x01\x01\x12;\n" +
+	"\tlog_level\x18\t \x01(\x0e2\x19.velez_api.RunnerLogLevelH\aR\blogLevel\x88\x01\x01\x12.\n" +
+	"\x10shutdown_timeout\x18\n" +
+	" \x01(\x05H\bR\x0fshutdownTimeout\x88\x01\x01B\v\n" +
 	"\t_base_urlB\x0f\n" +
 	"\r_docker_imageB\x18\n" +
 	"\x16_docker_socket_addressB\r\n" +
-	"\v_concurrent\x1ah\n" +
+	"\v_concurrentB\x0e\n" +
+	"\f_pull_policyB\x18\n" +
+	"\x16_allowed_pull_policiesB\x11\n" +
+	"\x0f_check_intervalB\f\n" +
+	"\n" +
+	"_log_levelB\x13\n" +
+	"\x11_shutdown_timeout\x1ah\n" +
 	"\bResponse\x12/\n" +
 	"\x13requires_reregister\x18\x01 \x01(\bR\x12requiresReregister\x12+\n" +
 	"\x11requires_redeploy\x18\x02 \x01(\bR\x10requiresRedeploy\"p\n" +
@@ -1717,7 +1983,20 @@ const file_runners_api_proto_rawDesc = "" +
 	"\vRunnerScope\x12\x1c\n" +
 	"\x18RUNNER_SCOPE_UNSPECIFIED\x10\x00\x12\b\n" +
 	"\x04REPO\x10\x01\x12\a\n" +
-	"\x03ORG\x10\x022\xf9\a\n" +
+	"\x03ORG\x10\x02*\x9a\x01\n" +
+	"\x10RunnerPullPolicy\x12\"\n" +
+	"\x1eRUNNER_PULL_POLICY_UNSPECIFIED\x10\x00\x12\x1d\n" +
+	"\x19RUNNER_PULL_POLICY_ALWAYS\x10\x01\x12%\n" +
+	"!RUNNER_PULL_POLICY_IF_NOT_PRESENT\x10\x02\x12\x1c\n" +
+	"\x18RUNNER_PULL_POLICY_NEVER\x10\x03*\xd8\x01\n" +
+	"\x0eRunnerLogLevel\x12 \n" +
+	"\x1cRUNNER_LOG_LEVEL_UNSPECIFIED\x10\x00\x12\x1a\n" +
+	"\x16RUNNER_LOG_LEVEL_DEBUG\x10\x01\x12\x19\n" +
+	"\x15RUNNER_LOG_LEVEL_INFO\x10\x02\x12\x19\n" +
+	"\x15RUNNER_LOG_LEVEL_WARN\x10\x03\x12\x1a\n" +
+	"\x16RUNNER_LOG_LEVEL_ERROR\x10\x04\x12\x1a\n" +
+	"\x16RUNNER_LOG_LEVEL_FATAL\x10\x05\x12\x1a\n" +
+	"\x16RUNNER_LOG_LEVEL_PANIC\x10\x062\xf9\a\n" +
 	"\n" +
 	"RunnersAPI\x12l\n" +
 	"\vListRunners\x12\x1e.velez_api.ListRunners.Request\x1a\x1f.velez_api.ListRunners.Response\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/runners/list\x12q\n" +
@@ -1742,74 +2021,84 @@ func file_runners_api_proto_rawDescGZIP() []byte {
 	return file_runners_api_proto_rawDescData
 }
 
-var file_runners_api_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_runners_api_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
+var file_runners_api_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_runners_api_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
 var file_runners_api_proto_goTypes = []any{
 	(RunnerProvider)(0),                   // 0: velez_api.RunnerProvider
 	(RunnerScope)(0),                      // 1: velez_api.RunnerScope
-	(*Runner)(nil),                        // 2: velez_api.Runner
-	(*ListRunners)(nil),                   // 3: velez_api.ListRunners
-	(*CreateRunner)(nil),                  // 4: velez_api.CreateRunner
-	(*GithubConfig)(nil),                  // 5: velez_api.GithubConfig
-	(*GitlabConfig)(nil),                  // 6: velez_api.GitlabConfig
-	(*GetRunnerConfig)(nil),               // 7: velez_api.GetRunnerConfig
-	(*UpdateRunnerConfig)(nil),            // 8: velez_api.UpdateRunnerConfig
-	(*RedeployRunner)(nil),                // 9: velez_api.RedeployRunner
-	(*DropRunner)(nil),                    // 10: velez_api.DropRunner
-	(*ReregisterRunner)(nil),              // 11: velez_api.ReregisterRunner
-	(*GetRunnerCredentials)(nil),          // 12: velez_api.GetRunnerCredentials
-	(*ListRunners_Request)(nil),           // 13: velez_api.ListRunners.Request
-	(*ListRunners_Response)(nil),          // 14: velez_api.ListRunners.Response
-	(*CreateRunner_Request)(nil),          // 15: velez_api.CreateRunner.Request
-	(*CreateRunner_Response)(nil),         // 16: velez_api.CreateRunner.Response
-	(*GetRunnerConfig_Request)(nil),       // 17: velez_api.GetRunnerConfig.Request
-	(*GetRunnerConfig_Response)(nil),      // 18: velez_api.GetRunnerConfig.Response
-	(*UpdateRunnerConfig_Request)(nil),    // 19: velez_api.UpdateRunnerConfig.Request
-	(*UpdateRunnerConfig_Response)(nil),   // 20: velez_api.UpdateRunnerConfig.Response
-	(*RedeployRunner_Request)(nil),        // 21: velez_api.RedeployRunner.Request
-	(*RedeployRunner_Response)(nil),       // 22: velez_api.RedeployRunner.Response
-	(*DropRunner_Request)(nil),            // 23: velez_api.DropRunner.Request
-	(*DropRunner_Response)(nil),           // 24: velez_api.DropRunner.Response
-	(*ReregisterRunner_Request)(nil),      // 25: velez_api.ReregisterRunner.Request
-	(*ReregisterRunner_Response)(nil),     // 26: velez_api.ReregisterRunner.Response
-	(*GetRunnerCredentials_Request)(nil),  // 27: velez_api.GetRunnerCredentials.Request
-	(*GetRunnerCredentials_Response)(nil), // 28: velez_api.GetRunnerCredentials.Response
-	(*timestamppb.Timestamp)(nil),         // 29: google.protobuf.Timestamp
-	(*Paging)(nil),                        // 30: velez_api.Paging
+	(RunnerPullPolicy)(0),                 // 2: velez_api.RunnerPullPolicy
+	(RunnerLogLevel)(0),                   // 3: velez_api.RunnerLogLevel
+	(*RunnerPullPolicies)(nil),            // 4: velez_api.RunnerPullPolicies
+	(*Runner)(nil),                        // 5: velez_api.Runner
+	(*ListRunners)(nil),                   // 6: velez_api.ListRunners
+	(*CreateRunner)(nil),                  // 7: velez_api.CreateRunner
+	(*GithubConfig)(nil),                  // 8: velez_api.GithubConfig
+	(*GitlabConfig)(nil),                  // 9: velez_api.GitlabConfig
+	(*GetRunnerConfig)(nil),               // 10: velez_api.GetRunnerConfig
+	(*UpdateRunnerConfig)(nil),            // 11: velez_api.UpdateRunnerConfig
+	(*RedeployRunner)(nil),                // 12: velez_api.RedeployRunner
+	(*DropRunner)(nil),                    // 13: velez_api.DropRunner
+	(*ReregisterRunner)(nil),              // 14: velez_api.ReregisterRunner
+	(*GetRunnerCredentials)(nil),          // 15: velez_api.GetRunnerCredentials
+	(*ListRunners_Request)(nil),           // 16: velez_api.ListRunners.Request
+	(*ListRunners_Response)(nil),          // 17: velez_api.ListRunners.Response
+	(*CreateRunner_Request)(nil),          // 18: velez_api.CreateRunner.Request
+	(*CreateRunner_Response)(nil),         // 19: velez_api.CreateRunner.Response
+	(*GetRunnerConfig_Request)(nil),       // 20: velez_api.GetRunnerConfig.Request
+	(*GetRunnerConfig_Response)(nil),      // 21: velez_api.GetRunnerConfig.Response
+	(*UpdateRunnerConfig_Request)(nil),    // 22: velez_api.UpdateRunnerConfig.Request
+	(*UpdateRunnerConfig_Response)(nil),   // 23: velez_api.UpdateRunnerConfig.Response
+	(*RedeployRunner_Request)(nil),        // 24: velez_api.RedeployRunner.Request
+	(*RedeployRunner_Response)(nil),       // 25: velez_api.RedeployRunner.Response
+	(*DropRunner_Request)(nil),            // 26: velez_api.DropRunner.Request
+	(*DropRunner_Response)(nil),           // 27: velez_api.DropRunner.Response
+	(*ReregisterRunner_Request)(nil),      // 28: velez_api.ReregisterRunner.Request
+	(*ReregisterRunner_Response)(nil),     // 29: velez_api.ReregisterRunner.Response
+	(*GetRunnerCredentials_Request)(nil),  // 30: velez_api.GetRunnerCredentials.Request
+	(*GetRunnerCredentials_Response)(nil), // 31: velez_api.GetRunnerCredentials.Response
+	(*timestamppb.Timestamp)(nil),         // 32: google.protobuf.Timestamp
+	(*Paging)(nil),                        // 33: velez_api.Paging
 }
 var file_runners_api_proto_depIdxs = []int32{
-	0,  // 0: velez_api.Runner.provider:type_name -> velez_api.RunnerProvider
-	1,  // 1: velez_api.Runner.scope:type_name -> velez_api.RunnerScope
-	29, // 2: velez_api.Runner.created_at:type_name -> google.protobuf.Timestamp
-	29, // 3: velez_api.Runner.updated_at:type_name -> google.protobuf.Timestamp
-	30, // 4: velez_api.ListRunners.Request.paging:type_name -> velez_api.Paging
-	2,  // 5: velez_api.ListRunners.Response.runners:type_name -> velez_api.Runner
-	1,  // 6: velez_api.CreateRunner.Request.scope:type_name -> velez_api.RunnerScope
-	5,  // 7: velez_api.CreateRunner.Request.github:type_name -> velez_api.GithubConfig
-	6,  // 8: velez_api.CreateRunner.Request.gitlab:type_name -> velez_api.GitlabConfig
-	2,  // 9: velez_api.CreateRunner.Response.runner:type_name -> velez_api.Runner
-	0,  // 10: velez_api.GetRunnerCredentials.Response.provider:type_name -> velez_api.RunnerProvider
-	13, // 11: velez_api.RunnersAPI.ListRunners:input_type -> velez_api.ListRunners.Request
-	15, // 12: velez_api.RunnersAPI.CreateRunner:input_type -> velez_api.CreateRunner.Request
-	23, // 13: velez_api.RunnersAPI.DropRunner:input_type -> velez_api.DropRunner.Request
-	25, // 14: velez_api.RunnersAPI.ReregisterRunner:input_type -> velez_api.ReregisterRunner.Request
-	27, // 15: velez_api.RunnersAPI.GetRunnerCredentials:input_type -> velez_api.GetRunnerCredentials.Request
-	17, // 16: velez_api.RunnersAPI.GetRunnerConfig:input_type -> velez_api.GetRunnerConfig.Request
-	19, // 17: velez_api.RunnersAPI.UpdateRunnerConfig:input_type -> velez_api.UpdateRunnerConfig.Request
-	21, // 18: velez_api.RunnersAPI.RedeployRunner:input_type -> velez_api.RedeployRunner.Request
-	14, // 19: velez_api.RunnersAPI.ListRunners:output_type -> velez_api.ListRunners.Response
-	16, // 20: velez_api.RunnersAPI.CreateRunner:output_type -> velez_api.CreateRunner.Response
-	24, // 21: velez_api.RunnersAPI.DropRunner:output_type -> velez_api.DropRunner.Response
-	26, // 22: velez_api.RunnersAPI.ReregisterRunner:output_type -> velez_api.ReregisterRunner.Response
-	28, // 23: velez_api.RunnersAPI.GetRunnerCredentials:output_type -> velez_api.GetRunnerCredentials.Response
-	18, // 24: velez_api.RunnersAPI.GetRunnerConfig:output_type -> velez_api.GetRunnerConfig.Response
-	20, // 25: velez_api.RunnersAPI.UpdateRunnerConfig:output_type -> velez_api.UpdateRunnerConfig.Response
-	22, // 26: velez_api.RunnersAPI.RedeployRunner:output_type -> velez_api.RedeployRunner.Response
-	19, // [19:27] is the sub-list for method output_type
-	11, // [11:19] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	2,  // 0: velez_api.RunnerPullPolicies.values:type_name -> velez_api.RunnerPullPolicy
+	0,  // 1: velez_api.Runner.provider:type_name -> velez_api.RunnerProvider
+	1,  // 2: velez_api.Runner.scope:type_name -> velez_api.RunnerScope
+	32, // 3: velez_api.Runner.created_at:type_name -> google.protobuf.Timestamp
+	32, // 4: velez_api.Runner.updated_at:type_name -> google.protobuf.Timestamp
+	33, // 5: velez_api.ListRunners.Request.paging:type_name -> velez_api.Paging
+	5,  // 6: velez_api.ListRunners.Response.runners:type_name -> velez_api.Runner
+	1,  // 7: velez_api.CreateRunner.Request.scope:type_name -> velez_api.RunnerScope
+	8,  // 8: velez_api.CreateRunner.Request.github:type_name -> velez_api.GithubConfig
+	9,  // 9: velez_api.CreateRunner.Request.gitlab:type_name -> velez_api.GitlabConfig
+	5,  // 10: velez_api.CreateRunner.Response.runner:type_name -> velez_api.Runner
+	2,  // 11: velez_api.GetRunnerConfig.Response.pull_policy:type_name -> velez_api.RunnerPullPolicy
+	2,  // 12: velez_api.GetRunnerConfig.Response.allowed_pull_policies:type_name -> velez_api.RunnerPullPolicy
+	3,  // 13: velez_api.GetRunnerConfig.Response.log_level:type_name -> velez_api.RunnerLogLevel
+	4,  // 14: velez_api.UpdateRunnerConfig.Request.pull_policy:type_name -> velez_api.RunnerPullPolicies
+	4,  // 15: velez_api.UpdateRunnerConfig.Request.allowed_pull_policies:type_name -> velez_api.RunnerPullPolicies
+	3,  // 16: velez_api.UpdateRunnerConfig.Request.log_level:type_name -> velez_api.RunnerLogLevel
+	0,  // 17: velez_api.GetRunnerCredentials.Response.provider:type_name -> velez_api.RunnerProvider
+	16, // 18: velez_api.RunnersAPI.ListRunners:input_type -> velez_api.ListRunners.Request
+	18, // 19: velez_api.RunnersAPI.CreateRunner:input_type -> velez_api.CreateRunner.Request
+	26, // 20: velez_api.RunnersAPI.DropRunner:input_type -> velez_api.DropRunner.Request
+	28, // 21: velez_api.RunnersAPI.ReregisterRunner:input_type -> velez_api.ReregisterRunner.Request
+	30, // 22: velez_api.RunnersAPI.GetRunnerCredentials:input_type -> velez_api.GetRunnerCredentials.Request
+	20, // 23: velez_api.RunnersAPI.GetRunnerConfig:input_type -> velez_api.GetRunnerConfig.Request
+	22, // 24: velez_api.RunnersAPI.UpdateRunnerConfig:input_type -> velez_api.UpdateRunnerConfig.Request
+	24, // 25: velez_api.RunnersAPI.RedeployRunner:input_type -> velez_api.RedeployRunner.Request
+	17, // 26: velez_api.RunnersAPI.ListRunners:output_type -> velez_api.ListRunners.Response
+	19, // 27: velez_api.RunnersAPI.CreateRunner:output_type -> velez_api.CreateRunner.Response
+	27, // 28: velez_api.RunnersAPI.DropRunner:output_type -> velez_api.DropRunner.Response
+	29, // 29: velez_api.RunnersAPI.ReregisterRunner:output_type -> velez_api.ReregisterRunner.Response
+	31, // 30: velez_api.RunnersAPI.GetRunnerCredentials:output_type -> velez_api.GetRunnerCredentials.Response
+	21, // 31: velez_api.RunnersAPI.GetRunnerConfig:output_type -> velez_api.GetRunnerConfig.Response
+	23, // 32: velez_api.RunnersAPI.UpdateRunnerConfig:output_type -> velez_api.UpdateRunnerConfig.Response
+	25, // 33: velez_api.RunnersAPI.RedeployRunner:output_type -> velez_api.RedeployRunner.Response
+	26, // [26:34] is the sub-list for method output_type
+	18, // [18:26] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_runners_api_proto_init() }
@@ -1818,19 +2107,19 @@ func file_runners_api_proto_init() {
 		return
 	}
 	file_velez_common_proto_init()
-	file_runners_api_proto_msgTypes[4].OneofWrappers = []any{}
-	file_runners_api_proto_msgTypes[13].OneofWrappers = []any{
+	file_runners_api_proto_msgTypes[5].OneofWrappers = []any{}
+	file_runners_api_proto_msgTypes[14].OneofWrappers = []any{
 		(*CreateRunner_Request_Github)(nil),
 		(*CreateRunner_Request_Gitlab)(nil),
 	}
-	file_runners_api_proto_msgTypes[17].OneofWrappers = []any{}
+	file_runners_api_proto_msgTypes[18].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_runners_api_proto_rawDesc), len(file_runners_api_proto_rawDesc)),
-			NumEnums:      2,
-			NumMessages:   27,
+			NumEnums:      4,
+			NumMessages:   28,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -5,9 +5,7 @@ import (
 
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/internal/service/service_manager/runneraas/providers"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
@@ -32,6 +30,21 @@ func (s *RunneraasService) GetRunnerConfig(ctx context.Context, name string) (do
 		Concurrent:          runner.Concurrent,
 	}
 
+	runnerProvider, containerRuntime, err := s.resolveRunnerRuntime(ctx, svc.Env, runner.Provider)
+	if err != nil {
+		return domain.RunnerConfig{}, rerrors.Wrap(err, "error resolving runner runtime")
+	}
+
+	err = ensureRunnerRunning(ctx, containerRuntime, name)
+	if err != nil {
+		return domain.RunnerConfig{}, rerrors.Wrap(err, "error checking runner container")
+	}
+
+	config.Settings, err = runnerProvider.ReadSettings(ctx, containerRuntime, name)
+	if err != nil {
+		return domain.RunnerConfig{}, rerrors.Wrap(err, "error reading runner settings")
+	}
+
 	return config, nil
 }
 
@@ -52,6 +65,11 @@ func (s *RunneraasService) UpdateRunnerConfig(
 
 	if req.Concurrent.Valid && req.Concurrent.Value < 1 {
 		return domain.UpdateRunnerConfigResult{}, rerrors.Wrap(user_errors.ErrRunnerConcurrentInvalid)
+	}
+
+	err := validateSettings(req)
+	if err != nil {
+		return domain.UpdateRunnerConfigResult{}, rerrors.Wrap(err, "error validating runner settings")
 	}
 
 	svc, err := s.dataStorage.Services().GetByName(ctx, req.Name)
@@ -103,6 +121,13 @@ func (s *RunneraasService) UpdateRunnerConfig(
 		upsertReq.Concurrent = req.Concurrent.Value
 	}
 
+	if hasSettings(req) {
+		err = s.applySettings(ctx, svc.Env, runner.Provider, req)
+		if err != nil {
+			return domain.UpdateRunnerConfigResult{}, rerrors.Wrap(err, "error applying runner settings")
+		}
+	}
+
 	_, err = s.dataStorage.Runners().UpsertRunner(ctx, upsertReq)
 	if err != nil {
 		return domain.UpdateRunnerConfigResult{}, rerrors.Wrap(err, "error upserting runner config")
@@ -114,16 +139,9 @@ func (s *RunneraasService) UpdateRunnerConfig(
 func (s *RunneraasService) applyConcurrent(
 	ctx context.Context, environment, provider, name string, concurrent int32,
 ) error {
-	providerEnum := velez_api.RunnerProvider(velez_api.RunnerProvider_value[provider])
-
-	runnerProvider, err := providers.For(providerEnum)
+	runnerProvider, containerRuntime, err := s.resolveRunnerRuntime(ctx, environment, provider)
 	if err != nil {
-		return rerrors.Wrap(err, "error resolving runner provider")
-	}
-
-	containerRuntime, err := s.runtimes.Runtime(ctx, environment)
-	if err != nil {
-		return rerrors.Wrap(err, "error resolving container runtime")
+		return rerrors.Wrap(err, "error resolving runner runtime")
 	}
 
 	err = runnerProvider.ApplyConcurrent(ctx, containerRuntime, name, concurrent)

@@ -14,6 +14,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
+	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/service/service_manager/runneraas/providers/github"
 	"go.vervstack.ru/Velez/internal/service/service_manager/runneraas/providers/gitlab"
 	"go.vervstack.ru/Velez/internal/user_errors"
@@ -47,6 +48,17 @@ type Provider interface {
 	// (GitHub).
 	ApplyConcurrent(
 		ctx context.Context, runtime container_runtime.ContainerRuntime, containerID string, concurrent int32,
+	) error
+	// ReadSettings reads the provider's config-file-backed settings out of the running container;
+	// zero value for a provider without any (GitHub).
+	ReadSettings(
+		ctx context.Context, runtime container_runtime.ContainerRuntime, containerID string,
+	) (domain.GitlabRunnerSettings, error)
+	// ApplySettings writes settings into the running container's config, replacing all of them;
+	// no-op for a provider without any.
+	ApplySettings(
+		ctx context.Context, runtime container_runtime.ContainerRuntime, containerID string,
+		settings domain.GitlabRunnerSettings,
 	) error
 	// Unregister undoes a prior Register - execs the provider's unregister
 	// command inside containerID so a subsequent Register doesn't append a

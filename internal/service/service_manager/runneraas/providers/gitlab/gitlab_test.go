@@ -257,3 +257,45 @@ func execRegister(provider *Provider, runtime *fakeContainerRuntime, baseUrl, do
 	return provider.Register(
 		context.Background(), runtime, "runner-container", baseUrl, "token-1", dockerImage, "runner-1", 1)
 }
+
+func Test_ReadSettings_ParsesSeededConfig(t *testing.T) {
+	runtime := &fakeContainerRuntime{configContent: []byte(
+		"concurrent = 1\ncheck_interval = 7\nlog_level = \"debug\"\nshutdown_timeout = 30\n\n" +
+			"[[runners]]\n  name = \"runner-1\"\n  [runners.docker]\n" +
+			"    pull_policy = [\"always\"]\n    allowed_pull_policies = [\"always\", \"never\"]\n")}
+
+	got, err := New().ReadSettings(context.Background(), runtime, "runner-1")
+
+	require.NoError(t, err)
+
+	want := domain.GitlabRunnerSettings{
+		PullPolicy:          []string{"always"},
+		AllowedPullPolicies: []string{"always", "never"},
+		CheckInterval:       7,
+		LogLevel:            "debug",
+		ShutdownTimeout:     30,
+	}
+	require.Equal(t, want, got)
+}
+
+func Test_ApplySettings_WritesConfigPreservingExistingKeys(t *testing.T) {
+	runtime := &fakeContainerRuntime{configContent: []byte(
+		"concurrent = 2\n\n[[runners]]\n  name = \"runner-1\"\n  [runners.docker]\n    image = \"alpine:latest\"\n")}
+	settings := domain.GitlabRunnerSettings{
+		PullPolicy: []string{"if-not-present"},
+		LogLevel:   "warn",
+	}
+
+	err := New().ApplySettings(context.Background(), runtime, "runner-1", settings)
+
+	require.NoError(t, err)
+	require.Equal(t, configPath, runtime.writtenPath)
+	require.Equal(t, fs.FileMode(configFileMode), runtime.writtenMode)
+
+	written := string(runtime.writtenConfig)
+	require.Contains(t, written, "concurrent = 2")
+	require.Contains(t, written, "name = \"runner-1\"")
+	require.Contains(t, written, "image = \"alpine:latest\"")
+	require.Contains(t, written, "log_level = \"warn\"")
+	require.Contains(t, written, "if-not-present")
+}

@@ -1,0 +1,30 @@
+.PullPolicyFieldContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0.75rem;
+
+    & .FieldLabel {
+        font-family: var(--font-mono);
+        font-size: 0.6875rem;
+        color: var(--fg-dim);
+        width: 6rem;
+        flex-shrink: 0;
+        padding-top: 0.5rem;
+    }
+
+    & .ChainWrapper {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    & .DefaultHint {
+        font-family: var(--font-mono);
+        font-size: 0.78125rem;
+        color: var(--fg-dim);
+    }
+}

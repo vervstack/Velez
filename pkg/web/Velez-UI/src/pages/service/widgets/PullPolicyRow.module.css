@@ -1,0 +1,11 @@
+.PullPolicyRowContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+
+    & .DropdownWrapper {
+        flex: 1;
+        min-width: 0;
+    }
+}

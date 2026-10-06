@@ -181,7 +181,7 @@
     },
     "/api/runners/update_config": {
       "post": {
-        "summary": "UpdateRunnerConfig persists new provider config values. It never applies\nthem to the running container - the response tells the caller which\nfollow-up action does: requires_reregister (base_url/docker_image, via\nReregisterRunner) and/or requires_redeploy (docker_socket_address, via\nRedeployRunner).",
+        "summary": "UpdateRunnerConfig persists new provider config values. It never applies\nthem to the running container - the response tells the caller which\nfollow-up action does: requires_reregister (base_url/docker_image, via\nReregisterRunner) and/or requires_redeploy (docker_socket_address, via\nRedeployRunner). pull_policy, allowed_pull_policies, check_interval,\nlog_level and shutdown_timeout apply immediately to the runner's\nconfig.toml and need neither.",
         "operationId": "RunnersAPI_UpdateRunnerConfig",
         "responses": {
           "200": {
@@ -214,7 +214,7 @@
     },
     "/api/runners/{name}/config": {
       "get": {
-        "summary": "GetRunnerConfig reads the runner's currently stored provider config\n(base_url, docker_image, docker_socket_address) - the values the next\nReregisterRunner/RedeployRunner call will apply, not necessarily what\nthe running container was deployed with.",
+        "summary": "GetRunnerConfig reads the runner's currently stored provider config\n(base_url, docker_image, docker_socket_address) - the values the next\nReregisterRunner/RedeployRunner call will apply, not necessarily what\nthe running container was deployed with. pull_policy,\nallowed_pull_policies, check_interval, log_level and shutdown_timeout are\nthe exception: they are read live from the runner's config.toml.",
         "operationId": "RunnersAPI_GetRunnerConfig",
         "responses": {
           "200": {
@@ -380,6 +380,30 @@
           "type": "string"
         },
         "concurrent": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "pullPolicy": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/velez_apiRunnerPullPolicy"
+          },
+          "description": "The fields below are read live from the runner's config.toml;\nempty / 0 / UNSPECIFIED means the key is unset.\npull_policy - ordered fallback chain."
+        },
+        "allowedPullPolicies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/velez_apiRunnerPullPolicy"
+          }
+        },
+        "checkInterval": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "logLevel": {
+          "$ref": "#/definitions/velez_apiRunnerLogLevel"
+        },
+        "shutdownTimeout": {
           "type": "integer",
           "format": "int32"
         }
@@ -548,6 +572,20 @@
       },
       "description": "Runner never carries its access token - status and environment live on the\nunderlying service/deployment rows and are read via ListSmerds/\nVervServicesService, not duplicated here."
     },
+    "velez_apiRunnerLogLevel": {
+      "type": "string",
+      "enum": [
+        "RUNNER_LOG_LEVEL_UNSPECIFIED",
+        "RUNNER_LOG_LEVEL_DEBUG",
+        "RUNNER_LOG_LEVEL_INFO",
+        "RUNNER_LOG_LEVEL_WARN",
+        "RUNNER_LOG_LEVEL_ERROR",
+        "RUNNER_LOG_LEVEL_FATAL",
+        "RUNNER_LOG_LEVEL_PANIC"
+      ],
+      "default": "RUNNER_LOG_LEVEL_UNSPECIFIED",
+      "description": "RunnerLogLevel - gitlab-runner global log_level value."
+    },
     "velez_apiRunnerProvider": {
       "type": "string",
       "enum": [
@@ -557,6 +595,29 @@
       ],
       "default": "RUNNER_PROVIDER_UNSPECIFIED",
       "description": "RunnerProvider - which CI system a runner registers against. GITHUB\nself-registers fully from env vars; GITLAB registers via an automated\n`gitlab-runner register` exec against the deployed container. Others are\nadded here as new values later, never as new contracts."
+    },
+    "velez_apiRunnerPullPolicies": {
+      "type": "object",
+      "properties": {
+        "values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/velez_apiRunnerPullPolicy"
+          }
+        }
+      },
+      "description": "RunnerPullPolicies wraps a repeated field so UpdateRunnerConfig can tell \"unset\" from \"clear\"."
+    },
+    "velez_apiRunnerPullPolicy": {
+      "type": "string",
+      "enum": [
+        "RUNNER_PULL_POLICY_UNSPECIFIED",
+        "RUNNER_PULL_POLICY_ALWAYS",
+        "RUNNER_PULL_POLICY_IF_NOT_PRESENT",
+        "RUNNER_PULL_POLICY_NEVER"
+      ],
+      "default": "RUNNER_PULL_POLICY_UNSPECIFIED",
+      "description": "RunnerPullPolicy - gitlab-runner docker executor pull_policy value."
     },
     "velez_apiRunnerScope": {
       "type": "string",
@@ -589,6 +650,24 @@
           "type": "integer",
           "format": "int32",
           "description": "concurrent - must be at least 1. Unlike the other fields it is applied\nto the running container immediately."
+        },
+        "pullPolicy": {
+          "$ref": "#/definitions/velez_apiRunnerPullPolicies",
+          "description": "The fields below are applied live to config.toml and never stored in\nthe DB. A set field with an empty list / 0 / UNSPECIFIED clears the key."
+        },
+        "allowedPullPolicies": {
+          "$ref": "#/definitions/velez_apiRunnerPullPolicies"
+        },
+        "checkInterval": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "logLevel": {
+          "$ref": "#/definitions/velez_apiRunnerLogLevel"
+        },
+        "shutdownTimeout": {
+          "type": "integer",
+          "format": "int32"
         }
       }
     },

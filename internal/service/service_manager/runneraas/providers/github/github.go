@@ -16,6 +16,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
+	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/user_errors"
 	"go.vervstack.ru/Velez/internal/utils/common"
 )
@@ -138,6 +139,21 @@ func (p *Provider) Register(
 // ApplyConcurrent is a no-op - actions-runner has no global job-concurrency
 // setting.
 func (p *Provider) ApplyConcurrent(_ context.Context, _ container_runtime.ContainerRuntime, _ string, _ int32) error {
+	return nil
+}
+
+// ReadSettings returns the zero value - actions-runner has no config-file
+// backed settings.
+func (p *Provider) ReadSettings(
+	_ context.Context, _ container_runtime.ContainerRuntime, _ string,
+) (domain.GitlabRunnerSettings, error) {
+	return domain.GitlabRunnerSettings{}, nil
+}
+
+// ApplySettings is a no-op - see ReadSettings.
+func (p *Provider) ApplySettings(
+	_ context.Context, _ container_runtime.ContainerRuntime, _ string, _ domain.GitlabRunnerSettings,
+) error {
 	return nil
 }
 

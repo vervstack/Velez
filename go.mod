@@ -18,6 +18,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.98
 	github.com/moby/docker-image-spec v1.3.1
 	github.com/opencontainers/image-spec v1.1.1
+	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/pressly/goose/v3 v3.24.3
 	github.com/rs/cors v1.11.1
 	github.com/rs/zerolog v1.34.0

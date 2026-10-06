@@ -61,7 +61,9 @@ service RunnersAPI {
   // GetRunnerConfig reads the runner's currently stored provider config
   // (base_url, docker_image, docker_socket_address) - the values the next
   // ReregisterRunner/RedeployRunner call will apply, not necessarily what
-  // the running container was deployed with.
+  // the running container was deployed with. pull_policy,
+  // allowed_pull_policies, check_interval, log_level and shutdown_timeout are
+  // the exception: they are read live from the runner's config.toml.
   rpc GetRunnerConfig(GetRunnerConfig.Request) returns (GetRunnerConfig.Response) {
     option (google.api.http) = {
       get: "/api/runners/{name}/config"
@@ -72,7 +74,9 @@ service RunnersAPI {
   // them to the running container - the response tells the caller which
   // follow-up action does: requires_reregister (base_url/docker_image, via
   // ReregisterRunner) and/or requires_redeploy (docker_socket_address, via
-  // RedeployRunner).
+  // RedeployRunner). pull_policy, allowed_pull_policies, check_interval,
+  // log_level and shutdown_timeout apply immediately to the runner's
+  // config.toml and need neither.
   rpc UpdateRunnerConfig(UpdateRunnerConfig.Request) returns (UpdateRunnerConfig.Response) {
     option (google.api.http) = {
       post: "/api/runners/update_config"
@@ -111,6 +115,30 @@ enum RunnerScope {
   RUNNER_SCOPE_UNSPECIFIED = 0;
   REPO = 1;
   ORG = 2;
+}
+
+// RunnerPullPolicy - gitlab-runner docker executor pull_policy value.
+enum RunnerPullPolicy {
+  RUNNER_PULL_POLICY_UNSPECIFIED = 0;
+  RUNNER_PULL_POLICY_ALWAYS = 1;
+  RUNNER_PULL_POLICY_IF_NOT_PRESENT = 2;
+  RUNNER_PULL_POLICY_NEVER = 3;
+}
+
+// RunnerLogLevel - gitlab-runner global log_level value.
+enum RunnerLogLevel {
+  RUNNER_LOG_LEVEL_UNSPECIFIED = 0;
+  RUNNER_LOG_LEVEL_DEBUG = 1;
+  RUNNER_LOG_LEVEL_INFO = 2;
+  RUNNER_LOG_LEVEL_WARN = 3;
+  RUNNER_LOG_LEVEL_ERROR = 4;
+  RUNNER_LOG_LEVEL_FATAL = 5;
+  RUNNER_LOG_LEVEL_PANIC = 6;
+}
+
+// RunnerPullPolicies wraps a repeated field so UpdateRunnerConfig can tell "unset" from "clear".
+message RunnerPullPolicies {
+  repeated RunnerPullPolicy values = 1;
 }
 
 // Runner never carries its access token - status and environment live on the
@@ -220,6 +248,14 @@ message GetRunnerConfig {
     string docker_image = 2;
     string docker_socket_address = 3;
     int32 concurrent = 4;
+    // The fields below are read live from the runner's config.toml;
+    // empty / 0 / UNSPECIFIED means the key is unset.
+    // pull_policy - ordered fallback chain.
+    repeated RunnerPullPolicy pull_policy = 5;
+    repeated RunnerPullPolicy allowed_pull_policies = 6;
+    int32 check_interval = 7;
+    RunnerLogLevel log_level = 8;
+    int32 shutdown_timeout = 9;
   }
 }
 
@@ -239,6 +275,14 @@ message UpdateRunnerConfig {
     // concurrent - must be at least 1. Unlike the other fields it is applied
     // to the running container immediately.
     optional int32 concurrent = 5;
+
+    // The fields below are applied live to config.toml and never stored in
+    // the DB. A set field with an empty list / 0 / UNSPECIFIED clears the key.
+    optional RunnerPullPolicies pull_policy = 6;
+    optional RunnerPullPolicies allowed_pull_policies = 7;
+    optional int32 check_interval = 8;
+    optional RunnerLogLevel log_level = 9;
+    optional int32 shutdown_timeout = 10;
   }
   message Response {
     // requires_reregister - true when base_url and/or docker_image was set;

@@ -24,6 +24,22 @@ func Test_GitlabRunner_ApplyConcurrent_EditsConfigToml(t *testing.T) {
 	t.Parallel()
 
 	ctx := t.Context()
+
+	runtime, name := startGitlabRunnerContainer(t, gitlabRunnerSeedConfig)
+
+	err := gitlab.New().ApplyConcurrent(ctx, runtime, name, 4)
+	require.NoError(t, err)
+
+	got, err := runtime.CopyFromContainer(ctx, name, gitlabRunnerConfigPath)
+	require.NoError(t, err)
+
+	require.Equal(t, "concurrent = 4\n[[runners]]\n  name = \"x\"\n", string(got))
+}
+
+func startGitlabRunnerContainer(t *testing.T, seed string) (container_runtime.ContainerRuntime, string) {
+	t.Helper()
+
+	ctx := t.Context()
 	name := GetServiceName(t)
 
 	dockerClient, err := docker.NewClient(nil)
@@ -49,20 +65,15 @@ func Test_GitlabRunner_ApplyConcurrent_EditsConfigToml(t *testing.T) {
 
 	t.Cleanup(func() {
 		removeOpts := container.RemoveOptions{Force: true}
+
 		_ = api.ContainerRemove(context.Background(), created.ID, removeOpts)
 	})
 
 	err = api.ContainerStart(ctx, created.ID, container.StartOptions{})
 	require.NoError(t, err)
 
-	err = runtime.CopyToContainer(ctx, name, gitlabRunnerConfigPath, []byte(gitlabRunnerSeedConfig), 0o600)
+	err = runtime.CopyToContainer(ctx, name, gitlabRunnerConfigPath, []byte(seed), 0o600)
 	require.NoError(t, err)
 
-	err = gitlab.New().ApplyConcurrent(ctx, runtime, name, 4)
-	require.NoError(t, err)
-
-	got, err := runtime.CopyFromContainer(ctx, name, gitlabRunnerConfigPath)
-	require.NoError(t, err)
-
-	require.Equal(t, "concurrent = 4\n[[runners]]\n  name = \"x\"\n", string(got))
+	return runtime, name
 }

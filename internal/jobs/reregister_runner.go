@@ -114,6 +114,13 @@ func (j *reregisterRunnerJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error resolving container runtime")
 	}
 
+	// Unregister drops the whole [[runners]] entry, including its docker
+	// settings, so they are read before it and written back after Register.
+	settings, err := runnerProvider.ReadSettings(ctx, containerRuntime, name)
+	if err != nil {
+		return rerrors.Wrap(err, "error reading runner settings")
+	}
+
 	err = runnerProvider.Unregister(ctx, containerRuntime, name)
 	if err != nil {
 		return rerrors.Wrap(err, "error unregistering runner")
@@ -125,6 +132,11 @@ func (j *reregisterRunnerJob) Do(ctx context.Context) error {
 	)
 	if err != nil {
 		return rerrors.Wrap(err, "error registering runner")
+	}
+
+	err = runnerProvider.ApplySettings(ctx, containerRuntime, name, settings)
+	if err != nil {
+		return rerrors.Wrap(err, "error restoring runner settings")
 	}
 
 	return nil

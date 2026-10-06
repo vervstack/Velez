@@ -12,8 +12,12 @@ import {
     ReregisterRunnerMutation,
     UpdateRunnerConfigMutation,
 } from "@/processes/queries/runners.ts"
-import {UpdateRunnerConfigRequest} from "@/app/api/velez"
+import AllowedPullPoliciesField from "@/pages/service/widgets/AllowedPullPoliciesField.tsx"
+import LogLevelField from "@/pages/service/widgets/LogLevelField.tsx"
+import PullPolicyField from "@/pages/service/widgets/PullPolicyField.tsx"
+import {RunnerLogLevel, RunnerPullPolicy, UpdateRunnerConfigRequest} from "@/app/api/velez"
 import {parseConcurrent} from "@/processes/parseConcurrent.ts"
+import {arePolicyListsEqual, parseNonNegativeInt} from "@/processes/runnerSettings.ts"
 
 interface Props {
     serviceName: string
@@ -24,6 +28,11 @@ interface ConfigValues {
     dockerImage: string
     dockerSocketAddress: string
     concurrent: string
+    pullPolicy: RunnerPullPolicy[]
+    allowedPullPolicies: RunnerPullPolicy[]
+    checkInterval: string
+    logLevel: RunnerLogLevel
+    shutdownTimeout: string
 }
 
 const MASKED_TOKEN = "••••••••••••"
@@ -32,6 +41,11 @@ const EMPTY_CONFIG: ConfigValues = {
     dockerImage: "",
     dockerSocketAddress: "",
     concurrent: "1",
+    pullPolicy: [],
+    allowedPullPolicies: [],
+    checkInterval: "0",
+    logLevel: RunnerLogLevel.RUNNER_LOG_LEVEL_UNSPECIFIED,
+    shutdownTimeout: "0",
 }
 
 interface SettingsFieldProps {
@@ -100,6 +114,11 @@ export default function GitlabRunnerSettings({serviceName}: Props) {
             dockerImage: configQuery.data.dockerImage ?? "",
             dockerSocketAddress: configQuery.data.dockerSocketAddress ?? "",
             concurrent: String(configQuery.data.concurrent || 1),
+            pullPolicy: configQuery.data.pullPolicy ?? [],
+            allowedPullPolicies: configQuery.data.allowedPullPolicies ?? [],
+            checkInterval: String(configQuery.data.checkInterval ?? 0),
+            logLevel: configQuery.data.logLevel ?? RunnerLogLevel.RUNNER_LOG_LEVEL_UNSPECIFIED,
+            shutdownTimeout: String(configQuery.data.shutdownTimeout ?? 0),
         }
 
         setValues(loaded)
@@ -122,11 +141,35 @@ export default function GitlabRunnerSettings({serviceName}: Props) {
         setValues((prev) => ({...prev, concurrent: value}))
     }
 
+    function handlePullPolicyChange(value: RunnerPullPolicy[]) {
+        setValues((prev) => ({...prev, pullPolicy: value}))
+    }
+
+    function handleAllowedPullPoliciesChange(value: RunnerPullPolicy[]) {
+        setValues((prev) => ({...prev, allowedPullPolicies: value}))
+    }
+
+    function handleCheckIntervalChange(value: string) {
+        setValues((prev) => ({...prev, checkInterval: value}))
+    }
+
+    function handleLogLevelChange(value: RunnerLogLevel) {
+        setValues((prev) => ({...prev, logLevel: value}))
+    }
+
+    function handleShutdownTimeoutChange(value: string) {
+        setValues((prev) => ({...prev, shutdownTimeout: value}))
+    }
+
     function handleSave() {
         if (!savedValues) return
 
         const parsedConcurrent = parseConcurrent(values.concurrent)
-        if (parsedConcurrent === undefined) return
+        const parsedCheckInterval = parseNonNegativeInt(values.checkInterval)
+        const parsedShutdownTimeout = parseNonNegativeInt(values.shutdownTimeout)
+        if (parsedConcurrent === undefined
+            || parsedCheckInterval === undefined
+            || parsedShutdownTimeout === undefined) return
 
         const req: UpdateRunnerConfigRequest = {name: serviceName}
         let changed = false
@@ -145,6 +188,26 @@ export default function GitlabRunnerSettings({serviceName}: Props) {
         }
         if (values.concurrent !== savedValues.concurrent) {
             req.concurrent = parsedConcurrent
+            changed = true
+        }
+        if (!arePolicyListsEqual(values.pullPolicy, savedValues.pullPolicy)) {
+            req.pullPolicy = {values: values.pullPolicy}
+            changed = true
+        }
+        if (!arePolicyListsEqual(values.allowedPullPolicies, savedValues.allowedPullPolicies)) {
+            req.allowedPullPolicies = {values: values.allowedPullPolicies}
+            changed = true
+        }
+        if (values.checkInterval !== savedValues.checkInterval) {
+            req.checkInterval = parsedCheckInterval
+            changed = true
+        }
+        if (values.logLevel !== savedValues.logLevel) {
+            req.logLevel = values.logLevel
+            changed = true
+        }
+        if (values.shutdownTimeout !== savedValues.shutdownTimeout) {
+            req.shutdownTimeout = parsedShutdownTimeout
             changed = true
         }
 
@@ -253,8 +316,15 @@ export default function GitlabRunnerSettings({serviceName}: Props) {
         || values.dockerImage !== savedValues.dockerImage
         || values.dockerSocketAddress !== savedValues.dockerSocketAddress
         || values.concurrent !== savedValues.concurrent
+        || !arePolicyListsEqual(values.pullPolicy, savedValues.pullPolicy)
+        || !arePolicyListsEqual(values.allowedPullPolicies, savedValues.allowedPullPolicies)
+        || values.checkInterval !== savedValues.checkInterval
+        || values.logLevel !== savedValues.logLevel
+        || values.shutdownTimeout !== savedValues.shutdownTimeout
     )
-    const isConcurrentInvalid = concurrentParsed === undefined
+    const isInvalid = concurrentParsed === undefined
+        || parseNonNegativeInt(values.checkInterval) === undefined
+        || parseNonNegativeInt(values.shutdownTimeout) === undefined
 
     return (
         <div className={cls.GitlabRunnerSettingsContainer}>
@@ -307,6 +377,24 @@ export default function GitlabRunnerSettings({serviceName}: Props) {
                     placeholder="1"
                     onChange={handleConcurrentChange}
                 />
+                <PullPolicyField value={values.pullPolicy} onChange={handlePullPolicyChange}/>
+                <AllowedPullPoliciesField
+                    value={values.allowedPullPolicies}
+                    onChange={handleAllowedPullPoliciesChange}
+                />
+                <SettingsField
+                    label="Check interval (s)"
+                    value={values.checkInterval}
+                    placeholder="0 (default)"
+                    onChange={handleCheckIntervalChange}
+                />
+                <LogLevelField value={values.logLevel} onChange={handleLogLevelChange}/>
+                <SettingsField
+                    label="Shutdown (s)"
+                    value={values.shutdownTimeout}
+                    placeholder="0 (default)"
+                    onChange={handleShutdownTimeoutChange}
+                />
 
                 <div className={cls.TokenRow}>
                     <label className={cls.FieldLabel}>Token</label>
@@ -325,7 +413,7 @@ export default function GitlabRunnerSettings({serviceName}: Props) {
             <div className={cls.ActionsRow}>
                 <Button
                     onClick={handleSave}
-                    disabled={!isDirty || isConcurrentInvalid || updateConfig.isPending}
+                    disabled={!isDirty || isInvalid || updateConfig.isPending}
                 >
                     {updateConfig.isPending ? "Saving…" : "Save"}
                 </Button>

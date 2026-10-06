@@ -54,13 +54,17 @@ type RunnersAPIClient interface {
 	// GetRunnerConfig reads the runner's currently stored provider config
 	// (base_url, docker_image, docker_socket_address) - the values the next
 	// ReregisterRunner/RedeployRunner call will apply, not necessarily what
-	// the running container was deployed with.
+	// the running container was deployed with. pull_policy,
+	// allowed_pull_policies, check_interval, log_level and shutdown_timeout are
+	// the exception: they are read live from the runner's config.toml.
 	GetRunnerConfig(ctx context.Context, in *GetRunnerConfig_Request, opts ...grpc.CallOption) (*GetRunnerConfig_Response, error)
 	// UpdateRunnerConfig persists new provider config values. It never applies
 	// them to the running container - the response tells the caller which
 	// follow-up action does: requires_reregister (base_url/docker_image, via
 	// ReregisterRunner) and/or requires_redeploy (docker_socket_address, via
-	// RedeployRunner).
+	// RedeployRunner). pull_policy, allowed_pull_policies, check_interval,
+	// log_level and shutdown_timeout apply immediately to the runner's
+	// config.toml and need neither.
 	UpdateRunnerConfig(ctx context.Context, in *UpdateRunnerConfig_Request, opts ...grpc.CallOption) (*UpdateRunnerConfig_Response, error)
 	// RedeployRunner recreates the runner's container from its current stored
 	// deployment spec, overlaying docker_socket_address as DOCKER_HOST (or
@@ -184,13 +188,17 @@ type RunnersAPIServer interface {
 	// GetRunnerConfig reads the runner's currently stored provider config
 	// (base_url, docker_image, docker_socket_address) - the values the next
 	// ReregisterRunner/RedeployRunner call will apply, not necessarily what
-	// the running container was deployed with.
+	// the running container was deployed with. pull_policy,
+	// allowed_pull_policies, check_interval, log_level and shutdown_timeout are
+	// the exception: they are read live from the runner's config.toml.
 	GetRunnerConfig(context.Context, *GetRunnerConfig_Request) (*GetRunnerConfig_Response, error)
 	// UpdateRunnerConfig persists new provider config values. It never applies
 	// them to the running container - the response tells the caller which
 	// follow-up action does: requires_reregister (base_url/docker_image, via
 	// ReregisterRunner) and/or requires_redeploy (docker_socket_address, via
-	// RedeployRunner).
+	// RedeployRunner). pull_policy, allowed_pull_policies, check_interval,
+	// log_level and shutdown_timeout apply immediately to the runner's
+	// config.toml and need neither.
 	UpdateRunnerConfig(context.Context, *UpdateRunnerConfig_Request) (*UpdateRunnerConfig_Response, error)
 	// RedeployRunner recreates the runner's container from its current stored
 	// deployment spec, overlaying docker_socket_address as DOCKER_HOST (or

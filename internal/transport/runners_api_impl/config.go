@@ -24,6 +24,11 @@ func (impl *Impl) GetRunnerConfig(
 		DockerImage:         config.DockerImage,
 		DockerSocketAddress: config.DockerSocketAddress,
 		Concurrent:          config.Concurrent,
+		PullPolicy:          pullPolicyEnums(config.Settings.PullPolicy),
+		AllowedPullPolicies: pullPolicyEnums(config.Settings.AllowedPullPolicies),
+		CheckInterval:       config.Settings.CheckInterval,
+		LogLevel:            logLevelEnum(config.Settings.LogLevel),
+		ShutdownTimeout:     config.Settings.ShutdownTimeout,
 	}
 
 	return resp, nil
@@ -51,6 +56,26 @@ func (impl *Impl) UpdateRunnerConfig(
 
 	if req.Concurrent != nil {
 		updateReq.Concurrent = rtb.NewOptional(req.GetConcurrent())
+	}
+
+	if req.GetPullPolicy() != nil {
+		updateReq.PullPolicy = rtb.NewOptional(pullPolicyStrings(req.GetPullPolicy().GetValues()))
+	}
+
+	if req.GetAllowedPullPolicies() != nil {
+		updateReq.AllowedPullPolicies = rtb.NewOptional(pullPolicyStrings(req.GetAllowedPullPolicies().GetValues()))
+	}
+
+	if req.CheckInterval != nil {
+		updateReq.CheckInterval = rtb.NewOptional(req.GetCheckInterval())
+	}
+
+	if req.LogLevel != nil {
+		updateReq.LogLevel = rtb.NewOptional(logLevelString(req.GetLogLevel()))
+	}
+
+	if req.ShutdownTimeout != nil {
+		updateReq.ShutdownTimeout = rtb.NewOptional(req.GetShutdownTimeout())
 	}
 
 	result, err := impl.runnersService.UpdateRunnerConfig(ctx, updateReq)

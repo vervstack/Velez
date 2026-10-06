@@ -64,4 +64,13 @@ var (
 	// ErrRunnerConcurrentInvalid is returned by the runneraas package when a
 	// concurrent value below 1 is requested.
 	ErrRunnerConcurrentInvalid = rerrors.NewUserError("concurrent must be at least 1")
+
+	// ErrRunnerSettingsInvalid is returned by the runneraas package when a
+	// requested pull policy, log level or interval is not supported.
+	ErrRunnerSettingsInvalid = rerrors.NewUserError(
+		"runner settings are invalid: unsupported pull policy, log level or negative interval")
+
+	// ErrRunnerNotRunning is returned by the runneraas package when a runner's
+	// config file is needed but its container is absent or stopped.
+	ErrRunnerNotRunning = rerrors.NewUserError("runner container is not running")
 )

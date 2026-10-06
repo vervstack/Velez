@@ -19,9 +19,9 @@ lint:
 
 serve:
 	@echo --- Starting Go backend + Vite dev server ---
-	@trap 'kill 0' EXIT INT TERM; \
-	(cd pkg/web/Velez-UI && vite) & \
-	(go build -o bin/velez-dev ./cmd/service && ./bin/velez-dev --dev) & \
+	@trap 'trap - EXIT INT TERM; kill 0' EXIT INT TERM; \
+	(cd pkg/web/Velez-UI && vite; kill 0) & \
+	(go build -o bin/velez-dev ./cmd/service && ./bin/velez-dev --dev; kill 0) & \
 	wait
 
 build-n-serve: build-ui
@@ -38,9 +38,9 @@ SC_DOCKER_HOST ?= tcp://192.168.1.44:2375
 
 serve-sc:
 	@echo "--- Serving via Go backend (DOCKER_HOST -> $(SC_DOCKER_HOST)) + Vite dev server ---"
-	@trap 'kill 0' EXIT INT TERM; \
-	(cd pkg/web/Velez-UI && vite) & \
-	(go build -o bin/velez-dev ./cmd/service && DOCKER_HOST=$(SC_DOCKER_HOST) ./bin/velez-dev --dev) & \
+	@trap 'trap - EXIT INT TERM; kill 0' EXIT INT TERM; \
+	(cd pkg/web/Velez-UI && vite; kill 0) & \
+	(go build -o bin/velez-dev ./cmd/service && DOCKER_HOST=$(SC_DOCKER_HOST) ./bin/velez-dev --dev; kill 0) & \
 	wait
 
 kill-port:

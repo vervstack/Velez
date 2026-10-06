@@ -337,6 +337,8 @@ message BoundResource {
   string name = 1;
   string resource_type = 2;
   string status = 3;
+  optional uint32 web_ui_port = 4;
+  optional string web_ui_host = 5;
 }
 
 message GetServiceResources {

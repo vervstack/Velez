@@ -997,6 +997,8 @@ type BoundResource struct {
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	ResourceType  string                 `protobuf:"bytes,2,opt,name=resource_type,json=resourceType,proto3" json:"resource_type,omitempty"`
 	Status        string                 `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
+	WebUiPort     *uint32                `protobuf:"varint,4,opt,name=web_ui_port,json=webUiPort,proto3,oneof" json:"web_ui_port,omitempty"`
+	WebUiHost     *string                `protobuf:"bytes,5,opt,name=web_ui_host,json=webUiHost,proto3,oneof" json:"web_ui_host,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1048,6 +1050,20 @@ func (x *BoundResource) GetResourceType() string {
 func (x *BoundResource) GetStatus() string {
 	if x != nil {
 		return x.Status
+	}
+	return ""
+}
+
+func (x *BoundResource) GetWebUiPort() uint32 {
+	if x != nil && x.WebUiPort != nil {
+		return *x.WebUiPort
+	}
+	return 0
+}
+
+func (x *BoundResource) GetWebUiHost() string {
+	if x != nil && x.WebUiHost != nil {
+		return *x.WebUiHost
 	}
 	return ""
 }
@@ -3101,11 +3117,15 @@ const file_service_api_proto_rawDesc = "" +
 	"mem_max_mi\x18\x03 \x01(\x04R\bmemMaxMi\x12)\n" +
 	"\x10replicas_running\x18\x04 \x01(\rR\x0freplicasRunning\x12)\n" +
 	"\x10replicas_desired\x18\x05 \x01(\rR\x0freplicasDesired\x12%\n" +
-	"\x0euptime_seconds\x18\x06 \x01(\x04R\ruptimeSeconds\"`\n" +
+	"\x0euptime_seconds\x18\x06 \x01(\x04R\ruptimeSeconds\"\xca\x01\n" +
 	"\rBoundResource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12#\n" +
 	"\rresource_type\x18\x02 \x01(\tR\fresourceType\x12\x16\n" +
-	"\x06status\x18\x03 \x01(\tR\x06status\"\x87\x01\n" +
+	"\x06status\x18\x03 \x01(\tR\x06status\x12#\n" +
+	"\vweb_ui_port\x18\x04 \x01(\rH\x00R\twebUiPort\x88\x01\x01\x12#\n" +
+	"\vweb_ui_host\x18\x05 \x01(\tH\x01R\twebUiHost\x88\x01\x01B\x0e\n" +
+	"\f_web_ui_portB\x0e\n" +
+	"\f_web_ui_host\"\x87\x01\n" +
 	"\x13GetServiceResources\x1a,\n" +
 	"\aRequest\x12!\n" +
 	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x1aB\n" +
@@ -3334,6 +3354,7 @@ func file_service_api_proto_init() {
 	file_velez_api_proto_init()
 	file_service_api_proto_msgTypes[4].OneofWrappers = []any{}
 	file_service_api_proto_msgTypes[6].OneofWrappers = []any{}
+	file_service_api_proto_msgTypes[14].OneofWrappers = []any{}
 	file_service_api_proto_msgTypes[26].OneofWrappers = []any{
 		(*GetService_Response_VervService)(nil),
 	}

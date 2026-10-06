@@ -50,6 +50,8 @@ export interface ServiceResource {
     icon: string                                             // derived from type — display only
     color: string                                            // derived from type — css color / token
     reconciliation: ResourceConnectionStatus                 // 'unknown' when reconciliation wasn't reported
+    webUiPort?: number
+    webUiHost?: string
 }
 
 export interface ServiceGraphNode {

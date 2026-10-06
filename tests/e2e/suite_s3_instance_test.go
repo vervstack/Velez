@@ -27,6 +27,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/clients/matreshka/pkg/matreshka_api"
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
@@ -36,6 +37,9 @@ const (
 	s3ValidationInstanceName = "e2e-s3-validation"
 	s3RegistryInstanceName   = "e2e-s3-registry-host"
 	s3RegistryServiceName    = "e2e-s3-registry"
+
+	s3WebUiBindingInstanceName   = "e2e-s3-webui"
+	s3NoWebUiBindingInstanceName = "e2e-s3-nowebui"
 
 	s3MatreshkaInstanceName = "e2e-s3-mat"
 	s3MatreshkaRegistryName = "e2e-s3-mat-registry"
@@ -327,6 +331,56 @@ func (s *S3InstanceSuite) Test_Registry_On_S3_Matreshka() {
 	runRegistryOnS3(t, env, dockerClient, instanceName, registryName, verify)
 }
 
+func (s *S3InstanceSuite) Test_S3Instance_WebUiSidecar() {
+	t := s.T()
+	t.Parallel()
+
+	instanceName := s.planeName(s3WebUiBindingInstanceName)
+
+	requireDindLoopbackBridge(t)
+
+	env := s.plane.NewEnvironment(t)
+	dockerClient := env.Custom.NodeClients.Docker().Client()
+
+	removeS3Instance(dockerClient, instanceName)
+	t.Cleanup(func() { removeS3Instance(dockerClient, instanceName) })
+
+	createS3Instance(t, env, instanceName, true)
+
+	sidecar := findServiceSidecar(t, env, domain.S3ServiceName(instanceName), domain.S3WebUiServiceName(instanceName))
+	require.NotNil(t, sidecar, "web ui container must be listed as a sidecar of the s3 root service")
+	require.NotEmpty(t, sidecar.GetImageName())
+
+	inspected, err := dockerClient.ContainerInspect(t.Context(), domain.S3WebUiServiceName(instanceName))
+	require.NoError(t, err)
+	require.Equal(t, domain.S3ServiceName(instanceName), inspected.Config.Labels[labels.WebUiForLabel])
+	require.Equal(t, strconv.Itoa(domain.S3WebUiContainerPort), inspected.Config.Labels[labels.WebUiPortLabel])
+
+	dropS3Instance(t, env, instanceName)
+}
+
+func (s *S3InstanceSuite) Test_S3Instance_NoWebUiSidecar() {
+	t := s.T()
+	t.Parallel()
+
+	instanceName := s.planeName(s3NoWebUiBindingInstanceName)
+
+	requireDindLoopbackBridge(t)
+
+	env := s.plane.NewEnvironment(t)
+	dockerClient := env.Custom.NodeClients.Docker().Client()
+
+	removeS3Instance(dockerClient, instanceName)
+	t.Cleanup(func() { removeS3Instance(dockerClient, instanceName) })
+
+	createS3Instance(t, env, instanceName, false)
+
+	sidecar := findServiceSidecar(t, env, domain.S3ServiceName(instanceName), domain.S3WebUiServiceName(instanceName))
+	require.Nil(t, sidecar, "instance without web ui must not list a web ui sidecar")
+
+	dropS3Instance(t, env, instanceName)
+}
+
 func Test_S3Instance(t *testing.T) {
 	t.Parallel()
 	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
@@ -495,6 +549,34 @@ func waitForS3Task(t *testing.T, env *TestEnvironment, entityId, action string) 
 
 	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status,
 		"%s task for %q error: %s", action, entityId, task.Error.String)
+}
+
+func createS3Instance(t *testing.T, env *TestEnvironment, instanceName string, enableWebUi bool) {
+	t.Helper()
+
+	createReq := newCreateS3InstanceRequest(instanceName, enableWebUi)
+
+	createResp, err := env.Custom.S3ApiImpl.CreateS3Instance(t.Context(), createReq)
+	require.NoError(t, err)
+
+	waitForS3Task(t, env, createResp.GetEntityId(), createResp.GetAction())
+}
+
+func findServiceSidecar(
+	t *testing.T, env *TestEnvironment, serviceName, containerName string,
+) *velez_api.ServiceSidecar {
+	t.Helper()
+
+	resp, err := env.Custom.ServiceApiImpl.GetService(t.Context(), newGetServiceRequest(serviceName))
+	require.NoError(t, err)
+
+	for _, sidecar := range resp.GetSidecars() {
+		if strings.TrimPrefix(sidecar.GetContainerName(), "/") == containerName {
+			return sidecar
+		}
+	}
+
+	return nil
 }
 
 func findS3Instance(t *testing.T, env *TestEnvironment, name string) *velez_api.S3Instance {

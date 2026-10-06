@@ -25,6 +25,18 @@ func (impl *Impl) GetServiceResources(
 			Status:       r.Status,
 		}
 
+		if r.WebUiPort != 0 {
+			port := r.WebUiPort
+
+			pbResource.WebUiPort = &port
+		}
+
+		if r.WebUiHost != "" {
+			host := r.WebUiHost
+
+			pbResource.WebUiHost = &host
+		}
+
 		pbResources = append(pbResources, pbResource)
 	}
 

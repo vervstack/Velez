@@ -578,6 +578,13 @@
         },
         "status": {
           "type": "string"
+        },
+        "webUiPort": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "webUiHost": {
+          "type": "string"
         }
       }
     },

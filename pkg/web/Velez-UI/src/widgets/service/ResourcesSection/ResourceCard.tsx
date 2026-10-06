@@ -1,6 +1,7 @@
 import cn from 'classnames'
 
 import type {ServiceResource} from '@/model/service_page/ServicePageModel'
+import {resourceWebUiUrl} from '@/processes/resourceWebUi'
 
 import cls from './ResourceCard.module.css'
 
@@ -11,11 +12,29 @@ interface ResourceCardProps {
 export default function ResourceCard({resource}: ResourceCardProps) {
     const reconciliationLabel = reconciliationBadgeLabel(resource.reconciliation)
     const reconciliationClass = reconciliationBadgeClass(resource.reconciliation)
+    const webUiUrl = resourceWebUiUrl(resource, window.location)
+
+    function handleOpenWebUi() {
+        if (webUiUrl) {
+            window.open(webUiUrl, "_blank", "noopener,noreferrer")
+        }
+    }
+
+    function handleKeyDown(e: React.KeyboardEvent) {
+        if (webUiUrl && e.key === "Enter") {
+            handleOpenWebUi()
+        }
+    }
 
     return (
         <div
-            className={cls.ResourceCardContainer}
+            className={cn(cls.ResourceCardContainer, webUiUrl && cls.Clickable)}
             style={{'--resource-color': resource.color} as React.CSSProperties}
+            onClick={handleOpenWebUi}
+            onKeyDown={handleKeyDown}
+            role={webUiUrl ? "link" : undefined}
+            tabIndex={webUiUrl ? 0 : undefined}
+            title={webUiUrl ? "Open web UI" : undefined}
         >
             <div className={cls.HeaderWrapper}>
                 <div className={cls.IconSquare}>{resource.icon}</div>

@@ -11,6 +11,7 @@ type S3Instance struct {
 	ReplicationFactor uint32
 	Region            string
 	Environment       string
+	RemoteHost        string
 	Status            string
 	CreatedAt         time.Time
 }

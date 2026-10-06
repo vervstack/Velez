@@ -30,6 +30,7 @@ const (
 type instanceRef struct {
 	name        string
 	environment string
+	remoteHost  string
 	runtime     container_runtime.ContainerRuntime
 	instance    container.Summary
 	webUi       *container.Summary
@@ -44,7 +45,7 @@ func (s *Service) discoverInstances(ctx context.Context) ([]instanceRef, error) 
 	refs := make([]instanceRef, 0)
 
 	for _, environment := range environments {
-		found, discoverErr := s.discoverInEnvironment(ctx, environment.Name)
+		found, discoverErr := s.discoverInEnvironment(ctx, environment)
 		if discoverErr != nil {
 			return nil, rerrors.Wrap(discoverErr)
 		}
@@ -55,13 +56,16 @@ func (s *Service) discoverInstances(ctx context.Context) ([]instanceRef, error) 
 	return refs, nil
 }
 
-func (s *Service) discoverInEnvironment(ctx context.Context, environment string) ([]instanceRef, error) {
-	runtime, err := s.runtimes.Runtime(ctx, environment)
+func (s *Service) discoverInEnvironment(
+	ctx context.Context,
+	environment domain.Environment,
+) ([]instanceRef, error) {
+	runtime, err := s.runtimes.Runtime(ctx, environment.Name)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error resolving container runtime")
 	}
 
-	listReq := &velez_api.ListSmerds_Request{Environment: environment}
+	listReq := &velez_api.ListSmerds_Request{Environment: environment.Name}
 
 	list, err := runtime.ListContainers(ctx, listReq)
 	if err != nil {
@@ -87,7 +91,8 @@ func (s *Service) discoverInEnvironment(ctx context.Context, environment string)
 
 		ref := instanceRef{
 			name:        name,
-			environment: environment,
+			environment: environment.Name,
+			remoteHost:  environment.RemoteHost(s.docker.Host()),
 			runtime:     runtime,
 			instance:    summary,
 		}
@@ -144,6 +149,7 @@ func (s *Service) describe(ctx context.Context, ref instanceRef) domain.S3Instan
 		Region:            domain.S3DefaultRegion,
 		ReplicationFactor: defaultReplicationFactor,
 		Environment:       ref.environment,
+		RemoteHost:        ref.remoteHost,
 		Status:            ref.instance.State,
 		CreatedAt:         time.Unix(ref.instance.Created, 0),
 	}
@@ -188,22 +194,36 @@ func hostPort(summary container.Summary, privatePort uint16) uint32 {
 // s3Endpoint takes the prefixed service name. It mirrors the jobs package's
 // registryInstanceUrl: a Velez inside a container reaches the instance over
 // the docker network, a bare binary only through the host-published port.
-func s3Endpoint(serviceName string, publishedPort uint32) string {
+// An instance on a remote daemon is reachable by neither, only through the
+// remote host's published port.
+func s3Endpoint(serviceName, remoteHost string, publishedPort uint32) string {
+	if remoteHost != "" {
+		return publishedEndpoint(remoteHost, publishedPort)
+	}
+
 	if env.IsInContainer() {
 		return internalEndpoint(serviceName, domain.S3ApiContainerPort)
 	}
 
-	return httpScheme + net.JoinHostPort(hostName, strconv.Itoa(int(publishedPort)))
+	return publishedEndpoint(hostName, publishedPort)
+}
+
+func publishedEndpoint(host string, publishedPort uint32) string {
+	return httpScheme + net.JoinHostPort(host, strconv.Itoa(int(publishedPort)))
 }
 
 func internalEndpoint(host string, port int) string {
 	return httpScheme + net.JoinHostPort(host, strconv.Itoa(port))
 }
 
-func webUiEndpoint(webUiServiceName string, publishedPort uint32) string {
+func webUiEndpoint(webUiServiceName, remoteHost string, publishedPort uint32) string {
+	if remoteHost != "" {
+		return publishedEndpoint(remoteHost, publishedPort)
+	}
+
 	if env.IsInContainer() {
 		return internalEndpoint(webUiServiceName, domain.S3WebUiContainerPort)
 	}
 
-	return httpScheme + net.JoinHostPort(hostName, strconv.Itoa(int(publishedPort)))
+	return publishedEndpoint(hostName, publishedPort)
 }

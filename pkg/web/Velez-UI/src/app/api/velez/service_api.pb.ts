@@ -217,6 +217,8 @@ export type BoundResource = {
   name?: string;
   resourceType?: string;
   status?: string;
+  webUiPort?: number;
+  webUiHost?: string;
 };
 
 export type GetServiceResourcesRequest = {

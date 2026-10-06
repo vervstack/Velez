@@ -713,6 +713,8 @@ func (j *deployGarageWebUiJob) Do(ctx context.Context) error {
 	smerdRequest.Labels[labels.VervServiceLabel] = webUiName
 	smerdRequest.Labels[labels.DisplayNameLabel] = name
 	smerdRequest.Labels[labels.S3WebUiLabel] = name
+	smerdRequest.Labels[labels.WebUiForLabel] = serviceName
+	smerdRequest.Labels[labels.WebUiPortLabel] = strconv.Itoa(domain.S3WebUiContainerPort)
 	smerdRequest.Labels[labels.ComposeGroupLabel] = serviceName
 
 	attachS3Network(smerdRequest, name)

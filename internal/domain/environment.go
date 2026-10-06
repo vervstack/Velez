@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"net/url"
 	"time"
 )
 
@@ -62,4 +63,20 @@ type UpdateEnvironmentReq struct {
 type DeleteEnvironmentReq struct {
 	Id   *int64
 	Name *string
+}
+
+// RemoteHost returns the hostname of the Docker daemon serving this environment
+// when it is not the node's own daemon, and "" when the environment lives on
+// the node itself (shared daemon or a local unix socket).
+func (e Environment) RemoteHost(nodeDockerHost string) string {
+	if e.DockerHost == "" || e.DockerHost == nodeDockerHost {
+		return ""
+	}
+
+	parsed, err := url.Parse(e.DockerHost)
+	if err != nil {
+		return ""
+	}
+
+	return parsed.Hostname()
 }

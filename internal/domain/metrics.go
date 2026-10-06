@@ -24,4 +24,6 @@ type BoundResource struct {
 	Name         string
 	ResourceType string
 	Status       string
+	WebUiHost    string
+	WebUiPort    uint32
 }

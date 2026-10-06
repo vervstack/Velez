@@ -46,7 +46,7 @@ func (v *VervService) listSidecars(ctx context.Context, serviceName string) ([]d
 		}
 	}
 
-	return sidecars, nil
+	return webUiSidecars(containers, serviceName, sidecars), nil
 }
 
 // boundRootNames are the containers a binding row ties to the service as its

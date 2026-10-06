@@ -102,6 +102,9 @@ const (
 	S3InstanceLabel = "velez.s3"
 	S3WebUiLabel    = "velez.s3.web_ui"
 
+	WebUiForLabel  = "velez.web_ui_for"
+	WebUiPortLabel = "velez.web_ui_port"
+
 	// PgaasNamePrefix, RegistryaasNamePrefix, S3NamePrefix,
 	// GitlabRunnerNamePrefix and GithubRunnerNamePrefix are prepended to the
 	// instance name at the point each service type first derives it from the request - see

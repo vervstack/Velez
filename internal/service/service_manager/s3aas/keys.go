@@ -190,7 +190,7 @@ func (s *Service) keyCredentials(instance domain.S3Instance, accessKeyId, secret
 	return domain.S3KeyCredentials{
 		AccessKeyId:        accessKeyId,
 		SecretAccessKey:    secret,
-		S3Endpoint:         s3Endpoint(domain.S3ServiceName(instance.Name), instance.S3Port),
+		S3Endpoint:         s3Endpoint(domain.S3ServiceName(instance.Name), instance.RemoteHost, instance.S3Port),
 		InternalS3Endpoint: internalEndpoint(domain.S3ServiceName(instance.Name), domain.S3ApiContainerPort),
 		Region:             instance.Region,
 	}

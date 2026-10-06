@@ -123,6 +123,8 @@ function toServiceResource(r: BoundResource): ServiceResource {
         icon:   meta.icon,
         color:  meta.color,
         reconciliation: 'unknown',
+        webUiPort: r.webUiPort,
+        webUiHost: r.webUiHost,
     }
 }
 

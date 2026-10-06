@@ -17,7 +17,8 @@ const (
 		"(\"hosts\" in /etc/docker/daemon.json) and the port is reachable from this machine"
 	pingHintDarwinLocalNetwork = "macOS blocks LAN connections for apps without Local Network access " +
 		"(\"connect: no route to host\" while curl works): System Settings > Privacy & Security > " +
-		"Local Network, enable the terminal or IDE that runs Velez and restart it"
+		"Local Network, enable the terminal or IDE that runs Velez and restart it. iTerm2 runs shells under " +
+		"its iTermServer helper, which iTerm2's permission does not cover - run Velez from Terminal.app instead"
 	pingHintWindowsFirewall = "allow outbound connections for Velez in Windows Defender Firewall"
 	pingHintDarwinLocal     = "start Docker Desktop (or colima / OrbStack) and point DOCKER_HOST " +
 		"or the active docker context at its socket"

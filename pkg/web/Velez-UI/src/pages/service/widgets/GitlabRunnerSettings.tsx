@@ -362,7 +362,7 @@ export default function GitlabRunnerSettings({serviceName}: Props) {
                 <SettingsField
                     label="Docker image"
                     value={values.dockerImage}
-                    placeholder="alpine:latest"
+                    placeholder="alpine:3.24.2"
                     onChange={handleDockerImageChange}
                 />
                 <SettingsField

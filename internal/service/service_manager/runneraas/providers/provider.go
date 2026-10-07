@@ -38,7 +38,9 @@ type Provider interface {
 	// doesn't (GitLab), execs its registration command inside containerID via
 	// runtime and fails on a non-zero exit code. dockerImage is provider-
 	// specific and ignored by a provider that doesn't use it. concurrent is
-	// applied through ApplyConcurrent once registration succeeds.
+	// applied through ApplyConcurrent once registration succeeds. Idempotent:
+	// a previous registration in the container is unregistered first, so its
+	// config always ends with exactly one runner entry.
 	Register(
 		ctx context.Context, runtime container_runtime.ContainerRuntime,
 		containerID, baseUrl, registrationToken, dockerImage, runnerName string, concurrent int32,

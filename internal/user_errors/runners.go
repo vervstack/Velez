@@ -61,6 +61,11 @@ var (
 	// non-zero inside the deployed container.
 	ErrGitlabRunnerUnregisterFailed = rerrors.New("gitlab-runner unregister exited non-zero")
 
+	// ErrGitlabRunnerEntryCount is returned by the gitlab provider when
+	// config.toml does not hold exactly one [[runners]] entry right after
+	// `gitlab-runner register`.
+	ErrGitlabRunnerEntryCount = rerrors.New("gitlab-runner config.toml must hold exactly one [[runners]] entry")
+
 	// ErrRunnerConcurrentInvalid is returned by the runneraas package when a
 	// concurrent value below 1 is requested.
 	ErrRunnerConcurrentInvalid = rerrors.NewUserError("concurrent must be at least 1")

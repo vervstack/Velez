@@ -229,7 +229,7 @@ message GitlabConfig {
   optional string base_url = 2;
 
   // docker_image - the image `gitlab-runner register`'s docker executor uses
-  // for job containers (--docker-image). Empty defaults to "alpine:latest".
+  // for job containers (--docker-image). Empty defaults to "alpine:3.24.2".
   // The executor itself is always "docker" - not caller-configurable.
   optional string docker_image = 3;
 

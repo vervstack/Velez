@@ -8,10 +8,12 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/image"
 	"github.com/stretchr/testify/require"
+	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/gitlab_runner_config"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
@@ -24,9 +26,20 @@ const (
 // code/error a test case configures, and serving/recording config.toml through
 // CopyFromContainer/CopyToContainer. Every other method is unused by Register
 // and panics if ever called.
+//
+// A successful exec behaves like the real gitlab-runner CLI against
+// configContent: `register` appends one [[runners]] entry (two when
+// isRegisterDuplicating), `unregister --all-runners` drops every entry unless
+// isUnregisterKeepingEntries - GitLab refusing to delete a runner keeps its
+// local entry while the command still exits 0.
 type fakeContainerRuntime struct {
 	execCalledWith container.ExecOptions
 	execCalledID   string
+	execCommands   [][]string
+
+	isConfigMissing              bool
+	isUnregisterKeepingEntries   bool
+	isRegisterDuplicatingEntries bool
 
 	execOutput   []byte
 	execExitCode int
@@ -39,6 +52,10 @@ type fakeContainerRuntime struct {
 }
 
 func (f *fakeContainerRuntime) CopyFromContainer(context.Context, string, string) ([]byte, error) {
+	if f.isConfigMissing {
+		return nil, rerrors.Wrap(user_errors.ErrContainerFileNotFound)
+	}
+
 	return f.configContent, nil
 }
 
@@ -48,6 +65,8 @@ func (f *fakeContainerRuntime) CopyToContainer(
 	f.writtenPath = path
 	f.writtenConfig = content
 	f.writtenMode = mode
+	f.configContent = content
+	f.isConfigMissing = false
 
 	return nil
 }
@@ -57,6 +76,11 @@ func (f *fakeContainerRuntime) Exec(
 ) ([]byte, int, error) {
 	f.execCalledID = containerID
 	f.execCalledWith = cfg
+	f.execCommands = append(f.execCommands, cfg.Cmd)
+
+	if f.execErr == nil && f.execExitCode == 0 {
+		f.simulateGitlabRunner(cfg.Cmd)
+	}
 
 	return f.execOutput, f.execExitCode, f.execErr
 }
@@ -163,6 +187,26 @@ func (f *fakeContainerRuntime) DetachContainer(context.Context, string, string) 
 	panic("not implemented")
 }
 
+func (f *fakeContainerRuntime) simulateGitlabRunner(cmd []string) {
+	const registeredEntry = "\n[[runners]]\n  name = \"registered\"\n  [runners.docker]\n    image = \"alpine\"\n" +
+		"    volumes = [\"/cache\"]\n"
+
+	switch cmd[1] {
+	case registerCommand:
+		f.configContent = append(f.configContent, registeredEntry...)
+
+		if f.isRegisterDuplicatingEntries {
+			f.configContent = append(f.configContent, registeredEntry...)
+		}
+
+		f.isConfigMissing = false
+	case unregisterCommand:
+		if !f.isUnregisterKeepingEntries {
+			f.configContent = gitlab_runner_config.RemoveRunners(f.configContent)
+		}
+	}
+}
+
 func Test_MintRegistrationToken_Scenarios(t *testing.T) {
 	cases := []struct {
 		name        string
@@ -264,7 +308,7 @@ func Test_Register_ExecError_IsWrapped(t *testing.T) {
 
 func Test_Register_AppliesConcurrent(t *testing.T) {
 	provider := New()
-	runtime := &fakeContainerRuntime{configContent: []byte("concurrent = 1\n\n[[runners]]\n  name = \"runner-1\"\n")}
+	runtime := &fakeContainerRuntime{configContent: []byte("concurrent = 1\n")}
 
 	err := provider.Register(
 		context.Background(), runtime, "runner-container", "", "token-1", "", "runner-1", 4)
@@ -273,7 +317,101 @@ func Test_Register_AppliesConcurrent(t *testing.T) {
 	require.Equal(t, configPath, runtime.writtenPath)
 	require.Equal(t, fs.FileMode(configFileMode), runtime.writtenMode)
 	require.Contains(t, string(runtime.writtenConfig), "concurrent = 4\n")
-	require.Contains(t, string(runtime.writtenConfig), "name = \"runner-1\"")
+	require.Contains(t, string(runtime.writtenConfig), "name = \"registered\"")
+}
+
+func Test_Register_WritesDockerDefaults(t *testing.T) {
+	provider := New()
+	runtime := &fakeContainerRuntime{isConfigMissing: true}
+
+	err := provider.Register(
+		context.Background(), runtime, "gitlab_runner_Artel", "", "token-1", "", "runner-1", 2)
+	require.NoError(t, err)
+
+	got, err := gitlab_runner_config.ReadSettings(runtime.configContent)
+	require.NoError(t, err)
+	require.Equal(t, []string{pullPolicyIfNotPresent}, got.PullPolicy)
+	require.Equal(t, []string{pullPolicyIfNotPresent, pullPolicyAlways}, got.AllowedPullPolicies)
+
+	written := string(runtime.configContent)
+	require.Contains(t, written, `volumes = ["gitlab_runner_Artel-cache:/cache"]`)
+	require.NotContains(t, written, `volumes = ["/cache"]`)
+	require.Equal(t, 1, gitlab_runner_config.CountRunners(runtime.configContent))
+}
+
+func Test_Register_IsIdempotent_Scenarios(t *testing.T) {
+	const entry = "[[runners]]\n  name = \"old\"\n  [runners.docker]\n    privileged = false\n"
+
+	cases := []struct {
+		name               string
+		config             string
+		isConfigMissing    bool
+		isKeepingEntries   bool
+		wantUnregisterCall bool
+	}{
+		{"fresh container without config.toml", "", true, false, false},
+		{"config.toml without runner entries", "concurrent = 1\n", false, false, false},
+		{"one previous entry is unregistered", "concurrent = 1\n\n" + entry, false, false, true},
+		{
+			"five previous entries are unregistered",
+			"concurrent = 1\n\n" + entry + "\n" + entry + "\n" + entry + "\n" + entry + "\n" + entry,
+			false, false, true,
+		},
+		{
+			"entries gitlab refused to unregister are dropped locally",
+			"concurrent = 1\n\n" + entry + "\n" + entry,
+			false, true, true,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			runtime := &fakeContainerRuntime{
+				configContent:              []byte(tc.config),
+				isConfigMissing:            tc.isConfigMissing,
+				isUnregisterKeepingEntries: tc.isKeepingEntries,
+			}
+
+			err := New().Register(
+				context.Background(), runtime, "runner-container", "", "token-1", "", "runner-1", 1)
+			require.NoError(t, err)
+
+			require.Equal(t, 1, gitlab_runner_config.CountRunners(runtime.configContent))
+			require.NotContains(t, string(runtime.configContent), `name = "old"`)
+			require.Equal(t, tc.wantUnregisterCall, containsCommand(runtime.execCommands, "unregister"))
+			require.Equal(t, "register", runtime.execCalledWith.Cmd[1])
+		})
+	}
+}
+
+func Test_Register_UnregisterNonZeroExitCode_ReturnsError(t *testing.T) {
+	runtime := &fakeContainerRuntime{
+		configContent: []byte("[[runners]]\n  name = \"old\"\n"),
+		execExitCode:  1,
+	}
+
+	err := execRegister(New(), runtime, "", "")
+
+	require.ErrorIs(t, err, user_errors.ErrGitlabRunnerUnregisterFailed)
+	require.False(t, containsCommand(runtime.execCommands, "register"))
+}
+
+func Test_Register_MoreThanOneEntryAfterRegister_ReturnsError(t *testing.T) {
+	runtime := &fakeContainerRuntime{isConfigMissing: true, isRegisterDuplicatingEntries: true}
+
+	err := execRegister(New(), runtime, "", "")
+
+	require.ErrorIs(t, err, user_errors.ErrGitlabRunnerEntryCount)
+}
+
+func containsCommand(commands [][]string, subcommand string) bool {
+	for _, cmd := range commands {
+		if cmd[1] == subcommand {
+			return true
+		}
+	}
+
+	return false
 }
 
 // execRegister calls Register with fixed token/runner-name/container-id

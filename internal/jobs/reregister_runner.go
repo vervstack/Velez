@@ -72,9 +72,10 @@ func (h *reregisterRunnerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 	}
 }
 
-// reregisterRunnerJob execs Unregister then Register against the runner's
-// already-deployed container, reusing its stored registration token - no
-// new container, no new token. Container name == instance/service name, the
+// reregisterRunnerJob execs Register against the runner's already-deployed
+// container (which unregisters the previous entry itself, so config.toml ends
+// with exactly one), reusing its stored registration token - no new
+// container, no new token. Container name == instance/service name, the
 // same convention registerRunnerJob (create_runner.go) relies on.
 type reregisterRunnerJob struct {
 	dataStorage storage.Storage
@@ -114,16 +115,11 @@ func (j *reregisterRunnerJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error resolving container runtime")
 	}
 
-	// Unregister drops the whole [[runners]] entry, including its docker
-	// settings, so they are read before it and written back after Register.
+	// Register replaces the whole [[runners]] entry, including its docker
+	// settings, so they are read before it and written back after.
 	settings, err := runnerProvider.ReadSettings(ctx, containerRuntime, name)
 	if err != nil {
 		return rerrors.Wrap(err, "error reading runner settings")
-	}
-
-	err = runnerProvider.Unregister(ctx, containerRuntime, name)
-	if err != nil {
-		return rerrors.Wrap(err, "error unregistering runner")
 	}
 
 	err = runnerProvider.Register(

@@ -208,7 +208,7 @@ export default function RunnerScreen({initialProvider = RunnerProvider.GITHUB, o
 
                 {isGitlab && (
                     <Input
-                        label="Docker Image (optional, defaults to alpine:latest)"
+                        label="Docker Image (optional, defaults to alpine:3.24.2)"
                         inputValue={dockerImage}
                         onChange={setDockerImage}
                         disabled={createRunner.isPending}

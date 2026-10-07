@@ -12,7 +12,9 @@ package gitlab
 
 import (
 	"context"
+	"errors"
 
+	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
 	"go.redsock.ru/rerrors"
 
@@ -28,7 +30,18 @@ const (
 
 	// defaultDockerImage is the docker executor's job image when the
 	// request's GitlabConfig.docker_image is empty.
-	defaultDockerImage = "alpine:latest"
+	defaultDockerImage = "alpine:3.24.2"
+
+	// cacheVolumeSuffix names the docker executor's shared cache volume
+	// "<runner container name>-cache". One named volume, mounted at /cache
+	// by every job slot, replaces the per-runner-entry anonymous /cache
+	// volume gitlab-runner registers by default - that one never survives
+	// from one job to the next, so CI caches never hit.
+	cacheVolumeSuffix = "-cache"
+	cacheMountPath    = "/cache"
+
+	pullPolicyIfNotPresent = "if-not-present"
+	pullPolicyAlways       = "always"
 
 	// registerExecutor is always "docker" - not caller-configurable, see
 	// GitlabConfig.docker_image's doc comment.
@@ -37,6 +50,9 @@ const (
 	// gitlabRunnerBin is the official image's CLI binary, execed for both
 	// Register and Unregister.
 	gitlabRunnerBin = "gitlab-runner"
+
+	registerCommand   = "register"
+	unregisterCommand = "unregister"
 
 	descriptorName = "gitlab_runner"
 
@@ -95,6 +111,13 @@ func (p *Provider) RegistrationEnv(
 // exit code; the register command's own output is never folded into the
 // returned error, since it can carry the caller's GitLab server's response
 // text (untrusted external content).
+//
+// Register is idempotent: `gitlab-runner register` only ever appends a
+// [[runners]] entry, so any entry already in config.toml is cleared first
+// (clearRegistrations) and the result is verified to hold exactly one. A
+// container's config.toml therefore always ends with a single entry no
+// matter how often Register runs against it - a retried create job and
+// reregister both funnel through here.
 func (p *Provider) Register(
 	ctx context.Context, runtime container_runtime.ContainerRuntime,
 	containerID, baseUrl, registrationToken, dockerImage, runnerName string, concurrent int32,
@@ -109,9 +132,14 @@ func (p *Provider) Register(
 		image = defaultDockerImage
 	}
 
+	err := p.clearRegistrations(ctx, runtime, containerID)
+	if err != nil {
+		return rerrors.Wrap(err, "error clearing previous gitlab-runner registrations")
+	}
+
 	execOpts := container.ExecOptions{
 		Cmd: []string{
-			gitlabRunnerBin, "register",
+			gitlabRunnerBin, registerCommand,
 			"--non-interactive",
 			"--url", base,
 			"--registration-token", registrationToken,
@@ -133,9 +161,9 @@ func (p *Provider) Register(
 		return rerrors.Wrap(user_errors.ErrGitlabRunnerRegisterFailed)
 	}
 
-	err = p.ApplyConcurrent(ctx, runtime, containerID, concurrent)
+	err = p.applyRegistrationDefaults(ctx, runtime, containerID, concurrent)
 	if err != nil {
-		return rerrors.Wrap(err, "error applying concurrent after gitlab-runner register")
+		return rerrors.Wrap(err, "error applying defaults after gitlab-runner register")
 	}
 
 	return nil
@@ -213,7 +241,7 @@ func (p *Provider) Unregister(
 	ctx context.Context, runtime container_runtime.ContainerRuntime, containerID string,
 ) error {
 	execOpts := container.ExecOptions{
-		Cmd:          []string{gitlabRunnerBin, "unregister", "--all-runners"},
+		Cmd:          []string{gitlabRunnerBin, unregisterCommand, "--all-runners"},
 		AttachStdout: true,
 		AttachStderr: true,
 	}
@@ -225,6 +253,103 @@ func (p *Provider) Unregister(
 
 	if exitCode != 0 {
 		return rerrors.Wrap(user_errors.ErrGitlabRunnerUnregisterFailed)
+	}
+
+	return nil
+}
+
+// clearRegistrations leaves containerID's config.toml without any [[runners]]
+// entry. It asks gitlab-runner to unregister them first, so the runner is
+// also removed on the GitLab side, then drops whatever entry is still left:
+// `unregister --all-runners` keeps the local entry of a runner GitLab refused
+// to delete (token already revoked, runner already gone) and still exits 0,
+// and a surviving entry is exactly what the next `register` would duplicate.
+func (p *Provider) clearRegistrations(
+	ctx context.Context, runtime container_runtime.ContainerRuntime, containerID string,
+) error {
+	config, isFound, err := p.readConfig(ctx, runtime, containerID)
+	if err != nil {
+		return rerrors.Wrap(err, "error reading gitlab-runner config.toml")
+	}
+
+	if !isFound || gitlab_runner_config.CountRunners(config) == 0 {
+		return nil
+	}
+
+	err = p.Unregister(ctx, runtime, containerID)
+	if err != nil {
+		return rerrors.Wrap(err, "error unregistering previous runners")
+	}
+
+	config, err = runtime.CopyFromContainer(ctx, containerID, configPath)
+	if err != nil {
+		return rerrors.Wrap(err, "error reading gitlab-runner config.toml after unregister")
+	}
+
+	if gitlab_runner_config.CountRunners(config) == 0 {
+		return nil
+	}
+
+	cleared := gitlab_runner_config.RemoveRunners(config)
+
+	err = runtime.CopyToContainer(ctx, containerID, configPath, cleared, configFileMode)
+	if err != nil {
+		return rerrors.Wrap(err, "error writing gitlab-runner config.toml")
+	}
+
+	return nil
+}
+
+// readConfig reads config.toml; isFound is false on a container that has not
+// registered yet, where the file does not exist.
+func (p *Provider) readConfig(
+	ctx context.Context, runtime container_runtime.ContainerRuntime, containerID string,
+) (config []byte, isFound bool, err error) {
+	config, err = runtime.CopyFromContainer(ctx, containerID, configPath)
+	if errors.Is(err, user_errors.ErrContainerFileNotFound) || errdefs.IsNotFound(err) {
+		return nil, false, nil
+	}
+
+	if err != nil {
+		return nil, false, rerrors.Wrap(err)
+	}
+
+	return config, true, nil
+}
+
+// applyRegistrationDefaults writes everything `gitlab-runner register` has no
+// flag for - or whose default it would add to rather than replace (the
+// anonymous /cache volume) - into the just-registered config.toml in one
+// read-modify-write, and verifies the file holds exactly one [[runners]] entry.
+func (p *Provider) applyRegistrationDefaults(
+	ctx context.Context, runtime container_runtime.ContainerRuntime, containerID string, concurrent int32,
+) error {
+	config, err := runtime.CopyFromContainer(ctx, containerID, configPath)
+	if err != nil {
+		return rerrors.Wrap(err, "error reading gitlab-runner config.toml")
+	}
+
+	runnersCount := gitlab_runner_config.CountRunners(config)
+	if runnersCount != 1 {
+		return rerrors.Wrapf(user_errors.ErrGitlabRunnerEntryCount, "found %d [[runners]] entries", runnersCount)
+	}
+
+	defaults := gitlab_runner_config.DockerDefaults{
+		Volumes:             []string{containerID + cacheVolumeSuffix + ":" + cacheMountPath},
+		PullPolicy:          []string{pullPolicyIfNotPresent},
+		AllowedPullPolicies: []string{pullPolicyIfNotPresent, pullPolicyAlways},
+	}
+
+	withDefaults, err := gitlab_runner_config.SetDockerDefaults(config, defaults)
+	if err != nil {
+		return rerrors.Wrap(err, "error applying docker defaults")
+	}
+
+	updated := gitlab_runner_config.SetConcurrent(withDefaults, concurrent)
+
+	err = runtime.CopyToContainer(ctx, containerID, configPath, updated, configFileMode)
+	if err != nil {
+		return rerrors.Wrap(err, "error writing gitlab-runner config.toml")
 	}
 
 	return nil

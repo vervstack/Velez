@@ -537,7 +537,7 @@ type GitlabConfig struct {
 	// a self-managed instance's URL. Empty defaults to "https://gitlab.com".
 	BaseUrl *string `protobuf:"bytes,2,opt,name=base_url,json=baseUrl,proto3,oneof" json:"base_url,omitempty"`
 	// docker_image - the image `gitlab-runner register`'s docker executor uses
-	// for job containers (--docker-image). Empty defaults to "alpine:latest".
+	// for job containers (--docker-image). Empty defaults to "alpine:3.24.2".
 	// The executor itself is always "docker" - not caller-configurable.
 	DockerImage *string `protobuf:"bytes,3,opt,name=docker_image,json=dockerImage,proto3,oneof" json:"docker_image,omitempty"`
 	// concurrent - the global gitlab-runner `concurrent` setting: how many jobs

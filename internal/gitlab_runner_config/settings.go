@@ -180,6 +180,12 @@ func applyDockerSettings(config []byte, s domain.GitlabRunnerSettings) ([]byte, 
 		{key: allowedPullPoliciesKey, value: quoteArray(s.AllowedPullPolicies), isSet: len(s.AllowedPullPolicies) > 0},
 	}
 
+	return applyDockerKeys(config, keys)
+}
+
+// applyDockerKeys sets (or, when unset, deletes) keys in the first
+// `[runners.docker]` table, creating the table when it is missing.
+func applyDockerKeys(config []byte, keys []keyValue) ([]byte, error) {
 	lines := splitLines(config)
 
 	headerIndex := -1

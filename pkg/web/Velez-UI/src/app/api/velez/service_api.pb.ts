@@ -74,7 +74,8 @@ export type GetServiceRequest = {
 };
 
 type BaseGetServiceResponse = {
-  sidecars?: ServiceSidecar[];about?: AboutService;
+  sidecars?: ServiceSidecar[];
+  proxyBypassHosts?: string[];about?: AboutService;proxyUrl?: string;
 };
 
 export type GetServiceResponse = BaseGetServiceResponse &
@@ -83,6 +84,17 @@ export type GetServiceResponse = BaseGetServiceResponse &
   }>;
 
 export type GetService = Record<string, never>;
+
+export type SetServiceProxyRequest = {
+  serviceName?: string;
+  environment?: string;
+  proxyUrl?: string;
+  proxyBypassHosts?: string[];
+};
+
+export type SetServiceProxyResponse = Record<string, never>;
+
+export type SetServiceProxy = Record<string, never>;
 
 export type ServiceSidecar = {
   containerId?: string;
@@ -329,6 +341,9 @@ export class ServiceApi {
   }
   static GetServiceEnvironments(this:void, req: GetServiceEnvironmentsRequest, initReq?: fm.InitReq): Promise<GetServiceEnvironmentsResponse> {
     return fm.fetchRequest<GetServiceEnvironmentsResponse>(`/api/service/environments`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static SetServiceProxy(this:void, req: SetServiceProxyRequest, initReq?: fm.InitReq): Promise<SetServiceProxyResponse> {
+    return fm.fetchRequest<SetServiceProxyResponse>(`/api/service/proxy/set`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
   static GetVervonomicon(this:void, req: GetVervonomiconRequest, initReq?: fm.InitReq): Promise<GetVervonomiconResponse> {
     return fm.fetchRequest<GetVervonomiconResponse>(`/api/service/vervonomicon`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});

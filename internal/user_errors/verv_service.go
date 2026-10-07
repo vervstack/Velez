@@ -9,6 +9,10 @@ var (
 	// name to look a service up by.
 	ErrServiceNameRequiredToFind = rerrors.New("name is required to find service")
 
+	// ErrServiceProxyUrlInvalid is returned when a service proxy url is not an
+	// http, https, socks5 or socks5h address with a host.
+	ErrServiceProxyUrlInvalid = rerrors.NewUserError("proxy url must be an http, https, socks5 or socks5h address")
+
 	// ErrNoRunningDeployment is returned when a service has no running
 	// deployment to act on.
 	ErrNoRunningDeployment = rerrors.New("no running deployment found for service")

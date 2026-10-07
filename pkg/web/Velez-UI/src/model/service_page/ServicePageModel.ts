@@ -9,6 +9,11 @@ export interface ServiceEnvironment {
     health: 'healthy' | 'degraded' | 'unhealthy'
 }
 
+export interface ServiceProxy {
+    proxyUrl: string
+    proxyBypassHosts: string[]
+}
+
 export interface ServiceAbout {
     description: string
     originalName: string

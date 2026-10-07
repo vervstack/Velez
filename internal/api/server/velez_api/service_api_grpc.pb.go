@@ -31,6 +31,7 @@ const (
 	ServiceApi_GetServiceResources_FullMethodName    = "/velez_api.ServiceApi/GetServiceResources"
 	ServiceApi_GetServiceGraph_FullMethodName        = "/velez_api.ServiceApi/GetServiceGraph"
 	ServiceApi_GetServiceEnvironments_FullMethodName = "/velez_api.ServiceApi/GetServiceEnvironments"
+	ServiceApi_SetServiceProxy_FullMethodName        = "/velez_api.ServiceApi/SetServiceProxy"
 	ServiceApi_GetVervonomicon_FullMethodName        = "/velez_api.ServiceApi/GetVervonomicon"
 )
 
@@ -58,6 +59,10 @@ type ServiceApiClient interface {
 	GetServiceResources(ctx context.Context, in *GetServiceResources_Request, opts ...grpc.CallOption) (*GetServiceResources_Response, error)
 	GetServiceGraph(ctx context.Context, in *GetServiceGraph_Request, opts ...grpc.CallOption) (*GetServiceGraph_Response, error)
 	GetServiceEnvironments(ctx context.Context, in *GetServiceEnvironments_Request, opts ...grpc.CallOption) (*GetServiceEnvironments_Response, error)
+	// SetServiceProxy recreates the running service's container with outbound
+	// proxy env vars; for a runner it also mirrors the proxy into the job
+	// containers' environment.
+	SetServiceProxy(ctx context.Context, in *SetServiceProxy_Request, opts ...grpc.CallOption) (*SetServiceProxy_Response, error)
 	GetVervonomicon(ctx context.Context, in *GetVervonomicon_Request, opts ...grpc.CallOption) (*GetVervonomicon_Response, error)
 }
 
@@ -189,6 +194,16 @@ func (c *serviceApiClient) GetServiceEnvironments(ctx context.Context, in *GetSe
 	return out, nil
 }
 
+func (c *serviceApiClient) SetServiceProxy(ctx context.Context, in *SetServiceProxy_Request, opts ...grpc.CallOption) (*SetServiceProxy_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetServiceProxy_Response)
+	err := c.cc.Invoke(ctx, ServiceApi_SetServiceProxy_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *serviceApiClient) GetVervonomicon(ctx context.Context, in *GetVervonomicon_Request, opts ...grpc.CallOption) (*GetVervonomicon_Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetVervonomicon_Response)
@@ -223,6 +238,10 @@ type ServiceApiServer interface {
 	GetServiceResources(context.Context, *GetServiceResources_Request) (*GetServiceResources_Response, error)
 	GetServiceGraph(context.Context, *GetServiceGraph_Request) (*GetServiceGraph_Response, error)
 	GetServiceEnvironments(context.Context, *GetServiceEnvironments_Request) (*GetServiceEnvironments_Response, error)
+	// SetServiceProxy recreates the running service's container with outbound
+	// proxy env vars; for a runner it also mirrors the proxy into the job
+	// containers' environment.
+	SetServiceProxy(context.Context, *SetServiceProxy_Request) (*SetServiceProxy_Response, error)
 	GetVervonomicon(context.Context, *GetVervonomicon_Request) (*GetVervonomicon_Response, error)
 	mustEmbedUnimplementedServiceApiServer()
 }
@@ -269,6 +288,9 @@ func (UnimplementedServiceApiServer) GetServiceGraph(context.Context, *GetServic
 }
 func (UnimplementedServiceApiServer) GetServiceEnvironments(context.Context, *GetServiceEnvironments_Request) (*GetServiceEnvironments_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetServiceEnvironments not implemented")
+}
+func (UnimplementedServiceApiServer) SetServiceProxy(context.Context, *SetServiceProxy_Request) (*SetServiceProxy_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetServiceProxy not implemented")
 }
 func (UnimplementedServiceApiServer) GetVervonomicon(context.Context, *GetVervonomicon_Request) (*GetVervonomicon_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetVervonomicon not implemented")
@@ -510,6 +532,24 @@ func _ServiceApi_GetServiceEnvironments_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServiceApi_SetServiceProxy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetServiceProxy_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceApiServer).SetServiceProxy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServiceApi_SetServiceProxy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceApiServer).SetServiceProxy(ctx, req.(*SetServiceProxy_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ServiceApi_GetVervonomicon_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetVervonomicon_Request)
 	if err := dec(in); err != nil {
@@ -582,6 +622,10 @@ var ServiceApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetServiceEnvironments",
 			Handler:    _ServiceApi_GetServiceEnvironments_Handler,
+		},
+		{
+			MethodName: "SetServiceProxy",
+			Handler:    _ServiceApi_SetServiceProxy_Handler,
 		},
 		{
 			MethodName: "GetVervonomicon",

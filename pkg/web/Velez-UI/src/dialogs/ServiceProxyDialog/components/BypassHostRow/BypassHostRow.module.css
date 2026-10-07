@@ -1,0 +1,10 @@
+.BypassHostRowContainer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    & .InputWrapper {
+        flex: 1;
+        min-width: 0;
+    }
+}

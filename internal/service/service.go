@@ -99,6 +99,7 @@ type VervServicesService interface {
 	Get(ctx context.Context, r domain.GetServiceReq) (domain.Service, error)
 	CreateNewDeploy(ctx context.Context, request domain.CreateDeployReq) error
 	UpgradeDeploy(ctx context.Context, request domain.UpgradeDeployReq) error
+	SetServiceProxy(ctx context.Context, request domain.SetServiceProxyReq) error
 	List(ctx context.Context, req domain.ListServicesReq) (domain.ServiceList, error)
 	ListDeployments(ctx context.Context, req domain.ListDeploymentsReq) (domain.DeploymentList, error)
 	StopService(ctx context.Context, name, environment string) error

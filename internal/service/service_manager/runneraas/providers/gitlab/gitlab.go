@@ -11,8 +11,10 @@
 package gitlab
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"slices"
 
 	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
@@ -22,6 +24,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/gitlab_runner_config"
+	"go.vervstack.ru/Velez/internal/proxyenv"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
@@ -63,6 +66,10 @@ const (
 	configPath = gitlab_runner_config.ConfigPath
 
 	configFileMode = 0o600
+
+	// jobDockerAlias is the hostname job containers reach the docker:dind
+	// service under; it must never go through the proxy.
+	jobDockerAlias = "docker"
 )
 
 // Provider implements runneraas.Provider for GitLab.
@@ -232,6 +239,42 @@ func (p *Provider) ApplySettings(
 	return nil
 }
 
+// SyncProxy writes the proxy env of containerID into config.toml's
+// `[[runners]] environment`, which is the env gitlab-runner gives every job
+// container - they are spawned by the runner, not by Velez, so they never see
+// the runner container's own env. The container env stays the source of truth:
+// no proxy there removes the entries again. gitlab-runner hot-reloads the
+// file. A container that has not registered yet has no config.toml and is left
+// alone - Register applies the proxy itself.
+func (p *Provider) SyncProxy(
+	ctx context.Context, runtime container_runtime.ContainerRuntime, containerID string,
+) error {
+	config, isFound, err := p.readConfig(ctx, runtime, containerID)
+	if err != nil {
+		return rerrors.Wrap(err, "error reading gitlab-runner config.toml")
+	}
+
+	if !isFound {
+		return nil
+	}
+
+	updated, err := p.withJobProxy(ctx, runtime, containerID, config)
+	if err != nil {
+		return rerrors.Wrap(err, "error applying job proxy")
+	}
+
+	if bytes.Equal(updated, config) {
+		return nil
+	}
+
+	err = runtime.CopyToContainer(ctx, containerID, configPath, updated, configFileMode)
+	if err != nil {
+		return rerrors.Wrap(err, "error writing gitlab-runner config.toml")
+	}
+
+	return nil
+}
+
 // Unregister execs `gitlab-runner unregister --all-runners` inside
 // containerID, clearing every [[runners]] entry config.toml currently holds
 // so a following Register doesn't append a duplicate local entry (which
@@ -345,7 +388,12 @@ func (p *Provider) applyRegistrationDefaults(
 		return rerrors.Wrap(err, "error applying docker defaults")
 	}
 
-	updated := gitlab_runner_config.SetConcurrent(withDefaults, concurrent)
+	withConcurrent := gitlab_runner_config.SetConcurrent(withDefaults, concurrent)
+
+	updated, err := p.withJobProxy(ctx, runtime, containerID, withConcurrent)
+	if err != nil {
+		return rerrors.Wrap(err, "error applying job proxy")
+	}
 
 	err = runtime.CopyToContainer(ctx, containerID, configPath, updated, configFileMode)
 	if err != nil {
@@ -353,4 +401,36 @@ func (p *Provider) applyRegistrationDefaults(
 	}
 
 	return nil
+}
+
+// withJobProxy returns config with the proxy env of containerID applied to the
+// runner entry's job environment.
+func (p *Provider) withJobProxy(
+	ctx context.Context, runtime container_runtime.ContainerRuntime, containerID string, config []byte,
+) ([]byte, error) {
+	info, isFound, err := runtime.Inspect(ctx, containerID)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error inspecting runner container")
+	}
+
+	if !isFound {
+		return nil, rerrors.Wrap(user_errors.ErrContainerNotFoundInEnvironment)
+	}
+
+	var containerEnv []string
+
+	if info.Config != nil {
+		containerEnv = info.Config.Env
+	}
+
+	proxyUrl, bypassHosts := proxyenv.ParseList(containerEnv)
+	jobBypassHosts := append(slices.Clone(bypassHosts), jobDockerAlias)
+
+	updated, err := gitlab_runner_config.SetRunnerEnvironment(
+		config, proxyenv.Keys(), proxyenv.Env(proxyUrl, jobBypassHosts))
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error setting runner job environment")
+	}
+
+	return updated, nil
 }

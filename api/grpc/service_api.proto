@@ -105,6 +105,16 @@ service ServiceApi {
     };
   }
 
+  // SetServiceProxy recreates the running service's container with outbound
+  // proxy env vars; for a runner it also mirrors the proxy into the job
+  // containers' environment.
+  rpc SetServiceProxy(SetServiceProxy.Request) returns (SetServiceProxy.Response) {
+    option (google.api.http) = {
+      post: "/api/service/proxy/set"
+      body: "*"
+    };
+  }
+
   rpc GetVervonomicon(GetVervonomicon.Request) returns (GetVervonomicon.Response) {
     option (google.api.http) = {
       post: "/api/service/vervonomicon"
@@ -149,7 +159,23 @@ message GetService {
     }
     optional AboutService about = 2;
     repeated ServiceSidecar sidecars = 3;
+    // proxy_url - HTTPS_PROXY of the running container; unset when no proxy is configured.
+    optional string proxy_url = 4;
+    // proxy_bypass_hosts - NO_PROXY of the running container without Velez's default entries.
+    repeated string proxy_bypass_hosts = 5;
   }
+}
+
+message SetServiceProxy {
+  message Request {
+    string service_name = 1;
+    string environment = 2;
+    // Empty removes the proxy.
+    string proxy_url = 3;
+    // Hosts that bypass the proxy, added to the ones Velez always excludes.
+    repeated string proxy_bypass_hosts = 4;
+  }
+  message Response {}
 }
 
 message ServiceSidecar {

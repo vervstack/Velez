@@ -1,0 +1,16 @@
+.ServiceProxyDialogContainer {
+    width: 32rem;
+    max-width: var(--dialog-max-width);
+
+    & .FieldsWrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.875rem;
+    }
+
+    & .ActionsRow {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+}

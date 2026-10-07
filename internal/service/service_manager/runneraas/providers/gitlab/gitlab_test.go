@@ -1,6 +1,7 @@
 package gitlab
 
 import (
+	"bytes"
 	"context"
 	"io/fs"
 	"testing"
@@ -19,6 +20,12 @@ import (
 
 const (
 	testRunnerRepoTarget = "owner/repo"
+
+	testProxyUrl = "socks5://192.168.1.44:1080"
+
+	jobNoProxy = "localhost,127.0.0.1,::1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,gitlab.internal,docker"
+
+	registeredConfig = "[[runners]]\n  name = \"registered\"\n  [runners.docker]\n    image = \"alpine\"\n"
 )
 
 // fakeContainerRuntime implements container_runtime.ContainerRuntime,
@@ -44,6 +51,10 @@ type fakeContainerRuntime struct {
 	execOutput   []byte
 	execExitCode int
 	execErr      error
+
+	inspectedEnv     []string
+	isInspectMissing bool
+	inspectErr       error
 
 	configContent []byte
 	writtenPath   string
@@ -110,7 +121,13 @@ func (f *fakeContainerRuntime) IsContainerRunning(context.Context, string) (bool
 }
 
 func (f *fakeContainerRuntime) Inspect(context.Context, string) (container.InspectResponse, bool, error) {
-	panic("not implemented")
+	if f.inspectErr != nil {
+		return container.InspectResponse{}, false, f.inspectErr
+	}
+
+	info := container.InspectResponse{Config: &container.Config{Env: f.inspectedEnv}}
+
+	return info, !f.isInspectMissing, nil
 }
 
 func (f *fakeContainerRuntime) Stop(context.Context, string) error {
@@ -462,4 +479,90 @@ func Test_ApplySettings_WritesConfigPreservingExistingKeys(t *testing.T) {
 	require.Contains(t, written, "image = \"alpine:latest\"")
 	require.Contains(t, written, "log_level = \"warn\"")
 	require.Contains(t, written, "if-not-present")
+}
+
+func proxiedContainerEnv() []string {
+	return []string{
+		"HTTPS_PROXY=" + testProxyUrl,
+		"NO_PROXY=localhost,127.0.0.1,::1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,gitlab.internal",
+	}
+}
+
+func Test_SyncProxy_WritesJobEnvironment(t *testing.T) {
+	provider := New()
+	runtime := &fakeContainerRuntime{configContent: []byte(registeredConfig), inspectedEnv: proxiedContainerEnv()}
+
+	err := provider.SyncProxy(context.Background(), runtime, "runner-container")
+	require.NoError(t, err)
+
+	require.Equal(t, configPath, runtime.writtenPath)
+	require.Equal(t, fs.FileMode(configFileMode), runtime.writtenMode)
+
+	written := string(runtime.writtenConfig)
+
+	require.Contains(t, written, "HTTP_PROXY="+testProxyUrl)
+	require.Contains(t, written, "http_proxy="+testProxyUrl)
+	require.Contains(t, written, "NO_PROXY="+jobNoProxy)
+	require.Contains(t, written, "no_proxy="+jobNoProxy)
+
+	environmentIndex := bytes.Index(runtime.writtenConfig, []byte("environment"))
+	dockerTableIndex := bytes.Index(runtime.writtenConfig, []byte("[runners.docker]"))
+
+	require.Less(t, environmentIndex, dockerTableIndex)
+}
+
+func Test_SyncProxy_ContainerWithoutProxy_RemovesJobEnvironment(t *testing.T) {
+	provider := New()
+	runtime := &fakeContainerRuntime{configContent: []byte(registeredConfig), inspectedEnv: proxiedContainerEnv()}
+
+	err := provider.SyncProxy(context.Background(), runtime, "runner-container")
+	require.NoError(t, err)
+
+	runtime.inspectedEnv = []string{"PATH=/bin"}
+
+	err = provider.SyncProxy(context.Background(), runtime, "runner-container")
+	require.NoError(t, err)
+
+	require.Equal(t, registeredConfig, string(runtime.writtenConfig))
+}
+
+func Test_SyncProxy_NothingToChange_WritesNothing(t *testing.T) {
+	provider := New()
+	runtime := &fakeContainerRuntime{configContent: []byte(registeredConfig), inspectedEnv: []string{"PATH=/bin"}}
+
+	err := provider.SyncProxy(context.Background(), runtime, "runner-container")
+	require.NoError(t, err)
+
+	require.Empty(t, runtime.writtenPath)
+}
+
+func Test_SyncProxy_UnregisteredContainer_IsSkipped(t *testing.T) {
+	provider := New()
+	runtime := &fakeContainerRuntime{isConfigMissing: true, inspectedEnv: proxiedContainerEnv()}
+
+	err := provider.SyncProxy(context.Background(), runtime, "runner-container")
+	require.NoError(t, err)
+
+	require.Empty(t, runtime.writtenPath)
+}
+
+func Test_SyncProxy_MissingContainer_ReturnsError(t *testing.T) {
+	provider := New()
+	runtime := &fakeContainerRuntime{configContent: []byte(registeredConfig), isInspectMissing: true}
+
+	err := provider.SyncProxy(context.Background(), runtime, "runner-container")
+
+	require.ErrorIs(t, err, user_errors.ErrContainerNotFoundInEnvironment)
+}
+
+func Test_Register_KeepsContainerProxy(t *testing.T) {
+	provider := New()
+	runtime := &fakeContainerRuntime{configContent: []byte("concurrent = 1\n"), inspectedEnv: proxiedContainerEnv()}
+
+	err := provider.Register(
+		context.Background(), runtime, "runner-container", "", "token-1", "", "runner-1", 1)
+	require.NoError(t, err)
+
+	require.Contains(t, string(runtime.writtenConfig), "HTTPS_PROXY="+testProxyUrl)
+	require.Contains(t, string(runtime.writtenConfig), "volumes")
 }

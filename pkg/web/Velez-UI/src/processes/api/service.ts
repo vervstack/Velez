@@ -14,6 +14,7 @@ import {
     StopServiceRequest,
     RestartServiceRequest,
     RemoveServiceRequest,
+    SetServiceProxyRequest,
     GetServiceEnvironmentsRequest,
     ServiceEnvironmentInfo,
     GetServiceResourcesRequest,
@@ -24,7 +25,7 @@ import {
 } from "@/app/api/velez"
 
 import {ApiService} from "@/processes/ApiService.ts"
-import type {ServiceAbout, ServiceMetrics, ServiceResource, ServiceGraphData, ServiceGraphNode, ServiceEnvironment, VervonomiconDocs, ResourceReconciliationStatus} from "@/model/service_page/ServicePageModel"
+import type {ServiceAbout, ServiceProxy, ServiceMetrics, ServiceResource, ServiceGraphData, ServiceGraphNode, ServiceEnvironment, VervonomiconDocs, ResourceReconciliationStatus} from "@/model/service_page/ServicePageModel"
 import {useEnvironmentStore} from "@/app/hooks/environment/Environment.ts"
 import {mapResourceConnectionStatus} from "@/processes/vervonomicon.ts"
 import {toServiceSidecars} from "@/processes/mappings/serviceSidecars"
@@ -219,6 +220,29 @@ class ServiceService extends ApiService {
         return this.mutate((req) => {
             const payload: RemoveServiceRequest = {name, dropRunningInstances}
             return ServiceApi.RemoveService(payload, req).then()
+        })
+    }
+
+    async setServiceProxy(
+        serviceName: string,
+        environment: string,
+        proxyUrl: string,
+        proxyBypassHosts: string[],
+    ): Promise<void> {
+        return this.mutate((req) => {
+            const payload: SetServiceProxyRequest = {serviceName, environment, proxyUrl, proxyBypassHosts}
+            return ServiceApi.SetServiceProxy(payload, req).then()
+        })
+    }
+
+    async fetchServiceProxy(name: string): Promise<ServiceProxy> {
+        return this.execute(async (req) => {
+            const payload: GetServiceRequest = {name}
+            const res = await ServiceApi.GetService(payload, req)
+            return {
+                proxyUrl: res.proxyUrl ?? '',
+                proxyBypassHosts: res.proxyBypassHosts ?? [],
+            }
         })
     }
 

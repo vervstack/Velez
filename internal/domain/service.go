@@ -32,6 +32,11 @@ type Service struct {
 	About               AboutService
 
 	Sidecars []ServiceSidecar
+
+	// ProxyUrl and ProxyBypassHosts are read from the running container's env;
+	// empty when no proxy is configured.
+	ProxyUrl         string
+	ProxyBypassHosts []string
 }
 
 type ServiceSidecar struct {
@@ -84,6 +89,14 @@ type CreateDeployReq struct {
 	// CreateSmerd.Request, so the deployment stays reproducible and
 	// auditable.
 	VervDescriptor *verv.Descriptor
+}
+
+// SetServiceProxyReq recreates a running service's container with the proxy
+// env; an empty ProxyUrl removes it.
+type SetServiceProxyReq struct {
+	ServiceName      string
+	ProxyUrl         string
+	ProxyBypassHosts []string
 }
 
 type UpgradeDeployReq struct {

@@ -19,7 +19,7 @@ func Test_CountRunners_Scenarios(t *testing.T) {
 		want   int
 	}{
 		{"empty config", "", 0},
-		{"global keys only", "concurrent = 1\n", 0},
+		{"global keys only", testConcurrent, 0},
 		{"one entry", "concurrent = 1\n\n" + runnerEntryWithDocker, 1},
 		{"five entries", "concurrent = 1\n" + runnerEntryWithDocker + runnerEntryWithDocker +
 			runnerEntryWithDocker + runnerEntryWithDocker + runnerEntryWithDocker, 5},
@@ -54,7 +54,7 @@ func Test_RemoveRunners_Scenarios(t *testing.T) {
 		{
 			"drops every entry",
 			"concurrent = 1\n" + runnerEntryWithDocker + runnerEntryWithDocker,
-			"concurrent = 1\n",
+			testConcurrent,
 		},
 		{
 			"keeps unrelated tables on both sides of an entry",

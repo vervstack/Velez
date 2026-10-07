@@ -9,6 +9,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/proxyenv"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
@@ -64,6 +65,14 @@ func (v *VervService) enrichServiceAbout(ctx context.Context, svc *domain.Servic
 		return nil
 	}
 
+	err = v.enrichServiceProxy(ctx, svc, resp.GetSmerds()[0].GetUuid())
+	if err != nil {
+		log.Ctx(ctx).Warn().
+			Str("service", svc.Name).
+			Err(err).
+			Msg("error reading service proxy")
+	}
+
 	lbl := resp.GetSmerds()[0].GetLabels()
 	if lbl == nil {
 		return nil
@@ -78,6 +87,19 @@ func (v *VervService) enrichServiceAbout(ctx context.Context, svc *domain.Servic
 		Repo:         lbl[labels.RepoLabel],
 		Port:         lbl[labels.PortLabel],
 	}
+
+	return nil
+}
+
+// enrichServiceProxy reads the proxy from the container's env: a container
+// listing carries no env, only an inspect does.
+func (v *VervService) enrichServiceProxy(ctx context.Context, svc *domain.Service, containerId string) error {
+	smerd, err := v.containerService.InspectSmerd(ctx, "", containerId)
+	if err != nil {
+		return rerrors.Wrap(err, "error inspecting container for proxy")
+	}
+
+	svc.ProxyUrl, svc.ProxyBypassHosts = proxyenv.Parse(smerd.GetEnv())
 
 	return nil
 }

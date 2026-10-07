@@ -87,7 +87,7 @@ func TestUpgradeSmerdHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 		stepPauseOldContainer,
 		stepCreateConfigFetcherContainer, stepGetConfigFromContainer, stepDropConfigFetcherContainer,
 		stepFetchConfig, stepPrepareVervConfig, stepCreateFinalContainer, stepStartFinalContainer,
-		stepHealthcheck, stepRenameOldContainer, stepDropOldContainer, stepRenameNewContainer,
+		stepHealthcheck, stepSyncRunnerProxy, stepRenameOldContainer, stepDropOldContainer, stepRenameNewContainer,
 		stepRecreateSidecars,
 	}
 	if len(namedJobs) != len(wantNames) {
@@ -1246,7 +1246,7 @@ func TestUpgradeSmerdHandler_HappyPath_EndToEnd(t *testing.T) {
 		stepCheckSelfUpgrade, stepCaptureOldContainer, stepPrepareCreateImage, stepPauseOldContainer,
 		stepCreateConfigFetcherContainer, stepGetConfigFromContainer, stepDropConfigFetcherContainer,
 		stepFetchConfig, stepPrepareVervConfig, stepCreateFinalContainer, stepStartFinalContainer,
-		stepHealthcheck, stepRenameOldContainer, stepDropOldContainer, stepRenameNewContainer,
+		stepHealthcheck, stepSyncRunnerProxy, stepRenameOldContainer, stepDropOldContainer, stepRenameNewContainer,
 	} {
 		row, ok := jobsStorage.rows[jobKey(task.ID, name)]
 		if !ok {

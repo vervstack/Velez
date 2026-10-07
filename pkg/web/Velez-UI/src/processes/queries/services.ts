@@ -19,6 +19,13 @@ export function GetServiceByNameQuery(name: string) {
     })
 }
 
+export function GetServiceProxyQuery(name: string) {
+    return useQuery({
+        queryKey: ['service', 'proxy', name] as const,
+        queryFn: () => serviceService.fetchServiceProxy(name),
+    })
+}
+
 export function ListDeploymentsByServiceNameQuery(serviceName: string) {
     const toaster = useToaster();
 

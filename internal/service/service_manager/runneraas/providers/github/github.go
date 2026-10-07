@@ -157,6 +157,12 @@ func (p *Provider) ApplySettings(
 	return nil
 }
 
+// SyncProxy is a no-op - actions-runner runs jobs inside the container itself,
+// so they already inherit its proxy env.
+func (p *Provider) SyncProxy(_ context.Context, _ container_runtime.ContainerRuntime, _ string) error {
+	return nil
+}
+
 // Unregister is a no-op - actions-runner has no separate registration step
 // to undo (see Register).
 func (p *Provider) Unregister(_ context.Context, _ container_runtime.ContainerRuntime, _ string) error {

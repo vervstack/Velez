@@ -255,6 +255,14 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			},
 		},
 		{
+			Name: stepSyncRunnerProxy,
+			Job: &syncRunnerProxyJob{
+				runtimes:      h.runtimes,
+				req:           payload,
+				containerName: payload.GetUpgradeRequest().GetName() + newContainerSuffix,
+			},
+		},
+		{
 			Name: stepRenameOldContainer,
 			Job: &renameContainerJob{
 				runtimes: h.runtimes,

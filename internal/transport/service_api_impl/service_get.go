@@ -39,6 +39,12 @@ func (impl *Impl) GetService(ctx context.Context, pbReq *pb.GetService_Request) 
 		})
 	}
 
+	var proxyUrl *string
+
+	if s.ProxyUrl != "" {
+		proxyUrl = &s.ProxyUrl
+	}
+
 	return &pb.GetService_Response{
 		Payload: &pb.GetService_Response_VervService{
 			VervService: &pb.VervAppService{
@@ -48,7 +54,9 @@ func (impl *Impl) GetService(ctx context.Context, pbReq *pb.GetService_Request) 
 				Labels:              s.Labels,
 			},
 		},
-		About:    about,
-		Sidecars: sidecars,
+		About:            about,
+		Sidecars:         sidecars,
+		ProxyUrl:         proxyUrl,
+		ProxyBypassHosts: s.ProxyBypassHosts,
 	}, nil
 }

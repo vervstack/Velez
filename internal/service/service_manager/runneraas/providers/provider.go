@@ -62,6 +62,11 @@ type Provider interface {
 		ctx context.Context, runtime container_runtime.ContainerRuntime, containerID string,
 		settings domain.GitlabRunnerSettings,
 	) error
+	// SyncProxy mirrors the proxy env of the running container containerID into
+	// the env the provider's job containers run with; the container env is the
+	// source of truth. A no-op for a provider whose jobs already inherit the
+	// container env (GitHub).
+	SyncProxy(ctx context.Context, runtime container_runtime.ContainerRuntime, containerID string) error
 	// Unregister undoes a prior Register - execs the provider's unregister
 	// command inside containerID so a subsequent Register doesn't append a
 	// duplicate local runner entry to the container's config. A no-op for a

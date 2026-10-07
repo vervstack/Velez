@@ -21,3 +21,19 @@ export async function WatchTaskStream(
         throw parseGrpcError(e);
     }
 }
+
+// WatchServiceUpgradeStream wraps TasksApi.WatchServiceUpgrade: the stream
+// closes immediately with no messages when no upgrade of the service is in
+// flight, otherwise it forwards queued / live / terminal TaskStatus updates.
+export async function WatchServiceUpgradeStream(
+    serviceName: string,
+    onStatus: (status: TaskStatus) => void
+): Promise<void> {
+    const initReq = useCredentialsStore.getState().getInitReq();
+
+    try {
+        return await TasksApi.WatchServiceUpgrade({serviceName}, onStatus, initReq);
+    } catch (e) {
+        throw parseGrpcError(e);
+    }
+}

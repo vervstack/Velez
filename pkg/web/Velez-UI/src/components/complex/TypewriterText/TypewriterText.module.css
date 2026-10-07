@@ -1,0 +1,30 @@
+.TypewriterTextContainer {
+    display: inline;
+
+    & .Caret {
+        display: inline-block;
+        width: 0.125rem;
+        height: 1em;
+        margin-left: 0.0625rem;
+        vertical-align: text-bottom;
+        background: currentcolor;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    &.IsAnimating .Caret {
+        opacity: 1;
+        animation: TypewriterCaretBlink 0.8s step-end infinite;
+    }
+}
+
+@keyframes TypewriterCaretBlink {
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}

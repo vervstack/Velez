@@ -3,6 +3,7 @@ import {useNavigate} from "react-router-dom";
 import cls from "@/pages/service/widgets/ServiceLifecycleActions.module.css";
 import {Toast, useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
+import {useUpgradeProgress} from "@/app/hooks/serviceUpgrade/UpgradeProgress.ts";
 import {serviceService} from "@/processes/api/service.ts";
 import {GetServiceByNameQuery, ListDeploymentsByServiceNameQuery} from "@/processes/queries/services.ts";
 import {DeploymentStatus} from "@/app/api/velez";
@@ -21,6 +22,7 @@ export default function ServiceLifecycleActions({serviceName}: Props) {
     const {OpenDialog, CloseDialog} = useDialog();
     const serviceQuery = GetServiceByNameQuery(serviceName);
     const deploymentsQuery = ListDeploymentsByServiceNameQuery(serviceName);
+    const {isInFlight} = useUpgradeProgress(serviceName);
 
     const serviceState = serviceQuery.data?.status || DeploymentStatus.DEPLOYMENT_STATUS_UNKNOWN;
 
@@ -69,22 +71,22 @@ export default function ServiceLifecycleActions({serviceName}: Props) {
         <div className={cls.ServiceLifecycleActionsContainer}>
             <Button
                 onClick={handleStop}
-                disabled={serviceState != DeploymentStatus.RUNNING}
+                disabled={isInFlight || serviceState != DeploymentStatus.RUNNING}
             >
                 ■ Stop
             </Button>
 
-            <Button onClick={handleRestart}>
+            <Button onClick={handleRestart} disabled={isInFlight}>
                 {serviceState == DeploymentStatus.RUNNING ? '↺ Restart' : '▶ Start'}
             </Button>
 
-            <Button onClick={openDeployMenu}>
+            <Button onClick={openDeployMenu} disabled={isInFlight}>
                 + Deploy
             </Button>
 
             <ServiceProxyButton serviceName={serviceName}/>
 
-            <Button variant="danger" onClick={openRemoveDialog}>
+            <Button variant="danger" onClick={openRemoveDialog} disabled={isInFlight}>
                 ✕ Remove
             </Button>
         </div>

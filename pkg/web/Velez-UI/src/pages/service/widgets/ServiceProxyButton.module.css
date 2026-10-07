@@ -1,0 +1,27 @@
+.ServiceProxyButtonContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    & .StepLineWrapper {
+        max-width: 14rem;
+        max-height: 0;
+        overflow: hidden;
+        font-size: 0.75rem;
+        color: var(--fg-dim);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        opacity: 0;
+        transition: max-height 0.25s ease, opacity 0.25s ease, margin-top 0.25s ease;
+    }
+
+    & .StepLineWrapper.IsVisible {
+        max-height: 1.5rem;
+        margin-top: 0.25rem;
+        opacity: 1;
+    }
+
+    & .StepLineWrapper.IsFailed {
+        color: var(--red);
+    }
+}

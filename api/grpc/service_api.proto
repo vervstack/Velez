@@ -359,12 +359,26 @@ message GetServiceMetrics {
   }
 }
 
+enum AddressScope {
+  ADDRESS_SCOPE_UNSPECIFIED = 0;
+  ADDRESS_SCOPE_DOCKER = 1;
+  ADDRESS_SCOPE_VCN = 2;
+}
+
+message ResourceAddress {
+  // empty = the host the client reached Velez on
+  string host = 1;
+  uint32 port = 2;
+  AddressScope scope = 3;
+}
+
 message BoundResource {
   string name = 1;
   string resource_type = 2;
   string status = 3;
   optional uint32 web_ui_port = 4;
   optional string web_ui_host = 5;
+  repeated ResourceAddress addresses = 6;
 }
 
 message GetServiceResources {

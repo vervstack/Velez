@@ -46,7 +46,7 @@ func dropSmerdTask(
 }
 
 func TestDropSmerdHandler_Action(t *testing.T) {
-	h := NewDropSmerdHandler(newFakeRuntimes(newFakeDocker(), nil))
+	h := NewDropSmerdHandler(newFakeRuntimes(newFakeDocker(), nil), newFakeAddressBook())
 
 	if h.Action() != DropSmerdAction {
 		t.Errorf("expected action %q, got %q", DropSmerdAction, h.Action())
@@ -65,7 +65,7 @@ func TestDropSmerdHandler_AllSucceed(t *testing.T) {
 	task := dropSmerdTask(t, tasksStorage, "batch-1", req)
 
 	registry := NewRegistry()
-	registry.Register(NewDropSmerdHandler(newFakeRuntimes(docker, nil)))
+	registry.Register(NewDropSmerdHandler(newFakeRuntimes(docker, nil), newFakeAddressBook()))
 
 	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour, 1)
 
@@ -129,7 +129,7 @@ func TestDropSmerdHandler_PartialFailureStillReachesDone(t *testing.T) {
 	wrapped := &selectiveFailDocker{fakeDocker: docker, failOn: failingUUID}
 
 	registry := NewRegistry()
-	registry.Register(NewDropSmerdHandler(newFakeRuntimes(wrapped, nil)))
+	registry.Register(NewDropSmerdHandler(newFakeRuntimes(wrapped, nil), newFakeAddressBook()))
 
 	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour, 1)
 
@@ -192,7 +192,7 @@ func TestDropSmerdHandler_ResumeSkipsAlreadyDoneJobs(t *testing.T) {
 	jobsStorage.seedDone(task.ID, "drop_container_0")
 
 	registry := NewRegistry()
-	registry.Register(NewDropSmerdHandler(newFakeRuntimes(docker, nil)))
+	registry.Register(NewDropSmerdHandler(newFakeRuntimes(docker, nil), newFakeAddressBook()))
 
 	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour, 1)
 

@@ -36,3 +36,7 @@ func (d DisabledVcnImpl) DeleteNamespace(_ context.Context, id string) error {
 func (d DisabledVcnImpl) IssueClientKey(_ context.Context, namespace domain.IssueClientKey) (string, error) {
 	return "", user_errors.ErrServiceIsDisabled
 }
+
+func (d DisabledVcnImpl) ListNodes(_ context.Context) ([]domain.VcnNode, error) {
+	return nil, user_errors.ErrServiceIsDisabled
+}

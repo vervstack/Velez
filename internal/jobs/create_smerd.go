@@ -113,6 +113,7 @@ type createSmerdHandler struct {
 	nodeClients   node_clients.NodeClients
 	configService service.ConfigurationService
 	runtimes      container_runtime.RuntimeResolver
+	addressBook   service.AddressBook
 }
 
 // NewCreateSmerdHandler builds the TaskHandler for the "create_smerd" action.
@@ -125,11 +126,13 @@ func NewCreateSmerdHandler(
 	nodeClients node_clients.NodeClients,
 	configService service.ConfigurationService,
 	runtimes container_runtime.RuntimeResolver,
+	addressBook service.AddressBook,
 ) TaskHandler {
 	return &createSmerdHandler{
 		nodeClients:   nodeClients,
 		configService: configService,
 		runtimes:      runtimes,
+		addressBook:   addressBook,
 	}
 }
 
@@ -220,6 +223,13 @@ func (h *createSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			Job: &subscribeSmerdConfigChangesJob{
 				configService: h.configService,
 				req:           payload,
+			},
+		},
+		{
+			Name: stepSyncAddresses,
+			Job: &syncAddressesJob{
+				addressBook: h.addressBook,
+				root:        smerdRootService{req: payload},
 			},
 		},
 	}

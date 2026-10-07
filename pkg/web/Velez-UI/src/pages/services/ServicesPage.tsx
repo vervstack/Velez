@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Checkbox, Toggle } from '@vervstack/chures';
+import { Toggle } from '@vervstack/chures';
 
 import ServiceCard from '@/components/services/ServiceCard';
 import ContainerSection from '@/pages/services/parts/ContainerSection/ContainerSection.tsx';
@@ -252,7 +252,7 @@ export default function ServicesPage() {
                 />
                 <span className={cls.count}>{countLabel}</span>
                 <div className={cls.toolbarRight}>
-                    <Checkbox
+                    <Toggle
                         label="Show VervStack Services"
                         checked={includeInternal}
                         onChange={handleIncludeInternalChange}

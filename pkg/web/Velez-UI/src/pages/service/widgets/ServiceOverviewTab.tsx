@@ -1,5 +1,9 @@
 import cls from "@/pages/service/widgets/ServiceOverviewTab.module.css";
-import {GetServiceByNameQuery, ListDeploymentsByServiceNameQuery} from "@/processes/queries/services.ts";
+import {
+    GetServiceByNameQuery,
+    ListDeploymentsByServiceNameQuery,
+    useGetServiceAboutQuery,
+} from "@/processes/queries/services.ts";
 import {ListSmerdsByServiceIdQuery} from "@/processes/queries/smerds.ts";
 import ServiceHero from "@/widgets/service/ServiceHero/ServiceHero.tsx";
 import ObservabilityTools from "@/widgets/service/ObservabilityTools/ObservabilityTools.tsx";
@@ -16,6 +20,7 @@ export default function ServiceOverviewTab({serviceName}: Props) {
     const serviceQuery = GetServiceByNameQuery(serviceName);
     const deploymentsQuery = ListDeploymentsByServiceNameQuery(serviceName);
     const smerdsQuery = ListSmerdsByServiceIdQuery(serviceName);
+    const aboutQuery = useGetServiceAboutQuery(serviceName);
 
     const service = serviceQuery.data;
     const deployments = deploymentsQuery.data?.deployments || [];
@@ -28,6 +33,7 @@ export default function ServiceOverviewTab({serviceName}: Props) {
                 serviceStatus={service?.status as string | undefined}
                 imageFromSmerd={currentSmerd?.imageName}
                 containerId={currentSmerd?.uuid}
+                containerStatus={currentSmerd?.status}
             />
 
             <div className={cls.ObservabilityWrapper}>
@@ -36,7 +42,7 @@ export default function ServiceOverviewTab({serviceName}: Props) {
             </div>
 
             <ResourcesSection serviceName={serviceName}/>
-            <ServiceGraph serviceName={serviceName}/>
+            <ServiceGraph serviceName={serviceName} sidecars={aboutQuery.data?.sidecars}/>
             <DeploymentHistory
                 deployments={deployments}
                 currentDeploymentId={service?.currentDeploymentId}

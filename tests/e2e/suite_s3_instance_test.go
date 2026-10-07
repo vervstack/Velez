@@ -347,16 +347,31 @@ func (s *S3InstanceSuite) Test_S3Instance_WebUiSidecar() {
 
 	createS3Instance(t, env, instanceName, true)
 
+	sidecarInspected := requireWebUiSidecarJoined(t, dockerClient, instanceName)
+	require.Equal(t, strconv.Itoa(domain.S3WebUiContainerPort), sidecarInspected.Config.Labels[labels.WebUiPortLabel])
+
+	instance := findS3Instance(t, env, instanceName)
+	require.NotNil(t, instance)
+	require.NotZero(t, instance.GetWebUiPort())
+	requireWebUiPortPublishedAs(t, dockerClient, instanceName, instance.GetWebUiPort())
+
 	sidecar := findServiceSidecar(t, env, domain.S3ServiceName(instanceName), domain.S3WebUiServiceName(instanceName))
 	require.NotNil(t, sidecar, "web ui container must be listed as a sidecar of the s3 root service")
 	require.NotEmpty(t, sidecar.GetImageName())
 
-	inspected, err := dockerClient.ContainerInspect(t.Context(), domain.S3WebUiServiceName(instanceName))
-	require.NoError(t, err)
-	require.Equal(t, domain.S3ServiceName(instanceName), inspected.Config.Labels[labels.WebUiForLabel])
-	require.Equal(t, strconv.Itoa(domain.S3WebUiContainerPort), inspected.Config.Labels[labels.WebUiPortLabel])
+	requireNoWebUiService(t, env, instanceName)
+	requireNotListedAsSmerdByName(t, env, domain.S3WebUiServiceName(instanceName))
+
+	creds := getS3InstanceCredentials(t, env, instanceName)
+	require.Contains(t, creds.GetWebUiUrl(), ":"+strconv.Itoa(int(instance.GetWebUiPort())),
+		"the web ui url must carry the port garage publishes")
+
+	requireWebUiReachesGarage(t, creds)
+	requireWebUiRejectsAnonymousApi(t, creds)
 
 	dropS3Instance(t, env, instanceName)
+
+	requireNoContainersOfService(t, dockerClient, domain.S3ServiceName(instanceName))
 }
 
 func (s *S3InstanceSuite) Test_S3Instance_NoWebUiSidecar() {
@@ -378,7 +393,18 @@ func (s *S3InstanceSuite) Test_S3Instance_NoWebUiSidecar() {
 	sidecar := findServiceSidecar(t, env, domain.S3ServiceName(instanceName), domain.S3WebUiServiceName(instanceName))
 	require.Nil(t, sidecar, "instance without web ui must not list a web ui sidecar")
 
+	_, err := dockerClient.ContainerInspect(t.Context(), domain.S3WebUiServiceName(instanceName))
+	require.True(t, client.IsErrNotFound(err), "no web ui container expected, got: %v", err)
+
+	requireWebUiNotPublishedByGarage(t, dockerClient, instanceName)
+
+	instance := findS3Instance(t, env, instanceName)
+	require.NotNil(t, instance)
+	require.Zero(t, instance.GetWebUiPort())
+
 	dropS3Instance(t, env, instanceName)
+
+	requireNoContainersOfService(t, dockerClient, domain.S3ServiceName(instanceName))
 }
 
 func Test_S3Instance(t *testing.T) {

@@ -12,6 +12,7 @@ import (
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/secrets"
+	"go.vervstack.ru/Velez/internal/service/service_manager/address_book"
 	"go.vervstack.ru/Velez/internal/service/service_manager/configresolver"
 	"go.vervstack.ru/Velez/internal/service/service_manager/configurator"
 	"go.vervstack.ru/Velez/internal/service/service_manager/container_manager"
@@ -51,6 +52,7 @@ type ServiceManager struct {
 	s3Service                service.S3Service
 	networkService           service.NetworkService
 	configResolver           service.ServiceConfigResolver
+	addressBook              service.AddressBook
 }
 
 func New(
@@ -74,10 +76,16 @@ func New(
 	svc := plugins.New(storageContainer)
 	secretsStore := secrets.New(storageContainer)
 
+	addressBook := address_book.New(
+		runtimeResolver, clusterClients.StateManager(), nodeClients.Docker(), clusterClients.Vpn(),
+		clusterClients.Addresses(),
+	)
+
 	vervServices := verv_services.New(
 		clusterClients.StateManager(), cm, nodeClients.Docker(), runtimeResolver,
 		vervonomicon.NewImageSource(nodeClients, runtimeResolver),
 		configService,
+		addressBook,
 	)
 
 	configResolver := configresolver.New(configService, clusterClients, runtimeResolver)
@@ -122,6 +130,7 @@ func New(
 		),
 		networkService: network_manager.New(runtimeResolver, clusterClients.Vpn(), clusterClients.StateManager()),
 		configResolver: configResolver,
+		addressBook:    addressBook,
 	}
 
 	// TODO VERV-128
@@ -196,4 +205,8 @@ func (s *ServiceManager) Networks() service.NetworkService {
 
 func (s *ServiceManager) ConfigResolver() service.ServiceConfigResolver {
 	return s.configResolver
+}
+
+func (s *ServiceManager) AddressBook() service.AddressBook {
+	return s.addressBook
 }

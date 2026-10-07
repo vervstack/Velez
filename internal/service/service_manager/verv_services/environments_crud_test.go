@@ -26,7 +26,7 @@ func newEnvService(t *testing.T, seedNames []string, defaultSuffix string) *Verv
 	dockerClient, err := docker.NewClient(nil)
 	require.NoError(t, err)
 
-	return New(dataStorage, nil, dockerClient, nil, nil, nil)
+	return New(dataStorage, nil, dockerClient, nil, nil, nil, nil)
 }
 
 func TestVervService_ListEnvironments(t *testing.T) {

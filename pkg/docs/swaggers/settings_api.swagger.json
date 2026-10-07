@@ -17,6 +17,60 @@
     "application/json"
   ],
   "paths": {
+    "/api/settings/addresses/rebuild": {
+      "post": {
+        "operationId": "SettingsAPI_RebuildAddresses",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiRebuildAddressesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiRebuildAddressesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SettingsAPI"
+        ]
+      }
+    },
+    "/api/settings/addresses/rebuild/status": {
+      "get": {
+        "operationId": "SettingsAPI_GetAddressesRebuildStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetAddressesRebuildStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "SettingsAPI"
+        ]
+      }
+    },
     "/api/settings/get": {
       "get": {
         "operationId": "SettingsAPI_GetSettings",
@@ -155,6 +209,25 @@
       },
       "additionalProperties": {}
     },
+    "velez_apiGetAddressesRebuildStatusResponse": {
+      "type": "object",
+      "properties": {
+        "isRunning": {
+          "type": "boolean"
+        },
+        "totalSteps": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "doneSteps": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "lastError": {
+          "type": "string"
+        }
+      }
+    },
     "velez_apiGetSettingsResponse": {
       "type": "object",
       "properties": {
@@ -193,6 +266,12 @@
           "format": "int32"
         }
       }
+    },
+    "velez_apiRebuildAddressesRequest": {
+      "type": "object"
+    },
+    "velez_apiRebuildAddressesResponse": {
+      "type": "object"
     },
     "velez_apiRunSysboxSmokeTestRequest": {
       "type": "object"

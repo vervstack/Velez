@@ -3,6 +3,7 @@ import {useNavigate} from "react-router-dom"
 import cls from "@/widgets/service/ServiceHeroImages/ServiceHeroImages.module.css"
 
 import {Routes} from "@/app/router/Routes"
+import type {SmerdStatus} from "@/app/api/velez"
 import type {ServiceSidecarView} from "@/model/service_page/ServicePageModel"
 
 import ContainerImageTile from "@/components/smerd/ContainerImageTile/ContainerImageTile.tsx"
@@ -11,10 +12,11 @@ interface Props {
     serviceName: string
     imageName?: string
     containerId?: string
+    containerStatus?: SmerdStatus
     sidecars: ServiceSidecarView[]
 }
 
-export default function ServiceHeroImages({serviceName, imageName, containerId, sidecars}: Props) {
+export default function ServiceHeroImages({serviceName, imageName, containerId, containerStatus, sidecars}: Props) {
     const navigate = useNavigate()
 
     function handleOpen(id: string) {
@@ -30,6 +32,7 @@ export default function ServiceHeroImages({serviceName, imageName, containerId, 
                 <ContainerImageTile
                     imageName={imageName}
                     label={serviceName}
+                    status={containerStatus}
                     onOpen={() => handleOpen(containerId)}
                 />
             )}

@@ -10,6 +10,30 @@ import {globalIgnores} from 'eslint/config'
 
 const localPlugin = {
     rules: {
+        // Separate from 'no-restricted-syntax' (one severity per rule instance, and that block is 'warn' for its
+        // baseline) so that raw checkboxes — currently zero — fail the lint instead of warning.
+        'no-raw-checkbox': {
+            meta: {type: 'problem'},
+            create(context) {
+                return {
+                    JSXOpeningElement(node) {
+                        if (node.name.name !== 'input') {
+                            return
+                        }
+                        const typeAttr = node.attributes.find(
+                            (attr) => attr.type === 'JSXAttribute' && attr.name.name === 'type',
+                        )
+                        if (typeAttr?.value?.value === 'checkbox') {
+                            context.report({
+                                node,
+                                message: 'Never use a raw <input type="checkbox"> — use Checkbox or Toggle from ' +
+                                    '@vervstack/chures (see CLAUDE.md for which).',
+                            })
+                        }
+                    },
+                }
+            },
+        },
         'no-relative-imports': {
             meta: {type: 'suggestion'},
             create(context) {
@@ -94,6 +118,7 @@ export default tseslint.config([
             // widgets/service/ServiceGraph/ServiceGraph.tsx) as of this rule's introduction — fix the ones you
             // touch rather than sweeping the whole codebase.
             'local/no-relative-imports': 'warn',
+            'local/no-raw-checkbox': 'error',
 
             // 'no-console' baseline: 5 pre-existing console.log calls as of this rule's introduction — fix the
             // ones you touch rather than sweeping the whole codebase.
@@ -138,8 +163,9 @@ export default tseslint.config([
                     message: 'Never use a raw <button> — use Button/ActionButton/IconButton from components/base.',
                 },
                 {
-                    selector: 'JSXOpeningElement[name.name="input"]',
-                    message: 'Never use a raw <input> — use Input/TextInput/Search/Checkbox/Choice from components/base.',
+                    selector: 'JSXOpeningElement[name.name="input"]:not(:has(JSXAttribute[name.name="type"][value.value="checkbox"]))',
+                    message: 'Never use a raw <input> — use Input from @vervstack/chures (or components/base/Input) ' +
+                        'for text, Checkbox/Toggle from @vervstack/chures for booleans.',
                 },
                 {
                     selector: 'JSXOpeningElement[name.name="select"]',

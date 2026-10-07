@@ -13,6 +13,7 @@ type ClusterClients interface {
 	Configurator() Configurator
 	Vpn() VervClosedNetworkClient
 	ServiceDiscovery() ServiceDiscovery
+	Addresses() AddressRegistry
 	StateManager() ClusterStateManagerContainer
 }
 
@@ -24,6 +25,9 @@ type ServiceDiscovery interface {
 	makosh.MakoshBeAPIClient
 }
 
+// AddressRegistry is the Makosh API used as the address registry (embedded library or container).
+type AddressRegistry = ServiceDiscovery
+
 type VervClosedNetworkClient interface {
 	CreateNamespace(ctx context.Context, name string) (domain.VcnNamespace, error)
 	GetNamespace(ctx context.Context, name string) (domain.VcnNamespace, error)
@@ -33,6 +37,7 @@ type VervClosedNetworkClient interface {
 	GetClientAuthKey(ctx context.Context, req domain.GetVcnAuthKeyReq) (domain.VcnAuthKey, error)
 	IssueClientKey(ctx context.Context, req domain.IssueClientKey) (string, error)
 	RegisterNode(ctx context.Context, req domain.RegisterVcnNodeReq) error
+	ListNodes(ctx context.Context) ([]domain.VcnNode, error)
 }
 
 type ClusterStateManagerContainer interface {

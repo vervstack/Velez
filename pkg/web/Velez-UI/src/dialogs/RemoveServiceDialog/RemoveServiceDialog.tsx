@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import {Checkbox} from '@vervstack/chures';
 
 import cls from '@/dialogs/RemoveServiceDialog/RemoveServiceDialog.module.css';
 
@@ -16,10 +17,6 @@ export default function RemoveServiceDialog({serviceName, onCancel, onRemoved}: 
     const [dropRunningInstances, setDropRunningInstances] = useState(false);
     const [isRemoving, setIsRemoving] = useState(false);
     const toaster = useToaster();
-
-    function handleDropToggle() {
-        setDropRunningInstances(!dropRunningInstances);
-    }
 
     function handleConfirm() {
         setIsRemoving(true);
@@ -47,14 +44,11 @@ export default function RemoveServiceDialog({serviceName, onCancel, onRemoved}: 
                     Are you sure you want to remove <strong>{serviceName}</strong>? This action cannot be undone.
                 </p>
 
-                <label className={cls.CheckboxLabel}>
-                    <input
-                        type="checkbox"
-                        checked={dropRunningInstances}
-                        onChange={handleDropToggle}
-                    />
-                    Also drop running instances
-                </label>
+                <Checkbox
+                    label="Also drop running instances"
+                    checked={dropRunningInstances}
+                    onChange={setDropRunningInstances}
+                />
 
                 <div className={cls.ActionsRow}>
                     <Button variant="secondary" onClick={onCancel} disabled={isRemoving}>

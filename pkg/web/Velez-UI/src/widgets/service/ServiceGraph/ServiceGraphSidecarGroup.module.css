@@ -1,0 +1,55 @@
+.ServiceGraphSidecarGroupContainer {
+    & .Outline {
+        fill: var(--cyan-glow);
+        stroke: var(--border-m);
+        stroke-width: 1;
+        stroke-dasharray: 4 4;
+    }
+
+    & .Caption {
+        fill: var(--fg-dim);
+        font-family: var(--font-mono);
+        font-size: 0.5625rem;
+        letter-spacing: 0.0625rem;
+        text-anchor: middle;
+        dominant-baseline: middle;
+        text-transform: uppercase;
+    }
+
+    & .Connector {
+        fill: none;
+        stroke: var(--red);
+        stroke-opacity: 0.45;
+        stroke-width: 1.4;
+    }
+
+    & .Chip {
+        fill: var(--bg3);
+        stroke: var(--red);
+        stroke-opacity: 0.45;
+        stroke-width: 1;
+    }
+
+    & .ChipLabel {
+        fill: var(--fg);
+        font-family: var(--font-mono);
+        font-size: 0.625rem;
+        dominant-baseline: middle;
+    }
+
+    & .DotOk {
+        fill: var(--green);
+    }
+
+    & .DotWarn {
+        fill: var(--amber);
+    }
+
+    & .DotBad {
+        fill: var(--red);
+    }
+
+    & .DotIdle {
+        fill: var(--fg-dim);
+    }
+}

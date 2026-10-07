@@ -34,6 +34,7 @@ type Services interface {
 	S3() S3Service
 	Networks() NetworkService
 	ConfigResolver() ServiceConfigResolver
+	AddressBook() AddressBook
 }
 
 type ContainerService interface {
@@ -254,4 +255,22 @@ type ServiceConfigResolver interface {
 	ReadEnv(ctx context.Context, serviceName, environment string) (map[string]string, error)
 	ReadFile(ctx context.Context, serviceName, environment, path string) ([]byte, error)
 	Delete(ctx context.Context, serviceName string) error
+}
+
+// AddressBook discovers where a service's resources can be reached and serves it from the address registry.
+type AddressBook interface {
+	// Addresses returns the registered addresses of one service for an address name (e.g. domain.WebUiAddressName).
+	Addresses(ctx context.Context, serviceName, addressName string) ([]domain.ServiceAddress, error)
+	// Rebuild re-crawls every environment's Docker and the VCN into the registry.
+	Rebuild(ctx context.Context) error
+	// RebuildAsync marks a rebuild as running and runs it in the background. Like Rebuild, it fails with
+	// user_errors.ErrAddressesRebuildInProgress while another rebuild is running.
+	RebuildAsync(ctx context.Context) error
+	// RebuildStatus is a cheap snapshot of the current or last rebuild.
+	RebuildStatus() domain.AddressRebuildStatus
+	// Sync re-crawls one service and replaces its registered DOCKER and VCN addresses,
+	// removing a scope that no longer has any.
+	Sync(ctx context.Context, serviceName string) error
+	// Drop removes a service's DOCKER and VCN addresses (never its legacy interservice addrs).
+	Drop(ctx context.Context, serviceName string) error
 }

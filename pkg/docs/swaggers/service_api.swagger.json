@@ -600,6 +600,15 @@
         }
       }
     },
+    "velez_apiAddressScope": {
+      "type": "string",
+      "enum": [
+        "ADDRESS_SCOPE_UNSPECIFIED",
+        "ADDRESS_SCOPE_DOCKER",
+        "ADDRESS_SCOPE_VCN"
+      ],
+      "default": "ADDRESS_SCOPE_UNSPECIFIED"
+    },
     "velez_apiBoundResource": {
       "type": "object",
       "properties": {
@@ -618,6 +627,13 @@
         },
         "webUiHost": {
           "type": "string"
+        },
+        "addresses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiResourceAddress"
+          }
         }
       }
     },
@@ -1180,6 +1196,22 @@
     },
     "velez_apiRemoveServiceResponse": {
       "type": "object"
+    },
+    "velez_apiResourceAddress": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string",
+          "title": "empty = the host the client reached Velez on"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "scope": {
+          "$ref": "#/definitions/velez_apiAddressScope"
+        }
+      }
     },
     "velez_apiResourceConnectionStatus": {
       "type": "string",

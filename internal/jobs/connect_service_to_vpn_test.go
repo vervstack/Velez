@@ -38,7 +38,7 @@ var (
 )
 
 func TestConnectServiceToVpnHandler_Action(t *testing.T) {
-	h := NewConnectServiceToVpnHandler(nil, nil, nil, nil)
+	h := NewConnectServiceToVpnHandler(nil, nil, nil, nil, nil)
 
 	if h.Action() != ConnectServiceToVpnAction {
 		t.Errorf("expected action %q, got %q", ConnectServiceToVpnAction, h.Action())
@@ -46,7 +46,7 @@ func TestConnectServiceToVpnHandler_Action(t *testing.T) {
 }
 
 func TestConnectServiceToVpnHandler_NewContext(t *testing.T) {
-	h := NewConnectServiceToVpnHandler(nil, nil, nil, nil)
+	h := NewConnectServiceToVpnHandler(nil, nil, nil, nil, nil)
 
 	if _, ok := h.NewContext().(*velez_api.ConnectServiceToVpnTaskPayload); !ok {
 		t.Fatal("expected NewContext to return *velez_api.ConnectServiceToVpnTaskPayload")
@@ -58,13 +58,16 @@ func TestConnectServiceToVpnHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 
 	docker := newFakeDocker()
 	nodeClients := newFakeNodeClients(docker)
-	h := NewConnectServiceToVpnHandler(nodeClients, newFakeVpnClient(), newFakeServiceDiscovery(), nil)
+	h := NewConnectServiceToVpnHandler(
+		nodeClients, newFakeVpnClient(), newFakeServiceDiscovery(), nil, newFakeAddressBook(),
+	)
 
 	namedJobs := h.BuildJobs(payload)
 
 	wantNames := []string{
 		stepCheckSidecar, stepPrepareNamespace, stepGetClientKey, stepGetLoginServerURL,
 		stepPrepareSidecarImage, stepCreateLoaderContainer, stepStartSidecar, stepAddMakoshRecord,
+		stepSyncAddresses,
 	}
 	if len(namedJobs) != len(wantNames) {
 		t.Fatalf("expected %d jobs, got %d", len(wantNames), len(namedJobs))
@@ -586,7 +589,9 @@ func TestConnectServiceToVpnHandler_HappyPath_EndToEnd(t *testing.T) {
 
 	runtimes := newFakeRuntimes(docker, nil)
 
-	handler := NewConnectServiceToVpnHandler(nodeClients, vpn, sd, runtimes)
+	addressBook := newFakeAddressBook()
+
+	handler := NewConnectServiceToVpnHandler(nodeClients, vpn, sd, runtimes, addressBook)
 
 	taskCtx := handler.NewContext()
 
@@ -618,6 +623,10 @@ func TestConnectServiceToVpnHandler_HappyPath_EndToEnd(t *testing.T) {
 		t.Errorf("expected 1 makosh upsert call, got %d", len(sd.upsertCalledWith))
 	}
 
+	if len(addressBook.syncCalledWith) != 1 || addressBook.syncCalledWith[0] != testServiceName {
+		t.Errorf("expected addresses synced for %q, got %v", testServiceName, addressBook.syncCalledWith)
+	}
+
 	finishedPayload, ok := taskCtx.(*velez_api.ConnectServiceToVpnTaskPayload)
 	if !ok {
 		t.Fatalf("expected taskCtx to be *velez_api.ConnectServiceToVpnTaskPayload, got %T", taskCtx)
@@ -638,6 +647,7 @@ func TestConnectServiceToVpnHandler_HappyPath_EndToEnd(t *testing.T) {
 	for _, name := range []string{
 		stepCheckSidecar, stepPrepareNamespace, stepGetClientKey, stepGetLoginServerURL,
 		stepPrepareSidecarImage, stepCreateLoaderContainer, stepStartSidecar, stepAddMakoshRecord,
+		stepSyncAddresses,
 	} {
 		row, ok := jobsStorage.rows[jobKey(task.ID, name)]
 		if !ok {
@@ -677,7 +687,7 @@ func TestConnectServiceToVpnHandler_FailurePath_CreateContainerFails(t *testing.
 	runtimes := newFakeRuntimes(docker, nil)
 
 	registry := NewRegistry()
-	registry.Register(NewConnectServiceToVpnHandler(nodeClients, vpn, sd, runtimes))
+	registry.Register(NewConnectServiceToVpnHandler(nodeClients, vpn, sd, runtimes, newFakeAddressBook()))
 
 	w := NewTaskWorker(tasksStorage, jobsStorage, registry, "test-worker", time.Hour, 1)
 

@@ -28,12 +28,44 @@ const (
 )
 
 type instanceRef struct {
-	name        string
-	environment string
-	remoteHost  string
-	runtime     container_runtime.ContainerRuntime
-	instance    container.Summary
-	webUi       *container.Summary
+	name          string
+	environment   string
+	remoteHost    string
+	publishedHost string
+	runtime       container_runtime.ContainerRuntime
+	instance      container.Summary
+	webUi         *container.Summary
+}
+
+// isWebUiSidecar tells the sidecar layout (web ui shares the garage
+// container's network namespace, so garage publishes the web ui port) from
+// the legacy layout (web ui is a separate service publishing its own port).
+func (r instanceRef) isWebUiSidecar() bool {
+	if r.webUi == nil {
+		return false
+	}
+
+	_, isSidecar := r.webUi.Labels[labels.Sidecar]
+
+	return isSidecar
+}
+
+func (r instanceRef) webUiPortSource() container.Summary {
+	if r.isWebUiSidecar() {
+		return r.instance
+	}
+
+	return *r.webUi
+}
+
+// webUiHostName is the docker network name the web ui answers on: a sidecar
+// is reached through its garage container, a legacy web ui through itself.
+func (r instanceRef) webUiHostName() string {
+	if r.isWebUiSidecar() {
+		return domain.S3ServiceName(r.name)
+	}
+
+	return domain.S3WebUiServiceName(r.name)
 }
 
 func (s *Service) discoverInstances(ctx context.Context) ([]instanceRef, error) {
@@ -90,11 +122,12 @@ func (s *Service) discoverInEnvironment(
 		}
 
 		ref := instanceRef{
-			name:        name,
-			environment: environment.Name,
-			remoteHost:  environment.RemoteHost(s.docker.Host()),
-			runtime:     runtime,
-			instance:    summary,
+			name:          name,
+			environment:   environment.Name,
+			remoteHost:    environment.RemoteHost(s.docker.Host()),
+			publishedHost: environment.PublishedHost(s.docker.Host()),
+			runtime:       runtime,
+			instance:      summary,
 		}
 
 		webUi, hasWebUi := webUis[name]
@@ -150,12 +183,13 @@ func (s *Service) describe(ctx context.Context, ref instanceRef) domain.S3Instan
 		ReplicationFactor: defaultReplicationFactor,
 		Environment:       ref.environment,
 		RemoteHost:        ref.remoteHost,
+		PublishedHost:     ref.publishedHost,
 		Status:            ref.instance.State,
 		CreatedAt:         time.Unix(ref.instance.Created, 0),
 	}
 
 	if ref.webUi != nil {
-		instance.WebUiPort = hostPort(*ref.webUi, domain.S3WebUiContainerPort)
+		instance.WebUiPort = hostPort(ref.webUiPortSource(), domain.S3WebUiContainerPort)
 	}
 
 	content, err := s.configResolver.ReadFile(ctx, domain.S3ServiceName(ref.name), ref.environment, domain.S3ConfigPath)
@@ -216,7 +250,11 @@ func internalEndpoint(host string, port int) string {
 	return httpScheme + net.JoinHostPort(host, strconv.Itoa(port))
 }
 
-func webUiEndpoint(webUiServiceName, remoteHost string, publishedPort uint32) string {
+func webUiEndpoint(webUiServiceName, publishedHost, remoteHost string, publishedPort uint32) string {
+	if publishedHost != "" {
+		return publishedEndpoint(publishedHost, publishedPort)
+	}
+
 	if remoteHost != "" {
 		return publishedEndpoint(remoteHost, publishedPort)
 	}

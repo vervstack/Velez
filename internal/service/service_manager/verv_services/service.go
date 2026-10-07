@@ -28,6 +28,8 @@ type VervService struct {
 	// reconciliation (GetVervonomicon and CreateDeployFromVervonomicon) - see
 	// docs/features/vervonomicon.md's "Resource reconciliation".
 	configService service.ConfigurationService
+
+	addressBook service.AddressBook
 }
 
 func New(
@@ -37,6 +39,7 @@ func New(
 	runtimes container_runtime.RuntimeResolver,
 	vervSource service.VervonomiconSource,
 	configService service.ConfigurationService,
+	addressBook service.AddressBook,
 ) *VervService {
 	return &VervService{
 		dataStorage: dataStorage,
@@ -46,6 +49,7 @@ func New(
 		runtimes:         runtimes,
 		vervSource:       vervSource,
 		configService:    configService,
+		addressBook:      addressBook,
 	}
 }
 

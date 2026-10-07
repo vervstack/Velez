@@ -219,3 +219,15 @@
         stroke-width: 1;
     }
 }
+
+.LegendSidecarShape {
+    flex-shrink: 0;
+
+    & rect {
+        fill: none;
+        stroke: var(--red);
+        stroke-opacity: 0.6;
+        stroke-width: 1;
+        stroke-dasharray: 2 2;
+    }
+}

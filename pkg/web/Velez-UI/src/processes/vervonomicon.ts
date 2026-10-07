@@ -74,6 +74,7 @@ export function mergeResourcesWithReconciliation(
                 icon: meta.icon,
                 color: meta.color,
                 reconciliation: r.status,
+                addresses: [],
             }
             return placeholder
         })

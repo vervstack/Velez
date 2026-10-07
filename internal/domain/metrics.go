@@ -26,4 +26,5 @@ type BoundResource struct {
 	Status       string
 	WebUiHost    string
 	WebUiPort    uint32
+	Addresses    []ServiceAddress
 }

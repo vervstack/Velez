@@ -25,6 +25,16 @@ func (impl *Impl) GetServiceResources(
 			Status:       r.Status,
 		}
 
+		for _, address := range r.Addresses {
+			pbAddress := &pb.ResourceAddress{
+				Host:  address.Host,
+				Port:  address.Port,
+				Scope: address.Scope,
+			}
+
+			pbResource.Addresses = append(pbResource.Addresses, pbAddress)
+		}
+
 		if r.WebUiPort != 0 {
 			port := r.WebUiPort
 

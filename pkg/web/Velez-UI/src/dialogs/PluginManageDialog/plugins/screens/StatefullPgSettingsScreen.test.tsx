@@ -4,7 +4,7 @@ import {fireEvent, render, screen} from '@testing-library/react';
 import StatefullPgSettingsScreen from '@/dialogs/PluginManageDialog/plugins/screens/StatefullPgSettingsScreen.tsx';
 
 describe('StatefullPgSettingsScreen', () => {
-    it('forces the expose-port choice on and disables it when running as a binary', () => {
+    it('forces the expose-port checkbox on and disables it when running as a binary', () => {
         const updateContext = vi.fn();
 
         render(
@@ -17,7 +17,7 @@ describe('StatefullPgSettingsScreen', () => {
         );
 
         expect(screen.getByText(/must stay exposed/i)).toBeInTheDocument();
-        expect(screen.getByText('Expose port').closest('button')).toBeDisabled();
+        expect(screen.getByRole('checkbox', {name: 'Expose port'})).toBeDisabled();
     });
 
     it('lets the user toggle expose-port freely when running in a container', () => {
@@ -34,12 +34,10 @@ describe('StatefullPgSettingsScreen', () => {
 
         expect(screen.queryByText(/must stay exposed/i)).not.toBeInTheDocument();
 
-        const choice = screen.getByText('Expose port').closest('button');
-        expect(choice).not.toBeDisabled();
+        const checkbox = screen.getByRole('checkbox', {name: 'Expose port'});
+        expect(checkbox).not.toBeDisabled();
 
-        if (choice) {
-            fireEvent.click(choice);
-        }
+        fireEvent.click(checkbox);
 
         expect(updateContext).toHaveBeenCalledWith({exposePort: true});
     });

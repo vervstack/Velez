@@ -14,7 +14,7 @@ func (v *VervService) GetServiceResources(ctx context.Context, serviceName strin
 		return nil, rerrors.Wrap(err, "error getting service resources info")
 	}
 
-	v.attachWebUis(ctx, resources)
+	v.attachWebUis(ctx, serviceName, resources)
 
 	return resources, nil
 }

@@ -1,9 +1,17 @@
 import {describe, it, expect, vi, beforeEach, afterEach} from "vitest"
 import {render, screen, fireEvent} from "@testing-library/react"
 
+import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import type {ServiceResource} from "@/model/service_page/ServicePageModel"
 
 import ResourceCard from "./ResourceCard"
+
+vi.mock("@/app/hooks/dialog/Dialog.tsx", () => ({useDialog: vi.fn()}))
+vi.mock("@/dialogs/ResourceAddressesDialog/ResourceAddressesDialog.tsx", () => ({
+    default: () => null,
+}))
+
+type Dialog = ReturnType<typeof useDialog>
 
 function renderCard(overrides: Partial<ServiceResource> = {}) {
     const resource: ServiceResource = {
@@ -13,9 +21,13 @@ function renderCard(overrides: Partial<ServiceResource> = {}) {
         icon: "Pg",
         color: "var(--info-color)",
         reconciliation: "unknown",
+        addresses: [],
         ...overrides,
     }
+    const OpenDialog = vi.fn()
+    vi.mocked(useDialog).mockReturnValue({OpenDialog} as Partial<Dialog> as Dialog)
     render(<ResourceCard resource={resource}/>)
+    return {OpenDialog}
 }
 
 describe("ResourceCard", () => {
@@ -93,5 +105,33 @@ describe("ResourceCard", () => {
 
         const link = screen.getByRole("link")
         expect(link).toHaveAttribute("title", "Open web UI")
+    })
+
+    it("opens the addresses dialog instead of the web UI when addresses are present", () => {
+        const {OpenDialog} = renderCard({
+            webUiPort: 3909,
+            addresses: [{host: "", port: 3909, scope: "docker"}],
+        })
+
+        fireEvent.click(screen.getByRole("link"))
+
+        expect(OpenDialog).toHaveBeenCalledTimes(1)
+        expect(windowOpenSpy).not.toHaveBeenCalled()
+    })
+
+    it("opens the addresses dialog when Enter is pressed", () => {
+        const {OpenDialog} = renderCard({addresses: [{host: "h", port: 1, scope: "vcn"}]})
+
+        fireEvent.keyDown(screen.getByRole("link"), {key: "Enter"})
+
+        expect(OpenDialog).toHaveBeenCalledTimes(1)
+    })
+
+    it("does not open the dialog when there are no addresses", () => {
+        const {OpenDialog} = renderCard({webUiPort: 3909})
+
+        fireEvent.click(screen.getByRole("link"))
+
+        expect(OpenDialog).not.toHaveBeenCalled()
     })
 })

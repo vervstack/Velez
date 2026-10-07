@@ -5,9 +5,11 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
+	"go.vervstack.ru/makosh/pkg/registry"
 	"google.golang.org/grpc"
 
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
+	"go.vervstack.ru/Velez/internal/clients/cluster_clients/makosh"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/matreshka"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
@@ -23,6 +25,7 @@ import (
 type clusterClients struct {
 	matreshka        matreshka.Client
 	serviceDiscovery cluster_clients.ServiceDiscovery
+	addresses        cluster_clients.AddressRegistry
 	vcn              cluster_clients.VervClosedNetworkClient
 	stateManager     cluster_clients.ClusterStateManagerContainer
 }
@@ -49,6 +52,12 @@ func Setup(
 	sdClient, err := service_discovery.SetupMakosh(ctx, cfg, nodeClients, vcnClient)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error during makosh setup")
+	}
+
+	addressRegistry := sdClient
+
+	if !cfg.Environment.MakoshIsEnabled {
+		addressRegistry = registry.NewClient(registry.New(), makosh.ModuleVersion())
 	}
 
 	var cfgClient matreshka.Client
@@ -90,6 +99,7 @@ func Setup(
 	return &clusterClients{
 		matreshka:        cfgClient,
 		serviceDiscovery: sdClient,
+		addresses:        addressRegistry,
 		vcn:              vcnClient,
 		stateManager:     clusterStateManagerContainer,
 	}, nil
@@ -121,4 +131,12 @@ func (c *clusterClients) ServiceDiscovery() cluster_clients.ServiceDiscovery {
 
 func (c *clusterClients) StateManager() cluster_clients.ClusterStateManagerContainer {
 	return c.stateManager
+}
+
+func (c *clusterClients) Addresses() cluster_clients.AddressRegistry {
+	if c.addresses == nil {
+		return &disabledServiceDiscovery{}
+	}
+
+	return c.addresses
 }

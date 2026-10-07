@@ -17,6 +17,8 @@ import (
 
 const (
 	tcpProtocol = "tcp"
+
+	webUiResourceType = "web_ui"
 )
 
 type webUiTarget struct {
@@ -29,8 +31,10 @@ type webUiAddress struct {
 	port uint32
 }
 
-func webUiRootService(resource domain.BoundResource) (string, bool) {
+func webUiRootService(resource domain.BoundResource, serviceName string) (string, bool) {
 	switch resource.ResourceType {
+	case webUiResourceType:
+		return serviceName, true
 	case domain.S3ResourceType:
 		instance, _, hasBucket := strings.Cut(resource.Name, "/")
 		if !hasBucket || instance == "" {
@@ -124,6 +128,15 @@ func (v *VervService) discoverEnvironmentWebUis(
 	}
 
 	host := env.RemoteHost(v.docker.Host())
+
+	return webUiAddresses(containers, host), nil
+}
+
+// webUiAddresses locates each web ui's published port. A legacy web ui
+// publishes it on its own container; a sidecar shares its root's network
+// namespace and cannot publish anything, so the root container carries it.
+func webUiAddresses(containers []container.Summary, host string) map[string]webUiAddress {
+	roots := serviceRoots(containers)
 	addresses := make(map[string]webUiAddress)
 
 	for _, cont := range containers {
@@ -132,7 +145,19 @@ func (v *VervService) discoverEnvironmentWebUis(
 			continue
 		}
 
-		port := publishedPort(cont, target.containerPort)
+		source := cont
+
+		_, isSidecar := cont.Labels[labels.Sidecar]
+		if isSidecar {
+			root, hasRoot := roots[target.rootService]
+			if !hasRoot {
+				continue
+			}
+
+			source = root
+		}
+
+		port := publishedPort(source, target.containerPort)
 		if port == 0 {
 			continue
 		}
@@ -140,14 +165,31 @@ func (v *VervService) discoverEnvironmentWebUis(
 		addresses[target.rootService] = webUiAddress{host: host, port: port}
 	}
 
-	return addresses, nil
+	return addresses
 }
 
-func (v *VervService) attachWebUis(ctx context.Context, resources []domain.BoundResource) {
+func serviceRoots(containers []container.Summary) map[string]container.Summary {
+	roots := make(map[string]container.Summary)
+
+	for _, cont := range containers {
+		_, isSidecar := cont.Labels[labels.Sidecar]
+		serviceName := cont.Labels[labels.VervServiceLabel]
+
+		if isSidecar || serviceName == "" {
+			continue
+		}
+
+		roots[serviceName] = cont
+	}
+
+	return roots
+}
+
+func (v *VervService) attachWebUis(ctx context.Context, serviceName string, resources []domain.BoundResource) {
 	hasWebUi := false
 
 	for _, resource := range resources {
-		_, ok := webUiRootService(resource)
+		_, ok := webUiRootService(resource, serviceName)
 		if ok {
 			hasWebUi = true
 
@@ -169,7 +211,7 @@ func (v *VervService) attachWebUis(ctx context.Context, resources []domain.Bound
 	}
 
 	for i := range resources {
-		rootService, ok := webUiRootService(resources[i])
+		rootService, ok := webUiRootService(resources[i], serviceName)
 		if !ok {
 			continue
 		}

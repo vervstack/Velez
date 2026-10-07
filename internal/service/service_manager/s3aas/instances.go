@@ -111,7 +111,7 @@ func (s *Service) GetInstanceCredentials(ctx context.Context, name string) (doma
 		return domain.S3InstanceCredentials{}, rerrors.Wrap(err, "error getting web ui password")
 	}
 
-	credentials.WebUiUrl = webUiEndpoint(domain.S3WebUiServiceName(name), instance.RemoteHost, instance.WebUiPort)
+	credentials.WebUiUrl = webUiEndpoint(ref.webUiHostName(), instance.RemoteHost, instance.WebUiPort)
 	credentials.WebUiUsername = domain.S3WebUiUsername
 	credentials.WebUiPassword = password
 
@@ -139,7 +139,7 @@ func (s *Service) DropInstance(ctx context.Context, name string) error {
 	webUiName := domain.S3WebUiServiceName(name)
 
 	if ref.webUi != nil {
-		err = s.removeService(ctx, webUiName, ref.environment)
+		err = s.removeWebUi(ctx, ref, webUiName)
 		if err != nil {
 			return rerrors.Wrap(err)
 		}
@@ -167,6 +167,22 @@ func (s *Service) DropInstance(ctx context.Context, name string) error {
 		if err != nil {
 			return rerrors.Wrap(err, "error deleting service dependencies")
 		}
+	}
+
+	return nil
+}
+
+// removeWebUi drops the web ui sidecar container itself - it is not a
+// service, and it shares garage's network namespace, so it has to go before
+// garage does. A legacy web ui is a separate service.
+func (s *Service) removeWebUi(ctx context.Context, ref instanceRef, webUiName string) error {
+	if !ref.isWebUiSidecar() {
+		return s.removeService(ctx, webUiName, ref.environment)
+	}
+
+	err := ref.runtime.Remove(ctx, webUiName)
+	if err != nil {
+		return rerrors.Wrap(err, "error removing web ui sidecar "+webUiName)
 	}
 
 	return nil

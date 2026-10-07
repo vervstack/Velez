@@ -123,6 +123,10 @@ func Test_Apply_Cases(t *testing.T) {
 			"ghcr.io/actions/actions-runner:latest", domain.Settings{}, "", false,
 		},
 		{
+			"garage web ui sidecar allowed", newTailscaleHostConfig(),
+			"khairul169/garage-webui:1.1.0", domain.Settings{}, "", false,
+		},
+		{
 			"namespace suffix not matched", newTailscaleHostConfig(), "evil/docker:dind",
 			domain.Settings{}, "", true,
 		},

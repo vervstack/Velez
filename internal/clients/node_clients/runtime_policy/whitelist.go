@@ -9,6 +9,7 @@ var elevatedAccessWhitelist = []string{
 	"docker",
 	"gitlab/gitlab-runner",
 	"ghcr.io/actions/actions-runner",
+	"khairul169/garage-webui",
 }
 
 func isImageWhitelisted(image string) bool {

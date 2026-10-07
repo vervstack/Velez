@@ -9,7 +9,6 @@ import (
 	"maps"
 	"net"
 	"strconv"
-	"strings"
 	"time"
 
 	"go.redsock.ru/rerrors"
@@ -168,14 +167,13 @@ func (h *createS3InstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 
 	if payload.GetRequest().GetEnableWebUi() {
 		deployWebUi := &deployGarageWebUiJob{
-			boxes:          h.dataStorage.ResourceBoxes(),
-			vervServices:   h.vervServices,
-			configResolver: h.configResolver,
-			secrets:        h.secretsStore,
-			payload:        payload,
+			boxes:    h.dataStorage.ResourceBoxes(),
+			runtimes: h.runtimes,
+			secrets:  h.secretsStore,
+			payload:  payload,
 		}
 
-		waitWebUi := &waitGarageWebUiJob{jobsEngine: h.jobsEngine, payload: payload}
+		waitWebUi := &waitGarageWebUiJob{runtimes: h.runtimes, payload: payload}
 
 		namedJobs = append(namedJobs,
 			NamedJob{Name: stepDeployGarageWebUi, Job: deployWebUi},
@@ -356,6 +354,14 @@ func exposeDescriptorPorts(descriptor *verv.Descriptor, hostPorts map[int]uint32
 	}
 }
 
+func appendDescriptorPorts(descriptor *verv.Descriptor, ports []int) {
+	for _, port := range ports {
+		descriptorPort := verv.Port{Port: port, Protocol: verv.ProtocolTcp}
+
+		descriptor.Deployment.App.Ports = append(descriptor.Deployment.App.Ports, descriptorPort)
+	}
+}
+
 func renameDescriptorVolumes(descriptor *verv.Descriptor, names map[string]string) {
 	volumes := descriptor.Deployment.App.Volumes
 
@@ -391,6 +397,7 @@ func resolveS3Descriptor(
 	descriptorName, environment, box string,
 	hostPorts map[int]uint32,
 	volumeNames map[string]string,
+	extraPorts []int,
 ) (verv.Descriptor, *velez_api.CreateSmerd_Request, error) {
 	files, err := builtin.Read(descriptorName)
 	if err != nil {
@@ -408,6 +415,7 @@ func resolveS3Descriptor(
 		descriptor.Deployment.App.Box = box
 	}
 
+	appendDescriptorPorts(&descriptor, extraPorts)
 	exposeDescriptorPorts(&descriptor, hostPorts)
 	renameDescriptorVolumes(&descriptor, volumeNames)
 
@@ -457,8 +465,18 @@ func (j *deployGarageJob) Do(ctx context.Context) error {
 		s3DataDescriptorVolume: domain.S3DataVolumeName(name),
 	}
 
+	var extraPorts []int
+
+	if request.GetEnableWebUi() {
+		// The web ui sidecar shares this container's network namespace and cannot
+		// publish ports itself, so garage publishes the web ui port.
+		hostPorts[domain.S3WebUiContainerPort] = j.payload.GetWebUiExposedPort()
+		extraPorts = append(extraPorts, domain.S3WebUiContainerPort)
+	}
+
 	descriptor, smerdRequest, err := resolveS3Descriptor(
 		ctx, j.boxes, s3GarageDescriptorName, request.GetEnvironment(), request.GetBox(), hostPorts, volumeNames,
+		extraPorts,
 	)
 	if err != nil {
 		return rerrors.Wrap(err, "error building garage deploy request")
@@ -681,114 +699,8 @@ func (j *applyGarageLayoutJob) Do(ctx context.Context) error {
 	return waitGarageHealthy(ctx, client)
 }
 
-type deployGarageWebUiJob struct {
-	boxes          vervonomicon.BoxLookup
-	vervServices   service.VervServicesService
-	configResolver service.ServiceConfigResolver
-	secrets        secrets.Store
-	payload        *velez_api.CreateS3InstanceTaskPayload
-}
-
-func (j *deployGarageWebUiJob) Do(ctx context.Context) error {
-	request := j.payload.GetRequest()
-	name := request.GetName()
-	serviceName := domain.S3ServiceName(name)
-	webUiName := domain.S3WebUiServiceName(name)
-
-	hostPorts := map[int]uint32{domain.S3WebUiContainerPort: j.payload.GetWebUiExposedPort()}
-
-	descriptor, smerdRequest, err := resolveS3Descriptor(
-		ctx, j.boxes, s3WebUiDescriptorName, request.GetEnvironment(), "", hostPorts, nil,
-	)
-	if err != nil {
-		return rerrors.Wrap(err, "error building garage web ui deploy request")
-	}
-
-	smerdRequest.Name = webUiName
-
-	if smerdRequest.Labels == nil {
-		smerdRequest.Labels = make(map[string]string)
-	}
-
-	smerdRequest.Labels[labels.VervServiceLabel] = webUiName
-	smerdRequest.Labels[labels.DisplayNameLabel] = name
-	smerdRequest.Labels[labels.S3WebUiLabel] = name
-	smerdRequest.Labels[labels.WebUiForLabel] = serviceName
-	smerdRequest.Labels[labels.WebUiPortLabel] = strconv.Itoa(domain.S3WebUiContainerPort)
-	smerdRequest.Labels[labels.ComposeGroupLabel] = serviceName
-
-	attachS3Network(smerdRequest, name)
-
-	plainEnv := map[string]string{
-		envWebUiApiBaseUrl:    s3InternalUrl(serviceName, domain.S3AdminContainerPort),
-		envWebUiS3EndpointUrl: s3InternalUrl(serviceName, domain.S3ApiContainerPort),
-		envWebUiS3Region:      s3Region(request),
-	}
-
-	err = j.configResolver.WriteEnv(ctx, smerdRequest, plainEnv)
-	if err != nil {
-		return rerrors.Wrap(err, "error writing garage web ui env")
-	}
-
-	secretEnv, err := j.secretEnv(ctx, name)
-	if err != nil {
-		return err
-	}
-
-	setRequestEnv(smerdRequest, secretEnv)
-
-	deployReq := domain.CreateDeployReq{
-		ServiceName:    webUiName,
-		VervDescriptor: &descriptor,
-		LaunchSmerd:    domain.LaunchSmerd{CreateSmerd_Request: smerdRequest},
-	}
-
-	err = j.vervServices.CreateNewDeploy(ctx, deployReq)
-	if err != nil {
-		return rerrors.Wrap(err, "error creating garage web ui deploy")
-	}
-
-	return nil
-}
-
-func (j *deployGarageWebUiJob) secretEnv(ctx context.Context, name string) (map[string]string, error) {
-	adminToken, err := j.secrets.Get(ctx, domain.S3AdminTokenSecretRef(name))
-	if err != nil {
-		return nil, rerrors.Wrap(err, "error reading admin token")
-	}
-
-	password, err := j.secrets.Get(ctx, domain.S3WebUiPasswordSecretRef(name))
-	if err != nil {
-		return nil, rerrors.Wrap(err, "error reading web ui password")
-	}
-
-	line, err := htpasswdLine(domain.S3WebUiUsername, password)
-	if err != nil {
-		return nil, rerrors.Wrap(err, "error hashing web ui password")
-	}
-
-	secretEnv := map[string]string{
-		envWebUiApiAdminKey:  adminToken,
-		envWebUiAuthUserPass: strings.TrimSuffix(line, "\n"),
-	}
-
-	return secretEnv, nil
-}
-
 func s3InternalUrl(instanceName string, port int) string {
 	hostPort := net.JoinHostPort(instanceName, strconv.Itoa(port))
 
 	return "http://" + hostPort
-}
-
-type waitGarageWebUiJob struct {
-	jobsEngine taskWatcher
-	payload    *velez_api.CreateS3InstanceTaskPayload
-}
-
-func (j *waitGarageWebUiJob) Do(ctx context.Context) error {
-	request := j.payload.GetRequest()
-	webUiName := domain.S3WebUiServiceName(request.GetName())
-
-	return waitForSmerdDeploy(ctx, j.jobsEngine, request.GetEnvironment(), webUiName)
 }

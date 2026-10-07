@@ -2,6 +2,7 @@
     font-family: var(--font-sans);
 
     font-weight: 600;
+    line-height: 1.2;
     font-size: var(--vs-fs-button);
 
     border-radius: var(--vs-radius-sm);

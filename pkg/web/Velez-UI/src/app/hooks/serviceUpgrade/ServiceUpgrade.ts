@@ -1,7 +1,6 @@
 import {create} from "zustand"
 
-import {TaskStatus} from "@/app/api/velez"
-import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
+import {TaskStatus, TaskStatusStatus} from "@/app/api/velez"
 import {WatchServiceUpgradeStream} from "@/processes/api/tasks.ts"
 
 export interface ServiceUpgrade {
@@ -29,7 +28,17 @@ export const useServiceUpgrade = create<ServiceUpgrade>(
             WatchServiceUpgradeStream(serviceName, (status) => {
                 set((state) => ({statusByService: {...state.statusByService, [serviceName]: status}}))
             })
-                .catch(useToaster.getState().catchGrpc)
+                .catch(() => {
+                    set((state) => {
+                        const last = state.statusByService[serviceName]
+                        const isTerminal = last?.status === TaskStatusStatus.DONE
+                            || last?.status === TaskStatusStatus.FAILED
+                        if (isTerminal) {
+                            return state
+                        }
+                        return {statusByService: {...state.statusByService, [serviceName]: undefined}}
+                    })
+                })
                 .finally(() => {
                     set((state) => ({watchingByService: {...state.watchingByService, [serviceName]: false}}))
                 })

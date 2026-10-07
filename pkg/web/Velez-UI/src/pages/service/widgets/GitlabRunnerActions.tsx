@@ -7,6 +7,7 @@ import {ReregisterRunnerMutation} from "@/processes/queries/runners.ts";
 import {DeploymentStatus} from "@/app/api/velez";
 import Button from "@/components/base/Button.tsx";
 import RunnerDropDialog from "@/dialogs/RunnerDropDialog/RunnerDropDialog.tsx";
+import ServiceProxyButton from "@/pages/service/widgets/ServiceProxyButton.tsx";
 
 interface Props {
     serviceName: string;
@@ -65,6 +66,8 @@ export default function GitlabRunnerActions({serviceName}: Props) {
             <Button onClick={handleReregister} disabled={reregisterRunner.isPending}>
                 {reregisterRunner.isPending ? "Reregistering…" : "Rerun registration"}
             </Button>
+
+            <ServiceProxyButton serviceName={serviceName}/>
 
             <Button variant="danger" onClick={openDropDialog}>
                 ✕ Drop

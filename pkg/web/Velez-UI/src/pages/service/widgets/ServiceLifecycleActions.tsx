@@ -4,16 +4,12 @@ import cls from "@/pages/service/widgets/ServiceLifecycleActions.module.css";
 import {Toast, useToaster} from "@/app/hooks/toaster/Toaster.ts";
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx";
 import {serviceService} from "@/processes/api/service.ts";
-import {
-    GetServiceByNameQuery,
-    GetServiceProxyQuery,
-    ListDeploymentsByServiceNameQuery,
-} from "@/processes/queries/services.ts";
+import {GetServiceByNameQuery, ListDeploymentsByServiceNameQuery} from "@/processes/queries/services.ts";
 import {DeploymentStatus} from "@/app/api/velez";
 import Button from "@/components/base/Button.tsx";
 import RemoveServiceDialog from "@/dialogs/RemoveServiceDialog/RemoveServiceDialog.tsx";
-import ServiceProxyDialog from "@/dialogs/ServiceProxyDialog/ServiceProxyDialog.tsx";
 import DeployMenu from "@/pages/service/widgets/DeployMenu.tsx";
+import ServiceProxyButton from "@/pages/service/widgets/ServiceProxyButton.tsx";
 
 interface Props {
     serviceName: string;
@@ -25,9 +21,6 @@ export default function ServiceLifecycleActions({serviceName}: Props) {
     const {OpenDialog, CloseDialog} = useDialog();
     const serviceQuery = GetServiceByNameQuery(serviceName);
     const deploymentsQuery = ListDeploymentsByServiceNameQuery(serviceName);
-    const proxyQuery = GetServiceProxyQuery(serviceName);
-
-    const currentProxyUrl = proxyQuery.data?.proxyUrl ?? "";
 
     const serviceState = serviceQuery.data?.status || DeploymentStatus.DEPLOYMENT_STATUS_UNKNOWN;
 
@@ -53,21 +46,6 @@ export default function ServiceLifecycleActions({serviceName}: Props) {
                 serviceName={serviceName}
                 onDeploymentCreated={() => {
                     CloseDialog();
-                    deploymentsQuery.refetch();
-                }}
-            />
-        );
-    }
-
-    function openProxyDialog() {
-        OpenDialog(
-            <ServiceProxyDialog
-                serviceName={serviceName}
-                currentProxyUrl={currentProxyUrl}
-                currentBypassHosts={proxyQuery.data?.proxyBypassHosts ?? []}
-                onApplied={() => {
-                    serviceQuery.refetch();
-                    proxyQuery.refetch();
                     deploymentsQuery.refetch();
                 }}
             />
@@ -104,9 +82,7 @@ export default function ServiceLifecycleActions({serviceName}: Props) {
                 + Deploy
             </Button>
 
-            <Button onClick={openProxyDialog} disabled={proxyQuery.isLoading}>
-                {currentProxyUrl ? "⇄ Proxy: on" : "⇄ Proxy"}
-            </Button>
+            <ServiceProxyButton serviceName={serviceName}/>
 
             <Button variant="danger" onClick={openRemoveDialog}>
                 ✕ Remove

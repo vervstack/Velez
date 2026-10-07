@@ -61,7 +61,9 @@ func (f *fakeTasksStorage) CreateTask(
 	defer f.mu.Unlock()
 
 	for _, t := range f.byID {
-		if t.EntityID == arg.EntityID && t.Action == arg.Action {
+		isInFlight := t.Status == tasks_queries.VelezTaskStatusPENDING || t.Status == tasks_queries.VelezTaskStatusRUNNING
+
+		if t.EntityID == arg.EntityID && t.Action == arg.Action && isInFlight {
 			return tasks_queries.VelezTask{}, sql.ErrNoRows
 		}
 	}
@@ -89,13 +91,22 @@ func (f *fakeTasksStorage) GetTaskByEntityAction(
 	f.mu.Lock()
 	defer f.mu.Unlock()
 
+	var newest tasks_queries.VelezTask
+
+	isFound := false
+
 	for _, t := range f.byID {
-		if t.EntityID == arg.EntityID && t.Action == arg.Action {
-			return t, nil
+		if t.EntityID == arg.EntityID && t.Action == arg.Action && (!isFound || t.ID > newest.ID) {
+			newest = t
+			isFound = true
 		}
 	}
 
-	return tasks_queries.VelezTask{}, sql.ErrNoRows
+	if !isFound {
+		return tasks_queries.VelezTask{}, sql.ErrNoRows
+	}
+
+	return newest, nil
 }
 
 func (f *fakeTasksStorage) GetTaskById(_ context.Context, id int64) (tasks_queries.VelezTask, error) {

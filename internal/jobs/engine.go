@@ -22,10 +22,10 @@ const (
 // Engine lets callers enqueue durable, resumable tasks and observe their
 // progress, without needing to know about the worker that executes them.
 type Engine interface {
-	// Enqueue creates a task for (entityID, action) if one doesn't already
-	// exist. If it does, the existing task is returned instead - the caller
-	// inspects Status: in-flight means attach via Watch, FAILED means
-	// surface the prior failure.
+	// Enqueue creates a task for (entityID, action) unless one is already
+	// in flight (PENDING/RUNNING): that task is returned instead, for the
+	// caller to attach to via Watch. A DONE or FAILED task doesn't block a
+	// new one.
 	Enqueue(ctx context.Context, entityID, action string, initialContext any) (tasks_queries.VelezTask, error)
 	// Watch streams task status changes for (entityID, action) until the
 	// task reaches a terminal status (DONE/FAILED), then closes the channel.

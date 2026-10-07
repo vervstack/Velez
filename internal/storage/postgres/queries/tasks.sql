@@ -1,14 +1,16 @@
 -- name: CreateTask :one
 INSERT INTO velez.tasks (entity_id, action, context)
 VALUES ($1, $2, $3)
-ON CONFLICT (entity_id, action) DO NOTHING
+ON CONFLICT (entity_id, action) WHERE status IN ('PENDING', 'RUNNING') DO NOTHING
 RETURNING *;
 
 -- name: GetTaskByEntityAction :one
 SELECT *
 FROM velez.tasks
 WHERE entity_id = $1
-  AND action = $2;
+  AND action = $2
+ORDER BY id DESC
+LIMIT 1;
 
 -- name: GetTaskById :one
 SELECT *

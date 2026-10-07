@@ -5,6 +5,8 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
@@ -59,35 +61,38 @@ func TestEngine_EnqueueDedupesConcurrentCalls(t *testing.T) {
 	}
 }
 
-func TestEngine_EnqueueReturnsExistingFailedTaskInstead(t *testing.T) {
-	tasksStorage := newFakeTasksStorage()
-	jobsStorage := newFakeJobsStorage()
-	engine := NewEngine(tasksStorage, jobsStorage)
-
-	first, err := engine.Enqueue(context.Background(), "e", "a", &dummyContext{})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+func Test_Engine_EnqueueAfterFinishedTaskCreatesNewTask(t *testing.T) {
+	cases := []struct {
+		name           string
+		finishedStatus tasks_queries.VelezTaskStatus
+	}{
+		{"done task", tasks_queries.VelezTaskStatusDONE},
+		{"failed task", tasks_queries.VelezTaskStatusFAILED},
 	}
 
-	tasksStorage.mu.Lock()
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			tasksStorage := newFakeTasksStorage()
+			jobsStorage := newFakeJobsStorage()
+			engine := NewEngine(tasksStorage, jobsStorage)
 
-	failed := tasksStorage.byID[first.ID]
+			first, err := engine.Enqueue(context.Background(), "e", "a", &dummyContext{})
+			require.NoError(t, err)
 
-	failed.Status = tasks_queries.VelezTaskStatusFAILED
-	tasksStorage.byID[first.ID] = failed
-	tasksStorage.mu.Unlock()
+			tasksStorage.mu.Lock()
 
-	second, err := engine.Enqueue(context.Background(), "e", "a", &dummyContext{})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
+			finished := tasksStorage.byID[first.ID]
 
-	if second.ID != first.ID {
-		t.Errorf("expected Enqueue to return the existing task, got a different id")
-	}
+			finished.Status = tc.finishedStatus
+			tasksStorage.byID[first.ID] = finished
+			tasksStorage.mu.Unlock()
 
-	if second.Status != tasks_queries.VelezTaskStatusFAILED {
-		t.Errorf("expected caller to see the existing FAILED status, got %v", second.Status)
+			second, err := engine.Enqueue(context.Background(), "e", "a", &dummyContext{})
+			require.NoError(t, err)
+
+			require.NotEqual(t, first.ID, second.ID)
+			require.Equal(t, tasks_queries.VelezTaskStatusPENDING, second.Status)
+		})
 	}
 }
 

@@ -57,7 +57,7 @@ func (q *Queries) ClaimTask(ctx context.Context, arg ClaimTaskParams) (VelezTask
 const createTask = `-- name: CreateTask :one
 INSERT INTO velez.tasks (entity_id, action, context)
 VALUES ($1, $2, $3)
-ON CONFLICT (entity_id, action) DO NOTHING
+ON CONFLICT (entity_id, action) WHERE status IN ('PENDING', 'RUNNING') DO NOTHING
 RETURNING id, entity_id, action, status, context, error, claimed_at, claimed_by, created_at, updated_at, environment_id
 `
 
@@ -110,6 +110,8 @@ SELECT id, entity_id, action, status, context, error, claimed_at, claimed_by, cr
 FROM velez.tasks
 WHERE entity_id = $1
   AND action = $2
+ORDER BY id DESC
+LIMIT 1
 `
 
 type GetTaskByEntityActionParams struct {

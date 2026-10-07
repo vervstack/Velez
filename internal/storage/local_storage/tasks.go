@@ -11,8 +11,8 @@ import (
 
 // tasks is a real, in-memory implementation of storage.TasksStorage, used
 // when Velez runs without Postgres configured. It mirrors the Postgres
-// queries' semantics (dedup on entity_id+action, atomic claim, stale
-// reclaim) closely enough for the task/job engine (internal/jobs) to work
+// queries' semantics (dedup against in-flight tasks on entity_id+action,
+// newest-task lookup, atomic claim, stale reclaim) closely enough for the task/job engine (internal/jobs) to work
 // correctly - state just doesn't survive a process restart in this mode.
 type tasks struct {
 	mu     sync.Mutex
@@ -31,7 +31,10 @@ func (t *tasks) CreateTask(_ context.Context, arg tasks_queries.CreateTaskParams
 	defer t.mu.Unlock()
 
 	for _, existing := range t.byID {
-		if existing.EntityID == arg.EntityID && existing.Action == arg.Action {
+		isInFlight := existing.Status == tasks_queries.VelezTaskStatusPENDING ||
+			existing.Status == tasks_queries.VelezTaskStatusRUNNING
+
+		if existing.EntityID == arg.EntityID && existing.Action == arg.Action && isInFlight {
 			return tasks_queries.VelezTask{}, sql.ErrNoRows
 		}
 	}
@@ -61,13 +64,22 @@ func (t *tasks) GetTaskByEntityAction(_ context.Context,
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
+	var newest tasks_queries.VelezTask
+
+	isFound := false
+
 	for _, task := range t.byID {
-		if task.EntityID == arg.EntityID && task.Action == arg.Action {
-			return task, nil
+		if task.EntityID == arg.EntityID && task.Action == arg.Action && (!isFound || task.ID > newest.ID) {
+			newest = task
+			isFound = true
 		}
 	}
 
-	return tasks_queries.VelezTask{}, sql.ErrNoRows
+	if !isFound {
+		return tasks_queries.VelezTask{}, sql.ErrNoRows
+	}
+
+	return newest, nil
 }
 
 func (t *tasks) GetTaskById(_ context.Context, id int64) (tasks_queries.VelezTask, error) {

@@ -171,14 +171,16 @@ func (d *deployments) createSpecificationLocked(
 	return d.nextSpecId, nil
 }
 
-// getSpecificationByIdLocked prefers deriving the spec straight from the
-// service's live container over the specs map entry: the map only records
-// what was requested at deploy/upgrade time, which is what UpgradeDeploy
-// would otherwise diff its new spec against - the container is what
-// actually decides upgrade correctness, and it also has no relation to
-// what predates a Velez restart wiping this map. The map entry only
-// resolves the pre-container bridge window (name resolves but no
-// container exists yet).
+// getSpecificationByIdLocked resolves a spec by what the row owning it means.
+// An applied row's spec (and any spec no scheduled row owns) resolves from the
+// service's live container - the current state: the map only records what was
+// requested at deploy/upgrade time, which is what UpgradeDeploy would
+// otherwise diff its new spec against, and it has no relation to what
+// predates a Velez restart wiping this map. A scheduled row's spec
+// (SCHEDULED_DEPLOYMENT / SCHEDULED_UPGRADE) resolves verbatim from the
+// stored spec - the desired state, which is complete and so can remove keys
+// (an env var) the container still carries. The map entry also resolves the
+// pre-container bridge window (name resolves but no container exists yet).
 func (d *deployments) getSpecificationByIdLocked(
 	ctx context.Context,
 	id int64,
@@ -193,7 +195,7 @@ func (d *deployments) getSpecificationByIdLocked(
 	}
 
 	name := specServiceName(spec)
-	if name != "" {
+	if name != "" && !d.isSpecScheduledLocked(id) {
 		row, found, err := d.resolveSpecFromContainer(ctx, name)
 		if err != nil {
 			return deployments_queries.GetSpecificationByIdRow{}, err
@@ -212,6 +214,22 @@ func (d *deployments) getSpecificationByIdLocked(
 	}
 
 	return row, nil
+}
+
+func (d *deployments) isSpecScheduledLocked(specId int64) bool {
+	for _, dep := range d.deployments {
+		if dep.SpecId != specId {
+			continue
+		}
+
+		isScheduled := dep.Status == deployments_queries.VelezDeploymentStatusSCHEDULEDDEPLOYMENT ||
+			dep.Status == deployments_queries.VelezDeploymentStatusSCHEDULEDUPGRADE
+		if isScheduled {
+			return true
+		}
+	}
+
+	return false
 }
 
 // overlayRequestedSpec merges the env and extra networks the stored spec

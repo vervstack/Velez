@@ -461,3 +461,109 @@ func Test_Deployments_UpdateStatusOnDerivedIdIsNoop(t *testing.T) {
 	err := d.UpdateDeploymentStatus(context.Background(), arg)
 	require.NoError(t, err)
 }
+
+func Test_Deployments_GetSpecificationById_ScheduledUpgradeCanRemoveEnv(t *testing.T) {
+	t.Parallel()
+
+	name := test_helper.UniqueName(t, "sched-upgrade-env")
+	createLabelledContainerWithEnv(t, name, []string{"HTTP_PROXY=x", "KEEP=1"})
+
+	d := newDeploymentsStorage(test_helper.NewRealDocker(t))
+	ctx := context.Background()
+
+	env := map[string]string{"KEEP": "1"}
+	specId := createSpecWithDeployment(ctx, t, d, name, env, deployments_queries.VelezDeploymentStatusSCHEDULEDUPGRADE)
+
+	row, err := d.GetSpecificationById(ctx, specId)
+	require.NoError(t, err)
+
+	got := specEnv(t, row)
+	require.NotContains(t, got, "HTTP_PROXY")
+	require.Equal(t, "1", got["KEEP"])
+}
+
+func Test_Deployments_GetSpecificationById_RunningRowResolvesFromContainer(t *testing.T) {
+	t.Parallel()
+
+	name := test_helper.UniqueName(t, "running-row-env")
+	createLabelledContainerWithEnv(t, name, []string{"HTTP_PROXY=x", "KEEP=1"})
+
+	d := newDeploymentsStorage(test_helper.NewRealDocker(t))
+	ctx := context.Background()
+
+	env := map[string]string{"KEEP": "1"}
+	specId := createSpecWithDeployment(ctx, t, d, name, env, deployments_queries.VelezDeploymentStatusRUNNING)
+
+	row, err := d.GetSpecificationById(ctx, specId)
+	require.NoError(t, err)
+
+	got := specEnv(t, row)
+	require.Equal(t, "x", got["HTTP_PROXY"])
+	require.Equal(t, "1", got["KEEP"])
+}
+
+func createLabelledContainerWithEnv(t *testing.T, name string, env []string) {
+	t.Helper()
+
+	cli := test_helper.NewRealDockerAPI(t)
+	test_helper.EnsurePulled(t, cli, test_helper.HelloWorldAppImage)
+
+	cfg := &container.Config{
+		Image:  test_helper.HelloWorldAppImage,
+		Env:    env,
+		Labels: map[string]string{labels.VervServiceLabel: name},
+	}
+
+	created, err := cli.ContainerCreate(context.Background(), cfg, nil, nil, nil, name)
+	require.NoError(t, err)
+
+	t.Cleanup(func() {
+		test_helper.RemoveContainer(t, cli, created.ID)
+	})
+}
+
+func createSpecWithDeployment(
+	ctx context.Context,
+	t *testing.T,
+	d *deployments,
+	name string,
+	env map[string]string,
+	status deployments_queries.VelezDeploymentStatus,
+) int64 {
+	t.Helper()
+
+	req := &pb.CreateSmerd_Request{Name: name, ImageName: test_helper.HelloWorldAppImage, Env: env}
+
+	payload, err := json.Marshal(req)
+	require.NoError(t, err)
+
+	specParams := deployments_queries.CreateSpecificationParams{
+		Name:        name,
+		VervPayload: pqtype.NullRawMessage{RawMessage: payload, Valid: true},
+	}
+
+	specId, err := d.CreateSpecification(ctx, specParams)
+	require.NoError(t, err)
+
+	depParams := deployments_queries.CreateDeploymentParams{
+		NodeID: domain.SelfNodeId,
+		Status: status,
+		SpecID: specId,
+	}
+
+	_, err = d.CreateDeployment(ctx, depParams)
+	require.NoError(t, err)
+
+	return specId
+}
+
+func specEnv(t *testing.T, row deployments_queries.GetSpecificationByIdRow) map[string]string {
+	t.Helper()
+
+	smerdReq := &pb.CreateSmerd_Request{}
+
+	err := json.Unmarshal(row.VervPayload.RawMessage, smerdReq)
+	require.NoError(t, err)
+
+	return smerdReq.GetEnv()
+}

@@ -6,6 +6,9 @@ import {SmerdStatus} from "@/app/api/velez"
 import ServiceHeroImages from "@/widgets/service/ServiceHeroImages/ServiceHeroImages.tsx"
 
 vi.mock("react-router-dom", () => ({useNavigate: vi.fn()}))
+vi.mock("@/components/base/StatusDot.tsx", () => ({
+    default: ({status}: {status: string}) => <span>{"dot:" + status}</span>,
+}))
 
 function renderImages(props: Partial<Parameters<typeof ServiceHeroImages>[0]>) {
     const navigate = vi.fn()
@@ -44,6 +47,19 @@ describe("ServiceHeroImages", () => {
 
         expect(screen.getByRole("button", {name: /vpn/})).toBeTruthy()
         expect(navigate).toHaveBeenCalledWith("/container/side-2")
+    })
+
+    it("shows a running dot on the main container when its status is running", () => {
+        renderImages({imageName: "redsockruf/zpotify", containerId: "main-1", containerStatus: SmerdStatus.running})
+
+        expect(screen.getByText("dot:running")).toBeTruthy()
+        expect(screen.queryByText("dot:offline")).toBeNull()
+    })
+
+    it("shows a stopped dot on the main container when its status is exited", () => {
+        renderImages({imageName: "redsockruf/zpotify", containerId: "main-1", containerStatus: SmerdStatus.exited})
+
+        expect(screen.getByText("dot:stopped")).toBeTruthy()
     })
 
     it("renders nothing without a main container and without sidecars", () => {

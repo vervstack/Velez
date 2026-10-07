@@ -1,5 +1,6 @@
 import cls from '@/widgets/service/ServiceHero/ServiceHero.module.css'
 
+import type { SmerdStatus } from '@/app/api/velez'
 import { useGetServiceAboutQuery, useGetServiceMetricsQuery } from '@/processes/queries/services'
 import { deriveRunnerDisplayName, isGitlabRunnerName } from '@/processes/mappings/runnerDisplay.ts'
 import GitlabIcon from '@/components/base/icons/GitlabIcon.tsx'
@@ -11,6 +12,7 @@ interface ServiceHeroProps {
     serviceStatus?: string
     imageFromSmerd?: string
     containerId?: string
+    containerStatus?: SmerdStatus
 }
 
 // Velez itself runs as a bare binary, not a container, so the container-stats
@@ -68,6 +70,7 @@ export default function ServiceHero({
     serviceStatus,
     imageFromSmerd,
     containerId,
+    containerStatus,
 }: ServiceHeroProps) {
     const {data: about} = useGetServiceAboutQuery(serviceName)
     const {data: metrics} = useGetServiceMetricsQuery(serviceName)
@@ -101,6 +104,7 @@ export default function ServiceHero({
                 serviceName={serviceName}
                 imageName={imageFromSmerd}
                 containerId={containerId}
+                containerStatus={containerStatus}
                 sidecars={about?.sidecars ?? []}
             />
             <div className={cls.LeftWrapper}>

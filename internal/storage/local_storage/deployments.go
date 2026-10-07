@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/docker/docker/api/types/container"
 	"github.com/sqlc-dev/pqtype"
 	"go.redsock.ru/rerrors"
 
@@ -15,6 +16,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
@@ -31,6 +33,12 @@ import (
 // Execute below) - its mu is the one lock shared between plain reads/writes
 // and a composite write run through verv_services.executeDeployment, so the
 // two can never interleave.
+//
+// Memory holds only the rows this process created. The current deployment of
+// a container that predates this process is derived from Docker on each read
+// (see listDerived), the same
+// container-is-system-of-record idiom as dockerServices - so a Velez restart
+// does not lose what is running.
 type deployments struct {
 	docker node_clients.Docker
 
@@ -50,23 +58,33 @@ func newDeploymentsStorage(docker node_clients.Docker) *deployments {
 	}
 }
 
-func (d *deployments) List(_ context.Context, req domain.ListDeploymentsReq) ([]domain.Deployment, error) {
+func (d *deployments) List(ctx context.Context, req domain.ListDeploymentsReq) ([]domain.Deployment, error) {
+	derived, err := d.listDerived(ctx)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error deriving deployments from containers")
+	}
+
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
-	filtered := d.filterLocked(req)
+	filtered := d.filterLocked(req, d.mergeLocked(derived), derivedSpecNames(derived))
 
 	return paginate(filtered, req.Paging), nil
 }
 
 func (d *deployments) ListDeployments(
-	_ context.Context,
+	ctx context.Context,
 	req domain.ListDeploymentsReq,
 ) (domain.DeploymentList, error) {
+	derived, err := d.listDerived(ctx)
+	if err != nil {
+		return domain.DeploymentList{}, rerrors.Wrap(err, "error deriving deployments from containers")
+	}
+
 	d.mu.Lock()
 	defer d.mu.Unlock()
 
-	filtered := d.filterLocked(req)
+	filtered := d.filterLocked(req, d.mergeLocked(derived), derivedSpecNames(derived))
 
 	list := domain.DeploymentList{
 		Deployments: paginate(filtered, req.Paging),
@@ -167,6 +185,10 @@ func (d *deployments) getSpecificationByIdLocked(
 ) (deployments_queries.GetSpecificationByIdRow, error) {
 	spec, ok := d.specs[id]
 	if !ok {
+		if id < 0 {
+			return d.getDerivedSpecification(ctx, id)
+		}
+
 		return deployments_queries.GetSpecificationByIdRow{}, user_errors.ErrStorageNotFound
 	}
 
@@ -336,6 +358,10 @@ func (d *deployments) updateDeploymentStatusLocked(
 	_ context.Context,
 	arg deployments_queries.UpdateDeploymentStatusParams,
 ) error {
+	if arg.ID < 0 {
+		return nil
+	}
+
 	for i := range d.deployments {
 		if d.deployments[i].Id != arg.ID {
 			continue
@@ -384,7 +410,182 @@ func (q *deploymentsLockedQuerier) UpdateDeploymentStatus(
 	return (*deployments)(q).updateDeploymentStatusLocked(ctx, arg)
 }
 
-func (d *deployments) filterLocked(req domain.ListDeploymentsReq) []domain.Deployment {
+// derivedDeployment is a deployment row derived from a service's live
+// container, together with the service name it was derived for.
+type derivedDeployment struct {
+	serviceName string
+	deployment  domain.Deployment
+}
+
+// derivedId is the stable id of a service's derived deployment and spec. It is
+// negative so it can never collide with the positive in-memory counters
+// nextDeploymentId/nextSpecId.
+func derivedId(serviceName string) int64 {
+	return -serviceIDFromName(serviceName)
+}
+
+// listDerived builds one deployment per Verv service from live Docker
+// containers, without touching d's state - callers invoke it before taking
+// d.mu so a slow Docker call never blocks writers.
+func (d *deployments) listDerived(ctx context.Context) ([]derivedDeployment, error) {
+	containers, err := d.docker.ListContainers(ctx, &pb.ListSmerds_Request{}, allEnvironments)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error listing containers")
+	}
+
+	primaries := make(map[string]container.Summary)
+	order := make([]string, 0)
+
+	for _, c := range containers {
+		if !isDeploymentCandidate(c.Labels) {
+			continue
+		}
+
+		name := c.Labels[labels.VervServiceLabel]
+
+		current, seen := primaries[name]
+		if !seen {
+			order = append(order, name)
+			primaries[name] = c
+
+			continue
+		}
+
+		if current.State != containerStateRunning && c.State == containerStateRunning {
+			primaries[name] = c
+		}
+	}
+
+	out := make([]derivedDeployment, 0, len(order))
+
+	for _, name := range order {
+		out = append(out, newDerivedDeployment(name, primaries[name]))
+	}
+
+	return out, nil
+}
+
+func newDerivedDeployment(name string, primary container.Summary) derivedDeployment {
+	status := deployments_queries.VelezDeploymentStatusFAILED
+	if primary.State == containerStateRunning {
+		status = deployments_queries.VelezDeploymentStatusRUNNING
+	}
+
+	createdAt := time.Unix(primary.Created, 0)
+
+	dep := domain.Deployment{
+		Id:        derivedId(name),
+		SpecId:    derivedId(name),
+		ServiceId: serviceIDFromName(name),
+		NodeId:    int64(domain.SelfNodeId),
+		Status:    status,
+		CreatedAt: createdAt,
+		UpdatedAt: createdAt,
+	}
+
+	return derivedDeployment{serviceName: name, deployment: dep}
+}
+
+func isDeploymentCandidate(containerLabels map[string]string) bool {
+	if containerLabels[labels.VervServiceLabel] == "" {
+		return false
+	}
+
+	_, isSidecar := containerLabels[labels.Sidecar]
+
+	return !isSidecar
+}
+
+func derivedSpecNames(derived []derivedDeployment) map[int64]string {
+	names := make(map[int64]string, len(derived))
+
+	for _, dd := range derived {
+		names[dd.deployment.SpecId] = dd.serviceName
+	}
+
+	return names
+}
+
+// getDerivedSpecification resolves a negative spec id handed out for a
+// derived deployment: it finds the service whose derived id equals id and
+// derives the spec from its live container.
+func (d *deployments) getDerivedSpecification(
+	ctx context.Context,
+	id int64,
+) (deployments_queries.GetSpecificationByIdRow, error) {
+	derived, err := d.listDerived(ctx)
+	if err != nil {
+		return deployments_queries.GetSpecificationByIdRow{}, rerrors.Wrap(err, "error deriving deployments from containers")
+	}
+
+	name, ok := derivedSpecNames(derived)[id]
+	if !ok {
+		return deployments_queries.GetSpecificationByIdRow{}, user_errors.ErrStorageNotFound
+	}
+
+	row, found, err := d.resolveSpecFromContainer(ctx, name)
+	if err != nil {
+		return deployments_queries.GetSpecificationByIdRow{}, rerrors.Wrap(err, "error resolving spec from container")
+	}
+
+	if !found {
+		return deployments_queries.GetSpecificationByIdRow{}, user_errors.ErrStorageNotFound
+	}
+
+	row.ID = id
+
+	return row, nil
+}
+
+// mergeLocked returns memory rows followed by the derived rows of services
+// memory has no active row for. A service's memory row is active while it is
+// RUNNING or has a scheduled deploy/upgrade/delete pending; once all of its
+// memory rows are FAILED/DELETED the live container's derived row takes over
+// again.
+func (d *deployments) mergeLocked(derived []derivedDeployment) []domain.Deployment {
+	active := make(map[string]struct{}, len(d.deployments))
+
+	for _, dep := range d.deployments {
+		if !isActiveDeploymentStatus(dep.Status) {
+			continue
+		}
+
+		active[specServiceName(d.specs[dep.SpecId])] = struct{}{}
+	}
+
+	merged := make([]domain.Deployment, 0, len(d.deployments)+len(derived))
+
+	merged = append(merged, d.deployments...)
+
+	for _, dd := range derived {
+		_, hasActive := active[dd.serviceName]
+		if hasActive {
+			continue
+		}
+
+		merged = append(merged, dd.deployment)
+	}
+
+	return merged
+}
+
+func isActiveDeploymentStatus(status deployments_queries.VelezDeploymentStatus) bool {
+	switch status {
+	case deployments_queries.VelezDeploymentStatusRUNNING,
+		deployments_queries.VelezDeploymentStatusSCHEDULEDDEPLOYMENT,
+		deployments_queries.VelezDeploymentStatusSCHEDULEDUPGRADE,
+		deployments_queries.VelezDeploymentStatusSCHEDULEDDELETION:
+		return true
+	default:
+		return false
+	}
+}
+
+func (d *deployments) filterLocked(
+	req domain.ListDeploymentsReq,
+	merged []domain.Deployment,
+	derivedNames map[int64]string,
+) []domain.Deployment {
 	notStatus := make(map[deployments_queries.VelezDeploymentStatus]struct{}, len(req.NotStatus))
 	for _, s := range req.NotStatus {
 		notStatus[s] = struct{}{}
@@ -395,15 +596,20 @@ func (d *deployments) filterLocked(req domain.ListDeploymentsReq) []domain.Deplo
 		nodeIds[id] = struct{}{}
 	}
 
-	out := make([]domain.Deployment, 0, len(d.deployments))
+	out := make([]domain.Deployment, 0, len(merged))
 
-	for _, dep := range d.deployments {
+	for _, dep := range merged {
 		_, excluded := notStatus[dep.Status]
 		if excluded {
 			continue
 		}
 
-		isOtherService := req.ServiceName != "" && specServiceName(d.specs[dep.SpecId]) != req.ServiceName
+		serviceName, isDerived := derivedNames[dep.SpecId]
+		if !isDerived {
+			serviceName = specServiceName(d.specs[dep.SpecId])
+		}
+
+		isOtherService := req.ServiceName != "" && serviceName != req.ServiceName
 		if isOtherService {
 			continue
 		}

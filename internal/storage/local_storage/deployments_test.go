@@ -112,10 +112,11 @@ func TestDeployments_WithTxDoesNotDeadlock(t *testing.T) {
 		t.Fatal("Execute deadlocked calling into its own WithTx querier")
 	}
 
-	list, err := d.ListDeployments(ctx, domain.ListDeploymentsReq{})
-	require.NoError(t, err)
-	require.Equal(t, uint64(1), list.Total)
-	require.Equal(t, deployments_queries.VelezDeploymentStatusRUNNING, list.Deployments[0].Status)
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	require.Len(t, d.deployments, 1)
+	require.Equal(t, deployments_queries.VelezDeploymentStatusRUNNING, d.deployments[0].Status)
 }
 
 // TestDeployments_ExecuteCompositeWriteIsAtomic stresses the composite
@@ -203,9 +204,10 @@ func TestDeployments_ExecuteCompositeWriteIsAtomic(t *testing.T) {
 	default:
 	}
 
-	list, err := d.ListDeployments(ctx, domain.ListDeploymentsReq{})
-	require.NoError(t, err)
-	require.Equal(t, uint64(writes), list.Total)
+	d.mu.Lock()
+	defer d.mu.Unlock()
+
+	require.Len(t, d.deployments, writes)
 }
 
 // TestDeployments_GetSpecificationById_PrefersLiveContainerOverStaleSpec
@@ -320,4 +322,142 @@ func TestDeployments_GetSpecificationById_FallsBackToMapBeforeContainerExists(t 
 	require.NoError(t, err)
 
 	require.Equal(t, "pending-image:v0", smerdReq.GetImageName())
+}
+
+func startLabelledContainer(t *testing.T, name string) {
+	t.Helper()
+
+	cli := test_helper.NewRealDockerAPI(t)
+	test_helper.EnsurePulled(t, cli, test_helper.HelloWorldAppImage)
+
+	cfg := &container.Config{
+		Image:  test_helper.HelloWorldAppImage,
+		Labels: map[string]string{labels.VervServiceLabel: name},
+	}
+
+	created, err := cli.ContainerCreate(context.Background(), cfg, nil, nil, nil, name)
+	require.NoError(t, err)
+
+	t.Cleanup(func() {
+		test_helper.RemoveContainer(t, cli, created.ID)
+	})
+
+	err = cli.ContainerStart(context.Background(), created.ID, container.StartOptions{})
+	require.NoError(t, err)
+}
+
+func newNamedSpecParams(t *testing.T, name string) deployments_queries.CreateSpecificationParams {
+	t.Helper()
+
+	req := &pb.CreateSmerd_Request{Name: name, ImageName: test_helper.HelloWorldAppImage}
+
+	payload, err := json.Marshal(req)
+	require.NoError(t, err)
+
+	return deployments_queries.CreateSpecificationParams{
+		Name:        name,
+		VervPayload: pqtype.NullRawMessage{RawMessage: payload, Valid: true},
+	}
+}
+
+func createMemoryDeployment(
+	ctx context.Context,
+	t *testing.T,
+	d *deployments,
+	name string,
+	status deployments_queries.VelezDeploymentStatus,
+) {
+	t.Helper()
+
+	specId, err := d.CreateSpecification(ctx, newNamedSpecParams(t, name))
+	require.NoError(t, err)
+
+	depParams := deployments_queries.CreateDeploymentParams{
+		NodeID: domain.SelfNodeId,
+		Status: status,
+		SpecID: specId,
+	}
+
+	_, err = d.CreateDeployment(ctx, depParams)
+	require.NoError(t, err)
+}
+
+func Test_Deployments_DerivesRunningRowFromContainerAfterRestart(t *testing.T) {
+	t.Parallel()
+
+	name := test_helper.UniqueName(t, "derived-dep")
+	startLabelledContainer(t, name)
+
+	d := newDeploymentsStorage(test_helper.NewRealDocker(t))
+	ctx := context.Background()
+
+	req := domain.ListDeploymentsReq{ServiceName: name}
+
+	rows, err := d.List(ctx, req)
+	require.NoError(t, err)
+	require.Len(t, rows, 1)
+	require.Equal(t, deployments_queries.VelezDeploymentStatusRUNNING, rows[0].Status)
+	require.Negative(t, rows[0].Id)
+	require.Equal(t, rows[0].Id, rows[0].SpecId)
+
+	spec, err := d.GetSpecificationById(ctx, rows[0].SpecId)
+	require.NoError(t, err)
+	require.Equal(t, name, spec.Name)
+	require.Equal(t, rows[0].SpecId, spec.ID)
+
+	smerdReq := &pb.CreateSmerd_Request{}
+
+	err = json.Unmarshal(spec.VervPayload.RawMessage, smerdReq)
+	require.NoError(t, err)
+	require.Equal(t, name, smerdReq.GetName())
+}
+
+func Test_Deployments_MemoryRunningRowSuppressesDerivedRow(t *testing.T) {
+	t.Parallel()
+
+	name := test_helper.UniqueName(t, "memory-wins")
+	startLabelledContainer(t, name)
+
+	d := newDeploymentsStorage(test_helper.NewRealDocker(t))
+	ctx := context.Background()
+
+	createMemoryDeployment(ctx, t, d, name, deployments_queries.VelezDeploymentStatusRUNNING)
+
+	rows, err := d.List(ctx, domain.ListDeploymentsReq{ServiceName: name})
+	require.NoError(t, err)
+	require.Len(t, rows, 1)
+	require.Positive(t, rows[0].Id)
+}
+
+func Test_Deployments_DerivedRowReappearsWhenMemoryRowsFailed(t *testing.T) {
+	t.Parallel()
+
+	name := test_helper.UniqueName(t, "self-heal")
+	startLabelledContainer(t, name)
+
+	d := newDeploymentsStorage(test_helper.NewRealDocker(t))
+	ctx := context.Background()
+
+	createMemoryDeployment(ctx, t, d, name, deployments_queries.VelezDeploymentStatusFAILED)
+
+	rows, err := d.List(ctx, domain.ListDeploymentsReq{ServiceName: name})
+	require.NoError(t, err)
+	require.Len(t, rows, 2)
+	require.Equal(t, deployments_queries.VelezDeploymentStatusFAILED, rows[0].Status)
+	require.Equal(t, deployments_queries.VelezDeploymentStatusRUNNING, rows[1].Status)
+	require.Negative(t, rows[1].Id)
+}
+
+func Test_Deployments_UpdateStatusOnDerivedIdIsNoop(t *testing.T) {
+	t.Parallel()
+
+	d := newDeploymentsStorage(test_helper.NewRealDocker(t))
+
+	arg := deployments_queries.UpdateDeploymentStatusParams{
+		ID:     derivedId("some-service"),
+		Status: deployments_queries.VelezDeploymentStatusFAILED,
+	}
+
+	err := d.UpdateDeploymentStatus(context.Background(), arg)
+	require.NoError(t, err)
 }

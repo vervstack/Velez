@@ -43,6 +43,12 @@ export interface ResourceReconciliationStatus {
     status: ResourceConnectionStatus
 }
 
+export interface ResourceAddress {
+    host: string                                             // empty = the host the browser reached Velez on
+    port: number
+    scope: 'docker' | 'vcn'
+}
+
 export interface ServiceResource {
     name: string                                              // resource_name from the backend
     type: string                                             // resource_type, e.g. "postgres"
@@ -52,6 +58,7 @@ export interface ServiceResource {
     reconciliation: ResourceConnectionStatus                 // 'unknown' when reconciliation wasn't reported
     webUiPort?: number
     webUiHost?: string
+    addresses: ResourceAddress[]
 }
 
 export interface ServiceGraphNode {

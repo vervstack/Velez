@@ -111,7 +111,9 @@ func (s *Service) GetInstanceCredentials(ctx context.Context, name string) (doma
 		return domain.S3InstanceCredentials{}, rerrors.Wrap(err, "error getting web ui password")
 	}
 
-	credentials.WebUiUrl = webUiEndpoint(ref.webUiHostName(), instance.RemoteHost, instance.WebUiPort)
+	credentials.WebUiUrl = webUiEndpoint(
+		ref.webUiHostName(), instance.PublishedHost, instance.RemoteHost, instance.WebUiPort,
+	)
 	credentials.WebUiUsername = domain.S3WebUiUsername
 	credentials.WebUiPassword = password
 

@@ -1,0 +1,10 @@
+.ResourceAddressesDialogContainer {
+    width: 28rem;
+    max-width: var(--dialog-max-width);
+
+    & .RowsWrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}

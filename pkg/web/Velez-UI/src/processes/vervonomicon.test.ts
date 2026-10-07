@@ -123,6 +123,7 @@ describe("vervonomicon utilities", () => {
                 icon: "Pg",
                 color: "var(--info-color)",
                 reconciliation: "unknown",
+                addresses: [],
                 ...overrides,
             }
         }

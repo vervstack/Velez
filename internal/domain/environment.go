@@ -73,7 +73,25 @@ func (e Environment) RemoteHost(nodeDockerHost string) string {
 		return ""
 	}
 
-	parsed, err := url.Parse(e.DockerHost)
+	return dockerHostname(e.DockerHost)
+}
+
+// PublishedHost returns the hostname a browser reaches this environment's
+// published container ports on: the environment's own daemon host, or the
+// node's daemon host when the environment shares it. "" when the daemon is a
+// local unix socket - the caller then falls back to the address it was
+// reached on.
+func (e Environment) PublishedHost(nodeDockerHost string) string {
+	dockerHost := e.DockerHost
+	if dockerHost == "" {
+		dockerHost = nodeDockerHost
+	}
+
+	return dockerHostname(dockerHost)
+}
+
+func dockerHostname(dockerHost string) string {
+	parsed, err := url.Parse(dockerHost)
 	if err != nil {
 		return ""
 	}

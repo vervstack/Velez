@@ -4,8 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/rs/zerolog/log"
+
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
+	"go.vervstack.ru/Velez/internal/service"
+	"go.vervstack.ru/Velez/internal/service/service_manager/address_book"
 )
 
 const (
@@ -28,12 +32,17 @@ type dropResultAccessor interface {
 // docs/container_runtimes/roadmap.md's "DropSmerd ignores environment scope
 // entirely" bug).
 type dropSmerdHandler struct {
-	runtimes container_runtime.RuntimeResolver
+	runtimes    container_runtime.RuntimeResolver
+	addressBook service.AddressBook
 }
 
-func NewDropSmerdHandler(runtimes container_runtime.RuntimeResolver) TaskHandler {
+func NewDropSmerdHandler(
+	runtimes container_runtime.RuntimeResolver,
+	addressBook service.AddressBook,
+) TaskHandler {
 	return &dropSmerdHandler{
-		runtimes: runtimes,
+		runtimes:    runtimes,
+		addressBook: addressBook,
 	}
 }
 
@@ -68,6 +77,7 @@ func (h *dropSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 	for i, identifier := range worklist {
 		job := &dropContainerJob{
 			runtimes:    h.runtimes,
+			addressBook: h.addressBook,
 			environment: environment,
 			identifier:  identifier,
 			ctx:         payload,
@@ -89,7 +99,8 @@ func (h *dropSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 // itself - is recorded on the task context as a per-item failure rather than
 // propagated as a job error.
 type dropContainerJob struct {
-	runtimes container_runtime.RuntimeResolver
+	runtimes    container_runtime.RuntimeResolver
+	addressBook service.AddressBook
 
 	environment string
 	identifier  string
@@ -105,8 +116,12 @@ type dropContainerJob struct {
 // contract for existing callers - a backward-compatibility break this
 // repo's CLAUDE.md forbids. Do not "fix" this into propagating errors.
 func (j *dropContainerJob) Do(ctx context.Context) error {
+	var rootService string
+
 	containerRuntime, err := j.runtimes.Runtime(ctx, j.environment)
 	if err == nil {
+		rootService = j.rootService(ctx, containerRuntime)
+
 		err = containerRuntime.Remove(ctx, j.identifier)
 	}
 
@@ -118,7 +133,33 @@ func (j *dropContainerJob) Do(ctx context.Context) error {
 		j.ctx.AppendFailed(failure)
 	} else {
 		j.ctx.AppendSuccessful(j.identifier)
+
+		syncAddresses(ctx, j.addressBook, rootService)
 	}
 
 	return nil
+}
+
+// rootService reads the container's labels before it is removed. Sync, not
+// Drop, follows the removal: another container (a sidecar) may still serve the
+// same root service.
+func (j *dropContainerJob) rootService(
+	ctx context.Context,
+	containerRuntime container_runtime.ContainerRuntime,
+) string {
+	info, isFound, err := containerRuntime.Inspect(ctx, j.identifier)
+	if err != nil {
+		log.Ctx(ctx).Warn().
+			Err(err).
+			Str("container", j.identifier).
+			Msg("error inspecting container before drop")
+
+		return ""
+	}
+
+	if !isFound || info.Config == nil {
+		return ""
+	}
+
+	return address_book.RootServiceName(info.Config.Labels)
 }

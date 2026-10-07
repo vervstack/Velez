@@ -55,7 +55,7 @@ var (
 )
 
 func TestUpgradeSmerdHandler_Action(t *testing.T) {
-	h := NewUpgradeSmerdHandler(nil, nil, nil, nil)
+	h := NewUpgradeSmerdHandler(nil, nil, nil, nil, newFakeAddressBook())
 
 	if h.Action() != UpgradeSmerdAction {
 		t.Errorf("expected action %q, got %q", UpgradeSmerdAction, h.Action())
@@ -63,7 +63,7 @@ func TestUpgradeSmerdHandler_Action(t *testing.T) {
 }
 
 func TestUpgradeSmerdHandler_NewContext(t *testing.T) {
-	h := NewUpgradeSmerdHandler(nil, nil, nil, nil)
+	h := NewUpgradeSmerdHandler(nil, nil, nil, nil, newFakeAddressBook())
 
 	if _, ok := h.NewContext().(*velez_api.UpgradeSmerdTaskPayload); !ok {
 		t.Fatal("expected NewContext to return *velez_api.UpgradeSmerdTaskPayload")
@@ -78,7 +78,9 @@ func TestUpgradeSmerdHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 	docker := newFakeDocker()
 	nodeClients := newFakeNodeClients(docker)
 
-	h := NewUpgradeSmerdHandler(nodeClients, newFakeContainerService(), newFakeConfigurationService(), nil)
+	h := NewUpgradeSmerdHandler(
+		nodeClients, newFakeContainerService(), newFakeConfigurationService(), nil, newFakeAddressBook(),
+	)
 
 	namedJobs := h.BuildJobs(payload)
 
@@ -88,7 +90,7 @@ func TestUpgradeSmerdHandler_BuildJobs_NamesAndOrder(t *testing.T) {
 		stepCreateConfigFetcherContainer, stepGetConfigFromContainer, stepDropConfigFetcherContainer,
 		stepFetchConfig, stepPrepareVervConfig, stepCreateFinalContainer, stepStartFinalContainer,
 		stepHealthcheck, stepRenameOldContainer, stepDropOldContainer, stepRenameNewContainer,
-		stepRecreateSidecars,
+		stepRecreateSidecars, stepSyncAddresses,
 	}
 	if len(namedJobs) != len(wantNames) {
 		t.Fatalf("expected %d jobs, got %d", len(wantNames), len(namedJobs))
@@ -1204,7 +1206,9 @@ func TestUpgradeSmerdHandler_HappyPath_EndToEnd(t *testing.T) {
 
 	configService := newFakeConfigurationService()
 
-	handler := NewUpgradeSmerdHandler(nodeClients, containerService, configService, newFakeRuntimes(docker, nil))
+	handler := NewUpgradeSmerdHandler(
+		nodeClients, containerService, configService, newFakeRuntimes(docker, nil), newFakeAddressBook(),
+	)
 
 	taskCtx := handler.NewContext()
 
@@ -1322,7 +1326,7 @@ func TestUpgradeSmerdHandler_FailurePath_NetworkCreateFails(t *testing.T) {
 	runtimes.createNetworkErr = errNetworkCreate
 
 	handler := NewUpgradeSmerdHandler(
-		nodeClients, containerService, newFakeConfigurationService(), runtimes)
+		nodeClients, containerService, newFakeConfigurationService(), runtimes, newFakeAddressBook())
 
 	taskCtx := handler.NewContext()
 

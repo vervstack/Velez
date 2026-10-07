@@ -31,6 +31,12 @@ export enum DeploymentStatus {
   STOPPED = "STOPPED",
 }
 
+export enum AddressScope {
+  ADDRESS_SCOPE_UNSPECIFIED = "ADDRESS_SCOPE_UNSPECIFIED",
+  ADDRESS_SCOPE_DOCKER = "ADDRESS_SCOPE_DOCKER",
+  ADDRESS_SCOPE_VCN = "ADDRESS_SCOPE_VCN",
+}
+
 export enum NodeType {
   NODE_TYPE_SERVICE = "NODE_TYPE_SERVICE",
   NODE_TYPE_RESOURCE = "NODE_TYPE_RESOURCE",
@@ -213,12 +219,19 @@ export type GetServiceMetricsResponse = {
 
 export type GetServiceMetrics = Record<string, never>;
 
+export type ResourceAddress = {
+  host?: string;
+  port?: number;
+  scope?: AddressScope;
+};
+
 export type BoundResource = {
   name?: string;
   resourceType?: string;
   status?: string;
   webUiPort?: number;
   webUiHost?: string;
+  addresses?: ResourceAddress[];
 };
 
 export type GetServiceResourcesRequest = {

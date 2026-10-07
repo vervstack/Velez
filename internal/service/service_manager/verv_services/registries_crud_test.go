@@ -24,7 +24,7 @@ func newRegistryService(t *testing.T) *VervService {
 		registries: registries.NewStatic(),
 	}
 
-	return New(dataStorage, nil, nil, nil, nil, nil)
+	return New(dataStorage, nil, nil, nil, nil, nil, nil)
 }
 
 // CreateRegistry with IsDefault=false never touches the transaction manager -
@@ -113,7 +113,7 @@ func newLocalStorageRegistryService(t *testing.T) *VervService {
 
 	dataStorage := local_storage.New(nil, nil, config.Config{})
 
-	return New(dataStorage, nil, nil, nil, nil, nil)
+	return New(dataStorage, nil, nil, nil, nil, nil, nil)
 }
 
 // TestVervService_CreateRegistry_DefaultAgainstLocalStorage reproduces the

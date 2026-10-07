@@ -31,6 +31,14 @@ func (d *dockerServiceDiscovery) UpsertEndpoints(
 	return &makosh_be.UpsertEndpoints_Response{}, nil
 }
 
+func (d *dockerServiceDiscovery) DeleteEndpoints(
+	_ context.Context,
+	_ *makosh_be.DeleteEndpoints_Request,
+	_ ...grpc.CallOption,
+) (*makosh_be.DeleteEndpoints_Response, error) {
+	return &makosh_be.DeleteEndpoints_Response{}, nil
+}
+
 func (d *dockerServiceDiscovery) ListEndpoints(
 	ctx context.Context,
 	req *makosh_be.ListEndpoints_Request,

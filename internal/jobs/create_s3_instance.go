@@ -93,6 +93,7 @@ type createS3InstanceHandler struct {
 	configResolver service.ServiceConfigResolver
 	jobsEngine     Engine
 	runtimes       container_runtime.RuntimeResolver
+	addressBook    service.AddressBook
 }
 
 func NewCreateS3InstanceHandler(
@@ -103,6 +104,7 @@ func NewCreateS3InstanceHandler(
 	configResolver service.ServiceConfigResolver,
 	jobsEngine Engine,
 	runtimes container_runtime.RuntimeResolver,
+	addressBook service.AddressBook,
 ) TaskHandler {
 	return &createS3InstanceHandler{
 		nodeClients:    nodeClients,
@@ -112,6 +114,7 @@ func NewCreateS3InstanceHandler(
 		configResolver: configResolver,
 		jobsEngine:     jobsEngine,
 		runtimes:       runtimes,
+		addressBook:    addressBook,
 	}
 }
 
@@ -180,6 +183,13 @@ func (h *createS3InstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			NamedJob{Name: stepWaitGarageWebUi, Job: waitWebUi},
 		)
 	}
+
+	syncJob := &syncAddressesJob{
+		addressBook: h.addressBook,
+		root:        staticRootService(domain.S3ServiceName(payload.GetRequest().GetName())),
+	}
+
+	namedJobs = append(namedJobs, NamedJob{Name: stepSyncAddresses, Job: syncJob})
 
 	return namedJobs
 }

@@ -21,10 +21,12 @@ import {
     GetVervonomiconRequest,
     DescriptorFile,
     ResourceReconciliation,
+    ResourceAddress as ProtoResourceAddress,
+    AddressScope,
 } from "@/app/api/velez"
 
 import {ApiService} from "@/processes/ApiService.ts"
-import type {ServiceAbout, ServiceMetrics, ServiceResource, ServiceGraphData, ServiceGraphNode, ServiceEnvironment, VervonomiconDocs, ResourceReconciliationStatus} from "@/model/service_page/ServicePageModel"
+import type {ServiceAbout, ServiceMetrics, ServiceResource, ResourceAddress, ServiceGraphData, ServiceGraphNode, ServiceEnvironment, VervonomiconDocs, ResourceReconciliationStatus} from "@/model/service_page/ServicePageModel"
 import {useEnvironmentStore} from "@/app/hooks/environment/Environment.ts"
 import {mapResourceConnectionStatus} from "@/processes/vervonomicon.ts"
 import {toServiceSidecars} from "@/processes/mappings/serviceSidecars"
@@ -113,6 +115,27 @@ function mapResourceStatus(status?: string): ServiceResource['status'] {
     }
 }
 
+function toResourceAddress(a: ProtoResourceAddress): ResourceAddress | undefined {
+    if (!a.port) {
+        return undefined
+    }
+    switch (a.scope) {
+        case AddressScope.ADDRESS_SCOPE_DOCKER:
+            return {host: a.host ?? '', port: a.port, scope: 'docker'}
+        case AddressScope.ADDRESS_SCOPE_VCN:
+            return {host: a.host ?? '', port: a.port, scope: 'vcn'}
+        default:
+            return undefined
+    }
+}
+
+function toResourceAddresses(addresses?: ProtoResourceAddress[]): ResourceAddress[] {
+    return (addresses ?? []).flatMap(function mapAddress(a) {
+        const address = toResourceAddress(a)
+        return address ? [address] : []
+    })
+}
+
 function toServiceResource(r: BoundResource): ServiceResource {
     const type = r.resourceType ?? ''
     const meta = getResourceMeta(type)
@@ -125,6 +148,7 @@ function toServiceResource(r: BoundResource): ServiceResource {
         reconciliation: 'unknown',
         webUiPort: r.webUiPort,
         webUiHost: r.webUiHost,
+        addresses: toResourceAddresses(r.addresses),
     }
 }
 

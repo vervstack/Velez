@@ -19,10 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	SettingsAPI_GetSettings_FullMethodName        = "/velez_api.SettingsAPI/GetSettings"
-	SettingsAPI_UpdateSettings_FullMethodName     = "/velez_api.SettingsAPI/UpdateSettings"
-	SettingsAPI_GetSysboxStatus_FullMethodName    = "/velez_api.SettingsAPI/GetSysboxStatus"
-	SettingsAPI_RunSysboxSmokeTest_FullMethodName = "/velez_api.SettingsAPI/RunSysboxSmokeTest"
+	SettingsAPI_GetSettings_FullMethodName               = "/velez_api.SettingsAPI/GetSettings"
+	SettingsAPI_UpdateSettings_FullMethodName            = "/velez_api.SettingsAPI/UpdateSettings"
+	SettingsAPI_RebuildAddresses_FullMethodName          = "/velez_api.SettingsAPI/RebuildAddresses"
+	SettingsAPI_GetAddressesRebuildStatus_FullMethodName = "/velez_api.SettingsAPI/GetAddressesRebuildStatus"
+	SettingsAPI_GetSysboxStatus_FullMethodName           = "/velez_api.SettingsAPI/GetSysboxStatus"
+	SettingsAPI_RunSysboxSmokeTest_FullMethodName        = "/velez_api.SettingsAPI/RunSysboxSmokeTest"
 )
 
 // SettingsAPIClient is the client API for SettingsAPI service.
@@ -33,6 +35,8 @@ const (
 type SettingsAPIClient interface {
 	GetSettings(ctx context.Context, in *GetSettings_Request, opts ...grpc.CallOption) (*GetSettings_Response, error)
 	UpdateSettings(ctx context.Context, in *UpdateSettings_Request, opts ...grpc.CallOption) (*UpdateSettings_Response, error)
+	RebuildAddresses(ctx context.Context, in *RebuildAddresses_Request, opts ...grpc.CallOption) (*RebuildAddresses_Response, error)
+	GetAddressesRebuildStatus(ctx context.Context, in *GetAddressesRebuildStatus_Request, opts ...grpc.CallOption) (*GetAddressesRebuildStatus_Response, error)
 	GetSysboxStatus(ctx context.Context, in *GetSysboxStatus_Request, opts ...grpc.CallOption) (*GetSysboxStatus_Response, error)
 	RunSysboxSmokeTest(ctx context.Context, in *RunSysboxSmokeTest_Request, opts ...grpc.CallOption) (*RunSysboxSmokeTest_Response, error)
 }
@@ -59,6 +63,26 @@ func (c *settingsAPIClient) UpdateSettings(ctx context.Context, in *UpdateSettin
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UpdateSettings_Response)
 	err := c.cc.Invoke(ctx, SettingsAPI_UpdateSettings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *settingsAPIClient) RebuildAddresses(ctx context.Context, in *RebuildAddresses_Request, opts ...grpc.CallOption) (*RebuildAddresses_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RebuildAddresses_Response)
+	err := c.cc.Invoke(ctx, SettingsAPI_RebuildAddresses_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *settingsAPIClient) GetAddressesRebuildStatus(ctx context.Context, in *GetAddressesRebuildStatus_Request, opts ...grpc.CallOption) (*GetAddressesRebuildStatus_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAddressesRebuildStatus_Response)
+	err := c.cc.Invoke(ctx, SettingsAPI_GetAddressesRebuildStatus_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -93,6 +117,8 @@ func (c *settingsAPIClient) RunSysboxSmokeTest(ctx context.Context, in *RunSysbo
 type SettingsAPIServer interface {
 	GetSettings(context.Context, *GetSettings_Request) (*GetSettings_Response, error)
 	UpdateSettings(context.Context, *UpdateSettings_Request) (*UpdateSettings_Response, error)
+	RebuildAddresses(context.Context, *RebuildAddresses_Request) (*RebuildAddresses_Response, error)
+	GetAddressesRebuildStatus(context.Context, *GetAddressesRebuildStatus_Request) (*GetAddressesRebuildStatus_Response, error)
 	GetSysboxStatus(context.Context, *GetSysboxStatus_Request) (*GetSysboxStatus_Response, error)
 	RunSysboxSmokeTest(context.Context, *RunSysboxSmokeTest_Request) (*RunSysboxSmokeTest_Response, error)
 	mustEmbedUnimplementedSettingsAPIServer()
@@ -110,6 +136,12 @@ func (UnimplementedSettingsAPIServer) GetSettings(context.Context, *GetSettings_
 }
 func (UnimplementedSettingsAPIServer) UpdateSettings(context.Context, *UpdateSettings_Request) (*UpdateSettings_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateSettings not implemented")
+}
+func (UnimplementedSettingsAPIServer) RebuildAddresses(context.Context, *RebuildAddresses_Request) (*RebuildAddresses_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method RebuildAddresses not implemented")
+}
+func (UnimplementedSettingsAPIServer) GetAddressesRebuildStatus(context.Context, *GetAddressesRebuildStatus_Request) (*GetAddressesRebuildStatus_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetAddressesRebuildStatus not implemented")
 }
 func (UnimplementedSettingsAPIServer) GetSysboxStatus(context.Context, *GetSysboxStatus_Request) (*GetSysboxStatus_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetSysboxStatus not implemented")
@@ -174,6 +206,42 @@ func _SettingsAPI_UpdateSettings_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SettingsAPI_RebuildAddresses_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RebuildAddresses_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SettingsAPIServer).RebuildAddresses(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SettingsAPI_RebuildAddresses_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SettingsAPIServer).RebuildAddresses(ctx, req.(*RebuildAddresses_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SettingsAPI_GetAddressesRebuildStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAddressesRebuildStatus_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SettingsAPIServer).GetAddressesRebuildStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SettingsAPI_GetAddressesRebuildStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SettingsAPIServer).GetAddressesRebuildStatus(ctx, req.(*GetAddressesRebuildStatus_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _SettingsAPI_GetSysboxStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetSysboxStatus_Request)
 	if err := dec(in); err != nil {
@@ -224,6 +292,14 @@ var SettingsAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateSettings",
 			Handler:    _SettingsAPI_UpdateSettings_Handler,
+		},
+		{
+			MethodName: "RebuildAddresses",
+			Handler:    _SettingsAPI_RebuildAddresses_Handler,
+		},
+		{
+			MethodName: "GetAddressesRebuildStatus",
+			Handler:    _SettingsAPI_GetAddressesRebuildStatus_Handler,
 		},
 		{
 			MethodName: "GetSysboxStatus",

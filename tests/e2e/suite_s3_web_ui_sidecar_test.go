@@ -64,6 +64,8 @@ func (s *S3InstanceSuite) Test_S3Instance_LegacyWebUiStillWorks() {
 	createS3Instance(t, env, instanceName, true)
 
 	convertToLegacyWebUiLayout(t, dockerClient, instanceName)
+	// out-of-band docker changes are not synced into addresses
+	rebuildAddresses(t, env)
 
 	legacyPort := publishedHostPort(t, dockerClient, domain.S3WebUiServiceName(instanceName), domain.S3WebUiContainerPort)
 
@@ -331,8 +333,8 @@ func waitForWebUiResource(t *testing.T, env *TestEnvironment, serviceName string
 	return found
 }
 
-// requireWebUiHostMatchesCredentials: a resource host is only reported for a
-// remote environment, where it is the very host the credentials url uses.
+// requireWebUiHostMatchesCredentials: a resource host is reported whenever the
+// docker daemon is tcp/ssh, and its host is then the credentials url host.
 func requireWebUiHostMatchesCredentials(
 	t *testing.T, resource *velez_api.BoundResource, creds *velez_api.GetS3InstanceCredentials_Response,
 ) {

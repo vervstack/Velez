@@ -115,3 +115,11 @@ func (d disabledServiceDiscovery) UpsertEndpoints(
 ) (*makosh_be.UpsertEndpoints_Response, error) {
 	return nil, user_errors.ErrServiceIsDisabled
 }
+
+func (d disabledServiceDiscovery) DeleteEndpoints(
+	_ context.Context,
+	_ *makosh_be.DeleteEndpoints_Request,
+	_ ...grpc.CallOption,
+) (*makosh_be.DeleteEndpoints_Response, error) {
+	return nil, user_errors.ErrServiceIsDisabled
+}

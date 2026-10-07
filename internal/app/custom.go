@@ -174,21 +174,23 @@ func (c *Custom) Init(a *App) (err error) {
 
 	registry := jobs.NewRegistry()
 	registry.Register(jobs.NewCreateSmerdHandler(
-		c.NodeClients, c.Services.ConfigurationService(), runtimeResolver))
+		c.NodeClients, c.Services.ConfigurationService(), runtimeResolver, c.Services.AddressBook()))
 	registry.Register(jobs.NewCreateServiceHandler(c.ClusterClients.StateManager()))
 	registry.Register(jobs.NewAssembleConfigHandler(c.NodeClients, runtimeResolver))
 	registry.Register(jobs.NewCopyToVolumeHandler(c.NodeClients, runtimeResolver))
 	registry.Register(jobs.NewConnectServiceToVpnHandler(
-		c.NodeClients, c.ClusterClients.Vpn(), c.ClusterClients.ServiceDiscovery(), runtimeResolver))
+		c.NodeClients, c.ClusterClients.Vpn(), c.ClusterClients.ServiceDiscovery(), runtimeResolver,
+		c.Services.AddressBook()))
 	registry.Register(jobs.NewEnableStatefullHandler(
 		c.NodeClients, c.ClusterClients.StateManager(), c.Services.StorageContainer(), a.Cfg, runtimeResolver,
 		c.Services.Secrets()))
 	registry.Register(jobs.NewUpgradeSmerdHandler(
 		c.NodeClients, c.Services.SmerdManager(), c.Services.ConfigurationService(),
-		runtimeResolver))
-	registry.Register(jobs.NewDropSmerdHandler(runtimeResolver))
+		runtimeResolver, c.Services.AddressBook()))
+	registry.Register(jobs.NewDropSmerdHandler(runtimeResolver, c.Services.AddressBook()))
 	registry.Register(jobs.NewRegisterContainerHandler(
-		c.ClusterClients.StateManager(), c.JobsEngine, runtimeResolver, c.Services.Secrets()))
+		c.ClusterClients.StateManager(), c.JobsEngine, runtimeResolver, c.Services.Secrets(),
+		c.Services.AddressBook()))
 	registry.Register(jobs.NewCreateRegistryInstanceHandler(
 		c.NodeClients, runtimeResolver, c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(),
 		c.JobsEngine, c.Services.ConfigResolver()))
@@ -200,11 +202,18 @@ func (c *Custom) Init(a *App) (err error) {
 		runtimeResolver))
 	registry.Register(jobs.NewCreateS3InstanceHandler(
 		c.NodeClients, c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(),
-		c.Services.ConfigResolver(), c.JobsEngine, runtimeResolver))
+		c.Services.ConfigResolver(), c.JobsEngine, runtimeResolver, c.Services.AddressBook()))
 	registry.Register(jobs.NewReregisterRunnerHandler(
 		c.ClusterClients.StateManager(), c.Services.Secrets(), runtimeResolver))
 
 	c.JobsEngine.SetRegistry(registry)
+
+	if !a.Cfg.Environment.MakoshIsEnabled {
+		rebuildErr := c.Services.AddressBook().Rebuild(a.Ctx)
+		if rebuildErr != nil {
+			log.Ctx(a.Ctx).Warn().Err(rebuildErr).Msg("error rebuilding addresses")
+		}
+	}
 
 	err = c.InitApiServer(a)
 	if err != nil {

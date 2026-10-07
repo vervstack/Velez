@@ -17,6 +17,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/patterns"
+	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
@@ -63,6 +64,7 @@ type connectServiceToVpnHandler struct {
 	vpnClient        cluster_clients.VervClosedNetworkClient
 	serviceDiscovery cluster_clients.ServiceDiscovery
 	runtimes         container_runtime.RuntimeResolver
+	addressBook      service.AddressBook
 }
 
 func NewConnectServiceToVpnHandler(
@@ -70,12 +72,14 @@ func NewConnectServiceToVpnHandler(
 	vpnClient cluster_clients.VervClosedNetworkClient,
 	serviceDiscovery cluster_clients.ServiceDiscovery,
 	runtimes container_runtime.RuntimeResolver,
+	addressBook service.AddressBook,
 ) TaskHandler {
 	return &connectServiceToVpnHandler{
 		nodeClients:      nodeClients,
 		vpnClient:        vpnClient,
 		serviceDiscovery: serviceDiscovery,
 		runtimes:         runtimes,
+		addressBook:      addressBook,
 	}
 }
 
@@ -166,6 +170,13 @@ func (h *connectServiceToVpnHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 				sd:          h.serviceDiscovery,
 				serviceName: serviceName,
 				hostname:    hostname,
+			},
+		},
+		{
+			Name: stepSyncAddresses,
+			Job: &syncAddressesJob{
+				addressBook: h.addressBook,
+				root:        staticRootService(serviceName),
 			},
 		},
 	}

@@ -658,7 +658,12 @@ func (f *fakeContainerRuntime) IsContainerRunning(_ context.Context, _ string) (
 func (f *fakeContainerRuntime) Inspect(
 	ctx context.Context, identifier string,
 ) (container.InspectResponse, bool, error) {
-	info, err := f.docker.Client().ContainerInspect(ctx, identifier)
+	api := f.docker.Client()
+	if api == nil {
+		return container.InspectResponse{}, false, nil
+	}
+
+	info, err := api.ContainerInspect(ctx, identifier)
 	if err != nil {
 		//nolint:nilerr // mirrors labelBasedRuntime.Inspect's contract: not-found is found=false, err=nil
 		return container.InspectResponse{}, false, nil
@@ -1273,6 +1278,10 @@ func (f *fakeVpnClient) ListNamespaces(_ context.Context) ([]domain.VcnNamespace
 	return nil, nil
 }
 
+func (f *fakeVpnClient) ListNodes(_ context.Context) ([]domain.VcnNode, error) {
+	return nil, nil
+}
+
 func (f *fakeVpnClient) DeleteNamespace(_ context.Context, _ string) error {
 	return nil
 }
@@ -1319,6 +1328,12 @@ func (f *fakeServiceDiscovery) ListEndpoints(
 	_ context.Context, _ *makosh_be.ListEndpoints_Request, _ ...grpc.CallOption,
 ) (*makosh_be.ListEndpoints_Response, error) {
 	return &makosh_be.ListEndpoints_Response{}, nil
+}
+
+func (f *fakeServiceDiscovery) DeleteEndpoints(
+	_ context.Context, _ *makosh_be.DeleteEndpoints_Request, _ ...grpc.CallOption,
+) (*makosh_be.DeleteEndpoints_Response, error) {
+	return &makosh_be.DeleteEndpoints_Response{}, nil
 }
 
 func (f *fakeServiceDiscovery) UpsertEndpoints(
@@ -1467,5 +1482,47 @@ func (f *fakeConfigurationService) UnsubscribeFromChanges(_ ...string) error {
 }
 
 func (f *fakeConfigurationService) GetUpdates() <-chan domain.ConfigurationPatch {
+	return nil
+}
+
+// fakeAddressBook is a service.AddressBook that records Sync calls and returns
+// syncErr from them; every other method is a no-op.
+type fakeAddressBook struct {
+	mu sync.Mutex
+
+	syncErr        error
+	syncCalledWith []string
+}
+
+func newFakeAddressBook() *fakeAddressBook {
+	return &fakeAddressBook{}
+}
+
+func (f *fakeAddressBook) Addresses(_ context.Context, _, _ string) ([]domain.ServiceAddress, error) {
+	return nil, nil
+}
+
+func (f *fakeAddressBook) Rebuild(_ context.Context) error {
+	return nil
+}
+
+func (f *fakeAddressBook) RebuildAsync(_ context.Context) error {
+	return nil
+}
+
+func (f *fakeAddressBook) RebuildStatus() domain.AddressRebuildStatus {
+	return domain.AddressRebuildStatus{}
+}
+
+func (f *fakeAddressBook) Sync(_ context.Context, serviceName string) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	f.syncCalledWith = append(f.syncCalledWith, serviceName)
+
+	return f.syncErr
+}
+
+func (f *fakeAddressBook) Drop(_ context.Context, _ string) error {
 	return nil
 }

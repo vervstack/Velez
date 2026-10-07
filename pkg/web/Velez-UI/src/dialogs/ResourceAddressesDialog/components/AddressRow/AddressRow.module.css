@@ -1,0 +1,47 @@
+.AddressRowContainer {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 0.75rem;
+    border: 0.0625rem solid var(--accent-bg-color);
+    border-radius: var(--border-radius);
+    background: var(--accent-bg-color);
+
+    & .StatusDot {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: block;
+        transition: background 0.2s ease;
+
+        &.healthy {
+            background: var(--ping-health);
+        }
+
+        &.unhealthy {
+            background: var(--ping-unknown);
+        }
+
+        &.unknown {
+            background: var(--fg-dim);
+        }
+    }
+
+    & .Url {
+        flex: 1;
+        min-width: 0;
+        font-size: 0.875rem;
+        color: var(--info-color);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    & .ScopeLabel {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: var(--fg-dim);
+        flex-shrink: 0;
+    }
+}

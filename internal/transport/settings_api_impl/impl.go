@@ -19,6 +19,7 @@ type Impl struct {
 	velez_api.UnimplementedSettingsAPIServer
 
 	settingsService service.SettingsService
+	addressBook     service.AddressBook
 }
 
 func New(srv service.Services) *Impl {
@@ -26,6 +27,7 @@ func New(srv service.Services) *Impl {
 		UnimplementedSettingsAPIServer: velez_api.UnimplementedSettingsAPIServer{},
 
 		settingsService: srv.Settings(),
+		addressBook:     srv.AddressBook(),
 	}
 }
 

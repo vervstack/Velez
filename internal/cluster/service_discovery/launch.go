@@ -11,7 +11,6 @@ import (
 	rtb "go.redsock.ru/toolbox"
 	"go.redsock.ru/toolbox/closer"
 	"go.redsock.ru/toolbox/keep_alive"
-	version "go.vervstack.ru/makosh/config"
 
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients"
 	"go.vervstack.ru/Velez/internal/clients/cluster_clients/makosh"
@@ -39,7 +38,7 @@ var image string
 
 //nolint:gochecknoinits
 func init() {
-	image = defaultImageBase + ":" + version.GetVersion()
+	image = defaultImageBase + ":" + makosh.ModuleVersion()
 }
 
 func SetupMakosh(

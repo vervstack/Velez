@@ -28,12 +28,13 @@ const (
 )
 
 type instanceRef struct {
-	name        string
-	environment string
-	remoteHost  string
-	runtime     container_runtime.ContainerRuntime
-	instance    container.Summary
-	webUi       *container.Summary
+	name          string
+	environment   string
+	remoteHost    string
+	publishedHost string
+	runtime       container_runtime.ContainerRuntime
+	instance      container.Summary
+	webUi         *container.Summary
 }
 
 // isWebUiSidecar tells the sidecar layout (web ui shares the garage
@@ -121,11 +122,12 @@ func (s *Service) discoverInEnvironment(
 		}
 
 		ref := instanceRef{
-			name:        name,
-			environment: environment.Name,
-			remoteHost:  environment.RemoteHost(s.docker.Host()),
-			runtime:     runtime,
-			instance:    summary,
+			name:          name,
+			environment:   environment.Name,
+			remoteHost:    environment.RemoteHost(s.docker.Host()),
+			publishedHost: environment.PublishedHost(s.docker.Host()),
+			runtime:       runtime,
+			instance:      summary,
 		}
 
 		webUi, hasWebUi := webUis[name]
@@ -181,6 +183,7 @@ func (s *Service) describe(ctx context.Context, ref instanceRef) domain.S3Instan
 		ReplicationFactor: defaultReplicationFactor,
 		Environment:       ref.environment,
 		RemoteHost:        ref.remoteHost,
+		PublishedHost:     ref.publishedHost,
 		Status:            ref.instance.State,
 		CreatedAt:         time.Unix(ref.instance.Created, 0),
 	}
@@ -247,7 +250,11 @@ func internalEndpoint(host string, port int) string {
 	return httpScheme + net.JoinHostPort(host, strconv.Itoa(port))
 }
 
-func webUiEndpoint(webUiServiceName, remoteHost string, publishedPort uint32) string {
+func webUiEndpoint(webUiServiceName, publishedHost, remoteHost string, publishedPort uint32) string {
+	if publishedHost != "" {
+		return publishedEndpoint(publishedHost, publishedPort)
+	}
+
 	if remoteHost != "" {
 		return publishedEndpoint(remoteHost, publishedPort)
 	}

@@ -23,6 +23,19 @@ service SettingsAPI {
     };
   }
 
+  rpc RebuildAddresses(RebuildAddresses.Request) returns (RebuildAddresses.Response) {
+    option (google.api.http) = {
+      post: "/api/settings/addresses/rebuild"
+      body: "*"
+    };
+  }
+
+  rpc GetAddressesRebuildStatus(GetAddressesRebuildStatus.Request) returns (GetAddressesRebuildStatus.Response) {
+    option (google.api.http) = {
+      get: "/api/settings/addresses/rebuild/status"
+    };
+  }
+
   rpc GetSysboxStatus(GetSysboxStatus.Request) returns (GetSysboxStatus.Response) {
     option (google.api.http) = {
       get: "/api/settings/sysbox_status"
@@ -78,5 +91,20 @@ message RunSysboxSmokeTest {
   message Response {
     bool is_passed = 1;
     optional string failure = 2;
+  }
+}
+
+message RebuildAddresses {
+  message Request {}
+  message Response {}
+}
+
+message GetAddressesRebuildStatus {
+  message Request {}
+  message Response {
+    bool is_running = 1;
+    uint32 total_steps = 2;
+    uint32 done_steps = 3;
+    optional string last_error = 4;
   }
 }

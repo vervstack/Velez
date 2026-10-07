@@ -30,7 +30,7 @@ require (
 	go.redsock.ru/protoc-gen-npm v0.0.12
 	go.redsock.ru/rerrors v0.0.8
 	go.redsock.ru/toolbox v0.0.13
-	go.vervstack.ru/makosh v0.0.16
+	go.vervstack.ru/makosh v0.0.17
 	go.vervstack.ru/matreshka v1.0.102
 	golang.org/x/crypto v0.46.0
 	golang.org/x/sync v0.19.0

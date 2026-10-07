@@ -102,7 +102,8 @@ type upgradeSmerdHandler struct {
 	// client-construction time. Upgrade reuses create_smerd's
 	// createContainerJob verbatim, so it necessarily shares its runtime
 	// plumbing too; see docs/container_runtimes.
-	runtimes container_runtime.RuntimeResolver
+	runtimes    container_runtime.RuntimeResolver
+	addressBook service.AddressBook
 }
 
 func NewUpgradeSmerdHandler(
@@ -110,12 +111,14 @@ func NewUpgradeSmerdHandler(
 	containerService service.ContainerService,
 	configService service.ConfigurationService,
 	runtimes container_runtime.RuntimeResolver,
+	addressBook service.AddressBook,
 ) TaskHandler {
 	return &upgradeSmerdHandler{
 		nodeClients:      nodeClients,
 		containerService: containerService,
 		configService:    configService,
 		runtimes:         runtimes,
+		addressBook:      addressBook,
 	}
 }
 
@@ -285,6 +288,10 @@ func (h *upgradeSmerdHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		{
 			Name: stepRecreateSidecars,
 			Job:  newRecreateSidecarsJob(h.runtimes, upgradeSidecarGroup{payload: payload}),
+		},
+		{
+			Name: stepSyncAddresses,
+			Job:  &syncAddressesJob{addressBook: h.addressBook, root: smerdRootService{req: payload}},
 		},
 	}
 

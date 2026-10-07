@@ -18,6 +18,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/secrets"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
@@ -79,6 +80,7 @@ type registerContainerHandler struct {
 	jobsEngine  Engine
 	runtimes    container_runtime.RuntimeResolver
 	secrets     secrets.Store
+	addressBook service.AddressBook
 }
 
 func NewRegisterContainerHandler(
@@ -86,12 +88,14 @@ func NewRegisterContainerHandler(
 	jobsEngine Engine,
 	runtimes container_runtime.RuntimeResolver,
 	secretsStore secrets.Store,
+	addressBook service.AddressBook,
 ) TaskHandler {
 	return &registerContainerHandler{
 		dataStorage: dataStorage,
 		jobsEngine:  jobsEngine,
 		runtimes:    runtimes,
 		secrets:     secretsStore,
+		addressBook: addressBook,
 	}
 }
 
@@ -230,6 +234,11 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 
 	jobs = append(jobs, upsertJob)
 
+	syncJob := NamedJob{
+		Name: stepSyncAddresses,
+		Job:  &syncAddressesJob{addressBook: h.addressBook, root: staticRootService(payload.GetServiceName())},
+	}
+
 	if h.dataStorage.IsStatefull() {
 		bindJob := NamedJob{
 			Name: stepBindExistingContainer,
@@ -304,7 +313,7 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 			jobs = append(jobs, pgInstanceJob)
 		}
 
-		return jobs
+		return append(jobs, syncJob)
 	}
 
 	recreateJob := NamedJob{
@@ -328,7 +337,7 @@ func (h *registerContainerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 		Job:  newRecreateSidecarsJob(h.runtimes, payload),
 	}
 
-	return append(jobs, recreateJob, sidecarsJob)
+	return append(jobs, recreateJob, sidecarsJob, syncJob)
 }
 
 // registeredServiceLabels are the labels that link a container to its service.

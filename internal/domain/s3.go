@@ -12,6 +12,7 @@ type S3Instance struct {
 	Region            string
 	Environment       string
 	RemoteHost        string
+	PublishedHost     string
 	Status            string
 	CreatedAt         time.Time
 }

@@ -6,8 +6,13 @@ import (
 )
 
 var (
-	ErrNetworkNotFound = rerrors.NewUserError("network not found")
-	ErrNoSuchContainer = rerrors.NewUserError("no such container")
+	ErrNetworkNotFound = rerrors.NewUserError("network not found", codes.NotFound)
+	ErrNoSuchContainer = rerrors.NewUserError("no such container", codes.NotFound)
+
+	ErrNetworkNameEmpty     = rerrors.NewUserError("network name is required", codes.InvalidArgument)
+	ErrNetworkNotEmpty      = rerrors.NewUserError("network still has connected containers", codes.FailedPrecondition)
+	ErrNetworkNotManaged    = rerrors.NewUserError("network is not managed by velez", codes.FailedPrecondition)
+	ErrNetworkAlreadyExists = rerrors.NewUserError("network already exists", codes.AlreadyExists)
 
 	// ErrContainerFileNotFound is returned by ContainerRuntime.CopyFromContainer
 	// when the requested path yields no regular file.

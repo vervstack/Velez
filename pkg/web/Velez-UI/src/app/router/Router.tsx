@@ -21,6 +21,7 @@ import ContainerRegistryPage from "@/pages/container-registry/ContainerRegistryP
 import RunnersPage from "@/pages/runners/RunnersPage.tsx";
 import DindsPage from "@/pages/dinds/DindsPage.tsx";
 import S3Page from "@/pages/s3/S3Page.tsx";
+import NetworksPage from "@/pages/networks/NetworksPage.tsx";
 
 import {Routes, Arguments} from "@/app/router/Routes";
 
@@ -105,6 +106,11 @@ const router = createBrowserRouter([
             {
                 path: Routes.S3,
                 element: (<S3Page/>),
+            },
+
+            {
+                path: Routes.Networks,
+                element: (<NetworksPage/>)
             },
 
             {

@@ -17,6 +17,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/service_manager/container_manager"
 	"go.vervstack.ru/Velez/internal/service/service_manager/dinds"
 	"go.vervstack.ru/Velez/internal/service/service_manager/image_versions"
+	"go.vervstack.ru/Velez/internal/service/service_manager/network_manager"
 	"go.vervstack.ru/Velez/internal/service/service_manager/nodes_service"
 	"go.vervstack.ru/Velez/internal/service/service_manager/pgaas"
 	"go.vervstack.ru/Velez/internal/service/service_manager/plugins"
@@ -48,6 +49,7 @@ type ServiceManager struct {
 	settingsService          service.SettingsService
 	dindService              service.DindService
 	s3Service                service.S3Service
+	networkService           service.NetworkService
 	configResolver           service.ServiceConfigResolver
 }
 
@@ -118,6 +120,7 @@ func New(
 			clusterClients.StateManager(), vervServices, secretsStore, configResolver, jobsEngine, runtimeResolver,
 			nodeClients.Docker(),
 		),
+		networkService: network_manager.New(runtimeResolver, clusterClients.Vpn(), clusterClients.StateManager()),
 		configResolver: configResolver,
 	}
 
@@ -185,6 +188,10 @@ func (s *ServiceManager) Dinds() service.DindService {
 
 func (s *ServiceManager) S3() service.S3Service {
 	return s.s3Service
+}
+
+func (s *ServiceManager) Networks() service.NetworkService {
+	return s.networkService
 }
 
 func (s *ServiceManager) ConfigResolver() service.ServiceConfigResolver {

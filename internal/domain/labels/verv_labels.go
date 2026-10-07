@@ -120,6 +120,12 @@ const (
 	GitlabRunnerNamePrefix = "gitlab_runner_"
 	GithubRunnerNamePrefix = "github_runner_"
 
+	// NetworkManagedLabel marks a Docker network as created and managed by Velez
+	// (value: NetworkManagedLabelValue). Networks stamped with it are scoped to an
+	// environment via SuffixLabel; unlabelled networks are foreign.
+	NetworkManagedLabel      = "velez.network"
+	NetworkManagedLabelValue = "true"
+
 	// TagLabelPrefix - per docs/features/vervonomicon.md's "Mapping onto
 	// CreateSmerd.Request" table, each vervonomicon service.tags entry
 	// becomes a label "verv.tag.<tag>", mirroring the dotted velez.*

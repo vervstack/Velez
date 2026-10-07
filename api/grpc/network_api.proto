@@ -1,0 +1,165 @@
+syntax = "proto3";
+
+package velez_api;
+
+import "npm.proto";
+import "google/api/annotations.proto";
+
+option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
+option (npm_package) = "@vervstack/velez";
+
+service NetworkAPI {
+  rpc GetNetworkStatus(GetNetworkStatus.Request) returns (GetNetworkStatus.Response) {
+    option (google.api.http) = {
+      get: "/api/network/status"
+    };
+  };
+
+  rpc ListNetworks(ListNetworks.Request) returns (ListNetworks.Response) {
+    option (google.api.http) = {
+      post: "/api/network/list"
+      body: "*"
+    };
+  };
+
+  rpc GetNetwork(GetNetwork.Request) returns (GetNetwork.Response) {
+    option (google.api.http) = {
+      get: "/api/network/details/{id}"
+    };
+  };
+
+  rpc CreateNetwork(CreateNetwork.Request) returns (CreateNetwork.Response) {
+    option (google.api.http) = {
+      post: "/api/network/create"
+      body: "*"
+    };
+  };
+
+  rpc DeleteNetwork(DeleteNetwork.Request) returns (DeleteNetwork.Response) {
+    option (google.api.http) = {
+      post: "/api/network/delete"
+      body: "*"
+    };
+  };
+
+  rpc ConnectContainer(ConnectContainer.Request) returns (ConnectContainer.Response) {
+    option (google.api.http) = {
+      post: "/api/network/connect"
+      body: "*"
+    };
+  };
+
+  rpc DisconnectContainer(DisconnectContainer.Request) returns (DisconnectContainer.Response) {
+    option (google.api.http) = {
+      post: "/api/network/disconnect"
+      body: "*"
+    };
+  };
+}
+
+enum NetworkProvider {
+  NETWORK_PROVIDER_UNSPECIFIED = 0;
+  NETWORK_PROVIDER_DOCKER = 1;
+  NETWORK_PROVIDER_VCN = 2;
+}
+
+enum NetworkCapability {
+  NETWORK_CAPABILITY_UNSPECIFIED = 0;
+  NETWORK_CAPABILITY_CREATE = 1;
+  NETWORK_CAPABILITY_DELETE = 2;
+  NETWORK_CAPABILITY_ATTACH = 3;
+  NETWORK_CAPABILITY_RESTRICT = 4;
+}
+
+message NetworkMember {
+  string container_id = 1;
+  string container_name = 2;
+  repeated string aliases = 3;
+  optional string ip_address = 4;
+}
+
+message Network {
+  string id = 1;
+  string name = 2;
+  NetworkProvider provider = 3;
+  bool is_managed = 4;
+  bool is_internal = 5;
+  // true = container-to-container traffic allowed
+  bool is_icc_enabled = 6;
+  optional string subnet = 7;
+  repeated NetworkMember members = 8;
+  repeated NetworkCapability capabilities = 9;
+}
+
+message NetworkProviderInfo {
+  NetworkProvider provider = 1;
+  repeated NetworkCapability capabilities = 2;
+}
+
+message GetNetworkStatus {
+  message Request {}
+  message Response {
+    bool is_cluster_mode = 1;
+    bool is_vcn_connected = 2;
+    repeated NetworkProviderInfo providers = 3;
+  }
+}
+
+message ListNetworks {
+  message Request {
+    string environment = 1;
+    bool is_foreign_included = 2;
+  }
+  message Response {
+    repeated Network networks = 1;
+  }
+}
+
+message GetNetwork {
+  message Request {
+    string id = 1;
+    string environment = 2;
+  }
+  message Response {
+    Network network = 1;
+  }
+}
+
+message CreateNetwork {
+  message Request {
+    string name = 1;
+    string environment = 2;
+    bool is_internal = 3;
+    bool is_icc_enabled = 4;
+  }
+  message Response {
+    Network network = 1;
+  }
+}
+
+message DeleteNetwork {
+  message Request {
+    string id = 1;
+    string environment = 2;
+  }
+  message Response {}
+}
+
+message ConnectContainer {
+  message Request {
+    string network_id = 1;
+    string container_name = 2;
+    repeated string aliases = 3;
+    string environment = 4;
+  }
+  message Response {}
+}
+
+message DisconnectContainer {
+  message Request {
+    string network_id = 1;
+    string container_name = 2;
+    string environment = 3;
+  }
+  message Response {}
+}

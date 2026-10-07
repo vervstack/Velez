@@ -8,10 +8,12 @@ import (
 	"io"
 	"io/fs"
 	"path"
+	"sort"
 	"strings"
 
 	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
@@ -640,6 +642,226 @@ func asciiSymbolsOnly(in []byte) []byte {
 	}
 
 	return cleanBuff.Bytes()
+}
+
+func (r *dockerRuntime) ListNetworks(ctx context.Context, isForeignIncluded bool) ([]NetworkInfo, error) {
+	listOpts := network.ListOptions{}
+	inspectOpts := network.InspectOptions{}
+
+	summaries, err := r.cli.NetworkList(ctx, listOpts)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error listing networks")
+	}
+
+	infos := make([]NetworkInfo, 0, len(summaries))
+
+	for _, summary := range summaries {
+		state := classifyNetwork(summary, r.resolver)
+
+		isSkipped := state == networkStateOtherEnvironment ||
+			(state != networkStateManaged && !isForeignIncluded)
+		if isSkipped {
+			continue
+		}
+
+		inspected, inspectErr := r.cli.NetworkInspect(ctx, summary.ID, inspectOpts)
+		if inspectErr != nil {
+			if errdefs.IsNotFound(inspectErr) {
+				continue
+			}
+
+			return nil, rerrors.Wrap(inspectErr, "error inspecting network")
+		}
+
+		info := buildNetworkInfo(inspected, state, r.resolver)
+		r.fillMemberAliases(ctx, &info)
+
+		infos = append(infos, info)
+	}
+
+	sort.Slice(infos, func(i, j int) bool {
+		return infos[i].Name < infos[j].Name
+	})
+
+	return infos, nil
+}
+
+func (r *dockerRuntime) InspectNetwork(ctx context.Context, networkId string) (NetworkInfo, error) {
+	info, _, err := r.inspectScopedNetwork(ctx, networkId)
+	if err != nil {
+		return NetworkInfo{}, rerrors.Wrap(err)
+	}
+
+	return info, nil
+}
+
+func (r *dockerRuntime) CreateManagedNetwork(ctx context.Context, req CreateNetworkRequest) (NetworkInfo, error) {
+	dockerName := r.resolver.NetworkName(req.Name)
+
+	listOpts := network.ListOptions{
+		Filters: filters.NewArgs(filters.Arg("name", dockerName)),
+	}
+
+	existing, err := r.cli.NetworkList(ctx, listOpts)
+	if err != nil {
+		return NetworkInfo{}, rerrors.Wrap(err, "error listing networks")
+	}
+
+	for _, item := range existing {
+		if item.Name == dockerName {
+			return NetworkInfo{}, rerrors.Wrap(user_errors.ErrNetworkAlreadyExists)
+		}
+	}
+
+	networkLabels := map[string]string{labels.NetworkManagedLabel: labels.NetworkManagedLabelValue}
+	r.resolver.StampLabels(networkLabels)
+
+	opts := dockerutils.CreateNetworkOptions{
+		Labels:       networkLabels,
+		IsInternal:   req.IsInternal,
+		IsIccEnabled: req.IsIccEnabled,
+	}
+
+	id, err := dockerutils.CreateNetworkWithOptions(ctx, r.cli, dockerName, opts)
+	if err != nil {
+		return NetworkInfo{}, rerrors.Wrap(err, "error creating network")
+	}
+
+	info, _, err := r.inspectScopedNetwork(ctx, id)
+	if err != nil {
+		return NetworkInfo{}, rerrors.Wrap(err)
+	}
+
+	return info, nil
+}
+
+func (r *dockerRuntime) RemoveNetwork(ctx context.Context, networkId string) error {
+	info, state, err := r.inspectScopedNetwork(ctx, networkId)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	if state != networkStateManaged {
+		return rerrors.Wrap(user_errors.ErrNetworkNotManaged)
+	}
+
+	err = r.cli.NetworkRemove(ctx, info.Id)
+	if err != nil {
+		return rerrors.Wrap(err, "error removing network")
+	}
+
+	return nil
+}
+
+func (r *dockerRuntime) AttachContainer(ctx context.Context, req AttachContainerRequest) error {
+	resolvedId, info, err := r.resolveContainerAndNetwork(ctx, req.ContainerID, req.NetworkId)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	connectReq := dockerutils.ConnectToNetworkRequest{
+		NetworkName: info.DockerName,
+		ContId:      resolvedId,
+		Aliases:     req.Aliases,
+	}
+
+	err = dockerutils.ConnectToNetwork(ctx, r.cli, connectReq)
+	if err != nil {
+		return rerrors.Wrap(err, "error attaching container to network")
+	}
+
+	return nil
+}
+
+func (r *dockerRuntime) DetachContainer(ctx context.Context, containerId, networkId string) error {
+	resolvedId, info, err := r.resolveContainerAndNetwork(ctx, containerId, networkId)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	err = r.cli.NetworkDisconnect(ctx, info.Id, resolvedId, false)
+	if err != nil {
+		isAbsent := strings.Contains(err.Error(), docker.NoSuchContainerError) ||
+			strings.Contains(err.Error(), docker.NotConnectedToNetworkError)
+		if isAbsent {
+			return nil
+		}
+
+		return rerrors.Wrap(err, "error detaching container from network")
+	}
+
+	return nil
+}
+
+func (r *dockerRuntime) resolveContainerAndNetwork(
+	ctx context.Context,
+	containerIdentifier, networkId string,
+) (containerId string, info NetworkInfo, err error) {
+	containerId, found, err := r.resolveOwnedContainer(ctx, containerIdentifier)
+	if err != nil {
+		return "", NetworkInfo{}, rerrors.Wrap(err)
+	}
+
+	if !found {
+		return "", NetworkInfo{}, rerrors.Wrap(user_errors.ErrNoSuchContainer)
+	}
+
+	info, state, err := r.inspectScopedNetwork(ctx, networkId)
+	if err != nil {
+		return "", NetworkInfo{}, rerrors.Wrap(err)
+	}
+
+	if state == networkStateSystem {
+		return "", NetworkInfo{}, rerrors.Wrap(user_errors.ErrNetworkNotManaged)
+	}
+
+	return containerId, info, nil
+}
+
+// inspectScopedNetwork inspects a network and treats one that belongs to another environment as not found.
+func (r *dockerRuntime) inspectScopedNetwork(
+	ctx context.Context,
+	networkId string,
+) (NetworkInfo, networkState, error) {
+	inspectOpts := network.InspectOptions{}
+
+	inspected, err := r.cli.NetworkInspect(ctx, networkId, inspectOpts)
+	if err != nil {
+		if errdefs.IsNotFound(err) {
+			return NetworkInfo{}, networkStateForeign, rerrors.Wrap(user_errors.ErrNetworkNotFound)
+		}
+
+		return NetworkInfo{}, networkStateForeign, rerrors.Wrap(err, "error inspecting network")
+	}
+
+	state := classifyNetwork(inspected, r.resolver)
+	if state == networkStateOtherEnvironment {
+		return NetworkInfo{}, networkStateForeign, rerrors.Wrap(user_errors.ErrNetworkNotFound)
+	}
+
+	info := buildNetworkInfo(inspected, state, r.resolver)
+	r.fillMemberAliases(ctx, &info)
+
+	return info, state, nil
+}
+
+// fillMemberAliases is best effort: a member whose container cannot be inspected keeps no aliases.
+func (r *dockerRuntime) fillMemberAliases(ctx context.Context, info *NetworkInfo) {
+	for i := range info.Members {
+		member := &info.Members[i]
+
+		cont, err := r.cli.ContainerInspect(ctx, member.ContainerId)
+		if err != nil || cont.NetworkSettings == nil {
+			continue
+		}
+
+		endpoint := cont.NetworkSettings.Networks[info.DockerName]
+		if endpoint == nil {
+			continue
+		}
+
+		member.Aliases = filterAliases(endpoint.Aliases, member.ContainerId, cont.Name)
+	}
 }
 
 // resolveOwnedContainer inspects identifier - trying the resolver's scoped

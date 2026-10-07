@@ -6,6 +6,7 @@ export enum Routes {
     Smerd = "/smerd",
     Container = "/container",
     VCN = "/vcn",
+    Networks = "/networks",
     Search = "/search",
     NewVervService = '/new_verv_service',
     Service = '/service',

@@ -34,6 +34,10 @@ func (s *stateManager) IsStatefull() bool {
 	return (*l).IsStatefull()
 }
 
+func (s *stateManager) IsClusterMode() bool {
+	return s.IsStatefull()
+}
+
 func (s *stateManager) Nodes() storage.NodesStorage {
 	l := s.state.Load()
 	if l == nil {

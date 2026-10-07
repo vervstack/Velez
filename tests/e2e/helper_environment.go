@@ -374,6 +374,10 @@ func (e *TestEnvironment) VpnClient() velez_api.VcnApiClient {
 	return velez_api.NewVcnApiClient(e.grpcConn)
 }
 
+func (e *TestEnvironment) NetworkClient() velez_api.NetworkAPIClient {
+	return velez_api.NewNetworkAPIClient(e.grpcConn)
+}
+
 func (e *TestEnvironment) ServiceApiClient() velez_api.ServiceApiClient {
 	return velez_api.NewServiceApiClient(e.grpcConn)
 }

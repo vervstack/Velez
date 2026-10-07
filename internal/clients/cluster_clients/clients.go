@@ -37,6 +37,7 @@ type VervClosedNetworkClient interface {
 
 type ClusterStateManagerContainer interface {
 	Set(state ClusterStateManager)
+	IsClusterMode() bool
 	ClusterStateManager
 }
 

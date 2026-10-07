@@ -79,6 +79,36 @@ type ConnectToNetworkRequest struct {
 	Aliases     []string
 }
 
+// NetworkMember is a container attached to a network.
+type NetworkMember struct {
+	ContainerId   string
+	ContainerName string
+	Aliases       []string
+	IpAddress     string
+}
+
+// NetworkInfo describes a Docker network. Name is the logical name with the
+// environment suffix stripped; DockerName is the real Docker network name.
+type NetworkInfo struct {
+	Id, Name, DockerName, Driver, Subnet          string
+	IsManaged, IsSystem, IsInternal, IsIccEnabled bool
+	Members                                       []NetworkMember
+}
+
+// CreateNetworkRequest describes a managed network to create. Name is logical.
+type CreateNetworkRequest struct {
+	Name                     string
+	IsInternal, IsIccEnabled bool
+}
+
+// AttachContainerRequest bundles what AttachContainer needs. ContainerID is
+// logical (uuid or logical/Docker name); NetworkId is a Docker network id.
+type AttachContainerRequest struct {
+	ContainerID string
+	NetworkId   string
+	Aliases     []string
+}
+
 // EnsureVolumeRequest describes a Docker named volume. DriverOpts of a local
 // volume backed by a host directory look like
 // {"type": "none", "o": "bind", "device": "/host/dir"}.
@@ -270,6 +300,32 @@ type ContainerRuntime interface {
 	// environment-scoped: volume names are not suffixed, same as the volume
 	// names container specs already carry. Implemented on commonRuntime.
 	EnsureVolume(ctx context.Context, req EnsureVolumeRequest) error
+
+	// ListNetworks lists networks scoped to this runtime's environment;
+	// isForeignIncluded also returns networks not managed by velez. Networks
+	// are addressed by Docker network id, never re-suffixed.
+	ListNetworks(ctx context.Context, isForeignIncluded bool) ([]NetworkInfo, error)
+
+	// InspectNetwork returns one network with its members, scoped to this
+	// runtime's environment. Addressed by Docker network id, never re-suffixed.
+	InspectNetwork(ctx context.Context, networkId string) (NetworkInfo, error)
+
+	// CreateManagedNetwork creates a velez-managed network in this runtime's
+	// environment. The returned network is addressed by Docker network id.
+	CreateManagedNetwork(ctx context.Context, req CreateNetworkRequest) (NetworkInfo, error)
+
+	// RemoveNetwork deletes a network scoped to this runtime's environment.
+	// Addressed by Docker network id, never re-suffixed.
+	RemoveNetwork(ctx context.Context, networkId string) error
+
+	// AttachContainer connects a container to a network, both scoped to this
+	// runtime's environment. Addressed by Docker network id, never re-suffixed.
+	AttachContainer(ctx context.Context, req AttachContainerRequest) error
+
+	// DetachContainer disconnects a container from a network, both scoped to
+	// this runtime's environment. Addressed by Docker network id, never
+	// re-suffixed.
+	DetachContainer(ctx context.Context, containerId, networkId string) error
 }
 
 // RuntimeResolver hands out the ContainerRuntime serving a given environment.

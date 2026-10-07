@@ -32,6 +32,7 @@ type Services interface {
 	Settings() SettingsService
 	Dinds() DindService
 	S3() S3Service
+	Networks() NetworkService
 	ConfigResolver() ServiceConfigResolver
 }
 
@@ -47,6 +48,22 @@ type ContainerService interface {
 
 	ConnectToNetwork(ctx context.Context, req domain.Connection) error
 	DisconnectFromNetwork(ctx context.Context, req domain.Connection) error
+}
+
+type NetworkService interface {
+	GetStatus(
+		ctx context.Context, req *velez_api.GetNetworkStatus_Request,
+	) (*velez_api.GetNetworkStatus_Response, error)
+	ListNetworks(ctx context.Context, req *velez_api.ListNetworks_Request) (*velez_api.ListNetworks_Response, error)
+	GetNetwork(ctx context.Context, req *velez_api.GetNetwork_Request) (*velez_api.GetNetwork_Response, error)
+	CreateNetwork(ctx context.Context, req *velez_api.CreateNetwork_Request) (*velez_api.CreateNetwork_Response, error)
+	DeleteNetwork(ctx context.Context, req *velez_api.DeleteNetwork_Request) (*velez_api.DeleteNetwork_Response, error)
+	ConnectContainer(
+		ctx context.Context, req *velez_api.ConnectContainer_Request,
+	) (*velez_api.ConnectContainer_Response, error)
+	DisconnectContainer(
+		ctx context.Context, req *velez_api.DisconnectContainer_Request,
+	) (*velez_api.DisconnectContainer_Response, error)
 }
 
 type ImageVersionsService interface {

@@ -6,38 +6,78 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"go.redsock.ru/rerrors"
+
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/list_request"
+	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
+const (
+	bridgeIccOption = "com.docker.network.bridge.enable_icc"
+)
+
+// CreateNetwork ensures a Velez-managed bridge network exists. No-op if a network with that exact name exists.
 func CreateNetwork(ctx context.Context, d client.APIClient, networkName string) error {
+	opts := CreateNetworkOptions{
+		Labels:       map[string]string{labels.NetworkManagedLabel: labels.NetworkManagedLabelValue},
+		IsIccEnabled: true,
+	}
+
+	_, err := CreateNetworkWithOptions(ctx, d, networkName, opts)
+	if err != nil {
+		return rerrors.Wrap(err, "error creating network")
+	}
+
+	return nil
+}
+
+type CreateNetworkOptions struct {
+	Labels       map[string]string
+	IsInternal   bool
+	IsIccEnabled bool
+}
+
+// CreateNetworkWithOptions creates a bridge network and returns its id. If a network with that exact name
+// already exists it is left untouched and its id is returned.
+func CreateNetworkWithOptions(
+	ctx context.Context,
+	d client.APIClient,
+	networkName string,
+	opts CreateNetworkOptions,
+) (id string, err error) {
 	f := list_request.New()
 	f.Name(networkName)
 
-	req := network.ListOptions{
+	listOpts := network.ListOptions{
 		Filters: f.Args(),
 	}
 
-	net, err := d.NetworkList(ctx, req)
+	existing, err := d.NetworkList(ctx, listOpts)
 	if err != nil {
-		return rerrors.Wrap(err, "error inspecting network for service")
+		return "", rerrors.Wrap(err, "error inspecting network for service")
 	}
 
-	for _, item := range net {
+	for _, item := range existing {
 		if item.Name == networkName {
-			return nil
+			return item.ID, nil
 		}
 	}
 
 	createOps := network.CreateOptions{
-		Driver: "bridge",
+		Driver:   "bridge",
+		Internal: opts.IsInternal,
+		Labels:   opts.Labels,
 	}
 
-	_, err = d.NetworkCreate(ctx, networkName, createOps)
+	if !opts.IsIccEnabled {
+		createOps.Options = map[string]string{bridgeIccOption: "false"}
+	}
+
+	resp, err := d.NetworkCreate(ctx, networkName, createOps)
 	if err != nil {
-		return rerrors.Wrap(err, "error creating network for service")
+		return "", rerrors.Wrap(err, "error creating network for service")
 	}
 
-	return nil
+	return resp.ID, nil
 }
 
 type ConnectToNetworkRequest struct {

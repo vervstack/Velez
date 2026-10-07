@@ -1,0 +1,490 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "network_api.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "NetworkAPI"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/network/connect": {
+      "post": {
+        "operationId": "NetworkAPI_ConnectContainer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiConnectContainerResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiConnectContainerRequest"
+            }
+          }
+        ],
+        "tags": [
+          "NetworkAPI"
+        ]
+      }
+    },
+    "/api/network/create": {
+      "post": {
+        "operationId": "NetworkAPI_CreateNetwork",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateNetworkResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateNetworkRequest"
+            }
+          }
+        ],
+        "tags": [
+          "NetworkAPI"
+        ]
+      }
+    },
+    "/api/network/delete": {
+      "post": {
+        "operationId": "NetworkAPI_DeleteNetwork",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiDeleteNetworkResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiDeleteNetworkRequest"
+            }
+          }
+        ],
+        "tags": [
+          "NetworkAPI"
+        ]
+      }
+    },
+    "/api/network/details/{id}": {
+      "get": {
+        "operationId": "NetworkAPI_GetNetwork",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetNetworkResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "environment",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "NetworkAPI"
+        ]
+      }
+    },
+    "/api/network/disconnect": {
+      "post": {
+        "operationId": "NetworkAPI_DisconnectContainer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiDisconnectContainerResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiDisconnectContainerRequest"
+            }
+          }
+        ],
+        "tags": [
+          "NetworkAPI"
+        ]
+      }
+    },
+    "/api/network/list": {
+      "post": {
+        "operationId": "NetworkAPI_ListNetworks",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListNetworksResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiListNetworksRequest"
+            }
+          }
+        ],
+        "tags": [
+          "NetworkAPI"
+        ]
+      }
+    },
+    "/api/network/status": {
+      "get": {
+        "operationId": "NetworkAPI_GetNetworkStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiGetNetworkStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "NetworkAPI"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "googleRpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "velez_apiConnectContainerRequest": {
+      "type": "object",
+      "properties": {
+        "networkId": {
+          "type": "string"
+        },
+        "containerName": {
+          "type": "string"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "environment": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiConnectContainerResponse": {
+      "type": "object"
+    },
+    "velez_apiCreateNetworkRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "environment": {
+          "type": "string"
+        },
+        "isInternal": {
+          "type": "boolean"
+        },
+        "isIccEnabled": {
+          "type": "boolean"
+        }
+      }
+    },
+    "velez_apiCreateNetworkResponse": {
+      "type": "object",
+      "properties": {
+        "network": {
+          "$ref": "#/definitions/velez_apiNetwork"
+        }
+      }
+    },
+    "velez_apiDeleteNetworkRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "environment": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiDeleteNetworkResponse": {
+      "type": "object"
+    },
+    "velez_apiDisconnectContainerRequest": {
+      "type": "object",
+      "properties": {
+        "networkId": {
+          "type": "string"
+        },
+        "containerName": {
+          "type": "string"
+        },
+        "environment": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiDisconnectContainerResponse": {
+      "type": "object"
+    },
+    "velez_apiGetNetworkResponse": {
+      "type": "object",
+      "properties": {
+        "network": {
+          "$ref": "#/definitions/velez_apiNetwork"
+        }
+      }
+    },
+    "velez_apiGetNetworkStatusResponse": {
+      "type": "object",
+      "properties": {
+        "isClusterMode": {
+          "type": "boolean"
+        },
+        "isVcnConnected": {
+          "type": "boolean"
+        },
+        "providers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiNetworkProviderInfo"
+          }
+        }
+      }
+    },
+    "velez_apiListNetworksRequest": {
+      "type": "object",
+      "properties": {
+        "environment": {
+          "type": "string"
+        },
+        "isForeignIncluded": {
+          "type": "boolean"
+        }
+      }
+    },
+    "velez_apiListNetworksResponse": {
+      "type": "object",
+      "properties": {
+        "networks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiNetwork"
+          }
+        }
+      }
+    },
+    "velez_apiNetwork": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "provider": {
+          "$ref": "#/definitions/velez_apiNetworkProvider"
+        },
+        "isManaged": {
+          "type": "boolean"
+        },
+        "isInternal": {
+          "type": "boolean"
+        },
+        "isIccEnabled": {
+          "type": "boolean",
+          "title": "true = container-to-container traffic allowed"
+        },
+        "subnet": {
+          "type": "string"
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiNetworkMember"
+          }
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/velez_apiNetworkCapability"
+          }
+        }
+      }
+    },
+    "velez_apiNetworkCapability": {
+      "type": "string",
+      "enum": [
+        "NETWORK_CAPABILITY_UNSPECIFIED",
+        "NETWORK_CAPABILITY_CREATE",
+        "NETWORK_CAPABILITY_DELETE",
+        "NETWORK_CAPABILITY_ATTACH",
+        "NETWORK_CAPABILITY_RESTRICT"
+      ],
+      "default": "NETWORK_CAPABILITY_UNSPECIFIED"
+    },
+    "velez_apiNetworkMember": {
+      "type": "object",
+      "properties": {
+        "containerId": {
+          "type": "string"
+        },
+        "containerName": {
+          "type": "string"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ipAddress": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiNetworkProvider": {
+      "type": "string",
+      "enum": [
+        "NETWORK_PROVIDER_UNSPECIFIED",
+        "NETWORK_PROVIDER_DOCKER",
+        "NETWORK_PROVIDER_VCN"
+      ],
+      "default": "NETWORK_PROVIDER_UNSPECIFIED"
+    },
+    "velez_apiNetworkProviderInfo": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "$ref": "#/definitions/velez_apiNetworkProvider"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/velez_apiNetworkCapability"
+          }
+        }
+      }
+    }
+  }
+}

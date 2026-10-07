@@ -137,6 +137,32 @@ func (f *fakeContainerRuntime) EnsureVolume(context.Context, container_runtime.E
 	panic("not implemented")
 }
 
+func (f *fakeContainerRuntime) ListNetworks(context.Context, bool) ([]container_runtime.NetworkInfo, error) {
+	panic("not implemented")
+}
+
+func (f *fakeContainerRuntime) InspectNetwork(context.Context, string) (container_runtime.NetworkInfo, error) {
+	panic("not implemented")
+}
+
+func (f *fakeContainerRuntime) CreateManagedNetwork(
+	context.Context, container_runtime.CreateNetworkRequest,
+) (container_runtime.NetworkInfo, error) {
+	panic("not implemented")
+}
+
+func (f *fakeContainerRuntime) RemoveNetwork(context.Context, string) error {
+	panic("not implemented")
+}
+
+func (f *fakeContainerRuntime) AttachContainer(context.Context, container_runtime.AttachContainerRequest) error {
+	panic("not implemented")
+}
+
+func (f *fakeContainerRuntime) DetachContainer(context.Context, string, string) error {
+	panic("not implemented")
+}
+
 func Test_MintRegistrationToken_Scenarios(t *testing.T) {
 	cases := []struct {
 		name        string

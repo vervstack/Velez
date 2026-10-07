@@ -777,6 +777,32 @@ func (f *fakeContainerRuntime) EnsureVolume(context.Context, container_runtime.E
 	return nil
 }
 
+func (f *fakeContainerRuntime) ListNetworks(context.Context, bool) ([]container_runtime.NetworkInfo, error) {
+	return nil, nil
+}
+
+func (f *fakeContainerRuntime) InspectNetwork(context.Context, string) (container_runtime.NetworkInfo, error) {
+	return container_runtime.NetworkInfo{}, nil
+}
+
+func (f *fakeContainerRuntime) CreateManagedNetwork(
+	context.Context, container_runtime.CreateNetworkRequest,
+) (container_runtime.NetworkInfo, error) {
+	return container_runtime.NetworkInfo{}, nil
+}
+
+func (f *fakeContainerRuntime) RemoveNetwork(context.Context, string) error {
+	return nil
+}
+
+func (f *fakeContainerRuntime) AttachContainer(context.Context, container_runtime.AttachContainerRequest) error {
+	return nil
+}
+
+func (f *fakeContainerRuntime) DetachContainer(context.Context, string, string) error {
+	return nil
+}
+
 // fakeNodeClients is a minimal node_clients.NodeClients wrapping a
 // fakeDocker, for jobs (like createScratchContainerJob) that depend on the
 // full NodeClients container but only ever call Docker() on it.

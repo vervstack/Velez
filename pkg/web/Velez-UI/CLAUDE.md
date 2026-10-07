@@ -102,6 +102,8 @@ One global dialog primitive — the `useDialog` Zustand store in `src/app/hooks/
 
 - **Form controls come from `@vervstack/chures`** (`Checkbox`, `Toggle`, `Dropdown`) everywhere, not only in
   dialogs. Before reaching for any `@/components/base/*` atom, check the kit's exports first.
+  - **`Toggle` = a setting that applies immediately, or a view filter. `Checkbox` = a field that is submitted with a
+    button (dialog/form).** A raw `<input type="checkbox">` is a lint error (`local/no-raw-checkbox`).
 - Components must be named function declarations — not `const Arrow = () => {}`
 - All functions inside components (handlers, helpers) must also be named function declarations — never `const fn = () => {}`
 - One file — one component

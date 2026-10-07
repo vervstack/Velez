@@ -1,5 +1,5 @@
 import {useState} from "react"
-import {Checkbox, Dropdown, DropdownOption, parseGrpcError, Toggle} from "@vervstack/chures"
+import {Checkbox, Dropdown, DropdownOption, parseGrpcError} from "@vervstack/chures"
 
 import cls from "@/dialogs/CreateS3InstanceDialog/components/CreateS3InstanceForm/CreateS3InstanceForm.module.css"
 import type {CreateS3InstanceRequest} from "@/app/api/velez/s3_api.pb"
@@ -94,7 +94,7 @@ export default function CreateS3InstanceForm({onSubmit, onCancel}: Props) {
                 />
                 <p className={cls.Description}>{REPLICATION_HINT}</p>
 
-                <Toggle label="Enable web UI" checked={isWebUiEnabled} onChange={setIsWebUiEnabled}/>
+                <Checkbox label="Enable web UI" checked={isWebUiEnabled} onChange={setIsWebUiEnabled}/>
                 <p className={cls.Description}>Deploys the garage-webui sidecar next to the instance.</p>
             </div>
 

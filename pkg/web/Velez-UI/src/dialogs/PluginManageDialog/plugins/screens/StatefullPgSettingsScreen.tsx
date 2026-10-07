@@ -1,4 +1,5 @@
-import Choice from '@/components/base/Choice.tsx';
+import {Checkbox} from '@vervstack/chures';
+
 import {StatefullPgContext} from '@/dialogs/PluginManageDialog/plugins/StatefullPgContext.ts';
 import cls from '@/dialogs/PluginManageDialog/PluginManageDialog.module.css';
 
@@ -14,8 +15,8 @@ export default function StatefullPgSettingsScreen(
         updateContext({portNumber: e.target.value});
     }
 
-    function handleToggleExposePort() {
-        updateContext({exposePort: !exposePort});
+    function handleExposePortChange(isChecked: boolean) {
+        updateContext({exposePort: isChecked});
     }
 
     return (
@@ -26,12 +27,12 @@ export default function StatefullPgSettingsScreen(
                     <span>Velez is running as a binary on this node, so the port must stay exposed.</span>
                 </div>
             )}
-            <label className={cls.CheckboxLabel}>
-                <Choice title={'Expose port'}
-                        active={exposePort}
-                        disabled={!isRunningInContainer}
-                        onClick={handleToggleExposePort}/>
-            </label>
+            <Checkbox
+                label="Expose port"
+                checked={exposePort}
+                disabled={!isRunningInContainer}
+                onChange={handleExposePortChange}
+            />
 
             {exposePort && (
                 <div className={cls.InputGroup}>

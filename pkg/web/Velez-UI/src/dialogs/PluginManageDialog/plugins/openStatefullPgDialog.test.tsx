@@ -88,7 +88,7 @@ describe('openStatefullPgDialog', () => {
         fireEvent.click(nextButton);
 
         expect(screen.getByText(/must stay exposed/i)).toBeInTheDocument();
-        expect(screen.getByText('Expose port').closest('button')).toBeDisabled();
+        expect(screen.getByRole('checkbox', {name: 'Expose port'})).toBeDisabled();
     });
 
     it('leaves expose-port unforced and unlocked when GetHardware reports the node is running in a container', async () => {
@@ -105,6 +105,6 @@ describe('openStatefullPgDialog', () => {
         fireEvent.click(nextButton);
 
         expect(screen.queryByText(/must stay exposed/i)).not.toBeInTheDocument();
-        expect(screen.getByText('Expose port').closest('button')).not.toBeDisabled();
+        expect(screen.getByRole('checkbox', {name: 'Expose port'})).not.toBeDisabled();
     });
 });

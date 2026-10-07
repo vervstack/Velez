@@ -42,7 +42,7 @@ describe("CreateDindForm", () => {
     it("defaults the Sysbox toggle to on and explains why it is recommended", () => {
         renderForm()
 
-        expect(screen.getByRole("switch", {name: "Sysbox isolation"})).toBeChecked()
+        expect(screen.getByRole("checkbox", {name: "Sysbox isolation"})).toBeChecked()
         expect(screen.getByText(/Recommended for public repositories/)).toBeInTheDocument()
     })
 
@@ -73,7 +73,7 @@ describe("CreateDindForm", () => {
     it("creates the daemon with Sysbox disabled only after the user turns the toggle off", async () => {
         const {mutateAsync} = renderForm()
         typeName("ci")
-        fireEvent.click(screen.getByRole("switch", {name: "Sysbox isolation"}))
+        fireEvent.click(screen.getByRole("checkbox", {name: "Sysbox isolation"}))
 
         fireEvent.click(screen.getByRole("button", {name: "Create"}))
 

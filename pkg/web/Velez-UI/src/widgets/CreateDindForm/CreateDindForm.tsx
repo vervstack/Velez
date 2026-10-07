@@ -1,5 +1,5 @@
 import {useState} from "react"
-import {Toggle} from "@vervstack/chures"
+import {Checkbox} from "@vervstack/chures"
 
 import cls from "@/widgets/CreateDindForm/CreateDindForm.module.css"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
@@ -48,7 +48,7 @@ export default function CreateDindForm({onCreated, onCancel}: Props) {
                     onChange={setEnvironment}
                     disabled={createDind.isPending}
                 />
-                <Toggle
+                <Checkbox
                     label="Sysbox isolation"
                     checked={isSysboxEnabled}
                     onChange={setIsSysboxEnabled}

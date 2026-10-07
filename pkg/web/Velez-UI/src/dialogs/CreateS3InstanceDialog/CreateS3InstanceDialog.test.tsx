@@ -70,14 +70,14 @@ describe("CreateS3InstanceDialog", () => {
     it("keeps the web UI sidecar off by default", () => {
         renderDialog()
 
-        expect(screen.getByRole("switch", {name: "Enable web UI"})).not.toBeChecked()
+        expect(screen.getByRole("checkbox", {name: "Enable web UI"})).not.toBeChecked()
     })
 
     it("swaps to the progress screen and creates the instance with the web UI flag when Create is clicked", () => {
         const {mutateAsync} = renderDialog()
 
         fireEvent.change(inputFor("Name"), {target: {value: "main"}})
-        fireEvent.click(screen.getByRole("switch", {name: "Enable web UI"}))
+        fireEvent.click(screen.getByRole("checkbox", {name: "Enable web UI"}))
         fireEvent.click(screen.getByRole("button", {name: "Create"}))
         fireEvent.click(screen.getByRole("button", {name: "start task"}))
 

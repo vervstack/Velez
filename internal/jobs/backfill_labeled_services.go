@@ -252,7 +252,7 @@ func (j *backfillLabeledServicesJob) backfillService(ctx context.Context, svc la
 	}
 
 	if len(deployments) == 0 {
-		err = j.registerService(ctx, svc)
+		err = registerRunningDeployment(ctx, j.storageContainer, svc, svc.primary.containerName())
 		if err != nil {
 			return rerrors.Wrap(err)
 		}
@@ -291,13 +291,18 @@ func (j *backfillLabeledServicesJob) backfillService(ctx context.Context, svc la
 	return nil
 }
 
-func (j *backfillLabeledServicesJob) registerService(ctx context.Context, svc labeledService) error {
-	err := j.storageContainer.Services().UpsertService(ctx, svc.name, svc.displayName)
+// registerRunningDeployment records the service and a RUNNING deployment built
+// from its live primary container. specName is the specification's unique key:
+// it must not collide with a specification already stored for the service.
+func registerRunningDeployment(
+	ctx context.Context, storageContainer *storage.Container, svc labeledService, specName string,
+) error {
+	err := storageContainer.Services().UpsertService(ctx, svc.name, svc.displayName)
 	if err != nil {
 		return rerrors.Wrap(err, "error upserting service")
 	}
 
-	service, err := j.storageContainer.Services().GetByName(ctx, svc.name)
+	service, err := storageContainer.Services().GetByName(ctx, svc.name)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting service")
 	}
@@ -311,13 +316,13 @@ func (j *backfillLabeledServicesJob) registerService(ctx context.Context, svc la
 	}
 
 	specParams := deployments_queries.CreateSpecificationParams{
-		Name:        svc.primary.containerName(),
+		Name:        specName,
 		ServiceID:   sql.NullInt64{Int64: service.ID, Valid: true},
 		VervPayload: pqtype.NullRawMessage{RawMessage: specPayload, Valid: true},
 	}
 
-	err = j.storageContainer.TxManager().Execute(func(tx *sql.Tx) error {
-		deployments := j.storageContainer.Deployments().WithTx(tx)
+	err = storageContainer.TxManager().Execute(func(tx *sql.Tx) error {
+		deployments := storageContainer.Deployments().WithTx(tx)
 
 		specId, txErr := deployments.CreateSpecification(ctx, specParams)
 		if txErr != nil {

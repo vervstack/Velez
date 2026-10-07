@@ -16,6 +16,7 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/storage/container_derived"
+	"go.vervstack.ru/Velez/internal/storage/environments"
 )
 
 const (
@@ -30,6 +31,8 @@ const (
 	backfillSidecarName    = "e2e_backfill_sidecar_c"
 
 	backfillPgTaskTimeout = 3 * time.Minute
+	reconcileTimeout      = 2 * time.Minute
+	reconcileStopTimeout  = 10
 	backfillPollEvery     = 2 * time.Second
 )
 
@@ -235,4 +238,78 @@ func removeBackfillContainers(dockerClient client.APIClient, serviceNames []stri
 
 		_ = dockerClient.VolumeRemove(ctx, serviceName+"-data", true)
 	}
+}
+
+func Test_Reconcile_RunningContainerWithOnlyFailedDeployment_GetsRunningDeployment(t *testing.T) {
+	t.Parallel()
+
+	env, _ := newStatefullEnvironment(t, Planes[1], backfillSuffix)
+	dockerClient := env.Custom.NodeClients.Docker().Client()
+
+	serviceNames := []string{backfillPlainService}
+
+	removeBackfillContainers(dockerClient, serviceNames)
+	t.Cleanup(func() { removeBackfillContainers(dockerClient, serviceNames) })
+
+	plainReq := newBackfillPlainRequest()
+	env.CreateSmerd(t, plainReq)
+
+	enableStatefullPg(t, env)
+
+	requireServiceListed(t, env, backfillPlainService)
+
+	plain := inspectBackfillContainer(t, dockerClient, backfillPlainService)
+
+	stopOpts := container.StopOptions{Timeout: toolbox.ToPtr(reconcileStopTimeout)}
+
+	err := dockerClient.ContainerStop(t.Context(), plain.id, stopOpts)
+	require.NoError(t, err)
+
+	awaitServiceDeploymentStatus(t, env, backfillPlainService, velez_api.DeploymentStatus_FAILED)
+
+	err = dockerClient.ContainerStart(t.Context(), plain.id, container.StartOptions{})
+	require.NoError(t, err)
+
+	awaitServiceDeploymentStatus(t, env, backfillPlainService, velez_api.DeploymentStatus_RUNNING)
+
+	running := findServiceDeployment(t, env, backfillPlainService, velez_api.DeploymentStatus_RUNNING)
+
+	upgradeSpec := &velez_api.CreateDeploy_Request_Upgrade{DeploymentId: running.GetId()}
+	upgradeReq := &velez_api.CreateDeploy_Request{
+		ServiceName:   backfillPlainService,
+		Environment:   environments.DefaultEnvironmentName,
+		Specification: &velez_api.CreateDeploy_Request_Upgrade_{Upgrade: upgradeSpec},
+	}
+
+	_, err = env.Custom.ServiceApiImpl.CreateDeploy(t.Context(), upgradeReq)
+	require.NoError(t, err, "a service re-registered by the reconciler must be upgradable")
+}
+
+func awaitServiceDeploymentStatus(
+	t *testing.T, env *TestEnvironment, serviceName string, status velez_api.DeploymentStatus,
+) {
+	t.Helper()
+
+	require.Eventually(t, func() bool {
+		return findServiceDeployment(t, env, serviceName, status) != nil
+	}, reconcileTimeout, backfillPollEvery, "service %q never got a %s deployment", serviceName, status)
+}
+
+func findServiceDeployment(
+	t *testing.T, env *TestEnvironment, serviceName string, status velez_api.DeploymentStatus,
+) *velez_api.DeploymentInfo {
+	t.Helper()
+
+	req := &velez_api.ListDeployments_Request{ServiceName: toolbox.ToPtr(serviceName)}
+
+	resp, err := env.Custom.ServiceApiImpl.ListDeployments(t.Context(), req)
+	require.NoError(t, err)
+
+	for _, deployment := range resp.GetDeployments() {
+		if deployment.GetStatus() == status {
+			return deployment
+		}
+	}
+
+	return nil
 }

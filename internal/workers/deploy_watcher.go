@@ -46,6 +46,12 @@ type deploymentsStorageResolver interface {
 	Deployments() storage.DeploymentsStorage
 }
 
+// deploymentReconciler re-registers running containers left without a live
+// deployment row. Statefull mode only; a no-op otherwise.
+type deploymentReconciler interface {
+	Reconcile(ctx context.Context) error
+}
+
 type deployWatcher struct {
 	// jobsEngine replaces the deleted internal/pipelines.Pipeliner: scheduled
 	// deployments and upgrades are enqueued as durable tasks and awaited
@@ -64,6 +70,7 @@ type deployWatcher struct {
 	// docker-socket grant a github_runner enable flow may have left for this
 	// exact deploy - see jobs.DockerSocketGrantSecretRef.
 	secretsStore secrets.Store
+	reconciler   deploymentReconciler
 
 	nodeId int64
 
@@ -86,6 +93,7 @@ func NewDeployWatcher(
 		dataStorage:  clusterClients.StateManager(),
 		runtimes:     runtimes,
 		secretsStore: services.Secrets(),
+		reconciler:   jobs.NewDeploymentReconciler(services.StorageContainer(), runtimes),
 
 		nodeId: 1,
 
@@ -126,6 +134,11 @@ func (d *deployWatcher) Start(ctx context.Context) {
 					log.Error().Err(err).Msg("error running deploy watcher")
 
 					continue
+				}
+
+				err = d.reconciler.Reconcile(ctx)
+				if err != nil {
+					log.Error().Err(err).Msg("error reconciling deployments")
 				}
 			}
 		}

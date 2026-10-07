@@ -264,6 +264,60 @@ func TestCaptureOldContainerJob_Success(t *testing.T) {
 	}
 }
 
+func TestCaptureOldContainerJob_RemovedEnvDropsKeysFromOldContainer(t *testing.T) {
+	t.Parallel()
+
+	containerService, runtimes, cli := newRealUpgradeFixture(t, environments.DefaultEnvironmentName)
+
+	test_helper.EnsurePulled(t, cli, test_helper.HelloWorldAppImage)
+
+	rt, err := runtimes.Runtime(context.Background(), environments.DefaultEnvironmentName)
+	if err != nil {
+		t.Fatalf("unexpected error resolving runtime: %v", err)
+	}
+
+	name := test_helper.UniqueName(t, testUpgradeSvcName)
+
+	createReq := container_runtime.ContainerCreateRequest{
+		Config: &container_runtime.ContainerConfig{Config: &container.Config{
+			Image: test_helper.HelloWorldAppImage,
+			Env:   []string{testEnvKeyFoo + "=" + testEnvFoo, "HTTP_PROXY=socks5://proxy:1080"},
+		}},
+		ContainerName: name,
+	}
+
+	created, err := rt.ContainerCreate(context.Background(), createReq)
+	if err != nil {
+		t.Fatalf("unexpected error creating container: %v", err)
+	}
+
+	t.Cleanup(func() { test_helper.RemoveContainer(t, cli, created.ID) })
+
+	payload := &velez_api.UpgradeSmerdTaskPayload{
+		UpgradeRequest: &velez_api.UpgradeSmerd_Request{Name: name, Image: testUpgradeImage},
+		ExtraEnv:       map[string]string{"EXTRA": "1"},
+		RemovedEnv:     []string{"HTTP_PROXY"},
+	}
+
+	j := &captureOldContainerJob{containerService: containerService, upgradeReq: payload, ctx: payload}
+
+	err = j.Do(context.Background())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	env := payload.GetRequest().GetEnv()
+
+	_, hasProxy := env["HTTP_PROXY"]
+	if hasProxy {
+		t.Errorf("expected HTTP_PROXY removed from the captured env, got %v", env)
+	}
+
+	if env[testEnvKeyFoo] != testEnvFoo || env["EXTRA"] != "1" {
+		t.Errorf("expected unrelated and extra env kept, got %v", env)
+	}
+}
+
 // RED (runtime failure, compiles fine). captureOldContainerJob.Do builds a
 // CreateSmerd_Request without ever copying Environment onto it, even though
 // every downstream step in the upgrade pipeline (port locking via

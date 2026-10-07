@@ -429,6 +429,26 @@ func Test_Deployments_MemoryRunningRowSuppressesDerivedRow(t *testing.T) {
 	require.Positive(t, rows[0].Id)
 }
 
+func Test_Deployments_ScheduledUpgradeRowDoesNotHideDerivedRunningRow(t *testing.T) {
+	t.Parallel()
+
+	name := test_helper.UniqueName(t, "scheduled-keeps-derived")
+	startLabelledContainer(t, name)
+
+	d := newDeploymentsStorage(test_helper.NewRealDocker(t))
+	ctx := context.Background()
+
+	createMemoryDeployment(ctx, t, d, name, deployments_queries.VelezDeploymentStatusSCHEDULEDUPGRADE)
+
+	rows, err := d.List(ctx, domain.ListDeploymentsReq{ServiceName: name})
+	require.NoError(t, err)
+	require.Len(t, rows, 2)
+	require.Equal(t, deployments_queries.VelezDeploymentStatusSCHEDULEDUPGRADE, rows[0].Status)
+	require.Positive(t, rows[0].Id)
+	require.Equal(t, deployments_queries.VelezDeploymentStatusRUNNING, rows[1].Status)
+	require.Negative(t, rows[1].Id)
+}
+
 func Test_Deployments_DerivedRowReappearsWhenMemoryRowsFailed(t *testing.T) {
 	t.Parallel()
 

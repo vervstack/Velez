@@ -269,6 +269,11 @@ message UpgradeSmerdTaskPayload {
   // that carry no aliases and so are invisible to the capture.
   repeated NetworkBind extra_networks = 17;
 
+  // removed_env lists keys deleted from the env captured from the old
+  // container, after extra_env is merged. Set by the deploy watcher with the
+  // keys a scheduled upgrade's spec dropped relative to the applied spec.
+  repeated string removed_env = 18;
+
   message PortsOverride {
     repeated Port ports = 1;
   }

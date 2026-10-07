@@ -1,8 +1,10 @@
 package workers
 
 import (
+	"cmp"
 	"context"
 	"encoding/json"
+	"slices"
 	"sync"
 	"time"
 
@@ -345,6 +347,13 @@ func (d *deployWatcher) upgrade(ctx context.Context, dep domain.Deployment) erro
 	initialContext.AllowDockerSocket = d.allowDockerSocket(ctx, upgradeReq.GetName())
 	initialContext.Isolation = d.containerIsolation(ctx, upgradeReq.GetName())
 
+	removedEnv, err := d.removedEnvAgainstApplied(ctx, smerdReq)
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving env dropped by the upgrade")
+	}
+
+	initialContext.RemovedEnv = removedEnv
+
 	// Scope the entity id by environment - see the note in deploy(). TODO(#127).
 	entityID := jobs.SmerdEntityID(upgradeReq.GetEnvironment(), upgradeReq.GetName())
 
@@ -361,6 +370,61 @@ func (d *deployWatcher) upgrade(ctx context.Context, dep domain.Deployment) erro
 	}
 
 	return nil
+}
+
+// removedEnvAgainstApplied returns the env keys the scheduled spec dropped
+// relative to the service's applied (RUNNING, newest) deployment. The upgrade
+// task otherwise only merges env over the old container's, so a dropped key
+// would come back. No applied row means nothing to diff against.
+func (d *deployWatcher) removedEnvAgainstApplied(
+	ctx context.Context, scheduled *velez_api.CreateSmerd_Request,
+) ([]string, error) {
+	listReq := domain.ListDeploymentsReq{
+		ServiceName: scheduled.GetName(),
+		NotStatus: []deployments_queries.VelezDeploymentStatus{
+			deployments_queries.VelezDeploymentStatusSCHEDULEDDEPLOYMENT,
+			deployments_queries.VelezDeploymentStatusSCHEDULEDUPGRADE,
+			deployments_queries.VelezDeploymentStatusSCHEDULEDDELETION,
+			deployments_queries.VelezDeploymentStatusFAILED,
+			deployments_queries.VelezDeploymentStatusDELETED,
+		},
+	}
+
+	applied, err := d.deployments().List(ctx, listReq)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error listing applied deployments")
+	}
+
+	if len(applied) == 0 {
+		return nil, nil
+	}
+
+	newest := slices.MaxFunc(applied, func(a, b domain.Deployment) int {
+		return cmp.Compare(a.Id, b.Id)
+	})
+
+	appliedReq, err := d.specRequest(ctx, newest)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error reading applied spec")
+	}
+
+	return removedEnvKeys(appliedReq.GetEnv(), scheduled.GetEnv()), nil
+}
+
+// removedEnvKeys returns the sorted keys present in applied and absent from scheduled.
+func removedEnvKeys(applied, scheduled map[string]string) []string {
+	var removed []string
+
+	for key := range applied {
+		_, isKept := scheduled[key]
+		if !isKept {
+			removed = append(removed, key)
+		}
+	}
+
+	slices.Sort(removed)
+
+	return removed
 }
 
 func (d *deployWatcher) syncRunningBatch(ctx context.Context, active []domain.Deployment) error {

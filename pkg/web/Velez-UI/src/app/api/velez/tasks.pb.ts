@@ -134,6 +134,7 @@ export type UpgradeSmerdTaskPayload = {
   isOldContainerKept?: boolean;
   isolation?: ContainerIsolation;
   extraNetworks?: VelezApiVelezCommon.NetworkBind[];
+  removedEnv?: string[];
 };
 
 export type RegisterContainerTaskPayload = {

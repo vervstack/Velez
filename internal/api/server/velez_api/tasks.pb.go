@@ -902,6 +902,10 @@ type UpgradeSmerdTaskPayload struct {
 	// is left untouched. Used by upgrade_deploy to carry spec-declared networks
 	// that carry no aliases and so are invisible to the capture.
 	ExtraNetworks []*NetworkBind `protobuf:"bytes,17,rep,name=extra_networks,json=extraNetworks,proto3" json:"extra_networks,omitempty"`
+	// removed_env lists keys deleted from the env captured from the old
+	// container, after extra_env is merged. Set by the deploy watcher with the
+	// keys a scheduled upgrade's spec dropped relative to the applied spec.
+	RemovedEnv    []string `protobuf:"bytes,18,rep,name=removed_env,json=removedEnv,proto3" json:"removed_env,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1051,6 +1055,13 @@ func (x *UpgradeSmerdTaskPayload) GetIsolation() ContainerIsolation {
 func (x *UpgradeSmerdTaskPayload) GetExtraNetworks() []*NetworkBind {
 	if x != nil {
 		return x.ExtraNetworks
+	}
+	return nil
+}
+
+func (x *UpgradeSmerdTaskPayload) GetRemovedEnv() []string {
+	if x != nil {
+		return x.RemovedEnv
 	}
 	return nil
 }
@@ -1987,7 +1998,7 @@ const file_tasks_proto_rawDesc = "" +
 	"\x06failed\x18\x02 \x03(\v2#.velez_api.DropSmerd.Response.ErrorR\x06failed\x12\x1e\n" +
 	"\n" +
 	"successful\x18\x03 \x03(\tR\n" +
-	"successful\"\xc4\v\n" +
+	"successful\"\xe5\v\n" +
 	"\x17UpgradeSmerdTaskPayload\x12H\n" +
 	"\x0fupgrade_request\x18\x01 \x01(\v2\x1f.velez_api.UpgradeSmerd.RequestR\x0eupgradeRequest\x128\n" +
 	"\arequest\x18\x02 \x01(\v2\x1e.velez_api.CreateSmerd.RequestR\arequest\x12-\n" +
@@ -2007,7 +2018,9 @@ const file_tasks_proto_rawDesc = "" +
 	"\x13is_sidecars_skipped\x18\x0e \x01(\bR\x11isSidecarsSkipped\x121\n" +
 	"\x15is_old_container_kept\x18\x0f \x01(\bR\x12isOldContainerKept\x12;\n" +
 	"\tisolation\x18\x10 \x01(\x0e2\x1d.velez_api.ContainerIsolationR\tisolation\x12=\n" +
-	"\x0eextra_networks\x18\x11 \x03(\v2\x16.velez_api.NetworkBindR\rextraNetworks\x1a>\n" +
+	"\x0eextra_networks\x18\x11 \x03(\v2\x16.velez_api.NetworkBindR\rextraNetworks\x12\x1f\n" +
+	"\vremoved_env\x18\x12 \x03(\tR\n" +
+	"removedEnv\x1a>\n" +
 	"\x10ImageLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +

@@ -3,6 +3,7 @@
 package e2e
 
 import (
+	"slices"
 	"strings"
 	"testing"
 
@@ -47,6 +48,7 @@ func runSetServiceProxyOnRunner(t *testing.T, env *TestEnvironment, _ Plane) {
 	withoutProxy := setServiceProxyAndAwaitNewContainer(t, env, fixture.runnerContainer, withProxy.ID, "", nil)
 
 	requireContainerWithoutProxyEnv(t, withoutProxy)
+	requireNonProxyEnvKept(t, withProxy, withoutProxy)
 	requireRunnerJobWithoutProxyEnvironment(t, env, fixture.runnerContainer)
 	requireServiceReportsProxy(t, env, fixture.runnerContainer, "")
 }
@@ -98,6 +100,25 @@ func requireContainerWithoutProxyEnv(t *testing.T, inspected container.InspectRe
 			require.False(t, strings.HasPrefix(entry, key+"="), "proxy env %q survived the removal", entry)
 		}
 	}
+}
+
+func requireNonProxyEnvKept(t *testing.T, before, after container.InspectResponse) {
+	t.Helper()
+
+	kept := 0
+
+	for _, entry := range before.Config.Env {
+		key, _, _ := strings.Cut(entry, "=")
+		if slices.Contains(proxyenv.Keys(), key) {
+			continue
+		}
+
+		require.Contains(t, after.Config.Env, entry, "unrelated env %q was lost by the proxy removal", entry)
+
+		kept++
+	}
+
+	require.NotZero(t, kept, "the container carries no unrelated env to prove it survives")
 }
 
 // requireRunnerJobProxyEnvironment waits for the config sync, which runs after the container swap

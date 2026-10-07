@@ -68,6 +68,7 @@ type oldContainerIDAccessor interface {
 type captureOldContainerCtx interface {
 	GetExtraLabels() map[string]string
 	GetExtraEnv() map[string]string
+	GetRemovedEnv() []string
 	GetExtraNetworks() []*velez_api.NetworkBind
 	GetPortsOverride() *velez_api.UpgradeSmerdTaskPayload_PortsOverride
 	GetVolumesOverride() *velez_api.UpgradeSmerdTaskPayload_VolumesOverride
@@ -423,6 +424,10 @@ func (j *captureOldContainerJob) Do(ctx context.Context) error {
 		}
 
 		maps.Copy(reqEnv, j.ctx.GetExtraEnv())
+	}
+
+	for _, key := range j.ctx.GetRemovedEnv() {
+		delete(req.GetEnv(), key)
 	}
 
 	req.Settings.Network = domain.MergeNetworkBinds(req.GetSettings().GetNetwork(), j.ctx.GetExtraNetworks())

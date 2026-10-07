@@ -556,19 +556,21 @@ func (d *deployments) getDerivedSpecification(
 }
 
 // mergeLocked returns memory rows followed by the derived rows of services
-// memory has no active row for. A service's memory row is active while it is
-// RUNNING or has a scheduled deploy/upgrade/delete pending; once all of its
-// memory rows are FAILED/DELETED the live container's derived row takes over
-// again.
+// memory has no RUNNING row for. Only a RUNNING memory row supersedes the
+// live container's derived row: a scheduled deploy/upgrade/delete row is
+// desired state, not applied state, and hiding the derived RUNNING row behind
+// it would leave the deploy watcher nothing to diff a scheduled upgrade
+// against right after a Velez restart. Once all of a service's memory rows
+// are FAILED/DELETED the derived row is the only applied one again.
 func (d *deployments) mergeLocked(derived []derivedDeployment) []domain.Deployment {
-	active := make(map[string]struct{}, len(d.deployments))
+	applied := make(map[string]struct{}, len(d.deployments))
 
 	for _, dep := range d.deployments {
-		if !isActiveDeploymentStatus(dep.Status) {
+		if !isAppliedDeploymentStatus(dep.Status) {
 			continue
 		}
 
-		active[specServiceName(d.specs[dep.SpecId])] = struct{}{}
+		applied[specServiceName(d.specs[dep.SpecId])] = struct{}{}
 	}
 
 	merged := make([]domain.Deployment, 0, len(d.deployments)+len(derived))
@@ -576,8 +578,8 @@ func (d *deployments) mergeLocked(derived []derivedDeployment) []domain.Deployme
 	merged = append(merged, d.deployments...)
 
 	for _, dd := range derived {
-		_, hasActive := active[dd.serviceName]
-		if hasActive {
+		_, hasApplied := applied[dd.serviceName]
+		if hasApplied {
 			continue
 		}
 
@@ -587,16 +589,8 @@ func (d *deployments) mergeLocked(derived []derivedDeployment) []domain.Deployme
 	return merged
 }
 
-func isActiveDeploymentStatus(status deployments_queries.VelezDeploymentStatus) bool {
-	switch status {
-	case deployments_queries.VelezDeploymentStatusRUNNING,
-		deployments_queries.VelezDeploymentStatusSCHEDULEDDEPLOYMENT,
-		deployments_queries.VelezDeploymentStatusSCHEDULEDUPGRADE,
-		deployments_queries.VelezDeploymentStatusSCHEDULEDDELETION:
-		return true
-	default:
-		return false
-	}
+func isAppliedDeploymentStatus(status deployments_queries.VelezDeploymentStatus) bool {
+	return status == deployments_queries.VelezDeploymentStatusRUNNING
 }
 
 func (d *deployments) filterLocked(

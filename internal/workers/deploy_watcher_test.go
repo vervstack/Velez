@@ -31,6 +31,8 @@ const (
 	testSmerdImage    = "godverv/hello_world:v0.0.14"
 	testEnvironment   = "staging"
 	testTaskFailedMsg = "container create blew up"
+	keptEnvKey        = "KEEP"
+	removedEnvKey     = "HTTP_PROXY"
 )
 
 // enqueuedTask records one taskRunner.Enqueue call.
@@ -573,5 +575,56 @@ func unmarshalAllowDockerSocket(t *testing.T, action string, contextJSON []byte)
 		t.Fatalf("unmarshalAllowDockerSocket: unhandled action %q", action)
 
 		return false
+	}
+}
+
+func Test_RemovedEnvKeys_Cases(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name      string
+		applied   map[string]string
+		scheduled map[string]string
+		want      []string
+	}{
+		{
+			name:      "key absent from the scheduled spec is removed",
+			applied:   map[string]string{removedEnvKey: "x", keptEnvKey: "1"},
+			scheduled: map[string]string{keptEnvKey: "1"},
+			want:      []string{removedEnvKey},
+		},
+		{
+			name:      "key present in both is kept",
+			applied:   map[string]string{keptEnvKey: "1"},
+			scheduled: map[string]string{keptEnvKey: "1"},
+			want:      nil,
+		},
+		{
+			name:      "changed value is not a removal",
+			applied:   map[string]string{keptEnvKey: "1"},
+			scheduled: map[string]string{keptEnvKey: "2"},
+			want:      nil,
+		},
+		{
+			name:      "empty applied env removes nothing",
+			applied:   nil,
+			scheduled: map[string]string{keptEnvKey: "1"},
+			want:      nil,
+		},
+		{
+			name:      "removed keys are sorted",
+			applied:   map[string]string{"B": "1", "C": "1", "A": "1"},
+			scheduled: map[string]string{},
+			want:      []string{"A", "B", "C"},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := removedEnvKeys(tc.applied, tc.scheduled)
+			require.Equal(t, tc.want, got)
+		})
 	}
 }

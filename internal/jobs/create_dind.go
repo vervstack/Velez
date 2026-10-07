@@ -27,9 +27,6 @@ const (
 	stepWaitForDindDeploy  = "wait_for_dind_deploy"
 	stepRegisterDindRow    = "register_dind_row"
 
-	IsolationSecretSysbox     = "sysbox"
-	IsolationSecretPrivileged = "privileged"
-
 	envDindTlsCertDir = "DOCKER_TLS_CERTDIR"
 
 	dindDeployWaitTimeout = 180 * time.Second
@@ -138,9 +135,9 @@ type putDindIsolationSecretJob struct {
 func (j *putDindIsolationSecretJob) Do(ctx context.Context) error {
 	request := j.req.GetRequest()
 
-	isolation := IsolationSecretPrivileged
+	isolation := domain.ContainerIsolationPrivileged
 	if isDindSysboxEnabled(request) {
-		isolation = IsolationSecretSysbox
+		isolation = domain.ContainerIsolationSysbox
 	}
 
 	err := j.secrets.Put(ctx, domain.ContainerIsolationSecretRef(request.GetName()), isolation)

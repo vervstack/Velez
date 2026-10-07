@@ -305,9 +305,9 @@ func (d *deployWatcher) containerIsolation(ctx context.Context, serviceName stri
 	}
 
 	switch value {
-	case jobs.IsolationSecretSysbox:
+	case domain.ContainerIsolationSysbox:
 		return velez_api.ContainerIsolation_CONTAINER_ISOLATION_SYSBOX
-	case jobs.IsolationSecretPrivileged:
+	case domain.ContainerIsolationPrivileged:
 		return velez_api.ContainerIsolation_CONTAINER_ISOLATION_PRIVILEGED
 	default:
 		return velez_api.ContainerIsolation_CONTAINER_ISOLATION_UNSPECIFIED

@@ -2,8 +2,11 @@ package local_storage
 
 import (
 	"context"
+	"strconv"
 	"sync"
 
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/mount"
 	"go.redsock.ru/rerrors"
 
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
@@ -14,6 +17,12 @@ import (
 	"go.vervstack.ru/Velez/internal/storage/container_derived"
 	"go.vervstack.ru/Velez/internal/storage/secrets"
 	"go.vervstack.ru/Velez/internal/user_errors"
+)
+
+const (
+	dockerSocketPath      = "/var/run/docker.sock"
+	sysboxRuntimeName     = "sysbox-runc"
+	runningContainerState = "running"
 )
 
 // dockerSecrets is the single-node/dev storage.SecretsStorage. Secrets in the
@@ -27,7 +36,17 @@ import (
 // - because create_runner.go writes it into the runner container's own env
 // (container_derived.RunnerRegistrationTokenEnvVar) regardless of provider. Put/Delete for it,
 // and every other scope/key, keep the plain in-memory behaviour of
-// secrets.NewStatic.
+// secrets.NewStatic, except for the two refs below.
+//
+// The docker-socket grant (domain.DockerSocketGrantSecretRef) and the
+// container isolation (domain.ContainerIsolationSecretRef) also get
+// restart-recovery on Get only: without a postgres-backed store they would
+// otherwise vanish with the process, and deployWatcher.upgrade would recreate a
+// runner without its socket or a dind without sysbox/privileged. They are
+// derived from the service's live container - the socket grant only from a
+// real host-socket bind mount (never from labels or env, which a client can
+// set), the isolation from HostConfig.Runtime/Privileged - and fall back to
+// memory for the window before the container exists.
 type dockerSecrets struct {
 	docker   node_clients.Docker
 	fallback storage.SecretsStorage
@@ -65,19 +84,7 @@ func (d *dockerSecrets) PutSecret(ctx context.Context, ref domain.SecretRef, val
 
 func (d *dockerSecrets) GetSecret(ctx context.Context, ref domain.SecretRef) (string, error) {
 	if ref.Scope != container_derived.PgaasSecretScope {
-		if ref == domain.RunnerRegistrationTokenSecretRef(ref.Owner) {
-			token := d.registrationTokenFromContainer(ctx, ref.Owner)
-			if token != "" {
-				return token, nil
-			}
-		}
-
-		value, err := d.fallback.GetSecret(ctx, ref)
-		if err != nil {
-			return "", rerrors.Wrap(err, "error getting secret")
-		}
-
-		return value, nil
+		return d.getNonPgaasSecret(ctx, ref)
 	}
 
 	password := d.passwordFromContainer(ctx, ref.Owner)
@@ -130,6 +137,27 @@ func (d *dockerSecrets) ListSecretRefs(ctx context.Context, scope, owner string)
 	}
 
 	return []domain.SecretRef{container_derived.PgInstanceSecretRef(owner)}, nil
+}
+
+func (d *dockerSecrets) getNonPgaasSecret(ctx context.Context, ref domain.SecretRef) (string, error) {
+	if ref == domain.RunnerRegistrationTokenSecretRef(ref.Owner) {
+		token := d.registrationTokenFromContainer(ctx, ref.Owner)
+		if token != "" {
+			return token, nil
+		}
+	}
+
+	derived, ok := d.derivedFromServiceContainer(ctx, ref)
+	if ok {
+		return derived, nil
+	}
+
+	value, err := d.fallback.GetSecret(ctx, ref)
+	if err != nil {
+		return "", rerrors.Wrap(err, "error getting secret")
+	}
+
+	return value, nil
 }
 
 // passwordFromContainer returns the POSTGRES_PASSWORD of the pgaas instance's
@@ -185,4 +213,90 @@ func (d *dockerSecrets) registrationTokenFromContainer(ctx context.Context, name
 	}
 
 	return container_derived.EnvValue(info.Config.Env, container_derived.RunnerRegistrationTokenEnvVar)
+}
+
+// derivedFromServiceContainer derives the docker-socket grant and the
+// container isolation of ref.Key's live container. ok is false when ref is
+// neither of those, there is no such container, docker fails, or the
+// container shows nothing to derive - the caller then falls back to memory.
+func (d *dockerSecrets) derivedFromServiceContainer(ctx context.Context, ref domain.SecretRef) (string, bool) {
+	isSocketGrant := ref == domain.DockerSocketGrantSecretRef(ref.Key)
+	isIsolation := ref == domain.ContainerIsolationSecretRef(ref.Key)
+
+	if !isSocketGrant && !isIsolation {
+		return "", false
+	}
+
+	info, ok := d.inspectServiceContainer(ctx, ref.Key)
+	if !ok {
+		return "", false
+	}
+
+	if isSocketGrant {
+		return socketGrantFromContainer(info)
+	}
+
+	return isolationFromContainer(info)
+}
+
+// inspectServiceContainer inspects the container labelled
+// labels.VervServiceLabel=name, preferring a running one - the docker name may
+// carry an environment suffix, so the label is the identity, as in
+// dockerServices.GetByName.
+func (d *dockerSecrets) inspectServiceContainer(ctx context.Context, name string) (container.InspectResponse, bool) {
+	if name == "" {
+		return container.InspectResponse{}, false
+	}
+
+	listReq := &pb.ListSmerds_Request{
+		Label: map[string]string{labels.VervServiceLabel: name},
+	}
+
+	containers, err := d.docker.ListContainers(ctx, listReq, allEnvironments)
+	if err != nil || len(containers) == 0 {
+		return container.InspectResponse{}, false
+	}
+
+	chosen := containers[0]
+
+	for _, c := range containers {
+		if c.State == runningContainerState {
+			chosen = c
+
+			break
+		}
+	}
+
+	info, err := d.docker.Client().ContainerInspect(ctx, chosen.ID)
+	if err != nil {
+		return container.InspectResponse{}, false
+	}
+
+	return info, true
+}
+
+func socketGrantFromContainer(info container.InspectResponse) (string, bool) {
+	for _, m := range info.Mounts {
+		if m.Type == mount.TypeBind && m.Destination == dockerSocketPath {
+			return strconv.FormatBool(true), true
+		}
+	}
+
+	return "", false
+}
+
+func isolationFromContainer(info container.InspectResponse) (string, bool) {
+	if info.HostConfig == nil {
+		return "", false
+	}
+
+	if info.HostConfig.Runtime == sysboxRuntimeName {
+		return domain.ContainerIsolationSysbox, true
+	}
+
+	if info.HostConfig.Privileged {
+		return domain.ContainerIsolationPrivileged, true
+	}
+
+	return "", false
 }

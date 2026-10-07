@@ -1,5 +1,10 @@
 package domain
 
+const (
+	ContainerIsolationSysbox     = "sysbox"
+	ContainerIsolationPrivileged = "privileged"
+)
+
 // DockerSocketGrantSecretRef derives the Velez-internal secrets.Store key
 // that gates create_smerd's host Docker socket bind-mount for one deploy -
 // keyed by the deploy's exact service name, never by any client-supplied
@@ -20,7 +25,7 @@ func DockerSocketGrantSecretRef(serviceName string) SecretRef {
 // ContainerIsolationSecretRef derives the Velez-internal secrets.Store key
 // that selects the isolation runtime of one deploy - keyed by the deploy's
 // exact service name, never by any client-supplied value, so no public API
-// surface can influence it. The value is "sysbox" or "privileged".
+// surface can influence it. The value is ContainerIsolationSysbox or ContainerIsolationPrivileged.
 func ContainerIsolationSecretRef(serviceName string) SecretRef {
 	return SecretRef{
 		Scope: "plugin",

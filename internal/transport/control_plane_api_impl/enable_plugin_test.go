@@ -2,6 +2,7 @@ package control_plane_api_impl
 
 import (
 	"context"
+	"database/sql"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -42,6 +43,12 @@ func (f *fakeJobsEngine) Watch(_ context.Context, _, _ string) <-chan tasks_quer
 
 func (f *fakeJobsEngine) ListJobs(_ context.Context, _ tasks_queries.VelezTask) ([]jobs.JobStatus, error) {
 	return nil, nil
+}
+
+func (f *fakeJobsEngine) Latest(
+	_ context.Context, _, _ string,
+) (sql.Null[tasks_queries.VelezTask], error) {
+	return sql.Null[tasks_queries.VelezTask]{}, nil
 }
 
 func (f *fakeJobsEngine) SetRegistry(_ *jobs.Registry) {}

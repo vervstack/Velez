@@ -2,6 +2,7 @@ package tasks_api_impl
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"testing"
 	"time"
@@ -14,6 +15,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -76,6 +78,12 @@ func (f *fakeJobsEngine) Enqueue(_ context.Context, entityID, action string, _ a
 
 func (f *fakeJobsEngine) ListJobs(_ context.Context, _ tasks_queries.VelezTask) ([]jobs.JobStatus, error) {
 	return f.listJobsResp, f.listJobsErr
+}
+
+func (f *fakeJobsEngine) Latest(
+	_ context.Context, _, _ string,
+) (sql.Null[tasks_queries.VelezTask], error) {
+	return sql.Null[tasks_queries.VelezTask]{}, nil
 }
 
 func (f *fakeJobsEngine) SetRegistry(_ *jobs.Registry) {}
@@ -159,7 +167,7 @@ func Test_CreateSmerdStream(t *testing.T) {
 		},
 	}
 
-	impl := New(engine, fakeVervServices{})
+	impl := New(engine, fakeVervServices{}, nil)
 
 	req := &velez_api.CreateSmerd_Request{}
 
@@ -232,7 +240,7 @@ func Test_CreateSmerdStream_EnqueueError(t *testing.T) {
 		enqueueErr: errTest,
 	}
 
-	impl := New(engine, fakeVervServices{})
+	impl := New(engine, fakeVervServices{}, nil)
 
 	req := &velez_api.CreateSmerd_Request{}
 
@@ -245,4 +253,60 @@ func Test_CreateSmerdStream_EnqueueError(t *testing.T) {
 	require.Empty(t, stream.sent)
 	// Watch must never be called when Enqueue fails.
 	require.Empty(t, engine.watchCalls)
+}
+
+type fakeUpgradeWatcher struct {
+	snapshots []jobs.ServiceUpgradeSnapshot
+}
+
+func (f fakeUpgradeWatcher) Watch(_ context.Context, _ string) <-chan jobs.ServiceUpgradeSnapshot {
+	ch := make(chan jobs.ServiceUpgradeSnapshot, len(f.snapshots))
+
+	for _, snapshot := range f.snapshots {
+		ch <- snapshot
+	}
+
+	close(ch)
+
+	return ch
+}
+
+func Test_WatchServiceUpgrade_EmptyServiceName(t *testing.T) {
+	t.Parallel()
+
+	impl := New(&fakeJobsEngine{}, fakeVervServices{}, fakeUpgradeWatcher{})
+	stream := &fakeTaskStatusStream{ctx: context.Background()}
+
+	err := impl.WatchServiceUpgrade(&velez_api.WatchServiceUpgrade_Request{}, stream)
+
+	require.ErrorIs(t, err, user_errors.ErrServiceNameRequiredToFind)
+	require.Empty(t, stream.sent)
+}
+
+func Test_WatchServiceUpgrade_ScheduledIsPendingWithoutJobs(t *testing.T) {
+	t.Parallel()
+
+	running := tasks_queries.VelezTask{ID: 7, Status: tasks_queries.VelezTaskStatusRUNNING}
+	watcher := fakeUpgradeWatcher{snapshots: []jobs.ServiceUpgradeSnapshot{
+		{},
+		{
+			Task: sql.Null[tasks_queries.VelezTask]{V: running, Valid: true},
+			Jobs: []jobs.JobStatus{{Name: "pull", Status: jobs_queries.VelezJobStatusRUNNING}},
+		},
+	}}
+
+	impl := New(&fakeJobsEngine{}, fakeVervServices{}, watcher)
+	stream := &fakeTaskStatusStream{ctx: context.Background()}
+
+	request := &velez_api.WatchServiceUpgrade_Request{ServiceName: "svc"}
+
+	err := impl.WatchServiceUpgrade(request, stream)
+
+	require.NoError(t, err)
+	require.Len(t, stream.sent, 2)
+	require.Equal(t, velez_api.TaskStatus_PENDING, stream.sent[0].GetStatus())
+	require.Empty(t, stream.sent[0].GetJobs())
+	require.Equal(t, velez_api.TaskStatus_RUNNING, stream.sent[1].GetStatus())
+	require.Equal(t, int64(7), stream.sent[1].GetTaskId())
+	require.Len(t, stream.sent[1].GetJobs(), 1)
 }

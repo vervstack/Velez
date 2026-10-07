@@ -350,7 +350,10 @@ func (c *Custom) InitApiServer(a *App) error {
 	c.ControlPlaneApiImpl = control_plane_api_impl.New(c.Services, c.JobsEngine)
 	c.VpnApiImpl = vcn_api_impl.New(c.ClusterClients, c.JobsEngine)
 	c.ServiceApiImpl = service_api_impl.New(c.Services, c.JobsEngine)
-	c.TasksApiImpl = tasks_api_impl.New(c.JobsEngine, c.Services.VervServices())
+
+	upgradeWatcher := jobs.NewServiceUpgradeWatcher(c.ClusterClients.StateManager(), c.JobsEngine)
+
+	c.TasksApiImpl = tasks_api_impl.New(c.JobsEngine, c.Services.VervServices(), upgradeWatcher)
 	c.PgaasApiImpl = pgaas_api_impl.New(c.Services)
 	c.RunnersApiImpl = runners_api_impl.New(c.Services)
 	c.SettingsApiImpl = settings_api_impl.New(c.Services)

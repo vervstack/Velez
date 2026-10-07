@@ -31,6 +31,10 @@ type Engine interface {
 	// task reaches a terminal status (DONE/FAILED), then closes the channel.
 	Watch(ctx context.Context, entityID, action string) <-chan tasks_queries.VelezTask
 
+	// Latest returns the newest task for (entityID, action) in any status, or
+	// an invalid Null when none was ever created.
+	Latest(ctx context.Context, entityID, action string) (sql.Null[tasks_queries.VelezTask], error)
+
 	// ListJobs returns the ordered per-job status breakdown for task, merging the
 	// action's full BuildJobs-defined job list (so not-yet-started jobs appear as
 	// pending) with whatever's actually been persisted so far. Returns nil, nil if
@@ -71,6 +75,24 @@ func NewEngine(tasksStorage storage.TasksStorage, jobsStorage storage.JobsStorag
 
 func (e *engine) SetRegistry(registry *Registry) {
 	e.registry = registry
+}
+
+func (e *engine) Latest(ctx context.Context, entityID, action string) (sql.Null[tasks_queries.VelezTask], error) {
+	params := tasks_queries.GetTaskByEntityActionParams{
+		EntityID: entityID,
+		Action:   action,
+	}
+
+	task, err := e.tasksStorage.GetTaskByEntityAction(ctx, params)
+	if errors.Is(err, sql.ErrNoRows) {
+		return sql.Null[tasks_queries.VelezTask]{}, nil
+	}
+
+	if err != nil {
+		return sql.Null[tasks_queries.VelezTask]{}, rerrors.Wrap(err, "error fetching latest task")
+	}
+
+	return sql.Null[tasks_queries.VelezTask]{V: task, Valid: true}, nil
 }
 
 func (e *engine) ListJobs(ctx context.Context, task tasks_queries.VelezTask) ([]JobStatus, error) {

@@ -3,6 +3,9 @@
 package e2e
 
 import (
+	"context"
+	"errors"
+	"io"
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
@@ -50,8 +53,15 @@ func Test_SetServiceProxy_PlainService_SetThenClearRecreatesContainerTwice(t *te
 func runSetServiceProxyOnPlainService(t *testing.T, env *TestEnvironment, _ Plane) {
 	initial := deployPlainServiceAndAwaitRunning(t, env, svcProxyPlainServiceName)
 
-	withProxy := setServiceProxyAndAwaitNewContainer(
-		t, env, svcProxyPlainServiceName, initial.ID, serviceProxyUrl, []string{serviceProxyBypassHost})
+	requireUpgradeStreamClosesWhenIdle(t, env, svcProxyPlainServiceName)
+
+	_, err := env.ServiceApiClient().SetServiceProxy(
+		t.Context(), newSetServiceProxyRequest(svcProxyPlainServiceName, serviceProxyUrl, []string{serviceProxyBypassHost}))
+	require.NoError(t, err)
+
+	requireUpgradeStreamEndsDone(t, drainServiceUpgrade(t, env, svcProxyPlainServiceName))
+
+	withProxy := awaitRecreatedContainer(t, env, svcProxyPlainServiceName, initial.ID)
 
 	requireContainerProxyEnv(t, withProxy)
 
@@ -87,4 +97,60 @@ func deployPlainServiceAndAwaitRunning(t *testing.T, env *TestEnvironment, servi
 	}, runnerRedeployTimeout, dindReadyTick, "service container never started")
 
 	return running
+}
+
+func newWatchServiceUpgradeRequest(serviceName string) *velez_api.WatchServiceUpgrade_Request {
+	return &velez_api.WatchServiceUpgrade_Request{ServiceName: serviceName}
+}
+
+func drainServiceUpgrade(t *testing.T, env *TestEnvironment, serviceName string) []*velez_api.TaskStatus {
+	t.Helper()
+
+	ctx, cancel := context.WithTimeout(t.Context(), runnerRedeployTimeout)
+	defer cancel()
+
+	stream, err := env.TasksApiClient().WatchServiceUpgrade(ctx, newWatchServiceUpgradeRequest(serviceName))
+	require.NoError(t, err)
+
+	var messages []*velez_api.TaskStatus
+
+	for {
+		message, recvErr := stream.Recv()
+		if errors.Is(recvErr, io.EOF) {
+			return messages
+		}
+
+		require.NoError(t, recvErr)
+
+		messages = append(messages, message)
+	}
+}
+
+func requireUpgradeStreamClosesWhenIdle(t *testing.T, env *TestEnvironment, serviceName string) {
+	t.Helper()
+
+	require.Empty(t, drainServiceUpgrade(t, env, serviceName))
+}
+
+func requireUpgradeStreamEndsDone(t *testing.T, messages []*velez_api.TaskStatus) {
+	t.Helper()
+
+	require.NotEmpty(t, messages)
+
+	last := messages[len(messages)-1]
+	require.Equal(t, velez_api.TaskStatus_DONE, last.GetStatus())
+
+	for _, message := range messages[:len(messages)-1] {
+		isInFlight := message.GetStatus() == velez_api.TaskStatus_PENDING ||
+			message.GetStatus() == velez_api.TaskStatus_RUNNING
+		require.True(t, isInFlight, "non-terminal message had status %s", message.GetStatus())
+	}
+
+	hasJobs := false
+
+	for _, message := range messages {
+		hasJobs = hasJobs || len(message.GetJobs()) > 0
+	}
+
+	require.True(t, hasJobs, "no message carried per-job statuses")
 }

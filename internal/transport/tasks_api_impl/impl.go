@@ -15,19 +15,30 @@ import (
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
+
+type ServiceUpgradeWatcher interface {
+	Watch(ctx context.Context, serviceName string) <-chan jobs.ServiceUpgradeSnapshot
+}
 
 type Impl struct {
 	velez_api.UnimplementedTasksApiServer
 
-	jobsEngine   jobs.Engine
-	vervServices service.VervServicesService
+	jobsEngine     jobs.Engine
+	vervServices   service.VervServicesService
+	upgradeWatcher ServiceUpgradeWatcher
 }
 
-func New(jobsEngine jobs.Engine, vervServices service.VervServicesService) *Impl {
+func New(
+	jobsEngine jobs.Engine,
+	vervServices service.VervServicesService,
+	upgradeWatcher ServiceUpgradeWatcher,
+) *Impl {
 	return &Impl{
-		jobsEngine:   jobsEngine,
-		vervServices: vervServices,
+		jobsEngine:     jobsEngine,
+		vervServices:   vervServices,
+		upgradeWatcher: upgradeWatcher,
 	}
 }
 
@@ -118,6 +129,32 @@ func (impl *Impl) CreateSmerdStream(
 	}
 
 	return nil
+}
+
+func (impl *Impl) WatchServiceUpgrade(
+	req *velez_api.WatchServiceUpgrade_Request,
+	stream velez_api.TasksApi_WatchServiceUpgradeServer,
+) error {
+	if req.GetServiceName() == "" {
+		return rerrors.Wrap(user_errors.ErrServiceNameRequiredToFind)
+	}
+
+	for snapshot := range impl.upgradeWatcher.Watch(stream.Context(), req.GetServiceName()) {
+		err := stream.Send(snapshotToProto(snapshot))
+		if err != nil {
+			return rerrors.Wrap(err, "error sending service upgrade status to stream")
+		}
+	}
+
+	return nil
+}
+
+func snapshotToProto(snapshot jobs.ServiceUpgradeSnapshot) *velez_api.TaskStatus {
+	if !snapshot.Task.Valid {
+		return &velez_api.TaskStatus{Status: velez_api.TaskStatus_PENDING}
+	}
+
+	return taskToProto(snapshot.Task.V, snapshot.Jobs)
 }
 
 func taskToProto(task tasks_queries.VelezTask, jobStatuses []jobs.JobStatus) *velez_api.TaskStatus {

@@ -59,6 +59,46 @@
         ]
       }
     },
+    "/api/tasks/service_upgrade/{serviceName}": {
+      "get": {
+        "summary": "WatchServiceUpgrade follows a service's in-flight upgrade: PENDING with no\njobs while the upgrade is scheduled but not picked up yet, then the live\nupgrade_smerd task with its per-job statuses, then its terminal status,\nafter which the stream closes. Closes without sending when nothing is in flight.",
+        "operationId": "TasksApi_WatchServiceUpgrade",
+        "responses": {
+          "200": {
+            "description": "A successful response.(streaming responses)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/velez_apiTaskStatus"
+                },
+                "error": {
+                  "$ref": "#/definitions/googleRpcStatus"
+                }
+              },
+              "title": "Stream result of velez_apiTaskStatus"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "serviceName",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TasksApi"
+        ]
+      }
+    },
     "/api/tasks/watch": {
       "get": {
         "operationId": "TasksApi_WatchTask",

@@ -39,12 +39,28 @@ service TasksApi {
       body: "*"
     };
   }
+
+  // WatchServiceUpgrade follows a service's in-flight upgrade: PENDING with no
+  // jobs while the upgrade is scheduled but not picked up yet, then the live
+  // upgrade_smerd task with its per-job statuses, then its terminal status,
+  // after which the stream closes. Closes without sending when nothing is in flight.
+  rpc WatchServiceUpgrade(WatchServiceUpgrade.Request) returns (stream TaskStatus) {
+    option (google.api.http) = {
+      get: "/api/tasks/service_upgrade/{service_name}"
+    };
+  }
 }
 
 message WatchTask {
   message Request {
     string entity_id = 1;
     string action = 2;
+  }
+}
+
+message WatchServiceUpgrade {
+  message Request {
+    string service_name = 1;
   }
 }
 

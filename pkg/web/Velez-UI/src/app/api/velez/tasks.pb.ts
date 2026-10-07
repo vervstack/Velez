@@ -37,6 +37,12 @@ export type WatchTaskRequest = {
 
 export type WatchTask = Record<string, never>;
 
+export type WatchServiceUpgradeRequest = {
+  serviceName?: string;
+};
+
+export type WatchServiceUpgrade = Record<string, never>;
+
 export type TaskStatusJobStatus = {
   name?: string;
   status?: TaskStatusStatus;
@@ -205,5 +211,8 @@ export class TasksApi {
   }
   static CreateSmerdStream(this:void, req: VelezApiVelezApi.CreateSmerdRequest, entityNotifier?: fm.NotifyStreamEntityArrival<TaskStatus>, initReq?: fm.InitReq): Promise<void> {
     return fm.fetchStreamingRequest<TaskStatus>(`/api/smerd/create/stream`, entityNotifier, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static WatchServiceUpgrade(this:void, req: WatchServiceUpgradeRequest, entityNotifier?: fm.NotifyStreamEntityArrival<TaskStatus>, initReq?: fm.InitReq): Promise<void> {
+    return fm.fetchStreamingRequest<TaskStatus>(`/api/tasks/service_upgrade/${req.serviceName}?${fm.renderURLSearchParams(req, ["serviceName"])}`, entityNotifier, {...initReq, method: "GET"});
   }
 }

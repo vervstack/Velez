@@ -58,10 +58,18 @@ func setServiceProxyAndAwaitNewContainer(
 ) container.InspectResponse {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
-
 	_, err := env.ServiceApiClient().SetServiceProxy(t.Context(), newSetServiceProxyRequest(serviceName, proxyUrl, bypassHosts))
 	require.NoError(t, err)
+
+	return awaitRecreatedContainer(t, env, serviceName, previousContainerId)
+}
+
+func awaitRecreatedContainer(
+	t *testing.T, env *TestEnvironment, serviceName, previousContainerId string,
+) container.InspectResponse {
+	t.Helper()
+
+	dockerClient := env.Custom.NodeClients.Docker().Client()
 
 	var recreated container.InspectResponse
 

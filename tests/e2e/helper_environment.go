@@ -382,6 +382,10 @@ func (e *TestEnvironment) ServiceApiClient() velez_api.ServiceApiClient {
 	return velez_api.NewServiceApiClient(e.grpcConn)
 }
 
+func (e *TestEnvironment) TasksApiClient() velez_api.TasksApiClient {
+	return velez_api.NewTasksApiClient(e.grpcConn)
+}
+
 func (e *TestEnvironment) clean() {
 	ctx := context.Background()
 	dockerClient := e.Custom.NodeClients.Docker().Client()

@@ -52,6 +52,11 @@ func (d *dockerServiceDepsStorage) GetDependencies(ctx context.Context,
 	var result []domain.ServiceDependency
 
 	for _, c := range containers {
+		_, isSidecar := c.Labels[labels.Sidecar]
+		if isSidecar {
+			continue
+		}
+
 		dependsOn := c.Labels[labels.DependsOnLabel]
 		if dependsOn != "" {
 			targets := strings.SplitSeq(dependsOn, ",")

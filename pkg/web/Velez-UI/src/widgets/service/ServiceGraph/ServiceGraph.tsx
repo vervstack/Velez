@@ -1,10 +1,12 @@
-import type { ServiceGraphNode } from '@/model/service_page/ServicePageModel'
+import type { ServiceGraphNode, ServiceSidecarView } from '@/model/service_page/ServicePageModel'
 import { useGetServiceGraphQuery } from '@/processes/queries/services'
+import ServiceGraphSidecarGroup from '@/widgets/service/ServiceGraph/ServiceGraphSidecarGroup.tsx'
 
 import cls from './ServiceGraph.module.css'
 
 interface ServiceGraphProps {
     serviceName: string
+    sidecars?: ServiceSidecarView[]
 }
 
 const SVG_W = 980
@@ -19,6 +21,8 @@ const NODE_R = 44
 const RECT_W = 116
 const RECT_H = 40
 const LINE_HEIGHT = 11
+const CENTER_LABEL_OFFSET = 14
+const CENTER_LABEL_HALF_HEIGHT = 6
 
 function labelLines(name: string): string[] {
     const MAX = 15
@@ -74,11 +78,14 @@ function renderNode(node: ServiceGraphNode, x: number, y: number, direction: 'in
     )
 }
 
-export default function ServiceGraph({serviceName}: ServiceGraphProps) {
+export default function ServiceGraph({serviceName, sidecars = []}: ServiceGraphProps) {
     const {data, isLoading, isError} = useGetServiceGraphQuery(serviceName)
 
     const incoming: ServiceGraphNode[] = data?.incoming ?? []
     const outgoing: ServiceGraphNode[] = data?.outgoing ?? []
+    const centerLabelLines = labelLines(serviceName)
+    const centerLabelBottom = CENTER_Y + CENTER_RING_R + CENTER_LABEL_OFFSET
+        + (centerLabelLines.length - 1) * LINE_HEIGHT + CENTER_LABEL_HALF_HEIGHT
 
     const header = (
         <div className={cls.SectionHeader}>
@@ -105,7 +112,7 @@ export default function ServiceGraph({serviceName}: ServiceGraphProps) {
         )
     }
 
-    if (incoming.length === 0 && outgoing.length === 0) {
+    if (incoming.length === 0 && outgoing.length === 0 && sidecars.length === 0) {
         return (
             <div className={cls.ServiceGraphContainer}>
                 {header}
@@ -174,11 +181,21 @@ export default function ServiceGraph({serviceName}: ServiceGraphProps) {
                         )
                     })}
 
+                    {sidecars.length > 0 && (
+                        <ServiceGraphSidecarGroup
+                            sidecars={sidecars}
+                            centerX={CENTER_X}
+                            centerY={CENTER_Y}
+                            ringRadius={CENTER_RING_R}
+                            labelBottomY={centerLabelBottom}
+                        />
+                    )}
+
                     <circle cx={CENTER_X} cy={CENTER_Y} r={CENTER_RING_R} className={cls.centerRing} />
                     <circle cx={CENTER_X} cy={CENTER_Y} r={CENTER_R} className={cls.centerNode} />
                     <text x={CENTER_X} y={CENTER_Y} className={cls.centerMeta}>·service·</text>
-                    {labelLines(serviceName).map(function renderCenterPart(part: string, i: number) {
-                        return <text key={i} x={CENTER_X} y={CENTER_Y + CENTER_RING_R + 14 + i * LINE_HEIGHT} className={cls.centerLabel}>{part}</text>
+                    {centerLabelLines.map(function renderCenterPart(part: string, i: number) {
+                        return <text key={i} x={CENTER_X} y={CENTER_Y + CENTER_RING_R + CENTER_LABEL_OFFSET + i * LINE_HEIGHT} className={cls.centerLabel}>{part}</text>
                     })}
 
                     {incoming.map(function renderIncomingNode(node: ServiceGraphNode, i: number) {
@@ -211,6 +228,14 @@ export default function ServiceGraph({serviceName}: ServiceGraphProps) {
                     </svg>
                     <span>service</span>
                 </div>
+                {sidecars.length > 0 && (
+                    <div className={cls.LegendItem}>
+                        <svg width="14" height="9" className={cls.LegendSidecarShape}>
+                            <rect x="0.5" y="0.5" width="13" height="8" rx="2" />
+                        </svg>
+                        <span>sidecar (same service)</span>
+                    </div>
+                )}
                 </div>
             </div>
         </div>

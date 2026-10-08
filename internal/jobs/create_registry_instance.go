@@ -2,6 +2,7 @@ package jobs
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net"
 	"path"
@@ -298,6 +299,7 @@ func (h *createRegistryInstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJo
 		configResolver: h.configResolver,
 		secrets:        h.secretsStore,
 		s3:             payload,
+		jobsEngine:     h.jobsEngine,
 		req:            payload,
 		ctx:            payload,
 		instanceName:   instanceName,
@@ -306,6 +308,7 @@ func (h *createRegistryInstanceHandler) BuildJobs(taskCtx TaskContext) []NamedJo
 	waitJob := &waitForRegistryDeployJob{
 		jobsEngine:   h.jobsEngine,
 		req:          payload,
+		ctx:          payload,
 		instanceName: instanceName,
 	}
 
@@ -595,7 +598,7 @@ func (j *writeHtpasswdJob) Do(ctx context.Context) error {
 		return err
 	}
 
-	err = writeFileToContainer(ctx, j.copyAPI, containerID, j.filePath, []byte(line))
+	err = writeFileToContainer(ctx, j.copyAPI, containerID, j.filePath, []byte(line), defaultVolumeFileMode)
 	if err != nil {
 		return rerrors.Wrap(err, "error copying htpasswd to container")
 	}
@@ -627,12 +630,14 @@ type deployRegistryInstanceJob struct {
 	configResolver service.ServiceConfigResolver
 	secrets        secrets.Store
 	s3             registryS3Accessor
+	jobsEngine     taskWatcher
 
 	req createRegistryInstanceRequestAccessor
 	ctx interface {
 		registryUsernameAccessor
 		registryExposedPortAccessor
 		registryUiExposedPortAccessor
+		deployBaselineAccessor
 	}
 	instanceName string
 }
@@ -672,6 +677,11 @@ func (j *deployRegistryInstanceJob) Do(ctx context.Context) error {
 		}
 	}
 
+	err = recordDeployBaseline(ctx, j.jobsEngine, j.ctx, SmerdEntityID(request.GetEnvironment(), instanceName))
+	if err != nil {
+		return err
+	}
+
 	deployReq := domain.CreateDeployReq{
 		ServiceName:    instanceName,
 		DisplayName:    request.GetName(),
@@ -690,6 +700,41 @@ func (j *deployRegistryInstanceJob) Do(ctx context.Context) error {
 // taskWatcher is the narrow jobs.Engine slice waitForRegistryDeployJob needs.
 type taskWatcher interface {
 	Watch(ctx context.Context, entityID, action string) <-chan tasks_queries.VelezTask
+	WatchAfter(ctx context.Context, entityID, action string, afterTaskId int64) <-chan tasks_queries.VelezTask
+	Latest(ctx context.Context, entityID, action string) (sql.Null[tasks_queries.VelezTask], error)
+}
+
+// deployBaselineAccessor carries the latest create_smerd task id that existed
+// for the entity before the deploy was scheduled, so the wait job ignores a
+// stale terminal task left by an earlier same-named service.
+type deployBaselineAccessor interface {
+	GetDeployBaselineTaskId() int64
+	HasDeployBaselineTaskId() bool
+	SetDeployBaselineTaskId(v int64)
+}
+
+// recordDeployBaseline records the baseline once; a resumed task keeps the
+// value recorded before the deploy was first scheduled.
+func recordDeployBaseline(
+	ctx context.Context, watcher taskWatcher, baseline deployBaselineAccessor, entityID string,
+) error {
+	if baseline.HasDeployBaselineTaskId() {
+		return nil
+	}
+
+	latest, err := watcher.Latest(ctx, entityID, CreateSmerdAction)
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving latest create smerd task")
+	}
+
+	baselineTaskId := int64(0)
+	if latest.Valid {
+		baselineTaskId = latest.V.ID
+	}
+
+	baseline.SetDeployBaselineTaskId(baselineTaskId)
+
+	return nil
 }
 
 // waitForRegistryDeployJob blocks until the create_smerd task that the
@@ -704,6 +749,7 @@ type waitForRegistryDeployJob struct {
 	jobsEngine taskWatcher
 
 	req          createRegistryInstanceRequestAccessor
+	ctx          deployBaselineAccessor
 	instanceName string
 }
 
@@ -715,7 +761,9 @@ func (j *waitForRegistryDeployJob) Do(ctx context.Context) error {
 
 	var finalTask tasks_queries.VelezTask
 
-	for task := range j.jobsEngine.Watch(watchCtx, entityID, CreateSmerdAction) {
+	baseline := j.ctx.GetDeployBaselineTaskId()
+
+	for task := range j.jobsEngine.WatchAfter(watchCtx, entityID, CreateSmerdAction, baseline) {
 		finalTask = task
 	}
 

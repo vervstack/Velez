@@ -102,6 +102,12 @@ func (f *fakeJobsEngine) DismissFailed(_ context.Context, _, _ string) error {
 
 func (f *fakeJobsEngine) SetRegistry(_ *jobs.Registry) {}
 
+func (f *fakeJobsEngine) WatchAfter(
+	ctx context.Context, entityID, action string, _ int64,
+) <-chan tasks_queries.VelezTask {
+	return f.Watch(ctx, entityID, action)
+}
+
 func (f *fakeJobsEngine) Watch(ctx context.Context, entityID, action string) <-chan tasks_queries.VelezTask {
 	f.watchCalls = append(f.watchCalls, watchCall{entityID: entityID, action: action})
 

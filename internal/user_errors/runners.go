@@ -51,6 +51,26 @@ var (
 	// validation MintRegistrationToken performs.
 	ErrGitlabAccessTokenEmpty = rerrors.New("gitlab access token is empty", codes.InvalidArgument)
 
+	// ErrGitlabLegacyRegistrationToken is returned by the runneraas package
+	// when a gitlab access token is a runner registration or authentication
+	// token instead of a personal access token.
+	ErrGitlabLegacyRegistrationToken = rerrors.New(
+		"gitlab access token must be a personal access token with the create_runner scope, "+
+			"not a runner registration or authentication token", codes.InvalidArgument)
+
+	// ErrGitlabAccessTokenRejected is returned by the runneraas package's
+	// gitlab provider when gitlab answers 401/403 to the personal access
+	// token.
+	ErrGitlabAccessTokenRejected = rerrors.New(
+		"gitlab rejected the personal access token or it lacks the create_runner scope",
+		codes.PermissionDenied)
+
+	// ErrGitlabTargetNotFound is returned by the runneraas package's gitlab
+	// provider when the requested project or group does not exist or is not
+	// visible to the personal access token.
+	ErrGitlabTargetNotFound = rerrors.New(
+		"gitlab project or group not found or not visible to the token", codes.NotFound)
+
 	// ErrGitlabRunnerRegisterFailed is returned by the runneraas package's
 	// gitlab provider when `gitlab-runner register` exits non-zero inside
 	// the deployed container.

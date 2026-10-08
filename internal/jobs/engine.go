@@ -42,6 +42,9 @@ type Engine interface {
 	// Watch streams task status changes for (entityID, action) until the
 	// task reaches a terminal status (DONE/FAILED), then closes the channel.
 	Watch(ctx context.Context, entityID, action string) <-chan tasks_queries.VelezTask
+	// WatchAfter is Watch that ignores tasks with id <= afterTaskId, so a
+	// previous run's terminal task is not mistaken for the current one.
+	WatchAfter(ctx context.Context, entityID, action string, afterTaskId int64) <-chan tasks_queries.VelezTask
 
 	// Latest returns the newest task for (entityID, action) in any status, or
 	// an invalid Null when none was ever created.
@@ -275,6 +278,12 @@ func (e *engine) Enqueue(
 }
 
 func (e *engine) Watch(ctx context.Context, entityID, action string) <-chan tasks_queries.VelezTask {
+	return e.WatchAfter(ctx, entityID, action, 0)
+}
+
+func (e *engine) WatchAfter(
+	ctx context.Context, entityID, action string, afterTaskId int64,
+) <-chan tasks_queries.VelezTask {
 	ch := make(chan tasks_queries.VelezTask)
 
 	go func() {
@@ -292,6 +301,8 @@ func (e *engine) Watch(ctx context.Context, entityID, action string) <-chan task
 			})
 
 			switch {
+			case err == nil && task.ID <= afterTaskId:
+				// task predates the baseline - keep polling
 			case err == nil:
 				if task.Status != lastStatus {
 					lastStatus = task.Status

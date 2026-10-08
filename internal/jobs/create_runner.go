@@ -2,6 +2,8 @@ package jobs
 
 import (
 	"context"
+	"path"
+	"strconv"
 	"strings"
 	"time"
 
@@ -9,10 +11,12 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	verv "go.vervstack.ru/Velez/internal/domain/vervonomicon"
+	"go.vervstack.ru/Velez/internal/gitlab_runner_config"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/secrets"
 	"go.vervstack.ru/Velez/internal/service/service_manager/runneraas/providers"
@@ -29,7 +33,7 @@ const (
 	stepMintRunnerToken     = "mint_runner_token"
 	stepDeployRunner        = "deploy_runner"
 	stepWaitForRunnerDeploy = "wait_for_runner_deploy"
-	stepRegisterRunner      = "register_runner"
+	stepWriteRunnerConfig   = "write_runner_config"
 	stepRegisterRunnerRow   = "register_runner_row"
 
 	// runnerDeployWaitTimeout mirrors registryDeployWaitTimeout - bounds how
@@ -44,10 +48,9 @@ const (
 	runnerDockerHostEnvVar = "DOCKER_HOST"
 
 	// runnerRegistrationTokenEnvVar carries the registration token into the
-	// runner container's own env, written regardless of provider - GitLab's
-	// Provider.RegistrationEnv returns none, since v1 has no automated
-	// registration step for it (see providers/gitlab's package doc comment).
-	// Velez-internal, never read by the runner process itself: the
+	// runner container's own env, written regardless of provider - for GitLab
+	// it is the minted glrt- runner token. Velez-internal, never read by the
+	// runner process itself: the
 	// single-node/dev secrets backend reads it back on GetRunnerCredentials/
 	// reregister after a process restart wipes its in-memory copy of the
 	// token, mirroring the precedent already established for pgaas's
@@ -78,19 +81,52 @@ type runnerRegistrationTokenAccessor interface {
 	SetRegistrationToken(token string)
 }
 
+type runnerRegistrationTokenClearer interface {
+	ClearRegistrationToken()
+}
+
+type runnerGitlabIdAccessor interface {
+	GetGitlabRunnerId() int64
+	SetGitlabRunnerId(v int64)
+}
+
+// runnerLoaderRef adapts the runner data volume to copyToVolumeRequestAccessor
+// and containerIDAccessor for the loader-container jobs. The loader container
+// id is its name, which Docker accepts wherever an id is expected, so a task
+// resumed after create_loader_container was checkpointed still finds it.
+type runnerLoaderRef struct {
+	instanceName string
+}
+
+func (r runnerLoaderRef) GetVolumeName() string {
+	return runnerVolumeName(r.instanceName)
+}
+
+func (runnerLoaderRef) GetPathToFiles() map[string][]byte {
+	return nil
+}
+
+func (r runnerLoaderRef) GetContainerId() string {
+	return r.GetVolumeName() + loaderContainerSuffix
+}
+
+func (runnerLoaderRef) SetContainerId(string) {}
+
 type createRunnerHandler struct {
+	nodeClients  node_clients.NodeClients
 	dataStorage  storage.Storage
 	secretsStore secrets.Store
 	vervServices service.VervServicesService
 	// jobsEngine lets waitForRunnerDeployJob watch the create_smerd task the
 	// deploy watcher runs for this runner's container.
 	jobsEngine Engine
-	// runtimes resolves the ContainerRuntime registerRunnerJob execs
-	// `gitlab-runner register` through.
+	// runtimes resolves the ContainerRuntime the config-seeding and proxy-sync
+	// jobs act through.
 	runtimes container_runtime.RuntimeResolver
 }
 
 func NewCreateRunnerHandler(
+	nodeClients node_clients.NodeClients,
 	dataStorage storage.Storage,
 	secretsStore secrets.Store,
 	vervServices service.VervServicesService,
@@ -98,6 +134,7 @@ func NewCreateRunnerHandler(
 	runtimes container_runtime.RuntimeResolver,
 ) TaskHandler {
 	return &createRunnerHandler{
+		nodeClients:  nodeClients,
 		dataStorage:  dataStorage,
 		secretsStore: secretsStore,
 		vervServices: vervServices,
@@ -115,14 +152,14 @@ func (h *createRunnerHandler) NewContext() TaskContext {
 }
 
 // BuildJobs mirrors create_registry_instance.go's shape, simplified: a
-// runner has no ports/htpasswd/UI sidecar to resolve, so mint_runner_token/
-// deploy_runner/wait_for_runner_deploy/register_runner/register_runner_row
-// is the full chain. deploy_runner, register_runner, and register_runner_row
-// split apart (never done inline in one job, unlike the retired synchronous
-// runneraas.CreateRunner) because register_runner must not run until
-// wait_for_runner_deploy confirms the container actually exists, and
-// register_runner_row must not run until register_runner succeeds - see
-// each job's doc comment.
+// runner has no ports/htpasswd/UI sidecar to resolve. GitHub self-registers
+// from the container env, so its chain is mint/deploy/wait/row. GitLab has no
+// mint or register step: CreateRunner (runneraas) creates the runner through
+// the GitLab API before enqueueing, so the personal access token never reaches
+// the persisted task payload, and the full config.toml is written into the
+// data volume before the container first starts, so the container comes up
+// already registered; sync_runner_proxy follows the deploy because the job
+// proxy env is derived from the live container.
 func (h *createRunnerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 	payload, ok := taskCtx.(*velez_api.CreateRunnerTaskPayload)
 	if !ok {
@@ -130,10 +167,46 @@ func (h *createRunnerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 	}
 
 	provider, _, _ := runnerProviderConfig(payload.GetRequest())
-	instanceName := runnerNamePrefix(provider) + payload.GetRequest().GetName()
+	instanceName := RunnerInstanceName(provider, payload.GetRequest().GetName())
+	seederProvider := configSeederFor(provider)
 
-	return []NamedJob{
-		{
+	deployJob := NamedJob{
+		Name: stepDeployRunner,
+		Job: &deployRunnerJob{
+			boxes:        h.dataStorage.ResourceBoxes(),
+			vervServices: h.vervServices,
+			secrets:      h.secretsStore,
+			jobsEngine:   h.jobsEngine,
+			req:          payload,
+			ctx:          payload,
+			instanceName: instanceName,
+		},
+	}
+
+	waitJob := NamedJob{
+		Name: stepWaitForRunnerDeploy,
+		Job: &waitForRunnerDeployJob{
+			jobsEngine:   h.jobsEngine,
+			req:          payload,
+			ctx:          payload,
+			instanceName: instanceName,
+		},
+	}
+
+	rowJob := NamedJob{
+		Name: stepRegisterRunnerRow,
+		Job: &registerRunnerRowJob{
+			services:      h.dataStorage.Services(),
+			runners:       h.dataStorage.Runners(),
+			dindInstances: h.dataStorage.DindInstances(),
+			instanceName:  instanceName,
+			req:           payload,
+			ctx:           payload,
+		},
+	}
+
+	if provider != velez_api.RunnerProvider_GITLAB {
+		mintJob := NamedJob{
 			Name: stepMintRunnerToken,
 			Job: &mintRunnerTokenJob{
 				secrets:      h.secretsStore,
@@ -141,46 +214,89 @@ func (h *createRunnerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 				ctx:          payload,
 				instanceName: instanceName,
 			},
+		}
+
+		return []NamedJob{mintJob, deployJob, waitJob, rowJob}
+	}
+
+	namedJobs := h.buildSeedConfigJobs(payload, instanceName, seederProvider)
+
+	syncProxyJob := NamedJob{
+		Name: stepSyncRunnerProxy,
+		Job: &syncCreatedRunnerProxyJob{
+			runtimes:     h.runtimes,
+			req:          payload,
+			instanceName: instanceName,
 		},
+	}
+
+	return append(namedJobs, deployJob, waitJob, syncProxyJob, rowJob)
+}
+
+// buildSeedConfigJobs writes the rendered config.toml into the runner data
+// volume through a throwaway loader container, the same way
+// create_registry_instance writes its htpasswd file.
+func (h *createRunnerHandler) buildSeedConfigJobs(
+	payload *velez_api.CreateRunnerTaskPayload,
+	instanceName string,
+	seederProvider providers.ConfigSeeder,
+) []NamedJob {
+	loaderRef := runnerLoaderRef{instanceName: instanceName}
+	folders := mountedFolders(loaderRef.GetVolumeName(), []string{gitlab_runner_config.ConfigPath})
+
+	return []NamedJob{
 		{
-			Name: stepDeployRunner,
-			Job: &deployRunnerJob{
-				boxes:        h.dataStorage.ResourceBoxes(),
-				vervServices: h.vervServices,
-				secrets:      h.secretsStore,
-				req:          payload,
-				ctx:          payload,
-				instanceName: instanceName,
+			Name: stepCreateLoaderContainer,
+			Job: &createLoaderContainerJob{
+				nodeClients: h.nodeClients,
+				req:         loaderRef,
+				folders:     folders,
+				ctx:         loaderRef,
 			},
 		},
 		{
-			Name: stepWaitForRunnerDeploy,
-			Job: &waitForRunnerDeployJob{
-				jobsEngine:   h.jobsEngine,
-				req:          payload,
-				instanceName: instanceName,
+			Name: stepStartSidecar,
+			Job: &startLoaderContainerJob{
+				dockerAPI: h.nodeClients.Docker().Client(),
+				ctx:       loaderRef,
 			},
 		},
 		{
-			Name: stepRegisterRunner,
-			Job: &registerRunnerJob{
+			Name: stepWriteRunnerConfig,
+			Job: &writeRunnerConfigJob{
 				runtimes:     h.runtimes,
+				copyAPI:      h.nodeClients.Docker().Client(),
+				seeder:       seederProvider,
 				req:          payload,
-				ctx:          payload,
+				token:        payload,
+				loader:       loaderRef,
 				instanceName: instanceName,
 			},
 		},
 		{
-			Name: stepRegisterRunnerRow,
-			Job: &registerRunnerRowJob{
-				services:      h.dataStorage.Services(),
-				runners:       h.dataStorage.Runners(),
-				dindInstances: h.dataStorage.DindInstances(),
-				instanceName:  instanceName,
-				req:           payload,
+			Name: stepDropContainer,
+			Job: &dropLoaderContainerJob{
+				docker: h.nodeClients.Docker(),
+				ctx:    loaderRef,
 			},
 		},
 	}
+}
+
+// configSeederFor returns the provider's ConfigSeeder, or nil for a provider
+// that registers itself from the container env (GitHub) or is unspecified.
+func configSeederFor(provider velez_api.RunnerProvider) providers.ConfigSeeder {
+	runnerProvider, err := providers.For(provider)
+	if err != nil {
+		return nil
+	}
+
+	configSeeder, ok := runnerProvider.(providers.ConfigSeeder)
+	if !ok {
+		return nil
+	}
+
+	return configSeeder
 }
 
 // runnerProviderConfig resolves the RunnerProvider implied by which
@@ -214,10 +330,15 @@ func runnerNamePrefix(provider velez_api.RunnerProvider) string {
 	}
 }
 
-// mintRunnerTokenJob stores the caller's access token, then mints (GitHub)
-// or passes through (GitLab) the runner registration token deploy_runner
-// needs. Skips minting on a resumed task that already has one - see
-// runnerRegistrationTokenAccessor's doc comment.
+func RunnerInstanceName(provider velez_api.RunnerProvider, name string) string {
+	return runnerNamePrefix(provider) + name
+}
+
+// mintRunnerTokenJob stores the caller's access token and mints the GitHub
+// registration token deploy_runner needs through the GitHub API. Skips minting
+// on a resumed task that already has a token - see
+// runnerRegistrationTokenAccessor's doc comment. GitLab runners are minted
+// before the task is enqueued - see runneraas.CreateRunner.
 type mintRunnerTokenJob struct {
 	secrets secrets.Store
 
@@ -228,7 +349,6 @@ type mintRunnerTokenJob struct {
 
 func (j *mintRunnerTokenJob) Do(ctx context.Context) error {
 	request := j.req.GetRequest()
-	name := j.instanceName
 
 	provider, accessToken, baseUrl := runnerProviderConfig(request)
 
@@ -237,7 +357,7 @@ func (j *mintRunnerTokenJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error resolving runner provider")
 	}
 
-	err = j.secrets.Put(ctx, domain.RunnerAccessTokenSecretRef(name), accessToken)
+	err = j.secrets.Put(ctx, domain.RunnerAccessTokenSecretRef(j.instanceName), accessToken)
 	if err != nil {
 		return rerrors.Wrap(err, "error storing runner access token")
 	}
@@ -253,7 +373,11 @@ func (j *mintRunnerTokenJob) Do(ctx context.Context) error {
 		j.ctx.SetRegistrationToken(token)
 	}
 
-	err = j.secrets.Put(ctx, domain.RunnerRegistrationTokenSecretRef(name), j.ctx.GetRegistrationToken())
+	return j.storeRegistrationToken(ctx)
+}
+
+func (j *mintRunnerTokenJob) storeRegistrationToken(ctx context.Context) error {
+	err := j.secrets.Put(ctx, domain.RunnerRegistrationTokenSecretRef(j.instanceName), j.ctx.GetRegistrationToken())
 	if err != nil {
 		return rerrors.Wrap(err, "error storing runner registration token")
 	}
@@ -270,9 +394,14 @@ type deployRunnerJob struct {
 	boxes        vervonomicon.BoxLookup
 	vervServices service.VervServicesService
 	secrets      secrets.Store
+	jobsEngine   taskWatcher
 
-	req          createRunnerRequestAccessor
-	ctx          runnerRegistrationTokenAccessor
+	req createRunnerRequestAccessor
+	ctx interface {
+		runnerRegistrationTokenAccessor
+		runnerGitlabIdAccessor
+		deployBaselineAccessor
+	}
 	instanceName string
 }
 
@@ -288,7 +417,7 @@ func (j *deployRunnerJob) Do(ctx context.Context) error {
 	}
 
 	descriptor, smerdRequest, err := buildRunnerDeployRequest(
-		ctx, j.boxes, runnerProvider, request, j.ctx.GetRegistrationToken(), name,
+		ctx, j.boxes, runnerProvider, request, j.ctx.GetRegistrationToken(), j.ctx.GetGitlabRunnerId(), name,
 	)
 	if err != nil {
 		return rerrors.Wrap(err, "error building runner deploy request")
@@ -315,6 +444,11 @@ func (j *deployRunnerJob) Do(ctx context.Context) error {
 		if err != nil {
 			return rerrors.Wrap(err, "error putting docker socket grant secret")
 		}
+	}
+
+	err = recordDeployBaseline(ctx, j.jobsEngine, j.ctx, SmerdEntityID(request.GetEnvironment(), name))
+	if err != nil {
+		return err
 	}
 
 	deployReq := domain.CreateDeployReq{
@@ -355,6 +489,7 @@ func buildRunnerDeployRequest(
 	provider providers.Provider,
 	request *velez_api.CreateRunner_Request,
 	registrationToken string,
+	gitlabRunnerId int64,
 	name string,
 ) (verv.Descriptor, *velez_api.CreateSmerd_Request, error) {
 	files, err := builtin.Read(provider.DescriptorName())
@@ -414,6 +549,10 @@ func buildRunnerDeployRequest(
 	smerdRequest.Labels[labels.RunnerLabelsLabel] = strings.Join(request.GetLabels(), ",")
 	smerdRequest.Labels[labels.RunnerBaseUrlLabel] = baseUrl
 
+	if gitlabRunnerId > 0 {
+		smerdRequest.Labels[labels.RunnerGitlabIdLabel] = strconv.FormatInt(gitlabRunnerId, 10)
+	}
+
 	if request.GetDindName() != "" {
 		smerdRequest.Labels[labels.RunnerDindLabel] = request.GetDindName()
 	}
@@ -427,6 +566,10 @@ func buildRunnerDeployRequest(
 // collide in Docker's global volume namespace.
 func runnerVolumeName(instanceName string) string {
 	return instanceName + "-data"
+}
+
+func runnerCacheVolumeName(instanceName string) string {
+	return instanceName + "-cache"
 }
 
 // deriveRunnerName builds a unique-enough runner name from the target plus
@@ -457,6 +600,7 @@ type waitForRunnerDeployJob struct {
 	jobsEngine taskWatcher
 
 	req          createRunnerRequestAccessor
+	ctx          deployBaselineAccessor
 	instanceName string
 }
 
@@ -468,7 +612,9 @@ func (j *waitForRunnerDeployJob) Do(ctx context.Context) error {
 
 	var finalTask tasks_queries.VelezTask
 
-	for task := range j.jobsEngine.Watch(watchCtx, entityID, CreateSmerdAction) {
+	baseline := j.ctx.GetDeployBaselineTaskId()
+
+	for task := range j.jobsEngine.WatchAfter(watchCtx, entityID, CreateSmerdAction, baseline) {
 		finalTask = task
 	}
 
@@ -490,28 +636,82 @@ func (j *waitForRunnerDeployJob) Do(ctx context.Context) error {
 	return nil
 }
 
-// registerRunnerJob finishes registering the deployed runner container - a
-// no-op for a self-registering provider (GitHub), or an exec'd
-// `gitlab-runner register` for one that isn't (GitLab; see the gitlab
-// package's Register doc comment). Runs after waitForRunnerDeployJob
-// confirms the container exists, and before registerRunnerRowJob - see that
-// job's doc comment on why the row write must not happen any earlier.
-// instanceName doubles as the registration's runner name/description, the
-// same convention buildRunnerDeployRequest uses for every other per-instance
-// label - deriveRunnerName is not reused here because its random suffix
-// would pick a different name on every retry of a resumed task.
-type registerRunnerJob struct {
+// writeRunnerConfigJob renders the runner's config.toml and writes it into
+// the data volume mounted in the loader container. Rendering and writing are
+// one job so the glrt- token only ever lives in the task context, never in an
+// intermediate buffer a resumed task would lose.
+type writeRunnerConfigJob struct {
 	runtimes container_runtime.RuntimeResolver
+	copyAPI  copyAPI
+	seeder   providers.ConfigSeeder
 
 	req          createRunnerRequestAccessor
-	ctx          runnerRegistrationTokenAccessor
+	token        runnerRegistrationTokenAccessor
+	loader       containerIDAccessor
 	instanceName string
 }
 
-func (j *registerRunnerJob) Do(ctx context.Context) error {
+func (j *writeRunnerConfigJob) Do(ctx context.Context) error {
+	containerID := j.loader.GetContainerId()
+	if containerID == "" {
+		return user_errors.ErrContainerIdMissing
+	}
+
+	if j.seeder == nil {
+		return rerrors.Wrap(user_errors.ErrRunnerProviderUnsupported)
+	}
+
+	request := j.req.GetRequest()
+	_, _, baseUrl := runnerProviderConfig(request)
+
+	renderReq := providers.RenderConfigReq{
+		BaseUrl:         baseUrl,
+		RunnerToken:     j.token.GetRegistrationToken(),
+		RunnerName:      j.instanceName,
+		DockerImage:     request.GetGitlab().GetDockerImage(),
+		CacheVolumeName: runnerCacheVolumeName(j.instanceName),
+		Concurrent:      effectiveConcurrent(request.GetGitlab().GetConcurrent()),
+	}
+
+	content, err := j.seeder.RenderConfig(renderReq)
+	if err != nil {
+		return rerrors.Wrap(err, "error rendering runner config")
+	}
+
+	containerRuntime, err := j.runtimes.Runtime(ctx, "")
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving container runtime")
+	}
+
+	err = mkdirInContainer(ctx, containerRuntime, containerID, path.Dir(gitlab_runner_config.ConfigPath))
+	if err != nil {
+		return err
+	}
+
+	configMode := int64(runnerConfigFileMode)
+
+	err = writeFileToContainer(ctx, j.copyAPI, containerID, gitlab_runner_config.ConfigPath, content, configMode)
+	if err != nil {
+		return rerrors.Wrap(err, "error copying runner config to container")
+	}
+
+	return nil
+}
+
+// syncCreatedRunnerProxyJob mirrors the proxy env of the freshly deployed
+// runner container into its config.toml - the job proxy env is derived from
+// the live container, so it cannot be rendered when the file is seeded.
+type syncCreatedRunnerProxyJob struct {
+	runtimes container_runtime.RuntimeResolver
+
+	req          createRunnerRequestAccessor
+	instanceName string
+}
+
+func (j *syncCreatedRunnerProxyJob) Do(ctx context.Context) error {
 	request := j.req.GetRequest()
 
-	provider, _, baseUrl := runnerProviderConfig(request)
+	provider, _, _ := runnerProviderConfig(request)
 
 	runnerProvider, err := providers.For(provider)
 	if err != nil {
@@ -523,13 +723,9 @@ func (j *registerRunnerJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error resolving container runtime")
 	}
 
-	err = runnerProvider.Register(
-		ctx, containerRuntime, j.instanceName, baseUrl, j.ctx.GetRegistrationToken(),
-		request.GetGitlab().GetDockerImage(), j.instanceName,
-		effectiveConcurrent(request.GetGitlab().GetConcurrent()),
-	)
+	err = runnerProvider.SyncProxy(ctx, containerRuntime, j.instanceName)
 	if err != nil {
-		return rerrors.Wrap(err, "error registering runner")
+		return rerrors.Wrap(err, "error syncing runner proxy")
 	}
 
 	return nil
@@ -545,6 +741,10 @@ type registerRunnerRowJob struct {
 
 	instanceName string
 	req          createRunnerRequestAccessor
+	ctx          interface {
+		runnerGitlabIdAccessor
+		runnerRegistrationTokenClearer
+	}
 }
 
 func (j *registerRunnerRowJob) Do(ctx context.Context) error {
@@ -573,12 +773,15 @@ func (j *registerRunnerRowJob) Do(ctx context.Context) error {
 		DockerImage:         request.GetGitlab().GetDockerImage(),
 		DockerSocketAddress: request.GetDockerSocketAddress(),
 		Concurrent:          effectiveConcurrent(request.GetGitlab().GetConcurrent()),
+		GitlabRunnerId:      j.ctx.GetGitlabRunnerId(),
 	}
 
 	_, err = j.runners.UpsertRunner(ctx, upsertReq)
 	if err != nil {
 		return rerrors.Wrap(err, "error upserting runner row")
 	}
+
+	j.ctx.ClearRegistrationToken()
 
 	return nil
 }

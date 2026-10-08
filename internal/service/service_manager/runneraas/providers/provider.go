@@ -17,6 +17,7 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/service/service_manager/runneraas/providers/github"
 	"go.vervstack.ru/Velez/internal/service/service_manager/runneraas/providers/gitlab"
+	"go.vervstack.ru/Velez/internal/service/service_manager/runneraas/providers/seeder"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
@@ -75,6 +76,13 @@ type Provider interface {
 	DescriptorName() string
 	DataPath() string
 }
+
+type (
+	ConfigSeeder    = seeder.ConfigSeeder
+	CreateRunnerReq = seeder.CreateRunnerReq
+	CreatedRunner   = seeder.CreatedRunner
+	RenderConfigReq = seeder.RenderConfigReq
+)
 
 // For looks up the Provider for p, wrapped so every caller gets the same
 // rerrors-wrapped sentinel for an unrecognized/unspecified RunnerProvider.

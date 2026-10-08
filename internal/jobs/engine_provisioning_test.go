@@ -68,7 +68,7 @@ func (f provisioningFixture) finish(t *testing.T, taskID int64, status tasks_que
 
 	params := tasks_queries.FinishTaskParams{
 		Status: status,
-		Error:  sql.NullString{String: "boom", Valid: status == tasks_queries.VelezTaskStatusFAILED},
+		Error:  sql.NullString{String: testErrorBoom, Valid: status == tasks_queries.VelezTaskStatusFAILED},
 		ID:     taskID,
 	}
 

@@ -172,6 +172,30 @@ func (x *CreateRunnerTaskPayload) SetRegistrationToken(v string) {
 	x.RegistrationToken = &v
 }
 
+func (x *CreateRunnerTaskPayload) SetDeployBaselineTaskId(v int64) {
+	x.DeployBaselineTaskId = &v
+}
+
+func (x *CreateRunnerTaskPayload) SetGitlabRunnerId(v int64) {
+	x.GitlabRunnerId = &v
+}
+
+func (x *CreateRegistryInstanceTaskPayload) SetDeployBaselineTaskId(v int64) {
+	x.DeployBaselineTaskId = &v
+}
+
+func (x *CreateRegistryInstanceTaskPayload) HasDeployBaselineTaskId() bool {
+	return x.DeployBaselineTaskId != nil
+}
+
+func (x *CreateRunnerTaskPayload) HasDeployBaselineTaskId() bool {
+	return x.DeployBaselineTaskId != nil
+}
+
+func (x *CreateRunnerTaskPayload) ClearRegistrationToken() {
+	x.RegistrationToken = nil
+}
+
 func (x *RegisterContainerTaskPayload) SetContainerName(v string) {
 	x.ContainerName = v
 }

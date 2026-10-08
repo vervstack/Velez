@@ -43,8 +43,11 @@ type Runner struct {
 	// DindServiceId - the DinD service (velez.dind_instances) this runner
 	// uses as its Docker daemon. 0 means a legacy runner on the host socket.
 	DindServiceId int64
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	// GitlabRunnerId - the GitLab runner id minted at create; 0 for GitHub or
+	// a legacy runner.
+	GitlabRunnerId int64
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
 }
 
 const (
@@ -89,6 +92,7 @@ type UpsertRunnerReq struct {
 	DockerSocketAddress string
 	Concurrent          int32
 	DindServiceId       int64
+	GitlabRunnerId      int64
 }
 
 // CreateRunnerReq is the input to RunnersService.CreateRunner. See

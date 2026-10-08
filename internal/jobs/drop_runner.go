@@ -3,12 +3,15 @@ package jobs
 import (
 	"context"
 
+	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/secrets"
+	"go.vervstack.ru/Velez/internal/service/service_manager/runneraas/providers"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
@@ -16,26 +19,32 @@ import (
 const (
 	DropRunnerAction = "drop_runner"
 
+	stepUnregisterRunner    = "unregister_runner"
 	stepDeleteRunnerRow     = "delete_runner_row"
 	stepRemoveRunnerService = "remove_runner_service"
 	stepDeleteRunnerSecret  = "delete_runner_secret"
+
+	stepDeleteRunnerRegistrationToken = "delete_runner_registration_token"
 )
 
 type dropRunnerHandler struct {
 	dataStorage  storage.Storage
 	secretsStore secrets.Store
 	vervServices service.VervServicesService
+	runtimes     container_runtime.RuntimeResolver
 }
 
 func NewDropRunnerHandler(
 	dataStorage storage.Storage,
 	secretsStore secrets.Store,
 	vervServices service.VervServicesService,
+	runtimes container_runtime.RuntimeResolver,
 ) TaskHandler {
 	return &dropRunnerHandler{
 		dataStorage:  dataStorage,
 		secretsStore: secretsStore,
 		vervServices: vervServices,
+		runtimes:     runtimes,
 	}
 }
 
@@ -47,9 +56,11 @@ func (h *dropRunnerHandler) NewContext() TaskContext {
 	return &velez_api.DropRunnerTaskPayload{}
 }
 
-// The row goes first because it is addressed by the service id, which is
-// unresolvable once the service is removed; the secret goes last and is
-// addressed by name alone, so no step depends on data an earlier step deleted.
+// Unregistering goes before the row because it reads the runner's gitlab id
+// and base url from it; the row goes next because it is addressed by the
+// service id, which is unresolvable once the service is removed; the secret
+// goes last and is addressed by name alone, so no step depends on data an
+// earlier step deleted.
 func (h *dropRunnerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 	payload, ok := taskCtx.(*velez_api.DropRunnerTaskPayload)
 	if !ok {
@@ -59,6 +70,17 @@ func (h *dropRunnerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 	name := payload.GetName()
 
 	return []NamedJob{
+		{
+			Name: stepUnregisterRunner,
+			Job: &unregisterRunnerJob{
+				services: h.dataStorage.Services(),
+				runners:  h.dataStorage.Runners(),
+				secrets:  h.secretsStore,
+				runtimes: h.runtimes,
+				seeder:   configSeederFor(velez_api.RunnerProvider_GITLAB),
+				name:     name,
+			},
+		},
 		{
 			Name: stepDeleteRunnerRow,
 			Job: &deleteRunnerRowJob{
@@ -81,7 +103,81 @@ func (h *dropRunnerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 				secretRef: domain.RunnerAccessTokenSecretRef(name),
 			},
 		},
+		{
+			Name: stepDeleteRunnerRegistrationToken,
+			Job: &deleteRunnerSecretJob{
+				secrets:   h.secretsStore,
+				secretRef: domain.RunnerRegistrationTokenSecretRef(name),
+			},
+		},
 	}
+}
+
+// unregisterRunnerJob deletes the runner from GitLab so it does not linger
+// there after its container is gone. Best-effort: a failure is logged and
+// never blocks the drop. Runners without a recorded gitlab id are skipped.
+type unregisterRunnerJob struct {
+	services storage.ServicesStorage
+	runners  storage.RunnersStorage
+	secrets  secrets.Store
+	runtimes container_runtime.RuntimeResolver
+	seeder   providers.ConfigSeeder
+	name     string
+}
+
+func (j *unregisterRunnerJob) Do(ctx context.Context) error {
+	err := j.unregister(ctx)
+	if err != nil {
+		log.Ctx(ctx).Warn().Err(err).Str("runner", j.name).Msg("error unregistering runner in gitlab")
+	}
+
+	return nil
+}
+
+func (j *unregisterRunnerJob) unregister(ctx context.Context) error {
+	svc, err := j.services.GetByName(ctx, j.name)
+	if err != nil {
+		if rerrors.Is(err, user_errors.ErrStorageNotFound) {
+			return nil
+		}
+
+		return rerrors.Wrap(err, "error getting runner service")
+	}
+
+	runner, err := j.runners.GetRunnerByServiceID(ctx, svc.ID)
+	if err != nil {
+		if rerrors.Is(err, user_errors.ErrStorageNotFound) {
+			return nil
+		}
+
+		return rerrors.Wrap(err, "error getting runner row")
+	}
+
+	providerEnum := velez_api.RunnerProvider(velez_api.RunnerProvider_value[runner.Provider])
+	if providerEnum != velez_api.RunnerProvider_GITLAB || runner.GitlabRunnerId <= 0 {
+		return nil
+	}
+
+	if j.seeder == nil {
+		return rerrors.Wrap(user_errors.ErrRunnerProviderUnsupported)
+	}
+
+	containerRuntime, err := j.runtimes.Runtime(ctx, svc.Env)
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving container runtime")
+	}
+
+	token, err := currentGitlabRunnerToken(ctx, containerRuntime, j.secrets, j.name)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	err = j.seeder.DeleteRunnerByToken(ctx, runner.BaseUrl, token)
+	if err != nil {
+		return rerrors.Wrap(err, "error deleting gitlab runner")
+	}
+
+	return nil
 }
 
 type deleteRunnerRowJob struct {

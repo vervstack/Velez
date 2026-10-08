@@ -24,7 +24,7 @@ func (q *Queries) DeleteRunner(ctx context.Context, serviceID int64) error {
 
 const getRunnerByServiceID = `-- name: GetRunnerByServiceID :one
 SELECT service_id, provider, scope, target, labels, secret_ref, created_at, updated_at, base_url,
-       docker_image, docker_socket_address, concurrent, dind_service_id
+       docker_image, docker_socket_address, concurrent, dind_service_id, gitlab_runner_id
 FROM velez.runners
 WHERE service_id = $1
 `
@@ -46,13 +46,14 @@ func (q *Queries) GetRunnerByServiceID(ctx context.Context, serviceID int64) (Ve
 		&i.DockerSocketAddress,
 		&i.Concurrent,
 		&i.DindServiceID,
+		&i.GitlabRunnerID,
 	)
 	return i, err
 }
 
 const listRunners = `-- name: ListRunners :many
 SELECT service_id, provider, scope, target, labels, secret_ref, created_at, updated_at, base_url,
-       docker_image, docker_socket_address, concurrent, dind_service_id
+       docker_image, docker_socket_address, concurrent, dind_service_id, gitlab_runner_id
 FROM velez.runners
 ORDER BY service_id
 `
@@ -80,6 +81,7 @@ func (q *Queries) ListRunners(ctx context.Context) ([]VelezRunner, error) {
 			&i.DockerSocketAddress,
 			&i.Concurrent,
 			&i.DindServiceID,
+			&i.GitlabRunnerID,
 		); err != nil {
 			return nil, err
 		}
@@ -96,8 +98,9 @@ func (q *Queries) ListRunners(ctx context.Context) ([]VelezRunner, error) {
 
 const upsertRunner = `-- name: UpsertRunner :one
 INSERT INTO velez.runners (service_id, provider, scope, target, labels, secret_ref, base_url,
-                           docker_image, docker_socket_address, concurrent, dind_service_id)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+                           docker_image, docker_socket_address, concurrent, dind_service_id,
+                           gitlab_runner_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 ON CONFLICT (service_id) DO UPDATE
     SET provider              = EXCLUDED.provider,
         scope                 = EXCLUDED.scope,
@@ -109,9 +112,10 @@ ON CONFLICT (service_id) DO UPDATE
         docker_socket_address = EXCLUDED.docker_socket_address,
         concurrent            = EXCLUDED.concurrent,
         dind_service_id       = EXCLUDED.dind_service_id,
+        gitlab_runner_id      = EXCLUDED.gitlab_runner_id,
         updated_at            = NOW()
 RETURNING service_id, provider, scope, target, labels, secret_ref, created_at, updated_at, base_url,
-    docker_image, docker_socket_address, concurrent, dind_service_id
+    docker_image, docker_socket_address, concurrent, dind_service_id, gitlab_runner_id
 `
 
 type UpsertRunnerParams struct {
@@ -126,6 +130,7 @@ type UpsertRunnerParams struct {
 	DockerSocketAddress string
 	Concurrent          int32
 	DindServiceID       sql.NullInt64
+	GitlabRunnerID      int64
 }
 
 func (q *Queries) UpsertRunner(ctx context.Context, arg UpsertRunnerParams) (VelezRunner, error) {
@@ -141,6 +146,7 @@ func (q *Queries) UpsertRunner(ctx context.Context, arg UpsertRunnerParams) (Vel
 		arg.DockerSocketAddress,
 		arg.Concurrent,
 		arg.DindServiceID,
+		arg.GitlabRunnerID,
 	)
 	var i VelezRunner
 	err := row.Scan(
@@ -157,6 +163,7 @@ func (q *Queries) UpsertRunner(ctx context.Context, arg UpsertRunnerParams) (Vel
 		&i.DockerSocketAddress,
 		&i.Concurrent,
 		&i.DindServiceID,
+		&i.GitlabRunnerID,
 	)
 	return i, err
 }

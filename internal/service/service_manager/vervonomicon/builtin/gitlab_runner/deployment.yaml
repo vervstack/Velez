@@ -7,15 +7,12 @@ app:
   # start with a bare container and grow automation later.
   image: gitlab/gitlab-runner:latest
 
-  # v1 has no automated `gitlab-runner register` step - the official image
-  # doesn't self-register from env vars alone, unlike actions-runner. No
-  # env vars are set here (runneraas.gitlab.Provider.RegistrationEnv
-  # deliberately returns none): the caller finishes registration by hand
-  # against the running container, using the command
-  # RunnersAPI.GetRunnerCredentials hands back. This is the only Runners-
-  # as-a-service builtin descriptor with no `ports:` and no `env:` for that
-  # reason - a future iteration can automate registration without changing
-  # this shape.
+  # The runner is not registered by exec: Velez renders config.toml and seeds
+  # it into the /etc/gitlab-runner volume before the first start, so the
+  # container comes up already configured. No env vars, no ports and
+  # deliberately no healthcheck - the image entrypoint is
+  # `dumb-init /entrypoint`, which execs `gitlab-runner run` (default CMD
+  # `run --user=gitlab-runner --working-directory=/home/gitlab-runner`).
   volumes:
     - name: gitlab-runner-data
       path: /etc/gitlab-runner

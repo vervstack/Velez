@@ -107,3 +107,31 @@ func Test_ValidateDockerSource_Scenarios(t *testing.T) {
 		})
 	}
 }
+
+func Test_ValidateGitlabAccessToken_Scenarios(t *testing.T) {
+	cases := []struct {
+		name    string
+		token   string
+		wantErr error
+	}{
+		{"personal access token", "glpat-abcdef", nil},
+		{"custom prefix personal access token", "corp-abcdef", nil},
+		{"empty", "", user_errors.ErrGitlabAccessTokenEmpty},
+		{"legacy registration token", "GR1348941abcdef", user_errors.ErrGitlabLegacyRegistrationToken},
+		{"runner authentication token", "glrt-abcdef", user_errors.ErrGitlabLegacyRegistrationToken},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := validateGitlabAccessToken(tc.token)
+
+			if tc.wantErr == nil {
+				require.NoError(t, err)
+
+				return
+			}
+
+			require.ErrorIs(t, err, tc.wantErr)
+		})
+	}
+}

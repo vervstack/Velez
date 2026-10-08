@@ -13,9 +13,9 @@ func LogInterceptor() grpc.ServerOption {
 			defer func() {
 				log.Debug().
 					Str("method", info.FullMethod).
-					Interface("request", req).
+					Interface("request", redactSecrets(req)).
 					Err(err).
-					Interface("response", resp).
+					Interface("response", redactSecrets(resp)).
 					Msg("GRPC request")
 			}()
 

@@ -275,7 +275,8 @@ type VelezRunner struct {
 	DockerSocketAddress string
 	Concurrent          int32
 	// NULL = legacy runner on the host docker socket
-	DindServiceID sql.NullInt64
+	DindServiceID  sql.NullInt64
+	GitlabRunnerID int64
 }
 
 type VelezSecret struct {

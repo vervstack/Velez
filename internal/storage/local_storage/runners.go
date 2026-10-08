@@ -70,6 +70,7 @@ func (d *dockerRunners) UpsertRunner(_ context.Context, req domain.UpsertRunnerR
 		DockerSocketAddress: req.DockerSocketAddress,
 		Concurrent:          req.Concurrent,
 		DindServiceId:       req.DindServiceId,
+		GitlabRunnerId:      req.GitlabRunnerId,
 		CreatedAt:           createdAt,
 		UpdatedAt:           now,
 	}

@@ -39,6 +39,30 @@ func validateRunnerTarget(scope velez_api.RunnerScope, target string) error {
 	}
 }
 
+const (
+	gitlabLegacyRegistrationTokenPrefix = "GR1348941"
+	gitlabRunnerAuthTokenPrefix         = "glrt-"
+)
+
+// validateGitlabAccessToken rejects a runner registration or authentication
+// token where a personal access token is required. Any other value is
+// accepted - self-managed instances may use custom personal access token
+// prefixes.
+func validateGitlabAccessToken(token string) error {
+	if token == "" {
+		return user_errors.ErrGitlabAccessTokenEmpty
+	}
+
+	isLegacy := strings.HasPrefix(token, gitlabLegacyRegistrationTokenPrefix)
+	isRunnerAuth := strings.HasPrefix(token, gitlabRunnerAuthTokenPrefix)
+
+	if isLegacy || isRunnerAuth {
+		return user_errors.ErrGitlabLegacyRegistrationToken
+	}
+
+	return nil
+}
+
 // validateDockerSocketAddress checks a request's docker_socket_address.
 // Empty is fine - it means fallback to the default host socket grant. A
 // non-empty value must be tcp:// - unix:// and bare filesystem paths are

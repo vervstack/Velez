@@ -190,6 +190,7 @@ export type CreateRegistryInstanceTaskPayload = {
   uiExposedPort?: number;
   s3BucketId?: string;
   s3AccessKeyId?: string;
+  deployBaselineTaskId?: string;
 };
 
 export type CreateDindTaskPayload = {
@@ -213,6 +214,8 @@ export type CreateS3InstanceTaskPayload = {
 export type CreateRunnerTaskPayload = {
   request?: VelezApiRunnersApi.CreateRunnerRequest;
   registrationToken?: string;
+  deployBaselineTaskId?: string;
+  gitlabRunnerId?: string;
 };
 
 export type ReregisterRunnerTaskPayload = {

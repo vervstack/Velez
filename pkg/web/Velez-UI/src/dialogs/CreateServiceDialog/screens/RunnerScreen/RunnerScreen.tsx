@@ -214,7 +214,7 @@ export default function RunnerScreen({initialProvider = RunnerProvider.GITHUB, o
                     {renderTargetField()}
 
                     <Input
-                        label={isGitlab ? "GitLab Runner Token" : "GitHub Access Token"}
+                        label={isGitlab ? "GitLab Personal Access Token (create_runner scope)" :"GitHub Access Token"}
                         inputValue={accessToken}
                         onChange={setAccessToken}
                         disabled={createRunner.isPending}

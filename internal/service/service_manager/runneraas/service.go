@@ -14,6 +14,8 @@ import (
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/secrets"
+	"go.vervstack.ru/Velez/internal/service/service_manager/runneraas/providers"
+	"go.vervstack.ru/Velez/internal/service/service_manager/runneraas/providers/gitlab"
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
@@ -35,6 +37,9 @@ type RunneraasService struct {
 	secrets      secrets.Store
 	jobsEngine   jobs.Engine
 	runtimes     container_runtime.RuntimeResolver
+	// gitlabSeeder mints GitLab runners inside CreateRunner, before the task
+	// is enqueued, so the personal access token never reaches the task payload.
+	gitlabSeeder providers.ConfigSeeder
 }
 
 // New builds a RunneraasService. dataStorage, vervServices, secretsStore and
@@ -51,5 +56,6 @@ func New(
 		secrets:      secretsStore,
 		jobsEngine:   jobsEngine,
 		runtimes:     runtimes,
+		gitlabSeeder: gitlab.New(),
 	}
 }

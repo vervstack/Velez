@@ -56,7 +56,7 @@ func TestCheckpoint_FailFastWhenFailed(t *testing.T) {
 		TaskID:  1,
 		JobName: "my_job",
 		Status:  jobs_queries.VelezJobStatusFAILED,
-		Error:   sql.NullString{String: "boom", Valid: true},
+		Error:   sql.NullString{String: testErrorBoom, Valid: true},
 	}
 
 	inner := &recordingJob{}

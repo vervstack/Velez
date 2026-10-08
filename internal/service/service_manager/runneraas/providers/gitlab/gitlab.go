@@ -1,20 +1,19 @@
-// Package gitlab implements runneraas.Provider for GitLab. The official
-// gitlab/gitlab-runner image doesn't self-register from env vars alone (it
-// needs `gitlab-runner register` run once to write config.toml before
-// `gitlab-runner run` serves jobs), so this provider deploys a bare
-// container and trusts the caller's supplied access token as an
-// already-valid registration token, then execs the register command inside
-// the container itself once it's deployed (see Register). GitLab's own API
-// for minting a registration token (the legacy shared-token reset endpoint)
-// is deprecated since 16.0 and disabled by default on 17.0+/gitlab.com, so
-// this provider does not call it.
+// Package gitlab implements runneraas.Provider for GitLab. New runners are
+// created through GitLab's API with the caller's personal access token: Velez
+// receives a glrt- runner authentication token, renders the whole config.toml
+// itself and seeds it into the runner's volume before the first start (see
+// seed.go). The legacy path - deploy a bare container and exec
+// `gitlab-runner register` inside it with a registration token (see
+// Register) - remains only for runners created before that flow.
 package gitlab
 
 import (
 	"bytes"
 	"context"
 	"errors"
+	"net/http"
 	"slices"
+	"time"
 
 	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
@@ -70,14 +69,20 @@ const (
 	// jobDockerAlias is the hostname job containers reach the docker:dind
 	// service under; it must never go through the proxy.
 	jobDockerAlias = "docker"
+
+	apiTimeout = 30 * time.Second
 )
 
+var defaultHttpClient = &http.Client{Timeout: apiTimeout}
+
 // Provider implements runneraas.Provider for GitLab.
-type Provider struct{}
+type Provider struct {
+	client *http.Client
+}
 
 // New builds a Provider.
 func New() *Provider {
-	return &Provider{}
+	return &Provider{client: defaultHttpClient}
 }
 
 func (p *Provider) DescriptorName() string {

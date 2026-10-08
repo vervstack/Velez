@@ -1427,8 +1427,11 @@ type CreateRegistryInstanceTaskPayload struct {
 	// reuses them instead of issuing a second key.
 	S3BucketId    *string `protobuf:"bytes,7,opt,name=s3_bucket_id,json=s3BucketId,proto3,oneof" json:"s3_bucket_id,omitempty"`
 	S3AccessKeyId *string `protobuf:"bytes,8,opt,name=s3_access_key_id,json=s3AccessKeyId,proto3,oneof" json:"s3_access_key_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Latest create_smerd task id for the entity before the deploy was
+	// scheduled; wait_for_registry_deploy ignores tasks with id <= this.
+	DeployBaselineTaskId *int64 `protobuf:"varint,9,opt,name=deploy_baseline_task_id,json=deployBaselineTaskId,proto3,oneof" json:"deploy_baseline_task_id,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *CreateRegistryInstanceTaskPayload) Reset() {
@@ -1515,6 +1518,13 @@ func (x *CreateRegistryInstanceTaskPayload) GetS3AccessKeyId() string {
 		return *x.S3AccessKeyId
 	}
 	return ""
+}
+
+func (x *CreateRegistryInstanceTaskPayload) GetDeployBaselineTaskId() int64 {
+	if x != nil && x.DeployBaselineTaskId != nil {
+		return *x.DeployBaselineTaskId
+	}
+	return 0
 }
 
 // CreateDindTaskPayload is the task context for the "create_dind" action.
@@ -1711,11 +1721,18 @@ func (x *CreateS3InstanceTaskPayload) GetNodeId() string {
 // instead of re-minting a token that would mismatch the one already written
 // into the runner container's env/secret store.
 type CreateRunnerTaskPayload struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	Request           *CreateRunner_Request  `protobuf:"bytes,1,opt,name=request,proto3" json:"request,omitempty"`
-	RegistrationToken *string                `protobuf:"bytes,2,opt,name=registration_token,json=registrationToken,proto3,oneof" json:"registration_token,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Request *CreateRunner_Request  `protobuf:"bytes,1,opt,name=request,proto3" json:"request,omitempty"`
+	// For GitLab it carries the minted `glrt-` runner authentication token
+	// (cleared after seed_runner_config).
+	RegistrationToken *string `protobuf:"bytes,2,opt,name=registration_token,json=registrationToken,proto3,oneof" json:"registration_token,omitempty"`
+	// Latest create_smerd task id for the entity before the deploy was
+	// scheduled; wait_for_runner_deploy ignores tasks with id <= this.
+	DeployBaselineTaskId *int64 `protobuf:"varint,3,opt,name=deploy_baseline_task_id,json=deployBaselineTaskId,proto3,oneof" json:"deploy_baseline_task_id,omitempty"`
+	// GitLab runner id minted by mint_runner_token; 0/unset for GitHub.
+	GitlabRunnerId *int64 `protobuf:"varint,4,opt,name=gitlab_runner_id,json=gitlabRunnerId,proto3,oneof" json:"gitlab_runner_id,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *CreateRunnerTaskPayload) Reset() {
@@ -1760,6 +1777,20 @@ func (x *CreateRunnerTaskPayload) GetRegistrationToken() string {
 		return *x.RegistrationToken
 	}
 	return ""
+}
+
+func (x *CreateRunnerTaskPayload) GetDeployBaselineTaskId() int64 {
+	if x != nil && x.DeployBaselineTaskId != nil {
+		return *x.DeployBaselineTaskId
+	}
+	return 0
+}
+
+func (x *CreateRunnerTaskPayload) GetGitlabRunnerId() int64 {
+	if x != nil && x.GitlabRunnerId != nil {
+		return *x.GitlabRunnerId
+	}
+	return 0
 }
 
 // ReregisterRunnerTaskPayload is the task context for the
@@ -2551,7 +2582,7 @@ const file_tasks_proto_rawDesc = "" +
 	"\x12is_root_registered\x18\x19 \x01(\bR\x10isRootRegistered\x12 \n" +
 	"\timage_tag\x18\x1a \x01(\tH\x00R\bimageTag\x88\x01\x01B\f\n" +
 	"\n" +
-	"_image_tagJ\x04\b\f\x10\rR\vpg_password\"\xf2\x03\n" +
+	"_image_tagJ\x04\b\f\x10\rR\vpg_password\"\xca\x04\n" +
 	"!CreateRegistryInstanceTaskPayload\x12C\n" +
 	"\arequest\x18\x01 \x01(\v2).velez_api.CreateRegistryInstance.RequestR\arequest\x12\x1f\n" +
 	"\busername\x18\x02 \x01(\tH\x00R\busername\x88\x01\x01\x12\x1f\n" +
@@ -2561,14 +2592,16 @@ const file_tasks_proto_rawDesc = "" +
 	"\x0fui_exposed_port\x18\x06 \x01(\rH\x04R\ruiExposedPort\x88\x01\x01\x12%\n" +
 	"\fs3_bucket_id\x18\a \x01(\tH\x05R\n" +
 	"s3BucketId\x88\x01\x01\x12,\n" +
-	"\x10s3_access_key_id\x18\b \x01(\tH\x06R\rs3AccessKeyId\x88\x01\x01B\v\n" +
+	"\x10s3_access_key_id\x18\b \x01(\tH\x06R\rs3AccessKeyId\x88\x01\x01\x12:\n" +
+	"\x17deploy_baseline_task_id\x18\t \x01(\x03H\aR\x14deployBaselineTaskId\x88\x01\x01B\v\n" +
 	"\t_usernameB\v\n" +
 	"\t_passwordB\x0f\n" +
 	"\r_container_idB\x0f\n" +
 	"\r_exposed_portB\x12\n" +
 	"\x10_ui_exposed_portB\x0f\n" +
 	"\r_s3_bucket_idB\x13\n" +
-	"\x11_s3_access_key_id\"\x8d\x01\n" +
+	"\x11_s3_access_key_idB\x1a\n" +
+	"\x18_deploy_baseline_task_id\"\x8d\x01\n" +
 	"\x15CreateDindTaskPayload\x127\n" +
 	"\arequest\x18\x01 \x01(\v2\x1d.velez_api.CreateDind.RequestR\arequest\x12!\n" +
 	"\fnetwork_name\x18\x02 \x01(\tR\vnetworkName\x12\x18\n" +
@@ -2585,11 +2618,15 @@ const file_tasks_proto_rawDesc = "" +
 	"\x13_admin_exposed_portB\x16\n" +
 	"\x14_web_ui_exposed_portB\n" +
 	"\n" +
-	"\b_node_id\"\x9f\x01\n" +
+	"\b_node_id\"\xbb\x02\n" +
 	"\x17CreateRunnerTaskPayload\x129\n" +
 	"\arequest\x18\x01 \x01(\v2\x1f.velez_api.CreateRunner.RequestR\arequest\x122\n" +
-	"\x12registration_token\x18\x02 \x01(\tH\x00R\x11registrationToken\x88\x01\x01B\x15\n" +
-	"\x13_registration_token\"\\\n" +
+	"\x12registration_token\x18\x02 \x01(\tH\x00R\x11registrationToken\x88\x01\x01\x12:\n" +
+	"\x17deploy_baseline_task_id\x18\x03 \x01(\x03H\x01R\x14deployBaselineTaskId\x88\x01\x01\x12-\n" +
+	"\x10gitlab_runner_id\x18\x04 \x01(\x03H\x02R\x0egitlabRunnerId\x88\x01\x01B\x15\n" +
+	"\x13_registration_tokenB\x1a\n" +
+	"\x18_deploy_baseline_task_idB\x13\n" +
+	"\x11_gitlab_runner_id\"\\\n" +
 	"\x1bReregisterRunnerTaskPayload\x12=\n" +
 	"\arequest\x18\x01 \x01(\v2#.velez_api.ReregisterRunner.RequestR\arequest\"/\n" +
 	"\x19DropPgInstanceTaskPayload\x12\x12\n" +

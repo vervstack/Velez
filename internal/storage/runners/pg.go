@@ -46,6 +46,7 @@ func (p *pgStorage) UpsertRunner(ctx context.Context, req domain.UpsertRunnerReq
 		DockerSocketAddress: req.DockerSocketAddress,
 		Concurrent:          req.Concurrent,
 		DindServiceID:       sql.NullInt64{Int64: req.DindServiceId, Valid: req.DindServiceId > 0},
+		GitlabRunnerID:      req.GitlabRunnerId,
 	}
 
 	row, err := p.querier.UpsertRunner(ctx, params)
@@ -101,6 +102,7 @@ func runnerFromRow(row runners_queries.VelezRunner) domain.Runner {
 		DockerSocketAddress: row.DockerSocketAddress,
 		Concurrent:          row.Concurrent,
 		DindServiceId:       row.DindServiceID.Int64,
+		GitlabRunnerId:      row.GitlabRunnerID,
 		CreatedAt:           row.CreatedAt,
 		UpdatedAt:           row.UpdatedAt,
 	}

@@ -71,6 +71,8 @@ const (
 	// RunnerDindLabel carries the name of the DinD service a runner talks to.
 	// Absent when the runner uses a docker_socket_address or the host socket.
 	RunnerDindLabel = "velez.runner.dind"
+	// RunnerGitlabIdLabel carries the GitLab runner id minted at create.
+	RunnerGitlabIdLabel = "velez.runner.gitlab_id"
 
 	// RegistryaasInstanceLabel marks a container as a
 	// Container-Registry-as-a-Service instance provisioned by

@@ -39,7 +39,7 @@ func newInspectedSidecar() container.InspectResponse {
 		Domainname:   "example.org",
 		Env:          []string{"TS_AUTHKEY=secret"},
 		ExposedPorts: nat.PortSet{"41641/udp": struct{}{}},
-		Labels:       map[string]string{testKeepLabel: testKeepValue, labels.DisplayNameLabel: "old"},
+		Labels:       map[string]string{testKeepLabel: testKeepValue, labels.DisplayNameLabel: testStaleOld},
 	}
 
 	hostConfig := &container.HostConfig{

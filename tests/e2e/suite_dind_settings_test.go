@@ -3,10 +3,14 @@
 package e2e
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha1"
 	"encoding/hex"
 	"io"
+	"net"
+	"net/http"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -16,6 +20,8 @@ import (
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
+	"github.com/docker/docker/pkg/stdcopy"
+	"github.com/docker/go-connections/nat"
 	"github.com/stretchr/testify/require"
 	"go.redsock.ru/toolbox"
 	"google.golang.org/grpc/codes"
@@ -45,16 +51,27 @@ const (
 	sysboxSmokeCleanupWait = 30 * time.Second
 	sysboxSmokeCleanupTick = time.Second
 
-	runnerDindTarget      = "acme/app"
-	runnerDindAccessToken = "glpat-e2e"
-	gitlabStubAlias       = "gitlab-stub"
-	gitlabStubBaseUrl     = "http://" + gitlabStubAlias
-	gitlabStubNginxConf   = `server {
+	runnerDindTarget       = "acme/app"
+	runnerDindAccessToken  = "glpat-e2e"
+	gitlabStubNamePart     = "gitlab-stub"
+	gitlabStubPort         = "80/tcp"
+	gitlabStubHealthPath   = "/healthz"
+	gitlabStubHost         = "127.0.0.1"
+	gitlabStubRunnerId     = 456
+	gitlabStubRunnerToken  = "glrt-e2etoken"
+	gitlabStubRotatedToken = "glrt-rotated"
+	gitlabStubNginxConf    = `log_format stub '$request_method $request_uri $http_private_token';
+server {
   listen 80;
+  access_log /dev/stdout stub;
   default_type application/json;
-  location / {
-    if ($request_method = DELETE) { return 204; }
-    return 201 '{"id":1,"token":"glrt-e2e","token_expires_at":null}';
+  location = /healthz { access_log off; return 200; }
+  location /api/v4/projects/ { return 200 '{"id":123}'; }
+  location /api/v4/groups/ { return 200 '{"id":321}'; }
+  location = /api/v4/user/runners { return 201 '{"id":456,"token":"glrt-e2etoken"}'; }
+  location = /api/v4/runners { return 204; }
+  location = /api/v4/runners/reset_authentication_token {
+    return 201 '{"token":"glrt-rotated","token_expires_at":null}';
   }
 }`
 )
@@ -114,10 +131,10 @@ func newCreateRunnerRequest(name string, dindName, socketAddress *string) *velez
 	}
 }
 
-func newGitlabCreateRunnerRequest(name, dindName string) *velez_api.CreateRunner_Request {
+func newGitlabCreateRunnerRequest(name, dindName, baseUrl string) *velez_api.CreateRunner_Request {
 	gitlabConfig := &velez_api.GitlabConfig{
 		AccessToken: runnerDindAccessToken,
-		BaseUrl:     toolbox.ToPtr(gitlabStubBaseUrl),
+		BaseUrl:     toolbox.ToPtr(baseUrl),
 		Concurrent:  toolbox.ToPtr(int32(1)),
 	}
 
@@ -611,10 +628,13 @@ func logContainerOnFailure(t *testing.T, dockerClient client.APIClient, name str
 // filters are substring matches, and a stub named after the dind is picked up
 // when the deploy watcher resolves the dind's own container.
 func gitlabStubContainerName(dindName string) string {
-	return strings.Replace(dindName, dindE2eNamePrefix, "e2e-"+gitlabStubAlias+"-", 1)
+	return strings.Replace(dindName, dindE2eNamePrefix, "e2e-"+gitlabStubNamePart+"-", 1)
 }
 
-func createGitlabStub(t *testing.T, env *TestEnvironment, name string) {
+// startGitlabStub publishes the stub on a pool port of the DinD daemon and
+// returns its loopback url: Velez runs in the test process and calls the
+// GitLab API from the host, through requireDindLoopbackBridge.
+func startGitlabStub(t *testing.T, env *TestEnvironment, name string) string {
 	t.Helper()
 
 	dockerClient := env.Custom.NodeClients.Docker().Client()
@@ -628,60 +648,74 @@ func createGitlabStub(t *testing.T, env *TestEnvironment, name string) {
 	err = pullReader.Close()
 	require.NoError(t, err)
 
+	hostPort := strconv.Itoa(int(reservePoolHostPort(t, env)))
+	requireDindLoopbackBridge(t)
+
 	script := "cat > /etc/nginx/conf.d/default.conf <<'EOF'\n" + gitlabStubNginxConf + "\nEOF\nexec nginx -g 'daemon off;'"
 
+	port := nat.Port(gitlabStubPort)
+
 	cfg := &container.Config{
-		Image:      NginxAlpineImage,
-		Entrypoint: []string{"sh", "-c", script},
-		Labels:     map[string]string{testCaseNameLabel: t.Name()},
+		Image:        NginxAlpineImage,
+		Entrypoint:   []string{"sh", "-c", script},
+		Labels:       map[string]string{testCaseNameLabel: t.Name()},
+		ExposedPorts: nat.PortSet{port: struct{}{}},
 	}
+
+	binding := nat.PortBinding{HostIP: "0.0.0.0", HostPort: hostPort}
+	hostCfg := &container.HostConfig{PortBindings: nat.PortMap{port: []nat.PortBinding{binding}}}
 
 	t.Cleanup(func() {
 		removeOpts := container.RemoveOptions{Force: true}
 		_ = dockerClient.ContainerRemove(context.Background(), name, removeOpts)
 	})
 
-	_, err = dockerClient.ContainerCreate(t.Context(), cfg, nil, nil, nil, name)
+	_, err = dockerClient.ContainerCreate(t.Context(), cfg, hostCfg, nil, nil, name)
 	require.NoError(t, err)
 
 	logContainerOnFailure(t, dockerClient, name)
-}
-
-func startGitlabStub(t *testing.T, env *TestEnvironment, name, netName string) {
-	t.Helper()
-
-	createGitlabStub(t, env, name)
-
-	dockerClient := env.Custom.NodeClients.Docker().Client()
-
-	endpoint := &network.EndpointSettings{Aliases: []string{gitlabStubAlias}}
-
-	err := dockerClient.NetworkConnect(t.Context(), netName, name, endpoint)
-	require.NoError(t, err)
 
 	err = dockerClient.ContainerStart(t.Context(), name, container.StartOptions{})
 	require.NoError(t, err)
+
+	baseUrl := "http://" + net.JoinHostPort(gitlabStubHost, hostPort)
+
+	require.Eventually(t, func() bool {
+		resp, getErr := http.Get(baseUrl + gitlabStubHealthPath)
+		if getErr != nil {
+			return false
+		}
+
+		_ = resp.Body.Close()
+
+		return resp.StatusCode == http.StatusOK
+	}, dindReadyTimeout, time.Second/4, "gitlab stub never became ready")
+
+	return baseUrl
 }
 
-// startGitlabStubOnBridge starts the stub on the default bridge and returns
-// its base url, for a runner that has no dind network to share with it.
-func startGitlabStubOnBridge(t *testing.T, env *TestEnvironment, name string) string {
+// gitlabStubRequests returns the stub's access log, one "METHOD URI PRIVATE-TOKEN" line per request.
+func gitlabStubRequests(t *testing.T, env *TestEnvironment, name string) []string {
 	t.Helper()
-
-	createGitlabStub(t, env, name)
 
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 
-	err := dockerClient.ContainerStart(t.Context(), name, container.StartOptions{})
+	reader, err := dockerClient.ContainerLogs(t.Context(), name, container.LogsOptions{ShowStdout: true})
 	require.NoError(t, err)
 
-	inspected, err := dockerClient.ContainerInspect(t.Context(), name)
+	defer func() { _ = reader.Close() }()
+
+	var stdout bytes.Buffer
+
+	_, err = stdcopy.StdCopy(&stdout, io.Discard, reader)
 	require.NoError(t, err)
 
-	bridge, isOnBridge := inspected.NetworkSettings.Networks["bridge"]
-	require.True(t, isOnBridge, "gitlab stub must be on the default bridge")
+	trimmed := strings.TrimSpace(stdout.String())
+	if trimmed == "" {
+		return nil
+	}
 
-	return "http://" + bridge.IPAddress
+	return strings.Split(trimmed, "\n")
 }
 
 func newRedeployRunnerRequest(name string) *velez_api.RedeployRunner_Request {
@@ -745,6 +779,7 @@ func Test_Runner_OnDind_WiresDockerHostAndBlocksDindDrop(t *testing.T) {
 type dindRunnerFixture struct {
 	dindName        string
 	runnerContainer string
+	stubName        string
 	inspected       container.InspectResponse
 }
 
@@ -768,11 +803,12 @@ func createRunnerOnDind(t *testing.T, env *TestEnvironment) dindRunnerFixture {
 	})
 
 	createDindAndAwait(t, env, newCreateDindRequest(dindName, toolbox.ToPtr(false)))
-	startGitlabStub(t, env, gitlabStubContainerName(dindName), domain.DindNetworkName(dindName))
+	stubName := gitlabStubContainerName(dindName)
+	baseUrl := startGitlabStub(t, env, stubName)
 
 	logContainerOnFailure(t, dockerClient, runnerContainer)
 
-	created, err := runnersClient.CreateRunner(t.Context(), newGitlabCreateRunnerRequest(runnerName, dindName))
+	created, err := runnersClient.CreateRunner(t.Context(), newGitlabCreateRunnerRequest(runnerName, dindName, baseUrl))
 	require.NoError(t, err)
 
 	task := awaitJobTask(t, env, created.GetEntityId(), created.GetAction())
@@ -781,7 +817,12 @@ func createRunnerOnDind(t *testing.T, env *TestEnvironment) dindRunnerFixture {
 	inspected, err := dockerClient.ContainerInspect(t.Context(), runnerContainer)
 	require.NoError(t, err)
 
-	return dindRunnerFixture{dindName: dindName, runnerContainer: runnerContainer, inspected: inspected}
+	return dindRunnerFixture{
+		dindName:        dindName,
+		runnerContainer: runnerContainer,
+		stubName:        stubName,
+		inspected:       inspected,
+	}
 }
 
 func runRunnerOnDind(t *testing.T, env *TestEnvironment, _ Plane) {
@@ -880,7 +921,7 @@ func runRunnerWithTcpSocketAddress(t *testing.T, env *TestEnvironment, plane Pla
 		_ = dockerClient.ContainerRemove(context.Background(), runnerContainer, removeOpts)
 	})
 
-	baseUrl := startGitlabStubOnBridge(t, env, gitlabStubContainerName(suffix))
+	baseUrl := startGitlabStub(t, env, gitlabStubContainerName(suffix))
 
 	logContainerOnFailure(t, dockerClient, runnerContainer)
 

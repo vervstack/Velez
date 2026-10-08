@@ -199,10 +199,10 @@ func (c *Custom) Init(a *App) (err error) {
 	registry.Register(jobs.NewDropPgInstanceHandler(
 		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices()))
 	registry.Register(jobs.NewCreateRunnerHandler(
-		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(), c.JobsEngine,
-		runtimeResolver))
+		c.NodeClients, c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(),
+		c.JobsEngine, runtimeResolver))
 	registry.Register(jobs.NewDropRunnerHandler(
-		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices()))
+		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(), runtimeResolver))
 	registry.Register(jobs.NewCreateDindHandler(
 		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(), c.JobsEngine,
 		runtimeResolver))

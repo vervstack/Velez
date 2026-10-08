@@ -35,6 +35,8 @@ const (
 	// loaderContainerSuffix mirrors do_copy_to_volume.go's "<volume>_loader"
 	// container name.
 	loaderContainerSuffix = "_loader"
+
+	defaultVolumeFileMode = 0o644
 )
 
 // Accessor interfaces the copy_to_volume jobs need from their TaskContext.
@@ -348,7 +350,7 @@ func (j *copyFileJob) Do(ctx context.Context) error {
 		return err
 	}
 
-	err = writeFileToContainer(ctx, j.copyAPI, containerID, j.filePath, j.content)
+	err = writeFileToContainer(ctx, j.copyAPI, containerID, j.filePath, j.content, defaultVolumeFileMode)
 	if err != nil {
 		return rerrors.Wrap(err, "error copying file to container")
 	}
@@ -388,15 +390,14 @@ func mkdirInContainer(
 // trading a small amount of duplication for unit-testability without
 // minimock.
 func writeFileToContainer(
-	ctx context.Context, dockerAPI copyAPI, contID string, systemPath string, content []byte,
+	ctx context.Context, dockerAPI copyAPI, contID string, systemPath string, content []byte, mode int64,
 ) error {
 	buf := new(bytes.Buffer)
 	tw := tar.NewWriter(buf)
 
 	hdr := &tar.Header{
-		Name: path.Base(systemPath),
-		//nolint
-		Mode:    0o644,
+		Name:    path.Base(systemPath),
+		Mode:    mode,
 		Size:    int64(len(content)),
 		ModTime: time.Now(),
 	}

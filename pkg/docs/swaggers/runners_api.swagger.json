@@ -460,7 +460,7 @@
       "properties": {
         "accessToken": {
           "type": "string",
-          "description": "access_token - a GitLab runner registration token for target (project or\ngroup), created by the caller ahead of time. Never stored as given; see\ninternal/service/secrets."
+          "description": "access_token - a GitLab personal access token with the `create_runner`\nscope (Maintainer/Owner on a project or group target, admin for an\ninstance runner). Used once at create to mint a runner authentication\ntoken; it is never stored and never logged. Legacy runner registration\ntokens are rejected."
         },
         "baseUrl": {
           "type": "string",
@@ -476,7 +476,7 @@
           "description": "concurrent - the global gitlab-runner `concurrent` setting: how many jobs\nthe runner runs at once. Unset defaults to 1."
         }
       },
-      "description": "GitlabConfig - GitLab-specific CreateRunner body. access_token is trusted\nas an already-valid registration token (GitLab's own minting API is\ndeprecated/disabled on modern instances, see runneraas/providers/gitlab),\nthen handed to `gitlab-runner register`, run automatically against the\ndeployed container."
+      "description": "GitlabConfig - GitLab-specific CreateRunner body. access_token is used once\nat create to mint a runner authentication token through GitLab's runner\ncreation API."
     },
     "velez_apiListRunnersRequest": {
       "type": "object",

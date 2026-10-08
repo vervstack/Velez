@@ -33,6 +33,12 @@ func (f *fakeJobsEngine) Enqueue(
 	return f.enqueueTask, f.enqueueErr
 }
 
+func (f *fakeJobsEngine) WatchAfter(
+	ctx context.Context, entityID, action string, _ int64,
+) <-chan tasks_queries.VelezTask {
+	return f.Watch(ctx, entityID, action)
+}
+
 func (f *fakeJobsEngine) Watch(_ context.Context, _, _ string) <-chan tasks_queries.VelezTask {
 	f.watchCalled = true
 

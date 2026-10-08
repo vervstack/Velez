@@ -214,15 +214,15 @@ message GithubConfig {
   string access_token = 1;
 }
 
-// GitlabConfig - GitLab-specific CreateRunner body. access_token is trusted
-// as an already-valid registration token (GitLab's own minting API is
-// deprecated/disabled on modern instances, see runneraas/providers/gitlab),
-// then handed to `gitlab-runner register`, run automatically against the
-// deployed container.
+// GitlabConfig - GitLab-specific CreateRunner body. access_token is used once
+// at create to mint a runner authentication token through GitLab's runner
+// creation API.
 message GitlabConfig {
-  // access_token - a GitLab runner registration token for target (project or
-  // group), created by the caller ahead of time. Never stored as given; see
-  // internal/service/secrets.
+  // access_token - a GitLab personal access token with the `create_runner`
+  // scope (Maintainer/Owner on a project or group target, admin for an
+  // instance runner). Used once at create to mint a runner authentication
+  // token; it is never stored and never logged. Legacy runner registration
+  // tokens are rejected.
   string access_token = 1;
 
   // base_url - the GitLab instance's base URL, e.g. "https://gitlab.com" or

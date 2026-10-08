@@ -266,9 +266,28 @@ func TestRegistryInternalUrl(t *testing.T) {
 type fakeTaskWatcher struct {
 	tasks []tasks_queries.VelezTask
 	block bool
+
+	latest      sql.Null[tasks_queries.VelezTask]
+	latestCalls int
+}
+
+func (f *fakeTaskWatcher) WatchAfter(
+	ctx context.Context, entityID, action string, afterTaskId int64,
+) <-chan tasks_queries.VelezTask {
+	return f.watch(ctx, afterTaskId)
+}
+
+func (f *fakeTaskWatcher) Latest(_ context.Context, _, _ string) (sql.Null[tasks_queries.VelezTask], error) {
+	f.latestCalls++
+
+	return f.latest, nil
 }
 
 func (f *fakeTaskWatcher) Watch(ctx context.Context, _, _ string) <-chan tasks_queries.VelezTask {
+	return f.watch(ctx, 0)
+}
+
+func (f *fakeTaskWatcher) watch(ctx context.Context, afterTaskId int64) <-chan tasks_queries.VelezTask {
 	ch := make(chan tasks_queries.VelezTask)
 
 	go func() {
@@ -281,6 +300,10 @@ func (f *fakeTaskWatcher) Watch(ctx context.Context, _, _ string) <-chan tasks_q
 		}
 
 		for _, task := range f.tasks {
+			if afterTaskId > 0 && task.ID <= afterTaskId {
+				continue
+			}
+
 			select {
 			case ch <- task:
 			case <-ctx.Done():
@@ -300,8 +323,66 @@ func newWaitForRegistryDeployJob(watcher taskWatcher) *waitForRegistryDeployJob 
 	return &waitForRegistryDeployJob{
 		jobsEngine:   watcher,
 		req:          payload,
+		ctx:          payload,
 		instanceName: testRegistryInstanceName,
 	}
+}
+
+func Test_WaitForRegistryDeployJob_StaleDoneTaskIgnored(t *testing.T) {
+	watcher := &fakeTaskWatcher{
+		tasks: []tasks_queries.VelezTask{
+			{ID: 4, Status: tasks_queries.VelezTaskStatusDONE},
+			{ID: 7, Status: tasks_queries.VelezTaskStatusFAILED, Error: sql.NullString{String: testErrorBoom, Valid: true}},
+		},
+	}
+	job := newWaitForRegistryDeployJob(watcher)
+	job.ctx.SetDeployBaselineTaskId(5)
+
+	err := job.Do(context.Background())
+	require.ErrorIs(t, err, user_errors.ErrTaskFailed)
+}
+
+func Test_WaitForRegistryDeployJob_NewerDoneTaskAfterStaleOneSucceeds(t *testing.T) {
+	watcher := &fakeTaskWatcher{
+		tasks: []tasks_queries.VelezTask{
+			{ID: 4, Status: tasks_queries.VelezTaskStatusFAILED, Error: sql.NullString{String: testStaleOld, Valid: true}},
+			{ID: 7, Status: tasks_queries.VelezTaskStatusDONE},
+		},
+	}
+	job := newWaitForRegistryDeployJob(watcher)
+	job.ctx.SetDeployBaselineTaskId(5)
+
+	err := job.Do(context.Background())
+	require.NoError(t, err)
+}
+
+func Test_RecordDeployBaseline_RecordedOnceAndNotOverwritten(t *testing.T) {
+	watcher := &fakeTaskWatcher{latest: sql.Null[tasks_queries.VelezTask]{
+		V:     tasks_queries.VelezTask{ID: 9},
+		Valid: true,
+	}}
+	payload := &velez_api.CreateRegistryInstanceTaskPayload{}
+
+	err := recordDeployBaseline(context.Background(), watcher, payload, "entity")
+	require.NoError(t, err)
+	require.Equal(t, int64(9), payload.GetDeployBaselineTaskId())
+
+	watcher.latest.V.ID = 12
+
+	err = recordDeployBaseline(context.Background(), watcher, payload, "entity")
+	require.NoError(t, err)
+	require.Equal(t, int64(9), payload.GetDeployBaselineTaskId())
+	require.Equal(t, 1, watcher.latestCalls)
+}
+
+func Test_RecordDeployBaseline_NoPriorTaskRecordsZero(t *testing.T) {
+	watcher := &fakeTaskWatcher{}
+	payload := &velez_api.CreateRegistryInstanceTaskPayload{}
+
+	err := recordDeployBaseline(context.Background(), watcher, payload, "entity")
+	require.NoError(t, err)
+	require.True(t, payload.HasDeployBaselineTaskId())
+	require.Equal(t, int64(0), payload.GetDeployBaselineTaskId())
 }
 
 func TestWaitForRegistryDeployJob_Do_ReturnsNilOnceTaskReachesDone(t *testing.T) {

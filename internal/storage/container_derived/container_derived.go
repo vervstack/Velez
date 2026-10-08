@@ -90,15 +90,21 @@ func PgInstance(name string, created time.Time, env []string) domain.PgInstance 
 // Runner derives the row from the runner container's labels. Concurrent and
 // ServiceID are left for the caller.
 func Runner(name string, created time.Time, containerLabels map[string]string) domain.Runner {
+	gitlabRunnerId, parseErr := strconv.ParseInt(containerLabels[labels.RunnerGitlabIdLabel], 10, 64)
+	if parseErr != nil {
+		gitlabRunnerId = 0
+	}
+
 	return domain.Runner{
-		Provider:  containerLabels[labels.RunnerProviderLabel],
-		Scope:     containerLabels[labels.RunnerScopeLabel],
-		Target:    containerLabels[labels.RunnerTargetLabel],
-		Labels:    splitRunnerLabels(containerLabels[labels.RunnerLabelsLabel]),
-		SecretRef: domain.RunnerAccessTokenSecretRef(name).String(),
-		BaseUrl:   containerLabels[labels.RunnerBaseUrlLabel],
-		CreatedAt: created,
-		UpdatedAt: created,
+		Provider:       containerLabels[labels.RunnerProviderLabel],
+		Scope:          containerLabels[labels.RunnerScopeLabel],
+		Target:         containerLabels[labels.RunnerTargetLabel],
+		Labels:         splitRunnerLabels(containerLabels[labels.RunnerLabelsLabel]),
+		SecretRef:      domain.RunnerAccessTokenSecretRef(name).String(),
+		BaseUrl:        containerLabels[labels.RunnerBaseUrlLabel],
+		GitlabRunnerId: gitlabRunnerId,
+		CreatedAt:      created,
+		UpdatedAt:      created,
 	}
 }
 

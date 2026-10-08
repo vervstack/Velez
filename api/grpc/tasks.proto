@@ -414,6 +414,10 @@ message CreateRegistryInstanceTaskPayload {
   // reuses them instead of issuing a second key.
   optional string s3_bucket_id = 7;
   optional string s3_access_key_id = 8;
+
+  // Latest create_smerd task id for the entity before the deploy was
+  // scheduled; wait_for_registry_deploy ignores tasks with id <= this.
+  optional int64 deploy_baseline_task_id = 9;
 }
 
 enum ContainerIsolation {
@@ -455,7 +459,16 @@ message CreateS3InstanceTaskPayload {
 // into the runner container's env/secret store.
 message CreateRunnerTaskPayload {
   CreateRunner.Request request = 1;
+  // For GitLab it carries the minted `glrt-` runner authentication token
+  // (cleared after seed_runner_config).
   optional string registration_token = 2;
+
+  // Latest create_smerd task id for the entity before the deploy was
+  // scheduled; wait_for_runner_deploy ignores tasks with id <= this.
+  optional int64 deploy_baseline_task_id = 3;
+
+  // GitLab runner id minted by mint_runner_token; 0/unset for GitHub.
+  optional int64 gitlab_runner_id = 4;
 }
 
 // ReregisterRunnerTaskPayload is the task context for the

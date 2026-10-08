@@ -224,7 +224,7 @@ func Test_ApplyUpgradeOverrides_PresentEmptyClearsAndValuesReplace(t *testing.T)
 
 	req := &velez_api.CreateSmerd_Request{Settings: &velez_api.Container_Settings{
 		Ports:   []*velez_api.Port{{ServicePortNumber: 80}},
-		Volumes: []*velez_api.Volume{{VolumeName: "old"}},
+		Volumes: []*velez_api.Volume{{VolumeName: testStaleOld}},
 	}}
 	replacement := []*velez_api.Volume{{VolumeName: "new", ContainerPath: "/data"}}
 	overrides := &velez_api.UpgradeSmerdTaskPayload{

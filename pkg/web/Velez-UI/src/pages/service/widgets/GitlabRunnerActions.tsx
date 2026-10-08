@@ -8,6 +8,7 @@ import {ReregisterRunnerMutation} from "@/processes/queries/runners.ts";
 import {DeploymentStatus} from "@/app/api/velez";
 import Button from "@/components/base/Button.tsx";
 import RunnerDropDialog from "@/dialogs/RunnerDropDialog/RunnerDropDialog.tsx";
+import RunnerBuildkitControl from "@/pages/service/widgets/RunnerBuildkitControl.tsx";
 import ServiceProxyButton from "@/pages/service/widgets/ServiceProxyButton.tsx";
 
 interface Props {
@@ -70,6 +71,8 @@ export default function GitlabRunnerActions({serviceName}: Props) {
             </Button>
 
             <ServiceProxyButton serviceName={serviceName}/>
+
+            <RunnerBuildkitControl runnerName={serviceName}/>
 
             <Button variant="danger" onClick={openDropDialog} disabled={isInFlight}>
                 ✕ Drop

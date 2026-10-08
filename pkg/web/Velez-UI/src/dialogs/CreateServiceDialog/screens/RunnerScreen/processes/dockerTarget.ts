@@ -11,3 +11,7 @@ export function resolveDockerTarget(choice: string, externalAddress: string): Do
     }
     return {dindName: choice, dockerSocketAddress: ""}
 }
+
+export function isBuildkitSupported(choice: string): boolean {
+    return choice === ""
+}

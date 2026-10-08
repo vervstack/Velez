@@ -15,6 +15,8 @@ import {
     UpdateRunnerConfigResponse,
     RedeployRunnerRequest,
     RedeployRunnerResponse,
+    SetRunnerBuildkitRequest,
+    SetRunnerBuildkitResponse,
 } from "@/app/api/velez"
 import {ApiService} from "@/processes/ApiService.ts"
 
@@ -64,6 +66,10 @@ class RunnersService extends ApiService {
             const payload: RedeployRunnerRequest = {name}
             return RunnersAPI.RedeployRunner(payload, initReq)
         })
+    }
+
+    async setRunnerBuildkit(req: SetRunnerBuildkitRequest): Promise<SetRunnerBuildkitResponse> {
+        return this.mutate((initReq) => RunnersAPI.SetRunnerBuildkit(req, initReq))
     }
 }
 

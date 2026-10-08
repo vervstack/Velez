@@ -219,6 +219,8 @@ type RegistryInstancesStorage interface {
 type ContainerBindingsStorage interface {
 	Upsert(ctx context.Context, binding domain.ContainerBinding) error
 	ListByNode(ctx context.Context, nodeId int32, environment string) ([]domain.ContainerBinding, error)
+	// Delete removes the binding of containerName; a missing binding is not an error.
+	Delete(ctx context.Context, nodeId int32, environment, containerName string) error
 
 	WithTx(tx *sql.Tx) ContainerBindingsStorage
 }

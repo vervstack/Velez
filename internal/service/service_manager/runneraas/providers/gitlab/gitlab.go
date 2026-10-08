@@ -197,6 +197,44 @@ func (p *Provider) ApplyConcurrent(
 	return nil
 }
 
+// ApplyNetworkMode sets the docker network the job containers of containerID
+// join in config.toml's `[runners.docker]`; an empty networkMode removes it.
+// Job containers are created on the daemon the runner talks to, so the network
+// has to exist there. gitlab-runner hot-reloads the file. An unregistered
+// container has no config.toml: nothing to clear, an error to set.
+func (p *Provider) ApplyNetworkMode(
+	ctx context.Context, runtime container_runtime.ContainerRuntime, containerID, networkMode string,
+) error {
+	config, isFound, err := p.readConfig(ctx, runtime, containerID)
+	if err != nil {
+		return rerrors.Wrap(err, "error reading gitlab-runner config.toml")
+	}
+
+	if !isFound && networkMode == "" {
+		return nil
+	}
+
+	if !isFound {
+		return rerrors.Wrap(user_errors.ErrContainerFileNotFound, configPath)
+	}
+
+	updated, err := gitlab_runner_config.SetNetworkMode(config, networkMode)
+	if err != nil {
+		return rerrors.Wrap(err, "error applying network mode")
+	}
+
+	if bytes.Equal(updated, config) {
+		return nil
+	}
+
+	err = runtime.CopyToContainer(ctx, containerID, configPath, updated, configFileMode)
+	if err != nil {
+		return rerrors.Wrap(err, "error writing gitlab-runner config.toml")
+	}
+
+	return nil
+}
+
 // ReadSettings parses the pull-policy, check-interval, log-level and
 // shutdown-timeout keys out of containerID's config.toml.
 func (p *Provider) ReadSettings(

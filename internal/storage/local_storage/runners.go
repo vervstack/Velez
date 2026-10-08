@@ -160,6 +160,11 @@ func (d *dockerRunners) listFromContainers(ctx context.Context) ([]domain.Runner
 		return nil, rerrors.Wrap(err, "error listing runner containers")
 	}
 
+	buildkitRunners, err := d.buildkitRunnerNames(ctx, len(containers) > 0)
+	if err != nil {
+		return nil, err
+	}
+
 	out := make([]domain.Runner, 0, len(containers))
 
 	for _, c := range containers {
@@ -171,6 +176,8 @@ func (d *dockerRunners) listFromContainers(ctx context.Context) ([]domain.Runner
 		runner := container_derived.Runner(name, time.Unix(c.Created, 0), c.Labels)
 
 		runner.ServiceID = serviceIDFromName(name)
+
+		_, runner.IsBuildkitEnabled = buildkitRunners[name]
 
 		dindName := c.Labels[labels.RunnerDindLabel]
 		if dindName != "" {
@@ -185,6 +192,36 @@ func (d *dockerRunners) listFromContainers(ctx context.Context) ([]domain.Runner
 	}
 
 	return out, nil
+}
+
+// buildkitRunnerNames are the runners that own a container labelled
+// labels.BuildkitForLabel - the BuildKit sidecar itself is the system of
+// record. isNeeded false skips the Docker call when there is no runner to
+// match against.
+func (d *dockerRunners) buildkitRunnerNames(ctx context.Context, isNeeded bool) (map[string]struct{}, error) {
+	names := make(map[string]struct{})
+
+	if !isNeeded {
+		return names, nil
+	}
+
+	listReq := &pb.ListSmerds_Request{
+		Label: map[string]string{labels.Sidecar: boolLabelValue},
+	}
+
+	sidecars, err := d.docker.ListContainers(ctx, listReq, allEnvironments)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error listing sidecar containers")
+	}
+
+	for _, sidecar := range sidecars {
+		runnerName := sidecar.Labels[labels.BuildkitForLabel]
+		if runnerName != "" {
+			names[runnerName] = struct{}{}
+		}
+	}
+
+	return names, nil
 }
 
 // readGitlabConcurrent returns the `concurrent` value the container's own

@@ -9,6 +9,25 @@ import (
 	"context"
 )
 
+const deleteContainerBinding = `-- name: DeleteContainerBinding :exec
+DELETE
+FROM velez.container_bindings
+WHERE node_id = $1
+  AND environment = $2
+  AND container_name = $3
+`
+
+type DeleteContainerBindingParams struct {
+	NodeID        int32
+	Environment   string
+	ContainerName string
+}
+
+func (q *Queries) DeleteContainerBinding(ctx context.Context, arg DeleteContainerBindingParams) error {
+	_, err := q.db.ExecContext(ctx, deleteContainerBinding, arg.NodeID, arg.Environment, arg.ContainerName)
+	return err
+}
+
 const listContainerBindingsByNode = `-- name: ListContainerBindingsByNode :many
 SELECT b.id,
        b.service_id,

@@ -32,3 +32,12 @@ ORDER BY service_id;
 -- name: DeleteRunner :exec
 DELETE FROM velez.runners
 WHERE service_id = $1;
+
+-- name: ListRunnerSidecarBindings :many
+SELECT b.service_id,
+       s.name AS service_name,
+       b.container_name
+FROM velez.container_bindings b
+         JOIN velez.services s ON s.id = b.service_id
+         JOIN velez.runners r ON r.service_id = b.service_id
+WHERE b.is_sidecar;

@@ -50,6 +50,45 @@ func (q *Queries) GetRunnerByServiceID(ctx context.Context, serviceID int64) (Ve
 	return i, err
 }
 
+const listRunnerSidecarBindings = `-- name: ListRunnerSidecarBindings :many
+SELECT b.service_id,
+       s.name AS service_name,
+       b.container_name
+FROM velez.container_bindings b
+         JOIN velez.services s ON s.id = b.service_id
+         JOIN velez.runners r ON r.service_id = b.service_id
+WHERE b.is_sidecar
+`
+
+type ListRunnerSidecarBindingsRow struct {
+	ServiceID     int64
+	ServiceName   string
+	ContainerName string
+}
+
+func (q *Queries) ListRunnerSidecarBindings(ctx context.Context) ([]ListRunnerSidecarBindingsRow, error) {
+	rows, err := q.db.QueryContext(ctx, listRunnerSidecarBindings)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListRunnerSidecarBindingsRow{}
+	for rows.Next() {
+		var i ListRunnerSidecarBindingsRow
+		if err := rows.Scan(&i.ServiceID, &i.ServiceName, &i.ContainerName); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listRunners = `-- name: ListRunners :many
 SELECT service_id, provider, scope, target, labels, secret_ref, created_at, updated_at, base_url,
        docker_image, docker_socket_address, concurrent, dind_service_id

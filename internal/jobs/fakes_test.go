@@ -807,6 +807,10 @@ func (f *fakeContainerRuntime) EnsureVolume(context.Context, container_runtime.E
 	return nil
 }
 
+func (f *fakeContainerRuntime) RemoveVolume(context.Context, string) error {
+	return nil
+}
+
 func (f *fakeContainerRuntime) ListNetworks(context.Context, bool) ([]container_runtime.NetworkInfo, error) {
 	return nil, nil
 }

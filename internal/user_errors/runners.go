@@ -78,4 +78,11 @@ var (
 	// ErrRunnerNotRunning is returned by the runneraas package when a runner's
 	// config file is needed but its container is absent or stopped.
 	ErrRunnerNotRunning = rerrors.NewUserError("runner container is not running")
+
+	// ErrRunnerBuildkitDockerSourceUnsupported is returned by the runneraas
+	// package when BuildKit is requested for a runner that talks to a DinD
+	// service or a docker_socket_address: its job containers are created on
+	// that daemon, not on the node's own one the BuildKit network lives on.
+	ErrRunnerBuildkitDockerSourceUnsupported = rerrors.New(
+		"buildkit is supported only for runners that use the node docker socket", codes.FailedPrecondition)
 )

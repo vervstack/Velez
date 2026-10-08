@@ -17,3 +17,10 @@ FROM velez.container_bindings b
          JOIN velez.services s ON s.id = b.service_id
 WHERE b.node_id = $1
   AND b.environment = $2;
+
+-- name: DeleteContainerBinding :exec
+DELETE
+FROM velez.container_bindings
+WHERE node_id = $1
+  AND environment = $2
+  AND container_name = $3;

@@ -207,7 +207,7 @@ func (c *Custom) Init(a *App) (err error) {
 		c.Services.ConfigResolver(), c.JobsEngine, runtimeResolver, c.Services.AddressBook()))
 	registry.Register(jobs.NewReregisterRunnerHandler(
 		c.ClusterClients.StateManager(), c.Services.Secrets(), runtimeResolver))
-	registry.Register(jobs.NewSetRunnerBuildkitHandler())
+	registry.Register(jobs.NewSetRunnerBuildkitHandler(c.ClusterClients.StateManager(), runtimeResolver))
 
 	c.JobsEngine.SetRegistry(registry)
 

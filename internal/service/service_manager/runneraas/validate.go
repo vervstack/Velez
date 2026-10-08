@@ -56,6 +56,17 @@ func validateDockerSocketAddress(addr string) error {
 	return nil
 }
 
+// validateBuildkitDockerSource rejects a runner whose job containers are created
+// on a DinD service or a remote daemon: the BuildKit network lives on the
+// node's own daemon, so only a runner using the node docker socket can join it.
+func validateBuildkitDockerSource(isDindSet bool, dockerSocketAddress string) error {
+	if isDindSet || dockerSocketAddress != "" {
+		return user_errors.ErrRunnerBuildkitDockerSourceUnsupported
+	}
+
+	return nil
+}
+
 // validateDockerSource enforces that exactly one of dindName and
 // dockerSocketAddress is set.
 func validateDockerSource(dindName, dockerSocketAddress string) error {

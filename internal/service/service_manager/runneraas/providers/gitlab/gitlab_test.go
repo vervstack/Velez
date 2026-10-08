@@ -178,6 +178,10 @@ func (f *fakeContainerRuntime) EnsureVolume(context.Context, container_runtime.E
 	panic("not implemented")
 }
 
+func (f *fakeContainerRuntime) RemoveVolume(context.Context, string) error {
+	panic("not implemented")
+}
+
 func (f *fakeContainerRuntime) ListNetworks(context.Context, bool) ([]container_runtime.NetworkInfo, error) {
 	panic("not implemented")
 }

@@ -301,6 +301,11 @@ type ContainerRuntime interface {
 	// names container specs already carry. Implemented on commonRuntime.
 	EnsureVolume(ctx context.Context, req EnsureVolumeRequest) error
 
+	// RemoveVolume deletes the named volume. A volume that does not exist is
+	// not an error. Node-wide, not environment-scoped, like EnsureVolume.
+	// Implemented on commonRuntime.
+	RemoveVolume(ctx context.Context, name string) error
+
 	// ListNetworks lists networks scoped to this runtime's environment;
 	// isForeignIncluded also returns networks not managed by velez. Networks
 	// are addressed by Docker network id, never re-suffixed.

@@ -2,12 +2,14 @@ package gitlab_runner_config
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 )
 
 const (
 	runnersTableName = "runners"
 	dockerVolumesKey = "volumes"
+	networkModeKey   = "network_mode"
 )
 
 var (
@@ -68,6 +70,18 @@ func SetDockerDefaults(config []byte, d DockerDefaults) ([]byte, error) {
 		{key: dockerVolumesKey, value: quoteArray(d.Volumes), isSet: len(d.Volumes) > 0},
 		{key: pullPolicyKey, value: quoteArray(d.PullPolicy), isSet: len(d.PullPolicy) > 0},
 		{key: allowedPullPoliciesKey, value: quoteArray(d.AllowedPullPolicies), isSet: len(d.AllowedPullPolicies) > 0},
+	}
+
+	return applyDockerKeys(config, keys)
+}
+
+// SetNetworkMode sets `network_mode` in the `[runners.docker]` table - the
+// docker network job containers join - keeping the rest of the file untouched.
+// An empty networkMode deletes the key. Fails with ErrRunnerEntryMissing when
+// the key has to be added and there is no `[[runners]]` entry to hold the table.
+func SetNetworkMode(config []byte, networkMode string) ([]byte, error) {
+	keys := []keyValue{
+		{key: networkModeKey, value: strconv.Quote(networkMode), isSet: networkMode != ""},
 	}
 
 	return applyDockerKeys(config, keys)

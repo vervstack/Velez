@@ -135,5 +135,15 @@ func (j *reregisterRunnerJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error restoring runner settings")
 	}
 
+	networkMode, err := runnerBuildkitNetworkMode(ctx, containerRuntime, name)
+	if err != nil {
+		return rerrors.Wrap(err, "error resolving runner buildkit network")
+	}
+
+	err = runnerProvider.ApplyNetworkMode(ctx, containerRuntime, name, networkMode)
+	if err != nil {
+		return rerrors.Wrap(err, "error restoring runner network mode")
+	}
+
 	return nil
 }

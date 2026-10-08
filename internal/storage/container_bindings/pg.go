@@ -76,6 +76,21 @@ func (p *pgStorage) ListByNode(
 	return out, nil
 }
 
+func (p *pgStorage) Delete(ctx context.Context, nodeId int32, environment, containerName string) error {
+	params := container_bindings_queries.DeleteContainerBindingParams{
+		NodeID:        nodeId,
+		Environment:   environmentKey(environment),
+		ContainerName: containerName,
+	}
+
+	err := p.querier.DeleteContainerBinding(ctx, params)
+	if err != nil {
+		return rerrors.Wrap(err, "error deleting container binding")
+	}
+
+	return nil
+}
+
 // environmentKey stores and matches bindings by environment name; an empty
 // name is the default environment, as everywhere else on the wire.
 func environmentKey(environment string) string {

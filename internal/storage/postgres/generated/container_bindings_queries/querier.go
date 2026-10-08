@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	DeleteContainerBinding(ctx context.Context, arg DeleteContainerBindingParams) error
 	ListContainerBindingsByNode(ctx context.Context, arg ListContainerBindingsByNodeParams) ([]ListContainerBindingsByNodeRow, error)
 	UpsertContainerBinding(ctx context.Context, arg UpsertContainerBindingParams) error
 }

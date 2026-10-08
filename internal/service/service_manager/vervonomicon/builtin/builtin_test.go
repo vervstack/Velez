@@ -62,3 +62,27 @@ func TestRead_UnknownNameErrors(t *testing.T) {
 	_, err := builtin.Read("does-not-exist")
 	require.Error(t, err)
 }
+
+func TestRead_BuildkitDescriptorsRoundTripThroughParse(t *testing.T) {
+	cases := []struct {
+		name      string
+		wantImage string
+	}{
+		{name: "buildkit", wantImage: "moby/buildkit:v0.34.0"},
+		{name: "binfmt", wantImage: "tonistiigi/binfmt:qemu-v10.2.3-68"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			files, err := builtin.Read(tc.name)
+			require.NoError(t, err)
+
+			descriptor, err := vervonomicon.Parse(files)
+			require.NoError(t, err)
+
+			require.Equal(t, tc.name, descriptor.Index.Service.Name)
+			require.Equal(t, tc.wantImage, descriptor.Deployment.App.Image)
+			require.Empty(t, descriptor.Deployment.App.Ports)
+		})
+	}
+}

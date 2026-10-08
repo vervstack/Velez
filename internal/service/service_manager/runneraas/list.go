@@ -58,6 +58,8 @@ func (s *RunneraasService) ListRunners(ctx context.Context, req domain.ListRunne
 			Status:      base.Status,
 			CreatedAt:   row.CreatedAt,
 			UpdatedAt:   row.UpdatedAt,
+
+			IsBuildkitEnabled: row.IsBuildkitEnabled,
 		})
 	}
 

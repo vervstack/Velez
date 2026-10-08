@@ -127,6 +127,14 @@ func Test_Apply_Cases(t *testing.T) {
 			"khairul169/garage-webui:1.1.0", domain.Settings{}, "", false,
 		},
 		{
+			"buildkit sidecar allowed", newTailscaleHostConfig(),
+			"moby/buildkit:v0.34.0", domain.Settings{}, "", false,
+		},
+		{
+			"binfmt installer allowed", newTailscaleHostConfig(),
+			"tonistiigi/binfmt:qemu-v10.2.3-68", domain.Settings{}, "", false,
+		},
+		{
 			"namespace suffix not matched", newTailscaleHostConfig(), "evil/docker:dind",
 			domain.Settings{}, "", true,
 		},

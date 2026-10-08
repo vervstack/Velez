@@ -7,6 +7,7 @@ import (
 	"go.redsock.ru/rerrors"
 
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
@@ -21,12 +22,19 @@ func (s *RunneraasService) DropRunner(ctx context.Context, name string) error {
 		return rerrors.Wrap(err, "error getting runner row")
 	}
 
+	err = jobs.DropRunnerBuildkitSidecar(ctx, s.dataStorage, s.runtimes, name, svc.Env)
+	if err != nil {
+		return rerrors.Wrap(err, "error dropping runner buildkit sidecar")
+	}
+
 	removeReq := domain.RemoveServiceReq{Name: name, DropRunningInstances: true}
 
 	err = s.vervServices.Remove(ctx, removeReq)
 	if err != nil {
 		return rerrors.Wrap(err, "error removing runner service")
 	}
+
+	jobs.DropRunnerBuildkitResources(ctx, s.dataStorage, s.runtimes, name, svc.Env)
 
 	err = s.dataStorage.Runners().DeleteRunner(ctx, svc.ID)
 	if err != nil {

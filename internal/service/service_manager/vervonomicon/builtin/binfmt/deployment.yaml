@@ -1,0 +1,4 @@
+app:
+  image: tonistiigi/binfmt:qemu-v10.2.3-68
+  restart: "no"
+  box: small

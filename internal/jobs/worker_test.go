@@ -161,9 +161,11 @@ func TestTaskWorker_RunningLongerThanLease_IsNotReclaimedByAnotherWorker(t *test
 	})
 
 	first := NewTaskWorker(tasksStorage, jobsStorage, registry, "first-worker", time.Hour, 1)
+
 	first.lease = 120 * time.Millisecond
 
 	second := NewTaskWorker(tasksStorage, jobsStorage, registry, "second-worker", time.Hour, 1)
+
 	second.lease = 120 * time.Millisecond
 
 	done := make(chan struct{})

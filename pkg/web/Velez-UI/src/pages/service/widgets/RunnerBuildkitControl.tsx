@@ -11,7 +11,7 @@ import {
     isTaskTerminal,
     SET_RUNNER_BUILDKIT_ACTION,
 } from "@/processes/buildkitControl.ts"
-import {GetRunnerConfigQuery, RUNNERS_QUERY_KEY, SetRunnerBuildkitMutation, useListRunnersQuery} from "@/processes/queries/runners.ts"
+import {RUNNERS_QUERY_KEY, SetRunnerBuildkitMutation, useListRunnersQuery} from "@/processes/queries/runners.ts"
 import Button from "@/components/base/Button.tsx"
 import InfoMark from "@/components/base/InfoMark.tsx"
 
@@ -24,11 +24,11 @@ export default function RunnerBuildkitControl({runnerName}: Props) {
     const watch = useTaskWatch((state) => state.watch)
     const task = useWatchedTask(runnerName, SET_RUNNER_BUILDKIT_ACTION)
     const runnersQuery = useListRunnersQuery()
-    const configQuery = GetRunnerConfigQuery(runnerName)
     const setBuildkit = SetRunnerBuildkitMutation()
 
-    const isEnabled = runnersQuery.data?.runners?.find((r) => r.name === runnerName)?.isBuildkitEnabled ?? false
-    const isSupported = configQuery.isSuccess && !configQuery.data.dockerSocketAddress
+    const runner = runnersQuery.data?.runners?.find((r) => r.name === runnerName)
+    const isEnabled = runner?.isBuildkitEnabled ?? false
+    const isSupported = Boolean(runner?.dindName)
     const control = buildkitControl(task, isEnabled)
 
     useEffect(() => {
@@ -52,7 +52,7 @@ export default function RunnerBuildkitControl({runnerName}: Props) {
                 {control.label}
             </Button>
 
-            {configQuery.isSuccess && !isSupported && <InfoMark tooltip={BUILDKIT_UNSUPPORTED_TOOLTIP}/>}
+            {runnersQuery.isSuccess && !isSupported && <InfoMark tooltip={BUILDKIT_UNSUPPORTED_TOOLTIP}/>}
         </div>
     )
 }

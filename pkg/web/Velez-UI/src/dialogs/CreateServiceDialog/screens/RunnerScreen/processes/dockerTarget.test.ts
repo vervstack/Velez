@@ -24,12 +24,15 @@ describe("resolveDockerTarget", () => {
 })
 
 describe("isBuildkitSupported", () => {
-    it("is unsupported for a dind and for an external daemon", () => {
-        expect(isBuildkitSupported("ci")).toBe(false)
+    it("is supported when a DinD is chosen", () => {
+        expect(isBuildkitSupported("ci")).toBe(true)
+    })
+
+    it("is unsupported for external daemon", () => {
         expect(isBuildkitSupported(EXTERNAL_DOCKER_CHOICE)).toBe(false)
     })
 
-    it("is supported when no daemon is chosen", () => {
-        expect(isBuildkitSupported("")).toBe(true)
+    it("is unsupported when no daemon is chosen", () => {
+        expect(isBuildkitSupported("")).toBe(false)
     })
 })

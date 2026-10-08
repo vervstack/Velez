@@ -13,5 +13,5 @@ export function resolveDockerTarget(choice: string, externalAddress: string): Do
 }
 
 export function isBuildkitSupported(choice: string): boolean {
-    return choice === ""
+    return choice !== "" && choice !== EXTERNAL_DOCKER_CHOICE
 }

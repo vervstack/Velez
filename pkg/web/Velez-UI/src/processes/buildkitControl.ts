@@ -2,11 +2,11 @@ import {TaskStatus, TaskStatusStatus} from "@/app/api/velez"
 
 export const SET_RUNNER_BUILDKIT_ACTION = "set_runner_buildkit"
 
-export const BUILDKIT_CREATE_TOOLTIP = "Runs a BuildKit daemon next to this runner on a private network. "
+export const BUILDKIT_CREATE_TOOLTIP = "Runs a BuildKit daemon inside this runner's DinD on a private network. "
     + "CI jobs reach it at tcp://buildkit:1234 (docker buildx --driver remote) "
     + "and keep their build cache between pipelines."
 
-export const BUILDKIT_UNSUPPORTED_TOOLTIP = "Only available when jobs run on this node's own Docker socket."
+export const BUILDKIT_UNSUPPORTED_TOOLTIP = "Only available for runners whose jobs run in a Velez DinD."
 
 export interface BuildkitControl {
     isLocked: boolean

@@ -242,6 +242,11 @@ func (w *taskWorker) keepClaim(ctx context.Context, taskID int64) func() {
 	stop := make(chan struct{})
 	finished := make(chan struct{})
 
+	renewParams := tasks_queries.RenewTaskClaimParams{
+		ID:        taskID,
+		ClaimedBy: sql.NullString{String: w.workerID, Valid: true},
+	}
+
 	go func() {
 		defer close(finished)
 
@@ -255,10 +260,7 @@ func (w *taskWorker) keepClaim(ctx context.Context, taskID int64) func() {
 			case <-ctx.Done():
 				return
 			case <-ticker.C:
-				err := w.tasksStorage.RenewTaskClaim(ctx, tasks_queries.RenewTaskClaimParams{
-					ID:        taskID,
-					ClaimedBy: sql.NullString{String: w.workerID, Valid: true},
-				})
+				err := w.tasksStorage.RenewTaskClaim(ctx, renewParams)
 				if err != nil {
 					log.Warn().Err(err).Int64("task_id", taskID).Msg("error renewing task claim")
 				}

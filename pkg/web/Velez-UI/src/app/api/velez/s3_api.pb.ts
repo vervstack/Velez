@@ -72,6 +72,7 @@ export type ListS3InstancesRequest = {
 export type ListS3InstancesResponse = {
   instances?: S3Instance[];
   total?: string;
+  provisioning?: VelezApiVelezCommon.ProvisioningTask[];
 };
 
 export type ListS3Instances = Record<string, never>;

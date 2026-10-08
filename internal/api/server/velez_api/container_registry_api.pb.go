@@ -403,6 +403,7 @@ type ListRegistryInstances_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Instances     []*RegistryInstance    `protobuf:"bytes,1,rep,name=instances,proto3" json:"instances,omitempty"`
 	Total         uint64                 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	Provisioning  []*ProvisioningTask    `protobuf:"bytes,3,rep,name=provisioning,proto3" json:"provisioning,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -449,6 +450,13 @@ func (x *ListRegistryInstances_Response) GetTotal() uint64 {
 		return x.Total
 	}
 	return 0
+}
+
+func (x *ListRegistryInstances_Response) GetProvisioning() []*ProvisioningTask {
+	if x != nil {
+		return x.Provisioning
+	}
+	return nil
 }
 
 type CreateRegistryInstance_Request struct {
@@ -827,13 +835,14 @@ const file_container_registry_api_proto_rawDesc = "" +
 	"\rinstance_name\x18\x01 \x01(\tR\finstanceName\x12$\n" +
 	"\vbucket_name\x18\x02 \x01(\tH\x00R\n" +
 	"bucketName\x88\x01\x01B\x0e\n" +
-	"\f_bucket_name\"\xaa\x01\n" +
+	"\f_bucket_name\"\xec\x01\n" +
 	"\x15ListRegistryInstances\x1a4\n" +
 	"\aRequest\x12)\n" +
-	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x1a[\n" +
+	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x1a\x9c\x01\n" +
 	"\bResponse\x129\n" +
 	"\tinstances\x18\x01 \x03(\v2\x1b.velez_api.RegistryInstanceR\tinstances\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x04R\x05total\"\xf0\x03\n" +
+	"\x05total\x18\x02 \x01(\x04R\x05total\x12?\n" +
+	"\fprovisioning\x18\x03 \x03(\v2\x1b.velez_api.ProvisioningTaskR\fprovisioning\"\xf0\x03\n" +
 	"\x16CreateRegistryInstance\x1a\xdb\x02\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12%\n" +
@@ -901,27 +910,29 @@ var file_container_registry_api_proto_goTypes = []any{
 	(*GetRegistryInstanceCredentials_Response)(nil), // 13: velez_api.GetRegistryInstanceCredentials.Response
 	(*timestamppb.Timestamp)(nil),                   // 14: google.protobuf.Timestamp
 	(*Paging)(nil),                                  // 15: velez_api.Paging
+	(*ProvisioningTask)(nil),                        // 16: velez_api.ProvisioningTask
 }
 var file_container_registry_api_proto_depIdxs = []int32{
 	14, // 0: velez_api.RegistryInstance.created_at:type_name -> google.protobuf.Timestamp
 	14, // 1: velez_api.RegistryInstance.updated_at:type_name -> google.protobuf.Timestamp
 	15, // 2: velez_api.ListRegistryInstances.Request.paging:type_name -> velez_api.Paging
 	0,  // 3: velez_api.ListRegistryInstances.Response.instances:type_name -> velez_api.RegistryInstance
-	1,  // 4: velez_api.CreateRegistryInstance.Request.s3_storage:type_name -> velez_api.RegistryS3Storage
-	0,  // 5: velez_api.CreateRegistryInstance.Response.instance:type_name -> velez_api.RegistryInstance
-	6,  // 6: velez_api.ContainerRegistryAPI.ListRegistryInstances:input_type -> velez_api.ListRegistryInstances.Request
-	8,  // 7: velez_api.ContainerRegistryAPI.CreateRegistryInstance:input_type -> velez_api.CreateRegistryInstance.Request
-	10, // 8: velez_api.ContainerRegistryAPI.DropRegistryInstance:input_type -> velez_api.DropRegistryInstance.Request
-	12, // 9: velez_api.ContainerRegistryAPI.GetRegistryInstanceCredentials:input_type -> velez_api.GetRegistryInstanceCredentials.Request
-	7,  // 10: velez_api.ContainerRegistryAPI.ListRegistryInstances:output_type -> velez_api.ListRegistryInstances.Response
-	9,  // 11: velez_api.ContainerRegistryAPI.CreateRegistryInstance:output_type -> velez_api.CreateRegistryInstance.Response
-	11, // 12: velez_api.ContainerRegistryAPI.DropRegistryInstance:output_type -> velez_api.DropRegistryInstance.Response
-	13, // 13: velez_api.ContainerRegistryAPI.GetRegistryInstanceCredentials:output_type -> velez_api.GetRegistryInstanceCredentials.Response
-	10, // [10:14] is the sub-list for method output_type
-	6,  // [6:10] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	16, // 4: velez_api.ListRegistryInstances.Response.provisioning:type_name -> velez_api.ProvisioningTask
+	1,  // 5: velez_api.CreateRegistryInstance.Request.s3_storage:type_name -> velez_api.RegistryS3Storage
+	0,  // 6: velez_api.CreateRegistryInstance.Response.instance:type_name -> velez_api.RegistryInstance
+	6,  // 7: velez_api.ContainerRegistryAPI.ListRegistryInstances:input_type -> velez_api.ListRegistryInstances.Request
+	8,  // 8: velez_api.ContainerRegistryAPI.CreateRegistryInstance:input_type -> velez_api.CreateRegistryInstance.Request
+	10, // 9: velez_api.ContainerRegistryAPI.DropRegistryInstance:input_type -> velez_api.DropRegistryInstance.Request
+	12, // 10: velez_api.ContainerRegistryAPI.GetRegistryInstanceCredentials:input_type -> velez_api.GetRegistryInstanceCredentials.Request
+	7,  // 11: velez_api.ContainerRegistryAPI.ListRegistryInstances:output_type -> velez_api.ListRegistryInstances.Response
+	9,  // 12: velez_api.ContainerRegistryAPI.CreateRegistryInstance:output_type -> velez_api.CreateRegistryInstance.Response
+	11, // 13: velez_api.ContainerRegistryAPI.DropRegistryInstance:output_type -> velez_api.DropRegistryInstance.Response
+	13, // 14: velez_api.ContainerRegistryAPI.GetRegistryInstanceCredentials:output_type -> velez_api.GetRegistryInstanceCredentials.Response
+	11, // [11:15] is the sub-list for method output_type
+	7,  // [7:11] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_container_registry_api_proto_init() }

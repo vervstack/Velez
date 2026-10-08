@@ -17,14 +17,16 @@ import (
 type Impl struct {
 	velez_api.UnimplementedDindAPIServer
 
-	dindService service.DindService
+	dindService  service.DindService
+	provisioning service.ProvisioningService
 }
 
 func New(srv service.Services) *Impl {
 	return &Impl{
 		UnimplementedDindAPIServer: velez_api.UnimplementedDindAPIServer{},
 
-		dindService: srv.Dinds(),
+		dindService:  srv.Dinds(),
+		provisioning: srv.Provisioning(),
 	}
 }
 

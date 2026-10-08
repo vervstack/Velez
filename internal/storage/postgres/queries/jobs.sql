@@ -23,3 +23,8 @@ SELECT *
 FROM velez.jobs
 WHERE task_id = $1
 ORDER BY created_at;
+
+-- name: DeleteJobsByTask :exec
+DELETE
+FROM velez.jobs
+WHERE task_id = $1;

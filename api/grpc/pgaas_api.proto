@@ -79,6 +79,7 @@ message ListPgInstances {
   message Response {
     repeated PgInstance instances = 1;
     uint64 total = 2;
+    repeated ProvisioningTask provisioning = 3;
   }
 }
 
@@ -94,7 +95,13 @@ message CreatePgInstance {
     optional string owner_service = 5;
   }
   message Response {
+    // instance is never populated - the RPC enqueues the
+    // create_pg_instance task and returns before it completes.
+    // Callers watch entity_id/action via TasksApi.WatchTask and refetch
+    // ListPgInstances once the task reaches DONE.
     PgInstance instance = 1;
+    string entity_id = 2;
+    string action = 3;
   }
 }
 

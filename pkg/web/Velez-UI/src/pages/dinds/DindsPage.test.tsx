@@ -2,6 +2,8 @@ import {afterEach, describe, expect, it, vi} from "vitest"
 import {fireEvent, render, screen} from "@testing-library/react"
 
 import type {DindInfo} from "@/app/api/velez/dind_api.pb"
+import {ProvisioningTaskStatus} from "@/app/api/velez/velez_common.pb"
+import type {ProvisioningTask} from "@/app/api/velez/velez_common.pb"
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import {DropDindMutation, useListDindsQuery} from "@/processes/queries/dinds.ts"
@@ -13,6 +15,10 @@ vi.mock("@/app/hooks/toaster/Toaster.ts", () => ({useToaster: vi.fn()}))
 vi.mock("@/processes/queries/dinds.ts", () => ({
     useListDindsQuery: vi.fn(),
     DropDindMutation: vi.fn(),
+    DINDS_QUERY_KEY: ["dinds"],
+}))
+vi.mock("@/widgets/ProvisioningRow/ProvisioningRow.tsx", () => ({
+    default: ({task}: { task: ProvisioningTask }) => <span>provisioning {task.entityId}</span>,
 }))
 vi.mock("@/dialogs/CreateDindDialog/CreateDindDialog.tsx", () => ({default: () => null}))
 vi.mock("@/pages/dinds/components/DindsTableSkeleton/DindsTableSkeleton.tsx", () => ({
@@ -36,8 +42,12 @@ function renderPage(query: Partial<DindsQuery>) {
     return {refetch, OpenDialog}
 }
 
-function loaded(dinds: DindInfo[]): Partial<DindsQuery> {
-    return {data: {dinds}}
+function loaded(dinds: DindInfo[], provisioning: ProvisioningTask[] = []): Partial<DindsQuery> {
+    return {data: {dinds, provisioning}}
+}
+
+function runningCreateTask(entityId: string): ProvisioningTask {
+    return {taskId: "1", entityId, action: "create_dind", status: ProvisioningTaskStatus.RUNNING}
 }
 
 afterEach(() => {
@@ -63,6 +73,20 @@ describe("DindsPage", () => {
         renderPage(loaded([]))
 
         expect(screen.getByText("No Docker daemons on this node.")).toBeInTheDocument()
+    })
+
+    it("renders a provisioning row and no empty state when only a create task exists", () => {
+        renderPage(loaded([], [runningCreateTask("ci")]))
+
+        expect(screen.getByText("provisioning ci")).toBeInTheDocument()
+        expect(screen.queryByText("No Docker daemons on this node.")).not.toBeInTheDocument()
+    })
+
+    it("hides the real row of a daemon that is still provisioning but keeps counting it", () => {
+        renderPage(loaded([{name: "ci", address: "tcp://ci:2375"}], [runningCreateTask("ci")]))
+
+        expect(screen.queryByText("tcp://ci:2375")).not.toBeInTheDocument()
+        expect(screen.getByText("1 daemons")).toBeInTheDocument()
     })
 
     it("shows the skeleton while loading", () => {

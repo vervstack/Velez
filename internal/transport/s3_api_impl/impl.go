@@ -17,14 +17,16 @@ import (
 type Impl struct {
 	velez_api.UnimplementedS3APIServer
 
-	s3Service service.S3Service
+	s3Service    service.S3Service
+	provisioning service.ProvisioningService
 }
 
 func New(srv service.Services) *Impl {
 	return &Impl{
 		UnimplementedS3APIServer: velez_api.UnimplementedS3APIServer{},
 
-		s3Service: srv.S3(),
+		s3Service:    srv.S3(),
+		provisioning: srv.Provisioning(),
 	}
 }
 

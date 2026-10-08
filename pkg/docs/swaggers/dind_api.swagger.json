@@ -115,6 +115,17 @@
     }
   },
   "definitions": {
+    "ProvisioningTaskJob": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/velez_apiProvisioningTaskStatus"
+        }
+      }
+    },
     "googleRpcStatus": {
       "type": "object",
       "properties": {
@@ -159,7 +170,16 @@
       }
     },
     "velez_apiCreateDindResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "type": "string",
+          "description": "The RPC enqueues the create_dind task and returns before it completes.\nCallers watch entity_id/action via TasksApi.WatchTask and refetch\nListDinds once the task reaches DONE."
+        },
+        "action": {
+          "type": "string"
+        }
+      }
     },
     "velez_apiDindInfo": {
       "type": "object",
@@ -203,8 +223,59 @@
             "type": "object",
             "$ref": "#/definitions/velez_apiDindInfo"
           }
+        },
+        "provisioning": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiProvisioningTask"
+          }
         }
       }
+    },
+    "velez_apiProvisioningTask": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "string",
+          "format": "int64"
+        },
+        "entityId": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/velez_apiProvisioningTaskStatus"
+        },
+        "error": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "jobs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/ProvisioningTaskJob"
+          }
+        }
+      },
+      "description": "ProvisioningTask is an in-flight or recently failed create task of an AsAService\ninstance. List*Instances responses carry these so the UI can show provisioning\nprogress that survives a reload. Active until its task is DONE; FAILED ones stay\nuntil dismissed or 5 minutes old."
+    },
+    "velez_apiProvisioningTaskStatus": {
+      "type": "string",
+      "enum": [
+        "STATUS_UNSPECIFIED",
+        "PENDING",
+        "RUNNING",
+        "DONE",
+        "FAILED"
+      ],
+      "default": "STATUS_UNSPECIFIED"
     }
   }
 }

@@ -57,6 +57,14 @@ export enum SmerdStatus {
   dead = "dead",
 }
 
+export enum ProvisioningTaskStatus {
+  STATUS_UNSPECIFIED = "STATUS_UNSPECIFIED",
+  PENDING = "PENDING",
+  RUNNING = "RUNNING",
+  DONE = "DONE",
+  FAILED = "FAILED",
+}
+
 export type SearchImageItem = {
   name?: string;
   imageUrl?: string;
@@ -204,4 +212,19 @@ export type NodeBaseInfo = {
   memPercent?: number;
   servicesCount?: string;
   region?: string;
+};
+
+export type ProvisioningTaskJob = {
+  name?: string;
+  status?: ProvisioningTaskStatus;
+};
+
+export type ProvisioningTask = {
+  taskId?: string;
+  entityId?: string;
+  action?: string;
+  status?: ProvisioningTaskStatus;
+  error?: string;
+  updatedAt?: GoogleProtobufTimestamp.Timestamp;
+  jobs?: ProvisioningTaskJob[];
 };

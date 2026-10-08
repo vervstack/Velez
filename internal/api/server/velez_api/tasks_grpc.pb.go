@@ -22,6 +22,7 @@ const (
 	TasksApi_WatchTask_FullMethodName           = "/velez_api.TasksApi/WatchTask"
 	TasksApi_CreateSmerdStream_FullMethodName   = "/velez_api.TasksApi/CreateSmerdStream"
 	TasksApi_WatchServiceUpgrade_FullMethodName = "/velez_api.TasksApi/WatchServiceUpgrade"
+	TasksApi_DismissTask_FullMethodName         = "/velez_api.TasksApi/DismissTask"
 )
 
 // TasksApiClient is the client API for TasksApi service.
@@ -44,6 +45,7 @@ type TasksApiClient interface {
 	// upgrade_smerd task with its per-job statuses, then its terminal status,
 	// after which the stream closes. Closes without sending when nothing is in flight.
 	WatchServiceUpgrade(ctx context.Context, in *WatchServiceUpgrade_Request, opts ...grpc.CallOption) (grpc.ServerStreamingClient[TaskStatus], error)
+	DismissTask(ctx context.Context, in *DismissTask_Request, opts ...grpc.CallOption) (*DismissTask_Response, error)
 }
 
 type tasksApiClient struct {
@@ -111,6 +113,16 @@ func (c *tasksApiClient) WatchServiceUpgrade(ctx context.Context, in *WatchServi
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type TasksApi_WatchServiceUpgradeClient = grpc.ServerStreamingClient[TaskStatus]
 
+func (c *tasksApiClient) DismissTask(ctx context.Context, in *DismissTask_Request, opts ...grpc.CallOption) (*DismissTask_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DismissTask_Response)
+	err := c.cc.Invoke(ctx, TasksApi_DismissTask_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TasksApiServer is the server API for TasksApi service.
 // All implementations must embed UnimplementedTasksApiServer
 // for forward compatibility.
@@ -131,6 +143,7 @@ type TasksApiServer interface {
 	// upgrade_smerd task with its per-job statuses, then its terminal status,
 	// after which the stream closes. Closes without sending when nothing is in flight.
 	WatchServiceUpgrade(*WatchServiceUpgrade_Request, grpc.ServerStreamingServer[TaskStatus]) error
+	DismissTask(context.Context, *DismissTask_Request) (*DismissTask_Response, error)
 	mustEmbedUnimplementedTasksApiServer()
 }
 
@@ -149,6 +162,9 @@ func (UnimplementedTasksApiServer) CreateSmerdStream(*CreateSmerd_Request, grpc.
 }
 func (UnimplementedTasksApiServer) WatchServiceUpgrade(*WatchServiceUpgrade_Request, grpc.ServerStreamingServer[TaskStatus]) error {
 	return status.Error(codes.Unimplemented, "method WatchServiceUpgrade not implemented")
+}
+func (UnimplementedTasksApiServer) DismissTask(context.Context, *DismissTask_Request) (*DismissTask_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method DismissTask not implemented")
 }
 func (UnimplementedTasksApiServer) mustEmbedUnimplementedTasksApiServer() {}
 func (UnimplementedTasksApiServer) testEmbeddedByValue()                  {}
@@ -204,13 +220,36 @@ func _TasksApi_WatchServiceUpgrade_Handler(srv interface{}, stream grpc.ServerSt
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type TasksApi_WatchServiceUpgradeServer = grpc.ServerStreamingServer[TaskStatus]
 
+func _TasksApi_DismissTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DismissTask_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TasksApiServer).DismissTask(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TasksApi_DismissTask_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TasksApiServer).DismissTask(ctx, req.(*DismissTask_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TasksApi_ServiceDesc is the grpc.ServiceDesc for TasksApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var TasksApi_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "velez_api.TasksApi",
 	HandlerType: (*TasksApiServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "DismissTask",
+			Handler:    _TasksApi_DismissTask_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "WatchTask",

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -49,6 +50,20 @@ func (f *fakeJobsEngine) Latest(
 	_ context.Context, _, _ string,
 ) (sql.Null[tasks_queries.VelezTask], error) {
 	return sql.Null[tasks_queries.VelezTask]{}, nil
+}
+
+func (f *fakeJobsEngine) EnqueueReplacing(_ context.Context, _, _ string, _ any) (tasks_queries.VelezTask, error) {
+	return tasks_queries.VelezTask{}, nil
+}
+
+func (f *fakeJobsEngine) ListProvisioning(
+	_ context.Context, _ []string, _ time.Time,
+) ([]jobs.ProvisioningEntry, error) {
+	return nil, nil
+}
+
+func (f *fakeJobsEngine) DismissFailed(_ context.Context, _, _ string) error {
+	return nil
 }
 
 func (f *fakeJobsEngine) SetRegistry(_ *jobs.Registry) {}

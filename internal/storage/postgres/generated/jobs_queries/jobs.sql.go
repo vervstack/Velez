@@ -38,6 +38,17 @@ func (q *Queries) CreateRunningJob(ctx context.Context, arg CreateRunningJobPara
 	return i, err
 }
 
+const deleteJobsByTask = `-- name: DeleteJobsByTask :exec
+DELETE
+FROM velez.jobs
+WHERE task_id = $1
+`
+
+func (q *Queries) DeleteJobsByTask(ctx context.Context, taskID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteJobsByTask, taskID)
+	return err
+}
+
 const finishJob = `-- name: FinishJob :exec
 UPDATE velez.jobs
 SET status     = $1,

@@ -22,6 +22,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/service_manager/nodes_service"
 	"go.vervstack.ru/Velez/internal/service/service_manager/pgaas"
 	"go.vervstack.ru/Velez/internal/service/service_manager/plugins"
+	"go.vervstack.ru/Velez/internal/service/service_manager/provisioning"
 	"go.vervstack.ru/Velez/internal/service/service_manager/registryaas"
 	"go.vervstack.ru/Velez/internal/service/service_manager/runneraas"
 	"go.vervstack.ru/Velez/internal/service/service_manager/s3aas"
@@ -53,6 +54,7 @@ type ServiceManager struct {
 	networkService           service.NetworkService
 	configResolver           service.ServiceConfigResolver
 	addressBook              service.AddressBook
+	provisioningService      service.ProvisioningService
 }
 
 func New(
@@ -108,7 +110,7 @@ func New(
 		// a Postgres cluster (see custom.go's InitServiceLayer), so pgaas's
 		// own Services()/GetByName calls have to agree with CreateNewDeploy
 		// from the start, not just after convergence.
-		postgresService: pgaas.New(clusterClients.StateManager(), vervServices, secretsStore),
+		postgresService: pgaas.New(clusterClients.StateManager(), vervServices, secretsStore, jobsEngine),
 		// runneraas.New takes clusterClients.StateManager(), for the same
 		// reason pgaas.New does just above - see that comment.
 		runnersService: runneraas.New(
@@ -131,6 +133,8 @@ func New(
 		networkService: network_manager.New(runtimeResolver, clusterClients.Vpn(), clusterClients.StateManager()),
 		configResolver: configResolver,
 		addressBook:    addressBook,
+
+		provisioningService: provisioning.New(jobsEngine),
 	}
 
 	// TODO VERV-128
@@ -209,4 +213,8 @@ func (s *ServiceManager) ConfigResolver() service.ServiceConfigResolver {
 
 func (s *ServiceManager) AddressBook() service.AddressBook {
 	return s.addressBook
+}
+
+func (s *ServiceManager) Provisioning() service.ProvisioningService {
+	return s.provisioningService
 }

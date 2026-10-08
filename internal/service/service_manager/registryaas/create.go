@@ -30,7 +30,7 @@ func (s *RegistryaasService) CreateRegistryInstance(ctx context.Context, req dom
 		Request: registryInstanceRequestToPb(req),
 	}
 
-	_, err := s.jobsEngine.Enqueue(ctx, req.Name, jobs.CreateRegistryInstanceAction, initialContext)
+	_, err := s.jobsEngine.EnqueueReplacing(ctx, req.Name, jobs.CreateRegistryInstanceAction, initialContext)
 	if err != nil {
 		return rerrors.Wrap(err, "error enqueuing create registry instance task")
 	}

@@ -10,6 +10,7 @@ import (
 
 type Querier interface {
 	CreateRunningJob(ctx context.Context, arg CreateRunningJobParams) (VelezJob, error)
+	DeleteJobsByTask(ctx context.Context, taskID int64) error
 	FinishJob(ctx context.Context, arg FinishJobParams) error
 	GetJob(ctx context.Context, arg GetJobParams) (VelezJob, error)
 	ListJobsByTask(ctx context.Context, taskID int64) ([]VelezJob, error)

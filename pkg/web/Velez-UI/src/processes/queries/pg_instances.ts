@@ -1,15 +1,17 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query"
 
 import {pgaasService} from "@/processes/api/pgaas"
+import {provisioningRefetchInterval} from "@/processes/mappings/provisioning.ts"
 import {CreatePgInstanceRequest} from "@/app/api/velez"
 
-const PG_INSTANCES_QUERY_KEY = ["pg-instances"]
+export const PG_INSTANCES_QUERY_KEY = ["pg-instances"]
 const LIST_REQ = {paging: {limit: "50", offset: "0"}}
 
 export function useListPgInstancesQuery() {
     return useQuery({
         queryKey: PG_INSTANCES_QUERY_KEY,
         queryFn: () => pgaasService.listPgInstances(LIST_REQ),
+        refetchInterval: (query) => provisioningRefetchInterval(query.state.data?.provisioning),
     })
 }
 

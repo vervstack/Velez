@@ -1,4 +1,4 @@
-package pgaas
+package pgdeploy
 
 import (
 	"context"
@@ -13,16 +13,13 @@ import (
 	"go.vervstack.ru/Velez/internal/service/service_manager/vervonomicon/builtin"
 )
 
-// pgCredentials is the generated db_name/username/password triple for one PG
-// instance. Only buildDeployRequest ever sees the password - it lands on the
-// resolved CreateSmerd.Request's env, never on the descriptor.
-type pgCredentials struct {
-	dbName   string
-	username string
-	password string
+type Credentials struct {
+	DbName   string
+	Username string
+	Password string
 }
 
-// buildDeployRequest reads the builtin postgres descriptor, overlays the
+// BuildDeployRequest reads the builtin postgres descriptor, overlays the
 // instance's shape (box, unique volume name, exposed port), resolves it into
 // a CreateSmerd.Request via the box resolver, then overlays the instance's
 // generated name and credentials onto the *resolved request* - never onto
@@ -32,11 +29,11 @@ type pgCredentials struct {
 //
 // The returned descriptor is what CreateDeployReq.VervDescriptor persists;
 // the returned request is what actually launches the container.
-func buildDeployRequest(
+func BuildDeployRequest(
 	ctx context.Context,
 	boxes vervonomicon.BoxLookup,
 	req domain.CreatePgInstanceReq,
-	creds pgCredentials,
+	creds Credentials,
 ) (verv.Descriptor, *velez_api.CreateSmerd_Request, error) {
 	files, err := builtin.Read("postgres")
 	if err != nil {
@@ -57,7 +54,7 @@ func buildDeployRequest(
 	instanceName := labels.PgaasNamePrefix + req.Name
 
 	if len(descriptor.Deployment.App.Volumes) > 0 {
-		descriptor.Deployment.App.Volumes[0].Name = pgVolumeName(instanceName)
+		descriptor.Deployment.App.Volumes[0].Name = VolumeName(instanceName)
 	}
 
 	if req.ExposeToPort != 0 && len(descriptor.Deployment.App.Ports) > 0 {
@@ -73,9 +70,9 @@ func buildDeployRequest(
 
 	request.Name = instanceName
 	request.Env = map[string]string{
-		"POSTGRES_DB":       creds.dbName,
-		"POSTGRES_USER":     creds.username,
-		"POSTGRES_PASSWORD": creds.password,
+		"POSTGRES_DB":       creds.DbName,
+		"POSTGRES_USER":     creds.Username,
+		"POSTGRES_PASSWORD": creds.Password,
 	}
 
 	if request.Labels == nil {

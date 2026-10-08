@@ -85,6 +85,7 @@ message ListRegistryInstances {
   message Response {
     repeated RegistryInstance instances = 1;
     uint64 total = 2;
+    repeated ProvisioningTask provisioning = 3;
   }
 }
 

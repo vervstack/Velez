@@ -18,6 +18,7 @@ type Impl struct {
 	velez_api.UnimplementedRunnersAPIServer
 
 	runnersService service.RunnersService
+	provisioning   service.ProvisioningService
 }
 
 func New(srv service.Services) *Impl {
@@ -25,6 +26,7 @@ func New(srv service.Services) *Impl {
 		UnimplementedRunnersAPIServer: velez_api.UnimplementedRunnersAPIServer{},
 
 		runnersService: srv.Runners(),
+		provisioning:   srv.Provisioning(),
 	}
 }
 

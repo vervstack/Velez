@@ -86,6 +86,20 @@ func (f *fakeJobsEngine) Latest(
 	return sql.Null[tasks_queries.VelezTask]{}, nil
 }
 
+func (f *fakeJobsEngine) EnqueueReplacing(_ context.Context, _, _ string, _ any) (tasks_queries.VelezTask, error) {
+	return tasks_queries.VelezTask{}, nil
+}
+
+func (f *fakeJobsEngine) ListProvisioning(
+	_ context.Context, _ []string, _ time.Time,
+) ([]jobs.ProvisioningEntry, error) {
+	return nil, nil
+}
+
+func (f *fakeJobsEngine) DismissFailed(_ context.Context, _, _ string) error {
+	return nil
+}
+
 func (f *fakeJobsEngine) SetRegistry(_ *jobs.Registry) {}
 
 func (f *fakeJobsEngine) Watch(ctx context.Context, entityID, action string) <-chan tasks_queries.VelezTask {
@@ -167,7 +181,7 @@ func Test_CreateSmerdStream(t *testing.T) {
 		},
 	}
 
-	impl := New(engine, fakeVervServices{}, nil)
+	impl := New(engine, fakeVervServices{}, nil, nil)
 
 	req := &velez_api.CreateSmerd_Request{}
 
@@ -240,7 +254,7 @@ func Test_CreateSmerdStream_EnqueueError(t *testing.T) {
 		enqueueErr: errTest,
 	}
 
-	impl := New(engine, fakeVervServices{}, nil)
+	impl := New(engine, fakeVervServices{}, nil, nil)
 
 	req := &velez_api.CreateSmerd_Request{}
 
@@ -274,7 +288,7 @@ func (f fakeUpgradeWatcher) Watch(_ context.Context, _ string) <-chan jobs.Servi
 func Test_WatchServiceUpgrade_EmptyServiceName(t *testing.T) {
 	t.Parallel()
 
-	impl := New(&fakeJobsEngine{}, fakeVervServices{}, fakeUpgradeWatcher{})
+	impl := New(&fakeJobsEngine{}, fakeVervServices{}, fakeUpgradeWatcher{}, nil)
 	stream := &fakeTaskStatusStream{ctx: context.Background()}
 
 	err := impl.WatchServiceUpgrade(&velez_api.WatchServiceUpgrade_Request{}, stream)
@@ -295,7 +309,7 @@ func Test_WatchServiceUpgrade_ScheduledIsPendingWithoutJobs(t *testing.T) {
 		},
 	}}
 
-	impl := New(&fakeJobsEngine{}, fakeVervServices{}, watcher)
+	impl := New(&fakeJobsEngine{}, fakeVervServices{}, watcher, nil)
 	stream := &fakeTaskStatusStream{ctx: context.Background()}
 
 	request := &velez_api.WatchServiceUpgrade_Request{ServiceName: "svc"}

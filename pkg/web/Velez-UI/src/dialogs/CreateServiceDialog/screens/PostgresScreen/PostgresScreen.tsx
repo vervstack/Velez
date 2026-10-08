@@ -2,14 +2,17 @@ import {useEffect, useState} from "react"
 import {Checkbox, Dropdown, DropdownOption, parseGrpcError} from "@vervstack/chures"
 
 import cls from "@/dialogs/CreateServiceDialog/screens/PostgresScreen/PostgresScreen.module.css"
+import {CreatePgInstanceRequest, CreatePgInstanceResponse} from "@/app/api/velez"
+import {queryClient} from "@/app/queryClient.ts"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {ListEnvironmentsQuery} from "@/processes/queries/control_plane.ts"
 import {useListServicesQuery} from "@/processes/queries/services.ts"
-import {CreatePgInstanceMutation} from "@/processes/queries/pg_instances.ts"
+import {CreatePgInstanceMutation, PG_INSTANCES_QUERY_KEY} from "@/processes/queries/pg_instances.ts"
 import Button from "@/components/base/Button.tsx"
 import Input from "@/components/base/Input.tsx"
 import Choice from "@/components/base/Choice.tsx"
+import TaskProgressScreen from "@/widgets/TaskProgressScreen/TaskProgressScreen.tsx"
 import {
     buildCreatePgInstanceRequest,
 } from "@/dialogs/CreateServiceDialog/screens/PostgresScreen/processes/buildCreatePgInstanceRequest.ts"
@@ -50,6 +53,7 @@ export default function PostgresScreen({onBusyChange}: Props) {
     const [exposePort, setExposePort] = useState(false)
     const [port, setPort] = useState("")
     const [ownerService, setOwnerService] = useState("")
+    const [submittedReq, setSubmittedReq] = useState<CreatePgInstanceRequest | null>(null)
 
     const toaster = useToaster()
     const {CloseDialog} = useDialog()
@@ -59,8 +63,8 @@ export default function PostgresScreen({onBusyChange}: Props) {
     const createPgInstance = CreatePgInstanceMutation()
 
     useEffect(() => {
-        onBusyChange(createPgInstance.isPending)
-    }, [createPgInstance.isPending])
+        onBusyChange(submittedReq !== null || createPgInstance.isPending)
+    }, [submittedReq, createPgInstance.isPending])
 
     const environmentOptions: DropdownOption[] = (environmentsQuery.data?.environments ?? []).map((env) => ({
         id: env.name ?? "",
@@ -99,13 +103,32 @@ export default function PostgresScreen({onBusyChange}: Props) {
         const req = buildCreatePgInstanceRequest({name, environment, box, exposePort, port, ownerService})
         if (!req) return
 
-        createPgInstance.mutate(req, {
-            onSuccess: () => {
-                toaster.bake({title: "Database created", description: name.trim(), level: "Info"})
-                CloseDialog()
-            },
-            onError: toaster.catchGrpc,
-        })
+        setSubmittedReq(req)
+    }
+
+    function handleStart(): Promise<CreatePgInstanceResponse> {
+        if (!submittedReq) {
+            return Promise.reject(new Error("no pending create request"))
+        }
+        return createPgInstance.mutateAsync(submittedReq)
+    }
+
+    function handleSuccess() {
+        queryClient.invalidateQueries({queryKey: PG_INSTANCES_QUERY_KEY})
+        queryClient.invalidateQueries({queryKey: ["services"]})
+        toaster.bake({title: "Database created", description: name.trim(), level: "Info"})
+    }
+
+    if (submittedReq) {
+        return (
+            <TaskProgressScreen
+                title="Creating database"
+                metaLine={name.trim()}
+                start={handleStart}
+                onSuccess={handleSuccess}
+                onClose={CloseDialog}
+            />
+        )
     }
 
     return (

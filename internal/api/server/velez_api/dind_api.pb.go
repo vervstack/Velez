@@ -265,7 +265,12 @@ func (x *CreateDind_Request) GetIsSysboxEnabled() bool {
 }
 
 type CreateDind_Response struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The RPC enqueues the create_dind task and returns before it completes.
+	// Callers watch entity_id/action via TasksApi.WatchTask and refetch
+	// ListDinds once the task reaches DONE.
+	EntityId      string `protobuf:"bytes,1,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
+	Action        string `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -298,6 +303,20 @@ func (x *CreateDind_Response) ProtoReflect() protoreflect.Message {
 // Deprecated: Use CreateDind_Response.ProtoReflect.Descriptor instead.
 func (*CreateDind_Response) Descriptor() ([]byte, []int) {
 	return file_dind_api_proto_rawDescGZIP(), []int{1, 1}
+}
+
+func (x *CreateDind_Response) GetEntityId() string {
+	if x != nil {
+		return x.EntityId
+	}
+	return ""
+}
+
+func (x *CreateDind_Response) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
 }
 
 type ListDinds_Request struct {
@@ -339,6 +358,7 @@ func (*ListDinds_Request) Descriptor() ([]byte, []int) {
 type ListDinds_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Dinds         []*DindInfo            `protobuf:"bytes,1,rep,name=dinds,proto3" json:"dinds,omitempty"`
+	Provisioning  []*ProvisioningTask    `protobuf:"bytes,2,rep,name=provisioning,proto3" json:"provisioning,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -376,6 +396,13 @@ func (*ListDinds_Response) Descriptor() ([]byte, []int) {
 func (x *ListDinds_Response) GetDinds() []*DindInfo {
 	if x != nil {
 		return x.Dinds
+	}
+	return nil
+}
+
+func (x *ListDinds_Response) GetProvisioning() []*ProvisioningTask {
+	if x != nil {
+		return x.Provisioning
 	}
 	return nil
 }
@@ -464,13 +491,13 @@ var File_dind_api_proto protoreflect.FileDescriptor
 
 const file_dind_api_proto_rawDesc = "" +
 	"\n" +
-	"\x0edind_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\"\x9f\x01\n" +
+	"\x0edind_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\x1a\x12velez_common.proto\"\x9f\x01\n" +
 	"\bDindInfo\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\aaddress\x18\x02 \x01(\tR\aaddress\x12*\n" +
 	"\x11is_sysbox_enabled\x18\x03 \x01(\bR\x0fisSysboxEnabled\x129\n" +
 	"\n" +
-	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xb6\x01\n" +
+	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xeb\x01\n" +
 	"\n" +
 	"CreateDind\x1a\x9b\x01\n" +
 	"\aRequest\x12\x12\n" +
@@ -478,13 +505,15 @@ const file_dind_api_proto_rawDesc = "" +
 	"\venvironment\x18\x02 \x01(\tH\x00R\venvironment\x88\x01\x01\x12/\n" +
 	"\x11is_sysbox_enabled\x18\x03 \x01(\bH\x01R\x0fisSysboxEnabled\x88\x01\x01B\x0e\n" +
 	"\f_environmentB\x14\n" +
-	"\x12_is_sysbox_enabled\x1a\n" +
-	"\n" +
-	"\bResponse\"M\n" +
+	"\x12_is_sysbox_enabled\x1a?\n" +
+	"\bResponse\x12\x1b\n" +
+	"\tentity_id\x18\x01 \x01(\tR\bentityId\x12\x16\n" +
+	"\x06action\x18\x02 \x01(\tR\x06action\"\x8e\x01\n" +
 	"\tListDinds\x1a\t\n" +
-	"\aRequest\x1a5\n" +
+	"\aRequest\x1av\n" +
 	"\bResponse\x12)\n" +
-	"\x05dinds\x18\x01 \x03(\v2\x13.velez_api.DindInfoR\x05dinds\"5\n" +
+	"\x05dinds\x18\x01 \x03(\v2\x13.velez_api.DindInfoR\x05dinds\x12?\n" +
+	"\fprovisioning\x18\x02 \x03(\v2\x1b.velez_api.ProvisioningTaskR\fprovisioning\"5\n" +
 	"\bDropDind\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x1a\n" +
@@ -521,21 +550,23 @@ var file_dind_api_proto_goTypes = []any{
 	(*DropDind_Request)(nil),      // 8: velez_api.DropDind.Request
 	(*DropDind_Response)(nil),     // 9: velez_api.DropDind.Response
 	(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
+	(*ProvisioningTask)(nil),      // 11: velez_api.ProvisioningTask
 }
 var file_dind_api_proto_depIdxs = []int32{
 	10, // 0: velez_api.DindInfo.created_at:type_name -> google.protobuf.Timestamp
 	0,  // 1: velez_api.ListDinds.Response.dinds:type_name -> velez_api.DindInfo
-	4,  // 2: velez_api.DindAPI.CreateDind:input_type -> velez_api.CreateDind.Request
-	6,  // 3: velez_api.DindAPI.ListDinds:input_type -> velez_api.ListDinds.Request
-	8,  // 4: velez_api.DindAPI.DropDind:input_type -> velez_api.DropDind.Request
-	5,  // 5: velez_api.DindAPI.CreateDind:output_type -> velez_api.CreateDind.Response
-	7,  // 6: velez_api.DindAPI.ListDinds:output_type -> velez_api.ListDinds.Response
-	9,  // 7: velez_api.DindAPI.DropDind:output_type -> velez_api.DropDind.Response
-	5,  // [5:8] is the sub-list for method output_type
-	2,  // [2:5] is the sub-list for method input_type
-	2,  // [2:2] is the sub-list for extension type_name
-	2,  // [2:2] is the sub-list for extension extendee
-	0,  // [0:2] is the sub-list for field type_name
+	11, // 2: velez_api.ListDinds.Response.provisioning:type_name -> velez_api.ProvisioningTask
+	4,  // 3: velez_api.DindAPI.CreateDind:input_type -> velez_api.CreateDind.Request
+	6,  // 4: velez_api.DindAPI.ListDinds:input_type -> velez_api.ListDinds.Request
+	8,  // 5: velez_api.DindAPI.DropDind:input_type -> velez_api.DropDind.Request
+	5,  // 6: velez_api.DindAPI.CreateDind:output_type -> velez_api.CreateDind.Response
+	7,  // 7: velez_api.DindAPI.ListDinds:output_type -> velez_api.ListDinds.Response
+	9,  // 8: velez_api.DindAPI.DropDind:output_type -> velez_api.DropDind.Response
+	6,  // [6:9] is the sub-list for method output_type
+	3,  // [3:6] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_dind_api_proto_init() }
@@ -543,6 +574,7 @@ func file_dind_api_proto_init() {
 	if File_dind_api_proto != nil {
 		return
 	}
+	file_velez_common_proto_init()
 	file_dind_api_proto_msgTypes[4].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

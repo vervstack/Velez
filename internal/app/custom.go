@@ -194,6 +194,8 @@ func (c *Custom) Init(a *App) (err error) {
 	registry.Register(jobs.NewCreateRegistryInstanceHandler(
 		c.NodeClients, runtimeResolver, c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(),
 		c.JobsEngine, c.Services.ConfigResolver()))
+	registry.Register(jobs.NewCreatePgInstanceHandler(
+		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(), c.JobsEngine))
 	registry.Register(jobs.NewCreateRunnerHandler(
 		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(), c.JobsEngine,
 		runtimeResolver))
@@ -353,7 +355,9 @@ func (c *Custom) InitApiServer(a *App) error {
 
 	upgradeWatcher := jobs.NewServiceUpgradeWatcher(c.ClusterClients.StateManager(), c.JobsEngine)
 
-	c.TasksApiImpl = tasks_api_impl.New(c.JobsEngine, c.Services.VervServices(), upgradeWatcher)
+	c.TasksApiImpl = tasks_api_impl.New(
+		c.JobsEngine, c.Services.VervServices(), upgradeWatcher, c.Services.Provisioning(),
+	)
 	c.PgaasApiImpl = pgaas_api_impl.New(c.Services)
 	c.RunnersApiImpl = runners_api_impl.New(c.Services)
 	c.SettingsApiImpl = settings_api_impl.New(c.Services)

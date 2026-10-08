@@ -2,6 +2,7 @@ import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query"
 
 import type {CreateDindRequest} from "@/app/api/velez/dind_api.pb"
 import {dindsService} from "@/processes/api/dinds.ts"
+import {provisioningRefetchInterval} from "@/processes/mappings/provisioning.ts"
 
 export const DINDS_QUERY_KEY = ["dinds"]
 
@@ -9,6 +10,7 @@ export function useListDindsQuery() {
     return useQuery({
         queryKey: DINDS_QUERY_KEY,
         queryFn: () => dindsService.listDinds(),
+        refetchInterval: (query) => provisioningRefetchInterval(query.state.data?.provisioning),
     })
 }
 

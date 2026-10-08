@@ -8,6 +8,7 @@ import (
 
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/transport/common"
 )
 
@@ -29,9 +30,16 @@ func (impl *Impl) ListRegistryInstances(
 		out = append(out, registryInstanceToPb(instance))
 	}
 
+	tasks, err := impl.provisioning.List(ctx, jobs.CreateRegistryInstanceAction)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error listing provisioning tasks")
+	}
+
 	resp := &pb.ListRegistryInstances_Response{
 		Instances: out,
 		Total:     list.Total,
+
+		Provisioning: common.ProvisioningTasksToPb(tasks),
 	}
 
 	return resp, nil

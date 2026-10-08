@@ -19,6 +19,7 @@ type Impl struct {
 	velez_api.UnimplementedContainerRegistryAPIServer
 
 	containerRegistryService service.ContainerRegistryService
+	provisioning             service.ProvisioningService
 }
 
 func New(srv service.Services) *Impl {
@@ -26,6 +27,7 @@ func New(srv service.Services) *Impl {
 		UnimplementedContainerRegistryAPIServer: velez_api.UnimplementedContainerRegistryAPIServer{},
 
 		containerRegistryService: srv.ContainerRegistry(),
+		provisioning:             srv.Provisioning(),
 	}
 }
 

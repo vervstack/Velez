@@ -59,6 +59,38 @@
         ]
       }
     },
+    "/api/tasks/dismiss": {
+      "post": {
+        "operationId": "TasksApi_DismissTask",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiDismissTaskResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiDismissTaskRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TasksApi"
+        ]
+      }
+    },
     "/api/tasks/service_upgrade/{serviceName}": {
       "get": {
         "summary": "WatchServiceUpgrade follows a service's in-flight upgrade: PENDING with no\njobs while the upgrade is scheduled but not picked up yet, then the live\nupgrade_smerd task with its per-job statuses, then its terminal status,\nafter which the stream closes. Closes without sending when nothing is in flight.",
@@ -345,6 +377,20 @@
           "description": "repo - git repository URL this app's source lives in. Optional;\npurely reference metadata today, stamped onto the container as\nlabels.RepoLabel - no build-from-git behavior yet."
         }
       }
+    },
+    "velez_apiDismissTaskRequest": {
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiDismissTaskResponse": {
+      "type": "object"
     },
     "velez_apiFileConfig": {
       "type": "object",

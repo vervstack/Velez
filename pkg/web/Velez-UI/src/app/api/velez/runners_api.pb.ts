@@ -71,6 +71,7 @@ export type ListRunnersRequest = {
 export type ListRunnersResponse = {
   runners?: Runner[];
   total?: string;
+  provisioning?: VelezApiVelezCommon.ProvisioningTask[];
 };
 
 export type ListRunners = Record<string, never>;

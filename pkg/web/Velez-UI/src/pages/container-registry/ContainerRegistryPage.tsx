@@ -1,15 +1,25 @@
 import {useEffect, useMemo} from "react"
 
 import cls from "@/pages/container-registry/ContainerRegistryPage.module.css"
+import type {ProvisioningTask} from "@/app/api/velez/velez_common.pb"
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
-import {useListRegistryInstancesQuery} from "@/processes/queries/registry_instances.ts"
+import {isInstanceProvisioning} from "@/processes/mappings/provisioning.ts"
+import {
+    REGISTRY_INSTANCES_QUERY_KEY,
+    useListRegistryInstancesQuery,
+} from "@/processes/queries/registry_instances.ts"
 import {sortRegistryInstancesByName} from "@/processes/mappings/registry_instances.ts"
 import Button from "@/components/base/Button.tsx"
 import CreateServiceDialog from "@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx"
 import RegistryInstanceRow from "@/pages/container-registry/components/RegistryInstanceRow/RegistryInstanceRow.tsx"
+import ProvisioningRow from "@/widgets/ProvisioningRow/ProvisioningRow.tsx"
 import ContainerRegistryEmptyState
     from "@/pages/container-registry/components/ContainerRegistryEmptyState/ContainerRegistryEmptyState.tsx"
+
+// Mirrors labels.RegistryaasNamePrefix in internal/domain/labels/verv_labels.go: the listed instance
+// name is the service name, while the create task's entity id is the bare name the user typed.
+const REGISTRY_NAME_PREFIX = "cr_"
 
 const COLUMNS = ["", "Name", "Environment", "Port", "Username", "Storage", "Created", ""]
 
@@ -27,12 +37,31 @@ export default function ContainerRegistryPage() {
         [instancesQuery.data]
     )
 
+    const tasks = useMemo(() => instancesQuery.data?.provisioning ?? [], [instancesQuery.data])
+    const visibleInstances = useMemo(
+        () => instances.filter(
+            (instance) => !isInstanceProvisioning(instance.name ?? "", tasks, REGISTRY_NAME_PREFIX)
+        ),
+        [instances, tasks]
+    )
+
     function handleCreate() {
         OpenDialog(<CreateServiceDialog initialScreen="registry"/>)
     }
 
     function renderColumnHeader(label: string, i: number) {
         return <span key={i} className={cls.headerCell}>{label}</span>
+    }
+
+    function renderProvisioningRow(task: ProvisioningTask) {
+        return (
+            <ProvisioningRow
+                key={task.taskId}
+                task={task}
+                title="Creating container registry"
+                queryKey={REGISTRY_INSTANCES_QUERY_KEY}
+            />
+        )
     }
 
     function renderRow(instance: typeof instances[number]) {
@@ -42,7 +71,7 @@ export default function ContainerRegistryPage() {
     let content: React.ReactNode
     if (instancesQuery.isLoading) {
         content = <div className={cls.loading}>Loading…</div>
-    } else if (instances.length === 0) {
+    } else if (instances.length === 0 && tasks.length === 0) {
         content = <ContainerRegistryEmptyState onCreate={handleCreate}/>
     } else {
         content = (
@@ -50,7 +79,8 @@ export default function ContainerRegistryPage() {
                 <div className={cls.tableHeader}>
                     {COLUMNS.map(renderColumnHeader)}
                 </div>
-                {instances.map(renderRow)}
+                {tasks.map(renderProvisioningRow)}
+                {visibleInstances.map(renderRow)}
             </div>
         )
     }

@@ -6,6 +6,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
 import "npm.proto";
+import "pgaas_api.proto";
 import "container_registry_api.proto";
 import "control_plane_api.proto";
 import "dind_api.proto";
@@ -49,6 +50,21 @@ service TasksApi {
       get: "/api/tasks/service_upgrade/{service_name}"
     };
   }
+
+  rpc DismissTask(DismissTask.Request) returns (DismissTask.Response) {
+    option (google.api.http) = {
+      post: "/api/tasks/dismiss"
+      body: "*"
+    };
+  }
+}
+
+message DismissTask {
+  message Request {
+    string entity_id = 1;
+    string action = 2;
+  }
+  message Response {}
 }
 
 message WatchTask {
@@ -411,6 +427,11 @@ message CreateDindTaskPayload {
   CreateDind.Request request = 1;
   string network_name = 2;
   string address = 3;
+}
+
+// CreatePgInstanceTaskPayload is the task context for the "create_pg_instance" action.
+message CreatePgInstanceTaskPayload {
+  CreatePgInstance.Request request = 1;
 }
 
 // CreateS3InstanceTaskPayload is the task context for the

@@ -7,6 +7,7 @@
 
 import * as fm from "./fetch.pb";
 import * as GoogleProtobufTimestamp from "./google/protobuf/timestamp.pb";
+import * as VelezApiVelezCommon from "./velez_common.pb";
 
 
 export type DindInfo = {
@@ -22,7 +23,10 @@ export type CreateDindRequest = {
   isSysboxEnabled?: boolean;
 };
 
-export type CreateDindResponse = Record<string, never>;
+export type CreateDindResponse = {
+  entityId?: string;
+  action?: string;
+};
 
 export type CreateDind = Record<string, never>;
 
@@ -30,6 +34,7 @@ export type ListDindsRequest = Record<string, never>;
 
 export type ListDindsResponse = {
   dinds?: DindInfo[];
+  provisioning?: VelezApiVelezCommon.ProvisioningTask[];
 };
 
 export type ListDinds = Record<string, never>;

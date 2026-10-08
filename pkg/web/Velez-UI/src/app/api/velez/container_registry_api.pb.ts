@@ -36,6 +36,7 @@ export type ListRegistryInstancesRequest = {
 export type ListRegistryInstancesResponse = {
   instances?: RegistryInstance[];
   total?: string;
+  provisioning?: VelezApiVelezCommon.ProvisioningTask[];
 };
 
 export type ListRegistryInstances = Record<string, never>;

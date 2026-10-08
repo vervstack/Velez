@@ -28,17 +28,20 @@ type Impl struct {
 	jobsEngine     jobs.Engine
 	vervServices   service.VervServicesService
 	upgradeWatcher ServiceUpgradeWatcher
+	provisioning   service.ProvisioningService
 }
 
 func New(
 	jobsEngine jobs.Engine,
 	vervServices service.VervServicesService,
 	upgradeWatcher ServiceUpgradeWatcher,
+	provisioning service.ProvisioningService,
 ) *Impl {
 	return &Impl{
 		jobsEngine:     jobsEngine,
 		vervServices:   vervServices,
 		upgradeWatcher: upgradeWatcher,
+		provisioning:   provisioning,
 	}
 }
 
@@ -155,6 +158,20 @@ func snapshotToProto(snapshot jobs.ServiceUpgradeSnapshot) *velez_api.TaskStatus
 	}
 
 	return taskToProto(snapshot.Task.V, snapshot.Jobs)
+}
+
+func (impl *Impl) DismissTask(
+	ctx context.Context,
+	req *velez_api.DismissTask_Request,
+) (*velez_api.DismissTask_Response, error) {
+	err := impl.provisioning.Dismiss(ctx, req.GetEntityId(), req.GetAction())
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error dismissing task")
+	}
+
+	resp := &velez_api.DismissTask_Response{}
+
+	return resp, nil
 }
 
 func taskToProto(task tasks_queries.VelezTask, jobStatuses []jobs.JobStatus) *velez_api.TaskStatus {

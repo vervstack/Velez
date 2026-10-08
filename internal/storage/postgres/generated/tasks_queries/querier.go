@@ -11,9 +11,11 @@ import (
 type Querier interface {
 	ClaimTask(ctx context.Context, arg ClaimTaskParams) (VelezTask, error)
 	CreateTask(ctx context.Context, arg CreateTaskParams) (VelezTask, error)
+	DeleteTask(ctx context.Context, id int64) error
 	FinishTask(ctx context.Context, arg FinishTaskParams) error
 	GetTaskByEntityAction(ctx context.Context, arg GetTaskByEntityActionParams) (VelezTask, error)
 	GetTaskById(ctx context.Context, id int64) (VelezTask, error)
+	ListProvisioningTasks(ctx context.Context, arg ListProvisioningTasksParams) ([]VelezTask, error)
 	UpdateTaskContext(ctx context.Context, arg UpdateTaskContextParams) error
 }
 

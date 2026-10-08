@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 )
 
@@ -15,6 +16,10 @@ import (
 type jobs struct {
 	mu   sync.Mutex
 	rows map[string]jobs_queries.VelezJob
+}
+
+func NewJobsStorage() storage.JobsStorage {
+	return newJobsStorage()
 }
 
 func newJobsStorage() *jobs {
@@ -96,6 +101,19 @@ func (j *jobs) ListJobsByTask(_ context.Context, taskID int64) ([]jobs_queries.V
 	}
 
 	return out, nil
+}
+
+func (j *jobs) DeleteJobsByTask(_ context.Context, taskID int64) error {
+	j.mu.Lock()
+	defer j.mu.Unlock()
+
+	for key, row := range j.rows {
+		if row.TaskID == taskID {
+			delete(j.rows, key)
+		}
+	}
+
+	return nil
 }
 
 func (j *jobs) WithTx(_ *sql.Tx) *jobs_queries.Queries {

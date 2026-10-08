@@ -393,6 +393,61 @@ func (Smerd_Status) EnumDescriptor() ([]byte, []int) {
 	return file_velez_common_proto_rawDescGZIP(), []int{5, 0}
 }
 
+type ProvisioningTask_Status int32
+
+const (
+	ProvisioningTask_STATUS_UNSPECIFIED ProvisioningTask_Status = 0
+	ProvisioningTask_PENDING            ProvisioningTask_Status = 1
+	ProvisioningTask_RUNNING            ProvisioningTask_Status = 2
+	ProvisioningTask_DONE               ProvisioningTask_Status = 3
+	ProvisioningTask_FAILED             ProvisioningTask_Status = 4
+)
+
+// Enum value maps for ProvisioningTask_Status.
+var (
+	ProvisioningTask_Status_name = map[int32]string{
+		0: "STATUS_UNSPECIFIED",
+		1: "PENDING",
+		2: "RUNNING",
+		3: "DONE",
+		4: "FAILED",
+	}
+	ProvisioningTask_Status_value = map[string]int32{
+		"STATUS_UNSPECIFIED": 0,
+		"PENDING":            1,
+		"RUNNING":            2,
+		"DONE":               3,
+		"FAILED":             4,
+	}
+)
+
+func (x ProvisioningTask_Status) Enum() *ProvisioningTask_Status {
+	p := new(ProvisioningTask_Status)
+	*p = x
+	return p
+}
+
+func (x ProvisioningTask_Status) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ProvisioningTask_Status) Descriptor() protoreflect.EnumDescriptor {
+	return file_velez_common_proto_enumTypes[7].Descriptor()
+}
+
+func (ProvisioningTask_Status) Type() protoreflect.EnumType {
+	return &file_velez_common_proto_enumTypes[7]
+}
+
+func (x ProvisioningTask_Status) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ProvisioningTask_Status.Descriptor instead.
+func (ProvisioningTask_Status) EnumDescriptor() ([]byte, []int) {
+	return file_velez_common_proto_rawDescGZIP(), []int{18, 0}
+}
+
 type SearchImageItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -1681,6 +1736,102 @@ func (x *NodeBaseInfo) GetRegion() string {
 	return ""
 }
 
+// ProvisioningTask is an in-flight or recently failed create task of an AsAService
+// instance. List*Instances responses carry these so the UI can show provisioning
+// progress that survives a reload. Active until its task is DONE; FAILED ones stay
+// until dismissed or 5 minutes old.
+type ProvisioningTask struct {
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	TaskId        int64                   `protobuf:"varint,1,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
+	EntityId      string                  `protobuf:"bytes,2,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
+	Action        string                  `protobuf:"bytes,3,opt,name=action,proto3" json:"action,omitempty"`
+	Status        ProvisioningTask_Status `protobuf:"varint,4,opt,name=status,proto3,enum=velez_api.ProvisioningTask_Status" json:"status,omitempty"`
+	Error         *string                 `protobuf:"bytes,5,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp  `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	Jobs          []*ProvisioningTask_Job `protobuf:"bytes,7,rep,name=jobs,proto3" json:"jobs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProvisioningTask) Reset() {
+	*x = ProvisioningTask{}
+	mi := &file_velez_common_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProvisioningTask) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProvisioningTask) ProtoMessage() {}
+
+func (x *ProvisioningTask) ProtoReflect() protoreflect.Message {
+	mi := &file_velez_common_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProvisioningTask.ProtoReflect.Descriptor instead.
+func (*ProvisioningTask) Descriptor() ([]byte, []int) {
+	return file_velez_common_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ProvisioningTask) GetTaskId() int64 {
+	if x != nil {
+		return x.TaskId
+	}
+	return 0
+}
+
+func (x *ProvisioningTask) GetEntityId() string {
+	if x != nil {
+		return x.EntityId
+	}
+	return ""
+}
+
+func (x *ProvisioningTask) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
+}
+
+func (x *ProvisioningTask) GetStatus() ProvisioningTask_Status {
+	if x != nil {
+		return x.Status
+	}
+	return ProvisioningTask_STATUS_UNSPECIFIED
+}
+
+func (x *ProvisioningTask) GetError() string {
+	if x != nil && x.Error != nil {
+		return *x.Error
+	}
+	return ""
+}
+
+func (x *ProvisioningTask) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
+func (x *ProvisioningTask) GetJobs() []*ProvisioningTask_Job {
+	if x != nil {
+		return x.Jobs
+	}
+	return nil
+}
+
 type Container_Hardware struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Top level cpu share amount.
@@ -1696,7 +1847,7 @@ type Container_Hardware struct {
 
 func (x *Container_Hardware) Reset() {
 	*x = Container_Hardware{}
-	mi := &file_velez_common_proto_msgTypes[23]
+	mi := &file_velez_common_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1708,7 +1859,7 @@ func (x *Container_Hardware) String() string {
 func (*Container_Hardware) ProtoMessage() {}
 
 func (x *Container_Hardware) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[23]
+	mi := &file_velez_common_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1756,7 +1907,7 @@ type Container_Settings struct {
 
 func (x *Container_Settings) Reset() {
 	*x = Container_Settings{}
-	mi := &file_velez_common_proto_msgTypes[24]
+	mi := &file_velez_common_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1768,7 +1919,7 @@ func (x *Container_Settings) String() string {
 func (*Container_Settings) ProtoMessage() {}
 
 func (x *Container_Settings) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[24]
+	mi := &file_velez_common_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1824,7 +1975,7 @@ type Container_Healthcheck struct {
 
 func (x *Container_Healthcheck) Reset() {
 	*x = Container_Healthcheck{}
-	mi := &file_velez_common_proto_msgTypes[25]
+	mi := &file_velez_common_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1836,7 +1987,7 @@ func (x *Container_Healthcheck) String() string {
 func (*Container_Healthcheck) ProtoMessage() {}
 
 func (x *Container_Healthcheck) ProtoReflect() protoreflect.Message {
-	mi := &file_velez_common_proto_msgTypes[25]
+	mi := &file_velez_common_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1885,6 +2036,58 @@ func (x *Container_Healthcheck) GetExec() []string {
 		return x.Exec
 	}
 	return nil
+}
+
+type ProvisioningTask_Job struct {
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	Name          string                  `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Status        ProvisioningTask_Status `protobuf:"varint,2,opt,name=status,proto3,enum=velez_api.ProvisioningTask_Status" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProvisioningTask_Job) Reset() {
+	*x = ProvisioningTask_Job{}
+	mi := &file_velez_common_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProvisioningTask_Job) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProvisioningTask_Job) ProtoMessage() {}
+
+func (x *ProvisioningTask_Job) ProtoReflect() protoreflect.Message {
+	mi := &file_velez_common_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProvisioningTask_Job.ProtoReflect.Descriptor instead.
+func (*ProvisioningTask_Job) Descriptor() ([]byte, []int) {
+	return file_velez_common_proto_rawDescGZIP(), []int{18, 0}
+}
+
+func (x *ProvisioningTask_Job) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ProvisioningTask_Job) GetStatus() ProvisioningTask_Status {
+	if x != nil {
+		return x.Status
+	}
+	return ProvisioningTask_STATUS_UNSPECIFIED
 }
 
 var File_velez_common_proto protoreflect.FileDescriptor
@@ -2069,7 +2272,27 @@ const file_velez_common_proto_rawDesc = "" +
 	"\vmem_percent\x18\x06 \x01(\x01R\n" +
 	"memPercent\x12%\n" +
 	"\x0eservices_count\x18\a \x01(\x04R\rservicesCount\x12\x16\n" +
-	"\x06region\x18\b \x01(\tR\x06region*\xb3\x01\n" +
+	"\x06region\x18\b \x01(\tR\x06region\"\xda\x03\n" +
+	"\x10ProvisioningTask\x12\x17\n" +
+	"\atask_id\x18\x01 \x01(\x03R\x06taskId\x12\x1b\n" +
+	"\tentity_id\x18\x02 \x01(\tR\bentityId\x12\x16\n" +
+	"\x06action\x18\x03 \x01(\tR\x06action\x12:\n" +
+	"\x06status\x18\x04 \x01(\x0e2\".velez_api.ProvisioningTask.StatusR\x06status\x12\x19\n" +
+	"\x05error\x18\x05 \x01(\tH\x00R\x05error\x88\x01\x01\x129\n" +
+	"\n" +
+	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x123\n" +
+	"\x04jobs\x18\a \x03(\v2\x1f.velez_api.ProvisioningTask.JobR\x04jobs\x1aU\n" +
+	"\x03Job\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12:\n" +
+	"\x06status\x18\x02 \x01(\x0e2\".velez_api.ProvisioningTask.StatusR\x06status\"P\n" +
+	"\x06Status\x12\x16\n" +
+	"\x12STATUS_UNSPECIFIED\x10\x00\x12\v\n" +
+	"\aPENDING\x10\x01\x12\v\n" +
+	"\aRUNNING\x10\x02\x12\b\n" +
+	"\x04DONE\x10\x03\x12\n" +
+	"\n" +
+	"\x06FAILED\x10\x04B\b\n" +
+	"\x06_error*\xb3\x01\n" +
 	"\x0eServicePattern\x12\x1f\n" +
 	"\x1bSERVICE_PATTERN_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18SERVICE_PATTERN_POSTGRES\x10\x01\x12\x1c\n" +
@@ -2108,8 +2331,8 @@ func file_velez_common_proto_rawDescGZIP() []byte {
 	return file_velez_common_proto_rawDescData
 }
 
-var file_velez_common_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
-var file_velez_common_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
+var file_velez_common_proto_enumTypes = make([]protoimpl.EnumInfo, 8)
+var file_velez_common_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
 var file_velez_common_proto_goTypes = []any{
 	(ServicePattern)(0),             // 0: velez_api.ServicePattern
 	(ContainerFilterField)(0),       // 1: velez_api.ContainerFilterField
@@ -2118,67 +2341,74 @@ var file_velez_common_proto_goTypes = []any{
 	(NodeStatus)(0),                 // 4: velez_api.NodeStatus
 	(Port_Protocol)(0),              // 5: velez_api.Port.Protocol
 	(Smerd_Status)(0),               // 6: velez_api.Smerd.Status
-	(*SearchImageItem)(nil),         // 7: velez_api.SearchImageItem
-	(*Port)(nil),                    // 8: velez_api.Port
-	(*Volume)(nil),                  // 9: velez_api.Volume
-	(*NetworkBind)(nil),             // 10: velez_api.NetworkBind
-	(*Image)(nil),                   // 11: velez_api.Image
-	(*Smerd)(nil),                   // 12: velez_api.Smerd
-	(*Mount)(nil),                   // 13: velez_api.Mount
-	(*DockerContainer)(nil),         // 14: velez_api.DockerContainer
-	(*SuggestedRunnerDefaults)(nil), // 15: velez_api.SuggestedRunnerDefaults
-	(*ContainerFilter)(nil),         // 16: velez_api.ContainerFilter
-	(*Container)(nil),               // 17: velez_api.Container
-	(*RestartPolicy)(nil),           // 18: velez_api.RestartPolicy
-	(*PlainConfigSpec)(nil),         // 19: velez_api.PlainConfigSpec
-	(*FileConfig)(nil),              // 20: velez_api.FileConfig
-	(*MatreshkaConfigSpec)(nil),     // 21: velez_api.MatreshkaConfigSpec
-	(*Connection)(nil),              // 22: velez_api.Connection
-	(*Paging)(nil),                  // 23: velez_api.Paging
-	(*NodeBaseInfo)(nil),            // 24: velez_api.NodeBaseInfo
-	nil,                             // 25: velez_api.Image.LabelsEntry
-	nil,                             // 26: velez_api.Smerd.LabelsEntry
-	nil,                             // 27: velez_api.Smerd.EnvEntry
-	nil,                             // 28: velez_api.DockerContainer.LabelsEntry
-	nil,                             // 29: velez_api.DockerContainer.EnvEntry
-	(*Container_Hardware)(nil),      // 30: velez_api.Container.Hardware
-	(*Container_Settings)(nil),      // 31: velez_api.Container.Settings
-	(*Container_Healthcheck)(nil),   // 32: velez_api.Container.Healthcheck
-	nil,                             // 33: velez_api.PlainConfigSpec.ConfigsEntry
-	(*timestamppb.Timestamp)(nil),   // 34: google.protobuf.Timestamp
+	(ProvisioningTask_Status)(0),    // 7: velez_api.ProvisioningTask.Status
+	(*SearchImageItem)(nil),         // 8: velez_api.SearchImageItem
+	(*Port)(nil),                    // 9: velez_api.Port
+	(*Volume)(nil),                  // 10: velez_api.Volume
+	(*NetworkBind)(nil),             // 11: velez_api.NetworkBind
+	(*Image)(nil),                   // 12: velez_api.Image
+	(*Smerd)(nil),                   // 13: velez_api.Smerd
+	(*Mount)(nil),                   // 14: velez_api.Mount
+	(*DockerContainer)(nil),         // 15: velez_api.DockerContainer
+	(*SuggestedRunnerDefaults)(nil), // 16: velez_api.SuggestedRunnerDefaults
+	(*ContainerFilter)(nil),         // 17: velez_api.ContainerFilter
+	(*Container)(nil),               // 18: velez_api.Container
+	(*RestartPolicy)(nil),           // 19: velez_api.RestartPolicy
+	(*PlainConfigSpec)(nil),         // 20: velez_api.PlainConfigSpec
+	(*FileConfig)(nil),              // 21: velez_api.FileConfig
+	(*MatreshkaConfigSpec)(nil),     // 22: velez_api.MatreshkaConfigSpec
+	(*Connection)(nil),              // 23: velez_api.Connection
+	(*Paging)(nil),                  // 24: velez_api.Paging
+	(*NodeBaseInfo)(nil),            // 25: velez_api.NodeBaseInfo
+	(*ProvisioningTask)(nil),        // 26: velez_api.ProvisioningTask
+	nil,                             // 27: velez_api.Image.LabelsEntry
+	nil,                             // 28: velez_api.Smerd.LabelsEntry
+	nil,                             // 29: velez_api.Smerd.EnvEntry
+	nil,                             // 30: velez_api.DockerContainer.LabelsEntry
+	nil,                             // 31: velez_api.DockerContainer.EnvEntry
+	(*Container_Hardware)(nil),      // 32: velez_api.Container.Hardware
+	(*Container_Settings)(nil),      // 33: velez_api.Container.Settings
+	(*Container_Healthcheck)(nil),   // 34: velez_api.Container.Healthcheck
+	nil,                             // 35: velez_api.PlainConfigSpec.ConfigsEntry
+	(*ProvisioningTask_Job)(nil),    // 36: velez_api.ProvisioningTask.Job
+	(*timestamppb.Timestamp)(nil),   // 37: google.protobuf.Timestamp
 }
 var file_velez_common_proto_depIdxs = []int32{
 	5,  // 0: velez_api.Port.protocol:type_name -> velez_api.Port.Protocol
-	25, // 1: velez_api.Image.labels:type_name -> velez_api.Image.LabelsEntry
-	8,  // 2: velez_api.Smerd.ports:type_name -> velez_api.Port
-	9,  // 3: velez_api.Smerd.volumes:type_name -> velez_api.Volume
+	27, // 1: velez_api.Image.labels:type_name -> velez_api.Image.LabelsEntry
+	9,  // 2: velez_api.Smerd.ports:type_name -> velez_api.Port
+	10, // 3: velez_api.Smerd.volumes:type_name -> velez_api.Volume
 	6,  // 4: velez_api.Smerd.status:type_name -> velez_api.Smerd.Status
-	34, // 5: velez_api.Smerd.created_at:type_name -> google.protobuf.Timestamp
-	10, // 6: velez_api.Smerd.networks:type_name -> velez_api.NetworkBind
-	26, // 7: velez_api.Smerd.labels:type_name -> velez_api.Smerd.LabelsEntry
-	27, // 8: velez_api.Smerd.env:type_name -> velez_api.Smerd.EnvEntry
+	37, // 5: velez_api.Smerd.created_at:type_name -> google.protobuf.Timestamp
+	11, // 6: velez_api.Smerd.networks:type_name -> velez_api.NetworkBind
+	28, // 7: velez_api.Smerd.labels:type_name -> velez_api.Smerd.LabelsEntry
+	29, // 8: velez_api.Smerd.env:type_name -> velez_api.Smerd.EnvEntry
 	6,  // 9: velez_api.DockerContainer.status:type_name -> velez_api.Smerd.Status
-	34, // 10: velez_api.DockerContainer.created_at:type_name -> google.protobuf.Timestamp
-	28, // 11: velez_api.DockerContainer.labels:type_name -> velez_api.DockerContainer.LabelsEntry
-	29, // 12: velez_api.DockerContainer.env:type_name -> velez_api.DockerContainer.EnvEntry
-	8,  // 13: velez_api.DockerContainer.ports:type_name -> velez_api.Port
-	10, // 14: velez_api.DockerContainer.networks:type_name -> velez_api.NetworkBind
-	13, // 15: velez_api.DockerContainer.mounts:type_name -> velez_api.Mount
+	37, // 10: velez_api.DockerContainer.created_at:type_name -> google.protobuf.Timestamp
+	30, // 11: velez_api.DockerContainer.labels:type_name -> velez_api.DockerContainer.LabelsEntry
+	31, // 12: velez_api.DockerContainer.env:type_name -> velez_api.DockerContainer.EnvEntry
+	9,  // 13: velez_api.DockerContainer.ports:type_name -> velez_api.Port
+	11, // 14: velez_api.DockerContainer.networks:type_name -> velez_api.NetworkBind
+	14, // 15: velez_api.DockerContainer.mounts:type_name -> velez_api.Mount
 	0,  // 16: velez_api.DockerContainer.suggested_pattern:type_name -> velez_api.ServicePattern
-	15, // 17: velez_api.DockerContainer.suggested_runner_defaults:type_name -> velez_api.SuggestedRunnerDefaults
+	16, // 17: velez_api.DockerContainer.suggested_runner_defaults:type_name -> velez_api.SuggestedRunnerDefaults
 	1,  // 18: velez_api.ContainerFilter.field:type_name -> velez_api.ContainerFilterField
 	2,  // 19: velez_api.RestartPolicy.type:type_name -> velez_api.RestartPolicyType
-	33, // 20: velez_api.PlainConfigSpec.configs:type_name -> velez_api.PlainConfigSpec.ConfigsEntry
+	35, // 20: velez_api.PlainConfigSpec.configs:type_name -> velez_api.PlainConfigSpec.ConfigsEntry
 	3,  // 21: velez_api.MatreshkaConfigSpec.config_format:type_name -> velez_api.ConfigFormat
 	4,  // 22: velez_api.NodeBaseInfo.status:type_name -> velez_api.NodeStatus
-	8,  // 23: velez_api.Container.Settings.ports:type_name -> velez_api.Port
-	10, // 24: velez_api.Container.Settings.network:type_name -> velez_api.NetworkBind
-	9,  // 25: velez_api.Container.Settings.volumes:type_name -> velez_api.Volume
-	26, // [26:26] is the sub-list for method output_type
-	26, // [26:26] is the sub-list for method input_type
-	26, // [26:26] is the sub-list for extension type_name
-	26, // [26:26] is the sub-list for extension extendee
-	0,  // [0:26] is the sub-list for field type_name
+	7,  // 23: velez_api.ProvisioningTask.status:type_name -> velez_api.ProvisioningTask.Status
+	37, // 24: velez_api.ProvisioningTask.updated_at:type_name -> google.protobuf.Timestamp
+	36, // 25: velez_api.ProvisioningTask.jobs:type_name -> velez_api.ProvisioningTask.Job
+	9,  // 26: velez_api.Container.Settings.ports:type_name -> velez_api.Port
+	11, // 27: velez_api.Container.Settings.network:type_name -> velez_api.NetworkBind
+	10, // 28: velez_api.Container.Settings.volumes:type_name -> velez_api.Volume
+	7,  // 29: velez_api.ProvisioningTask.Job.status:type_name -> velez_api.ProvisioningTask.Status
+	30, // [30:30] is the sub-list for method output_type
+	30, // [30:30] is the sub-list for method input_type
+	30, // [30:30] is the sub-list for extension type_name
+	30, // [30:30] is the sub-list for extension extendee
+	0,  // [0:30] is the sub-list for field type_name
 }
 
 func init() { file_velez_common_proto_init() }
@@ -2193,15 +2423,16 @@ func file_velez_common_proto_init() {
 	file_velez_common_proto_msgTypes[7].OneofWrappers = []any{}
 	file_velez_common_proto_msgTypes[11].OneofWrappers = []any{}
 	file_velez_common_proto_msgTypes[14].OneofWrappers = []any{}
-	file_velez_common_proto_msgTypes[23].OneofWrappers = []any{}
-	file_velez_common_proto_msgTypes[25].OneofWrappers = []any{}
+	file_velez_common_proto_msgTypes[18].OneofWrappers = []any{}
+	file_velez_common_proto_msgTypes[24].OneofWrappers = []any{}
+	file_velez_common_proto_msgTypes[26].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_velez_common_proto_rawDesc), len(file_velez_common_proto_rawDesc)),
-			NumEnums:      7,
-			NumMessages:   27,
+			NumEnums:      8,
+			NumMessages:   29,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

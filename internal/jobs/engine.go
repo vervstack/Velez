@@ -13,6 +13,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -27,6 +28,17 @@ type Engine interface {
 	// caller to attach to via Watch. A DONE or FAILED task doesn't block a
 	// new one.
 	Enqueue(ctx context.Context, entityID, action string, initialContext any) (tasks_queries.VelezTask, error)
+	// EnqueueReplacing is Enqueue, except a DONE or FAILED task for
+	// (entityID, action) is deleted and a fresh one created; an in-flight
+	// one is returned as is.
+	EnqueueReplacing(ctx context.Context, entityID, action string, initialContext any) (tasks_queries.VelezTask, error)
+	// ListProvisioning returns PENDING/RUNNING tasks and FAILED tasks updated
+	// after failedSince for the given actions, oldest first, with per-job
+	// statuses.
+	ListProvisioning(ctx context.Context, actions []string, failedSince time.Time) ([]ProvisioningEntry, error)
+	// DismissFailed deletes the FAILED task (and its jobs) for
+	// (entityID, action); a task in any other status is a user error.
+	DismissFailed(ctx context.Context, entityID, action string) error
 	// Watch streams task status changes for (entityID, action) until the
 	// task reaches a terminal status (DONE/FAILED), then closes the channel.
 	Watch(ctx context.Context, entityID, action string) <-chan tasks_queries.VelezTask
@@ -57,6 +69,11 @@ type JobStatus struct {
 	Status jobs_queries.VelezJobStatus
 }
 
+type ProvisioningEntry struct {
+	Task tasks_queries.VelezTask
+	Jobs []JobStatus
+}
+
 type engine struct {
 	tasksStorage storage.TasksStorage
 	jobsStorage  storage.JobsStorage
@@ -71,6 +88,93 @@ func NewEngine(tasksStorage storage.TasksStorage, jobsStorage storage.JobsStorag
 		jobsStorage:  jobsStorage,
 		pollInterval: defaultWatchPollInterval,
 	}
+}
+
+func (e *engine) EnqueueReplacing(
+	ctx context.Context, entityID, action string, initialContext any,
+) (tasks_queries.VelezTask, error) {
+	params := tasks_queries.GetTaskByEntityActionParams{
+		EntityID: entityID,
+		Action:   action,
+	}
+
+	task, err := e.tasksStorage.GetTaskByEntityAction(ctx, params)
+	if errors.Is(err, sql.ErrNoRows) {
+		return e.Enqueue(ctx, entityID, action, initialContext)
+	}
+
+	if err != nil {
+		return tasks_queries.VelezTask{}, rerrors.Wrap(err, "error fetching existing task")
+	}
+
+	isFinished := task.Status == tasks_queries.VelezTaskStatusDONE ||
+		task.Status == tasks_queries.VelezTaskStatusFAILED
+	if !isFinished {
+		return task, nil
+	}
+
+	err = e.deleteTaskWithJobs(ctx, task.ID)
+	if err != nil {
+		return tasks_queries.VelezTask{}, rerrors.Wrap(err, "error deleting finished task")
+	}
+
+	return e.Enqueue(ctx, entityID, action, initialContext)
+}
+
+func (e *engine) ListProvisioning(
+	ctx context.Context, actions []string, failedSince time.Time,
+) ([]ProvisioningEntry, error) {
+	params := tasks_queries.ListProvisioningTasksParams{
+		Actions:     actions,
+		FailedSince: failedSince,
+	}
+
+	tasks, err := e.tasksStorage.ListProvisioningTasks(ctx, params)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error listing provisioning tasks")
+	}
+
+	entries := make([]ProvisioningEntry, 0, len(tasks))
+	for _, task := range tasks {
+		jobStatuses, err := e.ListJobs(ctx, task)
+		if err != nil {
+			return nil, rerrors.Wrap(err, "error listing jobs of provisioning task")
+		}
+
+		entries = append(entries, ProvisioningEntry{
+			Task: task,
+			Jobs: jobStatuses,
+		})
+	}
+
+	return entries, nil
+}
+
+func (e *engine) DismissFailed(ctx context.Context, entityID, action string) error {
+	params := tasks_queries.GetTaskByEntityActionParams{
+		EntityID: entityID,
+		Action:   action,
+	}
+
+	task, err := e.tasksStorage.GetTaskByEntityAction(ctx, params)
+	if errors.Is(err, sql.ErrNoRows) {
+		return rerrors.Wrap(user_errors.ErrTaskNotFound)
+	}
+
+	if err != nil {
+		return rerrors.Wrap(err, "error fetching task")
+	}
+
+	if task.Status != tasks_queries.VelezTaskStatusFAILED {
+		return rerrors.Wrap(user_errors.ErrTaskNotDismissable)
+	}
+
+	err = e.deleteTaskWithJobs(ctx, task.ID)
+	if err != nil {
+		return rerrors.Wrap(err, "error deleting failed task")
+	}
+
+	return nil
 }
 
 func (e *engine) SetRegistry(registry *Registry) {
@@ -218,4 +322,18 @@ func (e *engine) Watch(ctx context.Context, entityID, action string) <-chan task
 	}()
 
 	return ch
+}
+
+func (e *engine) deleteTaskWithJobs(ctx context.Context, taskID int64) error {
+	err := e.jobsStorage.DeleteJobsByTask(ctx, taskID)
+	if err != nil {
+		return rerrors.Wrap(err, "error deleting jobs of task")
+	}
+
+	err = e.tasksStorage.DeleteTask(ctx, taskID)
+	if err != nil {
+		return rerrors.Wrap(err, "error deleting task")
+	}
+
+	return nil
 }

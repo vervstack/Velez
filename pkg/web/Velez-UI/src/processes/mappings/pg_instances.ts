@@ -1,5 +1,9 @@
 import type {PgInstance} from "@/app/api/velez"
 
+// Mirrors labels.PgaasNamePrefix in internal/domain/labels/verv_labels.go —
+// the single source of truth this string must match.
+export const PG_INSTANCE_NAME_PREFIX = "pgaas_"
+
 export type PgInstanceStatus = "running" | "degraded" | "stopped"
 
 export function mapPgInstanceStatus(status?: string): PgInstanceStatus {

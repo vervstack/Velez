@@ -12,9 +12,8 @@ import (
 
 // SetRunnerBuildkit enqueues the set_runner_buildkit task and returns its id.
 // Each call starts a new task once the previous one for the runner has
-// finished, so the sidecar can be toggled repeatedly and every toggle stays in
-// the task history. BuildKit is supported only for runners whose jobs use the
-// node's own docker socket.
+// finished, so BuildKit can be toggled repeatedly and every toggle stays in the
+// task history. BuildKit is supported only for DinD-backed GitLab runners.
 func (s *RunneraasService) SetRunnerBuildkit(
 	ctx context.Context, name string, isBuildkitEnabled bool,
 ) (string, error) {
@@ -28,7 +27,9 @@ func (s *RunneraasService) SetRunnerBuildkit(
 		return "", rerrors.Wrap(err, "error getting runner row")
 	}
 
-	err = validateBuildkitDockerSource(runner.DindServiceId != 0, runner.DockerSocketAddress)
+	provider := velez_api.RunnerProvider(velez_api.RunnerProvider_value[runner.Provider])
+
+	err = validateBuildkitRunner(provider, runner.DindServiceId != 0)
 	if err != nil {
 		return "", rerrors.Wrap(err)
 	}

@@ -190,3 +190,29 @@ func Test_SetNetworkMode_WithoutRunnerEntry_Fails(t *testing.T) {
 
 	require.ErrorIs(t, err, ErrRunnerEntryMissing)
 }
+
+func Test_NetworkMode_Scenarios(t *testing.T) {
+	withNetworkMode := runnerEntryWithDocker + "\n"
+	updated, err := SetNetworkMode([]byte(withNetworkMode), testNetworkMode)
+	require.NoError(t, err)
+
+	cases := []struct {
+		name   string
+		config string
+		want   string
+	}{
+		{"an empty file has none", "", ""},
+		{"a runner without a docker table has none", bareRunnerEntry, ""},
+		{"a docker table without the key has none", runnerEntryWithDocker, ""},
+		{"the key set by SetNetworkMode is read back", string(updated), testNetworkMode},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := NetworkMode([]byte(tc.config))
+
+			require.NoError(t, err)
+			require.Equal(t, tc.want, got)
+		})
+	}
+}

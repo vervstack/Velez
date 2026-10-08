@@ -102,10 +102,6 @@ const (
 	S3InstanceLabel = "velez.s3"
 	S3WebUiLabel    = "velez.s3.web_ui"
 
-	// BuildkitForLabel marks a runner's BuildKit sidecar container (value: the
-	// runner name). Single-node mode derives is_buildkit_enabled from it.
-	BuildkitForLabel = "velez.buildkit_for"
-
 	WebUiForLabel  = "velez.web_ui_for"
 	WebUiPortLabel = "velez.web_ui_port"
 

@@ -8,22 +8,30 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
+	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/user_errors"
+	"go.vervstack.ru/Velez/internal/utils/common"
 )
 
 const (
 	SetRunnerBuildkitAction = "set_runner_buildkit"
 
-	stepEnsureBuildkitNetwork    = "ensure_buildkit_network"
 	stepInstallBinfmt            = "install_binfmt"
+	stepEnsureBuildkitNetwork    = "ensure_buildkit_network"
 	stepDeployBuildkit           = "deploy_buildkit"
-	stepWaitForBuildkitDeploy    = "wait_for_buildkit_deploy"
-	stepRegisterBuildkitBinding  = "register_buildkit_binding"
+	stepWaitForBuildkit          = "wait_for_buildkit"
 	stepSetBuildkitNetworkMode   = "set_buildkit_network_mode"
+	stepMarkBuildkitEnabled      = "mark_buildkit_enabled"
+	stepMarkBuildkitDisabled     = "mark_buildkit_disabled"
 	stepClearBuildkitNetworkMode = "clear_buildkit_network_mode"
-	stepDropBuildkitSidecar      = "drop_buildkit_sidecar"
+	stepRemoveBuildkit           = "remove_buildkit"
 	stepRemoveBuildkitNetwork    = "remove_buildkit_network"
 	stepRemoveBuildkitVolume     = "remove_buildkit_volume"
+
+	// allServicesLimit is a generous ceiling for listing every service
+	// when resolving a DinD service id back to its name; the storage clamps it.
+	allServicesLimit = 1_000_000
 )
 
 // runnerBuildkitFacts are the facts about a runner every BuildKit step needs.
@@ -32,6 +40,8 @@ type runnerBuildkitFacts struct {
 	name        string
 	environment string
 	provider    velez_api.RunnerProvider
+	// dindName is the DinD service the runner uses; empty when it has none.
+	dindName string
 }
 
 // runnerBuildkitTarget names the runner a BuildKit step works on. The facts are
@@ -60,6 +70,7 @@ func (t createdRunnerTarget) Locate(_ context.Context) (runnerBuildkitFacts, err
 		name:        t.instanceName,
 		environment: request.GetEnvironment(),
 		provider:    provider,
+		dindName:    request.GetDindName(),
 	}
 
 	return facts, nil
@@ -84,31 +95,64 @@ func (t storedRunnerTarget) Locate(ctx context.Context) (runnerBuildkitFacts, er
 		return runnerBuildkitFacts{}, rerrors.Wrap(err, "error getting runner row")
 	}
 
+	dindName, err := dindNameByServiceId(ctx, t.services, runner.DindServiceId)
+	if err != nil {
+		return runnerBuildkitFacts{}, err
+	}
+
 	facts := runnerBuildkitFacts{
 		name:        t.name,
 		environment: svc.Env,
 		provider:    velez_api.RunnerProvider(velez_api.RunnerProvider_value[runner.Provider]),
+		dindName:    dindName,
 	}
 
 	return facts, nil
 }
 
+// dindNameByServiceId resolves a DinD service id back to its name; 0 means the
+// runner has no DinD. storage.ServicesStorage has no id lookup, so every service
+// is resolved by name, as runneraas does for its runner list.
+func dindNameByServiceId(ctx context.Context, services storage.ServicesStorage, dindServiceId int64) (string, error) {
+	if dindServiceId == 0 {
+		return "", nil
+	}
+
+	listReq := domain.ListServicesReq{
+		IncludeInternal: true,
+		Paging:          domain.Paging{Limit: allServicesLimit},
+	}
+
+	list, err := services.List(ctx, listReq)
+	if err != nil {
+		return "", rerrors.Wrap(err, "error listing services")
+	}
+
+	for _, base := range list.Services {
+		svc, getErr := services.GetByName(ctx, base.Name)
+		if getErr != nil {
+			continue
+		}
+
+		if svc.ID == dindServiceId {
+			return base.Name, nil
+		}
+	}
+
+	return "", rerrors.Wrap(user_errors.ErrDindNotFound)
+}
+
 // runnerBuildkitJobs builds the step lists that add and remove a runner's
-// BuildKit sidecar - shared by set_runner_buildkit and create_runner.
+// buildkitd inside its DinD - shared by set_runner_buildkit and create_runner.
 type runnerBuildkitJobs struct {
 	dataStorage storage.Storage
 	runtimes    container_runtime.RuntimeResolver
 }
 
-// enable puts a BuildKit sidecar on a private network next to the runner and
-// points the runner's job containers at that network. Every step is safe to
-// repeat.
+// enable runs buildkitd inside the runner's DinD on a private network and points
+// the runner's job containers at that network. Every step is safe to repeat.
 func (b runnerBuildkitJobs) enable(target runnerBuildkitTarget) []NamedJob {
 	return []NamedJob{
-		{
-			Name: stepEnsureBuildkitNetwork,
-			Job:  &ensureBuildkitNetworkJob{runtimes: b.runtimes, target: target},
-		},
 		{
 			Name: stepInstallBinfmt,
 			Job: &installBinfmtJob{
@@ -118,59 +162,48 @@ func (b runnerBuildkitJobs) enable(target runnerBuildkitTarget) []NamedJob {
 			},
 		},
 		{
+			Name: stepEnsureBuildkitNetwork,
+			Job:  &ensureBuildkitNetworkJob{runtimes: b.runtimes, target: target},
+		},
+		{
 			Name: stepDeployBuildkit,
 			Job: &deployBuildkitJob{
 				boxes:    b.dataStorage.ResourceBoxes(),
-				settings: b.dataStorage.Settings(),
 				runtimes: b.runtimes,
 				target:   target,
 			},
 		},
 		{
-			Name: stepWaitForBuildkitDeploy,
+			Name: stepWaitForBuildkit,
 			Job:  &waitBuildkitJob{runtimes: b.runtimes, target: target},
-		},
-		{
-			Name: stepRegisterBuildkitBinding,
-			Job:  &registerBuildkitBindingJob{dataStorage: b.dataStorage, target: target},
 		},
 		{
 			Name: stepSetBuildkitNetworkMode,
 			Job:  &setBuildkitNetworkModeJob{runtimes: b.runtimes, target: target, isEnabled: true},
 		},
-	}
-}
-
-// disable points the runner's job containers away from the BuildKit network
-// first, then drops everything enable created.
-func (b runnerBuildkitJobs) disable(target runnerBuildkitTarget) []NamedJob {
-	clearNetworkMode := NamedJob{
-		Name: stepClearBuildkitNetworkMode,
-		Job:  &setBuildkitNetworkModeJob{runtimes: b.runtimes, target: target, isEnabled: false},
-	}
-
-	return append([]NamedJob{clearNetworkMode}, b.drop(target)...)
-}
-
-// drop removes the sidecar, its binding, the network and the state volume.
-func (b runnerBuildkitJobs) drop(target runnerBuildkitTarget) []NamedJob {
-	return append(b.dropSidecar(target), b.dropResources(target)...)
-}
-
-// dropSidecar removes the sidecar container and its binding.
-func (b runnerBuildkitJobs) dropSidecar(target runnerBuildkitTarget) []NamedJob {
-	return []NamedJob{
 		{
-			Name: stepDropBuildkitSidecar,
-			Job:  &dropBuildkitSidecarJob{dataStorage: b.dataStorage, runtimes: b.runtimes, target: target},
+			Name: stepMarkBuildkitEnabled,
+			Job:  b.mark(target, true),
 		},
 	}
 }
 
-// dropResources removes the network and the state volume, which only go once
-// nothing is attached to them any more.
-func (b runnerBuildkitJobs) dropResources(target runnerBuildkitTarget) []NamedJob {
+// disable records BuildKit as off and points the runner's job containers away
+// from its network first, then drops everything enable created.
+func (b runnerBuildkitJobs) disable(target runnerBuildkitTarget) []NamedJob {
 	return []NamedJob{
+		{
+			Name: stepMarkBuildkitDisabled,
+			Job:  b.mark(target, false),
+		},
+		{
+			Name: stepClearBuildkitNetworkMode,
+			Job:  &setBuildkitNetworkModeJob{runtimes: b.runtimes, target: target, isEnabled: false},
+		},
+		{
+			Name: stepRemoveBuildkit,
+			Job:  &removeBuildkitJob{runtimes: b.runtimes, target: target},
+		},
 		{
 			Name: stepRemoveBuildkitNetwork,
 			Job:  &removeBuildkitNetworkJob{runtimes: b.runtimes, target: target},
@@ -182,45 +215,51 @@ func (b runnerBuildkitJobs) dropResources(target runnerBuildkitTarget) []NamedJo
 	}
 }
 
-// DropRunnerBuildkitSidecar removes a runner's BuildKit sidecar and its binding,
-// for a runner that is about to be dropped. No sidecar is not an error.
-func DropRunnerBuildkitSidecar(
-	ctx context.Context,
-	dataStorage storage.Storage,
-	runtimes container_runtime.RuntimeResolver,
-	name, environment string,
-) error {
-	steps := runnerBuildkitJobs{dataStorage: dataStorage, runtimes: runtimes}
-	facts := runnerBuildkitFacts{name: name, environment: environment}
-
-	for _, step := range steps.dropSidecar(facts) {
-		err := step.Job.Do(ctx)
-		if err != nil {
-			return rerrors.Wrap(err, step.Name)
-		}
+func (b runnerBuildkitJobs) mark(target runnerBuildkitTarget, isEnabled bool) *markBuildkitJob {
+	return &markBuildkitJob{
+		services:  b.dataStorage.Services(),
+		runners:   b.dataStorage.Runners(),
+		target:    target,
+		isEnabled: isEnabled,
 	}
-
-	return nil
 }
 
-// DropRunnerBuildkitResources removes a dropped runner's BuildKit network and
-// state volume. Best-effort, like the other cleanup after a service is gone: a
-// job container of the removed runner may still hold the network.
-func DropRunnerBuildkitResources(
+// DropRunnerBuildkit removes a dropped runner's buildkitd, network and state
+// volume from its DinD. Best-effort, like the other cleanup after a service is
+// gone: the DinD may be gone too, or a job container may still hold the network.
+func DropRunnerBuildkit(
 	ctx context.Context,
-	dataStorage storage.Storage,
 	runtimes container_runtime.RuntimeResolver,
-	name, environment string,
+	name, environment, dindName string,
 ) {
-	steps := runnerBuildkitJobs{dataStorage: dataStorage, runtimes: runtimes}
-	facts := runnerBuildkitFacts{name: name, environment: environment}
+	dind, closer, err := runtimes.NestedRuntime(ctx, environment, dindName)
+	if err != nil {
+		log.Ctx(ctx).Warn().
+			Str("runner", name).
+			Str("dind", dindName).
+			Err(err).
+			Msg("error opening dind daemon to remove runner buildkit")
 
-	for _, step := range steps.dropResources(facts) {
-		err := step.Job.Do(ctx)
+		return
+	}
+
+	defer common.CloseWithLog(closer.Close, "buildkit dind client")
+
+	steps := []struct {
+		name string
+		run  func(context.Context, container_runtime.ContainerRuntime, string) error
+	}{
+		{stepRemoveBuildkit, removeBuildkitd},
+		{stepRemoveBuildkitNetwork, removeBuildkitNetwork},
+		{stepRemoveBuildkitVolume, removeBuildkitVolume},
+	}
+
+	for _, step := range steps {
+		err = step.run(ctx, dind, name)
 		if err != nil {
 			log.Ctx(ctx).Warn().
 				Str("runner", name).
-				Str("step", step.Name).
+				Str("step", step.name).
 				Err(err).
 				Msg("error removing runner buildkit resource")
 		}

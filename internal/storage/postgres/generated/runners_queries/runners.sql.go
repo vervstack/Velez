@@ -24,7 +24,7 @@ func (q *Queries) DeleteRunner(ctx context.Context, serviceID int64) error {
 
 const getRunnerByServiceID = `-- name: GetRunnerByServiceID :one
 SELECT service_id, provider, scope, target, labels, secret_ref, created_at, updated_at, base_url,
-       docker_image, docker_socket_address, concurrent, dind_service_id
+       docker_image, docker_socket_address, concurrent, dind_service_id, is_buildkit_enabled
 FROM velez.runners
 WHERE service_id = $1
 `
@@ -46,52 +46,14 @@ func (q *Queries) GetRunnerByServiceID(ctx context.Context, serviceID int64) (Ve
 		&i.DockerSocketAddress,
 		&i.Concurrent,
 		&i.DindServiceID,
+		&i.IsBuildkitEnabled,
 	)
 	return i, err
 }
 
-const listRunnerSidecarBindings = `-- name: ListRunnerSidecarBindings :many
-SELECT b.service_id,
-       s.name AS service_name,
-       b.container_name
-FROM velez.container_bindings b
-         JOIN velez.services s ON s.id = b.service_id
-         JOIN velez.runners r ON r.service_id = b.service_id
-WHERE b.is_sidecar
-`
-
-type ListRunnerSidecarBindingsRow struct {
-	ServiceID     int64
-	ServiceName   string
-	ContainerName string
-}
-
-func (q *Queries) ListRunnerSidecarBindings(ctx context.Context) ([]ListRunnerSidecarBindingsRow, error) {
-	rows, err := q.db.QueryContext(ctx, listRunnerSidecarBindings)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []ListRunnerSidecarBindingsRow{}
-	for rows.Next() {
-		var i ListRunnerSidecarBindingsRow
-		if err := rows.Scan(&i.ServiceID, &i.ServiceName, &i.ContainerName); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const listRunners = `-- name: ListRunners :many
 SELECT service_id, provider, scope, target, labels, secret_ref, created_at, updated_at, base_url,
-       docker_image, docker_socket_address, concurrent, dind_service_id
+       docker_image, docker_socket_address, concurrent, dind_service_id, is_buildkit_enabled
 FROM velez.runners
 ORDER BY service_id
 `
@@ -119,6 +81,7 @@ func (q *Queries) ListRunners(ctx context.Context) ([]VelezRunner, error) {
 			&i.DockerSocketAddress,
 			&i.Concurrent,
 			&i.DindServiceID,
+			&i.IsBuildkitEnabled,
 		); err != nil {
 			return nil, err
 		}
@@ -131,6 +94,23 @@ func (q *Queries) ListRunners(ctx context.Context) ([]VelezRunner, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateRunnerBuildkit = `-- name: UpdateRunnerBuildkit :exec
+UPDATE velez.runners
+SET is_buildkit_enabled = $2,
+    updated_at          = NOW()
+WHERE service_id = $1
+`
+
+type UpdateRunnerBuildkitParams struct {
+	ServiceID         int64
+	IsBuildkitEnabled bool
+}
+
+func (q *Queries) UpdateRunnerBuildkit(ctx context.Context, arg UpdateRunnerBuildkitParams) error {
+	_, err := q.db.ExecContext(ctx, updateRunnerBuildkit, arg.ServiceID, arg.IsBuildkitEnabled)
+	return err
 }
 
 const upsertRunner = `-- name: UpsertRunner :one
@@ -150,7 +130,7 @@ ON CONFLICT (service_id) DO UPDATE
         dind_service_id       = EXCLUDED.dind_service_id,
         updated_at            = NOW()
 RETURNING service_id, provider, scope, target, labels, secret_ref, created_at, updated_at, base_url,
-    docker_image, docker_socket_address, concurrent, dind_service_id
+    docker_image, docker_socket_address, concurrent, dind_service_id, is_buildkit_enabled
 `
 
 type UpsertRunnerParams struct {
@@ -196,6 +176,7 @@ func (q *Queries) UpsertRunner(ctx context.Context, arg UpsertRunnerParams) (Vel
 		&i.DockerSocketAddress,
 		&i.Concurrent,
 		&i.DindServiceID,
+		&i.IsBuildkitEnabled,
 	)
 	return i, err
 }

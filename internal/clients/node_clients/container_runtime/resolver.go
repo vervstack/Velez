@@ -2,6 +2,8 @@ package container_runtime
 
 import (
 	"context"
+	"io"
+	"net/http"
 	"sync"
 
 	"github.com/docker/docker/client"
@@ -12,6 +14,13 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/environments"
+	"go.vervstack.ru/Velez/internal/user_errors"
+)
+
+const (
+	// nestedDaemonPlaceholderHost is the host of the nested daemon's URL; the
+	// exec tunnel dialer ignores it.
+	nestedDaemonPlaceholderHost = "dind"
 )
 
 // EnvironmentsProvider yields the currently-live environments storage.
@@ -147,6 +156,80 @@ func (r *resolver) Runtime(ctx context.Context, environment string) (ContainerRu
 	runtime.addressing = r.addressing
 
 	return runtime, nil
+}
+
+// NestedRuntime builds a client whose every connection is an exec tunnel into
+// the container's own Docker daemon, and wraps it in a runtime with no name or
+// label scoping - a DinD belongs to one purpose, not to the node's environments.
+func (r *resolver) NestedRuntime(
+	ctx context.Context, environment, containerName string,
+) (ContainerRuntime, io.Closer, error) {
+	outerCli, outerRuntime, err := r.outerDaemon(ctx, environment)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	info, isFound, err := outerRuntime.Inspect(ctx, containerName)
+	if err != nil {
+		return nil, nil, rerrors.Wrap(err, "error inspecting nested daemon container")
+	}
+
+	if !isFound {
+		return nil, nil, rerrors.Wrap(user_errors.ErrDindNotFound, containerName)
+	}
+
+	dial := NewExecTunnelDialer(outerCli, info.ID)
+
+	cli, err := client.NewClientWithOpts(
+		client.WithHost("http://"+nestedDaemonPlaceholderHost),
+		client.WithDialContext(dial),
+		client.WithAPIVersionNegotiation(),
+	)
+	if err != nil {
+		return nil, nil, rerrors.Wrap(err, "error building nested docker client")
+	}
+
+	transport, isHttpTransport := cli.HTTPClient().Transport.(*http.Transport)
+	if isHttpTransport {
+		transport.Proxy = nil
+	}
+
+	nested := newDirectRuntime(cli, nil)
+
+	nested.addressing = NewAddressing(nestedDaemonPlaceholderHost)
+
+	return nested, cli, nil
+}
+
+// outerDaemon resolves the environment's runtime together with the raw client
+// of the daemon it talks to.
+func (r *resolver) outerDaemon(ctx context.Context, environment string) (client.APIClient, ContainerRuntime, error) {
+	var envStorage storage.EnvironmentsStorage
+
+	if r.envProvider != nil {
+		envStorage = r.envProvider.Environments()
+	}
+
+	env, err := environments.Resolve(ctx, envStorage, environment)
+	if err != nil {
+		return nil, nil, rerrors.Wrap(err, "error resolving environment")
+	}
+
+	outerRuntime, err := r.Runtime(ctx, environment)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if env.DockerHost != "" && env.DockerHost != r.nodeHost {
+		dedicatedCli, dedicatedErr := r.dedicatedClient(env.DockerHost)
+		if dedicatedErr != nil {
+			return nil, nil, rerrors.Wrap(dedicatedErr, "error connecting to dedicated docker host")
+		}
+
+		return dedicatedCli, outerRuntime, nil
+	}
+
+	return r.cli, outerRuntime, nil
 }
 
 // dedicatedClient returns the cached client.APIClient for dockerHost,

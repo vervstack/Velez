@@ -43,8 +43,8 @@ type Runner struct {
 	// DindServiceId - the DinD service (velez.dind_instances) this runner
 	// uses as its Docker daemon. 0 means a legacy runner on the host socket.
 	DindServiceId int64
-	// IsBuildkitEnabled - whether the runner has a BuildKit sidecar. Derived by
-	// the storage backend from the sidecar itself, never stored.
+	// IsBuildkitEnabled - whether a BuildKit daemon runs inside the runner's
+	// DinD. Cluster mode stores it; single-node derives it from config.toml.
 	IsBuildkitEnabled bool
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
@@ -153,6 +153,8 @@ type RunnerView struct {
 	UpdatedAt   time.Time
 
 	IsBuildkitEnabled bool
+	// DindName - the DinD service the runner uses; empty when it has none.
+	DindName string
 }
 
 // ListRunnersReq pages through every Runners-as-a-Service instance.

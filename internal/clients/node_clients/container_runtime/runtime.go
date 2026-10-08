@@ -19,6 +19,7 @@ package container_runtime
 
 import (
 	"context"
+	"io"
 	"io/fs"
 
 	"github.com/docker/docker/api/types/container"
@@ -341,4 +342,9 @@ type ContainerRuntime interface {
 // has to move a process-wide singleton rather than a per-environment lookup).
 type RuntimeResolver interface {
 	Runtime(ctx context.Context, environment string) (ContainerRuntime, error)
+
+	// NestedRuntime returns the runtime of the Docker daemon running inside
+	// containerName (a DinD) of the environment, reached through an exec
+	// tunnel. The io.Closer releases the connection to that daemon.
+	NestedRuntime(ctx context.Context, environment, containerName string) (ContainerRuntime, io.Closer, error)
 }

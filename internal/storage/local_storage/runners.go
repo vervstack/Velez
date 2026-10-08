@@ -146,6 +146,12 @@ func (d *dockerRunners) DeleteRunner(_ context.Context, serviceID int64) error {
 	return nil
 }
 
+// SetRunnerBuildkit is a no-op: single-node mode derives the flag from the
+// runner's config.toml.
+func (d *dockerRunners) SetRunnerBuildkit(_ context.Context, _ int64, _ bool) error {
+	return nil
+}
+
 // listFromContainers rebuilds every runner's row from its labelled
 // container's own labels - provider/scope/target/labels need no
 // ContainerInspect call, unlike dockerPgInstances.listFromContainers, which
@@ -160,11 +166,6 @@ func (d *dockerRunners) listFromContainers(ctx context.Context) ([]domain.Runner
 		return nil, rerrors.Wrap(err, "error listing runner containers")
 	}
 
-	buildkitRunners, err := d.buildkitRunnerNames(ctx, len(containers) > 0)
-	if err != nil {
-		return nil, err
-	}
-
 	out := make([]domain.Runner, 0, len(containers))
 
 	for _, c := range containers {
@@ -177,15 +178,16 @@ func (d *dockerRunners) listFromContainers(ctx context.Context) ([]domain.Runner
 
 		runner.ServiceID = serviceIDFromName(name)
 
-		_, runner.IsBuildkitEnabled = buildkitRunners[name]
-
 		dindName := c.Labels[labels.RunnerDindLabel]
 		if dindName != "" {
 			runner.DindServiceId = serviceIDFromName(dindName)
 		}
 
 		if container_derived.IsGitlabRunner(runner) {
-			runner.Concurrent = d.readGitlabConcurrent(ctx, c.ID, name)
+			config := d.readGitlabConfig(ctx, c.ID, name)
+
+			runner.Concurrent = concurrentOf(config)
+			runner.IsBuildkitEnabled = isBuildkitNetworkMode(config, name)
 		}
 
 		out = append(out, runner)
@@ -194,41 +196,10 @@ func (d *dockerRunners) listFromContainers(ctx context.Context) ([]domain.Runner
 	return out, nil
 }
 
-// buildkitRunnerNames are the runners that own a container labelled
-// labels.BuildkitForLabel - the BuildKit sidecar itself is the system of
-// record. isNeeded false skips the Docker call when there is no runner to
-// match against.
-func (d *dockerRunners) buildkitRunnerNames(ctx context.Context, isNeeded bool) (map[string]struct{}, error) {
-	names := make(map[string]struct{})
-
-	if !isNeeded {
-		return names, nil
-	}
-
-	listReq := &pb.ListSmerds_Request{
-		Label: map[string]string{labels.Sidecar: boolLabelValue},
-	}
-
-	sidecars, err := d.docker.ListContainers(ctx, listReq, allEnvironments)
-	if err != nil {
-		return nil, rerrors.Wrap(err, "error listing sidecar containers")
-	}
-
-	for _, sidecar := range sidecars {
-		runnerName := sidecar.Labels[labels.BuildkitForLabel]
-		if runnerName != "" {
-			names[runnerName] = struct{}{}
-		}
-	}
-
-	return names, nil
-}
-
-// readGitlabConcurrent returns the `concurrent` value the container's own
-// config.toml currently holds - a running container is the system of record
-// here, and Docker labels can't be edited after create. 0 (treated as 1) when
-// the file is unreadable or the key is absent, e.g. before Register has run.
-func (d *dockerRunners) readGitlabConcurrent(ctx context.Context, containerID, name string) int32 {
+// readGitlabConfig returns the container's own config.toml - a running
+// container is the system of record here, and Docker labels can't be edited
+// after create. Nil when the file is unreadable, e.g. before Register has run.
+func (d *dockerRunners) readGitlabConfig(ctx context.Context, containerID, name string) []byte {
 	config, err := dockerutils.ReadFromContainer(ctx, d.docker.Client(), containerID, gitlab_runner_config.ConfigPath)
 	if err != nil {
 		log.Ctx(ctx).Warn().
@@ -236,10 +207,28 @@ func (d *dockerRunners) readGitlabConcurrent(ctx context.Context, containerID, n
 			Err(err).
 			Msg("error reading gitlab-runner config.toml")
 
-		return 0
+		return nil
 	}
 
+	return config
+}
+
+// concurrentOf is config.toml's `concurrent`; 0 (treated as 1) when the key is
+// absent.
+func concurrentOf(config []byte) int32 {
 	concurrent, _ := gitlab_runner_config.Concurrent(config)
 
 	return concurrent
+}
+
+// isBuildkitNetworkMode reports whether the runner's job containers join its
+// BuildKit network - the enable flow's last config step, so the flag is only
+// true for a fully enabled runner.
+func isBuildkitNetworkMode(config []byte, runnerName string) bool {
+	networkMode, err := gitlab_runner_config.NetworkMode(config)
+	if err != nil {
+		return false
+	}
+
+	return networkMode == domain.RunnerBuildkitServiceName(runnerName)
 }

@@ -578,6 +578,14 @@ func (f *fakeRuntimeResolver) Runtime(
 	return rt, nil
 }
 
+var errNestedRuntimeNotFaked = rerrors.New("nested runtime is not faked")
+
+func (f *fakeRuntimeResolver) NestedRuntime(
+	context.Context, string, string,
+) (container_runtime.ContainerRuntime, io.Closer, error) {
+	return nil, nil, rerrors.Wrap(errNestedRuntimeNotFaked)
+}
+
 type fakeContainerRuntime struct {
 	docker node_clients.Docker
 	suffix string

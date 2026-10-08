@@ -305,11 +305,14 @@ type Runner struct {
 	Status      string                 `protobuf:"bytes,7,opt,name=status,proto3" json:"status,omitempty"`
 	CreatedAt   *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt   *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	// is_buildkit_enabled - whether the runner has a BuildKit sidecar. Derived
-	// from the sidecar itself; there is no separate stored flag.
+	// is_buildkit_enabled - whether the runner has a BuildKit daemon inside its
+	// DinD. Only a DinD-backed GitLab runner can have one.
 	IsBuildkitEnabled bool `protobuf:"varint,10,opt,name=is_buildkit_enabled,json=isBuildkitEnabled,proto3" json:"is_buildkit_enabled,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// dind_name - the DinD service the runner uses as its Docker daemon; empty
+	// when the runner uses the host socket or a remote docker_socket_address.
+	DindName      string `protobuf:"bytes,11,opt,name=dind_name,json=dindName,proto3" json:"dind_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Runner) Reset() {
@@ -410,6 +413,13 @@ func (x *Runner) GetIsBuildkitEnabled() bool {
 		return x.IsBuildkitEnabled
 	}
 	return false
+}
+
+func (x *Runner) GetDindName() string {
+	if x != nil {
+		return x.DindName
+	}
+	return ""
 }
 
 type ListRunners struct {
@@ -996,7 +1006,7 @@ type CreateRunner_Request struct {
 	ProviderConfig isCreateRunner_Request_ProviderConfig `protobuf_oneof:"provider_config"`
 	// dind_name - name of a DinD service (DindAPI) the runner uses as its Docker daemon. New runners must set exactly one of dind_name or docker_socket_address; neither is rejected.
 	DindName *string `protobuf:"bytes,9,opt,name=dind_name,json=dindName,proto3,oneof" json:"dind_name,omitempty"`
-	// is_buildkit_enabled - provision a BuildKit sidecar for the runner.
+	// is_buildkit_enabled - run a BuildKit daemon inside the runner's DinD. Valid only together with dind_name.
 	IsBuildkitEnabled bool `protobuf:"varint,10,opt,name=is_buildkit_enabled,json=isBuildkitEnabled,proto3" json:"is_buildkit_enabled,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
@@ -2012,7 +2022,7 @@ const file_runners_api_proto_rawDesc = "" +
 	"\n" +
 	"\x11runners_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\x1a\x12velez_common.proto\"I\n" +
 	"\x12RunnerPullPolicies\x123\n" +
-	"\x06values\x18\x01 \x03(\x0e2\x1b.velez_api.RunnerPullPolicyR\x06values\"\x91\x03\n" +
+	"\x06values\x18\x01 \x03(\x0e2\x1b.velez_api.RunnerPullPolicyR\x06values\"\xae\x03\n" +
 	"\x06Runner\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x125\n" +
 	"\bprovider\x18\x02 \x01(\x0e2\x19.velez_api.RunnerProviderR\bprovider\x12,\n" +
@@ -2026,7 +2036,8 @@ const file_runners_api_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12.\n" +
 	"\x13is_buildkit_enabled\x18\n" +
-	" \x01(\bR\x11isBuildkitEnabled\"\xd4\x01\n" +
+	" \x01(\bR\x11isBuildkitEnabled\x12\x1b\n" +
+	"\tdind_name\x18\v \x01(\tR\bdindName\"\xd4\x01\n" +
 	"\vListRunners\x1a4\n" +
 	"\aRequest\x12)\n" +
 	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x1a\x8e\x01\n" +

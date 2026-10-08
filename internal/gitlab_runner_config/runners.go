@@ -4,6 +4,9 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/pelletier/go-toml/v2"
+	"go.redsock.ru/rerrors"
 )
 
 const (
@@ -85,6 +88,35 @@ func SetNetworkMode(config []byte, networkMode string) ([]byte, error) {
 	}
 
 	return applyDockerKeys(config, keys)
+}
+
+type networkModeDocument struct {
+	Runners []networkModeRunner `toml:"runners"`
+}
+
+type networkModeRunner struct {
+	Docker networkModeDockerTable `toml:"docker"`
+}
+
+type networkModeDockerTable struct {
+	NetworkMode string `toml:"network_mode"`
+}
+
+// NetworkMode returns `network_mode` of the first `[[runners]]` entry's
+// `[runners.docker]` table; empty when the key or the entry is absent.
+func NetworkMode(config []byte) (string, error) {
+	var document networkModeDocument
+
+	err := toml.Unmarshal(config, &document)
+	if err != nil {
+		return "", rerrors.Wrap(err, "error parsing gitlab-runner config.toml")
+	}
+
+	if len(document.Runners) == 0 {
+		return "", nil
+	}
+
+	return document.Runners[0].Docker.NetworkMode, nil
 }
 
 func isRunnersTable(name string) bool {

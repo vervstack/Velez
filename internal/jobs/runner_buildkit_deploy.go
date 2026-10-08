@@ -3,6 +3,7 @@ package jobs
 import (
 	"context"
 	"fmt"
+	"io"
 	"slices"
 
 	"github.com/docker/docker/api/types/container"
@@ -10,6 +11,7 @@ import (
 	"github.com/docker/docker/api/types/strslice"
 	"go.redsock.ru/rerrors"
 
+	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils/parser"
 	"go.vervstack.ru/Velez/internal/domain"
@@ -18,6 +20,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/service_manager/vervonomicon"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/user_errors"
+	"go.vervstack.ru/Velez/internal/utils/common"
 )
 
 const (
@@ -59,6 +62,28 @@ func resolveBuildkitRuntime(
 	return facts, runtime, nil
 }
 
+// openBuildkitDind locates the runner and opens the runtime of the DinD daemon
+// buildkitd runs in. The io.Closer releases the connection to that daemon.
+func openBuildkitDind(
+	ctx context.Context, runtimes container_runtime.RuntimeResolver, target runnerBuildkitTarget,
+) (runnerBuildkitFacts, container_runtime.ContainerRuntime, io.Closer, error) {
+	facts, err := target.Locate(ctx)
+	if err != nil {
+		return runnerBuildkitFacts{}, nil, nil, rerrors.Wrap(err, "error locating runner")
+	}
+
+	if facts.dindName == "" || facts.provider != velez_api.RunnerProvider_GITLAB {
+		return runnerBuildkitFacts{}, nil, nil, rerrors.Wrap(user_errors.ErrRunnerBuildkitRequiresDind, facts.name)
+	}
+
+	dind, closer, err := runtimes.NestedRuntime(ctx, facts.environment, facts.dindName)
+	if err != nil {
+		return runnerBuildkitFacts{}, nil, nil, rerrors.Wrapf(err, "error opening dind daemon: %s", facts.dindName)
+	}
+
+	return facts, dind, closer, nil
+}
+
 // findBuildkitNetwork looks up the runner's BuildKit network by its logical name.
 func findBuildkitNetwork(
 	ctx context.Context, runtime container_runtime.ContainerRuntime, runnerName string,
@@ -86,14 +111,16 @@ type ensureBuildkitNetworkJob struct {
 }
 
 func (j *ensureBuildkitNetworkJob) Do(ctx context.Context) error {
-	facts, runtime, err := resolveBuildkitRuntime(ctx, j.runtimes, j.target)
+	facts, dind, closer, err := openBuildkitDind(ctx, j.runtimes, j.target)
 	if err != nil {
 		return err
 	}
 
+	defer common.CloseWithLog(closer.Close, "buildkit dind client")
+
 	networkName := domain.RunnerBuildkitServiceName(facts.name)
 
-	err = runtime.CreateNetwork(ctx, networkName)
+	err = dind.CreateNetwork(ctx, networkName)
 	if err != nil {
 		return rerrors.Wrapf(err, "error creating network: %s", networkName)
 	}
@@ -208,49 +235,43 @@ func (p binfmtProbe) check(ctx context.Context) error {
 	return nil
 }
 
-// buildkitSidecarSpec is everything the BuildKit sidecar container is built from.
-type buildkitSidecarSpec struct {
-	runnerName        string
-	imageName         string
-	networkDockerName string
-	restart           container.RestartPolicy
-	env               []string
-	isPrivileged      bool
+// buildkitdSpec is everything the buildkitd container inside the DinD is built from.
+type buildkitdSpec struct {
+	runnerName string
+	imageName  string
+	env        []string
 }
 
-func newBuildkitSidecarRequest(spec buildkitSidecarSpec) container_runtime.ContainerCreateRequest {
-	containerLabels := sidecarLabels(spec.runnerName)
-
-	containerLabels[labels.ComposeGroupLabel] = spec.runnerName
-	containerLabels[labels.BuildkitForLabel] = spec.runnerName
-
+func newBuildkitdRequest(spec buildkitdSpec) container_runtime.ContainerCreateRequest {
 	config := &container.Config{
-		Image:  spec.imageName,
-		Cmd:    strslice.StrSlice{buildkitAddrFlag, buildkitListenAddress()},
-		Env:    spec.env,
-		Labels: containerLabels,
+		Image: spec.imageName,
+		Cmd:   strslice.StrSlice{buildkitAddrFlag, buildkitListenAddress()},
+		Env:   spec.env,
 	}
 
+	networkName := domain.RunnerBuildkitServiceName(spec.runnerName)
 	stateBind := domain.RunnerBuildkitStateVolumeName(spec.runnerName) + ":" + buildkitStatePath
 
+	// Privileged inside the DinD: buildkitd needs it for its rootful overlay and
+	// qemu-user builds, and the DinD is the isolation boundary.
 	hostConfig := &container.HostConfig{
-		NetworkMode:   container.NetworkMode(spec.networkDockerName),
-		RestartPolicy: spec.restart,
-		Privileged:    spec.isPrivileged,
+		NetworkMode:   container.NetworkMode(networkName),
+		RestartPolicy: container.RestartPolicy{Name: container.RestartPolicyUnlessStopped},
+		Privileged:    true,
 		Binds:         []string{stateBind},
 	}
 
 	endpoint := &network.EndpointSettings{Aliases: []string{domain.RunnerBuildkitAlias}}
 
 	networking := &network.NetworkingConfig{
-		EndpointsConfig: map[string]*network.EndpointSettings{spec.networkDockerName: endpoint},
+		EndpointsConfig: map[string]*network.EndpointSettings{networkName: endpoint},
 	}
 
 	return container_runtime.ContainerCreateRequest{
 		Config:           &container_runtime.ContainerConfig{Config: config},
 		HostConfig:       &container_runtime.HostConfig{HostConfig: hostConfig},
 		NetworkingConfig: &container_runtime.NetworkingConfig{NetworkingConfig: networking},
-		ContainerName:    domain.RunnerBuildkitServiceName(spec.runnerName),
+		ContainerName:    networkName,
 	}
 }
 
@@ -267,27 +288,28 @@ func buildkitProxyEnv(runnerEnv []string) []string {
 
 type deployBuildkitJob struct {
 	boxes    vervonomicon.BoxLookup
-	settings storage.SettingsStorage
 	runtimes container_runtime.RuntimeResolver
 
 	target runnerBuildkitTarget
 }
 
 func (j *deployBuildkitJob) Do(ctx context.Context) error {
-	facts, runtime, err := resolveBuildkitRuntime(ctx, j.runtimes, j.target)
+	facts, dind, closer, err := openBuildkitDind(ctx, j.runtimes, j.target)
 	if err != nil {
 		return err
 	}
 
-	sidecarName := domain.RunnerBuildkitServiceName(facts.name)
+	defer common.CloseWithLog(closer.Close, "buildkit dind client")
 
-	existing, isFound, err := runtime.Inspect(ctx, sidecarName)
+	buildkitdName := domain.RunnerBuildkitServiceName(facts.name)
+
+	existing, isFound, err := dind.Inspect(ctx, buildkitdName)
 	if err != nil {
-		return rerrors.Wrap(err, "error inspecting buildkit sidecar")
+		return rerrors.Wrap(err, "error inspecting buildkitd")
 	}
 
-	if isFound && existing.Config != nil && existing.Config.Labels[labels.BuildkitForLabel] == facts.name {
-		return j.startExisting(ctx, runtime, existing)
+	if isFound {
+		return startExistingBuildkitd(ctx, dind, existing)
 	}
 
 	_, smerdRequest, err := resolveS3Descriptor(
@@ -296,90 +318,67 @@ func (j *deployBuildkitJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error building buildkit deploy request")
 	}
 
-	_, err = runtime.PullImage(ctx, smerdRequest.GetImageName())
+	_, err = dind.PullImage(ctx, smerdRequest.GetImageName())
 	if err != nil {
 		return rerrors.Wrap(err, "error pulling buildkit image")
 	}
 
-	spec, err := j.buildSpec(ctx, runtime, facts, smerdRequest.GetImageName())
+	spec, err := j.buildSpec(ctx, facts, smerdRequest.GetImageName())
 	if err != nil {
 		return err
 	}
 
-	createReq := newBuildkitSidecarRequest(spec)
+	createReq := newBuildkitdRequest(spec)
 
-	created, err := runtime.ContainerCreate(ctx, createReq)
+	created, err := dind.ContainerCreate(ctx, createReq)
 	if err != nil {
-		return rerrors.Wrap(err, "error creating buildkit sidecar")
+		return rerrors.Wrap(err, "error creating buildkitd")
 	}
 
-	err = runtime.Restart(ctx, created.ID)
+	err = dind.Restart(ctx, created.ID)
 	if err != nil {
-		return rerrors.Wrap(err, "error starting buildkit sidecar")
+		return rerrors.Wrap(err, "error starting buildkitd")
 	}
 
 	return nil
 }
 
-// startExisting starts a sidecar an earlier, interrupted run created, leaving a
-// running one alone.
-func (j *deployBuildkitJob) startExisting(
-	ctx context.Context, runtime container_runtime.ContainerRuntime, existing container.InspectResponse,
+// startExistingBuildkitd starts a buildkitd an earlier, interrupted run
+// created, leaving a running one alone.
+func startExistingBuildkitd(
+	ctx context.Context, dind container_runtime.ContainerRuntime, existing container.InspectResponse,
 ) error {
 	if existing.State != nil && existing.State.Running {
 		return nil
 	}
 
-	err := runtime.Restart(ctx, existing.ID)
+	err := dind.Restart(ctx, existing.ID)
 	if err != nil {
-		return rerrors.Wrap(err, "error starting buildkit sidecar")
+		return rerrors.Wrap(err, "error starting buildkitd")
 	}
 
 	return nil
 }
 
-// buildSpec reads what the sidecar inherits from the runner container: its
-// restart policy and its proxy; the isolation follows the node's Sysbox setting,
-// like a DinD service.
+// buildSpec reads what buildkitd inherits from the runner container: its proxy.
 func (j *deployBuildkitJob) buildSpec(
-	ctx context.Context,
-	runtime container_runtime.ContainerRuntime,
-	facts runnerBuildkitFacts,
-	imageName string,
-) (buildkitSidecarSpec, error) {
-	runner, isFound, err := runtime.Inspect(ctx, facts.name)
+	ctx context.Context, facts runnerBuildkitFacts, imageName string,
+) (buildkitdSpec, error) {
+	node, err := j.runtimes.Runtime(ctx, facts.environment)
 	if err != nil {
-		return buildkitSidecarSpec{}, rerrors.Wrap(err, "error inspecting runner container")
+		return buildkitdSpec{}, rerrors.Wrap(err, "error resolving container runtime")
+	}
+
+	runner, isFound, err := node.Inspect(ctx, facts.name)
+	if err != nil {
+		return buildkitdSpec{}, rerrors.Wrap(err, "error inspecting runner container")
 	}
 
 	if !isFound {
-		return buildkitSidecarSpec{}, rerrors.Wrap(user_errors.ErrRegisterContainerNotFound, facts.name)
+		return buildkitdSpec{}, rerrors.Wrap(user_errors.ErrRegisterContainerNotFound, facts.name)
 	}
 
-	buildkitNetwork, isNetworkFound, err := findBuildkitNetwork(ctx, runtime, facts.name)
-	if err != nil {
-		return buildkitSidecarSpec{}, err
-	}
-
-	if !isNetworkFound {
-		return buildkitSidecarSpec{}, rerrors.Wrap(errBuildkitNetworkMissing, facts.name)
-	}
-
-	settings, err := j.settings.GetSettings(ctx)
-	if err != nil {
-		return buildkitSidecarSpec{}, rerrors.Wrap(err, "error getting node settings")
-	}
-
-	spec := buildkitSidecarSpec{
-		runnerName:        facts.name,
-		imageName:         imageName,
-		networkDockerName: buildkitNetwork.DockerName,
-		isPrivileged:      !settings.IsSysboxEnabled,
-	}
-
-	if runner.HostConfig != nil {
-		spec.restart = runner.HostConfig.RestartPolicy
-	}
+	spec := buildkitdSpec{runnerName: facts.name, imageName: imageName}
 
 	if runner.Config != nil {
 		spec.env = buildkitProxyEnv(runner.Config.Env)
@@ -395,12 +394,14 @@ type waitBuildkitJob struct {
 }
 
 func (j *waitBuildkitJob) Do(ctx context.Context) error {
-	facts, runtime, err := resolveBuildkitRuntime(ctx, j.runtimes, j.target)
+	facts, dind, closer, err := openBuildkitDind(ctx, j.runtimes, j.target)
 	if err != nil {
 		return err
 	}
 
-	probe := buildkitRunningProbe{runtime: runtime, name: domain.RunnerBuildkitServiceName(facts.name)}
+	defer common.CloseWithLog(closer.Close, "buildkit dind client")
+
+	probe := buildkitRunningProbe{runtime: dind, name: domain.RunnerBuildkitServiceName(facts.name)}
 
 	return pollGarage(ctx, probe.check, "timed out waiting for buildkit to run")
 }
@@ -423,48 +424,31 @@ func (p buildkitRunningProbe) check(ctx context.Context) error {
 	return nil
 }
 
-// registerBuildkitBindingJob binds the sidecar to the runner's service in
-// cluster mode, where the binding is what marks the runner as having BuildKit.
-// Single-node mode derives that from the sidecar's labels, so there is nothing
-// to write.
-type registerBuildkitBindingJob struct {
-	dataStorage storage.Storage
+// markBuildkitJob records whether the runner has BuildKit, in cluster mode where
+// the runners row is the source of truth. Single-node mode derives the flag from
+// the runner's config.toml, so the storage write is a no-op there.
+type markBuildkitJob struct {
+	services storage.ServicesStorage
+	runners  storage.RunnersStorage
 
-	target runnerBuildkitTarget
+	target    runnerBuildkitTarget
+	isEnabled bool
 }
 
-func (j *registerBuildkitBindingJob) Do(ctx context.Context) error {
-	if !j.dataStorage.IsStatefull() {
-		return nil
-	}
-
+func (j *markBuildkitJob) Do(ctx context.Context) error {
 	facts, err := j.target.Locate(ctx)
 	if err != nil {
 		return rerrors.Wrap(err, "error locating runner")
 	}
 
-	bindings := j.dataStorage.ContainerBindings()
-	if bindings == nil {
-		return rerrors.Wrap(user_errors.ErrContainerBindingsUnavailable)
-	}
-
-	svc, err := j.dataStorage.Services().GetByName(ctx, facts.name)
+	svc, err := j.services.GetByName(ctx, facts.name)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting runner service")
 	}
 
-	binding := domain.ContainerBinding{
-		ServiceId:     svc.ID,
-		ServiceName:   facts.name,
-		NodeId:        domain.SelfNodeId,
-		Environment:   facts.environment,
-		ContainerName: domain.RunnerBuildkitServiceName(facts.name),
-		IsSidecar:     true,
-	}
-
-	err = bindings.Upsert(ctx, binding)
+	err = j.runners.SetRunnerBuildkit(ctx, svc.ID, j.isEnabled)
 	if err != nil {
-		return rerrors.Wrap(err, "error upserting buildkit sidecar binding")
+		return rerrors.Wrap(err, "error recording runner buildkit state")
 	}
 
 	return nil

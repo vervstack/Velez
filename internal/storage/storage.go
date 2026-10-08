@@ -198,6 +198,10 @@ type RunnersStorage interface {
 	GetRunnerByServiceID(ctx context.Context, serviceID int64) (domain.Runner, error)
 	ListRunners(ctx context.Context) ([]domain.Runner, error)
 	DeleteRunner(ctx context.Context, serviceID int64) error
+	// SetRunnerBuildkit records whether a BuildKit daemon runs inside the
+	// runner's DinD. Cluster mode only: single-node derives it from the
+	// runner's config.toml, so its implementation is a no-op.
+	SetRunnerBuildkit(ctx context.Context, serviceID int64, isBuildkitEnabled bool) error
 }
 
 // RegistryInstancesStorage - CRUD over velez.registry_instances, the
@@ -219,8 +223,6 @@ type RegistryInstancesStorage interface {
 type ContainerBindingsStorage interface {
 	Upsert(ctx context.Context, binding domain.ContainerBinding) error
 	ListByNode(ctx context.Context, nodeId int32, environment string) ([]domain.ContainerBinding, error)
-	// Delete removes the binding of containerName; a missing binding is not an error.
-	Delete(ctx context.Context, nodeId int32, environment, containerName string) error
 
 	WithTx(tx *sql.Tx) ContainerBindingsStorage
 }

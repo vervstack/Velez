@@ -62,16 +62,7 @@ func (p *pgStorage) GetRunnerByServiceID(ctx context.Context, serviceID int64) (
 		return domain.Runner{}, rerrors.Wrap(wrapRunnersPgErr(err), "error getting runner by service id")
 	}
 
-	runner := runnerFromRow(row)
-
-	buildkitRunners, err := p.buildkitServiceIds(ctx)
-	if err != nil {
-		return domain.Runner{}, err
-	}
-
-	_, runner.IsBuildkitEnabled = buildkitRunners[runner.ServiceID]
-
-	return runner, nil
+	return runnerFromRow(row), nil
 }
 
 func (p *pgStorage) ListRunners(ctx context.Context) ([]domain.Runner, error) {
@@ -80,18 +71,9 @@ func (p *pgStorage) ListRunners(ctx context.Context) ([]domain.Runner, error) {
 		return nil, rerrors.Wrap(wrapRunnersPgErr(err), "error listing runners")
 	}
 
-	buildkitRunners, err := p.buildkitServiceIds(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	out := make([]domain.Runner, 0, len(rows))
 	for _, row := range rows {
-		runner := runnerFromRow(row)
-
-		_, runner.IsBuildkitEnabled = buildkitRunners[runner.ServiceID]
-
-		out = append(out, runner)
+		out = append(out, runnerFromRow(row))
 	}
 
 	return out, nil
@@ -106,22 +88,18 @@ func (p *pgStorage) DeleteRunner(ctx context.Context, serviceID int64) error {
 	return nil
 }
 
-// buildkitServiceIds are the runners whose BuildKit sidecar is bound to them.
-func (p *pgStorage) buildkitServiceIds(ctx context.Context) (map[int64]struct{}, error) {
-	rows, err := p.querier.ListRunnerSidecarBindings(ctx)
+func (p *pgStorage) SetRunnerBuildkit(ctx context.Context, serviceID int64, isBuildkitEnabled bool) error {
+	params := runners_queries.UpdateRunnerBuildkitParams{
+		ServiceID:         serviceID,
+		IsBuildkitEnabled: isBuildkitEnabled,
+	}
+
+	err := p.querier.UpdateRunnerBuildkit(ctx, params)
 	if err != nil {
-		return nil, rerrors.Wrap(wrapRunnersPgErr(err), "error listing runner sidecar bindings")
+		return rerrors.Wrap(wrapRunnersPgErr(err), "error updating runner buildkit flag")
 	}
 
-	serviceIds := make(map[int64]struct{}, len(rows))
-
-	for _, row := range rows {
-		if row.ContainerName == domain.RunnerBuildkitServiceName(row.ServiceName) {
-			serviceIds[row.ServiceID] = struct{}{}
-		}
-	}
-
-	return serviceIds, nil
+	return nil
 }
 
 func runnerFromRow(row runners_queries.VelezRunner) domain.Runner {
@@ -137,6 +115,7 @@ func runnerFromRow(row runners_queries.VelezRunner) domain.Runner {
 		DockerSocketAddress: row.DockerSocketAddress,
 		Concurrent:          row.Concurrent,
 		DindServiceId:       row.DindServiceID.Int64,
+		IsBuildkitEnabled:   row.IsBuildkitEnabled,
 		CreatedAt:           row.CreatedAt,
 		UpdatedAt:           row.UpdatedAt,
 	}

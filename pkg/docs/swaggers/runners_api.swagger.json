@@ -385,7 +385,7 @@
         },
         "isBuildkitEnabled": {
           "type": "boolean",
-          "description": "is_buildkit_enabled - provision a BuildKit sidecar for the runner."
+          "description": "is_buildkit_enabled - run a BuildKit daemon inside the runner's DinD. Valid only together with dind_name."
         }
       }
     },
@@ -670,7 +670,11 @@
         },
         "isBuildkitEnabled": {
           "type": "boolean",
-          "description": "is_buildkit_enabled - whether the runner has a BuildKit sidecar. Derived\nfrom the sidecar itself; there is no separate stored flag."
+          "description": "is_buildkit_enabled - whether the runner has a BuildKit daemon inside its\nDinD. Only a DinD-backed GitLab runner can have one."
+        },
+        "dindName": {
+          "type": "string",
+          "description": "dind_name - the DinD service the runner uses as its Docker daemon; empty\nwhen the runner uses the host socket or a remote docker_socket_address."
         }
       },
       "description": "Runner never carries its access token - status and environment live on the\nunderlying service/deployment rows and are read via ListSmerds/\nVervServicesService, not duplicated here."

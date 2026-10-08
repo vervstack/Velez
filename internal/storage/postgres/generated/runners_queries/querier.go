@@ -11,8 +11,8 @@ import (
 type Querier interface {
 	DeleteRunner(ctx context.Context, serviceID int64) error
 	GetRunnerByServiceID(ctx context.Context, serviceID int64) (VelezRunner, error)
-	ListRunnerSidecarBindings(ctx context.Context) ([]ListRunnerSidecarBindingsRow, error)
 	ListRunners(ctx context.Context) ([]VelezRunner, error)
+	UpdateRunnerBuildkit(ctx context.Context, arg UpdateRunnerBuildkitParams) error
 	UpsertRunner(ctx context.Context, arg UpsertRunnerParams) (VelezRunner, error)
 }
 

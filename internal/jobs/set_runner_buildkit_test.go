@@ -30,18 +30,18 @@ func Test_SetRunnerBuildkitHandler_BuildJobs_Scenarios(t *testing.T) {
 		want      []string
 	}{
 		{
-			"enable ensures the network, installs binfmt, deploys, waits, binds, then points the runner at it",
+			"enable installs binfmt, builds the network and buildkitd in the dind, points the runner at it, then marks it",
 			true,
 			[]string{
-				stepEnsureBuildkitNetwork, stepInstallBinfmt, stepDeployBuildkit,
-				stepWaitForBuildkitDeploy, stepRegisterBuildkitBinding, stepSetBuildkitNetworkMode,
+				stepInstallBinfmt, stepEnsureBuildkitNetwork, stepDeployBuildkit,
+				stepWaitForBuildkit, stepSetBuildkitNetworkMode, stepMarkBuildkitEnabled,
 			},
 		},
 		{
-			"disable points the runner away first, then drops the sidecar, network and volume",
+			"disable marks it off and points the runner away first, then drops buildkitd, network and volume",
 			false,
 			[]string{
-				stepClearBuildkitNetworkMode, stepDropBuildkitSidecar,
+				stepMarkBuildkitDisabled, stepClearBuildkitNetworkMode, stepRemoveBuildkit,
 				stepRemoveBuildkitNetwork, stepRemoveBuildkitVolume,
 			},
 		},
@@ -67,8 +67,8 @@ func Test_CreateRunnerHandler_BuildJobs_BuildkitSteps(t *testing.T) {
 		{"without buildkit the chain ends at the runner row", false, []string{stepRegisterRunnerRow}},
 		{"with buildkit the enable steps follow the runner row", true, []string{
 			stepRegisterRunnerRow,
-			stepEnsureBuildkitNetwork, stepInstallBinfmt, stepDeployBuildkit,
-			stepWaitForBuildkitDeploy, stepRegisterBuildkitBinding, stepSetBuildkitNetworkMode,
+			stepInstallBinfmt, stepEnsureBuildkitNetwork, stepDeployBuildkit,
+			stepWaitForBuildkit, stepSetBuildkitNetworkMode, stepMarkBuildkitEnabled,
 		}},
 	}
 
@@ -87,11 +87,11 @@ func Test_CreateRunnerHandler_BuildJobs_BuildkitSteps(t *testing.T) {
 }
 
 func Test_BuildkitProxyEnv_Scenarios(t *testing.T) {
-	t.Run("a runner without a proxy gives the sidecar none", func(t *testing.T) {
+	t.Run("a runner without a proxy gives buildkitd none", func(t *testing.T) {
 		require.Empty(t, buildkitProxyEnv([]string{"PATH=/bin"}))
 	})
 
-	t.Run("a runner proxy is copied to the sidecar", func(t *testing.T) {
+	t.Run("a runner proxy is copied to buildkitd", func(t *testing.T) {
 		env := buildkitProxyEnv([]string{"PATH=/bin", "HTTPS_PROXY=socks5h://proxy:1080"})
 
 		require.Contains(t, env, "HTTPS_PROXY=socks5h://proxy:1080")

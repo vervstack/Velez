@@ -11,8 +11,9 @@ import (
 )
 
 // SetRunnerBuildkit enqueues the set_runner_buildkit task and returns its id.
-// A finished earlier task for the same runner is replaced, so the sidecar can
-// be toggled repeatedly.
+// Each call starts a new task once the previous one for the runner has
+// finished, so BuildKit can be toggled repeatedly and every toggle stays in the
+// task history. BuildKit is supported only for DinD-backed GitLab runners.
 func (s *RunneraasService) SetRunnerBuildkit(
 	ctx context.Context, name string, isBuildkitEnabled bool,
 ) (string, error) {
@@ -21,9 +22,16 @@ func (s *RunneraasService) SetRunnerBuildkit(
 		return "", rerrors.Wrap(err, "error getting runner service")
 	}
 
-	_, err = s.dataStorage.Runners().GetRunnerByServiceID(ctx, svc.ID)
+	runner, err := s.dataStorage.Runners().GetRunnerByServiceID(ctx, svc.ID)
 	if err != nil {
 		return "", rerrors.Wrap(err, "error getting runner row")
+	}
+
+	provider := velez_api.RunnerProvider(velez_api.RunnerProvider_value[runner.Provider])
+
+	err = validateBuildkitRunner(provider, runner.DindServiceId != 0)
+	if err != nil {
+		return "", rerrors.Wrap(err)
 	}
 
 	initialContext := &velez_api.SetRunnerBuildkitTaskPayload{
@@ -33,7 +41,7 @@ func (s *RunneraasService) SetRunnerBuildkit(
 		},
 	}
 
-	task, err := s.jobsEngine.EnqueueReplacing(ctx, name, jobs.SetRunnerBuildkitAction, initialContext)
+	task, err := s.jobsEngine.Enqueue(ctx, name, jobs.SetRunnerBuildkitAction, initialContext)
 	if err != nil {
 		return "", rerrors.Wrap(err, "error enqueuing set runner buildkit task")
 	}

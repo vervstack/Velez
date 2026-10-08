@@ -2,6 +2,7 @@ package jobs
 
 import (
 	"context"
+	"io"
 	"io/fs"
 	"testing"
 
@@ -58,6 +59,12 @@ type proxyRunnerResolver struct {
 
 func (r proxyRunnerResolver) Runtime(context.Context, string) (container_runtime.ContainerRuntime, error) {
 	return r.runtime, nil
+}
+
+func (r proxyRunnerResolver) NestedRuntime(
+	context.Context, string, string,
+) (container_runtime.ContainerRuntime, io.Closer, error) {
+	return nil, nil, rerrors.Wrap(errNestedRuntimeNotFaked)
 }
 
 func newSyncRunnerProxyJob(runtime *proxyRunnerRuntime) *syncRunnerProxyJob {

@@ -16,7 +16,8 @@ const (
 )
 
 // syncRunnerProxyJob mirrors the proxy env of the container into its runner's job environment -
-// see providers.Provider.SyncProxy. It is a no-op for a container that is not a runner.
+// see providers.Provider.SyncProxy - and into the buildkitd inside the runner's DinD, when it has one.
+// It is a no-op for a container that is not a runner.
 type syncRunnerProxyJob struct {
 	runtimes container_runtime.RuntimeResolver
 
@@ -59,6 +60,23 @@ func (j *syncRunnerProxyJob) sync(ctx context.Context, name string) error {
 	err = runnerProvider.SyncProxy(ctx, runtime, name)
 	if err != nil {
 		return rerrors.Wrap(err, "error syncing runner proxy")
+	}
+
+	dindName := info.Config.Labels[labels.RunnerDindLabel]
+	if dindName == "" || providerEnum != velez_api.RunnerProvider_GITLAB {
+		return nil
+	}
+
+	facts := runnerBuildkitFacts{
+		name:        name,
+		environment: j.req.GetUpgradeRequest().GetEnvironment(),
+		provider:    providerEnum,
+		dindName:    dindName,
+	}
+
+	err = syncBuildkitProxy(ctx, j.runtimes, runtime, facts, info.Config.Env)
+	if err != nil {
+		return rerrors.Wrap(err, "error syncing buildkit proxy")
 	}
 
 	return nil

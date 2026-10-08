@@ -1,0 +1,4 @@
+app:
+  image: moby/buildkit:v0.34.0
+  restart: unless_stopped
+  box: small

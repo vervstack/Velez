@@ -56,6 +56,17 @@ func validateDockerSocketAddress(addr string) error {
 	return nil
 }
 
+// validateBuildkitRunner rejects a runner BuildKit cannot serve: buildkitd runs
+// inside the runner's DinD daemon, so the runner has to be a GitLab runner with a
+// DinD (not the host socket, not a remote docker_socket_address).
+func validateBuildkitRunner(provider velez_api.RunnerProvider, isDindSet bool) error {
+	if provider != velez_api.RunnerProvider_GITLAB || !isDindSet {
+		return user_errors.ErrRunnerBuildkitRequiresDind
+	}
+
+	return nil
+}
+
 // validateDockerSource enforces that exactly one of dindName and
 // dockerSocketAddress is set.
 func validateDockerSource(dindName, dockerSocketAddress string) error {

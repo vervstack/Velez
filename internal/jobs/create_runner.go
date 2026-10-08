@@ -132,6 +132,22 @@ func (h *createRunnerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 	provider, _, _ := runnerProviderConfig(payload.GetRequest())
 	instanceName := runnerNamePrefix(provider) + payload.GetRequest().GetName()
 
+	jobs := h.baseJobs(payload, instanceName)
+
+	if !payload.GetRequest().GetIsBuildkitEnabled() {
+		return jobs
+	}
+
+	buildkit := runnerBuildkitJobs{dataStorage: h.dataStorage, runtimes: h.runtimes}
+	target := createdRunnerTarget{req: payload, instanceName: instanceName}
+
+	return append(jobs, buildkit.enable(target)...)
+}
+
+// baseJobs is the chain that creates and registers the runner itself.
+func (h *createRunnerHandler) baseJobs(
+	payload *velez_api.CreateRunnerTaskPayload, instanceName string,
+) []NamedJob {
 	return []NamedJob{
 		{
 			Name: stepMintRunnerToken,

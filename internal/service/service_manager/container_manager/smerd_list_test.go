@@ -2,6 +2,7 @@ package container_manager
 
 import (
 	"context"
+	"io"
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
@@ -75,6 +76,14 @@ type fakeRuntimeResolver struct {
 	// gotConnectReq, gotDisconnectContainerID, gotDisconnectNetworks, ...)
 	// after the call under test returns.
 	runtime *fakeListContainerRuntime
+}
+
+var errNestedRuntimeNotFaked = rerrors.New("nested runtime is not faked")
+
+func (f *fakeRuntimeResolver) NestedRuntime(
+	context.Context, string, string,
+) (container_runtime.ContainerRuntime, io.Closer, error) {
+	return nil, nil, rerrors.Wrap(errNestedRuntimeNotFaked)
 }
 
 func (f *fakeRuntimeResolver) Runtime(

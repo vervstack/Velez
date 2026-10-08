@@ -116,7 +116,10 @@ func (j *reregisterRunnerJob) Do(ctx context.Context) error {
 	}
 
 	// Register replaces the whole [[runners]] entry, including its docker
-	// settings, so they are read before it and written back after.
+	// settings and its BuildKit network mode (runner.IsBuildkitEnabled was read
+	// before it), so they are read before it and written back after.
+	networkMode := buildkitNetworkMode(runner.IsBuildkitEnabled, name)
+
 	settings, err := runnerProvider.ReadSettings(ctx, containerRuntime, name)
 	if err != nil {
 		return rerrors.Wrap(err, "error reading runner settings")
@@ -133,6 +136,11 @@ func (j *reregisterRunnerJob) Do(ctx context.Context) error {
 	err = runnerProvider.ApplySettings(ctx, containerRuntime, name, settings)
 	if err != nil {
 		return rerrors.Wrap(err, "error restoring runner settings")
+	}
+
+	err = runnerProvider.ApplyNetworkMode(ctx, containerRuntime, name, networkMode)
+	if err != nil {
+		return rerrors.Wrap(err, "error restoring runner network mode")
 	}
 
 	return nil

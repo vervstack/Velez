@@ -88,6 +88,20 @@ func (p *pgStorage) DeleteRunner(ctx context.Context, serviceID int64) error {
 	return nil
 }
 
+func (p *pgStorage) SetRunnerBuildkit(ctx context.Context, serviceID int64, isBuildkitEnabled bool) error {
+	params := runners_queries.UpdateRunnerBuildkitParams{
+		ServiceID:         serviceID,
+		IsBuildkitEnabled: isBuildkitEnabled,
+	}
+
+	err := p.querier.UpdateRunnerBuildkit(ctx, params)
+	if err != nil {
+		return rerrors.Wrap(wrapRunnersPgErr(err), "error updating runner buildkit flag")
+	}
+
+	return nil
+}
+
 func runnerFromRow(row runners_queries.VelezRunner) domain.Runner {
 	return domain.Runner{
 		ServiceID:           row.ServiceID,
@@ -101,6 +115,7 @@ func runnerFromRow(row runners_queries.VelezRunner) domain.Runner {
 		DockerSocketAddress: row.DockerSocketAddress,
 		Concurrent:          row.Concurrent,
 		DindServiceId:       row.DindServiceID.Int64,
+		IsBuildkitEnabled:   row.IsBuildkitEnabled,
 		CreatedAt:           row.CreatedAt,
 		UpdatedAt:           row.UpdatedAt,
 	}

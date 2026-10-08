@@ -63,6 +63,7 @@ export type Runner = {
   createdAt?: GoogleProtobufTimestamp.Timestamp;
   updatedAt?: GoogleProtobufTimestamp.Timestamp;
   isBuildkitEnabled?: boolean;
+  dindName?: string;
 };
 
 export type ListRunnersRequest = {

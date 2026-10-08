@@ -25,6 +25,8 @@ import (
 // container's env - the one seam that differs between CI systems. Everything
 // else in runneraas/create_runner.go is provider-agnostic; neither ever
 // branches on provider outside of resolving one via For.
+//
+//nolint:interfacebloat // one method per runner-provider seam; splitting would only scatter them
 type Provider interface {
 	MintRegistrationToken(
 		ctx context.Context, scope velez_api.RunnerScope, target, baseUrl, accessToken string,
@@ -61,6 +63,12 @@ type Provider interface {
 	ApplySettings(
 		ctx context.Context, runtime container_runtime.ContainerRuntime, containerID string,
 		settings domain.GitlabRunnerSettings,
+	) error
+	// ApplyNetworkMode sets the docker network the provider's job containers
+	// join, in the running container's config; an empty networkMode clears it.
+	// A no-op for a provider whose jobs run inside the container itself (GitHub).
+	ApplyNetworkMode(
+		ctx context.Context, runtime container_runtime.ContainerRuntime, containerID, networkMode string,
 	) error
 	// SyncProxy mirrors the proxy env of the running container containerID into
 	// the env the provider's job containers run with; the container env is the

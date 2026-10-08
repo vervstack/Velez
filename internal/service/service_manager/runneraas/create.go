@@ -27,6 +27,13 @@ func (s *RunneraasService) CreateRunner(ctx context.Context, req domain.CreateRu
 		return rerrors.Wrap(err)
 	}
 
+	if req.IsBuildkitEnabled {
+		err = validateBuildkitRunner(req.Provider, req.DindName != "")
+		if err != nil {
+			return rerrors.Wrap(err)
+		}
+	}
+
 	err = validateDockerSource(req.DindName, req.DockerSocketAddress)
 	if err != nil {
 		return rerrors.Wrap(err)

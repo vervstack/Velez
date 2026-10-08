@@ -108,4 +108,12 @@ var (
 	// steps when the requested Postgres host port is already bound on this
 	// node.
 	ErrPortAlreadyOccupied = rerrors.New("requested port is already occupied on this node")
+
+	// ErrTaskNotFound is returned by internal/jobs' Engine.DismissFailed when
+	// no task exists for the given entity and action.
+	ErrTaskNotFound = rerrors.New("task not found", codes.NotFound)
+
+	// ErrTaskNotDismissable is returned by internal/jobs' Engine.DismissFailed
+	// when the task is not in FAILED status.
+	ErrTaskNotDismissable = rerrors.New("only a failed task can be dismissed", codes.FailedPrecondition)
 )

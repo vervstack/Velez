@@ -38,7 +38,7 @@ func (s *Service) CreateDind(ctx context.Context, req domain.CreateDindReq) erro
 		Request: dindRequestToPb(req),
 	}
 
-	_, err = s.jobsEngine.Enqueue(ctx, req.Name, jobs.CreateDindAction, initialContext)
+	_, err = s.jobsEngine.EnqueueReplacing(ctx, req.Name, jobs.CreateDindAction, initialContext)
 	if err != nil {
 		return rerrors.Wrap(err, "error enqueuing create dind task")
 	}

@@ -35,6 +35,7 @@ type Services interface {
 	Networks() NetworkService
 	ConfigResolver() ServiceConfigResolver
 	AddressBook() AddressBook
+	Provisioning() ProvisioningService
 }
 
 type ContainerService interface {
@@ -158,7 +159,7 @@ type PluginService interface {
 // see docs/features/pgaas_and_registry_plugin.md section 3.
 type PostgresService interface {
 	ListPgInstances(ctx context.Context, req domain.ListPgInstancesReq) (domain.PgInstanceList, error)
-	CreatePgInstance(ctx context.Context, req domain.CreatePgInstanceReq) (domain.PgInstanceView, error)
+	CreatePgInstance(ctx context.Context, req domain.CreatePgInstanceReq) error
 	DropPgInstance(ctx context.Context, name string) error
 	// GetPgInstanceCredentials is the only PostgresService operation that
 	// resolves a secret_ref to its plaintext value.
@@ -215,6 +216,11 @@ type SettingsService interface {
 	UpdateSettings(ctx context.Context, req domain.UpdateSettingsReq) (domain.Settings, error)
 	GetSysboxStatus(ctx context.Context) (domain.SysboxStatus, error)
 	RunSysboxSmokeTest(ctx context.Context) (domain.SysboxSmokeTestResult, error)
+}
+
+type ProvisioningService interface {
+	List(ctx context.Context, actions ...string) ([]domain.ProvisioningTask, error)
+	Dismiss(ctx context.Context, entityId, action string) error
 }
 
 type DindService interface {

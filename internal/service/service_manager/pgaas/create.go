@@ -4,96 +4,43 @@ import (
 	"context"
 
 	"go.redsock.ru/rerrors"
-	"go.redsock.ru/toolbox"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/internal/domain/labels"
+	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
-const (
-	pgSecretScope = "pgaas"
-	pgSecretKey   = "password"
-)
-
-func (s *PgaasService) CreatePgInstance(
-	ctx context.Context, req domain.CreatePgInstanceReq,
-) (domain.PgInstanceView, error) {
+func (s *PgaasService) CreatePgInstance(ctx context.Context, req domain.CreatePgInstanceReq) error {
 	if req.Isolation == velez_api.PgInstanceIsolation_PG_INSTANCE_ISOLATION_SHARED_POOL {
-		return domain.PgInstanceView{}, rerrors.Wrap(user_errors.ErrPgSharedPoolIsolationNotSupported)
+		return rerrors.Wrap(user_errors.ErrPgSharedPoolIsolationNotSupported)
 	}
 
-	dbName := sanitizeIdentifier(req.Name)
-
-	creds := pgCredentials{
-		dbName:   dbName,
-		username: dbName + "_user",
-		password: string(toolbox.RandomBase64(pgPasswordLength)),
+	request := &velez_api.CreatePgInstance_Request{
+		Name:         req.Name,
+		Environment:  optionalString(req.Environment),
+		Box:          optionalString(req.Box),
+		OwnerService: optionalString(req.OwnerService),
 	}
 
-	secretRef := domain.SecretRef{Scope: pgSecretScope, Owner: req.Name, Key: pgSecretKey}
+	if req.ExposeToPort != 0 {
+		request.ExposeToPort = &req.ExposeToPort
+	}
 
-	err := s.secrets.Put(ctx, secretRef, creds.password)
+	payload := &velez_api.CreatePgInstanceTaskPayload{Request: request}
+
+	_, err := s.jobsEngine.EnqueueReplacing(ctx, req.Name, jobs.CreatePgInstanceAction, payload)
 	if err != nil {
-		return domain.PgInstanceView{}, rerrors.Wrap(err, "error storing pg instance password")
+		return rerrors.Wrap(err, "error enqueuing create pg instance task")
 	}
 
-	instanceName := labels.PgaasNamePrefix + req.Name
+	return nil
+}
 
-	descriptor, smerdRequest, err := buildDeployRequest(ctx, s.boxes(), req, creds)
-	if err != nil {
-		return domain.PgInstanceView{}, rerrors.Wrap(err, "error building pg instance deploy request")
+func optionalString(value string) *string {
+	if value == "" {
+		return nil
 	}
 
-	deployReq := domain.CreateDeployReq{
-		ServiceName:    instanceName,
-		VervDescriptor: &descriptor,
-		LaunchSmerd:    domain.LaunchSmerd{CreateSmerd_Request: smerdRequest},
-	}
-
-	// CreateNewDeploy upserts instanceName before looking it up, so no
-	// separate UpsertService call is needed here (see verv_services/deploy.go).
-	err = s.vervServices.CreateNewDeploy(ctx, deployReq)
-	if err != nil {
-		return domain.PgInstanceView{}, rerrors.Wrap(err, "error creating pg instance deploy")
-	}
-
-	svc, err := s.dataStorage.Services().GetByName(ctx, instanceName)
-	if err != nil {
-		return domain.PgInstanceView{}, rerrors.Wrap(err, "error getting pg instance service")
-	}
-
-	upsertReq := domain.UpsertPgInstanceReq{
-		ServiceId: svc.ID,
-		DbName:    creds.dbName,
-		Username:  creds.username,
-		SecretRef: secretRef.String(),
-		Port:      pgDefaultPort,
-	}
-
-	instance, err := s.dataStorage.PgInstances().UpsertPgInstance(ctx, upsertReq)
-	if err != nil {
-		return domain.PgInstanceView{}, rerrors.Wrap(err, "error upserting pg instance row")
-	}
-
-	if req.OwnerService != "" {
-		err = s.dataStorage.ServiceResources().UpsertResource(ctx, req.OwnerService, instanceName, pgResourceType)
-		if err != nil {
-			return domain.PgInstanceView{}, rerrors.Wrap(err, "error binding pg instance to owner service")
-		}
-	}
-
-	view := domain.PgInstanceView{
-		Name:         instanceName,
-		DbName:       instance.DbName,
-		Username:     instance.Username,
-		Port:         instance.Port,
-		Environment:  req.Environment,
-		OwnerService: req.OwnerService,
-		CreatedAt:    instance.CreatedAt,
-		UpdatedAt:    instance.UpdatedAt,
-	}
-
-	return view, nil
+	return &value
 }

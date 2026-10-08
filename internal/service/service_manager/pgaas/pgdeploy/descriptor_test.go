@@ -1,4 +1,4 @@
-package pgaas
+package pgdeploy
 
 import (
 	"context"
@@ -43,20 +43,20 @@ func newFakeBoxLookup() *fakeBoxLookup {
 	}
 }
 
-func TestBuildDeployRequest_ResolvesShapeAndOverlaysCredentialsOnlyOntoRequest(t *testing.T) {
+func Test_BuildDeployRequest_ResolvesShapeAndOverlaysCredentialsOnlyOntoRequest(t *testing.T) {
 	req := domain.CreatePgInstanceReq{
 		Name:         "my-pg",
 		Environment:  "prod",
 		ExposeToPort: 15432,
 	}
 
-	creds := pgCredentials{
-		dbName:   "my_pg",
-		username: "my_pg_user",
-		password: "s3cr3t",
+	creds := Credentials{
+		DbName:   "my_pg",
+		Username: "my_pg_user",
+		Password: "s3cr3t",
 	}
 
-	descriptor, request, err := buildDeployRequest(context.Background(), newFakeBoxLookup(), req, creds)
+	descriptor, request, err := BuildDeployRequest(context.Background(), newFakeBoxLookup(), req, creds)
 	require.NoError(t, err)
 
 	require.Equal(t, "postgres:18", request.GetImageName())

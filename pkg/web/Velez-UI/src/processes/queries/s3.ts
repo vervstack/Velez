@@ -9,6 +9,7 @@ import type {
     SetS3BucketAccessRequest,
 } from "@/app/api/velez/s3_api.pb"
 import {s3Service} from "@/processes/api/s3aas.ts"
+import {provisioningRefetchInterval} from "@/processes/mappings/provisioning.ts"
 
 export const S3_INSTANCES_QUERY_KEY = ["s3-instances"]
 const LIST_REQ = {paging: {limit: "50", offset: "0"}}
@@ -25,6 +26,7 @@ export function useListS3InstancesQuery() {
     return useQuery({
         queryKey: S3_INSTANCES_QUERY_KEY,
         queryFn: () => s3Service.listS3Instances(LIST_REQ),
+        refetchInterval: (query) => provisioningRefetchInterval(query.state.data?.provisioning),
     })
 }
 

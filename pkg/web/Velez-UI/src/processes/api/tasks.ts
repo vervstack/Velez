@@ -1,7 +1,19 @@
 import {parseGrpcError} from "@vervstack/chures";
 
-import {TasksApi, TaskStatus, WatchTaskRequest} from "@/app/api/velez";
+import {DismissTaskRequest, TasksApi, TaskStatus, WatchTaskRequest} from "@/app/api/velez";
 import {useCredentialsStore} from "@/app/settings/creds.ts";
+import {ApiService} from "@/processes/ApiService.ts";
+
+class TasksService extends ApiService {
+    async dismissTask(entityId: string, action: string): Promise<void> {
+        return this.mutate((initReq) => {
+            const payload: DismissTaskRequest = {entityId, action};
+            return TasksApi.DismissTask(payload, initReq).then();
+        });
+    }
+}
+
+export const tasksService = new TasksService();
 
 // WatchTaskStream wraps TasksApi.WatchTask: it opens a live stream of
 // TaskStatus updates for the given job (identified by entityId + action)

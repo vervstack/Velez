@@ -44,3 +44,26 @@ SET status     = $1,
     error      = $2,
     updated_at = now()
 WHERE id = $3;
+
+-- name: ListProvisioningTasks :many
+SELECT id,
+       entity_id,
+       action,
+       status,
+       context,
+       error,
+       claimed_at,
+       claimed_by,
+       created_at,
+       updated_at,
+       environment_id
+FROM velez.tasks
+WHERE action = ANY (sqlc.arg(actions)::text[])
+  AND (status IN ('PENDING', 'RUNNING')
+    OR (status = 'FAILED' AND updated_at > sqlc.arg(failed_since)))
+ORDER BY created_at;
+
+-- name: DeleteTask :exec
+DELETE
+FROM velez.tasks
+WHERE id = $1;

@@ -48,7 +48,7 @@ func (s *RunneraasService) CreateRunner(ctx context.Context, req domain.CreateRu
 		Request: runnerRequestToPb(req),
 	}
 
-	_, err = s.jobsEngine.Enqueue(ctx, req.Name, jobs.CreateRunnerAction, initialContext)
+	_, err = s.jobsEngine.EnqueueReplacing(ctx, req.Name, jobs.CreateRunnerAction, initialContext)
 	if err != nil {
 		return rerrors.Wrap(err, "error enqueuing create runner task")
 	}

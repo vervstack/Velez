@@ -171,6 +171,7 @@ message ListS3Instances {
   message Response {
     repeated S3Instance instances = 1;
     uint64 total = 2;
+    repeated ProvisioningTask provisioning = 3;
   }
 }
 

@@ -7,6 +7,7 @@ import (
 
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/jobs"
 )
 
 func (impl *Impl) CreateDind(
@@ -24,5 +25,10 @@ func (impl *Impl) CreateDind(
 		return nil, rerrors.Wrap(err, "error creating dind")
 	}
 
-	return &pb.CreateDind_Response{}, nil
+	resp := &pb.CreateDind_Response{
+		EntityId: req.GetName(),
+		Action:   jobs.CreateDindAction,
+	}
+
+	return resp, nil
 }

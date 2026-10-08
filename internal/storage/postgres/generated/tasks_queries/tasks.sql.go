@@ -8,7 +8,9 @@ package tasks_queries
 import (
 	"context"
 	"database/sql"
+	"time"
 
+	"github.com/lib/pq"
 	"github.com/sqlc-dev/pqtype"
 )
 
@@ -86,6 +88,17 @@ func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (VelezTa
 	return i, err
 }
 
+const deleteTask = `-- name: DeleteTask :exec
+DELETE
+FROM velez.tasks
+WHERE id = $1
+`
+
+func (q *Queries) DeleteTask(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteTask, id)
+	return err
+}
+
 const finishTask = `-- name: FinishTask :exec
 UPDATE velez.tasks
 SET status     = $1,
@@ -159,6 +172,65 @@ func (q *Queries) GetTaskById(ctx context.Context, id int64) (VelezTask, error) 
 		&i.EnvironmentID,
 	)
 	return i, err
+}
+
+const listProvisioningTasks = `-- name: ListProvisioningTasks :many
+SELECT id,
+       entity_id,
+       action,
+       status,
+       context,
+       error,
+       claimed_at,
+       claimed_by,
+       created_at,
+       updated_at,
+       environment_id
+FROM velez.tasks
+WHERE action = ANY ($1::text[])
+  AND (status IN ('PENDING', 'RUNNING')
+    OR (status = 'FAILED' AND updated_at > $2))
+ORDER BY created_at
+`
+
+type ListProvisioningTasksParams struct {
+	Actions     []string
+	FailedSince time.Time
+}
+
+func (q *Queries) ListProvisioningTasks(ctx context.Context, arg ListProvisioningTasksParams) ([]VelezTask, error) {
+	rows, err := q.db.QueryContext(ctx, listProvisioningTasks, pq.Array(arg.Actions), arg.FailedSince)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []VelezTask{}
+	for rows.Next() {
+		var i VelezTask
+		if err := rows.Scan(
+			&i.ID,
+			&i.EntityID,
+			&i.Action,
+			&i.Status,
+			&i.Context,
+			&i.Error,
+			&i.ClaimedAt,
+			&i.ClaimedBy,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.EnvironmentID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const updateTaskContext = `-- name: UpdateTaskContext :exec

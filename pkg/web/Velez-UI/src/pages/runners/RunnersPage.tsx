@@ -1,13 +1,16 @@
 import {useEffect, useMemo} from "react"
 
 import cls from "@/pages/runners/RunnersPage.module.css"
+import type {ProvisioningTask} from "@/app/api/velez/velez_common.pb"
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
-import {useListRunnersQuery} from "@/processes/queries/runners.ts"
+import {RUNNERS_QUERY_KEY, useListRunnersQuery} from "@/processes/queries/runners.ts"
+import {isRunnerProvisioning} from "@/processes/mappings/runnerDisplay.ts"
 import Button from "@/components/base/Button.tsx"
 import CreateServiceDialog from "@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx"
 import RunnerRow from "@/pages/runners/components/RunnerRow/RunnerRow.tsx"
 import RunnersEmptyState from "@/pages/runners/components/RunnersEmptyState/RunnersEmptyState.tsx"
+import ProvisioningRow from "@/widgets/ProvisioningRow/ProvisioningRow.tsx"
 
 const COLUMNS = ["", "", "Name", "Provider", "Scope", "Target", "Status", "Created", ""]
 
@@ -20,9 +23,14 @@ export default function RunnersPage() {
         if (runnersQuery.error) toaster.catchGrpc(runnersQuery.error)
     }, [runnersQuery.error])
 
+    const tasks = runnersQuery.data?.provisioning ?? []
     const runners = useMemo(
         () => (runnersQuery.data?.runners ?? []).sort((a, b) => (a.name ?? "").localeCompare(b.name ?? "")),
         [runnersQuery.data]
+    )
+    const visibleRunners = useMemo(
+        () => runners.filter((runner) => !isRunnerProvisioning(runner.name ?? "", tasks)),
+        [runners, runnersQuery.data]
     )
 
     function handleCreate() {
@@ -37,10 +45,21 @@ export default function RunnersPage() {
         return <RunnerRow key={runner.name} runner={runner}/>
     }
 
+    function renderProvisioningRow(task: ProvisioningTask) {
+        return (
+            <ProvisioningRow
+                key={task.taskId}
+                task={task}
+                title="Creating runner"
+                queryKey={RUNNERS_QUERY_KEY}
+            />
+        )
+    }
+
     let content: React.ReactNode
     if (runnersQuery.isLoading) {
         content = <div className={cls.loading}>Loading…</div>
-    } else if (runners.length === 0) {
+    } else if (runners.length === 0 && tasks.length === 0) {
         content = <RunnersEmptyState onCreate={handleCreate}/>
     } else {
         content = (
@@ -48,7 +67,8 @@ export default function RunnersPage() {
                 <div className={cls.tableHeader}>
                     {COLUMNS.map(renderColumnHeader)}
                 </div>
-                {runners.map(renderRow)}
+                {tasks.map(renderProvisioningRow)}
+                {visibleRunners.map(renderRow)}
             </div>
         )
     }

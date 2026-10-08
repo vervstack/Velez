@@ -3,9 +3,12 @@ package local_storage
 import (
 	"context"
 	"database/sql"
+	"slices"
+	"sort"
 	"sync"
 	"time"
 
+	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
@@ -18,6 +21,10 @@ type tasks struct {
 	mu     sync.Mutex
 	nextID int64
 	byID   map[int64]tasks_queries.VelezTask
+}
+
+func NewTasksStorage() storage.TasksStorage {
+	return newTasksStorage()
 }
 
 func newTasksStorage() *tasks {
@@ -137,6 +144,45 @@ func (t *tasks) FinishTask(_ context.Context, arg tasks_queries.FinishTaskParams
 	task.Error = arg.Error
 	task.UpdatedAt = time.Now()
 	t.byID[arg.ID] = task
+
+	return nil
+}
+
+func (t *tasks) ListProvisioningTasks(_ context.Context,
+	arg tasks_queries.ListProvisioningTasksParams,
+) ([]tasks_queries.VelezTask, error) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
+	out := make([]tasks_queries.VelezTask, 0)
+
+	for _, task := range t.byID {
+		if !slices.Contains(arg.Actions, task.Action) {
+			continue
+		}
+
+		isInFlight := task.Status == tasks_queries.VelezTaskStatusPENDING ||
+			task.Status == tasks_queries.VelezTaskStatusRUNNING
+		isRecentlyFailed := task.Status == tasks_queries.VelezTaskStatusFAILED &&
+			task.UpdatedAt.After(arg.FailedSince)
+
+		if isInFlight || isRecentlyFailed {
+			out = append(out, task)
+		}
+	}
+
+	sort.Slice(out, func(i, j int) bool {
+		return out[i].CreatedAt.Before(out[j].CreatedAt)
+	})
+
+	return out, nil
+}
+
+func (t *tasks) DeleteTask(_ context.Context, id int64) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
+	delete(t.byID, id)
 
 	return nil
 }

@@ -3,6 +3,7 @@ package control_plane_api_impl
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -42,6 +43,20 @@ func (f *fakeJobsEngine) Watch(_ context.Context, _, _ string) <-chan tasks_quer
 
 func (f *fakeJobsEngine) ListJobs(_ context.Context, _ tasks_queries.VelezTask) ([]jobs.JobStatus, error) {
 	return nil, nil
+}
+
+func (f *fakeJobsEngine) EnqueueReplacing(_ context.Context, _, _ string, _ any) (tasks_queries.VelezTask, error) {
+	return tasks_queries.VelezTask{}, nil
+}
+
+func (f *fakeJobsEngine) ListProvisioning(
+	_ context.Context, _ []string, _ time.Time,
+) ([]jobs.ProvisioningEntry, error) {
+	return nil, nil
+}
+
+func (f *fakeJobsEngine) DismissFailed(_ context.Context, _, _ string) error {
+	return nil
 }
 
 func (f *fakeJobsEngine) SetRegistry(_ *jobs.Registry) {}

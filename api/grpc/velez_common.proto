@@ -257,3 +257,30 @@ enum NodeStatus {
   NodeStatus_Offline = 2;
   NodeStatus_Degraded = 3;
 }
+
+// ProvisioningTask is an in-flight or recently failed create task of an AsAService
+// instance. List*Instances responses carry these so the UI can show provisioning
+// progress that survives a reload. Active until its task is DONE; FAILED ones stay
+// until dismissed or 5 minutes old.
+message ProvisioningTask {
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    PENDING = 1;
+    RUNNING = 2;
+    DONE = 3;
+    FAILED = 4;
+  }
+
+  message Job {
+    string name = 1;
+    Status status = 2;
+  }
+
+  int64 task_id = 1;
+  string entity_id = 2;
+  string action = 3;
+  Status status = 4;
+  optional string error = 5;
+  google.protobuf.Timestamp updated_at = 6;
+  repeated Job jobs = 7;
+}

@@ -110,6 +110,16 @@ func (f *fakeTasksStorage) GetTaskById(_ context.Context, id int64) (tasks_queri
 	return t, nil
 }
 
+func (f *fakeTasksStorage) ListProvisioningTasks(
+	_ context.Context, _ tasks_queries.ListProvisioningTasksParams,
+) ([]tasks_queries.VelezTask, error) {
+	return nil, nil
+}
+
+func (f *fakeTasksStorage) DeleteTask(_ context.Context, _ int64) error {
+	return nil
+}
+
 func (f *fakeTasksStorage) ClaimTask(
 	_ context.Context, arg tasks_queries.ClaimTaskParams,
 ) (tasks_queries.VelezTask, error) {
@@ -229,6 +239,10 @@ func (f *fakeJobsStorage) CreateRunningJob(
 	f.rows[key] = row
 
 	return row, nil
+}
+
+func (f *fakeJobsStorage) DeleteJobsByTask(_ context.Context, _ int64) error {
+	return nil
 }
 
 func (f *fakeJobsStorage) FinishJob(_ context.Context, arg jobs_queries.FinishJobParams) error {

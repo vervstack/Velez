@@ -9,22 +9,10 @@
 package pgaas
 
 import (
+	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/secrets"
 	"go.vervstack.ru/Velez/internal/storage"
-)
-
-const (
-	// pgResourceType is the velez.service_resources.resource_type stamped
-	// onto the (owner, instance) binding CreatePgInstance records when an
-	// owner service is given.
-	pgResourceType = "postgres"
-
-	// pgDefaultPort is the port a PG instance's container listens on
-	// internally - fixed by the builtin postgres descriptor
-	// (builtin/postgres/deployment.yaml), independent of whatever host port
-	// ExposeToPort publishes it on.
-	pgDefaultPort = 5432
 )
 
 // PgaasService implements service.PostgresService.
@@ -33,24 +21,19 @@ type PgaasService struct {
 
 	vervServices service.VervServicesService
 	secrets      secrets.Store
+	jobsEngine   jobs.Engine
 }
 
-// New builds a PgaasService. dataStorage, vervServices and secretsStore are
-// interfaces, never concrete types - dataStorage is resolved per call
-// (mirroring verv_services.VervService's boxes()/environments()) so a
-// runtime storage backend swap is picked up immediately.
 func New(
-	dataStorage storage.Storage, vervServices service.VervServicesService, secretsStore secrets.Store,
+	dataStorage storage.Storage,
+	vervServices service.VervServicesService,
+	secretsStore secrets.Store,
+	jobsEngine jobs.Engine,
 ) *PgaasService {
 	return &PgaasService{
 		dataStorage:  dataStorage,
 		vervServices: vervServices,
 		secrets:      secretsStore,
+		jobsEngine:   jobsEngine,
 	}
-}
-
-// boxes mirrors verv_services.VervService.boxes() - resolved per call so a
-// runtime storage swap is picked up immediately.
-func (s *PgaasService) boxes() storage.ResourceBoxesStorage {
-	return s.dataStorage.ResourceBoxes()
 }

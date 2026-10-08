@@ -36,7 +36,7 @@ func (s *Service) CreateInstance(ctx context.Context, req *velez_api.CreateS3Ins
 		Request: req,
 	}
 
-	_, err = s.jobsEngine.Enqueue(ctx, req.GetName(), jobs.CreateS3InstanceAction, initialContext)
+	_, err = s.jobsEngine.EnqueueReplacing(ctx, req.GetName(), jobs.CreateS3InstanceAction, initialContext)
 	if err != nil {
 		return rerrors.Wrap(err, "error enqueuing create s3 instance task")
 	}

@@ -1,6 +1,7 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query"
 
 import {registryaasService} from "@/processes/api/registryaas"
+import {provisioningRefetchInterval} from "@/processes/mappings/provisioning.ts"
 import {CreateRegistryInstanceRequest} from "@/app/api/velez"
 
 export const REGISTRY_INSTANCES_QUERY_KEY = ["registry-instances"]
@@ -10,6 +11,7 @@ export function useListRegistryInstancesQuery() {
     return useQuery({
         queryKey: REGISTRY_INSTANCES_QUERY_KEY,
         queryFn: () => registryaasService.listRegistryInstances(LIST_REQ),
+        refetchInterval: (query) => provisioningRefetchInterval(query.state.data?.provisioning),
     })
 }
 

@@ -1,6 +1,7 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query"
 
 import {runnersService} from "@/processes/api/runners"
+import {provisioningRefetchInterval} from "@/processes/mappings/provisioning.ts"
 import {CreateRunnerRequest, UpdateRunnerConfigRequest} from "@/app/api/velez"
 
 export const RUNNERS_QUERY_KEY = ["runners"]
@@ -10,6 +11,7 @@ export function useListRunnersQuery() {
     return useQuery({
         queryKey: RUNNERS_QUERY_KEY,
         queryFn: () => runnersService.listRunners(LIST_REQ),
+        refetchInterval: (query) => provisioningRefetchInterval(query.state.data?.provisioning),
     })
 }
 

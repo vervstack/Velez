@@ -382,6 +382,7 @@ type ListPgInstances_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Instances     []*PgInstance          `protobuf:"bytes,1,rep,name=instances,proto3" json:"instances,omitempty"`
 	Total         uint64                 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	Provisioning  []*ProvisioningTask    `protobuf:"bytes,3,rep,name=provisioning,proto3" json:"provisioning,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -428,6 +429,13 @@ func (x *ListPgInstances_Response) GetTotal() uint64 {
 		return x.Total
 	}
 	return 0
+}
+
+func (x *ListPgInstances_Response) GetProvisioning() []*ProvisioningTask {
+	if x != nil {
+		return x.Provisioning
+	}
+	return nil
 }
 
 type CreatePgInstance_Request struct {
@@ -510,8 +518,14 @@ func (x *CreatePgInstance_Request) GetOwnerService() string {
 }
 
 type CreatePgInstance_Response struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Instance      *PgInstance            `protobuf:"bytes,1,opt,name=instance,proto3" json:"instance,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// instance is never populated - the RPC enqueues the
+	// create_pg_instance task and returns before it completes.
+	// Callers watch entity_id/action via TasksApi.WatchTask and refetch
+	// ListPgInstances once the task reaches DONE.
+	Instance      *PgInstance `protobuf:"bytes,1,opt,name=instance,proto3" json:"instance,omitempty"`
+	EntityId      string      `protobuf:"bytes,2,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
+	Action        string      `protobuf:"bytes,3,opt,name=action,proto3" json:"action,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -551,6 +565,20 @@ func (x *CreatePgInstance_Response) GetInstance() *PgInstance {
 		return x.Instance
 	}
 	return nil
+}
+
+func (x *CreatePgInstance_Response) GetEntityId() string {
+	if x != nil {
+		return x.EntityId
+	}
+	return ""
+}
+
+func (x *CreatePgInstance_Response) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
 }
 
 type DropPgInstance_Request struct {
@@ -763,13 +791,14 @@ const file_pgaas_api_proto_rawDesc = "" +
 	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
 	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB\x10\n" +
-	"\x0e_owner_service\"\x9e\x01\n" +
+	"\x0e_owner_service\"\xe0\x01\n" +
 	"\x0fListPgInstances\x1a4\n" +
 	"\aRequest\x12)\n" +
-	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x1aU\n" +
+	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x1a\x96\x01\n" +
 	"\bResponse\x123\n" +
 	"\tinstances\x18\x01 \x03(\v2\x15.velez_api.PgInstanceR\tinstances\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x04R\x05total\"\xc1\x02\n" +
+	"\x05total\x18\x02 \x01(\x04R\x05total\x12?\n" +
+	"\fprovisioning\x18\x03 \x03(\v2\x1b.velez_api.ProvisioningTaskR\fprovisioning\"\xf6\x02\n" +
 	"\x10CreatePgInstance\x1a\xed\x01\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12%\n" +
@@ -780,9 +809,11 @@ const file_pgaas_api_proto_rawDesc = "" +
 	"\f_environmentB\x06\n" +
 	"\x04_boxB\x11\n" +
 	"\x0f_expose_to_portB\x10\n" +
-	"\x0e_owner_service\x1a=\n" +
+	"\x0e_owner_service\x1ar\n" +
 	"\bResponse\x121\n" +
-	"\binstance\x18\x01 \x01(\v2\x15.velez_api.PgInstanceR\binstance\";\n" +
+	"\binstance\x18\x01 \x01(\v2\x15.velez_api.PgInstanceR\binstance\x12\x1b\n" +
+	"\tentity_id\x18\x02 \x01(\tR\bentityId\x12\x16\n" +
+	"\x06action\x18\x03 \x01(\tR\x06action\";\n" +
 	"\x0eDropPgInstance\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x1a\n" +
@@ -837,26 +868,28 @@ var file_pgaas_api_proto_goTypes = []any{
 	(*GetPgInstanceCredentials_Response)(nil), // 13: velez_api.GetPgInstanceCredentials.Response
 	(*timestamppb.Timestamp)(nil),             // 14: google.protobuf.Timestamp
 	(*Paging)(nil),                            // 15: velez_api.Paging
+	(*ProvisioningTask)(nil),                  // 16: velez_api.ProvisioningTask
 }
 var file_pgaas_api_proto_depIdxs = []int32{
 	14, // 0: velez_api.PgInstance.created_at:type_name -> google.protobuf.Timestamp
 	14, // 1: velez_api.PgInstance.updated_at:type_name -> google.protobuf.Timestamp
 	15, // 2: velez_api.ListPgInstances.Request.paging:type_name -> velez_api.Paging
 	1,  // 3: velez_api.ListPgInstances.Response.instances:type_name -> velez_api.PgInstance
-	1,  // 4: velez_api.CreatePgInstance.Response.instance:type_name -> velez_api.PgInstance
-	6,  // 5: velez_api.PostgresAPI.ListPgInstances:input_type -> velez_api.ListPgInstances.Request
-	8,  // 6: velez_api.PostgresAPI.CreatePgInstance:input_type -> velez_api.CreatePgInstance.Request
-	10, // 7: velez_api.PostgresAPI.DropPgInstance:input_type -> velez_api.DropPgInstance.Request
-	12, // 8: velez_api.PostgresAPI.GetPgInstanceCredentials:input_type -> velez_api.GetPgInstanceCredentials.Request
-	7,  // 9: velez_api.PostgresAPI.ListPgInstances:output_type -> velez_api.ListPgInstances.Response
-	9,  // 10: velez_api.PostgresAPI.CreatePgInstance:output_type -> velez_api.CreatePgInstance.Response
-	11, // 11: velez_api.PostgresAPI.DropPgInstance:output_type -> velez_api.DropPgInstance.Response
-	13, // 12: velez_api.PostgresAPI.GetPgInstanceCredentials:output_type -> velez_api.GetPgInstanceCredentials.Response
-	9,  // [9:13] is the sub-list for method output_type
-	5,  // [5:9] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	16, // 4: velez_api.ListPgInstances.Response.provisioning:type_name -> velez_api.ProvisioningTask
+	1,  // 5: velez_api.CreatePgInstance.Response.instance:type_name -> velez_api.PgInstance
+	6,  // 6: velez_api.PostgresAPI.ListPgInstances:input_type -> velez_api.ListPgInstances.Request
+	8,  // 7: velez_api.PostgresAPI.CreatePgInstance:input_type -> velez_api.CreatePgInstance.Request
+	10, // 8: velez_api.PostgresAPI.DropPgInstance:input_type -> velez_api.DropPgInstance.Request
+	12, // 9: velez_api.PostgresAPI.GetPgInstanceCredentials:input_type -> velez_api.GetPgInstanceCredentials.Request
+	7,  // 10: velez_api.PostgresAPI.ListPgInstances:output_type -> velez_api.ListPgInstances.Response
+	9,  // 11: velez_api.PostgresAPI.CreatePgInstance:output_type -> velez_api.CreatePgInstance.Response
+	11, // 12: velez_api.PostgresAPI.DropPgInstance:output_type -> velez_api.DropPgInstance.Response
+	13, // 13: velez_api.PostgresAPI.GetPgInstanceCredentials:output_type -> velez_api.GetPgInstanceCredentials.Response
+	10, // [10:14] is the sub-list for method output_type
+	6,  // [6:10] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_pgaas_api_proto_init() }

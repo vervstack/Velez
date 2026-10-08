@@ -6,6 +6,7 @@ import (
 	"go.redsock.ru/rerrors"
 
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/transport/common"
 )
 
@@ -25,9 +26,16 @@ func (impl *Impl) ListS3Instances(
 		out = append(out, s3InstanceToPb(instance))
 	}
 
+	tasks, err := impl.provisioning.List(ctx, jobs.CreateS3InstanceAction)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error listing provisioning tasks")
+	}
+
 	resp := &pb.ListS3Instances_Response{
 		Instances: out,
 		Total:     total,
+
+		Provisioning: common.ProvisioningTasksToPb(tasks),
 	}
 
 	return resp, nil

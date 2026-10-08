@@ -872,6 +872,7 @@ type ListRunners_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Runners       []*Runner              `protobuf:"bytes,1,rep,name=runners,proto3" json:"runners,omitempty"`
 	Total         uint64                 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	Provisioning  []*ProvisioningTask    `protobuf:"bytes,3,rep,name=provisioning,proto3" json:"provisioning,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -918,6 +919,13 @@ func (x *ListRunners_Response) GetTotal() uint64 {
 		return x.Total
 	}
 	return 0
+}
+
+func (x *ListRunners_Response) GetProvisioning() []*ProvisioningTask {
+	if x != nil {
+		return x.Provisioning
+	}
+	return nil
 }
 
 type CreateRunner_Request struct {
@@ -1865,13 +1873,14 @@ const file_runners_api_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\x92\x01\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\xd4\x01\n" +
 	"\vListRunners\x1a4\n" +
 	"\aRequest\x12)\n" +
-	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x1aM\n" +
+	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x1a\x8e\x01\n" +
 	"\bResponse\x12+\n" +
 	"\arunners\x18\x01 \x03(\v2\x11.velez_api.RunnerR\arunners\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x04R\x05total\"\xab\x04\n" +
+	"\x05total\x18\x02 \x01(\x04R\x05total\x12?\n" +
+	"\fprovisioning\x18\x03 \x03(\v2\x1b.velez_api.ProvisioningTaskR\fprovisioning\"\xab\x04\n" +
 	"\fCreateRunner\x1a\xae\x03\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12,\n" +
@@ -2058,6 +2067,7 @@ var file_runners_api_proto_goTypes = []any{
 	(*GetRunnerCredentials_Response)(nil), // 31: velez_api.GetRunnerCredentials.Response
 	(*timestamppb.Timestamp)(nil),         // 32: google.protobuf.Timestamp
 	(*Paging)(nil),                        // 33: velez_api.Paging
+	(*ProvisioningTask)(nil),              // 34: velez_api.ProvisioningTask
 }
 var file_runners_api_proto_depIdxs = []int32{
 	2,  // 0: velez_api.RunnerPullPolicies.values:type_name -> velez_api.RunnerPullPolicy
@@ -2067,38 +2077,39 @@ var file_runners_api_proto_depIdxs = []int32{
 	32, // 4: velez_api.Runner.updated_at:type_name -> google.protobuf.Timestamp
 	33, // 5: velez_api.ListRunners.Request.paging:type_name -> velez_api.Paging
 	5,  // 6: velez_api.ListRunners.Response.runners:type_name -> velez_api.Runner
-	1,  // 7: velez_api.CreateRunner.Request.scope:type_name -> velez_api.RunnerScope
-	8,  // 8: velez_api.CreateRunner.Request.github:type_name -> velez_api.GithubConfig
-	9,  // 9: velez_api.CreateRunner.Request.gitlab:type_name -> velez_api.GitlabConfig
-	5,  // 10: velez_api.CreateRunner.Response.runner:type_name -> velez_api.Runner
-	2,  // 11: velez_api.GetRunnerConfig.Response.pull_policy:type_name -> velez_api.RunnerPullPolicy
-	2,  // 12: velez_api.GetRunnerConfig.Response.allowed_pull_policies:type_name -> velez_api.RunnerPullPolicy
-	3,  // 13: velez_api.GetRunnerConfig.Response.log_level:type_name -> velez_api.RunnerLogLevel
-	4,  // 14: velez_api.UpdateRunnerConfig.Request.pull_policy:type_name -> velez_api.RunnerPullPolicies
-	4,  // 15: velez_api.UpdateRunnerConfig.Request.allowed_pull_policies:type_name -> velez_api.RunnerPullPolicies
-	3,  // 16: velez_api.UpdateRunnerConfig.Request.log_level:type_name -> velez_api.RunnerLogLevel
-	0,  // 17: velez_api.GetRunnerCredentials.Response.provider:type_name -> velez_api.RunnerProvider
-	16, // 18: velez_api.RunnersAPI.ListRunners:input_type -> velez_api.ListRunners.Request
-	18, // 19: velez_api.RunnersAPI.CreateRunner:input_type -> velez_api.CreateRunner.Request
-	26, // 20: velez_api.RunnersAPI.DropRunner:input_type -> velez_api.DropRunner.Request
-	28, // 21: velez_api.RunnersAPI.ReregisterRunner:input_type -> velez_api.ReregisterRunner.Request
-	30, // 22: velez_api.RunnersAPI.GetRunnerCredentials:input_type -> velez_api.GetRunnerCredentials.Request
-	20, // 23: velez_api.RunnersAPI.GetRunnerConfig:input_type -> velez_api.GetRunnerConfig.Request
-	22, // 24: velez_api.RunnersAPI.UpdateRunnerConfig:input_type -> velez_api.UpdateRunnerConfig.Request
-	24, // 25: velez_api.RunnersAPI.RedeployRunner:input_type -> velez_api.RedeployRunner.Request
-	17, // 26: velez_api.RunnersAPI.ListRunners:output_type -> velez_api.ListRunners.Response
-	19, // 27: velez_api.RunnersAPI.CreateRunner:output_type -> velez_api.CreateRunner.Response
-	27, // 28: velez_api.RunnersAPI.DropRunner:output_type -> velez_api.DropRunner.Response
-	29, // 29: velez_api.RunnersAPI.ReregisterRunner:output_type -> velez_api.ReregisterRunner.Response
-	31, // 30: velez_api.RunnersAPI.GetRunnerCredentials:output_type -> velez_api.GetRunnerCredentials.Response
-	21, // 31: velez_api.RunnersAPI.GetRunnerConfig:output_type -> velez_api.GetRunnerConfig.Response
-	23, // 32: velez_api.RunnersAPI.UpdateRunnerConfig:output_type -> velez_api.UpdateRunnerConfig.Response
-	25, // 33: velez_api.RunnersAPI.RedeployRunner:output_type -> velez_api.RedeployRunner.Response
-	26, // [26:34] is the sub-list for method output_type
-	18, // [18:26] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	34, // 7: velez_api.ListRunners.Response.provisioning:type_name -> velez_api.ProvisioningTask
+	1,  // 8: velez_api.CreateRunner.Request.scope:type_name -> velez_api.RunnerScope
+	8,  // 9: velez_api.CreateRunner.Request.github:type_name -> velez_api.GithubConfig
+	9,  // 10: velez_api.CreateRunner.Request.gitlab:type_name -> velez_api.GitlabConfig
+	5,  // 11: velez_api.CreateRunner.Response.runner:type_name -> velez_api.Runner
+	2,  // 12: velez_api.GetRunnerConfig.Response.pull_policy:type_name -> velez_api.RunnerPullPolicy
+	2,  // 13: velez_api.GetRunnerConfig.Response.allowed_pull_policies:type_name -> velez_api.RunnerPullPolicy
+	3,  // 14: velez_api.GetRunnerConfig.Response.log_level:type_name -> velez_api.RunnerLogLevel
+	4,  // 15: velez_api.UpdateRunnerConfig.Request.pull_policy:type_name -> velez_api.RunnerPullPolicies
+	4,  // 16: velez_api.UpdateRunnerConfig.Request.allowed_pull_policies:type_name -> velez_api.RunnerPullPolicies
+	3,  // 17: velez_api.UpdateRunnerConfig.Request.log_level:type_name -> velez_api.RunnerLogLevel
+	0,  // 18: velez_api.GetRunnerCredentials.Response.provider:type_name -> velez_api.RunnerProvider
+	16, // 19: velez_api.RunnersAPI.ListRunners:input_type -> velez_api.ListRunners.Request
+	18, // 20: velez_api.RunnersAPI.CreateRunner:input_type -> velez_api.CreateRunner.Request
+	26, // 21: velez_api.RunnersAPI.DropRunner:input_type -> velez_api.DropRunner.Request
+	28, // 22: velez_api.RunnersAPI.ReregisterRunner:input_type -> velez_api.ReregisterRunner.Request
+	30, // 23: velez_api.RunnersAPI.GetRunnerCredentials:input_type -> velez_api.GetRunnerCredentials.Request
+	20, // 24: velez_api.RunnersAPI.GetRunnerConfig:input_type -> velez_api.GetRunnerConfig.Request
+	22, // 25: velez_api.RunnersAPI.UpdateRunnerConfig:input_type -> velez_api.UpdateRunnerConfig.Request
+	24, // 26: velez_api.RunnersAPI.RedeployRunner:input_type -> velez_api.RedeployRunner.Request
+	17, // 27: velez_api.RunnersAPI.ListRunners:output_type -> velez_api.ListRunners.Response
+	19, // 28: velez_api.RunnersAPI.CreateRunner:output_type -> velez_api.CreateRunner.Response
+	27, // 29: velez_api.RunnersAPI.DropRunner:output_type -> velez_api.DropRunner.Response
+	29, // 30: velez_api.RunnersAPI.ReregisterRunner:output_type -> velez_api.ReregisterRunner.Response
+	31, // 31: velez_api.RunnersAPI.GetRunnerCredentials:output_type -> velez_api.GetRunnerCredentials.Response
+	21, // 32: velez_api.RunnersAPI.GetRunnerConfig:output_type -> velez_api.GetRunnerConfig.Response
+	23, // 33: velez_api.RunnersAPI.UpdateRunnerConfig:output_type -> velez_api.UpdateRunnerConfig.Response
+	25, // 34: velez_api.RunnersAPI.RedeployRunner:output_type -> velez_api.RedeployRunner.Response
+	27, // [27:35] is the sub-list for method output_type
+	19, // [19:27] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_runners_api_proto_init() }

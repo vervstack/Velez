@@ -65,23 +65,19 @@ func (s *PgaasLifecycleSuite) Test_PgaasLifecycle_HappyPath() {
 		Name: pgaasLifecycleInstanceName,
 	}
 
-	_, err := env.Custom.PgaasApiImpl.CreatePgInstance(ctx, createReq)
+	createResp, err := env.Custom.PgaasApiImpl.CreatePgInstance(ctx, createReq)
 	require.NoError(t, err)
+	require.Equal(t, pgaasLifecycleInstanceName, createResp.GetEntityId())
+	require.Equal(t, jobs.CreatePgInstanceAction, createResp.GetAction())
 
-	// CreatePgInstance only writes a SCHEDULED_DEPLOYMENT row; the deploy
-	// watcher dispatches the create_smerd task that actually launches the
-	// container (see enableRegistryUnderDind's doc comment). Environment is
-	// empty (the create dialog's default), so SmerdEntityID is the prefixed name.
-	entityID := jobs.SmerdEntityID("", pgaasLifecycleServiceName)
+	var createTask tasks_queries.VelezTask
 
-	var deployTask tasks_queries.VelezTask
-
-	for task := range env.Custom.JobsEngine.Watch(ctx, entityID, jobs.CreateSmerdAction) {
-		deployTask = task
+	for task := range env.Custom.JobsEngine.Watch(ctx, createResp.GetEntityId(), createResp.GetAction()) {
+		createTask = task
 	}
 
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, deployTask.Status,
-		"create_smerd task for pg instance error: %s", deployTask.Error.String)
+	require.Equal(t, tasks_queries.VelezTaskStatusDONE, createTask.Status,
+		"create_pg_instance task error: %s", createTask.Error.String)
 
 	instance := findPgInstance(t, env, pgaasLifecycleServiceName)
 	require.NotNil(t, instance, "expected pg instance %q in ListPgInstances", pgaasLifecycleServiceName)

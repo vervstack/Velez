@@ -7,6 +7,7 @@ import (
 
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/jobs"
 )
 
 func (impl *Impl) CreatePgInstance(
@@ -26,13 +27,14 @@ func (impl *Impl) CreatePgInstance(
 		Isolation: pb.PgInstanceIsolation_PG_INSTANCE_ISOLATION_SEPARATE_INSTANCE,
 	}
 
-	instance, err := impl.postgresService.CreatePgInstance(ctx, serviceReq)
+	err := impl.postgresService.CreatePgInstance(ctx, serviceReq)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error creating pg instance")
 	}
 
 	resp := &pb.CreatePgInstance_Response{
-		Instance: pgInstanceToPb(instance),
+		EntityId: req.GetName(),
+		Action:   jobs.CreatePgInstanceAction,
 	}
 
 	return resp, nil

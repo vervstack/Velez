@@ -1007,6 +1007,7 @@ type ListS3Instances_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Instances     []*S3Instance          `protobuf:"bytes,1,rep,name=instances,proto3" json:"instances,omitempty"`
 	Total         uint64                 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	Provisioning  []*ProvisioningTask    `protobuf:"bytes,3,rep,name=provisioning,proto3" json:"provisioning,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1053,6 +1054,13 @@ func (x *ListS3Instances_Response) GetTotal() uint64 {
 		return x.Total
 	}
 	return 0
+}
+
+func (x *ListS3Instances_Response) GetProvisioning() []*ProvisioningTask {
+	if x != nil {
+		return x.Provisioning
+	}
+	return nil
 }
 
 type DropS3Instance_Request struct {
@@ -2127,13 +2135,14 @@ const file_s3_api_proto_rawDesc = "" +
 	"\a_region\x1a?\n" +
 	"\bResponse\x12\x1b\n" +
 	"\tentity_id\x18\x01 \x01(\tR\bentityId\x12\x16\n" +
-	"\x06action\x18\x02 \x01(\tR\x06action\"\x9e\x01\n" +
+	"\x06action\x18\x02 \x01(\tR\x06action\"\xe0\x01\n" +
 	"\x0fListS3Instances\x1a4\n" +
 	"\aRequest\x12)\n" +
-	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x1aU\n" +
+	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x1a\x96\x01\n" +
 	"\bResponse\x123\n" +
 	"\tinstances\x18\x01 \x03(\v2\x15.velez_api.S3InstanceR\tinstances\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x04R\x05total\";\n" +
+	"\x05total\x18\x02 \x01(\x04R\x05total\x12?\n" +
+	"\fprovisioning\x18\x03 \x03(\v2\x1b.velez_api.ProvisioningTaskR\fprovisioning\";\n" +
 	"\x0eDropS3Instance\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x1a\n" +
@@ -2285,6 +2294,7 @@ var file_s3_api_proto_goTypes = []any{
 	(*GetS3KeyCredentials_Response)(nil),      // 39: velez_api.GetS3KeyCredentials.Response
 	(*timestamppb.Timestamp)(nil),             // 40: google.protobuf.Timestamp
 	(*Paging)(nil),                            // 41: velez_api.Paging
+	(*ProvisioningTask)(nil),                  // 42: velez_api.ProvisioningTask
 }
 var file_s3_api_proto_depIdxs = []int32{
 	40, // 0: velez_api.S3Instance.created_at:type_name -> google.protobuf.Timestamp
@@ -2294,41 +2304,42 @@ var file_s3_api_proto_depIdxs = []int32{
 	40, // 4: velez_api.S3Key.created_at:type_name -> google.protobuf.Timestamp
 	41, // 5: velez_api.ListS3Instances.Request.paging:type_name -> velez_api.Paging
 	0,  // 6: velez_api.ListS3Instances.Response.instances:type_name -> velez_api.S3Instance
-	2,  // 7: velez_api.ListS3Buckets.Response.buckets:type_name -> velez_api.S3Bucket
-	2,  // 8: velez_api.CreateS3Bucket.Response.bucket:type_name -> velez_api.S3Bucket
-	1,  // 9: velez_api.SetS3BucketAccess.Request.access:type_name -> velez_api.S3BucketAccess
-	2,  // 10: velez_api.SetS3BucketAccess.Response.bucket:type_name -> velez_api.S3Bucket
-	3,  // 11: velez_api.ListS3Keys.Response.keys:type_name -> velez_api.S3Key
-	1,  // 12: velez_api.CreateS3Key.Request.access:type_name -> velez_api.S3BucketAccess
-	16, // 13: velez_api.S3API.CreateS3Instance:input_type -> velez_api.CreateS3Instance.Request
-	18, // 14: velez_api.S3API.ListS3Instances:input_type -> velez_api.ListS3Instances.Request
-	20, // 15: velez_api.S3API.DropS3Instance:input_type -> velez_api.DropS3Instance.Request
-	22, // 16: velez_api.S3API.GetS3InstanceCredentials:input_type -> velez_api.GetS3InstanceCredentials.Request
-	24, // 17: velez_api.S3API.ListS3Buckets:input_type -> velez_api.ListS3Buckets.Request
-	26, // 18: velez_api.S3API.CreateS3Bucket:input_type -> velez_api.CreateS3Bucket.Request
-	28, // 19: velez_api.S3API.DeleteS3Bucket:input_type -> velez_api.DeleteS3Bucket.Request
-	30, // 20: velez_api.S3API.SetS3BucketAccess:input_type -> velez_api.SetS3BucketAccess.Request
-	32, // 21: velez_api.S3API.ListS3Keys:input_type -> velez_api.ListS3Keys.Request
-	34, // 22: velez_api.S3API.CreateS3Key:input_type -> velez_api.CreateS3Key.Request
-	36, // 23: velez_api.S3API.DeleteS3Key:input_type -> velez_api.DeleteS3Key.Request
-	38, // 24: velez_api.S3API.GetS3KeyCredentials:input_type -> velez_api.GetS3KeyCredentials.Request
-	17, // 25: velez_api.S3API.CreateS3Instance:output_type -> velez_api.CreateS3Instance.Response
-	19, // 26: velez_api.S3API.ListS3Instances:output_type -> velez_api.ListS3Instances.Response
-	21, // 27: velez_api.S3API.DropS3Instance:output_type -> velez_api.DropS3Instance.Response
-	23, // 28: velez_api.S3API.GetS3InstanceCredentials:output_type -> velez_api.GetS3InstanceCredentials.Response
-	25, // 29: velez_api.S3API.ListS3Buckets:output_type -> velez_api.ListS3Buckets.Response
-	27, // 30: velez_api.S3API.CreateS3Bucket:output_type -> velez_api.CreateS3Bucket.Response
-	29, // 31: velez_api.S3API.DeleteS3Bucket:output_type -> velez_api.DeleteS3Bucket.Response
-	31, // 32: velez_api.S3API.SetS3BucketAccess:output_type -> velez_api.SetS3BucketAccess.Response
-	33, // 33: velez_api.S3API.ListS3Keys:output_type -> velez_api.ListS3Keys.Response
-	35, // 34: velez_api.S3API.CreateS3Key:output_type -> velez_api.CreateS3Key.Response
-	37, // 35: velez_api.S3API.DeleteS3Key:output_type -> velez_api.DeleteS3Key.Response
-	39, // 36: velez_api.S3API.GetS3KeyCredentials:output_type -> velez_api.GetS3KeyCredentials.Response
-	25, // [25:37] is the sub-list for method output_type
-	13, // [13:25] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	42, // 7: velez_api.ListS3Instances.Response.provisioning:type_name -> velez_api.ProvisioningTask
+	2,  // 8: velez_api.ListS3Buckets.Response.buckets:type_name -> velez_api.S3Bucket
+	2,  // 9: velez_api.CreateS3Bucket.Response.bucket:type_name -> velez_api.S3Bucket
+	1,  // 10: velez_api.SetS3BucketAccess.Request.access:type_name -> velez_api.S3BucketAccess
+	2,  // 11: velez_api.SetS3BucketAccess.Response.bucket:type_name -> velez_api.S3Bucket
+	3,  // 12: velez_api.ListS3Keys.Response.keys:type_name -> velez_api.S3Key
+	1,  // 13: velez_api.CreateS3Key.Request.access:type_name -> velez_api.S3BucketAccess
+	16, // 14: velez_api.S3API.CreateS3Instance:input_type -> velez_api.CreateS3Instance.Request
+	18, // 15: velez_api.S3API.ListS3Instances:input_type -> velez_api.ListS3Instances.Request
+	20, // 16: velez_api.S3API.DropS3Instance:input_type -> velez_api.DropS3Instance.Request
+	22, // 17: velez_api.S3API.GetS3InstanceCredentials:input_type -> velez_api.GetS3InstanceCredentials.Request
+	24, // 18: velez_api.S3API.ListS3Buckets:input_type -> velez_api.ListS3Buckets.Request
+	26, // 19: velez_api.S3API.CreateS3Bucket:input_type -> velez_api.CreateS3Bucket.Request
+	28, // 20: velez_api.S3API.DeleteS3Bucket:input_type -> velez_api.DeleteS3Bucket.Request
+	30, // 21: velez_api.S3API.SetS3BucketAccess:input_type -> velez_api.SetS3BucketAccess.Request
+	32, // 22: velez_api.S3API.ListS3Keys:input_type -> velez_api.ListS3Keys.Request
+	34, // 23: velez_api.S3API.CreateS3Key:input_type -> velez_api.CreateS3Key.Request
+	36, // 24: velez_api.S3API.DeleteS3Key:input_type -> velez_api.DeleteS3Key.Request
+	38, // 25: velez_api.S3API.GetS3KeyCredentials:input_type -> velez_api.GetS3KeyCredentials.Request
+	17, // 26: velez_api.S3API.CreateS3Instance:output_type -> velez_api.CreateS3Instance.Response
+	19, // 27: velez_api.S3API.ListS3Instances:output_type -> velez_api.ListS3Instances.Response
+	21, // 28: velez_api.S3API.DropS3Instance:output_type -> velez_api.DropS3Instance.Response
+	23, // 29: velez_api.S3API.GetS3InstanceCredentials:output_type -> velez_api.GetS3InstanceCredentials.Response
+	25, // 30: velez_api.S3API.ListS3Buckets:output_type -> velez_api.ListS3Buckets.Response
+	27, // 31: velez_api.S3API.CreateS3Bucket:output_type -> velez_api.CreateS3Bucket.Response
+	29, // 32: velez_api.S3API.DeleteS3Bucket:output_type -> velez_api.DeleteS3Bucket.Response
+	31, // 33: velez_api.S3API.SetS3BucketAccess:output_type -> velez_api.SetS3BucketAccess.Response
+	33, // 34: velez_api.S3API.ListS3Keys:output_type -> velez_api.ListS3Keys.Response
+	35, // 35: velez_api.S3API.CreateS3Key:output_type -> velez_api.CreateS3Key.Response
+	37, // 36: velez_api.S3API.DeleteS3Key:output_type -> velez_api.DeleteS3Key.Response
+	39, // 37: velez_api.S3API.GetS3KeyCredentials:output_type -> velez_api.GetS3KeyCredentials.Response
+	26, // [26:38] is the sub-list for method output_type
+	14, // [14:26] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_s3_api_proto_init() }

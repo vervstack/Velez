@@ -8,6 +8,8 @@ import (
 
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/jobs"
+	"go.vervstack.ru/Velez/internal/transport/common"
 )
 
 func (impl *Impl) ListDinds(
@@ -24,8 +26,15 @@ func (impl *Impl) ListDinds(
 		out = append(out, dindToPb(view))
 	}
 
+	tasks, err := impl.provisioning.List(ctx, jobs.CreateDindAction)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error listing provisioning tasks")
+	}
+
 	resp := &pb.ListDinds_Response{
 		Dinds: out,
+
+		Provisioning: common.ProvisioningTasksToPb(tasks),
 	}
 
 	return resp, nil

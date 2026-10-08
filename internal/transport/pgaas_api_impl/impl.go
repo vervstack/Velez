@@ -19,6 +19,7 @@ type Impl struct {
 	velez_api.UnimplementedPostgresAPIServer
 
 	postgresService service.PostgresService
+	provisioning    service.ProvisioningService
 }
 
 func New(srv service.Services) *Impl {
@@ -26,6 +27,7 @@ func New(srv service.Services) *Impl {
 		UnimplementedPostgresAPIServer: velez_api.UnimplementedPostgresAPIServer{},
 
 		postgresService: srv.Postgres(),
+		provisioning:    srv.Provisioning(),
 	}
 }
 

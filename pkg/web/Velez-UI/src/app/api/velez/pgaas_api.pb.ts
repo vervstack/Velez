@@ -35,6 +35,7 @@ export type ListPgInstancesRequest = {
 export type ListPgInstancesResponse = {
   instances?: PgInstance[];
   total?: string;
+  provisioning?: VelezApiVelezCommon.ProvisioningTask[];
 };
 
 export type ListPgInstances = Record<string, never>;
@@ -49,6 +50,8 @@ export type CreatePgInstanceRequest = {
 
 export type CreatePgInstanceResponse = {
   instance?: PgInstance;
+  entityId?: string;
+  action?: string;
 };
 
 export type CreatePgInstance = Record<string, never>;

@@ -6,6 +6,8 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "npm.proto";
 
+import "velez_common.proto";
+
 option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
 option (npm_package) = "@vervstack/velez";
 
@@ -52,13 +54,20 @@ message CreateDind {
     // container runs privileged.
     optional bool is_sysbox_enabled = 3;
   }
-  message Response {}
+  message Response {
+    // The RPC enqueues the create_dind task and returns before it completes.
+    // Callers watch entity_id/action via TasksApi.WatchTask and refetch
+    // ListDinds once the task reaches DONE.
+    string entity_id = 1;
+    string action = 2;
+  }
 }
 
 message ListDinds {
   message Request {}
   message Response {
     repeated DindInfo dinds = 1;
+    repeated ProvisioningTask provisioning = 2;
   }
 }
 

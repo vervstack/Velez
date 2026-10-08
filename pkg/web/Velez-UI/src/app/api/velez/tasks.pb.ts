@@ -10,6 +10,7 @@ import * as VelezApiControlPlaneApi from "./control_plane_api.pb";
 import * as VelezApiDindApi from "./dind_api.pb";
 import * as fm from "./fetch.pb";
 import * as GoogleProtobufTimestamp from "./google/protobuf/timestamp.pb";
+import * as VelezApiPgaasApi from "./pgaas_api.pb";
 import * as VelezApiRunnersApi from "./runners_api.pb";
 import * as VelezApiS3Api from "./s3_api.pb";
 import * as VelezApiVelezApi from "./velez_api.pb";
@@ -29,6 +30,15 @@ export enum TaskStatusStatus {
   DONE = "DONE",
   FAILED = "FAILED",
 }
+
+export type DismissTaskRequest = {
+  entityId?: string;
+  action?: string;
+};
+
+export type DismissTaskResponse = Record<string, never>;
+
+export type DismissTask = Record<string, never>;
 
 export type WatchTaskRequest = {
   entityId?: string;
@@ -181,6 +191,10 @@ export type CreateDindTaskPayload = {
   address?: string;
 };
 
+export type CreatePgInstanceTaskPayload = {
+  request?: VelezApiPgaasApi.CreatePgInstanceRequest;
+};
+
 export type CreateS3InstanceTaskPayload = {
   request?: VelezApiS3Api.CreateS3InstanceRequest;
   exposedPort?: number;
@@ -204,5 +218,8 @@ export class TasksApi {
   }
   static CreateSmerdStream(this:void, req: VelezApiVelezApi.CreateSmerdRequest, entityNotifier?: fm.NotifyStreamEntityArrival<TaskStatus>, initReq?: fm.InitReq): Promise<void> {
     return fm.fetchStreamingRequest<TaskStatus>(`/api/smerd/create/stream`, entityNotifier, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static DismissTask(this:void, req: DismissTaskRequest, initReq?: fm.InitReq): Promise<DismissTaskResponse> {
+    return fm.fetchRequest<DismissTaskResponse>(`/api/tasks/dismiss`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
 }

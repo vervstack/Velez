@@ -78,6 +78,20 @@ func (f *fakeJobsEngine) ListJobs(_ context.Context, _ tasks_queries.VelezTask) 
 	return f.listJobsResp, f.listJobsErr
 }
 
+func (f *fakeJobsEngine) EnqueueReplacing(_ context.Context, _, _ string, _ any) (tasks_queries.VelezTask, error) {
+	return tasks_queries.VelezTask{}, nil
+}
+
+func (f *fakeJobsEngine) ListProvisioning(
+	_ context.Context, _ []string, _ time.Time,
+) ([]jobs.ProvisioningEntry, error) {
+	return nil, nil
+}
+
+func (f *fakeJobsEngine) DismissFailed(_ context.Context, _, _ string) error {
+	return nil
+}
+
 func (f *fakeJobsEngine) SetRegistry(_ *jobs.Registry) {}
 
 func (f *fakeJobsEngine) Watch(ctx context.Context, entityID, action string) <-chan tasks_queries.VelezTask {
@@ -159,7 +173,7 @@ func Test_CreateSmerdStream(t *testing.T) {
 		},
 	}
 
-	impl := New(engine, fakeVervServices{})
+	impl := New(engine, fakeVervServices{}, nil)
 
 	req := &velez_api.CreateSmerd_Request{}
 
@@ -232,7 +246,7 @@ func Test_CreateSmerdStream_EnqueueError(t *testing.T) {
 		enqueueErr: errTest,
 	}
 
-	impl := New(engine, fakeVervServices{})
+	impl := New(engine, fakeVervServices{}, nil)
 
 	req := &velez_api.CreateSmerd_Request{}
 

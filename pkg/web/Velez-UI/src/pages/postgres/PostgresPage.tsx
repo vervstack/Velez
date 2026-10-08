@@ -1,14 +1,17 @@
 import {useEffect, useMemo} from "react"
 
 import cls from "@/pages/postgres/PostgresPage.module.css"
+import type {ProvisioningTask} from "@/app/api/velez/velez_common.pb"
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
-import {useListPgInstancesQuery} from "@/processes/queries/pg_instances.ts"
-import {sortPgInstancesByName} from "@/processes/mappings/pg_instances.ts"
+import {PG_INSTANCES_QUERY_KEY, useListPgInstancesQuery} from "@/processes/queries/pg_instances.ts"
+import {PG_INSTANCE_NAME_PREFIX, sortPgInstancesByName} from "@/processes/mappings/pg_instances.ts"
+import {isInstanceProvisioning} from "@/processes/mappings/provisioning.ts"
 import Button from "@/components/base/Button.tsx"
 import CreateServiceDialog from "@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx"
 import PgInstanceRow from "@/pages/postgres/components/PgInstanceRow/PgInstanceRow.tsx"
 import PostgresEmptyState from "@/pages/postgres/components/PostgresEmptyState/PostgresEmptyState.tsx"
+import ProvisioningRow from "@/widgets/ProvisioningRow/ProvisioningRow.tsx"
 
 const COLUMNS = ["", "Name", "Environment", "Database", "Username", "Port", "Created", ""]
 
@@ -21,9 +24,16 @@ export default function PostgresPage() {
         if (instancesQuery.error) toaster.catchGrpc(instancesQuery.error)
     }, [instancesQuery.error])
 
+    const tasks = instancesQuery.data?.provisioning ?? []
     const instances = useMemo(
         () => sortPgInstancesByName(instancesQuery.data?.instances ?? []),
         [instancesQuery.data]
+    )
+    const visibleInstances = useMemo(
+        () => instances.filter(
+            (instance) => !isInstanceProvisioning(instance.name ?? "", tasks, PG_INSTANCE_NAME_PREFIX)
+        ),
+        [instances, instancesQuery.data]
     )
 
     function handleCreate() {
@@ -38,10 +48,21 @@ export default function PostgresPage() {
         return <PgInstanceRow key={instance.name} instance={instance}/>
     }
 
+    function renderProvisioningRow(task: ProvisioningTask) {
+        return (
+            <ProvisioningRow
+                key={task.taskId}
+                task={task}
+                title="Creating database"
+                queryKey={PG_INSTANCES_QUERY_KEY}
+            />
+        )
+    }
+
     let content: React.ReactNode
     if (instancesQuery.isLoading) {
         content = <div className={cls.loading}>Loading…</div>
-    } else if (instances.length === 0) {
+    } else if (instances.length === 0 && tasks.length === 0) {
         content = <PostgresEmptyState onCreate={handleCreate}/>
     } else {
         content = (
@@ -49,7 +70,8 @@ export default function PostgresPage() {
                 <div className={cls.tableHeader}>
                     {COLUMNS.map(renderColumnHeader)}
                 </div>
-                {instances.map(renderRow)}
+                {tasks.map(renderProvisioningRow)}
+                {visibleInstances.map(renderRow)}
             </div>
         )
     }

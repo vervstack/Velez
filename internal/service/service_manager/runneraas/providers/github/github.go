@@ -157,6 +157,14 @@ func (p *Provider) ApplySettings(
 	return nil
 }
 
+// ApplyNetworkMode is a no-op - actions-runner runs jobs inside the container
+// itself, so there are no job containers to put on a network.
+func (p *Provider) ApplyNetworkMode(
+	_ context.Context, _ container_runtime.ContainerRuntime, _, _ string,
+) error {
+	return nil
+}
+
 // SyncProxy is a no-op - actions-runner runs jobs inside the container itself,
 // so they already inherit its proxy env.
 func (p *Provider) SyncProxy(_ context.Context, _ container_runtime.ContainerRuntime, _ string) error {

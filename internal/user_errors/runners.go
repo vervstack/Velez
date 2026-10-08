@@ -98,4 +98,10 @@ var (
 	// ErrRunnerNotRunning is returned by the runneraas package when a runner's
 	// config file is needed but its container is absent or stopped.
 	ErrRunnerNotRunning = rerrors.NewUserError("runner container is not running")
+
+	// ErrRunnerBuildkitRequiresDind is returned by the runneraas package when
+	// BuildKit is requested for a runner that is not a GitLab runner backed by
+	// a DinD service: buildkitd runs inside that DinD daemon.
+	ErrRunnerBuildkitRequiresDind = rerrors.New(
+		"buildkit needs a DinD-backed GitLab runner", codes.FailedPrecondition)
 )

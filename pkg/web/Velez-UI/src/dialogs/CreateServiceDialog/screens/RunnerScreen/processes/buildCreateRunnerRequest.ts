@@ -15,6 +15,7 @@ interface CreateRunnerFormState {
     dindName: string
     dockerSocketAddress: string
     concurrent: string
+    isBuildkitEnabled: boolean
 }
 
 export function buildCreateRunnerRequest(form: CreateRunnerFormState): CreateRunnerRequest | null {
@@ -39,6 +40,7 @@ export function buildCreateRunnerRequest(form: CreateRunnerFormState): CreateRun
         scope: form.scope,
         target: trimmedTarget,
         labels: parsedLabels,
+        isBuildkitEnabled: form.isBuildkitEnabled,
         environment: form.environment || undefined,
         dindName: form.dindName || undefined,
         dockerSocketAddress: form.dockerSocketAddress || undefined,

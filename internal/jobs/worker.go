@@ -19,6 +19,8 @@ import (
 const (
 	defaultClaimLease = 2 * time.Minute
 	rollbackTimeout   = 30 * time.Second
+
+	claimRenewalsPerLease = 4
 )
 
 // taskWorker generalizes internal/workers/deploy_watcher.go's ticker-driven
@@ -195,6 +197,9 @@ func (w *taskWorker) run(ctx context.Context, task tasks_queries.VelezTask) erro
 	w.setActiveTask(task.ID, task.Action)
 	defer w.clearActiveTask(task.ID)
 
+	stopHeartbeat := w.keepClaim(ctx, task.ID)
+	defer stopHeartbeat()
+
 	handler, ok := w.registry.Get(task.Action)
 	if !ok {
 		return w.failTask(ctx, task.ID, rerrors.Wrap(user_errors.ErrNoHandlerRegisteredForAction, task.Action))
@@ -227,6 +232,46 @@ func (w *taskWorker) run(ctx context.Context, task tasks_queries.VelezTask) erro
 	}
 
 	return runErr
+}
+
+// keepClaim renews the claim on a running task until the returned stop is
+// called. A job can run longer than the lease (a cold image pull); without the
+// renewal another worker goroutine would reclaim the task as stale and run its
+// jobs a second time in parallel.
+func (w *taskWorker) keepClaim(ctx context.Context, taskID int64) func() {
+	stop := make(chan struct{})
+	finished := make(chan struct{})
+
+	renewParams := tasks_queries.RenewTaskClaimParams{
+		ID:        taskID,
+		ClaimedBy: sql.NullString{String: w.workerID, Valid: true},
+	}
+
+	go func() {
+		defer close(finished)
+
+		ticker := time.NewTicker(w.lease / claimRenewalsPerLease)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-stop:
+				return
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				err := w.tasksStorage.RenewTaskClaim(ctx, renewParams)
+				if err != nil {
+					log.Warn().Err(err).Int64("task_id", taskID).Msg("error renewing task claim")
+				}
+			}
+		}
+	}()
+
+	return func() {
+		close(stop)
+		<-finished
+	}
 }
 
 // failTask marks a task FAILED before any job ever ran for it (no handler

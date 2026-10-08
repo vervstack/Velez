@@ -57,6 +57,9 @@ func runnerToPb(view domain.RunnerView) *pb.Runner {
 		Labels:      view.Labels,
 		Environment: view.Environment,
 		Status:      view.Status,
+
+		IsBuildkitEnabled: view.IsBuildkitEnabled,
+		DindName:          view.DindName,
 	}
 
 	if !view.CreatedAt.IsZero() {

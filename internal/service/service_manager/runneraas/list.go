@@ -47,6 +47,12 @@ func (s *RunneraasService) ListRunners(ctx context.Context, req domain.ListRunne
 			continue
 		}
 
+		var dindName string
+
+		if row.DindServiceId != 0 {
+			dindName = stateByID[row.DindServiceId].Name
+		}
+
 		runners = append(runners, domain.RunnerView{
 			Name:        base.Name,
 			Provider:    velez_api.RunnerProvider(velez_api.RunnerProvider_value[row.Provider]),
@@ -58,6 +64,9 @@ func (s *RunneraasService) ListRunners(ctx context.Context, req domain.ListRunne
 			Status:      base.Status,
 			CreatedAt:   row.CreatedAt,
 			UpdatedAt:   row.UpdatedAt,
+
+			IsBuildkitEnabled: row.IsBuildkitEnabled,
+			DindName:          dindName,
 		})
 	}
 

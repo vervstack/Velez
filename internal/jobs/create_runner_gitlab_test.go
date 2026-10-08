@@ -133,6 +133,10 @@ func (f *fakeRunnersStorage) DeleteRunner(_ context.Context, serviceID int64) er
 	return nil
 }
 
+func (f *fakeRunnersStorage) SetRunnerBuildkit(context.Context, int64, bool) error {
+	return nil
+}
+
 func newGitlabRunnerPayload() *velez_api.CreateRunnerTaskPayload {
 	baseUrl := testGitlabBaseUrl
 

@@ -198,6 +198,10 @@ type RunnersStorage interface {
 	GetRunnerByServiceID(ctx context.Context, serviceID int64) (domain.Runner, error)
 	ListRunners(ctx context.Context) ([]domain.Runner, error)
 	DeleteRunner(ctx context.Context, serviceID int64) error
+	// SetRunnerBuildkit records whether a BuildKit daemon runs inside the
+	// runner's DinD. Cluster mode only: single-node derives it from the
+	// runner's config.toml, so its implementation is a no-op.
+	SetRunnerBuildkit(ctx context.Context, serviceID int64, isBuildkitEnabled bool) error
 }
 
 // RegistryInstancesStorage - CRUD over velez.registry_instances, the

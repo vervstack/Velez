@@ -20,6 +20,7 @@ function newForm(overrides: Partial<Parameters<typeof buildCreateRunnerRequest>[
         dindName: "ci-dind",
         dockerSocketAddress: "",
         concurrent: "",
+        isBuildkitEnabled: false,
         ...overrides,
     }
 }
@@ -49,5 +50,11 @@ describe("buildCreateRunnerRequest", () => {
 
     it("returns null when both docker daemon fields are set", () => {
         expect(buildCreateRunnerRequest(newForm({dockerSocketAddress: "tcp://host:2375"}))).toBeNull()
+    })
+
+    it("forwards isBuildkitEnabled to the request", () => {
+        const req = buildCreateRunnerRequest(newForm({isBuildkitEnabled: true}))
+
+        expect(req?.isBuildkitEnabled).toBe(true)
     })
 })

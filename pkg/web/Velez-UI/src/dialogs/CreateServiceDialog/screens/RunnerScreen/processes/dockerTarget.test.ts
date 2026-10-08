@@ -2,6 +2,7 @@ import {describe, expect, it} from "vitest"
 
 import {
     EXTERNAL_DOCKER_CHOICE,
+    isBuildkitSupported,
     resolveDockerTarget,
 } from "@/dialogs/CreateServiceDialog/screens/RunnerScreen/processes/dockerTarget.ts"
 
@@ -19,5 +20,19 @@ describe("resolveDockerTarget", () => {
 
     it("selects nothing when no choice is made", () => {
         expect(resolveDockerTarget("", "tcp://host:2375")).toEqual({dindName: "", dockerSocketAddress: ""})
+    })
+})
+
+describe("isBuildkitSupported", () => {
+    it("is supported when a DinD is chosen", () => {
+        expect(isBuildkitSupported("ci")).toBe(true)
+    })
+
+    it("is unsupported for external daemon", () => {
+        expect(isBuildkitSupported(EXTERNAL_DOCKER_CHOICE)).toBe(false)
+    })
+
+    it("is unsupported when no daemon is chosen", () => {
+        expect(isBuildkitSupported("")).toBe(false)
     })
 })

@@ -277,6 +277,8 @@ type VelezRunner struct {
 	// NULL = legacy runner on the host docker socket
 	DindServiceID  sql.NullInt64
 	GitlabRunnerID int64
+	// TRUE = a BuildKit daemon runs inside the runner DinD
+	IsBuildkitEnabled bool
 }
 
 type VelezSecret struct {

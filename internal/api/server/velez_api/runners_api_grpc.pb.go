@@ -27,6 +27,7 @@ const (
 	RunnersAPI_GetRunnerConfig_FullMethodName      = "/velez_api.RunnersAPI/GetRunnerConfig"
 	RunnersAPI_UpdateRunnerConfig_FullMethodName   = "/velez_api.RunnersAPI/UpdateRunnerConfig"
 	RunnersAPI_RedeployRunner_FullMethodName       = "/velez_api.RunnersAPI/RedeployRunner"
+	RunnersAPI_SetRunnerBuildkit_FullMethodName    = "/velez_api.RunnersAPI/SetRunnerBuildkit"
 )
 
 // RunnersAPIClient is the client API for RunnersAPI service.
@@ -73,6 +74,10 @@ type RunnersAPIClient interface {
 	// something a running container can pick up. Mirrors ReregisterRunner's
 	// fire-and-forget shape.
 	RedeployRunner(ctx context.Context, in *RedeployRunner_Request, opts ...grpc.CallOption) (*RedeployRunner_Response, error)
+	// SetRunnerBuildkit adds or removes the runner's BuildKit sidecar
+	// asynchronously; the response carries the id of the set_runner_buildkit
+	// task.
+	SetRunnerBuildkit(ctx context.Context, in *SetRunnerBuildkit_Request, opts ...grpc.CallOption) (*SetRunnerBuildkit_Response, error)
 }
 
 type runnersAPIClient struct {
@@ -163,6 +168,16 @@ func (c *runnersAPIClient) RedeployRunner(ctx context.Context, in *RedeployRunne
 	return out, nil
 }
 
+func (c *runnersAPIClient) SetRunnerBuildkit(ctx context.Context, in *SetRunnerBuildkit_Request, opts ...grpc.CallOption) (*SetRunnerBuildkit_Response, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetRunnerBuildkit_Response)
+	err := c.cc.Invoke(ctx, RunnersAPI_SetRunnerBuildkit_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RunnersAPIServer is the server API for RunnersAPI service.
 // All implementations must embed UnimplementedRunnersAPIServer
 // for forward compatibility.
@@ -207,6 +222,10 @@ type RunnersAPIServer interface {
 	// something a running container can pick up. Mirrors ReregisterRunner's
 	// fire-and-forget shape.
 	RedeployRunner(context.Context, *RedeployRunner_Request) (*RedeployRunner_Response, error)
+	// SetRunnerBuildkit adds or removes the runner's BuildKit sidecar
+	// asynchronously; the response carries the id of the set_runner_buildkit
+	// task.
+	SetRunnerBuildkit(context.Context, *SetRunnerBuildkit_Request) (*SetRunnerBuildkit_Response, error)
 	mustEmbedUnimplementedRunnersAPIServer()
 }
 
@@ -240,6 +259,9 @@ func (UnimplementedRunnersAPIServer) UpdateRunnerConfig(context.Context, *Update
 }
 func (UnimplementedRunnersAPIServer) RedeployRunner(context.Context, *RedeployRunner_Request) (*RedeployRunner_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method RedeployRunner not implemented")
+}
+func (UnimplementedRunnersAPIServer) SetRunnerBuildkit(context.Context, *SetRunnerBuildkit_Request) (*SetRunnerBuildkit_Response, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetRunnerBuildkit not implemented")
 }
 func (UnimplementedRunnersAPIServer) mustEmbedUnimplementedRunnersAPIServer() {}
 func (UnimplementedRunnersAPIServer) testEmbeddedByValue()                    {}
@@ -406,6 +428,24 @@ func _RunnersAPI_RedeployRunner_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RunnersAPI_SetRunnerBuildkit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetRunnerBuildkit_Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RunnersAPIServer).SetRunnerBuildkit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RunnersAPI_SetRunnerBuildkit_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RunnersAPIServer).SetRunnerBuildkit(ctx, req.(*SetRunnerBuildkit_Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RunnersAPI_ServiceDesc is the grpc.ServiceDesc for RunnersAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -444,6 +484,10 @@ var RunnersAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RedeployRunner",
 			Handler:    _RunnersAPI_RedeployRunner_Handler,
+		},
+		{
+			MethodName: "SetRunnerBuildkit",
+			Handler:    _RunnersAPI_SetRunnerBuildkit_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

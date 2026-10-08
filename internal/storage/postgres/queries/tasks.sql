@@ -40,6 +40,13 @@ SET context    = $1,
     updated_at = now()
 WHERE id = $2;
 
+-- name: RenewTaskClaim :exec
+UPDATE velez.tasks
+SET claimed_at = now()
+WHERE id = $1
+  AND status = 'RUNNING'
+  AND claimed_by = $2;
+
 -- name: FinishTask :exec
 UPDATE velez.tasks
 SET status     = $1,

@@ -219,6 +219,7 @@ func (c *Custom) Init(a *App) (err error) {
 		c.ClusterClients.StateManager(), c.Services.VervServices(), c.NodeClients.Docker()))
 	registry.Register(jobs.NewReregisterRunnerHandler(
 		c.ClusterClients.StateManager(), c.Services.Secrets(), runtimeResolver))
+	registry.Register(jobs.NewSetRunnerBuildkitHandler(c.ClusterClients.StateManager(), runtimeResolver))
 
 	c.JobsEngine.SetRegistry(registry)
 

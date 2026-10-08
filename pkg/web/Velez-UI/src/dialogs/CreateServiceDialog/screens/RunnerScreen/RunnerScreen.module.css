@@ -33,6 +33,13 @@
             }
         }
 
+        & .BuildkitWrapper {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
         & .AdvancedToggle {
             font-size: 0.75rem;
             color: var(--fg-mid);

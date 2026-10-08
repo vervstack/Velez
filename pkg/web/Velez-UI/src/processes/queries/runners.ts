@@ -2,7 +2,7 @@ import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query"
 
 import {runnersService} from "@/processes/api/runners"
 import {provisioningRefetchInterval} from "@/processes/mappings/provisioning.ts"
-import {CreateRunnerRequest, UpdateRunnerConfigRequest} from "@/app/api/velez"
+import {CreateRunnerRequest, SetRunnerBuildkitRequest, UpdateRunnerConfigRequest} from "@/app/api/velez"
 
 export const RUNNERS_QUERY_KEY = ["runners"]
 const LIST_REQ = {paging: {limit: "50", offset: "0"}}
@@ -82,5 +82,11 @@ export function UpdateRunnerConfigMutation() {
 export function RedeployRunnerMutation() {
     return useMutation({
         mutationFn: (name: string) => runnersService.redeployRunner(name),
+    })
+}
+
+export function SetRunnerBuildkitMutation() {
+    return useMutation({
+        mutationFn: (req: SetRunnerBuildkitRequest) => runnersService.setRunnerBuildkit(req),
     })
 }

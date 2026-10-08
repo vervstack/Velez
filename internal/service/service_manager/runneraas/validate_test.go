@@ -135,3 +135,32 @@ func Test_ValidateGitlabAccessToken_Scenarios(t *testing.T) {
 		})
 	}
 }
+
+func Test_ValidateBuildkitRunner_Scenarios(t *testing.T) {
+	cases := []struct {
+		name      string
+		provider  velez_api.RunnerProvider
+		isDindSet bool
+		wantErr   error
+	}{
+		{"a gitlab runner with a dind is allowed", velez_api.RunnerProvider_GITLAB, true, nil},
+		{"a gitlab runner without a dind is rejected", velez_api.RunnerProvider_GITLAB, false,
+			user_errors.ErrRunnerBuildkitRequiresDind},
+		{"a github runner is rejected", velez_api.RunnerProvider_GITHUB, true,
+			user_errors.ErrRunnerBuildkitRequiresDind},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := validateBuildkitRunner(tc.provider, tc.isDindSet)
+
+			if tc.wantErr == nil {
+				require.NoError(t, err)
+
+				return
+			}
+
+			require.ErrorIs(t, err, tc.wantErr)
+		})
+	}
+}

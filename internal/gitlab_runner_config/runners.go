@@ -2,12 +2,17 @@ package gitlab_runner_config
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
+
+	"github.com/pelletier/go-toml/v2"
+	"go.redsock.ru/rerrors"
 )
 
 const (
 	runnersTableName = "runners"
 	dockerVolumesKey = "volumes"
+	networkModeKey   = "network_mode"
 )
 
 var (
@@ -71,6 +76,47 @@ func SetDockerDefaults(config []byte, d DockerDefaults) ([]byte, error) {
 	}
 
 	return applyDockerKeys(config, keys)
+}
+
+// SetNetworkMode sets `network_mode` in the `[runners.docker]` table - the
+// docker network job containers join - keeping the rest of the file untouched.
+// An empty networkMode deletes the key. Fails with ErrRunnerEntryMissing when
+// the key has to be added and there is no `[[runners]]` entry to hold the table.
+func SetNetworkMode(config []byte, networkMode string) ([]byte, error) {
+	keys := []keyValue{
+		{key: networkModeKey, value: strconv.Quote(networkMode), isSet: networkMode != ""},
+	}
+
+	return applyDockerKeys(config, keys)
+}
+
+type networkModeDocument struct {
+	Runners []networkModeRunner `toml:"runners"`
+}
+
+type networkModeRunner struct {
+	Docker networkModeDockerTable `toml:"docker"`
+}
+
+type networkModeDockerTable struct {
+	NetworkMode string `toml:"network_mode"`
+}
+
+// NetworkMode returns `network_mode` of the first `[[runners]]` entry's
+// `[runners.docker]` table; empty when the key or the entry is absent.
+func NetworkMode(config []byte) (string, error) {
+	var document networkModeDocument
+
+	err := toml.Unmarshal(config, &document)
+	if err != nil {
+		return "", rerrors.Wrap(err, "error parsing gitlab-runner config.toml")
+	}
+
+	if len(document.Runners) == 0 {
+		return "", nil
+	}
+
+	return document.Runners[0].Docker.NetworkMode, nil
 }
 
 func isRunnersTable(name string) bool {

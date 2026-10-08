@@ -43,6 +43,13 @@ func (s *RunneraasService) CreateRunner(ctx context.Context, req domain.CreateRu
 		}
 	}
 
+	if req.IsBuildkitEnabled {
+		err = validateBuildkitRunner(req.Provider, req.DindName != "")
+		if err != nil {
+			return rerrors.Wrap(err)
+		}
+	}
+
 	err = validateDockerSource(req.DindName, req.DockerSocketAddress)
 	if err != nil {
 		return rerrors.Wrap(err)
@@ -173,6 +180,8 @@ func runnerRequestToPb(req domain.CreateRunnerReq) *velez_api.CreateRunner_Reque
 		Scope:  req.Scope,
 		Target: req.Target,
 		Labels: req.Labels,
+
+		IsBuildkitEnabled: req.IsBuildkitEnabled,
 	}
 
 	if req.Environment != "" {

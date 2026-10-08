@@ -62,6 +62,8 @@ export type Runner = {
   status?: string;
   createdAt?: GoogleProtobufTimestamp.Timestamp;
   updatedAt?: GoogleProtobufTimestamp.Timestamp;
+  isBuildkitEnabled?: boolean;
+  dindName?: string;
 };
 
 export type ListRunnersRequest = {
@@ -80,7 +82,8 @@ type BaseCreateRunnerRequest = {
   name?: string;
   scope?: RunnerScope;
   target?: string;
-  labels?: string[];environment?: string;dockerSocketAddress?: string;dindName?: string;
+  labels?: string[];
+  isBuildkitEnabled?: boolean;environment?: string;dockerSocketAddress?: string;dindName?: string;
 };
 
 export type CreateRunnerRequest = BaseCreateRunnerRequest &
@@ -157,6 +160,17 @@ export type RedeployRunnerResponse = {
 
 export type RedeployRunner = Record<string, never>;
 
+export type SetRunnerBuildkitRequest = {
+  name?: string;
+  isBuildkitEnabled?: boolean;
+};
+
+export type SetRunnerBuildkitResponse = {
+  taskId?: string;
+};
+
+export type SetRunnerBuildkit = Record<string, never>;
+
 export type DropRunnerRequest = {
   name?: string;
 };
@@ -215,5 +229,8 @@ export class RunnersAPI {
   }
   static RedeployRunner(this:void, req: RedeployRunnerRequest, initReq?: fm.InitReq): Promise<RedeployRunnerResponse> {
     return fm.fetchRequest<RedeployRunnerResponse>(`/api/runners/redeploy`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
+  }
+  static SetRunnerBuildkit(this:void, req: SetRunnerBuildkitRequest, initReq?: fm.InitReq): Promise<SetRunnerBuildkitResponse> {
+    return fm.fetchRequest<SetRunnerBuildkitResponse>(`/api/runners/set_buildkit`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)});
   }
 }

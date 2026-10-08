@@ -175,6 +175,21 @@ func (f *fakeTasksStorage) UpdateTaskContext(_ context.Context, arg tasks_querie
 	return nil
 }
 
+func (f *fakeTasksStorage) RenewTaskClaim(_ context.Context, arg tasks_queries.RenewTaskClaimParams) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	t, ok := f.byID[arg.ID]
+	if !ok || t.Status != tasks_queries.VelezTaskStatusRUNNING || t.ClaimedBy != arg.ClaimedBy {
+		return nil
+	}
+
+	t.ClaimedAt = sql.NullTime{Time: time.Now(), Valid: true}
+	f.byID[arg.ID] = t
+
+	return nil
+}
+
 func (f *fakeTasksStorage) FinishTask(_ context.Context, arg tasks_queries.FinishTaskParams) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -578,6 +593,14 @@ func (f *fakeRuntimeResolver) Runtime(
 	return rt, nil
 }
 
+var errNestedRuntimeNotFaked = rerrors.New("nested runtime is not faked")
+
+func (f *fakeRuntimeResolver) NestedRuntime(
+	context.Context, string, string,
+) (container_runtime.ContainerRuntime, io.Closer, error) {
+	return nil, nil, rerrors.Wrap(errNestedRuntimeNotFaked)
+}
+
 type fakeContainerRuntime struct {
 	docker node_clients.Docker
 	suffix string
@@ -804,6 +827,10 @@ func (f *fakeContainerRuntime) InspectAny(context.Context, string) (container.In
 }
 
 func (f *fakeContainerRuntime) EnsureVolume(context.Context, container_runtime.EnsureVolumeRequest) error {
+	return nil
+}
+
+func (f *fakeContainerRuntime) RemoveVolume(context.Context, string) error {
 	return nil
 }
 

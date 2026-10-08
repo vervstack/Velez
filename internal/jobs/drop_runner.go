@@ -20,6 +20,7 @@ const (
 	DropRunnerAction = "drop_runner"
 
 	stepUnregisterRunner    = "unregister_runner"
+	stepDropRunnerBuildkit  = "drop_runner_buildkit"
 	stepDeleteRunnerRow     = "delete_runner_row"
 	stepRemoveRunnerService = "remove_runner_service"
 	stepDeleteRunnerSecret  = "delete_runner_secret"
@@ -56,8 +57,8 @@ func (h *dropRunnerHandler) NewContext() TaskContext {
 	return &velez_api.DropRunnerTaskPayload{}
 }
 
-// Unregistering goes before the row because it reads the runner's gitlab id
-// and base url from it; the row goes next because it is addressed by the
+// Unregistering and the BuildKit teardown go before the row because they read
+// the runner's gitlab id, base url and BuildKit flag from it; the row goes next because it is addressed by the
 // service id, which is unresolvable once the service is removed; the secret
 // goes last and is addressed by name alone, so no step depends on data an
 // earlier step deleted.
@@ -78,6 +79,15 @@ func (h *dropRunnerHandler) BuildJobs(taskCtx TaskContext) []NamedJob {
 				secrets:  h.secretsStore,
 				runtimes: h.runtimes,
 				seeder:   configSeederFor(velez_api.RunnerProvider_GITLAB),
+				name:     name,
+			},
+		},
+		{
+			Name: stepDropRunnerBuildkit,
+			Job: &dropRunnerBuildkitJob{
+				services: h.dataStorage.Services(),
+				runners:  h.dataStorage.Runners(),
+				runtimes: h.runtimes,
 				name:     name,
 			},
 		},

@@ -27,7 +27,7 @@ func Test_DropRunnerHandler_ActionAndContext(t *testing.T) {
 	require.True(t, ok)
 }
 
-func Test_DropRunnerHandler_BuildJobsOrdersUnregisterThenRowThenServiceThenSecret(t *testing.T) {
+func Test_DropRunnerHandler_BuildJobsOrdersUnregisterThenBuildkitThenRowThenServiceThenSecret(t *testing.T) {
 	stg := storage.NewStorageContainer(&fakeClusterStorage{})
 	h := NewDropRunnerHandler(stg, nil, nil, nil)
 
@@ -39,8 +39,8 @@ func Test_DropRunnerHandler_BuildJobsOrdersUnregisterThenRowThenServiceThenSecre
 	}
 
 	require.Equal(t,
-		[]string{stepUnregisterRunner, stepDeleteRunnerRow, stepRemoveRunnerService, stepDeleteRunnerSecret,
-			stepDeleteRunnerRegistrationToken},
+		[]string{stepUnregisterRunner, stepDropRunnerBuildkit, stepDeleteRunnerRow, stepRemoveRunnerService,
+			stepDeleteRunnerSecret, stepDeleteRunnerRegistrationToken},
 		names,
 	)
 }

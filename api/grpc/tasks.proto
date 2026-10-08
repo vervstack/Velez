@@ -504,3 +504,9 @@ message DropRunnerTaskPayload {
 message DropDindTaskPayload {
   string name = 1;
 }
+
+// SetRunnerBuildkitTaskPayload is the task context for the
+// "set_runner_buildkit" action.
+message SetRunnerBuildkitTaskPayload {
+  SetRunnerBuildkit.Request request = 1;
+}

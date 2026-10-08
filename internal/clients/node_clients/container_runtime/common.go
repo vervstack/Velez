@@ -137,6 +137,16 @@ func (c *commonRuntime) EnsureVolume(ctx context.Context, req EnsureVolumeReques
 	return nil
 }
 
+// RemoveVolume deletes the volume; one that is already gone counts as removed.
+func (c *commonRuntime) RemoveVolume(ctx context.Context, name string) error {
+	err := c.cli.VolumeRemove(ctx, name, false)
+	if err != nil && !errdefs.IsNotFound(err) {
+		return rerrors.Wrap(err, "error removing volume")
+	}
+
+	return nil
+}
+
 func volumeMatches(existing volume.Volume, req EnsureVolumeRequest) error {
 	driver := req.Driver
 	if driver == "" {

@@ -1,0 +1,6 @@
+version: "1"
+service:
+  name: buildkit
+  description: Builtin BuildKit sidecar, provisioned next to a GitLab runner.
+  tags: [ci, builtin]
+box: small

@@ -1,0 +1,6 @@
+version: "1"
+service:
+  name: binfmt
+  description: Builtin one-shot qemu binfmt installer, run before a BuildKit sidecar starts.
+  tags: [ci, builtin]
+box: small

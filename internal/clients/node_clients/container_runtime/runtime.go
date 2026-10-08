@@ -19,6 +19,7 @@ package container_runtime
 
 import (
 	"context"
+	"io"
 	"io/fs"
 
 	"github.com/docker/docker/api/types/container"
@@ -301,6 +302,11 @@ type ContainerRuntime interface {
 	// names container specs already carry. Implemented on commonRuntime.
 	EnsureVolume(ctx context.Context, req EnsureVolumeRequest) error
 
+	// RemoveVolume deletes the named volume. A volume that does not exist is
+	// not an error. Node-wide, not environment-scoped, like EnsureVolume.
+	// Implemented on commonRuntime.
+	RemoveVolume(ctx context.Context, name string) error
+
 	// ListNetworks lists networks scoped to this runtime's environment;
 	// isForeignIncluded also returns networks not managed by velez. Networks
 	// are addressed by Docker network id, never re-suffixed.
@@ -336,4 +342,9 @@ type ContainerRuntime interface {
 // has to move a process-wide singleton rather than a per-environment lookup).
 type RuntimeResolver interface {
 	Runtime(ctx context.Context, environment string) (ContainerRuntime, error)
+
+	// NestedRuntime returns the runtime of the Docker daemon running inside
+	// containerName (a DinD) of the environment, reached through an exec
+	// tunnel. The io.Closer releases the connection to that daemon.
+	NestedRuntime(ctx context.Context, environment, containerName string) (ContainerRuntime, io.Closer, error)
 }

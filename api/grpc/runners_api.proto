@@ -96,6 +96,16 @@ service RunnersAPI {
       body: "*"
     };
   }
+
+  // SetRunnerBuildkit adds or removes the runner's BuildKit sidecar
+  // asynchronously; the response carries the id of the set_runner_buildkit
+  // task.
+  rpc SetRunnerBuildkit(SetRunnerBuildkit.Request) returns (SetRunnerBuildkit.Response) {
+    option (google.api.http) = {
+      post: "/api/runners/set_buildkit"
+      body: "*"
+    };
+  }
 }
 
 // RunnerProvider - which CI system a runner registers against. GITHUB
@@ -158,6 +168,10 @@ message Runner {
   string status = 7;
   google.protobuf.Timestamp created_at = 8;
   google.protobuf.Timestamp updated_at = 9;
+
+  // is_buildkit_enabled - whether the runner has a BuildKit sidecar. Derived
+  // from the sidecar itself; there is no separate stored flag.
+  bool is_buildkit_enabled = 10;
 }
 
 message ListRunners {
@@ -195,6 +209,9 @@ message CreateRunner {
 
     // dind_name - name of a DinD service (DindAPI) the runner uses as its Docker daemon. New runners must set exactly one of dind_name or docker_socket_address; neither is rejected.
     optional string dind_name = 9;
+
+    // is_buildkit_enabled - provision a BuildKit sidecar for the runner.
+    bool is_buildkit_enabled = 10;
   }
   message Response {
     // runner is never populated - the RPC enqueues the create_runner task
@@ -302,6 +319,16 @@ message RedeployRunner {
   message Response {
     string entity_id = 1;
     string action = 2;
+  }
+}
+
+message SetRunnerBuildkit {
+  message Request {
+    string name = 1;
+    bool is_buildkit_enabled = 2;
+  }
+  message Response {
+    string task_id = 1;
   }
 }
 

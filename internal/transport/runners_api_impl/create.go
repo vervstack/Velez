@@ -23,6 +23,7 @@ func (impl *Impl) CreateRunner(
 		Environment:         req.GetEnvironment(),
 		DockerSocketAddress: req.GetDockerSocketAddress(),
 		DindName:            req.GetDindName(),
+		IsBuildkitEnabled:   req.GetIsBuildkitEnabled(),
 	}
 
 	switch cfg := req.GetProviderConfig().(type) {

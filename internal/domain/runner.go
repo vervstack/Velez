@@ -128,6 +128,9 @@ type CreateRunnerReq struct {
 	// Concurrent - the gitlab-runner global `concurrent` setting. 0 means
 	// unset and is treated as 1.
 	Concurrent int32
+
+	// IsBuildkitEnabled - provision a BuildKit sidecar for the runner.
+	IsBuildkitEnabled bool
 }
 
 // RunnerView is one resolved Runners-as-a-Service instance: runner-specific

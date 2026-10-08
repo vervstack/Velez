@@ -91,6 +91,8 @@ func runnerRequestToPb(req domain.CreateRunnerReq) *velez_api.CreateRunner_Reque
 		Scope:  req.Scope,
 		Target: req.Target,
 		Labels: req.Labels,
+
+		IsBuildkitEnabled: req.IsBuildkitEnabled,
 	}
 
 	if req.Environment != "" {

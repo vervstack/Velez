@@ -219,6 +219,10 @@ export type ReregisterRunnerTaskPayload = {
   request?: VelezApiRunnersApi.ReregisterRunnerRequest;
 };
 
+export type SetRunnerBuildkitTaskPayload = {
+  request?: VelezApiRunnersApi.SetRunnerBuildkitRequest;
+};
+
 export class TasksApi {
   static WatchTask(this:void, req: WatchTaskRequest, entityNotifier?: fm.NotifyStreamEntityArrival<TaskStatus>, initReq?: fm.InitReq): Promise<void> {
     return fm.fetchStreamingRequest<TaskStatus>(`/api/tasks/watch?${fm.renderURLSearchParams(req, [])}`, entityNotifier, {...initReq, method: "GET"});

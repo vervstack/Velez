@@ -189,6 +189,9 @@ type RunnersService interface {
 	// RedeployRunner recreates the runner's container, overlaying its
 	// currently stored docker_socket_address as DOCKER_HOST.
 	RedeployRunner(ctx context.Context, name string) error
+	// SetRunnerBuildkit enqueues the set_runner_buildkit task that adds or
+	// removes the runner's BuildKit sidecar and returns the task id.
+	SetRunnerBuildkit(ctx context.Context, name string, isBuildkitEnabled bool) (string, error)
 }
 
 // ContainerRegistryService provides Container-Registry-as-a-Service: a

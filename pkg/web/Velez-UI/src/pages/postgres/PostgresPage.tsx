@@ -8,6 +8,7 @@ import {PG_INSTANCES_QUERY_KEY, useListPgInstancesQuery} from "@/processes/queri
 import {PG_INSTANCE_NAME_PREFIX, sortPgInstancesByName} from "@/processes/mappings/pg_instances.ts"
 import {isInstanceProvisioning} from "@/processes/mappings/provisioning.ts"
 import Button from "@/components/base/Button.tsx"
+import InstanceCount from "@/components/InstanceCount/InstanceCount.tsx"
 import CreateServiceDialog from "@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx"
 import PgInstanceRow from "@/pages/postgres/components/PgInstanceRow/PgInstanceRow.tsx"
 import PostgresEmptyState from "@/pages/postgres/components/PostgresEmptyState/PostgresEmptyState.tsx"
@@ -53,7 +54,8 @@ export default function PostgresPage() {
             <ProvisioningRow
                 key={task.taskId}
                 task={task}
-                title="Creating database"
+                noun="database"
+                prefix={PG_INSTANCE_NAME_PREFIX}
                 queryKey={PG_INSTANCES_QUERY_KEY}
             />
         )
@@ -80,7 +82,7 @@ export default function PostgresPage() {
         <div className={cls.PostgresPageContainer}>
             <div className={cls.toolbar}>
                 <h1 className={cls.pageTitle}>Postgres</h1>
-                <span className={cls.count}>{instances.length} instances</span>
+                <InstanceCount count={instances.length} label="instances" isLoading={instancesQuery.isLoading}/>
                 <div className={cls.toolbarRight}>
                     <Button variant="primary" onClick={handleCreate}>
                         Create database

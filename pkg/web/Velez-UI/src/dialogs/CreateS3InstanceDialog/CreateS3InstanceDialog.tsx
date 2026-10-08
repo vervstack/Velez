@@ -31,19 +31,21 @@ export default function CreateS3InstanceDialog() {
         toaster.bake({title: "S3 instance created", description: submittedReq?.name ?? "", level: "Info"})
     }
 
-    function renderBody() {
-        if (submittedReq) {
-            return (
-                <TaskProgressScreen
-                    title="Creating S3 instance"
-                    metaLine={submittedReq.name ?? ""}
-                    start={handleStart}
-                    onSuccess={handleSuccess}
-                    onClose={CloseDialog}
-                />
-            )
-        }
-        return <CreateS3InstanceForm onSubmit={setSubmittedReq} onCancel={CloseDialog}/>
+    function handleBack() {
+        setSubmittedReq(null)
+    }
+
+    function renderProgress(req: CreateS3InstanceRequest) {
+        return (
+            <TaskProgressScreen
+                title="Creating S3 instance"
+                metaLine={req.name ?? ""}
+                start={handleStart}
+                onSuccess={handleSuccess}
+                onClose={CloseDialog}
+                onBack={handleBack}
+            />
+        )
     }
 
     return (
@@ -53,7 +55,12 @@ export default function CreateS3InstanceDialog() {
                 onClose={submittedReq ? undefined : CloseDialog}
                 isFlush={submittedReq !== null}
             >
-                {renderBody()}
+                <CreateS3InstanceForm
+                    isHidden={submittedReq !== null}
+                    onSubmit={setSubmittedReq}
+                    onCancel={CloseDialog}
+                />
+                {submittedReq && renderProgress(submittedReq)}
             </DialogShell>
         </div>
     )

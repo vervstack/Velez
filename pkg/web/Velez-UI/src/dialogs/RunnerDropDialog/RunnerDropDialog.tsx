@@ -15,13 +15,9 @@ export default function RunnerDropDialog({name}: Props) {
     const dropRunner = DropRunnerMutation()
 
     function handleConfirm() {
-        dropRunner.mutate(name, {
-            onSuccess: () => {
-                toaster.bake({title: "Runner dropped", description: name, level: "Info"})
-                CloseDialog()
-            },
-            onError: toaster.catchGrpc,
-        })
+        dropRunner.mutateAsync(name)
+            .then(CloseDialog)
+            .catch(toaster.catchGrpc)
     }
 
     return (

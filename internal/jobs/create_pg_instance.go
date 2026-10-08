@@ -185,8 +185,11 @@ func (j *deployPgInstanceJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(err, "error building pg instance deploy request")
 	}
 
+	smerdRequest.Labels[labels.DisplayNameLabel] = j.req.GetName()
+
 	deployReq := domain.CreateDeployReq{
 		ServiceName:    j.instanceName,
+		DisplayName:    j.req.GetName(),
 		VervDescriptor: &descriptor,
 		LaunchSmerd:    domain.LaunchSmerd{CreateSmerd_Request: smerdRequest},
 	}

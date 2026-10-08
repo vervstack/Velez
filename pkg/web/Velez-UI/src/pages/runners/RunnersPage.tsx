@@ -7,6 +7,7 @@ import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import {RUNNERS_QUERY_KEY, useListRunnersQuery} from "@/processes/queries/runners.ts"
 import {isRunnerProvisioning} from "@/processes/mappings/runnerDisplay.ts"
 import Button from "@/components/base/Button.tsx"
+import InstanceCount from "@/components/InstanceCount/InstanceCount.tsx"
 import CreateServiceDialog from "@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx"
 import RunnerRow from "@/pages/runners/components/RunnerRow/RunnerRow.tsx"
 import RunnersEmptyState from "@/pages/runners/components/RunnersEmptyState/RunnersEmptyState.tsx"
@@ -50,7 +51,7 @@ export default function RunnersPage() {
             <ProvisioningRow
                 key={task.taskId}
                 task={task}
-                title="Creating runner"
+                noun="runner"
                 queryKey={RUNNERS_QUERY_KEY}
             />
         )
@@ -77,7 +78,7 @@ export default function RunnersPage() {
         <div className={cls.RunnersPageContainer}>
             <div className={cls.toolbar}>
                 <h1 className={cls.pageTitle}>Runners</h1>
-                <span className={cls.count}>{runners.length} runners</span>
+                <InstanceCount count={runners.length} label="runners" isLoading={runnersQuery.isLoading}/>
                 <div className={cls.toolbarRight}>
                     <Button variant="primary" onClick={handleCreate}>
                         Create runner

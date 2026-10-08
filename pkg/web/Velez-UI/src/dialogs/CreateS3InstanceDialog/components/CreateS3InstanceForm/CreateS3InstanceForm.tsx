@@ -4,6 +4,7 @@ import {Checkbox, Dropdown, DropdownOption, parseGrpcError} from "@vervstack/chu
 import cls from "@/dialogs/CreateS3InstanceDialog/components/CreateS3InstanceForm/CreateS3InstanceForm.module.css"
 import type {CreateS3InstanceRequest} from "@/app/api/velez/s3_api.pb"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
+import {validateInstanceName} from "@/processes/mappings/instanceName.ts"
 import {ListEnvironmentsQuery} from "@/processes/queries/control_plane.ts"
 import Button from "@/components/base/Button.tsx"
 import Choice from "@/components/base/Choice.tsx"
@@ -18,11 +19,13 @@ const BOX_OPTIONS = ["small", "medium", "large"] as const
 const REPLICATION_HINT = "Locked to 1 — multi-node Garage clusters come later."
 
 interface Props {
+    isHidden: boolean
+
     onSubmit(req: CreateS3InstanceRequest): void
     onCancel(): void
 }
 
-export default function CreateS3InstanceForm({onSubmit, onCancel}: Props) {
+export default function CreateS3InstanceForm({isHidden, onSubmit, onCancel}: Props) {
     const [name, setName] = useState("")
     const [environment, setEnvironment] = useState("")
     const [box, setBox] = useState<string>("small")
@@ -39,6 +42,7 @@ export default function CreateS3InstanceForm({onSubmit, onCancel}: Props) {
         name: env.name ?? "",
     }))
 
+    const nameError = validateInstanceName(name)
     const req = buildCreateS3InstanceRequest({name, environment, box, isPortExposed, port, region, isWebUiEnabled})
 
     function handleError(err: unknown) {
@@ -62,9 +66,9 @@ export default function CreateS3InstanceForm({onSubmit, onCancel}: Props) {
     }
 
     return (
-        <div className={cls.CreateS3InstanceFormContainer}>
+        <div className={cls.CreateS3InstanceFormContainer} hidden={isHidden}>
             <div className={cls.FieldsWrapper}>
-                <Input label="Name" inputValue={name} onChange={setName}/>
+                <Input label="Name" inputValue={name} onChange={setName} error={nameError}/>
 
                 <Dropdown
                     label="Environment"

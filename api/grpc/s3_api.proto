@@ -114,6 +114,8 @@ message S3Instance {
   string environment = 6;
   string status = 7;
   google.protobuf.Timestamp created_at = 8;
+  // display_name - the instance name without its storage-layer prefix (pgaas_/s3_/cr_); falls back to name
+  string display_name = 9;
 }
 
 message S3BucketAccess {
@@ -179,7 +181,12 @@ message DropS3Instance {
   message Request {
     string name = 1;
   }
-  message Response {}
+  message Response {
+    // The RPC enqueues the drop task and returns before it completes.
+    // Callers watch entity_id/action via TasksApi.WatchTask and refetch the list once the task reaches DONE.
+    string entity_id = 1;
+    string action = 2;
+  }
 }
 
 message GetS3InstanceCredentials {

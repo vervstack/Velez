@@ -466,3 +466,28 @@ message ReregisterRunnerTaskPayload {
   ReregisterRunner.Request request = 1;
 }
 
+
+// DropPgInstanceTaskPayload is the task context for the "drop_pg_instance" action; name is the instance's list name, i.e. the service name.
+message DropPgInstanceTaskPayload {
+  string name = 1;
+}
+
+// DropS3InstanceTaskPayload is the task context for the "drop_s3_instance" action; name is the instance's list name, i.e. the service name.
+message DropS3InstanceTaskPayload {
+  string name = 1;
+}
+
+// DropRegistryInstanceTaskPayload is the task context for the "drop_registry_instance" action; name is the instance's list name, i.e. the service name.
+message DropRegistryInstanceTaskPayload {
+  string name = 1;
+}
+
+// DropRunnerTaskPayload is the task context for the "drop_runner" action; name is the instance's list name, i.e. the service name.
+message DropRunnerTaskPayload {
+  string name = 1;
+}
+
+// DropDindTaskPayload is the task context for the "drop_dind" action; name is the instance's list name, i.e. the service name.
+message DropDindTaskPayload {
+  string name = 1;
+}

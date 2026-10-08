@@ -655,6 +655,7 @@ func (j *deployRegistryInstanceJob) Do(ctx context.Context) error {
 	}
 
 	smerdRequest.Labels[labels.VervServiceLabel] = instanceName
+	smerdRequest.Labels[labels.DisplayNameLabel] = request.GetName()
 	smerdRequest.Labels[labels.RegistryaasInstanceLabel] = "true"
 	smerdRequest.Labels[labels.RegistryaasUsernameLabel] = j.ctx.GetUsername()
 	smerdRequest.Labels[labels.RegistryaasPortLabel] = strconv.Itoa(int(j.ctx.GetExposedPort()))
@@ -673,6 +674,7 @@ func (j *deployRegistryInstanceJob) Do(ctx context.Context) error {
 
 	deployReq := domain.CreateDeployReq{
 		ServiceName:    instanceName,
+		DisplayName:    request.GetName(),
 		VervDescriptor: &descriptor,
 		LaunchSmerd:    domain.LaunchSmerd{CreateSmerd_Request: smerdRequest},
 	}
@@ -828,6 +830,7 @@ func (j *deployRegistryUiJob) Do(ctx context.Context) error {
 	request := j.req.GetRequest()
 	instanceName := j.instanceName
 	uiServiceName := registryaasUiServiceName(instanceName)
+	uiDisplayName := request.GetName() + registryaasUiServiceSuffix
 
 	files, err := builtin.Read(registryaasUiDescriptorName)
 	if err != nil {
@@ -866,12 +869,14 @@ func (j *deployRegistryUiJob) Do(ctx context.Context) error {
 	}
 
 	smerdRequest.Labels[labels.VervServiceLabel] = uiServiceName
+	smerdRequest.Labels[labels.DisplayNameLabel] = uiDisplayName
 	smerdRequest.Labels[labels.ComposeGroupLabel] = instanceName
 
 	attachRegistryaasNetwork(smerdRequest, instanceName)
 
 	deployReq := domain.CreateDeployReq{
 		ServiceName:    uiServiceName,
+		DisplayName:    uiDisplayName,
 		VervDescriptor: &descriptor,
 		LaunchSmerd:    domain.LaunchSmerd{CreateSmerd_Request: smerdRequest},
 	}

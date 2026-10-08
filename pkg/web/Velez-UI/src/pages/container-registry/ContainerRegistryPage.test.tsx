@@ -74,4 +74,18 @@ describe("ContainerRegistryPage", () => {
         expect(names).toEqual(["alpha", "zeta"])
         expect(screen.getByText("2 instances")).toBeInTheDocument()
     })
+
+    it("shows a count skeleton instead of 0 instances while loading", () => {
+        vi.mocked(useListRegistryInstancesQuery).mockReturnValue({
+            data: undefined,
+            isLoading: true,
+            error: null,
+        } as Partial<ReturnType<typeof useListRegistryInstancesQuery>> as
+            ReturnType<typeof useListRegistryInstancesQuery>)
+
+        render(<MemoryRouter><ContainerRegistryPage/></MemoryRouter>)
+
+        expect(screen.queryByText("0 instances")).not.toBeInTheDocument()
+        expect(screen.getByText("instances")).toHaveAttribute("aria-busy", "true")
+    })
 })

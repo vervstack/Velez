@@ -30,7 +30,7 @@ func (impl *Impl) ListRegistryInstances(
 		out = append(out, registryInstanceToPb(instance))
 	}
 
-	tasks, err := impl.provisioning.List(ctx, jobs.CreateRegistryInstanceAction)
+	tasks, err := impl.provisioning.List(ctx, jobs.CreateRegistryInstanceAction, jobs.DropRegistryInstanceAction)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error listing provisioning tasks")
 	}
@@ -52,6 +52,7 @@ func (impl *Impl) ListRegistryInstances(
 func registryInstanceToPb(view domain.RegistryInstanceView) *pb.RegistryInstance {
 	out := &pb.RegistryInstance{
 		Name:        view.Name,
+		DisplayName: displayNameOrName(view),
 		Port:        uint32(view.Port),
 		UiPort:      uint32(view.UiPort),
 		Username:    view.Username,
@@ -80,4 +81,12 @@ func registryInstanceToPb(view domain.RegistryInstanceView) *pb.RegistryInstance
 	}
 
 	return out
+}
+
+func displayNameOrName(view domain.RegistryInstanceView) string {
+	if view.DisplayName == "" {
+		return view.Name
+	}
+
+	return view.DisplayName
 }

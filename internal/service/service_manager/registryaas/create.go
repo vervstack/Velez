@@ -22,6 +22,11 @@ import (
 // TasksApi.WatchTask(req.Name, jobs.CreateRegistryInstanceAction) and refetch
 // ListRegistryInstances once the task reaches DONE.
 func (s *RegistryaasService) CreateRegistryInstance(ctx context.Context, req domain.CreateRegistryInstanceReq) error {
+	err := domain.ValidateInstanceName(req.Name)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
 	if req.S3Storage != nil && req.S3Storage.InstanceName == "" {
 		return rerrors.Wrap(user_errors.ErrRegistryS3InstanceNameRequired)
 	}
@@ -30,7 +35,7 @@ func (s *RegistryaasService) CreateRegistryInstance(ctx context.Context, req dom
 		Request: registryInstanceRequestToPb(req),
 	}
 
-	_, err := s.jobsEngine.EnqueueReplacing(ctx, req.Name, jobs.CreateRegistryInstanceAction, initialContext)
+	_, err = s.jobsEngine.EnqueueReplacing(ctx, req.Name, jobs.CreateRegistryInstanceAction, initialContext)
 	if err != nil {
 		return rerrors.Wrap(err, "error enqueuing create registry instance task")
 	}

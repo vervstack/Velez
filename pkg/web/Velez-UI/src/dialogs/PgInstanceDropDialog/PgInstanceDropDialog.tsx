@@ -15,13 +15,9 @@ export default function PgInstanceDropDialog({name}: Props) {
     const dropPgInstance = DropPgInstanceMutation()
 
     function handleConfirm() {
-        dropPgInstance.mutate(name, {
-            onSuccess: () => {
-                toaster.bake({title: "Database dropped", description: name, level: "Info"})
-                CloseDialog()
-            },
-            onError: toaster.catchGrpc,
-        })
+        dropPgInstance.mutateAsync(name)
+            .then(CloseDialog)
+            .catch(toaster.catchGrpc)
     }
 
     return (

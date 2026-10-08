@@ -19,6 +19,7 @@ export type S3Instance = {
   environment?: string;
   status?: string;
   createdAt?: GoogleProtobufTimestamp.Timestamp;
+  displayName?: string;
 };
 
 export type S3BucketAccess = {
@@ -81,7 +82,10 @@ export type DropS3InstanceRequest = {
   name?: string;
 };
 
-export type DropS3InstanceResponse = Record<string, never>;
+export type DropS3InstanceResponse = {
+  entityId?: string;
+  action?: string;
+};
 
 export type DropS3Instance = Record<string, never>;
 

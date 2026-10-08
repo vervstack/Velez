@@ -69,6 +69,13 @@ describe("DindsPage", () => {
         expect(screen.getByText("2 daemons")).toBeInTheDocument()
     })
 
+    it("shows the count skeleton instead of a zero count while loading", () => {
+        renderPage({isLoading: true})
+
+        expect(screen.queryByText("0 daemons")).not.toBeInTheDocument()
+        expect(screen.getByText("daemons")).toHaveAttribute("aria-busy", "true")
+    })
+
     it("shows the empty state when there are no daemons", () => {
         renderPage(loaded([]))
 

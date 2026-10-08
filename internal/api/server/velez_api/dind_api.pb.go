@@ -452,7 +452,11 @@ func (x *DropDind_Request) GetName() string {
 }
 
 type DropDind_Response struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The RPC enqueues the drop task and returns before it completes.
+	// Callers watch entity_id/action via TasksApi.WatchTask and refetch the list once the task reaches DONE.
+	EntityId      string `protobuf:"bytes,1,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
+	Action        string `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -487,6 +491,20 @@ func (*DropDind_Response) Descriptor() ([]byte, []int) {
 	return file_dind_api_proto_rawDescGZIP(), []int{3, 1}
 }
 
+func (x *DropDind_Response) GetEntityId() string {
+	if x != nil {
+		return x.EntityId
+	}
+	return ""
+}
+
+func (x *DropDind_Response) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
+}
+
 var File_dind_api_proto protoreflect.FileDescriptor
 
 const file_dind_api_proto_rawDesc = "" +
@@ -513,12 +531,13 @@ const file_dind_api_proto_rawDesc = "" +
 	"\aRequest\x1av\n" +
 	"\bResponse\x12)\n" +
 	"\x05dinds\x18\x01 \x03(\v2\x13.velez_api.DindInfoR\x05dinds\x12?\n" +
-	"\fprovisioning\x18\x02 \x03(\v2\x1b.velez_api.ProvisioningTaskR\fprovisioning\"5\n" +
+	"\fprovisioning\x18\x02 \x03(\v2\x1b.velez_api.ProvisioningTaskR\fprovisioning\"j\n" +
 	"\bDropDind\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x1a\n" +
-	"\n" +
-	"\bResponse2\xba\x02\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x1a?\n" +
+	"\bResponse\x12\x1b\n" +
+	"\tentity_id\x18\x01 \x01(\tR\bentityId\x12\x16\n" +
+	"\x06action\x18\x02 \x01(\tR\x06action2\xba\x02\n" +
 	"\aDindAPI\x12h\n" +
 	"\n" +
 	"CreateDind\x12\x1d.velez_api.CreateDind.Request\x1a\x1e.velez_api.CreateDind.Response\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/api/dind/create\x12c\n" +

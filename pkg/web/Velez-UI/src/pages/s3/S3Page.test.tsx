@@ -74,4 +74,11 @@ describe("S3Page", () => {
 
         expect(screen.getByText("s3 skeleton")).toBeInTheDocument()
     })
+
+    it("shows a count skeleton instead of 0 instances while loading", () => {
+        renderPage({isLoading: true})
+
+        expect(screen.queryByText("0 instances")).not.toBeInTheDocument()
+        expect(screen.getByText("instances")).toHaveAttribute("aria-busy", "true")
+    })
 })

@@ -17,7 +17,12 @@ const (
 )
 
 func (s *Service) CreateDind(ctx context.Context, req domain.CreateDindReq) error {
-	err := validateDindName(req.Name)
+	err := domain.ValidateInstanceName(req.Name)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	err = validateDindName(req.Name)
 	if err != nil {
 		return rerrors.Wrap(err)
 	}

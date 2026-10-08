@@ -1,47 +1,21 @@
 package s3aas
 
 import (
-	"strings"
-
 	"go.vervstack.ru/Velez/internal/clients/garage"
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
-const (
-	ownerKeySeparator = ":"
-)
-
-// A key named "<owner>:<bucket>" holding read and write on the bucket marks
-// <owner> as the bucket's owner; the key name is the only record of it.
 func ownerKeyName(owner, bucket string) string {
-	return owner + ownerKeySeparator + bucket
+	return domain.S3OwnerKeyName(owner, bucket)
 }
 
 func ownerFromKeyName(keyName, bucket string) string {
-	owner, keyBucket, isOwnerKey := parseOwnerKeyName(keyName)
+	owner, keyBucket, isOwnerKey := domain.ParseS3OwnerKeyName(keyName)
 	if !isOwnerKey || keyBucket != bucket {
 		return ""
 	}
 
 	return owner
-}
-
-func parseOwnerKeyName(keyName string) (owner, bucket string, isOwnerKey bool) {
-	owner, bucket, isSeparated := cutLast(keyName, ownerKeySeparator)
-	if !isSeparated || owner == "" || bucket == "" {
-		return "", "", false
-	}
-
-	return owner, bucket, true
-}
-
-func cutLast(value, separator string) (before, after string, isFound bool) {
-	idx := strings.LastIndex(value, separator)
-	if idx < 0 {
-		return value, "", false
-	}
-
-	return value[:idx], value[idx+len(separator):], true
 }
 
 func bucketToDomain(info garage.BucketInfo) domain.S3Bucket {

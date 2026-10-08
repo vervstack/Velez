@@ -36,3 +36,21 @@ export function isInstanceProvisioning(instanceName: string, tasks: Provisioning
         return isProvisioningActive(task) && (entityId === instanceName || prefix + entityId === instanceName)
     })
 }
+
+const DROP_ACTION_PREFIX = "drop_"
+
+export function isDropAction(action?: string): boolean {
+    return (action ?? "").startsWith(DROP_ACTION_PREFIX)
+}
+
+export function provisioningVerb(task: ProvisioningTask): "Creating" | "Removing" {
+    return isDropAction(task.action) ? "Removing" : "Creating"
+}
+
+export function provisioningTitle(task: ProvisioningTask, noun: string): string {
+    return `${provisioningVerb(task)} ${noun}`
+}
+
+export function stripInstancePrefix(name: string, prefix: string): string {
+    return prefix !== "" && name.startsWith(prefix) ? name.slice(prefix.length) : name
+}

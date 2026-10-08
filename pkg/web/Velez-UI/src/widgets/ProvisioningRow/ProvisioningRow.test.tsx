@@ -21,7 +21,7 @@ type DismissMutation = ReturnType<typeof DismissTaskMutation>
 
 const queryKey = ["pg-instances"]
 
-function renderRow(task: Partial<ProvisioningTask>) {
+function renderRow(task: Partial<ProvisioningTask>, prefix?: string) {
     const OpenDialog = vi.fn()
     const mutateAsync = vi.fn().mockResolvedValue(undefined)
     vi.mocked(useDialog).mockReturnValue({OpenDialog} as Partial<Dialog> as Dialog)
@@ -37,7 +37,7 @@ function renderRow(task: Partial<ProvisioningTask>) {
         status: ProvisioningTaskStatus.RUNNING,
         ...task,
     }
-    render(<ProvisioningRow task={fullTask} title="Creating Postgres instance" queryKey={queryKey}/>)
+    render(<ProvisioningRow task={fullTask} noun="Postgres instance" prefix={prefix} queryKey={queryKey}/>)
     return {OpenDialog, mutateAsync, fullTask}
 }
 
@@ -91,5 +91,25 @@ describe("ProvisioningRow", () => {
         renderRow({status: ProvisioningTaskStatus.FAILED, error: "boom"})
 
         expect(screen.getByRole("button", {name: "Details"})).toBeInTheDocument()
+    })
+
+    it("shows the entity name without the prefix when a prefix is given", () => {
+        renderRow({entityId: "pgaas_main"}, "pgaas_")
+
+        expect(screen.getByText("main")).toBeInTheDocument()
+    })
+
+    it("titles the row and dialog Removing and says what failed when a drop task failed", () => {
+        const {OpenDialog} = renderRow({
+            action: "drop_pg_instance",
+            status: ProvisioningTaskStatus.FAILED,
+            error: "container busy",
+        })
+
+        expect(screen.getByText("Removing Postgres instance failed: container busy")).toBeInTheDocument()
+
+        fireEvent.click(screen.getByRole("button", {name: "Details"}))
+
+        expect(OpenDialog.mock.calls[0][0].props.title).toBe("Removing Postgres instance")
     })
 })

@@ -29,8 +29,8 @@ const (
 	// regardless.
 	containerRegistryLifecycleInstanceName = "e2e-container-registry-lifecycle"
 
-	containerRegistryCollisionInstanceNameA = "e2e-container-registry-collision-a"
-	containerRegistryCollisionInstanceNameB = "e2e-container-registry-collision-b"
+	containerRegistryCollisionInstanceNameA = "e2e-cr-collision-a"
+	containerRegistryCollisionInstanceNameB = "e2e-cr-collision-b"
 
 	// containerRegistryTaskTimeout bounds each task watch: a cold pull of
 	// registry:2 and the UI image must fit, but a task that never reaches a
@@ -100,12 +100,7 @@ func (s *ContainerRegistryLifecycleSuite) Test_ContainerRegistryLifecycle_HappyP
 	require.NotEmpty(t, credsResp.GetPassword())
 	require.NotEmpty(t, credsResp.GetRegistryUrl())
 
-	dropReq := &velez_api.DropRegistryInstance_Request{
-		Name: registryServiceName(containerRegistryLifecycleInstanceName),
-	}
-
-	_, err = env.Custom.ContainerRegistryApiImpl.DropRegistryInstance(ctx, dropReq)
-	require.NoError(t, err)
+	dropRegistryInstanceAndAwait(t, env, registryServiceName(containerRegistryLifecycleInstanceName))
 
 	dropped := findRegistryInstance(t, env, registryServiceName(containerRegistryLifecycleInstanceName))
 	require.Nil(t, dropped, "registry instance still listed after drop")
@@ -217,6 +212,31 @@ func findRegistryInstance(t *testing.T, env *TestEnvironment, name string) *vele
 	}
 
 	return nil
+}
+
+// dropRegistryInstanceAndAwait calls DropRegistryInstance, which only enqueues
+// drop_registry_instance, and waits for that task to finish.
+func dropRegistryInstanceAndAwait(t *testing.T, env *TestEnvironment, serviceName string) {
+	t.Helper()
+
+	dropReq := &velez_api.DropRegistryInstance_Request{Name: serviceName}
+
+	dropResp, err := env.Custom.ContainerRegistryApiImpl.DropRegistryInstance(t.Context(), dropReq)
+	require.NoError(t, err)
+	require.Equal(t, serviceName, dropResp.GetEntityId())
+	require.Equal(t, jobs.DropRegistryInstanceAction, dropResp.GetAction())
+
+	ctx, cancel := context.WithTimeout(t.Context(), containerRegistryTaskTimeout)
+	defer cancel()
+
+	var dropTask tasks_queries.VelezTask
+
+	for task := range env.Custom.JobsEngine.Watch(ctx, dropResp.GetEntityId(), dropResp.GetAction()) {
+		dropTask = task
+	}
+
+	require.Equal(t, tasks_queries.VelezTaskStatusDONE, dropTask.Status,
+		"drop_registry_instance task for %q error: %s", serviceName, dropTask.Error.String)
 }
 
 // waitForRegistryInstanceDeploy first watches the create_registry_instance

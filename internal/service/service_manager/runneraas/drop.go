@@ -2,12 +2,11 @@ package runneraas
 
 import (
 	"context"
-	"errors"
 
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/internal/user_errors"
+	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/jobs"
 )
 
 func (s *RunneraasService) DropRunner(ctx context.Context, name string) error {
@@ -16,31 +15,16 @@ func (s *RunneraasService) DropRunner(ctx context.Context, name string) error {
 		return rerrors.Wrap(err, "error getting runner service")
 	}
 
-	runner, err := s.dataStorage.Runners().GetRunnerByServiceID(ctx, svc.ID)
+	_, err = s.dataStorage.Runners().GetRunnerByServiceID(ctx, svc.ID)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting runner row")
 	}
 
-	removeReq := domain.RemoveServiceReq{Name: name, DropRunningInstances: true}
+	payload := &velez_api.DropRunnerTaskPayload{Name: name}
 
-	err = s.vervServices.Remove(ctx, removeReq)
+	_, err = s.jobsEngine.EnqueueReplacing(ctx, name, jobs.DropRunnerAction, payload)
 	if err != nil {
-		return rerrors.Wrap(err, "error removing runner service")
-	}
-
-	err = s.dataStorage.Runners().DeleteRunner(ctx, svc.ID)
-	if err != nil {
-		return rerrors.Wrap(err, "error deleting runner row")
-	}
-
-	secretRef, err := domain.ParseSecretRef(runner.SecretRef)
-	if err != nil {
-		return rerrors.Wrap(err, "error parsing runner secret ref")
-	}
-
-	err = s.secrets.Delete(ctx, secretRef)
-	if err != nil && !errors.Is(err, user_errors.ErrSecretNotFound) {
-		return rerrors.Wrap(err, "error deleting runner secret")
+		return rerrors.Wrap(err, "error enqueuing drop runner task")
 	}
 
 	return nil

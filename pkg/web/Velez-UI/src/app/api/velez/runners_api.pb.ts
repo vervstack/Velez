@@ -161,7 +161,10 @@ export type DropRunnerRequest = {
   name?: string;
 };
 
-export type DropRunnerResponse = Record<string, never>;
+export type DropRunnerResponse = {
+  entityId?: string;
+  action?: string;
+};
 
 export type DropRunner = Record<string, never>;
 

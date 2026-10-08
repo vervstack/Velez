@@ -1442,6 +1442,10 @@
             "type": "string"
           },
           "description": "labels - derived server-side, never stored. Same vocabulary as\nServiceBaseInfo.labels: \"service-core\" | \"service-app\" | \"resource-\u003ctype\u003e\"."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "display_name - the human-facing service name, distinct from name when\nname carries a storage-layer prefix (e.g. a runner/pgaas/registryaas\ninstance). Falls back to name when no clean name was recorded."
         }
       }
     },

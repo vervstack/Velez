@@ -532,6 +532,7 @@ func (j *deployGarageJob) Do(ctx context.Context) error {
 
 	deployReq := domain.CreateDeployReq{
 		ServiceName:    serviceName,
+		DisplayName:    name,
 		VervDescriptor: &descriptor,
 		LaunchSmerd:    domain.LaunchSmerd{CreateSmerd_Request: smerdRequest},
 	}

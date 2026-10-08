@@ -6,6 +6,7 @@ import {CreateRegistryInstanceRequest, CreateRegistryInstanceResponse} from "@/a
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {queryClient} from "@/app/queryClient.ts"
+import {validateInstanceName} from "@/processes/mappings/instanceName.ts"
 import {ListEnvironmentsQuery} from "@/processes/queries/control_plane.ts"
 import {useListServicesQuery} from "@/processes/queries/services.ts"
 import {
@@ -56,6 +57,8 @@ export default function RegistryScreen({onBusyChange}: Props) {
     useEffect(() => {
         onBusyChange(submittedReq !== null || createRegistryInstance.isPending)
     }, [submittedReq, createRegistryInstance.isPending])
+
+    const nameError = validateInstanceName(name)
 
     const environmentOptions: DropdownOption[] = (environmentsQuery.data?.environments ?? []).map((env) => ({
         id: env.name ?? "",
@@ -115,77 +118,97 @@ export default function RegistryScreen({onBusyChange}: Props) {
         toaster.bake({title: "Registry created", description: "", level: "Info"})
     }
 
-    if (submittedReq) {
+    function handleBack() {
+        setSubmittedReq(null)
+    }
+
+    function renderProgress(req: CreateRegistryInstanceRequest) {
         return (
             <RegistryDeployProgressScreen
-                name={submittedReq.name ?? ""}
+                name={req.name ?? ""}
                 start={handleStart}
                 onSuccess={handleSuccess}
                 onClose={CloseDialog}
+                onBack={handleBack}
             />
         )
     }
 
-    return (
-        <div className={cls.RegistryScreenContainer}>
-            <div className={cls.FieldsWrapper}>
-                <Input
-                    label="Name"
-                    inputValue={name}
-                    onChange={setName}
-                    disabled={createRegistryInstance.isPending}
-                />
+    function renderForm() {
+        return (
+            <div className={cls.RegistryScreenContainer} hidden={submittedReq !== null}>
+                <div className={cls.FieldsWrapper}>
+                    <Input
+                        label="Name"
+                        inputValue={name}
+                        onChange={setName}
+                        disabled={createRegistryInstance.isPending}
+                        error={nameError}
+                    />
 
-                <Dropdown
-                    label="Environment"
-                    placeholder="Default"
-                    options={environmentOptions}
-                    value={environment ? [environment] : []}
-                    onChange={handleEnvironmentChange}
-                    isLoading={environmentsQuery.isLoading}
-                    onError={handleError}
-                    portal
-                />
+                    <Dropdown
+                        label="Environment"
+                        placeholder="Default"
+                        options={environmentOptions}
+                        value={environment ? [environment] : []}
+                        onChange={handleEnvironmentChange}
+                        isLoading={environmentsQuery.isLoading}
+                        onError={handleError}
+                        portal
+                    />
 
-                <span className={cls.FieldLabel}>Box</span>
-                <div className={cls.ChoiceRow}>
-                    {BOX_OPTIONS.map(renderBoxChoice)}
+                    <span className={cls.FieldLabel}>Box</span>
+                    <div className={cls.ChoiceRow}>
+                        {BOX_OPTIONS.map(renderBoxChoice)}
+                    </div>
+
+                    <Checkbox label="Expose port" checked={exposePort} onChange={handleToggleExposePort}/>
+
+                    {exposePort && (
+                        <Input label="Port" inputValue={port} onChange={setPort}/>
+                    )}
+
+                    <Checkbox label="Enable UI" checked={enableUi} onChange={handleToggleEnableUi}/>
+
+                    <RegistryStorageFields value={storage} bucketPlaceholder={name.trim()} onChange={setStorage}/>
+
+                    <Dropdown
+                        label="Owner service (optional)"
+                        placeholder="None"
+                        options={serviceOptions}
+                        value={ownerService ? [ownerService] : []}
+                        onChange={handleOwnerServiceChange}
+                        isLoading={servicesQuery.isLoading}
+                        onError={handleError}
+                        portal
+                    />
                 </div>
 
-                <Checkbox label="Expose port" checked={exposePort} onChange={handleToggleExposePort}/>
-
-                {exposePort && (
-                    <Input label="Port" inputValue={port} onChange={setPort}/>
-                )}
-
-                <Checkbox label="Enable UI" checked={enableUi} onChange={handleToggleEnableUi}/>
-
-                <RegistryStorageFields value={storage} bucketPlaceholder={name.trim()} onChange={setStorage}/>
-
-                <Dropdown
-                    label="Owner service (optional)"
-                    placeholder="None"
-                    options={serviceOptions}
-                    value={ownerService ? [ownerService] : []}
-                    onChange={handleOwnerServiceChange}
-                    isLoading={servicesQuery.isLoading}
-                    onError={handleError}
-                    portal
-                />
+                <div className={cls.ActionsRow}>
+                    <Button variant="secondary" onClick={CloseDialog} disabled={createRegistryInstance.isPending}>
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="primary"
+                        onClick={handleCreate}
+                        disabled={
+                            createRegistryInstance.isPending
+                            || !name.trim()
+                            || Boolean(nameError)
+                            || !isRegistryStorageValid(storage)
+                        }
+                    >
+                        Create
+                    </Button>
+                </div>
             </div>
+        )
+    }
 
-            <div className={cls.ActionsRow}>
-                <Button variant="secondary" onClick={CloseDialog} disabled={createRegistryInstance.isPending}>
-                    Cancel
-                </Button>
-                <Button
-                    variant="primary"
-                    onClick={handleCreate}
-                    disabled={createRegistryInstance.isPending || !name.trim() || !isRegistryStorageValid(storage)}
-                >
-                    Create
-                </Button>
-            </div>
-        </div>
+    return (
+        <>
+            {renderForm()}
+            {submittedReq && renderProgress(submittedReq)}
+        </>
     )
 }

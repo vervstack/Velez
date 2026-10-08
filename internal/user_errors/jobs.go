@@ -42,6 +42,14 @@ var (
 	// service name shorter than the minimum length.
 	ErrTooShortServiceName = rerrors.New("service name is too short", codes.InvalidArgument)
 
+	// ErrInvalidInstanceName is returned when a Postgres, S3, registry, runner
+	// or DinD instance is created with a name outside the allowed format.
+	ErrInvalidInstanceName = rerrors.New(
+		"instance name must be 2-32 characters: lowercase letters, digits, - and _, "+
+			"starting with a letter or digit",
+		codes.InvalidArgument,
+	)
+
 	// ErrRegistriesStorageMissingBuiltinUpsert signals a storage wiring bug,
 	// not a user-facing condition - registries.NewStatic and
 	// registries.NewPg both implement BuiltinRegistryUpserter, so this only

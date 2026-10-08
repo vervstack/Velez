@@ -239,7 +239,16 @@
       }
     },
     "velez_apiDropRegistryInstanceResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "type": "string",
+          "description": "The RPC enqueues the drop task and returns before it completes.\nCallers watch entity_id/action via TasksApi.WatchTask and refetch the list once the task reaches DONE."
+        },
+        "action": {
+          "type": "string"
+        }
+      }
     },
     "velez_apiGetRegistryInstanceCredentialsResponse": {
       "type": "object",
@@ -384,6 +393,10 @@
         },
         "s3Bucket": {
           "type": "string"
+        },
+        "displayName": {
+          "type": "string",
+          "title": "display_name - the instance name without its storage-layer prefix (pgaas_/s3_/cr_); falls back to name"
         }
       },
       "description": "RegistryInstance never carries a password - status, environment, image,\ncontainer id and deploy history live on the underlying service/deployment\nrows and are read via ListSmerds/VervServicesService, not duplicated here."

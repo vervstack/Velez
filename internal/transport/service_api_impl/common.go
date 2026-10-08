@@ -15,15 +15,18 @@ func toServiceBaseInfoList(in []domain.ServiceBaseInfo) []*pb.ServiceBaseInfo {
 	return out
 }
 
-func toServiceBaseInfo(in domain.ServiceBaseInfo) *pb.ServiceBaseInfo {
-	displayName := in.DisplayName
+func displayNameOrName(displayName string, name string) string {
 	if displayName == "" {
-		displayName = in.Name
+		return name
 	}
 
+	return displayName
+}
+
+func toServiceBaseInfo(in domain.ServiceBaseInfo) *pb.ServiceBaseInfo {
 	info := &pb.ServiceBaseInfo{
 		Name:        in.Name,
-		DisplayName: displayName,
+		DisplayName: displayNameOrName(in.DisplayName, in.Name),
 		ImageName:   in.ImageName,
 		Status:      in.Status,
 		Env:         in.Env,

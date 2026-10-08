@@ -1,4 +1,5 @@
 import type {CreatePgInstanceRequest} from "@/app/api/velez"
+import {validateInstanceName} from "@/processes/mappings/instanceName.ts"
 
 interface CreatePgInstanceFormState {
     name: string
@@ -11,7 +12,7 @@ interface CreatePgInstanceFormState {
 
 export function buildCreatePgInstanceRequest(form: CreatePgInstanceFormState): CreatePgInstanceRequest | null {
     const trimmedName = form.name.trim()
-    if (!trimmedName) return null
+    if (!trimmedName || validateInstanceName(trimmedName)) return null
 
     return {
         name: trimmedName,

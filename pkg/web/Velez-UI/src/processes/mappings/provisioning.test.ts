@@ -4,11 +4,15 @@ import {ProvisioningTaskStatus} from "@/app/api/velez/velez_common.pb"
 import type {ProvisioningTask} from "@/app/api/velez/velez_common.pb"
 import {
     currentStepName,
+    isDropAction,
     isInstanceProvisioning,
     isProvisioningActive,
     isProvisioningFailed,
     provisioningRefetchInterval,
+    provisioningTitle,
+    provisioningVerb,
     stepProgress,
+    stripInstancePrefix,
 } from "@/processes/mappings/provisioning.ts"
 
 function newTask(task: Partial<ProvisioningTask>): ProvisioningTask {
@@ -113,5 +117,33 @@ describe("isInstanceProvisioning", () => {
         expect(isInstanceProvisioning("old", tasks)).toBe(false)
         expect(isInstanceProvisioning("other", tasks)).toBe(false)
         expect(isInstanceProvisioning("pg-main", tasks)).toBe(false)
+    })
+})
+
+describe("isDropAction", () => {
+    it("is true only for actions starting with drop_", () => {
+        expect(isDropAction("drop_pg_instance")).toBe(true)
+        expect(isDropAction("create_pg_instance")).toBe(false)
+        expect(isDropAction(undefined)).toBe(false)
+    })
+})
+
+describe("provisioningVerb and provisioningTitle", () => {
+    it("says Removing for a drop task and Creating otherwise", () => {
+        const drop = newTask({action: "drop_pg_instance"})
+        const create = newTask({action: "create_pg_instance"})
+
+        expect(provisioningVerb(drop)).toBe("Removing")
+        expect(provisioningTitle(drop, "database")).toBe("Removing database")
+        expect(provisioningVerb(create)).toBe("Creating")
+        expect(provisioningTitle(create, "database")).toBe("Creating database")
+    })
+})
+
+describe("stripInstancePrefix", () => {
+    it("removes the prefix when present and leaves the name alone otherwise", () => {
+        expect(stripInstancePrefix("pgaas_main", "pgaas_")).toBe("main")
+        expect(stripInstancePrefix("main", "pgaas_")).toBe("main")
+        expect(stripInstancePrefix("pgaas_main", "")).toBe("pgaas_main")
     })
 })

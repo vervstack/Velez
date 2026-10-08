@@ -18,6 +18,19 @@ describe("buildCreatePgInstanceRequest", () => {
         expect(req).toBeNull()
     })
 
+    it("returns null when the name violates the instance name pattern", () => {
+        const req = buildCreatePgInstanceRequest({
+            name: "My DB",
+            environment: "",
+            box: "small",
+            exposePort: false,
+            port: "",
+            ownerService: "",
+        })
+
+        expect(req).toBeNull()
+    })
+
     it("omits optional fields when they are not set", () => {
         const req = buildCreatePgInstanceRequest({
             name: "my-db",

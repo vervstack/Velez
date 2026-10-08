@@ -20,6 +20,10 @@ describe("buildCreateS3InstanceRequest", () => {
         expect(buildCreateS3InstanceRequest({...BASE, name: "   "})).toBeNull()
     })
 
+    it("returns null when the name violates the instance name pattern", () => {
+        expect(buildCreateS3InstanceRequest({...BASE, name: "Main Bucket"})).toBeNull()
+    })
+
     it("trims the name, locks replication to 1 and omits the optional fields", () => {
         expect(buildCreateS3InstanceRequest(BASE)).toEqual({
             name: "main",

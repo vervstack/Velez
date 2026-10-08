@@ -219,6 +219,26 @@ export type ReregisterRunnerTaskPayload = {
   request?: VelezApiRunnersApi.ReregisterRunnerRequest;
 };
 
+export type DropPgInstanceTaskPayload = {
+  name?: string;
+};
+
+export type DropS3InstanceTaskPayload = {
+  name?: string;
+};
+
+export type DropRegistryInstanceTaskPayload = {
+  name?: string;
+};
+
+export type DropRunnerTaskPayload = {
+  name?: string;
+};
+
+export type DropDindTaskPayload = {
+  name?: string;
+};
+
 export class TasksApi {
   static WatchTask(this:void, req: WatchTaskRequest, entityNotifier?: fm.NotifyStreamEntityArrival<TaskStatus>, initReq?: fm.InitReq): Promise<void> {
     return fm.fetchStreamingRequest<TaskStatus>(`/api/tasks/watch?${fm.renderURLSearchParams(req, [])}`, entityNotifier, {...initReq, method: "GET"});

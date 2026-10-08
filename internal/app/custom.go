@@ -196,15 +196,27 @@ func (c *Custom) Init(a *App) (err error) {
 		c.JobsEngine, c.Services.ConfigResolver()))
 	registry.Register(jobs.NewCreatePgInstanceHandler(
 		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(), c.JobsEngine))
+	registry.Register(jobs.NewDropPgInstanceHandler(
+		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices()))
 	registry.Register(jobs.NewCreateRunnerHandler(
 		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(), c.JobsEngine,
 		runtimeResolver))
+	registry.Register(jobs.NewDropRunnerHandler(
+		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices()))
 	registry.Register(jobs.NewCreateDindHandler(
 		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(), c.JobsEngine,
 		runtimeResolver))
 	registry.Register(jobs.NewCreateS3InstanceHandler(
 		c.NodeClients, c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(),
 		c.Services.ConfigResolver(), c.JobsEngine, runtimeResolver, c.Services.AddressBook()))
+	registry.Register(jobs.NewDropS3InstanceHandler(
+		c.NodeClients, c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(),
+		c.Services.ConfigResolver(), runtimeResolver))
+	registry.Register(jobs.NewDropRegistryInstanceHandler(
+		c.ClusterClients.StateManager(), c.Services.Secrets(), c.Services.VervServices(), runtimeResolver,
+		c.Services.ConfigResolver()))
+	registry.Register(jobs.NewDropDindHandler(
+		c.ClusterClients.StateManager(), c.Services.VervServices(), c.NodeClients.Docker()))
 	registry.Register(jobs.NewReregisterRunnerHandler(
 		c.ClusterClients.StateManager(), c.Services.Secrets(), runtimeResolver))
 

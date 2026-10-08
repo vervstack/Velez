@@ -98,8 +98,19 @@ func (s *PgaasLifecycleSuite) Test_PgaasLifecycle_HappyPath() {
 
 	dropReq := &velez_api.DropPgInstance_Request{Name: pgaasLifecycleServiceName}
 
-	_, err = env.Custom.PgaasApiImpl.DropPgInstance(ctx, dropReq)
+	dropResp, err := env.Custom.PgaasApiImpl.DropPgInstance(ctx, dropReq)
 	require.NoError(t, err)
+	require.Equal(t, pgaasLifecycleServiceName, dropResp.GetEntityId())
+	require.Equal(t, jobs.DropPgInstanceAction, dropResp.GetAction())
+
+	var dropTask tasks_queries.VelezTask
+
+	for task := range env.Custom.JobsEngine.Watch(ctx, dropResp.GetEntityId(), dropResp.GetAction()) {
+		dropTask = task
+	}
+
+	require.Equal(t, tasks_queries.VelezTaskStatusDONE, dropTask.Status,
+		"drop_pg_instance task error: %s", dropTask.Error.String)
 
 	dropped := findPgInstance(t, env, pgaasLifecycleServiceName)
 	require.Nil(t, dropped, "pg instance still listed after drop")

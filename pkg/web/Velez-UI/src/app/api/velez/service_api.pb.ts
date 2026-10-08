@@ -114,6 +114,7 @@ export type VervAppService = {
   currentDeploymentId?: string;
   status?: DeploymentStatus;
   labels?: string[];
+  displayName?: string;
 };
 
 export type CreateDeployRequestUpgrade = {

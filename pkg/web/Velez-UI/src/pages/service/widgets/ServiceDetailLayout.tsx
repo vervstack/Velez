@@ -31,17 +31,18 @@ export default function ServiceDetailLayout({serviceName, headerActions, extraCo
         if (serviceQuery.error) toaster.catchGrpc(serviceQuery.error);
     }, [serviceQuery.error, toaster]);
     const service = serviceQuery.data;
+    const displayName = service?.displayName || deriveRunnerDisplayName(serviceName);
 
     useEffect(function publishBreadcrumbs() {
         if (serviceName === "") return;
         setCrumbs([
             {label: "services", onClick: goToServices},
-            {label: deriveRunnerDisplayName(serviceName)},
+            {label: displayName},
         ]);
         return function clearBreadcrumbs() {
             setCrumbs([]);
         };
-    }, [serviceName, setCrumbs]);
+    }, [serviceName, displayName, setCrumbs]);
 
     function goToServices() {
         navigate("/");

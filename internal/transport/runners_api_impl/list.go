@@ -30,7 +30,7 @@ func (impl *Impl) ListRunners(
 		out = append(out, runnerToPb(view))
 	}
 
-	tasks, err := impl.provisioning.List(ctx, jobs.CreateRunnerAction)
+	tasks, err := impl.provisioning.List(ctx, jobs.CreateRunnerAction, jobs.DropRunnerAction)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error listing provisioning tasks")
 	}

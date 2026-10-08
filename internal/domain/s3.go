@@ -6,6 +6,7 @@ import (
 
 type S3Instance struct {
 	Name              string
+	DisplayName       string
 	S3Port            uint32
 	WebUiPort         uint32
 	ReplicationFactor uint32

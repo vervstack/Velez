@@ -12,6 +12,11 @@ import (
 )
 
 func (s *PgaasService) CreatePgInstance(ctx context.Context, req domain.CreatePgInstanceReq) error {
+	err := domain.ValidateInstanceName(req.Name)
+	if err != nil {
+		return rerrors.Wrap(err, "error validating pg instance name")
+	}
+
 	if req.Isolation == velez_api.PgInstanceIsolation_PG_INSTANCE_ISOLATION_SHARED_POOL {
 		return rerrors.Wrap(user_errors.ErrPgSharedPoolIsolationNotSupported)
 	}
@@ -29,7 +34,7 @@ func (s *PgaasService) CreatePgInstance(ctx context.Context, req domain.CreatePg
 
 	payload := &velez_api.CreatePgInstanceTaskPayload{Request: request}
 
-	_, err := s.jobsEngine.EnqueueReplacing(ctx, req.Name, jobs.CreatePgInstanceAction, payload)
+	_, err = s.jobsEngine.EnqueueReplacing(ctx, req.Name, jobs.CreatePgInstanceAction, payload)
 	if err != nil {
 		return rerrors.Wrap(err, "error enqueuing create pg instance task")
 	}

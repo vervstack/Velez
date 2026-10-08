@@ -13,9 +13,10 @@ vi.mock("@/processes/api/tasks.ts", () => ({
 interface RenderOptions {
     onSuccess?: () => void
     onClose?: () => void
+    onBack?: () => void
 }
 
-function renderScreen({onSuccess, onClose}: RenderOptions = {}) {
+function renderScreen({onSuccess, onClose, onBack}: RenderOptions = {}) {
     const start = vi.fn(() => (
         Promise.resolve({entityId: "entity-1", action: "create_registry_instance"})
     ))
@@ -26,6 +27,7 @@ function renderScreen({onSuccess, onClose}: RenderOptions = {}) {
             start={start}
             onSuccess={onSuccess}
             onClose={onClose ?? vi.fn()}
+            onBack={onBack}
         />
     )
 
@@ -106,5 +108,30 @@ describe("RegistryDeployProgressScreen", () => {
         fireEvent.click(closeButton)
 
         expect(onClose).toHaveBeenCalledTimes(1)
+    })
+
+    it("calls onBack when Back to form is clicked after failure", async () => {
+        const onBack = vi.fn()
+
+        vi.mocked(WatchTaskStream).mockImplementation(async (_req, onStatus) => {
+            onStatus({status: TaskStatusStatus.FAILED, error: "boom", jobs: []} as TaskStatus)
+        })
+
+        renderScreen({onBack})
+
+        fireEvent.click(await screen.findByText("Back to form"))
+
+        expect(onBack).toHaveBeenCalledTimes(1)
+    })
+
+    it("hides Back to form when no onBack handler is given", async () => {
+        vi.mocked(WatchTaskStream).mockImplementation(async (_req, onStatus) => {
+            onStatus({status: TaskStatusStatus.FAILED, error: "boom", jobs: []} as TaskStatus)
+        })
+
+        renderScreen()
+
+        await screen.findByText("Close")
+        expect(screen.queryByText("Back to form")).not.toBeInTheDocument()
     })
 })

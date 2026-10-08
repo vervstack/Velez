@@ -1,3 +1,4 @@
+import {useState} from "react"
 import {afterEach, describe, expect, it, vi} from "vitest"
 import {fireEvent, render, screen} from "@testing-library/react"
 
@@ -5,6 +6,7 @@ import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import {CreateDindMutation} from "@/processes/queries/dinds.ts"
 import Button from "@/components/base/Button.tsx"
+import Input from "@/components/base/Input.tsx"
 import CreateDindDialog from "@/dialogs/CreateDindDialog/CreateDindDialog.tsx"
 
 vi.mock("@/app/hooks/dialog/Dialog.tsx", () => ({useDialog: vi.fn()}))
@@ -14,22 +16,37 @@ vi.mock("@/processes/queries/dinds.ts", () => ({
     DINDS_QUERY_KEY: ["dinds"],
 }))
 vi.mock("@/dialogs/CreateDindDialog/components/CreateDindDialogForm/CreateDindDialogForm.tsx", () => ({
-    default: ({onSubmit, onCancel}: { onSubmit(req: { name: string }): void, onCancel(): void }) => (
-        <>
-            <Button variant="primary" onClick={() => onSubmit({name: "ci"})}>form submit</Button>
-            <Button variant="secondary" onClick={onCancel}>form cancel</Button>
-        </>
-    ),
+    default: function FormStub({onSubmit, onCancel}: { onSubmit(req: { name: string }): void, onCancel(): void }) {
+        const [name, setName] = useState("")
+        return (
+            <>
+                <Input label="daemon name" inputValue={name} onChange={setName}/>
+                <Button variant="primary" onClick={() => onSubmit({name})}>form submit</Button>
+                <Button variant="secondary" onClick={onCancel}>form cancel</Button>
+            </>
+        )
+    },
 }))
 vi.mock("@/widgets/TaskProgressScreen/TaskProgressScreen.tsx", () => ({
-    default: ({start}: { start(): Promise<unknown> }) => (
-        <Button onClick={() => void start()}>start task</Button>
+    default: ({start, onBack}: { start(): Promise<unknown>, onBack(): void }) => (
+        <>
+            <Button onClick={() => void start()}>start task</Button>
+            <Button onClick={onBack}>back to form</Button>
+        </>
     ),
 }))
 
 type Dialog = ReturnType<typeof useDialog>
 type Toaster = ReturnType<typeof useToaster>
 type CreateMutation = ReturnType<typeof CreateDindMutation>
+
+function nameInput() {
+    return screen.getByText("daemon name").previousElementSibling as HTMLInputElement
+}
+
+function fillName(value: string) {
+    fireEvent.change(nameInput(), {target: {value}})
+}
 
 function renderDialog() {
     const CloseDialog = vi.fn()
@@ -58,10 +75,33 @@ describe("CreateDindDialog", () => {
     it("swaps to the progress screen and creates the daemon when the form is submitted", () => {
         const {mutateAsync} = renderDialog()
 
+        fillName("ci")
         fireEvent.click(screen.getByText("form submit"))
         fireEvent.click(screen.getByText("start task"))
 
         expect(mutateAsync).toHaveBeenCalledWith({name: "ci"})
+    })
+
+    it("hides the form while the progress screen is shown", () => {
+        renderDialog()
+        fillName("ci")
+
+        fireEvent.click(screen.getByText("form submit"))
+
+        expect(screen.getByText("daemon name")).not.toBeVisible()
+        expect(screen.getByText("start task")).toBeVisible()
+    })
+
+    it("shows the form again with the typed name when Back to form is clicked", () => {
+        renderDialog()
+        fillName("ci")
+        fireEvent.click(screen.getByText("form submit"))
+
+        fireEvent.click(screen.getByText("back to form"))
+
+        expect(screen.getByText("daemon name")).toBeVisible()
+        expect(nameInput()).toHaveValue("ci")
+        expect(screen.queryByText("start task")).not.toBeInTheDocument()
     })
 
     it("closes the dialog when the form is cancelled", () => {

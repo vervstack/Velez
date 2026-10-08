@@ -31,19 +31,23 @@ export default function CreateDindDialog() {
         toaster.bake({title: "Docker daemon created", description: submittedReq?.name ?? "", level: "Info"})
     }
 
-    function renderBody() {
-        if (submittedReq) {
-            return (
-                <TaskProgressScreen
-                    title="Creating Docker daemon"
-                    metaLine={submittedReq.name ?? ""}
-                    start={handleStart}
-                    onSuccess={handleSuccess}
-                    onClose={CloseDialog}
-                />
-            )
-        }
-        return <CreateDindDialogForm onSubmit={setSubmittedReq} onCancel={CloseDialog}/>
+    function handleBack() {
+        setSubmittedReq(null)
+    }
+
+    function renderProgress() {
+        if (!submittedReq) return null
+
+        return (
+            <TaskProgressScreen
+                title="Creating Docker daemon"
+                metaLine={submittedReq.name ?? ""}
+                start={handleStart}
+                onSuccess={handleSuccess}
+                onClose={CloseDialog}
+                onBack={handleBack}
+            />
+        )
     }
 
     return (
@@ -53,7 +57,10 @@ export default function CreateDindDialog() {
                 onClose={submittedReq ? undefined : CloseDialog}
                 isFlush={submittedReq !== null}
             >
-                {renderBody()}
+                <div className={cls.FormWrapper} hidden={submittedReq !== null}>
+                    <CreateDindDialogForm onSubmit={setSubmittedReq} onCancel={CloseDialog}/>
+                </div>
+                {renderProgress()}
             </DialogShell>
         </div>
     )

@@ -1,4 +1,5 @@
 import type {CreateS3InstanceRequest} from "@/app/api/velez/s3_api.pb"
+import {validateInstanceName} from "@/processes/mappings/instanceName.ts"
 
 export const LOCKED_REPLICATION_FACTOR = 1
 
@@ -14,7 +15,7 @@ export interface CreateS3InstanceFormState {
 
 export function buildCreateS3InstanceRequest(form: CreateS3InstanceFormState): CreateS3InstanceRequest | null {
     const trimmedName = form.name.trim()
-    if (!trimmedName) return null
+    if (!trimmedName || validateInstanceName(trimmedName)) return null
 
     const trimmedPort = form.port.trim()
 

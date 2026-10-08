@@ -2,84 +2,32 @@ package registryaas
 
 import (
 	"context"
-	"errors"
 
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/internal/storage/registries"
-	"go.vervstack.ru/Velez/internal/user_errors"
+	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/jobs"
 )
 
-// DropRegistryInstance removes both the registry instance and its UI sidecar
-// service, then the registry_instances/registries rows and the password
-// secret. Two services are dropped (not one, unlike pgaas.DropPgInstance) -
-// CreateRegistryInstance deploys a registry container and a distinct UI
-// sidecar container under registryaasUiServiceName(name).
+// DropRegistryInstance enqueues drop_registry_instance, which removes the
+// registry service, its UI sidecar service, the storage rows and the password
+// secret (internal/jobs/drop_registry_instance.go).
 func (s *RegistryaasService) DropRegistryInstance(ctx context.Context, name string) error {
 	svc, err := s.dataStorage.Services().GetByName(ctx, name)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting registry instance service")
 	}
 
-	instance, err := s.dataStorage.RegistryInstances().GetRegistryInstanceByServiceID(ctx, svc.ID)
+	_, err = s.dataStorage.RegistryInstances().GetRegistryInstanceByServiceID(ctx, svc.ID)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting registry instance row")
 	}
 
-	s3Binding, isS3, err := s.readS3Binding(ctx, name, svc.Env)
+	payload := &velez_api.DropRegistryInstanceTaskPayload{Name: name}
+
+	_, err = s.jobsEngine.EnqueueReplacing(ctx, name, jobs.DropRegistryInstanceAction, payload)
 	if err != nil {
-		return err
-	}
-
-	removeReq := domain.RemoveServiceReq{Name: name, DropRunningInstances: true, Environment: svc.Env}
-
-	err = s.vervServices.Remove(ctx, removeReq)
-	if err != nil {
-		return rerrors.Wrap(err, "error removing registry instance service")
-	}
-
-	removeUiReq := domain.RemoveServiceReq{
-		Name:                 registryaasUiServiceName(name),
-		DropRunningInstances: true,
-		Environment:          svc.Env,
-	}
-
-	err = s.vervServices.Remove(ctx, removeUiReq)
-	if err != nil {
-		return rerrors.Wrap(err, "error removing registry instance ui service")
-	}
-
-	if isS3 {
-		err = s.deleteS3Access(ctx, name, svc.Env, s3Binding)
-		if err != nil {
-			return err
-		}
-	}
-
-	err = s.dataStorage.RegistryInstances().DeleteRegistryInstance(ctx, svc.ID)
-	if err != nil {
-		return rerrors.Wrap(err, "error deleting registry instance row")
-	}
-
-	deleter, ok := s.dataStorage.Registries().(registries.BuiltinRegistryDeleter)
-	if !ok {
-		return rerrors.Wrap(user_errors.ErrRegistriesStorageMissingBuiltinDelete)
-	}
-
-	err = deleter.DeleteBuiltinRegistry(ctx, name)
-	if err != nil {
-		return rerrors.Wrap(err, "error deleting registry row")
-	}
-
-	secretRef, err := domain.ParseSecretRef(instance.SecretRef)
-	if err != nil {
-		return rerrors.Wrap(err, "error parsing registry instance secret ref")
-	}
-
-	err = s.secrets.Delete(ctx, secretRef)
-	if err != nil && !errors.Is(err, user_errors.ErrSecretNotFound) {
-		return rerrors.Wrap(err, "error deleting registry instance secret")
+		return rerrors.Wrap(err, "error enqueuing drop registry instance task")
 	}
 
 	return nil

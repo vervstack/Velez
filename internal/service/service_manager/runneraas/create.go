@@ -22,7 +22,12 @@ import (
 // jobs.CreateRunnerAction) and refetch ListRunners once the task reaches
 // DONE.
 func (s *RunneraasService) CreateRunner(ctx context.Context, req domain.CreateRunnerReq) error {
-	err := validateRunnerTarget(req.Scope, req.Target)
+	err := domain.ValidateInstanceName(req.Name)
+	if err != nil {
+		return rerrors.Wrap(err, "error validating runner name")
+	}
+
+	err = validateRunnerTarget(req.Scope, req.Target)
 	if err != nil {
 		return rerrors.Wrap(err)
 	}

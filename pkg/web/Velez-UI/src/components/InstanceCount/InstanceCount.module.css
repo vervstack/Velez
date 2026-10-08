@@ -1,0 +1,28 @@
+.InstanceCountContainer {
+    display: inline-flex;
+    gap: 0.25rem;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--fg-dim);
+
+    & .Skeleton {
+        display: inline-block;
+        width: 1.25rem;
+        height: 0.6875rem;
+        border-radius: var(--radius-sm);
+        background: linear-gradient(90deg, var(--bg3) 25%, var(--bg4) 50%, var(--bg3) 75%);
+        background-size: 200% 100%;
+        animation: skeletonShimmer 1.5s ease-in-out infinite;
+    }
+}
+
+@keyframes skeletonShimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}

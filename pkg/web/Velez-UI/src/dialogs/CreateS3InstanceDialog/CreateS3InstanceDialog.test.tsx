@@ -14,8 +14,11 @@ vi.mock("@/processes/queries/s3.ts", () => ({
     S3_INSTANCES_QUERY_KEY: ["s3-instances"],
 }))
 vi.mock("@/widgets/TaskProgressScreen/TaskProgressScreen.tsx", () => ({
-    default: ({start}: { start(): Promise<unknown> }) => (
-        <Button onClick={() => void start()}>start task</Button>
+    default: ({start, onBack}: { start(): Promise<unknown>, onBack(): void }) => (
+        <>
+            <Button onClick={() => void start()}>start task</Button>
+            <Button onClick={onBack}>back to form</Button>
+        </>
     ),
 }))
 
@@ -86,6 +89,30 @@ describe("CreateS3InstanceDialog", () => {
             replicationFactor: 1,
             enableWebUi: true,
         }))
+    })
+
+    it("shows the name error and keeps Create disabled when the name is invalid", () => {
+        renderDialog()
+
+        fireEvent.change(inputFor("Name"), {target: {value: "Main Bucket"}})
+
+        expect(screen.getByRole("alert")).toHaveTextContent("Instance name must be 2-32 characters")
+        expect(screen.getByRole("button", {name: "Create"})).toBeDisabled()
+    })
+
+    it("shows the form again with the entered fields when the progress screen goes back", () => {
+        renderDialog()
+
+        fireEvent.change(inputFor("Name"), {target: {value: "main"}})
+        fireEvent.click(screen.getByRole("button", {name: "Create"}))
+
+        expect(screen.queryByRole("button", {name: "Create"})).not.toBeInTheDocument()
+
+        fireEvent.click(screen.getByRole("button", {name: "back to form"}))
+
+        expect(inputFor("Name")).toHaveValue("main")
+        expect(screen.getByRole("button", {name: "Create"})).toBeEnabled()
+        expect(screen.queryByRole("button", {name: "start task"})).not.toBeInTheDocument()
     })
 
     it("closes the dialog when Cancel is clicked", () => {

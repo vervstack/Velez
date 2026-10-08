@@ -129,3 +129,23 @@ func TestToServiceBaseInfoList(t *testing.T) {
 		t.Errorf("expected second service status 'stopped', got %q", result[1].GetStatus())
 	}
 }
+
+func TestDisplayNameOrName(t *testing.T) {
+	cases := []struct {
+		name        string
+		displayName string
+		want        string
+	}{
+		{"keeps recorded display name", "ft", "ft"},
+		{"falls back to name when empty", "", "pgaas_ft"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := displayNameOrName(tc.displayName, "pgaas_ft")
+			if got != tc.want {
+				t.Errorf("expected %q, got %q", tc.want, got)
+			}
+		})
+	}
+}

@@ -20,6 +20,7 @@ export default function PgInstanceRow({instance}: Props) {
     const {OpenDialog} = useDialog()
 
     const name = instance.name ?? ""
+    const displayName = instance.displayName || name
 
     function handleToggleExpand() {
         setExpanded(!expanded)
@@ -33,7 +34,7 @@ export default function PgInstanceRow({instance}: Props) {
         <div className={cls.PgInstanceRowContainer}>
             <div className={cls.row}>
                 <StatusDot status={mapPgInstanceStatus(instance.status)} pulse/>
-                <Link className={cls.name} to={Routes.Service + "/" + name}>{name}</Link>
+                <Link className={cls.name} to={Routes.Service + "/" + name}>{displayName}</Link>
                 <span className={cls.cell}>{instance.environment || "-"}</span>
                 <span className={cls.cell}>{instance.dbName}</span>
                 <span className={cls.cell}>{instance.username}</span>

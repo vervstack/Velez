@@ -15,13 +15,9 @@ export default function RegistryInstanceDropDialog({name}: Props) {
     const dropRegistryInstance = DropRegistryInstanceMutation()
 
     function handleConfirm() {
-        dropRegistryInstance.mutate(name, {
-            onSuccess: () => {
-                toaster.bake({title: "Registry dropped", description: name, level: "Info"})
-                CloseDialog()
-            },
-            onError: toaster.catchGrpc,
-        })
+        dropRegistryInstance.mutateAsync(name)
+            .then(CloseDialog)
+            .catch(toaster.catchGrpc)
     }
 
     return (

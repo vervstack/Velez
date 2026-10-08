@@ -43,7 +43,10 @@ export type DropDindRequest = {
   name?: string;
 };
 
-export type DropDindResponse = Record<string, never>;
+export type DropDindResponse = {
+  entityId?: string;
+  action?: string;
+};
 
 export type DropDind = Record<string, never>;
 

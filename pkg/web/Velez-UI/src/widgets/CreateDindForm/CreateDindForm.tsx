@@ -3,6 +3,7 @@ import {Checkbox} from "@vervstack/chures"
 
 import cls from "@/widgets/CreateDindForm/CreateDindForm.module.css"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
+import {validateInstanceName} from "@/processes/mappings/instanceName.ts"
 import {CreateDindMutation} from "@/processes/queries/dinds.ts"
 import Button from "@/components/base/Button.tsx"
 import Input from "@/components/base/Input.tsx"
@@ -25,6 +26,7 @@ export default function CreateDindForm({onCreated, onCancel}: Props) {
     const toaster = useToaster()
     const createDind = CreateDindMutation()
 
+    const nameError = validateInstanceName(name)
     const req = buildCreateDindRequest({name, environment, isSysboxEnabled})
 
     function handleCreate() {
@@ -41,7 +43,13 @@ export default function CreateDindForm({onCreated, onCancel}: Props) {
     return (
         <div className={cls.CreateDindFormContainer}>
             <div className={cls.FieldsWrapper}>
-                <Input label="Name" inputValue={name} onChange={setName} disabled={createDind.isPending}/>
+                <Input
+                    label="Name"
+                    inputValue={name}
+                    onChange={setName}
+                    disabled={createDind.isPending}
+                    error={nameError}
+                />
                 <Input
                     label="Environment (optional)"
                     inputValue={environment}

@@ -15,7 +15,7 @@ vi.mock("@/processes/queries/runners.ts", () => ({
     RUNNERS_QUERY_KEY: ["runners"],
 }))
 vi.mock("@/widgets/ProvisioningRow/ProvisioningRow.tsx", () => ({
-    default: ({task, title}: { task: ProvisioningTask, title: string }) => <span>{title}: {task.entityId}</span>,
+    default: ({task, noun}: { task: ProvisioningTask, noun: string }) => <span>Creating {noun}: {task.entityId}</span>,
 }))
 vi.mock("@/pages/runners/components/RunnerRow/RunnerRow.tsx", () => ({
     default: ({runner}: { runner: { name?: string } }) => <span>runner {runner.name}</span>,
@@ -26,8 +26,11 @@ type RunnersQuery = ReturnType<typeof useListRunnersQuery>
 type Dialog = ReturnType<typeof useDialog>
 type Toaster = ReturnType<typeof useToaster>
 
-function renderPage(data: { runners?: { name: string }[], provisioning?: ProvisioningTask[] }) {
-    vi.mocked(useListRunnersQuery).mockReturnValue({data} as Partial<RunnersQuery> as RunnersQuery)
+function renderPage(
+    data: { runners?: { name: string }[], provisioning?: ProvisioningTask[] },
+    isLoading = false,
+) {
+    vi.mocked(useListRunnersQuery).mockReturnValue({data, isLoading} as Partial<RunnersQuery> as RunnersQuery)
     vi.mocked(useDialog).mockReturnValue({OpenDialog: vi.fn()} as Partial<Dialog> as Dialog)
     vi.mocked(useToaster).mockReturnValue({catchGrpc: vi.fn()} as Partial<Toaster> as Toaster)
 
@@ -46,6 +49,19 @@ describe("RunnersPage", () => {
 
         expect(screen.getByText("Creating runner: build")).toBeInTheDocument()
         expect(screen.queryByText("No runners on this node.")).not.toBeInTheDocument()
+    })
+
+    it("shows the count skeleton instead of a zero count while loading", () => {
+        renderPage({}, true)
+
+        expect(screen.queryByText("0 runners")).not.toBeInTheDocument()
+        expect(screen.getByText("runners")).toHaveAttribute("aria-busy", "true")
+    })
+
+    it("shows the runner count once loaded", () => {
+        renderPage({runners: [{name: "a"}, {name: "b"}], provisioning: []})
+
+        expect(screen.getByText("2 runners")).toBeInTheDocument()
     })
 
     it("shows the empty state when there are no runners and no tasks", () => {

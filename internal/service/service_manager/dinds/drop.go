@@ -3,11 +3,10 @@ package dinds
 import (
 	"context"
 
-	cerrdefs "github.com/containerd/errdefs"
-	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
@@ -35,32 +34,11 @@ func (s *Service) DropDind(ctx context.Context, name string) error {
 		return rerrors.Wrap(err)
 	}
 
-	removeReq := domain.RemoveServiceReq{Name: name, DropRunningInstances: true}
+	payload := &velez_api.DropDindTaskPayload{Name: name}
 
-	err = s.vervServices.Remove(ctx, removeReq)
+	_, err = s.jobsEngine.EnqueueReplacing(ctx, name, jobs.DropDindAction, payload)
 	if err != nil {
-		return rerrors.Wrap(err, "error removing dind service")
-	}
-
-	err = s.dataStorage.DindInstances().DeleteDindInstance(ctx, svc.ID)
-	if err != nil {
-		return rerrors.Wrap(err, "error deleting dind instance row")
-	}
-
-	err = s.docker.Client().NetworkRemove(ctx, domain.DindNetworkName(name))
-	if err != nil && !cerrdefs.IsNotFound(err) {
-		log.Ctx(ctx).Warn().
-			Str("dind_name", name).
-			Err(err).
-			Msg("error removing dind network")
-	}
-
-	err = s.docker.Client().VolumeRemove(ctx, domain.DindDataVolumeName(name), false)
-	if err != nil && !cerrdefs.IsNotFound(err) {
-		log.Ctx(ctx).Warn().
-			Str("dind_name", name).
-			Err(err).
-			Msg("error removing dind data volume")
+		return rerrors.Wrap(err, "error enqueuing drop dind task")
 	}
 
 	return nil

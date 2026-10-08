@@ -151,7 +151,7 @@ func (s *Service) DeleteKey(ctx context.Context, instanceName, accessKeyId strin
 		return rerrors.Wrap(err)
 	}
 
-	owner, bucketName, isOwnerKey := parseOwnerKeyName(info.Name)
+	owner, bucketName, isOwnerKey := domain.ParseS3OwnerKeyName(info.Name)
 	if !isOwnerKey {
 		return nil
 	}

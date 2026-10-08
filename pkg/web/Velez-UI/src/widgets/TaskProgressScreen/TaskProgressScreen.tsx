@@ -27,6 +27,8 @@ interface Props {
     onSuccess?(): void
 
     onClose(): void
+
+    onBack?(): void
 }
 
 type ProgressPhase = "pending" | "running" | "done" | "failed"
@@ -55,7 +57,15 @@ function eyebrowModifierClass(phase: ProgressPhase): string {
     return ""
 }
 
-export default function TaskProgressScreen({title, metaLine, metaLineSecondary, start, onSuccess, onClose}: Props) {
+export default function TaskProgressScreen({
+    title,
+    metaLine,
+    metaLineSecondary,
+    start,
+    onSuccess,
+    onClose,
+    onBack,
+}: Props) {
     const [phase, setPhase] = useState<ProgressPhase>("pending")
     const [error, setError] = useState<string | undefined>(undefined)
     const [taskStatus, setTaskStatus] = useState<TaskStatus | undefined>(undefined)
@@ -145,6 +155,7 @@ export default function TaskProgressScreen({title, metaLine, metaLineSecondary, 
                 <div className={cls.ActionsWrapper}>
                     {phase === "failed" && error && <span className={cls.ErrorText}>{error}</span>}
                     {phase === "done" && <Button variant="primary" onClick={onClose}>Done</Button>}
+                    {phase === "failed" && onBack && <Button variant="primary" onClick={onBack}>Back to form</Button>}
                     {phase === "failed" && <Button variant="secondary" onClick={onClose}>Close</Button>}
                 </div>
             )}

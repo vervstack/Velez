@@ -26,7 +26,7 @@ func (impl *Impl) ListS3Instances(
 		out = append(out, s3InstanceToPb(instance))
 	}
 
-	tasks, err := impl.provisioning.List(ctx, jobs.CreateS3InstanceAction)
+	tasks, err := impl.provisioning.List(ctx, jobs.CreateS3InstanceAction, jobs.DropS3InstanceAction)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error listing provisioning tasks")
 	}
@@ -50,7 +50,12 @@ func (impl *Impl) DropS3Instance(
 		return nil, rerrors.Wrap(err, "error dropping s3 instance")
 	}
 
-	return &pb.DropS3Instance_Response{}, nil
+	resp := &pb.DropS3Instance_Response{
+		EntityId: req.GetName(),
+		Action:   jobs.DropS3InstanceAction,
+	}
+
+	return resp, nil
 }
 
 func (impl *Impl) GetS3InstanceCredentials(

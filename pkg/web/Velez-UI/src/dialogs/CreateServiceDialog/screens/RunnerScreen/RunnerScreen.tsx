@@ -8,6 +8,7 @@ import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {CreateRunnerRequest, CreateRunnerResponse, RunnerProvider, RunnerScope} from "@/app/api/velez"
 import {queryClient} from "@/app/queryClient.ts"
 import {CreateRunnerMutation, RUNNERS_QUERY_KEY} from "@/processes/queries/runners.ts"
+import {validateInstanceName} from "@/processes/mappings/instanceName.ts"
 import {parseConcurrent} from "@/processes/parseConcurrent.ts"
 import Button from "@/components/base/Button.tsx"
 import Input from "@/components/base/Input.tsx"
@@ -63,6 +64,7 @@ export default function RunnerScreen({initialProvider = RunnerProvider.GITHUB, o
     }, [submittedReq, createRunner.isPending])
 
     const isGitlab = provider === RunnerProvider.GITLAB
+    const nameError = validateInstanceName(name)
     const concurrentParsed = concurrent ? parseConcurrent(concurrent) : undefined
     const isConcurrentInvalid = concurrent !== "" && concurrentParsed === undefined
     const dockerTarget = resolveDockerTarget(dockerChoice, externalDockerAddress)
@@ -117,6 +119,10 @@ export default function RunnerScreen({initialProvider = RunnerProvider.GITHUB, o
         setSubmittedReq(req)
     }
 
+    function handleBack() {
+        setSubmittedReq(null)
+    }
+
     function handleStart(): Promise<CreateRunnerResponse> {
         if (!submittedReq) {
             return Promise.reject(new Error("no pending create request"))
@@ -129,18 +135,43 @@ export default function RunnerScreen({initialProvider = RunnerProvider.GITHUB, o
         toaster.bake({title: "Runner created", description: name.trim(), level: "Info"})
     }
 
-    const isFormValid = name.trim() && scope && target.trim() && accessToken.trim() && isDockerTargetChosen && !isConcurrentInvalid
+    const isFormValid = name.trim() && !nameError && scope && target.trim() && accessToken.trim()
+        && isDockerTargetChosen && !isConcurrentInvalid
     const showTargetError = targetTouched && !target.trim()
 
-    if (submittedReq) {
+    function renderTargetField() {
         return (
-            <TaskProgressScreen
-                title="Creating runner"
-                metaLine={name.trim()}
-                start={handleStart}
-                onSuccess={handleSuccess}
-                onClose={CloseDialog}
-            />
+            <div className={cls.TargetFieldWrapper}>
+                <Input
+                    label="Target"
+                    inputValue={target}
+                    onChange={handleTargetChange}
+                    disabled={createRunner.isPending}
+                />
+                {showTargetError && (
+                    <span className={cls.FieldError}>Target is required</span>
+                )}
+            </div>
+        )
+    }
+
+    function renderOptionalFields() {
+        return (
+            <div className={cn(cls.AdvancedSection, showAdvanced && cls.AdvancedSectionOpen)}>
+                <Input
+                    label="Labels (comma-separated)"
+                    inputValue={labels}
+                    onChange={setLabels}
+                    disabled={createRunner.isPending}
+                />
+
+                <Input
+                    label="Environment (optional)"
+                    inputValue={environment}
+                    onChange={setEnvironment}
+                    disabled={createRunner.isPending}
+                />
+            </div>
         )
     }
 
@@ -149,130 +180,119 @@ export default function RunnerScreen({initialProvider = RunnerProvider.GITHUB, o
     }
 
     return (
-        <div className={cls.RunnerScreenContainer}>
-            <div className={cls.FieldsWrapper}>
-                <span className={cls.FieldLabel}>Required</span>
+        <>
+            <div className={cls.RunnerScreenContainer} hidden={submittedReq !== null}>
+                <div className={cls.FieldsWrapper}>
+                    <span className={cls.FieldLabel}>Required</span>
 
-                <Input
-                    label="Name"
-                    inputValue={name}
-                    onChange={setName}
-                    disabled={createRunner.isPending}
-                />
-
-                <Dropdown
-                    label="Provider"
-                    placeholder="Select provider"
-                    options={PROVIDER_OPTIONS}
-                    value={[provider]}
-                    onChange={handleProviderChange}
-                    portal
-                />
-
-                <Dropdown
-                    label="Scope"
-                    placeholder="Select scope"
-                    options={SCOPE_OPTIONS}
-                    value={[scope]}
-                    onChange={handleScopeChange}
-                    portal
-                />
-
-                <div className={cls.TargetFieldWrapper}>
                     <Input
-                        label="Target"
-                        inputValue={target}
-                        onChange={handleTargetChange}
+                        label="Name"
+                        inputValue={name}
+                        onChange={setName}
+                        disabled={createRunner.isPending}
+                        error={nameError}
+                    />
+
+                    <Dropdown
+                        label="Provider"
+                        placeholder="Select provider"
+                        options={PROVIDER_OPTIONS}
+                        value={[provider]}
+                        onChange={handleProviderChange}
+                        portal
+                    />
+
+                    <Dropdown
+                        label="Scope"
+                        placeholder="Select scope"
+                        options={SCOPE_OPTIONS}
+                        value={[scope]}
+                        onChange={handleScopeChange}
+                        portal
+                    />
+
+                    {renderTargetField()}
+
+                    <Input
+                        label={isGitlab ? "GitLab Runner Token" : "GitHub Access Token"}
+                        inputValue={accessToken}
+                        onChange={setAccessToken}
                         disabled={createRunner.isPending}
                     />
-                    {showTargetError && (
-                        <span className={cls.FieldError}>Target is required</span>
+
+                    {isGitlab && (
+                        <Input
+                            label="GitLab Base URL (optional, defaults to gitlab.com)"
+                            inputValue={baseUrl}
+                            onChange={setBaseUrl}
+                            disabled={createRunner.isPending}
+                        />
                     )}
+
+                    {isGitlab && (
+                        <Input
+                            label="Docker Image (optional, defaults to alpine:3.24.2)"
+                            inputValue={dockerImage}
+                            onChange={setDockerImage}
+                            disabled={createRunner.isPending}
+                        />
+                    )}
+
+                    {isGitlab && (
+                        <Input label="Executor" inputValue="docker"/>
+                    )}
+
+                    {isGitlab && (
+                        <Input
+                            label="Concurrent jobs (optional, defaults to 1)"
+                            inputValue={concurrent}
+                            onChange={setConcurrent}
+                            disabled={createRunner.isPending}
+                        />
+                    )}
+
+                    <DockerDaemonPicker
+                        choice={dockerChoice}
+                        externalAddress={externalDockerAddress}
+                        isDisabled={createRunner.isPending}
+                        onChoiceChange={setDockerChoice}
+                        onExternalAddressChange={setExternalDockerAddress}
+                        onCreateNew={handleStartCreatingDind}
+                    />
+
+                    <div
+                        className={cls.AdvancedToggle}
+                        onClick={handleToggleAdvanced}
+                    >
+                        {showAdvanced ? "▼" : "▶"} Optional
+                    </div>
+
+                    {renderOptionalFields()}
                 </div>
 
-                <Input
-                    label={isGitlab ? "GitLab Runner Token" : "GitHub Access Token"}
-                    inputValue={accessToken}
-                    onChange={setAccessToken}
-                    disabled={createRunner.isPending}
-                />
-
-                {isGitlab && (
-                    <Input
-                        label="GitLab Base URL (optional, defaults to gitlab.com)"
-                        inputValue={baseUrl}
-                        onChange={setBaseUrl}
-                        disabled={createRunner.isPending}
-                    />
-                )}
-
-                {isGitlab && (
-                    <Input
-                        label="Docker Image (optional, defaults to alpine:3.24.2)"
-                        inputValue={dockerImage}
-                        onChange={setDockerImage}
-                        disabled={createRunner.isPending}
-                    />
-                )}
-
-                {isGitlab && (
-                    <Input label="Executor" inputValue="docker"/>
-                )}
-
-                {isGitlab && (
-                    <Input
-                        label="Concurrent jobs (optional, defaults to 1)"
-                        inputValue={concurrent}
-                        onChange={setConcurrent}
-                        disabled={createRunner.isPending}
-                    />
-                )}
-
-                <DockerDaemonPicker
-                    choice={dockerChoice}
-                    externalAddress={externalDockerAddress}
-                    isDisabled={createRunner.isPending}
-                    onChoiceChange={setDockerChoice}
-                    onExternalAddressChange={setExternalDockerAddress}
-                    onCreateNew={handleStartCreatingDind}
-                />
-
-                <div
-                    className={cls.AdvancedToggle}
-                    onClick={handleToggleAdvanced}
-                >
-                    {showAdvanced ? "▼" : "▶"} Optional
-                </div>
-
-                <div className={cn(cls.AdvancedSection, showAdvanced && cls.AdvancedSectionOpen)}>
-                    <Input
-                        label="Labels (comma-separated)"
-                        inputValue={labels}
-                        onChange={setLabels}
-                        disabled={createRunner.isPending}
-                    />
-
-                    <Input
-                        label="Environment (optional)"
-                        inputValue={environment}
-                        onChange={setEnvironment}
-                        disabled={createRunner.isPending}
-                    />
+                <div className={cls.ActionsRow}>
+                    <Button variant="secondary" onClick={CloseDialog} disabled={createRunner.isPending}>
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="primary"
+                        onClick={handleCreate}
+                        disabled={createRunner.isPending || !isFormValid}
+                    >
+                        {createRunner.isPending ? "Creating…" : "Create"}
+                    </Button>
                 </div>
             </div>
-
-            <div className={cls.ActionsRow}>
-                <Button variant="secondary" onClick={CloseDialog} disabled={createRunner.isPending}>
-                    Cancel
-                </Button>
-                <Button
-                    variant="primary"
-                    onClick={handleCreate}
-                    disabled={createRunner.isPending || !isFormValid}
-                >
-                    {createRunner.isPending ? "Creating…" : "Create"}
-                </Button>
-            </div>
-        </div>
+            {submittedReq && (
+                <TaskProgressScreen
+                    title="Creating runner"
+                    metaLine={name.trim()}
+                    start={handleStart}
+                    onSuccess={handleSuccess}
+                    onClose={CloseDialog}
+                    onBack={handleBack}
+                />
+            )}
+        </>
     )
 }

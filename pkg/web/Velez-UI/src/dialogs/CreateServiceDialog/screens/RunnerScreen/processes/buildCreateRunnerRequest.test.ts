@@ -25,6 +25,10 @@ function newForm(overrides: Partial<Parameters<typeof buildCreateRunnerRequest>[
 }
 
 describe("buildCreateRunnerRequest", () => {
+    it("returns null when the name is not a valid instance name", () => {
+        expect(buildCreateRunnerRequest(newForm({name: "Bad Name"}))).toBeNull()
+    })
+
     it("sends only dindName when a dind is chosen", () => {
         const req = buildCreateRunnerRequest(newForm())
 

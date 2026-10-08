@@ -1,10 +1,17 @@
 .InputContainer {
-    position: relative;
     display: flex;
     flex-direction: column;
 
     width: 100%;
     height: 100%;
+}
+
+.Field {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
 }
 
 .InputContainer input {
@@ -80,4 +87,16 @@
     height: 1rem;
     transform: translateY(-50%);
     cursor: help;
+}
+
+
+.InputContainer.HasError:not(.Borderless) input,
+.InputContainer.HasError:not(.Borderless) input:focus {
+    border-color: var(--red);
+}
+
+.Error {
+    margin-top: 0.25rem;
+    font-size: var(--vs-fs-body);
+    color: var(--red);
 }

@@ -30,6 +30,15 @@ describe("CreateDindDialogForm", () => {
         expect(screen.getByRole("button", {name: "Create"})).toBeDisabled()
     })
 
+    it("shows the name error and disables Create when the name is invalid", () => {
+        renderForm()
+
+        fireEvent.change(inputFor("Name"), {target: {value: "Bad Name"}})
+
+        expect(screen.getByRole("alert")).toHaveTextContent("Instance name must be 2-32 characters")
+        expect(screen.getByRole("button", {name: "Create"})).toBeDisabled()
+    })
+
     it("submits the trimmed name with Sysbox enabled when Create is clicked", () => {
         const {onSubmit} = renderForm()
         fireEvent.change(inputFor("Name"), {target: {value: " ci "}})

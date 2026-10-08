@@ -72,10 +72,11 @@ type CreatePgInstanceReq struct {
 // VervServicesService - status, environment and image are never persisted
 // alongside the pg-specific facts. See section 3's "never duplicated" rule.
 type PgInstanceView struct {
-	Name     string
-	DbName   string
-	Username string
-	Port     int32
+	Name        string
+	DisplayName string
+	DbName      string
+	Username    string
+	Port        int32
 
 	Environment string
 	Status      string

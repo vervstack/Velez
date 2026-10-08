@@ -30,7 +30,7 @@ func (impl *Impl) ListPgInstances(
 		out = append(out, pgInstanceToPb(instance))
 	}
 
-	tasks, err := impl.provisioning.List(ctx, jobs.CreatePgInstanceAction)
+	tasks, err := impl.provisioning.List(ctx, jobs.CreatePgInstanceAction, jobs.DropPgInstanceAction)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error listing provisioning tasks")
 	}
@@ -50,8 +50,14 @@ func (impl *Impl) ListPgInstances(
 // pb.PgInstance deliberately has none; only GetPgInstanceCredentials
 // resolves the secret.
 func pgInstanceToPb(view domain.PgInstanceView) *pb.PgInstance {
+	displayName := view.DisplayName
+	if displayName == "" {
+		displayName = view.Name
+	}
+
 	out := &pb.PgInstance{
 		Name:        view.Name,
+		DisplayName: displayName,
 		DbName:      view.DbName,
 		Username:    view.Username,
 		Port:        uint32(view.Port),

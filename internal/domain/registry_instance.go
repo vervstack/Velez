@@ -77,10 +77,12 @@ type CreateRegistryInstanceReq struct {
 // environment and image are never persisted alongside the registry-specific
 // facts.
 type RegistryInstanceView struct {
-	Name     string
-	Port     int32
-	UiPort   int32
-	Username string
+	Name string
+	// DisplayName - the bare name the user typed, without the service prefix.
+	DisplayName string
+	Port        int32
+	UiPort      int32
+	Username    string
 
 	Environment string
 	Status      string

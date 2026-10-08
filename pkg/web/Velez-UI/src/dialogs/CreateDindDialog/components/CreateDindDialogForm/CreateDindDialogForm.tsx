@@ -3,6 +3,7 @@ import {Checkbox} from "@vervstack/chures"
 
 import cls from "@/dialogs/CreateDindDialog/components/CreateDindDialogForm/CreateDindDialogForm.module.css"
 import type {CreateDindRequest} from "@/app/api/velez/dind_api.pb"
+import {validateInstanceName} from "@/processes/mappings/instanceName.ts"
 import Button from "@/components/base/Button.tsx"
 import Input from "@/components/base/Input.tsx"
 import {buildCreateDindRequest} from "@/widgets/CreateDindForm/processes/buildCreateDindRequest.ts"
@@ -21,6 +22,7 @@ export default function CreateDindDialogForm({onSubmit, onCancel}: Props) {
     const [environment, setEnvironment] = useState("")
     const [isSysboxEnabled, setIsSysboxEnabled] = useState(true)
 
+    const nameError = validateInstanceName(name)
     const req = buildCreateDindRequest({name, environment, isSysboxEnabled})
 
     function handleCreate() {
@@ -32,7 +34,7 @@ export default function CreateDindDialogForm({onSubmit, onCancel}: Props) {
     return (
         <div className={cls.CreateDindDialogFormContainer}>
             <div className={cls.FieldsWrapper}>
-                <Input label="Name" inputValue={name} onChange={setName}/>
+                <Input label="Name" inputValue={name} onChange={setName} error={nameError}/>
                 <Input label="Environment (optional)" inputValue={environment} onChange={setEnvironment}/>
                 <Checkbox label="Sysbox isolation" checked={isSysboxEnabled} onChange={setIsSysboxEnabled}/>
                 <p className={cls.Description}>{SYSBOX_DESCRIPTION}</p>

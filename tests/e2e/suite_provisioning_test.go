@@ -4,6 +4,7 @@ package e2e
 
 import (
 	"context"
+	"strings"
 	"testing"
 	"time"
 
@@ -21,10 +22,12 @@ import (
 )
 
 const (
-	provisioningOkInstanceName   = "e2e-prov-ok"
-	provisioningFailInstanceName = "e2e-prov-fail"
-	provisioningMissingEntityId  = "e2e-prov-missing"
-	provisioningUnknownBox       = "e2e-no-such-box"
+	provisioningOkInstanceName      = "e2e-prov-ok"
+	provisioningFailInstanceName    = "e2e-prov-fail"
+	provisioningMissingEntityId     = "e2e-prov-missing"
+	provisioningUnknownBox          = "e2e-no-such-box"
+	provisioningDropInstanceName    = "e2e-prov-drop"
+	provisioningDisplayInstanceName = "e2e-prov-dn"
 
 	provisioningPollTimeout = 3 * time.Minute
 	provisioningPollEvery   = 500 * time.Millisecond
@@ -50,7 +53,7 @@ func (s *ProvisioningSuite) Test_Provisioning_CreateTaskVisibleThenGone() {
 
 	requireProvisioningVisibleOrListed(t, env, createResp.GetEntityId(), labels.PgaasNamePrefix+provisioningOkInstanceName)
 
-	createTask := waitProvisioningTaskTerminal(t, env, createResp)
+	createTask := waitProvisioningTaskTerminal(t, env, createResp.GetEntityId(), createResp.GetAction())
 	require.Equal(t, tasks_queries.VelezTaskStatusDONE, createTask.Status,
 		"create_pg_instance task error: %s", createTask.Error.String)
 
@@ -73,7 +76,7 @@ func (s *ProvisioningSuite) Test_Provisioning_FailedTaskIsDismissable() {
 	createReq := newProvisioningPgRequest(provisioningFailInstanceName, provisioningUnknownBox)
 	createResp := createProvisioningPg(t, env, createReq)
 
-	failedTask := waitProvisioningTaskTerminal(t, env, createResp)
+	failedTask := waitProvisioningTaskTerminal(t, env, createResp.GetEntityId(), createResp.GetAction())
 	require.Equal(t, tasks_queries.VelezTaskStatusFAILED, failedTask.Status)
 
 	listed := findProvisioningTask(t, env, createResp.GetEntityId())
@@ -99,6 +102,81 @@ func (s *ProvisioningSuite) Test_Provisioning_FailedTaskIsDismissable() {
 	require.Equal(t, codes.NotFound, status.Code(err))
 }
 
+func (s *ProvisioningSuite) Test_Provisioning_DropTaskVisibleThenInstanceGone() {
+	t := s.T()
+	t.Parallel()
+
+	env := s.plane.NewEnvironment(t)
+	dockerClient := env.Custom.NodeClients.Docker().Client()
+	serviceName := labels.PgaasNamePrefix + provisioningDropInstanceName
+
+	removeProvisioningPgInstance(dockerClient, provisioningDropInstanceName)
+	t.Cleanup(func() { removeProvisioningPgInstance(dockerClient, provisioningDropInstanceName) })
+
+	createResp := createProvisioningPg(t, env, newProvisioningPgRequest(provisioningDropInstanceName, ""))
+
+	createTask := waitProvisioningTaskTerminal(t, env, createResp.GetEntityId(), createResp.GetAction())
+	require.Equal(t, tasks_queries.VelezTaskStatusDONE, createTask.Status,
+		"create_pg_instance task error: %s", createTask.Error.String)
+	require.NotNil(t, findPgInstance(t, env, serviceName), "the created instance must be listed")
+
+	dropResp, err := env.Custom.PgaasApiImpl.DropPgInstance(t.Context(), newDropPgInstanceRequest(serviceName))
+	require.NoError(t, err)
+	require.Equal(t, serviceName, dropResp.GetEntityId())
+	require.Equal(t, jobs.DropPgInstanceAction, dropResp.GetAction())
+
+	requireProvisioningDropVisibleOrGone(t, env, serviceName)
+
+	dropTask := waitProvisioningTaskTerminal(t, env, dropResp.GetEntityId(), dropResp.GetAction())
+	require.Equal(t, tasks_queries.VelezTaskStatusDONE, dropTask.Status,
+		"drop_pg_instance task error: %s", dropTask.Error.String)
+
+	require.Nil(t, findPgInstance(t, env, serviceName), "the dropped instance must not be listed")
+	require.Nil(t, findProvisioningTask(t, env, serviceName), "a DONE drop task must vanish from provisioning")
+}
+
+func (s *ProvisioningSuite) Test_Provisioning_InvalidNameRejected() {
+	t := s.T()
+	t.Parallel()
+
+	env := s.plane.NewEnvironment(t)
+
+	for _, name := range provisioningInvalidNames() {
+		_, err := env.Custom.PgaasApiImpl.CreatePgInstance(t.Context(), newProvisioningPgRequest(name, ""))
+		require.Equal(t, codes.InvalidArgument, status.Code(err), "name %q must be rejected", name)
+
+		require.Nil(t, findProvisioningTask(t, env, name), "name %q must not enqueue a task", name)
+		require.Nil(t, findPgInstance(t, env, labels.PgaasNamePrefix+name), "name %q must not create an instance", name)
+	}
+}
+
+func (s *ProvisioningSuite) Test_Provisioning_DisplayNameIsBareName() {
+	t := s.T()
+	t.Parallel()
+
+	env := s.plane.NewEnvironment(t)
+	dockerClient := env.Custom.NodeClients.Docker().Client()
+	serviceName := labels.PgaasNamePrefix + provisioningDisplayInstanceName
+
+	removeProvisioningPgInstance(dockerClient, provisioningDisplayInstanceName)
+	t.Cleanup(func() { removeProvisioningPgInstance(dockerClient, provisioningDisplayInstanceName) })
+
+	createResp := createProvisioningPg(t, env, newProvisioningPgRequest(provisioningDisplayInstanceName, ""))
+
+	createTask := waitProvisioningTaskTerminal(t, env, createResp.GetEntityId(), createResp.GetAction())
+	require.Equal(t, tasks_queries.VelezTaskStatusDONE, createTask.Status,
+		"create_pg_instance task error: %s", createTask.Error.String)
+
+	instance := findPgInstance(t, env, serviceName)
+	require.NotNil(t, instance, "the created instance must be listed")
+	require.Equal(t, serviceName, instance.GetName())
+	require.Equal(t, provisioningDisplayInstanceName, instance.GetDisplayName())
+
+	serviceResp, err := env.Custom.ServiceApiImpl.GetService(t.Context(), newGetServiceRequest(serviceName))
+	require.NoError(t, err)
+	require.Equal(t, provisioningDisplayInstanceName, serviceResp.GetVervService().GetDisplayName())
+}
+
 func Test_Provisioning(t *testing.T) {
 	t.Parallel()
 	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
@@ -114,6 +192,14 @@ func newProvisioningPgRequest(name, box string) *velez_api.CreatePgInstance_Requ
 	}
 
 	return req
+}
+
+func newDropPgInstanceRequest(name string) *velez_api.DropPgInstance_Request {
+	return &velez_api.DropPgInstance_Request{Name: name}
+}
+
+func provisioningInvalidNames() []string {
+	return []string{"A", "x", "has space", strings.Repeat("a", 33)}
 }
 
 func newDismissTaskRequest(entityId, action string) *velez_api.DismissTask_Request {
@@ -141,7 +227,7 @@ func createProvisioningPg(
 func waitProvisioningTaskTerminal(
 	t *testing.T,
 	env *TestEnvironment,
-	createResp *velez_api.CreatePgInstance_Response,
+	entityId, action string,
 ) tasks_queries.VelezTask {
 	t.Helper()
 
@@ -150,7 +236,7 @@ func waitProvisioningTaskTerminal(
 
 	var last tasks_queries.VelezTask
 
-	for task := range env.Custom.JobsEngine.Watch(ctx, createResp.GetEntityId(), createResp.GetAction()) {
+	for task := range env.Custom.JobsEngine.Watch(ctx, entityId, action) {
 		last = task
 	}
 
@@ -171,6 +257,21 @@ func requireProvisioningVisibleOrListed(t *testing.T, env *TestEnvironment, enti
 		return findPgInstance(t, env, instanceName) != nil
 	}, provisioningPollTimeout, provisioningPollEvery,
 		"the create task must appear in provisioning or the instance must be listed")
+}
+
+// requireProvisioningDropVisibleOrGone tolerates a drop that finishes before the first poll.
+func requireProvisioningDropVisibleOrGone(t *testing.T, env *TestEnvironment, serviceName string) {
+	t.Helper()
+
+	require.Eventually(t, func() bool {
+		task := findProvisioningTask(t, env, serviceName)
+		if task != nil {
+			return task.GetAction() == jobs.DropPgInstanceAction
+		}
+
+		return findPgInstance(t, env, serviceName) == nil
+	}, provisioningPollTimeout, provisioningPollEvery,
+		"the drop task must appear in provisioning or the instance must already be gone")
 }
 
 func findProvisioningTask(t *testing.T, env *TestEnvironment, entityId string) *velez_api.ProvisioningTask {

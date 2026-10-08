@@ -463,10 +463,7 @@ func runRegistryOnS3(
 	require.Error(t, err)
 	require.Equal(t, codes.FailedPrecondition, status.Code(err))
 
-	dropReq := &velez_api.DropRegistryInstance_Request{Name: registryServiceName}
-
-	_, err = env.Custom.ContainerRegistryApiImpl.DropRegistryInstance(ctx, dropReq)
-	require.NoError(t, err)
+	dropRegistryInstanceAndAwait(t, env, registryServiceName)
 
 	dropS3Instance(t, env, s3InstanceName)
 }
@@ -562,7 +559,7 @@ func waitForS3Task(t *testing.T, env *TestEnvironment, entityId, action string) 
 	t.Helper()
 
 	require.NotEmpty(t, entityId)
-	require.Equal(t, jobs.CreateS3InstanceAction, action)
+	require.Contains(t, []string{jobs.CreateS3InstanceAction, jobs.DropS3InstanceAction}, action)
 
 	ctx, cancel := context.WithTimeout(t.Context(), s3TaskTimeout)
 	defer cancel()
@@ -666,8 +663,12 @@ func getS3KeyCredentials(
 func dropS3Instance(t *testing.T, env *TestEnvironment, name string) {
 	t.Helper()
 
-	_, err := env.Custom.S3ApiImpl.DropS3Instance(t.Context(), &velez_api.DropS3Instance_Request{Name: name})
+	dropReq := &velez_api.DropS3Instance_Request{Name: name}
+
+	dropResp, err := env.Custom.S3ApiImpl.DropS3Instance(t.Context(), dropReq)
 	require.NoError(t, err)
+
+	waitForS3Task(t, env, dropResp.GetEntityId(), dropResp.GetAction())
 }
 
 func newCreateS3InstanceRequest(name string, enableWebUi bool) *velez_api.CreateS3Instance_Request {

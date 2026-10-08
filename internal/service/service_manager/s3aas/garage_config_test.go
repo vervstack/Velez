@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"go.vervstack.ru/Velez/internal/domain"
 )
 
 func Test_ParseGarageConfig_Values(t *testing.T) {
@@ -51,7 +53,7 @@ func Test_ParseOwnerKeyName_Cases(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			owner, bucket, isOwnerKey := parseOwnerKeyName(tc.keyName)
+			owner, bucket, isOwnerKey := domain.ParseS3OwnerKeyName(tc.keyName)
 
 			require.Equal(t, tc.wantIsKey, isOwnerKey)
 			require.Equal(t, tc.wantOwner, owner)

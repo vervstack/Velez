@@ -18,12 +18,13 @@ function renderRow(mutateAsync = vi.fn().mockResolvedValue(undefined)) {
     const OpenDialog = vi.fn()
     const CloseDialog = vi.fn()
     const catchGrpc = vi.fn()
+    const bake = vi.fn()
     vi.mocked(DropDindMutation).mockReturnValue({mutateAsync} as Partial<DropMutation> as DropMutation)
     vi.mocked(useDialog).mockReturnValue({OpenDialog, CloseDialog} as Partial<Dialog> as Dialog)
-    vi.mocked(useToaster).mockReturnValue({bake: vi.fn(), catchGrpc} as Partial<Toaster> as Toaster)
+    vi.mocked(useToaster).mockReturnValue({bake, catchGrpc} as Partial<Toaster> as Toaster)
 
     render(<DindRow dind={{name: "ci", address: "tcp://ci:2375", isSysboxEnabled: true}}/>)
-    return {mutateAsync, OpenDialog, CloseDialog, catchGrpc}
+    return {mutateAsync, OpenDialog, CloseDialog, catchGrpc, bake}
 }
 
 function openConfirmDialog(OpenDialog: ReturnType<typeof vi.fn>) {
@@ -54,14 +55,15 @@ describe("DindRow", () => {
         expect(mutateAsync).not.toHaveBeenCalled()
     })
 
-    it("drops the daemon by name and closes the dialog once confirmed", async () => {
-        const {mutateAsync, OpenDialog, CloseDialog} = renderRow()
+    it("drops the daemon by name and closes without a success toast once the drop is accepted", async () => {
+        const {mutateAsync, OpenDialog, CloseDialog, bake} = renderRow()
         openConfirmDialog(OpenDialog)
 
         fireEvent.click(screen.getAllByText("Drop").at(-1) as HTMLElement)
 
         await waitFor(() => expect(mutateAsync).toHaveBeenCalledWith("ci"))
         await waitFor(() => expect(CloseDialog).toHaveBeenCalled())
+        expect(bake).not.toHaveBeenCalled()
     })
 
     it("routes a failed drop through the toaster error surface", async () => {

@@ -18,13 +18,8 @@ export default function DindRow({dind}: Props) {
 
     const name = dind.name ?? ""
 
-    function handleConfirmDrop() {
-        dropDind.mutateAsync(name)
-            .then(function handleDropped() {
-                toaster.bake({title: "Docker daemon dropped", description: name, level: "Info"})
-                CloseDialog()
-            })
-            .catch(toaster.catchGrpc)
+    function handleConfirmDrop(): Promise<void> {
+        return dropDind.mutateAsync(name).catch(toaster.catchGrpc)
     }
 
     function handleDrop() {

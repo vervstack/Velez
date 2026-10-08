@@ -26,7 +26,7 @@ func (impl *Impl) ListDinds(
 		out = append(out, dindToPb(view))
 	}
 
-	tasks, err := impl.provisioning.List(ctx, jobs.CreateDindAction)
+	tasks, err := impl.provisioning.List(ctx, jobs.CreateDindAction, jobs.DropDindAction)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error listing provisioning tasks")
 	}

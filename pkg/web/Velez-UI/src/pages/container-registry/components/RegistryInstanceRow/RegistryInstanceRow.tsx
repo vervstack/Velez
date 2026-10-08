@@ -26,6 +26,7 @@ export default function RegistryInstanceRow({instance}: Props) {
     const {OpenDialog} = useDialog()
 
     const name = instance.name ?? ""
+    const displayName = instance.displayName || name
     const status = mapRegistryInstanceStatus(instance.status)
     const isRunning = status === "running"
     const hasImageBrowser = !!instance.uiPort && instance.uiPort !== 0 && isRunning
@@ -46,7 +47,7 @@ export default function RegistryInstanceRow({instance}: Props) {
         <div className={cls.RegistryInstanceRowContainer}>
             <div className={cls.row}>
                 <StatusDot status={status} pulse/>
-                <Link className={cls.name} to={Routes.Service + "/" + name}>{name}</Link>
+                <Link className={cls.name} to={Routes.Service + "/" + name}>{displayName}</Link>
                 <span className={cls.cell}>{instance.environment || "-"}</span>
                 <span className={cls.cell}>{instance.port}</span>
                 <span className={cls.cell}>{instance.username}</span>

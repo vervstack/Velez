@@ -6,6 +6,7 @@ import (
 	"go.redsock.ru/rerrors"
 
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/jobs"
 )
 
 func (impl *Impl) DropRunner(
@@ -17,5 +18,10 @@ func (impl *Impl) DropRunner(
 		return nil, rerrors.Wrap(err, "error dropping runner")
 	}
 
-	return &pb.DropRunner_Response{}, nil
+	resp := &pb.DropRunner_Response{
+		EntityId: req.GetName(),
+		Action:   jobs.DropRunnerAction,
+	}
+
+	return resp, nil
 }

@@ -7,6 +7,10 @@ describe("buildCreateDindRequest", () => {
         expect(buildCreateDindRequest({name: "  ", environment: "", isSysboxEnabled: true})).toBeNull()
     })
 
+    it("returns null when the name is not a valid instance name", () => {
+        expect(buildCreateDindRequest({name: "Bad Name", environment: "", isSysboxEnabled: true})).toBeNull()
+    })
+
     it("trims the name and omits an empty environment", () => {
         expect(buildCreateDindRequest({name: " ci ", environment: " ", isSysboxEnabled: true})).toEqual({
             name: "ci",

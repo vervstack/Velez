@@ -36,8 +36,10 @@ type S3Instance struct {
 	Environment       string                 `protobuf:"bytes,6,opt,name=environment,proto3" json:"environment,omitempty"`
 	Status            string                 `protobuf:"bytes,7,opt,name=status,proto3" json:"status,omitempty"`
 	CreatedAt         *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// display_name - the instance name without its storage-layer prefix (pgaas_/s3_/cr_); falls back to name
+	DisplayName   string `protobuf:"bytes,9,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *S3Instance) Reset() {
@@ -124,6 +126,13 @@ func (x *S3Instance) GetCreatedAt() *timestamppb.Timestamp {
 		return x.CreatedAt
 	}
 	return nil
+}
+
+func (x *S3Instance) GetDisplayName() string {
+	if x != nil {
+		return x.DisplayName
+	}
+	return ""
 }
 
 type S3BucketAccess struct {
@@ -1108,7 +1117,11 @@ func (x *DropS3Instance_Request) GetName() string {
 }
 
 type DropS3Instance_Response struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The RPC enqueues the drop task and returns before it completes.
+	// Callers watch entity_id/action via TasksApi.WatchTask and refetch the list once the task reaches DONE.
+	EntityId      string `protobuf:"bytes,1,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
+	Action        string `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1141,6 +1154,20 @@ func (x *DropS3Instance_Response) ProtoReflect() protoreflect.Message {
 // Deprecated: Use DropS3Instance_Response.ProtoReflect.Descriptor instead.
 func (*DropS3Instance_Response) Descriptor() ([]byte, []int) {
 	return file_s3_api_proto_rawDescGZIP(), []int{6, 1}
+}
+
+func (x *DropS3Instance_Response) GetEntityId() string {
+	if x != nil {
+		return x.EntityId
+	}
+	return ""
+}
+
+func (x *DropS3Instance_Response) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
 }
 
 type GetS3InstanceCredentials_Request struct {
@@ -2080,7 +2107,7 @@ var File_s3_api_proto protoreflect.FileDescriptor
 
 const file_s3_api_proto_rawDesc = "" +
 	"\n" +
-	"\fs3_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\x1a\x12velez_common.proto\"\xaa\x02\n" +
+	"\fs3_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\x1a\x12velez_common.proto\"\xcd\x02\n" +
 	"\n" +
 	"S3Instance\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x17\n" +
@@ -2091,7 +2118,8 @@ const file_s3_api_proto_rawDesc = "" +
 	"\venvironment\x18\x06 \x01(\tR\venvironment\x12\x16\n" +
 	"\x06status\x18\a \x01(\tR\x06status\x129\n" +
 	"\n" +
-	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB\x0e\n" +
+	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12!\n" +
+	"\fdisplay_name\x18\t \x01(\tR\vdisplayNameB\x0e\n" +
 	"\f_web_ui_port\"\xbf\x01\n" +
 	"\x0eS3BucketAccess\x12\x1f\n" +
 	"\vbucket_name\x18\x01 \x01(\tR\n" +
@@ -2142,12 +2170,13 @@ const file_s3_api_proto_rawDesc = "" +
 	"\bResponse\x123\n" +
 	"\tinstances\x18\x01 \x03(\v2\x15.velez_api.S3InstanceR\tinstances\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x04R\x05total\x12?\n" +
-	"\fprovisioning\x18\x03 \x03(\v2\x1b.velez_api.ProvisioningTaskR\fprovisioning\";\n" +
+	"\fprovisioning\x18\x03 \x03(\v2\x1b.velez_api.ProvisioningTaskR\fprovisioning\"p\n" +
 	"\x0eDropS3Instance\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x1a\n" +
-	"\n" +
-	"\bResponse\"\x86\x03\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x1a?\n" +
+	"\bResponse\x12\x1b\n" +
+	"\tentity_id\x18\x01 \x01(\tR\bentityId\x12\x16\n" +
+	"\x06action\x18\x02 \x01(\tR\x06action\"\x86\x03\n" +
 	"\x18GetS3InstanceCredentials\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x1a\xca\x02\n" +

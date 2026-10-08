@@ -22,6 +22,7 @@ export type RegistryInstance = {
   updatedAt?: GoogleProtobufTimestamp.Timestamp;
   s3Instance?: string;
   s3Bucket?: string;
+  displayName?: string;
 };
 
 export type RegistryS3Storage = {
@@ -63,7 +64,10 @@ export type DropRegistryInstanceRequest = {
   name?: string;
 };
 
-export type DropRegistryInstanceResponse = Record<string, never>;
+export type DropRegistryInstanceResponse = {
+  entityId?: string;
+  action?: string;
+};
 
 export type DropRegistryInstance = Record<string, never>;
 

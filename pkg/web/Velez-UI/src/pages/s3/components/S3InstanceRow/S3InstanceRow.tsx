@@ -25,6 +25,7 @@ export default function S3InstanceRow({instance, isSelected, onSelect}: Props) {
     const dropInstance = DropS3InstanceMutation()
 
     const name = instance.name ?? ""
+    const displayName = instance.displayName || name
     const webUiLink = s3WebUiLink(instance)
 
     function handleSelect() {
@@ -33,10 +34,7 @@ export default function S3InstanceRow({instance, isSelected, onSelect}: Props) {
 
     function handleConfirmDrop() {
         dropInstance.mutateAsync(name)
-            .then(function handleDropped() {
-                toaster.bake({title: "S3 instance dropped", description: name, level: "Info"})
-                CloseDialog()
-            })
+            .then(CloseDialog)
             .catch(toaster.catchGrpc)
     }
 
@@ -57,7 +55,7 @@ export default function S3InstanceRow({instance, isSelected, onSelect}: Props) {
         <div className={cn(cls.S3InstanceRowContainer, isSelected && cls.Selected)}>
             <div className={cls.Row}>
                 <StatusDot status={mapS3InstanceStatus(instance.status)} pulse/>
-                <Link className={cls.Name} to={Routes.Service + "/" + s3ServiceName(name)}>{name}</Link>
+                <Link className={cls.Name} to={Routes.Service + "/" + s3ServiceName(name)}>{displayName}</Link>
                 <span className={cls.Cell}>{instance.environment || "-"}</span>
                 <span className={cls.Cell}>{instance.s3Port || "-"}</span>
                 <span className={cls.Cell}>

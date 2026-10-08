@@ -8,6 +8,7 @@ import {isInstanceProvisioning} from "@/processes/mappings/provisioning.ts"
 import {sortS3InstancesByName} from "@/processes/mappings/s3.ts"
 import {S3_INSTANCES_QUERY_KEY, useListS3InstancesQuery} from "@/processes/queries/s3.ts"
 import Button from "@/components/base/Button.tsx"
+import InstanceCount from "@/components/InstanceCount/InstanceCount.tsx"
 import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorState.tsx"
 import CreateS3InstanceDialog from "@/dialogs/CreateS3InstanceDialog/CreateS3InstanceDialog.tsx"
 import S3InstanceDetail from "@/pages/s3/components/S3InstanceDetail/S3InstanceDetail.tsx"
@@ -53,7 +54,7 @@ export default function S3Page() {
             <ProvisioningRow
                 key={task.taskId}
                 task={task}
-                title="Creating S3 instance"
+                noun="S3 instance"
                 queryKey={S3_INSTANCES_QUERY_KEY}
             />
         )
@@ -93,7 +94,7 @@ export default function S3Page() {
         <div className={cls.S3PageContainer}>
             <div className={cls.Toolbar}>
                 <h1 className={cls.PageTitle}>S3 storage</h1>
-                <span className={cls.Count}>{instances.length} instances</span>
+                <InstanceCount count={instances.length} label="instances" isLoading={instancesQuery.isLoading}/>
                 <div className={cls.ToolbarRight}>
                     <Button variant="primary" onClick={handleCreate}>
                         Create S3 instance

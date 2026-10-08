@@ -1,6 +1,7 @@
 package s3_api_impl
 
 import (
+	"go.redsock.ru/toolbox"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
@@ -10,6 +11,7 @@ import (
 func s3InstanceToPb(instance domain.S3Instance) *pb.S3Instance {
 	out := &pb.S3Instance{
 		Name:              instance.Name,
+		DisplayName:       toolbox.Coalesce(instance.DisplayName, instance.Name),
 		S3Port:            instance.S3Port,
 		ReplicationFactor: instance.ReplicationFactor,
 		Region:            instance.Region,

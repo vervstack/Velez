@@ -41,8 +41,10 @@ type RegistryInstance struct {
 	UpdatedAt    *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 	// Set when the registry stores blobs in a bucket of a Velez S3 instance
 	// instead of a local volume. Read from the registry's own config.
-	S3Instance    *string `protobuf:"bytes,10,opt,name=s3_instance,json=s3Instance,proto3,oneof" json:"s3_instance,omitempty"`
-	S3Bucket      *string `protobuf:"bytes,11,opt,name=s3_bucket,json=s3Bucket,proto3,oneof" json:"s3_bucket,omitempty"`
+	S3Instance *string `protobuf:"bytes,10,opt,name=s3_instance,json=s3Instance,proto3,oneof" json:"s3_instance,omitempty"`
+	S3Bucket   *string `protobuf:"bytes,11,opt,name=s3_bucket,json=s3Bucket,proto3,oneof" json:"s3_bucket,omitempty"`
+	// display_name - the instance name without its storage-layer prefix (pgaas_/s3_/cr_); falls back to name
+	DisplayName   string `protobuf:"bytes,12,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -150,6 +152,13 @@ func (x *RegistryInstance) GetS3Instance() string {
 func (x *RegistryInstance) GetS3Bucket() string {
 	if x != nil && x.S3Bucket != nil {
 		return *x.S3Bucket
+	}
+	return ""
+}
+
+func (x *RegistryInstance) GetDisplayName() string {
+	if x != nil {
+		return x.DisplayName
 	}
 	return ""
 }
@@ -667,7 +676,11 @@ func (x *DropRegistryInstance_Request) GetName() string {
 }
 
 type DropRegistryInstance_Response struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The RPC enqueues the drop task and returns before it completes.
+	// Callers watch entity_id/action via TasksApi.WatchTask and refetch the list once the task reaches DONE.
+	EntityId      string `protobuf:"bytes,1,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
+	Action        string `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -700,6 +713,20 @@ func (x *DropRegistryInstance_Response) ProtoReflect() protoreflect.Message {
 // Deprecated: Use DropRegistryInstance_Response.ProtoReflect.Descriptor instead.
 func (*DropRegistryInstance_Response) Descriptor() ([]byte, []int) {
 	return file_container_registry_api_proto_rawDescGZIP(), []int{4, 1}
+}
+
+func (x *DropRegistryInstance_Response) GetEntityId() string {
+	if x != nil {
+		return x.EntityId
+	}
+	return ""
+}
+
+func (x *DropRegistryInstance_Response) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
 }
 
 type GetRegistryInstanceCredentials_Request struct {
@@ -810,7 +837,7 @@ var File_container_registry_api_proto protoreflect.FileDescriptor
 
 const file_container_registry_api_proto_rawDesc = "" +
 	"\n" +
-	"\x1ccontainer_registry_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\x1a\x12velez_common.proto\"\xc1\x03\n" +
+	"\x1ccontainer_registry_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\x1a\x12velez_common.proto\"\xe4\x03\n" +
 	"\x10RegistryInstance\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04port\x18\x02 \x01(\rR\x04port\x12\x17\n" +
@@ -826,7 +853,8 @@ const file_container_registry_api_proto_rawDesc = "" +
 	"\vs3_instance\x18\n" +
 	" \x01(\tH\x01R\n" +
 	"s3Instance\x88\x01\x01\x12 \n" +
-	"\ts3_bucket\x18\v \x01(\tH\x02R\bs3Bucket\x88\x01\x01B\x10\n" +
+	"\ts3_bucket\x18\v \x01(\tH\x02R\bs3Bucket\x88\x01\x01\x12!\n" +
+	"\fdisplay_name\x18\f \x01(\tR\vdisplayNameB\x10\n" +
 	"\x0e_owner_serviceB\x0e\n" +
 	"\f_s3_instanceB\f\n" +
 	"\n" +
@@ -861,12 +889,13 @@ const file_container_registry_api_proto_rawDesc = "" +
 	"\bResponse\x127\n" +
 	"\binstance\x18\x01 \x01(\v2\x1b.velez_api.RegistryInstanceR\binstance\x12\x1b\n" +
 	"\tentity_id\x18\x02 \x01(\tR\bentityId\x12\x16\n" +
-	"\x06action\x18\x03 \x01(\tR\x06action\"A\n" +
+	"\x06action\x18\x03 \x01(\tR\x06action\"v\n" +
 	"\x14DropRegistryInstance\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x1a\n" +
-	"\n" +
-	"\bResponse\"\xa6\x01\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x1a?\n" +
+	"\bResponse\x12\x1b\n" +
+	"\tentity_id\x18\x01 \x01(\tR\bentityId\x12\x16\n" +
+	"\x06action\x18\x02 \x01(\tR\x06action\"\xa6\x01\n" +
 	"\x1eGetRegistryInstanceCredentials\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x1ae\n" +

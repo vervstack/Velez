@@ -376,7 +376,16 @@
       }
     },
     "velez_apiDropRunnerResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "type": "string",
+          "description": "The RPC enqueues the drop task and returns before it completes.\nCallers watch entity_id/action via TasksApi.WatchTask and refetch the list once the task reaches DONE."
+        },
+        "action": {
+          "type": "string"
+        }
+      }
     },
     "velez_apiGetRunnerConfigResponse": {
       "type": "object",

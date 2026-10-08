@@ -21,6 +21,8 @@ interface Props {
     onSuccess?(): void
 
     onClose(): void
+
+    onBack?(): void
 }
 
 type Phase = "starting" | "running" | "done" | "failed"
@@ -51,7 +53,7 @@ function statusText(phase: Phase, taskStatus: TaskStatus | undefined): string {
     return `${currentJobLabel(taskStatus)}…`
 }
 
-export default function RegistryDeployProgressScreen({name, start, onSuccess, onClose}: Props) {
+export default function RegistryDeployProgressScreen({name, start, onSuccess, onClose, onBack}: Props) {
     const [phase, setPhase] = useState<Phase>("starting")
     const [error, setError] = useState<string | undefined>(undefined)
     const [taskStatus, setTaskStatus] = useState<TaskStatus | undefined>(undefined)
@@ -111,6 +113,7 @@ export default function RegistryDeployProgressScreen({name, start, onSuccess, on
             {phase === "failed" && error && <span className={cls.ErrorText}>{error}</span>}
 
             {phase === "done" && <Button variant="primary" onClick={onClose}>Done</Button>}
+            {phase === "failed" && onBack && <Button variant="primary" onClick={onBack}>Back to form</Button>}
             {phase === "failed" && <Button variant="secondary" onClick={onClose}>Close</Button>}
         </div>
     )

@@ -564,7 +564,11 @@ type VervAppService struct {
 	Status              DeploymentStatus       `protobuf:"varint,4,opt,name=status,proto3,enum=velez_api.DeploymentStatus" json:"status,omitempty"`
 	// labels - derived server-side, never stored. Same vocabulary as
 	// ServiceBaseInfo.labels: "service-core" | "service-app" | "resource-<type>".
-	Labels        []string `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty"`
+	Labels []string `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty"`
+	// display_name - the human-facing service name, distinct from name when
+	// name carries a storage-layer prefix (e.g. a runner/pgaas/registryaas
+	// instance). Falls back to name when no clean name was recorded.
+	DisplayName   string `protobuf:"bytes,6,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -625,6 +629,13 @@ func (x *VervAppService) GetLabels() []string {
 		return x.Labels
 	}
 	return nil
+}
+
+func (x *VervAppService) GetDisplayName() string {
+	if x != nil {
+		return x.DisplayName
+	}
+	return ""
 }
 
 type CreateDeploy struct {
@@ -3314,12 +3325,13 @@ const file_service_api_proto_rawDesc = "" +
 	"\x0econtainer_name\x18\x02 \x01(\tR\rcontainerName\x12\x1d\n" +
 	"\n" +
 	"image_name\x18\x03 \x01(\tR\timageName\x12/\n" +
-	"\x06status\x18\x04 \x01(\x0e2\x17.velez_api.Smerd.StatusR\x06status\"\xc4\x01\n" +
+	"\x06status\x18\x04 \x01(\x0e2\x17.velez_api.Smerd.StatusR\x06status\"\xe7\x01\n" +
 	"\x0eVervAppService\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x127\n" +
 	"\x15current_deployment_id\x18\x03 \x01(\x04H\x00R\x13currentDeploymentId\x88\x01\x01\x123\n" +
 	"\x06status\x18\x04 \x01(\x0e2\x1b.velez_api.DeploymentStatusR\x06status\x12\x16\n" +
-	"\x06labels\x18\x05 \x03(\tR\x06labelsB\x18\n" +
+	"\x06labels\x18\x05 \x03(\tR\x06labels\x12!\n" +
+	"\fdisplay_name\x18\x06 \x01(\tR\vdisplayNameB\x18\n" +
 	"\x16_current_deployment_id\"\xcc\x03\n" +
 	"\fCreateDeploy\x1a\xaf\x03\n" +
 	"\aRequest\x122\n" +

@@ -2,12 +2,11 @@ package pgaas
 
 import (
 	"context"
-	"errors"
 
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/domain"
-	"go.vervstack.ru/Velez/internal/user_errors"
+	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/jobs"
 )
 
 func (s *PgaasService) DropPgInstance(ctx context.Context, name string) error {
@@ -16,31 +15,16 @@ func (s *PgaasService) DropPgInstance(ctx context.Context, name string) error {
 		return rerrors.Wrap(err, "error getting pg instance service")
 	}
 
-	instance, err := s.dataStorage.PgInstances().GetPgInstanceByServiceID(ctx, svc.ID)
+	_, err = s.dataStorage.PgInstances().GetPgInstanceByServiceID(ctx, svc.ID)
 	if err != nil {
 		return rerrors.Wrap(err, "error getting pg instance row")
 	}
 
-	removeReq := domain.RemoveServiceReq{Name: name, DropRunningInstances: true}
+	payload := &velez_api.DropPgInstanceTaskPayload{Name: name}
 
-	err = s.vervServices.Remove(ctx, removeReq)
+	_, err = s.jobsEngine.EnqueueReplacing(ctx, name, jobs.DropPgInstanceAction, payload)
 	if err != nil {
-		return rerrors.Wrap(err, "error removing pg instance service")
-	}
-
-	err = s.dataStorage.PgInstances().DeletePgInstance(ctx, svc.ID)
-	if err != nil {
-		return rerrors.Wrap(err, "error deleting pg instance row")
-	}
-
-	secretRef, err := domain.ParseSecretRef(instance.SecretRef)
-	if err != nil {
-		return rerrors.Wrap(err, "error parsing pg instance secret ref")
-	}
-
-	err = s.secrets.Delete(ctx, secretRef)
-	if err != nil && !errors.Is(err, user_errors.ErrSecretNotFound) {
-		return rerrors.Wrap(err, "error deleting pg instance secret")
+		return rerrors.Wrap(err, "error enqueuing drop pg instance task")
 	}
 
 	return nil

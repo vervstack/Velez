@@ -81,16 +81,18 @@ func (PgInstanceIsolation) EnumDescriptor() ([]byte, []int) {
 // container id and deploy history live on the underlying service/deployment
 // rows and are read via ListSmerds/VervServicesService, not duplicated here.
 type PgInstance struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	DbName        string                 `protobuf:"bytes,2,opt,name=db_name,json=dbName,proto3" json:"db_name,omitempty"`
-	Username      string                 `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
-	Port          uint32                 `protobuf:"varint,4,opt,name=port,proto3" json:"port,omitempty"`
-	Environment   string                 `protobuf:"bytes,5,opt,name=environment,proto3" json:"environment,omitempty"`
-	Status        string                 `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
-	OwnerService  *string                `protobuf:"bytes,7,opt,name=owner_service,json=ownerService,proto3,oneof" json:"owner_service,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	Name         string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	DbName       string                 `protobuf:"bytes,2,opt,name=db_name,json=dbName,proto3" json:"db_name,omitempty"`
+	Username     string                 `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
+	Port         uint32                 `protobuf:"varint,4,opt,name=port,proto3" json:"port,omitempty"`
+	Environment  string                 `protobuf:"bytes,5,opt,name=environment,proto3" json:"environment,omitempty"`
+	Status       string                 `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
+	OwnerService *string                `protobuf:"bytes,7,opt,name=owner_service,json=ownerService,proto3,oneof" json:"owner_service,omitempty"`
+	CreatedAt    *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt    *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	// display_name - the instance name without its storage-layer prefix (pgaas_/s3_/cr_); falls back to name
+	DisplayName   string `protobuf:"bytes,10,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -186,6 +188,13 @@ func (x *PgInstance) GetUpdatedAt() *timestamppb.Timestamp {
 		return x.UpdatedAt
 	}
 	return nil
+}
+
+func (x *PgInstance) GetDisplayName() string {
+	if x != nil {
+		return x.DisplayName
+	}
+	return ""
 }
 
 type ListPgInstances struct {
@@ -626,7 +635,11 @@ func (x *DropPgInstance_Request) GetName() string {
 }
 
 type DropPgInstance_Response struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The RPC enqueues the drop task and returns before it completes.
+	// Callers watch entity_id/action via TasksApi.WatchTask and refetch the list once the task reaches DONE.
+	EntityId      string `protobuf:"bytes,1,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
+	Action        string `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -659,6 +672,20 @@ func (x *DropPgInstance_Response) ProtoReflect() protoreflect.Message {
 // Deprecated: Use DropPgInstance_Response.ProtoReflect.Descriptor instead.
 func (*DropPgInstance_Response) Descriptor() ([]byte, []int) {
 	return file_pgaas_api_proto_rawDescGZIP(), []int{3, 1}
+}
+
+func (x *DropPgInstance_Response) GetEntityId() string {
+	if x != nil {
+		return x.EntityId
+	}
+	return ""
+}
+
+func (x *DropPgInstance_Response) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
 }
 
 type GetPgInstanceCredentials_Request struct {
@@ -777,7 +804,7 @@ var File_pgaas_api_proto protoreflect.FileDescriptor
 
 const file_pgaas_api_proto_rawDesc = "" +
 	"\n" +
-	"\x0fpgaas_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\x1a\x12velez_common.proto\"\xd5\x02\n" +
+	"\x0fpgaas_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\tnpm.proto\x1a\x12velez_common.proto\"\xf8\x02\n" +
 	"\n" +
 	"PgInstance\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x17\n" +
@@ -790,7 +817,9 @@ const file_pgaas_api_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB\x10\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12!\n" +
+	"\fdisplay_name\x18\n" +
+	" \x01(\tR\vdisplayNameB\x10\n" +
 	"\x0e_owner_service\"\xe0\x01\n" +
 	"\x0fListPgInstances\x1a4\n" +
 	"\aRequest\x12)\n" +
@@ -813,12 +842,13 @@ const file_pgaas_api_proto_rawDesc = "" +
 	"\bResponse\x121\n" +
 	"\binstance\x18\x01 \x01(\v2\x15.velez_api.PgInstanceR\binstance\x12\x1b\n" +
 	"\tentity_id\x18\x02 \x01(\tR\bentityId\x12\x16\n" +
-	"\x06action\x18\x03 \x01(\tR\x06action\";\n" +
+	"\x06action\x18\x03 \x01(\tR\x06action\"p\n" +
 	"\x0eDropPgInstance\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x1a\n" +
-	"\n" +
-	"\bResponse\"\xa8\x01\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x1a?\n" +
+	"\bResponse\x12\x1b\n" +
+	"\tentity_id\x18\x01 \x01(\tR\bentityId\x12\x16\n" +
+	"\x06action\x18\x02 \x01(\tR\x06action\"\xa8\x01\n" +
 	"\x18GetPgInstanceCredentials\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x1am\n" +

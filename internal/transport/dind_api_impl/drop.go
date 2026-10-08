@@ -6,6 +6,7 @@ import (
 	"go.redsock.ru/rerrors"
 
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/jobs"
 )
 
 func (impl *Impl) DropDind(
@@ -17,5 +18,7 @@ func (impl *Impl) DropDind(
 		return nil, rerrors.Wrap(err, "error dropping dind")
 	}
 
-	return &pb.DropDind_Response{}, nil
+	resp := &pb.DropDind_Response{EntityId: req.GetName(), Action: jobs.DropDindAction}
+
+	return resp, nil
 }

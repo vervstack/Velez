@@ -7,6 +7,7 @@ import {ListEnvironmentsQuery} from "@/processes/queries/control_plane.ts"
 import {useListServicesQuery} from "@/processes/queries/services.ts"
 import {CreateRegistryInstanceMutation} from "@/processes/queries/registry_instances.ts"
 import {useListS3InstancesQuery} from "@/processes/queries/s3.ts"
+import Button from "@/components/base/Button.tsx"
 
 vi.mock("@/app/hooks/dialog/Dialog.tsx", () => ({useDialog: vi.fn()}))
 vi.mock("@/processes/queries/control_plane.ts", () => ({ListEnvironmentsQuery: vi.fn()}))
@@ -18,7 +19,14 @@ vi.mock("@/processes/queries/registry_instances.ts", () => ({
 vi.mock("@/processes/queries/s3.ts", () => ({useListS3InstancesQuery: vi.fn()}))
 vi.mock(
     "@/dialogs/CreateServiceDialog/screens/RegistryScreen/components/RegistryDeployProgressScreen/RegistryDeployProgressScreen.tsx",
-    () => ({default: vi.fn(() => <span>progress screen</span>)}),
+    () => ({
+        default: vi.fn(({onBack}: { onBack(): void }) => (
+            <>
+                <span>progress screen</span>
+                <Button onClick={onBack}>back to form</Button>
+            </>
+        )),
+    }),
 )
 
 function renderScreen() {
@@ -80,7 +88,27 @@ describe("RegistryScreen", () => {
         fireEvent.click(screen.getByText("Create"))
 
         expect(screen.getByText("progress screen")).toBeInTheDocument()
-        expect(screen.queryByText("Create")).not.toBeInTheDocument()
+        expect(screen.queryByRole("button", {name: "Create"})).not.toBeInTheDocument()
+    })
+
+    it("shows the name error and keeps Create disabled when the name is invalid", () => {
+        renderScreen()
+
+        fireEvent.change(screen.getAllByRole("textbox")[0], {target: {value: "My Registry"}})
+
+        expect(screen.getByRole("alert")).toHaveTextContent("Instance name must be 2-32 characters")
+        expect(screen.getByRole("button", {name: "Create"})).toBeDisabled()
+    })
+
+    it("shows the form again with the name still filled when the progress screen goes back", () => {
+        renderScreen()
+
+        fireEvent.change(screen.getAllByRole("textbox")[0], {target: {value: "my-registry"}})
+        fireEvent.click(screen.getByRole("button", {name: "Create"}))
+        fireEvent.click(screen.getByRole("button", {name: "back to form"}))
+
+        expect(screen.getAllByRole("textbox")[0]).toHaveValue("my-registry")
+        expect(screen.getByRole("button", {name: "Create"})).toBeEnabled()
     })
 
     it("defaults to local volume storage and hides the S3 fields", () => {

@@ -68,6 +68,8 @@ message RegistryInstance {
   // instead of a local volume. Read from the registry's own config.
   optional string s3_instance = 10;
   optional string s3_bucket = 11;
+  // display_name - the instance name without its storage-layer prefix (pgaas_/s3_/cr_); falls back to name
+  string display_name = 12;
 }
 
 // RegistryS3Storage - store registry blobs in a bucket of a Velez S3
@@ -121,7 +123,12 @@ message DropRegistryInstance {
   message Request {
     string name = 1;
   }
-  message Response {}
+  message Response {
+    // The RPC enqueues the drop task and returns before it completes.
+    // Callers watch entity_id/action via TasksApi.WatchTask and refetch the list once the task reaches DONE.
+    string entity_id = 1;
+    string action = 2;
+  }
 }
 
 // GetRegistryInstanceCredentials.Response is the only

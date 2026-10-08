@@ -13,7 +13,6 @@
 package registryaas
 
 import (
-	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/secrets"
@@ -29,7 +28,6 @@ type RegistryaasService struct {
 	jobsEngine   jobs.Engine
 
 	configResolver service.ServiceConfigResolver
-	runtimes       container_runtime.RuntimeResolver
 }
 
 // New builds a RegistryaasService. dataStorage, vervServices, secretsStore
@@ -40,7 +38,6 @@ func New(
 	secretsStore secrets.Store,
 	jobsEngine jobs.Engine,
 	configResolver service.ServiceConfigResolver,
-	runtimes container_runtime.RuntimeResolver,
 ) *RegistryaasService {
 	return &RegistryaasService{
 		dataStorage:  dataStorage,
@@ -49,6 +46,5 @@ func New(
 		jobsEngine:   jobsEngine,
 
 		configResolver: configResolver,
-		runtimes:       runtimes,
 	}
 }

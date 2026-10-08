@@ -1,4 +1,5 @@
 import type {CreateRegistryInstanceRequest} from "@/app/api/velez"
+import {validateInstanceName} from "@/processes/mappings/instanceName.ts"
 import {
     buildRegistryS3Storage,
     RegistryStorageState,
@@ -19,7 +20,7 @@ export function buildCreateRegistryInstanceRequest(
     form: CreateRegistryInstanceFormState
 ): CreateRegistryInstanceRequest | null {
     const trimmedName = form.name.trim()
-    if (!trimmedName) return null
+    if (!trimmedName || validateInstanceName(trimmedName)) return null
 
     return {
         name: trimmedName,

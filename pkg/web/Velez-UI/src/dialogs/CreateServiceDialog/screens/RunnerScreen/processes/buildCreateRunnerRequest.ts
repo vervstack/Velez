@@ -1,4 +1,5 @@
 import {RunnerProvider, type CreateRunnerRequest, type GitlabConfig, type RunnerScope} from "@/app/api/velez"
+import {validateInstanceName} from "@/processes/mappings/instanceName.ts"
 import {parseConcurrent} from "@/processes/parseConcurrent.ts"
 
 interface CreateRunnerFormState {
@@ -18,7 +19,7 @@ interface CreateRunnerFormState {
 
 export function buildCreateRunnerRequest(form: CreateRunnerFormState): CreateRunnerRequest | null {
     const trimmedName = form.name.trim()
-    if (!trimmedName) return null
+    if (!trimmedName || validateInstanceName(trimmedName)) return null
 
     const trimmedTarget = form.target.trim()
     if (!trimmedTarget) return null

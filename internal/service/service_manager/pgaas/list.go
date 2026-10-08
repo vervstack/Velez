@@ -50,6 +50,7 @@ func (s *PgaasService) ListPgInstances(
 
 		instances = append(instances, domain.PgInstanceView{
 			Name:        base.Name,
+			DisplayName: base.DisplayName,
 			DbName:      row.DbName,
 			Username:    row.Username,
 			Port:        row.Port,

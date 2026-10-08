@@ -33,6 +33,7 @@ export function DropPgInstanceMutation() {
         mutationFn: (name: string) => pgaasService.dropPgInstance(name),
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey: PG_INSTANCES_QUERY_KEY})
+            queryClient.invalidateQueries({queryKey: ["services"]})
         },
     })
 }

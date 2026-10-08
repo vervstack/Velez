@@ -15,7 +15,7 @@ vi.mock("@/processes/queries/pg_instances.ts", () => ({
     PG_INSTANCES_QUERY_KEY: ["pg-instances"],
 }))
 vi.mock("@/widgets/ProvisioningRow/ProvisioningRow.tsx", () => ({
-    default: ({task, title}: { task: ProvisioningTask, title: string }) => <span>{title}: {task.entityId}</span>,
+    default: ({task, noun}: { task: ProvisioningTask, noun: string }) => <span>Creating {noun}: {task.entityId}</span>,
 }))
 vi.mock("@/pages/postgres/components/PgInstanceRow/PgInstanceRow.tsx", () => ({
     default: ({instance}: { instance: { name?: string } }) => <span>instance {instance.name}</span>,
@@ -26,8 +26,11 @@ type PgQuery = ReturnType<typeof useListPgInstancesQuery>
 type Dialog = ReturnType<typeof useDialog>
 type Toaster = ReturnType<typeof useToaster>
 
-function renderPage(data: { instances?: { name: string }[], provisioning?: ProvisioningTask[] }) {
-    vi.mocked(useListPgInstancesQuery).mockReturnValue({data} as Partial<PgQuery> as PgQuery)
+function renderPage(
+    data: { instances?: { name: string }[], provisioning?: ProvisioningTask[] },
+    isLoading = false,
+) {
+    vi.mocked(useListPgInstancesQuery).mockReturnValue({data, isLoading} as Partial<PgQuery> as PgQuery)
     vi.mocked(useDialog).mockReturnValue({OpenDialog: vi.fn()} as Partial<Dialog> as Dialog)
     vi.mocked(useToaster).mockReturnValue({catchGrpc: vi.fn()} as Partial<Toaster> as Toaster)
 
@@ -60,5 +63,12 @@ describe("PostgresPage", () => {
         expect(screen.queryByText("instance pgaas_orders")).not.toBeInTheDocument()
         expect(screen.getByText("instance pgaas_billing")).toBeInTheDocument()
         expect(screen.getByText("2 instances")).toBeInTheDocument()
+    })
+
+    it("shows a count skeleton instead of 0 instances while loading", () => {
+        renderPage({}, true)
+
+        expect(screen.queryByText("0 instances")).not.toBeInTheDocument()
+        expect(screen.getByText("instances")).toHaveAttribute("aria-busy", "true")
     })
 })

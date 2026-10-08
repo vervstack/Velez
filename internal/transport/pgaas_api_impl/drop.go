@@ -6,6 +6,7 @@ import (
 	"go.redsock.ru/rerrors"
 
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/jobs"
 )
 
 func (impl *Impl) DropPgInstance(
@@ -17,5 +18,10 @@ func (impl *Impl) DropPgInstance(
 		return nil, rerrors.Wrap(err, "error dropping pg instance")
 	}
 
-	return &pb.DropPgInstance_Response{}, nil
+	resp := &pb.DropPgInstance_Response{
+		EntityId: req.GetName(),
+		Action:   jobs.DropPgInstanceAction,
+	}
+
+	return resp, nil
 }

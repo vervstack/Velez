@@ -119,7 +119,7 @@ func New(
 		// registryaas.New takes clusterClients.StateManager(), for the same
 		// reason pgaas.New does just above - see that comment.
 		containerRegistryService: registryaas.New(
-			clusterClients.StateManager(), vervServices, secretsStore, jobsEngine, configResolver, runtimeResolver,
+			clusterClients.StateManager(), vervServices, secretsStore, jobsEngine, configResolver,
 		),
 		imageVersions:   image_versions.New(runtimeResolver, nodeClients.Docker().Client()),
 		settingsService: settings.New(clusterClients.StateManager(), nodeClients.Docker()),

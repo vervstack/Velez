@@ -19,12 +19,6 @@
             color: var(--fg);
         }
 
-        & .Count {
-            font-family: var(--font-mono);
-            font-size: 0.6875rem;
-            color: var(--fg-dim);
-        }
-
         & .ToolbarRight {
             margin-left: auto;
             display: flex;

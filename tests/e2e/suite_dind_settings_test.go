@@ -292,7 +292,16 @@ func registerDindCleanup(t *testing.T, env *TestEnvironment, name string) {
 	t.Cleanup(func() {
 		dindClient := velez_api.NewDindAPIClient(env.grpcConn)
 
-		_, _ = dindClient.DropDind(context.Background(), newDropDindRequest(name))
+		dropResp, err := dindClient.DropDind(context.Background(), newDropDindRequest(name))
+		if err != nil {
+			return
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), dindTaskTimeout)
+		defer cancel()
+
+		for range env.Custom.JobsEngine.Watch(ctx, dropResp.GetEntityId(), dropResp.GetAction()) {
+		}
 
 		removeDindResources(dockerClient, name)
 	})
@@ -311,6 +320,20 @@ func awaitJobTask(t *testing.T, env *TestEnvironment, entityId, action string) t
 	}
 
 	return finalTask
+}
+
+func dropDindAndAwait(t *testing.T, env *TestEnvironment, name string) {
+	t.Helper()
+
+	dindClient := velez_api.NewDindAPIClient(env.grpcConn)
+
+	dropResp, err := dindClient.DropDind(t.Context(), newDropDindRequest(name))
+	require.NoError(t, err)
+	require.Equal(t, name, dropResp.GetEntityId())
+	require.Equal(t, jobs.DropDindAction, dropResp.GetAction())
+
+	task := awaitJobTask(t, env, dropResp.GetEntityId(), dropResp.GetAction())
+	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "drop dind task error: %s", task.Error.String)
 }
 
 func createDindAndAwait(t *testing.T, env *TestEnvironment, req *velez_api.CreateDind_Request) {
@@ -425,10 +448,7 @@ func runDindPrivilegedLifecycle(t *testing.T, env *TestEnvironment, _ Plane) {
 
 	requireDaemonResponds(t, env, name)
 
-	dindClient := velez_api.NewDindAPIClient(env.grpcConn)
-
-	_, err = dindClient.DropDind(t.Context(), newDropDindRequest(name))
-	require.NoError(t, err)
+	dropDindAndAwait(t, env, name)
 
 	require.Nil(t, findDind(t, env, name))
 	requireDindContainerGone(t, dockerClient, name)
@@ -776,11 +796,13 @@ func runRunnerOnDind(t *testing.T, env *TestEnvironment, _ Plane) {
 	require.Equal(t, codes.FailedPrecondition, status.Code(err))
 	requireDindListed(t, env, fixture.dindName)
 
-	_, err = runnersClient.DropRunner(t.Context(), newDropRunnerRequest(fixture.runnerContainer))
+	dropped, err := runnersClient.DropRunner(t.Context(), newDropRunnerRequest(fixture.runnerContainer))
 	require.NoError(t, err)
 
-	_, err = dindClient.DropDind(t.Context(), newDropDindRequest(fixture.dindName))
-	require.NoError(t, err)
+	dropTask := awaitJobTask(t, env, dropped.GetEntityId(), dropped.GetAction())
+	require.Equal(t, tasks_queries.VelezTaskStatusDONE, dropTask.Status, "drop runner task error: %s", dropTask.Error.String)
+
+	dropDindAndAwait(t, env, fixture.dindName)
 	require.Nil(t, findDind(t, env, fixture.dindName))
 }
 

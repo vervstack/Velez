@@ -33,6 +33,7 @@ export function DropRegistryInstanceMutation() {
         mutationFn: (name: string) => registryaasService.dropRegistryInstance(name),
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey: REGISTRY_INSTANCES_QUERY_KEY})
+            queryClient.invalidateQueries({queryKey: ["services"]})
         },
     })
 }

@@ -11,6 +11,7 @@ import {
 } from "@/processes/queries/registry_instances.ts"
 import {sortRegistryInstancesByName} from "@/processes/mappings/registry_instances.ts"
 import Button from "@/components/base/Button.tsx"
+import InstanceCount from "@/components/InstanceCount/InstanceCount.tsx"
 import CreateServiceDialog from "@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx"
 import RegistryInstanceRow from "@/pages/container-registry/components/RegistryInstanceRow/RegistryInstanceRow.tsx"
 import ProvisioningRow from "@/widgets/ProvisioningRow/ProvisioningRow.tsx"
@@ -58,7 +59,8 @@ export default function ContainerRegistryPage() {
             <ProvisioningRow
                 key={task.taskId}
                 task={task}
-                title="Creating container registry"
+                noun="container registry"
+                prefix={REGISTRY_NAME_PREFIX}
                 queryKey={REGISTRY_INSTANCES_QUERY_KEY}
             />
         )
@@ -89,7 +91,7 @@ export default function ContainerRegistryPage() {
         <div className={cls.ContainerRegistryPageContainer}>
             <div className={cls.toolbar}>
                 <h1 className={cls.pageTitle}>Container Registries</h1>
-                <span className={cls.count}>{instances.length} instances</span>
+                <InstanceCount count={instances.length} label="instances" isLoading={instancesQuery.isLoading}/>
                 <div className={cls.toolbarRight}>
                     <Button variant="primary" onClick={handleCreate}>
                         Create registry

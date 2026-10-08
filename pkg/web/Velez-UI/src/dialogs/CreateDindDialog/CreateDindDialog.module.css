@@ -1,4 +1,8 @@
 .CreateDindDialogContainer {
     width: 28rem;
     max-width: var(--dialog-max-width);
+
+    & .FormWrapper[hidden] {
+        display: none;
+    }
 }

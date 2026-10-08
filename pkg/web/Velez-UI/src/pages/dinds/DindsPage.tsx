@@ -7,6 +7,7 @@ import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {isInstanceProvisioning} from "@/processes/mappings/provisioning.ts"
 import {DINDS_QUERY_KEY, useListDindsQuery} from "@/processes/queries/dinds.ts"
 import Button from "@/components/base/Button.tsx"
+import InstanceCount from "@/components/InstanceCount/InstanceCount.tsx"
 import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorState.tsx"
 import CreateDindDialog from "@/dialogs/CreateDindDialog/CreateDindDialog.tsx"
 import DindRow from "@/pages/dinds/components/DindRow/DindRow.tsx"
@@ -25,7 +26,7 @@ function renderRow(dind: DindInfo) {
 
 function renderProvisioningRow(task: ProvisioningTask) {
     return (
-        <ProvisioningRow key={task.taskId} task={task} title="Creating Docker daemon" queryKey={DINDS_QUERY_KEY}/>
+        <ProvisioningRow key={task.taskId} task={task} noun="Docker daemon" queryKey={DINDS_QUERY_KEY}/>
     )
 }
 
@@ -75,7 +76,7 @@ export default function DindsPage() {
         <div className={cls.DindsPageContainer}>
             <div className={cls.Toolbar}>
                 <h1 className={cls.PageTitle}>Docker daemons</h1>
-                <span className={cls.Count}>{dinds.length} daemons</span>
+                <InstanceCount count={dinds.length} label="daemons" isLoading={dindsQuery.isLoading}/>
                 <div className={cls.ToolbarRight}>
                     <Button variant="primary" onClick={handleCreate}>
                         Create Docker daemon

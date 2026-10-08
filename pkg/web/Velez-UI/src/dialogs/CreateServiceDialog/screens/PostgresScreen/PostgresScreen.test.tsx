@@ -19,10 +19,11 @@ vi.mock("@/processes/queries/pg_instances.ts", () => ({
     PG_INSTANCES_QUERY_KEY: ["pg-instances"],
 }))
 vi.mock("@/widgets/TaskProgressScreen/TaskProgressScreen.tsx", () => ({
-    default: ({start, onSuccess}: { start(): Promise<unknown>, onSuccess?(): void }) => (
+    default: ({start, onSuccess, onBack}: { start(): Promise<unknown>, onSuccess?(): void, onBack?(): void }) => (
         <>
             <Button variant="primary" onClick={() => start()}>start task</Button>
             <Button variant="primary" onClick={() => onSuccess?.()}>finish task</Button>
+            <Button variant="primary" onClick={() => onBack?.()}>back to form</Button>
         </>
     ),
 }))
@@ -87,5 +88,27 @@ describe("PostgresScreen", () => {
         expect(invalidate).toHaveBeenCalledWith({queryKey: ["pg-instances"]})
         expect(invalidate).toHaveBeenCalledWith({queryKey: ["services"]})
         expect(bake).toHaveBeenCalledWith({title: "Database created", description: "orders", level: "Info"})
+    })
+
+    it("shows the name error and keeps Create disabled when the name is invalid", () => {
+        renderScreen()
+        typeName("My DB")
+
+        expect(screen.getByRole("alert")).toHaveTextContent("Instance name must be 2-32 characters")
+        expect(screen.getByRole("button", {name: "Create"})).toBeDisabled()
+    })
+
+    it("shows the form again with the name still filled when the progress screen goes back", () => {
+        renderScreen()
+        typeName("orders")
+
+        fireEvent.click(screen.getByRole("button", {name: "Create"}))
+
+        expect(screen.queryByRole("button", {name: "Create"})).not.toBeInTheDocument()
+
+        fireEvent.click(screen.getByRole("button", {name: "back to form"}))
+
+        expect(screen.getByText("Name").previousElementSibling).toHaveValue("orders")
+        expect(screen.getByRole("button", {name: "Create"})).toBeEnabled()
     })
 })

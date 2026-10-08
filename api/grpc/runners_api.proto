@@ -309,7 +309,12 @@ message DropRunner {
   message Request {
     string name = 1;
   }
-  message Response {}
+  message Response {
+    // The RPC enqueues the drop task and returns before it completes.
+    // Callers watch entity_id/action via TasksApi.WatchTask and refetch the list once the task reaches DONE.
+    string entity_id = 1;
+    string action = 2;
+  }
 }
 
 message ReregisterRunner {

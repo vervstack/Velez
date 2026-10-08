@@ -58,6 +58,7 @@ func (s *RegistryaasService) ListRegistryInstances(
 
 		instances = append(instances, domain.RegistryInstanceView{
 			Name:        base.Name,
+			DisplayName: base.DisplayName,
 			Port:        row.Port,
 			UiPort:      row.UiPort,
 			Username:    row.Username,

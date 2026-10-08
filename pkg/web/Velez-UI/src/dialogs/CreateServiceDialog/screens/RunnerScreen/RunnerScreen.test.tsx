@@ -21,8 +21,11 @@ vi.mock("@/widgets/CreateDindForm/CreateDindForm.tsx", () => ({
     ),
 }))
 vi.mock("@/widgets/TaskProgressScreen/TaskProgressScreen.tsx", () => ({
-    default: ({start}: { start(): Promise<unknown> }) => (
-        <Button variant="primary" onClick={() => start()}>start task</Button>
+    default: ({start, onBack}: { start(): Promise<unknown>, onBack(): void }) => (
+        <>
+            <Button variant="primary" onClick={() => start()}>start task</Button>
+            <Button variant="secondary" onClick={onBack}>back to form</Button>
+        </>
     ),
 }))
 
@@ -157,5 +160,34 @@ describe("RunnerScreen docker daemon choice", () => {
 
         await waitFor(() => expect(mutateAsync).toHaveBeenCalledTimes(1))
         expect(mutateAsync.mock.calls[0][0].dindName).toBe("fresh-daemon")
+    })
+})
+
+describe("RunnerScreen name validation and return to form", () => {
+    it("shows the name error and keeps Create disabled when the name is invalid", () => {
+        renderScreen()
+        fillRequiredFields()
+        chooseDaemon("ci")
+
+        fireEvent.change(inputFor("Name"), {target: {value: "Bad Name"}})
+
+        expect(screen.getByRole("alert")).toHaveTextContent("Instance name must be 2-32 characters")
+        expect(createButton()).toBeDisabled()
+    })
+
+    it("hides the form behind the progress screen and restores every field on Back to form", () => {
+        renderScreen()
+        fillRequiredFields()
+        chooseDaemon("ci")
+        fireEvent.click(createButton())
+
+        expect(screen.queryByRole("button", {name: "Create"})).not.toBeInTheDocument()
+
+        fireEvent.click(screen.getByText("back to form"))
+
+        expect(inputFor("Name")).toHaveValue("build-runner")
+        expect(inputFor("Target")).toHaveValue("org/repo")
+        expect(createButton()).toBeEnabled()
+        expect(screen.queryByText("start task")).not.toBeInTheDocument()
     })
 })

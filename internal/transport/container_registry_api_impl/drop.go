@@ -6,6 +6,7 @@ import (
 	"go.redsock.ru/rerrors"
 
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/jobs"
 )
 
 func (impl *Impl) DropRegistryInstance(
@@ -17,5 +18,7 @@ func (impl *Impl) DropRegistryInstance(
 		return nil, rerrors.Wrap(err, "error dropping registry instance")
 	}
 
-	return &pb.DropRegistryInstance_Response{}, nil
+	resp := &pb.DropRegistryInstance_Response{EntityId: req.GetName(), Action: jobs.DropRegistryInstanceAction}
+
+	return resp, nil
 }

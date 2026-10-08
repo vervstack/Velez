@@ -26,6 +26,7 @@ export type PgInstance = {
   ownerService?: string;
   createdAt?: GoogleProtobufTimestamp.Timestamp;
   updatedAt?: GoogleProtobufTimestamp.Timestamp;
+  displayName?: string;
 };
 
 export type ListPgInstancesRequest = {
@@ -60,7 +61,10 @@ export type DropPgInstanceRequest = {
   name?: string;
 };
 
-export type DropPgInstanceResponse = Record<string, never>;
+export type DropPgInstanceResponse = {
+  entityId?: string;
+  action?: string;
+};
 
 export type DropPgInstance = Record<string, never>;
 

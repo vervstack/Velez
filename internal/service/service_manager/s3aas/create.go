@@ -20,7 +20,12 @@ const (
 var instanceNamePattern = regexp.MustCompile(`^[a-z0-9]([a-z0-9-]*[a-z0-9])?$`)
 
 func (s *Service) CreateInstance(ctx context.Context, req *velez_api.CreateS3Instance_Request) error {
-	err := validateCreateRequest(req)
+	err := domain.ValidateInstanceName(req.GetName())
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	err = validateCreateRequest(req)
 	if err != nil {
 		return rerrors.Wrap(err)
 	}

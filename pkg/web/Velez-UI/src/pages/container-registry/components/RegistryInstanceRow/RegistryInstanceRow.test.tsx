@@ -60,4 +60,16 @@ describe("RegistryInstanceRow", () => {
         const openedElement = OpenDialog.mock.calls[0][0]
         expect(openedElement.props.name).toBe("my-registry")
     })
+
+    it("shows the display name and links by the instance name", () => {
+        renderRow({name: "cr_main", displayName: "main"})
+
+        expect(screen.getByRole("link", {name: "main"})).toHaveAttribute("href", expect.stringContaining("cr_main"))
+    })
+
+    it("falls back to the instance name when there is no display name", () => {
+        renderRow({name: "my-registry", displayName: ""})
+
+        expect(screen.getByRole("link", {name: "my-registry"})).toBeInTheDocument()
+    })
 })

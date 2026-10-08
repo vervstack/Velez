@@ -1615,7 +1615,11 @@ func (x *DropRunner_Request) GetName() string {
 }
 
 type DropRunner_Response struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The RPC enqueues the drop task and returns before it completes.
+	// Callers watch entity_id/action via TasksApi.WatchTask and refetch the list once the task reaches DONE.
+	EntityId      string `protobuf:"bytes,1,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
+	Action        string `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1648,6 +1652,20 @@ func (x *DropRunner_Response) ProtoReflect() protoreflect.Message {
 // Deprecated: Use DropRunner_Response.ProtoReflect.Descriptor instead.
 func (*DropRunner_Response) Descriptor() ([]byte, []int) {
 	return file_runners_api_proto_rawDescGZIP(), []int{9, 1}
+}
+
+func (x *DropRunner_Response) GetEntityId() string {
+	if x != nil {
+		return x.EntityId
+	}
+	return ""
+}
+
+func (x *DropRunner_Response) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
 }
 
 type ReregisterRunner_Request struct {
@@ -1963,13 +1981,14 @@ const file_runners_api_proto_rawDesc = "" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x1a?\n" +
 	"\bResponse\x12\x1b\n" +
 	"\tentity_id\x18\x01 \x01(\tR\bentityId\x12\x16\n" +
-	"\x06action\x18\x02 \x01(\tR\x06action\"7\n" +
+	"\x06action\x18\x02 \x01(\tR\x06action\"l\n" +
 	"\n" +
 	"DropRunner\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x1a\n" +
-	"\n" +
-	"\bResponse\"r\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x1a?\n" +
+	"\bResponse\x12\x1b\n" +
+	"\tentity_id\x18\x01 \x01(\tR\bentityId\x12\x16\n" +
+	"\x06action\x18\x02 \x01(\tR\x06action\"r\n" +
 	"\x10ReregisterRunner\x1a\x1d\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x1a?\n" +

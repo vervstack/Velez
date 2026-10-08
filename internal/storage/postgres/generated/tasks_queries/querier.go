@@ -16,6 +16,7 @@ type Querier interface {
 	GetTaskByEntityAction(ctx context.Context, arg GetTaskByEntityActionParams) (VelezTask, error)
 	GetTaskById(ctx context.Context, id int64) (VelezTask, error)
 	ListProvisioningTasks(ctx context.Context, arg ListProvisioningTasksParams) ([]VelezTask, error)
+	RenewTaskClaim(ctx context.Context, arg RenewTaskClaimParams) error
 	UpdateTaskContext(ctx context.Context, arg UpdateTaskContextParams) error
 }
 

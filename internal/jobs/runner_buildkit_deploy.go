@@ -118,11 +118,33 @@ func (j *ensureBuildkitNetworkJob) Do(ctx context.Context) error {
 
 	defer common.CloseWithLog(closer.Close, "buildkit dind client")
 
+	// A DinD container is reported created long before its inner daemon answers
+	// (docker:dind needs ~15s), and this is the first step that talks to it.
+	probe := dindDaemonProbe{runtime: dind}
+
+	err = pollGarage(ctx, probe.check, "timed out waiting for dind daemon")
+	if err != nil {
+		return err
+	}
+
 	networkName := domain.RunnerBuildkitServiceName(facts.name)
 
 	err = dind.CreateNetwork(ctx, networkName)
 	if err != nil {
 		return rerrors.Wrapf(err, "error creating network: %s", networkName)
+	}
+
+	return nil
+}
+
+type dindDaemonProbe struct {
+	runtime container_runtime.ContainerRuntime
+}
+
+func (p dindDaemonProbe) check(ctx context.Context) error {
+	_, err := p.runtime.ListNetworks(ctx, true)
+	if err != nil {
+		return rerrors.Wrap(err, "error reaching dind daemon")
 	}
 
 	return nil

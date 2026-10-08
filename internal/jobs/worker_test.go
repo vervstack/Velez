@@ -3,6 +3,7 @@ package jobs
 import (
 	"context"
 	"database/sql"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -123,5 +124,66 @@ func TestTaskWorker_ReclaimsStaleRunningTaskAndSkipsDoneJobs(t *testing.T) {
 	finished := tasksStorage.get(task.ID)
 	if finished.Status != tasks_queries.VelezTaskStatusDONE {
 		t.Errorf("expected task status DONE after reclaim, got %v", finished.Status)
+	}
+}
+
+type slowJob struct {
+	duration time.Duration
+	runs     *atomic.Int32
+}
+
+func (s *slowJob) Do(_ context.Context) error {
+	s.runs.Add(1)
+	time.Sleep(s.duration)
+
+	return nil
+}
+
+func TestTaskWorker_RunningLongerThanLease_IsNotReclaimedByAnotherWorker(t *testing.T) {
+	tasksStorage := newFakeTasksStorage()
+	jobsStorage := newFakeJobsStorage()
+
+	createParams := tasks_queries.CreateTaskParams{EntityID: "e-long", Action: testAction}
+
+	task, err := tasksStorage.CreateTask(context.Background(), createParams)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	var runs atomic.Int32
+
+	registry := NewRegistry()
+	registry.Register(&testHandler{
+		action: testAction,
+		jobs: func(TaskContext) []NamedJob {
+			return []NamedJob{{Name: testJobNameFirst, Job: &slowJob{duration: 600 * time.Millisecond, runs: &runs}}}
+		},
+	})
+
+	first := NewTaskWorker(tasksStorage, jobsStorage, registry, "first-worker", time.Hour, 1)
+	first.lease = 120 * time.Millisecond
+
+	second := NewTaskWorker(tasksStorage, jobsStorage, registry, "second-worker", time.Hour, 1)
+	second.lease = 120 * time.Millisecond
+
+	done := make(chan struct{})
+
+	go func() {
+		defer close(done)
+
+		first.processOne(context.Background())
+	}()
+
+	time.Sleep(400 * time.Millisecond)
+	second.processOne(context.Background())
+
+	<-done
+
+	if runs.Load() != 1 {
+		t.Errorf("expected the job to run once, got %d runs", runs.Load())
+	}
+
+	if tasksStorage.get(task.ID).Status != tasks_queries.VelezTaskStatusDONE {
+		t.Errorf("expected task status DONE, got %v", tasksStorage.get(task.ID).Status)
 	}
 }

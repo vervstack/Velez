@@ -143,6 +143,21 @@ func (t *tasks) UpdateTaskContext(_ context.Context, arg tasks_queries.UpdateTas
 	return nil
 }
 
+func (t *tasks) RenewTaskClaim(_ context.Context, arg tasks_queries.RenewTaskClaimParams) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
+	task, ok := t.byID[arg.ID]
+	if !ok || task.Status != tasks_queries.VelezTaskStatusRUNNING || task.ClaimedBy != arg.ClaimedBy {
+		return nil
+	}
+
+	task.ClaimedAt = sql.NullTime{Time: time.Now(), Valid: true}
+	t.byID[arg.ID] = task
+
+	return nil
+}
+
 func (t *tasks) FinishTask(_ context.Context, arg tasks_queries.FinishTaskParams) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()

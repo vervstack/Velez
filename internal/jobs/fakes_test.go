@@ -175,6 +175,21 @@ func (f *fakeTasksStorage) UpdateTaskContext(_ context.Context, arg tasks_querie
 	return nil
 }
 
+func (f *fakeTasksStorage) RenewTaskClaim(_ context.Context, arg tasks_queries.RenewTaskClaimParams) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	t, ok := f.byID[arg.ID]
+	if !ok || t.Status != tasks_queries.VelezTaskStatusRUNNING || t.ClaimedBy != arg.ClaimedBy {
+		return nil
+	}
+
+	t.ClaimedAt = sql.NullTime{Time: time.Now(), Valid: true}
+	f.byID[arg.ID] = t
+
+	return nil
+}
+
 func (f *fakeTasksStorage) FinishTask(_ context.Context, arg tasks_queries.FinishTaskParams) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()

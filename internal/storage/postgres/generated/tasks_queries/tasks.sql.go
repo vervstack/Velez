@@ -235,6 +235,24 @@ func (q *Queries) ListProvisioningTasks(ctx context.Context, arg ListProvisionin
 	return items, nil
 }
 
+const renewTaskClaim = `-- name: RenewTaskClaim :exec
+UPDATE velez.tasks
+SET claimed_at = now()
+WHERE id = $1
+  AND status = 'RUNNING'
+  AND claimed_by = $2
+`
+
+type RenewTaskClaimParams struct {
+	ID        int64
+	ClaimedBy sql.NullString
+}
+
+func (q *Queries) RenewTaskClaim(ctx context.Context, arg RenewTaskClaimParams) error {
+	_, err := q.db.ExecContext(ctx, renewTaskClaim, arg.ID, arg.ClaimedBy)
+	return err
+}
+
 const updateTaskContext = `-- name: UpdateTaskContext :exec
 UPDATE velez.tasks
 SET context    = $1,

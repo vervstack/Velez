@@ -1,0 +1,32 @@
+.SlidingLabelContainer {
+    display: inline-grid;
+    overflow: hidden;
+
+    & .Face {
+        grid-area: 1 / 1;
+        text-align: center;
+        white-space: nowrap;
+        transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+
+    & .Secondary {
+        opacity: 0;
+        transform: translateY(100%);
+    }
+
+    &.IsSwapped .Primary {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+
+    &.IsSwapped .Secondary {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .SlidingLabelContainer .Face {
+        transition: none;
+    }
+}

@@ -9,19 +9,21 @@ function task(status: TaskStatusStatus): TaskStatus {
 
 describe("buildkitControl", () => {
     it("locks and shows the progress label while the task is pending", () => {
-        expect(buildkitControl(task(TaskStatusStatus.PENDING), false)).toEqual({isLocked: true, label: "BuildKit…"})
+        expect(buildkitControl(task(TaskStatusStatus.PENDING), false)).toEqual({isLocked: true, label: "BuildKit…", hoverLabel: "BuildKit…"})
     })
 
     it("locks while the task is running", () => {
         expect(buildkitControl(task(TaskStatusStatus.RUNNING), true).isLocked).toBe(true)
     })
 
-    it("is unlocked and reads on when enabled and no task is in flight", () => {
-        expect(buildkitControl(undefined, true)).toEqual({isLocked: false, label: "BuildKit: on"})
+    it("is unlocked, reads on and offers to disable when enabled and no task is in flight", () => {
+        expect(buildkitControl(undefined, true))
+            .toEqual({isLocked: false, label: "BuildKit: on", hoverLabel: "Disable BuildKit"})
     })
 
-    it("is unlocked and reads off after a finished task", () => {
-        expect(buildkitControl(task(TaskStatusStatus.DONE), false)).toEqual({isLocked: false, label: "BuildKit: off"})
+    it("is unlocked, reads off and offers to enable after a finished task", () => {
+        expect(buildkitControl(task(TaskStatusStatus.DONE), false))
+            .toEqual({isLocked: false, label: "BuildKit: off", hoverLabel: "Enable BuildKit"})
     })
 
     it("unlocks after a failed task", () => {

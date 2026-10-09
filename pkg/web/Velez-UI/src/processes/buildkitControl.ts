@@ -11,6 +11,7 @@ export const BUILDKIT_UNSUPPORTED_TOOLTIP = "Only available for runners whose jo
 export interface BuildkitControl {
     isLocked: boolean
     label: string
+    hoverLabel: string
 }
 
 export function isTaskInFlight(task: TaskStatus | undefined): boolean {
@@ -23,8 +24,12 @@ export function isTaskTerminal(task: TaskStatus | undefined): boolean {
 
 export function buildkitControl(task: TaskStatus | undefined, isEnabled: boolean): BuildkitControl {
     if (isTaskInFlight(task)) {
-        return {isLocked: true, label: "BuildKit…"}
+        return {isLocked: true, label: "BuildKit…", hoverLabel: "BuildKit…"}
     }
 
-    return {isLocked: false, label: isEnabled ? "BuildKit: on" : "BuildKit: off"}
+    return {
+        isLocked: false,
+        label: isEnabled ? "BuildKit: on" : "BuildKit: off",
+        hoverLabel: isEnabled ? "Disable BuildKit" : "Enable BuildKit",
+    }
 }

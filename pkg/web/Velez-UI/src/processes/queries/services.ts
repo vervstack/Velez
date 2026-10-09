@@ -1,6 +1,9 @@
 import {useQuery, keepPreviousData} from '@tanstack/react-query'
 import {serviceService} from '@/processes/api/service'
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts";
+import {provisioningRefetchInterval} from '@/processes/mappings/provisioning'
+
+export const SERVICES_QUERY_KEY = ['services'] as const
 
 const LIST_REQ = {paging: {limit: '50', offset: '0'}}
 
@@ -9,6 +12,7 @@ export function useListServicesQuery(includeInternal: boolean = false) {
         queryKey: ['services', {includeInternal}] as const,
         queryFn: () => serviceService.listServices({...LIST_REQ, includeInternal}),
         placeholderData: keepPreviousData,
+        refetchInterval: (query) => provisioningRefetchInterval(query.state.data?.provisioning),
     })
 }
 

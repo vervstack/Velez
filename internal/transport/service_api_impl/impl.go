@@ -17,6 +17,7 @@ type Impl struct {
 	velez_api.UnimplementedServiceApiServer
 
 	servicesService service.VervServicesService
+	provisioning    service.ProvisioningService
 
 	jobsEngine jobs.Engine
 }
@@ -24,6 +25,7 @@ type Impl struct {
 func New(services service.Services, jobsEngine jobs.Engine) *Impl {
 	return &Impl{
 		servicesService: services.VervServices(),
+		provisioning:    services.Provisioning(),
 		jobsEngine:      jobsEngine,
 	}
 }

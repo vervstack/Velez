@@ -54,3 +54,14 @@ export function provisioningTitle(task: ProvisioningTask, noun: string): string 
 export function stripInstancePrefix(name: string, prefix: string): string {
     return prefix !== "" && name.startsWith(prefix) ? name.slice(prefix.length) : name
 }
+
+const REGISTER_CONTAINER_ACTION = "register_container"
+
+export function provisioningName(task: ProvisioningTask, prefix = ""): string {
+    const entityId = task.entityId ?? ""
+    if (task.action === REGISTER_CONTAINER_ACTION) {
+        const separator = entityId.lastIndexOf("/")
+        return separator === -1 ? entityId : entityId.slice(0, separator)
+    }
+    return stripInstancePrefix(entityId, prefix)
+}

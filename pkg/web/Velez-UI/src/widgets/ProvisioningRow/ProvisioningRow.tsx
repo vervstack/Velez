@@ -6,9 +6,9 @@ import {
     currentStepName,
     isDropAction,
     isProvisioningFailed,
+    provisioningName,
     provisioningTitle,
     stepProgress,
-    stripInstancePrefix,
 } from "@/processes/mappings/provisioning.ts"
 import {DismissTaskMutation} from "@/processes/queries/provisioning.ts"
 import Button from "@/components/base/Button.tsx"
@@ -50,7 +50,7 @@ export default function ProvisioningRow({task, noun, prefix = "", queryKey}: Pro
     return (
         <div className={cls.ProvisioningRowContainer}>
             {isFailed ? <span className={cls.FailureMark}>!</span> : <span className={cls.Spinner}/>}
-            <span className={cls.Name}>{stripInstancePrefix(entityId, prefix)}</span>
+            <span className={cls.Name}>{provisioningName(task, prefix)}</span>
             {isFailed
                 ? <span className={cls.Error}>{errorText}</span>
                 : <span className={cls.Step}>{currentStepName(task)}</span>}

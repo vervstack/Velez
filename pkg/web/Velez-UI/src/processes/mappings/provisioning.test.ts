@@ -8,6 +8,7 @@ import {
     isInstanceProvisioning,
     isProvisioningActive,
     isProvisioningFailed,
+    provisioningName,
     provisioningRefetchInterval,
     provisioningTitle,
     provisioningVerb,
@@ -145,5 +146,16 @@ describe("stripInstancePrefix", () => {
         expect(stripInstancePrefix("pgaas_main", "pgaas_")).toBe("main")
         expect(stripInstancePrefix("main", "pgaas_")).toBe("main")
         expect(stripInstancePrefix("pgaas_main", "")).toBe("pgaas_main")
+    })
+})
+
+describe("provisioningName", () => {
+    it("strips the instance prefix from the entity id", () => {
+        expect(provisioningName(newTask({entityId: "pgaas_main"}), "pgaas_")).toBe("main")
+    })
+
+    it("drops the uuid suffix of a register_container entity id", () => {
+        const task = newTask({entityId: "api/8f2c", action: "register_container"})
+        expect(provisioningName(task)).toBe("api")
     })
 })

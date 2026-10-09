@@ -173,6 +173,7 @@ export type ListServicesRequest = {
 export type ListServicesResponse = {
   Total?: string;
   services?: ServiceBaseInfo[];
+  provisioning?: VelezApiVelezCommon.ProvisioningTask[];
 };
 
 export type ListServices = Record<string, never>;

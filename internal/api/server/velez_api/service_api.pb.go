@@ -2401,9 +2401,12 @@ func (x *ListServices_Request) GetIncludeInternal() bool {
 }
 
 type ListServices_Response struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Total         uint64                 `protobuf:"varint,1,opt,name=Total,proto3" json:"Total,omitempty"`
-	Services      []*ServiceBaseInfo     `protobuf:"bytes,2,rep,name=services,proto3" json:"services,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Total    uint64                 `protobuf:"varint,1,opt,name=Total,proto3" json:"Total,omitempty"`
+	Services []*ServiceBaseInfo     `protobuf:"bytes,2,rep,name=services,proto3" json:"services,omitempty"`
+	// provisioning - in-flight and recently failed create tasks (plus in-flight drops)
+	// for services and every AsAService kind, same shape as the AsAService list responses.
+	Provisioning  []*ProvisioningTask `protobuf:"bytes,3,rep,name=provisioning,proto3" json:"provisioning,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2448,6 +2451,13 @@ func (x *ListServices_Response) GetTotal() uint64 {
 func (x *ListServices_Response) GetServices() []*ServiceBaseInfo {
 	if x != nil {
 		return x.Services
+	}
+	return nil
+}
+
+func (x *ListServices_Response) GetProvisioning() []*ProvisioningTask {
+	if x != nil {
+		return x.Provisioning
 	}
 	return nil
 }
@@ -3368,16 +3378,17 @@ const file_service_api_proto_rawDesc = "" +
 	"\r_service_name\x1a]\n" +
 	"\bResponse\x12;\n" +
 	"\vdeployments\x18\x01 \x03(\v2\x19.velez_api.DeploymentInfoR\vdeployments\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x04R\x05total\"\x89\x02\n" +
+	"\x05total\x18\x02 \x01(\x04R\x05total\"\xcb\x02\n" +
 	"\fListServices\x1a\x9e\x01\n" +
 	"\aRequest\x12)\n" +
 	"\x06paging\x18\x01 \x01(\v2\x11.velez_api.PagingR\x06paging\x12*\n" +
 	"\x0esearch_pattern\x18\x02 \x01(\tH\x00R\rsearchPattern\x88\x01\x01\x12)\n" +
 	"\x10include_internal\x18\x03 \x01(\bR\x0fincludeInternalB\x11\n" +
-	"\x0f_search_pattern\x1aX\n" +
+	"\x0f_search_pattern\x1a\x99\x01\n" +
 	"\bResponse\x12\x14\n" +
 	"\x05Total\x18\x01 \x01(\x04R\x05Total\x126\n" +
-	"\bservices\x18\x02 \x03(\v2\x1a.velez_api.ServiceBaseInfoR\bservices\"\x83\x02\n" +
+	"\bservices\x18\x02 \x03(\v2\x1a.velez_api.ServiceBaseInfoR\bservices\x12?\n" +
+	"\fprovisioning\x18\x03 \x03(\v2\x1b.velez_api.ProvisioningTaskR\fprovisioning\"\x83\x02\n" +
 	"\x0fServiceBaseInfo\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12D\n" +
 	"\x10last_deployed_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x0elastDeployedAt\x12\x1d\n" +
@@ -3602,6 +3613,7 @@ var file_service_api_proto_goTypes = []any{
 	(*timestamppb.Timestamp)(nil),                 // 61: google.protobuf.Timestamp
 	(*CreateSmerd_Request)(nil),                   // 62: velez_api.CreateSmerd.Request
 	(*Paging)(nil),                                // 63: velez_api.Paging
+	(*ProvisioningTask)(nil),                      // 64: velez_api.ProvisioningTask
 }
 var file_service_api_proto_depIdxs = []int32{
 	60, // 0: velez_api.ServiceSidecar.status:type_name -> velez_api.Smerd.Status
@@ -3624,46 +3636,47 @@ var file_service_api_proto_depIdxs = []int32{
 	12, // 17: velez_api.ListDeployments.Response.deployments:type_name -> velez_api.DeploymentInfo
 	63, // 18: velez_api.ListServices.Request.paging:type_name -> velez_api.Paging
 	15, // 19: velez_api.ListServices.Response.services:type_name -> velez_api.ServiceBaseInfo
-	21, // 20: velez_api.GetServiceResources.Response.resources:type_name -> velez_api.BoundResource
-	23, // 21: velez_api.GetServiceGraph.Response.callers:type_name -> velez_api.ServiceDependencyInfo
-	23, // 22: velez_api.GetServiceGraph.Response.dependencies:type_name -> velez_api.ServiceDependencyInfo
-	25, // 23: velez_api.GetServiceEnvironments.Response.environments:type_name -> velez_api.ServiceEnvironmentInfo
-	27, // 24: velez_api.GetVervonomicon.Response.raw:type_name -> velez_api.DescriptorFile
-	3,  // 25: velez_api.GetVervonomicon.Response.source:type_name -> velez_api.VervonomiconSource
-	28, // 26: velez_api.GetVervonomicon.Response.resource_statuses:type_name -> velez_api.ResourceReconciliation
-	30, // 27: velez_api.ServiceApi.CreateService:input_type -> velez_api.CreateService.Request
-	32, // 28: velez_api.ServiceApi.GetService:input_type -> velez_api.GetService.Request
-	36, // 29: velez_api.ServiceApi.CreateDeploy:input_type -> velez_api.CreateDeploy.Request
-	40, // 30: velez_api.ServiceApi.ListDeployments:input_type -> velez_api.ListDeployments.Request
-	42, // 31: velez_api.ServiceApi.ListServices:input_type -> velez_api.ListServices.Request
-	44, // 32: velez_api.ServiceApi.StopService:input_type -> velez_api.StopService.Request
-	46, // 33: velez_api.ServiceApi.RestartService:input_type -> velez_api.RestartService.Request
-	48, // 34: velez_api.ServiceApi.RemoveService:input_type -> velez_api.RemoveService.Request
-	50, // 35: velez_api.ServiceApi.GetServiceMetrics:input_type -> velez_api.GetServiceMetrics.Request
-	52, // 36: velez_api.ServiceApi.GetServiceResources:input_type -> velez_api.GetServiceResources.Request
-	54, // 37: velez_api.ServiceApi.GetServiceGraph:input_type -> velez_api.GetServiceGraph.Request
-	56, // 38: velez_api.ServiceApi.GetServiceEnvironments:input_type -> velez_api.GetServiceEnvironments.Request
-	34, // 39: velez_api.ServiceApi.SetServiceProxy:input_type -> velez_api.SetServiceProxy.Request
-	58, // 40: velez_api.ServiceApi.GetVervonomicon:input_type -> velez_api.GetVervonomicon.Request
-	31, // 41: velez_api.ServiceApi.CreateService:output_type -> velez_api.CreateService.Response
-	33, // 42: velez_api.ServiceApi.GetService:output_type -> velez_api.GetService.Response
-	37, // 43: velez_api.ServiceApi.CreateDeploy:output_type -> velez_api.CreateDeploy.Response
-	41, // 44: velez_api.ServiceApi.ListDeployments:output_type -> velez_api.ListDeployments.Response
-	43, // 45: velez_api.ServiceApi.ListServices:output_type -> velez_api.ListServices.Response
-	45, // 46: velez_api.ServiceApi.StopService:output_type -> velez_api.StopService.Response
-	47, // 47: velez_api.ServiceApi.RestartService:output_type -> velez_api.RestartService.Response
-	49, // 48: velez_api.ServiceApi.RemoveService:output_type -> velez_api.RemoveService.Response
-	51, // 49: velez_api.ServiceApi.GetServiceMetrics:output_type -> velez_api.GetServiceMetrics.Response
-	53, // 50: velez_api.ServiceApi.GetServiceResources:output_type -> velez_api.GetServiceResources.Response
-	55, // 51: velez_api.ServiceApi.GetServiceGraph:output_type -> velez_api.GetServiceGraph.Response
-	57, // 52: velez_api.ServiceApi.GetServiceEnvironments:output_type -> velez_api.GetServiceEnvironments.Response
-	35, // 53: velez_api.ServiceApi.SetServiceProxy:output_type -> velez_api.SetServiceProxy.Response
-	59, // 54: velez_api.ServiceApi.GetVervonomicon:output_type -> velez_api.GetVervonomicon.Response
-	41, // [41:55] is the sub-list for method output_type
-	27, // [27:41] is the sub-list for method input_type
-	27, // [27:27] is the sub-list for extension type_name
-	27, // [27:27] is the sub-list for extension extendee
-	0,  // [0:27] is the sub-list for field type_name
+	64, // 20: velez_api.ListServices.Response.provisioning:type_name -> velez_api.ProvisioningTask
+	21, // 21: velez_api.GetServiceResources.Response.resources:type_name -> velez_api.BoundResource
+	23, // 22: velez_api.GetServiceGraph.Response.callers:type_name -> velez_api.ServiceDependencyInfo
+	23, // 23: velez_api.GetServiceGraph.Response.dependencies:type_name -> velez_api.ServiceDependencyInfo
+	25, // 24: velez_api.GetServiceEnvironments.Response.environments:type_name -> velez_api.ServiceEnvironmentInfo
+	27, // 25: velez_api.GetVervonomicon.Response.raw:type_name -> velez_api.DescriptorFile
+	3,  // 26: velez_api.GetVervonomicon.Response.source:type_name -> velez_api.VervonomiconSource
+	28, // 27: velez_api.GetVervonomicon.Response.resource_statuses:type_name -> velez_api.ResourceReconciliation
+	30, // 28: velez_api.ServiceApi.CreateService:input_type -> velez_api.CreateService.Request
+	32, // 29: velez_api.ServiceApi.GetService:input_type -> velez_api.GetService.Request
+	36, // 30: velez_api.ServiceApi.CreateDeploy:input_type -> velez_api.CreateDeploy.Request
+	40, // 31: velez_api.ServiceApi.ListDeployments:input_type -> velez_api.ListDeployments.Request
+	42, // 32: velez_api.ServiceApi.ListServices:input_type -> velez_api.ListServices.Request
+	44, // 33: velez_api.ServiceApi.StopService:input_type -> velez_api.StopService.Request
+	46, // 34: velez_api.ServiceApi.RestartService:input_type -> velez_api.RestartService.Request
+	48, // 35: velez_api.ServiceApi.RemoveService:input_type -> velez_api.RemoveService.Request
+	50, // 36: velez_api.ServiceApi.GetServiceMetrics:input_type -> velez_api.GetServiceMetrics.Request
+	52, // 37: velez_api.ServiceApi.GetServiceResources:input_type -> velez_api.GetServiceResources.Request
+	54, // 38: velez_api.ServiceApi.GetServiceGraph:input_type -> velez_api.GetServiceGraph.Request
+	56, // 39: velez_api.ServiceApi.GetServiceEnvironments:input_type -> velez_api.GetServiceEnvironments.Request
+	34, // 40: velez_api.ServiceApi.SetServiceProxy:input_type -> velez_api.SetServiceProxy.Request
+	58, // 41: velez_api.ServiceApi.GetVervonomicon:input_type -> velez_api.GetVervonomicon.Request
+	31, // 42: velez_api.ServiceApi.CreateService:output_type -> velez_api.CreateService.Response
+	33, // 43: velez_api.ServiceApi.GetService:output_type -> velez_api.GetService.Response
+	37, // 44: velez_api.ServiceApi.CreateDeploy:output_type -> velez_api.CreateDeploy.Response
+	41, // 45: velez_api.ServiceApi.ListDeployments:output_type -> velez_api.ListDeployments.Response
+	43, // 46: velez_api.ServiceApi.ListServices:output_type -> velez_api.ListServices.Response
+	45, // 47: velez_api.ServiceApi.StopService:output_type -> velez_api.StopService.Response
+	47, // 48: velez_api.ServiceApi.RestartService:output_type -> velez_api.RestartService.Response
+	49, // 49: velez_api.ServiceApi.RemoveService:output_type -> velez_api.RemoveService.Response
+	51, // 50: velez_api.ServiceApi.GetServiceMetrics:output_type -> velez_api.GetServiceMetrics.Response
+	53, // 51: velez_api.ServiceApi.GetServiceResources:output_type -> velez_api.GetServiceResources.Response
+	55, // 52: velez_api.ServiceApi.GetServiceGraph:output_type -> velez_api.GetServiceGraph.Response
+	57, // 53: velez_api.ServiceApi.GetServiceEnvironments:output_type -> velez_api.GetServiceEnvironments.Response
+	35, // 54: velez_api.ServiceApi.SetServiceProxy:output_type -> velez_api.SetServiceProxy.Response
+	59, // 55: velez_api.ServiceApi.GetVervonomicon:output_type -> velez_api.GetVervonomicon.Response
+	42, // [42:56] is the sub-list for method output_type
+	28, // [28:42] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_service_api_proto_init() }

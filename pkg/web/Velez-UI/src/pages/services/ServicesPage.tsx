@@ -14,7 +14,7 @@ import {
 import SkeletonServiceCard from '@/components/service/SkeletonServiceCard';
 import ServicesEmptyState from '@/pages/services/parts/ServicesEmptyState/ServicesEmptyState';
 import { Routes } from '@/app/router/Routes';
-import { useListServicesQuery } from '@/processes/queries/services';
+import { SERVICES_QUERY_KEY, useListServicesQuery } from '@/processes/queries/services';
 import { useListSmerdsQuery } from '@/processes/queries/smerds';
 import { useListContainersQuery } from '@/processes/queries/containers';
 import { parseContainerSearch } from '@/processes/queries/parseContainerSearch';
@@ -24,6 +24,13 @@ import { useToaster } from '@/app/hooks/toaster/Toaster';
 import { useDialog } from '@/app/hooks/dialog/Dialog.tsx';
 import CreateServiceDialog from '@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx';
 import Button from '@/components/base/Button.tsx';
+import ProvisioningRow from '@/widgets/ProvisioningRow/ProvisioningRow.tsx';
+import { useInvalidateOnDialogClose } from '@/app/hooks/InvalidateOnDialogClose.ts';
+import type { ProvisioningTask } from '@/app/api/velez/velez_common.pb';
+import {
+    filterProvisioningBySearch,
+    isServiceProvisioning,
+} from '@/pages/services/processes/serviceProvisioning.ts';
 import cls from '@/pages/services/ServicesPage.module.css';
 
 const INCLUDE_INTERNAL_KEY = 'services.includeInternal';
@@ -71,6 +78,8 @@ export default function ServicesPage() {
     const [showAllContainers, setShowAllContainers] = useState(readShowAllContainers);
     const [registrationFilter, setRegistrationFilter] = useState<RegistrationFilter>('all');
 
+    useInvalidateOnDialogClose(SERVICES_QUERY_KEY);
+
     const servicesQuery = useListServicesQuery(includeInternal);
     useEffect(() => {
         if (servicesQuery.error) toaster.catchGrpc(servicesQuery.error);
@@ -102,15 +111,26 @@ export default function ServicesPage() {
         });
     }, [servicesQuery.data, smerdsQuery.data]);
 
+    const provisioningTasks = servicesQuery.data?.provisioning;
+
+    const visibleServices = useMemo(function computeVisibleServices() {
+        const tasks = provisioningTasks ?? [];
+        return services.filter((s) => !isServiceProvisioning(s.name, tasks));
+    }, [services, provisioningTasks]);
+
     const filtered = useMemo(function computeFiltered() {
         const q = search.trim().toLowerCase();
-        if (!q) return services;
-        return services.filter(
+        if (!q) return visibleServices;
+        return visibleServices.filter(
             (s) => s.name.toLowerCase().includes(q)
                 || s.displayName.toLowerCase().includes(q)
                 || s.image.toLowerCase().includes(q)
         );
-    }, [search, services]);
+    }, [search, visibleServices]);
+
+    const filteredTasks = useMemo(function computeFilteredTasks() {
+        return filterProvisioningBySearch(provisioningTasks ?? [], search);
+    }, [search, provisioningTasks]);
 
     const filteredContainers = useMemo(function computeFilteredContainers() {
         const containers = containersQuery.data?.containers ?? [];
@@ -159,6 +179,17 @@ export default function ServicesPage() {
 
     function handleCreate() {
         OpenDialog(<CreateServiceDialog/>);
+    }
+
+    function renderProvisioningRow(task: ProvisioningTask) {
+        return (
+            <ProvisioningRow
+                key={task.taskId}
+                task={task}
+                noun="service"
+                queryKey={SERVICES_QUERY_KEY}
+            />
+        );
     }
 
     function handleOpenContainer(id: string) {
@@ -214,7 +245,7 @@ export default function ServicesPage() {
             );
         }
     } else {
-        countLabel = `${filtered.length} services`;
+        countLabel = `${filtered.length + filteredTasks.length} services`;
         if (servicesQuery.isLoading) {
             gridContent = (
                 <>
@@ -223,21 +254,26 @@ export default function ServicesPage() {
                     <SkeletonServiceCard/>
                 </>
             );
-        } else if (services.length === 0) {
+        } else if (services.length === 0 && (provisioningTasks ?? []).length === 0) {
             gridContent = (
                 <ServicesEmptyState includeInternal={includeInternal} onCreate={handleCreate}/>
             );
         } else {
-            gridContent = filtered.map(function renderCard(service) {
-                return (
-                    <ServiceCard
-                        key={service.name}
-                        service={service}
-                        onOpen={handleOpen}
-                        onDeploy={handleDeploy}
-                    />
-                );
-            });
+            gridContent = (
+                <>
+                    {filteredTasks.map(renderProvisioningRow)}
+                    {filtered.map(function renderCard(service) {
+                        return (
+                            <ServiceCard
+                                key={service.name}
+                                service={service}
+                                onOpen={handleOpen}
+                                onDeploy={handleDeploy}
+                            />
+                        );
+                    })}
+                </>
+            );
         }
     }
 

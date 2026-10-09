@@ -285,6 +285,10 @@ message ListServices {
   message Response {
     uint64 Total = 1;
     repeated ServiceBaseInfo services = 2;
+
+    // provisioning - in-flight and recently failed create tasks (plus in-flight drops)
+    // for services and every AsAService kind, same shape as the AsAService list responses.
+    repeated ProvisioningTask provisioning = 3;
   };
 }
 

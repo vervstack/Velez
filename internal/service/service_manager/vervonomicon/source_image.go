@@ -2,6 +2,7 @@ package vervonomicon
 
 import (
 	"context"
+	"time"
 
 	"github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/container"
@@ -26,6 +27,8 @@ const (
 	// internal/jobs.scratchContainerSuffix ("_config_scanning") so the two
 	// scratch containers for the same service never collide.
 	scratchContainerSuffix = "_verv_scanning"
+
+	scratchDropTimeout = 10 * time.Second
 )
 
 // ImageSource reads .verv/ out of an image through a throwaway, never-started
@@ -65,6 +68,8 @@ func (s *ImageSource) Read(ctx context.Context, serviceName, imageName string) (
 
 	containerName := serviceName + scratchContainerSuffix
 
+	s.dropScratchContainer(ctx, containerName)
+
 	cfg := &container.Config{
 		Image:    imageName,
 		Hostname: containerName,
@@ -95,11 +100,18 @@ func (s *ImageSource) Read(ctx context.Context, serviceName, imageName string) (
 	return files, nil
 }
 
-func (s *ImageSource) dropScratchContainer(ctx context.Context, containerID string) {
-	err := s.nodeClients.Docker().Remove(ctx, containerID)
+// dropScratchContainer removes the scratch container on its own context: the
+// caller's ctx is often already cancelled when this runs (client abort, request
+// timeout), and a failed removal would leave the container behind to collide
+// with the service's next read.
+func (s *ImageSource) dropScratchContainer(ctx context.Context, containerRef string) {
+	dropCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), scratchDropTimeout)
+	defer cancel()
+
+	err := s.nodeClients.Docker().Remove(dropCtx, containerRef)
 	if err != nil && !errdefs.IsNotFound(err) {
 		log.Ctx(ctx).Warn().
-			Str("container_id", containerID).
+			Str("container", containerRef).
 			Err(err).
 			Msg("error dropping verv scratch container")
 	}

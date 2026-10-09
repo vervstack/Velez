@@ -14,6 +14,7 @@ import (
 
 	"github.com/docker/docker/api/types/build"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
 	"github.com/stretchr/testify/require"
 
@@ -152,4 +153,16 @@ func requireBuildSucceeded(t *testing.T, body io.Reader) {
 			t.Fatalf("image build failed: %s", line.Error)
 		}
 	}
+}
+
+func scratchContainerExists(t *testing.T, dockerAPI client.APIClient, name string) bool {
+	t.Helper()
+
+	nameFilter := filters.NewArgs(filters.Arg("name", "^/"+name+"$"))
+	opts := container.ListOptions{All: true, Filters: nameFilter}
+
+	listed, err := dockerAPI.ContainerList(context.WithoutCancel(t.Context()), opts)
+	require.NoError(t, err)
+
+	return len(listed) > 0
 }

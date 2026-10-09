@@ -3,8 +3,11 @@
 package e2e
 
 import (
+	"context"
 	"testing"
+	"time"
 
+	"github.com/docker/docker/api/types/container"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
@@ -24,6 +27,14 @@ const (
 	vervResSvcName    = "e2v_verv_res"
 	vervNoDescSvcName = "e2v_verv_nodesc"
 	vervBadSvcName    = "e2v_verv_bad"
+	vervStaleSvcName  = "e2v_verv_stale"
+	vervCancelSvcName = "e2v_verv_cancel"
+
+	vervScratchSuffix = "_verv_scanning"
+
+	vervScratchObserveTimeout = 10 * time.Second
+	vervScratchGoneTimeout    = 15 * time.Second
+	vervScratchGoneTick       = 100 * time.Millisecond
 )
 
 // newVervonomiconRequest is this file's one recurring request shape across
@@ -36,6 +47,16 @@ func newVervonomiconRequest(name, imageName, environment string) *velez_api.Crea
 		IgnoreConfig: true,
 		Environment:  environment,
 	}
+}
+
+func newVervonomiconBuildFiles(name string) map[string]string {
+	return map[string]string{
+		vervIndexFile: "version: \"1\"\nservice:\n  name: " + name + "\n",
+	}
+}
+
+func newStaleScratchConfig(imageName string) *container.Config {
+	return &container.Config{Image: imageName}
 }
 
 type VervonomiconSuite struct {
@@ -281,6 +302,97 @@ func (s *VervonomiconSuite) Test_MalformedDescriptorIsAnError() {
 	_, err := env.Custom.ServiceApiImpl.GetVervonomicon(ctx, req)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "unrecognised vervonomicon version")
+}
+
+// Test_StaleScratchContainer_DoesNotBlockRead covers a scratch container left
+// behind by an earlier read: the next read must replace it, not fail on the
+// name collision.
+func (s *VervonomiconSuite) Test_StaleScratchContainer_DoesNotBlockRead() {
+	t := s.T()
+	t.Parallel()
+
+	env := s.plane.NewEnvironment(t)
+	ctx := t.Context()
+	dockerAPI := env.Custom.NodeClients.Docker().Client()
+
+	tag := vervStaleSvcName + ":verv"
+	scratchName := vervStaleSvcName + vervScratchSuffix
+
+	buildVervImage(t, dockerAPI, tag, newVervonomiconBuildFiles(vervStaleSvcName))
+
+	createReq := newVervonomiconRequest(vervStaleSvcName, tag, "")
+
+	env.CreateSmerd(t, createReq)
+
+	staleCfg := newStaleScratchConfig(tag)
+
+	_, err := dockerAPI.ContainerCreate(ctx, staleCfg, nil, nil, nil, scratchName)
+	require.NoError(t, err)
+	require.True(t, scratchContainerExists(t, dockerAPI, scratchName))
+
+	req := &velez_api.GetVervonomicon_Request{ServiceName: vervStaleSvcName}
+
+	resp, err := env.Custom.ServiceApiImpl.GetVervonomicon(ctx, req)
+	require.NoError(t, err)
+	require.Equal(t, velez_api.VervonomiconSource_VERVONOMICON_SOURCE_IMAGE, resp.GetSource())
+
+	require.False(t, scratchContainerExists(t, dockerAPI, scratchName))
+}
+
+// Test_CancelledRead_DoesNotLeakScratchContainer covers a request cancelled
+// while the scratch container exists: the container must still be removed, and
+// the service's next read must not collide with it.
+func (s *VervonomiconSuite) Test_CancelledRead_DoesNotLeakScratchContainer() {
+	t := s.T()
+	t.Parallel()
+
+	env := s.plane.NewEnvironment(t)
+	dockerAPI := env.Custom.NodeClients.Docker().Client()
+
+	tag := vervCancelSvcName + ":verv"
+	scratchName := vervCancelSvcName + vervScratchSuffix
+
+	buildVervImage(t, dockerAPI, tag, newVervonomiconBuildFiles(vervCancelSvcName))
+
+	createReq := newVervonomiconRequest(vervCancelSvcName, tag, "")
+
+	env.CreateSmerd(t, createReq)
+
+	req := &velez_api.GetVervonomicon_Request{ServiceName: vervCancelSvcName}
+
+	readCtx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+
+	readDone := make(chan struct{})
+
+	go func() {
+		defer close(readDone)
+
+		_, _ = env.Custom.ServiceApiImpl.GetVervonomicon(readCtx, req)
+	}()
+
+	seen := false
+	deadline := time.Now().Add(vervScratchObserveTimeout)
+
+	for !seen && time.Now().Before(deadline) {
+		seen = scratchContainerExists(t, dockerAPI, scratchName)
+		if !seen {
+			time.Sleep(time.Millisecond)
+		}
+	}
+
+	cancel()
+	<-readDone
+
+	require.True(t, seen, "scratch container never observed")
+
+	require.Eventually(t, func() bool {
+		return !scratchContainerExists(t, dockerAPI, scratchName)
+	}, vervScratchGoneTimeout, vervScratchGoneTick, "scratch container leaked after cancelled read")
+
+	resp, err := env.Custom.ServiceApiImpl.GetVervonomicon(t.Context(), req)
+	require.NoError(t, err)
+	require.Equal(t, velez_api.VervonomiconSource_VERVONOMICON_SOURCE_IMAGE, resp.GetSource())
 }
 
 func Test_Vervonomicon(t *testing.T) {

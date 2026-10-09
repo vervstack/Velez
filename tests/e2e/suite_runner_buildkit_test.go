@@ -356,7 +356,7 @@ func createRunnerWithoutDind(t *testing.T, env *TestEnvironment) string {
 		_ = dockerClient.ContainerRemove(context.Background(), runnerContainer, removeOpts)
 	})
 
-	baseUrl := startGitlabStubOnBridge(t, env, gitlabStubContainerName(suffix))
+	baseUrl := startGitlabStub(t, env, gitlabStubContainerName(suffix))
 
 	req := newGitlabSocketCreateRunnerRequest(runnerName, baseUrl, socketAddress)
 

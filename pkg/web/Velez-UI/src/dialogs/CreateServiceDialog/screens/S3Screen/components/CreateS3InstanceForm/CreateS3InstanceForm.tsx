@@ -1,7 +1,7 @@
 import {useState} from "react"
 import {Checkbox, Dropdown, DropdownOption, parseGrpcError} from "@vervstack/chures"
 
-import cls from "@/dialogs/CreateS3InstanceDialog/components/CreateS3InstanceForm/CreateS3InstanceForm.module.css"
+import cls from "@/dialogs/CreateServiceDialog/screens/S3Screen/components/CreateS3InstanceForm/CreateS3InstanceForm.module.css"
 import type {CreateS3InstanceRequest} from "@/app/api/velez/s3_api.pb"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import {validateInstanceName} from "@/processes/mappings/instanceName.ts"
@@ -12,7 +12,7 @@ import Input from "@/components/base/Input.tsx"
 import {
     buildCreateS3InstanceRequest,
     LOCKED_REPLICATION_FACTOR,
-} from "@/dialogs/CreateS3InstanceDialog/processes/buildCreateS3InstanceRequest.ts"
+} from "@/dialogs/CreateServiceDialog/screens/S3Screen/processes/buildCreateS3InstanceRequest.ts"
 
 const BOX_OPTIONS = ["small", "medium", "large"] as const
 

@@ -14,6 +14,7 @@ import {
     ServiceScreen,
     suggestedScreenOf,
 } from "@/dialogs/CreateServiceDialog/processes/serviceScreen.ts"
+import DindScreen from "@/dialogs/CreateServiceDialog/screens/DindScreen/DindScreen.tsx"
 import GenericAdoptScreen from "@/dialogs/CreateServiceDialog/screens/GenericAdoptScreen/GenericAdoptScreen.tsx"
 import GenericScreen from "@/dialogs/CreateServiceDialog/screens/GenericScreen/GenericScreen.tsx"
 import PickerScreen from "@/dialogs/CreateServiceDialog/screens/PickerScreen/PickerScreen.tsx"
@@ -23,6 +24,7 @@ import RegistryAdoptScreen from "@/dialogs/CreateServiceDialog/screens/RegistryA
 import RegistryScreen from "@/dialogs/CreateServiceDialog/screens/RegistryScreen/RegistryScreen.tsx"
 import RunnerAdoptScreen from "@/dialogs/CreateServiceDialog/screens/RunnerAdoptScreen/RunnerAdoptScreen.tsx"
 import RunnerScreen from "@/dialogs/CreateServiceDialog/screens/RunnerScreen/RunnerScreen.tsx"
+import S3Screen from "@/dialogs/CreateServiceDialog/screens/S3Screen/S3Screen.tsx"
 
 interface Props {
     initialScreen?: ServiceScreen
@@ -78,6 +80,8 @@ export default function CreateServiceDialog({
         if (screen === "generic") return <GenericScreen onBusyChange={setIsBusy}/>
         if (screen === "postgres") return <PostgresScreen onBusyChange={setIsBusy}/>
         if (screen === "registry") return <RegistryScreen onBusyChange={setIsBusy}/>
+        if (screen === "s3") return <S3Screen onBusyChange={setIsBusy}/>
+        if (screen === "dind") return <DindScreen onBusyChange={setIsBusy}/>
         if (screen === "githubRunner" || screen === "gitlabRunner") {
             return <RunnerScreen initialProvider={runnerProviderOf(screen)} onBusyChange={setIsBusy}/>
         }

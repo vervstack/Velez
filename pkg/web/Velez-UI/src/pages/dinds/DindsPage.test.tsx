@@ -8,7 +8,7 @@ import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import {DropDindMutation, useListDindsQuery} from "@/processes/queries/dinds.ts"
 import DindsPage from "@/pages/dinds/DindsPage.tsx"
-import CreateDindDialog from "@/dialogs/CreateDindDialog/CreateDindDialog.tsx"
+import CreateServiceDialog from "@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx"
 
 vi.mock("@/app/hooks/dialog/Dialog.tsx", () => ({useDialog: vi.fn()}))
 vi.mock("@/app/hooks/toaster/Toaster.ts", () => ({useToaster: vi.fn()}))
@@ -20,7 +20,7 @@ vi.mock("@/processes/queries/dinds.ts", () => ({
 vi.mock("@/widgets/ProvisioningRow/ProvisioningRow.tsx", () => ({
     default: ({task}: { task: ProvisioningTask }) => <span>provisioning {task.entityId}</span>,
 }))
-vi.mock("@/dialogs/CreateDindDialog/CreateDindDialog.tsx", () => ({default: () => null}))
+vi.mock("@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx", () => ({default: () => null}))
 vi.mock("@/pages/dinds/components/DindsTableSkeleton/DindsTableSkeleton.tsx", () => ({
     default: () => <span>dinds skeleton</span>,
 }))
@@ -112,12 +112,13 @@ describe("DindsPage", () => {
         expect(refetch).toHaveBeenCalledTimes(1)
     })
 
-    it("opens CreateDindDialog when Create Docker daemon is clicked", () => {
+    it("opens the create-service dialog on the Docker daemon screen when Create Docker daemon is clicked", () => {
         const {OpenDialog} = renderPage(loaded([]))
 
         fireEvent.click(screen.getByText("Create Docker daemon"))
 
         expect(OpenDialog).toHaveBeenCalledTimes(1)
-        expect(OpenDialog.mock.calls[0][0].type).toBe(CreateDindDialog)
+        expect(OpenDialog.mock.calls[0][0].type).toBe(CreateServiceDialog)
+        expect(OpenDialog.mock.calls[0][0].props.initialScreen).toBe("dind")
     })
 })

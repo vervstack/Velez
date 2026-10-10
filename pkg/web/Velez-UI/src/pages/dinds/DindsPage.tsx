@@ -9,7 +9,7 @@ import {DINDS_QUERY_KEY, useListDindsQuery} from "@/processes/queries/dinds.ts"
 import Button from "@/components/base/Button.tsx"
 import InstanceCount from "@/components/InstanceCount/InstanceCount.tsx"
 import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorState.tsx"
-import CreateDindDialog from "@/dialogs/CreateDindDialog/CreateDindDialog.tsx"
+import CreateServiceDialog from "@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx"
 import DindRow from "@/pages/dinds/components/DindRow/DindRow.tsx"
 import DindsTableSkeleton from "@/pages/dinds/components/DindsTableSkeleton/DindsTableSkeleton.tsx"
 import ProvisioningRow from "@/widgets/ProvisioningRow/ProvisioningRow.tsx"
@@ -46,7 +46,7 @@ export default function DindsPage() {
     )
 
     function handleCreate() {
-        OpenDialog(<CreateDindDialog/>)
+        OpenDialog(<CreateServiceDialog initialScreen="dind"/>)
     }
 
     function handleRetry() {

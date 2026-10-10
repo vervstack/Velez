@@ -17,8 +17,20 @@ describe("PickerScreen", () => {
         expect(screen.getByText("Generic container/image")).toBeInTheDocument()
         expect(screen.getByText("PostgreSQL")).toBeInTheDocument()
         expect(screen.getByText("Container registry")).toBeInTheDocument()
+        expect(screen.getByText("S3 storage")).toBeInTheDocument()
+        expect(screen.getByText("Docker in Docker")).toBeInTheDocument()
         expect(screen.getByText("GitHub runner")).toBeInTheDocument()
         expect(screen.getByText("GitLab runner")).toBeInTheDocument()
+    })
+
+    it("calls onSelect with the s3 and dind screens for the new products", () => {
+        const {onSelect} = renderPicker()
+
+        fireEvent.click(screen.getByText("S3 storage"))
+        fireEvent.click(screen.getByText("Docker in Docker"))
+
+        expect(onSelect).toHaveBeenNthCalledWith(1, "s3")
+        expect(onSelect).toHaveBeenNthCalledWith(2, "dind")
     })
 
     it("calls onSelect with the matching screen when a card is clicked", () => {
@@ -46,7 +58,7 @@ describe("PickerScreen", () => {
     it("disables every card outside enabledScreens with a note", () => {
         const {onSelect} = renderPicker(undefined, ["generic", "postgres"])
 
-        expect(screen.getAllByText("Not available for existing containers yet")).toHaveLength(3)
+        expect(screen.getAllByText("Not available for existing containers yet")).toHaveLength(5)
 
         fireEvent.click(screen.getByText("Container registry"))
         expect(onSelect).not.toHaveBeenCalled()

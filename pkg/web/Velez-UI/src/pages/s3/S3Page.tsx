@@ -10,7 +10,7 @@ import {S3_INSTANCES_QUERY_KEY, useListS3InstancesQuery} from "@/processes/queri
 import Button from "@/components/base/Button.tsx"
 import InstanceCount from "@/components/InstanceCount/InstanceCount.tsx"
 import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorState.tsx"
-import CreateS3InstanceDialog from "@/dialogs/CreateS3InstanceDialog/CreateS3InstanceDialog.tsx"
+import CreateServiceDialog from "@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx"
 import S3InstanceDetail from "@/pages/s3/components/S3InstanceDetail/S3InstanceDetail.tsx"
 import S3InstanceRow from "@/pages/s3/components/S3InstanceRow/S3InstanceRow.tsx"
 import S3ListSkeleton from "@/pages/s3/components/S3ListSkeleton/S3ListSkeleton.tsx"
@@ -42,7 +42,7 @@ export default function S3Page() {
     )
 
     function handleCreate() {
-        OpenDialog(<CreateS3InstanceDialog/>)
+        OpenDialog(<CreateServiceDialog initialScreen="s3"/>)
     }
 
     function handleRetry() {

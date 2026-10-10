@@ -2,7 +2,7 @@ import {afterEach, describe, expect, it, vi} from "vitest"
 import {fireEvent, render, screen} from "@testing-library/react"
 
 import CreateDindDialogForm
-    from "@/dialogs/CreateDindDialog/components/CreateDindDialogForm/CreateDindDialogForm.tsx"
+    from "@/dialogs/CreateServiceDialog/screens/DindScreen/components/CreateDindDialogForm/CreateDindDialogForm.tsx"
 
 function inputFor(label: string) {
     return screen.getByText(label).previousElementSibling as HTMLInputElement

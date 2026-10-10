@@ -1,7 +1,7 @@
 import {useState} from "react"
 import {Checkbox} from "@vervstack/chures"
 
-import cls from "@/dialogs/CreateDindDialog/components/CreateDindDialogForm/CreateDindDialogForm.module.css"
+import cls from "@/dialogs/CreateServiceDialog/screens/DindScreen/components/CreateDindDialogForm/CreateDindDialogForm.module.css"
 import type {CreateDindRequest} from "@/app/api/velez/dind_api.pb"
 import {validateInstanceName} from "@/processes/mappings/instanceName.ts"
 import Button from "@/components/base/Button.tsx"

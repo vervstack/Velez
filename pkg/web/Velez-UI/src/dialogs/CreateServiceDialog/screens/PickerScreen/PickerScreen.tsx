@@ -25,12 +25,15 @@ export default function PickerScreen({suggestedScreen, enabledScreens, onSelect}
             onSelect(card.screen)
         }
 
+        const CardIcon = card.icon
+
         return (
             <div key={card.screen} className={cls.CardWrapper}>
                 {isSuggested && <Badge label="Suggested" dim="var(--cyan-dim)"/>}
                 <Choice
                     title={card.title}
                     sub={card.description}
+                    icon={<CardIcon/>}
                     active={false}
                     isSuggested={isSuggested}
                     disabled={isDisabled}

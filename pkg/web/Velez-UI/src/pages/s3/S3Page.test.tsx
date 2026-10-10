@@ -13,7 +13,7 @@ vi.mock("@/processes/queries/s3.ts", () => ({
     useListS3InstancesQuery: vi.fn(),
     S3_INSTANCES_QUERY_KEY: ["s3-instances"],
 }))
-vi.mock("@/dialogs/CreateS3InstanceDialog/CreateS3InstanceDialog.tsx", () => ({default: () => null}))
+vi.mock("@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx", () => ({default: () => null}))
 vi.mock("@/pages/s3/components/S3InstanceDetail/S3InstanceDetail.tsx", () => ({default: () => null}))
 vi.mock("@/pages/s3/components/S3InstanceRow/S3InstanceRow.tsx", () => ({
     default: ({instance}: { instance: S3Instance }) => <span>instance {instance.name}</span>,

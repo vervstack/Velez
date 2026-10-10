@@ -5,11 +5,17 @@ import EnvChip from '@/components/base/chips/EnvChip';
 import IncidentChip from '@/components/base/chips/IncidentChip';
 import FreezeChip from '@/components/base/chips/FreezeChip';
 import ServiceLabelBadge from '@/components/service/ServiceLabelBadge';
+import DindIcon from '@/components/base/icons/DindIcon';
 import GitlabIcon from '@/components/base/icons/GitlabIcon';
-import { ServiceListItem } from '@/processes/mappings/smerds';
+import PostgresIcon from '@/components/base/icons/PostgresIcon';
+import S3Icon from '@/components/base/icons/S3Icon';
+import { ServiceIconKind, ServiceListItem } from '@/processes/mappings/smerds';
 
-const SERVICE_ICONS: Record<NonNullable<ServiceListItem['icon']>, React.ComponentType<{ className?: string }>> = {
+const SERVICE_ICONS: Record<ServiceIconKind, React.ComponentType<{ className?: string }>> = {
     gitlab: GitlabIcon,
+    postgres: PostgresIcon,
+    s3: S3Icon,
+    dind: DindIcon,
 };
 
 interface ServiceCardProps {

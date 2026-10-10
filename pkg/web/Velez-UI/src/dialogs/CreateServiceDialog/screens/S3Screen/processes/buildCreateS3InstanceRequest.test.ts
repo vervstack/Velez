@@ -3,7 +3,7 @@ import {describe, expect, it} from "vitest"
 import {
     buildCreateS3InstanceRequest,
     CreateS3InstanceFormState,
-} from "@/dialogs/CreateS3InstanceDialog/processes/buildCreateS3InstanceRequest.ts"
+} from "@/dialogs/CreateServiceDialog/screens/S3Screen/processes/buildCreateS3InstanceRequest.ts"
 
 const BASE: CreateS3InstanceFormState = {
     name: "  main  ",

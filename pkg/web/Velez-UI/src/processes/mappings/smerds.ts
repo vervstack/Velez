@@ -15,11 +15,13 @@ export interface AppData {
     version: string;
 }
 
+export type ServiceIconKind = 'gitlab' | 'postgres' | 's3' | 'dind';
+
 export interface ServiceListItem {
     name: string;
     displayName: string;
     subtitle?: string;
-    icon?: 'gitlab';
+    icon?: ServiceIconKind;
     image: string;
     status: 'running' | 'degraded' | 'stopped';
     labels: string[];
@@ -95,14 +97,26 @@ function formatDeployedAt(ts?: { seconds?: string | number }): string {
     return new Date(seconds * 1000).toLocaleDateString();
 }
 
-// Derived label the API attaches to GetService/ListServices.labels — see
+// Derived labels the API attaches to GetService/ListServices.labels — see
 // internal/domain/service_labels.go's ClassifyService, the single source of
-// truth this string must match.
+// truth these strings must match.
 const RUNNER_GITLAB_LABEL = 'service-runner-gitlab';
+const PGAAS_LABEL = 'service-pgaas';
+const S3_LABEL = 'service-s3';
+const DIND_LABEL = 'service-dind';
 
-function deriveServicePresentation(labels: string[]): { subtitle?: string; icon?: 'gitlab' } {
+function deriveServicePresentation(labels: string[]): { subtitle?: string; icon?: ServiceIconKind } {
     if (labels.includes(RUNNER_GITLAB_LABEL)) {
         return {subtitle: 'Gitlab Runner', icon: 'gitlab'};
+    }
+    if (labels.includes(PGAAS_LABEL)) {
+        return {subtitle: 'Postgres', icon: 'postgres'};
+    }
+    if (labels.includes(S3_LABEL)) {
+        return {subtitle: 'S3', icon: 's3'};
+    }
+    if (labels.includes(DIND_LABEL)) {
+        return {subtitle: 'Docker in Docker', icon: 'dind'};
     }
     return {};
 }

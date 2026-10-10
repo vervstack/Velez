@@ -30,7 +30,7 @@ func (v *VervService) Get(ctx context.Context, r domain.GetServiceReq) (domain.S
 	// the resource-name lookup the list path has, and the detail page only
 	// branches on "service-core".
 	if len(service.Labels) == 0 {
-		service.Labels = domain.ClassifyService(service.Name, "")
+		service.Labels = domain.ClassifyService(service.Name, "", false)
 	}
 
 	err = v.enrichServiceAbout(ctx, &service)

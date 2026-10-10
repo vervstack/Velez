@@ -6,6 +6,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/docker/docker/api/types/container"
 	"go.redsock.ru/rerrors"
 
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
@@ -13,14 +14,6 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/user_errors"
-)
-
-// velezServiceName is the name of the node manager itself. In single-node
-// mode the Velez container may or may not carry a user-set VERV_SERVICE
-// label, so listDistinctServices injects a synthetic entry for it,
-// deduplicated by name.
-const (
-	velezServiceName = "velez"
 )
 
 type dockerServices struct {
@@ -69,7 +62,7 @@ func (s *dockerServices) GetByName(ctx context.Context, name string) (domain.Ser
 	}
 
 	if len(containers) == 0 {
-		if name == velezServiceName {
+		if name == domain.VelezServiceName {
 			return s.syntheticVelezService(ctx)
 		}
 
@@ -86,7 +79,7 @@ func (s *dockerServices) GetByName(ctx context.Context, name string) (domain.Ser
 		return domain.Service{}, user_errors.ErrStorageNotFound
 	}
 
-	c := containers[0]
+	c := mainContainersFirst(containers)[0]
 	svc := domain.Service{
 		ServiceBaseInfo: domain.ServiceBaseInfo{
 			Name:        name,
@@ -99,6 +92,27 @@ func (s *dockerServices) GetByName(ctx context.Context, name string) (domain.Ser
 	}
 
 	return svc, nil
+}
+
+// mainContainersFirst moves sidecars behind the main containers, so the first
+// container seen for a service is the one whose labels (display name) describe
+// the service rather than its sidecar.
+func mainContainersFirst(containers []container.Summary) []container.Summary {
+	ordered := make([]container.Summary, 0, len(containers))
+	sidecars := make([]container.Summary, 0)
+
+	for _, c := range containers {
+		_, isSidecar := c.Labels[labels.Sidecar]
+		if isSidecar {
+			sidecars = append(sidecars, c)
+
+			continue
+		}
+
+		ordered = append(ordered, c)
+	}
+
+	return append(ordered, sidecars...)
 }
 
 // serviceIDFromName derives a stable, non-zero synthetic service id from a
@@ -266,7 +280,7 @@ func (s *dockerServices) syntheticVelezService(ctx context.Context) (domain.Serv
 	}
 
 	for _, info := range all {
-		if info.Name != velezServiceName {
+		if info.Name != domain.VelezServiceName {
 			continue
 		}
 
@@ -274,7 +288,7 @@ func (s *dockerServices) syntheticVelezService(ctx context.Context) (domain.Serv
 
 		svc := domain.Service{
 			ServiceBaseInfo: info,
-			ID:              serviceIDFromName(velezServiceName),
+			ID:              serviceIDFromName(domain.VelezServiceName),
 			Status:          pb.DeploymentStatus_RUNNING,
 		}
 
@@ -310,7 +324,7 @@ func listDistinctServices(ctx context.Context, docker node_clients.Docker) ([]do
 
 	var all []domain.ServiceBaseInfo
 
-	for _, c := range containers {
+	for _, c := range mainContainersFirst(containers) {
 		serviceName := c.Labels[labels.VervServiceLabel]
 		if serviceName == "" || seen[serviceName] {
 			continue
@@ -318,20 +332,22 @@ func listDistinctServices(ctx context.Context, docker node_clients.Docker) ([]do
 
 		seen[serviceName] = true
 
+		isDind := c.Labels[labels.DindInstanceLabel] == boolLabelValue
+
 		info := domain.ServiceBaseInfo{
 			Name:        serviceName,
 			DisplayName: displayNameOrFallback(c.Labels, serviceName),
-			Labels:      classifyDockerService(serviceName, containerNames),
+			Labels:      classifyDockerService(serviceName, containerNames, isDind),
 		}
 
 		all = append(all, info)
 	}
 
-	if !seen[velezServiceName] {
+	if !seen[domain.VelezServiceName] {
 		synthetic := domain.ServiceBaseInfo{
-			Name:        velezServiceName,
-			DisplayName: velezServiceName,
-			Labels:      classifyDockerService(velezServiceName, containerNames),
+			Name:        domain.VelezServiceName,
+			DisplayName: domain.VelezServiceName,
+			Labels:      classifyDockerService(domain.VelezServiceName, containerNames, false),
 		}
 
 		all = append(all, synthetic)
@@ -345,20 +361,20 @@ func listDistinctServices(ctx context.Context, docker node_clients.Docker) ([]do
 // "<serviceName>_<suffix>" (the same "<service>_<x>" prefix scan
 // dockerServiceResourcesStorage.GetResources uses); the suffix is the
 // resource type. Otherwise the entry is classified by name alone.
-func classifyDockerService(serviceName string, containerNames []string) []string {
+func classifyDockerService(serviceName string, containerNames []string, isDind bool) []string {
 	prefix := serviceName + "_"
 
 	for _, name := range containerNames {
-		if !strings.HasPrefix(name, prefix) {
+		if !strings.HasPrefix(name, prefix) || domain.IsS3WebUiServiceNameOf(serviceName, name) {
 			continue
 		}
 
 		resourceType := strings.TrimPrefix(name, prefix)
 
-		return domain.ClassifyService(serviceName, resourceType)
+		return domain.ClassifyService(serviceName, resourceType, isDind)
 	}
 
-	return domain.ClassifyService(serviceName, "")
+	return domain.ClassifyService(serviceName, "", isDind)
 }
 
 // countRunningServices returns the number of distinct running Verv services

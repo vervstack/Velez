@@ -13,8 +13,14 @@ const (
 	LabelServiceApp          = "service-app"
 	LabelServiceRunnerGitlab = "service-runner-gitlab"
 	LabelServiceRunnerGithub = "service-runner-github"
+	LabelServicePgaas        = "service-pgaas"
+	LabelServiceS3           = "service-s3"
+	LabelServiceDind         = "service-dind"
 
 	labelResourcePrefix = "resource-"
+
+	// VelezServiceName is the name of the node manager's own service entry.
+	VelezServiceName = "velez"
 )
 
 // CoreServiceNames - Verv infra services that are hidden from the default
@@ -46,8 +52,9 @@ func IsResourceLabel(label string) bool {
 }
 
 // ClassifyService returns the derived labels for a service list entry.
-// resourceType is non-empty when the entry is bound as a resource somewhere.
-func ClassifyService(name string, resourceType string) []string {
+// resourceType is non-empty when the entry is bound as a resource somewhere;
+// isDind marks a Docker-in-Docker instance.
+func ClassifyService(name string, resourceType string, isDind bool) []string {
 	if resourceType != "" {
 		return []string{ResourceLabel(resourceType)}
 	}
@@ -58,6 +65,18 @@ func ClassifyService(name string, resourceType string) []string {
 
 	if strings.HasPrefix(name, labels.GithubRunnerNamePrefix) {
 		return []string{LabelServiceRunnerGithub}
+	}
+
+	if strings.HasPrefix(name, labels.PgaasNamePrefix) {
+		return []string{LabelServicePgaas}
+	}
+
+	if strings.HasPrefix(name, labels.S3NamePrefix) {
+		return []string{LabelServiceS3}
+	}
+
+	if isDind {
+		return []string{LabelServiceDind}
 	}
 
 	if IsCoreServiceName(name) {

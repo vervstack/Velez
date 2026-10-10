@@ -40,6 +40,10 @@ func S3WebUiServiceName(name string) string {
 	return labels.S3NamePrefix + name + s3WebUiSuffix
 }
 
+func IsS3WebUiServiceNameOf(serviceName string, candidate string) bool {
+	return candidate == serviceName+s3WebUiSuffix
+}
+
 func S3MetaVolumeName(name string) string {
 	return name + s3MetaVolumeSuffix
 }

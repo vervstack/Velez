@@ -18,13 +18,20 @@ func (v *VervService) List(ctx context.Context, req domain.ListServicesReq) (dom
 
 	// Enrich services with smerd data (best-effort)
 	for i := range list.Services {
-		err = v.enrichServiceWithSmerdData(ctx, &list.Services[i])
-		if err != nil {
-			continue
-		}
+		_ = v.enrichServiceWithSmerdData(ctx, &list.Services[i])
+
+		markOwnEntryRunning(&list.Services[i])
 	}
 
 	return list, nil
+}
+
+// Velez's own container is never registered as a Velez-managed smerd, so
+// enrichment leaves its status empty; the process answering this call is alive.
+func markOwnEntryRunning(svc *domain.ServiceBaseInfo) {
+	if svc.Name == domain.VelezServiceName && svc.Status == "" {
+		svc.Status = StatusRunning
+	}
 }
 
 func (v *VervService) enrichServiceWithSmerdData(ctx context.Context, svc *domain.ServiceBaseInfo) error {

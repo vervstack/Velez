@@ -108,12 +108,18 @@ func (s *servicesStorage) List(ctx context.Context, req domain.ListServicesReq) 
 	for rows.Next() {
 		var serviceBaseInfo domain.ServiceBaseInfo
 
-		serviceBaseInfo, err = listServiceHelper.scanServiceBaseInfo(rows)
+		var isDind bool
+
+		serviceBaseInfo, isDind, err = listServiceHelper.scanServiceBaseInfo(rows)
 		if err != nil {
 			return domain.ServiceList{}, wrapPgErr(err)
 		}
 
-		serviceBaseInfo.Labels = domain.ClassifyService(serviceBaseInfo.Name, resourceTypeByName[serviceBaseInfo.Name])
+		serviceBaseInfo.Labels = domain.ClassifyService(
+			serviceBaseInfo.Name,
+			resourceTypeByName[serviceBaseInfo.Name],
+			isDind,
+		)
 
 		out.Services = append(out.Services, serviceBaseInfo)
 	}
@@ -139,6 +145,7 @@ func (s serviceBaseInfoHelper) buildListQuery(req domain.ListServicesReq, resour
 		LeftJoin("(SELECT ds.service_id, MAX(d.created_at) AS last_deployed_at FROM velez.deployments d " +
 			"JOIN velez.deployment_specifications ds ON ds.id = d.spec_id GROUP BY ds.service_id) " +
 			"ld ON ld.service_id = s.id").
+		LeftJoin("velez.dind_instances di ON di.service_id = s.id").
 		PlaceholderFormat(sq.Dollar)
 
 	if req.NamePattern.Valid {
@@ -172,20 +179,23 @@ func coreServiceNamesList() []string {
 }
 
 func (s serviceBaseInfoHelper) columns() []string {
-	return []string{serviceNameColumn, serviceDisplayNameColumn, "ld.last_deployed_at"}
+	return []string{serviceNameColumn, serviceDisplayNameColumn, "ld.last_deployed_at", "di.service_id IS NOT NULL"}
 }
 
-func (s serviceBaseInfoHelper) scanServiceBaseInfo(row sqldb.Scannable) (baseInfo domain.ServiceBaseInfo, err error) {
+func (s serviceBaseInfoHelper) scanServiceBaseInfo(
+	row sqldb.Scannable,
+) (baseInfo domain.ServiceBaseInfo, isDind bool, err error) {
 	err = row.Scan(
 		&baseInfo.Name,
 		&baseInfo.DisplayName,
 		&baseInfo.LastDeployedAt,
+		&isDind,
 	)
 	if err != nil {
-		return baseInfo, rerrors.Wrap(err, "error scanning service base info")
+		return baseInfo, false, rerrors.Wrap(err, "error scanning service base info")
 	}
 
-	return baseInfo, nil
+	return baseInfo, isDind, nil
 }
 
 func countTotal(ctx context.Context, conn sqldb.DB, baseQuery sq.SelectBuilder) (uint64, error) {

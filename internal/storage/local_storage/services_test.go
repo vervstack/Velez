@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pb "go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/user_errors"
 	"go.vervstack.ru/Velez/tests/test_helper"
@@ -21,9 +22,9 @@ func Test_dockerServices_GetByName_VelezResolvesWithoutContainer(t *testing.T) {
 
 	s := newServicesStorage(test_helper.NewRealDocker(t))
 
-	svc, err := s.GetByName(context.Background(), velezServiceName)
+	svc, err := s.GetByName(context.Background(), domain.VelezServiceName)
 	require.NoError(t, err)
-	require.Equal(t, velezServiceName, svc.Name)
+	require.Equal(t, domain.VelezServiceName, svc.Name)
 	require.NotEmpty(t, svc.Labels)
 }
 
@@ -34,7 +35,7 @@ func Test_dockerServices_syntheticVelezService(t *testing.T) {
 
 	svc, err := s.syntheticVelezService(context.Background())
 	require.NoError(t, err)
-	require.Equal(t, velezServiceName, svc.Name)
+	require.Equal(t, domain.VelezServiceName, svc.Name)
 	require.Equal(t, pb.DeploymentStatus_RUNNING, svc.Status)
 	require.Equal(t, containerStateRunning, svc.ServiceBaseInfo.Status)
 	require.Len(t, svc.Labels, 1)

@@ -7,7 +7,6 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"go.redsock.ru/rerrors"
 
-	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/user_errors"
@@ -47,12 +46,13 @@ func newRecreateSidecarsJob(
 }
 
 // sidecarLabels are the labels a recreated sidecar carries: the service link
-// plus the sidecar marker, which keeps it off the service pages.
+// plus the sidecar marker, which keeps it off the service pages. It carries no
+// display name - that belongs to the service's main container.
 func sidecarLabels(serviceName string) map[string]string {
 	merged := make(map[string]string)
 
 	if serviceName != "" {
-		merged = registeredLabels(serviceName, velez_api.ServicePattern_SERVICE_PATTERN_UNSPECIFIED)
+		merged[labels.VervServiceLabel] = serviceName
 	}
 
 	merged[labels.Sidecar] = labelTrueValue
@@ -86,6 +86,8 @@ func sidecarCreateRequest(
 
 	maps.Copy(config.Labels, source.Config.Labels)
 	maps.Copy(config.Labels, sidecarLabels(serviceName))
+
+	delete(config.Labels, labels.DisplayNameLabel)
 
 	hostConfig := *source.HostConfig
 

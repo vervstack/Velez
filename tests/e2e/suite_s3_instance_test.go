@@ -362,6 +362,12 @@ func (s *S3InstanceSuite) Test_S3Instance_WebUiSidecar() {
 	requireNoWebUiService(t, env, instanceName)
 	requireNotListedAsSmerdByName(t, env, domain.S3WebUiServiceName(instanceName))
 
+	instanceLabels := listedServiceLabels(t, env, domain.S3ServiceName(instanceName))
+	require.Contains(t, instanceLabels, domain.LabelServiceS3)
+	require.NotContains(t, instanceLabels, domain.ResourceLabel("web_ui"))
+
+	require.Equal(t, instanceName, listedServiceDisplayName(t, env, domain.S3ServiceName(instanceName)))
+
 	creds := getS3InstanceCredentials(t, env, instanceName)
 	require.Contains(t, creds.GetWebUiUrl(), ":"+strconv.Itoa(int(instance.GetWebUiPort())),
 		"the web ui url must carry the port garage publishes")

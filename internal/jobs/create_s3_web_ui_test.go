@@ -69,7 +69,6 @@ func Test_NewGarageWebUiSidecarRequest_Labels(t *testing.T) {
 
 	want := map[string]string{
 		labels.VervServiceLabel:  spec.serviceName,
-		labels.DisplayNameLabel:  spec.serviceName,
 		labels.Sidecar:           labelTrueValue,
 		labels.S3WebUiLabel:      webUiTestInstance,
 		labels.WebUiForLabel:     spec.serviceName,

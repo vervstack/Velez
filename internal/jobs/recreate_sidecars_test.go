@@ -17,7 +17,6 @@ func Test_SidecarLabels_CarryServiceAndSidecarMarker(t *testing.T) {
 
 	require.Equal(t, map[string]string{
 		labels.VervServiceLabel: testGroupService,
-		labels.DisplayNameLabel: testGroupService,
 		labels.Sidecar:          labelTrueValue,
 	}, got)
 }
@@ -87,7 +86,6 @@ func Test_SidecarCreateRequest_MergesLabelsAndLeavesSourceUntouched(t *testing.T
 	require.Equal(t, map[string]string{
 		testKeepLabel:           testKeepValue,
 		labels.VervServiceLabel: testGroupService,
-		labels.DisplayNameLabel: testGroupService,
 		labels.Sidecar:          labelTrueValue,
 	}, req.Config.Labels)
 

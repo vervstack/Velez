@@ -489,6 +489,30 @@ func requireNoWebUiService(t *testing.T, env *TestEnvironment, instanceName stri
 	require.Nil(t, findServiceByName(listResp.GetServices(), webUiName), "web ui listed as a service")
 }
 
+func listedServiceLabels(t *testing.T, env *TestEnvironment, serviceName string) []string {
+	t.Helper()
+
+	listResp, err := env.Custom.ServiceApiImpl.ListServices(t.Context(), newListServicesRequest())
+	require.NoError(t, err)
+
+	listed := findServiceByName(listResp.GetServices(), serviceName)
+	require.NotNil(t, listed, "service %q must be listed", serviceName)
+
+	return listed.GetLabels()
+}
+
+func listedServiceDisplayName(t *testing.T, env *TestEnvironment, serviceName string) string {
+	t.Helper()
+
+	listResp, err := env.Custom.ServiceApiImpl.ListServices(t.Context(), newListServicesRequest())
+	require.NoError(t, err)
+
+	listed := findServiceByName(listResp.GetServices(), serviceName)
+	require.NotNil(t, listed, "service %q must be listed", serviceName)
+
+	return listed.GetDisplayName()
+}
+
 func requireNotListedAsSmerdByName(t *testing.T, env *TestEnvironment, containerName string) {
 	t.Helper()
 

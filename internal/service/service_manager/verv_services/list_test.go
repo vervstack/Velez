@@ -225,6 +225,32 @@ func TestServiceWithoutSmerd(t *testing.T) {
 	}
 }
 
+// Test that Velez's own entry reports running although no smerd backs it.
+func TestVelezOwnEntryReportsRunning(t *testing.T) {
+	mockStorage := &testStorageService{
+		listFunc: func(ctx context.Context, req domain.ListServicesReq) (domain.ServiceList, error) {
+			return domain.ServiceList{
+				Total:    1,
+				Services: []domain.ServiceBaseInfo{{Name: domain.VelezServiceName}},
+			}, nil
+		},
+	}
+
+	service := &VervService{
+		dataStorage:      &testStorage{services: mockStorage},
+		containerService: &testContainerService{},
+	}
+
+	result, err := service.List(context.Background(), domain.ListServicesReq{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result.Services[0].Status != testStatusRunning {
+		t.Errorf("expected status %q, got %q", testStatusRunning, result.Services[0].Status)
+	}
+}
+
 // Test smerd status mapping.
 func TestMapSmerdStatus(t *testing.T) {
 	tests := []struct {

@@ -84,6 +84,7 @@ func (s *PgaasLifecycleSuite) Test_PgaasLifecycle_HappyPath() {
 	require.Equal(t, pgaasLifecycleServiceName, instance.GetName())
 	require.NotEqual(t, "velez", instance.GetName())
 	require.Equal(t, "running", instance.GetStatus())
+	require.Equal(t, pgaasLifecycleInstanceName, listedServiceDisplayName(t, env, pgaasLifecycleServiceName))
 
 	// Credentials resolve through the container-env read-through path - there
 	// is no velez.secrets table in single-node mode.

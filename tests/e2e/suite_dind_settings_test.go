@@ -451,6 +451,7 @@ func runDindPrivilegedLifecycle(t *testing.T, env *TestEnvironment, _ Plane) {
 	require.Equal(t, "tcp://"+name+":2375", info.GetAddress())
 	require.False(t, info.GetIsSysboxEnabled())
 	require.NotNil(t, info.GetCreatedAt())
+	require.Contains(t, listedServiceLabels(t, env, name), domain.LabelServiceDind)
 
 	inspected, err := dockerClient.ContainerInspect(t.Context(), name)
 	require.NoError(t, err)

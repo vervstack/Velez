@@ -63,7 +63,7 @@ func runSetServiceProxyOnPlainService(t *testing.T, env *TestEnvironment, _ Plan
 
 	withProxy := awaitRecreatedContainer(t, env, svcProxyPlainServiceName, initial.ID)
 
-	requireContainerProxyEnv(t, withProxy)
+	requireContainerProxyEnv(t, withProxy, []string{serviceProxyBypassHost})
 
 	withoutProxy := setServiceProxyAndAwaitNewContainer(t, env, svcProxyPlainServiceName, withProxy.ID, "", nil)
 

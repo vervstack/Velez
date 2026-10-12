@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/proxyenv"
 	"go.vervstack.ru/Velez/internal/storage/environments"
 )
@@ -41,14 +42,17 @@ func runSetServiceProxyOnRunner(t *testing.T, env *TestEnvironment, _ Plane) {
 	withProxy := setServiceProxyAndAwaitNewContainer(
 		t, env, fixture.runnerContainer, fixture.inspected.ID, serviceProxyUrl, []string{serviceProxyBypassHost})
 
-	requireContainerProxyEnv(t, withProxy)
-	requireRunnerJobProxyEnvironment(t, env, fixture.runnerContainer)
+	requireContainerProxyEnv(t, withProxy, []string{serviceProxyBypassHost, fixture.dindName})
+	requireNoProxyEntries(t, withProxy, "docker", fixture.dindName)
+	requireRunnerKeepsDind(t, fixture, withProxy)
+	requireRunnerJobProxyEnvironment(t, env, fixture.runnerContainer, fixture.dindName)
 	requireServiceReportsProxy(t, env, fixture.runnerContainer, serviceProxyUrl)
 
 	withoutProxy := setServiceProxyAndAwaitNewContainer(t, env, fixture.runnerContainer, withProxy.ID, "", nil)
 
 	requireContainerWithoutProxyEnv(t, withoutProxy)
 	requireNonProxyEnvKept(t, withProxy, withoutProxy)
+	requireRunnerKeepsDind(t, fixture, withoutProxy)
 	requireRunnerJobWithoutProxyEnvironment(t, env, fixture.runnerContainer)
 	requireServiceReportsProxy(t, env, fixture.runnerContainer, "")
 }
@@ -87,17 +91,43 @@ func awaitRecreatedContainer(
 	return recreated
 }
 
-func requireContainerProxyEnv(t *testing.T, inspected container.InspectResponse) {
+func requireContainerProxyEnv(t *testing.T, inspected container.InspectResponse, bypassHosts []string) {
 	t.Helper()
 
 	for _, key := range []string{"HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"} {
 		require.Contains(t, inspected.Config.Env, key+"="+serviceProxyUrl)
 	}
 
-	noProxy := proxyenv.Env(serviceProxyUrl, []string{serviceProxyBypassHost})["NO_PROXY"]
+	noProxy := proxyenv.Env(serviceProxyUrl, bypassHosts)["NO_PROXY"]
 
 	require.Contains(t, inspected.Config.Env, "NO_PROXY="+noProxy)
 	require.Contains(t, inspected.Config.Env, "no_proxy="+noProxy)
+}
+
+func requireNoProxyEntries(t *testing.T, inspected container.InspectResponse, wantEntries ...string) {
+	t.Helper()
+
+	for _, key := range []string{"NO_PROXY", "no_proxy"} {
+		var entries []string
+
+		for _, envEntry := range inspected.Config.Env {
+			value, found := strings.CutPrefix(envEntry, key+"=")
+			if found {
+				entries = strings.Split(value, ",")
+			}
+		}
+
+		for _, want := range wantEntries {
+			require.Contains(t, entries, want, "%s misses %q", key, want)
+		}
+	}
+}
+
+func requireRunnerKeepsDind(t *testing.T, fixture dindRunnerFixture, inspected container.InspectResponse) {
+	t.Helper()
+
+	require.Contains(t, inspected.Config.Env, "DOCKER_HOST="+domain.DindAddress(fixture.dindName))
+	require.Contains(t, inspected.NetworkSettings.Networks, domain.DindNetworkName(fixture.dindName))
 }
 
 func requireContainerWithoutProxyEnv(t *testing.T, inspected container.InspectResponse) {
@@ -131,7 +161,7 @@ func requireNonProxyEnvKept(t *testing.T, before, after container.InspectRespons
 
 // requireRunnerJobProxyEnvironment waits for the config sync, which runs after the container swap
 // the caller already awaited.
-func requireRunnerJobProxyEnvironment(t *testing.T, env *TestEnvironment, runnerContainer string) {
+func requireRunnerJobProxyEnvironment(t *testing.T, env *TestEnvironment, runnerContainer, dindName string) {
 	t.Helper()
 
 	var config string
@@ -145,7 +175,7 @@ func requireRunnerJobProxyEnvironment(t *testing.T, env *TestEnvironment, runner
 	require.Contains(t, config, `"HTTP_PROXY=`+serviceProxyUrl+`"`)
 	require.Contains(t, config, `"http_proxy=`+serviceProxyUrl+`"`)
 	require.Contains(t, config, `"https_proxy=`+serviceProxyUrl+`"`)
-	require.Contains(t, config, serviceProxyBypassHost+",docker")
+	require.Contains(t, config, "docker,"+serviceProxyBypassHost+","+dindName)
 	requireRunnerEnvironmentBeforeDockerTable(t, config)
 }
 

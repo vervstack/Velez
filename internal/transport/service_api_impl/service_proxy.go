@@ -23,6 +23,15 @@ func (impl *Impl) SetServiceProxy(
 		ProxyBypassHosts: apiReq.GetProxyBypassHosts(),
 	}
 
+	isRunner, err := impl.runnersService.SetRunnerProxy(ctx, req)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error setting runner proxy")
+	}
+
+	if isRunner {
+		return &pb.SetServiceProxy_Response{}, nil
+	}
+
 	err = impl.servicesService.SetServiceProxy(ctx, req)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error setting service proxy")

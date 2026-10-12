@@ -12,7 +12,6 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"slices"
 	"time"
 
 	"github.com/containerd/errdefs"
@@ -65,10 +64,6 @@ const (
 	configPath = gitlab_runner_config.ConfigPath
 
 	configFileMode = 0o600
-
-	// jobDockerAlias is the hostname job containers reach the docker:dind
-	// service under; it must never go through the proxy.
-	jobDockerAlias = "docker"
 
 	apiTimeout = 30 * time.Second
 )
@@ -467,10 +462,9 @@ func (p *Provider) withJobProxy(
 	}
 
 	proxyUrl, bypassHosts := proxyenv.ParseList(containerEnv)
-	jobBypassHosts := append(slices.Clone(bypassHosts), jobDockerAlias)
 
 	updated, err := gitlab_runner_config.SetRunnerEnvironment(
-		config, proxyenv.Keys(), proxyenv.Env(proxyUrl, jobBypassHosts))
+		config, proxyenv.Keys(), proxyenv.Env(proxyUrl, bypassHosts))
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error setting runner job environment")
 	}

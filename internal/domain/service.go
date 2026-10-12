@@ -97,6 +97,9 @@ type SetServiceProxyReq struct {
 	ServiceName      string
 	ProxyUrl         string
 	ProxyBypassHosts []string
+	// EnvOverrides and ExtraNetworks are overlaid onto the upgrade alongside the proxy env.
+	EnvOverrides  map[string]string
+	ExtraNetworks []*velez_api.NetworkBind
 }
 
 type UpgradeDeployReq struct {

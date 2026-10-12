@@ -34,26 +34,15 @@ func (s *RunneraasService) RedeployRunner(ctx context.Context, name string) erro
 		return rerrors.Wrap(err, "error getting runner row")
 	}
 
-	envOverrides := map[string]string{
-		redeployDockerHostEnvVar: runner.DockerSocketAddress,
+	overlay, err := s.runnerOverlay(ctx, runner)
+	if err != nil {
+		return rerrors.Wrap(err, "error building runner overlay")
 	}
 
 	upgradeReq := domain.UpgradeDeployReq{
-		ServiceName:  name,
-		EnvOverrides: envOverrides,
-	}
-
-	if runner.DindServiceId != 0 {
-		dindName, dindErr := s.dindName(ctx, runner.DindServiceId)
-		if dindErr != nil {
-			return rerrors.Wrap(dindErr, "error resolving runner dind")
-		}
-
-		envOverrides[redeployDockerHostEnvVar] = domain.DindAddress(dindName)
-
-		dindNetwork := &velez_api.NetworkBind{NetworkName: domain.DindNetworkName(dindName)}
-
-		upgradeReq.ExtraNetworks = []*velez_api.NetworkBind{dindNetwork}
+		ServiceName:   name,
+		EnvOverrides:  overlay.env,
+		ExtraNetworks: overlay.networks,
 	}
 
 	err = s.vervServices.UpgradeDeploy(ctx, upgradeReq)
@@ -62,6 +51,38 @@ func (s *RunneraasService) RedeployRunner(ctx context.Context, name string) erro
 	}
 
 	return nil
+}
+
+// runnerOverlay is what a runner's recreated container must carry beyond its
+// stored spec: its DOCKER_HOST and, on a DinD, the DinD's network. dindName is
+// empty for a runner without a DinD.
+type runnerOverlay struct {
+	env      map[string]string
+	networks []*velez_api.NetworkBind
+	dindName string
+}
+
+func (s *RunneraasService) runnerOverlay(ctx context.Context, runner domain.Runner) (runnerOverlay, error) {
+	overlay := runnerOverlay{
+		env: map[string]string{redeployDockerHostEnvVar: runner.DockerSocketAddress},
+	}
+
+	if runner.DindServiceId == 0 {
+		return overlay, nil
+	}
+
+	dindName, err := s.dindName(ctx, runner.DindServiceId)
+	if err != nil {
+		return runnerOverlay{}, rerrors.Wrap(err, "error resolving runner dind")
+	}
+
+	dindNetwork := &velez_api.NetworkBind{NetworkName: domain.DindNetworkName(dindName)}
+
+	overlay.env[redeployDockerHostEnvVar] = domain.DindAddress(dindName)
+	overlay.networks = []*velez_api.NetworkBind{dindNetwork}
+	overlay.dindName = dindName
+
+	return overlay, nil
 }
 
 func (s *RunneraasService) dindName(ctx context.Context, dindServiceId int64) (string, error) {

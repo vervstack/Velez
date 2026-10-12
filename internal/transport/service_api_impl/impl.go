@@ -18,6 +18,7 @@ type Impl struct {
 
 	servicesService service.VervServicesService
 	provisioning    service.ProvisioningService
+	runnersService  service.RunnersService
 
 	jobsEngine jobs.Engine
 }
@@ -26,6 +27,7 @@ func New(services service.Services, jobsEngine jobs.Engine) *Impl {
 	return &Impl{
 		servicesService: services.VervServices(),
 		provisioning:    services.Provisioning(),
+		runnersService:  services.Runners(),
 		jobsEngine:      jobsEngine,
 	}
 }

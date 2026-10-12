@@ -23,7 +23,7 @@ const (
 
 	testProxyUrl = "socks5://192.168.1.44:1080"
 
-	jobNoProxy = "localhost,127.0.0.1,::1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,gitlab.internal,docker"
+	jobNoProxy = "localhost,127.0.0.1,::1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,docker,gitlab.internal"
 
 	registeredConfig = "[[runners]]\n  name = \"registered\"\n  [runners.docker]\n    image = \"alpine\"\n"
 )

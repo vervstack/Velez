@@ -189,6 +189,9 @@ type RunnersService interface {
 	// RedeployRunner recreates the runner's container, overlaying its
 	// currently stored docker_socket_address as DOCKER_HOST.
 	RedeployRunner(ctx context.Context, name string) error
+	// SetRunnerProxy applies the proxy to the named service when it is a runner, keeping its
+	// DOCKER_HOST and DinD network, and reports isRunner=false (doing nothing) otherwise.
+	SetRunnerProxy(ctx context.Context, request domain.SetServiceProxyReq) (isRunner bool, err error)
 	// SetRunnerBuildkit enqueues the set_runner_buildkit task that adds or
 	// removes the runner's BuildKit sidecar and returns the task id.
 	SetRunnerBuildkit(ctx context.Context, name string, isBuildkitEnabled bool) (string, error)

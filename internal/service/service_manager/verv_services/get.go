@@ -2,6 +2,7 @@ package verv_services
 
 import (
 	"context"
+	"slices"
 
 	"github.com/rs/zerolog/log"
 	"go.redsock.ru/rerrors"
@@ -100,6 +101,17 @@ func (v *VervService) enrichServiceProxy(ctx context.Context, svc *domain.Servic
 	}
 
 	svc.ProxyUrl, svc.ProxyBypassHosts = proxyenv.Parse(smerd.GetEnv())
+	svc.ProxyBypassHosts = withoutDindHost(svc.ProxyBypassHosts, smerd.GetLabels()[labels.RunnerDindLabel])
 
 	return nil
+}
+
+func withoutDindHost(hosts []string, dindName string) []string {
+	if dindName == "" {
+		return hosts
+	}
+
+	return slices.DeleteFunc(hosts, func(host string) bool {
+		return host == dindName
+	})
 }

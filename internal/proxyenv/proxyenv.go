@@ -30,7 +30,7 @@ var (
 	bypassKeys   = []string{noProxyUpper, noProxyLower}
 
 	defaultBypassHosts = []string{
-		"localhost", "127.0.0.1", "::1", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16",
+		"localhost", "127.0.0.1", "::1", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "docker",
 	}
 
 	supportedSchemes = []string{"http", "https", "socks5", "socks5h"}

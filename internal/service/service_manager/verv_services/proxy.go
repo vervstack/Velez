@@ -2,6 +2,7 @@ package verv_services
 
 import (
 	"context"
+	"maps"
 
 	"go.redsock.ru/rerrors"
 
@@ -23,9 +24,13 @@ func (v *VervService) SetServiceProxy(ctx context.Context, request domain.SetSer
 		return rerrors.Wrap(user_errors.ErrServiceProxyUrlInvalid)
 	}
 
+	overrides := proxyenv.Overrides(request.ProxyUrl, request.ProxyBypassHosts)
+	maps.Copy(overrides, request.EnvOverrides)
+
 	upgradeReq := domain.UpgradeDeployReq{
-		ServiceName:  request.ServiceName,
-		EnvOverrides: proxyenv.Overrides(request.ProxyUrl, request.ProxyBypassHosts),
+		ServiceName:   request.ServiceName,
+		EnvOverrides:  overrides,
+		ExtraNetworks: request.ExtraNetworks,
 	}
 
 	err := v.UpgradeDeploy(ctx, upgradeReq)

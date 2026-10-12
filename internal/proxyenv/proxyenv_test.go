@@ -10,7 +10,7 @@ const (
 	testProxyUrl     = "socks5://192.168.1.44:1080"
 	testBypassHost   = "a.local"
 	testBypassHostB  = "b.local"
-	testDefaultBypss = "localhost,127.0.0.1,::1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+	testDefaultBypss = "localhost,127.0.0.1,::1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,docker"
 )
 
 func Test_Env_Scenarios(t *testing.T) {
@@ -142,4 +142,16 @@ func Test_ParseList_KeepsEqualsSignsInValues(t *testing.T) {
 
 	require.Equal(t, "http://user:pa=ss@proxy:3128", proxyUrl)
 	require.Equal(t, []string{testBypassHost}, bypassHosts)
+}
+
+func Test_Env_DockerHostBypassedByDefault(t *testing.T) {
+	env := Env("socks5://x:1", nil)
+
+	require.Contains(t, env[noProxyUpper], ",docker")
+}
+
+func Test_Parse_DefaultDockerHostIsHidden(t *testing.T) {
+	_, bypassHosts := Parse(Env("socks5://x:1", nil))
+
+	require.Empty(t, bypassHosts)
 }

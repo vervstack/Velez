@@ -13,10 +13,16 @@ import (
 
 type pluginService struct {
 	storage storage.Storage
+
+	isAutoUpdateEnabled bool
 }
 
-func New(stg storage.Storage) service.PluginService {
-	return &pluginService{storage: stg}
+func New(stg storage.Storage, isAutoUpdateEnabled bool) service.PluginService {
+	return &pluginService{
+		storage: stg,
+
+		isAutoUpdateEnabled: isAutoUpdateEnabled,
+	}
 }
 
 func (p *pluginService) ListPlugins(ctx context.Context) (*pb.ListPlugins_Response, error) {
@@ -39,6 +45,8 @@ func (p *pluginService) ListPlugins(ctx context.Context) (*pb.ListPlugins_Respon
 		active = append(active, plugin)
 	}
 
+	active = append(active, p.autoUpdatePlugin())
+
 	active = append(active,
 		listInactivePlugins(active)...)
 
@@ -51,6 +59,20 @@ func (p *pluginService) ListPlugins(ctx context.Context) (*pb.ListPlugins_Respon
 	}
 
 	return resp, nil
+}
+
+// autoUpdatePlugin is in-process: it has no service, nodes or storage row and
+// its state follows the auto_update_is_enabled config key.
+func (p *pluginService) autoUpdatePlugin() *pb.Plugin {
+	state := pb.VervPlugin_disabled
+	if p.isAutoUpdateEnabled {
+		state = pb.VervPlugin_running
+	}
+
+	return &pb.Plugin{
+		Type:  pb.VervPluginType_auto_update,
+		State: state,
+	}
 }
 
 func listInactivePlugins(activePlugins []*pb.Plugin) []*pb.Plugin {

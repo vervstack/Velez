@@ -30,6 +30,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/service_manager"
 	"go.vervstack.ru/Velez/internal/transport"
+	"go.vervstack.ru/Velez/internal/transport/auto_update_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/container_registry_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/control_plane_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/dind_api_impl"
@@ -90,6 +91,7 @@ type Custom struct {
 	NetworkApiImpl           *network_api_impl.Impl
 	S3ApiImpl                *s3_api_impl.Impl
 	ContainerRegistryApiImpl *container_registry_api_impl.Impl
+	AutoUpdateApiImpl        *auto_update_api_impl.Impl
 
 	serverManager *transport.ServersManager
 
@@ -385,11 +387,12 @@ func (c *Custom) InitApiServer(a *App) error {
 	c.NetworkApiImpl = network_api_impl.New(c.Services)
 	c.S3ApiImpl = s3_api_impl.New(c.Services)
 	c.ContainerRegistryApiImpl = container_registry_api_impl.New(c.Services)
+	c.AutoUpdateApiImpl = auto_update_api_impl.New(c.Services)
 
 	c.serverManager.AddImplementation(a.Ctx,
 		c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl, c.ServiceApiImpl, c.TasksApiImpl, c.PgaasApiImpl,
 		c.RunnersApiImpl, c.ContainerRegistryApiImpl, c.SettingsApiImpl, c.DindApiImpl,
-		c.S3ApiImpl, c.NetworkApiImpl)
+		c.S3ApiImpl, c.NetworkApiImpl, c.AutoUpdateApiImpl)
 	c.serverManager.AddHttpHandler(docs.Swagger())
 	c.serverManager.AddHttpHandler("/", ui.NewServer())
 

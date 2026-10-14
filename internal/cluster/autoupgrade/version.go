@@ -7,13 +7,6 @@ import (
 	"golang.org/x/mod/semver"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
-	"go.vervstack.ru/Velez/internal/domain/labels"
-)
-
-const (
-	bumpLevelLabelMajor = "major"
-	bumpLevelLabelMinor = "minor"
-	bumpLevelLabelPatch = "patch"
 )
 
 var strictSemverPattern = regexp.MustCompile(`^v?\d+\.\d+\.\d+$`)
@@ -34,17 +27,6 @@ func splitImage(image string) imageRef {
 	return imageRef{
 		Repo: image[:colonIndex],
 		Tag:  image[colonIndex+1:],
-	}
-}
-
-func bumpLevelFromLabels(containerLabels map[string]string) velez_api.AutoUpdateBumpLevel {
-	switch containerLabels[labels.AutoUpgradeBumpLevel] {
-	case bumpLevelLabelMajor:
-		return velez_api.AutoUpdateBumpLevel_MAJOR
-	case bumpLevelLabelMinor:
-		return velez_api.AutoUpdateBumpLevel_MINOR
-	default:
-		return velez_api.AutoUpdateBumpLevel_PATCH
 	}
 }
 

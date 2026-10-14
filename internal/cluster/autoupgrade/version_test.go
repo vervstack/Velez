@@ -6,7 +6,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
-	"go.vervstack.ru/Velez/internal/domain/labels"
 )
 
 const (
@@ -94,27 +93,6 @@ func Test_SplitImage_Scenarios(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			require.Equal(t, tc.want, splitImage(tc.image))
-		})
-	}
-}
-
-func Test_BumpLevelFromLabels_Scenarios(t *testing.T) {
-	cases := []struct {
-		name   string
-		labels map[string]string
-		want   velez_api.AutoUpdateBumpLevel
-	}{
-		{"major", map[string]string{labels.AutoUpgradeBumpLevel: bumpLevelLabelMajor}, velez_api.AutoUpdateBumpLevel_MAJOR},
-		{"minor", map[string]string{labels.AutoUpgradeBumpLevel: bumpLevelLabelMinor}, velez_api.AutoUpdateBumpLevel_MINOR},
-		{"patch", map[string]string{labels.AutoUpgradeBumpLevel: bumpLevelLabelPatch}, velez_api.AutoUpdateBumpLevel_PATCH},
-		{"absent", map[string]string{}, velez_api.AutoUpdateBumpLevel_PATCH},
-		{"nil labels", nil, velez_api.AutoUpdateBumpLevel_PATCH},
-		{"garbage", map[string]string{labels.AutoUpgradeBumpLevel: "huge"}, velez_api.AutoUpdateBumpLevel_PATCH},
-	}
-
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			require.Equal(t, tc.want, bumpLevelFromLabels(tc.labels))
 		})
 	}
 }

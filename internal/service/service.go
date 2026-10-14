@@ -36,6 +36,7 @@ type Services interface {
 	ConfigResolver() ServiceConfigResolver
 	AddressBook() AddressBook
 	Provisioning() ProvisioningService
+	AutoUpdate() AutoUpdateService
 }
 
 type ContainerService interface {
@@ -228,6 +229,13 @@ type SettingsService interface {
 type ProvisioningService interface {
 	List(ctx context.Context, actions ...string) ([]domain.ProvisioningTask, error)
 	Dismiss(ctx context.Context, entityId, action string) error
+}
+
+type AutoUpdateService interface {
+	ListServices(ctx context.Context) (*velez_api.ListAutoUpdateServices_Response, error)
+	SetService(
+		ctx context.Context, req *velez_api.SetServiceAutoUpdate_Request,
+	) (*velez_api.SetServiceAutoUpdate_Response, error)
 }
 
 type DindService interface {

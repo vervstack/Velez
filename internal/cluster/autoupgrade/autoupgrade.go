@@ -16,6 +16,7 @@ import (
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
+	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/jobs"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
@@ -111,7 +112,7 @@ func (au *AutoUpgrade) do(ctx context.Context) error {
 	for _, smerd := range smerds {
 		var newImage *string
 
-		newImage, err = au.getNewImageVersion(ctx, smerd.Image, bumpLevelFromLabels(smerd.Labels))
+		newImage, err = au.getNewImageVersion(ctx, smerd.Image, domain.BumpLevelFromLabels(smerd.Labels))
 		if err != nil {
 			log.Err(err).
 				Str("image", smerd.Image).

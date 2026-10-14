@@ -13,6 +13,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/secrets"
 	"go.vervstack.ru/Velez/internal/service/service_manager/address_book"
+	"go.vervstack.ru/Velez/internal/service/service_manager/autoupdate"
 	"go.vervstack.ru/Velez/internal/service/service_manager/configresolver"
 	"go.vervstack.ru/Velez/internal/service/service_manager/configurator"
 	"go.vervstack.ru/Velez/internal/service/service_manager/container_manager"
@@ -55,6 +56,7 @@ type ServiceManager struct {
 	configResolver           service.ServiceConfigResolver
 	addressBook              service.AddressBook
 	provisioningService      service.ProvisioningService
+	autoUpdateService        service.AutoUpdateService
 }
 
 func New(
@@ -75,7 +77,7 @@ func New(
 	storageContainer := storage.NewStorageContainer(
 		local_storage.New(nodeClients.Docker(), nodeClients.LocalStateManager(), cfg),
 	)
-	svc := plugins.New(storageContainer)
+	svc := plugins.New(storageContainer, cfg.Environment.AutoUpdateIsEnabled)
 	secretsStore := secrets.New(storageContainer)
 
 	addressBook := address_book.New(
@@ -135,6 +137,10 @@ func New(
 		addressBook:    addressBook,
 
 		provisioningService: provisioning.New(jobsEngine),
+		autoUpdateService: autoupdate.New(
+			nodeClients.Docker().Client(), jobsEngine,
+			cfg.Environment.AutoUpdateIsEnabled, cfg.Environment.AutoUpdateCheckPeriodSeconds,
+		),
 	}
 
 	// TODO VERV-128
@@ -217,4 +223,8 @@ func (s *ServiceManager) AddressBook() service.AddressBook {
 
 func (s *ServiceManager) Provisioning() service.ProvisioningService {
 	return s.provisioningService
+}
+
+func (s *ServiceManager) AutoUpdate() service.AutoUpdateService {
+	return s.autoUpdateService
 }

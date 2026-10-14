@@ -15,6 +15,7 @@ export enum Routes {
     Runners = '/runners',
     Dinds = '/dinds',
     S3 = '/s3',
+    AutoUpdate = '/auto-update',
     Settings = '/settings',
     Login = '/login'
 }

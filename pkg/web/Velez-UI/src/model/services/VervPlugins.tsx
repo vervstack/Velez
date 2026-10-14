@@ -6,6 +6,7 @@ import PortainerIcon from "@/assets/icons/services/portainer.svg";
 import HeadscaleIcon from "@/assets/icons/services/headscale.svg";
 import AngieIcon from "@/assets/icons/services/angie.png";
 import DatabasePixelIcon from "@/assets/icons/services/database-pixel.svg";
+import AutoUpdateIcon from "@/assets/icons/services/auto-update.svg";
 
 import UnknownServiceIcon from "@/assets/icons/unknown.svg";
 
@@ -82,6 +83,12 @@ metaByType.set(VervPluginType.statefull_pg, {
     Deployed Postgres DB that stores information about services and
     allows multiple Velez nodes assemble into cluster.
     The Verv API remains operational even if the state is unavailable, avoiding a single point of failure.`
+});
+
+metaByType.set(VervPluginType.auto_update, {
+    title: "Auto-update",
+    icon: AutoUpdateIcon,
+    description: `Keeps Velez app services on the newest version`
 });
 
 // VervPluginType.registry is superseded by the dedicated Container Registry page

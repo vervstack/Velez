@@ -147,8 +147,15 @@ function PluginContent({plugin, colTemplate}: PluginContentProps) {
     const {OpenDialog} = useDialog();
 
     const isDisabled = plugin.state === VervPluginState.disabled;
+    // auto_update runs inside Velez itself: no service page to open, and it cannot be enabled via EnablePlugin
+    const isInProcess = plugin.type === VervPluginType.auto_update;
+    const isNameClickable = !isDisabled && !isInProcess;
 
     function handleManagePlugin(plugin: VervPlugin) {
+        if (plugin.type == VervPluginType.auto_update) {
+            navigate(Routes.AutoUpdate);
+            return;
+        }
         if (plugin.type == VervPluginType.statefull_pg) {
             openStatefullPgDialog(plugin);
             return;
@@ -169,8 +176,8 @@ function PluginContent({plugin, colTemplate}: PluginContentProps) {
             }}
         >
             <div
-                className={`${cls.PluginCell} ${isDisabled ? '' : cls.PluginCellClickable}`}
-                onClick={isDisabled ? undefined : () => openServicePage(plugin.serviceName)}
+                className={`${cls.PluginCell} ${isNameClickable ? cls.PluginCellClickable : ''}`}
+                onClick={isNameClickable ? () => openServicePage(plugin.serviceName) : undefined}
             >
                 <span className={cls.pluginName}>{plugin.title}</span>
             </div>
@@ -182,7 +189,7 @@ function PluginContent({plugin, colTemplate}: PluginContentProps) {
 
             <div className={cls.manageCell}>
                 {
-                    plugin.state == VervPluginState.running ?
+                    plugin.state == VervPluginState.running && !isInProcess ?
                         <IconButton
                             label={"Open service"}
                             onClick={() => openServicePage(plugin.serviceName)}

@@ -1,0 +1,9 @@
+.AutoUpdateDisabledBannerContainer {
+    flex-shrink: 0;
+    padding: 0.625rem 1rem;
+    border: 0.0625rem solid var(--amber);
+    border-radius: var(--radius);
+    background: var(--amber-dim);
+    font-size: 0.8125rem;
+    color: var(--fg);
+}

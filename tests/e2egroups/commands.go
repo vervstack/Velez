@@ -16,6 +16,8 @@ const (
 	preparedTestRun = "^$"
 	testParallel    = "4"
 	testTimeout     = "30m"
+
+	prepareConcurrency = 2
 )
 
 //nolint:forbidigo // package-private tool sentinel, not shared/user-facing
@@ -47,7 +49,7 @@ func prepareLogDir() (string, error) {
 
 func prepare(ctx context.Context, groups []group) error {
 	return execute(ctx, groups, func(ctx context.Context, bin, root, logDir string) []result {
-		return runConcurrently(groups, func(g group) result {
+		return runConcurrently(groups, prepareConcurrency, func(g group) result {
 			logPath := filepath.Join(logDir, g.Name+".prepare.log")
 			args := []string{"-test.run", preparedTestRun}
 
@@ -65,7 +67,7 @@ func runAll(ctx context.Context, groups []group) error {
 	}
 
 	return execute(ctx, groups, func(ctx context.Context, bin, root, logDir string) []result {
-		return runConcurrently(groups, func(g group) result {
+		return runConcurrently(groups, len(groups), func(g group) result {
 			logPath := filepath.Join(logDir, g.Name+".log")
 			args := append(testArgs(g, groups), "-test.parallel", testParallel, "-test.count=1", "-test.timeout", testTimeout)
 

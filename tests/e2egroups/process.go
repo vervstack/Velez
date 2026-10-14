@@ -87,12 +87,19 @@ func runProcess(ctx context.Context, bin, root, logPath string, g group, isPrepa
 	return res
 }
 
-// runConcurrently starts every job at once and prints a line as each ends.
-func runConcurrently(groups []group, job func(g group) result) []result {
+// runConcurrently runs at most limit jobs at once and prints a line as each ends.
+func runConcurrently(groups []group, limit int, job func(g group) result) []result {
 	results := make(chan result, len(groups))
+	slots := make(chan struct{}, limit)
 
 	for _, g := range groups {
-		go func() { results <- job(g) }()
+		go func() {
+			slots <- struct{}{}
+
+			defer func() { <-slots }()
+
+			results <- job(g)
+		}()
 	}
 
 	collected := make([]result, 0, len(groups))

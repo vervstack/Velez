@@ -76,12 +76,29 @@ var (
 	// htpasswd-loader step (see suite_enable_registry_test.go). The binfmt
 	// installer is the node-side image of set_runner_buildkit (see
 	// suite_runner_buildkit_test.go), seeded so that suite skips a cold pull.
+	// The rest are every other image the suite or Velez pulls inside the
+	// daemon while tests run; matreshka is pinned to the go.mod module version.
 	//nolint:gochecknoglobals // fixed suite input
 	dindSeedImages = []string{
 		"postgres:18",
+		"postgres:16",
 		"headscale/headscale:0.27.2-rc.1",
 		"tailscale/tailscale:v1.90.8",
 		"alpine",
+		"alpine:3",
+		"alpine:3.24.2",
+		"nginx:alpine",
+		"godverv/hello_world:v0.0.14",
+		"vervstack/hello_world:v0.0.15",
+		"vervstack/matreshka:v1.0.102",
+		"grafana/loki:main-bc418c4",
+		"gitlab/gitlab-runner:latest",
+		"registry:2",
+		"joxit/docker-registry-ui:latest",
+		"dxflrs/garage:v2.4.0",
+		"dxflrs/garage@sha256:715d176efc35384bf72cf6052fd61b74b3e27a1e31a9dfedabe646bd1e92f137",
+		"khairul169/garage-webui:1.1.0",
+		"moby/buildkit:v0.34.0",
 		"tonistiigi/binfmt:qemu-v10.2.3-68",
 	}
 

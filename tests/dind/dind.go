@@ -69,6 +69,9 @@ const (
 	removeRetryAttempts = 5
 	removeRetryInterval = 500 * time.Millisecond
 
+	pullAttempts     = 4
+	pullRetryBackoff = 2 * time.Second
+
 	// cacheVolumeSuffix names the persistent /var/lib/docker volume for a
 	// given DinD container. It is deliberately NOT removed on Teardown so
 	// warm runs reuse pulled image layers instead of re-fetching them.
@@ -80,6 +83,20 @@ var (
 	errDindDaemonPortNotPublished = rerrors.New("dind daemon port was not published")
 	//nolint:forbidigo // package-private test-infra sentinel, not shared/user-facing
 	errContainerNoNetworkSettings = rerrors.New("container has no network settings")
+
+	transientPullMarkers = []string{
+		"TLS handshake timeout",
+		"i/o timeout",
+		"connection reset",
+		"EOF",
+		"429 Too Many",
+		"toomanyrequests",
+		"500 Internal",
+		"502 Bad Gateway",
+		"503 Service",
+		"504 Gateway",
+		"status code 5",
+	}
 )
 
 // Options is the knob set for Setup. The zero value is valid.
@@ -522,11 +539,34 @@ func ensureImage(ctx context.Context, cli *client.Client, ref string) error {
 		return nil
 	}
 
+	backoff := pullRetryBackoff
+
+	for attempt := 1; ; attempt++ {
+		err = pullImage(ctx, cli, ref)
+		if err == nil {
+			return nil
+		}
+
+		if attempt == pullAttempts || !isTransientPullError(err) {
+			return rerrors.Wrap(err, "error pulling image")
+		}
+
+		select {
+		case <-ctx.Done():
+			return rerrors.Wrap(ctx.Err(), "error waiting to retry pull")
+		case <-time.After(backoff):
+		}
+
+		backoff *= 2
+	}
+}
+
+func pullImage(ctx context.Context, cli *client.Client, ref string) error {
 	pullOpts := image.PullOptions{}
 
 	reader, err := cli.ImagePull(ctx, ref, pullOpts)
 	if err != nil {
-		return rerrors.Wrap(err, "error pulling image")
+		return rerrors.Wrap(err, "error starting pull")
 	}
 
 	_, err = io.Copy(io.Discard, reader)
@@ -542,6 +582,22 @@ func ensureImage(ctx context.Context, cli *client.Client, ref string) error {
 	}
 
 	return nil
+}
+
+func isTransientPullError(err error) bool {
+	if errdefs.IsUnavailable(err) {
+		return true
+	}
+
+	message := err.Error()
+
+	for _, marker := range transientPullMarkers {
+		if strings.Contains(message, marker) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func runDind(

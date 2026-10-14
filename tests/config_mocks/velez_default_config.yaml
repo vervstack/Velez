@@ -28,7 +28,7 @@ environment:
     value: "50"
   - name: auto_update_is_enabled
     type: bool
-    value: true
+    value: false
   - name: auto_update_check_period_seconds
     type: int
     value: 2

@@ -180,6 +180,17 @@ func WithMigrationsDir(dir string) TestEnvOpt {
 	}
 }
 
+// WithAutoUpdate turns the auto-update worker on for this environment. The
+// default mock config leaves it off: every environment's worker scans the
+// whole shared DinD, so parallel environments would race to upgrade the same
+// labelled container. Applied in the post-config pass, mirroring
+// WithContainerSuffix.
+func WithAutoUpdate() TestEnvOpt {
+	return func(a *TestEnvironment) {
+		a.Cfg.Environment.AutoUpdateIsEnabled = true
+	}
+}
+
 func WithEnvironments(envs []string) TestEnvOpt {
 	return func(a *TestEnvironment) {
 		a.Cfg.Environment.Environments = envs

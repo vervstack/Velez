@@ -64,7 +64,7 @@ func (s *AutoUpdateSuite) SetupSuite() {
 
 func (s *AutoUpdateSuite) Test_AutoUpdate_Semver_PicksHighestNumericTag() {
 	t := s.T()
-	env := s.plane.NewEnvironment(t)
+	env := s.plane.NewEnvironment(t, WithAutoUpdate())
 
 	repo := autoUpdateRepoPrefix + "semver"
 	serviceName := "e2e_autoupd_semver"
@@ -78,7 +78,7 @@ func (s *AutoUpdateSuite) Test_AutoUpdate_Semver_PicksHighestNumericTag() {
 
 func (s *AutoUpdateSuite) Test_AutoUpdate_BumpLevel_Major_SkipsMinorAndPatch() {
 	t := s.T()
-	env := s.plane.NewEnvironment(t)
+	env := s.plane.NewEnvironment(t, WithAutoUpdate())
 
 	repo := autoUpdateRepoPrefix + "major"
 	serviceName := "e2e_autoupd_major"
@@ -97,7 +97,7 @@ func (s *AutoUpdateSuite) Test_AutoUpdate_BumpLevel_Major_SkipsMinorAndPatch() {
 
 func (s *AutoUpdateSuite) Test_AutoUpdate_BumpLevel_Minor_SkipsPatch() {
 	t := s.T()
-	env := s.plane.NewEnvironment(t)
+	env := s.plane.NewEnvironment(t, WithAutoUpdate())
 
 	repo := autoUpdateRepoPrefix + "minor"
 	serviceName := "e2e_autoupd_minor"
@@ -116,7 +116,7 @@ func (s *AutoUpdateSuite) Test_AutoUpdate_BumpLevel_Minor_SkipsPatch() {
 
 func (s *AutoUpdateSuite) Test_AutoUpdate_Set_EnableAndDisable() {
 	t := s.T()
-	env := s.plane.NewEnvironment(t)
+	env := s.plane.NewEnvironment(t, WithAutoUpdate())
 
 	repo := autoUpdateRepoPrefix + "toggle"
 	serviceName := "e2e_autoupd_toggle"
@@ -146,7 +146,7 @@ func (s *AutoUpdateSuite) Test_AutoUpdate_Set_EnableAndDisable() {
 
 func (s *AutoUpdateSuite) Test_AutoUpdate_Legacy_LabelOnlyUsesLastTag() {
 	t := s.T()
-	env := s.plane.NewEnvironment(t)
+	env := s.plane.NewEnvironment(t, WithAutoUpdate())
 
 	repo := autoUpdateRepoPrefix + "legacy"
 	serviceName := "e2e_autoupd_legacy"
@@ -163,7 +163,7 @@ func (s *AutoUpdateSuite) Test_AutoUpdate_Legacy_LabelOnlyUsesLastTag() {
 
 func (s *AutoUpdateSuite) Test_AutoUpdate_ListPlugins_ContainsAutoUpdate() {
 	t := s.T()
-	env := s.plane.NewEnvironment(t)
+	env := s.plane.NewEnvironment(t, WithAutoUpdate())
 
 	resp, err := env.Custom.ControlPlaneApiImpl.ListPlugins(t.Context(), newListPluginsRequest())
 	require.NoError(t, err)

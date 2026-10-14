@@ -1,6 +1,7 @@
 import cls from '@/widgets/sidebar/Sidebar.module.css';
 import cn from 'classnames';
 import SectionLabel from '@/components/base/SectionLabel';
+import SidebarVersion from '@/widgets/sidebar/SidebarVersion';
 import VelezIcon from '@/assets/icons/services/velez.svg';
 
 type NavId = 'controlplane' | 'vcn' | 'networks' | 'deployments' | 'services' | 'postgres' | 'registries' | 'runners' | 'dinds' | 's3' | 'search';
@@ -81,6 +82,7 @@ export default function Sidebar({activeNav, onNavChange, onToolNav}: SidebarProp
             </nav>
 
             <UserBar/>
+            <SidebarVersion/>
         </aside>
     );
 }

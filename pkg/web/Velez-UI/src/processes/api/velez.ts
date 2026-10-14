@@ -32,6 +32,10 @@ class VelezService extends ApiService {
         return this.mutate((req) => VelezAPI.Version({}, req))
     }
 
+    async getVersion(): Promise<VersionResponse> {
+        return this.mutate((req) => VelezAPI.Version({}, req))
+    }
+
     async registerContainer(body: RegisterContainerRequest): Promise<RegisterContainerResponse> {
         return this.mutate((req) => VelezAPI.RegisterContainer(body, req))
     }

@@ -5,6 +5,8 @@ import {createElement, ReactNode} from 'react';
 
 import Sidebar from '@/widgets/sidebar/Sidebar';
 
+vi.mock('@/widgets/sidebar/SidebarVersion', () => ({default: () => null}));
+
 function createWrapper() {
     const queryClient = new QueryClient({defaultOptions: {queries: {retry: false}}});
 

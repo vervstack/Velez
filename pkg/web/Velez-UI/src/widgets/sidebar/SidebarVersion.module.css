@@ -1,0 +1,13 @@
+.SidebarVersionContainer {
+    margin-top: auto;
+    padding: 0 0.75rem 0.625rem 0.75rem;
+    flex-shrink: 0;
+
+    .VersionText {
+        font-family: var(--font-sans);
+        font-size: 0.625rem;
+        font-weight: 300;
+        color: var(--fg-dim);
+        white-space: nowrap;
+    }
+}

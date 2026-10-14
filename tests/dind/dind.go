@@ -50,6 +50,10 @@ const (
 	// a CI job id, say.
 	EnvName = "VELEZ_E2E_DIND_NAME"
 
+	// EnvPrepareOnly set to 1 brings the daemon up, seeds images and networks,
+	// then exits without running tests; used to warm the cache volume.
+	EnvPrepareOnly = "VELEZ_E2E_PREPARE"
+
 	// EnvActive is exported by the harness (see e2e TestMain) once the
 	// daemon is up, so helpers can refuse to run the suite against anything
 	// but a disposable DinD.
@@ -61,6 +65,9 @@ const (
 	namePrefix    = "velez-dind-"
 	readyTimeout  = 45 * time.Second
 	readyInterval = 500 * time.Millisecond
+
+	removeRetryAttempts = 5
+	removeRetryInterval = 500 * time.Millisecond
 
 	// cacheVolumeSuffix names the persistent /var/lib/docker volume for a
 	// given DinD container. It is deliberately NOT removed on Teardown so
@@ -226,6 +233,133 @@ func ensureCacheVolume(ctx context.Context, cli *client.Client, name string) err
 	_, err := cli.VolumeCreate(ctx, createOpts)
 	if err != nil {
 		return rerrors.Wrap(err, "error creating volume "+name)
+	}
+
+	return nil
+}
+
+// Reset removes every container, non-built-in network and volume from the
+// DinD daemon, so each run starts from a clean inner state. The cache volume
+// keeps /var/lib/docker across runs, which would otherwise carry the previous
+// run's containers over; images are left alone.
+func (e *Env) Reset(ctx context.Context) error {
+	cli, err := newDockerClient(e.DockerHost)
+	if err != nil {
+		return rerrors.Wrap(err, "error creating dind docker client")
+	}
+
+	defer func() {
+		_ = cli.Close()
+	}()
+
+	err = removeAllContainers(ctx, cli)
+	if err != nil {
+		return rerrors.Wrap(err, "error removing dind containers")
+	}
+
+	err = removeAllNetworks(ctx, cli)
+	if err != nil {
+		return rerrors.Wrap(err, "error removing dind networks")
+	}
+
+	err = removeAllVolumes(ctx, cli)
+	if err != nil {
+		return rerrors.Wrap(err, "error removing dind volumes")
+	}
+
+	return nil
+}
+
+func removeAllContainers(ctx context.Context, cli *client.Client) error {
+	listOpts := container.ListOptions{All: true}
+
+	containers, err := cli.ContainerList(ctx, listOpts)
+	if err != nil {
+		return rerrors.Wrap(err, "error listing containers")
+	}
+
+	removeOpts := container.RemoveOptions{
+		Force:         true,
+		RemoveVolumes: true,
+	}
+
+	for _, c := range containers {
+		err = removeContainerRetrying(ctx, cli, c.ID, removeOpts)
+		if err != nil {
+			return rerrors.Wrap(err, "error removing container "+c.ID)
+		}
+	}
+
+	return nil
+}
+
+func removeContainerRetrying(
+	ctx context.Context,
+	cli *client.Client,
+	containerId string,
+	removeOpts container.RemoveOptions,
+) error {
+	var err error
+
+	for attempt := 0; attempt < removeRetryAttempts; attempt++ {
+		err = cli.ContainerRemove(ctx, containerId, removeOpts)
+		if err == nil || errdefs.IsNotFound(err) {
+			return nil
+		}
+
+		if !strings.Contains(err.Error(), "is already in progress") {
+			return rerrors.Wrap(err, "error removing container")
+		}
+
+		select {
+		case <-ctx.Done():
+			return rerrors.Wrap(ctx.Err(), "error waiting for container removal")
+		case <-time.After(removeRetryInterval):
+		}
+	}
+
+	return rerrors.Wrap(err, "error removing container, removal still in progress")
+}
+
+func removeAllNetworks(ctx context.Context, cli *client.Client) error {
+	listOpts := network.ListOptions{}
+
+	networks, err := cli.NetworkList(ctx, listOpts)
+	if err != nil {
+		return rerrors.Wrap(err, "error listing networks")
+	}
+
+	for _, n := range networks {
+		if isBuiltInNetwork(n.Name) {
+			continue
+		}
+
+		err = cli.NetworkRemove(ctx, n.ID)
+		if err != nil && !errdefs.IsNotFound(err) {
+			return rerrors.Wrap(err, "error removing network "+n.Name)
+		}
+	}
+
+	return nil
+}
+
+func isBuiltInNetwork(name string) bool {
+	return name == "bridge" || name == "host" || name == "none"
+}
+
+func removeAllVolumes(ctx context.Context, cli *client.Client) error {
+	listOpts := volume.ListOptions{}
+
+	volumes, err := cli.VolumeList(ctx, listOpts)
+	if err != nil {
+		return rerrors.Wrap(err, "error listing volumes")
+	}
+
+	for _, v := range volumes.Volumes {
+		err = cli.VolumeRemove(ctx, v.Name, true)
+		if err != nil && !errdefs.IsNotFound(err) {
+			return rerrors.Wrap(err, "error removing volume "+v.Name)
+		}
 	}
 
 	return nil

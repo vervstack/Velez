@@ -62,6 +62,13 @@ func runSuite(m *testing.M) int {
 		return 1
 	}
 
+	err = env.Reset(ctx)
+	if err != nil {
+		log.Error().Err(err).Msg("error resetting dind state")
+
+		return 1
+	}
+
 	err = env.Seed(ctx, dindSeedImages...)
 	if err != nil {
 		log.Error().Err(err).Msg("error seeding dind images")
@@ -74,6 +81,10 @@ func runSuite(m *testing.M) int {
 		log.Error().Err(err).Msg("error ensuring dind networks")
 
 		return 1
+	}
+
+	if os.Getenv(dind.EnvPrepareOnly) != "" {
+		return 0
 	}
 
 	code := m.Run()

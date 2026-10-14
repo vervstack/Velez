@@ -2,7 +2,6 @@ package autoupgrade
 
 import (
 	"context"
-	"strings"
 	"sync"
 	"time"
 
@@ -24,7 +23,7 @@ import (
 )
 
 const (
-	defaultCheckPeriod = time.Second * 30
+	minCheckPeriod = time.Second
 
 	// taskWatchTimeout bounds how long one auto-upgrade blocks waiting for its
 	// upgrade_smerd task to reach a terminal status - same safety-net role and
@@ -60,7 +59,7 @@ func New(api client.APIClient, checkPeriod time.Duration, jobsEngine jobs.Engine
 		dockerAPI: api,
 		stopC:     make(chan struct{}),
 
-		checkPeriod: max(checkPeriod, defaultCheckPeriod),
+		checkPeriod: max(checkPeriod, minCheckPeriod),
 		jobsEngine:  jobsEngine,
 	}
 }
@@ -112,7 +111,7 @@ func (au *AutoUpgrade) do(ctx context.Context) error {
 	for _, smerd := range smerds {
 		var newImage *string
 
-		newImage, err = au.getNewImageVersion(ctx, smerd.Image)
+		newImage, err = au.getNewImageVersion(ctx, smerd.Image, bumpLevelFromLabels(smerd.Labels))
 		if err != nil {
 			log.Err(err).
 				Str("image", smerd.Image).
@@ -212,10 +211,12 @@ func (au *AutoUpgrade) getAutoUpdateSmerds(ctx context.Context) ([]container.Sum
 	return conts, nil
 }
 
-func (au *AutoUpgrade) getNewImageVersion(ctx context.Context, imageName string) (*string, error) {
-	imageBase := imageNameWithoutTag(imageName)
+func (au *AutoUpgrade) getNewImageVersion(
+	ctx context.Context, imageName string, level velez_api.AutoUpdateBumpLevel,
+) (*string, error) {
+	image := splitImage(imageName)
 
-	repo, err := name.NewRepository(imageBase)
+	repo, err := name.NewRepository(image.Repo)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error getting image base repo")
 	}
@@ -228,19 +229,12 @@ func (au *AutoUpgrade) getNewImageVersion(ctx context.Context, imageName string)
 		return nil, rerrors.Wrap(err, "error listing tags")
 	}
 
-	newImage := imageBase + ":" + tags[len(tags)-1]
-	if newImage == imageName {
+	newTag, isMove := pickTag(image.Tag, tags, level)
+	if !isMove {
 		return nil, nil
 	}
 
+	newImage := image.Repo + ":" + newTag
+
 	return &newImage, nil
-}
-
-func imageNameWithoutTag(in string) string {
-	tagIndx := strings.Index(in, ":")
-	if tagIndx != -1 {
-		in = in[:tagIndx]
-	}
-
-	return in
 }

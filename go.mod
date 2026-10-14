@@ -33,6 +33,7 @@ require (
 	go.vervstack.ru/makosh v0.0.17
 	go.vervstack.ru/matreshka v1.0.102
 	golang.org/x/crypto v0.46.0
+	golang.org/x/mod v0.30.0
 	golang.org/x/sync v0.19.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250929231259-57b25ae835d4
 	google.golang.org/grpc v1.75.1

@@ -4,11 +4,9 @@ package e2e
 
 import (
 	"context"
-	"io"
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/image"
 	"github.com/stretchr/testify/require"
 	"go.redsock.ru/rerrors"
 
@@ -41,16 +39,9 @@ func tagNginxAsSidecarImage(t *testing.T, env *TestEnvironment) {
 
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 
-	pullReader, err := dockerClient.ImagePull(t.Context(), NginxAlpineImage, image.PullOptions{})
-	require.NoError(t, err)
+	ensureImagePresent(t, dockerClient, NginxAlpineImage)
 
-	_, err = io.Copy(io.Discard, pullReader)
-	require.NoError(t, err)
-
-	err = pullReader.Close()
-	require.NoError(t, err)
-
-	err = dockerClient.ImageTag(t.Context(), NginxAlpineImage, networkGroupSidecarImage)
+	err := dockerClient.ImageTag(t.Context(), NginxAlpineImage, networkGroupSidecarImage)
 	require.NoError(t, err)
 }
 

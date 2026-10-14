@@ -16,7 +16,6 @@ import (
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
-	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/stretchr/testify/require"
@@ -686,14 +685,7 @@ func convertToLegacyWebUiLayout(t *testing.T, dockerClient client.APIClient, ins
 	err := dockerClient.ContainerRemove(t.Context(), webUiName, removeOpts)
 	require.NoError(t, err)
 
-	pullReader, err := dockerClient.ImagePull(t.Context(), NginxAlpineImage, image.PullOptions{})
-	require.NoError(t, err)
-
-	_, err = io.Copy(io.Discard, pullReader)
-	require.NoError(t, err)
-
-	err = pullReader.Close()
-	require.NoError(t, err)
+	ensureImagePresent(t, dockerClient, NginxAlpineImage)
 
 	garage, err := dockerClient.ContainerInspect(t.Context(), domain.S3ServiceName(instanceName))
 	require.NoError(t, err)

@@ -3,11 +3,9 @@
 package e2e
 
 import (
-	"io"
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/image"
 	"github.com/stretchr/testify/require"
 	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
@@ -211,16 +209,9 @@ func startForeignRunnerImageContainer(t *testing.T, env *TestEnvironment, name s
 
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 
-	pullReader, err := dockerClient.ImagePull(t.Context(), NginxAlpineImage, image.PullOptions{})
-	require.NoError(t, err)
+	ensureImagePresent(t, dockerClient, NginxAlpineImage)
 
-	_, err = io.Copy(io.Discard, pullReader)
-	require.NoError(t, err)
-
-	err = pullReader.Close()
-	require.NoError(t, err)
-
-	err = dockerClient.ImageTag(t.Context(), NginxAlpineImage, runnerRegImageName)
+	err := dockerClient.ImageTag(t.Context(), NginxAlpineImage, runnerRegImageName)
 	require.NoError(t, err)
 
 	cfg := &container.Config{

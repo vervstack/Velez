@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/image"
 	dockernetwork "github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/stretchr/testify/require"
@@ -122,16 +121,7 @@ func startNetworkApiContainer(t *testing.T, env *TestEnvironment, name, suffix s
 
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 
-	pullReader, err := dockerClient.ImagePull(t.Context(), NginxAlpineImage, image.PullOptions{})
-	require.NoError(t, err)
-
-	var pulled bytes.Buffer
-
-	_, err = pulled.ReadFrom(pullReader)
-	require.NoError(t, err)
-
-	err = pullReader.Close()
-	require.NoError(t, err)
+	ensureImagePresent(t, dockerClient, NginxAlpineImage)
 
 	dockerName := name
 	if suffix != "" {

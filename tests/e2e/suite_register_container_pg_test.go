@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/stretchr/testify/require"
@@ -76,14 +75,7 @@ func pgRegNames(prefix string) (containerName, serviceName string) {
 func pullPgImage(t *testing.T, dockerClient client.APIClient) {
 	t.Helper()
 
-	pullReader, err := dockerClient.ImagePull(t.Context(), PostgresImage, image.PullOptions{})
-	require.NoError(t, err)
-
-	_, err = io.Copy(io.Discard, pullReader)
-	require.NoError(t, err)
-
-	err = pullReader.Close()
-	require.NoError(t, err)
+	ensureImagePresent(t, dockerClient, PostgresImage)
 }
 
 func newForeignPgConfig(t *testing.T, isLoginInEnv bool) *container.Config {

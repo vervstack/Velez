@@ -4,12 +4,10 @@ package e2e
 
 import (
 	"context"
-	"io"
 	"testing"
 	"time"
 
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/stretchr/testify/require"
@@ -66,14 +64,7 @@ func startForeignContainerWithEnv(
 	ctx := t.Context()
 	volume := name + "_vol"
 
-	pullReader, err := dockerClient.ImagePull(ctx, NginxAlpineImage, image.PullOptions{})
-	require.NoError(t, err)
-
-	_, err = io.Copy(io.Discard, pullReader)
-	require.NoError(t, err)
-
-	err = pullReader.Close()
-	require.NoError(t, err)
+	ensureImagePresent(t, dockerClient, NginxAlpineImage)
 
 	httpPort := nat.Port("80/tcp")
 

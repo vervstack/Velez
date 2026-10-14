@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/stretchr/testify/require"
@@ -99,14 +98,7 @@ func registryRegHtpasswdTar(t *testing.T) io.Reader {
 func pullRegistryImage(t *testing.T, dockerClient client.APIClient) {
 	t.Helper()
 
-	pullReader, err := dockerClient.ImagePull(t.Context(), registryRegImage, image.PullOptions{})
-	require.NoError(t, err)
-
-	_, err = io.Copy(io.Discard, pullReader)
-	require.NoError(t, err)
-
-	err = pullReader.Close()
-	require.NoError(t, err)
+	ensureImagePresent(t, dockerClient, registryRegImage)
 }
 
 // startForeignRegistry runs a real registry:2 Velez did not create. With

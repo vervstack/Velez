@@ -17,7 +17,6 @@ import (
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
-	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
@@ -640,14 +639,7 @@ func startGitlabStub(t *testing.T, env *TestEnvironment, name string) string {
 
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 
-	pullReader, err := dockerClient.ImagePull(t.Context(), NginxAlpineImage, image.PullOptions{})
-	require.NoError(t, err)
-
-	_, err = io.Copy(io.Discard, pullReader)
-	require.NoError(t, err)
-
-	err = pullReader.Close()
-	require.NoError(t, err)
+	ensureImagePresent(t, dockerClient, NginxAlpineImage)
 
 	hostPort := strconv.Itoa(int(reservePoolHostPort(t, env)))
 	requireDindLoopbackBridge(t)
@@ -671,7 +663,7 @@ func startGitlabStub(t *testing.T, env *TestEnvironment, name string) string {
 		_ = dockerClient.ContainerRemove(context.Background(), name, removeOpts)
 	})
 
-	_, err = dockerClient.ContainerCreate(t.Context(), cfg, hostCfg, nil, nil, name)
+	_, err := dockerClient.ContainerCreate(t.Context(), cfg, hostCfg, nil, nil, name)
 	require.NoError(t, err)
 
 	logContainerOnFailure(t, dockerClient, name)

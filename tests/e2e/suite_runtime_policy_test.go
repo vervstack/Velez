@@ -5,11 +5,9 @@ package e2e
 import (
 	"context"
 	"fmt"
-	"io"
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/stretchr/testify/require"
 	"go.redsock.ru/toolbox"
@@ -155,16 +153,9 @@ func ensureImageTagged(t *testing.T, env *TestEnvironment, target string) {
 
 	dockerClient := env.Custom.NodeClients.Docker().Client()
 
-	pullReader, err := dockerClient.ImagePull(t.Context(), NginxAlpineImage, image.PullOptions{})
-	require.NoError(t, err)
+	ensureImagePresent(t, dockerClient, NginxAlpineImage)
 
-	_, err = io.Copy(io.Discard, pullReader)
-	require.NoError(t, err)
-
-	err = pullReader.Close()
-	require.NoError(t, err)
-
-	err = dockerClient.ImageTag(t.Context(), NginxAlpineImage, target)
+	err := dockerClient.ImageTag(t.Context(), NginxAlpineImage, target)
 	require.NoError(t, err)
 }
 

@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
@@ -101,12 +100,7 @@ func preloadBuildkitImage(t *testing.T, env *TestEnvironment, dindName string) {
 
 	nodeClient := env.Custom.NodeClients.Docker().Client()
 
-	pulled, err := nodeClient.ImagePull(t.Context(), buildkitImage, image.PullOptions{})
-	require.NoError(t, err)
-
-	_, err = io.Copy(io.Discard, pulled)
-	require.NoError(t, err)
-	require.NoError(t, pulled.Close())
+	ensureImagePresent(t, nodeClient, buildkitImage)
 
 	nested, closer, err := nodeResolver(env).NestedRuntime(t.Context(), "", dindName)
 	require.NoError(t, err)

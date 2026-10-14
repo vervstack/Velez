@@ -28,6 +28,7 @@ export enum VervPluginType {
   portainer = "portainer",
   statefull_pg = "statefull_pg",
   registry = "registry",
+  auto_update = "auto_update",
 }
 
 export enum RegistryType {

@@ -51,7 +51,6 @@ import (
 const (
 	defaultTaskWorkerTimeout     = time.Second * 2
 	defaultTaskWorkerConcurrency = 4
-	autoUpgradeIntervalCheck     = time.Second * 30
 	deployWatcherInterval        = time.Second * 5
 
 	// shutdownForceExitTimeout bounds the whole closer.Close chain app.go's
@@ -235,7 +234,10 @@ func (c *Custom) Init(a *App) (err error) {
 		return rerrors.Wrap(err, "error during server initialization")
 	}
 
-	c.autoupgrader = autoupgrade.New(c.NodeClients.Docker().Client(), autoUpgradeIntervalCheck, c.JobsEngine)
+	if a.Cfg.Environment.AutoUpdateIsEnabled {
+		autoUpgradeInterval := time.Duration(a.Cfg.Environment.AutoUpdateCheckPeriodSeconds) * time.Second
+		c.autoupgrader = autoupgrade.New(c.NodeClients.Docker().Client(), autoUpgradeInterval, c.JobsEngine)
+	}
 
 	c.DeployWatcher = workers.NewDeployWatcher(c.Services, c.JobsEngine, c.ClusterClients, runtimeResolver,
 		deployWatcherInterval)
@@ -274,14 +276,16 @@ func (c *Custom) Start(ctx context.Context) error {
 		return nil
 	})
 
-	g.Go(func() error {
-		err := c.autoupgrader.Start(ctx)
-		if err != nil {
-			return rerrors.Wrap(err, "error starting autoupgrade")
-		}
+	if c.autoupgrader != nil {
+		g.Go(func() error {
+			err := c.autoupgrader.Start(ctx)
+			if err != nil {
+				return rerrors.Wrap(err, "error starting autoupgrade")
+			}
 
-		return nil
-	})
+			return nil
+		})
+	}
 
 	err := g.Wait()
 	if err != nil {
@@ -309,9 +313,11 @@ func (c *Custom) Stop() error {
 		firstErr = err
 	}
 
-	err = c.autoupgrader.Stop()
-	if err != nil && firstErr == nil {
-		firstErr = err
+	if c.autoupgrader != nil {
+		err = c.autoupgrader.Stop()
+		if err != nil && firstErr == nil {
+			firstErr = err
+		}
 	}
 
 	return firstErr

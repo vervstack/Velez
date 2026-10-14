@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package velez_api;
+
+import "google/api/annotations.proto";
+import "npm.proto";
+
+option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
+option (npm_package) = "@vervstack/velez";
+
+service AutoUpdateAPI {
+  rpc ListAutoUpdateServices(ListAutoUpdateServices.Request) returns (ListAutoUpdateServices.Response) {
+    option (google.api.http) = {
+      get: "/api/auto_update/services"
+    };
+  }
+
+  rpc SetServiceAutoUpdate(SetServiceAutoUpdate.Request) returns (SetServiceAutoUpdate.Response) {
+    option (google.api.http) = {
+      post: "/api/auto_update/set_service"
+      body: "*"
+    };
+  }
+}
+
+// Smallest version bump a watched service accepts: MAJOR accepts only major
+// bumps, MINOR accepts major and minor, PATCH accepts every bump.
+enum AutoUpdateBumpLevel {
+  AUTO_UPDATE_BUMP_LEVEL_UNSPECIFIED = 0;
+  MAJOR = 1;
+  MINOR = 2;
+  PATCH = 3;
+}
+
+message ListAutoUpdateServices {
+  message Request {}
+
+  message Response {
+    message Service {
+      string name = 1;
+      string image = 2;
+      bool is_enabled = 3;
+      AutoUpdateBumpLevel bump_level = 4;
+    }
+
+    repeated Service services = 1;
+    int64 check_period_seconds = 2;
+    bool is_worker_enabled = 3;
+  }
+}
+
+message SetServiceAutoUpdate {
+  message Request {
+    string name = 1;
+    bool is_enabled = 2;
+    AutoUpdateBumpLevel bump_level = 3;
+  }
+
+  message Response {
+    string entity_id = 1;
+    string action = 2;
+  }
+}

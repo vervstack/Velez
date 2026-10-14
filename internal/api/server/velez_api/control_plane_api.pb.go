@@ -43,7 +43,8 @@ const (
 	// internal/transport/control_plane_api_impl/enable_plugin.go call site,
 	// which are intentionally left for a follow-up to remove, not this
 	// contract-only slice.
-	VervPluginType_registry VervPluginType = 7
+	VervPluginType_registry    VervPluginType = 7
+	VervPluginType_auto_update VervPluginType = 8
 )
 
 // Enum value maps for VervPluginType.
@@ -57,6 +58,7 @@ var (
 		5: "portainer",
 		6: "statefull_pg",
 		7: "registry",
+		8: "auto_update",
 	}
 	VervPluginType_value = map[string]int32{
 		"unknown_service_type": 0,
@@ -67,6 +69,7 @@ var (
 		"portainer":            5,
 		"statefull_pg":         6,
 		"registry":             7,
+		"auto_update":          8,
 	}
 )
 
@@ -2876,7 +2879,7 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\x03_idB\a\n" +
 	"\x05_name\x1a\n" +
 	"\n" +
-	"\bResponse*\x92\x01\n" +
+	"\bResponse*\xa3\x01\n" +
 	"\x0eVervPluginType\x12\x18\n" +
 	"\x14unknown_service_type\x10\x00\x12\r\n" +
 	"\tmatreshka\x10\x01\x12\n" +
@@ -2886,7 +2889,8 @@ const file_control_plane_api_proto_rawDesc = "" +
 	"\theadscale\x10\x04\x12\r\n" +
 	"\tportainer\x10\x05\x12\x10\n" +
 	"\fstatefull_pg\x10\x06\x12\f\n" +
-	"\bregistry\x10\a*h\n" +
+	"\bregistry\x10\a\x12\x0f\n" +
+	"\vauto_update\x10\b*h\n" +
 	"\fRegistryType\x12\x1d\n" +
 	"\x19REGISTRY_TYPE_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17REGISTRY_TYPE_DOCKERHUB\x10\x01\x12\x1c\n" +

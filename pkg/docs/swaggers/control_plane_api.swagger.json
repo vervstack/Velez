@@ -896,7 +896,8 @@
         "headscale",
         "portainer",
         "statefull_pg",
-        "registry"
+        "registry",
+        "auto_update"
       ],
       "default": "unknown_service_type",
       "description": " - registry: registry - RETIRED. The registry plugin is replaced by\nContainerRegistryAPI (api/grpc/container_registry_api.proto), which\nsupports multiple named instances instead of one node-wide singleton.\nNever reuse or renumber this value - see 21-api-contracts.md. Not\nmarked with proto's own `[deprecated = true]`: staticcheck's SA1019\nthen flags every existing internal/jobs/enable_registry.go and\ninternal/transport/control_plane_api_impl/enable_plugin.go call site,\nwhich are intentionally left for a follow-up to remove, not this\ncontract-only slice."

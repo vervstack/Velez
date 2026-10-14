@@ -144,6 +144,8 @@ enum VervPluginType {
   // which are intentionally left for a follow-up to remove, not this
   // contract-only slice.
   registry = 7;
+
+  auto_update = 8;
 }
 
 enum RegistryType {

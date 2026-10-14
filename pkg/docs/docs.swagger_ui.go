@@ -24,8 +24,12 @@ func Swagger() (p string, handler http.HandlerFunc) {
 	mux.Handle(BasePath, swaggerui.NewHandler(
 		swaggerui.WithBasePath(BasePath),
 		swaggerui.WithHTMLTitle("Swagger"),
-		swaggerui.WithSpecURLs("ContainerRegistryApi",
+		swaggerui.WithSpecURLs("AutoUpdateApi",
 			[]swaggerui.SpecURL{
+				{
+					Name: "AutoUpdateApi",
+					URL:  path.Join(swaggerPath, "auto_update_api.swagger.json"),
+				},
 				{
 					Name: "ContainerRegistryApi",
 					URL:  path.Join(swaggerPath, "container_registry_api.swagger.json"),

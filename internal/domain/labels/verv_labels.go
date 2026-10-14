@@ -12,6 +12,8 @@ const (
 	VervServiceLabel      = "VERV_SERVICE"
 	MatreshkaConfigLabel  = "MATRESHKA_CONFIG_ENABLED"
 	AutoUpgrade           = "VELEZ_AUTO_UPGRADE"
+	// AutoUpgradeBumpLevel values: major | minor | patch; absent means patch.
+	AutoUpgradeBumpLevel = "VELEZ_AUTO_UPGRADE_BUMP_LEVEL"
 	// DependsOnLabel — comma-separated list of service names this service depends on.
 	// Used by GetServiceGraph to discover and persist service-to-service dependencies.
 	DependsOnLabel = "VERV_DEPENDS_ON"

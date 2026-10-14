@@ -4,33 +4,35 @@ package config
 
 // EnvironmentConfig holds parsed configuration values for this section.
 type EnvironmentConfig struct {
-	AvailablePorts     []int
-	ClusterPgDsn       string
-	ContainerSuffix    string
-	CPUDefault         float64
-	CustomLabels       []string
-	DisableAPISecurity bool
-	Environments       []string
-	LocalStatePath     string
-	LogFormat          string
-	LogLevel           string
-	MakoshExposePort   bool
-	MakoshImage        string
-	MakoshIsEnabled    bool
-	MakoshKey          string
-	MakoshPort         int
-	MakoshURL          string
-	MasterNodeAddress  string
-	MatreshkaImage     string
-	MatreshkaIsEnabled bool
-	MatreshkaKey       string
-	MatreshkaPort      int
-	MemorySwapMb       int
-	MigrationsDir      string
-	NodeRegion         string
-	RAMMbDefault       int
-	ShutDownOnExit     bool
-	VpnServerURL       string
+	AutoUpdateCheckPeriodSeconds int
+	AutoUpdateIsEnabled          bool
+	AvailablePorts               []int
+	ClusterPgDsn                 string
+	ContainerSuffix              string
+	CPUDefault                   float64
+	CustomLabels                 []string
+	DisableAPISecurity           bool
+	Environments                 []string
+	LocalStatePath               string
+	LogFormat                    string
+	LogLevel                     string
+	MakoshExposePort             bool
+	MakoshImage                  string
+	MakoshIsEnabled              bool
+	MakoshKey                    string
+	MakoshPort                   int
+	MakoshURL                    string
+	MasterNodeAddress            string
+	MatreshkaImage               string
+	MatreshkaIsEnabled           bool
+	MatreshkaKey                 string
+	MatreshkaPort                int
+	MemorySwapMb                 int
+	MigrationsDir                string
+	NodeRegion                   string
+	RAMMbDefault                 int
+	ShutDownOnExit               bool
+	VpnServerURL                 string
 }
 
 // LogFormat enumerates the allowed values for the LogFormat field.

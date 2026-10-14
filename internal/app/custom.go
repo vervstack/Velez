@@ -236,6 +236,7 @@ func (c *Custom) Init(a *App) (err error) {
 
 	if a.Cfg.Environment.AutoUpdateIsEnabled {
 		autoUpgradeInterval := time.Duration(a.Cfg.Environment.AutoUpdateCheckPeriodSeconds) * time.Second
+
 		c.autoupgrader = autoupgrade.New(c.NodeClients.Docker().Client(), autoUpgradeInterval, c.JobsEngine)
 	}
 

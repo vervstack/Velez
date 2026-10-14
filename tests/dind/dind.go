@@ -301,7 +301,7 @@ func removeContainerRetrying(
 ) error {
 	var err error
 
-	for attempt := 0; attempt < removeRetryAttempts; attempt++ {
+	for range removeRetryAttempts {
 		err = cli.ContainerRemove(ctx, containerId, removeOpts)
 		if err == nil || errdefs.IsNotFound(err) {
 			return nil

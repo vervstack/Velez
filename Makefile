@@ -63,3 +63,22 @@ test-e2e:
 .PHONY: test-e2e-full
 test-e2e-full:
 	go test -tags e2e_full -count=1 -timeout 20m -parallel 8 ./tests/e2e/...
+
+# Full parallel e2e: one prepared DinD daemon and one test process per group
+# in tests/e2e/groups.yaml (plus the implicit `rest` group), all groups at
+# once. Needs a reachable bootstrap docker daemon like the other e2e targets.
+#   e2e-prepare  warms every group's daemon (pull images, seed, networks); run
+#                once per machine and again after seed images change.
+#   e2e          runs all groups at once; refuses to start if not prepared.
+#   e2e-clean    removes every group's daemon container and cache volume.
+.PHONY: e2e-prepare
+e2e-prepare:
+	go run ./tests/e2egroups prepare
+
+.PHONY: e2e
+e2e:
+	go run ./tests/e2egroups run
+
+.PHONY: e2e-clean
+e2e-clean:
+	go run ./tests/e2egroups clean

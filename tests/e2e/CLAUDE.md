@@ -137,3 +137,15 @@ directly (`-run Matrix/single-node.../PROD/stateless/hello-world`).
   it exists to prevent). See `docs/plans/e2e_flaky_lifecycle_matreshka.md`.
 - Every e2e test runs under a DinD harness (`requireDindHarness`) — never against a developer's
   real Docker daemon. `NewEnvironment` enforces this; there's no opt-out.
+
+## Full parallel run
+
+- `make e2e-prepare` (once per machine / after seed-image changes), `make e2e`, `make e2e-clean`:
+  one prepared DinD daemon and one test process per group, all groups at once (tool:
+  `tests/e2egroups`, logs in `$VELEZ_E2E_LOG_DIR` or a printed temp dir).
+- `tests/e2e/groups.yaml` is the group list (anchored top-level test regexes). `rest` is computed:
+  every test no group lists.
+- The tool fails if a test matches two groups or a group regex matches no test.
+- A filtered `go test -run` is a smoke check only; it does not cover the full suite.
+- A new suite that needs a singleton (matreshka, headscale, cluster-pg pool) must be added to
+  that group's regex in `groups.yaml`.

@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"context"
+	"flag"
 	"os"
 	"os/signal"
 	"syscall"
@@ -13,7 +14,21 @@ import (
 )
 
 func TestMain(m *testing.M) {
+	flag.Parse()
+
+	// -test.list only prints names; it must not boot a daemon (tests/e2egroups
+	// lists tests to verify the group partition).
+	if isListOnly() {
+		os.Exit(m.Run())
+	}
+
 	os.Exit(runSuite(m))
+}
+
+func isListOnly() bool {
+	listFlag := flag.Lookup("test.list")
+
+	return listFlag != nil && listFlag.Value.String() != ""
 }
 
 // runSuite owns the DinD lifecycle for the whole package: bring up one

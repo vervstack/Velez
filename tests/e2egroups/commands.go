@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -47,9 +48,9 @@ func prepareLogDir() (string, error) {
 	return dir, nil
 }
 
-func prepare(ctx context.Context, groups []group) error {
+func prepare(ctx context.Context, groups, selected []group) error {
 	return execute(ctx, groups, func(ctx context.Context, bin, root, logDir string) []result {
-		return runConcurrently(groups, prepareConcurrency, func(g group) result {
+		return runConcurrently(selected, prepareConcurrency, func(g group) result {
 			logPath := filepath.Join(logDir, g.Name+".prepare.log")
 			args := []string{"-test.run", preparedTestRun}
 
@@ -58,16 +59,42 @@ func prepare(ctx context.Context, groups []group) error {
 	})
 }
 
-func runAll(ctx context.Context, groups []group) error {
-	for _, g := range groups {
+// missingGroups returns the selected groups without a cache volume; unless
+// isPrepareMissing is set, the first one is an error.
+func missingGroups(ctx context.Context, selected []group, isPrepareMissing bool) ([]group, error) {
+	var missing []group
+
+	for _, g := range selected {
 		err := requireCacheVolume(ctx, g)
+		if err == nil {
+			continue
+		}
+
+		if !isPrepareMissing || !errors.Is(err, errNotPrepared) {
+			return nil, rerrors.Wrap(err, "error checking prepared daemon of group "+g.Name)
+		}
+
+		missing = append(missing, g)
+	}
+
+	return missing, nil
+}
+
+func runAll(ctx context.Context, groups, selected []group, isPrepareMissing bool) error {
+	missing, err := missingGroups(ctx, selected, isPrepareMissing)
+	if err != nil {
+		return rerrors.Wrap(err, "error finding missing groups")
+	}
+
+	if len(missing) > 0 {
+		err = prepare(ctx, groups, missing)
 		if err != nil {
-			return rerrors.Wrap(err, "error checking prepared daemon of group "+g.Name)
+			return rerrors.Wrap(err, "error preparing missing groups")
 		}
 	}
 
 	return execute(ctx, groups, func(ctx context.Context, bin, root, logDir string) []result {
-		return runConcurrently(groups, len(groups), func(g group) result {
+		return runConcurrently(selected, len(selected), func(g group) result {
 			logPath := filepath.Join(logDir, g.Name+".log")
 			args := append(testArgs(g, groups), "-test.parallel", testParallel, "-test.count=1", "-test.timeout", testTimeout)
 

@@ -55,7 +55,7 @@ kill-port:
 # test-e2e is the always-green smoke deploy (Test_ContainerRuntime_Matrix
 # only) - every other suite carries a //go:build e2e_full tag so it doesn't
 # compile into this binary. test-e2e-full is the same run with every suite
-# included; CI (branch-push.yaml's e2e-test job) runs this one.
+# included (local use; CI runs e2e-group per group).
 .PHONY: test-e2e
 test-e2e:
 	go test -count=1 -timeout 20m -parallel 8 ./tests/e2e/...
@@ -71,6 +71,8 @@ test-e2e-full:
 #                once per machine and again after seed images change.
 #   e2e          runs all groups at once; refuses to start if not prepared.
 #   e2e-clean    removes every group's daemon container and cache volume.
+#   e2e-group    runs one group (GROUP=<name>), preparing its daemon first if
+#                missing; CI runs this once per group as a matrix job.
 .PHONY: e2e-prepare
 e2e-prepare:
 	go run ./tests/e2egroups prepare
@@ -82,3 +84,9 @@ e2e:
 .PHONY: e2e-clean
 e2e-clean:
 	go run ./tests/e2egroups clean
+
+# One group only: make e2e-group GROUP=matreshka (prepares it if missing).
+.PHONY: e2e-group
+e2e-group:
+	@test -n "$(GROUP)" || { echo "GROUP is required, e.g. make e2e-group GROUP=matreshka"; exit 1; }
+	go run ./tests/e2egroups run --group $(GROUP) --prepare-missing

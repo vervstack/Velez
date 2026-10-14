@@ -27,6 +27,8 @@ var (
 	errTestInManyGroups = rerrors.New("test matches more than one group")
 	//nolint:forbidigo // package-private tool sentinel, not shared/user-facing
 	errGroupMatchesNothing = rerrors.New("group regex matches no test")
+	//nolint:forbidigo // package-private tool sentinel, not shared/user-facing
+	errGroupUnknown = rerrors.New("unknown group")
 )
 
 type group struct {
@@ -118,6 +120,25 @@ func validateGroups(groups []group) error {
 	}
 
 	return nil
+}
+
+// selectGroups returns every group for an empty name, else just the named one.
+func selectGroups(groups []group, name string) ([]group, error) {
+	if name == "" {
+		return groups, nil
+	}
+
+	names := make([]string, 0, len(groups))
+
+	for _, g := range groups {
+		if g.Name == name {
+			return []group{g}, nil
+		}
+
+		names = append(names, g.Name)
+	}
+
+	return nil, rerrors.Wrap(errGroupUnknown, name+", valid names: "+strings.Join(names, ", "))
 }
 
 func explicitGroups(groups []group) []group {

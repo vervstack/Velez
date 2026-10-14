@@ -143,6 +143,9 @@ directly (`-run Matrix/single-node.../PROD/stateless/hello-world`).
 - `make e2e-prepare` (once per machine / after seed-image changes), `make e2e`, `make e2e-clean`:
   one prepared DinD daemon and one test process per group, all groups at once (tool:
   `tests/e2egroups`, logs in `$VELEZ_E2E_LOG_DIR` or a printed temp dir).
+- `make e2e-group GROUP=<name>` runs one group (`rest` included), preparing its daemon first if the
+  cache volume is missing (`--group`, `--prepare-missing`). CI runs it once per matrix entry in
+  `branch-push.yaml`.
 - `tests/e2e/groups.yaml` is the group list (anchored top-level test regexes). `rest` is computed:
   every test no group lists.
 - The tool fails if a test matches two groups or a group regex matches no test.

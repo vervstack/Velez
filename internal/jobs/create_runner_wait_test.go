@@ -8,6 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/domain"
+	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
@@ -16,6 +18,25 @@ const (
 	testWaitRunnerName = "gitlab_runner_wait"
 )
 
+type fakeDeploymentLister struct {
+	pendingPolls int
+	calls        int
+}
+
+func (f *fakeDeploymentLister) ListDeployments(
+	_ context.Context, _ domain.ListDeploymentsReq,
+) (domain.DeploymentList, error) {
+	f.calls++
+
+	if f.calls > f.pendingPolls {
+		return domain.DeploymentList{}, nil
+	}
+
+	pending := domain.Deployment{Status: deployments_queries.VelezDeploymentStatusSCHEDULEDDEPLOYMENT}
+
+	return domain.DeploymentList{Deployments: []domain.Deployment{pending}}, nil
+}
+
 func newWaitForRunnerDeployJob(watcher taskWatcher) *waitForRunnerDeployJob {
 	payload := &velez_api.CreateRunnerTaskPayload{
 		Request: &velez_api.CreateRunner_Request{Name: testWaitRunnerName},
@@ -23,6 +44,7 @@ func newWaitForRunnerDeployJob(watcher taskWatcher) *waitForRunnerDeployJob {
 
 	return &waitForRunnerDeployJob{
 		jobsEngine:   watcher,
+		deployments:  &fakeDeploymentLister{},
 		req:          payload,
 		ctx:          payload,
 		instanceName: testWaitRunnerName,
@@ -56,6 +78,19 @@ func Test_WaitForRunnerDeployJob_ReturnsOnlyOnceNewerTaskIsDone(t *testing.T) {
 
 	err := job.Do(context.Background())
 	require.NoError(t, err)
+}
+
+func Test_WaitForRunnerDeployJob_WaitsUntilDeploymentLeavesScheduled(t *testing.T) {
+	watcher := &fakeTaskWatcher{
+		tasks: []tasks_queries.VelezTask{{ID: 9, Status: tasks_queries.VelezTaskStatusDONE}},
+	}
+	lister := &fakeDeploymentLister{pendingPolls: 2}
+	job := newWaitForRunnerDeployJob(watcher)
+	job.deployments = lister
+
+	err := job.Do(context.Background())
+	require.NoError(t, err)
+	require.Equal(t, 3, lister.calls)
 }
 
 func Test_RecordDeployBaseline_RunnerPayloadRecordedOnceAndNotOverwritten(t *testing.T) {

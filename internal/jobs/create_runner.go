@@ -23,6 +23,7 @@ import (
 	"go.vervstack.ru/Velez/internal/service/service_manager/vervonomicon"
 	"go.vervstack.ru/Velez/internal/service/service_manager/vervonomicon/builtin"
 	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/storage/postgres/generated/deployments_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
@@ -42,6 +43,8 @@ const (
 	// to run and finish the create_smerd task it schedules for the runner
 	// container.
 	runnerDeployWaitTimeout = 600 * time.Second
+
+	deploymentSettlePollInterval = 200 * time.Millisecond
 
 	// runnerDockerHostEnvVar overlays DOCKER_HOST when the request names a
 	// custom docker_socket_address, instead of granting the host bind-mount.
@@ -204,6 +207,7 @@ func (h *createRunnerHandler) baseJobs(
 		Name: stepWaitForRunnerDeploy,
 		Job: &waitForRunnerDeployJob{
 			jobsEngine:   h.jobsEngine,
+			deployments:  h.vervServices,
 			req:          payload,
 			ctx:          payload,
 			instanceName: instanceName,
@@ -605,6 +609,23 @@ func sanitizeRunnerTarget(target string) string {
 	return strings.ToLower(strings.ReplaceAll(target, "/", "-"))
 }
 
+// settledDeploymentStatuses is every deployment status but
+// SCHEDULED_DEPLOYMENT, so listing with it as NotStatus leaves only the rows
+// the deploy watcher has yet to pick up and finish.
+//
+//nolint:gochecknoglobals // constant-like filter list
+var settledDeploymentStatuses = []deployments_queries.VelezDeploymentStatus{
+	deployments_queries.VelezDeploymentStatusSCHEDULEDDELETION,
+	deployments_queries.VelezDeploymentStatusSCHEDULEDUPGRADE,
+	deployments_queries.VelezDeploymentStatusRUNNING,
+	deployments_queries.VelezDeploymentStatusFAILED,
+	deployments_queries.VelezDeploymentStatusDELETED,
+}
+
+type deploymentLister interface {
+	ListDeployments(ctx context.Context, req domain.ListDeploymentsReq) (domain.DeploymentList, error)
+}
+
 // waitForRunnerDeployJob blocks until the create_smerd task that the deploy
 // watcher (internal/workers/deploy_watcher.go) runs for this runner's
 // container reaches a terminal status - the exact same task and entity id
@@ -614,7 +635,8 @@ func sanitizeRunnerTarget(target string) string {
 // exists. Reuses the taskWatcher interface declared in
 // create_registry_instance.go.
 type waitForRunnerDeployJob struct {
-	jobsEngine taskWatcher
+	jobsEngine  taskWatcher
+	deployments deploymentLister
 
 	req          createRunnerRequestAccessor
 	ctx          deployBaselineAccessor
@@ -650,7 +672,43 @@ func (j *waitForRunnerDeployJob) Do(ctx context.Context) error {
 		return rerrors.Wrap(user_errors.ErrTaskFailed, finalTask.Error.String)
 	}
 
+	err := j.awaitDeploymentSettled(watchCtx)
+	if err != nil {
+		return rerrors.Wrap(err, "error waiting for runner deployment to leave scheduled")
+	}
+
 	return nil
+}
+
+// awaitDeploymentSettled blocks until the deploy watcher has moved the
+// runner's deployment row off SCHEDULED_DEPLOYMENT. It does so right after the
+// create_smerd task turns DONE, on its own poll, so without this the runner
+// is reported created while a redeploy still finds no RUNNING deployment.
+func (j *waitForRunnerDeployJob) awaitDeploymentSettled(ctx context.Context) error {
+	listReq := domain.ListDeploymentsReq{
+		ServiceName: j.instanceName,
+		NotStatus:   settledDeploymentStatuses,
+	}
+
+	ticker := time.NewTicker(deploymentSettlePollInterval)
+	defer ticker.Stop()
+
+	for {
+		list, err := j.deployments.ListDeployments(ctx, listReq)
+		if err != nil {
+			return rerrors.Wrap(err, "error listing runner deployments")
+		}
+
+		if len(list.Deployments) == 0 {
+			return nil
+		}
+
+		select {
+		case <-ticker.C:
+		case <-ctx.Done():
+			return rerrors.Wrap(ctx.Err())
+		}
+	}
 }
 
 // writeRunnerConfigJob renders the runner's config.toml and writes it into

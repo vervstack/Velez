@@ -165,7 +165,10 @@ type PostgresService interface {
 	DropPgInstance(ctx context.Context, name string) error
 	// GetPgInstanceCredentials is the only PostgresService operation that
 	// resolves a secret_ref to its plaintext value.
-	GetPgInstanceCredentials(ctx context.Context, name string) (domain.PgInstanceCredentials, error)
+	// requestHost is the bare hostname the caller reached Velez on; "" when unknown.
+	GetPgInstanceCredentials(
+		ctx context.Context, name, requestHost string,
+	) (domain.PgInstanceCredentials, error)
 }
 
 // RunnersService provides Runners-as-a-Service: git-agnostic self-hosted CI

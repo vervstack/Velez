@@ -4,12 +4,14 @@ package e2e
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	"google.golang.org/grpc/metadata"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain/labels"
@@ -30,6 +32,8 @@ const (
 	// volume prefix and create_smerd task entity: the caller's name behind
 	// labels.PgaasNamePrefix.
 	pgaasLifecycleServiceName = labels.PgaasNamePrefix + pgaasLifecycleInstanceName
+
+	pgaasLifecycleRequestHost = "velez.example.test:53890"
 )
 
 // PgaasLifecycleSuite exercises Postgres-as-a-Service end to end in plain
@@ -84,18 +88,23 @@ func (s *PgaasLifecycleSuite) Test_PgaasLifecycle_HappyPath() {
 	require.Equal(t, pgaasLifecycleServiceName, instance.GetName())
 	require.NotEqual(t, "velez", instance.GetName())
 	require.Equal(t, "running", instance.GetStatus())
+	require.NotNil(t, instance.ExposedPort, "expected a published host port in ListPgInstances")
 	require.Equal(t, pgaasLifecycleInstanceName, listedServiceDisplayName(t, env, pgaasLifecycleServiceName))
 
 	// Credentials resolve through the container-env read-through path - there
 	// is no velez.secrets table in single-node mode.
-	credsReq := &velez_api.GetPgInstanceCredentials_Request{Name: pgaasLifecycleServiceName}
+	credsReq := newPgaasCredentialsRequest(pgaasLifecycleServiceName)
 
-	credsResp, err := env.Custom.PgaasApiImpl.GetPgInstanceCredentials(ctx, credsReq)
+	credsCtx := withRequestHost(ctx, pgaasLifecycleRequestHost)
+
+	credsResp, err := env.Custom.PgaasApiImpl.GetPgInstanceCredentials(credsCtx, credsReq)
 	require.NoError(t, err)
 	require.NotEmpty(t, credsResp.GetPassword())
 	require.NotEmpty(t, credsResp.GetDsn())
 	require.Equal(t, instance.GetDbName(), credsResp.GetDbName())
 	require.Equal(t, instance.GetUsername(), credsResp.GetUsername())
+
+	requirePgaasConnections(t, instance, credsResp)
 
 	dropReq := &velez_api.DropPgInstance_Request{Name: pgaasLifecycleServiceName}
 
@@ -122,6 +131,37 @@ func Test_PgaasLifecycle(t *testing.T) {
 	RunPlaneSuite(t, Planes, func(plane Plane) suite.TestingSuite {
 		return &PgaasLifecycleSuite{plane: plane}
 	})
+}
+
+func newPgaasCredentialsRequest(serviceName string) *velez_api.GetPgInstanceCredentials_Request {
+	return &velez_api.GetPgInstanceCredentials_Request{Name: serviceName}
+}
+
+func withRequestHost(ctx context.Context, hostPort string) context.Context {
+	md := metadata.Pairs("x-forwarded-host", hostPort)
+
+	return metadata.NewIncomingContext(ctx, md)
+}
+
+func requirePgaasConnections(
+	t *testing.T, instance *velez_api.PgInstance, creds *velez_api.GetPgInstanceCredentials_Response,
+) {
+	t.Helper()
+
+	inNetwork := creds.GetInNetwork()
+	require.NotNil(t, inNetwork)
+	require.Equal(t, creds.GetDsn(), inNetwork.GetDsn())
+	require.Contains(t, inNetwork.GetDsn(), "@"+pgaasLifecycleServiceName+":5432/")
+	require.NotContains(t, inNetwork.GetMaskedDsn(), creds.GetPassword())
+	require.Contains(t, inNetwork.GetMaskedDsn(), "••••")
+
+	external := creds.GetExternal()
+	require.NotNil(t, external, "expected an external connection for a published port")
+	require.Contains(t, external.GetDsn(), fmt.Sprintf(":%d/", instance.GetExposedPort()))
+	require.Contains(t, external.GetDsn(), creds.GetPassword())
+	require.NotContains(t, external.GetMaskedDsn(), creds.GetPassword())
+	require.Contains(t, external.GetMaskedDsn(), "••••")
+	require.Contains(t, external.GetMaskedDsn(), fmt.Sprintf(":%d/", instance.GetExposedPort()))
 }
 
 // findPgInstance returns the listed pg instance with the given name, or nil.

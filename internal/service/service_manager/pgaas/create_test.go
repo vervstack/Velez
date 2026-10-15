@@ -10,7 +10,7 @@ import (
 )
 
 func Test_CreatePgInstance_RejectsInvalidNameBeforeAnyWork(t *testing.T) {
-	svc := New(nil, nil, nil, nil)
+	svc := New(nil, nil, nil, nil, nil, nil)
 
 	req := domain.CreatePgInstanceReq{Name: "Bad Name!"}
 

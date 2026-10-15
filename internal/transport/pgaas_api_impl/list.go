@@ -61,6 +61,7 @@ func pgInstanceToPb(view domain.PgInstanceView) *pb.PgInstance {
 		DbName:      view.DbName,
 		Username:    view.Username,
 		Port:        uint32(view.Port),
+		ExposedPort: view.ExposedPort,
 		Environment: view.Environment,
 		Status:      view.Status,
 	}

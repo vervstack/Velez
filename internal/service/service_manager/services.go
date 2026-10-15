@@ -112,7 +112,9 @@ func New(
 		// a Postgres cluster (see custom.go's InitServiceLayer), so pgaas's
 		// own Services()/GetByName calls have to agree with CreateNewDeploy
 		// from the start, not just after convergence.
-		postgresService: pgaas.New(clusterClients.StateManager(), vervServices, secretsStore, jobsEngine),
+		postgresService: pgaas.New(
+			clusterClients.StateManager(), vervServices, secretsStore, jobsEngine, runtimeResolver, nodeClients.Docker(),
+		),
 		// runneraas.New takes clusterClients.StateManager(), for the same
 		// reason pgaas.New does just above - see that comment.
 		runnersService: runneraas.New(

@@ -63,6 +63,7 @@ func (c *ContainerManager) GetContainer(
 
 	if contInfo.HostConfig != nil {
 		var actualPorts nat.PortMap
+
 		if contInfo.NetworkSettings != nil {
 			actualPorts = contInfo.NetworkSettings.Ports
 		}

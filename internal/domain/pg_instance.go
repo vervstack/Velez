@@ -78,6 +78,9 @@ type PgInstanceView struct {
 	Username    string
 	Port        int32
 
+	// ExposedPort - host-side port Port is published on; nil when unpublished.
+	ExposedPort *uint32
+
 	Environment string
 	Status      string
 	ImageName   string
@@ -113,5 +116,16 @@ type PgInstanceCredentials struct {
 	DbName   string
 	Username string
 	Password string
-	Dsn      string
+	// Dsn - the in-network DSN, same value as InNetwork.Dsn.
+	Dsn string
+
+	InNetwork PgConnectionView
+	// External - nil when the port is not published or no reachable host is known.
+	External *PgConnectionView
+}
+
+// PgConnectionView - MaskedDsn never carries the password.
+type PgConnectionView struct {
+	Dsn       string
+	MaskedDsn string
 }

@@ -35,6 +35,11 @@ func (s *PgaasService) ListPgInstances(
 		return domain.PgInstanceList{}, err
 	}
 
+	published, err := s.publishedContainers(ctx, nil)
+	if err != nil {
+		return domain.PgInstanceList{}, rerrors.Wrap(err)
+	}
+
 	instances := make([]domain.PgInstanceView, 0, len(rows))
 
 	for _, row := range rows {
@@ -54,6 +59,7 @@ func (s *PgaasService) ListPgInstances(
 			DbName:      row.DbName,
 			Username:    row.Username,
 			Port:        row.Port,
+			ExposedPort: published[base.Name].exposedPort(row.Port),
 			Environment: base.Env,
 			Status:      base.Status,
 			ImageName:   base.ImageName,

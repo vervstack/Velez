@@ -3,18 +3,25 @@
 package transfer_out
 
 import (
+	"context"
+	"sync"
+
+	"github.com/google/uuid"
+
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/transfer_io"
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
-//nolint:unused // dependencies are consumed once the stubs are filled in
 type Service struct {
 	dataStorage storage.Storage
 	runtimes    container_runtime.RuntimeResolver
 	transferIO  transfer_io.TransferIO
 	docker      node_clients.Docker
+
+	mu      sync.Mutex
+	cancels map[uuid.UUID]context.CancelFunc
 }
 
 func New(
@@ -28,5 +35,6 @@ func New(
 		runtimes:    runtimes,
 		transferIO:  transferIO,
 		docker:      docker,
+		cancels:     make(map[uuid.UUID]context.CancelFunc),
 	}
 }

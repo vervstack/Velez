@@ -8,6 +8,11 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 )
 
-func (s *Service) List(_ context.Context) ([]domain.Transfer, error) {
-	return nil, rerrors.Wrap(errNotImplemented)
+func (s *Service) List(ctx context.Context) ([]domain.Transfer, error) {
+	transfers, err := s.dataStorage.Transfers().List(ctx)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error listing transfers")
+	}
+
+	return transfers, nil
 }

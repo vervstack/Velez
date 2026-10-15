@@ -1,6 +1,7 @@
 import cn from 'classnames'
 import {useNavigate} from 'react-router-dom'
 
+import ResourceTypeIcon from '@/components/ResourceTypeIcon/ResourceTypeIcon.tsx'
 import type {ServiceResource} from '@/model/service_page/ServicePageModel'
 import {resourcePath} from '@/processes/resourceLink'
 import ResourceCardActions from '@/widgets/service/ResourcesSection/ResourceCardActions.tsx'
@@ -52,7 +53,9 @@ export default function ResourceCard({resource}: ResourceCardProps) {
             title={isClickable ? `Open ${resource.name}` : undefined}
         >
             <div className={cls.HeaderWrapper}>
-                <div className={cls.IconSquare}>{resource.icon}</div>
+                <div className={cls.IconSquare}>
+                    <ResourceTypeIcon type={resource.type} fallback={resource.icon}/>
+                </div>
                 <ResourceCardTitle resource={resource}/>
                 <span className={cn(cls.StatusDot, statusDotClass(resource.status))}/>
             </div>

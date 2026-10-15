@@ -1,0 +1,10 @@
+.ResourceTypeIconContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    & .Icon {
+        width: 1.125rem;
+        height: 1.125rem;
+    }
+}

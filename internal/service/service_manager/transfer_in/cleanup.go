@@ -13,10 +13,15 @@ import (
 func (s *Service) abortTransfer(ctx context.Context, run *receiveRun, cause error) {
 	cleanupCtx := context.WithoutCancel(ctx)
 
+	log.Error().
+		Str("transfer_uuid", run.transferUuid.String()).
+		Err(cause).
+		Msg("incoming container transfer failed")
+
 	for _, id := range run.createdContainerIds {
 		err := run.runtime.Remove(cleanupCtx, id)
 		if err != nil {
-			log.Ctx(ctx).Warn().
+			log.Warn().
 				Str("container_id", id).
 				Err(err).
 				Msg("error removing container of failed transfer")
@@ -26,7 +31,7 @@ func (s *Service) abortTransfer(ctx context.Context, run *receiveRun, cause erro
 	for _, name := range run.createdVolumes {
 		err := run.runtime.RemoveVolume(cleanupCtx, name)
 		if err != nil {
-			log.Ctx(ctx).Warn().
+			log.Warn().
 				Str("volume_name", name).
 				Err(err).
 				Msg("error removing volume of failed transfer")
@@ -36,7 +41,7 @@ func (s *Service) abortTransfer(ctx context.Context, run *receiveRun, cause erro
 	err := s.dataStorage.Transfers().Finish(
 		cleanupCtx, run.transferUuid, transfers_queries.VelezTransferStatusFAILED, cause.Error())
 	if err != nil {
-		log.Ctx(ctx).Warn().
+		log.Warn().
 			Str("transfer_uuid", run.transferUuid.String()).
 			Err(err).
 			Msg("error recording failed transfer")

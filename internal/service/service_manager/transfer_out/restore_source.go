@@ -13,7 +13,7 @@ func restoreSource(ctx context.Context, runtime container_runtime.ContainerRunti
 	for _, name := range order.restore {
 		err := runtime.Restart(ctx, name)
 		if err != nil {
-			log.Ctx(ctx).Error().
+			log.Error().
 				Str("container_name", name).
 				Err(err).
 				Msg("error restoring source container after failed transfer")

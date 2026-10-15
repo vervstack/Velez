@@ -61,7 +61,7 @@ func (s *Service) settle(ctx context.Context, job transferJob, counter *progress
 		return
 	}
 
-	log.Ctx(settleCtx).Error().
+	log.Error().
 		Str("transfer_uuid", job.id.String()).
 		Err(runErr).
 		Msg("container transfer did not complete")
@@ -75,7 +75,7 @@ func (s *Service) settle(ctx context.Context, job transferJob, counter *progress
 func (s *Service) finishDone(ctx context.Context, job transferJob, counter *progress) {
 	err := s.dataStorage.Transfers().UpdateProgress(ctx, job.id, job.totalBytes, counter.doneBytes.Load())
 	if err != nil {
-		log.Ctx(ctx).Warn().
+		log.Warn().
 			Str("transfer_uuid", job.id.String()).
 			Err(err).
 			Msg("error persisting final transfer progress")
@@ -92,7 +92,7 @@ func (s *Service) finish(
 ) {
 	err := s.dataStorage.Transfers().Finish(ctx, id, status, errMessage)
 	if err != nil {
-		log.Ctx(ctx).Error().
+		log.Error().
 			Str("transfer_uuid", id.String()).
 			Err(err).
 			Msg("error finishing transfer")

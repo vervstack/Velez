@@ -50,7 +50,7 @@ func (s *Service) reportProgress(ctx context.Context, id uuid.UUID, totalBytes i
 
 		err := s.dataStorage.Transfers().UpdateProgress(ctx, id, totalBytes, current)
 		if err != nil {
-			log.Ctx(ctx).Warn().
+			log.Warn().
 				Str("transfer_uuid", id.String()).
 				Err(err).
 				Msg("error persisting transfer progress")

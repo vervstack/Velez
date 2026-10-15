@@ -45,7 +45,7 @@ func (p *progressTracker) flush(ctx context.Context) {
 
 	err := p.transfers.UpdateProgress(ctx, p.transferId, p.totalBytes, p.doneBytes)
 	if err != nil {
-		log.Ctx(ctx).Warn().
+		log.Warn().
 			Str("transfer_uuid", p.transferId.String()).
 			Err(err).
 			Msg("error persisting transfer progress")

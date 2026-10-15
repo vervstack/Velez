@@ -7,11 +7,13 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sync"
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
+	"go.redsock.ru/rerrors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
@@ -37,6 +39,12 @@ import (
 var (
 	defaultConfigPath string
 	testDataDir       string
+
+	// dockerHostMu keeps the process-wide DOCKER_HOST stable while an app
+	// builds its docker client: every environment holds it shared during
+	// Init, an environment pinned to another daemon (WithDockerHost) holds it
+	// exclusively while it swaps the variable.
+	dockerHostMu sync.RWMutex //nolint:gochecknoglobals // guards a process-wide env variable
 )
 
 //nolint:gochecknoinits
@@ -63,6 +71,15 @@ type TestEnvironment struct {
 	// clusterPgPort is the leased host port the cluster-pg sidecar is pinned
 	// to; set by newStatefullEnvironment, zero for an environment without one.
 	clusterPgPort uint64 //nolint:unused // read only by the e2e_full statefull helpers
+
+	// dockerHost, when set, is the daemon this environment's docker client
+	// connects to instead of the ambient DOCKER_HOST.
+	dockerHost string
+
+	// isTcpServer serves the app on a real loopback port instead of bufconn,
+	// so another Velez can dial it; tcpAddress is that port's host:port.
+	isTcpServer bool
+	tcpAddress  string
 }
 
 type (
@@ -141,6 +158,22 @@ func WithStateVcnEnabled(serverURL, apiKey, loginServerURL string) StateOpt {
 		a.Network.Headscale.ServerUrl = serverURL
 		a.Network.Headscale.Key = apiKey
 		a.Network.Headscale.LoginServerUrl = loginServerURL
+	}
+}
+
+// WithDockerHost points this environment's docker client at another daemon,
+// e.g. the transfer target's DinD.
+func WithDockerHost(host string) TestEnvOpt {
+	return func(a *TestEnvironment) {
+		a.dockerHost = host
+	}
+}
+
+// WithTcpServer serves this environment on a loopback TCP port (TcpAddress)
+// instead of bufconn; the test client still reaches it through grpcConn.
+func WithTcpServer() TestEnvOpt {
+	return func(a *TestEnvironment) {
+		a.isTcpServer = true
 	}
 }
 
@@ -233,7 +266,7 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 
 	initGrpc(t, &env)
 
-	err := env.Custom.Init(&env.App)
+	err := env.initApp()
 	require.NoError(t, err)
 
 	go func() {
@@ -255,6 +288,51 @@ func NewEnvironment(t *testing.T, opts ...TestEnvOpt) *TestEnvironment {
 	t.Cleanup(env.clean)
 
 	return &env
+}
+
+// TcpAddress is the host:port a TCP-served environment listens on.
+func (e *TestEnvironment) TcpAddress() string {
+	return e.tcpAddress
+}
+
+func (e *TestEnvironment) initApp() error {
+	if e.dockerHost == "" {
+		dockerHostMu.RLock()
+		defer dockerHostMu.RUnlock()
+
+		return e.init()
+	}
+
+	dockerHostMu.Lock()
+	defer dockerHostMu.Unlock()
+
+	previous, wasSet := os.LookupEnv("DOCKER_HOST")
+
+	err := os.Setenv("DOCKER_HOST", e.dockerHost)
+	if err != nil {
+		return rerrors.Wrap(err, "error pointing DOCKER_HOST at the environment's daemon")
+	}
+
+	defer func() {
+		if wasSet {
+			_ = os.Setenv("DOCKER_HOST", previous)
+
+			return
+		}
+
+		_ = os.Unsetenv("DOCKER_HOST")
+	}()
+
+	return e.init()
+}
+
+func (e *TestEnvironment) init() error {
+	err := e.Custom.Init(&e.App)
+	if err != nil {
+		return rerrors.Wrap(err, "error initializing app")
+	}
+
+	return nil
 }
 
 // requireDindHarness fails the test unless it is running under the DinD
@@ -298,20 +376,34 @@ func initConfig(t *testing.T, env *TestEnvironment) {
 func initGrpc(t *testing.T, env *TestEnvironment) {
 	t.Helper()
 
-	const bufSize = 1024 * 1024
+	target := "passthrough:///bufnet"
 
-	lis := bufconn.Listen(bufSize)
+	var dialOpts []grpc.DialOption
 
-	env.MASTER = lis
+	if env.isTcpServer {
+		var listenCfg net.ListenConfig
 
-	var err error
+		lis, err := listenCfg.Listen(t.Context(), "tcp", "127.0.0.1:0")
+		require.NoError(t, err)
 
-	dialer := func(context.Context, string) (net.Conn, error) {
-		return lis.Dial()
+		env.MASTER = lis
+		env.tcpAddress = lis.Addr().String()
+		target = env.tcpAddress
+	} else {
+		const bufSize = 1024 * 1024
+
+		lis := bufconn.Listen(bufSize)
+
+		env.MASTER = lis
+
+		dialer := func(context.Context, string) (net.Conn, error) {
+			return lis.Dial()
+		}
+
+		dialOpts = append(dialOpts, grpc.WithContextDialer(dialer))
 	}
 
-	env.grpcConn, err = grpc.NewClient("passthrough:///bufnet",
-		grpc.WithContextDialer(dialer),
+	dialOpts = append(dialOpts,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithUnaryInterceptor(
 			func(ctx context.Context,
@@ -328,6 +420,10 @@ func initGrpc(t *testing.T, env *TestEnvironment) {
 				return invoker(ctx, method, req, reply, cc, opts...)
 			}),
 	)
+
+	var err error
+
+	env.grpcConn, err = grpc.NewClient(target, dialOpts...)
 	require.NoError(t, err)
 
 	t.Cleanup(func() {

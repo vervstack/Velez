@@ -60,6 +60,11 @@ func runSuite(m *testing.M) int {
 	go func() {
 		<-stop
 		teardown(env)
+
+		if sharedTargetDind != nil {
+			teardown(sharedTargetDind)
+		}
+
 		os.Exit(1)
 	}()
 
@@ -112,6 +117,10 @@ func runSuite(m *testing.M) int {
 	}
 
 	stopSharedHeadscale()
+
+	if sharedTargetDind != nil {
+		teardown(sharedTargetDind)
+	}
 
 	return code
 }

@@ -66,6 +66,12 @@ var (
 	//nolint:gochecknoglobals // one disposable daemon per test binary
 	sharedDind *dind.Env
 
+	// sharedTargetDind is the second daemon, the transfer target's; brought up
+	// on first use (see helper_transfer_target_test.go) and torn down by
+	// runSuite.
+	//nolint:gochecknoglobals // one disposable daemon per test binary
+	sharedTargetDind *dind.Env
+
 	// dindSeedImages are images some code paths create a container from
 	// without pulling first, so they must be pre-pulled into the fresh DinD
 	// daemon. postgres:18 is pg_pattern.postgresImage (the cluster postgres

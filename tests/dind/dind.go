@@ -120,6 +120,11 @@ type Options struct {
 	// started inside the DinD. Each maps to an ephemeral host port; read
 	// the mapping back with Env.Addr.
 	Publish []int
+
+	// NameSuffix is appended to the resolved container name key, so a second
+	// daemon of the same run (a transfer target) gets its own container and
+	// cache volume.
+	NameSuffix string
 }
 
 // Env is a running DinD daemon. Call Teardown when the suite finishes.
@@ -127,6 +132,10 @@ type Env struct {
 	// DockerHost is the tcp:// address of the DinD daemon, ready to be
 	// assigned to DOCKER_HOST.
 	DockerHost string
+
+	// BootstrapHost is the docker host the DinD container itself runs on, so a
+	// second daemon can be started beside this one instead of inside it.
+	BootstrapHost string
 
 	bootstrap   *client.Client
 	containerId string
@@ -152,11 +161,13 @@ func Setup(ctx context.Context, opts Options) (*Env, error) {
 	}
 
 	dindHost := resolveDindHost(bootstrapHost)
-	name := resolveName(ctx, opts.Name)
+	name := resolveName(ctx, opts.Name) + opts.NameSuffix
 	cacheVolume := name + cacheVolumeSuffix
 
 	env, err := bringUp(ctx, bootstrap, img, name, dindHost, cacheVolume, opts.Publish)
 	if err == nil {
+		env.BootstrapHost = firstNonEmpty(bootstrapHost, client.DefaultDockerHost)
+
 		return env, nil
 	}
 
@@ -173,6 +184,8 @@ func Setup(ctx context.Context, opts Options) (*Env, error) {
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error starting dind container after cache-volume reset")
 	}
+
+	env.BootstrapHost = firstNonEmpty(bootstrapHost, client.DefaultDockerHost)
 
 	return env, nil
 }

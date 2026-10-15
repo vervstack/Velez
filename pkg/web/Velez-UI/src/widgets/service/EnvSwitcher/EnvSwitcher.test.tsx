@@ -18,6 +18,7 @@ function newEnv(overrides: Partial<ServiceEnvironment>): ServiceEnvironment {
         version: "v1",
         deployedAgo: "1h ago",
         containerId: "",
+        containerName: "",
         health: "healthy",
         ...overrides,
     }

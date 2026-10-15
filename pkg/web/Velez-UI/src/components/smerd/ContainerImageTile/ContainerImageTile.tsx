@@ -20,7 +20,9 @@ export default function ContainerImageTile({imageName, label, status, onOpen}: P
             <Button variant="ghost" borderless nopadding onClick={onOpen} tooltipContent={imageName}>
                 <span className={cls.Monogram}>{imageMonogram(imageName)}</span>
                 <span className={cls.Label}>{label}</span>
-                <StatusDot status={mapContainerStatusToDot(status)}/>
+                <span className={cls.DotWrapper}>
+                    <StatusDot status={mapContainerStatusToDot(status)}/>
+                </span>
             </Button>
         </div>
     )

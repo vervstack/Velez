@@ -93,6 +93,7 @@ function toServiceEnvironment(info: ServiceEnvironmentInfo): ServiceEnvironment 
         version: info.deployedVersion ?? '',
         deployedAgo: formatDeployedAgo(info.deployedAt),
         containerId: info.containerId ?? '',
+        containerName: info.containerName ?? '',
         health: mapEnvHealth(info.health),
     }
 }
@@ -106,6 +107,8 @@ const RESOURCE_META: Record<string, {icon: string; color: string}> = {
     s3:       {icon: 'S3', color: 'var(--violet)'},
     mysql:    {icon: 'My', color: 'var(--info-color)'},
     mongo:    {icon: 'Mg', color: 'var(--green)'},
+    dind:     {icon: 'Di', color: 'var(--cyan)'},
+    proxy:    {icon: 'Px', color: 'var(--amber)'},
 }
 
 export function getResourceMeta(resourceType: string): { icon: string; color: string } {

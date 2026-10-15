@@ -94,7 +94,6 @@ export default function ServiceHero({
     const serviceType = about?.type || '—'
     const team = about?.team || '—'
     const env = about?.env || ''
-    const image = imageFromSmerd || ''
     const port = about?.port || ''
     const repo = about?.repo || ''
 
@@ -120,7 +119,6 @@ export default function ServiceHero({
                 <p className={cls.Description}>{description}</p>
 
                 <div className={cls.MetaTagsRow}>
-                    {image && <><span className={cls.MetaLabel}>image</span><code className={cls.CodeTag}>{image}</code></>}
                     {port && <><span className={cls.MetaLabel}>port</span><code className={cls.CodeTag}>{port}</code></>}
                     {repo && <><span className={cls.MetaLabel}>repo</span><code className={cls.CodeTag}>{repo}</code></>}
                 </div>

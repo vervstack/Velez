@@ -7,6 +7,7 @@ export interface ServiceEnvironment {
     version: string
     deployedAgo: string
     containerId: string
+    containerName: string
     health: 'healthy' | 'degraded' | 'unhealthy'
 }
 

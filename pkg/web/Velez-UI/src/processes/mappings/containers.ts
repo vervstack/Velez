@@ -46,6 +46,12 @@ export function mapContainerStatusToDot(status?: SmerdStatus): DotStatus {
     return STATUS_TO_DOT[status] ?? 'offline';
 }
 
+const DOCKER_SHORT_ID_LENGTH = 12;
+
+export function shortContainerId(containerId: string): string {
+    return containerId.slice(0, DOCKER_SHORT_ID_LENGTH);
+}
+
 export function containerStatusLabel(status?: SmerdStatus): string {
     return status ?? 'unknown';
 }

@@ -53,10 +53,11 @@ describe("ServiceGraph", () => {
         expect(screen.getByText("postgres-db")).toBeTruthy()
     })
 
-    it("shows the empty state when there are no edges and no sidecars", () => {
+    it("still draws the service node when there are no edges and no sidecars", () => {
         renderGraph([], {incoming: [], outgoing: []})
 
-        expect(screen.getByText("No graph data available")).toBeTruthy()
+        expect(screen.getByText("s3_artel")).toBeTruthy()
+        expect(screen.queryByText("No graph data available")).toBeNull()
     })
 
     it("still draws the graph when the service has only sidecars", () => {

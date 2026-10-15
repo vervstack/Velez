@@ -31,7 +31,13 @@
         font-weight: 600;
     }
 
+    & .DotWrapper {
+        display: flex;
+        flex-shrink: 0;
+    }
+
     & .Label {
+        flex: 0 1 auto;
         min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;

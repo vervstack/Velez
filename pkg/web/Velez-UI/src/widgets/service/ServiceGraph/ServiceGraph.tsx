@@ -112,15 +112,6 @@ export default function ServiceGraph({serviceName, sidecars = []}: ServiceGraphP
         )
     }
 
-    if (incoming.length === 0 && outgoing.length === 0 && sidecars.length === 0) {
-        return (
-            <div className={cls.ServiceGraphContainer}>
-                {header}
-                <p className={cls.Empty}>No graph data available</p>
-            </div>
-        )
-    }
-
     return (
         <div className={cls.ServiceGraphContainer}>
             {header}

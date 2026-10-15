@@ -86,6 +86,7 @@ func Test_WaitForRunnerDeployJob_WaitsUntilDeploymentLeavesScheduled(t *testing.
 	}
 	lister := &fakeDeploymentLister{pendingPolls: 2}
 	job := newWaitForRunnerDeployJob(watcher)
+
 	job.deployments = lister
 
 	err := job.Do(context.Background())

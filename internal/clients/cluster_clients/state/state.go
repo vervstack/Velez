@@ -208,3 +208,12 @@ func (s *stateManager) DindInstances() storage.DindInstancesStorage {
 
 	return (*l).DindInstances()
 }
+
+func (s *stateManager) Transfers() storage.TransfersStorage {
+	l := s.state.Load()
+	if l == nil {
+		return nil
+	}
+
+	return (*l).Transfers()
+}

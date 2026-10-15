@@ -28,6 +28,8 @@ import (
 	"go.vervstack.ru/Velez/internal/service/service_manager/runneraas"
 	"go.vervstack.ru/Velez/internal/service/service_manager/s3aas"
 	"go.vervstack.ru/Velez/internal/service/service_manager/settings"
+	"go.vervstack.ru/Velez/internal/service/service_manager/transfer_in"
+	"go.vervstack.ru/Velez/internal/service/service_manager/transfer_out"
 	"go.vervstack.ru/Velez/internal/service/service_manager/verv_services"
 	"go.vervstack.ru/Velez/internal/service/service_manager/vervonomicon"
 	"go.vervstack.ru/Velez/internal/storage"
@@ -51,6 +53,8 @@ type ServiceManager struct {
 	imageVersions            service.ImageVersionsService
 	settingsService          service.SettingsService
 	dindService              service.DindService
+	transferInService        service.TransferInService
+	transferOutService       service.TransferOutService
 	s3Service                service.S3Service
 	networkService           service.NetworkService
 	configResolver           service.ServiceConfigResolver
@@ -130,6 +134,12 @@ func New(
 		dindService: dinds.New(
 			clusterClients.StateManager(), vervServices, jobsEngine, nodeClients.Docker(),
 		),
+		transferInService: transfer_in.New(
+			clusterClients.StateManager(), runtimeResolver, nodeClients.TransferIO(), nodeClients.Docker(),
+		),
+		transferOutService: transfer_out.New(
+			clusterClients.StateManager(), runtimeResolver, nodeClients.TransferIO(), nodeClients.Docker(),
+		),
 		s3Service: s3aas.New(
 			clusterClients.StateManager(), vervServices, secretsStore, configResolver, jobsEngine, runtimeResolver,
 			nodeClients.Docker(),
@@ -205,6 +215,14 @@ func (s *ServiceManager) Settings() service.SettingsService {
 
 func (s *ServiceManager) Dinds() service.DindService {
 	return s.dindService
+}
+
+func (s *ServiceManager) TransfersIn() service.TransferInService {
+	return s.transferInService
+}
+
+func (s *ServiceManager) TransfersOut() service.TransferOutService {
+	return s.transferOutService
 }
 
 func (s *ServiceManager) S3() service.S3Service {

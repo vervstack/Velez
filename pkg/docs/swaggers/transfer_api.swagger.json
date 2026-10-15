@@ -1,0 +1,396 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "transfer_api.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "TransferAPI",
+      "description": "TransferAPI - moves a container with its volumes and sidecars to another\nVelez instance over one gRPC stream."
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/transfer/cancel": {
+      "post": {
+        "operationId": "TransferAPI_CancelTransfer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiCancelTransferResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiCancelTransferRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TransferAPI"
+        ]
+      }
+    },
+    "/api/transfer/list": {
+      "post": {
+        "operationId": "TransferAPI_ListTransfers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiListTransfersResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiListTransfersRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TransferAPI"
+        ]
+      }
+    },
+    "/api/transfer/plan": {
+      "post": {
+        "operationId": "TransferAPI_PlanTransfer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiPlanTransferResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiPlanTransferRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TransferAPI"
+        ]
+      }
+    },
+    "/api/transfer/start": {
+      "post": {
+        "operationId": "TransferAPI_StartTransfer",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiStartTransferResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiStartTransferRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TransferAPI"
+        ]
+      }
+    },
+    "/api/transfer/token/create": {
+      "post": {
+        "operationId": "TransferAPI_CreateTransferToken",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateTransferTokenResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/velez_apiCreateTransferTokenRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TransferAPI"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "PlanTransferNetworkConsumer": {
+      "type": "object",
+      "properties": {
+        "containerName": {
+          "type": "string"
+        },
+        "networkName": {
+          "type": "string"
+        }
+      }
+    },
+    "PlanTransferSidecarCandidate": {
+      "type": "object",
+      "properties": {
+        "containerName": {
+          "type": "string"
+        },
+        "imageName": {
+          "type": "string"
+        }
+      }
+    },
+    "googleRpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "velez_apiCancelTransferRequest": {
+      "type": "object",
+      "properties": {
+        "transferId": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiCancelTransferResponse": {
+      "type": "object"
+    },
+    "velez_apiCreateTransferTokenRequest": {
+      "type": "object"
+    },
+    "velez_apiCreateTransferTokenResponse": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string",
+          "title": "single-use, shown once"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "velez_apiListTransfersRequest": {
+      "type": "object"
+    },
+    "velez_apiListTransfersResponse": {
+      "type": "object",
+      "properties": {
+        "transfers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/velez_apiTransferInfo"
+          }
+        }
+      }
+    },
+    "velez_apiPlanTransferRequest": {
+      "type": "object",
+      "properties": {
+        "containerName": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiPlanTransferResponse": {
+      "type": "object",
+      "properties": {
+        "sidecars": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/PlanTransferSidecarCandidate"
+          }
+        },
+        "consumers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/PlanTransferNetworkConsumer"
+          },
+          "title": "other containers on the same docker networks"
+        },
+        "unsupportedMounts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "host bind mounts: block the move"
+        }
+      }
+    },
+    "velez_apiStartTransferRequest": {
+      "type": "object",
+      "properties": {
+        "containerName": {
+          "type": "string"
+        },
+        "sidecarNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "user-selected subset"
+        },
+        "address": {
+          "type": "string",
+          "title": "host:port of target Velez"
+        },
+        "token": {
+          "type": "string",
+          "title": "target-issued transfer token"
+        },
+        "isConsumersAcknowledged": {
+          "type": "boolean",
+          "title": "required when plan listed consumers"
+        }
+      }
+    },
+    "velez_apiStartTransferResponse": {
+      "type": "object",
+      "properties": {
+        "transferId": {
+          "type": "string"
+        }
+      }
+    },
+    "velez_apiTransferInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "isSource": {
+          "type": "boolean"
+        },
+        "containerName": {
+          "type": "string"
+        },
+        "peerAddress": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/velez_apiTransferStatus"
+        },
+        "error": {
+          "type": "string"
+        },
+        "totalBytes": {
+          "type": "string",
+          "format": "int64"
+        },
+        "doneBytes": {
+          "type": "string",
+          "format": "int64"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "velez_apiTransferStatus": {
+      "type": "string",
+      "enum": [
+        "TRANSFER_STATUS_UNSPECIFIED",
+        "TRANSFER_STATUS_PENDING",
+        "TRANSFER_STATUS_RUNNING",
+        "TRANSFER_STATUS_FAILED",
+        "TRANSFER_STATUS_DONE",
+        "TRANSFER_STATUS_CANCELLED"
+      ],
+      "default": "TRANSFER_STATUS_UNSPECIFIED"
+    }
+  }
+}

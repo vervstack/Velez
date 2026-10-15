@@ -30,6 +30,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/runtime_policy"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/transfer_io"
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/environments"
@@ -893,6 +894,10 @@ func (f *fakeNodeClients) HardwareManager() node_clients.HardwareManager {
 	return nil
 }
 
+func (f *fakeNodeClients) TransferIO() transfer_io.TransferIO {
+	return nil
+}
+
 // withPortManager attaches a real ports.PortManager (in-memory, no external
 // dependency beyond a local net.Listen availability probe) so jobs like
 // upgrade_smerd.go's pauseOldContainerJob/prepareUpgradeVervConfigJob can be
@@ -988,6 +993,7 @@ func (f *fakeClusterStorage) RegistryInstances() storage.RegistryInstancesStorag
 func (f *fakeClusterStorage) ContainerBindings() storage.ContainerBindingsStorage { return nil }
 func (f *fakeClusterStorage) Settings() storage.SettingsStorage                   { return nil }
 func (f *fakeClusterStorage) DindInstances() storage.DindInstancesStorage         { return nil }
+func (f *fakeClusterStorage) Transfers() storage.TransfersStorage                 { return nil }
 
 // fakeDeploymentsStorage is a minimal in-memory implementation of
 // storage.DeploymentsStorage for exercising registerPluginJob's

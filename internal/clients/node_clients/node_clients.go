@@ -12,6 +12,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients/hardware"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/transfer_io"
 	"go.vervstack.ru/Velez/internal/cluster/env/containerinfo"
 	"go.vervstack.ru/Velez/internal/config"
 )
@@ -26,6 +27,9 @@ type NodeClients interface {
 	LocalStateManager() StateManager
 
 	HardwareManager() HardwareManager
+
+	// TransferIO - docker image and volume streaming for container transfers
+	TransferIO() transfer_io.TransferIO
 }
 
 type nodeClients struct {
@@ -33,6 +37,7 @@ type nodeClients struct {
 
 	portManager     *ports.Container
 	hardwareManager HardwareManager
+	transferIO      transfer_io.TransferIO
 
 	securityManager StateManager
 }
@@ -101,6 +106,11 @@ func NewNodeClients(ctx context.Context, cfg config.Config) (NodeClients, error)
 		cls.hardwareManager = hardware.New(cfg.Environment.NodeRegion)
 	}
 
+	// Transfer IO
+	{
+		cls.transferIO = transfer_io.New(cls.docker)
+	}
+
 	return cls, nil
 }
 
@@ -118,6 +128,10 @@ func (c *nodeClients) PortManagerContainer() *ports.Container {
 
 func (c *nodeClients) HardwareManager() HardwareManager {
 	return c.hardwareManager
+}
+
+func (c *nodeClients) TransferIO() transfer_io.TransferIO {
+	return c.transferIO
 }
 
 func (c *nodeClients) LocalStateManager() StateManager {

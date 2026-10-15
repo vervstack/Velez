@@ -98,3 +98,7 @@ func (c *Container) Settings() SettingsStorage {
 func (c *Container) DindInstances() DindInstancesStorage {
 	return (*c.impl.Load()).DindInstances()
 }
+
+func (c *Container) Transfers() TransfersStorage {
+	return (*c.impl.Load()).Transfers()
+}

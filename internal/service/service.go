@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"time"
 
+	"github.com/google/uuid"
 	"go.redsock.ru/evon"
 	"go.vervstack.ru/matreshka/pkg/matreshka"
 
@@ -31,6 +33,8 @@ type Services interface {
 	ImageVersions() ImageVersionsService
 	Settings() SettingsService
 	Dinds() DindService
+	TransfersIn() TransferInService
+	TransfersOut() TransferOutService
 	S3() S3Service
 	Networks() NetworkService
 	ConfigResolver() ServiceConfigResolver
@@ -239,6 +243,24 @@ type AutoUpdateService interface {
 	SetService(
 		ctx context.Context, req *velez_api.SetServiceAutoUpdate_Request,
 	) (*velez_api.SetServiceAutoUpdate_Response, error)
+}
+
+// TransferInService - the target side of a container transfer: issues transfer
+// tokens and receives the Transfer stream.
+type TransferInService interface {
+	CreateToken(ctx context.Context) (token string, expiresAt time.Time, err error)
+	Receive(ctx context.Context, stream velez_api.TransferAPI_TransferServer) error
+}
+
+// TransferOutService - the source side of a container transfer.
+type TransferOutService interface {
+	Plan(ctx context.Context, containerName string) (domain.TransferPlan, error)
+	Start(ctx context.Context, req domain.StartTransferReq) (uuid.UUID, error)
+	Cancel(ctx context.Context, id uuid.UUID) error
+	List(ctx context.Context) ([]domain.Transfer, error)
+	// FailInterrupted is the startup sweep: transfers left PENDING/RUNNING by a
+	// previous process can never finish and are marked FAILED.
+	FailInterrupted(ctx context.Context) error
 }
 
 type DindService interface {

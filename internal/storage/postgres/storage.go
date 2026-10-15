@@ -21,6 +21,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage/runners"
 	"go.vervstack.ru/Velez/internal/storage/secrets"
 	"go.vervstack.ru/Velez/internal/storage/settings"
+	"go.vervstack.ru/Velez/internal/storage/transfers"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
@@ -43,6 +44,7 @@ type Storage struct {
 	containerBindingsStorage   storage.ContainerBindingsStorage
 	settingsStorage            storage.SettingsStorage
 	dindInstancesStorage       storage.DindInstancesStorage
+	transfersStorage           storage.TransfersStorage
 
 	txManager *sqldb.TxManager
 }
@@ -72,6 +74,7 @@ func New(db *sql.DB) storage.Storage {
 		containerBindingsStorage:   container_bindings.NewPg(db),
 		settingsStorage:            settings.NewPg(db),
 		dindInstancesStorage:       dind_instances.NewPg(db),
+		transfersStorage:           transfers.NewPg(db),
 		txManager:                  sqldb.NewTxManager(db),
 	}
 }
@@ -153,6 +156,10 @@ func (s *Storage) Settings() storage.SettingsStorage {
 
 func (s *Storage) DindInstances() storage.DindInstancesStorage {
 	return s.dindInstancesStorage
+}
+
+func (s *Storage) Transfers() storage.TransfersStorage {
+	return s.transfersStorage
 }
 
 func (s *Storage) TxManager() storage.Transactor {

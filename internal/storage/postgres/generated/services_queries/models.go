@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/sqlc-dev/pqtype"
 )
 
@@ -144,6 +145,51 @@ func (ns NullVelezTaskStatus) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return string(ns.VelezTaskStatus), nil
+}
+
+type VelezTransferStatus string
+
+const (
+	VelezTransferStatusPENDING   VelezTransferStatus = "PENDING"
+	VelezTransferStatusRUNNING   VelezTransferStatus = "RUNNING"
+	VelezTransferStatusFAILED    VelezTransferStatus = "FAILED"
+	VelezTransferStatusDONE      VelezTransferStatus = "DONE"
+	VelezTransferStatusCANCELLED VelezTransferStatus = "CANCELLED"
+)
+
+func (e *VelezTransferStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = VelezTransferStatus(s)
+	case string:
+		*e = VelezTransferStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for VelezTransferStatus: %T", src)
+	}
+	return nil
+}
+
+type NullVelezTransferStatus struct {
+	VelezTransferStatus VelezTransferStatus
+	Valid               bool // Valid is true if VelezTransferStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullVelezTransferStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.VelezTransferStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.VelezTransferStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullVelezTransferStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.VelezTransferStatus), nil
 }
 
 type VelezContainerBinding struct {
@@ -349,4 +395,26 @@ type VelezTask struct {
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	EnvironmentID int64
+}
+
+type VelezTransfer struct {
+	ID            uuid.UUID
+	IsSource      bool
+	ContainerName string
+	PeerAddress   string
+	Status        VelezTransferStatus
+	Error         string
+	TotalBytes    int64
+	DoneBytes     int64
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
+type VelezTransferToken struct {
+	ID        uuid.UUID
+	TokenHash string
+	ExpiresAt time.Time
+	// NULL until consumed by the Transfer stream Begin frame
+	UsedAt    sql.NullTime
+	CreatedAt time.Time
 }

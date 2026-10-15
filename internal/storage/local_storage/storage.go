@@ -44,6 +44,7 @@ type localStorage struct {
 	containerBindings storage.ContainerBindingsStorage
 	settings          storage.SettingsStorage
 	dindInstances     storage.DindInstancesStorage
+	transfers         storage.TransfersStorage
 }
 
 func New(containerAPI node_clients.Docker, stateManager node_clients.StateManager, cfg config.Config) storage.Storage {
@@ -99,6 +100,8 @@ func New(containerAPI node_clients.Docker, stateManager node_clients.StateManage
 		// running container labelled labels.DindInstanceLabel is the system
 		// of record instead - see dind_instances.go.
 		dindInstances: newDindInstancesStorage(containerAPI),
+		// Single-node/dev mode keeps transfer history in memory only.
+		transfers: newTransfersStorage(),
 	}
 }
 
@@ -178,6 +181,10 @@ func (l *localStorage) Settings() storage.SettingsStorage {
 
 func (l *localStorage) DindInstances() storage.DindInstancesStorage {
 	return l.dindInstances
+}
+
+func (l *localStorage) Transfers() storage.TransfersStorage {
+	return l.transfers
 }
 
 // TxManager returns l.deployments itself as the Transactor: single-node/dev

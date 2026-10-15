@@ -8,6 +8,7 @@ import (
 	"go.vervstack.ru/Velez/internal/clients/node_clients"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/transfer_io"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/service_manager/container_manager"
 	"go.vervstack.ru/Velez/internal/storage"
@@ -56,6 +57,10 @@ func (n dockerOnlyNodeClients) LocalStateManager() node_clients.StateManager {
 }
 
 func (n dockerOnlyNodeClients) HardwareManager() node_clients.HardwareManager {
+	return nil
+}
+
+func (n dockerOnlyNodeClients) TransferIO() transfer_io.TransferIO {
 	return nil
 }
 

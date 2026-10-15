@@ -41,6 +41,7 @@ import (
 	"go.vervstack.ru/Velez/internal/transport/service_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/settings_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/tasks_api_impl"
+	"go.vervstack.ru/Velez/internal/transport/transfer_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/ui"
 	"go.vervstack.ru/Velez/internal/transport/vcn_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/velez_api_impl"
@@ -88,6 +89,7 @@ type Custom struct {
 	RunnersApiImpl           *runners_api_impl.Impl
 	SettingsApiImpl          *settings_api_impl.Impl
 	DindApiImpl              *dind_api_impl.Impl
+	TransferApiImpl          *transfer_api_impl.Impl
 	NetworkApiImpl           *network_api_impl.Impl
 	S3ApiImpl                *s3_api_impl.Impl
 	ContainerRegistryApiImpl *container_registry_api_impl.Impl
@@ -171,6 +173,11 @@ func (c *Custom) Init(a *App) (err error) {
 	err = c.InitServiceLayer(a, runtimeResolver)
 	if err != nil {
 		return rerrors.Wrap(err, "error during service initialization")
+	}
+
+	sweepErr := c.Services.TransfersOut().FailInterrupted(a.Ctx)
+	if sweepErr != nil {
+		log.Error().Err(sweepErr).Msg("error failing interrupted transfers")
 	}
 
 	registry := jobs.NewRegistry()
@@ -384,6 +391,7 @@ func (c *Custom) InitApiServer(a *App) error {
 	c.RunnersApiImpl = runners_api_impl.New(c.Services)
 	c.SettingsApiImpl = settings_api_impl.New(c.Services)
 	c.DindApiImpl = dind_api_impl.New(c.Services)
+	c.TransferApiImpl = transfer_api_impl.New(c.Services)
 	c.NetworkApiImpl = network_api_impl.New(c.Services)
 	c.S3ApiImpl = s3_api_impl.New(c.Services)
 	c.ContainerRegistryApiImpl = container_registry_api_impl.New(c.Services)
@@ -392,7 +400,7 @@ func (c *Custom) InitApiServer(a *App) error {
 	c.serverManager.AddImplementation(a.Ctx,
 		c.ApiGrpcImpl, c.ControlPlaneApiImpl, c.VpnApiImpl, c.ServiceApiImpl, c.TasksApiImpl, c.PgaasApiImpl,
 		c.RunnersApiImpl, c.ContainerRegistryApiImpl, c.SettingsApiImpl, c.DindApiImpl,
-		c.S3ApiImpl, c.NetworkApiImpl, c.AutoUpdateApiImpl)
+		c.TransferApiImpl, c.S3ApiImpl, c.NetworkApiImpl, c.AutoUpdateApiImpl)
 	c.serverManager.AddHttpHandler(docs.Swagger())
 	c.serverManager.AddHttpHandler("/", ui.NewServer())
 

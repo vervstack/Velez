@@ -3,6 +3,9 @@ package storage
 import (
 	"context"
 	"database/sql"
+	"time"
+
+	"github.com/google/uuid"
 
 	"go.vervstack.ru/Velez/internal/domain"
 	verv "go.vervstack.ru/Velez/internal/domain/vervonomicon"
@@ -10,6 +13,7 @@ import (
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/jobs_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/plugins_queries"
 	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
+	"go.vervstack.ru/Velez/internal/storage/postgres/generated/transfers_queries"
 )
 
 //nolint:interfacebloat
@@ -32,6 +36,7 @@ type Storage interface {
 	ContainerBindings() ContainerBindingsStorage
 	Settings() SettingsStorage
 	DindInstances() DindInstancesStorage
+	Transfers() TransfersStorage
 
 	TxManager() Transactor
 
@@ -248,4 +253,21 @@ type DindInstancesStorage interface {
 	GetDindInstanceByServiceId(ctx context.Context, serviceId int64) (domain.DindInstance, error)
 	ListDindInstances(ctx context.Context) ([]domain.DindInstance, error)
 	DeleteDindInstance(ctx context.Context, serviceId int64) error
+}
+
+// TransfersStorage - velez.transfers history and velez.transfer_tokens, the
+// single-use tokens a target Velez issues to accept an incoming transfer.
+//
+// Implementations: internal/storage/transfers.NewPg (postgres/cluster mode)
+// and internal/storage/local_storage's in-memory backend (single-node/dev
+// mode, history is lost on restart).
+type TransfersStorage interface {
+	CreateToken(ctx context.Context, tokenHash string, expiresAt time.Time) error
+	ConsumeToken(ctx context.Context, tokenHash string) (isConsumed bool, err error)
+	InsertTransfer(ctx context.Context, transfer domain.Transfer) (domain.Transfer, error)
+	GetTransfer(ctx context.Context, id uuid.UUID) (sql.Null[domain.Transfer], error)
+	UpdateProgress(ctx context.Context, id uuid.UUID, totalBytes, doneBytes int64) error
+	Finish(ctx context.Context, id uuid.UUID, status transfers_queries.VelezTransferStatus, errMessage string) error
+	List(ctx context.Context) ([]domain.Transfer, error)
+	FailRunning(ctx context.Context) error
 }

@@ -1,0 +1,183 @@
+syntax = "proto3";
+
+package velez_api;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "npm.proto";
+
+option go_package = "go.vervstack.ru/velez/pkg/velez_api;velez_api";
+option (npm_package) = "@vervstack/velez";
+
+// TransferAPI - moves a container with its volumes and sidecars to another
+// Velez instance over one gRPC stream.
+service TransferAPI {
+  rpc CreateTransferToken(CreateTransferToken.Request) returns (CreateTransferToken.Response) {
+    option (google.api.http) = {
+      post: "/api/transfer/token/create"
+      body: "*"
+    };
+  }
+
+  // gRPC only: the gateway cannot proxy a bidi stream, so no http option
+  rpc Transfer(stream Transfer.Request) returns (stream Transfer.Response);
+
+  rpc PlanTransfer(PlanTransfer.Request) returns (PlanTransfer.Response) {
+    option (google.api.http) = {
+      post: "/api/transfer/plan"
+      body: "*"
+    };
+  }
+
+  rpc StartTransfer(StartTransfer.Request) returns (StartTransfer.Response) {
+    option (google.api.http) = {
+      post: "/api/transfer/start"
+      body: "*"
+    };
+  }
+
+  rpc CancelTransfer(CancelTransfer.Request) returns (CancelTransfer.Response) {
+    option (google.api.http) = {
+      post: "/api/transfer/cancel"
+      body: "*"
+    };
+  }
+
+  rpc ListTransfers(ListTransfers.Request) returns (ListTransfers.Response) {
+    option (google.api.http) = {
+      post: "/api/transfer/list"
+      body: "*"
+    };
+  }
+}
+
+message CreateTransferToken {
+  message Request {}
+  message Response {
+    string token = 1; // single-use, shown once
+    google.protobuf.Timestamp expires_at = 2;
+  }
+}
+
+message PlanTransfer {
+  message Request {
+    string container_name = 1;
+  }
+  message Response {
+    repeated SidecarCandidate sidecars = 1;
+    repeated NetworkConsumer consumers = 2; // other containers on the same docker networks
+    repeated string unsupported_mounts = 3; // host bind mounts: block the move
+  }
+  message SidecarCandidate {
+    string container_name = 1;
+    string image_name = 2;
+  }
+  message NetworkConsumer {
+    string container_name = 1;
+    string network_name = 2;
+  }
+}
+
+message StartTransfer {
+  message Request {
+    string container_name = 1;
+    repeated string sidecar_names = 2; // user-selected subset
+    string address = 3; // host:port of target Velez
+    string token = 4; // target-issued transfer token
+    bool is_consumers_acknowledged = 5; // required when plan listed consumers
+  }
+  message Response {
+    string transfer_id = 1;
+  }
+}
+
+message CancelTransfer {
+  message Request {
+    string transfer_id = 1;
+  }
+  message Response {}
+}
+
+message ListTransfers {
+  message Request {}
+  message Response {
+    repeated TransferInfo transfers = 1;
+  }
+}
+
+message TransferInfo {
+  string id = 1;
+  bool is_source = 2;
+  string container_name = 3;
+  string peer_address = 4;
+  TransferStatus status = 5;
+  string error = 6;
+  int64 total_bytes = 7;
+  int64 done_bytes = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
+}
+
+enum TransferStatus {
+  TRANSFER_STATUS_UNSPECIFIED = 0;
+  TRANSFER_STATUS_PENDING = 1;
+  TRANSFER_STATUS_RUNNING = 2;
+  TRANSFER_STATUS_FAILED = 3;
+  TRANSFER_STATUS_DONE = 4;
+  TRANSFER_STATUS_CANCELLED = 5;
+}
+
+enum TransferItemKind {
+  TRANSFER_ITEM_KIND_UNSPECIFIED = 0;
+  TRANSFER_ITEM_KIND_IMAGE = 1;
+  TRANSFER_ITEM_KIND_VOLUME = 2;
+}
+
+// One stream carries the whole transfer. Wire order:
+// Begin, [ItemStart, Batch*]*, End  (client)   |   Accepted, ItemApplied*, Finished (server)
+// Batch payload = tar stream of the item (docker image save / volume content).
+// No resume: a broken stream fails the transfer.
+message Transfer {
+  message Request {
+    oneof frame {
+      Begin begin = 1;
+      ItemStart item_start = 2;
+      Batch batch = 3;
+      End end = 4;
+    }
+  }
+  message Response {
+    oneof frame {
+      Accepted accepted = 1;
+      ItemApplied item_applied = 2;
+      Finished finished = 3;
+    }
+  }
+  message Begin {
+    string token = 1;
+    repeated ContainerManifest containers = 2; // roots before the sidecars that share their network namespace
+    repeated ItemManifest items = 3; // images and volumes, in wire order
+  }
+  message ContainerManifest {
+    string name = 1;
+    string network_owner = 2; // empty for a root; else the root container whose network namespace this sidecar shares
+    bytes inspect_json = 3; // docker container.InspectResponse as JSON, opaque to the wire layer
+  }
+  message ItemManifest {
+    string name = 1; // image reference or volume name
+    TransferItemKind kind = 2;
+    int64 total_bytes = 3; // 0 when unknown
+  }
+  message ItemStart {
+    string name = 1;
+  }
+  message Batch {
+    bytes data = 1; // <= 1 MiB
+  }
+  message End {}
+  message Accepted {}
+  message ItemApplied {
+    string name = 1;
+  }
+  message Finished {}
+}

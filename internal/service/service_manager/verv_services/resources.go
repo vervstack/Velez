@@ -43,5 +43,13 @@ func (v *VervService) GetServiceResources(ctx context.Context, serviceName strin
 		resources = append(resources, resource)
 	}
 
+	err = v.attachOnboarding(ctx, serviceName, resources)
+	if err != nil {
+		log.Ctx(ctx).Warn().
+			Str("service", serviceName).
+			Err(err).
+			Msg("error resolving resource onboarding")
+	}
+
 	return resources, nil
 }

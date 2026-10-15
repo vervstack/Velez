@@ -1150,13 +1150,19 @@ func (x *ResourceAddress) GetScope() AddressScope {
 }
 
 type BoundResource struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	ResourceType  string                 `protobuf:"bytes,2,opt,name=resource_type,json=resourceType,proto3" json:"resource_type,omitempty"`
-	Status        string                 `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
-	WebUiPort     *uint32                `protobuf:"varint,4,opt,name=web_ui_port,json=webUiPort,proto3,oneof" json:"web_ui_port,omitempty"`
-	WebUiHost     *string                `protobuf:"bytes,5,opt,name=web_ui_host,json=webUiHost,proto3,oneof" json:"web_ui_host,omitempty"`
-	Addresses     []*ResourceAddress     `protobuf:"bytes,6,rep,name=addresses,proto3" json:"addresses,omitempty"`
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	Name         string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	ResourceType string                 `protobuf:"bytes,2,opt,name=resource_type,json=resourceType,proto3" json:"resource_type,omitempty"`
+	Status       string                 `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
+	WebUiPort    *uint32                `protobuf:"varint,4,opt,name=web_ui_port,json=webUiPort,proto3,oneof" json:"web_ui_port,omitempty"`
+	WebUiHost    *string                `protobuf:"bytes,5,opt,name=web_ui_host,json=webUiHost,proto3,oneof" json:"web_ui_host,omitempty"`
+	Addresses    []*ResourceAddress     `protobuf:"bytes,6,rep,name=addresses,proto3" json:"addresses,omitempty"`
+	// is_onboarded - the resource is backed by a Velez-managed container
+	IsOnboarded bool `protobuf:"varint,7,opt,name=is_onboarded,json=isOnboarded,proto3" json:"is_onboarded,omitempty"`
+	// linked_service_name - the Velez service owning that container; unset when it is only a container of the owning service
+	LinkedServiceName *string `protobuf:"bytes,8,opt,name=linked_service_name,json=linkedServiceName,proto3,oneof" json:"linked_service_name,omitempty"`
+	// container_id - Docker id of that container; unset when not onboarded
+	ContainerId   *string `protobuf:"bytes,9,opt,name=container_id,json=containerId,proto3,oneof" json:"container_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1231,6 +1237,27 @@ func (x *BoundResource) GetAddresses() []*ResourceAddress {
 		return x.Addresses
 	}
 	return nil
+}
+
+func (x *BoundResource) GetIsOnboarded() bool {
+	if x != nil {
+		return x.IsOnboarded
+	}
+	return false
+}
+
+func (x *BoundResource) GetLinkedServiceName() string {
+	if x != nil && x.LinkedServiceName != nil {
+		return *x.LinkedServiceName
+	}
+	return ""
+}
+
+func (x *BoundResource) GetContainerId() string {
+	if x != nil && x.ContainerId != nil {
+		return *x.ContainerId
+	}
+	return ""
 }
 
 type GetServiceResources struct {
@@ -3452,16 +3479,21 @@ const file_service_api_proto_rawDesc = "" +
 	"\x0fResourceAddress\x12\x12\n" +
 	"\x04host\x18\x01 \x01(\tR\x04host\x12\x12\n" +
 	"\x04port\x18\x02 \x01(\rR\x04port\x12-\n" +
-	"\x05scope\x18\x03 \x01(\x0e2\x17.velez_api.AddressScopeR\x05scope\"\x84\x02\n" +
+	"\x05scope\x18\x03 \x01(\x0e2\x17.velez_api.AddressScopeR\x05scope\"\xad\x03\n" +
 	"\rBoundResource\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12#\n" +
 	"\rresource_type\x18\x02 \x01(\tR\fresourceType\x12\x16\n" +
 	"\x06status\x18\x03 \x01(\tR\x06status\x12#\n" +
 	"\vweb_ui_port\x18\x04 \x01(\rH\x00R\twebUiPort\x88\x01\x01\x12#\n" +
 	"\vweb_ui_host\x18\x05 \x01(\tH\x01R\twebUiHost\x88\x01\x01\x128\n" +
-	"\taddresses\x18\x06 \x03(\v2\x1a.velez_api.ResourceAddressR\taddressesB\x0e\n" +
+	"\taddresses\x18\x06 \x03(\v2\x1a.velez_api.ResourceAddressR\taddresses\x12!\n" +
+	"\fis_onboarded\x18\a \x01(\bR\visOnboarded\x123\n" +
+	"\x13linked_service_name\x18\b \x01(\tH\x02R\x11linkedServiceName\x88\x01\x01\x12&\n" +
+	"\fcontainer_id\x18\t \x01(\tH\x03R\vcontainerId\x88\x01\x01B\x0e\n" +
 	"\f_web_ui_portB\x0e\n" +
-	"\f_web_ui_host\"\x87\x01\n" +
+	"\f_web_ui_hostB\x16\n" +
+	"\x14_linked_service_nameB\x0f\n" +
+	"\r_container_id\"\x87\x01\n" +
 	"\x13GetServiceResources\x1a,\n" +
 	"\aRequest\x12!\n" +
 	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x1aB\n" +

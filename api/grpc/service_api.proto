@@ -388,6 +388,12 @@ message BoundResource {
   optional uint32 web_ui_port = 4;
   optional string web_ui_host = 5;
   repeated ResourceAddress addresses = 6;
+  // is_onboarded - the resource is backed by a Velez-managed container
+  bool is_onboarded = 7;
+  // linked_service_name - the Velez service owning that container; unset when it is only a container of the owning service
+  optional string linked_service_name = 8;
+  // container_id - Docker id of that container; unset when not onboarded
+  optional string container_id = 9;
 }
 
 message GetServiceResources {

@@ -47,6 +47,20 @@ func (impl *Impl) GetServiceResources(
 			pbResource.WebUiHost = &host
 		}
 
+		pbResource.IsOnboarded = r.IsOnboarded
+
+		if r.LinkedServiceName != "" {
+			linkedServiceName := r.LinkedServiceName
+
+			pbResource.LinkedServiceName = &linkedServiceName
+		}
+
+		if r.ContainerId != "" {
+			containerId := r.ContainerId
+
+			pbResource.ContainerId = &containerId
+		}
+
 		pbResources = append(pbResources, pbResource)
 	}
 

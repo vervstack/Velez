@@ -99,6 +99,22 @@ func requireBoundResource(
 	return resource
 }
 
+func requireOnboardedResource(t *testing.T, resource *velez_api.BoundResource, linkedServiceName string) {
+	t.Helper()
+
+	require.True(t, resource.GetIsOnboarded(), "%q is not onboarded", resource.GetName())
+	require.Equal(t, linkedServiceName, resource.GetLinkedServiceName())
+	require.NotEmpty(t, resource.GetContainerId())
+}
+
+func requireNotOnboardedResource(t *testing.T, resource *velez_api.BoundResource) {
+	t.Helper()
+
+	require.False(t, resource.GetIsOnboarded(), "%q is onboarded", resource.GetName())
+	require.Nil(t, resource.LinkedServiceName)
+	require.Nil(t, resource.ContainerId)
+}
+
 func requireNoProxyResource(t *testing.T, env *TestEnvironment, runnerName string) {
 	t.Helper()
 
@@ -147,7 +163,8 @@ func runRunnerLinks(t *testing.T, env *TestEnvironment, _ Plane) {
 	proxyName := linksProxyName(fixture.dindName)
 
 	requireGraphDependency(t, env, fixture.runnerContainer, fixture.dindName, velez_api.NodeType_NODE_TYPE_SERVICE)
-	requireBoundResource(t, env, fixture.runnerContainer, resourceTypeDind, fixture.dindName)
+	dind := requireBoundResource(t, env, fixture.runnerContainer, resourceTypeDind, fixture.dindName)
+	requireOnboardedResource(t, dind, fixture.dindName)
 	requireNoProxyResource(t, env, fixture.runnerContainer)
 	requireGraphCaller(t, env, fixture.dindName, fixture.runnerContainer)
 
@@ -161,6 +178,7 @@ func runRunnerLinks(t *testing.T, env *TestEnvironment, _ Plane) {
 
 	proxy := requireBoundResource(t, env, fixture.runnerContainer, resourceTypeProxy, proxyName)
 	require.Equal(t, "running", proxy.GetStatus())
+	requireOnboardedResource(t, proxy, proxyName)
 
 	setRunnerProxyAndAwait(t, env, fixture.runnerContainer, internalContainerId, linksExternalProxy)
 
@@ -169,6 +187,7 @@ func runRunnerLinks(t *testing.T, env *TestEnvironment, _ Plane) {
 
 	external := requireBoundResource(t, env, fixture.runnerContainer, resourceTypeProxy, linksExternalProxy)
 	require.Empty(t, external.GetStatus())
+	requireNotOnboardedResource(t, external)
 
 	requireGraphCaller(t, env, fixture.dindName, fixture.runnerContainer)
 }

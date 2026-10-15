@@ -246,6 +246,9 @@ export type BoundResource = {
   webUiPort?: number;
   webUiHost?: string;
   addresses?: ResourceAddress[];
+  isOnboarded?: boolean;
+  linkedServiceName?: string;
+  containerId?: string;
 };
 
 export type GetServiceResourcesRequest = {

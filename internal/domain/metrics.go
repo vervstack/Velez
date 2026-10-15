@@ -27,4 +27,8 @@ type BoundResource struct {
 	WebUiHost    string
 	WebUiPort    uint32
 	Addresses    []ServiceAddress
+
+	IsOnboarded       bool
+	LinkedServiceName string
+	ContainerId       string
 }

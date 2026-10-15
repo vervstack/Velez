@@ -645,6 +645,18 @@
             "type": "object",
             "$ref": "#/definitions/velez_apiResourceAddress"
           }
+        },
+        "isOnboarded": {
+          "type": "boolean",
+          "title": "is_onboarded - the resource is backed by a Velez-managed container"
+        },
+        "linkedServiceName": {
+          "type": "string",
+          "title": "linked_service_name - the Velez service owning that container; unset when it is only a container of the owning service"
+        },
+        "containerId": {
+          "type": "string",
+          "title": "container_id - Docker id of that container; unset when not onboarded"
         }
       }
     },

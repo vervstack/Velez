@@ -1,0 +1,28 @@
+.MoveContainerFormContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    padding: 1rem 1.25rem;
+    background: var(--bg2);
+    border: 0.0625rem solid var(--border);
+    border-radius: var(--radius);
+
+    & .Title {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--fg);
+    }
+
+    & .FieldsWrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.875rem;
+    }
+
+    & .ActionsRow {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+}

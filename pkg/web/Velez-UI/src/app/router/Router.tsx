@@ -23,6 +23,7 @@ import DindsPage from "@/pages/dinds/DindsPage.tsx";
 import S3Page from "@/pages/s3/S3Page.tsx";
 import AutoUpdatePage from "@/pages/auto-update/AutoUpdatePage.tsx";
 import NetworksPage from "@/pages/networks/NetworksPage.tsx";
+import TransferPage from "@/pages/transfer/TransferPage.tsx";
 
 import {Routes, Arguments} from "@/app/router/Routes";
 
@@ -107,6 +108,11 @@ const router = createBrowserRouter([
             {
                 path: Routes.S3,
                 element: (<S3Page/>),
+            },
+
+            {
+                path: Routes.Transfer,
+                element: (<TransferPage/>),
             },
 
             {

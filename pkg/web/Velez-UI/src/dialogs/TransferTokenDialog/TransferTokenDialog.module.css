@@ -1,0 +1,35 @@
+.TransferTokenDialogContainer {
+    width: 32rem;
+    max-width: var(--dialog-max-width);
+
+    & .TokenWrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        & .Token {
+            flex: 1;
+            min-width: 0;
+            padding: 0.625rem 0.75rem;
+            border: 0.0625rem solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg3);
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--fg);
+            overflow-wrap: anywhere;
+            user-select: all;
+        }
+    }
+
+    & .Note {
+        font-size: 0.8125rem;
+        color: var(--fg-dim);
+    }
+
+    & .ActionsRow {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+}

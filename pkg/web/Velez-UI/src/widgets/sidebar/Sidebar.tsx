@@ -4,7 +4,7 @@ import SectionLabel from '@/components/base/SectionLabel';
 import SidebarVersion from '@/widgets/sidebar/SidebarVersion';
 import VelezIcon from '@/assets/icons/services/velez.svg';
 
-type NavId = 'controlplane' | 'vcn' | 'networks' | 'deployments' | 'services' | 'postgres' | 'registries' | 'runners' | 'dinds' | 's3' | 'search';
+type NavId = 'controlplane' | 'vcn' | 'networks' | 'deployments' | 'services' | 'postgres' | 'registries' | 'runners' | 'dinds' | 's3' | 'transfer' | 'search';
 type ToolId = 'secrets' | 'config' | 'logs' | 'settings';
 
 interface SidebarProps {
@@ -24,6 +24,7 @@ const NAV_ITEMS: Array<{ id: NavId; label: string; icon: string }> = [
     {id: 'runners', label: 'Runners', icon: '⚙'},
     {id: 'dinds', label: 'Docker daemons', icon: '▤'},
     {id: 's3', label: 'S3 storage', icon: '◧'},
+    {id: 'transfer', label: 'Transfer', icon: '⇆'},
     {id: 'search', label: 'Search', icon: '⌕'},
 ];
 

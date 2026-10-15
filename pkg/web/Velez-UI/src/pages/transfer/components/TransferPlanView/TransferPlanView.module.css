@@ -1,0 +1,60 @@
+.TransferPlanViewContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    & .Block,
+    & .WarnBlock,
+    & .ErrorBlock {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        border: 0.0625rem solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--bg3);
+    }
+
+    & .WarnBlock {
+        border-color: var(--amber);
+        background: var(--amber-dim);
+    }
+
+    & .ErrorBlock {
+        border-color: var(--red);
+        background: var(--red-dim);
+    }
+
+    & .BlockTitle {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--fg);
+    }
+
+    & .Hint {
+        font-size: 0.75rem;
+        color: var(--fg-dim);
+    }
+
+    & .Item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        min-width: 0;
+    }
+
+    & .Name {
+        font-family: var(--font-mono);
+        font-size: 0.8125rem;
+        color: var(--fg);
+    }
+
+    & .Meta {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        color: var(--fg-dim);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}

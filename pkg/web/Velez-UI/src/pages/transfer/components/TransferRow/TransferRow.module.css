@@ -1,0 +1,125 @@
+.TransferRowContainer {
+    border-bottom: 0.0625rem solid var(--border);
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    & .Row {
+        display: grid;
+        grid-template-columns: 6rem 1fr 1.2fr 6rem 1.4fr 5rem;
+        gap: 0.75rem;
+        align-items: center;
+        padding: 0.625rem 1.25rem;
+
+        & .Name {
+            font-family: var(--font-mono);
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--fg);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        & .Cell {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--fg-mid);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        & .Chip {
+            justify-self: start;
+            padding: 0.125rem 0.5rem;
+            border-radius: 99rem;
+            font-family: var(--font-mono);
+            font-size: 0.6875rem;
+            color: var(--fg-dim);
+            background: var(--bg3);
+            transition: color 0.25s cubic-bezier(0.2, 0.7, 0.2, 1), background 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
+
+            &.pending {
+                color: var(--amber);
+                background: var(--amber-dim);
+            }
+
+            &.running {
+                color: var(--blue);
+                background: var(--blue-dim);
+            }
+
+            &.failed {
+                color: var(--red);
+                background: var(--red-dim);
+            }
+
+            &.done {
+                color: var(--green);
+                background: var(--green-dim);
+            }
+        }
+
+        & .Progress {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 0;
+
+            & .Bar {
+                appearance: none;
+                flex: 1;
+                min-width: 0;
+                height: 0.375rem;
+                border: none;
+                border-radius: 99rem;
+                background: var(--bg4);
+                overflow: hidden;
+
+                &::-webkit-progress-bar {
+                    background: var(--bg4);
+                }
+
+                &::-webkit-progress-value {
+                    background: var(--cyan);
+                    border-radius: 99rem;
+                    transition: width 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+                }
+
+                &::-moz-progress-bar {
+                    background: var(--cyan);
+                    border-radius: 99rem;
+                }
+            }
+
+            & .ProgressLabel {
+                font-family: var(--font-mono);
+                font-size: 0.6875rem;
+                color: var(--fg-mid);
+                white-space: nowrap;
+            }
+        }
+
+        & .Actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+    }
+
+    & .ErrorLine {
+        padding: 0 1.25rem 0.625rem;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        color: var(--red);
+        overflow-wrap: anywhere;
+    }
+
+    @media (orientation: portrait) {
+        & .Row {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+}

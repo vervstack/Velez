@@ -9,7 +9,7 @@ import {Routes} from '@/app/router/Routes';
 import Dialog from "@/app/hooks/dialog/Dialog.tsx";
 import {Tooltip} from "react-tooltip";
 
-type NavId = 'controlplane' | 'vcn' | 'networks' | 'deployments' | 'services' | 'postgres' | 'registries' | 'runners' | 'dinds' | 's3' | 'search';
+type NavId = 'controlplane' | 'vcn' | 'networks' | 'deployments' | 'services' | 'postgres' | 'registries' | 'runners' | 'dinds' | 's3' | 'transfer' | 'search';
 type ToolId = 'secrets' | 'config' | 'logs' | 'settings';
 
 const NAV_TO_ROUTE: Record<NavId, string> = {
@@ -23,6 +23,7 @@ const NAV_TO_ROUTE: Record<NavId, string> = {
     runners: Routes.Runners,
     dinds: Routes.Dinds,
     s3: Routes.S3,
+    transfer: Routes.Transfer,
     search: Routes.Search,
 };
 
@@ -37,6 +38,7 @@ const ROUTE_TO_NAV: Record<string, NavId> = {
     [Routes.Runners]: 'runners',
     [Routes.Dinds]: 'dinds',
     [Routes.S3]: 's3',
+    [Routes.Transfer]: 'transfer',
     [Routes.Search]: 'search',
 };
 

@@ -16,6 +16,7 @@ import (
 const (
 	hostNetworkName     = "host"
 	noneNetworkName     = "none"
+	bridgeNetworkName   = "bridge"
 	containerModePrefix = "container:"
 )
 
@@ -64,7 +65,7 @@ func attachedNetworks(root container.InspectResponse) []attachedNetwork {
 	networks := make([]attachedNetwork, 0, len(root.NetworkSettings.Networks))
 
 	for name, endpoint := range root.NetworkSettings.Networks {
-		isShared := name != hostNetworkName && name != noneNetworkName
+		isShared := name != hostNetworkName && name != noneNetworkName && name != bridgeNetworkName
 		if !isShared || endpoint == nil {
 			continue
 		}

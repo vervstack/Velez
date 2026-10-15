@@ -26,6 +26,7 @@ func (impl *Impl) GetServiceEnvironments(
 			DeployedVersion: env.DeployedVersion,
 			Health:          env.Health,
 			ContainerId:     env.ContainerId,
+			ContainerName:   env.ContainerName,
 		}
 
 		if env.DeployedAt != nil {

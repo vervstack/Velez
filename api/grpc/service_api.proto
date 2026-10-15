@@ -429,6 +429,8 @@ message ServiceEnvironmentInfo {
   string health = 5;
   // container_id - Docker id of the environment's first container; empty when none
   string container_id = 6;
+  // container_name - Docker name of the environment's first container; empty when none
+  string container_name = 7;
 }
 
 message GetServiceEnvironments {

@@ -9,7 +9,6 @@ import (
 	"go.vervstack.ru/Velez/internal/storage"
 )
 
-//nolint:unused // dependencies are consumed once the stubs are filled in
 type Service struct {
 	dataStorage storage.Storage
 	runtimes    container_runtime.RuntimeResolver

@@ -77,5 +77,9 @@ func (r *itemReceiver) handle(ctx context.Context, req *velez_api.Transfer_Reque
 		err = errUnexpectedFrame
 	}
 
-	return false, rerrors.Wrap(err)
+	if err != nil {
+		return false, rerrors.Wrap(err)
+	}
+
+	return false, nil
 }

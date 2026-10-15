@@ -46,15 +46,22 @@ func (a *itemApplier) run(ctx context.Context) {
 }
 
 func (a *itemApplier) apply(ctx context.Context) error {
+	var err error
+
 	switch a.item.kind {
 	case velez_api.TransferItemKind_TRANSFER_ITEM_KIND_IMAGE:
-		return rerrors.Wrap(a.transferIO.ImageLoad(ctx, a.reader))
+		err = a.transferIO.ImageLoad(ctx, a.reader)
 	case velez_api.TransferItemKind_TRANSFER_ITEM_KIND_VOLUME:
-		return rerrors.Wrap(a.transferIO.VolumeWrite(ctx, a.item.name, a.reader))
+		err = a.transferIO.VolumeWrite(ctx, a.item.name, a.reader)
 	case velez_api.TransferItemKind_TRANSFER_ITEM_KIND_UNSPECIFIED:
+		err = rerrors.Wrap(errInvalidItem, a.item.name)
 	}
 
-	return rerrors.Wrap(errInvalidItem, a.item.name)
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
+
+	return nil
 }
 
 func (a *itemApplier) write(data []byte) error {

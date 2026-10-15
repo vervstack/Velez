@@ -3,7 +3,7 @@ import {fireEvent, render, screen, waitFor} from "@testing-library/react"
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query"
 
 import type {GetPgInstanceCredentialsResponse} from "@/app/api/velez/pgaas_api.pb.ts"
-import PgInstanceCredentials from "@/pages/postgres/components/PgInstanceCredentials/PgInstanceCredentials.tsx"
+import PgInstanceCredentials from "@/widgets/PgInstanceCredentials/PgInstanceCredentials.tsx"
 
 const baseCredentials = {
     dbName: "app",

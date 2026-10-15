@@ -9,7 +9,7 @@ import Button from "@/components/base/Button.tsx"
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import {formatPortMapping} from "@/processes/mappings/ports.ts"
 import {mapPgInstanceStatus, formatPgInstanceCreatedAt} from "@/processes/mappings/pg_instances.ts"
-import PgInstanceCredentials from "@/pages/postgres/components/PgInstanceCredentials/PgInstanceCredentials.tsx"
+import PgInstanceCredentials from "@/widgets/PgInstanceCredentials/PgInstanceCredentials.tsx"
 import PgInstanceDropDialog from "@/dialogs/PgInstanceDropDialog/PgInstanceDropDialog.tsx"
 
 interface Props {
@@ -51,11 +51,13 @@ export default function PgInstanceRow({instance}: Props) {
                 </div>
             </div>
             {expanded && (
-                <PgInstanceCredentials
-                    name={name}
-                    dbName={instance.dbName ?? ""}
-                    username={instance.username ?? ""}
-                />
+                <div className={cls.credentials}>
+                    <PgInstanceCredentials
+                        name={name}
+                        dbName={instance.dbName ?? ""}
+                        username={instance.username ?? ""}
+                    />
+                </div>
             )}
         </div>
     )

@@ -7,7 +7,7 @@ import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
 import PgInstanceRow from "@/pages/postgres/components/PgInstanceRow/PgInstanceRow.tsx"
 
 vi.mock("@/app/hooks/dialog/Dialog.tsx", () => ({useDialog: vi.fn()}))
-vi.mock("@/pages/postgres/components/PgInstanceCredentials/PgInstanceCredentials.tsx", () => ({default: () => null}))
+vi.mock("@/widgets/PgInstanceCredentials/PgInstanceCredentials.tsx", () => ({default: () => null}))
 
 function renderRow(instance: PgInstance) {
     const OpenDialog = vi.fn()

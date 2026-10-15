@@ -1,0 +1,53 @@
+.PgConnectionSectionContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.875rem 1.25rem 1rem;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    animation: reveal 0.15s ease-out;
+
+    & .SectionTitle {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--fg);
+        margin: 0;
+    }
+
+    & .PortRow {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    & .Label {
+        font-family: var(--font-mono);
+        font-size: 0.6875rem;
+        color: var(--fg-dim);
+        width: 5.5rem;
+        flex-shrink: 0;
+    }
+
+    & .Value {
+        font-family: var(--font-mono);
+        font-size: 0.78125rem;
+        color: var(--fg);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+@keyframes reveal {
+    from {
+        opacity: 0;
+        transform: translateY(-0.25rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

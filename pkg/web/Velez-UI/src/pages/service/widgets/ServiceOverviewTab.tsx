@@ -5,6 +5,7 @@ import {
     useGetServiceAboutQuery,
 } from "@/processes/queries/services.ts";
 import {ListSmerdsByServiceIdQuery} from "@/processes/queries/smerds.ts";
+import PgConnectionSection from "@/widgets/service/PgConnectionSection/PgConnectionSection.tsx";
 import ServiceHero from "@/widgets/service/ServiceHero/ServiceHero.tsx";
 import ObservabilityTools from "@/widgets/service/ObservabilityTools/ObservabilityTools.tsx";
 import ResourcesSection from "@/widgets/service/ResourcesSection/ResourcesSection.tsx";
@@ -35,6 +36,8 @@ export default function ServiceOverviewTab({serviceName}: Props) {
                 containerId={currentSmerd?.uuid}
                 containerStatus={currentSmerd?.status}
             />
+
+            <PgConnectionSection serviceName={serviceName}/>
 
             <div className={cls.ObservabilityWrapper}>
                 <span className={cls.SectionTitle}>Observability &amp; Tools</span>

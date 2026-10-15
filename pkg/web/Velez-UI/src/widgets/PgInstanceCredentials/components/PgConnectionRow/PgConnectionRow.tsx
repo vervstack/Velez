@@ -1,4 +1,4 @@
-import cls from "@/pages/postgres/components/PgConnectionRow/PgConnectionRow.module.css"
+import cls from "@/widgets/PgInstanceCredentials/components/PgConnectionRow/PgConnectionRow.module.css"
 import Button from "@/components/base/Button.tsx"
 
 interface Props {

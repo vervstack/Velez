@@ -1,9 +1,9 @@
 import {useEffect, useState} from "react"
 
-import cls from "@/pages/postgres/components/PgInstanceCredentials/PgInstanceCredentials.module.css"
+import cls from "@/widgets/PgInstanceCredentials/PgInstanceCredentials.module.css"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import Button from "@/components/base/Button.tsx"
-import PgConnectionRow from "@/pages/postgres/components/PgConnectionRow/PgConnectionRow.tsx"
+import PgConnectionRow from "@/widgets/PgInstanceCredentials/components/PgConnectionRow/PgConnectionRow.tsx"
 import {GetPgInstanceCredentialsQuery} from "@/processes/queries/pg_instances.ts"
 
 interface Props {

@@ -72,6 +72,8 @@ message PgInstance {
   google.protobuf.Timestamp updated_at = 9;
   // display_name - the instance name without its storage-layer prefix (pgaas_/s3_/cr_); falls back to name
   string display_name = 10;
+  // exposed_port - host-side published port of the container's `port`; absent when not published
+  optional uint32 exposed_port = 11;
 }
 
 message ListPgInstances {
@@ -119,6 +121,12 @@ message DropPgInstance {
   }
 }
 
+message PgConnection {
+  string dsn = 1;
+  // masked_dsn - same string with the password replaced by ••••
+  string masked_dsn = 2;
+}
+
 // GetPgInstanceCredentials.Response is the only PostgresAPI message that
 // ever carries a password.
 message GetPgInstanceCredentials {
@@ -130,5 +138,8 @@ message GetPgInstanceCredentials {
     string username = 2;
     string password = 3;
     string dsn = 4;
+    PgConnection in_network = 5;
+    // external - host-reachable form (node host : exposed port); absent when the port is not published
+    optional PgConnection external = 6;
   }
 }

@@ -1412,6 +1412,10 @@
         },
         "health": {
           "type": "string"
+        },
+        "containerId": {
+          "type": "string",
+          "title": "container_id - Docker id of the environment's first container; empty when none"
         }
       }
     },

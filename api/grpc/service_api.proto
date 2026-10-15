@@ -427,6 +427,8 @@ message ServiceEnvironmentInfo {
   string deployed_version = 3;
   google.protobuf.Timestamp deployed_at = 4;
   string health = 5;
+  // container_id - Docker id of the environment's first container; empty when none
+  string container_id = 6;
 }
 
 message GetServiceEnvironments {

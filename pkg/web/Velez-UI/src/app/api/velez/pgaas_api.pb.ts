@@ -27,6 +27,7 @@ export type PgInstance = {
   createdAt?: GoogleProtobufTimestamp.Timestamp;
   updatedAt?: GoogleProtobufTimestamp.Timestamp;
   displayName?: string;
+  exposedPort?: number;
 };
 
 export type ListPgInstancesRequest = {
@@ -68,6 +69,11 @@ export type DropPgInstanceResponse = {
 
 export type DropPgInstance = Record<string, never>;
 
+export type PgConnection = {
+  dsn?: string;
+  maskedDsn?: string;
+};
+
 export type GetPgInstanceCredentialsRequest = {
   name?: string;
 };
@@ -77,6 +83,8 @@ export type GetPgInstanceCredentialsResponse = {
   username?: string;
   password?: string;
   dsn?: string;
+  inNetwork?: PgConnection;
+  external?: PgConnection;
 };
 
 export type GetPgInstanceCredentials = Record<string, never>;

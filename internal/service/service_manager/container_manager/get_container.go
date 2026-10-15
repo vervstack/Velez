@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/go-connections/nat"
 
 	errors "go.redsock.ru/rerrors"
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
@@ -58,6 +59,15 @@ func (c *ContainerManager) GetContainer(
 
 	if contInfo.NetworkSettings != nil {
 		dc.Networks = toNetworkBinds(contInfo.ID, contInfo.NetworkSettings.Networks)
+	}
+
+	if contInfo.HostConfig != nil {
+		var actualPorts nat.PortMap
+		if contInfo.NetworkSettings != nil {
+			actualPorts = contInfo.NetworkSettings.Ports
+		}
+
+		dc.Ports = parser.ToPortsMapping(contInfo.HostConfig.PortBindings, actualPorts)
 	}
 
 	ownerId, isShared, err := resolveNetworkOwnerId(ctx, runtime, contInfo)

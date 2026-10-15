@@ -30,4 +30,5 @@ type ServiceEnvironment struct {
 	DeployedVersion string
 	DeployedAt      *time.Time
 	Health          string
+	ContainerId     string
 }

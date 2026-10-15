@@ -282,6 +282,7 @@ export type ServiceEnvironmentInfo = {
   deployedVersion?: string;
   deployedAt?: GoogleProtobufTimestamp.Timestamp;
   health?: string;
+  containerId?: string;
 };
 
 export type GetServiceEnvironmentsRequest = {

@@ -256,6 +256,13 @@
         },
         "dsn": {
           "type": "string"
+        },
+        "inNetwork": {
+          "$ref": "#/definitions/velez_apiPgConnection"
+        },
+        "external": {
+          "$ref": "#/definitions/velez_apiPgConnection",
+          "title": "external - host-reachable form (node host : exposed port); absent when the port is not published"
         }
       }
     },
@@ -303,6 +310,18 @@
         }
       }
     },
+    "velez_apiPgConnection": {
+      "type": "object",
+      "properties": {
+        "dsn": {
+          "type": "string"
+        },
+        "maskedDsn": {
+          "type": "string",
+          "title": "masked_dsn - same string with the password replaced by ••••"
+        }
+      }
+    },
     "velez_apiPgInstance": {
       "type": "object",
       "properties": {
@@ -339,6 +358,11 @@
         "displayName": {
           "type": "string",
           "title": "display_name - the instance name without its storage-layer prefix (pgaas_/s3_/cr_); falls back to name"
+        },
+        "exposedPort": {
+          "type": "integer",
+          "format": "int64",
+          "title": "exposed_port - host-side published port of the container's `port`; absent when not published"
         }
       },
       "description": "PgInstance never carries a password - status, environment, image,\ncontainer id and deploy history live on the underlying service/deployment\nrows and are read via ListSmerds/VervServicesService, not duplicated here."

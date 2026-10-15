@@ -1380,8 +1380,10 @@ type ServiceEnvironmentInfo struct {
 	DeployedVersion string                 `protobuf:"bytes,3,opt,name=deployed_version,json=deployedVersion,proto3" json:"deployed_version,omitempty"`
 	DeployedAt      *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=deployed_at,json=deployedAt,proto3" json:"deployed_at,omitempty"`
 	Health          string                 `protobuf:"bytes,5,opt,name=health,proto3" json:"health,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// container_id - Docker id of the environment's first container; empty when none
+	ContainerId   string `protobuf:"bytes,6,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ServiceEnvironmentInfo) Reset() {
@@ -1445,6 +1447,13 @@ func (x *ServiceEnvironmentInfo) GetDeployedAt() *timestamppb.Timestamp {
 func (x *ServiceEnvironmentInfo) GetHealth() string {
 	if x != nil {
 		return x.Health
+	}
+	return ""
+}
+
+func (x *ServiceEnvironmentInfo) GetContainerId() string {
+	if x != nil {
+		return x.ContainerId
 	}
 	return ""
 }
@@ -3459,14 +3468,15 @@ const file_service_api_proto_rawDesc = "" +
 	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x1a\x8c\x01\n" +
 	"\bResponse\x12:\n" +
 	"\acallers\x18\x01 \x03(\v2 .velez_api.ServiceDependencyInfoR\acallers\x12D\n" +
-	"\fdependencies\x18\x02 \x03(\v2 .velez_api.ServiceDependencyInfoR\fdependencies\"\xc2\x01\n" +
+	"\fdependencies\x18\x02 \x03(\v2 .velez_api.ServiceDependencyInfoR\fdependencies\"\xe5\x01\n" +
 	"\x16ServiceEnvironmentInfo\x12\x10\n" +
 	"\x03env\x18\x01 \x01(\tR\x03env\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\x12)\n" +
 	"\x10deployed_version\x18\x03 \x01(\tR\x0fdeployedVersion\x12;\n" +
 	"\vdeployed_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"deployedAt\x12\x16\n" +
-	"\x06health\x18\x05 \x01(\tR\x06health\"\x99\x01\n" +
+	"\x06health\x18\x05 \x01(\tR\x06health\x12!\n" +
+	"\fcontainer_id\x18\x06 \x01(\tR\vcontainerId\"\x99\x01\n" +
 	"\x16GetServiceEnvironments\x1a,\n" +
 	"\aRequest\x12!\n" +
 	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x1aQ\n" +

@@ -75,6 +75,7 @@ func (v *VervService) GetServiceEnvironments(ctx context.Context, serviceName st
 			DeployedVersion: firstSmerd.GetImageName(),
 			Health:          status,
 			DeployedAt:      deployedAt,
+			ContainerId:     firstSmerd.GetUuid(),
 		}
 
 		result = append(result, envEntry)

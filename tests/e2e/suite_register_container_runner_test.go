@@ -202,6 +202,24 @@ func Test_RegisterContainer_Runner_SuggestsDefaultsFromContainer(t *testing.T) {
 	require.Nil(t, plainGot.GetSuggestedRunnerDefaults())
 }
 
+func Test_GetContainer_ReturnsPublishedPorts(t *testing.T) {
+	t.Parallel()
+
+	env := Planes[0].NewEnvironment(t)
+
+	containerName, _ := runnerRegNames("ports")
+
+	published := startForeignContainer(t, env, containerName, true)
+
+	req := &velez_api.GetContainer_Request{Id: published.id}
+
+	got, err := env.Custom.ApiGrpcImpl.GetContainer(t.Context(), req)
+	require.NoError(t, err)
+	require.Len(t, got.GetPorts(), 1)
+	require.Equal(t, uint32(80), got.GetPorts()[0].GetServicePortNumber())
+	require.NotZero(t, got.GetPorts()[0].GetExposedTo())
+}
+
 // startForeignRunnerImageContainer runs nginx under the actions-runner image
 // name, which is all the suggested-pattern detection looks at.
 func startForeignRunnerImageContainer(t *testing.T, env *TestEnvironment, name string) foreignContainer {

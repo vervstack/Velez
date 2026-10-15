@@ -5,4 +5,8 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-var errNotImplemented = rerrors.New("not implemented", codes.Unimplemented)
+var (
+	errVolumeExists     = rerrors.New("volume already exists", codes.AlreadyExists)
+	errImageLoadFailed  = rerrors.New("image load failed", codes.Internal)
+	errHelperNotStarted = rerrors.New("transfer helper container id is empty", codes.Internal)
+)

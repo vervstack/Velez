@@ -2,10 +2,20 @@ import {afterEach, describe, expect, it, vi} from "vitest"
 import {fireEvent, render, screen, waitFor} from "@testing-library/react"
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query"
 
+import type {GetPgInstanceCredentialsResponse} from "@/app/api/velez/pgaas_api.pb.ts"
 import PgInstanceCredentials from "@/pages/postgres/components/PgInstanceCredentials/PgInstanceCredentials.tsx"
 
-const getPgInstanceCredentials = vi.fn((_name: string) =>
-    Promise.resolve({dbName: "app", username: "app_user", password: "s3cr3t", dsn: "postgres://dsn"}))
+const baseCredentials = {
+    dbName: "app",
+    username: "app_user",
+    password: "s3cr3t",
+    dsn: "postgres://dsn",
+    inNetwork: {dsn: "postgres://app:s3cr3t@pg:5432/app", maskedDsn: "postgres://app:***@pg:5432/app"},
+    external: {dsn: "postgres://app:s3cr3t@host:18714/app", maskedDsn: "postgres://app:***@host:18714/app"},
+}
+
+const getPgInstanceCredentials = vi.fn((_name: string): Promise<GetPgInstanceCredentialsResponse> =>
+    Promise.resolve(baseCredentials))
 
 vi.mock("@/processes/api/pgaas", () => ({
     pgaasService: {
@@ -28,31 +38,47 @@ function renderCredentials() {
 }
 
 describe("PgInstanceCredentials", () => {
-    it("shows the masked password and does not fetch credentials before reveal is clicked", () => {
+    it("keeps the password masked until Reveal is clicked", async () => {
         renderCredentials()
 
+        await waitFor(() => expect(screen.getByText("postgres://app:***@pg:5432/app")).toBeInTheDocument())
         expect(screen.getByText("••••••••••••")).toBeInTheDocument()
-        expect(getPgInstanceCredentials).not.toHaveBeenCalled()
-    })
-
-    it("fetches and reveals the real password when Reveal is clicked", async () => {
-        renderCredentials()
+        expect(screen.queryByText("s3cr3t")).not.toBeInTheDocument()
 
         fireEvent.click(screen.getByText("Reveal"))
 
-        await waitFor(() => expect(getPgInstanceCredentials).toHaveBeenCalledWith("pg-app"))
-        await waitFor(() => expect(screen.getByText("s3cr3t")).toBeInTheDocument())
+        expect(screen.getByText("s3cr3t")).toBeInTheDocument()
+        expect(getPgInstanceCredentials).toHaveBeenCalledTimes(1)
     })
 
-    it("copies the DSN, fetching credentials first if not already loaded", async () => {
+    it("shows the masked in-network and external connection strings without revealing", async () => {
+        renderCredentials()
+
+        await waitFor(() => expect(screen.getByText("postgres://app:***@pg:5432/app")).toBeInTheDocument())
+        expect(screen.getByText("In-network")).toBeInTheDocument()
+        expect(screen.getByText("External")).toBeInTheDocument()
+        expect(screen.getByText("postgres://app:***@host:18714/app")).toBeInTheDocument()
+    })
+
+    it("hides the external row when the port is not published", async () => {
+        getPgInstanceCredentials.mockResolvedValueOnce({...baseCredentials, external: undefined})
+
+        renderCredentials()
+
+        await waitFor(() => expect(screen.getByText("postgres://app:***@pg:5432/app")).toBeInTheDocument())
+        expect(screen.queryByText("External")).not.toBeInTheDocument()
+    })
+
+    it("copies the real DSN of the clicked connection", async () => {
         const writeText = vi.fn().mockResolvedValue(undefined)
         Object.assign(navigator, {clipboard: {writeText}})
 
         renderCredentials()
+        await waitFor(() => expect(screen.getByText("postgres://app:***@pg:5432/app")).toBeInTheDocument())
 
-        fireEvent.click(screen.getByText("Copy DSN"))
+        const copyButtons = screen.getAllByRole("button", {name: "Copy"})
+        fireEvent.click(copyButtons[1])
 
-        await waitFor(() => expect(getPgInstanceCredentials).toHaveBeenCalledWith("pg-app"))
-        await waitFor(() => expect(writeText).toHaveBeenCalledWith("postgres://dsn"))
+        await waitFor(() => expect(writeText).toHaveBeenCalledWith("postgres://app:s3cr3t@host:18714/app"))
     })
 })

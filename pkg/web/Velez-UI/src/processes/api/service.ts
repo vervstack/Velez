@@ -92,6 +92,7 @@ function toServiceEnvironment(info: ServiceEnvironmentInfo): ServiceEnvironment 
         status: mapEnvStatus(info.status),
         version: info.deployedVersion ?? '',
         deployedAgo: formatDeployedAgo(info.deployedAt),
+        containerId: info.containerId ?? '',
         health: mapEnvHealth(info.health),
     }
 }

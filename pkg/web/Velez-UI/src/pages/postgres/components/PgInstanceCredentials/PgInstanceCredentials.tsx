@@ -1,8 +1,9 @@
-import {useState} from "react"
+import {useEffect, useState} from "react"
 
 import cls from "@/pages/postgres/components/PgInstanceCredentials/PgInstanceCredentials.module.css"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import Button from "@/components/base/Button.tsx"
+import PgConnectionRow from "@/pages/postgres/components/PgConnectionRow/PgConnectionRow.tsx"
 import {GetPgInstanceCredentialsQuery} from "@/processes/queries/pg_instances.ts"
 
 interface Props {
@@ -18,8 +19,13 @@ export default function PgInstanceCredentials({name, dbName, username}: Props) {
     const toaster = useToaster()
 
     const credentialsQuery = GetPgInstanceCredentialsQuery(name)
+    useEffect(() => {
+        if (credentialsQuery.error) toaster.catchGrpc(credentialsQuery.error)
+    }, [credentialsQuery.error])
 
-    function copyToClipboard(dsn: string) {
+    function copyToClipboard(dsn?: string) {
+        if (!dsn) return
+
         navigator.clipboard.writeText(dsn)
             .then(function onCopied() {
                 toaster.bake({title: "DSN copied", description: name, level: "Info"})
@@ -28,28 +34,19 @@ export default function PgInstanceCredentials({name, dbName, username}: Props) {
     }
 
     function handleToggleReveal() {
-        if (revealed) {
-            setRevealed(false)
-            return
-        }
-        setRevealed(true)
-        if (!credentialsQuery.data) {
-            credentialsQuery.refetch().catch(toaster.catchGrpc)
-        }
+        setRevealed(!revealed)
     }
 
-    function handleCopyDsn() {
-        if (credentialsQuery.data?.dsn) {
-            copyToClipboard(credentialsQuery.data.dsn)
-            return
-        }
-
-        credentialsQuery.refetch()
-            .then(function onFetched(result) {
-                if (result.data?.dsn) copyToClipboard(result.data.dsn)
-            })
-            .catch(toaster.catchGrpc)
+    function handleCopyInNetwork() {
+        copyToClipboard(credentialsQuery.data?.inNetwork?.dsn)
     }
+
+    function handleCopyExternal() {
+        copyToClipboard(credentialsQuery.data?.external?.dsn)
+    }
+
+    const inNetwork = credentialsQuery.data?.inNetwork
+    const external = credentialsQuery.data?.external
 
     const passwordValue = revealed && credentialsQuery.data?.password
         ? credentialsQuery.data.password
@@ -68,17 +65,26 @@ export default function PgInstanceCredentials({name, dbName, username}: Props) {
             <div className={cls.TokenRow}>
                 <span className={cls.Label}>Password</span>
                 <span className={cls.Value}>
-                    {credentialsQuery.isFetching ? "loading…" : passwordValue}
+                    {credentialsQuery.isLoading ? "loading…" : passwordValue}
                 </span>
                 <Button sm onClick={handleToggleReveal}>
                     {revealed ? "Hide" : "Reveal"}
                 </Button>
             </div>
-            <div className={cls.ActionsRow}>
-                <Button sm onClick={handleCopyDsn}>
-                    Copy DSN
-                </Button>
-            </div>
+            <PgConnectionRow
+                label="In-network"
+                maskedDsn={inNetwork?.maskedDsn}
+                isLoading={credentialsQuery.isLoading}
+                onCopy={handleCopyInNetwork}
+            />
+            {external && (
+                <PgConnectionRow
+                    label="External"
+                    maskedDsn={external.maskedDsn}
+                    isLoading={credentialsQuery.isLoading}
+                    onCopy={handleCopyExternal}
+                />
+            )}
         </div>
     )
 }

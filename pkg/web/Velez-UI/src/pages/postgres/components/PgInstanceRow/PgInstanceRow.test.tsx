@@ -48,4 +48,16 @@ describe("PgInstanceRow", () => {
 
         expect(OpenDialog.mock.calls[0][0].props.name).toBe("pgaas_orders")
     })
+
+    it("shows the container port mapped to the host port when the port is published", () => {
+        renderRow({name: "pgaas_orders", port: 5432, exposedPort: 18714})
+
+        expect(screen.getByText("5432 → 18714")).toBeInTheDocument()
+    })
+
+    it("shows only the container port when the port is not published", () => {
+        renderRow({name: "pgaas_orders", port: 5432})
+
+        expect(screen.getByText("5432")).toBeInTheDocument()
+    })
 })

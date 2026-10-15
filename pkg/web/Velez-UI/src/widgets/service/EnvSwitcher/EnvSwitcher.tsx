@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import cls from '@/widgets/service/EnvSwitcher/EnvSwitcher.module.css';
 import EnvCard from '@/components/complex/EnvCard/EnvCard.tsx';
 
+import { Routes } from '@/app/router/Routes';
 import { useListServiceEnvsQuery } from '@/processes/queries/services.ts';
 import type { ServiceEnvironment } from '@/model/service_page/ServicePageModel';
 
@@ -11,6 +13,7 @@ interface EnvSwitcherProps {
 }
 
 export default function EnvSwitcher({ serviceName = '' }: EnvSwitcherProps) {
+    const navigate = useNavigate();
     const { data } = useListServiceEnvsQuery(serviceName);
     const envs: ServiceEnvironment[] = data ?? [];
 
@@ -32,6 +35,9 @@ export default function EnvSwitcher({ serviceName = '' }: EnvSwitcherProps) {
                 {envs.map(function renderCard(env: ServiceEnvironment) {
                     function handleClick() {
                         setActiveEnv(env.id);
+                        if (env.containerId) {
+                            navigate(Routes.Container + '/' + env.containerId);
+                        }
                     }
 
                     return (
@@ -39,6 +45,7 @@ export default function EnvSwitcher({ serviceName = '' }: EnvSwitcherProps) {
                             key={env.id}
                             env={env}
                             isActive={env.id === activeEnv}
+                            isLinked={!!env.containerId}
                             onClick={handleClick}
                         />
                     );

@@ -21,6 +21,11 @@
         background: var(--bg3);
     }
 
+    &.linked:hover {
+        background: var(--bg4);
+        border-color: var(--border-m);
+    }
+
     &.active {
         background: var(--bg4);
         border-color: var(--border-m);

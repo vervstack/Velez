@@ -38,13 +38,11 @@ export function DropPgInstanceMutation() {
     })
 }
 
-// GetPgInstanceCredentialsQuery is disabled by default — it must only run when the caller
-// explicitly triggers refetch() (the "Reveal" / "Copy DSN" actions), never on mount alongside
-// the instance list.
+// The credentials response carries the real password, so callers must keep it unrendered until
+// the user asks to reveal it. The query itself runs on mount: the masked DSNs are always shown.
 export function GetPgInstanceCredentialsQuery(name: string) {
     return useQuery({
         queryKey: ["pg-instance-credentials", name],
         queryFn: () => pgaasService.getPgInstanceCredentials(name),
-        enabled: false,
     })
 }

@@ -7,6 +7,7 @@ import type {PgInstance} from "@/app/api/velez"
 import StatusDot from "@/components/base/StatusDot.tsx"
 import Button from "@/components/base/Button.tsx"
 import {useDialog} from "@/app/hooks/dialog/Dialog.tsx"
+import {formatPortMapping} from "@/processes/mappings/ports.ts"
 import {mapPgInstanceStatus, formatPgInstanceCreatedAt} from "@/processes/mappings/pg_instances.ts"
 import PgInstanceCredentials from "@/pages/postgres/components/PgInstanceCredentials/PgInstanceCredentials.tsx"
 import PgInstanceDropDialog from "@/dialogs/PgInstanceDropDialog/PgInstanceDropDialog.tsx"
@@ -38,7 +39,7 @@ export default function PgInstanceRow({instance}: Props) {
                 <span className={cls.cell}>{instance.environment || "-"}</span>
                 <span className={cls.cell}>{instance.dbName}</span>
                 <span className={cls.cell}>{instance.username}</span>
-                <span className={cls.cell}>{instance.port}</span>
+                <span className={cls.cell}>{formatPortMapping(instance.port, instance.exposedPort)}</span>
                 <span className={cls.cell}>{formatPgInstanceCreatedAt(instance.createdAt)}</span>
                 <div className={cls.actions}>
                     <Button sm onClick={handleToggleExpand}>

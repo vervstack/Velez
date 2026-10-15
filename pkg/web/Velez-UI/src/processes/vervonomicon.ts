@@ -75,6 +75,7 @@ export function mergeResourcesWithReconciliation(
                 color: meta.color,
                 reconciliation: r.status,
                 addresses: [],
+                isOnboarded: false,
             }
             return placeholder
         })

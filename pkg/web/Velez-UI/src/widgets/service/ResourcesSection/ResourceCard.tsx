@@ -1,9 +1,10 @@
 import cn from 'classnames'
+import {useNavigate} from 'react-router-dom'
 
-import {useDialog} from '@/app/hooks/dialog/Dialog.tsx'
 import type {ServiceResource} from '@/model/service_page/ServicePageModel'
-import {resourceWebUiUrl} from '@/processes/resourceWebUi'
-import ResourceAddressesDialog from '@/dialogs/ResourceAddressesDialog/ResourceAddressesDialog.tsx'
+import {resourcePath} from '@/processes/resourceLink'
+import ResourceCardActions from '@/widgets/service/ResourcesSection/ResourceCardActions.tsx'
+import ResourceCardTitle from '@/widgets/service/ResourcesSection/ResourceCardTitle.tsx'
 
 import cls from './ResourceCard.module.css'
 
@@ -12,26 +13,30 @@ interface ResourceCardProps {
 }
 
 export default function ResourceCard({resource}: ResourceCardProps) {
-    const reconciliationLabel = reconciliationBadgeLabel(resource.reconciliation)
-    const reconciliationClass = reconciliationBadgeClass(resource.reconciliation)
-    const {OpenDialog} = useDialog()
-    const hasAddresses = resource.addresses.length > 0
-    const webUiUrl = hasAddresses ? undefined : resourceWebUiUrl(resource, window.location)
-    const isClickable = hasAddresses || Boolean(webUiUrl)
+    const navigate = useNavigate()
+    const path = resourcePath(resource)
+    const isClickable = path !== undefined
 
-    function handleOpen() {
-        if (hasAddresses) {
-            OpenDialog(<ResourceAddressesDialog resourceName={resource.name} addresses={resource.addresses}/>)
+    function handleClick(e: React.MouseEvent) {
+        if (path === undefined) {
             return
         }
-        if (webUiUrl) {
-            window.open(webUiUrl, "_blank", "noopener,noreferrer")
+        if (e.metaKey || e.ctrlKey) {
+            window.open(path, "_blank", "noopener,noreferrer")
+            return
+        }
+        navigate(path)
+    }
+
+    function handleAuxClick(e: React.MouseEvent) {
+        if (path !== undefined && e.button === 1) {
+            window.open(path, "_blank", "noopener,noreferrer")
         }
     }
 
     function handleKeyDown(e: React.KeyboardEvent) {
-        if (isClickable && e.key === "Enter") {
-            handleOpen()
+        if (path !== undefined && e.key === "Enter" && e.target === e.currentTarget) {
+            navigate(path)
         }
     }
 
@@ -39,25 +44,19 @@ export default function ResourceCard({resource}: ResourceCardProps) {
         <div
             className={cn(cls.ResourceCardContainer, isClickable && cls.Clickable)}
             style={{'--resource-color': resource.color} as React.CSSProperties}
-            onClick={handleOpen}
-            onKeyDown={handleKeyDown}
+            onClick={isClickable ? handleClick : undefined}
+            onAuxClick={isClickable ? handleAuxClick : undefined}
+            onKeyDown={isClickable ? handleKeyDown : undefined}
             role={isClickable ? "link" : undefined}
             tabIndex={isClickable ? 0 : undefined}
-            title={isClickable ? "Open web UI" : undefined}
+            title={isClickable ? `Open ${resource.name}` : undefined}
         >
             <div className={cls.HeaderWrapper}>
                 <div className={cls.IconSquare}>{resource.icon}</div>
-                <div className={cls.NameGroup}>
-                    <span className={cls.ResourceName}>{resource.name}</span>
-                    <span className={cls.KindDesc}>{resource.type}</span>
-                    {reconciliationLabel && (
-                        <span className={cn(cls.ReconciliationBadge, reconciliationClass)}>
-                            {reconciliationLabel}
-                        </span>
-                    )}
-                </div>
+                <ResourceCardTitle resource={resource}/>
                 <span className={cn(cls.StatusDot, statusDotClass(resource.status))}/>
             </div>
+            <ResourceCardActions resource={resource}/>
         </div>
     )
 }
@@ -72,27 +71,5 @@ function statusDotClass(status: ServiceResource['status']): string {
             return cls.unhealthy
         default:
             return cls.unknown
-    }
-}
-
-function reconciliationBadgeLabel(status: ServiceResource['reconciliation']): string {
-    switch (status) {
-        case 'already_connected':
-            return 'Existing connection'
-        case 'must_provision':
-            return 'Not yet created'
-        default:
-            return ''
-    }
-}
-
-function reconciliationBadgeClass(status: ServiceResource['reconciliation']): string {
-    switch (status) {
-        case 'already_connected':
-            return cls.alreadyConnected
-        case 'must_provision':
-            return cls.mustProvision
-        default:
-            return ''
     }
 }

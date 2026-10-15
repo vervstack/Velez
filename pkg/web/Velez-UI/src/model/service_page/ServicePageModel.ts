@@ -66,6 +66,9 @@ export interface ServiceResource {
     webUiPort?: number
     webUiHost?: string
     addresses: ResourceAddress[]
+    isOnboarded: boolean                                     // backed by a Velez-managed container
+    linkedServiceName?: string                               // Velez service backing this resource
+    containerId?: string                                     // Velez-managed container backing this resource
 }
 
 export interface ServiceGraphNode {

@@ -124,6 +124,7 @@ describe("vervonomicon utilities", () => {
                 color: "var(--info-color)",
                 reconciliation: "unknown",
                 addresses: [],
+                isOnboarded: false,
                 ...overrides,
             }
         }

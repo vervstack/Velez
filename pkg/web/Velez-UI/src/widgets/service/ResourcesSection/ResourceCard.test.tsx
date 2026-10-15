@@ -6,6 +6,9 @@ import type {ServiceResource} from "@/model/service_page/ServicePageModel"
 
 import ResourceCard from "./ResourceCard"
 
+const navigate = vi.fn()
+
+vi.mock("react-router-dom", () => ({useNavigate: () => navigate}))
 vi.mock("@/app/hooks/dialog/Dialog.tsx", () => ({useDialog: vi.fn()}))
 vi.mock("@/dialogs/ResourceAddressesDialog/ResourceAddressesDialog.tsx", () => ({
     default: () => null,
@@ -22,6 +25,7 @@ function renderCard(overrides: Partial<ServiceResource> = {}) {
         color: "var(--info-color)",
         reconciliation: "unknown",
         addresses: [],
+        isOnboarded: false,
         ...overrides,
     }
     const OpenDialog = vi.fn()
@@ -34,6 +38,7 @@ describe("ResourceCard", () => {
     let windowOpenSpy: ReturnType<typeof vi.spyOn>
 
     beforeEach(() => {
+        navigate.mockClear()
         windowOpenSpy = vi.spyOn(window, "open").mockReturnValue(null)
     })
 
@@ -41,97 +46,104 @@ describe("ResourceCard", () => {
         windowOpenSpy.mockRestore()
     })
 
-    it("opens web UI when clicked with webUiPort", () => {
-        renderCard({webUiPort: 3909})
+    it("navigates to the linked service page when clicked", () => {
+        renderCard({linkedServiceName: "dind-main", containerId: "abc"})
 
         const link = screen.getByRole("link")
         fireEvent.click(link)
+
+        expect(link).toHaveAttribute("title", "Open test-resource")
+        expect(navigate).toHaveBeenCalledWith("/service/dind-main")
+    })
+
+    it("navigates to the container page when only a container id is set", () => {
+        renderCard({containerId: "abc"})
+
+        fireEvent.click(screen.getByRole("link"))
+
+        expect(navigate).toHaveBeenCalledWith("/container/abc")
+    })
+
+    it("navigates when Enter is pressed on the card", () => {
+        renderCard({linkedServiceName: "dind-main"})
+
+        fireEvent.keyDown(screen.getByRole("link"), {key: "Enter"})
+
+        expect(navigate).toHaveBeenCalledWith("/service/dind-main")
+    })
+
+    it("opens a new tab instead of navigating when clicked with the meta key", () => {
+        renderCard({linkedServiceName: "dind-main"})
+
+        fireEvent.click(screen.getByRole("link"), {metaKey: true})
+
+        expect(windowOpenSpy).toHaveBeenCalledWith("/service/dind-main", "_blank", "noopener,noreferrer")
+        expect(navigate).not.toHaveBeenCalled()
+    })
+
+    it("opens a new tab when clicked with the middle button", () => {
+        renderCard({containerId: "abc"})
+
+        fireEvent(screen.getByRole("link"), new MouseEvent("auxclick", {bubbles: true, button: 1}))
+
+        expect(windowOpenSpy).toHaveBeenCalledWith("/container/abc", "_blank", "noopener,noreferrer")
+        expect(navigate).not.toHaveBeenCalled()
+    })
+
+    it("shows the onboarded indicator when the resource is onboarded", () => {
+        renderCard({isOnboarded: true})
+
+        expect(screen.getByRole("img", {name: "Onboarded in Velez"})).toBeInTheDocument()
+    })
+
+    it("hides the onboarded indicator when the resource is not onboarded", () => {
+        renderCard({isOnboarded: false})
+
+        expect(screen.queryByRole("img", {name: "Onboarded in Velez"})).not.toBeInTheDocument()
+    })
+
+    it("opens the addresses dialog without navigating when Addresses is clicked", () => {
+        const {OpenDialog} = renderCard({
+            linkedServiceName: "dind-main",
+            addresses: [{host: "h", port: 1, scope: "vcn"}],
+        })
+
+        fireEvent.click(screen.getByRole("button", {name: "Addresses"}))
+
+        expect(OpenDialog).toHaveBeenCalledTimes(1)
+        expect(navigate).not.toHaveBeenCalled()
+    })
+
+    it("opens the web UI without navigating when Web UI is clicked", () => {
+        renderCard({linkedServiceName: "dind-main", webUiPort: 3909})
+
+        fireEvent.click(screen.getByRole("button", {name: "Web UI"}))
 
         expect(windowOpenSpy).toHaveBeenCalledWith(
             expect.stringContaining(":3909"),
             "_blank",
-            "noopener,noreferrer"
+            "noopener,noreferrer",
         )
+        expect(navigate).not.toHaveBeenCalled()
     })
 
-    it("does not have role link when webUiPort is undefined", () => {
-        renderCard({webUiPort: undefined})
+    it("does not navigate when Enter is pressed on an action button", () => {
+        renderCard({linkedServiceName: "dind-main", webUiPort: 3909})
+
+        fireEvent.keyDown(screen.getByRole("button", {name: "Web UI"}), {key: "Enter"})
+
+        expect(navigate).not.toHaveBeenCalled()
+    })
+
+    it("is not a link when there is neither a service nor a container to open", () => {
+        renderCard({webUiPort: 3909})
 
         expect(screen.queryByRole("link")).not.toBeInTheDocument()
     })
 
-    it("does not call window.open when clicked without webUiPort", () => {
-        renderCard({webUiPort: undefined})
+    it("shows no actions when there are no addresses and no web UI", () => {
+        renderCard()
 
-        const container = screen.getByText("test-resource").closest("div")!.parentElement
-        if (container) {
-            fireEvent.click(container)
-        }
-
-        expect(windowOpenSpy).not.toHaveBeenCalled()
-    })
-
-    it("uses webUiHost when it is set", () => {
-        renderCard({webUiPort: 3909, webUiHost: "example.com"})
-
-        const link = screen.getByRole("link")
-        fireEvent.click(link)
-
-        expect(windowOpenSpy).toHaveBeenCalledWith(
-            expect.stringContaining("example.com"),
-            "_blank",
-            "noopener,noreferrer"
-        )
-    })
-
-    it("opens web UI when Enter key is pressed", () => {
-        renderCard({webUiPort: 3909})
-
-        const link = screen.getByRole("link")
-        fireEvent.keyDown(link, {key: "Enter"})
-
-        expect(windowOpenSpy).toHaveBeenCalled()
-    })
-
-    it("does not have title when webUiPort is undefined", () => {
-        renderCard({webUiPort: undefined})
-
-        const container = screen.getByText("test-resource").closest("div")!.parentElement
-        expect(container).not.toHaveAttribute("title")
-    })
-
-    it("has title when webUiPort is set", () => {
-        renderCard({webUiPort: 3909})
-
-        const link = screen.getByRole("link")
-        expect(link).toHaveAttribute("title", "Open web UI")
-    })
-
-    it("opens the addresses dialog instead of the web UI when addresses are present", () => {
-        const {OpenDialog} = renderCard({
-            webUiPort: 3909,
-            addresses: [{host: "", port: 3909, scope: "docker"}],
-        })
-
-        fireEvent.click(screen.getByRole("link"))
-
-        expect(OpenDialog).toHaveBeenCalledTimes(1)
-        expect(windowOpenSpy).not.toHaveBeenCalled()
-    })
-
-    it("opens the addresses dialog when Enter is pressed", () => {
-        const {OpenDialog} = renderCard({addresses: [{host: "h", port: 1, scope: "vcn"}]})
-
-        fireEvent.keyDown(screen.getByRole("link"), {key: "Enter"})
-
-        expect(OpenDialog).toHaveBeenCalledTimes(1)
-    })
-
-    it("does not open the dialog when there are no addresses", () => {
-        const {OpenDialog} = renderCard({webUiPort: 3909})
-
-        fireEvent.click(screen.getByRole("link"))
-
-        expect(OpenDialog).not.toHaveBeenCalled()
+        expect(screen.queryByRole("button")).not.toBeInTheDocument()
     })
 })

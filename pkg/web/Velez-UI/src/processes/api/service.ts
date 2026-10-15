@@ -165,6 +165,9 @@ function toServiceResource(r: BoundResource): ServiceResource {
         webUiPort: r.webUiPort,
         webUiHost: r.webUiHost,
         addresses: toResourceAddresses(r.addresses),
+        isOnboarded: r.isOnboarded ?? false,
+        linkedServiceName: r.linkedServiceName,
+        containerId: r.containerId,
     }
 }
 

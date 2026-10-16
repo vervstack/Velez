@@ -207,6 +207,13 @@ must lose nothing a user can see or use.
   `pendingPgaasPw` does), never as the source of truth. A new `secrets.NewStatic()` fallback, a
   `sync.Map`/map-with-mutex cache, or an on-disk JSON file holding user-visible state is a violation —
   derive it from the container instead.
+- **Exceptions, both deliberate:**
+  - In-flight operations in single-node mode (the task/job queue, transfer tokens and history, deployment
+    history made by this process) live in memory only. A restart mid-operation can leave a half-created container
+    with no task record; cluster mode is unaffected because tasks live in Postgres.
+  - Velez's own identity (`local_state.Manager`: Velez/Matreshka/Headscale keys, cluster DSNs, sysbox settings)
+    is stored in a JSON file at `local_state_path`. It describes Velez itself, not a managed service, and the path
+    must be on a mounted volume.
 - Before adding any new secret scope or stored value, answer: "after a Velez restart, where is this
   read back from?" If there is no answer, the design is wrong.
 

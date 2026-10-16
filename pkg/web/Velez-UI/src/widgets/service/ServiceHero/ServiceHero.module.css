@@ -145,7 +145,7 @@
 .EnvTileWrapper {
     display: flex;
     align-items: stretch;
-    grid-column: span 2;
+    grid-column: span 4;
 }
 
 .BinaryNoticeWrapper {

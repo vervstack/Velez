@@ -6,6 +6,7 @@ import type {ServiceResource} from '@/model/service_page/ServicePageModel'
 import {resourcePath} from '@/processes/resourceLink'
 import ResourceCardActions from '@/widgets/service/ResourcesSection/ResourceCardActions.tsx'
 import ResourceCardTitle from '@/widgets/service/ResourcesSection/ResourceCardTitle.tsx'
+import ResourceGoToButton from '@/widgets/service/ResourcesSection/ResourceGoToButton.tsx'
 
 import cls from './ResourceCard.module.css'
 
@@ -58,6 +59,7 @@ export default function ResourceCard({resource}: ResourceCardProps) {
                 </div>
                 <ResourceCardTitle resource={resource}/>
                 <span className={cn(cls.StatusDot, statusDotClass(resource.status))}/>
+                <ResourceGoToButton resource={resource}/>
             </div>
             <ResourceCardActions resource={resource}/>
         </div>

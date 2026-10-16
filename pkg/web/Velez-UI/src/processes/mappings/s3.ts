@@ -22,6 +22,14 @@ export function s3ServiceName(instanceName: string): string {
     return S3_NAME_PREFIX + instanceName
 }
 
+export function s3InstanceNameOf(serviceName: string): string | undefined {
+    if (!serviceName.startsWith(S3_NAME_PREFIX)) {
+        return undefined
+    }
+    const instanceName = serviceName.slice(S3_NAME_PREFIX.length)
+    return instanceName === "" ? undefined : instanceName
+}
+
 export function sortS3InstancesByName(instances: S3Instance[]): S3Instance[] {
     return [...instances].sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""))
 }

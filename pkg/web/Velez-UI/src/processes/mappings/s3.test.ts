@@ -4,6 +4,7 @@ import {
     formatAccessFlags,
     formatBytes,
     mapS3InstanceStatus,
+    s3InstanceNameOf,
     s3ServiceName,
     s3WebUiLink,
     sortS3InstancesByName,
@@ -59,5 +60,19 @@ describe("s3WebUiLink", () => {
 describe("s3ServiceName", () => {
     it("prefixes the instance name the way the backend names the service", () => {
         expect(s3ServiceName("garage1")).toBe("s3_garage1")
+    })
+})
+
+describe("s3InstanceNameOf", () => {
+    it("returns the instance name for an S3 service name", () => {
+        expect(s3InstanceNameOf("s3_files")).toBe("files")
+    })
+
+    it("returns undefined for a non-S3 service name", () => {
+        expect(s3InstanceNameOf("postgres_main")).toBeUndefined()
+    })
+
+    it("returns undefined when the prefix has no instance name", () => {
+        expect(s3InstanceNameOf("s3_")).toBeUndefined()
     })
 })

@@ -13,7 +13,7 @@ import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorStat
 import CreateServiceDialog from "@/dialogs/CreateServiceDialog/CreateServiceDialog.tsx"
 import S3InstanceDetail from "@/pages/s3/components/S3InstanceDetail/S3InstanceDetail.tsx"
 import S3InstanceRow from "@/pages/s3/components/S3InstanceRow/S3InstanceRow.tsx"
-import S3ListSkeleton from "@/pages/s3/components/S3ListSkeleton/S3ListSkeleton.tsx"
+import S3ListSkeleton from "@/components/S3ListSkeleton/S3ListSkeleton.tsx"
 import ProvisioningRow from "@/widgets/ProvisioningRow/ProvisioningRow.tsx"
 
 const COLUMNS = ["", "Name", "Environment", "S3 port", "Web UI", "Region", ""]

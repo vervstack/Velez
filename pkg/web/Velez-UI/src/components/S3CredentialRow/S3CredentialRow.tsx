@@ -1,6 +1,6 @@
 import {useState} from "react"
 
-import cls from "@/pages/s3/components/S3CredentialRow/S3CredentialRow.module.css"
+import cls from "@/components/S3CredentialRow/S3CredentialRow.module.css"
 import {useToaster} from "@/app/hooks/toaster/Toaster.ts"
 import Button from "@/components/base/Button.tsx"
 

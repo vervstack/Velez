@@ -141,6 +141,23 @@ describe("ResourceCard", () => {
         expect(screen.queryByRole("link")).not.toBeInTheDocument()
     })
 
+    it("shows Go to when the resource has one address", () => {
+        renderCard({addresses: [{host: "localhost", port: 8080, scope: "docker"}]})
+
+        expect(screen.getByRole("button", {name: "Go to"})).toBeInTheDocument()
+    })
+
+    it("hides Go to when several addresses match no page host", () => {
+        renderCard({
+            addresses: [
+                {host: "10.0.0.5", port: 8080, scope: "vcn"},
+                {host: "10.0.0.6", port: 9090, scope: "docker"},
+            ],
+        })
+
+        expect(screen.queryByRole("button", {name: "Go to"})).not.toBeInTheDocument()
+    })
+
     it("shows no actions when there are no addresses and no web UI", () => {
         renderCard()
 

@@ -35,6 +35,8 @@ const (
 	s3WebUiResourceInstanceName = "e2e-s3-wui-res"
 	s3WebUiNoResInstanceName    = "e2e-s3-wui-nores"
 	s3WebUiGraphInstanceName    = "e2e-s3-wui-graph"
+	s3WebUiHeroInstanceName     = "e2e-s3-wui-hero"
+	s3WebUiHeroListLimit        = 10
 	s3WebUiResourceType         = "web_ui"
 	s3WebUiNetworkModePrefix    = "container:"
 	s3WebUiLoginPath            = "/api/auth/login"
@@ -276,6 +278,66 @@ func (s *S3InstanceSuite) Test_S3Instance_WebUiSidecarIsNotADependency() {
 	dropS3Instance(t, env, instanceName)
 
 	requireNoContainersOfService(t, dockerClient, rootName)
+}
+
+func (s *S3InstanceSuite) Test_S3Instance_WebUiSidecarFeedsServiceHero() {
+	t := s.T()
+	t.Parallel()
+
+	instanceName := s.planeName(s3WebUiHeroInstanceName)
+
+	requireDindLoopbackBridge(t)
+
+	env := s.plane.NewEnvironment(t)
+	dockerClient := env.Custom.NodeClients.Docker().Client()
+
+	removeS3Instance(dockerClient, instanceName)
+	t.Cleanup(func() { removeS3Instance(dockerClient, instanceName) })
+
+	createS3Instance(t, env, instanceName, true)
+
+	rootName := domain.S3ServiceName(instanceName)
+	webUi := inspectContainer(t, env, domain.S3WebUiServiceName(instanceName))
+
+	serviceResp, err := env.Custom.ServiceApiImpl.GetService(t.Context(), newGetServiceRequest(rootName))
+	require.NoError(t, err)
+
+	for _, sidecar := range serviceResp.GetSidecars() {
+		t.Logf("GetService sidecar: name=%s id=%s image=%s", sidecar.GetContainerName(), sidecar.GetContainerId(),
+			sidecar.GetImageName())
+	}
+
+	sidecar := findSidecarById(serviceResp.GetSidecars(), webUi.ID)
+	require.NotNil(t, sidecar, "GetService(%s).Sidecars must contain the web ui container %s", rootName, webUi.ID)
+	require.Equal(t, webUi.Config.Image, sidecar.GetImageName())
+
+	listReq := newListSmerdsByNameRequest(rootName)
+	listResp := env.ListSmerds(t, t.Context(), listReq)
+
+	for i, smerd := range listResp.GetSmerds() {
+		t.Logf("ListSmerds(name=%s)[%d]: name=%s uuid=%s image=%s",
+			rootName, i, smerd.GetName(), smerd.GetUuid(), smerd.GetImageName())
+	}
+
+	dropS3Instance(t, env, instanceName)
+
+	requireNoContainersOfService(t, dockerClient, rootName)
+}
+
+func newListSmerdsByNameRequest(name string) *velez_api.ListSmerds_Request {
+	limit := uint32(s3WebUiHeroListLimit)
+
+	return &velez_api.ListSmerds_Request{Name: &name, Limit: &limit}
+}
+
+func findSidecarById(sidecars []*velez_api.ServiceSidecar, containerId string) *velez_api.ServiceSidecar {
+	for _, sidecar := range sidecars {
+		if sidecar.GetContainerId() == containerId {
+			return sidecar
+		}
+	}
+
+	return nil
 }
 
 func newGetServiceResourcesRequest(serviceName string) *velez_api.GetServiceResources_Request {

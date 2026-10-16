@@ -602,6 +602,8 @@ func (*Version_Request) Descriptor() ([]byte, []int) {
 type Version_Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Version       string                 `protobuf:"bytes,1,opt,name=version,proto3" json:"version,omitempty"`
+	Os            string                 `protobuf:"bytes,2,opt,name=os,proto3" json:"os,omitempty"`
+	Arch          string                 `protobuf:"bytes,3,opt,name=arch,proto3" json:"arch,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -639,6 +641,20 @@ func (*Version_Response) Descriptor() ([]byte, []int) {
 func (x *Version_Response) GetVersion() string {
 	if x != nil {
 		return x.Version
+	}
+	return ""
+}
+
+func (x *Version_Response) GetOs() string {
+	if x != nil {
+		return x.Os
+	}
+	return ""
+}
+
+func (x *Version_Response) GetArch() string {
+	if x != nil {
+		return x.Arch
 	}
 	return ""
 }
@@ -2668,11 +2684,13 @@ var File_velez_api_proto protoreflect.FileDescriptor
 
 const file_velez_api_proto_rawDesc = "" +
 	"\n" +
-	"\x0fvelez_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\tnpm.proto\x1a\x11runners_api.proto\x1a\x12velez_common.proto\":\n" +
+	"\x0fvelez_api.proto\x12\tvelez_api\x1a\x1cgoogle/api/annotations.proto\x1a\tnpm.proto\x1a\x11runners_api.proto\x1a\x12velez_common.proto\"^\n" +
 	"\aVersion\x1a\t\n" +
-	"\aRequest\x1a$\n" +
+	"\aRequest\x1aH\n" +
 	"\bResponse\x12\x18\n" +
-	"\aversion\x18\x01 \x01(\tR\aversion\"\xed\a\n" +
+	"\aversion\x18\x01 \x01(\tR\aversion\x12\x0e\n" +
+	"\x02os\x18\x02 \x01(\tR\x02os\x12\x12\n" +
+	"\x04arch\x18\x03 \x01(\tR\x04arch\"\xed\a\n" +
 	"\vCreateSmerd\x1a\xdd\a\n" +
 	"\aRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +

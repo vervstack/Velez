@@ -23,6 +23,8 @@ export type VersionRequest = Record<string, never>;
 
 export type VersionResponse = {
   version?: string;
+  os?: string;
+  arch?: string;
 };
 
 export type Version = Record<string, never>;

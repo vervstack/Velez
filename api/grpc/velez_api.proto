@@ -119,6 +119,8 @@ message Version {
 
   message Response {
     string version = 1;
+    string os = 2;
+    string arch = 3;
   }
 }
 

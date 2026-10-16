@@ -57,6 +57,17 @@ func (s *RpcGapsSuite) Test_Version() {
 	require.NotEmpty(t, resp.GetVersion())
 }
 
+func (s *RpcGapsSuite) Test_Version_ReportsPlatform() {
+	t := s.T()
+
+	env := s.plane.NewEnvironment(t)
+
+	resp, err := env.Custom.ApiGrpcImpl.Version(s.ctx, &velez_api.Version_Request{})
+	require.NoError(t, err)
+	require.NotEmpty(t, resp.GetOs())
+	require.NotEmpty(t, resp.GetArch())
+}
+
 // Test_SearchImages exercises the handler's reachability only.
 //
 // NOTE: image_list.go builds &velez_api.SearchImages_Response{Images:

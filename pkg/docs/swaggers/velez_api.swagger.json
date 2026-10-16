@@ -1481,6 +1481,12 @@
       "properties": {
         "version": {
           "type": "string"
+        },
+        "os": {
+          "type": "string"
+        },
+        "arch": {
+          "type": "string"
         }
       }
     },

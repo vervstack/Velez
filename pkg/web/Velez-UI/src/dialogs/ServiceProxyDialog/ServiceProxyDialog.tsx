@@ -68,11 +68,10 @@ export default function ServiceProxyDialog({serviceName, currentProxyUrl, curren
         setRows(rows.filter((row) => row.id !== id))
     }
 
-    function submit(toSend: ProxyPayload, title: string) {
+    function submit(toSend: ProxyPayload) {
         LockClosing()
         applyProxy.mutateAsync(toSend)
             .then(function handleApplied() {
-                toaster.bake({title, description: serviceName, level: "Info"})
                 onApplied()
                 UnlockClosing()
                 CloseDialog()
@@ -83,11 +82,11 @@ export default function ServiceProxyDialog({serviceName, currentProxyUrl, curren
 
     function handleApply() {
         if (!payload) return
-        submit(payload, "Proxy applied")
+        submit(payload)
     }
 
     function handleRemoveProxy() {
-        submit(buildRemoveProxyPayload(), "Proxy removed")
+        submit(buildRemoveProxyPayload())
     }
 
     function renderRow(row: BypassHostRowModel) {

@@ -1,5 +1,6 @@
 import { DockerContainer, ServicePattern, SmerdStatus } from '@/app/api/velez';
 import { DotStatus } from '@/components/base/StatusDot';
+import { WireTimestamp, wireTimestampToMillis } from '@/processes/mappings/wireTimestamp.ts';
 
 // Label keys written by Velez on the Docker container — see
 // internal/domain/labels/verv_labels.go, the single source of truth these
@@ -68,10 +69,10 @@ export function suggestedPatternHint(pattern?: ServicePattern): string | undefin
     return label ? `Looks like ${label}` : undefined;
 }
 
-export function formatContainerTimestamp(ts: { seconds?: string | number; nanos?: number }): string {
-    const seconds = Number(ts.seconds || 0);
-    if (!seconds) return '—';
-    return new Date(seconds * 1000).toLocaleString();
+export function formatContainerTimestamp(ts?: WireTimestamp): string {
+    const millis = wireTimestampToMillis(ts);
+    if (!millis) return '—';
+    return new Date(millis).toLocaleString();
 }
 
 export type ContainerStatusTone = 'running' | 'error' | 'unknown';

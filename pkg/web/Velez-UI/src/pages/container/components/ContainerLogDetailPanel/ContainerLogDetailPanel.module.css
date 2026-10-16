@@ -1,0 +1,42 @@
+.ContainerLogDetailPanelContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    height: 100%;
+    padding: 0.75rem 1rem;
+    box-sizing: border-box;
+    overflow-y: auto;
+    border-radius: var(--border-radius);
+    background: var(--accent-bg-color);
+
+    & .Header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    & .Title {
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    & .TextBlock {
+        max-height: var(--logs-detail-text-max-height);
+        overflow: auto;
+        padding: 0.5rem 0.75rem;
+        border: 0.0625rem solid var(--border-s);
+        border-radius: var(--radius-sm);
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        word-break: break-word;
+        color: var(--fg);
+    }
+
+    & .Actions {
+        display: flex;
+        flex-direction: row;
+    }
+}

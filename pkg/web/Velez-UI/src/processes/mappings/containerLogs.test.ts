@@ -6,6 +6,7 @@ import {
     filterLogLines,
     formatLogTimestamp,
     LogLine,
+    splitByQuery,
     stripAnsi,
     toLogLine,
 } from "@/processes/mappings/containerLogs.ts"
@@ -50,8 +51,42 @@ describe("formatLogTimestamp", () => {
         expect(formatLogTimestamp({seconds: "1700000000", nanos: 123000000})).toBe("2023-11-14 22:13:20.123")
     })
 
+    it("renders the RFC3339 string grpc-gateway sends", () => {
+        expect(formatLogTimestamp("2026-10-16T14:22:01.123456789Z")).toBe("2026-10-16 14:22:01.123")
+    })
+
     it("returns an empty string when the timestamp is missing", () => {
         expect(formatLogTimestamp(undefined)).toBe("")
+    })
+
+    it("returns an empty string when the string is not a date", () => {
+        expect(formatLogTimestamp("garbage")).toBe("")
+    })
+})
+
+describe("splitByQuery", () => {
+    it("returns one non-match segment for a blank query", () => {
+        expect(splitByQuery("hello", "  ")).toEqual([{text: "hello", isMatch: false}])
+    })
+
+    it("marks every case-insensitive occurrence and keeps the original casing", () => {
+        expect(splitByQuery("Err ok err", "ERR")).toEqual([
+            {text: "Err", isMatch: true},
+            {text: " ok ", isMatch: false},
+            {text: "err", isMatch: true},
+        ])
+    })
+
+    it("treats regex characters in the query literally", () => {
+        expect(splitByQuery("a.c abc", ".")).toEqual([
+            {text: "a", isMatch: false},
+            {text: ".", isMatch: true},
+            {text: "c abc", isMatch: false},
+        ])
+    })
+
+    it("returns one non-match segment when nothing matches", () => {
+        expect(splitByQuery("abc", "x")).toEqual([{text: "abc", isMatch: false}])
     })
 })
 

@@ -91,6 +91,12 @@ body {
     --dialog-shadow: 0 0.25rem 0.75rem rgb(0 0 0 / 15%);
     --dialog-padding: 1.25rem;
 
+    /* Container logs */
+    --logs-detail-width: 28rem;
+    --logs-detail-stack-height: 22rem;
+    --logs-detail-text-max-height: 20rem;
+    --logs-motion: 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
+
     /* ── Supplemental VS tokens (from design handoff) ─────────── */
     --vs-bg-5: #2a2a3a;
     --vs-fs-h1: 26px;

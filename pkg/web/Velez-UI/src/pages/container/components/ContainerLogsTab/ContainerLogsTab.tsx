@@ -1,4 +1,4 @@
-import {UIEvent, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react"
+import {KeyboardEvent, UIEvent, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react"
 
 import type {WatchContainerLogsResponse} from "@/app/api/velez"
 import cls from "@/pages/container/components/ContainerLogsTab/ContainerLogsTab.module.css"
@@ -12,6 +12,8 @@ import {
 } from "@/processes/mappings/containerLogs.ts"
 import SkeletonLoader from "@/components/base/SkeletonLoader.tsx"
 import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorState.tsx"
+import ContainerLogDetailDrawer from
+    "@/pages/container/components/ContainerLogDetailDrawer/ContainerLogDetailDrawer.tsx"
 import ContainerLogLine from "@/pages/container/components/ContainerLogLine/ContainerLogLine.tsx"
 import ContainerLogsControls from "@/pages/container/components/ContainerLogsControls/ContainerLogsControls.tsx"
 
@@ -34,6 +36,9 @@ export default function ContainerLogsTab({containerId}: Props) {
     const [lines, setLines] = useState<LogLine[]>([])
     const [status, setStatus] = useState<StreamStatus>("loading")
     const [attempt, setAttempt] = useState(0)
+    const [selectedId, setSelectedId] = useState<number | null>(null)
+    const [panelLine, setPanelLine] = useState<LogLine | null>(null)
+    const [isPanelOpen, setIsPanelOpen] = useState(false)
 
     const viewportRef = useRef<HTMLDivElement>(null)
     const isPinnedRef = useRef(true)
@@ -89,9 +94,52 @@ export default function ContainerLogsTab({containerId}: Props) {
         if (viewport && isPinnedRef.current) viewport.scrollTop = viewport.scrollHeight
     }, [visibleLines])
 
+    const isViewportMounted = status !== "error"
+
+    useEffect(function keepPinnedOnResize() {
+        const viewport = viewportRef.current
+        if (!viewport) return
+        const observer = new ResizeObserver(function repin() {
+            if (isPinnedRef.current) viewport.scrollTop = viewport.scrollHeight
+        })
+        observer.observe(viewport)
+        return function stopObserving() {
+            observer.disconnect()
+        }
+    }, [isViewportMounted])
+
     function handleScroll(e: UIEvent<HTMLDivElement>) {
         const el = e.currentTarget
         isPinnedRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < BOTTOM_THRESHOLD_PX
+    }
+
+    function handleClosePanel() {
+        setSelectedId(null)
+        setIsPanelOpen(false)
+    }
+
+    function handleSelect(line: LogLine) {
+        if (isPanelOpen && selectedId === line.id) {
+            handleClosePanel()
+            return
+        }
+        setSelectedId(line.id)
+        setPanelLine(line)
+        setIsPanelOpen(true)
+    }
+
+    function handleTailChange(value: number) {
+        handleClosePanel()
+        setTail(value)
+    }
+
+    function handleFollowChange(value: boolean) {
+        handleClosePanel()
+        setIsFollow(value)
+    }
+
+    function handleKeyDown(e: KeyboardEvent<HTMLDivElement>) {
+        if (e.key === "Escape" && isPanelOpen) handleClosePanel()
     }
 
     function handleRetry() {
@@ -100,11 +148,24 @@ export default function ContainerLogsTab({containerId}: Props) {
     }
 
     function renderSkeletonRow(width: string, i: number) {
-        return <SkeletonLoader key={i} shape="line" width={width} height="0.9rem"/>
+        return (
+            <div key={i} className={cls.SkeletonWrapper}>
+                <SkeletonLoader shape="line" width={width} height="0.9rem"/>
+            </div>
+        )
     }
 
     function renderLine(line: LogLine) {
-        return <ContainerLogLine key={line.id} line={line} isShowTimestamp={isShowTimestamps}/>
+        return (
+            <ContainerLogLine
+                key={line.id}
+                line={line}
+                isShowTimestamp={isShowTimestamps}
+                query={filter}
+                isSelected={line.id === selectedId}
+                onSelect={handleSelect}
+            />
+        )
     }
 
     function renderViewportContent() {
@@ -114,25 +175,38 @@ export default function ContainerLogsTab({containerId}: Props) {
         return visibleLines.map(renderLine)
     }
 
+    function renderViewport() {
+        if (status === "error") {
+            return <QueryErrorState message="Failed to stream container logs." onRetry={handleRetry}/>
+        }
+        return (
+            <div ref={viewportRef} className={cls.Viewport} onScroll={handleScroll}>
+                {renderViewportContent()}
+            </div>
+        )
+    }
+
     return (
-        <div className={cls.ContainerLogsTabContainer}>
+        <div className={cls.ContainerLogsTabContainer} onKeyDown={handleKeyDown}>
             <ContainerLogsControls
                 tail={tail}
-                onTailChange={setTail}
+                onTailChange={handleTailChange}
                 isFollow={isFollow}
-                onFollowChange={setIsFollow}
+                onFollowChange={handleFollowChange}
                 isShowTimestamps={isShowTimestamps}
                 onShowTimestampsChange={setIsShowTimestamps}
                 filter={filter}
                 onFilterChange={setFilter}
             />
-            {status === "error"
-                ? <QueryErrorState message="Failed to stream container logs." onRetry={handleRetry}/>
-                : (
-                    <div ref={viewportRef} className={cls.Viewport} onScroll={handleScroll}>
-                        {renderViewportContent()}
-                    </div>
-                )}
+            <div className={cls.Body}>
+                {renderViewport()}
+                <ContainerLogDetailDrawer
+                    line={panelLine}
+                    query={filter}
+                    isOpen={isPanelOpen}
+                    onClose={handleClosePanel}
+                />
+            </div>
         </div>
     )
 }

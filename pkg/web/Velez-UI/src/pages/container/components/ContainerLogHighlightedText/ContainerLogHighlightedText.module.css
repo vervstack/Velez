@@ -1,0 +1,7 @@
+.ContainerLogHighlightedTextContainer {
+    & .Match {
+        border-radius: var(--radius-sm);
+        background: var(--amber-dim);
+        color: var(--amber);
+    }
+}

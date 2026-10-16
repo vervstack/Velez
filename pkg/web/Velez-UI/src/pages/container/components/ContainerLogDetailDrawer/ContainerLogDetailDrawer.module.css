@@ -1,0 +1,46 @@
+.ContainerLogDetailDrawerContainer {
+    flex-shrink: 0;
+    width: 0;
+    overflow: hidden;
+    visibility: hidden;
+    transition: width var(--logs-motion), visibility 0s linear var(--logs-motion);
+
+    &.Open {
+        width: calc(var(--logs-detail-width) + 1rem);
+        visibility: visible;
+        transition: width var(--logs-motion), visibility 0s;
+    }
+
+    & .Inner {
+        box-sizing: border-box;
+        width: var(--logs-detail-width);
+        height: 100%;
+        margin-left: 1rem;
+    }
+
+    @media (orientation: portrait) {
+        width: 100%;
+        height: 0;
+        transition: height var(--logs-motion), visibility 0s linear var(--logs-motion);
+
+        &.Open {
+            width: 100%;
+            height: calc(var(--logs-detail-stack-height) + 1rem);
+            transition: height var(--logs-motion), visibility 0s;
+        }
+
+        & .Inner {
+            width: 100%;
+            height: var(--logs-detail-stack-height);
+            margin-left: 0;
+            margin-top: 1rem;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &,
+        &.Open {
+            transition: none;
+        }
+    }
+}

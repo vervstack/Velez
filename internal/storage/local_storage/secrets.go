@@ -47,6 +47,11 @@ const (
 // real host-socket bind mount (never from labels or env, which a client can
 // set), the isolation from HostConfig.Runtime/Privileged - and fall back to
 // memory for the window before the container exists.
+//
+// The S3 scope (domain.S3SecretScope) is recovered on Get only as well: the
+// Garage admin token and rpc secret from the Garage container's env, the web ui
+// password from the sidecar's (domain.S3WebUiPasswordEnv). Per-key secrets are
+// asked of Garage by the s3aas service instead.
 type dockerSecrets struct {
 	docker   node_clients.Docker
 	fallback storage.SecretsStorage
@@ -147,6 +152,11 @@ func (d *dockerSecrets) getNonPgaasSecret(ctx context.Context, ref domain.Secret
 		}
 	}
 
+	s3Secret := d.s3SecretFromContainer(ctx, ref)
+	if s3Secret != "" {
+		return s3Secret, nil
+	}
+
 	derived, ok := d.derivedFromServiceContainer(ctx, ref)
 	if ok {
 		return derived, nil
@@ -213,6 +223,62 @@ func (d *dockerSecrets) registrationTokenFromContainer(ctx context.Context, name
 	}
 
 	return container_derived.EnvValue(info.Config.Env, container_derived.RunnerRegistrationTokenEnvVar)
+}
+
+// s3SecretFromContainer returns the S3 instance secret ref names - the Garage
+// admin token and rpc secret from the Garage container's env, the web ui
+// password from its sidecar's - or "" for any other ref or while the
+// container is not there yet. Key secrets are not stored here; Garage
+// returns them itself.
+func (d *dockerSecrets) s3SecretFromContainer(ctx context.Context, ref domain.SecretRef) string {
+	if ref.Scope != domain.S3SecretScope {
+		return ""
+	}
+
+	switch ref {
+	case domain.S3AdminTokenSecretRef(ref.Owner):
+		return d.envFromLabelledContainer(ctx, labels.S3InstanceLabel, ref.Owner, container_derived.S3GarageEnvAdminToken)
+	case domain.S3RpcSecretRef(ref.Owner):
+		return d.envFromLabelledContainer(ctx, labels.S3InstanceLabel, ref.Owner, container_derived.S3GarageEnvRpcSecret)
+	case domain.S3WebUiPasswordSecretRef(ref.Owner):
+		return d.envFromLabelledContainer(ctx, labels.S3WebUiLabel, ref.Owner, domain.S3WebUiPasswordEnv)
+	}
+
+	return ""
+}
+
+// envFromLabelledContainer returns envKey of the container labelled label=value,
+// preferring a running one, or "" if there is none or it carries no such env.
+func (d *dockerSecrets) envFromLabelledContainer(ctx context.Context, label, value, envKey string) string {
+	if value == "" {
+		return ""
+	}
+
+	listReq := &pb.ListSmerds_Request{
+		Label: map[string]string{label: value},
+	}
+
+	containers, err := d.docker.ListContainers(ctx, listReq, allEnvironments)
+	if err != nil || len(containers) == 0 {
+		return ""
+	}
+
+	chosen := containers[0]
+
+	for _, c := range containers {
+		if c.State == runningContainerState {
+			chosen = c
+
+			break
+		}
+	}
+
+	info, err := d.docker.Client().ContainerInspect(ctx, chosen.ID)
+	if err != nil {
+		return ""
+	}
+
+	return container_derived.EnvValue(info.Config.Env, envKey)
 }
 
 // derivedFromServiceContainer derives the docker-socket grant and the

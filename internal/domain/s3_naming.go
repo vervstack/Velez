@@ -16,7 +16,8 @@ const (
 	S3MetaPath         = "/var/lib/garage/meta"
 	S3DataPath         = "/var/lib/garage/data"
 	S3WebUiUsername    = "admin"
-	s3SecretScope      = "s3"
+	S3WebUiPasswordEnv = "VELEZ_WEB_UI_PASSWORD"
+	S3SecretScope      = "s3"
 	s3NetworkPrefix    = "s3-"
 	s3WebUiSuffix      = "_web_ui"
 	s3MetaVolumeSuffix = "-meta"
@@ -53,17 +54,17 @@ func S3DataVolumeName(name string) string {
 }
 
 func S3AdminTokenSecretRef(name string) SecretRef {
-	return SecretRef{Scope: s3SecretScope, Owner: name, Key: s3AdminTokenSecretKey}
+	return SecretRef{Scope: S3SecretScope, Owner: name, Key: s3AdminTokenSecretKey}
 }
 
 func S3RpcSecretRef(name string) SecretRef {
-	return SecretRef{Scope: s3SecretScope, Owner: name, Key: s3RpcSecretKey}
+	return SecretRef{Scope: S3SecretScope, Owner: name, Key: s3RpcSecretKey}
 }
 
 func S3WebUiPasswordSecretRef(name string) SecretRef {
-	return SecretRef{Scope: s3SecretScope, Owner: name, Key: s3WebUiPasswordKey}
+	return SecretRef{Scope: S3SecretScope, Owner: name, Key: s3WebUiPasswordKey}
 }
 
 func S3KeySecretRef(instance, accessKeyId string) SecretRef {
-	return SecretRef{Scope: s3SecretScope, Owner: instance, Key: s3KeySecretKeyPrefix + accessKeyId}
+	return SecretRef{Scope: S3SecretScope, Owner: instance, Key: s3KeySecretKeyPrefix + accessKeyId}
 }

@@ -206,7 +206,14 @@ func (j *deployGarageWebUiJob) secretEnv(ctx context.Context, name string) (map[
 		return nil, rerrors.Wrap(err, "error reading admin token")
 	}
 
-	password, err := j.secrets.Get(ctx, domain.S3WebUiPasswordSecretRef(name))
+	passwordRef := domain.S3WebUiPasswordSecretRef(name)
+
+	err = ensureSecret(ctx, j.secrets, passwordRef, generateS3WebUiPassword)
+	if err != nil {
+		return nil, rerrors.Wrap(err, "error ensuring web ui password")
+	}
+
+	password, err := j.secrets.Get(ctx, passwordRef)
 	if err != nil {
 		return nil, rerrors.Wrap(err, "error reading web ui password")
 	}
@@ -219,6 +226,8 @@ func (j *deployGarageWebUiJob) secretEnv(ctx context.Context, name string) (map[
 	secretEnv := map[string]string{
 		envWebUiApiAdminKey:  adminToken,
 		envWebUiAuthUserPass: strings.TrimSuffix(line, "\n"),
+
+		domain.S3WebUiPasswordEnv: password,
 	}
 
 	return secretEnv, nil

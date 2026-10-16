@@ -108,7 +108,7 @@ func (s *Service) GetInstanceCredentials(ctx context.Context, name string) (doma
 	}
 
 	password, err := s.secretsStore.Get(ctx, domain.S3WebUiPasswordSecretRef(name))
-	if err != nil {
+	if err != nil && !rerrors.Is(err, user_errors.ErrSecretNotFound) {
 		return domain.S3InstanceCredentials{}, rerrors.Wrap(err, "error getting web ui password")
 	}
 

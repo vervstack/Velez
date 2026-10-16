@@ -39,6 +39,11 @@ const (
 	// same name - the env var carrying the minted registration token into the
 	// runner container.
 	RunnerRegistrationTokenEnvVar = "VELEZ_RUNNER_REGISTRATION_TOKEN"
+
+	// The env vars an S3 instance's Garage container carries its admin token
+	// and rpc secret in.
+	S3GarageEnvAdminToken = "GARAGE_ADMIN_TOKEN"
+	S3GarageEnvRpcSecret  = "GARAGE_RPC_SECRET"
 )
 
 func PgInstanceSecretRef(name string) domain.SecretRef {

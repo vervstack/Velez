@@ -174,16 +174,42 @@ func (s *Service) GetKeyCredentials(
 
 	secret, err := s.secretsStore.Get(ctx, domain.S3KeySecretRef(instanceName, accessKeyId))
 	if err != nil {
-		if rerrors.Is(err, user_errors.ErrSecretNotFound) {
-			return domain.S3KeyCredentials{}, rerrors.Wrap(user_errors.ErrS3KeyNotFound)
+		if !rerrors.Is(err, user_errors.ErrSecretNotFound) {
+			return domain.S3KeyCredentials{}, rerrors.Wrap(err, "error getting key secret")
 		}
 
-		return domain.S3KeyCredentials{}, rerrors.Wrap(err, "error getting key secret")
+		secret, err = s.keySecretFromGarage(ctx, instanceName, accessKeyId)
+		if err != nil {
+			return domain.S3KeyCredentials{}, rerrors.Wrap(err)
+		}
 	}
 
 	instance := s.describe(ctx, ref)
 
 	return s.keyCredentials(instance, accessKeyId, secret), nil
+}
+
+func (s *Service) keySecretFromGarage(ctx context.Context, instanceName, accessKeyId string) (string, error) {
+	_, client, err := s.connect(ctx, instanceName)
+	if err != nil {
+		return "", rerrors.Wrap(err)
+	}
+
+	info, err := client.GetKeyInfo(ctx, accessKeyId, true)
+	if err != nil {
+		if rerrors.Is(err, garage.ErrNotFound) {
+			return "", rerrors.Wrap(user_errors.ErrS3KeyNotFound)
+		}
+
+		return "", rerrors.Wrap(err, "error getting key info")
+	}
+
+	secret := secretOf(info)
+	if secret == "" {
+		return "", rerrors.Wrap(user_errors.ErrS3KeyNotFound)
+	}
+
+	return secret, nil
 }
 
 func (s *Service) keyCredentials(instance domain.S3Instance, accessKeyId, secret string) domain.S3KeyCredentials {

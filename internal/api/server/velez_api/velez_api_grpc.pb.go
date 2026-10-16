@@ -25,6 +25,7 @@ const (
 	VelezAPI_ListContainers_FullMethodName             = "/velez_api.VelezAPI/ListContainers"
 	VelezAPI_RegisterContainer_FullMethodName          = "/velez_api.VelezAPI/RegisterContainer"
 	VelezAPI_GetContainer_FullMethodName               = "/velez_api.VelezAPI/GetContainer"
+	VelezAPI_WatchContainerLogs_FullMethodName         = "/velez_api.VelezAPI/WatchContainerLogs"
 	VelezAPI_ListContainerImageVersions_FullMethodName = "/velez_api.VelezAPI/ListContainerImageVersions"
 	VelezAPI_FinishOnboarding_FullMethodName           = "/velez_api.VelezAPI/FinishOnboarding"
 	VelezAPI_DropSmerd_FullMethodName                  = "/velez_api.VelezAPI/DropSmerd"
@@ -48,6 +49,7 @@ type VelezAPIClient interface {
 	ListContainers(ctx context.Context, in *ListContainers_Request, opts ...grpc.CallOption) (*ListContainers_Response, error)
 	RegisterContainer(ctx context.Context, in *RegisterContainer_Request, opts ...grpc.CallOption) (*RegisterContainer_Response, error)
 	GetContainer(ctx context.Context, in *GetContainer_Request, opts ...grpc.CallOption) (*DockerContainer, error)
+	WatchContainerLogs(ctx context.Context, in *WatchContainerLogs_Request, opts ...grpc.CallOption) (grpc.ServerStreamingClient[WatchContainerLogs_Response], error)
 	ListContainerImageVersions(ctx context.Context, in *ListContainerImageVersions_Request, opts ...grpc.CallOption) (*ListContainerImageVersions_Response, error)
 	FinishOnboarding(ctx context.Context, in *FinishOnboarding_Request, opts ...grpc.CallOption) (*FinishOnboarding_Response, error)
 	DropSmerd(ctx context.Context, in *DropSmerd_Request, opts ...grpc.CallOption) (*DropSmerd_Response, error)
@@ -130,6 +132,25 @@ func (c *velezAPIClient) GetContainer(ctx context.Context, in *GetContainer_Requ
 	}
 	return out, nil
 }
+
+func (c *velezAPIClient) WatchContainerLogs(ctx context.Context, in *WatchContainerLogs_Request, opts ...grpc.CallOption) (grpc.ServerStreamingClient[WatchContainerLogs_Response], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &VelezAPI_ServiceDesc.Streams[0], VelezAPI_WatchContainerLogs_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[WatchContainerLogs_Request, WatchContainerLogs_Response]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type VelezAPI_WatchContainerLogsClient = grpc.ServerStreamingClient[WatchContainerLogs_Response]
 
 func (c *velezAPIClient) ListContainerImageVersions(ctx context.Context, in *ListContainerImageVersions_Request, opts ...grpc.CallOption) (*ListContainerImageVersions_Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -233,6 +254,7 @@ type VelezAPIServer interface {
 	ListContainers(context.Context, *ListContainers_Request) (*ListContainers_Response, error)
 	RegisterContainer(context.Context, *RegisterContainer_Request) (*RegisterContainer_Response, error)
 	GetContainer(context.Context, *GetContainer_Request) (*DockerContainer, error)
+	WatchContainerLogs(*WatchContainerLogs_Request, grpc.ServerStreamingServer[WatchContainerLogs_Response]) error
 	ListContainerImageVersions(context.Context, *ListContainerImageVersions_Request) (*ListContainerImageVersions_Response, error)
 	FinishOnboarding(context.Context, *FinishOnboarding_Request) (*FinishOnboarding_Response, error)
 	DropSmerd(context.Context, *DropSmerd_Request) (*DropSmerd_Response, error)
@@ -273,6 +295,9 @@ func (UnimplementedVelezAPIServer) RegisterContainer(context.Context, *RegisterC
 }
 func (UnimplementedVelezAPIServer) GetContainer(context.Context, *GetContainer_Request) (*DockerContainer, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetContainer not implemented")
+}
+func (UnimplementedVelezAPIServer) WatchContainerLogs(*WatchContainerLogs_Request, grpc.ServerStreamingServer[WatchContainerLogs_Response]) error {
+	return status.Error(codes.Unimplemented, "method WatchContainerLogs not implemented")
 }
 func (UnimplementedVelezAPIServer) ListContainerImageVersions(context.Context, *ListContainerImageVersions_Request) (*ListContainerImageVersions_Response, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListContainerImageVersions not implemented")
@@ -429,6 +454,17 @@ func _VelezAPI_GetContainer_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	return interceptor(ctx, in, info, handler)
 }
+
+func _VelezAPI_WatchContainerLogs_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(WatchContainerLogs_Request)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(VelezAPIServer).WatchContainerLogs(m, &grpc.GenericServerStream[WatchContainerLogs_Request, WatchContainerLogs_Response]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type VelezAPI_WatchContainerLogsServer = grpc.ServerStreamingServer[WatchContainerLogs_Response]
 
 func _VelezAPI_ListContainerImageVersions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListContainerImageVersions_Request)
@@ -660,6 +696,12 @@ var VelezAPI_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _VelezAPI_SearchImages_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "WatchContainerLogs",
+			Handler:       _VelezAPI_WatchContainerLogs_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "velez_api.proto",
 }

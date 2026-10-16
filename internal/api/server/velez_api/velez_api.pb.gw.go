@@ -217,6 +217,43 @@ func local_request_VelezAPI_GetContainer_0(ctx context.Context, marshaler runtim
 	return msg, metadata, err
 }
 
+var filter_VelezAPI_WatchContainerLogs_0 = &utilities.DoubleArray{Encoding: map[string]int{"id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+
+func request_VelezAPI_WatchContainerLogs_0(ctx context.Context, marshaler runtime.Marshaler, client VelezAPIClient, req *http.Request, pathParams map[string]string) (VelezAPI_WatchContainerLogsClient, runtime.ServerMetadata, error) {
+	var (
+		protoReq WatchContainerLogs_Request
+		metadata runtime.ServerMetadata
+		err      error
+	)
+	val, ok := pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+	protoReq.Id, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_VelezAPI_WatchContainerLogs_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	stream, err := client.WatchContainerLogs(ctx, &protoReq)
+	if err != nil {
+		return nil, metadata, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		return nil, metadata, err
+	}
+	metadata.HeaderMD = header
+	return stream, metadata, nil
+}
+
 var filter_VelezAPI_ListContainerImageVersions_0 = &utilities.DoubleArray{Encoding: map[string]int{"container_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_VelezAPI_ListContainerImageVersions_0(ctx context.Context, marshaler runtime.Marshaler, client VelezAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -606,6 +643,13 @@ func RegisterVelezAPIHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 		forward_VelezAPI_GetContainer_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+
+	mux.Handle(http.MethodGet, pattern_VelezAPI_WatchContainerLogs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
+		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+		return
+	})
 	mux.Handle(http.MethodGet, pattern_VelezAPI_ListContainerImageVersions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -928,6 +972,23 @@ func RegisterVelezAPIHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 		forward_VelezAPI_GetContainer_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodGet, pattern_VelezAPI_WatchContainerLogs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/velez_api.VelezAPI/WatchContainerLogs", runtime.WithHTTPPathPattern("/api/container/{id}/logs"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_VelezAPI_WatchContainerLogs_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_VelezAPI_WatchContainerLogs_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodGet, pattern_VelezAPI_ListContainerImageVersions_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1091,6 +1152,7 @@ var (
 	pattern_VelezAPI_ListContainers_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "container", "list"}, ""))
 	pattern_VelezAPI_RegisterContainer_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "container", "register"}, ""))
 	pattern_VelezAPI_GetContainer_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"api", "container", "id"}, ""))
+	pattern_VelezAPI_WatchContainerLogs_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"api", "container", "id", "logs"}, ""))
 	pattern_VelezAPI_ListContainerImageVersions_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"api", "container", "container_id", "image_versions"}, ""))
 	pattern_VelezAPI_FinishOnboarding_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "container", "finish_onboarding"}, ""))
 	pattern_VelezAPI_DropSmerd_0                  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "smerd", "drop"}, ""))
@@ -1109,6 +1171,7 @@ var (
 	forward_VelezAPI_ListContainers_0             = runtime.ForwardResponseMessage
 	forward_VelezAPI_RegisterContainer_0          = runtime.ForwardResponseMessage
 	forward_VelezAPI_GetContainer_0               = runtime.ForwardResponseMessage
+	forward_VelezAPI_WatchContainerLogs_0         = runtime.ForwardResponseStream
 	forward_VelezAPI_ListContainerImageVersions_0 = runtime.ForwardResponseMessage
 	forward_VelezAPI_FinishOnboarding_0           = runtime.ForwardResponseMessage
 	forward_VelezAPI_DropSmerd_0                  = runtime.ForwardResponseMessage

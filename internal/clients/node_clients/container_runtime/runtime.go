@@ -119,6 +119,14 @@ type EnsureVolumeRequest struct {
 	DriverOpts map[string]string
 }
 
+// LogsRequest selects what ContainerRuntime.Logs streams. Tail is the number
+// of backlog lines (0 = all, as Docker treats it); IsFollow keeps the stream
+// open for new output.
+type LogsRequest struct {
+	Tail     uint32
+	IsFollow bool
+}
+
 // ContainerRuntime is what the service/jobs layers depend on instead of a
 // concrete Docker client.
 //
@@ -294,6 +302,12 @@ type ContainerRuntime interface {
 	// virtual/logical name - there is no such name for a container Velez
 	// doesn't manage.
 	InspectAny(ctx context.Context, id string) (container.InspectResponse, bool, error)
+
+	// Logs opens the stdout/stderr stream of the container with the literal
+	// Docker id, unscoped like InspectAny. Timestamps are always requested.
+	// The stream is multiplexed (stdcopy framing) unless the container has a
+	// TTY. Implemented on commonRuntime.
+	Logs(ctx context.Context, id string, req LogsRequest) (io.ReadCloser, error)
 
 	// EnsureVolume creates the named volume. Idempotent: an existing volume
 	// with the same driver and options is left as is; one with different

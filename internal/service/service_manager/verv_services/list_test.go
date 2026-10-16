@@ -57,6 +57,14 @@ func (m *testContainerService) GetContainer(
 	return nil, nil
 }
 
+func (m *testContainerService) WatchContainerLogs(
+	ctx context.Context,
+	req *velez_api.WatchContainerLogs_Request,
+	send func(*velez_api.WatchContainerLogs_Response) error,
+) error {
+	return nil
+}
+
 func (m *testContainerService) FinishOnboarding(
 	ctx context.Context,
 	req *velez_api.FinishOnboarding_Request,

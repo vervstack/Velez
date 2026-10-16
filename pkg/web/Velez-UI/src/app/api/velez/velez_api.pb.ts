@@ -6,6 +6,7 @@
  */
 
 import * as fm from "./fetch.pb";
+import * as GoogleProtobufTimestamp from "./google/protobuf/timestamp.pb";
 import * as VelezApiRunnersApi from "./runners_api.pb";
 import * as VelezApiVelezCommon from "./velez_common.pb";
 
@@ -18,6 +19,12 @@ type OneOf<T> =
         ? { [k in K]: T[K] } & Absent<T, K>
         : never
       : never);
+
+export enum LogStream {
+  LOG_STREAM_UNSPECIFIED = "LOG_STREAM_UNSPECIFIED",
+  STDOUT = "STDOUT",
+  STDERR = "STDERR",
+}
 
 export type VersionRequest = Record<string, never>;
 
@@ -157,6 +164,21 @@ export type GetContainerRequest = {
 
 export type GetContainer = Record<string, never>;
 
+export type WatchContainerLogsRequest = {
+  id?: string;
+  environment?: string;
+  tail?: number;
+  isFollow?: boolean;
+};
+
+export type WatchContainerLogsResponse = {
+  timestamp?: GoogleProtobufTimestamp.Timestamp;
+  stream?: LogStream;
+  text?: string;
+};
+
+export type WatchContainerLogs = Record<string, never>;
+
 export type DropSmerdRequest = {
   uuids?: string[];
   name?: string[];
@@ -262,6 +284,9 @@ export class VelezAPI {
   }
   static GetContainer(this:void, req: GetContainerRequest, initReq?: fm.InitReq): Promise<VelezApiVelezCommon.DockerContainer> {
     return fm.fetchRequest<VelezApiVelezCommon.DockerContainer>(`/api/container/${req.id}?${fm.renderURLSearchParams(req, ["id"])}`, {...initReq, method: "GET"});
+  }
+  static WatchContainerLogs(this:void, req: WatchContainerLogsRequest, entityNotifier?: fm.NotifyStreamEntityArrival<WatchContainerLogsResponse>, initReq?: fm.InitReq): Promise<void> {
+    return fm.fetchStreamingRequest<WatchContainerLogsResponse>(`/api/container/${req.id}/logs?${fm.renderURLSearchParams(req, ["id"])}`, entityNotifier, {...initReq, method: "GET"});
   }
   static ListContainerImageVersions(this:void, req: ListContainerImageVersionsRequest, initReq?: fm.InitReq): Promise<ListContainerImageVersionsResponse> {
     return fm.fetchRequest<ListContainerImageVersionsResponse>(`/api/container/${req.containerId}/image_versions?${fm.renderURLSearchParams(req, ["containerId"])}`, {...initReq, method: "GET"});

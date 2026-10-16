@@ -823,6 +823,10 @@ func (f *fakeContainerRuntime) ContainerAddress(info container.InspectResponse, 
 	return address, nil
 }
 
+func (f *fakeContainerRuntime) Logs(context.Context, string, container_runtime.LogsRequest) (io.ReadCloser, error) {
+	return nil, nil
+}
+
 func (f *fakeContainerRuntime) InspectAny(context.Context, string) (container.InspectResponse, bool, error) {
 	return container.InspectResponse{}, false, nil
 }
@@ -1456,6 +1460,14 @@ func (f *fakeContainerService) GetContainer(
 	_ context.Context, _ *velez_api.GetContainer_Request,
 ) (*velez_api.DockerContainer, error) {
 	return nil, nil
+}
+
+func (f *fakeContainerService) WatchContainerLogs(
+	_ context.Context,
+	_ *velez_api.WatchContainerLogs_Request,
+	_ func(*velez_api.WatchContainerLogs_Response) error,
+) error {
+	return nil
 }
 
 func (f *fakeContainerService) FinishOnboarding(

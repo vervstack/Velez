@@ -3,6 +3,7 @@ package gitlab
 import (
 	"bytes"
 	"context"
+	"io"
 	"io/fs"
 	"testing"
 
@@ -167,6 +168,10 @@ func (f *fakeContainerRuntime) ListOccupiedPorts(context.Context) ([]uint32, err
 }
 
 func (f *fakeContainerRuntime) ListAllContainers(context.Context, uint32) ([]container.Summary, error) {
+	panic("not implemented")
+}
+
+func (f *fakeContainerRuntime) Logs(context.Context, string, container_runtime.LogsRequest) (io.ReadCloser, error) {
 	panic("not implemented")
 }
 

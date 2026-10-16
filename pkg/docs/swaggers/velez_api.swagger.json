@@ -218,6 +218,66 @@
         ]
       }
     },
+    "/api/container/{id}/logs": {
+      "get": {
+        "operationId": "VelezAPI_WatchContainerLogs",
+        "responses": {
+          "200": {
+            "description": "A successful response.(streaming responses)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/velez_apiWatchContainerLogsResponse"
+                },
+                "error": {
+                  "$ref": "#/definitions/googleRpcStatus"
+                }
+              },
+              "title": "Stream result of velez_apiWatchContainerLogsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "environment",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "tail",
+            "description": "backlog lines; 0 = 100",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "isFollow",
+            "description": "false = send backlog, then close",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "VelezAPI"
+        ]
+      }
+    },
     "/api/hardware": {
       "get": {
         "operationId": "VelezAPI_GetHardware",
@@ -1113,6 +1173,15 @@
         }
       }
     },
+    "velez_apiLogStream": {
+      "type": "string",
+      "enum": [
+        "LOG_STREAM_UNSPECIFIED",
+        "STDOUT",
+        "STDERR"
+      ],
+      "default": "LOG_STREAM_UNSPECIFIED"
+    },
     "velez_apiMakeConnectionsRequest": {
       "type": "object",
       "properties": {
@@ -1498,6 +1567,22 @@
         },
         "containerPath": {
           "type": "string"
+        }
+      }
+    },
+    "velez_apiWatchContainerLogsResponse": {
+      "type": "object",
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "stream": {
+          "$ref": "#/definitions/velez_apiLogStream"
+        },
+        "text": {
+          "type": "string",
+          "title": "one line, ANSI left intact"
         }
       }
     }

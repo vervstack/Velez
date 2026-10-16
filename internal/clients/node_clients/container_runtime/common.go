@@ -2,7 +2,9 @@ package container_runtime
 
 import (
 	"context"
+	"io"
 	"maps"
+	"strconv"
 	"strings"
 
 	"github.com/containerd/errdefs"
@@ -108,6 +110,29 @@ func (c *commonRuntime) InspectAny(ctx context.Context, id string) (container.In
 	}
 
 	return info, true, nil
+}
+
+// Logs opens the container's log stream by literal Docker id - see this
+// method's doc comment on the ContainerRuntime interface.
+func (c *commonRuntime) Logs(ctx context.Context, id string, req LogsRequest) (io.ReadCloser, error) {
+	opts := container.LogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+		Timestamps: true,
+		Follow:     req.IsFollow,
+		Tail:       strconv.FormatUint(uint64(req.Tail), 10),
+	}
+
+	reader, err := c.cli.ContainerLogs(ctx, id, opts)
+	if err != nil {
+		if strings.Contains(err.Error(), docker.NoSuchContainerError) {
+			return nil, rerrors.Wrap(user_errors.ErrNoSuchContainer)
+		}
+
+		return nil, rerrors.Wrap(err, "error opening container logs")
+	}
+
+	return reader, nil
 }
 
 // EnsureVolume creates the volume unless one with the same driver and options

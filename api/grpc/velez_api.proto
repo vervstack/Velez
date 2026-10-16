@@ -3,6 +3,7 @@ syntax = "proto3";
 package velez_api;
 
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
 import "npm.proto";
 import "runners_api.proto";
@@ -46,6 +47,11 @@ service VelezAPI {
   rpc GetContainer(GetContainer.Request) returns (DockerContainer) {
     option (google.api.http) = {
       get: "/api/container/{id}"
+    };
+  }
+  rpc WatchContainerLogs(WatchContainerLogs.Request) returns (stream WatchContainerLogs.Response) {
+    option (google.api.http) = {
+      get: "/api/container/{id}/logs"
     };
   }
 
@@ -307,6 +313,26 @@ message GetContainer {
     string id = 1;
     string environment = 2;
   }
+}
+
+message WatchContainerLogs {
+  message Request {
+    string id = 1;
+    string environment = 2;
+    uint32 tail = 3; // backlog lines; 0 = 100
+    bool is_follow = 4; // false = send backlog, then close
+  }
+  message Response {
+    google.protobuf.Timestamp timestamp = 1;
+    LogStream stream = 2;
+    string text = 3; // one line, ANSI left intact
+  }
+}
+
+enum LogStream {
+  LOG_STREAM_UNSPECIFIED = 0;
+  STDOUT = 1;
+  STDERR = 2;
 }
 
 message DropSmerd {

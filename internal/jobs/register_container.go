@@ -730,7 +730,10 @@ func (j *recreateWithLabelsJob) Do(ctx context.Context) error {
 	}
 
 	if j.registry != nil {
-		j.applyRegistryOverlay(payload, info)
+		err = j.applyRegistryOverlay(ctx, payload, info)
+		if err != nil {
+			return rerrors.Wrap(err)
+		}
 	}
 
 	// A dedicated entity id: velez.tasks is UNIQUE (entity_id, action), so the

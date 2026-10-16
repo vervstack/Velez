@@ -635,6 +635,7 @@ type deployRegistryInstanceJob struct {
 	req createRegistryInstanceRequestAccessor
 	ctx interface {
 		registryUsernameAccessor
+		registryPasswordAccessor
 		registryExposedPortAccessor
 		registryUiExposedPortAccessor
 		deployBaselineAccessor
@@ -654,6 +655,9 @@ func (j *deployRegistryInstanceJob) Do(ctx context.Context) error {
 	}
 
 	overlayRegistryAuthEnv(smerdRequest)
+
+	passwordEnv := map[string]string{domain.RegistryPasswordEnv: j.ctx.GetPassword()}
+	setRequestEnv(smerdRequest, passwordEnv)
 
 	if smerdRequest.Labels == nil {
 		smerdRequest.Labels = make(map[string]string)

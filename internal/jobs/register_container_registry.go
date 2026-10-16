@@ -310,10 +310,27 @@ func (j *upsertRegistryRowJob) Do(ctx context.Context) error {
 // applyRegistryOverlay must run after applyRegisterOverrides: the stamped
 // port is the one the recreated container publishes.
 func (j *recreateWithLabelsJob) applyRegistryOverlay(
-	payload *velez_api.UpgradeSmerdTaskPayload, info container.InspectResponse,
-) {
+	ctx context.Context, payload *velez_api.UpgradeSmerdTaskPayload, info container.InspectResponse,
+) error {
 	containerPort := registryContainerPort(parser.ToDockerEnv(info.Config.Env))
 	port := registryPortFromMappings(payload.GetPortsOverride().GetPorts(), containerPort)
 
 	maps.Copy(payload.GetExtraLabels(), registeredRegistryLabels(j.registry.GetRegistryUsername(), port))
+
+	if !hasRegistryLogin(j.registry) {
+		return nil
+	}
+
+	password, err := j.secrets.Get(ctx, registryInstanceSecretRef(j.req.GetServiceName()))
+	if err != nil {
+		return rerrors.Wrap(err, "error reading registry password")
+	}
+
+	if payload.ExtraEnv == nil {
+		payload.ExtraEnv = make(map[string]string, 1)
+	}
+
+	payload.ExtraEnv[domain.RegistryPasswordEnv] = password
+
+	return nil
 }

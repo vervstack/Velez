@@ -52,6 +52,12 @@ const (
 // Garage admin token and rpc secret from the Garage container's env, the web ui
 // password from the sidecar's (domain.S3WebUiPasswordEnv). Per-key secrets are
 // asked of Garage by the s3aas service instead.
+//
+// A registryaas instance password (container_derived.RegistryInstanceSecretRef)
+// is recovered on Get only as well, from the registry container's env
+// (domain.RegistryPasswordEnv); the container is matched on both
+// labels.RegistryaasInstanceLabel and its labels.VervServiceLabel so two
+// instances never mix.
 type dockerSecrets struct {
 	docker   node_clients.Docker
 	fallback storage.SecretsStorage
@@ -149,6 +155,13 @@ func (d *dockerSecrets) getNonPgaasSecret(ctx context.Context, ref domain.Secret
 		token := d.registrationTokenFromContainer(ctx, ref.Owner)
 		if token != "" {
 			return token, nil
+		}
+	}
+
+	if ref == container_derived.RegistryInstanceSecretRef(ref.Owner) {
+		password := d.registryPasswordFromContainer(ctx, ref.Owner)
+		if password != "" {
+			return password, nil
 		}
 	}
 
@@ -250,12 +263,32 @@ func (d *dockerSecrets) s3SecretFromContainer(ctx context.Context, ref domain.Se
 // envFromLabelledContainer returns envKey of the container labelled label=value,
 // preferring a running one, or "" if there is none or it carries no such env.
 func (d *dockerSecrets) envFromLabelledContainer(ctx context.Context, label, value, envKey string) string {
-	if value == "" {
-		return ""
+	return d.envFromContainerWithLabels(ctx, map[string]string{label: value}, envKey)
+}
+
+// registryPasswordFromContainer returns the registry instance's
+// domain.RegistryPasswordEnv, or "" while the container is not there yet or
+// predates the env.
+func (d *dockerSecrets) registryPasswordFromContainer(ctx context.Context, instanceName string) string {
+	containerLabels := map[string]string{
+		labels.RegistryaasInstanceLabel: boolLabelValue,
+		labels.VervServiceLabel:         instanceName,
+	}
+
+	return d.envFromContainerWithLabels(ctx, containerLabels, domain.RegistryPasswordEnv)
+}
+
+func (d *dockerSecrets) envFromContainerWithLabels(
+	ctx context.Context, containerLabels map[string]string, envKey string,
+) string {
+	for _, value := range containerLabels {
+		if value == "" {
+			return ""
+		}
 	}
 
 	listReq := &pb.ListSmerds_Request{
-		Label: map[string]string{label: value},
+		Label: containerLabels,
 	}
 
 	containers, err := d.docker.ListContainers(ctx, listReq, allEnvironments)

@@ -9,6 +9,8 @@ type RegistryType string
 const (
 	RegistryTypeDockerHub RegistryType = "dockerhub"
 	RegistryTypeGenericV2 RegistryType = "generic_v2"
+
+	RegistryPasswordEnv = "VELEZ_REGISTRY_PASSWORD"
 )
 
 type Registry struct {

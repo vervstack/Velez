@@ -303,6 +303,7 @@ func Test_RegisterContainer_Registry_SingleMode(t *testing.T) {
 	require.Equal(t, labelValueTrue, containerLabels[labels.RegistryaasInstanceLabel])
 	require.Equal(t, registryRegUser, containerLabels[labels.RegistryaasUsernameLabel])
 	require.Equal(t, strconv.Itoa(registryRegPortSingle), containerLabels[labels.RegistryaasPortLabel])
+	require.Contains(t, inspected.Config.Env, domain.RegistryPasswordEnv+"="+registryRegPassword)
 
 	instance := findRegistryInstance(t, env, serviceName)
 	require.NotNil(t, instance, "registered registry must be visible in ListRegistryInstances")

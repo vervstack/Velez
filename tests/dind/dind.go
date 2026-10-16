@@ -74,7 +74,8 @@ const (
 
 	// cacheVolumeSuffix names the persistent /var/lib/docker volume for a
 	// given DinD container. It is deliberately NOT removed on Teardown so
-	// warm runs reuse pulled image layers instead of re-fetching them.
+	// warm runs reuse pulled image layers instead of re-fetching them. Stale
+	// ones (unused for more than 3 days) are collected at the next Setup.
 	cacheVolumeSuffix = "-cache"
 )
 
@@ -163,6 +164,8 @@ func Setup(ctx context.Context, opts Options) (*Env, error) {
 	dindHost := resolveDindHost(bootstrapHost)
 	name := resolveName(ctx, opts.Name) + opts.NameSuffix
 	cacheVolume := name + cacheVolumeSuffix
+
+	collectStaleCaches(ctx, bootstrap, cacheVolume)
 
 	env, err := bringUp(ctx, bootstrap, img, name, dindHost, cacheVolume, opts.Publish)
 	if err == nil {
@@ -271,7 +274,8 @@ func ensureCacheVolume(ctx context.Context, cli *client.Client, name string) err
 // Reset removes every container, non-built-in network and volume from the
 // DinD daemon, so each run starts from a clean inner state. The cache volume
 // keeps /var/lib/docker across runs, which would otherwise carry the previous
-// run's containers over; images are left alone.
+// run's containers over. Dangling images are pruned; tagged and seeded ones
+// stay.
 func (e *Env) Reset(ctx context.Context) error {
 	cli, err := newDockerClient(e.DockerHost)
 	if err != nil {
@@ -295,6 +299,13 @@ func (e *Env) Reset(ctx context.Context) error {
 	err = removeAllVolumes(ctx, cli)
 	if err != nil {
 		return rerrors.Wrap(err, "error removing dind volumes")
+	}
+
+	pruneFilters := filters.NewArgs(filters.Arg("dangling", "true"))
+
+	_, err = cli.ImagesPrune(ctx, pruneFilters)
+	if err != nil {
+		return rerrors.Wrap(err, "error pruning dangling images")
 	}
 
 	return nil

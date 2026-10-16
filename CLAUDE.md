@@ -192,6 +192,24 @@ per-pipeline migration status/checklist and `docs/plans/testing.md` for the live
 - `Velez-UI/` — React 18 + Vite application (Zustand state, React Query data fetching); the
   generated API client lives inside it, not as a separate published package.
 
+## Velez is stateless — hard rule
+
+**Never store anything long-term in Velez's process memory or on Velez's own disk.** A Velez restart
+must lose nothing a user can see or use.
+
+- **Single-node / dev mode:** state lives ON the Docker objects Velez manages — container env, labels,
+  mounts, inspect data — and is read back from them. A secret Velez generates (admin token, password,
+  registration token) is written to the container it belongs to at creation time, and `Get` reads it
+  from that container. If the value is held by an external system that can return it (e.g. Garage's
+  `showSecretKey`), ask that system instead of caching it.
+- **Cluster mode:** Postgres is the only durable store.
+- **In-memory is allowed only to bridge a short window** (the gap before a container exists, as
+  `pendingPgaasPw` does), never as the source of truth. A new `secrets.NewStatic()` fallback, a
+  `sync.Map`/map-with-mutex cache, or an on-disk JSON file holding user-visible state is a violation —
+  derive it from the container instead.
+- Before adding any new secret scope or stored value, answer: "after a Velez restart, where is this
+  read back from?" If there is no answer, the design is wrong.
+
 ## Known pitfalls
 
 - **Never normalize a value through a pointer field a caller owns.** A request struct with a

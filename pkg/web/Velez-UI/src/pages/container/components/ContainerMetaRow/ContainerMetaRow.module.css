@@ -1,0 +1,18 @@
+.ContainerMetaRowContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    font-size: 0.875rem;
+
+    & .Label {
+        width: 8rem;
+        flex-shrink: 0;
+        opacity: 0.6;
+        font-weight: 500;
+    }
+
+    & .Value {
+        font-family: monospace;
+        word-break: break-all;
+    }
+}

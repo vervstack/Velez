@@ -1,0 +1,22 @@
+.ContainerStatusBadgeContainer {
+    font-size: 0.72rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: 1rem;
+    font-weight: 500;
+    text-transform: lowercase;
+
+    &.Running {
+        background-color: var(--ping-health);
+        color: var(--fg);
+    }
+
+    &.Error {
+        background-color: var(--ping-disabled);
+        color: var(--fg);
+    }
+
+    &.Unknown {
+        background-color: var(--ping-unknown);
+        color: var(--bg);
+    }
+}

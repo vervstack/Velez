@@ -67,3 +67,17 @@ export function suggestedPatternHint(pattern?: ServicePattern): string | undefin
     const label = pattern ? SUGGESTED_PATTERN_LABELS[pattern] : undefined;
     return label ? `Looks like ${label}` : undefined;
 }
+
+export function formatContainerTimestamp(ts: { seconds?: string | number; nanos?: number }): string {
+    const seconds = Number(ts.seconds || 0);
+    if (!seconds) return '—';
+    return new Date(seconds * 1000).toLocaleString();
+}
+
+export type ContainerStatusTone = 'running' | 'error' | 'unknown';
+
+export function containerStatusTone(status?: SmerdStatus): ContainerStatusTone {
+    if (status === SmerdStatus.running) return 'running';
+    if (status === SmerdStatus.exited || status === SmerdStatus.dead) return 'error';
+    return 'unknown';
+}

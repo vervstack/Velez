@@ -1,0 +1,17 @@
+.ContainerLogLineContainer {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-all;
+    color: var(--fg);
+
+    &.Stderr {
+        color: var(--red);
+    }
+
+    & .Timestamp {
+        margin-right: 0.75rem;
+        color: var(--fg-dim);
+    }
+}

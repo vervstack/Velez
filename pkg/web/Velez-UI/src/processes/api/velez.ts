@@ -1,3 +1,5 @@
+import {parseGrpcError} from "@vervstack/chures";
+
 import {
     VelezAPI,
     TasksApi,
@@ -20,8 +22,11 @@ import {
     FinishOnboardingResponse,
     ListContainerImageVersionsRequest,
     ListContainerImageVersionsResponse,
+    WatchContainerLogsRequest,
+    WatchContainerLogsResponse,
 } from "@/app/api/velez";
 import {InitReq} from "@/app/settings/state.ts";
+import {useCredentialsStore} from "@/app/settings/creds.ts";
 import {CreateSmerdReq, Port, Smerd, toProto, Volume} from "@/model/smerds/Smerds.ts";
 import {ApiService} from "@/processes/ApiService.ts";
 import {GetInitReq} from "@/processes/api/api.ts";
@@ -125,6 +130,28 @@ export async function FetchContainers(filters?: ContainerFilter[]): Promise<List
 export async function FetchContainer(id: string): Promise<DockerContainer> {
     const req: GetContainerRequest = {id, environment: useEnvironmentStore.getState().selectedEnvironment}
     return VelezAPI.GetContainer(req, GetInitReq())
+}
+
+// WatchContainerLogsStream wraps VelezAPI.WatchContainerLogs: every log line is
+// forwarded to onLine as it arrives. The promise resolves when the server
+// closes the stream and rejects when the stream fails; aborting the signal
+// cancels the request (the rejection that follows an abort is the caller's to ignore).
+export async function WatchContainerLogsStream(
+    req: WatchContainerLogsRequest,
+    onLine: (line: WatchContainerLogsResponse) => void,
+    signal: AbortSignal
+): Promise<void> {
+    const initReq = useCredentialsStore.getState().getInitReq();
+    const body: WatchContainerLogsRequest = {
+        ...req,
+        environment: req.environment || useEnvironmentStore.getState().selectedEnvironment,
+    }
+
+    try {
+        return await VelezAPI.WatchContainerLogs(body, onLine, {...initReq, signal});
+    } catch (e) {
+        throw parseGrpcError(e);
+    }
 }
 
 export async function FetchImageVersions(containerId: string): Promise<ListContainerImageVersionsResponse> {

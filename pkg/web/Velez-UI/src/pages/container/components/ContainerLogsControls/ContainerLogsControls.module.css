@@ -1,0 +1,24 @@
+.ContainerLogsControlsContainer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+
+    & .TailWrapper {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+
+        & .TailLabel {
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
+    }
+
+    & .FilterWrapper {
+        width: 16rem;
+        height: 2.75rem;
+    }
+}

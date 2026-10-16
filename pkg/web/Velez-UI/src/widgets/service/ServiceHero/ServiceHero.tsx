@@ -1,18 +1,13 @@
 import cls from '@/widgets/service/ServiceHero/ServiceHero.module.css'
 
-import type { SmerdStatus } from '@/app/api/velez'
 import { useGetServiceAboutQuery, useGetServiceMetricsQuery } from '@/processes/queries/services'
 import { deriveRunnerDisplayName, isGitlabRunnerName } from '@/processes/mappings/runnerDisplay.ts'
 import GitlabIcon from '@/components/base/icons/GitlabIcon.tsx'
 import EnvSwitcher from '@/widgets/service/EnvSwitcher/EnvSwitcher.tsx'
-import ServiceHeroImages from '@/widgets/service/ServiceHeroImages/ServiceHeroImages.tsx'
 
 interface ServiceHeroProps {
     serviceName: string
     serviceStatus?: string
-    imageFromSmerd?: string
-    containerId?: string
-    containerStatus?: SmerdStatus
 }
 
 // Velez itself runs as a bare binary, not a container, so the container-stats
@@ -65,13 +60,7 @@ function MetricTile({ label, value, sub, barPct }: MetricTileProps) {
     )
 }
 
-export default function ServiceHero({
-    serviceName,
-    serviceStatus,
-    imageFromSmerd,
-    containerId,
-    containerStatus,
-}: ServiceHeroProps) {
+export default function ServiceHero({serviceName, serviceStatus}: ServiceHeroProps) {
     const {data: about} = useGetServiceAboutQuery(serviceName)
     const {data: metrics} = useGetServiceMetricsQuery(serviceName)
 
@@ -99,13 +88,6 @@ export default function ServiceHero({
 
     return (
         <div className={cls.ServiceHeroContainer}>
-            <ServiceHeroImages
-                serviceName={serviceName}
-                imageName={imageFromSmerd}
-                containerId={containerId}
-                containerStatus={containerStatus}
-                sidecars={about?.sidecars ?? []}
-            />
             <div className={cls.LeftWrapper}>
                 <div className={cls.NameRow}>
                     <span className={`${cls.StatusDot} ${statusDotClass(serviceStatus)}`} />
@@ -132,7 +114,7 @@ export default function ServiceHero({
                         <MetricTile label="CPU" value={cpuLabel} sub="avg across pods" barPct={cpuPct} />
                         <MetricTile label="Memory" value={memLabel} sub={memSub} barPct={memPct} />
                         <div className={cls.EnvTileWrapper}>
-                            <EnvSwitcher serviceName={serviceName}/>
+                            <EnvSwitcher serviceName={serviceName} sidecars={about?.sidecars}/>
                         </div>
                     </div>
                     {isBinary && <BinaryMetricsNotice />}

@@ -1,7 +1,7 @@
 import {describe, expect, it} from "vitest"
 
 import {SmerdStatus} from "@/app/api/velez"
-import {imageMonogram, toServiceSidecars} from "@/processes/mappings/serviceSidecars"
+import {sidecarToEnvironment, toServiceSidecars} from "@/processes/mappings/serviceSidecars"
 
 describe("toServiceSidecars", () => {
     it("returns nothing when the response carries no sidecars", () => {
@@ -39,17 +39,35 @@ describe("toServiceSidecars", () => {
     })
 })
 
-describe("imageMonogram", () => {
-    it("uses the first letter of the repository name without registry, owner or tag", () => {
-        expect(imageMonogram("registry.io/redsockruf/zpotify:1.2")).toBe("Z")
+describe("sidecarToEnvironment", () => {
+    it("maps a running sidecar to a running environment carrying its id, name and image", () => {
+        const environment = sidecarToEnvironment({
+            containerId: "c1",
+            name: "garage-webui",
+            imageName: "khairul169/garage-webui:1.0",
+            status: SmerdStatus.running,
+        })
+
+        expect(environment).toMatchObject({
+            id: "c1",
+            label: "sidecar",
+            status: "running",
+            version: "khairul169/garage-webui:1.0",
+            containerId: "c1",
+            containerName: "garage-webui",
+            health: "healthy",
+        })
     })
 
-    it("strips a digest", () => {
-        expect(imageMonogram("nginx@sha256:abc")).toBe("N")
-    })
+    it("maps an exited sidecar to a stopped environment", () => {
+        const environment = sidecarToEnvironment({
+            containerId: "c2",
+            name: "vpn",
+            imageName: "tailscale/tailscale",
+            status: SmerdStatus.exited,
+        })
 
-    it("returns a placeholder for an empty image name", () => {
-        expect(imageMonogram("")).toBe("?")
-        expect(imageMonogram(undefined)).toBe("?")
+        expect(environment.status).toBe("stopped")
+        expect(environment.health).toBe("unhealthy")
     })
 })

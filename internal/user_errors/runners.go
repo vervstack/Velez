@@ -52,11 +52,16 @@ var (
 	ErrGitlabAccessTokenEmpty = rerrors.New("gitlab access token is empty", codes.InvalidArgument)
 
 	// ErrGitlabLegacyRegistrationToken is returned by the runneraas package
-	// when a gitlab access token is a runner registration or authentication
-	// token instead of a personal access token.
+	// when a gitlab access token is a legacy runner registration token instead
+	// of a personal access token or a runner authentication token.
 	ErrGitlabLegacyRegistrationToken = rerrors.New(
-		"gitlab access token must be a personal access token with the create_runner scope, "+
-			"not a runner registration or authentication token", codes.InvalidArgument)
+		"gitlab access token must be a personal access token with the create_runner scope "+
+			"or a runner authentication token (glrt-), not a legacy runner registration token",
+		codes.InvalidArgument)
+
+	// ErrGitlabRunnerTokenRejected is returned when gitlab answers 401/403 to a supplied runner authentication token.
+	ErrGitlabRunnerTokenRejected = rerrors.New(
+		"gitlab rejected the runner authentication token", codes.InvalidArgument)
 
 	// ErrGitlabAccessTokenRejected is returned by the runneraas package's
 	// gitlab provider when gitlab answers 401/403 to the personal access

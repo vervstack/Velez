@@ -13,9 +13,10 @@ import (
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
-// CreateRunner validates the request, mints a GitLab runner from the personal
-// access token (so the token never reaches the persisted task payload), then
-// enqueues the multi-step create_runner task (mint/store the GitHub
+// CreateRunner validates the request, obtains the GitLab runner authentication
+// token (mints a runner from a personal access token, or verifies and adopts a
+// supplied glrt- token, so the access token never reaches the persisted task
+// payload), then enqueues the multi-step create_runner task (mint/store the GitHub
 // registration token, deploy the runner container, wait for it, register the
 // velez.runners row -
 // internal/jobs/create_runner.go) and returns immediately - mirrors
@@ -73,9 +74,15 @@ func (s *RunneraasService) CreateRunner(ctx context.Context, req domain.CreateRu
 	var created providers.CreatedRunner
 
 	payloadReq := req
+	isAdopted := isGitlab && isGitlabRunnerAuthToken(req.AccessToken)
 
 	if isGitlab {
-		created, err = s.mintGitlabRunner(ctx, req, instanceName)
+		if isAdopted {
+			created, err = s.adoptGitlabRunner(ctx, req, instanceName)
+		} else {
+			created, err = s.mintGitlabRunner(ctx, req, instanceName)
+		}
+
 		if err != nil {
 			return rerrors.Wrap(err)
 		}
@@ -94,7 +101,9 @@ func (s *RunneraasService) CreateRunner(ctx context.Context, req domain.CreateRu
 
 	_, err = s.jobsEngine.EnqueueReplacing(ctx, req.Name, jobs.CreateRunnerAction, initialContext)
 	if err != nil {
-		if isGitlab {
+		if isAdopted {
+			s.deleteRunnerSecret(ctx, req, instanceName)
+		} else if isGitlab {
 			s.dropMintedGitlabRunner(ctx, req, instanceName, created.Token)
 		}
 
@@ -131,6 +140,22 @@ func (s *RunneraasService) mintGitlabRunner(
 	return created, nil
 }
 
+func (s *RunneraasService) adoptGitlabRunner(
+	ctx context.Context, req domain.CreateRunnerReq, instanceName string,
+) (providers.CreatedRunner, error) {
+	created, err := s.gitlabSeeder.VerifyRunnerToken(ctx, req.BaseUrl, req.AccessToken)
+	if err != nil {
+		return providers.CreatedRunner{}, rerrors.Wrap(err, "error verifying gitlab runner token")
+	}
+
+	err = s.secrets.Put(ctx, domain.RunnerRegistrationTokenSecretRef(instanceName), created.Token)
+	if err != nil {
+		return providers.CreatedRunner{}, rerrors.Wrap(err, "error storing runner registration token")
+	}
+
+	return created, nil
+}
+
 func (s *RunneraasService) dropMintedGitlabRunner(
 	ctx context.Context, req domain.CreateRunnerReq, instanceName, runnerToken string,
 ) {
@@ -139,9 +164,13 @@ func (s *RunneraasService) dropMintedGitlabRunner(
 		log.Ctx(ctx).Warn().Err(err).Str("runner", req.Name).Msg("error cleaning up minted gitlab runner")
 	}
 
-	err = s.secrets.Delete(ctx, domain.RunnerRegistrationTokenSecretRef(instanceName))
+	s.deleteRunnerSecret(ctx, req, instanceName)
+}
+
+func (s *RunneraasService) deleteRunnerSecret(ctx context.Context, req domain.CreateRunnerReq, instanceName string) {
+	err := s.secrets.Delete(ctx, domain.RunnerRegistrationTokenSecretRef(instanceName))
 	if err != nil {
-		log.Ctx(ctx).Warn().Err(err).Str("runner", req.Name).Msg("error cleaning up minted gitlab runner")
+		log.Ctx(ctx).Warn().Err(err).Str("runner", req.Name).Msg("error cleaning up gitlab runner secret")
 	}
 }
 

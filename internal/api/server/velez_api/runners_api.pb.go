@@ -543,15 +543,17 @@ func (x *GithubConfig) GetAccessToken() string {
 }
 
 // GitlabConfig - GitLab-specific CreateRunner body. access_token is used once
-// at create to mint a runner authentication token through GitLab's runner
-// creation API.
+// at create to obtain a runner authentication token: minted through GitLab's
+// runner creation API, or adopted when it already is one.
 type GitlabConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// access_token - a GitLab personal access token with the `create_runner`
 	// scope (Maintainer/Owner on a project or group target, admin for an
-	// instance runner). Used once at create to mint a runner authentication
-	// token; it is never stored and never logged. Legacy runner registration
-	// tokens are rejected.
+	// instance runner), OR an existing runner authentication token (`glrt-`
+	// prefix). A personal access token is used once at create to mint a runner
+	// authentication token; a `glrt-` token is verified against GitLab and
+	// adopted as is, no runner is minted. Never stored as given and never
+	// logged. Legacy runner registration tokens are rejected.
 	AccessToken string `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`
 	// base_url - the GitLab instance's base URL, e.g. "https://gitlab.com" or
 	// a self-managed instance's URL. Empty defaults to "https://gitlab.com".

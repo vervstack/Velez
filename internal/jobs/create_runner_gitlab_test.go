@@ -75,6 +75,12 @@ func (f *fakeConfigSeeder) ResetRunnerToken(_ context.Context, _, runnerToken st
 	return f.resetToken, f.resetErr
 }
 
+func (f *fakeConfigSeeder) VerifyRunnerToken(
+	_ context.Context, _, runnerToken string,
+) (providers.CreatedRunner, error) {
+	return providers.CreatedRunner{Id: testGitlabRunnerId, Token: runnerToken}, nil
+}
+
 // seededRunnerRuntime keeps one config.toml in memory on top of fakeContainerRuntime.
 type seededRunnerRuntime struct {
 	*fakeContainerRuntime

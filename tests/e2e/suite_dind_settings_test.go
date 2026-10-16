@@ -69,6 +69,7 @@ server {
   location /api/v4/groups/ { return 200 '{"id":321}'; }
   location = /api/v4/user/runners { return 201 '{"id":456,"token":"glrt-e2etoken"}'; }
   location = /api/v4/runners { return 204; }
+  location = /api/v4/runners/verify { return 200 '{"id":456}'; }
   location = /api/v4/runners/reset_authentication_token {
     return 201 '{"token":"glrt-rotated","token_expires_at":null}';
   }

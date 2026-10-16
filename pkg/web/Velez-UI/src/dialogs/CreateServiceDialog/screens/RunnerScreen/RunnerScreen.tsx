@@ -23,6 +23,8 @@ import {
     buildCreateRunnerRequest,
 } from "@/dialogs/CreateServiceDialog/screens/RunnerScreen/processes/buildCreateRunnerRequest.ts"
 
+const GITLAB_TOKEN_LABEL = "GitLab Access Token (personal, create_runner scope, or glrt- runner token)"
+
 const PROVIDER_OPTIONS: DropdownOption[] = [
     {id: RunnerProvider.GITHUB, name: "GitHub"},
     {id: RunnerProvider.GITLAB, name: "GitLab"},
@@ -219,7 +221,7 @@ export default function RunnerScreen({initialProvider = RunnerProvider.GITHUB, o
                     {renderTargetField()}
 
                     <Input
-                        label={isGitlab ? "GitLab Personal Access Token (create_runner scope)" :"GitHub Access Token"}
+                        label={isGitlab ? GITLAB_TOKEN_LABEL : "GitHub Access Token"}
                         inputValue={accessToken}
                         onChange={setAccessToken}
                         disabled={createRunner.isPending}

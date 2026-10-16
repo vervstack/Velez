@@ -30,6 +30,7 @@ const (
 	patStubCreateRequest = "POST /api/v4/user/runners " + runnerDindAccessToken
 	patStubDeleteRequest = "DELETE /api/v4/runners "
 	patStubResetRequest  = "POST /api/v4/runners/reset_authentication_token "
+	patStubVerifyRequest = "POST /api/v4/runners/verify "
 )
 
 type gitlabPatFixture struct {
@@ -83,9 +84,17 @@ func newGitlabPatCreateRequest(fixture gitlabPatFixture, accessToken string) *ve
 func createGitlabPatRunner(t *testing.T, env *TestEnvironment, fixture gitlabPatFixture) tasks_queries.VelezTask {
 	t.Helper()
 
+	return createGitlabRunnerWithToken(t, env, fixture, runnerDindAccessToken)
+}
+
+func createGitlabRunnerWithToken(
+	t *testing.T, env *TestEnvironment, fixture gitlabPatFixture, accessToken string,
+) tasks_queries.VelezTask {
+	t.Helper()
+
 	runnersClient := velez_api.NewRunnersAPIClient(env.grpcConn)
 
-	req := newGitlabPatCreateRequest(fixture, runnerDindAccessToken)
+	req := newGitlabPatCreateRequest(fixture, accessToken)
 
 	created, err := runnersClient.CreateRunner(t.Context(), req)
 	require.NoError(t, err)
@@ -208,7 +217,7 @@ func runGitlabRunnerRejectsNonPersonalAccessToken(t *testing.T, env *TestEnviron
 
 	fixture := startGitlabPatFixture(t, env)
 
-	for _, token := range []string{patLegacyRegistrationToken, patRunnerAuthToken, ""} {
+	for _, token := range []string{patLegacyRegistrationToken, ""} {
 		req := newGitlabPatCreateRequest(fixture, token)
 
 		_, err := runnersClient.CreateRunner(t.Context(), req)
@@ -261,6 +270,73 @@ func runGitlabRunnerCreateSeedsConfig(t *testing.T, env *TestEnvironment, _ Plan
 	require.EqualValues(t, gitlabStubRunnerId, runner.GitlabRunnerId)
 
 	requireSingleRunnerWithToken(t, env, fixture.runnerContainer, gitlabStubRunnerToken)
+}
+
+func Test_GitlabRunner_Create_AdoptsRunnerAuthToken(t *testing.T) {
+	t.Parallel()
+
+	runOnEveryPlane(t, runGitlabRunnerCreateAdoptsAuthToken)
+}
+
+func runGitlabRunnerCreateAdoptsAuthToken(t *testing.T, env *TestEnvironment, _ Plane) {
+	fixture := startGitlabPatFixture(t, env)
+
+	createGitlabRunnerWithToken(t, env, fixture, patRunnerAuthToken)
+
+	requireStubRequest(t, env, fixture.stubName, patStubVerifyRequest)
+	require.Zero(t, countStubRequests(t, env, fixture.stubName, patStubCreateRequest), "an adopted runner is never minted")
+
+	require.NotNil(t, findRunnerRow(t, env, fixture.runnerName), "runner row must be listed")
+
+	dataStorage := env.Custom.Services.StorageContainer()
+
+	svc, err := dataStorage.Services().GetByName(t.Context(), fixture.runnerContainer)
+	require.NoError(t, err)
+
+	runner, err := dataStorage.Runners().GetRunnerByServiceID(t.Context(), svc.ID)
+	require.NoError(t, err)
+	require.EqualValues(t, gitlabStubRunnerId, runner.GitlabRunnerId)
+
+	requireSingleRunnerWithToken(t, env, fixture.runnerContainer, patRunnerAuthToken)
+}
+
+func Test_GitlabRunner_Drop_AdoptedRunnerIsDeletedOnGitlab(t *testing.T) {
+	t.Parallel()
+
+	runOnEveryPlane(t, runGitlabRunnerDropAdoptedDeletesOnGitlab)
+}
+
+func runGitlabRunnerDropAdoptedDeletesOnGitlab(t *testing.T, env *TestEnvironment, _ Plane) {
+	fixture := startGitlabPatFixture(t, env)
+
+	createGitlabRunnerWithToken(t, env, fixture, patRunnerAuthToken)
+	require.Zero(t, countStubRequests(t, env, fixture.stubName, patStubDeleteRequest))
+
+	dropGitlabPatRunner(t, env, fixture)
+
+	requireStubRequest(t, env, fixture.stubName, patStubDeleteRequest)
+	require.Nil(t, findRunnerRow(t, env, fixture.runnerName), "dropped runner row must be gone")
+}
+
+func Test_GitlabRunner_Reregister_AdoptedRunnerRotatesTokenInConfig(t *testing.T) {
+	t.Parallel()
+
+	runOnEveryPlane(t, runGitlabRunnerReregisterAdoptedRotatesToken)
+}
+
+func runGitlabRunnerReregisterAdoptedRotatesToken(t *testing.T, env *TestEnvironment, _ Plane) {
+	fixture := startGitlabPatFixture(t, env)
+
+	createGitlabRunnerWithToken(t, env, fixture, patRunnerAuthToken)
+	requireSingleRunnerWithToken(t, env, fixture.runnerContainer, patRunnerAuthToken)
+
+	reregisterGitlabPatRunner(t, env, fixture)
+
+	requireStubRequest(t, env, fixture.stubName, patStubResetRequest)
+	requireSingleRunnerWithToken(t, env, fixture.runnerContainer, gitlabStubRotatedToken)
+
+	content, _ := readConfigWithMode(t, env, fixture.runnerContainer)
+	require.NotContains(t, content, patRunnerAuthToken)
 }
 
 func Test_GitlabRunner_Recreate_AfterDropWaitsForRealDeploy(t *testing.T) {

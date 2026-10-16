@@ -497,7 +497,7 @@
       "properties": {
         "accessToken": {
           "type": "string",
-          "description": "access_token - a GitLab personal access token with the `create_runner`\nscope (Maintainer/Owner on a project or group target, admin for an\ninstance runner). Used once at create to mint a runner authentication\ntoken; it is never stored and never logged. Legacy runner registration\ntokens are rejected."
+          "description": "access_token - a GitLab personal access token with the `create_runner`\nscope (Maintainer/Owner on a project or group target, admin for an\ninstance runner), OR an existing runner authentication token (`glrt-`\nprefix). A personal access token is used once at create to mint a runner\nauthentication token; a `glrt-` token is verified against GitLab and\nadopted as is, no runner is minted. Never stored as given and never\nlogged. Legacy runner registration tokens are rejected."
         },
         "baseUrl": {
           "type": "string",
@@ -513,7 +513,7 @@
           "description": "concurrent - the global gitlab-runner `concurrent` setting: how many jobs\nthe runner runs at once. Unset defaults to 1."
         }
       },
-      "description": "GitlabConfig - GitLab-specific CreateRunner body. access_token is used once\nat create to mint a runner authentication token through GitLab's runner\ncreation API."
+      "description": "GitlabConfig - GitLab-specific CreateRunner body. access_token is used once\nat create to obtain a runner authentication token: minted through GitLab's\nrunner creation API, or adopted when it already is one."
     },
     "velez_apiListRunnersRequest": {
       "type": "object",

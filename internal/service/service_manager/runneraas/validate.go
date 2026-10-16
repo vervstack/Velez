@@ -44,8 +44,8 @@ const (
 	gitlabRunnerAuthTokenPrefix         = "glrt-"
 )
 
-// validateGitlabAccessToken rejects a runner registration or authentication
-// token where a personal access token is required. Any other value is
+// validateGitlabAccessToken rejects a legacy runner registration token. A
+// personal access token and a runner authentication token (glrt-) are both
 // accepted - self-managed instances may use custom personal access token
 // prefixes.
 func validateGitlabAccessToken(token string) error {
@@ -53,14 +53,15 @@ func validateGitlabAccessToken(token string) error {
 		return user_errors.ErrGitlabAccessTokenEmpty
 	}
 
-	isLegacy := strings.HasPrefix(token, gitlabLegacyRegistrationTokenPrefix)
-	isRunnerAuth := strings.HasPrefix(token, gitlabRunnerAuthTokenPrefix)
-
-	if isLegacy || isRunnerAuth {
+	if strings.HasPrefix(token, gitlabLegacyRegistrationTokenPrefix) {
 		return user_errors.ErrGitlabLegacyRegistrationToken
 	}
 
 	return nil
+}
+
+func isGitlabRunnerAuthToken(token string) bool {
+	return strings.HasPrefix(token, gitlabRunnerAuthTokenPrefix)
 }
 
 // validateDockerSocketAddress checks a request's docker_socket_address.

@@ -215,6 +215,43 @@ func (p *Provider) ResetRunnerToken(ctx context.Context, baseUrl, runnerToken st
 	return reset.Token, nil
 }
 
+func (p *Provider) VerifyRunnerToken(ctx context.Context, baseUrl, runnerToken string) (seeder.CreatedRunner, error) {
+	form := url.Values{}
+	form.Set("token", runnerToken)
+
+	resp, err := p.callApi(ctx, http.MethodPost, apiBase(baseUrl)+"/runners/verify", "", form)
+	if err != nil {
+		return seeder.CreatedRunner{}, rerrors.Wrap(err, "error verifying gitlab runner token")
+	}
+
+	if resp.status == http.StatusUnauthorized || resp.status == http.StatusForbidden {
+		detail := fmt.Sprintf("status: %d", resp.status)
+
+		return seeder.CreatedRunner{}, rerrors.Wrap(user_errors.ErrGitlabRunnerTokenRejected, detail)
+	}
+
+	if resp.status != http.StatusOK {
+		statusErr := statusError(resp.status, false)
+
+		return seeder.CreatedRunner{}, rerrors.Wrap(statusErr, "error verifying gitlab runner token")
+	}
+
+	var verified idResponse
+
+	err = json.Unmarshal(resp.body, &verified)
+	if err != nil {
+		return seeder.CreatedRunner{}, rerrors.Wrap(err, "error parsing gitlab verify runner token response")
+	}
+
+	if verified.Id == 0 {
+		return seeder.CreatedRunner{}, rerrors.Wrap(errRunnerIdMissing)
+	}
+
+	result := seeder.CreatedRunner{Id: verified.Id, Token: runnerToken}
+
+	return result, nil
+}
+
 func (p *Provider) lookupTargetId(ctx context.Context, endpoint, accessToken string) (int64, error) {
 	resp, err := p.callApi(ctx, http.MethodGet, endpoint, accessToken, nil)
 	if err != nil {

@@ -37,8 +37,9 @@ type RunneraasService struct {
 	secrets      secrets.Store
 	jobsEngine   jobs.Engine
 	runtimes     container_runtime.RuntimeResolver
-	// gitlabSeeder mints GitLab runners inside CreateRunner, before the task
-	// is enqueued, so the personal access token never reaches the task payload.
+	// gitlabSeeder mints (from a personal access token) or verifies and adopts
+	// (a glrt- runner authentication token) GitLab runners inside CreateRunner,
+	// before the task is enqueued, so the access token never reaches the task payload.
 	gitlabSeeder providers.ConfigSeeder
 }
 

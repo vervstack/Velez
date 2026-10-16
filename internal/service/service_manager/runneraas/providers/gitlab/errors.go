@@ -13,4 +13,6 @@ var (
 	errRunnerTokenMissing = rerrors.New("gitlab api response carries no runner authentication token")
 
 	errTargetIdMissing = rerrors.New("gitlab api response carries no project or group id")
+
+	errRunnerIdMissing = rerrors.New("gitlab api response carries no runner id")
 )

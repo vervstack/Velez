@@ -118,7 +118,7 @@ func Test_ValidateGitlabAccessToken_Scenarios(t *testing.T) {
 		{"custom prefix personal access token", "corp-abcdef", nil},
 		{"empty", "", user_errors.ErrGitlabAccessTokenEmpty},
 		{"legacy registration token", "GR1348941abcdef", user_errors.ErrGitlabLegacyRegistrationToken},
-		{"runner authentication token", "glrt-abcdef", user_errors.ErrGitlabLegacyRegistrationToken},
+		{"runner authentication token", "glrt-abcdef", nil},
 	}
 
 	for _, tc := range cases {

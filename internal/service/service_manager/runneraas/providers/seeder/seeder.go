@@ -15,6 +15,7 @@ type ConfigSeeder interface {
 	RenderConfig(req RenderConfigReq) ([]byte, error)
 	DeleteRunnerByToken(ctx context.Context, baseUrl, runnerToken string) error
 	ResetRunnerToken(ctx context.Context, baseUrl, runnerToken string) (string, error)
+	VerifyRunnerToken(ctx context.Context, baseUrl, runnerToken string) (CreatedRunner, error)
 }
 
 type CreateRunnerReq struct {

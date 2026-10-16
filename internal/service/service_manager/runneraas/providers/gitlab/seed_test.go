@@ -269,6 +269,47 @@ func Test_ResetRunnerToken_Failures(t *testing.T) {
 	}
 }
 
+func Test_VerifyRunnerToken_ReturnsRunnerId(t *testing.T) {
+	stub := newGitlabStub(t, func(w http.ResponseWriter, _ *http.Request) {
+		respondJson(w, http.StatusOK, `{"id": 42, "token_expires_at": null}`)
+	})
+
+	created, err := New().VerifyRunnerToken(t.Context(), stub.server.URL, testRunnerToken)
+
+	require.NoError(t, err)
+	require.Equal(t, seeder.CreatedRunner{Id: 42, Token: testRunnerToken}, created)
+	require.Equal(t, http.MethodPost, stub.requests[0].method)
+	require.Equal(t, "/api/v4/runners/verify", stub.requests[0].escapedPath)
+	require.Equal(t, testRunnerToken, stub.requests[0].form.Get("token"))
+	require.Empty(t, stub.requests[0].header.Get(privateTokenHeader))
+}
+
+func Test_VerifyRunnerToken_Failures(t *testing.T) {
+	cases := []struct {
+		name    string
+		status  int
+		body    string
+		wantErr error
+	}{
+		{"unauthorized", http.StatusUnauthorized, "", user_errors.ErrGitlabRunnerTokenRejected},
+		{"forbidden", http.StatusForbidden, "", user_errors.ErrGitlabRunnerTokenRejected},
+		{"unexpected status", http.StatusInternalServerError, "", errUnexpectedStatus},
+		{"no id", http.StatusOK, `{"token_expires_at": null}`, errRunnerIdMissing},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			stub := newGitlabStub(t, func(w http.ResponseWriter, _ *http.Request) {
+				respondJson(w, tc.status, tc.body)
+			})
+
+			_, err := New().VerifyRunnerToken(t.Context(), stub.server.URL, testRunnerToken)
+
+			require.ErrorIs(t, err, tc.wantErr)
+		})
+	}
+}
+
 func newRenderConfigReq() seeder.RenderConfigReq {
 	return seeder.RenderConfigReq{
 		BaseUrl:         "https://gitlab.example.com/",

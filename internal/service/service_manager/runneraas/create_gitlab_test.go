@@ -21,6 +21,8 @@ const (
 	testPat          = "glpat-secret"
 	testMintedToken  = "glrt-minted"
 	testMintedId     = int64(77)
+	testRunnerAuth   = "glrt-adopted"
+	testAdoptedId    = int64(88)
 	testBaseUrl      = "https://gitlab.example.com"
 
 	testDockerSocketAddress = "tcp://dind:2375"
@@ -35,6 +37,8 @@ type fakeSeeder struct {
 	createCalls []providers.CreateRunnerReq
 	createErr   error
 	deleteCalls []string
+	verifyCalls []string
+	verifyErr   error
 }
 
 func (f *fakeSeeder) CreateRunner(_ context.Context, req providers.CreateRunnerReq) (providers.CreatedRunner, error) {
@@ -59,6 +63,16 @@ func (f *fakeSeeder) DeleteRunnerByToken(_ context.Context, _, runnerToken strin
 
 func (f *fakeSeeder) ResetRunnerToken(context.Context, string, string) (string, error) {
 	return "", nil
+}
+
+func (f *fakeSeeder) VerifyRunnerToken(_ context.Context, _, runnerToken string) (providers.CreatedRunner, error) {
+	f.verifyCalls = append(f.verifyCalls, runnerToken)
+
+	if f.verifyErr != nil {
+		return providers.CreatedRunner{}, f.verifyErr
+	}
+
+	return providers.CreatedRunner{Id: testAdoptedId, Token: runnerToken}, nil
 }
 
 type fakeEngine struct {
@@ -126,6 +140,14 @@ func newGitlabRunnerReq() domain.CreateRunnerReq {
 
 		DockerSocketAddress: testDockerSocketAddress,
 	}
+}
+
+func newGitlabAdoptRunnerReq() domain.CreateRunnerReq {
+	req := newGitlabRunnerReq()
+
+	req.AccessToken = testRunnerAuth
+
+	return req
 }
 
 func newGithubRunnerReq() domain.CreateRunnerReq {
@@ -219,4 +241,56 @@ func Test_CreateRunner_Github_KeepsPatInPayloadAndSkipsSeeder(t *testing.T) {
 	require.True(t, ok)
 	require.Equal(t, "ghp-secret", payload.GetRequest().GetGithub().GetAccessToken())
 	require.Empty(t, payload.GetRegistrationToken())
+}
+
+func Test_CreateRunner_Gitlab_AdoptsRunnerAuthTokenWithoutMinting(t *testing.T) {
+	seeder := &fakeSeeder{}
+	engine := &fakeEngine{}
+	store := newFakeSecrets()
+	svc := newTestService(seeder, engine, store)
+
+	err := svc.CreateRunner(t.Context(), newGitlabAdoptRunnerReq())
+	require.NoError(t, err)
+
+	require.Equal(t, []string{testRunnerAuth}, seeder.verifyCalls)
+	require.Empty(t, seeder.createCalls)
+
+	require.Len(t, engine.enqueued, 1)
+
+	payload, ok := engine.enqueued[0].(*velez_api.CreateRunnerTaskPayload)
+	require.True(t, ok)
+	require.Empty(t, payload.GetRequest().GetGitlab().GetAccessToken())
+	require.Equal(t, testRunnerAuth, payload.GetRegistrationToken())
+	require.Equal(t, testAdoptedId, payload.GetGitlabRunnerId())
+
+	stored, err := store.Get(t.Context(), domain.RunnerRegistrationTokenSecretRef(testInstanceName))
+	require.NoError(t, err)
+	require.Equal(t, testRunnerAuth, stored)
+}
+
+func Test_CreateRunner_Gitlab_AdoptVerifyErrorEnqueuesAndStoresNothing(t *testing.T) {
+	seeder := &fakeSeeder{verifyErr: errGitlabDown}
+	engine := &fakeEngine{}
+	store := newFakeSecrets()
+	svc := newTestService(seeder, engine, store)
+
+	err := svc.CreateRunner(t.Context(), newGitlabAdoptRunnerReq())
+	require.ErrorIs(t, err, errGitlabDown)
+
+	require.Empty(t, engine.enqueued)
+	require.Empty(t, store.values)
+	require.Empty(t, seeder.deleteCalls)
+}
+
+func Test_CreateRunner_Gitlab_AdoptEnqueueFailureDeletesSecretButNotGitlabRunner(t *testing.T) {
+	seeder := &fakeSeeder{}
+	engine := &fakeEngine{enqueueErr: errEnqueueDown}
+	store := newFakeSecrets()
+	svc := newTestService(seeder, engine, store)
+
+	err := svc.CreateRunner(t.Context(), newGitlabAdoptRunnerReq())
+	require.ErrorIs(t, err, errEnqueueDown)
+
+	require.Empty(t, seeder.deleteCalls)
+	require.Empty(t, store.values)
 }

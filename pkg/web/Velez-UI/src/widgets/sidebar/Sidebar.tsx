@@ -3,6 +3,8 @@ import cn from 'classnames';
 import SectionLabel from '@/components/base/SectionLabel';
 import SidebarVersion from '@/widgets/sidebar/SidebarVersion';
 import VelezIcon from '@/assets/icons/services/velez.svg';
+import S3Icon from '@/components/base/icons/S3Icon';
+import {ReactNode} from 'react';
 
 type NavId = 'controlplane' | 'vcn' | 'networks' | 'deployments' | 'services' | 'postgres' | 'registries' | 'runners' | 'dinds' | 's3' | 'transfer' | 'search';
 type ToolId = 'secrets' | 'config' | 'logs' | 'settings';
@@ -13,7 +15,7 @@ interface SidebarProps {
     onToolNav?: (id: ToolId) => void;
 }
 
-const NAV_ITEMS: Array<{ id: NavId; label: string; icon: string }> = [
+const NAV_ITEMS: Array<{ id: NavId; label: string; icon: ReactNode }> = [
     {id: 'controlplane', label: 'Control Plane', icon: '⬡'},
     {id: 'vcn', label: 'VCN', icon: '◎'},
     {id: 'networks', label: 'Networks', icon: '⇄'},
@@ -23,7 +25,7 @@ const NAV_ITEMS: Array<{ id: NavId; label: string; icon: string }> = [
     {id: 'registries', label: 'Registries', icon: '▣'},
     {id: 'runners', label: 'Runners', icon: '⚙'},
     {id: 'dinds', label: 'Docker daemons', icon: '▤'},
-    {id: 's3', label: 'S3 storage', icon: '◧'},
+    {id: 's3', label: 'S3 storage', icon: <S3Icon className={cls.navSvgIcon}/>},
     {id: 'transfer', label: 'Transfer', icon: '⇆'},
     {id: 'search', label: 'Search', icon: '⌕'},
 ];
@@ -104,7 +106,7 @@ function Logo() {
 interface NavItemProps {
     id: NavId;
     label: string;
-    icon: string;
+    icon: ReactNode;
     isActive: boolean;
     onNavChange: (id: NavId) => void;
 }

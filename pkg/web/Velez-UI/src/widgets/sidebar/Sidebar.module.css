@@ -98,6 +98,12 @@
     flex-shrink: 0;
 }
 
+.navSvgIcon {
+    width: 0.875rem;
+    height: 0.875rem;
+    display: block;
+}
+
 .navLabel {
     font-family: var(--font-sans);
     font-size: 0.8125rem;

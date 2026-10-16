@@ -18,7 +18,7 @@ vi.mock("@/pages/s3/components/S3InstanceDetail/S3InstanceDetail.tsx", () => ({d
 vi.mock("@/pages/s3/components/S3InstanceRow/S3InstanceRow.tsx", () => ({
     default: ({instance}: { instance: S3Instance }) => <span>instance {instance.name}</span>,
 }))
-vi.mock("@/pages/s3/components/S3ListSkeleton/S3ListSkeleton.tsx", () => ({
+vi.mock("@/components/S3ListSkeleton/S3ListSkeleton.tsx", () => ({
     default: () => <span>s3 skeleton</span>,
 }))
 vi.mock("@/widgets/ProvisioningRow/ProvisioningRow.tsx", () => ({

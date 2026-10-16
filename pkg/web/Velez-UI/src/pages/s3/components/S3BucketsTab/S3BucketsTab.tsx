@@ -8,7 +8,7 @@ import Button from "@/components/base/Button.tsx"
 import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorState.tsx"
 import CreateS3BucketDialog from "@/dialogs/CreateS3BucketDialog/CreateS3BucketDialog.tsx"
 import S3BucketRow from "@/pages/s3/components/S3BucketRow/S3BucketRow.tsx"
-import S3ListSkeleton from "@/pages/s3/components/S3ListSkeleton/S3ListSkeleton.tsx"
+import S3ListSkeleton from "@/components/S3ListSkeleton/S3ListSkeleton.tsx"
 
 const COLUMNS = ["Name", "Objects", "Size", "Owner service", "Key access", ""]
 

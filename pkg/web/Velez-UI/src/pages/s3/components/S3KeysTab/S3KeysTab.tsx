@@ -8,7 +8,7 @@ import Button from "@/components/base/Button.tsx"
 import QueryErrorState from "@/components/complex/QueryErrorState/QueryErrorState.tsx"
 import CreateS3KeyDialog from "@/dialogs/CreateS3KeyDialog/CreateS3KeyDialog.tsx"
 import S3KeyRow from "@/pages/s3/components/S3KeyRow/S3KeyRow.tsx"
-import S3ListSkeleton from "@/pages/s3/components/S3ListSkeleton/S3ListSkeleton.tsx"
+import S3ListSkeleton from "@/components/S3ListSkeleton/S3ListSkeleton.tsx"
 
 const COLUMNS = ["Name", "Access key id", "Buckets", "Owner", "Secret", ""]
 

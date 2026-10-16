@@ -4,6 +4,7 @@ import {
     ListDeploymentsByServiceNameQuery,
     useGetServiceAboutQuery,
 } from "@/processes/queries/services.ts";
+import {s3InstanceNameOf} from "@/processes/mappings/s3.ts";
 import {ListSmerdsByServiceIdQuery} from "@/processes/queries/smerds.ts";
 import PgConnectionSection from "@/widgets/service/PgConnectionSection/PgConnectionSection.tsx";
 import ServiceHero from "@/widgets/service/ServiceHero/ServiceHero.tsx";
@@ -12,6 +13,7 @@ import ResourcesSection from "@/widgets/service/ResourcesSection/ResourcesSectio
 import ServiceGraph from "@/widgets/service/ServiceGraph/ServiceGraph.tsx";
 import DeploymentHistory from "@/widgets/service/DeploymentHistory/DeploymentHistory.tsx";
 import Vervonomicon from "@/widgets/service/Vervonomicon/Vervonomicon.tsx";
+import S3Credentials from "@/widgets/S3Credentials/S3Credentials.tsx";
 
 interface Props {
     serviceName: string;
@@ -26,6 +28,7 @@ export default function ServiceOverviewTab({serviceName}: Props) {
     const service = serviceQuery.data;
     const deployments = deploymentsQuery.data?.deployments || [];
     const currentSmerd = smerdsQuery.data?.smerds?.[0];
+    const s3InstanceName = s3InstanceNameOf(serviceName);
 
     return (
         <>
@@ -45,6 +48,7 @@ export default function ServiceOverviewTab({serviceName}: Props) {
             </div>
 
             <ResourcesSection serviceName={serviceName}/>
+            {s3InstanceName && <S3Credentials key={s3InstanceName} instanceName={s3InstanceName}/>}
             <ServiceGraph serviceName={serviceName} sidecars={aboutQuery.data?.sidecars}/>
             <DeploymentHistory
                 deployments={deployments}

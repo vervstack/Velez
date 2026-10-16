@@ -3,7 +3,7 @@ import {useState} from "react"
 import cls from "@/pages/s3/components/S3InstanceDetail/S3InstanceDetail.module.css"
 import Button from "@/components/base/Button.tsx"
 import S3BucketsTab from "@/pages/s3/components/S3BucketsTab/S3BucketsTab.tsx"
-import S3CredentialsTab from "@/pages/s3/components/S3CredentialsTab/S3CredentialsTab.tsx"
+import S3Credentials from "@/widgets/S3Credentials/S3Credentials.tsx"
 import S3KeysTab from "@/pages/s3/components/S3KeysTab/S3KeysTab.tsx"
 
 type Tab = "buckets" | "keys" | "credentials"
@@ -35,7 +35,7 @@ export default function S3InstanceDetail({instanceName}: Props) {
 
     function renderTab() {
         if (tab === "keys") return <S3KeysTab key={instanceName} instanceName={instanceName}/>
-        if (tab === "credentials") return <S3CredentialsTab key={instanceName} instanceName={instanceName}/>
+        if (tab === "credentials") return <S3Credentials key={instanceName} instanceName={instanceName}/>
         return <S3BucketsTab key={instanceName} instanceName={instanceName}/>
     }
 

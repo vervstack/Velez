@@ -1,4 +1,4 @@
-import cls from "@/pages/s3/components/S3ListSkeleton/S3ListSkeleton.module.css"
+import cls from "@/components/S3ListSkeleton/S3ListSkeleton.module.css"
 import SkeletonLoader from "@/components/base/SkeletonLoader.tsx"
 
 const ROW_KEYS = ["first", "second", "third"]

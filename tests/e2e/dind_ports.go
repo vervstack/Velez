@@ -72,9 +72,12 @@ var (
 	//nolint:gochecknoglobals // one disposable daemon per test binary
 	sharedTargetDind *dind.Env
 
-	// dindSeedImages are images some code paths create a container from
-	// without pulling first, so they must be pre-pulled into the fresh DinD
-	// daemon. postgres:18 is pg_pattern.postgresImage (the cluster postgres
+	// dindSeedImages are the images the suite and Velez use inside the DinD.
+	// The DinD never pulls from the web: each is loaded from the host image
+	// cache (see dind.Env.Seed). Floating names the product or tests request
+	// verbatim (alpine, :latest, registry:2) are pinned to a concrete version
+	// and tagged back as aliases. Some code paths create a container from
+	// them without pulling first. postgres:18 is pg_pattern.postgresImage (the cluster postgres
 	// pattern); the headscale/tailscale images back the shared headscale
 	// fixture and the VPN sidecar it exercises (see shared_headscale.go /
 	// suite_vpn_test.go); alpine is copy_to_volume.go's
@@ -85,27 +88,24 @@ var (
 	// The rest are every other image the suite or Velez pulls inside the
 	// daemon while tests run; matreshka is pinned to the go.mod module version.
 	//nolint:gochecknoglobals // fixed suite input
-	dindSeedImages = []string{
-		"postgres:18",
-		"postgres:16",
-		"headscale/headscale:0.27.2-rc.1",
-		"tailscale/tailscale:v1.90.8",
-		"alpine",
-		"alpine:3",
-		"alpine:3.24.2",
-		"nginx:alpine",
-		"godverv/hello_world:v0.0.14",
-		"vervstack/hello_world:v0.0.15",
-		"vervstack/matreshka:v1.0.102",
-		"grafana/loki:main-bc418c4",
-		"gitlab/gitlab-runner:latest",
-		"registry:2",
-		"joxit/docker-registry-ui:latest",
-		"dxflrs/garage:v2.4.0",
-		"dxflrs/garage@sha256:715d176efc35384bf72cf6052fd61b74b3e27a1e31a9dfedabe646bd1e92f137",
-		"khairul169/garage-webui:1.1.0",
-		"moby/buildkit:v0.34.0",
-		"tonistiigi/binfmt:qemu-v10.2.3-68",
+	dindSeedImages = []dind.SeedImage{
+		{Ref: "postgres:18"},
+		{Ref: "postgres:16"},
+		{Ref: "headscale/headscale:0.27.2-rc.1"},
+		{Ref: "tailscale/tailscale:v1.90.8"},
+		{Ref: "alpine:3.24.2", Aliases: []string{"alpine", "alpine:3"}},
+		{Ref: "nginx:alpine"},
+		{Ref: "godverv/hello_world:v0.0.14"},
+		{Ref: "vervstack/hello_world:v0.0.15"},
+		{Ref: "vervstack/matreshka:v1.0.102"},
+		{Ref: "grafana/loki:main-bc418c4"},
+		{Ref: "gitlab/gitlab-runner:v19.5.0", Aliases: []string{"gitlab/gitlab-runner:latest"}},
+		{Ref: "registry:2.8.3", Aliases: []string{"registry:2"}},
+		{Ref: "joxit/docker-registry-ui:2.6.0", Aliases: []string{"joxit/docker-registry-ui:latest"}},
+		{Ref: "dxflrs/garage:v2.4.0"},
+		{Ref: "khairul169/garage-webui:1.1.0"},
+		{Ref: "moby/buildkit:v0.34.0"},
+		{Ref: "tonistiigi/binfmt:qemu-v10.2.3-68"},
 	}
 
 	// dindEnsureNetworks are docker networks the suite's smerds bind by name

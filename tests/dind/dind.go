@@ -406,30 +406,6 @@ func removeAllVolumes(ctx context.Context, cli *client.Client) error {
 	return nil
 }
 
-// Seed pulls the given image references into the DinD daemon unless they
-// are already present. The e2e suite calls this for images that some code
-// paths create a container from without pulling first (the cluster postgres
-// pattern, for one) - that only ever worked against a warm host daemon.
-func (e *Env) Seed(ctx context.Context, refs ...string) error {
-	cli, err := newDockerClient(e.DockerHost)
-	if err != nil {
-		return rerrors.Wrap(err, "error creating dind docker client")
-	}
-
-	defer func() {
-		_ = cli.Close()
-	}()
-
-	for _, ref := range refs {
-		err = ensureImage(ctx, cli, ref)
-		if err != nil {
-			return rerrors.Wrap(err, "error seeding image "+ref)
-		}
-	}
-
-	return nil
-}
-
 // EnsureNetwork creates the named bridge networks in the DinD daemon if
 // they are absent. Velez attaches port-exposing containers to a fixed
 // "verv" network it no longer creates itself (env.StartNetwork is disabled)
@@ -548,18 +524,12 @@ func resolveDindHost(bootstrapHost string) string {
 }
 
 func ensureImage(ctx context.Context, cli *client.Client, ref string) error {
-	filterArgs := filters.NewArgs(filters.Arg("reference", ref))
-
-	listOpts := image.ListOptions{
-		Filters: filterArgs,
-	}
-
-	existing, err := cli.ImageList(ctx, listOpts)
+	isPresent, err := hasImage(ctx, cli, ref)
 	if err != nil {
-		return rerrors.Wrap(err, "error listing images")
+		return rerrors.Wrap(err, "error checking image")
 	}
 
-	if len(existing) > 0 {
+	if isPresent {
 		return nil
 	}
 

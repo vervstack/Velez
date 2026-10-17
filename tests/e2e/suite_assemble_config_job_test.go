@@ -11,15 +11,14 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.redsock.ru/toolbox"
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
+	"go.vervstack.ru/Velez/internal/clients/node_clients/docker/dockerutils"
 	"go.vervstack.ru/Velez/internal/jobs"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 	"go.vervstack.ru/Velez/tests/config_mocks"
 )
 
 // AssembleConfigJobSuite exercises the "assemble_config" job (internal/jobs/assemble_config.go)
-// directly through the real JobsEngine/TaskWorker, in parallel to AssembleConfigSuite which
-// covers the same scenario through the still-live pipeline. The job isn't cut over to any RPC
-// yet, so it's driven here the way a future gRPC handler would: Enqueue then Watch.
+// through the AssembleConfig RPC and then inspects the finished task, complementing
+// AssembleConfigSuite which only checks the RPC response.
 type AssembleConfigJobSuite struct {
 	suite.Suite
 
@@ -38,37 +37,31 @@ func (s *AssembleConfigJobSuite) Test_AssembleHelloWorld() {
 	serviceName := GetServiceName(t)
 	env := s.plane.NewEnvironment(t)
 
-	initialContext := &velez_api.AssembleConfigTaskPayload{
+	req := &velez_api.AssembleConfig_Request{
 		ServiceName: serviceName,
 		ImageName:   HelloWorldAppImage,
 	}
 
-	_, err := env.Custom.JobsEngine.Enqueue(s.ctx, serviceName, jobs.AssembleConfigAction, initialContext)
+	resp, err := env.VelezApiClient().AssembleConfig(s.ctx, req)
 	require.NoError(t, err)
 
-	var finalTask tasks_queries.VelezTask
-
-	for task := range env.Custom.JobsEngine.Watch(s.ctx, serviceName, jobs.AssembleConfigAction) {
-		finalTask = task
-	}
-
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, finalTask.Status, "task error: %s", finalTask.Error.String)
+	finalTask := env.AwaitTask(t, serviceName, jobs.AssembleConfigAction)
+	require.Equal(t, velez_api.TaskStatus_DONE, finalTask.GetStatus(), "task error: %s", finalTask.GetError())
 
 	var payload velez_api.AssembleConfigTaskPayload
 
-	require.True(t, finalTask.Context.Valid)
-
-	err = json.Unmarshal(finalTask.Context.RawMessage, &payload)
+	err = json.Unmarshal([]byte(env.TaskContext(t, serviceName, jobs.AssembleConfigAction)), &payload)
 	require.NoError(t, err)
 
 	require.Equal(t, serviceName, payload.GetConfigName())
 	require.Equal(t, "verv", payload.GetConfType())
 	require.NotEmpty(t, payload.GetContainerId())
 	require.YAMLEq(t, string(config_mocks.HelloWorld), string(payload.GetContentRaw()))
+	require.YAMLEq(t, string(config_mocks.HelloWorld), string(resp.GetConfig()))
 
 	scratchName := serviceName + "_config_scanning"
 	listReq := &velez_api.ListSmerds_Request{Name: toolbox.ToPtr(scratchName)}
-	cont, err := env.Custom.NodeClients.Docker().ListContainers(s.ctx, listReq, "")
+	cont, err := dockerutils.ListContainers(s.ctx, env.DockerClient(), listReq)
 	require.NoError(t, err)
 	require.Empty(t, cont, "scratch container should have been dropped by the job")
 }

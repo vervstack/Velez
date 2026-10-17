@@ -79,7 +79,7 @@ func (s *VervonomiconDeploySuite) createService(env *TestEnvironment, name strin
 		Environment: environments.DefaultEnvironmentName,
 	}
 
-	_, err := env.Custom.ServiceApiImpl.CreateService(ctx, req)
+	_, err := env.ServiceApiClient().CreateService(ctx, req)
 	require.NoError(t, err, "CreateService must not error")
 }
 
@@ -92,7 +92,7 @@ func (s *VervonomiconDeploySuite) awaitRunning(env *TestEnvironment, serviceName
 	require.Eventually(t, func() bool {
 		req := &velez_api.ListDeployments_Request{ServiceName: &serviceName}
 
-		resp, listErr := env.Custom.ServiceApiImpl.ListDeployments(ctx, req)
+		resp, listErr := env.ServiceApiClient().ListDeployments(ctx, req)
 		if listErr != nil {
 			return false
 		}
@@ -132,7 +132,7 @@ func (s *VervonomiconDeploySuite) Test_BoxResolutionAndFidelity() {
 	t := s.T()
 	ctx := t.Context()
 
-	dockerAPI := s.env.Custom.NodeClients.Docker().Client()
+	dockerAPI := s.env.DockerClient()
 
 	svcName := vervDeployFidelitySvc
 	tag := svcName + ":verv"
@@ -179,7 +179,7 @@ func (s *VervonomiconDeploySuite) Test_BoxResolutionAndFidelity() {
 		},
 	}
 
-	_, err := s.env.Custom.ServiceApiImpl.CreateDeploy(ctx, deployReq)
+	_, err := s.env.ServiceApiClient().CreateDeploy(ctx, deployReq)
 	require.NoError(t, err, "CreateDeploy(Vervonomicon) must resolve box: small against the real boxes table")
 
 	s.awaitRunning(s.env, svcName)
@@ -239,7 +239,7 @@ func (s *VervonomiconDeploySuite) Test_BoxResolutionAndFidelity() {
 	// still uncovered.
 	vervReq := &velez_api.GetVervonomicon_Request{ServiceName: svcName}
 
-	vervResp, err := s.env.Custom.ServiceApiImpl.GetVervonomicon(ctx, vervReq)
+	vervResp, err := s.env.ServiceApiClient().GetVervonomicon(ctx, vervReq)
 	require.NoError(t, err)
 	require.Contains(t, vervResp.GetResolvedYaml(), "box: small")
 	require.Contains(t, vervResp.GetResolvedYaml(), "GREETING: hi")
@@ -252,7 +252,7 @@ func (s *VervonomiconDeploySuite) Test_UnknownBox_ReturnsError() {
 	t := s.T()
 	ctx := t.Context()
 
-	dockerAPI := s.env.Custom.NodeClients.Docker().Client()
+	dockerAPI := s.env.DockerClient()
 
 	svcName := vervDeployBoxErrSvc
 	tag := svcName + ":verv"
@@ -277,7 +277,7 @@ func (s *VervonomiconDeploySuite) Test_UnknownBox_ReturnsError() {
 		},
 	}
 
-	_, err := s.env.Custom.ServiceApiImpl.CreateDeploy(ctx, deployReq)
+	_, err := s.env.ServiceApiClient().CreateDeploy(ctx, deployReq)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "unknown box '"+vervUnknownBoxName+"'")
 	require.Contains(t, err.Error(), "small")
@@ -294,7 +294,7 @@ func (s *VervonomiconDeploySuite) Test_DeployRequestImage_BeatsAppImage() {
 	t := s.T()
 	ctx := t.Context()
 
-	dockerAPI := s.env.Custom.NodeClients.Docker().Client()
+	dockerAPI := s.env.DockerClient()
 
 	svcName := vervDeployImagePrecSvc
 	tag := svcName + ":verv"
@@ -319,7 +319,7 @@ func (s *VervonomiconDeploySuite) Test_DeployRequestImage_BeatsAppImage() {
 		},
 	}
 
-	_, err := s.env.Custom.ServiceApiImpl.CreateDeploy(ctx, deployReq)
+	_, err := s.env.ServiceApiClient().CreateDeploy(ctx, deployReq)
 	require.NoError(t, err)
 
 	s.awaitRunning(s.env, svcName)

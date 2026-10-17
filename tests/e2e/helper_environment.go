@@ -11,6 +11,7 @@ import (
 	"runtime"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
@@ -38,6 +39,10 @@ import (
 
 // sharedPortManagerImpl is a single PortManager shared across all parallel test environments.
 // Initialized once on first NewEnvironment call.
+
+const (
+	awaitTaskTimeout = 8 * time.Minute
+)
 
 var (
 	defaultConfigPath string
@@ -572,7 +577,10 @@ func (e *TestEnvironment) AwaitTask(t *testing.T, entityId string, action string
 		Action:   action,
 	}
 
-	stream, err := e.TasksApiClient().WatchTask(t.Context(), req)
+	ctx, cancel := context.WithTimeout(t.Context(), awaitTaskTimeout)
+	defer cancel()
+
+	stream, err := e.TasksApiClient().WatchTask(ctx, req)
 	require.NoError(t, err)
 
 	finalStatus := &velez_api.TaskStatus{}

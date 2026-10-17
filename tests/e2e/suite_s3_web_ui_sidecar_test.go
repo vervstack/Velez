@@ -19,6 +19,7 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/proto"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain"
@@ -452,9 +453,7 @@ func requireNoGraphNode(t *testing.T, nodes []*velez_api.ServiceDependencyInfo, 
 func upgradeStoppingOldFirst(t *testing.T, env *TestEnvironment, req *velez_api.UpgradeSmerd_Request) {
 	t.Helper()
 
-	payload := &velez_api.UpgradeSmerdTaskPayload{UpgradeRequest: req, StopOldFirst: true}
-
-	_, err := env.Custom.JobsEngine.Enqueue(t.Context(), req.GetName(), jobs.UpgradeSmerdAction, payload)
+	_, err := env.VelezApiClient().UpgradeSmerd(t.Context(), req)
 	require.NoError(t, err)
 
 	task := env.AwaitTask(t, req.GetName(), jobs.UpgradeSmerdAction)
@@ -464,8 +463,9 @@ func upgradeStoppingOldFirst(t *testing.T, env *TestEnvironment, req *velez_api.
 
 func newUpgradeS3GarageRequest(instanceName, imageName string) *velez_api.UpgradeSmerd_Request {
 	return &velez_api.UpgradeSmerd_Request{
-		Name:  domain.S3ServiceName(instanceName),
-		Image: imageName,
+		Name:         domain.S3ServiceName(instanceName),
+		Image:        imageName,
+		StopOldFirst: proto.Bool(true),
 	}
 }
 

@@ -27,6 +27,7 @@ import (
 const (
 	testDeploymentID  = int64(7)
 	testSpecID        = int64(42)
+	testGoneSpecID    = int64(-9)
 	testSmerdName     = "hello_world"
 	testSmerdImage    = "godverv/hello_world:v0.0.14"
 	testEnvironment   = "staging"
@@ -34,6 +35,8 @@ const (
 	keptEnvKey        = "KEEP"
 	removedEnvKey     = "HTTP_PROXY"
 )
+
+var errSpecBroken = rerrors.New("spec storage is broken")
 
 // enqueuedTask records one taskRunner.Enqueue call.
 type enqueuedTask struct {
@@ -61,6 +64,8 @@ type fakeTaskRunner struct {
 	enqueueErr error
 	// blockWatch makes Watch never emit, so the caller's watch timeout wins.
 	blockWatch bool
+	// watchDelay makes Watch report the task terminal only after the delay, unless its context ends first.
+	watchDelay time.Duration
 }
 
 func newFakeTaskRunner() *fakeTaskRunner {
@@ -114,6 +119,20 @@ func (f *fakeTaskRunner) Watch(ctx context.Context, entityID, action string) <-c
 		Error:    f.finalError,
 	}
 
+	if f.watchDelay > 0 {
+		go func() {
+			defer close(ch)
+
+			select {
+			case <-ctx.Done():
+			case <-time.After(f.watchDelay):
+				ch <- task
+			}
+		}()
+
+		return ch
+	}
+
 	ch <- task
 
 	close(ch)
@@ -138,6 +157,8 @@ type stubDeploymentsStorage struct {
 
 	spec     deployments_queries.GetSpecificationByIdRow
 	statuses []deployments_queries.UpdateDeploymentStatusParams
+	// specErrs fails GetSpecificationById for the listed spec ids.
+	specErrs map[int64]error
 }
 
 func newStubDeploymentsStorage(t *testing.T, req *velez_api.CreateSmerd_Request) *stubDeploymentsStorage {
@@ -156,8 +177,13 @@ func newStubDeploymentsStorage(t *testing.T, req *velez_api.CreateSmerd_Request)
 }
 
 func (s *stubDeploymentsStorage) GetSpecificationById(
-	_ context.Context, _ int64,
+	_ context.Context, id int64,
 ) (deployments_queries.GetSpecificationByIdRow, error) {
+	err, isFailing := s.specErrs[id]
+	if isFailing {
+		return deployments_queries.GetSpecificationByIdRow{}, err
+	}
+
 	return s.spec, nil
 }
 
@@ -399,6 +425,50 @@ func TestDeployWatcher_FailedTaskMarksDeploymentFailed(t *testing.T) {
 	statuses := deployments.recordedStatuses()
 	require.Len(t, statuses, 1)
 	require.Equal(t, deployments_queries.VelezDeploymentStatusFAILED, statuses[0].Status)
+}
+
+// A running deployment whose spec vanished (a derived row whose container is gone) is skipped, not an error.
+func TestDeployWatcher_SyncRunningBatchSkipsDeploymentWithVanishedSpec(t *testing.T) {
+	t.Parallel()
+
+	deployments := newStubDeploymentsStorage(t, testCreateRequest())
+
+	deployments.specErrs = map[int64]error{testGoneSpecID: user_errors.ErrStorageNotFound}
+
+	watcher := newTestWatcher(newFakeTaskRunner(), deployments, nil)
+
+	batch := []domain.Deployment{{Id: testDeploymentID, SpecId: testGoneSpecID}}
+
+	err := watcher.syncRunningBatch(t.Context(), batch)
+	require.NoError(t, err)
+	require.Empty(t, deployments.recordedStatuses())
+}
+
+// A failing sibling batch must not cancel an in-flight deploy and get its deployment recorded as FAILED.
+func TestDeployWatcher_RunBatchesFailingBatchDoesNotCancelDeploy(t *testing.T) {
+	t.Parallel()
+
+	runner := newFakeTaskRunner()
+
+	runner.watchDelay = 200 * time.Millisecond
+
+	deployments := newStubDeploymentsStorage(t, testCreateRequest())
+
+	deployments.specErrs = map[int64]error{testGoneSpecID: errSpecBroken}
+
+	watcher := newTestWatcher(runner, deployments, nil)
+
+	list := deploymentsList{
+		scheduled: []domain.Deployment{scheduledDeployment(deployments_queries.VelezDeploymentStatusSCHEDULEDDEPLOYMENT)},
+		active:    []domain.Deployment{{Id: testDeploymentID + 1, SpecId: testGoneSpecID}},
+	}
+
+	err := watcher.runBatches(t.Context(), list)
+	require.ErrorIs(t, err, errSpecBroken)
+
+	statuses := deployments.recordedStatuses()
+	require.Len(t, statuses, 1)
+	require.Equal(t, deployments_queries.VelezDeploymentStatusRUNNING, statuses[0].Status)
 }
 
 // runTask must surface the task's own error message, not swallow it.

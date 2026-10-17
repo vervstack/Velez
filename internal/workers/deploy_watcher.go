@@ -125,13 +125,7 @@ func (d *deployWatcher) Start(ctx context.Context) {
 					continue
 				}
 
-				g, errCtx := errgroup.WithContext(ctx)
-
-				g.Go(func() error { return d.processScheduledBatch(errCtx, list.scheduled) })
-				g.Go(func() error { return d.syncRunningBatch(errCtx, list.active) })
-				g.Go(func() error { return d.deleteBatch(errCtx, list.scheduledDeletion) })
-
-				err = g.Wait()
+				err = d.runBatches(ctx, list)
 				if err != nil {
 					log.Error().Err(err).Msg("error running deploy watcher")
 
@@ -152,6 +146,24 @@ func (d *deployWatcher) Stop() error {
 		d.ticker.Stop()
 		close(d.done)
 	})
+
+	return nil
+}
+
+// runBatches runs the three batches side by side. A failing batch must not
+// cancel its siblings: a scheduled deploy cut short that way is recorded as
+// FAILED while its create_smerd task still runs to completion.
+func (d *deployWatcher) runBatches(ctx context.Context, list deploymentsList) error {
+	var g errgroup.Group
+
+	g.Go(func() error { return d.processScheduledBatch(ctx, list.scheduled) })
+	g.Go(func() error { return d.syncRunningBatch(ctx, list.active) })
+	g.Go(func() error { return d.deleteBatch(ctx, list.scheduledDeletion) })
+
+	err := g.Wait()
+	if err != nil {
+		return rerrors.Wrap(err)
+	}
 
 	return nil
 }
@@ -430,6 +442,11 @@ func removedEnvKeys(applied, scheduled map[string]string) []string {
 func (d *deployWatcher) syncRunningBatch(ctx context.Context, active []domain.Deployment) error {
 	for _, dep := range active {
 		smerdReq, err := d.specRequest(ctx, dep)
+		if rerrors.Is(err, user_errors.ErrStorageNotFound) {
+			// A deployment derived from a container has no spec once that container is gone.
+			continue
+		}
+
 		if err != nil {
 			return rerrors.Wrap(err, "error getting spec for running deployment")
 		}

@@ -32,7 +32,6 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/jobs"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
 const (
@@ -214,7 +213,7 @@ func runOnEveryPlane(t *testing.T, body func(t *testing.T, env *TestEnvironment,
 func isSysboxRuntimeRegistered(t *testing.T, env *TestEnvironment) bool {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	isRegistered, err := dockerutils.HasRuntime(t.Context(), dockerClient, sysboxRuntimeName)
 	require.NoError(t, err)
@@ -302,7 +301,7 @@ func removeDindResources(dockerClient client.APIClient, name string) {
 func registerDindCleanup(t *testing.T, env *TestEnvironment, name string) {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeDindResources(dockerClient, name)
 
@@ -317,26 +316,24 @@ func registerDindCleanup(t *testing.T, env *TestEnvironment, name string) {
 		ctx, cancel := context.WithTimeout(context.Background(), dindTaskTimeout)
 		defer cancel()
 
-		for range env.Custom.JobsEngine.Watch(ctx, dropResp.GetEntityId(), dropResp.GetAction()) {
+		watchReq := &velez_api.WatchTask_Request{EntityId: dropResp.GetEntityId(), Action: dropResp.GetAction()}
+
+		stream, watchErr := env.TasksApiClient().WatchTask(ctx, watchReq)
+		if watchErr == nil {
+			drainTaskStream(stream)
 		}
 
 		removeDindResources(dockerClient, name)
 	})
 }
 
-func awaitJobTask(t *testing.T, env *TestEnvironment, entityId, action string) tasks_queries.VelezTask {
-	t.Helper()
-
-	ctx, cancel := context.WithTimeout(t.Context(), dindTaskTimeout)
-	defer cancel()
-
-	var finalTask tasks_queries.VelezTask
-
-	for task := range env.Custom.JobsEngine.Watch(ctx, entityId, action) {
-		finalTask = task
+func drainTaskStream(stream velez_api.TasksApi_WatchTaskClient) {
+	for {
+		_, err := stream.Recv()
+		if err != nil {
+			return
+		}
 	}
-
-	return finalTask
 }
 
 func dropDindAndAwait(t *testing.T, env *TestEnvironment, name string) {
@@ -349,8 +346,8 @@ func dropDindAndAwait(t *testing.T, env *TestEnvironment, name string) {
 	require.Equal(t, name, dropResp.GetEntityId())
 	require.Equal(t, jobs.DropDindAction, dropResp.GetAction())
 
-	task := awaitJobTask(t, env, dropResp.GetEntityId(), dropResp.GetAction())
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "drop dind task error: %s", task.Error.String)
+	task := env.AwaitTask(t, dropResp.GetEntityId(), dropResp.GetAction())
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "drop dind task error: %s", task.GetError())
 }
 
 func createDindAndAwait(t *testing.T, env *TestEnvironment, req *velez_api.CreateDind_Request) {
@@ -361,8 +358,8 @@ func createDindAndAwait(t *testing.T, env *TestEnvironment, req *velez_api.Creat
 	_, err := dindClient.CreateDind(t.Context(), req)
 	require.NoError(t, err)
 
-	task := awaitJobTask(t, env, req.GetName(), jobs.CreateDindAction)
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "create dind task error: %s", task.Error.String)
+	task := env.AwaitTask(t, req.GetName(), jobs.CreateDindAction)
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "create dind task error: %s", task.GetError())
 }
 
 func findDind(t *testing.T, env *TestEnvironment, name string) *velez_api.DindInfo {
@@ -399,8 +396,8 @@ func requireDindListed(t *testing.T, env *TestEnvironment, name string) *velez_a
 func requireDaemonResponds(t *testing.T, env *TestEnvironment, containerName string) {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
-	runtimes := container_runtime.NewResolver(dockerClient, env.Custom.NodeClients.Docker().Host(), nil, nil)
+	dockerClient := env.DockerClient()
+	runtimes := container_runtime.NewResolver(dockerClient, dockerClient.DaemonHost(), nil, nil)
 
 	runtime, err := runtimes.Runtime(t.Context(), "")
 	require.NoError(t, err)
@@ -439,7 +436,7 @@ func Test_Dind_Privileged_Lifecycle(t *testing.T) {
 }
 
 func runDindPrivilegedLifecycle(t *testing.T, env *TestEnvironment, _ Plane) {
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 	name := dindE2eName(t)
 	netName := domain.DindNetworkName(name)
 
@@ -527,7 +524,7 @@ func Test_Dind_Sysbox_Lifecycle(t *testing.T) {
 
 	requireSysboxRuntimeOrSkip(t, env)
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 	name := dindE2eName(t)
 
 	registerDindCleanup(t, env, name)
@@ -553,7 +550,7 @@ func Test_Settings_SysboxEnabled_PlainContainerGetsSysboxRuntime(t *testing.T) {
 
 	updateSettings(t, env, newUpdateSettingsRequest(toolbox.ToPtr(true), nil))
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 	name := GetServiceName(t)
 
 	smerdReq := &velez_api.CreateSmerd_Request{Name: name, ImageName: NginxAlpineImage}
@@ -638,7 +635,7 @@ func gitlabStubContainerName(dindName string) string {
 func startGitlabStub(t *testing.T, env *TestEnvironment, name string) string {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	ensureImagePresent(t, dockerClient, NginxAlpineImage)
 
@@ -692,7 +689,7 @@ func startGitlabStub(t *testing.T, env *TestEnvironment, name string) string {
 func gitlabStubRequests(t *testing.T, env *TestEnvironment, name string) []string {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	reader, err := dockerClient.ContainerLogs(t.Context(), name, container.LogsOptions{ShowStdout: true})
 	require.NoError(t, err)
@@ -742,7 +739,7 @@ func redeployRunnerAndAwaitNewContainer(
 ) container.InspectResponse {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 	runnersClient := velez_api.NewRunnersAPIClient(env.grpcConn)
 
 	_, err := runnersClient.RedeployRunner(t.Context(), newRedeployRunnerRequest(runnerContainer))
@@ -780,7 +777,7 @@ type dindRunnerFixture struct {
 func createRunnerOnDind(t *testing.T, env *TestEnvironment) dindRunnerFixture {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 	runnersClient := velez_api.NewRunnersAPIClient(env.grpcConn)
 
 	dindName := dindE2eName(t)
@@ -805,8 +802,8 @@ func createRunnerOnDind(t *testing.T, env *TestEnvironment) dindRunnerFixture {
 	created, err := runnersClient.CreateRunner(t.Context(), newGitlabCreateRunnerRequest(runnerName, dindName, baseUrl))
 	require.NoError(t, err)
 
-	task := awaitJobTask(t, env, created.GetEntityId(), created.GetAction())
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "create runner task error: %s", task.Error.String)
+	task := env.AwaitTask(t, created.GetEntityId(), created.GetAction())
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "create runner task error: %s", task.GetError())
 
 	inspected, err := dockerClient.ContainerInspect(t.Context(), runnerContainer)
 	require.NoError(t, err)
@@ -834,8 +831,8 @@ func runRunnerOnDind(t *testing.T, env *TestEnvironment, _ Plane) {
 	dropped, err := runnersClient.DropRunner(t.Context(), newDropRunnerRequest(fixture.runnerContainer))
 	require.NoError(t, err)
 
-	dropTask := awaitJobTask(t, env, dropped.GetEntityId(), dropped.GetAction())
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, dropTask.Status, "drop runner task error: %s", dropTask.Error.String)
+	dropTask := env.AwaitTask(t, dropped.GetEntityId(), dropped.GetAction())
+	require.Equal(t, velez_api.TaskStatus_DONE, dropTask.GetStatus(), "drop runner task error: %s", dropTask.GetError())
 
 	dropDindAndAwait(t, env, fixture.dindName)
 	require.Nil(t, findDind(t, env, fixture.dindName))
@@ -879,17 +876,28 @@ func requireRunnerRowWithoutDindLink(
 ) {
 	t.Helper()
 
-	dataStorage := env.Custom.Services.StorageContainer()
+	listReq := &velez_api.ListRunners_Request{}
 
-	svc, err := dataStorage.Services().GetByName(t.Context(), runnerContainer)
+	listResp, err := env.RunnersClient().ListRunners(t.Context(), listReq)
 	require.NoError(t, err)
 
-	runner, err := dataStorage.Runners().GetRunnerByServiceID(t.Context(), svc.ID)
-	require.NoError(t, err)
-	require.Zero(t, runner.DindServiceId)
+	var listed *velez_api.Runner
+
+	for _, runner := range listResp.GetRunners() {
+		if runner.GetName() == runnerContainer {
+			listed = runner
+		}
+	}
+
+	require.NotNil(t, listed, "runner %q is not listed", runnerContainer)
+	require.Empty(t, listed.GetDindName())
 
 	if plane.Mode == ModeCluster {
-		require.Equal(t, socketAddress, runner.DockerSocketAddress)
+		configReq := &velez_api.GetRunnerConfig_Request{Name: runnerContainer}
+
+		config, configErr := env.RunnersClient().GetRunnerConfig(t.Context(), configReq)
+		require.NoError(t, configErr)
+		require.Equal(t, socketAddress, config.GetDockerSocketAddress())
 	}
 }
 
@@ -900,7 +908,7 @@ func Test_Runner_WithTcpDockerSocketAddress_KeepsDockerHostWithoutSocketMountOrD
 }
 
 func runRunnerWithTcpSocketAddress(t *testing.T, env *TestEnvironment, plane Plane) {
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 	runnersClient := velez_api.NewRunnersAPIClient(env.grpcConn)
 
 	suffix := dindE2eName(t)
@@ -924,8 +932,8 @@ func runRunnerWithTcpSocketAddress(t *testing.T, env *TestEnvironment, plane Pla
 	created, err := runnersClient.CreateRunner(t.Context(), req)
 	require.NoError(t, err)
 
-	task := awaitJobTask(t, env, created.GetEntityId(), created.GetAction())
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "create runner task error: %s", task.Error.String)
+	task := env.AwaitTask(t, created.GetEntityId(), created.GetAction())
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "create runner task error: %s", task.GetError())
 
 	inspected, err := dockerClient.ContainerInspect(t.Context(), runnerContainer)
 	require.NoError(t, err)
@@ -938,7 +946,7 @@ func runRunnerWithTcpSocketAddress(t *testing.T, env *TestEnvironment, plane Pla
 func requireNoSysboxSmokeContainers(t *testing.T, env *TestEnvironment) {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 	listOpts := container.ListOptions{
 		All:     true,
 		Filters: filters.NewArgs(filters.Arg("name", sysboxSmokeNamePrefix)),

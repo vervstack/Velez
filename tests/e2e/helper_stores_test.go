@@ -17,7 +17,10 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/require"
 	"go.redsock.ru/rerrors"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
+	"go.vervstack.ru/Velez/internal/api/clients/matreshka/pkg/matreshka_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/ports"
 	"go.vervstack.ru/Velez/internal/domain"
@@ -364,4 +367,19 @@ WHERE node_id = $1
 	require.NoError(t, err)
 
 	return isSidecar, true
+}
+
+// MatreshkaClient talks to the shared matreshka through the port the DinD publishes.
+func (e *TestEnvironment) MatreshkaClient(t *testing.T) matreshka_api.MatreshkaApiClient {
+	t.Helper()
+
+	addr, ok := sharedDind.Addr(dindMatreshkaPort)
+	require.True(t, ok, "dind did not publish the matreshka port")
+
+	conn, err := grpc.NewClient("passthrough:///"+addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	require.NoError(t, err)
+
+	t.Cleanup(func() { _ = conn.Close() })
+
+	return matreshka_api.NewMatreshkaApiClient(conn)
 }

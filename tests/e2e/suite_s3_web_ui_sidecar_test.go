@@ -24,7 +24,6 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/jobs"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
 const (
@@ -57,7 +56,7 @@ func (s *S3InstanceSuite) Test_S3Instance_LegacyWebUiStillWorks() {
 	requireDindLoopbackBridge(t)
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeS3Instance(dockerClient, instanceName)
 	t.Cleanup(func() { removeS3Instance(dockerClient, instanceName) })
@@ -103,7 +102,7 @@ func (s *S3InstanceSuite) Test_S3Instance_WebUiSurvivesGarageUpgrade() {
 	requireDindLoopbackBridge(t)
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeS3Instance(dockerClient, instanceName)
 	t.Cleanup(func() { removeS3Instance(dockerClient, instanceName) })
@@ -141,7 +140,7 @@ func (s *S3InstanceSuite) Test_S3Instance_WebUiAfterGarageRestart() {
 	requireDindLoopbackBridge(t)
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeS3Instance(dockerClient, instanceName)
 	t.Cleanup(func() { removeS3Instance(dockerClient, instanceName) })
@@ -169,7 +168,7 @@ func (s *S3InstanceSuite) Test_S3Instance_DropAfterSidecarRemoved() {
 	requireDindLoopbackBridge(t)
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeS3Instance(dockerClient, instanceName)
 	t.Cleanup(func() { removeS3Instance(dockerClient, instanceName) })
@@ -196,7 +195,7 @@ func (s *S3InstanceSuite) Test_S3Instance_WebUiResourceCarriesPort() {
 	requireDindLoopbackBridge(t)
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeS3Instance(dockerClient, instanceName)
 	t.Cleanup(func() { removeS3Instance(dockerClient, instanceName) })
@@ -230,7 +229,7 @@ func (s *S3InstanceSuite) Test_S3Instance_NoWebUiResourceWithoutWebUi() {
 	requireDindLoopbackBridge(t)
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeS3Instance(dockerClient, instanceName)
 	t.Cleanup(func() { removeS3Instance(dockerClient, instanceName) })
@@ -254,7 +253,7 @@ func (s *S3InstanceSuite) Test_S3Instance_WebUiSidecarIsNotADependency() {
 	requireDindLoopbackBridge(t)
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeS3Instance(dockerClient, instanceName)
 	t.Cleanup(func() { removeS3Instance(dockerClient, instanceName) })
@@ -269,7 +268,7 @@ func (s *S3InstanceSuite) Test_S3Instance_WebUiSidecarIsNotADependency() {
 
 	graphReq := newGetServiceGraphRequest(rootName)
 
-	graph, err := env.Custom.ServiceApiImpl.GetServiceGraph(t.Context(), graphReq)
+	graph, err := env.ServiceApiClient().GetServiceGraph(t.Context(), graphReq)
 	require.NoError(t, err)
 
 	requireNoGraphNode(t, graph.GetDependencies(), sidecarName)
@@ -289,7 +288,7 @@ func (s *S3InstanceSuite) Test_S3Instance_WebUiSidecarFeedsServiceHero() {
 	requireDindLoopbackBridge(t)
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeS3Instance(dockerClient, instanceName)
 	t.Cleanup(func() { removeS3Instance(dockerClient, instanceName) })
@@ -299,7 +298,7 @@ func (s *S3InstanceSuite) Test_S3Instance_WebUiSidecarFeedsServiceHero() {
 	rootName := domain.S3ServiceName(instanceName)
 	webUi := inspectContainer(t, env, domain.S3WebUiServiceName(instanceName))
 
-	serviceResp, err := env.Custom.ServiceApiImpl.GetService(t.Context(), newGetServiceRequest(rootName))
+	serviceResp, err := env.ServiceApiClient().GetService(t.Context(), newGetServiceRequest(rootName))
 	require.NoError(t, err)
 
 	for _, sidecar := range serviceResp.GetSidecars() {
@@ -353,7 +352,7 @@ func getServiceResources(t *testing.T, env *TestEnvironment, serviceName string)
 
 	req := newGetServiceResourcesRequest(serviceName)
 
-	resp, err := env.Custom.ServiceApiImpl.GetServiceResources(t.Context(), req)
+	resp, err := env.ServiceApiClient().GetServiceResources(t.Context(), req)
 	require.NoError(t, err)
 
 	return resp.GetResources()
@@ -379,7 +378,7 @@ func waitForWebUiResource(t *testing.T, env *TestEnvironment, serviceName string
 	pollUntil(t, "service "+serviceName+" never listed a web_ui resource with a port", func() (bool, string) {
 		req := newGetServiceResourcesRequest(serviceName)
 
-		resp, err := env.Custom.ServiceApiImpl.GetServiceResources(t.Context(), req)
+		resp, err := env.ServiceApiClient().GetServiceResources(t.Context(), req)
 		if err != nil {
 			return false, fmt.Sprintf("err %v", err)
 		}
@@ -458,16 +457,9 @@ func upgradeStoppingOldFirst(t *testing.T, env *TestEnvironment, req *velez_api.
 	_, err := env.Custom.JobsEngine.Enqueue(t.Context(), req.GetName(), jobs.UpgradeSmerdAction, payload)
 	require.NoError(t, err)
 
-	ctx, cancel := context.WithTimeout(t.Context(), s3TaskTimeout)
-	defer cancel()
+	task := env.AwaitTask(t, req.GetName(), jobs.UpgradeSmerdAction)
 
-	var task tasks_queries.VelezTask
-
-	for observed := range env.Custom.JobsEngine.Watch(ctx, req.GetName(), jobs.UpgradeSmerdAction) {
-		task = observed
-	}
-
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "upgrade_smerd error: %s", task.Error.String)
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "upgrade_smerd error: %s", task.GetError())
 }
 
 func newUpgradeS3GarageRequest(instanceName, imageName string) *velez_api.UpgradeSmerd_Request {
@@ -541,10 +533,10 @@ func requireNoWebUiService(t *testing.T, env *TestEnvironment, instanceName stri
 
 	webUiName := domain.S3WebUiServiceName(instanceName)
 
-	_, err := env.Custom.ServiceApiImpl.GetService(t.Context(), newGetServiceRequest(webUiName))
+	_, err := env.ServiceApiClient().GetService(t.Context(), newGetServiceRequest(webUiName))
 	require.Error(t, err, "the web ui sidecar must not be a service of its own")
 
-	listResp, err := env.Custom.ServiceApiImpl.ListServices(t.Context(), newListServicesRequest())
+	listResp, err := env.ServiceApiClient().ListServices(t.Context(), newListServicesRequest())
 	require.NoError(t, err)
 
 	require.Nil(t, findServiceByName(listResp.GetServices(), webUiName), "web ui listed as a service")
@@ -553,7 +545,7 @@ func requireNoWebUiService(t *testing.T, env *TestEnvironment, instanceName stri
 func listedServiceLabels(t *testing.T, env *TestEnvironment, serviceName string) []string {
 	t.Helper()
 
-	listResp, err := env.Custom.ServiceApiImpl.ListServices(t.Context(), newListServicesRequest())
+	listResp, err := env.ServiceApiClient().ListServices(t.Context(), newListServicesRequest())
 	require.NoError(t, err)
 
 	listed := findServiceByName(listResp.GetServices(), serviceName)
@@ -565,7 +557,7 @@ func listedServiceLabels(t *testing.T, env *TestEnvironment, serviceName string)
 func listedServiceDisplayName(t *testing.T, env *TestEnvironment, serviceName string) string {
 	t.Helper()
 
-	listResp, err := env.Custom.ServiceApiImpl.ListServices(t.Context(), newListServicesRequest())
+	listResp, err := env.ServiceApiClient().ListServices(t.Context(), newListServicesRequest())
 	require.NoError(t, err)
 
 	listed := findServiceByName(listResp.GetServices(), serviceName)

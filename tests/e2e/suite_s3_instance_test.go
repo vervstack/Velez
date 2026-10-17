@@ -29,7 +29,6 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/jobs"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
 const (
@@ -90,14 +89,14 @@ func (s *S3InstanceSuite) Test_S3Instance_Lifecycle() {
 	requireDindLoopbackBridge(t)
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeS3Instance(dockerClient, instanceName)
 	t.Cleanup(func() { removeS3Instance(dockerClient, instanceName) })
 
 	createReq := newCreateS3InstanceRequest(instanceName, true)
 
-	createResp, err := env.Custom.S3ApiImpl.CreateS3Instance(ctx, createReq)
+	createResp, err := env.S3Client().CreateS3Instance(ctx, createReq)
 	require.NoError(t, err)
 
 	waitForS3Task(t, env, createResp.GetEntityId(), createResp.GetAction())
@@ -111,7 +110,7 @@ func (s *S3InstanceSuite) Test_S3Instance_Lifecycle() {
 
 	serviceReq := newGetServiceRequest(domain.S3ServiceName(instanceName))
 
-	serviceResp, err := env.Custom.ServiceApiImpl.GetService(ctx, serviceReq)
+	serviceResp, err := env.ServiceApiClient().GetService(ctx, serviceReq)
 	require.NoError(t, err, "the garage service must be addressable by its prefixed name")
 	require.Equal(t, instanceName, serviceResp.GetAbout().GetOriginalName())
 
@@ -126,7 +125,7 @@ func (s *S3InstanceSuite) Test_S3Instance_Lifecycle() {
 
 	bucketReq := newCreateS3BucketRequest(instanceName, s3BucketName, ownerService)
 
-	bucketResp, err := env.Custom.S3ApiImpl.CreateS3Bucket(ctx, bucketReq)
+	bucketResp, err := env.S3Client().CreateS3Bucket(ctx, bucketReq)
 	require.NoError(t, err)
 	require.Equal(t, s3BucketName, bucketResp.GetBucket().GetName())
 
@@ -149,7 +148,7 @@ func (s *S3InstanceSuite) Test_S3Instance_Lifecycle() {
 
 	keyReq := newCreateS3KeyRequest(instanceName, s3ReadOnlyKeyName, s3BucketName)
 
-	keyResp, err := env.Custom.S3ApiImpl.CreateS3Key(ctx, keyReq)
+	keyResp, err := env.S3Client().CreateS3Key(ctx, keyReq)
 	require.NoError(t, err)
 	require.NotEmpty(t, keyResp.GetAccessKeyId())
 	require.NotEmpty(t, keyResp.GetSecretAccessKey())
@@ -169,7 +168,7 @@ func (s *S3InstanceSuite) Test_S3Instance_Lifecycle() {
 
 	accessReq := newSetS3BucketAccessRequest(instanceName, s3BucketName, keyResp.GetAccessKeyId(), true, true)
 
-	_, err = env.Custom.S3ApiImpl.SetS3BucketAccess(ctx, accessReq)
+	_, err = env.S3Client().SetS3BucketAccess(ctx, accessReq)
 	require.NoError(t, err)
 
 	_, putErr = readOnlyClient.PutObject(ctx, s3BucketName, "granted.txt", bytes.NewReader([]byte("x")), 1,
@@ -178,7 +177,7 @@ func (s *S3InstanceSuite) Test_S3Instance_Lifecycle() {
 
 	assertS3WebUiAnswers(t, instanceCreds)
 
-	_, err = env.Custom.S3ApiImpl.DeleteS3Bucket(ctx, newDeleteS3BucketRequest(instanceName, s3BucketName))
+	_, err = env.S3Client().DeleteS3Bucket(ctx, newDeleteS3BucketRequest(instanceName, s3BucketName))
 	require.Error(t, err)
 	require.Equal(t, codes.FailedPrecondition, status.Code(err))
 
@@ -187,12 +186,12 @@ func (s *S3InstanceSuite) Test_S3Instance_Lifecycle() {
 		AccessKeyId:  keyResp.GetAccessKeyId(),
 	}
 
-	_, err = env.Custom.S3ApiImpl.DeleteS3Key(ctx, deleteKeyReq)
+	_, err = env.S3Client().DeleteS3Key(ctx, deleteKeyReq)
 	require.NoError(t, err)
 
 	emptyS3Bucket(t, ownerClient, s3BucketName)
 
-	_, err = env.Custom.S3ApiImpl.DeleteS3Bucket(ctx, newDeleteS3BucketRequest(instanceName, s3BucketName))
+	_, err = env.S3Client().DeleteS3Bucket(ctx, newDeleteS3BucketRequest(instanceName, s3BucketName))
 	require.NoError(t, err)
 
 	require.Nil(t, findS3Bucket(t, env, instanceName, s3BucketName), "bucket still listed after delete")
@@ -203,7 +202,7 @@ func (s *S3InstanceSuite) Test_S3Instance_Lifecycle() {
 
 	credsReq := &velez_api.GetS3InstanceCredentials_Request{Name: instanceName}
 
-	_, err = env.Custom.S3ApiImpl.GetS3InstanceCredentials(ctx, credsReq)
+	_, err = env.S3Client().GetS3InstanceCredentials(ctx, credsReq)
 	require.Error(t, err)
 	require.Equal(t, codes.NotFound, status.Code(err))
 }
@@ -219,7 +218,7 @@ func (s *S3InstanceSuite) Test_S3Instance_Validation() {
 	requireDindLoopbackBridge(t)
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeS3Instance(dockerClient, instanceName)
 	t.Cleanup(func() { removeS3Instance(dockerClient, instanceName) })
@@ -228,7 +227,7 @@ func (s *S3InstanceSuite) Test_S3Instance_Validation() {
 		req := newCreateS3InstanceRequest(instanceName, false)
 		req.ReplicationFactor = uint32Ptr(2)
 
-		_, err := env.Custom.S3ApiImpl.CreateS3Instance(ctx, req)
+		_, err := env.S3Client().CreateS3Instance(ctx, req)
 		require.Error(t, err)
 		require.Equal(t, codes.InvalidArgument, status.Code(err))
 	})
@@ -236,7 +235,7 @@ func (s *S3InstanceSuite) Test_S3Instance_Validation() {
 	t.Run("empty name is rejected", func(t *testing.T) {
 		req := newCreateS3InstanceRequest("", false)
 
-		_, err := env.Custom.S3ApiImpl.CreateS3Instance(ctx, req)
+		_, err := env.S3Client().CreateS3Instance(ctx, req)
 		require.Error(t, err)
 		require.Equal(t, codes.InvalidArgument, status.Code(err))
 	})
@@ -245,7 +244,7 @@ func (s *S3InstanceSuite) Test_S3Instance_Validation() {
 		for _, name := range []string{"Upper", "with_underscore", "-leading", "trailing-", "has space"} {
 			req := newCreateS3InstanceRequest(name, false)
 
-			_, err := env.Custom.S3ApiImpl.CreateS3Instance(ctx, req)
+			_, err := env.S3Client().CreateS3Instance(ctx, req)
 			require.Error(t, err, "name %q must be rejected", name)
 			require.Equal(t, codes.InvalidArgument, status.Code(err), "name %q", name)
 		}
@@ -254,12 +253,12 @@ func (s *S3InstanceSuite) Test_S3Instance_Validation() {
 	t.Run("duplicate name is rejected", func(t *testing.T) {
 		req := newCreateS3InstanceRequest(instanceName, false)
 
-		resp, err := env.Custom.S3ApiImpl.CreateS3Instance(ctx, req)
+		resp, err := env.S3Client().CreateS3Instance(ctx, req)
 		require.NoError(t, err)
 
 		waitForS3Task(t, env, resp.GetEntityId(), resp.GetAction())
 
-		_, err = env.Custom.S3ApiImpl.CreateS3Instance(ctx, req)
+		_, err = env.S3Client().CreateS3Instance(ctx, req)
 		require.Error(t, err)
 		require.Equal(t, codes.AlreadyExists, status.Code(err))
 
@@ -277,7 +276,7 @@ func (s *S3InstanceSuite) Test_Registry_On_S3() {
 	requireDindLoopbackBridge(t)
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	cleanup := func() {
 		removeContainerRegistryInstance(dockerClient, registryName)
@@ -303,7 +302,7 @@ func (s *S3InstanceSuite) Test_Registry_On_S3_Matreshka() {
 	requireDindLoopbackBridge(t)
 
 	env := s.plane.NewEnvironment(t, WithMatreshka())
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	cleanup := func() {
 		removeContainerRegistryInstance(dockerClient, registryName)
@@ -315,10 +314,12 @@ func (s *S3InstanceSuite) Test_Registry_On_S3_Matreshka() {
 
 	configName := registryServiceName(registryName)
 
+	matreshkaClient := env.MatreshkaClient(t)
+
 	t.Cleanup(func() {
 		deleteReq := &matreshka_api.DeleteConfig_Request{ConfigName: configName}
 
-		_, _ = env.Custom.ClusterClients.Configurator().DeleteConfig(context.Background(), deleteReq)
+		_, _ = matreshkaClient.DeleteConfig(context.Background(), deleteReq)
 	})
 
 	verify := func(t *testing.T) {
@@ -340,7 +341,7 @@ func (s *S3InstanceSuite) Test_S3Instance_WebUiSidecar() {
 	requireDindLoopbackBridge(t)
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeS3Instance(dockerClient, instanceName)
 	t.Cleanup(func() { removeS3Instance(dockerClient, instanceName) })
@@ -389,7 +390,7 @@ func (s *S3InstanceSuite) Test_S3Instance_NoWebUiSidecar() {
 	requireDindLoopbackBridge(t)
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeS3Instance(dockerClient, instanceName)
 	t.Cleanup(func() { removeS3Instance(dockerClient, instanceName) })
@@ -431,14 +432,14 @@ func runRegistryOnS3(
 
 	ctx := t.Context()
 
-	s3Resp, err := env.Custom.S3ApiImpl.CreateS3Instance(ctx, newCreateS3InstanceRequest(s3InstanceName, false))
+	s3Resp, err := env.S3Client().CreateS3Instance(ctx, newCreateS3InstanceRequest(s3InstanceName, false))
 	require.NoError(t, err)
 
 	waitForS3Task(t, env, s3Resp.GetEntityId(), s3Resp.GetAction())
 
 	registryReq := newCreateRegistryOnS3Request(registryName, s3InstanceName)
 
-	_, err = env.Custom.ContainerRegistryApiImpl.CreateRegistryInstance(ctx, registryReq)
+	_, err = env.ContainerRegistryClient().CreateRegistryInstance(ctx, registryReq)
 	require.NoError(t, err)
 
 	waitForRegistryInstanceDeploy(t, env, registryName, false)
@@ -454,7 +455,7 @@ func runRegistryOnS3(
 
 	credsReq := &velez_api.GetRegistryInstanceCredentials_Request{Name: registryServiceName}
 
-	credsResp, err := env.Custom.ContainerRegistryApiImpl.GetRegistryInstanceCredentials(ctx, credsReq)
+	credsResp, err := env.ContainerRegistryClient().GetRegistryInstanceCredentials(ctx, credsReq)
 	require.NoError(t, err)
 
 	pushImageToRegistry(t, dockerClient, instance.GetPort(), credsResp.GetUsername(), credsResp.GetPassword())
@@ -465,7 +466,7 @@ func runRegistryOnS3(
 		return bucket != nil && bucket.GetObjectCount() > 0
 	}, s3CounterTimeout, s3CounterPoll, "registry blobs never showed up in bucket %q", registryName)
 
-	_, err = env.Custom.S3ApiImpl.DropS3Instance(ctx, &velez_api.DropS3Instance_Request{Name: s3InstanceName})
+	_, err = env.S3Client().DropS3Instance(ctx, &velez_api.DropS3Instance_Request{Name: s3InstanceName})
 	require.Error(t, err)
 	require.Equal(t, codes.FailedPrecondition, status.Code(err))
 
@@ -489,7 +490,7 @@ func assertRegistryS3EnvInMatreshka(t *testing.T, env *TestEnvironment, s3Instan
 
 	req := &matreshka_api.GetConfigNode_Request{ConfigName: configName, Version: "master"}
 
-	resp, err := env.Custom.ClusterClients.Configurator().GetConfigNodes(t.Context(), req)
+	resp, err := env.MatreshkaClient(t).GetConfigNodes(t.Context(), req)
 	require.NoError(t, err, "registry S3 env must be stored in matreshka under %q", configName)
 
 	stored := make(map[string]string)
@@ -567,17 +568,10 @@ func waitForS3Task(t *testing.T, env *TestEnvironment, entityId, action string) 
 	require.NotEmpty(t, entityId)
 	require.Contains(t, []string{jobs.CreateS3InstanceAction, jobs.DropS3InstanceAction}, action)
 
-	ctx, cancel := context.WithTimeout(t.Context(), s3TaskTimeout)
-	defer cancel()
+	task := env.AwaitTask(t, entityId, action)
 
-	var task tasks_queries.VelezTask
-
-	for observed := range env.Custom.JobsEngine.Watch(ctx, entityId, action) {
-		task = observed
-	}
-
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status,
-		"%s task for %q error: %s", action, entityId, task.Error.String)
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(),
+		"%s task for %q error: %s", action, entityId, task.GetError())
 }
 
 func createS3Instance(t *testing.T, env *TestEnvironment, instanceName string, enableWebUi bool) {
@@ -585,7 +579,7 @@ func createS3Instance(t *testing.T, env *TestEnvironment, instanceName string, e
 
 	createReq := newCreateS3InstanceRequest(instanceName, enableWebUi)
 
-	createResp, err := env.Custom.S3ApiImpl.CreateS3Instance(t.Context(), createReq)
+	createResp, err := env.S3Client().CreateS3Instance(t.Context(), createReq)
 	require.NoError(t, err)
 
 	waitForS3Task(t, env, createResp.GetEntityId(), createResp.GetAction())
@@ -596,7 +590,7 @@ func findServiceSidecar(
 ) *velez_api.ServiceSidecar {
 	t.Helper()
 
-	resp, err := env.Custom.ServiceApiImpl.GetService(t.Context(), newGetServiceRequest(serviceName))
+	resp, err := env.ServiceApiClient().GetService(t.Context(), newGetServiceRequest(serviceName))
 	require.NoError(t, err)
 
 	for _, sidecar := range resp.GetSidecars() {
@@ -611,7 +605,7 @@ func findServiceSidecar(
 func findS3Instance(t *testing.T, env *TestEnvironment, name string) *velez_api.S3Instance {
 	t.Helper()
 
-	listResp, err := env.Custom.S3ApiImpl.ListS3Instances(t.Context(), &velez_api.ListS3Instances_Request{})
+	listResp, err := env.S3Client().ListS3Instances(t.Context(), &velez_api.ListS3Instances_Request{})
 	require.NoError(t, err)
 
 	for _, instance := range listResp.GetInstances() {
@@ -628,7 +622,7 @@ func findS3Bucket(t *testing.T, env *TestEnvironment, instanceName, bucketName s
 
 	listReq := &velez_api.ListS3Buckets_Request{InstanceName: instanceName}
 
-	listResp, err := env.Custom.S3ApiImpl.ListS3Buckets(t.Context(), listReq)
+	listResp, err := env.S3Client().ListS3Buckets(t.Context(), listReq)
 	require.NoError(t, err)
 
 	for _, bucket := range listResp.GetBuckets() {
@@ -647,7 +641,7 @@ func getS3InstanceCredentials(
 
 	req := &velez_api.GetS3InstanceCredentials_Request{Name: name}
 
-	resp, err := env.Custom.S3ApiImpl.GetS3InstanceCredentials(t.Context(), req)
+	resp, err := env.S3Client().GetS3InstanceCredentials(t.Context(), req)
 	require.NoError(t, err)
 
 	return resp
@@ -660,7 +654,7 @@ func getS3KeyCredentials(
 
 	req := &velez_api.GetS3KeyCredentials_Request{InstanceName: instanceName, AccessKeyId: accessKeyId}
 
-	resp, err := env.Custom.S3ApiImpl.GetS3KeyCredentials(t.Context(), req)
+	resp, err := env.S3Client().GetS3KeyCredentials(t.Context(), req)
 	require.NoError(t, err)
 
 	return resp
@@ -671,7 +665,7 @@ func dropS3Instance(t *testing.T, env *TestEnvironment, name string) {
 
 	dropReq := &velez_api.DropS3Instance_Request{Name: name}
 
-	dropResp, err := env.Custom.S3ApiImpl.DropS3Instance(t.Context(), dropReq)
+	dropResp, err := env.S3Client().DropS3Instance(t.Context(), dropReq)
 	require.NoError(t, err)
 
 	waitForS3Task(t, env, dropResp.GetEntityId(), dropResp.GetAction())

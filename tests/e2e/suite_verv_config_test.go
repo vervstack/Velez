@@ -72,7 +72,7 @@ func seedMatreshkaEnv(t *testing.T, env *TestEnvironment, configName string, val
 	t.Helper()
 
 	ctx := t.Context()
-	configurator := env.Custom.ClusterClients.Configurator()
+	configurator := env.MatreshkaClient(t)
 
 	createReq := &matreshka_api.CreateConfig_Request{
 		ConfigName: configName,
@@ -166,7 +166,7 @@ func (s *VervConfigSuite) Test_VervConfig_RenderedEnv() {
 	require.Equal(t, vervConfigSeededValue, smerd.GetEnv()[vervConfigSeededKey])
 	require.Equal(t, vervConfigSecondValue, smerd.GetEnv()[vervConfigSecondKey])
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	got, err := dockerutils.ReadFromContainer(s.ctx, dockerClient, smerd.GetUuid(), plainPath)
 	require.NoError(t, err)
@@ -197,7 +197,7 @@ func (s *VervConfigSuite) Test_VervConfig_PlainFileMounted() {
 
 	require.Equal(t, velez_api.Smerd_running.String(), smerd.GetStatus().String())
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	got, err := dockerutils.ReadFromContainer(s.ctx, dockerClient, smerd.GetUuid(), filePath)
 	require.NoError(t, err)
@@ -217,7 +217,7 @@ func (s *VervConfigSuite) Test_VervConfig_RestartPolicyApplied() {
 
 	smerd := env.CreateSmerd(t, req)
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	info, err := dockerClient.ContainerInspect(s.ctx, smerd.GetUuid())
 	require.NoError(t, err)

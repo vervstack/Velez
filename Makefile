@@ -71,22 +71,26 @@ test-e2e-full:
 e2e-image:
 	go run ./tests/e2egroups image
 
-# Full parallel e2e: one prepared DinD daemon and one test process per group
-# in tests/e2e/groups.yaml (plus the implicit `rest` group), all groups at
-# once. Needs a reachable bootstrap docker daemon like the other e2e targets.
-#   e2e-prepare  warms every group's daemon (pull images, seed, networks); run
-#                once per machine and again after seed images change.
-#   e2e          runs all groups at once; refuses to start if not prepared.
+# Full parallel e2e: one DinD daemon and one test process per group in
+# tests/e2e/groups.yaml (plus the implicit `rest` group), all groups at once,
+# with Velez running as a container in each group's daemon. Needs a reachable
+# bootstrap docker daemon like the other e2e targets. e2e, e2e-prepare and
+# e2e-group default to VELEZ_E2E_BACKEND=container; pass
+# VELEZ_E2E_BACKEND=inprocess to run Velez inside the test process instead.
+#   e2e-prepare  warms every group's daemon (pull images, seed, networks);
+#                optional, e2e does it for any group that is missing.
+#   e2e          builds the image once, prepares missing daemons, runs all groups.
 #   e2e-clean    removes every group's daemon container and cache volume.
-#   e2e-group    runs one group (GROUP=<name>), preparing its daemon first if
-#                missing; CI runs this once per group as a matrix job.
+#   e2e-group    runs one group (GROUP=<name>), preparing its daemon first if missing.
+e2e-prepare e2e e2e-group: export VELEZ_E2E_BACKEND ?= container
+
 .PHONY: e2e-prepare
 e2e-prepare:
 	go run ./tests/e2egroups prepare
 
 .PHONY: e2e
 e2e:
-	go run ./tests/e2egroups run
+	go run ./tests/e2egroups run --prepare-missing
 
 .PHONY: e2e-clean
 e2e-clean:

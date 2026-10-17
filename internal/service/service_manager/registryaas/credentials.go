@@ -46,11 +46,8 @@ func (s *RegistryaasService) GetRegistryInstanceCredentials(
 	return credentials, nil
 }
 
-// registryUrl reads the url a registerRegistryRowJob-equivalent step already
-// resolved and persisted into velez.registries at creation time, rather than
-// recomputing it - the exposed port used to build it isn't itself stored on
-// domain.RegistryInstance (only the fixed container-internal port is; see
-// that type's doc comment).
+// registryUrl reads the url from the registries storage, which resolves it
+// from the registry's live container in single-node mode.
 func (s *RegistryaasService) registryUrl(ctx context.Context, name string) (string, error) {
 	all, err := s.dataStorage.Registries().ListRegistries(ctx)
 	if err != nil {

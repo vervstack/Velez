@@ -6,7 +6,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
-	"go.vervstack.ru/Velez/internal/storage/container_derived"
 )
 
 const registrySecretsRestartInstanceName = "e2e-cr-secret-rst"
@@ -37,14 +36,31 @@ func (s *ContainerRegistryLifecycleSuite) Test_ContainerRegistry_PasswordSurvive
 	require.NoError(t, err)
 	require.NotEmpty(t, before.GetPassword())
 
-	secretRef := container_derived.RegistryInstanceSecretRef(serviceName)
-
-	err = env.Custom.Services.Secrets().Delete(ctx, secretRef)
-	require.NoError(t, err)
+	env = restartedEnvironment(t, env)
 
 	after, err := env.ContainerRegistryClient().GetRegistryInstanceCredentials(ctx, credsReq)
 	require.NoError(t, err)
+	require.Equal(t, before.GetUsername(), after.GetUsername())
 	require.Equal(t, before.GetPassword(), after.GetPassword())
+	require.NotEmpty(t, before.GetRegistryUrl())
+	require.Equal(t, before.GetRegistryUrl(), after.GetRegistryUrl())
+
+	listed, err := env.ControlPlaneClient().ListRegistries(ctx, newListRegistriesRequest())
+	require.NoError(t, err)
+	require.Contains(t, registryNames(listed.GetRegistries()), serviceName)
 
 	dropRegistryInstanceAndAwait(t, env, serviceName)
+}
+
+func newListRegistriesRequest() *velez_api.ListRegistries_Request {
+	return &velez_api.ListRegistries_Request{}
+}
+
+func registryNames(registries []*velez_api.Registry) []string {
+	names := make([]string, 0, len(registries))
+	for _, reg := range registries {
+		names = append(names, reg.GetName())
+	}
+
+	return names
 }

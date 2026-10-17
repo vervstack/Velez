@@ -20,6 +20,8 @@ import (
 const (
 	dockerHubRegistryName = "Docker Hub"
 	dockerHubRegistryID   = int64(1)
+
+	DockerHubRegistryId = dockerHubRegistryID
 )
 
 // staticStorage is a read-only in-memory implementation of
@@ -46,21 +48,27 @@ type staticStorage struct {
 // non-interface escape hatch for the registry plugin's own system row, which
 // still needs to allocate an ID for a row this seed didn't create.
 func NewStatic() storage.RegistriesStorage {
+	dockerHub := DockerHub()
+
+	return &staticStorage{
+		m:      &sync.RWMutex{},
+		nextID: dockerHubRegistryID + 1,
+		byID:   map[int64]domain.Registry{dockerHub.Id: dockerHub},
+	}
+}
+
+// DockerHub is the builtin registry row every single-node registries storage
+// is seeded with.
+func DockerHub() domain.Registry {
 	now := time.Now()
 
-	dockerHub := domain.Registry{
+	return domain.Registry{
 		Id:        dockerHubRegistryID,
 		Name:      dockerHubRegistryName,
 		Type:      domain.RegistryTypeDockerHub,
 		IsDefault: true,
 		CreatedAt: now,
 		UpdatedAt: now,
-	}
-
-	return &staticStorage{
-		m:      &sync.RWMutex{},
-		nextID: dockerHubRegistryID + 1,
-		byID:   map[int64]domain.Registry{dockerHub.Id: dockerHub},
 	}
 }
 

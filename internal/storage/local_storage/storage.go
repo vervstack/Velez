@@ -7,7 +7,6 @@ import (
 	"go.vervstack.ru/Velez/internal/config"
 	"go.vervstack.ru/Velez/internal/storage"
 	"go.vervstack.ru/Velez/internal/storage/environments"
-	"go.vervstack.ru/Velez/internal/storage/registries"
 	"go.vervstack.ru/Velez/internal/storage/resource_boxes"
 )
 
@@ -69,9 +68,9 @@ func New(containerAPI node_clients.Docker, stateManager node_clients.StateManage
 		// in-memory storage is seeded from config to mirror what the
 		// migrations seed in cluster mode.
 		environments: environments.NewStatic(cfg.Environment.Environments, cfg.Environment.ContainerSuffix),
-		// Single-node/dev mode has no velez.registries table either - see
-		// registries.NewStatic.
-		registries: registries.NewStatic(),
+		// Single-node/dev mode has no velez.registries table either - registry
+		// instances are read back from their containers, see registries.go.
+		registries: newRegistriesStorage(containerAPI),
 		// Single-node/dev mode has no velez.resource_boxes table either -
 		// see resource_boxes.NewStatic.
 		resourceBoxes: resource_boxes.NewStatic(),

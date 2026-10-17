@@ -29,6 +29,8 @@ import (
 	"go.vervstack.ru/Velez/internal/middleware"
 	"go.vervstack.ru/Velez/internal/service"
 	"go.vervstack.ru/Velez/internal/service/service_manager"
+	"go.vervstack.ru/Velez/internal/storage"
+	"go.vervstack.ru/Velez/internal/storage/local_storage"
 	"go.vervstack.ru/Velez/internal/transport"
 	"go.vervstack.ru/Velez/internal/transport/auto_update_api_impl"
 	"go.vervstack.ru/Velez/internal/transport/container_registry_api_impl"
@@ -174,6 +176,8 @@ func (c *Custom) Init(a *App) (err error) {
 	if err != nil {
 		return rerrors.Wrap(err, "error during service initialization")
 	}
+
+	bindRegistryAddressing(addressing, c.ClusterClients.StateManager(), c.Services.StorageContainer())
 
 	sweepErr := c.Services.TransfersOut().FailInterrupted(a.Ctx)
 	if sweepErr != nil {
@@ -427,6 +431,22 @@ func (c *Custom) InitClients(a *App) (err error) {
 	}
 
 	return nil
+}
+
+type registriesHolder interface {
+	Registries() storage.RegistriesStorage
+}
+
+// bindRegistryAddressing hands the node's addressing to every single-node
+// registries storage, which resolves registry urls from the live containers.
+// Storages that do not need it (postgres) are skipped.
+func bindRegistryAddressing(addressing container_runtime.Addressing, stores ...registriesHolder) {
+	for _, store := range stores {
+		binder, ok := store.Registries().(local_storage.ContainerAddressBinder)
+		if ok {
+			binder.BindContainerAddressResolver(addressing)
+		}
+	}
 }
 
 // seedOccupiedPorts resolves the default/unscoped environment's ContainerRuntime

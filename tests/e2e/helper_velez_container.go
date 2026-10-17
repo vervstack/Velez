@@ -21,6 +21,7 @@ import (
 	"github.com/docker/go-connections/nat"
 	"github.com/stretchr/testify/require"
 	"go.redsock.ru/rerrors"
+	"google.golang.org/grpc"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/local_state"
@@ -32,8 +33,10 @@ import (
 //
 // A fixed pool of velezSlotCount slots is leased per test. Slot k owns the
 // container name velez-e2e-<k> and the port slice
-// [dindPortBandStart+k*velezSlotPortCount, +velezSlotPortCount-1]: the first
-// port publishes the container's gRPC port, the rest are its AvailablePorts.
+// [dindPortBandStart+k*velezSlotPortCount, +velezSlotPortCount-1]. With the
+// group's SOCKS5 proxy the whole slice is the container's AvailablePorts and
+// the test dials its gRPC port by container IP; without the proxy the first
+// port publishes the gRPC port and the rest are AvailablePorts.
 const (
 	envBackend       = "VELEZ_E2E_BACKEND"
 	backendContainer = "container"
@@ -108,9 +111,19 @@ func velezSlotFirstPort(slot int) int {
 	return dindPortBandStart + slot*velezSlotPortCount
 }
 
+func velezGrpcIsProxied() bool {
+	_, ok := sharedDind.SocksAddr()
+
+	return ok
+}
+
 func velezSlotAvailablePorts(slot int) []int {
 	first := velezSlotFirstPort(slot)
-	available := make([]int, 0, velezSlotPortCount-1)
+	available := make([]int, 0, velezSlotPortCount)
+
+	if velezGrpcIsProxied() {
+		available = append(available, first)
+	}
 
 	for port := first + 1; port < first+velezSlotPortCount; port++ {
 		available = append(available, port)
@@ -179,12 +192,15 @@ func createVelezContainer(t *testing.T, env *TestEnvironment, image string) stri
 		cfg.Cmd = []string{"-config", velezOverrideFile}
 	}
 
-	binding := nat.PortBinding{HostPort: strconv.Itoa(velezSlotFirstPort(vc.slot))}
-
 	hostCfg := &container.HostConfig{
-		Binds:        []string{velezDockerSocket + ":" + velezDockerSocket},
-		PortBindings: nat.PortMap{velezContainerPort: []nat.PortBinding{binding}},
-		NetworkMode:  container.NetworkMode(clusterenv.VervNetwork),
+		Binds:       []string{velezDockerSocket + ":" + velezDockerSocket},
+		NetworkMode: container.NetworkMode(clusterenv.VervNetwork),
+	}
+
+	if !velezGrpcIsProxied() {
+		binding := nat.PortBinding{HostPort: strconv.Itoa(velezSlotFirstPort(vc.slot))}
+
+		hostCfg.PortBindings = nat.PortMap{velezContainerPort: []nat.PortBinding{binding}}
 	}
 
 	netCfg := &network.NetworkingConfig{
@@ -413,15 +429,28 @@ func logVelezTailOnFailure(t *testing.T, env *TestEnvironment) {
 	t.Logf("velez container %s log tail:\n%s", env.velez.name, out.String())
 }
 
-// connectVelezGrpc dials the container's published gRPC port and waits until
-// an authenticated unary call succeeds.
+func (e *TestEnvironment) dindGrpcDialer() func(ctx context.Context, addr string) (net.Conn, error) {
+	return func(ctx context.Context, addr string) (net.Conn, error) {
+		return e.DindDialContext(ctx, "tcp", addr)
+	}
+}
+
+// connectVelezGrpc dials the container's gRPC port, through the DinD's SOCKS5
+// proxy when it has one and through the published slot port otherwise, and
+// waits until an authenticated unary call succeeds.
 func connectVelezGrpc(t *testing.T, env *TestEnvironment) {
 	t.Helper()
 
-	hostAddr, ok := sharedDind.Addr(velezSlotFirstPort(env.velez.slot))
-	require.True(t, ok, "dind did not publish the velez slot port")
+	if velezGrpcIsProxied() {
+		target := net.JoinHostPort(env.velez.name, velezContainerPort.Port())
 
-	connectGrpc(t, env, "passthrough:///"+hostAddr)
+		connectGrpc(t, env, "passthrough:///"+target, grpc.WithContextDialer(env.dindGrpcDialer()))
+	} else {
+		hostAddr, ok := sharedDind.Addr(velezSlotFirstPort(env.velez.slot))
+		require.True(t, ok, "dind did not publish the velez slot port")
+
+		connectGrpc(t, env, "passthrough:///"+hostAddr)
+	}
 
 	ctx, cancel := context.WithTimeout(t.Context(), velezReadyTimeout)
 	defer cancel()

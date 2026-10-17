@@ -3,6 +3,8 @@ package e2e
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"io"
 	"net"
 	"os"
 	"path/filepath"
@@ -11,6 +13,7 @@ import (
 	"testing"
 
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/client"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
 	"go.redsock.ru/rerrors"
@@ -67,6 +70,13 @@ type TestEnvironment struct {
 	configPath string
 
 	grpcConn *grpc.ClientConn
+
+	// velezKey is the auth key from the state file this environment points
+	// Velez at; the test client sends it on every call.
+	velezKey string
+
+	dockerClient   *client.Client
+	dockerClientMu sync.Mutex
 
 	// clusterPgPort is the leased host port the cluster-pg sidecar is pinned
 	// to; set by newStatefullEnvironment, zero for an environment without one.
@@ -143,6 +153,7 @@ func WithState(t *testing.T, stateOps ...StateOpt) TestEnvOpt {
 		statePath := writeState(t, st)
 
 		a.Cfg.Environment.LocalStatePath = statePath
+		a.velezKey = st.VelezKey
 	}
 }
 
@@ -371,6 +382,7 @@ func initConfig(t *testing.T, env *TestEnvironment) {
 	defaultSt := readDefaultState(t)
 
 	env.Cfg.Environment.LocalStatePath = writeState(t, defaultSt)
+	env.velezKey = defaultSt.VelezKey
 }
 
 func initGrpc(t *testing.T, env *TestEnvironment) {
@@ -412,10 +424,7 @@ func initGrpc(t *testing.T, env *TestEnvironment) {
 				cc *grpc.ClientConn,
 				invoker grpc.UnaryInvoker, opts ...grpc.CallOption,
 			) error {
-				stateManager := env.Custom.NodeClients.LocalStateManager()
-				localState := stateManager.Get()
-
-				ctx = metadata.AppendToOutgoingContext(ctx, middleware.AuthHeader, localState.VelezKey)
+				ctx = metadata.AppendToOutgoingContext(ctx, middleware.AuthHeader, env.velezKey)
 
 				return invoker(ctx, method, req, reply, cc, opts...)
 			}),
@@ -493,9 +502,96 @@ func (e *TestEnvironment) TasksApiClient() velez_api.TasksApiClient {
 	return velez_api.NewTasksApiClient(e.grpcConn)
 }
 
+func (e *TestEnvironment) VelezApiClient() velez_api.VelezAPIClient {
+	return velez_api.NewVelezAPIClient(e.grpcConn)
+}
+
+func (e *TestEnvironment) S3Client() velez_api.S3APIClient {
+	return velez_api.NewS3APIClient(e.grpcConn)
+}
+
+func (e *TestEnvironment) PgaasClient() velez_api.PostgresAPIClient {
+	return velez_api.NewPostgresAPIClient(e.grpcConn)
+}
+
+func (e *TestEnvironment) ContainerRegistryClient() velez_api.ContainerRegistryAPIClient {
+	return velez_api.NewContainerRegistryAPIClient(e.grpcConn)
+}
+
+func (e *TestEnvironment) ControlPlaneClient() velez_api.ControlPlaneAPIClient {
+	return velez_api.NewControlPlaneAPIClient(e.grpcConn)
+}
+
+func (e *TestEnvironment) SettingsClient() velez_api.SettingsAPIClient {
+	return velez_api.NewSettingsAPIClient(e.grpcConn)
+}
+
+func (e *TestEnvironment) AutoUpdateClient() velez_api.AutoUpdateAPIClient {
+	return velez_api.NewAutoUpdateAPIClient(e.grpcConn)
+}
+
+func (e *TestEnvironment) RunnersClient() velez_api.RunnersAPIClient {
+	return velez_api.NewRunnersAPIClient(e.grpcConn)
+}
+
+// DockerClient is a test-owned client to the daemon this environment runs
+// against, independent of the app under test.
+func (e *TestEnvironment) DockerClient() *client.Client {
+	e.dockerClientMu.Lock()
+	defer e.dockerClientMu.Unlock()
+
+	if e.dockerClient != nil {
+		return e.dockerClient
+	}
+
+	host := e.dockerHost
+	if host == "" {
+		host = sharedDind.DockerHost
+	}
+
+	dockerClient, err := client.NewClientWithOpts(client.WithHost(host), client.WithAPIVersionNegotiation())
+	require.NoError(e.t, err)
+
+	e.t.Cleanup(func() {
+		closeErr := dockerClient.Close()
+		require.NoError(e.t, closeErr)
+	})
+
+	e.dockerClient = dockerClient
+
+	return dockerClient
+}
+
+// AwaitTask follows the task through WatchTask until it reaches DONE or FAILED
+// and returns its final status.
+func (e *TestEnvironment) AwaitTask(t *testing.T, entityId string, action string) *velez_api.TaskStatus {
+	t.Helper()
+
+	req := &velez_api.WatchTask_Request{
+		EntityId: entityId,
+		Action:   action,
+	}
+
+	stream, err := e.TasksApiClient().WatchTask(t.Context(), req)
+	require.NoError(t, err)
+
+	finalStatus := &velez_api.TaskStatus{}
+
+	for {
+		status, recvErr := stream.Recv()
+		if errors.Is(recvErr, io.EOF) {
+			return finalStatus
+		}
+
+		require.NoError(t, recvErr)
+
+		finalStatus = status
+	}
+}
+
 func (e *TestEnvironment) clean() {
 	ctx := context.Background()
-	dockerClient := e.Custom.NodeClients.Docker().Client()
+	dockerClient := e.DockerClient()
 
 	listReq := &velez_api.ListSmerds_Request{
 		Label: map[string]string{

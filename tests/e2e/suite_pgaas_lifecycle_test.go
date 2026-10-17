@@ -16,7 +16,6 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/jobs"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
 const (
@@ -60,7 +59,7 @@ func (s *PgaasLifecycleSuite) Test_PgaasLifecycle_HappyPath() {
 	ctx := t.Context()
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removePgaasInstance(dockerClient)
 	t.Cleanup(func() { removePgaasInstance(dockerClient) })
@@ -69,19 +68,14 @@ func (s *PgaasLifecycleSuite) Test_PgaasLifecycle_HappyPath() {
 		Name: pgaasLifecycleInstanceName,
 	}
 
-	createResp, err := env.Custom.PgaasApiImpl.CreatePgInstance(ctx, createReq)
+	createResp, err := env.PgaasClient().CreatePgInstance(ctx, createReq)
 	require.NoError(t, err)
 	require.Equal(t, pgaasLifecycleInstanceName, createResp.GetEntityId())
 	require.Equal(t, jobs.CreatePgInstanceAction, createResp.GetAction())
 
-	var createTask tasks_queries.VelezTask
-
-	for task := range env.Custom.JobsEngine.Watch(ctx, createResp.GetEntityId(), createResp.GetAction()) {
-		createTask = task
-	}
-
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, createTask.Status,
-		"create_pg_instance task error: %s", createTask.Error.String)
+	createTask := env.AwaitTask(t, createResp.GetEntityId(), createResp.GetAction())
+	require.Equal(t, velez_api.TaskStatus_DONE, createTask.GetStatus(),
+		"create_pg_instance task error: %s", createTask.GetError())
 
 	instance := findPgInstance(t, env, pgaasLifecycleServiceName)
 	require.NotNil(t, instance, "expected pg instance %q in ListPgInstances", pgaasLifecycleServiceName)
@@ -97,7 +91,7 @@ func (s *PgaasLifecycleSuite) Test_PgaasLifecycle_HappyPath() {
 
 	credsCtx := withRequestHost(ctx, pgaasLifecycleRequestHost)
 
-	credsResp, err := env.Custom.PgaasApiImpl.GetPgInstanceCredentials(credsCtx, credsReq)
+	credsResp, err := env.PgaasClient().GetPgInstanceCredentials(credsCtx, credsReq)
 	require.NoError(t, err)
 	require.NotEmpty(t, credsResp.GetPassword())
 	require.NotEmpty(t, credsResp.GetDsn())
@@ -108,19 +102,14 @@ func (s *PgaasLifecycleSuite) Test_PgaasLifecycle_HappyPath() {
 
 	dropReq := &velez_api.DropPgInstance_Request{Name: pgaasLifecycleServiceName}
 
-	dropResp, err := env.Custom.PgaasApiImpl.DropPgInstance(ctx, dropReq)
+	dropResp, err := env.PgaasClient().DropPgInstance(ctx, dropReq)
 	require.NoError(t, err)
 	require.Equal(t, pgaasLifecycleServiceName, dropResp.GetEntityId())
 	require.Equal(t, jobs.DropPgInstanceAction, dropResp.GetAction())
 
-	var dropTask tasks_queries.VelezTask
-
-	for task := range env.Custom.JobsEngine.Watch(ctx, dropResp.GetEntityId(), dropResp.GetAction()) {
-		dropTask = task
-	}
-
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, dropTask.Status,
-		"drop_pg_instance task error: %s", dropTask.Error.String)
+	dropTask := env.AwaitTask(t, dropResp.GetEntityId(), dropResp.GetAction())
+	require.Equal(t, velez_api.TaskStatus_DONE, dropTask.GetStatus(),
+		"drop_pg_instance task error: %s", dropTask.GetError())
 
 	dropped := findPgInstance(t, env, pgaasLifecycleServiceName)
 	require.Nil(t, dropped, "pg instance still listed after drop")
@@ -140,7 +129,7 @@ func newPgaasCredentialsRequest(serviceName string) *velez_api.GetPgInstanceCred
 func withRequestHost(ctx context.Context, hostPort string) context.Context {
 	md := metadata.Pairs("x-forwarded-host", hostPort)
 
-	return metadata.NewIncomingContext(ctx, md)
+	return metadata.NewOutgoingContext(ctx, md)
 }
 
 func requirePgaasConnections(
@@ -170,7 +159,7 @@ func findPgInstance(t *testing.T, env *TestEnvironment, name string) *velez_api.
 
 	listReq := &velez_api.ListPgInstances_Request{}
 
-	listResp, err := env.Custom.PgaasApiImpl.ListPgInstances(t.Context(), listReq)
+	listResp, err := env.PgaasClient().ListPgInstances(t.Context(), listReq)
 	require.NoError(t, err)
 
 	for _, pg := range listResp.GetInstances() {

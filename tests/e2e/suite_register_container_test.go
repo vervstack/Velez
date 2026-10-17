@@ -16,10 +16,8 @@ import (
 	"google.golang.org/grpc/status"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
-	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/storage/environments"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
 const (
@@ -59,7 +57,7 @@ func startForeignContainerWithEnv(
 ) foreignContainer {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	ctx := t.Context()
 	volume := name + "_vol"
@@ -133,7 +131,7 @@ func registerContainer(
 ) *velez_api.RegisterContainer_Response {
 	t.Helper()
 
-	resp, err := env.Custom.ApiGrpcImpl.RegisterContainer(t.Context(), req)
+	resp, err := env.VelezApiClient().RegisterContainer(t.Context(), req)
 	require.NoError(t, err)
 	require.NotEmpty(t, resp.GetEntityId())
 	require.Equal(t, "register_container", resp.GetAction())
@@ -145,19 +143,10 @@ func awaitRegisterTask(
 	t *testing.T,
 	env *TestEnvironment,
 	resp *velez_api.RegisterContainer_Response,
-) tasks_queries.VelezTask {
+) *velez_api.TaskStatus {
 	t.Helper()
 
-	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Minute)
-	defer cancel()
-
-	var finalTask tasks_queries.VelezTask
-
-	for task := range env.Custom.JobsEngine.Watch(ctx, resp.GetEntityId(), resp.GetAction()) {
-		finalTask = task
-	}
-
-	return finalTask
+	return env.AwaitTask(t, resp.GetEntityId(), resp.GetAction())
 }
 
 func findDockerContainer(
@@ -167,7 +156,7 @@ func findDockerContainer(
 ) *velez_api.DockerContainer {
 	t.Helper()
 
-	resp, err := env.Custom.ApiGrpcImpl.ListContainers(t.Context(), newListContainersRequest())
+	resp, err := env.VelezApiClient().ListContainers(t.Context(), newListContainersRequest())
 	require.NoError(t, err)
 
 	for _, cont := range resp.GetContainers() {
@@ -215,14 +204,14 @@ func Test_RegisterContainer_SingleMode_RecreatesWithServiceLabels(t *testing.T) 
 	containerName, serviceName := registerContainerNames("single")
 
 	env := Planes[0].NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	foreign := startForeignContainer(t, env, containerName, false)
 
 	resp := registerContainer(t, env, newRegisterContainerRequest(foreign.id, serviceName))
 
 	task := awaitRegisterTask(t, env, resp)
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "register task error: %s", task.Error.String)
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "register task error: %s", task.GetError())
 
 	inspected, err := dockerClient.ContainerInspect(t.Context(), containerName)
 	require.NoError(t, err)
@@ -250,14 +239,14 @@ func Test_RegisterContainer_ClusterMode_BindsWithoutRestart(t *testing.T) {
 	containerName, serviceName := registerContainerNames("cluster")
 
 	env, _ := enableStatefullPgUnderDind(t, Planes[1], registerClusterSuffix)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	foreign := startForeignContainer(t, env, containerName, true)
 
 	resp := registerContainer(t, env, newRegisterContainerRequest(foreign.id, serviceName))
 
 	task := awaitRegisterTask(t, env, resp)
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "register task error: %s", task.Error.String)
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "register task error: %s", task.GetError())
 
 	requireContainerUntouched(t, dockerClient, foreign)
 
@@ -267,18 +256,7 @@ func Test_RegisterContainer_ClusterMode_BindsWithoutRestart(t *testing.T) {
 
 	requireServiceListed(t, env, serviceName)
 
-	bindings, err := env.Custom.Services.StorageContainer().ContainerBindings().
-		ListByNode(t.Context(), domain.SelfNodeId, environments.DefaultEnvironmentName)
-	require.NoError(t, err)
-
-	var boundService string
-
-	for _, binding := range bindings {
-		if binding.ContainerName == containerName {
-			boundService = binding.ServiceName
-		}
-	}
-
+	boundService := env.BoundServiceName(t, containerName, environments.DefaultEnvironmentName)
 	require.Equal(t, serviceName, boundService, "a container binding row must exist")
 
 	requireDeploymentRunning(t, env, serviceName)
@@ -305,7 +283,7 @@ func requireDeploymentRunning(t *testing.T, env *TestEnvironment, serviceName st
 
 	req := &velez_api.ListDeployments_Request{ServiceName: toolbox.ToPtr(serviceName)}
 
-	resp, err := env.Custom.ServiceApiImpl.ListDeployments(t.Context(), req)
+	resp, err := env.ServiceApiClient().ListDeployments(t.Context(), req)
 	require.NoError(t, err)
 	require.Len(t, resp.GetDeployments(), 1)
 	require.Equal(t, velez_api.DeploymentStatus_RUNNING, resp.GetDeployments()[0].GetStatus())
@@ -321,7 +299,7 @@ func Test_RegisterContainer_UnknownContainer_TaskFails(t *testing.T) {
 	resp := registerContainer(t, env, newRegisterContainerRequest("no-such-container-id", serviceName))
 
 	task := awaitRegisterTask(t, env, resp)
-	require.Equal(t, tasks_queries.VelezTaskStatusFAILED, task.Status)
+	require.Equal(t, velez_api.TaskStatus_FAILED, task.GetStatus())
 }
 
 func Test_RegisterContainer_AlreadyRegistered_TaskFails(t *testing.T) {
@@ -330,20 +308,20 @@ func Test_RegisterContainer_AlreadyRegistered_TaskFails(t *testing.T) {
 	containerName, serviceName := registerContainerNames("twice")
 
 	env := Planes[0].NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	foreign := startForeignContainer(t, env, containerName, false)
 
 	first := registerContainer(t, env, newRegisterContainerRequest(foreign.id, serviceName))
 	firstTask := awaitRegisterTask(t, env, first)
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, firstTask.Status, "register task error: %s", firstTask.Error.String)
+	require.Equal(t, velez_api.TaskStatus_DONE, firstTask.GetStatus(), "register task error: %s", firstTask.GetError())
 
 	recreated, err := dockerClient.ContainerInspect(t.Context(), containerName)
 	require.NoError(t, err)
 
 	second := registerContainer(t, env, newRegisterContainerRequest(recreated.ID, serviceName))
 	secondTask := awaitRegisterTask(t, env, second)
-	require.Equal(t, tasks_queries.VelezTaskStatusFAILED, secondTask.Status)
+	require.Equal(t, velez_api.TaskStatus_FAILED, secondTask.GetStatus())
 
 	require.NotEqual(t, first.GetEntityId(), second.GetEntityId(), "every call starts a fresh task")
 }
@@ -378,11 +356,11 @@ func Test_RegisterContainer_EachCallStartsFreshTask(t *testing.T) {
 
 	first := registerContainer(t, env, newRegisterContainerRequest("no-such-container-id", serviceName))
 	firstTask := awaitRegisterTask(t, env, first)
-	require.Equal(t, tasks_queries.VelezTaskStatusFAILED, firstTask.Status)
+	require.Equal(t, velez_api.TaskStatus_FAILED, firstTask.GetStatus())
 
 	second := registerContainer(t, env, newRegisterContainerRequest("no-such-container-id", serviceName))
 	secondTask := awaitRegisterTask(t, env, second)
-	require.Equal(t, tasks_queries.VelezTaskStatusFAILED, secondTask.Status)
+	require.Equal(t, velez_api.TaskStatus_FAILED, secondTask.GetStatus())
 
 	require.NotEqual(t, first.GetEntityId(), second.GetEntityId())
 }

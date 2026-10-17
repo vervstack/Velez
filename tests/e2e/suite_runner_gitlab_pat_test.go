@@ -18,7 +18,6 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/gitlab_runner_config"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
 const (
@@ -44,7 +43,7 @@ type gitlabPatFixture struct {
 func startGitlabPatFixture(t *testing.T, env *TestEnvironment) gitlabPatFixture {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 	runnersClient := velez_api.NewRunnersAPIClient(env.grpcConn)
 
 	suffix := dindE2eName(t)
@@ -81,7 +80,9 @@ func newGitlabPatCreateRequest(fixture gitlabPatFixture, accessToken string) *ve
 	return req
 }
 
-func createGitlabPatRunner(t *testing.T, env *TestEnvironment, fixture gitlabPatFixture) tasks_queries.VelezTask {
+func createGitlabPatRunner(
+	t *testing.T, env *TestEnvironment, fixture gitlabPatFixture,
+) *velez_api.CreateRunner_Response {
 	t.Helper()
 
 	return createGitlabRunnerWithToken(t, env, fixture, runnerDindAccessToken)
@@ -89,20 +90,18 @@ func createGitlabPatRunner(t *testing.T, env *TestEnvironment, fixture gitlabPat
 
 func createGitlabRunnerWithToken(
 	t *testing.T, env *TestEnvironment, fixture gitlabPatFixture, accessToken string,
-) tasks_queries.VelezTask {
+) *velez_api.CreateRunner_Response {
 	t.Helper()
-
-	runnersClient := velez_api.NewRunnersAPIClient(env.grpcConn)
 
 	req := newGitlabPatCreateRequest(fixture, accessToken)
 
-	created, err := runnersClient.CreateRunner(t.Context(), req)
+	created, err := env.RunnersClient().CreateRunner(t.Context(), req)
 	require.NoError(t, err)
 
-	task := awaitJobTask(t, env, created.GetEntityId(), created.GetAction())
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "create runner task error: %s", task.Error.String)
+	task := env.AwaitTask(t, created.GetEntityId(), created.GetAction())
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "create runner task error: %s", task.GetError())
 
-	return task
+	return created
 }
 
 func dropGitlabPatRunner(t *testing.T, env *TestEnvironment, fixture gitlabPatFixture) {
@@ -113,8 +112,8 @@ func dropGitlabPatRunner(t *testing.T, env *TestEnvironment, fixture gitlabPatFi
 	dropped, err := runnersClient.DropRunner(t.Context(), newDropRunnerRequest(fixture.runnerContainer))
 	require.NoError(t, err)
 
-	task := awaitJobTask(t, env, dropped.GetEntityId(), dropped.GetAction())
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "drop runner task error: %s", task.Error.String)
+	task := env.AwaitTask(t, dropped.GetEntityId(), dropped.GetAction())
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "drop runner task error: %s", task.GetError())
 }
 
 func reregisterGitlabPatRunner(t *testing.T, env *TestEnvironment, fixture gitlabPatFixture) {
@@ -125,14 +124,14 @@ func reregisterGitlabPatRunner(t *testing.T, env *TestEnvironment, fixture gitla
 	reregistered, err := runnersClient.ReregisterRunner(t.Context(), newReregisterRunnerRequest(fixture.runnerContainer))
 	require.NoError(t, err)
 
-	task := awaitJobTask(t, env, reregistered.GetEntityId(), reregistered.GetAction())
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "reregister task error: %s", task.Error.String)
+	task := env.AwaitTask(t, reregistered.GetEntityId(), reregistered.GetAction())
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "reregister task error: %s", task.GetError())
 }
 
 func readConfigWithMode(t *testing.T, env *TestEnvironment, runnerContainer string) (content string, mode int64) {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	reader, _, err := dockerClient.CopyFromContainer(t.Context(), runnerContainer, gitlabRunnerConfigPath)
 	require.NoError(t, err)
@@ -213,7 +212,7 @@ func Test_GitlabRunner_Create_RejectsNonPersonalAccessToken(t *testing.T) {
 
 func runGitlabRunnerRejectsNonPersonalAccessToken(t *testing.T, env *TestEnvironment, _ Plane) {
 	runnersClient := velez_api.NewRunnersAPIClient(env.grpcConn)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	fixture := startGitlabPatFixture(t, env)
 
@@ -251,23 +250,17 @@ func Test_GitlabRunner_Create_SeedsConfigAndKeepsPatOutOfTaskContext(t *testing.
 func runGitlabRunnerCreateSeedsConfig(t *testing.T, env *TestEnvironment, _ Plane) {
 	fixture := startGitlabPatFixture(t, env)
 
-	task := createGitlabPatRunner(t, env, fixture)
+	created := createGitlabPatRunner(t, env, fixture)
 
-	require.NotContains(t, string(task.Context.RawMessage), runnerDindAccessToken, "the PAT must not be persisted")
+	payload := env.TaskContext(t, created.GetEntityId(), created.GetAction())
+	require.NotContains(t, payload, runnerDindAccessToken, "the PAT must not be persisted")
 
 	requireStubRequest(t, env, fixture.stubName, patStubLookupRequest)
 	requireStubRequest(t, env, fixture.stubName, patStubCreateRequest)
 
 	require.NotNil(t, findRunnerRow(t, env, fixture.runnerName), "runner row must be listed")
 
-	dataStorage := env.Custom.Services.StorageContainer()
-
-	svc, err := dataStorage.Services().GetByName(t.Context(), fixture.runnerContainer)
-	require.NoError(t, err)
-
-	runner, err := dataStorage.Runners().GetRunnerByServiceID(t.Context(), svc.ID)
-	require.NoError(t, err)
-	require.EqualValues(t, gitlabStubRunnerId, runner.GitlabRunnerId)
+	require.EqualValues(t, gitlabStubRunnerId, env.GitlabRunnerId(t, fixture.runnerContainer))
 
 	requireSingleRunnerWithToken(t, env, fixture.runnerContainer, gitlabStubRunnerToken)
 }
@@ -288,14 +281,7 @@ func runGitlabRunnerCreateAdoptsAuthToken(t *testing.T, env *TestEnvironment, _ 
 
 	require.NotNil(t, findRunnerRow(t, env, fixture.runnerName), "runner row must be listed")
 
-	dataStorage := env.Custom.Services.StorageContainer()
-
-	svc, err := dataStorage.Services().GetByName(t.Context(), fixture.runnerContainer)
-	require.NoError(t, err)
-
-	runner, err := dataStorage.Runners().GetRunnerByServiceID(t.Context(), svc.ID)
-	require.NoError(t, err)
-	require.EqualValues(t, gitlabStubRunnerId, runner.GitlabRunnerId)
+	require.EqualValues(t, gitlabStubRunnerId, env.GitlabRunnerId(t, fixture.runnerContainer))
 
 	requireSingleRunnerWithToken(t, env, fixture.runnerContainer, patRunnerAuthToken)
 }
@@ -346,7 +332,7 @@ func Test_GitlabRunner_Recreate_AfterDropWaitsForRealDeploy(t *testing.T) {
 }
 
 func runGitlabRunnerRecreateAfterDrop(t *testing.T, env *TestEnvironment, _ Plane) {
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	fixture := startGitlabPatFixture(t, env)
 
@@ -378,7 +364,7 @@ func Test_GitlabRunner_Drop_DeletesRunnerOnGitlabAndRemovesRow(t *testing.T) {
 }
 
 func runGitlabRunnerDropDeletesOnGitlab(t *testing.T, env *TestEnvironment, _ Plane) {
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	fixture := startGitlabPatFixture(t, env)
 
@@ -393,10 +379,10 @@ func runGitlabRunnerDropDeletesOnGitlab(t *testing.T, env *TestEnvironment, _ Pl
 	_, err := dockerClient.ContainerInspect(t.Context(), fixture.runnerContainer)
 	require.Error(t, err, "dropped runner container must be gone")
 
-	dataStorage := env.Custom.Services.StorageContainer()
+	getReq := &velez_api.GetService_Request{Name: fixture.runnerContainer}
 
-	_, err = dataStorage.Services().GetByName(t.Context(), fixture.runnerContainer)
-	require.Error(t, err, "dropped runner service must be gone")
+	_, err = env.ServiceApiClient().GetService(t.Context(), getReq)
+	require.Equal(t, codes.NotFound, status.Code(err), "dropped runner service must be gone: %v", err)
 }
 
 func Test_GitlabRunner_Reregister_RotatesTokenInConfig(t *testing.T) {

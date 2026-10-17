@@ -14,7 +14,6 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/storage/environments"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
@@ -37,7 +36,7 @@ func networkGroupNames(prefix string) (rootName, sidecarName, serviceName string
 func tagNginxAsSidecarImage(t *testing.T, env *TestEnvironment) {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	ensureImagePresent(t, dockerClient, NginxAlpineImage)
 
@@ -50,7 +49,7 @@ func startNetworkSidecar(
 ) foreignContainer {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	tagNginxAsSidecarImage(t, env)
 
@@ -104,13 +103,13 @@ func registerNetworkGroupRoot(
 	resp := registerContainer(t, env, newRegisterContainerRequest(rootId, serviceName))
 
 	task := awaitRegisterTask(t, env, resp)
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "register task error: %s", task.Error.String)
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "register task error: %s", task.GetError())
 }
 
 func inspectContainer(t *testing.T, env *TestEnvironment, name string) container.InspectResponse {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	inspected, err := dockerClient.ContainerInspect(t.Context(), name)
 	require.NoError(t, err)
@@ -251,7 +250,7 @@ func Test_NetworkGroup_RegisterSidecarIsRefused(t *testing.T) {
 	root := startForeignContainer(t, env, rootName, false)
 	sidecar := startNetworkSidecar(t, env, sidecarName, root.id)
 
-	_, err := env.Custom.ApiGrpcImpl.RegisterContainer(t.Context(), newRegisterContainerRequest(sidecar.id, serviceName))
+	_, err := env.VelezApiClient().RegisterContainer(t.Context(), newRegisterContainerRequest(sidecar.id, serviceName))
 	require.True(t, rerrors.Is(err, user_errors.ErrContainerSharesNetwork), "got %v", err)
 }
 

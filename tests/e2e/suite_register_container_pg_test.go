@@ -15,7 +15,6 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/stretchr/testify/require"
-	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 	"go.vervstack.ru/matreshka/pkg/matreshka/resources"
 
@@ -24,7 +23,6 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/jobs"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
@@ -108,7 +106,7 @@ func newForeignPgConfig(t *testing.T, isLoginInEnv bool) *container.Config {
 func startForeignPg(t *testing.T, env *TestEnvironment, name string, port int, isLoginInEnv bool) foreignPg {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	pullPgImage(t, dockerClient)
 
@@ -279,16 +277,16 @@ func requireNoPendingSecret(t *testing.T, env *TestEnvironment, entityId string)
 
 	ref := jobs.RegisteredPgPendingSecretRef(entityId)
 
-	_, err := env.Custom.Services.Secrets().Get(t.Context(), ref)
-	require.True(t, rerrors.Is(err, user_errors.ErrSecretNotFound), "pending secret must be gone, got %v", err)
+	_, isFound := env.lookupSecret(t, ref)
+	require.False(t, isFound, "pending secret %s must be gone", ref.String())
 }
 
-func requireNoPasswordInPayload(t *testing.T, task tasks_queries.VelezTask, passwords ...string) {
+func requireNoPasswordInPayload(
+	t *testing.T, env *TestEnvironment, resp *velez_api.RegisterContainer_Response, passwords ...string,
+) {
 	t.Helper()
 
-	require.True(t, task.Context.Valid, "task carries no context")
-
-	payload := string(task.Context.RawMessage)
+	payload := env.TaskContext(t, resp.GetEntityId(), resp.GetAction())
 
 	for _, password := range passwords {
 		require.NotContains(t, payload, password, "task payload must never carry the password")
@@ -304,7 +302,7 @@ func requireRegisterNothingChanged(
 ) {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	inspected, err := dockerClient.ContainerInspect(t.Context(), foreign.name)
 	require.NoError(t, err)
@@ -333,7 +331,7 @@ func Test_RegisterContainer_Pg_SingleMode_EnvCredentials(t *testing.T) {
 	containerName, serviceName := pgRegNames("single_env")
 
 	env := Planes[0].NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	foreign := startForeignPg(t, env, containerName, pgRegPortEnvSingle, true)
 
@@ -352,7 +350,7 @@ func Test_RegisterContainer_Pg_SingleMode_EnvCredentials(t *testing.T) {
 	resp := registerContainer(t, env, req)
 
 	task := awaitRegisterTask(t, env, resp)
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "register task error: %s", task.Error.String)
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "register task error: %s", task.GetError())
 
 	inspected, err := dockerClient.ContainerInspect(t.Context(), containerName)
 	require.NoError(t, err)
@@ -383,7 +381,7 @@ func Test_RegisterContainer_Pg_SingleMode_RequestCredentials(t *testing.T) {
 	containerName, serviceName := pgRegNames("single_req")
 
 	env := Planes[0].NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	foreign := startForeignPg(t, env, containerName, pgRegPortRequestSingle, false)
 
@@ -394,8 +392,8 @@ func Test_RegisterContainer_Pg_SingleMode_RequestCredentials(t *testing.T) {
 	resp := registerContainer(t, env, req)
 
 	task := awaitRegisterTask(t, env, resp)
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "register task error: %s", task.Error.String)
-	requireNoPasswordInPayload(t, task, pgRegPassword)
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "register task error: %s", task.GetError())
+	requireNoPasswordInPayload(t, env, resp, pgRegPassword)
 
 	inspected, err := dockerClient.ContainerInspect(t.Context(), containerName)
 	require.NoError(t, err)
@@ -429,9 +427,9 @@ func Test_RegisterContainer_Pg_LoginFailuresChangeNothing(t *testing.T) {
 		resp := registerContainer(t, env, req)
 
 		task := awaitRegisterTask(t, env, resp)
-		require.Equal(t, tasks_queries.VelezTaskStatusFAILED, task.Status)
-		require.Contains(t, task.Error.String, user_errors.ErrPgLoginFailed.Error())
-		requireNoPasswordInPayload(t, task, pgRegWrongPassword)
+		require.Equal(t, velez_api.TaskStatus_FAILED, task.GetStatus())
+		require.Contains(t, task.GetError(), user_errors.ErrPgLoginFailed.Error())
+		requireNoPasswordInPayload(t, env, resp, pgRegWrongPassword)
 
 		requireRegisterNothingChanged(t, env, foreign, serviceName, resp)
 	})
@@ -441,8 +439,8 @@ func Test_RegisterContainer_Pg_LoginFailuresChangeNothing(t *testing.T) {
 		resp := registerContainer(t, env, req)
 
 		task := awaitRegisterTask(t, env, resp)
-		require.Equal(t, tasks_queries.VelezTaskStatusFAILED, task.Status)
-		require.Contains(t, task.Error.String, user_errors.ErrPgCredentialsRequired.Error())
+		require.Equal(t, velez_api.TaskStatus_FAILED, task.GetStatus())
+		require.Contains(t, task.GetError(), user_errors.ErrPgCredentialsRequired.Error())
 
 		requireRegisterNothingChanged(t, env, foreign, serviceName, resp)
 	})
@@ -452,7 +450,7 @@ func Test_RegisterContainer_Pg_ClusterMode(t *testing.T) {
 	t.Parallel()
 
 	env, _ := enableStatefullPgUnderDind(t, Planes[1], registerClusterSuffix+"-pg")
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	t.Run("env credentials", func(t *testing.T) {
 		containerName, serviceName := pgRegNames("cluster_env")
@@ -466,8 +464,8 @@ func Test_RegisterContainer_Pg_ClusterMode(t *testing.T) {
 		resp := registerContainer(t, env, req)
 
 		task := awaitRegisterTask(t, env, resp)
-		require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "register task error: %s", task.Error.String)
-		requireNoPasswordInPayload(t, task, pgRegPassword)
+		require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "register task error: %s", task.GetError())
+		requireNoPasswordInPayload(t, env, resp, pgRegPassword)
 
 		requirePgClusterRegistered(t, env, dockerClient, foreign, serviceName, resp, pgRegPassword)
 	})
@@ -484,8 +482,8 @@ func Test_RegisterContainer_Pg_ClusterMode(t *testing.T) {
 		resp := registerContainer(t, env, req)
 
 		task := awaitRegisterTask(t, env, resp)
-		require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "register task error: %s", task.Error.String)
-		requireNoPasswordInPayload(t, task, pgRegPassword)
+		require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "register task error: %s", task.GetError())
+		requireNoPasswordInPayload(t, env, resp, pgRegPassword)
 
 		requirePgClusterRegistered(t, env, dockerClient, foreign, serviceName, resp, pgRegPassword)
 	})
@@ -511,13 +509,12 @@ func requirePgClusterRegistered(
 	require.NotNil(t, instance, "registered pg must be visible in ListPgInstances")
 	require.Equal(t, pgRegUser, instance.GetUsername())
 
-	secret, err := env.Custom.Services.Secrets().Get(t.Context(), pgRegSecretRef(serviceName))
-	require.NoError(t, err)
+	secret := env.SecretValue(t, pgRegSecretRef(serviceName))
 	require.Equal(t, wantPassword, secret)
 
 	credsReq := &velez_api.GetPgInstanceCredentials_Request{Name: serviceName}
 
-	creds, err := env.Custom.PgaasApiImpl.GetPgInstanceCredentials(t.Context(), credsReq)
+	creds, err := env.PgaasClient().GetPgInstanceCredentials(t.Context(), credsReq)
 	require.NoError(t, err)
 	require.Equal(t, wantPassword, creds.GetPassword())
 
@@ -545,7 +542,7 @@ func Test_ListContainers_SuggestedPattern(t *testing.T) {
 func startForeignPgWithoutPort(t *testing.T, env *TestEnvironment, name string) {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	pullPgImage(t, dockerClient)
 

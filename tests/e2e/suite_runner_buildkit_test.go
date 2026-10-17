@@ -16,6 +16,8 @@ import (
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/stretchr/testify/require"
 	"go.redsock.ru/toolbox"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/clients/node_clients/container_runtime"
@@ -23,7 +25,6 @@ import (
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/gitlab_runner_config"
 	"go.vervstack.ru/Velez/internal/jobs"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
@@ -41,9 +42,9 @@ func newSetRunnerBuildkitRequest(name string, isEnabled bool) *velez_api.SetRunn
 
 // nodeResolver is the resolver the product uses, built over the test node's daemon.
 func nodeResolver(env *TestEnvironment) container_runtime.RuntimeResolver {
-	docker := env.Custom.NodeClients.Docker()
+	dockerClient := env.DockerClient()
 
-	return container_runtime.NewResolver(docker.Client(), docker.Host(), nil, nil)
+	return container_runtime.NewResolver(dockerClient, dockerClient.DaemonHost(), nil, nil)
 }
 
 // execInDind runs the docker CLI inside the DinD container, against the daemon
@@ -52,7 +53,7 @@ func nodeResolver(env *TestEnvironment) container_runtime.RuntimeResolver {
 func execInDind(t *testing.T, env *TestEnvironment, dindName string, args ...string) (string, int) {
 	t.Helper()
 
-	nodeClient := env.Custom.NodeClients.Docker().Client()
+	nodeClient := env.DockerClient()
 
 	execOpts := container.ExecOptions{
 		Cmd:          append([]string{"docker"}, args...),
@@ -98,7 +99,7 @@ func innerDockerLines(t *testing.T, env *TestEnvironment, dindName string, args 
 func preloadBuildkitImage(t *testing.T, env *TestEnvironment, dindName string) {
 	t.Helper()
 
-	nodeClient := env.Custom.NodeClients.Docker().Client()
+	nodeClient := env.DockerClient()
 
 	ensureImagePresent(t, nodeClient, buildkitImage)
 
@@ -132,13 +133,11 @@ func preloadBuildkitImage(t *testing.T, env *TestEnvironment, dindName string) {
 func setRunnerBuildkitAndAwait(t *testing.T, env *TestEnvironment, runnerName string, isEnabled bool) {
 	t.Helper()
 
-	runnersClient := velez_api.NewRunnersAPIClient(env.grpcConn)
-
-	_, err := runnersClient.SetRunnerBuildkit(t.Context(), newSetRunnerBuildkitRequest(runnerName, isEnabled))
+	_, err := env.RunnersClient().SetRunnerBuildkit(t.Context(), newSetRunnerBuildkitRequest(runnerName, isEnabled))
 	require.NoError(t, err)
 
-	task := awaitJobTask(t, env, runnerName, jobs.SetRunnerBuildkitAction)
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "set runner buildkit task error: %s", task.Error.String)
+	task := env.AwaitTask(t, runnerName, jobs.SetRunnerBuildkitAction)
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "set runner buildkit task error: %s", task.GetError())
 }
 
 func logDindOnFailure(t *testing.T, env *TestEnvironment, dindName, runnerContainer string) {
@@ -313,7 +312,7 @@ func Test_RunnerBuildkit_NestedRuntime_TalksToInnerDaemon(t *testing.T) {
 func requireNetworkAbsentOnNode(t *testing.T, env *TestEnvironment, name string) {
 	t.Helper()
 
-	nodeClient := env.Custom.NodeClients.Docker().Client()
+	nodeClient := env.DockerClient()
 
 	_, err := nodeClient.NetworkInspect(context.Background(), name, network.InspectOptions{})
 	require.True(t, client.IsErrNotFound(err), "network %q must not exist on the node, got %v", name, err)
@@ -328,14 +327,17 @@ func Test_RunnerBuildkit_RunnerWithoutDind_IsRejected(t *testing.T) {
 func runRunnerBuildkitWithoutDind(t *testing.T, env *TestEnvironment, _ Plane) {
 	runnerContainer := createRunnerWithoutDind(t, env)
 
-	_, err := env.Custom.Services.Runners().SetRunnerBuildkit(t.Context(), runnerContainer, true)
-	require.ErrorIs(t, err, user_errors.ErrRunnerBuildkitRequiresDind)
+	req := newSetRunnerBuildkitRequest(runnerContainer, true)
+
+	_, err := env.RunnersClient().SetRunnerBuildkit(t.Context(), req)
+	require.Equal(t, codes.FailedPrecondition, status.Code(err))
+	require.Contains(t, status.Convert(err).Message(), user_errors.ErrRunnerBuildkitRequiresDind.Error())
 }
 
 func createRunnerWithoutDind(t *testing.T, env *TestEnvironment) string {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 	runnersClient := velez_api.NewRunnersAPIClient(env.grpcConn)
 
 	suffix := dindE2eName(t)
@@ -357,8 +359,8 @@ func createRunnerWithoutDind(t *testing.T, env *TestEnvironment) string {
 	created, err := runnersClient.CreateRunner(t.Context(), req)
 	require.NoError(t, err)
 
-	task := awaitJobTask(t, env, created.GetEntityId(), created.GetAction())
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "create runner task error: %s", task.Error.String)
+	task := env.AwaitTask(t, created.GetEntityId(), created.GetAction())
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "create runner task error: %s", task.GetError())
 
 	return runnerContainer
 }

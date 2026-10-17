@@ -7,7 +7,6 @@ import (
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/stretchr/testify/require"
-	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -16,8 +15,6 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/jobs"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
-	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
 const (
@@ -65,8 +62,8 @@ func requireNoPendingRunnerSecrets(t *testing.T, env *TestEnvironment, entityId 
 	}
 
 	for _, ref := range refs {
-		_, err := env.Custom.Services.Secrets().Get(t.Context(), ref)
-		require.True(t, rerrors.Is(err, user_errors.ErrSecretNotFound), "pending secret must be gone, got %v", err)
+		_, isFound := env.lookupSecret(t, ref)
+		require.False(t, isFound, "pending secret %s must be gone", ref.String())
 	}
 }
 
@@ -75,7 +72,7 @@ func requireRunnerListed(t *testing.T, env *TestEnvironment, serviceName string)
 
 	req := &velez_api.ListRunners_Request{Paging: &velez_api.Paging{Limit: runnerRegListLimit}}
 
-	resp, err := env.Custom.RunnersApiImpl.ListRunners(t.Context(), req)
+	resp, err := env.RunnersClient().ListRunners(t.Context(), req)
 	require.NoError(t, err)
 
 	for _, runner := range resp.GetRunners() {
@@ -94,7 +91,7 @@ func requireRunnerRegistrationToken(t *testing.T, env *TestEnvironment, serviceN
 
 	req := &velez_api.GetRunnerCredentials_Request{Name: serviceName}
 
-	creds, err := env.Custom.RunnersApiImpl.GetRunnerCredentials(t.Context(), req)
+	creds, err := env.RunnersClient().GetRunnerCredentials(t.Context(), req)
 	require.NoError(t, err)
 	require.Equal(t, runnerRegEnvToken, creds.GetToken())
 	require.Equal(t, runnerRegTarget, creds.GetTarget())
@@ -107,7 +104,7 @@ func Test_RegisterContainer_Runner_SingleMode(t *testing.T) {
 	containerName, serviceName := runnerRegNames("single")
 
 	env := Planes[0].NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	foreign := startForeignContainerWithEnv(t, env, containerName, false, runnerRegForeignEnv)
 
@@ -115,8 +112,8 @@ func Test_RegisterContainer_Runner_SingleMode(t *testing.T) {
 	resp := registerContainer(t, env, req)
 
 	task := awaitRegisterTask(t, env, resp)
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "register task error: %s", task.Error.String)
-	requireNoPasswordInPayload(t, task, runnerRegAccessToken, runnerRegEnvToken)
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "register task error: %s", task.GetError())
+	requireNoPasswordInPayload(t, env, resp, runnerRegAccessToken, runnerRegEnvToken)
 
 	inspected, err := dockerClient.ContainerInspect(t.Context(), containerName)
 	require.NoError(t, err)
@@ -146,7 +143,7 @@ func Test_RegisterContainer_Runner_ClusterMode(t *testing.T) {
 	containerName, serviceName := runnerRegNames("cluster")
 
 	env, _ := enableStatefullPgUnderDind(t, Planes[1], registerClusterSuffix+runnerRegClusterSufix)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	foreign := startForeignContainerWithEnv(t, env, containerName, true, runnerRegForeignEnv)
 
@@ -154,8 +151,8 @@ func Test_RegisterContainer_Runner_ClusterMode(t *testing.T) {
 	resp := registerContainer(t, env, req)
 
 	task := awaitRegisterTask(t, env, resp)
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "register task error: %s", task.Error.String)
-	requireNoPasswordInPayload(t, task, runnerRegAccessToken, runnerRegEnvToken)
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "register task error: %s", task.GetError())
+	requireNoPasswordInPayload(t, env, resp, runnerRegAccessToken, runnerRegEnvToken)
 
 	requireContainerUntouched(t, dockerClient, foreign)
 
@@ -166,8 +163,7 @@ func Test_RegisterContainer_Runner_ClusterMode(t *testing.T) {
 
 	requireRunnerRegistrationToken(t, env, serviceName)
 
-	accessToken, err := env.Custom.Services.Secrets().Get(t.Context(), domain.RunnerAccessTokenSecretRef(serviceName))
-	require.NoError(t, err)
+	accessToken := env.SecretValue(t, domain.RunnerAccessTokenSecretRef(serviceName))
 	require.Equal(t, runnerRegAccessToken, accessToken)
 
 	requireDeploymentRunning(t, env, serviceName)
@@ -185,7 +181,7 @@ func Test_RegisterContainer_Runner_SuggestsDefaultsFromContainer(t *testing.T) {
 
 	req := &velez_api.GetContainer_Request{Id: foreign.id}
 
-	got, err := env.Custom.ApiGrpcImpl.GetContainer(t.Context(), req)
+	got, err := env.VelezApiClient().GetContainer(t.Context(), req)
 	require.NoError(t, err)
 	require.Equal(t, velez_api.ServicePattern_SERVICE_PATTERN_GITHUB_RUNNER, got.GetSuggestedPattern())
 
@@ -197,7 +193,7 @@ func Test_RegisterContainer_Runner_SuggestsDefaultsFromContainer(t *testing.T) {
 
 	plain := startForeignContainer(t, env, containerName+"_plain", false)
 
-	plainGot, err := env.Custom.ApiGrpcImpl.GetContainer(t.Context(), &velez_api.GetContainer_Request{Id: plain.id})
+	plainGot, err := env.VelezApiClient().GetContainer(t.Context(), &velez_api.GetContainer_Request{Id: plain.id})
 	require.NoError(t, err)
 	require.Nil(t, plainGot.GetSuggestedRunnerDefaults())
 }
@@ -213,7 +209,7 @@ func Test_GetContainer_ReturnsPublishedPorts(t *testing.T) {
 
 	req := &velez_api.GetContainer_Request{Id: published.id}
 
-	got, err := env.Custom.ApiGrpcImpl.GetContainer(t.Context(), req)
+	got, err := env.VelezApiClient().GetContainer(t.Context(), req)
 	require.NoError(t, err)
 	require.Len(t, got.GetPorts(), 1)
 	require.Equal(t, uint32(80), got.GetPorts()[0].GetServicePortNumber())
@@ -225,7 +221,7 @@ func Test_GetContainer_ReturnsPublishedPorts(t *testing.T) {
 func startForeignRunnerImageContainer(t *testing.T, env *TestEnvironment, name string) foreignContainer {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	ensureImagePresent(t, dockerClient, NginxAlpineImage)
 

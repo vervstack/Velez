@@ -17,7 +17,6 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/stretchr/testify/require"
-	"go.redsock.ru/rerrors"
 	"go.redsock.ru/toolbox"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
@@ -27,7 +26,6 @@ import (
 	"go.vervstack.ru/Velez/internal/domain"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/jobs"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 	"go.vervstack.ru/Velez/internal/user_errors"
 )
 
@@ -109,7 +107,7 @@ func startForeignRegistry(
 ) foreignContainer {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	pullRegistryImage(t, dockerClient)
 
@@ -199,15 +197,15 @@ func requireNoPendingRegistrySecret(t *testing.T, env *TestEnvironment, entityId
 
 	ref := jobs.RegisteredRegistryPendingSecretRef(entityId)
 
-	_, err := env.Custom.Services.Secrets().Get(t.Context(), ref)
-	require.True(t, rerrors.Is(err, user_errors.ErrSecretNotFound), "pending secret must be gone, got %v", err)
+	_, isFound := env.lookupSecret(t, ref)
+	require.False(t, isFound, "pending secret %s must be gone", ref.String())
 }
 
 func requireNoRegistrySecret(t *testing.T, env *TestEnvironment, serviceName string) {
 	t.Helper()
 
-	_, err := env.Custom.Services.Secrets().Get(t.Context(), registryRegSecretRef(serviceName))
-	require.True(t, rerrors.Is(err, user_errors.ErrSecretNotFound), "registry secret must not exist, got %v", err)
+	_, isFound := env.lookupSecret(t, registryRegSecretRef(serviceName))
+	require.False(t, isFound, "registry secret must not exist")
 }
 
 func requireRegistryRegisterNothingChanged(
@@ -219,7 +217,7 @@ func requireRegistryRegisterNothingChanged(
 ) {
 	t.Helper()
 
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	inspected, err := dockerClient.ContainerInspect(t.Context(), foreign.name)
 	require.NoError(t, err)
@@ -256,9 +254,9 @@ func Test_RegisterContainer_Registry_LoginFailuresChangeNothing(t *testing.T) {
 		resp := registerContainer(t, env, req)
 
 		task := awaitRegisterTask(t, env, resp)
-		require.Equal(t, tasks_queries.VelezTaskStatusFAILED, task.Status)
-		require.Contains(t, task.Error.String, user_errors.ErrRegistryLoginFailed.Error())
-		requireNoPasswordInPayload(t, task, registryRegWrongPassword)
+		require.Equal(t, velez_api.TaskStatus_FAILED, task.GetStatus())
+		require.Contains(t, task.GetError(), user_errors.ErrRegistryLoginFailed.Error())
+		requireNoPasswordInPayload(t, env, resp, registryRegWrongPassword)
 
 		requireRegistryRegisterNothingChanged(t, env, foreign, serviceName, resp)
 	})
@@ -267,8 +265,8 @@ func Test_RegisterContainer_Registry_LoginFailuresChangeNothing(t *testing.T) {
 		resp := registerContainer(t, env, newRegistryRegisterRequest(foreign.id, serviceName, nil, nil))
 
 		task := awaitRegisterTask(t, env, resp)
-		require.Equal(t, tasks_queries.VelezTaskStatusFAILED, task.Status)
-		require.Contains(t, task.Error.String, user_errors.ErrRegistryCredentialsRequired.Error())
+		require.Equal(t, velez_api.TaskStatus_FAILED, task.GetStatus())
+		require.Contains(t, task.GetError(), user_errors.ErrRegistryCredentialsRequired.Error())
 
 		requireRegistryRegisterNothingChanged(t, env, foreign, serviceName, resp)
 	})
@@ -280,7 +278,7 @@ func Test_RegisterContainer_Registry_SingleMode(t *testing.T) {
 	containerName, serviceName := registryRegNames("single")
 
 	env := Planes[0].NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	foreign := startForeignRegistry(t, env, containerName, registryRegPortSingle, true)
 
@@ -291,8 +289,8 @@ func Test_RegisterContainer_Registry_SingleMode(t *testing.T) {
 	resp := registerContainer(t, env, req)
 
 	task := awaitRegisterTask(t, env, resp)
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "register task error: %s", task.Error.String)
-	requireNoPasswordInPayload(t, task, registryRegPassword)
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "register task error: %s", task.GetError())
+	requireNoPasswordInPayload(t, env, resp, registryRegPassword)
 
 	inspected, err := dockerClient.ContainerInspect(t.Context(), containerName)
 	require.NoError(t, err)
@@ -310,8 +308,7 @@ func Test_RegisterContainer_Registry_SingleMode(t *testing.T) {
 	require.Equal(t, registryRegUser, instance.GetUsername())
 	require.EqualValues(t, registryRegPortSingle, instance.GetPort())
 
-	secret, err := env.Custom.Services.Secrets().Get(t.Context(), registryRegSecretRef(serviceName))
-	require.NoError(t, err)
+	secret := env.SecretValue(t, registryRegSecretRef(serviceName))
 	require.Equal(t, registryRegPassword, secret)
 
 	requireNoPendingRegistrySecret(t, env, resp.GetEntityId())
@@ -323,14 +320,14 @@ func Test_RegisterContainer_Registry_SingleMode_NoAuthNeedsNoCredentials(t *test
 	containerName, serviceName := registryRegNames("noauth")
 
 	env := Planes[0].NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	foreign := startForeignRegistry(t, env, containerName, 0, false)
 
 	resp := registerContainer(t, env, newRegistryRegisterRequest(foreign.id, serviceName, nil, nil))
 
 	task := awaitRegisterTask(t, env, resp)
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "register task error: %s", task.Error.String)
+	require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "register task error: %s", task.GetError())
 
 	inspected, err := dockerClient.ContainerInspect(t.Context(), containerName)
 	require.NoError(t, err)
@@ -361,8 +358,8 @@ func Test_RegisterContainer_Registry_ClusterMode(t *testing.T) {
 		resp := registerContainer(t, env, req)
 
 		task := awaitRegisterTask(t, env, resp)
-		require.Equal(t, tasks_queries.VelezTaskStatusFAILED, task.Status)
-		require.Contains(t, task.Error.String, user_errors.ErrRegistryLoginFailed.Error())
+		require.Equal(t, velez_api.TaskStatus_FAILED, task.GetStatus())
+		require.Contains(t, task.GetError(), user_errors.ErrRegistryLoginFailed.Error())
 
 		requireRegistryRegisterNothingChanged(t, env, foreign, serviceName, resp)
 	})
@@ -377,10 +374,10 @@ func Test_RegisterContainer_Registry_ClusterMode(t *testing.T) {
 		resp := registerContainer(t, env, req)
 
 		task := awaitRegisterTask(t, env, resp)
-		require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "register task error: %s", task.Error.String)
-		requireNoPasswordInPayload(t, task, registryRegPassword)
+		require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "register task error: %s", task.GetError())
+		requireNoPasswordInPayload(t, env, resp, registryRegPassword)
 
-		requireContainerUntouched(t, env.Custom.NodeClients.Docker().Client(), foreign)
+		requireContainerUntouched(t, env.DockerClient(), foreign)
 		requireDeploymentRunning(t, env, serviceName)
 
 		instance := findRegistryInstance(t, env, serviceName)
@@ -388,8 +385,7 @@ func Test_RegisterContainer_Registry_ClusterMode(t *testing.T) {
 		require.Equal(t, registryRegUser, instance.GetUsername())
 		require.EqualValues(t, registryRegPortCluster, instance.GetPort())
 
-		secret, err := env.Custom.Services.Secrets().Get(t.Context(), registryRegSecretRef(serviceName))
-		require.NoError(t, err)
+		secret := env.SecretValue(t, registryRegSecretRef(serviceName))
 		require.Equal(t, registryRegPassword, secret)
 
 		requireNoPendingRegistrySecret(t, env, resp.GetEntityId())
@@ -403,9 +399,9 @@ func Test_RegisterContainer_Registry_ClusterMode(t *testing.T) {
 		resp := registerContainer(t, env, newRegistryRegisterRequest(foreign.id, serviceName, nil, nil))
 
 		task := awaitRegisterTask(t, env, resp)
-		require.Equal(t, tasks_queries.VelezTaskStatusDONE, task.Status, "register task error: %s", task.Error.String)
+		require.Equal(t, velez_api.TaskStatus_DONE, task.GetStatus(), "register task error: %s", task.GetError())
 
-		requireContainerUntouched(t, env.Custom.NodeClients.Docker().Client(), foreign)
+		requireContainerUntouched(t, env.DockerClient(), foreign)
 
 		instance := findRegistryInstance(t, env, serviceName)
 		require.NotNil(t, instance)
@@ -427,7 +423,7 @@ func Test_RegisterContainer_PendingSecretsDroppedWhenTaskFails(t *testing.T) {
 	resp := registerContainer(t, env, req)
 
 	task := awaitRegisterTask(t, env, resp)
-	require.Equal(t, tasks_queries.VelezTaskStatusFAILED, task.Status)
+	require.Equal(t, velez_api.TaskStatus_FAILED, task.GetStatus())
 
 	requireNoPendingRegistrySecret(t, env, resp.GetEntityId())
 }

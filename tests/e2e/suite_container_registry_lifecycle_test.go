@@ -6,7 +6,6 @@ import (
 	"context"
 	"sync"
 	"testing"
-	"time"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
@@ -16,7 +15,6 @@ import (
 	"go.vervstack.ru/Velez/internal/api/server/velez_api"
 	"go.vervstack.ru/Velez/internal/domain/labels"
 	"go.vervstack.ru/Velez/internal/jobs"
-	"go.vervstack.ru/Velez/internal/storage/postgres/generated/tasks_queries"
 )
 
 const (
@@ -31,11 +29,6 @@ const (
 
 	containerRegistryCollisionInstanceNameA = "e2e-cr-collision-a"
 	containerRegistryCollisionInstanceNameB = "e2e-cr-collision-b"
-
-	// containerRegistryTaskTimeout bounds each task watch: a cold pull of
-	// registry:2 and the UI image must fit, but a task that never reaches a
-	// terminal state fails the test instead of hanging it.
-	containerRegistryTaskTimeout = 5 * time.Minute
 )
 
 // ContainerRegistryLifecycleSuite exercises Container-Registry-as-a-Service
@@ -72,14 +65,14 @@ func (s *ContainerRegistryLifecycleSuite) Test_ContainerRegistryLifecycle_HappyP
 	ctx := t.Context()
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	removeContainerRegistryInstance(dockerClient, containerRegistryLifecycleInstanceName)
 	t.Cleanup(func() { removeContainerRegistryInstance(dockerClient, containerRegistryLifecycleInstanceName) })
 
 	createReq := newCreateRegistryInstanceRequest(containerRegistryLifecycleInstanceName, false)
 
-	_, err := env.Custom.ContainerRegistryApiImpl.CreateRegistryInstance(ctx, createReq)
+	_, err := env.ContainerRegistryClient().CreateRegistryInstance(ctx, createReq)
 	require.NoError(t, err)
 
 	waitForRegistryInstanceDeploy(t, env, containerRegistryLifecycleInstanceName, false)
@@ -94,7 +87,7 @@ func (s *ContainerRegistryLifecycleSuite) Test_ContainerRegistryLifecycle_HappyP
 
 	credsReq := &velez_api.GetRegistryInstanceCredentials_Request{Name: registryServiceName(containerRegistryLifecycleInstanceName)}
 
-	credsResp, err := env.Custom.ContainerRegistryApiImpl.GetRegistryInstanceCredentials(ctx, credsReq)
+	credsResp, err := env.ContainerRegistryClient().GetRegistryInstanceCredentials(ctx, credsReq)
 	require.NoError(t, err)
 	require.Equal(t, instance.GetUsername(), credsResp.GetUsername())
 	require.NotEmpty(t, credsResp.GetPassword())
@@ -121,7 +114,7 @@ func (s *ContainerRegistryLifecycleSuite) Test_ContainerRegistryLifecycle_TwoIns
 	ctx := t.Context()
 
 	env := s.plane.NewEnvironment(t)
-	dockerClient := env.Custom.NodeClients.Docker().Client()
+	dockerClient := env.DockerClient()
 
 	names := []string{containerRegistryCollisionInstanceNameA, containerRegistryCollisionInstanceNameB}
 	for _, name := range names {
@@ -140,7 +133,7 @@ func (s *ContainerRegistryLifecycleSuite) Test_ContainerRegistryLifecycle_TwoIns
 			defer wg.Done()
 
 			createReq := newCreateRegistryInstanceRequest(name, true)
-			_, createErr := env.Custom.ContainerRegistryApiImpl.CreateRegistryInstance(ctx, createReq)
+			_, createErr := env.ContainerRegistryClient().CreateRegistryInstance(ctx, createReq)
 
 			errs[i] = createErr
 		}(i, name)
@@ -202,7 +195,7 @@ func findRegistryInstance(t *testing.T, env *TestEnvironment, name string) *vele
 
 	listReq := &velez_api.ListRegistryInstances_Request{}
 
-	listResp, err := env.Custom.ContainerRegistryApiImpl.ListRegistryInstances(t.Context(), listReq)
+	listResp, err := env.ContainerRegistryClient().ListRegistryInstances(t.Context(), listReq)
 	require.NoError(t, err)
 
 	for _, instance := range listResp.GetInstances() {
@@ -221,22 +214,15 @@ func dropRegistryInstanceAndAwait(t *testing.T, env *TestEnvironment, serviceNam
 
 	dropReq := &velez_api.DropRegistryInstance_Request{Name: serviceName}
 
-	dropResp, err := env.Custom.ContainerRegistryApiImpl.DropRegistryInstance(t.Context(), dropReq)
+	dropResp, err := env.ContainerRegistryClient().DropRegistryInstance(t.Context(), dropReq)
 	require.NoError(t, err)
 	require.Equal(t, serviceName, dropResp.GetEntityId())
 	require.Equal(t, jobs.DropRegistryInstanceAction, dropResp.GetAction())
 
-	ctx, cancel := context.WithTimeout(t.Context(), containerRegistryTaskTimeout)
-	defer cancel()
+	dropTask := env.AwaitTask(t, dropResp.GetEntityId(), dropResp.GetAction())
 
-	var dropTask tasks_queries.VelezTask
-
-	for task := range env.Custom.JobsEngine.Watch(ctx, dropResp.GetEntityId(), dropResp.GetAction()) {
-		dropTask = task
-	}
-
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, dropTask.Status,
-		"drop_registry_instance task for %q error: %s", serviceName, dropTask.Error.String)
+	require.Equal(t, velez_api.TaskStatus_DONE, dropTask.GetStatus(),
+		"drop_registry_instance task for %q error: %s", serviceName, dropTask.GetError())
 }
 
 // waitForRegistryInstanceDeploy first watches the create_registry_instance
@@ -249,30 +235,19 @@ func dropRegistryInstanceAndAwait(t *testing.T, env *TestEnvironment, serviceNam
 func waitForRegistryInstanceDeploy(t *testing.T, env *TestEnvironment, instanceName string, enableUi bool) {
 	t.Helper()
 
-	ctx, cancel := context.WithTimeout(t.Context(), containerRegistryTaskTimeout)
-	defer cancel()
-
 	serviceName := registryServiceName(instanceName)
 
-	var instanceTask tasks_queries.VelezTask
+	instanceTask := env.AwaitTask(t, instanceName, jobs.CreateRegistryInstanceAction)
 
-	for task := range env.Custom.JobsEngine.Watch(ctx, instanceName, jobs.CreateRegistryInstanceAction) {
-		instanceTask = task
-	}
-
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, instanceTask.Status,
-		"create_registry_instance task for instance %q error: %s", instanceName, instanceTask.Error.String)
+	require.Equal(t, velez_api.TaskStatus_DONE, instanceTask.GetStatus(),
+		"create_registry_instance task for instance %q error: %s", instanceName, instanceTask.GetError())
 
 	registryEntityID := jobs.SmerdEntityID("", serviceName)
 
-	var registryTask tasks_queries.VelezTask
+	registryTask := env.AwaitTask(t, registryEntityID, jobs.CreateSmerdAction)
 
-	for task := range env.Custom.JobsEngine.Watch(ctx, registryEntityID, jobs.CreateSmerdAction) {
-		registryTask = task
-	}
-
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, registryTask.Status,
-		"create_smerd task for registry instance %q error: %s", serviceName, registryTask.Error.String)
+	require.Equal(t, velez_api.TaskStatus_DONE, registryTask.GetStatus(),
+		"create_smerd task for registry instance %q error: %s", serviceName, registryTask.GetError())
 
 	if !enableUi {
 		return
@@ -280,14 +255,10 @@ func waitForRegistryInstanceDeploy(t *testing.T, env *TestEnvironment, instanceN
 
 	uiEntityID := jobs.SmerdEntityID("", serviceName+"-ui")
 
-	var uiTask tasks_queries.VelezTask
+	uiTask := env.AwaitTask(t, uiEntityID, jobs.CreateSmerdAction)
 
-	for task := range env.Custom.JobsEngine.Watch(ctx, uiEntityID, jobs.CreateSmerdAction) {
-		uiTask = task
-	}
-
-	require.Equal(t, tasks_queries.VelezTaskStatusDONE, uiTask.Status,
-		"create_smerd task for registry ui sidecar %q error: %s", serviceName+"-ui", uiTask.Error.String)
+	require.Equal(t, velez_api.TaskStatus_DONE, uiTask.GetStatus(),
+		"create_smerd task for registry ui sidecar %q error: %s", serviceName+"-ui", uiTask.GetError())
 }
 
 // removeContainerRegistryInstance force-removes the registry container, its UI

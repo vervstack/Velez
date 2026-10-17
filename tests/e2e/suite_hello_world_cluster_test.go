@@ -149,7 +149,7 @@ func (s *HelloWorldClusterSuite) _waitForApp(ctx context.Context, t *testing.T, 
 			return false
 		}
 
-		resp, err := http.DefaultClient.Do(req)
+		resp, err := dindHttpClient().Do(req)
 		if err != nil {
 			return false
 		}
@@ -170,7 +170,7 @@ func (s *HelloWorldClusterSuite) _setKey(ctx context.Context, t *testing.T, base
 	require.NoError(t, err)
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := dindHttpClient().Do(req)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = resp.Body.Close() })
 	require.Equal(t, http.StatusOK, resp.StatusCode)
@@ -190,7 +190,7 @@ func (s *HelloWorldClusterSuite) _assertGetKey(
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, baseURL+"/api/get/"+key, nil)
 	require.NoError(t, err)
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := dindHttpClient().Do(req)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = resp.Body.Close() })
 
